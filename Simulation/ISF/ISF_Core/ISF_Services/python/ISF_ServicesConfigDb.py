@@ -15,6 +15,7 @@ addService("ISF_Services.ISF_ServicesConfig.getAFIIGeoIDSvc", "ISF_AFIIGeoIDSvc"
 addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvc", "ISF_ParticleBrokerSvc")
 addService("ISF_Services.ISF_ServicesConfig.getParticleBrokerSvcNoOrdering", "ISF_ParticleBrokerSvcNoOrdering")
 addService("ISF_Services.ISF_ServicesConfig.getAFIIParticleBrokerSvc", "ISF_AFIIParticleBrokerSvc")
+addService("ISF_Services.ISF_ServicesConfig.getAFIIEnergyOrderedParticleBrokerSvc", "ISF_AFIIEnergyOrderedParticleBrokerSvc")
 addService("ISF_Services.ISF_ServicesConfig.getInputConverter", "ISF_InputConverter")
 addService("ISF_Services.ISF_ServicesConfig.getLongLivedInputConverter", "ISF_LongLivedInputConverter")
 addService("ISF_Services.ISF_ServicesConfig.getTruthService", "ISF_TruthService")

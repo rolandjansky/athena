@@ -17,7 +17,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 from PyJobTransforms.trfExitCodes import trfExit
 
 #create option dict needed by athenaHLT from runargs
-def getOption(runArgs,name, substep, first, output):
+def getOption(runArgs, name, substep, first, output):
 
     # Dictionary to be filled to run athenaHLT from
     option = {}
@@ -98,5 +98,10 @@ def getTranslated(runArgs,name,substep,first,output):
             v=''.join(v) 
         optionList.append(item.format(k,v))
 
+    # Replace --use-database=True with no argument version
+    if '--use-database=True' in optionList:
+        optionList.remove('--use-database=True')
+        optionList.append('--use-database')
+        
     return optionList
 

@@ -19,7 +19,7 @@ import xmlrpclib
 from PyCool import cool
 dbSvc = cool.DatabaseSvcFactory.databaseService()
 
-from .AtlRunQuerySelectorBase import DataKey
+from CoolRunQuery.AtlRunQuerySelectorBase import DataKey
 
 THIRTYTWOMASK=int(2**32-1)
 SERVER='http://atlasdqm.cern.ch:8080'

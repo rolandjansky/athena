@@ -61,8 +61,8 @@ public:
   }
 
   //constructor
-  float32fixed<T>(const float32fixed<T>&) = default;
-  float32fixed<T>(float32fixed<T>&&) = default;
+  float32fixed(const float32fixed<T>&) = default;
+  float32fixed(float32fixed<T>&&) = default;
 
   // assignment
   float32fixed<T>& operator=(const float32fixed<T> &other) = default;

@@ -204,7 +204,9 @@ StatusCode ISF::SimKernelMT::execute() {
       particleQueue.pop();
 
       // Get the geo ID for the particle
-      m_geoIDSvc->identifyAndRegNextGeoID(curParticle);
+      if ( m_forceGeoIDSvc || !validAtlasRegion( curParticle.nextGeoID() ) ) {
+        m_geoIDSvc->identifyAndRegNextGeoID( curParticle );
+      }
 
       // Get the simulator using the GeoID
       auto& simTool = identifySimulator(curParticle);
@@ -240,7 +242,12 @@ StatusCode ISF::SimKernelMT::execute() {
     ATH_MSG_VERBOSE(lastSimulator->name() << " returned " << newSecondaries.size() << " new particles to be added to the queue." );
     // Register returned particles with the entry layer tool, set their order and enqueue them
     for ( auto* secondary : newSecondaries ) {
+
+      // Set up particle in ISF
       m_entryLayerTool->registerParticle( *secondary );
+      if ( m_forceGeoIDSvc || !validAtlasRegion( secondary->nextGeoID() ) ) {
+        m_geoIDSvc->identifyAndRegNextGeoID( *secondary );
+      }
 
       if ( m_orderingTool.empty() ) {
         // Without a defined ordering, preserve old FIFO behaviour

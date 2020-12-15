@@ -237,8 +237,6 @@ def addDebugArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
     parser.defineArgGroup('Debug', 'Specific options related to the trigger debug recovery')
 
-    parser.add_argument('--debug_stream', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
-                        help='Runs debug_stream analysis', group='Debug')
     parser.add_argument('--outputHIST_DEBUGSTREAMMONFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='Output DEBUGSTREAMMON file', group='Debug')    

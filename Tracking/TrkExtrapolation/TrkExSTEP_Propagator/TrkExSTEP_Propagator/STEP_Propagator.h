@@ -442,7 +442,7 @@ namespace Trk {
                      double& h,
                      double* P,
                      double* dDir,
-                     float*  BG1,
+                     double*  BG1,
                      bool&   firstStep,
                      double& distanceStepped) const;
 
@@ -456,7 +456,7 @@ namespace Trk {
     getMagneticField(Cache& cache,
                      const Amg::Vector3D&  position,
                      bool            getGradients,
-                     float*          BG) const;
+                     double*          BG) const;
 
 
     /////////////////////////////////////////////////////////////////////////////////

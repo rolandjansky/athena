@@ -43,22 +43,22 @@ class GenParticleJet
 
   double getEnergy() const {return m_energy;}
   
-  const HepMC::GenParticle* getParticle (unsigned int i) const
+  HepMC::ConstGenParticlePtr getParticle (unsigned int i) const
     {
       return m_particles.at(i);
     }
-  std::pair<const HepMC::GenParticle*,int> getIndexedParticle(unsigned int i)
+  std::pair<HepMC::ConstGenParticlePtr,int> getIndexedParticle(unsigned int i)
     {
       return std::make_pair(m_particles.at(i),m_indices.at(i));
     }
   
-  std::vector<const HepMC::GenParticle* > getParticles() const {return m_particles;}
+  std::vector<HepMC::ConstGenParticlePtr > getParticles() const {return m_particles;}
 
   std::vector<int> getIndicesInEvent() const {return m_indices;}
 
   int getNumParticles() const {return m_particles.size();}
   
-  void addParticle(const HepMC::GenParticle* part,
+  void addParticle(HepMC::ConstGenParticlePtr part,
                    int indexInEvent = -1 ){
     m_particles.push_back(part);
     m_indices.push_back(indexInEvent);
@@ -81,7 +81,7 @@ class GenParticleJet
   
 
  private:
-  std::vector<const HepMC::GenParticle* > m_particles;
+  std::vector<HepMC::ConstGenParticlePtr > m_particles;
   std::vector< int > m_indices;
   double m_energy;
   HepGeom::Vector3D<double>  m_momentum;

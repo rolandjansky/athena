@@ -6,8 +6,8 @@
 
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
-MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthAlgorithm(name, pSvcLocator) {
+MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode

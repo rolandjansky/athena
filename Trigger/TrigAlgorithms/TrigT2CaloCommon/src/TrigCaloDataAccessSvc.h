@@ -18,7 +18,7 @@
 #include "TileEvent/TileL2Container.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "IRegionSelector/IRoiDescriptor.h"
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigT2CaloCommon/ITrigCaloDataAccessSvc.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -64,7 +64,11 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
   ToolHandle<GenericMonitoringTool> m_monTool{ this, "MonTool", "", "Tool to monitor performance of the service" };
 
   ServiceHandle<IROBDataProviderSvc>  m_robDataProvider{ this, "ROBDataProvider", "ROBDataProviderSvc/ROBDataProviderSvc", ""};
-  ServiceHandle<IRegSelSvc>         m_regionSelector{ this, "RegionSelector", "RegSelSvc/RegSelSvc", ""};
+  ToolHandle<IRegSelTool>           m_regionSelector_TTEM  { this, "RegSelToolEM",  "RegSelTool/RegSelTool_TTEM" };
+  ToolHandle<IRegSelTool>           m_regionSelector_TTHEC  { this, "RegSelToolHEC",  "RegSelTool/RegSelTool_TTHEC" };
+  ToolHandle<IRegSelTool>           m_regionSelector_FCALEM  { this, "RegSelToolFCALEM",  "RegSelTool/RegSelTool_FCALEM" };
+  ToolHandle<IRegSelTool>           m_regionSelector_FCALHAD  { this, "RegSelToolFCALHAD",  "RegSelTool/RegSelTool_FCALHAD" };
+  ToolHandle<IRegSelTool>           m_regionSelector_TILE  { this, "RegSelToolTILE",  "RegSelTool/RegSelTool_TILE" };
   
   Gaudi::Property<bool> m_applyOffsetCorrection { this, "ApplyOffsetCorrection", true, "Enable offset correction" };
 
@@ -151,8 +155,7 @@ class TrigCaloDataAccessSvc : public extends<AthService, ITrigCaloDataAccessSvc>
 				DETID detector );
 
   unsigned int prepareTileCollections( const EventContext& context,
-				const IRoiDescriptor& roi, 
-				DETID detector );
+				const IRoiDescriptor& roi );
 
   unsigned int prepareMBTSCollections( const EventContext& context );
 

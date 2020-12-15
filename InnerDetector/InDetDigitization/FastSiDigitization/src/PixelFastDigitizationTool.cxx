@@ -817,9 +817,13 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
         //           clusterPosition = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixel_ID->wafer_hash(hitSiDetElement->identify()), clusterPosition, localDirection);
 
         // from InDetReadoutGeometry: width from eta
-        double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+        auto pixModDesign = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
+        if (!pixModDesign) {
+          return StatusCode::FAILURE;
+        }
+        double etaWidth = pixModDesign->widthFromColumnRange(etaIndexMin, etaIndexMax);
         // from InDetReadoutGeometry : width from phi
-        double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+        double phiWidth = pixModDesign->widthFromRowRange(phiIndexMin, phiIndexMax);
 
         InDet::SiWidth siWidth(Amg::Vector2D(siDeltaPhiCut,siDeltaEtaCut),
                                Amg::Vector2D(phiWidth,etaWidth));
