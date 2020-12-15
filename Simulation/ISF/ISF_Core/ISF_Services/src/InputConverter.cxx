@@ -409,6 +409,21 @@ const G4ParticleDefinition* ISF::InputConverter::getG4ParticleDefinition(int pdg
   return nullptr;
 }
 
+double SetProperTimeFromDetectorFrameDecayLength(G4PrimaryParticle& g4particle,const double GeneratorDecayLength) 
+{
+  //particle with velocity v travels distance l in time t=l/v
+  //proper time: c^2 tau^2 = c^2 t^2 - l^2 = l^2/c^2 * (1/beta^2 -1)
+  //beta^2 = p^2/E^2 with particle momentum p and energy E; E^2=m^2 + p^2
+  //tau^2 = l^2/c^2 * m^2/p^2
+  const double p2=std::pow(g4particle.GetTotalMomentum(),2); //magnitude of particle momentum squared
+  const double m2=std::pow(g4particle.GetMass(),2);          //mass^2 of particle
+  const double l2=std::pow(GeneratorDecayLength,2);          //distance^2 of particle decay length
+  const double tau2=l2*m2/p2/CLHEP::c_squared;
+  const double tau=std::sqrt(tau2);
+  g4particle.SetProperTime( tau );
+  return tau;
+}
+
 //________________________________________________________________________
 G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenParticle& genpart) const
 {
@@ -444,13 +459,17 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
     //g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
 
     CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
-    double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
-    pmag2*=pmag2;                                //magnitude of particle momentum squared
-    double e2=g4particle->GetTotalEnergy();      //energy of particle
-    e2*=e2;                                      //energy of particle squared
-    double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
-    double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
-    g4particle->SetProperTime( std::sqrt(tau2) );
+    double tau=SetProperTimeFromDetectorFrameDecayLength(*g4particle,dist3D.mag());
+
+    if(msgLvl(MSG::VERBOSE)) {
+      double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
+      pmag2*=pmag2;                                //magnitude of particle momentum squared
+      double e2=g4particle->GetTotalEnergy();      //energy of particle
+      e2*=e2;                                      //energy of particle squared
+      double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
+      double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
+      ATH_MSG_VERBOSE("lifetime tau(beta)="<<std::sqrt(tau2)<<" tau="<<tau);
+    }  
 
     if(m_quasiStableParticlesIncluded) {
       ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
@@ -557,18 +576,19 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       const auto& endVtx = genpart->end_vertex()->position();
       
       CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
+      double tau=SetProperTimeFromDetectorFrameDecayLength(*g4particle,dist3D.mag());
       
-      double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
-      pmag2*=pmag2;                                //magnitude of particle momentum squared
-      double e2=g4particle->GetTotalEnergy();      //energy of particle
-      e2*=e2;                                      //energy of particle squared
-      double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
-      
-      double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
-
-      g4particle->SetProperTime( std::sqrt(tau2) );
-
       if(msgLvl(MSG::VERBOSE)) {
+        double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
+        pmag2*=pmag2;                                //magnitude of particle momentum squared
+        double e2=g4particle->GetTotalEnergy();      //energy of particle
+        e2*=e2;                                      //energy^2 of particle
+        double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
+        double mass2=g4particle->GetMass();          //mass of particle
+        mass2*=mass2;                          //mass^2 of particle
+        
+        double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_squared;
+
         const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
         const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
         //Old calculation, not taken because vertex information is not sufficiently precise
@@ -579,7 +599,7 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
         G4LorentzVector fourmom(g4particle->GetMomentum(),g4particle->GetTotalEnergy());
         //double tau2=dist3D.mag2()*(1/(fourmom.beta()*fourmom.beta())-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
         
-        ATH_MSG_VERBOSE( "gammaVertex="<<dist4D.gamma()<<" gammamom="<<fourmom.gamma()<<" gamma(beta)="<<1/std::sqrt(1-beta2)<<" lifetime tau="<<std::sqrt(tau2));
+        ATH_MSG_VERBOSE( "gammaVertex="<<dist4D.gamma()<<" gammamom="<<fourmom.gamma()<<" gamma(beta)="<<1/std::sqrt(1-beta2)<<" lifetime tau(beta)="<<std::sqrt(tau2)<<" lifetime tau="<<tau);
       }
       
       if(m_quasiStableParticlesIncluded) {
