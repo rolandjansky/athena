@@ -58,6 +58,13 @@ namespace Muon {
   }
 
   StatusCode MuPatCandidateTool::finalize() {
+
+    // Clean up all garbage now.
+    // If we leave it for the dtor, we may end up with dangling references
+    // to Surface objects that have already been deleted.
+    for (CacheEntry& ent : m_cache) {
+      ent.cleanUp();
+    }
     return StatusCode::SUCCESS;
   }
 
