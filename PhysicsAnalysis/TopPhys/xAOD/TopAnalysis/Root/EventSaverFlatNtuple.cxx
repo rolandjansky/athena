@@ -12,6 +12,7 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODBTagging/BTaggingUtilities.h"
 
+#include "AthContainers/tools/AtomicConstAccessor.h"
 #include "AthContainers/AuxTypeRegistry.h"
 
 #include "TFile.h"
@@ -2209,7 +2210,8 @@ namespace top {
 
     // (non-collision-)background flags
     m_backgroundFlags = 0;
-    if (event.m_info->isAvailable<unsigned int>("backgroundFlags")) m_backgroundFlags = event.m_info->auxdataConst<unsigned int>("backgroundFlags");
+    static const SG::AtomicConstAccessor<unsigned int> bkgFlagsAcc("backgroundFlags");
+    if (bkgFlagsAcc.isAvailable(*(event.m_info))) m_backgroundFlags = bkgFlagsAcc(*(event.m_info));
 
     // hasBadMuon flag
     m_hasBadMuon = 0;
