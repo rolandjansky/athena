@@ -10,6 +10,7 @@
 #include <dqm_algorithms/Chi2Test.h>
 #include <dqm_algorithms/tools/AlgorithmHelper.h>
 #include <TH1.h>
+#include <TEfficiency.h>
 #include <TF1.h>
 #include <TClass.h>
 #include <ers/ers.h>
@@ -42,26 +43,49 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
 					const TObject & object, 
 					const dqm_core::AlgorithmConfig & config )
 {
-  const TH1 * histogram;
-  
+  const TH1* histogram = 0;
+  const TEfficiency* efficiency = 0;
+  TH1* passed_histogram = 0;
+  TH1* total_histogram = 0; 
+
   if(object.IsA()->InheritsFrom( "TH1" )) {
     histogram = static_cast<const TH1*>( &object );
     if (histogram->GetDimension() > 2 ){ 
       throw dqm_core::BadConfig( ERS_HERE, name, "dimension > 2 " );
     }
+  } else if(object.IsA()->InheritsFrom( "TEfficiency" )) { 
+    // get the histograms from TEfficiency object to perform Chi2Test
+    efficiency = static_cast<const TEfficiency*>( &object);
+     if (efficiency->GetDimension() > 2 ){
+        throw dqm_core::BadConfig( ERS_HERE, name, "dimension > 2 " );
+    }
+
+    passed_histogram = efficiency->GetCopyPassedHisto();
+    total_histogram = efficiency->GetCopyTotalHisto();
+    passed_histogram->Divide(total_histogram);
+
   } else {
-    throw dqm_core::BadConfig( ERS_HERE, name, "does not inherit from TH1" );
+    throw dqm_core::BadConfig( ERS_HERE, name, "does not inherit from TH1 or TEfficiency");
   }
   
   const double minstat = dqm_algorithms::tools::GetFirstFromMap( "MinStat", config.getParameters(), -1);
-  
-  if (histogram->GetEntries() < minstat ) {
+  double current_stat = 0; 
+
+  if(object.IsA()->InheritsFrom( "TH1" )) { 
+    current_stat = histogram->GetEntries();
+  } else if(object.IsA()->InheritsFrom( "TEfficiency" )){
+    current_stat = total_histogram->GetEntries();
+  }  
+
+  if(current_stat < minstat ) {
     dqm_core::Result *result = new dqm_core::Result(dqm_core::Result::Undefined);
-    result->tags_["InsufficientEntries"] = histogram->GetEntries();
+    result->tags_["InsufficientEntries"] = current_stat;
     return result;
   }
-  
-  TH1 * refhist;
+     
+  TH1 * refhist = 0;
+  TH1 * ref_total_hist;
+  TEfficiency * refeff;
   double gthresho;
   double rthresho;
   std::string option;
@@ -90,24 +114,54 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
 
   }
 
-  try {
-    refhist = dynamic_cast<TH1 *>( config.getReference() );
-  }
-  catch ( dqm_core::Exception & ex ) {
-   throw dqm_core::BadRefHist(ERS_HERE,name," Could not retreive reference");
-  }
-  if (!refhist) { throw dqm_core::BadRefHist(ERS_HERE,name,"Bad reference type"); }
+  if(object.IsA()->InheritsFrom( "TH1" )) {
+     try {
+        refhist = dynamic_cast<TH1 *>( config.getReference() );
+     }
+     catch ( dqm_core::Exception & ex ) {
+        throw dqm_core::BadRefHist(ERS_HERE,name," Could not retreive reference");
+     }
+  } else if(object.IsA()->InheritsFrom( "TEfficiency" )){
+     try {
+        refeff = dynamic_cast<TEfficiency *>( config.getReference() );
+     }
+     catch ( dqm_core::Exception & ex ) {
+        throw dqm_core::BadRefHist(ERS_HERE,name," Could not retreive reference");
+     }
 
-  if (histogram->GetDimension() != refhist->GetDimension() ) {
-    throw dqm_core::BadRefHist( ERS_HERE, "Dimension", name );
+     refhist = refeff->GetCopyPassedHisto();
+     ref_total_hist = refeff->GetCopyTotalHisto();
+     refhist->Divide(ref_total_hist);  
+  }  
+
+  if (!refhist) { throw dqm_core::BadRefHist(ERS_HERE,name,"Bad reference type"); }
+ 
+  double value = 0;
+  if(object.IsA()->InheritsFrom( "TH1" )) {
+
+    if (histogram->GetDimension() != refhist->GetDimension() ) {
+       throw dqm_core::BadRefHist( ERS_HERE, "Dimension", name );
+    }
+  
+    if ((histogram->GetNbinsX() != refhist->GetNbinsX()) || (histogram->GetNbinsY() != refhist->GetNbinsY())) {
+       throw dqm_core::BadRefHist( ERS_HERE, "number of bins", name );
+    }
+  
+    value = histogram->Chi2Test( refhist, option.c_str() );
+
+  } else if(object.IsA()->InheritsFrom( "TEfficiency" )){
+    
+    if (passed_histogram->GetDimension() != refhist->GetDimension() ) {
+       throw dqm_core::BadRefHist( ERS_HERE, "Dimension", name );
+    } 
+
+    if ((passed_histogram->GetNbinsX() != refhist->GetNbinsX()) || (passed_histogram->GetNbinsY() != refhist->GetNbinsY())) {
+       throw dqm_core::BadRefHist( ERS_HERE, "number of bins", name );
+    }
+ 
+    value = passed_histogram->Chi2Test( refhist, option.c_str() );
   }
-  
-  if ((histogram->GetNbinsX() != refhist->GetNbinsX()) || (histogram->GetNbinsY() != refhist->GetNbinsY())) {
-    throw dqm_core::BadRefHist( ERS_HERE, "number of bins", name );
-  }
-  
-  
-  double value = histogram->Chi2Test( refhist, option.c_str() );
+
   ERS_DEBUG(1,"Green threshold: "<< gthresho << ";  Red threshold: " << rthresho );    
   ERS_DEBUG(1,"Chi2 Test with Option " << option <<  " is " << value );
 
@@ -132,6 +186,7 @@ dqm_algorithms::Chi2Test::execute(	const std::string & name ,
     }
     
   }
+ 
   ERS_DEBUG(2,"Result: "<<*result);
   return result; 
   
