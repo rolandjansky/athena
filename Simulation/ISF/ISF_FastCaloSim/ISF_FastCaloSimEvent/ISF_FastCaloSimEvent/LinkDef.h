@@ -298,7 +298,7 @@
 #pragma link C++ class TFCSInitWithEkin+;
 #pragma link C++ class TFCSEnergyInterpolationHistogram+;
 #pragma link C++ class TFCSEnergyInterpolationLinear+;
-#pragma link C++ class TFCSEnergyInterpolationPiecewiseLinear+;
+#pragma link C++ class TFCSEnergyInterpolationPiecewiseLinear-;
 #pragma link C++ class TFCSEnergyInterpolationSpline+;
 #pragma link C++ class TFCSParametrizationChain-;
 #pragma link C++ class TFCSParametrizationBinnedChain+;
