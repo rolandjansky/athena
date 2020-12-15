@@ -23,6 +23,7 @@
 #include "AthenaMonitoringKernel/MonitoredScalar.h"
 #include "../src/HistogramFiller/HistogramFillerRebinable.h"
 
+#include "mocks/MockHistogramDef.h"
 #include "mocks/MockHistogramProvider.h"
 
 using namespace std;
@@ -223,7 +224,7 @@ class HistogramFillerRebinable1DTestSuite {
   private:
     MsgStream m_log;
 
-    HistogramDef m_histogramDef;
+    MockHistogramDef m_histogramDef;
     shared_ptr<MockHistogramProvider> m_histogramProvider;
     shared_ptr<TH1D> m_histogram;
 
