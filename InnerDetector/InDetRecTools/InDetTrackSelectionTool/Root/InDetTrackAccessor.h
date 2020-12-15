@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // InDetTrackAccessor.h
@@ -89,7 +89,7 @@ namespace InDet {
   template <size_t index_i, size_t index_j>
   class ParamCovAccessor : public virtual TrackAccessor {
   public:
-    ParamCovAccessor<index_i, index_j>(const asg::IAsgTool*);
+    ParamCovAccessor(const asg::IAsgTool*);
     StatusCode access ( const xAOD::TrackParticle& track,
 			const xAOD::Vertex* vertex = 0 );
 #ifndef XAOD_ANALYSIS
