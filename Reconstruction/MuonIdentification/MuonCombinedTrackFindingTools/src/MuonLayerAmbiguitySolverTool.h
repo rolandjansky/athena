@@ -29,13 +29,13 @@ namespace Muon {
     /** Default AlgTool functions */
     MuonLayerAmbiguitySolverTool(const std::string& type, const std::string& name, const IInterface* parent);
     virtual ~MuonLayerAmbiguitySolverTool()=default;
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /**IMuonLayerAmbiguitySolverTool interface: find */   
-    void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const;
+    virtual void resolveOverlaps( const std::vector<Muon::MuonLayerRecoData>& allLayers, std::vector< MuonCandidate >& resolvedCandidates ) const override;
 
 
-    void cleanUp() const override;
+    virtual void cleanUp() const override;
 
   private:
     void buildLayerVec( const std::vector<MuonLayerRecoData>& allLayers,  
