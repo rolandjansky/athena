@@ -19,5 +19,5 @@ atlas_install_scripts( test/*.sh scripts/*py )
 
 atlas_add_test( ut_egammaARTJob_test
 	        SCRIPT test/ut_egammaARTJob_test.sh
-		PROPERTIES TIMEOUT 1000
+		PROPERTIES TIMEOUT 1200
 )
