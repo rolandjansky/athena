@@ -66,7 +66,8 @@ void TFCSEnergyInterpolationHistogram::Print(Option_t *option) const
   TString opt(option);
   bool shortprint=opt.Index("short")>=0;
   bool longprint=msgLvl(MSG::DEBUG) || (msgLvl(MSG::INFO) && !shortprint);
-  TString optprint=opt;optprint.ReplaceAll("short","");
+  TString optprint=opt;
+  optprint.ReplaceAll("short","");
   TFCSParametrization::Print(option);
 
   if(longprint) ATH_MSG_INFO(optprint <<(OnlyScaleEnergy()?"  E()*":"  Ekin()*")<<"histNbins="<<m_hist.GetNbinsX()
