@@ -133,35 +133,6 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  const Trk::ResidualPull* InDet::InDetTestBLayerTool::bLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
-  {
-    return pixelLayerHitResidual(trackparticle,0);
-  }
-
-  const Trk::ResidualPull* InDet::InDetTestBLayerTool::innermostPixelLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
-  {
-    return pixelLayerHitResidual(trackparticle,0);
-  }
-
-   const Trk::ResidualPull* InDet::InDetTestBLayerTool::nextToInnermostPixelLayerHitResidual(const Trk::TrackParticleBase* trackparticle) const
-  {
-    return pixelLayerHitResidual(trackparticle,1);
-  }
-
-  const Trk::ResidualPull* InDet::InDetTestBLayerTool::pixelLayerHitResidual(const Trk::TrackParticleBase* trackparticle, int layer) const
-  {
-    assert(layer>=0 && layer<=1);
-    const Trk::Track* track = trackparticle->originalTrack();
-
-    if (!track) {
-      ATH_MSG_DEBUG( "No original track, residual calculation for " << s_layerNames[layer] << " can not be performed" );
-      return 0;
-    }
-
-    return(this->pixelLayerHitResidual(track,layer));
-  }
-
-
   const Trk::ResidualPull* InDet::InDetTestBLayerTool::bLayerHitResidual(const Trk::Track* track) const
   {
     return pixelLayerHitResidual(track,0);
@@ -293,56 +264,6 @@ namespace InDet {
       ATH_MSG_DEBUG("Track perigee parameters");
       return this->expectHitInPixelLayer(ctx,mp, layer);
     }
-  }
-
-  bool InDet::InDetTestBLayerTool::expectHitInBLayer(const Trk::TrackParticleBase* track, bool recompute) const
-  {
-    return expectHitInPixelLayer(track,0,recompute);
-  }
-
-  bool InDet::InDetTestBLayerTool::expectHitInInnermostPixelLayer(const Trk::TrackParticleBase* track, bool recompute) const
-  {
-    return expectHitInPixelLayer(track,0,recompute);
-  }
-
-
-   bool InDet::InDetTestBLayerTool::expectHitInNextToInnermostPixelLayer(const Trk::TrackParticleBase* track, bool recompute) const
-  {
-    return expectHitInPixelLayer(track,1,recompute);
-  }
-
-  bool InDet::InDetTestBLayerTool::expectHitInPixelLayer(const Trk::TrackParticleBase *track, int layer, bool recompute) const {
-    assert( layer>=0 && layer<=1);
-    if(!recompute){
-      const Trk::TrackSummary* ts =  track->trackSummary();
-      if(ts){
-	int ehbl = ts->get(s_layerSummaryTypeExpectHit[layer]);
-	if(0==ehbl || 1==ehbl ){
-	  ATH_MSG_DEBUG("Found the expected hit in the " << s_layerNames[layer] << " info in TrackSummary: return cached value" );
-	  return ehbl;
-	}
-      }
-    }
-    else{
-      ATH_MSG_DEBUG("Forced to recompute whether a hit is expected in the " << s_layerNames[layer] << " or not." );
-    }
-
-    ATH_MSG_DEBUG("Computing whether a hit is expected in the " << s_layerNames[layer] << " or not." );
-
-    const Trk::Perigee* mp = track->perigee();
-
-    if(!mp)
-      {
-	//This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg
-        ATH_MSG_DEBUG("Found TrackParticle with no perigee parameters: no information whether a hit is expected in the " << s_layerNames[layer] << " will be provided." );
-	return false;
-      }
-    else
-      {
-	ATH_MSG_DEBUG("TrackParticle perigee parameters");
-	//	  mp->dump(mLog);
-	return (this->expectHitInPixelLayer(mp,layer));
-      }
   }
 
 
@@ -504,42 +425,6 @@ namespace InDet {
     bool succeed = getTrackStateOnPixelLayerInfo(startParameters, infoList,layer);
      delete startParameters;
      return succeed;
-  }
-
-
-  bool InDet::InDetTestBLayerTool::getTrackStateOnBlayerInfo(const Trk::TrackParticleBase* trackparticle,
-                                                             std::vector<TrackStateOnBLayerInfo>& infoList)  const {
-    return getTrackStateOnPixelLayerInfo(trackparticle, infoList,0);
-  }
-
-  bool InDet::InDetTestBLayerTool::getTrackStateOnInnermostPixelLayerInfo(const Trk::TrackParticleBase* trackparticle,
-                                                                          std::vector<TrackStateOnBLayerInfo>& infoList)  const {
-    return getTrackStateOnPixelLayerInfo(trackparticle, infoList,0);
-  }
-
-
-  bool InDet::InDetTestBLayerTool::getTrackStateOnNextToInnermostPixelLayerInfo(const Trk::TrackParticleBase* trackparticle,
-                                                                                std::vector<TrackStateOnBLayerInfo>& infoList) const {
-    return getTrackStateOnPixelLayerInfo(trackparticle, infoList,1);
-  }
-
-
-  bool InDet::InDetTestBLayerTool::getTrackStateOnPixelLayerInfo(const Trk::TrackParticleBase* track,
-                                                                 std::vector<TrackStateOnBLayerInfo>& infoList,
-                                                                 int layer) const
-  {
-    assert( layer>=0 && layer<=1);
-
-    const Trk::Perigee* startParameters = track->perigee();
-
-    if(!startParameters){
-      //This can happen if re-creating the summary for tracks prior to ambi-solving and final fit, e.g. in StatisticAlg
-      ATH_MSG_DEBUG("Found TrackParticle with no perigee parameters: no " << s_layerNames[layer] << " info will be provided");
-      return false;
-    }
-
-    return getTrackStateOnPixelLayerInfo(startParameters, infoList, layer);
-
   }
 
 
