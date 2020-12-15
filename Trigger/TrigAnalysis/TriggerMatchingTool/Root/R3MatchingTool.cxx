@@ -81,29 +81,11 @@ namespace Trig
       // Now we have to build up combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
-      TrigCompositeUtils::Combinations combinations(TrigCompositeUtils::FilterType::All);
-      const TrigConf::HLTChain *chainInfo = m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName);
-      std::vector<std::size_t> multiplicities = chainInfo->leg_multiplicities();
-      combinations.reserve(multiplicities.size());
-      // Get all the features for the chain
-      VecLinkInfo_t chainFeatures = m_trigDecTool->features<xAOD::IParticleContainer>(chainName);
-      ATH_MSG_VERBOSE("Chain " << chainName << " has " << chainFeatures.size() << " features and " << multiplicities.size() << " legs with multiplicities, nFeatures: ");
-      if (multiplicities.size() == 1)
-      {
-        ATH_MSG_VERBOSE("  :" << multiplicities.at(0) << ", " << chainFeatures.size());
-        combinations.addLeg(multiplicities.at(0), std::move(chainFeatures));
-      }
-      else
-        for (std::size_t legIdx = 0; legIdx < multiplicities.size(); ++legIdx)
-        {
-          HLT::Identifier legID = TrigCompositeUtils::createLegName(chainName, legIdx);
-          VecLinkInfo_t legFeatures;
-          for (const IPartLinkInfo_t &info : chainFeatures)
-            if (TrigCompositeUtils::isAnyIDPassing(info.source, {legID.numeric()}))
-              legFeatures.push_back(info);
-          ATH_MSG_VERBOSE(legID.name() << " (" << legID.numeric() << "): " << multiplicities.at(legIdx) << ", " << legFeatures.size());
-          combinations.addLeg(multiplicities.at(legIdx), std::move(legFeatures));
-        }
+      TrigCompositeUtils::Combinations = TrigCompositeUtils::buildCombinations(
+        chainName,
+        m_trigDecTool->features<xAOD::IParticleContainer>(chainName),
+        m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName),
+        TrigCompositeUtils::FilterType::UniqueObjects);
       // Warn once per call if one of the chain groups is too small to match anything
       if (combinations.size() < recoObjects.size())
       {

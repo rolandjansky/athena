@@ -417,6 +417,60 @@ namespace TrigCompositeUtils {
     return true; 
   }
 
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    Combinations combinations(filter);
+    combinations.reserve(legMultiplicities.size());
+    if (legMultiplicities.size() == 1)
+    {
+      combinations.addLeg(legMultiplicities.at(0), features);
+    }
+    else {
+      for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
+      {
+        HLT::Identifier legID = createLegName(chainName, legIdx);
+        std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
+        for (const LinkInfo<xAOD::IParticleContainer>& info : features)
+          if (isAnyPassing(info.source, {legID.numeric()}))
+            legFeatures.push_back(info);
+      }
+      combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
+    }
+    return combinations;
+  }
+
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter = FilterType::UniqueObjects)
+  {
+    return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    return buildCombinations(chainName, features, chainInfo->leg_multiplicities(), filter);
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter = FilterType::UniqueObjects)
+  {
+    return buildCombinations(chainName, features, chainInfo, getFilter(filter));
+  }
+
 
   std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
