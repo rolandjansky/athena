@@ -362,7 +362,7 @@ InDetPhysHitDecoratorTool::decideDetectorRegion(const Identifier& id, Subdetecto
     bec = abs(m_pixelID->barrel_ec(id));
     r = (bec == normalBarrel) ? (BARREL) : (ENDCAP);
     layer = m_pixelID->layer_disk(id);
-    if(m_useNewITkLayerNumbering && r==ENDCAP && layer>0){
+    if(m_doUpgrade && m_useNewITkLayerNumbering && r==ENDCAP && layer>0){
       if(layer%2==0) r = BARREL; // Inclined barrel region
       layer = layer/2 + 1; // L2 = layer 2+3, L3 = layer 4+5, L4 = layer 6+7
     }
