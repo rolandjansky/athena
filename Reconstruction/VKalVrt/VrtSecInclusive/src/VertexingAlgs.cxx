@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -11,6 +11,7 @@
 
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
+#include "xAODEgamma/ElectronxAODHelpers.h"
 
 #include "TH1F.h"
 #include "TH2F.h"
@@ -151,7 +152,7 @@ namespace VKalVrtAthena {
         double dphi1 = vDist.phi() - (*itrk)->phi(); while( dphi1 > TMath::Pi() ) { dphi1 -= TMath::TwoPi(); } while( dphi1 < -TMath::Pi() ) { dphi1 += TMath::TwoPi(); }
         double dphi2 = vDist.phi() - (*itrk)->phi(); while( dphi2 > TMath::Pi() ) { dphi2 -= TMath::TwoPi(); } while( dphi2 < -TMath::Pi() ) { dphi2 += TMath::TwoPi(); }
         
-	const double dist_fromPV = vDist.norm();
+        const double dist_fromPV = vDist.norm();
         if( m_jp.FillHist ) m_hists["2trkVtxDistFromPV"]->Fill( dist_fromPV );
         
         if( m_jp.FillNtuple ) {
@@ -244,26 +245,26 @@ namespace VKalVrtAthena {
             matchMap.emplace( truthVertex, true );
           }
         }
-        
+
         if( m_jp.FillHist ) {
           dynamic_cast<TH2F*>( m_hists["vPosDist"] )->Fill( wrkvrt.vertex.perp(), vPos );
           dynamic_cast<TH2F*>( m_hists["vPosMomAngTDist"] )->Fill( wrkvrt.vertex.perp(), vPosMomAngT );
-	  m_hists["vPosMomAngT"] ->Fill( vPosMomAngT );
-	  m_hists["vPosMomAng3D"] ->Fill(  vPosMomAng3D );
+          m_hists["vPosMomAngT"] ->Fill( vPosMomAngT );
+          m_hists["vPosMomAng3D"] ->Fill(  vPosMomAng3D );
         }
 
-	if( m_jp.doTwoTrSoftBtag ){
-	  if(dist_fromPV < m_jp.twoTrVrtMinDistFromPV ){
-	    ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the 2tr vertex min distance from PV cut." );
-	    continue;
-	  }
-        
-	  if( vPosMomAng3D < m_jp.twoTrVrtAngleCut ){
-	    ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vertex angle cut." );
-	    continue;
-	  }
-	}
-        
+        if( m_jp.doTwoTrSoftBtag ){
+          if(dist_fromPV < m_jp.twoTrVrtMinDistFromPV ){
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the 2tr vertex min distance from PV cut." );
+            continue;
+          }
+            
+          if( vPosMomAng3D < m_jp.twoTrVrtAngleCut ){
+            ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vertex angle cut." );
+            continue;
+          }
+        }
+
         if( m_jp.doPVcompatibilityCut ) {
           if( cos( dphi1 ) < -0.8 && cos( dphi2 ) < -0.8 ) {
             ATH_MSG_DEBUG(" > " << __FUNCTION__ << ": failed to pass the vPos cut. (both tracks are opposite against the vertex pos)" );
@@ -1092,7 +1093,15 @@ namespace VKalVrtAthena {
                                       [&] ( WrkVrt& wrkvrt ) {
                                         auto found = std::find_if( wrkvrt.selectedTrackIndices.begin(), wrkvrt.selectedTrackIndices.end(),
                                                                    [&]( long int index ) {
-                                                                     return trk == m_selectedTracks->at(index);
+                                                                     // when using selected tracks from electrons, also check the orginal track particle from GSF to see if InDetTrackParticle (trk) is an electron that is already in the vertex
+                                                                    if (m_jp.doSelectTracksFromElectrons) {
+                                                                      const xAOD::TrackParticle *id_tr;
+                                                                      id_tr = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(m_selectedTracks->at(index));
+                                                                      return trk == m_selectedTracks->at(index) or trk == id_tr;
+                                                                    }
+                                                                    else{
+                                                                      return trk == m_selectedTracks->at(index);
+                                                                    }
                                                                    } );
                                         return found != wrkvrt.selectedTrackIndices.end();
                                       } );

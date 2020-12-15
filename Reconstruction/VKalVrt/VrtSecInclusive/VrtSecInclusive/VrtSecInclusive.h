@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // VKalVrt.h
@@ -216,7 +216,14 @@ namespace VKalVrtAthena {
 
       // vertexing using muons (test implementation)
       bool doSelectTracksFromMuons;
+      bool doRemoveCaloTaggedMuons;
       bool doSelectTracksFromElectrons;
+
+      // When doSelectTracksWithLRTCuts is set to true, the addtional track cuts 
+      // be applied to the selected tracks to reduce the number of fake tracks in 
+      // the selected track collected. These cuts are inspired by the improvments that
+      // were implmented for LRT Run 3. 
+      bool doSelectTracksWithLRTCuts ;
       
       // Additional dressing option
       bool doAugmentDVimpactParametersToMuons;     // potentially useful for DV + muon search
@@ -386,6 +393,7 @@ namespace VKalVrtAthena {
     bool selectTrack_z0errCut        ( const xAOD::TrackParticle* ) const;
     bool selectTrack_d0signifCut     ( const xAOD::TrackParticle* ) const;
     bool selectTrack_z0signifCut     ( const xAOD::TrackParticle* ) const;
+    bool selectTrack_LRTR3Cut        ( const xAOD::TrackParticle* ) const;
     
     /** related to the graph method and verte finding */
     StatusCode extractIncompatibleTrackPairs( std::vector<WrkVrt>* );
@@ -438,7 +446,7 @@ namespace VKalVrtAthena {
     
     void removeTrackFromVertex(std::vector<WrkVrt>*, 
                                std::vector< std::deque<long int> > *,
-			       const long int & ,const long int & );
+             const long int & ,const long int & );
  
     StatusCode disassembleVertex(std::vector<WrkVrt> *, const unsigned& vertexIndex );
     

@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
 #include "VrtSecInclusive/VrtSecInclusive.h"
 #include "VrtSecInclusive/NtupleVars.h"
 #include "VrtSecInclusive/Tools.h"
+
+#include "xAODEgamma/ElectronxAODHelpers.h"
 
 #include <iostream>
 
@@ -52,11 +54,11 @@ namespace VKalVrtAthena {
 
     // do Pixel/SCT/SiHits only if we exclude StandAlone TRT hits
     if( !m_jp.SAloneTRT ) {
-      if(PixelHits	     < m_jp.CutPixelHits)  return false;
+      if(PixelHits           < m_jp.CutPixelHits)  return false;
       if(SCTHits             < m_jp.CutSctHits)    return false;
       if((PixelHits+SCTHits) < m_jp.CutSiHits)     return false;
-      if(BLayHits	     < m_jp.CutBLayHits)   return false;
-      if(SharedHits	     > m_jp.CutSharedHits) return false;
+      if(BLayHits            < m_jp.CutBLayHits)   return false;
+      if(SharedHits          > m_jp.CutSharedHits) return false;
     }
 
     // The folloing part reproduces the track selection in RPVDixpVrt
@@ -94,7 +96,40 @@ namespace VKalVrtAthena {
   bool VrtSecInclusive::selectTrack_notPVassociated  ( const xAOD::TrackParticle* trk ) const {
       return !( VKalVrtAthena::isAssociatedToVertices( trk, m_primaryVertices ) );
   }
-  
+
+  //____________________________________________________________________________________________________
+  bool VrtSecInclusive::selectTrack_LRTR3Cut( const xAOD::TrackParticle* trk ) const {
+      uint8_t npix = 0;
+      trk->summaryValue(npix, xAOD::numberOfPixelHits);
+      uint8_t nsct = 0;
+      trk->summaryValue(nsct, xAOD::numberOfSCTHits);
+      uint8_t nSiHits = npix + nsct ;
+      uint8_t nSCTHoles=0;
+      trk->summaryValue(nSCTHoles, xAOD::numberOfSCTHoles);
+
+      double dTheta = std::fabs(TMath::ATan2(std::fabs(trk->d0()),trk->z0())-2*std::atan(std::exp(-1*trk->eta())));
+      bool geometric_cut = dTheta < 1. || std::fabs(trk->z0()) < 200. ;
+
+      bool z0_cut = trk->z0() <= 500. ;
+      bool chi2_cut = (trk->chiSquared()/ (trk->numberDoF()+AlgConsts::infinitesimal)) <= 9. ;
+      bool NSiHits_cut = nSiHits >=8 ;
+      bool NSCTHits_cut = nsct >= 7 ;
+      bool NSCTHoles_cut = nSCTHoles <= 1;
+
+      ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": z0_cut, chi2_cut, NSiHits_cut, NSCTHits_cut, NSCTHoles_cut  = " <<z0_cut<<", "<<chi2_cut<<", "<<NSiHits_cut<<", "<<NSCTHits_cut<<", "<< NSCTHoles_cut );
+      ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": npix, nsct, nSiHits, nSCTHoles, dTheta, z0, d0, chi2  = " <<unsigned(npix)<<", "<<unsigned(nsct)<<", "<<unsigned(nSiHits)<<", "<<unsigned(nSCTHoles)<<", "<< dTheta<<", "<< trk->z0()<<", "<< trk->d0()<<", " <<trk->chiSquared() ) ;
+
+      const std::bitset<xAOD::NumberOfTrackRecoInfo> patternReco = trk->patternRecoInfo();
+      bool isLRT = patternReco.test(49) ;
+      ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": Track is LRT  = " << isLRT ) ;
+      if (isLRT) {  // apply all cuts to LRT tracks 
+        return (z0_cut && chi2_cut && NSiHits_cut && NSCTHits_cut && NSCTHoles_cut && geometric_cut);
+      }
+      else{ // not LRT track; only apply SiHit cut
+       return NSiHits_cut ;
+     }
+  }
+
   
   //____________________________________________________________________________________________________
   void VrtSecInclusive::selectTrack( const xAOD::TrackParticle* trk ) {
@@ -105,11 +140,12 @@ namespace VKalVrtAthena {
     if( 0 == m_trackSelectionFuncs.size() && !m_jp.passThroughTrackSelection ) {
       
       // These cuts are optional. Specified by JobProperty
-      if( m_jp.do_PVvetoCut )   m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );
-      if( m_jp.do_d0Cut )       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
-      if( m_jp.do_z0Cut )       m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0Cut );
-      if( m_jp.do_d0errCut )    m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0errCut );
-      if( m_jp.do_z0errCut )    m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0errCut );
+      if( m_jp.do_PVvetoCut )             m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_notPVassociated );
+      if( m_jp.do_d0Cut )                 m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0Cut );
+      if( m_jp.do_z0Cut )                 m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0Cut );
+      if( m_jp.do_d0errCut )              m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0errCut );
+      if( m_jp.do_z0errCut )              m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0errCut );
+      if (m_jp.doSelectTracksWithLRTCuts) m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_LRTR3Cut );
       //if( m_jp.do_d0signifCut ) m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_d0signifCut ); // not implemented yet
       //if( m_jp.do_z0signifCut ) m_trackSelectionFuncs.emplace_back( &VrtSecInclusive::selectTrack_z0signifCut ); // not implemented yet
       
@@ -160,6 +196,12 @@ namespace VKalVrtAthena {
       }
       
       (*m_decor_isSelected)( *trk ) = true;
+      if (m_jp.doSelectTracksFromElectrons) {
+        const xAOD::TrackParticle *id_tr;
+        id_tr = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(trk);
+        if (id_tr != nullptr){
+        (*m_decor_isSelected)( *id_tr ) = true; }
+    }
       
       m_selectedTracks->emplace_back( trk );
       
@@ -198,7 +240,6 @@ namespace VKalVrtAthena {
     // Loop over tracks
     for( auto *trk : *trackParticleContainer ) { selectTrack( trk ); }
     
-    
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": Number of total ID tracks   = " << trackParticleContainer->size() );
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": Number of selected tracks   = " << m_selectedTracks->size() );
     
@@ -217,7 +258,10 @@ namespace VKalVrtAthena {
       const auto* trk = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
       
       if( !trk ) continue;
-      
+      // remove calo-tagged muons when selecting muons
+      if (m_jp.doRemoveCaloTaggedMuons) {
+        if (muon->muonType() == xAOD::Muon::CaloTagged) continue;
+      }
       selectTrack( trk );
       
     }
@@ -242,9 +286,7 @@ namespace VKalVrtAthena {
       const auto* trk = electron->trackParticle(0);
       
       if( !trk ) continue;
-      
       selectTrack( trk );
-      
     }
     
     ATH_MSG_DEBUG( " > " << __FUNCTION__ << ": Number of total electrons   = " << electrons->size() );
