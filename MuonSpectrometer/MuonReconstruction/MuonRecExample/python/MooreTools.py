@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -94,7 +94,6 @@ class MuonCurvedSegmentCombiner(CfgMgr.Muon__MuonCurvedSegmentCombiner,Configure
 
 # end of class MuonCurvedSegmentCombiner
 
-    
 
 # the segment making supertool
 class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,ConfiguredBase):
@@ -112,9 +111,9 @@ class MooSegmentCombinationFinder(CfgMgr.Muon__MooSegmentCombinationFinder,Confi
         kwargs.setdefault( "MdtSegmentMaker", "MuonPatternSegmentMaker" )
         kwargs.setdefault( "DoSegmentCombinations", False )
         kwargs.setdefault( "DoSegmentCombinationCleaning", False )
-        kwargs.setdefault( "DoCscSegments", muonRecFlags.doCSCs() )
         kwargs.setdefault( "DoMdtSegments", muonRecFlags.doMDTs() )
-        if muonRecFlags.doCSCs():
+        kwargs.setdefault( "DoCscSegments", (MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs()) )
+        if kwargs["DoCscSegments"]:
             kwargs.setdefault( "Csc2dSegmentMaker","Csc2dSegmentMaker" )
             kwargs.setdefault( "Csc4dSegmentMaker", "Csc4dSegmentMaker" )
         else:

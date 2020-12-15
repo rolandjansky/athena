@@ -8,8 +8,10 @@ from TrigTimeMonitor.TrigTimeHistToolConfig import *
 from MuonByteStream.MuonByteStreamFlags import muonByteStreamFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import *
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 
-theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator()
+
+theDataPreparator    = TrigL2MuonSA__MuFastDataPreparator(CscDataPreparator=("TrigL2MuonSA::CscDataPreparator" if MuonGeometryFlags.hasCSC() else ""))
 thePatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
 theStationFitter     = TrigL2MuonSA__MuFastStationFitter()
 theTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
@@ -29,10 +31,9 @@ ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
 
-
-ToolSvc += TrigL2MuonSA__CscSegmentMaker()
-ToolSvc += TrigL2MuonSA__CscRegDict()
-
+if MuonGeometryFlags.hasCSC():
+    ToolSvc += TrigL2MuonSA__CscSegmentMaker()
+    ToolSvc += TrigL2MuonSA__CscRegDict()
 
 class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
@@ -151,11 +152,11 @@ class TrigL2MuonSAConfig(MuFastSteering):
                     print self.name," using BackExtrapolatorLUT for Misligned Detector"
                 if handle.BackExtrapolator.name().find("DataBackExtrapolator")!=-1:
                     print self.name," using BackExtrapolatorLUT for Data"
-                    
-        if TriggerFlags.run2Config=='2016':
-            self.StationFitter.PtFromAlphaBeta.useCscPt = False
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
-        else:
-            self.StationFitter.PtFromAlphaBeta.useCscPt = True
-            self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+        if MuonGeometryFlags.hasCSC():     
+            if TriggerFlags.run2Config=='2016':
+                self.StationFitter.PtFromAlphaBeta.useCscPt = False
+                self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
+            else:
+                self.StationFitter.PtFromAlphaBeta.useCscPt = True
+                self.StationFitter.PtFromAlphaBeta.AvoidMisalignedCSCs = True
 
