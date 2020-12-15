@@ -15,8 +15,8 @@ if( XAOD_STANDALONE )
       INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
       PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODBase xAODTrigger
-      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib 
-      TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib 
+      TrigConfHLTData TrigConfL1Data TrigNavStructure TrigRoiConversionLib
+      TrigConfInterfaces TrigDecisionInterface AsgDataHandlesLib
       TrigCompositeUtilsLib
       PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} TrigSteeringEvent  )
 else()
@@ -28,9 +28,9 @@ else()
          PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
          LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools EventInfo xAODBase
          xAODTrigger GaudiKernel TrigConfHLTData TrigConfL1Data
-         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib 
-         TrigConfInterfaces TrigDecisionEvent TrigDecisionInterface
-         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib 
+         TrigNavStructure StoreGateLib TrigRoiConversionLib TrigCompositeUtilsLib
+         TrigConfInterfaces TrigDecisionInterface
+         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AsgDataHandlesLib
          TrigSteeringEvent AthenaKernel )
    else()
       atlas_add_library( TrigDecisionToolLib
@@ -62,7 +62,7 @@ if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( Templates_test
       SOURCES test/Templates_test.cxx
       LINK_LIBRARIES TrigNavigationLib AthenaKernel GaudiKernel AthContainers
-      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent 
+      AnalysisTriggerEvent TrigSteeringEvent TrigMuonEvent
       TrigDecisionToolLib
       POST_EXEC_SCRIPT nopost.sh )
 endif()
@@ -72,4 +72,3 @@ atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/checkTriggerEDM.py
    share/checkTriggerProcessingErrors.py )
 atlas_install_joboptions( share/checkR3Trigger.py )
-
