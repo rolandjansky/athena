@@ -76,11 +76,11 @@ StatusCode TrigEgammaFastElectronFexMT::initialize()
   ATH_MSG_DEBUG("CaloTrackdEoverPLow  = " << m_calotrackdeoverp_low); 
   ATH_MSG_DEBUG("CaloTrackdEoverPHigh = " << m_calotrackdeoverp_high);
 
-ATH_CHECK( m_roiCollectionKey.initialize() );
-ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
-ATH_CHECK( m_TrackParticleContainerKey.initialize() );
-ATH_CHECK( m_outputElectronsKey.initialize() );
-ATH_CHECK( m_outputDummyElectronsKey.initialize() );
+  ATH_CHECK( m_roiCollectionKey.initialize() );
+  ATH_CHECK( m_TrigEMClusterContainerKey.initialize() );
+  ATH_CHECK( m_TrackParticleContainerKey.initialize() );
+  ATH_CHECK( m_outputElectronsKey.initialize() );
+  ATH_CHECK( m_outputDummyElectronsKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -136,9 +136,6 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
 
   auto clusContainer = SG::makeHandle (m_TrigEMClusterContainerKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_TrigEMClusterContainerKey  );
-
- /**********************/
-  ATH_MSG_DEBUG("Debo1");  
   
   //JTB Should only be 1 cluster in each RoI 
 
@@ -155,9 +152,6 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   ATH_MSG_DEBUG("Cluster: ET=" << calo_et);
   ATH_MSG_DEBUG("searching a matching track: loop over tracks");
 
-  /**********************/
-  ATH_MSG_DEBUG("Debo2");
-
   SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_TrackParticleContainerKey, ctx);
   ATH_MSG_DEBUG( "Made handle " << m_TrackParticleContainerKey  );
 
@@ -165,9 +159,6 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   if (tracks->size() == 0){
       return StatusCode::SUCCESS; // Exit early if there are no tracks
   }
-  
-  /**********************/
-  ATH_MSG_DEBUG("Debo3");
 
   size_t coll_size = tracks->size();
   trigElecColl->reserve(coll_size);
@@ -184,42 +175,28 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
 
   auto mon = Monitored::Group(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
 
-  /**********************/
-  ATH_MSG_DEBUG("Debo4");
-
   // Make Dummy Electron
      xAOD::TrigElectron* trigDummyElec = new xAOD::TrigElectron();
-  
- /**********************/
-  ATH_MSG_DEBUG("Debo5");
 
      ElementLink<xAOD::TrackParticleContainer> trackDummyEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, 0);
-     
- /**********************/
-  ATH_MSG_DEBUG("Debo6");  
      
      trigDummyElecColl->push_back(trigDummyElec);
      trigDummyElec->init( 0,
                       0, 0,  0,
                       clusEL,
                       trackDummyEL);
-   
-   /**********************/
-    ATH_MSG_DEBUG("Debo7");
  
   // loop over tracks
 
-  /**********************/
-  ATH_MSG_DEBUG("Debo8");
-
   unsigned int track_index=0;
   for(const auto trkIter:(*tracks)){
+      ATH_MSG_DEBUG("Track loop starts");
       ATH_MSG_VERBOSE("AlgoId = " << (trkIter)->patternRecoInfo());
       ATH_MSG_VERBOSE("At perigee:");
-      ATH_MSG_VERBOSE(" Pt  = " << fabs((trkIter)->pt())); 
-      ATH_MSG_VERBOSE(" phi = " << fabs((trkIter)->phi0()));
-      ATH_MSG_VERBOSE(" eta = " << fabs((trkIter)->eta())); 
-      ATH_MSG_VERBOSE(" z0  = " << fabs((trkIter)->z0()));  
+      ATH_MSG_DEBUG(" Pt  = " << fabs((trkIter)->pt())); 
+      ATH_MSG_DEBUG(" phi = " << fabs((trkIter)->phi0()));
+      ATH_MSG_DEBUG(" eta = " << fabs((trkIter)->eta())); 
+      ATH_MSG_DEBUG(" z0  = " << fabs((trkIter)->z0()));  
 
       // ============================================= //
       // Pt cut

@@ -15,7 +15,7 @@ def TrigEgammaFastElectronHypoToolFromDict( chainDict ):
     name = chainDict['chainName']
     from AthenaConfiguration.ComponentFactory import CompFactory
     tool = CompFactory.TrigEgammaFastElectronHypoTool(name)
- 
+
     if 'idperf' in name:
         tool.AcceptAll = True
    
