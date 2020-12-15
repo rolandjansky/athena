@@ -133,11 +133,11 @@ namespace VKalVrtAthena {
       const xAOD::TrackParticle* trk = m_selectedTracks->at( index );
       
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > track at vertex[" << iv << "]: "
-		      << "index = " << trk->index()
-		      << ", pT = "  << trk->pt()
-		      << ", phi = " << trk->phi()
-		      << ", d0 = "  << trk->d0()
-		      << ", z0 = "  << trk->z0());
+          << "index = " << trk->index()
+          << ", pT = "  << trk->pt()
+          << ", phi = " << trk->phi()
+          << ", d0 = "  << trk->d0()
+          << ", z0 = "  << trk->z0());
     }
     
     // find the track with the maximum chi2
@@ -164,8 +164,8 @@ namespace VKalVrtAthena {
       
       // reject the selected track
       if( itrk == maxChi2TrackIndex ) {
-	ATH_MSG_VERBOSE(" >> disassembleVertex(): > skipped." );
-	continue;
+  ATH_MSG_VERBOSE(" >> disassembleVertex(): > skipped." );
+  continue;
       }
       
       const size_t this_trk_id     = wrkvrt.selectedTrackIndices[itrk];
@@ -173,12 +173,12 @@ namespace VKalVrtAthena {
       
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id  = " << this_trk_id << ", selected_trk_id = " << selected_trk_id << ", alltrks_size = " << m_selectedTracks->size() );
       if( this_trk_id >= m_selectedTracks->size() ) {
-	ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id is invalid. continue!" );
-	continue;
+  ATH_MSG_VERBOSE(" >> disassembleVertex(): > this_trk_id is invalid. continue!" );
+  continue;
       }
       if( selected_trk_id >= m_selectedTracks->size() ) {
-	ATH_MSG_VERBOSE(" >> disassembleVertex(): > selected_trk_id is invalid. continue!" );
-	continue;
+  ATH_MSG_VERBOSE(" >> disassembleVertex(): > selected_trk_id is invalid. continue!" );
+  continue;
       }
       
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > Storing tracks to ListBaseTracks" );
@@ -188,7 +188,7 @@ namespace VKalVrtAthena {
       vector<const xAOD::TrackParticle*>    ListBaseTracks;
       ListBaseTracks.emplace_back( m_selectedTracks->at( this_trk_id     ) );
       ListBaseTracks.emplace_back( m_selectedTracks->at( selected_trk_id ) );
-	
+  
       ATH_MSG_VERBOSE(" >> disassembleVertex(): > ListBaseTracks was stored." );
       
       WrkVrt newvrt;
@@ -333,9 +333,9 @@ namespace VKalVrtAthena {
 
   //____________________________________________________________________________________________________
   void VrtSecInclusive::removeTrackFromVertex(std::vector<WrkVrt> *workVerticesContainer, 
-					      std::vector< std::deque<long int> > *TrkInVrt,
-					      const long int & trackIndexToRemove,
-					      const long int & SelectedVertex)
+                std::vector< std::deque<long int> > *TrkInVrt,
+                const long int & trackIndexToRemove,
+                const long int & SelectedVertex)
   {
     
     auto& wrkvrt = workVerticesContainer->at(SelectedVertex);
@@ -551,13 +551,13 @@ namespace VKalVrtAthena {
     ATH_MSG_VERBOSE( " >>> refitVertex: approx vertex is set. Now going to perform fitting..." );
     
     StatusCode SC=m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
-				       workVertex.vertex,
-				       workVertex.vertexMom,
-				       workVertex.Charge,
-				       workVertex.vertexCov,
-				       workVertex.Chi2PerTrk, 
-				       workVertex.TrkAtVrt,
-				       workVertex.Chi2); 
+               workVertex.vertex,
+               workVertex.vertexMom,
+               workVertex.Charge,
+               workVertex.vertexCov,
+               workVertex.Chi2PerTrk, 
+               workVertex.TrkAtVrt,
+               workVertex.Chi2); 
 
     auto& cov = workVertex.vertexCov;
         
@@ -615,13 +615,13 @@ namespace VKalVrtAthena {
     ATH_MSG_VERBOSE( " >>> " << __FUNCTION__ << ": approx vertex is set. Now going to perform fitting..." );
     
     StatusCode SC=m_fitSvc->VKalVrtFit(ListBaseTracks,dummyNeutrals,
-				       workVertex.vertex,
-				       workVertex.vertexMom,
-				       workVertex.Charge,
-				       workVertex.vertexCov,
-				       workVertex.Chi2PerTrk, 
-				       workVertex.TrkAtVrt,
-				       workVertex.Chi2); 
+               workVertex.vertex,
+               workVertex.vertexMom,
+               workVertex.Charge,
+               workVertex.vertexCov,
+               workVertex.Chi2PerTrk, 
+               workVertex.TrkAtVrt,
+               workVertex.Chi2); 
 
     auto& cov = workVertex.vertexCov;
         
@@ -653,7 +653,7 @@ namespace VKalVrtAthena {
     size_t nTrkCom = 0;
     
     for( auto& index : trackIndices1 ) {
-	if( std::find(trackIndices2.begin(),trackIndices2.end(), index) != trackIndices2.end()) nTrkCom++;
+  if( std::find(trackIndices2.begin(),trackIndices2.end(), index) != trackIndices2.end()) nTrkCom++;
     }
     
     return nTrkCom;
@@ -764,7 +764,10 @@ namespace VKalVrtAthena {
     
     // A test implementation for muon vertices
     declareProperty("doSelectTracksFromMuons",         m_jp.doSelectTracksFromMuons         = false                         );
+    declareProperty("doRemoveCaloTaggedMuons",         m_jp.doRemoveCaloTaggedMuons         = false                         );
     declareProperty("doSelectTracksFromElectrons",     m_jp.doSelectTracksFromElectrons     = false                         );
+    // Select tracks with additonal LRT Cuts (inspiried by Run 3 LRT optimization studies)
+    declareProperty("doSelectTracksWithLRTCuts",     m_jp.doSelectTracksWithLRTCuts     = false                               );
     
     // Additional dressing option
     declareProperty("doAugmentDVimpactParametersToMuons",     m_jp.doAugmentDVimpactParametersToMuons     = false           );
@@ -810,12 +813,12 @@ namespace VKalVrtAthena {
       if( m_jp.FillNtuple ) {
         
         if( 0 == m_ntupleVars->get<unsigned int>( "NumPV" ) ) {
-	
+  
           m_ntupleVars->get<double>( "PVX" ) = vertex->x();
           m_ntupleVars->get<double>( "PVY" ) = vertex->y();
           m_ntupleVars->get<double>( "PVZ" ) = vertex->z();
           m_ntupleVars->get<unsigned int>( "PVType" ) = vertex->vertexType();
-	
+  
           // number of tracks associated to the PV
           m_ntupleVars->get<unsigned int>( "NTrksPV" ) = vertex->nTrackParticles();
         }
@@ -827,10 +830,10 @@ namespace VKalVrtAthena {
       }
       
       ATH_MSG_DEBUG("PrimVertex x/y/z/nDOF "
-		    << vertex->x() << ","
-		    << vertex->y() << ","
-		    << vertex->z() << ","
-		    << vertex->numberDoF()     );
+        << vertex->x() << ","
+        << vertex->y() << ","
+        << vertex->z() << ","
+        << vertex->numberDoF()     );
       
     }
     
@@ -838,18 +841,18 @@ namespace VKalVrtAthena {
     if( !m_thePV ) {
       ATH_MSG_DEBUG("No Reconstructed PV was found. Using the dummy PV instead.");
       for( auto *vertex : *m_primaryVertices ) {
-	if( xAOD::VxType::NoVtx != vertex->vertexType() ) continue;
-	
+  if( xAOD::VxType::NoVtx != vertex->vertexType() ) continue;
+  
         if( m_jp.FillNtuple ) {
           // Not considering pile-up; pick-up the first PV
           if( 0 == m_ntupleVars->get<unsigned int>( "NumPV" ) ) {
             m_thePV = vertex;
-	  
+    
             m_ntupleVars->get<double>( "PVX" ) = vertex->x();
             m_ntupleVars->get<double>( "PVY" ) = vertex->y();
             m_ntupleVars->get<double>( "PVZ" ) = vertex->z();
             m_ntupleVars->get<unsigned int>( "PVType" ) = vertex->vertexType();
-	  
+    
             // number of tracks associated to the PV
             m_ntupleVars->get<unsigned int>( "NTrksPV" ) = vertex->nTrackParticles();
           }
@@ -885,7 +888,7 @@ namespace VKalVrtAthena {
       if( trackIndices.size() < 2 ) continue;
       
       for( auto& index : trackIndices ) {
-	trackToVertexMap[index].emplace_back( iv );
+  trackToVertexMap[index].emplace_back( iv );
       }
     }
     
@@ -903,9 +906,9 @@ namespace VKalVrtAthena {
   
   //____________________________________________________________________________________________________
   double VrtSecInclusive::findWorstChi2ofMaximallySharedTrack(std::vector<WrkVrt> *workVerticesContainer, 
-				      std::map<long int, std::vector<long int> >& trackToVertexMap,
-				      long int & maxSharedTrack,
-				      long int & worstMatchingVertex)
+              std::map<long int, std::vector<long int> >& trackToVertexMap,
+              long int & maxSharedTrack,
+              long int & worstMatchingVertex)
   {
 
     double worstChi2 = AlgConsts::invalidFloat;
@@ -1096,19 +1099,19 @@ namespace VKalVrtAthena {
         enum { Pixel = 1, SCT = 2 };
         
         const auto& id = detElement->identify();
-	Flag good = false;
+  Flag good = false;
         
         if( m_atlasId->is_pixel(id) ) {
           
           auto idHash = m_pixelId->wafer_hash( id );
-	  good = m_pixelCondSummarySvc->isGood( idHash );
+    good = m_pixelCondSummarySvc->isGood( idHash );
           
           pattern->emplace_back( std::make_tuple( position, Pixel, m_pixelId->barrel_ec(id), m_pixelId->layer_disk(id), good ) );
           
         } else if( m_atlasId->is_sct(id) ) {
           
           auto idHash = m_sctId->wafer_hash( id );
-	  good = m_sctCondSummarySvc->isGood( idHash );
+    good = m_sctCondSummarySvc->isGood( idHash );
           
           pattern->emplace_back( std::make_tuple( position, SCT, m_sctId->barrel_ec(id), m_sctId->layer_disk(id), good ) );
           
@@ -1119,7 +1122,7 @@ namespace VKalVrtAthena {
           ATH_MSG_VERBOSE(" >> " << __FUNCTION__ << ", track " << trk << ": position = (" << position.Perp() << ", " << position.z() << ", " << position.Phi() << "), detElement ID = " << id << ", good = " << good
                           << ": (det, bec, layer) = (" << std::get<1>( pattern->back() ) << ", " << std::get<2>( pattern->back() ) << ", "  << std::get<3>( pattern->back() ) << ")" );
           
-	  if( !good ) nDisabled++;
+    if( !good ) nDisabled++;
         }
         
       }
@@ -1418,22 +1421,22 @@ namespace VKalVrtAthena {
     // vertex area classification
     enum vertexArea {
       insideBeamPipe,
-	
+  
       insidePixelBarrel0,
       aroundPixelBarrel0,
-	
+  
       outsidePixelBarrel0_and_insidePixelBarrel1,
       aroundPixelBarrel1,
-	
+  
       outsidePixelBarrel1_and_insidePixelBarrel2,
       aroundPixelBarrel2,
-	
+  
       outsidePixelBarrel2_and_insidePixelBarrel3,
       aroundPixelBarrel3,
-	
+  
       outsidePixelBarrel3_and_insideSctBarrel0,
       aroundSctBarrel0,
-	
+  
       outsideSctBarrel0_and_insideSctBarrel1,
       aroundSctBarrel1,
     };
@@ -1442,43 +1445,43 @@ namespace VKalVrtAthena {
     int vertex_pattern = 0;
     if( rad < 23.50 ) {
       vertex_pattern = insideBeamPipe;
-	
+  
     } else if( rad < 31.0 && absz < 331.5 ) {
       vertex_pattern = insidePixelBarrel0;
-	
+  
     } else if( rad < 38.4 && absz < 331.5 ) {
       vertex_pattern = aroundPixelBarrel0;
-	
+  
     } else if( rad < 47.7 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
-	
+  
     } else if( rad < 54.4 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel1;
-	
+  
     } else if( rad < 85.5 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
+  
     } else if( rad < 92.2 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel2;
-	
+  
     } else if( rad < 119.3 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
+  
     } else if( rad < 126.1 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel3;
-	
+  
     } else if( rad < 290 && absz < 749.0 ) {
       vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
+  
     } else if( rad < 315 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel0;
-	
+  
     } else if( rad < 360 && absz < 749.0 ) {
       vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
+  
     } else if( rad < 390 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel1;
-	
+  
     } else {
     }
     
@@ -1495,20 +1498,20 @@ namespace VKalVrtAthena {
     
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( nPixelLayers < 3 )                     return false;
-	
-	
+  
+  
     } else if( vertex_pattern == insidePixelBarrel0 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( nPixelLayers < 3 )                     return false;
     }
       
       
     else if( vertex_pattern == aroundPixelBarrel0 ) {
-	
+  
       // require nothing for PixelBarrel0
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( nPixelLayers < 2 )                     return false;
@@ -1516,7 +1519,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( nPixelLayers < 2 )                     return false;
@@ -1524,7 +1527,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       // require nothing for PixelBarrel
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1533,7 +1536,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1542,7 +1545,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       // require nothing for PixelBarrel2
@@ -1551,15 +1554,15 @@ namespace VKalVrtAthena {
       
 
     else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
-	
+  
     else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1569,7 +1572,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1579,7 +1582,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundSctBarrel0 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1590,7 +1593,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1632,22 +1635,22 @@ namespace VKalVrtAthena {
     // vertex area classification
     enum vertexArea {
       insideBeamPipe,
-	
+  
       insidePixelBarrel0,
       aroundPixelBarrel0,
-	
+  
       outsidePixelBarrel0_and_insidePixelBarrel1,
       aroundPixelBarrel1,
-	
+  
       outsidePixelBarrel1_and_insidePixelBarrel2,
       aroundPixelBarrel2,
-	
+  
       outsidePixelBarrel2_and_insidePixelBarrel3,
       aroundPixelBarrel3,
-	
+  
       outsidePixelBarrel3_and_insideSctBarrel0,
       aroundSctBarrel0,
-	
+  
       outsideSctBarrel0_and_insideSctBarrel1,
       aroundSctBarrel1,
     };
@@ -1656,43 +1659,43 @@ namespace VKalVrtAthena {
     int vertex_pattern = 0;
     if( rad < 23.50 ) {
       vertex_pattern = insideBeamPipe;
-	
+  
     } else if( rad < 31.0 && absz < 331.5 ) {
       vertex_pattern = insidePixelBarrel0;
-	
+  
     } else if( rad < 38.4 && absz < 331.5 ) {
       vertex_pattern = aroundPixelBarrel0;
-	
+  
     } else if( rad < 47.7 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel0_and_insidePixelBarrel1;
-	
+  
     } else if( rad < 54.4 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel1;
-	
+  
     } else if( rad < 85.5 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
+  
     } else if( rad < 92.2 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel2;
-	
+  
     } else if( rad < 119.3 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
+  
     } else if( rad < 126.1 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel3;
-	
+  
     } else if( rad < 290 && absz < 749.0 ) {
       vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
+  
     } else if( rad < 315 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel0;
-	
+  
     } else if( rad < 360 && absz < 749.0 ) {
       vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
+  
     } else if( rad < 390 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel1;
-	
+  
     } else {
     }
       
@@ -1710,13 +1713,13 @@ namespace VKalVrtAthena {
     
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( nPixelLayers < 3                     ) return false;
       
     } else if( vertex_pattern == insidePixelBarrel0 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( nPixelLayers < 3                     ) return false;
@@ -1725,7 +1728,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundPixelBarrel0 ) {
-	
+  
       // require nothing for PixelBarrel0
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
@@ -1734,7 +1737,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel0_and_insidePixelBarrel1 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( nPixelLayers < 3                     ) return false;
@@ -1742,7 +1745,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
+  
       // require nothing for PixelBarrel1
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
@@ -1751,7 +1754,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
       if( nPixelLayers < 2                     ) return false;
@@ -1759,19 +1762,19 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
+  
       // require nothing for PixelBarrel2
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
       
 
     else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
-	
+  
     else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
+  
       // require nothing for PixelBarrel3
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
@@ -1779,14 +1782,14 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
+  
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundSctBarrel0 ) {
-	
+  
       // require nothing for SctBarrel0
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::sctBarrel2)) ) return false;
@@ -1826,19 +1829,19 @@ namespace VKalVrtAthena {
     // vertex area classification
     enum vertexArea {
       insideBeamPipe,
-	
+  
       insidePixelBarrel1,
       aroundPixelBarrel1,
-	
+  
       outsidePixelBarrel1_and_insidePixelBarrel2,
       aroundPixelBarrel2,
-	
+  
       outsidePixelBarrel2_and_insidePixelBarrel3,
       aroundPixelBarrel3,
-	
+  
       outsidePixelBarrel3_and_insideSctBarrel0,
       aroundSctBarrel0,
-	
+  
       outsideSctBarrel0_and_insideSctBarrel1,
       aroundSctBarrel1,
     };
@@ -1847,71 +1850,71 @@ namespace VKalVrtAthena {
     Int_t vertex_pattern = 0;
     if( rad < 25.00 ) {
       vertex_pattern = insideBeamPipe;
-	
+  
     } else if( rad < 47.7 && absz < 400.5 ) {
       vertex_pattern = insidePixelBarrel1;
-	
+  
     } else if( rad < 54.4 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel1;
-	
+  
     } else if( rad < 85.5 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
+  
     } else if( rad < 92.2 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel2;
-	
+  
     } else if( rad < 119.3 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
+  
     } else if( rad < 126.1 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel3;
-	
+  
     } else if( rad < 290 && absz < 749.0 ) {
       vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
+  
     } else if( rad < 315 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel0;
-	
+  
     } else if( rad < 360 && absz < 749.0 ) {
       vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
+  
     } else if( rad < 390 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel1;
-	
+  
     } else {
     }
       
       
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	
+  
     }
       
       
     else if( vertex_pattern == insidePixelBarrel1 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
+  
       // require nothing for PixelBarrel1
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       // require nothing for PixelBarrel2
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
@@ -1919,14 +1922,14 @@ namespace VKalVrtAthena {
       
 
     else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
-	
+  
     else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       // require nothing for PixelBarrel3
@@ -1935,7 +1938,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
@@ -1944,7 +1947,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == aroundSctBarrel0 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
@@ -1954,7 +1957,7 @@ namespace VKalVrtAthena {
       
       
     else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
+  
       if(   (pattern & (1<<Trk::pixelBarrel1)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel2)) ) return false;
       if(   (pattern & (1<<Trk::pixelBarrel3)) ) return false;
@@ -1991,19 +1994,19 @@ namespace VKalVrtAthena {
     // vertex area classification
     enum vertexArea {
       insideBeamPipe,
-	
+  
       insidePixelBarrel1,
       aroundPixelBarrel1,
-	
+  
       outsidePixelBarrel1_and_insidePixelBarrel2,
       aroundPixelBarrel2,
-	
+  
       outsidePixelBarrel2_and_insidePixelBarrel3,
       aroundPixelBarrel3,
-	
+  
       outsidePixelBarrel3_and_insideSctBarrel0,
       aroundSctBarrel0,
-	
+  
       outsideSctBarrel0_and_insideSctBarrel1,
       aroundSctBarrel1,
     };
@@ -2012,102 +2015,102 @@ namespace VKalVrtAthena {
     Int_t vertex_pattern = 0;
     if( rad < 25.00 ) {
       vertex_pattern = insideBeamPipe;
-	
+  
     } else if( rad < 47.7 && absz < 400.5 ) {
       vertex_pattern = insidePixelBarrel1;
-	
+  
     } else if( rad < 54.4 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel1;
-	
+  
     } else if( rad < 85.5 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel1_and_insidePixelBarrel2;
-	
+  
     } else if( rad < 92.2 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel2;
-	
+  
     } else if( rad < 119.3 && absz < 400.5 ) {
       vertex_pattern = outsidePixelBarrel2_and_insidePixelBarrel3;
-	
+  
     } else if( rad < 126.1 && absz < 400.5 ) {
       vertex_pattern = aroundPixelBarrel3;
-	
+  
     } else if( rad < 290 && absz < 749.0 ) {
       vertex_pattern = outsidePixelBarrel3_and_insideSctBarrel0;
-	
+  
     } else if( rad < 315 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel0;
-	
+  
     } else if( rad < 360 && absz < 749.0 ) {
       vertex_pattern = outsideSctBarrel0_and_insideSctBarrel1;
-	
+  
     } else if( rad < 390 && absz < 749.0 ) {
       vertex_pattern = aroundSctBarrel1;
-	
+  
     } else {
     }
       
       
     //////////////////////////////////////////////////////////////////////////////////
     if( vertex_pattern == insideBeamPipe ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
-	
+  
     }
       
       
     else if( vertex_pattern == insidePixelBarrel1 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel1)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundPixelBarrel1 ) {
-	
+  
       // require nothing for PixelBarrel1
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel1_and_insidePixelBarrel2 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel2)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundPixelBarrel2 ) {
-	
+  
       // require nothing for PixelBarrel2
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
       
 
     else if( vertex_pattern == outsidePixelBarrel2_and_insidePixelBarrel3 ) {
-	
+  
       if( ! (pattern & (1<<Trk::pixelBarrel3)) ) return false;
     }
-	
+  
     else if( vertex_pattern == aroundPixelBarrel3 ) {
-	
+  
       // require nothing for PixelBarrel3
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
     }
       
       
     else if( vertex_pattern == outsidePixelBarrel3_and_insideSctBarrel0 ) {
-	
+  
       if( ! (pattern & (1<<Trk::sctBarrel0)) ) return false;
     }
       
       
     else if( vertex_pattern == aroundSctBarrel0 ) {
-	
+  
       // require nothing for SctBarrel0
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
     }
       
       
     else if( vertex_pattern == outsideSctBarrel0_and_insideSctBarrel1 ) {
-	
+  
       if( ! (pattern & (1<<Trk::sctBarrel1)) ) return false;
     }
       
@@ -2154,7 +2157,7 @@ namespace VKalVrtAthena {
     const uint32_t pattern = trk->hitPattern();
     
     return patternCheck( pattern, vertex );
-	
+  
   }
   
 
@@ -2165,7 +2168,7 @@ namespace VKalVrtAthena {
     const uint32_t pattern = trk->hitPattern();
     
     return patternCheckOuterOnly( pattern, vertex );
-	
+  
   }
   
 
@@ -2287,8 +2290,8 @@ namespace VKalVrtAthena {
   
   //____________________________________________________________________________________________________
   bool VrtSecInclusive::passedFakeReject( const Amg::Vector3D& FitVertex,
-					  const xAOD::TrackParticle *itrk,
-					  const xAOD::TrackParticle *jtrk  )
+            const xAOD::TrackParticle *itrk,
+            const xAOD::TrackParticle *jtrk  )
   {
     
     const bool& check_itrk = ( this->*m_patternStrategyFuncs[m_checkPatternStrategy] )( itrk, FitVertex );
