@@ -9,6 +9,7 @@ from AthenaCommon.Constants import INFO
 
 import GaudiKernel.GaudiHandles as GaudiHandles
 import GaudiConfig2
+import AthenaPython
 from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 
 import collections
@@ -331,8 +332,11 @@ class ComponentAccumulator(object):
             raise ConfigurationError("Can not find sequence %s" % sequenceName )
 
         for algo in algorithms:
-            if algo.__component_type__ != "Algorithm":
+            if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):
                 raise TypeError("Attempt to add wrong type: %s as event algorithm" % type( algo ).__name__)
+                
+            if algo.__component_type__ != "Algorithm":
+                raise TypeError("Attempt to add an %s as event algorithm" % algo.__component_type__) 
 
             if algo.name in self._algorithms:
                 self._algorithms[algo.name].merge(algo)
@@ -368,8 +372,11 @@ class ComponentAccumulator(object):
         return list( set( sum( flatSequencers( seq, algsCollection=self._algorithms ).values(), []) ) )
 
     def addCondAlgo(self,algo,primary=False):
-        if algo.__component_type__ != "Algorithm":
+        if not isinstance(algo,GaudiConfig2._configurables.Configurable) and not isinstance(algo,AthenaPython.Configurables.CfgPyAlgorithm):
             raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % type( algo ).__name__)
+
+        if algo.__component_type__ != "Algorithm":
+            raise TypeError("Attempt to add wrong type: %s as conditions algorithm" % algo.__component_type__)
             pass
         deduplicate(algo,self._conditionsAlgs) #will raise on conflict
         if primary:
@@ -389,6 +396,10 @@ class ComponentAccumulator(object):
         return hits[0]
 
     def addService(self,newSvc,primary=False,create=False):
+
+        if not isinstance(newSvc,GaudiConfig2._configurables.Configurable) and not isinstance(newSvc,AthenaPython.Configurables.CfgPyService):
+            raise TypeError("Attempt to add wrong type: %s as service" % type( newSvc ).__name__)
+
         if newSvc.__component_type__ != "Service":
             raise TypeError("Attempt to add wrong type: %s as service" % newSvc.__component_type__)
             pass
@@ -408,8 +419,11 @@ class ComponentAccumulator(object):
         return
 
     def addPublicTool(self,newTool,primary=False):
+        if not isinstance(newTool,GaudiConfig2._configurables.Configurable) and not isinstance(newTool,AthenaPython.Configurables.CfgPyAlgTool):
+            raise TypeError("Attempt to add wrong type: %s as public AlgTool" % type( newTool ).__name__)
+
         if newTool.__component_type__ != "AlgTool":
-            raise TypeError("Attempt to add wrong type: %s as AlgTool" % type( newTool ).__name__)
+            raise TypeError("Attempt to add wrong type: %s as public AlgTool" % newTool.__component_type__)
 
         deduplicate(newTool,self._publicTools)
         if primary:
