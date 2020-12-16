@@ -2,19 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/**
- * ==============================================================================
- * ATLAS Muon Identifier Helpers Package
- * -----------------------------------------
- * ==============================================================================
- */
-
-// Includes
 #include "MuonIdHelpers/MmIdHelper.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 /*******************************************************************************/ 
 // Constructor/Destructor
@@ -36,6 +25,7 @@ int MmIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr) {
   }
 
   // init base object
+  AtlasDetectorID::setMessageSvc(Athena::getMessageSvc());
   if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
 
   // Register version of the MuonSpectrometer dictionary

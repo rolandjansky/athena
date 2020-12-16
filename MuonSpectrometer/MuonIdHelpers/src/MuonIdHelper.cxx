@@ -2,16 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ******************************************************************************
-// ATLAS Muon Identifier Helpers Package
-// -----------------------------------------
-// ******************************************************************************
-
-//<doc><file> $Id: MuonIdHelper.cxx,v 1.48 2007-11-25 16:33:41 ketevi Exp $
-//<version>   $Name: not supported by cvs2svn $
-
-// Includes
- 
 #include "MuonIdHelpers/MuonIdHelper.h"
 
 #include "GaudiKernel/ISvcLocator.h"
@@ -19,10 +9,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
-
 const std::string MuonIdHelper::BAD_NAME = "UNKNOWN";
-
-// Constructor
 
 MuonIdHelper::MuonIdHelper(std::string logName): m_station_region_index(0), m_module_hash_max(0),
   m_channel_hash_max(0), m_detectorElement_hash_max(0), m_init(false) {
@@ -43,12 +30,6 @@ MuonIdHelper::MuonIdHelper(std::string logName): m_station_region_index(0), m_mo
   StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
   if (sc.isFailure()) std::cout << "Fail to locate Message Service" << std::endl;
   m_Log = std::make_unique<MsgStream>(msgSvc, logName.empty() ? "MuonIdHelper" : logName);
-}
-
-// Destructor
-
-MuonIdHelper::~MuonIdHelper()
-{
 }
 
 int
