@@ -137,8 +137,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       is_fei4 = false;
     }
     // flagging/counting categorized errors per module.
-    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {false};
-    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {0};
+    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {{false}};
+    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {{0}};
 
     // count number of words w/ MCC/FE flags per module
     unsigned int num_femcc_errwords = 0;
