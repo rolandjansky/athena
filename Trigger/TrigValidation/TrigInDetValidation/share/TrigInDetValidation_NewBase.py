@@ -73,7 +73,8 @@ rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 rdo2aod.config_only       = testconfig
-
+if 'Release' in dir():
+    rdo2aod.release           = Release
 
 
 if "Args" not in locals() : 
