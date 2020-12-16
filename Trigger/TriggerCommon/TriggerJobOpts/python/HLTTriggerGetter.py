@@ -145,7 +145,9 @@ class HLTSimulationGetter(Configured):
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        ServiceMgr += RegSelSvcDefault()
+        regsel = RegSelSvcDefault()
+        regsel.enableCalo = TriggerFlags.doCalo()
+        ServiceMgr += regsel
 
         # Configure the Data Preparation for Calo
         if TriggerFlags.doCalo():

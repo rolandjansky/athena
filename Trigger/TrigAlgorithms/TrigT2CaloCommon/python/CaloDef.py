@@ -13,7 +13,9 @@ def setMinimalCaloSetup() :
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
   if not hasattr(svcMgr,'RegSelSvcDefault'):
     from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-    svcMgr += RegSelSvcDefault()
+    regsel = RegSelSvcDefault()
+    regsel.enableCalo = True
+    svcMgr += regsel
 
 
 
