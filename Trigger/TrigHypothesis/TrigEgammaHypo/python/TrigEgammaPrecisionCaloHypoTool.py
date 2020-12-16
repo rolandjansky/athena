@@ -4,9 +4,8 @@ from AthenaCommon.SystemOfUnits import GeV
 
 def _IncTool(name, threshold, sel):
 
-    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionCaloHypoToolInc    
-
-    tool = TrigEgammaPrecisionCaloHypoToolInc( name ) 
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    tool = CompFactory.TrigEgammaPrecisionCaloHypoToolInc(name)
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
     monTool = GenericMonitoringTool("MonTool_"+name)
@@ -22,7 +21,7 @@ def _IncTool(name, threshold, sel):
     monTool.Histograms += [ defineHistogram('CutCounter', type='TH1I', path='EXPERT', title="PrecisionCalo Hypo Passed Cuts;Cut",
                                             xbins=13, xmin=-1.5, xmax=12.5,  opt="kCumulative", xlabels=cuts) ]
 
-    monTool.HistPath = 'PrecisionCaloHypo/'+tool.name()
+    monTool.HistPath = 'PrecisionCaloHypo/'+tool.getName()
     tool.MonTool = monTool
 
 
