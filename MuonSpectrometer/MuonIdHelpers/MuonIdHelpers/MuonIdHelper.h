@@ -2,18 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ******************************************************************************
-// ATLAS Muon Identifier Helpers Package
-// -----------------------------------------
-// ******************************************************************************
-
-//<doc><file> $Id: MuonIdHelper.h,v 1.31 2007-11-25 18:19:00 ketevi Exp $
-//<version>   $Name: not supported by cvs2svn $
-
 #ifndef DETECTORDESCRIPTION_MUONIDHELPER_H
 #define DETECTORDESCRIPTION_MUONIDHELPER_H
-
-// Includes
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "Identifier/IdentifierHash.h"
@@ -30,7 +20,6 @@
 #include <stdexcept>
 
 class IdDictDictionary;
-class IMessageSvc;
 
 // ******************************************************************************
 // class MuonIdHelper
@@ -98,7 +87,7 @@ class MuonIdHelper : public AtlasDetectorID
 
   // Destructor
 
-  virtual ~MuonIdHelper();
+  virtual ~MuonIdHelper()=default;
 
   // Build identifier
 
