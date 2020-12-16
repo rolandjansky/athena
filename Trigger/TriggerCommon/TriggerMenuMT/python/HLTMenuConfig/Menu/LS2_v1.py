@@ -41,7 +41,7 @@ def setupMenu():
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu6_idperfLRT_l2lrt_L1MU6',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_LRT_idperf_l2lrt_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 

@@ -1188,7 +1188,7 @@ HLT_mu6_L1MU6:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu6_idperfLRT_l2lrt_L1MU6:
+HLT_mu6_LRT_idperf_l2lrt_L1MU6:
   eventCount: 1
   stepCounts:
     0: 1

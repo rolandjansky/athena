@@ -2222,7 +2222,7 @@ HLT_mu6_L1MU6:
     1: 12
     2: 13
     3: 13
-HLT_mu6_idperfLRT_l2lrt_L1MU6:
+HLT_mu6_LRT_idperf_l2lrt_L1MU6:
   eventCount: 10
   stepCounts:
     0: 10
