@@ -38,7 +38,6 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-class IRegSelSvc;
 class Incident;
 class MsgStream;
 
@@ -97,9 +96,6 @@ class MuFastSteering : public HLT::FexAlgo,
 
   // handler for "UpdateAfterFork" actions
   void handle(const Incident& incident);
-  
-  using HLT::FexAlgo::prepareRobRequests;
-  virtual HLT::ErrorCode prepareRobRequests(const HLT::TriggerElement* inputTE );
 
  protected:
   
@@ -164,8 +160,6 @@ class MuFastSteering : public HLT::FexAlgo,
   ServiceHandle<ITrigTimerSvc> m_timerSvc;
   std::vector<TrigTimer*> m_timingTimers;
 
-  ServiceHandle<IRegSelSvc> m_regionSelector;
-  
   // Tools
   ToolHandle<TrigL2MuonSA::MuFastDataPreparator>     m_dataPreparator {
 	this, "DataPreparator", "TrigL2MuonSA::MuFastDataPreparator", "data preparator" };
