@@ -1,24 +1,25 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IInDetTestBLayerTool_H
 #define IInDetTestBLayerTool_H
-#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/IAlgTool.h"
-#include "GaudiKernel/ThreadLocalContext.h"
+#include "GaudiKernel/ThreadLocalContext.h" //for Gaudi::Hive::currentContext()
 #include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/ResidualPull.h"
 #include <vector>
-#include <string>
 
 namespace Trk {
-class Track;
-class IResidualPullCalculator;
+  class Track;
+  class IResidualPullCalculator;
+  class ResidualPull;
 }
+
 namespace InDet {
 class TrackStateOnBLayerInfo;
 }
+
+class EventContext;
 
 namespace InDet {
 

@@ -1,40 +1,31 @@
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
+#include "InDetTestBLayer/InDetTestBLayerTool.h"
 
-#include "AthenaBaseComps/AthAlgTool.h"
-#include "AthenaBaseComps/AthService.h"
-
+#include "TrkEventPrimitives/ResidualPull.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetTestBLayer/InDetTestBLayerTool.h"
+#include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
+#include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
 #include "Particle/TrackParticle.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-
 #include "TrkSurfaces/CylinderSurface.h"
-
 #include "TrkGeometry/Layer.h"
-
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/PixelID.h"
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "IdDictDetDescr/IdDictManager.h"
-
-
-#include <iostream>
-#include <sstream>
+#include "GaudiKernel/EventContext.h"
 
 using Amg::Transform3D;
 // don't want to include TrackSummary in the header
 // therefore anonymous "static" definition in the implementation file
-//namespace {
-  static const Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
-    Trk::expectInnermostPixelLayerHit,
-    Trk::expectNextToInnermostPixelLayerHit
-  };
-//}
+static const Trk::SummaryType s_layerSummaryTypeExpectHit[2] {
+  Trk::expectInnermostPixelLayerHit,
+  Trk::expectNextToInnermostPixelLayerHit
+};
 
 
 namespace InDet {
