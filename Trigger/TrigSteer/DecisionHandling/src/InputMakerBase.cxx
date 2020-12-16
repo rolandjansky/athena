@@ -107,7 +107,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
   std::vector<uint32_t> keysA;
   std::vector<uint32_t> clidsA;
   std::vector<uint16_t> indiciesA;
-  TrigCompositeUtils::typelessfindLinks(toMatch, linkNameToMatch, keysA, clidsA, indiciesA, TrigDefs::lastFeatureOfType, &cache);
+  TrigCompositeUtils::typelessFindLinks(toMatch, linkNameToMatch, keysA, clidsA, indiciesA, TrigDefs::lastFeatureOfType, &cache);
   
   if (keysA.size() != 1) {
     ATH_MSG_ERROR("InputMakerBase::matchDecision Did not locate exactly one object having searched for a link named '" << linkNameToMatch 
@@ -129,7 +129,7 @@ size_t InputMakerBase::matchDecision(const DecisionContainer* outDecisions, cons
     std::vector<uint32_t> keysB;
     std::vector<uint32_t> clidsB;
     std::vector<uint16_t> indiciesB;
-    TrigCompositeUtils::typelessfindLinks(checkDecision, linkNameToMatch, keysB, clidsB, indiciesB, TrigDefs::lastFeatureOfType, &cache);
+    TrigCompositeUtils::typelessFindLinks(checkDecision, linkNameToMatch, keysB, clidsB, indiciesB, TrigDefs::lastFeatureOfType, &cache);
     if (keysB.size() != 1) {
       ATH_MSG_ERROR("Logic error. Expect toMatch size == 1 (confirmed) and checkObject size == 1."
         << " But have checkObject size = " << keysB.size() << ". Unable to match this Decision object.");
