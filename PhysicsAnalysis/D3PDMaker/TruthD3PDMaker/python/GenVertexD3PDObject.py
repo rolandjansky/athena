@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file TruthD3PDMaker/python/GenParticleD3PDObject.py
@@ -29,9 +29,9 @@ def make_GenVertex_D3PDObject( default_prefix, default_sgkey,
                   getter = None, sgkey = None, filter = default_filter,
                   label = default_label, **kw ):
 
-        if sgkey == None: sgkey = default_sgkey
-        if label == None: label = TruthD3PDKeys.GenVertexGetterLabel()
-        if getter == None:
+        if sgkey is None: sgkey = default_sgkey
+        if label is None: label = TruthD3PDKeys.GenVertexGetterLabel()
+        if getter is None:
             getter = TruthD3PDMaker.GenVertexGetterTool( name + '_Getter',
                                                          Label = label,
                                                          Selector = filter,
@@ -60,7 +60,7 @@ GenVertexD3PDObject.defineBlock( 0,
                                  TruthD3PDMaker.GenVertexFillerTool,
                                  WriteID=TruthD3PDFlags.WriteTruthVertexIDs() )
 
-if TruthD3PDFlags.GenParticleAssocLabel() != None and TruthD3PDFlags.GenParticleAssocLabel() != "":
+if TruthD3PDFlags.GenParticleAssocLabel() is not None and TruthD3PDFlags.GenParticleAssocLabel() != "":
     if TruthD3PDFlags.GenVertexInPartAssoc():
         GenVertexPartInAssoc = \
            IndexMultiAssociation( GenVertexD3PDObject,
@@ -79,7 +79,7 @@ if TruthD3PDFlags.GenParticleAssocLabel() != None and TruthD3PDFlags.GenParticle
                                   prefix = 'outpart_',
                                   InParticles = False )
 
-if TruthD3PDFlags.GenEventAssocLabel() != None and TruthD3PDFlags.GenEventAssocLabel() != "": 
+if TruthD3PDFlags.GenEventAssocLabel() is not None and TruthD3PDFlags.GenEventAssocLabel() != "":
     GenVertexEventAssoc = IndexAssociation( GenVertexD3PDObject,
                                             TruthD3PDMaker.GenVertexEventAssociationTool,
                                             TruthD3PDFlags.GenEventAssocLabel(),

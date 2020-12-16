@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from egammaD3PDMaker.isem_version          import isem_version
 from EventCommonD3PDMaker.DRAssociation    import DRAssociation
 from D3PDMakerCoreComps.D3PDObject         import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.SimpleAssociation  import SimpleAssociation
@@ -9,10 +8,7 @@ from TruthD3PDMaker.Atlfast1D3PDMakerFlags import Atlfast1D3PDMakerFlags
 from RecExConfig.RecFlags                  import rec
 import egammaD3PDMaker
 import EventCommonD3PDMaker
-import D3PDMakerCoreComps
 
-from ROOT import egammaParameters
-from ROOT import egammaPID
 
 Atlfast1ElectronD3PDObject = \
            make_SGDataVector_D3PDObject ('ElectronContainer',
@@ -29,7 +25,7 @@ Atlfast1ElectronD3PDObject.defineBlock (0, 'Charge',
                                         EventCommonD3PDMaker.ChargeFillerTool)
 
 if rec.doTruth():
-    import TruthD3PDMaker.MCTruthClassifierConfig
+    import TruthD3PDMaker.MCTruthClassifierConfig  # noqa: F401 (import side-effect)
     Atlfast1ElectronD3PDObject.defineBlock (1, 'TruthClassification',
                                             egammaD3PDMaker.egammaTruthClassificationFillerTool)
     Atlfast1ElectronGenPartAssoc = SimpleAssociation \
