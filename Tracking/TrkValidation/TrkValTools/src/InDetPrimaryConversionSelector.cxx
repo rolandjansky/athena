@@ -59,61 +59,61 @@ StatusCode Trk::InDetPrimaryConversionSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetPrimaryConversionSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
   if (! SimTracks) return NULL;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
-
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
   
   for( ; itCollision != SimTracks->end(); ++itCollision ) {
     const HepMC::GenEvent*    genEvent = *itCollision;
-    HepMC::GenParticle * particle = NULL;
     
-    for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-         it != genEvent->particles_end(); ++it) {
-
-      particle = *it;
+    for (auto particle: *genEvent) {
 
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
-      if(particle->production_vertex() == NULL) {
+      if(!particle->production_vertex()) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
-        ATH_MSG_DEBUG   ("It's this one: " << *particle);
+        ATH_MSG_DEBUG   ("It's this one: " << particle);
         continue;
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
+        if ( std::fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             std::fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         int   pdgCode         = particle->pdg_id();
-        if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
+        if (std::abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
         const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgCode));
 
         if (!pd) { // nuclei excluded, still problems with a given type?
-          ATH_MSG_INFO ("Could not get particle data for particle with pdgCode="<<pdgCode<< ", status=" << particle->status() << ", barcode=" << particle->barcode());
-          ATH_MSG_INFO ("GenParticle= " << *particle);
+          ATH_MSG_INFO ("Could not get particle data for particle with pdgCode="<<pdgCode<< ", status=" << particle->status() << ", barcode=" << HepMC::barcode(particle));
+          ATH_MSG_INFO ("GenParticle= " << particle);
           continue;
         }
 
-	ATH_MSG_DEBUG ("found particle = " << *particle);
+	ATH_MSG_DEBUG ("found particle = " << particle);
 
 	// assume for the moment we're only running over single gamma MC files ...
-	HepMC::GenVertex* prodVertex( particle->production_vertex());
-	if ( abs(pdgCode) == 11 ) {
+        auto  prodVertex = particle->production_vertex();
+	if ( std::abs(pdgCode) == 11 ) {
 	  ATH_MSG_DEBUG ("Electron/Positron detected -- checking for production process ...");
-	  HepMC::GenVertex::particles_in_const_iterator inParticle     = prodVertex->particles_in_const_begin();
-	  HepMC::GenVertex::particles_out_const_iterator inParticleEnd = prodVertex->particles_in_const_end();
-	  for ( ; inParticle != inParticleEnd; ++inParticle) {
-	    ATH_MSG_DEBUG(" --> checking morther: " << *(*inParticle) );
-	    if ( abs((*inParticle)->pdg_id()) == 22 || abs((*inParticle)->pdg_id()) == 11 ){
-	      if (fabs(particle->momentum().perp()) >  m_minPt  &&  fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
+#ifdef HEPMC3
+	  for ( auto  inParticle: prodVertex->particles_in()) {
+#else
+	  HepMC::GenVertex::particles_in_const_iterator ItinParticle     = prodVertex->particles_in_const_begin();
+	  HepMC::GenVertex::particles_out_const_iterator ItinParticleEnd = prodVertex->particles_in_const_end();
+	  for ( ; ItinParticle != ItinParticleEnd; ++ItinParticle) {
+            auto inParticle=*ItinParticle;
+#endif
+	    ATH_MSG_DEBUG(" --> checking morther: " << inParticle );
+	    if ( std::abs(inParticle->pdg_id()) == 22 || std::abs(inParticle->pdg_id()) == 11 ){
+	      if (std::fabs(particle->momentum().perp()) >  m_minPt  &&  std::fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
 		genSignal->push_back(particle);
 		ATH_MSG_DEBUG ("Selected this electron/positron!");
 		break;
