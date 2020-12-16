@@ -13,7 +13,5 @@ echo "art-result: $? Reco"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=semi-detailed --order-trees
 echo "art-result: $? Diff"
-
-
