@@ -41,6 +41,7 @@ namespace Muon {
     //
     declareProperty("IPConstraint", m_ipConstraint = true);
     declareProperty("ClusterDistance", m_maxClustDist=5);
+    declareProperty("NOfSeedLayers", m_nOfSeedLayers=1);
   }
     
   StatusCode MuonClusterSegmentFinderTool::initialize() {
@@ -518,11 +519,11 @@ namespace Muon {
   MuonClusterSegmentFinderTool::segmentSeed( std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& orderedClusters, bool usePhi ) const {
 
     std::vector<std::pair<Amg::Vector3D,Amg::Vector3D> > seeds;
-    if(orderedClusters.size() < 2) return seeds;
+    if(orderedClusters.size() < 4) return seeds;
 
     //calculate the straight line between the two furthest points
     int seedlayers1 = 0;
-    for( unsigned int i = 0; (i<orderedClusters.size() && seedlayers1 < 2); ++i ){
+    for( unsigned int i = 0; (i<orderedClusters.size() && seedlayers1 < m_nOfSeedLayers); ++i ){
       
       bool usedLayer1 = false;
       for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit=orderedClusters[i].begin(); cit!=orderedClusters[i].end(); ++cit) {
@@ -533,7 +534,7 @@ namespace Muon {
 	const Amg::Vector3D& gp1 = (*cit)->prepRawData()->globalPosition();
 
 	int seedlayers2 = 0;
-	for(unsigned int k=orderedClusters.size()-1; (k>i && seedlayers2 < 2) ; --k) {
+	for(unsigned int k=orderedClusters.size()-1; (k>i && seedlayers2 < m_nOfSeedLayers) ; --k) {
 
 	  bool usedLayer2 = false;
 	  for(std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit2=orderedClusters[k].begin(); cit2!=orderedClusters[k].end(); ++cit2) {
