@@ -4,23 +4,13 @@
 import MuonD3PDMaker
 import D3PDMakerCoreComps
 import EventCommonD3PDMaker
-import TriggerD3PDMaker
 import TrackD3PDMaker
-from TriggerD3PDMaker.defineTriggerBits   import defineTriggerBits
 from D3PDMakerCoreComps.D3PDObject        import make_SGDataVector_D3PDObject
-from D3PDMakerCoreComps.D3PDObject         import DeferArg
 from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
-from D3PDMakerCoreComps.IndexAssociation  import IndexAssociation
 from D3PDMakerConfig.D3PDMakerFlags       import D3PDMakerFlags
-from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
 import TruthD3PDMaker
 
 from RecExConfig.RecFlags import rec
-from RecExConfig.ObjKeyStore import cfgKeyStore
-
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Include import include
-
 from MuonD3PDMaker.MuonD3PDMakerFlags    import MuonD3PDFlags
 
 
