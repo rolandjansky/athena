@@ -426,20 +426,17 @@ namespace TrigCompositeUtils {
     Combinations combinations(filter);
     combinations.reserve(legMultiplicities.size());
     if (legMultiplicities.size() == 1)
-    {
       combinations.addLeg(legMultiplicities.at(0), features);
-    }
-    else {
+    else
       for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
       {
         HLT::Identifier legID = createLegName(chainName, legIdx);
         std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
         for (const LinkInfo<xAOD::IParticleContainer>& info : features)
-          if (isAnyPassing(info.source, {legID.numeric()}))
+          if (isAnyIDPassing(info.source, {legID.numeric()}))
             legFeatures.push_back(info);
-      }
       combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
-    }
+      }
     return combinations;
   }
 
@@ -448,7 +445,7 @@ namespace TrigCompositeUtils {
     const std::string& chainName,
     const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
     const std::vector<std::size_t>& legMultiplicities,
-    FilterType filter = FilterType::UniqueObjects)
+    FilterType filter)
   {
     return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
   }
@@ -466,7 +463,7 @@ namespace TrigCompositeUtils {
     const std::string& chainName,
     const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
     const TrigConf::HLTChain *chainInfo,
-    FilterType filter = FilterType::UniqueObjects)
+    FilterType filter)
   {
     return buildCombinations(chainName, features, chainInfo, getFilter(filter));
   }

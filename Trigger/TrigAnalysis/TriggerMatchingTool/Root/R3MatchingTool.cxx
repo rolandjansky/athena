@@ -81,7 +81,7 @@ namespace Trig
       // Now we have to build up combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
-      TrigCompositeUtils::Combinations = TrigCompositeUtils::buildCombinations(
+      TrigCompositeUtils::Combinations combinations = TrigCompositeUtils::buildCombinations(
         chainName,
         m_trigDecTool->features<xAOD::IParticleContainer>(chainName),
         m_trigDecTool->ExperimentalAndExpertMethods()->getChainConfigurationDetails(chainName),

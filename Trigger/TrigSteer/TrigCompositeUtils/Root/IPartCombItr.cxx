@@ -1,6 +1,11 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "TrigCompositeUtils/IPartCombItr.h"
 #include <set>
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 namespace TrigCompositeUtils
 {

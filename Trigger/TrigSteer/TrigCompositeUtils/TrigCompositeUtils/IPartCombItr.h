@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRIGCOMPOSITEUTILS_IPARTCOMBITR_H
 #define TRIGCOMPOSITEUTILS_IPARTCOMBITR_H
 
@@ -9,7 +13,7 @@
 #include <functional>
 #include "xAODBase/IParticleContainer.h"
 #include "TrigCompositeUtils/KFromNItr.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/LinkInfo.h"
 
 namespace TrigCompositeUtils
 {
@@ -83,7 +87,7 @@ namespace TrigCompositeUtils
     {
       m_itrs.insert(m_itrs.begin(), std::make_pair(KFromNItr(k, std::distance(begin, end)), begin));
       m_current.insert(m_current.begin(), k, {});
-      const KFromNItr &idxItr = *std::get<0>(m_itrs.front());
+      const KFromNItr &idxItr = std::get<0>(m_itrs.front());
       if (!idxItr.exhausted())
         std::transform(idxItr->begin(), idxItr->end(), m_current.begin(),
                        [begin](std::size_t idx) { return *(begin + idx); });

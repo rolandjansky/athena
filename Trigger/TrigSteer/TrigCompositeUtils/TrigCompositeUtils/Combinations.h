@@ -1,8 +1,12 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #ifndef TRIGCOMPOSITEUTILS_COMBINATIONS_H
 #define TRIGCOMPOSITEUTILS_COMBINATIONS_H
 
 #include "TrigCompositeUtils/IPartCombItr.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
+#include "TrigCompositeUtils/LinkInfo.h"
 #include "xAODBase/IParticleContainer.h"
 #include <functional>
 #include <vector>
