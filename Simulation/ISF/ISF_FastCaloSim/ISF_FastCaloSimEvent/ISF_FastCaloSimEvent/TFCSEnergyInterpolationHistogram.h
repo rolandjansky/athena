@@ -37,7 +37,7 @@ public:
 private:
   TH1F m_hist;
 
-  ClassDefOverride(TFCSEnergyInterpolationHistogram,1);  //TFCSEnergyInterpolationHistogram
+  ClassDefOverride(TFCSEnergyInterpolationHistogram,1)  //TFCSEnergyInterpolationHistogram
 };
 
 #if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
