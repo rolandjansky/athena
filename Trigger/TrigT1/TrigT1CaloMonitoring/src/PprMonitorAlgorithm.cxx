@@ -88,6 +88,12 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   auto jepET_EM = Monitored::Collection("jepET_EM", vecMonTT_EM, []( const auto &emTower ){return emTower.jepET;});
   variables.push_back(jepET_EM);
 
+  auto maxADC_EM = Monitored::Collection("maxADC_EM", vecMonTT_EM, []( const auto &emTower ){return emTower.maxADC;});
+  variables.push_back(maxADC_EM);
+
+  auto adcPeak_EM = Monitored::Collection("adcPeak_EM", vecMonTT_EM, []( const auto &emTower ){return emTower.tower->adcPeak();});
+  variables.push_back(adcPeak_EM);
+
   // HAD towers
   auto etaTT_HAD = Monitored::Collection("etaTT_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.tower->eta();});
   variables.push_back(etaTT_HAD);
@@ -103,9 +109,19 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
   auto jepET_HAD = Monitored::Collection("jepET_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.jepET;});
   variables.push_back(jepET_HAD);
+ 
+  auto maxADC_HAD = Monitored::Collection("maxADC_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.maxADC;});
+  variables.push_back(maxADC_HAD);
+
+  auto adcPeak_HAD = Monitored::Collection("adcPeak_HAD", vecMonTT_HAD, []( const auto &hadTower ){return hadTower.tower->adcPeak();});
+  variables.push_back(adcPeak_HAD);
+
 
   // Cutmasks (EM)
+  std::vector<int> vec_EM_noDuplicates = {};
   std::vector<int> vec_EM_timeslice = {};
+  std::vector<int> vec_EM_maxSlice = {};
+  std::vector<int> vec_EM_maxSlice_noDuplicates = {};
   std::vector<int> vec_EM_cpET_0 = {};             // includes "duplicate" towers for phi maps
   std::vector<int> vec_EM_cpET_0_noDuplicates = {}; // no duplicates: for plots not binned in phi
   std::vector<int> vec_EM_cpET_5 = {};
@@ -118,6 +134,9 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   // Weights
   std::vector<int> vec_EM_ADC = {};
 
+  // For average ADC plots
+  std::vector<double> vec_EM_maxADCPlus1 = {};
+
 
   for (auto& emTower : vecMonTT_EM) {
   
@@ -129,6 +148,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     ATH_MSG_DEBUG("cpET: " << cpET << " jepET: " << jepET);
 
     // Fill the cutmasks for EM LUT-CP and LUT-JEP energy distributions 
+    vec_EM_noDuplicates.push_back(!isDuplicate);
     vec_EM_cpET_0.push_back(cpET > 0);                                  // For phi distributions / maps
     vec_EM_cpET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);   // For plots not binned in phi
     vec_EM_cpET_5.push_back(cpET > 5);
@@ -155,12 +175,21 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
       vec_EM_timeslice.push_back(0);
       vec_EM_ADC.push_back(0);
     }
-    ATH_MSG_DEBUG(" mask: " << vec_EM_timeslice.back());
-   
+  
+    // -------- Timing of FADC signal --------
+    
+    double max = emTower.maxADC;
+    vec_EM_maxSlice.push_back(max >= 0.);
+    vec_EM_maxSlice_noDuplicates.push_back((max >= 0.) && !isDuplicate);
+    vec_EM_maxADCPlus1.push_back(max + 1.);
+ 
   } // End loop over vector of EM towers 
 
   // Cutmasks (HAD)
+  std::vector<int> vec_HAD_noDuplicates = {};
   std::vector<int> vec_HAD_timeslice = {};
+  std::vector<int> vec_HAD_maxSlice = {};
+  std::vector<int> vec_HAD_maxSlice_noDuplicates = {};
   std::vector<int> vec_HAD_cpET_0 = {};             // includes "duplicate" towers for phi maps
   std::vector<int> vec_HAD_cpET_0_noDuplicates = {}; // no duplicates: for plots not binned in phi
   std::vector<int> vec_HAD_cpET_5 = {};
@@ -174,6 +203,9 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
   // HAD weights 
   std::vector<int> vec_HAD_ADC = {};
 
+  // For average ADC plots 
+  std::vector<double> vec_HAD_maxADCPlus1 = {};
+
   for (auto& hadTower : vecMonTT_HAD) {
 
     // -------- LUT --------
@@ -184,6 +216,7 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     if (cpET > 0) ATH_MSG_DEBUG("HAD tower cpET: " << cpET << " jepET: " << jepET);
 
     // Fill the cutmasks for HAD LUT-CP and LUT-JEP energy distributions 
+    vec_HAD_noDuplicates.push_back(!isDuplicate);
     vec_HAD_cpET_0.push_back(cpET > 0);                                  // For phi distributions / maps
     vec_HAD_cpET_0_noDuplicates.push_back((cpET > 0) && !isDuplicate);   // For plots not binned in phi
     vec_HAD_cpET_5.push_back(cpET > 5);
@@ -211,13 +244,37 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     }
     ATH_MSG_DEBUG(" mask: " << vec_HAD_timeslice.back());
 
+    // -------- Timing of FADC signal --------
+
+    double max = hadTower.maxADC;
+    vec_HAD_maxSlice.push_back(max >= 0.);
+    vec_HAD_maxSlice_noDuplicates.push_back((max >= 0.) && !isDuplicate);
+    vec_HAD_maxADCPlus1.push_back(max + 1.);
+
   } // End loop over vector of HAD towers 
+ 
   
+  // Define additional monitored variables (EM) 
+  auto maxADCPlus1_EM = Monitored::Collection("maxADCPlus1_EM", vec_EM_maxADCPlus1);
+  variables.push_back(maxADCPlus1_EM);
+
+  // Define additional monitored variables (HAD)
+  auto maxADCPlus1_HAD = Monitored::Collection("maxADCPlus1_HAD", vec_HAD_maxADCPlus1);
+  variables.push_back(maxADCPlus1_HAD);
 
   // Define the cutmasks (EM)
+  auto mask_EM_noDuplicates = Monitored::Collection("mask_EM_noDuplicates", vec_EM_noDuplicates);
+  variables.push_back(mask_EM_noDuplicates);  
+
   auto mask_EM_timeslice = Monitored::Collection("mask_EM_timeslice", vec_EM_timeslice);
   variables.push_back(mask_EM_timeslice);
-  
+ 
+  auto mask_EM_maxSlice = Monitored::Collection("mask_EM_maxSlice", vec_EM_maxSlice);
+  variables.push_back(mask_EM_maxSlice);
+ 
+  auto mask_EM_maxSlice_noPhi = Monitored::Collection("mask_EM_maxSlice_noPhi", vec_EM_maxSlice_noDuplicates);
+  variables.push_back(mask_EM_maxSlice_noPhi); 
+
   auto emTT_ADC = Monitored::Collection("emTT_ADC", vec_EM_ADC);
   variables.push_back(emTT_ADC);
 
@@ -247,8 +304,17 @@ StatusCode PprMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 
   // Define the cutmasks (HAD)
+  auto mask_HAD_noDuplicates = Monitored::Collection("mask_HAD_noDuplicates", vec_HAD_noDuplicates);
+  variables.push_back(mask_HAD_noDuplicates);
+
   auto mask_HAD_timeslice = Monitored::Collection("mask_HAD_timeslice", vec_HAD_timeslice);
   variables.push_back(mask_HAD_timeslice);
+
+  auto mask_HAD_maxSlice = Monitored::Collection("mask_HAD_maxSlice", vec_HAD_maxSlice);
+  variables.push_back(mask_HAD_maxSlice);
+
+  auto mask_HAD_maxSlice_noPhi = Monitored::Collection("mask_HAD_maxSlice_noPhi", vec_HAD_maxSlice_noDuplicates);
+  variables.push_back(mask_HAD_maxSlice_noPhi);
 
   auto hadTT_ADC = Monitored::Collection("hadTT_ADC", vec_HAD_ADC);
   variables.push_back(hadTT_ADC);
@@ -288,17 +354,25 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
                                                     std::vector<MonitorTT> &vecMonTT_HAD,  
                                                     std::vector<MonitorTT> &vecMonTT) const
 {
-
+  // Geometry
   const int layer = tt->layer(); // 0 = EM, 1 = HAD
   const double eta = tt->eta();
   const double absEta = std::fabs(eta);
   const double phi = tt->phi();
   double phiMod = phi * m_phiScaleTT;
+  
+  // LUT JEP
   int jepET = 0;
   const std::vector<uint_least8_t> jepETvec = tt->lut_jep();
   if (jepETvec.size() > 0) jepET = tt->jepET();
+  
+  // To remove duplicates when filling multiple bins in phi
   bool isDuplicate = false; 
  
+  // ADC timeslice
+  const std::vector<short unsigned int> &ADC( tt->adc() );
+  double max = recTime(ADC, m_EMFADCCut); 
+  
   // Offsets for filling multiple phi bins depending on TT granularity in eta
   std::vector<double> offset32 = {1.5, 0.5, -0.5, -1.5};
   std::vector<double> offset25 = {0.5, -0.5};  
@@ -318,12 +392,13 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
       monTT.jepET = jepET;
       if(i != 0) isDuplicate = true;
       monTT.isDuplicate = isDuplicate;   
-      
+      monTT.maxADC = max;     
+ 
       vecMonTT.push_back(monTT);
       if (layer == 0) vecMonTT_EM.push_back(monTT);
       if (layer == 1) vecMonTT_HAD.push_back(monTT);
       
-      ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " duplicate: " << monTT.isDuplicate);
+      ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " max: " << max <<  " duplicate: " << monTT.isDuplicate);
     }
   }
   else if (absEta > 2.5) {
@@ -337,11 +412,12 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
       monTT.jepET = jepET;
       if(i != 0) isDuplicate = true;
       monTT.isDuplicate = isDuplicate;
+      monTT.maxADC = max;
 
       vecMonTT.push_back(monTT);
       if (layer == 0) vecMonTT_EM.push_back(monTT);
       if (layer == 1) vecMonTT_HAD.push_back(monTT);
-      ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " duplicate: " << monTT.isDuplicate);
+      ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " max: " << max << " duplicate: " << monTT.isDuplicate);
     }
   }
   else {
@@ -352,11 +428,69 @@ StatusCode PprMonitorAlgorithm::fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2*
     monTT.phi1d = phi;
     monTT.jepET = jepET;
     monTT.isDuplicate = false;
+    monTT.maxADC = max;
+
     vecMonTT.push_back(monTT);
     if (layer == 0) vecMonTT_EM.push_back(monTT);
     if (layer == 1) vecMonTT_HAD.push_back(monTT);
-    ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " duplicate: " << monTT.isDuplicate);
+    ATH_MSG_DEBUG("layer: " << layer << " eta: " << eta << " phi: " << phi << " scaled phi: " << monTT.phiScaled << " 1d phi: " << phi1d << " max: " << max << " duplicate: " << monTT.isDuplicate);
   }   
     
   return StatusCode::SUCCESS; 
 }
+
+double PprMonitorAlgorithm::recTime(const std::vector<short unsigned int> &vFADC, int cut) const {
+
+  int max = -1;
+  const int slices = vFADC.size();
+  if (slices > 0) {
+    max = 0.;
+    int maxAdc = vFADC[0];
+    for (int sl = 1; sl < slices; ++sl) {
+      if (vFADC[sl] > maxAdc) {
+        maxAdc = vFADC[sl];
+        max = sl;
+      } else if (vFADC[sl] == maxAdc)
+        max = -1;
+    }
+    if (maxAdc == 0)
+      max = -1;
+  }
+  if (max >= 0) {
+    int slbeg = max - 2;
+    if (slbeg < 0)
+      slbeg = 0;
+    int slend = max + 3;
+    if (slend > slices)
+      slend = slices;
+    int sum = 0;
+    int min = 999999;
+    for (int sl = slbeg; sl < slend; ++sl) {
+      int val = vFADC[sl];
+      if (val < m_TT_ADC_Pedestal)
+        val = m_TT_ADC_Pedestal;
+      sum += val;
+      if (val < min)
+        min = val;
+    }
+    sum -= (slend - slbeg) * min;
+    if (sum <= cut)
+      max = -1;
+  }
+
+  return double(max);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
