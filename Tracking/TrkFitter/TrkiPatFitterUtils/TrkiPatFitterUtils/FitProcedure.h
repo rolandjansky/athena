@@ -66,7 +66,7 @@ public:
     
     // retrieve result
     Track*	constructTrack (const std::vector<FitMeasurement*>&		measurements,
-				const FitParameters&				parameters,
+				FitParameters&				parameters,
 				const TrackInfo&				trackInfo,
 				const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0);
     

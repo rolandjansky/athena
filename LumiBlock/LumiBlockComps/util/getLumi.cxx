@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///getLumi - the lumi helper application
@@ -34,6 +34,7 @@ int main( int, char** ) {
 #include "TKey.h"
 #include "TDirectory.h"
 #include "TSystem.h"
+#include "TObjString.h"
 
 #include <getopt.h>
 #include <cstdlib>
@@ -56,7 +57,7 @@ struct lbx {
 int main(int argc, char* argv[]) {
    const char* optstring = "m";
    bool showMissing = false;
-static struct option long_options[] = 
+static struct option long_options[] =
   {
     /* name    has_arg       flag      val */
     {"showMissing", no_argument ,  NULL,     'm'}
@@ -73,9 +74,9 @@ static struct option long_options[] =
           case 'm' :
             showMissing = true;nOptions++;
             break;
-          case '?' : 
+          case '?' :
             printf("Please supply a valid option to the program.  Exiting\n");
-            exit(1); 
+            exit(1);
             break;
       }
   }
@@ -106,7 +107,7 @@ static struct option long_options[] =
       grlMaskReader.AddXMLFile( s );
       hasMask=true;
    }
-   Root::TGoodRunsList grlMask; 
+   Root::TGoodRunsList grlMask;
    if(hasMask) {
       grlMaskReader.Interpret();grlMask.AddGRL(grlMaskReader.GetMergedGoodRunsList());
    }
@@ -121,7 +122,7 @@ static struct option long_options[] =
       TFile *file = TFile::Open(argv[i]);
       if(file==0) continue;
       std::cout << s;
-      
+
       //check if this file is a LumiMetaData file ... if it is we add to the list for later
       TTree *tmp = (TTree*)file->Get( "LumiMetaData" );
       if(tmp) {
@@ -130,13 +131,13 @@ static struct option long_options[] =
         lumiFiles.push_back(s);
         continue;
       }
-      
+
       //try to get lumi
 
-      //if this is xAOD, it will have a MetaData tree ... 
+      //if this is xAOD, it will have a MetaData tree ...
       if(file->Get("MetaData")!=0) {
          TTree* metaTree = static_cast<TTree*>(file->Get("MetaData"));
-         //use TEvent if the MetaData tree contains an EventFormat branch and only 1 entry 
+         //use TEvent if the MetaData tree contains an EventFormat branch and only 1 entry
          //WB : 21/11/2016 - actually just always avoid using TEvent
          bool useTEvent(false);
          /*if(metaTree->GetEntries()==1 && metaTree->FindBranch("EventFormat")) {
@@ -192,12 +193,12 @@ static struct option long_options[] =
                   }
                }
 
-               //add lb to grl 
+               //add lb to grl
                for(auto lbr : *lbrs) {
                   for(uint runNum = lbr->startRunNumber(); runNum <= lbr->stopRunNumber(); runNum++) {
                      if(lbr->startLumiBlockNumber()!=lbr->stopLumiBlockNumber()) {std::cout << " Unexpected behaviour. Please report! " << std::endl; exit(1);}
                      for(uint lb = lbr->startLumiBlockNumber(); lb <= lbr->stopLumiBlockNumber(); lb++) {
-                        lbxs[runNum][lb].nSeen += lbr->eventsSeen(); 
+                        lbxs[runNum][lb].nSeen += lbr->eventsSeen();
                         if(lbxs[runNum][lb].nExpected!=0 && lbxs[runNum][lb].nExpected != lbr->eventsExpected()) {
                           std::cout << "...mismatch on expected events in [run,lb]=[" << runNum << "," << lb << "] got " << lbr->eventsExpected() << " but had " << lbxs[runNum][lb].nExpected << std::endl;
                           std::cout << "...PLEASE REPORT THIS to hn-atlas-PATHelp@cern.ch ... for now I will assume the larger number is correct" << std::endl;
@@ -251,12 +252,12 @@ static struct option long_options[] =
                   }
                }
 
-               //add lb to grl 
+               //add lb to grl
                for(auto lbr : *lbrs) {
                   for(uint runNum = lbr->startRunNumber(); runNum <= lbr->stopRunNumber(); runNum++) {
                      if(lbr->startLumiBlockNumber()!=lbr->stopLumiBlockNumber()) {std::cout << " Unexpected behaviour. Please report! " << std::endl; exit(1);}
                      for(uint lb = lbr->startLumiBlockNumber(); lb <= lbr->stopLumiBlockNumber(); lb++) {
-                        lbxs[runNum][lb].nSeen += lbr->eventsSeen(); 
+                        lbxs[runNum][lb].nSeen += lbr->eventsSeen();
                         if(lbxs[runNum][lb].nExpected!=0 && lbxs[runNum][lb].nExpected != lbr->eventsExpected()) {
                           std::cout << "...mismatch on expected events in [run,lb]=[" << runNum << "," << lb << "] got " << lbr->eventsExpected() << " but had " << lbxs[runNum][lb].nExpected << std::endl;
                           std::cout << "...PLEASE REPORT THIS to hn-atlas-PATHelp@cern.ch ... for now I will assume the larger number is correct" << std::endl;
@@ -311,12 +312,12 @@ static struct option long_options[] =
                      r->setEventsExpected(eventsExpected.at(j));r->setEventsSeen(eventsSeen.at(j));
                   }
                }
-               //add lb to grl 
+               //add lb to grl
                for(auto lbr : *lbrs) {
                   for(uint runNum = lbr->startRunNumber(); runNum <= lbr->stopRunNumber(); runNum++) {
                      if(lbr->startLumiBlockNumber()!=lbr->stopLumiBlockNumber()) {std::cout << " Unexpected behaviour. Please report! " << std::endl; exit(1);}
                      for(uint lb = lbr->startLumiBlockNumber(); lb <= lbr->stopLumiBlockNumber(); lb++) {
-                        lbxs[runNum][lb].nSeen += lbr->eventsSeen(); 
+                        lbxs[runNum][lb].nSeen += lbr->eventsSeen();
                         lbxs[runNum][lb].fromSuspect = true;
                         if(lbxs[runNum][lb].nExpected!=0 && lbxs[runNum][lb].nExpected != lbr->eventsExpected()) {
                           std::cout << "...mismatch on expected events in [run,lb]=[" << runNum << "," << lb << "] got " << lbr->eventsExpected() << " but had " << lbxs[runNum][lb].nExpected << std::endl;
@@ -381,14 +382,14 @@ static struct option long_options[] =
       for(auto& it2 : it.second) {
          uint lbn = it2.first;
          if(it2.second.nSeen > it2.second.nExpected) { fromXAODSuspect.AddRunLumiBlock(runNum,lbn); continue; }
-         
+
          if(it2.second.fromSuspect) { fromXAODPossiblySuspect.AddRunLumiBlock(runNum,lbn);}
-         
+
          if(it2.second.nSeen==it2.second.nExpected) { fromXAOD.AddRunLumiBlock(runNum,lbn); }
          else { fromXAODIncomplete.AddRunLumiBlock(runNum,lbn); }
       }
    }
-   
+
    Root::TGoodRunsList l;Root::TGoodRunsList lIncomplete;Root::TGoodRunsList lSuspect;Root::TGoodRunsList lPossiblySuspect;
    l.AddGRL(fromXAOD); lIncomplete.AddGRL(fromXAODIncomplete); lSuspect.AddGRL(fromXAODSuspect);lPossiblySuspect.AddGRL(fromXAODPossiblySuspect);//have to do this because of weird GRL behaviour
    if(readXML) {
@@ -400,10 +401,10 @@ static struct option long_options[] =
    std::map<UInt_t, float> missingRuns;std::map<UInt_t,bool> allRuns;std::set<UInt_t> incompleteRuns;std::set<UInt_t> suspectRuns;
    std::map<UInt_t, std::string> missingRunLB; //lumiblocks that are missing
 
-   
 
 
-   
+
+
 
    Root::TGoodRunsList providedL; //keeps track of what came from lumicalc file
 
@@ -420,13 +421,13 @@ static struct option long_options[] =
         std::cout << "Could not open lumicalc file: " << argv[1+nOptions] << std::endl;
         return 0;
     }
-  
+
     TTree *tmp = (TTree*)lumicalcFile->Get( "LumiMetaData" );
     if(!tmp) {
         std::cout << "Could not find LumiMetaData tree in lumicalc file: " << argv[1+nOptions] << std::endl;
         return 0;
     }
-  
+
     //structure expected is as given by iLumiCalc:
     //   RunNbr, AvergeInteractionPerXing, IntLumi
     UInt_t runNbr=0;Float_t intLumi=0;TBranch *b_runNbr;TBranch *b_intLumi;
@@ -441,9 +442,9 @@ static struct option long_options[] =
         std::cout << "Could not find IntLumi branch in Data TTree" << std::endl; return 0;
     }
     long nEntries = tmp->GetEntries();
-    
-    int startMissingBlock = -1;UInt_t lastRunNumber=0;int lastLb=0;double missingLumi=0; 
-  
+
+    int startMissingBlock = -1;UInt_t lastRunNumber=0;int lastLb=0;double missingLumi=0;
+
     for(long i=0;i<nEntries;i++) {
         b_runNbr->GetEntry(i);b_intLumi->GetEntry(i);b_lb->GetEntry(i);
         if(hasMask && !grlMask.HasRunLumiBlock(runNbr,lb)) continue;
@@ -452,9 +453,9 @@ static struct option long_options[] =
         if(hasLumi) totalLumi += intLumi;
         else if(lIncomplete.HasRunLumiBlock(runNbr,lb)) {hasLumi=true; totalLumiIncomplete += intLumi; incompleteRuns.insert(runNbr);} //else if ensures we never double count lumi
         else if(lSuspect.HasRunLumiBlock(runNbr,lb)) {hasLumi=true;totalLumiSuspect += intLumi; suspectRuns.insert(runNbr); definitelySuspect << "(" << runNbr << "," << lb << "),";}
-  
+
         if(lPossiblySuspect.HasRunLumiBlock(runNbr,lb)) {totalLumiPossiblySuspect += intLumi; possiblySuspect << "(" << runNbr << "," << lb << "),";  }
-  
+
         if(!hasLumi && intLumi==0.) hasLumi=true; //if there is no lumi, it's as good as having some
         if((lastRunNumber!=runNbr&&startMissingBlock>=0) || (hasLumi && startMissingBlock>=0)) {
           //print now, if startMissingBlock not negative
@@ -483,7 +484,7 @@ static struct option long_options[] =
    std::cout << "***************LUMI REPORT******************" << std::endl << std::endl;
 
 
-   
+
    if(possiblySuspect.str().size()) {
      std::cout << "Possibly suspect lumiblocks: " << possiblySuspect.str() << std::endl;
    }
@@ -522,7 +523,7 @@ static struct option long_options[] =
    if(allMissing) {
       std::cout << "(Missing Lumonisity = " << allMissing << " pb-1)   (this is luminosity in your lumicalc files that you appear not to have run over)"; //already divided by 1E6 in loop above
       //if(!showMissing) std::cout << " rerun with the '-m' option to see runs where this luminosity resides";
-      std::cout << std::endl; 
+      std::cout << std::endl;
    }
 
    /*

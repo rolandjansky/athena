@@ -78,7 +78,7 @@ std::string date() {
 
 
 //function to find true taus
-const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, bool printout=false ) { 
+HepMC::ConstGenParticlePtr fromParent( int pdg_id, HepMC::ConstGenParticlePtr p, bool printout=false ) { 
 
   if ( p==0 ) return 0;
   if (std::abs(p->pdg_id())==11 || std::abs(p->pdg_id())==13 ) return 0; //don't want light leptons from tau decays
@@ -733,34 +733,20 @@ void AnalysisConfig_Ntuple::loop() {
 		while ( evitr!=evend ) { 
 
 			int _ip = 0; /// count of particles in this interaction 
+			int pid = HepMC::signal_process_id((*evitr));
 
-			int pid = (*evitr)->signal_process_id();
 
-			//      if ( (*evitr)->particles_size()>0 ) std::cout << "process " << "\tpid " << pid << std::endl;  
+			if ( pid!=0 ) { /// hooray! actually found a sensible event
 
-			if ( pid!=0 && (*evitr)->particles_size()>0 ) { /// hooray! actually found a sensible event
 
-				/// go through the particles
-				HepMC::GenEvent::particle_const_iterator pitr((*evitr)->particles_begin());
-				HepMC::GenEvent::particle_const_iterator pend((*evitr)->particles_end());
-
-				while ( pitr!=pend ) { 
-				  
-				  //	int pdg_id = (*pitr)->pdg_id();
-				  //	std::cout << ip++ << "\tparticle " << pdg_id << "\t" << "(*pitr)->pT()" << std::endl; 
-				  
+				for (auto pitr: **evitr ) { 
 				  //if tau job, only select if have a tau somewhere along chain, otherwise just add
-				  if ( (m_TruthPdgId==15 && fromParent(m_TruthPdgId, *pitr)!=0) || m_TruthPdgId!=15 ) {
+				  if ( (m_TruthPdgId==15 && fromParent(m_TruthPdgId, pitr)!=0) || m_TruthPdgId!=15 ) {
 				    				      
 				    /// select the ones of interest 
-				    selectorTruth.selectTrack( *pitr );
-				  }
-
-				  
+				    selectorTruth.selectTrack( pitr );
+				  }	  
 				  ++_ip;
-				  
-				  ++pitr; 
-				  
 				}
 				
 				

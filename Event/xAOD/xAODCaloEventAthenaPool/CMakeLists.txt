@@ -3,6 +3,12 @@
 # Declare the package name:
 atlas_subdir( xAODCaloEventAthenaPool )
 
+# Extra libraries, depending on the build environment.
+set( extra_libs )
+if( NOT XAOD_ANALYSIS )
+   set( extra_libs CaloInterfaceLib )
+endif()
+
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODCaloEventAthenaPoolPoolCnv
    src/*.h src/*.cxx
@@ -13,9 +19,8 @@ atlas_add_poolcnv_library( xAODCaloEventAthenaPoolPoolCnv
    TYPES_WITH_NAMESPACE xAOD::CaloClusterContainer xAOD::CaloClusterAuxContainer
                         xAOD::CaloTowerContainer xAOD::CaloTowerAuxContainer
    CNV_PFX xAOD
-   LINK_LIBRARIES CaloInterfaceLib AthContainers AthenaKernel
-                  AthenaPoolCnvSvcLib AthenaPoolUtilities xAODCaloEvent
-                  GaudiKernel )
+   LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib
+                  AthenaPoolUtilities xAODCaloEvent GaudiKernel ${extra_libs} )
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )

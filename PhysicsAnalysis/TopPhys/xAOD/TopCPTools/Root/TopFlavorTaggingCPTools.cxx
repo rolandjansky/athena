@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_Sh228_v3.root";
+      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-12-02_v2.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -85,7 +85,7 @@ namespace top {
     // Calibrated and uncalibrated working points for VR track jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
 
 
