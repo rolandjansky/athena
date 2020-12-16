@@ -11,13 +11,6 @@ def setMinimalCaloSetup() :
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigCaloDataAccessSvc
     svcMgr+=TrigCaloDataAccessSvc()
     svcMgr.TrigCaloDataAccessSvc.OutputLevel=ERROR
-  if not hasattr(svcMgr,'RegSelSvcDefault'):
-    from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-    regsel = RegSelSvcDefault()
-    regsel.enableCalo = True
-    svcMgr += regsel
-
-
 
 ########################
 ## ALGORITHMS
