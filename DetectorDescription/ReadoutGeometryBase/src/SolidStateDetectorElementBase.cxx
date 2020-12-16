@@ -368,31 +368,33 @@ using Trk::distDepth;
     
     // use aligned transform if available
     const GeoTrf::Transform3D* ptrXf;
-    
+    GeoTrf::Transform3D geotrf;
+
     if (m_geoAlignStore){ 
       ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
       if (ptrXf) {
-	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel();
+	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel(); //need .linear()?
+	geotrf = (*ptrXf);
       }
     }
     else{
-      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel());
+      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel()); //need .linear()?
+      geotrf = getMaterialGeom()->getAbsoluteTransform();
     }
     
-    const GeoTrf::Transform3D& geoTransform = m_transformHit;
-
+    const GeoTrf::Transform3D& geoTransform = geotrf;
     m_baseCacheValid = true;
     
     bool firstTimeBaseTmp = m_firstTimeBase;
     m_firstTimeBase = false;
     
-    m_center = geoTransform * m_design->sensorCenter();
+    m_center = geoTransform.linear() * m_design->sensorCenter();
     
     //Is this needed outside e.g. ReadSiDetElements? Maybe candidate for future removal?
     m_centerCLHEP = HepGeom::Point3D<double>(m_center[0],m_center[1],m_center[2]);
 
     Amg::Vector3D centerGeoModel(0., 0., 0.);
-    m_origin = geoTransform * centerGeoModel;
+    m_origin = geoTransform.linear() * centerGeoModel;
    
     //
     // Determine directions depth, eta and phi axis in reconstruction local frame
