@@ -13,6 +13,7 @@
 #include "CxxUtils/ConcurrentStrMap.h"
 #include "CxxUtils/StrFormat.h"
 #include "CxxUtils/MurmurHash2.h"
+#include "CxxUtils/checker_macros.h"
 #include "TestTools/expect_exception.h"
 #include "TestTools/random.h"
 #include "tbb/concurrent_unordered_map.h"
@@ -721,7 +722,7 @@ private:
   static void ht_free (void *p, size_t /*b*/, bool /*r*/) { free(p); }
 
   ck_malloc m_alloc;
-  mutable ck_ht_t m_ht;
+  mutable ck_ht_t m_ht ATLAS_THREAD_SAFE;
 };
 
 
