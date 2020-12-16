@@ -212,7 +212,7 @@ class TrigEgammaMonAlgBuilder:
             'HLT_e26_lhloose_L1EM22VHI',
             'HLT_e26_lhmedium_L1EM22VHI',
             'HLT_e26_lhtight_gsf_L1EM22VHI',
-            'HLT_e26_lhtight_ivarloose_gsf_L1EM22VHI',
+            'HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI',
             'HLT_e26_lhtight_ivarloose_L1EM22VHI',
             'HLT_e26_lhtight_ivarmedium_L1EM22VHI',
             'HLT_e26_lhtight_ivartight_L1EM22VHI',
