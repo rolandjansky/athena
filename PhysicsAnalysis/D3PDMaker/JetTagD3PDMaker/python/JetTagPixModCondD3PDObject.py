@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagPixModCondD3PDObject.py
@@ -11,15 +11,11 @@ import JetTagD3PDMaker
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 
-from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
-from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
-
-
 def _jetTagPixModCondAssocLevel (reqlev, args):
 
     if not args.has_key ('PixelSummarySvc') : 
         return False
-    if args['PixelSummarySvc'] == None:
+    if args['PixelSummarySvc'] is None:
         return False
 
     return True

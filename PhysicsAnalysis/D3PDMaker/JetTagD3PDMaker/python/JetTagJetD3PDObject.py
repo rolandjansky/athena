@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagJetD3PDObject.py
@@ -10,8 +10,6 @@
 import JetTagD3PDMaker
 
 import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from AthenaCommon.AlgSequence             import AlgSequence
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
@@ -53,11 +51,11 @@ def _jetFilterAlgHook (c, prefix, sgkey,
     del filterargs['name']
 
     ### if some argument do not exist set them to the flag values
-    if not 'PtMinCut' in filterargs:
+    if 'PtMinCut' not in filterargs:
         filterargs['PtMinCut']=JetTagD3PDFlags.JetFilterPtMinCut()
-    if not 'EtaCut' in filterargs:
+    if 'EtaCut' not in filterargs:
         filterargs['EtaCut']=JetTagD3PDFlags.JetFilterEtaCut()
-    if not 'UseEMScale' in filterargs:
+    if 'UseEMScale' not in filterargs:
         filterargs['UseEMScale']=JetTagD3PDFlags.JetFilterUseEMScale()
     
     preseq += JetTagD3PDMaker.JetTagJetFilterAlg(algname,
@@ -139,7 +137,7 @@ def getJetTagJetD3PDObject(filteredsgkey, origsgkey, level=4, prefix=None,
                            **kw):
               
              
-    if prefix == None:
+    if prefix is None:
         import re
         prefix = re.sub('Jets','',origsgkey)
         prefix = re.sub('AOD','',prefix)
