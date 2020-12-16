@@ -20,6 +20,7 @@ public:
   bool m_VerboseOutput;
   bool m_DeepCopy;
   bool m_EtaPhi;
+  bool m_PrintQuasiStableParticles;
 };
 
 #endif
