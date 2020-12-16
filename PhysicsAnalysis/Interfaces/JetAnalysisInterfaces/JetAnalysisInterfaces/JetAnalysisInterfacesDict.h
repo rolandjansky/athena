@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETANALYSISINTERFACES_JETANALYSISINTERFACESDICT_H
@@ -10,7 +10,7 @@
 #endif // __GCCXML__
 
 // Includes for the dictionary generation:
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetAnalysisInterfaces/IJetQGTagger.h"
 #include "JetAnalysisInterfaces/IJetJvtEfficiency.h"
 
 #endif // JETANALYSISINTERFACES_JETANALYSISINTERFACESDICT_H

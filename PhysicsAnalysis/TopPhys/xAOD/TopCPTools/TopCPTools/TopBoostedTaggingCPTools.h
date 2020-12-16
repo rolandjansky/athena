@@ -15,7 +15,7 @@
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/ToolHandleArray.h"
 #include "AsgTools/AnaToolHandle.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
+#include "JetInterface/IJetDecorator.h"
 #include "JetCPInterfaces/ICPJetUncertaintiesTool.h"
 
 namespace top {
@@ -30,7 +30,7 @@ namespace top {
   private:
     std::shared_ptr<top::TopConfig> m_config;
 
-    std::unordered_map<std::string, asg::AnaToolHandle<IJetSelectorTool> > m_taggers;
+    std::unordered_map<std::string, asg::AnaToolHandle<IJetDecorator> > m_taggers;
     std::unordered_map<std::string, ToolHandle<ICPJetUncertaintiesTool> > m_tagSFuncertTool;
   };
 }  // namespace top
