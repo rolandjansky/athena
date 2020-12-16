@@ -49,7 +49,7 @@ public:
   /**
    * @brief Read the data
    */
-  virtual StatusCode readData() const = 0;
+  virtual StatusCode readData() = 0;
 };
 
 
