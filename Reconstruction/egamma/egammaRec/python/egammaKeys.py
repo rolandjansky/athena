@@ -23,6 +23,8 @@ class egammaKeysDict:
         Cluster=['xAOD::CaloClusterContainer', 'egammaClusters', '', ''],
         EgammaLargeClusters=['xAOD::CaloClusterContainer',
                              'egamma711Clusters', '', ''],  # not output to AOD
+        EgammaLargeFWDClusters=['xAOD::CaloClusterContainer',
+                                'egamma66FWDClusters', '', ''],  # not output to AOD
         TopoSeededCluster=['xAOD::CaloClusterContainer',
                            'egammaTopoSeededClusters', '', '-CellLink'],
         Electron=['xAOD::ElectronContainer', 'Electrons',
@@ -35,7 +37,7 @@ class egammaKeysDict:
         FwdElectron=['xAOD::ElectronContainer',
                      'ForwardElectrons', '', FwdElectronisemSupress],
         FwdCluster=['xAOD::CaloClusterContainer',
-                    'ForwardElectronClusters', '-SisterCluster', '.-CellLink'],
+                    'ForwardElectronClusters', '-SisterCluster', ''],
         Photon=['xAOD::PhotonContainer', 'Photons', '',
                 ShowerShapesSuppress+PhotonisemSupress],
         TrackParticle=['xAOD::TrackParticleContainer', 'GSFTrackParticles',
@@ -56,6 +58,10 @@ class egammaKeysDict:
                                      '', '']
     outputs['EgammaLargeClustersCellLink'] = ['CaloClusterCellLinkContainer',
                                               outputs['EgammaLargeClusters'][1] +
+                                              '_links',
+                                              '', '']
+    outputs['EgammaLargeFWDClustersCellLink'] = ['CaloClusterCellLinkContainer',
+                                              outputs['EgammaLargeFWDClusters'][1] +
                                               '_links',
                                               '', '']
     #
