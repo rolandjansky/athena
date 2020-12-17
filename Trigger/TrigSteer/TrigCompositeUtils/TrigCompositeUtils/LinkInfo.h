@@ -7,6 +7,7 @@
 
 #include "xAODTrigger/TrigComposite.h"
 #include "AthLinks/ElementLink.h"
+#include "AsgMessaging/StatusCode.h"
 
 namespace TrigCompositeUtils {
   /**

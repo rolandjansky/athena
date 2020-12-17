@@ -5,6 +5,7 @@
 #include "TrigCompositeUtils/Combinations.h"
 #include <tuple>
 #include <algorithm>
+#include <numeric>
 
 namespace TrigCompositeUtils
 {
