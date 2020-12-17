@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -97,9 +97,9 @@ _sgkey_prop ('METMuonsSpectroSGKey', 'MET_Muons_Spectro') # 3rd chain
 _sgkey_prop ('METMuonsTrackSGKey', 'MET_Muons_Track') # 3rd chain
 
 _sgkey_prop ('METTruthPileUpSGKey', 'MET_Truth_PileUp')
-_sgkey_prop ('AllCaloCellsSGKey',  'AllCalo');##change to AllCalo for ESD use AODCellContainer for AOD
-_sgkey_prop ('METDefaultJetCollectionSGKey', 'AntiKt4LCTopoJets,Cone4H1TopoJets'); ##probably want to key to default later
-_sgkey_prop ('METDefaultTrackCollectionSGKey', 'TrackParticleCandidate'); ##probably want to key to default later
+_sgkey_prop ('AllCaloCellsSGKey',  'AllCalo') ##change to AllCalo for ESD use AODCellContainer for AOD
+_sgkey_prop ('METDefaultJetCollectionSGKey', 'AntiKt4LCTopoJets,Cone4H1TopoJets') ##probably want to key to default later
+_sgkey_prop ('METDefaultTrackCollectionSGKey', 'TrackParticleCandidate') ##probably want to key to default later
 _sgkey_prop ('METRefFinalEMSGKey', 'MET_RefFinal_em')
 _sgkey_prop ('METRefEleEMSGKey', 'MET_RefEle_em')
 _sgkey_prop ('METRefJetEMSGKey', 'MET_RefJet_em')
@@ -131,11 +131,11 @@ _sgkey_prop ('METDefaultJetPrefix', 'jet_antikt4LCtopo_MET_')
 _sgkey_prop ('METDefaultTrackPrefix', 'trk_MET_')
 
 ##########Trigger Flags
-_sgkey_prop ('METL1SGKey' , 'LVL1_ROI');
-_sgkey_prop ('METL2SGKey' , 'HLT_T2MissingET');
-_sgkey_prop ('METEFSGKey' , 'HLT_TrigEFMissingET');
-_sgkey_prop ('METEFNoiseSGKey' , 'HLT_TrigEFMissingET_noiseSupp');
-_sgkey_prop ('METEFFEBSGKey' , 'HLT_TrigEFMissingET_FEB');
+_sgkey_prop ('METL1SGKey' , 'LVL1_ROI')
+_sgkey_prop ('METL2SGKey' , 'HLT_T2MissingET')
+_sgkey_prop ('METEFSGKey' , 'HLT_TrigEFMissingET')
+_sgkey_prop ('METEFNoiseSGKey' , 'HLT_TrigEFMissingET_noiseSupp')
+_sgkey_prop ('METEFFEBSGKey' , 'HLT_TrigEFMissingET_FEB')
 
 class DoTruth (JobProperty):
     """If true, put truth information in D3PD."""

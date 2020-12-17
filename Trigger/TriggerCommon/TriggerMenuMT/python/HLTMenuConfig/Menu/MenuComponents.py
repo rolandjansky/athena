@@ -927,6 +927,21 @@ class InViewReco(ComponentAccumulator):
     def inputMaker( self ):
         return self.viewMakerAlg
 
+class SelectionCA(ComponentAccumulator):
+    def __init__(self, name):
+        self.name = name
+        super( SelectionCA, self ).__init__()
+        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+        self.addSequence(self.stepViewSequence)
+
+    def mergeReco(self, other):
+        self.merge(other, sequenceName=self.stepRecoSequence.name)
+
+    def mergeHypo(self, other):
+        self.merge(other, sequenceName=self.stepViewSequence.name)
+
+    def addHypoAlgo(self, algo):
+        self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
 class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """

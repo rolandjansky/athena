@@ -64,8 +64,5 @@ alg += GenParticleD3PDObject( 10, filter = AllTrackFilterTool() )
 from TruthD3PDMaker.GenParticleD3PDObject import GenTruthTrackD3PDObject
 alg += GenTruthTrackD3PDObject( 10, filter = TruthTrackFilterTool() )
 
-#from TruthD3PDMaker.HforD3PDObject import HforD3PDObject
-#alg += HforD3PDObject(**_args(0,'HforInfo',kw))
-
 ### you can link to the gen particle (e.g from tracks or btag truth lepton info)
 ### using the gen particle getter label: TruthD3PDKeys.GenParticleGetterLabel()

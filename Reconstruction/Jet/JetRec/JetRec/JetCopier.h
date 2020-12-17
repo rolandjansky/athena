@@ -26,7 +26,7 @@
 
 // This class doesn't (yet) exist for AnalysisBase, so in that release
 // we will simply have to rerun modifiers if we need them.
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE
 #include "StoreGate/ShallowCopyDecorDeps.h"
 #endif
 
@@ -42,7 +42,7 @@ class JetCopier
     // Called in parent initialize()
     virtual StatusCode initialize() override;
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE
     // Needed to initialise the ShallowCopyDecorDeps object, which propagates
     // decorations on the original into the copy in StoreGate.
     // Override interface implementation in Athena only
@@ -64,7 +64,7 @@ class JetCopier
     Gaudi::Property<bool> m_shallowCopy {this, "ShallowCopy", true, "True for shallow copy, false for deep copy"};
     Gaudi::Property<bool> m_shallowIO {this, "ShallowIO", false, "True for storing only modified data"};
 
-#ifndef XAOD_ANALYSIS
+#ifndef XAOD_STANDALONE
     SG::ShallowCopyDecorDeps<xAOD::JetContainer> m_decorDeps { this, "DecorDeps", {},
           "List of decorations to propagate through the shallow copy." };
 #endif

@@ -110,15 +110,15 @@ namespace Muon {
     virtual ~MuonSegmentRegionRecoveryTool () = default;
     
     /** @brief AlgTool initialize */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** @brief AlgTool finalize */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** @brief returns a new track with segments recovered using RegionSelector*/
-    Trk::Track* recover( const Trk::Track& track ) const;
+    virtual Trk::Track* recover( const Trk::Track& track ) const override;
     
-    void cleanUp() const override;
+    virtual void cleanUp() const override;
 
   private:
 

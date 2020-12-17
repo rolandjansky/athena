@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetTagCalibration/CalibrationBroker.h"
@@ -173,8 +173,10 @@ namespace Analysis {
         if((*hI).second.first) {
 	  if(((*hI).second.first)->InheritsFrom("TH1")){
 	    if( msgLvl(MSG::VERBOSE) ){
-	      msg(MSG::VERBOSE)<< " entries: " 
-			       << dynamic_cast<TH1*>(((*hI).second).first)->GetEntries();
+              if (auto th1 = dynamic_cast<TH1*>(((*hI).second).first)) {
+                msg(MSG::VERBOSE)<< " entries: " 
+                                 << th1->GetEntries();
+              }
 	    }  
 	  } 
         } else {
