@@ -15,6 +15,10 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonPrepRawData/MdtPrepData.h"
 
+#include "Minuit2/Minuit2Minimizer.h"
+#include "Math/Functor.h"
+#include <functional>
+
 #include <iostream>
 #include <fstream>
 #include <atomic>
@@ -40,9 +44,72 @@
 
 namespace TrkDriftCircleMath {
 
-  static MdtSegmentT0Fitter::MdtSegmentT0FcnData* g_fcnData ATLAS_THREAD_SAFE = nullptr; ///< Data to pass to/from TMinuit fcn. Guarded with mutex.
-  static std::mutex g_fcnDataMutex; ///< Mutex to protect g_fcnData access
-	    
+  class FunctionToMinimize : public ROOT::Math::IMultiGenFunction {
+    public:
+      struct HitCoords {
+        double z;
+        double t;
+        double y;
+        double w;
+        double r;
+        const MuonCalib::IRtRelation *rt;
+      };
+      FunctionToMinimize(const int used) : m_data(),m_used(used),m_t0Error() {}
+      ~FunctionToMinimize() {m_data.clear();}
+      double DoEval(const double* xx) const {
+        double ang = xx[0];  
+        double b = xx[1];
+        double t0 = xx[2];
+        
+        double cosin = std::cos(ang);
+        double sinus = std::sin(ang);
+        
+        double fval = 0.;
+        // Add t0 constraint 
+        if (m_t0Error == WEAK_TOPO_T0ERROR ) {
+         fval += xx[2]*xx[2]/(1.0 *m_t0Error*m_t0Error);
+        }
+        double t, r, z, y, w, dist;
+        for(int i=0;i<m_used;++i) {
+          t = m_data[i].t - t0;
+          z = m_data[i].z;
+          y = m_data[i].y;
+          w = m_data[i].w;
+          dist = std::abs(b*cosin + z*sinus - y*cosin); // same thing as fabs(a*z - y + b)/sqrt(1. + a*a);
+          double uppercut = m_data[i].rt->tUpper();
+          double lowercut = m_data[i].rt->tLower();
+          // Penalty for t<lowercut and t >uppercut
+          if (t> uppercut ) { // too large 
+            fval += (t-uppercut)* (t-uppercut)*0.1;
+          } else if (t < 0 ) {// too small
+            fval += (t-lowercut)*(t-lowercut)*0.1;
+          }
+          if(t<lowercut) r =  m_data[i].rt->radius(lowercut);
+          else if(t>uppercut)  r = m_data[i].rt->radius(uppercut);
+          else r = m_data[i].rt->radius(t);
+          fval += (dist - r)*(dist - r)*w;
+        }
+        return fval;
+      }
+      ROOT::Math::IBaseFunctionMultiDim* Clone() const {return new FunctionToMinimize(m_used);}
+      unsigned int NDim() const {return 3;}
+      void setT0Error(const int t0Error){m_t0Error=t0Error;}
+      void addCoords(const double z, const double t, const double y, const double w, const double r, const MuonCalib::IRtRelation *rt){
+        HitCoords coords;
+        coords.z=z;
+        coords.t=t;
+        coords.y=y;
+        coords.w=w;
+        coords.r=r;
+        coords.rt=rt;
+        m_data.push_back(coords);
+      }
+    private:
+      std::vector<HitCoords> m_data;
+      int m_used;
+      int m_t0Error;
+  };
+
   MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
   : AthAlgTool(ty,na,pa),
     DCSLFitter(), 
@@ -56,15 +123,7 @@ namespace TrkDriftCircleMath {
   }
   
   StatusCode MdtSegmentT0Fitter::initialize() {
-
-    TMinuit* oldMinuit = gMinuit;
-    m_minuit = std::make_unique<TMinuit>(3);
-    m_minuit->SetPrintLevel(-1); // -1: no output, 1: std output
-    if( msgLvl(MSG::VERBOSE) ) m_minuit->SetPrintLevel(1);
-    gMinuit = oldMinuit;
-    
     ATH_CHECK(m_calibrationDbTool.retrieve());
-
     return StatusCode::SUCCESS;
   }
   
@@ -79,7 +138,6 @@ namespace TrkDriftCircleMath {
                   << " sel. hits > 2    " << std::setw(10) << m_npassedNSelectedHits << "   " << scaleFactor*m_npassedNSelectedHits << "\n"
                   << " Hits > min hits  " << std::setw(10) << m_npassedMinHits << "   " << scaleFactor*m_npassedMinHits << "\n"
                   << " Passed Fit       " << std::setw(10) << m_npassedMinuitFit << "   " << scaleFactor*m_npassedMinuitFit  );
-    if(gMinuit == m_minuit.get()) gMinuit = nullptr;
     return StatusCode::SUCCESS;
   }
   
@@ -217,52 +275,6 @@ namespace TrkDriftCircleMath {
     }
     return -1;    // failed to find key
   }
-  
-  /// the fit function
-  /// gets distance between the line and the hit (in the frame whose direction is given by the line segment
-  /// and position is given by the weighted average of all the hits), subtracts off the radius from the rt relation etc 
-  void mdtSegmentT0Fcn(Int_t &/*npar*/, Double_t* grad, Double_t &fval, Double_t* par, Int_t jflag) {
-    if(jflag < 0) grad[0] = 0.;
-    
-    double ang = par[0];  
-    double b = par[1];
-    double t0 = par[2];
-    
-    double cosin = std::cos(ang);
-    double sinus = std::sin(ang);
-    
-    fval = 0.;
-    // Add t0 constraint 
-    if (g_fcnData->t0Error == WEAK_TOPO_T0ERROR ) {
-     fval += par[2]*par[2]/(1.0 *g_fcnData->t0Error*g_fcnData->t0Error);
-    }
-    double t, r, z, y, w, dist;
-    for(int i = 0; i < g_fcnData->used ; i++) {
-      t = g_fcnData->data[i].t - t0;
-      z = g_fcnData->data[i].z;
-      y = g_fcnData->data[i].y;
-      w = g_fcnData->data[i].w;
-      dist = std::abs(b*cosin + z*sinus - y*cosin); // same thing as fabs(a*z - y + b)/sqrt(1. + a*a);
-      double uppercut = g_fcnData->data[i].rt->tUpper();
-      double lowercut = g_fcnData->data[i].rt->tLower();
-// Penalty for t<lowercut and t >uppercut
-      if (t> uppercut ) { // too large 
-	fval += (t-uppercut)* (t-uppercut)*0.1;
-      }else if (t < 0 ) {// too small
-	fval += (t-lowercut)*(t-lowercut)*0.1;
-      }
-	  if(t<lowercut) r =  g_fcnData->data[i].rt->radius(lowercut);
-          else if(t>uppercut)  r =  g_fcnData->data[i].rt->radius(uppercut);
-	  else r = g_fcnData->data[i].rt->radius(t);
-      fval += (dist - r)*(dist - r)*w;
-      
-    }
-    
-    return;
-  }
-  /***********************************************************************************/
-  
-  
   int sign(double a) {
     if(a>0) return 1;
     if(a<0) return -1;
@@ -272,14 +284,17 @@ namespace TrkDriftCircleMath {
     ++m_ntotalCalls;
 
     if(m_trace) ATH_MSG_DEBUG("New seg: ");
+
+    ROOT::Math::Minimizer* minimum = new ROOT::Minuit2::Minuit2Minimizer("algoName");
+    minimum->SetMaxFunctionCalls(1000000);
+    minimum->SetTolerance(0.001);
+    minimum->SetPrintLevel(-1);
+    if(msgLvl(MSG::VERBOSE)) minimum->SetPrintLevel(1);
  
     const DCOnTrackVec& dcs_keep = dcs;
 
     unsigned int N = dcs_keep.size();
 
-    std::unique_ptr<MdtSegmentT0FcnData> fcnData = std::make_unique<MdtSegmentT0FcnData>();
-
-    fcnData->used=0;
     result.setT0Shift(-99999,-99999);
     
     if(N<2) {
@@ -291,16 +306,17 @@ namespace TrkDriftCircleMath {
       return false;
     }  
     ++m_npassedSelectionConsistency;
+    int used=0;
     for(unsigned int i=0;i<N;++i){
-      if( selection[i] == 0 ) ++(fcnData->used);
+      if( selection[i] == 0 ) ++used;
     }
-    if(fcnData->used < 2){
+    if(used < 2){
       if(m_trace) ATH_MSG_DEBUG("TOO FEW HITS SELECTED");
       return false;
     }
     ++m_npassedNSelectedHits;
-    if(fcnData->used < m_minHits) {
-      if(m_trace) ATH_MSG_DEBUG("FEWER THAN Minimum HITS N " << m_minHits << " total hits " <<N<<" used " << fcnData->used);
+    if(used < m_minHits) {
+      if(m_trace) ATH_MSG_DEBUG("FEWER THAN Minimum HITS N " << m_minHits << " total hits " <<N<<" used " << used);
 
       //
       //     Copy driftcircles and reset the drift radii as they might have been overwritten
@@ -339,7 +355,7 @@ namespace TrkDriftCircleMath {
       if(m_trace) ATH_MSG_DEBUG(" chi2 total " << result.chi2() << " angle " << result.line().phi() << " y0 " << result.line().y0()  << " nhits "<< selection.size() << " refit ok " << iok);
       return oldrefit;
     } else {
-      if(m_trace) ATH_MSG_DEBUG("FITTING FOR T0 N "<<N<<" used " << fcnData->used);
+      if(m_trace) ATH_MSG_DEBUG("FITTING FOR T0 N "<<N<<" used " << used);
     } 
 
     ++m_npassedMinHits;
@@ -361,10 +377,9 @@ namespace TrkDriftCircleMath {
     std::vector<double> dr(N);
     std::vector<double> t(N);
     std::vector<const MuonCalib::IRtRelation*> rtpointers(N);
-    
-    // allocate memory for data
-    if(fcnData->data.capacity() != 50) fcnData->data.reserve(50);
-    fcnData->data.resize(fcnData->used);
+
+    FunctionToMinimize minFunct(used);
+
     {
       DCOnTrackVec::const_iterator it = dcs_keep.begin();
       DCOnTrackVec::const_iterator it_end = dcs_keep.end();
@@ -442,13 +457,7 @@ namespace TrkDriftCircleMath {
     
     for(int ii=0 ;it!=it_end; ++it, ++ii ){
       if( selection[ii] == 0 ) {
-        fcnData->data[selcount].z = z[ii];
-        fcnData->data[selcount].y = y[ii];
-        fcnData->data[selcount].r = r[ii];
-        fcnData->data[selcount].w = w[ii];
-        fcnData->data[selcount].rt = rtpointers[ii];
-        double r2tval;
-        r2tval = r2t_ext(&rtpointers,  r[ii], ii) ;
+        double r2tval = r2t_ext(&rtpointers,  r[ii], ii) ;
         tl = rtpointers[ii]->tLower();
         th = rtpointers[ii]->tUpper();
         if(t[ii] - tl < min_tlower) min_tlower = t[ii] - tl;
@@ -468,8 +477,9 @@ namespace TrkDriftCircleMath {
         t0seed += tee0;
         st0 += tee0*tee0;
         if(tee0 < min_t0 && std::abs(r2tval) < R2TSPURIOUS) min_t0 = tee0;
-        
-        fcnData->data[selcount].t = t[ii];
+
+        minFunct.addCoords(z[ii], t[ii], y[ii], w[ii], r[ii], rtpointers[ii]);
+
         selcount++;
       } 
     }
@@ -518,13 +528,15 @@ namespace TrkDriftCircleMath {
       if(it->id().ml()==1&&sdist < 0) nml2n++;
     }
 
-// Define t0 constraint in Minuit 
-    fcnData->t0Error = STRONG_TOPO_T0ERROR;
-    if (nml1p+nml2p < 2 || nml1n+nml2n < 2) fcnData->t0Error = WEAK_TOPO_T0ERROR;
+// Define t0 constraint in Minuit
+    int t0Error = STRONG_TOPO_T0ERROR;
+    if (nml1p+nml2p < 2 || nml1n+nml2n < 2) t0Error = WEAK_TOPO_T0ERROR;
+
+    minFunct.setT0Error(t0Error);
 
 // Reject topologies where in one of the Multilayers no +- combination is present
     if((nml1p<1||nml1n<1)&&(nml2p<1||nml2n<1)&&m_rejectWeakTopologies) {
-      if(m_trace) ATH_MSG_DEBUG("Combination rejected for positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << fcnData->used << " t0 Error " << fcnData->t0Error);
+      if(m_trace) ATH_MSG_DEBUG("Combination rejected for positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error);
       it = dcs.begin();
       it_end = dcs.end();
       double chi2p = 0.; 
@@ -554,127 +566,32 @@ namespace TrkDriftCircleMath {
       return oldrefit;
     }  // end rejection of weak topologies  
 
-    if(m_trace) ATH_MSG_DEBUG("positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << fcnData->used << " t0 Error " << fcnData->t0Error);
-    
-    int errFlag = 0;
-    int errFlag1 = 0;
-    int errFlag2 = 0;
-    int errFlag3 = 0;
-    int errFlag4 = 0;
-    int errFlag5 = 0;
-    {
-      // The part where the fcn gets used, requires locking to protect fcnData from concurrent access
-      std::scoped_lock lock(g_fcnDataMutex);
-      g_fcnData = fcnData.get();
+    if(m_trace) ATH_MSG_DEBUG("positive radii ML1 " <<  nml1p << " ML2 " <<  nml2p << " negative radii ML1 " << nml1n << " ML " << nml2n << " used hits " << used << " t0 Error " << t0Error);
 
-      m_minuit->SetFCN(mdtSegmentT0Fcn);
-      Double_t arglist[3];
-      
-      // Set printout level
-      arglist[0] = -1;
-      // Clear previous fit
-      m_minuit->mncler();
-      arglist[0] = -1;
-      
-      Double_t vstart[3];
-      vstart[0] = theta;
-      // x' = x - xc, y' = y - yc => y' = m x' + b + m xc - yc
-      // and b = yc - m xc
-      vstart[1] = d ; 
-      vstart[2] = 0 ;
+    Double_t step[3] = {0.01 , 0.01 , 0.1 };
+    // starting point
+    Double_t variable[3] = {theta,d,0};
+    // if t0Seed value from outside use this
+    if(t0Seed > -999.) variable[2] = t0Seed; 
 
-      // if t0Seed value from outside use this
-      if(t0Seed > -999.)  vstart[2] = t0Seed; 
+    minimum->SetVariable(0,"a",variable[0], step[0]);
+    minimum->SetVariable(1,"b",variable[1], step[1]);
+    minimum->SetVariable(2,"t0",variable[2], step[2]);
 
-      Double_t step[3] = {0.01 , 0.01 , 0.1 };
-      
-      if(m_trace) {
-        ATH_MSG_DEBUG("\n____________INITIAL VALUES________________" );
-        ATH_MSG_DEBUG("Theta " << theta << "("<<std::tan(theta)<<") d " << vstart[1]);
-      }
-      
+    minimum->SetFunction(minFunct);
 
-      m_minuit->mnparm(0, "a", vstart[0], step[0], -0.5, 3.5,errFlag);
-      m_minuit->mnparm(1, "b", vstart[1], step[1], 0., 0.,errFlag);
-      m_minuit->mnparm(2, "t0", vstart[2], step[2], 0., 0.,errFlag);
+    // do the minimization
+    minimum->Minimize();
 
-      if (errFlag !=0 &&m_trace)  {
-        ATH_MSG_DEBUG("ALARM with steering of Minuit variable " << errFlag);
-      }
-      
-      m_minuit->FixParameter(0);
-      m_minuit->FixParameter(1);
+    const double *results = minimum->X();
+    const double *errors = minimum->Errors();
+    ATH_MSG_DEBUG("Minimum: f(" << results[0] << "+-" << errors[0] << "," << results[1]<< "+-" << errors[1]<< "," << results[2] << "+-" << errors[2]<< "): " << minimum->MinValue());
 
-      m_minuit->mnexcm("MINIMIZE", arglist, 0,errFlag1);
-
-      m_minuit->Release(0);
-      m_minuit->Release(1);
-      m_minuit->FixParameter(2);
-      m_minuit->mnexcm("MINIMIZE", arglist, 0,errFlag2);
-      m_minuit->mnexcm("MIGRAD", arglist, 0,errFlag3);
-      m_minuit->Release(2);
-      m_minuit->mnexcm("MINIMIZE", arglist, 0,errFlag4);
-      m_minuit->mnexcm("MIGRAD", arglist, 0,errFlag5);
-      if(errFlag5!=0&&errFlag4==0) {
-        m_minuit->mnexcm("MINIMIZE", arglist, 0,errFlag4); 
-        if (errFlag4 == 0 &&m_trace)  {
-          ATH_MSG_DEBUG(" ALARM Fall back to MINIMIZE " << errFlag4);
-        }
-      }
-      g_fcnData = nullptr; 
-    } // end of scoped_lock
-    
-    // Get the chisquare and errors
-    double chisq(0);
-    double edm(0);
-    double errdef(0);
-    int npari(0);
-    int nparx(0);
-    int icstat(0);
-    m_minuit->mnstat(chisq, edm, errdef, npari, nparx, icstat);
-   
-    int fitretval = errFlag5;
-    if (npari<0 || nparx < 0 || chisq < 0) ATH_MSG_WARNING("MdtSegmentT0Fitter MINUIT problem " << " chisq "<<chisq<<" npari "<<npari<<" nparx "<< nparx <<" fitretval "<< fitretval<<" (cf. ATLASRECTS-5795)");
-
-    if (fitretval !=0 &&m_trace)  {
-      ATH_MSG_DEBUG(  " ALARM return value " << fitretval  );
-    }
-    if(m_dumpToFile) {
-      std::ofstream ff;
-      ff.open("fitres.txt", std::ios::out | std::ios::app);
-      ff<<npari<<" "<<nparx<<" "<<fitretval<<" "<<chisq<< " "<< std::endl;
-      ff.close();
-    }
-    if(m_trace) ATH_MSG_DEBUG("chisq "<<chisq<<" npari "<<npari<<" nparx "<<nparx<<" fitretval "<<fitretval);
-
-    // Do standard DCSL fit if minuit is bad 
-    // Do standard DCSL fit if all fits from minuit are bad 
-    if (errFlag5!=0&&errFlag4!=0&&errFlag3!=0&&errFlag2!=0&&errFlag1!=0) {
-      if(m_trace)ATH_MSG_DEBUG(" ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 
-			<< " ALARM migrad fix 1 " << errFlag3 << " ALARM minimize all free" << errFlag4 << " ALARM migrad all free " 
-                                << errFlag5);
-
-      DCOnTrackVec dcs_new;
-      dcs_new.reserve(dcs.size());
-      DCOnTrackVec::const_iterator it = dcs.begin();
-      DCOnTrackVec::const_iterator it_end = dcs.end();
-    
-      for(int i=0; it!=it_end; ++it, ++i ){
-        const DriftCircle* ds  = & dcs[i];
-        DriftCircle dc_keep(ds->position(), ds->rot()->driftRadius(), ds->dr(), ds->drPrecise(), ds->state(), ds->id(), ds->index(),ds->rot() );
-        DCOnTrack dc_new(dc_keep, 0., 0.);
-        dc_new.state(dcs[i].state());
-        dcs_new.push_back( dc_new );
-      }
-      bool oldrefit =  DCSLFitter::fit( result, line , dcs_new, selection );
-      return oldrefit;
-    }
     ++m_npassedMinuitFit;
 
     // Get the fit values
-    double aret(0);
-    double aErr(0);
-    m_minuit->GetParameter(0,aret,aErr); // theta returned
+    double aret=results[0];
+    double aErr=errors[0];
     double dtheta = aErr;
     double tana = std::tan(aret); // tangent of angle
     double ang = aret;  // between zero and pi
@@ -687,48 +604,41 @@ namespace TrkDriftCircleMath {
       cosin = -cosin;
     }
     ang = std::atan2(sinus, cosin);
-    
-    
-    double b(0);
-    double bErr(0);
-    m_minuit->GetParameter(1,b,bErr); // intercept
-    double t0(0);
-    double t0Err(0);
-    m_minuit->GetParameter(2,t0,t0Err);
+    double b=results[1];
+    double bErr=errors[1];
+    double t0=results[2];
+    double t0Err=errors[2];
     double dy0 = cosin * bErr - b * sinus * aErr;
     
     double del_t;
     del_t = std::abs(rtpointers[0]->radius((t0+t0Err)) - rtpointers[0]->radius(t0)) ;
-    
+
     if(m_trace) {
       ATH_MSG_DEBUG("____________FINAL VALUES________________" );
       ATH_MSG_DEBUG("Values: a "<<tana<<" d "<<b * cosin <<" t0 "<<t0);
       ATH_MSG_DEBUG("Errors: a "<<aErr<<" b "<<dy0 <<" t0 "<<t0Err);
     }
     d = b * cosin;
-    double covar[3][3];
-    m_minuit->mnemat(&covar[0][0],3);  // 3x3
     if(m_trace) {
       msg() << MSG::DEBUG <<"COVAR  ";
       for(int it1=0; it1<3; it1++) {
         for(int it2=0; it2<3; it2++) {
-          msg() << MSG::DEBUG <<covar[it1][it2]<<" ";
+          msg() << MSG::DEBUG <<minimum->CovMatrix(it1,it2)<<" ";
         }
         msg() << MSG::DEBUG << endmsg;
       }
     }
-    
+
     result.dcs().clear();
     result.clusters().clear();
     result.emptyTubes().clear();
 
     if(m_trace) ATH_MSG_DEBUG("after fit theta "<<ang<<" sinus "<<sinus<< " cosin "<< cosin);
-    
+
     double chi2 = 0;
     unsigned int nhits(0);
     double yl;
-    
-    
+
     // calculate predicted hit positions from track parameters
     it = dcs_keep.begin();
     it_end = dcs_keep.end();
@@ -775,7 +685,7 @@ namespace TrkDriftCircleMath {
       double covsq=0;
       for(int rr=0; rr<3; rr++) {
         for(int cc=0; cc<3; cc++) {
-          covsq += deriv[rr]*covar[rr][cc]* deriv[cc];
+          covsq += deriv[rr]*minimum->CovMatrix(rr,cc)* deriv[cc];
         }
       }
       if(m_trace) {
@@ -783,8 +693,8 @@ namespace TrkDriftCircleMath {
 	if( covsq < 0. ){
 	  for(int rr=0; rr<3; rr++) {
 	    for(int cc=0; cc<3; cc++) {
-	      double dot = deriv[rr]*covar[rr][cc]* deriv[cc];
-	      ATH_MSG_DEBUG(" adding term " << dot << " dev1 " << deriv[rr] << " cov " << covar[rr][cc] << " dev2 " << deriv[cc]);
+	      double dot = deriv[rr]*minimum->CovMatrix(rr,cc)* deriv[cc];
+	      ATH_MSG_DEBUG(" adding term " << dot << " dev1 " << deriv[rr] << " cov " << minimum->CovMatrix(rr,cc) << " dev2 " << deriv[cc]);
 	    }
 	  }
 	}
@@ -836,7 +746,7 @@ namespace TrkDriftCircleMath {
       if(chi2/(nhits-NUMPAR) > 5) {
         ATH_MSG_DEBUG("_______NOT GOOD ");
       }
-      ATH_MSG_DEBUG("chi2 "<<chi2<<" per dof "<<chi2/(nhits-NUMPAR)<<" root chisq "<<chisq);
+      ATH_MSG_DEBUG("chi2 "<<chi2<<" per dof "<<chi2/(nhits-NUMPAR));
     }
     return true;
   }
