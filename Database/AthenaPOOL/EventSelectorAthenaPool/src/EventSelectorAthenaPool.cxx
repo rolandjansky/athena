@@ -166,6 +166,11 @@ StatusCode EventSelectorAthenaPool::initialize() {
    if (!m_eventStreamingTool.empty() && !m_eventStreamingTool.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get " << m_eventStreamingTool.typeAndName() << "");
       return(StatusCode::FAILURE);
+   } else if (m_makeStreamingToolClient.value() == -1) {
+      if (!m_eventStreamingTool->makeClient(m_makeStreamingToolClient.value()).isSuccess()) {
+         ATH_MSG_ERROR("Could not make AthenaPoolCnvSvc a Share Client");
+         return(StatusCode::FAILURE);
+      }
    }
 
    // Ensure the xAODCnvSvc is listed in the EventPersistencySvc
@@ -478,6 +483,15 @@ StatusCode EventSelectorAthenaPool::createContext(IEvtSelector::Context*& ctxt) 
 StatusCode EventSelectorAthenaPool::next(IEvtSelector::Context& ctxt) const {
    std::lock_guard<CallMutex> lockGuard(m_callLock);
    if (!m_eventStreamingTool.empty() && m_eventStreamingTool->isClient()) {
+      if (m_makeStreamingToolClient.value() == -1) {
+         StatusCode sc = m_eventStreamingTool->lockEvent(m_evtCount);
+         while (sc.isRecoverable()) {
+            usleep(1000);
+            sc = m_eventStreamingTool->lockEvent(m_evtCount);
+         }
+      }
+      // Increase event count
+      ++m_evtCount;
       void* tokenStr = nullptr;
       unsigned int status = 0;
       if (!m_eventStreamingTool->getLockedEvent(&tokenStr, status).isSuccess()) {
