@@ -257,7 +257,10 @@ namespace Trk{
     
       if (trackParametersWeight.determinant()<=0)  
       {
-        ATH_MSG_ERROR(" The determinant of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+        ATH_MSG_WARNING(" The determinant of the inverse of the track covariance matrix is negative: " << trackParametersWeight.determinant());
+        if(trk->expectedCovarianceAtPCA().determinant()<=0){
+          ATH_MSG_ERROR(" As well as the determinant of the track covariance matrix: " << trk->expectedCovarianceAtPCA().determinant());
+	}
       }
       
 
