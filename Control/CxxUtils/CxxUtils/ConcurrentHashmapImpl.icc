@@ -97,12 +97,12 @@ bool CHMTableIterator<ENTRIES_PER_CACHELINE>::next()
 
 
 #define T_CHMIMPL \
-  template <template <class> class UPDATER,     \
-            typename HASHER,                    \
-            typename MATCHER,                   \
-            uintptr_t NULLVAL>
+  template <template <class> class UPDATER_,     \
+            typename HASHER_,                    \
+            typename MATCHER_,                   \
+            uintptr_t NULLVAL_>
 
-#define CHMIMPL ConcurrentHashmapImpl<UPDATER, HASHER, MATCHER, NULLVAL>
+#define CHMIMPL ConcurrentHashmapImpl<UPDATER_, HASHER_, MATCHER_, NULLVAL_>
 
 
 /**
@@ -113,8 +113,8 @@ bool CHMTableIterator<ENTRIES_PER_CACHELINE>::next()
  */
 T_CHMIMPL
 CHMIMPL::Table::Table (size_t capacity,
-                       const HASHER& hasher /*= HASHER()*/,
-                       const MATCHER& matcher /*= MATCHER()*/)
+                       const Hasher_t& hasher /*= Hasher_t()*/,
+                       const Matcher_t& matcher /*= Matcher_t()*/)
   : m_capacity (capacity),
     m_maxProbe (capacity / 4),
     m_mask (capacity-1),
@@ -125,7 +125,7 @@ CHMIMPL::Table::Table (size_t capacity,
 {
   // Clear all the keys.
   for (size_t i = 0; i < capacity; i++) {
-    m_entries[i].m_key = NULLVAL;
+    m_entries[i].m_key = nullval;
   }
 }
 
@@ -278,8 +278,8 @@ typename CHMIMPL::entry_t& CHMIMPL::Table::entry (size_t offset)
 T_CHMIMPL
 CHMIMPL::ConcurrentHashmapImpl (Updater_t&& updater,
                                 size_t capacity_in,
-                                const HASHER& hasher,
-                                const MATCHER& matcher,
+                                const Hasher_t& hasher,
+                                const Matcher_t& matcher,
                                 const typename Updater_t::Context_t& ctx)
   : m_updater (std::move (updater)),
     m_hasher (hasher),

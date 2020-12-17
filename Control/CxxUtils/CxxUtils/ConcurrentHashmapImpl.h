@@ -35,7 +35,7 @@ namespace detail {
 
 /// Type used for keys and values --- an unsigned big enough to hold a pointer.
 /// Need to have this defined outside of ConcurrentHashmapImpl itself
-/// in order to avoid instantiation circularities, as the HASHER and MATCHER
+/// in order to avoid instantiation circularities, as the HASHER_ and MATCHER_
 /// classes will probably want to use it.
 using ConcurrentHashmapVal_t = uintptr_t;
 
@@ -130,15 +130,15 @@ private:
  * are much more frequent than writes.
  *
  * Template arguments:
- *  UPDATER - Object used for memory management; see below.
- *            This has the same requirements as for ConcurrentRangeMap;
- *            see there for further details.
- *  HASHER  - Functional to compute a hash value from a key.
- *            Defaults to std::hash.
- *  MATCHER - Functional to compare two keys for equality.
- *            Defaults to std::equal_to.
- *  NULLVAL - Value of the key to be considered null.
- *            A key with this value may not be inserted.
+ *  UPDATER_ - Object used for memory management; see below.
+ *             This has the same requirements as for ConcurrentRangeMap;
+ *             see there for further details.
+ *  HASHER_  - Functional to compute a hash value from a key.
+ *             Defaults to std::hash.
+ *  MATCHER_ - Functional to compare two keys for equality.
+ *             Defaults to std::equal_to.
+ *  NULLVAL_ -  Value of the key to be considered null.
+ *              A key with this value may not be inserted.
  *
  * Implementation notes:
  *  We use open addressing (see, eg, knuth AOCP 6.4), in which the payloads
@@ -150,22 +150,25 @@ private:
  *
  *  The implementation here is inspired by the hash maps from ConcurrencyKit
  *  (http://concurrencykit.org), though the code is all new.
+ *
+ * nb. Can't use plain `MATCHER' as a template argument because it collides
+ * with gtest.
  */
-template <template <class> class UPDATER,
-          typename HASHER = std::hash<uintptr_t>,
-          typename MATCHER = std::equal_to<uintptr_t>,
-          uintptr_t NULLVAL = 0>
+template <template <class> class UPDATER_,
+          typename HASHER_ = std::hash<uintptr_t>,
+          typename MATCHER_ = std::equal_to<uintptr_t>,
+          uintptr_t NULLVAL_ = 0>
 class ConcurrentHashmapImpl
 {
 public:
   /// Type used for keys and values --- an unsigned big enough to hold a pointer.
   using val_t = ConcurrentHashmapVal_t;
   /// Hash object.
-  using Hasher_t = HASHER;
+  using Hasher_t = HASHER_;
   /// Key match object.
-  using Matcher_t = MATCHER;
+  using Matcher_t = MATCHER_;
   /// Null key value.
-  static constexpr uintptr_t nullval = NULLVAL;
+  static constexpr uintptr_t nullval = NULLVAL_;
   /// Used to represent an invalid table index.
   static constexpr size_t INVALID = static_cast<size_t>(-1);
 
@@ -217,8 +220,8 @@ private:
      * @param matcher Key match object to use.
      */
     Table (size_t capacity,
-           const HASHER& hasher = HASHER(),
-           const MATCHER& matcher = MATCHER());
+           const Hasher_t& hasher = Hasher_t(),
+           const Matcher_t& matcher = Matcher_t());
 
 
     /**
@@ -291,9 +294,9 @@ private:
     /// Number of bits in the mask.
     const size_t m_maskBits;
     /// The hash object.
-    const HASHER& m_hasher;
+    const Hasher_t& m_hasher;
     /// The key match object.
-    const MATCHER& m_matcher;
+    const Matcher_t& m_matcher;
     /// Longest probe needed so far.
     std::atomic<size_t> m_longestProbe;
     /// The actual table entries.
@@ -303,7 +306,7 @@ private:
 
 public:
   /// Updater object.
-  using Updater_t = UPDATER<Table>;
+  using Updater_t = UPDATER_<Table>;
   /// Context type for the updater.
   using Context_t = typename Updater_t::Context_t;
 
@@ -320,8 +323,8 @@ public:
    */
   ConcurrentHashmapImpl (Updater_t&& updater,
                          size_t capacity_in,
-                         const HASHER& hasher,
-                         const MATCHER& matcher,
+                         const Hasher_t& hasher,
+                         const Matcher_t& matcher,
                          const typename Updater_t::Context_t& ctx);
 
 
@@ -549,9 +552,9 @@ private:
   /// Updater object managing memory.  See above.
   Updater_t m_updater;
   /// The hash object.
-  const HASHER m_hasher;
+  const Hasher_t m_hasher;
   /// The key match object.
-  const MATCHER m_matcher;
+  const Matcher_t m_matcher;
   /// The current table instance.  Must be holding the mutex to access this.
   Table* m_table;
   /// Number of entries in the map.
