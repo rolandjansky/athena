@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -115,12 +115,14 @@ int main() {
 
    CP::SystematicSet s; s.insert(CP::SystematicVariation("mySyst",1));
 
-   dynamic_cast<CP::ISystematicsTool*>(&*myTool4)->applySystematicVariation(s).ignore();
+   auto isyst4 = dynamic_cast<CP::ISystematicsTool*>(&*myTool4);
+   if (!isyst4) std::abort();
+   isyst4->applySystematicVariation(s).ignore();
    std::cout << myTool4->evaluate(e) << std::endl; //should print 5.0
 
    s.clear(); s.insert(CP::SystematicVariation("mySyst",-1));
 
-   dynamic_cast<CP::ISystematicsTool*>(&*myTool4)->applySystematicVariation(s).ignore();
+   isyst4->applySystematicVariation(s).ignore();
    std::cout << myTool4->evaluate(e) << std::endl; //should print 1.0
 
    return 0; //zero = success
