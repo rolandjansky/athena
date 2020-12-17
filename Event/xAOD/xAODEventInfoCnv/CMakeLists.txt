@@ -5,7 +5,7 @@ atlas_subdir( xAODEventInfoCnv )
 
 # Optional dependencies:
 set( extra_libs )
-if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
    set( extra_libs BeamSpotConditionsData LumiBlockData )
 endif()
 
@@ -30,7 +30,7 @@ atlas_add_test( EvenInfoCnvConfigTestMT
                 SCRIPT test/EventInfoCnv_test.py -n 25 -t 3
                 PROPERTIES TIMEOUT 300 )
 
-if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
    atlas_add_test( EventInfoOverlayConfigTest
                    SCRIPT test/EventInfoOverlay_test.py
                    PROPERTIES TIMEOUT 300 )
