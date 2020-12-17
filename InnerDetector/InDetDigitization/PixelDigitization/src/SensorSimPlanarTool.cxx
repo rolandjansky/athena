@@ -210,6 +210,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;
 
+  std::cout << "STSTST SensorSimPlanarTool OK1 " << std::endl;
+
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
@@ -249,6 +251,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
     int numBins_weightingPotential_y = 0;
     int numBins_weightingPotential_z = 0;
 
+    std::cout << "STSTST SensorSimPlanarTool OK2 " << m_doRadDamage << " " << !(Module.isDBM()) << " " << Module.isBarrel() << std::endl;
+
     if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
       centreOfPixel_i = p_design.positionFromColumnRow(pixel_i.etaIndex(), pixel_i.phiIndex());
 
@@ -263,6 +267,8 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
       nnLoop_pixelPhiMax = std::min( 2,pixel_i.phiIndex() );
       nnLoop_pixelPhiMin = std::max( -2, pixel_i.phiIndex() + 1 - phiCells );
 
+      std::cout << "STSTST SensorSimPlanarTool OK3 " << std::endl;
+
       //Setup values to check for overflow when using maps
       if (m_doInterpolateEfield) {
         numBins_driftTime_e = m_distanceMap_e[layer]->GetNbinsY(); //Returns nBins = totalBins - underflow - overflow 
@@ -272,13 +278,17 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
         numBins_weightingPotential_z = m_ramoPotentialMap[layer]->GetNbinsZ();        
       }
       else { // use fluence value from conditions data
+        std::cout << "STSTST SensorSimPlanarTool OK4 " << layer << std::endl;
         numBins_driftTime_e = moduleData->getDistanceMap_e(layer)->GetNbinsY();
         numBins_driftTime_h = moduleData->getDistanceMap_h(layer)->GetNbinsY();   
         numBins_weightingPotential_x = moduleData->getRamoPotentialMap(layer)->GetNbinsX();
         numBins_weightingPotential_y = moduleData->getRamoPotentialMap(layer)->GetNbinsY();
         numBins_weightingPotential_z = moduleData->getRamoPotentialMap(layer)->GetNbinsZ();        
+        std::cout << "STSTST SensorSimPlanarTool OK5 " << std::endl;
       }
     }
+
+    std::cout << "STSTST SensorSimPlanarTool OK6 " << std::endl;
 
     // Distance between charge and readout side.  p_design->readoutSide() is
     // +1 if readout side is in +ve depth axis direction and visa-versa.
