@@ -65,17 +65,17 @@ private:
     bool getPhoton(const egammaRec* egRec, xAOD::PhotonContainer *photonContainer,
             const unsigned int author, uint8_t type) const;
 
+    /** @brief Do the final ambiguity **/
+    StatusCode doAmbiguityLinks(const EventContext& ctx,
+                                xAOD::ElectronContainer* electronContainer,
+                                xAOD::PhotonContainer* photonContainer) const;
 
-    /** @brief Do the final ambiguity **/  
-    StatusCode doAmbiguityLinks(xAOD::ElectronContainer *electronContainer, 
-            xAOD::PhotonContainer *photonContainer) const ;
-
-    /** @brief Call a tool using contExecute and electrons, photon containers if given **/
+    /** @brief Call a tool using contExecute and electrons, photon containers if
+     * given **/
     StatusCode CallTool(const EventContext& ctx,
-            const ToolHandle<IegammaBaseTool>& tool, 
-            xAOD::ElectronContainer *electronContainer = nullptr, 
-            xAOD::PhotonContainer *photonContainer = nullptr) const;
-
+                        const ToolHandle<IegammaBaseTool>& tool,
+                        xAOD::ElectronContainer* electronContainer = nullptr,
+                        xAOD::PhotonContainer* photonContainer = nullptr) const;
 
     /** @brief Vector of tools for dressing electrons and photons **/
     ToolHandleArray<IegammaBaseTool> m_egammaTools {this,

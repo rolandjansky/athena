@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: BunchStructureMetadata.py 345964 2011-02-15 15:25:18Z ssnyder $
 
 ## @package BunchStructureMetadata
 #
@@ -9,8 +8,6 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 345964 $
-# $Date: 2011-02-15 16:25:18 +0100 (Tue, 15 Feb 2011) $
 
 ##
 # @short Function adding the bunch structure metadata to the D3PD
@@ -27,13 +24,9 @@
 #
 # @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 #
-# $Revision: 345964 $
-# $Date: 2011-02-15 16:25:18 +0100 (Tue, 15 Feb 2011) $
-#
 def addBunchStructureMetadata( d3pdalg = None, source = "" ):
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "addBunchStructureMetadata" )
 
@@ -55,9 +48,9 @@ def addBunchStructureMetadata( d3pdalg = None, source = "" ):
     _d3pdSvc = getattr( ServiceMgr, _d3pdSvcName )
 
     # If no D3PD::MakerAlg has been provided, create a dummy one:
-    if d3pdalg == None:
+    if d3pdalg is None:
         logger.warning( "No D3PD MakerAlg given to function!" )
-        logger.warning( "The bunch configuration will be saved into file: " +
+        logger.warning( "The bunch configuration will be saved into file: "
                         "\"BunchConfig.root\"" )
         from AthenaCommon.AlgSequence import AlgSequence
         theJob = AlgSequence()
@@ -68,7 +61,7 @@ def addBunchStructureMetadata( d3pdalg = None, source = "" ):
 
     # Add the metadata tool:
     _d3pdToolName = "BunchStructureMetadataTool"
-    if not _d3pdToolName in [ t.name() for t in d3pdalg.MetadataTools ]:
+    if _d3pdToolName not in [ t.name() for t in d3pdalg.MetadataTools ]:
         import TriggerD3PDMaker
         from TrigBunchCrossingTool.BunchCrossingConfProvider import BunchCrossingConfProvider
         d3pdalg.MetadataTools += [
@@ -89,8 +82,5 @@ def addBunchStructureMetadata( d3pdalg = None, source = "" ):
         d3pdalg += BunchConfigIDD3PDObject( source )( 0 )
     else:
         logger.info( "BunchConfigIDD3PDObject already added to the D3PD::MakerAlg" )
-
-    # Restore the original logger if necessary:
-    if "orig_logger" in dir(): logger = orig_logger
 
     return

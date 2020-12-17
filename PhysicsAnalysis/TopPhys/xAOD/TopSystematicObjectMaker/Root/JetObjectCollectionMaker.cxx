@@ -290,7 +290,7 @@ namespace top {
     if (m_config->useLargeRJets()) {
       for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
         std::string fullName = name.first + "_" + name.second;
-        m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+        m_boostedJetTaggers[fullName] = ToolHandle<IJetDecorator>(fullName);
         top::check(m_boostedJetTaggers[fullName].retrieve(), "Failed to retrieve " + fullName);
       }
     }
@@ -764,6 +764,7 @@ namespace top {
     //decorate with boosted-tagging flags
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
       std::string fullName = name.first + "_" + name.second;
+      // TODO: Rewrite this to use the new interface
 //      const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
       // TAccept has bool operator overloaded, but let's be more explicit in the output to char
 //      jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);

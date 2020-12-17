@@ -52,21 +52,11 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
-    # Begin temporary block for Run-3 Trigger outputs
-    if ConfigFlags.Trigger.EDMVersion == 3:
-        # Lock DQ configuration to prevent downstream override
-        from AthenaMonitoring.DQMonFlags import DQMonFlags
-        print('DQMonFlags override')
-        if not rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(False)
-        if DQMonFlags.useTrigger() and rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(True)
-        # Don't run any trigger - only pass the HLT contents from ESD to AOD
-        # Configure here, and extract HLT content in RecExCommon_topOptions
-        # after the rest of the job is configured
-        from RecExConfig.RecAlgsFlags import recAlgs
-        recAlgs.doTrigger.set_Value_and_Lock( False )
-        rec.doTrigger.set_Value_and_Lock( False )
+    # Lock DQ configuration to prevent downstream override
+    # RB 15/12/2020: This logic was added in !36737, not sure if still needed
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    print('DQMonFlags.useTrigger override')
+    DQMonFlags.useTrigger.set_Value_and_Lock(rec.doTrigger() and DQMonFlags.useTrigger())
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG

@@ -9,19 +9,11 @@
 #        Reconstruction/Jet/JetSimTools/PartonTruthJets_jobOptions.py
 #
 
-
-import EventCommonD3PDMaker
-from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
-from AthenaCommon.AlgSequence                 import AlgSequence
+from AthenaCommon.SystemOfUnits import GeV
 from RecExConfig.ObjKeyStore                  import cfgKeyStore
 from RecExConfig.RecFlags                     import rec
 
-from JetRec.JetMomentGetter import make_JetMomentGetter
-from JetRec.JetGetters import *  
-
-from AthenaCommon.SystemOfUnits import MeV, GeV
-from JetRec.JetRecConf import JetAlgorithm
-
+from JetRec.JetGetters import make_StandardJetGetter
 from JetSimTools.JetSimToolsConf import JetPartonSelectorTool
 
 def PartonJetConfig (finder    = 'AntiKt',
@@ -50,11 +42,10 @@ def PartonJetConfig (finder    = 'AntiKt',
     jetPartonSelectorTool.DoPythia = doPythia
     jetPartonSelectorTool.DoHerwig = doHerwig
     jetPartonSelectorTool.max_absEta = absEtaMax
-    #jetPartonSelectorTool.OutputLevel = INFO
     ToolSvc += jetPartonSelectorTool
 
     # Configure jets builder
-    if inputCollections != None:
+    if inputCollections is not None:
         partonJetAlg = make_StandardJetGetter(finder,size,'Truth',inputSuff='Parton'+suffix,
                                               inputCollectionNames=inputCollections,
                                               inputTools=[jetPartonSelectorTool]).jetAlgorithmHandle()
@@ -63,7 +54,5 @@ def PartonJetConfig (finder    = 'AntiKt',
     else:
         partonJetAlg = make_StandardJetGetter(finder,size,'Truth',inputSuff='Parton'+suffix).jetAlgorithmHandle()
     partonJetAlg.AlgTools['JetFinalPtCut'].MinimumSignal = minJetPt
-    #partonJetAlg.AlgTools['InputToJet'].InputSelector = jetPartonSelectorTool
-    #partonJetAlg.OutputLevel = INFO
 
     return
