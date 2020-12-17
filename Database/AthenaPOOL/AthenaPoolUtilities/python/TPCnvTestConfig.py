@@ -8,13 +8,34 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from AthenaPoolUtilities.DumperConfig import Dumper, find_file
-from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-from TileGeoModel.TileGMConfig import TileGMCfg
-from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+try:
+    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+except ImportError:
+    pass
+try:
+    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
+except ImportError:
+    pass
+try:
+    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+except ImportError:
+    pass
+try:
+    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
+except ImportError:
+    pass
+try:
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+except ImportError:
+    pass
+try:
+    from TileGeoModel.TileGMConfig import TileGMCfg
+except ImportError:
+    pass
+try:
+    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
+except ImportError:
+    pass
 #from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 Configurable.configurableRun3Behavior = True
 
