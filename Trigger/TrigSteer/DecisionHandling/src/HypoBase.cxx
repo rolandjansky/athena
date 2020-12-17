@@ -150,16 +150,19 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       ATH_CHECK( seed.isValid() );
       DecisionIDContainer seedIDSet;
       decisionIDs(*seed, seedIDSet);
-      if (passed(id, seedIDSet)) {
+      // Id may be a chain-ID (represetns a whole chain) or a leg-ID (represents just a single leg of a multi-leg chain)
+      // Is ID is in this parent's set of passed IDs?
+      // Or, (if ID is a leg-ID) is the chain-ID of leg-ID in the parent's set of passed IDs?
+      if (passed(id, seedIDSet) or passed(getIDFromLeg(id).numeric(), seedIDSet)) {
         ++parentsWithDecision;
       }
-      else{ //adding also Ids from the legs
-	for (auto sid: seedIDSet){
-	  if (TrigCompositeUtils::getIDFromLeg(sid).numeric() == id){
-	    ++parentsWithDecision;
-	    break;
-	  }
-	}
+      else{ // Or, for each of the seed IDs, if the seed ID is a leg-ID, is the seed chain-ID of the seed leg-ID the same as ID?  
+        for (auto sid: seedIDSet){
+          if (getIDFromLeg(sid).numeric() == id){
+            ++parentsWithDecision;
+            break;
+          }
+        }
       }
     }
     if (mode == kRequireOne && parentsWithDecision == 0) {
