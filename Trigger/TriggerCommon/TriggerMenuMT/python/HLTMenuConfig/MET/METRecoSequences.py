@@ -39,15 +39,15 @@ log = logging.getLogger(__name__)
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
     jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
-    if "jetDataType" in recoDict:
-        # Allow for the renaming dataType -> jetDataType
-        jrd["constitType"] = recoDict["jetDataType"]
-        if jrd["constitType"] == "pf":
-            # We only use em calibration for PFOs
-            jrd["clusterCalib"] = "em"
     # For various reasons, we can store the constituent modifiers separately
     # to the data type, so we have to add that back in
     jrd["constitMod"] = recoDict.get("constitmod", "")
+    if "jetDataType" in recoDict:
+        # Allow for the renaming dataType -> jetDataType
+        jrd["constitType"] = recoDict["jetDataType"].replace(jrd["constitMod"],"") # strip constitMod from jetDataType
+        if jrd["constitType"] == "pf":
+            # We only use em calibration for PFOs
+            jrd["clusterCalib"] = "em"
     if jrd["jetCalib"] == "default":
         jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
