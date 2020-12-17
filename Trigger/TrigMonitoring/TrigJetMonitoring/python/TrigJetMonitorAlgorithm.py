@@ -133,6 +133,7 @@ def getEtaRange(chain):
 # Schedule more histograms for dedicated jet collections
 #########################################################
 from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec, EventHistoSpec, SelectSpec, ToolSpec #VarSpec can be added to define specific/custom variables
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 # All offline jet collections
 ExtraOfflineHists = [
@@ -188,7 +189,6 @@ def TrigJetMonConfig(inputFlags):
 
   # Match HLT to offline jets
   for j1,j2 in JetColls2Match[InputType].items():
-    from AthenaConfiguration.ComponentFactory import CompFactory
     name = 'Matching_{}_{}'.format(j1,j2)
     alg = CompFactory.JetMatcherAlg(name, JetContainerName1=j1,JetContainerName2=j2)
     cfg.addEventAlgo(alg)
@@ -472,7 +472,7 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
        # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=100 , xmin=0, xmax=500000. ,)
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=1000 , xmin=0, xmax=1000000. ,)
 
    # Get jet index and eta selection for offline jets
    parts        = chain.split('j')
@@ -528,12 +528,16 @@ if __name__=='__main__':
 
   # Read arguments
   parser = argparse.ArgumentParser()
-  parser.add_argument('--athenaMT', action='store_true', dest='athenaMT', default=False)
-  parser.add_argument('--legacy',   action='store_true', dest='legacy',   default=False)
-  parser.add_argument('--input',    action='store',      dest='inputFile')
-  args     = parser.parse_args()
-  AthenaMT = args.athenaMT
-  Legacy   = args.legacy
+  parser.add_argument('--athenaMT',            action='store_true', dest='athenaMT',            default=False)
+  parser.add_argument('--legacy',              action='store_true', dest='legacy',              default=False)
+  parser.add_argument('--runTruthReco',        action='store_true', dest='runTruthReco',        default=False)
+  parser.add_argument('--printDetailedConfig', action='store_true', dest='printDetailedConfig', default=False)
+  parser.add_argument('--input',               action='store',      dest='inputFile')
+  args                = parser.parse_args()
+  AthenaMT            = args.athenaMT
+  Legacy              = args.legacy
+  RunTruth            = args.runTruthReco
+  PrintDetailedConfig = args.printDetailedConfig
   # Protections
   if AthenaMT and Legacy:
     print('ERROR: Choose AthenaMT or Legacy, exiting')
@@ -567,15 +571,38 @@ if __name__=='__main__':
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
   from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
   cfg = MainServicesCfg(ConfigFlags)
+
+  # AthenaMT or Legacy
+  InputType = 'MT' if AthenaMT else 'Legacy'
+
+  # Reconstruct small-R truth jets
+  if RunTruth:
+    from JetRecConfig.StandardSmallRJets import AntiKt4Truth # import the standard definitions
+    # Add the components from our jet reconstruction job
+    from JetRecConfig.JetRecConfig import JetRecCfg
+    comp = JetRecCfg(AntiKt4Truth,ConfigFlags)
+    cfg.merge(comp)
+    # Write jet collection to AOD
+    # First define the output list
+    key = "{0}Jets".format(AntiKt4Truth.basename)
+    outputlist = ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
+    # Now get the output stream components
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
+
   cfg.merge(PoolReadCfg(ConfigFlags))
 
   # The following class will make a sequence, configure algorithms, and link
   # them to GenericMonitoringTools
   from AthenaMonitoring import AthMonitorCfgHelper
   helper = AthMonitorCfgHelper(ConfigFlags,'TrigJetMonitorAlgorithm')
+  cfg.merge(helper.result()) # merge it to add the sequence needed to add matchers
 
-  # AthenaMT or Legacy
-  InputType = 'MT' if AthenaMT else 'Legacy'
+  # Match HLT to offline jets
+  for j1,j2 in JetColls2Match[InputType].items():
+    name = 'Matching_{}_{}'.format(j1,j2)
+    alg = CompFactory.JetMatcherAlg(name, JetContainerName1=j1,JetContainerName2=j2)
+    cfg.addEventAlgo(alg,sequenceName='AthMonSeq_TrigJetMonitorAlgorithm') # Add matchers to monitoring alg sequence
 
   # Loop over L1 jet collectoins
   for jetcoll in L1JetCollections:
@@ -601,13 +628,13 @@ if __name__=='__main__':
 
   # Loop over HLT jet chains
   for chain,jetcoll in Chain2JetCollDict[InputType].items():
+    # kinematic plots
     if AthenaMT:
       chainMonitorConfT = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,True)
       chainMonitorConfT.toAlg(helper)
     chainMonitorConfF = jetChainMonitoringConfig(ConfigFlags,jetcoll,chain,AthenaMT,False)
     chainMonitorConfF.toAlg(helper)
-
-    # Produce efficiency plots
+    # efficiency plots
     refChain       = 'NONE'
     offlineJetColl = 'NONE'
     if chain in TurnOnCurves[InputType]:
@@ -619,4 +646,7 @@ if __name__=='__main__':
 
   cfg.merge(helper.result())
   
+  # Print config
+  cfg.printConfig(withDetails=PrintDetailedConfig)
+
   cfg.run()
