@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -122,20 +122,6 @@ PileUpEventLoopMgr::~PileUpEventLoopMgr() {}
 //=========================================================================
 StatusCode PileUpEventLoopMgr::initialize()
 {
-  //-------------------------------------------------------------------------
-  // Process Properties
-  //-------------------------------------------------------------------------
-  try
-    {
-      CHECK(setProperties());
-      // configure our MsgStream
-      m_msg.get().setLevel( m_outputLevel.value() );
-    }
-  catch (...)
-    {
-      ATH_MSG_WARNING ( "Caught exception thrown reading in properties" );
-    }
-
   ATH_MSG_INFO ( "Initializing " << this->name() << " - package version " << PACKAGE_VERSION ) ;
   if(!m_allowSerialAndMPToDiffer)
     {
