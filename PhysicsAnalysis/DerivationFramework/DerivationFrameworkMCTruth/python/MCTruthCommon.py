@@ -537,6 +537,28 @@ def addLargeRJetD2(kernel=None):
     kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHD2Kernel",
                                                           AugmentationTools = [TruthD2Decorator,TruthD2Decorator_SD] )
 
+def addTruthHSDeco(kernel=None):
+    #Ensure that we are adding it to something
+    if kernel is None:
+        from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
+        kernel = DerivationFrameworkJob
+    if hasattr(kernel,'TRUTHHSKernel'):
+        # Already there!  Carry on...
+        dfcommontruthlog.warning("Attempt to add a duplicate TRUTHHSKernel. Failing.")
+        return
+
+    #Extra classifier for HS variable
+    from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__TruthHSDecorator
+    TruthHSDecorator= DerivationFramework__TruthHSDecorator("TruthHSDecorator",
+                                                            TruthParticleKey = "TruthParticles",
+                                                            TruthEventKey = "TruthEvents",
+                                                            DecorationName = "HSBool")
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TruthHSDecorator
+    kernel +=CfgMgr.DerivationFramework__DerivationKernel("TRUTHHSKernel",
+                                                          AugmentationTools = [TruthHSDecorator] )
+
 
 def addTruthEnergyDensity(kernel=None):
     #Ensure that we are adding it to something
