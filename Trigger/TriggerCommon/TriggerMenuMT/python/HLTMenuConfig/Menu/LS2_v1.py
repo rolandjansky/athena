@@ -41,6 +41,8 @@ def setupMenu():
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
+        ChainProp(name='HLT_mu6_LRT_idperf_l2lrt_L1MU6',     groups=SingleMuonGroup),
+
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 
         # commented because it is conflict with dimuon noL1 serial chain
@@ -61,8 +63,6 @@ def setupMenu():
         ChainProp(name='HLT_mu24_ivarmedium_L1MU20', groups=SingleMuonGroup),
 
         # Additional intermediate thresholds for validation comparisons to match with Physics_pp_v7_primaries menu
-        ChainProp(name='HLT_mu22_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
-        ChainProp(name='HLT_mu24_mu8noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name='HLT_mu24_mu10noL1_L1MU20', l1SeedThresholds=['MU20','FSNOSEED'], groups=MultiMuonGroup),
         ChainProp(name="HLT_mu10_L1MU10", groups=SingleMuonGroup),
         ChainProp(name='HLT_2mu4_L12MU4',  groups=MultiMuonGroup),
@@ -236,18 +236,21 @@ def setupMenu():
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_sk_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_cssk_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_cssk_pf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_sk_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_cssk_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_cssk_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=['Online',SingleJetGroup]),
 
@@ -357,6 +360,7 @@ def setupMenu():
         ChainProp(name="HLT_tau160_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_medium1_tracktwoEF_L1TAU100",groups=SingleTauGroup),
         ChainProp(name="HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100",groups=SingleTauGroup),
+        #ATR-18804
         ChainProp(name="HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
@@ -364,6 +368,10 @@ def setupMenu():
         ChainProp(name="HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
         ChainProp(name="HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_perf_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_idperf_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),
+        ChainProp(name="HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100",groups=SingleTauGroup),  
+
         # ATR-21797
         # the following 3 chains were in serial mode in Run-2
         ChainProp(name="HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40",         l1SeedThresholds=['TAU60','TAU40'],     groups=MultiTauGroup),
@@ -377,6 +385,12 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bUpsimumu_L12MU4', groups=BphysicsGroup),
         #ATR-20839
         ChainProp(name='HLT_2mu4_bDimu_L12MU4', groups=BphysicsGroup),
+        #ATR-21639
+        ChainProp(name='HLT_2mu4_bBmumux_BpmumuKp_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BcmumuPi_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BsmumuPhi_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_BdmumuKst_L12MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_2mu4_bBmumux_LbPqKm_L12MU4', groups=BphysicsGroup),
         #ATR-21003
         ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup),
@@ -433,6 +447,7 @@ def setupMenu():
         #ChainProp(name='HLT_noalg_mb_L1RD2_EMPTY', l1SeedThresholds=['FSNOSEED'], stream=['MinBias'], groups=MinBiasGroup),
         #ChainProp(name='HLT_noalg_zb_L1ZB', l1SeedThresholds=['FSNOSEED'], stream=['ZeroBias'], groups=ZeroBiasGroup),
         ChainProp(name='HLT_noalg_L1All', l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=['RATE:SeededStreamers', 'BW:Other']), # ATR-22072, for rates in MC. To move to MC menu once good nightly in LS2_v1.
+        ChainProp(name='HLT_noalg_cosmiccalo_L1RD0_FIRSTEMPTY', l1SeedThresholds=['FSNOSEED'], stream=['CosmicCalo'], groups=['RATE:Calibration','BW:Detector']),
     ]
 
     TriggerFlags.MonitorSlice.signatures   = TriggerFlags.MonitorSlice.signatures() + [

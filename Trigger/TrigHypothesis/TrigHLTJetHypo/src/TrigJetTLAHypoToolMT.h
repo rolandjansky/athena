@@ -63,6 +63,10 @@ class TrigJetTLAHypoToolMT: public AthAlgTool{
     Gaudi::Property<bool>
       m_visitDebug {this, "visit_debug", false, "debug flag"};
 
+    Gaudi::Property<std::string> m_chainName {
+    this, "chain_name", {}, "chain name"};
+  
+
 
 
 };

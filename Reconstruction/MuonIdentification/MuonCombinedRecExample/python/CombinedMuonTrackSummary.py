@@ -8,12 +8,10 @@
 #==========================================================================
 
 from AthenaCommon.DetFlags  import DetFlags
-from AthenaCommon.AppMgr    import ServiceMgr
 from AthenaCommon.AppMgr    import ToolSvc
 from AthenaCommon.BeamFlags import jobproperties
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.CfgGetter import getPublicTool
-from AthenaCommon.GlobalFlags import globalflags
 
 beamFlags                      = jobproperties.Beam
 

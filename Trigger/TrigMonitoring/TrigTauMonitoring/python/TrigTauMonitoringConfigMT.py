@@ -162,6 +162,9 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
     'HLT_tau200_medium1_tracktwoEF_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
@@ -342,7 +345,7 @@ class TrigTauMonAlgBuilder:
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
     
-    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
+    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=250)
     monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
     monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
     monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)

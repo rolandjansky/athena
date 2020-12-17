@@ -35,6 +35,11 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     return getParticleBrokerSvc(name, **kwargs)
 
 
+def getAFIIEnergyOrderedParticleBrokerSvc(name="ISF_AFIIEnergyOrderedParticleBrokerSvc", **kwargs):
+    kwargs.setdefault('ParticleOrderingTool', 'ISF_EnergyParticleOrderingTool')
+    return getAFIIParticleBrokerSvc(name, **kwargs)
+
+
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")

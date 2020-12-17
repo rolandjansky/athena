@@ -117,10 +117,6 @@ private:
     const SmoothedTrajectory&,
     const ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  //* Calculate the fit quality */
-  std::unique_ptr<Trk::FitQuality> buildFitQuality(
-    const Trk::SmoothedTrajectory&) const;
-
   /** Gsf smoothe trajectory*/
   std::unique_ptr<SmoothedTrajectory> fit(
     const EventContext& ctx,

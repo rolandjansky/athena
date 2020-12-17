@@ -9,7 +9,6 @@
 //  Extrapolates indet track to MS.
 //  Returns a combined track with full track fit.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuidTrackBuilder/MuidMuonRecovery.h"

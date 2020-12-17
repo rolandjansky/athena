@@ -1311,15 +1311,21 @@ SGImplSvc::removeProxy(DataProxy* proxy, const void* pTrans,
   }
 
   // remove all entries from t2p map
-  this->t2pRemove(pTrans);
-  SG::DataProxy::CLIDCont_t clids = proxy->transientID();
-  for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-       i != clids.end();
-       ++i)
+  //  --- only if the proxy actually has an object!
+  //      otherwise, we can trigger I/O.
+  //      besides being useless here, we can get deadlocks if we
+  //      call into the I/O code while holding the SG lock.
+  if (proxy->isValidObject()) {
+    this->t2pRemove(pTrans);
+    SG::DataProxy::CLIDCont_t clids = proxy->transientID();
+    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
+         i != clids.end();
+         ++i)
     {
       void* ptr = SG::DataProxy_cast (proxy, *i);
       this->t2pRemove(ptr);
     }
+  }
 
   // remove from store
   return m_pStore->removeProxy(proxy, forceRemove, true);

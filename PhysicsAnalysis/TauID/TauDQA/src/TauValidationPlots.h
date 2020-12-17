@@ -6,16 +6,15 @@
 #define TAUDQA_TAUVALIDATIONPLOTS_H
 
 // PlotBase objects
-#include "TauHistUtils/ParamPlots.h"
-#include "TauHistUtils/GeneralTauPlots.h"
-#include "TauHistUtils/Had1ProngPlots.h"
-#include "TauHistUtils/Had3ProngPlots.h"
-#include "TauHistUtils/EVetoPlots.h"
-#include "TauHistUtils/RecoTauPlots.h"
-#include "TauHistUtils/NewCorePlots.h"
-#include "TauHistUtils/BDTinputPlots.h"
-#include "TauHistUtils/Migration.h"
-#include "TauHistUtils/EfficiencyPtPlots.h"
+#include "ParamPlots.h"
+#include "GeneralTauPlots.h"
+#include "Had1ProngPlots.h"
+#include "Had3ProngPlots.h"
+#include "EVetoPlots.h"
+#include "RecoTauPlots.h"
+#include "NewCorePlots.h"
+#include "Migration.h"
+#include "EfficiencyPtPlots.h"
 
 #include "xAODJet/JetContainer.h"
 #include "xAODEgamma/ElectronContainer.h" 
@@ -82,15 +81,6 @@ class TauValidationPlots:public PlotBase {
 
       Tau::NewCorePlots m_oNewCoreMatchedPlots;
       Tau::NewCorePlots m_oNewCoreFakePlots;
-
-      // All tau BDT scrore and input variables
-  //    Tau::BDTinputPlots m_oBDTinputPlotsRec;
-
-   //   Tau::BDTinputPlots m_oBDTinputPlotsMatched;
-
-    //  Tau::BDTinputPlots m_oBDTinputPlotsFakes;
-
-     // Tau::BDTinputPlots m_oBDTinputPlotsElec;
 
       //Migration Matrix plots
       Tau::Migration m_oMigrationPlots;		

@@ -52,14 +52,6 @@ if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
 if muonCombinedRecFlags.doTrackPerformance:
     include("MuonCombinedRecExample/MuonCombinedTrackPerformance_jobOptions.py")
 
-if( muonCombinedRecFlags.createTagAndProbeInput() ):
-    from MuonCombinedRecExample.TagAndProbeInputSetup import setupTagAndProbeInput
-    setupTagAndProbeInput()
-
-if( muonCombinedRecFlags.createScaleCalibrationInput() ):
-    from MuonCombinedRecExample.ScaleCalibrationInputSetup import setupScaleCalibrationInput
-    setupScaleCalibrationInput()
-    
 if rec.doMuonCombined() and rec.doJetMissingETTag() and muonCombinedRecFlags.doxAOD():
     muonTCLinkAlg = CfgMgr.ClusterMatching__CaloClusterMatchLinkAlg("MuonTCLinks",ClustersToDecorate="MuonClusterCollection")
     topSequence += muonTCLinkAlg

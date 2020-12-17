@@ -19,8 +19,10 @@
 #include "GaudiKernel/IRegistry.h"
 
 #include "LArRawEvent/LArAccumulatedCalibDigitContainer.h"
+#include "LArRecConditions/LArCalibLineMapping.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "StoreGate/ReadCondHandle.h"
 #include "AthenaKernel/CLASS_DEF.h"
 
 // Tool 
@@ -34,7 +36,8 @@
 LArAccumulatedCalibDigitContByteStreamCnv::LArAccumulatedCalibDigitContByteStreamCnv(ISvcLocator* svcloc) :
   AthConstConverter(storageType(), classID(),svcloc,"LArAccumulatedCalibDigitContByteStreamCnv"),
   m_tool("LArRawDataContByteStreamTool"),
-  m_rdpSvc("ROBDataProviderSvc", name())
+  m_rdpSvc("ROBDataProviderSvc", name()),
+  m_calibLineMappingKey ("LArCalibLineMap")
 {}
 
 const CLID& LArAccumulatedCalibDigitContByteStreamCnv::classID(){
@@ -55,6 +58,7 @@ LArAccumulatedCalibDigitContByteStreamCnv::initialize()
   }
 
   ATH_CHECK( m_tool.retrieve() );
+  ATH_CHECK( m_calibLineMappingKey.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -90,10 +94,13 @@ LArAccumulatedCalibDigitContByteStreamCnv::createObjConst(IOpaqueAddress* pAddr,
   else if (key=="LOW")
     gain=CaloGain::LARLOWGAIN;
 
+  SG::ReadCondHandle<LArCalibLineMapping> calibLineMapping (m_calibLineMappingKey);
+
   // Convert the RawEvent to  LArAccumulatedCalibDigitContainer
   ATH_MSG_DEBUG(  "Converting LArAccumulatedCalibDigits (from ByteStream). key=" << key << " ,gain=" << gain );
   LArAccumulatedCalibDigitContainer *DigitContainer=new LArAccumulatedCalibDigitContainer;
-  StatusCode sc=m_tool->convert(re,DigitContainer,gain);
+  StatusCode sc=m_tool->convert(re,DigitContainer,gain,
+                                **calibLineMapping);
   if (sc!=StatusCode::SUCCESS) {
     ATH_MSG_WARNING(  "Conversion tool returned an error. LArAccumulatedCalibDigitContainer might be empty." );
   }

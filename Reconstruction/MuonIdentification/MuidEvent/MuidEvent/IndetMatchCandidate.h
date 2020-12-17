@@ -9,7 +9,6 @@
    and information on the match quality
 	 
    @author Alan.Poppleton@cern.ch
-  (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////////////////
 

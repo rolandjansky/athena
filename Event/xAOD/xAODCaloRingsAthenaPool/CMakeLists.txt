@@ -20,6 +20,7 @@ atlas_add_poolcnv_library( xAODCaloRingsAthenaPoolPoolCnv
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -27,7 +28,7 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODCALORINGSATHENAPOOL_REFERENCE_TAG
        xAODCaloRingsAthenaPoolReference-01-00-00 )
-  run_tpcnv_legacy_test( xAODCaloRingsAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_test( xAODCaloRingsAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODCaloRingsAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODCALORINGSATHENAPOOL_REFERENCE_TAG} )
 else()

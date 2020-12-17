@@ -68,13 +68,13 @@ namespace Muon {
     MooCandidateMatchingTool(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MooCandidateMatchingTool();
+    virtual ~MooCandidateMatchingTool();
     
     /** initialize method, method taken from bass-class AlgTool */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MooCandidateMatchingTool; }
@@ -89,7 +89,7 @@ namespace Muon {
     bool match( const MuPatCandidateBase& entry1, const MuPatSegment& entry2, bool useTightCuts = false ) const;
 
     /** @brief match a track with a segment */
-    bool match( const Trk::Track& track, const MuonSegment& segment, bool useTightCuts ) const;
+    virtual bool match( const Trk::Track& track, const MuonSegment& segment, bool useTightCuts ) const override;
 
     /** @brief calculate the info needed for the matching decision */
     void calculateTrackSegmentMatchResult( const MuPatTrack& entry1, const MuPatSegment& entry2, MooTrackSegmentMatchResult& info ) const;
@@ -152,7 +152,7 @@ namespace Muon {
     /** @brief return whether the 2 segments are in neighbouring chambers */
     bool areInNeighbouringChambers( const MuPatSegment& seg1, const MuPatSegment& seg2 ) const;
 
-    void cleanUp() const;
+    void cleanUp() const override;
 
   private:
 

@@ -395,8 +395,13 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
               if (pixPrd and splitProb.isSplit()) {
                 summary.m_information[Trk::numberOfPixelSplitHits]++;
                 hitIsSplit=true;
-                if ( m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==0) summary.m_information[Trk::numberOfInnermostLayerSplitHits]++;
-                if ( m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id)==1) summary.m_information[Trk::numberOfNextToInnermostLayerSplitHits]++;
+                if (m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id) == 0){
+                  summary.m_information[Trk::numberOfInnermostLayerSplitHits]++;
+                }
+                if (m_pixelId->is_barrel(id) and m_pixelId->layer_disk(id) == 1){
+                  summary.m_information
+                    [Trk::numberOfNextToInnermostLayerSplitHits]++;
+                }
               }
             }
           }
@@ -434,21 +439,27 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
   return;
 }
 
-void  InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(const Trk::Track &track, Trk::TrackSummary& summary) const{
+void
+InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(
+  const EventContext& ctx,
+  const Trk::Track& track,
+  Trk::TrackSummary& summary) const
+{
 
-  if (m_usePixel and not m_testBLayerTool.empty() ) {
+  if (m_usePixel and not m_testBLayerTool.empty()) {
 
-    if ( summary.m_information[Trk::numberOfContribPixelLayers] == 0 ) {
+    if (summary.m_information[Trk::numberOfContribPixelLayers] == 0) {
       ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
       summary.m_information[Trk::expectInnermostPixelLayerHit] = 0;
       summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 0;
-    } else{
-      //innermost layer block
-      if (summary.m_information[Trk::numberOfInnermostPixelLayerHits] > 0){
-        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect a innermost pixel layer hit !");
+    } else {
+      // innermost layer block
+      if (summary.m_information[Trk::numberOfInnermostPixelLayerHits] > 0) {
+        ATH_MSG_DEBUG("Innermost pixel Layer hit on track, so we expect a "
+                      "innermost pixel layer hit !");
         summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track) ) {
+        if (m_testBLayerTool->expectHitInInnermostPixelLayer(ctx,&track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
           summary.m_information[Trk::expectInnermostPixelLayerHit] = 1;
         } else {
@@ -457,11 +468,12 @@ void  InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(const Trk::Track
         }
       }
 
-      //next to innermost block
-      if (summary.m_information[Trk::numberOfNextToInnermostPixelLayerHits] > 0){
+      // next to innermost block
+      if (summary.m_information[Trk::numberOfNextToInnermostPixelLayerHits] >
+          0) {
         summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
       } else {
-        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track) ) {
+        if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(ctx,&track)) {
           ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
           summary.m_information[Trk::expectNextToInnermostPixelLayerHit] = 1;
         } else {
@@ -475,9 +487,14 @@ void  InDet::InDetTrackSummaryHelperTool::updateExpectedHitInfo(const Trk::Track
   return;
 }
 
-
-void InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(Trk::TrackSummary& summary, std::vector<float>& eprob,
-                                                              float& dedx, int& nclus, int& noverflowclus) const {
+void
+InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(
+  Trk::TrackSummary& summary,
+  std::vector<float>& eprob,
+  float& dedx,
+  int& nclus,
+  int& noverflowclus) const
+{
   summary.m_eProbability = eprob;
   summary.m_dedx = dedx;
   summary.m_nhitsdedx =  nclus;
@@ -486,34 +503,49 @@ void InDet::InDetTrackSummaryHelperTool::updateAdditionalInfo(Trk::TrackSummary&
   return;
 }
 
-void  InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track& track, Trk::TrackSummary& summary) const {
+void
+InDet::InDetTrackSummaryHelperTool::addDetailedTrackSummary(
+  const EventContext& ctx,
+  const Trk::Track& track,
+  Trk::TrackSummary& summary) const
+{
   if (summary.m_indetTrackSummary and not m_overwriteidsummary) {
-    ATH_MSG_DEBUG("TrackSummary already has detailed indet track summary, not adding a new one");
+    ATH_MSG_DEBUG("TrackSummary already has detailed indet track summary, not "
+                  "adding a new one");
     return;
   }
   if (not m_usePixel) {
-    ATH_MSG_DEBUG("Pixels are off, so no need for an detailed indet track summary");
+    ATH_MSG_DEBUG(
+      "Pixels are off, so no need for an detailed indet track summary");
     return;
   }
   ATH_MSG_DEBUG("Adding detailed indet track summary");
   delete summary.m_indetTrackSummary;
   Trk::InDetTrackSummary* indetTrackSummary = new Trk::InDetTrackSummary();
-  Trk::InDetTrackSummary& trackSummary      = *indetTrackSummary;
-  if (m_usePixel and not m_pixeldedxtool.empty() and (track.perigeeParameters() or not track.trackParameters()->empty())) {
+  Trk::InDetTrackSummary& trackSummary = *indetTrackSummary;
+  if (m_usePixel and not m_pixeldedxtool.empty() and
+      (track.perigeeParameters() or not track.trackParameters()->empty())) {
     const Trk::TrackParameters* par = track.perigeeParameters();
-    if (par==nullptr) par = *track.trackParameters()->begin();
-    double p      = (par->parameters()[Trk::qOverP]!=0) ? 1./par->parameters()[Trk::qOverP] : 1.e15;
-    double dedx   = summary.getPixeldEdx();
+
+    if (par == nullptr){
+      par = *track.trackParameters()->begin();
+    }
+    double p = (par->parameters()[Trk::qOverP] != 0)
+                 ? 1. / par->parameters()[Trk::qOverP]
+                 : 1.e15;
+    double dedx = summary.getPixeldEdx();
     int ngoodhits = summary.numberOfUsedHitsdEdx();
-    if (ngoodhits>0 and dedx>0 and track.info().trackFitter()!=Trk::TrackInfo::Unknown and p<1.e15) {
-      trackSummary.m_likelihoodspixeldedx = m_pixeldedxtool->getLikelihoods(dedx, p, ngoodhits);
-      trackSummary.m_massdedx             = m_pixeldedxtool->getMass(dedx, p, ngoodhits);
+    if (ngoodhits > 0 and dedx > 0 and
+        track.info().trackFitter() != Trk::TrackInfo::Unknown and p < 1.e15) {
+      trackSummary.m_likelihoodspixeldedx =
+        m_pixeldedxtool->getLikelihoods(ctx, dedx, p, ngoodhits);
+      trackSummary.m_massdedx =
+        m_pixeldedxtool->getMass(ctx, dedx, p, ngoodhits);
     }
   }
   summary.m_indetTrackSummary = indetTrackSummary;
 }
 
-// ====================================================================================================================
 
 StatusCode InDet::InDetTrackSummaryHelperTool::finalize() {
   return StatusCode::SUCCESS;

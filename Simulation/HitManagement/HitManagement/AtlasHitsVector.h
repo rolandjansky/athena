@@ -48,11 +48,11 @@ public:
   //
   // default constructor for rootcint
 #ifdef __CINT__
-  AtlasHitsVector<T>( ) {}
+  AtlasHitsVector( ) {}
   //
   // methods not provided to rootcint
 #else
-  AtlasHitsVector<T>(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
+  AtlasHitsVector(std::string collectionName="DefaultCollectionName", const unsigned int mySize=100)
   {
     IMessageSvc* msgSvc(Athena::getMessageSvc());
     MsgStream log(msgSvc, "AtlasHitsVector");
@@ -62,7 +62,7 @@ public:
     m_hitvector.reserve(mySize);
   }
 
-  ~AtlasHitsVector<T> () {
+  ~AtlasHitsVector () {
     std::vector<T>().swap(m_hitvector);
   }
   void Clear()

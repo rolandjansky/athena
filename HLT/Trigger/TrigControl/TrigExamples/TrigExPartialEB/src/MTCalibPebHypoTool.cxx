@@ -229,8 +229,22 @@ StatusCode MTCalibPebHypoTool::decide(const MTCalibPebHypoTool::Input& input) co
       IROBDataProviderSvc::VROBFRAG robFragments;
       m_robDataProviderSvc->getROBData(input.eventContext, robs, robFragments, name()+"-GET");
       ATH_MSG_DEBUG("Number of ROBs retrieved: " << robFragments.size());
-      if (!robFragments.empty())
+      if (!robFragments.empty()) {
         ATH_MSG_DEBUG("List of ROBs found: " << std::endl << format(robFragments));
+      }
+      if (m_checkDataConsistency.value()) {
+        for (const IROBDataProviderSvc::ROBF* rob : robFragments) {
+          try {
+            if (!rob->check_rob() || !rob->check_rod()) {
+              ATH_MSG_ERROR("Data consistency check failed");
+            }
+          }
+          catch (const std::exception& ex) {
+            ATH_MSG_ERROR("Data consistency check failed: " << ex.what());
+          }
+          ATH_MSG_DEBUG("Data consistency check passed for ROB 0x" << std::hex << rob->rob_source_id() << std::dec);
+        }
+      }
     }
     if (instr.type == ReqType::COL) {
       // Event building

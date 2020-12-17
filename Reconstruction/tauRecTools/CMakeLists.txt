@@ -26,7 +26,6 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauJetRNNEvaluator.h
   tauRecTools/TauIDVarCalculator.h
   tauRecTools/TauDecayModeNNClassifier.h
-  tauRecTools/TauVertexCorrection.h
   tauRecTools/TauVertexedClusterDecorator.h
   Root/LinkDef.h
   EXTERNAL_PACKAGES ROOT
@@ -55,7 +54,7 @@ else()
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${FASTJET_LIBRARIES} ${Boost_LIBRARIES}
       AthLinks AsgTools CxxUtils xAODCaloEvent xAODEventInfo xAODPFlow xAODTau
       xAODTracking xAODParticleEvent CaloUtilsLib Particle AsgDataHandlesLib MVAUtils
-      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData 
+      PRIVATE_LINK_LIBRARIES ${FASTJETCONTRIB_LIBRARIES} ${LWTNN_LIBRARIES} FourMomUtils xAODJet BeamSpotConditionsData
       PathResolver )
 endif()
 
@@ -65,8 +64,8 @@ if( NOT XAOD_STANDALONE )
          src/*.h src/*.cxx src/components/*.cxx
          INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
          LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${LWTNN_LIBRARIES} xAODTau
-         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet 
-         xAODPFlow xAODParticleEvent MVAUtils BeamSpotConditionsData GaudiKernel tauRecToolsLib )
+         xAODTracking AthContainers FourMomUtils xAODCaloEvent xAODJet
+         xAODPFlow xAODParticleEvent MVAUtils GaudiKernel tauRecToolsLib )
    else()
       atlas_add_component( tauRecTools
          src/*.h src/*.cxx src/components/*.cxx
@@ -81,4 +80,3 @@ if( NOT XAOD_STANDALONE )
          tauRecToolsLib )
    endif()
 endif()
-

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetUncertainties/ELogMassUncertaintyComponent.h"
@@ -49,12 +49,12 @@ ELogMassUncertaintyComponent* ELogMassUncertaintyComponent::clone() const
 
 bool ELogMassUncertaintyComponent::getValidityImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.pt()*m_energyScale,log(getMassOverE(jet,m_massDef))));
+    return !m_validHist ? true : getValidBool(m_validHist->getValue(jet.e()*m_energyScale,log(getMassOverE(jet,m_massDef))));
 }
 
 double ELogMassUncertaintyComponent::getUncertaintyImpl(const xAOD::Jet& jet, const xAOD::EventInfo&) const
 {
-    return m_uncHist->getValue(jet.pt()*m_energyScale,log(getMassOverE(jet,m_massDef)));
+    return m_uncHist->getValue(jet.e()*m_energyScale,log(getMassOverE(jet,m_massDef)));
 }
 
 } // end jet namespace

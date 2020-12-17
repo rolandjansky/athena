@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TrackD3PDMaker/python/TrackParticleImpactParameters.py
 # @author scott snyder <snyder@bnl.gov>
@@ -11,9 +10,6 @@
 
 import TrackD3PDMaker
 from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
-from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
-import D3PDMakerCoreComps
-
 
 def TrackParticleImpactParameters (TPD3PDObject,
                                    prefix = 'track',

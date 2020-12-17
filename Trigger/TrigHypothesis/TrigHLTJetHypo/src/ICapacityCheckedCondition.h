@@ -32,7 +32,12 @@ class ICapacityCheckedCondition: public IConditionMT {
 
   virtual bool multiplicitySatisfied(std::size_t jgMultiplicity,
 				     const Collector&) const = 0;
-  
+
+
+  virtual int label() const = 0;
+  virtual std::string toString() const = 0;
+  virtual bool isFromChainPart() const = 0;
+
 };
 
 #endif

@@ -25,13 +25,10 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTruth/TruthEventContainer.h"
 
-#include "HepMC/GenEvent.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
-namespace HepMC {
-  class GenEvent;
-  class GenParticle;
-  class GenVertex;
-}
 
 class IxAODtoHepMCTool : public virtual asg::IAsgTool {
  public:

@@ -124,7 +124,7 @@ class ConditionsDictMaker(object):
         r'^(?P<lo>\d*)(?P<attr>[%s]+)(?P<hi>\d*)' % lchars)
 
 
-    # key: substring from chain label. value: asttribute of python
+    # key: substring from chain label. value: attribute of python
     # component proxy
     
     def get_conditions(self, params):
@@ -155,6 +155,7 @@ class ConditionsDictMaker(object):
 
 
     def makeDict(self, params):
+
         # conditions example: ['10et,0eta320', '20et']
         conditions = self.get_conditions(params)
 
@@ -164,14 +165,21 @@ class ConditionsDictMaker(object):
         for c in conditions: mult_conditions[c] += 1
         
         result = []
+        chainpartinds = []
         msgs = []
 
 
         # process each parameter string once.
         for c, mult in mult_conditions.items(): # c is condition string
             cdict = defaultdict(dict)
+            
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
+            cpis = [t for t in toks if t.startswith('leg')]
+            assert len(cpis) < 2
+            if cpis:
+                chainpartinds.append((cpis[0], mult))
+                toks.remove(chainpartinds[-1][0])
 
             for t in toks:
                 m = self.window_re.match(t)
@@ -248,7 +256,7 @@ class ConditionsDictMaker(object):
 
         msgs = ['ConditionsDict OK']
         error = False
-        return result, error, msgs
+        return result, chainpartinds, error, msgs
 
 
 class TreeParameterExpander_simple(object):
@@ -267,10 +275,11 @@ class TreeParameterExpander_simple(object):
     def mod(self, node):
 
         cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(node.parameters)
+        d, chainpartinds, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
         node.conf_attrs = d
-
+        node.chainpartinds = chainpartinds
+        
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -295,9 +304,10 @@ class TreeParameterExpander_dijet(object):
     def mod(self, node):
 
         cdm = ConditionsDictMaker()
-        d, error, msgs = cdm.makeDict(node.parameters)
+        d, chainpartinds, error, msgs = cdm.makeDict(node.parameters)
         self.msgs.extend(msgs)
         node.conf_attrs = d
+        node.chainpartinds = chainpartinds
 
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs)

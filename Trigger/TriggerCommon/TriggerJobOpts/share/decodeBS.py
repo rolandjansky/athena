@@ -62,10 +62,10 @@ topSequence.remove( StreamESD )
 outSequence.remove( StreamESD )
 
 # Define what to write into ESD
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-TriggerFlags.EDMDecodingVersion = 3 # currently hard-coded
-edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), TriggerFlags.EDMDecodingVersion())
+edmList = getTriggerEDMList(TriggerFlags.ESDEDMSet(), ConfigFlags.Trigger.EDMVersion)
 if len(ItemList) == 0:
     for edmType, edmKeys in edmList.items():
         for key in edmKeys:

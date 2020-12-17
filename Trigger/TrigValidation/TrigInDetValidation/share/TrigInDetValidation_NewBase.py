@@ -32,7 +32,7 @@ except getopt.GetoptError:
     print("-n  N          run only on N events per job")
     print("-c(--config)   run with config_only and print to a pkl file")
     print("")
-
+    sys.exit(1)
 
 Events_local  = 0
 local         = False
@@ -73,7 +73,8 @@ rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 rdo2aod.config_only       = testconfig
-
+if 'Release' in dir():
+    rdo2aod.release           = Release
 
 
 if "Args" not in locals() : 

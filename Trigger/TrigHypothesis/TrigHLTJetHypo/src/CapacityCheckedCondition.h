@@ -21,6 +21,7 @@
 
 #include <memory>
 #include <string>
+#include <ostream>
 
 
 class ITrigJetHypoInfoCollector;
@@ -28,7 +29,8 @@ class ITrigJetHypoInfoCollector;
 class CapacityCheckedCondition: public ICapacityCheckedCondition {
  public:
  CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
-			  std::size_t mult);
+			  std::size_t mult,
+			  int chainPartind = -1);
   virtual ~CapacityCheckedCondition();
   
   virtual bool
@@ -42,10 +44,20 @@ class CapacityCheckedCondition: public ICapacityCheckedCondition {
   
   virtual std::string toString() const override;
 
+  virtual int label() const override;
+
+  virtual bool isFromChainPart() const override;
+
 private:
 
   std::unique_ptr<IConditionMT> m_condition;
-  std::size_t m_multiplicity;
+  std::size_t m_multiplicity{1};
+
+  // record of which chain part in the chainDict this conditions comes from
+  int m_chainPartInd{-1};
 };
+
+std::ostream& operator<<(std::ostream&,
+			 const CapacityCheckedCondition&);
 
 #endif

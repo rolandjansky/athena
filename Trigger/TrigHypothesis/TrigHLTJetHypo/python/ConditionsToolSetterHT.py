@@ -16,9 +16,8 @@ class ConditionsToolSetterHT(object):
 
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
-    def __init__(self, name):
+    def __init__(self):
 
-        self.name = name
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
@@ -70,7 +69,6 @@ class ConditionsToolSetterHT(object):
             
         assert node.scenario == 'ht'
 
-        print (node)
         conditionMaker = self._get_tool_instance('htcondition')
         config_tool = self._get_tool_instance('htconfig')
         cut_windows = {}
@@ -79,7 +77,7 @@ class ConditionsToolSetterHT(object):
         for d in node.conf_attrs: assert d[1] == 1
         
         [cut_windows.update(d[0]) for d in node.conf_attrs]
-        print (cut_windows)
+
         conditionMaker.htmin = cut_windows['ht']['min']
         conditionMaker.etmin = cut_windows['et']['min']
         conditionMaker.etamin = cut_windows['eta']['min']

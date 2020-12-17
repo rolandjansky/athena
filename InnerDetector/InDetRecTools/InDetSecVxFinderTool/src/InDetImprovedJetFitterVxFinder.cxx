@@ -96,12 +96,6 @@ namespace InDet
 
   StatusCode InDetImprovedJetFitterVxFinder::initialize() {
     
-    StatusCode sc = AlgTool::initialize();
-    if(sc.isFailure()) {
-      msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
-      return sc;
-    }
-    
     if (m_theTrackSelector.retrieve().isFailure()) {
       msg(MSG::ERROR) << "Could not find TrackSelector tool." << endmsg;
       return StatusCode::FAILURE;
@@ -122,17 +116,9 @@ namespace InDet
       return StatusCode::FAILURE;
     } else msg(MSG::INFO) << " JetFitterMultiStageFit retrieved" << endmsg;
 
-    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
-
-   StatusCode InDetImprovedJetFitterVxFinder::finalize() {
-
-     msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-
-  } 
 
   Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const xAOD::Vertex & primaryVertex,
 								      const TLorentzVector & jetMomentum,

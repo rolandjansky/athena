@@ -18,6 +18,7 @@
 #include "TLorentzVector.h"
 #include "TruthRivetTools/HiggsTemplateCrossSectionsDefs.h"
 #include "AtlasHepMC/Relatives.h"
+#include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenRanges.h"
@@ -53,10 +54,10 @@ namespace Rivet {
     
     /// @brief Whether particle p originate from any of the ptcls
     bool originateFrom(const Particle& p, const Particles& ptcls ) {
-      const HepMC::GenVertex* prodVtx = p.genParticle()->production_vertex();
+      auto prodVtx = p.genParticle()->production_vertex();
       if (prodVtx == nullptr) return false;
       // for each ancestor, check if it matches any of the input particles
-      for (auto ancestor:Rivet::HepMCUtils::particles(prodVtx,HepMC::ancestors)){ 
+      for (auto ancestor:Rivet::HepMCUtils::particles(prodVtx,Relatives::ANCESTORS)){ 
         for ( auto part:ptcls ) 
           if ( ancestor==part.genParticle() ) return true;
       }
@@ -70,15 +71,15 @@ namespace Rivet {
     }
     
     /// @brief Checks whether the input particle has a child with a given PDGID 
-    bool hasChild(const HepMC::GenParticle *ptcl, int pdgID) {
+    bool hasChild(HepMC::ConstGenParticlePtr ptcl, int pdgID) {
       for (const Particle& child:Particle(*ptcl).children())
         if (child.pid()==pdgID) return true;
       return false;
     }
     
     /// @brief Checks whether the input particle has a parent with a given PDGID 
-    bool hasParent(const HepMC::GenParticle *ptcl, int pdgID) {
-      for (auto parent:Rivet::HepMCUtils::particles(ptcl->production_vertex(),HepMC::parents))
+    bool hasParent(HepMC::ConstGenParticlePtr ptcl, int pdgID) {
+      for (auto parent:Rivet::HepMCUtils::particles(ptcl->production_vertex(),Relatives::PARENTS))
         if (parent->pdg_id()==pdgID) return true;
       return false;
     }
@@ -142,9 +143,9 @@ namespace Rivet {
        *  There should be only one of each.
        */
 
-      HepMC::GenVertex *HSvtx = event.genEvent()->signal_process_vertex();
+      auto HSvtx = HepMC::signal_process_vertex(event.genEvent());
       int Nhiggs=0;
-      for ( const HepMC::GenParticle *ptcl : Rivet::HepMCUtils::particles(event.genEvent()) ) {
+      for (auto ptcl : Rivet::HepMCUtils::particles(event.genEvent()) ) {
 
         // a) Reject all non-Higgs particles
         if ( !PID::isHiggs(ptcl->pdg_id()) ) continue;
@@ -181,13 +182,13 @@ namespace Rivet {
       FourVector uncatV_v4(0,0,0,0);
       int nWs=0, nZs=0, nTop=0;
       if ( isVH(prodMode) ) {
-        for (auto ptcl:Rivet::HepMCUtils::particles(HSvtx,HepMC::children)) {
+        for (auto ptcl:Rivet::HepMCUtils::particles(HSvtx,Relatives::CHILDREN)) {
           if (PID::isW(ptcl->pdg_id())) { ++nWs; cat.V=Particle(ptcl); }
           if (PID::isZ(ptcl->pdg_id())) { ++nZs; cat.V=Particle(ptcl); }
         }
         if(nWs+nZs>0) cat.V = getLastInstance(cat.V);
         else {
-          for (auto ptcl:Rivet::HepMCUtils::particles(HSvtx,HepMC::children)) {
+          for (auto ptcl:Rivet::HepMCUtils::particles(HSvtx,Relatives::CHILDREN)) {
             if (!PID::isHiggs(ptcl->pdg_id())) {
               uncatV_decays += Particle(ptcl);
               uncatV_p4 += Particle(ptcl).momentum();
@@ -216,7 +217,7 @@ namespace Rivet {
       Particles Ws;
       if ( prodMode==HTXS::TTH || prodMode==HTXS::TH ){
         // loop over particles produced in hard-scatter vertex
-              for ( auto ptcl : Rivet::HepMCUtils::particles(HSvtx,HepMC::children) ) {
+              for ( auto ptcl : Rivet::HepMCUtils::particles(HSvtx,Relatives::CHILDREN) ) {
                 if ( !PID::isTop(ptcl->pdg_id()) ) continue;
           ++nTop;
           Particle top = getLastInstance(Particle(ptcl));

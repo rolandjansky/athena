@@ -15,7 +15,6 @@
  Tabulated info taken from a geantino map
 
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 

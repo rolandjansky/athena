@@ -10,7 +10,7 @@ atlas_add_library( CaloTriggerToolLib
                    PUBLIC_HEADERS CaloTriggerTool
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES AthenaBaseComps AthenaKernel CaloIdentifier GaudiKernel Identifier StoreGateLib TrigT1CaloCalibConditions
-                   PRIVATE_LINK_LIBRARIES LArCablingLib LArIdentifier ${ROOT_LIBARIES} )
+                   PRIVATE_LINK_LIBRARIES LArCablingLib LArIdentifier ${ROOT_LIBRARIES} )
 
 atlas_add_component( CaloTriggerTool
                      src/components/*.cxx

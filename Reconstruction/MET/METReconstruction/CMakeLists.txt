@@ -12,7 +12,7 @@ include_directories(src)
 atlas_add_component( METReconstruction
                      Root/*.cxx src/*.cxx src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent CaloConditions AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils METRecoInterface PFlowUtilsLib StoreGateLib InDetTrackSelectionToolLib TrackVertexAssociationToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools FourMomUtils xAODCaloEvent xAODEgamma xAODJet xAODMissingET xAODMuon xAODPFlow xAODTracking xAODTruth GaudiKernel RecoToolInterfaces CaloEvent CaloConditions AthContainers AthenaBaseComps EventPrimitives xAODTau TruthUtils METRecoInterface PFlowUtilsLib StoreGateLib InDetTrackSelectionToolLib TrackVertexAssociationToolLib tauRecToolsLib)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/LegacyRunII/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

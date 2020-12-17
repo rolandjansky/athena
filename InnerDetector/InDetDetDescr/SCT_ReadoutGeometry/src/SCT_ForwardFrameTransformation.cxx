@@ -13,7 +13,7 @@
 
 #include "SCT_ReadoutGeometry/SCT_ForwardFrameTransformation.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardPolarPosition.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include <cmath>
 
 using std::abs;

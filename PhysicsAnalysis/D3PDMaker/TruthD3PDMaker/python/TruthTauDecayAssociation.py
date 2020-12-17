@@ -1,15 +1,12 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/TruthTauDecayAssociation.py
 # @author Zach Marshall <zach.marshall@cern.ch>
 # @date June 2013
 # @brief Helper for setting up an association to tau decay products in the truth record
 
-#import D3PDMakerCoreComps
 import TruthD3PDMaker
-#from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 
 def TruthTauDecayAssociation (parent,
@@ -20,7 +17,7 @@ def TruthTauDecayAssociation (parent,
                    *args, **kw):
     """Helper for setting up an association to tau decay products in the truth record"""
 
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'TauDecayMultiAssoc'
 
     return IndexMultiAssociation (parent,

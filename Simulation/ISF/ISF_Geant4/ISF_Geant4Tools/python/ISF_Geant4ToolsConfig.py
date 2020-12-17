@@ -47,7 +47,7 @@ def getPassBackG4TrackProcessorUserActionTool(name='PassBackG4TrackProcessorUser
 
 def getAFII_G4TrackProcessorUserActionTool(name='AFII_G4TrackProcessorUserActionTool', **kwargs):
     from ISF_Config.ISF_jobProperties import ISF_Flags
-    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT']:
+    if ISF_Flags.Simulator.get_Value() in ['PassBackG4MT', 'ATLFASTIIMT', 'G4FastCaloMT', 'G4FastCaloMTEnergyOrdered']:
         kwargs.setdefault('ParticleBroker', '')
     from AthenaCommon.SystemOfUnits import MeV
     kwargs.setdefault('GeoIDSvc'                           , 'ISF_AFIIGeoIDSvc'         )
@@ -80,7 +80,7 @@ def getGeant4Tool(name="ISF_Geant4Tool", **kwargs):
     kwargs.setdefault('FastSimMasterTool', 'FastSimulationMasterTool')
     from AthenaCommon import CfgMgr
     # Workaround to keep other simulation flavours working while we migrate everything to be AthenaMT-compatible.
-    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCalo', 'G4FastCaloMT']:
+    if ISF_Flags.Simulator.get_Value() in ['FullG4', 'FullG4MT', 'PassBackG4', 'PassBackG4MT', 'G4FastCalo', 'G4FastCaloMT', 'G4FastCaloEnergyOrdered', 'G4FastCaloMTEnergyOrdered']:
         return CfgMgr.iGeant4__G4TransportTool(name, **kwargs)
     else:
         return CfgMgr.iGeant4__G4LegacyTransportTool(name, **kwargs)

@@ -82,17 +82,9 @@ namespace InDet
 
   StatusCode InDetJetFitterUtils::initialize() {
     
-    
-    StatusCode sc = AlgTool::initialize();
-    if(sc.isFailure())
-      {
-	msg(MSG::ERROR) <<" Unable to initialize the AlgTool"<<endmsg;
-	return sc;
-      }
-
     if (!m_LinearizedTrackFactory.empty())
     {
-      sc=m_LinearizedTrackFactory.retrieve();
+      StatusCode sc=m_LinearizedTrackFactory.retrieve();
       if (sc.isFailure()) {
         msg(MSG::FATAL) << "Could not find TrackLinearizer tool." << endmsg;
         return StatusCode::FAILURE;
@@ -106,7 +98,7 @@ namespace InDet
     
     if (!m_extrapolator.empty())
     {
-      sc=m_extrapolator.retrieve();
+      StatusCode sc=m_extrapolator.retrieve();
       if (sc.isFailure()) {
         msg(MSG::FATAL) << "Could not find Extrapolator tool." << endmsg;
         return StatusCode::FAILURE;
@@ -117,18 +109,10 @@ namespace InDet
       }
     }
     
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
 
-  StatusCode InDetJetFitterUtils::finalize() {
-    
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-    
-  } 
- 
   std::pair<AmgMatrix(3,3),AmgSymMatrix(3)>  InDetJetFitterUtils::getPosMomentumAndMomentumCovMatrix(const Trk::LinearizedTrack* linTrack,
 												   const AmgSymMatrix(3) & vrt_cov,
 												   const AmgSymMatrix(3) & vrt_weight) const

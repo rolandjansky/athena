@@ -26,8 +26,12 @@ StatusCode TrigCaloDataAccessSvc::initialize() {
   CHECK( m_larDecoder.retrieve() );
   CHECK( m_tileDecoder.retrieve() );
   CHECK( m_robDataProvider.retrieve() );
-  CHECK( m_regionSelector.retrieve() );
   CHECK( m_bcidAvgKey.initialize() );
+  CHECK( m_regionSelector_TTEM.retrieve() );
+  CHECK( m_regionSelector_TTHEC.retrieve() );
+  CHECK( m_regionSelector_FCALEM.retrieve() );
+  CHECK( m_regionSelector_FCALHAD.retrieve() );
+  CHECK( m_regionSelector_TILE.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -81,7 +85,13 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   { 
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
     std::lock_guard<std::mutex> getCollClock{ m_hLTCaloSlot.get( context )->mutex };       
-    m_regionSelector->DetHashIDList( detID, sampling, roi, requestHashIDs );
+    switch ( detID ) {
+    case TTEM: {m_regionSelector_TTEM->HashIDList( sampling, roi, requestHashIDs ); break; }
+    case TTHEC: {m_regionSelector_TTHEC->HashIDList( sampling, roi, requestHashIDs ); break; }
+    case FCALEM: {m_regionSelector_FCALEM->HashIDList( sampling, roi, requestHashIDs ); break; }
+    case FCALHAD: {m_regionSelector_FCALHAD->HashIDList( sampling, roi, requestHashIDs ); break; }
+    default: break;
+    }
   }
   
   ATH_MSG_DEBUG( "requestHashIDs.size() in LoadColl = " << requestHashIDs.size()  << " hash checksum " 
@@ -109,14 +119,14 @@ StatusCode TrigCaloDataAccessSvc::loadCollections ( const EventContext& context,
   std::vector<IdentifierHash> requestHashIDs;
 
   ATH_MSG_DEBUG( "Tile requested for event " << context << " and RoI " << roi );
-  unsigned int sc = prepareTileCollections( context, roi, TILE );
+  unsigned int sc = prepareTileCollections( context, roi );
 
   if ( sc ) return StatusCode::FAILURE;
  
   {
     // this has to be guarded because getTT called on the LArCollection bu other threads updates internal map
     std::lock_guard<std::mutex> getCollClock{ m_hLTCaloSlot.get( context )->mutex };
-    m_regionSelector->DetHashIDList( TILE, roi, requestHashIDs );
+    m_regionSelector_TILE->HashIDList( roi, requestHashIDs );
   }
   ATH_MSG_DEBUG( "requestHashIDs.size() in LoadColl = " << requestHashIDs.size()  << " hash checksum "
                  << std::accumulate( requestHashIDs.begin(), requestHashIDs.end(), IdentifierHash( 0 ),
@@ -280,22 +290,36 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
   std::vector<uint32_t> vrodid32hec3;
   std::vector<uint32_t> vrodid32fcalem;
   std::vector<uint32_t> vrodid32fcalhad;
-  std::vector<uint32_t> vrodid32ros; //  for virtual  lar ros in ROBs
-  std::vector<uint32_t> vrodid32tros; // for virtual tile ros in ROBs
 
   TrigRoiDescriptor tmproi(true);
+  std::vector<uint32_t> vrodid32tile;
+  std::vector<IdentifierHash> rIdstile;
   // TTEM
-  m_regionSelector->DetROBIDListUint(TTEM,-1,tmproi,vrodid32em);
+  m_regionSelector_TTEM->ROBIDList(-1,tmproi,vrodid32em);
   // TTHEC
-  m_regionSelector->DetROBIDListUint(TTHEC,0,tmproi,vrodid32hec0);
-  m_regionSelector->DetROBIDListUint(TTHEC,1,tmproi,vrodid32hec1);
-  m_regionSelector->DetROBIDListUint(TTHEC,2,tmproi,vrodid32hec2);
-  m_regionSelector->DetROBIDListUint(TTHEC,3,tmproi,vrodid32hec3);
+  m_regionSelector_TTHEC->ROBIDList(0,tmproi,vrodid32hec0);
+  m_regionSelector_TTHEC->ROBIDList(1,tmproi,vrodid32hec1);
+  m_regionSelector_TTHEC->ROBIDList(2,tmproi,vrodid32hec2);
+  m_regionSelector_TTHEC->ROBIDList(3,tmproi,vrodid32hec3);
   // FCALHAD
-  m_regionSelector->DetROBIDListUint(FCALHAD,-1,tmproi,vrodid32fcalhad);
-  m_regionSelector->DetROBIDListUint(FCALEM,-1,tmproi,vrodid32fcalem);
-  m_regionSelector->DetROBIDListUint(TILE,tmproi,m_vrodid32tile);
-  m_regionSelector->DetHashIDList(TILE,tmproi,m_rIdstile);
+  m_regionSelector_FCALEM->ROBIDList(-1,tmproi,vrodid32fcalem);
+  m_regionSelector_FCALHAD->ROBIDList(-1,tmproi,vrodid32fcalhad);
+  m_regionSelector_TILE->ROBIDList(tmproi,vrodid32tile);
+  m_regionSelector_TILE->HashIDList(tmproi,rIdstile);
+
+  m_vrodid32tile.resize( vrodid32tile.size() );
+  m_rIdstile.resize(rIdstile.size() );
+  // Tile RODs and ID coming from the Tile tables are not unique
+  // iii and iij are local variables helping to clear non-unique IDs
+  auto iii = std::unique_copy(vrodid32tile.begin(),vrodid32tile.end(),m_vrodid32tile.begin());
+  auto iij = std::unique_copy(rIdstile.begin(),rIdstile.end(),m_rIdstile.begin());
+  std::sort( m_vrodid32tile.begin(), iii );
+  std::sort( m_rIdstile.begin(), iij );
+  iii = std::unique_copy(m_vrodid32tile.begin(),iii,m_vrodid32tile.begin());
+  iij = std::unique_copy(m_rIdstile.begin(),iij,m_rIdstile.begin());
+  m_vrodid32tile.resize( std::distance(m_vrodid32tile.begin(), iii) );
+  m_rIdstile.resize( std::distance(m_rIdstile.begin(), iij) );
+
   vrodid32lar.insert(vrodid32lar.end(),vrodid32em.begin(),vrodid32em.end());
   vrodid32hec.insert(vrodid32hec.end(),vrodid32hec0.begin(),vrodid32hec0.end());
   vrodid32lar.insert(vrodid32lar.end(),vrodid32hec.begin(),vrodid32hec.end());
@@ -571,7 +595,14 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> robFrags;
   {
     std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_regionSelector->DetROBIDListUint( detector, sampling, roi, requestROBs ); // we know that the RegSelSvc is thread safe   
+    switch ( detector ) {
+    case TTEM: {m_regionSelector_TTEM->ROBIDList( sampling, roi, requestROBs ); break; }
+    case TTHEC: {m_regionSelector_TTHEC->ROBIDList( sampling, roi, requestROBs ); break; }
+    case FCALEM: {m_regionSelector_FCALEM->ROBIDList( sampling, roi, requestROBs ); break; }
+    case FCALHAD: {m_regionSelector_FCALHAD->ROBIDList( sampling, roi, requestROBs ); break; }
+    default: break;
+    }
+
     m_robDataProvider->addROBData( context, requestROBs );
     m_robDataProvider->getROBData( context, requestROBs, robFrags );
   }
@@ -609,8 +640,7 @@ unsigned int TrigCaloDataAccessSvc::prepareLArCollections( const EventContext& c
 }
 
 unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& context,
-                                                         const IRoiDescriptor& roi,
-                                                         DETID detector ) {
+                                                         const IRoiDescriptor& roi) {
 
   // If the full event was already unpacked, don't need to unpack RoI
   if ( !m_lateInitDone && lateInit() ) {
@@ -624,10 +654,11 @@ unsigned int TrigCaloDataAccessSvc::prepareTileCollections( const EventContext& 
   std::vector<IdentifierHash> rIds;
   {
     std::lock_guard<std::mutex> dataPrepLock { m_dataPrepMutex };
-    m_regionSelector->DetROBIDListUint( detector, 0, roi, requestROBs ); // we know that the RegSelSvc is thread safe
-    m_regionSelector->DetHashIDList(detector, roi, rIds);
+    m_regionSelector_TILE->ROBIDList( 0, roi, requestROBs ); // we know that the RegSelSvc is not thread safe
+    m_regionSelector_TILE->HashIDList(roi, rIds);
     m_robDataProvider->addROBData( context, requestROBs );
   }
+
 
   std::lock_guard<std::mutex> collectionLock { cache->mutex };  
   if ( cache->tileContainer->eventNumber() != context.evt() )

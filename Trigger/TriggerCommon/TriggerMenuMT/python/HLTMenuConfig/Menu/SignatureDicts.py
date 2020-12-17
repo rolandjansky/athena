@@ -145,7 +145,7 @@ JetChainParts = {
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
     'jvt'           : # Jet Vertex Tagger pileup discriminant
-      ['011jvt', '015jvt', '059jvt'],
+      ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'cleaning'      : # Jet cleaning per jet (currently unused)
@@ -225,11 +225,11 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io'],
+    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','3layersEC','cosmic',"muonqual"],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',
@@ -258,7 +258,10 @@ MuonChainParts_Default = {
 #==========================================================
 # Bphysics
 #==========================================================
-AllowedTopos_Bphysics = ['bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io']
+AllowedTopos_Bphysics = [
+    'bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io',
+    'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm'
+]
 
 # ---- Bphysics Dictionary of all allowed Values ----
 BphysicsChainParts = deepcopy(MuonChainParts)

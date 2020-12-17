@@ -10,7 +10,7 @@ atlas_add_library( MuonByteStreamCnvTestLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonByteStreamCnvTest
                    LINK_LIBRARIES AthenaBaseComps GaudiKernel MuonReadoutGeometry MuonRDO StoreGateLib SGtests RPCcablingInterfaceLib TrigT1RPChardwareLib TrigT1RPClogicLib MuonMDT_CablingLib TGCcablingInterfaceLib MuonIdHelpersLib RPC_CondCablingLib MuonDigToolInterfacesLib CscCalibToolsLib MuonDigitContainer
-                   PRIVATE_LINK_LIBRARIES EventInfo MuonPrepRawData MuonCablingData MuonMDT_CnvToolsLib MuonMM_CnvToolsLib MuonCSC_CnvToolsLib MuonRPC_CnvToolsLib MuonTGC_CnvToolsLib MuonSTGC_CnvToolsLib EventInfoMgtLib )
+                   PRIVATE_LINK_LIBRARIES MuonPrepRawData MuonCablingData MuonMDT_CnvToolsLib MuonMM_CnvToolsLib MuonCSC_CnvToolsLib MuonRPC_CnvToolsLib MuonTGC_CnvToolsLib MuonSTGC_CnvToolsLib EventInfoMgtLib )
 
 atlas_add_component( MuonByteStreamCnvTest
                      src/components/*.cxx

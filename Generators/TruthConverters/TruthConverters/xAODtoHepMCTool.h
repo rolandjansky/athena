@@ -33,9 +33,9 @@ class xAODtoHepMCTool: public asg::AsgTool, public virtual IxAODtoHepMCTool {
 
  private:
    HepMC::GenEvent createHepMCEvent(const xAOD::TruthEvent* xEvt, const xAOD::EventInfo* eventInfo) const;
-   HepMC::GenVertex* vertexHelper(const xAOD::TruthVertex*,std::map<const xAOD::TruthVertex*,HepMC::GenVertex*>&,bool&) const;
-   HepMC::GenParticle* createHepMCParticle(const xAOD::TruthParticle*) const;
-   HepMC::GenVertex* createHepMCVertex(const xAOD::TruthVertex*) const;
+   HepMC::GenVertexPtr vertexHelper(const xAOD::TruthVertex*,std::map<const xAOD::TruthVertex*,HepMC::GenVertexPtr>&,bool&) const;
+   HepMC::GenParticlePtr createHepMCParticle(const xAOD::TruthParticle*) const;
+   HepMC::GenVertexPtr createHepMCVertex(const xAOD::TruthVertex*) const;
    void printxAODEvent(const xAOD::TruthEvent* event, const xAOD::EventInfo* eventInfo) const;
    
  private:

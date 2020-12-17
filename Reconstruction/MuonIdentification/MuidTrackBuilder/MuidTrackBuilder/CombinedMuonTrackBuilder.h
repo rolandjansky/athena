@@ -9,7 +9,6 @@
 //  Coulomb scattering.
 //  The resulting track is fitted at the IP
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDTRACKBUILDER_COMBINEDMUONTRACKBUILDER_H
@@ -63,37 +62,42 @@ namespace Rec {
 class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuonTrackBuilder {
   public:
     CombinedMuonTrackBuilder(const std::string& type, const std::string& name, const IInterface* parent);
-    ~CombinedMuonTrackBuilder();
+    virtual ~CombinedMuonTrackBuilder();
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+    virtual StatusCode finalize() override;
 
     /** ICombinedMuonTrackBuilder interface: build and fit combined ID/Calo/MS track */
+    virtual
     Trk::Track* combinedFit(const Trk::Track& indetTrack, const Trk::Track& extrapolatedTrack,
-                            const Trk::Track& spectrometerTrack) const;
+                            const Trk::Track& spectrometerTrack) const override;
 
     /** ICombinedMuonTrackBuilder interface:
         build and fit indet track extended to include MS Measurement set.
         Adds material effects as appropriate plus calo energy-loss treatment */
+   virtual
     Trk::Track* indetExtension(const Trk::Track& indetTrack, const Trk::MeasurementSet& spectrometerMeas,
                                const Trk::TrackParameters* innerParameters,
                                const Trk::TrackParameters* middleParameters,
-                               const Trk::TrackParameters* outerParameters) const;
+                               const Trk::TrackParameters* outerParameters) const override;
 
     /** ICombinedMuonTrackBuilder interface:
         propagate to perigee adding calo energy-loss and material to MS track */
+    virtual
     Trk::Track* standaloneFit(const Trk::Track& spectrometerTrack, const Trk::Vertex* vertex, float bs_x, float bs_y,
-                              float bs_z) const;
+                              float bs_z) const override;
 
     /** ICombinedMuonTrackBuilder interface:
         refit a track removing any indet measurements with optional addition of pseudoMeasurements */
-    Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const;
+    virtual
+    Trk::Track* standaloneRefit(const Trk::Track& combinedTrack, float bs_x, float bs_y, float bs_z) const override;
 
     using ICombinedMuonTrackBuilder::fit;
 
     /*refit a track */
+    virtual
     Trk::Track* fit(Trk::Track& track, const Trk::RunOutlierRemoval runOutlier = false,
-                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
+                    const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const override;
 
     /**
         fit a set of MeasurementBase objects with starting value for perigeeParameters */
@@ -107,7 +111,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
                     const Trk::RunOutlierRemoval  runOutlier         = false,
                     const Trk::ParticleHypothesis particleHypothesis = Trk::muon) const;
 
-    void cleanUp() const;
+    void cleanUp() const override;
 
   private:
     bool        optimizeErrors(Trk::Track* track) const;
@@ -167,7 +171,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     void dumpCaloEloss(const Trk::Track* track, std::string txt) const;
     int  countAEOTs(const Trk::Track* track, std::string txt) const;
-    bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
+    bool checkTrack(const std::string& txt, const Trk::Track* newTrack, const Trk::Track* track) const;
 
     // helpers, managers, tools
     ToolHandle<Rec::IMuidCaloEnergy> m_caloEnergyParam{

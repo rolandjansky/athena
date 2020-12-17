@@ -23,6 +23,7 @@
 #include "LArByteStream/LArRodBlockPhysicsV5.h"
 #include "LArByteStream/LArRodBlockPhysicsV6.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 #include "StoreGate/ReadCondHandle.h"
 
@@ -50,7 +51,6 @@ LArRawDataContByteStreamTool::LArRawDataContByteStreamTool
   declareProperty("SubDetectorId",m_subDetId=0);
   declareProperty("IncludeDigits",m_includeDigits=false);
   declareProperty("DigitsContainer",m_DigitContName="LArDigitContainer_MC_Thinned");
-  m_RodBlockStructure=NULL;
 }
 
 LArRawDataContByteStreamTool::~LArRawDataContByteStreamTool() {
@@ -66,42 +66,11 @@ LArRawDataContByteStreamTool::initialize()
   ATH_CHECK( toolSvc()->retrieveTool("LArRodDecoder",m_decoder) );
 
   if (m_initializeForWriting) {
-   //Set LArRodBlockStructure according to jobOpts.
-   switch(m_DSPRunMode)
-     {case 0:  //Obsolete mode 
-	m_RodBlockStructure=NULL;
-	ATH_MSG_ERROR ( "LArRodBlockStructure type 0 is obsolete and can't be used any more." );
-	return StatusCode::FAILURE;
-      break;
-     case 2:  //Transparent mode, DSP just copies FEB-data                                            
-       m_RodBlockStructure=new LArRodBlockTransparentV0<LArRodBlockHeaderTransparentV0>;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockTransparent (#2)" );
-      break;
-     case 7: //Calibration mode
-       m_RodBlockStructure=new LArRodBlockCalibrationV0<LArRodBlockHeaderCalibrationV0>;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockCalibration (#7)" );
-       break;
-     case 4: //Physics assembly mode
-       if ( m_RodBlockVersion == 10 ){
-         m_RodBlockStructure=new LArRodBlockPhysicsV5;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
-       } else if ( m_RodBlockVersion == 12 ){
-         m_RodBlockStructure=new LArRodBlockPhysicsV6;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#6)" );
-       } else {
-         m_RodBlockStructure=new LArRodBlockPhysicsV0;
-         ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#4)" );
-       }
-       break;
-     case 5: //Physics assembly mode
-       m_RodBlockStructure=new LArRodBlockPhysicsV3;
-       ATH_MSG_DEBUG ( "Set Rod Block Type to LArRodBlockPhysics (#5)" );
-       break;
-     default:
-       m_RodBlockStructure=new LArRodBlockPhysicsV0;
-       ATH_MSG_WARNING ( "DSP runmode " << m_DSPRunMode << " is unknown. Using physics assembly mode (#4) by default" );
-       break;
-     }
+   if (m_DSPRunMode == 0) {
+     // Obsolete mode 
+     ATH_MSG_ERROR ( "LArRodBlockStructure type 0 is obsolete and can't be used any more." );
+     return StatusCode::FAILURE;
+   }
 
    ATH_CHECK( detStore()->retrieve (m_onlineHelper, "LArOnlineID") );
 
@@ -122,7 +91,6 @@ LArRawDataContByteStreamTool::initialize()
 StatusCode
 LArRawDataContByteStreamTool::finalize()
 {
-  delete m_RodBlockStructure;
   ATH_CHECK( AthAlgTool::finalize() );
   return StatusCode::SUCCESS;
 }
@@ -158,7 +126,7 @@ LArRawDataContByteStreamTool::WriteLArDigits(const LArDigitContainer* digitCont,
  LArDigitContainer::const_iterator it_b=digitCont->begin();
  LArDigitContainer::const_iterator it_e=digitCont->end();
  if (it_b==it_e) {
-   ATH_MSG_WARNING ( "Attempt to persistify a empty LArDigitContainer to ByteStream" );
+   ATH_MSG_WARNING ( "Attempt to persistify an empty LArDigitContainer to ByteStream" );
    return StatusCode::SUCCESS;
  }
 

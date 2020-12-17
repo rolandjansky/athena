@@ -575,7 +575,7 @@ def postSetupOnlineCost():
                 if tool.getType().count('TrigCostTool'):
                     tool.doOperationalInfo = steeringEF_online_doOperationalInfo
                     log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_EF.doOperationalInfo))
-        
+
     if hasattr(topSeq, 'TrigSteer_HLT'):        
         topSeq.TrigSteer_HLT.doOperationalInfo=steeringHLT_online_doOperationalInfo
         log.info('Set TrigSteer_HLT.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
@@ -585,12 +585,20 @@ def postSetupOnlineCost():
                 if tool.getType().count('TrigCostTool'):
                     tool.doOperationalInfo = steeringHLT_online_doOperationalInfo
                     log.info('Set '+tool.name()+'.doOperationalInfo='+str(topSeq.TrigSteer_HLT.doOperationalInfo))
-        
+
         if 'doDetailedROBMonitoring' in svcMgr.ROBDataProviderSvc.properties():
             svcMgr.ROBDataProviderSvc.doDetailedROBMonitoring = True
             log.info('Set ROBDataProviderSvc.doDetailedROBMonitoring=True')
         else:
             log.info('ROBDataProviderSvc does not have property doDetailedROBMonitoring - will not do cost monitor for ROS.')
+
+    if 'doCostMonitoring' in svcMgr.ROBDataProviderSvc.properties():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        svcMgr.ROBDataProviderSvc.doCostMonitoring = \
+            (ConfigFlags.Trigger.CostMonitoring.doCostMonitoring and ConfigFlags.Trigger.CostMonitoring.monitorROBs)
+        log.info('Set ROBDataProviderSvc.doCostMonitoring=%s', svcMgr.ROBDataProviderSvc.doCostMonitoring)
+    else:
+        log.info('ROBDataProviderSvc does not have property doCostMonitoring - will not do cost monitor for ROS.')
 
 #----------------------------------------------------------------------
 # Set options for running cost on CAF - used together with CostExecL2/EF options!!!

@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,12 +20,6 @@ RingerSelectorTool::RingerSelectorTool():
   m_useShowerShape(false),
   m_useTileCal(true)
 {;}
-
-
-RingerSelectorTool::~RingerSelectorTool()
-{
-  ATH_MSG_INFO("Finalizing this tool....");
-}
 
 
 StatusCode  RingerSelectorTool::initialize()
@@ -55,17 +49,15 @@ StatusCode  RingerSelectorTool::initialize()
     m_removeOutputTansigTF=m_reader.removeOutputTansigTF();
 
   }
-  
 
   // Use Norm1 as default for rings normalization only!
-  for(unsigned i=0; i<m_discriminators.size();++i)  m_preprocs.push_back( std::make_shared< Ringer::Norm1 > (-999.,999.,-999.,999.,-999.,999.,true));
-  
-  
+  for(unsigned i=0; i<m_discriminators.size();++i) {
+    m_preprocs.push_back( std::make_shared< Ringer::Norm1 > (-999.,999.,-999.,999.,-999.,999.,true));
+  }
 
-  ATH_MSG_INFO("Using the activation function in the last layer? " <<  (m_removeOutputTansigTF ? "No":"Yes") );
-  ATH_MSG_INFO("Using the Correction?                            " <<  (m_doPileupCorrection ? "Yes":"No") );
-  ATH_MSG_INFO("Using lumi threshold equal: "  <<  m_lumiCut );
-  ATH_MSG_INFO("Initialization completed successfully." );
+  ATH_MSG_DEBUG("Using the activation function in the last layer? " <<  (m_removeOutputTansigTF ? "No":"Yes") );
+  ATH_MSG_DEBUG("Using the Correction?                            " <<  (m_doPileupCorrection ? "Yes":"No") );
+  ATH_MSG_DEBUG("Using lumi threshold equal: "  <<  m_lumiCut );
   return StatusCode::SUCCESS;
 
 }

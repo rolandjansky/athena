@@ -39,7 +39,6 @@ namespace Trk {
       ToolHandle< Trk::IExtendedTrackSummaryTool > m_trkSummaryTool    ;  /** summary tool with shared hits enabled */
 
     private:
-      bool  m_createViewCollection;     //!< option to create a view collection and not deep-copy tracks
       bool  m_updateSharedHits; //!< do not create the track summary again, but only update shared hits
       bool  m_updateAdditionalInfo;     //!< do not create the track summary again, but only update necessary things
     };

@@ -13,6 +13,8 @@
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput= ["AOD.pool.root"]
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 
 ###################################################################3

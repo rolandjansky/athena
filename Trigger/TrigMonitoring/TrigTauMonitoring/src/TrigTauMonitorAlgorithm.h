@@ -43,7 +43,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   Gaudi::Property<std::vector<std::string>> m_trigInputList{this, "TriggerList", {}};
 
   /*! navigation method called by executeNavigation */
-  StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,float, const std::string,
+  StatusCode executeNavigation(const EventContext& ctx, const std::string trigItem,
                                std::vector<std::pair<const xAOD::TauJet*, const TrigCompositeUtils::Decision*>> &) const;
 
   void fillRNNInputVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng, bool online) const;
@@ -52,7 +52,7 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillBDTNoCorr(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
   void fillBDTOut(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
-  void fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger, const bool fill_l1eff, const std::string trigL1Item) const;
+  void fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger, float HLTthr, const bool fill_l1eff, const std::string trigL1Item, float L1Tthr) const;
   void fillHLTEfficiencies(const EventContext& ctx,const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const;
   void fillL1Efficiencies(const EventContext& ctx, const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec,std::string nProng, const std::string trigL1Item) const;
 

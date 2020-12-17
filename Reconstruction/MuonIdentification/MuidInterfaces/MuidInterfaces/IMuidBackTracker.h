@@ -9,7 +9,6 @@
 //  The return collection is required to have a one-to-one correspondence
 //  to the input.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDBACKTRACKER_H

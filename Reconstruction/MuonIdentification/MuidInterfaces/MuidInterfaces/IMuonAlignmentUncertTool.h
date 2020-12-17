@@ -6,7 +6,6 @@
 // IMuonAlignmentUncertTool
 //    Interface tool to assess the muon alignment and scattering
 //    uncertainties using calibration files
-//  (c) ATLAS Combined Muon software
 ///////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUONALIGNMENTUNCERTTOOL_H

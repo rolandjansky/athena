@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////
@@ -26,9 +26,7 @@ public:
     StraightLineIntersector	(const std::string& type, 
 				 const std::string& name,
 				 const IInterface* parent);
-    virtual ~StraightLineIntersector	(void); 	// destructor
 
-    virtual StatusCode			initialize() override;
     virtual StatusCode			finalize() override;
 
     /**IIntersector interface method for general Surface type */

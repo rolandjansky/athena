@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.LVL1MenuConfig.L1Seeds")
@@ -12,7 +12,7 @@ from TriggerMenuMT.LVL1MenuConfig.LVL1.Lvl1Flags import Lvl1Flags
 run1 = Lvl1Flags.CTPVersion()<=3
 
 if run1:
-    from TriggerMenu.l1.TriggerTypeDefRun1 import TT
+    from TriggerMenuMT.LVL1MenuConfig.LVL1.TriggerTypeDefRun1 import TT
     rpcout_type = TT.rpcout | TT.phys
     rpcin_type  = TT.rpcin  | TT.phys             
 else:

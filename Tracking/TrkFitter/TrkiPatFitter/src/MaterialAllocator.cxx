@@ -82,8 +82,6 @@ namespace Trk
 
   StatusCode
   MaterialAllocator::initialize() {
-    // print name and package version
-    ATH_MSG_INFO("MaterialAllocator::initialize() - package version " << PACKAGE_VERSION);
 
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
@@ -99,45 +97,30 @@ namespace Trk
     m_messageHelper->setMessage(5, "spectrometerMaterial: extrapolateM finds no material on track");
 
     // retrieve the necessary Extrapolators (muon tracking geometry is very picky!)
-    if (m_extrapolator.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_extrapolator);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_extrapolator);
-    
-    if (m_intersector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_intersector);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved tool " << m_intersector);
-    
+    ATH_CHECK( m_extrapolator.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
+
+    ATH_CHECK( m_intersector.retrieve() );
+    ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
 
     // retrieve services
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingGeometrySvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingGeometrySvc);
-    
+    ATH_CHECK( m_trackingGeometrySvc.retrieve() );
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
 
     // need to create the IndetExit and MuonEntrance TrackingVolumes
-    if (m_trackingVolumesSvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Failed to retrieve Svc " << m_trackingVolumesSvc);
-      return StatusCode::FAILURE;
-    } 
-      ATH_MSG_INFO("Retrieved Svc " << m_trackingVolumesSvc);
-      m_calorimeterVolume = new Volume(
+    ATH_CHECK( m_trackingVolumesSvc.retrieve() );
+    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
+    m_calorimeterVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::MuonSpectrometerEntryLayer));
-      m_indetVolume = new Volume(
+    m_indetVolume = new Volume(
         m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
-    
 
     if (m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure()) {
       ATH_MSG_FATAL("Failed to retrieve Svc " << m_stepPropagator);
       return StatusCode::FAILURE;
     }
 
-// Field for StepPropagator
+    // Field for StepPropagator
     m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
     if (m_useStepPropagator == 2) m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
 
@@ -146,7 +129,6 @@ namespace Trk
 
   StatusCode
   MaterialAllocator::finalize() {
-    ATH_MSG_INFO("finalize() ");
 
     // summarize WARNINGs
     m_messageHelper->printSummary();
@@ -623,7 +605,7 @@ namespace Trk
   void
   MaterialAllocator::allocateMaterial(std::vector<FitMeasurement*>& measurements,
                                       ParticleHypothesis particleHypothesis,
-                                      const FitParameters& fitParameters,
+                                      FitParameters& fitParameters,
                                       const TrackParameters& startParameters,
                                       Garbage_t& garbage) const {
     // different strategies used for indet and muon spectrometer
@@ -723,9 +705,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no leading material will be added
         m_messageHelper->printWarning(0);
         return nullptr;
-      } 
+      }
         createSpectrometerEntranceOnce();
-      
+
     }
 
     // check input parameters are really in the spectrometer
@@ -878,7 +860,7 @@ namespace Trk
 
   bool
   MaterialAllocator::reallocateMaterial(std::vector<FitMeasurement*>& measurements,
-                                        const FitParameters& parameters,
+                                        FitParameters& parameters,
                                         Garbage_t& garbage) const {
     ATH_MSG_DEBUG(" reallocateSpectrometerMaterial ");
 
@@ -2207,7 +2189,7 @@ namespace Trk
   void
   MaterialAllocator::spectrometerMaterial(std::vector<FitMeasurement*>& measurements,
                                           ParticleHypothesis particleHypothesis,
-                                          const FitParameters& fitParameters,
+                                          FitParameters& fitParameters,
                                           const TrackParameters& startParameters,
                                           Garbage_t& garbage) const {
     // return if no MS measurement
@@ -2320,9 +2302,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no spectrometer material added
         m_messageHelper->printWarning(2);
         return;
-      } 
+      }
         createSpectrometerEntranceOnce();
-      
+
     }
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)

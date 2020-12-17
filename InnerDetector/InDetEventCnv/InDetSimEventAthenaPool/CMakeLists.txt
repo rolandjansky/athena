@@ -13,6 +13,7 @@ atlas_add_poolcnv_library( InDetSimEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -20,8 +21,8 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( INDETSIMEVENTATHENAPOOL_REFERENCE_TAG
        InDetSimEventAthenaPoolReference-02-01-00 )
-  run_tpcnv_legacy_test( InDetSimEventTPCnv_HITS   HITS.04919495._000416
-                   REFERENCE_TAG ${INDETSIMEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( InDetSimEventTPCnv_HITS   HITS.04919495._000416
+                  REFERENCE_TAG ${INDETSIMEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING
       "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

@@ -8,6 +8,11 @@
 
 using namespace xAOD;
 
+// Static accessors
+const SG::AuxElement::Accessor<float> MissingET_v1::m_acc_mpx("mpx");
+const SG::AuxElement::Accessor<float> MissingET_v1::m_acc_mpy("mpy");
+const SG::AuxElement::Accessor<float> MissingET_v1::m_acc_sumet("sumet");
+
 MissingET_v1::MissingET_v1( bool createStore )
   : SG::AuxElement() {
 

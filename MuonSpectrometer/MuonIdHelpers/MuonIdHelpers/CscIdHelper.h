@@ -59,7 +59,7 @@ class CscIdHelper : public MuonIdHelper
 
   // Destructor
 
-  virtual ~CscIdHelper();
+  virtual ~CscIdHelper()=default;
 
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 

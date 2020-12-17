@@ -33,8 +33,7 @@ Threads = 1
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-# post exec doesn't quite work yet
-# postexec_file = 'TIDAml_extensions.py'
+postinclude_file = 'TIDAml_extensions.py'
 
 TrackReference = [ 'Truth', 'Offline' ]
 

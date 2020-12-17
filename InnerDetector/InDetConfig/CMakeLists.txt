@@ -14,3 +14,10 @@ atlas_add_test( TrackingCutsFlags_test
     SCRIPT python -m InDetConfig.TrackingCutsFlags
     POST_EXEC_SCRIPT nopost.sh)
  
+atlas_add_test( BackTrackingConfig_test
+    SCRIPT python -m InDetConfig.BackTrackingConfig  --norun
+    POST_EXEC_SCRIPT nopost.sh)
+
+atlas_add_test( TRTSegmentFindingConfig_test
+    SCRIPT python -m InDetConfig.TRTSegmentFindingConfig  --norun
+    POST_EXEC_SCRIPT nopost.sh)

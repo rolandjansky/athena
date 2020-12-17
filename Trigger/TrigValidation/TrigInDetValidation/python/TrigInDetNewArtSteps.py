@@ -35,6 +35,7 @@ class TrigInDetReco(ExecStep):
         self.slices = []
         self.preexec_trig = ' '
         self.postinclude_trig = postinclude_file
+        self.release = 'latest'
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
@@ -60,21 +61,8 @@ class TrigInDetReco(ExecStep):
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 
 
-        # get the cuttent atlas base release, and the previous base release
-        import os
-        DVERSION=os.getenv('Athena_VERSION')
-        if ( DVERSION is None ) :
-            AVERSION = "22.0.20"
-        else :
-            BASE=DVERSION[:5]
-            SUB=int(DVERSION[5:])
-            SUB -= 1
-            AVERSION=BASE+str(SUB)
-
-        print( "remapping athena base release version: ", DVERSION, " -> ", AVERSION )
-
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
-        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
+        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 
 
     def configure(self, test):
@@ -113,6 +101,25 @@ class TrigInDetReco(ExecStep):
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
+
+        if (self.release == 'current'):
+            print( "Using current release for offline Reco steps  " )
+        else:
+            # get the current atlas base release, and the previous base release
+            import os
+            DVERSION=os.getenv('Athena_VERSION')
+            if (self.release == 'latest'):
+                if ( DVERSION is None ) :
+                    AVERSION = "22.0.20"
+                else:
+                    BASE=DVERSION[:5]
+                    SUB=int(DVERSION[5:])
+                    SUB -= 1
+                    AVERSION=BASE+str(SUB)
+            else:
+                AVERSION = self.release
+            self.args += ' --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
+            print( "remapping athena base release version for offline Reco steps: ", DVERSION, " -> ", AVERSION )
 
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(

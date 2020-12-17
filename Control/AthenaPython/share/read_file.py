@@ -16,6 +16,9 @@ assert len(acf.FilesInput()) != 0, \
        "this jobo fragment needs the autoconfig-fwk." \
        "FilesInput needs to be filled"
 
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Input.Files = acf.FilesInput()
+
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name='read-file',
                    input_files=acf.FilesInput())

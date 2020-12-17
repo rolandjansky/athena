@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #### This is the dbgEventInfo class for the Debug Stream event analysis
 
 from __future__ import print_function
@@ -12,13 +12,10 @@ import eformat
 import sys
 import os
 from TrigTransform.dbgHltResult import * 
-#hltResult
 import cppyy
 
-from PyUtils import RootUtils
-ROOT = RootUtils.import_root()
 import ROOT
-from ROOT import gStyle, gROOT
+from ROOT import gStyle, gROOT, addressof
 
 
 class dbgEventInfo:
@@ -218,7 +215,8 @@ class dbgEventInfo:
         
     def get_chain(self,counter, s):
         #Prints chains and their information
-        ch = cppyy.makeClass('HLT::Chain')(s)
+        from cppyy.gbl import HLT
+        ch = HLT.Chain(s)
         #ch.deserialize(s)
         print (".... chain %-3d : %s Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
             % ( counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str()))
@@ -446,7 +444,7 @@ class dbgEventInfo:
   
         from ROOT import EventInfoTree
         self.Event_Info = EventInfoTree()
-        self.event_info_tree = TTree('Event_Info'+dbgStep, inputFile)
+        self.event_info_tree = ROOT.TTree('Event_Info'+dbgStep, inputFile)
 
         self.event_info_tree._L1_Triggered_BP     = self.L1_Triggered_BP
         self.event_info_tree._L1_Triggered_AV     = self.L1_Triggered_AV
@@ -454,28 +452,28 @@ class dbgEventInfo:
         self.event_info_tree._HLT_Triggered_Names = self.HLT_Triggered_Names
         self.event_info_tree._HLT_Triggered_IDs   = self.HLT_Triggered_IDs
   
-        self.event_info_tree.Branch('Run_Number',       AddressOf(self.Event_Info,'Run_Number'),       'run_Number/I')
-        self.event_info_tree.Branch('Stream_Tag_Name',  AddressOf(self.Event_Info,'Stream_Tag_Name'),  'stream_Tag_Name/C')
-        self.event_info_tree.Branch('Stream_Tag_Type',  AddressOf(self.Event_Info,'Stream_Tag_Type'),  'stream_Tag_Type/C')
-        self.event_info_tree.Branch('Lvl1_ID',                             AddressOf(self.Event_Info,'Lvl1_ID'),                               'lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               AddressOf(self.Event_Info,'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', AddressOf(self.Event_Info,'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Global_ID',        AddressOf(self.Event_Info,'Global_ID'),  'global_ID/I')
-        self.event_info_tree.Branch('Lumiblock',        AddressOf(self.Event_Info,'Lumiblock'),  'lumiblock/I')
-        self.event_info_tree.Branch('Node_ID',          AddressOf(self.Event_Info,'Node_ID'),  'node_ID/I')
-        self.event_info_tree.Branch('SuperMasterKey',   AddressOf(self.Event_Info,'SuperMasterKey'),    'supperMasterKey/I')
-        self.event_info_tree.Branch('HLT_PSC_Key',      AddressOf(self.Event_Info,'HLT_PSC_Key'),       'hLT_PSC_Key/I')
-        self.event_info_tree.Branch('HLT_Action',       AddressOf(self.Event_Info,'HLT_Action'),     'hLT_Action/C')
-        self.event_info_tree.Branch('HLT_Reason',       AddressOf(self.Event_Info,'HLT_Reason'),     'hLT_Reason/C')
-        self.event_info_tree.Branch('HLT_Internal',     AddressOf(self.Event_Info,'HLT_Internal'),   'hLT_Internal/C')
-        self.event_info_tree.Branch('HLT_Decision',     AddressOf(self.Event_Info,'HLT_Decision'),    'hLT_Decision/B')
-        self.event_info_tree.Branch('HLT_Application',  AddressOf(self.Event_Info,'HLT_Application'),   'HLT_Application/C')
-        self.event_info_tree.Branch('EF_Overall',       AddressOf(self.Event_Info,'EF_Overall'),    'eF_Overall/C')
-        self.event_info_tree.Branch('EF_PSC_Result',    AddressOf(self.Event_Info,'EF_PSC_Result'), 'eF_PSC_Result/C')
-        self.event_info_tree.Branch('EF_Status_Result', AddressOf(self.Event_Info,'EF_Status_Result'),  'eF_Status_Result/C')
-        self.event_info_tree.Branch('Chain_Name_EF',    AddressOf(self.Event_Info,'Chain_Name_EF'),     'chain_Name_EF/C')
-        self.event_info_tree.Branch('Chain_Step_EF',    AddressOf(self.Event_Info,'Chain_Step_EF'),     'chain_Step_EF/I')  
-        self.event_info_tree.Branch('EventStatusNames', AddressOf(self.Event_Info,'EventStatusNames'),  'eventStatusNames/C')
+        self.event_info_tree.Branch('Run_Number',       addressof(self.Event_Info, 'Run_Number'),       'run_Number/I')
+        self.event_info_tree.Branch('Stream_Tag_Name',  addressof(self.Event_Info, 'Stream_Tag_Name'),  'stream_Tag_Name/C')
+        self.event_info_tree.Branch('Stream_Tag_Type',  addressof(self.Event_Info, 'Stream_Tag_Type'),  'stream_Tag_Type/C')
+        self.event_info_tree.Branch('Lvl1_ID',                             addressof(self.Event_Info, 'Lvl1_ID'),                               'lvl1_ID/I')
+        self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               addressof(self.Event_Info, 'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
+        self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', addressof(self.Event_Info, 'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
+        self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),  'global_ID/I')
+        self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),  'lumiblock/I')
+        self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),  'node_ID/I')
+        self.event_info_tree.Branch('SuperMasterKey',   addressof(self.Event_Info, 'SuperMasterKey'),    'supperMasterKey/I')
+        self.event_info_tree.Branch('HLT_PSC_Key',      addressof(self.Event_Info, 'HLT_PSC_Key'),       'hLT_PSC_Key/I')
+        self.event_info_tree.Branch('HLT_Action',       addressof(self.Event_Info, 'HLT_Action'),     'hLT_Action/C')
+        self.event_info_tree.Branch('HLT_Reason',       addressof(self.Event_Info, 'HLT_Reason'),     'hLT_Reason/C')
+        self.event_info_tree.Branch('HLT_Internal',     addressof(self.Event_Info, 'HLT_Internal'),   'hLT_Internal/C')
+        self.event_info_tree.Branch('HLT_Decision',     addressof(self.Event_Info, 'HLT_Decision'),    'hLT_Decision/B')
+        self.event_info_tree.Branch('HLT_Application',  addressof(self.Event_Info, 'HLT_Application'),   'HLT_Application/C')
+        self.event_info_tree.Branch('EF_Overall',       addressof(self.Event_Info, 'EF_Overall'),    'eF_Overall/C')
+        self.event_info_tree.Branch('EF_PSC_Result',    addressof(self.Event_Info, 'EF_PSC_Result'), 'eF_PSC_Result/C')
+        self.event_info_tree.Branch('EF_Status_Result', addressof(self.Event_Info, 'EF_Status_Result'),  'eF_Status_Result/C')
+        self.event_info_tree.Branch('Chain_Name_EF',    addressof(self.Event_Info, 'Chain_Name_EF'),     'chain_Name_EF/C')
+        self.event_info_tree.Branch('Chain_Step_EF',    addressof(self.Event_Info, 'Chain_Step_EF'),     'chain_Step_EF/I')  
+        self.event_info_tree.Branch('EventStatusNames', addressof(self.Event_Info, 'EventStatusNames'),  'eventStatusNames/C')
 
         self.event_info_tree.Branch('L1_Triggered_BP',  self.L1_Triggered_BP)
         self.event_info_tree.Branch('L1_Triggered_AV',  self.L1_Triggered_AV)

@@ -292,7 +292,7 @@ def getJetAlgorithm(jetname, jetdef, pjContNames, monTool = None):
 # New JetRecAlgorithm to replace JetRecTool
 # This call is for a JRA that runs jet-finding
 #
-def getJetRecAlg( jetdef):
+def getJetRecAlg( jetdef, monTool = None):
     """ """
     pjContNames = jetdef._internalAtt['finalPJContainer']
     jclust = CompFactory.JetClusterer(
@@ -312,7 +312,8 @@ def getJetRecAlg( jetdef):
         "jetrecalg_"+jetname,
         Provider = jclust,
         Modifiers = mods,
-        OutputContainer = jetname)
+        OutputContainer = jetname,
+        MonTool = monTool)
 
     autoconfigureModifiers(jra.Modifiers, jetname)
 
@@ -325,11 +326,15 @@ def getJetRecAlg( jetdef):
 # these may be set up already in the original jet collection
 # In future we may wish to add a toggle.
 #
-def getJetCopyAlg(jetsin, jetsoutdef, shallowcopy=True, shallowIO=True):
+# The decoration list can be set in order for the decorations
+# (jet moments) on the original jets to be propagated to the
+# copy collection. Beware of circular dependencies!
+def getJetCopyAlg(jetsin, jetsoutdef, decorations=[], shallowcopy=True, shallowIO=True):
 
     jcopy = CompFactory.JetCopier(
         "copier",
         InputJets = jetsin,
+        DecorDeps=decorations,
         ShallowCopy=shallowcopy,
         ShallowIO=shallowIO)
 

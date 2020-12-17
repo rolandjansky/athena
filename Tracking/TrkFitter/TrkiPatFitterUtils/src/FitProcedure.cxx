@@ -13,7 +13,6 @@
 //  for clarity (i.e. to avoid an overly long class) the inner loop over
 //  measurements is performed by MeasurementProcessor
 //
-//  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -42,7 +41,7 @@
 #include "TrkiPatFitterUtils/MeasurementProcessor.h"
 
 namespace Trk{
-  
+
 // constructor
 FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 			    bool				extendedDebug,
@@ -110,7 +109,7 @@ FitProcedure::clear (void)
 
 Track*
 FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
-			      const FitParameters&				parameters,
+			      FitParameters&				parameters,
 			      const TrackInfo&					trackInfo,
 			      const DataVector<const TrackStateOnSurface>*	leadingTSOS)
 {
@@ -119,7 +118,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 
     // NB keep first and last measurements distinct i.e. separate TSOS (no scatterers etc)
     // NB trackParameters outwards from TSOS i.e. always last FitMeas on surface
-    
+
     // create vector of TSOS - reserve upper limit for size (+1 as starts with perigee)
     DataVector<const TrackStateOnSurface>* trackStateOnSurfaces =
 	new DataVector<const TrackStateOnSurface>;
@@ -163,12 +162,12 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 	    }
 	}
     }
-    
+
     // then append the fitted TSOS
     for (auto *m : measurements)
     {
 	if (m->isMaterialDelimiter()) continue;
-	
+
 	// push back previous TSOS when fresh surface reached
 	if (m->surface() != surface || alignmentEffects || m->alignmentEffects())
 	{
@@ -258,7 +257,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		typePattern		= defaultPattern;
 		alignmentEffects	= nullptr;
 	    }
-	    
+
 	    measurementBase	= m->measurementBase()->clone();
 	    typePattern.set(TrackStateOnSurface::Measurement);
 	    if (m->isOutlier()) typePattern.set(TrackStateOnSurface::Outlier);
@@ -286,11 +285,11 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		{
 		    const EnergyLoss* energyLoss = meot->energyLoss()->clone();
 		    typeMaterial.set(Trk::MaterialEffectsBase::EnergyLossEffects);
-		    if (m->numberDoF())	// fitted scatterer	
+		    if (m->numberDoF())	// fitted scatterer
 		    {
 			materialEffects	=
 			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(*m,scatter), 
+						       parameters.scatteringAngles(*m,scatter),
 						       energyLoss,
 						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
@@ -300,7 +299,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		    {
 			materialEffects	=
 			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(*m), 
+						       parameters.scatteringAngles(*m),
 						       energyLoss,
 						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
@@ -312,7 +311,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		    {
 			materialEffects	=
 			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(*m,scatter), 
+						       parameters.scatteringAngles(*m,scatter),
 						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 			++scatter;
@@ -321,12 +320,12 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 		    {
 			materialEffects	=
 			    new MaterialEffectsOnTrack(m->materialEffects()->thicknessInX0(),
-						       parameters.scatteringAngles(*m), 
+						       parameters.scatteringAngles(*m),
 						       m->materialEffects()->associatedSurface(),
 						       typeMaterial);
 		    }
 		}
-		
+
 		typePattern.set(TrackStateOnSurface::Scatterer);
 	    }
 	    else
@@ -342,14 +341,14 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 	{
 	    typePattern.set(TrackStateOnSurface::Perigee);
 	}
-	
+
 	// or alignment effects
 	else if (m->alignmentEffects())
 	{
 	    const AlignmentEffectsOnTrack&	AEOT	= *m->alignmentEffects();
 	    unsigned align				= m->alignmentParameter() - 1;
 
-            *m_log << MSG::VERBOSE  <<" Fitprocedure AEOT input deltaTranslation " << AEOT.deltaTranslation() << " deltaAngle " << AEOT.deltaAngle() << " output Trans " << parameters.alignmentOffset(align) << " deltaAngle " << parameters.alignmentAngle(align) << endmsg; 
+            *m_log << MSG::VERBOSE  <<" Fitprocedure AEOT input deltaTranslation " << AEOT.deltaTranslation() << " deltaAngle " << AEOT.deltaAngle() << " output Trans " << parameters.alignmentOffset(align) << " deltaAngle " << parameters.alignmentAngle(align) << endmsg;
 	    alignmentEffects				=
 		new Trk::AlignmentEffectsOnTrack(parameters.alignmentOffset(align),
 						 AEOT.sigmaDeltaTranslation(),
@@ -359,7 +358,7 @@ FitProcedure::constructTrack (const std::vector<FitMeasurement*>&		measurements,
 						 m->surface());
 	    typePattern.set(TrackStateOnSurface::Alignment);
 	}
-	
+
 	// passive types: hole for now
 	else if (m->isPassive())
 	{
@@ -420,7 +419,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	parameters->print(*m_log);
 	*m_log << endmsg;
     }
-	
+
     // choose appropriate intersector
     ToolHandle<IIntersector>& intersector = chooseIntersector(measurements,*parameters);
 
@@ -458,13 +457,13 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
     {
 	m_fitMatrices->usePerigee(*measurements.front());
     }
-    
+
     // set requested options and initial values
-    double ptInvCut	= 1./m_minPt; // protection against trapped particles        
+    double ptInvCut	= 1./m_minPt; // protection against trapped particles
     m_cutStep	  	= true;
     m_convergence	= false;
     m_nearConvergence	= false;
-    
+
     // keep best (original if not reasonable quality) results
     double bestChiSq			= m_chiSqCut;
     FitParameters* bestParameters	= nullptr;
@@ -490,7 +489,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		if (m_extendedDebug)	m_fitMatrices->checkPointers(*m_log);
 		if (m_verbose)		m_fitMatrices->printDerivativeMatrix();
 	    }
-	    
+
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -515,8 +514,8 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    if (m_verbose && ! m_iteration) m_fitMatrices->printWeightMatrix();
 	}
 	++m_iteration;
-	
-	// report parameters 
+
+	// report parameters
 	if (m_verbose)
 	{
 	    *m_log << MSG::VERBOSE << " ===== start iteration " << m_iteration;
@@ -530,7 +529,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    }
 	    parameters->printVerbose(*m_log);
 	}
-	
+
 	//  check for some error conditions (if none found yet)
 	if (fitCode)
 	{
@@ -578,7 +577,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 						       m_fitMatrices->numberDoF(),
 						       parameters->numberScatterers(),
 						       m_worstMeasurement);
-		
+
 		if (m_debug)
 		{
 		    if (m_verbose) *m_log << endmsg;
@@ -589,7 +588,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 
 	    //  have extrapolation and derivatives, calculate residual
 	    measurementProcessor.calculateResiduals();
-	    
+
 	    // check for remaining error conditions. If OK then compute chisquared.
 	    if (m_iteration > m_maxIter && ! m_cutStep && for_iPatTrack)
 	    {
@@ -597,7 +596,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    }
 	    else if (m_iteration == 4 && m_chiSq > 1000. && for_iPatTrack)
 	    {
-		fitCode = 7;  //  fail with too high chisquared 
+		fitCode = 7;  //  fail with too high chisquared
 	    }
 	    else if (! fitCode)
 	    {
@@ -630,7 +629,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 				   << m_iteration << ", numberOscillations "
 				   << parameters->numberOscillations() << endmsg;
 		    }
-		    
+
 		    // perform cutstep
 		    if (m_cutStep)
 		    {
@@ -658,7 +657,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		    bestParameters	= new FitParameters(*parameters);
 		    parameters->resetOscillations();
 		}
-		
+
 		if (bestParameters
 		    && ((m_convergence && m_chiSq > bestChiSq + 0.5)
 			|| (parameters->phiInstability() && m_iteration == m_maxIter)))
@@ -722,9 +721,9 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		m_chiSq		=  perigeeQuality->chiSquared() +
 				   m_chiSq * static_cast<double>(m_numberDoF);
 		m_numberDoF	+= perigeeQuality->numberDoF();
-		m_chiSq		/= static_cast<double>(m_numberDoF); 
+		m_chiSq		/= static_cast<double>(m_numberDoF);
 	    }
-	    
+
 	    // probability of chisquared
 	    m_fitProbability = 1.;
 	    if (m_numberDoF > 0 && m_chiSq > 0.)
@@ -769,7 +768,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 
     return *m_fitQuality;
 }
-     
+
 Amg::MatrixX*
 FitProcedure::fullCovariance () const
 {
@@ -777,7 +776,7 @@ FitProcedure::fullCovariance () const
     // return const_cast<Amg::MatrixX*>(m_fitMatrices->fullCovariance());
     return nullptr;  // NOT mig5
 }
-       
+
 void
 FitProcedure::setMinIterations (int minIter)
 {
@@ -790,7 +789,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 {
     // convergence criterion
     const double dChisqConv = 0.025;
-    
+
     // compute total chisquared and sum of hit differences
     // flag hit with highest chisquared contribution (on entry if RoadFit)
     m_chiSq		= 0.;
@@ -804,10 +803,10 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 	//     m_chiSq += m_fitMatrices->perigeeChiSquared();
 	//     continue;
 	// }
-	
+
 	double residual	=  m->residual();
 	double DiffSq	=  residual*residual;
-	m_chiSq	+=  DiffSq;             
+	m_chiSq	+=  DiffSq;
 	if (m->isPositionMeasurement())
 	{
 	    if (m->isDrift())  driftResidual += residual;
@@ -844,7 +843,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 	m_chRatio2	= 0.;
 	m_chiSqMin	= m_chiSq;
     }
-    
+
     m_chiSqOld = m_chiSqMin;
     double DChiSq = m_chiSqOld - m_chiSq;
     if (DChiSq > -dChisqConv)
@@ -868,7 +867,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 // 		fitlocal.dParMin[n] = fitlocal.dParam[n];
 // 	}
 //     }
-    
+
 //     if (m_cutTaken)
 //     {
 // 	*m_log << " Cut ??? Chi2,DChiSq " << m_chiSq
@@ -879,9 +878,9 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 // 		  << std::setiosflags(std::ios::fixed)
 // 		  << " transverse impact parameter"
 // 		  << std::setw(10) << std::setprecision(4) << parameters->d0()
-// 		  << "    Z0"                     
+// 		  << "    Z0"
 // 		  << std::setw(10) << std::setprecision(4) << parameters->z0()
-// 		  << "    1/Pt"                     
+// 		  << "    1/Pt"
 // 		      << std::setw(12) << std::setprecision(6) << parameters->ptInv0();
 // // 	for (int n = 0; n < m_numberParameters; ++n)
 // // 	    *m_log << "  " << fitlocal.dParam[n];
@@ -890,19 +889,19 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 // // 	    *m_log << "  " << fitlocal.dParMin[n];
 // 	*m_log << std::endl;
 //     }
-   
+
     if (m_iteration > 0)
     {
 	m_chRatio2 = m_chRatio1;
-	m_chRatio1 = m_chiSq/m_chiSqOld;       
+	m_chRatio1 = m_chiSq/m_chiSqOld;
     }
     if (m_fitMatrices->numberDriftCircles())
     {
 	m_driftSumLast  = m_driftSum;
 	m_driftSum	= driftResidual/static_cast<double>(m_fitMatrices->numberDriftCircles());
     }
-    
-    //      
+
+    //
     // debugging info
     if (m_verbose)
     {
@@ -916,7 +915,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 	       << " ChSq Ratio1/2 " << std::setw(9) << std::setprecision(3) << m_chRatio1
 	       << std::setw(10) << std::setprecision(3) << m_chRatio2 << std::endl
 	       << " driftResidual " << std::setw(9) << std::setprecision(3) << m_driftSum
-	       << " #driftCircles " << m_fitMatrices->numberDriftCircles() << std::endl     
+	       << " #driftCircles " << m_fitMatrices->numberDriftCircles() << std::endl
 	       << " CutTaken " << m_cutTaken << std::endl
 	       << "----------------------------------" << std::endl << "   ";
 
@@ -941,9 +940,9 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 	    }
 	}
     }
- 
-    //      
-    // check for possible convergence (nearConvergence forces extra iteration)   
+
+    //
+    // check for possible convergence (nearConvergence forces extra iteration)
     if (! m_cutStep
 	&& ! m_nCuts
 	&& ( m_chiSq < 0.1
@@ -956,7 +955,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 	    m_convergence = true;
 	}
 	else
-	{	    
+	{
 	    m_nearConvergence = true;
 	    if (m_verbose) *m_log << MSG::VERBOSE << " near convergence " << endmsg;
 	}
@@ -965,7 +964,7 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
     {
 	m_nearConvergence = false;
     }
-    
+
     // else take cutstep if divergent or oscillating
     m_cutStep = false;
 //     else if (m_nCuts < 2 || m_nCuts > 4)
@@ -988,10 +987,10 @@ FitProcedure::calculateChiSq(std::vector<FitMeasurement*>& measurements)
 
 // 	if (m_verbose)
 // 	{
-// 	    *m_log << "----------------------------------"       
-// 		      << " Debugging Info in ChiSquare method" 
-// 		      << " cutstep - nCuts, -ve chisquared change " << m_nCuts  
-// 		      << "----------------------------------" << std::endl;       
+// 	    *m_log << "----------------------------------"
+// 		      << " Debugging Info in ChiSquare method"
+// 		      << " cutstep - nCuts, -ve chisquared change " << m_nCuts
+// 		      << "----------------------------------" << std::endl;
 // 	}
 // 	m_convergence	=  false;
 // 	m_chiSq		= m_chiSqMin;
@@ -1003,7 +1002,7 @@ FitProcedure::chooseIntersector (std::vector<FitMeasurement*>&	measurements,
 				 const FitParameters&		parameters) const
 {
     if (m_lineFit) return m_straightLineIntersector;
-    
+
     // decide which intersector to use for curved tracks (default RungeKutta)
     // ToolHandle<IIntersector>& intersector = m_rungeKuttaIntersector;
 
@@ -1013,7 +1012,7 @@ FitProcedure::chooseIntersector (std::vector<FitMeasurement*>&	measurements,
 	 ++m)
     {
 	if (! (**m).isPositionMeasurement())						continue;
-	if (! m_solenoidalIntersector->isValid(parameters.position(),(**m).position()))	break;  
+	if (! m_solenoidalIntersector->isValid(parameters.position(),(**m).position()))	break;
 	return m_solenoidalIntersector;
     }
 
@@ -1035,7 +1034,7 @@ FitProcedure::reportQuality(const std::vector<FitMeasurement*>&	measurements,
 	{
 	case 1:
 	    *m_log << "  missing Trk::Surface ";
-	    break;    
+	    break;
 	case 2:
 	    *m_log << "  too many measurements for fit matrix size: "
 		   << measurements.size();
@@ -1073,7 +1072,7 @@ FitProcedure::reportQuality(const std::vector<FitMeasurement*>&	measurements,
 	    *m_log << "  ill-defined cotTheta " << parameters.cotTheta()
 		   << "  with difference " << parameters.difference(3)
 		   << "  at iteration# "<< m_fitQuality->iterations();
-	    break;	
+	    break;
 	case 11:
 	    *m_log << "  singular matrix fails inversion:"
 		   << "  at iteration# "<< m_fitQuality->iterations();

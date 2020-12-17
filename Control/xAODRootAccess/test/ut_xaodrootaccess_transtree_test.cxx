@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // System include(s):
@@ -17,7 +17,6 @@
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/MakeTransientTree.h"
-#include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/tools/Message.h"
 
 int main() {
@@ -26,7 +25,10 @@ int main() {
    static const char* APP_NAME = "ut_xaodrootaccess_transtree_test";
 
    // Initialise the environment:
-   RETURN_CHECK( APP_NAME, xAOD::Init( APP_NAME ) );
+   if( ! xAOD::Init( APP_NAME ).isSuccess() ) {
+      ::Error( APP_NAME, XAOD_MESSAGE( "Failed to call xAOD::Init()" ) );
+      return 1;
+   }
 
    // Open it using a TFile:
    std::unique_ptr< ::TFile > ifile( ::TFile::Open( "$ASG_TEST_FILE_MC",

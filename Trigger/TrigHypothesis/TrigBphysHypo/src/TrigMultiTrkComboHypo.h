@@ -48,8 +48,6 @@ class TrigMultiTrkComboHypo: public ::ComboHypo {
   virtual StatusCode finalize() override;
 
  protected:
-  // the vertexing tool is not reentrant so this algorithm cannot be used reentrantly
-  bool isReEntrant() const override { return false; }
 
  private:
   StatusCode executeL2(const EventContext& context) const;

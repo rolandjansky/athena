@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CALOEVENT_CALOENERGYCLUSTER_H
@@ -136,9 +136,55 @@ class CaloEnergyCluster : public Navigable<CaloCellContainer,double>,
                            double weight,
                            size_t size_hint = 0);
 
+
+  /*! \brief Add a cell (very fast)
+   * 
+   *  \overload
+   * 
+   *  \param theContainer  input pointer to a \a CaloCellContainer (unchanged)
+   *  \param theIndex      input index of \a CaloCell in \a CaloCellConatiner 
+   *                       (unchanged)
+   *  \param sg            current event store instance
+   *  \param weight        signal weight asociated with this cell
+   *
+   *  client has to provide the correct (and valid) index.
+   *
+   *  The caller also guarantees that the cell is not already
+   *  in the cluster.
+   * 
+   *  The caller MUST update Kinematics by himself
+   */
   void addUniqueCellNoKine(const CaloCellContainer* theContainer,
                            index_type theIndex,
                            IProxyDict* sg,
+                           double weight,
+                           size_t size_hint = 0);
+
+
+  /*! \brief Add a cell (fastest)
+   * 
+   *  \overload
+   * 
+   *  \param theContainer  link pointing to some element of a \a CaloCellContainer (unchanged)
+   *                       The element index is ignored; this is only to
+   *                       identify the container.
+   *  \param theIndex      input index of \a CaloCell in \a CaloCellConatiner 
+   *                       (unchanged)
+   *  \param sg            current event store instance
+   *  \param weight        signal weight asociated with this cell
+   *
+   *  client has to provide the correct (and valid) index.
+   *
+   *  The caller also guarantees that the cell is not already
+   *  in the cluster.
+   *
+   *  Using this method avoids having to look up the container
+   *  in the event store.
+   * 
+   *  The caller MUST update Kinematics by himself
+   */
+  void addUniqueCellNoKine(const ElementLink<CaloCellContainer>& theContainer,
+                           index_type theIndex,
                            double weight,
                            size_t size_hint = 0);
 

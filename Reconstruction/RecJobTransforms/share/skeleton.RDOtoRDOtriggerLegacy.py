@@ -10,6 +10,7 @@ from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 import six
 
 #Common job options disable most RecExCommon by default. Re-enable below on demand.
@@ -30,6 +31,9 @@ rec.doMonitoring.set_Value_and_Lock(False)
 from AthenaMonitoring.DQMonFlags import DQMonFlags
 DQMonFlags.doMonitoring.set_Value_and_Lock(False)
 DQMonFlags.doLArMon.set_Value_and_Lock(False)
+
+# Legacy (Run-2) trigger produces Run-2 EDM
+ConfigFlags.Trigger.EDMVersion = 2
 
 #disable offline ID configuration and reco
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -150,8 +154,8 @@ if _streamRDO:
     _TriggerESDList = {}
     _TriggerAODList = {}
     from TrigEDMConfig.TriggerEDM import getTriggerEDMList
-    _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
-    _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  TriggerFlags.EDMDecodingVersion()) )
+    _TriggerESDList.update( getTriggerEDMList(TriggerFlags.ESDEDMSet(),  ConfigFlags.Trigger.EDMVersion) )
+    _TriggerAODList.update( getTriggerEDMList(TriggerFlags.AODEDMSet(),  ConfigFlags.Trigger.EDMVersion) )
 
     _streamRDO.ItemList += ["HLT::HLTResult#HLTResult_HLT"]
     _streamRDO.ItemList += ["TrigDec::TrigDecision#TrigDecision"]

@@ -28,6 +28,7 @@
 #include "TrigInDetTruthEvent/TrigInDetTrackTruth.h"
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/IMessageSvc.h"
+#include "AtlasHepMC/Operators.h"
 
 /** accessor to fill object: returns index of new entry in vectors */
 int TrigInDetTrackTruth::addMatch(HepMcParticleLink p_tru_part,TrigIDHitStats hits)
@@ -112,7 +113,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
       // first get GenParticle pointer
       if ( !it1->isValid() ) continue; 
    
-      const HepMC::GenParticle* p_child = (*it1);
+      auto p_child = (*it1);
       log << MSG::DEBUG << "GenParticle " << child << " (" << p_child << "); PDG id=" 
 	  << p_child->pdg_id() << "; status=" << p_child->status() 
 	  << "; pT=" << p_child->momentum().perp() 
@@ -120,8 +121,8 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	  << endmsg;
       
       // then get production vertex (check against null)
-      HepMC::GenVertex* p_child_vtx = p_child->production_vertex();
-      if ( p_child_vtx == NULL ) 
+      auto p_child_vtx = p_child->production_vertex();
+      if ( !p_child_vtx) 
 	{
 	  log << MSG::DEBUG<<"GenVertex pointer null: jump to next particle"<<endmsg;
 	  continue;
@@ -131,6 +132,16 @@ int TrigInDetTrackTruth::updateFamilyTree()
       
       /* find mother: there should be only one for final state particles 
 	 (particles which can leave energy deposits in detectors)        */
+#ifdef HEPMC3
+     // check a mother was found
+      if ( p_child_vtx->particles_in().size()==0)
+	{
+	  log << MSG::DEBUG<< "Mother not found: go to next particle" <<endmsg;
+	  continue;
+	}  
+     auto p_mum = p_child_vtx->particles_in().begin();
+      
+#else
       HepMC::GenVertex::particles_in_const_iterator p_mum = p_child_vtx->particles_in_const_begin();
       
       // check a mother was found
@@ -139,6 +150,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	  log << MSG::DEBUG<< "Mother not found: go to next particle" <<endmsg;
 	  continue;
 	} 
+#endif
       log << MSG::DEBUG<< "Mother GenParticle (" << *p_mum << ") found; PDG id=" 
 	  << (*p_mum)->pdg_id() << "; status=" << (*p_mum)->status()
 	  << "; pT=" << (*p_mum)->momentum().perp() 
@@ -152,7 +164,7 @@ int TrigInDetTrackTruth::updateFamilyTree()
 	{
 	  log << MSG::DEBUG << "* Trying daughter index=" << child 
 	      << " and mother index=" << mum << endmsg;
-          const HepMC::GenParticle* p2 = *it2;
+          auto p2 = *it2;
           if ( *p_mum == p2 )
 	    { // mother also matches track
 	      m_family_tree.push_back( std::pair<unsigned int, unsigned int>(mum,child) );

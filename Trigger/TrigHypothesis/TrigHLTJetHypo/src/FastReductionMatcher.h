@@ -17,8 +17,7 @@ class FastReductionMatcher: public IGroupsMatcherMT {
  public:
 
   FastReductionMatcher(ConditionPtrs,
-		       const Tree&,
-		       const std::vector<std::vector<int>>&);
+		       const Tree&);
 
 
   /** determine whether a set of jets satisfies all hypo conditions.
@@ -50,12 +49,6 @@ class FastReductionMatcher: public IGroupsMatcherMT {
   */
   
   Tree m_tree;
-
-  /** a vector of shared nodes. All shared nodes are leaf node that
-  see the jet collection.
-  */
-  
-  std::vector<std::vector<int>> m_sharedNodes;
 
 };
 #endif

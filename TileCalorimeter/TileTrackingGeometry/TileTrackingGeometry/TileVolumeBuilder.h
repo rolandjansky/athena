@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,7 +72,6 @@ namespace Tile {
 
       const TileDetDescrManager*                        m_tileMgr;                        //!< Calo DetDescrMgr
       std::string                                       m_tileMgrLocation;                //!< Location of the CaloDetDescrMgr
-      const CaloDetDescrManager*                        m_calo_dd;
        
       ToolHandle<Trk::ITrackingVolumeHelper>            m_trackingVolumeHelper;           //!< Helper Tool to create TrackingVolumes
       ToolHandle<Trk::ITrackingVolumeCreator>           m_trackingVolumeCreator;          //!< Second helper for volume creation

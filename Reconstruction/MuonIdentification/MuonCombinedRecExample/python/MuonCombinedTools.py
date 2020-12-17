@@ -1,19 +1,12 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
-from MuonRecExample.MuonRecFlags import muonRecFlags
 from AthenaCommon.AppMgr import ToolSvc
-
-from AthenaCommon.Resilience import protectedInclude
-
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
-from AthenaCommon.GlobalFlags import globalflags
-from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs):
@@ -54,11 +47,11 @@ def MuonCombinedInDetDetailedTrackSelectorTool_LRT(name='MuonCombinedInDetDetail
     kwargs.setdefault("nHitSct", 4 )
     kwargs.setdefault("nHitSi", 4 )
     kwargs.setdefault("nHitTrt", 0 )
-    kwargs.setdefault("useTrackQualityInfo", False )    
+    kwargs.setdefault("useTrackQualityInfo", False )
     kwargs.setdefault("TrackSummaryTool", getPublicTool("AtlasTrackSummaryTool") )
     kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     return CfgMgr.InDet__InDetDetailedTrackSelectorTool(name,**kwargs)
-    
+
 
 
 def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwargs):
@@ -71,9 +64,8 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
-    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if beamFlags.beamType() == 'cosmics':
@@ -81,8 +73,7 @@ def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
 
 def MuonCaloParticleCreator(name="MuonCaloParticleCreator",**kwargs):
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
-    kwargs.setdefault("Extrapolator", getPublicTool("AtlasExtrapolator") )
+    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("PerigeeExpression","Origin")
@@ -108,7 +99,7 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
         getPublicTool("MuonMomentumBalanceSignificanceTool")
         getPublicTool("MuonScatteringAngleSignificanceTool")
         getPublicTool("MuonCaloParticleCreator")
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
 
@@ -119,37 +110,14 @@ def MuonCreatorTool(name="MuonCreatorTool",**kwargs):
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
 
 def MuonCreatorTool_LRT(name="MuonCreatorTool_LRT",**kwargs):
-    kwargs.setdefault("CaloMaterialProvider", getPublicTool("MuonMaterialProviderTool"))
-    if TriggerFlags.MuonSlice.doTrigMuonConfig:
-        kwargs.setdefault('MakeTrackAtMSLink',True)
-        kwargs.setdefault("FillTimingInformation",False)
-        kwargs.setdefault("MuonSelectionTool", "")
-        kwargs.setdefault("UseCaloCells", False)
-        kwargs.setdefault("TrackSegmentAssociationTool", "")
-    else:
-        getPublicTool("MuonMomentumBalanceSignificanceTool")
-        getPublicTool("MuonScatteringAngleSignificanceTool")
-        getPublicTool("MuonCaloParticleCreator")
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
-    from AthenaCommon.AppMgr import ToolSvc
-    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
-
-    kwargs.setdefault("TrackParticleCreator", getPublicTool("MuonCombinedParticleCreator") )
-    kwargs.setdefault("ParticleCaloExtensionTool", getPublicTool("MuonParticleCaloExtensionTool") )
-    kwargs.setdefault("ParticleCaloExtensionToolID", getPublicTool("MuonParticleCaloExtensionTool") )
-    kwargs.setdefault("MuonPrinter", getPublicTool("MuonPrintingTool") )
     kwargs.setdefault("RequireIDTrack", True)
-    return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
-    
-    
-
-
+    return MuonCreatorTool(name, **kwargs)
 
 def ExtrapolateMuonToIPTool(name="ExtrapolateMuonToIPTool",**kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("TrackSummaryTool", getPublicTool("MuonTrackSummaryTool"))
     else:
-        import MuonCombinedRecExample.CombinedMuonTrackSummary
+        import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         from AthenaCommon.AppMgr import ToolSvc
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     return CfgMgr.ExtrapolateMuonToIPTool(name,**kwargs)

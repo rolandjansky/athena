@@ -9,7 +9,6 @@
 //  Extrapolates indet track to MS.
 //  Returns a combined track with full track fit.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedTool.h"
@@ -108,6 +107,12 @@ namespace MuonCombined {
       if (fabs(deltaPhi)      > m_deltaPhiPreSelection)  continue;
       if (ptBal               > m_ptBalance) continue;
       associatedIdCandidates.push_back(x);
+    }
+  }
+
+  void MuonCombinedTool::cleanUp() const {
+    for(auto& tool : m_muonCombinedTagTools){
+      tool->cleanUp();
     }
   }
 

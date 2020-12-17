@@ -61,12 +61,12 @@ public:
   QString key;
   VP1TruthVertexCollection * theclass;
   VertexSysController*controller;
-  std::map <SoNode *, const HepMC::GenVertex *> nodeToVertexMap;
+  std::map <SoNode *, HepMC::ConstGenVertexPtr> nodeToVertexMap;
   SoLineSet * createCross(const double& x, const double& y, const double& z, const double& extent = 10*Gaudi::Units::mm ); // 10*CLHEP::mm );
 
   class VertexHandle {
   public:
-    VertexHandle(const HepMC::GenVertex* v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),m_d(dd) {}
+    VertexHandle(HepMC::ConstGenVertexPtr v,VP1TruthVertexCollection::Imp * dd) : m_attached(false), m_vertex(v), m_line(0),m_d(dd) {}
     ~VertexHandle() { if (m_line) m_line->unref(); }
 
     void recheckCutStatus() {

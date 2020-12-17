@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__   ='Module for parsing and basic analysis of Semi-Detailed PerfMon (PMonSD) output. More info at https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD'
 __author__='Thomas Kittelmann <thomas.kittelmann@cern.ch>'
@@ -15,7 +14,8 @@ def pmonsd_version():
 def parse(infile,outfile=None):
     """Parse PMonSD output and return list of dictionaries. Optionally save output in pickle file."""
     p=__smart_parse(infile)
-    if p==None: return None
+    if p is None:
+        return None
     if outfile:
         __save_output(p,outfile,'.psd',infile)
     return p
@@ -25,14 +25,15 @@ def deparse(infile):
     identical to the ones it was parsed from"""
     out=[]
     p=__smart_parse(infile)
-    if p==None: return []
+    if p is None:
+        return []
     for e in p:
         out+=__deparse_single(e)
     return out
 
-def need_line(l):
+def need_line(z):
     """To identify lines which PMonSD needs for parsing"""
-    return l.startswith(_appname)
+    return z.startswith(_appname)
 
 def print_ascii(infile):
     """Print parsed PMonSD info to stdout"""
@@ -52,13 +53,16 @@ def _validate_identical(infile1,infile2):
     #For validation
     p1=__smart_parse(infile1)
     p2=__smart_parse(infile2)
-    if p1==None or p2==None: return False
+    if p1 is None or p2 is None:
+        return False
     return p1==p2
 
 def force_share(obj):
     """Dive into lists and dictionaries and make sure strings with similar content gets shared"""
-    if type(obj)==list: __fs_list(obj)
-    elif type(obj)==dict: __fs_dict(obj)
+    if type(obj)==list:
+        __fs_list(obj)
+    elif type(obj)==dict:
+        __fs_dict(obj)
 
 def get_shared_string(s): return __get_shared_string(s)
 
@@ -94,7 +98,7 @@ def __save_output(data,outfile,prefix,infile=None):
         fh=gzip.open(outfile,'w')
     else:
         fh=open(outfile,'w')
-    if infile!=None and outfile==infile:
+    if infile is not None and outfile==infile:
         print("%s.parse WARNING: output file %s equals input file. Won't dump."%(_appname,outfile))
     else:
         import cPickle
@@ -146,8 +150,10 @@ def __smart_parse(infile):
     else:
         #in case this is already parsed info, make sure we just return it as it is:
         if type(infile)==list:
-            if len(infile)==0: return infile
-            if type(infile[0])==dict and 'steps_comps' in infile[0].keys(): return infile
+            if len(infile)==0:
+                return infile
+            if type(infile[0])==dict and 'steps_comps' in infile[0].keys():
+                return infile
         #Hopefully this is something we can iterate through (like a list of strings or a file-handle):
         return __actual_parse(infile)
 
@@ -168,13 +174,13 @@ def __actual_parse(filehandle):
         return (float(v),int(i))
     d=new_dict()
     stepcount={}#for keeping track of in what order within each step a component is listed
-    for l in filehandle:
-        if not l.startswith(_prefix):
+    for z in filehandle:
+        if not z.startswith(_prefix):
             continue
         #ensure the first thing we pick up is the version:
-        if version==None:
-            if intro_version in l:
-                vstr=l.split(intro_version)[1].split()[0]
+        if version is None:
+            if intro_version in z:
+                vstr=z.split(intro_version)[1].split()[0]
                 full_info=vstr[-1]=='f'
                 v_major,v_minor=vstr[:-1].split('.')
                 version=(int(v_major),int(v_minor))
@@ -185,22 +191,23 @@ def __actual_parse(filehandle):
                     print("WARNING: Using PMonSD of version %f to parse output made with version %f"%(pmonsd_version(),version))
             continue
         #remove prefix:
-        l=l[len(_prefix):].strip()
-        if l.startswith('WARNING'): continue
-        if l.startswith('=='):
+        z=z[len(_prefix):].strip()
+        if z.startswith('WARNING'):
+            continue
+        if z.startswith('=='):
             #This is a comment/separator. Look for end marker:
-            if end_marker in l:
+            if end_marker in z:
                 #found. Grab parsed info and make room for more (in case of concatenated logs)
                 output+=[d]
                 d=new_dict()
                 version=None#reset
-            elif 'Full output inside:' in l:
-                filename=l.split('Full output inside:')[1].split('===')[0].strip()
+            elif 'Full output inside:' in z:
+                filename=z.split('Full output inside:')[1].split('===')[0].strip()
                 d['fulloutput_file']=filename
             continue
-        if not l.startswith('['):
+        if not z.startswith('['):
             continue#ignore column headers
-        f=l.split()
+        f=z.split()
         if f[0]=='[---]' and '=' in f[1]:
             for valfield in f[1:]:
                 n,vstr=valfield.split('=',1)
@@ -226,15 +233,17 @@ def __actual_parse(filehandle):
                 d['special']['snapshots'][comp]={'n':n,'cpu':float(f[0]),'wall':float(f[1]),
                                                  'vmem':float(f[2]),'malloc':float(f[3])}
         else:
-            if not step in d['steps_comps'].keys():
+            if step not in d['steps_comps'].keys():
                 d['steps_comps'][step]={}
                 d['steps_totals'][step]={}
                 stepcount[step]=0
             iorder=stepcount[step]
             stepcount[step]+=1
                 #workaround situation where two collapsed or total lines have same form (nentries is always different):
-            if is_collapsed and comp in d['steps_comps'][step].keys(): comp+=':n=%i'%n
-            if is_total and comp in d['steps_totals'][step].keys(): comp+=':n=%i'%n
+            if is_collapsed and comp in d['steps_comps'][step].keys():
+                comp+=':n=%i'%n
+            if is_total and comp in d['steps_totals'][step].keys():
+                comp+=':n=%i'%n
             if len(f)==6:
                 #has max@evt info
                 d['steps_comps'][step][comp]={'order':iorder,'n':n,'cpu':float(f[0]),'vmem':float(f[2]),'malloc':float(f[4])}
@@ -242,8 +251,10 @@ def __actual_parse(filehandle):
             else:
                 #doesn't have max@evt info (step!='evt' or 'evt' but collapsed or total)
                 nfo={'order':iorder,'n':n,'cpu':float(f[0]),'vmem':float(f[1]),'malloc':float(f[2])}
-                if is_total: d['steps_totals'][step][comp]=nfo
-                else: d['steps_comps'][step][comp]=nfo
+                if is_total:
+                    d['steps_totals'][step][comp]=nfo
+                else:
+                    d['steps_comps'][step][comp]=nfo
     force_share(output)#make sure we register shared strings
     return output
 
@@ -251,14 +262,18 @@ def __deparse_single(d):
     _prefix=_appname+' '
     out=[]
     assert type(d)==dict
-    def header(l,s,center=True):
-        if center: s=(' %s '%s).center(82,'=')
-        else: s=(' %s '%s).ljust(82,'=')
-        l+=[ _prefix+'==='+s+'===']
+    def header(z,s,center=True):
+        if center:
+            s=(' %s '%s).center(82,'=')
+        else:
+            s=(' %s '%s).ljust(82,'=')
+        z+=[ _prefix+'==='+s+'===']
         
     full_info=d['full_info']
-    if full_info: fullstr='f'
-    else: fullstr='c'
+    if full_info:
+        fullstr='f'
+    else:
+        fullstr='c'
     header(out,'semi-detailed perfmon info v%i.%i%s / start'%(d['version'][0],d['version'][1],fullstr))
     header(out,'Documentation: https://twiki.cern.ch/twiki/bin/viewauth/Atlas/PerfMonSD',center=False)
     header(out,'Note that documentation includes recipe for easy parsing from python.  ',center=False)
@@ -268,7 +283,7 @@ def __deparse_single(d):
     stdsteps=['ini','1st','cbk','evt','fin']
     steps=[]
     for step in d['steps_comps'].keys():
-        if not step in stdsteps and not step in steps:
+        if step not in stdsteps and step not in steps:
             steps+=[step]
     steps.sort()
     steps=stdsteps+steps
@@ -284,20 +299,25 @@ def __deparse_single(d):
         is_evt=step=='evt'
         header(out,'step %s'%step)
         entries=[]
-        if not step in d['steps_comps'].keys(): continue
+        if step not in d['steps_comps'].keys():
+            continue
         for comp,compdata in d['steps_comps'][step].items():
-            if '_comps]:n=' in comp: comp=comp.split('_comps]:n=')[0]+'_comps]'
+            if '_comps]:n=' in comp:
+                comp=comp.split('_comps]:n=')[0]+'_comps]'
             if is_evt and comp in d['evt_max_info'].keys():
                 s=format_evt_withmax%(compdata['n'],compdata['cpu'],format_max(d['evt_max_info'][comp]['cpu']),
                                                  compdata['vmem'],format_max(d['evt_max_info'][comp]['vmem']),
                                                  compdata['malloc'],format_max(d['evt_max_info'][comp]['malloc']),comp)
             else:
-                if is_evt: format=format_evt_nomax
-                else: format=format_notevt
+                if is_evt:
+                    format=format_evt_nomax
+                else:
+                    format=format_notevt
                 s=format%(compdata['n'],compdata['cpu'],compdata['vmem'],compdata['malloc'],comp)
             entries+=[(compdata['order'],comp,s)]
         for comp,compdata in d['steps_totals'][step].items():
-            if '_comps]:n=' in comp: comp=comp.split('_comps]:n=')[0]+'_comps]'
+            if '_comps]:n=' in comp:
+                comp=comp.split('_comps]:n=')[0]+'_comps]'
             format='%4i %6i %7i %7i %s'
             if is_evt:
                 format='%4i %6i            %7i            %7i             %s'
@@ -305,8 +325,10 @@ def __deparse_single(d):
             entries+=[(compdata['order'],comp,s)]
         if entries:
             entries.sort()
-            if is_evt: out+=[ _prefix+' '*len(step)+colheader_evt]
-            else: out+=[ _prefix+' '*len(step)+colheader_std]
+            if is_evt:
+                out+=[ _prefix+' '*len(step)+colheader_evt]
+            else:
+                out+=[ _prefix+' '*len(step)+colheader_std]
             for _,_,s in entries:
                 out+=[ '%s[%s] %s'%(_prefix,step,s)]
     header(out,'special info')
@@ -323,8 +345,6 @@ def __deparse_single(d):
     for leak in leaks:
         dl=d['special']['leaks'][leak]
         out+=[ '%s[---] %4i        -        - %8i %8i %s'%(_prefix,dl['n'],dl['vmem'],dl['malloc'],leak)]
-    specialvals=d['special']['values'].keys()
-    svs=[]
     order=[['vmem_peak','vmem_mean','rss_mean'],
            ['jobcfg_walltime','jobstart'],
            ['cpu_bmips','cpu_res','release'],
@@ -335,8 +355,10 @@ def __deparse_single(d):
         lineformat=[]
         for sv in lineorder:
             v=d['special']['values'][sv]
-            if type(v)==float: v_str='%i'%v
-            else: v_str=v
+            if type(v)==float:
+                v_str='%i'%v
+            else:
+                v_str=v
             lineformat+=['%s=%s'%(sv,v_str)]
         out+=['%s[---] %s'%(_prefix,' '.join(lineformat))]
     header(out,'semi-detailed perfmon info / end')
@@ -352,17 +374,18 @@ def _validate_deparsing(f):
         fh=gzip_fastopen(f)
     else:
         fh=open(f)
-    for l in fh:
-        if l.startswith(_prefix):
-            if l.startswith(_prefix+'WARNING'):
+    for z in fh:
+        if z.startswith(_prefix):
+            if z.startswith(_prefix+'WARNING'):
                 continue
-            if l.endswith('\n'): l=l[0:-1]
-            lines+=[l]
+            if z.endswith('\n'):
+                z=z[0:-1]
+            lines+=[z]
     if len(lines)==0:
         print("File does not have %s lines!"%_appname)
         return False
     d=__smart_parse(lines)
-    if d==None:
+    if d is None:
         return False
     lines2=deparse(d)
     if len(lines)!=len(lines2):
@@ -388,7 +411,8 @@ def _validate_deparsing(f):
 def __actual_diff(infile1,infile2):
     d1=__smart_parse(infile1)
     d2=__smart_parse(infile2)
-    if d1==None or d2==None: return False
+    if d1 is None or d2 is None:
+        return False
     #Gymnastics to accept separate types:
     if type(d1)==list and type(d2)==list:
         if len(d1)!=len(d2):
@@ -422,13 +446,15 @@ def __actual_diff(infile1,infile2):
         anycollapsed=False
         for comp,data in compdata.items():
             n=data['n']
-            if not n in nentries2ncomps.keys(): nentries2ncomps[n]=0
+            if n not in nentries2ncomps.keys():
+                nentries2ncomps[n]=0
             if comp.startswith('[collapsed_'):
                 anycollapsed=True
-                nc=int(comp.split('_')[1])
+                #nc=int(comp.split('_')[1])
             else:
-                nc=1
-            nentries2ncomps[n]+=1
+                pass
+                #nc=1
+            nentries2ncomps[n]+=1 # check if this should be +=nc
         return nentries2ncomps,anycollapsed
 
 
@@ -455,7 +481,7 @@ def __actual_diff(infile1,infile2):
         if not anycollapsed1 and not anycollapsed2:
             #awesome, we can check all comps completely before vs. after
             for comp,compdata in d1['steps_comps'][step].items():
-                if not comp in d2['steps_comps'][step].keys():
+                if comp not in d2['steps_comps'][step].keys():
                     print("Difference: Component %s only present in one input in step %s"%(comp,step))
                     return False
                 check+=[(comp,compdata,d2['steps_comps'][step][comp])]
@@ -477,14 +503,17 @@ def __get_shared_string(s):
     global __allstrings
     return __allstrings.setdefault(s,s)
 
-def __fs_list(l):
-    i=len(l)
+def __fs_list(z):
+    i=len(z)
     while i:
         i-=1
-        t=type(l[i])
-        if t==str: l[i]=__get_shared_string(l[i])
-        elif t==list: __fs_list(l[i])
-        elif t==dict: __fs_dict(l[i])
+        t=type(z[i])
+        if t==str:
+            z[i]=__get_shared_string(z[i])
+        elif t==list:
+            __fs_list(z[i])
+        elif t==dict:
+            __fs_dict(z[i])
 
 def __fs_dict(d):
     keys=d.keys()
@@ -492,7 +521,10 @@ def __fs_dict(d):
         o=d[k]
         del d[k]
         t=type(o)
-        if t==str: o=__get_shared_string(o)
-        elif t==list: __fs_list(o)
-        elif t==dict: __fs_dict(o)
+        if t==str:
+            o=__get_shared_string(o)
+        elif t==list:
+            __fs_list(o)
+        elif t==dict:
+            __fs_dict(o)
         d[__get_shared_string(k)]=o

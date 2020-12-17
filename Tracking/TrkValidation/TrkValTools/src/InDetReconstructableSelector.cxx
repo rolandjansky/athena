@@ -11,7 +11,6 @@
 
 #include "TrkValTools/InDetReconstructableSelector.h"
 #include "AtlasHepMC/GenVertex.h"
-#include "CLHEP/Geometry/Point3D.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "HepPDT/ParticleData.hh"
 #include "GaudiKernel/IPartPropSvc.h"
@@ -65,57 +64,54 @@ StatusCode Trk::InDetReconstructableSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
   if (! SimTracks) return NULL;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
 
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
   
   for( ; itCollision != SimTracks->end(); ++itCollision ) {
     const HepMC::GenEvent*    genEvent = *itCollision;
-    HepMC::GenParticle * particle = NULL;
     
-    for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-         it != genEvent->particles_end(); ++it) {
+    for ( auto particle:   *genEvent) {
 
-      particle = *it;
 
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
 
       if(particle->production_vertex() == NULL) {
         ATH_MSG_WARNING ("GenParticle without production vertex - simulation corrupt? ");
-        ATH_MSG_DEBUG   ("It's this one: " << *particle);
+        ATH_MSG_DEBUG   ("It's this one: " << particle);
         continue;
       } else {
       
         // 2) require track inside ID - relaxed definition including decays of neutrals (secondaries)
-        if ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
-             fabs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
+        if ( std::abs(particle->production_vertex()->position().perp()) > m_maxRStartAll ||
+             std::abs(particle->production_vertex()->position().z())    > m_maxZStartAll ) continue;
 
         // 3) if jobOption, require strict definition of particles from within beam pipe
         if ( m_selectPrimariesOnly && 
-             ( fabs(particle->production_vertex()->position().perp()) > m_maxRStartPrimary ||
-               fabs(particle->production_vertex()->position().z())    > m_maxZStartPrimary ) ) continue;
+             ( std::abs(particle->production_vertex()->position().perp()) > m_maxRStartPrimary ||
+               std::abs(particle->production_vertex()->position().z())    > m_maxZStartPrimary ) ) continue;
 
         int   pdgCode         = particle->pdg_id();
-        if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
+        if (std::abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
         const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgCode));
 
         if (!pd) { // nuclei excluded, still problems with a given type?
-          ATH_MSG_INFO ("Could not get particle data for particle with pdgCode="<<pdgCode<< ", status=" << particle->status() << ", barcode=" << particle->barcode());
-          ATH_MSG_INFO ("GenParticle= " << *particle);
+          ATH_MSG_INFO ("Could not get particle data for particle with pdgCode="<<pdgCode<< ", status=" << particle->status() << ", barcode=" << HepMC::barcode(particle));
+          ATH_MSG_INFO ("GenParticle= " << particle);
           continue;
         }
         float charge          = pd->charge();
-        if (fabs(charge)<0.5) continue;
+        if (std::abs(charge)<0.5) continue;
 
-        if (fabs(particle->momentum().perp()) >  m_minPt  &&  fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
+        if (std::abs(particle->momentum().perp()) >  m_minPt  &&  std::abs(particle->momentum().pseudoRapidity()) < m_maxEta ) {
           genSignal->push_back(particle);
         }
       }

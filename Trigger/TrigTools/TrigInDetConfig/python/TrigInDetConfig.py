@@ -660,7 +660,6 @@ def trackConverterCfg(flags, signature, signatureName):
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
 
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
-                                                          Extrapolator = acc.getPublicTool( "InDetTrigExtrapolator" ),
                                                           TrackSummaryTool      = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
@@ -675,7 +674,7 @@ def trackConverterCfg(flags, signature, signatureName):
 
   return acc
 
-def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
+def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
   flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
@@ -690,7 +689,7 @@ def trigInDetCfg( inflags, roisKey="EMRoIs", signatureName='' ):
   acc.merge(beamposCondCfg(flags))
 
 
-  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDet'+signature,
+  verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVInDetFTF'+signature,
                                                     DataObjects= [('xAOD::EventInfo', 'StoreGateSvc+EventInfo'),
                                                                   ('InDet::PixelClusterContainerCache', 'PixelTrigClustersCache'),
                                                                   ('PixelRDO_Cache', 'PixRDOCache'),
@@ -733,7 +732,7 @@ if __name__ == "__main__":
     # output can be used by experts to check actual configuration (e.g. here we configure to run on RAW and it should be reflected in settings)
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     acc = MainServicesCfg( ConfigFlags )
-    acc.merge( trigInDetCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
+    acc.merge( trigInDetFastTrackingCfg( ConfigFlags, roisKey="ElectronRoIs", signatureName="Electron" ) )
 
     acc.printConfig(withDetails=True, summariseProps=True)
     acc.store( open("test.pkl", "wb") )

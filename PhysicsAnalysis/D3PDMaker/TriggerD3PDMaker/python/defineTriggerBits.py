@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: defineTriggerBits.py 484175 2012-02-21 13:06:42Z krasznaa $
 #
 # @file  TriggerD3PDMaker/python/addTriggerBits.py
 # @author scott snyder <snyder@bnl.gov>
@@ -28,7 +27,6 @@
 import TriggerD3PDMaker
 from D3PDMakerCoreComps.D3PDObject  import make_Void_D3PDObject
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from AthenaCommon.AppMgr            import theApp
 
 
 triggerBitsD3PDObject = \
@@ -84,7 +82,7 @@ This allows one to segregate the trigger decision flags in a separate tree.
             pass
 
         pat = pattern
-        if type(pat) != type([]):
+        if not isinstance(pat, list):
             pat = [pat]
             pass
         filler.TriggerBitsFiller_TriggerBits.Triggers += pat

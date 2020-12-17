@@ -67,13 +67,6 @@ namespace Trk
   StatusCode MCTrueSeedFinder::initialize() 
   { 
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MCTrueSeedFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -230,7 +223,7 @@ namespace Trk
     return true;
   }
 
-  bool MCTrueSeedFinder::pass( const HepMC::GenParticle* part,
+  bool MCTrueSeedFinder::pass( HepMC::ConstGenParticlePtr part,
 			       const McEventCollection* coll ) const {
 
     // Check if the particle is coming from a "good" GenEvent:

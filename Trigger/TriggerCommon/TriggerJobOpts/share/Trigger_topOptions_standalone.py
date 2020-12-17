@@ -6,7 +6,10 @@ log = logging.getLogger( 'Trigger_topOptions_standalone.py' )
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+# Legacy (Run-2) trigger produces Run-2 EDM
+ConfigFlags.Trigger.EDMVersion = 2
 
 if globalflags.InputFormat() == 'bytestream':
     TriggerFlags.doLVL1=False

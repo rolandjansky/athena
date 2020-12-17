@@ -5,7 +5,6 @@ from __future__ import print_function
 class InDetTrigTrackingCuts :
   """
   A copy of ConfiguredNewtrackingCuts from InDetRecExample used by the trigger.
-  
   """
 
 
@@ -22,13 +21,13 @@ class InDetTrigTrackingCuts :
     from AthenaCommon.DetFlags import DetFlags
     from AthenaCommon.BeamFlags import jobproperties
     from RecExConfig.RecFlags import rec
-    
+
     # --- put defaults to run Pixel/SCT/TRT
     self.__usePixel = DetFlags.haveRIO.pixel_on()
     self.__useSCT   = DetFlags.haveRIO.SCT_on()
     self.__useTRT   = DetFlags.haveRIO.TRT_on()
 
-    # --- first set kinematic defaults 
+    # --- first set kinematic defaults
     self.__minPT                   = 0.500 * Units.GeV
     self.__maxPT                   = None            # off !
     self.__maxEta                  = 2.7
@@ -37,13 +36,13 @@ class InDetTrigTrackingCuts :
     self.__minClusters             = 7                # Igor 6, was 7
     self.__minSiNotShared          = 5
     self.__maxShared               = 2
-    self.__minPixel                = 0                
+    self.__minPixel                = 0
     self.__maxHoles                = 3                # was 5
     self.__maxPixelHoles           = 2                # was 5
     self.__maxSctHoles             = 3                # was 5
     self.__maxDoubleHoles          = 1                # was 2
     self.__maxPrimaryImpact        = 10.0 * Units.mm  # low lumi
-    self.__maxZImpact              = 320. * Units.mm    
+    self.__maxZImpact              = 320. * Units.mm
     if self.__indetflags.doRobustReco():
       self.__minClusters             = 7                # Igor 6, was 7
       self.__maxHoles                = 5                # was 5
@@ -52,7 +51,7 @@ class InDetTrigTrackingCuts :
       self.__maxDoubleHoles          = 4                # was 2
       self.__maxZImpact              = 500.0 * Units.mm
 
-    # --- seeding 
+    # --- seeding
     self.__seedFilterLevel         = 1
     self.__maxdImpactPPSSeeds      = 1.7
     self.__maxdImpactSSSSeeds      = 1000.0
@@ -61,11 +60,11 @@ class InDetTrigTrackingCuts :
     self.__minPTBrem               = 1. * Units.GeV # off
     self.__phiWidthBrem            = 0.3 # default is 0.3
     self.__etaWidthBrem            = 0.2 # default is 0.3
-    
+
     # --- this is for the TRT-extension + segements and backtracking
     self.__minTRTonTrk               = 9
     self.__useParameterizedTRTCuts   = False
-    self.__useNewParameterizationTRT = False 
+    self.__useNewParameterizationTRT = False
 
     # --- general pattern cuts for NewTracking
     self.__radMax                  = 600. * Units.mm # default R cut for SP in SiSpacePointsSeedMaker
@@ -82,7 +81,7 @@ class InDetTrigTrackingCuts :
     else:
       self.__SecondarynHolesMax      = 1
       self.__SecondarynHolesGapMax   = 1
-    
+
     # --- defaults for secondary tracking
     self.__maxSecondaryImpact      = 100.0 * Units.mm # low lumi
     self.__minSecondaryClusters    = 4
@@ -107,15 +106,15 @@ class InDetTrigTrackingCuts :
     self.__SecondaryXi2max         = 15.0
     self.__SecondaryXi2maxNoAdd    = 50.0
     if rec.Commissioning():
-      self.__SecondaryXi2max         = 50.0 
-      self.__SecondaryXi2maxNoAdd    = 100.0 
+      self.__SecondaryXi2max         = 50.0
+      self.__SecondaryXi2maxNoAdd    = 100.0
 
-    # --- settings for segment finder 
+    # --- settings for segment finder
     self.__TRTSegFinderPtBins        = 70
     self.__maxSegTRTShared           = 0.3
     self.__excludeUsedTRToutliers    = False
 
-    
+
     # --- TRT only
     self.__minTRTonlyMinPt         = 0.5 * Units.GeV
     self.__minTRTonly              = 15
@@ -167,10 +166,10 @@ class InDetTrigTrackingCuts :
     if self.__indetflags.cutLevel() >= 7:
       # --- more BackTracking cuts
       self.__minSecondaryTRTonTrk      = 15               # let's not allow for short overlap tracks
-      self.__maxSecondaryHoles         = 1                # tighten hole cuts 
-      self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts 
-      self.__maxSecondarySCTHoles      = 1                # tighten hole cuts 
-      self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts 
+      self.__maxSecondaryHoles         = 1                # tighten hole cuts
+      self.__maxSecondaryPixelHoles    = 1                # tighten hole cuts
+      self.__maxSecondarySCTHoles      = 1                # tighten hole cuts
+      self.__maxSecondaryDoubleHoles   = 0                # tighten hole cuts
       self.__minSecondaryTRTPrecFrac   = 0.5              # default for all tracking now, as well for BackTracking
       self.__rejectShortExtensions     = True             # fall back onto segment if TRT extension is short
       self.__SiExtensionCuts           = True             # use cuts from ambi scoring already early
@@ -210,21 +209,21 @@ class InDetTrigTrackingCuts :
 
     if self.__indetflags.cutLevel() >= 17:
       # Tuning of the search road and strip seed IP in the track finder.
-      # Designed to speed up reconstruction at minimal performance impact. 
+      # Designed to speed up reconstruction at minimal performance impact.
       self.__roadWidth              = 12
       self.__maxdImpactSSSSeeds     = 5.0 * Units.mm
       self.__maxZImpact              = 200
 
     if self.__indetflags.cutLevel() >= 18:
-      # Further tuning of the pattern recognition designed to 
-      # speed up reconstruction compared to 17 with minimal additional 
-      # impact. Kept as separate level pending cross-check of 
+      # Further tuning of the pattern recognition designed to
+      # speed up reconstruction compared to 17 with minimal additional
+      # impact. Kept as separate level pending cross-check of
       # seed confirmation robustness with end-of-run-3 radiation
-      # damage. 
+      # damage.
       self.__keepAllConfirmedPixelSeeds  = True
       self.__maxSeedsPerSP_Pixels          = 1
       self.__maxSeedsPerSP_Strips          = 5
-    
+
     if self.__indetflags.cutLevel() >= 19:
       # Calo cluster Et for RoI seeded backtracking for TRT segment finding
       # and for TRT-si extensions
@@ -239,7 +238,7 @@ class InDetTrigTrackingCuts :
     if mode == "SLHC":
       self.__extension        = "SLHC"
       # --- higher pt cut and impact parameter cut
-      self.__minPT                   = 1.0 * Units.GeV      
+      self.__minPT                   = 1.0 * Units.GeV
       self.__maxPrimaryImpact        = 2.0 * Units.mm # highlumi
       # --- cluster cuts
       self.__minClusters             = 9
@@ -249,7 +248,7 @@ class InDetTrigTrackingCuts :
       self.__maxPixelHoles           = self.__maxHoles
       self.__maxSctHoles             = self.__maxHoles
       self.__maxDoubleHoles          = 2
-      # --- also tighten patter cuts 
+      # --- also tighten patter cuts
       self.__radMax                  = 1000. * Units.mm
       self.__seedFilterLevel         = 1
       self.__nHolesMax               = self.__maxHoles
@@ -264,25 +263,25 @@ class InDetTrigTrackingCuts :
       self.__minClusters = 3
     elif ( DetFlags.haveRIO.SCT_on() and not DetFlags.haveRIO.pixel_on() ):
       self.__minClusters = 6
-      
-    # --- change defaults for low pt tracking  
-    if mode == "LowPt": 
+
+    # --- change defaults for low pt tracking
+    if mode == "LowPt":
       self.__extension        = "LowPt" # this runs parallel to NewTracking
       self.__maxPT            = self.__minPT + 0.3 * Units.GeV # some overlap
       self.__minPT            = 0.100 * Units.GeV
       self.__minClusters      = 5
-      self.__minPixel         = 1   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 1   # At least one pixel hit for low-pt (ass seeded on pixels!)
       self.__maxHoles         = 4
       self.__maxPixelHoles    = self.__maxHoles # --> no effect
       self.__maxSctHoles      = self.__maxHoles # --> no effect
       self.__maxDoubleHoles   = 2
       self.__radMax           = 600. * Units.mm # restrivt to pixels
-    # --- change defauls for beam gas tracking 
+    # --- change defauls for beam gas tracking
     if mode == "BeamGas":
       self.__extension        = "BeamGas" # this runs parallel to NewTracking
       self.__minPT            = 0.500 * Units.GeV
-      self.__maxPrimaryImpact = 300. * Units.mm 
-      self.__maxZImpact       = 2000. * Units.mm 
+      self.__maxPrimaryImpact = 300. * Units.mm
+      self.__maxZImpact       = 2000. * Units.mm
       self.__minClusters      = 6
       self.__maxHoles         = 3
       self.__maxPixelHoles    = self.__maxHoles # --> no effect
@@ -291,8 +290,8 @@ class InDetTrigTrackingCuts :
     # --- changes for cosmics
     if mode == "Cosmics":
       self.__minPT            = 0.500 * Units.GeV
-      self.__maxPrimaryImpact = 1000. * Units.mm 
-      self.__maxZImpact       = 10000. * Units.mm 
+      self.__maxPrimaryImpact = 1000. * Units.mm
+      self.__maxZImpact       = 10000. * Units.mm
       self.__minClusters      = 4
       self.__maxHoles         = 3
       self.__maxPixelHoles    = self.__maxHoles # --> no effect
@@ -317,11 +316,11 @@ class InDetTrigTrackingCuts :
       self.__maxDoubleHoles   = 0
       self.__nHolesMax        = self.__maxHoles
       self.__nHolesGapMax     = self.__maxHoles
-      self.__Xi2max           = 6. 
+      self.__Xi2max           = 6.
       self.__Xi2maxNoAdd      = 10.
       self.__seedFilterLevel  = 1
       self.__radMax           = 600. * Units.mm # restrict to pixels + first SCT layer
-      self.__useTRT           = False 
+      self.__useTRT           = False
     # --- changes for Pixel segments
     if mode == "Pixel":
       self.__extension        = "Pixel" # this runs parallel to NewTracking
@@ -335,13 +334,13 @@ class InDetTrigTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+      self.__nHolesGapMax     = 2*self.__maxDoubleHoles
       self.__useSCT           = False
-      self.__useTRT           = False 
+      self.__useTRT           = False
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = self.__maxHoles # --> no effect
         self.__maxSctHoles      = self.__maxHoles # --> no effect
@@ -349,7 +348,7 @@ class InDetTrigTrackingCuts :
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+        self.__nHolesGapMax     = 2*self.__maxDoubleHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
@@ -370,13 +369,13 @@ class InDetTrigTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+      self.__nHolesGapMax     = 2*self.__maxDoubleHoles
       self.__usePixel         = False
-      self.__useTRT           = False 
+      self.__useTRT           = False
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = self.__maxHoles # --> no effect
         self.__maxSctHoles      = self.__maxHoles # --> no effect
@@ -384,11 +383,11 @@ class InDetTrigTrackingCuts :
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+        self.__nHolesGapMax     = 2*self.__maxDoubleHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
-    # --- mode for SCT and TRT 
+    # --- mode for SCT and TRT
     if mode == "SCTandTRT":
       self.__extension        = "SCTandTRT" # this runs parallel to NewTracking
       self.__minPT            = 0.5 * Units.GeV
@@ -401,13 +400,13 @@ class InDetTrigTrackingCuts :
       self.__maxShared        = 0
       self.__seedFilterLevel  = 2
       self.__nHolesMax        = self.__maxHoles
-      self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+      self.__nHolesGapMax     = 2*self.__maxDoubleHoles
       self.__usePixel         = False
-      self.__useTRT           = True 
+      self.__useTRT           = True
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
-        self.__maxPrimaryImpact = 1000. * Units.mm 
-        self.__maxZImpact       = 10000. * Units.mm 
+        self.__maxPrimaryImpact = 1000. * Units.mm
+        self.__maxZImpact       = 10000. * Units.mm
         self.__maxHoles         = 3
         self.__maxPixelHoles    = self.__maxHoles # --> no effect
         self.__maxSctHoles      = self.__maxHoles # --> no effect
@@ -415,7 +414,7 @@ class InDetTrigTrackingCuts :
         self.__roadWidth        = 60.
         self.__seedFilterLevel  = 3 # 2 ?
         self.__nHolesMax        = self.__maxHoles
-        self.__nHolesGapMax     = 2*self.__maxDoubleHoles      
+        self.__nHolesGapMax     = 2*self.__maxDoubleHoles
         self.__Xi2max           = 60.0
         self.__Xi2maxNoAdd      = 100.0
         self.__nWeightedClustersMin = 6
@@ -426,6 +425,25 @@ class InDetTrigTrackingCuts :
   #      self.__maxDoubleHoles          = 4               # was 2
   #      self.__maxPrimaryImpact        = 50.0 * Units.mm # low lumi
   #      self.__maxZImpact              = 500.0 * Units.mm
+    if mode == "LRT":
+      self.__minClusters             = 8
+      self.__minSiNotShared          = 6
+      self.__maxShared               = 1
+      self.__maxHoles                = 2
+      self.__maxPixelHoles           = 1
+      self.__maxSctHoles             = 1
+      self.__maxDoubleHoles          = 0
+      self.__maxPrimaryImpact        = 300.0 * Units.mm
+      self.__maxZImpact              = 500. * Units.mm
+      self.__roadWidth               = 5.
+      self.__seedFilterLevel         = 1
+      self.__nHolesMax               = self.__maxHoles
+      self.__nHolesGapMax            = 1
+      self.__Xi2max                  = 9.
+      self.__Xi2maxNoAdd             = 25.0
+      self.__nWeightedClustersMin    = 8
+      self.__doZBoundary             = True
+      self.__maxdImpactSSSSeeds      = 300.0
 
 
 # ----------------------------------------------------------------------------
@@ -469,7 +487,7 @@ class InDetTrigTrackingCuts :
     return self.__minClusters
 
   def minPixel( self ) :
-    return self.__minPixel  
+    return self.__minPixel
 
   def minSecondaryClusters( self ) :
     return self.__minSecondaryClusters
@@ -506,7 +524,7 @@ class InDetTrigTrackingCuts :
 
   def maxDoubleHoles( self ) :
     return self.__maxDoubleHoles
-    
+
   def maxSecondaryDoubleHoles( self ) :
     return self.__maxSecondaryDoubleHoles
 
@@ -548,7 +566,7 @@ class InDetTrigTrackingCuts :
 
   def Xi2max( self ) :
     return self.__Xi2max
-  
+
   def Xi2maxNoAdd( self ) :
     return self.__Xi2maxNoAdd
 
@@ -560,12 +578,12 @@ class InDetTrigTrackingCuts :
 
   def SecondaryXi2max( self ) :
     return self.__SecondaryXi2max
-  
+
   def SecondaryXi2maxNoAdd( self ) :
     return self.__SecondaryXi2maxNoAdd
 
   def nWeightedClustersMin( self ) :
-    return self.__nWeightedClustersMin 
+    return self.__nWeightedClustersMin
 
   def maxdImpactPPSSeeds( self ) :
     return self.__maxdImpactPPSSeeds
@@ -575,7 +593,7 @@ class InDetTrigTrackingCuts :
 
   def usePixel( self ) :
     return self.__usePixel
-  
+
   def useSCT( self ) :
     return self.__useSCT
 
@@ -655,4 +673,3 @@ class InDetTrigTrackingCuts :
       print ('* min TRT only min pt         :  ', self.__minTRTonlyMinPt, ' MeV')
       print ('*')
     print ('************************************************************************************')
-

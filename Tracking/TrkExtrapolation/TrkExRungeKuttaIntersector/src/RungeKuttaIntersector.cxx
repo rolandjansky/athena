@@ -81,7 +81,7 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 StatusCode
 RungeKuttaIntersector::initialize(){
     // print name and package version
-    ATH_MSG_DEBUG( "RungeKuttaIntersector::initialize()" << " - package version " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "RungeKuttaIntersector::initialize()" );
 
     // initialize base class
     if (StatusCode::SUCCESS != AlgTool::initialize()) return StatusCode::FAILURE;
@@ -107,9 +107,9 @@ RungeKuttaIntersector::initialize(){
 StatusCode
 RungeKuttaIntersector::finalize()
 {
-    msg(MSG::INFO)  << "finalized after " << m_countExtrapolations << " extrapolations,";
     if (m_countExtrapolations)
     {
+    msg(MSG::INFO)  << "finalized after " << m_countExtrapolations << " extrapolations,";
 	double norm = 1./static_cast<double>(m_countExtrapolations);
 	msg(MSG::INFO)   << std::setiosflags(std::ios::fixed)
 			 << " taking an average" << std::setw(7) << std::setprecision(1)
@@ -119,8 +119,8 @@ RungeKuttaIntersector::finalize()
  			 << " step reductions and" << std::setw(5) << std::setprecision(2)
 			 << norm*static_cast<double>(m_countShortStep)
 			 << " short final steps";
-    }
     msg(MSG::INFO)   << endmsg;
+    }
 
     return StatusCode::SUCCESS;
 }

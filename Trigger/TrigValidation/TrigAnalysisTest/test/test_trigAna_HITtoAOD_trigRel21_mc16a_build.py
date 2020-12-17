@@ -56,7 +56,7 @@ rdo2rdotrig.input = ''
 rdo2rdotrig.imf = False
 rdo2rdotrig.explicit_input = True
 rdo2rdotrig.args = '--inputRDOFile=RDO.pool.root --outputRDO_TRIGFile=RDO_TRIG.pool.root'
-rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0-mc16a,slc6,latest"'
+rdo2rdotrig.args += ' --asetup="RDOtoRDOTrigger:Athena,21.0-mc16a,latest"'
 rdo2rdotrig.args += ' --triggerConfig="MCRECO:MC_pp_v6_tight_mc_prescale"'
 rdo2rdotrig.args += ' --imf="all:True"'
 rdo2rdotrig.args += ' --preExec="all:from TriggerJobOpts.TriggerFlags import TriggerFlags; TriggerFlags.run2Config=\'2016\'"'

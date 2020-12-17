@@ -12,7 +12,7 @@ atlas_add_library( SiPropertiesToolLib
                    PUBLIC_HEADERS SiPropertiesTool
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES AthenaKernel GaudiKernel Identifier InDetConditionsSummaryService InDetReadoutGeometry PixelConditionsData SCT_ConditionsData
+                   LINK_LIBRARIES AthenaKernel GaudiKernel Identifier InDetConditionsSummaryService InDetReadoutGeometry ReadoutGeometryBase PixelConditionsData SCT_ConditionsData
                    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps InDetIdentifier StoreGateLib )
 
 atlas_add_component( SiPropertiesTool

@@ -16,6 +16,7 @@ atlas_add_poolcnv_library( MuonSimEventAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -23,8 +24,8 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( MUONSIMEVENTATHENAPOOL_REFERENCE_TAG
        MuonSimEventAthenaPoolReference-02-01-00 )
-  run_tpcnv_legacy_test( MuonSimEventTPCnv_HITS   HITS.04919495._000416
-                   REFERENCE_TAG ${MUONSIMEVENTATHENAPOOL_REFERENCE_TAG} )
+  run_tpcnv_test( MuonSimEventTPCnv_HITS   HITS.04919495._000416
+                  REFERENCE_TAG ${MUONSIMEVENTATHENAPOOL_REFERENCE_TAG} )
 else()
    message( WARNING
       "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )
