@@ -174,6 +174,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   // mapping files for radiation damage simulation
   std::vector<std::string> mapsPath_list;
 
+
   int currentRunNumber = ctx.eventID().run_number();
   if (currentRunNumber<222222) {
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdRUN1);
@@ -465,7 +466,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
   for (unsigned int i=0; i<mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
-    std::unique_ptr<TFile> mapsFile(new TFile((mapsPath_list.at(i)).c_str())); //this is the ramo potential.
+    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
 
     //Setup ramo weighting field map
     TH3F* ramoPotentialMap_hold = 0;
@@ -477,15 +478,10 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
     ramoPotentialMap.push_back(ramoPotentialMap_hold);
 
-    std::unique_ptr<TH2F> lorentzMap_e_hold((TH2F*)mapsFile->Get("lorentz_map_e"));
-    std::unique_ptr<TH2F> lorentzMap_h_hold((TH2F*)mapsFile->Get("lorentz_map_h"));
-    std::unique_ptr<TH2F> distanceMap_h_hold((TH2F*)mapsFile->Get("edistance"));
-    std::unique_ptr<TH2F> distanceMap_e_hold((TH2F*)mapsFile->Get("hdistance"));
-
-    lorentzMap_e.push_back(lorentzMap_e_hold.get());
-    lorentzMap_h.push_back(lorentzMap_h_hold.get());
-    distanceMap_e.push_back(distanceMap_e_hold.get());
-    distanceMap_h.push_back(distanceMap_h_hold.get());
+    lorentzMap_e.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
+    lorentzMap_h.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
+    distanceMap_e.push_back((TH2F*)mapsFile->Get("edistance"));
+    distanceMap_h.push_back((TH2F*)mapsFile->Get("hdistance"));
   }
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);

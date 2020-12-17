@@ -145,8 +145,7 @@ PixelSiLorentzAngleCondAlg::execute(const EventContext& ctx) const {
     int barrel_ec   = pixelId->barrel_ec(element->identify());
     int layerIndex  = pixelId->layer_disk(element->identify());
 
-//STSTST    double LACorr = moduleData->getLorentzAngleCorr(barrel_ec,layerIndex);
-    double LACorr = 1.0;
+    double LACorr = moduleData->getLorentzAngleCorr(barrel_ec,layerIndex);
 
     if (not p_design){
       ATH_MSG_FATAL("Dynamic cast to PixelModuleDesign* failed in PixelSiLorentzAngleCondAlg::execute");
