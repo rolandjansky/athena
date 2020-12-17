@@ -39,15 +39,17 @@ log = logging.getLogger(__name__)
 def jetRecoDictForMET(**recoDict):
     """ Get a jet reco dict that's usable for the MET slice """
     jrd = {k: recoDict.get(k, JetChainParts_Default[k]) for k in jetRecoKeys}
-    # For various reasons, we can store the constituent modifiers separately
-    # to the data type, so we have to add that back in
+    # Rename the cluster calibration
+    try:
+        jrd["clusterCalib"] = recoDict["calib"]
+    except KeyError:
+        pass
+    # Fill constitMod
     jrd["constitMod"] = recoDict.get("constitmod", "")
-    if "jetDataType" in recoDict:
-        # Allow for the renaming dataType -> jetDataType
-        jrd["constitType"] = recoDict["jetDataType"].replace(jrd["constitMod"],"") # strip constitMod from jetDataType
-        if jrd["constitType"] == "pf":
-            # We only use em calibration for PFOs
-            jrd["clusterCalib"] = "em"
+    # We only use em calibration for PFOs
+    if jrd["constitType"] == "pf":
+        jrd["clusterCalib"] = "em"
+    # Interpret jet calibration
     if jrd["jetCalib"] == "default":
         jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
@@ -98,7 +100,7 @@ class ClusterInputConfig(AlgInputConfig):
         if recoDict.get("constitmod"):
             # Force the datatype to topoclusters
             recoDict = copy.copy(recoDict)
-            recoDict["jetDataType"] = "tc"
+            recoDict["constitType"] = "tc"
             jetRecoDict = jetRecoDictForMET(**recoDict)
             constit = aliasToInputDef(
                 defineJetConstit(jetRecoDict, clustersKey=clusterName)
@@ -186,7 +188,7 @@ class PFOInputConfig(AlgInputConfig):
         # modifiers those are also applied.
         recoDict = copy.copy(recoDict)
         # Force the jet data type to the correct thing
-        recoDict["jetDataType"] = "pf"
+        recoDict["constitType"] = "pf"
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
         constit = aliasToInputDef(defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix))
         constit_mod_seq = getConstitModAlg(constit)
@@ -301,12 +303,12 @@ class JetInputConfig(AlgInputConfig):
         """ Whether or not this reco configuration requires tracks """
         if recoDict.get("forceTracks", False):
             return True
-        if recoDict["jetDataType"] in ["pf", "csskpf"]:
+        if recoDict["constitType"] == "pf":
             return True
-        elif recoDict["jetDataType"] in ["tc", "sktc", "cssktc"]:
+        elif recoDict["constitType"] == "tc":
             return "gsc" in recoDict["jetCalib"]
         else:
-            raise ValueError(f"Unexpected jetDataType {recoDict['jetDataType']}")
+            raise ValueError(f"Unexpected constitType {recoDict['constitType']}")
 
     def dependencies(self, recoDict):
         deps = [self._input_clusters(recoDict)]

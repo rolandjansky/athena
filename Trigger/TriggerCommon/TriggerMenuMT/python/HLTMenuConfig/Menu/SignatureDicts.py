@@ -342,7 +342,7 @@ METChainParts = {
     'jetCalib'       : JetChainParts['jetCalib'],
     'L2recoAlg'      : [],
     'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
-    'jetDataType'    : ['tc','pf','sktc','cssktc','csskpf'],
+    'constitType'    : JetChainParts['constitType'],
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
@@ -365,7 +365,7 @@ METChainParts_Default = {
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
-    'jetDataType'    : 'tc',
+    'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']
