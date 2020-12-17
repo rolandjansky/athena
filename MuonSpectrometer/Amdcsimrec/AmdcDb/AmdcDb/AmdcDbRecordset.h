@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDbRecordset_H
-#define AmdcDbRecordset_H
+#ifndef AMDCDB_AMDCDBRECORDSET_H
+#define AMDCDB_AMDCDBRECORDSET_H
 
 #include "RDBAccessSvc/IRDBRecordset.h"
-#include "AmdcDb/AmdcDbMisc.h"
+#include <string>
 
   /**
    @class AmdcDbRecordset

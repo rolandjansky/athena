@@ -6,7 +6,7 @@ ToolSvc.LArDigitNoiseMonTool.regionIDs = [0] # [0] to turn on all regions, [] to
 from LArMonTools.LArMonToolsConf import LArFebNoiseMonTool
 theLArFebNoiseMonTool = LArFebNoiseMonTool(name="LArFebNoiseMonTool",
                                            LArDigitContainerKey = LArMonFlags.LArDigitKey(),
-                                           histoPathBase = "LAr/FebNoise",
+                                           histoPathBase = "LAr/FebNoiseOldTool",
                                            febIDs  = [ 0 ],
                                            TriggerSign = +1,
                                            AlternateSum = False,
@@ -24,7 +24,7 @@ LArMon.AthenaMonTools+=[ theLArFebNoiseMonTool ]
 from LArMonTools.LArMonToolsConf import LArFebNoiseMonTool
 theLArFebNoiseMonToolAlt = LArFebNoiseMonTool(name="LArFebNoiseMonToolAlt",
                                               LArDigitContainerKey = LArMonFlags.LArDigitKey(),
-                                              histoPathBase = "LAr/FebNoiseAlt",
+                                              histoPathBase = "LAr/FebNoiseAltOldTool",
                                               febIDs  = [ 0 ],
                                               TriggerSign = +1,
                                               AlternateSum = True,

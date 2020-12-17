@@ -6,11 +6,9 @@
 # results into SG. These may then be accessed along the train  
 #********************************************************************
 
-from __future__ import print_function
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 from AthenaCommon.GlobalFlags  import globalflags
-
+from AthenaCommon import CfgMgr
 from AthenaCommon import Logging
 dfjetlog = Logging.logging.getLogger('JetCommon')
 
@@ -47,7 +45,7 @@ else:
         else:
             batmanaugtool = CfgMgr.DerivationFramework__BadBatmanAugmentationTool("BadBatmanAugmentationTool")
             ToolSvc += batmanaugtool
-        if not batmanaugtool in batmanaug.AugmentationTools:
+        if batmanaugtool not in batmanaug.AugmentationTools:
             batmanaug.AugmentationTools.append(batmanaugtool)
     else:
         if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
@@ -60,8 +58,6 @@ else:
 def defineEDAlg(R=0.4, inputtype="LCTopo"):
     from EventShapeTools.EventDensityConfig import configEventDensityTool, EventDensityAlg
     from AthenaCommon.AppMgr import ToolSvc
-
-    from JetRec.JetRecStandard import jtm
 
     t=configEventDensityTool("EDTool"+str(int(R*10))+inputtype,
                              inputlabel = inputtype,
@@ -85,7 +81,6 @@ def moveEDAlg(seq):
 def addGhostAssociation(DerivationFrameworkJob):
 
     from JetRec.JetRecStandard import jtm
-    from JetRec.JetRecConf import PseudoJetGetter
 
     flavorgetters1 = []
     for ptype in jetFlags.truthFlavorTags():
@@ -109,7 +104,6 @@ def reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale=-1.0, variab
     from JetRec.JetRecUtils import buildJetContName
     constmodstr = "".join(constmods)
     inputname = inputtype+constmodstr
-    label = inputtype + constmodstr
     jetContName = buildJetContName(jetalg, rsize, inputname, variableRMassScale, variableRMinRadius)
 
     # Set default for the arguments to be passd to addJetFinder
@@ -232,7 +226,6 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     from JetRec.JetRecUtils import buildJetContName
     constmodstr = "".join(constmods)
     inputname = inputtype+constmodstr
-    label = inputtype + constmodstr
     ungroomedName = buildJetContName(jetalg, rsize, inputname, variableRMassScale, variableRMinRadius)
     ungroomedalgname = "jetalg"+ungroomedName[:-4] # Remove "Jets" from name
 
@@ -256,12 +249,13 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
         # this returns a list of the needed tools to do so.
         jetalgTools = reCreatePseudoJets(jetalg, rsize, inputtype, variableRMassScale, variableRMinRadius, algseq, constmods=constmods)
 
-        if includePreTools and jetFlags.useTracks() and not "Truth" in inputtype:
+        if includePreTools and jetFlags.useTracks() and "Truth" not in inputtype:
             # enable track ghost association and JVF
+            from JetRec.JetRecStandard import jtm
             jetalgTools =  [jtm.tracksel, jtm.tvassoc] + jetalgTools 
 
         finderalg = JetAlgorithm(ungroomedalgname, Tools = jetalgTools )
-        DFJetAlgs[ungroomedalgname] = finderalg;
+        DFJetAlgs[ungroomedalgname] = finderalg
         dfjetlog.info( "Added jet finder "+ungroomedalgname+" to sequence "+algseq.name() )
         algseq += finderalg
 
@@ -275,7 +269,7 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
     
     dfjetlog.info( "Added jet groomer "+algname+" to sequence "+algseq.name() )
     groomeralg = JetAlgorithm(algname, Tools = [fatjet_groom])
-    DFJetAlgs[algname] = groomeralg;
+    DFJetAlgs[algname] = groomeralg
     algseq += groomeralg
     return groomeralg
 
@@ -283,7 +277,6 @@ def buildGenericGroomAlg(jetalg, rsize, inputtype, groomedName, jetToolBuilder,
 def addTrimmedJets(jetalg, rsize, inputtype, rclus=0.3, ptfrac=0.05, mods="groomed",
                    includePreTools=False, algseq=None, outputGroup="Trimmed",
                    writeUngroomed=False, variableRMassScale=-1.0, variableRMinRadius=-1.0, constmods=[]):
-    from JetRec.JetRecUtils import buildJetContName
     from JetRec.JetRecUtils import buildJetAlgName
     inputname = inputtype + "".join(constmods)
     trimmedName = "{0}{1}TrimmedPtFrac{2}SmallR{3}Jets".format(buildJetAlgName(jetalg, rsize, variableRMassScale, variableRMinRadius),inputname,int(ptfrac*100),int(rclus*100))
@@ -437,7 +430,7 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         return DFJetAlgs[algname]
 
     from JetRec.JetRecStandard import jtm
-    if not jetname in jtm.tools:
+    if jetname not in jtm.tools:
         # no container exist. simply build a new one.
         # Set default for the arguments to be passd to addJetFinder
         defaultmods = {"EMTopo":"emtopo_ungroomed",
@@ -520,7 +513,7 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
                 ToolSvc += BunchCrossingTool( "LHC" )
                 distanceintrainaugtool.BCTool = "Trig::LHCBunchCrossingTool/BunchCrossingTool"
             ToolSvc += distanceintrainaugtool
-        if not distanceintrainaugtool in distanceintrainaug.AugmentationTools:
+        if distanceintrainaugtool not in distanceintrainaug.AugmentationTools:
             distanceintrainaug.AugmentationTools.append(distanceintrainaugtool)
 
 ##################################################################

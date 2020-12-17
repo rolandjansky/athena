@@ -1,9 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+from AthenaCommon.AlgSequence import AthSequencer
 
 # function to configure LArPileUpTool
-
-from AthenaCommon.Logging import logging
-
 def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitContainer_MC',outputKey_DigiHSTruth='LArDigitContainer_DigiHSTruth',name='LArPileUpToolDefault'):
 
     if isOverlay:
@@ -21,7 +20,7 @@ def LArPileUpToolDefault(useLArFloat=True,isOverlay=False,outputKey='LArDigitCon
         theTool.DoDigiTruthReconstruction = digitizationFlags.doDigiTruth()
 
 
-    except Exception as configException:
+    except Exception:
         import traceback
         traceback.print_exc()
 

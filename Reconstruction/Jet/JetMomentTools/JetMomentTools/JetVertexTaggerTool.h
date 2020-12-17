@@ -84,6 +84,9 @@ public:
   // Constructor from tool name
   JetVertexTaggerTool(const std::string& name);
 
+  // Destructor
+  virtual ~JetVertexTaggerTool();
+
   // Initialization.
   StatusCode initialize() override;
 
@@ -93,14 +96,11 @@ public:
   // Evaluate JVT from Rpt and JVFcorr.
   float evaluateJvt(float rpt, float jvfcorr) const;
 
-  // Update JVT by scaling Rpt byt the ratio of the current and original jet pT values.
-  //   jet - jet for which JVT is updated
-  //   scale - name of the jet scale holding the original pT
-  // The new value for JVT is returned.
-  float updateJvt(const xAOD::Jet& jet, std::string scale ="JetPileupScaleMomentum") const override;
+  // Update JVT using new jet pt
+  float updateJvt(const xAOD::Jet& jet) const override;
 
   // Local method to return the HS vertex - that of type PriVtx
-  const xAOD::Vertex* findHSVertex(const xAOD::VertexContainer*&) const;
+  const xAOD::Vertex* findHSVertex() const;
 
 private:  // data
 

@@ -6,7 +6,6 @@ __all__ = [ 'ConfiguredMuonRec', 'GetMuonRec', 'CompositeMuonRec' ]
 import os
 
 from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.ConfigurableDb import getConfigurable
 from AthenaCommon.Logging import logging
 
@@ -172,7 +171,7 @@ class ConfiguredMuonRec(object):
         if gaudiType != 'Algorithm':        
             raise TypeError( '%r is not an Algorithm, but an %s' % (alg,gaudiType) )
         # add to local dictionary
-        if not alg in self._algs:
+        if alg not in self._algs:
             self._algs.append( alg )
             # add to own dict for direct access: self.AlgName
             self.__dict__[ alg.getName() ] = alg
@@ -309,14 +308,14 @@ class ConfiguredMuonRec(object):
 
     def outputKey(self,name):
         """Return value of output key"""
-        return self_.outputKeys[name]
+        return self._outputKeys[name]
 
     def hasOutputKey(self,name):
         return name in self._outputKeys
 
     def inputKey(self,name):
         """Return value of output key"""
-        return self_.inputKeys[name]
+        return self._inputKeys[name]
 
     def hasInputKey(self,name):
         return name in self._inputKeys
@@ -389,6 +388,7 @@ class ConfiguredMuonRec(object):
         """Add all algorithms to topSequence, if not already in.
         Only needs to be called if it was disabled in the first place, but want to use anyway.
         BEWARE: as this adds to the end of topSequence, total order in topSequence may not be correct!!!"""
+        global topSequence
         self._enabled = True
         for alg in self._algs:
             if not hasattr(topSequence,alg.getName()):
@@ -568,7 +568,7 @@ class CompositeMuonRec(ConfiguredMuonRec):
     def propagateDataKeys(self,keys=None):
         """Propagate the date keys to the registered properties"""
         if keys is None: keys = self.dataKeys()
-        ConfigurableMuonRec.propagateDataKeys(self,keys)
+        ConfiguredMuonRec.propagateDataKeys(self,keys)
         for c in self.allConfigs():
             c.propagateDataKeys(keys)
 
@@ -707,7 +707,7 @@ class ParallelMuonRec(CompositeMuonRec):
         for c in self.allConfigs():
             try:
                 c.configure(keys)
-            except:
+            except Exception:
                 if self._applyResilience:
                    import traceback
                    traceback.print_exc()
@@ -781,7 +781,7 @@ def GetMuonRec(configTag,doConfigure=True,applyResilience=False, **kwargs):
             # store for later reference ('singleton')
             _muonRecInstances[configInfo.fullTag] = theInstance
             return theInstance
-        except:
+        except Exception:
             if applyResilience:
                 import traceback
                 traceback.print_exc()

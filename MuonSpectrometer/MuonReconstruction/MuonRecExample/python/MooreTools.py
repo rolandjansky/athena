@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """Configuration of tools for Moore muon reconstruction"""
 
@@ -10,9 +10,7 @@ __doc__ = """Configuration of tools for Moore muon reconstruction"""
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
 
-import copy
-
-from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
+from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -20,17 +18,15 @@ from AthenaCommon.BFieldFlags import jobproperties
 from AthenaCommon import CfgMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-from RecExConfig.RecFlags import rec
-
-from AthenaCommon.CfgGetter import getPrivateTool,getPrivateToolClone,getPublicTool,getPublicToolClone,getService,getServiceClone
+from AthenaCommon.CfgGetter import getPublicTool, getPublicToolClone, getPrivateTool
 
 from AthenaCommon.ConfiguredFactory import getProperty
 from IOVDbSvc.CondDB import conddb
 
 from MuonCnvExample.MuonCnvUtils import mdtCalibWindowNumber
 
-from .MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter, MdtDriftCircleOnTrackCreator, MuonRK_Propagator
-from .MuonRecUtils import logMuon,ConfiguredBase,ExtraFlags
+from .MuonRecTools import MuonExtrapolator, MuonChi2TrackFitter
+from .MuonRecUtils import ConfiguredBase,ExtraFlags
 
 
 from .MuonRecFlags import muonRecFlags
@@ -258,7 +254,7 @@ def MooTrackBuilder(name="MooTrackBuilderTemplate",
         newMatchingToolName = namePrefix+oldMatchingToolName+namePostfix
         builder.CandidateMatchingTool = getPublicToolClone(newMatchingToolName,oldMatchingToolName,extraFlags=extraFlags)
 
-    import MuonCombinedRecExample.CombinedMuonTrackSummary
+    import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401
     from AthenaCommon.AppMgr import ToolSvc
     kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
     

@@ -1,14 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
-from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm,getPublicToolClone
+from AthenaCommon.CfgGetter import getPublicTool, getAlgorithm
 from MuonRecExample.ConfiguredMuonRec import ConfiguredMuonRec
 from MuonRecExample.MuonRecFlags import muonRecFlags
 muonRecFlags.setDefaults()
 
 from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon import CfgMgr
-from AthenaCommon.BeamFlags import jobproperties
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from MuonCombinedRecExample.MuonCombinedKeys import MuonCombinedKeys as MuonCbKeys
@@ -19,7 +18,7 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags
 def MuonCombinedInDetExtensionAlg(name="MuonCombinedInDetExtensionAlg",**kwargs):
     tools = []
     if muonCombinedRecFlags.doCaloTrkMuId():
-        tools.append(getTool("MuonCaloTagTool"))
+        tools.append(getPublicTool("MuonCaloTagTool"))
         kwargs.setdefault("TagMap", "caloTagMap" )
     kwargs.setdefault("MuonCombinedInDetExtensionTools", tools )
     kwargs.setdefault("HasCSC", MuonGeometryFlags.hasCSC() )
@@ -159,9 +158,9 @@ def recordMuonCreatorAlgObjs (kw):
     Alg = CfgMgr.MuonCreatorAlg
     def val (prop):
         d = kw.get (prop)
-        if d == None:
+        if d is None:
             d = Alg.__dict__[prop].default
-        return d
+        return str(d)
     objs = {'xAOD::MuonContainer': val('MuonContainerLocation'),
             'xAOD::TrackParticleContainer': (val('CombinedLocation')+'TrackParticles',
                                              val('ExtrapolatedLocation')+'TrackParticles',

@@ -21,6 +21,7 @@ class LArOnlineID;
 class CaloDetDescrManager;
 class LArHVLineID;
 class Identifier;
+class TClass;
 
 class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
 {
@@ -42,13 +43,16 @@ class LArHVPathologyDbCondAlg: public AthReentrantAlgorithm
   SG::ReadCondHandleKey<LArHVIdMapping> m_hvMappingKey {this, "HVMappingKey", "LArHVIdMap", "Key for mapping object" };
   SG::WriteCondHandleKey<LArHVPathology> m_hvPAthologyKey {this, "HVPAthologyKey", "LArHVPathology", "Key for HV pathologies in Cond. store"};
 
-  const LArEM_ID*       m_larem_id;
-  const LArHEC_ID*       m_larhec_id;
-  const LArFCAL_ID*       m_larfcal_id;
-  const LArOnlineID*      m_laronline_id;
-  const LArHVLineID*      m_hvlineHelper;
+  const LArEM_ID*       m_larem_id=nullptr;
+  const LArHEC_ID*       m_larhec_id=nullptr;
+  const LArFCAL_ID*       m_larfcal_id=nullptr;
+  const LArOnlineID*      m_laronline_id=nullptr;
+  const LArHVLineID*      m_hvlineHelper=nullptr;
 
   mutable std::mutex m_mut;
+
+  TClass* m_klass=nullptr;
+
 };
 
 #endif

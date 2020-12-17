@@ -11,6 +11,7 @@
 #define GSFCONSTANTS_H
 
 #include <cstdint>
+#include <cstddef>
 namespace GSFConstants {
 
 /**
@@ -30,8 +31,8 @@ namespace GSFConstants {
  * The max numbers for N , M  are enforced in configuration.
  * It is an error to configure for more.
  *
- * They lead to a max allowed NXM after convolution
- * trying to somehow pass (by-passing config)
+ * They lead to a max allowed NXM after convolution.
+ * Trying to somehow pass (by-passing the config)
  * leads to an exception.
  *
  * Furthermore, the  number of coefficients is also
@@ -42,8 +43,8 @@ namespace GSFConstants {
  */
 
 /// Maximum number of Gaussian components for the
-/// state description (default is 12)
-constexpr int8_t maxNumberofStateComponents = 14;
+/// state description.
+constexpr int8_t maxNumberofStateComponents = 12;
 /// Maximum number of Gaussian components for the
 /// Bethe Heitler description
 constexpr int8_t maxNumberofBHComponents = 6;
@@ -52,12 +53,16 @@ constexpr int8_t polynomialCoefficients = 6;
 
 /**
  * The maximum size State x Bethe-Heitler components
- * The typical number we use is 6x12 = 72.
- * Max here is 6x14 = 84. As in literature there are examples
- * up tio 14 state components
+ * The typical number we use is the max 6x12 = 72 i.e as
+ * we try to have the maximum practical precision for the GSF.
  */
 constexpr int8_t maxComponentsAfterConvolution =
   maxNumberofBHComponents * maxNumberofStateComponents;
 
+/**
+ * @brief Alignment used  for SIMD operations
+ * internally to GSF.
+ */
+constexpr size_t alignment = 32;
 }
 #endif

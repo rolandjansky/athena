@@ -22,6 +22,7 @@ import MC16_TOPQ1
 config = TopExamples.grid.Config()
 config.code          = 'top-xaod'
 config.settingsFile  = 'validation-cuts.txt'
+# in case you want to run multiple configurations in a single file:
 #config.settingsFile  = 'validation-cuts_Topo.txt,validation-cuts_PFlow.txt'
 #config.combine_outputFile = 'out.root'
 #config.combine_prefixes = 'Topo,PFlow'
@@ -29,11 +30,11 @@ config.settingsFile  = 'validation-cuts.txt'
 config.gridUsername  = 'iconnell' # use e.g. phys-top or phys-higgs for group production
 config.suffix        = '17-10-03'
 config.excludedSites = ''
-config.noSubmit      = False
+config.noSubmit      = False # set to True if you just want to test the submission
 config.mergeType     = 'Default' #'None', 'Default' or 'xAOD'
 config.destSE        = '' #This is the default (anywhere), or try e.g. 'UKI-SOUTHGRID-BHAM-HEP_LOCALGROUPDISK'
-# by default the requested memory is set to 2GB, if you need to increase this, please disable the line below!!!
-# config.memory = '4000' 
+# by default the requested memory is set to 2GB, if you need to increase this, see the option below
+# config.memory = '4000' # NOTE grid sites with 4GB for single-core user jobs are rare
 #config.nameShortener = MyFancyShortener # to use your own physics part shortening function - uncomment here and in the function definition above
 
 ###############################################################################
@@ -76,4 +77,3 @@ names = ['TOPQ1_ttbar_PowPy8',
 samples = TopExamples.grid.Samples(names)
 TopExamples.ami.check_sample_status(samples)  # Call with (samples, True) to halt on error
 TopExamples.grid.submit(config, samples)
-

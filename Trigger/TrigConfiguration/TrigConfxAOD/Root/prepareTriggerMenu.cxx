@@ -276,7 +276,7 @@ namespace TrigConf {
                                  CTPConfig& ctpConfig,
                                  HLTChainList& chainList,
                                  HLTSequenceList& sequenceList,
-                                 BunchGroupSet& /*bgSet unused so far*/,
+                                 BunchGroupSet& bgSet,
                                  MsgStream& msg ) {
 
       // Clear the current LVL1 configuration:
@@ -339,6 +339,7 @@ namespace TrigConf {
          chain->set_rerun_prescale( -1.0 ); // Not used in R3
          chain->set_pass_through( -1.0 );  // Not used in R3
          chain->set_prescale( loadedPrescale.prescale );
+         chain->set_leg_multiplicities( loadedChain.legMultiplicities() );
 
          // Add it to the list of chains:
          if( ! chainList.addHLTChain( chain ) ) {
@@ -353,9 +354,16 @@ namespace TrigConf {
       // Do not add sequence info to legacy structures (format is different)
 
       // Bunchgroup data is TODO
-      // // Create a new BunchGroupSet object, since an existing one can't be
-      // // modified... :-/
-      // BunchGroupSet bgSetNew;
+      // Create a new BunchGroupSet object, since an existing one can't be
+      // modified... :-/
+      BunchGroupSet bgSetNew;
+
+      // Temporary empty structure
+      for( size_t i = 0; i < 16; ++i ) {
+         BunchGroup bg;
+         bg.setInternalNumber( i );
+         bgSetNew.addBunchGroup( bg );
+      }
 
       // // Fill it with info:
       // for( size_t i = 0; i < loadedBgSet.size(); ++i ) {
@@ -372,8 +380,8 @@ namespace TrigConf {
       //     bgSetNew.addBunchGroup( bg );
       // }
 
-      // // Replace the current bunch-group set with the new one:
-      // bgSet = bgSetNew;
+      // Replace the current bunch-group set with the new one:
+      bgSet = bgSetNew;
 
       // Return gracefully:
       return StatusCode::SUCCESS;

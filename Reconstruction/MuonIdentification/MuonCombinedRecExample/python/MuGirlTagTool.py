@@ -3,7 +3,7 @@
 ### JobOptions to run MuGirlTag in xAOD
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPublicTool,getPublicToolClone,getService
+from AthenaCommon.CfgGetter import getPublicTool
 from AthenaCommon.GlobalFlags import globalflags
 
 from RecExConfig.RecFlags import rec
@@ -14,9 +14,6 @@ from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from MuonRecExample.MooreTools import MuonSeededSegmentFinder, MuonChamberHoleRecoveryTool
 from MuonRecExample.MuonRecTools import DCMathSegmentMaker
 
-###logfile
-from AthenaCommon.Logging import log
-
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -24,7 +21,7 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 def MuonInsideOutRecoTool( name="MuonInsideOutRecoTool", **kwargs ):
    if TriggerFlags.MuonSlice.doTrigMuonConfig:
       kwargs.setdefault("VertexContainer", "")
-   import MuonCombinedRecExample.CombinedMuonTrackSummary
+   import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc
    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
    kwargs.setdefault("MuonLayerSegmentFinderTool", getPublicTool("MuonLayerSegmentFinderTool"))
@@ -91,18 +88,21 @@ def MuonStauInsideOutRecoTool( name="MuonStauInsideOutRecoTool", **kwargs ):
    kwargs.setdefault("MuonCandidateTrackBuilderTool", getPublicTool("MuonStauCandidateTrackBuilderTool") )
    if TriggerFlags.MuonSlice.doTrigMuonConfig:
       kwargs.setdefault("VertexContainer", "")
-   import MuonCombinedRecExample.CombinedMuonTrackSummary
+   import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
    from AthenaCommon.AppMgr import ToolSvc
    kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary)
    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 def MuonStauRecoTool( name="MuonStauRecoTool", **kwargs ):
+   from MuonCnvExample.MuonCalibConfig import MdtCalibrationDbTool
+
    kwargs.setdefault("ConsideredPDGs", [13,-13,1000015,-1000015])
    kwargs.setdefault("DoTruth", rec.doTruth() )
    kwargs.setdefault("DoSummary", muonCombinedRecFlags.printSummary() )
    kwargs.setdefault("MuonSegmentMaker", getPublicTool("DCMathStauSegmentMaker") )
    kwargs.setdefault("MuonInsideOutRecoTool", getPublicTool("MuonStauInsideOutRecoTool") )
    kwargs.setdefault("TrackAmbiguityProcessor", getPublicTool("MuonAmbiProcessor") )
+   kwargs.setdefault("MdtCalibrationDbTool", MdtCalibrationDbTool())
    return CfgMgr.MuonCombined__MuonStauRecoTool(name,**kwargs )
 
 

@@ -22,6 +22,7 @@
 #include <string>
 
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
+#include "xAODBTagging/ftagfloat_t.h"
  
 namespace Analysis
 {
@@ -53,6 +54,7 @@ namespace Analysis
     declareProperty("UseDRJetPvSv", m_useDRJPVSV = true);
     declareProperty("UseCHypo", m_useCHypo=true);
     declareProperty("UseSV2Pt", m_usePtSV2=false);
+    declareProperty("SaveProbabilities", m_save_probabilities=false);
 
   }
 
@@ -446,18 +448,20 @@ namespace Analysis
 	  }
 	}
 
-	BTag.setVariable<double>(m_xAODBaseName, "pb", probi[0]);
-	BTag.setVariable<double>(m_xAODBaseName, "pu", probi[1]);
-	if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", probi[2]);
-	
+  if (m_save_probabilities) {
+	BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pb", probi[0]);
+	BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pu", probi[1]);
+	if (m_useCHypo) BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pc", probi[2]);
+  }
+ 	
       }
 
       /* For SV0, put the signed 3D Lxy significance: */
     } else {
       ATH_MSG_VERBOSE("#BTAG# SV0 Lxy3D significance = " << distnrm);
-      BTag.setVariable<double>(m_xAODBaseName, "pb", exp(distnrm));
-      BTag.setVariable<double>(m_xAODBaseName, "pu", 1);
-      if (m_useCHypo) BTag.setVariable<double>(m_xAODBaseName, "pc", 1);
+      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pb", exp(distnrm));
+      BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pu", 1);
+      if (m_useCHypo) BTag.setVariable<ftagfloat_t>(m_xAODBaseName, "pc", 1);
     }
 
     ATH_MSG_VERBOSE("#BTAG# SVTag Finalizing... ");

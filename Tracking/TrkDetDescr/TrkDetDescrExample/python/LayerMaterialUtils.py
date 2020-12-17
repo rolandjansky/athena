@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import math
-from ROOT import *
+from ROOT import TCanvas, TH2F, TH3F, TProfile, gDirectory, gROOT, kCanDelete, kMustCleanup, kRed, kWhite
 
 def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
     
@@ -33,21 +32,15 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
         
         # create the x0 histogram
         clmap_x0         = TH2F('clmap_x0_'+clname,clname,binsz,-halfz,halfz,binsphi,-math.pi,math.pi)
-        # the steps
-        stepZ   = 2.*halfz/numbinsz
-        stepPhi = 2*math.pi/numbinsphi
         x0max = 0.
         # loop over bins and fill it
-        for ibin in xrange(evt.cylMatBinsTotal) :
+        for ibin in range(evt.cylMatBinsTotal) :
             # first get the ibin phi
             ibinz   = ibin/numbinsphi
             ibinphi = ibin - ibinz*numbinsphi      
             x0 = evt.cylMatX0[ibin]
             if x0 > x0max : x0max = x0           
             clmap_x0.SetBinContent(ibinz+1,ibinphi+1,x0)
-            # z / phi value for the profile plots
-            izval   = -halfz+(ibinz+0.5)*stepZ
-            iphival = -math.pi+(ibinphi+0.5)*stepPhi
         pass
     
     # and draw it
@@ -57,8 +50,8 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
     # ---------------------------------------------------------
     # draw profiles first to get a good estimate for the maximum
     canvasX0map.cd(5)
-    x0profZG4 = TProfile(clname+'x0profZG4',clname+'x0profZG4',numbinsz,-halfz+position,halfz+position)
-    x0profZTG = TProfile(clname+'x0profZTG',clname+'x0profZTG',numbinsz,-halfz+position,halfz+position)
+    x0profZG4 = TProfile(clname+'x0profZG4',clname+'x0profZG4',numbinsz,-halfz+position,halfz+position)  # noqa: F841
+    x0profZTG = TProfile(clname+'x0profZTG',clname+'x0profZTG',numbinsz,-halfz+position,halfz+position)  # noqa: F841
     g4CylTree.Draw('PathInX0:DensedHitZ>>'+clname+'x0profZG4','','prof')
     tgCylTree.Draw('PathInX0:DensedHitZ>>'+clname+'x0profZTG','','prof')
     x0profG4z = gDirectory.Get(clname+'x0profZG4')
@@ -77,8 +70,8 @@ def drawCylinderLayer(g4CylTree,cylLayer,tgCylTree,saveLocation) :
     x0profTGz.SetMarkerSize(0.8)
     x0profTGz.Draw('pe,same')
     canvasX0map.cd(6)
-    x0profPhiG4 = TProfile(clname+'x0profPhiG4',clname+'x0profPhiG4',numbinsphi,-math.pi,math.pi)
-    x0profPhiTG = TProfile(clname+'x0profPhiTG',clname+'x0profPhiTG',numbinsphi,-math.pi,math.pi)
+    x0profPhiG4 = TProfile(clname+'x0profPhiG4',clname+'x0profPhiG4',numbinsphi,-math.pi,math.pi)  # noqa: F841
+    x0profPhiTG = TProfile(clname+'x0profPhiTG',clname+'x0profPhiTG',numbinsphi,-math.pi,math.pi)  # noqa: F841
     g4CylTree.Draw('PathInX0:DensedHitPhi>>'+clname+'x0profPhiG4','','prof')
     tgCylTree.Draw('PathInX0:DensedHitPhi>>'+clname+'x0profPhiTG','','prof')
     x0profG4phi = gDirectory.Get(clname+'x0profPhiG4')
@@ -217,7 +210,7 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
         stepPhi = 2*math.pi/binsPhi
         x0max = 0.
         # loop over bins and fill it
-        for ibin in xrange(evt.discMatBinsTotal) :
+        for ibin in range(evt.discMatBinsTotal) :
             ibinphi = ibin/binsR
             ibinr = ibin - ibinphi*binsR
             #ibinz   = ibin/binsphi
@@ -236,8 +229,8 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
     # draw profiles tog et good estimate for x0max first
     x0maxProf = x0max
     canvasX0map.cd(5)
-    x0profRG4 = TProfile(dlname+'x0profRG4',dlname+'x0profRG4',numbinsr,innerR,outerR)
-    x0profRTG = TProfile(dlname+'x0profRTG',dlname+'x0profRTG',numbinsr,innerR,outerR)
+    x0profRG4 = TProfile(dlname+'x0profRG4',dlname+'x0profRG4',numbinsr,innerR,outerR)  # noqa: F841
+    x0profRTG = TProfile(dlname+'x0profRTG',dlname+'x0profRTG',numbinsr,innerR,outerR)  # noqa: F841
     g4DiscTree.Draw('PathInX0:DensedHitR>>'+dlname+'x0profRG4','','prof')
     tgDiscTree.Draw('PathInX0:DensedHitR>>'+dlname+'x0profRTG','','prof')
     x0profG4r = gDirectory.Get(dlname+'x0profRG4')
@@ -256,8 +249,8 @@ def drawDiscLayer(g4DiscTree,discLayer,tgDiscTree,saveLocation) :
     x0profTGr.SetMarkerSize(0.8)
     x0profTGr.Draw('pe,same')
     canvasX0map.cd(6)
-    x0profPhiG4 = TProfile(dlname+'x0profPhiG4',dlname+'x0profPhiG4',numbinsphi,-math.pi,math.pi)
-    x0profPhiTG = TProfile(dlname+'x0profPhiTG',dlname+'x0profPhiTG',numbinsphi,-math.pi,math.pi)
+    x0profPhiG4 = TProfile(dlname+'x0profPhiG4',dlname+'x0profPhiG4',numbinsphi,-math.pi,math.pi)  # noqa: F841
+    x0profPhiTG = TProfile(dlname+'x0profPhiTG',dlname+'x0profPhiTG',numbinsphi,-math.pi,math.pi)  # noqa: F841
     g4DiscTree.Draw('PathInX0:DensedHitPhi>>'+dlname+'x0profPhiG4','','prof')
     tgDiscTree.Draw('PathInX0:DensedHitPhi>>'+dlname+'x0profPhiTG','','prof')
     x0profG4phi = gDirectory.Get(dlname+'x0profPhiG4')

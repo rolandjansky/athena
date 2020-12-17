@@ -1,10 +1,10 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7Utils.py
 ## \brief Module with helper functions and classes
 ## \author Daniel Rauch (daniel.rauch@desy.de)
 
-import math, os, subprocess, time
+import math, os, subprocess
 
 from AthenaCommon import Logging
 athMsgLog = Logging.logging.getLogger('Herwig7Utils')
@@ -30,7 +30,7 @@ class ConfigurationCommands:
     self.locked = True
   
   def add(self, commands):
-    if self.locked == False:
+    if self.locked is False:
       self.commands += commands
     else:
       raise RuntimeError("The commands associated to this configuration object can't be modified anymore because the Herwig7 infile has already been written to disk. Therefore, any subsequent additional modifications can't be adopted in the Herwig7 run.")
@@ -55,7 +55,7 @@ class ProcessHandler:
     while len(self.processes) > 0:
       for ID, process in enumerate(self.processes):
         returncode = process.poll()
-        if not returncode is None:
+        if returncode is not None:
 
           ## print exit status and number of pending process
           self.processes.remove(process)
@@ -72,11 +72,11 @@ class ProcessHandler:
           # self.logger.info('================================================================================')
           # self.logger.info("Including content of integration log file '{}'".format(process.logfile_title))
           # self.logger.info('================================================================================')
-          athMsgLog.info("Content of integration log file '{}':".format(process.logfile_title))
+          athMsgLog.info("Content of integration log file '%s':", process.logfile_title)
           athMsgLog.info("")
           with open(process.logfile_title, 'r') as logfile:
             for line in logfile:
-              athMsgLog.info('  {}'.format(line.rstrip('\n')))
+              athMsgLog.info('  %s', line.rstrip('\n'))
           athMsgLog.info("")
           # self.logger.info('================================================================================')
           # self.logger.info("End of integration log file '{}'".format(process.logfile_title))
@@ -114,7 +114,7 @@ def get_cross_section(run_name, integration_jobs=1):
 
   for logfile in logfiles:
 
-    athMsgLog.info("- {}".format(logfile))
+    athMsgLog.info("- %s", logfile)
 
     ## entire file content
     with open(logfile, 'r') as log: data = log.read().strip()
@@ -125,7 +125,7 @@ def get_cross_section(run_name, integration_jobs=1):
       for line in log:
         if 'Integrate ' in line:
           n_subprocs = int(line.split('of')[1].replace(':',''))
-          athMsgLog.info("  found {} subprocesses".format(n_subprocs))
+          athMsgLog.info("  found %s subprocesses", n_subprocs)
           break
 
     data = data.split("Integrate ")[1:]
@@ -137,7 +137,7 @@ def get_cross_section(run_name, integration_jobs=1):
         if 'integrated ( ' in line:
           _xsec = float(line.split()[2])
           _err = float(line.split()[4])
-      athMsgLog.info("  - subprocess {}: xsec = {} +/- {} nb".format(s, _xsec, _err))
+      athMsgLog.info("  - subprocess %s: xsec = %s +/- %s nb", s, _xsec, _err)
       xsec += _xsec
       err  += _err*_err
 

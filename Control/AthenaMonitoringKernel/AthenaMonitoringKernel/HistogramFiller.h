@@ -14,6 +14,8 @@
 #include "AthenaMonitoringKernel/IHistogramProvider.h"
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
+class TProfile;
+
 namespace Monitored {
 
   // Forward declare generic histogram filler (see HistogramFillerUtils.h)
@@ -47,10 +49,6 @@ namespace Monitored {
     HistogramFiller(const HistogramFiller& hf)
       : m_histDef(hf.m_histDef),
         m_histogramProvider(hf.m_histogramProvider) {}
-    /**
-     * @brief Move constructor
-     */
-    HistogramFiller(HistogramFiller&&) = default;
 
     /**
      * @brief Virtual destructor
@@ -129,6 +127,10 @@ namespace Monitored {
       return m_histDef->cutMask;
     }
 
+    const std::unique_lock<std::mutex> getLock() const {
+      return std::unique_lock(m_lock);
+    }
+
   protected:
     template <class H>
     H* histogram() const {
@@ -179,6 +181,7 @@ namespace Monitored {
 
     std::shared_ptr<HistogramDef> m_histDef;
     std::shared_ptr<IHistogramProvider> m_histogramProvider;
+    mutable std::mutex m_lock;
 
   private:
     HistogramFiller& operator=(HistogramFiller const&) = delete;

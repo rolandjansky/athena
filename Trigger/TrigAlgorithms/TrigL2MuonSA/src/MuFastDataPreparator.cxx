@@ -12,8 +12,7 @@
 TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type, 
                                                          const std::string& name,
                                                          const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
-  m_regionSelector("RegSelSvc", name)
+  AthAlgTool(type,name,parent)
 {
 }
 
@@ -33,9 +32,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_readKey.initialize());
   
-   ATH_CHECK(m_regionSelector.retrieve());
-   ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
-
    if (m_use_rpc) {
      ATH_CHECK(m_rpcDataPreparator.retrieve());
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
@@ -64,10 +60,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_rpcPatFinder.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
-
-   // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector);
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector);
 
    return StatusCode::SUCCESS; 
 }
@@ -184,16 +176,20 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   ATH_MSG_DEBUG("RoI eta/phi=" << p_roi->eta() << "/" << p_roi->phi());  
   
   StatusCode sc = StatusCode::SUCCESS;
+
+  //Storing rpc hits by each layers and eta/phi strip for creating road
+  //RpcLayerHits class is defined in RpcPatFinder.h
+  TrigL2MuonSA::RpcLayerHits rpcLayerHits;
+  rpcLayerHits.clear();
   
   if(m_use_rpc && !insideOut) {
-
-    m_rpcPatFinder->clear();
 
     m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
                                           rpcHits,
+                                          rpcLayerHits,
                                           &m_rpcPatFinder);
 
     // check if the RoI is fake and se the flag
@@ -223,6 +219,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
                                     insideOut,
                                     muonRoad,
                                     rpcHits,
+                                    rpcLayerHits,
                                     &m_rpcPatFinder,
                                     rpcFitResult,
                                     roiEtaMinLow,

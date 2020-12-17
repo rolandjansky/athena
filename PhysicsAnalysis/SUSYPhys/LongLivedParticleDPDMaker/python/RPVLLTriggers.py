@@ -1,11 +1,10 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from TriggerMenu.api.TriggerAPI import TriggerAPI
 from TriggerMenu.api.TriggerEnums import TriggerPeriod, TriggerType
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-
-import AthenaCommon.SystemOfUnits as Units
-
 
 # general function to get current menu unprescaled triggers for given trigger type
 #def getTriggerList( trigger_type, matching_pattern="", rejection_pattern="", test=[] ):
@@ -32,8 +31,8 @@ def getTriggerList( trigger_type, matching_pattern="", reject_list=[] ):
         if trigger in triggerList: continue
         isRejected = False
         for reject in reject_list:
-            if reject is not "" and reject in trigger: isRejected = True
-        if isRejected == True: continue
+            if reject != "" and reject in trigger: isRejected = True
+        if isRejected is True: continue
         triggerList.append( trigger )
 
     return triggerList

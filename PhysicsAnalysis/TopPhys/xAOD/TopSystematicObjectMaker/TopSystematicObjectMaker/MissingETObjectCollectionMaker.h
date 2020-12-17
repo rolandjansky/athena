@@ -1,8 +1,7 @@
 /*
-   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 
-// $Id: MissingETObjectCollectionMaker.h 683191 2015-07-15 16:05:25Z morrisj $
 #ifndef ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_MISSINGETOBJECTCOLLECTIONMAKER_H
 #define ANALYSISTOP_TOPSYSTEMATICOBJECTMAKER_MISSINGETOBJECTCOLLECTIONMAKER_H
 
@@ -11,9 +10,6 @@
  *
  * @brief MissingETObjectCollectionMaker
  *   Makes all systematic variations of Missing ET
- *
- * $Revision: 683191 $
- * $Date: 2015-07-15 17:05:25 +0100 (Wed, 15 Jul 2015) $
  *
  **/
 
@@ -50,7 +46,7 @@ namespace top {
     MissingETObjectCollectionMaker& operator = (const MissingETObjectCollectionMaker& rhs) = delete;
 
     StatusCode initialize();
-    StatusCode recalculateMET(bool);
+    StatusCode recalculateMET(const bool executeNominal);
 
     // return specific Systematic
     inline virtual const std::list<CP::SystematicSet>& specifiedSystematics() const {return m_specifiedSystematics;}
@@ -63,9 +59,8 @@ namespace top {
   private:
     StatusCode recalculateEventMET(const xAOD::SystematicEvent* event,
                                    const xAOD::MissingETContainer* met_core,
-                                   const xAOD::MissingETAssociationMap* met_map,
-                                   bool forceUseLooseObjects=false,
-                                   std::string outputContainerSuffix="");
+                                   const bool forceUseLooseObjects=false,
+                                   const std::string& outputContainerSuffix="");
 
     std::shared_ptr<top::TopConfig> m_config;
 
@@ -73,7 +68,6 @@ namespace top {
     std::list<CP::SystematicSet> m_recommendedSystematics;
 
     std::string m_MET_core;
-    std::string m_MET_map;
 
     ToolHandle<IMETMaker> m_met_maker;
     ToolHandle<IMETSystematicsTool> m_met_systematics;

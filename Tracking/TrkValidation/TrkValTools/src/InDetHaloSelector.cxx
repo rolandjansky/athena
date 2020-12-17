@@ -50,25 +50,21 @@ StatusCode Trk::InDetHaloSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetHaloSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
   if (! SimTracks) return NULL;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
 
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();
   
   for( ; itCollision != SimTracks->end(); ++itCollision ) {
     const HepMC::GenEvent*    genEvent = *itCollision;
-    HepMC::GenParticle * particle = NULL;
     
-    for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-         it != genEvent->particles_end(); ++it) {
-
-      particle = *it;
+    for (auto particle: *genEvent) {
 
       // 1) require stable particle from generation or simulation
       if ((particle->status()%1000) != 1 )    continue;
@@ -76,17 +72,17 @@ Trk::InDetHaloSelector::selectGenSignal (const McEventCollection* SimTracks) con
       
       int   pdgCode         = particle->pdg_id();
       if (abs(pdgCode) > 1000000000 ) continue; // ignore nuclei from hadronic interactions
-      const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgCode));
-      ATH_MSG_DEBUG( "checking particle barcode = " <<  particle->barcode() );
+      const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
+      ATH_MSG_DEBUG( "checking particle barcode = " <<  HepMC::barcode(particle) );
       if (!pd) { // nuclei excluded, still problems with a given type?
 	ATH_MSG_INFO ("Could not get particle data for particle with pdgCode="<<pdgCode
-		      << ", status=" << particle->status() << ", barcode=" << particle->barcode());
-	ATH_MSG_INFO ("GenParticle= " << *particle);
+		      << ", status=" << particle->status() << ", barcode=" << HepMC::barcode(particle));
+	ATH_MSG_INFO ("GenParticle= " << particle);
 	continue;
       }
       float charge          = pd->charge();
       ATH_MSG_DEBUG( "particle charge = " << charge );
-      if (fabs(charge)<0.5) continue;
+      if (std::fabs(charge)<0.5) continue;
       
       genSignal->push_back(particle);
     

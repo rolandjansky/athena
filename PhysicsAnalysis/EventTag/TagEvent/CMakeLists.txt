@@ -1,29 +1,16 @@
-################################################################################
-# Package: TagEvent
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TagEvent )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/AthenaPoolUtilities )
-
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
-
 # Component(s) in the package:
 atlas_add_library( TagEvent
-                   src/*.cxx
+                   TagEvent/*.h
+                   INTERFACE
                    PUBLIC_HEADERS TagEvent
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaKernel AthenaPoolUtilities
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
+                   LINK_LIBRARIES AthenaKernel )
 
 atlas_add_dictionary( TagEventDict
                       TagEvent/TagEventDict.h
                       TagEvent/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaKernel AthenaPoolUtilities TagEvent )
-
+                      LINK_LIBRARIES TagEvent )

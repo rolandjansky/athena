@@ -63,14 +63,14 @@ StatusCode CaloTowerBuilderTool::initializeTool() {
 inline
 void
 CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
-                                const CaloCellContainer* cells,
-                                IProxyDict* sg,
+                                const ElementLink<CaloCellContainer>& cellsEL,
                                 CaloTower* tower) const
 {
   CaloTowerStore::cell_iterator firstC = tower_it.firstCell();
   CaloTowerStore::cell_iterator lastC = tower_it.lastCell();
   int ts = tower_it.size();
   double wsumE = tower->getBasicEnergy(); // this is not 0 since some towers already have cells from other calos.
+  const CaloCellContainer* cells = cellsEL.getDataPtr();
   for (; firstC != lastC; ++firstC) {
 
     unsigned int ci = firstC.hash();
@@ -82,7 +82,7 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
     // get weights
     if (cellPtr) {
       wsumE += weightC * cellPtr->e();					// Summ up weighted energies .
-      tower->addUniqueCellNoKine(cells, cndx, sg, weightC, ts); // add cells to tower.
+      tower->addUniqueCellNoKine(cellsEL, cndx, weightC, ts); // add cells to tower.
     }
     /* for debugging em+hec
        if (t==5214) std::cout<<"N14\tc:"<<ci<<"\tw:"<<weightC<<"\te:"<<cellPtr->e()<<"\teta:"<<cellPtr->eta()<<"\td:"<<cellPtr->caloDDE()<<std::endl;
@@ -97,8 +97,7 @@ CaloTowerBuilderTool::addTower (const CaloTowerStore::tower_iterator tower_it,
 inline
 void
 CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
-                                   const CaloCellContainer* cells,
-                                   IProxyDict* sg) const
+                                   const ElementLink<CaloCellContainer>& cellsEL) const
 {
   size_t sz = towers->size();
   assert(m_cellStore.size() ==  sz);
@@ -106,7 +105,7 @@ CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
 
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(t);
-    addTower (tower_it, cells, sg, aTower);
+    addTower (tower_it, cellsEL, aTower);
   }
 }
 
@@ -114,8 +113,7 @@ CaloTowerBuilderTool::iterateFull (CaloTowerContainer* towers,
 inline
 void
 CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
-                                     const CaloCellContainer* cells,
-                                     IProxyDict* sg,
+                                     const ElementLink<CaloCellContainer>& cellsEL,
                                      const CaloTowerSeg::SubSeg* subseg) const
 {
   size_t sz = towers->size();
@@ -125,7 +123,7 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
 #if 0
   for (unsigned int t = 0; t < sz; ++t, ++tower_it) {
     CaloTower* aTower = towers->getTower(tower_it.itower());
-    addTower (tower_it, cells, aTower);
+    addTower (tower_it, cellsEL, aTower);
   }
 #endif
   // This loop was originally written as above.  However, if we increment
@@ -136,7 +134,7 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
   unsigned int t = 0;
   while (true) {
     CaloTower* aTower = towers->getTower(tower_it.itower());
-    addTower (tower_it, cells, sg, aTower);
+    addTower (tower_it, cellsEL, aTower);
     ++t;
     if (t >= sz) break;
     ++tower_it;
@@ -158,13 +156,15 @@ CaloTowerBuilderTool::iterateSubSeg (CaloTowerContainer* towers,
  *        The segmentation of the tower container must match
  *        the region over which we're running the tower building.
  *
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  * @param theCell The cell container to read.  If null, we fetch from SG.
  * @param subseg If provided, run tower building only within this window.
  *               The tower container segmentation must match.
  */
 StatusCode
-CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
+CaloTowerBuilderTool::execute(const EventContext& ctx,
+                              CaloTowerContainer* theTowers,
                               const CaloCellContainer* theCells /*= 0*/,
                               const CaloTowerSeg::SubSeg* subseg /*= 0*/) const
 {
@@ -181,11 +181,11 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
     }
   }
 
-  IProxyDict* sg = SG::CurrentEventStore::store();
+  const ElementLink<CaloCellContainer> cellsEL (*theCells, 0, ctx);
   if (subseg)
-    iterateSubSeg (theTowers, theCells, sg, subseg);
+    iterateSubSeg (theTowers, cellsEL, subseg);
   else
-    iterateFull (theTowers, theCells, sg);
+    iterateFull (theTowers, cellsEL);
 
   for (unsigned int i = 0; i < m_caloIndices.size(); i++) {
     theTowers->setCalo(m_caloIndices[i]);
@@ -211,19 +211,21 @@ CaloTowerBuilderTool::execute(CaloTowerContainer* theTowers,
 
 /**
  * @brief Run tower building and add results to the tower container.
+ * @param ctx The current event context.
  * @param theContainer The tower container to fill.
  *
  * If the segmentation hasn't been set, take it from the tower container.
  * This is for use by converters.
  */
-StatusCode CaloTowerBuilderTool::execute (CaloTowerContainer* theContainer)
+StatusCode CaloTowerBuilderTool::execute (const EventContext& ctx,
+                                          CaloTowerContainer* theContainer)
 {
   if (m_cellStore.size() == 0) {
     setTowerSeg (theContainer->towerseg());
     ATH_CHECK( rebuildLookup() );
   }
 
-  return execute (theContainer, nullptr, nullptr);
+  return execute (ctx, theContainer, nullptr, nullptr);
 }
 
 

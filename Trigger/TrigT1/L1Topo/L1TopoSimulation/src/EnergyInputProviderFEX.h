@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1TopoSimulation_EnergyInputProviderFEX
@@ -8,9 +8,10 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "L1TopoSimulation/IInputTOBConverter.h"
 #include "GaudiKernel/IIncidentListener.h"
+#include "GaudiKernel/LockedHandle.h"
 #include "xAODTrigger/EnergySumRoI.h"
 
-class TH1I;
+#include "TH1.h"
 
 class ITHistSvc;
 
@@ -35,8 +36,8 @@ namespace LVL1 {
 
       StringProperty m_gFEXMETLoc;    //!<  EnergyROI SG key
 
-      TH1I * m_hPt {nullptr};
-      TH1I * m_hPhi {nullptr};
+      mutable LockedHandle<TH1> m_hPt ATLAS_THREAD_SAFE;
+      mutable LockedHandle<TH1> m_hPhi ATLAS_THREAD_SAFE;
 
    };
 }

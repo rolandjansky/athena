@@ -20,6 +20,8 @@
 
 #include <string>
 
+// uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted and the end of the event
+// thus, currently, the MuonCombinedInDetExtensionAlg cannot become an AthReentrantAlgorithm
 class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
   public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);

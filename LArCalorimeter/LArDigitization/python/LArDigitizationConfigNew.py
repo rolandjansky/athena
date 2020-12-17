@@ -227,9 +227,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
-    if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.Pileup:
-            kwargs.setdefault("PileUp", True)
+    kwargs.setdefault("PileUp", flags.Digitization.Pileup)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")

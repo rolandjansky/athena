@@ -4,8 +4,6 @@
 
 #include "RpcROD_Decoder.h"
 
-#include <algorithm> 
-
 #include <deque>
 #include <vector>
 #include <utility>
@@ -16,8 +14,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 Muon::RpcROD_Decoder::RpcROD_Decoder (const std::string& type, const std::string& name, const IInterface* parent) :
-  AthAlgTool(type,name,parent),
-  m_decodeSL(false) {
+  AthAlgTool(type,name,parent) {
     declareInterface< IRpcROD_Decoder  >( this );
     declareProperty("SpecialROBNumber",m_specialROBNumber=-1);
     declareProperty("Sector13Data",m_sector13Data=false);

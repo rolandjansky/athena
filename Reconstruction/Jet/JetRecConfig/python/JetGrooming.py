@@ -1,43 +1,45 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-########################################################################
-#                                                                      #
-# JetGrooming: A module for classes encoding definitions of objects    #
-# for configuring jet grooming                                         #
-# Author: TJ Khoo                                                      #
-#                                                                      #
-########################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+"""
+JetGrooming: A module for classes encoding definitions of objects    
+for configuring jet grooming
+Author: TJ Khoo. P-A Delsart                                         
+"""
 
 __all__ =  ["GroomingDefinition","JetTrimming","JetSoftDrop"]
 
 from AthenaCommon import Logging
-from .Utilities import make_lproperty, onlyAttributesAreProperties, clonable
+from .Utilities import make_lproperty, onlyAttributesAreProperties, clonable, ldict
 jetlog = Logging.logging.getLogger('JetGrooming')
 
 @clonable
 @onlyAttributesAreProperties
 class GroomingDefinition(object):
+    """ Base class to define grooming procedure. 
+    Concrete classes will have to define the tooltype & groomalg class members
+    and aslo a groomSpecAsStr() function.
+
+    """
+    tooltype = None
+    groomalg = None
     def __init__(self, 
                  ungroomeddef,  # Ungroomed JetDefinition
-                 #ungroomedname, # Input collection name (cannot be determined uniquely from inputdef)
-                 groomspec,     # Dict describing the grooming settings
                  modifiers=[],  # JetModifiers to run after grooming
-                 lock=False,
+                 suffix = '',   # allows to tune the full JetContainer name
+                 lock=False,    # lock the properties of this instance to avoid accidental overwrite after __init__
+                 **properties   # any other argument is expected a grooming tool property
                  ): 
 
-        #self.ungroomedname = ungroomedname
+        self._ungroomeddef = ungroomeddef.clone() # clone to avoid messing with external jetdef
 
-        # Dedicated setter/getter
-        self._ungroomeddef = ungroomeddef.clone() # to avoid messing with external jetdef
-        self._groomspec = groomspec
+        if lock: properties = ldict(properties) # ldict to freeze the properties
+        self.properties = properties
 
-        self._checkGroomSpec(groomspec)
-        self._groomspec = groomspec
-
+        self.suffix = suffix
         self._defineName()
 
-        self.modifiers = modifiers     # Tools to modify the jet
-
+        self.modifiers = modifiers 
+        
+        
         # used internally to resolve dependencies
         self._prereqDic = {}
         self._prereqOrder = [] 
@@ -65,41 +67,20 @@ class GroomingDefinition(object):
 
 
     @make_lproperty
-    def modifiers(self): pass
-        
+    def properties(self): pass
     @make_lproperty
-    def groomspec(self):
-        return self.__groomspec
-    @groomspec.lsetter
-    def groomspec(self,groomspec):
-        self._checkGroomSpec(groomspec)
-        self._groomspec = groomspec
-        self._defineName()
-
-    # To override in derived classes
+    def modifiers(self): pass
+    @make_lproperty
+    def suffix(self): pass
+    
+    # To be overriden in derived classes
     def groomSpecAsStr(self):
-        return "Groomed"
+        raise Exception("Can not use a GroomingDefinition instance : use a derived class")
 
     def fullname(self):
-        return self.ungroomeddef.prefix+self.basename+"Jets"
+        return self.ungroomeddef.prefix+self.basename+"Jets"+self.suffix
     
-    def _checkGroomSpec(self,groomspec):
-        # Check if options are supported (implemented)
-        groomalg = groomspec["groomalg"]
-        supportedGrooming = ["Trim","SoftDrop"]
-        if not groomspec["groomalg"] in supportedGrooming:
-            jetlog.error("Unsupported grooming algorithm specification \"{}\"! Allowable options:")
-            for groomalg in supportedGrooming:
-                jetlog.error(groomalg)
-            raise KeyError("Invalid grooming algorithm choice: {0}".format(groomalg))
         
-    # @property
-    # def inputdef(self):
-    #     return self.__inputdef
-    # @inputdef.setter
-    # def inputdef(self,inputdef):
-    #     self.__inputdef = inputdef
-    #     self._defineName()
 
 
     def _defineName(self):
@@ -114,76 +95,34 @@ class GroomingDefinition(object):
     __repr__ = __str__
 
 
-@clonable
-@onlyAttributesAreProperties
 class JetTrimming(GroomingDefinition):
-    def __init__(self, 
-                 ungroomeddef,  # Ungroomed JetDefinition
-                 #ungroomedname, # Input collection name (cannot be determined uniquely from inputdef)
-                 smallR,        # Subjet radius
-                 ptfrac,        # Minimum subjet pt fraction
-                 modifiers=[],  # JetModifiers to run after grooming
-                 lock=False,
-                 ): 
-
-        # Apart from groomalg and ToolType, these correspond to the
-        # grooming tool property values
-        #from JetRec.JetRecConf import JetTrimmer
-        from AthenaConfiguration.ComponentFactory import CompFactory
-        JetTrimmer = CompFactory.JetTrimmer
-        groomspec = {
-            # Type of groomer
-            "groomalg": "Trim",
-            # Configurable class
-            "ToolType": JetTrimmer,
-            # Tool properties to set
-            "RClus":    smallR,
-            "PtFrac":   ptfrac,
-            }
-
-        super(JetTrimming,self).__init__(ungroomeddef,groomspec,modifiers,lock=lock,finalinit=False)
+    groomalg = "Trim"
+    tooltype = "JetGrooming::JetTrimming"
 
     def groomSpecAsStr(self):
-        ptfrac = self.groomspec["PtFrac"]
-        ptfracstr = int(ptfrac*100) # Not usually smaller than %
-        smallR = self.groomspec["RClus"]
+        ptfrac = int( self.properties["PtFrac"] *100 ) # Not usually smaller than %
         from .JetDefinition import formatRvalue
-        smallRstr = formatRvalue(smallR*10)
+        smallR = formatRvalue(self.properties["RClus"]*10)
         
-        groomstr = "TrimmedPtFrac{}SmallR{}".format(ptfracstr,smallRstr)
+        groomstr = "TrimmedPtFrac{}SmallR{}".format(ptfrac,smallR)
         return groomstr
 
-@clonable
-@onlyAttributesAreProperties
+class JetTrimmingTrig(JetTrimming):
+    """Temporary class for trigger (to be removed when jet trigger use JetRecAlg)"""
+    tooltype = "JetTrimmer"
+    
+
 class JetSoftDrop(GroomingDefinition):
-    def __init__(self,
-                 ungroomeddef,  # Ungroomed JetDefinition
-                 #ungroomedname, # Input collection name (cannot be determined uniquely from inputdef)
-                 zcut,          # ZCut
-                 beta,          # Beta
-                 modifiers=[],  # JetModifiers to run after grooming
-                 lock=False):
-
-        # Apart from groomalg and ToolType, these correspond to the
-        # grooming tool property values
-        from AthenaConfiguration.ComponentFactory import CompFactory
-        JetSD = CompFactory.JetSoftDrop
-        groomspec = {
-            # Type of groomer
-            "groomalg": "SoftDrop",
-            # Configurable class
-            "ToolType": JetSD,
-            # Tool properties to set
-            "ZCut":   zcut,
-            "Beta":   beta,
-            }
-
-        super(JetSoftDrop,self).__init__(ungroomeddef,groomspec,modifiers, lock=lock, finalinit=False)
+    groomalg = "SoftDrop"
+    tooltype = "JetGrooming::SoftDrop"
 
     def groomSpecAsStr(self):
-        beta     = self.groomspec["Beta"]
-        betastr  = int(beta*100)
-        zcut     = self.groomspec["ZCut"]
-        zcutstr  = int(zcut*100)
-        groomstr = "SoftDropBeta{}Zcut{}".format(betastr,zcutstr)
+        beta     = int( self.properties["Beta"] *100)
+        zcut     = int( self.properties["ZCut"] *100)
+        groomstr = "SoftDropBeta{}Zcut{}".format(beta,zcut)
         return groomstr
+    
+class JetSoftDropTrig(JetSoftDrop):
+    """Temporary class for trigger (to be removed when jet trigger use JetRecAlg)"""
+    tooltype = "JetSoftDrop"
+    

@@ -66,7 +66,7 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     // Interface - Systematics to be used for physics analysis
     virtual SystematicSet recommendedSystematics() const override;
     // Interface - Use specific systematic
-    virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) override;
+    virtual StatusCode applySystematicVariation ( const SystematicSet& systConfig ) override;
     // Interface - get the expected resolution of the muon
     virtual double expectedResolution( const std::string& DetType, const xAOD::Muon& mu, const bool mc ) const override;
     // Interface - get the expected resolution of the muon
@@ -239,18 +239,19 @@ class MuonCalibrationAndSmearingTool : public virtual IMuonCalibrationAndSmearin
     double m_fixedRho;
     bool m_useFixedRho;
 
-    std::vector <TProfile2D*> *m_sagittasCB;
-    std::vector <TProfile2D*> *m_sagittasID;
-    std::vector <TProfile2D*> *m_sagittasME;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasCB;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasID;
+    std::vector < std::unique_ptr<TProfile2D> > m_sagittasME;
 
     bool m_SagittaCorrPhaseSpace;
     bool m_doSagittaCorrection;
     bool m_doSagittaMCDistortion;
     bool m_doNotUseAMGMATRIXDECOR;
-
-    TProfile2D *m_sagittaPhaseSpaceCB;
-    TProfile2D *m_sagittaPhaseSpaceID;
-    TProfile2D *m_sagittaPhaseSpaceME;
+    float m_IterWeight;
+    
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceCB;
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceID;
+    std::unique_ptr<TProfile2D> m_sagittaPhaseSpaceME;
 
     std::string m_SagittaRelease;
     std::vector <unsigned int > m_SagittaIterations;

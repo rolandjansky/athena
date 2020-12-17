@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 ################################################################################
 # Package: TriggerMenuXML
 ################################################################################
@@ -13,11 +14,6 @@
 
 # Declare the package name:
 atlas_subdir( TriggerMenuXML )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PRIVATE
-                          Trigger/TriggerCommon/TriggerJobOpts
-                          Trigger/TriggerCommon/TriggerMenu )
 
 # Function to build trigger menu:
 function( atlas_build_trigger_menu menu )

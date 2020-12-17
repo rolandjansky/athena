@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 
@@ -6,12 +6,8 @@
 
 #********************************************************************
 
-import AthenaCommon.Constants as Lvl
 from AthenaCommon import Logging
 ftaglog = Logging.logging.getLogger('SoftBtagCommon')
-
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from AthenaCommon.GlobalFlags import globalflags
 
 def applySoftBtagging(algname,sequence):
 
@@ -55,7 +51,7 @@ def applySoftBtagging(algname,sequence):
                                                   Extrapolator        = ToolSvc.AtlasExtrapolator,
                                                   IterationNumber     = 30
                                                   )
-    ToolSvc +=  InclusiveVxFitterTool;
+    ToolSvc +=  InclusiveVxFitterTool
 
     VrtSecInclusive_SoftB.VertexFitterTool=InclusiveVxFitterTool
     VrtSecInclusive_SoftB.Extrapolator = ToolSvc.AtlasExtrapolator

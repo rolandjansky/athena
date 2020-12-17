@@ -1,24 +1,22 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ReadAlignTrans - simple example of algorithm reading AlignableTransforms
 // Richard Hawkings, started 19/1/04
 
-#include <list>
+#include "ReadAlignTrans.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "Identifier/Identifier.h"
-#include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
+#include <list>
 
-#include "DetDescrCondExample/ReadAlignTrans.h"
-
-ReadAlignTrans::ReadAlignTrans(const std::string& name, 
-  ISvcLocator* pSvcLocator) :AthAlgorithm(name,pSvcLocator),
-   p_geomodelsvc(0),
-   m_sidetman()
+ReadAlignTrans::ReadAlignTrans(const std::string& name
+			       , ISvcLocator* pSvcLocator) 
+  : AthAlgorithm(name,pSvcLocator)
+  , m_sidetman()
 {}
 
 ReadAlignTrans::~ReadAlignTrans(void)
@@ -28,32 +26,10 @@ StatusCode ReadAlignTrans::initialize()
 {
   ATH_MSG_INFO("ReadAlignTrans::initialize() called");
 
-  // get ptr to GeoModelSvc to be able to register callback
-  if (StatusCode::SUCCESS!=service("GeoModelSvc",p_geomodelsvc)) {
-    ATH_MSG_ERROR("Cannot get ptr to GeoModelSvc");
-    return StatusCode::FAILURE;
-  }
-
   // get SiDetectorManagers for checking module positions
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sidetman[0],"Pixel")) {
-    ATH_MSG_ERROR("Cannot get Pixel SiDetectorManager");
-    return StatusCode::FAILURE;
-  }
-  if (StatusCode::SUCCESS!=detStore()->retrieve(m_sidetman[1],"SCT")) {
-    ATH_MSG_ERROR("Cannot get SCT SiDetectorManager");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK(detStore()->retrieve(m_sidetman[0],"Pixel"));
+  ATH_CHECK(detStore()->retrieve(m_sidetman[1],"SCT"));
 
-  // register callbacks on IGeoModelSvc::align to be called back after
-  // alignment has been recalculated
-
-  if (StatusCode::SUCCESS==detStore()->regFcn(&IGeoModelSvc::align,
-	    p_geomodelsvc,&ReadAlignTrans::testCallBack,this)) {
-    ATH_MSG_INFO("Registered callback for IGeoModelSvc");
-  } else {
-    ATH_MSG_ERROR("Register callback failed");
-    return StatusCode::FAILURE;
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -96,17 +72,6 @@ StatusCode ReadAlignTrans::execute() {
 StatusCode ReadAlignTrans::finalize() {
   ATH_MSG_INFO("In ReadAlignTrans::finalize");
   return StatusCode::SUCCESS;
-}
-
-StatusCode ReadAlignTrans::testCallBack( IOVSVC_CALLBACK_ARGS_P( /* I */ ,
-								 keys ) ) {
-  // print out the keys we were given (for info)
-  // could do nothing if key is not /Indet/Align to save time
-  std::string keylist;
-  for (std::list<std::string>::const_iterator itr=keys.begin();
-       itr!=keys.end(); ++itr) keylist+=" "+*itr;
-  ATH_MSG_INFO("ReadAlignTrans callback invoked for keys:"+keylist);
-  return readSiPositions(m_identcache,m_poscache);
 }
 
 StatusCode ReadAlignTrans::readSiPositions(std::vector<Identifier>& idvec,

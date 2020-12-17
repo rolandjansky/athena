@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArHV/LArHVManager.h"
@@ -8,7 +8,6 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/EMBPresamplerHVManager.h"
 #include "LArHV/EMECPresamplerHVManager.h"
-#include "LArHV/LArHVManager.h"
 
 LArHVManager::LArHVManager()
   : m_embHV()
@@ -20,18 +19,6 @@ LArHVManager::LArHVManager()
   , m_emecPreHV()
 {
 }
-
-void LArHVManager::reset() const
-{
-  m_embHV.reset();
-  m_emecHVInner.reset();
-  m_emecHVOuter.reset();
-  m_hecHV.reset();
-  m_fcalHV.reset();
-  m_embPreHV.reset();
-  m_emecPreHV.reset(); 
-}
-
 
 LArHVManager::~LArHVManager()
 {

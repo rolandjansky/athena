@@ -130,7 +130,7 @@ LArCosmicsMonTool::bookHistograms() {
     // Create top folder for histos
     //
     
-    MonGroup generalGroupShift( this, "/LAr/Cosmics/", run, ATTRIB_MANAGED );
+    MonGroup generalGroupShift( this, "/LAr/CosmicsOldTool/", run, ATTRIB_MANAGED );
     
     // Store cells granularity and plots boundaries for each sampling in ECAL
     float etaminECAL = -3.2 ; float etamaxECAL = 3.2;

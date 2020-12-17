@@ -10,8 +10,8 @@ from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
 def makeD3PDObject (name, prefix, object_name, getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = "LArCalibrationHitActive"
-    if label == None: label = prefix
+    if sgkey is None: sgkey = "LArCalibrationHitActive"
+    if label is None: label = prefix
 
     if prefix=="laract_" :
         sgkey = "LArCalibrationHitActive"

@@ -53,6 +53,7 @@ class RpcDataPreparator: public AthAlgTool
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     unsigned int roiWord,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
+                             TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
 			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
 
       bool isFakeRoi() { return m_isFakeRoi; }

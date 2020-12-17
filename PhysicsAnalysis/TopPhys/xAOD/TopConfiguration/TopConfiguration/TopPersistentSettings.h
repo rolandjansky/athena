@@ -33,6 +33,7 @@ namespace top {
 
     bool m_isMC;
     bool m_isAFII;
+    bool m_isDataOverlay;
     bool m_applyElectronInJetSubtraction;
     bool m_doOverlapRemovalOnLooseLeptonDef;
     bool m_doKLFitter;

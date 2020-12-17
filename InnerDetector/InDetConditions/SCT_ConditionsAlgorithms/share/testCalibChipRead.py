@@ -30,7 +30,7 @@ PrintOutCalibDataMaps                 = False # Print out the calib defect maps
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 from AthenaCommon.AppMgr import theApp
 
 ServiceMgr += AuditorSvc()
@@ -90,6 +90,9 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
+if conddb.dbdata=="COMP200":
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+    InDetGeometryFlags.useDynamicAlignFolders = False
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -379,7 +379,7 @@ inline int RawInfoSummaryForTag::getBCMHit() const {return m_BCMHit;}
 inline unsigned int RawInfoSummaryForTag::getMBTSword() const {return m_MBTSword;}
 
 
-# include "AthenaKernel/CLASS_DEF.h"
+#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( RawInfoSummaryForTag , 254867753 , 1 )
 
 

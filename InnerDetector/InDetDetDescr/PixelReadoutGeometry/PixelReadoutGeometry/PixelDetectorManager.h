@@ -16,7 +16,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "InDetIdentifier/PixelID.h"
 
@@ -52,7 +52,9 @@ namespace InDetDD {
       
       /** Constructor */
       PixelDetectorManager(StoreGateSvc* detStore);
-    
+      /** Constructor with name */
+      PixelDetectorManager(StoreGateSvc* detStore, const std::string& name);
+
       /** Destructor */
       ~PixelDetectorManager();
     
@@ -168,7 +170,8 @@ namespace InDetDD {
       const PixelID*                                                m_idHelper;
 
       // Helpful function for debugging of transforms
-      void printTransform(const Amg::Transform3D & tr) const;
+      void printTransform(MSG::Level level,
+                          const Amg::Transform3D & tr) const;
 
 
       /** This variable switches the how the local alignment corrections are applied

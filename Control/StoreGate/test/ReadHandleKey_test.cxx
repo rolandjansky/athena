@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -66,7 +66,7 @@ void test1()
   assert (k3.mode() == Gaudi::DataHandle::Reader);
   assert (owner.getProperty ("CCCKey").name() == "CCCKey");
   assert (owner.getProperty ("CCCKey").documentation() == "doc string");
-  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::VarHandleKey));
+  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::ReadHandleKey<MyObj>));
   assert (owner.getProperty ("CCCKey").toString() == "'StoreGateSvc+ccc'");
   assert (owner.getProperty ("CCCKey").ownerTypeName() == "TestOwner");
 }

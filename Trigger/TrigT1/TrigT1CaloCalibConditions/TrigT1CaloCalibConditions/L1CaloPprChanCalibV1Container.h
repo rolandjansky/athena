@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRCHANCALIBV1CONTAINER_H
@@ -34,7 +34,7 @@ public:
 
   // interface of AbstractL1CaloPersistentCondition
   using AbstractL1CaloPersistentCondition::makeTransient;
-  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>);
+  virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>&);
   virtual DataObject* makePersistent() const;
   virtual std::vector<std::string> coolInputKeys() const { return {m_coolFolderKey}; }
   virtual std::string coolOutputKey() const { return m_coolFolderKey; }

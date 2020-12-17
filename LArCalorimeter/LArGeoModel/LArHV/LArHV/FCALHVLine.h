@@ -22,17 +22,8 @@ class FCALHVLine
 
   unsigned int getLineIndex() const;
 
-  bool hvOn() const;
-  double voltage() const;
-  double current() const;
-
-  // Voltage and current at the same time:
-  void voltage_current(double& v, double& i) const;
-
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-  int hvLineNo(const LArHVIdMapping* hvIdMapping=nullptr) const;
-#else
-  int hvLineNo() const;
+  int hvLineNo(const LArHVIdMapping* hvIdMapping) const;
 #endif
 
  private: 

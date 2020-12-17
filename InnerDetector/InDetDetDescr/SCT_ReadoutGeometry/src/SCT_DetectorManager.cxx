@@ -24,31 +24,15 @@ namespace InDetDD {
 
 
   SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore )
-    : SiDetectorManager(detStore, "SCT"),
-      m_idHelper(0),
-      m_isLogical(false) // Change to true to change the definition of local module corrections
-  {
-    //  
-    // Initialized the Identifier helper.
-    //
-    StatusCode sc = detStore->retrieve(m_idHelper, "SCT_ID");  
-    if (sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve SCT id helper");
-    }
-    // Initialize the collections.
-    if (m_idHelper) {
-      m_elementCollection.resize(m_idHelper->wafer_hash_max());
-      m_alignableTransforms.resize(m_idHelper->wafer_hash_max());
-      m_moduleAlignableTransforms.resize(m_idHelper->wafer_hash_max()/2);
-    } 
-  }
+    : SCT_DetectorManager(detStore, "SCT") {}
 
-  SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore , std::string name)
+  SCT_DetectorManager::SCT_DetectorManager( StoreGateSvc* detStore,
+                                            const std::string& name )
     : SiDetectorManager(detStore,name),
       m_idHelper(0),
       m_isLogical(false) // Change to true to change the definition of local module corrections
   {
-    ATH_MSG_INFO("Using contructor with name specification, to create SCT_DetectorManager named "<<name<<endmsg);
+    ATH_MSG_VERBOSE("Creating SCT_DetectorManager named " << name);
     //  
     // Initialized the Identifier helper.
     //
@@ -337,8 +321,8 @@ namespace InDetDD {
 
     const CondAttrListCollection* atrlistcol=obj;
     if(atrlistcol==nullptr and m_detStore->retrieve(atrlistcol,key)!=StatusCode::SUCCESS) {
-      ATH_MSG_INFO("Cannot find new global align Container for key "
-                   << key << " - no new global alignment ");
+      ATH_MSG_WARNING("Cannot find new global align Container for key "
+                      << key << " - no new global alignment ");
       return false;
     }
 

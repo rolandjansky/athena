@@ -24,6 +24,8 @@ from xAODEventInfoCnv.xAODEventInfoCnvConf import xAODMaker__EventInfoCnvAlg
 alg = xAODMaker__EventInfoCnvAlg()
 topSequence += alg
 
+from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+CreateCutFlowSvc( svcName="CutFlowSvc", seq=topSequence, addMetaDataToAllOutputFiles=True )
 
 from AthenaCommon.AppMgr import theApp
 theApp.EvtMax = 200000
@@ -104,7 +106,7 @@ Stream3.CheckNumberOfWrites = False
 Others  = AthenaPoolOutputStream( "Others", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
 Others.CheckNumberOfWrites = False
 # Events that failed at least one filter
-Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Missed.root", False, noTag=False )
+Bad     = AthenaPoolOutputStream( "Bad", "AthenaPoolMultiTest_Bad.root", False, noTag=False )
 Bad.CheckNumberOfWrites = False
 
 # Configure them using filter methods and itemlist

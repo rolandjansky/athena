@@ -268,10 +268,10 @@ LArRODMonTool::bookHistograms()
     strHelper.setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
 
     // EMB A and C
-    MonGroup generalGroupBarrel( this, "/LAr/DSPMonitoring/EMB", run, ATTRIB_MANAGED );
-    MonGroup generalGroupEndcap( this, "/LAr/DSPMonitoring/Emec", run, ATTRIB_MANAGED );
-    MonGroup generalGroupHec( this, "/LAr/DSPMonitoring/Hec", run, ATTRIB_MANAGED );
-    MonGroup generalGroupFcal( this, "/LAr/DSPMonitoring/Fcal", run, ATTRIB_MANAGED );
+    MonGroup generalGroupBarrel( this, "/LAr/DSPMonitoringOldTool/EMB", run, ATTRIB_MANAGED );
+    MonGroup generalGroupEndcap( this, "/LAr/DSPMonitoringOldTool/Emec", run, ATTRIB_MANAGED );
+    MonGroup generalGroupHec( this, "/LAr/DSPMonitoringOldTool/Hec", run, ATTRIB_MANAGED );
+    MonGroup generalGroupFcal( this, "/LAr/DSPMonitoringOldTool/Fcal", run, ATTRIB_MANAGED );
 
     m_histos[EMBA].m_partName="EMBA";
     m_histos[EMBA].m_monGroup=&generalGroupBarrel;
@@ -399,7 +399,7 @@ LArRODMonTool::bookHistograms()
     }//end loop over partitions
 
     // Summary histogram
-    MonGroup generalGroup( this, "/LAr/DSPMonitoring/Summary", run, ATTRIB_MANAGED );   
+    MonGroup generalGroup( this, "/LAr/DSPMonitoringOldTool/Summary", run, ATTRIB_MANAGED );   
     
     hName = "Summary_E";
     hTitle = "Summary of errors on Energy per partition and per gain";
@@ -473,7 +473,7 @@ LArRODMonTool::bookHistograms()
     m_hQ_all->GetXaxis()->SetTitle("Q_{offline} - Q_{online} / #sqrt{Q_{offline}}");
     CHECK(generalGroup.regHist(m_hQ_all));
 
-    MonGroup debugGroup( this, "/LAr/DSPMonitoring/DQMD", run, ATTRIB_MANAGED ); // "shift" SHOULD BE CHANGED do "debug" ?
+    MonGroup debugGroup( this, "/LAr/DSPMonitoringOldTool/DQMD", run, ATTRIB_MANAGED ); // "shift" SHOULD BE CHANGED do "debug" ?
 
     for (unsigned p=0;p<N_PARTITIONS;++p) {
       HistGroup& hg=m_histos[p];
@@ -503,7 +503,7 @@ LArRODMonTool::bookHistograms()
     CHECK(debugGroup.regHist(m_hE_ranges_all));
 
 
-    MonGroup infosGroup( this, "/LAr/DSPMonitoring/Infos", run, ATTRIB_MANAGED );
+    MonGroup infosGroup( this, "/LAr/DSPMonitoringOldTool/Infos", run, ATTRIB_MANAGED );
     
     hName = "EErrorsPerLB";
     std::string cut = "#delta ADC>"+std::to_string(m_adc_th)+" and |t_{offline}| < "+std::to_string(int(m_peakTime_cut))+"ns";

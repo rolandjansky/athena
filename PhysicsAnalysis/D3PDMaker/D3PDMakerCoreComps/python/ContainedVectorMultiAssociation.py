@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ContainedVectorMultiAssociation.py 526858 2012-11-20 18:13:46Z ssnyder $
 #
 # @file D3PDMakerCoreComps/python/ContainedVectorMultiAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -34,7 +33,7 @@ represented as vectors.
 
     Extra arguments are passed to the association tool.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = assoctool.__name__
 
     def maker (name, prefix, object_name, **kw2):

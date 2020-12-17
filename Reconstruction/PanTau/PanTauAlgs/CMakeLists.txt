@@ -1,6 +1,4 @@
-################################################################################
-# Package: PanTauAlgs
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PanTauAlgs )
@@ -10,7 +8,7 @@ if( NOT XAOD_ANALYSIS )
   find_package( CLHEP )
 endif()
 find_package( Eigen )
-find_package( ROOT COMPONENTS MathMore Matrix Core Tree Hist RIO pthread Minuit Minuit2 Physics HistPainter Rint )
+find_package( ROOT COMPONENTS MathMore Matrix Core Tree Hist RIO pthread Rint )
 
 atlas_add_root_dictionary( PanTauAlgs PanTauAlgsCintDict
   ROOT_HEADERS
@@ -44,8 +42,8 @@ if( NOT XAOD_STANDALONE )
     Root/*.cxx
     src/components/*.cxx ${PanTauAlgsCintDict}
     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps NavFourMom xAODPFlow xAODTau xAODParticleEvent GaudiKernel CaloEvent AthenaKernel StoreGateLib SGtests GeoPrimitives FourMom FourMomUtils xAODTracking Particle eflowEvent MVAUtils tauEvent tauRecToolsLib PathResolver VxVertex TrkVertexFitterInterfaces )
+    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps xAODPFlow xAODTau xAODParticleEvent GaudiKernel AthenaKernel StoreGateLib FourMom xAODTracking Particle eflowEvent MVAUtils tauRecToolsLib PathResolver )
 endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

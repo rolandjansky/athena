@@ -402,7 +402,7 @@ std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::
       std::vector< float > sdoDepEnergy;
       for( auto deposit : pos->second.getdeposits() ){
         if(deposit.first){
-          sdoDepBC.push_back( deposit.first->barcode());
+          sdoDepBC.push_back( HepMC::barcode(deposit.first));
         } else {
           sdoDepBC.push_back( -1 );   
         }
@@ -1024,16 +1024,16 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
     positions_indexY[hitNumber] = truthIndexY - cellIdWeightedPosition.etaIndex();
 
     HepGeom::Point3D<double> diffPositions = (siHit.localEndPosition() - siHit.localStartPosition());
-    double bowphi = atan2( diffPositions.y(), diffPositions.x() );
+    double bowphi = std::atan2( diffPositions.y(), diffPositions.x() );
    
 
     //Truth Track incident angle theta
-    theta[hitNumber] = atan2(diffPositions.z() ,diffPositions.x());
+    theta[hitNumber] = std::atan2(diffPositions.z() ,diffPositions.x());
     //Truth track incident angle phi -- correct for lorentz angle
     float tanlorentz = m_lorentzAngleTool->getTanLorentzAngle(de->identifyHash());
   
     int readoutside = design->readoutSide();
-    phi[hitNumber] = atan(tan(bowphi)-readoutside*tanlorentz);
+    phi[hitNumber] = std::atan(std::tan(bowphi)-readoutside*tanlorentz);
     
     if (siHit.particleLink().isValid()){
       barcode[hitNumber] = siHit.particleLink().barcode(); 

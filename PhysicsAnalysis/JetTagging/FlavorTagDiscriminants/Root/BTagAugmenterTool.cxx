@@ -27,4 +27,9 @@ namespace FlavorTagDiscriminants {
     m_aug->augment(jet);
   }
 
+  std::set<std::string> BTagAugmenterTool::getDecoratorKeys() const {
+    const auto keys{m_aug->getDecoratorKeys()};
+    return std::set<std::string>(keys.begin(), keys.end());
+  }
+
 }

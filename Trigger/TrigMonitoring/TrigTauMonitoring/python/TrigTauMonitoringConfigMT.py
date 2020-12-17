@@ -88,6 +88,14 @@ class TrigTauMonAlgBuilder:
       def isL1Item(self):
         return True if self.chain().startswith('L1') else False
 
+      def L1seed(self):
+        l1seed = ''
+        splits = self.chain().split("_")
+        for split in splits:
+            if split.startswith('L1TAU'):
+                l1seed = split
+        return l1seed
+
       def isRNN(self):
         return True if "RNN" in self.chain() else False
 
@@ -136,6 +144,13 @@ class TrigTauMonAlgBuilder:
     
     # This will be removed for future.
     monitoring_tau = [
+    'HLT_tau25_idperf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_perf_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_medium1_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_verylooseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_looseRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_mediumRNN_tracktwoMVABDT_L1TAU12IM',
+    'HLT_tau25_tightRNN_tracktwoMVABDT_L1TAU12IM',
     'HLT_tau25_mediumRNN_tracktwoMVA_L1TAU12IM',
     'HLT_tau80_medium1_tracktwo_L1TAU60',
     'HLT_tau0_perf_ptonly_L1TAU100',
@@ -147,6 +162,9 @@ class TrigTauMonAlgBuilder:
     'HLT_tau160_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau160_medium1_tracktwo_L1TAU100',
     'HLT_tau160_medium1_tracktwoEF_L1TAU100',
+    'HLT_tau160_perf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_idperf_tracktwoMVABDT_L1TAU100',
+    'HLT_tau160_mediumRNN_tracktwoMVABDT_L1TAU100',
     'HLT_tau200_medium1_tracktwoEF_L1TAU100',
     'HLT_tau200_mediumRNN_tracktwoMVA_L1TAU100',
     'HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40',
@@ -181,8 +199,12 @@ class TrigTauMonAlgBuilder:
 
     self.__logger.info( "Booking all histograms for alg: %s", monAlg.name )
 
+    l1seeds = []
+
     for trigger in triggers:
       info = self.getTrigInfo(trigger)
+  
+      l1seeds.append(info.L1seed())
 
       if info.isRNN() is True:
         self.bookRNNInputVars( monAlg, trigger,nProng='1P', online=True )
@@ -193,13 +215,78 @@ class TrigTauMonAlgBuilder:
         self.bookRNNTrack( monAlg, trigger, online=False )
         self.bookRNNCluster( monAlg, trigger, online=True )
         self.bookRNNCluster( monAlg, trigger, online=False )
+        self.bookbasicVars( monAlg, trigger, online=True )
+        self.bookbasicVars( monAlg, trigger, online=False )
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='1P')
+        self.bookHLTEffHistograms( monAlg, trigger,nProng='MP')
+      else:
+        self.bookBDTOut( monAlg, trigger, nProng='1P')
+        self.bookBDTOut( monAlg, trigger, nProng='MP')
+        self.bookBDTNoCorr( monAlg, trigger, nProng='1P')
+        self.bookBDTNoCorr( monAlg, trigger, nProng='MP')
+
+    #remove duplicated from L1 seed list
+    l1seeds = list(dict.fromkeys(l1seeds))
+    for l1seed in l1seeds:
+        if not l1seed : 
+            continue
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
+        self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
+   
+
+  #
+  # Booking HLT efficiencies
+  #
+
+  def bookHLTEffHistograms( self, monAlg, trigger, nProng ):
+
+    monGroupName = trigger+'_HLT_Efficiency_'+nProng
+    monGroupPath = 'HLT_Efficiency/'+trigger+'/HLT_Efficiency_'+ nProng
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName, 
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_HLTpass,'+monGroupName+'_'+xvariable+';EffHLT_'+xvariable+'_wrt_Offline',
+                                title='HLT Efficiency ' +trigger+' '+nProng+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
+    defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2) 
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
+  #
+  # Booking L1 efficiencies
+  #
+ 
+  def bookL1EffHistograms( self, monAlg, L1seed, nProng ):
+
+    monGroupName = L1seed+'_L1_Efficiency_'+nProng
+    monGroupPath = 'L1_Efficiency/'+L1seed+'/L1_Efficiency_'+ nProng
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    def defineEachStepHistograms(xvariable, xlabel, xbins, xmin, xmax):
+
+       monGroup.defineHistogram(monGroupName+'_L1pass,'+monGroupName+'_'+xvariable+';EffL1_'+xvariable+'_wrt_Offline',
+                                title='L1 Efficiency ' +L1seed+' '+nProng+';'+xlabel+';Efficiency',
+                                type='TEfficiency',xbins=xbins,xmin=xmin,xmax=xmax)
+
+    defineEachStepHistograms('tauPt', 'p_{T} [GeV]', 60, 0.0, 300.)
+    defineEachStepHistograms('tauEta','#eta', 13, -2.6, 2.6)
+    defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2)
+    defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
+
   #
   # Book RNN Variables
   #
   def bookRNNInputVars( self, monAlg, trigger,nProng, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputScalar_'+nProng
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputScalar_'+nProng
+    monGroupPath = 'RNN/InputScalar_'+nProng+'/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName, 
                               self.basePath+'/'+monGroupPath )
@@ -213,12 +300,13 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+'); ptRatioEflowApprox; Events',xbins=50,xmin=0.0,xmax=2.0)
     monGroup.defineHistogram('mEflowApprox', title='mEflowApprox log ('+nProng+'); mEflowApprox_log; Events',xbins=50,xmin=0.,xmax=5.)
     monGroup.defineHistogram('ptDetectorAxis', title='ptDetectorAxis log ('+nProng+'); ptDetectorAxis_log; Events',xbins=50,xmin=0.,xmax=5.)
-    if nProng=='MP':  monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+    if nProng=='MP':  
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
 
   def bookRNNTrack( self, monAlg, trigger, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputTrack'
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputTrack'
+    monGroupPath = 'RNN/InputTrack/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
@@ -229,14 +317,14 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('track_dPhi',title='track_dPhi;track_dPhi;Events',xbins=100,xmin=-0.5,xmax=0.5)
     monGroup.defineHistogram('track_d0_abs_log',title='track_d0_abs_log;track_d0_abs_log;Events',xbins=50,xmin=-7,xmax=2)
     monGroup.defineHistogram('track_z0sinThetaTJVA_abs_log',title='track_z0sinThetaTJVA_abs_log;track_z0sinThetaTJVA_abs_log;Events',xbins=50,xmin=-10,xmax=4)
-    monGroup.defineHistogram('track_nIBLHitsAndExp',title='track_nIBLHitsAndExp; track_nIBLHitsAndExp;Events',xbins=3,xmin=0,xmax=3)
+    monGroup.defineHistogram('track_nIBLHitsAndExp',title='track_nIBLHitsAndExp; track_nIBLHitsAndExp;Events',xbins=3,xmin=0,xmax=3)
     monGroup.defineHistogram('track_nPixelHitsPlusDeadSensors',title='track_nPixelHitsPlusDeadSensors;track_nPixelHitsPlusDeadSensors;Events',xbins=11,xmin=0,xmax=11)
     monGroup.defineHistogram('track_nSCTHitsPlusDeadSensors',title='track_nSCTHitsPlusDeadSensors;track_nSCTHitsPlusDeadSensors;Events',xbins=20,xmin=0,xmax=20)
-
+        
   def bookRNNCluster( self, monAlg, trigger, online ):
 
     monGroupName = trigger+'_RNN_'+('HLT' if online else 'Offline')+'_InputCluster'
-    monGroupPath = trigger+'/RNN/'+('HLT' if online else 'Offline')+'/InputCluster'
+    monGroupPath = 'RNN/InputCluster/'+trigger+('/HLT' if online else '/Offline')
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
@@ -248,4 +336,70 @@ class TrigTauMonAlgBuilder:
     monGroup.defineHistogram('cluster_SECOND_R_log10',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_SECOND_LAMBDA_log10',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
     monGroup.defineHistogram('cluster_CENTER_LAMBDA_log10',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+    
+  def bookbasicVars( self, monAlg, trigger, online ):
+  
+    monGroupName = trigger+('HLT' if online else 'Offline')+'_basicVars'
+    monGroupPath = 'basicVars/'+trigger+('/HLT' if online else '/Offline')
 
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+    
+    monGroup.defineHistogram('hEFEt', title='EF Et;E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=250)
+    monGroup.defineHistogram('hEFEta', title='EF TrigCaloCluster Eta; #eta ; Nevents',xbins=26,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('hEFPhi', title='EF TrigCaloCluster Phi; #phi ; Nevents',xbins=16,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('hEFnTrack', title='EF number of tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
+
+    monGroup.defineHistogram('hEFEta;hEFPhi', type='TH2F', title='EF TrigCaloCluster Eta vs Phi; #eta ; #phi',
+                               path=monGroupPath,
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=16,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('hEFEt;hEFPhi', type='TH2F', title='Et from tau Jet vs #phi; #phi^{EF}; Raw E_{T} [GeV]',
+                               path=monGroupPath,
+                               xbins=16,xmin=-3.2,xmax=3.2,ybins=50,ymin=0,ymax=100)
+   
+    monGroup.defineHistogram('hEFEta;hEFEt', type='TH2F', title='Et from tau Jet vs #eta; #eta^{EF}; Raw E_{T}[GeV]',
+                               path=monGroupPath,
+                               xbins=26,xmin=-2.6,xmax=2.6,ybins=50,ymin=0,ymax=100)
+   
+    monGroup.defineHistogram('hEFEtRaw', title='EF Et Raw;Uncalibrated E_{T}[GeV];Nevents',xbins=50,xmin=0,xmax=100)
+    monGroup.defineHistogram('hEFnWideTrack', title='EF number of wide tracks;number of tracks;Nevents',xbins=10,xmin=0,xmax=10)
+
+  #                                                                                                                                                                                                                                   
+  # Book BDT Variables                                                                                                                                                                                                                
+  #                                                  
+  def bookBDTOut( self, monAlg, trigger, nProng):
+
+    monGroupName = trigger+'_BDT_HLT_Out_'+nProng
+    monGroupPath = 'BDT/Out_'+nProng+'/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    print('MonGroup name is python: ', monGroupName)
+
+    monGroup.defineHistogram('BDTJetScore', title='BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
+    monGroup.defineHistogram('BDTJetScoreSigTrans', title='Flattened BDT Score ('+nProng+') ; HLT BDT Score; Candidates',xbins=50,xmin=0,xmax=1)
+
+
+  def bookBDTNoCorr( self, monAlg, trigger, nProng ):
+
+    monGroupName = trigger+'_BDT_HLT_NoCorr_'+nProng
+    monGroupPath = 'BDT/NoCorr_'+nProng+'/'+trigger
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('CentFrac', title='Centrality Fraction ('+nProng+') non-corrected; centFrac; Candidates',xbins=50,xmin=-0.05,xmax=1.2)
+    monGroup.defineHistogram('ChPiEMEOverCaloEME', title='ChPiEMEOverCaloEME ('+nProng+') non-corrected; ChPiEMEOverCaloEME; Candidates',xbins=51,xmin=-20,xmax=20)
+    monGroup.defineHistogram('EMPOverTrkSys', title='EMPOverTrkSys ('+nProng+') non-corrected; EMPOverTrkSys; Candidates',xbins=41,xmin=0,xmax=40)
+    monGroup.defineHistogram('etOverPtLeadTrk', title='etOverPtLeadTrk ('+nProng+') non-corrected; etOverPtLeadTrk; Candidates',xbins=51,xmin=-0.1,xmax=25)
+    monGroup.defineHistogram('innerTrkAvgDist', title='innerTrkAvgDist ('+nProng+') non-corrected; innerTrkAvgDist; Candidates',xbins=50,xmin=-0.05,xmax=0.5)
+    monGroup.defineHistogram('ptRatioEflowApprox', title='ptRatioEflowApprox ('+nProng+') non-corrected; ptRatioEflowApprox; Candidates',xbins=50,xmin=0,xmax=2)
+    monGroup.defineHistogram('massTrkSys', title='massTrkSys log ('+nProng+'); massTrkSys_log; Events',xbins=50,xmin=0.,xmax=3.)
+
+    if nProng=='1P':
+      monGroup.defineHistogram('SumPtTrkFrac', title='SumPtTrkFrac ('+nProng+') non-corrected; SumPtTrkFrac; Candidates',xbins=50,xmin=-0.5,xmax=1.1)
+
+    if nProng=='MP':
+      monGroup.defineHistogram('dRmax', title='dRmax ('+nProng+') non-corrected; dRmax; Candidates',xbins=50,xmin=-0.1,xmax=0.3)
+      monGroup.defineHistogram('massTrkSys', title='massTrkSys ('+nProng+') non-corrected; massTrkSys; Candidates',xbins=50,xmin=-0.1,xmax=15)
+      monGroup.defineHistogram('mEflowApprox', title='mEflowApprox ('+nProng+') non-corrected; mEflowApprox; Candidates',xbins=61,xmin=-0.2,xmax=60.2)
+      monGroup.defineHistogram('trFlightPathSig', title='trFlightPathSig ('+nProng+') non-corrected; trFlightPathSig; Candidates',xbins=50,xmin=-20,xmax=20)

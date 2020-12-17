@@ -79,7 +79,6 @@
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 #include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "MuonReadoutGeometry/MuonClusterReadoutElement.h"
-#include "MuonReadoutGeometry/MdtReadoutElement.h"
 #include "StoreGate/StoreGateSvc.h"
 
 ////////////////////////////////////////////////////////
@@ -672,7 +671,7 @@ unsigned VP1TrackSystem::Imp::calcTotalMomentumOfSelectedHandles(Amg::Vector3D& 
     if (mom.mag2()==0.0)
       continue;
     //Fixme: Get actual position of perigee!!
-    const Amg::Vector3D * pos = handle->startPoint();
+    std::optional<Amg::Vector3D> pos = handle->startPoint();
     if (!pos)
       continue;
     ++nused;

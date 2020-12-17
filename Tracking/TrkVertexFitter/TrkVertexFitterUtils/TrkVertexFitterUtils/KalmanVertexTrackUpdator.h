@@ -41,9 +41,8 @@ namespace Trk
  {
   public: 
   
-   StatusCode initialize();
-   StatusCode finalize();
- 
+   virtual StatusCode initialize() override;
+
 /**
  * Constructor
  */
@@ -57,7 +56,7 @@ namespace Trk
 /**
  * Update method  
  */ 
-   void  update(VxTrackAtVertex& trk, const xAOD::Vertex& vtx) const;
+   virtual void  update(VxTrackAtVertex& trk, const xAOD::Vertex& vtx) const override;
     
   private:
   

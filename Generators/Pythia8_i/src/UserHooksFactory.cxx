@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 namespace Pythia8_UserHooks{
  
@@ -32,6 +32,13 @@ namespace Pythia8_UserHooks{
     static std::map<std::string, int> settings;
     return settings;
   }
+
+  template<>
+  std::map<std::string, bool> &UserHooksFactory::userSettings(){
+    static std::map<std::string, bool> settings;
+    return settings;
+  }
+
   
   template<>
   std::map<std::string, std::string> &UserHooksFactory::userSettings(){
@@ -44,6 +51,12 @@ namespace Pythia8_UserHooks{
     static std::map<std::string, double> params;
     return params;
   }
+
+  std::map<std::string, bool> &userFlags(){
+    static std::map<std::string, bool> flags;
+    return flags;
+  }
+
 
   std::map<std::string, int> &userModes(){
     static std::map<std::string, int> modes;

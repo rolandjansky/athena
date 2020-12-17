@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ActsGeometry/ActsTrackingGeometrySvc.h"
@@ -49,6 +49,12 @@ StatusCode
 ActsTrackingGeometrySvc::initialize()
 {
   ATH_MSG_INFO(name() << " is initializing");
+
+  // FIXME: ActsCaloTrackingVolumeBuilder holds ReadHandle to CaloDetDescrManager.
+  // Hopefully this service is never called before that object is available.
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+
   ATH_MSG_INFO("Acts version is: v" << Acts::VersionMajor << "."
                                     << Acts::VersionMinor << "."
                                     << Acts::VersionPatch

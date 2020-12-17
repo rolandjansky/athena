@@ -3,14 +3,6 @@
 # Declare the package name:
 atlas_subdir( TriggerMenuMT )
 
-# External dependencies:
-find_package( six )
-
-atlas_add_test( flake8
-   SCRIPT flake8 --select=ATL,F,E7,E9,W6,E101 --enable-extension=ATL900,ATL901,ATL902
-   ${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/scripts
-   POST_EXEC_SCRIPT nopost.sh )
-
 #----------------------------------
 # Function to build trigger menu:
 function( atlas_build_lvl1_trigger_menu menu )
@@ -102,21 +94,25 @@ atlas_install_python_modules( python/*.py
                               python/LVL1MenuConfig
                               python/L1
                               python/HLTMenuConfig
-			                  POST_BUILD_CMD ${ATLAS_FLAKE8})
+                              POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-extensions=ATL900,ATL901 )
 
-atlas_install_scripts( scripts/generateMenuMT.py
-                       scripts/generateL1MenuMT.sh
-                       scripts/generateLVL1MenuMT.py
+atlas_install_scripts( scripts/generateLVL1MenuMT.py
                        scripts/generateL1TopoMenuMT.py
-                       scripts/test_HLTmenu.sh
                        scripts/generateL1MenuRun3.py
                        scripts/trigCompareOldandNewL1Menus.py
-                       scripts/trigL1MenuMigrationCheck.sh
                        scripts/verify_menu_config.py
                        scripts/test_full_menu_cf.py
-                       scripts/generateBunchGroupSetFromOldKey.py )
+                       scripts/generateBunchGroupSetFromOldKey.py
+                       POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
-atlas_install_joboptions( share/*.py )
+# Shell scripts without flake8 checking:
+atlas_install_scripts( scripts/generateL1MenuMT.sh
+                       scripts/trigL1MenuMigrationCheck.sh
+                       scripts/test_HLTmenu.sh )
+
+atlas_install_joboptions( share/*.py
+                          POST_BUILD_CMD ${ATLAS_FLAKE8} --extend-ignore=F821 )
+
 atlas_install_xmls( data/*.dtd data/*.xml )
 
 #----------------------------------
@@ -125,31 +121,41 @@ file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJ
 atlas_add_test( generateMenuMT_newJO
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO
-                PROPERTIES TIMEOUT 500 )
+                PROPERTIES TIMEOUT 500
+                POST_EXEC_SCRIPT nopost.sh )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
 atlas_add_test( ViewCFTest
-		        SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
+                SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest
-		        POST_EXEC_SCRIPT nopost.sh )
+                POST_EXEC_SCRIPT nopost.sh )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
 atlas_add_test( generateMenuMT
-		        SCRIPT bash test_HLTmenu.sh
+                SCRIPT test_HLTmenu.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT
-                PROPERTIES TIMEOUT 4000 )
+                PROPERTIES TIMEOUT 4000
+                POST_EXEC_SCRIPT nopost.sh )
 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
 atlas_add_test( full_menu_cf
-		        SCRIPT scripts/test_full_menu_cf.sh
+                SCRIPT scripts/test_full_menu_cf.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf 
-                PROPERTIES TIMEOUT 500)
+                PROPERTIES TIMEOUT 500
+                POST_EXEC_SCRIPT nopost.sh )
                 
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
 atlas_add_test( LS2_emu_menu_DH
-		        SCRIPT test_emu_step_menu_processing.sh
+                SCRIPT test_emu_step_menu_processing.sh
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH
-                PROPERTIES TIMEOUT 500)
+                PROPERTIES TIMEOUT 500
+                POST_EXEC_SCRIPT nopost.sh )
+
+file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
+atlas_add_test( EventBuildingSequenceSetup
+                SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
+                PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup
+                POST_EXEC_SCRIPT nopost.sh )
 
 #----------------------------------
 # List of menus to be created:
@@ -160,6 +166,6 @@ atlas_build_lvl1_trigger_menu( MC_pp_run3_v1 )
 atlas_build_lvl1_trigger_menu( Cosmic_run3_v1 )
 atlas_build_lvl1_trigger_menu( PhysicsP1_HI_run3_v1 )
 atlas_build_lvl1_trigger_menu( Dev_HI_run3_v1 )
-atlas_build_lvl1_trigger_menu( LS2_v1_TriggerValidation_mc_prescale )
-
-
+atlas_build_lvl1_trigger_menu( LS2_v1_TriggerValidation_prescale )
+atlas_build_lvl1_trigger_menu( LS2_v1_BulkMCProd_prescale )
+atlas_build_lvl1_trigger_menu( LS2_v1_CPSampleProd_prescale )

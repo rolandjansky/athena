@@ -7,9 +7,8 @@
 
 #include <string>
 
+#include "AthenaBaseComps/AthConstConverter.h"
 #include "GaudiKernel/ClassID.h"
-#include "GaudiKernel/Converter.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
@@ -30,27 +29,23 @@ class RodHeaderByteStreamTool;
  *  @author Peter Faulkner
  */
 
-class RodHeaderByteStreamCnv: public Converter {
+class RodHeaderByteStreamCnv: public AthConstConverter {
 
 public:
   RodHeaderByteStreamCnv(ISvcLocator* svcloc);
 
-  ~RodHeaderByteStreamCnv();
+  virtual ~RodHeaderByteStreamCnv();
 
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
   /// Create RodHeaders from ByteStream
-  virtual StatusCode createObj(IOpaqueAddress* pAddr, DataObject*& pObj);
+  virtual StatusCode createObjConst (IOpaqueAddress* pAddr, DataObject*& pObj) const override;
 
   //  Storage type and class ID
-  virtual long repSvcType() const { return i_repSvcType(); }
+  virtual long repSvcType() const override { return i_repSvcType(); }
   static  long storageType();
   static const CLID& classID();
 
 private:
-
-  /// Converter name
-  std::string m_name;
-
   /// Tool that does the actual work
   ToolHandle<LVL1BS::RodHeaderByteStreamTool> m_tool;
 };

@@ -8,12 +8,12 @@ import zlib,StringIO
 import sys
 import re
 from MuonCalibDbOperations.MuonCalibResolveTag import ResolveTag
-from MuonCalibDbOperations.MuonCalibConvertTimeSlewing import *	
+from MuonCalibDbOperations.MuonCalibConvertTimeSlewing import TimeSlewingApplied, NoTs2Ts, GasmonDriftTimeOffsetT0
 	
 sys.argv=[sys.argv[0], '-b']
 
-from ROOT import *
-from MuonCalibIdentifier.MuonFixedIdUnpack import *
+from ROOT import TGraphErrors, TSpline3, gDirectory
+from MuonCalibIdentifier.MuonFixedIdUnpack import MuonFixedIdUnpack
 
 def UnpackData(data):
 	if type(data)==str:
@@ -60,7 +60,7 @@ def DumpFolderSummary(db_string, folder, tag, run=None):
 		if TimeSlewingApplied(obj):
 			ts="TS"		
 		ident=(obj.since()>>32, obj.until()>>32, site, head_id, ts)
-		if not ident in counters:
+		if ident not in counters:
 			counters[ident] = 0
 		counters[ident] +=1
 	for ident in sorted(counters.keys(), key=iov_keygen):

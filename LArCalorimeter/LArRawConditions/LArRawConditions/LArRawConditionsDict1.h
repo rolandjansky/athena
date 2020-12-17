@@ -13,7 +13,6 @@
 //=== LArAutoCorrP
 #include "LArRawConditions/LArAutoCorrMC.h"
 #include "LArRawConditions/LArAutoCorrP.h"
-#include "LArRawConditions/LArAutoCorrP.h"
 #include "LArRawConditions/LArAutoCorrP1.h"
 INSTAN_CC(LArAutoCorrP1);
 INSTAN_CS(LArAutoCorrP);

@@ -119,6 +119,7 @@ namespace Trig {
        * @brief returns typed features related to given chain group of HLT chains or L1 items
        * Note: This is a RUN 3 (and on) function.
        * @param[in] eventStore Event store pointer. To migrate to readHandles with the rest of the TDT soon
+       * @param[in] HLTSummaryKeyIn SG Key to the navigation summary container
        * @param[in] condition Condition requirement. Only TrigDefs::Physics and TrigDefs::includeFailedDecisions are supported.
        * @param[in] containerSGKey Optional requirement to return only features within the specified container name. Not checked if not specified. 
        * @param[in] featureCollectionMode For lastFeatureOfType, stop exploring each route through the navigation once one matching feature has been found.
@@ -127,6 +128,7 @@ namespace Trig {
        **/  
       template<class CONTAINER>
       std::vector< TrigCompositeUtils::LinkInfo<CONTAINER> > features(EventPtr_t eventStore,
+                SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& HLTSummaryKeyIn,
                 unsigned int condition = TrigDefs::Physics,
                 const std::string& containerSGKey = "",
                 const unsigned int featureCollectionMode = TrigDefs::lastFeatureOfType,

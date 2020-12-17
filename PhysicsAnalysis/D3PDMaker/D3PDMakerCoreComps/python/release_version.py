@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: release_version.py 485961 2012-03-01 14:29:38Z krasznaa $
 #
 # @file D3PDMakerCoreComps/python/release_version.py
 # @author scott snyder <snyder@bnl.gov>
@@ -61,7 +60,7 @@ False
 """
     slist = [int(x) for x in s.split ('.')]
 
-    if rlist == None:
+    if rlist is None:
         return False
     if rlist == []:
         return True

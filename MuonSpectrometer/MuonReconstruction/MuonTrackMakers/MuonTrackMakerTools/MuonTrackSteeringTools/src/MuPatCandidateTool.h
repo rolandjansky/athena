@@ -8,7 +8,6 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 
 #include "AthenaKernel/SlotSpecificObj.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonTrackMakerUtils/MuonTrackMakerStlTools.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -181,11 +180,14 @@ namespace Muon {
     Gaudi::Property<bool>  m_doCscRecreation {this,"DoCscRecreation" , true };
 
     // Mutex to protect the contents.
-    mutable std::mutex m_mutex{};
     struct CacheEntry {
       EventContext::ContextEvt_t m_evt{EventContext::INVALID_CONTEXT_EVT};
       MeasVec m_measurementsToBeDeleted{}; //<! vector to store measurements owned by the track maker
+      MuPatHitTool::HitGarbage m_hitsToBeDeleted;
+      MuPatHitTool::ParGarbage m_parsToBeDeleted;
       void cleanUp() { // Delete measurements to be deleted now
+        m_hitsToBeDeleted.clear();
+        m_parsToBeDeleted.clear();
         std::for_each( m_measurementsToBeDeleted.begin(), m_measurementsToBeDeleted.end(), MuonDeleteObject<const Trk::MeasurementBase>() );
         m_measurementsToBeDeleted.clear();
       };      
@@ -194,7 +196,7 @@ namespace Muon {
       }
     };
     mutable SG::SlotSpecificObj<CacheEntry> m_cache ATLAS_THREAD_SAFE; // Guarded by m_mutex
-
+    CacheEntry& getCache() const;
   };
 
 }

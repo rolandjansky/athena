@@ -1,26 +1,19 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MissingETGoodness_JetGoodiesFiller_H
 #define MissingETGoodness_JetGoodiesFiller_H
 #include "GaudiKernel/ToolHandle.h"
-// #include "GaudiKernel/Algorithm.h"
 #include "GaudiKernel/ObjectVector.h"
-//#include "CLHEP/Units/SystemOfUnits.h"
-// #include "GaudiKernel/AlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-// #include "GaudiKernel/ITHistSvc.h"
 
 #include "MissingETGoodness/JetVarTool.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "MissingETGoodness/Goodies.h"
 
-// #include "TH1.h"
-// #include "TH2.h"
 #include "TString.h"
 
 /////////////////////////////////////////////////////////////////////////////

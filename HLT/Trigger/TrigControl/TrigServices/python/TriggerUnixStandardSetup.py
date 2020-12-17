@@ -23,9 +23,6 @@ def setupCommonServices():
     # Create our own logger
     log = logging.getLogger( 'TriggerUnixStandardSetup::setupCommonServices:' )
 
-    from TrigServices.TrigServicesConfig import setupMessageSvc
-    setupMessageSvc()
-     
     # Do the default Atlas job configuration first
     import AthenaCommon.AtlasUnixStandardJob   # noqa: F401
 
@@ -178,6 +175,9 @@ def setupCommonServicesEnd():
 
     # Set default properties for some important services after all user job options
     log.info('Configure core services for online running')
+
+    from TrigServices.TrigServicesConfig import setupMessageSvc
+    setupMessageSvc()
 
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = False

@@ -6,7 +6,7 @@ atlas_subdir( JetRecTools )
 # External dependencies.
 find_package( FastJet )
 find_package( FastJetContrib COMPONENTS SoftKiller ConstituentSubtractor )
-find_package( ROOT COMPONENTS Core Math )
+find_package( ROOT COMPONENTS Core MathCore )
 
 # Component(s) in the package.
 atlas_add_library( JetRecToolsLib

@@ -1,41 +1,39 @@
-Wed Sep  9 14:46:24 CEST 2020
-Preloading tcmalloc_minimal.so
+Fri Nov 13 15:57:33 EST 2020
 Py:Athena            INFO including file "AthenaCommon/Preparation.py"
-Py:Athena            INFO using release [WorkDir-22.0.18] [x86_64-centos7-gcc8-opt] [EventFormatMetaData/ed94d57] -- built on [2020-09-08T1647]
+Py:Athena            INFO using release [?-22.0.0] [?] [?/?] -- built on [?]
 Py:Athena            INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Py:Athena            INFO executing ROOT6Setup
 Py:Athena            INFO including file "AthenaCommon/Execution.py"
 Py:Athena            INFO including file "DataModelRunTests/xAODTestRead_jo.py"
-Py:ConfigurableDb    INFO Read module info for 5573 configurables from 15 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 922 configurables from 2 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Py:Athena            INFO including file "DataModelRunTests/loadReadDicts.py"
 Py:Athena            INFO including file "EventAthenaPool/EventAthenaPoolItemList_joboptions.py"
 Py:Athena            INFO including file "DataModelRunTests/commonTrailer.py"
 Py:Athena            INFO including file "DataModelRunTests/setCatalog.py"
 Py:Athena            INFO including file "AthenaCommon/runbatch.py"
+# setting LC_ALL to "C"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v34r0)
-                                          running on ed38202b3ca6 on Wed Sep  9 14:46:30 2020
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
+                                          running on karma on Fri Nov 13 15:57:53 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3362 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3308 CLIDRegistry entries for module ALL
 CoreDumpSvc          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 2023 CLIDRegistry entries for module ALL
-ClassIDSvc           INFO  getRegistryEntries: read 6539 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 2301 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 8898 CLIDRegistry entries for module ALL
 PyComponentMgr       INFO Initializing PyComponentMgr...
 LoadReadDicts        INFO Initializing LoadReadDicts...
 MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-AthenaPoolCnvSvc     INFO Initializing AthenaPoolCnvSvc - package version AthenaPoolCnvSvc-00-00-00
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2020-09-08T2101/Athena/22.0.18/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Read replica configuration from /home/sss/atlas/dvtest/build/share/dbreplica.config
 DBReplicaSvc         INFO No specific match for domain found - use default fallback
-DBReplicaSvc         INFO Total of 2 servers found for host ed38202b3ca6 [ATLF atlas_dd ]
+DBReplicaSvc         INFO Total of 1 servers found for host karma [atlas_dd ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc              INFO Setting up APR FileCatalog and Streams
 PoolSvc              INFO POOL WriteCatalog is file:xAODTestRead_catalog.xml
@@ -47,7 +45,7 @@ PoolSvc              INFO File is not in Catalog! Attempt to open it anyway.
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:62006
+RootDatabase.open    INFO xaoddata.root File version:62200
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
@@ -56,44 +54,44 @@ DbSession            INFO     Open     DbSession
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:62006
+RootDatabase.open    INFO xaoddata.root File version:62200
 xaoddata.root        INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 1AA9ED5E-1E4B-3A55-A718-BF5CAC995112
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A234C939-27F1-9149-B62A-7F0E38DD8890
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 814F6603-F094-5F49-8D4F-2A2C01654D62
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:62006
-ClassIDSvc           INFO  getRegistryEntries: read 4440 CLIDRegistry entries for module ALL
+RootDatabase.open    INFO xaoddata.root File version:62200
+ClassIDSvc           INFO  getRegistryEntries: read 1534 CLIDRegistry entries for module ALL
 EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
-ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 11 CLIDRegistry entries for module ALL
 OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 DecisionSvc          INFO Inserting stream: Stream1 with no Algs
 Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version AthenaServices-00-00-00
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: xaoddata2.root
+ClassIDSvc           INFO  getRegistryEntries: read 521 CLIDRegistry entries for module ALL
 Stream1              INFO I/O reinitialization...
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A234C939-27F1-9149-B62A-7F0E38DD8890
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 814F6603-F094-5F49-8D4F-2A2C01654D62
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] A234C939-27F1-9149-B62A-7F0E38DD8890
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] 814F6603-F094-5F49-8D4F-2A2C01654D62
 Domain[ROOT_All]     INFO                           xaoddata.root
-RootDatabase.open    INFO xaoddata.root File version:62006
+RootDatabase.open    INFO xaoddata.root File version:62200
 ApplicationMgr       INFO Application Manager Started successfully
-ClassIDSvc           INFO  getRegistryEntries: read 521 CLIDRegistry entries for module ALL
 AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaPoolConve...   INFO massageEventInfo: unable to get OverrideRunNumberFromInput property from EventSelector 
 AthenaEventLoopMgr   INFO   ===>>>  start of run 0    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #0 0 events processed so far  <<<===
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
 xAODTestReadCVec     INFO Type of aux store: DMTest::CAuxContainer_v1
-RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=258 typename=f) has different type than the branch vector<int>
+RootAuxDynReader     INFO FILE:LINE (const RootAuxDynReader::BranchInfo& RootAuxDynReader::getBranchInfo(const unsigned long&, const SG::AuxStoreInternal&)): attribute dVar1 (id=260 typename=f) has different type than the branch vector<int>
 xAODTestReadCVec     INFO  anInt1 101 aFloat: 200 pInt: 501 pFloat: 0.01 anInt2: 301 dInt1: 401 dVar1: 451 dpInt1: 51 cEL: cvec[9]
   pvInt: []
   pvFloat: []
@@ -156,28 +154,28 @@ xAODTestRead         INFO  anInt1 505 aFloat: 600.4 anInt2: 705 dInt1: 485
 xAODTestRead         INFO  anInt1 506 aFloat: 600.5 anInt2: 706 dInt1: 486
 xAODTestRead         INFO  anInt1 507 aFloat: 600.6 anInt2: 707 dInt1: 487
 xAODTestRead         INFO  anInt1 508 aFloat: 600.7 anInt2: 708 dInt1: 488
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 701
- anInt 702
- anInt 703
- anInt 704
- anInt 705
- anInt 706
- anInt 707
- anInt 708
- anInt 709
- anInt 710
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 701 gFloat 800.5 gvFloat 
+ anInt 702 gFloat 801.5 gvFloat 701.5 
+ anInt 703 gFloat 802.5 gvFloat 702.5 802.5 
+ anInt 704 gFloat 803.5 gvFloat 703.5 803.5 903.5 
+ anInt 705 gFloat 804.5 gvFloat 704.5 804.5 904.5 1004.5 
+ anInt 706 gFloat 805.5 gvFloat 705.5 805.5 905.5 1005.5 1105.5 
+ anInt 707 gFloat 806.5 gvFloat 706.5 806.5 906.5 1006.5 1106.5 1206.5 
+ anInt 708 gFloat 807.5 gvFloat 707.5 807.5 907.5 1007.5 1107.5 1207.5 1307.5 
+ anInt 709 gFloat 808.5 gvFloat 708.5 808.5 908.5 1008.5 1108.5 1208.5 1308.5 1408.5 
+ anInt 710 gFloat 809.5 gvFloat 709.5 809.5 909.5 1009.5 1109.5 1209.5 1309.5 1409.5 1509.5 
 
 xAODTestRead         INFO cvecWD 1001: 201 202 203 204 205 206 207 208 209 210
 xAODTestReadCView    INFO cview: 110 109 108 107 106 105 104 103 102 101
 xAODTestReadHVec     INFO hvec: 401.5 402.5 403.5 404.5 405.5 406.5 407.5 408.5 409.5 410.5 411.5 412.5 413.5 414.5 415.5 416.5 417.5 418.5 419.5 420.5
 xAODTestReadHVec     INFO hview: 420.5 419.5 418.5 417.5 416.5 415.5 414.5 413.5 412.5 411.5 410.5 409.5 408.5 407.5 406.5 405.5 404.5 403.5 402.5 401.5
-ClassIDSvc           INFO  getRegistryEntries: read 69 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 79 CLIDRegistry entries for module ALL
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] AFB33048-6EB5-2E46-A9EF-B3C0B57DB473
+Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 46C6298F-0920-C145-83E6-49960B0C8E31
 Domain[ROOT_All]     INFO                           xaoddata2.root
-RootDatabase.open    INFO xaoddata2.root File version:62006
+RootDatabase.open    INFO xaoddata2.root File version:62200
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO DMTest::HAuxContainer_v2 [2BDBFB04-C1C2-4B14-A977-3A61B8054700]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
@@ -190,7 +188,7 @@ StorageSvc           INFO Building shape according to reflection information usi
 StorageSvc           INFO DataVector<DMTest::H_v2> [CD6C3074-425B-4C08-AF1C-43D7E8C84288]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO ViewVector<DataVector<DMTest::H_v2> > [17849966-6667-4732-A1C7-096FBC778CF3]
-ClassIDSvc           INFO  getRegistryEntries: read 89 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 26 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #0 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #0 1 events processed so far  <<<===
 xAODTestReadCVec     INFO cvec aux items: aFloat anInt anInt2 cEL dInt1 dVar1 dpInt1 dpvFloat pFloat pInt pvFloat pvInt 
@@ -257,17 +255,17 @@ xAODTestRead         INFO  anInt1 1005 aFloat: 1200.4 anInt2: 1405 dInt1: 965
 xAODTestRead         INFO  anInt1 1006 aFloat: 1200.5 anInt2: 1406 dInt1: 966
 xAODTestRead         INFO  anInt1 1007 aFloat: 1200.6 anInt2: 1407 dInt1: 967
 xAODTestRead         INFO  anInt1 1008 aFloat: 1200.7 anInt2: 1408 dInt1: 968
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 1401
- anInt 1402
- anInt 1403
- anInt 1404
- anInt 1405
- anInt 1406
- anInt 1407
- anInt 1408
- anInt 1409
- anInt 1410
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 1401 gFloat 1500.5 gvFloat 
+ anInt 1402 gFloat 1501.5 gvFloat 1401.5 
+ anInt 1403 gFloat 1502.5 gvFloat 1402.5 1502.5 
+ anInt 1404 gFloat 1503.5 gvFloat 1403.5 1503.5 1603.5 
+ anInt 1405 gFloat 1504.5 gvFloat 1404.5 1504.5 1604.5 1704.5 
+ anInt 1406 gFloat 1505.5 gvFloat 1405.5 1505.5 1605.5 1705.5 1805.5 
+ anInt 1407 gFloat 1506.5 gvFloat 1406.5 1506.5 1606.5 1706.5 1806.5 1906.5 
+ anInt 1408 gFloat 1507.5 gvFloat 1407.5 1507.5 1607.5 1707.5 1807.5 1907.5 2007.5 
+ anInt 1409 gFloat 1508.5 gvFloat 1408.5 1508.5 1608.5 1708.5 1808.5 1908.5 2008.5 2108.5 
+ anInt 1410 gFloat 1509.5 gvFloat 1409.5 1509.5 1609.5 1709.5 1809.5 1909.5 2009.5 2109.5 2209.5 
 
 xAODTestRead         INFO cvecWD 1002: 401 402 403 404 405 406 407 408 409 410
 xAODTestReadCView    INFO cview: 210 209 208 207 206 205 204 203 202 201
@@ -339,17 +337,17 @@ xAODTestRead         INFO  anInt1 1505 aFloat: 1800.4 anInt2: 2105 dInt1: 1445
 xAODTestRead         INFO  anInt1 1506 aFloat: 1800.5 anInt2: 2106 dInt1: 1446
 xAODTestRead         INFO  anInt1 1507 aFloat: 1800.6 anInt2: 2107 dInt1: 1447
 xAODTestRead         INFO  anInt1 1508 aFloat: 1800.7 anInt2: 2108 dInt1: 1448
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 2101
- anInt 2102
- anInt 2103
- anInt 2104
- anInt 2105
- anInt 2106
- anInt 2107
- anInt 2108
- anInt 2109
- anInt 2110
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 2101 gFloat 2200.5 gvFloat 
+ anInt 2102 gFloat 2201.5 gvFloat 2101.5 
+ anInt 2103 gFloat 2202.5 gvFloat 2102.5 2202.5 
+ anInt 2104 gFloat 2203.5 gvFloat 2103.5 2203.5 2303.5 
+ anInt 2105 gFloat 2204.5 gvFloat 2104.5 2204.5 2304.5 2404.5 
+ anInt 2106 gFloat 2205.5 gvFloat 2105.5 2205.5 2305.5 2405.5 2505.5 
+ anInt 2107 gFloat 2206.5 gvFloat 2106.5 2206.5 2306.5 2406.5 2506.5 2606.5 
+ anInt 2108 gFloat 2207.5 gvFloat 2107.5 2207.5 2307.5 2407.5 2507.5 2607.5 2707.5 
+ anInt 2109 gFloat 2208.5 gvFloat 2108.5 2208.5 2308.5 2408.5 2508.5 2608.5 2708.5 2808.5 
+ anInt 2110 gFloat 2209.5 gvFloat 2109.5 2209.5 2309.5 2409.5 2509.5 2609.5 2709.5 2809.5 2909.5 
 
 xAODTestRead         INFO cvecWD 1003: 601 602 603 604 605 606 607 608 609 610
 xAODTestReadCView    INFO cview: 310 309 308 307 306 305 304 303 302 301
@@ -421,17 +419,17 @@ xAODTestRead         INFO  anInt1 2005 aFloat: 2400.4 anInt2: 2805 dInt1: 1925
 xAODTestRead         INFO  anInt1 2006 aFloat: 2400.5 anInt2: 2806 dInt1: 1926
 xAODTestRead         INFO  anInt1 2007 aFloat: 2400.6 anInt2: 2807 dInt1: 1927
 xAODTestRead         INFO  anInt1 2008 aFloat: 2400.7 anInt2: 2808 dInt1: 1928
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 2801
- anInt 2802
- anInt 2803
- anInt 2804
- anInt 2805
- anInt 2806
- anInt 2807
- anInt 2808
- anInt 2809
- anInt 2810
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 2801 gFloat 2900.5 gvFloat 
+ anInt 2802 gFloat 2901.5 gvFloat 2801.5 
+ anInt 2803 gFloat 2902.5 gvFloat 2802.5 2902.5 
+ anInt 2804 gFloat 2903.5 gvFloat 2803.5 2903.5 3003.5 
+ anInt 2805 gFloat 2904.5 gvFloat 2804.5 2904.5 3004.5 3104.5 
+ anInt 2806 gFloat 2905.5 gvFloat 2805.5 2905.5 3005.5 3105.5 3205.5 
+ anInt 2807 gFloat 2906.5 gvFloat 2806.5 2906.5 3006.5 3106.5 3206.5 3306.5 
+ anInt 2808 gFloat 2907.5 gvFloat 2807.5 2907.5 3007.5 3107.5 3207.5 3307.5 3407.5 
+ anInt 2809 gFloat 2908.5 gvFloat 2808.5 2908.5 3008.5 3108.5 3208.5 3308.5 3408.5 3508.5 
+ anInt 2810 gFloat 2909.5 gvFloat 2809.5 2909.5 3009.5 3109.5 3209.5 3309.5 3409.5 3509.5 3609.5 
 
 xAODTestRead         INFO cvecWD 1004: 801 802 803 804 805 806 807 808 809 810
 xAODTestReadCView    INFO cview: 410 409 408 407 406 405 404 403 402 401
@@ -453,17 +451,17 @@ xAODTestRead         INFO  anInt1 2505 aFloat: 3000.4 anInt2: 3505 dInt1: 2405
 xAODTestRead         INFO  anInt1 2506 aFloat: 3000.5 anInt2: 3506 dInt1: 2406
 xAODTestRead         INFO  anInt1 2507 aFloat: 3000.6 anInt2: 3507 dInt1: 2407
 xAODTestRead         INFO  anInt1 2508 aFloat: 3000.7 anInt2: 3508 dInt1: 2408
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 3501
- anInt 3502
- anInt 3503
- anInt 3504
- anInt 3505
- anInt 3506
- anInt 3507
- anInt 3508
- anInt 3509
- anInt 3510
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 3501 gFloat 3600.5 gvFloat 
+ anInt 3502 gFloat 3601.5 gvFloat 3501.5 
+ anInt 3503 gFloat 3602.5 gvFloat 3502.5 3602.5 
+ anInt 3504 gFloat 3603.5 gvFloat 3503.5 3603.5 3703.5 
+ anInt 3505 gFloat 3604.5 gvFloat 3504.5 3604.5 3704.5 3804.5 
+ anInt 3506 gFloat 3605.5 gvFloat 3505.5 3605.5 3705.5 3805.5 3905.5 
+ anInt 3507 gFloat 3606.5 gvFloat 3506.5 3606.5 3706.5 3806.5 3906.5 4006.5 
+ anInt 3508 gFloat 3607.5 gvFloat 3507.5 3607.5 3707.5 3807.5 3907.5 4007.5 4107.5 
+ anInt 3509 gFloat 3608.5 gvFloat 3508.5 3608.5 3708.5 3808.5 3908.5 4008.5 4108.5 4208.5 
+ anInt 3510 gFloat 3609.5 gvFloat 3509.5 3609.5 3709.5 3809.5 3909.5 4009.5 4109.5 4209.5 4309.5 
 
 xAODTestRead         INFO cvecWD 1005: 1001 1002 1003 1004 1005 1006 1007 1008 1009 1010
 xAODTestReadCView    INFO cview:
@@ -535,17 +533,17 @@ xAODTestRead         INFO  anInt1 3005 aFloat: 3600.4 anInt2: 4205 dInt1: 2885
 xAODTestRead         INFO  anInt1 3006 aFloat: 3600.5 anInt2: 4206 dInt1: 2886
 xAODTestRead         INFO  anInt1 3007 aFloat: 3600.6 anInt2: 4207 dInt1: 2887
 xAODTestRead         INFO  anInt1 3008 aFloat: 3600.7 anInt2: 4208 dInt1: 2888
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 4201
- anInt 4202
- anInt 4203
- anInt 4204
- anInt 4205
- anInt 4206
- anInt 4207
- anInt 4208
- anInt 4209
- anInt 4210
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 4201 gFloat 4300.5 gvFloat 
+ anInt 4202 gFloat 4301.5 gvFloat 4201.5 
+ anInt 4203 gFloat 4302.5 gvFloat 4202.5 4302.5 
+ anInt 4204 gFloat 4303.5 gvFloat 4203.5 4303.5 4403.5 
+ anInt 4205 gFloat 4304.5 gvFloat 4204.5 4304.5 4404.5 4504.5 
+ anInt 4206 gFloat 4305.5 gvFloat 4205.5 4305.5 4405.5 4505.5 4605.5 
+ anInt 4207 gFloat 4306.5 gvFloat 4206.5 4306.5 4406.5 4506.5 4606.5 4706.5 
+ anInt 4208 gFloat 4307.5 gvFloat 4207.5 4307.5 4407.5 4507.5 4607.5 4707.5 4807.5 
+ anInt 4209 gFloat 4308.5 gvFloat 4208.5 4308.5 4408.5 4508.5 4608.5 4708.5 4808.5 4908.5 
+ anInt 4210 gFloat 4309.5 gvFloat 4209.5 4309.5 4409.5 4509.5 4609.5 4709.5 4809.5 4909.5 5009.5 
 
 xAODTestRead         INFO cvecWD 1006: 1201 1202 1203 1204 1205 1206 1207 1208 1209 1210
 xAODTestReadCView    INFO cview: 610 609 608 607 606 605 604 603 602 601
@@ -617,17 +615,17 @@ xAODTestRead         INFO  anInt1 3505 aFloat: 4200.4 anInt2: 4905 dInt1: 3365
 xAODTestRead         INFO  anInt1 3506 aFloat: 4200.5 anInt2: 4906 dInt1: 3366
 xAODTestRead         INFO  anInt1 3507 aFloat: 4200.6 anInt2: 4907 dInt1: 3367
 xAODTestRead         INFO  anInt1 3508 aFloat: 4200.7 anInt2: 4908 dInt1: 3368
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 4901
- anInt 4902
- anInt 4903
- anInt 4904
- anInt 4905
- anInt 4906
- anInt 4907
- anInt 4908
- anInt 4909
- anInt 4910
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 4901 gFloat 5000.5 gvFloat 
+ anInt 4902 gFloat 5001.5 gvFloat 4901.5 
+ anInt 4903 gFloat 5002.5 gvFloat 4902.5 5002.5 
+ anInt 4904 gFloat 5003.5 gvFloat 4903.5 5003.5 5103.5 
+ anInt 4905 gFloat 5004.5 gvFloat 4904.5 5004.5 5104.5 5204.5 
+ anInt 4906 gFloat 5005.5 gvFloat 4905.5 5005.5 5105.5 5205.5 5305.5 
+ anInt 4907 gFloat 5006.5 gvFloat 4906.5 5006.5 5106.5 5206.5 5306.5 5406.5 
+ anInt 4908 gFloat 5007.5 gvFloat 4907.5 5007.5 5107.5 5207.5 5307.5 5407.5 5507.5 
+ anInt 4909 gFloat 5008.5 gvFloat 4908.5 5008.5 5108.5 5208.5 5308.5 5408.5 5508.5 5608.5 
+ anInt 4910 gFloat 5009.5 gvFloat 4909.5 5009.5 5109.5 5209.5 5309.5 5409.5 5509.5 5609.5 5709.5 
 
 xAODTestRead         INFO cvecWD 1007: 1401 1402 1403 1404 1405 1406 1407 1408 1409 1410
 xAODTestReadCView    INFO cview: 710 709 708 707 706 705 704 703 702 701
@@ -699,17 +697,17 @@ xAODTestRead         INFO  anInt1 4005 aFloat: 4800.4 anInt2: 5605 dInt1: 3845
 xAODTestRead         INFO  anInt1 4006 aFloat: 4800.5 anInt2: 5606 dInt1: 3846
 xAODTestRead         INFO  anInt1 4007 aFloat: 4800.6 anInt2: 5607 dInt1: 3847
 xAODTestRead         INFO  anInt1 4008 aFloat: 4800.7 anInt2: 5608 dInt1: 3848
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 5601
- anInt 5602
- anInt 5603
- anInt 5604
- anInt 5605
- anInt 5606
- anInt 5607
- anInt 5608
- anInt 5609
- anInt 5610
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 5601 gFloat 5700.5 gvFloat 
+ anInt 5602 gFloat 5701.5 gvFloat 5601.5 
+ anInt 5603 gFloat 5702.5 gvFloat 5602.5 5702.5 
+ anInt 5604 gFloat 5703.5 gvFloat 5603.5 5703.5 5803.5 
+ anInt 5605 gFloat 5704.5 gvFloat 5604.5 5704.5 5804.5 5904.5 
+ anInt 5606 gFloat 5705.5 gvFloat 5605.5 5705.5 5805.5 5905.5 6005.5 
+ anInt 5607 gFloat 5706.5 gvFloat 5606.5 5706.5 5806.5 5906.5 6006.5 6106.5 
+ anInt 5608 gFloat 5707.5 gvFloat 5607.5 5707.5 5807.5 5907.5 6007.5 6107.5 6207.5 
+ anInt 5609 gFloat 5708.5 gvFloat 5608.5 5708.5 5808.5 5908.5 6008.5 6108.5 6208.5 6308.5 
+ anInt 5610 gFloat 5709.5 gvFloat 5609.5 5709.5 5809.5 5909.5 6009.5 6109.5 6209.5 6309.5 6409.5 
 
 xAODTestRead         INFO cvecWD 1008: 1601 1602 1603 1604 1605 1606 1607 1608 1609 1610
 xAODTestReadCView    INFO cview: 810 809 808 807 806 805 804 803 802 801
@@ -781,17 +779,17 @@ xAODTestRead         INFO  anInt1 4505 aFloat: 5400.4 anInt2: 6305 dInt1: 4325
 xAODTestRead         INFO  anInt1 4506 aFloat: 5400.5 anInt2: 6306 dInt1: 4326
 xAODTestRead         INFO  anInt1 4507 aFloat: 5400.6 anInt2: 6307 dInt1: 4327
 xAODTestRead         INFO  anInt1 4508 aFloat: 5400.7 anInt2: 6308 dInt1: 4328
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 6301
- anInt 6302
- anInt 6303
- anInt 6304
- anInt 6305
- anInt 6306
- anInt 6307
- anInt 6308
- anInt 6309
- anInt 6310
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 6301 gFloat 6400.5 gvFloat 
+ anInt 6302 gFloat 6401.5 gvFloat 6301.5 
+ anInt 6303 gFloat 6402.5 gvFloat 6302.5 6402.5 
+ anInt 6304 gFloat 6403.5 gvFloat 6303.5 6403.5 6503.5 
+ anInt 6305 gFloat 6404.5 gvFloat 6304.5 6404.5 6504.5 6604.5 
+ anInt 6306 gFloat 6405.5 gvFloat 6305.5 6405.5 6505.5 6605.5 6705.5 
+ anInt 6307 gFloat 6406.5 gvFloat 6306.5 6406.5 6506.5 6606.5 6706.5 6806.5 
+ anInt 6308 gFloat 6407.5 gvFloat 6307.5 6407.5 6507.5 6607.5 6707.5 6807.5 6907.5 
+ anInt 6309 gFloat 6408.5 gvFloat 6308.5 6408.5 6508.5 6608.5 6708.5 6808.5 6908.5 7008.5 
+ anInt 6310 gFloat 6409.5 gvFloat 6309.5 6409.5 6509.5 6609.5 6709.5 6809.5 6909.5 7009.5 7109.5 
 
 xAODTestRead         INFO cvecWD 1009: 1801 1802 1803 1804 1805 1806 1807 1808 1809 1810
 xAODTestReadCView    INFO cview: 910 909 908 907 906 905 904 903 902 901
@@ -863,17 +861,17 @@ xAODTestRead         INFO  anInt1 5005 aFloat: 6000.4 anInt2: 7005 dInt1: 4805
 xAODTestRead         INFO  anInt1 5006 aFloat: 6000.5 anInt2: 7006 dInt1: 4806
 xAODTestRead         INFO  anInt1 5007 aFloat: 6000.6 anInt2: 7007 dInt1: 4807
 xAODTestRead         INFO  anInt1 5008 aFloat: 6000.7 anInt2: 7008 dInt1: 4808
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 7001
- anInt 7002
- anInt 7003
- anInt 7004
- anInt 7005
- anInt 7006
- anInt 7007
- anInt 7008
- anInt 7009
- anInt 7010
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 7001 gFloat 7100.5 gvFloat 
+ anInt 7002 gFloat 7101.5 gvFloat 7001.5 
+ anInt 7003 gFloat 7102.5 gvFloat 7002.5 7102.5 
+ anInt 7004 gFloat 7103.5 gvFloat 7003.5 7103.5 7203.5 
+ anInt 7005 gFloat 7104.5 gvFloat 7004.5 7104.5 7204.5 7304.5 
+ anInt 7006 gFloat 7105.5 gvFloat 7005.5 7105.5 7205.5 7305.5 7405.5 
+ anInt 7007 gFloat 7106.5 gvFloat 7006.5 7106.5 7206.5 7306.5 7406.5 7506.5 
+ anInt 7008 gFloat 7107.5 gvFloat 7007.5 7107.5 7207.5 7307.5 7407.5 7507.5 7607.5 
+ anInt 7009 gFloat 7108.5 gvFloat 7008.5 7108.5 7208.5 7308.5 7408.5 7508.5 7608.5 7708.5 
+ anInt 7010 gFloat 7109.5 gvFloat 7009.5 7109.5 7209.5 7309.5 7409.5 7509.5 7609.5 7709.5 7809.5 
 
 xAODTestRead         INFO cvecWD 1010: 2001 2002 2003 2004 2005 2006 2007 2008 2009 2010
 xAODTestReadCView    INFO cview: 1010 1009 1008 1007 1006 1005 1004 1003 1002 1001
@@ -945,17 +943,17 @@ xAODTestRead         INFO  anInt1 5505 aFloat: 6600.4 anInt2: 7705 dInt1: 5285
 xAODTestRead         INFO  anInt1 5506 aFloat: 6600.5 anInt2: 7706 dInt1: 5286
 xAODTestRead         INFO  anInt1 5507 aFloat: 6600.6 anInt2: 7707 dInt1: 5287
 xAODTestRead         INFO  anInt1 5508 aFloat: 6600.7 anInt2: 7708 dInt1: 5288
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 7701
- anInt 7702
- anInt 7703
- anInt 7704
- anInt 7705
- anInt 7706
- anInt 7707
- anInt 7708
- anInt 7709
- anInt 7710
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 7701 gFloat 7800.5 gvFloat 
+ anInt 7702 gFloat 7801.5 gvFloat 7701.5 
+ anInt 7703 gFloat 7802.5 gvFloat 7702.5 7802.5 
+ anInt 7704 gFloat 7803.5 gvFloat 7703.5 7803.5 7903.5 
+ anInt 7705 gFloat 7804.5 gvFloat 7704.5 7804.5 7904.5 8004.5 
+ anInt 7706 gFloat 7805.5 gvFloat 7705.5 7805.5 7905.5 8005.5 8105.5 
+ anInt 7707 gFloat 7806.5 gvFloat 7706.5 7806.5 7906.5 8006.5 8106.5 8206.5 
+ anInt 7708 gFloat 7807.5 gvFloat 7707.5 7807.5 7907.5 8007.5 8107.5 8207.5 8307.5 
+ anInt 7709 gFloat 7808.5 gvFloat 7708.5 7808.5 7908.5 8008.5 8108.5 8208.5 8308.5 8408.5 
+ anInt 7710 gFloat 7809.5 gvFloat 7709.5 7809.5 7909.5 8009.5 8109.5 8209.5 8309.5 8409.5 8509.5 
 
 xAODTestRead         INFO cvecWD 1011: 2201 2202 2203 2204 2205 2206 2207 2208 2209 2210
 xAODTestReadCView    INFO cview: 1110 1109 1108 1107 1106 1105 1104 1103 1102 1101
@@ -1027,17 +1025,17 @@ xAODTestRead         INFO  anInt1 6005 aFloat: 7200.4 anInt2: 8405 dInt1: 5765
 xAODTestRead         INFO  anInt1 6006 aFloat: 7200.5 anInt2: 8406 dInt1: 5766
 xAODTestRead         INFO  anInt1 6007 aFloat: 7200.6 anInt2: 8407 dInt1: 5767
 xAODTestRead         INFO  anInt1 6008 aFloat: 7200.7 anInt2: 8408 dInt1: 5768
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 8401
- anInt 8402
- anInt 8403
- anInt 8404
- anInt 8405
- anInt 8406
- anInt 8407
- anInt 8408
- anInt 8409
- anInt 8410
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 8401 gFloat 8500.5 gvFloat 
+ anInt 8402 gFloat 8501.5 gvFloat 8401.5 
+ anInt 8403 gFloat 8502.5 gvFloat 8402.5 8502.5 
+ anInt 8404 gFloat 8503.5 gvFloat 8403.5 8503.5 8603.5 
+ anInt 8405 gFloat 8504.5 gvFloat 8404.5 8504.5 8604.5 8704.5 
+ anInt 8406 gFloat 8505.5 gvFloat 8405.5 8505.5 8605.5 8705.5 8805.5 
+ anInt 8407 gFloat 8506.5 gvFloat 8406.5 8506.5 8606.5 8706.5 8806.5 8906.5 
+ anInt 8408 gFloat 8507.5 gvFloat 8407.5 8507.5 8607.5 8707.5 8807.5 8907.5 9007.5 
+ anInt 8409 gFloat 8508.5 gvFloat 8408.5 8508.5 8608.5 8708.5 8808.5 8908.5 9008.5 9108.5 
+ anInt 8410 gFloat 8509.5 gvFloat 8409.5 8509.5 8609.5 8709.5 8809.5 8909.5 9009.5 9109.5 9209.5 
 
 xAODTestRead         INFO cvecWD 1012: 2401 2402 2403 2404 2405 2406 2407 2408 2409 2410
 xAODTestReadCView    INFO cview: 1210 1209 1208 1207 1206 1205 1204 1203 1202 1201
@@ -1109,17 +1107,17 @@ xAODTestRead         INFO  anInt1 6505 aFloat: 7800.4 anInt2: 9105 dInt1: 6245
 xAODTestRead         INFO  anInt1 6506 aFloat: 7800.5 anInt2: 9106 dInt1: 6246
 xAODTestRead         INFO  anInt1 6507 aFloat: 7800.6 anInt2: 9107 dInt1: 6247
 xAODTestRead         INFO  anInt1 6508 aFloat: 7800.7 anInt2: 9108 dInt1: 6248
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 9101
- anInt 9102
- anInt 9103
- anInt 9104
- anInt 9105
- anInt 9106
- anInt 9107
- anInt 9108
- anInt 9109
- anInt 9110
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 9101 gFloat 9200.5 gvFloat 
+ anInt 9102 gFloat 9201.5 gvFloat 9101.5 
+ anInt 9103 gFloat 9202.5 gvFloat 9102.5 9202.5 
+ anInt 9104 gFloat 9203.5 gvFloat 9103.5 9203.5 9303.5 
+ anInt 9105 gFloat 9204.5 gvFloat 9104.5 9204.5 9304.5 9404.5 
+ anInt 9106 gFloat 9205.5 gvFloat 9105.5 9205.5 9305.5 9405.5 9505.5 
+ anInt 9107 gFloat 9206.5 gvFloat 9106.5 9206.5 9306.5 9406.5 9506.5 9606.5 
+ anInt 9108 gFloat 9207.5 gvFloat 9107.5 9207.5 9307.5 9407.5 9507.5 9607.5 9707.5 
+ anInt 9109 gFloat 9208.5 gvFloat 9108.5 9208.5 9308.5 9408.5 9508.5 9608.5 9708.5 9808.5 
+ anInt 9110 gFloat 9209.5 gvFloat 9109.5 9209.5 9309.5 9409.5 9509.5 9609.5 9709.5 9809.5 9909.5 
 
 xAODTestRead         INFO cvecWD 1013: 2601 2602 2603 2604 2605 2606 2607 2608 2609 2610
 xAODTestReadCView    INFO cview: 1310 1309 1308 1307 1306 1305 1304 1303 1302 1301
@@ -1191,17 +1189,17 @@ xAODTestRead         INFO  anInt1 7005 aFloat: 8400.4 anInt2: 9805 dInt1: 6725
 xAODTestRead         INFO  anInt1 7006 aFloat: 8400.5 anInt2: 9806 dInt1: 6726
 xAODTestRead         INFO  anInt1 7007 aFloat: 8400.6 anInt2: 9807 dInt1: 6727
 xAODTestRead         INFO  anInt1 7008 aFloat: 8400.7 anInt2: 9808 dInt1: 6728
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 9801
- anInt 9802
- anInt 9803
- anInt 9804
- anInt 9805
- anInt 9806
- anInt 9807
- anInt 9808
- anInt 9809
- anInt 9810
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 9801 gFloat 9900.5 gvFloat 
+ anInt 9802 gFloat 9901.5 gvFloat 9801.5 
+ anInt 9803 gFloat 9902.5 gvFloat 9802.5 9902.5 
+ anInt 9804 gFloat 9903.5 gvFloat 9803.5 9903.5 10003.5 
+ anInt 9805 gFloat 9904.5 gvFloat 9804.5 9904.5 10004.5 10104.5 
+ anInt 9806 gFloat 9905.5 gvFloat 9805.5 9905.5 10005.5 10105.5 10205.5 
+ anInt 9807 gFloat 9906.5 gvFloat 9806.5 9906.5 10006.5 10106.5 10206.5 10306.5 
+ anInt 9808 gFloat 9907.5 gvFloat 9807.5 9907.5 10007.5 10107.5 10207.5 10307.5 10407.5 
+ anInt 9809 gFloat 9908.5 gvFloat 9808.5 9908.5 10008.5 10108.5 10208.5 10308.5 10408.5 10508.5 
+ anInt 9810 gFloat 9909.5 gvFloat 9809.5 9909.5 10009.5 10109.5 10209.5 10309.5 10409.5 10509.5 10609.5 
 
 xAODTestRead         INFO cvecWD 1014: 2801 2802 2803 2804 2805 2806 2807 2808 2809 2810
 xAODTestReadCView    INFO cview: 1410 1409 1408 1407 1406 1405 1404 1403 1402 1401
@@ -1273,17 +1271,17 @@ xAODTestRead         INFO  anInt1 7505 aFloat: 9000.4 anInt2: 10505 dInt1: 7205
 xAODTestRead         INFO  anInt1 7506 aFloat: 9000.5 anInt2: 10506 dInt1: 7206
 xAODTestRead         INFO  anInt1 7507 aFloat: 9000.6 anInt2: 10507 dInt1: 7207
 xAODTestRead         INFO  anInt1 7508 aFloat: 9000.7 anInt2: 10508 dInt1: 7208
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 10501
- anInt 10502
- anInt 10503
- anInt 10504
- anInt 10505
- anInt 10506
- anInt 10507
- anInt 10508
- anInt 10509
- anInt 10510
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 10501 gFloat 10600.5 gvFloat 
+ anInt 10502 gFloat 10601.5 gvFloat 10501.5 
+ anInt 10503 gFloat 10602.5 gvFloat 10502.5 10602.5 
+ anInt 10504 gFloat 10603.5 gvFloat 10503.5 10603.5 10703.5 
+ anInt 10505 gFloat 10604.5 gvFloat 10504.5 10604.5 10704.5 10804.5 
+ anInt 10506 gFloat 10605.5 gvFloat 10505.5 10605.5 10705.5 10805.5 10905.5 
+ anInt 10507 gFloat 10606.5 gvFloat 10506.5 10606.5 10706.5 10806.5 10906.5 11006.5 
+ anInt 10508 gFloat 10607.5 gvFloat 10507.5 10607.5 10707.5 10807.5 10907.5 11007.5 11107.5 
+ anInt 10509 gFloat 10608.5 gvFloat 10508.5 10608.5 10708.5 10808.5 10908.5 11008.5 11108.5 11208.5 
+ anInt 10510 gFloat 10609.5 gvFloat 10509.5 10609.5 10709.5 10809.5 10909.5 11009.5 11109.5 11209.5 11309.5 
 
 xAODTestRead         INFO cvecWD 1015: 3001 3002 3003 3004 3005 3006 3007 3008 3009 3010
 xAODTestReadCView    INFO cview: 1510 1509 1508 1507 1506 1505 1504 1503 1502 1501
@@ -1355,17 +1353,17 @@ xAODTestRead         INFO  anInt1 8005 aFloat: 9600.4 anInt2: 11205 dInt1: 7685
 xAODTestRead         INFO  anInt1 8006 aFloat: 9600.5 anInt2: 11206 dInt1: 7686
 xAODTestRead         INFO  anInt1 8007 aFloat: 9600.6 anInt2: 11207 dInt1: 7687
 xAODTestRead         INFO  anInt1 8008 aFloat: 9600.7 anInt2: 11208 dInt1: 7688
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 11201
- anInt 11202
- anInt 11203
- anInt 11204
- anInt 11205
- anInt 11206
- anInt 11207
- anInt 11208
- anInt 11209
- anInt 11210
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 11201 gFloat 11300.5 gvFloat 
+ anInt 11202 gFloat 11301.5 gvFloat 11201.5 
+ anInt 11203 gFloat 11302.5 gvFloat 11202.5 11302.5 
+ anInt 11204 gFloat 11303.5 gvFloat 11203.5 11303.5 11403.5 
+ anInt 11205 gFloat 11304.5 gvFloat 11204.5 11304.5 11404.5 11504.5 
+ anInt 11206 gFloat 11305.5 gvFloat 11205.5 11305.5 11405.5 11505.5 11605.5 
+ anInt 11207 gFloat 11306.5 gvFloat 11206.5 11306.5 11406.5 11506.5 11606.5 11706.5 
+ anInt 11208 gFloat 11307.5 gvFloat 11207.5 11307.5 11407.5 11507.5 11607.5 11707.5 11807.5 
+ anInt 11209 gFloat 11308.5 gvFloat 11208.5 11308.5 11408.5 11508.5 11608.5 11708.5 11808.5 11908.5 
+ anInt 11210 gFloat 11309.5 gvFloat 11209.5 11309.5 11409.5 11509.5 11609.5 11709.5 11809.5 11909.5 12009.5 
 
 xAODTestRead         INFO cvecWD 1016: 3201 3202 3203 3204 3205 3206 3207 3208 3209 3210
 xAODTestReadCView    INFO cview: 1610 1609 1608 1607 1606 1605 1604 1603 1602 1601
@@ -1437,17 +1435,17 @@ xAODTestRead         INFO  anInt1 8505 aFloat: 10200.4 anInt2: 11905 dInt1: 8165
 xAODTestRead         INFO  anInt1 8506 aFloat: 10200.5 anInt2: 11906 dInt1: 8166
 xAODTestRead         INFO  anInt1 8507 aFloat: 10200.6 anInt2: 11907 dInt1: 8167
 xAODTestRead         INFO  anInt1 8508 aFloat: 10200.7 anInt2: 11908 dInt1: 8168
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 11901
- anInt 11902
- anInt 11903
- anInt 11904
- anInt 11905
- anInt 11906
- anInt 11907
- anInt 11908
- anInt 11909
- anInt 11910
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 11901 gFloat 12000.5 gvFloat 
+ anInt 11902 gFloat 12001.5 gvFloat 11901.5 
+ anInt 11903 gFloat 12002.5 gvFloat 11902.5 12002.5 
+ anInt 11904 gFloat 12003.5 gvFloat 11903.5 12003.5 12103.5 
+ anInt 11905 gFloat 12004.5 gvFloat 11904.5 12004.5 12104.5 12204.5 
+ anInt 11906 gFloat 12005.5 gvFloat 11905.5 12005.5 12105.5 12205.5 12305.5 
+ anInt 11907 gFloat 12006.5 gvFloat 11906.5 12006.5 12106.5 12206.5 12306.5 12406.5 
+ anInt 11908 gFloat 12007.5 gvFloat 11907.5 12007.5 12107.5 12207.5 12307.5 12407.5 12507.5 
+ anInt 11909 gFloat 12008.5 gvFloat 11908.5 12008.5 12108.5 12208.5 12308.5 12408.5 12508.5 12608.5 
+ anInt 11910 gFloat 12009.5 gvFloat 11909.5 12009.5 12109.5 12209.5 12309.5 12409.5 12509.5 12609.5 12709.5 
 
 xAODTestRead         INFO cvecWD 1017: 3401 3402 3403 3404 3405 3406 3407 3408 3409 3410
 xAODTestReadCView    INFO cview: 1710 1709 1708 1707 1706 1705 1704 1703 1702 1701
@@ -1519,17 +1517,17 @@ xAODTestRead         INFO  anInt1 9005 aFloat: 10800.4 anInt2: 12605 dInt1: 8645
 xAODTestRead         INFO  anInt1 9006 aFloat: 10800.5 anInt2: 12606 dInt1: 8646
 xAODTestRead         INFO  anInt1 9007 aFloat: 10800.6 anInt2: 12607 dInt1: 8647
 xAODTestRead         INFO  anInt1 9008 aFloat: 10800.7 anInt2: 12608 dInt1: 8648
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 12601
- anInt 12602
- anInt 12603
- anInt 12604
- anInt 12605
- anInt 12606
- anInt 12607
- anInt 12608
- anInt 12609
- anInt 12610
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 12601 gFloat 12700.5 gvFloat 
+ anInt 12602 gFloat 12701.5 gvFloat 12601.5 
+ anInt 12603 gFloat 12702.5 gvFloat 12602.5 12702.5 
+ anInt 12604 gFloat 12703.5 gvFloat 12603.5 12703.5 12803.5 
+ anInt 12605 gFloat 12704.5 gvFloat 12604.5 12704.5 12804.5 12904.5 
+ anInt 12606 gFloat 12705.5 gvFloat 12605.5 12705.5 12805.5 12905.5 13005.5 
+ anInt 12607 gFloat 12706.5 gvFloat 12606.5 12706.5 12806.5 12906.5 13006.5 13106.5 
+ anInt 12608 gFloat 12707.5 gvFloat 12607.5 12707.5 12807.5 12907.5 13007.5 13107.5 13207.5 
+ anInt 12609 gFloat 12708.5 gvFloat 12608.5 12708.5 12808.5 12908.5 13008.5 13108.5 13208.5 13308.5 
+ anInt 12610 gFloat 12709.5 gvFloat 12609.5 12709.5 12809.5 12909.5 13009.5 13109.5 13209.5 13309.5 13409.5 
 
 xAODTestRead         INFO cvecWD 1018: 3601 3602 3603 3604 3605 3606 3607 3608 3609 3610
 xAODTestReadCView    INFO cview: 1810 1809 1808 1807 1806 1805 1804 1803 1802 1801
@@ -1601,17 +1599,17 @@ xAODTestRead         INFO  anInt1 9505 aFloat: 11400.4 anInt2: 13305 dInt1: 9125
 xAODTestRead         INFO  anInt1 9506 aFloat: 11400.5 anInt2: 13306 dInt1: 9126
 xAODTestRead         INFO  anInt1 9507 aFloat: 11400.6 anInt2: 13307 dInt1: 9127
 xAODTestRead         INFO  anInt1 9508 aFloat: 11400.7 anInt2: 13308 dInt1: 9128
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 13301
- anInt 13302
- anInt 13303
- anInt 13304
- anInt 13305
- anInt 13306
- anInt 13307
- anInt 13308
- anInt 13309
- anInt 13310
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 13301 gFloat 13400.5 gvFloat 
+ anInt 13302 gFloat 13401.5 gvFloat 13301.5 
+ anInt 13303 gFloat 13402.5 gvFloat 13302.5 13402.5 
+ anInt 13304 gFloat 13403.5 gvFloat 13303.5 13403.5 13503.5 
+ anInt 13305 gFloat 13404.5 gvFloat 13304.5 13404.5 13504.5 13604.5 
+ anInt 13306 gFloat 13405.5 gvFloat 13305.5 13405.5 13505.5 13605.5 13705.5 
+ anInt 13307 gFloat 13406.5 gvFloat 13306.5 13406.5 13506.5 13606.5 13706.5 13806.5 
+ anInt 13308 gFloat 13407.5 gvFloat 13307.5 13407.5 13507.5 13607.5 13707.5 13807.5 13907.5 
+ anInt 13309 gFloat 13408.5 gvFloat 13308.5 13408.5 13508.5 13608.5 13708.5 13808.5 13908.5 14008.5 
+ anInt 13310 gFloat 13409.5 gvFloat 13309.5 13409.5 13509.5 13609.5 13709.5 13809.5 13909.5 14009.5 14109.5 
 
 xAODTestRead         INFO cvecWD 1019: 3801 3802 3803 3804 3805 3806 3807 3808 3809 3810
 xAODTestReadCView    INFO cview: 1910 1909 1908 1907 1906 1905 1904 1903 1902 1901
@@ -1683,29 +1681,29 @@ xAODTestRead         INFO  anInt1 10005 aFloat: 12000.4 anInt2: 14005 dInt1: 960
 xAODTestRead         INFO  anInt1 10006 aFloat: 12000.5 anInt2: 14006 dInt1: 9606
 xAODTestRead         INFO  anInt1 10007 aFloat: 12000.6 anInt2: 14007 dInt1: 9607
 xAODTestRead         INFO  anInt1 10008 aFloat: 12000.7 anInt2: 14008 dInt1: 9608
-xAODTestRead         INFO gvec aux items: anInt 
- anInt 14001
- anInt 14002
- anInt 14003
- anInt 14004
- anInt 14005
- anInt 14006
- anInt 14007
- anInt 14008
- anInt 14009
- anInt 14010
+xAODTestRead         INFO gvec aux items: anInt gFloat gvFloat 
+ anInt 14001 gFloat 14100.5 gvFloat 
+ anInt 14002 gFloat 14101.5 gvFloat 14001.5 
+ anInt 14003 gFloat 14102.5 gvFloat 14002.5 14102.5 
+ anInt 14004 gFloat 14103.5 gvFloat 14003.5 14103.5 14203.5 
+ anInt 14005 gFloat 14104.5 gvFloat 14004.5 14104.5 14204.5 14304.5 
+ anInt 14006 gFloat 14105.5 gvFloat 14005.5 14105.5 14205.5 14305.5 14405.5 
+ anInt 14007 gFloat 14106.5 gvFloat 14006.5 14106.5 14206.5 14306.5 14406.5 14506.5 
+ anInt 14008 gFloat 14107.5 gvFloat 14007.5 14107.5 14207.5 14307.5 14407.5 14507.5 14607.5 
+ anInt 14009 gFloat 14108.5 gvFloat 14008.5 14108.5 14208.5 14308.5 14408.5 14508.5 14608.5 14708.5 
+ anInt 14010 gFloat 14109.5 gvFloat 14009.5 14109.5 14209.5 14309.5 14409.5 14509.5 14609.5 14709.5 14809.5 
 
 xAODTestRead         INFO cvecWD 1020: 4001 4002 4003 4004 4005 4006 4007 4008 4009 4010
 xAODTestReadCView    INFO cview: 2010 2009 2008 2007 2006 2005 2004 2003 2002 2001
 xAODTestReadHVec     INFO hvec: 8001.5 8002.5 8003.5 8004.5 8005.5 8006.5 8007.5 8008.5 8009.5 8010.5 8011.5 8012.5 8013.5 8014.5 8015.5 8016.5 8017.5 8018.5 8019.5 8020.5
 xAODTestReadHVec     INFO hview: 8020.5 8019.5 8018.5 8017.5 8016.5 8015.5 8014.5 8013.5 8012.5 8011.5 8010.5 8009.5 8008.5 8007.5 8006.5 8005.5 8004.5 8003.5 8002.5 8001.5
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #0 20 events processed so far  <<<===
-ClassIDSvc           INFO  getRegistryEntries: read 7 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 12 CLIDRegistry entries for module ALL
 Stream1              INFO Metadata records written: 21
 xaoddata.root        INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] A234C939-27F1-9149-B62A-7F0E38DD8890
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 814F6603-F094-5F49-8D4F-2A2C01654D62
 xaoddata2.root       INFO Database being retired...
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] AFB33048-6EB5-2E46-A9EF-B3C0B57DB473
+Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 46C6298F-0920-C145-83E6-49960B0C8E31
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully
 IncidentProcAlg1     INFO Finalize

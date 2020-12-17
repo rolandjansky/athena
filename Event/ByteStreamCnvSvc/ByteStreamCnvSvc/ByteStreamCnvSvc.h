@@ -60,6 +60,11 @@ public:
   /// @brief Access to FullEventAssembler
    template <class T> StatusCode getFullEventAssembler(T*&t, const std::string& nm);
 
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
+  //@}
+  /// Should rather be in IByteStreamSvc.h if we had one
+  static const InterfaceID& interfaceID();
+
 protected:
    RawEventWrite* setRawEvent (std::unique_ptr<RawEventWrite> rawEventWrite);
 
@@ -72,15 +77,6 @@ private:
    
    /// Services for writing output
    std::map<std::string, ByteStreamOutputSvc*> m_ioSvcMap;
-
-   /// flags for Simulation EventType
-   Gaudi::Property<bool> m_isSimulation;
-   /// flags for TestBeam EventType
-   Gaudi::Property<bool> m_isTestbeam;
-   /// flags for Calibration EventType
-   Gaudi::Property<bool> m_isCalibration;
-   /// flags for getting Detector Mask from COOL
-   Gaudi::Property<bool> m_getDetectorMask;
 
    /// Event store.
    ServiceHandle<StoreGateSvc> m_evtStore;

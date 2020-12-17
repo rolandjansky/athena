@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##=============================================================================
 ## Name:        AddContainers
@@ -73,7 +73,7 @@ class AddContainers( PyAthena.Alg ):
 
         ## Import needed modules
         import PyUtils.RootUtils as ru
-        ROOT = ru.import_root()
+        ROOT = ru.import_root()  # noqa: F841
 
         ## Get the StoreGate service
         self.storeGateSvc = PyAthena.py_svc('StoreGateSvc')
@@ -82,7 +82,7 @@ class AddContainers( PyAthena.Alg ):
             return StatusCode.Failure
 
         ## import some 4-mom utils
-        import FourMomUtils.Bindings
+        import FourMomUtils.Bindings  # noqa: F401
         self.utils = { 'deltaR' : PyAthena.P4Helpers.deltaR }
         
         return StatusCode.Success
@@ -92,7 +92,7 @@ class AddContainers( PyAthena.Alg ):
     def getFunctor(self, obj):
         if self.attribute != "":
             if hasattr(obj, self.attribute):
-                self.msg.debug( "Will use new object of type %s for further computation" % self.attribute )
+                self.msg.debug( "Will use new object of type %s for further computation", self.attribute )
                 return getattr(obj, self.attribute)()
             pass
         return obj
@@ -112,26 +112,26 @@ class AddContainers( PyAthena.Alg ):
 
     def execute(self):
         self.nProcessed+=1
-        self.msg.debug( '==> execute %s on %r. event...' % (self.name(), self.nProcessed) )
+        self.msg.debug( '==> execute %s on %r. event...', self.name(), self.nProcessed )
         
 
         # Get the input collections from StoreGate and add each to the list of containers for this event
         nInputElements = 0
         inContList = []
-        for i in xrange( self.inputContainerNames.__len__() ) :
+        for i in range( self.inputContainerNames.__len__() ) :
             inCont = None
             try:
                 inCont = self.storeGateSvc.retrieve( self.inputContainerType, self.inputContainerNames[i] )
             except LookupError:
                 if self.nProcessed < 100:
-                    self.msg.warning( 'Collection of type %s with key %s not found' % (self.inputContainerType, self.inputContainerNames[i]) )
+                    self.msg.warning( 'Collection of type %s with key %s not found', self.inputContainerType, self.inputContainerNames[i] )
                     pass #continue
                 pass
             if inCont:
                 inContList.append( inCont )
                 nInputElements += inCont.size()
             pass
-        self.msg.debug( 'Found %s input containers.' % len(inContList) )
+        self.msg.debug( 'Found %d input containers.', len(inContList) )
         
 
 
@@ -156,7 +156,7 @@ class AddContainers( PyAthena.Alg ):
                 self.nObjectsProcessed += 1
                 self.msg.verbose( '  Processing object in input container...' )
                 if self.removeIdentical :
-                    if not obj in outCont :
+                    if obj not in outCont :
                         outCont.push_back( obj )
                         pass
                     pass
@@ -178,7 +178,7 @@ class AddContainers( PyAthena.Alg ):
         nPassedObject = outCont.size()
         self.nObjectsPassed += nPassedObject
         if nPassedObject >= self.minNumberPassed and nPassedObject <= self.maxNumberPassed :
-            self.msg.debug( 'Found %s objects in this event... passing it.' % nPassedObject )
+            self.msg.debug( 'Found %s objects in this event... passing it.', nPassedObject )
             self.nEventAccepted += 1
             self.setFilterPassed(True)
             pass
@@ -189,7 +189,7 @@ class AddContainers( PyAthena.Alg ):
 
         # Record the merged output container into StoreGate so that they can be retrieved by other algorithms
         if self.storeGateSvc.record( outCont, self.outputContainerName ) != StatusCode.Success :
-            self.msg.error( 'Could not record the output container into StoreGate with the key = ' % self.outputContainerName )
+            self.msg.error( 'Could not record the output container into StoreGate with the key = ', self.outputContainerName )
             pass
 
         return StatusCode.Success
@@ -198,7 +198,6 @@ class AddContainers( PyAthena.Alg ):
 
     def finalize(self):
         ## Import needed modules
-        import math
         import PyUtils.Logging
 
         # Only dump the summary if requested or in DEBUG/VERBOSE mode
@@ -215,9 +214,9 @@ class AddContainers( PyAthena.Alg ):
             self.msg.info( 'Event filter description                                                                   :: N accepted : ratio[%] :: N accepted : ratio[%]' )
             self.msg.info( '--------------------------------------------------------------------------------------------------------------------------------------------' )
             self.msg.info( 'Total number of objects/events processed                                                   :: %10u :  100.000 :: %10u :  100.000'
-                           % ( self.nObjectsProcessed, self.nProcessed ) )
+                           , self.nObjectsProcessed, self.nProcessed )
             self.msg.info( 'Final count                                                                                :: %10u : %8.5g :: %10u : %8.5g'
-                           % ( self.nObjectsPassed, objRatio, self.nEventAccepted, evtRatio ) )
+                           , self.nObjectsPassed, objRatio, self.nEventAccepted, evtRatio )
             self.msg.info( '=================================================================== end ====================================================================' )
             pass
 

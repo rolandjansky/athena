@@ -13,6 +13,9 @@
 #include <TClass.h>
 #include <TROOT.h>
 #include <TVirtualCollectionProxy.h>
+#include <TBranchElement.h>
+#include <TStreamerInfo.h>
+#include <TStreamerElement.h>
 
 // EDM include(s):
 #include "AthContainers/AuxTypeRegistry.h"
@@ -58,7 +61,7 @@ namespace xAOD {
         m_splitLevel( splitLevel ), m_entry( 0 ), m_inTree( 0 ), m_outTree( 0 ),
         m_inputScanned( kFALSE ), m_selection(), m_transientStore( 0 ),
         m_auxIDs(), m_vecs(), m_size( 0 ), m_locked( kFALSE ), m_isDecoration(),
-        m_mutex1(), m_mutex2(), 
+        m_mutex1(), m_mutex2(),
         m_branches(), m_branchesWritten(), m_missingBranches() {
 
    }
@@ -90,21 +93,21 @@ namespace xAOD {
    /// But user code should probably not fiddle with this function.
    ///
    /// @param mode The structure mode to set
-   /// @returns The usual TReturnCode values
+   /// @returns The usual StatusCode values
    ///
-   TReturnCode TAuxStore::setStructMode( EStructMode mode ) {
+   StatusCode TAuxStore::setStructMode( EStructMode mode ) {
 
       // Only allow this on an uninitialised object:
       if( m_branches.size() || ( m_structMode != kUndefinedStore ) ) {
          ::Error( "xAOD::TAuxStore::setStructMode",
                   XAOD_MESSAGE( "Trying to change the structure mode of an "
                                 "initialised object" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Make the change:
       m_structMode = mode;
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    const char* TAuxStore::prefix() const {
@@ -159,7 +162,7 @@ namespace xAOD {
    ///
    /// @param tree Pointer to the TTree that is being read from
    ///
-   TReturnCode TAuxStore::readFrom( ::TTree* tree, ::Bool_t printWarnings ) {
+   StatusCode TAuxStore::readFrom( ::TTree* tree, ::Bool_t printWarnings ) {
 
       // Make sure that everything will be re-read after this:
       reset();
@@ -179,7 +182,7 @@ namespace xAOD {
       if( ! br ) {
          // We might not even have static branches, so this is not an error
          // by itself...
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
       // In order to read complex objects, like smart pointers from an
       // auxiliary container variable-by-variable, the split level of the
@@ -192,7 +195,7 @@ namespace xAOD {
                     "The reading of complex variables from it may/will fail!" );
       }
 
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is called by the infrastructure to connect the object
@@ -200,7 +203,7 @@ namespace xAOD {
    ///
    /// @param tree Pointer to the TTree that is being written to
    ///
-   TReturnCode TAuxStore::writeTo( ::TTree* tree ) {
+   StatusCode TAuxStore::writeTo( ::TTree* tree ) {
 
       // Look for any auxiliary branches that have not been connected to yet:
       RETURN_CHECK( "xAOD::TAuxStore::writeTo", scanInputTree() );
@@ -216,7 +219,7 @@ namespace xAOD {
          RETURN_CHECK( "xAOD::TAuxStore::writeTo", setupOutputData( id ) );
       }
 
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    ::Int_t TAuxStore::getEntry( ::Long64_t entry, ::Int_t getall ) {
@@ -287,7 +290,7 @@ namespace xAOD {
       guard_t guard( m_mutex1 );
 
       // Check if the transient store already handles this variable:
-      if( m_transientStore && 
+      if( m_transientStore &&
           ( m_transientStore->getAuxIDs().test( auxid ) ) ) {
          return m_transientStore->getData( auxid );
       }
@@ -450,7 +453,7 @@ namespace xAOD {
 
    /// Lock a decoration.
    void TAuxStore::lockDecoration (SG::auxid_t auxid)
-   { 
+   {
      if( m_transientStore ) {
        m_transientStore->lockDecoration (auxid);
      }
@@ -810,10 +813,10 @@ namespace xAOD {
    /// TEvent when connecting to new input files/chains.
    ///
    /// @param tree The tree to collect the information from
-   /// @returns <code>TReturnCode::kSuccess</code> if the function was
+   /// @returns <code>StatusCode::SUCCESS</code> if the function was
    ///          successful, something else otherwise
    ///
-   TReturnCode TAuxStore::initStats( ::TTree* tree ) {
+   StatusCode TAuxStore::initStats( ::TTree* tree ) {
 
       // Connect the object to this input tree:
       RETURN_CHECK( "initStats", readFrom( tree, kFALSE ) );
@@ -832,7 +835,7 @@ namespace xAOD {
       stats.setBranchNum( stats.branchNum() + nbranch );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This internal function takes care of connecting to an individual
@@ -843,11 +846,11 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the operation was successful,
    ///          <code>kFALSE</code> if not
    ///
-   TReturnCode TAuxStore::setupInputData( auxid_t auxid ) const {
+   StatusCode TAuxStore::setupInputData( auxid_t auxid ) const {
 
       // Return right away if we already know that the branch is missing:
       if( ( auxid < m_missingBranches.size() ) && m_missingBranches[ auxid ] ) {
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Make sure the internal storage is large enough:
@@ -860,14 +863,14 @@ namespace xAOD {
 
       // Check if we need to do anything:
       if( m_vecs[ auxid ] && m_branches[ auxid ] ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // A little sanity check:
       if( ! m_inTree ) {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "No input TTree set up!" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Another sanity check:
@@ -875,7 +878,7 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "The internal variables of the object got "
                                 "messed up?!?" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Get the property name:
@@ -899,7 +902,7 @@ namespace xAOD {
             m_missingBranches[ auxid ] = true;
             // The branch doesn't exist, but this is not an error per se.
             // The user may just be calling isAvailable(...) on the variable.
-            return TReturnCode::kRecoverable;
+            return StatusCode::RECOVERABLE;
          }
          // We have a dynamic branch:
          staticBranch = kFALSE;
@@ -924,7 +927,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Branch type and requested structure mode "
                                 "differ for branch: %s" ),
                   brName.Data() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check what variable it is:
@@ -934,7 +937,7 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "Couldn't determine the type of branch "
                                 "\"%s\"" ), brName.Data() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Get the property type:
@@ -954,7 +957,7 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::setupInputData",
                   XAOD_MESSAGE( "Can't read/copy variable %s (%s)" ),
                   brName.Data(), clDummy->GetName() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
       const TString brTypeName = Utils::getTypeName( *brType ).c_str();
 
@@ -970,7 +973,7 @@ namespace xAOD {
             ::Error( "xAOD::TAuxStore::setupInputData",
                      XAOD_MESSAGE( "No dictionary available for class \"%s\"" ),
                      brTypeName.Data() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
 
@@ -992,7 +995,7 @@ namespace xAOD {
                                 "variable %s (%i)" ),
                   brName.Data(),
                   static_cast< int >( auxid ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Create a new branch handle:
@@ -1045,7 +1048,7 @@ namespace xAOD {
          m_vecs[ auxid ] = 0;
          delete m_branches[ auxid ];
          m_branches[ auxid ] = 0;
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Get the current entry:
@@ -1084,7 +1087,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is used internally to create a "simple" output branch
@@ -1094,13 +1097,13 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the operation was successful,
    ///          <code>kFALSE</code> if not
    ///
-   TReturnCode TAuxStore::setupOutputData( auxid_t auxid ) const {
+   StatusCode TAuxStore::setupOutputData( auxid_t auxid ) const {
 
       // Check whether we need to do anything:
-      if( ! m_outTree ) return TReturnCode::kSuccess;
+      if( ! m_outTree ) return StatusCode::SUCCESS;
 
       // Check if the variable needs to be written out:
-      if( ! isAuxIDSelected( auxid ) ) return TReturnCode::kSuccess;
+      if( ! isAuxIDSelected( auxid ) ) return StatusCode::SUCCESS;
 
       // Make sure that containers are large enough:
       if( m_vecs.size() <= auxid ) {
@@ -1114,7 +1117,7 @@ namespace xAOD {
       }
 
       // Check if this auxiliary variable is already in the output:
-      if( m_branchesWritten[ auxid ] ) return TReturnCode::kSuccess;
+      if( m_branchesWritten[ auxid ] ) return StatusCode::SUCCESS;
 
       // Check if the variable was put into the transient store as a
       // decoration, and now needs to be put into the output file:
@@ -1126,7 +1129,7 @@ namespace xAOD {
          if( ! pptr ) {
             ::Fatal( "xAOD::TAuxStore::setupOutputData",
                      XAOD_MESSAGE( "Internal logic error detected" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // The registry:
@@ -1139,7 +1142,7 @@ namespace xAOD {
             ::Error( "xAOD::TAuxStore::setupOutputData",
                      XAOD_MESSAGE( "Couldn't create decoration in memory "
                                    "for writing" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Get the type of this variable:
@@ -1149,7 +1152,7 @@ namespace xAOD {
                      XAOD_MESSAGE( "Couldn't get the type of transient "
                                    "variable %i" ),
                      static_cast< int >( auxid ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Now get the factory for this variable:
          const SG::IAuxTypeVectorFactory* factory =
@@ -1158,7 +1161,7 @@ namespace xAOD {
             ::Error( "xAOD::TAuxStore::setupOutputData",
                      XAOD_MESSAGE( "No factory found for transient variable "
                                    "%i" ), static_cast< int >( auxid ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Finally, do the copy:
@@ -1187,7 +1190,7 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::setupOutputData",
                   XAOD_MESSAGE( "Structure mode unknown for variable %s" ),
                   SG::AuxTypeRegistry::instance().getName( auxid ).c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if the variable exists already in memory:
@@ -1210,7 +1213,7 @@ namespace xAOD {
          bool primitiveBranch = (strlen( brType->name() ) == 1);
          m_branches[ auxid ] =
             new TBranchHandle( kFALSE, ( strlen( brType->name() ) == 1 ),
-                               (primitiveBranch ? 
+                               (primitiveBranch ?
                                 brType :
                                 m_vecs[ auxid ]->objType() ),
                                ( m_structMode == kObjectStore ?
@@ -1236,7 +1239,7 @@ namespace xAOD {
          // variable will not be accessed in a typeless way anymore.
          m_branchesWritten[ auxid ] = true;
          // Return gracefully:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check that we know the type of the branch:
@@ -1245,7 +1248,7 @@ namespace xAOD {
          ::Error( "xAOD::TAuxStore::setupOutputData",
                   XAOD_MESSAGE( "There's an internal logic error in the "
                                 "code" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       const std::string brTypeName = Utils::getTypeName( *brType );
 
@@ -1262,7 +1265,7 @@ namespace xAOD {
                      XAOD_MESSAGE( "Type not known for variable \"%s\" "
                                    "of type \"%s\"" ),
                      brName.Data(), brTypeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Construct the type description:
@@ -1285,13 +1288,13 @@ namespace xAOD {
             ::Error( "xAOD::TAuxStore::setupOutputData",
                      XAOD_MESSAGE( "Couldn't find dictionary for type: %s" ),
                      brTypeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          if( ! cl->GetStreamerInfo() ) {
             ::Error( "xAOD::TAuxStore::setupOutputData",
                      XAOD_MESSAGE( "No streamer info available for type %s" ),
                      cl->GetName() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Create the branch:
@@ -1306,7 +1309,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Failed creating branch \"%s\" of type "
                                 "\"%s\"" ),
                   brName.Data(), brTypeName.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // If this is not the first event, fill up the branch with dummy
@@ -1322,7 +1325,7 @@ namespace xAOD {
       m_auxIDs.insert( auxid );
 
       // We were successful:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// When writing an output tree, while reading information from an input
@@ -1340,17 +1343,17 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the operation was successful,
    ///          <code>kFALSE</code> if not
    ///
-   TReturnCode TAuxStore::scanInputTree() {
+   StatusCode TAuxStore::scanInputTree() {
 
       // Check if an input tree is even available:
       if( ! m_inTree ) {
          // It's not an error if it isn't.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if the input was already scanned:
       if( m_inputScanned ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Get a list of all branches in the tree:
@@ -1438,7 +1441,7 @@ namespace xAOD {
       m_inputScanned = kTRUE;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function takes care of assigning an auxiliary ID to a given branch.
@@ -1456,7 +1459,7 @@ namespace xAOD {
    ///                     <code>kFALSE</code> if it's a dynamic one
    /// @returns <code>kTRUE</code> if successful, <code>kFALSE</code> if not
    ///
-   TReturnCode TAuxStore::setupAuxBranch( ::TBranch* br, const char* auxName,
+   StatusCode TAuxStore::setupAuxBranch( ::TBranch* br, const char* auxName,
                                           ::Bool_t staticBranch ) {
 
       // Get the branch's type:
@@ -1467,6 +1470,19 @@ namespace xAOD {
          ::Warning( "xAOD::TAuxStore::setupAuxBranch",
                     "Couldn't get the type of branch \"%s\"",
                     br->GetName() );
+      }
+
+      // Check for schema evolution:
+      // If a branch has automatic schema evolution from one class to another,
+      // then what we get from GetExpectedType will be the on-disk class.
+      // What we have in memory is given by GetCurrentClass.
+      if (expectedClass) {
+        if (TBranchElement* bre = dynamic_cast<TBranchElement*> (br)) {
+          TClass* newClass = bre->GetCurrentClass();
+          if (newClass && newClass != expectedClass) {
+            expectedClass = newClass;
+          }
+        }
       }
 
       // If this is a primitive variable, and we're still not sure whether this
@@ -1527,12 +1543,12 @@ namespace xAOD {
       const auxid_t regAuxid = registry.findAuxID( auxName );
       if( regAuxid != SG::null_auxid ) {
          m_auxIDs.insert( regAuxid );
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // If we didn't find a type_info for the branch, give up now...
       if( ! ti ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check for an auxiliary ID for this branch:
@@ -1601,12 +1617,12 @@ namespace xAOD {
                   XAOD_MESSAGE( "Couldn't assign auxiliary ID to branch "
                                 "\"%s\"" ),
                   br->GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Remember the auxiliary ID:
       m_auxIDs.insert( auxid );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This is a tricky one. The function can't just rely on getSelectedAuxIDs,
@@ -1759,6 +1775,25 @@ namespace xAOD {
           if (*cl2->GetTypeInfo() == *aux_vec_ti)
             return kTRUE;
         }
+      }
+
+      // If we got this far, the branch may have undergone schema evolution. If
+      // it's one that ROOT can deal with itself, then we should still be able
+      // to read the branch with this code.
+      //
+      // Note that even after looking at the ROOT source code, I'm still not
+      // 100% sure whether we would need to delete the objects returned by
+      // TClass::GetConversionStreamerInfo(...) in this code. :-( But based on
+      // general experience with the ROOT code, I'm going to say no...
+      TClass* aux_vec_cl =
+         TClass::GetClass( Utils::getTypeName( *aux_vec_ti ).c_str() );
+      if( aux_vec_cl && aux_vec_cl->GetConversionStreamerInfo( cl, 0 ) ) {
+         return kTRUE;
+      }
+      TClass* aux_obj_cl =
+         TClass::GetClass( Utils::getTypeName( *aux_obj_ti ).c_str() );
+      if( aux_obj_cl && aux_obj_cl->GetConversionStreamerInfo( cl, 0 ) ) {
+         return kFALSE;
       }
 
      // If neither, then something went wrong...

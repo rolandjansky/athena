@@ -91,13 +91,6 @@ InDet::PixelClusterOnTrackTool::~PixelClusterOnTrackTool() {
 ///////////////////////////////////////////////////////////////////
 // Initialisation
 ///////////////////////////////////////////////////////////////////
-namespace {
-   std::string_view stripStoreName(const std::string &name) {
-      std::string::size_type pos = name.find("+");
-      pos =  (pos!=std::string::npos ? pos + 1 : 0);
-      return std::string_view( &(name.c_str()[pos]),name.size()-pos);
-   }
-}
 
 StatusCode
 InDet::PixelClusterOnTrackTool::initialize() {
@@ -139,10 +132,10 @@ InDet::PixelClusterOnTrackTool::initialize() {
   m_applyNNcorrection &= !m_splitClusterMapKey.key().empty();
   ATH_CHECK(m_splitClusterMapKey.initialize(m_applyNNcorrection));
   ATH_CHECK(m_NnClusterizationFactory.retrieve( DisableTool{!m_applyNNcorrection} ));
-  
+
   // Include IBL calibration constants
   //Moved to initialize to remove statics and prevent repitition
-  
+
   constexpr double phimin=-0.27, phimax=0.27;
   for (int i=0; i<=s_nbinphi; i++) m_phix[i]=phimin+i*(phimax-phimin)/s_nbinphi;
   constexpr double etacen[s_nbineta]={-0.,1.,1.55,1.9,2.15,2.35};
@@ -151,21 +144,9 @@ InDet::PixelClusterOnTrackTool::initialize() {
 
   ///UGLY!
 #include "IBL_calibration.h"
-  ///  
+  ///
 
   ATH_CHECK(m_lorentzAngleTool.retrieve());
-
-  if (!m_renounce.empty()) {
-     for (Gaudi::DataHandle* input_handle : inputHandles()) {
-        std::string_view base_name(stripStoreName(input_handle->objKey()));
-        for (const std::string &renounce_input : m_renounce) {
-           if (base_name==renounce_input) {
-              renounce(*input_handle);
-              ATH_MSG_INFO("Renounce : " << name() << " . " << input_handle->objKey() );
-           }
-        }
-     }
-  }
   return StatusCode::SUCCESS;
 }
 
@@ -663,10 +644,10 @@ InDet::PixelClusterOnTrackTool::correctNN
     }
   }
 
-  ATH_MSG_DEBUG( " Old position x: " << pixelPrepCluster->localPosition()[0] 
+  ATH_MSG_DEBUG( " Old position x: " << pixelPrepCluster->localPosition()[0]
       << " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(0, 0))
       << " y: " << pixelPrepCluster->localPosition()[1]
-      << " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(1, 1)) <<"\n" 
+      << " +/- " << std::sqrt(pixelPrepCluster->localCovariance()(1, 1)) <<"\n"
       << " Final position x: " << finalposition[0]
       << " +/- " << std::sqrt(finalerrormatrix(0, 0))
       << " y: " << finalposition[1] << " +/- "
@@ -720,7 +701,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
   if (m_applyNNcorrection){
     SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
     InDet::PixelGangedClusterAmbiguities::const_iterator mapBegin = splitClusterMap->begin();
-    InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end(); 
+    InDet::PixelGangedClusterAmbiguities::const_iterator mapEnd = splitClusterMap->end();
     for (InDet::PixelGangedClusterAmbiguities::const_iterator mapIter = mapBegin; mapIter != mapEnd; ++mapIter) {
       const SiCluster *first = (*mapIter).first;
       const SiCluster *second = (*mapIter).second;
@@ -734,7 +715,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
           continue;
         }
         vectorOfPositions.push_back(pixelAddCluster->localPosition());
-        
+
         ATH_MSG_DEBUG( "Found one more pixel cluster. Position x: "
                        << pixelAddCluster->localPosition()[0] << "y: " << pixelAddCluster->localPosition()[1]);
       }// find relevant element of map
@@ -743,25 +724,25 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
 
-  const Trk::AtaPlane *parameters = dynamic_cast<const Trk::AtaPlane *>(&trackPar);
-  if (not parameters) {
-    ATH_MSG_WARNING( "Parameters are not at a plane ! Aborting cluster correction... " );
+  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+      trackPar.type() != Trk::AtaSurface) {
+    ATH_MSG_WARNING(
+      "Parameters are not at a plane ! Aborting cluster correction... ");
     return false;
   }
 
-  std::vector<Amg::Vector2D>     allLocalPositions;
-  std::vector<Amg::MatrixX>      allErrorMatrix;
-
+  std::vector<Amg::Vector2D> allLocalPositions;
+  std::vector<Amg::MatrixX> allErrorMatrix;
   allLocalPositions =
     m_NnClusterizationFactory->estimatePositions(*pixelPrepCluster,
-                                                 parameters->associatedSurface(),
-                                                 *parameters,
+                                                 trackPar.associatedSurface(),
+                                                 trackPar,
                                                  allErrorMatrix,
                                                  numberOfSubclusters);
 
   if (allLocalPositions.empty()) {
     ATH_MSG_DEBUG( " Cluster cannot be treated by NN. Giving back to default clusterization " );
-    
+
     return false;
   }
 
@@ -801,7 +782,7 @@ InDet::PixelClusterOnTrackTool::getErrorsDefaultAmbi(const InDet::PixelCluster *
       << " Pix (2) x: " << allLocalPositions[1][0] << " +/- " << std::sqrt(allErrorMatrix[1](0, 0))
       << " y: " << allLocalPositions[1][1] << " +/- " << std::sqrt(allErrorMatrix[1](1, 1)) << "\n"
       << " Old (1) new (1) dist: " << std::sqrt(distancesq1) << " Old (1) new (2) " << std::sqrt(distancesq2) );
-    
+
 
     if (distancesq1 < distancesq2) {
       finalposition = allLocalPositions[0];
@@ -864,7 +845,7 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   if(m_applyNNcorrection){
     SG::ReadHandle<InDet::PixelGangedClusterAmbiguities> splitClusterMap(m_splitClusterMapKey);
     numberOfSubclusters = 1 + splitClusterMap->count(pixelPrepCluster);
- 
+
     if (splitClusterMap->count(pixelPrepCluster) == 0 && splitProb.isSplit()) {
       numberOfSubclusters = 2;
     }
@@ -874,21 +855,21 @@ InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi(const InDet::PixelCluster *pi
   }
 
   // now you have numberOfSubclusters and the vectorOfPositions (Amg::Vector2D)
-
-  const Trk::AtaPlane *parameters = dynamic_cast<const Trk::AtaPlane *>(&trackPar);
-  if (parameters == 0) {
-    ATH_MSG_WARNING("Parameters are not at a plane ! Aborting cluster correction... ");
+  if (trackPar.surfaceType() != Trk::Surface::Plane ||
+      trackPar.type() != Trk::AtaSurface) {
+    ATH_MSG_WARNING("Parameters are not at a plane surface ! Aborting cluster "
+                    "correction... ");
     return false;
   }
 
-  std::vector<Amg::Vector2D>     allLocalPositions;
-  std::vector<Amg::MatrixX>      allErrorMatrix;
-  allLocalPositions =
-    m_NnClusterizationFactory->estimatePositions(*pixelPrepCluster,
-                                                 parameters->associatedSurface(),
-                                                 *parameters,
-                                                 allErrorMatrix,
-                                                 numberOfSubclusters);
+  std::vector<Amg::Vector2D> allLocalPositions;
+  std::vector<Amg::MatrixX> allErrorMatrix;
+  allLocalPositions = m_NnClusterizationFactory->estimatePositions(
+    *pixelPrepCluster,
+    trackPar.associatedSurface(),
+    trackPar,
+    allErrorMatrix,
+    numberOfSubclusters);
 
   if (allLocalPositions.empty()) {
     ATH_MSG_DEBUG(

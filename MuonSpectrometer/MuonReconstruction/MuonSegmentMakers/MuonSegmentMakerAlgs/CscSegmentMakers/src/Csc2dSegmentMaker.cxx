@@ -79,7 +79,7 @@ StatusCode Csc2dSegmentMaker::initialize(){
 
 
 //******************************************************************************
-std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols) const
+std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const std::vector<const Muon::CscPrepDataCollection*>& pcols, const EventContext& ctx) const
 {
 
   // Construct output segment collection.
@@ -100,7 +100,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const
                       << clus->size() << " clusters" );
 
     if (clus->size() == 0)     continue; // skip zero cluster collection
-    MuonSegmentCombination* pcol =findSegmentCombination(*clus);
+    MuonSegmentCombination* pcol =findSegmentCombination(*clus, ctx);
     if (pcol) {
       mpsegs->push_back(pcol);
       ATH_MSG_DEBUG("Found 2d CSC segment " << m_printer->print( *pcol ));
@@ -116,7 +116,7 @@ std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const
 
 //******************************************************************************
 
-MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepDataCollection& clus) const {
+MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepDataCollection& clus, const EventContext& ctx) const {
 
   // check whether input not empty
   if( clus.empty() ) return 0;
@@ -161,7 +161,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 	Identifier stripId=m_idHelperSvc->cscIdHelper().channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
 	IdentifierHash hashID;
 	m_idHelperSvc->cscIdHelper().get_channel_hash(stripId,hashID);
-	if(!m_segmentTool->isGood(hashID)){
+	if(!m_segmentTool->isGood(hashID, ctx)){
 	  ATH_MSG_DEBUG("bad strip");
 	  nbad++;
 	}
@@ -229,7 +229,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   MuonSegmentCombination* pcol = 0;
   if (nHitLayer_eta >=2 || nHitLayer_phi >=2) {
     ATH_MSG_DEBUG( "Csc2dSegment calls get2dMuonSegmentCombination !!!" );
-    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, layStatus[0], layStatus[1]); 
+    pcol = m_segmentTool->get2dMuonSegmentCombination(eta_id, phi_id, eta_clus, phi_clus, lpos000, ctx, layStatus[0], layStatus[1]); 
   }
   
   // to avoid memory leak
@@ -252,7 +252,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
 }
   
 //******************************************************************************
-std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection& ) const
+std::unique_ptr<MuonSegmentCombinationCollection> Csc2dSegmentMaker::find( const MuonSegmentCombinationCollection&, const EventContext& ) const
 {
   return std::unique_ptr<MuonSegmentCombinationCollection>();
 

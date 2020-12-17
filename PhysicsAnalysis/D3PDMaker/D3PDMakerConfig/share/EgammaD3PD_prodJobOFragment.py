@@ -23,9 +23,6 @@ if prodFlags.WriteEgammaD3PD.isVirtual:
     raise NameError( "Egamma D3PD set to be a virtual stream" )
     pass
 
-#configure MuonScatteringAngleSignificanceTool
-include("JetTagD3PDMaker/MuonScatteringSigToolConfig.py")
-
 # Construct the stream and file names for the SUSY D3PD:
 streamName = prodFlags.WriteEgammaD3PD.StreamName
 fileName   = buildFileName( prodFlags.WriteEgammaD3PD )

@@ -108,16 +108,9 @@ namespace Trk
 
     ATH_CHECK( m_smoother.retrieve() );
 
-    ATH_MSG_INFO( "Initialize successful" );
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetFitterRoutines::finalize() {
-
-    ATH_MSG_INFO( "Finalize successful" );
-    return StatusCode::SUCCESS;
-
-  }
 
   void JetFitterRoutines::initializeToMinDistancesToJetAxis(VxJetCandidate* myJetCandidate) const {
     

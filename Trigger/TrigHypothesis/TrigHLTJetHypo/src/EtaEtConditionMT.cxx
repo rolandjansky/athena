@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./EtaEtConditionMT.h"
@@ -37,7 +37,7 @@ bool EtaEtConditionMT::isSatisfied(const pHypoJet& ip,
         << " et thresh " << m_threshold
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ")"
         " abseta " << abseta << " et " << et << '\n';
@@ -57,7 +57,7 @@ EtaEtConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string EtaEtConditionMT::toString() const noexcept {
+std::string EtaEtConditionMT::toString() const {
   std::stringstream ss;
   ss << "EtaEtConditionMT (" << this << ") etaMin "
      <<  m_etaMin 

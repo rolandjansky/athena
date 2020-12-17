@@ -13,6 +13,7 @@
 #include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
 #include "IRegionSelector/IRoiDescriptor.h"
 #include "IRegionSelector/RoiUtil.h"
+#include "InDetPrepRawData/PixelCluster.h"
 
 TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& tcs) 
   : m_settings(tcs), 
@@ -47,10 +48,43 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
 
   m_SoA.clear();
 
+  m_spStorage.clear();
+
+  m_spStorage.resize(vSP.size());
+
+  m_minTau.resize(vSP.size(), 0.0);
+  m_maxTau.resize(vSP.size(), 100.0);
+
+  int spIndex = 0;
+  
   for(std::vector<TrigSiSpacePointBase>::const_iterator it = vSP.begin();it != vSP.end();++it) {
     //  if((*it).r()>m_maxRadius || (*it).r() < m_minRadius) continue;
     // int rIdx = ((*it).r()-m_minRadius)/m_radBinWidth;
     int layerId = (*it).layer();
+
+    bool isPixel = (m_settings.m_layerGeometry[layerId].m_subdet == 1);
+    bool isEndcap = (m_settings.m_layerGeometry[layerId].m_type != 0);
+
+    bool updateTauRange = false;
+    float minTau = 0.0;
+    float maxTau = 100.0;
+
+    if((m_settings.m_useTrigSeedML > 0) && isPixel) {
+      const Trk::SpacePoint* osp = (*it).offlineSpacePoint();
+      const InDet::PixelCluster* pCL = dynamic_cast<const InDet::PixelCluster*>(osp->clusterList().first);
+
+      float cluster_width = pCL->width().widthPhiRZ().y();
+      if(isEndcap) {
+	if(cluster_width > m_settings.m_maxEC_len) continue;
+      }
+      else {//Barrel
+	if(!m_settings.m_vLUT.empty()) {
+	  const TrigSeedML_LUT& LUT = (*m_settings.m_vLUT.begin());
+	  updateTauRange = LUT.getValidRange(cluster_width, minTau, maxTau);
+	}
+      }
+    }
+    
     int phiIdx = ((*it).phi()+M_PI)/m_phiSliceWidth;
     if (phiIdx >= m_settings.m_nMaxPhiSlice) {
       phiIdx %= m_settings.m_nMaxPhiSlice;
@@ -59,7 +93,15 @@ void TrigTrackSeedGenerator::loadSpacePoints(const std::vector<TrigSiSpacePointB
       phiIdx += m_settings.m_nMaxPhiSlice;
       phiIdx %= m_settings.m_nMaxPhiSlice;
     }
-    m_pStore->addSpacePoint(phiIdx, layerId, &(*it));
+    m_spStorage[spIndex].set(&(*it), spIndex);
+    m_pStore->addSpacePoint(phiIdx, layerId, &m_spStorage[spIndex]);
+
+    if(updateTauRange) {
+      m_minTau[spIndex] = minTau;
+      m_maxTau[spIndex] = maxTau;
+    }
+    spIndex++;
+
   }
 
   m_pStore->sortSpacePoints2(m_settings.m_layerGeometry);
@@ -147,11 +189,11 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
       */
       for(auto spm : S.m_phiSlices[phiI]) {//loop over middle spacepoints
 
-	float zm = spm->z();
-	float rm = spm->r();
+	float zm = spm->m_pSP->z();
+	float rm = spm->m_pSP->r();
 
 	//    const std::pair<IdentifierHash, IdentifierHash>& deIds = spm->offlineSpacePoint()->elementIdList();
-	    
+	
 	int nSP=0;
 
 	m_nInner = 0;
@@ -161,18 +203,23 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	m_outerMarkers.clear();
 
 	for(int layerJ=0;layerJ<nLayers;layerJ++) {
-	    
-	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
-	  
+
 	  bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
+
+	  if((!m_settings.m_tripletDoPSS) && (!m_settings.m_tripletDoPPS)) {//no mixed seeds allowed
+	    if(isSct && isPixel2) continue;//no PSx
+	    if((!isSct) && (!isPixel2)) continue;//no xPS
+	  }
+	  
+	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
 	    
 	  bool checkPSS = (!m_settings.m_tripletDoPSS) && (isSct && isPixel2);
 
 	  //for(auto phiJ : phiVec) {
 
 	  //  const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_layers[layerJ].m_phiSlices.at(phiJ);
-
-	  const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_layers[layerJ].m_phiThreeSlices.at(phiI);
+	  
+	  const std::vector<const INDEXED_SP*>& spVec = m_pStore->m_layers[layerJ].m_phiThreeSlices.at(phiI);
 
 	  if(spVec.empty()) continue;
 
@@ -183,7 +230,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	  int nI = m_nInner;
 	  int nO = m_nOuter;
 	      
-	  nSP += processSpacepointRange(layerJ, rm, zm, checkPSS, delta, roiDescriptor);
+	  nSP += processSpacepointRange(layerJ, spm, checkPSS, delta, roiDescriptor);
 
 	  if(m_nInner > nI) m_innerMarkers.push_back(m_nInner);
 	  if(m_nOuter > nO) m_outerMarkers.push_back(m_nOuter);
@@ -200,7 +247,7 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	if(m_nInner != 0 && m_nOuter != 0) {
 	  std::vector<TrigInDetTriplet> tripletVec;
 	    
-	  createTripletsNew(spm, m_nInner, m_nOuter, tripletVec, roiDescriptor);
+	  createTripletsNew(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
 	    
 	  if(!tripletVec.empty()) storeTriplets(tripletVec);	
 	  tripletVec.clear();
@@ -234,6 +281,9 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
     if(S.m_nSP==0) continue;
 
     bool isSct = (m_settings.m_layerGeometry[layerI].m_subdet == 2);
+    bool isBarrel = (m_settings.m_layerGeometry[layerI].m_type == 0);
+    
+    bool checkWidth = isBarrel && (!isSct) && (m_settings.m_useTrigSeedML > 0);
     
     for(int phiI=0;phiI<m_settings.m_nMaxPhiSlice;phiI++) {
 
@@ -254,9 +304,17 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 	for(auto spm : S.m_phiSlices[phiI]) {//loop over middle spacepoints
 
-	  float zm = spm->z();
-	  float rm = spm->r();
+	  float zm = spm->m_pSP->z();
+	  float rm = spm->m_pSP->r();
 
+	  float minTau = 0.0;
+	  float maxTau = 100.0;
+
+	  if(checkWidth) {
+	    minTau = m_minTau[spm->m_idx];
+	    maxTau = m_maxTau[spm->m_idx];
+	  }
+	  
 	  std::vector<TrigInDetTriplet> tripletVec;
 
 	  for(const auto zVertex : vZv) {//loop over zvertices
@@ -270,27 +328,33 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor, co
 
 	    for(int layerJ=0;layerJ<nLayers;layerJ++) {//loop over other layers
 
-	      if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
-
 	      bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
+
+	      if((!m_settings.m_tripletDoPSS) && (!m_settings.m_tripletDoPPS)) {//no mixed seeds allowed
+		if(isSct && isPixel2) continue;//no PSx
+		if((!isSct) && (!isPixel2)) continue;//no xPS
+	      }
+
+	      if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
+	      
 	      bool checkPSS = (!m_settings.m_tripletDoPSS) && (isSct && isPixel2);
 
 	      for(auto phiJ : phiVec) {
-
-		const std::vector<const TrigSiSpacePointBase*>& spVec = m_pStore->m_layers[layerJ].m_phiSlices.at(phiJ);
-
+		
+		const std::vector<const INDEXED_SP*>& spVec = m_pStore->m_layers[layerJ].m_phiSlices.at(phiJ);
+		
 		if(spVec.empty()) continue;
 
 		SP_RANGE delta;
 
 		if(!getSpacepointRange(layerJ, spVec, delta)) continue;
 	      
-		nSP += processSpacepointRangeZv(rm, zm, checkPSS, delta);
+		nSP += processSpacepointRangeZv(spm, checkPSS, delta, checkWidth, minTau, maxTau);
 	      }//loop over phi bins
 
 	    }//loop over inner/outer layers
 	    if(m_nInner != 0 && m_nOuter != 0) {
-	      createTriplets(spm, m_nInner, m_nOuter, tripletVec, roiDescriptor);
+	      createTriplets(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
 	    }
 	  }//loop over zvertices
 	  if(!tripletVec.empty()) storeTriplets(tripletVec);
@@ -471,13 +535,13 @@ bool TrigTrackSeedGenerator::validateLayerPairNew(int layerI, int layerJ, float 
 
 
 
-bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const TrigSiSpacePointBase*>& spVec, SP_RANGE& delta) {
+bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const INDEXED_SP*>& spVec, SP_RANGE& delta) {
   
   int typeJ = m_settings.m_layerGeometry[lJ].m_type;
   bool isBarrel = (typeJ == 0);
   bool isPositiveEC = m_settings.m_layerGeometry[lJ].m_refCoord > 0; 
-  float minSpCoord = (isBarrel) ? (*spVec.begin())->z() : (*spVec.begin())->r();
-  float maxSpCoord = (isBarrel) ? (*spVec.rbegin())->z() : (*spVec.rbegin())->r();
+  float minSpCoord = (isBarrel) ? (*spVec.begin())->m_pSP->z() : (*spVec.begin())->m_pSP->r();
+  float maxSpCoord = (isBarrel) ? (*spVec.rbegin())->m_pSP->z() : (*spVec.rbegin())->m_pSP->r();
 
   if(!isBarrel && isPositiveEC) {//forward endcap SPs are sorted differently
     float tmp = minSpCoord;minSpCoord = maxSpCoord;maxSpCoord = tmp;
@@ -488,8 +552,8 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
 
   //identify the range of spacepoints in the layer
 
-  std::vector<const TrigSiSpacePointBase*>::const_iterator it1 = spVec.end();
-  std::vector<const TrigSiSpacePointBase*>::const_iterator it2 = spVec.end();
+  std::vector<const INDEXED_SP*>::const_iterator it1 = spVec.end();
+  std::vector<const INDEXED_SP*>::const_iterator it2 = spVec.end();
   
   if(isBarrel) {
     it1 = std::lower_bound(spVec.begin(), spVec.end(), m_minCoord, L_PHI_SECTOR::smallerThanZ());
@@ -512,20 +576,25 @@ bool TrigTrackSeedGenerator::getSpacepointRange(int lJ, const std::vector<const 
   return true;
 }
 
-int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, bool checkPSS, const SP_RANGE& delta, const IRoiDescriptor* roiDescriptor) {
+int TrigTrackSeedGenerator::processSpacepointRange(int lJ, const INDEXED_SP* spm, bool checkPSS, const SP_RANGE& delta, const IRoiDescriptor* roiDescriptor) {
 
   int nSP=0;
 
   bool isBarrel = (m_settings.m_layerGeometry[lJ].m_type==0);
   float refCoord = m_settings.m_layerGeometry[lJ].m_refCoord;
 
+  float rm = spm->m_pSP->r();
+  float zm = spm->m_pSP->z();
+
   float dZ = refCoord-zm;
   float dR_i = isBarrel ? 1.0/(refCoord-rm) : 1.0;
 
-  for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
+  int SeedML = m_settings.m_useTrigSeedML;
+
+  for(std::vector<const INDEXED_SP*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
     // if(deIds == (*spIt)->offlineSpacePoint()->elementIdList()) continue;
-    float zsp = (*spIt)->z();
-    float rsp = (*spIt)->r();
+    float zsp = (*spIt)->m_pSP->z();
+    float rsp = (*spIt)->m_pSP->r();
     
     float dr = rsp - rm;
     
@@ -538,8 +607,13 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (std::fabs(tau) > 7.41) continue;
+    float ftau = std::fabs(tau);
+    if (ftau > 7.41) continue;
     
+    if(spm->m_pSP->isPixel() && SeedML > 0) {
+      if(ftau < m_minTau[spm->m_idx] || ftau > m_maxTau[spm->m_idx]) continue;
+    }
+
     
     float z0  = zm - rm*tau;
     if (m_settings.m_doubletFilterRZ) {
@@ -549,12 +623,22 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
     float t = isBarrel ? dz*dR_i : dZ/dr;
     
     if(dr<0) {
-      m_SoA.m_spi[m_nInner] = *spIt;
+      if(isBarrel && (*spIt)->m_pSP->isPixel()) {
+	if(SeedML == 3 || SeedML == 4) {
+	  if(ftau < m_minTau[(*spIt)->m_idx] || ftau > m_maxTau[(*spIt)->m_idx]) continue;
+	}
+      }
+      m_SoA.m_spi[m_nInner] = (*spIt)->m_pSP;
       m_SoA.m_ti[m_nInner] = t;
       m_nInner++;
     }
     else {
-      m_SoA.m_spo[m_nOuter] = *spIt;
+      if(isBarrel && (*spIt)->m_pSP->isPixel()) {
+	if(SeedML == 2 || SeedML == 4) {
+	  if(ftau < m_minTau[(*spIt)->m_idx] || ftau > m_maxTau[(*spIt)->m_idx]) continue;
+	}
+      }
+      m_SoA.m_spo[m_nOuter] = (*spIt)->m_pSP;
       m_SoA.m_to[m_nOuter] = t;
       m_nOuter++;
     }
@@ -564,13 +648,19 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, float rm, float zm, b
   return nSP;
 }
 
-int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool checkPSS, const SP_RANGE& delta) {
+int TrigTrackSeedGenerator::processSpacepointRangeZv(const INDEXED_SP* spm, bool checkPSS, const SP_RANGE& delta, bool checkWidth, const float& minTau, const float& maxTau) {
 
-  int nSP=0;	    
-  for(std::vector<const TrigSiSpacePointBase*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
+  int nSP=0;
 
-    float rsp = (*spIt)->r(); 
-    float zsp = (*spIt)->z();  
+  float rm = spm->m_pSP->r();
+  float zm = spm->m_pSP->z();
+
+  int SeedML = m_settings.m_useTrigSeedML;
+  
+  for(std::vector<const INDEXED_SP*>::const_iterator spIt=delta.first; spIt!=delta.second; ++spIt) {
+
+    float rsp = (*spIt)->m_pSP->r(); 
+    float zsp = (*spIt)->m_pSP->z();  
     float dr = rsp - rm;
 	      
     if(std::fabs(dr)>m_maxDeltaRadius ) continue;
@@ -582,14 +672,31 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(float rm, float zm, bool ch
  
     float dz = zsp - zm;
     float tau = dz/dr;
-    if (std::fabs(tau) > 7.41) continue;//|eta|<2.7
+    float ftau = std::fabs(tau);
+    
+    if (ftau > 7.41) continue;//|eta|<2.7
 
+    if(checkWidth) {
+      if(ftau < minTau || ftau > maxTau) continue;
+    }
+    
     if(dr<0) {
-      m_SoA.m_spi[m_nInner++] = *spIt;
+      if((*spIt)->m_pSP->isPixel()) {
+      	if(SeedML == 3 || SeedML == 4) {
+	  if(ftau < m_minTau[(*spIt)->m_idx] || ftau > m_maxTau[(*spIt)->m_idx]) continue;
+	}
+      }
+      m_SoA.m_spi[m_nInner++] = (*spIt)->m_pSP;
     }
     else {
-      m_SoA.m_spo[m_nOuter++] = *spIt;
+      if((*spIt)->m_pSP->isPixel()) {
+	if(SeedML == 2 || SeedML == 4) {
+	  if(ftau < m_minTau[(*spIt)->m_idx] || ftau > m_maxTau[(*spIt)->m_idx]) continue;
+	}
+      }
+      m_SoA.m_spo[m_nOuter++] = (*spIt)->m_pSP;
     }
+
     nSP++;  
   }
 

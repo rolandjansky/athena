@@ -198,14 +198,14 @@ CP::SystematicSet DiTauEfficiencyCorrectionsTool::recommendedSystematics() const
 }
 
 //______________________________________________________________________________
-CP::SystematicCode DiTauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode DiTauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
-    if ((**it)->applySystematicVariation(sSystematicSet) == CP::SystematicCode::Unsupported)
+    if ((**it)->applySystematicVariation(sSystematicSet) == StatusCode::FAILURE)
     {
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 //=================================PRIVATE-PART=================================

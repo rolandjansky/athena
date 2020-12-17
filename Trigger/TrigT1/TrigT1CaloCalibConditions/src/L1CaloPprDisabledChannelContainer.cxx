@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1CaloCalibConditions/L1CaloPprDisabledChannelContainer.h"
@@ -108,7 +108,7 @@ DataObject* L1CaloPprDisabledChannelContainer::makePersistent() const {
 */
 }
 
-void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap) {
+void L1CaloPprDisabledChannelContainer::makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap) {
 
 //	std::cout<< "*** L1CaloPprDisabledChannelContainer::makeTransient() ***"<<std::endl;
 //	std::cout<< "***"<<condAttrListCollectionMap.size()<<"***"<<std::endl;

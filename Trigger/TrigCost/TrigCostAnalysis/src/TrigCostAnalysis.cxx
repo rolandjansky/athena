@@ -14,6 +14,7 @@
 #include "monitors/MonitorAlgorithmClass.h"
 #include "monitors/MonitorGlobal.h"
 #include "monitors/MonitorThreadOccupancy.h"
+#include "monitors/MonitorROS.h"
 
 TrigCostAnalysis::TrigCostAnalysis( const std::string& name, ISvcLocator* pSvcLocator ) :
   AthHistogramAlgorithm(name, pSvcLocator),
@@ -27,6 +28,7 @@ StatusCode  TrigCostAnalysis::initialize() {
 
   ATH_MSG_DEBUG("Reading from " << m_costDataKey.key() << ", " << m_HLTMenuKey.key());
   ATH_CHECK( m_costDataKey.initialize() );
+  ATH_CHECK( m_rosDataKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
 
   if (!m_enhancedBiasTool.name().empty()) {
@@ -144,9 +146,13 @@ StatusCode TrigCostAnalysis::execute() {
   SG::ReadHandle<xAOD::TrigCompositeContainer> costDataHandle(m_costDataKey, context);
   ATH_CHECK( costDataHandle.isValid() );
 
+  SG::ReadHandle<xAOD::TrigCompositeContainer> rosDataHandle(m_rosDataKey, context);
+  ATH_CHECK( rosDataHandle.isValid() );
+
   const uint32_t onlineSlot = getOnlineSlot( costDataHandle.get() );
   CostData costData;
-  ATH_CHECK( costData.set(costDataHandle.get(), onlineSlot) );
+  ATH_CHECK( costData.set(costDataHandle.get(), rosDataHandle.get(), onlineSlot) );
+  costData.setRosToRobMap(m_rosToRob);
   costData.setLb( context.eventID().lumi_block() );
   costData.setTypeMap( m_algTypeMap );
   if (!m_enhancedBiasTool.name().empty()) {
@@ -198,6 +204,10 @@ StatusCode TrigCostAnalysis::registerMonitors(MonitoredRange* range) {
   if (m_doMonitorThreadOccupancy) {
     ATH_CHECK( range->addMonitor(std::make_unique<MonitorThreadOccupancy>("Thread_Occupancy_HLT", range)) );
     ATH_MSG_DEBUG("Registering Thread_Occupancy_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
+  }
+  if (m_doMonitorROS) {
+    ATH_CHECK( range->addMonitor(std::make_unique<MonitorROS>("ROS_HLT", range)) );
+    ATH_MSG_DEBUG("Registering ROS_HLT Monitor for range " << range->getName() << ". Size:" << range->getMonitors().size());
   }
   // if (m_do...) {}
   return StatusCode::SUCCESS;

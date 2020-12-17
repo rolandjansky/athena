@@ -44,7 +44,7 @@ StatusCode Muon::MDT_RawDataProviderToolCore::initialize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer)
+StatusCode Muon::MDT_RawDataProviderToolCore::convertIntoContainer( const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, MdtCsmContainer& mdtContainer) const
 {
   ATH_MSG_VERBOSE("convert(): " << vecRobs.size()<<" ROBFragments.");    
 

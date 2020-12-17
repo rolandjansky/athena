@@ -16,10 +16,8 @@ TrigEgammaPrecisionPhotonHypoToolInc::TrigEgammaPrecisionPhotonHypoToolInc( cons
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_decisionId( HLT::Identifier::fromToolName( name ) ) {
-	declareProperty("PhotonIsEMSelector"        ,m_egammaPhotonCutIDTool   );
-	declareProperty("RelEtConeCut"              ,m_RelEtConeCut=-999.);
+}
 
-    }
 
 StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
   ATH_MSG_DEBUG( "Initialization completed successfully"   );    
@@ -56,8 +54,6 @@ StatusCode TrigEgammaPrecisionPhotonHypoToolInc::initialize()  {
   return StatusCode::SUCCESS;
 }
 
-
-TrigEgammaPrecisionPhotonHypoToolInc::~TrigEgammaPrecisionPhotonHypoToolInc(){}
 
 bool TrigEgammaPrecisionPhotonHypoToolInc::decide( const ITrigEgammaPrecisionPhotonHypoTool::PhotonInfo& input ) const {
 

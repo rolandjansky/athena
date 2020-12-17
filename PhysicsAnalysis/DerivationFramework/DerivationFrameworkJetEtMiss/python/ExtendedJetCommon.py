@@ -5,11 +5,11 @@
 # Schedules special jet tools
 #********************************************************************
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from JetRec.JetRecFlags import jetFlags
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
+from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addSoftDropJets, addTrimmedJets
 from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
 
+from AthenaCommon import CfgMgr
 from AthenaCommon import Logging
 extjetlog = Logging.logging.getLogger('ExtendedJetCommon')
 
@@ -44,6 +44,7 @@ def addTCCTrimmedJets(sequence,outputlist,dotruth=True,writeUngroomed=False):
                    algseq=sequence, outputGroup=outputlist, writeUngroomed=writeUngroomed)
 
 def addCSSKSoftDropJets(sequence, seq_name, logger=extjetlog):
+    from DerivationFrameworkFlavourTag.HbbCommon import addVRJets, buildVRJets
     vrJetName, vrGhostLabel = buildVRJets(
         sequence, do_ghost=True, logger=logger)
 
@@ -115,15 +116,17 @@ def addAntiKt4TruthDressedWZJets(sequence,outputlist):
         addStandardJets("AntiKt", 0.4, "TruthDressedWZ", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthJets(sequence,outputlist):
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
     if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 1.0, "Truth", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt10TruthWZJets(sequence,outputlist):
+    from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkHasTruth
     if DerivationFrameworkHasTruth:
         addStandardJets("AntiKt", 1.0, "TruthWZ", ptmin=40000, mods="truth_ungroomed_larger", algseq=sequence, outputGroup=outputlist)
 
 def addAntiKt4EMPFlowJetsFE(sequence, outputlist):
-    addCHSPFlowObjectsFE()
+    addCHSPFlowObjectsFE()   # noqa: F821 (FIXME, does not exist)
     addStandardJets("AntiKt", 0.4, "EMPFlowFE", ptmin=10000, ptminFilter=15000, mods="pflow_ungroomed", algseq=sequence, outputGroup=outputlist)
 
 ##################################################################  
@@ -147,7 +150,7 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
     if "AntiKt10TruthWZJets" in jetlist:
         addAntiKt10TruthWZJets(sequence,outputlist)
     if "AntiKt2LCTopoJets" in jetlist:
-        addAntiKt2LCTopoJets(sequence,outputlist)
+        addAntiKt2LCTopoJets(sequence,outputlist)  # noqa: F821 (FIXME, does not exist)
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
 
@@ -187,7 +190,7 @@ def applyJetAugmentation(jetalg,algname,sequence,jetaugtool):
         jetaug = CfgMgr.DerivationFramework__CommonAugmentation(algname)
         sequence += jetaug
 
-    if not jetaugtool in jetaug.AugmentationTools:
+    if jetaugtool not in jetaug.AugmentationTools:
         jetaug.AugmentationTools.append(jetaugtool)
 
 def getJetAugmentationTool(jetalg, suffix=''):
@@ -253,7 +256,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
         isdata=False
 
         #largeRconfig selects config file for AntiKt10LCTopoTrimmedPtFrac5SmallR20, default is JES_MC16recommendation_FatJet_JMS_comb_19Jan2018.config
-        if not largeRjetconfig in ['comb','calo','TA']:
+        if largeRjetconfig not in ['comb','calo','TA']:
             extjetlog.warning('*** Wrong value for fatjetconfig!  Only \'comb\' (default), \'calo\' or \'TA\' can be used. ***')
 
         #Warning: these are quite outdated ... leaving for validation purposes for now
@@ -262,7 +265,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
                       'AntiKt4LCTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt4EMPFlow':('JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config',
-                                        'JetArea_Residual_EtaJES_GSC_Smear'),
+                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',
                                                               'EtaJES_JMS'),
                       'AntiKt2LCTopo':('JES_2015_2016_data_Rscan2LC_18Dec2018_R21.config',
@@ -280,6 +283,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
         isMC = DerivationFrameworkIsMonteCarlo
         isAF2 = False
         if isMC:
+            from RecExConfig.InputFilePeeker import inputFileSummary
             isAF2 = 'ATLFASTII' in inputFileSummary['metadata']['/Simulation/Parameters']['SimulationFlavour'].upper()
         if isMC and isAF2:
             ## Warning: these are quite outdated ... leaving for validation purposes for now
@@ -312,7 +316,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
 
 def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     supportedJets = ['AntiKt4EMTopo','AntiKt4LCTopo','AntiKt4EMPFlow','AntiKt4EMTopo_BTagging201810','AntiKt4EMPFlow_BTagging201810']
-    if not jetalg in supportedJets:
+    if jetalg not in supportedJets:
         extjetlog.warning('*** Calibration requested for unsupported jet collection '+jetalg+'! ***')
         return
     else:
@@ -322,7 +326,7 @@ def applyJetCalibration_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrame
 
 def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20',sequence=None):
     supportedJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt2LCTopo']
-    if not jetalg in supportedJets:
+    if jetalg not in supportedJets:
         extjetlog.warning('*** Calibration requested for unsupported jet collection! ***')
         extjetlog.warning('Supported custom jets: '+supportedJets)
         return
@@ -335,7 +339,7 @@ def applyJetCalibration_CustomColl(jetalg='AntiKt10LCTopoTrimmedPtFrac5SmallR20'
 
 def updateJVT(jetalg,algname,sequence, suffix = '',customVxColl = 'PrimaryVertices'):
     jetaugtool = getJetAugmentationTool(jetalg, suffix)
-    if(jetaugtool==None or jetaugtool.JetCalibTool==''):
+    if(jetaugtool is None or jetaugtool.JetCalibTool==''):
         extjetlog.warning('*** JVT update called but corresponding augmentation tool does not exist! ***')
         extjetlog.warning('*** You must apply jet calibration before scheduling JVT! ***')
 
@@ -381,7 +385,7 @@ def updateJVT(jetalg,algname,sequence, suffix = '',customVxColl = 'PrimaryVertic
 
 def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     supportedJets = ['AntiKt4EMTopo','AntiKt4EMPFlow','AntiKt4EMTopo_BTagging201810','AntiKt4EMPFlow_BTagging201810']
-    if not jetalg in supportedJets:
+    if jetalg not in supportedJets:
         extjetlog.warning('*** JVT update requested for unsupported jet collection {}! ***'.format(jetalg))
         return
     else:
@@ -391,7 +395,7 @@ def updateJVT_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
 
 def addJetPtAssociation(jetalg, truthjetalg, sequence, algname):
     jetaugtool = getJetAugmentationTool(jetalg, '_PtAssoc')
-    if(jetaugtool==None):
+    if(jetaugtool is None):
         extjetlog.warning('*** addJetPtAssociation called but corresponding augmentation tool does not exist! ***')
 
     jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg
@@ -413,10 +417,10 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
     supportedTruthJets = ['AntiKt10Truth','AntiKt10TruthTrimmedPtFrac5SmallR20']
     supportedRecoJets = ['AntiKt10LCTopoTrimmedPtFrac5SmallR20','AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKTrimmedPtFrac5SmallR20','AntiKt10UFOCSSKSoftDropBeta100Zcut10','AntiKt10UFOCSSKBottomUpSoftDropBeta100Zcut5','AntiKt10UFOCSSKRecursiveSoftDropBeta100Zcut5Ninf','AntiKt10UFOCHSTrimmedPtFrac5SmallR20']
     supportedJets = supportedRecoJets + supportedTruthJets
-    if not jetalg in supportedJets:
+    if jetalg not in supportedJets:
         extjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
         return
-    elif not labelname in supportedLabelNames:
+    elif labelname not in supportedLabelNames:
         extjetlog.warning('*** JetTruthLabeling augmentation requested for unsupported label definition {}! ***'.format(labelname))
         return
     else:
@@ -426,7 +430,7 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
 
         jetaugtool = getJetAugmentationTool(jetalg)
 
-        if(jetaugtool==None):
+        if(jetaugtool is None):
             extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
             return
 
@@ -444,6 +448,79 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
         extjetlog.info('ExtendedJetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+##################################################################  
+
+def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",trackVertexAssociation="JetTrackVtxAssoc",overlapLabel="",outLabel="fJvt",includePV=False):
+    supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtxHgg']
+    if jetalg not in supportedJets:
+        extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        from AthenaCommon.AppMgr import ToolSvc
+        jetaugtool = getJetAugmentationTool(jetalg,suffix=algname)
+
+        #Check if the calibration and JVT tools exist already
+        jetcalibtoolname_default = 'DFJetCalib_'+jetalg
+        jetjvttoolname_default = 'DFJetJvt_'+jetalg
+
+        if '_BTagging' in jetalg:
+            jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+        elif 'PFlowCustomVtx' in jetalg:
+            jetalg_basename = 'AntiKt4EMPFlow'
+        else:
+            jetalg_basename = jetalg
+
+        jvtefftoolname = getJvtEffToolName(jetalg_basename)
+
+        #Jet calibration tool 
+        if hasattr(ToolSvc, jetcalibtoolname_default):
+            jetaugtool.JetCalibTool = getattr(ToolSvc, jetcalibtoolname_default)
+        else:
+            applyJetCalibration(jetalg,algname,sequence,suffix=algname)
+
+        #JVT tool
+        if hasattr(ToolSvc, jetjvttoolname_default) and hasattr(ToolSvc, jvtefftoolname):
+            jetaugtool.JetJvtTool = getattr(ToolSvc, jetjvttoolname_default)
+            jetaugtool.JetJvtEffTool = getattr(ToolSvc, jvtefftoolname)
+        else:
+            updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix=algname)
+
+        # Calibration tool specific for pFlow fJVT: without GSC and smearing
+        jetcalibtoolname = 'DFJetCalib_PFfJvt_'+jetalg
+        if hasattr(ToolSvc, jetcalibtoolname):
+            jetaugtool.JetCalibToolfJvt = getattr(ToolSvc,jetcalibtoolname)
+        else:
+            jetcalibrationtool = CfgMgr.JetCalibrationTool(jetcalibtoolname,
+                                                           JetCollection=jetalg,
+                                                           ConfigFile="JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
+                                                           CalibSequence="JetArea_Residual_EtaJES",
+                                                           CalibArea="00-04-82",
+                                                           IsData=False)
+
+            ToolSvc += jetcalibrationtool
+
+        wpfotoolname = "DFwPFO_"+jetalg+algname
+        wpfotool = CfgMgr.CP__WeightPFOTool(wpfotoolname)
+
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg+algname
+        jetCont = jetalg+"Jets"
+
+        if hasattr(ToolSvc,pffjvttoolname):
+            jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
+            jetaugtool.fJvtMomentKey = outLabel
+        else:
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,
+                verticesName=primaryVertexCont, JetContainer=jetCont,
+                TrackVertexAssociation=jtm.tvassoc.TrackVertexAssociation,
+                WeightPFOTool=wpfotool, JetCalibrationTool=jetcalibrationtool,
+                ORName=overlapLabel, FjvtRawName='DFCommonJets_'+outLabel, includePV=includePV)
+            ToolSvc += pffjvttool
+            jetaugtool.JetForwardPFlowJvtTool = pffjvttool
+            jetaugtool.fJvtMomentKey = outLabel
+
+        extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
 ################################################################## 
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
@@ -451,7 +528,7 @@ def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFramew
       algname = 'JetCommonKernel_{0}'.format(jetalg)
     jetaugtool = getJetAugmentationTool(jetalg)
 
-    if(jetaugtool==None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
+    if(jetaugtool is None or jetaugtool.JetCalibTool=='' or jetaugtool.JetJvtTool==''):
         extjetlog.warning('*** B-tagging called but corresponding augmentation tool does not exist! ***')
         extjetlog.warning('*** You must apply jet calibration and JVT! ***')
 
@@ -474,12 +551,12 @@ def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFramew
 #################################################################
 def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
     jetaugtool = getJetAugmentationTool(jetalg,'_qgTag')
-    if(jetaugtool==None):
+    if(jetaugtool is None):
         extjetlog.warning('*** addQGTaggerTool called but corresponding augmentation tool does not exist! ***')
 
     from AthenaCommon.AppMgr import ToolSvc
 
-    if truthjetalg!=None:
+    if truthjetalg is not None:
         jetptassociationtoolname = 'DFJetPtAssociation_'+truthjetalg+'_'+jetalg
         if hasattr(ToolSvc,jetptassociationtoolname):
             jetaugtool.JetPtAssociationTool = getattr(ToolSvc,jetptassociationtoolname)
@@ -525,15 +602,21 @@ def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
 ################################################################## 
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
+
+    from  DerivationFrameworkTau.TauCommon import AddTauAugmentation
+    AddTauAugmentation(sequence,doLoose=True)
+
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = '' #default
+    tauLabel = 'DFTauLoose'
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
-                OverlapLabel=outputLabel,
-                            OverlapRemovalTool=orTool,
-                            BJetLabel=bJetLabel)
+                                    OverlapLabel=outputLabel,
+                                    OverlapRemovalTool=orTool,
+                                    TauLabel=tauLabel,
+                                    BJetLabel=bJetLabel)
     sequence += algOR
 
     from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonJetDrTool
@@ -567,15 +650,14 @@ def getJetCleaningTool(cleaningLevel):
 def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    jetcleaningtoolname = "EventCleaningTool_Loose"
     prefix = "DFCommonJets_"
     ecToolLoose = EventCleaningTool('EventCleaningTool_Loose',CleaningLevel='LooseBad')
     ecToolLoose.JetCleanPrefix = prefix
     ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
     algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
-                            EventCleaningTool=ecToolLoose,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix)
+                                         EventCleaningTool=ecToolLoose,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix)
     sequence += algCleanLoose
 
 ##################################################################  
@@ -583,17 +665,16 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
 def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    jetcleaningtoolname = "EventCleaningTool_Tight"
     prefix = "DFCommonJets_"
     ecToolTight = EventCleaningTool('EventCleaningTool_Tight',CleaningLevel='TightBad')
     ecToolTight.JetCleanPrefix = prefix
     ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
     algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
-                            EventCleaningTool=ecToolTight,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix,
-                            CleaningLevel="TightBad",
-                            doEvent=False)
+                                         EventCleaningTool=ecToolTight,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix,
+                                         CleaningLevel="TightBad",
+                                         doEvent=False)
     sequence += algCleanTight
 
 ##################################################################  
@@ -601,7 +682,6 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
 def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    jetcleaningtoolname = "EventCleaningTool_LooseLLP"
     prefix = "DFCommonJets_"
     ecToolLooseLLP = EventCleaningTool('EventCleaningTool_LooseLLP',CleaningLevel='LooseBadLLP')
     ecToolLooseLLP.JetCleanPrefix = prefix
@@ -619,7 +699,6 @@ def eventCleanLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramew
 def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    jetcleaningtoolname = "EventCleaningTool_VeryLooseLLP"
     prefix = "DFCommonJets_"
     #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
     ecToolVeryLooseLLP = EventCleaningTool('EventCleaningTool_VeryLooseLLP',CleaningLevel='VeryLooseBadLLP')
@@ -638,7 +717,6 @@ def eventCleanVeryLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFr
 def eventCleanSuperLooseLLP_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFrameworkJob):
     from JetSelectorTools.JetSelectorToolsConf import ECUtils__EventCleaningTool as EventCleaningTool
     from JetSelectorTools.JetSelectorToolsConf import EventCleaningTestAlg
-    jetcleaningtoolname = "EventCleaningTool_SuperLooseLLP"
     prefix = "DFCommonJets_"
     #Do not save decorations, which are anyway not listed in AntiKt4EMTopoJetsCPContent.py
     ecToolSuperLooseLLP = EventCleaningTool('EventCleaningTool_SuperLooseLLP',CleaningLevel='SuperLooseBadLLP')
@@ -744,13 +822,13 @@ def addOriginCorrectedClusters(slimhelper,writeLC=False,writeEM=False):
     slimhelper.ExtraVariables.append('CaloCalTopoClusters.calE.calEta.calPhi.calM')
 
     if writeLC:
-        if not slimhelper.AppendToDictionary.has_key("LCOriginTopoClusters"):
+        if "LCOriginTopoClusters" not in slimhelper.AppendToDictionary:
             slimhelper.AppendToDictionary["LCOriginTopoClusters"]='xAOD::CaloClusterContainer'
             slimhelper.AppendToDictionary["LCOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
             slimhelper.ExtraVariables.append('LCOriginTopoClusters.calEta.calPhi')
 
     if writeEM:
-        if not slimhelper.AppendToDictionary.has_key("EMOriginTopoClusters"):
+        if "EMOriginTopoClusters" not in slimhelper.AppendToDictionary:
             slimhelper.AppendToDictionary["EMOriginTopoClusters"]='xAOD::CaloClusterContainer'
             slimhelper.AppendToDictionary["EMOriginTopoClustersAux"]='xAOD::ShallowAuxContainer'
             slimhelper.ExtraVariables.append('EMOriginTopoClusters.calE.calEta.calPhi')
@@ -782,11 +860,12 @@ def addCHSPFlowObjects():
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMPFlow")
+updateJVT_xAODColl("AntiKt4EMPFlow")
 
-# Need DFCommonElectronsLHLoose for these to work
-#applyOverlapRemoval()
-#eventCleanLoose_xAODColl("AntiKt4EMTopo")
-#eventCleanTight_xAODColl("AntiKt4EMTopo")
-#eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
+applyOverlapRemoval()
+eventCleanLoose_xAODColl("AntiKt4EMTopo")
+eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")

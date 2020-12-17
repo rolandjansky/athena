@@ -88,9 +88,9 @@ public:
   }
   
   /// Configure this tool for the given systematics
-  virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
+  virtual StatusCode applySystematicVariation ( const CP::SystematicSet& systConfig ) override;
 
-  CP::SystematicCode registerSystematics();
+  StatusCode registerSystematics();
 
   // Private member variables
 private:

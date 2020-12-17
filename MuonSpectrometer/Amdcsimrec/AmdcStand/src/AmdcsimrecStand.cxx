@@ -11,6 +11,9 @@
 #include "TomoTubeDisplacement.h"
 #include "TomoTubeDisplacementContinuous.h"
 
+#include <iomanip>
+#include <cmath>
+#include <fstream>
 #include "f1get.h"
 #include "getindfromamdc.h"
 #include "getamdcindfrom.h"

@@ -251,7 +251,6 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::unordered_map<std::string, const Trig::ChainGroup*> m_existingTriggers; //!< Map of triggers which we ask the TDT ChainGroup for the pass/fail 
   std::unordered_map<std::string, std::string> m_lowerTrigger; //!< Map of triggers lower chain, to tell if a HLT trigger ran or not. 
 
-  std::unordered_map<std::string, ChainDetail> m_loadedXML; //!< Details loaded from a prescale XML are stored here
 
   const std::string m_l1GroupName = "L1";
   const std::string m_l2GroupName = "Main";
@@ -272,7 +271,9 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   Gaudi::Property<bool> m_doHistograms{this, "DoHistograms", true, "Switch on histogram output of rate vs. mu and position in train."};
   Gaudi::Property<bool> m_enableLumiExtrapolation{this, "EnableLumiExtrapolation", true, "If false then no extrapolation in L, N_bunch or <mu> will be performed.."};
   Gaudi::Property<uint32_t> m_vetoStartOfTrain{this, "VetoStartOfTrain", 0, "How many BCID to veto at the start of a bunch train."};
-  Gaudi::Property<std::string> m_prescaleXML{this, "PrescaleXML", "",  "Optional XML of prescales from the TrigRuleBook to apply."};
+  //Gaudi::Property<std::string> m_prescalesJSON{this, "PrescalesJSON", "",  "Optional JSON of prescales from the TrigMenuRuleBook to apply."};
+  Gaudi::Property<std::map<std::string, double>> m_prescalesJSON{this, "PrescalesJSON", {},  "Optional JSON of prescales from the TrigMenuRuleBook to apply."};
+
 
   double m_targetMu; //!< What pileup level the prediction is targeting
   double m_targetBunches; //!< How many bunches the prediction is targeting

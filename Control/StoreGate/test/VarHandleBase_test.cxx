@@ -14,7 +14,6 @@
 #include "StoreGate/exceptions.h"
 #include "SGTools/TestStore.h"
 #include "SGTools/DataProxy.h"
-#include "SGTools/TestStore.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/expect_exception.h"
 #include "AthenaKernel/StorableConversions.h"

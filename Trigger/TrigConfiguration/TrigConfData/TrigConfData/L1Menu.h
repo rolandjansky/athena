@@ -13,6 +13,7 @@
 #include "TrigConfData/L1TopoAlgorithm.h"
 #include "TrigConfData/L1Threshold.h"
 #include "TrigConfData/L1ThrExtraInfo.h"
+#include "TrigConfData/L1CTP.h"
 
 #include <vector>
 #include <map>
@@ -29,8 +30,6 @@ namespace TrigConf {
 
       /** Constructor */
       L1Menu();
-      L1Menu(const L1Menu&) = default;
-      L1Menu(L1Menu&&) = default;
 
       /** Constructor initialized with configuration data 
        * @param data The data containing the L1 menu 
@@ -140,6 +139,9 @@ namespace TrigConf {
       /** Name of connector from name of threshold or triggerline */
       const std::string & connectorNameFromThreshold(const std::string & thresholdName) const;
 
+      /** the CTP configuration */
+      const TrigConf::L1CTP & ctp() const { return m_ctp; }
+
       /** print overview of L1 Menu */
       void printMenu(bool full = false) const;
 
@@ -170,6 +172,8 @@ namespace TrigConf {
       std::map<std::string, std::vector<TrigConf::L1TopoAlgorithm>> m_algorithmsByCategory{}; // primary set of vectors of algos, one per category (TOPO, R2TOPO, MUTOPO, MULTTOPO)
       std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByName{}; // map from category and algorithm name to algorithm 
       std::map<std::string, std::map<std::string, TrigConf::L1TopoAlgorithm*>> m_algorithmsByOutput{}; // map from category and output name to algorithm
+
+      TrigConf::L1CTP m_ctp;
 
    };
 

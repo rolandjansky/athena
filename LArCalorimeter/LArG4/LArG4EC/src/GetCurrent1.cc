@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cassert>
@@ -37,7 +37,6 @@ G4int LArG4::EC::EnergyCalculator::_getIRlayerA(G4double fold_angle_deg) const {
       break;
     }
   }
-  //std::cout << "\tirlayer: " << irlayer << ", R " << R << std::endl;
   assert(irlayer >= 0 && irlayer < n_layers - 1);
   return irlayer;
 }
@@ -69,7 +68,6 @@ G4double  LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep1(G4double rfor
 
   const G4double a_e = elc()->AmplitudeOfSurface(Pe, side_dte, Pe_fan);
   const G4double a_a = lwc()->AmplitudeOfSurface(Pa, side_dta, Pa_fan);
-  //std::cout << "\ta_e: " << a_e << ", a_a: " << a_a << std::endl;
 
   const G4double x_e = fabs(Pe.x() - a_e);
   const G4double x_a = fabs(Pa.x() - a_a);
@@ -87,7 +85,6 @@ G4double  LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep1(G4double rfor
 
   // get relative y coordinate
   G4double yratio = ((side > 0)? x_e: x_a) / (x_e + x_a);
-  //std::cout << "\tyratio: " << yratio << std::endl;
 
   if(yratio <= 0.) yratio = 0.00001;      // pull the point into the gap if it wouldn't be there;
   else if(yratio >= 1.) yratio = 0.99999; // this may happen bec.G4 does not grantee that the full
@@ -100,11 +97,9 @@ G4double  LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep1(G4double rfor
 
   WheelGeometry wg;
   SetHalfWave(shift + vmap[2], wg);
-  //std::cout << "\tPointFoldMapArea: " << PointFoldMapArea << ", SetHalfWave(" << shift + vmap[2] << ")" << std::endl;
 
   G4double Ylimits[4];
   SetYlimitsofPhigapinFieldMap(irlayer, wg, Ylimits);    //on the lower layer
-  //std::cout << "\tFieldmap limits: " << Ylimits[0] << " " << Ylimits[1] << " " << Ylimits[2] << " " << Ylimits[3] << std::endl;
   G4double pos_low = 0.;
   if(side < 0) pos_low = Ylimits[0] * (1. - yratio) + Ylimits[1] * yratio;
   else if(side > 0) pos_low = Ylimits[2] * (1. - yratio) + Ylimits[3] * yratio;
@@ -125,32 +120,6 @@ G4double  LArG4::EC::EnergyCalculator::_interpolateCurrentSubStep1(G4double rfor
 
 G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, const G4ThreeVector &P2, G4double edep) const
 {
-  /*
-    FILE *F = fopen("test1.dat", "w");
-    if(F == 0) abort();
-    G4ThreeVector a(0., 1200., 0.);
-    for(double z = 0; z <= WheelThickness; z += 0.1){
-    fprintf(F, "%f", z);
-    //		for(double x = -20.; x <= 20.; x += 1.){
-    //			a[0] = x;
-    a[2] = z;
-    //			std::cout << "(" << z << ", " << x << ") " << DistanceToTheNeutralFibre(a) << std::endl;
-    for(int s = -1; s <= 1; s ++){
-    //				std::cout << "\t" << s << " " << elc()->AmplitudeOfSurface(a, s) << std::endl;
-    fprintf(F, " %f", elc()->AmplitudeOfSurface(a, s));
-    }
-    //		}
-    fprintf(F, "\n");
-    }
-    fclose(F);
-
-    abort();
-  */
-
-  //std::cout << "GetCurrent1 -------------------------------------------------------------------------" << std::endl;
-  //std::cout << "input: (" << P1.x() << ", " << P1.y() << ", " << P1.z() << "), ("
-  //          << P2.x() << ", " << P2.y() << ", " << P2.z() << "), " << edep << std::endl;
-
   G4int gaperr = 0;
 
   const std::pair<G4int, G4int> gap2 = lwc()->GetPhiGapAndSide(P2);
@@ -177,19 +146,11 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
   G4double current = 0.;                          //current to be returned
   const G4double step_current = edep / nofstep / s_AverageCurrent; // base current for each step
 
-  //std::cout << "gap1: " << gap1.first << ", " << gap1.second
-  //          << "; gap2: " << gap2.first << ", " << gap2.second << std::endl;
-  //std::cout << "input: (" << P1.x() << ", " << P1.y() << ", " << P1.z() << "), ("
-  //          << P2.x() << ", " << P2.y() << ", " << P2.z() << "), " << edep << std::endl;
-
-
   const G4double inv_nofstep = 1. / static_cast<double>(nofstep);
   for(G4int i = 0; i < nofstep; ++ i){
     G4double ds = (i + 0.5) * inv_nofstep;
     G4ThreeVector Pe = P1 * (1. - ds) + P2 * ds;
     G4ThreeVector Pa = Pe;
-    //std::cout << "step " << i << std::endl;
-    //std::cout << "\tpoint (" << Pe.x() << ", " << Pe.y() << ", " << Pe.z() << ")" << std::endl;
 
     SetFoldArea(Pe.z(), fa);                 // set fold type
     SetHalfWave(Pe.z(), wg);                 // set halfwave parameters for substep
@@ -206,15 +167,7 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
     const G4double yshift_on_map  =    rforalpha*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness() + FanEleThickness() )/2.;
     const G4double yshift_on_wheel=sqrt(rvstep2)*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness() + FanEleThickness() )/2.;
     const G4double cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
-    /*
-      std::cout<< " GetCurrent1**Nabs="<<lwc()->GetNumberOfFans()<<" absthick="<<FanAbsThickness<<" elethick="<<FanEleThickness
-      <<" cylgapcorr-1="<<cylgapcorr-1
-      <<" ZinHalfWave="<<ZinHalfWave<<" HalfWaveNumber="<<HalfWaveNumber
-      <<std::endl;
-    */
     //<<<JT
-
-    //std::cout << "\tvmap: (" << vmap[0] << ", " << vmap[1] << ", " << vmap[2] << ")" << std::endl;
 
     const G4double HV_value = m_HVHelper->GetVoltage(Pe, gap1);
 
@@ -223,13 +176,9 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
     //G4int side = signof(dte);
     int Pa_fan = 0;
     const G4double dta = lwc()->DistanceToTheNearestFan(Pa, Pa_fan);
-    //std::cout << "\tdte: " << dte << ", dta: " << dta << std::endl;
-    //std::cout << "\tPe: (" << Pe.x() << ", " << Pe.y() << ", " << Pe.z() << ")" << std::endl;
-    //std::cout << "\tPa: (" << Pa.x() << ", " << Pa.y() << ", " << Pa.z() << ")" << std::endl;
 
     const G4double suppression_range = ElectrodeFanHalfThickness() + CHC_Esr();
     if(fabs(dte) < suppression_range){
-      //			std::cout << " S";
       continue; //skip point if too close to the electrode
     }
 
@@ -237,7 +186,6 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
       + fabs(dta) - lwc()->GetFanHalfThickness();   //correction to electrode suppression not to
     G4double suppression = agap / ( agap - CHC_Esr() ); // change av. signal in the gap
     if(suppression < 0.) suppression = 1.;
-    //std::cout << "\tagap: " << agap << ", suppression: " << suppression << std::endl;
 
     const G4double cur = _interpolateCurrentSubStep1( rforalpha, vmap, Pe, signof(dte), Pe_fan, Pa, signof(dta), Pa_fan, fa, gaperr );
     //(25-05-2005) new current calculation: edep*1/U*IonReco*E*v_drift
@@ -263,7 +211,6 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
     current += substep_current;
     //		}
   } // end of loop for substeps
-  //std::cout << std::endl;
   if(current < 0.){
     gaperr -= 1000;
     current = 0.;
@@ -278,11 +225,11 @@ G4double  LArG4::EC::EnergyCalculator::GetCurrent1(const G4ThreeVector &P1, cons
                       << gaperr << " correction still computed"
                       << " bad edep ratio=" << s_CHCEbad/s_CHCEtotal
                       << endmsg;
-                      }
-    }
+                      )
+      }
+  }
 #endif
 
-    //std::cout<<"GetCurrent1::edep="<<edep<<" current="<<current <<" gaperr="<<gaperr<<std::endl;
     return current;
   }
 

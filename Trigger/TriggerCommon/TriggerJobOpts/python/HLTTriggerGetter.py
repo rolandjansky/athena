@@ -145,7 +145,9 @@ class HLTSimulationGetter(Configured):
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        ServiceMgr += RegSelSvcDefault()
+        regsel = RegSelSvcDefault()
+        regsel.enableCalo = TriggerFlags.doCalo()
+        ServiceMgr += regsel
 
         # Configure the Data Preparation for Calo
         if TriggerFlags.doCalo():
@@ -189,7 +191,7 @@ class HLTSimulationGetter(Configured):
                 TrigSteer_HLT = ReruningTrigSteer_HLT('TrigSteer_HLT', hltFile=TriggerFlags.inputHLTconfigFile(), lvl1File=TriggerFlags.inputLVL1configFile())             
                 
             # TrigSteer_HLT.doL1TopoSimulation = TriggerFlags.doL1Topo() # this later needs to be extented to also run when we take data with L1Topo
-            TrigSteer_HLT.doL1TopoSimulation = True # always needs to run if the HLT is simulated
+            TrigSteer_HLT.doL1TopoSimulation = False # always needs to run if the HLT is simulated
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
@@ -218,22 +220,6 @@ class HLTSimulationGetter(Configured):
 
 
         if TriggerFlags.writeBS():
-            # declare objects to go to BS (from the lists above)
-            ## if TriggerFlags.doLVL2():                
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSList
-            ##     TrigSteer_L2.Navigation.ClassesToPayload = getL2BSList()
-            ##     TrigSteer_L2.Navigation.ClassesToPreregister = []
-            ## 
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getEFBSList
-            ##     TrigSteer_EF.Navigation.ClassesToPayload = getEFBSList()
-            ##     TrigSteer_EF.Navigation.ClassesToPreregister = []
-            ##     try:
-            ##         from TrigEDMConfig.TriggerEDM import getEFDSList
-            ##         TrigSteer_EF.Navigation.ClassesToPayload_DSonly = getEFDSList()
-            ##     except ImportError:
-            ##         log.warning("DataScouting not available in this release")
-
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import  getHLTBSList 
                 TrigSteer_HLT.Navigation.ClassesToPayload = getHLTBSList() 
@@ -256,14 +242,6 @@ class HLTSimulationGetter(Configured):
             from TrigSerializeCnvSvc.TrigSerializeCnvSvcConf import TrigSerializeConvHelper
             TrigSerializeConvHelper = TrigSerializeConvHelper(doTP = True)
             ToolSvc += TrigSerializeConvHelper
-
-            #do not activate T/P of EF classes at L2
-            ## if TriggerFlags.doLVL2(): 
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList()
-            ## if TriggerFlags.doEF():
-            ##     from TrigEDMConfig.TriggerEDM import getL2BSTypeList, getEFBSTypeList
-            ##     TrigSerToolTP.ActiveClasses = getL2BSTypeList() + getEFBSTypeList()
 
             if TriggerFlags.doHLT():
                 from TrigEDMConfig.TriggerEDM import getHLTBSTypeList 

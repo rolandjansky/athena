@@ -181,24 +181,26 @@ namespace Trk {
                                              const ICompatibilityEstimator* ice = nullptr) const;
 
     /** get compatible surfaces starting from charged parameters */
-    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-			                          const TrackParameters& pars,
-			                          PropDirection pdir,
-			                          const BoundaryCheck& bcheck,
-                                      bool materialSurfacesOnly = true,
-			                          const Surface* startSurface = nullptr,
-			                          const Surface* endSurface = nullptr,
-			                          const ICompatibilityEstimator* ice = nullptr) const;
+    size_t compatibleSurfaces(
+      std::vector<SurfaceIntersection>& cSurfaces,
+      const TrackParameters& pars,
+      PropDirection pdir,
+      const BoundaryCheck& bcheck,
+      bool materialSurfacesOnly = true,
+      const Surface* startSurface = nullptr,
+      const Surface* endSurface = nullptr,
+      const ICompatibilityEstimator* ice = nullptr) const;
 
     /** get compatible surfaces starting from neutral parameters */
-    virtual size_t compatibleSurfaces(std::vector<SurfaceIntersection>& cSurfaces,
-    			                      const NeutralParameters& pars,
-    			                      PropDirection pdir,
-    			                      const BoundaryCheck& bcheck,
-                                      bool materialSurfacesOnly = true,
-    			                      const Surface* startSurface = nullptr,
-    			                      const Surface* endSurface = nullptr,
-    			                      const ICompatibilityEstimator* ice = nullptr) const;
+    size_t compatibleSurfaces(
+      std::vector<SurfaceIntersection>& cSurfaces,
+      const NeutralParameters& pars,
+      PropDirection pdir,
+      const BoundaryCheck& bcheck,
+      bool materialSurfacesOnly = true,
+      const Surface* startSurface = nullptr,
+      const Surface* endSurface = nullptr,
+      const ICompatibilityEstimator* ice = nullptr) const;
 
     /** Has sub-structure method: 
         - sub-structure depending on : 

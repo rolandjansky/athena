@@ -21,6 +21,8 @@ StatusCode egammaMonitorElectronAlgorithm::initialize()
 {
   
   ATH_CHECK(m_electronsKey.initialize());
+  m_ptcone20Key = m_electronsKey.key() + ".ptcone20";
+  ATH_CHECK(m_ptcone20Key.initialize());
   if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
   return StatusCode::SUCCESS;
 }
@@ -47,6 +49,11 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
     auto deltaPhi1 = Monitored::Scalar<float>("deltaPhi1",0.0);
     auto deltaPhi2 = Monitored::Scalar<float>("deltaPhi2",0.0);
     auto deltaPhi3 = Monitored::Scalar<float>("deltaPhi3",0.0);
+    auto deltaPhiRescaled0 = Monitored::Scalar<float>("deltaPhiRescaled0",0.0);
+    auto deltaPhiRescaled1 = Monitored::Scalar<float>("deltaPhiRescaled1",0.0);
+    auto deltaPhiRescaled2 = Monitored::Scalar<float>("deltaPhiRescaled2",0.0);
+    auto deltaPhiRescaled3 = Monitored::Scalar<float>("deltaPhiRescaled3",0.0);
+    auto deltaPhiFromLastMeasurement = Monitored::Scalar<float>("deltaPhiFromLastMeasurement",0.0);
 
 
     for (const auto& electron : *electrons){
@@ -58,10 +65,17 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
         electron->trackCaloMatchValue(deltaPhi1,xAOD::EgammaParameters::deltaPhi1);
         electron->trackCaloMatchValue(deltaPhi2,xAOD::EgammaParameters::deltaPhi2);
         electron->trackCaloMatchValue(deltaPhi3,xAOD::EgammaParameters::deltaPhi3);
+        electron->trackCaloMatchValue(deltaPhiRescaled0,xAOD::EgammaParameters::deltaPhiRescaled0);
+        electron->trackCaloMatchValue(deltaPhiRescaled1,xAOD::EgammaParameters::deltaPhiRescaled1);
+        electron->trackCaloMatchValue(deltaPhiRescaled2,xAOD::EgammaParameters::deltaPhiRescaled2);
+        electron->trackCaloMatchValue(deltaPhiRescaled3,xAOD::EgammaParameters::deltaPhiRescaled3);
+        electron->trackCaloMatchValue(deltaPhiFromLastMeasurement,xAOD::EgammaParameters::deltaPhiFromLastMeasurement);
                     
     }
   
-    auto mon = Monitored::Group(m_monTool, deltaEta0,deltaEta1,deltaEta2,deltaEta3,deltaPhi0,deltaPhi1,deltaPhi2,deltaPhi3);
+    auto mon = Monitored::Group(m_monTool, deltaEta0,deltaEta1,deltaEta2,deltaEta3,deltaPhi0,deltaPhi1,deltaPhi2,
+                                deltaPhi3,deltaPhiRescaled0,deltaPhiRescaled1,deltaPhiRescaled2,deltaPhiRescaled3,deltaPhiFromLastMeasurement );
+
     ATH_MSG_DEBUG("Electron - Track Online Monitoring in Reconstruction ..."); 
     
     
@@ -133,15 +147,23 @@ void egammaMonitorElectronAlgorithm::filltopoElectronIsolation( const EventConte
     auto ptcone30_col = Monitored::Collection("ptcone30", ptcone30_vec);
     auto ptcone40_col = Monitored::Collection("ptcone40", ptcone40_vec);
 
-    
-    for (const auto& electron : *electrons) {
+    for (const xAOD::Electron* electron : *electrons){
 
-        topoetcone20_vec.push_back( electron->isolationValue(val,xAOD::Iso::topoetcone20)/Gaudi::Units::GeV);
-        ptcone20_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone20));
-        ptcone30_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone30));
-        ptcone40_vec.push_back(electron->isolationValue(val,xAOD::Iso::ptcone40));
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::topoetcone20);
+        topoetcone20_vec.push_back( val/Gaudi::Units::GeV );
 
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone20);
+        ptcone20_vec.push_back( val/Gaudi::Units::GeV );
 
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone30);
+        ptcone30_vec.push_back( val/Gaudi::Units::GeV );
+
+        val = 0;
+        electron->isolationValue(val,xAOD::Iso::ptcone40);
+        ptcone40_vec.push_back( val/Gaudi::Units::GeV );
     }
 
     auto mon = Monitored::Group(m_monTool,ptcone20_col, ptcone30_col, ptcone40_col, topoetcone20_col);

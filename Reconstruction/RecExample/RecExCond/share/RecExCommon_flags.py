@@ -229,13 +229,20 @@ if len(athenaCommonFlags.FilesInput())>0:
 if len(rec.AutoConfiguration())>0:
     from RecExConfig.AutoConfiguration import ConfigureFromListOfKeys
     ConfigureFromListOfKeys(rec.AutoConfiguration())
-    include ("RecExConfig/AutoConfigConsistencyCheck.py")
-
-
+    from RecExConfig.PyComps import AutoConfigConsistencyCheckSvc
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    svcMgr += AutoConfigConsistencyCheckSvc("AutoConfigConsistencyCheckSvc")
 
 #special commisioning job options
 if rec.Commissioning():
-   include("RecExCommission/RecExCommission.py")
+   include("RecExCond/MinimalCommissioningSetup.py")
+   # setup trigger reading from COOL
+   if rec.doTrigger():
+      from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+      tf.configForStartup="HLTonline"
+      tf.configForStartup.lock()
+
+   rec.ScopingLevel.set_Value_and_Lock(1)
 
 if rec.triggerStream().startswith('express'):
    logRecExCommon_flags.info('Disabling track slimming for express stream.')
@@ -465,14 +472,16 @@ else:
           jobproperties.set_JobProperties(data)
        else:   
           i_value=RecExCommonFlags.get(i)
-          jpvalue = getattr(jobproperties.AthenaCommonFlags, i)()
-          if i!="PoolRDOInput":
-            if i_value!=jpvalue:
-               logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
-          else:   
-            if i_value!=jpvalue:
-               logRecExCommon_flags.info ('Modified value for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
-
+          if getattr(jobproperties.AthenaCommonFlags, i).statusOn:
+              jpvalue = getattr(jobproperties.AthenaCommonFlags, i)()
+              if i!="PoolRDOInput":
+                if i_value!=jpvalue:
+                   logRecExCommon_flags.info('inconsistency: for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
+              else:
+                if i_value!=jpvalue:
+                   logRecExCommon_flags.info ('Modified value for flag %s new flag: %s old flag:%s',i,jpvalue,i_value)
+          else:
+              logRecExCommon_flags.info('Modified value for flag %s new flag: unset, old flag %s',i,i_value)
 
 # some special migration (temporary)
 if rec.doFloatingPointException() and not athenaCommonFlags.isOnline():
@@ -591,12 +600,6 @@ except Exception:
 
 #load commissioning flags here (major cleanup needed)
 if rec.Commissioning():
-   #--------------------------------------------------------------
-   # Common flags with RecExCommon
-   #--------------------------------------------------------------
-   #if rec.readRDO:
-   #   include( "RecExCommission/RecExCommissionCommonFlags_jobOptions.py" )
-
 
    # ---------------------------------------------------------------------------
    # AthenaCommonFlags
@@ -1025,35 +1028,6 @@ if  rec.readTAG():
     rec.doWriteTAG=False
  
 
-
-# if want to write tag : at least switch on trigger configuration
-doTriggerConfigOnly=False
-if rec.doWriteTAG() and not recAlgs.doTrigger() and not ('EventTagFlags' in dir() and not EventTagFlags.doTrigger()) and rec.doTrigger():
-   try:
-      from TriggerJobOpts.TriggerFlags import TriggerFlags
-      doTriggerConfigOnly=True
-      jobproperties.Trigger.doTriggerConfigOnly=True
-   except:
-      logRecExCommon_flags.info("TriggerJobOpts.TriggerFlags not available.")
-
-if not recAlgs.doTrigger() and not rec.readAOD() and not rec.readESD() and rec.doWriteTAG():
-    logRecExCommon_flags.warning("no trigger and running from RDO: cannot write out tag, switching of trigger part of tag")
-    include ('EventTagAlgs/EventTagFlags.py') 
-    EventTagFlags.set_TriggerOff() 
-
-if rec.doWriteTAG():
-   include ('EventTagAlgs/EventTagFlags.py') 
-   if not rec.doEgamma():
-      EventTagFlags.set_ElectronOff()
-      EventTagFlags.set_PhotonOff()
-   if not rec.doJetMissingETTag():
-      EventTagFlags.set_MissingETOff()
-      EventTagFlags.set_ParticleJetOff()
-   if not rec.doMuon():
-      EventTagFlags.set_MuonOff()
-   if not rec.doTau():
-      EventTagFlags.set_TauJetOff()
-   
 if (rec.doAOD() or rec.doWriteAOD()) and _AODFlagsAvailable:
    from ParticleBuilderOptions.AODFlags import AODFlags
 

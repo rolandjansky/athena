@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_FCALMODULE_H
@@ -11,6 +11,8 @@
 #include "GeoModelKernel/GeoDefinitions.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#include "CxxUtils/CachedValue.h"
+#include <utility>
 
 class FCALDetectorManager;
 
@@ -121,6 +123,7 @@ class FCALModule : public GeoVDetectorElement
   double getProjectivityDisplacement() const;
       
   private:
+      static constexpr size_t MAXTUBES = 64;
     
       FCALModule(const FCALModule &right);
       FCALModule & operator=(const FCALModule &right);
@@ -152,14 +155,12 @@ class FCALModule : public GeoVDetectorElement
       FCALDetectorManager* m_manager;
       
       /**
-       * @brief A vector that holds the list of tile sizes.
+       * @brief X/Y pairs of tile sizes.
        */
-      mutable std::vector<double> m_TileSizeX;
-      
-      /**
-       * @brief A vector that holds the list of tile sizes.
-       */
-      mutable std::vector<double> m_TileSizeY;
+      using tubexy_t = std::pair<double, double>;
+      CxxUtils::CachedValue<tubexy_t> m_tileSizes[MAXTUBES];
+
+      const tubexy_t& getFullWidths (unsigned int ntubes) const;
       
       /**
        * @brief Holds Delta Z,  Full width of a cell

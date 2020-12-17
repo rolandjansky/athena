@@ -12,10 +12,10 @@ atlas_add_test( TriggerConfigFlagsTest
    SCRIPT python -m unittest TriggerJobOpts.TriggerConfigFlags
    POST_EXEC_SCRIPT nopost.sh )
 
-atlas_add_test( TriggerMenuFlagsTest
-   SCRIPT python -m unittest TriggerJobOpts.MenuConfigFlags
-   POST_EXEC_SCRIPT nopost.sh )
-
 atlas_add_test( TriggerConfigTest
    SCRIPT python -m TriggerJobOpts.TriggerConfig
+   POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( TriggerConfigFlags_AutoConfTest
+   SCRIPT test_TriggerFlags_autoconf.py
    POST_EXEC_SCRIPT nopost.sh )

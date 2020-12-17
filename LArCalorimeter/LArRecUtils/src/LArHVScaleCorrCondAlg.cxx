@@ -532,7 +532,6 @@ float LArHVScaleCorrCondAlg::Scale_barrel(const float hv) const
    else {
      resp=facteur[0]*(hv/hvref[0]);
    }
-   //std::cout << " hv,i1,i2,resp " << hv << " " << i1 << " " << i2 << " " << resp << std::endl;
    return resp;
 }
 

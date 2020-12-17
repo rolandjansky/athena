@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
 ## @brief Python module to hold common flags to configure JobOptions
@@ -26,7 +23,6 @@ __all__    = [ "InDetJobProperties" ]
 
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-import AthenaCommon.SystemOfUnits as Units
 
 ##-----------------------------------------------------------------------------
 ## 0th step: define infrastructure JPs DO NOT MODIFY THEM!!!
@@ -45,7 +41,7 @@ class Enabled(JobProperty):
       if not(obj._locked):
          obj.__dict__['statusOn']=True
       else:
-         obj._log.info('The JobProperty %s is blocked' % obj.__name__)
+         obj._log.info('The JobProperty %s is blocked', obj.__name__)
 
    def set_Off_NoDoAction(self, obj):
       """ Sets statusOn equals to False w/o _undo_action.
@@ -53,7 +49,7 @@ class Enabled(JobProperty):
       if not(obj._locked):
          obj.__dict__['statusOn']=False
       else:
-         obj._log.info('The JobProperty %s is blocked' % obj.__name__)
+         obj._log.info('The JobProperty %s is blocked', obj.__name__)
 
    def _do_action(self):
       for obj in self._the_same_context_objects():
@@ -288,13 +284,13 @@ class doR3LargeD0(InDetFlagsJobProperty):
     """Turn running of doR3LargeD0 second pass on and off"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue   = False
+    StoredValue   = True
 
 class storeSeparateLargeD0Container(InDetFlagsJobProperty):
     """Separate the LargeD0 container from the main track container"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue   = False
+    StoredValue   = True
 
 class useExistingTracksAsInput(InDetFlagsJobProperty):
     """Use already processed Track from a (D)ESD input file.
@@ -439,21 +435,6 @@ class doMonitoringAlignment(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-class useDynamicAlignFolders(InDetFlagsJobProperty):
-    """ Deprecated property - use InDetGeometryFlags directly to choose the alignment folder scheme """
-    def _do_action( self, *args, **kwds):
-       self._log.warning('Deprecated property InDetFlags.useDynamicAlignFolders used to control the alignment scheme - update the code to from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags;  InDetGeometryFlags.useDynamicAlignFolders.... ')
-       if self.StoredValue != 'none':
-          from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
-          InDetGeometryFlags.useDynamicAlignFolders.set_Value_and_Lock(self.StoredValue)
-          self._log.info("InDetGeometryFlags.useDynamicAlignFolders set by InDetFlags: %s" % InDetGeometryFlags.useDynamicAlignFolders)
-       else:
-          self._log.warning("Not setting InDetGeometryFlags.useDynamicAlignFolders by InDetFlags: %s" % self.StoredValue)
-          
-    statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = False
-
 class doPerfMon(InDetFlagsJobProperty):
     """ Use to turn on PerfMon """
     statusOn     = True
@@ -506,6 +487,18 @@ class doHolesOnTrack(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = True
 
+class holeSearchInGX2Fit(InDetFlagsJobProperty):
+    """ use holes from the pattern recognition """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class useHolesFromPattern(InDetFlagsJobProperty):
+    """ use holes from the pattern recognition """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class useZvertexTool(InDetFlagsJobProperty):
     """ start with Zvertex finding """
     statusOn     = True
@@ -516,7 +509,7 @@ class useActsPriVertexing(InDetFlagsJobProperty):
     """ use ACTS primary vertexing """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     """ use track finding in silicon """
@@ -956,13 +949,13 @@ class pixelClusterSplitProb1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.6
+   StoredValue = 0.55
 
 class pixelClusterSplitProb2 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into three parts """
    statusOn = True
    allowedTypes = ['float']
-   StoredValue = 0.2
+   StoredValue = 0.45
 
 class pixelClusterSplitProb1_run1 (InDetFlagsJobProperty):
    """ Cut value for splitting clusters into two parts """
@@ -1146,10 +1139,10 @@ class doNNToTCalibration(InDetFlagsJobProperty):
   StoredValue  = False
 
 class useNNTTrainedNetworks(InDetFlagsJobProperty):
-  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available."""
+  """Use older NNs stored as TTrainedNetworks in place of default MDNs/other more recent networks. This is necessary for older configuration tags where the trainings were not available. True gives rel21 (Run 2) configuration."""
   statusOn     = True
   allowedTypes = ['bool']
-  StoredValue  = True
+  StoredValue  = False
 
 class keepAdditionalHitsOnTrackParticle(InDetFlagsJobProperty): 
   """Do not drop first/last hits on track (only for special cases - will blow up TrackParticle szie!!!)""" 
@@ -1198,6 +1191,13 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   statusOn     = True
   allowedTypes = ['float']
   StoredValue  = -1.0
+
+class doTRTPIDNN(InDetFlagsJobProperty): 
+  """calculate NN-based TRT electron probability""" 
+  statusOn     = True 
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -1257,6 +1257,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTRTPhaseCalculation  , False)
        self.checkThenSet(self.doTRTStandalone        , True)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doVertexFinding        , False)
        self.checkThenSet(self.doV0Finder             , False)
@@ -1277,6 +1278,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doTRTStandalone        , True ) # *ME* this is different than 15.4.0 and before
        self.checkThenSet(self.doTRTPhaseCalculation  , True )
        self.checkThenSet(self.doParticleCreation     , True )
@@ -1311,6 +1313,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsSCT     , False)
        self.checkThenSet(self.doTrackSegmentsTRT     , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
        self.checkThenSet(self.doVertexFinding        , True)
@@ -1343,6 +1346,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doVertexFinding        , True)
        self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding")
        self.checkThenSet(self.primaryVertexCutSetup  , "SLHC")
@@ -1399,6 +1403,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doVertexFinding        , True)
        self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
@@ -1426,6 +1431,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doVertexFinding        , True)
        self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline") 
@@ -1464,6 +1470,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
        self.checkThenSet(self.doForwardTracks        , False)
+       self.checkThenSet(self.doR3LargeD0            , False)
        self.checkThenSet(self.doVertexFinding        , True)
        self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding")
        self.checkThenSet(self.primaryVertexCutSetup  , "Offline")
@@ -1497,6 +1504,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doVeryLowPt            , False )
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doForwardTracks        , False )
+       self.checkThenSet(self.doR3LargeD0            , False )
        self.checkThenSet(self.doBeamGas              , False )
        self.checkThenSet(self.doBeamHalo             , False )
        self.checkThenSet(self.doBackTracking         , False )
@@ -1658,6 +1666,10 @@ class InDetJobProperties(JobPropertyContainer):
     if rec.doExpressProcessing() :
        self.checkThenSet(self.useBeamConstraint,False)
 
+    # --- Setup correct mu for TRT mu-scaling
+    if not rec.doRDOTrigger():
+       self.checkThenSet(self.useMuForTRTErrorScaling, True) 
+
   def init(self):
     #Method to do the final setup of the flags according to user input before.
     #This method MUST ONLY BE CALLED once in InDetRecExample/InDetRec_jobOptions.py!!
@@ -1669,9 +1681,7 @@ class InDetJobProperties(JobPropertyContainer):
       # THIS METHOD MUST BE THE FIRST TO BE CALLED. DO NOT MOVE IT OR ADD THINGS IN FRONT
       self.setupDefaults()
 
-      from AthenaCommon.GlobalFlags import globalflags
       from AthenaCommon.DetFlags    import DetFlags
-      from RecExConfig.RecFlags     import rec
 
       # -------------------------------------------------------------------
       # Cosmics TRT extension, NewTracking needs full tracking geometry 
@@ -1714,12 +1724,18 @@ class InDetJobProperties(JobPropertyContainer):
       self.doPRDFormation        = self.preProcessing() and self.doPRDFormation()        and (DetFlags.makeRIO.pixel_on() or DetFlags.makeRIO.SCT_on() or DetFlags.makeRIO.TRT_on())
       
       # --------------------------------------------------------------------
+      # ---- Hole search strategy 
+      # --------------------------------------------------------------------
+      # Here, we make sure to not configure the fitter to run a costly hole search in case 
+      # we are writing holes from the pattern recognition anyway.  
+      self.holeSearchInGX2Fit = self.holeSearchInGX2Fit() and not self.useHolesFromPattern()
+      # --------------------------------------------------------------------
       # --- 1st iteration, inside out tracking
       # --------------------------------------------------------------------
       #
       # no new tracking if pixel or sct off (new tracking = inside out only)
       self.doNewTracking = self.doNewTracking() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
-	  # always use truth tracking for SplitReco and never use it if pixel or sct off
+      # always use truth tracking for SplitReco and never use it if pixel or sct off
       self.doPseudoTracking = (self.doPseudoTracking() or self.doSplitReco()) and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       #
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
@@ -1862,22 +1878,22 @@ class InDetJobProperties(JobPropertyContainer):
       # ---- Refit of tracks
       # --------------------------------------------------------------------
       #
-      if (self.trackFitterType() is not 'KalmanFitter' and self.trackFitterType() is not 'KalmanDNAFitter') :
+      if (self.trackFitterType() != 'KalmanFitter' and self.trackFitterType() != 'KalmanDNAFitter') :
          self.refitROT = True
       if not self.refitROT() and not self.redoTRT_LR() :
          print('ConfiguredInDetFlags.py       WARNING refitROT and redoTRT_LR are both False, NOT RECOMMENDED!')
       #
       # refKF needs a new method in IUpdator, where there is currently only one implementation
-      if (self.trackFitterType() is 'ReferenceKalmanFitter'):
+      if (self.trackFitterType() == 'ReferenceKalmanFitter'):
           self.kalmanUpdator = 'amg'
       #
       # check if a valid fitter has been used
-      if not (    (self.trackFitterType() is 'KalmanFitter')
-               or (self.trackFitterType() is 'KalmanDNAFitter')
-               or (self.trackFitterType() is 'ReferenceKalmanFitter')
-               or (self.trackFitterType() is 'DistributedKalmanFilter')
-               or (self.trackFitterType() is 'GlobalChi2Fitter' )
-               or (self.trackFitterType() is 'GaussianSumFilter') ):
+      if not (    (self.trackFitterType() == 'KalmanFitter')
+               or (self.trackFitterType() == 'KalmanDNAFitter')
+               or (self.trackFitterType() == 'ReferenceKalmanFitter')
+               or (self.trackFitterType() == 'DistributedKalmanFilter')
+               or (self.trackFitterType() == 'GlobalChi2Fitter' )
+               or (self.trackFitterType() == 'GaussianSumFilter') ):
          print('InDetJobProperties.py       WARNING unregistered or invalid track fitter setup.')
          print('                                      --> re-setting to TrkKalmanFitter.')
          self.trackFitterType = 'KalmanFitter'
@@ -1989,7 +2005,7 @@ class InDetJobProperties(JobPropertyContainer):
 
   def doNtupleCreation(self):
     return (self.doSctClusterNtuple() or
-	    self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
+            self.doTrkNtuple() or self.doPixelTrkNtuple() or self.doSctTrkNtuple() or
             self.doTrtTrkNtuple() or self.doVtxNtuple() or self.doConvVtxNtuple() or
             self.doV0VtxNtuple())
 
@@ -2509,8 +2525,6 @@ class InDetJobProperties(JobPropertyContainer):
           print('* use non-standard SCT DCS based on ~20V HV cut')
     if self.useTrtDCS():
        print('* use TRT DCS')
-    if self.useDynamicAlignFolders():
-       print('* use of Dynamic alignment folder scheme enabled')
 
     if not self.doPRDFormation():
        print('* PRD Formation is off for all technologies')
@@ -2520,6 +2534,10 @@ class InDetJobProperties(JobPropertyContainer):
        print('* SCT PRD Formation is off')
     if not self.doTRT_PRDFormation():
        print('* TRT PRD Formation is off')
+    if self.holeSearchInGX2Fit():
+       print('* Running hole search within global chi2 fit')
+    if self.useHolesFromPattern():
+       print('* Using holes and deads from pattern recognition')
 
     # -----------------------------------------
     print('*')
@@ -2543,14 +2561,14 @@ class InDetJobProperties(JobPropertyContainer):
       print('* load TrackingGeometry')
     if self.loadExtrapolator() :
       print('* load Extrapolator:')
-      if self.propagatorType() is 'RungeKutta' :
+      if self.propagatorType() == 'RungeKutta' :
         print('* - load Runge Kutta propagator')
-      elif self.propagatorType() is 'STEP' :
+      elif self.propagatorType() == 'STEP' :
         print('* - load STEP propagator')
       if self.materialInteractions() :
         print('* - use material corrections of type %s in extrapolation and fit'% self.materialInteractionsType())
     if self.loadUpdator() :
-      if self.kalmanUpdator() is "fast" :
+      if self.kalmanUpdator() == "fast" :
         print('* load MeasurementUpdator_xk')
       else:
         print('* load MeasurementUpdator')
@@ -2652,7 +2670,6 @@ _list_InDetJobProperties = [Enabled,
                             doMonitoringSCT,
                             doMonitoringTRT,
                             doMonitoringAlignment,
-                            useDynamicAlignFolders,
                             doPerfMon,
                             AODall,
                             useBeamConstraint,
@@ -2661,6 +2678,8 @@ _list_InDetJobProperties = [Enabled,
                             propagatorType,
                             trackFitterType,
                             doHolesOnTrack,
+                            holeSearchInGX2Fit,
+                            useHolesFromPattern,
                             useZvertexTool,
                             useActsPriVertexing,
                             doSiSPSeededTrackFinder,
@@ -2774,7 +2793,8 @@ _list_InDetJobProperties = [Enabled,
                             checkDeadElementsOnTrack,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
-                            useMuForTRTErrorScaling
+                            useMuForTRTErrorScaling,
+                            doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

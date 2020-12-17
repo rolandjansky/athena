@@ -40,25 +40,25 @@ namespace MuonCombined {
   }
 
   void MuonInsideOutRecoTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				      Trk::SegmentCollection* segments) const {
+				      Trk::SegmentCollection* segments, const EventContext& ctx) const {
     ATH_MSG_WARNING("This version is deprecated, please use extendWithPRDs for MuGirl");
     IMuonCombinedInDetExtensionTool::MuonPrdData prdData;
-    extendWithPRDs(inDetCandidates,tagMap,prdData,combTracks,meTracks,segments);
+    extendWithPRDs(inDetCandidates,tagMap,prdData,combTracks,meTracks,segments, ctx);
   }
 
   void MuonInsideOutRecoTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					      TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
+					      TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const {
     ATH_MSG_DEBUG(" extending " << inDetCandidates.size() );
 
     InDetCandidateCollection::const_iterator it = inDetCandidates.begin();
     InDetCandidateCollection::const_iterator it_end = inDetCandidates.end();
     for( ; it!=it_end;++it ){
-      handleCandidate( **it,tagMap,prdData,combTracks,meTracks,segments );
+      handleCandidate( **it,tagMap,prdData,combTracks,meTracks,segments, ctx );
     }
   }
 
   void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segColl) const {
+					       TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segColl, const EventContext& ctx) const {
     
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
@@ -97,7 +97,7 @@ namespace MuonCombined {
 	ATH_MSG_WARNING("Failed to get layer data");
 	continue;
       }
-      m_segmentFinder->find( *it, segments, layerPrepRawData );
+      m_segmentFinder->find( *it, segments, layerPrepRawData, ctx );
       if( segments.empty() ) continue;
 
       // fill validation content
@@ -344,6 +344,7 @@ namespace MuonCombined {
 
   void MuonInsideOutRecoTool::cleanUp() const {
     m_candidateTrackBuilder->cleanUp();
+    m_ambiguityResolver->cleanUp();
   }
 
 }

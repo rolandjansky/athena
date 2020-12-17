@@ -10,7 +10,7 @@ standard_library.install_aliases()
 import subprocess
 
 #from IOFiles import IOFiles
-from Jobs import JobThread,LocalJobList,SgeJobList,LxbatchJobList,PathenaJobList,PbsJobList
+from Jobs import SgeJobList,PathenaJobList,PbsJobList
 
 #-----------------------------------------------------------------------
 class ScriptWriter:
@@ -102,7 +102,6 @@ class ScriptWriter:
         jobrun.write(self.copyInputMatrixFilesStr())
 
         doSolve=1
-        asztOutputDir=self.IterPath
         
         # get athena command
         athCommandStr=self.athenaCommandStr(inputDataMap,doSolve)
@@ -247,7 +246,7 @@ class ScriptWriter:
     
     def createTmpDirStr(self,tmpdir,jobName):
         retstring = "RUNDIR=%s\"/run_%s\"\n" % (tmpdir,jobName)
-        retstring += "RUNDIR=${RUNDIR}\"_\"$(date +\%Y\%m\%d_\%H\%M\%S)\n"
+        retstring += "RUNDIR=${RUNDIR}\"_\"$(date +%%Y%%m%%d_%%H%%M%%S)\n"
         retstring += "mkdir -p $RUNDIR\n"
         retstring += "cd $RUNDIR\n"
         retstring += "echo 'RUNDIR='`pwd`\n\n"
@@ -277,12 +276,7 @@ class ScriptWriter:
             if iterator.doSolve:
                 inputAsztFileOrig += '_Solve'
             inputAsztFileOrig += '.txt'
-        if inputAsztFileOrig!='':
-            inputAsztFileDest = iterator.rootName
-            #if (iter>0 and iterator.doLevel1):
-            #    inputAsztFileDest += iterator.getString(iter-1,iCPU)
-            #inputAsztFileDest +=
-            #retstr += "cp %s %s\n" % (inputAsztFileOrig,inputAsztFileDest)         
+        if inputAsztFileOrig!='':       
             retstr += "cp %s %s\n" % (inputAsztFileOrig,"asztInput.txt") 
  
         self.extInputFiles.append("asztInput.txt")
@@ -455,7 +449,7 @@ class ScriptWriter:
         if (iterator.runMode!='pathena' and iterator.runMode!='prun') or doSolve:
             jobstring += execstring
 
-        elif (not doSolve or iterator.solveLocally==False):
+        elif (iterator.solveLocally is False or not doSolve):
 
             doESD=False
             if iterator.runargsJobOption.find('ESD')!=-1:
@@ -541,7 +535,7 @@ class ScriptWriter:
             print ("no prun exec!")
             return
         retstr ="\nrm -f runathena.sh"
-        retstr+="\necho \"athena.py -c \'inputFile=\\\"\'\$1\'\\\".split(\\\",\\\")\' "+self.execString+"\" > runathena.sh\n"
+        retstr+="\necho \"athena.py -c \'inputFile=\\\"\'\\$1\'\\\".split(\\\",\\\")\' "+self.execString+"\" > runathena.sh\n"
         print ("retstr: ",retstr)
 
         return retstr
@@ -598,8 +592,6 @@ class ScriptWriter:
         retstr += "mv %s %s\n"   % ("hitmap.bin",self.MatrixDir+'hitmap_'+self.JobName+'.bin')
         retstr += "mv %s %s\n"   % ("hitmap.txt",self.MatrixDir+'hitmap_'+self.JobName+'.txt')
         if self.iteration == 0:
-            outputEventList = "goodEvts_" + self.iterator.rootName + \
-                self.iterator.getString(self.iteration,-1) + '.txt'
             eventListOrig = "goodEvts_" + self.iterator.rootName + \
                 self.iterator.getString(0,self.iCPU) + '.txt'
             retstr += "mv %s %s%s\n" % ("goodEvts.txt",self.IterPath,eventListOrig)
@@ -610,7 +602,6 @@ class ScriptWriter:
     def getPathenaOutputStr(self):
 
         iterator = self.iterator
-        iter     = self.iteration
 
         dsdef = iterator.outputDatasetDef
 
@@ -627,11 +618,6 @@ class ScriptWriter:
         # rename to expected names and move to current directory        
         if not iterator.doBinariesOnly:
             jobstr += "mv %s*log.tgz %s.\n\n" % (dsdef,self.LogDir)
-            
-        rootFile = "MuonAlign_%s.root"  % self.JobName
-
-        outputEventList = "goodEvts_" + iterator.rootName + \
-            iterator.getString(iter,-1) + ".txt"
         
         jobstr += "mv *.EXT3.*.%s* %s/.\n\n" % \
             ("matrix.bin",self.MatrixDir) 
@@ -659,55 +645,10 @@ class ScriptWriter:
                 ("vector.txt",self.MatrixDir) 
 
             jobstr += "mv *.EXT8.*.%s* %s/.\n\n" % \
-                ("hitmap.txt",self.MatrixDir) 
-                
-            eventListOrig = "goodEvts_" + iterator.rootName + \
-                iterator.getString(0,job) + '.txt'
+                ("hitmap.txt",self.MatrixDir)
                 
             jobstr += "mv *.EXT9.*.%s* %s/.\n\n" % \
                 ("goodEvts.txt",self.IterPath) 
-
-        """
-        for job in range(0,iterator.nCPUs):
-            self.setCPU(iter,job)
-
-            jobindex = "%05d" % (job+1)
-
-            jobstr += "mv %s.EXT3._%s.%s %s%s%s%s\n\n" % \
-                ("*",jobindex,"matrix.bin",self.MatrixDir,"matrix_",self.JobName,".bin") 
-
-            jobstr += "mv %s.EXT5._%s.%s %s%s%s%s\n\n" % \
-                ("*",jobindex,"vector.bin",self.MatrixDir,"vector_",self.JobName,".bin") 
-
-            jobstr += "mv %s.EXT7._%s.%s %s%s%s%s\n\n" % \
-                ("*",jobindex,"hitmap.bin",self.MatrixDir,"hitmap_",self.JobName,".txt") 
-            
-            if not iterator.doBinariesOnly:
-                jobstr += "mv %s.EXT0._%s.%s %s%s\n\n" % \
-                    ("*",jobindex,"asztOutput.txt",self.IterPath,self.AsztOutput) 
-                
-                jobstr += "mv %s.EXT1._%s.%s %s%s\n\n" % \
-                    ("*",jobindex,'alignlogfile.txt',self.LogDir,self.JobName+".alglog")
-                
-                jobstr += "mv %s.EXT2._%s.%s %s%s\n\n" % \
-                    ("*",jobindex,'Align.root',self.IterPath,rootFile) 
-
-                jobstr += "mv %s.EXT4._%s.%s %s%s%s%s\n\n" % \
-                    ("*",jobindex,"matrix.txt",self.MatrixDir,"matrix_",self.JobName,".txt") 
-
-                jobstr += "mv %s.EXT6._%s.%s %s%s%s%s\n\n" % \
-                    ("*",jobindex,"vector.txt",self.MatrixDir,"vector_",self.JobName,".txt") 
-
-                jobstr += "mv %s.EXT8._%s.%s %s%s%s%s\n\n" % \
-                    ("*",jobindex,"hitmap.txt",self.MatrixDir,"hitmap_",self.JobName,".bin") 
-                
-                eventListOrig = "goodEvts_" + iterator.rootName + \
-                    iterator.getString(0,job) + '.txt'
-                
-                jobstr += "mv %s.EXT9._%s.%s %s%s\n\n" % \
-                    ("*",jobindex,"goodEvts.txt",self.IterPath,eventListOrig) 
-                """
-
 
         return jobstr
           
@@ -726,8 +667,6 @@ class ScriptWriter:
         if filetype!="matrix" and filetype!="vector" and filetype!="hitmap":
             print ("Error: filetype should be matrix, vector, or hitmap, exiting...")
             sys.exit()
-
-        jobName  = self.JobName            
 
         print ("MatrixDir: ",self.MatrixDir)
         import glob

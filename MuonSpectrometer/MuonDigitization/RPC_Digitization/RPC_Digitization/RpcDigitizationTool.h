@@ -1,5 +1,3 @@
-/* -*- C++ -*- */
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
@@ -47,7 +45,6 @@
 #include "MuonSimEvent/RPCSimHit.h"
 #include "MuonSimEvent/RPCSimHitCollection.h"
 #include "HitManagement/TimedHitCollection.h"
-#include "MuonSimData/MuonSimDataCollection.h"
 #include "MuonCondInterface/IRPCConditionsSvc.h"
 #include "MuonCondData/RpcCondDbData.h"
 

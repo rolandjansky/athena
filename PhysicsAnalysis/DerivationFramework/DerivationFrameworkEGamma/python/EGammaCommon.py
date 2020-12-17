@@ -1,13 +1,14 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 #********************************************************************
 # EGammaCommon.py 
 # Schedules all tools needed for e-gamma object selection and writes
 # results into SG. These may then be accessed along the train   
 #********************************************************************
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkSimBarcodeOffset
+from AthenaCommon import CfgMgr
+from AthenaCommon.GlobalFlags import globalflags
+from AthenaCommon.AppMgr import ToolSvc, ServiceMgr as svcMgr
 
 #====================================================================
 # PHOTON ETA (=ETA2), ET (=E/COSH(ETA2))
@@ -90,13 +91,13 @@ ToolSvc += ElectronLHSelectorLooseBL
 #
 # Disabled as is missing in R22
 #
-'''
+
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronChargeIDSelectorTool
 ElectronChargeIDSelector = AsgElectronChargeIDSelectorTool("ElectronChargeIDSelectorLoose")
 ElectronChargeIDSelector.primaryVertexContainer = "PrimaryVertices"
 ElectronChargeIDSelector.TrainingFile = "ElectronPhotonSelectorTools/ChargeID/ECIDS_20180731rel21Summer2018.root"
 ToolSvc += ElectronChargeIDSelector
-'''
+
 
 #====================================================================
 # FWD ELECTRON LH SELECTORS
@@ -178,7 +179,6 @@ ToolSvc += EGAMCOM_caloFillRect711
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__AsgSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGSelectionToolWrapper
 from DerivationFrameworkEGamma.DerivationFrameworkEGammaConf import DerivationFramework__EGElectronLikelihoodToolWrapper
 
@@ -188,7 +188,7 @@ ElectronPassLHVeryLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( 
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonElectronsLHVeryLoose",
-	                                                                  ContainerName = "Electrons",
+                                                                          ContainerName = "Electrons",
                                                                           StoreTResult = False)
 ToolSvc += ElectronPassLHVeryLoose
 print(ElectronPassLHVeryLoose)
@@ -240,18 +240,18 @@ print(ElectronPassLHTight)
 #
 # Disabled as is missing in R22
 #
-'''
+
 # decorate electrons with the output of ECIDS ----------------------------------------------------------------------
 ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ElectronPassECIDS",
                                                                           EGammaElectronLikelihoodTool = ElectronChargeIDSelector,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonElectronsECIDS",
-	                                                                  ContainerName = "Electrons",
+                                                                          ContainerName = "Electrons",
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
-
+'''
 # decorate forward electrons with the output of LH loose
 ForwardElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHLoose",
                                                                           EGammaSelectionTool = ForwardElectronLHSelectorLoose,
@@ -366,13 +366,13 @@ ElectronAmbiguity = DF_EGEAT(name               = "ElectronAdditionnalAmbiguity"
 ToolSvc += ElectronAmbiguity
 
 #
-# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, ElectronPassECIDS tools due to they are not available in R22 yet
+# Commented ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight, tools due to they are not available in R22 yet
 #
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
                        #ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
-                       #ElectronPassECIDS,
+                       ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
                        PhotonPassCleaning,
@@ -455,7 +455,6 @@ if  rec.doTruth():
 # CREATE THE DERIVATION KERNEL ALGORITHM   
 #=======================================
 
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGammaCommonKernel",
                                                                          AugmentationTools = EGAugmentationTools
                                                                          )
@@ -464,11 +463,6 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("EGamma
 # ADD TOOLS
 #=======================================
 
-#
-# Disabling this tool due to it's missing in R22
-#
-# import IsolationAlgs.IsoUpdatedTrackCones as isoCones
-# if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
-#     DerivationFrameworkJob += isoCones.GetUpdatedIsoTrackCones()
-
-
+from IsolationAlgs.IsoUpdatedTrackCones import GetUpdatedIsoTrackCones
+if not hasattr(DerivationFrameworkJob,"IsolationBuilderTight1000"):
+    DerivationFrameworkJob += GetUpdatedIsoTrackCones()

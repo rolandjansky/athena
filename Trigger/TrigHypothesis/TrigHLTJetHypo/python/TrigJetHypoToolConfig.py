@@ -4,7 +4,6 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from TrigHLTJetHypo.ConditionsToolSetterTree import ConditionsToolSetterTree
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
@@ -13,26 +12,38 @@ from TrigHLTJetHypo.ConditionsToolSetterHT import ConditionsToolSetterHT
 
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
-# from TrigHLTJetHypo.chainDict2jetLabel import make_simple_comb_label as make_simple_label # TIMING studies
-
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
+from TrigHLTJetHypo.node import Node
+from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
+
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  trigJetHypoToolHelperFromDict_(chain_label,
-                                    chain_name,
-                                    toolSetter=None):
+def  trigJetHypoToolHelperFromDict_(
+        chain_label, # simple([(260et,320eta490, leg000)])
+        chain_name, # HLT_j260_320eta490_L1J75_31ETA49
+        toolSetter=None):
 
     parser = ChainLabelParser(chain_label, debug=False)
 
-    tree = parser.parse()
-
+    rootless_tree = parser.parse()
+    
+    # add a root node so that split simple nodes cann connect.
+    tree = Node('root')
+    tree.children = [rootless_tree]
+    tree.node_id = 0
+    tree.parent_id = 0
+    rootless_tree.tree_top = False
+    tree.tree_top = True
 
     #expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
     log.debug(visitor.report())
+
+    visitor = NodeSplitterVisitor()
+    tree.accept(visitor)
 
     # tell the child nodes who their parent is.
     tree.set_ids(node_id=0, parent_id=0)
@@ -47,30 +58,10 @@ def  trigJetHypoToolHelperFromDict_(chain_label,
 
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
-    # debug flag to be relayed to C++ objects
-    tool = None
+    toolSetter.mod(tree)
+    tool = toolSetter.tool
 
-    if toolSetter is None:
-        toolSetter = ConditionsToolSetterTree(chain_name)
-        tree.accept(modifier=toolSetter)
-        tool = tree.tool
-    else:
-
-        if toolSetter.__class__.__name__ in (
-                'ConditionsToolSetterFastReduction',
-                'ConditionsToolSetterHT'):
-            toolSetter.mod(tree)
-            tool = toolSetter.tool
-
-        elif toolSetter.__class__.__name__ in (
-                    'ConditionsToolSetterTree',):
-                tree.accept(modifier=toolSetter)
-                tool = tree.tool
-        else:
-            toolSetter = ConditionsToolSetterTree(chain_name)
-            tool = tree.tool
-
-    log.debug(visitor.report())
+    log.debug(toolSetter.report())
 
     return tool
 
@@ -83,7 +74,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     Tool tree structure."""
 
     
-    log.debug('trigJetHypoToolFromDictc chainDict %s', str(chain_dict))
+    log.debug('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
 
     try:
         chain_label = chainDict2jetLabel(chain_dict)
@@ -102,53 +93,47 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     toolSetter = None
     if 'agg' in chain_name:
-        toolSetter=ConditionsToolSetterHT(chain_name)
+        toolSetter=ConditionsToolSetterHT()
     else:
-        toolSetter=ConditionsToolSetterFastReduction(chain_name)
+        toolSetter=ConditionsToolSetterFastReduction()
 
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
                                           toolSetter)
 
 
-def  trigJetHypoToolFromDict(chain_dict):
+def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    log.debug('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
-
-    chain_name = chain_dict['chainName']
-    tool = CompFactory.TrigJetHypoToolMT(name=chain_name)
+    log.debug('trigJetHypoToolFromDict_ tool type ',
+              hypo_tool.__class__.__name__,
+              ' chainDict ',
+              str(chain_dict))
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.
-    tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
+    hypo_tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
 
     # controls whether debug visitor is sent to helper tool
-    debug = False  # SET TO False WHEN COMMITTING
-    tool.visit_debug = debug
-    log.debug('%s', tool)
+    hypo_tool.visit_debug = debug
 
-    return tool
+    hypo_tool.chain_name = chain_dict['chainName']
+
+    log.debug('%s', hypo_tool)
+
+    return hypo_tool
+
 
 def  trigJetTLAHypoToolFromDict(chain_dict):
-    """Produce  a TLA jet trigger hypo tool from a chainDict"""
+    tool = CompFactory.TrigJetTLAHypoToolMT(name=chain_dict['chainName'])
+    return trigJetHypoToolFromDict_(chain_dict, tool)
 
-    log.info('trigJetTLAHypoToolFromDict chainDict %s', str(chain_dict))
 
-    chain_name = chain_dict['chainName']
-    tool = CompFactory.TrigJetTLAHypoToolMT(name=chain_name)
+def  trigJetHypoToolFromDict(chain_dict):
+    debug = False  # SET TO FALSE  WHEN COMMITTING
+    tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
+    return trigJetHypoToolFromDict_(chain_dict, tool, debug)
 
-    # obtain  a Helper Tool (possibly a tree of tools) to
-    # make the hypo decision.
-    # CD: why do we do this? Question to TJ
-    tool.helper_tool = trigJetHypoToolHelperFromDict(chain_dict)
-
-    # controls whether debug visitor is sent to helper tool
-    debug = False  # SET TO False WHEN COMMITTING
-    tool.visit_debug = debug
-    log.debug('%s', tool)
-
-    return tool
 
 import unittest
 class TestStringMethods(unittest.TestCase):
@@ -176,24 +161,8 @@ class TestDebugFlagIsFalse(unittest.TestCase):
         self.assertFalse(tool.visit_debug)
 
 
-def _tests():
-
-    from TriggerMenuMT.HLTMenuConfig.Menu import DictFromChainName
-
-    chainNameDecoder = DictFromChainName.DictFromChainName()
-
-    chain_names = (
-        'j80_0eta240_2j60_320eta490_L1J20',
-        'j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
-    )
-    for cn in chain_names:
-        chain_dict = chainNameDecoder.getChainDict(cn)
-
-        trigJetHypoToolFromDict(chain_dict)
-
 
 if __name__ == '__main__':
     unittest.main()
 
-    # run _tests outide untit tests so as to see stdout
-    # _tests()
+    # other local tests have been moved to testChainDictMaker.py

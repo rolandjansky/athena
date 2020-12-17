@@ -16,6 +16,8 @@ import PyUtils.acmdlib as acmdlib
 import argparse
 import pygraphviz
 
+# Style for python dependencies:
+py_style = 'dashed'
 
 def read_package_list(package_file):
    """Read packages.txt as a source for the full package path"""
@@ -93,6 +95,16 @@ def subgraph(graph, sources, reverse=False, maxdepth=None, nodegetter=lambda n :
    return g
 
 
+def add_legend(graph):
+   """Add legend to graph"""
+   graph.add_subgraph(name='clusterLegend', label='Legend')
+   l = graph.subgraphs()[-1]
+   for n in 'abcd':
+      l.add_node(n, shape='point', style='invis')
+   l.add_edge('a','b', label='C++', constraint=False)
+   l.add_edge('c','d', label='Python', style=py_style, constraint=False)
+
+
 class AthGraph:
    """Class to hold dependency information for release"""
 
@@ -104,13 +116,13 @@ class AthGraph:
 
       # Build dictionary for node types:
       legend = self.graph.get_subgraph('clusterLegend')
-      self.types = { n.attr['label'] : n.attr['shape'] for n in legend.iternodes() }
+      self.types = { n.attr['label'] : n.attr['shape'] for n in legend.nodes_iter() }
 
       # Build dictionary for node names:
-      self.node = { n.attr['label'] : n.get_name() for n in self.graph.iternodes() }
+      self.node = { n.attr['label'] : n.get_name() for n in self.graph.nodes_iter() }
 
       # Extract package dependencies:
-      for e in self.graph.iteredges():
+      for e in self.graph.edges_iter():
          p = e[0].attr['label']
          # Decorate target with package name:
          if p.startswith('Package_'):
@@ -119,7 +131,7 @@ class AthGraph:
 
       # Assign "package" names to externals if possible:
       external_nodes = filter(lambda n : 'package' not in n.attr.keys(),
-                              self.graph.iternodes())
+                              self.graph.nodes_iter())
       for n in external_nodes:
          name = externals_name(n.attr['label'])
          n.attr['package'] = name.split('::')[0]
@@ -162,6 +174,9 @@ class AthGraph:
                   type=int, default=1, const=None,
                   help='recursively resolve dependencies up to DEPTH (default: unlimited)')
 
+@acmdlib.argument('--py', action='store_true',
+                  help=f'add Python dependencies (marked with ":py" in printout, {py_style} in graph)')
+
 @acmdlib.argument('--regex', action='store_true',
                   help='treat NAME as regular expression')
 
@@ -171,8 +186,14 @@ class AthGraph:
 @acmdlib.argument('-d', '--dot', action='store_true',
                   help='print DOT graph')
 
+@acmdlib.argument('--legend', action='store_true',
+                  help='add legend to graph')
+
+
 # Debugging/expert options:
 @acmdlib.argument('--cmakedot', help=argparse.SUPPRESS)
+@acmdlib.argument('--pydot', help=argparse.SUPPRESS)
+
 
 def main(args):
    """Inspect cmake build dependencies"""
@@ -185,6 +206,18 @@ def main(args):
       except KeyError:
          main.parser.error("Cannot find 'packages.dot'. Setup a release or use --cmakedot.")
 
+   # Find packages.py.dot:
+   pygraph = None
+   if args.py:
+      if args.target:
+         main.parser.error("Python dependencies not possible in target mode.")
+
+      args.pydot = args.pydot or args.cmakedot.replace('.dot','.py.dot')
+      try:
+         pygraph = pygraphviz.AGraph(args.pydot)
+      except Exception:
+         main.parser.error(f"Cannot read '{args.pydot}'. Setup a release or use --pydot.")
+
    # Read packages.txt if needed:
    package_paths = {}
    if args.long:
@@ -195,8 +228,9 @@ def main(args):
          main.parser.error("Cannot read 'packages.txt'. Setup a release or run without -l/--long.")
 
    # In package mode we have one extra level due to the Package_ target:
+   depth = args.recursive
    if not args.target and not args.clients and args.recursive is not None:
-      args.recursive += 1
+      depth += 1
 
    # Read dependencies:
    d = AthGraph(args.cmakedot, package_paths)
@@ -208,14 +242,14 @@ def main(args):
          a = 'label' if args.target else 'package'
          return node.attr[a]
 
-   graph = pygraphviz.AGraph(name='AthGraph', directed=True)
+   graph = pygraphviz.AGraph(name='AthGraph', directed=True, strict=False)
    for p in args.names:
       target = p.split('/')[-1]  # in case of full package path
 
       # With regex, find all matching targets:
       if args.regex:
          r = re.compile(target)
-         targets = [getnode(n) for n in d.graph.iternodes() if r.match(n.attr['label'])]
+         targets = [getnode(n) for n in d.graph.nodes_iter() if r.match(n.attr['label'])]
          targets = list(filter(lambda t : t is not None, targets))
       else:
          targets = [target]
@@ -242,16 +276,36 @@ def main(args):
 
       # Extract the dependency subgraph:
       g = subgraph(d.graph, sources, reverse=args.clients,
-                   maxdepth=args.recursive, nodegetter=getnode)
+                   maxdepth=depth, nodegetter=getnode)
 
       graph.add_subgraph(name=target)
       graph.get_subgraph(target).add_edges_from(g.edges())
 
-   # Print result:
+      # Add python dependencies:
+      if args.py:
+         # Here the nodes are the actual package names:
+         pysources = [pygraph.get_node(t) for t in targets if pygraph.has_node(t)]
+         g = subgraph(pygraph, pysources, reverse=args.clients,
+                      maxdepth=args.recursive, nodegetter=lambda n : n.name)
+
+         graph.get_subgraph(target).add_edges_from(g.edges(), style=py_style)
+
+         # Change style of nodes that have only Python dependencies:
+         g = graph.get_subgraph(target)
+         for n in g.nodes_iter():
+            if all(e.attr['style']==py_style for e in g.edges_iter(n)):
+               n.attr['style'] = py_style
+
+
+   # Output final graph:
+   if args.dot and args.legend:
+      add_legend(graph)
+
    if args.dot:
       print(graph)
    else:
       nodes = [e[0] for e in graph.in_edges_iter()] if args.clients \
          else [e[1] for e in graph.out_edges_iter()]
       for p in sorted(set(nodes)):
-         print(p)
+         suffix = ':py' if p.attr['style']==py_style else ''
+         print(f'{p}{suffix}')

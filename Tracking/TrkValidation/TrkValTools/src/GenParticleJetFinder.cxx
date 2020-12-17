@@ -40,7 +40,7 @@ StatusCode Trk::GenParticleJetFinder::finalize() {
 ///////////////////////////////
 /// jetMCFinder
 ///////////////////////////////
-std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <const HepMC::GenParticle *>&  GenStableCharged) const
+std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <HepMC::ConstGenParticlePtr>&  GenStableCharged) const
 {
   if (GenStableCharged.size() == 0) {
     ATH_MSG_INFO ("no selected charged particles!");
@@ -59,7 +59,7 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
 
   std::vector<Trk::GenParticleJet>::iterator iAtMin, jAtMin;
 
-  for( std::vector <const HepMC::GenParticle *>::iterator  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
+  for( auto  i = GenStableCharged.begin() ; i < GenStableCharged.end();  i++){
     totalEnergyFromTracks = totalEnergyFromTracks + (*i)->momentum().e();
     Trk::GenParticleJet tempPJ;
     tempPJ.addParticle( *i, int(i - GenStableCharged.begin()) );
@@ -113,15 +113,13 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
                  << " ("<<(*jAtMin).getIndicesInEvent().size()<<")" );
 	  if((*iAtMin).getNumParticles()>(*jAtMin).getNumParticles()) {
 
-        std::vector<const HepMC::GenParticle* > partsTemp = (*jAtMin).getParticles();	  
+        auto partsTemp = (*jAtMin).getParticles();	  
         std::vector<int> indexTemp = (*jAtMin).getIndicesInEvent();
         //	  int partsTempSize = partsTemp.size();
         if (partsTemp.size()!=0) {
           
           std::vector<int>::iterator       ki=indexTemp.begin();
-		  for (std::vector<const HepMC::GenParticle* >::const_iterator k =partsTemp.begin();
-               k!=partsTemp.end(); ++k, ++ki) {
-
+          for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
             (*iAtMin).addParticle(*k,*ki);
           }
 		} else {
@@ -134,13 +132,12 @@ std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std
       }
 	  else {
 
-        std::vector<const HepMC::GenParticle* > partsTemp = (*iAtMin).getParticles();	  
+        auto partsTemp = (*iAtMin).getParticles();	  
         std::vector<int> indexTemp = (*iAtMin).getIndicesInEvent();
         if (partsTemp.size()!=0) {
 
           std::vector<int>::iterator       ki=indexTemp.begin();
-		  for (std::vector<const HepMC::GenParticle* >::const_iterator k =partsTemp.begin();
-               k!=partsTemp.end(); ++k, ++ki) {
+          for (auto k =partsTemp.begin(); k!=partsTemp.end(); ++k, ++ki) {
             //		  tempPartJet.addParticle(*k);
             (*jAtMin).addParticle(*k,*ki);
           }

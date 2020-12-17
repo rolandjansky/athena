@@ -74,7 +74,7 @@ class ComboHypo : public ::AthReentrantAlgorithm {
    * @param[out] roiIndex Index inside the roiKey collection. 
    **/
   StatusCode extractFeatureAndRoI(const ElementLink<TrigCompositeUtils::DecisionContainer>& EL,
-    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex) const; 
+    uint32_t& featureKey, uint16_t& featureIndex, uint32_t& roiKey, uint16_t& roiIndex, bool& roiFullscan) const; 
 
 
   /**

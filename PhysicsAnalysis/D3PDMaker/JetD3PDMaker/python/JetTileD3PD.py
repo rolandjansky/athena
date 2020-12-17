@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 import D3PDMakerCoreComps            
@@ -8,7 +8,7 @@ from JetD3PDMaker.jetMETD3PDTrigger           import jetMETTriggerBitsD3PDObject
 from JetD3PDMaker.JetTileD3PDObject           import JetTileD3PDObject
 #from MissingETD3PDMaker.MissingETD3PDObject   import *
 from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
-from EventCommonD3PDMaker.GenEventD3PDObject  import GenEventD3PDObject
+from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from RecExConfig.RecFlags                     import rec
 

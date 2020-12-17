@@ -17,6 +17,8 @@
 #   http://alxr.usatlas.bnl.gov/lxr/source/atlas/DetectorDescription/DetDescrCond/DetectorStatus/python/DetStatusLib.py
 
 from __future__ import print_function
+import sys
+
 DQChannelDict = {'PIXB':101,'PIX0':102,'PIXEA':104,'PIXEC':105,
                  'SCTB':111,'SCTEA':114,'SCTEC':115,
                  'TRTB':121,'TRTEA':124,'TRTEC':125,'TRTTR':126,
@@ -123,15 +125,18 @@ def DQChannels():
 
 def DQChannel(name):
     name = name.upper()
-    if ':' in name: name = name[name.index(':')+1:]
+    if ':' in name:
+        name = name[name.index(':')+1:]
     # OLD: if name.startswith('CP_'): return -1
-    if '_' in name: return -1
+    if '_' in name:
+        return -1
     return DQChannelDict[name]
 
 
 def isDQ(name):
     name = (name.split(':')[-1].split('#')[0]).upper()
-    if name.startswith("CP_") or name.startswith("PHYS_") or name.startswith("TRIG_") or name.startswith("LUM_") or name.startswith("GLOBAL_"): return True
+    if name.startswith("CP_") or name.startswith("PHYS_") or name.startswith("TRIG_") or name.startswith("LUM_") or name.startswith("GLOBAL_"):
+        return True
     return name in DQChannelDict
 
 
@@ -239,9 +244,10 @@ def InitDetectorMaskDecoderRun1():
     NotInAll = ['']*64
     for i in range(0,len(dName)): 
         for n in notInAll:
-            if dName[i] == n: NotInAll[i] = ' NotInAll'
+            if dName[i] == n:
+                NotInAll[i] = ' NotInAll'
 
-    vetoedbits = [3, 50, 51, 52, 53] + [x for x in range(54,64)]
+    vetoedbits = [3, 50, 51, 52, 53] + list(range(54,64))
 
     return (dName, NotInAll, vetoedbits)
 
@@ -327,7 +333,7 @@ def InitDetectorMaskDecoderRun2():
 
     NotInAll = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
 
-    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] + range(64,128)
+    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] + list(range(64,128)) #+ range(64,128)
 
     return (dName, NotInAll, vetoedbits)
 
@@ -345,11 +351,9 @@ def DecodeDetectorMaskToString( detmask, isRun2, smart ):
 
     ic = 0
     res = ""
-    success = False
     inclusion = True
-    for i in xrange( len(dName) ):
+    for i in range( len(dName) ):
         if i not in vetoedbits and (detmask & (1 << i)):
-            success = True
             res += dName[i] + ", "
             ic += 1
     if res=="":
@@ -363,7 +367,6 @@ def DecodeDetectorMaskToString( detmask, isRun2, smart ):
         res = ""
         for i in range( len(dName) ):
             if i not in vetoedbits and not (detmask & (1 << i)):
-                success = True
                 res += dName[i] + ", "
         if res=="":
             res = "all"

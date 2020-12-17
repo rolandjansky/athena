@@ -25,11 +25,10 @@ TrigConf::L1Menu::update()
    if(! isInitialized() || empty() ) {
       return;
    }
-
    try {
       m_name = getAttribute("name");
       // thresholds
-      for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+      for( const std::string path : {"thresholds", "thresholds.legacyCalo" } ) {
          for( auto & thrByType : data().get_child( path ) ) {
             const std::string & thrType = thrByType.first;
             if (thrType == "legacyCalo")
@@ -94,7 +93,7 @@ TrigConf::L1Menu::update()
 
    try {
       // algorithms
-      for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+      for( const std::string algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
          auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
          if(algoCategory == "MULTTOPO") {
             for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {
@@ -126,6 +125,15 @@ TrigConf::L1Menu::update()
    }
    catch(std::exception & ex) {
       std::cerr << "ERROR: problem when building L1 menu structure (algorithms). " << ex.what() << std::endl;
+      throw;
+   }
+
+   try {
+      // CTP
+      m_ctp.setData(data().get_child("ctp"));
+   }
+   catch(std::exception & ex) {
+      std::cerr << "ERROR: problem when building L1 menu structure (CTP). " << ex.what() << std::endl;
       throw;
    }
 }

@@ -1,31 +1,31 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "DecisionSummaryMakerAlg.h"
 
-DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator) 
+DecisionSummaryMakerAlg::DecisionSummaryMakerAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : AthReentrantAlgorithm(name, pSvcLocator) {}
-
-DecisionSummaryMakerAlg::~DecisionSummaryMakerAlg() {}
 
 StatusCode DecisionSummaryMakerAlg::initialize() {
   renounceArray( m_finalDecisionKeys );
-  ATH_CHECK( m_finalDecisionKeys.initialize() ); 
+  ATH_CHECK( m_finalDecisionKeys.initialize() );
   ATH_CHECK( m_summaryKey.initialize() );
   ATH_CHECK( m_l1SummaryKey.initialize() );
-  
-  for ( auto& pair: m_lastStepForChain ) {
-    struct { std::string chain, collection; } conf { pair.first, pair.second };    
-    m_collectionFilter[ conf.collection ].insert( HLT::Identifier( conf.chain).numeric() );
-    ATH_MSG_DEBUG( "Final decision of the chain " << conf.chain << " will be read from " << conf.collection );
+
+  for ( auto& [chain, collections]: m_lastStepForChain ) {
+    for ( auto& collection: collections ) {
+      m_collectionFilter[ collection ].insert( HLT::Identifier( chain ).numeric() );
+      ATH_MSG_DEBUG( "Final decision of the chain " << chain << " will be read from " << collection );
+    }
   }
 
   ATH_CHECK( m_costWriteHandleKey.initialize( m_doCostMonitoring ) );
+  ATH_CHECK( m_rosWriteHandleKey.initialize( m_doCostMonitoring ) );
   if (m_doCostMonitoring) {
     ATH_CHECK( m_trigCostSvcHandle.retrieve() );
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
@@ -54,7 +54,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
     }
     const auto thisCollFilter = m_collectionFilter.find( key.key() );
     if ( thisCollFilter == m_collectionFilter.end() ) {
-      ATH_MSG_WARNING( "The collection " << key.key() << " is not configured to contain any final decision," 
+      ATH_MSG_WARNING( "The collection " << key.key() << " is not configured to contain any final decision,"
                        << "remove it from the configuration of " << name() << " to save time" );
       continue;
     }
@@ -67,10 +67,10 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       // Filter out chains for which this is NOT the final step of their processing
       DecisionIDContainer passingFinalIDs;
       std::set_intersection( passingIDs.begin(), passingIDs.end(),
-          thisCollFilter->second.begin(), thisCollFilter->second.end(), 
+          thisCollFilter->second.begin(), thisCollFilter->second.end(),
           std::inserter(passingFinalIDs, passingFinalIDs.begin() ) ); // should be faster than remove_if
 
-      if (passingFinalIDs.size() == 0) {
+      if (passingFinalIDs.empty()) {
         continue;
       }
 
@@ -138,18 +138,18 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
   // Do cost monitoring
   if (m_doCostMonitoring) {
     SG::WriteHandle<xAOD::TrigCompositeContainer> costMonOutput = createAndStore(m_costWriteHandleKey, context);
+    SG::WriteHandle<xAOD::TrigCompositeContainer> rosMonOutput = createAndStore(m_rosWriteHandleKey, context);
     // Populate collection (assuming monitored event, otherwise collection will remain empty)
-    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput));
+    ATH_CHECK(m_trigCostSvcHandle->endEvent(context, costMonOutput, rosMonOutput));
   }
 
   // Set the algorithm's filter status. This controlls the running of finalisation algs which we only want to execute
   // in events which are accepted by one ore more chains.
   bool filterStatus = true;
   if (m_setFilterStatus) {
-    filterStatus = (allPassingFinalIDs.size() > 0);
+    filterStatus = (not allPassingFinalIDs.empty());
   }
   setFilterPassed(filterStatus, context );
 
   return StatusCode::SUCCESS;
 }
-

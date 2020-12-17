@@ -104,6 +104,13 @@ namespace LVL1TGCTrigger {
     ATH_CHECK( m_readCondKey.initialize(!m_useRun3Config.value()) );
     ATH_CHECK( m_readLUTs_CondKey.initialize(m_useRun3Config.value()) );
 
+    // CondDB is not available for Run3 config. set USE_CONDDB to false to avoid errors.
+    // will be removed the below part.
+    if(m_useRun3Config.value()){
+      m_tgcArgs.set_USE_CONDDB(false);
+      m_VerCW="1_01_00_00_02";
+    }
+
     // initialize TGCDataBase
     m_db = new TGCDatabaseManager(&m_tgcArgs, m_readCondKey, m_readLUTs_CondKey, m_VerCW);
 

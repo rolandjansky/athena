@@ -7,8 +7,6 @@
 
 #include "AthenaBaseComps/AthHistogramAlgorithm.h"
 
-//#include "GaudiKernel/Algorithm.h"
-//#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/IIOVSvc.h"
@@ -16,7 +14,6 @@
 
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
-//#include "CoralBase/Blob.h"
 
 #include <string>
 #include <iostream>
@@ -44,8 +41,6 @@
 #include "TF1.h"
 #include "TLatex.h"
 #include "TList.h"
-
-#include "TMath.h"
 #include "TMathBase.h"
 
 //for truth particles

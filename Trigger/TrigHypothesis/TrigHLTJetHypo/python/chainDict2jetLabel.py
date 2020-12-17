@@ -28,10 +28,12 @@ def _select_simple_chainparts(chain_parts):
     return True
 
 
-def _make_simple_label(chain_parts):
+def _make_simple_label(chain_parts, leg_label):
     """Marshal information deom the selected chainParts to create a
     'simple' label. NOTE: THIS IS A SPECIAL CASE - IT DOES NOT DEPEND
     SOLELY ON THE HYPO SCENARIO.
+    Argument leg_label is not used - rather the leg label is fouNd
+    from the chain parts.
     """
     
     if not _select_simple_chainparts(chain_parts):
@@ -39,7 +41,8 @@ def _make_simple_label(chain_parts):
               'chain fails substring selection: not "simple" '
 
         raise NotImplementedError(msg)
-    
+
+    chainpartind = 0
     label = 'simple(['
     for cp in chain_parts:
         smcstr =  str(cp['smc'])
@@ -65,67 +68,13 @@ def _make_simple_label(chain_parts):
                         condition_str += ',%s' % cut
                 else:
                     condition_str += ',%s' % momstr
+            condition_str += ', leg{:0>3}'.format(chainpartind)
             if not condition_str.endswith(')'):
                 condition_str += ')'
             label += condition_str
+        chainpartind += 1
+
     label += '])'
-    return label
-
-
-def _make_simple_partition_label(chain_dict):
-    """Marshal information deom the selected chainParts to create a
-    'simple_partition' label.
-    """
-
-    cps = chain_dict['chainParts']
-    if not (_select_simple_chainparts(cps)):
-        raise NotImplementedError(
-            'chain fails substring selection: not "simple": %s' % (
-                chain_dict['chainName']))
-    
-    label = 'simplepartition(['
-    for cp in cps:
-        smcstr =  str(cp['smc'])
-        if smcstr == 'nosmc':
-            smcstr = ''
-        for i in range(int(cp['multiplicity'])):
-            # condition_str = '(%set,%s,%s)' % (str(cp['threshold']),
-            #                                  str(cp['etaRange']),
-            #                                  smcstr,)
-            condition_str = '(%set,%s' % (str(cp['threshold']),
-                                              str(cp['etaRange']),)
-            if smcstr:
-                condition_str += ',%s)'
-            else:
-                condition_str += ')'
-            label += condition_str
-    label += '])'
-    return label
-
-
-def _make_simple_comb_label(chain_dict):
-    """Marshal information deom the selected chainParts to create a
-    'simple' label NOTE: DO NOT USE this method.
-    THIS CHAINLABEL IS FOR TIMING STUDIES ONLY.
-    It has n^2 behaviour rather than n obtained using _make_simple_label.
-    """
-
-    cps = chain_dict['chainParts']
-    if not (_select_simple_chainparts(cps)):
-        raise NotImplementedError(
-            'chain fails substring selection: not "simple": %s' % (
-                chain_dict['chainName']))
-    
-    simple_strs = []
-
-    for cp in cps:
-        print(cp)
-        simple_strs.append(_make_simple_label([cp]))
-
-        label = 'combgen([(%d)]' % len(cps)
-        for s in simple_strs:
-            label += ' %s ' % s
-        label += ')'
     return label
 
 
@@ -146,7 +95,7 @@ def _cuts_from_momCuts(momCuts):
     return ''
 
 
-def _make_vbenf_label(chain_parts):
+def _make_vbenf_label(chain_parts, leg_label):
     """Marshal information from the selected chainParts to create a
     vbenf label. Use a Reducer for elimination of unusable jets
     """
@@ -157,11 +106,12 @@ def _make_vbenf_label(chain_parts):
     # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
     assert len(chain_parts) == 1
+    
     scenario = chain_parts[0]['hypoScenario']
     assert scenario.startswith('vbenf')
     args = _args_from_scenario(scenario)
     if not args:
-        return 'and([]simple([(50et)(70et)])combgen([(2)] dijet([(900djmass, 26djdphi)])))'        
+        return 'all([]simple([(50et)(70et)])dijet([(900djmass, 26djdphi)] all[], all[])))'        
     arg_res = [
         re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
         re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
@@ -198,30 +148,27 @@ def _make_vbenf_label(chain_parts):
     assert len(args) == len(arg_res)
     assert len(args) == 0
 
+    argvals['leg_label'] = leg_label
     return """
-    and
+    all
     (
       []
       simple
       (
-        [(%(etlo).0fet, 500neta)(%(etlo).0fet, peta500)]
+        [(%(etlo).0fet, 500neta, leg000)(%(etlo).0fet, peta500, %(leg_label)s)]
       )
-      combgen
+      dijet
       (
-        [(10et, 0eta320)]
-        dijet
-        (
-          [(%(masslo).0fdjmass, 26djdphi)]
-        ) 
+        [(%(masslo).0fdjmass, 26djdphi)]
         simple
         (
-          [(10et, 0eta320)(20et, 0eta320)]
+          [(10et, 0eta320, leg000)(20et, 0eta320, %(leg_label)s)]
         )
       )
     )""" % argvals
 
 
-def _make_dijet_label(chain_parts):
+def _make_dijet_label(chain_parts, leg_label):
     """dijet label. supports dijet cuts, and cuts on particpating jets
     Currently supported cuts:
     - dijet mass
@@ -280,20 +227,16 @@ def _make_dijet_label(chain_parts):
     assert len(args) == len(arg_res)
     assert len(args) == 0
 
-    return """
-    combgen(
-            [(2)(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-                (%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-               ]
+    argvals['leg_label'] = leg_label
     
-            dijet(
-                  [(%(djmasslo).0fdjmass)])
-            simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f)
-                    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f)])
-            )""" % argvals
+    return """
+    dijet(
+    [(%(djmasslo).0fdjmass)]
+    simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f, %(leg_label)s)
+    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f, %(leg_label)s)]))""" % argvals
 
 
-def _make_agg_label(chain_parts):
+def _make_agg_label(chain_parts, leg_label):
     """agg label. cuts on aggregate quantities, and cuts on particpating jets
     Only partway migrated from pure ht to more general agg
     Currently supported cuts:
@@ -350,57 +293,17 @@ def _make_agg_label(chain_parts):
                     hi = float(defaults[key][1])
                 argvals[key+'hi'] =  hi
 
-    print (argvals)
     assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
 
-    print ('sent 100')
+    argvals['leg_label'] = leg_label
     result =  """
-    ht([(%(htlo).0fht)
+    ht([(%(htlo).0fht, %(leg_label)s)
         (%(etlo).0fet)
         (%(etalo).0feta%(etahi).0f)
     ])"""  % argvals
     print (result)
     return result
     
-
-
-def _make_combinationsTest_label(chain_parts):
-    """make test label for  combinations helper with two simple children."""
-
-    assert len(chain_parts) == 1
-    scenario = chain_parts[0]['hypoScenario']
-    
-    assert scenario == 'combinationsTest'
-
-   
-
-    return """
-    combgen(
-            [(2)(20et, 0eta320)]
-    
-            simple([(40et, 0eta320) (50et, 0eta320)])
-            simple([(35et, 0eta240) (55et, 0eta240)])
-            )"""
-
-
-def _make_partitionsTest_label(chain_parts):
-    """make test label for  combinations helper with two simple children."""
-
-    assert len(chain_parts) == 1
-    scenario = chain_parts[0]['hypoScenario']
-    
-    assert scenario == 'partitionsTest'
-
-   
-
-    return """
-    partgen(
-            [(20et, 0eta320)]
-    
-            simple([(40et, 0eta320) (50et, 0eta320)])
-            simple([(35et, 0eta240) (55et, 0eta240)])
-            )"""
-
 
 def chainDict2jetLabel(chain_dict):
     """Entry point to this Module. Return a chain label according to the
@@ -420,15 +323,14 @@ def chainDict2jetLabel(chain_dict):
         'agg':   _make_agg_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
-        'combinationsTest': _make_combinationsTest_label,
-        'partitionsTest': _make_partitionsTest_label,
     }
 
     # chain_part - scenario association
     cp_sorter = {}
     for k in router: cp_sorter[k] = []
 
-    for cp in chain_dict['chainParts']:
+    chain_parts = chain_dict['chainParts']
+    for cp in chain_parts:
         if cp['signature'] != 'Jet' and cp['signature'] != 'Bjet': 
             continue
         for k in cp_sorter:
@@ -438,15 +340,18 @@ def chainDict2jetLabel(chain_dict):
 
     # obtain labels by scenario.
     labels = []
+
+    leg_label = 'leg%03d' % (len(chain_parts) - 1)
     for k, chain_parts in cp_sorter.items():
-        if chain_parts: labels.append(router[k](chain_parts))
+        if chain_parts:
+            labels.append(router[k](chain_parts, leg_label))
 
     assert labels
     nlabels = len(labels)
     if nlabels == 1: return labels[0]
     if nlabels == 2:
         alabel = """\
-and([]
+all([]
     %s
     %s)""" % (tuple(labels))
         return alabel

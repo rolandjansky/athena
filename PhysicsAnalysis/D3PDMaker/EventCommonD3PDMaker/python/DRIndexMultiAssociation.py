@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file EventCommonD3PDMaker/python/DRIndexMultiAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -30,7 +29,7 @@ def DRIndexMultiAssociation (parent,
 """
 
 
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'DRIndexMultiAssoc'
 
     def maker (name, prefix, object_name,

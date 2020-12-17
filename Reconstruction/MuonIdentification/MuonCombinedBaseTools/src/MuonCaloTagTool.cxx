@@ -10,7 +10,6 @@
 //  Authors: Nicolo de Groot & Antonio Salvucci
 //  based on: CaloTrkMuId
 //  
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 
@@ -87,26 +86,26 @@ namespace MuonCombined {
   }
 
   void MuonCaloTagTool::extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const {
+					TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const {
     //shouldn't need this interface for this tool, I don't think
     if(!prdData.mdtPrds) ATH_MSG_DEBUG("calo-tagging doesn't need PRDs");
-    extend(inDetCandidates, tagMap, combTracks, meTracks, segments);
+    extend(inDetCandidates, tagMap, combTracks, meTracks, segments, ctx);
   }
 
   void MuonCaloTagTool::extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-				Trk::SegmentCollection* segments) const {
+				Trk::SegmentCollection* segments, const EventContext& ctx) const {
 
     if(combTracks || meTracks || segments) ATH_MSG_DEBUG("track collections passed to MuonCaloTagTool?");
     const xAOD::CaloClusterContainer* caloClusterCont=0;
     const CaloCellContainer* caloCellCont=0;
     if(m_doCaloLR){ //retrieve the xAOD::CaloClusterContainer
-      SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_caloClusterCont);
+      SG::ReadHandle<xAOD::CaloClusterContainer> clusters(m_caloClusterCont, ctx);
       if(!clusters.isValid()) ATH_MSG_WARNING("CaloClusterContainer "<<m_caloClusterCont.key()<<" not valid");
       else if(!clusters.isPresent()) ATH_MSG_DEBUG("CaloClusterContainer "<<m_caloClusterCont.key()<<" not present");
       else caloClusterCont=clusters.cptr();
     }
     if(m_doOldExtrapolation){ //retrieve the CaloCellContainer
-      SG::ReadHandle<CaloCellContainer> cells(m_caloCellCont);
+      SG::ReadHandle<CaloCellContainer> cells(m_caloCellCont, ctx);
       if(!cells.isValid()) ATH_MSG_WARNING("CaloCellContainer "<<m_caloCellCont.key()<<" not valid");
       else if(!cells.isPresent()) ATH_MSG_DEBUG("CaloCellContainer "<<m_caloCellCont.key()<<" not present");
       else caloCellCont=cells.cptr();
@@ -385,5 +384,9 @@ namespace MuonCombined {
 
   }
 
+
+  void MuonCaloTagTool::cleanUp() const {
+    return;
+  }
 
 }	// end of namespace

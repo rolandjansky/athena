@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -10,8 +10,6 @@
 // and DerivationFramework/DerivationFrameworkMuons/src/dimuonTaggingTool.cxx
 
 #include "LongLivedParticleDPDMaker/HnlSkimmingTool.h"
-
-#include "CLHEP/Units/SystemOfUnits.h"
 
 // Constructor
 DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,

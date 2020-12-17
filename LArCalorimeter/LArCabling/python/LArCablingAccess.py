@@ -4,6 +4,9 @@ from AthenaCommon.AlgSequence import AthSequencer
 from IOVDbSvc.CondDB import conddb
 from LArRecUtils.LArRecUtilsConf import LArOnOffMappingAlg, LArFebRodMappingAlg, LArCalibLineMappingAlg
 
+from LArConditionsCommon.LArCondFlags import larCondFlags
+
+
 #FIXME, the folder are also set up in LArConditionsCommon/share/LArIdMap_*_jobOptions.py
  
 def LArOnOffIdMapping():
@@ -13,11 +16,14 @@ def LArOnOffIdMapping():
 
     if conddb.isMC:
         dbname="LAR_OFL"
+        larCondFlags.config_idmap_MC()
     else:
         dbname="LAR"
 
+    
     folder="/LAR/Identifier/OnOffIdMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    larCondFlags.addTag(folder,conddb)
     condSequence+=LArOnOffMappingAlg(ReadKey=folder)
     return
 
@@ -44,11 +50,13 @@ def LArFebRodMapping():
 
     if conddb.isMC:
         dbname="LAR_OFL"
+        larCondFlags.config_idmap_MC()
     else:
         dbname="LAR"
 
     folder="/LAR/Identifier/FebRodMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    larCondFlags.addTag(folder,conddb)
     condSequence+=LArFebRodMappingAlg(ReadKey=folder)
     return
 
@@ -60,11 +68,14 @@ def LArCalibIdMapping():
 
     if conddb.isMC:
         dbname="LAR_OFL"
+        larCondFlags.config_idmap_MC()
     else:
         dbname="LAR"
+        larCondFlags.config_idmap_comm()
 
     folder="/LAR/Identifier/CalibIdMap"
     conddb.addFolder(dbname,folder,className="AthenaAttributeList")
+    larCondFlags.addTag(folder,conddb)
     condSequence+=LArCalibLineMappingAlg(ReadKey=folder)
     return
 

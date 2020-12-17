@@ -1,17 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDumpOracle_H
-#define AmdcDumpOracle_H
+#ifndef AMDCORACLE_AMDCDUMPORACLE_H
+#define AMDCORACLE_AMDCDUMPORACLE_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
-#include "AmdcDb/IRDBAccessSvcWithUpdate.h"
-
-/////////////////////////////////////////////////////////////////////////////
-#include "AmdcOracle/AmdcOracleMisc.h"
+#include "AmdcDb/AmdcDb.h"
 
 class IRDBAccessSvc;
 
@@ -34,8 +31,6 @@ public:
    StatusCode initialize();
    StatusCode execute();
    StatusCode finalize();
-
-   StatusCode DoItCallback(IOVSVC_CALLBACK_ARGS);
 
 private:
 ///////////////////////////////////
@@ -70,9 +65,6 @@ private:
    void DumpXtomoData( IRDBAccessSvc* pIRDBAccessSvc , std::string TagAdd ,int& Kwarn, int& Kchck );
 
 
-   bool m_IRDBAccessSvcWithUpdateUpdatedSvcDONE     ; //!< status of p_IRDBAccessSvcWithUpdate
-   
-   
    int m_SwitchOff     ; //!< Control execution
  
    int m_WarningLevel  ; //!< Warning Level
@@ -84,9 +76,8 @@ private:
   
    int m_KountCallsDoIt     ; //!< Kount calls to DoIt
   
-   ServiceHandle<IRDBAccessSvcWithUpdate> p_IRDBAccessSvcWithUpdate;  //!< Pointer On IRDBAccessSvcWithUpdate
+   ServiceHandle<IRDBAccessSvc> m_amdcDb;  //!< Pointer to AmdcDb
 
-   StatusCode regFcnDoIt();
    StatusCode DoIt();
   
 };

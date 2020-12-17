@@ -10,7 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "MuonCombinedToolInterfaces/IMuonTrackTagTool.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSegment/SegmentCollection.h"
@@ -48,6 +47,8 @@ namespace MuonCombined {
       void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
 		    TrackCollection* combTracks, TrackCollection* METracks) const override;
 
+    void cleanUp() const override;
+
   private:
 
     Trk::Track* buildCombinedTrack(const Trk::Track& indetTrack,					     
@@ -73,7 +74,6 @@ namespace MuonCombined {
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "Printer", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-    ToolHandle<MuonCombined::IMuonTrackTagTool> m_tagTool {this, "MuonTrackTagTool", "MuonCombined::MuonTrackTagTestTool/MuonTrackTagTestTool"};
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder {this, "TrackBuilder", ""};
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_outwardsBuilder {this, "OutwardsTrackBuilder", ""};
     ToolHandle<Rec::IMuonTrackQuery> m_trackQuery {this, "TrackQuery", "Rec::MuonTrackQuery/MuonTrackQuery"};

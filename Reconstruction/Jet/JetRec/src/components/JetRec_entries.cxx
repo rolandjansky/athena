@@ -2,6 +2,7 @@
 #include "../JetRecAlg.h"
 #include "../JetViewAlg.h"
 #include "../JetTrimming.h"
+#include "../JetSoftDropTools.h"
 
 #include "../PseudoJetMerger.h"
 #include "../PseudoJetAlgorithm.h"
@@ -61,4 +62,7 @@ DECLARE_COMPONENT( JetViewAlg )
 DECLARE_COMPONENT( PseudoJetAlgorithm )
 DECLARE_COMPONENT( MuonSegmentPseudoJetAlgorithm )
 
-DECLARE_COMPONENT( JetTrimming )
+DECLARE_COMPONENT( JetGrooming::JetTrimming )
+DECLARE_COMPONENT( JetGrooming::SoftDrop )
+DECLARE_COMPONENT( JetGrooming::RecSoftDrop )
+DECLARE_COMPONENT( JetGrooming::BottomUpSoftDrop )

@@ -19,9 +19,6 @@
 
 
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/ServiceHandle.h"
-
-#include <TMath.h>
 #include "TrkNeuralNetworkUtils/TTrainedNetwork.h"
 #include "SiClusterizationTool/NnClusterizationFactory.h"
 #include "SiClusterizationTool/NnNormalization.h"
@@ -31,75 +28,65 @@
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
-
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-
 #include "DetDescrCondTools/ICoolHistSvc.h"
-
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 //get std::isnan()
 #include <cmath>
-#include <regex>
+#include <algorithm>
+#include <limits>
+
+
 
 namespace InDet {
-
-  const char * const NnClusterizationFactory::s_nnTypeNames[]={
-    "NumberParticlesNN",
-    "PositionNN",
-    "ErrorXNN",
-    "ErrorYNN" };
+  const std::array<std::regex, NnClusterizationFactory::kNNetworkTypes>
+  NnClusterizationFactory::m_nnNames{
+      std::regex("^NumberParticles(|/|_.*)$"),
+      std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
+      std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
+      std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
+    };
 
   NnClusterizationFactory::NnClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p)
-    : AthAlgTool(name, n, p)
-  {
+    : AthAlgTool(name, n, p){
     declareInterface<NnClusterizationFactory>(this);
   }
 
   StatusCode NnClusterizationFactory::initialize() {
-
     ATH_CHECK(m_pixelCabling.retrieve());
     ATH_CHECK(m_chargeDataKey.initialize());
-
     ATH_CHECK(m_pixelLorentzAngleTool.retrieve());
-
     m_assembleInput =   ( m_doRunI ?  &NnClusterizationFactory::assembleInputRunI :  &NnClusterizationFactory::assembleInputRunII );
     if (m_doRunI) {
       m_calculateOutput = &TTrainedNetwork::calculateOutputValues;
-    }
-    else {
+    } else {
       m_calculateOutput = &TTrainedNetwork::calculateNormalized;
     }
-
-
     // =0 means invalid in the following, but later on the values will be decremented by one and they indicate the index in the NN collection 
     m_nParticleNNId=0;
     m_NNId.clear();
     m_NNId.resize( kNNetworkTypes -1 ) ;
-
     // map networks to element in network collection
-    assert( m_nnNames.size() == kNNetworkTypes );
-    assert( m_nnNames.size() == m_nParticleGroup.size());
     unsigned int nn_id=0;
+    std::smatch match_result;
     for(const std::string &nn_name : m_nnOrder) {
       ++nn_id;
       for (unsigned int network_i=0; network_i<kNNetworkTypes; ++network_i) {
-        std::smatch match_result;
         if (std::regex_match( nn_name, match_result, m_nnNames[network_i])) {
           if (network_i == kNumberParticlesNN) {
             m_nParticleNNId = nn_id;
-          }
-          else {
+          } else {
             if (m_nParticleGroup[network_i]>0) {
-	      if (m_nParticleGroup[network_i]>=match_result.size()) {
-		ATH_MSG_ERROR("Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size()
-			      << " n particle group=" << m_nParticleGroup[network_i]
-			      << "; type=" << network_i << ")");
-	      }
-              int n_particles=atoi( match_result[m_nParticleGroup[network_i]].str().c_str());
-              if (n_particles<=0 || static_cast<unsigned int>(n_particles)>m_maxSubClusters) {
+	            if (m_nParticleGroup[network_i]>=match_result.size()) {
+		            ATH_MSG_ERROR("Regex and match group of particle multiplicity do not coincide (groups=" << match_result.size()
+			           << " n particle group=" << m_nParticleGroup[network_i]
+			           << "; type=" << network_i << ")");
+	            }
+              int n_particles=std::stoi( match_result[m_nParticleGroup[network_i]].str());
+              if (n_particles<=0 or static_cast<unsigned int>(n_particles)>m_maxSubClusters) {
                 ATH_MSG_ERROR( "Failed to extract number of clusters the NN is meant for. Got " << match_result[m_nParticleGroup[network_i]].str()
                                << " But this is not in the valid range 1..." << m_maxSubClusters);
                 return StatusCode::FAILURE;
@@ -108,8 +95,7 @@ namespace InDet {
                 m_NNId[network_i-1].resize( n_particles );
               }
               m_NNId[network_i-1][n_particles-1] = nn_id;
-            }
-            else {
+            } else {
               if (m_NNId[network_i-1].empty()) {
                 m_NNId[network_i-1].resize(1); 
               }
@@ -119,10 +105,9 @@ namespace InDet {
         }
       }
     }
-
     // check whether the NN IDs are all valid
     // if valid decrease IDs by 1, because the ID is used as index in the NN collection.
-    if (m_nParticleNNId==0 || m_nParticleNNId>=m_nnOrder.size()) {
+    if ((m_nParticleNNId==0) or (m_nParticleNNId>=m_nnOrder.size())) {
       ATH_MSG_ERROR( "No NN specified to estimate the number of particles.");
       return StatusCode::FAILURE;
     }
@@ -135,398 +120,319 @@ namespace InDet {
         ATH_MSG_ERROR( "No " << s_nnTypeNames[type_i] << " specified.");
         return StatusCode::FAILURE;
       }
-      if (m_nParticleGroup[type_i-1]>0 && nn_id.size() != m_maxSubClusters) {
+      if (m_nParticleGroup[type_i-1]>0 and nn_id.size() != m_maxSubClusters) {
           ATH_MSG_ERROR( "Number of networks of type  " << s_nnTypeNames[type_i] << " does match the maximum number of supported sub clusters " << m_maxSubClusters);
           return StatusCode::FAILURE;
       }
       unsigned int n_particles=0;
       for (unsigned int &a_nn_id : nn_id ) {
         ++n_particles;
-        if (a_nn_id==0 || a_nn_id>m_nnOrder.size()) {
+        if ((a_nn_id==0) or (a_nn_id>m_nnOrder.size())) {
           ATH_MSG_ERROR( "No " << s_nnTypeNames[type_i] << " specified for " << n_particles);
           return StatusCode::FAILURE;
         }
         --a_nn_id;
-	ATH_MSG_VERBOSE("Expect NN " << s_nnTypeNames[type_i] << " for " << n_particles << " particle(s) at index " << a_nn_id );
+	      ATH_MSG_VERBOSE("Expect NN " << s_nnTypeNames[type_i] << " for " << n_particles << " particle(s) at index " << a_nn_id );
       }
     }
-
     ATH_CHECK( m_readKeyWithoutTrack.initialize( !m_readKeyWithoutTrack.key().empty() ) );
     ATH_CHECK( m_readKeyWithTrack.initialize( !m_readKeyWithTrack.key().empty() ) );
     ATH_CHECK( m_readKeyJSON.initialize( !m_readKeyJSON.key().empty() ) );
-
     return StatusCode::SUCCESS;
   }
 
 
-  std::vector<double> NnClusterizationFactory::assembleInputRunII(NNinput& input,
-                                                                  int sizeX,
-                                                                  int sizeY) const
-{
-
-    std::vector<double> inputData;
-    for (int u=0;u<sizeX;u++)
-    {
-      for (int s=0;s<sizeY;s++)
-      {
-        if (m_useToT)
-        {
-          inputData.push_back(input.matrixOfToT[u][s]);
-        }
-        else
-        {
-          inputData.push_back(input.matrixOfToT[u][s]);
-        }
+  std::vector<double> 
+  NnClusterizationFactory::assembleInputRunII(NNinput& input) const{
+    const auto vectorSize{calculateVectorDimension(input.useTrackInfo)};
+    const auto invalidValue{std::numeric_limits<double>::quiet_NaN()};
+    std::vector<double> inputData(vectorSize, invalidValue);
+    size_t vectorIndex{0};
+    for (unsigned int u=0;u<m_sizeX;u++){
+      for (unsigned int s=0;s<m_sizeY;s++){
+        inputData[vectorIndex++] = input.matrixOfToT[u][s];
       }
     }
-    for (int s=0;s<sizeY;s++)
-    {
-      inputData.push_back(input.vectorOfPitchesY[s]);
+    for (unsigned int  s=0;s<m_sizeY;s++){
+      inputData[vectorIndex++] = input.vectorOfPitchesY[s];
     }
-    inputData.push_back(input.ClusterPixLayer);
-    inputData.push_back(input.ClusterPixBarrelEC);
-
-    if (input.useTrackInfo)
-    {
-      inputData.push_back(input.phi);
-      inputData.push_back(input.theta);
-    }
-    else
-    {
-      inputData.push_back(input.phi);
-      inputData.push_back(input.theta);
-      inputData.push_back(input.etaModule);
-    }
-
-
-
-
+    inputData[vectorIndex++] = input.ClusterPixLayer;
+    inputData[vectorIndex++] = input.ClusterPixBarrelEC;
+    inputData[vectorIndex++] = input.phi;
+    inputData[vectorIndex++] = input.theta;
+    if (not input.useTrackInfo) inputData[vectorIndex] = input.etaModule;
     return inputData;
+  }
 
-}
-
-
-
-
-  std::vector<double> NnClusterizationFactory::assembleInputRunI(NNinput& input,
-                                                                 int sizeX,
-                                                                 int sizeY) const
-  {
-    std::vector<double> inputData;
-    for (int u=0;u<sizeX;u++)
-    {
-      for (int s=0;s<sizeY;s++)
-      {
-        if (m_useToT)
-        {
-          inputData.push_back(norm_rawToT(input.matrixOfToT[u][s]));
-        }
-        else
-        {
-          inputData.push_back(norm_ToT(input.matrixOfToT[u][s]));
+  std::vector<double> 
+  NnClusterizationFactory::assembleInputRunI(NNinput& input) const{
+    const auto vectorSize{calculateVectorDimension(input.useTrackInfo)};
+    const auto invalidValue{std::numeric_limits<double>::quiet_NaN()};
+    std::vector<double> inputData(vectorSize, invalidValue);
+    size_t vectorIndex{0};
+    for (unsigned int  u=0;u<m_sizeX;u++){
+      for (unsigned int  s=0;s<m_sizeY;s++){
+        if (m_useToT){
+          inputData[vectorIndex++] = norm_rawToT(input.matrixOfToT[u][s]);
+        } else {
+          inputData[vectorIndex++] = norm_ToT(input.matrixOfToT[u][s]);
         }
       }
     }
-    for (int s=0;s<sizeY;s++)
-    {
+    for (unsigned int  s=0;s<m_sizeY;s++){
       const double rawPitch(input.vectorOfPitchesY[s]);
-        const double normPitch(norm_pitch(rawPitch,m_addIBL));
-        if (std::isnan(normPitch)){
-          ATH_MSG_ERROR("NaN returned from norm_pitch, rawPitch = "<<rawPitch<<" addIBL = "<<m_addIBL);
-        }
-      inputData.push_back(normPitch);
+      const double normPitch(norm_pitch(rawPitch,m_addIBL));
+      if (std::isnan(normPitch)){
+        ATH_MSG_ERROR("NaN returned from norm_pitch, rawPitch = "<<rawPitch<<" addIBL = "<<m_addIBL);
+      }
+      inputData[vectorIndex++] = normPitch;
     }
-    inputData.push_back(norm_layerNumber(input.ClusterPixLayer));
-    inputData.push_back(norm_layerType(input.ClusterPixBarrelEC));
-
-    if (input.useTrackInfo)
-    {
-      inputData.push_back(norm_phi(input.phi));
-      inputData.push_back(norm_theta(input.theta));
-    }
-    else
-    {
-      inputData.push_back(norm_phiBS(input.phi));
-      inputData.push_back(norm_thetaBS(input.theta));
-      inputData.push_back(norm_etaModule(input.etaModule));
+    inputData[vectorIndex++] = norm_layerNumber(input.ClusterPixLayer);
+    inputData[vectorIndex++] = norm_layerType(input.ClusterPixBarrelEC);
+    if (input.useTrackInfo){
+      inputData[vectorIndex++] = norm_phi(input.phi);
+      inputData[vectorIndex] = norm_theta(input.theta);
+    } else {
+      inputData[vectorIndex++] = norm_phiBS(input.phi);
+      inputData[vectorIndex++] = norm_thetaBS(input.theta);
+      inputData[vectorIndex] = norm_etaModule(input.etaModule);
     }
     return inputData;
   }
 
-  NnClusterizationFactory::InputMap NnClusterizationFactory::flattenInput(NNinput & input) const
-  {
-
-    // Format for use with lwtnn
-    std::map<std::string, std::map<std::string, double> > flattened;
-
+  NnClusterizationFactory::InputVector 
+  NnClusterizationFactory::eigenInput(NNinput & input) const{
+    // we know the size to be
+    //  - m_sizeX x m_sizeY pixel ToT values
+    //  - m_sizeY pitch sizes in y
+    //  - 2 values: detector location 
+    //  - 2 values: track incidence angles 
+    //  - optional: eta module
+    const auto vecSize{calculateVectorDimension(input.useTrackInfo)};
+    Eigen::VectorXd valuesVector( vecSize );
     // Fill it!
-    // Variable names here need to match the ones in the configuration.    
-
-    std::map<std::string, double> simpleInputs;
-    for (unsigned int x = 0; x < input.matrixOfToT.size(); x++) {
-      for (unsigned int y = 0; y < input.matrixOfToT.at(0).size(); y++) {
-        unsigned int index = x*input.matrixOfToT.at(0).size()+y;
-        std::string varname = "NN_matrix"+std::to_string(index);
-        simpleInputs[varname] = input.matrixOfToT.at(x).at(y);
+    // Variable names here need to match the ones in the configuration...
+    // ...IN THE SAME ORDER!!!
+    // location in eigen matrix object where next element goes
+    int location(0);
+    for (const auto & xvec: input.matrixOfToT){
+      for (const auto & xyElement : xvec){
+        valuesVector[location++] = xyElement;
       }
     }
-
-    for (unsigned int p = 0; p < input.vectorOfPitchesY.size(); p++) {
-      std::string varname = "NN_pitches" + std::to_string(p);
-      simpleInputs[varname] = input.vectorOfPitchesY.at(p);
+    for (const auto & pitch : input.vectorOfPitchesY) {
+      valuesVector[location++] = pitch;
     }
-
-    simpleInputs["NN_layer"] = input.ClusterPixLayer;
-    simpleInputs["NN_barrelEC"] = input.ClusterPixBarrelEC;
-    simpleInputs["NN_phi"] = input.phi;
-    simpleInputs["NN_theta"] = input.theta;
-
-    if (input.useTrackInfo) simpleInputs["NN_etaModule"] = input.etaModule;
-
+    valuesVector[location] = input.ClusterPixLayer;
+    location++;
+    valuesVector[location] = input.ClusterPixBarrelEC;
+    location++;
+    valuesVector[location] = input.phi;
+    location++;
+    valuesVector[location] = input.theta;
+    location++;
+    if (!input.useTrackInfo) { 
+      valuesVector[location] = input.etaModule;
+      location++;
+    }
     // We have only one node for now, so we just store things there.
-    flattened["NNinputs"] = simpleInputs;
-
-    return flattened;
-
-
+    // Format for use with lwtnn
+    std::vector<Eigen::VectorXd> vectorOfEigen;
+    vectorOfEigen.push_back(valuesVector);
+    return vectorOfEigen;
   }
 
-  std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
-                                                                         Amg::Vector3D & beamSpotPosition,
-                                                                         int sizeX,
-                                                                         int sizeY) const
-  {
-
+  std::vector<double> 
+  NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
+                                                     Amg::Vector3D & beamSpotPosition) const{
     double tanl=0;
-
-    NNinput input( createInput(pCluster,
-                               beamSpotPosition,
-                               tanl,
-                               sizeX,
-                               sizeY) );
-
-    if (!input)
-    {
-      return std::vector<double>();
-    }
-
-
-    std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-
+    const std::vector<double> invalidResult{};
+    NNinput input( createInput(pCluster,beamSpotPosition,tanl) );
+    if (!input) return invalidResult;
     // If using old TTrainedNetworks, fetch correct ones for the
     // without-track situation and call them now.
     if (m_useTTrainedNetworks) {
+      const std::vector<double> & inputData=(this->*m_assembleInput)(input);
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
       if (!nn_collection.isValid()) {
-	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+	      ATH_MSG_FATAL( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+        return invalidResult;
       }
       return estimateNumberOfParticlesTTN(**nn_collection, inputData);
     }
-
     // Otherwise, prepare lwtnn input map and use new networks.
-    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
-    return estimateNumberOfParticlesLWTNN(nnInputData);
-
+    NnClusterizationFactory::InputVector nnInputVector = eigenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputVector);
   }
 
-  std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
-                                                                         const Trk::Surface& pixelSurface,
-                                                                         const Trk::TrackParameters& trackParsAtSurface,
-                                                                         int sizeX,
-                                                                         int sizeY) const
-  {
-
+  std::vector<double> 
+  NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
+                                                     const Trk::Surface& pixelSurface,
+                                                     const Trk::TrackParameters& trackParsAtSurface) const{
     Amg::Vector3D dummyBS(0,0,0);
-
     double tanl=0;
-
-    NNinput input( createInput(pCluster,
-                               dummyBS,
-                               tanl,
-                               sizeX,
-                               sizeY) );
-
-    if (!input)
-    {
-      return std::vector<double>();
-    }
-
+    const std::vector<double> invalidResult{};
+    NNinput input( createInput(pCluster,dummyBS,tanl) );
+    
+    if (!input) return invalidResult;
     addTrackInfoToInput(input,pixelSurface,trackParsAtSurface,tanl);
-
-    std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-
+    std::vector<double> inputData=(this->*m_assembleInput)(input);
     // If using old TTrainedNetworks, fetch correct ones for the
     // with-track situation and call them now.
     if (m_useTTrainedNetworks) {
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
       if (!nn_collection.isValid()) {
-	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+	      ATH_MSG_FATAL( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+        return invalidResult;
       }
       return estimateNumberOfParticlesTTN(**nn_collection, inputData);
     }
-
     // Otherwise, prepare lwtnn input map and use new networks.
-    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
-    return estimateNumberOfParticlesLWTNN(nnInputData);
-
+    NnClusterizationFactory::InputVector nnInputVector = eigenInput(input);
+    return estimateNumberOfParticlesLWTNN(nnInputVector);
   }
 
-  std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
-                                                                            std::vector<double> inputData) const
-  {
+  std::vector<double> 
+  NnClusterizationFactory::estimateNumberOfParticlesTTN(const TTrainedNetworkCollection &nn_collection,
+                                                        std::vector<double> inputData) const{
     ATH_MSG_DEBUG("Using TTN number network");
+    std::vector<double> resultNN_TTN{};
+    if (not (m_nParticleNNId < nn_collection.size())){ //note: m_nParticleNNId is unsigned
+      ATH_MSG_FATAL("NnClusterizationFactory::estimateNumberOfParticlesTTN: Index "<<m_nParticleNNId<< "is out of range.");
+      return resultNN_TTN;
+    }
+    const auto pNetwork = nn_collection[m_nParticleNNId].get();
+    if (not pNetwork){
+      ATH_MSG_FATAL("NnClusterizationFactory::estimateNumberOfParticlesTTN: nullptr returned for TrainedNetwork");
+      return resultNN_TTN;
+    }
     // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-    std::vector<double> resultNN_TTN( ((*(nn_collection.at(m_nParticleNNId))).*m_calculateOutput)(inputData) );
-
+    resultNN_TTN = (*pNetwork.*m_calculateOutput)(inputData);
     ATH_MSG_VERBOSE(" TTN Prob of n. particles (1): " << resultNN_TTN[0] <<
                                              " (2): " << resultNN_TTN[1] <<
                                              " (3): " << resultNN_TTN[2]);
-
     return resultNN_TTN;
   }
 
-  std::vector<double> NnClusterizationFactory::estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const
-  {
+
+  std::vector<double> 
+  NnClusterizationFactory::estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputVector & input) const{
+    std::vector<double> result(3,0.0);//ok as invalid result?
     SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
     if (!lwtnn_collection.isValid()) {
-      ATH_MSG_ERROR( "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
+      ATH_MSG_FATAL( "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
+      return result;
+    }
+    if (lwtnn_collection->empty()){
+      ATH_MSG_FATAL( "LWTNN network collection with key " << m_readKeyJSON.key()<<" is empty." );
+      return result;
     }
     ATH_MSG_DEBUG("Using lwtnn number network");
-    // Evaluate the number network once per cluster
-    lwt::ValueMap discriminant = lwtnn_collection->at(0)->compute(input);
-    double num0 = discriminant["output_number0"];
-    double num1 = discriminant["output_number1"];
-    double num2 = discriminant["output_number2"];
+    // Order of output matches order in JSON config in "outputs"
+    // Only 1 node here, simple compute function
+    Eigen::VectorXd discriminant = lwtnn_collection->at(0)->compute(input);
+    const double & num0 = discriminant[0];
+    const double & num1 = discriminant[1];
+    const double & num2 = discriminant[2];
     // Get normalized predictions
-    double prob1 = num0/(num0+num1+num2);
-    double prob2 = num1/(num0+num1+num2);
-    double prob3 = num2/(num0+num1+num2);
-    std::vector<double> number_probabilities{prob1, prob2, prob3};
-
-    ATH_MSG_VERBOSE(" LWTNN Prob of n. particles (1): " << number_probabilities[0] <<
-                                               " (2): " << number_probabilities[1] <<
-                                               " (3): " << number_probabilities[2]);
-
-    return number_probabilities;
+    const auto inverseSum = 1./(num0+num1+num2);
+    result[0] = num0 * inverseSum;
+    result[1] = num1 * inverseSum;
+    result[2] = num2 * inverseSum;
+    ATH_MSG_VERBOSE(" LWTNN Prob of n. particles (1): " << result[0] <<
+                                               " (2): " << result[1] <<
+                                               " (3): " << result[2]);
+    return result;
   }
 
-  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
-                                                                             Amg::Vector3D & beamSpotPosition,
-                                                                             std::vector<Amg::MatrixX> & errors,
-                                                                             int numberSubClusters,
-                                                                             int sizeX,
-                                                                             int sizeY) const
-  {
 
+  std::vector<Amg::Vector2D> 
+  NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
+                                             Amg::Vector3D & beamSpotPosition,
+                                             std::vector<Amg::MatrixX> & errors,
+                                             int numberSubClusters) const{
     ATH_MSG_VERBOSE(" Starting to estimate positions...");
-
     double tanl=0;
-
-    NNinput input( createInput(pCluster,
-                               beamSpotPosition,
-                               tanl,
-                               sizeX,
-                               sizeY) );
-
-    if (!input)
-    {
-      return std::vector<Amg::Vector2D>();
+    NNinput input( createInput(pCluster,beamSpotPosition,tanl) );
+    const std::vector<Amg::Vector2D> invalidResult{};
+    if (!input){
+      return invalidResult;
     }
-
-    std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-
     // If using old TTrainedNetworks, fetch correct ones for the
     // without-track situation and call them now.
     if (m_useTTrainedNetworks) {
+      const std::vector<double> & inputData=(this->*m_assembleInput)(input);
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithoutTrack );
       if (!nn_collection.isValid()) {
-	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+	      ATH_MSG_FATAL( "Failed to get trained network collection with key " << m_readKeyWithoutTrack.key() );
+        return invalidResult;
       }
       // *(ReadCondHandle<>) returns a pointer rather than a reference ...
-      return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
+      return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,numberSubClusters,errors);
     }
-
     // Otherwise, prepare lwtnn input map and use new networks.
-    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
-    return estimatePositionsLWTNN(nnInputData,input,pCluster,numberSubClusters,errors);
-
+    NnClusterizationFactory::InputVector nnInputVector = eigenInput(input);
+    return estimatePositionsLWTNN(nnInputVector,input,pCluster,numberSubClusters,errors);
   }
 
 
-  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
-                                                                        const Trk::Surface& pixelSurface,
-                                                                        const Trk::TrackParameters& trackParsAtSurface,
-                                                                        std::vector<Amg::MatrixX> & errors,
-                                                                        int numberSubClusters,
-                                                                        int sizeX,
-                                                                        int sizeY) const
-  {
-
+  std::vector<Amg::Vector2D> 
+  NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
+                                             const Trk::Surface& pixelSurface,
+                                             const Trk::TrackParameters& trackParsAtSurface,
+                                             std::vector<Amg::MatrixX> & errors,
+                                             int numberSubClusters) const{
     ATH_MSG_VERBOSE(" Starting to estimate positions...");
-
     Amg::Vector3D dummyBS(0,0,0);
-
+    const std::vector<Amg::Vector2D> invalidResult{};
     double tanl=0;
-
-    NNinput input( createInput(pCluster,
-                               dummyBS,
-                               tanl,
-                               sizeX,
-                               sizeY) );
-
-    if (!input)
-    {
-       return std::vector<Amg::Vector2D>();
-    }
-
+    NNinput input( createInput(pCluster, dummyBS, tanl) );
+    if (!input) return invalidResult;
     addTrackInfoToInput(input,pixelSurface,trackParsAtSurface,tanl);
-
-    std::vector<double> inputData=(this->*m_assembleInput)(input,sizeX,sizeY);
-
     // If using old TTrainedNetworks, fetch correct ones for the
     // without-track situation and call them now.
     if (m_useTTrainedNetworks) {
+      std::vector<double> inputData=(this->*m_assembleInput)(input);
       SG::ReadCondHandle<TTrainedNetworkCollection> nn_collection( m_readKeyWithTrack );
       if (!nn_collection.isValid()) {
-	ATH_MSG_ERROR( "Failed to get trained network collection with key " << m_readKeyWithTrack.key() );
+	      ATH_MSG_FATAL( "Failed to get trained network collection with key " << m_readKeyWithTrack.key() );
+        return invalidResult;
       }
-
-      return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,sizeX,sizeY,numberSubClusters,errors);
+      return estimatePositionsTTN(**nn_collection, inputData,input,pCluster,numberSubClusters,errors);
     }
-
     // Otherwise, prepare lwtnn input map and use new networks.
-    NnClusterizationFactory::InputMap nnInputData = flattenInput(input);
-    return estimatePositionsLWTNN(nnInputData,input,pCluster,numberSubClusters,errors);
-
+    NnClusterizationFactory::InputVector nnInputVector = eigenInput(input);
+    return estimatePositionsLWTNN(nnInputVector,input,pCluster,numberSubClusters,errors);
   }
 
-  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositionsTTN(
-                                                const TTrainedNetworkCollection &nn_collection,
+  std::vector<Amg::Vector2D> 
+  NnClusterizationFactory::estimatePositionsTTN(const TTrainedNetworkCollection &nn_collection,
                                                 const std::vector<double>& inputData,
                                                 const NNinput& input,
                                                 const InDet::PixelCluster& pCluster,
-                                                int sizeX,
-                                                int sizeY,
                                                 int numberSubClusters,
-                                                std::vector<Amg::MatrixX> & errors) const
-  {
-
-    bool applyRecentering=(!input.useTrackInfo && m_useRecenteringNNWithouTracks)  || (input.useTrackInfo && m_useRecenteringNNWithTracks);
-
-    std::vector<Amg::Vector2D> allPositions;
-
-    if (numberSubClusters>0 && static_cast<unsigned int>(numberSubClusters) < m_maxSubClusters) {
+                                                std::vector<Amg::MatrixX> & errors) const{
+    bool applyRecentering=(!input.useTrackInfo and m_useRecenteringNNWithouTracks)  or (input.useTrackInfo and m_useRecenteringNNWithTracks);
+    std::vector<Amg::Vector2D> allPositions{};
+    const auto endNnIdx = nn_collection.size();
+    if (numberSubClusters>0 and static_cast<unsigned int>(numberSubClusters) < m_maxSubClusters) {
+      const auto subClusterIndex = numberSubClusters-1;
       // get position network id for the given cluster multiplicity then
       // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-      std::vector<double> position1P(((*(nn_collection.at( m_NNId[kPositionNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputData));
-      std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,input,pCluster,sizeX,sizeY);
-
+      const auto networkIndex = m_NNId[kPositionNN-1].at(subClusterIndex);
+      //TTrainedNetworkCollection inherits from std::vector
+      if (not(networkIndex < endNnIdx)){
+        ATH_MSG_FATAL("estimatePositionsTTN: Requested collection index, "<< networkIndex << " is out of range.");
+        return allPositions;
+      }
+      const auto pNetwork = nn_collection[networkIndex].get();
+      std::vector<double> position1P = (*pNetwork.*m_calculateOutput)(inputData);
+      std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,input,pCluster);
       assert( position1P.size() % 2 == 0);
       for (unsigned int i=0; i<position1P.size()/2 ; ++i) {
         ATH_MSG_DEBUG(" Original RAW Estimated positions (" << i << ") x: " << back_posX(position1P[0+i*2],applyRecentering) << " y: " << back_posY(position1P[1+i*2]));
         ATH_MSG_DEBUG(" Original estimated myPositions ("   << i << ") x: " << myPosition1[i][Trk::locX] << " y: " << myPosition1[i][Trk::locY]);
       }
-
       std::vector<double> inputDataNew=inputData;
       inputDataNew.reserve( inputDataNew.size() + numberSubClusters*2);
       assert(  static_cast<unsigned int>(numberSubClusters*2) <= position1P.size() );
@@ -535,268 +441,236 @@ namespace InDet {
       }
       // get error network id for the given cluster multiplicity then
       // dereference unique_ptr<TTrainedNetwork> then call calculateOutput :
-      std::vector<double> errors1PX( ((*(nn_collection.at(m_NNId[kErrorXNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
-      std::vector<double> errors1PY( ((*(nn_collection.at(m_NNId[kErrorYNN-1].at(numberSubClusters-1)))).*m_calculateOutput)(inputDataNew) );
-
+      const auto xNetworkIndex = m_NNId[kErrorXNN-1].at(subClusterIndex);
+      const auto yNetworkIndex = m_NNId[kErrorYNN-1].at(subClusterIndex);
+      if ((not (xNetworkIndex < endNnIdx)) or (not (yNetworkIndex < endNnIdx))){
+        ATH_MSG_FATAL("estimatePositionsTTN: A requested collection index, "<< xNetworkIndex << " or "<< yNetworkIndex << "is out of range.");
+        return allPositions;
+      }
+      auto pxNetwork = nn_collection.at(xNetworkIndex).get();
+      auto pyNetwork = nn_collection.at(yNetworkIndex).get();
+      //call the selected member function of the TTrainedNetwork
+      std::vector<double> errors1PX = (*pxNetwork.*m_calculateOutput)(inputDataNew);
+      std::vector<double> errors1PY = (*pyNetwork.*m_calculateOutput)(inputDataNew);
+      //
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,numberSubClusters);
       allPositions.reserve( allPositions.size() + myPosition1.size());
       errors.reserve( errors.size() + myPosition1.size());
-      for (unsigned int i=0;i<myPosition1.size();i++)
-        {
-          allPositions.push_back(myPosition1[i]);
-          errors.push_back(errorMatrices1[i]);
-        }
-
+      for (unsigned int i=0;i<myPosition1.size();i++){
+        allPositions.push_back(myPosition1[i]);
+        errors.push_back(errorMatrices1[i]);
+      }
     }
-
     return allPositions;
   }
 
-  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositionsLWTNN(
-                                                                NnClusterizationFactory::InputMap & input, 
-                                                                NNinput& rawInput,
-                                                                const InDet::PixelCluster& pCluster,
-                                                                int numberSubClusters,
-                                                                std::vector<Amg::MatrixX> & errors) const 
-    {
-    
-    SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
-    if (!lwtnn_collection.isValid()) {
-      ATH_MSG_ERROR(  "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
-    }
 
+  std::vector<Amg::Vector2D> 
+  NnClusterizationFactory::estimatePositionsLWTNN(NnClusterizationFactory::InputVector & input, 
+                                                  NNinput& rawInput,
+                                                  const InDet::PixelCluster& pCluster,
+                                                  int numberSubClusters,
+                                                  std::vector<Amg::MatrixX> & errors) const {
+    SG::ReadCondHandle<LWTNNCollection> lwtnn_collection(m_readKeyJSON) ;
+    const std::vector<Amg::Vector2D> invalidResult{};
+    if (not lwtnn_collection.isValid()) {
+      ATH_MSG_FATAL(  "Failed to get LWTNN network collection with key " << m_readKeyJSON.key() );
+      return invalidResult;
+    }
+    if (lwtnn_collection->empty()){
+      ATH_MSG_FATAL( "estimatePositionsLWTNN: LWTNN network collection with key " << m_readKeyJSON.key()<<" is empty." );
+      return invalidResult;
+    }
     // Need to evaluate the correct network once per cluster we're interested in.
     // Save the output
-    std::vector<double> positionValues;
+    std::vector<double> positionValues{};
     std::vector<Amg::MatrixX> errorMatrices;
     errorMatrices.reserve(numberSubClusters);
     positionValues.reserve(numberSubClusters * 2);
+    std::size_t outputNode(0);
     for (int cluster = 1; cluster < numberSubClusters+1; cluster++) {
-
       // Check that the network is defined. 
       // If not, we are outside an IOV and should fail
-      if (not lwtnn_collection->at(numberSubClusters)) {
-	ATH_MSG_ERROR( "No lwtnn network configured for this run! If you are outside the valid range for lwtnn-based configuration, plesae run with useNNTTrainedNetworks instead." << m_readKeyJSON.key() );
+      const auto pNetwork = lwtnn_collection->find(numberSubClusters);
+      const bool validGraph = (pNetwork != lwtnn_collection->end()) and (pNetwork->second != nullptr);
+      if (not validGraph) {
+        std::string infoMsg ="Acceptable numbers of subclusters for the lwtnn collection:\n ";
+        for (const auto & pair: **lwtnn_collection){
+          infoMsg += std::to_string(pair.first) + "\n ";
+        }
+        infoMsg += "\nNumber of subclusters requested : "+ std::to_string(numberSubClusters);
+        ATH_MSG_INFO(infoMsg);
+	      ATH_MSG_FATAL( "estimatePositionsLWTNN: No lwtnn network found for the number of clusters.\n"
+	        <<" If you are outside the valid range for an lwtnn-based configuration, please run with useNNTTrainedNetworks instead.\n Key = " 
+	        << m_readKeyJSON.key() );
+	      return invalidResult;
       }
-
-      std::string outNodeName = "merge_"+std::to_string(cluster);
-      std::map<std::string, double> position = lwtnn_collection->at(numberSubClusters)->compute(input, {},outNodeName);
-
+      if(numberSubClusters==1) {
+        outputNode = m_outputNodesPos1; 
+      } else if(numberSubClusters==2) {
+        outputNode = m_outputNodesPos2[cluster-1]; 
+      } else if(numberSubClusters==3) {
+        outputNode = m_outputNodesPos3[cluster-1]; 
+      } else {
+        ATH_MSG_FATAL( "Cannot evaluate LWTNN networks with " << numberSubClusters << " numberSubClusters" );
+        return invalidResult;
+      }
+      
+      // Order of output matches order in JSON config in "outputs"
+      // "alpha", "mean_x", "mean_y", "prec_x", "prec_y"
+      // Assume here that 1 particle network is in position 1, 2 at 2, and 3 at 3.
+      Eigen::VectorXd position = lwtnn_collection->at(numberSubClusters)->compute(input, {}, outputNode);
       ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
-      for (const auto& item : position) {
-        ATH_MSG_DEBUG(item.first << ": " << item.second);
+      for (int i=0; i<position.rows(); i++) {
+        ATH_MSG_DEBUG(" position " << position[i]);
       }
-      positionValues.push_back(position["mean_x"]);
-      positionValues.push_back(position["mean_y"]);
-
+      positionValues.push_back(position[1]); //mean_x
+      positionValues.push_back(position[2]); //mean_y
       // Fill errors.
       // Values returned by NN are inverse of variance, and we want variances.
-      float rawRmsX = sqrt(1.0/position["prec_x"]);
-      float rawRmsY = sqrt(1.0/position["prec_y"]);
+      const float rawRmsX = std::sqrt(1.0/position[3]); //prec_x
+      const float rawRmsY = std::sqrt(1.0/position[4]); //prec_y
       // Now convert to real space units
-      double rmsX = correctedRMSX(rawRmsX);
-      double rmsY = correctedRMSY(rawRmsY, 7., rawInput.vectorOfPitchesY);
+      const double rmsX = correctedRMSX(rawRmsX);
+      const double rmsY = correctedRMSY(rawRmsY, rawInput.vectorOfPitchesY);
       ATH_MSG_DEBUG(" Estimated RMS errors (1) x: " << rmsX << ", y: " << rmsY);  
-
       // Fill matrix    
       Amg::MatrixX erm(2,2);
       erm.setZero();
       erm(0,0)=rmsX*rmsX;
       erm(1,1)=rmsY*rmsY;
       errorMatrices.push_back(erm); 
-
     }
-
     std::vector<Amg::Vector2D> myPositions = getPositionsFromOutput(positionValues,rawInput,pCluster);
     ATH_MSG_DEBUG(" Estimated myPositions (1) x: " << myPositions[0][Trk::locX] << " y: " << myPositions[0][Trk::locY]);
-    
     for (unsigned int index = 0; index < errorMatrices.size(); index++) errors.push_back(errorMatrices.at(index));
-
     return myPositions;
-
   }
 
-  double NnClusterizationFactory::correctedRMSX(double posPixels) const
-  {
-
+  double 
+  NnClusterizationFactory::correctedRMSX(double posPixels) const{
     // This gives location in pixels
-    double pitch = 0.05;
-    double corrected = posPixels * pitch;
-
+    constexpr double pitch = 0.05;
+    const double corrected = posPixels * pitch;
     return corrected;
   }
 
-  double NnClusterizationFactory::correctedRMSY(double posPixels,
-         double sizeY,
-        std::vector<float>& pitches) const
-  {
-    double p = posPixels + (sizeY - 1) / 2.0;
+  double 
+  NnClusterizationFactory::correctedRMSY(double posPixels,
+                                         std::vector<float>& pitches) const{
+    double p = posPixels + (m_sizeY - 1) * 0.5;
     double p_Y = -100;
     double p_center = -100;
     double p_actual = 0;
-
-    for (int i = 0; i < sizeY; i++) {
-      if (p >= i && p <= (i + 1))
-        p_Y = p_actual + (p - i + 0.5) * pitches.at(i);
-      if (i == (sizeY - 1) / 2)
-        p_center = p_actual + 0.5 * pitches.at(i);
+    for (unsigned int  i = 0; i < m_sizeY; i++) {
+      if (p >= i and p <= (i + 1)) p_Y = p_actual + (p - i + 0.5) * pitches.at(i);
+      if (i == (m_sizeY - 1) / 2) p_center = p_actual + 0.5 * pitches.at(i);
       p_actual += pitches.at(i);
     }
-
-    return abs(p_Y - p_center);
+    return std::abs(p_Y - p_center);
   }  
 
-  void NnClusterizationFactory::getErrorMatrixFromOutput(std::vector<double>& outputX,
-                                                         std::vector<double>& outputY,
-                                                         std::vector<Amg::MatrixX>& errorMatrix,
-                                                         int nParticles) const
-  {
-
+  void 
+  NnClusterizationFactory::getErrorMatrixFromOutput(std::vector<double>& outputX,
+                                                    std::vector<double>& outputY,
+                                                    std::vector<Amg::MatrixX>& errorMatrix,
+                                                    int nParticles) const{
     int sizeOutputX=outputX.size()/nParticles;
     int sizeOutputY=outputY.size()/nParticles;
-
     double minimumX=-errorHalfIntervalX(nParticles);
     double maximumX=errorHalfIntervalX(nParticles);
-
     double minimumY=-errorHalfIntervalY(nParticles);
     double maximumY=errorHalfIntervalY(nParticles);
-
-
     //X=0...sizeOutput-1
     //Y=minimum+(maximum-minimum)/sizeOutput*(X+1./2.)
-
     errorMatrix.reserve( errorMatrix.size() + nParticles);
-    for (int i=0;i<nParticles;i++)
-    {
+    for (int i=0;i<nParticles;i++){
       double sumValuesX=0;
-      for (int u=0;u<sizeOutputX;u++)
-      {
+      for (int u=0;u<sizeOutputX;u++){
         sumValuesX+=outputX[i*sizeOutputX+u];
       }
       double sumValuesY=0;
-      for (int u=0;u<sizeOutputY;u++)
-      {
+      for (int u=0;u<sizeOutputY;u++){
         sumValuesY+=outputY[i*sizeOutputY+u];
       }
-
-
       ATH_MSG_VERBOSE(" minimumX: " << minimumX << " maximumX: " << maximumX << " sizeOutputX " << sizeOutputX);
       ATH_MSG_VERBOSE(" minimumY: " << minimumY << " maximumY: " << maximumY << " sizeOutputY " << sizeOutputY);
-
-
       double RMSx=0;
-      for (int u=0;u<sizeOutputX;u++)
-      {
-        //GP This is wrong...
-        //RMSx+=outputX[i*sizeOutputX+u]/sumValuesX*std::pow(minimumX+(maximumX-minimumX)/(double)sizeOutputX*(u+1./2.),2);
+      for (int u=0;u<sizeOutputX;u++){
         RMSx+=outputX[i*sizeOutputX+u]/sumValuesX*std::pow(minimumX+(maximumX-minimumX)/(double)(sizeOutputX-2)*(u-1./2.),2);
       }
-      RMSx=sqrt(RMSx);//computed error!
-
+      RMSx=std::sqrt(RMSx);//computed error!
       ATH_MSG_VERBOSE(" first Iter RMSx: " << RMSx);
-
       double intervalErrorX=3*RMSx;
-
       //now recompute between -3*RMSx and +3*RMSx
       int minBinX=(int)(1+(-intervalErrorX-minimumX)/(maximumX-minimumX)*(double)(sizeOutputX-2));
       int maxBinX=(int)(1+(intervalErrorX-minimumX)/(maximumX-minimumX)*(double)(sizeOutputX-2));
-
       if (maxBinX>sizeOutputX-1) maxBinX=sizeOutputX-1;
       if (minBinX<0) minBinX=0;
-
       ATH_MSG_VERBOSE(" minBinX: " << minBinX << " maxBinX: " << maxBinX );
-
       RMSx=0;
-      for (int u=minBinX;u<maxBinX+1;u++)
-      {
+      for (int u=minBinX;u<maxBinX+1;u++){
         RMSx+=outputX[i*sizeOutputX+u]/sumValuesX*std::pow(minimumX+(maximumX-minimumX)/(double)(sizeOutputX-2)*(u-1./2.),2);
       }
-      RMSx=sqrt(RMSx);//computed error!
-
+      RMSx=std::sqrt(RMSx);//computed error!
       double RMSy=0;
-      for (int u=0;u<sizeOutputY;u++)
-      {
+      for (int u=0;u<sizeOutputY;u++){
         RMSy+=outputY[i*sizeOutputY+u]/sumValuesY*std::pow(minimumY+(maximumY-minimumY)/(double)(sizeOutputY-2)*(u-1./2.),2);
       }
-      RMSy=sqrt(RMSy);//computed error!
-
+      RMSy=std::sqrt(RMSy);//computed error!
       ATH_MSG_VERBOSE("first Iter RMSy: " << RMSy );
-
       double intervalErrorY=3*RMSy;
-
       //now recompute between -3*RMSy and +3*RMSy
       int minBinY=(int)(1+(-intervalErrorY-minimumY)/(maximumY-minimumY)*(double)(sizeOutputY-2));
       int maxBinY=(int)(1+(intervalErrorY-minimumY)/(maximumY-minimumY)*(double)(sizeOutputY-2));
-
       if (maxBinY>sizeOutputY-1) maxBinY=sizeOutputY-1;
       if (minBinY<0) minBinY=0;
-
       ATH_MSG_VERBOSE("minBinY: " << minBinY << " maxBinY: " << maxBinY );
-
       RMSy=0;
-      for (int u=minBinY;u<maxBinY+1;u++)
-      {
+      for (int u=minBinY;u<maxBinY+1;u++){
         RMSy+=outputY[i*sizeOutputY+u]/sumValuesY*std::pow(minimumY+(maximumY-minimumY)/(double)(sizeOutputY-2)*(u-1./2.),2);
       }
-      RMSy=sqrt(RMSy);//computed error!
-
-
+      RMSy=std::sqrt(RMSy);//computed error!
       ATH_MSG_VERBOSE("Computed error, sigma(X) " << RMSx << " sigma(Y) " << RMSy );
-
       Amg::MatrixX erm(2,2);
       erm.setZero();
       erm(0,0)=RMSx*RMSx;
       erm(1,1)=RMSy*RMSy;
       errorMatrix.push_back(erm);
-
     }//end nParticles
-
     return;
-
   }//getErrorMatrixFromOutput
 
 
-  std::vector<Amg::Vector2D> NnClusterizationFactory::getPositionsFromOutput(std::vector<double> & output,
-                                                                             const NNinput & input,
-                                                                             const InDet::PixelCluster& pCluster,
-                                                                             int /* sizeX */,
-                                                                             int /* sizeY */) const
-  {
-    std::vector<Amg::Vector2D> invalidResult;
+  std::vector<Amg::Vector2D> 
+  NnClusterizationFactory::getPositionsFromOutput(std::vector<double> & output,
+      const NNinput & input,
+      const InDet::PixelCluster& pCluster) const{
+    std::vector<Amg::Vector2D> invalidResult{};
     ATH_MSG_VERBOSE(" Translating output back into a position " );
     const InDetDD::SiDetectorElement* element=pCluster.detectorElement();//DEFINE
     const InDetDD::PixelModuleDesign* design
         (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-                if (not design){
-                        ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
-                        return invalidResult;
-                }
+    if (not design){
+      ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
+      return invalidResult;
+    }
     int numParticles=output.size()/2;
-
-
     int columnWeightedPosition=input.columnWeightedPosition;
     int rowWeightedPosition=input.rowWeightedPosition;
-
     ATH_MSG_VERBOSE(" REF POS columnWeightedPos: " << columnWeightedPosition << " rowWeightedPos: " << rowWeightedPosition );
-
-
     bool applyRecentering=false;
-    if (m_useRecenteringNNWithouTracks && (!input.useTrackInfo))
-    {
+    if (m_useRecenteringNNWithouTracks and (not input.useTrackInfo)){
       applyRecentering=true;
     }
-    if (m_useRecenteringNNWithTracks && input.useTrackInfo)
-    {
+    if (m_useRecenteringNNWithTracks and input.useTrackInfo){
       applyRecentering=true;
     }
-
     std::vector<Amg::Vector2D> positions;
-    for (int u=0;u<numParticles;u++)
-    {
-      double posXid;
-      double posYid;
-
+    for (int u=0;u<numParticles;u++){
+      double posXid{};
+      double posYid{};
       if(m_doRunI){
         posXid=back_posX(output[2*u],applyRecentering)+rowWeightedPosition;
         posYid=back_posY(output[2*u+1])+columnWeightedPosition;
@@ -804,426 +678,288 @@ namespace InDet {
         posXid=output[2*u]+rowWeightedPosition;
         posYid=output[2*u+1]+columnWeightedPosition;
       }
-
       ATH_MSG_VERBOSE(" N. particle: " << u << " idx posX " << posXid << " posY " << posYid );
-
       int posXid_int=(int)(posXid+0.5);
       int posYid_int=(int)(posYid+0.5);
-
       ATH_MSG_VERBOSE(" N. particle: " << u << " TO INTEGER idx posX " << posXid_int << " posY " << posYid_int );
-
       InDetDD::SiLocalPosition siLocalPositionDiscrete(design->positionFromColumnRow(posYid_int,posXid_int));
       InDetDD::SiCellId cellIdOfPositionDiscrete=design->cellIdOfPosition(siLocalPositionDiscrete);
-      if (!cellIdOfPositionDiscrete.isValid())
-      {
+      if ( not cellIdOfPositionDiscrete.isValid()){
         ATH_MSG_WARNING(" Cell is outside validity region with index Y: " << posYid_int << " and index X: " << posXid_int << ". Not foreseen... " );
       }
-
       InDetDD::SiDiodesParameters diodeParameters = design->parameters(cellIdOfPositionDiscrete);
       double pitchY = diodeParameters.width().xEta();
       double pitchX = diodeParameters.width().xPhi();
       ATH_MSG_VERBOSE(" Translated weighted position : " << siLocalPositionDiscrete.xPhi()
-                                                 << " Translated weighted position : " << siLocalPositionDiscrete.xEta() );
-
+         << " Translated weighted position : " << siLocalPositionDiscrete.xEta() );
       //FOR TEST
       InDetDD::SiLocalPosition siLocalPositionDiscreteOneRowMoreOneColumnMore(design->positionFromColumnRow(posYid_int+1,posXid_int+1));
       ATH_MSG_VERBOSE(" Translated weighted position +1col +1row phi: " << siLocalPositionDiscreteOneRowMoreOneColumnMore.xPhi()
-                                                 << " Translated weighted position +1col +1row eta: " << siLocalPositionDiscreteOneRowMoreOneColumnMore.xEta() );
-
-
+        << " Translated weighted position +1col +1row eta: " << siLocalPositionDiscreteOneRowMoreOneColumnMore.xEta() );
       ATH_MSG_VERBOSE("PitchY: " << pitchY << " pitchX " << pitchX );
-
       InDetDD::SiLocalPosition siLocalPositionAdd(pitchY*(posYid-(double)posYid_int),
                                                   pitchX*(posXid-(double)posXid_int));
-
       double lorentzShift=m_pixelLorentzAngleTool->getLorentzShift(element->identifyHash());
-
-      if (input.ClusterPixBarrelEC == 0)
-      {
-        if (!input.useTrackInfo)
-        {
+      if (input.ClusterPixBarrelEC == 0){
+        if (not input.useTrackInfo){
           lorentzShift+=m_correctLorShiftBarrelWithoutTracks;
-        }
-        else
-        {
+        } else {
           lorentzShift+=m_correctLorShiftBarrelWithTracks;
         }
       }
 
-      InDetDD::SiLocalPosition siLocalPosition(siLocalPositionDiscrete.xEta()+pitchY*(posYid-(double)posYid_int),
-                                               siLocalPositionDiscrete.xPhi()+pitchX*(posXid-(double)posXid_int)+lorentzShift);
-
-
+      InDetDD::SiLocalPosition 
+      siLocalPosition(siLocalPositionDiscrete.xEta()+pitchY*(posYid-(double)posYid_int),
+                      siLocalPositionDiscrete.xPhi()+pitchX*(posXid-(double)posXid_int)+lorentzShift);
       ATH_MSG_VERBOSE(" Translated final position phi: " << siLocalPosition.xPhi() << " eta: " <<  siLocalPosition.xEta() );
-
-      if (siLocalPositionDiscrete.xPhi() > design->width()/2.)
-      {
+      const auto halfWidth{design->width()*0.5};
+      if (siLocalPositionDiscrete.xPhi() > halfWidth){
         siLocalPosition=InDetDD::SiLocalPosition(siLocalPositionDiscrete.xEta()+pitchY*(posYid-(double)posYid_int),
-                                                 design->width()/2.-1e-6);
+                                                 halfWidth-1e-6);
         ATH_MSG_WARNING(" Corrected out of boundary cluster from  x(phi): " << siLocalPositionDiscrete.xPhi()+pitchX*(posXid-(double)posXid_int)
-                        << " to: " << design->width()/2.-1e-6);
-
-      }
-      else if (siLocalPositionDiscrete.xPhi() < -design->width()/2.)
-      {
+          << " to: " << halfWidth-1e-6);
+      } else if (siLocalPositionDiscrete.xPhi() < -halfWidth) {
         siLocalPosition=InDetDD::SiLocalPosition(siLocalPositionDiscrete.xEta()+pitchY*(posYid-(double)posYid_int),
-                                                 -design->width()/2.+1e-6);
+                                                 -halfWidth+1e-6);
         ATH_MSG_WARNING(" Corrected out of boundary cluster from  x(phi): " << siLocalPositionDiscrete.xPhi()+pitchX*(posXid-(double)posXid_int)
-                        << " to: " << -design->width()/2.+1e-6);
+                        << " to: " << -halfWidth+1e-6);
       }
-
-
       positions.push_back(Amg::Vector2D(siLocalPosition));
     }//iterate over all particles
     return positions;
   }
 
 
-  void NnClusterizationFactory::addTrackInfoToInput(NNinput& input,
-                                                    const Trk::Surface& pixelSurface,
-                                                    const Trk::TrackParameters& trackParsAtSurface,
-                                                    const double tanl) const //  const Trk::Surface& pixelSurface = pcot->associatedSurface();
-  {
+  void 
+  NnClusterizationFactory::addTrackInfoToInput(NNinput& input,
+                                               const Trk::Surface& pixelSurface, // pixelSurface = pcot->associatedSurface();
+                                               const Trk::TrackParameters& trackParsAtSurface,
+                                               const double tanl) const {
     input.useTrackInfo=true;
-
     Amg::Vector3D particleDir = trackParsAtSurface.momentum().unit();
     Amg::Vector3D localIntersection = pixelSurface.transform().inverse().linear() * particleDir;
     localIntersection *= 0.250/cos(localIntersection.theta());
     float trackDeltaX = (float)localIntersection.x();
     float trackDeltaY = (float)localIntersection.y();
-    input.theta=TMath::ATan2(trackDeltaY,0.250);
-    input.phi=TMath::ATan2(trackDeltaX,0.250);
-
+    input.theta=std::atan2(trackDeltaY,0.250);
+    input.phi=std::atan2(trackDeltaX,0.250);
     ATH_MSG_VERBOSE("Angle phi bef Lorentz corr: " << input.phi );
-
-    input.phi=atan(tan(input.phi)-tanl);
-
+    input.phi=std::atan(std::tan(input.phi)-tanl);
     ATH_MSG_VERBOSE(" From track: angle phi: " << input.phi << " theta: " << input.theta );
   }
 
 
-  NNinput NnClusterizationFactory::createInput(const InDet::PixelCluster& pCluster,
-                                                Amg::Vector3D & beamSpotPosition,
-                                                double & tanl,
-                                                int sizeX,
-                                                int sizeY) const
-{
-  NNinput input;
-
-  ATH_MSG_VERBOSE(" Starting creating input from cluster " );
-
-  const InDetDD::SiDetectorElement* element=pCluster.detectorElement();
-  if (element==0) {
-    ATH_MSG_ERROR("Could not get detector element");
-    return input;
-  }
-  const AtlasDetectorID* aid = element->getIdHelper();
-  if (aid==0)
-  {
-    ATH_MSG_ERROR("Could not get ATLASDetectorID");
-    return input;
-  }
-  const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
-  if (!pixelIDp){
-    ATH_MSG_ERROR("Could not get PixelID pointer");
-    return input;
-  }
-  const PixelID& pixelID = *pixelIDp;
-
-
-  //Identifier elementID = element->identify();
-  const InDetDD::PixelModuleDesign* design
-      (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
-  if (not design){
-    ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
-    return input;
-  }
-
-  SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
-
-//  const InDet::PixelCluster* pCluster  = pcot->prepRawData();
-  const std::vector<Identifier>& rdos  = pCluster.rdoList();
-
-  ATH_MSG_VERBOSE(" Number of RDOs: " << rdos.size() );
-
-  const std::vector<float>& chList     = pCluster.chargeList();
-  const std::vector<int>&  totList     = pCluster.totList();
-  std::vector<float> chListRecreated;
-
-  ATH_MSG_VERBOSE(" Number of charges: " << chList.size() );
-
-  std::vector<int>::const_iterator tot = totList.begin();
-
-  std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
-  std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
-
-  std::vector<int>  totListRecreated;
-  std::vector<int>::const_iterator totRecreated = totListRecreated.begin();
-
-  //if (!chList.size() && totList.size()){
-  //
-  // Recreate both charge list and ToT list to correct for the IBL ToT overflow (and later for small hits):
-      ATH_MSG_VERBOSE("Charge list is not filled ... re-creating it.");
-      for ( ; rdosBegin!= rdosEnd &&  tot != totList.end(); ++tot, ++rdosBegin, ++totRecreated ){
-           // recreate the charge: should be a method of the calibSvc
-        int tot0 = *tot;
-
-        Identifier pixid = *rdosBegin;
-        Identifier moduleID = pixelID.wafer_id(pixid);
-        IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
-        int circ = m_pixelCabling->getFE(&pixid,moduleID);
-        int type = m_pixelCabling->getPixelType(pixid);
-        float ch = calibData->getCharge((int)moduleHash, circ, type, 1.0*tot0);
-        chListRecreated.push_back(ch);
-        totListRecreated.push_back(tot0);
-      }
-      // reset the rdo iterator
-      rdosBegin = rdos.begin();
-      rdosEnd = rdos.end();
-      // and the tot iterator
-      tot = totList.begin();
-      totRecreated = totListRecreated.begin();
-  //}
-
-  // take the original charge list or the recreated one
-  // std::vector<float>::const_iterator charge = chList.size() ? chList.begin() : chListRecreated.begin();
-  // std::vector<float>::const_iterator chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
-
-  // Always use recreated charge and ToT lists:
-     std::vector<float>::const_iterator charge = chListRecreated.begin();
-     std::vector<float>::const_iterator chargeEnd = chListRecreated.end();
-     tot = totListRecreated.begin();
-     std::vector<int>::const_iterator totEnd = totListRecreated.end();
-
-
-  InDetDD::SiLocalPosition sumOfWeightedPositions(0,0,0);
-  double sumOfTot=0;
-
-  int rowMin = 999;
-  int rowMax = 0;
-  int colMin = 999;
-  int colMax = 0;
-
-  for (; rdosBegin!= rdosEnd && charge != chargeEnd && tot != totEnd; ++rdosBegin, ++charge, ++tot)
-  {
-
-    Identifier rId =  *rdosBegin;
-    int row = pixelID.phi_index(rId);
-    int col = pixelID.eta_index(rId);
-
-    if(msgLvl(MSG::VERBOSE))
-    {
-      if (!m_useToT){
-        ATH_MSG_VERBOSE(" Adding pixel row: " << row << " col: " << col << " charge: " << *charge << " tot " << *tot );
-      }
-      else
-      {
-        ATH_MSG_VERBOSE(" Adding pixel row: " << row << " col: " << col << " tot " << *tot );
-      }
-    }
-
-    InDetDD::SiLocalPosition siLocalPosition
-        (design->positionFromColumnRow(col,row));
-
-
-    if (!m_useToT)
-    {
-      sumOfWeightedPositions += (*charge)*siLocalPosition;
-      sumOfTot += (*charge);
-    }
-    else
-    {
-      sumOfWeightedPositions += ((double)(*tot))*siLocalPosition;
-      sumOfTot += (double)(*tot);
-    }
-
-
-    if (row < rowMin){
-      rowMin = row;
-    }
-
-    if (row > rowMax){
-      rowMax = row;
-    }
-
-    if (col < colMin){
-      colMin = col;
-    }
-
-    if (col > colMax){
-      colMax = col;
-    }
-  }
-  sumOfWeightedPositions /= sumOfTot;
-
-  //what you want to know is simple:
-  //just the row and column of this average position!
-
-  InDetDD::SiCellId cellIdWeightedPosition=design->cellIdOfPosition(sumOfWeightedPositions);
-
-  if (!cellIdWeightedPosition.isValid())
-  {
-    ATH_MSG_WARNING(" Weighted position is on invalid CellID." );
-  }
-
-  int columnWeightedPosition=cellIdWeightedPosition.etaIndex();
-  int rowWeightedPosition=cellIdWeightedPosition.phiIndex();
-
-  ATH_MSG_VERBOSE(" weighted pos row: " << rowWeightedPosition << " col: " << columnWeightedPosition );
-
-  int centralIndexX=(sizeX-1)/2;
-  int centralIndexY=(sizeY-1)/2;
-
-
-  if (abs(rowWeightedPosition-rowMin)>centralIndexX ||
-      abs(rowWeightedPosition-rowMax)>centralIndexX)
-  {
-    ATH_MSG_VERBOSE(" Cluster too large rowMin" << rowMin << " rowMax " << rowMax << " centralX " << centralIndexX);
-    return input;
-  }
-
-  if (abs(columnWeightedPosition-colMin)>centralIndexY ||
-      abs(columnWeightedPosition-colMax)>centralIndexY)
-  {
-    ATH_MSG_VERBOSE(" Cluster too large colMin" << colMin << " colMax " << colMax << " centralY " << centralIndexY);
-    return input;
-  }
-
-  input.matrixOfToT.reserve(sizeX);
-  for (int a=0;a<sizeX;a++)
-  {
-    input.matrixOfToT.emplace_back(sizeY, 0.0);
-  }
-  input.vectorOfPitchesY.assign(sizeY, 0.4);
-
-  rdosBegin = rdos.begin();
-  //charge = chList.size() ? chList.begin() : chListRecreated.begin();
-  //chargeEnd = chList.size() ? chList.end() : chListRecreated.end();
-  //tot = totList.begin();
-  charge = chListRecreated.begin();
-  chargeEnd = chListRecreated.end();
-  tot = totListRecreated.begin();
-
-  ATH_MSG_VERBOSE(" Putting together the n. " << rdos.size() << " rdos into a matrix." );
-
-  Identifier pixidentif=pCluster.identify();
-
-  input.etaModule=(int)pixelID.eta_module(pixidentif);
-
-  input.ClusterPixLayer=(int)pixelID.layer_disk(pixidentif);
-  input.ClusterPixBarrelEC=(int)pixelID.barrel_ec(pixidentif);
-
-  for (; charge != chargeEnd && rdosBegin!= rdosEnd; ++rdosBegin, ++charge, ++tot)
-  {
-    Identifier rId =  *rdosBegin;
-    int absrow = pixelID.phi_index(rId)-rowWeightedPosition+centralIndexX;
-    int abscol = pixelID.eta_index(rId)-columnWeightedPosition+centralIndexY;
-
-    if(msgLvl(MSG::VERBOSE))
-    {
-      if (!m_useToT)
-      {
-        ATH_MSG_VERBOSE(" phi Index: " << pixelID.phi_index(rId) << " absrow: " << absrow << " eta Idx: " << pixelID.eta_index(rId) << " abscol: " << abscol << " charge " << *charge );
-      }
-      else
-      {
-        ATH_MSG_VERBOSE(" phi Index: " << pixelID.phi_index(rId) << " absrow: " << absrow << " eta Idx: " << pixelID.eta_index(rId) << " abscol: " << abscol << " tot " << *tot );
-      }
-    }
-
-
-    if (absrow <0 || absrow > sizeX)
-    {
-      ATH_MSG_WARNING(" problem with index: " << absrow << " min: " << 0 << " max: " << sizeX);
+  NNinput 
+  NnClusterizationFactory::createInput(const InDet::PixelCluster& pCluster,
+                                       Amg::Vector3D & beamSpotPosition,
+                                       double & tanl) const{
+    NNinput input;
+    ATH_MSG_VERBOSE(" Starting creating input from cluster " );
+    const InDetDD::SiDetectorElement* element=pCluster.detectorElement();
+    if (not element) {
+      ATH_MSG_ERROR("Could not get detector element");
       return input;
     }
-    if (abscol <0 || abscol > sizeY)
-    {
-      ATH_MSG_WARNING(" problem with index: " << abscol << " min: " << 0 << " max: " << sizeY);
+    const AtlasDetectorID* aid = element->getIdHelper();
+    if (not aid){
+      ATH_MSG_ERROR("Could not get ATLASDetectorID");
       return input;
     }
-    InDetDD::SiCellId cellId = element->cellIdFromIdentifier(*rdosBegin);
-    InDetDD::SiDiodesParameters diodeParameters = design->parameters(cellId);
-    double pitchY = diodeParameters.width().xEta();
-
-    ATH_MSG_VERBOSE(" PitchY: " << pitchY );
-
-    if (!m_useToT)
-    {
-      input.matrixOfToT[absrow][abscol]=*charge;
+    const PixelID* pixelIDp=dynamic_cast<const PixelID*>(aid);
+    if (not pixelIDp){
+      ATH_MSG_ERROR("Could not get PixelID pointer");
+      return input;
     }
-    else
-    {
-      input.matrixOfToT[absrow][abscol]=(double)(*tot);
-      // in case to RunI setup to make IBL studies
-      if(m_doRunI){
-
-        if (m_addIBL && input.ClusterPixLayer==0 && input.ClusterPixBarrelEC==0)
-          {
-            input.matrixOfToT[absrow][abscol]*=3;
-          }
-      }else{
-        // for RunII IBL is always present
-        if ( input.ClusterPixLayer==0 && input.ClusterPixBarrelEC==0)
-          {
-            input.matrixOfToT[absrow][abscol]*=3;
-          }
+    const PixelID& pixelID = *pixelIDp;
+    const InDetDD::PixelModuleDesign* design
+        (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
+    if (not design){
+      ATH_MSG_ERROR("Dynamic cast failed at line "<<__LINE__<<" of NnClusterizationFactory.cxx.");
+      return input;
+    }
+    SG::ReadCondHandle<PixelChargeCalibCondData> calibData(m_chargeDataKey);
+    const std::vector<Identifier>& rdos  = pCluster.rdoList();
+    ATH_MSG_VERBOSE(" Number of RDOs: " << rdos.size() );
+    const std::vector<float>& chList     = pCluster.chargeList();
+    const std::vector<int>&  totList     = pCluster.totList();
+    std::vector<float> chListRecreated{};
+    ATH_MSG_VERBOSE(" Number of charges: " << chList.size() );
+    std::vector<int>::const_iterator tot = totList.begin();
+    std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
+    std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
+    std::vector<int>  totListRecreated{};
+    std::vector<int>::const_iterator totRecreated = totListRecreated.begin();
+    //
+    // Recreate both charge list and ToT list to correct for the IBL ToT overflow (and later for small hits):
+    ATH_MSG_VERBOSE("Charge list is not filled ... re-creating it.");
+    for ( ; rdosBegin!= rdosEnd and  tot != totList.end(); ++tot, ++rdosBegin, ++totRecreated ){
+         // recreate the charge: should be a method of the calibSvc
+      int tot0 = *tot;
+      Identifier pixid = *rdosBegin;
+      Identifier moduleID = pixelID.wafer_id(pixid);
+      IdentifierHash moduleHash = pixelID.wafer_hash(moduleID); // wafer hash
+      int circ = m_pixelCabling->getFE(&pixid,moduleID);
+      int type = m_pixelCabling->getPixelType(pixid);
+      float ch = calibData->getCharge((int)moduleHash, circ, type, 1.0*tot0);
+      chListRecreated.push_back(ch);
+      totListRecreated.push_back(tot0);
+    }
+    // reset the rdo iterator
+    rdosBegin = rdos.begin();
+    rdosEnd = rdos.end();
+    // and the tot iterator
+    tot = totList.begin();
+    totRecreated = totListRecreated.begin();
+    // Always use recreated charge and ToT lists:
+    std::vector<float>::const_iterator charge = chListRecreated.begin();
+    std::vector<float>::const_iterator chargeEnd = chListRecreated.end();
+    tot = totListRecreated.begin();
+    std::vector<int>::const_iterator totEnd = totListRecreated.end();
+    InDetDD::SiLocalPosition sumOfWeightedPositions(0,0,0);
+    double sumOfTot=0;
+    int rowMin = 999;
+    int rowMax = 0;
+    int colMin = 999;
+    int colMax = 0;
+    for (; (rdosBegin!= rdosEnd) and (charge != chargeEnd) and (tot != totEnd); ++rdosBegin, ++charge, ++tot){
+      Identifier rId =  *rdosBegin;
+      int row = pixelID.phi_index(rId);
+      int col = pixelID.eta_index(rId);
+      if(msgLvl(MSG::VERBOSE)){
+        if (!m_useToT){
+          ATH_MSG_VERBOSE(" Adding pixel row: " << row << " col: " << col << " charge: " << *charge << " tot " << *tot );
+        } else {
+          ATH_MSG_VERBOSE(" Adding pixel row: " << row << " col: " << col << " tot " << *tot );
+        }
       }
+      InDetDD::SiLocalPosition siLocalPosition (design->positionFromColumnRow(col,row));
+      if (not m_useToT){
+        sumOfWeightedPositions += (*charge)*siLocalPosition;
+        sumOfTot += (*charge);
+      } else {
+        sumOfWeightedPositions += ((double)(*tot))*siLocalPosition;
+        sumOfTot += (double)(*tot);
+      }
+      rowMin = std::min(row, rowMin);
+      rowMax = std::max(row, rowMax);
+      colMin = std::min(col, colMin);
+      colMax = std::max(col, colMax);
+   
     }
+    sumOfWeightedPositions /= sumOfTot;
+    //what you want to know is simple:
+    //just the row and column of this average position!
+    InDetDD::SiCellId cellIdWeightedPosition=design->cellIdOfPosition(sumOfWeightedPositions);
 
-
-
-    if (fabs(pitchY-0.4)>1e-5)
-      {
+    if (!cellIdWeightedPosition.isValid()){
+      ATH_MSG_WARNING(" Weighted position is on invalid CellID." );
+    }
+    int columnWeightedPosition=cellIdWeightedPosition.etaIndex();
+    int rowWeightedPosition=cellIdWeightedPosition.phiIndex();
+    ATH_MSG_VERBOSE(" weighted pos row: " << rowWeightedPosition << " col: " << columnWeightedPosition );
+    int centralIndexX=(m_sizeX-1)/2;
+    int centralIndexY=(m_sizeY-1)/2;
+    if (std::abs(rowWeightedPosition-rowMin)>centralIndexX or
+        std::abs(rowWeightedPosition-rowMax)>centralIndexX){
+      ATH_MSG_VERBOSE(" Cluster too large rowMin" << rowMin << " rowMax " << rowMax << " centralX " << centralIndexX);
+      return input;
+    }
+    if (std::abs(columnWeightedPosition-colMin)>centralIndexY or
+        std::abs(columnWeightedPosition-colMax)>centralIndexY){
+      ATH_MSG_VERBOSE(" Cluster too large colMin" << colMin << " colMax " << colMax << " centralY " << centralIndexY);
+      return input;
+    }
+    input.matrixOfToT.reserve(m_sizeX);
+    for (unsigned int  a=0;a<m_sizeX;a++){
+      input.matrixOfToT.emplace_back(m_sizeY, 0.0);
+    }
+    input.vectorOfPitchesY.assign(m_sizeY, 0.4);
+    rdosBegin = rdos.begin();
+    charge = chListRecreated.begin();
+    chargeEnd = chListRecreated.end();
+    tot = totListRecreated.begin();
+    ATH_MSG_VERBOSE(" Putting together the n. " << rdos.size() << " rdos into a matrix." );
+    Identifier pixidentif=pCluster.identify();
+    input.etaModule=(int)pixelID.eta_module(pixidentif);
+    input.ClusterPixLayer=(int)pixelID.layer_disk(pixidentif);
+    input.ClusterPixBarrelEC=(int)pixelID.barrel_ec(pixidentif);
+    for (;( charge != chargeEnd) and (rdosBegin!= rdosEnd); ++rdosBegin, ++charge, ++tot){
+      Identifier rId =  *rdosBegin;
+      unsigned int  absrow = pixelID.phi_index(rId)-rowWeightedPosition+centralIndexX;
+      unsigned int  abscol = pixelID.eta_index(rId)-columnWeightedPosition+centralIndexY;
+      if(msgLvl(MSG::VERBOSE)){
+        if (not m_useToT){
+          ATH_MSG_VERBOSE(" phi Index: " << pixelID.phi_index(rId) << " absrow: " << absrow << " eta Idx: " << pixelID.eta_index(rId) << " abscol: " << abscol << " charge " << *charge );
+        } else {
+          ATH_MSG_VERBOSE(" phi Index: " << pixelID.phi_index(rId) << " absrow: " << absrow << " eta Idx: " << pixelID.eta_index(rId) << " abscol: " << abscol << " tot " << *tot );
+        }
+      }
+      if (absrow > m_sizeX){
+        ATH_MSG_WARNING(" problem with index: " << absrow << " min: " << 0 << " max: " << m_sizeX);
+        return input;
+      }
+      if (abscol > m_sizeY){
+        ATH_MSG_WARNING(" problem with index: " << abscol << " min: " << 0 << " max: " << m_sizeY);
+        return input;
+      }
+      InDetDD::SiCellId cellId = element->cellIdFromIdentifier(*rdosBegin);
+      InDetDD::SiDiodesParameters diodeParameters = design->parameters(cellId);
+      double pitchY = diodeParameters.width().xEta();
+      ATH_MSG_VERBOSE(" PitchY: " << pitchY );
+      if (not m_useToT) {
+        input.matrixOfToT[absrow][abscol]=*charge;
+      } else {
+        input.matrixOfToT[absrow][abscol]=(double)(*tot);
+        // in case to RunI setup to make IBL studies
+        if(m_doRunI){
+          if (m_addIBL and (input.ClusterPixLayer==0) and (input.ClusterPixBarrelEC==0)){
+            input.matrixOfToT[absrow][abscol]*=3;
+          }
+        }else{
+          // for RunII IBL is always present
+          if ( (input.ClusterPixLayer==0) and (input.ClusterPixBarrelEC==0)){
+            input.matrixOfToT[absrow][abscol]*=3;
+          }
+        }
+      }
+      if (std::abs(pitchY-0.4)>1e-5){
         input.vectorOfPitchesY[abscol]=pitchY;
-
       }
-  }//end iteration on rdos
+    }//end iteration on rdos
+    ATH_MSG_VERBOSE(" eta module: " << input.etaModule );
+    ATH_MSG_VERBOSE(" Layer number: " << input.ClusterPixLayer << " Barrel / endcap: " << input.ClusterPixBarrelEC );
+    input.useTrackInfo=false;
+    const Amg::Vector2D& prdLocPos    = pCluster.localPosition();
+    InDetDD::SiLocalPosition centroid(prdLocPos);
+    Amg::Vector3D globalPos = element->globalPosition(centroid);
+    Amg::Vector3D my_track = globalPos-beamSpotPosition;
+    const Amg::Vector3D &my_normal = element->normal();
+    const Amg::Vector3D &my_phiax = element->phiAxis();
+    const Amg::Vector3D &my_etaax = element->etaAxis();
+    float trkphicomp = my_track.dot(my_phiax);
+    float trketacomp = my_track.dot(my_etaax);
+    float trknormcomp = my_track.dot(my_normal);
+    double bowphi = std::atan2(trkphicomp,trknormcomp);
+    double boweta = std::atan2(trketacomp,trknormcomp);
+    tanl = m_pixelLorentzAngleTool->getTanLorentzAngle(element->identifyHash());
+    if(bowphi > M_PI_2) bowphi -= M_PI;
+    if(bowphi < -M_PI_2) bowphi += M_PI;
+    int readoutside = design->readoutSide();
+    double angle = std::atan(std::tan(bowphi)-readoutside*tanl);
+    input.phi=angle;
+    ATH_MSG_VERBOSE(" Angle theta bef corr: " << boweta );
+    if (boweta>M_PI_2) boweta-=M_PI;
+    if (boweta<-M_PI_2) boweta+=M_PI;
+    input.theta=boweta;
+    ATH_MSG_VERBOSE(" Angle phi: " << angle << " theta: " << boweta );
+    input.rowWeightedPosition=rowWeightedPosition;
+    input.columnWeightedPosition=columnWeightedPosition;
+    ATH_MSG_VERBOSE(" RowWeightedPosition: " << rowWeightedPosition << " ColWeightedPosition: " << columnWeightedPosition );
+    return input;
+  }//end create NNinput function
 
-  ATH_MSG_VERBOSE(" eta module: " << input.etaModule );
-  ATH_MSG_VERBOSE(" Layer number: " << input.ClusterPixLayer << " Barrel / endcap: " << input.ClusterPixBarrelEC );
-
-
-  input.useTrackInfo=false;
-
-  const Amg::Vector2D& prdLocPos    = pCluster.localPosition();
-  InDetDD::SiLocalPosition centroid(prdLocPos);
-  Amg::Vector3D globalPos = element->globalPosition(centroid);
-  Amg::Vector3D my_track = globalPos-beamSpotPosition;
-
-  const Amg::Vector3D &my_normal = element->normal();
-  const Amg::Vector3D &my_phiax = element->phiAxis();
-  const Amg::Vector3D &my_etaax = element->etaAxis();
-  float trkphicomp = my_track.dot(my_phiax);
-  float trketacomp = my_track.dot(my_etaax);
-  float trknormcomp = my_track.dot(my_normal);
-  double bowphi = atan2(trkphicomp,trknormcomp);
-  double boweta = atan2(trketacomp,trknormcomp);
-  tanl = m_pixelLorentzAngleTool->getTanLorentzAngle(element->identifyHash());
-  if(bowphi > M_PI/2) bowphi -= M_PI;
-  if(bowphi < -M_PI/2) bowphi += M_PI;
-  int readoutside = design->readoutSide();
-  double angle = atan(tan(bowphi)-readoutside*tanl);
-  input.phi=angle;
-
-  ATH_MSG_VERBOSE(" Angle theta bef corr: " << boweta );
-
-  if (boweta>TMath::Pi()/2.) boweta-=TMath::Pi();
-  if (boweta<-TMath::Pi()/2.) boweta+=TMath::Pi();
-
-  input.theta=boweta;
-
-  ATH_MSG_VERBOSE(" Angle phi: " << angle << " theta: " << boweta );
-
-  input.rowWeightedPosition=rowWeightedPosition;
-  input.columnWeightedPosition=columnWeightedPosition;
-
-  ATH_MSG_VERBOSE(" RowWeightedPosition: " << rowWeightedPosition << " ColWeightedPosition: " << columnWeightedPosition );
-
-  return input;
-
-}//end create NNinput function
-
-
-
+  size_t 
+  NnClusterizationFactory::calculateVectorDimension(const bool useTrackInfo) const{
+    return (m_sizeX * m_sizeY) + m_sizeY + (useTrackInfo ? 4 : 5);
+  }
 }//end InDet namespace

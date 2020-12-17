@@ -10,17 +10,18 @@
 #include <algorithm>
 #include <sstream>
 
-
-
-FastReductionMatcher::FastReductionMatcher(ConditionsMT conditions,
-					   const Tree& tree,
-					   const std::vector<std::vector<int>>& sharedNodes):
+FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
+					   const Tree& tree):
   m_conditions(std::move(conditions)),
-  m_tree(tree),
-  m_sharedNodes(sharedNodes){
+  m_tree(tree){
+
+  for (const auto& il : m_tree.leaves()){
+    if (!m_conditions[il]->isFromChainPart()) {
+      throw std::runtime_error("Tree leaf condition  but not from ChainPart");
+    }
   }
-
-
+}
+	 
 
 std::optional<bool>
 FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
@@ -46,7 +47,6 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
                       groups_e,
                       m_conditions,
                       m_tree,
-                      m_sharedNodes,
                       jetCollector,
                       collector);
 
@@ -56,17 +56,9 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
 
 std::string FastReductionMatcher::toString() const {
   std::stringstream ss;
-  ss << "FastReductionMatcher:\n";
-  ss << "  treeVector: " << m_tree << '\n';;
-  ss << "  shared node sets [" << m_sharedNodes.size() << "]:\n";
-  for(const auto& snodelist : m_sharedNodes){
-    for(const auto el : snodelist){
-      ss << el << " ";
-    }
-    ss << '\n';
-  }
-
-  ss << "FastReductionMatcher Conditions ["
+  ss << "FastReductionMatcher:\n"
+     << "  treeVector: " << m_tree << '\n'
+     << "FastReductionMatcher Conditions ["
      << m_conditions.size() << "]: \n";
 
   std::size_t count{0u};

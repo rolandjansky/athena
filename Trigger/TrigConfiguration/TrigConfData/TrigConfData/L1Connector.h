@@ -20,8 +20,8 @@ namespace TrigConf {
     */
    class TriggerLine {
    public:
-      TriggerLine(const std::string & name, unsigned int startbit, unsigned int nbits, unsigned int fpga=0, unsigned int clock=0) :
-         m_name(name), m_startbit(startbit), m_nbits(nbits), m_fpga(fpga), m_clock(clock)
+   TriggerLine(const std::string & name, unsigned int startbit, unsigned int nbits, unsigned int fpga=0, unsigned int clock=0, const std::string & connName="") :
+     m_name(name), m_startbit(startbit), m_nbits(nbits), m_fpga(fpga), m_clock(clock), m_connName(connName)
       {}
       const std::string & name() const { return m_name; }
       unsigned int startbit() const { return  m_startbit; }
@@ -29,12 +29,14 @@ namespace TrigConf {
       unsigned int nbits() const { return m_nbits; }
       unsigned int fpga() const { return m_fpga; }
       unsigned int clock() const { return m_clock; }
+      const std::string & connName() const { return m_connName; }
    private:
       std::string m_name{""};      // the name of the threshold whose multiplicity is transmitted
       unsigned int m_startbit{0};  // the location on the cable - first bit
       unsigned int m_nbits{0};     // the location on the cable - number of bits used to encode the multiplicity
       unsigned int m_fpga{0};      // for electrical signals from L1Topo boards only: the fpga the signal is coming from
       unsigned int m_clock{0};     // for electrical signals from L1Topo boards only: the clock of the signal
+      std::string m_connName{""};  // the name of the connector where the triggerline is allocated
    };
 
    /** @brief L1 connectors configuration */
@@ -63,8 +65,10 @@ namespace TrigConf {
       /** Accessor to the number of trigger lines */
       std::size_t size() const;
 
+      std::string type() const;
+
       /** Accessor to the connector type */
-      ConnectorType type() const;
+      ConnectorType connectorType() const;
 
       /** names of all trigger lines */
       std::vector<std::string> triggerLineNames() const;
@@ -84,7 +88,14 @@ namespace TrigConf {
 
       const TrigConf::TriggerLine & triggerLine( const std::string & lineName ) const;
 
+      bool legacy() const { return m_isLegacy; }
+      
+      [[deprecated("Use legacy() instead.")]]
       bool isLegacy() const { return m_isLegacy; }
+      
+      std::size_t maxFpga() const { return m_maxFpga; }
+
+      std::size_t maxClock() const { return m_maxClock; }
 
    private:
 

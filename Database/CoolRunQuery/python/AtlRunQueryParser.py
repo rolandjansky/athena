@@ -12,15 +12,17 @@
 # ----------------------------------------------------------------
 #
 from __future__ import print_function
-import sys,os,re
-import urllib
+from functools import reduce
+import sys,re
 
-from utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
+from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
+
+from DQDefects import DefectsDB
 
 class ArgumentParser:
     dqFolderList = [ 'SHIFTOFL', 'DQCALCOFL', 'DQMFOFL', 'DQMFOFLH', 'DCSOFL', 'TISUMM', 'LBSUMM', 'MUONCALIB',
                      'DQMFONL', 'DQMFONLLB', 'SHIFTONL' ] # these are online folders
-
+    
     def __init__ ( self ):
         self.const_arg    = ""
         self.default_find = ""
@@ -32,7 +34,7 @@ class ArgumentParser:
         self.sortedKeys  = [ "run", "time", "duration", "events", "allevents", "projectTag", "partition", "readyforphysics",
                              "trigkeys", "trigger", "release",
                              "ami", "magnets", "larcond", "db", "ctag", "lhc", "lumi", "dq",
-                             "streams", "detector", "datasets", "all", "summary", "dqeff" ]
+                             "streams", "detector", "datasets", "all", "summary", "dqeff", "cosmics", "heavyions" ]
                            
         self.queryArgs = { "run":        ("r(uns)",      "run",    self.InterpretPeriods, self.ShowVariable, 
                                           'r(uns)        [format: "run 91000", "runs 91000-92000", "runs 91000-(+)" (this run and all before (after))]', ""),
@@ -97,8 +99,17 @@ class ArgumentParser:
                            "lhc":        ("lhc",         "lhc", self.InterpretWithTwoArgs, self.ShowVariable, 
                                           'lhc           [format: lhc fill 7 / show lhc"]" ',""),
                            "trigrates":  ("trigr(ates)", "trigrates", self.InterpretString, self.ShowWithArg, 
-                                          'trigr(ates)   [format: sh trigrates L1_EM*"]" ',"")
-                           }
+                                          'trigr(ates)   [format: sh trigrates L1_EM*"]" ',""),
+                           "dqsumgrl":   ("dqsumgrl",    "dqsumgrl", self.InterpretString, self.ShowVariable,
+                                          'dqsumgrl      [format: "dqsumgrl PHYS_StandardGRL_All_Good_25ns", Define tolerable/intolerable defects for DQ summary relative to GRL or other virtual defect, default is PHYS_StandardGRL_All_Good_25ns]', "PHYS_StandardGRL_All_Good_25ns"),
+                           "cosmics":    ("cos(mics)", "cosmics", self.InterpretString, self.ShowVariable, 
+                                          'cos(mics)     [format: only available as "show" option]', ""),
+                           "heavyions":  ("heavy(ions)", "heavyions", self.InterpretString, self.ShowVariable, 
+                                          'heavy(ions)   [format: only available as "show" option]', ""),
+                           "logictag":   ("logictag",    "logictag", self.InterpretString, self.ShowVariable,
+                                          'logictag      [format: "logictag "HEAD", Define logic tag for defect database used for DQ summary relative to GRL or other virtual defect, default is "HEAD"]', "HEAD"),
+                           "defecttag":   ("defecttag",  "defecttag", self.InterpretString, self.ShowVariable,
+                                          'defecttag     [format: "defecttag "HEAD", Define defect tag for defect database used for DQ summary relative to GRL or other virtual defect, default is "HEAD"]', "HEAD")                     }
         # allowed 'show' arguments
 
         # init detector mask
@@ -129,8 +140,10 @@ class ArgumentParser:
 
     def getPtagAndPeriod( self, name ):
         ptag   = 'data11_7TeV'
-        if '.' in name: ptag, period = name.split('.')
-        else:           period = name
+        if '.' in name:
+            ptag, period = name.split('.')
+        else:
+            period = name
         letter = period[period.find('period')+6:][0]
         return ptag.strip(), period.strip(), letter
 
@@ -143,7 +156,7 @@ class ArgumentParser:
         """
         arg = arg.split(None,1)[1] # remove keyword 'run'
 
-        from .AtlRunQueryInterpretDataPeriods import GetRuns
+        from CoolRunQuery.AtlRunQueryInterpretDataPeriods import GetRuns
 
         list_of_runs = GetRuns(arg)
                 
@@ -179,7 +192,18 @@ class ArgumentParser:
             self.isMCDB = True
 
         # default for ReadyForPhysics flag
-        if atlqarg == 'readyforphysics' and not arg: arg = '1'
+        if atlqarg == 'readyforphysics' and not arg:
+            arg = '1'
+        
+        # default for DQSumGRL flag
+        if atlqarg == 'dqsumgrl' and not arg:
+            arg = 'PHYS_StandardGRL_All_Good_25ns'
+        
+        # default for dbbtag flag
+        if atlqarg == 'logictag' and not arg:
+            arg = 'HEAD'
+        if atlqarg == 'defecttag' and not arg:
+            arg = 'HEAD'
             
         return '--%s "%s"' % (atlqarg, arg)
 
@@ -211,8 +235,10 @@ class ArgumentParser:
             if 'stablebeams' in arg.lower():
                 arg,sep,val = arg.partition(' ')
                 val = val.strip().upper()
-                if   val == '1' or val == 'T': val = 'TRUE'
-                elif val == '0' or val == 'F': val = 'FALSE'
+                if   val == '1' or val == 'T':
+                    val = 'TRUE'
+                elif val == '0' or val == 'F':
+                    val = 'FALSE'
                 elif val != 'TRUE' and val != 'FALSE':
                     print ('ERROR in argument of command "lhc": "%s". Value must be boolean (true/false or 1/0)' % val)
                     sys.exit()
@@ -239,10 +265,12 @@ class ArgumentParser:
         units = {'sec': 1, 's': 1, 'm': 60, 'h': 3600, 'd': 86400 }
         found = False
         for u, fac in units.items():
-            if u in arg: 
+            if u in arg:
                 arg = arg.replace(u,'')
-                if '-' in arg: sign = '-'
-                else:          sign = '+'
+                if '-' in arg:
+                    sign = '-'
+                else:
+                    sign = '+'
                 arg = "%i%s" % (int(arg.replace(sign,'').strip())*fac,sign)
                 found = True
         if not found:
@@ -250,7 +278,7 @@ class ArgumentParser:
 
         return self.InterpretRange( atlqarg, key + ' ' + arg, neg )
 
-    def InterpretMagnets( self, atlqarg, arg, neg ):        
+    def InterpretMagnets( self, atlqarg, arg, neg ):
         key, s, arg = arg.partition(' ')
 
         # if 'arg' is empty, intepret directly
@@ -261,19 +289,54 @@ class ArgumentParser:
         arg = arg.strip()[0]
 
         # now interpret
-        if    arg == "" : newarg = "off"
+        if    arg == "":
+            newarg = "off"
         else:
-            if    arg == 's': newarg = "solenoid"
-            elif  arg == 't': newarg = "toroid"
+            if arg == 's':
+                newarg = "solenoid"
+            elif  arg == 't':
+                newarg = "toroid"
             else:
                 self.ParseError( "cannot interpret of magnetic field: '%s'" % arg )
-            if    neg: newarg += "off"
-            else:      newarg += "on"
+            if neg:
+                newarg += "off"
+            else:
+                newarg += "on"
                 
         return "--" + atlqarg.strip() + ' "' + newarg.strip().replace(' ','') + '"'
 
     @classmethod
     def DQGetFolder( cls, args, allowWildCards=False ):
+        
+        #Get logictag and defecttag from sys.argv <--not nice but see no better way
+        arglist = sys.argv[1].split(" ")
+        logictag = "HEAD"
+        defecttag = "HEAD"
+        for idx, item in enumerate(arglist):
+            if item == "logictag":
+                logictag =  arglist[idx+1]
+            if item == "defecttag":
+                defecttag = arglist[idx+1]
+        #Create dbb dummy with HEAD tag
+        ddb = DefectsDB()
+        #check if defect tag is defined in defect database
+        if defecttag not in ['HEAD'] + ddb.defects_tags:
+            print('WARNING (DQGetFolder): The defined defect tag "%s" is not defined in defect database. Will use "HEAD" tag instead!' %(defecttag))
+            defecttag = "HEAD"
+        #check if defect and logic tag is defined in defect database
+        if logictag not in ['HEAD'] + ddb.logics_tags:
+            print('WARNING (DQGetFolder): The defined logic tag "%s" is not defined in defect database. Will use "HEAD" tag instead!' %(logictag))
+            logictag = "HEAD"
+        #Now set tags
+        ddb = DefectsDB(tag=(defecttag, logictag))
+        #Create hierarchical tag
+        htag = ""
+        if logictag != "HEAD" and defecttag != "HEAD":
+            logic_revision = int(logictag.split("-")[-1])
+            defect_part = "-".join(defecttag.split("-")[1:])
+            htag = "DetStatus-v%02i-%s" % (logic_revision, defect_part)
+            #htag = ddb.new_hierarchical_tag(defecttag, logictag)
+
         """interpret dq show command
         * args are all arguments after dq codeword
 
@@ -289,24 +352,24 @@ class ArgumentParser:
         9) dq D F#T
 
         where
-        D is a komma-separated list of defects or DQ-flags or *, each optionally proceeded by a ! or followed by a \(defect,defect,defect,...)
+        D is a komma-separated list of defects or DQ-flags or *, each optionally proceeded by a ! or followed by a (defect,defect,defect,...)
         F an folder name [default DEFECTS]
         T a cool tag [default HEAD]
 
         If no folder is specified the new defects folder is used
         """
-
-
+        
         d = { 'flag': '', 'folder': '',  'tag': ''}
         if '#' in args:
             if allowWildCards:
-                m = re.match('(?P<flag>[!.*\w,\-\$\\\]*?)\s*?(?P<folder>\w*)#(?P<tag>[\w-]*)', args)
+                m = re.match(r'(?P<flag>[!.*\w,\-\$\\\]*?)\s*?(?P<folder>\w*)#(?P<tag>[\w-]*)', args)
             else:
-                m = re.match('(?P<flag>[!\w,\-\$\\\]*?)\s*?(?P<folder>\w*)#(?P<tag>[\w-]*)', args)
+                m = re.match(r'(?P<flag>[!\w,\-\$\\\]*?)\s*?(?P<folder>\w*)#(?P<tag>[\w-]*)', args)
         else:
-            m = re.match('(?P<flag>[!\w,\-\$\\\]*)\s*(?P<folder>[\w-]*)', args)
+            m = re.match(r'(?P<flag>[!\w,\-\$\\\]*)\s*(?P<folder>[\w-]*)', args)
 
-        if m: d.update(m.groupdict())
+        if m:
+            d.update(m.groupdict())
 
         flag   = d['flag'].lower()
         folder = d['folder'].upper()
@@ -316,8 +379,14 @@ class ArgumentParser:
             folder = flag.upper()
             flag   = ''
 
-        if folder == '': folder = 'DEFECTS'
-        if flag   == '': flag   = '*'
+        if folder == '':
+            folder = 'DEFECTS'
+        if flag == '':
+            flag = '*'
+        
+        #Overwrite tag if htag defined
+        if htag   != '':
+            tag = htag
         if tag    != '':
             tag    = '#' + tag
             folder = folder + tag
@@ -396,7 +465,8 @@ class ArgumentParser:
 
         # check for the 'any' identifier (any --> OR, otherwise AND)
         useAny = len(args)>0 and (args[0] == 'any')
-        if useAny: args = args[1:]
+        if useAny:
+            args = args[1:]
 
         # get the cool folders
         flags, folder, tag = self.DQGetFolder( ' '.join(args) )
@@ -444,9 +514,12 @@ class ArgumentParser:
                     else:
                         # wildcard -- DANGEROUS --
                         tmpdqchans = [dqchan for (k,dqchan) in dqitems if a in dqchan]
-                        if 'LUMI' == a and 'LUMIONL' in tmpdqchans: tmpdqchans.remove('LUMIONL')
-                        if 'IDVX' == a and 'MMUIDVX' in tmpdqchans: tmpdqchans.remove('MMUIDVX')
-                    if len(tmpdqchans)==0: self.ParseError( 'Unknown DQ channel: "%s"' % a )
+                        if 'LUMI' == a and 'LUMIONL' in tmpdqchans:
+                            tmpdqchans.remove('LUMIONL')
+                        if 'IDVX' == a and 'MMUIDVX' in tmpdqchans:
+                            tmpdqchans.remove('MMUIDVX')
+                    if len(tmpdqchans)==0:
+                        self.ParseError( 'Unknown DQ channel: "%s"' % a )
                     dqchans += tmpdqchans
 
                 if useAny:
@@ -464,7 +537,7 @@ class ArgumentParser:
     def InterpretSingleDQ( self, atlqarg, args ):
         # expand colours
         if len(args) != 3:
-            self.ParseError( 'ERROR in DQ argument: "%s" --> need <Flag> AND <Status> (len is: %i)' % (fullarg, len(arg)) )
+            self.ParseError( 'ERROR in DQ argument: "%s" --> need <Flag> AND <Status> (len is: %i)' % (atlqarg, len(args)) )
         flag, col, folder = args
 
         flag = flag.upper() # upper case status flags
@@ -472,26 +545,41 @@ class ArgumentParser:
         col = col.lower() # lower case color status only        
         trcol = ''
         if not folder.startswith('DEFECTS'):
-            if   col[0] == 'n': trcol = 'n.a.'
-            elif col[0] == 'u': trcol = 'unknown'
-            elif col[0] == 'g': trcol = 'green'
-            elif col[0] == 'y': trcol = 'yellow'
-            elif col[0] == 'r': trcol = 'red'
-            elif col[0] == 'b': trcol = 'black'
+            if   col[0] == 'n':
+                trcol = 'n.a.'
+            elif col[0] == 'u':
+                trcol = 'unknown'
+            elif col[0] == 'g':
+                trcol = 'green'
+            elif col[0] == 'y':
+                trcol = 'yellow'
+            elif col[0] == 'r':
+                trcol = 'red'
+            elif col[0] == 'b':
+                trcol = 'black'
             else:
                 self.ParseError( 'ERROR in DQ argument: "%s" --> uknown status: %s' % (args, col) )
-            if '+' in col: trcol+= '+'
-            if '-' in col: trcol+= '-'
+            if '+' in col:
+                trcol+= '+'
+            if '-' in col:
+                trcol+= '-'
         else:
-            if   col[0] == 'n': trcol = 'red'
-            elif col[0] == 'u': trcol = 'red'
-            elif col[0] == 'g': trcol = 'green'
-            elif col[0] == 'y': trcol = 'red'
-            elif col[0] == 'r': trcol = 'red'
-            elif col[0] == 'b': trcol = 'red'
-            elif col[0] == 'x': trcol = 'none'
+            if   col[0] == 'n':
+                trcol = 'red'
+            elif col[0] == 'u':
+                trcol = 'red'
+            elif col[0] == 'g':
+                trcol = 'green'
+            elif col[0] == 'y':
+                trcol = 'red'
+            elif col[0] == 'r':
+                trcol = 'red'
+            elif col[0] == 'b':
+                trcol = 'red'
+            elif col[0] == 'x':
+                trcol = 'none'
             else:
-                self.ParseError( 'ERROR in DQ argument: "%s" --> uknown status: %s' % (fullarg, col) )
+                self.ParseError( 'ERROR in DQ argument: "%s" --> uknown status: %s' % (atlqarg, col) )
 
 
         return "--" + atlqarg.strip() + ' "' + flag + ' ' + trcol + ' ' + folder + '"'
@@ -501,20 +589,22 @@ class ArgumentParser:
         anyflag = ''
         if 'any' in arg:
             arg = arg.replace('any','').strip()
-            if not neg: anyflag = 'A'
+            if not neg:
+                anyflag = 'A'
             
         # check who's in
         mask = 0
         for sarg in arg.split(","):
             for i in range(0,len(self.dName)):
                 # is vetoed ?
-                if i in self.vetoedbits: continue
+                if i in self.vetoedbits:
+                    continue
                 
                 # sanity
                 d = self.dName[i].lower() + self.NotInAll[i]
                 if not ('unknown' in d or 'removed' in d):
                     # the actual query
-                    if (sarg == 'all' and not 'NotInAll' in d) or sarg in d:
+                    if (sarg == 'all' and 'NotInAll' not in d) or sarg in d:
                         mask |= 1 << i
 
         # sanity check
@@ -526,8 +616,10 @@ class ArgumentParser:
 
         # decide whether detectors are required IN or OUT of partition
         atlqarg.strip()
-        if neg: atlqarg += 'out'
-        else: atlqarg += 'in'
+        if neg:
+            atlqarg += 'out'
+        else:
+            atlqarg += 'in'
 
         return "--" + atlqarg + ' "%i%s' % (mask,anyflag) + '"'
         
@@ -546,13 +638,14 @@ class ArgumentParser:
             if '(' in short:
                 short = short[:short.find('(')] # e.g. 'r'
             matchesArg = shortNoPar.startswith(arg.lower()) and arg.lower().startswith(short)
-            if matchesArg: return key
+            if matchesArg:
+                return key
         return None
 
     def RetrieveQuery( self, findarg ):
         # check that find part starts with f and remove the f(ind)
         firstword, findarg = findarg.split(None,1)
-        if not 'find'.startswith(firstword): 
+        if not 'find'.startswith(firstword):
             self.ParseError( "Argument must begin with 'f(ind)'", 0 )
 
         argList = [x.strip() for x in findarg.split(" and ")]
@@ -586,7 +679,7 @@ class ArgumentParser:
             arglist[idx:idx+1] = ['ready', 'lhc', 'trigk', 'rel', 'streams', 'det'] # slice it out
         # show summary
         if 'summary' in arglist:
-            arglist += ['dur', 'allev', 'str', 'dq' ]
+            arglist += ['dur', 'allev', 'str', 'dq']
         # show lhc ...
         if any([arg.startswith('lhc') for arg in arglist]):
             arglist += ['olc']
@@ -600,7 +693,7 @@ class ArgumentParser:
         newarg = ""
         for arg in arglist:
             key = self.MatchingQueryArg(arg) # check argument validity
-            if key == None:
+            if key is None:
                 self.ParseError( "Could not find predefined keyword for arg: '%s' in 'show' block" % (arg) )
 
             # interpret argument and append to string
@@ -615,11 +708,14 @@ class ArgumentParser:
 
     def ShowWithArg( self, atlqarg, short, arg ):
         if len(arg.split())==1:
-            if   atlqarg == 'olc'       : return '--show olclumi --show olclbdata --show olcfillparams '
-            elif atlqarg == 'luminosity': return '--show "lhc min" --show "%s 0" ' % (atlqarg)
-            else                        : return '--show %s ' % atlqarg
+            if  atlqarg == 'olc':
+                return '--show olclumi --show olclbdata --show olcfillparams '
+            elif atlqarg == 'luminosity':
+                return '--show "lhc min" --show "%s 0" ' % (atlqarg)
+            else:
+                return '--show %s ' % atlqarg
         else:
-            if   atlqarg == 'olc':
+            if atlqarg == 'olc':
                 return '--show "olclumi %s" --show olcfillparams --show olclbdata ' % arg.partition(' ')[2]
             elif atlqarg == 'luminosity':
                 return '--show "lhc min" --show "%s %s" ' % (atlqarg, arg.partition(' ')[2])
@@ -629,7 +725,8 @@ class ArgumentParser:
     def PostProcessShowArgs( self, showargs ):
         
         # remove special duplicate
-        if len(showargs.split('lhc')) >= 3: showargs = showargs.replace('--show "lhc min"','')
+        if len(showargs.split('lhc')) >= 3:
+            showargs = showargs.replace('--show "lhc min"','')
 
         # remove duplicates in show block
         duples  = ['--show %s' % d.strip() for d in showargs.split('--show') if d.strip()!='']
@@ -641,14 +738,14 @@ class ArgumentParser:
 
     def ParseArgument( self, const_arg ):
         self.const_arg = const_arg
-        arg = const_arg.strip()
+
 
         # first separate the three parts ('/' is separator) and strip the spaces around each
         findarg, showarg, otherarg = [x.strip() for x in (self.const_arg.split('/')+['',''])[0:3]]
 
         # check that show part starts with sh and remove the sh(ow)
         if showarg!='':
-            if showarg[0:2] != 'sh': 
+            if showarg[0:2] != 'sh':
                 self.ParseError( "Show block must begin with 'sh(ow)'", 0 )
             showarg = showarg[showarg.index(' ')+1:]  # remove first word 'sh(ow)'
         else:
@@ -661,7 +758,8 @@ class ArgumentParser:
 
         # add 'lhc' to show if 'olclumi' query
         # necessary because of stable beams information
-        if '--olclumi' in queryarg and not 'stablebeams' in queryarg: queryarg += '--lhc "stablebeams TRUE" '
+        if '--olclumi' in queryarg and 'stablebeams' not in queryarg:
+            queryarg += '--lhc "stablebeams TRUE" '
 
         shwarg   = self.PostProcessShowArgs( shwarg )
 
@@ -673,15 +771,24 @@ class ArgumentParser:
         idx = 0
         while idx < len(oargs):
             oa = oargs[idx]
-            if oa == 'v':        extraargs['verbose'] = '--verbose'
-            elif oa == 'noroot': extraargs['noroot']  = '--noroot'
-            elif oa == 'root':   extraargs['root']  = '--root'
-            elif oa == 'nohtml': extraargs['nohtml']  = '--nohtml'
-            elif oa == 'html':   extraargs['html']  = '--html'
-            elif oa == 'utc':    extraargs['utc']  = '--utc'
-            elif oa == 'nogrl':  extraargs['nogrl']  = '--nogrl'
-            elif oa == 'grl' or oa == 'xmlfile': extraargs['xmlfile']  = '--xmlfile MyLBCollection.xml:MyLBCollection'
-            elif oa == 'nodef' : nodef_flag = True
+            if oa == 'v':
+                extraargs['verbose'] = '--verbose'
+            elif oa == 'noroot':
+                extraargs['noroot']  = '--noroot'
+            elif oa == 'root':
+                extraargs['root']  = '--root'
+            elif oa == 'nohtml':
+                extraargs['nohtml']  = '--nohtml'
+            elif oa == 'html':
+                extraargs['html']  = '--html'
+            elif oa == 'utc':
+                extraargs['utc']  = '--utc'
+            elif oa == 'nogrl':
+                extraargs['nogrl']  = '--nogrl'
+            elif oa == 'grl' or oa == 'xmlfile':
+                extraargs['xmlfile']  = '--xmlfile MyLBCollection.xml:MyLBCollection'
+            elif oa == 'nodef' :
+                nodef_flag = True
             elif idx>0 and (oargs[idx-1]=='grl' or oargs[idx-1]=='xmlfile'):
                 extraargs['xmlfile']  = '--xmlfile %s' % oa
             else:
@@ -696,12 +803,13 @@ class ArgumentParser:
             print ('  extra argument: "%s"' % otherarg.strip())
 
         # no defaults for MC
-        if self.isMCDB: nodef_flag = True
+        if self.isMCDB:
+            nodef_flag = True
 
         # add default arguments
         if not nodef_flag:
             for key, argument, defaultvalue in [ (x[0],x[1][1],x[1][5]) for x in self.queryArgs.items()]:
-                if not argument in queryarg and defaultvalue != "":
+                if argument not in queryarg and defaultvalue != "":
                     queryarg += " --" + argument + ' "' + defaultvalue + '"'
 
         extraarg = ' '.join(extraargs.values())
@@ -714,7 +822,7 @@ class ArgumentParser:
 # command line driver for convenience
 if __name__=='__main__':
 
-    from CoolRunQuery.AtlRunQueryParser import ArgumentParser
+    #from CoolRunQuery.AtlRunQueryParser import ArgumentParser
     ap = ArgumentParser()
 
     if len(sys.argv) <= 1:

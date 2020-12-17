@@ -15,7 +15,7 @@
 #include "xAODTrigger/MuonRoIContainer.h"
 #include "MuonEfficiencyCorrections/MuonTriggerScaleFactors.h"
 
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "FourMomUtils/xAODP4Helpers.h"
@@ -217,11 +217,11 @@ namespace CP {
 
         ATH_CHECK(m_eventInfo.initialize());
 
-        if (registerSystematics() != CP::SystematicCode::Ok) {
+        if (registerSystematics() != StatusCode::SUCCESS) {
             return StatusCode::FAILURE;
         }
 
-        if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+        if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
             ATH_MSG_ERROR("Could not configure for nominal settings");
             return StatusCode::FAILURE;
         }
@@ -875,13 +875,13 @@ namespace CP {
     }
 
     // Register the systematics with the registry and add them to the recommended list
-    CP::SystematicCode MuonTriggerScaleFactors::registerSystematics() {
+    StatusCode MuonTriggerScaleFactors::registerSystematics() {
         CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-        if (registry.registerSystematics(*this) != CP::SystematicCode::Ok) {
+        if (registry.registerSystematics(*this) != StatusCode::SUCCESS) {
             ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
-        return CP::SystematicCode::Ok;
+        return StatusCode::SUCCESS;
     }
 
     /// returns: the list of all systematics this tool recommends to use
@@ -889,7 +889,7 @@ namespace CP {
         return affectingSystematics();
     }
 
-    CP::SystematicCode MuonTriggerScaleFactors::applySystematicVariation(const CP::SystematicSet& systConfig){
+    StatusCode MuonTriggerScaleFactors::applySystematicVariation(const CP::SystematicSet& systConfig){
         // First, check if we already know this systematic configuration
         auto itr = m_systFilter.find(systConfig);
 
@@ -901,7 +901,7 @@ namespace CP {
             CP::SystematicSet filteredSys;
             if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)) {
                 ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
-                return CP::SystematicCode::Unsupported;
+                return StatusCode::FAILURE;
             }
 
             // Insert filtered set into the map
@@ -918,11 +918,11 @@ namespace CP {
         static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
 
         if ((mySysConf.matchSystematic(stat_up) && mySysConf.matchSystematic(stat_down)) || (mySysConf.matchSystematic(syst_up) && mySysConf.matchSystematic(syst_down))) {
-            return CP::SystematicCode::Unsupported;
+            return StatusCode::FAILURE;
         }
 
         m_appliedSystematics = &mySysConf;
-        return CP::SystematicCode::Ok;
+        return StatusCode::SUCCESS;
     }
 
 } /* namespace CP */

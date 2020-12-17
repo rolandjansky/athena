@@ -7,89 +7,79 @@
 
 // System include(s):
 #include <string>
-#include <memory>
 
 // Infrastructure include(s):
 #include "AsgTools/AsgMetadataTool.h"
 #ifndef XAOD_STANDALONE
-#   include "AthenaKernel/IMetaDataTool.h"
-#endif  // XAOD_STANDALONE
-
-// EDM include(s):
-#include "xAODMetaData/FileMetaData.h"
-#include "xAODMetaData/FileMetaDataAuxInfo.h"
+# include "GaudiKernel/ServiceHandle.h"
+# include "AthenaKernel/IMetaDataSvc.h"
+# include "AthenaKernel/IMetaDataTool.h"
+#endif
 
 namespace xAODMaker {
 
-/// Tool taking care of propagating xAOD::FileMetaData information
+/// Tool propagating xAOD::FileMetaData from input to output
 ///
-/// This dual-use tool can be used both in Athena and in AnalysisBase
-/// to propagate the generic file-level metadata from the processed
-/// input files to an output file.
-///
-/// It relies on the input already containing the information in an
-/// xAOD format.
+/// This tool propogates the xAOD::FileMetaData object from the input files to
+/// the MetaDataStore in Athena. It requires the input to contain the
+/// information in an xAOD format. The tool will emit a warning if the file
+/// metadata between inputs does not match.
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
-///
-/// $Revision: 683697 $
-/// $Date: 2015-07-17 11:12:14 +0200 (Fri, 17 Jul 2015) $
+/// @author Frank Berghaus <fberghaus@anl.gov>
 ///
 class FileMetaDataTool
-    : public asg::AsgMetadataTool
-#ifndef XAOD_STANDALONE
-    , public virtual ::IMetaDataTool
-#endif  // XAOD_STANDALONE
-{
-      /// Declare the correct constructor for Athena
-      ASG_TOOL_CLASS0(FileMetaDataTool)
-
+#ifdef XAOD_STANDALONE
+    : public asg::AsgMetadataTool {
+#else
+    : public asg::AsgMetadataTool, virtual public IMetaDataTool {
+#endif
  public:
-      /// Regular AsgTool constructor
-      explicit FileMetaDataTool(const std::string& name = "FileMetaDataTool");
+  //using extends::extends;
+  ASG_TOOL_CLASS0(FileMetaDataTool)
 
-      /// Function initialising the tool
-      virtual StatusCode initialize();
+  /// Regular AsgTool constructor
+  explicit FileMetaDataTool(const std::string& name = "FileMetaDataTool");
 
- protected:
-      /// @name Functions called by the AsgMetadataTool base class
-      /// @{
+  /// Function initialising the tool
+  StatusCode initialize() override;
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile();
+  /// @name Functions called by the IMetaDataTool base class
+  /// @{
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode endInputFile();
+  /// Collecting file metadata from input and write to output
+  StatusCode beginInputFile() override;
 
-      /// Function making sure that BeginInputFile incidents are not missed
-      virtual StatusCode beginEvent();
-
-      /// Function writing the collected metadata to the output
-      virtual StatusCode metaDataStop();
+  /// Does nothing
+  StatusCode endInputFile() override;
 
 #ifndef XAOD_STANDALONE
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode beginInputFile(const SG::SourceID&) {return beginInputFile();}
+  /// Collecting file metadata from input and write to output
+  StatusCode beginInputFile(const SG::SourceID&) override;
 
-      /// Function collecting the metadata from a new input file
-      virtual StatusCode endInputFile(const SG::SourceID&) {return endInputFile();}
-#endif  // XAOD_STANDALONE
-      /// @}
+  /// Does nothing
+  StatusCode endInputFile(const SG::SourceID&) override;
+#endif
+
+  /// Does nothing
+  StatusCode metaDataStop() override;
+
+  /// @}
 
  private:
-      /// Key of the metadata object in the input file
-      std::string m_inputKey;
-      /// Key of the metadata object for the output file
-      std::string m_outputKey;
+  /// Key of the metadata object in the input file
+  std::string m_inputKey;
 
-      /// The output interface object
-      std::unique_ptr< xAOD::FileMetaData > m_md;
-      /// The output auxiliary object
-      std::unique_ptr< xAOD::FileMetaDataAuxInfo > m_mdAux;
+  /// Key of the metadata object for the output file
+  std::string m_outputKey;
 
-      /// Internal flag for keeping track of whether a BeginInputFile incident
-      /// was seen already
-      bool m_beginFileIncidentSeen;
+#ifndef XAOD_STANDALONE
+  /// Get a handle on the metadata store for the job
+  ServiceHandle< IMetaDataSvc > m_metaDataSvc{"MetaDataSvc", name()};
+#endif
+
+  // To lock/unlock the tool
+  std::mutex m_toolMutex;
 };  // class FileMetaDataTool
 
 }  // namespace xAODMaker

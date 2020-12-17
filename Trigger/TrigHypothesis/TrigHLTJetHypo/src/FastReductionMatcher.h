@@ -7,7 +7,7 @@
 
 
 #include "./IGroupsMatcherMT.h"
-#include "./ConditionsDefsMT.h"
+#include "./CapacityCheckedConditionsDefs.h"
 #include "./Tree.h"
 
 using TreeVec = std::vector<std::size_t>;
@@ -16,9 +16,8 @@ class ITrigJetHypoInfoCollector;
 class FastReductionMatcher: public IGroupsMatcherMT {
  public:
 
-  FastReductionMatcher(ConditionsMT,
-			    const Tree&,
-			    const std::vector<std::vector<int>>&);
+  FastReductionMatcher(ConditionPtrs,
+		       const Tree&);
 
 
   /** determine whether a set of jets satisfies all hypo conditions.
@@ -42,7 +41,7 @@ class FastReductionMatcher: public IGroupsMatcherMT {
 
  private:
 
-  ConditionsMT m_conditions;
+  ConditionPtrs m_conditions;
 
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
@@ -50,12 +49,6 @@ class FastReductionMatcher: public IGroupsMatcherMT {
   */
   
   Tree m_tree;
-
-  /** a vector of shared nodes. All shared nodes are leaf node that
-  see the jet collection.
-  */
-  
-  std::vector<std::vector<int>> m_sharedNodes;
 
 };
 #endif

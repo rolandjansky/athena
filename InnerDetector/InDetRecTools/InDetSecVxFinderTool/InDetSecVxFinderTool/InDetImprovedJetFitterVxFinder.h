@@ -65,8 +65,7 @@ namespace InDet {
   public:
     
 
-    StatusCode initialize();
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
 
     InDetImprovedJetFitterVxFinder(const std::string& t, const std::string& n, const IInterface*  p);
 

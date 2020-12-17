@@ -21,6 +21,7 @@
 // Tau EDM
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrack.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
@@ -28,6 +29,8 @@
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "tauRecTools/HelperFunctions.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
 namespace met {
@@ -103,37 +106,37 @@ namespace met {
   //*********************************************************************************************************
   // Get tau constituents
   StatusCode METTauAssociator::extractTopoClusters(const xAOD::IParticle *obj,
-						   std::vector<const xAOD::IParticle*>& tclist,
-				        	   const met::METAssociator::ConstitHolder& /*tcCont*/) const
+                                                   std::vector<const xAOD::IParticle*>& tclist,
+                                                   const met::METAssociator::ConstitHolder& /*tcCont*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
-    for( ElementLink< xAOD::IParticleContainer > cluster_link : tau->clusterLinks() ){
-      const xAOD::IParticle* ipart = *cluster_link;
-      if (ipart->type() == xAOD::Type::ParticleFlow){
-	// If using PFO, get cluster
-        const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(ipart);
-	if (pfo->isCharged()){ continue; }
-	else {
-	  ipart = pfo->cluster(0);
-	}
-      }
-      if(ipart->type() != xAOD::Type::CaloCluster) {
-    	ATH_MSG_WARNING("Unexpected jet constituent type " << ipart->type() << " received! Skip.");
-	continue;
-      }      
-      // Link set in Reconstruction/tauRecTools/src/TauAxisSetter.cxx
-      // Internal defaults are m_clusterCone = 0.2, m_doCellCorrection = false, m_doAxisCorrection = True
-      const CaloCluster* pClus = static_cast<const CaloCluster*>( ipart );
-      tclist.push_back(pClus);
-    }
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
 
+    auto clusterList = tau->clusters();
+    for (const xAOD::IParticle* particle : clusterList) {
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+      
+      TLorentzVector clusterP4 = cluster->p4();
+      
+      // Correct the four momentum to point at the tau vertex
+      if (tauVertex) {
+        xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, tauVertex->position()); 
+        clusterP4 = vertexedCluster.p4();
+      }
+        
+      if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
+    
+      tclist.push_back(particle);
+    }
+  
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
-					     std::vector<const xAOD::IParticle*>& constlist,
-					     const met::METAssociator::ConstitHolder& constits) const
+                                             std::vector<const xAOD::IParticle*>& constlist,
+                                             const met::METAssociator::ConstitHolder& constits) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     for( const xAOD::TauTrack* tauTrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks dR<0.2 regardless of quality
@@ -149,9 +152,9 @@ namespace met {
   //*********************************************************************************************************
   // Get tau constituents
   StatusCode METTauAssociator::extractPFO(const xAOD::IParticle* obj,
-					  std::vector<const xAOD::IParticle*>& pfolist,
-					  const met::METAssociator::ConstitHolder& constits,
-					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+                                          std::vector<const xAOD::IParticle*>& pfolist,
+                                          const met::METAssociator::ConstitHolder& constits,
+                                          std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
@@ -159,26 +162,62 @@ namespace met {
     for(const auto& pfo : *constits.pfoCont) {
       bool match = false;
       if (!pfo->isCharged()) {
-	if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
-	  ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
-	  match = true;
-	}
+        if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->eEM()>0) {
+          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4EM()));
+          match = true;
+        }
       }
       else {
         const TrackParticle* pfotrk = pfo->track(0);
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-	    ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
-	    // We set a small -ve pt for cPFOs that were rejected
-	    // by the ChargedHadronSubtractionTool
-	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");	
-	    if(PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
+            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
+            // We set a small -ve pt for cPFOs that were rejected
+            // by the ChargedHadronSubtractionTool
+            const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+            if(PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
           }
         }
       }
       if(match) {
-	pfolist.push_back(pfo);
+        pfolist.push_back(pfo);
+      }
+    }
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj,
+                                         std::vector<const xAOD::IParticle*>& felist,
+                                         const met::METAssociator::ConstitHolder& constits,
+                                         std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+  {
+    const TauJet* tau = static_cast<const TauJet*>(obj);
+    const Jet* seedjet = *tau->jetLink();
+    TLorentzVector momentum;
+    for(const xAOD::FlowElement* pfo : *constits.feCont) {
+      bool match = false;
+      if (!pfo->isCharged()) {
+        if(xAOD::P4Helpers::isInDeltaR(*seedjet,*pfo,0.2,m_useRapidity) && pfo->e()>0) {
+          ATH_MSG_VERBOSE("Found nPFO with dR " << seedjet->p4().DeltaR(pfo->p4()));
+          match = true;
+        }
+      }
+      else {
+        const TrackParticle* pfotrk = static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0));
+        for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
+          const TrackParticle* tautrk = ttrk->track();
+          if(tautrk==pfotrk) {
+            ATH_MSG_VERBOSE("Found cPFO with dR " << seedjet->p4().DeltaR(ttrk->p4()));
+            // We set a small -ve pt for cPFOs that were rejected
+            // by the ChargedHadronSubtractionTool
+            const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");        
+            if(PVMatchedAcc(*pfo) && ( !m_cleanChargedPFO || isGoodEoverP(pfotrk) )) match = true;
+          }
+        }
+      }
+      if(match) {
+        felist.push_back(pfo);
       }
     }
     return StatusCode::SUCCESS;

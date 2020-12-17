@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -55,12 +55,12 @@ LArRodBlockPhysicsV6::LArRodBlockPhysicsV6()
   StatusCode sc =svcLoc->service( "DetectorStore", detStore );
   if (sc.isFailure()) {
     std::cout << "Unable to locate DetectorStore" << std::endl;
-    exit(1);
+    std::abort();
   }
   sc = detStore->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
     std::cout << "Could not get LArOnlineID helper !" << std::endl;
-    exit(1);
+    std::abort();
   }
 }
 
@@ -894,7 +894,7 @@ setHeader16(InFPGAFormat_h,0x2);
 n = m_GainBlock.size();
 //BlockOffset=0;
 //LARBSDBG("Checking Gain Block n=" << n << "BlockOffset=" << BlockOffset);
-//Check if Gain-Block exits and is not yet part of the fragment
+//Check if Gain-Block exists and is not yet part of the fragment
 if (n)
   {
     //LARBSDBG(MSG::DEBUG  << "In finalyseFEB-------------------->>>>> " << "Checking for Gain Block :  length= " << n << "  BlockOffset=" << BlockOffset);
@@ -949,7 +949,7 @@ if (n)
  // Block also include time, whenever necessary
  int size_of_block=80+(nsamples+1)/2+(m_TimeQualityBlock.size())/2;
  //LARBSDBG("Checking Energy Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Energy-Block exits and is not yet part of the fragment
+ //Check if Energy-Block exists and is not yet part of the fragment
  if (n)
    {
      setHeader16(ResultsOff1,18);
@@ -966,7 +966,7 @@ if (n)
  // Magic numbers (4 or 8) for Ex, Ey and Ez
  n = m_TimeQualityBlock.size();
  //LARBSDBG("Checking Time and Quality Block n=" << n << "BlockOffset=" << BlockOffset);
- //Check if Time and Quality Block exits and is not yet part of the fragment
+ //Check if Time and Quality Block exists and is not yet part of the fragment
  if (n)
    {
      unsigned int imax = n/2;
@@ -1018,18 +1018,13 @@ void  LArRodBlockPhysicsV6::concatinateFEBs()
  FEBMAPTYPE::const_iterator feb_it_b=m_mFebBlocks.begin();
  FEBMAPTYPE::const_iterator feb_it_e=m_mFebBlocks.end();
  FEBMAPTYPE::const_iterator feb_it;
- std::vector<uint32_t>::const_iterator data_it;
- std::vector<uint32_t>::const_iterator data_it_e;
- for (feb_it=feb_it_b;feb_it!=feb_it_e;feb_it++) {
+ for (feb_it=feb_it_b;feb_it!=feb_it_e;++feb_it) {
    if (feb_it!=feb_it_b) //Not first Feb
        m_pRODblock->resize( m_pRODblock->size()+m_MiddleHeaderSize);
 
    //Add feb data to rod data block
-   data_it=feb_it->second.begin();
-   data_it_e=feb_it->second.end();
-   m_pRODblock->reserve(m_pRODblock->size()+feb_it->second.size());
-   for (;data_it!=data_it_e;data_it++)
-     m_pRODblock->push_back(*data_it);
+   m_pRODblock->insert (m_pRODblock->end(),
+                        feb_it->second.begin(), feb_it->second.end());
  } //end for feb_it
 
   m_mFebBlocks.clear();

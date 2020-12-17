@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // defining this class is just used for testing since class LArCalibCalculatorSvc is a abstract class which needs to be instatiated in my test code
@@ -7,8 +7,8 @@
 // To make matters more complicated, the classes(i.e. INamedInterface and IStateful) that IService inherits are also abstract, so I need to override the pure virtual functions in classes INamedInterface and IStateful
 // In addition, since INamedInterface and IStateful all inherit the class IInterface, which is abstract. Therefore, I also override the pure virtual functions in the class IInterface.
 
-#ifndef __DERIVEDILARCALIBCALCULATORSVC_H__
-#define __DERIVEDILARCALIBCALCULATORSVC_H__
+#ifndef LARG4CODE_DERIVEDILARCALIBCALCULATORSVCFORTEST_H
+#define LARG4CODE_DERIVEDILARCALIBCALCULATORSVCFORTEST_H
 
 #include "LArG4Code/ILArCalibCalculatorSvc.h"
 #include "GaudiKernel/StateMachine.h"
@@ -130,9 +130,9 @@ public:
     return Gaudi::StateMachine::State(0);
   }
 
-  std::string& name() const
+  const std::string& name() const
   {
-    static std::string Tes = "test";
+    static const std::string Tes = "test";
     return Tes;
   }
 

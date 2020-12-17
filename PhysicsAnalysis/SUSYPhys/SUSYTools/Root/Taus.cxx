@@ -165,23 +165,23 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
   double sf(1.);
 
   //Set the new systematic variation
-  CP::SystematicCode ret = m_tauEffTool->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
+  StatusCode ret = m_tauEffTool->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
 
 
   sf *= GetSignalTauSF(tau, idSF, triggerSF, trigExpr);  
@@ -189,22 +189,22 @@ double SUSYObjDef_xAOD::GetSignalTauSFsys(const xAOD::TauJet& tau,
 
   //Roll back to default
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
   ret = m_tauTrigEffTool0->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
 
   ret = m_tauTrigEffTool1->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
 
   ret = m_tauTrigEffTool2->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
 
   ret = m_tauTrigEffTool3->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
 
   ret = m_tauTrigEffTool4->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
 
 
   dec_effscalefact(tau) = sf;
@@ -268,23 +268,23 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
   double sf(1.);
 
   //Set the new systematic variation
-  CP::SystematicCode ret = m_tauEffTool->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
+  StatusCode ret = m_tauEffTool->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool0->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool1->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool2->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool3->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 for systematic var. " << systConfig.name() ); }
 
   ret = m_tauTrigEffTool4->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 for systematic var. " << systConfig.name() ); }
 
 
   sf = GetTotalTauSF(taus, idSF, triggerSF, trigExpr);
@@ -292,22 +292,22 @@ double SUSYObjDef_xAOD::GetTotalTauSFsys(const xAOD::TauJetContainer& taus, cons
 
   //Roll back to default
   ret = m_tauEffTool->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauEfficiencyCorrectionsTool back to default"); }
 
   ret = m_tauTrigEffTool0->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool0 back to default"); }
 
   ret = m_tauTrigEffTool1->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool1 back to default"); }
 
   ret = m_tauTrigEffTool2->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool2 back to default"); }
 
   ret = m_tauTrigEffTool3->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool3 back to default"); }
 
   ret = m_tauTrigEffTool4->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
+  if (ret != StatusCode::SUCCESS) { ATH_MSG_ERROR("Cannot configure TauTrigEfficiencyCorrectionsTool4 back to default"); }
 
   return sf;
 }

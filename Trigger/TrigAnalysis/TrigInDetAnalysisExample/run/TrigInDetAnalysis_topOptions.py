@@ -116,7 +116,7 @@ ServiceMgr.MessageSvc.OutputLevel = DEBUG
 
 theApp.EvtMax = -1
 
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr.AuditorSvc.Auditors  += [ "ChronoAuditor"]
 
 AthenaPoolCnvSvc = Service("AthenaPoolCnvSvc")

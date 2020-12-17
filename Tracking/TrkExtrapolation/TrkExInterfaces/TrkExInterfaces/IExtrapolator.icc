@@ -6,9 +6,9 @@
 // IExtrapolator.icc, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-/** [TrackParameters] old interfaces WITHOUT EventContext ------------------------------------------ */
+/** Implement old interfaces WITHOUT EventContext ------------------------------------------ */
 
-      
+
 /** xAOD 0) xAOD track particle */
 inline const Trk::TrackParameters*
 Trk::IExtrapolator::extrapolate(const xAOD::TrackParticle& particleBase,
@@ -16,7 +16,7 @@ Trk::IExtrapolator::extrapolate(const xAOD::TrackParticle& particleBase,
                                 Trk::PropDirection dir,
                                 const BoundaryCheck& bcheck,
                                 Trk::ParticleHypothesis particle,
-                                Trk::MaterialUpdateMode matupmode) const 
+                                Trk::MaterialUpdateMode matupmode) const
 {
     return extrapolate( Gaudi::Hive::currentContext(),
                         particleBase,
@@ -29,7 +29,7 @@ Trk::IExtrapolator::extrapolate(const xAOD::TrackParticle& particleBase,
 
 
 
-      
+
 /** 1) <b>Configured AlgTool extrapolation method</b>):
     -  returns the TrackParameters at the Destination Surface (if extrapolation succeeds),
     nullptr if extrapolation to destination surface does not succeed */
@@ -40,7 +40,7 @@ Trk::IExtrapolator::extrapolate(const TrackParameters& parm,
                                 const BoundaryCheck& bcheck,
                                 Trk::ParticleHypothesis particle,
                                 Trk::MaterialUpdateMode matupmode,
-                                Trk::ExtrapolationCache* cache) const 
+                                Trk::ExtrapolationCache* cache) const
 {
     return extrapolate( Gaudi::Hive::currentContext(),
                         parm,
@@ -74,7 +74,7 @@ inline std::vector<std::unique_ptr<const Trk::TrackParameters>> Trk::IExtrapolat
 
 /** 3) <b>Configured AlgTool extrapolation method</b>):
     - searches the closest TrackParameters of the Track to the destination Surface
-    - returns the TrackParameters at the Destination Surface (if extrapolation succeeds), 
+    - returns the TrackParameters at the Destination Surface (if extrapolation succeeds),
     0 if extrapolation to destination surface does not suceed */
 inline const Trk::TrackParameters* Trk::IExtrapolator::extrapolate(const Track& trk,
                                                                    const Trk::Surface& sf,
@@ -95,7 +95,7 @@ inline const Trk::TrackParameters* Trk::IExtrapolator::extrapolate(const Track& 
 }
 
 /** 4) <b>Configured AlgTool extrapolation method</b>):
-    - direct extrapolation to the destination surface, no material effects 
+    - direct extrapolation to the destination surface, no material effects
     or intermediate steps are taken into account
 */
 inline Trk::TrackParameters* Trk::IExtrapolator::extrapolateDirectly(const TrackParameters& parm,
@@ -132,7 +132,7 @@ inline Trk::TrackParameters* Trk::IExtrapolator::extrapolateDirectly(const IProp
 }
 
 /** 5) <b>Configured AlgTool extrapolation method</b>):
-    - blind inside the given tracking Volume (boundaryVol), 
+    - blind inside the given tracking Volume (boundaryVol),
     if none is given the reference surface for destination is used
 */
 inline std::vector<std::unique_ptr<const Trk::TrackParameters>> Trk::IExtrapolator::extrapolateBlindly(
@@ -288,8 +288,8 @@ inline const std::vector<std::pair<const Trk::TrackParameters*, int>>* Trk::IExt
 
 
 
-    
-    
+
+
 
 inline const Trk::TrackParameters*
 Trk::IExtrapolator::extrapolateWithPathLimit(const EventContext& /*ctx*/,

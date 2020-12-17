@@ -14,7 +14,6 @@ class LArRawChannelGetter_DigiHSTruth ( Configured )  :
 
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
-        from AthenaCommon.AppMgr import ToolSvc
         from LArROD.LArRODFlags import larRODFlags
 
         from AthenaCommon.GlobalFlags import globalflags
@@ -25,11 +24,10 @@ class LArRawChannelGetter_DigiHSTruth ( Configured )  :
         else:
             # MC Case
             try:
-                from AthenaCommon import CfgGetter
                 from LArRODConfig import getLArRawChannelBuilder_DigiHSTruth
                 theLArRawChannelBuilder_DigiHSTruth = getLArRawChannelBuilder_DigiHSTruth()
                 topSequence += theLArRawChannelBuilder_DigiHSTruth
-            except Exception as cfgException:
+            except Exception:
                 import traceback
                 mlog.error(traceback.format_exc())
                 mlog.error("Failed to retrieve LArRawChannelBuilder_DigiHSTruth. Quit")

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4ATLASWORKERRUNMANAGER_H
@@ -18,7 +18,6 @@
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
-#include "G4AtlasInterfaces/IUserActionSvc.h"
 
 
 /// @brief ATLAS worker run manager for master-slave multi-threading model
@@ -41,11 +40,6 @@ public:
 
   /// @name Methods to pass configuration in from G4AtlasUserWorkerThreadInitialization
   /// @{
-  /// Configure the user action service handle
-  void SetUserActionSvc(const std::string& typeAndName) {
-    m_userActionSvc.setTypeAndName(typeAndName);
-  }
-
   /// Configure the detector geometry service handle
   void SetDetGeoSvc(const std::string& typeAndName) {
     m_detGeoSvc.setTypeAndName(typeAndName);
@@ -96,9 +90,6 @@ private:
 
   /// Handle to the FastSim tool
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
-
-  /// Handle to the user action service
-  ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
 
 };
 

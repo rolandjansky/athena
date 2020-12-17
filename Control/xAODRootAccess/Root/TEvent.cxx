@@ -359,11 +359,11 @@ namespace xAOD {
    /// @param treeName Name of the input tree
    /// @returns <code>kTRUE</code> if successful, <code>kFALSE</code> otherwise
    ///
-   TReturnCode TEvent::readFrom( ::TFile* file, Bool_t useTreeCache,
+   StatusCode TEvent::readFrom( ::TFile* file, Bool_t useTreeCache,
                                  const char* treeName ) {
 
       // If no file was specified, return gracefully:
-      if( ! file ) return TReturnCode::kSuccess;
+      if( ! file ) return StatusCode::SUCCESS;
 
       // Clear the cached input objects:
       Object_t::iterator itr = m_inputObjects.begin();
@@ -400,7 +400,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::readFrom",
                   XAOD_MESSAGE( "Couldn't find metadata tree on input. Object "
                                 "unusable!" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // A sanity check:
@@ -434,7 +434,7 @@ namespace xAOD {
                  "metadata" );
          m_inTree = 0;
          m_inTreeMissing = kTRUE;
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Read in the event format object:
@@ -445,7 +445,7 @@ namespace xAOD {
       if( status < 0 ) {
          ::Error( "xAOD::TEvent::readFrom",
                   XAOD_MESSAGE( "Failed to connect to EventFormat object" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Read in the object to our private member:
@@ -497,7 +497,7 @@ namespace xAOD {
       }
 
       // The initialisation was successful:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This version of the function sets up the object to readin information
@@ -508,7 +508,7 @@ namespace xAOD {
    /// @param useTreeCache Flag for switching TTreeCache usage on/off
    /// @returns <code>kTRUE</code> if successful, <code>kFALSE</code> when not
    ///
-   TReturnCode TEvent::readFrom( ::TTree* tree, Bool_t useTreeCache ) {
+   StatusCode TEvent::readFrom( ::TTree* tree, Bool_t useTreeCache ) {
 
       // Remember the info:
       m_inTree = 0;
@@ -533,27 +533,27 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::readFrom",
                      XAOD_MESSAGE( "Couldn't get the list of files from the "
                                    "input TChain" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          if( ! files->GetEntries() ) {
             ::Error( "xAOD::TEvent::readFrom",
                      XAOD_MESSAGE( "No files are present in the received "
                                    "TChain" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          const ::TChainElement* chEl =
               dynamic_cast< const ::TChainElement* >( files->At( 0 ) );
          if( ! chEl ) {
             ::Error( "xAOD::TEvent::readFrom",
                      XAOD_MESSAGE( "Couldn't cast object to TChainElement" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          ::TFile* dummyFile = ::TFile::Open( chEl->GetTitle() );
          if( ! dummyFile ) {
             ::Error( "xAOD::TEvent::readFrom",
                      XAOD_MESSAGE( "Couldn't open file %s" ),
                                    chEl->GetTitle() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          delete dummyFile;
 
@@ -568,7 +568,7 @@ namespace xAOD {
          // asks for the first event. Otherwise we open the first file of the
          // chain multiple times.
          m_inTreeNumber = -1;
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
 
       } else {
 
@@ -593,14 +593,14 @@ namespace xAOD {
    /// @param treeName Name of the output event tree
    /// @returns <code>kTRUE</code> if successful, <code>kFALSE</code> otherwise
    ///
-   TReturnCode TEvent::writeTo( ::TFile* file, Int_t autoFlush,
+   StatusCode TEvent::writeTo( ::TFile* file, Int_t autoFlush,
                                 const char* treeName ) {
 
       // Just a simple security check:
       if( ! file ) {
          ::Error( "xAOD::TEvent::writeTo",
                   XAOD_MESSAGE( "Null pointer given to the function!" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check that the object is in the "right state":
@@ -608,7 +608,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::writeTo",
                   XAOD_MESSAGE( "Object already writing to a file. Close that "
                                 "file first!" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Make sure we return to the current directory:
@@ -626,7 +626,7 @@ namespace xAOD {
          &( TEventFormatRegistry::instance().getEventFormat( file ) );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function needs to be called when the user is done writing events
@@ -635,14 +635,14 @@ namespace xAOD {
    /// @param file The file that the event data is written to
    /// @returns <code>kTRUE</code> if successful, <code>kFALSE</code> otherwise
    ///
-   TReturnCode TEvent::finishWritingTo( ::TFile* file ) {
+   StatusCode TEvent::finishWritingTo( ::TFile* file ) {
 
       // A small sanity check:
       if( ! m_outTree ) {
          ::Error( "xAOD::TEvent::finishWritingTo",
                   XAOD_MESSAGE( "The object doesn't seem to be connected to an "
                                 "output file!" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Make sure we return to the current directory:
@@ -669,7 +669,7 @@ namespace xAOD {
       // Check if there's already a metadata tree in the output:
       if( file->Get( METADATA_TREE_NAME ) ) {
          // Let's assume that the metadata is complete in the file already.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Create the metadata tree:
@@ -698,7 +698,7 @@ namespace xAOD {
          if( ! mgr ) {
             ::Error( "xAOD::TEvent::finishWritingTo",
                      XAOD_MESSAGE( "Internal logic error detected" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Select a split level depending on whether this is an interface or an
          // auxiliary object:
@@ -715,7 +715,7 @@ namespace xAOD {
                                    "\"%s/%s\"" ),
                      mgr->holder()->getClass()->GetName(),
                      object.first.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Set up the saving of all the dynamic auxiliary properties
          // of the object if it has any:
@@ -731,7 +731,7 @@ namespace xAOD {
                                 "the output" ) );
          metatree->SetDirectory( 0 );
          delete metatree;
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Now clean up:
@@ -753,7 +753,7 @@ namespace xAOD {
       m_outputMetaObjects.clear();
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// Setting TEvent objects happens automatically when reading a file, but
@@ -809,15 +809,15 @@ namespace xAOD {
    /// incidents" happen, a given object should be notified about it.
    ///
    /// @param listener Pointer to the object that should be notified
-   /// @returns The usual TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TEvent::addListener( TVirtualIncidentListener* listener ) {
+   StatusCode TEvent::addListener( TVirtualIncidentListener* listener ) {
 
       // Check that we received a valid pointer:
       if( ! listener ) {
          ::Error( "xAOD::TEvent::addListener",
                   XAOD_MESSAGE( "Received a null pointer for the listener" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if this listener is already in our list:
@@ -838,16 +838,16 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function allows us to remove a listener when for instance a
    /// metadata tool is deleted during a job.
    ///
    /// @param listener Pointer to the listener that should be removed
-   /// @returns The usual TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TEvent::removeListener( TVirtualIncidentListener* listener ) {
+   StatusCode TEvent::removeListener( TVirtualIncidentListener* listener ) {
 
       // Find the pointer if we can...
       Listener_t::iterator itr = std::find( m_listeners.begin(),
@@ -858,14 +858,14 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::removeListener",
                   XAOD_MESSAGE( "Listener %p not known" ),
                   static_cast< void* >( listener ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Remove it:
       m_listeners.erase( itr );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to remove all the listeners from the internal
@@ -889,9 +889,9 @@ namespace xAOD {
    ///               file
    /// @param newName The alias with which the object/container should be
    ///                accessible
-   /// @returns The usual TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TEvent::addNameRemap( const std::string& onfile,
+   StatusCode TEvent::addNameRemap( const std::string& onfile,
                                      const std::string& newName ) {
 
       // Check if this name is known on the input or output already. As that's
@@ -901,7 +901,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Can't use \"%s\" as the target name in the"
                                 "\"%s\" -> \"%s\" remapping" ),
                   newName.c_str(), onfile.c_str(), newName.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if this name was remapped to something already:
@@ -918,7 +918,7 @@ namespace xAOD {
       m_nameRemapping[ newName ] = onfile;
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function simply clears out any existing name remapping declarations.
@@ -1044,7 +1044,7 @@ namespace xAOD {
    ///                   output branch
    /// @param splitLevel Optional split level of the output branch
    ///
-   TReturnCode TEvent::copy( const std::string& key,
+   StatusCode TEvent::copy( const std::string& key,
                              ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Check if a name re-mapping should be applied or not:
@@ -1064,20 +1064,20 @@ namespace xAOD {
       if( vobjMgr == m_inputObjects.end() ) {
          ::Error( "xAOD::TEvent::copy",
                   XAOD_MESSAGE( "Internal logic error detected" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       const TObjectManager* objMgr =
          dynamic_cast< const TObjectManager* >( vobjMgr->second );
       if( ! objMgr ) {
          ::Error( "xAOD::TEvent::copy",
                   XAOD_MESSAGE( "Internal logic error detected" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       if( ! getInputObject( key,
                        *( objMgr->holder()->getClass()->GetTypeInfo() ) ) ) {
          ::Error( "xAOD::TEvent::copy",
                   XAOD_MESSAGE( "Internal logic error detected" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Put the interface object into the output:
@@ -1099,7 +1099,7 @@ namespace xAOD {
       if( vauxMgr == m_inputObjects.end() ) {
          // If there is no auxiliary store for this object/container, we're
          // done already:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
       // Check what type of auxiliary store this is:
       if( m_auxMode == kClassAccess || m_auxMode == kAthenaAccess ) {
@@ -1108,7 +1108,7 @@ namespace xAOD {
          if( ! auxMgr ) {
             ::Error( "xAOD::TEvent::copy",
                      XAOD_MESSAGE( "Internal logic error detected" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          RETURN_CHECK( "xAOD::TEvent::copy",
                        record( auxMgr->object(),
@@ -1120,7 +1120,7 @@ namespace xAOD {
          if( ! auxMgr ) {
             ::Error( "xAOD::TEvent::copy",
                      XAOD_MESSAGE( "Internal logic error detected" ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Set up the filtering:
          if( filter ) {
@@ -1135,7 +1135,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is here to make it easy to write code that skims an input
@@ -1144,16 +1144,16 @@ namespace xAOD {
    /// @param basketSize Optional size for the basket associated with the
    ///                   output branch
    /// @param splitLevel Optional split level of the output branch
-   /// @returns <code>xAOD::TReturnCode::kSuccess</code> if the copy was
-   ///          successful, or <code>xAOD::TReturnCode::kFailure</code> if not
+   /// @returns <code>StatusCode::SUCCESS</code> if the copy was
+   ///          successful, or <code>StatusCode::FAILURE</code> if not
    ///
-   TReturnCode TEvent::copy( ::Int_t basketSize, ::Int_t splitLevel ) {
+   StatusCode TEvent::copy( ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Make sure that an input TTree is available:
       if( ! m_inTree ) {
          ::Error( "xAOD::TEvent::copy",
                   XAOD_MESSAGE( "No input TTree is open" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Loop over the known input containers:
@@ -1189,7 +1189,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// @returns The number of events in the input file(s)
@@ -1704,14 +1704,14 @@ namespace xAOD {
    /// file. It prepares the "monitoring information" in memory that gets filled
    /// while the code is running, with information about xAOD I/O.
    ///
-   /// @returns <code>TReturnCode::kSuccess</code> if the function is
-   ///          successful, or <code>TReturnCode::kFaulure</code> if not
+   /// @returns <code>StatusCode::SUCCESS</code> if the function is
+   ///          successful, or <code>StatusCode::kFaulure</code> if not
    ///
-   TReturnCode TEvent::initStats() {
+   StatusCode TEvent::initStats() {
 
       // If we're dealing with an empty input file, stop here:
       if( m_inTreeMissing ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // A little sanity check:
@@ -1719,7 +1719,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::initStats",
                   XAOD_MESSAGE( "Function called on an uninitialised "
                                 "object" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Reset the number of input branches information:
@@ -1791,7 +1791,7 @@ namespace xAOD {
                ::Error( "xAOD::TEvent::initStats",
                         XAOD_MESSAGE( "Couldn't get dictionary for type "
                                       "\"%s\"" ), baseName.c_str() );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
 
             // The type of the auxiliary store is finally deduced from the
@@ -1818,7 +1818,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function does the heavy lifting of retrieving object from the list
@@ -2028,7 +2028,7 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the operation was successful, or
    ///          <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::record( void* obj, const std::string& typeName,
+   StatusCode TEvent::record( void* obj, const std::string& typeName,
                                const std::string& key,
                                ::Int_t basketSize, ::Int_t splitLevel,
                                ::Bool_t overwrite, ::Bool_t metadata,
@@ -2039,7 +2039,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::record",
                   XAOD_MESSAGE( "No output tree defined. Did you forget to "
                                 "call writeTo(...)?" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
       assert( m_outputEventFormat != 0 );
 
@@ -2053,7 +2053,7 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::record",
                      XAOD_MESSAGE( "Meta-object %s/%s already recorded" ),
                      typeName.c_str(), key.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Check if we have a dictionary for this object:
          TClass* cl = TClass::GetClass( typeName.c_str() );
@@ -2061,7 +2061,7 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::record",
                      XAOD_MESSAGE( "Didn't find dictionary for type: %s" ),
                      typeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Let's create a holder for the object:
          THolder* hldr = new THolder( obj, cl, isOwner );
@@ -2069,7 +2069,7 @@ namespace xAOD {
             new TObjectManager( 0, hldr, m_auxMode == kAthenaAccess );
          m_outputMetaObjects[ key ] = mgr;
          // We're done. The rest will be done later on.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if we accessed this object on the input. If yes, then this
@@ -2080,7 +2080,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Object %s/%s already accessed from the input, "
                                 "can't be overwritten in memory" ),
                   typeName.c_str(), key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Override the default 0 split level with a split level of 1 for
@@ -2100,7 +2100,7 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::record",
                      XAOD_MESSAGE( "Didn't find dictionary for type: %s" ),
                      typeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Check if this is a new object "type" or not:
@@ -2127,7 +2127,7 @@ namespace xAOD {
             // Clean up:
             hldr->setOwner( kFALSE );
             delete mgr;
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Set up the saving of all the dynamic auxiliary properties
@@ -2138,7 +2138,7 @@ namespace xAOD {
 
          // Return at this point, as we don't want to run the rest of
          // the function's code:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Access the object manager:
@@ -2147,7 +2147,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::record",
                   XAOD_MESSAGE( "Manager object of the wrong type "
                                 "encountered" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check that the type of the object matches that of the previous
@@ -2165,7 +2165,7 @@ namespace xAOD {
                                    "\"%s\"" ),
                      key.c_str(), omgr->holder()->getClass()->GetName(),
                      typeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
 
@@ -2191,7 +2191,7 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the operation was successful, or
    ///          <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::record( TAuxStore* store, const std::string& key,
+   StatusCode TEvent::record( TAuxStore* store, const std::string& key,
                                ::Int_t /*basketSize*/, ::Int_t /*splitLevel*/,
                                ::Bool_t ownsStore ) {
 
@@ -2200,7 +2200,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::record",
                   XAOD_MESSAGE( "No output tree defined. Did you forget to "
                                 "call writeTo(...)?" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if we have a filtering rule for this key:
@@ -2225,13 +2225,13 @@ namespace xAOD {
          m_outputObjects[ key ] = mgr;
 
          // We're done:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if the output has the right store:
       if( vitr->second->object() == store ) {
          // We're done already:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // If not, update the output manager. This can happen when we copy
@@ -2245,7 +2245,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Output object with key %s already exists, "
                                 "and is not of type TAuxStore" ),
                   key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Configure the object for variable filtering:
@@ -2260,7 +2260,7 @@ namespace xAOD {
       mgr->setObject( store );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This is one of the more important functions of the class. It connects the
@@ -2281,14 +2281,14 @@ namespace xAOD {
    /// @return <code>kTRUE</code> if the connection was successful, or
    ///         <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::connectBranch( const std::string& key,
+   StatusCode TEvent::connectBranch( const std::string& key,
                                       ::Bool_t silent ) {
 
       // A little sanity check:
       if( ! m_inTree ) {
          ::Error( "xAOD::TEvent::connectBranch",
                   XAOD_MESSAGE( "Function called on un-initialised object" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Increment the access counter on this container:
@@ -2296,7 +2296,7 @@ namespace xAOD {
 
       // Check if the branch is already connected:
       if( m_inputObjects.find( key ) != m_inputObjects.end() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if we have metadata about this branch:
@@ -2319,7 +2319,7 @@ namespace xAOD {
                        "Branch \"%s\" not available on input",
                        key.c_str() );
          }
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Make sure that it's not in "MakeClass mode":
@@ -2338,7 +2338,7 @@ namespace xAOD {
                      XAOD_MESSAGE( "Couldn't find an appropriate type with a "
                                    "dictionary for branch \"%s\"" ),
                      key.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
       ::TClass* realClass = ::TClass::GetClass( className.c_str() );
@@ -2355,7 +2355,7 @@ namespace xAOD {
                   XAOD_MESSAGE( "Couldn't find an appropriate type with a "
                                 "dictionary for branch \"%s\"" ),
                   key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Make sure that the current object is the "active event":
@@ -2378,7 +2378,7 @@ namespace xAOD {
             ::Error( "xAOD::TEvent::connectBranch",
                      XAOD_MESSAGE( "Couldn't access output manager for: %s" ),
                      key.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Get the pointer out of it:
          ptr = mgr->holder()->get();
@@ -2411,7 +2411,7 @@ namespace xAOD {
          *( hldr->getPtr() ) = 0;
          delete mgr;
          m_inputObjects.erase( key );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Now try to connect to the branch:
@@ -2429,7 +2429,7 @@ namespace xAOD {
          *( hldr->getPtr() ) = 0;
          delete mgr;
          m_inputObjects.erase( key );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // If it's an auxiliary store object, set it up correctly:
@@ -2439,7 +2439,7 @@ namespace xAOD {
       }
 
       // Return here if the object can't have an auxiliary store:
-      if( ! hasAuxStore( *mgr ) ) return TReturnCode::kSuccess;
+      if( ! hasAuxStore( *mgr ) ) return StatusCode::SUCCESS;
 
       // If there may be an auxiliary object connected to this one,
       // connect that as well:
@@ -2452,21 +2452,21 @@ namespace xAOD {
    /// @param key The key (branch name) of the metadata object to retrieve
    /// @param silent Set to <code>kTRUE</code> to make the code fail silently
    ///               in case the branch can't be connected to
-   /// @returns The usual TReturnCode types
+   /// @returns The usual StatusCode types
    ///
-   TReturnCode TEvent::connectMetaBranch( const std::string& key,
+   StatusCode TEvent::connectMetaBranch( const std::string& key,
                                           ::Bool_t silent ) {
 
       // A little sanity check:
       if( ! m_inMetaTree ) {
          ::Error( "xAOD::TEvent::connectMetaBranch",
                   XAOD_MESSAGE( "Function called on un-initialised object" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if the branch is already connected:
       if( m_inputMetaObjects.find( key ) != m_inputMetaObjects.end() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if the branch exists in our metadata tree:
@@ -2477,7 +2477,7 @@ namespace xAOD {
                        "Branch \"%s\" not available on input",
                        key.c_str() );
          }
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Check that we have an entry in the branch:
@@ -2487,7 +2487,7 @@ namespace xAOD {
                        "Branch \"%s\" doesn't hold any data",
                        key.c_str() );
          }
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Make sure that it's not in "MakeClass mode":
@@ -2500,7 +2500,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::connectMetaBranch",
                   XAOD_MESSAGE( "Couldn't get the type for metadata "
                                 "branch %s" ), key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Create the object, and all of the managers around it:
@@ -2525,7 +2525,7 @@ namespace xAOD {
          *( hldr->getPtr() ) = 0;
          delete mgr;
          m_inputMetaObjects.erase( key );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Read in the object:
@@ -2533,7 +2533,7 @@ namespace xAOD {
          ::Error( "xAOD::TEvent::connectMetaBranch",
                   XAOD_MESSAGE( "Couldn't read in metadata object with key "
                                 "\"%s\"" ), key.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // If it's an auxiliary store object, set it up correctly:
@@ -2543,7 +2543,7 @@ namespace xAOD {
       }
 
       // Return here if the object can't have an auxiliary store:
-      if( ! hasAuxStore( *mgr ) ) return TReturnCode::kSuccess;
+      if( ! hasAuxStore( *mgr ) ) return StatusCode::SUCCESS;
 
       // If there may be an auxiliary object connected to this one,
       // connect that as well:
@@ -2555,7 +2555,7 @@ namespace xAOD {
                     setAuxStore( *mgr, kTRUE ) );
 
       // We succeeded:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is used internally to connect an auxiliary object to
@@ -2568,14 +2568,14 @@ namespace xAOD {
    /// @return <code>kTRUE</code> if the connection was successful, or
    ///         <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::connectAux( const std::string& prefix,
+   StatusCode TEvent::connectAux( const std::string& prefix,
                                    ::Bool_t standalone ) {
 
       // A simple test...
       if( ! m_inTree ) {
          ::Error( "xAOD::TEvent::connectAux",
                   XAOD_MESSAGE( "No input tree is available" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if we know anything about this auxiliary object:
@@ -2583,12 +2583,12 @@ namespace xAOD {
           ( m_auxMode == kClassAccess || m_auxMode == kAthenaAccess ) ) {
          // If not, then let's just return right away. Not having
          // an auxiliary object with this name is not an error per se.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if the branch is already connected:
       if( m_inputObjects.find( prefix ) != m_inputObjects.end() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Do different things based on the "auxiliary mode" we are in:
@@ -2616,7 +2616,7 @@ namespace xAOD {
             TClass::GetClass( typeid( SG::IAuxStoreHolder ) );
          if( ! omgr->holder()->getClass()->InheritsFrom( holderClass ) ) {
             // Nope... So let's just end the journey here.
-            return TReturnCode::kSuccess;
+            return StatusCode::SUCCESS;
          }
 
          // Try to get the object as an IAuxStoreHolder:
@@ -2642,11 +2642,11 @@ namespace xAOD {
                      XAOD_MESSAGE( "standalone = %s, getStoreType() = %i" ),
                      ( standalone ? "kTRUE" : "kFALSE" ),
                      static_cast< int >( storeHolder->getStoreType() ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Return gracefully:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
 
       } else if( m_auxMode == kBranchAccess ) {
 
@@ -2667,14 +2667,14 @@ namespace xAOD {
                        store->readFrom( m_inTree ) );
 
          // Return gracefully:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // There was some problem:
       ::Error( "xAOD::TEvent::connectAux",
                XAOD_MESSAGE( "Unknown auxiliary access mode set (%i)" ),
                static_cast< int >( m_auxMode ) );
-      return TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    /// This function is used internally to connect an auxiliary metadata object
@@ -2684,21 +2684,21 @@ namespace xAOD {
    ///
    /// @param prefix The prefix (main branch name) of the auxiliary data
    /// @param standalone Type of the auxiliary store that should be created
-   /// @return The usual TReturnCode types
+   /// @return The usual StatusCode types
    ///
-   TReturnCode TEvent::connectMetaAux( const std::string& prefix,
+   StatusCode TEvent::connectMetaAux( const std::string& prefix,
                                        ::Bool_t standalone ) {
 
       // Check if the branch is already connected:
       if( m_inputMetaObjects.find( prefix ) != m_inputMetaObjects.end() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // A sanity check:
       if( ! m_inMetaTree ) {
          ::Fatal( "xAOD::TEvent::connectMetaAux",
                   XAOD_MESSAGE( "Internal logic error detected" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Do different things based on the "auxiliary mode" we are in:
@@ -2727,7 +2727,7 @@ namespace xAOD {
             TClass::GetClass( typeid( SG::IAuxStoreHolder ) );
          if( ! omgr->holder()->getClass()->InheritsFrom( holderClass ) ) {
             // Nope... So let's just end the journey here.
-            return TReturnCode::kSuccess;
+            return StatusCode::SUCCESS;
          }
 
          // Try to get the object as an IAuxStoreHolder:
@@ -2752,11 +2752,11 @@ namespace xAOD {
                      XAOD_MESSAGE( "standalone = %s, getStoreType() = %i" ),
                      ( standalone ? "kTRUE" : "kFALSE" ),
                      static_cast< int >( storeHolder->getStoreType() ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Return gracefully:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
 
       } else if( m_auxMode == kBranchAccess ) {
 
@@ -2780,14 +2780,14 @@ namespace xAOD {
          store->getEntry( 0 );
 
          // Return gracefully:
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // There was some problem:
       ::Error( "xAOD::TEvent::connectMetaAux",
                XAOD_MESSAGE( "Unknown auxiliary access mode set (%i)" ),
                static_cast< int >( m_auxMode ) );
-      return TReturnCode::kFailure;
+      return StatusCode::FAILURE;
    }
 
    /// This function is used by connectBranch(...) and connectMetaBranch(...)
@@ -2796,9 +2796,9 @@ namespace xAOD {
    ///
    /// @param mgr  The object manager of the auxiliary store object
    /// @param tree The tree to read dynamic variables from
-   /// @returns The usual <code>TReturnCode</code> types
+   /// @returns The usual <code>StatusCode</code> types
    ///
-   TReturnCode TEvent::setUpDynamicStore( TObjectManager& mgr, ::TTree* tree ) {
+   StatusCode TEvent::setUpDynamicStore( TObjectManager& mgr, ::TTree* tree ) {
 
       // Check if we can call setName(...) on the object:
       ::TMethodCall setNameCall;
@@ -2829,7 +2829,7 @@ namespace xAOD {
          TClass::GetClass( typeid( SG::IAuxStoreHolder ) );
       if( ! mgr.holder()->getClass()->InheritsFrom( holderClass ) ) {
          // Nope... So let's just end the journey here.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Try to get the object as an IAuxStoreHolder:
@@ -2868,7 +2868,7 @@ namespace xAOD {
       storeHolder->setStore( store );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// Every time a DataVector is read in from the input for a new TTree
@@ -2881,12 +2881,12 @@ namespace xAOD {
    /// @return <code>kTRUE</code> if the setup was successful, or
    ///         <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::setAuxStore( TObjectManager& mgr,
+   StatusCode TEvent::setAuxStore( TObjectManager& mgr,
                                     ::Bool_t metadata ) {
 
       // Check if we need to do anything:
       if( ( ! hasAuxStore( mgr ) ) && ( ! isAuxStore( mgr ) ) ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Get the branch name of the object in question:
@@ -2908,7 +2908,7 @@ namespace xAOD {
          if( itr == objects.end() ) {
             // Apparently there's no auxiliary object for this DV, so let's
             // give up:
-            return TReturnCode::kSuccess;
+            return StatusCode::SUCCESS;
          }
          auxMgr = itr->second;
          auxKey = key + "Aux.";
@@ -2948,7 +2948,7 @@ namespace xAOD {
                if( dynAuxMgr == objects.end() ) {
                   ::Error( "xAOD::TEvent::setAuxStore",
                            XAOD_MESSAGE( "Internal logic error detected" ) );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
                dynAuxMgr->second->getEntry( m_entry );
             }
@@ -2957,7 +2957,7 @@ namespace xAOD {
 
       // Stop here if we've set up an auxiliary store.
       if( auxMgr == &mgr ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Access the auxiliary base class of the object/vector:
@@ -3041,7 +3041,7 @@ namespace xAOD {
       }
 
       // We succeeded:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is used internally to set up the writing of the auxiliary
@@ -3057,7 +3057,7 @@ namespace xAOD {
    /// @returns <code>kTRUE</code> if the setup was successful, or
    ///         <code>kFALSE</code> if it was not
    ///
-   TReturnCode TEvent::putAux( ::TTree& outTree, TVirtualManager& vmgr,
+   StatusCode TEvent::putAux( ::TTree& outTree, TVirtualManager& vmgr,
                                ::Int_t basketSize, ::Int_t splitLevel,
                                ::Bool_t metadata ) {
 
@@ -3068,12 +3068,12 @@ namespace xAOD {
       TObjectManager* mgr = dynamic_cast< TObjectManager* >( &vmgr );
       if( ! mgr ) {
          // It's not an error any more when we don't get a TObjectManager.
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Check if we need to do anything here:
       if( ! mgr->holder()->getClass()->InheritsFrom( "SG::IAuxStoreIO" ) ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Get a pointer to the auxiliary store I/O interface:
@@ -3102,7 +3102,7 @@ namespace xAOD {
       // If there are no dynamic auxiliary variables in the object, return
       // right away:
       if( auxids.empty() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Decide what should be the prefix of all the dynamic branches:
@@ -3144,7 +3144,7 @@ namespace xAOD {
                ::Error( "xAOD::TEvent::putAux",
                         XAOD_MESSAGE( "No I/O type found for variable %s" ),
                         brName.c_str() );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
             const std::string brTypeName =
                Utils::getTypeName( *brType );
@@ -3166,7 +3166,7 @@ namespace xAOD {
                            XAOD_MESSAGE( "Type not known for variable \"%s\" "
                                          "of type \"%s\"" ),
                            brName.c_str(), brTypeName.c_str() );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
 
                // Create the full description of the variable for ROOT:
@@ -3194,7 +3194,7 @@ namespace xAOD {
                   *( auxmgr->holder()->getPtr() ) = 0;
                   delete auxmgr;
                   objects.erase( brName );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
                br = auxmgr->branch();
 
@@ -3212,7 +3212,7 @@ namespace xAOD {
                               XAOD_MESSAGE( "Dictionary not available for "
                                             "variable \"%s\" of type \"%s\"" ),
                               brName.c_str(), brTypeName.c_str() );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
                }
 
@@ -3243,7 +3243,7 @@ namespace xAOD {
                   *( auxmgr->holder()->getPtr() ) = 0;
                   delete auxmgr;
                   objects.erase( brName );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
                br = auxmgr->branch();
 
@@ -3287,7 +3287,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// Since the code needs to check in a few places whether a given object

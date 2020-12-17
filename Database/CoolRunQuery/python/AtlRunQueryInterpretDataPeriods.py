@@ -11,11 +11,11 @@ from PyUtils.Decorators import memoize
 
 
 import re,sys
-pat_last   = re.compile("(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
-pat_number = re.compile("\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
-pat_range  = re.compile("\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
-pat_short  = re.compile("(?:(?:\d{2})(\d{2})\.)?([a-zA-Z]+\d*)$")
-pshort     = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I) # 2015_periodA5
+pat_last   = re.compile(r"(?:l|la|las|last) (\d*)$")  # l(ast) NN runs
+pat_number = re.compile(r"\d{5,8}[+-]?$")  # run number (5-8 digits), possibly followed by a + or -
+pat_range  = re.compile(r"\d{5,8}-\d{5,8}$")  # range of run numbers (each 5-8 digits)
+pat_short  = re.compile(r"(?:(?:\d{2})(\d{2})\.)?([a-zA-Z]+\d*)$")
+pshort     = re.compile(r"(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I) # 2015_periodA5
 
 
 
@@ -57,19 +57,22 @@ def getListOfPeriodsFromOrdinateRange(begin, end, requiredProjectName, specialDa
     """
     requiredProjectName e.g. data15_13TeV, data15_cos, data15_hip, etc. . If None then it is required that the project name ends in TeV
     """
-    if begin>end: sys.exit(0)
+    if begin>end:
+        sys.exit(0)
     list_of_periods = []
 
     for p,full_name in getSortedAvailablePeriods():
         (year, period, ordcode, projname) = p
 
-        if requiredProjectName == None:
-            if not projname.endswith("TeV"): continue
+        if requiredProjectName is None:
+            if not projname.endswith("TeV"):
+                continue
         else:
-            if projname != requiredProjectName: continue
+            if projname != requiredProjectName:
+                continue
         
         if ordcode == 0: # no special VdM or AllYear stuff periods
-            if specialData != None:
+            if specialData is not None:
                 (vdmyear, vdmperiod, vdmsubperiod) = specialData
                 if year==vdmyear and (vdmperiod+vdmsubperiod)==period:
                     list_of_periods += [ (year, period, full_name) ]
@@ -93,9 +96,11 @@ def getDataPeriodsWithinRange( period_range ):
     m1 = pshort.match(period_range[0])
     m2 = pshort.match(period_range[1])
 
-    if m1==None or m2==None:
-        if m1==None: print ("Invalid specification of begin of range",period_range[0])
-        if m2==None: print ("Invalid specification of end of range",  period_range[1])
+    if m1 is None or m2 is None:
+        if m1 is None:
+            print ("Invalid specification of begin of range",period_range[0])
+        if m2 is None:
+            print ("Invalid specification of end of range",  period_range[1])
         sys.exit(0)
 
     m1 = m1.groupdict()
@@ -159,16 +164,16 @@ def GetRuns( arg ):
 
 
         # various AllYear versions
-        if not '.' in tag or tag.endswith(".All") or tag.endswith(".AllYear") or tag.endswith(".periodAllYear"):
+        if '.' not in tag or tag.endswith(".All") or tag.endswith(".AllYear") or tag.endswith(".periodAllYear"):
             #print ("Pattern 'AllYear'")
             allyear = 0
             projectName = None
             # no tag means AllYear
-            m = re.match("20(?P<year>\d{2})(.All|.AllYear|.periodAllYear)?$", tag, re.I)
+            m = re.match(r"20(?P<year>\d{2})(.All|.AllYear|.periodAllYear)?$", tag, re.I)
             if m:
                 allyear = int(m.groupdict()['year'])
             else:
-                m = re.match("(?P<proj>data(?P<year>\d{2})_.*?)(.All|.AllYear|.periodAllYear)?$", tag, re.I)
+                m = re.match(r"(?P<proj>data(?P<year>\d{2})_.*?)(.All|.AllYear|.periodAllYear)?$", tag, re.I)
                 if m:
                     allyear = int(m.groupdict()['year'])
                     projectName = m.groupdict()['proj']
@@ -191,18 +196,18 @@ def GetRuns( arg ):
 
 
 
-        m = re.match( "(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$", tag, re.I )
+        m = re.match( r"(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$", tag, re.I )
 
-        projPeriod = re.compile("(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I) # 2015_periodA5
+        #projPeriod = re.compile(r"(?P<first>(data|20)?(?P<year>\d{2})(_.*)?\.)?(period)?(?P<period>[a-zA-Z])(?P<subperiod>\d+)?$",re.I) # 2015_periodA5
 
 
         d = { 'projname' : None }
-        m = re.match( "20(?P<year>\d{2})\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
+        m = re.match( r"20(?P<year>\d{2})\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
         if m:
             #print ("Pattern '2015.(period)A1'")
             d.update( m.groupdict() )
         else:
-            m = re.match( "(?P<projname>data(?P<year>\d{2})_.*?)\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
+            m = re.match( r"(?P<projname>data(?P<year>\d{2})_.*?)\.(period)?(?P<period>[a-zA-Z]|VdM)(?P<subperiod>\d+)?$", tag, re.I )
             if m:
                 #print ("Pattern 'dataYY_TTT.(period)A1'")
                 d.update( m.groupdict() )
@@ -218,7 +223,7 @@ def GetRuns( arg ):
                 p1c = 10000*int(d['year']) + 100*(ord(d['period'].upper())-65) + d['subperiod']
                 if d['subperiod'] != 0:
                     p2c = p1c
-                else:    
+                else:
                     p2c = p1c+99
                 list_of_periods = getListOfPeriodsFromOrdinateRange(p1c, p2c, d['projname'])
             else:

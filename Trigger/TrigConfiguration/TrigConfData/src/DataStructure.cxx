@@ -178,6 +178,16 @@ TrigConf::DataStructure::getList(const std::string & pathToChild, bool ignoreIfM
 }
 
 
+std::optional<std::vector<TrigConf::DataStructure> >
+TrigConf::DataStructure::getList_optional(const std::string & pathToChild) const
+{
+   if(data().find(pathToChild) == data().not_found()) {
+      return std::nullopt;
+   }
+   return std::optional<std::vector<TrigConf::DataStructure> >(getList(pathToChild));
+}
+
+
 TrigConf::DataStructure
 TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreIfMissing) const
 {
@@ -197,6 +207,17 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
    }
    return { obj.get() };
 }
+
+
+std::optional<TrigConf::DataStructure>
+TrigConf::DataStructure::getObject_optional(const std::string & pathToChild) const
+{
+   if(data().find(pathToChild) == data().not_found()) {
+      return std::nullopt;
+   }
+   return std::optional<TrigConf::DataStructure>(getObject(pathToChild));
+}
+
 
 
 std::vector<std::string>

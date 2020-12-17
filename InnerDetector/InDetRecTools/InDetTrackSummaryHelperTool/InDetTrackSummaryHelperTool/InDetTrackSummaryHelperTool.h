@@ -58,6 +58,9 @@ namespace InDet {
         Input quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits in hitPattern.
     */
     using IExtendedTrackSummaryHelperTool::analyse;
+    using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
+    using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
+    
     virtual void analyse(
       const EventContext& ctx,
       const Trk::Track& track,
@@ -74,49 +77,40 @@ namespace InDet {
       const Trk::CompetingRIOsOnTrack* crot,
       const Trk::TrackStateOnSurface* tsos,
       std::vector<int>& information,
-      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final ;
+    /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const
+     * Trk::Track&, Trk::TrackSummary&)*/
 
-    virtual void analyse(
-      const Trk::Track& track,
-      const Trk::RIO_OnTrack* rot,
-      const Trk::TrackStateOnSurface* tsos,
-      std::vector<int>& information,
-      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
-    {
-      analyse(track, nullptr, rot, tsos, information, hitPattern);
-    }
+    virtual void addDetailedTrackSummary(const EventContext& ctx,
+                                         const Trk::Track&,
+                                         Trk::TrackSummary&) const override final;
 
-    virtual void analyse(
+    /** This method updates the expect... hit info*/
+    virtual void updateExpectedHitInfo(
+      const EventContext& ctx,
       const Trk::Track& track,
-      const Trk::CompetingRIOsOnTrack* crot,
-      const Trk::TrackStateOnSurface* tsos,
-      std::vector<int>& information,
-      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override
-    {
-      analyse(track, nullptr, crot, tsos, information, hitPattern);
-    }
+      Trk::TrackSummary& summary) const override final;
 
     /** Input : track, partHyp
         Output: Changes in information
-        This method first calls the method getListOfHits to isolate the relevant hits on the track before calling the method
-        performHoleSearchStepWise which then performs the actual hole search.
-        Additionally the Layers of the Pixel Detector which contribute measurements to the track are counted  
-        If problems occur, the information counters for Holes and PixelLayers are reset to -1 flagging them as not set.
+        This method first calls the method getListOfHits to isolate the relevant
+       hits on the track before calling the method performHoleSearchStepWise
+       which then performs the actual hole search. Additionally the Layers of
+       the Pixel Detector which contribute measurements to the track are counted
+        If problems occur, the information counters for Holes and PixelLayers
+       are reset to -1 flagging them as not set.
     */
-    virtual void searchForHoles(const Trk::Track& track, 
-                        std::vector<int>& information ,
-                        const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+    virtual void searchForHoles(
+      const Trk::Track& track,
+      std::vector<int>& information,
+      const Trk::ParticleHypothesis partHyp = Trk::pion) const override final;
 
-    /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    virtual void updateSharedHitCount(const Trk::Track& track,
-                                      const Trk::PRDtoTrackMap *prd_to_track_map,
-                                      Trk::TrackSummary& summary) const override;
-
-    /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    virtual void updateSharedHitCount(const Trk::Track& track,
-                                      Trk::TrackSummary& summary) const override {
-      updateSharedHitCount(track,nullptr,summary);
-    }
+    /** this method simply updaes the shared hit content - it is
+     * designed/optimised for track collection merging */
+    virtual void updateSharedHitCount(
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      Trk::TrackSummary& summary) const override final;
 
     /** this method simply updaes the electron PID content - it is
      * designed/optimised for track collection merging */
@@ -124,14 +118,7 @@ namespace InDet {
                                       std::vector<float>& eprob,
                                       float& dedx,
                                       int& nclus,
-                                      int& noverflowclus) const override;
-    /** This method updates the expect... hit info*/
-    virtual void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
-
-    /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
-
-    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const override;
-
+                                      int& noverflowclus) const override final;
 
   private:
     const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&
@@ -185,9 +172,6 @@ namespace InDet {
 
     SG::ReadHandleKey<Trk::ClusterSplitProbabilityContainer>   m_clusterSplitProbContainer
        {this, "ClusterSplitProbabilityName", "",""};
-
-    Gaudi::Property<std::vector<std::string> >                 m_renounce
-       {this, "RenounceInputHandles", {},""};
 
     BooleanProperty m_usePixel{this, "usePixel", true};
     BooleanProperty m_useSCT{this, "useSCT", true};

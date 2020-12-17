@@ -1,0 +1,83 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file StoreGate/ShallowCopyDecorDeps.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Nov, 2020
+ * @brief Helper to propagate decoration dependencies to a shallow copy.
+ */
+
+
+namespace SG {
+
+
+/** 
+ * @brief Auto-declaring Property constructor.
+ * @param owner Owning component.
+ * @param name Name of the Property.
+ * @param l Default list of decorations to propagate.
+ * @param doc Documentation string.
+ */
+template <class T>
+template <class OWNER>
+ShallowCopyDecorDeps<T>::ShallowCopyDecorDeps (OWNER* owner,
+                                               const std::string& name,
+                                               std::initializer_list<std::string> l,
+                                               const std::string& doc /*= ""*/)
+  : m_readKeys (owner, name + "ReadKeys", {}, "[Internal property]"),
+    m_writeKeys (owner, name, l, doc)
+{
+}
+
+
+/**
+ * @brief Initialize this property.  Call this from initialize().
+ * @param origKey Key for the source of the shallow copy.
+ * @param copyKey Key for the result of the shallow copy.
+ * @param used If false, then this handle is not to be used.
+ *             Instead of normal initialization, the keys will be cleared.
+ */
+template <class T>
+StatusCode
+ShallowCopyDecorDeps<T>::initialize (const SG::ReadHandleKey<T>& origKey,
+                                     const SG::WriteHandleKey<T>& copyKey,
+                                     bool used /*= true*/)
+{
+  m_readKeys.clear();
+  if (used) {
+    for (SG::WriteHandleKey<T>& k : m_writeKeys) {
+      m_readKeys.emplace_back (origKey.key() + "." + k.key());
+      k = copyKey.key() + "." + k.key();
+    }
+    CHECK( m_readKeys.initialize() );
+    CHECK( m_writeKeys.initialize() );
+  }
+  else {
+    m_writeKeys.clear();
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+/**
+ * @brief Create alias for the decorations, linked to the shallow copy.
+ * @param origKey Key for the source of the shallow copy.
+ * @param ctx The current EventContext.
+ *
+ * Call this after the shallow copy has been recorded in SG.
+ */
+template <class T>
+StatusCode
+ShallowCopyDecorDeps<T>::linkDecors (const SG::ReadHandleKey<T>& origKey,
+                                     const EventContext& ctx /*= Gaudi::Hive::currentContext()*/) const
+{
+  SG::ReadHandle<T> orig (origKey, ctx);
+  for (const SG::WriteHandleKey<T>& k : m_writeKeys) {
+    CHECK( orig.alias (k) );
+  }
+  return StatusCode::SUCCESS;
+}
+
+
+} // namespace SG

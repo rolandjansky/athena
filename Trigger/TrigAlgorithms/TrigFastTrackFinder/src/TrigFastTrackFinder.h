@@ -78,7 +78,7 @@ class TrigFastTrackFinder : public HLT::FexAlgo {
 
   StatusCode findTracks(InDet::SiTrackMakerEventData_xk &event_data,
                         const TrigRoiDescriptor& roi,
-                        const TrackCollection& inputTracks,
+                        const TrackCollection* inputTracks,
                         TrackCollection& outputTracks,
                         const EventContext& ctx) const;
 
@@ -187,7 +187,7 @@ protected:
   // Large Radius Tracking
   bool m_LRTmode;
   
-
+  std::string m_trigseedML_LUT;//ML-based track seeding LUT name
 };
 
 #endif // not TRIGFASTTRACKFINDER_TRIGFASTTRACKFINDER_H

@@ -630,6 +630,10 @@
   <x title="p_{T} [GeV]" n="25" lo="0" hi="50"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
+<h id="efficiency_vs_pt_high" type="TEfficiency" title="Fraction of reco-matched truth track">
+  <x title="p_{T} [GeV]" n="29" lo="50" hi="1500"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 <h id="efficiency_vs_pt_low" type="TEfficiency" title="Fraction of reco-matched truth track">
   <x title="p_{T} [GeV]" n="52" lo="0.4" hi="3"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
@@ -639,7 +643,7 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_d0" type="TEfficiency" title="Fraction of reco-matched truth track">
-  <x title="d_{0} [mm]" n="100" lo="-25" hi="25"/>
+  <x title="d_{0} [mm]" n="80" lo="-10" hi="10"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_z0" type="TEfficiency" title="Fraction of reco-matched truth track">
@@ -663,11 +667,19 @@
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodR" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
-  <x title="prod_R [mm]" n="100" lo="0" hi="1500"/>
+  <x title="prod_R [mm]" n="65" lo="0" hi="650"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="efficiency_vs_prodR_extended" type="TEfficiency" title="Track Efficiency vs Production Vertex Radius">
+  <x title="prod_R [mm]" n="40" lo="0" hi="1200"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="efficiency_vs_prodZ" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
-  <x title="prod_Z [mm]" n="100" lo="0" hi="2000"/>
+  <x title="prod_Z [mm]" n="50" lo="0" hi="300"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="efficiency_vs_prodZ_extended" type="TEfficiency" title="Track Efficiency vs Production Vertex Z">
+  <x title="prod_Z [mm]" n="40" lo="0" hi="1000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <!-- Fake rate plots -->
@@ -814,7 +826,31 @@
 </h>
 <h id="vx_hs_truth_trans_reso_vs_PU" type="TH2" title="Truth Transverse Resolution vs. PU (2D)">
   <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
-  <y title="|Reco-truth| transverse resolution [mm]" n="20" lo="0.0" hi="0.02"/>
+   <y title="|Reco-truth| transverse resolution [mm]" n="40" lo="-0.08" hi="0.08"/>
+</h>
+<h id="vx_hs_truth_long_pull_vs_PU" type="TH2" title="Truth Longitudinal Pull vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="100" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_trans_pull_vs_PU" type="TH2" title="Truth Transverse Pull vs. PU (2D)">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco-truth| transverse resolution [mm]" n="100" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_long_pull_vs_nTrk" type="TH2" title="Truth Longitudinal Pull vs. nTrk (2D)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="100" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_trans_pull_vs_nTrk" type="TH2" title="Truth Transverse Pull vs. nTrk (2D)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco-truth| transverse resolution [mm]" n="100" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_hs_truth_long_reso_vs_nTrk" type="TH2" title="Truth Longitudinal Resolution vs. nTrk (2D)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="40" lo="-0.08" hi="0.08"/>
+</h>
+<h id="vx_hs_truth_trans_reso_vs_nTrk" type="TH2" title="Truth Transverse Resolution vs. nTrk (2D)">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco-truth| longitudinal resolution [mm]" n="40" lo="-0.08" hi="0.08"/>
 </h>
 <h id="vx_hs_truth_long_reso" type="TH1" title="Truth Longitudinal Resolution">
   <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
@@ -824,6 +860,86 @@
   <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
   <y title="|Reco-truth| transverse resolution [mm]" lo="0.0" hi="1.0"/>
 </h>
+
+
+<h id="vx_TYPE_truth_reso_z_vs_PU" type="TH2" title="Vertex Resolution vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_z-truth_z| [mm]" n="60" lo="-0.2" hi="0.2"/>
+</h>
+<h id="vx_TYPE_truth_reso_x_vs_PU" type="TH2" title="Vertex Resolution vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_x-truth_x| [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_TYPE_truth_reso_y_vs_PU" type="TH2" title="Vertex Resolution vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_y-truth_y| [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_TYPE_truth_pull_z_vs_PU" type="TH2" title="Vertex Pull vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_z-truth_z|/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_TYPE_truth_pull_x_vs_PU" type="TH2" title="Vertex Pull vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_x-truth_x|/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_TYPE_truth_pull_y_vs_PU" type="TH2" title="Vertex Pull vs PU Density">
+  <x title="Local PU density [vertices/mm]" n="4" lo="0.0" hi="2.0"/>
+  <y title="|Reco_y-truth_y|/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+
+<h id="vx_TYPE_truth_reso_z_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_z-truth_z| [mm]" n="60" lo="-0.2" hi="0.2"/>
+</h>
+<h id="vx_TYPE_truth_reso_x_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_x-truth_x| [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_TYPE_truth_reso_y_vs_nTrk" type="TH2" title="Vertex Resolution vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_y-truth_y| [mm]" n="60" lo="-0.1" hi="0.1"/>
+</h>
+<h id="vx_TYPE_truth_pull_z_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_z-truth_z|/err_z" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_TYPE_truth_pull_x_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_x-truth_x|/err_x" n="60" lo="-5.0" hi="5.0"/>
+</h>
+<h id="vx_TYPE_truth_pull_y_vs_nTrk" type="TH2" title="Vertex Pull vs Number of Tracks">
+  <x title="Number of Tracks" n="50" lo="0.0" hi="100"/>
+  <y title="|Reco_y-truth_y|/err_y" n="60" lo="-5.0" hi="5.0"/>
+</h>
+
+
+
+<h id="vx_TYPE_z_pull" type="TH1" title="Vertex Z Pull">
+  <x title="|Reco_z-Truth_z|/Err_z" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_TYPE_y_pull" type="TH1" title="Vertex Y Pull">
+  <x title="|Reco_y-Truth_y|/Err_y" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_TYPE_x_pull" type="TH1" title="Vertex X Pull">
+  <x title="|Reco_x-Truth_x|/Err_x" n="25" lo="-5.0" hi="5.0"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_TYPE_z_reso" type="TH1" title="Vertex Z Resolution">
+  <x title="|Reco_z-Truth_z|" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_TYPE_y_reso" type="TH1" title="Vertex Y Resolution">
+  <x title="|Reco_y-Truth_y|" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+<h id="vx_TYPE_x_reso" type="TH1" title="Vertex X Resolution">
+  <x title="|Reco_x-Truth_x|" n="60" lo="-0.2" hi="0.2"/>
+  <y title="Number of Enries"/>
+</h>
+
+
 <h id="vx_nTracks" type="TH1F" title="Number of tracks at vertex">
   <x title="Number of Tracks" n="150" lo="0" hi="150"/>
   <y title="Entries"/>
@@ -1906,4 +2022,13 @@
 <h id="fakerate_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
   <x title="jet_{p_{T}} [GeV]" n="20" lo="100.0" hi="5000."/>
   <y title="Fake Rate" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="ntracks_vs_mu" type="TH2" title="Number of tracks versus #GT#mu#LT">
+  <x title="#GT#mu#LT" n="100" lo="0.0" hi="&EXPMU;"/>
+  <y title="Number of Tracks" n="200" lo="0.0" hi="&EXPTRK;"/>
+</h> 
+<h id="ntracks_vs_nvertices" type="TH2" title="Number of tracks versus number ofvertices">
+  <x title="Number of Vertices" n="100" lo="0.0" hi="&EXPMU;"/>
+  <y title="Number of Tracks" n="200" lo="0.0" hi="&EXPTRK;"/>
 </h>

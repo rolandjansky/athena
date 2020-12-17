@@ -6,7 +6,6 @@
 @brief Helper functions for Run 3 Tile monitoring algorithm configuration
 '''
 from TileCalibBlobObjs.Classes import TileCalibUtils as Tile
-
 _cellNameEB = ['E3', 'E4', 'D4', 'D4', 'C10', 'C10', 'A12', 'A12', 'B11', 'B11', 'A13', 'A13',
                'E1', 'E2', 'B12', 'B12', 'D5', 'D5', 'E3*', 'E4*', 'A14', 'A14', 'B13', 'B13',
                '',   '',    '',    '',   '',   '', 'B14', 'A15', 'A15',    '',    '', 'B14',
@@ -192,10 +191,10 @@ def getLabels(labels, partition = ''):
 
 
 def getCellNameTMDB(partition, channel):
-        return _cellNameTMDB_LB[channel] if partition.startswith('L') else _cellNameTMDB_EB[channel]
+    return _cellNameTMDB_LB[channel] if partition.startswith('L') else _cellNameTMDB_EB[channel]
 
 def getCellChannelTMDB_Labels(partition):
-        return _cellNameTMDB_LB if partition.startswith('L') else _cellNameTMDB_EB
+    return _cellNameTMDB_LB if partition.startswith('L') else _cellNameTMDB_EB
 
 
 def addValueVsModuleAndChannelMaps(group, name, title, path, subDirectory = False, type = 'TH2D', value = '', trigger = '', run = ''):
@@ -314,7 +313,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
                                 perGain = perGain, allPartitions = allPartitions)
 
-    array = helper.addArray(dimensions, algorithm, name)
+    array = helper.addArray(dimensions, algorithm, name, topPath = path)
     for postfix, tool in array.Tools.items():
 
         kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = perPartition,
@@ -327,11 +326,11 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
         fullName = xvalue + ',' + yvalue + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
 
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
+        subPath = getTileHistogramPath(path = '', subDirectory = subDirectory, **kwargs)
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
-                              xlabels = nxlabels, ylabels = nylabels, 
+        tool.defineHistogram( fullName, path = subPath, type = type, title = fullTitle,
+                              xlabels = nxlabels, ylabels = nylabels,
                               xbins = xbins, xmin = xmin, xmax = xmax,
                               ybins = ybins, ymin = ymin, ymax = ymax, weight = weight)
 
@@ -340,7 +339,7 @@ def addTile2DHistogramsArray(helper, algorithm, name = '', xvalue = '', yvalue =
 
 def addTileModuleChannelMapsArray(helper, algorithm, name, title, path, weight = '',
                                   subDirectory = False, type = 'TH2D', value = '',
-                                  run = '', triggers = [], perGain = False, separator = ''):
+                                  run = '', triggers = [], perGain = False, separator = '_'):
     '''
     This function configures 2D histograms (maps) with Tile monitored value vs module and channel per partition.
 
@@ -372,7 +371,7 @@ def addTileModuleChannelMapsArray(helper, algorithm, name, title, path, weight =
 
 def addTileModuleCorrelionMapsArray(helper, algorithm, name, title, path, weight = '',
                                     subDirectory = False, type = 'TH2D', value = '', run = '',
-                                    triggers = [], perGain = False, allPartitions = False, separator = ''):
+                                    triggers = [], perGain = False, allPartitions = False, separator = '_'):
     '''
     This function configures 2D histograms (maps) with Tile monitored value vs module and channel per partition.
 
@@ -406,7 +405,7 @@ def addTileModuleCorrelionMapsArray(helper, algorithm, name, title, path, weight
 
 def addTileModulePartitionMapsArray(helper, algorithm, name, title, path, weight = '',
                                     type = 'TH2D', value = '', run = '', triggers = [],
-                                    perGain = False, separator = ''):
+                                    perGain = False, separator = '_'):
     '''
     This function configures 2D histograms (maps) with Tile monitored value vs module and partition.
 
@@ -439,7 +438,7 @@ def addTileModulePartitionMapsArray(helper, algorithm, name, title, path, weight
 
 def addTileModuleDigitizerMapsArray(helper, algorithm, name, title, path, weight = '',
                                     subDirectory = False, type = 'TH2D', value = '',
-                                    run = '', triggers = [], perGain = False, separator = ''):
+                                    run = '', triggers = [], perGain = False, separator = '_'):
     '''
     This function configures 2D histograms (maps) with Tile monitored value vs module and digitizer per partition.
 
@@ -470,7 +469,7 @@ def addTileModuleDigitizerMapsArray(helper, algorithm, name, title, path, weight
 
 
 def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', type = 'TH2D', value = '',
-                           run = '', triggers = [], perSample = True, perGain = False, separator = '',
+                           run = '', triggers = [], perSample = True, perGain = False, separator = '_',
                            etaTitle= '#eta', etabins = 21, etamin = -2.025, etamax = 2.025,
                            phiTitle = '#phi', phibins = Tile.MAX_DRAWER, phimin = -3.15, phimax = 3.15):
     '''
@@ -505,7 +504,7 @@ def addTileEtaPhiMapsArray(helper, algorithm, name, title, path, weight = '', ty
 
 
 def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '', path = '',
-                             xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
+                             weight = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '', triggers = [],
                              subDirectory = False, perPartition = True, perSample = False, opt = '',
                              perGain = False, xlabels = (), allPartitions = False, separator = '_' ):
     '''
@@ -536,7 +535,7 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
     dimensions = _getDimensions(triggers = triggers, perPartition = perPartition, perSample = perSample,
                                 perGain = perGain, allPartitions = allPartitions)
 
-    array = helper.addArray(dimensions, algorithm, name)
+    array = helper.addArray(dimensions, algorithm, name, topPath = path)
     for postfix, tool in array.Tools.items():
 
         kwargs = _parsePostfix(postfix, triggers = triggers, perPartition = perPartition,
@@ -548,10 +547,10 @@ def addTile1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = 
         fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name = name,separator = separator, **kwargs)
 
-        fullPath = getTileHistogramPath(path = path, subDirectory = subDirectory, **kwargs)
+        subPath = getTileHistogramPath(path = '', subDirectory = subDirectory, **kwargs)
         fullTitle = getTileHistogramTitle(title = title, run = run, **kwargs)
 
-        tool.defineHistogram( fullName, path = fullPath, type = type, title = fullTitle,
+        tool.defineHistogram( fullName, path = subPath, weight = weight, type = type, title = fullTitle,
                               xlabels = nxlabels, xbins = xbins, xmin = xmin, xmax = xmax, opt = opt)
 
     return array
@@ -589,44 +588,49 @@ def addTileModuleArray(helper, algorithm, name, title, path,
 
 
 def addTileTMDB_2DHistogramsArray(helper, algorithm, name = '', value = '',
-                                    title = '', path = '', type = 'TH2D', run = ''):
+                                  title = '', path = '', type = 'TH2D', run = ''):
 
-    array = helper.addArray([int(Tile.MAX_ROS - 1)], algorithm, name)
+    array = helper.addArray([int(Tile.MAX_ROS - 1)], algorithm, name, topPath = path)
     for postfix, tool in array.Tools.items():
         ros = int(postfix.split('_').pop()) + 1
-        
+
         partition = getPartitionName(ros)
         nxlabels = getModuleLabels(partition)
         nylabels = getCellChannelTMDB_Labels(partition)
         ybins = len(nylabels)
-                    
+
         fullName = 'module,channel' + (',' + value if 'Profile' in type else '') + ';'
         fullName += getTileHistogramName(name, partition = partition)
-        
+
         fullTitle = getTileHistogramTitle(title, run = run, partition = partition)
-        
-        tool.defineHistogram( fullName, path = path, type = type, title = fullTitle,
+
+        tool.defineHistogram( fullName, path = '', type = type, title = fullTitle,
                                 xlabels = nxlabels, ylabels = nylabels,
                                 xbins = Tile.MAX_DRAWER, xmin = -0.5, xmax = Tile.MAX_DRAWER - 0.5,
                                 ybins = ybins, ymin = -0.5, ymax = ybins - 0.5)
 
 
-
 def addTileTMDB_1DHistogramsArray(helper, algorithm, name = '', xvalue = '', value = '', title = '',
-                                path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = ''):
+                                  path = '', xbins = 0, xmin = 0, xmax = 0, type = 'TH1D', run = '',
+                                  perModule = False):
 
     for ros in range(1, Tile.MAX_ROS):
         partition = getPartitionName(ros)
-        histName = "{}_{}".format(name, partition)
+        baseName = "{}_{}".format(name, partition)
         nChannels = len(_cellNameTMDB_LB) if partition.startswith('L') else len(_cellNameTMDB_EB)
-        array = helper.addArray([nChannels], algorithm,  histName)
+        dimensions = [int(Tile.MAX_DRAWER), nChannels] if perModule else [nChannels]
+        array = helper.addArray(dimensions, algorithm,  baseName, topPath = path)
         for postfix, tool in array.Tools.items():
-            channel = int(postfix.split('_').pop())
+            elements = postfix.split('_')
+            channel = int(elements.pop())
+            cell = getCellNameTMDB(partition, channel)
+            module = '{}'.format(int(elements.pop()) + 1).rjust(2,'0') if perModule else ''
 
-            fullName = xvalue + (',' + value if 'Profile' in type else '') + ';'
-            fullName += histName + '_' + getCellNameTMDB(partition, channel)
+            fullName = '{}{};{}{}_{}'.format(xvalue, (',' + value if 'Profile' in type else ''),
+                                             baseName, (module if perModule else ''), cell)
 
-            fullTitle = getTileHistogramTitle(title, run = run, partition = partition)
+            moduleOrPartition = 'Module ' + partition + module if perModule else 'Partition ' + partition
+            fullTitle = 'Run {} {} TMDB {}: {}'.format(run, moduleOrPartition, cell, title)
 
-            tool.defineHistogram( fullName, path = path, type = type, title = fullTitle,
+            tool.defineHistogram(fullName, path = '', type = type, title = fullTitle,
                                  xbins = xbins, xmin = xmin, xmax = xmax)

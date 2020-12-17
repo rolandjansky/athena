@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local includes
 #include "G4AtlasAlg.h"
 #include "G4AtlasFluxRecorder.h"
+#include "G4AtlasAlg/G4AtlasActionInitialization.h"
 
 #include "AthenaKernel/RNGWrapper.h"
 
@@ -121,11 +122,13 @@ void G4AtlasAlg::initializeOnce()
     // Worker Thread initialization used to create worker run manager on demand.
     std::unique_ptr<G4AtlasUserWorkerThreadInitialization> workerInit =
       std::make_unique<G4AtlasUserWorkerThreadInitialization>();
-    workerInit->SetUserActionSvc( m_userActionSvc.typeAndName() );
     workerInit->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     workerInit->SetSDMasterTool( m_senDetTool.typeAndName() );
     workerInit->SetFastSimMasterTool( m_fastSimTool.typeAndName() );
     runMgr->SetUserInitialization( workerInit.release() );
+    std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
+      std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
+    runMgr->SetUserInitialization(actionInitialization.release());
 #else
     throw std::runtime_error("Trying to use multi-threading in non-MT build!");
 #endif
@@ -136,11 +139,13 @@ void G4AtlasAlg::initializeOnce()
     m_physListSvc->SetPhysicsList();
     runMgr->SetRecordFlux( m_recordFlux, std::make_unique<G4AtlasFluxRecorder>() );
     runMgr->SetLogLevel( int(msg().level()) ); // Synch log levels
-    runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
     runMgr->SetDetGeoSvc( m_detGeoSvc.typeAndName() );
     runMgr->SetSDMasterTool(m_senDetTool.typeAndName() );
     runMgr->SetFastSimMasterTool(m_fastSimTool.typeAndName() );
     runMgr->SetPhysListSvc(m_physListSvc.typeAndName() );
+    std::unique_ptr<G4AtlasActionInitialization> actionInitialization =
+      std::make_unique<G4AtlasActionInitialization>(&*m_userActionSvc);
+    runMgr->SetUserInitialization(actionInitialization.release());
   }
 
   // G4 user interface commands

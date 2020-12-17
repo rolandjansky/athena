@@ -1,14 +1,13 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef STOREGATEBINDINGS_STOREGATEBINDINGSDICT_H 
 #define STOREGATEBINDINGS_STOREGATEBINDINGSDICT_H  
 
 #include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/StoreGate.h"
 
 struct _object;
 typedef _object PyObject;

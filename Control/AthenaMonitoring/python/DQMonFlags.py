@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file DataQualityTools/python/DQMonFlags.py
@@ -418,7 +418,7 @@ class doNewMonitoring(JobProperty):
     """ Global switch for monitoring """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=False
+    StoredValue=True
 list+=[doNewMonitoring]
 
 ##-----------------------------------------------------------------------------

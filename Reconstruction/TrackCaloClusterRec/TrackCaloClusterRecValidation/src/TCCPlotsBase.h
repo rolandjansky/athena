@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TCCPLOTSBASE_H
 #define TRACKCALOCLUSTERREC_TRACKCALOCLUSTERRECVALIDATION_TCCPLOTSBASE_H
 
 #include "TrkValHistUtils/PlotBase.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include "xAODBase/IParticle.h"
 #include "AthenaKernel/MsgStreamMember.h"
 

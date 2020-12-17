@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCoudeAbsorbers.h"
@@ -8,7 +8,7 @@ LArCoudeAbsorbers* LArCoudeAbsorbers::s_instance=nullptr;
 
 PhysicalVolumeAccessor* LArCoudeAbsorbers::s_theCoudes=nullptr;
 
-LArCoudeAbsorbers*  LArCoudeAbsorbers::GetInstance(std::string strDetector)
+LArCoudeAbsorbers*  LArCoudeAbsorbers::GetInstance(const std::string& strDetector)
 {
   if (s_instance==nullptr) {
     s_instance = new LArCoudeAbsorbers(strDetector);
@@ -36,19 +36,11 @@ LArCoudeAbsorbers::LArCoudeAbsorbers(std::string strDetector)
     }
 
   m_filled=false;
-  //        std::cout << " *** List of Fold Absorbers " << std::endl;
   for (int stackid=0; stackid<15; stackid++) {
     for (int cellid=0; cellid<1024; cellid++) {
       m_xcent[cellid][stackid] = XCentCoude(stackid,cellid);
       m_ycent[cellid][stackid] = YCentCoude(stackid,cellid);
       m_phirot[cellid][stackid] = PhiRot(stackid,cellid);
-      //            std::cout << "cell,stack,x,y,phirot "
-      //                      << cellid << " "
-      //                      << stackid << " "
-      //                      << m_xcent[cellid][stackid] << " "
-      //                      << m_ycent[cellid][stackid] << " "
-      //                      << m_phirot[cellid][stackid]
-      //                      <<std::endl;
     }
   }
   m_filled=true;

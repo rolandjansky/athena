@@ -163,4 +163,29 @@ namespace FlavorTagDiscriminants {
 
   }
 
+std::set<std::string> BTagMuonAugmenter::getDecoratorKeys() const {
+  const auto& type_registry = SG::AuxTypeRegistry::instance();
+  std::set<std::string> keys;
+  for (const auto& auxid: {
+    m_dec_muon_isDefaults.auxid(),
+    m_dec_muon_pt.auxid(),
+    m_dec_muon_dR.auxid(),
+    m_dec_muon_eta.auxid(),
+    m_dec_muon_phi.auxid(),
+    m_dec_muon_qOverPratio.auxid(),
+    m_dec_muon_mombalsignif.auxid(),
+    m_dec_muon_scatneighsignif.auxid(),
+    m_dec_muon_pTrel.auxid(),
+    m_dec_muon_ip3d_d0.auxid(),
+    m_dec_muon_ip3d_z0.auxid(),
+    m_dec_muon_ip3d_d0_significance.auxid(),
+    m_dec_muon_ip3d_z0_significance.auxid(),
+    m_dec_muon_ip3d_sigma_d0.auxid(),
+    m_dec_muon_ip3d_sigma_z0.auxid(),
+    m_dec_muon_link.auxid()}) {
+    keys.insert(type_registry.getName(auxid));
+  }
+  return keys;
+}
+
 }

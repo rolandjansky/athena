@@ -9,6 +9,11 @@
 #ifndef TRKSURFACES_SURFACE_H
 #define TRKSURFACES_SURFACE_H
 
+// Amg
+// Ensure Eigen plugin comes first
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
+
 // Trk
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkDetDescrUtils/Intersection.h"
@@ -22,9 +27,6 @@
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkSurfaces/BoundaryCheck.h"
 #include "TrkSurfaces/DistanceSolution.h"
-// Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 // Identifier
 #include "Identifier/Identifier.h"
 
@@ -130,7 +132,7 @@ public:
   virtual bool operator==(const Surface& sf) const = 0;
 
   /**Non-equality operator*/
-  virtual bool operator!=(const Surface& sf) const;
+  bool operator!=(const Surface& sf) const;
 
   /**Implicit constructor - uses the copy constructor */
   virtual Surface* clone() const = 0;
@@ -447,12 +449,13 @@ protected:
 
   /** Private members are in principle implemented as pointers to
    * objects for easy checks if they are already declared or not */
-  std::unique_ptr<Amg::Transform3D>
-    m_transform; //!< Transform3D to orient surface w.r.t to global frame
-  CxxUtils::CachedUniquePtr<Amg::Vector3D>
-    m_center; //!< center position of the surface
-  CxxUtils::CachedUniquePtr<Amg::Vector3D>
-    m_normal; //!< normal vector of the surface
+
+  //!< Transform3D to orient surface w.r.t to global frame
+  std::unique_ptr<Amg::Transform3D> m_transform;
+  //!< center position of the surface
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;
+  //!< normal vector of the surface
+  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;
 
   /** Pointers to the a TrkDetElementBase */
   const TrkDetElementBase* m_associatedDetElement;
@@ -473,7 +476,7 @@ protected:
   SurfaceOwner m_owner;
 
   /**Tolerance for being on Surface */
-  const static double s_onSurfaceTolerance;
+  static constexpr double s_onSurfaceTolerance = 10e-5; // 0.1 * micron
 #ifndef NDEBUG
   /** number of objects of this type in memory - needed for EDM monitor*/
   static std::atomic<unsigned int> s_numberOfInstantiations;

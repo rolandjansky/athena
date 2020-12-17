@@ -45,8 +45,6 @@
 #include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "GeoPrimitives/GeoPrimitives.h"
-
 #include "GaudiKernel/SystemOfUnits.h"
 
 

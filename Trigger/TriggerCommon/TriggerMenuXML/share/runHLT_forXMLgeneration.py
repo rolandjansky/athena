@@ -7,6 +7,10 @@ log = logging.getLogger('runHLT_forXMLgeneration.py')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+
+# Running Run-2 Trigger configuration
+ConfigFlags.Trigger.EDMVersion = 2
 
 # Input file is only needed so that TileCal picks up the correct cabling according to the year
 athenaCommonFlags.FilesInput=["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1"]

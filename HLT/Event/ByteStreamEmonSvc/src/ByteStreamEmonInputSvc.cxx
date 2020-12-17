@@ -34,6 +34,8 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/preprocessor/repetition.hpp>
 
+#include <memory>
+
 namespace {
 
     // pure madness...
@@ -155,7 +157,7 @@ bool ByteStreamEmonInputSvc::getIterator()
     delete m_provider;
     m_provider = nullptr;
 
-    std::auto_ptr<emon::SamplingAddress> address;
+    std::unique_ptr<emon::SamplingAddress> address;
 
     if(m_key_count > 0) {
         address.reset(new emon::SamplingAddress(m_key, m_key_count));

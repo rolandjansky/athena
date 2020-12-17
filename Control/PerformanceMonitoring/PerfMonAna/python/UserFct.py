@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: UserFct.py
 # @purpose: classes to allow users to specialize (and load) filtering functions
@@ -21,7 +21,7 @@ class PluginFct:
 class FilterFct:
     __sharedState = {
         ## default selector: selects everything
-        PluginFct.Name : lambda x: x != None
+        PluginFct.Name : lambda x: x is not None
         }
 
     def __init__(self):
@@ -32,7 +32,7 @@ class FilterFct:
 
     def setFilter(self, fct):
         self.__sharedState[PluginFct.Name] = fct
-        
+
 def loadFilterFct( uri ):
     """Load and inspect a 'URI'-like resource. If this URI looks like a file,
     then it will be loaded and inspected for any function whose name is
@@ -61,6 +61,6 @@ def loadFilterFct( uri ):
         def userFct (m):
             return eval (uri)
         filterFct.setFilter( userFct )
-        
+
     return filterFct
-       
+

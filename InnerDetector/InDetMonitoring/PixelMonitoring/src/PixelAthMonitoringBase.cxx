@@ -7,7 +7,7 @@
 
 //////////////////////////////////////////////
 ///
-/// helper class to accumulate points to fill a 2D plot with
+/// helper class to accumulate points to fill a 2D per-module plot with
 ///
 void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Identifier& id,
 						  const PixelID* pid, float value ) {
@@ -46,6 +46,62 @@ void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Id
 
 //////////////////////////////////////////////
 ///
+/// helper class to accumulate points to fill a 2D per-FE plot with
+///
+void PixelAthMonitoringBase::VecAccumulator2DMap::add( const int layer, const Identifier& id,
+						       const PixelID* pid, int iFE, float value ) {
+
+  // value
+  m_val[layer].push_back(value);
+
+  // for old pixel see https://twiki.cern.ch/twiki/pub/Atlas/PixelCOOLoffline/pixel_modules_sketch.png
+  // 
+  // phi (Y) coordinate
+  if ( layer == PixLayers::kIBL || layer == PixLayers::kDBMC || layer == PixLayers::kDBMA )
+    m_pm[layer].push_back( pid->phi_module(id) );
+  else {
+    if ( (layer == PixLayers::kECA || layer == PixLayers::kECC) && ( pid->phi_module(id) % 2 == 0 ) ) {
+      // even disk modules
+      m_pm[layer].push_back( pid->phi_module(id)*2 + iFE/8 );
+    } else { 
+      m_pm[layer].push_back( pid->phi_module(id)*2 + 1 - iFE/8 );
+    }
+  }
+  // eta (X) coordinate
+  int ld = pid->layer_disk(id);
+  int em(0);
+  // endcaps/DBM
+  if ( layer == PixLayers::kDBMC || layer == PixLayers::kDBMA ) em = ld;
+  else {
+    em = ld * 8;
+    if (iFE<8) em+= ( 7 - iFE%8 ); 
+    else em+= iFE%8; 
+  } 
+  // barrel
+  //
+  if (pid->barrel_ec(id) == 0) { 
+    if (ld == 0) {  //ibl
+      em = pid->eta_module(id);
+      int emf;
+      if (em < -6) {
+	emf = em - 6;
+      } else if (em > -7 && em < 6) {
+	emf = 2 * em + iFE;
+      } else {
+	emf = em + 6;
+      }
+      em = emf;
+    } else {
+      em = pid->eta_module(id) * 8 - 4;
+      if (iFE<8) em+= ( 7 - iFE%8 );
+      else em+= iFE%8; 
+    }
+  } // end barrel
+  m_em[layer].push_back(em);
+}
+
+//////////////////////////////////////////////
+///
 /// take VecAccumulator2DMap and fill the corresponding group
 ///
 void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const {
@@ -63,14 +119,18 @@ void PixelAthMonitoringBase::fill2DProfLayerAccum( const VecAccumulator2DMap& ac
 ///
 /// filling 1DProf per-lumi per-layer histograms ["ECA","ECC","B0","B1","B2","IBL","DBMA","DBMC"]
 ///
-void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values) const {
+void PixelAthMonitoringBase::fill1DProfLumiLayers( const std::string& prof1Dname, int lumiblock, float* values, int nlayers) const {
   ATH_MSG_VERBOSE( "in fill1DProfLumiLayers()" );
 
   // Define the monitored variables
   auto lb = Monitored::Scalar<int>( prof1Dname + "_lb", lumiblock );
   auto val = Monitored::Scalar<float>( prof1Dname + "_val", 1.0);
 
-  for (int i = 0; i < PixLayers::COUNT; i++) {
+  int i_start = 0;
+  int i_end   = PixLayers::COUNT;
+  if (nlayers == PixLayers::NFEI3LAYERS) i_end = nlayers;
+  if (nlayers == PixLayers::COUNT - PixLayers::NFEI3LAYERS) i_start = PixLayers::NFEI3LAYERS;
+  for (int i = i_start; i < i_end; i++) {
     val = values[i];
     fill( pixLayersLabel[i], lb, val);
   }
@@ -124,7 +184,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       // in the same plot 
       // the shift (b-1)*8 applies per disk counter b
       // (there are in total 8 sectors/disk)
-      auto pospp0x = Monitored::Scalar<int>( pospp0varx, (a-1)/6 + (b-1)*8 + 1);
+      auto pospp0x = Monitored::Scalar<int>( pospp0varx, a/6 + b*8);
       auto posx    = Monitored::Scalar<int>( posvarx, b);
       auto valp    = Monitored::Scalar<float>( valvarp, pixarrays.DA[a][b]);
       auto valm    = Monitored::Scalar<float>( valvarm, pixarrays.DA[a][b]*weightPix);
@@ -191,7 +251,7 @@ void PixelAthMonitoringBase::fillFromArrays( const std::string& namePP0, Accumul
       auto valp  = Monitored::Scalar<float>( valvarp, pixarrays.IBL[a][b]);
       auto valm  = Monitored::Scalar<float>( valvarm, pixarrays.IBL[a][b]*weightIBL);
       if (pixarrays.IBL[a][b]>-1) {
-	if (b>0.5*nbinb) {
+	if ( b > (0.5*nbinb-1) ) {
 	  fill("IBLA", pospp0x, valp);
 	} else {
 	  fill("IBLC", pospp0x, valp);
@@ -225,6 +285,20 @@ int PixelAthMonitoringBase::getPixLayersID(int ec, int ld) const {
   return layer;
 }
 //////////////////////////////////////////////
+
+///
+/// helper function to get number of FEs per module
+///
+int PixelAthMonitoringBase::getNumberOfFEs(int pixlayer, int etaMod) const {
+  int nFE(16);
+  if (pixlayer == PixLayers::kIBL || pixlayer == PixLayers::kDBMC || pixlayer == PixLayers::kDBMA) {
+    nFE = 1;
+    if (etaMod>-7 && etaMod<6) nFE = 2; //IBL Planar
+  } 
+  return nFE;
+}
+//////////////////////////////////////////////
+
 
 ///
 /// helper function to get eta phi coordinates of per-layer arrays

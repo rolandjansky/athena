@@ -4,6 +4,7 @@
 
 #ifndef GEO_MODEL_XML_GMX2GEO_H
 #define GEO_MODEL_XML_GMX2GEO_H
+#include <xercesc/util/XercesDefs.hpp>
 
 /**
  *  @brief Create a branch of a GeoModel Tree.
@@ -43,9 +44,12 @@
 #include "GeoModelXml/GmxInterface.h"
 
 class GeoPhysVol;
-
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMLSParser.hpp>
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMDocument;
+XERCES_CPP_NAMESPACE_END
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMNode;
+XERCES_CPP_NAMESPACE_END
 
 class Evaluator;
 

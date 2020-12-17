@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTriggerTool/LArTTCellMap.h"
@@ -7,25 +7,17 @@
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "StoreGate/StoreGateSvc.h"
 
 #include <iostream>
 
-LArTTCellMap::LArTTCellMap( ): m_msg(nullptr)
+LArTTCellMap::LArTTCellMap( )
+  : AthMessaging (Athena::getMessageSvc(), "LArTTCellMap")
 {
-
-  IMessageSvc *msgSvc;
-  StatusCode status =Gaudi::svcLocator()->service("MessageSvc",msgSvc);
-  if(status.isFailure()){
-    std::cout <<  "Cannot locate MessageSvc" << std::endl;
-  }
-  m_msg = new MsgStream ( msgSvc, "LArTTCellMap");
-  msgSvc->release() ;
 }
 
 
@@ -40,35 +32,30 @@ void LArTTCellMap::set( const LArTTCell& m )
 
   convert_to_P(m);
 
-  if (m_msg->level() <= MSG::DEBUG) {
-    (*m_msg) <<MSG::DEBUG<<" LArTTCell size = "<<m.size() <<endmsg;
-  }
-  StoreGateSvc * detStore;
-  StatusCode status = Gaudi::svcLocator()->service("DetectorStore",detStore);
-  if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot locate DetectorStore" << endmsg;
-  }
+  ATH_MSG_DEBUG( " LArTTCell size = "<<m.size() );
+
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "LArTTCellMap");
 
   const LArEM_ID* em_id;
   const LArHEC_ID* hec_id;
   const LArFCAL_ID* fcal_id;
   const CaloLVL1_ID* lvl1_id;
 
-  status=detStore->retrieve(em_id);
+  StatusCode status=detStore->retrieve(em_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve em_id" << endmsg;
+    ATH_MSG_ERROR( "Cannot retrieve em_id" );
   }
   status=detStore->retrieve(hec_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve hec_id" << endmsg;
+    ATH_MSG_ERROR( "Cannot retrieve hec_id" );
   }
   status=detStore->retrieve(fcal_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve fcal_id" << endmsg;
+    ATH_MSG_ERROR( "Cannot retrieve fcal_id" );
   }
   status=detStore->retrieve(lvl1_id);
   if(status.isFailure()){
-    (*m_msg) << MSG::ERROR <<  "Cannot retrieve lvl1_id" << endmsg;
+    ATH_MSG_ERROR( "Cannot retrieve lvl1_id" );
   }
   LArTTCell::const_iterator it  = m.begin();
   LArTTCell::const_iterator it_e  = m.end();
@@ -93,35 +80,29 @@ void LArTTCellMap::set( const LArTTCell& m )
 	id = fcal_id->channel_id(t.pn,t.region,t.eta,t.phi);
 
       } else        {
-	(*m_msg) <<MSG::ERROR <<" Wrong input Detector Number " << t.det << endmsg;
+	ATH_MSG_ERROR( " Wrong input Detector Number " << t.det );
       }
 
       Identifier sid = lvl1_id->layer_id(t.tpn,t.tsample,t.tregion,t.teta,t.tphi,t.layer);
 
-      if (m_msg->level() <= MSG::VERBOSE) {
-	(*m_msg) <<MSG::VERBOSE
-	   << " db struct= "
-	   <<" det="<<t.det
-	   <<" pn="<<t.pn
-	   <<" region="<<t.region
-	   <<" sample="<<t.sample
-	   <<" eta="<<t.eta<<" phi="<<t.phi
-	   <<" trig pn="<<t.tpn
-	   <<" trig region="<<t.tregion
-	   <<" trig sample="<<t.tsample
-	   <<" trig eta="<<t.teta<<" trig phi="<<t.tphi
-	   <<" layer="<<t.layer
-	   << endmsg;
-
-	(*m_msg) <<MSG::VERBOSE<< " lvl1 id = " << sid<<" offline id ="<<id<<endmsg;
-      }
+      ATH_MSG_VERBOSE( " db struct= "
+                       <<" det="<<t.det
+                       <<" pn="<<t.pn
+                       <<" region="<<t.region
+                       <<" sample="<<t.sample
+                       <<" eta="<<t.eta<<" phi="<<t.phi
+                       <<" trig pn="<<t.tpn
+                       <<" trig region="<<t.tregion
+                       <<" trig sample="<<t.tsample
+                       <<" trig eta="<<t.teta<<" trig phi="<<t.tphi
+                       <<" layer="<<t.layer );
+      ATH_MSG_VERBOSE( " lvl1 id = " << sid<<" offline id ="<<id );
 
       if(!(cellIdSet.insert(id)).second) {
-	(*m_msg) <<MSG::ERROR<<" Duplicate cell id "
-	   << lvl1_id->show_to_string(id)
-	   << " in TT= "
-	   << lvl1_id->show_to_string(sid)
-	   << endmsg;
+        ATH_MSG_ERROR( " Duplicate cell id "
+                       << lvl1_id->show_to_string(id)
+                       << " in TT= "
+                       << lvl1_id->show_to_string(sid) );
       }
       m_cell2ttIdMap[id] = sid;
 
@@ -167,13 +148,11 @@ void LArTTCellMap::set( const LArTTCell& m )
 
 
   catch (LArID_Exception& except)  {
-    (*m_msg) <<MSG::ERROR<<" Failed in LArTTCellMap::set " << endmsg;
-    (*m_msg) <<MSG::ERROR<< (std::string) except  << endmsg ;
+    ATH_MSG_ERROR( " Failed in LArTTCellMap::set " );
+    ATH_MSG_ERROR( (std::string) except  );
   }
 
-  if (m_msg->level() <= MSG::DEBUG) {
-    (*m_msg) <<MSG::DEBUG<<" LArTTCellMap::set : number of cell Ids="<<m_cell2ttIdMap.size()<<std::endl;
-  }
+  ATH_MSG_DEBUG( " LArTTCellMap::set : number of cell Ids="<<m_cell2ttIdMap.size() );
 
   detStore->release() ;
 
@@ -190,7 +169,7 @@ Identifier LArTTCellMap::whichTTID(const Identifier& id) const
 	return (*it).second;
  }
 
- (*m_msg) <<MSG::ERROR<<" Offline TT ID not found for cell "<< id <<endmsg;
+ ATH_MSG_ERROR( " Offline TT ID not found for cell "<< id );
 
  return  Identifier();
 
@@ -211,11 +190,9 @@ LArTTCellMap::createCellIDvec(const Identifier & sid) const
 	return (*it).second;
  }
 
- if (m_msg->level() <= MSG::VERBOSE) {
-   (*m_msg) <<MSG::VERBOSE<<" vector of offline cell ID not found, TT id = " <<sid.get_compact()<< endmsg;
- }
+ ATH_MSG_VERBOSE( " vector of offline cell ID not found, TT id = " <<sid.get_compact() );
 
- static std::vector<Identifier> v;
+ static const std::vector<Identifier> v;
  return  v ;
 
 }

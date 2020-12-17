@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARREADOUTGEOMETRY_EMECDETECTORMANAGER_H
@@ -8,6 +8,7 @@
 #include "GeoModelKernel/GeoVDetectorManager.h"
 #include "LArHV/EMECHVManager.h"
 #include "LArHV/EMECPresamplerHVManager.h"
+#include "CxxUtils/CachedPointer.h"
 class EMECDetDescr;
 class EMECDetectorRegion;
 
@@ -239,9 +240,9 @@ class EMECDetectorManager : public GeoVDetectorManager
   /**
    * @brief 	The HV Managers for the emec;
    */
-  mutable const EMECHVManager* m_HVManager[2];
+  CxxUtils::CachedPointer<const EMECHVManager> m_HVManager[2];
 
-  mutable const EMECPresamplerHVManager* m_presamplerHVManager;
+  CxxUtils::CachedPointer<const EMECPresamplerHVManager> m_presamplerHVManager;
 };
 
 /**

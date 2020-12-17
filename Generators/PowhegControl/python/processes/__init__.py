@@ -1,5 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# flake8: noqa
 from .PowhegConfig_bb import *
 from .PowhegConfig_DMS_tloop import *
 from .PowhegConfig_DMV import *

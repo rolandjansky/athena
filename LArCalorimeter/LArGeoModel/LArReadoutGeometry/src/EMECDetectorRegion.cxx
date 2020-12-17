@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
-#include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
@@ -51,7 +50,7 @@ HepGeom::Point3D<double> EMECDetectorRegion::getRefPlanePos () const
   if (shape->typeID()!=GeoPcon::getClassTypeID()) {
     throw std::runtime_error ("EMECDetectorRegion cannot compute absolute position of reference plane");
   }
-  GeoPcon *pcon = (GeoPcon *) shape;
+  const GeoPcon *pcon = static_cast<const GeoPcon *> (shape);
   HepGeom::Point3D<double> center(0,0,pcon->getZPlane(0)-m_descriptor->getManager()->getRefToActive());
   return (Amg::EigenTransformToCLHEP(physVol->getAbsoluteTransform())*center);
 }

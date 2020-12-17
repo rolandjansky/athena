@@ -10,7 +10,7 @@ atlas_add_library( SCT_RawDataByteStreamCnvLib
                    SCT_RawDataByteStreamCnv/*.h
                    INTERFACE
                    PUBLIC_HEADERS SCT_RawDataByteStreamCnv
-                   LINK_LIBRARIES GaudiKernel InDetRawData ByteStreamCnvSvcBaseLib ByteStreamData InDetByteStreamErrors )
+                   LINK_LIBRARIES GaudiKernel InDetRawData ByteStreamCnvSvcBaseLib ByteStreamCnvSvcLib ByteStreamData InDetByteStreamErrors )
 
 # Component(s) in the package:
 atlas_add_component( SCT_RawDataByteStreamCnv
@@ -32,7 +32,10 @@ atlas_add_test( TestSCTEncode
                 PROPERTIES TIMEOUT 300
                 ENVIRONMENT THREADS=1 )
 atlas_add_test( TestSCTDecodeNewConf
-                SCRIPT python -m SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConfig
+                SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTDecodeNewConf
+                PROPERTIES TIMEOUT 600 )
+atlas_add_test( TestSCTEncodeNewConf
+                SCRIPT python -m SCT_RawDataByteStreamCnv.testSCTEncodeNewConf
                 PROPERTIES TIMEOUT 600 )
 
 # Install files from the package:

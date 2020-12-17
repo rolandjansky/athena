@@ -3,6 +3,9 @@
 */
 
 #ifndef XAOD_ANALYSIS
+
+#include "TauShotVariableHelpers.h"
+
 /**
  * @brief implementation of photon shot variable calculation 
  * 
@@ -11,350 +14,174 @@
  * @author Stephanie Yuen <stephanie.yuen@cern.ch> 
  */
 
-#include "TauShotVariableHelpers.h"
-
-using xAOD::PFO;
-using std::vector;
-
 namespace TauShotVariableHelpers {
-    std::vector<std::vector<const CaloCell*> > getCellBlock(xAOD::PFO* shot, const CaloCell_ID* calo_id){
-        std::vector<std::vector<const CaloCell*> > cellVector;
-        std::vector<const CaloCell*> oneEtaLayer;
-        int nCellsInEta = 0;
-        if( shot->attribute(xAOD::PFODetails::PFOAttributes::tauShots_nCellsInEta, nCellsInEta) == false) {
-            std::cout << "WARNING: Couldn't find nCellsInEta. Return empty cell block." << std::endl;
-            return cellVector;
-        }
-        int seedHash = 0;
-        if( shot->attribute(xAOD::PFODetails::PFOAttributes::tauShots_seedHash, seedHash) == false) {
-            std::cout << "WARNING: Couldn't find seed hash. Return empty cell block." << std::endl;
-            return cellVector;
-        }
-        for(int iCell=0;iCell<nCellsInEta;++iCell) oneEtaLayer.push_back(NULL);
-        // have two layers in phi
-        cellVector.push_back(oneEtaLayer);
-        cellVector.push_back(oneEtaLayer);
-        // get cluster from shot
-        const xAOD::CaloCluster* cluster = shot->cluster(0);
-        const CaloClusterCellLink* theCellLink = cluster->getCellLinks();
-        CaloClusterCellLink::const_iterator cellItr  = theCellLink->begin();
-        CaloClusterCellLink::const_iterator cellItrE = theCellLink->end();
 
-        // get seed cell from shot cluster
-        const CaloCell* seedCell=NULL;
-        for(;cellItr!=cellItrE;++cellItr){
-            if((*cellItr)->caloDDE()->calo_hash()!=(unsigned) seedHash) continue;
-            seedCell = *cellItr;
-            break;
-        }
-        if(seedCell==NULL){
-          std::cout << "WARNING: Couldn't find seed cell in shot cluster. Return empty cell block." << std::endl;
-          return cellVector;
-        }
-        
-        // get merged cell in phi. Keep NULL if shot is not merged across phi
-        const CaloCell* mergedCell = NULL;
-        std::vector<IdentifierHash> nextInPhi;
-        std::vector<IdentifierHash> prevInPhi;
-        calo_id->get_neighbours(seedCell->caloDDE()->calo_hash(),LArNeighbours::nextInPhi,nextInPhi);
-        calo_id->get_neighbours(seedCell->caloDDE()->calo_hash(),LArNeighbours::prevInPhi,prevInPhi);
-        for(cellItr=theCellLink->begin();cellItr!=cellItrE;++cellItr){
-            std::vector<IdentifierHash>::iterator itr = nextInPhi.begin();
-            for( ; itr!=nextInPhi.end(); ++itr ){
-                if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                mergedCell = (*cellItr);
-                break;
-            }
-            if(mergedCell!=NULL) break;
-            itr = prevInPhi.begin();
-            for( ; itr!=prevInPhi.end(); ++itr ){
-                if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                mergedCell = (*cellItr);
-                break;
-            }
-            if(mergedCell!=NULL) break;
-        }
-        // store cells in the eta layer, which contains the seed cell
-        int nCellsFromSeed = 1;
-        const CaloCell* lastCell = seedCell;
-        cellVector.at(0).at(nCellsInEta/2) = seedCell; // store seed cell
-        std::vector<IdentifierHash> next;
-        while(lastCell!=NULL && nCellsFromSeed<nCellsInEta/2+1){
-            calo_id->get_neighbours(lastCell->caloDDE()->calo_hash(),LArNeighbours::nextInEta,next);
-            lastCell = NULL;
-            for(cellItr=theCellLink->begin();cellItr!=cellItrE;++cellItr){
-                std::vector<IdentifierHash>::iterator itr = next.begin();
-                for( ; itr!=next.end(); ++itr ){
-                    if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                    cellVector.at(0).at(nCellsInEta/2+nCellsFromSeed) = (*cellItr);
-                    lastCell = (*cellItr);
-                }
-            }
-            nCellsFromSeed++;
-        }
-        nCellsFromSeed = 1;
-        lastCell = seedCell;
-        while(lastCell!=NULL && nCellsFromSeed<nCellsInEta/2+1){
-            calo_id->get_neighbours(lastCell->caloDDE()->calo_hash(),LArNeighbours::prevInEta,next);
-            lastCell = NULL;
-            for(cellItr=theCellLink->begin();cellItr!=cellItrE;++cellItr){
-                std::vector<IdentifierHash>::iterator itr = next.begin();
-                for( ; itr!=next.end(); ++itr ){
-                    if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                    cellVector.at(0).at(nCellsInEta/2-nCellsFromSeed) = (*cellItr);
-                    lastCell = (*cellItr);
-                }
-            }
-            nCellsFromSeed++;
-        }
-        // store cells in the eta layer, which contains the merged cell
-        int nCellsFromMerged = 1;
-        lastCell = mergedCell; // is NULL if shot is not merged
-        cellVector.at(1).at(nCellsInEta/2) = mergedCell; // store merged cell
-        while(lastCell!=NULL && nCellsFromMerged<nCellsInEta/2+1){
-            calo_id->get_neighbours(lastCell->caloDDE()->calo_hash(),LArNeighbours::nextInEta,next);
-            lastCell = NULL;
-            for(cellItr=theCellLink->begin();cellItr!=cellItrE;++cellItr){
-                std::vector<IdentifierHash>::iterator itr = next.begin();
-                for( ; itr!=next.end(); ++itr ){
-                    if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                    cellVector.at(1).at(nCellsInEta/2+nCellsFromMerged) = (*cellItr);
-                    lastCell = (*cellItr);
-                }
-            }
-            nCellsFromMerged++;
-        }
-        nCellsFromMerged = 1;
-        lastCell = mergedCell;
-        while(lastCell!=NULL && nCellsFromMerged<nCellsInEta/2+1){
-            calo_id->get_neighbours(lastCell->caloDDE()->calo_hash(),LArNeighbours::prevInEta,next);
-            lastCell = NULL;
-            for(cellItr=theCellLink->begin();cellItr!=cellItrE;++cellItr){
-                std::vector<IdentifierHash>::iterator itr = next.begin();
-                for( ; itr!=next.end(); ++itr ){
-                    if((*cellItr)->caloDDE()->calo_hash() != (*itr)) continue;
-                    cellVector.at(1).at(nCellsInEta/2-nCellsFromMerged) = (*cellItr);
-                    lastCell = (*cellItr);
-                }
-            }
-            nCellsFromMerged++;
-        }
-        return cellVector;
-    
+ANA_MSG_SOURCE(msgTauShotVariableHelpers, "TauShotVariableHelpers")
+
+
+const CaloCell* getNeighbour(const CaloCell* cell, 
+                             const CaloClusterCellLink& links, 
+                             const CaloCell_ID* calo_id, 
+                             const LArNeighbours::neighbourOption& option) {
+  const CaloCell* neigCell = nullptr;
+
+  std::vector<IdentifierHash> neighHashes;
+  calo_id->get_neighbours(cell->caloDDE()->calo_hash(), option, neighHashes);
+  
+  // Loop all the cells, and find the required neighbour cell
+  for (const auto& cell : links) {
+    const IdentifierHash& cellHash = cell->caloDDE()->calo_hash();
+
+    // Check whether the cell is a neighbour cell 
+    for (const IdentifierHash& neighHash : neighHashes) {
+      if (cellHash == neighHash) {
+        neigCell = cell;
+        return neigCell;
+      }
     }
+  }
 
-
-    float mean_eta(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        float sumEta=0.;
-        float sumWeight=0.;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
-            for( ; itrEta!=itrPhi->end(); ++itrEta ){
-                if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
-                sumEta    += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * (*itrEta)->eta();
-            }
-        }
-        if(sumWeight<=0.) return -99999.;
-        return sumEta/sumWeight;
-    }
-
-    float mean_pt(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        float sumPt=0.;
-        int nCells = 0;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
-            for( ; itrEta!=itrPhi->end(); ++itrEta ){
-                if((*itrEta) == NULL) continue;
-                sumPt  += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
-                nCells ++;
-            }
-        }
-        if(nCells==0) return -99999.;
-        return sumPt/nCells;
-    }
-
-    float ptWindow(vector<vector<const CaloCell*> > shotCells, int windowSize, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        // window size should be odd and noti be larger than eta window of shotCells
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        if( windowSize%2!=1 )        return 0.;
-        if( windowSize > nCells_eta) return 0.;
-        float ptWindow  = 0.;
-        for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-	  if(std::abs(iCell-seedIndex)>windowSize/2) continue;
-            if(shotCells.at(0).at(iCell) != NULL) ptWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell) != NULL) ptWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-        }
-        return ptWindow;
-    }
-
-    float ws5(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        float sumWeight=0.;
-        float sumDev2=0.;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            for(unsigned iCell = 0; iCell != itrPhi->size(); ++iCell ){
-                if(itrPhi->at(iCell) == NULL) continue;
-                sumWeight += itrPhi->at(iCell)->pt()*caloWeightTool->wtCell(itrPhi->at(iCell));
-                sumDev2   += itrPhi->at(iCell)->pt()*caloWeightTool->wtCell(itrPhi->at(iCell)) * pow(iCell-seedIndex,2);
-            }
-        }
-        if(sumWeight<=0. || sumDev2 <0.) return -99999.;
-        return sqrt( sumDev2 / sumWeight );
-    }
-
-    float sdevEta_WRTmean(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        float mean = mean_eta(shotCells, caloWeightTool); 
-        float sumWeight=0.;
-        float sumDev2=0.;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
-            for( ; itrEta!=itrPhi->end(); ++itrEta ){
-                if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
-                sumDev2   += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mean,2);
-            }
-        }
-        if(sumWeight<=0. || sumDev2 <0.) return -99999.;
-        return sqrt( sumDev2 / sumWeight );
-    }
-
-    float sdevEta_WRTmode(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        float mode = shotCells.at(0).at(seedIndex)->eta();
-        float sumWeight=0.;
-        float sumDev2=0.;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
-            for( ; itrEta!=itrPhi->end(); ++itrEta ){
-                if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
-                sumDev2   += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) * pow((*itrEta)->eta() - mode,2);
-            }
-        }
-        if(sumWeight<=0. || sumDev2 <0.) return -99999.;
-        return sqrt( sumDev2 / sumWeight );
-    }
-
-    float sdevPt(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        float mean = mean_pt(shotCells, caloWeightTool);
-        float sumWeight=0.;
-        float sumDev2=0.;
-        vector<vector<const CaloCell*> >::iterator itrPhi = shotCells.begin();
-        for( ; itrPhi!=shotCells.end(); ++itrPhi ){
-            vector<const CaloCell*>::iterator itrEta = itrPhi->begin();
-            for( ; itrEta!=itrPhi->end(); ++itrEta ){
-                if((*itrEta) == NULL) continue;
-                sumWeight += (*itrEta)->pt()*caloWeightTool->wtCell(*itrEta);
-                sumDev2   += pow((*itrEta)->pt()*caloWeightTool->wtCell(*itrEta) - mean,2);
-            }
-        }
-        if(sumWeight<=0. || sumDev2 <0.) return -99999.;
-        return sqrt(sumDev2)/sumWeight;
-    }
-
-    float deltaPt12_min(vector<vector<const CaloCell*> > shotCells, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        bool haveLeft  = false;
-        bool haveRight = false;
-        float deltaPt_left  = 0.;
-        float deltaPt_right = 0.;
-        if(shotCells.at(0).at(seedIndex-1)!=NULL && shotCells.at(0).at(seedIndex-2)!=NULL){
-            haveLeft  = true;
-            deltaPt_left =  shotCells.at(0).at(seedIndex-1)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-1))
-                           -shotCells.at(0).at(seedIndex-2)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex-2));
-            if(shotCells.at(1).at(seedIndex-1)!=NULL && shotCells.at(1).at(seedIndex-2)!=NULL){
-                deltaPt_left += shotCells.at(1).at(seedIndex-1)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-1))
-                               -shotCells.at(1).at(seedIndex-2)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex-2));
-            }
-        }
-        if(shotCells.at(0).at(seedIndex+1)!=NULL && shotCells.at(0).at(seedIndex+2)!=NULL){
-            haveRight = true;
-            deltaPt_right =  shotCells.at(0).at(seedIndex+1)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+1))
-                            -shotCells.at(0).at(seedIndex+2)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(seedIndex+2));
-            if(shotCells.at(1).at(seedIndex+1)!=NULL && shotCells.at(1).at(seedIndex+2)!=NULL){
-                deltaPt_right += shotCells.at(1).at(seedIndex+1)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1))
-                                -shotCells.at(1).at(seedIndex+2)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(seedIndex+1));
-            }
-        }
-        if(haveLeft && haveRight) return fmin(deltaPt_left,deltaPt_right);
-        if(haveLeft)              return deltaPt_left;
-        if(haveRight)             return deltaPt_right;
-        else                      return -1.;
-    }
-
-
-    float Fside(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        // window sizes should be odd and windows should be not larger than eta window of shotCells
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        if( largerWindow%2!=1 || smallerWindow%2!=1) return 0.;
-        if( largerWindow <= smallerWindow)           return 0.;
-        if( largerWindow > nCells_eta)   return 0.;
-        float pt_largerWindow  = 0.;
-        float pt_smallerWindow = 0.;
-        for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-	    if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-            if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-        }
-        if(pt_smallerWindow==0.) return -99999.;
-        return (pt_largerWindow-pt_smallerWindow)/pt_smallerWindow;
-    }
-
-    float fracSide(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        // window sizes should be odd and windows should be not larger than eta window of shotCells
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        if( largerWindow%2!=1 || smallerWindow%2!=1) return 0.;
-        if( largerWindow <= smallerWindow)           return 0.;
-        if( largerWindow > nCells_eta)   return 0.;
-        float pt_largerWindow  = 0.;
-        float pt_smallerWindow = 0.;
-        for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-            if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-            if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-        }
-        if(pt_largerWindow==0.) return -99999.;
-        return (pt_largerWindow-pt_smallerWindow)/pt_largerWindow;
-    }
-
-    float ptWindowFrac(vector<vector<const CaloCell*> > shotCells, int largerWindow, int smallerWindow, const ToolHandle<IHadronicCalibrationTool>& caloWeightTool){
-        // window sizes should be odd and windows should be not larger than eta window of shotCells
-        int nCells_eta = shotCells.at(0).size();
-        int seedIndex = nCells_eta/2;
-        if( largerWindow%2!=1 || smallerWindow%2!=1) return 0.;
-        if( largerWindow <= smallerWindow)           return 0.;
-        if( largerWindow > nCells_eta)   return 0.;
-        float pt_largerWindow  = 0.;
-        float pt_smallerWindow = 0.;
-        for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-            if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-            if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;
-            if(shotCells.at(0).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(0).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(0).at(iCell));
-            if(shotCells.at(1).at(iCell)!=NULL) pt_smallerWindow+=shotCells.at(1).at(iCell)->pt()*caloWeightTool->wtCell(shotCells.at(1).at(iCell));
-        }
-        if(pt_largerWindow==0.) return -99999.;
-        return pt_smallerWindow/pt_largerWindow;
-    }
+  return neigCell;
 }
+
+
+std::vector<std::vector<const CaloCell*> > getCellBlock(const xAOD::PFO& shot, const CaloCell_ID* calo_id) {
+  using namespace TauShotVariableHelpers::msgTauShotVariableHelpers; 
+
+  std::vector<std::vector<const CaloCell*>> cellBlock;
+
+  int etaSize = 0;
+  if (shot.attribute(xAOD::PFODetails::PFOAttributes::tauShots_nCellsInEta, etaSize) == false) {
+    ANA_MSG_WARNING("Couldn't find nCellsInEta. Return empty cell block.");
+    return cellBlock;
+  }
+  
+  int seedHash = 0;
+  if (shot.attribute(xAOD::PFODetails::PFOAttributes::tauShots_seedHash, seedHash) == false) {
+    ANA_MSG_WARNING("Couldn't find seed hash. Return empty cell block.");
+    return cellBlock;
+  }
+  
+  // Initialize the cell block
+  std::vector<const CaloCell*> etaLayer;
+  for (int etaIndex = 0; etaIndex < etaSize; ++ etaIndex) {
+    etaLayer.push_back(nullptr);
+  }
+  int phiSize = 2;
+  for (int phiIndex = 0; phiIndex < phiSize; ++phiIndex) {
+    cellBlock.push_back(etaLayer);
+  }
+
+  // Get seed cell from shot cluster
+  const xAOD::CaloCluster* cluster = shot.cluster(0);
+  const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+
+  const CaloCell* seedCell = nullptr;
+  for (const auto& cell : *cellLinks) {
+     if (cell->caloDDE()->calo_hash() != (unsigned) seedHash) continue;
+     seedCell = cell;
+     break;
+  }
+  if (seedCell==nullptr) {
+    ANA_MSG_WARNING("Couldn't find seed cell in shot cluster. Return empty cell block.");
+    return cellBlock;
+  }
+  int mediumEtaIndex = etaSize/2;
+  cellBlock.at(0).at(mediumEtaIndex) = seedCell;
+
+  // Obtain the neighbour cells in the eta direction
+  // -- Next in eta
+  const CaloCell* lastCell = seedCell;
+  int maxDepth = etaSize - mediumEtaIndex - 1;
+  for (int depth = 1; depth < maxDepth + 1; ++depth) {
+    lastCell = getNeighbour(lastCell, *cellLinks, calo_id, LArNeighbours::nextInEta);
+    if (lastCell != nullptr) {
+      cellBlock.at(0).at(mediumEtaIndex + depth) = lastCell;
+    }
+    else {
+      break;
+    }
+  }
+
+  // -- Previous in eta
+  lastCell = seedCell;
+  for (int depth = 1; depth < maxDepth + 1; ++depth) {
+    lastCell = getNeighbour(lastCell, *cellLinks, calo_id, LArNeighbours::prevInEta);
+    if (lastCell != nullptr) {
+      cellBlock.at(0).at(mediumEtaIndex - depth) = lastCell;
+    }
+    else {
+      break;
+    }
+  }
+
+  // Merged cell
+  const CaloCell* mergedCell = getNeighbour(seedCell, *cellLinks, calo_id, LArNeighbours::nextInPhi);
+  if (mergedCell == nullptr) {
+    mergedCell = getNeighbour(seedCell, *cellLinks, calo_id, LArNeighbours::prevInPhi);
+  }
+
+  if (mergedCell != nullptr) {
+    cellBlock.at(1).at(mediumEtaIndex) = mergedCell;
+  
+    // Obtain the neighbour cells in the eta direction
+    // -- Next in eta
+    lastCell = mergedCell;
+    for (int depth = 1; depth < maxDepth + 1; ++depth) {
+      lastCell = getNeighbour(lastCell, *cellLinks, calo_id, LArNeighbours::nextInEta);
+      if (lastCell != nullptr) {
+        cellBlock.at(1).at(mediumEtaIndex + depth) = lastCell;
+      }
+      else {
+        break;
+      }
+    }
+  
+    // -- Previous in eta
+    lastCell = mergedCell;
+    for (int depth = 1; depth < maxDepth + 1; ++depth) {
+      lastCell = getNeighbour(lastCell, *cellLinks, calo_id, LArNeighbours::prevInEta);
+      if (lastCell != nullptr) {
+        cellBlock.at(1).at(mediumEtaIndex - depth) = lastCell;
+      }
+      else {
+        break;
+      }
+    }
+  } // End of mergedCell != nullptr
+
+  return cellBlock;
+}
+
+
+
+float ptWindow(const std::vector<std::vector<const CaloCell*>>& shotCells, 
+               int windowSize, 
+               const ToolHandle<IHadronicCalibrationTool>& caloWeightTool) {
+  // window size should be odd and smaller than eta window of shotCells
+  if (windowSize%2 != 1) return 0.;
+  
+  int etaSize = shotCells.at(0).size();
+  if (windowSize > etaSize) return 0.;
+  
+  int seedIndex = etaSize/2;
+  int phiSize = shotCells.size();
+
+  float ptWindow  = 0.;
+  for (int etaIndex = 0; etaIndex != etaSize; ++etaIndex) {
+    if (std::abs(etaIndex-seedIndex) > windowSize/2) continue;
+    
+    for (int phiIndex = 0; phiIndex != phiSize; ++phiIndex) {
+      const CaloCell* cell = shotCells.at(phiIndex).at(etaIndex);
+      if (cell != nullptr) {
+        ptWindow += cell->pt() * caloWeightTool->wtCell(cell);
+      }     
+    }
+  }
+
+  return ptWindow;
+}
+
+} // End of namespace TauShotVariableHelpers 
 
 #endif

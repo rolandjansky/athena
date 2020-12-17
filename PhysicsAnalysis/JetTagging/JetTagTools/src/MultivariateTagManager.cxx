@@ -120,7 +120,6 @@ namespace Analysis {
     fill_jetfitter(inputs, BTag);    // fill JetFitter variables
     fill_sv0(priVtx, inputs, BTag);          // fill sv0 variables
     fill_sv1(inputs, BTag);          // fill sv1 variables
-    fill_mv2cl100(inputs, BTag); // fill MV2cl100 variables
     fill_trkSum(inputs,BTag);
     fill_softmuon(inputs,BTag);
 
@@ -282,9 +281,9 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_ip2d(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    double ip2d_pb = NAN;
-    double ip2d_pc = NAN;
-    double ip2d_pu = NAN;
+    ftagfloat_t ip2d_pb = NAN;
+    ftagfloat_t ip2d_pc = NAN;
+    ftagfloat_t ip2d_pu = NAN;
 
     float ip2   = NAN;
     float ip2_c = NAN;
@@ -306,9 +305,9 @@ namespace Analysis {
 	ip2d_pu = BTag.IP2D_pu();
       }
       else {
-	BTag.variable<double>(m_ip2d_infosource, "pb", ip2d_pb);
-	BTag.variable<double>(m_ip2d_infosource, "pc", ip2d_pc);
-	BTag.variable<double>(m_ip2d_infosource, "pu", ip2d_pu);
+	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pb", ip2d_pb);
+	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pc", ip2d_pc);
+	BTag.variable<ftagfloat_t>(m_ip2d_infosource, "pu", ip2d_pu);
       }
      
       ip2    = BTag.calcLLR(ip2d_pb,ip2d_pu);
@@ -349,9 +348,9 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_ip3d(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    double ip3d_pb = NAN;
-    double ip3d_pc = NAN;
-    double ip3d_pu = NAN;
+    ftagfloat_t ip3d_pb = NAN;
+    ftagfloat_t ip3d_pc = NAN;
+    ftagfloat_t ip3d_pu = NAN;
 
     float ip3   = NAN;
     float ip3_c = NAN;
@@ -371,9 +370,9 @@ namespace Analysis {
 	ip3d_pu = BTag.IP3D_pu();
       }
       else {
-	BTag.variable<double>(m_ip3d_infosource, "pb", ip3d_pb);
-	BTag.variable<double>(m_ip3d_infosource, "pc", ip3d_pc);
-	BTag.variable<double>(m_ip3d_infosource, "pu", ip3d_pu);
+	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pb", ip3d_pb);
+	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pc", ip3d_pc);
+	BTag.variable<ftagfloat_t>(m_ip3d_infosource, "pu", ip3d_pu);
       }
 
       ip3    = BTag.calcLLR(ip3d_pb,ip3d_pu);
@@ -422,8 +421,8 @@ namespace Analysis {
     float  sv0_efrc   = NAN;
     float  sv0_mass   = NAN;
     float  sv0_radius = NAN;
-    double sv0_sig3d  = NAN;
-    double sv0_pv_x = NAN, sv0_pv_y = NAN;
+    ftagfloat_t sv0_sig3d  = NAN;
+    ftagfloat_t sv0_pv_x = NAN, sv0_pv_y = NAN;
 
     // get vertex information
     bool sv0_ok(false);
@@ -448,9 +447,9 @@ namespace Analysis {
   BTag.variable<float>(m_sv0_infosource,  "efracsvx", sv0_efrc);
   BTag.variable<int>(m_sv0_infosource,    "N2Tpair", sv0_n2t);
   BTag.variable<int>(m_sv0_infosource,    "NGTinSvx", sv0_ntrkv);
-  //BTag.variable<double>(m_sv0_infosource, "significance3D", sv0_sig3d);
+  //BTag.variable<ftagfloat_t>(m_sv0_infosource, "significance3D", sv0_sig3d);
       }
-      BTag.variable<double>(m_sv0_infosource, "significance3D", sv0_sig3d);
+      BTag.variable<ftagfloat_t>(m_sv0_infosource, "significance3D", sv0_sig3d);
 
       sv0_pv_x=priVtx.x();
       sv0_pv_y=priVtx.y();
@@ -469,7 +468,7 @@ namespace Analysis {
 
   void MultivariateTagManager::fill_sv1(var_map& inputs, xAOD::BTagging& BTag) const {
     // default values
-    double sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
+    ftagfloat_t sv1_pb = NAN, sv1_pc = NAN, sv1_pu = NAN;
     float     sv1 = NAN, sv1_c  = NAN, sv1_cu = NAN;
     float     sv1_nan = NAN, sv1_c_nan  = NAN, sv1_cu_nan = NAN;
 
@@ -505,9 +504,9 @@ namespace Analysis {
 	BTag.taggerInfo(sv1_sig3d, xAOD::BTagInfo::SV1_normdist);
       }
       else {
-	BTag.variable<double>(m_sv1_infosource, "pu", sv1_pu);
-	BTag.variable<double>(m_sv1_infosource, "pb", sv1_pb);
-	BTag.variable<double>(m_sv1_infosource, "pc", sv1_pc);
+	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pu", sv1_pu);
+	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pb", sv1_pb);
+	BTag.variable<ftagfloat_t>(m_sv1_infosource, "pc", sv1_pc);
 	
 	BTag.variable<float>(m_sv1_infosource, "masssvx",  sv1_mass);
 	BTag.variable<float>(m_sv1_infosource, "efracsvx", sv1_efrc);
@@ -565,167 +564,6 @@ namespace Analysis {
     inputs[btagvar::SV1_DISTMATLAY]    = sv1_distmatlay;
   }
 
-  void MultivariateTagManager::fill_mv2cl100(var_map& inputs, xAOD::BTagging& BTag) const {
-    // Generating MV2cl100 variables
-    std::vector< ElementLink< xAOD::TrackParticleContainer > > assocTracks;
-    try{
-      assocTracks = BTag.auxdata<std::vector<ElementLink<xAOD::TrackParticleContainer> > >("BTagTrackToJetAssociator");
-    } catch (std::exception& e) {
-      ATH_MSG_WARNING("problem loading associated tracks,"
-          "skipping this jet");
-      return;
-    }
-
-    std::vector<ElementLink<xAOD::BTagVertexContainer> > jfvertices;
-    try {
-      jfvertices =  BTag.auxdata<std::vector<ElementLink<xAOD::BTagVertexContainer> > >("JetFitter_JFvertices");
-    } catch (std::exception& e) {
-      ATH_MSG_WARNING("problem loading JF vertices,"
-          " skipping this jet");
-    }
-
-    std::vector<float> fittedPosition = BTag.auxdata<std::vector<float> >("JetFitter_fittedPosition");
-
-    //MV2cl100 default values
-    int nTrk_vtx1 = INT_MISSING;
-    float mass_first_vtx = NAN;
-    float e_first_vtx = NAN;
-    float e_frac_vtx1 = NAN;
-    float closestVtx_L3D = NAN;
-    float JF_Lxy1 = NAN;
-    float vtx1_MaxTrkRapidity_jf_path = NAN;
-    float vtx1_AvgTrkRapidity_jf_path = NAN;
-    float vtx1_MinTrkRapidity_jf_path = NAN;
-    float MaxTrkRapidity_jf_path = NAN;
-    float MinTrkRapidity_jf_path = NAN;
-    float AvgTrkRapidity_jf_path = NAN;
-
-    if (assocTracks.size() > 0 && fittedPosition.size() > 0) {
-
-      ATH_MSG_VERBOSE("#BTAG# MV2: calculating MV2cl100 inputs.");
-
-      float jf_phi = fittedPosition[3];
-      float jf_theta = fittedPosition[4];
-      TVector3 flightDir(0,0,0);
-      flightDir.SetMagThetaPhi(1., jf_theta, jf_phi ); //flight directon of JF decay chain
-
-      //loop over position of JF vertices, find index of secondary vertex
-      int secondary_vertex_index = INT_MISSING;
-      for (unsigned int jfv = 0; jfv < jfvertices.size(); jfv++) {
-
-  float tmpL3D = fittedPosition[jfv + 5];
-
-
-  if (tmpL3D > 0 && (std::isnan(closestVtx_L3D) || closestVtx_L3D > tmpL3D) ){
-
-    closestVtx_L3D = tmpL3D;
-    secondary_vertex_index = jfv;
-  }
-      }
-
-      //loop over tracks, collect total 4 momentum, and 4 momentum of secondary vertex, calculate pseudo rapidity of track
-      TLorentzVector tracksTot4Mom(0,0,0,0);
-      TLorentzVector tracksTot4Mom_firstVtx(0,0,0,0);
-      float sumTrackRapidity = 0;
-      float vtx1_sumTrackRapidity = 0;
-      int vtx1_first_track =0;
-      float track_mass = 139.570;
-      int trkIndex=0;
-      //track loop
-      for(auto trkIter = assocTracks.begin(); trkIter != assocTracks.end(); ++trkIter) {
-         const xAOD::TrackParticle* aTemp = **trkIter;
-         uint8_t getInt(0);
-         aTemp->summaryValue(getInt, xAOD::numberOfPixelHits);
-         int nSi = getInt;
-         aTemp->summaryValue(getInt, xAOD::numberOfSCTHits);
-         nSi += getInt;
-         if (nSi < 2) continue;
-
-  TLorentzVector trk;
-  trk.SetPtEtaPhiM(aTemp->pt(), aTemp->eta(), aTemp->phi(), track_mass);
-  tracksTot4Mom += trk;
-
-  TVector3 trkvector(0,0,0);
-  trkvector = trk.Vect();
-
-  float trackRapidity = (trkvector.Mag2()>0 ? tan( 0.5*trkvector.Angle(flightDir) ) : 0); // steps to protect against log(0)
-
-  trackRapidity = (trackRapidity < 0.000001 ? (-1)*log(0.000001) : (-1)*log(trackRapidity) ); // value of 0.000001 should provide enough margin for typical values of trackRapidity
-
-
-  sumTrackRapidity += trackRapidity;
-
-  if(trkIndex==0){
-    MaxTrkRapidity_jf_path = trackRapidity;
-    MinTrkRapidity_jf_path = trackRapidity;
-  }else{
-    MaxTrkRapidity_jf_path = trackRapidity > MaxTrkRapidity_jf_path ? trackRapidity : MaxTrkRapidity_jf_path;
-    MinTrkRapidity_jf_path = trackRapidity < MinTrkRapidity_jf_path ? trackRapidity : MinTrkRapidity_jf_path;
-  }
-
-  if(secondary_vertex_index >= 0){
-    //get track links to secondary vertex
-    const xAOD::BTagVertex *tmpVertex = *(jfvertices.at(secondary_vertex_index));
-    const std::vector< ElementLink<xAOD::TrackParticleContainer> > tmpVect = tmpVertex->track_links();
-    //check association to JF vertex
-    int particleInCollection = 0;
-
-    for (unsigned int iT = 0; iT < tmpVect.size(); iT++) {
-      if (aTemp == *(tmpVect.at(iT))) particleInCollection=1;
-    }
-      if (particleInCollection){
-
-        if(nTrk_vtx1 < 0){
-          nTrk_vtx1 = 0;
-        }
-        nTrk_vtx1 += 1;
-
-        tracksTot4Mom_firstVtx += trk;
-        vtx1_sumTrackRapidity += trackRapidity;
-
-        if(!vtx1_first_track){
-          vtx1_MaxTrkRapidity_jf_path = trackRapidity;
-          vtx1_MinTrkRapidity_jf_path = trackRapidity;
-          vtx1_first_track=1;
-        }else{
-          vtx1_MaxTrkRapidity_jf_path = trackRapidity > vtx1_MaxTrkRapidity_jf_path ? trackRapidity : vtx1_MaxTrkRapidity_jf_path;
-          vtx1_MinTrkRapidity_jf_path = trackRapidity < vtx1_MinTrkRapidity_jf_path ? trackRapidity : vtx1_MinTrkRapidity_jf_path;
-        }
-
-      }
-  }
-
-  trkIndex++;
-      } //end of trk loop
-
-        // assign the remaining MV2cl100 variables
-      AvgTrkRapidity_jf_path = trkIndex > 0 ? sumTrackRapidity/trkIndex : 0;
-
-    if(nTrk_vtx1 > 0){
-      JF_Lxy1 = closestVtx_L3D*sin(jf_theta);
-      mass_first_vtx = tracksTot4Mom_firstVtx.M();
-      e_first_vtx = tracksTot4Mom_firstVtx.E();
-      e_frac_vtx1 = e_first_vtx/tracksTot4Mom.E();
-      vtx1_AvgTrkRapidity_jf_path = vtx1_sumTrackRapidity/nTrk_vtx1;
-    }
-
-    } // end of if (assocTracks.size() > 0 && fittedPosition.size() > 0
-
-    inputs[btagvar::JF_NTRK_VTX1]           = nan_if_placeholder(nTrk_vtx1);
-    inputs[btagvar::JF_MASS_VTX1 ]          = mass_first_vtx ;
-    inputs[btagvar::JF_E_VTX1 ]             = e_first_vtx ;
-    inputs[btagvar::JF_E_FRAC_VTX1 ]        = e_frac_vtx1;
-    inputs[btagvar::JF_L3D_VTX1 ]           = closestVtx_L3D ;
-    inputs[btagvar::JF_Lxy_VTX1 ]           = JF_Lxy1 ;
-    inputs[btagvar::JF_RAPIDITY_VTX1_MAX ]  = vtx1_MaxTrkRapidity_jf_path;
-    inputs[btagvar::JF_RAPIDITY_VTX1_AVG ]  = vtx1_AvgTrkRapidity_jf_path;
-    inputs[btagvar::JF_RAPIDITY_VTX1_MIN ]  = vtx1_MinTrkRapidity_jf_path;
-    inputs[btagvar::JF_RAPIDITY_MAX ]       = MaxTrkRapidity_jf_path;
-    inputs[btagvar::JF_RAPIDITY_MIN ]       = MinTrkRapidity_jf_path;
-    inputs[btagvar::JF_RAPIDITY_AVG ]       = AvgTrkRapidity_jf_path;
-
-  } // end of fill_mv2cl100
-
   void MultivariateTagManager::fill_arbitrary_aux_data(
     var_map& inputs, xAOD::BTagging& BTag) const {
 
@@ -734,20 +572,20 @@ namespace Analysis {
       if (m_aux_data_name_map.count(raw_key)) {
         key = m_aux_data_name_map.at(raw_key);
       }
-      // note: we should extend this to data types beyond double at
+      // note: we should extend this to data types beyond ftagfloat_t at
       // some point
       std::string valid_key = key + "IsValid";
-      if ( ! BTag.isAvailable<double>(key) ) {
+      if ( ! BTag.isAvailable<ftagfloat_t>(key) ) {
         ATH_MSG_WARNING("aux data '" + key + "' is missing,"
                         " tagger inputs may be incomplete");
       } else if (!BTag.isAvailable<char>(valid_key)) {
         ATH_MSG_WARNING("no key '" + valid_key + "' found, invalid inputs"
                         " may be interperated incorrectly");
-        inputs[key] = BTag.auxdata<double>(key);
+        inputs[key] = BTag.auxdata<ftagfloat_t>(key);
       } else if (!BTag.auxdata<char>(valid_key)) {
         inputs[key] = NAN;
       } else {
-        inputs[key] = BTag.auxdata<double>(key);
+        inputs[key] = BTag.auxdata<ftagfloat_t>(key);
       }
     }
 

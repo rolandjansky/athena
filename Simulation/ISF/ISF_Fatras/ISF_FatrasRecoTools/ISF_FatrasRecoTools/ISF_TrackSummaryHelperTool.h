@@ -46,76 +46,56 @@ namespace iFatras {
     */
     using IExtendedTrackSummaryHelperTool::analyse;
     using IExtendedTrackSummaryHelperTool::updateSharedHitCount;
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::RIO_OnTrack* rot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
-
-    virtual void analyse(const Trk::Track& track,
-                         const Trk::PRDtoTrackMap *prd_to_track_map,
-                         const Trk::CompetingRIOsOnTrack* crot,
-                         const Trk::TrackStateOnSurface* tsos,
-                         std::vector<int>& information,
-                         std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override;
-
-    /** Input : rot, tsos
-	Output: Changes in information and hitPattern
-	Input: quantities rot, tsos are used to increment the counts for hits and outliers in information and to set the proper bits inhitPattern.
-    */
-    virtual void analyse(const Trk::Track& track,
-			 const Trk::RIO_OnTrack* rot,
-			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information,
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
-    {
-      analyse(track,nullptr,rot,tsos,information,hitPattern);
-    }
+    using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
+    using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
+    virtual void analyse(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      const Trk::RIO_OnTrack* rot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
     /** Not used --> running with RIO_OnTrack only
-    */
-    virtual void analyse(const Trk::Track& track,
-			 const Trk::CompetingRIOsOnTrack* crot,
-			 const Trk::TrackStateOnSurface* tsos,
-			 std::vector<int>& information,
-			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const override
-    {
-      analyse(track,nullptr, crot,tsos,information,hitPattern);
-    }
+     */
+    virtual void analyse(
+      const Trk::Track& track,
+      const Trk::CompetingRIOsOnTrack* crot,
+      const Trk::TrackStateOnSurface* tsos,
+      std::vector<int>& information,
+      std::bitset<Trk::numberOfDetectorTypes>& hitPattern) const override final;
 
     /** Not used --> HoleSearchTool not used
-    */
-    virtual
-    void searchForHoles(const Trk::Track& track,
-			std::vector<int>& information ,
-			const Trk::ParticleHypothesis partHyp = Trk::pion) const override;
+     */
+    virtual void searchForHoles(
+      const Trk::Track& track,
+      std::vector<int>& information,
+      const Trk::ParticleHypothesis partHyp = Trk::pion) const override final;
 
-      /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    virtual void updateSharedHitCount(const Trk::Track& track,
-                                      const Trk::PRDtoTrackMap *prd_to_track_map,
-                                      Trk::TrackSummary& summary) const override;
-
-  /** this method simply updaes the shared hit content - it is designed/optimised for track collection merging */
-    virtual
-    void updateSharedHitCount(const Trk::Track& /*track*/,
-                              Trk::TrackSummary& /*summary*/) const override
-    {
-      ATH_MSG_DEBUG("updateSharedHitCount not implemented !!");
-    }
+    /** this method simply updaes the shared hit content - it is
+     * designed/optimised for track collection merging */
+    virtual void updateSharedHitCount(
+      const Trk::Track& track,
+      const Trk::PRDtoTrackMap* prd_to_track_map,
+      Trk::TrackSummary& summary) const override final;
 
     /** this method simply updaes the electron PID content - it is designed/optimised for track collection merging */
-    virtual
-    void updateAdditionalInfo(Trk::TrackSummary& summary,std::vector<float>& eprob,float& dedx, int& nclus, int& noverflowclus) const override;
+    virtual void updateAdditionalInfo(Trk::TrackSummary& summary,
+                                      std::vector<float>& eprob,
+                                      float& dedx,
+                                      int& nclus,
+                                      int& noverflowclus) const override final;
     /** This method updates the expect... hit info*/
-    virtual
-    void updateExpectedHitInfo(const Trk::Track& track, Trk::TrackSummary& summary) const override;
-    
+    virtual void updateExpectedHitInfo(
+      const Trk::Track& track,
+      Trk::TrackSummary& summary) const override final;
+
     /** @copydoc Trk::ITrackSummaryHelperTool::addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&)*/
-    
-    virtual void addDetailedTrackSummary(const Trk::Track&, Trk::TrackSummary&) const override;
-    
-    
+
+    virtual void addDetailedTrackSummary(const Trk::Track&,
+                                         Trk::TrackSummary&) const override final;
+
   private:
 
     inline

@@ -287,13 +287,13 @@ StatusCode VertexSeedFinderTestAlg::execute()
 StatusCode
 VertexSeedFinderTestAlg::makeMcEventCollection (const EventContext& ctx) const
 {
-  auto evt1 = std::make_unique<HepMC::GenEvent>();
-  auto evt2 = std::make_unique<HepMC::GenEvent>();
-  auto evt3 = std::make_unique<HepMC::GenEvent>();
+  auto evt1 = new HepMC::GenEvent();
+  auto evt2 = new  HepMC::GenEvent();
+  auto evt3 = new HepMC::GenEvent();
 
-  evt1->set_signal_process_vertex (new HepMC::GenVertex({1*mm,   2*mm,  12*mm}));
-  evt2->set_signal_process_vertex (new HepMC::GenVertex({0.3*mm,-0.7*mm,-3*mm}));
-  evt3->set_signal_process_vertex (new HepMC::GenVertex({0.6*mm, 0.2*mm, 7*mm}));
+  HepMC::set_signal_process_vertex (evt1,HepMC::newGenVertexPtr(HepMC::FourVector{1*mm,   2*mm,  12*mm,0.0}));
+  HepMC::set_signal_process_vertex (evt2,HepMC::newGenVertexPtr(HepMC::FourVector{0.3*mm,-0.7*mm,-3*mm,0.0}));
+  HepMC::set_signal_process_vertex (evt3,HepMC::newGenVertexPtr(HepMC::FourVector{0.6*mm, 0.2*mm, 7*mm,0.0}));
  
   Athena_test::uniform_real_distribution<double> ptdist (0.1*GeV, 100*GeV);
   Athena_test::uniform_real_distribution<double> phidist (-M_PI, M_PI);
@@ -306,17 +306,17 @@ VertexSeedFinderTestAlg::makeMcEventCollection (const EventContext& ctx) const
     double e = pt*sinh(eta);
     double charge = etadist(rng) > 0 ? 1 : -1;
     HepMC::FourVector mom {pt*cos(phi), pt*sin(phi), e, e };
-    auto p = std::make_unique<HepMC::GenParticle> ( mom, charge * 11, 1 );
+    auto p = HepMC::newGenParticlePtr ( mom, charge * 11, 1 );
 
     double vrand = etadist(rng);
     if (vrand < 0) {
-      evt1->signal_process_vertex()->add_particle_out (p.release());
+      HepMC::signal_process_vertex(evt1)->add_particle_out (p);
     }
     else if (vrand < 3) {
-      evt2->signal_process_vertex()->add_particle_out (p.release());
+      HepMC::signal_process_vertex(evt2)->add_particle_out (p);
     }
     else {
-      evt3->signal_process_vertex()->add_particle_out (p.release());
+      HepMC::signal_process_vertex(evt3)->add_particle_out (p);
     }
   }
 

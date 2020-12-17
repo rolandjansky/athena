@@ -30,15 +30,15 @@ LlpCleaner::LlpCleaner(float fSampMaxLlpThreshold,
   m_avLarQFLlpThreshold(avLarQFLlpThreshold){
   }
   
-bool LlpCleaner::operator()(const pHypoJet& jet) const {
+bool LlpCleaner::operator()(const HypoJet::IJet& jet) const {
   /* make cuts on jet attributes to select jets from long-lived particles */
   
   bool isClean{true};
 
   float fsmJet;
   float neJet;
-  if(jet -> getAttribute("FracSamplingMax", fsmJet)){
-    if(jet -> getAttribute("NegativeE", neJet)){
+  if(jet.getAttribute("FracSamplingMax", fsmJet)){
+    if(jet.getAttribute("NegativeE", neJet)){
       if(fsmJet > m_fSampMaxLlpThreshold && 
          std::abs(neJet) > m_negELlpThreshold){isClean = false;}
     } else {
@@ -52,9 +52,9 @@ bool LlpCleaner::operator()(const pHypoJet& jet) const {
   float hecfJet;
   float hecqJet;
   float alqfJet;
-  if(jet -> getAttribute("HECFrac", hecfJet)){
-    if(jet -> getAttribute("HECQuality", hecqJet)){
-      if(jet -> getAttribute("AverageLArQF", alqfJet)){
+  if(jet.getAttribute("HECFrac", hecfJet)){
+    if(jet.getAttribute("HECQuality", hecqJet)){
+      if(jet.getAttribute("AverageLArQF", alqfJet)){
         if(hecfJet > m_hecfLlpThreshold && std::abs(hecqJet) > m_hecqLlpThreshold &&
            alqfJet > m_avLarQFLlpThreshold){isClean = false;}
       } else {

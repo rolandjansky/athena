@@ -23,7 +23,7 @@ class ICleaner{
  public:
   // Abstract interface used by a factory function
   virtual ~ICleaner(){}
-  virtual bool operator()(const pHypoJet&) const = 0;
+  virtual bool operator()(const HypoJet::IJet&) const = 0;
   virtual std::string toString() const noexcept = 0;
   virtual std::string getName() const noexcept= 0;
 };

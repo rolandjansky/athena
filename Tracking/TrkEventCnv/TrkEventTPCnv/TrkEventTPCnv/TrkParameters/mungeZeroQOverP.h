@@ -19,27 +19,18 @@
 #ifndef TRKEVENTTPCNV_MUNGEZEROQOVERP_H
 #define TRKEVENTTPCNV_MUNGEZEROQOVERP_H
 
-
 #include "CxxUtils/no_sanitize_undefined.h"
-
 
 namespace TrkEventTPCnv {
 
-
-template <int DIM, class T, class S>
-class MungeZeroQOverP
-  : public Trk::ParametersT<DIM, T, S>
+template<int DIM, class T, class S>
+void mungeZeroQOverP
+NO_SANITIZE_UNDEFINED(Trk::ParametersT<DIM, T, S>& p)
 {
-public:
-  void setZero() { this->m_parameters[Trk::qOverP] = 0; }
-};
-
-template <int DIM, class T, class S>
-void mungeZeroQOverP NO_SANITIZE_UNDEFINED (Trk::ParametersT<DIM, T, S>& p)
-{
-  static_cast<MungeZeroQOverP<DIM, T, S>&>(p).setZero();
+  AmgVector(DIM) newParam = p.parameters();
+  newParam[Trk::qOverP] = 0;
+  p.setParameters(newParam);
 }
-
 }
 
 

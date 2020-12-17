@@ -31,6 +31,12 @@ private:
 	std::vector<std::string> m_structuresFromFlags;
 	std::string m_outPREsqlName;
 
+    // The following ServiceHandle<AmdcsimrecAthenaSvc> is only needed for creating AGDD muon layouts (muon passive material layouts)
+    // *IF* the AGDD xml block is still stored in the amdb file (https://twiki.cern.ch/twiki/bin/viewauth/Atlas/AmdbSimrecFiles)
+    // Note that this was the case until amdb_simrec.r.08.01, from amdb_simrec.r.08.02 onwards, the AGDD xml is stored independently
+    // of the amdb file in MuonSpectrometer/MuonG4/MuonPassiveMaterials.
+    // Thus, this ServiceHandle is only kept for backwards compatibility (in case someone wants to create muon layouts from amdb files
+    // older than amdb_simrec.r.08.02)
 #ifndef SIMULATIONBASE
 	ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;
 #endif

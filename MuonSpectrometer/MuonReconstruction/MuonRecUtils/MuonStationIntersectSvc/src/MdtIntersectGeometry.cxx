@@ -12,10 +12,13 @@
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "GeoModelUtilities/GeoGetIds.h"
 #include "MuonCondData/MdtCondDbData.h"
+#include "TrkDriftCircleMath/MdtId.h"
+#include <TString.h> // for Form
+
+// maxNTubesPerLayer is included via MdtChamberGeometry.h -> DriftCircle.h
 
 namespace Muon{
 
-  
   MdtIntersectGeometry::MdtIntersectGeometry(const Identifier& chid, const MuonGM::MuonDetectorManager* detMgr, const MdtCondDbData* dbData, MsgStream* msg, const Muon::IMuonIdHelperSvc* idHelp) :
       m_chid(chid),
       m_mdtGeometry(nullptr),
@@ -74,7 +77,6 @@ namespace Muon{
 
     double lineAngle = std::atan2(ldir.z(),ldir.y());
     TrkDriftCircleMath::LocPos linePos( lpos.y(),lpos.z() );
-
     TrkDriftCircleMath::Line line( linePos, lineAngle );
     const TrkDriftCircleMath::DCVec& dcs = m_mdtGeometry->tubesPassedByLine( line );
 
@@ -84,30 +86,34 @@ namespace Muon{
     TrkDriftCircleMath::DCCit dit_end = dcs.end();
     for( ; dit!=dit_end;++dit ){
 
+      TrkDriftCircleMath::MdtId mdtId = dit->id();
+
       double xint = dxdy*( dit->position().x() - lpos.y() ) + lpos.x();
-      Identifier tubeid = m_idHelperSvc->mdtIdHelper().channelID( m_chid, dit->id().ml()+1, dit->id().lay()+1, dit->id().tube()+1 );
+      Identifier tubeid = m_idHelperSvc->mdtIdHelper().channelID( m_chid, mdtId.ml()+1, mdtId.lay()+1, mdtId.tube()+1 );
       if( m_deadTubesML.find( m_idHelperSvc->mdtIdHelper().multilayerID(tubeid) ) != m_deadTubesML.end() ) {
         if( std::find( m_deadTubes.begin(), m_deadTubes.end(), tubeid ) != m_deadTubes.end() )
           continue;
       }
-      double distWall = std::abs(xint) - 0.5*tubeLength( dit->id().ml(), dit->id().lay(), dit->id().tube() );
+      double distWall = std::abs(xint) - 0.5*tubeLength( mdtId.ml(), mdtId.lay(), mdtId.tube() );
       intersects.push_back( MuonTubeIntersect( tubeid, dit->dr(), distWall ) );
-	
     }
     intersect.setTubeIntersects( intersects );
 
     return intersect;
   }
 
-  double MdtIntersectGeometry::tubeLength( int ml, int layer, int tube ) const
+  double MdtIntersectGeometry::tubeLength(const int ml, const int layer, const int tube) const
   {
+    if (ml<0 || ml>1) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with ml=%d which is definitely out of range", __FILE__, __LINE__,ml));
+    if (layer<0 || layer>3) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with layer=%d which is definitely out of range", __FILE__, __LINE__,layer));
+    if (tube<0 || tube>int(maxNTubesPerLayer-1)) throw std::runtime_error(Form("File: %s, Line: %d\nMdtIntersectGeometry::tubeLength() - got called with tube=%d which is definitely out of range", __FILE__, __LINE__,tube));
     // shift by one to account for MuonGeoModel scheme
-    tube  += 1;
-    layer += 1;
+    int theTube = tube+1;
+    int theLayer = layer+1;
     // handle case where first ml is dead
-    if( ml == 1 && !m_detElMl1 ) return m_detElMl0->getActiveTubeLength( layer, tube );
-    if( ml == 0 ) return m_detElMl0->getActiveTubeLength( layer, tube );
-    else          return m_detElMl1->getActiveTubeLength( layer, tube );
+    if( ml == 1 && !m_detElMl1 ) return m_detElMl0->getActiveTubeLength( theLayer, theTube );
+    if( ml == 0 ) return m_detElMl0->getActiveTubeLength( theLayer, theTube );
+    else          return m_detElMl1->getActiveTubeLength( theLayer, theTube );
   }
 
 
@@ -241,7 +247,7 @@ namespace Muon{
       std::vector<int>::iterator it = tubes.begin();
       for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
          for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-           int want_id = layer*100 + tube;
+           int want_id = layer*maxNTubesPerLayer + tube;
            if (it != tubes.end() && *it == want_id) {
              ++it;
            }

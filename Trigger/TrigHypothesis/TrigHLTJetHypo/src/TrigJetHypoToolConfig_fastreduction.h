@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLCONFIG_FASTREDUCTION_H
@@ -14,7 +14,7 @@
 
 
 #include "ITrigJetHypoToolConfig.h"
-#include "./ConditionsDefsMT.h"
+#include "./CapacityCheckedConditionsDefs.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
@@ -25,7 +25,7 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
-#include "./ITrigJetConditionConfig.h"
+#include "./ITrigJetCapacityCheckedConditionConfig.h"
 
 class TrigJetHypoToolConfig_fastreduction:
 public extends<AthAlgTool, ITrigJetHypoToolConfig> {
@@ -47,16 +47,16 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
 
  private:
-  ToolHandleArray<ITrigJetConditionConfig> m_conditionMakers{
+  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_conditionMakers{
     this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
 
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
 
-  Gaudi::Property<std::vector<int>> m_sharedNodesVec{
-    this, "sharedVector", {}, "nodeID groups for nodes that see input jets"};
+  Gaudi::Property<std::vector<int>> m_leafNodes{
+    this, "leafVector", {}, "node ids for leaf nodes"};
 
-  std::vector<std::vector<int>> m_sharedNodes{};
- 
+  std::optional<ConditionPtrs> getCapacityCheckedConditions() const;
+
 };
 #endif

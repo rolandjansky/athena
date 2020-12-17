@@ -143,10 +143,10 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate */   
     virtual void extend( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-			 Trk::SegmentCollection* segments) const override;
+			 Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
     virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments ) const override;
+				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx ) const override;
 
   private:
     /** handle a single candidate */
@@ -285,6 +285,8 @@ namespace MuonCombined {
     std::set<int> m_selectedPdgs; // set storing particle PDG's considered for matching
     
     const double m_inverseSpeedOfLight = 1 / Gaudi::Units::c_light; // need 1/299.792458 inside calculateTof()/calculateBeta()
+
+    virtual void cleanUp() const override;
   };
 
   inline float MuonStauRecoTool::calculateTof(const float beta, const float dist) const {

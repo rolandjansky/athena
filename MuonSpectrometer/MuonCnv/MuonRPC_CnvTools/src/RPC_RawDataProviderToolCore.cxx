@@ -35,8 +35,7 @@ StatusCode Muon::RPC_RawDataProviderToolCore::initialize()
 
 }
 
-StatusCode Muon::RPC_RawDataProviderToolCore::convertIntoContainers(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,  const std::vector<IdentifierHash>& collections,
-                                                    RpcPadContainer* pad, RpcSectorLogicContainer* logic) const {
+StatusCode Muon::RPC_RawDataProviderToolCore::convertIntoContainers(const std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs,  const std::vector<IdentifierHash>& collections, RpcPadContainer* pad, RpcSectorLogicContainer* logic, const bool& decodeSL) const {
 
   for (auto itFrag = vecRobs.begin(); itFrag != vecRobs.end(); itFrag++)
   {
@@ -45,7 +44,7 @@ StatusCode Muon::RPC_RawDataProviderToolCore::convertIntoContainers(const std::v
     {
       std::vector<IdentifierHash> coll = to_be_converted(**itFrag,collections);
 
-      if (m_decoder->fillCollections(**itFrag, *pad, coll, logic).isFailure())
+      if (m_decoder->fillCollections(**itFrag, *pad, coll, logic, decodeSL).isFailure())
       {
         // store the error conditions into the StatusCode and continue
       }

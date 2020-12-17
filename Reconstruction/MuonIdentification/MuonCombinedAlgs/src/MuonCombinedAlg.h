@@ -28,11 +28,10 @@ class MuonCombinedAlg : public AthAlgorithm
  public:
   MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-  ~MuonCombinedAlg();
+  ~MuonCombinedAlg()=default;
 
   StatusCode initialize();
   StatusCode execute();
-  StatusCode finalize();
 
  private:
 

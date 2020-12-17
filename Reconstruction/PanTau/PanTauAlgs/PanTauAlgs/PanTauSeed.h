@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_PANTAUSEED_H
@@ -21,7 +21,7 @@ namespace PanTau {
 
 
 
-  class PanTauSeed2 : public xAOD::IParticle {
+  class PanTauSeed : public xAOD::IParticle {
     // IParticle implementation as in 
     // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODEgamma/xAODEgamma/versions/Egamma_v1.h
     // http://acode-browser.usatlas.bnl.gov/lxr/source/atlas/Event/xAOD/xAODEgamma/Root/Egamma_v1.cxx
@@ -58,10 +58,10 @@ namespace PanTau {
     static int          getDecayMode(int nCharged, int nNeutral);
     static std::string  getDecayModeName(int decayMode);
         
-    PanTauSeed2();
-    ~PanTauSeed2();
-    PanTauSeed2(const PanTauSeed2& seed);
-    PanTauSeed2& operator=(const PanTauSeed2& seed);
+    PanTauSeed();
+    ~PanTauSeed();
+    PanTauSeed(const PanTauSeed& seed);
+    PanTauSeed& operator=(const PanTauSeed& seed);
 
 
     /// @name xAOD::IParticle functions
@@ -114,35 +114,35 @@ namespace PanTau {
 
 
     /** Main constructor to be used */
-    PanTauSeed2( std::string                          nameInputAlgorithm,
-		 const xAOD::TauJet*                  tauJet,
-		 std::vector<PanTau::TauConstituent2*> tauConstituents,
-		 std::vector<PanTau::TauConstituent2*> tauConstituentsWithUnselected,
-		 std::vector<int>                     pantauSeed_TechnicalQuality
-		 );
+    PanTauSeed( std::string                          nameInputAlgorithm,
+		const xAOD::TauJet*                  tauJet,
+		std::vector<PanTau::TauConstituent*> tauConstituents,
+		std::vector<PanTau::TauConstituent*> tauConstituentsWithUnselected,
+		std::vector<int>                     pantauSeed_TechnicalQuality
+		);
 
 
     /** Constructor for invalid seeds */
-    PanTauSeed2( std::string                          nameInputAlgorithm,
+    PanTauSeed( std::string                          nameInputAlgorithm,
 		 const xAOD::TauJet*                  tauJet,
 		 std::vector<int>                     pantauSeed_TechnicalQuality
 		 );
 
     std::string                                         getNameInputAlgorithm() const;
     const xAOD::TauJet*                                 getTauJet() const;
-    PanTau::TauFeature2*                                 getFeatures() const;
+    PanTau::TauFeature*                                 getFeatures() const;
     TLorentzVector                                      getProtoMomentumCore() const;
     TLorentzVector                                      getProtoMomentumWide() const;
 
     bool                                                getIsValidSeed() const;
     std::vector<int>                                    getTechnicalQuality() const;
     bool                                                isOfTechnicalQuality(int pantauSeed_TechnicalQuality) const;
-    std::vector< std::vector<PanTau::TauConstituent2*> > getConstituents() const;
-    std::vector<PanTau::TauConstituent2*>                getConstituentsAsList_Core() const;
-    std::vector<PanTau::TauConstituent2*>                getConstituentsAsList_Wide() const;
-    std::vector<PanTau::TauConstituent2*>                getConstituentsAsList_All() const;
+    std::vector< std::vector<PanTau::TauConstituent*> > getConstituents() const;
+    std::vector<PanTau::TauConstituent*>                getConstituentsAsList_Core() const;
+    std::vector<PanTau::TauConstituent*>                getConstituentsAsList_Wide() const;
+    std::vector<PanTau::TauConstituent*>                getConstituentsAsList_All() const;
 
-    std::vector<PanTau::TauConstituent2*>                getConstituentsOfType(int tauConstituent_Type, bool& foundit);
+    std::vector<PanTau::TauConstituent*>                getConstituentsOfType(int tauConstituent_Type, bool& foundit);
     int                                                 getNumberOfConstituentsOfType(int tauConstituent_Type);
     TLorentzVector                                      getSubsystemHLV(int tauConstituent_Type, bool& foundit);
 
@@ -177,12 +177,12 @@ namespace PanTau {
     //place to store which input alg created this pantauseed: eflowRec, CellBased, ClusterBased..                                                                                                                                              
     std::string                                         m_NameInputAlgorithm;
 
-    //pointer to the TauJet this PanTauSeed2 was build from (pointer not owned by PanTauSeed)                                                                                                                                                   
+    //pointer to the TauJet this PanTauSeed was build from (pointer not owned by PanTauSeed)                                                                                                                                                   
     const xAOD::TauJet*                                 m_TauJet;
 
     //for each type of tauConstituent, a list of constituents (of that type)                                                                                                                                                                   
-    // the TauConstituent2 objects are owned by PanTauSeed2 (this class), so they need to be deleted in the destructor                                                                                                                           
-    std::vector< std::vector<PanTau::TauConstituent2*> > m_Constituents;
+    // the TauConstituent objects are owned by PanTauSeed (this class), so they need to be deleted in the destructor                                                                                                                           
+    std::vector< std::vector<PanTau::TauConstituent*> > m_Constituents;
 
     //the momentum as calculated by using all constituents added to this seed                                                                                                                                                                  
     TLorentzVector                                      m_ProtoMomentum_Wide;
@@ -197,13 +197,13 @@ namespace PanTau {
     std::vector< TLorentzVector >                       m_TypeHLVs;
 
     //also store constituents as flat list for easier access later on                                                                                                                                                                          
-    std::vector<PanTau::TauConstituent2*>                m_ConstituentsList_Core; //only objects in core region                                                                                                                                 
-    std::vector<PanTau::TauConstituent2*>                m_ConstituentsList_Wide; //objects out of core region up to 0.4                                                                                                                        
-    std::vector<PanTau::TauConstituent2*>                m_ConstituentsList_AllSelected;  //all selected objects for this seed                                                                                                                  
+    std::vector<PanTau::TauConstituent*>                m_ConstituentsList_Core; //only objects in core region                                                                                                                                 
+    std::vector<PanTau::TauConstituent*>                m_ConstituentsList_Wide; //objects out of core region up to 0.4                                                                                                                        
+    std::vector<PanTau::TauConstituent*>                m_ConstituentsList_AllSelected;  //all selected objects for this seed                                                                                                                  
 
     //for memory reasons:                                                                                                                                                                                                                      
     // pass list of selected AND unselected pfos to seed, which will take ownership                                                                                                                                                            
-    std::vector<PanTau::TauConstituent2*>                m_ConstituentsList_All; //all objects for this seed, selected and unselected                                                                                                           
+    std::vector<PanTau::TauConstituent*>                m_ConstituentsList_All; //all objects for this seed, selected and unselected                                                                                                           
 
     //the decay mode                                                                                                                                                                                                                           
     int                                                 m_DecayMode_BySubAlg;
@@ -214,7 +214,7 @@ namespace PanTau {
     //! is set)                                                                                                                                            
 
     //the features of this pantauseed                                                                                                                                                                                                          
-    PanTau::TauFeature2*                                 m_Features;
+    PanTau::TauFeature*                                 m_Features;
 
 
   };
@@ -226,23 +226,23 @@ namespace PanTau {
 } //end name space pantau
 
 
-inline std::string                                          PanTau::PanTauSeed2::getNameInputAlgorithm() const       {return m_NameInputAlgorithm;}
-inline const xAOD::TauJet*                                  PanTau::PanTauSeed2::getTauJet() const                   {return m_TauJet;}
-inline PanTau::TauFeature2*                                  PanTau::PanTauSeed2::getFeatures() const                 {return m_Features;}
-inline TLorentzVector                                       PanTau::PanTauSeed2::getProtoMomentumWide() const        {return m_ProtoMomentum_Wide;}
-inline TLorentzVector                                       PanTau::PanTauSeed2::getProtoMomentumCore() const        {return m_ProtoMomentum_Core;}
-inline std::vector< std::vector<PanTau::TauConstituent2*> >  PanTau::PanTauSeed2::getConstituents() const             {return m_Constituents;}
-inline std::vector<PanTau::TauConstituent2*>                 PanTau::PanTauSeed2::getConstituentsAsList_Core() const  {return m_ConstituentsList_Core;}
-inline std::vector<PanTau::TauConstituent2*>                 PanTau::PanTauSeed2::getConstituentsAsList_Wide() const  {return m_ConstituentsList_Wide;}
-inline std::vector<PanTau::TauConstituent2*>                 PanTau::PanTauSeed2::getConstituentsAsList_All() const   {return m_ConstituentsList_All;}
-inline TLorentzVector                                       PanTau::PanTauSeed2::getFinalMomentum() const            {return m_FinalMomentum;}
-inline int                                                  PanTau::PanTauSeed2::getDecayModeBySubAlg() const        {return m_DecayMode_BySubAlg;}
-inline int                                                  PanTau::PanTauSeed2::getDecayModeByPanTau() const        {return m_DecayMode_ByPanTau;}
-inline bool                                                 PanTau::PanTauSeed2::getIsValidSeed() const              {return m_IsValidSeed;}
-inline std::vector<int>                                     PanTau::PanTauSeed2::getTechnicalQuality() const         {return m_TechnicalQuality;}
+inline std::string                                          PanTau::PanTauSeed::getNameInputAlgorithm() const       {return m_NameInputAlgorithm;}
+inline const xAOD::TauJet*                                  PanTau::PanTauSeed::getTauJet() const                   {return m_TauJet;}
+inline PanTau::TauFeature*                                  PanTau::PanTauSeed::getFeatures() const                 {return m_Features;}
+inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumWide() const        {return m_ProtoMomentum_Wide;}
+inline TLorentzVector                                       PanTau::PanTauSeed::getProtoMomentumCore() const        {return m_ProtoMomentum_Core;}
+inline std::vector< std::vector<PanTau::TauConstituent*> >  PanTau::PanTauSeed::getConstituents() const             {return m_Constituents;}
+inline std::vector<PanTau::TauConstituent*>                 PanTau::PanTauSeed::getConstituentsAsList_Core() const  {return m_ConstituentsList_Core;}
+inline std::vector<PanTau::TauConstituent*>                 PanTau::PanTauSeed::getConstituentsAsList_Wide() const  {return m_ConstituentsList_Wide;}
+inline std::vector<PanTau::TauConstituent*>                 PanTau::PanTauSeed::getConstituentsAsList_All() const   {return m_ConstituentsList_All;}
+inline TLorentzVector                                       PanTau::PanTauSeed::getFinalMomentum() const            {return m_FinalMomentum;}
+inline int                                                  PanTau::PanTauSeed::getDecayModeBySubAlg() const        {return m_DecayMode_BySubAlg;}
+inline int                                                  PanTau::PanTauSeed::getDecayModeByPanTau() const        {return m_DecayMode_ByPanTau;}
+inline bool                                                 PanTau::PanTauSeed::getIsValidSeed() const              {return m_IsValidSeed;}
+inline std::vector<int>                                     PanTau::PanTauSeed::getTechnicalQuality() const         {return m_TechnicalQuality;}
 
-inline void                                                 PanTau::PanTauSeed2::setFinalMomentum(TLorentzVector finalMom)  {m_FinalMomentum = finalMom;}
-inline void                                                 PanTau::PanTauSeed2::setDecayModeByPanTau(int decayModePanTau)           {m_DecayMode_ByPanTau = decayModePanTau;}
+inline void                                                 PanTau::PanTauSeed::setFinalMomentum(TLorentzVector finalMom)  {m_FinalMomentum = finalMom;}
+inline void                                                 PanTau::PanTauSeed::setDecayModeByPanTau(int decayModePanTau)           {m_DecayMode_ByPanTau = decayModePanTau;}
 
 
 inline static void                                          PanTau::SetP4EEtaPhiM(TLorentzVector& hlv, double e, double eta, double phi, double m ){

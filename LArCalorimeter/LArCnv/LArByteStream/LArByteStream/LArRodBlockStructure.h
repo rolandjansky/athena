@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -113,7 +113,7 @@ public :
   virtual inline int32_t  getEy() const;
   virtual inline int32_t  getEz() const;
   virtual inline int32_t  getSumE() const;
-  virtual inline uint32_t getVROBFebId() const;
+  virtual inline uint32_t getVROBFebId();
   virtual inline int32_t  getVROBEx() const;
   virtual inline int32_t  getVROBEy() const;
   virtual inline int32_t  getVROBEz() const;
@@ -223,8 +223,8 @@ public :
   //Number of channels per FEB
   int m_channelsPerFEB;
   //Full ROD fragment for decoding
-  uint32_t* m_FebBlock;   //Pointer to the first element of the current FEB-Fragement (used only for decoding!)
-  uint32_t* m_RodBlock;  //Pointer to the very beginning of the ROD-Block
+  const uint32_t* m_FebBlock;   //Pointer to the first element of the current FEB-Fragement (used only for decoding!)
+  const uint32_t* m_RodBlock;  //Pointer to the very beginning of the ROD-Block
   int32_t m_FebBlockSize; 
   int32_t m_RodBlockSize; 
   std::vector<uint32_t> *m_vFragment;  //Pointer to the vector that holds the current FEB-block (used only for encoding!)
@@ -233,8 +233,8 @@ public :
   FEBMAPTYPE m_mFebBlocks; //Map of feb-Blocks (for encoding only);
   //static uint32_t FebToOfflineGainMap[3];
   //static uint32_t OfflineToFebGainMap[3];
-  static uint32_t m_RawToOfflineGainMap[4];
-  static uint32_t m_OfflineToRawGainMap[3];
+  static const uint32_t m_RawToOfflineGainMap[4];
+  static const uint32_t m_OfflineToRawGainMap[3];
   int32_t m_MiddleHeaderSize;
   // Free gain mode needs raw data to be rearranged
   unsigned int m_rearrangeFirstSample;
@@ -242,16 +242,16 @@ public :
   bool m_error_next_feb;
   // Jump from one virtual ROB
   uint32_t m_virtualROBJump;
-  mutable int32_t m_ROB_to_decode;
-  mutable uint32_t* m_virtualROBPointer;
-  mutable uint32_t* m_virtualROBPointerLocal;
+  int32_t m_ROB_to_decode;
+  const uint32_t* m_virtualROBPointer;
+  const uint32_t* m_virtualROBPointerLocal;
 };
 
 // Implementation of inline-functions:
 inline bool LArRodBlockStructure::setFragment(const uint32_t* p, uint32_t n)
 {
   resetPointers();
-  m_FebBlock         = (uint32_t *) p; 
+  m_FebBlock         = p;
   m_RodBlock         = m_FebBlock;
   m_RodBlockSize     = n;
   uint32_t BlockSize = 0;
@@ -315,7 +315,7 @@ inline int32_t LArRodBlockStructure::getSumE() const {
  return 0;
 }
 
-inline uint32_t  LArRodBlockStructure::getVROBFebId() const{
+inline uint32_t  LArRodBlockStructure::getVROBFebId(){
 return 0;
 }
 
@@ -381,7 +381,7 @@ inline void LArRodBlockStructure::setHeader16(const unsigned n, const uint16_t w
 #ifdef LARBYTESTREAMRODBLOCK_CHCKBOUNDARIES
   if ((unsigned)n>=m_vFragment->size()*2) {
     std::cout << "ERROR WRITE BEYOND ARRAY BONDARY!" << std::endl;
-    exit(-1);
+    std::abort();
   }
 #endif
   if (n&0x1) // n is a odd number
@@ -395,14 +395,16 @@ inline void LArRodBlockStructure::setHeader32(const unsigned n, const uint32_t w
 #ifdef LARBYTESTREAMRODBLOCK_CHCKBOUNDARIES
   if ((unsigned)n>=m_vFragment->size()*2) {
     std::cout << "ERROR WRITE BEYOND ARRAY BONDARY!" << std::endl;
-    exit(-1);
+    std::abort();
   }
 #endif
   m_vFragment->at(n>>1) = w;
 }
 
 inline uint16_t LArRodBlockStructure::LE_getHeader16(const unsigned n) const // n should be choosen from the above enum
-{return ((uint16_t*)(m_FebBlock))[n];}
+{
+  return (reinterpret_cast<const uint16_t*>(m_FebBlock))[n];
+}
 
 inline uint16_t LArRodBlockStructure::LE_getVectorHeader16(const unsigned n) const // n should be choosen from the above enum
 {return ((uint16_t*)(&(m_vFragment->front())))[n];}
@@ -412,7 +414,7 @@ inline void LArRodBlockStructure::LE_setHeader16(const unsigned n, const uint16_
 #ifdef LARBYTESTREAMRODBLOCK_CHCKBOUNDARIES
   if ((unsigned)n>=m_vFragment->size()*2) {
     std::cout << "LArRodBlockStructure::LE_setHeader16 ERROR: WRITE BEYOND ARRAY BONDARY!" << std::endl;
-    exit(-1);
+    std::abort();
   }
 #endif
  ((uint16_t*)(&(m_vFragment->front())))[n] = w;

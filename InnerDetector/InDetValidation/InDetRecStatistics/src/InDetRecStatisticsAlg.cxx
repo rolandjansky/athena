@@ -610,20 +610,17 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	  //if (genEvent == *inTimeMBbegin) inTimeStart = ievt;
 	  //if (genEvent == *inTimeMBend)   inTimeEnd   = ievt;
 	}
-      HepMC::GenParticle * particle = NULL;
-      for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-	   it != genEvent->particles_end(); ++it)
+      for (auto particle: *genEvent)
 	{
-	  particle = *it;
 	  // require stable particle from generation or simulation\	  s
 	  if ((particle->status()%1000) != 1 )
 	    continue;
 	  int   pdgCode = particle->pdg_id();
-	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgCode));
+	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
 	  if (!pd) {
 	    ATH_MSG_DEBUG("Could not get particle data for particle with "
 			 <<"pdgCode="<<pdgCode<< ", status=" << particle->status() 
-			 << ", barcode=" << particle->barcode());
+			 << ", barcode=" << HepMC::barcode(particle));
 	    ATH_MSG_DEBUG("GenParticle= " << particle);
 	    continue;
 	  }
@@ -632,7 +629,7 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	      continue;
 	  if (fabs(particle->momentum().perp()) >  m_minPt  &&  
 	      fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
-	    std::pair<HepMC::GenParticle *,int> thisPair(particle,ievt);
+	    std::pair<HepMC::GenParticlePtr,int> thisPair(particle,ievt);
 	    GenSignal.push_back(thisPair);
 	  }
 	} // End of a particle iteration

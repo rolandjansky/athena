@@ -9,13 +9,10 @@ except NameError:
     from sets import Set
 from time import time
 
-from CoolRunQuery.utils.AtlRunQueryIOV   import IOVTime, IOVRange
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
-from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, runsOnServer, GetRanges, SmartRangeCalulator
-
-from .AtlRunQuerySelectorBase import Selector, Condition, RunLBBasedCondition, TimeBasedCondition, DataKey
-
-from CoolRunQuery.AtlRunQueryRun         import Run
+from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
+from CoolRunQuery.AtlRunQueryRun import Run
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, DataKey
 
 
 class StreamSelector(Selector):
@@ -47,8 +44,10 @@ class StreamSelector(Selector):
         self.showstreampatterns += streampattern.replace('*','.*').replace('%','.*').replace('?','.').split(',')
 
     def __str__(self):
-        if len(self.streams)!=0: return 'SELOUT Checking if the stream name matches "%s"' % self.streams
-        else: return "Retrieving stream names that match '%s'" % ','.join(self.showstreampatterns)
+        if len(self.streams)!=0:
+            return 'SELOUT Checking if the stream name matches "%s"' % self.streams
+        else:
+            return "Retrieving stream names that match '%s'" % ','.join(self.showstreampatterns)
 
     def select(self, runlist):
 
@@ -92,7 +91,8 @@ class StreamSelector(Selector):
                 overlapall = GetSFO_overlapAll( cursor, runnrlist )  # [(SUM(OVERLAP_EVENTS))]
             smallrunnrlist=[]
             for r in runnrlist: # go through old runlist and see
-                if not r in streamsall: continue
+                if r not in streamsall:
+                    continue
                 for s in streamsall[r]:
                     if r in lbinfoall and s in lbinfoall[r] and lbinfoall[r][s][1]>0:
                         smallrunnrlist += [r]
@@ -110,9 +110,11 @@ class StreamSelector(Selector):
             if run.runNr in streamsall:
                 streams   = streamsall[run.runNr]
             for s in streams:
-                try: nfiles, size, events = filesall[run.runNr][s]
-                except: nfiles, size, events = (0,0,0)
-                strsize   += [size]
+                try:
+                    _, size, events = filesall[run.runNr][s]
+                except IndexError:
+                    _, size, events = (0,0,0)
+                strsize += [size]
                 strevents += [events]
 
 
@@ -127,7 +129,8 @@ class StreamSelector(Selector):
 
                     # fill overlaps into matrix
                     for j,s2 in enumerate(streams):
-                        try: eventsij = overlapall[run.runNr][s][s2]
+                        try:
+                            eventsij = overlapall[run.runNr][s][s2]
                         except KeyError:
                             eventsij = 0
                             if i==j and events:
@@ -138,12 +141,14 @@ class StreamSelector(Selector):
 
                     # read number of events per LB
                     minlb, maxlb, lbs = (0,0,1)
-                    try: minlb, maxlb, lbs = lbinfoall[run.runNr][s]
-                    except KeyError: pass
+                    try:
+                        minlb, maxlb, lbs = lbinfoall[run.runNr][s]
+                    except KeyError:
+                        pass
 
                     # if minlb==maxlb==0 -> no file closure at LB boundary
                     if minlb == 0 and maxlb == 0:
-                        run.stats['STR:'+s]['LBRecInfo'] = None;
+                        run.stats['STR:'+s]['LBRecInfo'] = None
                         continue
                     else:
                         lbevcount = '<tr>'
@@ -183,13 +188,15 @@ class StreamSelector(Selector):
                         run.stats['STR:'+s]['LBRecInfo'] = result
 
                 # add overlap information to the run stats
-                for i in xrange(nst):
+                for i in range(nst):
                     statkey = 'STR:'+streams[i]
                     run.stats[statkey]['StrOverlap'] = []
                     denom = stovmat.getitem(i,i)
-                    if denom==0: continue
-                    for j in xrange(nst):
-                        if i == j or stovmat.getitem(i,j) == 0: continue
+                    if denom==0:
+                        continue
+                    for j in range(nst):
+                        if i == j or stovmat.getitem(i,j) == 0:
+                            continue
                         fraction = 100
                         if stovmat.getitem(i,j) != denom:
                             fraction = float(stovmat.getitem(i,j))/float(denom)*100.0
@@ -198,29 +205,30 @@ class StreamSelector(Selector):
 
 
             # selection...
-            if not self.passes(zip(streams,strevents),0): continue
+            if not self.passes(zip(streams,strevents),0):
+                continue
             newrunlist += [run.runNr]
             allStreams.update(streams)
             for k,v,s in zip(streams,strevents,strsize):
                 run.addResult('STR:'+k, (v,s))
 
-
-
-
         allStreams = ['STR:'+s for s in allStreams]
-        allStreams.sort(lambda x,y: 2*cmp(y[4],x[4]) + cmp(x[5:],y[5:]))
 
+        ### this should work as sort is "order safe"
+        allStreams.sort(key = lambda x: (x[5:]) )
+        allStreams.sort(key = lambda x: (x[4]), reverse=True )
+   
         # fill the gaps
         for run in runlist:
             for s in allStreams:
-                if not s in run.result:
+                if s not in run.result:
                     run.addResult(s, 'n.a.')
 
         runlist = [r for r in runlist if r.runNr in newrunlist]
 
         # check if the streams in 'allStreams' match the show patterns
         for s in allStreams:
-            if any( [p.match(s[4:])!=None for p in compiledShowPatterns] ):
+            if any( [p.match(s[4:]) is not None for p in compiledShowPatterns] ):
                 Run.AddToShowOrder(DataKey(s, keytype=DataKey.STREAM))
 
 
@@ -238,7 +246,8 @@ class StreamSelector(Selector):
             # add Tier0 information
             for run in runlist:
                 for s in allStreams:
-                    if run.result[s]=='n.a.': continue
+                    if run.result[s]=='n.a.':
+                        continue
                     run.stats[s]['StrTier0TypesRAW'] = {}
                     run.stats[s]['StrTier0TypesESD'] = {}
                     run.stats[s]['StrTier0AMI'] = {}
@@ -257,7 +266,7 @@ class StreamSelector(Selector):
                                         prodstep = 'StrTier0TypesRAW'
                                     else:
                                         prodstep = 'StrTier0TypesESD'
-                                    if not run.stats[s]['StrTier0AMI'].has_key( prodstep ):
+                                    if prodstep not in run.stats[s]['StrTier0AMI']:
                                         dsnamesplit = dsname.split('.')
                                         if len(dsnamesplit)>5:
                                             amitag = dsnamesplit[5]
@@ -266,19 +275,23 @@ class StreamSelector(Selector):
                                             amitag = ''
                                 # check if on CAF
                                 oncaf = False
-                                if pstates and 'replicate:done' in pstates: oncaf = True
+                                if pstates and 'replicate:done' in pstates:
+                                    oncaf = True
 
                                 # fill the run stats
-                                if not run.stats[s][prodstep].has_key(t): run.stats[s][prodstep][t] = oncaf
+                                if t not in run.stats[s][prodstep]:
+                                    run.stats[s][prodstep][t] = oncaf
 
 
         # Done
         duration = time() - start
-        if len(self.streams)!=0: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                    print (" ==> Done (%g sec)" % duration)
+        if len(self.streams)!=0:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
         return runlist
 
-    def passes(self,streamevents,key):
+    def passes(self, streamevents, key):
         # streamevents is  [('physics_L1Calo', 87274, False), ('physics_RPCwBeam', 1075460, True), ('debug_hlterror', 151, False),...]
         for streampattern, neventreq, negate, pattern in self.selstreamspatterns:
             nevents = 0
@@ -289,8 +302,10 @@ class StreamSelector(Selector):
                     foundmatchingStream = True
             if neventreq:
                 if neventreq[-1] in '+-':
-                    if neventreq[-1] == '-': passreq = nevents<int(req[1][:-1])
-                    else: passreq = nevents>int(neventreq[:-1])
+                    if neventreq[-1] == '-':
+                        passreq = nevents < int( neventreq[:-1] )
+                    else:
+                        passreq = nevents > int( neventreq[:-1] )
                 else:
                     passreq = nevents>int(neventreq)
             else:

@@ -42,7 +42,7 @@ namespace Muon {
     result->clear();
     if(input) {
       const HepMC::GenParticle *next(0), *current = input;
-      ATH_MSG_DEBUG( " New TruthTrajectory: input: barcode " << input->barcode() << " PDG id " << input->pdg_id());
+      ATH_MSG_DEBUG( " New TruthTrajectory: input: barcode " << HepMC::barcode(input) << " PDG id " << input->pdg_id());
 
       // Extend trajectory outwards.  The last particle should go at [0]
       // in the TruthTrajectory, so we need to use a tmp storage while
@@ -54,7 +54,7 @@ namespace Muon {
 
       // copy the outer half to result
       while(!tmp.empty()) {
-	ATH_MSG_DEBUG( " Adding daughter: barcode " << current->barcode() << " PDG id " << current->pdg_id());
+	ATH_MSG_DEBUG( " Adding daughter: barcode " << HepMC::barcode(current) << " PDG id " << current->pdg_id());
 	result->push_back(tmp.top());
 	tmp.pop();
       }
@@ -64,7 +64,7 @@ namespace Muon {
 
       // Now continue towards the interaction point
       while((next = getMother(current))) {
-	ATH_MSG_DEBUG( " Adding mother: barcode " << current->barcode() << " PDG id " << current->pdg_id());
+	ATH_MSG_DEBUG( " Adding mother: barcode " << HepMC::barcode(current) << " PDG id " << current->pdg_id());
 	result->push_back(current = next);
       }
     
@@ -74,7 +74,7 @@ namespace Muon {
       for( ;pit!=pit_end;++pit ){
 	const HepMC::GenParticle& par = *pit->cptr(); 
 	if(msgLvl(MSG::DEBUG))  {
-	  msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << par.barcode() << " pt: " << par.momentum().perp();
+	  msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << HepMC::barcode(par) << " pt: " << par.momentum().perp();
 	  if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->position().perp() 
 							<< " z " << par.production_vertex()->position().z();
 	  if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->position().perp() << " z " << par.end_vertex()->position().z();
@@ -108,7 +108,7 @@ namespace Muon {
 	  const HepMC::GenParticle& par = *candidate;
         
 	  if( msgLvl(MSG::DEBUG) ){
-	    msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << par.barcode() <<  " pt: " << par.momentum().perp(); 
+	    msg(MSG::DEBUG) << " PDG ID " << par.pdg_id() << " barcode: " << HepMC::barcode(par) <<  " pt: " << par.momentum().perp(); 
 	    if( par.production_vertex() ) msg(MSG::DEBUG) << " vertices prod: r " << par.production_vertex()->position().perp() 
 							  << " z " << par.production_vertex()->position().z();
 	    if( par.end_vertex() ) msg(MSG::DEBUG) << " end: r " << par.end_vertex()->position().perp() << " z " << par.end_vertex()->position().z();

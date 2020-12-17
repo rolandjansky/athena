@@ -10,7 +10,6 @@
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTracking/TrackParticleContainer.h"
-#include "CLHEP/Units/SystemOfUnits.h"
 #include <string>
 
 
@@ -71,13 +70,13 @@ class TrigIsoHPtTrackTriggerHypoTool : virtual public ::AthAlgTool
  private:
   HLT::Identifier m_decisionId;
   /* Gaudi::Property<bool>  m_acceptAll{ this, "AcceptAll", false, "Ignore selection" }; */
-  Gaudi::Property< std::vector<float> > m_TrackPt{ this, "MinTrackPt",  { float( 50.0*CLHEP::GeV ) }, "Track pT requirement" };
+  Gaudi::Property< std::vector<float> > m_TrackPt{ this, "MinTrackPt",  { float( 50.0*Gaudi::Units::GeV ) }, "Track pT requirement" };
   Gaudi::Property< std::vector<float> > m_Trackd0{ this,  "MaxTrackd0", {5.}, "Maximum Track d0 allowed"      }; //loose cut
   Gaudi::Property< std::vector<unsigned> > m_TrackNPixHits{ this,  "MinTrackNPixHits", {2}, "Minimum number of pixel hits required from the trigger"     }; //loose cut
   Gaudi::Property< std::vector<bool> > m_doIso { this,  "EnableTrackIsolation", {false}, "If track based isolation should be applied or not? "};
   Gaudi::Property< std::vector<bool> > m_IsoCum { this,  "EnableCumalitiveIsolation", {false}, "Instead of checking if one track is above a certain pT threshold, add up all tracks for isolation"};
   Gaudi::Property< std::vector<float> > m_IsoDR{ this,  "TrackIsoCone", {0.3}, "Isolation requirment over the main track" };
-  Gaudi::Property< std::vector<float> > m_IsoPt{ this,  "MinIsoTrackPt", {float( 5.0*CLHEP::GeV )}, "Min pT requirment of other tracks to be considered for isolation" };
+  Gaudi::Property< std::vector<float> > m_IsoPt{ this,  "MinIsoTrackPt", {float( 5.0*Gaudi::Units::GeV )}, "Min pT requirment of other tracks to be considered for isolation" };
 
   
   size_t m_multiplicity = 1;

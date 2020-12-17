@@ -345,13 +345,13 @@ namespace JetTagDQA{
 								if((hist_iter->first).find("_trackCuts") < (hist_iter->first).length()){
 									if(nGTinSvx > 0 && nIP3DTracks > 0){ 
 										double weight=-999;
-										btag->variable<double>(*tag_iter,"discriminant",weight);		
+										btag->MVx_discriminant( *tag_iter,weight );
 										(hist_iter->second)->Fill(weight);
 									}
 								}
 								else{
 									double weight=-999;
-									btag->variable<double>(*tag_iter,"discriminant",weight);
+									btag->MVx_discriminant( *tag_iter,weight );
 									(hist_iter->second)->Fill(weight);
 								}
 							}	

@@ -1,12 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from .MuonRecFlags import muonRecFlags
 from .MuonStandaloneFlags import muonStandaloneFlags
 
 from .ConfiguredMuonRec import ParallelMuonRec
-from AthenaCommon.Logging import logging
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
 muonRecFlags.setDefaults()

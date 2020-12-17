@@ -54,7 +54,7 @@ void ATLASVersion(char* version,Double_t x,Double_t y,Color_t color)
 
   if (version) {
     char versionString[100];
-    snprintf(versionString,99,"Version %s",version);
+    sprintf(versionString,"Version %s",version);
     TLatex l;
     l.SetTextAlign(22); 
     l.SetTextSize(0.04); 

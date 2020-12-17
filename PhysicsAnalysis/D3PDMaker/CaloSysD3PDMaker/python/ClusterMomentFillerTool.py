@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file CaloSysD3PDMaker/python/ClusterMomentFillerTool.py
@@ -52,26 +52,26 @@ class ClusterMomentFillerTool (CaloSysD3PDMakerConf.D3PD__ClusterMomentFillerToo
     NVERTEX_FRACTION  = 1001 #**< slightly updated vertex fraction more pile up independent (similar to nJVF) */
     ENG_CALIB_TOT     = 10001 #**< Calibration Hit energy inside the cluster.
     ENG_CALIB_OUT_L   = 10010 #**< Attached Calibration Hit energy
-			      #	  outside clusters but inside the calorimeter
-			      #	  with loose matching (Angle < 1.0)
-			      # */  
+                              #   outside clusters but inside the calorimeter
+                              #   with loose matching (Angle < 1.0)
+                              # */
     ENG_CALIB_OUT_M   = 10011 #**< Attached Calibration Hit energy
-			      #	  outside clusters but inside the
-			      #	  calorimeter with medium matching
-			      #	  (Angle < 0.5). */  
+                              #   outside clusters but inside the
+                              #   calorimeter with medium matching
+                              #   (Angle < 0.5). */
     ENG_CALIB_OUT_T   = 10012 #**< Attached Calibration Hit energy
-			      #	  outside clusters but inside the
-			      #	  calorimeter with tight matching
-			      #	  (Angle < 0.3). */  
+                              #   outside clusters but inside the
+                              #   calorimeter with tight matching
+                              #   (Angle < 0.3). */
     ENG_CALIB_DEAD_L  = 10020 #**< Attached Calibration Hit energy in
-			      #	  dead material with loose matching
-			      #	  (Angle < 1.0). */  
+                              #   dead material with loose matching
+                              #   (Angle < 1.0). */
     ENG_CALIB_DEAD_M  = 10021 #**< Attached Calibration Hit energy in
-			      #	  dead material with medium matching
-			      #	  (Angle < 0.5). */  
+                              #   dead material with medium matching
+                              #   (Angle < 0.5). */
     ENG_CALIB_DEAD_T  = 10022 #**< Attached Calibration Hit energy in
-			      #	  dead material with tight matching
-			      #	  (Angle < 0.3). */  
+                              #   dead material with tight matching
+                              #   (Angle < 0.3). */
 
     ENG_CALIB_EMB0         = 10030 #**< Calibration Hit energy inside the cluster barrel presampler. */
     ENG_CALIB_EME0         = 10031 #**< Calibration Hit energy inside the cluster endcap presampler. */

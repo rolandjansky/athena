@@ -1,32 +1,7 @@
-################################################################################
-# Package: egammaMVACalibAnalysis
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( egammaMVACalibAnalysis )
-
-# Extra dependencies for Athena capable builds:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess
-      Event/xAOD/xAODEventInfo
-      Event/xAOD/xAODCore )
-else()
-   set( extra_dep GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODTracking
-   Reconstruction/egamma/egammaMVACalib
-   PRIVATE
-   Reconstruction/MVAUtils
-   Tools/PathResolver
-   ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Tree TreePlayer TMVA XMLIO Core MathCore Hist RIO )
@@ -36,14 +11,14 @@ atlas_add_library( egammaMVACalibAnalysisLib
    egammaMVACalibAnalysis/*.h Root/*.cxx
    PUBLIC_HEADERS egammaMVACalibAnalysis
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODCaloEvent xAODEgamma
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODCaloEvent xAODEgamma
    xAODTracking egammaMVACalibLib
    PRIVATE_LINK_LIBRARIES PathResolver MVAUtils )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( egammaMVACalibAnalysis
       src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel egammaMVACalibAnalysisLib)
+      LINK_LIBRARIES egammaMVACalibAnalysisLib)
 endif()
 
 atlas_add_dictionary( egammaMVACalibAnalysisDict
@@ -60,7 +35,7 @@ if( XAOD_STANDALONE )
       util/testClusterMVACalib.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEventInfo xAODEgamma xAODCaloEvent
-      xAODCore AsgTools egammaMVACalibAnalysisLib )
+      xAODCore AsgMessagingLib egammaMVACalibAnalysisLib )
 endif()
 
 # Test(s) in the package:

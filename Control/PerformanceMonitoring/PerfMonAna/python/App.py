@@ -19,14 +19,8 @@ __doc__     = "A set of classes and utilities to post-process/analyze a (set of)
 import sys
 import os
 import logging
-from array import array
 import numpy
 import six
-
-#import pyximport
-#pyximport.install(pyimport=True)
-#from pyximport import pyxbuild
-#pyxbuild.DEBUG = 0
 
 import tempfile
 mplconfig_dir = tempfile.mkdtemp(prefix='matplotlib-%s-' % os.getpid())
@@ -34,31 +28,27 @@ os.environ['MPLCONFIGDIR'] = mplconfig_dir
 
 import atexit
 def del_mplconfig_dir():
-    #print ("... removing [%s] ..." % mplconfig_dir)
     import os
     if os.system('/bin/rm -rf %s' % mplconfig_dir):
-        print ("** could not remove temporary $MPLCONFIGDIR ** (sc=%s)" % (sc,))
+        print ("** could not remove temporary $MPLCONFIGDIR **")
     return
 atexit.register(del_mplconfig_dir)
 #print ("===>",os.environ['MPLCONFIGDIR'])
 
 import matplotlib
-if not 'matplotlib.backends' in sys.modules:
+if 'matplotlib.backends' not in sys.modules:
     matplotlib.use('pdf')
 import matplotlib.pyplot as pyplot
 _rc = pyplot.rcParams
 _rc['legend.fontsize'] = 'medium'
 _rc['axes.titlesize']  = 'medium'
-#_rc['text.fontsize']   = 'smaller'
 _rc['xtick.labelsize'] = 'small'
 _rc['ytick.labelsize'] = 'small'
 _rc['font.size'] = 7.0
-#_rc['figure.autolayout'] = True
 _rc['figure.dpi'] = 100
 _rc['figure.subplot.bottom'] = 0.05
 _rc['figure.subplot.hspace'] = 0.3
 _rc['figure.subplot.right']  = 0.95
-#_rc['figure.subplot.left']   = 0.05
 _rc['figure.subplot.top']    = 0.95
 _rc['figure.subplot.wspace'] = 0.3
 
@@ -71,7 +61,7 @@ pyplot.legend = my_legend
 import pylab
 pylab.legend = my_legend
 del my_legend
- 
+
 from .DataLoader import DataLoader
 
 __do_monitoring = False
@@ -102,13 +92,17 @@ def _installLogger( lvl = logging.INFO ):
     logging.getLogger('').addHandler(logger)
 
     ## pre-defining some loggers with default logging-level
-    log = logging.getLogger("AppMgr");   log.setLevel( lvl )
+    log = logging.getLogger("AppMgr")
+    log.setLevel( lvl )
     for i in range(10):
-        log = logging.getLogger("AnaMgr-" + str(i).zfill(3));
+        log = logging.getLogger("AnaMgr-" + str(i).zfill(3))
         log.setLevel( lvl )
-    log = logging.getLogger("Ana-chk");  log.setLevel( logging.ERROR )
-    log = logging.getLogger("Ana-ref");  log.setLevel( logging.ERROR )
-    log = logging.getLogger("Analyzer"); log.setLevel( logging.ERROR )
+    log = logging.getLogger("Ana-chk")
+    log.setLevel( logging.ERROR )
+    log = logging.getLogger("Ana-ref")
+    log.setLevel( logging.ERROR )
+    log = logging.getLogger("Analyzer")
+    log.setLevel( logging.ERROR )
     return
 
 ## install the logger at py-module import and clean-up
@@ -159,14 +153,16 @@ class AppMgr(object):
 
         if fitSlice is None:
             self._fitSlice = '1:'
-        elif not ':' in fitSlice:
+        elif ':' not in fitSlice:
             bins  = self.anaMgrs[0].bins
             nbins = len(bins[1:])
-            try: fitSlice = float(fitSlice)
-            except ValueError: raise
+            try:
+                fitSlice = float(fitSlice)
+            except ValueError:
+                raise
             if fitSlice <= 0. or fitSlice > 1.:
                 raise ValueError (
-                      "You have to give a fitSlice in (0.,1.] (got: %r)" % 
+                      "You have to give a fitSlice in (0.,1.] (got: %r)" %
                       fitSlice)
             # get the last x percent of the total range,
             _ratio = (1.- float(fitSlice))*nbins
@@ -179,7 +175,8 @@ class AppMgr(object):
                 self._fitSlice += "95"
             elif nbins > 120 :
                 self._fitSlice = "105:"
-        else: self._fitSlice = fitSlice
+        else:
+            self._fitSlice = fitSlice
         self.msg.info( "fit slice: [%s]", self._fitSlice )
         self.analyzers = analyzers
         self.msg.info( "Scheduled analyzers: %r", self.analyzers )
@@ -190,7 +187,6 @@ class AppMgr(object):
         """
         main entry point to run the post-processing of a perfmon job
         """
-        msg=self.msg
         self.msg.info( "running app..." )
         ## check everybody has the same bins
         for i in range(len(self.anaMgrs)):
@@ -204,7 +200,7 @@ class AppMgr(object):
                     self.msg.warning( " [%s] : %r",
                                       self.anaMgrs[j].name,
                                       self.anaMgrs[j].bins )
-                    
+
         self.msg.info( "nbr of datasets: %i", len(DataSetMgr.instances.keys()) )
         from . import Analyzer
         self.msg.info( "running analyzers..." )
@@ -232,10 +228,10 @@ class AppMgr(object):
         self.__writeRootFile()
         self.__writeAsciiFile()
         self.__writePdfFile()
-        
+
         self.msg.info( "running app... [DONE]" )
         return ExitCodes.SUCCESS
-    
+
     def __filter(self, monComp):
         """hook for the user to filter out some MonitoredComponent"""
         ## user filtering fct
@@ -251,12 +247,13 @@ class AppMgr(object):
         outFile = ROOT.fopen( outName, 'RECREATE' )
         for dsName in DataSetMgr.names():
             outFile.cd( "/" )
-            outFile.mkdir( dsName ); outFile.cd( dsName );
+            outFile.mkdir( dsName )
+            outFile.cd( dsName )
             for m in MonitoredComponent.instances.values():
-                if (not m.name.startswith('PerfMonSlice') and 
+                if (not m.name.startswith('PerfMonSlice') and
                     not self.__filter(m)):
                     continue
-                if not dsName in m.data:
+                if dsName not in m.data:
                     continue
 
                 for h in m.data[dsName]['histos'].values():
@@ -269,15 +266,17 @@ class AppMgr(object):
                            outName )
         self.msg.debug( "create ROOT file... [DONE]" )
         return
-    
+
     def __writePdfFile(self):
 
         figs = []
         for k in [ 'ini', '1st', 'evt', 'fin', 'io' ]:
             if 'fig' in self.summary.sum[k]:
                 f = self.summary.sum[k]['fig']
-                if type(f) == type([]): figs.extend(f)
-                else: figs += [ f ]
+                if isinstance(f, list):
+                    figs.extend(f)
+                else:
+                    figs += [ f ]
         jobSlice = MonitoredComponent.instances['PerfMonSlice']
         for k in [ 'cpu', 'mem', 'io' ]:
             fig = 'evt/%s' % k
@@ -289,10 +288,13 @@ class AppMgr(object):
         for m in MonitoredComponent.instances.values():
             if not self.__filter(m):
                 continue
-            if   m.type in ('alg','algtool','svc'): algFigs += m.figs.values()
-            elif m.type == 'io'                   : ioFigs  += m.figs.values()
-            else: continue
-            
+            if   m.type in ('alg','algtool','svc'):
+                algFigs += m.figs.values()
+            elif m.type == 'io':
+                ioFigs  += m.figs.values()
+            else:
+                continue
+
         figs += algFigs
         figs += ioFigs
 
@@ -310,7 +312,7 @@ class AppMgr(object):
     def __writeAsciiFile(self):
         """Fill an ASCII with the summary data in a 'nice' format
         """
-        outName = self.outputFile+".summary.txt" 
+        outName = self.outputFile+".summary.txt"
         o = open( outName, 'w' )
         _txt = self.summary.txt
         print (":"*80, file=o)
@@ -318,18 +320,18 @@ class AppMgr(object):
             for i in ( 'ini','1st','evt','fin'):
                 print ("=== [%s - %s] ===" % (i,c), file=o)
                 for j in ( 'mem', 'cpu', 'allocs', ):
-                    for l in _txt[i][j][c]:
-                        print (l, file=o)
+                    for z in _txt[i][j][c]:
+                        print (z, file=o)
             print (":"*80, file=o)
         print ("="*80, file=o)
         o.close()
-        
+
         if os.path.exists( outName ):
             self.msg.info( " --> (%10.3f kB) [%s]",
                            os.stat(outName).st_size / 1024.,
                            outName )
         return
-    
+
 class AnaMgr(object):
     """
     The main class to analyze the content of a perfmon tuple
@@ -364,24 +366,20 @@ class AnaMgr(object):
                           data['meta']['iocontainers']        )
         storeNames = [ k for k in six.iterkeys(data['data']) if k != 'meta' ]
         compNames  = [ c for c in compNames ]
-        
+
         _monitor('4')
         dataSetName = self.name
-        ## print (">>>",len(compNames),len(data.keys()))
-        _data_keys = list(data.keys())
         for compName in compNames:
-            ## print (":::::::::",compName)
             monComp = MonitoredComponent(compName, dataSetName)
             monData = monComp.data[dataSetName]
             for storeName in storeNames:
-                ## print ("--",storeName)
                 try:
                     monData[storeName] = data['data'][storeName][compName]
                 except KeyError:
                     monData[storeName] = None
                 if storeName == 'io' and compName == 'PerfMonSlice':
                     monData[storeName] = data['data']['io']['PerfMonSliceIo']
-                
+
             pass
         self.bins = numpy.arange(len(data['data']['evt']['PerfMonSlice']))
         _monitor('5')
@@ -390,7 +388,7 @@ class AnaMgr(object):
         _comps   = list(data['meta']['components'  ].keys())
         _ioconts = data['meta']['iocontainers']
         for monComp in MonitoredComponent.instances.values():
-            if monComp.type != None:
+            if monComp.type is not None:
                 continue
             monName = monComp.name
             if monName in _comps:
@@ -400,18 +398,20 @@ class AnaMgr(object):
                     ## FIXME: not there yet...
 ##                     monComp.domain = domain(_compsDb[monName]['class'],
 ##                                             _compsDb[monName]['module'])
-            elif monName in _ioconts : monComp.type = 'io'
-            else                     : monComp.type = 'usr'
+            elif monName in _ioconts:
+                monComp.type = 'io'
+            else:
+                monComp.type = 'usr'
             pass
 
         _monitor('6')
         ## push the data into the according dataset
         dataSet = DataSetMgr(dataSetName, data)
         dataSet.bins = self.bins
-    
+
         self.msg.debug( "Loading perfmon data... [OK]" )
         return
-    
+
 class MonitoredComponent(object):
     """
     An object modelling a (Gaudi) component which has been monitored with the
@@ -426,9 +426,12 @@ class MonitoredComponent(object):
         'type' : None }
 
     def __new__(cls, *p, **kw):
-        if len(p) > 0: kw['name'] = p[0]
-        if len(p) > 1: kw['dataSetName'] = p[1]
-        if len(p) > 2: kw['data']        = p[2]
+        if len(p) > 0:
+            kw['name'] = p[0]
+        if len(p) > 1:
+            kw['dataSetName'] = p[1]
+        if len(p) > 2:
+            kw['data'] = p[2]
 
         # already created...
         if kw['name'] in cls.instances.keys():
@@ -440,12 +443,12 @@ class MonitoredComponent(object):
 
         for k in cls.__slots__.keys():
             setattr(obj, k, cls.__slots__[k])
-            
+
         # update repository of instances
         cls.instances[kw['name']] = obj
-        
+
         return obj
-    
+
     def __init__(self, name, dataSetName):
 
         object.__init__(self)
@@ -453,10 +456,10 @@ class MonitoredComponent(object):
 
         if not self.data:
             self.data = {}
-            
+
         if not self.figs:
             self.figs = {}
-            
+
         if dataSetName not in  self.data:
             self.data[dataSetName] = {}
 
@@ -476,7 +479,7 @@ class MonitoredComponent(object):
             for storeName,store in ds.items():
                 monKeys += [ k.split("/")[0] for k in store.keys() ]
         return [ k for k in set(monKeys) ]
-            
+
 class DataSetMgr(object):
     """Borg-class (python-singleton) to hold the different 'dataset'
     """
@@ -489,9 +492,12 @@ class DataSetMgr(object):
         }
 
     def __new__(cls, *args, **kw):
-        if len(args) > 0: kw['name' ] = args[0]
-        if len(args) > 1: kw['data' ] = args[1]
-        if len(args) > 2: kw['label'] = args[2]
+        if len(args) > 0:
+            kw['name' ] = args[0]
+        if len(args) > 1:
+            kw['data' ] = args[1]
+        if len(args) > 2:
+            kw['label'] = args[2]
 
         # already created ?
         if kw['name'] in cls.instances.keys():
@@ -506,17 +512,17 @@ class DataSetMgr(object):
 
         # update repository of instances
         cls.instances[kw['name']] = obj
-        
+
         return obj
-    
+
 
     @staticmethod
     def labels( keys = None ):
-        if keys == None:
+        if keys is None:
             keys = list(DataSetMgr.instances.keys())
             keys.sort()
         return [DataSetMgr.instances[k].label for k in keys]
-    
+
     @staticmethod
     def names():
         keys = list(DataSetMgr.instances.keys())
@@ -529,22 +535,25 @@ class DataSetMgr(object):
         # skip indigo...
         color = iter(list(pylab.cm.colors.cnames.keys())[1:])
         return color
-        
+
     def __init__(self, name, data, label=None):
 
         object.__init__(self)
         self.name = name
-        if not self.data: self.data = data
-        if not self.bins: self.bins = []
+        if not self.data:
+            self.data = data
+        if not self.bins:
+            self.bins = []
 
-        if not self.label: self.label = name
-        
-        if label == None:
+        if not self.label:
+            self.label = name
+
+        if label is None:
             self.label = self.name
-            
+
         return
-    
-            
+
+
 class PdfMgr(object):
     """Borg-class (python-singleton) to hold different Pdf files, containing
     multiple figures
@@ -556,8 +565,10 @@ class PdfMgr(object):
         }
 
     def __new__(cls, *args, **kw):
-        if len(args) > 0: kw['name'] = args[0]
-        if len(args) > 1: kw['figs'] = args[1]
+        if len(args) > 0:
+            kw['name'] = args[0]
+        if len(args) > 1:
+            kw['figs'] = args[1]
 
         # already created ?
         if kw['name'] in cls.instances.keys():
@@ -572,10 +583,10 @@ class PdfMgr(object):
 
         # update repository of instances
         cls.instances[kw['name']] = obj
-        
+
         return obj
-    
-    
+
+
     def __init__(self, name, figs = None):
 
         object.__init__(self)
@@ -585,11 +596,8 @@ class PdfMgr(object):
     def save(self, pdfFileName, figs, orientation='portrait'):
 
         from matplotlib.backends.backend_pdf import PdfPages
-        
-        tmpFiles = []
+
         import os
-        os_close = os.close
-        from tempfile import mkstemp
         _monitor('7')
         if os.path.exists( pdfFileName ):
             os.remove( pdfFileName )
@@ -597,13 +605,14 @@ class PdfMgr(object):
         for idx,fig in enumerate(figs):
             out.savefig(fig)
             ## closing canvas to recover some memory
-            fig.clear(); del fig
+            fig.clear()
+            del fig
             figs[idx] = None
-            
+
         _monitor('8')
         out.close()
         return
-            
+
 """
 
 def legend(*args, **kwargs):

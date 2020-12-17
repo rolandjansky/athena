@@ -1,7 +1,7 @@
-#include "tauRec/TauProcessorAlg.h"
-#include "tauRec/TauRunnerAlg.h"
-#include "tauRec/TauCellThinningAlg.h"
-#include "tauRec/ClusterCellRelinkAlg.h"
+#include "../TauProcessorAlg.h"
+#include "../TauRunnerAlg.h"
+#include "../TauCellThinningAlg.h"
+#include "../ClusterCellRelinkAlg.h"
 
 DECLARE_COMPONENT( TauProcessorAlg )
 DECLARE_COMPONENT( TauRunnerAlg )

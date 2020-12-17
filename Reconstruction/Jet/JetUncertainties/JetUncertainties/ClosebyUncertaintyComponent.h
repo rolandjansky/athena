@@ -18,7 +18,6 @@ class ClosebyUncertaintyComponent : public UncertaintyComponent
         ClosebyUncertaintyComponent(const ClosebyUncertaintyComponent& toCopy);
         virtual ClosebyUncertaintyComponent* clone() const;
         virtual ~ClosebyUncertaintyComponent() {}
-        ClosebyUncertaintyComponent & operator = (const ClosebyUncertaintyComponent &) = delete;
 
     protected:
 

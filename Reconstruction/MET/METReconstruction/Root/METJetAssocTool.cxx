@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // METJetAssocTool.cxx
@@ -72,20 +72,6 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  ///////////////////////////////////////////////////////////////////
-  // Const methods:
-  ///////////////////////////////////////////////////////////////////
-
-  ///////////////////////////////////////////////////////////////////
-  // Non-const methods:
-  ///////////////////////////////////////////////////////////////////
-
-  ///////////////////////////////////////////////////////////////////
-  // Protected methods:
-  ///////////////////////////////////////////////////////////////////
-
-  // executeTool
-  ////////////////
   StatusCode METJetAssocTool::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
@@ -113,30 +99,43 @@ namespace met {
     // Create jet associations
     for(const auto& jet : *jetCont) {
       std::vector<const IParticle*> selectedTracks;
-      bool mismatchedPFlow = m_pflow && jet->rawConstituent(0)->type()!=xAOD::Type::ParticleFlow;
+      bool mismatchedPFlow = m_pflow && (jet->rawConstituent(0)->type()!=xAOD::Type::ParticleFlow && jet->rawConstituent(0)->type()!=xAOD::Type::FlowElement);
       bool mismatchedState = !m_skipconst && !m_pflow && jet->rawConstituent(0)->type()==xAOD::Type::CaloCluster && ((static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::CALIBRATED && jet->getConstituentsSignalState()==xAOD::UncalibratedJetConstituent) || (static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::UNCALIBRATED && jet->getConstituentsSignalState()==xAOD::CalibratedJetConstituent));
       bool newConstVec = m_skipconst || mismatchedPFlow || mismatchedState;
       if (m_pflow && !mismatchedPFlow) {
-        for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
-          const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
-	  ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
-          if (pfo->isCharged() && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
-	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
-	    selectedTracks.push_back(pfo);
-	  }
+        if(jet->rawConstituent(0)->type() == xAOD::Type::FlowElement){
+          for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
+            const xAOD::FlowElement *pfo = static_cast<const xAOD::FlowElement*>(jet->rawConstituent(consti));
+            ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
+            if ((pfo->isCharged()) && (!m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0))))) {
+              ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
+              selectedTracks.push_back(pfo);
+            }
+          }
+        }
+        else{
+          // constituents are xAOD::PFO
+          for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
+            const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
+            ATH_MSG_VERBOSE("Jet constituent PFO, pt :" << pfo->pt() << ", charge: " << pfo->charge());
+            if (pfo->isCharged() && (!m_cleanChargedPFO || isGoodEoverP(pfo->track(0)))) {
+              ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
+              selectedTracks.push_back(pfo);
+            }
+          }
         }
       } else {
         std::vector<const IParticle*> jettracks;
         jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
-	selectedTracks.reserve(jettracks.size());
-	for(const auto& trk : jettracks) {
-	  const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
+        selectedTracks.reserve(jettracks.size());
+        for(const auto& trk : jettracks) {
+          const TrackParticle* pTrk = static_cast<const TrackParticle*>(trk);
           if(acceptTrack(pTrk,constits.pv) && isGoodEoverP(pTrk)) {
-	    selectedTracks.push_back(trk);
-	    ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
-	  }
-	}
+            selectedTracks.push_back(trk);
+            ATH_MSG_VERBOSE("Accept track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
+          }
+        }
       }
       std::vector<const IParticle*> consts;
       std::map<const IParticle*,MissingETBase::Types::constvec_t> momenta;
@@ -157,44 +156,74 @@ namespace met {
   }
 
   void METJetAssocTool::getPFOs(const xAOD::Jet *jet,
-				std::vector<const xAOD::IParticle*> &consts,
-				const met::METAssociator::ConstitHolder& constits,
-				std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const {
+                                std::vector<const xAOD::IParticle*> &consts,
+                                const met::METAssociator::ConstitHolder& constits,
+                                std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const {
 
     std::vector<const IParticle*> jettracks;
     jet->getAssociatedObjects<IParticle>(JetAttribute::GhostTrack,jettracks);
 
-    for(const auto& pfo : *constits.pfoCont) {
-      if (pfo->isCharged()) {
-	const TrackParticle* pfotrk = pfo->track(0);
-	for(const auto& trk : jettracks) {
-	  if (trk==pfotrk) {
-	    consts.push_back(pfo);
-	    break;
-	  }
-	}
-      } else {
-        bool marked = false;
-        for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
-        if (marked) {
-          consts.push_back(pfo);
-          TLorentzVector momentum = pfo->p4();
-          momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
-							  momentum.E(),momentum.Pt());
+    if(constits.feCont != nullptr){
+      // We have PFOs in FlowElement format
+      for(const xAOD::FlowElement* pfo : *constits.feCont) {
+        if (pfo->isCharged()) {
+          const TrackParticle* pfotrk = static_cast<const xAOD::TrackParticle*>(pfo->chargedObject(0));
+          for(const xAOD::IParticle* track : jettracks) {
+            const TrackParticle* jettrk = static_cast<const xAOD::TrackParticle*>(track);
+            if (jettrk==pfotrk) {
+              consts.push_back(pfo);
+              break;
+            }
+          }
+        }
+        else {
+          bool marked = false;
+          for (size_t consti = 0; consti < jet->numConstituents(); consti++){
+            if (pfo->p4().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
+          }
+          if (marked) {
+            consts.push_back(pfo);
+            TLorentzVector momentum = pfo->p4();
+            momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
+                                                            momentum.E(),momentum.Pt());
+          }
+        }
+      }
+    }
+    else{
+      // No FlowElements, assume xAOD::PFO format
+      for(const auto& pfo : *constits.pfoCont) {
+        if (pfo->isCharged()) {
+          const TrackParticle* pfotrk = pfo->track(0);
+          for(const auto& trk : jettracks) {
+            if (trk==pfotrk) {
+              consts.push_back(pfo);
+              break;
+            }
+          }
+        } else {
+          bool marked = false;
+          for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
+          if (marked) {
+            consts.push_back(pfo);
+            TLorentzVector momentum = pfo->p4();
+            momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
+                                                            momentum.E(),momentum.Pt());
+          }
         }
       }
     }
   }
 
   void METJetAssocTool::getClus(const xAOD::Jet *jet,
-				std::vector<const xAOD::IParticle*> &consts) const {
+                                std::vector<const xAOD::IParticle*> &consts) const {
     std::vector<ElementLink<IParticleContainer> > jetconst = jet->constituentLinks();
     for(const auto& clus : jetconst) consts.push_back(*clus);
   }
 
   void METJetAssocTool::getOther(const xAOD::Jet *jet,
-				 std::vector<const xAOD::IParticle*> &consts,
-				 std::set<const xAOD::IParticle*> *newConst) const {
+                                 std::vector<const xAOD::IParticle*> &consts,
+                                 std::set<const xAOD::IParticle*> *newConst) const {
     std::vector<ElementLink<IParticleContainer> > jetconst = jet->constituentLinks();
     for(const auto& clus : *newConst) if (clus->container()!=jet->rawConstituent(0)->container() && clus->e()>0 && xAOD::P4Helpers::isInDeltaR(*jet,*clus,m_matchRadius,m_useRapidity)) consts.push_back(clus);
     //for(const auto& clus : *newConst) if (clus->type()!=jet->rawConstituent(0)->type() && clus->e()>0 && xAOD::P4Helpers::isInDeltaR(*jet,*clus,m_matchRadius,m_useRapidity)) consts.push_back(clus);

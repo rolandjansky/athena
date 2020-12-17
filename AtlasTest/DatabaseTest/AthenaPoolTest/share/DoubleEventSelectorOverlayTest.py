@@ -108,7 +108,7 @@ from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 Stream1 = AthenaPoolOutputStream( "Stream1", asAlg=True, noTag=True )
 Stream1.OutputLevel = INFO
 
-Stream1.OutputFile  = "OutputRDO.root"
+Stream1.OutputFile  = locals().get("outputFile", "OverlayRDO.root")
 # List of DO's to write out
 Stream1.ItemList =  []
 Stream1.ItemList += ["McEventCollection#TruthEvent"]

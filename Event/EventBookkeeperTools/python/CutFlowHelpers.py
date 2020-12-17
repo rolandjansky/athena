@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Creation: Karsten Koeneke
 def GetCurrentStreamName( msg ):
@@ -6,7 +6,7 @@ def GetCurrentStreamName( msg ):
     # First, try to get the info from the RecFlags
     try:
         from RecExConfig.RecFlags import rec
-        msg.debug("Got the stream name from the RecFlags: %s" % rec.mergingStreamName())
+        msg.debug("Got the stream name from the RecFlags: %s", rec.mergingStreamName())
         streamName = rec.mergingStreamName()
         if streamName == "":
             streamName = "unknownStream"
@@ -39,12 +39,13 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
 
     # Determine current input stream name
     inputStreamName = GetCurrentStreamName( msg=msg )
-    msg.debug("CreateCutFlowSvc: Have inputStreamName = %s" % (inputStreamName) )
+    msg.debug("CreateCutFlowSvc: Have inputStreamName = %s", inputStreamName)
 
     # Create the CutFlowSvc instance
     import AthenaCommon.CfgMgr as CfgMgr
     if not hasattr(svcMgr,"CutFlowSvc"): svcMgr += CfgMgr.CutFlowSvc()
-    svcMgr.CutFlowSvc.InputStream   = inputStreamName
+    svcMgr.CutFlowSvc.Configured  = True
+    svcMgr.CutFlowSvc.InputStream = inputStreamName
 
     # Make sure MetaDataSvc is ready
     if not hasattr(svcMgr,'MetaDataSvc'):
@@ -70,7 +71,7 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
         seq = CfgMgr.AthSequencer("AthAlgSeq")
         pass
 
-    # First of all, schedule EventCounterAlg
+    # First of all, schedule AllExecutedEventsCounterAlg
     if not hasattr(seq,"AllExecutedEvents"):
         if not seq.isLocked():
             # Need to schedule it after the xAODMaker::EventInfoCnvAlg such that xAOD::EventInfo is present
@@ -81,11 +82,11 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
                     if alg.getName() == "xAODMaker::EventInfoCnvAlg": break
                     pass
                 pass
-            msg.debug("Adding EventCounterAlg with name AllExecutedEvents to sequence with name %s at position %i" % (seq.getName(),index))
-            seq.insert( index, CfgMgr.EventCounterAlg("AllExecutedEvents") )
+            msg.debug("Adding AllExecutedEventsCounterAlg with name AllExecutedEvents to sequence with name %s at position %i", seq.getName(), index)
+            seq.insert( index, CfgMgr.AllExecutedEventsCounterAlg("AllExecutedEvents") )
             pass
         else :
-            msg.info("Could NOT add EventCounterAlg with name AllExecutedEvents to locked sequence with name %s" % seq.getName())
+            msg.info("Could NOT add AllExecutedEventsCounterAlg with name AllExecutedEvents to locked sequence with name %s", seq.getName())
             pass
         pass
 
@@ -95,10 +96,10 @@ def CreateCutFlowSvc( svcName="CutFlowSvc", seq=None, addMetaDataToAllOutputFile
         from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
         # Explicitely add file metadata from input and from transient store,
         # but only the ones that we always create.
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"Aux.*" )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name )
-        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#"+primary_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#"+primary_name+"*Aux.*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperContainer#Incomplete"+primary_name+"*" )
+        MSMgr.AddMetaDataItemToAllStreams( "xAOD::CutBookkeeperAuxContainer#Incomplete"+primary_name+"*Aux.*" )
         pass
 
     return

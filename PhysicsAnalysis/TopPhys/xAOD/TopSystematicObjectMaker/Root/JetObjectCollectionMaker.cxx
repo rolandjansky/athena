@@ -14,6 +14,8 @@
 #include "xAODCore/ShallowCopy.h"
 #include "xAODBase/IParticleHelpers.h"
 #include "xAODMissingET/MissingETContainer.h"
+#include "xAODBTagging/BTaggingUtilities.h"
+
 #include "PATInterfaces/SystematicsUtil.h"
 
 #include "TopJetSubstructure/TopJetSubstructure.h"
@@ -92,8 +94,10 @@ namespace top {
     if (m_config->useLargeRJets()) {
       top::check(m_jetCalibrationToolLargeR.retrieve(),
                  "Failed to retrieve JetCalibrationToolLargeR");
-      top::check(m_jetUncertaintiesToolLargeR.retrieve(),
-                 "Failed to retrieve JetUncertaintiesToolLargeR");
+      if(m_config->largeRJESJMSConfig() != "UFOSDMass"){
+	top::check(m_jetUncertaintiesToolLargeR.retrieve(),
+		   "Failed to retrieve JetUncertaintiesToolLargeR");
+      }
     }
 
     if (m_config->getDerivationStream() == "PHYS") {
@@ -221,7 +225,7 @@ namespace top {
         largeRsysts.insert(m_jetUncertaintiesToolLargeR->recommendedSystematics());
       } else {
         ATH_MSG_WARNING(
-          "TA Mass & Calo Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
+          "TA Mass & Calo Mass & UFO SD Mass are not supported for large-R jet uncertainties at the moment. Large-R jet systemtatics skipped!");
       }
     }
 
@@ -286,7 +290,7 @@ namespace top {
     if (m_config->useLargeRJets()) {
       for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
         std::string fullName = name.first + "_" + name.second;
-        m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+        m_boostedJetTaggers[fullName] = ToolHandle<IJetDecorator>(fullName);
         top::check(m_boostedJetTaggers[fullName].retrieve(), "Failed to retrieve " + fullName);
       }
     }
@@ -377,88 +381,86 @@ namespace top {
     ///-- Shallow copy of the xAOD --///
     std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > shallow_xaod_copy = xAOD::shallowCopyContainer(*xaod);
 
+    ///-- Apply calibration --///
+    ///-- Calibrate jet container --///
+    top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)), "Failed to applyCalibration");
+
     ///-- Loop over the xAOD Container --///
-//    for (const auto jet : *(shallow_xaod_copy.first)) {
-//      if (!isLargeR) { ///-- small-R jets used in most analyses --///
-//        ///-- Calibrate jet --///
-//
-//        top::check(m_jetCalibrationTool->applyCalibration(*jet), "Failed to applyCalibration");
-//
-//        // only multiply by JSF and bJSF if one of them != 1.0 (used by top mass analysis)
-//        float JSF = m_config->JSF();
-//        float bJSF = m_config->bJSF();
-//
-//        if (JSF != 1.0 || bJSF != 1.0) {
-//          int truthflav = -1;
-//          if (jet->isAvailable<int>("PartonTruthLabelID")) {
-//            jet->getAttribute("PartonTruthLabelID", truthflav);
-//          }
-//
-//          xAOD::JetFourMom_t jet_p4 = jet->jetP4() * JSF;
-//          if (truthflav == 5) jet_p4 = jet_p4 * bJSF;
-//
-//          jet->setJetP4(jet_p4);
-//        }
-//        // end application JSF/bJSF
-//
-//
-//        top::check(decorateBJets(*jet), "Failed to decorate if b-jet");
-//      }
-//
-//      if (isLargeR && m_jetSubstructure.get() != nullptr) {
-//        m_jetSubstructure->correctJet(*jet);
-//      }
-//
-//      if (isLargeR) {
-//        ///-- Calibrate jet --///
-//
-//        float tau3 = jet->getAttribute<float>("Tau3_wta");
-//        float tau2 = jet->getAttribute<float>("Tau2_wta");
-//        float tau1 = jet->getAttribute<float>("Tau1_wta");
-//        float ECF1 = jet->getAttribute<float>("ECF1");
-//        float ECF2 = jet->getAttribute<float>("ECF2");
-//        float ECF3 = jet->getAttribute<float>("ECF3");
-//
-//        jet->auxdecor<float>("Tau32_wta") = fabs(tau2) > 1.e-6 ? (tau3 / tau2) : -999;  // 999 to match
-//                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
-//        jet->auxdecor<float>("Tau21_wta") = fabs(tau1) > 1.e-6 ? (tau2 / tau1) : -999;  // 999 to match
-//                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
-//        // Same definition as in JetSubStructureMomentTools/Root/EnergyCorrelatorRatiosTool.cxx
-//        jet->auxdecor<float>("D2") = (ECF2 > 1e-8) ? (ECF3*ECF1*ECF1*ECF1) / (ECF2*ECF2*ECF2) : -999;
-//        jet->auxdecor<float>("C2") = (ECF2 > 1e-8) ? (ECF3*ECF1) / (ECF2*ECF2) : -999;
-//        jet->auxdecor<float>("E3") = (ECF1 > 1e-8) ? ECF3 / (ECF1*ECF1*ECF1) : -999;
-//                                                                                      
-//
-//        top::check(m_jetCalibrationToolLargeR->applyCalibration(*jet), "Failed to applyCalibration");
-//
-//        ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
-//        const std::string calibChoice = m_config->largeRJESJMSConfig();
-//        if (m_config->isMC()) {
-//          ///-- Truth labeling required by the large-R jet uncertainties --///
-////          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
-//          if (calibChoice == "TAMass") {
-//            xAOD::JetFourMom_t jet_calib_p4;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
-//            jet->setJetP4(jet_calib_p4);
-//          }
-//        } else { //For data, there's only one config file so special method is required for TA mass and Calos mass
-//          if (calibChoice == "CaloMass") {
-//            xAOD::JetFourMom_t jetInsituP4_calo;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo", jetInsituP4_calo);
-//            jet->setJetP4(jetInsituP4_calo);
-//          } else if (calibChoice == "TAMass") {
-//            xAOD::JetFourMom_t jetInsituP4_ta;
-//            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA", jetInsituP4_ta);
-//            jet->setJetP4(jetInsituP4_ta);
-//          }
-//        }
-//      }
-//
-//      ///-- Update JVT --///
-//      if (!isLargeR) {
-//        jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
-//      }
-//    }
+    for (const auto jet : *(shallow_xaod_copy.first)) {
+      if (!isLargeR) { ///-- small-R jets used in most analyses --///
+        // only multiply by JSF and bJSF if one of them != 1.0 (used by top mass analysis)
+        float JSF = m_config->JSF();
+        float bJSF = m_config->bJSF();
+
+        if (JSF != 1.0 || bJSF != 1.0) {
+          int truthflav = -1;
+          if (jet->isAvailable<int>("PartonTruthLabelID")) {
+            jet->getAttribute("PartonTruthLabelID", truthflav);
+          }
+
+          xAOD::JetFourMom_t jet_p4 = jet->jetP4() * JSF;
+          if (truthflav == 5) jet_p4 = jet_p4 * bJSF;
+
+          jet->setJetP4(jet_p4);
+        }
+        // end application JSF/bJSF
+
+
+        top::check(decorateBJets(*jet), "Failed to decorate if b-jet");
+      }
+
+      if (isLargeR && m_jetSubstructure.get() != nullptr) {
+        m_jetSubstructure->correctJet(*jet);
+      }
+
+      if (isLargeR) {
+        ///-- Calibrate jet --///
+
+        float tau3 = jet->getAttribute<float>("Tau3_wta");
+        float tau2 = jet->getAttribute<float>("Tau2_wta");
+        float tau1 = jet->getAttribute<float>("Tau1_wta");
+        float ECF1 = jet->getAttribute<float>("ECF1");
+        float ECF2 = jet->getAttribute<float>("ECF2");
+        float ECF3 = jet->getAttribute<float>("ECF3");
+
+        jet->auxdecor<float>("Tau32_wta") = fabs(tau2) > 1.e-6 ? (tau3 / tau2) : -999;  // 999 to match
+                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
+        jet->auxdecor<float>("Tau21_wta") = fabs(tau1) > 1.e-6 ? (tau2 / tau1) : -999;  // 999 to match
+                                                                                        // JetSubStructureMomentTools/NSubjettinessRatiosTool
+        // Same definition as in JetSubStructureMomentTools/Root/EnergyCorrelatorRatiosTool.cxx
+        jet->auxdecor<float>("D2") = (ECF2 > 1e-8) ? (ECF3*ECF1*ECF1*ECF1) / (ECF2*ECF2*ECF2) : -999;
+        jet->auxdecor<float>("C2") = (ECF2 > 1e-8) ? (ECF3*ECF1) / (ECF2*ECF2) : -999;
+        jet->auxdecor<float>("E3") = (ECF1 > 1e-8) ? ECF3 / (ECF1*ECF1*ECF1) : -999;
+
+
+        ///-- for TA mass or calo mass, the calibrated mass or pt needs special treatment --///
+        const std::string calibChoice = m_config->largeRJESJMSConfig();
+        if (m_config->isMC()) {
+          ///-- Truth labeling required by the large-R jet uncertainties --///
+          top::check(m_jetTruthLabelingTool->modifyJet(*jet), "Failed to do truth labeling for large-R jet");
+          if (calibChoice == "TAMass") {
+            xAOD::JetFourMom_t jet_calib_p4;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetJMSScaleMomentumTA", jet_calib_p4);
+            jet->setJetP4(jet_calib_p4);
+          }
+        } else { //For data, there's only one config file so special method is required for TA mass and Calos mass
+          if (calibChoice == "CaloMass") {
+            xAOD::JetFourMom_t jetInsituP4_calo;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumCalo", jetInsituP4_calo);
+            jet->setJetP4(jetInsituP4_calo);
+          } else if (calibChoice == "TAMass") {
+            xAOD::JetFourMom_t jetInsituP4_ta;
+            jet->getAttribute<xAOD::JetFourMom_t>("JetInsituScaleMomentumTA", jetInsituP4_ta);
+            jet->setJetP4(jetInsituP4_ta);
+          }
+        }
+      }
+
+      ///-- Update JVT --///
+      if (!isLargeR) {
+        jet->auxdecor<float>("AnalysisTop_JVT") = m_jetUpdateJvtTool->updateJvt(*jet);
+      }
+    }
 
     // Check if the derivation we are running on contains
     // MET_Track (once), if so apply the fJVT decoration
@@ -466,13 +468,13 @@ namespace top {
     if (!isLargeR && (m_config->doForwardJVTinMET() || m_config->getfJVTWP() != "None")) {
       static bool checked_track_MET = false;
       if (!checked_track_MET) {
-	if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
-	  m_do_fjvt = true;
-	} else {
-	  ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
-	  return StatusCode::FAILURE; 
-	}
-	checked_track_MET = true;
+        if (evtStore()->contains<xAOD::MissingETContainer>("MET_Track")) {
+          m_do_fjvt = true;
+        } else {
+          ATH_MSG_ERROR(" Cannot retrieve MET_Track, fJVT values can't be calculated correctly!!"); 
+          return StatusCode::FAILURE; 
+        }
+        checked_track_MET = true;
       }
     }
     if (m_do_fjvt) {
@@ -486,13 +488,12 @@ namespace top {
       // NOTE, if we use one of the b-tagging re-trained collections, we need to load
       // the original uncalibrated jet container to which the b-tagging shallow-copy is pointing to
       const xAOD::JetContainer* xaod_original(nullptr);
-      // for small-R jet collections, set links to uncalibrated *original* jets (not BTagging shallow-copy)
-      if (m_config->sgKeyJets() != m_config->sgKeyJetsType()) {
-        top::check(evtStore()->retrieve(xaod_original,
-                                        m_config->sgKeyJetsType()),
-                   "Failed to retrieve uncalibrated Jets for METMaker!");
-      } else {
-        xaod_original = xaod;
+      top::check(evtStore()->retrieve(xaod_original,
+                                      m_config->sgKeyJets()),
+                 "Failed to retrieve uncalibrated Jets for METMaker!");
+      if (!xaod_original || !shallow_xaod_copy.first) {
+        ATH_MSG_ERROR("Cannot retrieve the original jet collection!");
+        return StatusCode::FAILURE;
       }
       bool setLinks = xAOD::setOriginalObjectLink(*xaod_original, *shallow_xaod_copy.first);
       if (!setLinks) ATH_MSG_ERROR(" Cannot set original object links for jets, MET recalculation may struggle");
@@ -509,8 +510,8 @@ namespace top {
 
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }
@@ -623,8 +624,8 @@ namespace top {
         }
         std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-        xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-        xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+        StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+        StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
         if (!save || !saveAux) {
           return StatusCode::FAILURE;
         }
@@ -658,8 +659,8 @@ namespace top {
     std::string outputSGKey = m_config->sgKeyTrackJets(m_config->nominalHashValue());
     std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(shallow_xaod_copy.first, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(shallow_xaod_copy.second, outputSGKeyAux);
     if (!save || !saveAux) {
       return StatusCode::FAILURE;
     }
@@ -763,6 +764,7 @@ namespace top {
     //decorate with boosted-tagging flags
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
       std::string fullName = name.first + "_" + name.second;
+      // TODO: Rewrite this to use the new interface
 //      const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
       // TAccept has bool operator overloaded, but let's be more explicit in the output to char
 //      jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);
@@ -880,18 +882,18 @@ namespace top {
         = (trackJets ? m_btagSelToolsDL1Decor_trkJet : m_btagSelToolsDL1Decor);
       for (std::pair<std::string, ToolHandle<IBTaggingSelectionTool>> algo : m_btagDecorTools) {
         double DL1_weight = -999.;
-        //double dl1_pb = -10.;
-        //double dl1_pc = -10.;
-        //double dl1_pu = -10.;
-        //if (jet->btagging()->pb(algo.first, dl1_pb)
-        //    && jet->btagging()->pc(algo.first, dl1_pc)
-        //    && jet->btagging()->pu(algo.first, dl1_pu)) {
-        //  if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
-        //    DL1_weight = -999.; // value for errors from retrieving DL1x weight
-        //  }
-        //} else {
-        //  DL1_weight = -100.; // value for errors from nonexistence of probabilities
-        //}
+        double dl1_pb = -10.;
+        double dl1_pc = -10.;
+        double dl1_pu = -10.;
+        if (xAOD::BTaggingUtilities::getBTagging(*jet)->pb(algo.first, dl1_pb)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pc(algo.first, dl1_pc)
+            && xAOD::BTaggingUtilities::getBTagging(*jet)->pu(algo.first, dl1_pu)) {
+          if (!algo.second->getTaggerWeight(dl1_pb, dl1_pc, dl1_pu, DL1_weight)) {
+            DL1_weight = -999.; // value for errors from retrieving DL1x weight
+          }
+        } else {
+          DL1_weight = -100.; // value for errors from nonexistence of probabilities
+        }
         DLx.at(algo.first)(*jet) = DL1_weight;
       }
     }

@@ -55,6 +55,7 @@ PURPOSE:  b-tagging based on soft muon identification
 #include <list>
 #include <math.h> 
 
+#include "xAODBTagging/ftagfloat_t.h"
 
 namespace Analysis
 {
@@ -561,7 +562,7 @@ namespace Analysis
     // Can be uncommented if SVMT evaluation wants to be checked (rather than SMT)
     //if(inputVars.size()<10) BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
     //else            	  BTag.setVariable<double>("SVMT", "discriminant", smt);
-    BTag.setVariable<double>(xAODBaseName, "discriminant", smt);
+    BTag.setVariable<ftagfloat_t>(xAODBaseName, "discriminant", smt);
     BTag.setVariable<char>(xAODBaseName, "discriminantIsValid", true);
 
     /** ANDREA **/

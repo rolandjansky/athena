@@ -12,7 +12,8 @@ if( XAOD_STANDALONE )
       TrigConfHLTData )
 elseif( XAOD_ANALYSIS )
    atlas_add_library( TrigSteeringEvent
-      TrigSteeringEvent/*.h Root/*.cxx src/*.cxx
+      TrigSteeringEvent/*.h Root/*.cxx src/HLTExtraData.cxx src/*Result.cxx
+      src/StringSerializer.cxx src/*Info.cxx src/TrigSuperRoi.cxx
       PUBLIC_HEADERS TrigSteeringEvent
       LINK_LIBRARIES AthContainers AsgTools AthenaKernel CxxUtils RoiDescriptor
       xAODCore GaudiKernel TrigConfHLTData )
@@ -40,7 +41,7 @@ else()
 
    atlas_add_sercnv_library( TrigSteeringEventSerCnv
       FILES TrigSteeringEvent/TrigRoiDescriptor.h
-      TrigSteeringEvent/TrigSuperRoi.h 
+      TrigSteeringEvent/TrigSuperRoi.h
       TrigSteeringEvent/TrigPassFlags.h
       TrigSteeringEvent/TrigPassFlagsCollection.h
       TrigSteeringEvent/TrigRoiDescriptorCollection.h

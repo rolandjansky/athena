@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 isfiplog = logging.getLogger('ISF_Input')
 
 # almost all the contents of this file is stolen

@@ -995,6 +995,8 @@ std::vector< const Trk::DiscLayer* >* InDet::SiLayerBuilder::createDiscLayers(st
                                                     new Trk::DiscBounds(rMin,rMax),
                                                     *passiveLayerMaterial,
                                                     1.*Gaudi::Units::mm);
+                  // cleanup of the layer material --------------------------------------------------------------
+                  delete passiveLayerMaterial;
               } else
                   passiveLayer = new Trk::DiscLayer(passiveDiscTransf, new Trk::DiscBounds(rMin,rMax), 0);
               ATH_MSG_DEBUG( "  -> At Z - Position       :  " << *addLayerIter );

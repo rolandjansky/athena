@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.Decorators import memoize
-from six import add_metaclass
 
 # Configure the scheduler
 from AthenaCommon.AlgScheduler import AlgScheduler
@@ -33,8 +32,7 @@ class Singleton(type):
 
 
 # for now we make this a singleton because calling menu generation twice leads to problems
-@add_metaclass(Singleton)
-class GenerateMenuMT(object):
+class GenerateMenuMT(object, metaclass=Singleton):
 
     @staticmethod
     def overwriteSignaturesWith(f):
@@ -417,7 +415,10 @@ class GenerateMenuMT(object):
                     log.exception( 'Problems creating ChainDef for chain\n %s ', chainName)
                     continue
             else:
-                log.error('Chain %s ignored - Signature not available', chainPartDict['chainName'])
+                log.error('Chain %s ignored - Signature "%s" not available', chainPartDict['chainName'], currentSig)
+                log.error('Available signature(s): %s', self.availableSignatures)
+                raise Exception('Stopping the execution. Please, correct the configuration.')
+
             log.debug("Chain %s chain configs: %s",chainPartDict['chainName'],chainPartConfig)
             listOfChainConfigs.append(chainPartConfig)
             tmp_lengthOfChainConfigs.append((chainPartConfig.nSteps,chainPartConfig.alignmentGroups))
@@ -460,7 +461,7 @@ class GenerateMenuMT(object):
         eventBuildType = mainChainDict['eventBuildType']
         if eventBuildType:
             log.debug('Configuring event building sequence %s for chain %s', eventBuildType, mainChainDict['chainName'])
-            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType)
+            EventBuildingSequenceSetup.addEventBuildingSequence(theChainConfig, eventBuildType, mainChainDict)
 
         log.debug('ChainConfigs  %s ', theChainConfig)
         return theChainConfig,lengthOfChainConfigs

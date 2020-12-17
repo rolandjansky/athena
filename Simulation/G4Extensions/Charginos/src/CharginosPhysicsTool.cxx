@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Include files
@@ -17,7 +17,6 @@
 #include "G4hMultipleScattering.hh"
 #include "G4Transportation.hh"
 #include "G4MuIonisation.hh"
-#include "G4ProcessManager.hh"
 #include "G4DecayTable.hh"
 #include "G4VDecayChannel.hh"
 #include "G4PhaseSpaceDecayChannel.hh"

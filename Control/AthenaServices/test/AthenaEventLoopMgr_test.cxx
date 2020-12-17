@@ -23,11 +23,9 @@
 #include "AthenaKernel/IEventSeek.h"
 #include "AthenaKernel/IEvtSelectorSeek.h"
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Service.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/Service.h"
-// //#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ConversionSvc.h"
 #include <iostream>

@@ -33,9 +33,8 @@ def _setup():
     py_sg_getitem = cppyy.gbl.AthenaInternal.py_sg_getitem
 
     # retrieve the StoreGateSvc class
-    global StoreGate, StoreGateSvc
+    global StoreGateSvc
     StoreGateSvc = cppyy.gbl.StoreGateSvc
-    StoreGate    = cppyy.gbl.StoreGate
 
     # add specialized retrieve method
     def retrieve( self, klass, key = None ):

@@ -1045,7 +1045,7 @@ namespace Muon {
       }
 
       std::unique_ptr<MdtDriftCircleOnTrack> mdtRotFlipped;
-      std::unique_ptr<CompetingMuonClustersOnTrack> updatedCompRot;
+      std::unique_ptr<const CompetingMuonClustersOnTrack> updatedCompRot;
       bool flipSign = false;
       if( !pseudo ){
 	const MdtDriftCircleOnTrack* mdtRot = isMDT ? dynamic_cast<const MdtDriftCircleOnTrack*>(meas) : 0;
@@ -1176,9 +1176,7 @@ namespace Muon {
 	      if( prdList.empty() ){
 		ATH_MSG_WARNING("No clusters selected during comprot cleaning, keeping old cluster" );
 	      }else{
-		//TODO: createBroadCluster returns a const object so a workaround is needed to get a unique pointer, this should be fixed in some fashion 
-		CompetingMuonClustersOnTrack tempCompRot=*m_compRotCreator->createBroadCluster(prdList,0.);
-		updatedCompRot = std::make_unique<CompetingMuonClustersOnTrack>(tempCompRot);
+		updatedCompRot.reset(m_compRotCreator->createBroadCluster(prdList,0.));
 		++state.numberOfCleanedCompROTs;
 	      }
 	    }

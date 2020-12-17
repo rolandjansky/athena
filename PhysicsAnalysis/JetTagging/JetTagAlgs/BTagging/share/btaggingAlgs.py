@@ -15,7 +15,7 @@ AddressRemappingSvc = AddressRemappingSvc("AddressRemappingSvc")
 AddressRemappingSvc.TypeKeyRenameMaps += ['xAOD::JetAuxContainer#AntiKt4EMTopoJets.btaggingLink->AntiKt4EMTopoJets.oldbtaggingLink']
 svcMgr+= AddressRemappingSvc
 
-taggerList = ['IP2D', 'IP3D', 'MultiSVbb1',  'MultiSVbb2', 'SV1', 'JetFitterNN', 'SoftMu', 'MV2c10', 'MV2rmu', 'MV2r', 'MV2c100', 'MV2cl100' , 'DL1', 'DL1r', 'DL1rmu','DL1mu', 'RNNIP']
+taggerList = ['IP2D', 'IP3D', 'SV1', 'JetFitterNN', 'MV2c10']
 #JetVertexCharge disable ATLASRECTS-4506
 btagalg = BTagConf.setupJetBTaggerAlg(JetCollection="AntiKt4EMTopoJets", TaggerList=taggerList)
 

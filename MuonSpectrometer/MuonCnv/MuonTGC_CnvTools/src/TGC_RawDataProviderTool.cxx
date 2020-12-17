@@ -30,10 +30,14 @@ StatusCode Muon::TGC_RawDataProviderTool::initialize()
 
 //============================================================================================
 
-StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs) 
+StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs){
+  return this->convert( vecRobs, Gaudi::Hive::currentContext() );
+}
+
+StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs, const EventContext& ctx) const 
 {    
 
-  SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey); 
+  SG::WriteHandle<TgcRdoContainer> rdoContainerHandle(m_rdoContainerKey, ctx); 
 
   TgcRdoContainer* rdoContainer = 0;
 
@@ -57,17 +61,25 @@ StatusCode Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs
   return convertIntoContainer(vecRobs, *rdoContainer);
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs,
-						   const std::vector<IdentifierHash>&) 
-{
-  return convert(vecRobs);
+StatusCode  Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>&){
+  // This function does not use the IdentifierHash so we pass to the EventContext function which also does not use it
+  return this->convert( vecRobs, Gaudi::Hive::currentContext() );
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert()
+StatusCode  Muon::TGC_RawDataProviderTool::convert(const ROBFragmentList& vecRobs, const std::vector<IdentifierHash>& /*ids*/, const EventContext& ctx) const 
+{
+  return convert(vecRobs, ctx);
+}
+
+StatusCode  Muon::TGC_RawDataProviderTool::convert(){
+  return this->convert( Gaudi::Hive::currentContext() );
+}
+
+StatusCode  Muon::TGC_RawDataProviderTool::convert(const EventContext& ctx) const
 {
   if(!m_cabling) {
-    StatusCode sc = getCabling();
-    if(sc.isFailure()) return sc;
+    ATH_MSG_ERROR("Tgc cabling is not available and needs to be set in initialise");
+    return StatusCode::FAILURE;
   }
 
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf;
@@ -75,13 +87,18 @@ StatusCode  Muon::TGC_RawDataProviderTool::convert()
 
   m_robDataProvider->getROBData(robIds, vecOfRobf);
 
-  return convert(vecOfRobf); 
+  return convert(vecOfRobf, ctx); 
 }
 
-StatusCode  Muon::TGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect)
+StatusCode  Muon::TGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect){
+  return this->convert( rdoIdhVect, Gaudi::Hive::currentContext() );
+}
+
+
+StatusCode  Muon::TGC_RawDataProviderTool::convert(const std::vector<IdentifierHash>& rdoIdhVect, const EventContext& ctx) const
 {
   std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*> vecOfRobf = getROBData(rdoIdhVect);
 
-  return convert(vecOfRobf, rdoIdhVect);
+  return convert(vecOfRobf, rdoIdhVect, ctx);
 }
 

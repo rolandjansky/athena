@@ -9,7 +9,7 @@
 // includes
 //
 
-#include <PATInterfaces/SystematicCode.h>
+#include <AsgMessaging/StatusCode.h>
 
 //
 // main program
@@ -17,8 +17,8 @@
 
 int main () {
 
-   CP::SystematicCode c1( CP::SystematicCode::Ok );
-   CP::SystematicCode c2( CP::SystematicCode::Unsupported );
+   StatusCode c1( StatusCode::SUCCESS );
+   StatusCode c2( StatusCode::FAILURE );
 
    c2.ignore();
 

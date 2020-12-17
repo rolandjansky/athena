@@ -84,6 +84,9 @@ namespace SG {
  * For a container C with decoration d, the @c WriteDecorHandle will make
  * an alias C.d for C.  The @c ReadDecorHandle will then retrieve C.d from
  * StoreGate.  The alias C.d is also what enters into scheduling decisions.
+ *
+ * The key() method will return the key of the container.  Use decorKey()
+ * to get the name used for the decoration alias.
  */
 template <class T, class D>
 class ReadDecorHandle
@@ -202,6 +205,12 @@ public:
    */
   SG::auxid_t auxid() const;
 
+
+  /**
+   * @brief Return the name of the decoration alias (CONT.DECOR).
+   */
+  std::string decorKey() const;
+
   
 private:
   /** 
@@ -228,6 +237,10 @@ private:
    * then we need to call container() on the object.
    */
   const SG::AuxVectorData* vectorData();
+
+
+  /// Name of the decoration alias.
+  std::string m_decorKey;
 
 
   /// Accessor for the aux data item.

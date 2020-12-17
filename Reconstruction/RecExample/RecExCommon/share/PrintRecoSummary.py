@@ -86,17 +86,6 @@ if rec.OutputLevel() <= INFO:
             treatException("Could not print objKeyStore!")        
 
 
-    
-
-    #FIXME
-    if 'EventTagFlags' in dir():
-        printfunc ("\n * * * * * * * * * * * * * * * * *")
-        printfunc ("EventTagFlags:")
-        try:
-            EventTagFlags.Print()
-        except Exception:
-            treatException("Could not print EventTagFlags!")        
-
     # dump all known python properties of algorithms and services (including tools)
     from RecExConfig.RecoFunctions import OutputFileName
     OutFileName=OutputFileName(rec.OutputSuffix())

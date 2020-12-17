@@ -113,7 +113,7 @@ StatusCode RPCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
       const HepMC::GenParticle* genP = pLink.cptr();
       if (genP) {
         pdgId=genP->pdg_id();
-        barcode=genP->barcode();
+        barcode=HepMC::barcode(genP);
       } else {
         ATH_MSG_WARNING("GenParticle is nullptr for hit in "<<stname<<" (eta="<<steta<<", phi="<<stphi<<", doubletR="<<
         dbr<<", doubletZ="<<dbz<<", doubletPhi="<<dbp<<", gasgaplayer="<<gg<<", measuresPhi="<<mfi<<")");

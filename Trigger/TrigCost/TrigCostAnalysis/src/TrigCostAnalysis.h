@@ -12,6 +12,8 @@
 
 #include "EnhancedBiasWeighter/EnhancedBiasWeighter.h"
 
+#include "Gaudi/Parsers/Factory.h"
+
 #include "MonitoredRange.h"
 
 #include <unordered_map>
@@ -96,6 +98,9 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<bool> m_doMonitorThreadOccupancy { this, "DoMonitorThreadOccupancy", true,
       "Monitor algorithm occupancy load of individual threads in an MT execution environment" };
 
+    Gaudi::Property<bool> m_doMonitorROS { this, "DoMonitorROS", true,
+      "Monitor Read-Out System" };
+
     Gaudi::Property<bool> m_useEBWeights { this, "UseEBWeights", true,
       "Apply Enhanced Bias weights" };
 
@@ -108,8 +113,14 @@ class TrigCostAnalysis: public ::AthHistogramAlgorithm {
     Gaudi::Property<float> m_baseEventWeight { this, "BaseEventWeight", true,
       "Base events weight, other weights may be multiplied on top of this one." };
 
+    Gaudi::Property<std::map<std::string, std::vector<uint32_t>>> m_rosToRob {
+      this, "ROSToROBMap", {}, "ROS to ROB mapping" };
+
     SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_costDataKey { this, "CostReadHandleKey", "HLT_TrigCostContainer",
       "Trigger cost payload container for algorithms" };
+
+    SG::ReadHandleKey<xAOD::TrigCompositeContainer> m_rosDataKey { this, "CostROSReadHandleKey", "HLT_TrigCostROSContainer",
+      "Trigger ROS cost payload container for algorithms" };
 
     SG::ReadHandleKey<TrigConf::HLTMenu> m_HLTMenuKey{this, "HLTTriggerMenu", "DetectorStore+HLTTriggerMenu",
       "HLT Menu"};

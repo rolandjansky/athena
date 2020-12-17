@@ -8,32 +8,28 @@ output = os.getcwd() + '/grid'
 if len(sys.argv) == 2:
     output = sys.argv[1]
 elif len(sys.argv) > 2:
-    print 'I dont understand you'
-    print 'Use me like'
-    print sys.argv[0]
-    print 'or'
-    print sys.argv[0], '<directory>'
+    print('I dont understand you')
+    print('Use me like')
+    print(sys.argv[0])
+    print('or')
+    print(sys.argv[0], '<directory>')
     sys.exit()
 
 # We cannot use a wildcard anymore as everything is stored in /bin/
 list_of_scripts = ["01SubmitToGrid.py", 
                    "02DownloadFromGrid.py",           
-                   "03LocalAnalysis.py",
                    "04Plot.py",          
                    "10AmiYield.py",
-                   "11CrossSection.py", 
                    "DerivationTags.py",
                    "Data_rel21.py",                 
                    "MC16_TOPQ1.py"
                    ]
 
-print 'Using PathResolver to copy scripts to', output
-if not os.path.exists(output):
-    os.makedirs(output)
+print('Using PathResolver to copy scripts to', output)
+os.makedirs(output, exist_ok=True)
 
 for script in list_of_scripts:
     full_path = ROOT.PathResolver.find_file(script, "PATH")
-    print "Copying",full_path
-    cmd = "cp %s %s"%(full_path, output)
+    print("Copying", full_path)
+    cmd = "cp {0} {1}".format(full_path, output)
     os.system(cmd)
-                                            

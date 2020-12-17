@@ -221,16 +221,23 @@ def test(model_file, tree_file,
 
     mva_utils = ROOT.MVAUtils.BDT(tree)
 
-    objective = booster.dump_model()['objective']
-    if 'multiclass' in objective:
-        logging.info("testing multiclass")
+    objective = booster.dump_model()['objective'].strip()
+    # binary and xentropy are not the exact same thing when training but the output value is the same
+    # (https://lightgbm.readthedocs.io/en/latest/Parameters.html)
+    binary_aliases = ('binary', 'cross_entropy', 'xentropy')
+    regression_aliases = ('regression_l2', 'l2', 'mean_squared_error', 'mse', 'l2_root', 'root_mean_squared_error', 'rmse')
+    multiclass_aliases = ('multiclass', 'softmax')
+    if objective in multiclass_aliases:
+        logging.info("assuming multiclass, testing")
         return test_multiclass(booster, mva_utils, ntests, test_file)
-    elif 'binary' in objective:
-        logging.info("testing binary")
+    elif objective in binary_aliases:
+        logging.info("assuming binary classification, testing")
         return test_binary(booster, mva_utils, ntests, test_file)
-    else:
-        logging.info("testing regression")
+    elif objective in regression_aliases:
+        logging.info("assuming regression, testing")
         return test_regression(booster, mva_utils, ntests, test_file)
+    else:
+        print("cannot understand objective '%s'" % objective)
 
 
 def test_regression(booster, mva_utils, ntests=10000, test_file=None):
@@ -374,8 +381,8 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
             zip(data_input, results_lgbm, results_MVAUtils), 1):
         if not np.allclose(output_lgbm, output_MVAUtils):
             stop_event_loop = True
-            logging.info("output are different on input %d/%d:\n" %
-                         (ievent, len(data_input)))
+            logging.info("output are different on input %d/%d:\n",
+                         ievent, len(data_input))
             for ivar, input_value in enumerate(input_values):
                 logging.info("var %d: %.15f", ivar, input_value)
             logging.info("=" * 50)
@@ -398,13 +405,13 @@ def test_multiclass(booster, mva_utils, ntests=10000, test_file=None):
                 if not np.allclose(output_tree_mva_utils, output_tree_lgbm[0]):
                     stop_tree_loop = True
                     logging.info(
-                        "first tree/class with different answer (%d)" % itree)
+                        "first tree/class with different answer (%d)", itree)
                     for isubtree, (ol, om) in enumerate(
                             zip(output_tree_lgbm[0], output_tree_mva_utils)):
                         if not np.allclose(ol, om):
-                            logging.info("different in position %d" % isubtree)
-                            logging.info("lgbm:     %f" % ol)
-                            logging.info("mvautils: %f" % om)
+                            logging.info("different in position %d", isubtree)
+                            logging.info("lgbm:     %f", ol)
+                            logging.info("mvautils: %f", om)
                             logging.info("=" * 50)
                             logging.info("tree %d (itree) * %d (nclasses)"
                                          "+ %d (isubtree) = %d",

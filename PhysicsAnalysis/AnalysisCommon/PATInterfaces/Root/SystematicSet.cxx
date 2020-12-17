@@ -211,7 +211,7 @@ namespace CP
 
 
   // Filter requested systematics with affecting systematics
-  SystematicCode SystematicSet::filterForAffectingSystematics
+  StatusCode SystematicSet::filterForAffectingSystematics
   (const SystematicSet& systConfig, const SystematicSet& affectingSysts,
    SystematicSet& filteredSysts)
   {
@@ -234,7 +234,7 @@ namespace CP
       if (iter != requestedMap.end())
       {
 	ANA_MSG_ERROR ("inconsistent systematic variations requested: " << sys << " and " << iter->second);
-	return SystematicCode::Unsupported;
+	return StatusCode::FAILURE;
       }
       requestedMap.insert (std::make_pair (basename, sys));
     }
@@ -266,13 +266,13 @@ namespace CP
       if (result.find (sys) == result.end())
       {
 	ANA_MSG_ERROR ("unsupported systematic variation " << sys << " requested for systematic " << sys.basename());
-	return SystematicCode::Unsupported;
+	return StatusCode::FAILURE;
       }
     }
 
     // everything worked out, let's commit now
     result.swap (filteredSysts);
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
 

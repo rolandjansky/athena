@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from MuonCalibDbOperations.MuonCalibDbOperationsConf import MuonCalib__CoolInserter,MuonCalib__MuonCalibDefaultCalibrationSource
+from MuonCalibDbOperations.MuonCalibDbOperationsConf import MuonCalib__MuonCalibDefaultCalibrationSource
 
 class MuonCalib__CalibrationDefaultSourceConfig:
 	

@@ -15,7 +15,6 @@
 
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/PdgToParticleHypothesis.h"
 
 

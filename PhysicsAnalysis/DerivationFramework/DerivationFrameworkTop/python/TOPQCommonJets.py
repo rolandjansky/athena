@@ -9,12 +9,10 @@
 #   DerivationFrameworkTop.TOPQCommonJets.TOPQupdateJVT("JetCollection")
 #===================================================================================
 
-from __future__ import print_function
-
 #========
 # IMPORTS
 #========
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from AthenaCommon import CfgMgr
 from AthenaCommon.GlobalFlags import globalflags
 from RecExConfig.ObjKeyStore import cfgKeyStore
 
@@ -99,6 +97,7 @@ def addStandardJetsForTop(algseq, outputGroup):
 #==================
 # PhysicsAnalysis/DerivationFramework/DerivationFrameworkJetEtMiss/trunk/python/ExtendedJetCommon.py
 def buildTOPQCA15jets(algseq):
+  from JetRec.JetRecStandard import jtm
   if not cfgKeyStore.isInInput("xAOD::JetContainer","CamKt15LCTopoJets"):
     from JetRec.JetRecConf import JetAlgorithm
     jtm.modifiersMap["lctopoCA15"] = list(jtm.modifiersMap["lctopo"])
@@ -123,7 +122,7 @@ def applyTOPQJetCalibration(jetcollection, algseq=None):
     applyJetCalibration_xAODColl, applyJetCalibration_CustomColl
 
   supportedJets = ['AntiKt4EMTopo', 'AntiKt10LCTopoTrimmedPtFrac5SmallR20']
-  if not jetcollection in supportedJets:
+  if jetcollection not in supportedJets:
     print ("TOPQCommonJets:",jetcollection, "is an unsupported collection for calibration!")
     return
   elif jetcollection == 'AntiKt4EMTopo':
@@ -140,7 +139,7 @@ def TOPQupdateJVT(jetcollection, algseq=None):
   from DerivationFrameworkJetEtMiss.ExtendedJetCommon import updateJVT_xAODColl
 
   supportedJets = ['AntiKt4EMTopo']
-  if not jetcollection in supportedJets:
+  if jetcollection not in supportedJets:
     print ("TOPQCommonJets:", jetcollection, "is an unsupported collection for JVT augmentation!")
     return
   else:

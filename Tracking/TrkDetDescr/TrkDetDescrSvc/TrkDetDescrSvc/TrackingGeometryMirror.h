@@ -44,7 +44,7 @@ namespace Trk {
 
       template <class T_Ostream>
       void dump(T_Ostream &out, const std::string &head) const {
-         for(const std::pair<const Layer*,int> &bound_layers : m_boundaryLayers) {
+         for(const std::pair<const Layer* const ,int> &bound_layers : m_boundaryLayers) {
             out << head << " [" << bound_layers.second  << "] ";
             dumpLayer(out, "",bound_layers.first);
          }

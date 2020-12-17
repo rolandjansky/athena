@@ -35,6 +35,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     # Config pixel conditions setup #
     #################################
     from IOVDbSvc.CondDB import conddb
+    from AthenaCommon.AppMgr import ToolSvc
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
     #################
@@ -45,9 +46,9 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
-
+        from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+        from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        rodIDForSingleLink40=0
         # ITk:
         if geoFlags.isSLHC():
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -59,12 +60,12 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
             elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
                 IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif (geoFlags.isIBL() == False):
+        elif (geoFlags.isIBL() is False):
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         else:
             # Planar IBL
             if (geoFlags.IBLLayout() == "planar"):
-                if (geoFlags.isDBM() == True):
+                if (geoFlags.isDBM() is True):
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -74,7 +75,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
         
         condSeq += PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                       ReadDeadMapKey = "",
-                                      UseCablingConditions=False,
                                       CablingMapFileName=IdMappingDat)
 
     if useNewDeadmapFormat:
@@ -83,7 +83,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
 
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
-    if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and not 'doFastPixelDigi' in digitizationFlags.experimentalDigi():
+    if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and 'doFastPixelDigi' not in digitizationFlags.experimentalDigi():
         # Set empty Folder
         if not useNewChargeFormat:
             if not hasattr(condSeq, 'PixelChargeCalibCondAlg'):
@@ -114,7 +114,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
         #####################
         # Cabling map Setup #
         #####################
-        if (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+        if (conddb.dbmc=="OFLP200" and geoFlags.isIBL() is True) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
             conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
             if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
@@ -130,9 +130,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
         if not hasattr(condSeq, 'PixelCablingCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                           MappingFile=IdMappingDat,
-                                           RodIDForSingleLink40=rodIDForSingleLink40)
+            condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg", ReadKey="")
 
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixdEdx", className="AthenaAttributeList")
@@ -150,7 +148,7 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
 
         if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
             from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-            pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+            ToolSvc += PixelLorentzAngleToolSetup()
 
         if not hasattr(condSeq, 'PixelDistortionAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDistortionAlg
@@ -161,7 +159,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
             condSeq += PixeldEdxAlg(name="PixeldEdxAlg")
             PixeldEdxAlg.ReadFromCOOL = True
 
-        from AthenaCommon.AppMgr import ToolSvc
         if not hasattr(ToolSvc, "PixelRecoDbTool"):
             from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
             ToolSvc += PixelRecoDbTool()
@@ -191,7 +188,7 @@ def commonPixelFastDigitizationConfig(name,**kwargs):
     from AthenaCommon.AppMgr import ToolSvc
     if not hasattr(ToolSvc, "PixelLorentzAngleTool"):
         from SiLorentzAngleTool.PixelLorentzAngleToolSetup import PixelLorentzAngleToolSetup
-        pixelLorentzAngleToolSetup = PixelLorentzAngleToolSetup()
+        ToolSvc += PixelLorentzAngleToolSetup()
     kwargs.setdefault("LorentzAngleTool", ToolSvc.PixelLorentzAngleTool)
 
     from AthenaCommon import CfgMgr
@@ -231,7 +228,6 @@ def commonSCT_FastDigitizationConfig(name,**kwargs):
     sct_SiPropertiesToolSetup.setup()
 
     # SiLorentzAngleTool for SCT_FastDigitizationTool
-    from AthenaCommon.AppMgr import ToolSvc
     from SiLorentzAngleTool.SCTLorentzAngleToolSetup import SCTLorentzAngleToolSetup
     sctLorentzAngleToolSetup = SCTLorentzAngleToolSetup()
     kwargs.setdefault("LorentzAngleTool", sctLorentzAngleToolSetup.SCTLorentzAngleTool)

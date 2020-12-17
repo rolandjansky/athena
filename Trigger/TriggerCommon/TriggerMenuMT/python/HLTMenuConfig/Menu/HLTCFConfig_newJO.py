@@ -4,7 +4,7 @@ from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
-from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInDict
+from TriggerMenuMT.HLTMenuConfig.Menu.ChainDictTools import splitChainInLegs
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import (isComboHypoAlg,
                                                              isFilterAlg,
                                                              isHypoAlg,
@@ -181,7 +181,7 @@ def generateDecisionTree(chains):
             acc.addEventAlgo(filterAlg, sequenceName=filtersStep.name)
         acc.addEventAlgo(filterAlg, sequenceName=singleMenuSeq.name)
 
-        log.debug('Created filter {}'.format(filterAlg.name))
+        log.debug('Created filter %s', filterAlg.name)
         return acc.getEventAlgo(filterAlg.name)
 
 
@@ -380,8 +380,8 @@ def generateDecisionTree(chains):
                     hypoAlg.HypoTools.append( step.sequences[sequenceCounter]._hypoToolConf.confAndCreate( chainDict ) )
                 pass
 
-            chainDictLegs = splitChainInDict( chain.name )
-            # possible cases: A) number of seqeunces == number of chain parts, e5_mu10 or just e3 type of chain
+            chainDictLegs = splitChainInLegs( chain.name )
+            # possible cases: A) number of seqeunces == number of chain parts, e5_mu10 or just e3 type of chain 
             # ([0, 1], [0, 1]) is the set of indices
             indices = zip( range( len( step.sequences ) ), range( len( chainDictLegs ) ) )# case A
             # B) number of sequences == 1 && number of chain parts > 1 for single signature assymetric combined chains e5_e3 type chain
@@ -408,30 +408,37 @@ def generateDecisionTree(chains):
                     for comboToolConf in step.comboToolConfs:
                         comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
 
+
     for chain in chains:
-        log.info( "CF algorithms for chain {}".format(chain.name))
+        log.info("CF algorithms for chain %s", chain.name)
         for stepCounter, step in enumerate( chain.steps, 1 ):
             filterAlg = getFilterAlg( stepCounter, step.name, isEmpty(step))
             if filterAlg and hasattr(filterAlg, "Input"):
-                log.info("{} FilterAlg: {} input: {} output: {} IO mapping: {}".format(stepCounter, filterAlg.name, ", ".join(filterAlg.Input), ", ".join(filterAlg.Output), filterAlg.IOMapping))
+                log.info("%s FilterAlg: %s input: %s output: %s IO mapping: %s",
+                         stepCounter, filterAlg.name, ", ".join(filterAlg.Input),
+                         ", ".join(filterAlg.Output), filterAlg.IOMapping)
                 for inIndex, input in enumerate(filterAlg.Input):
-                    log.info("{} filered chains from input: {} : {}".format( stepCounter, input,  ", ".join(filterAlg.ChainsPerInput[inIndex]) ))
+                    log.info("%s filered chains from input: %s : %s",
+                             stepCounter, input,  ", ".join(filterAlg.ChainsPerInput[inIndex]))
                 assert len(filterAlg.IOMapping) == len(filterAlg.Output), "Not all output will be filled in filter"
 
             imAlgs = findAllInputMakers( stepCounter, step.name )
             for imAlg in imAlgs:
                 if imAlg:
-                    log.info("{}  InputMaker: {} input: {} output: {}".format(stepCounter, imAlg.name, ", ".join(imAlg.InputMakerInputDecisions), imAlg.InputMakerOutputDecisions))
+                    log.info("%s  InputMaker: %s input: %s output: %s", stepCounter, imAlg.name,
+                             ", ".join(imAlg.InputMakerInputDecisions), imAlg.InputMakerOutputDecisions)
 
             hypoAlgs = findAllHypoAlgs(stepCounter, step.name)
             for hypoAlg in hypoAlgs:
                 if hypoAlg:
-                    log.info("{}  HypoAlg: {} input: {} output: {}".format(stepCounter, hypoAlg.name, hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions))
-                    log.info("{}  hypo tools: {}".format(stepCounter, ",".join([t.name for t in hypoAlg.HypoTools])))
+                    log.info("%s  HypoAlg: %s input: %s output: %s", stepCounter, hypoAlg.name,
+                             hypoAlg.HypoInputDecisions, hypoAlg.HypoOutputDecisions)
+                    log.info("%s  hypo tools: %s", stepCounter, ",".join([t.name for t in hypoAlg.HypoTools]))
             combo = findComboHypoAlg(stepCounter, step.name)
             if combo:
-                log.info("{}  ComboHypoAlg: {} input: {} output: {}".format(stepCounter, combo.name, ". ".join(combo.HypoInputDecisions), ", ".join(combo.HypoOutputDecisions)))
-                log.info("{}  multiplicities: {}".format(stepCounter, combo.MultiplicitiesMap))
+                log.info("%s  ComboHypoAlg: %s input: %s output: %s", stepCounter, combo.name,
+                         ". ".join(combo.HypoInputDecisions), ", ".join(combo.HypoOutputDecisions))
+                log.info("%s  multiplicities: %s", stepCounter, combo.MultiplicitiesMap)
                 assert len(combo.HypoInputDecisions) == len(combo.HypoInputDecisions), "Missconfiguraiton of {} ComboHypo input/output counts differ".format(combo.name)
         log.info("-"*50)
     log.info("")

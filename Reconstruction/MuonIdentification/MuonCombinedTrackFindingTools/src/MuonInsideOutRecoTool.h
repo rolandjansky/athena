@@ -55,22 +55,22 @@ namespace MuonCombined {
 
     /**IMuonCombinedInDetExtensionTool interface: extend ID candidate with PRDs for segment-finding */   
     virtual void extendWithPRDs( const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const override;
+				 TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
     /**IMuonCombinedInDetExtensionTool interface: deprecated*/
     virtual void extend(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, TrackCollection* meTracks,
-			Trk::SegmentCollection* segments) const override;
+			Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
     /** find the best candidate for a given set of segments */
     std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> 
     findBestCandidate( const xAOD::TrackParticle& indetTrackParticle, const std::vector< Muon::MuonLayerRecoData >& allLayers) const;
     
-    void cleanUp() const;
+    virtual void cleanUp() const override;
 
   private:
     /** handle a single candidate */
     void handleCandidate( const InDetCandidate& inDetCandidate, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
-			  TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments) const;
+			  TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const;
 
     /** add muon candidate to indet candidate */
     void addTag( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, 

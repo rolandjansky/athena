@@ -59,19 +59,17 @@ def returnPartName(partNb):
 
 
 # Main =================================================================
-import os, sys  
-import string
-from numpy import *
+import sys
+from numpy import array, zeros
 
-import ROOT
 from ROOT import gROOT, gDirectory
-from ROOT import gStyle, TCanvas, TString
-from ROOT import TFile, TTree, TRFIOFile
-from ROOT import TH1F,TH2F,TBrowser,TProfile2D,TGraph,TLegend
+from ROOT import gStyle, TCanvas
+from ROOT import TRFIOFile
+from ROOT import TGraph, TLegend
 
 gROOT.Reset()
 gStyle.SetPalette(1)
-gStyle.SetCanvasColor(0);
+gStyle.SetCanvasColor(0)
 gStyle.SetOptStat(100110)
 
 tag = "UPD4" # UPD4 (used for the bulk) is the default

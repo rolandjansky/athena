@@ -70,39 +70,9 @@ const EMECPresamplerHVManager& EMECPresamplerHVModule::getManager() const
   return *(m_c->manager);
 }
 
-bool EMECPresamplerHVModule::hvOn(int iGap ) const
-{
-  EMECPresamplerHVPayload *payload = getManager().getPayload(*this);
-  return (payload->voltage[iGap]>=-9999);
-}
-
-double EMECPresamplerHVModule::voltage(int iGap) const {
-  EMECPresamplerHVPayload *payload = getManager().getPayload(*this);
-  return payload->voltage[iGap];
-}
-
-double EMECPresamplerHVModule::current(int iGap) const {
-  EMECPresamplerHVPayload *payload = getManager().getPayload(*this);
-  return payload->current[iGap];
-}
-
-void EMECPresamplerHVModule::voltage_current(int iGap,double& voltage, double&current) const 
-{
- EMECPresamplerHVPayload *payload = getManager().getPayload(*this);
- voltage = payload->voltage[iGap];
- current = payload->current[iGap];
-}
-
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
-int EMECPresamplerHVModule::hvLineNo(int iGap, const LArHVIdMapping* hvIdMapping) const
+int EMECPresamplerHVModule::hvLineNo(int /*iGap*/, const LArHVIdMapping* hvIdMapping) const
 {
-  return hvIdMapping
-    ? getManager().hvLineNo(*this,hvIdMapping)
-    : getManager().getPayload(*this)->hvLineNo[iGap];
-}
-#else
-int EMECPresamplerHVModule::hvLineNo(int iGap) const 
-{
-  return getManager().getPayload(*this)->hvLineNo[iGap];
+  return getManager().hvLineNo(*this,hvIdMapping);
 }
 #endif

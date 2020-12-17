@@ -103,7 +103,7 @@ namespace InDet {
       return false;
     }
 
-    /** from D but not from B-->D */
+    /** not from B, D, or any secondary */
     inline bool isFragmentation(int origin) {
       if (origin & (0x1 << Fragmentation)) return true;
       return false;

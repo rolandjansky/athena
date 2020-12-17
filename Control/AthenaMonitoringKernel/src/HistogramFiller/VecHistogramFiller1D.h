@@ -15,7 +15,7 @@ namespace Monitored {
 
 
     virtual unsigned fill(const HistogramFiller::VariablesPack& vars) const override {
-      if ( ATH_UNLIKELY( vars.var[0] == nullptr or vars.size() != 0 ) ) { return 0; }
+      if ( ATH_UNLIKELY(vars.size() == 0 or vars.var[0] == nullptr) ) { return 0; }
 
       std::function<bool(size_t)> cutMaskAccessor;
       if (vars.cut) {
@@ -33,7 +33,7 @@ namespace Monitored {
       auto histogram = this->histogram<TH1>();
       const unsigned offset = m_histDef->kVecUO ? 0 : 1;
       for (unsigned i = 0; i < vars.var[0]->size(); ++i) {
-        if (cutMaskAccessor && cutMaskAccessor(i)) {
+        if (cutMaskAccessor == nullptr or cutMaskAccessor(i)) {
           const double value = vars.var[0]->get(i);
           histogram->AddBinContent(i+offset, value);
           histogram->SetEntries(histogram->GetEntries() + value);

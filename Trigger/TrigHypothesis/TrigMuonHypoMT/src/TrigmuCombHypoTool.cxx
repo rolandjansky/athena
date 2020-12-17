@@ -275,15 +275,17 @@ StatusCode TrigmuCombHypoTool::inclusiveSelection(std::vector<TrigmuCombHypoTool
 StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoTool::CombinedMuonInfo>& input) const
 {
    HLT::Index2DVec passingSelection( m_ptBins.size() );
+   size_t elementIndex{ 0 };
 
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
-      size_t elementIndex{ 0 };      
       for ( auto& i: input ) {
 
 	if(!m_acceptAll && m_applyOR && !i.passOR) {
 	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
 	  continue;
 	}
+
+	elementIndex = &i - &input.front();
 
          // If muon event has difference DecisionID, it shouldn't apply.
          if ( TrigCompositeUtils::passed( m_decisionId.numeric(), i.previousDecisionIDs ) ) {
@@ -296,7 +298,6 @@ StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoT
          } else {
             ATH_MSG_DEBUG("Not match DecisionID " << m_decisionId );
          }
-         elementIndex++;
       }
 
       // If no object passes the selection, multipul selection should stop.
@@ -653,10 +654,7 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
   for(i=0; i<numMuon; i++) {
     ATH_MSG_DEBUG( "++ i=" << i << ": result=" << mucombResult[i] );
     if( mucombResult[i] != i ) {
-      ATH_MSG_DEBUG( "   overlap to some one. skip." );
-
-      (*input[i]).passOR = false;
-
+      ATH_MSG_DEBUG( "   overlap to some one. already the best one was chosen. skip." );
       continue;
     }
     std::vector<unsigned int> others;

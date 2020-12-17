@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -135,10 +135,10 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
 
   /** Set the tool to return "shifted" values.
       Note that only single-parameter variations or empty sets (the latter are to revert to nominal results)
-      are supported at present; @c SystematicCode::Unsupported will be returned for variations of multiple parameters
+      are supported at present; @c StatusCode::FAILURE will be returned for variations of multiple parameters
       or variations that aren't recognised.
    */
-  CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set);
+  StatusCode applySystematicVariation(const CP::SystematicSet & set);
 
   /** Return a list of all systematic variations supported by this tool.
       Note that this list depends on the uncertainty model used, and on the (dynamic)
@@ -194,6 +194,20 @@ class BTaggingEfficiencyTool: public asg::AsgTool,
    * names used on input (which are appropriate e.g. when excluding uncertainties from the eigenvalue decomposition).
    */
   std::map<std::string, std::vector<std::string> > listScaleFactorSystematics(bool named = false) const;
+  /// @}
+
+  /**
+   * Run EigenvectorRecomposition method and get the coefficient map.
+   * Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+   * If success, coefficientMap would be filled and return ok.
+   * If failed, return error.
+   * label  :  flavour label
+   * coefficientMap: store returned coefficient map. This map could help expressing eigenvector NPs by linear
+   * combination of original uncertainty NPs in workspace level of physics analysis. The coefficient value
+   * is stored in the map in the format of:
+   * map<"Eigen_B_0", map<"[original uncertainty name]", [corresponding coefficient value]>> 
+   */
+  CP::CorrectionCode getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap);
   /// @}
 
 private:
@@ -343,7 +357,6 @@ private:
   std::map<unsigned int, unsigned int> m_SFIndices;
   /// actual information identifying efficiency calibration objects
   std::map<unsigned int, unsigned int> m_EffIndices;
-
 
   //cache for efficiency map config file that maps from a sample DSID to the correct efficiency map
   std::map<unsigned int, unsigned int> m_DSID_to_MapIndex;

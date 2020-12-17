@@ -34,6 +34,6 @@ def SCT_SiPropertiesCfg(flags, name="SCTSiPropertiesCondAlg", **kwargs):
     toolkwargs = {}
     toolkwargs["DetectorName"] = "SCT"
     toolkwargs["ReadKey"] = "SCTSiliconPropertiesVector"
-    acc.setPrivateTools(SiPropertiesTool(name=name, **toolkwargs))
+    acc.setPrivateTools(SiPropertiesTool(name="SCT_SiPropertiesTool", **toolkwargs))
 
     return acc

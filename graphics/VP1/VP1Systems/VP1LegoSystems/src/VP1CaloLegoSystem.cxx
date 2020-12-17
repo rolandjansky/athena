@@ -15,13 +15,9 @@
 #include <Inventor/nodes/SoLineSet.h>
 #include <Inventor/nodes/SoLightModel.h>
 #include <Inventor/nodes/SoDrawStyle.h>
-#include <Inventor/nodes/SoSwitch.h>
-#include <Inventor/nodes/SoSeparator.h>
-#include <Inventor/nodes/SoMaterial.h>
 
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "LArReadoutGeometry/FCALModule.h"
-//#include "LArReadoutGeometry/FCALTile.h"
 
 #include "LArReadoutGeometry/HECDetectorManager.h"
 #include "LArReadoutGeometry/HECDetectorRegion.h"

@@ -75,12 +75,8 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("TileConditions/TileConditions_jobOptions.py" )
 #include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-#from LArConditionsCommon import LArHVDB
+from LArConditionsCommon import LArHVDB
 
-from IOVDbSvc.CondDB import conddb
-conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap")
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
-conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
 
 
 #--------------------------------------------------------------

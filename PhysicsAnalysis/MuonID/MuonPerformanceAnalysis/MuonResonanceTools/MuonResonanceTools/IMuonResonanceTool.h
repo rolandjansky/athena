@@ -14,7 +14,7 @@
 #include "MuonResonanceTools/MuonResonancePlots.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 class IMuonResonanceTool : virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMuonResonanceTool)

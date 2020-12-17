@@ -72,7 +72,6 @@ from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron, m
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
 
 EgammaMatchTool = Trig__TrigEgammaMatchingTool()
-EgammaMatchTool.OutputLevel=2
 ToolSvc += EgammaMatchTool
 
 # Plot Tool sets the base path for histograms of all tools

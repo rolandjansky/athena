@@ -65,7 +65,7 @@ TEST(LlpCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1., 1., 1., 1., 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   constexpr float eps = 0.00001;
@@ -75,70 +75,70 @@ TEST(LlpCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1.-eps, 1., 1,  1., 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet below  fSampMaxTightThreshold, above NegativeE
   {
     std::array<float, 5> args{1., 1.-eps, 1,  1., 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet above  fSampMaxTightThreshold, above NegativeE
   {
     std::array<float, 5> args{1-eps, 1.-eps, 1,  1., 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
   // jet above HECFrac below HECQuality below AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1-eps,  1., 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet below HECFrac above HECQuality below AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1,  1.-eps, 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet below HECFrac below HECQuality above AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1,  1., 1.-eps};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet above HECFrac above HECQuality below AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1.-eps,  1.-eps, 1.};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet above HECFrac below HECQuality above AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1.-eps,  1., 1.-eps};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet below HECFrac above HECQuality above AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1.,  1.-eps, 1.-eps};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet above HECFrac above HECQuality above AverageLArQF
   {
     std::array<float, 5> args{1., 1., 1.-eps,  1.-eps, 1.-eps};
     auto cleaner = makeLlpCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
 }
@@ -153,5 +153,5 @@ TEST(LlpCleanerTest, ThrowsOnUncleanableJet) {
 
   
 
-  EXPECT_THROW(cleaner(&jet), UncleanableJet);
+  EXPECT_THROW(cleaner(jet), UncleanableJet);
 }

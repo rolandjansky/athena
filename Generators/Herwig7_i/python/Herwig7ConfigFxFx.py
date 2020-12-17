@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7ConfigFxFx.py
 ## \brief Configuration class for showering FxFx-merged LHE files from MG5_aMC@NLO
@@ -26,7 +26,7 @@ class Hw7ConfigFxFx(hw7Config.Hw7Config):
   def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
 
     beams = beams.upper()
-    if not beams in ["EE", "EP" , "PP"]:
+    if beams not in ["EE", "EP" , "PP"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following: ['EE', 'EP' , 'PP']"))
 
     # provide variables initialized by the parent class
@@ -117,7 +117,7 @@ saverun {} /Herwig/Generators/EventGenerator
                     ihrd = None,
                     ihvy = None):
 
-    if not me_pdf_order in ["LO", "NLO"]:
+    if me_pdf_order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:__lhef_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
 
     self.set_fxfx_commands = True
@@ -239,6 +239,6 @@ set /Herwig/Shower/FxFxShowerHandler:PDFB    /Herwig/Partons/Hard{MEPDFOrder}PDF
            MEPDFOrder = me_pdf_order,
            RClus = r_clus,
            EtaClusMax = eta_clus_max,
-           IncludeSpin = "Yes" if usespin==True else "No",
+           IncludeSpin = "Yes" if usespin is True else "No",
            AutomaticProcessDetection = "Automatic" if automatic_process_detection else "Manual",
            ProcessSelection = process_selection)

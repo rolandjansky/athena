@@ -59,7 +59,7 @@ if AODSelectFlags.isSim():
     
     # Print a message what MCEventCollection is found
     if AODSelectFlags.mcEventCollection() == "" :
-        logAODSelect_setupOptions.warning( "No MCEventCollection found even though the input file is simulation!" )
+        logAODSelect_setupOptions.info( "No MCEventCollection found even though the input file is simulation!" )
         pass
     else:
         logAODSelect_setupOptions.debug( "Found the McEventCollection with name: %s" \
@@ -67,7 +67,7 @@ if AODSelectFlags.isSim():
         pass
     # Print a message what TruthParticleContainer is found
     if AODSelectFlags.truthParticleContainer() == "" :
-        logAODSelect_setupOptions.warning( "No TruthParticleContainer found even though the input file is simulation!" )
+        logAODSelect_setupOptions.info( "No TruthParticleContainer found even though the input file is simulation!" )
         pass
     else:
         logAODSelect_setupOptions.debug( "Found the TruthParticleContainer with name: %s" \

@@ -5,15 +5,12 @@
 
 """Application manager and other global Gaudi components."""
 
-from __future__ import print_function
-
 import sys, os
-import six
 from AthenaCommon import ExitCodes
 
 from AthenaCommon import AlgSequence, Configurable, Logging
-import GaudiSvc.GaudiSvcConf as GaudiSvcConf
-
+import GaudiCoreSvc.GaudiCoreSvcConf as GaudiCoreSvcConf
+import GaudiCommonSvc.GaudiCommonSvcConf as GaudiCommonSvcConf
 
 ### data ---------------------------------------------------------------------
 __version__ = '3.2.0'
@@ -93,11 +90,11 @@ def iadd( self, tool ):
          raise TypeError( '"%s" is not an AlgTool' %
                           (hasattr(t,'name') and t.name() or "This configurable" ) )
 
-   super( GaudiSvcConf.ToolSvc, self ).__iadd__( tool )
+   super( GaudiCoreSvcConf.ToolSvc, self ).__iadd__( tool )
 
    return self
 
-GaudiSvcConf.ToolSvc.__iadd__ = iadd
+GaudiCoreSvcConf.ToolSvc.__iadd__ = iadd
 del iadd
 
 ### associator for services --------------------------------------------------
@@ -165,7 +162,7 @@ class OldToNewSequenceProxy( object ):
    pass # class OldToNewSequenceProxy
 
 ### retro application manager ------------------------------------------------
-from GaudiSvc.GaudiSvcConf import ApplicationMgr as AppMgr
+from GaudiCoreSvc.GaudiCoreSvcConf import ApplicationMgr as AppMgr
 class AthAppMgr( AppMgr ):
    class State:
       """Python equivalent of IService::State enum (kind of silly to load a whole
@@ -281,7 +278,7 @@ class AthAppMgr( AppMgr ):
          # transfer old TopAlg to new AthAlgSeq
          _top_alg = _as.AlgSequence("TopAlg")
          # first transfer properties
-         for n,prop in six.iteritems(_top_alg.properties()):
+         for n,prop in _top_alg.properties().items():
             if hasattr(_top_alg, n) and n != "Members":
                setattr(athAlgSeq, n, prop)
                
@@ -364,7 +361,7 @@ class AthAppMgr( AppMgr ):
             self.OutputLevel = outputLevel
          svcMgr = self.serviceMgr()
          if not hasattr( svcMgr, 'MessageSvc' ):
-            svcMgr += GaudiSvcConf.MessageSvc()
+            svcMgr += GaudiCoreSvcConf.MessageSvc()
          svcMgr.MessageSvc.OutputLevel = outputLevel
 
  # explicit user calls
@@ -395,7 +392,7 @@ class AthAppMgr( AppMgr ):
  # override toolSvc to handle the transitional one
    def toolSvc( self, name='ToolSvc' ):
       if '_toolsvc' not in self.__dict__:
-         self.__dict__[ '_toolsvc' ] = GaudiSvcConf.ToolSvc( name )
+         self.__dict__[ '_toolsvc' ] = GaudiCoreSvcConf.ToolSvc( name )
       return self._toolsvc
    toolsvc = toolSvc
 
@@ -932,12 +929,12 @@ def auditor( self, auditor ):
    self.__iadd__( auditor )
    return auditor
 
-GaudiSvcConf.AuditorSvc.auditor = auditor
+GaudiCommonSvcConf.AuditorSvc.auditor = auditor
 del auditor
 
 # convenience customization to deal with "Auditors" property
 def iadd( self, config ):
-   super( GaudiSvcConf.AuditorSvc, self ).__iadd__( config )
+   super( GaudiCommonSvcConf.AuditorSvc, self ).__iadd__( config )
 
    if isinstance( config, Configurable.ConfigurableAuditor ):
       if not config.getName()     in self.Auditors and \
@@ -946,7 +943,7 @@ def iadd( self, config ):
 
    return self
 
-GaudiSvcConf.AuditorSvc.__iadd__ =iadd
+GaudiCommonSvcConf.AuditorSvc.__iadd__ =iadd
 del iadd
 
 
@@ -967,14 +964,14 @@ def _delattr( self, attr ):
    except AttributeError:
       pass
 
-   super( GaudiSvcConf.AuditorSvc, self ).__delattr__( attr )
+   super( GaudiCommonSvcConf.AuditorSvc, self ).__delattr__( attr )
 
-GaudiSvcConf.AuditorSvc.__delattr__ = _delattr
+GaudiCommonSvcConf.AuditorSvc.__delattr__ = _delattr
 del _delattr
 
 
 # AuditorSvc globals
-ServiceMgr += GaudiSvcConf.AuditorSvc()
+ServiceMgr += GaudiCommonSvcConf.AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 
 def AuditorSvc():             # backwards compatibility

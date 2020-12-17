@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file D3PDMakerConfig/python/egammaD3PD.py
 # @author scott snyder <snyder@bnl.gov>
@@ -9,7 +8,6 @@
 #
 
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
-from D3PDMakerCoreComps.resolveSGKey          import testSGKey
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 from egammaD3PDMaker.ElectronD3PDObject       import ElectronD3PDObject
 from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
@@ -18,8 +16,6 @@ from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from CaloD3PDMaker.MBTSTimeD3PDObject         import MBTSTimeD3PDObject
-# from CaloD3PDMaker.MBTSTriggerBitsD3PDObject  import MBTSTriggerBitsD3PDObject
-# from CaloD3PDMaker.ZDCTriggerBitsD3PDObject   import ZDCTriggerBitsD3PDObject
 from CaloD3PDMaker.LArCollisionTimeD3PDObject import LArCollisionTimeD3PDObject
 from CaloD3PDMaker.CollisionDecisionD3PDObject import CollisionDecisionD3PDObject
 from MissingETD3PDMaker.MissingETD3PDObject   import MissingETD3PDObject
@@ -295,8 +291,6 @@ def egammaD3PD (alg = None,
                                                          'DQMoments']))
     alg += MBTSD3PDObject             (**_args (level, 'MBTS', kw))
     alg += MBTSTimeD3PDObject         (**_args (level, 'MBTSTime', kw))
-    # alg += MBTSTriggerBitsD3PDObject  (**_args (level, 'MBTSTriggerBits', kw))
-    # alg += ZDCTriggerBitsD3PDObject   (**_args (level, 'ZDCTriggerBits', kw))
     alg += CollisionDecisionD3PDObject(**_args (level, 'CollisionDecision', kw))
     alg += MissingETD3PDObject (**_args (level, 'MissingET', kw,
                                          sgkey = 'MET_Core_AntiKt4EMTopo',

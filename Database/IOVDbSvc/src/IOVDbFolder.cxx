@@ -880,13 +880,13 @@ IOVDbFolder::createTransientAddress(const std::vector<std::string> & symlinks){
 }
 
 std::unique_ptr<SG::TransientAddress>
-IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, const unsigned int cacheTime){
+IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun, const unsigned int cacheTime) {
   // preload Address from SG - does folder setup including COOL access
   // also set detector store location - cannot be done in constructor
   // as detector store does not exist yet in IOVDbSvc initialisation
   // and sets up cache length, taking into account optional overrides
   // returns null pointer in case of problem
-  p_detStore=detStore;
+  p_tagInfoMgr = tagInfoMgr;
   if( not m_useFileMetaData ) {
     if(m_source=="CREST"){
       const std::string  tagName=sanitiseCrestTag(m_foldername);
@@ -898,7 +898,7 @@ IOVDbFolder::preLoadFolder(StoreGateSvc* detStore, const unsigned int cacheRun, 
   } else {
     // folder description from meta-data set already earlier
   }
-  ATH_MSG_DEBUG( "Folder description " << m_folderDescription);
+  ATH_MSG_DEBUG( "Folder description for " << m_foldername << ": " << m_folderDescription);
   // register folder with meta-data tool if writing metadata
   if (m_writemeta) {
     if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,m_folderDescription)) {
@@ -1038,7 +1038,7 @@ IOVDbFolder::resolveTag(cool::IFolderPtr fptr,const std::string& globalTag) {
 
 bool 
 IOVDbFolder::magicTag(std::string& tag) { //alters the argument
-  tag = IOVDbNamespace::resolveUsingTagInfo(tag, p_detStore);
+  tag = IOVDbNamespace::resolveUsingTagInfo(tag, p_tagInfoMgr);
   return (not tag.empty());
 }
 

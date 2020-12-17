@@ -420,7 +420,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink((*ppart)->barcode(), proxy)));
+      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink(HepMC::barcode(*ppart), proxy)));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -446,9 +446,9 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   for( const auto& i : rec2truth ) {
     // i.first = Identifier
     // i.second = HepMcParticleLink
-    const HepMC::GenParticle* pa = i.second.cptr();
+    auto pa = i.second.cptr();
     if( !pa ) { continue; } // skip noise
-    if( pa->barcode()==std::numeric_limits<int32_t>::max() &&
+    if( HepMC::barcode(pa)==std::numeric_limits<int32_t>::max() &&
         pa->pdg_id()==999 ) { continue; } // skip geantinos
     result.insert(std::make_pair(i.second, i.first));
   }

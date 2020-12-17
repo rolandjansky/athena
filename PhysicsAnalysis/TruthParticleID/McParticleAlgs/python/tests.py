@@ -1,11 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 from McParticleTools.McParticleToolsConf import EtaPtFilterTool
-from McParticleTools.McParticleToolsConf import OldSpclMcFilterTool
-from McParticleTools.McParticleToolsConf import NoopFilterTool
 from McParticleTools.McParticleToolsConf import TruthParticleCnvTool
-from McParticleTools.McParticleToolsConf import TruthIsolationTool
 
 from McParticleAlgs.McParticleAlgsConf import TruthParticleBuilder
 class test_McAodBuilder( TruthParticleBuilder ):
@@ -43,7 +40,6 @@ class test_McAodBuilder( TruthParticleBuilder ):
     pass # test_McAodBuilder
 
 from McParticleTools.McParticleToolsConf import GenAodValidationTool
-from McParticleTools.McParticleToolsConf import SpclMcValidationTool
 from McParticleTools.McParticleToolsConf import HepMcWriterTool
 from McParticleAlgs.McParticleAlgsConf   import McAodValidationAlg
 
@@ -75,7 +71,6 @@ class test_McAodValidation( McAodValidationAlg ):
     pass # test_McAodValidation
 
 from McParticleTools.McParticleToolsConf import McVtxFilterTool
-from McParticleTools.McParticleToolsConf import TruthParticleCnvTool
 from McParticleAlgs.McParticleAlgsConf   import McAodFilter
 
 class test_McAodFilter( McAodFilter ):

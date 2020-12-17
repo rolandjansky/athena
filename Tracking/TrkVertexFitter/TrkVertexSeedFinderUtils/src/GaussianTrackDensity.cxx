@@ -20,6 +20,8 @@ namespace Trk
   double GaussianTrackDensity::globalMaximum (const std::vector<const Track*>& vectorTrk) const
   {
     std::vector<const TrackParameters*> perigeeList;
+    perigeeList.reserve(vectorTrk.size());
+
     for (const Track* itrk : vectorTrk)
     {
       perigeeList.push_back(itrk->perigeeParameters());
@@ -39,6 +41,8 @@ namespace Trk
                                               std::unique_ptr<ITrackDensity>& density) const
   {
     std::vector<const TrackParameters*> perigeeList;
+    perigeeList.reserve(vectorTrk.size());
+
     for (const Track* itrk : vectorTrk)
     {
       perigeeList.push_back(itrk->perigeeParameters());

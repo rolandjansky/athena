@@ -197,7 +197,7 @@ namespace LVL1 {
       Should be derived from tower ID, should be corrected in the future.
       Need to also think what index range should be (thinking ahead to Run2) */
   int jTower::iEta() const {
-    const int index = (m_eta + 2.5)*10; // /0.1;  // Equivalent to divide by 0.1 which is the Tower size
+    const int index = (m_eta * m_posneg);
     return index;
   }
   
@@ -205,10 +205,7 @@ namespace LVL1 {
       Should be derived from tower ID, should be corrected in the future.
       Decision here is whether phi is signed or not */
   int jTower::iPhi() const {
-    int index = 32*m_phi/M_PI;
-    if (m_phi < 0) index = 32*(m_phi + 2*M_PI)/M_PI;
-    const int cindex = index;
-    return cindex;
+    return m_phi;
   }
   
   /** Return ET of specified supercell */

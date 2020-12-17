@@ -254,29 +254,19 @@ def runCalib(calType, runNumber,workDir,castorCopyCmd):
 
 print ('running'  )
 #first command line argument should be the calibration type, pulser or ped.
-try:
-  calType = sys.argv[1]
-  if calType == 'pulser':
-    calibFileDir = '/castor/cern.ch/user/l/lampen/CalibRunTest/slope/'
-    oldListFilePath = '/afs/cern.ch/user/m/muoncali/CSC/run/pulserList.txt'
-    outputDir = '/afs/cern.ch/user/m/muoncali/w0/CSC/runs/pulser/pulser'
-  elif calType == 'ped':
-    calibFileDir = '/castor/cern.ch/grid/atlas/DAQ/muon/csc/'
-    oldListFilePath = '/afs/cern.ch/user/m/muoncali/CSC/run/pedDirList.txt'
-
-    #oldListFilePath = '/afs/cern.ch/user/l/lampen/Calib/dev/rel_0/MuonSpectrometer/MuonCalib/CscCalib/CscCalibAlgs/python/pedList.txt'
-    #outputDir = '/afs/cern.ch/user/l/lampen/Calib/dev/rel_0/MuonSpectrometer/MuonCalib/CscCalib/CscCalibAlgs/python/'
-    outputDir = '/afs/cern.ch/user/m/muoncali/w0/CSC/runs/ped/ped'
-    #data11_calib.00172807.calibration_pedCSC.daq.RAW._lb0000._CSC-EB._0001.data
-    #calibRe = re.compile('data10_calib.*calibration_ped\.daq\.RAQ.*\.data')
-    #calibRe = re.compile('data10_.*pedCSC.*\.data')
-    calibRe = re.compile('data1.*_calib.*calibration_pedCSC\.daq\.RAW.*\.data')
-  else:
-    print ('Need to specify pulser or ped')
-    os._exit(0)
-except:
+calType = sys.argv[1]
+if calType == 'pulser':
+  calibFileDir = '/castor/cern.ch/user/l/lampen/CalibRunTest/slope/'
+  oldListFilePath = '/afs/cern.ch/user/m/muoncali/CSC/run/pulserList.txt'
+  outputDir = '/afs/cern.ch/user/m/muoncali/w0/CSC/runs/pulser/pulser'
+elif calType == 'ped':
+  calibFileDir = '/castor/cern.ch/grid/atlas/DAQ/muon/csc/'
+  oldListFilePath = '/afs/cern.ch/user/m/muoncali/CSC/run/pedDirList.txt'
+  outputDir = '/afs/cern.ch/user/m/muoncali/w0/CSC/runs/ped/ped'
+  calibRe = re.compile('data1.*_calib.*calibration_pedCSC\\.daq\\.RAW.*\\.data')
+else:
   print ('Need to specify pulser or ped')
-  os._exit(0) 
+  os._exit(0)
 
 
 #First, see if a calibration is already running
@@ -365,10 +355,10 @@ if(oldLs != currentLs):
               print ("There is a calib dir, but it only has " + str(nFiles)
                      + " file. Will not process.")
               updateRunList = False
-            break;
+            break
           if(ThisCalibDir):
             fullPath = calibFileDir + DirName + '/' + fileName 
-            castorCopyCmd += "\nxrdcp root://castoratlas/" + fullPath + " ${bytestreamDir}";
+            castorCopyCmd += "\nxrdcp root://castoratlas/" + fullPath + " ${bytestreamDir}"
             #print ('found ' + fullPath)
           else:
             break

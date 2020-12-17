@@ -29,7 +29,7 @@ MM_ElectronicsResponseSimulation::MM_ElectronicsResponseSimulation():
 /*******************************************************************************/
 void MM_ElectronicsResponseSimulation::initialize()
 {
-  m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime);
+  m_vmmShaper = std::make_unique<VMM_Shaper>(m_peakTime, m_timeWindowLowerOffset, m_timeWindowUpperOffset);
   m_vmmShaper->initialize();
 }
 /*******************************************************************************/

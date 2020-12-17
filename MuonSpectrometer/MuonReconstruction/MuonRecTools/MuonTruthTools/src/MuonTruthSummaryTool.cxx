@@ -103,10 +103,10 @@ MuonTruthSummaryTool::init() const
             PRD_MultiTruthCollection::const_iterator it_end = col->end();
             for (; it != it_end; ++it) {
                 const HepMcParticleLink& link = it->second;
-                if (link.cptr() && (abs(link.cptr()->pdg_id()) == m_selectedPdgId || abs(link.cptr()->pdg_id()) == 13))
+                if (link.cptr() && (abs(link.cptr()->pdg_id()) == m_selectedPdgId || std::abs(link.cptr()->pdg_id()) == 13))
                 {
-                    m_truthHits[it->first]                           = link.cptr()->barcode();
-                    m_pdgIdLookupFromBarcode[link.cptr()->barcode()] = link.cptr()->pdg_id();
+                    m_truthHits[it->first]                           = HepMC::barcode(link.cptr());
+                    m_pdgIdLookupFromBarcode[HepMC::barcode(link.cptr())] = link.cptr()->pdg_id();
                 }
             }
         }

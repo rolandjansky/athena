@@ -45,6 +45,7 @@ public:
 
   virtual void declare(Gaudi::DataHandle&) override { std::abort(); }
   virtual void renounce(Gaudi::DataHandle&) override { std::abort(); }
+  virtual bool renounceInput(const DataObjID&) override { std::abort(); }
 
   std::vector<Gaudi::DataHandle*> m_inputHandles;
   std::vector<Gaudi::DataHandle*> m_outputHandles;
@@ -108,7 +109,7 @@ void test1()
   assert (k3.contHandleKey().mode() == Gaudi::DataHandle::Reader);
   assert (owner.getProperty ("CCCKey").name() == "CCCKey");
   assert (owner.getProperty ("CCCKey").documentation() == "doc string");
-  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::VarHandleKey));
+  assert (owner.getProperty ("CCCKey").type_info() == &typeid(SG::WriteHandleKey<MyObj>));
   assert (owner.getProperty ("CCCKey").toString() == "'StoreGateSvc+ccc.dec'");
   assert (owner.getProperty ("CCCKey").ownerTypeName() == "TestOwner");
 }

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: eFexEMRoIAuxContainer_v1.h 631149 2014-11-26 12:26:18Z krasznaa $
@@ -46,9 +46,13 @@ namespace xAOD {
       std::vector< uint16_t > rhadEM;
       std::vector< uint16_t > wstotNumerator;
       std::vector< uint16_t > wstotDenominator;
-      std::vector< uint16_t > et;
-      std::vector< uint8_t >  eta;
-      std::vector< uint8_t >  phi;
+     //std::vector< uint16_t > et;
+     //std::vector< uint8_t >  eta;
+     //std::vector< uint8_t >  phi;
+
+      std::vector< float > et;
+      std::vector< float >  eta;
+      std::vector< float >  phi;
       std::vector< char >     isTOB;
       std::vector< uint32_t > thrPattern;
 

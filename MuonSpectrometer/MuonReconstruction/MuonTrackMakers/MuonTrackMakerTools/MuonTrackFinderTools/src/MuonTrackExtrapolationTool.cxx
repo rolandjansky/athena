@@ -5,18 +5,12 @@
 #include "MuonTrackExtrapolationTool.h"
 
 #include "MuonTrackMakerUtils/MuonTSOSHelper.h"
-
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
-
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkSurfaces/DistanceSolution.h"
-
 #include "TrkTrack/TrackStateOnSurface.h"
 #include "TrkTrack/Track.h"
-
-#include "TrkSurfaces/PerigeeSurface.h"
-
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/MagneticFieldProperties.h"

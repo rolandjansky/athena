@@ -52,7 +52,8 @@ namespace InDet {
                   const Trk::IRIO_OnTrackCreator* rioTool,
                   const IInDetConditionsTool* pixCondTool,
                   const IInDetConditionsTool* sctCondTool,
-                  const Trk::MagneticFieldProperties* fieldProp);
+                  const Trk::MagneticFieldProperties* fieldProp,
+                  const Trk::IBoundaryCheckTool* boundaryCheckTool);
 
       
     /**
@@ -125,6 +126,15 @@ namespace InDet {
     double& xi2max();
     double& xi2maxNoAdd();
     double& xi2maxlink();
+
+    /// Methods used to associate the hole search outcome to tracks without having to modify the EDM.
+
+    /// This will try to find the hole outcome associated to the input track. If found, it will 
+    /// return true and set the pass-by-ref argument to the result. 
+    /// Otherwise, will return false and not touch the second argument 
+    bool findPatternHoleSearchOutcome (Trk::Track* theTrack, InDet::PatternHoleSearchOutcome & outcome) const;
+    ///  This is used to store the pattern hole search outcome for a given track. 
+    void addPatternHoleSearchOutcome (Trk::Track* theTrack, const InDet::PatternHoleSearchOutcome & outcome); 
     //@}
 
   protected:
@@ -189,6 +199,8 @@ namespace InDet {
     double m_xi2maxNoAdd{0.};
     /// max Xi2 for clusters
     double m_xi2maxlink{0.};
+    /// A helper map to associate hole search outcomes to tracks
+    std::map<Trk::Track*, InDet::PatternHoleSearchOutcome> m_holeSearchOutcomes; 
 
     /// cached pointer to Pixel cluster collection in StoreGate
     const InDet::PixelClusterContainer* m_pixcontainer{nullptr};

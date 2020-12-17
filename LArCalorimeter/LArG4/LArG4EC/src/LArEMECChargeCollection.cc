@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArEMECChargeCollection.cc
@@ -97,9 +97,6 @@
 // ***************************************************************************
 void LArG4::EC::EnergyCalculator::CreateArrays(Wheel_Efield_Map &wheel, G4int n){
   // ***************************************************************************
-
-  //  std::cout<<"***CreateArrays wheeltype; n="<<n
-  //         <<std::endl;
 
   wheel.NumberOfRadialLayer = n;
   wheel.RadiusOfLayers         =new G4double [n];
@@ -526,11 +523,6 @@ void LArG4::EC::EnergyCalculator::LoadFieldMaps(const G4String fname){
               ATH_MSG_ERROR("GetFieldMaps Error reading field map");
             }
 
-            /*             if(j<10) G4cout<<" z,y,weight="
-                           <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)]<<" "
-                           <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)]<<" "
-                           <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)]
-                           <<G4endl; */
 
           } // end of loop(j) on points
         }
@@ -631,11 +623,6 @@ void LArG4::EC::EnergyCalculator::PrepareFieldMap(Wheel_Efield_Map* ChCollWheelT
           ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,ipnt)]=z;
           ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,ipnt)]=y;
           ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,ipnt)]=wx;
-
-          /*            if(ipnt<10)
-                        G4cout<<" ilayer="<<i<<" ipnt="<<ipnt<<" weights="
-                        <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,ipnt)]
-                        <<G4endl;*/
         }
 
       }  // end j loop for points
@@ -962,7 +949,6 @@ G4double LArG4::EC::EnergyCalculator::GetCurrent(
     }
   }
 
-  //std::cout <<"GetCurrent0:: edep="<<edep<<" current="<<current<<" gaperr="<<gaperr<<std::endl;
 #endif
 
   return current;
@@ -1141,8 +1127,6 @@ void LArG4::EC::EnergyCalculator::SetFoldArea(G4double zinwheel, FoldArea & fa) 
 // ***********************************************************
 void LArG4::EC::EnergyCalculator::SetHalfWave(G4double zinwheel, WheelGeometry & wg) const {
   // ***********************************************************
-
-  //  G4cout<<"***SetHalfWave zin="<<zinwheel<<G4endl;
 
   const G4double z = zinwheel - lwc()->GetStraightStartSection();
   wg.HalfWaveNumber = int((z+lwc()->GetQuarterWaveLength())/lwc()->GetHalfWaveLength());
@@ -1346,10 +1330,8 @@ G4double LArG4::EC::EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4d
       return wg.SignofSlopeofHalfWave*wg.ZinHalfWave/t+th/s;
     }
 
-    //   std::cout<<"*** ERROR1 in YofSURF!!!!"<<std::endl;
     return 0.;
   }
-  //std::cout<<"*** ERROR2 in YofSURF!!!!"<<std::endl;
   return 0.;
 }
 

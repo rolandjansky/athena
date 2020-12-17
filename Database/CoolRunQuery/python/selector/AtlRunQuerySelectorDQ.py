@@ -2,7 +2,7 @@
 
 
 from __future__ import print_function
-from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, O
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, OOO
 from CoolRunQuery.utils.AtlRunQueryIOV    import IOVRange
 from CoolRunQuery.utils.AtlRunQueryUtils  import coolDbConn
 from CoolRunQuery.utils.AtlRunQueryLookup import DQChannel
@@ -16,7 +16,7 @@ DD = namedtuple("DD","description comment since until")
 
 def vfgen(vfobjs):
     for obj in vfobjs:
-        yield O(obj.channel, (str(obj.Code),obj.Comment), IOVRange(starttime=obj.since, endtime=obj.until), True)
+        yield OOO(obj.channel, (str(obj.Code),obj.Comment), IOVRange(starttime=obj.since, endtime=obj.until), True)
 
 class DQSelector(Selector):
     def __init__(self, name='dataquality'):
@@ -86,11 +86,13 @@ class DQSelector(Selector):
         # print ("GC objects",len(gcod))
         # print ("GC object count",gc.get_count())
         
-        for sel in self.selectors.values(): runlist = sel.select(runlist)
+        for sel in self.selectors.values():
+            runlist = sel.select(runlist)
         return runlist
 
     def runAfterQuery(self,runlist):
-        for sel in self.selectors.values(): sel.runAfterQuery(runlist)
+        for sel in self.selectors.values():
+            sel.runAfterQuery(runlist)
         
 
 
@@ -111,7 +113,8 @@ class DQCondition(RunLBBasedCondition):
         self.useVirtualFlags = False
 
         dbname = 'COOLOFL_GLOBAL'
-        if 'ONL' in self.foldername: dbname = 'COOLONL_GLOBAL'
+        if 'ONL' in self.foldername:
+            dbname = 'COOLONL_GLOBAL'
 
         # set up virtual flag logic folder and expand wild cards for VF in dq
         self.GetVirtualFlagsExpanded(dq, Selector.compDB(), dbname)
@@ -122,8 +125,10 @@ class DQCondition(RunLBBasedCondition):
             self.channels         += [[self.DQChannel(chn) for chn in ch]]
             self.flags            += [(x+[''])[1]]
 
-        for chN in self.channelNames: self.channelNamesFlat += chN
-        for ch in self.channels: self.channelsflat += ch
+        for chN in self.channelNames:
+            self.channelNamesFlat += chN
+        for ch in self.channels:
+            self.channelsflat += ch
 
         self.channelCommentsFlat = [n+"_m" for n in self.channelNamesFlat]
 
@@ -163,27 +168,42 @@ class DQCondition(RunLBBasedCondition):
                 cd = self.code[flag[:-1].lower()]
                 d['refVal'] = cd
                 if flag[-1]=='+':
-                    if cd == -1: d['passFnc'] = lambda x: int(x)>=-1
-                    elif cd == 0:d['passFnc'] = lambda x: int(x)>=0
-                    elif cd == 1:d['passFnc'] = lambda x: int(x)>=1
-                    elif cd == 2:d['passFnc'] = lambda x: int(x)>=2
-                    elif cd == 3:d['passFnc'] = lambda x: int(x)>=3
+                    if cd == -1:
+                        d['passFnc'] = lambda x: int(x)>=-1
+                    elif cd == 0:
+                        d['passFnc'] = lambda x: int(x)>=0
+                    elif cd == 1:
+                        d['passFnc'] = lambda x: int(x)>=1
+                    elif cd == 2:
+                        d['passFnc'] = lambda x: int(x)>=2
+                    elif cd == 3:
+                        d['passFnc'] = lambda x: int(x)>=3
                     d['passFncName'] = "x>='%i'" % d['refVal']
                 else:
-                    if cd == -1: d['passFnc'] = lambda x: int(x)<=-1
-                    elif cd == 0:d['passFnc'] = lambda x: int(x)<=0
-                    elif cd == 1:d['passFnc'] = lambda x: int(x)<=1
-                    elif cd == 2:d['passFnc'] = lambda x: int(x)<=2
-                    elif cd == 3:d['passFnc'] = lambda x: int(x)<=3
+                    if cd == -1:
+                        d['passFnc'] = lambda x: int(x)<=-1
+                    elif cd == 0:
+                        d['passFnc'] = lambda x: int(x)<=0
+                    elif cd == 1:
+                        d['passFnc'] = lambda x: int(x)<=1
+                    elif cd == 2:
+                        d['passFnc'] = lambda x: int(x)<=2
+                    elif cd == 3:
+                        d['passFnc'] = lambda x: int(x)<=3
                     d['passFncName'] = "x<='%i'" % d['refVal']
             else:
                 cd = self.code[flag.lower()]
                 d['refVal'] = cd
-                if cd == -1: d['passFnc'] = lambda x: int(x)==-1
-                elif cd == 0:d['passFnc'] = lambda x: int(x)==0
-                elif cd == 1:d['passFnc'] = lambda x: int(x)==1
-                elif cd == 2:d['passFnc'] = lambda x: int(x)==2
-                elif cd == 3:d['passFnc'] = lambda x: int(x)==3
+                if cd == -1:
+                    d['passFnc'] = lambda x: int(x)==-1
+                elif cd == 0:
+                    d['passFnc'] = lambda x: int(x)==0
+                elif cd == 1:
+                    d['passFnc'] = lambda x: int(x)==1
+                elif cd == 2:
+                    d['passFnc'] = lambda x: int(x)==2
+                elif cd == 3:
+                    d['passFnc'] = lambda x: int(x)==3
                 d['passFncName'] = "x=='%i'" % d['refVal']
                 
         self.passSpecs = {}
@@ -200,7 +220,8 @@ class DQCondition(RunLBBasedCondition):
         if self.useVirtualFlags:
             f = self.VirtualFlagFolder(f)
         else:
-            if f.versioningMode()==0: self.tagname=""
+            if f.versioningMode()==0:
+                self.tagname=""
             if self.tagname not in ["HEAD", ""]:
                 self.tagname = f.resolveTag(self.tagname)
         return f
@@ -218,12 +239,12 @@ class DQCondition(RunLBBasedCondition):
         if self.useVirtualFlags and dqname in self.vfl.get_logic_list().keys():
             try:
                 return self.vfl.get_logic_list()[dqname].record.channel
-            except:
+            except AttributeError:
                 return self.vfl.get_logic_list()[dqname].channel
         return DQChannel(dqname)
 
     def GetVirtualFlagsExpanded(self, dqlist, db, schema):
-        for i in xrange(len(dqlist)):
+        for i in range(len(dqlist)):
             dqs = dqlist[i][0].split(',')
             newdqs = []
             for c in dqs:
@@ -236,22 +257,22 @@ class DQCondition(RunLBBasedCondition):
     def ExpandVFlag(self, cpflag, db, schema):
         vfl = self.GetVirtualFlagLogic(db, schema)
         vflags = vfl.get_logic_list().keys()
-
         useprimaries = cpflag[-1]=='+'
         cpflag=cpflag.rstrip('+')
-
         expflags = []
 
         if cpflag in vflags:
             self.AddVFHeaderData(cpflag)
             expflags += [cpflag]
-            if useprimaries: expflags += self.getVFDef(cpflag)
+            if useprimaries:
+                expflags += self.getVFDef(cpflag)
         else:
             for vf in vflags:
                 if vf.startswith(cpflag):
                     self.AddVFHeaderData(vf)
                     expflags += [vf]
-                    if useprimaries: expflags += self.getVFDef(vf)
+                    if useprimaries:
+                        expflags += self.getVFDef(vf)
                     
         if len(expflags)==0:
             raise RuntimeError("Virtual Flag pattern %s does not match any virtual flag: %r" % (cpflag, vfl.get_logic_list().keys()))
@@ -260,7 +281,8 @@ class DQCondition(RunLBBasedCondition):
 
 
     def GetVirtualFlagLogic(self, db, schema):
-        if self.useVirtualFlags: return self.vfl
+        if self.useVirtualFlags:
+            return self.vfl
         try: # import
             from VirtualFlags import VirtualFlagLogicFolder, VirtualFlagFolder
         except ImportError:
@@ -276,7 +298,8 @@ class DQCondition(RunLBBasedCondition):
 
     def AddVFHeaderData(self,cpflag):
         from CoolRunQuery.AtlRunQueryRun import Run
-        if cpflag in Run.Fieldinfo: return
+        if cpflag in Run.Fieldinfo:
+            return
         Run.Fieldinfo[cpflag] = '<strong><b>%s</b></strong><br><table width="300"><tr><td>%s</td></tr></div>' % \
                                 (self.vfl.get_logic_list()[cpflag].comment,
                                  ", ".join(self.getVFDef(cpflag)) )
@@ -287,7 +310,8 @@ class DQCondition(RunLBBasedCondition):
     
         
     def ApplySelection(self,key):
-        if key in self.passSpecs: return True
+        if key in self.passSpecs:
+            return True
         return False
 
     def addShowChannel(self, folder, channelname, tag):
@@ -333,9 +357,12 @@ class DQCondition(RunLBBasedCondition):
 
     def passes(self,values, key):
         passfnc = self.passSpecs[key]['passFnc']
-        if isinstance(values,tuple):  v = values[0]
-        else:                         v = values
-        if v=='n.a.': v=-2
+        if isinstance(values,tuple):
+            v = values[0]
+        else:
+            v = values
+        if v=='n.a.':
+            v=-2
         try:
             if passfnc(v):  # passed this DQ flag in the OR group?
                 return True
@@ -370,7 +397,8 @@ class DQCondition(RunLBBasedCondition):
             for k in self.ResultKey():
                 n={}
                 run.stats[k] = {}
-                for dq in dqs: n[dq] = 0
+                for dq in dqs:
+                    n[dq] = 0
                 blocks = []
                 for entry in run.data[k]:
                     if self.folderHasComment:
@@ -382,7 +410,8 @@ class DQCondition(RunLBBasedCondition):
                         dq, dqcomment = (entry.value,None)
                     
                     n[dq] += len(entry)
-                    if entry.startlb == 0: n[dq] -= 1 # CAUTION: problem with LB-1 = 0 ==> needs to be corrected
+                    if entry.startlb == 0:
+                        n[dq] -= 1 # CAUTION: problem with LB-1 = 0 ==> needs to be corrected
                     if len(blocks) > 0 and blocks[-1][0]==(dq,dqcomment) and blocks[-1][2]==entry.startlb:
                         blocks[-1][2] = entry.endlb
                     else:
@@ -396,18 +425,6 @@ class DQCondition(RunLBBasedCondition):
                         dqmax=dq
                 run.result[k]=dqmax
                 run.stats[k] = { "counts" : n, "max": dqmax, "blocks": blocks }
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 class DQDefectCondition(RunLBBasedCondition):
@@ -432,19 +449,20 @@ class DQDefectCondition(RunLBBasedCondition):
 
     def _pass(self,data):
         these_defects = []
-        if data!=None:
+        if data is not None:
             for x in data:
-                if x.value.ignore==None: # no ignore
+                if x.value.ignore is None: # no ignore
                     these_defects += [x.value.defect]
                 else:
                     these_defects += [x.value.defect+'\\'+x.value.ignore]
         for orGroup in self.selectionChannelNames:
             any_passes = False
             for k in orGroup:
-                if k[0]=='\\': continue # "\Defect" are modifiers not requirements so we ignore it in the check
+                if k[0]=='\\':
+                    continue # "\Defect" are modifiers not requirements so we ignore it in the check
                 if k[0]=='!':  # !DEFECT
                     kk = k[1:]
-                    passes = not kk in these_defects
+                    passes = kk not in these_defects
                 else:
                     passes = k in these_defects
                 if passes:
@@ -477,8 +495,10 @@ class DQDefectCondition(RunLBBasedCondition):
         """
         from re import compile
         from CoolRunQuery.AtlRunQueryRun import Run
-        if not 'DQ' in Run.Fieldinfo: Run.Fieldinfo['DQ'] = {}
-        if not 'DefMatch' in Run.Fieldinfo['DQ']: Run.Fieldinfo['DQ']['DefMatch'] = []
+        if 'DQ' not in Run.Fieldinfo:
+            Run.Fieldinfo['DQ'] = {}
+        if 'DefMatch' not in Run.Fieldinfo['DQ']:
+            Run.Fieldinfo['DQ']['DefMatch'] = []
         Run.Fieldinfo['DQ']['IntolerableDefects'] = db.get_intolerable_defects(old_primary_only=False)
         matches = set()
         for pattern in channel_name_patterns:
@@ -487,8 +507,8 @@ class DQDefectCondition(RunLBBasedCondition):
                 channelnames = set(filter(cpattern.match,db.defect_names))
                 channelnames.update(filter(cpattern.match,db.virtual_defect_names))
             else:
-                channelnames = set([d for d in db.defect_names if not '_' in d])
-                channelnames.update([d for d in db.virtual_defect_names if not '_' in d])
+                channelnames = set([d for d in db.defect_names if '_' not in d])
+                channelnames.update([d for d in db.virtual_defect_names if '_' not in d])
             matches.update(channelnames)
             Run.Fieldinfo['DQ']['DefMatch'] += [(pattern,channelnames)]
         return matches
@@ -509,18 +529,22 @@ class DQDefectCondition(RunLBBasedCondition):
         # add the channels for selection (those have to match exactly, they are simply added)  
         channels_with_ignore = {} # unique
         for selChans in self.selectionChannelNames:
-            channels.update([x.lstrip('!') for x in selChans if not '\\' in x])
+            channels.update([x.lstrip('!') for x in selChans if '\\' not in x])
             for x in selChans: # for the defects with ignore condition
-                if not '\\' in x: continue
+                if '\\' not in x:
+                    continue
                 channel, ignore_str = self.sort_uniq_ignores(x).split('\\',1)
-                if not ignore_str in channels_with_ignore: channels_with_ignore[ignore_str] = []
+                if ignore_str not in channels_with_ignore:
+                    channels_with_ignore[ignore_str] = []
                 channels_with_ignore[ignore_str] += [channel.lstrip('!')]
 
         #print ("CHANNELS",channels)
-        if len(channels) + len(channels_with_ignore)==0: return []
+        if len(channels) + len(channels_with_ignore)==0:
+            return []
 
         # we need to remove the special case ANY from the set
-        if 'ANY' in channels: channels.remove('ANY')
+        if 'ANY' in channels:
+            channels.remove('ANY')
 
         res = [] if len(channels)==0 else [ (db.retrieve(since=since, until=until, channels=channels, ignore=self.global_ignore, with_primary_dependencies=True).trim_iovs, None) ]
 
@@ -542,28 +566,31 @@ class DQDefectCondition(RunLBBasedCondition):
         """
         intolerableDefects = db.get_intolerable_defects(old_primary_only=False)
         for defects, ignore in defects_with_ignore:
-            chanlist = channels if ignore==None else channels_with_ignore[ignore]
+            chanlist = channels if ignore is None else channels_with_ignore[ignore]
             for d in defects:
-                if not d.present: continue
+                if not d.present:
+                    continue
                 isVirtual = (d.user == 'sys:virtual') # db.defect_is_virtual(d.channel)
                 if not isVirtual:
                     run = d.since.run
                     # fill list of primaries defects for this run (this is needed for the comments, but not for the selection)
-                    if not run in self.primaries: self.primaries[run] = []
+                    if run not in self.primaries:
+                        self.primaries[run] = []
                     self.primaries[run] += [d]
-                if not d.channel in chanlist: continue
+                if d.channel not in chanlist:
+                    continue
 
                 defPayload = DQDefectPayload(defect = d.channel, comment = d.comment,
                                              user = d.user, primary = not isVirtual,
                                              ignore = ignore,
-                                             tolerable = (not d.channel in intolerableDefects),
+                                             tolerable = (d.channel not in intolerableDefects),
                                              recoverable = d.recoverable)
                 # note that the comment is either the user's comment,
                 # a comment that the defect is auto-generated, or the
                 # list of source defects in case of virtual defects
                 
                 #o = O("DQDEFECT", (d.channel, d.comment, ignore), IOVRange(starttime=d.since.real, endtime=d.until.real), True)
-                o = O("DQDEFECT", defPayload, IOVRange(starttime=d.since.real, endtime=d.until.real), True)
+                o = OOO("DQDEFECT", defPayload, IOVRange(starttime=d.since.real, endtime=d.until.real), True)
                 yield o
 
 
@@ -573,7 +600,8 @@ class DQDefectCondition(RunLBBasedCondition):
 
 
     def sort_uniq_ignores(self,requirement):
-        if not '\\' in requirement: return requirement
+        if '\\' not in requirement:
+            return requirement
         x = requirement.split('\\')
         new_req = x[0] + '\\' + '\\'.join(sorted(list(set(x[1:]))))
         return new_req
@@ -595,8 +623,10 @@ class DQDefectCondition(RunLBBasedCondition):
     def addShowChannel(self, folder, channelname, tag):
         self.channelNames += [channelname]
         from CoolRunQuery.AtlRunQueryRun import Run
-        if not 'DQ' in Run.Fieldinfo: Run.Fieldinfo['DQ'] = {}
-        if not 'DefChannels' in Run.Fieldinfo['DQ']: Run.Fieldinfo['DQ']['DefChannels'] = []
+        if 'DQ' not in Run.Fieldinfo:
+            Run.Fieldinfo['DQ'] = {}
+        if 'DefChannels' not in Run.Fieldinfo['DQ']:
+            Run.Fieldinfo['DQ']['DefChannels'] = []
         Run.Fieldinfo['DQ']['DefChannels'] += [channelname]
 
     
@@ -636,10 +666,8 @@ class DQDefectCondition(RunLBBasedCondition):
         """
         collects, sorts, and groups defects with LBs and comments
         """
-
-
         from itertools import groupby
-        from operator import itemgetter, attrgetter
+        from operator import attrgetter
 
         for run in runlist:
 
@@ -649,7 +677,7 @@ class DQDefectCondition(RunLBBasedCondition):
 
                 #for x in run.data[k]:
                 #    print ("               %r" % (x,))
-                if not k in run.data.keys():
+                if k not in run.data.keys():
                     run.result[k] = {}
                 run.stats[k] = {}
 
@@ -689,7 +717,8 @@ class DQDefectCondition(RunLBBasedCondition):
 
     def find_primaries(self, DD, defect_logic, primaries, curpath, reps):
         for pdef in defect_logic.primary_defects:
-            if not pdef in primaries: continue
+            if pdef not in primaries:
+                continue
             pdefects = primaries[pdef]
             for pdeflb in pdefects:
                 reps += [  DD("%s->%s" % (curpath, pdeflb.channel), pdeflb.comment, pdeflb.since.lumi, pdeflb.until.lumi) ]

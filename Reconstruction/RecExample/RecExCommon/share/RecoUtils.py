@@ -151,27 +151,39 @@ if rec.doTimeLimit():
 # rather use default athenapool value
 if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 
+    from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+
     svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "TREE_BRANCH_OFFSETTAB_LEN ='100'" ]
     
     if rec.doWriteRDO():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
-        ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; COMPRESSION_LEVEL = '1'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolRDOOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'" ]
+        # Use LZMA w/ Level 1
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolRDOOutput(), 2 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolRDOOutput(), 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 1 events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolRDOOutput(), "CollectionTree", 1 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolRDOOutput(), "POOLContainer", 1 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolRDOOutput(), "POOLContainerForm", 1 ) ]
 
     if rec.doWriteESD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; COMPRESSION_LEVEL = '1'" ]
-        # Optimize Basket Sizes to store data for 10 entries/events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolESDOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '10'" ]
+        # Use LZMA w/ Level 1
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolESDOutput(), 2 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolESDOutput(), 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 10 events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolESDOutput(), "CollectionTree", 10 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolESDOutput(), "POOLContainer", 10 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolESDOutput(), "POOLContainerForm", 10 ) ]
 
     if rec.doWriteAOD():
         from AthenaCommon.AthenaCommonFlags  import athenaCommonFlags
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_ALGORITHM = '2'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; COMPRESSION_LEVEL = '1'" ]
-        # Optimize Basket Sizes to store data for 100 entries/events
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + athenaCommonFlags.PoolAODOutput() + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '100'"]
+        # Use LZMA w/ Level 1
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( athenaCommonFlags.PoolAODOutput(), 2 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( athenaCommonFlags.PoolAODOutput(), 1 ) ]
+        # Flush the CollectionTree, POOLContainer, and POOLContainerForm to disk at every 100 events
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolAODOutput(), "CollectionTree", 100 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolAODOutput(), "POOLContainer", 100 ) ]
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( athenaCommonFlags.PoolAODOutput(), "POOLContainerForm", 100 ) ]
 
         # Base the xAOD branch names just on the SG keys:
         StreamAOD.WritingTool.SubLevelBranchName = "<key>"
@@ -185,9 +197,9 @@ if not rec.OutputLevel.isDefault():
 
 #Adjust the message format for threaded vs serial jobs
 if jobproperties.ConcurrencyFlags.NumThreads() > 0:
-    ServiceMgr.MessageSvc.Format = "% F%50W%S%4W%R%e%s%8W%R%T %0W%M"
+    ServiceMgr.MessageSvc.Format = "% F%50W%C%4W%R%e%s%8W%R%T %0W%M"
 else:
-    ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
+    ServiceMgr.MessageSvc.Format = "% F%50W%C%8W%R%T %0W%M" 
 
 
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages

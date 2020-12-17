@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARBYTESTREAM_LARABBADDECODER_H
@@ -42,12 +42,12 @@ public:
   virtual StatusCode finalize() override;
 
 
-  StatusCode convert(const RawEvent* re, LArDigitContainer* coll);
+  StatusCode convert(const RawEvent* re, LArDigitContainer* coll) const;
 
 private:
 
   void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB,
-                      LArDigitContainer* coll);
+                      LArDigitContainer* coll) const;
 }; 
 
 #endif

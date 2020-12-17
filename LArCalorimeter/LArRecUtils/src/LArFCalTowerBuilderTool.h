@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCLUSTERREC_LARFCALTOWERBUILDERTOOL_H
@@ -46,19 +46,22 @@ class LArFCalTowerBuilderTool : public CaloTowerBuilderToolBase
 
   virtual ~LArFCalTowerBuilderTool();
 
-  virtual StatusCode execute(CaloTowerContainer* theContainer,
+  virtual StatusCode execute(const EventContext& ctx,
+                             CaloTowerContainer* theContainer,
                              const CaloCellContainer* theCell=0,
                              const CaloTowerSeg::SubSeg* subseg = 0) const override;
 
 
   /**
    * @brief Run tower building and add results to the tower container.
+   * @param ctx The current event context.
    * @param theContainer The tower container to fill.
    *
    * If the segmentation hasn't been set, take it from the tower container.
    * This is for use by converters.
    */
-  virtual StatusCode execute (CaloTowerContainer* theContainer) override;
+  virtual StatusCode execute (const EventContext& ctx,
+                              CaloTowerContainer* theContainer) override;
 
 
   virtual void handle(const Incident&) override;
@@ -72,12 +75,12 @@ private:
   typedef LArFCalTowerStore::tower_iterator tower_iterator;
 
   void addTower (const tower_iterator& t,
-                 const CaloCellContainer* cells,
+                 const ElementLink<CaloCellContainer>& cellsEL,
                  CaloTower* tower) const;
   void iterateFull (CaloTowerContainer* towers,
-                    const CaloCellContainer* cells) const;
+                    const ElementLink<CaloCellContainer>& cellsEL) const;
   void iterateSubSeg (CaloTowerContainer* towers,
-                      const CaloCellContainer* cells,
+                      const ElementLink<CaloCellContainer>& cellsEL,
                       const CaloTowerSeg::SubSeg* subseg) const;
 
 
@@ -95,7 +98,7 @@ private:
   virtual StatusCode invalidateCache() override;
 
   // FCal only
-  static CaloCell_ID::SUBCALO m_caloIndex;
+  static const CaloCell_ID::SUBCALO m_caloIndex;
 
   const CaloCell_ID* m_cellIdHelper;
   const LArFCAL_ID* m_larFCalId;

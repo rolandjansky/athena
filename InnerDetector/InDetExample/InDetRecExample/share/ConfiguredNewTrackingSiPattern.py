@@ -227,16 +227,19 @@ class  ConfiguredNewTrackingSiPattern:
          # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
          is_dbm = InDetFlags.doDBMstandalone() or NewTrackingCuts.extension()=='DBM'
          rot_creator_digital = TrackingCommon.getInDetRotCreatorDigital() if not is_dbm else TrackingCommon.getInDetRotCreatorDBM()
-
+         boundary_check_tool = TrackingCommon.getInDetBoundaryCheckTool()
          from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
          track_finder = InDet__SiCombinatorialTrackFinder_xk(name                  = 'InDetSiComTrackFinder'+NewTrackingCuts.extension(),
                                                              PropagatorTool        = InDetPatternPropagator,
                                                              UpdatorTool           = InDetPatternUpdator,
+                                                             BoundaryCheckTool     = boundary_check_tool,
                                                              RIOonTrackTool        = rot_creator_digital,
                                                              usePixel              = DetFlags.haveRIO.pixel_on(),
                                                              useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
                                                              PixelClusterContainer = InDetKeys.PixelClusters(),
                                                              SCT_ClusterContainer  = InDetKeys.SCT_Clusters())
+         if NewTrackingCuts.mode() == "Offline": 
+             track_finder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
          if is_dbm :
             track_finder.MagneticFieldMode     = "NoField"
             track_finder.TrackQualityCut       = 9.3
@@ -379,6 +382,8 @@ class  ConfiguredNewTrackingSiPattern:
 
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
+          if NewTrackingCuts.mode() == "Offline": 
+             InDetSiSPSeededTrackFinder.writeHolesFromPattern = InDetFlags.useHolesFromPattern()
 
          #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
          topSequence += InDetSiSPSeededTrackFinder
@@ -453,7 +458,7 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.phiWidth                  = 0.1     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidth                  = 0.1     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
-           InDetAmbiTrackSelectionTool.doEmCaloSeed              = False   #Only split in cluster in region of interest
+           InDetAmbiTrackSelectionTool.doEmCaloSeed              = True   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.phiWidthEM                = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.etaWidthEM                = 0.05     #Split cluster ROI size
@@ -496,8 +501,7 @@ class  ConfiguredNewTrackingSiPattern:
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
                                                                            nameSuffix                 = NewTrackingCuts.extension(),
-                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                                                           RenounceInputHandles       = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
@@ -519,8 +523,13 @@ class  ConfiguredNewTrackingSiPattern:
            fitter_args = setDefaults({},
                                      nameSuffix                   = 'Ambi'+NewTrackingCuts.extension(),
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
-                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                     RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
+           if InDetFlags.holeSearchInGX2Fit():
+               fitter_args = setDefaults(fitter_args,
+               DoHoleSearch                 = True,
+               BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
+               
+
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
@@ -547,7 +556,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True)
+                                                   RefitPrds          = True,
+                                                   KeepHolesFromBeforeRefit = InDetFlags.useHolesFromPattern())
 
          else:
            from AthenaCommon import CfgGetter

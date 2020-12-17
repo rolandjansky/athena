@@ -120,10 +120,9 @@ namespace DerivationFramework {
       unsigned int isEM = (unsigned int) theAccept.getCutResultInvertedBitSet().to_ulong(); // this should work for both the cut-based and the LH selectors
       double result(0.); // initialise explicitly to avoid compilation warning. It will be overridden in the following block (result is used only if m_storeTResult is true)
 
-      // Lukas Heinrich: interface in master not yet available.
-      //      if (m_storeTResult) {
-      //	result = double(m_tool->calculate(pCopy));
-      //      }
+      if (m_storeTResult) {
+      	result = double(m_tool->calculate(Gaudi::Hive::currentContext(),pCopy));
+      }
       
       // decorate the original object
       if(m_cut.empty()){

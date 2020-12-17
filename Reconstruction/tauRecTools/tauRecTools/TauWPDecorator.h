@@ -94,8 +94,8 @@ class TauWPDecorator : public TauRecToolBase {
     std::vector<float> m_decorWPEffs3p; //!< Efficiency of each WP to be docorated for 3-prong taus
     
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
-        "AveIntPerXKey", 
-        "EventInfo.AveIntPerXDecor",
+        "averageInteractionsPerCrossingKey", 
+        "EventInfo.averageInteractionsPerCrossing",
         "Decoration for Average Interaction Per Crossing"};
     
     typedef std::pair<double, std::shared_ptr<TH2> > m_pair_t;

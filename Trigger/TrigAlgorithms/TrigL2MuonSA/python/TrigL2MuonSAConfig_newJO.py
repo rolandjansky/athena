@@ -115,6 +115,7 @@ def MmDataPreparatorCfg( flags, roisKey ):
 
 # Based on TrigL2MuonSAMTConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
 def muFastSteeringCfg( flags, roisKey, setup="" ):
+    from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
 
     acc = ComponentAccumulator()
 
@@ -171,9 +172,8 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
         PtFromAlphaBeta.AvoidMisalignedCSCs = True
 
     MuFastStationFitter = TrigL2MuonSA__MuFastStationFitter( PtFromAlphaBeta = PtFromAlphaBeta )
-
     TrigL2MuonSA__MuFastPatternFinder,TrigL2MuonSA__MuFastTrackFitter,TrigL2MuonSA__MuFastTrackExtrapolator,TrigL2MuonSA__MuCalStreamerTool,TrigL2MuonSA__CscSegmentMaker=CompFactory.getComps("TrigL2MuonSA::MuFastPatternFinder","TrigL2MuonSA::MuFastTrackFitter","TrigL2MuonSA::MuFastTrackExtrapolator","TrigL2MuonSA::MuCalStreamerTool","TrigL2MuonSA::CscSegmentMaker")
-    MuFastPatternFinder     = TrigL2MuonSA__MuFastPatternFinder()
+    MuFastPatternFinder     = TrigL2MuonSA__MuFastPatternFinder(CalibrationTool=acc.popToolsAndMerge( MdtCalibrationToolCfg(flags)))
     MuFastTrackFitter       = TrigL2MuonSA__MuFastTrackFitter()
     MuFastTrackExtrapolator = TrigL2MuonSA__MuFastTrackExtrapolator()
     MuCalStreamerTool       = TrigL2MuonSA__MuCalStreamerTool()

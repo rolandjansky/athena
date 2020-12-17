@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -13,13 +13,18 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import MuonChainConfiguration as MuonChainConfiguration
 
 from TriggerMenuMT.HLTMenuConfig.Muon.MuonDef import muCombSequenceCfg, muEFCBSequenceCfg
+from TriggerMenuMT.HLTMenuConfig.Bphysics.BphysicsSequenceSetup import bmumuxSequence
+
 from TrigBphysHypo.TrigMultiTrkComboHypoConfig import DimuL2ComboHypoCfg, DimuEFComboHypoCfg, TrigMultiTrkComboHypoToolFromDict
+from TrigBphysHypo.TrigBmumuxComboHypoConfig import BmumuxComboHypoCfg, TrigBmumuxComboHypoToolFromDict
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 # I have no idea what the above sentence means - copy/paste from muons...
 #--------------------------------------------------------
 
+def bmumuxSequenceCfg(flags):
+    return bmumuxSequence()
 
 #############################################
 ###  Class/function to configure muon chains
@@ -35,7 +40,7 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     # ----------------------
     def assembleBphysChain(self):
 
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         stepDictionary = self.getBphysStepDictionary()
         key = self.getBphysKey()
@@ -53,14 +58,13 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
     def getBphysStepDictionary(self):
 
         stepDictionary = {
-            'dimu' : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getDimuEFCB']],
+            'dimu'   : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getDimuEFCB']],
+            'bl2io'  : [['getmuFast', 'getmuCombIO'], ['getmuEFSA', 'getDimuEFCB']],
+            'bmumux' : [['getmuFast', 'getDimuComb'], ['getmuEFSA', 'getmuEFCB', 'getBmumux']],
         }
         return stepDictionary
 
     def getBphysKey(self):
-
-        if len(self.dict['topo']) > 1:
-            log.warning("BphysicsChainConfiguration.getBphysKey is not setup for > 1 topo! will use the first one.")
 
         the_topo = self.dict['topo'][0]
 
@@ -71,7 +75,9 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
             'bDimu'     : 'dimu',
             'bDimu2700' : 'dimu',
             'bPhi'      : 'dimu',
-            'bTau'      : 'dimu'
+            'bTau'      : 'dimu',
+            'bJpsimumul2io' : 'bl2io',
+            'bBmumux'   : 'bmumux'
         }
 
         return topo_dict[the_topo]
@@ -81,3 +87,6 @@ class BphysicsChainConfiguration(MuonChainConfiguration):
 
     def getDimuEFCB(self):
         return self.getStep(4, 'dimuEFCB', [muEFCBSequenceCfg], comboHypoCfg=DimuEFComboHypoCfg, comboTools=[TrigMultiTrkComboHypoToolFromDict])
+
+    def getBmumux(self):
+        return self.getStep(5, 'bmumux', [bmumuxSequenceCfg], comboHypoCfg=BmumuxComboHypoCfg, comboTools=[TrigBmumuxComboHypoToolFromDict])

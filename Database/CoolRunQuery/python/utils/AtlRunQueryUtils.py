@@ -12,29 +12,27 @@
 #
 
 from __future__ import with_statement, print_function
-from .AtlRunQueryTimer import timer
+from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from collections import namedtuple, defaultdict
 import sys, os, time, re, calendar
 from math import exp,sqrt,pi
-from PyCool import cool
-from copy import copy, deepcopy
+from copy import copy
 import cx_Oracle
 import struct
-import urllib
 
-from httplib import HTTP
-from urlparse import urlparse
+import http.client
+import urllib.parse
 
 import DQDefects
 
 def checkURL(url):
-    p = urlparse(url)
-    h = HTTP(p[1])
+    p = urllib.parse(url)
+    h = http.client.HTTP(p[1])
     h.putrequest('HEAD', p[2])
     h.endheaders()
-    if h.getreply()[0] == 200: return 1
-    else: return 0
+    if h.getreply()[0] == 200:
+        return 1
+    return 0
 
 class RunPeriods():
     def findPeriod( self, runno ):
@@ -53,7 +51,7 @@ def runsOnServer():
     if not hostname:
         onserver = False
     else:
-        onserver = ( re.match('aiatlas.*\.cern\.ch',hostname) != None )
+        onserver = ( re.match(r'aiatlas.*\.cern\.ch',hostname) is not None )
     print ("Execution on server: %r" % onserver)
     return onserver
 
@@ -74,12 +72,15 @@ def importroot(batch=True):
 
 def prettyNumber( n, width=-1, delim=',',decimal='.' ):
     """Converts a float to a string with appropriately placed commas"""
-    if width >= 0: s = "%.*f" % (width, n)
-    else: s = str(n)
+    if width >= 0:
+        s = "%.*f" % (width, n)
+    else:
+        s = str(n)
     dec = s.find(decimal)
-    if dec == -1: dec = len(s)
+    if dec == -1:
+        dec = len(s)
     threes = int((dec-1)/3) 
-    for i in xrange(threes):
+    for i in range(threes):
         loc = dec-3*(i+1)
         s = s[:loc] + delim + s[loc:]
     return s
@@ -87,15 +88,21 @@ def prettyNumber( n, width=-1, delim=',',decimal='.' ):
 def durationInSeconds( duration_string ):
     lst = duration_string.split()
     sec = 0
-    for l in lst:
-        if   's' in l: sec += int(l.replace('s',''))
-        elif 'm' in l: sec += int(l.replace('m',''))*60
-        elif 'h' in l: sec += int(l.replace('h',''))*3600
-        elif 'd' in l: sec += int(l.replace('d',''))*3600*24
-        elif 'w' in l: sec += int(l.replace('w',''))*3600*24*7
-        elif 'y' in l: sec += int(l.replace('y',''))*3600*24*365
+    for entry in lst:
+        if 's' in entry:
+            sec += int(entry.replace('s',''))
+        elif 'm' in entry:
+            sec += int(entry.replace('m',''))*60
+        elif 'h' in entry:
+            sec += int(entry.replace('h',''))*3600
+        elif 'd' in entry:
+            sec += int(entry.replace('d',''))*3600*24
+        elif 'w' in entry:
+            sec += int(entry.replace('w',''))*3600*24*7
+        elif 'y' in entry:
+            sec += int(entry.replace('y',''))*3600*24*365
         else:
-            print ('Big troubles... in function "AtlRunQueryUtils::durationInSeconds": cannot decode string "%s"' % l)
+            print ('Big troubles... in function "AtlRunQueryUtils::durationInSeconds": cannot decode string "%s"' % entry)
             sys.exit(1)
     return sec
 
@@ -140,7 +147,8 @@ class DBConnectionController:
             #        print ("   name",p['name'])
             auth = XMLReader(env['CORAL_AUTH_PATH']+"/authentication.xml")
             for c in auth.connectionlist.connections:
-                if key!=c['name']: continue
+                if key!=c['name']:
+                    continue
                 self.pw[key] = dict([(p['name'],p['value']) for p in c.parameters])
                 break
             if key not in self.pw:
@@ -150,13 +158,13 @@ class DBConnectionController:
 
 
     def GetAtlasRunDBConnection(self):
-        if not 'run' in self.openConn:
+        if 'run' not in self.openConn:
             auth = self.get_auth('oracle://ATLAS_COOLPROD/ATLAS_COOLOFL_TRIGGER')
             self.openConn['run'] = cx_Oracle.connect("%s/%s@ATLAS_COOLPROD" % (auth['user'],auth['password']))
         return self.openConn['run']
 
     def GetSFODBConnection(self):
-        if not 'sfo' in self.openConn:
+        if 'sfo' not in self.openConn:
             #auth = self.get_auth('oracle://ATLAS_CONFIG/ATLAS_SFO_T0')
             #self.openConn['sfo'] = cx_Oracle.connect("%s/%s@ATLAS_CONFIG" % (auth['user'],auth['password']))
             with timer("Opening Connection to ATLAS_SFO_T0_R @ ATLAS_CONFIG"):
@@ -164,14 +172,14 @@ class DBConnectionController:
         return self.openConn['sfo']
 
     def GetTier0DBConnection(self):
-        if not 'tier0' in self.openConn:
+        if 'tier0' not in self.openConn:
             #auth = self.get_auth('oracle://ATLAS_T0/ATLAS_T0')
             #self.openConn['tier0'] = cx_Oracle.connect("%s/%s@ATLAS_T0" % (auth['user'],auth['password']))
             self.openConn['tier0'] = cx_Oracle.connect("ATLAS_T0_R1/titft0ra@ATLAS_T0")
         return self.openConn['tier0']
 
     def GetPVSSDBConnection(self):
-        if not 'pvss' in self.openConn:
+        if 'pvss' not in self.openConn:
             #auth = self.get_auth('oracle://ATLAS_PVSSPROD/ATLAS_PVSS_READER')
             #self.openConn['pvss'] = cx_Oracle.connect("%s/%s@ATLAS_PVSSPROD" % (auth['user'],auth['password']))
             self.openConn['pvss'] = cx_Oracle.connect("ATLAS_PVSS_READER/PVSSRED4PRO@ATLAS_PVSSPROD")
@@ -189,18 +197,26 @@ coolDbConn = DBConnectionController()
 
 def addKommaToNumber(no):
     gr = [str(no)]
-    if not gr[0].isdigit(): return gr[0]
+    if not gr[0].isdigit():
+        return gr[0]
     while gr[0]:
         gr[0:1]=[gr[0][:-3],gr[0][-3:]]
     return ','.join(gr[1:])
 
 def filesize(no):
-    if no == None: return "n.a."
-    if no>0x4000000000000: return "%1.1f&nbsp;PB" % (no*1.0/0x4000000000000)
-    if no>0x10000000000:   return "%1.1f&nbsp;TB" % (no*1.0/0x10000000000)
-    if no>0x40000000:      return "%1.1f&nbsp;GB" % (no*1.0/0x40000000)
-    if no>0x100000:        return "%1.1f&nbsp;MB" % (no*1.0/0x100000)
-    if no>0x400:           return "%1.1f&nbsp;kB" % (no*1.0/0x400)
+    if no is None:
+        return "n.a."
+    if no > 0x4000000000000:
+        return "%1.1f&nbsp;PB" % (no*1.0/0x4000000000000)
+    if no > 0x10000000000:
+        return "%1.1f&nbsp;TB" % (no*1.0/0x10000000000)
+    if no > 0x40000000:
+        return "%1.1f&nbsp;GB" % (no*1.0/0x40000000)
+    if no > 0x100000:
+        return "%1.1f&nbsp;MB" % (no*1.0/0x100000)
+    if no > 0x400:
+        return "%1.1f&nbsp;kB" % (no*1.0/0x400)
+
     return "%i&nbsp;B" % no
 
 
@@ -259,7 +275,8 @@ class Matrix(object):
                 yield (self.matrix, row, col)  
 
 def stringToIntOrTime(s):
-    if re.match("^\d+$",s): return int(s)
+    if re.match(r"^\d+$",s):
+        return int(s)
     # convert the string into seconds since epoch
 
     # string is meant to be UTC time (hence we need calendar.timegm
@@ -282,7 +299,7 @@ def timeStringToSecondsUTC(t):
     except ValueError:
         try:
             t = time.strptime(t,"%d.%m.%Y %H:%M:%S")
-        except:
+        except ValueError:
             t = time.strptime(t,"%d.%m.%Y_%H:%M:%S")
 
     return int(calendar.timegm(t))
@@ -300,7 +317,7 @@ def timeStringToSecondsLocalTime(t):
     except ValueError:
         try:
             t = time.strptime(t,"%d.%m.%Y %H:%M:%S")
-        except:
+        except ValueError:
             t = time.strptime(t,"%d.%m.%Y_%H:%M:%S")
 
     return int(time.mktime(t))
@@ -350,11 +367,11 @@ def full_time_string(s,startofday):
         time.strptime(s,"%d.%m.")
         year=str(time.gmtime().tm_year)
         return s+year+"_00:00:00" if startofday else s+year+"_23:59:59"
-    except:
+    except ValueError:
         try:
             time.strptime(s,"%d.%m.%Y")
             return s+"_00:00:00" if startofday else s+"_23:59:59"
-        except:
+        except ValueError:
             return s
 
 def GetTimeRanges(timeranges, intRepFnc=timeStringToSecondsUTC, maxval=1<<30):
@@ -381,7 +398,7 @@ def GetTimeRanges(timeranges, intRepFnc=timeStringToSecondsUTC, maxval=1<<30):
         else:
             try:
                 start,end = r.split('-')
-            except:
+            except ValueError:
                 raise RuntimeError ("Time format '%s' wrong, should be 'from-until'" % r)
             start = full_time_string( start, startofday=True )
             end   = full_time_string( end, startofday=False )
@@ -397,7 +414,7 @@ def GetTimeRanges(timeranges, intRepFnc=timeStringToSecondsUTC, maxval=1<<30):
 def SmartRangeCalulator(runlist,singleRuns=False):
     if len(runlist) == 0:
         return []
-    if type(runlist[0]) == type([]):
+    if isinstance(runlist[0], list):
         return runlist
     if singleRuns:
         rr = [[r.runNr,r.runNr] for r in runlist]
@@ -456,27 +473,31 @@ def unpackRun2BCIDMask(blob):
 
 def Poisson( n, mu ):
     # only valid for small mu and integer n
-    if   n < 0 : return 0
+    if n < 0:
+        return 0
     else:
         p = exp(-mu)
-        for i in xrange(n):
+        for i in range(n):
             p *= mu
             p /= float(i+1)
         return p
 
 def ComputePileup( lumi_mb, sigma, nbunch, fOrbit ):
     # sanity
-    if nbunch <= 0: return 0
+    if nbunch <= 0:
+        return 0
 
     # compute first probability of interaction    
     nint = lumi_mb*sigma/fOrbit/nbunch
-    if nint > 100: return nint
+    if nint > 100:
+        return nint
 
     # small 'nint', compute poisson probabilities
     p = []
-    for n in xrange(40):
+    for n in range(40):
         p.append(Poisson(n,nint))
-        if n > 20 and p[-1] < 1e40: break
+        if n > 20 and p[-1] < 1e40:
+            break
     return nint, p
 
 def Pileup( args ):
@@ -497,14 +518,16 @@ def Pileup( args ):
             nbunch   = float(args[3])
             lumi     = nprotons**2 * fOrbit * nbunch / (4.0 * pi * sigtrans**2)
             nevents  = 1
-            if len(args) == 5: nevents = float(args[4])
+            if len(args) == 5:
+                nevents = float(args[4])
         else:
             # input expects first argument to be luminosity in cm-2s-1
             lumi     = float(args[0])
             sigma    = float(args[1])
             nbunch   = float(args[2])
             nevents  = 1
-            if len(args) == 4: nevents = float(args[3])
+            if len(args) == 4:
+                nevents = float(args[3])
 
         # compute pileup
         lumi_mb = lumi/1.e27  # luminosity in mb-1s-1
@@ -540,7 +563,8 @@ def Pileup( args ):
                         nevexp = (1.0-psum)/pref*nevents
                         s += '<td> %g</td>' % (nevexp)
                     s += '</tr>'
-                if p < 1e-15: break
+                if p < 1e-15:
+                    break
                 psum += p                
             s += '</table><p></p>'
             s += '<font size=-2>*assuming 100% trigger efficiency for inelastic events</font><br>'
@@ -553,8 +577,10 @@ def Pileup( args ):
 
 def get_run_range(start,end=None):
     runs = get_runs(start,end)
-    if len(runs) == 0: return None
-    if len(runs) == 1: return (runlist[0],runlist[0])
+    if len(runs) == 0:
+        return None
+    if len(runs) == 1:
+        return (runs[0],runs[0])
     return (runs[0],runs[-1])
 
 def get_runs_last_dt(last):
@@ -610,19 +636,19 @@ def get_run_range2(start,end=None):
         run1,startat,duration = cu.fetchone()
         # note that duration is not exact, but always a bit larger than the length of the run
     
-        endat = calendar.timegm( time.strptime(startat,"%Y%m%dT%H%M%S") ) + duration
+        #endat = calendar.timegm( time.strptime(startat,"%Y%m%dT%H%M%S") ) + duration
         if end < timeStringToSecondsUTC(start):
             q = "SELECT MIN(RUNNUMBER) FROM ATLAS_RUN_NUMBER.RUNNUMBER WHERE STARTAT>'%s'" % sstart
             cu.execute(q)
             try:
                 run1 = cu.fetchone()[0]
-            except:
+            except cx_Oracle.Error:
                 run1 = None
-    except:
+    except cx_Oracle.Error:
         run1 = None
 
     run2 = None
-    if end != None:
+    if end is not None:
         # last run that started before the end of the range
         t = time.gmtime( timeStringToSecondsUTC(end) )
         endtime = time.strftime("%Y%m%dT%H%M%S",t)
@@ -650,7 +676,7 @@ class XMLReader(object):
         def __repr__(self):
             return self.tag
         def __getitem__(self,k):
-            if not k in self.attributes:
+            if k not in self.attributes:
                 raise KeyError ("'%s'. XML element '%s' has attributes %s" % (k,self.tag, self.attributes.keys()))
             return self.attributes[k]
 
@@ -659,7 +685,8 @@ class XMLReader(object):
             self._childtagdict = {}
             for c in self.children:
                 self._childtagdict.setdefault(c.tag,[]).append(XMLReader.XMLElement(c))
-                if not c.tag in self.childtags: self.childtags += [c.tag]
+                if c.tag not in self.childtags:
+                    self.childtags += [c.tag]
             for t in self.childtags:
                 self.__dict__['%ss'%t] = self._childtagdict[t]
                 if len(self._childtagdict[t])==1:

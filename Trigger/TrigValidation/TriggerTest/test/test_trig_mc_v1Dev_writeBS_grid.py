@@ -4,6 +4,7 @@
 # art-description: Trigger RDO->BS athena test of the Dev_pp_run3_v1 menu
 # art-type: grid
 # art-include: master/Athena
+# art-athena-mt: 4
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -25,9 +26,10 @@ ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'ttbar'
-ex.threads = 1
+ex.threads = 4
+ex.concurrent_events = 4
 # LS2_v1 soon to be renamed to Dev_pp_run3_v1
-ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_mc_prescale\';doWriteBS=True;doWriteRDOTrigger=False;"'
+ex.args = '-c "setMenu=\'LS2_v1_TriggerValidation_prescale\';doWriteBS=True;doWriteRDOTrigger=False;"'
 
 checkBS = Step.Step("CheckBS")
 checkBS.executable = 'trigbs_dumpHLTContentInBS_run3.py'

@@ -64,7 +64,11 @@ namespace JiveXML {
     long NParticles=0;
     McEventCollection::const_iterator McEvtCollItr = McEvtColl->begin(); 
     for ( ; McEvtCollItr != McEvtColl->end(); ++McEvtCollItr)
+#ifdef HEPMC3
+      NParticles +=  (*McEvtCollItr)->particles().size();
+#else
       NParticles +=  (*McEvtCollItr)->particles_size();
+#endif
 
     //Show in verbose mode
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Total number of particles in McEventCollection \""
@@ -88,11 +92,7 @@ namespace JiveXML {
     for ( McEvtCollItr = McEvtColl->begin(); McEvtCollItr != McEvtColl->end(); ++McEvtCollItr){
 
       //Loop over particles in the event
-      HepMC::GenEvent::particle_const_iterator ParticleItr = (*McEvtCollItr)->particles_begin();
-      for ( ; ParticleItr!=(*McEvtCollItr)->particles_end(); ++ParticleItr ) {
-
-        //Get the particle
-        auto particle = (*ParticleItr);
+      for (auto particle:  *(*McEvtCollItr) ) {
         
         //Additional cuts for decaying particles
         if ( particle->end_vertex() ) {

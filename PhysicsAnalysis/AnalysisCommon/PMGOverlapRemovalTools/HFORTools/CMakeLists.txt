@@ -3,19 +3,6 @@
 # Declare the package name:
 atlas_subdir( HFORTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODTruth
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
-   PRIVATE
-   Event/xAOD/xAODBase
-   Tools/PathResolver
-)
-
 # External dependencies:
 find_package( Boost )
 find_package( ROOT COMPONENTS Core RIO )
@@ -24,7 +11,7 @@ find_package( ROOT COMPONENTS Core RIO )
 atlas_add_library( HFORToolsLib
    HFORTools/*.h Root/*.cxx
    PUBLIC_HEADERS HFORTools
-   LINK_LIBRARIES AsgTools xAODTruth xAODJet
+   LINK_LIBRARIES AsgTools PMGAnalysisInterfacesLib xAODTruth xAODJet
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver xAODBase xAODEventInfo
    xAODRootAccess )
@@ -32,7 +19,7 @@ atlas_add_library( HFORToolsLib
 if( NOT XAOD_STANDALONE )
    atlas_add_component( HFORTools
       src/*.h src/*.cxx src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODEventInfo HFORToolsLib )
+      LINK_LIBRARIES GaudiKernel AthenaBaseComps xAODEventInfo PMGAnalysisInterfacesLib HFORToolsLib )
 endif()
 
 atlas_add_dictionary( HFORToolsDict
@@ -52,7 +39,7 @@ endif()
 # Test(s) in the package:
 atlas_add_test( ut_HFORTools_test
    SOURCES test/ut_HFORTools_test.cxx
-   LINK_LIBRARIES AsgTools xAODEventInfo HFORToolsLib ${test_lib} )
+   LINK_LIBRARIES AsgTools PMGAnalysisInterfacesLib xAODEventInfo HFORToolsLib ${test_lib} )
 
 # Install files from the package:
 atlas_install_data( data/*.cfg )

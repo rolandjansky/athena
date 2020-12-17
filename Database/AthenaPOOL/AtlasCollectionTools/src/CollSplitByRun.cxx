@@ -45,7 +45,6 @@
 #include "POOLCollectionTools/CatalogInfo.h"
 #include "POOLCollectionTools/UtilityFuncs.h"
 
-#include "CoralBase/MessageStream.h"
 #include "StorageSvc/DbStatus.h"
 
 #include <iostream>

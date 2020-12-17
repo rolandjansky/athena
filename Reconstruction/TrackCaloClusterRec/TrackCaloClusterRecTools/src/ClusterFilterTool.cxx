@@ -36,7 +36,7 @@ StatusCode ClusterFilterTool::finalize() {
   return StatusCode::SUCCESS;
 }
 
-bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) {
+bool ClusterFilterTool::rejectCluster(const xAOD::CaloCluster& cluster) const {
       
   // loop on all the tracks
   const auto allTracks   = getContainer<xAOD::TrackParticleContainer>(m_trackParticleCollectionName);

@@ -31,8 +31,6 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/FCALHVLine.h"
 
-#include "LArHV/LArHVManager.h"
-
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -197,10 +195,6 @@ StatusCode LArHVCondAlg::execute(const EventContext& ctx) const {
     }
   }
  
-  const LArHVManager *manager = NULL; 
-  if (detStore()->retrieve(manager)==StatusCode::SUCCESS) {
-        manager->reset();
-  }
   std::vector<float> voltage;
   std::vector<float> current;
   std::vector<unsigned int> hvlineidx;
@@ -382,7 +376,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
       v.clear();
       ihv.clear();
       if (abs(m_larem_id->barrel_ec(id))==1 && m_larem_id->sampling(id) > 0) { // LAr EMB
-         //std::cout << " in barrel " << m_larem_id->show_to_string(id) << std::endl;
          unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
          bool hasPathology=false; 
          if (index<hasPathologyEM.size()) {
@@ -395,13 +388,11 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
          if (!embElement) std::abort();
          const EMBCellConstLink cell = embElement->getEMBCell();
          unsigned int nelec = cell->getNumElectrodes();
-         //std::cout << " nelec: " << nelec << std::endl;
          unsigned int ngap = 2*nelec;
          double wt = 1./ngap;
          v.clear(); ihv.clear();
          for (unsigned int i=0;i<nelec;i++) {
              const EMBHVElectrode& electrode = cell->getElectrode(i);
-             //std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
              //   " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
              //   " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
@@ -441,8 +432,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                     }
                     msg(MSG::VERBOSE) << "set hv: "<<hv<<endmsg;
                  }
-                 //std::cout << "     hv value " << hv << std::endl;
-                 //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in barrel " << std::endl;
                  addHV(v,hv,wt);
                  addCurr(ihv,curr,wt);
                } 
@@ -490,7 +479,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
          }
 
       } else if (abs(m_larem_id->barrel_ec(id))>1 && m_larem_id->sampling(id) > 0){ // LAr EMEC
-         //std::cout << " in EMEC " << m_larem_id->show_to_string(id) << std::endl;
          unsigned int index = (unsigned int)(m_larem_id->channel_hash(id));
          bool hasPathology=false;
          if (index<hasPathologyEM.size()) {
@@ -504,14 +492,10 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
          if (!emecElement) std::abort();
          const EMECCellConstLink cell = emecElement->getEMECCell();
          unsigned int nelec = cell->getNumElectrodes();
-         //std::cout << " nelec " << nelec << std::endl;
          unsigned int ngap = 2*nelec;
          double wt = 1./ngap;
          for (unsigned int i=0;i<nelec;i++) {
              const EMECHVElectrode& electrode = cell->getElectrode(i);
-           //  std::cout << "electrode: endcap index, eta index , phi index, sector index , electrode index " << electrode->getModule()->getSideIndex() <<
-           //     " " << electrode->getModule()->getEtaIndex() << " " << electrode->getModule()->getPhiIndex() << 
-           //     " " << electrode->getModule()->getSectorIndex() << " " << electrode->getElectrodeIndex() << std::endl;
              for (unsigned int igap=0;igap<2;igap++) {
 	       unsigned int hvline = electrode.hvLineNo(igap,hvCabling);
 	       const std::vector<unsigned int>::const_iterator itrLine=std::lower_bound(hvlineidx.begin(), hvlineidx.end(), hvline);
@@ -546,8 +530,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                          }
                       }
                    }
-                   //std::cout << "     hv value " << hv << std::endl;
-                   //if (igap==1 && hv>1.) std::cout << " --- non zero value found for gap1 in endcap " << std::endl;
                    addHV(v,hv,wt);
                    addCurr(ihv,curr,wt);
                  }
@@ -626,7 +608,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
   for( auto id: m_larhec_id->channel_ids()) {
     v.clear();
     ihv.clear();
-    //std::cout << " in HEC " << std::endl;
     unsigned int index = (unsigned int)(m_larhec_id->channel_hash(id));
     bool hasPathology=false;
     if (index<hasPathologyHEC.size()) {
@@ -640,7 +621,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
     const HECCellConstLink cell = hecElement->getHECCell();
     unsigned int nsubgaps = cell->getNumSubgaps();
     double wt = 1./nsubgaps;
-    //std::cout << " nsubgaps " << nsubgaps << std::endl;
     for (unsigned int i=0;i<nsubgaps;i++) {
         const HECHVSubgap& subgap = cell->getSubgap(i);
 	unsigned int hvline = subgap.hvLineNo(hvCabling);
@@ -668,7 +648,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                  ));
               curr *= uAkOhm * rValues[ridx];
            }
-           //std::cout << "     hv value " << hv << std::endl;
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larhec_id->print_to_string(id)<<" "<<hasPathologyHEC[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
@@ -710,7 +689,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
    for(auto id: m_larfcal_id->channel_ids()) { // LAr FCAL
       v.clear();
       ihv.clear();
-      //std::cout << " in FCAL " << std::endl;
       unsigned int index = (unsigned int)(m_larfcal_id->channel_hash(id));
       bool hasPathology=false;
       if (index<hasPathologyFCAL.size()) {
@@ -722,16 +700,12 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
       const FCALDetectorElement* fcalElement = dynamic_cast<const FCALDetectorElement*>(calodetdescrmgr->get_element(id));
       if (!fcalElement) std::abort();
       const FCALTile* tile = fcalElement->getFCALTile();
-      //std::cout << " --- in FCAL cell id " << m_larfcal_id->show_to_string(id) << std::endl;
-      //std::cout << "  Side, Module, I,J index " << tile->getModule()->getEndcapIndex() << " " << tile->getModule()->getModuleIndex()
-      //  << " " << tile->getIndexI() << " " << tile->getIndexJ() << std::endl;
       unsigned int nlines = tile->getNumHVLines();
       unsigned int nlines_found=0;
       for (unsigned int i=0;i<nlines;i++) {
         const FCALHVLine* line = tile->getHVLine(i);
         if (line) nlines_found++;
       }
-      //std::cout << " nlines " << nlines << " " << nlines_found << std::endl;
       if (nlines_found>0) {
         double wt = 1./nlines_found;
         for (unsigned int i=0;i<nlines;i++) {
@@ -762,7 +736,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                                                                  ));
               curr *= uAkOhm * rValues[ridx];
            }
-           //std::cout << " line " << line;
            if (hasPathology) {
               msg(MSG::VERBOSE) << "Has pathology for id: "<< m_larfcal_id->print_to_string(id)<<" "<<hasPathologyFCAL[index]<<endmsg;
               for (unsigned int ii=0;ii<listElec.size();ii++) {
@@ -772,7 +745,6 @@ StatusCode LArHVCondAlg::fillPayload(LArHVData* hvdata
                  }
               }
            }
-           //std::cout << "     hv value " << hv << std::endl;
            addHV(v,hv,wt);
            addCurr(ihv,curr,wt);
           }
@@ -1565,7 +1537,6 @@ StatusCode LArHVCondAlg::updateMethod(CaloAffectedRegionInfoVec *vAffected, cons
             extendPhiRegion(current_phi_low,phi_min_additive1,phi_max_additive1);
             extendPhiRegion(current_phi_high,phi_min_additive1,phi_max_additive1);
 	    
-	    //	    std::cout << "found the special case, icha=" << icha << ", etamin=" << eta_min_additive1 << ", current layer=" << current_layer << ", current eta=" << current_eta << std::endl;
 	  }
 	  else { //normal case
 	    is_normal=1; // normal case
@@ -1646,7 +1617,7 @@ float LArHVCondAlg::HV_nominal(const char *identification,const float myparamete
 
 void LArHVCondAlg::extendPhiRegion(float phi, float & phi_min, float & phi_max) const {
 
-  static float epsilon=1e-4;
+  static const float epsilon=1e-4;
   
   phi = CaloPhiRange::fix(phi);
 

@@ -8,7 +8,6 @@
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "LArReadoutGeometry/FCALModule.h"
 #include "LArG4Code/EnergySpot.h"
-#include "LArSimEvent/LArHitContainer.h"
 #include "GeoModelKernel/GeoTubs.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "CLHEP/Geometry/Transform3D.h"

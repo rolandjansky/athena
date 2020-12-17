@@ -17,7 +17,6 @@ class PtUncertaintyComponent : public UncertaintyComponent
         PtUncertaintyComponent(const ComponentHelper& component);
         PtUncertaintyComponent(const PtUncertaintyComponent& toCopy);
         virtual PtUncertaintyComponent* clone() const;
-        PtUncertaintyComponent & operator=(const PtUncertaintyComponent &) = delete;
         virtual ~PtUncertaintyComponent() {}
 
     protected:

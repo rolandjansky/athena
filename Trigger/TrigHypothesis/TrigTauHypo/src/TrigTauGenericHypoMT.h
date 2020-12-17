@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TrigTauGenericHypoMT_H
-#define TrigTauGenericHypoMT_H
+#ifndef TrigTauHypo_TrigTauGenericHypoMT_H
+#define TrigTauHypo_TrigTauGenericHypoMT_H
 
 /********************************************************************
  *
@@ -21,33 +21,20 @@
 
 #include <vector>
 #include "TFormula.h"
-//#include "TrigInterfaces/HypoAlgo.h"
-
 
 #include "Gaudi/Property.h"
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
-#include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 #include "ITrigTauGenericHypoTool.h"
-
-class StoreGateSvc;
-
-namespace HLT {
-  class TriggerElement;
-}
+#include "TrigCompositeUtils/HLTIdentifier.h"
 
 class TrigTauGenericHypoMT : public extends<AthAlgTool, ITrigTauGenericHypoTool> {
  public:
   TrigTauGenericHypoMT( const std::string& type, 
            const std::string& name, 
            const IInterface* parent );
-
-  virtual ~TrigTauGenericHypoMT();
 
   virtual StatusCode initialize() override;
 
@@ -57,9 +44,7 @@ class TrigTauGenericHypoMT : public extends<AthAlgTool, ITrigTauGenericHypoTool>
 
  private:
 
-  /** Configurables */
   HLT::Identifier m_decisionId;
-
   std::vector<int> m_member;
   std::vector<std::string> m_formula;
   std::vector<TFormula> m_store;

@@ -396,7 +396,9 @@ namespace TrigConf {
 
       // Read the R2 metadata object...
       const xAOD::TriggerMenuContainer* input_tmc = nullptr;
-      if( m_metaStore->retrieve( input_tmc, m_metaName ).isFailure() ) {
+      if( !m_metaStore->contains<xAOD::TriggerMenuContainer>(m_metaName) 
+          or m_metaStore->retrieve( input_tmc, m_metaName ).isFailure() )
+      {
          m_triggerMenuContainerAvailable = false;
       }
 
@@ -406,19 +408,29 @@ namespace TrigConf {
       const xAOD::TriggerMenuJsonContainer* input_hltps = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_l1ps = nullptr;
       // const xAOD::TriggerMenuJsonContainer* input_bg = nullptr;
-      if( m_metaStore->retrieve( input_hlt, m_metaNameJSON_hlt ).isFailure() ) {
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt) 
+          or m_metaStore->retrieve( input_hlt, m_metaNameJSON_hlt ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( m_metaStore->retrieve( input_l1, m_metaNameJSON_l1 ).isFailure() ) {
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1) 
+          or m_metaStore->retrieve( input_l1, m_metaNameJSON_l1 ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( m_metaStore->retrieve( input_hltps, m_metaNameJSON_hltps ).isFailure() ) {
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps) 
+          or m_metaStore->retrieve( input_hltps, m_metaNameJSON_hltps ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      if( m_metaStore->retrieve( input_l1ps, m_metaNameJSON_l1ps ).isFailure() ) {
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps) 
+          or m_metaStore->retrieve( input_l1ps, m_metaNameJSON_l1ps ).isFailure() )
+      {
          m_menuJSONContainerAvailable = false;
       }
-      // if( m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() ) {
+      // if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg) 
+      //     or m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() ) 
+      // {
       //    m_menuJSONContainerAvailable = false;
       // }
 

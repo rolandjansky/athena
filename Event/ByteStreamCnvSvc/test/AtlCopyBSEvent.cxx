@@ -15,7 +15,6 @@
 #include <memory>
 #include <string>
 #include <fstream>
-#include <sstream>
 #include <vector>
 #include <algorithm>
 
@@ -189,7 +188,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
     try {
       if (!catalogFile.empty()) {
         ctlg->setWriteCatalog(*catalogFile.begin());
-        for (std::vector<std::string>::const_iterator iter = catalogFile.begin(); iter != catalogFile.end(); iter++) {
+        for (std::vector<std::string>::const_iterator iter = catalogFile.begin(); iter != catalogFile.end(); ++iter) {
           ctlg->addReadCatalog(*iter);
         }
       } else {
@@ -201,7 +200,7 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
       return -1;
     }
     ctlg->start();
-    for (std::vector<std::string>::const_iterator collIter = collNames.begin(), typeIter = collTypes.begin(), collEnd = collNames.end(); collIter != collEnd; collIter++, typeIter++) {
+    for (std::vector<std::string>::const_iterator collIter = collNames.begin(), typeIter = collTypes.begin(), collEnd = collNames.end(); collIter != collEnd; ++collIter, ++typeIter) {
       try {
         // Open the collection and execute the query
         pool::ICollection* srcColl = collSvc->handle(*collIter, *typeIter, collConnect, true);
@@ -270,14 +269,14 @@ int main ATLAS_NOT_THREAD_SAFE (int argc, char *argv[]) {
 
   std::sort(searchEvents.begin(),searchEvents.end());
   std::cout << "Events to copy: ";
-  for (std::vector<uint32_t>::const_iterator itEvt1=searchEvents.begin(), itEvt2=searchEvents.end(); itEvt1!=itEvt2; itEvt1++) {
+  for (std::vector<uint32_t>::const_iterator itEvt1=searchEvents.begin(), itEvt2=searchEvents.end(); itEvt1!=itEvt2; ++itEvt1) {
     std::cout << *itEvt1 << " ";
   }
   std::cout << std::endl;
 
   EventStorage::DataWriter* pDW=NULL;
   //start loop over files
-  for (std::vector<std::string>::const_iterator it = fileNames.begin(), it_e = fileNames.end(); it != it_e; it++) {
+  for (std::vector<std::string>::const_iterator it = fileNames.begin(), it_e = fileNames.end(); it != it_e; ++it) {
     const std::string& fName=*it;
     std::cout << "Checking file " << fName << std::endl;
     DataReader *pDR = pickDataReader(fName);
@@ -381,7 +380,7 @@ void eventLoop(DataReader* pDR, EventStorage::DataWriter* pDW, unsigned& nFound,
     if (pOffsetEvents != 0) {
       if (offIt == offEnd) break;
       ecode = pDR->getData(eventSize, &buf, *offIt);
-      offIt++;
+      ++offIt;
     } else {
       ecode = pDR->getData(eventSize,&buf);
     }

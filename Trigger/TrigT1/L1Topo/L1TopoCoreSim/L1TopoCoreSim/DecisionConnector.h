@@ -1,4 +1,6 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #ifndef L1TopoCoreSim_DecisionConnector
 #define L1TopoCoreSim_DecisionConnector
@@ -7,6 +9,7 @@
 
 #include "L1TopoInterfaces/Decision.h"
 #include "L1TopoConfig/L1TopoConfigOutputList.h"
+#include "TrigConfData/L1Connector.h"
 
 #include <vector>
 #include <string>
@@ -37,7 +40,7 @@ namespace TCS {
 
       bool decision(const std::string & trigger) const;
 
-      const std::vector<TXC::TriggerLine> & triggers() const { return m_triggers; }
+      const std::vector<TrigConf::TriggerLine> & triggers() const { return m_triggers; }
 
       // output data
       void attachOutputData(const std::vector<TOBArray *>&);
@@ -62,7 +65,7 @@ namespace TCS {
 
       TCS::DecisionAlg* m_decisionAlgorithm;
 
-      std::vector<TXC::TriggerLine> m_triggers;
+      std::vector<TrigConf::TriggerLine> m_triggers;
 
       // attached output data
       std::vector<TOBArray const *>  m_outputData;

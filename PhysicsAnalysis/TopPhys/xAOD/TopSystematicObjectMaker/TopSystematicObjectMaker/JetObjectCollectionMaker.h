@@ -47,8 +47,8 @@
 #include "TopJetSubstructure/TopJetSubstructure.h"
 
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"
-#include "JetAnalysisInterfaces/IJetSelectorTool.h"
-//#include "ParticleJetTools/JetTruthLabelingTool.h"
+#include "JetInterface/IJetDecorator.h"
+#include "ParticleJetTools/JetTruthLabelingTool.h"
 
 // Forward declaration(s):
 namespace top {
@@ -135,7 +135,7 @@ namespace top {
     // do decorate the large-R jets with the boosted-tagging flags
     // and decorate jets with TAccept object containing detailed tag result informaiton
     // https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BoostedJetTaggingRecommendation2017#TAcceptUsageSection
-    std::unordered_map<std::string, ToolHandle<IJetSelectorTool> > m_boostedJetTaggers;
+    std::unordered_map<std::string, ToolHandle<IJetDecorator> > m_boostedJetTaggers;
 
     ToolHandle<IJetUpdateJvt> m_jetUpdateJvtTool;
     ToolHandle<IJetModifier> m_jetSelectfJvtTool;
@@ -161,7 +161,7 @@ namespace top {
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///
-//    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
+    std::unique_ptr<JetTruthLabelingTool> m_jetTruthLabelingTool;
 
     // DL1 decoration
     std::unordered_map<std::string, ToolHandle<IBTaggingSelectionTool> > m_btagSelToolsDL1Decor;

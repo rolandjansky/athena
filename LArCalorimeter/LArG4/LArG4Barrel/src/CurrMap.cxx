@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CurrMap.h"
@@ -39,8 +39,6 @@ CurrMap::CurrMap(std::string filename,double xnorm)
     if(m_nx>0 && m_ny>0 && m_nx<10000 && m_ny<10000) {//coverity issue. This is a tainted variable protection, 10000 can be changed if required.
       m_dx = (m_xmax-m_xmin)/((float) m_nx);
       m_dy = (m_ymax-m_ymin)/((float) m_ny);
-      //std::cout << "  nx,xmin,xmax,ny,ymin,ymax " << m_nx << " " << m_xmin << " " << m_xmax << " "
-      //                                             << m_ny << " " << m_ymin << " " << m_ymax << std::endl;
 
       m_gap = new float[m_nx*m_ny];
       m_curr0 = new float[m_nx*m_ny];
@@ -66,7 +64,6 @@ CurrMap::CurrMap(std::string filename,double xnorm)
           m_curr0[iy*m_nx+ix]=cur1/m_norm;
           m_curr1[iy*m_nx+ix]=cur2/m_norm;
           m_curr2[iy*m_nx+ix]=cur3/m_norm;
-          //      std::cout << "read " << ix << " " << iy << " " << m_curr0[iy*m_nx+ix] << std::endl;
         }
       }
     }

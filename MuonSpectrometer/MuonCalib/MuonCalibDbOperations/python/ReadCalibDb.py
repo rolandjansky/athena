@@ -1,13 +1,13 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import cx_Oracle
-from MuonCalibIdentifier.MuonFixedIdUnpack import *
+from MuonCalibIdentifier.MuonFixedIdUnpack import MuonFixedIdUnpack
 import CalibDbInfo
 import sys
+import cx_Oracle
 
 sys.argv=[sys.argv[0], '-b']
 
-from ROOT import *
+from ROOT import TGraph, TSpline3
 
 
 def get_data_schema(cursor, db, head_id):
@@ -32,7 +32,7 @@ def build_rt_relation(r,t, rt_id):
 def ReadRtCalibDb(db, reader_passwd, head_id):
 	ra = CalibDbInfo.dbr[CalibDbInfo.calibdb]
 	tns = CalibDbInfo.tns[CalibDbInfo.calibdb]
-	if reader_passwd == None:
+	if not reader_passwd:
 		reader_passwd = CalibDbInfo.dbr_password[CalibDbInfo.calibdb]
 	connection=cx_Oracle.connect(ra, reader_passwd, tns)
 	cursor=connection.cursor()

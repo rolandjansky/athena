@@ -25,7 +25,7 @@ public:
   /// Standard constructor
   HLTResultMTMaker(const std::string& type, const std::string& name, const IInterface* parent);
   /// Standard destructor
-  virtual ~HLTResultMTMaker();
+  virtual ~HLTResultMTMaker() override = default;
 
   // ------------------------- IStateful methods -------------------------------
   virtual StatusCode initialize() override;
@@ -63,6 +63,11 @@ private:
     this, "MonTool", "",
     "Monitoring tool"
   };
+  /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc {
+    this, "JobOptionsSvc", "JobOptionsSvc",
+    "Job options service to retrieve DataFlowConfig"
+  };
   /// Extra enabled ROBs
   Gaudi::Property<std::vector<uint32_t>> m_extraEnabledROBs {
     this, "ExtraEnabledROBs", {},
@@ -75,8 +80,6 @@ private:
   };
 
   // ------------------------- Other private members ---------------------------
-  /// Handle to JobOptionsSvc used to retrieve the DataFlowConfig property
-  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc;
   /// List of enabled ROBs retrieved during initialisation
   std::set<uint32_t> m_enabledROBs;
   /// List of enabled SubDets retrieved during initialisation

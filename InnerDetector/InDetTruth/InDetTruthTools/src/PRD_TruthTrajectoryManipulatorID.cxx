@@ -38,7 +38,7 @@ StatusCode InDet::PRD_TruthTrajectoryManipulatorID::finalize() {
 
 bool InDet::PRD_TruthTrajectoryManipulatorID::manipulateTruthTrajectory( Trk::PRD_TruthTrajectory &prdvec) const {
 
-  if( (*prdvec.genParticle).barcode() < 100000){
+  if( HepMC::barcode(*prdvec.genParticle) < 100000){
       srand( static_cast< unsigned int >( time( 0 ) ) );
       const int pdg_id = (*prdvec.genParticle).pdg_id();
       const double prob_pix = pdg_id == 2212 ? 4. : 0;

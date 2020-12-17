@@ -25,7 +25,6 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 
 #include "LArReadoutGeometry/EMECDetectorManager.h"
-#include "LArReadoutGeometry/EMECDetectorManager.h"
 #include "LArReadoutGeometry/EMECDetectorRegion.h"
 #include "LArReadoutGeometry/EMECDetDescr.h"
 #include "GeoModelKernel/CellBinning.h"

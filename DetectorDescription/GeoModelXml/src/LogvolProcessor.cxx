@@ -11,14 +11,7 @@
 //   Add them to the physvol.
 //
 #include "GeoModelXml/LogvolProcessor.h"
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
+#include "GeoModelXml/OutputDirector.h"
 
 #include <map>
 
@@ -31,7 +24,7 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelXml/GeoNodeList.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 
 // using namespace CLHEP;
 
@@ -42,14 +35,11 @@ void LogvolProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNo
 GeoLogVol *lv;
 GeoNameTag *physVolName;
 
-#ifndef STANDALONE_GMX
-    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-    MsgStream log(&(*msgh), "GeoModelXml");
-#endif
+    OUTPUT_STREAM;
 
     gmxUtil.positionIndex.incrementLevel();
 
-    char *name2release = Translate(element->getAttribute(Translate("name")));
+    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(name2release);
     XMLString::release(&name2release);
 //
@@ -69,27 +59,21 @@ GeoNameTag *physVolName;
 //    Get the shape.
 //
         DOMDocument *doc = element->getOwnerDocument();
-        const XMLCh *shape = element->getAttribute(Translate("shape"));
+        const XMLCh *shape = element->getAttribute(XMLString::transcode("shape"));
         DOMElement *refShape = doc->getElementById(shape);
         // Check it is a shape... its parent should be a <shapes>. DTD cannot do this for us.
         DOMNode *parent = refShape->getParentNode();
-        if (XMLString::compareIString(parent->getNodeName(), Translate("shapes")) != 0) {
+        if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("shapes")) != 0) {
 
-#ifndef STANDALONE_GMX
-            log << MSG::FATAL << "Processing logvol " << name << 
+            msglog << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol shape did not refer to a shape.\n" <<
                     "Shape ref was " << shape << "; exiting" << endmsg;
-#else
-	    std::cout<<"Processing logvol " << name << 
-                    ". Error in gmx file. An IDREF for a logvol shape did not refer to a shape.\n" <<
-                    "Shape ref was " << shape << "; exiting" <<std::endl;
-#endif
             exit (1); // Need to improve...
         }
 //
 //    What sort of shape?
 //
-        name2release = Translate(refShape->getNodeName());
+        name2release = XMLString::transcode(refShape->getNodeName());
         string shapeType(name2release);
         XMLString::release(&name2release);
 
@@ -97,20 +81,14 @@ GeoNameTag *physVolName;
 //
 //    Get the material
 //
-        const XMLCh *material = element->getAttribute(Translate("material"));
+        const XMLCh *material = element->getAttribute(XMLString::transcode("material"));
         DOMElement *refMaterial = doc->getElementById(material);
         // Check it is a material... its parent should be a <materials>. DTD cannot do this for us.
         parent = refMaterial->getParentNode();
-        if (XMLString::compareIString(parent->getNodeName(), Translate("materials")) != 0) {
-#ifndef STANDALONE_GMX
-            log << MSG::FATAL << "Processing logvol " << name << 
+        if (XMLString::compareIString(parent->getNodeName(), XMLString::transcode("materials")) != 0) {
+            msglog << MSG::FATAL << "Processing logvol " << name << 
                     ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
                     "Material ref was " << material << "; exiting" << endmsg;
-#else
-	    std::cout<<"Processing logvol " << name << 
-                    ". Error in gmx file. An IDREF for a logvol material did not refer to a material.\n" <<
-                    "Material ref was " << material << "; exiting" <<std::endl;
-#endif
             exit (1); // Need to improve...
         }
 
@@ -132,7 +110,7 @@ GeoNameTag *physVolName;
     for (DOMNode *child = element->getFirstChild(); child != 0; child = child->getNextSibling()) {
         if (child->getNodeType() == DOMNode::ELEMENT_NODE) {
             DOMElement *el = dynamic_cast<DOMElement *> (child);
-            name2release = Translate(el->getNodeName());
+            name2release = XMLString::transcode(el->getNodeName());
             string name(name2release);
             XMLString::release(&name2release);
             gmxUtil.processorRegistry.find(name)->process(el, gmxUtil, childrenAdd);
@@ -142,7 +120,7 @@ GeoNameTag *physVolName;
 //   Make a list of things to be added
 //
     toAdd.push_back(physVolName);
-    bool sensitive = element->hasAttribute(Translate("sensitive"));
+    bool sensitive = element->hasAttribute(XMLString::transcode("sensitive"));
     int sensId = 0;
     map<string, int> index;
     if (sensitive) {
@@ -159,7 +137,7 @@ GeoNameTag *physVolName;
 //
 //    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
 //
-    char *toRelease = Translate(element->getAttribute(Translate("alignable")));
+    char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
     string alignable(toRelease);
     XMLString::release(&toRelease);
     if (sensitive || (alignable.compare(string("true")) == 0)) {
@@ -172,7 +150,7 @@ GeoNameTag *physVolName;
 //    Add sensitive volumes to detector manager via GmxInterface
 //
         if (sensitive) {
-            name2release = Translate(element->getAttribute(Translate("sensitive")));
+            name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("sensitive")));
             string sensitiveName(name2release);
             XMLString::release(&name2release);
             gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
@@ -193,7 +171,7 @@ GeoNameTag *physVolName;
 
 void LogvolProcessor::zeroId(const xercesc::DOMElement *element) {
 
-    char *name2release = Translate(element->getAttribute(Translate("name")));
+    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
     string name(name2release);
     XMLString::release(&name2release);
 //

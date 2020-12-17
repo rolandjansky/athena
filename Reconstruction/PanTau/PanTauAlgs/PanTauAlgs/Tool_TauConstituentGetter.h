@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_TAUCONSTITUENTGETTER
@@ -9,7 +9,6 @@
 #include <vector>
 #include <string>
 
-//! ASG
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
@@ -18,19 +17,11 @@
 #include "PanTauAlgs/ITool_TauConstituentGetter.h"
 #include "PanTauAlgs/ITool_InputConverter.h"
 
-//! xAOD EDM
 #include "xAODTau/TauJet.h"
 
-//namespace Analysis {
-//    class TauJet;
-//}
-
 namespace PanTau {
-    class TauConstituent2;
+    class TauConstituent;
 }
-
-
-
 
 
 namespace PanTau {
@@ -45,11 +36,9 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         virtual ~Tool_TauConstituentGetter ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize();
         
-        virtual StatusCode GetTauConstituents(//const Analysis::TauJet*,
-                                              const xAOD::TauJet* tauJet,
-                                              std::vector<TauConstituent2*>& outputList,
+        virtual StatusCode GetTauConstituents(const xAOD::TauJet* tauJet,
+                                              std::vector<TauConstituent*>& outputList,
                                               std::string algName) const;
         
         
@@ -70,10 +59,7 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         
     }; //end class ConstituentGetter
 
-
 }//end namespace PanTau
-
-
 
 
 #endif // PANTAUALGS_TOOL_TAUCONSTITUENTGETTER

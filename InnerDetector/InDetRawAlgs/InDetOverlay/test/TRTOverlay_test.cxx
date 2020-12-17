@@ -23,9 +23,9 @@ ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
 #include "GaudiKernel/MsgStream.h"
 
 // HepMC includes
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
+#include "AtlasHepMC/GenEvent.h"
+#include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/GenVertex.h"
 
 // CLHEP includes
 #include "CLHEP/Vector/LorentzVector.h"
@@ -623,12 +623,12 @@ namespace OverlayTesting {
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    auto pGenParticle = genPartList.at(0);
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);
     depositVector.push_back(deposit);
@@ -709,12 +709,12 @@ namespace OverlayTesting {
     const double outputTOT = TRT_LoLumRawData::timeOverThreshold(outWord);
     const unsigned int outputDriftTimeBin = TRT_LoLumRawData::driftTimeBin(outWord);
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    auto pGenParticle = genPartList.at(0);
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);
     depositVector.push_back(deposit);
@@ -804,12 +804,12 @@ namespace OverlayTesting {
     const double outputTOT = TRT_LoLumRawData::timeOverThreshold(outWord);
     const unsigned int outputDriftTimeBin = TRT_LoLumRawData::driftTimeBin(outWord);
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    auto pGenParticle = genPartList.at(0);
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     ASSERT_EQ(trkLink.cptr()->pdg_id(), -11); // Sanity check to confirm that we are linking to a positron as expected
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);
@@ -896,12 +896,12 @@ namespace OverlayTesting {
     ASSERT_TRUE(inputBkgDataHandle->addCollection(bkgCollection.get(),sigElementHash).isSuccess());
     bkgCollection.release(); // Now owned by inputBkgDataHandle
 
-    std::vector<HepMC::GenParticle*> genPartList;
+    std::vector<HepMC::GenParticlePtr> genPartList;
     initMcEventCollection(genPartList);
     SG::WriteHandle<InDetSimDataCollection> inputSigSDODataHandle{"StoreGateSvc+TRT_SDO_Map_SIG"};
     inputSigSDODataHandle = std::make_unique<InDetSimDataCollection>();
-    const HepMC::GenParticle* pGenParticle = genPartList.at(0);
-    HepMcParticleLink trkLink(pGenParticle->barcode(),pGenParticle->parent_event()->event_number());
+    auto pGenParticle = genPartList.at(0);
+    HepMcParticleLink trkLink(HepMC::barcode(pGenParticle),pGenParticle->parent_event()->event_number());
     ASSERT_EQ(trkLink.cptr()->pdg_id(), -11); // Sanity check to confirm that we are linking to a positron as expected
     InDetSimData::Deposit deposit( trkLink, 0.0 );
     std::vector<InDetSimData::Deposit> depositVector(1);

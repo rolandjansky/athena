@@ -5,11 +5,6 @@
 #include "MuonRegionSelector/TGC_RegionSelectorTable.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "Identifier/IdentifierHash.h"
-
-#include <iostream>
-#include <fstream>
-#include <string>
-
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h" 
 #include "RegSelLUT/RegSelModule.h" 
 #include "RegSelLUT/RegSelSiLUT.h" 
@@ -17,12 +12,12 @@
 #include "MuonReadoutGeometry/MuonReadoutElement.h" 
 #include "MuonReadoutGeometry/TgcReadoutElement.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "RegSelLUT/RegSelSiLUT.h"
 #include "MuonTGC_Cabling/MuonTGC_CablingSvc.h"
 
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <string>
 
 TGC_RegionSelectorTable::TGC_RegionSelectorTable(const std::string& type, 
 						 const std::string& name,

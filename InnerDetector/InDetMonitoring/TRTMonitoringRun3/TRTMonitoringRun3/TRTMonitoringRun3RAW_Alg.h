@@ -27,6 +27,7 @@
 #include "TrkToolInterfaces/ITrackHoleSearchTool.h"
 #include "TRT_DriftFunctionTool/ITRT_DriftFunctionTool.h"
 #include "TRT_ConditionsServices/ITRT_CalDbTool.h"
+#include "TRT_ConditionsServices/ITRT_StrawNeighbourSvc.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 
@@ -81,8 +82,8 @@ private:
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
-    int m_totalEvents;
-    float m_longToTCut;
+    int m_totalEvents{0};
+    FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
     
     int m_min_si_hits;
     int m_min_pixel_hits;
@@ -113,6 +114,7 @@ private:
 
     // Services
     ToolHandle<ITRT_StrawStatusSummaryTool> m_sumTool;
+    ServiceHandle<ITRT_StrawNeighbourSvc> m_TRTStrawNeighbourSvc;
 
     // Data handles
     SG::ReadHandleKey<TRT_RDO_Container>   m_rdoContainerKey{this,       "TRTRawDataObjectName",   "TRT_RDOs",      "Name of TRT RDOs container"};
@@ -146,8 +148,8 @@ private:
 		return Gas;
 	}
     
-    bool m_isCosmics;
-    int  m_EventBurstCut;
+    BooleanProperty m_isCosmics{this, "IsCosmics", false};
+    IntegerProperty m_EventBurstCut{this, "EventBurstCut", -1};
    
 };
 #endif

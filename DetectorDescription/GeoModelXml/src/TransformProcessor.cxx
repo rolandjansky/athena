@@ -22,7 +22,8 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelXml/GmxUtil.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
+
 
 //  using namespace CLHEP;
 using namespace std;
@@ -30,13 +31,13 @@ using namespace xercesc;
 
 void TransformProcessor::process(const DOMElement *element, GmxUtil &gmxUtil, GeoNodeList &toAdd) {
 char *tagName;
-    bool alignable = element->hasAttribute(Translate("alignable"));
+    bool alignable = element->hasAttribute(XMLString::transcode("alignable"));
 //
 //    Do second element first, to find what sort of transform is needed (shape or logvol etc.?)
 //
     GeoNodeList objectsToAdd;
     DOMElement *object = element->getLastElementChild();
-    tagName = Translate(object->getTagName());
+    tagName = XMLString::transcode(object->getTagName());
     string objectName(tagName);
     gmxUtil.processorRegistry.find(objectName)->process(object, gmxUtil, objectsToAdd);
     XMLString::release(&tagName);
@@ -44,7 +45,7 @@ char *tagName;
 //    Get the transformation
 //
     DOMElement *transformation = element->getFirstElementChild();
-    tagName = Translate(transformation->getTagName()); // transformation or transformationref
+    tagName = XMLString::transcode(transformation->getTagName()); // transformation or transformationref
 //  ******* Should check here that an alignable transform is given an alignable transformation and object; to be done
     toAdd.push_back((GeoGraphNode *)gmxUtil.geoItemRegistry.find(string(tagName))->process(transformation, gmxUtil));
     XMLString::release(&tagName);
@@ -53,7 +54,7 @@ char *tagName;
 //
     if (alignable) { 
         int level;
-        istringstream(Translate(element->getAttribute(Translate("alignable")))) >> level;
+        istringstream(XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")))) >> level;
 	//cout << "\nTransformProcessor: Add Alignable named " << ((GeoNameTag *) objectsToAdd[0])->getName() << " with GeoModel id " << 
         //((GeoIdentifierTag *) objectsToAdd[1])->getIdentifier() << endl; // commenting out this cout, as it is spamming all ITk jobs with tens of thousands of lines of output
         map<string, int> index;

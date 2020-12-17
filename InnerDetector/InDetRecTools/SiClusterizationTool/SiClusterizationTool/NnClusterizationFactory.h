@@ -19,17 +19,11 @@
  ********************************************************/
 
 
- #include "GaudiKernel/ToolHandle.h"
- #include "GaudiKernel/ServiceHandle.h"
- #include "AthenaBaseComps/AthAlgTool.h"
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
+#include "AthenaBaseComps/AthAlgTool.h"
 
- #include <vector>
- #include <string>
- #include <regex>
-
- #include <TString.h>
- #include "AthenaKernel/IOVSvcDefs.h"
-
+#include "AthenaKernel/IOVSvcDefs.h"
 
 //this is a typedef: no forward decl possible
 #include "TrkParameters/TrackParameters.h"
@@ -43,9 +37,18 @@
 #include "PixelConditionsData/PixelChargeCalibCondData.h"
 #include "StoreGate/ReadCondHandleKey.h"
 
- class TTrainedNetwork;
- class TH1;
- class ICoolHistSvc;
+#include <RtypesCore.h> //Double_t
+#include <Eigen/Dense>
+#include <vector>
+#include <array>
+#include <string>
+#include <string_view>
+#include <regex>
+
+
+class TTrainedNetwork;
+class TH1;
+class ICoolHistSvc;
 
 namespace lwt {
   class NanReplacer;    
@@ -57,8 +60,7 @@ namespace Trk {
   class Surface;
 }
 
-namespace InDetDD
-{
+namespace InDetDD{
   class SiLocalPosition;
 }
 
@@ -66,8 +68,7 @@ namespace InDet {
 
   class PixelCluster;
 
-  struct NNinput
-  {
+  struct NNinput{
     operator bool() const {
       return !matrixOfToT.empty();
     }
@@ -102,37 +103,29 @@ namespace InDet {
     virtual StatusCode finalize() { return StatusCode::SUCCESS; };
 
     std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
-                                                  Amg::Vector3D & beamSpotPosition,
-                                                  int sizeX=7,
-                                                  int sizeY=7) const;
+                                                  Amg::Vector3D & beamSpotPosition) const;
 
     std::vector<double> estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
                                                   const Trk::Surface& pixelSurface,
-                                                  const Trk::TrackParameters& trackParsAtSurface,
-                                                  int sizeX=7,
-                                                  int sizeY=7) const;
+                                                  const Trk::TrackParameters& trackParsAtSurface) const;
 
     /* Public-facing method 1: no track parameters */
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       Amg::Vector3D & beamSpotPosition,
                                                       std::vector<Amg::MatrixX> & errors,
-                                                      int numberSubClusters,
-                                                      int sizeX=7,
-                                                      int sizeY=7) const;
+                                                      int numberSubClusters) const;
 
     /* Public-facing method 1: with track parameters */
     std::vector<Amg::Vector2D> estimatePositions(const InDet::PixelCluster& pCluster,
                                                       const Trk::Surface& pixelSurface,
                                                       const Trk::TrackParameters& trackParsAtSurface,
                                                       std::vector<Amg::MatrixX> & errors,
-                                                      int numberSubClusters,
-                                                      int sizeX=7,
-                                                      int sizeY=7) const;
+                                                      int numberSubClusters) const;
 
    private:
 
     // Handling lwtnn inputs
-    typedef std::map<std::string, std::map<std::string, double> > InputMap;
+    typedef std::vector<Eigen::VectorXd> InputVector;
 
     /* Estimate number of particles for both with and w/o tracks */
     /* Method 1: using older TTrainedNetworks */
@@ -140,8 +133,9 @@ namespace InDet {
                                                      std::vector<double> inputData) const;
 
     /* Estimate number of particles for both with and w/o tracks */
-    /* Method 2: using lwtnn for more flexible interfacing */
-    std::vector<double> estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputMap & input) const;
+    /* Method 2: using lwtnn for more flexible interfacing with an ordered vector
+     * Vector order MUST match variable order. */
+    std::vector<double> estimateNumberOfParticlesLWTNN(NnClusterizationFactory::InputVector & input) const;
 
     /* Estimate position for both with and w/o tracks */
     /* Method 1: using older TTrainedNetworks */
@@ -150,15 +144,14 @@ namespace InDet {
                                                  const std::vector<double>& inputData,
                                                  const NNinput& input,
                                                  const InDet::PixelCluster& pCluster,
-                                                 int sizeX,
-                                                 int sizeY,
                                                  int numberSubClusters,
                                                  std::vector<Amg::MatrixX> & errors) const;
 
     /* Estimate position for both with and w/o tracks */
-    /* Method 2: using lwtnn for more flexible interfacing */
+    /* Method 2: using lwtnn for more flexible interfacing with an ordered vector
+     * Vector order MUST match variable order. */
     std::vector<Amg::Vector2D> estimatePositionsLWTNN(
-                                                NnClusterizationFactory::InputMap & input, 
+                                                NnClusterizationFactory::InputVector & input, 
                                                 NNinput& rawInput,
                                                 const InDet::PixelCluster& pCluster,
                                                 int numberSubClusters,
@@ -167,14 +160,12 @@ namespace InDet {
     // For error formatting in lwtnn cases
     double correctedRMSX(double posPixels) const;
 
-    double correctedRMSY(double posPixels, double sizeY, std::vector<float>& pitches) const; 
+    double correctedRMSY(double posPixels, std::vector<float>& pitches) const; 
 
      /* algorithmic component */
     NNinput createInput(const InDet::PixelCluster& pCluster,
                         Amg::Vector3D & beamSpotPosition,
-                        double & tanl,
-                        int sizeX=7,
-                        int sizeY=7) const;
+                        double & tanl) const;
 
     void addTrackInfoToInput(NNinput& input,
                              const Trk::Surface& pixelSurface,
@@ -182,23 +173,16 @@ namespace InDet {
                              const double tanl) const;
 
 
-  std::vector<double> assembleInputRunI(NNinput& input,
-                                      int sizeX,
-                                      int sizeY) const;
+  std::vector<double> assembleInputRunI(NNinput& input) const;
 
 
+  std::vector<double> assembleInputRunII(NNinput& input) const;
 
-  std::vector<double> assembleInputRunII(NNinput& input,
-                                      int sizeX,
-                                      int sizeY) const;
-
-    InputMap flattenInput(NNinput & input) const;
+    InputVector eigenInput(NNinput & input) const;
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
                                                       const NNinput & input,
-                                                      const InDet::PixelCluster& pCluster,
-                                                      int sizeX=7,
-                                                      int sizeY=7) const;
+                                                      const InDet::PixelCluster& pCluster) const;
 
 
     void getErrorMatrixFromOutput(std::vector<double>& outputX,
@@ -226,23 +210,31 @@ namespace InDet {
                         kErrorXNN,
                         kErrorYNN,
                         kNNetworkTypes};
-    static const char* const s_nnTypeNames[kNNetworkTypes];
-    std::vector<unsigned int> m_nParticleGroup{0U,1U,1U,1U}; // unsigned int
-    std::vector<std::regex>   m_nnNames{
-      std::regex("^NumberParticles(|/|_.*)$"),
-      std::regex("^ImpactPoints([0-9])P(|/|_.*)$"),
-      std::regex("^ImpactPointErrorsX([0-9])(|/|_.*)$"),
-      std::regex("^ImpactPointErrorsY([0-9])(|/|_.*)$"),
-    };
+    static constexpr std::array<std::string_view, kNNetworkTypes> s_nnTypeNames{
+      "NumberParticlesNN",
+      "PositionNN",
+      "ErrorXNN",
+      "ErrorYNN" };
+    static constexpr std::array<unsigned int, kNNetworkTypes> m_nParticleGroup{0U,1U,1U,1U}; // unsigned int
+    static const std::array<std::regex, kNNetworkTypes>   m_nnNames;
 
-    unsigned int                             m_nParticleNNId;
-    std::vector< std::vector<unsigned int> > m_NNId;
+    unsigned int                             m_nParticleNNId{};
+    std::vector< std::vector<unsigned int> > m_NNId{};
+    
 
     // Function to be called to assemble the inputs
-    std::vector<double> (InDet::NnClusterizationFactory:: *m_assembleInput)(NNinput& input,int sizeX, int sizeY) const {&NnClusterizationFactory::assembleInputRunII};
-
+    std::vector<double> (InDet::NnClusterizationFactory:: *m_assembleInput)(NNinput& input) const {&NnClusterizationFactory::assembleInputRunII};
+    
+    //Calculate flat vector dimension, according to input
+    size_t calculateVectorDimension(const bool useTrackInfo) const;
+    
     // Function to be called to compute the output
-    std::vector<Double_t> (::TTrainedNetwork:: *m_calculateOutput)(const std::vector<Double_t> &input) const {&TTrainedNetwork::calculateNormalized};
+    using ReturnType = std::vector<Double_t>;
+    using InputType = std::vector<Double_t>;
+    //the following declares a member variable m_calculateOutput which is a function pointer
+    //to a member function of the TTrainedNetwork. Note to anyone brave enough to update this to C++17using std::function:
+    //TTrainedNetwork::calculateNormalized is overloaded so template resolution does not work trivially.
+    ReturnType (::TTrainedNetwork:: *m_calculateOutput)(const InputType &input) const {&TTrainedNetwork::calculateNormalized};
 
     ToolHandle<ISiLorentzAngleTool> m_pixelLorentzAngleTool
        {this, "PixelLorentzAngleTool", "SiLorentzAngleTool/PixelLorentzAngleTool", "Tool to retreive Lorentz angle of Pixel"};
@@ -263,6 +255,22 @@ namespace InDet {
     SG::ReadCondHandleKey<LWTNNCollection> m_readKeyJSON
        {this, "NnCollectionJSONReadKey", "PixelClusterNNJSON",
         "The conditions key for the pixel cluster NNs configured via JSON file and accessed with lwtnn"};
+
+    //  this is written into the JSON config "node_index"
+    //  this can be found from the LWTNN GraphConfig object used to initalize the collection objects
+    //     option size_t index = graph_config.outputs.at("output_node_name").node_index
+    //   
+    Gaudi::Property< std::size_t > m_outputNodesPos1
+    {this, "OutputNodePos1", 7,
+        "Output node for the 1 position networks (LWTNN)"};
+
+    Gaudi::Property< std::vector<std::size_t> > m_outputNodesPos2
+    {this, "OutputNodePos2", { 10, 11 },
+        "List of output nodes for the 2 position network (LWTNN)"};
+
+    Gaudi::Property< std::vector<std::size_t> > m_outputNodesPos3
+    {this, "OutputNodePos3", { 13, 14, 15 },
+        "List of output nodes for the 3 position networks (LWTNN)"};
 
     Gaudi::Property<unsigned int> m_maxSubClusters
        {this, "MaxSubClusters", 3, "Maximum number of sub cluster supported by the networks." };
@@ -291,6 +299,11 @@ namespace InDet {
     Gaudi::Property<bool> m_useRecenteringNNWithTracks
        {this, "useRecenteringNNWithTracks",false,"Recenter x position when evaluating NN with track input."};
 
+    Gaudi::Property<unsigned int> m_sizeX
+       {this, "sizeX",7,"Size of pixel matrix along X"};
+
+    Gaudi::Property<unsigned int> m_sizeY
+       {this, "sizeY",7,"Size of pixel matrix along Y"};
 
    };
 

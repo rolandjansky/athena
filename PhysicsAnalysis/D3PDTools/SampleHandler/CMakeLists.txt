@@ -3,14 +3,6 @@
 # Declare the package name:
 atlas_subdir( SampleHandler )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/D3PDTools/RootCoreUtils
-   PRIVATE
-   Control/AthToolSupport/AsgTesting )
-
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO ROOTTPython Proof )
 find_package( GTest )
@@ -42,7 +34,8 @@ atlas_add_library( SampleHandler
    SampleHandler/*.h Root/*.cxx ${SampleHandlerDictSource}
    PUBLIC_HEADERS SampleHandler
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools RootCoreUtils )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib RootCoreUtils
+   PRIVATE_LINK_LIBRARIES CxxUtils )
 
 # Test(s) in the package:
 function( _add_gtest cxx_name )
@@ -51,12 +44,12 @@ function( _add_gtest cxx_name )
       SOURCES test/${test_name}.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} RootCoreUtils
-      AsgTools SampleHandler )
+      AsgTestingLib AsgTools SampleHandler )
 endfunction( _add_gtest )
 
 file( GLOB _gtests test/gt_*.cxx )
 foreach( gtest ${_gtests} )
-   _add_gtest( ${gtest} LINK_LIBRARIES AsgTestingLib )
+   _add_gtest( ${gtest} )
 endforeach()
 
 # Ok, this should be an automatically run test, but it requires a grid
@@ -65,7 +58,7 @@ endforeach()
 # a test.
 atlas_add_executable (SampleHandler_test_GridTools SOURCES test/it_GridTools.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
-      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} SampleHandler AsgTestingLib )
+      LINK_LIBRARIES ${ROOT_LIBRARIES} ${GTEST_LIBRARIES} AsgTestingLib RootCoreUtils SampleHandler )
 
 function( _add_test cxx_name )
    get_filename_component( test_name ${cxx_name} NAME_WE )

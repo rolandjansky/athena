@@ -41,7 +41,7 @@ namespace Trk {
  @author Marcin.Wolter@cern.ch
  */
 
-class AnnulusBounds : public SurfaceBounds
+class AnnulusBounds final: public SurfaceBounds
 {
 
 public:
@@ -128,24 +128,24 @@ public:
     <br>
    where @f$  \kappa_{I} = - \kappa_{II} = 2 \frac{y_{H}}{x_{max} - x_{min}} @f$ <br>
    and   @f$  \delta_{I} = \delta_{II} = - \frac{1}{2}\kappa_{I}(x_{max} + x_{min}) @f$  */
-  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override;
-  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override;
+  virtual bool inside(const Amg::Vector2D& locpo, double tol1 = 0., double tol2 = 0.) const override final;
+  virtual bool inside(const Amg::Vector2D& locpo, const BoundaryCheck& bchk) const override final;
 
   /** This method checks inside bounds in loc1
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle ! */
 
-  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override;
+  virtual bool insideLoc1(const Amg::Vector2D& locpo, double tol1 = 0.) const override final;
 
   /** This method checks inside bounds in loc2
   - loc1/loc2 correspond to the natural coordinates of the surface
   - As loc1/loc2 are correlated the single check doesn't make sense :
      -> check is done on enclosing Rectangle !  */
-  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override;
+  virtual bool insideLoc2(const Amg::Vector2D& locpo, double tol2 = 0.) const override final;
 
   /** Minimal distance to boundary ( > 0 if outside and <=0 if inside) */
-  virtual double minDistance(const Amg::Vector2D& pos) const override;
+  virtual double minDistance(const Amg::Vector2D& pos) const override final;
 
   /** Output Method for MsgStream*/
   virtual MsgStream& dump(MsgStream& sl) const override;

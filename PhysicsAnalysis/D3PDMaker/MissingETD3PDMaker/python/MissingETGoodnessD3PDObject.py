@@ -1,11 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import MissingETD3PDMaker
-import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags
-from MissingETD3PDMaker.MissingETD3PDMakerFlags import *
-from MissingETD3PDMaker.MissingETD3PDMakerConf import *
+from MissingETD3PDMaker.MissingETD3PDMakerFlags import MissingETD3PDMakerFlags
 
 MissingETGoodnessD3PDObject = \
                       make_SG_D3PDObject ('MissingET',

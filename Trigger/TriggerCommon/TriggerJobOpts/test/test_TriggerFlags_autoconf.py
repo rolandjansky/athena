@@ -7,29 +7,26 @@
 from AthenaCommon.Logging import logging
 log=logging.getLogger('test_TriggerFlags_autoconf')
 
-import os, glob
-artdir = "/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/"
-nightly = os.listdir(artdir)[-2] # don't take the latest; this may still be running
-nightlydir = artdir+nightly+"/"
+import os
+def get_file_from_art(package, test):
+    artdir = "/eos/atlas/atlascerngroupdisk/data-art/build-output/master/Athena/x86_64-centos7-gcc8-opt/"
+    if not os.path.isdir(artdir):
+        log.warning('Cannot access %s', artdir)
+        return None
+    nightly = os.listdir(artdir)[-2] # don't take the latest; this may still be running
+    nightlydir = artdir + nightly + "/"
+    return nightlydir + package + "/" + test + "/AOD.pool.root"
 
-def getRun2MCFile():
-    filen = "myAOD.pool.root"
-    artdir_21 = "/eos/atlas/atlascerngroupdisk/data-art/grid-output/21.0/Athena/x86_64-slc6-gcc62-opt/"
-    nightly_21 = os.listdir(artdir_21)[-2] # don't take the latest; this may still be running
-    if not os.path.isfile(filen):
-        tarball = glob.glob(artdir_21+nightly_21+"/Tier0ChainTests/test_q220/user.artprod.*.EXT1.*.tar")[0]
-        os.system("tar -xf {} {}".format(tarball,filen))
-    return filen
-
+from TrigValTools.TrigValSteering import Input
 inputfiles = {
-    "Run1_Data": "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigAnalysisTest/data12_8TeV.00209109.physics_JetTauEtmiss.merge.RAW._lb0186._SFO-1._0001.1",
-    "Run2_Data": "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data18_13TeV.00360026.physics_EnhancedBias.merge.RAW._lb0151._SFO-1._0001.1",
-    "Run3_Data": nightlydir+"/TrigP1Test/test_trigP1_v1PhysP1_T0Mon_build/data18_13TeV.00360026.physics_Main.unknown.RAW._lb0151._athenaHLT._0001.data",
+    "Run1_Data": Input.get_input('data_run1').paths[0],
+    "Run2_Data": Input.get_input('data').paths[0],
+    "Run3_Data": Input.get_input('data_run3').paths[0],
     #
-    "Run2_MC_r22": nightlydir+"TrigAnalysisTest/test_trigAna_RDOtoAOD_build/AOD.pool.root",
-    "Run2_MC_r21": getRun2MCFile(),
+    "Run2_MC_r22": get_file_from_art("TrigAnalysisTest", "test_trigAna_RDOtoAOD_v7Primaries_build"),
+    "Run2_MC_r21": '/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q221/21.0/v3/myAOD.pool.root',
     #
-    "Run3_MC": nightlydir+"TrigAnalysisTest/test_trigAna_RDOtoAOD_mt1_build/AOD.pool.root",
+    "Run3_MC": get_file_from_art("TrigAnalysisTest", "test_trigAna_RDOtoAOD_v1Dev_build")
 }
 
 from TriggerJobOpts.TriggerConfigFlags import createTriggerFlags
@@ -41,25 +38,30 @@ tcf_log.setLevel(DEBUG)
 def test_TriggerFlags(sample):
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    input_file = inputfiles[sample]
+    if not input_file or not os.path.isfile(input_file):
+        log.warning('Skipping %s because cannot access the input file', sample)
+        return
+
     acf = ConfigFlags.clone()
     acf.Input.Files = [inputfiles[sample]]
     acf.addFlagsCategory("Trigger", createTriggerFlags)
     
-    # Test EDMDecodingVersion
+    # Test EDMVersion
     EDMDecode_ref = {
         "Run1": 1,
         "Run2": 2,
         "Run3": 3
     }[sample[:4]]
-    log.info("EDMDecodingVersion: expected {}, configured {}".format(EDMDecode_ref, acf.Trigger.EDMDecodingVersion))
-    assert( acf.Trigger.EDMDecodingVersion == EDMDecode_ref )
+    log.info("EDMVersion: expected {}, configured {}".format(EDMDecode_ref, acf.Trigger.EDMVersion))
+    assert( acf.Trigger.EDMVersion == EDMDecode_ref )
 
     return
     
 if __name__=="__main__":
     log.info("Testing TriggerConfigFlags autoconfiguration")
     import sys
-    for sample in sorted(inputfiles.keys()):
+    for sample in inputfiles:
         run, source = sample.split('_',1)
         log.info("{} {} input file: {}".format(run, source, inputfiles[sample]))
         try:

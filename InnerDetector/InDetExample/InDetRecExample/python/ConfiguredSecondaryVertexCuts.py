@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 # ConfiguredSecondaryVertexCuts class
@@ -19,13 +16,8 @@ class ConfiguredSecondaryVertexCuts :
     self.__mode      = mode
     self.__extension = ""
     self.__set_indetflags()    # pointer to InDetFlags, don't use them directly
- 			       # to allow sharing this code with the trigger
+                               # to allow sharing this code with the trigger
     
-    from AthenaCommon.GlobalFlags import globalflags
-    from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    from RecExConfig.RecFlags import rec
-
     # ------------------------------------------------
     # --- secondary vertexing setup of cuts
     # ------------------------------------------------

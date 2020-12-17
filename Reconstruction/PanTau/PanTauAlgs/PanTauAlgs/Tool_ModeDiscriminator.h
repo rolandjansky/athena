@@ -1,16 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class Tool_ModeDiscriminator
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool for PID of TauSeeds
-///////////////////////////////////////////////////////////////////
-// sebastian.fleischmann@cern.ch
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TOOL_MODEDISCRIMINATOR_H
 #define PANTAUALGS_TOOL_MODEDISCRIMINATOR_H
@@ -31,7 +21,7 @@
 #include "MVAUtils/BDT.h"
 
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
 
 
@@ -56,11 +46,11 @@ namespace PanTau {
         virtual StatusCode finalize  ();
 
 
-        virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK);
+        virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK);
         
     private:
         
-        void                                        updateReaderVariables(PanTau::PanTauSeed2* inSeed);
+        void                                        updateReaderVariables(PanTau::PanTauSeed* inSeed);
         
 	std::string                                 m_calib_path; //<! cvmfs folder for data files
         std::string                                 m_Name_InputAlg;

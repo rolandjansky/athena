@@ -12,15 +12,14 @@
 #
 from __future__ import with_statement
 
-import sys, re, time, datetime, os
-from random import choice
+import datetime
 
 from CoolRunQuery.AtlRunQueryRun         import Run
 
 from CoolRunQuery.utils.AtlRunQueryUtils import addKommaToNumber, filesize
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 
-from .AtlRunQueryPageMaker               import PageMaker as PM
+from CoolRunQuery.html.AtlRunQueryPageMaker        import PageMaker as PM
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 
 
@@ -30,11 +29,14 @@ class ResultPageMaker:
     def makePage(cls, pageinfo, doDQPickle=True):
 
         # turn dict pageinfo into local variables
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
+
 
         # put in link to cache
-        cachelink = datapath[datapath.rfind('arq_'):].rstrip('/')
+        cachelink = PI.datapath[PI.datapath.rfind('arq_'):].rstrip('/')
         cachelinkline = '[ <a style="font-size:11px;font-weight:100;font-style:normal" href="query.py?q=%s"><i>cached link to this result page</i></a> ]' % cachelink
 
         extraReplace = [ ('<!--INSERTLINKCACHE-->', cachelinkline) ]
@@ -43,11 +45,11 @@ class ResultPageMaker:
         body = u''
 
         # overall summary output if requested
-        if makeSummary:
+        if PI.makeSummary:
             body += cls._OverallSummary( pageinfo )
 
         # overall summary output if requested
-        if makeDQSummary or makeDQPlots:
+        if PI.makeDQSummary or PI.makeDQPlots:
             body += cls._DQSummaryWrap( pageinfo, doPickle=doDQPickle )
             extraReplace += [ ('<!--CONTACT_START-->.*<!--CONTACT_END-->', '<a href="http://consult.cern.ch/xwho/people/572921">Jessica Leveque</a>') ]
             
@@ -55,7 +57,7 @@ class ResultPageMaker:
         pageinfo['selstr'] = cls._makeSelectionSteps( pageinfo )
         body += cls._InitialSummary( pageinfo )
 
-        if makeDQSummary or makeDQPlots:
+        if PI.makeDQSummary or PI.makeDQPlots:
             # only the global tooltips are needed
             body += cls._defineToolTips( pageinfo, globalOnly=True )
         else:
@@ -73,14 +75,16 @@ class ResultPageMaker:
             body += '<p>\n'
             body += cls._makeBottomTable(pageinfo)
 
-        PM.makePage(body, origQuery, extraReplace=extraReplace, removeExamples=makeDQSummary or makeDQPlots)
+        PM.makePage(body, PI.origQuery, extraReplace=extraReplace, removeExamples = (PI.makeDQSummary or PI.makeDQPlots))
 
 
 
     @classmethod
     def _makeResultsTable( cls, pageinfo ):
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
 
         # run results table
         resultstable = '<table class="resulttable" id="resulttable" style="margin-left: 13px">\n'
@@ -90,33 +94,36 @@ class ResultPageMaker:
 
         # runs
         with timer("print the runs"):
-            for r in runlist:
+            for r in PI.runlist:
                 with timer("print run %i" % r.runNr):
                     resultstable += str(r)
 
         # summary
         headlist = Run.headerkeys()
         resultstable += "  <tr class=\"space\"><td style=\"text-align: left;\" colspan=\"%i\"><font size=-2><i>Summary</i>:</font></td></tr>\n" % (len(headlist)-1)
-        resultstable += "  <tr class=\"sum\">" + sumstr + "</tr>\n"
+        resultstable += "  <tr class=\"sum\">" + PI.sumstr + "</tr>\n"
         resultstable += "</table>\n"
         return resultstable
 
 
     @classmethod
     def _defineToolTips( cls, pageinfo, globalOnly=False ):
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
+
         tooltips = u''
         with timer("print the tooltips"):
             dw_call  = ['<script type="text/javascript">']
             dw_call += ["if(dw_Tooltip.content_vars==undefined) {dw_Tooltip.content_vars = {}; };"]
             dw_call += Run.GlobalTooltips
             if not globalOnly:
-                for r in runlist:
+                for r in PI.runlist:
                     dw_call += r.tooltips
             dw_call += ['</script>']
-            for l in dw_call:
-                tooltips += unicode(l) + '\n'
+            for ttip in dw_call:
+                tooltips += ttip + '\n'
         return tooltips
 
 
@@ -124,8 +131,10 @@ class ResultPageMaker:
     # makes the bottom table (between yellow line and footer
     @classmethod
     def _makeBottomTable( cls, pageinfo ):
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
 
         bottomTable = '<table cellspacing="0" style="color: #777777; font-size: 80%; margin-left: 13px">\n'
         bottomTable += '<tr>\n<td valign="top">\n'
@@ -133,13 +142,13 @@ class ResultPageMaker:
         bottomTable += '<tr><td colspan="2"><p><hr style="width:40%; color:#999999; background-color: #999999; height:1px; margin-left:0; border:0"/>\n<p>\n</td></tr>'        
 
         # XML output (official format for input to good-run lists)
-        bottomTable += cls._XMLFormat(datapath, xmlfilename, xmlhtmlstr)
+        bottomTable += cls._XMLFormat(PI.datapath, PI.xmlfilename, PI.xmlhtmlstr)
 
         # pickled output
-        bottomTable += cls._PickledOutput(datapath)
+        bottomTable += cls._PickledOutput(PI.datapath)
 
         # ROOT output
-        bottomTable += cls._RootOutput(roothtmlstr, datapath)
+        bottomTable += cls._RootOutput(PI.roothtmlstr, PI.datapath)
 
         # end of bottom table
         bottomTable += '<tr><td colspan="2"><p>\n<p>\n</td></tr>'
@@ -150,24 +159,29 @@ class ResultPageMaker:
     # create DQ efficiency summary
     @classmethod
     def _makeDQeff( cls, pageinfo ):
+        class PI:
+            pass
         for x in ["dicsum", "dic", "datapath", "makeDQeff"]:
-            exec("%s = pageinfo['%s']" % (x,x) )
+            setattr (PI, x, pageinfo[x])
 
-        if dicsum and makeDQeff:
+        if PI.dicsum and PI.makeDQeff:
             with timer("make the DQ efficiency summary"):
                 from CoolRunQuery.utils.AtlRunQueryDQUtils import MakeDQeffHtml
-                return MakeDQeffHtml( dic, dicsum, datapath )
+                return MakeDQeffHtml( PI.dic, PI.dicsum, PI.datapath )
         else:
             return ''
 
     # build the yellow summary line
     @classmethod
     def _makeYellowLine( cls, pageinfo ):
+        class PI:
+            pass
         for x in ["dicsum"]:
-            exec("%s = pageinfo['%s']" % (x,x) )
+            setattr (PI, x, pageinfo[x])
+
         with timer("make the yellow summary line"):
             sumdic = {}
-            for key, summary in dicsum.items():
+            for key, summary in PI.dicsum.items():
                 if key.Type == DataKey.STREAM:
                     s = addKommaToNumber(summary[0])+' <BR><font size="-2">(%s)</font>' % filesize(summary[1])
                 elif key=='Run':
@@ -185,10 +199,13 @@ class ResultPageMaker:
     # selection steps
     @classmethod
     def _makeSelectionSteps( cls, pageinfo ):
+        class PI:
+            pass
         for x in ["selout"]:
-            exec("%s = pageinfo['%s']" % (x,x) )
+            setattr (PI, x, pageinfo[x])
+
         selstr = '<table style="color: #777777; font-size: 100%" cellpadding="0" cellspacing="0">'
-        for sel in selout:
+        for sel in PI.selout:
             if 'SELOUT' == sel[0:6]:
                 selout = sel[7:].split('==>')
                 if len(selout)==1:
@@ -204,12 +221,15 @@ class ResultPageMaker:
     @classmethod
     def _prettyNumber( cls, n, width=-1, delim=',',decimal='.' ):
         """Converts a float to a string with appropriately placed commas"""
-        if width >= 0: s = "%.*f" % (width, n)
-        else: s = str(n)
+        if width >= 0:
+            s = "%.*f" % (width, n)
+        else:
+            s = str(n)
         dec = s.find(decimal)
-        if dec == -1: dec = len(s)
+        if dec == -1:
+            dec = len(s)
         threes = int((dec-1)/3) 
-        for i in xrange(threes):
+        for i in range(threes):
             loc = dec-3*(i+1)
             s = s[:loc] + delim + s[loc:]
         return s
@@ -217,12 +237,16 @@ class ResultPageMaker:
 
     @classmethod
     def _OverallSummary( cls, pageinfo ):
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
+
         with timer("make the summary"):
             from CoolRunQuery.html.AtlRunQuerySummary import MakeSummaryHtml
-            overallsummarystr = MakeSummaryHtml( dic, dicsum, datapath )
-        if overallsummarystr == '': return ''
+            overallsummarystr = MakeSummaryHtml( PI.dic, PI.dicsum, PI.datapath )
+        if overallsummarystr == '':
+            return ''
         s = '''<table width="95%" cellpadding="5" style="margin-left: 13px">
         <tr><td colspan=2 bgcolor=gainsboro><font size=+1><b>Search Result Summary</b></font></td></tr>
         </table>'''
@@ -241,12 +265,18 @@ class ResultPageMaker:
             f = open('%s/dqsum_pi.pickle' % QC.datapath, "w")
             pickle.dump(pageinfo, f)
             f.close()
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
+
         with timer("make the DQ summary"):
             from CoolRunQuery.html.AtlRunQueryDQSummary import DQSummary
-            dqsummary = DQSummary.makeHTML( dic, dicsum, doDQSummary=makeDQSummary, doDQPlots=makeDQPlots )
-        if dqsummary == '': return ''
+            dqsummary = DQSummary.makeHTML( PI.dic, PI.dicsum, doDQSummary=PI.makeDQSummary, doDQPlots=PI.makeDQPlots, dqsumGRL=PI.dqsumgrl, dbbTag=PI.dbbtag)
+
+        if dqsummary == '':
+            return ''
         s = '''<table width="95%" cellpadding="5" style="margin-left: 13px">
         <tr><td colspan=2 bgcolor=gainsboro><font size=+1><b>Data Quality Summary</b></font></td></tr>
         </table>'''
@@ -258,8 +288,11 @@ class ResultPageMaker:
 
     @classmethod
     def _InitialSummary(cls, pageinfo):
-        for x in pageinfo.keys():
-            exec("%s = pageinfo['%s']" % (x,x) )
+        class PI:
+            pass
+        for x in pageinfo:
+            setattr (PI, x, pageinfo[x])
+
         error = False
         totEv,naEv = Run.totevents[0:2]
         s_table = '''<table width="95%" cellpadding="5" style="margin-left: 13px">
@@ -267,28 +300,29 @@ class ResultPageMaker:
         </table>'''
         s_table += '<table width="95%" cellpadding="0" cellspacing="3" style="font-size: 90%; margin-left: 13px">\n'
         s_table += '<tr height="10"></tr>\n'
-        s_table += '<tr><td height="10" width="130" style="vertical-align:top"><i>Selection&nbsp;rule:</i></td><td width=10></td><td valign=top>%s</td></tr>\n' % origQuery
-        if 'erbose' in fullQuery:
+        s_table += '<tr><td height="10" width="130" style="vertical-align:top"><i>Selection&nbsp;rule:</i></td><td width=10></td><td valign=top>%s</td></tr>\n' % PI.origQuery
+        if 'erbose' in PI.fullQuery:
             s_table += '<tr><td height="10" style="vertical-align: top; color: #777777"><i>Query&nbsp;command:</i></td><td width=10 style="color: #777777"></td><td style="color: #777777">'
             s_table += """<a href="javascript:animatedcollapse.toggle('AtlRunQueryCmd')">"""
             s_table += '<font color="#777777">[ Click to expand/collapse command... ]</font></a>'
             s_table += '<div id="AtlRunQueryCmd" style="width: 100%; background: #FFFFFF; color: #777777; display:none">'
-            s_table += '%s' % (fullQuery)
+            s_table += '%s' % (PI.fullQuery)
             s_table += '</div></td></tr>\n'
-            s_table += '<tr><td height="10" style="vertical-align: top; color: #777777"><i>Selection&nbsp;sequence:</i></td><td width=10 style="color: #777777"></td><td style="vertical-align: top">%s</td></tr>\n' % (selstr)
+            s_table += '<tr><td height="10" style="vertical-align: top; color: #777777"><i>Selection&nbsp;sequence:</i></td><td width=10 style="color: #777777"></td><td style="vertical-align: top">%s</td></tr>\n' % (PI.selstr)
         if not error:
-            s_table += '<tr><td height="10" style="vertical-align: top"><i>No.&nbsp;of&nbsp;runs&nbsp;selected:</i></td><td></td><td valign="top">%s</td></tr>\n' % len(runlist)
+            s_table += '<tr><td height="10" style="vertical-align: top"><i>No.&nbsp;of&nbsp;runs&nbsp;selected:</i></td><td></td><td valign="top">%s</td></tr>\n' % len(PI.runlist)
             if totEv >= 0:
                 if naEv >= 0:
                     sr = 'run'
-                    if naEv > 1: sr += 's'
+                    if naEv > 1:
+                        sr += 's'
                     if naEv == 0:
                         s_table += '<tr><td height="10" valign="top"><i>Total&nbsp;no.&nbsp;of&nbsp;events:</i></td><td></td><td valign="top">%s</td></tr>\n' % (cls._prettyNumber(totEv))
                     else:
                         s_table += '<tr><td height="10" valign="top"><i>Total&nbsp;no.&nbsp;of&nbsp;events:</i></td><td></td><td valign="top">%s (excluding %i %s without available "#Events" information)</td></tr>\n' % (cls._prettyNumber(totEv), naEv, sr)
                 else:
                     s_table += '<tr><td height="10" valign="top"><i>Total&nbsp;no.&nbsp;of&nbsp;events:</i></td><td></td><td valign="top">%s</td></tr>\n' % (cls._prettyNumber(totEv))
-            s_table += '<tr><td height="10" valign="top"><i>Execution&nbsp;time:</i></td><td></td><td valign="top">%.1f sec</td></tr>\n' % round(querytime,1)
+            s_table += '<tr><td height="10" valign="top"><i>Execution&nbsp;time:</i></td><td></td><td valign="top">%.1f sec</td></tr>\n' % round(PI.querytime,1)
             s_table += '<tr><td height=5 valign=top></td></tr>\n'
         s_table += '</table>'
         return s_table
@@ -310,7 +344,7 @@ class ResultPageMaker:
 
     @classmethod
     def _RootOutput(cls, roothtmlstr, datapath):
-        if roothtmlstr!=None:
+        if roothtmlstr is not None:
             return '''
             <tr><td style="vertical-align: top"><img vspace=0 width="17" src="images/tree_icon.gif">&nbsp;&nbsp;</td><td>
             <a href="./%s/atlrunquery.root" title="Query results as ROOT TTree">Result table as <b>TTree</b> in ROOT file (right-click link to download)</a></td></tr>
@@ -356,7 +390,7 @@ class ResultPageMaker:
 
     @classmethod
     def _XMLFormat(cls, datapath, xmlfilename, xmlhtmlstr):
-        if xmlhtmlstr!=None:
+        if xmlhtmlstr is not None:
             s = '''<tr><td style="vertical-align: top"><img vspace=0 src="images/xml-small.gif">&nbsp;&nbsp;</td><td>
             <a href="./%s/%s" target="_blank" title="Query result as LB collection in standard XML good-run-list format">Query result as standard <b>Good Run-LB List in XML format</b> (right-click link to download)</a> /
             <a href="./LumiRangeCollection.dtd" target="_blank" title="Corresponding DTD file">DTD file</a>

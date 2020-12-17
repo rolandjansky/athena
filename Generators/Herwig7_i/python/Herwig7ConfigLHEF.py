@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## \file Herwig7ConfigLHEF.py
 ## \brief Configuration class for showering LHE files from MG5_aMC@NLO or PowhegBox
@@ -61,7 +61,7 @@ class Hw7ConfigLHEF(hw7Config.Hw7Config):
   def __init__(self, genSeq, runArgs, run_name="Herwig", beams="pp"):
 
     beams = beams.upper()
-    if not beams in ["EE", "EP" , "PP"]:
+    if beams not in ["EE", "EP" , "PP"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Parameter 'beams' must be one of the following: ['EE', 'EP' , 'PP']"))
 
     ## provide variables initialized by the parent class
@@ -132,7 +132,7 @@ saverun {} /Herwig/Generators/EventGenerator
   ## \param usespin Use the spin of tau leptons from the LHE file (spins of other particles are ignored anyways)
   def __lhef_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True):
 
-    if not me_pdf_order in ["LO", "NLO"]:
+    if me_pdf_order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:__lhef_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
 
     if lhe_filename.endswith(".tar.gz"): # athena will decompress the LHE file for us
@@ -198,7 +198,7 @@ set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
 {BeamCommands}
 """.format(FileName = lhe_filename,
            Beams = self.beams,
-           IncludeSpin = "Yes" if usespin==True else "No",
+           IncludeSpin = "Yes" if usespin is True else "No",
            MomentumTreatment = momentum_treatment,
            BeamCommands = beam_commands)
 
@@ -224,7 +224,7 @@ set /Herwig/EventHandlers/LHEReader:Cuts /Herwig/Cuts/NoCuts
   ##
   def lhef_mg5amc_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True):
 
-    if not me_pdf_order in ["LO", "NLO"]:
+    if me_pdf_order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:lhef_mg5amc_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
 
     self.set_lhef_mg5amc_commands = True
@@ -273,7 +273,7 @@ set /Herwig/Shower/ShowerHandler:SpinCorrelations No
   ##
   def lhef_powhegbox_commands(self, lhe_filename="events.lhe", me_pdf_order="NLO", usespin=True):
 
-    if not me_pdf_order in ["LO", "NLO"]:
+    if me_pdf_order not in ["LO", "NLO"]:
       raise RuntimeError(hw7Utils.ansi_format_error("Herwig7ConfigLHEF.py:lhef_powhegbox_commands: Parameter 'me_pdf_order' must either be 'LO' or 'NLO'!"))
 
     self.set_lhef_powhegbox_commands = True

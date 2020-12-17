@@ -35,7 +35,6 @@
 #include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/WireSagCorFunc.h"
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
-#include "MdtCalibData/CalibFunc.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 //TODO: use smart pointers
@@ -465,7 +464,11 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     double innerTubeRadius = -9999.;
     const MuonGM::MdtReadoutElement *detEl = muDetMgr->getMdtReadoutElement( m_idHelperSvc->mdtIdHelper().channelID(athenaId,1,1,1) );
     if( !detEl ){
-      ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperSvc->mdtIdHelper().print_to_string(athenaId) );
+      static std::atomic<bool> rtWarningPrinted = false;
+      if (!rtWarningPrinted) {
+        ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId)<<", cf. ATLASRECTS-5826");
+        rtWarningPrinted.store(true, std::memory_order_relaxed);
+      }
     } else {
       innerTubeRadius = detEl->innerTubeRadius();
     }
@@ -831,7 +834,11 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
     bool isValid = true; // the elementID takes a bool pointer to check the validity of the Identifier
     Identifier chId = m_idHelperSvc->mdtIdHelper().elementID(name,ieta,iphi,true,&isValid);
     if (!isValid) {
-      ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping...");
+      static std::atomic<bool> idWarningPrinted = false;
+      if (!idWarningPrinted) {
+        ATH_MSG_WARNING("Element Identifier " << chId.get_compact() << " retrieved for station name " << name << " is not valid, skipping, cf. ATLASRECTS-5826");
+        idWarningPrinted.store(true, std::memory_order_relaxed);
+      }
       continue;
     }
  
@@ -982,7 +989,11 @@ MuonCalib::MdtTubeCalibContainer* MdtCalibDbAlg::buildMdtTubeCalibContainer(cons
   ATH_MSG_VERBOSE( " new det el " << detEl );
   
   if( !detEl ){ 
-    ATH_MSG_INFO( "Ignoring nonexistant station in calibration DB: " << m_idHelperSvc->mdtIdHelper().print_to_string(id) );
+    static std::atomic<bool> warningPrinted = false;
+    if (!warningPrinted) {
+      ATH_MSG_WARNING("buildMdtTubeCalibContainer() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(id)<<", cf. ATLASRECTS-5826");
+      warningPrinted.store(true, std::memory_order_relaxed);
+    }
   } else {
     int nml = 2;
     if( !detEl2 ) nml = 1;

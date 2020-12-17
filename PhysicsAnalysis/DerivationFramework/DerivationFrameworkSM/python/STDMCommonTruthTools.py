@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 #==============================================================================
 # Set up the MCTruthClassifier
@@ -124,5 +125,4 @@ STDMAugmentationTools.append(STDMMuonDressingTool2)
 #==============================================================================
 # CREATE THE COMMON AUGMENTATION KERNEL ALGORITHM
 #==============================================================================
-from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 DerivationFrameworkJob += CfgMgr.DerivationFramework__CommonAugmentation("STDMAugmentationKernel", AugmentationTools = STDMAugmentationTools)

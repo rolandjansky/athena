@@ -269,7 +269,6 @@ def TMEF_TrackSummaryToolNoHole(name='TMEF_TrackSummaryToolNoHole',**kwargs):
 
 def TMEF_TrkToTrackParticleConvTool(name="TMEF_TrkToTrackParticleConvTool",**kwargs):
     #import MuonCombinedRecExample.CombinedMuonTrackSummary
-    kwargs.setdefault("Extrapolator", "AtlasExtrapolator" )
     kwargs.setdefault("TrackSummaryTool", 'TMEF_TrackSummaryToolNoHole')#ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
     kwargs.setdefault("KeepAllPerigee",False )
     return CfgMgr.Trk__TrackParticleCreatorTool(name,**kwargs)
@@ -538,7 +537,9 @@ class TrigMuonEFStandaloneTrackToolConfig (TrigMuonEFConf.TrigMuonEFStandaloneTr
         from MuonCSC_CnvTools.MuonCSC_CnvToolsConf import Muon__CscRdoToCscPrepDataTool
         from MuonTGC_CnvTools.MuonTGC_CnvToolsConf import Muon__TgcRdoToPrepDataTool
         from MuonRPC_CnvTools.MuonRPC_CnvToolsConf import Muon__RpcRdoToPrepDataTool
-        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool")
+        from MuonCnvExample import MuonCalibConfig
+
+        MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigEFMdtRdoToPrepDataTool", CalibrationTool=MuonCalibConfig.MdtCalibrationTool())
         CscRdoToCscPrepDataTool = Muon__CscRdoToCscPrepDataTool(name = "TrigEFCscRdoToPrepDataTool")
         TgcRdoToTgcPrepDataTool = Muon__TgcRdoToPrepDataTool(name = "TrigEFTgcRdoToPrepDataTool")
         RpcRdoToRpcPrepDataTool = Muon__RpcRdoToPrepDataTool(name = "TrigEFRpcRdoToPrepDataTool")

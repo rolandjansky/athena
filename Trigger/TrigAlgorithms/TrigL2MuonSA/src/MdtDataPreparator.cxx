@@ -37,6 +37,11 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "IRegionSelector/RegSelEnums.h"
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -505,22 +510,22 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        continue;
      }
      
-     m_mdtReadout = muDetMgr->getMdtRElement_fromIdFields(StationName, StationEta, StationPhi,MultiLayer);
-     if (!m_mdtReadout) {
+     const MuonGM::MdtReadoutElement* mdtReadout = muDetMgr->getMdtRElement_fromIdFields(StationName, StationEta, StationPhi,MultiLayer);
+     if (!mdtReadout) {
        ++amt;
        continue;
      }
      
-     m_muonStation = m_mdtReadout->parentMuonStation();
+     const MuonGM::MuonStation* muonStation = mdtReadout->parentMuonStation();
      
-     int TubeLayers = m_mdtReadout->getNLayers();
+     int TubeLayers = mdtReadout->getNLayers();
      int TubeLayer = Layer;
      if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
      if(MultiLayer==2)
-       Layer = Layer + m_mdtReadout->getNLayers();
+       Layer = Layer + mdtReadout->getNLayers();
      
-     double OrtoRadialPos = m_mdtReadout->getStationS();
-     std::string chamberType = m_mdtReadout->getStationType();
+     double OrtoRadialPos = mdtReadout->getStationS();
+     std::string chamberType = mdtReadout->getStationType();
      char st = chamberType[1];
      
      int chamber = 0;
@@ -554,18 +559,18 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
          }
        }
      }
-     R = m_mdtReadout->center(TubeLayer, Tube).perp();
-     Z = m_mdtReadout->center(TubeLayer, Tube).z();
+     R = mdtReadout->center(TubeLayer, Tube).perp();
+     Z = mdtReadout->center(TubeLayer, Tube).z();
      
-     Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
-     if(m_muonStation->endcap()==0){
+     Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*muonStation->getNominalAmdbLRSToGlobal());
+     if(muonStation->endcap()==0){
        cXmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
-       double halfRadialThicknessOfMultilayer = m_muonStation->RsizeMdtStation()/2.;
+       double halfRadialThicknessOfMultilayer = muonStation->RsizeMdtStation()/2.;
        cYmid = ((trans*Amg::Vector3D(0.,0.,0.)).perp()+halfRadialThicknessOfMultilayer);
      }
      else{
        cXmid = (trans*Amg::Vector3D(0.,0.,0.)).perp();
-       double halfZThicknessOfMultilayer = m_muonStation->ZsizeMdtStation()/2.;
+       double halfZThicknessOfMultilayer = muonStation->ZsizeMdtStation()/2.;
        cYmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
        if(cYmid>0) cYmid += halfZThicknessOfMultilayer;
        else cYmid -= halfZThicknessOfMultilayer;
@@ -586,11 +591,11 @@ bool TrigL2MuonSA::MdtDataPreparator::decodeMdtCsm(const MdtCsm* csm,
        }
      }
      
-     if(m_muonStation->endcap()==1)
+     if(muonStation->endcap()==1)
        R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
      
      Amg::Vector3D OrigOfMdtInAmdbFrame = 
-       Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
+       Amg::Hep3VectorToEigen( muonStation->getBlineFixedPointInAmdbLRS() );
      double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
 
      float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
@@ -676,9 +681,10 @@ uint32_t TrigL2MuonSA::MdtDataPreparator::get_system_id (unsigned short int Subs
 
 void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::MdtRegion& mdtRegion,
 							   std::vector<IdentifierHash>& mdtIdHashes_normal,
-							   std::vector<IdentifierHash>& mdtIdHashes_overlap)
+							   std::vector<IdentifierHash>& mdtIdHashes_overlap) const
 {
    std::vector<IdentifierHash> idList;
+   float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
 
    //combine regions of sector and type
    for(int j_station=0; j_station<6; j_station++) {
@@ -746,9 +752,10 @@ void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesBarrel(const TrigL2MuonSA::M
 
 void TrigL2MuonSA::MdtDataPreparator::getMdtIdHashesEndcap(const TrigL2MuonSA::MdtRegion& mdtRegion,
 							   std::vector<IdentifierHash>& mdtIdHashes_normal,
-							   std::vector<IdentifierHash>& mdtIdHashes_overlap)
+							   std::vector<IdentifierHash>& mdtIdHashes_overlap) const
 {
    std::vector<IdentifierHash> idList;
+   float etaMinChamber[11],etaMaxChamber[11],phiMinChamber[11],phiMaxChamber[11];
 
    //combine regions of sector and type
    for(int j_station=0; j_station<6; j_station++) {
@@ -819,7 +826,7 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 								       std::vector<uint32_t>& v_robIds,
 								       TrigL2MuonSA::MdtHits& mdtHits,
 								       const TrigL2MuonSA::MuonRoad& muonRoad,
-                       const MuonGM::MuonDetectorManager* muDetMgr)
+                                                                       const MuonGM::MuonDetectorManager* muDetMgr)
 {
   if(m_doDecoding) {
     if(m_decodeBS) {
@@ -876,14 +883,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
     mdtHits.reserve( mdtHits.size() + mdtCol->size() );
     for( const Muon::MdtPrepData* mdt : *mdtCol ) {
 
-      m_mdtReadout = mdt->detectorElement();
-      if (!m_mdtReadout) continue;
+      const MuonGM::MdtReadoutElement* mdtReadout = mdt->detectorElement();
+      if (!mdtReadout) continue;
 
-      m_muonStation = m_mdtReadout->parentMuonStation();
+      const MuonGM::MuonStation* muonStation = mdtReadout->parentMuonStation();
 
-      int StationPhi = m_mdtReadout->getStationPhi();
-      int StationEta = m_mdtReadout->getStationEta();
-      int MultiLayer = m_mdtReadout->getMultilayer();
+      int StationPhi = mdtReadout->getStationPhi();
+      int StationEta = mdtReadout->getStationEta();
+      int MultiLayer = mdtReadout->getMultilayer();
       double cXmid;
       double cYmid;
       double cAmid = 0;
@@ -893,14 +900,14 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
       int adc       = mdt->adc();
       int drift     = mdt->tdc();
 
-      int TubeLayers = m_mdtReadout->getNLayers();
+      int TubeLayers = mdtReadout->getNLayers();
       int TubeLayer = m_idHelperSvc->mdtIdHelper().tubeLayer(id);
       if(TubeLayer > TubeLayers) TubeLayer -= TubeLayers;
       int Layer = (MultiLayer-1)*TubeLayers + TubeLayer;
       int Tube = m_idHelperSvc->mdtIdHelper().tube(id);
 
-      double OrtoRadialPos = m_mdtReadout->getStationS();
-      std::string chamberType = m_mdtReadout->getStationType();
+      double OrtoRadialPos = mdtReadout->getStationS();
+      std::string chamberType = mdtReadout->getStationType();
       char st = chamberType[1];
 
       int chamber = 0;
@@ -930,18 +937,18 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
           }
         }
       }
-      R = m_mdtReadout->center(TubeLayer, Tube).perp();
-      Z = m_mdtReadout->center(TubeLayer, Tube).z();
+      R = mdtReadout->center(TubeLayer, Tube).perp();
+      Z = mdtReadout->center(TubeLayer, Tube).z();
 
-      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*m_muonStation->getNominalAmdbLRSToGlobal());
-      if(m_muonStation->endcap()==0){
+      Amg::Transform3D trans = Amg::CLHEPTransformToEigen(*muonStation->getNominalAmdbLRSToGlobal());
+      if(muonStation->endcap()==0){
 	cXmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
-	double halfRadialThicknessOfMultilayer = m_muonStation->RsizeMdtStation()/2.;
+	double halfRadialThicknessOfMultilayer = muonStation->RsizeMdtStation()/2.;
 	cYmid = ((trans*Amg::Vector3D(0.,0.,0.)).perp()+halfRadialThicknessOfMultilayer);
       }
       else{
 	cXmid = (trans*Amg::Vector3D(0.,0.,0.)).perp();
-	double halfZThicknessOfMultilayer = m_muonStation->ZsizeMdtStation()/2.;
+	double halfZThicknessOfMultilayer = muonStation->ZsizeMdtStation()/2.;
 	cYmid = (trans*Amg::Vector3D(0.,0.,0.)).z();
 	if(cYmid>0) cYmid += halfZThicknessOfMultilayer;
 	else cYmid -= halfZThicknessOfMultilayer;
@@ -963,11 +970,11 @@ StatusCode TrigL2MuonSA::MdtDataPreparator::collectMdtHitsFromPrepData(const std
 	}
       }
 
-      if(m_muonStation->endcap()==1)
+      if(muonStation->endcap()==1)
 	R = sqrt(R*R+R*R*tan(dphi)*tan(dphi));
 
       Amg::Vector3D OrigOfMdtInAmdbFrame =
-	Amg::Hep3VectorToEigen( m_muonStation->getBlineFixedPointInAmdbLRS() );
+	Amg::Hep3VectorToEigen( muonStation->getBlineFixedPointInAmdbLRS() );
       double Rmin =(trans*OrigOfMdtInAmdbFrame).perp();
 
       float cInCo = 1./cos(std::abs(atan(OrtoRadialPos/Rmin)));
@@ -1046,7 +1053,7 @@ void TrigL2MuonSA::MdtDataPreparator::initDeadChannels(const MuonGM::MdtReadoutE
   std::vector<int>::iterator it = tubes.begin();
   for(int layer = 1; layer <= mydetEl->getNLayers(); layer++){
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
-      int want_id = layer*100 + tube;
+      int want_id = layer*maxNTubesPerLayer + tube;
       if (it != tubes.end() && *it == want_id) {
         ++it;
       }

@@ -14,8 +14,7 @@
 TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
                                              const std::string& name,
                                              const IInterface*  parent):
-  AthAlgTool(type, name, parent),
-  m_regionSelector( "RegSelSvc", name )
+  AthAlgTool(type, name, parent)
 {
 }
 
@@ -25,22 +24,27 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
 StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
 {
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
+
   return StatusCode::SUCCESS;
 }
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi,
-						    const bool                   insideOut,
-						    TrigL2MuonSA::MuonRoad&      muonRoad,
-						    TrigL2MuonSA::RpcHits&       /*rpcHits*/,
-						    ToolHandle<RpcPatFinder>*    rpcPatFinder,
-						    TrigL2MuonSA::RpcFitResult&  rpcFitResult,
-                                                    double                       roiEtaMinLow,
-                                                    double                       roiEtaMaxLow,
-                                                    double                       roiEtaMinHigh,
-                                                    double                       roiEtaMaxHigh)
+StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*             p_roi,
+						    const bool                          insideOut,
+						    TrigL2MuonSA::MuonRoad&             muonRoad,
+						    TrigL2MuonSA::RpcHits&              /*rpcHits*/,
+                                                    const TrigL2MuonSA::RpcLayerHits&   rpcLayerHits,
+						    ToolHandle<RpcPatFinder>*           rpcPatFinder,
+						    TrigL2MuonSA::RpcFitResult&         rpcFitResult,
+                                                    double                              roiEtaMinLow,
+                                                    double                              roiEtaMaxLow,
+                                                    double                              roiEtaMinHigh,
+                                                    double                              roiEtaMaxHigh) const
 {
 
   const double ZERO_LIMIT = 1e-5;
@@ -52,7 +56,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     double aw[3]={0.,0.,0.};
     double bw[3]={0.,0.,0.};
     unsigned int rpc_pattern;
-    if ( (*rpcPatFinder)->findPatternEta(aw, bw, rpc_pattern) ) {
+    if ( (*rpcPatFinder)->findPatternEta(aw, bw, rpc_pattern, rpcLayerHits) ) {
       rpcFitResult.isSuccess = true;
       rpcFitResult.offset_inner = bw[0];
       rpcFitResult.offset_middle = bw[1];
@@ -71,7 +75,7 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     double phi_middle;
     double phi_outer;
     unsigned int phi_pattern;
-    if ( (*rpcPatFinder)->findPatternPhi(phi_middle, phi_outer, phi_pattern)) {
+    if ( (*rpcPatFinder)->findPatternPhi(phi_middle, phi_outer, phi_pattern, rpcLayerHits)) {
       rpcFitResult.phi = phi_middle;
       rpcFitResult.phi_middle = phi_middle;
       rpcFitResult.phi_outer = phi_outer;
@@ -158,8 +162,11 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
 
-  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+  if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+  else {
+    TrigRoiDescriptor fullscan_roi( true );
+    m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+  }
 
   if(roi) delete roi;
 

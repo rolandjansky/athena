@@ -1,13 +1,11 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 import operator
 import json 
 def addLHE3Weights(seq, pref = '', var_dict = {}):
   
   from AthenaCommon.AppMgr import ToolSvc
-  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg
+  from ReweightUtils.ReweightUtilsConf import SumOfWeightsAlg, McEventWeight
 
   sumOfWeightsAlg = SumOfWeightsAlg(name = pref+"LHE3SumWeightsAlg")
 
@@ -24,7 +22,7 @@ def addLHE3Weights(seq, pref = '', var_dict = {}):
   seq += sumOfWeightsAlg
 
 
-from DerivationFrameworkCore.DerivationFrameworkMaster import *
+from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob
 
 # skip this in datfrom AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.GlobalFlags import globalflags
@@ -33,8 +31,9 @@ if globalflags.DataSource() == 'geant4':
   mcweight_dict_orig = dict()
   mcweight_dict = dict()
   try:
+    from RecExConfig.InputFilePeeker import inputFileSummary
     mcweight_dict_orig = inputFileSummary['metadata']['/Generation/Parameters']['HepMCWeightNames']
-  except:
+  except Exception:
     print ('Could not retrieve HepMCWeightNames /Generation/Parameters metadata.')
   
   # Recent versions of MadGraph are writing the dictionary as a flat string

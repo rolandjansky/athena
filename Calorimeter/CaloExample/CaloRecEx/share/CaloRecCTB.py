@@ -121,12 +121,12 @@ theApp.Dlls += [ "GaudiAud" ]
 #
 # write out a summary of the time spent
 #
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 svcMgr += AuditorSvc()
-from GaudiSvc.GaudiSvcConf import ChronoStatSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import ChronoStatSvc
 svcMgr += ChronoStatSvc()
 
-from GaudiSvc.GaudiSvcConf import MessageSvc
+from GaudiCoreSvc.GaudiCoreSvcConf import MessageSvc
 svcMgr += MessageSvc( defaultLimit = 100000000 )
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream

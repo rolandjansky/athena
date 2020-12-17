@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file:    McParticleAlgs/python/FixMcEventCollection.py
 # @purpose: <put some purpose here>
@@ -11,7 +11,6 @@ IMPORTANT : this alg must be run before any other algs invoking TruthParticleCnv
 __version__ = '$Revision: 1.5 $'
 __author__  = 'P-A Delsart'
 
-import AthenaCommon.SystemOfUnits as Units
 import AthenaPython.PyAthena as PyAthena
 from AthenaPython.PyAthena import StatusCode
 

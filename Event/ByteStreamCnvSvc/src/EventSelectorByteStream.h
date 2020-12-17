@@ -144,7 +144,9 @@ protected:
 
 private: // internal member functions
    StatusCode nextImpl(Context& it, lock_t& lock) const;
+   StatusCode nextImpl(Context& it, int jump, lock_t& lock) const;
    StatusCode previousImpl(Context& it, lock_t& lock) const;
+   StatusCode previousImpl(Context& it, int jump, lock_t& lock) const;
    StatusCode nextHandleFileTransitionImpl(IEvtSelector::Context& it,
                                            lock_t& lock) const;
    StatusCode recordAttributeListImpl(std::lock_guard<std::mutex>& lock) const;

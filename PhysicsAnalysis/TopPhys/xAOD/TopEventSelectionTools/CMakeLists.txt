@@ -1,16 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # Declare the name of this package:
 atlas_subdir( TopEventSelectionTools )
-
-# This package depends on other packages:
-atlas_depends_on_subdirs( PUBLIC
-                          EventLoop
-                          AsgTools
-                          JetInterface
-                          TopEvent
-                          TopCorrections
-                          TopParticleLevel
-                          TriggerAnalysisInterfaces
-			  JetSelectorTools )
 
 # This package uses ROOT:
 find_package( ROOT REQUIRED COMPONENTS Core Gpad Tree Hist RIO MathCore Graf )
@@ -25,15 +16,28 @@ atlas_add_library( TopEventSelectionTools Root/*.cxx Root/*.h Root/*.icc
                    TopEventSelectionTools/*.h TopEventSelectionTools/*.icc TopEventSelectionTools/*/*.h
                    TopEventSelectionTools/*/*.icc ${_cintDictSource} 
                    PUBLIC_HEADERS TopEventSelectionTools
-                   LINK_LIBRARIES EventLoop
+                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                   LINK_LIBRARIES ${ROOT_LIBRARIES}
+                                  AsgMessagingLib
                                   AsgTools
-                                  JetInterface
-                                  TopEvent
+                                  FTagAnalysisInterfacesLib
+                                  JetInterface JetSelectorToolsLib
+                                  MuonAnalysisInterfacesLib
+                                  PMGAnalysisInterfacesLib
+                                  PMGToolsLib
                                   TopCorrections
+                                  TopEvent
                                   TopParticleLevel
-				  JetSelectorToolsLib
-                                  ${ROOT_LIBRARIES}
-                   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} )
+                                  TriggerAnalysisInterfaces
+                   PRIVATE_LINK_LIBRARIES EventLoop
+                                          PATInterfaces
+                                          TopConfiguration
+                                          xAODBTagging
+                                          xAODBase
+                                          xAODEgamma
+                                          xAODEventInfo
+                                          xAODJet
+                                          xAODMuon )
 
 # Install data files from the package:
 atlas_install_data( share/* )

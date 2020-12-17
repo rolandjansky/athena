@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArFlatConditionSvc.h"
@@ -468,7 +468,7 @@ void LArFlatConditionSvc::printCheckSums(const objInfo_t& objInfo, const CondAtt
     msg(MSG::INFO) << "   Gain " << gain;
     for (const auto& attr : attrList) {
       const std::string& typeName=attr.specification().typeName();
-      if (typeName.find("blob")==0) {
+      if (typeName.substr(0, 4) == "blob") {
 	//Got a blob:
 	const coral::Blob& blob = attr.data<coral::Blob>();
 	const std::string& blobName=attr.specification().name();

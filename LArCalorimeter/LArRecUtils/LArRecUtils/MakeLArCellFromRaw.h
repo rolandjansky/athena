@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARCELLREC_MAKELARCELLFROMRAW_H
@@ -17,7 +17,8 @@
 #include "LArIdentifier/LArOnlineID.h" 
 #include "CaloUtils/CaloCellCorrection.h"
 #include "CaloIdentifier/CaloGain.h" 
-#include "AthAllocators/DataPool.h" 
+#include "AthAllocators/DataPool.h"
+#include "CxxUtils/checker_macros.h"
 
 #include <map>
 #include <vector>
@@ -55,8 +56,8 @@ public:
 
   /** initialize the internal map
   */ 
-  void initialize( const LArRoI_Map* map,
-       const std::vector<CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
+  void initialize ATLAS_NOT_THREAD_SAFE ( const LArRoI_Map* map,
+       const std::vector<const CaloCellCorrection*>*  pCorr, unsigned int poolMaxSize =190000);
 
   /** access by Identifier 
   */ 
@@ -79,7 +80,7 @@ private:
 
  // Find correction factor for this LArCell 
  double getCorrection(LArCell* cell,
-                      const std::vector<CaloCellCorrection*>& vCorr,
+                      const std::vector<const CaloCellCorrection*>& vCorr,
                       const EventContext& ctx) const;
 
  // cells in a FEB stored in a vector
@@ -88,9 +89,9 @@ private:
  // all FEBs in a map. 
  typedef std::map<unsigned int, CELL_VEC  > CELL_MAP;
 
- mutable CELL_MAP  m_cellMap; 	
+ CELL_MAP  m_cellMap; 	
 
- mutable DataPool<LArCell> * m_dataPool;
+ size_t m_poolMaxSize;
  IMessageSvc * m_msgSvc ;
  
  LArCablingLegacyService* m_cablingSvc ;

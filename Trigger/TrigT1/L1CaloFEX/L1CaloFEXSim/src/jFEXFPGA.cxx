@@ -86,39 +86,37 @@ StatusCode jFEXFPGA::execute(){
 
 }
 
-void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][9]){
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][17]){
     
-  const int rows = 16;
+  const int rows = 16*2;
   const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
   
   std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Wide[0][0]);
   
-  if(true){ //this prints out the jTower IDs that each FPGA is responsible for
-    ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
-    for (int thisRow=rows-1; thisRow>=0; thisRow--){
-      for (int thisCol=0; thisCol<cols; thisCol++){
-	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  "); }
-	else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  |"); }
-      }
+  //this prints out the jTower IDs that each FPGA is responsible for
+  ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
+  for (int thisRow=rows-1; thisRow>=0; thisRow--){
+    for (int thisCol=0; thisCol<cols; thisCol++){
+      if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  "); }
+      else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Wide[thisRow][thisCol] << "  |"); }
     }
   }
   
 }
 
-  void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][8]){
+void jFEXFPGA::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[][24]){
 
-    const int rows = 16;
+    const int rows = 16*2;
     const int cols = sizeof tmp_jTowersIDs_subset[0] / sizeof tmp_jTowersIDs_subset[0][0];
     
     std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(rows*cols),&m_jTowersIDs_Thin[0][0]);
 
-    if(false){ //this prints out the jTower IDs that each FPGA is responsible for
-      ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") IS RESPONSIBLE FOR eTOWERS :");
-      for (int thisRow=rows-1; thisRow>=0; thisRow--){
-	for (int thisCol=0; thisCol<cols; thisCol++){
-	  if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
-	  else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
-	}
+    //this prints out the jTower IDs that each FPGA is responsible for
+    ATH_MSG_DEBUG("\n==== jFEXFPGA ========= FPGA (" << m_id << ") [on jFEX " << m_jfexid << "] IS RESPONSIBLE FOR jTOWERS :");
+    for (int thisRow=rows-1; thisRow>=0; thisRow--){
+      for (int thisCol=0; thisCol<cols; thisCol++){
+	if(thisCol != cols-1){ ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  "); }
+	else { ATH_MSG_DEBUG("|  " << m_jTowersIDs_Thin[thisRow][thisCol] << "  |"); }
       }
     }
 

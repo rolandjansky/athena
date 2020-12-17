@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSortingAlg.h
@@ -11,23 +11,19 @@
 #ifndef EVENTUTILS_PARTICLESORTINGALG_H
 #define EVENTUTILS_PARTICLESORTINGALG_H 1
 
-// STL includes
-#include <string>
-
 // FrameWork includes
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 
+// STL includes
+#include <string>
 
-// forward declarations
+// Forward declarations
 class IJobOptionsSvc;
 namespace DerivationFramework {
   class IAugmentationTool;
 }
-
-
-
 
 class ParticleSortingAlg
   : public ::AthAlgorithm

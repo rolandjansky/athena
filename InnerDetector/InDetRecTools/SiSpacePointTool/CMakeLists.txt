@@ -1,36 +1,15 @@
-################################################################################
-# Package: SiSpacePointTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( SiSpacePointTool )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          DetectorDescription/GeoPrimitives
-                          InnerDetector/InDetRecEvent/InDetPrepRawData
-                          PRIVATE
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetRecEvent/SiSpacePoint
-                          Tracking/TrkEvent/TrkSpacePoint )
-
-# External dependencies:
-find_package( Eigen )
 
 # Component(s) in the package:
 atlas_add_library( SiSpacePointToolLib
                    src/*.cxx
                    PUBLIC_HEADERS SiSpacePointTool
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives InDetPrepRawData
-                   PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier InDetReadoutGeometry SiSpacePoint TrkSpacePoint )
+                   LINK_LIBRARIES AthenaBaseComps GeoPrimitives InDetPrepRawData TrkSpacePoint
+                   PRIVATE_LINK_LIBRARIES InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry SiSpacePoint )
 
 atlas_add_component( SiSpacePointTool
                      src/components/*.cxx
-                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps AthenaKernel GeoPrimitives InDetPrepRawData GaudiKernel InDetIdentifier InDetReadoutGeometry SiSpacePoint TrkSpacePoint SiSpacePointToolLib )
-
+                     LINK_LIBRARIES SiSpacePointToolLib )

@@ -17,7 +17,7 @@ class ConfiguredTrigVtxCuts():
         self.__TrackCutLevel             = "NoCut"
 
         # this is cutLevel = 1
-        self.__minPT               = 400. * Units.MeV
+        self.__minPT               = 1000. * Units.MeV
         self.__IPd0Max             = 4. # = 4. for useBeamConstraint()==true, = 10. for useBeamConstraint()==false
         self.__IPz0Max             = 1000.
         self.__z0Max               = 1000.
@@ -25,7 +25,7 @@ class ConfiguredTrigVtxCuts():
         self.__sigIPz0Max          = 10.
         self.__d0significanceMax   = -1.
         self.__z0significanceMax   = -1.
-        self.__etaMax		       = 9999.
+        self.__etaMax		   =  2.4
    
         #cluster and track quality cuts   
         self.__useTrackSummaryInfo       = True
@@ -33,7 +33,7 @@ class ConfiguredTrigVtxCuts():
         self.__nHitPix                   = 1
         self.__nHolesPix                 = 1
         self.__nHitSct                   = 4
-        self.__nHitSi                    = 6
+        self.__nHitSi                    = 10
         self.__nHitTrt                   = 0
         self.__nHitTrtHighEFractionMax   = 1
         self.__nHitTrtHighEFractionWithOutliersMax = 1

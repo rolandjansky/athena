@@ -5,12 +5,11 @@
 #include "PFOHistUtils/PFOCalibHitClusterMomentPlots.h"
 
 namespace PFO {
-
-  PFOCalibHitClusterMomentPlots::PFOCalibHitClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName){
+PFOCalibHitClusterMomentPlots::PFOCalibHitClusterMomentPlots(PlotBase* pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName) : PlotBase(pParent, sDir), m_sPFOContainerName(sPFOContainerName), m_sFEContainerName(sFEContainerName){
   }
 
   void PFOCalibHitClusterMomentPlots::initializePlots(){
-
+    if(!m_sPFOContainerName.empty()){
     m_PFO_ENG_CALIB_FRAC_EM = Book1D("_ENG_CALIB_FRAC_EM",m_sPFOContainerName + "_ENG_CALIB_FRAC_EM",22,0,1.1);
     m_PFO_ENG_CALIB_FRAC_HAD = Book1D("_ENG_CALIB_FRAC_HAD",m_sPFOContainerName + "_ENG_CALIB_FRAC_HAD",22,0,1.1);
     m_PFO_ENG_CALIB_FRAC_REST = Book1D("_ENG_CALIB_FRAC_REST",m_sPFOContainerName + "_ENG_CALIB_FRAC_REST",22,0,1.1);
@@ -30,7 +29,10 @@ namespace PFO {
     m_PFO_ENG_CALIB_FRAC_EM_etaBinD = Book1D("_ENG_CALIB_FRAC_EM_D",m_sPFOContainerName + "_ENG_CALIB_FRAC_EM (|eta| >= 3.2)",22,0,1.1);
     m_PFO_ENG_CALIB_FRAC_HAD_etaBinD = Book1D("_ENG_CALIB_FRAC_HAD_D",m_sPFOContainerName + "_ENG_CALIB_FRAC_HAD (|eta| >= 3.2)",22,0,1.1);
     m_PFO_ENG_CALIB_FRAC_REST_etaBinD = Book1D("_ENG_CALIB_FRAC_REST_D",m_sPFOContainerName + "_ENG_CALIB_FRAC_REST (|eta| >= 3.2)",22,0,1.1);
-    
+    }
+if(!m_sFEContainerName.empty()){
+     std::cout<<"PFOCalibHitClusterMomentPlots: You're trying to book histograms for flow elements based on calibration hits which are not available in most MC samples - sorry"<<std::endl;
+    }
   }
 
   void PFOCalibHitClusterMomentPlots::fill(const xAOD::PFO& PFO){
@@ -71,5 +73,10 @@ namespace PFO {
     }
     
   }
-
+  void PFOCalibHitClusterMomentPlots::fill(const xAOD::FlowElement& FE){
+    std::cout<<"PFOCalibHitClusterMomentPlots - Calib Hits not available in most MC, so will be dropped"<<std::endl;
+    // dump pt just to remove -wunused parameter warnings - remove if this function is actually needed
+    std::cout<<"FE pt"<<FE.pt()<<std::endl;
+   
+  }
 }

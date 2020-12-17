@@ -5,9 +5,9 @@ from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 def createBTaggingConfigFlags():
     btagcf = AthConfigFlags()
 
-    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10','MV2c10mu','MV2c10rnn','MV2c100','MV2cl100','RNNIP','DL1','DL1mu','DL1rnn'])
+    btagcf.addFlag("BTagging.run2TaggersList", ['IP2D','IP3D','SV1','SoftMu','JetFitterNN','MV2c10'])
     btagcf.addFlag("BTagging.Run2TrigTaggers", ['IP2D','IP3D','SV1','JetFitterNN','MV2c10'])
-    btagcf.addFlag("BTagging.Run3NewTrigTaggers", ['RNNIP','DL1','DL1rnn'])
+    btagcf.addFlag("BTagging.Run3NewTrigTaggers", [])
     # Disable JetVertexCharge ATLASRECTS-4506
     btagcf.addFlag("BTagging.RunModus", "analysis") # reference mode used in FlavourTagPerformanceFramework (RetagFragment.py)
     btagcf.addFlag("BTagging.ReferenceType", "ALL") # reference type for IP and SV taggers (B, UDSG, ALL)
@@ -19,6 +19,9 @@ def createBTaggingConfigFlags():
                                         "InANDNInShared", "PixShared", "SctShared",
                                         "InANDNInSplit", "PixSplit",
                                         "Good"])
+    # Taggers for validation
+    btagcf.addFlag("BTagging.SaveSV1Probabilities",False)
+    btagcf.addFlag("BTagging.RunJetFitterNN",False)
     #Do we really need this in AthConfigFlags?
     #Comments in BTaggingConfiguration.py
     btagcf.addFlag("BTagging.OutputFiles.Prefix", "BTagging_")

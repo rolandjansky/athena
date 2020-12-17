@@ -367,13 +367,8 @@ StatusCode Trk::TrackValidationNtupleWriter::execute() {
               m_trackTruthClassifiers[toolIndex]->initClassification(*mcEventColl, selecParticles);
             }
 	    
-//	    std::cout<<"First loop done "<<std::endl;
-	    
-            //unsigned int partIndex = 0;
-            std::vector< const HepMC::GenParticle* >::const_iterator partIter = selecParticles->begin();
-            for ( ; partIter != selecParticles->end(); ++partIter) 
+            for ( auto genParticle: *selecParticles) 
               {
-                const HepMC::GenParticle* genParticle = *partIter;
                 //truthData.genParticle = (*selecParticles);
                 Trk::ValidationTrackTruthData partData;
                 partData.genParticle = genParticle;
@@ -635,7 +630,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                   if (matchedPartIter == truthData.end()) {
                     // did not find particle in list of selected particles
                     truthIndex = -1;
-                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << genParticle->barcode() << " is not in list of selected particles" << endmsg;
+                    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Matched particle with barcode " << HepMC::barcode(genParticle) << " is not in list of selected particles" << endmsg;
                     if ( genParticle->production_vertex() ) {
                       newTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
                       generatedTrackPerigee = newTrackPerigee;
@@ -749,69 +744,4 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 
     return StatusCode::SUCCESS;
 }
-
-// const Trk::TrackParameters* Trk::TrackValidationNtupleWriter::associateTruthToTrack( const Trk::Track* track, 
-// 										     const TrackCollection* trackCollection, 
-// 										     const TrackTruth*& trackTruth )
-// {
-//     
-//    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Starting InDet::FitterValidationTool::determineGeneratedPerigee()..." << endmsg;
-// 
-//   StatusCode sc;
-// 
-//   const TrackTruthCollection* trackTruthCollection = 0;
-// 
-//   sc = evtStore()->retrieve( trackTruthCollection, m_trackTruthCollectionName );
-// 
-//   if ( sc.isFailure() ){
-//     msg(MSG::ERROR) << "Attempt to retrieve track truth using StoreGate collection name " << m_trackTruthCollectionName << " failed... Exiting" << endmsg;
-//     return 0;
-//   }
-// 
-//   ElementLink<TrackCollection> trackLink;
-// 
-//   trackLink.setElement( const_cast<Trk::Track*>( track ) );
-//   trackLink.setStorableObject( *trackCollection );
-//  
-//   typedef TrackTruthCollection::const_iterator TruthIterator;
-//   // typedef std::map<ElementLink< DataVector<Trk::Track> >, TrackTruth>::const_iterator TruthIterator; 
-//  
-//   TruthIterator truthIterator = trackTruthCollection->find( trackLink );
-// 
-//   if ( truthIterator == trackTruthCollection->end() ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truth could not be found... exiting" << endmsg;
-//     return 0;
-//   }
-// 
-//   trackTruth = new TrackTruth( ( *truthIterator ).second );
-// 
-//   const HepMcParticleLink& particleLink = trackTruth->particleLink();
-//   
-//   const HepMC::GenParticle* genParticle = particleLink.cptr();
-//   
-//   if ( !genParticle ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information cannot be found... No truth association possible" << endmsg;
-//     return 0;
-//   }
-//  
-//   int particleID = genParticle->pdg_id();
-//   
-//   if ( particleID == 0 ){
-//     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << particleID << " does not conform to PDG requirements... exiting" << endmsg;
-//     return 0;
-//   }
-//  
-//   else
-//     if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Associated Particle ID: " << particleID << endmsg;
-// 
-//   const Trk::TrackParameters* generatedTrackPerigee(0);
-// 
-//   // Perform extrapolation to generate perigee parameters
-//   if ( genParticle->production_vertex() )
-//     generatedTrackPerigee = m_truthToTrack->makePerigeeParameters( genParticle );
-// 
-//   return generatedTrackPerigee;
-// 
-// }
-
 

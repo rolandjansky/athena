@@ -9,7 +9,6 @@
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
 #include "InDetReadoutGeometry/ExtendedAlignableTransform.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 
 #include "GeoModelKernel/GeoXF.h"
@@ -34,7 +33,7 @@ namespace InDetDD {
     TRT_DetectorManager::TRT_DetectorManager(StoreGateSvc * detStore)
         :InDetDetectorManager(detStore, "TRT"),
         m_numerology(new TRT_Numerology()),
-        m_idHelper(NULL),
+        m_idHelper(nullptr),
         m_ownsIdHelper(false),
         m_gasType(unknown),
         m_digvers(9999),
@@ -42,8 +41,8 @@ namespace InDetDD {
     {
 
     // If detstore no passed then get it from bootstrap.
-        if (m_detStore == 0) {
-            StatusCode sc = Gaudi::svcLocator()->service("DetectorStore", m_detStore); 
+        if (m_detStore == nullptr) {
+            StatusCode sc = Gaudi::svcLocator()->service("DetectorStore", m_detStore);
             if (sc.isFailure()) msg(MSG::ERROR) << "Could not locate DetectorStore" << endmsg;
         }
 
@@ -54,7 +53,7 @@ namespace InDetDD {
             for (unsigned int mod=0;mod<NMODMAX;mod++) {
                 for (unsigned int phi=0; phi<NPHIMAX;phi++) {
                     for (unsigned int sLay=0;sLay<NSTRAWLAYMAXBR;sLay++) {
-                        m_barrelArray[ec][mod][phi][sLay]=NULL;
+                        m_barrelArray[ec][mod][phi][sLay]=nullptr;
                     }
                 }
             }
@@ -63,13 +62,13 @@ namespace InDetDD {
             for (unsigned int whe=0;whe<NWHEELMAX;whe++) {
                 for (unsigned int sLay=0;sLay<NSTRAWLAYMAXEC;sLay++) {
                     for(unsigned int phi=0;phi<NPHIMAX;phi++) {
-                        m_endcapArray[ec][whe][sLay][phi]=NULL;
+                        m_endcapArray[ec][whe][sLay][phi]=nullptr;
                     }
                 }
             }
         }
-        m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=NULL;
-        m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=NULL;
+        m_barrelXF[0]=m_barrelXF[1]=m_barrelXF[2]=nullptr;
+        m_endcapXF[0]=m_endcapXF[1]=m_endcapXF[2]=nullptr;
 
         m_conditions = std::make_unique<InDetDD::TRT_Conditions>();
     }
@@ -131,7 +130,7 @@ namespace InDetDD {
 
     unsigned int TRT_DetectorManager::getNumTreeTops() const
     {
-        return m_volume.size(); 
+        return m_volume.size();
     }
 
     PVConstLink TRT_DetectorManager::getTreeTop(unsigned int i) const
@@ -177,12 +176,12 @@ namespace InDetDD {
                 }
                 if (m_elements[hashId]) {
                     //Element already added - complain!
-                    if(msgLvl(MSG::DEBUG)) 
+                    if(msgLvl(MSG::DEBUG))
                         msg(MSG::DEBUG) << "manageBarrelElement: Overriding existing element for hashID"<<endmsg;
                 }
                 m_elements[hashId]=barrel;
             } else {
-                msg(MSG::WARNING) << "manageBarrelElement: Invalid identifier" << endmsg;	
+                msg(MSG::WARNING) << "manageBarrelElement: Invalid identifier" << endmsg;
             }
 
         }
@@ -199,7 +198,7 @@ namespace InDetDD {
         [endcap->getCode().getPhiIndex()] ) {
 
             //Element already added - complain!
-            if(msgLvl(MSG::DEBUG)) 
+            if(msgLvl(MSG::DEBUG))
                 msg(MSG::DEBUG) << "manageEndcapElement: Overriding existing element"<<endmsg;
         };
 
@@ -228,29 +227,29 @@ namespace InDetDD {
                 }
                 m_elements[hashId]=endcap;
             } else {
-                msg(MSG::WARNING) << "manageEndcapElement: Invalid identifier" << endmsg;	    
+                msg(MSG::WARNING) << "manageEndcapElement: Invalid identifier" << endmsg;
             }
         }
     }
 
-    const TRT_BarrelElement *TRT_DetectorManager::getBarrelElement(unsigned int positive,               
-                                                                   unsigned int moduleIndex,            
-                                                                   unsigned int phiIndex,               
+    const TRT_BarrelElement *TRT_DetectorManager::getBarrelElement(unsigned int positive,
+                                                                   unsigned int moduleIndex,
+                                                                   unsigned int phiIndex,
                                                                    unsigned int strawLayerIndex) const {
         if ( positive >= 2 || moduleIndex >= NMODMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return nullptr;
 
         return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
 
 
 
-    TRT_BarrelElement *TRT_DetectorManager::getBarrelElement(unsigned int positive,               
-        unsigned int moduleIndex,            
-        unsigned int phiIndex,               
+    TRT_BarrelElement *TRT_DetectorManager::getBarrelElement(unsigned int positive,
+        unsigned int moduleIndex,
+        unsigned int phiIndex,
         unsigned int strawLayerIndex){
         if ( positive >= 2 || moduleIndex >= NMODMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXBR) return nullptr;
 
         return m_barrelArray[positive][moduleIndex][phiIndex][strawLayerIndex];
     }
@@ -259,25 +258,25 @@ namespace InDetDD {
 
 
 
-    const TRT_EndcapElement *TRT_DetectorManager::getEndcapElement(unsigned int positive,               
-        unsigned int wheelIndex,             
+    const TRT_EndcapElement *TRT_DetectorManager::getEndcapElement(unsigned int positive,
+        unsigned int wheelIndex,
         unsigned int strawLayerIndex,
         unsigned int phiIndex) const {
 
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return nullptr;
 
         return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
 
 
-    TRT_EndcapElement *TRT_DetectorManager::getEndcapElement(unsigned int positive,               
-        unsigned int wheelIndex,             
+    TRT_EndcapElement *TRT_DetectorManager::getEndcapElement(unsigned int positive,
+        unsigned int wheelIndex,
         unsigned int strawLayerIndex,
         unsigned int phiIndex) {
 
         if ( positive >= 2 || wheelIndex >= NWHEELMAX
-            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return 0;
+            || phiIndex>=NPHIMAX || strawLayerIndex >= NSTRAWLAYMAXEC) return nullptr;
 
         return m_endcapArray[positive][wheelIndex][strawLayerIndex][phiIndex];
     }
@@ -297,13 +296,13 @@ namespace InDetDD {
     const TRT_BaseElement *TRT_DetectorManager::getElement(Identifier id) const {
         // Make sure it is a straw_layer id
         Identifier strawLayerId = m_idHelper->layer_id(id);
-        IdentifierHash hashId = m_idHelper->straw_layer_hash(strawLayerId);  
-        if (hashId>=m_elements.size()) return 0;
+        IdentifierHash hashId = m_idHelper->straw_layer_hash(strawLayerId);
+        if (hashId>=m_elements.size()) return nullptr;
         return m_elements[hashId];
     }
 
     const TRT_BaseElement *TRT_DetectorManager::getElement(IdentifierHash id) const {
-        if (id>=m_elements.size()) return 0;
+        if (id>=m_elements.size()) return nullptr;
         return m_elements[id];
     }
 
@@ -324,20 +323,20 @@ namespace InDetDD {
     void TRT_DetectorManager::setBarrelTransformField(size_t i, const GeoXF::Function * f){
         if (m_barrelXF[i]!=f)  delete  m_barrelXF[i];
         m_barrelXF[i] = f;
-    }                                      
+    }
 
     const GeoXF::Function * TRT_DetectorManager::barrelTransformField(size_t i) const {
         return m_barrelXF[i];
     }
 
-    void TRT_DetectorManager::setEndcapTransformField(size_t i, const GeoXF::Function *f) {                                      
+    void TRT_DetectorManager::setEndcapTransformField(size_t i, const GeoXF::Function *f) {
         if (m_endcapXF[i]!=f) delete  m_endcapXF[i];
         m_endcapXF[i]=f;
     }
 
     const GeoXF::Function *TRT_DetectorManager::endcapTransformField(size_t i) const{
         return m_endcapXF[i];
-    }                           
+    }
 
 
     TRT_DetectorManager::ActiveGasType TRT_DetectorManager::gasType() const
@@ -371,10 +370,10 @@ namespace InDetDD {
     void TRT_DetectorManager::addKey ATLAS_NOT_THREAD_SAFE (const std::string & key, int level) // Thread unsafe m_detStore->regFcn (callback) is used.
     {
         if(msgLvl(MSG::DEBUG))
-            msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << ", at level " << level 
+            msg(MSG::DEBUG) << "Registering alignmentCallback with key " << key << ", at level " << level
             << endmsg;
 
-        const DataHandle<AlignableTransform> transformCollection;  
+        const DataHandle<AlignableTransform> transformCollection;
         if (m_detStore->regFcn(&TRT_DetectorManager::alignmentCallback, this, transformCollection, key).isFailure()) {
           ATH_MSG_ERROR("Cannot register callback with DetectorStore");
         }
@@ -387,7 +386,7 @@ namespace InDetDD {
     }
 
     void TRT_DetectorManager::addAlignableTransform (int level,
-                                                     const Identifier &id, 
+                                                     const Identifier &id,
                                                      GeoAlignableTransform *transform,
                                                      const GeoVPhysVol * child,
                                                      const GeoVPhysVol * frameVol)
@@ -395,21 +394,21 @@ namespace InDetDD {
         if (m_idHelper) {
             // Check if child and frame are actually full physical volumes.
             // if they are non zero.
-            const GeoVFullPhysVol * childFPV = 0;
+            const GeoVFullPhysVol * childFPV = nullptr;
             if (child) {
                 childFPV = dynamic_cast<const GeoVFullPhysVol *>(child);
             }
-            const GeoVFullPhysVol * frameFPV = 0; 
+            const GeoVFullPhysVol * frameFPV = nullptr;
             if (frameVol) {
                 frameFPV = dynamic_cast<const GeoVFullPhysVol *>(frameVol);
             }
-            if (child && !childFPV) { 
-                msg(MSG::ERROR) 
-                    << "Child of alignable transform is not a full physical volume" 
+            if (child && !childFPV) {
+                msg(MSG::ERROR)
+                    << "Child of alignable transform is not a full physical volume"
                     << endmsg;
             } else if (frameVol && !frameFPV) {
-                msg(MSG::ERROR) 
-                    << "Frame for alignable transform is not a full physical volume" 
+                msg(MSG::ERROR)
+                    << "Frame for alignable transform is not a full physical volume"
                     << endmsg;
             } else {
                 addAlignableTransform (level, id, transform, childFPV, frameFPV);
@@ -418,7 +417,7 @@ namespace InDetDD {
     }
 
     void TRT_DetectorManager::addAlignableTransform (int level,
-                                                     const Identifier &id, 
+                                                     const Identifier &id,
                                                      GeoAlignableTransform *transform,
                                                      const GeoVFullPhysVol *child,
                                                      const GeoVFullPhysVol *frameVol)
@@ -442,14 +441,14 @@ namespace InDetDD {
                 }
                 // Save in map
                 int index = level - FIRST_HIGHER_LEVEL; // level 0 treated separately.
-                if (index >= static_cast<int>(m_alignableTransforms.size())) m_alignableTransforms.resize(index+1); 
+                if (index >= static_cast<int>(m_alignableTransforms.size())) m_alignableTransforms.resize(index+1);
                 m_alignableTransforms[index][id] = extAlignableTransform;
-            }  
+            }
         }
     }
 
-    bool TRT_DetectorManager::setAlignableTransformDelta(int level, 
-                                                         const Identifier & id, 
+    bool TRT_DetectorManager::setAlignableTransformDelta(int level,
+                                                         const Identifier & id,
                                                          const Amg::Transform3D & delta,
                                                          FrameType frame,
                                                          GeoVAlignmentStore* alignStore) const
@@ -462,17 +461,17 @@ namespace InDetDD {
             int index = level - FIRST_HIGHER_LEVEL; // level 0 treated separately.
             if (index  >=  static_cast<int>(m_alignableTransforms.size())) return false;
 
-            // We retrieve it from a map. 
-            AlignableTransformMap::const_iterator iter;    
+            // We retrieve it from a map.
+            AlignableTransformMap::const_iterator iter;
             iter = m_alignableTransforms[index].find(id);
-            if (iter == m_alignableTransforms[index].end()) return false;          
+            if (iter == m_alignableTransforms[index].end()) return false;
 
             return setAlignableTransformAnyFrameDelta(iter->second, delta, frame, alignStore);
 
         }
     }
 
-    bool TRT_DetectorManager::setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF, 
+    bool TRT_DetectorManager::setAlignableTransformAnyFrameDelta(ExtendedAlignableTransform * extXF,
                                                                  const Amg::Transform3D & delta,
                                                                  FrameType frame,
                                                                  GeoVAlignmentStore* alignStore) const
@@ -523,7 +522,7 @@ namespace InDetDD {
         const GeoVFullPhysVol * child = extXF->child();
         const GeoVFullPhysVol * frameVol = extXF->frame();
 
-        FrameType newFrame = frame;    
+        FrameType newFrame = frame;
         // If frame is other then check if "other" is actually local or global
         if (frame == InDetDD::other) {
             if (child && !frameVol) {
@@ -533,7 +532,7 @@ namespace InDetDD {
                 // if child is 0 or the they are the same volumes then its local
                 newFrame =  InDetDD::local;
             } // else its "other" already.
-        }  
+        }
 
         if (newFrame == InDetDD::global)  { // Global
             if (!child) {
@@ -572,7 +571,7 @@ namespace InDetDD {
 
   // We invalidate all the elements if at least one alignment changed.
     void TRT_DetectorManager::invalidateAll() const
-    {  
+    {
         for (TRT_DetElementCollection::const_iterator element_iter = getDetectorElementBegin();
         element_iter != getDetectorElementEnd();
         ++element_iter) {
@@ -584,7 +583,7 @@ namespace InDetDD {
     }
 
     void TRT_DetectorManager::updateAll() const
-    {  
+    {
         for (TRT_DetElementCollection::const_iterator element_iter = getDetectorElementBegin();
         element_iter != getDetectorElementEnd();
         ++element_iter) {
@@ -607,7 +606,7 @@ namespace InDetDD {
         if(msgLvl(MSG::DEBUG))
             msg(MSG::DEBUG) << "Processing TRT fine alignment." << endmsg;
 
-        const TRTCond::StrawDxContainer* container = 0;
+        const TRTCond::StrawDxContainer* container = nullptr;
         StatusCode sc = StatusCode::FAILURE;
         if (m_detStore->contains<TRTCond::StrawDxContainer>(key)) {
             sc = m_detStore->retrieve(container, key);
@@ -628,7 +627,7 @@ namespace InDetDD {
             for (TRT_DetElementCollection::const_iterator element_iter = getDetectorElementBegin();
             element_iter != getDetectorElementEnd();
             ++element_iter) {
-                const TRT_BaseElement * element = *element_iter;
+                TRT_BaseElement * element = *element_iter;
                 if (element) {
                     element->invalidate();
                 }
@@ -660,7 +659,7 @@ namespace InDetDD {
       msg(MSG::INFO) << "Processing new global alignment containers with key " << key << " in the " << frame << " frame at level " << level << endmsg;
 
     Identifier ident=Identifier();
-    const CondAttrListCollection* atrlistcol=0;
+    const CondAttrListCollection* atrlistcol=nullptr;
     if (StatusCode::SUCCESS==m_detStore->retrieve(atrlistcol,key)) {
       // loop over objects in collection
       for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
@@ -675,7 +674,7 @@ namespace InDetDD {
 	CLHEP::HepRotation newrotation;
 	newrotation.set(atrlist["phi"].data<float>(),atrlist["theta"].data<float>(),atrlist["psi"].data<float>());
 	HepGeom::Transform3D newtransform(newrotation, newtranslation);
-	
+
         msg(MSG::DEBUG) << "New global DB -- channel: " << citr->first
 			<< " ,bec: "    << atrlist["bec"].data<int>()
                         << " ,layer: "  << atrlist["layer"].data<int>()
@@ -685,7 +684,7 @@ namespace InDetDD {
                         << " ,Tz: "     << atrlist["Tz"].data<float>()
                         << " ,phi: "    << atrlist["phi"].data<float>()
                         << " ,theta: "  << atrlist["theta"].data<float>()
-                        << " ,psi: "    << atrlist["psi"].data<float>() << endmsg;                                                                              
+                        << " ,psi: "    << atrlist["psi"].data<float>() << endmsg;
 
 	// Set the new transform; Will replace existing one with updated transform
         bool status = setAlignableTransformDelta(level,

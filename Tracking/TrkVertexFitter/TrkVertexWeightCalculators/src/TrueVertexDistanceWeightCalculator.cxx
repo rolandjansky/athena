@@ -60,7 +60,11 @@ TrueVertexDistanceWeightCalculator::mEstimateSignalCompatibility(
     return 0;
   }
 
+#ifdef HEPMC3
+  auto Vert = myEvent->vertices().begin();
+#else
   HepMC::GenEvent::vertex_const_iterator Vert = myEvent->vertices_begin();
+#endif
   ATH_MSG_DEBUG("Resulting MC seed:  x: " << (*Vert)->position().x()
                                           << " y: " << (*Vert)->position().y()
                                           << " z: " << (*Vert)->position().z());

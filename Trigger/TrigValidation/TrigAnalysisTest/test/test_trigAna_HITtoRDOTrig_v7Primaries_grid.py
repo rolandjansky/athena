@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-# art-description: Test of transform HITS->RDO->RDO_TRIG with serial athena
+# art-description: Test of transform HITS->RDO->RDO_TRIG with serial athena (legacy trigger)
 # art-type: grid
 # art-include: master/Athena
+# art-memory: 6000
 # art-output: *.txt
 # art-output: *.log
 # art-output: log.*
@@ -22,16 +23,11 @@
 # art-output: LVL1config*.xml
 
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Input
-from TrigAnalysisTest.TrigAnalysisSteps import add_analysis_steps
-import os
-
-# To run single-process transform on MCORE sites
-if 'ATHENA_NPROC_NUM' in os.environ:
-    del os.environ['ATHENA_NPROC_NUM']
 
 hit2rdo = ExecStep.ExecStep('HITtoRDO')
 hit2rdo.type = 'Reco_tf'
 hit2rdo.input = 'ttbar_HITS'
+hit2rdo.max_events = 400
 hit2rdo.args = '--outputRDOFile=RDO.pool.root'
 
 pu_low = Input.get_input('pileup_low')
@@ -64,7 +60,6 @@ test = Test.Test()
 test.art_type = 'grid'
 test.exec_steps = [hit2rdo, rdo2rdotrig]
 test.check_steps = CheckSteps.default_check_steps(test)
-add_analysis_steps(test, input_file='RDO_TRIG.pool.root')
 
 import sys
 sys.exit(test.run())

@@ -1,17 +1,13 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 
 # menu components   
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
-# ATR-20453
-# Until such time as FS and RoI collections do not interfere, a hacky fix
-#from AthenaCommon.CFElements import parOR, seqAND
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorCentredOnClusterROITool
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 
 def fastElectronSequence(ConfigFlags):
@@ -27,34 +23,37 @@ def fastElectronSequence(ConfigFlags):
     # A simple algorithm to confirm that data has been inherited from parent view
     # Required to satisfy data dependencies
     from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import CaloMenuDefs  
-    viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+' + CaloMenuDefs.L2CaloClusters ),
-                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+'+RoIs )]
+    viewVerify.DataObjects += [( 'xAOD::TrigEMClusterContainer' , 'StoreGateSvc+%s' % CaloMenuDefs.L2CaloClusters ),
+                               ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs )]
 
     TrackParticlesName = ""
     for viewAlg in viewAlgs:
         if "InDetTrigTrackParticleCreatorAlg" in viewAlg.name():
             TrackParticlesName = viewAlg.TrackParticlesName
       
-    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import EgammaFastElectronFex_1
-    theElectronFex= EgammaFastElectronFex_1()
+    from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import EgammaFastElectronFex_Clean
+    theElectronFex= EgammaFastElectronFex_Clean()
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
-    l2ElectronViewsMaker.RoIsLink = "initialRoI"
-    l2ElectronViewsMaker.RoITool = ViewCreatorInitialROITool()
+    l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    # Spawn View on SuperRoI encompassing all clusters found within the L1 RoI
+    roiTool = ViewCreatorCentredOnClusterROITool()
+    roiTool.AllowMultipleClusters = False # If True: SuperROI mode. If False: highest eT cluster in the L1 ROI
+    roiTool.RoisWriteHandleKey = recordable("HLT_Roi_FastElectron")
+    roiTool.RoIEtaWidth = 0.05
+    roiTool.RoIPhiWidth = 0.10
+    l2ElectronViewsMaker.RoITool = roiTool
     l2ElectronViewsMaker.InViewRoIs = RoIs
     l2ElectronViewsMaker.Views = "EMElectronViews"
     l2ElectronViewsMaker.ViewFallThrough = True
     l2ElectronViewsMaker.RequireParentView = True
 
     theElectronFex.RoIs = l2ElectronViewsMaker.InViewRoIs
-    # ATR-20453
-    # Until such time as FS and RoI collections do not interfere, a hacky fix
-    #electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
-    electronInViewAlgs = seqAND("electronInViewAlgs", viewAlgs + [ theElectronFex ])
+    electronInViewAlgs = parOR("electronInViewAlgs", viewAlgs + [ theElectronFex ])
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
     electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )

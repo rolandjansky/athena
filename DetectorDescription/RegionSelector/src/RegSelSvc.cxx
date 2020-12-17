@@ -142,6 +142,9 @@ RegSelSvc::queryInterface(const InterfaceID& riid, void** ppvInterface) {
 
 StatusCode RegSelSvc::initialize() {
 
+  m_checkToolDeps = false;
+  m_autoRetrieveTools = false;
+  
   m_errorFlag=false;
   ATH_CHECK( AthService::initialize() );
   ATH_CHECK (m_detStore.retrieve() );

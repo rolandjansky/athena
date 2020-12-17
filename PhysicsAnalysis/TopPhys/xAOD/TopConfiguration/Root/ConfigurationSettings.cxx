@@ -133,7 +133,7 @@ namespace top {
     registerParameter("MuonIsolationSF", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonIsolationSFLoose", "Force muon isolation SF (e.g. None). EXPERIMENTAL!", " ");
     registerParameter("MuonDoSmearing2stationHighPt", "True/False, to turn on/off spacial corrections for 2-station muons reconstruction with missing inner MS station allowed for abs(eta)<1.3, only with MuonQuality HighPt. - Default: True", "True");
-    registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses willing to check their sensitivity to momentum resolution effects at large muon momenta. - Default: false", "false");
+    registerParameter("MuonDoExtraSmearingHighPt", "True/False, To be used by analyses using willing to check their sensitivity to momentum resolution effects at large muon momenta and in case move to the HighPt WP - Default: false", "false");
     registerParameter("UseAntiMuons", "Use AntiMuons for fake estimate. Default: false", "false");
     registerParameter("UseSoftMuons", "True to use soft muons, False (default) otherwise", "False");
     registerParameter("SoftMuonPt", "Soft Muon pT cut for object selection (in MeV). Default 4 GeV.", "4000");
@@ -221,7 +221,7 @@ namespace top {
                       "Path to directory containing large-R jet uncertainties config",
                       "rel21/Summer2019");
     registerParameter("LargeRJESJMSConfig",
-                      "Calibration for large-R JES/JMS. CombMass, CaloMass or TCCMass (default CombMass).",
+                      "Calibration for large-R JES/JMS. CombMass, CaloMass, TCCMass or UFOSDMass (default CombMass).",
                       "CombMass");
     registerParameter("BoostedJetTagging",
                       "Boosted jet taggers to use in the analysis, separated by commas or white spaces."
@@ -370,6 +370,7 @@ namespace top {
                       "0");
     registerParameter("PerfStats", " I/O Performance printouts. None, Summary or Full", "None");
     registerParameter("IsAFII", "Define if you are running over a fastsim sample: True or False", " ");
+    registerParameter("IsDataOverlay", "Define if you are running over a data overlay MC sample: True or False", " ");
     registerParameter("FilterBranches",
                       "Comma separated list of names of the branches that will be removed from the output", " ");
     registerParameter("FilterPartonLevelBranches",

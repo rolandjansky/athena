@@ -66,7 +66,7 @@ if numThreads > 0:
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -184,9 +184,7 @@ if doPixel:
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
-        useCablingConditions = False
         IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        rodIDForSingleLink40=0
         if (globalflags.DataSource()=='geant4'):
             # ITk:
             if geoFlags.isSLHC():
@@ -216,12 +214,8 @@ if doPixel:
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
             if (runNum<222222):
-                useCablingConditions = False
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-                rodIDForSingleLink40=1300000
             else:
-                useCablingConditions = True
-                rodIDForSingleLink40=1300000
                 # Even though we are reading from COOL, set the correct fallback map.
                 if (runNum >= 344494):
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -234,11 +228,11 @@ if doPixel:
                 else:
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
 
-        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                 UseCablingConditions=useCablingConditions,
-                                 CablingMapFileName=IdMappingDat)
+        alg = PixelConfigCondAlg(name="PixelConfigCondAlg", CablingMapFileName=IdMappingDat)
         if athenaCommonFlags.isOnline():
-            alg.ReadDeadMapKey = ""
+            alg.ReadDeadMapKey = ''
+        if useNewDeadmapFormat:
+            alg.ReadDeadMapKey = ''
         condSeq += alg
 
     if useNewDeadmapFormat:
@@ -307,10 +301,17 @@ if doPixel:
 
     if not hasattr(condSeq, 'PixelCablingCondAlg'):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        condSeq += PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                       ReadKey='',
-                                       MappingFile=IdMappingDat,
-                                       RodIDForSingleLink40=rodIDForSingleLink40)
+        alg = PixelCablingCondAlg(name="PixelCablingCondAlg")
+        if (not conddb.folderRequested("/PIXEL/CablingMap") and not conddb.folderRequested("/PIXEL/Onl/CablingMap")):
+            alg.ReadKey = ''
+        if (globalflags.DataSource()=='geant4'):
+            alg.ReadKey = ''
+        if (globalflags.DataSource=='data'):
+            from RecExConfig.AutoConfiguration import GetRunNumber
+            runNum = GetRunNumber()
+            if (runNum<222222):
+                alg.ReadKey = ''
+        condSeq += alg
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):

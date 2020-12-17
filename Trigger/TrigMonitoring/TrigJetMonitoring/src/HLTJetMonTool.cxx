@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -1966,10 +1966,6 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
           {
             hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
           }
-
-          //v_thisjet.SetPtEtaPhiE(j->pt()/Gaudi::Units::GeV,j->eta(), j->phi(),j->e()/Gaudi::Units::GeV);
-          //m_v_HLTjet.push_back(v_thisjet);
-          //m_n_index++;
            
           if((h  = hist("HLTJet_Et")))            h->Fill(et,      m_lumi_weight);
           if((h  = hist("HLTJet_HighEt")))        h->Fill(et,      m_lumi_weight);
@@ -3389,3 +3385,4 @@ std::string HLTJetMonTool::GetJetCollectionName(const std::string& theChain) {
   return jetcoll;
 }
 // ------------------------------------------------------------------------------------
+

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 # Haifeng Li <Haifeng.Li@cern.ch>
@@ -16,7 +16,7 @@ from MissingETD3PDMaker.MissingETD3PDObject   import *
 from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
 from egammaD3PDAnalysis.egammaUserDataConfig  import egammaUserDataConfig
 from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
-from EventCommonD3PDMaker.GenEventD3PDObject  import GenEventD3PDObject
+from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
 from TruthD3PDAnalysis.truthParticleConfig    import truthParticleConfig
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from RecExConfig.RecFlags                     import rec

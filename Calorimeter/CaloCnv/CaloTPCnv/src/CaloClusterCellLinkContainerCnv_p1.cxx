@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTPCnv/CaloClusterCellLinkContainerCnv_p1.h" 
 #include "AthenaKernel/getThinningCache.h"
+#include "AthenaKernel/ThinningCache.h"
 
 namespace {
 
@@ -54,38 +55,48 @@ CaloClusterCellLinkContainerCnv_p1::persToTransWithKey (const CaloClusterCellLin
 void
 CaloClusterCellLinkContainerCnv_p1::transToPersWithKey (const CaloClusterCellLinkContainer* trans,
                                                         CaloClusterCellLinkContainer_p1* pers,
-                                                        const std::string& /*key*/,
+                                                        const std::string& key,
                                                         MsgStream &msg) const
 {
-  const SG::ThinningDecisionBase* dec = nullptr;
+  const SG::ThinningCache* tcache = SG::getThinningCache();
+  
+  const SG::ThinningDecisionBase* dec_cells = nullptr;
+  const SG::ThinningDecisionBase* dec_clusts = tcache ? tcache->thinning (key) : nullptr;
+
   const size_t nClusters=trans->size();
   if (nClusters>0) {
     //we assume here all clusters in a container are built from the same cell container
     m_linkCnv.transToPers((*trans)[0]->getCellContainerLink(),pers->m_cellCont,msg);
-    dec = SG::getThinningDecision ((*trans)[0]->getCellContainerLink().dataID());
+    if (tcache) {
+      dec_cells = SG::getThinningDecision ((*trans)[0]->getCellContainerLink().dataID());
+    }
   }
  
   size_t minCapacity=0;
   pers->m_nCellsPerCluster.reserve(nClusters);
+  size_t icluster = 0;
   for(const CaloClusterCellLink* cccl: *trans) {
-    const size_t nCells=cccl->size();
-    pers->m_nCellsPerCluster.push_back(nCells);
-    minCapacity+=nCells;
-    pers->m_indices.reserve(minCapacity);
-    //pers->m_weights.reserve(minCapacity);
-    CaloClusterCellLink::const_iterator it = cccl->begin();
-    CaloClusterCellLink::const_iterator end = cccl->end();
-    for (; it != end; ++it) {
-      unsigned ndx = it.index();
-      if (dec) ndx = dec->index (ndx);
-      if (it.weight() == 1.0) { //standard weight 
-	pers->m_indices.push_back(ndx & INDEXBIT_MASK);
-      }
-      else {
-	pers->m_indices.push_back((ndx & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
-	pers->m_weights.push_back(it.weight());
-      }
-    }//end loop over cells in cellLink object
+    if (!dec_clusts || !dec_clusts->thinned (icluster)) {
+      const size_t nCells=cccl->size();
+      pers->m_nCellsPerCluster.push_back(nCells);
+      minCapacity+=nCells;
+      pers->m_indices.reserve(minCapacity);
+      //pers->m_weights.reserve(minCapacity);
+      CaloClusterCellLink::const_iterator it = cccl->begin();
+      CaloClusterCellLink::const_iterator end = cccl->end();
+      for (; it != end; ++it) {
+        unsigned ndx = it.index();
+        if (dec_cells) ndx = dec_cells->index (ndx);
+        if (it.weight() == 1.0) { //standard weight 
+          pers->m_indices.push_back(ndx & INDEXBIT_MASK);
+        }
+        else {
+          pers->m_indices.push_back((ndx & INDEXBIT_MASK) | HAS_WEIGHT_BIT);
+          pers->m_weights.push_back(it.weight());
+        }
+      }//end loop over cells in cellLink object
+    }
+    ++icluster;
   }//end loop over transient CaloClusterCellLinkContainer
   
   return;

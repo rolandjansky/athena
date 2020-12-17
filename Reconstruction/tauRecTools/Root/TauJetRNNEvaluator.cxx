@@ -24,6 +24,7 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name):
     declareProperty("MaxTracks", m_max_tracks = 10);
     declareProperty("MaxClusters", m_max_clusters = 6);
     declareProperty("MaxClusterDR", m_max_cluster_dr = 1.0f);
+    declareProperty("VertexCorrection", m_doVertexCorrection = true);
 
     // Naming conventions for the network weight files:
     declareProperty("InputLayerScalar", m_input_layer_scalar = "scalar");
@@ -31,8 +32,6 @@ TauJetRNNEvaluator::TauJetRNNEvaluator(const std::string &name):
     declareProperty("InputLayerClusters", m_input_layer_clusters = "clusters");
     declareProperty("OutputLayer", m_output_layer = "rnnid_output");
     declareProperty("OutputNode", m_output_node = "sig_prob");
-    
-    declareProperty("UseSubtractedCluster", m_useSubtractedCluster = true, "use shower subtracted clusters in calo calculations");
 }
 
 TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
@@ -40,8 +39,6 @@ TauJetRNNEvaluator::~TauJetRNNEvaluator() {}
 StatusCode TauJetRNNEvaluator::initialize() {
     ATH_MSG_INFO("Initializing TauJetRNNEvaluator");
   
-    ATH_CHECK(m_tauVertexCorrection.retrieve()); 
-
     std::string weightfile_0p("");
     std::string weightfile_1p("");
     std::string weightfile_3p("");
@@ -127,7 +124,7 @@ StatusCode TauJetRNNEvaluator::execute(xAOD::TauJet &tau) const {
     // Get input objects
     std::vector<const xAOD::TauTrack *> tracks;
     ATH_CHECK(get_tracks(tau, tracks));
-    std::vector<const xAOD::CaloCluster *> clusters;
+    std::vector<xAOD::CaloVertexedTopoCluster> clusters;
     ATH_CHECK(get_clusters(tau, clusters));
 
     // Evaluate networks
@@ -178,50 +175,29 @@ StatusCode TauJetRNNEvaluator::get_tracks(
 }
 
 StatusCode TauJetRNNEvaluator::get_clusters(
-    const xAOD::TauJet &tau, std::vector<const xAOD::CaloCluster *> &out) const {
+    const xAOD::TauJet &tau, std::vector<xAOD::CaloVertexedTopoCluster> &clusters) const {
 
-    if (! tau.jetLink().isValid()) {
-        ATH_MSG_ERROR("Tau jet link is invalid.");
-        return StatusCode::FAILURE;
-    }
-    const xAOD::Jet *jetSeed = tau.jet();
-    
-    const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-    
-    const xAOD::Vertex* tauVertex = nullptr;
-    if (tau.vertexLink().isValid()) tauVertex = tau.vertex();
-    
-    TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(tau);
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(tau, m_doVertexCorrection);
 
-    std::vector<const xAOD::CaloCluster*> clusters;
-    ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, clusters, m_useSubtractedCluster));
-
-    // remove clusters that do not meet dR requirement
-    auto cItr = clusters.begin();
-    while( cItr != clusters.end() ){
-      const xAOD::CaloCluster* cluster = (*cItr);
-      TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-
-      if (tauAxis.DeltaR(clusterP4) > m_max_cluster_dr) {
-        clusters.erase(cItr);
-      }
-      else {
-        ++cItr;
-      }
+    std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = tau.vertexedClusters();
+    for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
+      TLorentzVector clusterP4 = vertexedCluster.p4();
+      if (clusterP4.DeltaR(tauAxis) > m_max_cluster_dr) continue;
+      
+      clusters.push_back(vertexedCluster);
     }
 
     // Sort by descending et
-    auto et_cmp = [](const xAOD::CaloCluster *lhs,
-                     const xAOD::CaloCluster *rhs) {
-        return lhs->et() > rhs->et();
+    auto et_cmp = [](const xAOD::CaloVertexedTopoCluster& lhs,
+                     const xAOD::CaloVertexedTopoCluster& rhs) {
+        return lhs.p4().Et() > rhs.p4().Et();
     };
     std::sort(clusters.begin(), clusters.end(), et_cmp);
 
     // Truncate clusters
     if (clusters.size() > m_max_clusters) {
-        clusters.resize(m_max_clusters);
+        clusters.resize(m_max_clusters, clusters[0]);
     }
-    out = std::move(clusters);
 
     return StatusCode::SUCCESS;
 }

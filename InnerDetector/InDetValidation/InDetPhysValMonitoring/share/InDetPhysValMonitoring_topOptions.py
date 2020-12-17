@@ -32,7 +32,10 @@ print(InDetPhysValFlags)
 # Set up the I/O and the RecExCommon infrastructure 
 from InDetRecExample.InDetJobProperties import InDetFlags
 InDetFlags.doSlimming.set_Value_and_Lock(False)
+# Need to turn of explicitly some subsystems which otherwise
+# cause difficulties when running on ESD
 rec.doTrigger.set_Value_and_Lock(False)
+rec.doMuon.set_Value_and_Lock(False)
 include( "AthenaPython/iread_file.py" )
 
 # Add our monitoring manager to the topSequence

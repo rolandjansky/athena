@@ -17,11 +17,15 @@ def MuonDQAMonitoringConfig(flags):
             result.merge(RpcMonitoringConfig(flags))
             result.merge(TgcRawDataMonitoringConfig(flags))
             if flags.Detector.GeometryCSC:
-                from CscRawDataMonitoring.CscMonitorAlgorithm import CscMonitoringConfig
-                result.merge(CscMonitoringConfig(flags))
+                from CscRawDataMonitoring.CscMonitoringESD_Alg import CscMonitoringESD_AlgConfig
+                result.merge(CscMonitoringESD_AlgConfig(flags))
             if flags.Detector.GeometryMM:
                 from MMRawDataMonitoring.MMMonitorAlgorithm import MMMonitoringConfig
                 result.merge(MMMonitoringConfig(flags))
+        if flags.DQ.Environment in ('online', 'tier0','tier0Raw'):
+            if flags.Detector.GeometryCSC:
+                from CscRawDataMonitoring.CscMonitoringRAW_Alg import CscMonitoringRAW_AlgConfig
+                result.merge(CscMonitoringRAW_AlgConfig(flags))
 
     if flags.DQ.Steering.Muon.doTrackMon:
         # do not run in RAW->ESD

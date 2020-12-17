@@ -26,7 +26,6 @@
 #include <stdexcept>
 #include <cmath> // For pow
 
-#include "unistd.h"
 #include <signal.h>
 
 namespace SharedHiveEvtQueueConsumer_d {
@@ -414,8 +413,6 @@ SharedHiveEvtQueueConsumer::bootstrap_func()
 
   // ___________________ Fire UpdateAfterFork incident _________________
   p_incidentSvc->fireIncident(AthenaInterprocess::UpdateAfterFork(m_rankId,getpid(),name()));
-
-  p_incidentSvc->fireIncident(Incident(name(),"ReloadProxies"));
 
   // Declare success and return
   *(int*)(outwork->data) = 0;

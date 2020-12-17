@@ -2,13 +2,21 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
-from .ConfigHelpers import AlgConfig, jetRecoDictForMET
-from ..Menu.MenuComponents import RecoFragmentsPool
+from .ConfigHelpers import AlgConfig
 from ..Menu.SignatureDicts import METChainParts
 import GaudiKernel.SystemOfUnits as Units
 import TrigEFMissingET.PUClassification as PUClassification
+from TrigEFMissingET.TrigEFMissingETConf import (
+    HLT__MET__CellFex,
+    HLT__MET__TCFex,
+    HLT__MET__TCPufitFex,
+    HLT__MET__MHTFex,
+    HLT__MET__TrkMHTFex,
+    HLT__MET__PFSumFex,
+    HLT__MET__MHTPufitFex,
+    HLT__MET__PUSplitPufitFex,
+)
 
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 from AthenaCommon.Logging import logging
 
@@ -41,18 +49,10 @@ class CellConfig(AlgConfig):
         return "cell"
 
     def __init__(self, **recoDict):
-        super(CellConfig, self).__init__(**recoDict)
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
-            cellRecoSequence,
-        )
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__CellFex
+        super(CellConfig, self).__init__(inputs=["Cells"], **recoDict)
 
-        cellMakerSeq, cellName = RecoFragmentsPool.retrieve(
-            cellRecoSequence, flags=None, RoIs=self.inputMaker.RoIs
-        )
-
-        self.inputs = [cellMakerSeq]
-        self.fexAlg = self._make_fex_alg(HLT__MET__CellFex, CellName=cellName)
+    def make_fex(self, name, inputs):
+        return HLT__MET__CellFex(name, CellName=inputs["Cells"])
 
 
 class TCConfig(AlgConfig):
@@ -61,25 +61,10 @@ class TCConfig(AlgConfig):
         return "tc"
 
     def __init__(self, calib, **recoDict):
-        super(TCConfig, self).__init__(calib=calib, **recoDict)
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
-            caloClusterRecoSequence,
-            LCCaloClusterRecoSequence,
-        )
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCFex
+        super(TCConfig, self).__init__(inputs=["Clusters"], calib=calib, **recoDict)
 
-        RoIs = self.inputMaker.RoIs
-        if calib == "em":
-            tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                caloClusterRecoSequence, flags=None, RoIs=RoIs
-            )
-        elif calib == "lcw":
-            tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                LCCaloClusterRecoSequence, flag=None, RoIs=RoIs
-            )
-
-        self.inputs = [tcSeq]
-        self.fexAlg = self._make_fex_alg(HLT__MET__TCFex, ClusterName=clusterName)
+    def make_fex(self, name, inputs):
+        return HLT__MET__TCFex(name, ClusterName=inputs["Clusters"])
 
 
 class TCPufitConfig(AlgConfig):
@@ -88,25 +73,12 @@ class TCPufitConfig(AlgConfig):
         return "tcpufit"
 
     def __init__(self, calib, **recoDict):
-        super(TCPufitConfig, self).__init__(calib=calib, **recoDict)
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
-            caloClusterRecoSequence,
-            LCCaloClusterRecoSequence,
+        super(TCPufitConfig, self).__init__(
+            inputs=["Clusters"], calib=calib, **recoDict
         )
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TCPufitFex
 
-        RoIs = self.inputMaker.RoIs
-        if calib == "em":
-            tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                caloClusterRecoSequence, flags=None, RoIs=RoIs
-            )
-        elif calib == "lcw":
-            tcSeq, clusterName = RecoFragmentsPool.retrieve(
-                LCCaloClusterRecoSequence, flags=None, RoIs=RoIs
-            )
-
-        self.inputs = [tcSeq]
-        self.fexAlg = self._make_fex_alg(HLT__MET__TCPufitFex, ClusterName=clusterName)
+    def make_fex(self, name, inputs):
+        return HLT__MET__TCPufitFex(name, ClusterName=inputs["Clusters"])
 
 
 class MHTConfig(AlgConfig):
@@ -115,61 +87,41 @@ class MHTConfig(AlgConfig):
         return "mht"
 
     def __init__(self, **recoDict):
-        super(MHTConfig, self).__init__(**recoDict)
-        from ..Jet.JetRecoSequences import jetRecoSequence
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__MHTFex
+        super(MHTConfig, self).__init__(inputs=["Jets"], **recoDict)
 
-        jetRecoDict = jetRecoDictForMET(**recoDict)
-        # TODO - right now jet calibration is hardcoded to EM
-        jetRecoDict["calib"] = "em"
-        jetRecoDict["jetCalib"] = "subjes"
-        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
-            jetRecoSequence, ConfigFlags, **jetRecoDict
-        )
-
-        self.inputs = [jetSeq]
-        self.fexAlg = self._make_fex_alg(HLT__MET__MHTFex, JetName=jetName)
+    def make_fex(self, name, inputs):
+        return HLT__MET__MHTFex(name, JetName=inputs["Jets"])
 
 
+# NB: TrkMHT isn't ready to run with PF jets yet - for that we need to add an
+# option for cPFOs
 class TrkMHTConfig(AlgConfig):
     @classmethod
     def algType(cls):
         return "trkmht"
 
     def __init__(self, **recoDict):
-        super(TrkMHTConfig, self).__init__(**recoDict)
-        from ..Jet.JetRecoSequences import jetRecoSequence
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__TrkMHTFex
-
-        jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
-        # TODO - right now jet calibration is hardcoded to EM
-        jetRecoDict["calib"] = "em"
-        
-        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
-            jetRecoSequence, ConfigFlags, **jetRecoDict
+        super(TrkMHTConfig, self).__init__(
+            inputs=["Jets", "Tracks", "Vertices", "TVA", "GhostTracksLabel"],
+            forceTracks=True,
+            **recoDict
         )
 
-        # These are the names set by the upstream algorithms. Unfortunately
-        # these aren't passed to us - we just have to 'know' them
-        tracks = "HLT_IDTrack_FS_FTF"
-        vertices = "HLT_IDVertex_FS"
-        tva = "JetTrackVtxAssoc_{trkopt}".format(**jetRecoDict)
-        track_links = "GhostTrack_{trkopt}".format(**jetRecoDict)
-
-        self.inputs = [jetSeq]
-        self.fexAlg = self._make_fex_alg(
-            HLT__MET__TrkMHTFex,
-            JetName=jetName,
-            TrackName=tracks,
-            VertexName=vertices,
-            TVAName=tva,
-            TrackLinkName=track_links,
+    def make_fex(self, name, inputs):
+        fex = HLT__MET__TrkMHTFex(
+            name,
+            JetName=inputs["Jets"],
+            TrackName=inputs["Tracks"],
+            VertexName=inputs["Vertices"],
+            TVAName=inputs["TVA"],
+            TrackLinkName=inputs["GhostTracksLabel"],
         )
-        self.fexAlg.TrackSelTool.CutLevel = "Loose"
-        self.fexAlg.TrackSelTool.maxZ0SinTheta = 1.5
-        self.fexAlg.TrackSelTool.maxD0overSigmaD0 = 3
-        self.fexAlg.TrackSelTool.minPt = 1 * Units.GeV
-        
+        fex.TrackSelTool.CutLevel = "Loose"
+        fex.TrackSelTool.maxZ0SinTheta = 1.5
+        fex.TrackSelTool.maxD0overSigmaD0 = 3
+        fex.TrackSelTool.minPt = 1 * Units.GeV
+        return fex
+
 
 class PFSumConfig(AlgConfig):
     @classmethod
@@ -177,18 +129,11 @@ class PFSumConfig(AlgConfig):
         return "pfsum"
 
     def __init__(self, **recoDict):
-        super(PFSumConfig, self).__init__(**recoDict)
+        super(PFSumConfig, self).__init__(inputs=["cPFOs", "nPFOs"], **recoDict)
 
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__PFSumFex
-        from .METRecoSequences import pfoRecoSequence
-
-        self.inputs, pfoPrefix = RecoFragmentsPool.retrieve(
-            pfoRecoSequence, flags=None, RoIs=self.inputMaker.RoIs
-        )
-        self.fexAlg = self._make_fex_alg(
-            HLT__MET__PFSumFex,
-            NeutralPFOName=pfoPrefix + "CHSNeutralParticleFlowObjects",
-            ChargedPFOName=pfoPrefix + "CHSChargedParticleFlowObjects",
+    def make_fex(self, name, inputs):
+        return HLT__MET__PFSumFex(
+            name, NeutralPFOName=inputs["nPFOs"], ChargedPFOName=inputs["cPFOs"],
         )
 
 
@@ -198,34 +143,15 @@ class PFOPufitConfig(AlgConfig):
         return "pfopufit"
 
     def __init__(self, **recoDict):
-        super(PFOPufitConfig, self).__init__(**recoDict)
+        super(PFOPufitConfig, self).__init__(
+            inputs=["MergedPFOs", "PFOPUCategory"], **recoDict
+        )
 
-        from TrigEFMissingET.TrigEFMissingETConf import (
-            HLT__MET__PUSplitPufitFex,
-            HLT__MET__PFOPrepAlg,
-        )
-        from .METRecoSequences import pfoRecoSequence
-
-        pfoInputs, pfoPrefix = RecoFragmentsPool.retrieve(
-            pfoRecoSequence, flags=None, RoIs=self.inputMaker.RoIs
-        )
-        # NB for this, we might be slightly misusing the 'flags' parameter in
-        # the reco fragments pool. Here, we let it just pass the name parameter
-        # through to the underlying alg config class parameter
-        prepAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__PFOPrepAlg,
-            "{}PFOPufitPrepAlg".format(pfoPrefix),
-            InputNeutralKey="{}CHSNeutralParticleFlowObjects".format(pfoPrefix),
-            InputChargedKey="{}CHSChargedParticleFlowObjects".format(pfoPrefix),
-            OutputKey="{}METTrigCombinedParticleFlowObjects".format(pfoPrefix),
-            OutputCategoryKey="PUClassification",
-        )
-        self.inputs = pfoInputs + [prepAlg]
-        # TODO - make the neutral threshold mode settable in the chain name?
-        self.fexAlg = self._make_fex_alg(
-            HLT__MET__PUSplitPufitFex,
-            InputName=prepAlg.OutputKey,
-            InputCategoryName=prepAlg.OutputCategoryKey,
+    def make_fex(self, name, inputs):
+        return HLT__MET__PUSplitPufitFex(
+            name,
+            InputName=inputs["MergedPFOs"],
+            InputCategoryName=inputs["PFOPUCategory"],
             NeutralThresholdMode=PUClassification.NeutralForward,
         )
 
@@ -236,32 +162,15 @@ class CVFPufitConfig(AlgConfig):
         return "cvfpufit"
 
     def __init__(self, **recoDict):
-        super(CVFPufitConfig, self).__init__(**recoDict)
-        from .METRecoSequences import cvfClusterSequence
-        from TrigEFMissingET.TrigEFMissingETConf import (
-            HLT__MET__CVFPrepAlg,
-            HLT__MET__PUSplitPufitFex,
+        super(CVFPufitConfig, self).__init__(
+            inputs=["Clusters", "CVFPUCategory"], **recoDict
         )
 
-        RoIs = self.inputMaker.RoIs
-        calib = recoDict["calib"]
-        inputs, clusterName, cvfName = RecoFragmentsPool.retrieve(
-            cvfClusterSequence, flags=None, RoIs=RoIs, **recoDict
-        )
-
-        prepAlg = RecoFragmentsPool.retrieve(
-            HLT__MET__CVFPrepAlg,
-            "{}ClusterCVFPrepAlg".format(calib),
-            InputClusterKey=clusterName,
-            InputCVFKey=cvfName,
-            OutputCategoryKey="PUClassification",
-        )
-
-        self.inputs = inputs + [prepAlg]
-        self.fexAlg = self._make_fex_alg(
-            HLT__MET__PUSplitPufitFex,
-            InputName=clusterName,
-            InputCategoryName=prepAlg.OutputCategoryKey,
+    def make_fex(self, name, inputs):
+        return HLT__MET__PUSplitPufitFex(
+            name,
+            InputName=inputs["Clusters"],
+            InputCategoryName=inputs["CVFPUCategory"],
             NeutralThresholdMode=PUClassification.All,
         )
 
@@ -272,60 +181,35 @@ class MHTPufitConfig(AlgConfig):
         return "mhtpufit"
 
     def __init__(self, **recoDict):
-        super(MHTPufitConfig, self).__init__(**recoDict)
-        from ..Jet.JetRecoSequences import jetRecoSequence
-        from TriggerMenuMT.HLTMenuConfig.CommonSequences.CaloSequenceSetup import (
-            caloClusterRecoSequence,
-        )
-        from TrigEFMissingET.TrigEFMissingETConf import HLT__MET__MHTPufitFex
-
-        jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
-        # If this is PFlow then set the calib type to "em"
-        if recoDict["jetDataType"] == "pf":
-            jetRecoDict["calib"] = "em"
-        jetSeq, jetName, jetDef = RecoFragmentsPool.retrieve(
-            jetRecoSequence, flags=ConfigFlags, **jetRecoDict
-        )
-
-        # We need to get the input name that the jet sequence used
-        _, clusterName = RecoFragmentsPool.retrieve(
-            caloClusterRecoSequence, flags=None, RoIs=self.inputMaker.RoIs
-        )
-        if jetRecoDict["dataType"] == "pf":
-            from eflowRec.PFHLTSequence import PFHLTSequence
-
-            _, pfoPrefix = RecoFragmentsPool.retrieve(
-                PFHLTSequence,
-                flags=None,
-                clustersin=clusterName,
-                tracktype=jetRecoDict["trkopt"],
-            )
-            #jetDef = defineJets(jetRecoDict, pfoPrefix=pfoPrefix)
-        elif jetRecoDict["dataType"] == "tc":
-            pass
-        #jetDef = defineJets(jetRecoDict, clustersKey=clusterName)
+        inputs = ["Jets", "JetDef"]
+        if "pf" in recoDict["jetDataType"]:
+            inputs += ["MergedPFOs"]
         else:
-            raise ValueError(
-                "Unexpected jetDataType {}".format(jetRecoDict["dataType"])
-            )
-        inputName = jetDef.inputdef.containername
-        calibHasAreaSub = "sub" in jetRecoDict["jetCalib"]
+            inputs += ["Clusters"]
+        super(MHTPufitConfig, self).__init__(
+            inputs=inputs, forceTracks=True, **recoDict
+        )
+
+    def make_fex(self, name, inputs):
+        calibHasAreaSub = "sub" in self.recoDict
         if calibHasAreaSub:
             from JetRecConfig.JetRecConfig import instantiateAliases
             from JetRecConfig.JetInputConfig import buildEventShapeAlg
-            instantiateAliases(jetDef)
-            evtShapeAlg = buildEventShapeAlg( jetDef,  "HLT_" )
-            
+
+            instantiateAliases(inputs["JetDef"])
+            evtShapeAlg = buildEventShapeAlg(inputs["JetDef"], "HLT_")
+
             rhoKey = evtShapeAlg.EventDensityTool.OutputContainer
         else:
             rhoKey = ""
-
-        self.inputs = [jetSeq]
-        self.fexAlg = self._make_fex_alg(
-            HLT__MET__MHTPufitFex,
-            InputJetsName=jetName,
+        if "pf" in self.recoDict["jetDataType"]:
+            inputName = inputs["MergedPFOs"]
+        else:
+            inputName = inputs["Clusters"]
+        return HLT__MET__MHTPufitFex(
+            name,
+            InputJetsName=inputs["Jets"],
             InputName=inputName,
             JetCalibIncludesAreaSub=calibHasAreaSub,
             JetEventShapeName=rhoKey,
         )
-

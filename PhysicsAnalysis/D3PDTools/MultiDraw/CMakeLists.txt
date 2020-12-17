@@ -1,15 +1,7 @@
-# $Id: CMakeLists.txt 777928 2016-10-11 22:23:08Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Set the name of the package:
 atlas_subdir( MultiDraw )
-
-# The package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/D3PDTools/EventLoop
-   PRIVATE
-   PhysicsAnalysis/D3PDTools/RootCoreUtils
-   PhysicsAnalysis/D3PDTools/SampleHandler )
 
 # External(s):
 find_package( ROOT COMPONENTS Core Tree TreePlayer Hist )

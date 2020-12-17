@@ -1,25 +1,20 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
 
 #ifndef MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 #define MUONMDT_CABLING_MUONMDT_CABLINGSVC_H
 
-#include "AthenaKernel/IOVSvcDefs.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "AthenaKernel/IOVSvcDefs.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 class MuonMDT_CablingMap;
 class MdtMezzanineType;
 class StoreGateSvc;
-//class IMDTcablingSvc;
 class IMDTCablingDbTool;
-class ITagInfoMgr;
-
 class IdentifierHash;
 
 #include <list>
@@ -28,19 +23,16 @@ class IdentifierHash;
 static const InterfaceID IID_IMuonMDT_CablingSvc("MuonMDT_CablingSvc", 1, 0);
 
 
-
-class MuonMDT_CablingSvc : public AthService 
-			   //			   virtual public IInterface, 
-
+class MuonMDT_CablingSvc : public AthService ,
+			   virtual public ITagInfoMgr::Listener
 {
-
  public:
 
   MuonMDT_CablingSvc(const std::string& name,ISvcLocator* sl);
   virtual ~MuonMDT_CablingSvc();
   
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   /** methods called at trigger stop/start */
   //  virtual StatusCode start();
@@ -51,7 +43,7 @@ class MuonMDT_CablingSvc : public AthService
 
   static const InterfaceID& interfaceID() { return IID_IMuonMDT_CablingSvc; }
 
-  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
+  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface ) override;
 
   // IOV service callback
   StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys));
@@ -108,7 +100,10 @@ class MuonMDT_CablingSvc : public AthService
 		   uint8_t& tdcId, uint8_t& channelId);
 
 
-  virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS);
+   // TagInfoMgr callback
+   virtual void tagInfoUpdated() override final { compareTags().ignore(); }
+
+   StatusCode compareTags();
 
   /** Returns true if we're using the old (non-DB) cabling*/
   bool usingOldCabling() const;

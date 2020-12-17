@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-
 # import Common Algs
 from DerivationFrameworkJetEtMiss.JetCommon import DFJetAlgs
 
@@ -13,12 +10,13 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import (
 from BTagging.BTaggingConfiguration import getConfiguration
 ConfInst=getConfiguration()
 
-from GaudiKernel.Configurable import WARNING, VERBOSE
+from AthenaCommon import CfgMgr
+from AthenaCommon import Logging
+from AthenaCommon.Constants import WARNING
 
-# Import star stuff (it was like that when I got here)
-from DerivationFrameworkJetEtMiss.JetCommon import *
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
+from DerivationFrameworkJetEtMiss.JetCommon import addTrimmedJets
 from JetRec.JetRecConf import JetAlgorithm
+from JetRec.JetRecFlags import jetFlags
 
 #===================================================================
 # ExKt/CoM Subjets
@@ -62,7 +60,6 @@ def buildExclusiveSubjets(ToolSvc, JetCollectionName, subjet_mode, nsubjet, doGh
     else:
         print (" building ExKtbbTagTool ", ExKtbbTagToolName)
 
-        from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetFinderTool
         from JetSubStructureMomentTools.JetSubStructureMomentToolsConf import SubjetRecorderTool
 
         subjetrecorder = SubjetRecorderTool("subjetrecorder_%s%i%s_%s" % (subjet_mode, nsubjet, talabel, JetCollectionName))
@@ -215,7 +212,6 @@ def addExKtCoM(sequence, ToolSvc, JetCollectionExCoM, nSubjets, doTrackSubJet, d
 # AntiKt10LCTopoJets
 ##################################################################
 def addVRJets(sequence, largeRColls = None, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
-    from AthenaCommon import Logging
 
     if logger is None:
         logger = Logging.logging.getLogger('VRLogger')
@@ -289,8 +285,8 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     VRJetAlgName = "jfind_%s" % (VRJetRecToolName)
     VRJetBTagName = "BTagging_%s" % (VRJetName.replace('BTagging',''))
 
-    logger.info("VR Btag name: %s" % VRJetBTagName)
-    logger.info("VR jet name: %s" % VRJetRecToolName)
+    logger.info("VR Btag name: %s", VRJetBTagName)
+    logger.info("VR jet name: %s", VRJetRecToolName)
 
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -329,20 +325,20 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
         pseudoJetGetters.append(jtm["gtrackget"])
 
     if VRJetAlgName in DFJetAlgs:
-        logger.info("Algorithm %s already built before" % VRJetAlgName)
+        logger.info("Algorithm %s already built before", VRJetAlgName)
 
         if hasattr(sequence, VRJetAlgName):
-            logger.info("Sequence %s already has an instance of algorithm %s" % (sequence, VRJetAlgName))
+            logger.info("Sequence %s already has an instance of algorithm %s", sequence, VRJetAlgName)
         else:
-            logger.info("Add algorithm %s to sequence %s" % (VRJetAlgName, sequence))
+            logger.info("Add algorithm %s to sequence %s", VRJetAlgName, sequence)
             sequence += DFJetAlgs[VRJetAlgName]
     else:
-        logger.info("Create algorithm %s" % VRJetAlgName)
+        logger.info("Create algorithm %s", VRJetAlgName)
 
         if hasattr(jtm, VRJetRecToolName):
-            logger.info("JetRecTool %s is alredy in jtm.tools in sequence %s" % (VRJetRecToolName, sequence))
+            logger.info("JetRecTool %s is alredy in jtm.tools in sequence %s", VRJetRecToolName, sequence)
         else:
-            logger.info("Create JetRecTool %s" % VRJetRecToolName)
+            logger.info("Create JetRecTool %s", VRJetRecToolName)
             #can only run trackjetdrlabeler with truth labels, so MC only
 
             mods = [defaultTrackAssoc, defaultMuonAssoc, btag_vrjets]
@@ -372,9 +368,9 @@ def buildVRJets(sequence, do_ghost, logger = None, doFlipTagger=False, training=
     from DerivationFrameworkJetEtMiss.ExtendedJetCommon import nameJetsFromAlg
 
     if hasattr(jtm, pjgettername):
-        logger.info("Found %s in jtm in sequence %s" % (pjgettername, sequence))
+        logger.info("Found %s in jtm in sequence %s", pjgettername, sequence)
     else:
-        logger.info("Add %s to jtm in sequence %s" % (pjgettername, sequence))
+        logger.info("Add %s to jtm in sequence %s", pjgettername, sequence)
         
         inputContainerName = jetFlags.containerNamePrefix() + nameJetsFromAlg(VRJetName)
 
@@ -415,7 +411,7 @@ def getJetRecTool(collection, getParent=True):
   from JetRec.JetRecStandardToolManager import jtm
   try:
     jetRecTool = jtm[collection]
-  except KeyError as e:
+  except KeyError:
      raise KeyError("JetRecTool {0} not present in jtm".format(collection) )
   if getParent and hasattr(jetRecTool, "InputContainer") and jetRecTool.InputContainer:
     jetRecTool = getJetRecTool(jetRecTool.InputContainer, True)

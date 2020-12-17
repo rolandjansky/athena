@@ -8,7 +8,6 @@
 // Base classes
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "G4AtlasInterfaces/IFastSimulation.h"
-#include "G4VFastSimulationModel.hh"
 
 // Members
 #include "G4Types.hh"

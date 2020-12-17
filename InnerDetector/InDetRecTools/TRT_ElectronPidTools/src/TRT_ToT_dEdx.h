@@ -67,8 +67,8 @@ public:
 
 private:
   SG::ReadDecorHandleKey<xAOD::EventInfo> m_rdhkEvtInfo {this
-      , "AveIntPerXKey"
-      , "EventInfo.AveIntPerXDecor"
+      , "averageInteractionsPerCrossingKey"
+      , "EventInfo.averageInteractionsPerCrossing"
       , "Decoration for Average Interaction Per Crossing"};
   const TRT_ID* m_trtId;                                                // ID TRT helper 
   Trk::ParticleMasses        m_particlemasses;
@@ -260,7 +260,12 @@ private:
    * @param bool variable to specify whether data or MC correction
    * @return correction
    */
-  double fitFuncEndcap_corrRZ(EGasType gas, double driftRadius, double rPosition, int Layer, int sign) const;
+  double fitFuncEndcap_corrRZ(const EventContext& ctx,
+                              EGasType gas,
+                              double driftRadius,
+                              double rPosition,
+                              int Layer,
+                              int sign) const;
   /**
    * @brief function to compute correction factor in barrel region
    * @param driftradius
@@ -270,22 +275,43 @@ private:
    * @param bool variable to specify whether data or MC correction
    * @return correction
    */
-  double fitFuncBarrel_corrRZ(EGasType gas, double driftRadius,double zPosition,int Layer, int StrawLayer) const;
+  double fitFuncBarrel_corrRZ(const EventContext& ctx,
+                              EGasType gas,
+                              double driftRadius,
+                              double zPosition,
+                              int Layer,
+                              int StrawLayer) const;
 
   /**
    * @brief function called by fitFuncBarrel_corrRZ for long straws
    */
-  double fitFuncBarrelLong_corrRZ(EGasType gasType, double driftRadius,double zPosition,int Layer, int StrawLayer) const;
+  double fitFuncBarrelLong_corrRZ(const EventContext& ctx,
+                                  EGasType gasType,
+                                  double driftRadius,
+                                  double zPosition,
+                                  int Layer,
+                                  int StrawLayer) const;
 
   /**
    * @brief function called by fitFuncBarrel_corrRZ for short straws
    */
-  double fitFuncBarrelShort_corrRZ(EGasType gasType, double driftRadius,double zPosition, int StrawLayer) const;
+  double fitFuncBarrelShort_corrRZ(const EventContext& ctx,
+                                   EGasType gasType,
+                                   double driftRadius,
+                                   double zPosition,
+                                   int StrawLayer) const;
 
   /**
    * @brief function called by fitFuncBarrel_corrRZ and fitFuncEndcap_corrRZ
    */
-  double fitFuncPol_corrRZ(EGasType gasType, int parameter, double driftRadius, int Layer, int Strawlayer, int sign, int set) const;
+  double fitFuncPol_corrRZ(const EventContext& ctx,
+                           EGasType gasType,
+                           int parameter,
+                           double driftRadius,
+                           int Layer,
+                           int Strawlayer,
+                           int sign,
+                           int set) const;
 
   /**
    * @brief function to compute correction factor in endcap region
@@ -323,7 +349,8 @@ private:
   /* Calibration functions for occupancy corrections */
   double hitOccupancyCorrection(const EventContext& ctx,
                                 const Trk::TrackStateOnSurface* itr) const;
-  double trackOccupancyCorrection(const Trk::Track* track,
+  double trackOccupancyCorrection(const EventContext& ctx,
+                                  const Trk::Track* track,
                                   bool useHThits) const;
 
 public:

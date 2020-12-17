@@ -6,11 +6,10 @@
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
+logMuon = logging.getLogger(__name__)
 
 from AthenaCommon.GlobalFlags import globalflags
-from AthenaCommon.BeamFlags import jobproperties
-beamFlags = jobproperties.Beam
-from AthenaCommon.BFieldFlags import jobproperties
+from AthenaCommon.JobProperties import jobproperties
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon import CfgMgr
 #--------------------------------------------------------------
@@ -107,7 +106,8 @@ def setupCscCondDB():
 
 
 def CscCalibTool(name,**kwargs):
-    import MuonCondAlg.CscCondDbAlgConfig # MT-safe conditions access
+    # without the following line, the CscCondDbAlg is not scheduled, thus add flake8 ignore flag
+    import MuonCondAlg.CscCondDbAlgConfig # noqa: F401
     # make tool
     return CfgMgr.CscCalibTool(
         Slope=0.19,
@@ -162,60 +162,68 @@ def setupMdtCondDB():
         condSequence += MdtCalibDbAlg("MdtCalibDbAlg")
 
     if conddb.isOnline and not conddb.isMC:
-        MdtCalibDbAlg.TubeFolder = "/MDT/T0"
-        MdtCalibDbAlg.RtFolder = "/MDT/RT"
-        MdtCalibDbAlg.ReadKeyTube = "/MDT/T0"
-        MdtCalibDbAlg.ReadKeyRt = "/MDT/RT"
+        condSequence.MdtCalibDbAlg.TubeFolder = "/MDT/T0"
+        condSequence.MdtCalibDbAlg.RtFolder = "/MDT/RT"
+        condSequence.MdtCalibDbAlg.ReadKeyTube = "/MDT/T0"
+        condSequence.MdtCalibDbAlg.ReadKeyRt = "/MDT/RT"
     else:
-        MdtCalibDbAlg.TubeFolder = "/MDT/T0" + mdt_folder_name_appendix
-        MdtCalibDbAlg.RtFolder = "/MDT/RT" + mdt_folder_name_appendix
-        MdtCalibDbAlg.ReadKeyTube = "/MDT/T0" + mdt_folder_name_appendix
-        MdtCalibDbAlg.ReadKeyRt = "/MDT/RT" + mdt_folder_name_appendix
-    MdtCalibDbAlg.RT_InputFiles = ["Muon_RT_default.data"]
+        condSequence.MdtCalibDbAlg.TubeFolder = "/MDT/T0" + mdt_folder_name_appendix
+        condSequence.MdtCalibDbAlg.RtFolder = "/MDT/RT" + mdt_folder_name_appendix
+        condSequence.MdtCalibDbAlg.ReadKeyTube = "/MDT/T0" + mdt_folder_name_appendix
+        condSequence.MdtCalibDbAlg.ReadKeyRt = "/MDT/RT" + mdt_folder_name_appendix
+    condSequence.MdtCalibDbAlg.RT_InputFiles = ["Muon_RT_default.data"]
     if globalflags.DataSource == 'data':
-        MdtCalibDbAlg.defaultT0 = 40
+        condSequence.MdtCalibDbAlg.defaultT0 = 40
     elif globalflags.DataSource == 'geant4':
-        MdtCalibDbAlg.defaultT0 = 799
-    MdtCalibDbAlg.UseMLRt = mdtCalibFlags.useMLRt()
-    MdtCalibDbAlg.TimeSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
-    MdtCalibDbAlg.MeanCorrectionVsR = [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ]
-    MdtCalibDbAlg.PropagationSpeedBeta = mdtCalibFlags.mdtPropagationSpeedBeta()
+        condSequence.MdtCalibDbAlg.defaultT0 = 799
+    condSequence.MdtCalibDbAlg.UseMLRt = mdtCalibFlags.useMLRt()
+    condSequence.MdtCalibDbAlg.TimeSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    condSequence.MdtCalibDbAlg.MeanCorrectionVsR = [ -5.45973, -4.57559, -3.71995, -3.45051, -3.4505, -3.4834, -3.59509, -3.74869, -3.92066, -4.10799, -4.35237, -4.61329, -4.84111, -5.14524 ]
+    condSequence.MdtCalibDbAlg.PropagationSpeedBeta = mdtCalibFlags.mdtPropagationSpeedBeta()
     # the same as MdtCalibrationDbTool
-    MdtCalibDbAlg.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
-    MdtCalibDbAlg.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
-    MdtCalibDbAlg.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    condSequence.MdtCalibDbAlg.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
+    condSequence.MdtCalibDbAlg.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
+    condSequence.MdtCalibDbAlg.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
 
+def MdtCalibrationTool(name="MdtCalibrationTool", **kwargs):
     from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationTool
-    MdtCalibrationTool.DoSlewingCorrection = mdtCalibFlags.correctMdtRtForTimeSlewing()
-    # Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
-    MdtCalibrationTool.DoTemperatureCorrection = mdtCalibFlags.applyRtScaling()
-    MdtCalibrationTool.DoWireSagCorrection = mdtCalibFlags.correctMdtRtWireSag()
-    # for collisions cut away hits that are far outside of the MDT time window
-    if beamFlags.beamType() == 'collisions':
-        MdtCalibrationTool.DoTofCorrection = True
-        if globalflags.DataSource() == 'geant4':
-            MdtCalibrationTool.TimeWindowSetting = mdtCalibWindowNumber('Collision_G4')
-        elif globalflags.DataSource() == 'data':
-            MdtCalibrationTool.TimeWindowSetting = mdtCalibWindowNumber('Collision_G4')
-    else: # cosmics or single beam
-        MdtCalibrationTool.DoTofCorrection = False
+    kwargs.setdefault("DoSlewingCorrection", mdtCalibFlags.correctMdtRtForTimeSlewing())
 
+    # Hack to use DoTemperatureCorrection for applyRtScaling; but applyRtScaling should not be used anyway, since MLRT can be used
+    kwargs.setdefault("DoTemperatureCorrection", mdtCalibFlags.applyRtScaling())
+    kwargs.setdefault("DoWireSagCorrection", mdtCalibFlags.correctMdtRtWireSag())
+
+    # for collisions cut away hits that are far outside of the MDT time window
+    if jobproperties.Beam.beamType() == 'collisions':
+        kwargs.setdefault("DoTofCorrection", True)
+
+        if globalflags.DataSource() == 'geant4' or globalflags.DataSource() == 'data':
+            kwargs.setdefault("TimeWindowSetting", mdtCalibWindowNumber('Collision_G4'))
+    else: # cosmics or single beam
+        kwargs.setdefault("DoTofCorrection", False)
+    
+    kwargs.setdefault("CalibrationDbTool", MdtCalibrationDbTool())
+
+    return MdtCalibrationTool(name, **kwargs)
+
+def MdtCalibrationDbTool(name="MdtCalibrationDbTool", **kwargs):
     from MdtCalibSvc.MdtCalibSvcConf import MdtCalibrationDbTool
-    MdtCalibrationDbTool.CreateBFieldFunctions = mdtCalibFlags.correctMdtRtForBField()
-    MdtCalibrationDbTool.CreateWireSagFunctions = mdtCalibFlags.correctMdtRtWireSag()
-    MdtCalibrationDbTool.CreateSlewingFunctions = mdtCalibFlags.correctMdtRtForTimeSlewing()
+    kwargs.setdefault("CreateBFieldFunctions", mdtCalibFlags.correctMdtRtForBField())
+    kwargs.setdefault("CreateWireSagFunctions", mdtCalibFlags.correctMdtRtWireSag())
+    kwargs.setdefault("CreateSlewingFunctions", mdtCalibFlags.correctMdtRtForTimeSlewing())
+    kwargs.setdefault("WasConfigured", True)
+
+    return MdtCalibrationDbTool(name, **kwargs)
 
 
 # return a list of dictionaires containing the calib config info (keys etc)
 def getCalibConfigs():
-    global muonRecFlags,rec
+    from MuonRecExample.MuonRecFlags import muonRecFlags
+    from RecExConfig.RecFlags import rec
+    from MuonRecExample.MuonRec import muonRec
     configs = []
     if muonRecFlags.calibMuonStandalone and (muonRecFlags.doStandalone or rec.readESD):
-#        try:
-            configs.append( muonRec.getConfig("MuonStandalone").getCalibConfig() )
-#        except KeyError:
-#            logMuon.warning("Could not get calibration config for MuonStandAlone - not adding MuonStandAlone info to calibration")
-#            muonRecFlags.calibMuonStandalone = False
+        configs.append(muonRec.getConfig("MuonStandalone").getCalibConfig())
     else:
         muonRecFlags.calibMuonStandalone = False
 
@@ -226,15 +234,17 @@ def getCalibConfigs():
 ## Setup MuonSegmenToCalibSegment algorithm.
 # @param[in] segmentKeys list of segment keys to use or single segments key (string)
 def getMuonSegmentToCalibSegment():
-    global topSequence,muonRecFlags
+    from MuonRecExample.MuonRecFlags import muonRecFlags
+    from AthenaCommon.AppMgr import topSequence
     try:
         return topSequence.MuonSegmentToCalibSegment
     except AttributeError:
-            
+        from AthenaCommon.CfgGetter import getPublicTool
         from MuonCalibPatRec.MuonCalibPatRecConf import MuonCalib__MuonSegmentToCalibSegment
         MuonSegmentToCalibSegment = MuonCalib__MuonSegmentToCalibSegment("MuonSegmentToCalibSegment")
         # set consistent time-of-flight correction with MdtDriftCircleOnTrackCreator
         mdtCreator = getPublicTool("MdtDriftCircleOnTrackCreator")
+        from AthenaCommon.ConfiguredFactory import getProperty
         MuonSegmentToCalibSegment.DoTOF = getProperty(mdtCreator,"DoTofCorrection")
         # when doing segment fits with floating t0's
         MuonSegmentToCalibSegment.UpdateForT0Shift = type(MuonSegmentToCalibSegment.getDefaultProperty("UpdateForT0Shift")) (muonRecFlags.doSegmentT0Fit())
@@ -258,7 +268,9 @@ def getMuonSegmentToCalibSegment():
 # depending on the use-case.
 # @param[in] evenTag The event tag written to file
 def getMuonCalibAlg(eventTag):
-    global topSequence,beamFlags
+    from AthenaCommon.AppMgr import topSequence
+    from MuonRecExample.MuonRecFlags import muonRecFlags
+    from RecExConfig.RecFlags import rec
     try:
         return topSequence.MuonCalibAlg
     except AttributeError:
@@ -274,7 +286,7 @@ def getMuonCalibAlg(eventTag):
                                                NtupleName = muonRecFlags.calibNtupleOutput(),  # set the name of the output calibration ntuple
                                                EventTag = eventTag )
 
-        if beamFlags.beamType == 'singlebeam' or beamFlags.beamType == 'cosmics':
+        if jobproperties.Beam.beamType() == 'singlebeam' or jobproperties.Beam.beamType() == 'cosmics':
             MuonCalibAlg.addTriggerTag = False
         else:
             MuonCalibAlg.addTriggerTag = rec.doTrigger()
@@ -284,141 +296,122 @@ def getMuonCalibAlg(eventTag):
 
 
 def setupMuonCalibNtuple():
-    global topSequence,muonRecFlags,beamFlags,ToolSvc,rec,DetFlags
+    from MuonRecExample.MuonRecFlags import muonRecFlags
+    from AthenaCommon.DetFlags import DetFlags
+    from RecExConfig.RecFlags import rec
+    from AthenaCommon.AppMgr import topSequence
+    from AthenaCommon.AppMgr import ToolSvc
     if not rec.doMuon() or not DetFlags.Muon_on():
         logMuon.warning("Not setting up requested Muon Calibration Ntuple because Muons are off")
         return
     
     logMuon.info("Setting up Muon Calibration Ntuple")
-    try:
-        configs = getCalibConfigs()
-        # MuonSegmentToCalibSegment is only needed if we want segments
-        if muonRecFlags.calibNtupleSegments and muonRecFlags.calibMuonStandalone:
-            MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment()
+    configs = getCalibConfigs()
+    # MuonSegmentToCalibSegment is only needed if we want segments
+    if muonRecFlags.calibNtupleSegments and muonRecFlags.calibMuonStandalone:
+        getMuonSegmentToCalibSegment()
 
-        # MuonCalibAlg is always needed
-        eventTag="UNKNOWN"
-        if (muonRecFlags.calibNtupleSegments or muonRecFlags.calibNtupleTracks) and muonRecFlags.calibMuonStandalone:
-            if len(configs) >= 1:
-                eventTag = configs[0]["eventTag"]
-        elif muonRecFlags.calibNtupleTrigger:
-            eventTag = "TRIG"
-        else:
-            eventTag = "HITS"
+    # MuonCalibAlg is always needed
+    eventTag="UNKNOWN"
+    if (muonRecFlags.calibNtupleSegments or muonRecFlags.calibNtupleTracks) and muonRecFlags.calibMuonStandalone:
+        if len(configs) >= 1:
+            eventTag = configs[0]["eventTag"]
+    elif muonRecFlags.calibNtupleTrigger:
+        eventTag = "TRIG"
+    else:
+        eventTag = "HITS"
 
-        MuonCalibAlg = getMuonCalibAlg(eventTag)
-        # configure for writing ntuple
-        from MuonCalibTools.MuonCalibToolsConf import MuonCalib__PatternNtupleMaker
-        MuonCalibTool = MuonCalib__PatternNtupleMaker("MuonCalibPatternNtupleMaker")
-        MuonCalibTool.FillTruth = rec.doTruth()
-        MuonCalibTool.DoRawTGC = (muonRecFlags.doTGCs() and muonRecFlags.calibNtupleRawTGC())
-        ToolSvc += MuonCalibTool
-        MuonCalibAlg.MuonCalibTool = MuonCalibTool
+    MuonCalibAlg = getMuonCalibAlg(eventTag)
+    # configure for writing ntuple
+    from MuonCalibTools.MuonCalibToolsConf import MuonCalib__PatternNtupleMaker
+    MuonCalibTool = MuonCalib__PatternNtupleMaker("MuonCalibPatternNtupleMaker")
+    MuonCalibTool.FillTruth = rec.doTruth()
+    MuonCalibTool.DoRawTGC = (muonRecFlags.doTGCs() and muonRecFlags.calibNtupleRawTGC())
+    ToolSvc += MuonCalibTool
+    MuonCalibAlg.MuonCalibTool = MuonCalibTool
 
-        # MuonCalibExtraTree only if we want to write tracks
-        if muonRecFlags.calibNtupleTracks:
-            MuonCalibTool.DelayFinish = True
-            from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__MuonCalibExtraTreeAlg
-            MuonCalibExtraTreeAlg = MuonCalib__MuonCalibExtraTreeAlg("MuonCalibExtraTreeAlg",
-                                                                     NtupleName = "PatternNtupleMaker",
-                                                                     )
-            segmentOnTrackSelector=None
-            if hasattr(topSequence, "MuonSegmentToCalibSegment"):
-              from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__SegmentOnTrackSelector
-              segmentOnTrackSelector=MuonCalib__SegmentOnTrackSelector()
-              segmentOnTrackSelector.PattternLocation = "PatternsForCalibration"
-              ToolSvc+=segmentOnTrackSelector
-              MuonCalibExtraTreeAlg.SegmentOnTrackSelector= segmentOnTrackSelector
-            if not rec.doMuonCombined():
-               tool_nr=0
-               from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__ExtraTreeTrackFillerTool
-               resPullCalc=getPublicTool("ResidualPullCalculator")
-               for config in configs:
-                 trackDumpTool = MuonCalib__ExtraTreeTrackFillerTool("ExtraTreeTrackFillerTool" + str(tool_nr))
-                 trackDumpTool.TrackCollectionKey = config['tracksKey']
-                 trackDumpTool.SegmentAuthors = [config['segmentAuthor']]
-                 trackDumpTool.TrackAuthor = config['trackAuthor']
-                 trackDumpTool.PullCalculator = resPullCalc
-                 ToolSvc+=trackDumpTool
-                 MuonCalibExtraTreeAlg.TrackFillerTools.append(trackDumpTool)
-                 tool_nr+=1
-            # configure needed tools
+    # MuonCalibExtraTree only if we want to write tracks
+    if muonRecFlags.calibNtupleTracks:
+        MuonCalibTool.DelayFinish = True
+        from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__MuonCalibExtraTreeAlg
+        MuonCalibExtraTreeAlg = MuonCalib__MuonCalibExtraTreeAlg("MuonCalibExtraTreeAlg",
+                                                                 NtupleName = "PatternNtupleMaker",
+                                                                 )
+        segmentOnTrackSelector=None
+        if hasattr(topSequence, "MuonSegmentToCalibSegment"):
+          from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__SegmentOnTrackSelector
+          segmentOnTrackSelector=MuonCalib__SegmentOnTrackSelector()
+          segmentOnTrackSelector.PattternLocation = "PatternsForCalibration"
+          ToolSvc+=segmentOnTrackSelector
+          MuonCalibExtraTreeAlg.SegmentOnTrackSelector= segmentOnTrackSelector
+        if not rec.doMuonCombined():
+           tool_nr=0
+           from AthenaCommon.CfgGetter import getPrivateToolClone
+           for config in configs:
+             MuonCalibExtraTreeAlg.TrackFillerTools.append(getPrivateToolClone("ExtraTreeTrackFillerTool"+str(tool_nr), "ExtraTreeTrackFillerTool", TrackCollectionKey=config['tracksKey'], SegmentAuthors=[config['segmentAuthor']], TrackAuthor=config['trackAuthor']))
+             tool_nr+=1
+        # configure needed tools
 
 
-            # add to topSequence
-            topSequence += MuonCalibExtraTreeAlg
+        # add to topSequence
+        topSequence += MuonCalibExtraTreeAlg
 
 
-        # MuonCalibExtraTreeTriggerAlg only if trigger is available
-        if muonRecFlags.calibNtupleTrigger: # and DetFlags.detdescr.LVL1_on() and DetFlags.haveRDO.LVL1_on():
-            # protect against running without AtlasTrigger project
-            doMuCTPI = True
-            if doMuCTPI:
-                try:
-                    from TrigT1RPCRecRoiSvc import TrigT1RPCRecRoiConfig
-                    from TrigT1TGCRecRoiSvc import TrigT1TGCRecRoiConfig
-                except ImportError:
-                    logMuon.warning("MuonCalibExtraTreeTriggerAlg.doMuCTPI = False because AtlasTrigger is not available")
-                    doMuCTPI = False
+    # MuonCalibExtraTreeTriggerAlg only if trigger is available
+    if muonRecFlags.calibNtupleTrigger: # and DetFlags.detdescr.LVL1_on() and DetFlags.haveRDO.LVL1_on():
 
-            # delay writing of MuonCalibAlg
-            MuonCalibTool.DelayFinish = True
-            # also delay MuonCalibExtraTreeAlg if it is running
-            try:
-                topSequence.MuonCalibExtraTreeAlg.DelayFinish = True
-            except AttributeError:
-                pass
-            
-            from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__MuonCalibExtraTreeTriggerAlg
-            topSequence += MuonCalib__MuonCalibExtraTreeTriggerAlg( 'MuonCalibExtraTreeTriggerAlg',
-                                                                    doMuCTPI   = doMuCTPI,
-                                                                    doLVL1Calo = rec.doTile() or rec.doLArg() or DetFlags.haveRDO.Calo_on(),
-                                                                    doMBTS     = rec.doTile() or DetFlags.haveRDO.Tile_on() )
-
-
-    except:
-        from AthenaCommon.Resilience import treatException
-        treatException("Problem in MuonCalib - Muon Calibration Ntuple configuration probably incomplete")
+        # delay writing of MuonCalibAlg
+        MuonCalibTool.DelayFinish = True
+        # also delay MuonCalibExtraTreeAlg if it is running
+        try:
+            topSequence.MuonCalibExtraTreeAlg.DelayFinish = True
+        except AttributeError:
+            pass
+        
+        from MuonCalibExtraTreeAlg.MuonCalibExtraTreeAlgConf import MuonCalib__MuonCalibExtraTreeTriggerAlg
+        topSequence += MuonCalib__MuonCalibExtraTreeTriggerAlg( 'MuonCalibExtraTreeTriggerAlg',
+                                                                doMuCTPI   = True,
+                                                                doLVL1Calo = rec.doTile() or rec.doLArg() or DetFlags.haveRDO.Calo_on(),
+                                                                doMBTS     = rec.doTile() or DetFlags.haveRDO.Tile_on() )
 
 
 
 def setupMuonCalib():
-    global topSequence,ToolSvc
+    from RecExConfig.RecFlags import rec
+    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.DetFlags import DetFlags
     if not rec.doMuon() or not DetFlags.Muon_on():
         logMuon.warning("Not setting up requested Muon Calibration because Muons are off")
         return
 
     logMuon.info("Setting up Muon Calibration")
-    try:
-        from MuonCnvExample.MuonCalibFlags import muonCalibFlags
-        muonCalibFlags.setDefaults()
+    from MuonCnvExample.MuonCalibFlags import muonCalibFlags
+    muonCalibFlags.setDefaults()
 
-        configs = getCalibConfigs()
-        #
-        # MuonSegmentToCalibSegment
-        #
-        calibConfig = muonRec.allConfigs()[0].getCalibConfig() #muonRec.getConfig(muonCalibFlags.EventTag()).getCalibConfig()
-        MuonSegmentToCalibSegment = getMuonSegmentToCalibSegment()
-        #
-        # MuonCalibAlg
-        #
-        MuonCalibAlg = getMuonCalibAlg(muonCalibFlags.EventTag())
+    getCalibConfigs()
+    #
+    # MuonSegmentToCalibSegment
+    #
+    from MuonRecExample.MuonRec import muonRec
+    muonRec.allConfigs()[0].getCalibConfig() #muonRec.getConfig(muonCalibFlags.EventTag()).getCalibConfig()
+    getMuonSegmentToCalibSegment()
+    #
+    # MuonCalibAlg
+    #
+    MuonCalibAlg = getMuonCalibAlg(muonCalibFlags.EventTag())
 
-        from MdtCalibTools.MdtCalibToolsConf import MuonCalib__MdtCalibTool
-        MuonCalibTool = MuonCalib__MdtCalibTool()
-        calibMode = muonCalibFlags.Mode()
-        if calibMode == 'regionNtuple':
-            from MdtCalibTools.MdtCalibToolsConf import MuonCalib__MdtCalibNtupleMakerTool
-            MdtCalibTool = MuonCalib__MdtCalibNtupleMakerTool()
-        else:
-            raise RuntimeError( "Unknown Muon Calibration Mode: %r" % calibMode )
+    from MdtCalibTools.MdtCalibToolsConf import MuonCalib__MdtCalibTool
+    MuonCalibTool = MuonCalib__MdtCalibTool()
+    calibMode = muonCalibFlags.Mode()
+    if calibMode == 'regionNtuple':
+        from MdtCalibTools.MdtCalibToolsConf import MuonCalib__MdtCalibNtupleMakerTool
+        MdtCalibTool = MuonCalib__MdtCalibNtupleMakerTool()
+    else:
+        raise RuntimeError( "Unknown Muon Calibration Mode: %r" % calibMode )
 
-        ToolSvc += MdtCalibTool
-        MuonCalibTool.MdtCalibTool = MdtCalibTool
+    ToolSvc += MdtCalibTool
+    MuonCalibTool.MdtCalibTool = MdtCalibTool
 
-        ToolSvc += MuonCalibTool
-        MuonCalibAlg.MuonCalibTool = MuonCalibTool
+    ToolSvc += MuonCalibTool
+    MuonCalibAlg.MuonCalibTool = MuonCalibTool
 
-    except:
-        from AthenaCommon.Resilience import treatException
-        treatException("Problem in MuonCalib - Muon Calibration configuration probably incomplete")

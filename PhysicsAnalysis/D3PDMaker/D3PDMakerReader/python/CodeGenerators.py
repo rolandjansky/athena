@@ -1,9 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: CodeGenerators.py 348546 2011-03-01 15:09:56Z krasznaa $
-
-# Gaudi/Athena import(s):
-from AthenaCommon.Logging import logging
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Local import(s):
 import D3PDMakerReader

@@ -13,6 +13,7 @@
 #include <vector>
 #include <memory>
 #include <type_traits>
+#include <optional>
 #include "boost/property_tree/ptree.hpp"
 
 namespace TrigConf {
@@ -102,6 +103,15 @@ namespace TrigConf {
          return data().get_value<T>();
       }
 
+      /** @brief access to content of the note
+       * Will return false if the value could not be converted into @c T
+       */
+      template<class T>
+      std::optional<T> getValue_optional() const {
+         auto v = data().get_value_optional<T>();
+         return v ? std::optional<T>(std::move(*v)) : std::nullopt;
+      }
+
       /** Check for attribute
        * @param key The path to the attribute name, relative to the current one in form "path.to.child"
        * @return true if path @c key exists and is an attribute
@@ -136,6 +146,16 @@ namespace TrigConf {
          return obj.get().get_value<T>();
       }
 
+      template<class T>
+      std::optional<T> getAttribute_optional(const std::string & key) const {
+         const auto & obj = data().get_child_optional(key);
+         if( ! obj ) {
+            return std::nullopt;
+         }
+         auto v = obj.get().get_value_optional<T>();
+         return v ? std::optional(std::move(*v)) : std::nullopt;
+      }
+
       const std::string & getAttribute(const std::string & key, bool ignoreIfMissing = false, const std::string & def = "") const;
 
       /** Access to array structure
@@ -146,6 +166,8 @@ namespace TrigConf {
        * will be returned. Otherwise a runtime exception will be thrown. 
        */
       std::vector<DataStructure> getList(const std::string & pathToChild, bool ignoreIfMissing = false) const;
+
+      std::optional<std::vector<DataStructure> > getList_optional(const std::string & pathToChild) const;
 
       /** Access to configuration object 
        * @param pathToChild The path to the configuration child, relative to the current one
@@ -161,6 +183,9 @@ namespace TrigConf {
        *@endcode
        **/
       DataStructure getObject(const std::string & pathToChild, bool ignoreIfMissing = false) const;
+
+      std::optional<TrigConf::DataStructure>
+      getObject_optional(const std::string & pathToChild) const;
 
 
       /** Access to the keys of an DataStructure which presents a dictionary 

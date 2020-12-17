@@ -68,6 +68,9 @@ StatusCode EnergyCorrelatorGeneralizedTool::initialize() {
   m_dec_ECFG_4_2_2 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_4_2_2");
   m_dec_ECFG_4_4_1 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_4_4_1");
 
+  /// Added for MDT studies, might remove later
+  m_dec_ECFG_3_3_2 = std::make_unique< SG::AuxElement::Decorator<float> >(m_prefix+"ECFG_3_3_2");
+
   return StatusCode::SUCCESS;
 
 }
@@ -104,6 +107,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
 
     float beta = moment.first;
 
+    /// Note that the indexing for these follows the 
+    /// convention of ECFG_angles_n
+
     /// These are used for M2 and N2
     float ECFG_2_1_value = -999.0;
     float ECFG_3_2_value = -999.0;
@@ -121,41 +127,31 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     if( calculate ) {
 
       /// These are used for N2 and M2
-      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2(2, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
       JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_2_1(1, 2, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1(1, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2(2, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
 
       ECFG_2_1_value = ECFG_2_1.result(jet);
+      ECFG_3_1_value = ECFG_3_1.result(jet);
       ECFG_3_2_value = ECFG_3_2.result(jet);
 
       /// These are used for dichroic N2 and M2
       if( calculate_ungroomed ) {
         ECFG_2_1_ungroomed_value = ECFG_2_1.result(jet_ungroomed);
+        ECFG_3_1_ungroomed_value = ECFG_3_1.result(jet_ungroomed);
         ECFG_3_2_ungroomed_value = ECFG_3_2.result(jet_ungroomed);
       }
 
-      /// These are used for M3 and N3
-      if( m_doM3 || m_doN3 ) {
+      /// This is used for M3
+      if( m_doM3 ) {
+        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_1(1, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        ECFG_4_1_value = ECFG_4_1.result(jet);
+      }
 
-        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1(1, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-
-        ECFG_3_1_value = ECFG_3_1.result(jet);
-
-        if( calculate_ungroomed ) {
-          ECFG_3_1_ungroomed_value = ECFG_3_1.result(jet_ungroomed);
-        }
-
-        /// This is used for M3
-        if( m_doM3 ) {
-          JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_1(1, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-          ECFG_4_1_value = ECFG_4_1.result(jet);
-        }
-
-        /// This is used for N3
-        if( m_doN3 ) {
-          JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_2(2, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-          ECFG_4_2_value = ECFG_4_2.result(jet);
-        }
-
+      /// This is used for N3
+      if( m_doN3 ) {
+        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_2(2, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        ECFG_4_2_value = ECFG_4_2.result(jet);
       }
 
     }
@@ -180,6 +176,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
   float ECFG_3_3_1_value = -999;
   float ECFG_4_2_2_value = -999;
   float ECFG_4_4_1_value = -999;
+
+  /// Added for MDT studies, might remove later
+  float ECFG_3_3_2_value = -999;
 
   /// N.B. ECFG_angles_n_beta !!
 
@@ -241,7 +240,12 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     /// 441
     JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_4_1(4, 4, 1, JetSubStructureUtils::EnergyCorrelator::pt_R);
     ECFG_4_4_1_value = ECFG_4_4_1.result(jet);
-  
+
+    /// 332
+    /// Added for MDT studies, might remove later
+    JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_3_2(3, 3, 2, JetSubStructureUtils::EnergyCorrelator::pt_R);
+    ECFG_3_3_2_value = ECFG_3_3_2.result(jet);
+
   }
 
   (*m_dec_ECFG_2_1_2)(injet) = ECFG_2_1_2_value;
@@ -251,6 +255,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
   (*m_dec_ECFG_3_3_1)(injet) = ECFG_3_3_1_value;
   (*m_dec_ECFG_4_2_2)(injet) = ECFG_4_2_2_value;
   (*m_dec_ECFG_4_4_1)(injet) = ECFG_4_4_1_value;
+
+  /// Added for MDT studies, might remove later
+  (*m_dec_ECFG_3_3_2)(injet) = ECFG_3_3_2_value;
 
   return 0;
 

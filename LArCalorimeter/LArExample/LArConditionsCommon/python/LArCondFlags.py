@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #======================================================================
 # File:   LArConditionsCommon/python/LArConditionsFlags.py
@@ -70,7 +70,6 @@ larCondFlags.LArCondFolderTags()['/LAR/ElecCalibMC']='LARElecCalibMC-CSC02-K-QGS
 #=======================================================================
 from AthenaCommon.JobProperties import JobProperty, JobPropertyContainer
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 class LArfSamplG4Phys(JobProperty):
     ### MC tag suffix for G4 Physics (EMV or BERT)
@@ -357,7 +356,7 @@ class LArCondFlags(JobPropertyContainer):
         if theDDV.startswith("Rome"):
             DDVtype="Rome"
             has_mphys=False
-            to_override=True
+            do_override=True
         elif theDDV.startswith("DC2") or theDDV.startswith("CTB"):
             DDVtype="DC2"
             has_mphys=False
@@ -370,7 +369,7 @@ class LArCondFlags(JobPropertyContainer):
             DDVtype=theDDV[0:12] # for example "ATLAS-CSC-01"            
             try:    
                 versionCSC = int(theDDV[10:12])
-            except: 
+            except Exception:
                 self._log.error('  Unknown CSC version '+jobproperties.Global.DetDescrVersion())
                 versionCSC = -1
             do_override=True
@@ -428,10 +427,9 @@ class LArCondFlags(JobPropertyContainer):
         elif theDDV.startswith("ATLAS-CSC"):
             DDVtype=theDDV[0:12] # for example "ATLAS-CSC-01"            
             try:    
-                versionCSC = int(theDDV[10:12])
-            except: 
+                int(theDDV[10:12])
+            except Exception:
                 self._log.error('  Unknown CSC version '+jobproperties.Global.DetDescrVersion())
-                versionCSC = -1
             
         elif theDDV.startswith("ATLAS-GEO"):
             DDVtype=theDDV[0:9] # use "ATLAS-GEO"
@@ -447,7 +445,7 @@ class LArCondFlags(JobPropertyContainer):
 
         # set the tag for OnOffIdMap
         if "/LAR/Identifier/OnOffIdMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/OnOffIdMap' , self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/OnOffIdMap %s' , self.LArCondFolderTags()['/LAR/Identifier/OnOffIdMap'])
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoOnOffIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArOnOffIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
@@ -458,7 +456,7 @@ class LArCondFlags(JobPropertyContainer):
 
         # set the tag for CalibIdMap
         if "/LAR/Identifier/CalibIdMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/CalibIdMap' , self.LArCondFolderTags()['/LAR/Identifier/CalibIdMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/CalibIdMap %s' , self.LArCondFolderTags()['/LAR/Identifier/CalibIdMap'])
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoCalibIdMCTag():
                 self._log.error(' unable to find a proper DDV type  for LArCalibIdMap, DDV '+theDDV+', DDVtype='+DDVtype+',  set DDVtype to the latest ')
@@ -479,7 +477,7 @@ class LArCondFlags(JobPropertyContainer):
 
             # a special case:
             if DDVtype=="ATLAS-Comm" :
-                if 'LArCosmicFlags' in dir()  and hasattr(LArCosmicFlags,'Rel1300xSim') and LArCosmicFlags.Rel1300xSim :
+                if 'LArCosmicFlags' in dir() and hasattr(LArCosmicFlags,'Rel1300xSim') and LArCosmicFlags.Rel1300xSim :  # noqa: F821
                     # a special fix for rel 13 cosmic MC events
                     DDVtype=DDVtype+"Sim"
 

@@ -17,10 +17,21 @@ CostData::CostData() :
 }
 
 
-StatusCode CostData::set(const xAOD::TrigCompositeContainer* costCollection, uint32_t onlineSlot) {
+StatusCode CostData::set(const xAOD::TrigCompositeContainer* costCollection, const xAOD::TrigCompositeContainer* rosCollection, uint32_t onlineSlot) {
   m_costCollection = costCollection;
+  m_rosCollection = rosCollection;
+
   setOnlineSlot( onlineSlot );
   ATH_CHECK(cache());
+
+  // Create mapping from algorithm to associated ROS requests
+  m_algToRos.clear();
+  size_t rosIdx = 0;
+  for (const xAOD::TrigComposite* tc : *rosCollection) {
+    m_algToRos[tc->getDetail<size_t>("alg_idx")].push_back(rosIdx);
+    ++rosIdx;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -33,6 +44,10 @@ StatusCode CostData::cache() {
     m_algTotalTime += (tc->getDetail<uint64_t>("stop") - tc->getDetail<uint64_t>("start"));
   }
   return StatusCode::SUCCESS;
+}
+
+void CostData::setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap) {
+  m_rosToRob = &rosToRobMap;
 }
 
 void CostData::setLb(uint32_t lb) {
@@ -61,6 +76,21 @@ const xAOD::TrigCompositeContainer& CostData::costCollection() const {
   return *m_costCollection;
 }
 
+
+const xAOD::TrigCompositeContainer& CostData::rosCollection() const {
+  if (!m_rosCollection) {
+    throw std::runtime_error("nullptr in CostData::rosCollection(). Make sure CostData::set() is called.");
+  }
+  return *m_rosCollection;
+}
+
+const std::map<std::string, std::vector<uint32_t>>& CostData::rosToRobMap() const {
+  return *m_rosToRob;
+}
+
+const std::map<size_t, std::vector<size_t>>& CostData::algToRequestMap() const {
+  return m_algToRos;
+}
 
 float CostData::algTotalTimeMilliSec() const {
   return m_algTotalTime * 1e-3; // microseconds to milliseconds

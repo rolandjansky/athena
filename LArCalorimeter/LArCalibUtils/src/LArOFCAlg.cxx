@@ -9,7 +9,6 @@
 #include "LArCalibUtils/LArOFCAlg.h"
 
 #include "LArRawConditions/LArWaveHelper.h"
-#include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArShapeComplete.h"
 #include "LArRawConditions/LArOFCComplete.h"
 #include "LArRawConditions/LArOFCBinComplete.h"

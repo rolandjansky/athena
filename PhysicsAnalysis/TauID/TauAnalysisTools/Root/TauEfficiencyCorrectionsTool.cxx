@@ -135,7 +135,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
         m_iOLRLevel = ELEBDTMEDIUMPLUSVETO;
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
-        m_iOLRLevel = ELEBDTIGHTPLUSVETO;
+        m_iOLRLevel = ELEBDTTIGHTPLUSVETO;
     }
     else if (!(m_tTauSelectionTool->m_iSelectionCuts & CutEleOLR) and m_tTauSelectionTool->m_bEleOLR
       and m_tTauSelectionTool->m_iSelectionCuts & CutEleBDTWP )
@@ -146,7 +146,7 @@ StatusCode TauEfficiencyCorrectionsTool::initializeWithTauSelectionTool()
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTMEDIUM)
         m_iOLRLevel = ELEBDTMEDIUM;
       if ( m_tTauSelectionTool->m_iEleBDTWP == ELEIDBDTTIGHT)
-        m_iOLRLevel = ELEBDTIGHT;
+        m_iOLRLevel = ELEBDTTIGHT;
     }
 
     // use electron OLR scale factors if TauSelectionTool applies electron OLR
@@ -453,15 +453,15 @@ CP::SystematicSet TauEfficiencyCorrectionsTool::recommendedSystematics() const
 }
 
 //______________________________________________________________________________
-CP::SystematicCode TauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode TauEfficiencyCorrectionsTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   for (auto it = m_vCommonEfficiencyTools.begin(); it != m_vCommonEfficiencyTools.end(); it++)
-    if ((**it)->applySystematicVariation(sSystematicSet) == CP::SystematicCode::Unsupported)
-      return CP::SystematicCode::Unsupported;
+    if ((**it)->applySystematicVariation(sSystematicSet) == StatusCode::FAILURE)
+      return StatusCode::FAILURE;
   for (auto it = m_vTriggerEfficiencyTools.begin(); it != m_vTriggerEfficiencyTools.end(); it++)
-    if ((**it)->applySystematicVariation(sSystematicSet) == CP::SystematicCode::Unsupported)
-      return CP::SystematicCode::Unsupported;
-  return CP::SystematicCode::Ok;
+    if ((**it)->applySystematicVariation(sSystematicSet) == StatusCode::FAILURE)
+      return StatusCode::FAILURE;
+  return StatusCode::SUCCESS;
 }
 
 //=================================PRIVATE-PART=================================
@@ -1236,9 +1236,9 @@ std::string TauEfficiencyCorrectionsTool::ConvertEleOLRToString(const int& iLeve
   case ELETIGHTLLHOLR:
     return "EleTightLLHOLR";
     break;
-  case ELEBDTIGHTPLUSVETO:
+  case ELEBDTTIGHTPLUSVETO:
     return "eleBDTTightPlusVeto";
-  case ELEBDTIGHT:
+  case ELEBDTTIGHT:
     return "eleBDTTight";
   case ELEBDTMEDIUMPLUSVETO:
     return "eleBDTMediumPlusVeto";

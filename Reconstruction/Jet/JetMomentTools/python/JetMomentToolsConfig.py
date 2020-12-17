@@ -1,12 +1,17 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-########################################################################
-#                                                                      #
-# JetMomentToolsConfig: A helper module for configuring jet moment     #
-# tools, in support of JetRecConfig.JetModConfig.                      #
-# Author: TJ Khoo                                                      #
-#                                                                      #
-########################################################################
+"""
+                                                                      
+ JetMomentToolsConfig: A helper module for configuring jet moment     
+ tools, in support of JetRecConfig.JetModConfig. 
+ Author: TJ Khoo                                                      
+
+
+IMPORTANT : all the getXYZTool(jetdef, modspec) functions are meant to be used as callback from the main JetRecConfig module 
+when we need to convert definitions of tools into the actual tools. At this point the functions are invoked as 
+ func(jetdef, modspec)
+Hence they have jetdef and modspec arguments even if not needed in every case.
+"""
 
 from AthenaCommon import Logging
 jetmomentlog = Logging.logging.getLogger('JetMomentToolsConfig')
@@ -17,15 +22,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from xAODBase.xAODType import xAODType
 
-def getCaloQualityTool():
-    caloqual = CompFactory.JetCaloQualityTool(
-      "caloqual",
-      TimingCuts = [5, 10],
-      Calculations = ["LArQuality", "N90Constituents", "FracSamplingMax",  "NegativeE", "Timing", "HECQuality", "Centroid", "AverageLArQF", "BchCorrCell"],
-    )
-    return caloqual
 
-def getEMScaleMomTool(jetdef):
+def getEMScaleMomTool(jetdef, modspec=""):
     # This may need updating e.g. for evolving trigger cluster container names
     # We do the non-trivial summation over constituents unless the jets were
     # built directly from EM-scale topoclusters, in which case we can just
@@ -46,7 +44,7 @@ def getEMScaleMomTool(jetdef):
 
     return emscalemom
 
-def getConstitFourMomTool(jetdef):
+def getConstitFourMomTool(jetdef, modspec=""):
     ### Not ideal, but because CaloCluster.Scale is an internal class
     ### it makes the dict load really slow.
     ### So just copy the enum to a dict...
@@ -93,22 +91,23 @@ def getConstitFourMomTool(jetdef):
     return cfourmom
 
 # Jet vertex fraction with selection.
-def getJVFTool(modspec=""):
+def getJVFTool(jetdec, modspec):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
-
+    # retrieve the tracking keys to be used with modspec : 
+    trackingKeys = trackcollectionmap[modspec]
     jvf = CompFactory.JetVertexFractionTool(
         "jvf",
-        VertexContainer = trackcollectionmap[modspec]["Vertices"],
-        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
-        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
-        TrackParticleContainer  = trackcollectionmap[modspec]["Tracks"],
+        VertexContainer = trackingKeys["Vertices"],
+        AssociatedTracks = trackingKeys["GhostTracksLabel"],
+        TrackVertexAssociation = trackingKeys["TVA"],
+        TrackParticleContainer  = trackingKeys["Tracks"],
         TrackSelector = jettrackselloose,
     )
     return jvf
 
 
 # Jet vertex fraction with selection.
-def getJVTTool(modspec=""):
+def getJVTTool(jetdef, modspec):
     jvt = CompFactory.JetVertexTaggerTool(
         "jvt",
         VertexContainer = trackcollectionmap[modspec]["Vertices"],
@@ -116,27 +115,30 @@ def getJVTTool(modspec=""):
     return jvt
 
 
-def getTrackMomentsTool(modspec=""):
+def getTrackMomentsTool(jetdef, modspec):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
+    # retrieve the tracking keys to be used with modspec : 
+    trackingKeys = trackcollectionmap[modspec]
 
     trackmoments = CompFactory.JetTrackMomentsTool(
         "trkmoms",
-        VertexContainer = trackcollectionmap[modspec]["Vertices"],
-        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
-        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
+        VertexContainer = trackingKeys["Vertices"],
+        AssociatedTracks = trackingKeys["GhostTracksLabel"],
+        TrackVertexAssociation = trackingKeys["TVA"],
         TrackMinPtCuts = [500, 1000],
         TrackSelector = jettrackselloose
     )
     return trackmoments
 
-def getTrackSumMomentsTool(modspec=""):
+def getTrackSumMomentsTool(jetdef, modspec):
     jettrackselloose = JetRecToolsConfig.getTrackSelTool(modspec)
-
+    # retrieve the tracking keys to be used with modspec : 
+    trackingKeys = trackcollectionmap[modspec]
     tracksummoments = CompFactory.JetTrackSumMomentsTool(
         "trksummoms",
-        VertexContainer = trackcollectionmap[modspec]["Vertices"],
-        AssociatedTracks = trackcollectionmap[modspec]["GhostTracksLabel"],
-        TrackVertexAssociation = trackcollectionmap[modspec]["TVA"],
+        VertexContainer = trackingKeys["Vertices"],
+        AssociatedTracks = trackingKeys["GhostTracksLabel"],
+        TrackVertexAssociation = trackingKeys["TVA"],
         RequireTrackPV = True,
         TrackSelector = jettrackselloose
     )
@@ -144,7 +146,7 @@ def getTrackSumMomentsTool(modspec=""):
 
 # This tool sets a decoration saying which the nominal HS PV was.
 # Historically it did the origin correction, but now we do this to constituents
-def getOriginCorrVxTool(modspec=""):
+def getOriginCorrVxTool(jetdef, modspec):
     origin_setpv = CompFactory.JetOriginCorrectionTool(
       "jetorigin_setpv",
       VertexContainer = trackcollectionmap[modspec]["Vertices"],

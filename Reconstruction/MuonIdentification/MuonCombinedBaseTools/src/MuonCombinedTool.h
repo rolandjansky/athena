@@ -23,12 +23,15 @@ namespace MuonCombined {
 
   public:
     MuonCombinedTool(const std::string& type, const std::string& name, const IInterface* parent);
-    ~MuonCombinedTool()=default;
+    virtual ~MuonCombinedTool()=default;
   
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
+    virtual
     void combine(const MuonCandidateCollection& muonCandidates,const InDetCandidateCollection& inDetCandidates, std::vector<InDetCandidateToTagMap*> tagMaps, 
-		 TrackCollection* combinedTracks, TrackCollection* METracks) const;
+		 TrackCollection* combinedTracks, TrackCollection* METracks) const override;
+
+    virtual void cleanUp() const override;
 
   private:
 

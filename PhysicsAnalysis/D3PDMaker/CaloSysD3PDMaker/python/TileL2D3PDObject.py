@@ -7,8 +7,8 @@ from D3PDMakerCoreComps.D3PDObject import D3PDObject
 def makeTileL2D3PDObject (name, prefix, object_name='TileL2D3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'TileL2Cnt'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'TileL2Cnt'
+    if label is None: label = prefix
 
     
     print(" makeTileL2D3PDObject: name = ", name)

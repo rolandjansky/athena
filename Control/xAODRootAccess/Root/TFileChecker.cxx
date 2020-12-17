@@ -39,21 +39,21 @@ namespace xAOD {
 
    }
 
-   TReturnCode TFileChecker::check( TEvent& event ) {
+   StatusCode TFileChecker::check( TEvent& event ) {
 
       // Reset the internal cache(es):
       m_orpannedContainers.clear();
 
       // Bail right away if there are no events in the file:
       if( ! event.getEntries() ) {
-         return TReturnCode::kSuccess;
+         return StatusCode::SUCCESS;
       }
 
       // Load the first event:
       if( event.getEntry( 0 ) < 0 ) {
          Error( "check",
                 XAOD_MESSAGE( "Couldn't load event 0 from the input" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Get the list of containers in the file:
@@ -89,7 +89,7 @@ namespace xAOD {
             Error( "check",
                    XAOD_MESSAGE( "Failed to load event %i from the input" ),
                    static_cast< int >( entry ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Print a progress message:
@@ -122,7 +122,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    void TFileChecker::setStopOnError( ::Bool_t value ) {
@@ -154,7 +154,7 @@ namespace xAOD {
       return m_ignoredVariables;
    }
 
-   TReturnCode TFileChecker::checkContainer( const SG::AuxVectorBase& vec,
+   StatusCode TFileChecker::checkContainer( const SG::AuxVectorBase& vec,
                                              const std::string& name ) {
 
       // Access the auxiliary store of the container:
@@ -172,16 +172,16 @@ namespace xAOD {
                                     "container: %s" ),
                       name.c_str() );
                m_orpannedContainers.insert( name );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
-            return TReturnCode::kSuccess;
+            return StatusCode::SUCCESS;
          } else {
             // This can happen when the auxiliary store doesn't implement the
             // I/O interface. This is the case for types inheriting from
             // xAOD::ByteStreamAuxContainer for instance. Since all issues that
             // we check for in here are tied to the I/O happening through this
             // interface, let's not bother with such objects.
-            return TReturnCode::kSuccess;
+            return StatusCode::SUCCESS;
          }
       }
 
@@ -202,7 +202,7 @@ namespace xAOD {
             Error( "checkContainer",
                    XAOD_MESSAGE( "Couldn't load variable %s.%s" ),
                    name.c_str(), reg.getName( auxid ).c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Find a dictionary for this type:
@@ -217,7 +217,7 @@ namespace xAOD {
                       XAOD_MESSAGE( "Couldn't get std::type_info for "
                                     "variable %s" ),
                       reg.getName( auxid ).c_str() );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
             cl = ::TClass::GetClass( *typeId );
             s_dictCache[ auxid ] = cl;
@@ -226,7 +226,7 @@ namespace xAOD {
             Error( "checkContainer",
                    XAOD_MESSAGE( "Couldn't get dictionary for variable %s" ),
                    reg.getName( auxid ).c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Make sure that the type has a collection proxy:
@@ -236,7 +236,7 @@ namespace xAOD {
                    XAOD_MESSAGE( "Couldn't get collection proxy for "
                                  "variable %s" ),
                    reg.getName( auxid ).c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Get the size of the vector using the collection proxy:
@@ -253,12 +253,12 @@ namespace xAOD {
                    name.c_str(), static_cast< int >( size ),
                    name.c_str(), reg.getName( auxid ).c_str(),
                    static_cast< int >( varSize ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
 } // namespace xAOD

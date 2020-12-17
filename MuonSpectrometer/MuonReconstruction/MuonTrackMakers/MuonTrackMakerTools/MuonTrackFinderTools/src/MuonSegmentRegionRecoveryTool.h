@@ -16,7 +16,6 @@
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonTrackSegmentMatchingTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
@@ -30,15 +29,13 @@
 #include "MuidInterfaces/ICombinedMuonTrackBuilder.h"
 #include "MuonChamberHoleRecoveryTool.h"
 #include "MuonRecToolInterfaces/IMuonSeededSegmentFinder.h"
-#include "MuonChamberHoleRecoveryTool.h"
 #include "IRegionSelector/IRegSelTool.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkGeometry/TrackingVolume.h" 
-#include "TrkGeometry/TrackingGeometry.h"
+
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkTrack/Track.h"
 #include "MuonCondData/MdtCondDbData.h"
@@ -113,15 +110,15 @@ namespace Muon {
     virtual ~MuonSegmentRegionRecoveryTool () = default;
     
     /** @brief AlgTool initialize */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** @brief AlgTool finalize */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
     
     /** @brief returns a new track with segments recovered using RegionSelector*/
-    Trk::Track* recover( const Trk::Track& track ) const;
+    virtual Trk::Track* recover( const Trk::Track& track ) const override;
     
-    void cleanUp() const;
+    virtual void cleanUp() const override;
 
   private:
 

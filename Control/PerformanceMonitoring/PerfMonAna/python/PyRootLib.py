@@ -23,7 +23,7 @@ def importRoot( batch = True ):
         if 'DISPLAY' in os.environ:
             x_display = os.environ['DISPLAY']
             del os.environ['DISPLAY']
-    
+
     ## few customizations
     ROOT.gErrorIgnoreLevel = ROOT.kError
     if ROOT.gROOT.GetVersionInt() >= 51800:
@@ -38,7 +38,7 @@ def importRoot( batch = True ):
         ROOT.kMyRed     = ROOT.kRed
         ROOT.kMyGreen   = ROOT.kGreen+100
         ROOT.kDarkGreen = ROOT.kGreen +100
-        
+
     ##
     if batch:
         if x_display:
@@ -63,7 +63,7 @@ def importRoot( batch = True ):
     def fopen(*args):
         global _root_files
         f = ROOT.TFile.Open(*args)
-        if not f in _root_files:
+        if f not in _root_files:
             _root_files.append(f)
         return f
     ROOT.fopen = fopen
@@ -73,7 +73,7 @@ ROOT = importRoot()
 
 def setupRootStyle():
     """Somehow beautify the ugly default ROOT display style"""
-        
+
     style = ROOT.gROOT.GetStyle( "Plain" )
 
     # no borders, white color
@@ -91,14 +91,14 @@ def setupRootStyle():
     style.SetTitleOffset(1.1)
     style.SetTitleSize(0.035,"Y")
     style.SetTitleOffset(1.1,"Y")
-    
+
     # canvas stuff
     style.SetCanvasBorderSize(0)
     style.SetCanvasDefH( 800)
     style.SetCanvasDefW(1000)
     style.SetFrameBorderMode(0)
     style.SetFrameBorderSize(0)
-    
+
     style.SetStatX(0.95)
     style.SetStatY(0.9)
     style.SetStatW(0.18)
@@ -119,7 +119,7 @@ def setupRootStyle():
     style.SetPalette(1)
     #style.SetOptStat(111111)
     style.SetOptStat(0)
-    
+
     ROOT.gROOT.SetStyle( "Plain" )
     ROOT.gROOT.ForceStyle()
 
@@ -144,7 +144,7 @@ class Polynom:
         self.n = degree
     def __call__(self, x, par):
         return sum( (x[0]**i) + par[i] for i in range(self.n+1) )
-    
+
 class OptionStyle:
     """
     Struct to hold options (color/width/style) for a TStyle-like object
@@ -175,12 +175,14 @@ class Style(object):
         self.line   = lineOptions
         self.marker = markerOptions
         self.fillStyle = fillStyle
-        
-        if self.line   == None: self.line   = OptionStyle()
-        if self.marker == None: self.marker = OptionStyle()
+
+        if self.line   is None:
+            self.line   = OptionStyle()
+        if self.marker is None:
+            self.marker = OptionStyle()
         return
     def getLine(self):
         return self.line
     def getMarker(self):
         return self.marker
-    
+

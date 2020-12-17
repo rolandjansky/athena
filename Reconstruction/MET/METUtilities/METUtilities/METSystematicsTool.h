@@ -122,8 +122,8 @@ namespace met {
     bool               isAffectedBySystematic  (const CP::SystematicVariation& var) const{return CP::SystematicsTool::isAffectedBySystematic(var)   ;}
     CP::SystematicSet  affectingSystematics    () const{		       		  return CP::SystematicsTool::affectingSystematics  ()      ;}
     CP::SystematicSet  recommendedSystematics  () const{		       		  return CP::SystematicsTool::recommendedSystematics()      ;}
-    CP::SystematicCode applySystematicVariation(const CP::SystematicSet& set){		  return CP::SystematicsTool::applySystematicVariation(set) ;}
-    CP::SystematicCode sysApplySystematicVariation(const CP::SystematicSet&); //when inheriting from SystematicsTool, we should only have to implement this one
+    StatusCode applySystematicVariation(const CP::SystematicSet& set){		  return CP::SystematicsTool::applySystematicVariation(set) ;}
+    StatusCode sysApplySystematicVariation(const CP::SystematicSet&); //when inheriting from SystematicsTool, we should only have to implement this one
 
     void setRandomSeed(int seed) const;
 

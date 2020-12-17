@@ -92,7 +92,7 @@ def loadDictionary():
    tempPath = tempfile.mkdtemp()
    try:
       headerPath = os.path.join(tempPath, 'AodMetaData.h')
-      with open(headerPath, 'wb') as f:
+      with open(headerPath, 'w') as f:
          writeDictionaryHeader(f)
       ROOT.gROOT.LoadMacro('%s+' % headerPath)
    finally:
@@ -204,7 +204,7 @@ def dumpPlain(metaData, out):
          continue
       for key in sorted(folderData):
          value = folderData[key]
-         if isinstance(value, basestring):
+         if isinstance(value, str):
             pass
          elif isinstance(value, numbers.Number):
             value = repr(value)

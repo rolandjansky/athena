@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 from egammaAlgs import egammaAlgsConf
@@ -19,7 +19,7 @@ def precisionCaloRecoSequence(DummyFlag, RoIs):
     log.debug('RoIs = %s',RoIs)
 
     egammaTopoClusterCopier = AlgFactory( egammaAlgsConf.egammaTopoClusterCopier,
-                                          name = 'TrigEgammaTopoClusterCopier'+RoIs ,
+                                          name = 'TrigEgammaTopoClusterCopier%s' % RoIs ,
                                           InputTopoCollection= "caloclusters",
                                           OutputTopoCollection=precisionCaloMenuDefs.precisionCaloClusters,
                                           OutputTopoCollectionShallow="tmp_"+precisionCaloMenuDefs.precisionCaloClusters,

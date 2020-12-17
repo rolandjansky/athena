@@ -43,7 +43,8 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_hid2reHLT(nullptr)
   , m_maxChannels(TileCalibUtils::MAX_CHAN)
   , m_checkMaskedDrawers(false)
-{
+  , m_runPeriod(0){
+
   declareInterface<TileROD_Decoder>(this);
  
   for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
@@ -130,7 +131,9 @@ StatusCode TileROD_Decoder::initialize() {
     ATH_CHECK( m_tileBadChanTool.retrieve() );
   }
 
-  m_maxChannels = TileCablingService::getInstance()->getMaxChannels();
+  const TileCablingService *cablingService = TileCablingService::getInstance();
+  m_maxChannels    = cablingService->getMaxChannels();
+  m_runPeriod      = cablingService->runPeriod();
 
   m_Rw2Cell[0].reserve(m_maxChannels);
   m_Rw2Cell[1].reserve(m_maxChannels);
@@ -4469,6 +4472,7 @@ void TileROD_Decoder::unpack_frag41( uint32_t collid, uint32_t version, const ui
 
 void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const uint32_t* p, int datasize, TileMuonReceiverContainer &v ) const {
 
+  // == RUN 2 ==
   // results are hold in 3 16-bit words.
   //
   //    32nd bit -> |        results2       ||        results1       | <- 1st bit
@@ -4486,36 +4490,67 @@ void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const 
   // bit-2        .
   // bit-1        .
   // bit-0 -> result.at(3)
+  //
+  // == RUN 3 ==
+  // results are hold in 3 16-bit words.
+  //
+  //               32nd bit -> |         results2 [16:31]            ||           results1 [0:15]           | <- 1st bit
+  //               32nd bit -> |            0x0   [16:31]            ||           results3 [0:15]           | <- 1st bit
+  //
+  //               32nd bit -> | 0x0 [12:15] | m-5 | m-4 | m-3 | m-2 || 0x0 [12:15] | m-3 | m-2 | m-1 | m-0 | <- 1st bit
+  //                           |          0x0 [16:31]                || 0x0 [12:15] | m-7 | m-6 | m-5 | m-4 |
+  //
+  // For each module m-X there is a 3-bit word with the results for a threshold
+  //
+  //                    |  d5+d6  |  d6   |  d5  |
+  //                    |   bit2  |  bit1 | bit0 |
+  //
 
-  int nbit,nmod;
-  uint32_t word;
+  int nbit=0;
+  int nmod=0;
+  uint32_t word=0x0;
+
   int drawer = (sourceid & 0xf0000) >> 8; // get ROS number from source ID
   if (drawer<0x300) { // barrel
     nbit = 4;
     nmod = 4;
     drawer |= ((sourceid & 0x0000f) << 2);
     word = (datasize > 0) ? p[0] : 0; // just use first word, although expect all zeros for the moment
-  } else {
+  } else { // extended barrel
     nbit = 4;
     nmod = 8;
     drawer |= ((sourceid & 0x0000f) << 3);
-    word = (datasize > 1) ? (p[1] << 20) | ((p[0] >> 8) & 0xff000) | ((p[0] >> 4) & 0xfff) : 0;
+    if (m_runPeriod<=2) {
+       word = (datasize > 1) ? (p[1] << 20) | ((p[0] >> 8) & 0xff000) | ((p[0] >> 4) & 0xfff) : 0;
+    } else {
+       word = (datasize > 1) ? (p[1] << 12) | (p[0] & 0xfff) : 0;
+    }
   }
 
   std::vector<bool> result(nbit);
   for (int j = 0; j < nmod; ++j) { // loop over modules
     for (int k = nbit-1; k >= 0; --k) { // loop over bits of one module in inversed order
-      result[k] = ((word & 1) != 0);
-      word >>= 1;
+      if (m_runPeriod<=2) {
+          result[k] = (word & 1);
+	  word >>= 1;
+      } else {
+          if (k==0) {
+	     result[k]=0;
+	  } else {
+	     result[k] = (word & 1);
+	     word >>= 1;
+	  }
+      }
     }
-
     TileMuonReceiverObj * obj = new TileMuonReceiverObj(drawer, result);
     v.push_back(obj);
-
     ++drawer;
   }
-  
+
   if (msgLvl(MSG::DEBUG)) {
+    if (m_runPeriod<=2) msg(MSG::DEBUG) << "TMDB version for RUN2 simulation (2014)" <<endmsg;
+    else msg(MSG::DEBUG) << "TMDB version for RUN3 simulation (2020)" <<endmsg;
+
     msg(MSG::DEBUG) << " TileROD_Decoder::unpack_frag42  source ID: 0x" << MSG::hex << sourceid << MSG::dec
                     << " version: " << version << endmsg;
 

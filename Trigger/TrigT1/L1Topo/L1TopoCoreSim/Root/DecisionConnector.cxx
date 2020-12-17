@@ -1,4 +1,6 @@
-// Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "L1TopoCoreSim/DecisionConnector.h"
 
@@ -24,7 +26,7 @@ DecisionConnector::~DecisionConnector() {
 bool
 TCS::DecisionConnector::decision(const std::string & trigger) const {
    unsigned int index(0);
-   for(const TXC::TriggerLine & tl : m_triggers) {
+   for(const TrigConf::TriggerLine & tl : m_triggers) {
       if(tl.name() == trigger)
          return m_decision.bit(index);
       ++index;
@@ -37,7 +39,7 @@ TCS::DecisionConnector::decision(const std::string & trigger) const {
 TCS::TOBArray const *
 TCS::DecisionConnector::output(const std::string & trigger) const {
    unsigned int index(0);
-   for(const TXC::TriggerLine & tl : m_triggers) {
+   for(const TrigConf::TriggerLine & tl : m_triggers) {
       if(tl.name() == trigger)
          return m_outputData[index];
       ++index;

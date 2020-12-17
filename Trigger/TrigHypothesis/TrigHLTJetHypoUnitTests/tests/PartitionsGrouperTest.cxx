@@ -40,7 +40,7 @@ TEST(PartitionsGrouperTest, test0){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 6; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -59,10 +59,6 @@ TEST(PartitionsGrouperTest, test0){
     EXPECT_TRUE(groupVector[0].size()== 2); // two jets first group
     EXPECT_TRUE(groupVector[1].size()== 3); // three jets second group
   }
-
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 
 TEST(PartitionsGrouperTest, test1){
@@ -76,7 +72,7 @@ TEST(PartitionsGrouperTest, test1){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 10; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -96,10 +92,6 @@ TEST(PartitionsGrouperTest, test1){
     EXPECT_TRUE(groupVector[1].size()== 3); // three jets second group
     EXPECT_TRUE(groupVector[2].size()== 1); // one jet third group
   }
-
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 
 
@@ -114,7 +106,7 @@ TEST(PartitionsGrouperTest, test2){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 5; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -128,10 +120,6 @@ TEST(PartitionsGrouperTest, test2){
   // need to place 5 jets in 2 conditions
   // 5.4.3.2/(2!3!) ways to do this (j1j2 and j2j1 in c1 is counted once).
   EXPECT_TRUE(groupVectors.size() == 0);
-
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 
 
@@ -147,7 +135,7 @@ TEST(PartitionsGrouperTest, SingleJetGrouperBehavioiur){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 7; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -177,10 +165,6 @@ TEST(PartitionsGrouperTest, SingleJetGrouperBehavioiur){
       EXPECT_TRUE(jv.size() == 1);
     }
   }
-
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 
 
@@ -198,7 +182,7 @@ TEST(PartitionsGrouperTest, CombinationsGrouperBehavioiur){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 7; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -235,10 +219,6 @@ TEST(PartitionsGrouperTest, CombinationsGrouperBehavioiur){
       EXPECT_TRUE(jv.size() == 2);
     }
   }
-  
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 
 TEST(PartitionsGrouperTest, FullPartitionGrouperBehavioiur){
@@ -253,7 +233,7 @@ TEST(PartitionsGrouperTest, FullPartitionGrouperBehavioiur){
   constexpr double eta{0.5}; 
   for(int i = 1; i < 7; ++i){
     auto tlv = factory.make(eta, i);
-    TLorentzVectorAsIJet* tl_j = new TLorentzVectorAsIJet(tlv);
+    auto tl_j = std::make_shared<TLorentzVectorAsIJet>(tlv);
     jets.push_back(tl_j);
   }
 
@@ -295,9 +275,5 @@ TEST(PartitionsGrouperTest, FullPartitionGrouperBehavioiur){
       EXPECT_TRUE(jv.size() == 1);
     }
   }
-  
-  auto b = jets.begin();
-  auto e = jets.end();
-  for(auto iter = b; iter != e; ++iter){delete *iter;}
 }
 

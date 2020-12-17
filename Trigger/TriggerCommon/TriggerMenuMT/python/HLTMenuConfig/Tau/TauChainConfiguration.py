@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Tau.TauChainConfiguration")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
+from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
 
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
@@ -30,6 +30,9 @@ def getFTFCoreCfg(flags):
 
 def getFTFIsoCfg(flags):
     return tauFTFTauIsoSeq()
+
+def getFTFIsoBDTCfg(flags):
+    return tauFTFTauIsoBDTSeq()
 
 def getIDPrecCfg(flags):
     return tauIDPrecSeq()
@@ -72,17 +75,18 @@ class TauChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
+        log.debug("Assembling chain for %s", self.chainName)
 
         # --------------------
         # define here the names of the steps and obtain the chainStep configuration 
         # --------------------
         stepDictionary = {
-            "ptonly"     :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
-            "track"      :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
-            "tracktwo"   :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
-            "tracktwoEF" :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
-            "tracktwoMVA":['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "ptonly"        :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getTauEmpty'  , 'getPrecTrack'    , 'getIDPrec'      ], 
+            "track"         :['getCaloSeq'   , 'getFTFTau'  , 'getTrkEmpty' , 'getPreSel'    , 'getPrecTrack'    , 'getTrackPrec'   ], 
+            "tracktwo"      :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getPreSelTT'  , 'getPrecTrackIso' , 'getTrackTwoPrec'],
+            "tracktwoEF"    :['getCaloSeq'   , 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoEF'  ],
+            "tracktwoMVA"   :['getCaloMVASeq', 'getFTFCore' , 'getFTFIso'   , 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
+            "tracktwoMVABDT":['getCaloMVASeq', 'getFTFCore' , 'getFTFIsoBDT', 'getTauEmpty'  , 'getPrecTrackIso' , 'getTrackTwoMVA' ],
         }
 
         # this should be extended by the signature expert to make full use of the dictionary!
@@ -120,6 +124,11 @@ class TauChainConfiguration(ChainConfigurationBase):
     def getFTFIso(self):
         stepName = 'FTFIso_tau'
         return self.getStep(3,stepName, [getFTFIsoCfg])
+
+    # --------------------                                                                                                                                                                         
+    def getFTFIsoBDT(self):
+        stepName = 'FTFIsoBDT_tau'
+        return self.getStep(3,stepName, [getFTFIsoBDTCfg])
 
     # --------------------                                                                                                                                   
     def getTrkEmpty(self):

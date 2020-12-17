@@ -6,6 +6,7 @@ from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.DetFlags import DetFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
 from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
 from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
@@ -39,9 +40,13 @@ if not MuonGeometryFlags.hasCSC():
     theDataPreparator.CSCDataPreparator.CSCPrepDataContainer  = ""
 
 #Need different PRD collection names to run offline and Run 2 trigger in same job
-if not TriggerFlags.doMT():
+if ConfigFlags.Trigger.EDMVersion <= 2:
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
-    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool",OutputCollection="TrigMDT_DriftCircles")
+    from MuonCnvExample import MuonCalibConfig
+
+    MdtRdoToMdtPrepDataTool = Muon__MdtRdoToPrepDataTool(name = "TrigMdtRdoToPrepDataTool",
+                                                         OutputCollection="TrigMDT_DriftCircles",
+                                                         CalibrationTool=MuonCalibConfig.MdtCalibrationTool())
     ToolSvc += MdtRdoToMdtPrepDataTool
     theDataPreparator.MDTDataPreparator.MdtPrepDataProvider =  MdtRdoToMdtPrepDataTool
     theDataPreparator.MDTDataPreparator.MDTPrepDataContainer = MdtRdoToMdtPrepDataTool.OutputCollection
@@ -143,7 +148,8 @@ class TrigL2MuonSAMTConfig(MuonSA.MuFastSteering):
         super( TrigL2MuonSAMTConfig, self ).__init__( name )
 
         self.DataPreparator    = theDataPreparator
-        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder()
+        from MuonCnvExample.MuonCalibConfig import MdtCalibrationTool
+        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder(CalibrationTool=MdtCalibrationTool())
         self.StationFitter     = theStationFitter
         self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
         self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()
@@ -231,7 +237,8 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         super( TrigL2MuonSAConfig, self ).__init__( name )
 
         self.DataPreparator    = theDataPreparator
-        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder()
+        from MuonCnvExample.MuonCalibConfig import MdtCalibrationTool
+        self.PatternFinder     = MuonSA.TrigL2MuonSA__MuFastPatternFinder(CalibrationTool=MdtCalibrationTool())
         self.StationFitter     = theStationFitter
         self.TrackFitter       = MuonSA.TrigL2MuonSA__MuFastTrackFitter()
         self.TrackExtrapolator = MuonSA.TrigL2MuonSA__MuFastTrackExtrapolator()

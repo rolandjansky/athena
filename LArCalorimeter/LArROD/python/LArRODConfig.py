@@ -1,9 +1,8 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
+from AthenaCommon import CfgMgr, CfgGetter
 
 def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
-    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
     kwargs.setdefault('LArRawChannelKey', "LArRawChannels")
 
@@ -29,7 +28,6 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
 
     from LArROD.LArRODFlags import larRODFlags
     kwargs.setdefault('firstSample',larRODFlags.firstSample())
-    from AthenaCommon import CfgGetter
     iovDbSvc=CfgGetter.getService("IOVDbSvc")
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
@@ -48,7 +46,6 @@ def getLArRawChannelBuilder(name="LArRawChannelBuilder" , **kwargs):
     return CfgMgr.LArRawChannelBuilderAlg(name, **kwargs)
 
 def getLArRawChannelBuilder_DigiHSTruth(name="LArRawChannelBuilder_DigiHSTruth" , **kwargs):
-    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
 
     kwargs.setdefault('LArRawChannelKey', "LArRawChannels_DigiHSTruth")
     kwargs.setdefault('LArDigitKey', 'LArDigitContainer_DigiHSTruth')

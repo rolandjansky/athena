@@ -15,7 +15,7 @@
 
 #include "InDetReadoutGeometry/SiDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include "InDetIdentifier/SCT_ID.h"
 
@@ -54,7 +54,7 @@ namespace InDetDD {
     SCT_DetectorManager( StoreGateSvc* detStore );
 
     /// Constructur with name
-    SCT_DetectorManager( StoreGateSvc* detStore, std::string name );
+    SCT_DetectorManager( StoreGateSvc* detStore, const std::string& name );
      
     /// Destructor
     virtual ~SCT_DetectorManager();

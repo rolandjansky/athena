@@ -39,7 +39,7 @@ def _createCfgFlags():
             return []
 
         rawCollections = [type_key[1] for type_key in GetFileMD(inputFile).get("itemList",[])]
-        collections = filter(lambda col: not col.endswith('Aux.'), rawCollections)
+        collections = [col for col in rawCollections if not col.endswith('Aux.') ]
         return collections
 
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
@@ -53,7 +53,9 @@ def _createCfgFlags():
     acf.addFlag('Scheduler.ShowDataDeps', True)
     acf.addFlag('Scheduler.ShowDataFlow', True)
     acf.addFlag('Scheduler.ShowControlFlow', True)
+    acf.addFlag('Scheduler.EnableVerboseViews', True)
 
+    acf.addFlag('Common.MsgSourceLength',50) #Lenght of the source-field in the format str of MessageSvc
     acf.addFlag('Common.isOnline', False ) #  Job runs in an online environment (access only to resources available at P1) # former global.isOnline
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)

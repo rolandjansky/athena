@@ -3,27 +3,19 @@
 */
 
 #include "MdtCalibSvc/MdtCalibrationDbTool.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
 
-#include "Identifier/IdentifierHash.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
-
-#include <string>
-
 #include "MdtCalibData/MdtFullCalibData.h"
 #include "MdtCalibData/BFieldCorFunc.h"
 #include "MdtCalibData/WireSagCorFunc.h"
 #include "MdtCalibData/MdtSlewCorFuncHardcoded.h"
 #include "MdtCalibData/CalibFunc.h"
+#include <atomic>
 
 MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::string &name, const IInterface* parent)
   : base_class(type, name, parent),
     m_regionSvc("MdtCalibrationRegionSvc", name),
-    m_mdtIdHelper(0)
+    m_hasBISsMDT(false)
 {
   declareProperty("AccessTubeConstants", m_getTubeConstants = true,
 		  "configure the Tool to retrieve the constants per tube (t0)");
@@ -37,38 +29,38 @@ MdtCalibrationDbTool::MdtCalibrationDbTool(const std::string& type, const std::s
 		  "If set to true, the slewing correction functions are initialized for each rt-relation that is loaded.");
 }
 
-MdtCalibrationDbTool::~MdtCalibrationDbTool() {}
-
 StatusCode MdtCalibrationDbTool::initialize() {
 
   if ( m_regionSvc.retrieve().isFailure() ) {
     ATH_MSG_ERROR( "Failed to retrieve MdtCalibrationRegionSvc" );
     return StatusCode::FAILURE;
   }
-  
-  // initialize the MdtIdHelper
-  if (detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ).isFailure()) {
-    ATH_MSG_ERROR( "Can't retrieve MdtIdHelper" );
-    return StatusCode::FAILURE;
-  }
 
+  ATH_CHECK(m_idHelperSvc.retrieve());
+  int bisIndex=m_idHelperSvc->mdtIdHelper().stationNameIndex("BIS");
+  Identifier bis7Id = m_idHelperSvc->mdtIdHelper().elementID(bisIndex, 7, 1);
+  if (m_idHelperSvc->issMdt(bis7Id)) m_hasBISsMDT=true;
   ATH_CHECK(m_readKeyRt.initialize());
   ATH_CHECK(m_readKeyTube.initialize());
   ATH_CHECK(m_readKeyCor.initialize (m_createSlewingFunction || m_createWireSagFunction || m_create_b_field_function));
+  
+  if (!m_wasConfigured){
+    ATH_MSG_WARNING( "This tool is too complicated to rely on defaults. Potential configuration issue." );
+  }
 
   return StatusCode::SUCCESS;
 }  //end MdtCalibrationDbTool::initialize
 
 MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifier &idt ) const {
 
-  Identifier id = m_mdtIdHelper->elementID( idt );
+  Identifier id = m_idHelperSvc->mdtIdHelper().elementID( idt );
 
   IdentifierHash mlHash;     //hash for ML (needed when using ML-RT functions)
-  m_mdtIdHelper->get_detectorElement_hash( id, mlHash );   //hash for the ML 
+  m_idHelperSvc->mdtIdHelper().get_detectorElement_hash( id, mlHash );   //hash for the ML 
 
   IdentifierHash chamberHash;
-  IdContext idCont = m_mdtIdHelper->module_context();
-  m_mdtIdHelper->get_hash( id, chamberHash, &idCont );
+  IdContext idCont = m_idHelperSvc->mdtIdHelper().module_context();
+  m_idHelperSvc->mdtIdHelper().get_hash( id, chamberHash, &idCont );
 
   return getCalibration( chamberHash, mlHash );
 }
@@ -104,9 +96,18 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifi
 
   // find t0's
   if( m_getTubeConstants && tubeHash.is_valid() ) {
-    tube = getTubeCalibContainer( tubeHash );
-    if( !tube ){
-      ATH_MSG_WARNING( "Not valid MdtTubeCalibContainer found " );
+    if (m_hasBISsMDT) {
+      // the following check/warning can be removed as soon as sMDT calibration data is available for BIS sMDTs
+      static std::atomic<bool> bisWarningPrinted = false;
+      if (!bisWarningPrinted) {
+        ATH_MSG_WARNING("skipping retrieval of TubeCalibContainer since no BIS sMDT calibrations available in conditions database, cf. ATLASRECTS-5805");
+        bisWarningPrinted.store(true, std::memory_order_relaxed);
+      }
+    } else {
+      tube = getTubeCalibContainer( tubeHash );
+      if( !tube ){
+        ATH_MSG_WARNING( "Not valid MdtTubeCalibContainer found " );
+      }
     }
   }
   
@@ -114,11 +115,11 @@ MuonCalib::MdtFullCalibData MdtCalibrationDbTool::getCalibration( const Identifi
 }
 
 const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbTool::getTubeCalibContainer( const Identifier &idt ) const {
-  Identifier id = m_mdtIdHelper->elementID( idt );
+  Identifier id = m_idHelperSvc->mdtIdHelper().elementID( idt );
 
   IdentifierHash hash;
-  IdContext idCont = m_mdtIdHelper->module_context();
-  m_mdtIdHelper->get_hash( id, hash, &idCont );
+  IdContext idCont = m_idHelperSvc->mdtIdHelper().module_context();
+  m_idHelperSvc->mdtIdHelper().get_hash( id, hash, &idCont );
   
   return getTubeCalibContainer( hash );
 }
@@ -142,14 +143,14 @@ const MuonCalib::MdtTubeCalibContainer* MdtCalibrationDbTool::getTubeCalibContai
 }
 
 const MuonCalib::MdtRtRelation* MdtCalibrationDbTool::getRtCalibration( const Identifier &idt ) const {
-  Identifier id = m_mdtIdHelper->elementID( idt );
+  Identifier id = m_idHelperSvc->mdtIdHelper().elementID( idt );
   IdentifierHash hash;
 
   if( m_regionSvc->RegionType()==ONEPERMULTILAYER ) {
-    m_mdtIdHelper->get_detectorElement_hash( id, hash );   //hash for the ML 
+    m_idHelperSvc->mdtIdHelper().get_detectorElement_hash( id, hash );   //hash for the ML 
   } else {
-    IdContext idCont = m_mdtIdHelper->module_context();
-    m_mdtIdHelper->get_hash( id, hash, &idCont );          //hash for the chamber
+    IdContext idCont = m_idHelperSvc->mdtIdHelper().module_context();
+    m_idHelperSvc->mdtIdHelper().get_hash( id, hash, &idCont );          //hash for the chamber
   }
   hash = m_regionSvc->getRegionHash(hash);
   return getRtCalibration( hash );
@@ -175,14 +176,14 @@ const MuonCalib::MdtRtRelation* MdtCalibrationDbTool::getRtCalibration( const Id
 }
 
 const MuonCalib::MdtCorFuncSet* MdtCalibrationDbTool::getCorFunctions( const Identifier &idt ) const {
-  Identifier id = m_mdtIdHelper->elementID( idt );
+  Identifier id = m_idHelperSvc->mdtIdHelper().elementID( idt );
   IdentifierHash hash;
 
   if( m_regionSvc->RegionType()==ONEPERMULTILAYER ) {
-    m_mdtIdHelper->get_detectorElement_hash( id, hash );   //hash for the ML 
+    m_idHelperSvc->mdtIdHelper().get_detectorElement_hash( id, hash );   //hash for the ML 
   } else {
-    IdContext idCont = m_mdtIdHelper->module_context();
-    m_mdtIdHelper->get_hash( id, hash, &idCont );          //hash for the chamber
+    IdContext idCont = m_idHelperSvc->mdtIdHelper().module_context();
+    m_idHelperSvc->mdtIdHelper().get_hash( id, hash, &idCont );          //hash for the chamber
   }
   hash = m_regionSvc->getRegionHash(hash);
   return getCorFunctions( hash );

@@ -844,8 +844,9 @@ HLT::ErrorCode TrigMuSuperEF::runCaloTagOnly(const HLT::TriggerElement* inputTE,
 HLT::ErrorCode TrigMuSuperEF::runMSReconstruction(const IRoiDescriptor* muonRoI, HLT::TriggerElement* TEout, MuonCandidateCollection& muonCandidates, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn) {
   ATH_MSG_DEBUG("Call getExtrapolatedTracks");
 
-  // Use standalone track tool to find muon candidates
-  HLT::ErrorCode hltStatus = m_TrigMuonEF_saTrackTool->getExtrapolatedTracks(muonRoI, muonCandidates, *m_extrTrkTrackColl, m_TMEF_monVars, m_TMEF_SATimers);
+  // Use standalone track tool to find muon candidate
+  const EventContext& ctx = getContext();
+  HLT::ErrorCode hltStatus = m_TrigMuonEF_saTrackTool->getExtrapolatedTracks(muonRoI, muonCandidates, *m_extrTrkTrackColl, m_TMEF_monVars, m_TMEF_SATimers, ctx);
 
   // only bail out in case of real problem. So still attach features if no muon found: important for caching!
   if ( hltStatus != HLT::OK && hltStatus != HLT::MISSING_FEATURE ) return hltStatus;
@@ -933,7 +934,8 @@ HLT::ErrorCode TrigMuSuperEF::runSegmentTaggedOnly(const HLT::TriggerElement* in
     ATH_MSG_ERROR("Problem getting ID tracks");
     return hltStatus;
   }
-  hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_STTimers);
+  const EventContext& ctx = getContext();
+  hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_STTimers, ctx);
 
   InDetCandidateCollection inDetCandidates;
   buildInDetCandidates(elv_xaodidtrks, &inDetCandidates);
@@ -1059,14 +1061,15 @@ HLT::ErrorCode TrigMuSuperEF::runStandardChain(const HLT::TriggerElement* inputT
     if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
       ATH_MSG_DEBUG( "Executing extend()" );
       ++m_counter_TrigMuGirl.total;
-      hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
+      const EventContext& ctx = getContext();
+      hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers, ctx);
       MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
       m_tagMaps.push_back(mugirlTagMap);
 
       m_muGirlTrkSegColl=new Trk::SegmentCollection();
       addElement(m_segsCache,m_muGirlTrkSegColl);
 
-      m_muGirlTool->extend(inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl);
+      m_muGirlTool->extend(inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl, ctx);
 
       ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
@@ -1928,14 +1931,15 @@ HLT::ErrorCode TrigMuSuperEF::rebuildCache(const IRoiDescriptor* muonRoI, HLT::T
   if(m_doInsideOut && (m_insideOutFirst || !m_doOutsideIn)) {
     ATH_MSG_DEBUG( "Executing extend()" );
     ++m_counter_TrigMuGirl.total;
-    hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers);
+    const EventContext& ctx = getContext();
+    hltStatus = m_TrigMuonEF_saTrackTool->getSegments(muonRoI, m_TMEF_monVars, m_TMEF_SATimers, ctx);
     MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
     m_tagMaps.push_back(mugirlTagMap);
 
     m_muGirlTrkSegColl=new Trk::SegmentCollection();
     addElement(m_segsCache,m_muGirlTrkSegColl);
 
-    m_muGirlTool->extend(*inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl);
+    m_muGirlTool->extend(*inDetCandidates,mugirlTagMap,m_combTrkTrackColl,m_extrTrkTrackColl,m_muGirlTrkSegColl, ctx);
     ++m_counter_TrigMuGirl.pass;//@todo fix this counter      
 
     if(m_doOutsideIn) {
@@ -1987,7 +1991,8 @@ void TrigMuSuperEF::runMuGirl(const ElementLinkVector<xAOD::TrackParticleContain
   ++m_counter_TrigMuGirl.total;
   MuonCombined::InDetCandidateToTagMap* mugirlTagMap=new MuonCombined::InDetCandidateToTagMap();
   m_tagMaps.push_back(mugirlTagMap);
-  m_muGirlTool->extend(*inDetCandidates,mugirlTagMap, m_combTrkTrackColl, m_extrTrkTrackColl, m_muGirlTrkSegColl);
+  const EventContext& ctx = getContext();
+  m_muGirlTool->extend(*inDetCandidates,mugirlTagMap, m_combTrkTrackColl, m_extrTrkTrackColl, m_muGirlTrkSegColl, ctx);
   ++m_counter_TrigMuGirl.pass;//@todo fix this counter
 }
 

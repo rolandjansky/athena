@@ -14,8 +14,7 @@
 // Trk
 #include "TrkEventPrimitives/ParamDefs.h"
 
-namespace Trk
-{
+namespace Trk {
 
 namespace {
 template<typename T>
@@ -26,30 +25,21 @@ sgn(const T& val)
 }
 }
 
-//Helper protected ctor*/
+// Helper protected ctor*/
 template<int DIM, class T>
-ParametersBase<DIM, T>::ParametersBase(
-  const AmgVector(DIM) parameters,
-  AmgSymMatrix(DIM)* covariance,
-  const Amg::Vector3D& position,
-  const Amg::Vector3D& momentum,
-  const T chargeDef)
+ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) parameters,
+                                       AmgSymMatrix(DIM) * covariance,
+                                       const T chargeDef)
   : m_parameters(parameters)
   , m_covariance(covariance)
-  , m_position(position)
-  , m_momentum(momentum)
   , m_chargeDef(chargeDef)
 {}
 
-//Helper protected ctor
-template<int DIM, class T >
-Trk::ParametersBase<DIM, T>::ParametersBase(const Amg::Vector3D& position,
-                                            const Amg::Vector3D& momentum,
-                                            AmgSymMatrix(DIM) * covariance)
+// Helper protected ctor
+template<int DIM, class T>
+Trk::ParametersBase<DIM, T>::ParametersBase(AmgSymMatrix(DIM) * covariance)
   : m_parameters()
   , m_covariance(covariance)
-  , m_position(position)
-  , m_momentum(momentum)
   , m_chargeDef{}
 {}
 // Protected Constructor with local arguments - persistency only
@@ -58,56 +48,31 @@ Trk::ParametersBase<DIM, T>::ParametersBase(const AmgVector(DIM) & parameters,
                                             AmgSymMatrix(DIM) * covariance)
   : m_parameters(parameters)
   , m_covariance(covariance)
-  , m_position{}
-  , m_momentum{}
   , m_chargeDef{}
-{
-  float qop = m_parameters[Trk::qOverP];
-  // decide the sign of the charge
-  if (qop < 0.) {
-    m_chargeDef.setCharge(-1);
-  }
-  double p = 0.0;
-  if (qop != 0.) {
-    p = fabs(1. / qop);
-  } else {
-    // qop is unphysical. No momentum measurement.
-    p = InvalidParam::INVALID_P;
-    qop = InvalidParam::INVALID_QOP;
-  }
-  // fill momentum & then position using the surface
-  m_momentum = Amg::Vector3D(
-    p * cos(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-    p * sin(m_parameters[Trk::phi]) * sin(m_parameters[Trk::theta]),
-    p * cos(m_parameters[Trk::theta]));
-}
+{}
 
 template<int DIM, class T>
-const AmgVector(DIM) & 
-ParametersBase<DIM, T>::parameters() const
+  const AmgVector(DIM) & ParametersBase<DIM, T>::parameters() const
 {
   return m_parameters;
 }
 
 template<int DIM, class T>
-const AmgSymMatrix(DIM)* 
-ParametersBase<DIM, T>::covariance() const
+  AmgVector(DIM) & ParametersBase<DIM, T>::parameters()
+{
+  return m_parameters;
+}
+
+template<int DIM, class T>
+  const AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance() const
 {
   return m_covariance.get();
 }
 
 template<int DIM, class T>
-const Amg::Vector3D&
-ParametersBase<DIM, T>::position() const
+  AmgSymMatrix(DIM) * ParametersBase<DIM, T>::covariance()
 {
-  return m_position;
-}
-
-template<int DIM, class T>
-const Amg::Vector3D&
-ParametersBase<DIM, T>::momentum() const
-{
-  return m_momentum;
+  return m_covariance.get();
 }
 
 template<int DIM, class T>
@@ -136,13 +101,6 @@ ParametersBase<DIM, T>::isCharged() const
 }
 
 template<int DIM, class T>
-double
-ParametersBase<DIM, T>::charge() const
-{
-  return m_chargeDef.charge();
-}
-
-template<int DIM, class T>
 Amg::Vector2D
 ParametersBase<DIM, T>::localPosition() const
 {
@@ -151,7 +109,27 @@ ParametersBase<DIM, T>::localPosition() const
 
 template<int DIM, class T>
 void
-ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
+ParametersBase<DIM, T>::setParameters(const AmgVector(DIM) & param)
+{
+  m_parameters = param;
+}
+
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::setCovariance(const AmgSymMatrix(DIM) & cov)
+{
+  // if the covariance is there update in place
+  if (m_covariance) {
+    (*m_covariance) = cov;
+  } else { // otherwise create one
+    m_covariance = std::make_unique<AmgSymMatrix(DIM)>(cov);
+  }
+}
+
+template<int DIM, class T>
+void
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
+                                           updatedParameters,
                                          AmgSymMatrix(DIM) * updatedCovariance)
 {
   // update the covariance
@@ -167,8 +145,10 @@ ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameter
 // update function
 template<int DIM, class T>
 void
-ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) & updatedParameters,
-                                         const AmgSymMatrix(DIM) & updatedCovariance)
+ParametersBase<DIM, T>::updateParameters(const AmgVector(DIM) &
+                                           updatedParameters,
+                                         const AmgSymMatrix(DIM) &
+                                           updatedCovariance)
 {
   // if the covariance is there update in place
   if (m_covariance) {
@@ -194,9 +174,8 @@ ParametersBase<DIM, T>::operator==(const ParametersBase<DIM, T>& rhs) const
   // compare covariance
   if (((this->covariance() != nullptr) && (rhs.covariance() != nullptr) &&
        !this->covariance()->isApprox(*rhs.covariance(), tolerance)) ||
-      (!this->covariance() !=
-       !rhs.covariance())) { // <-- this is: covariance() XOR
-                                  // pCast->covariance()
+      (!this->covariance() != !rhs.covariance())) { // <-- this is: covariance()
+                                                    // XOR pCast->covariance()
     return false;
   }
 

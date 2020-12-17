@@ -2,92 +2,129 @@
 
 from TriggerMenuMT.HLTMenuConfig.Electron.ElectronRecoSequences import l2CaloRecoCfg, l2CaloHypoCfg
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import CAMenuSequence, \
-    ChainStep, Chain, createStepView, EmptyMenuSequence
+    ChainStep, Chain, EmptyMenuSequence, InViewReco, SelectionCA
 
 from TrigEgammaHypo.TrigEgammaFastCaloHypoTool import TrigEgammaFastCaloHypoToolFromDict
-from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from AthenaConfiguration.ComponentFactory import CompFactory
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import getChainMultFromDict
 
-# TODO remove once full tracking is in place
-def fakeHypoAlgCfg(flags, name="FakeHypoForElectron"):    
-    return CompFactory.getComp("HLTTest::TestHypoAlg")( name, Input="" )
 
 
-def generateChains( flags,  chainDict ):
-    import pprint
-    pprint.pprint( chainDict )
+def generateChains(flags, chainDict):
 
-    firstStepName = 'FastCaloElectron'
-    stepReco, stepView = createStepView(firstStepName)
+    def __fastCalo():
+        selAcc=SelectionCA('FastCaloElectron')
+        selAcc.mergeReco(l2CaloRecoCfg(flags))
 
-    accCalo = ComponentAccumulator()
-    accCalo.addSequence(stepView)
+        # this alg needs EventInfo decorated with the  pileup info
+        from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
+        selAcc.merge(LumiBlockMuWriterCfg(flags))
 
-    l2CaloReco = l2CaloRecoCfg(flags)
-    accCalo.merge(l2CaloReco, sequenceName=stepReco.getName())
+        l2CaloHypo = l2CaloHypoCfg(flags,
+                                   name='L2ElectronCaloHypo',
+                                   CaloClusters=recordable('HLT_FastCaloEMClusters'))
 
-    # this alg needs EventInfo decorated with the  pileup info
-    from LumiBlockComps.LumiBlockMuWriterConfig import LumiBlockMuWriterCfg
-    accCalo.merge( LumiBlockMuWriterCfg(flags) )
+        selAcc.addHypoAlgo(l2CaloHypo)
 
-    l2CaloHypo =  l2CaloHypoCfg( flags, name = 'L2ElectronCaloHypo',
-                                 CaloClusters = recordable('HLT_FastCaloEMClusters'))
+        fastCaloSequence = CAMenuSequence(selAcc,
+                                          HypoToolGen=TrigEgammaFastCaloHypoToolFromDict)
 
-    accCalo.addEventAlgo(l2CaloHypo, sequenceName=stepView.getName())
+        # this cannot work for asymmetric combined chains....FP
+        return ChainStep(name=selAcc.name, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
-    fastCaloSequence = CAMenuSequence( Sequence    = l2CaloReco.sequence(),
-                                     Maker       = l2CaloReco.inputMaker(),
-                                     Hypo        = l2CaloHypo,
-                                     HypoToolGen = TrigEgammaFastCaloHypoToolFromDict, 
-                                     CA = accCalo)
+    def __ftf():
+        selAcc=SelectionCA('ElectronFTF')
 
-    accCalo.printConfig()
+        # # # fast ID (need to be customised because require secialised configuration of the views maker - i.e. parent has to be linked)
+        name = "IMFastElectron"
+        evtViewMaker = CompFactory.EventViewCreatorAlgorithm(name,
+                                                              ViewFallThrough = True,
+                                                              RoIsLink        = 'initialRoI',
+                                                              RoITool         = CompFactory.ViewCreatorInitialROITool(),
+                                                              InViewRoIs      = name+'RoIs',
+                                                              Views           = name+'Views',
+                                                              ViewNodeName    = name+"InView",
+                                                              RequireParentView = True)
+        del name
 
-    fastCaloStep = ChainStep(name=firstStepName, Sequences=[fastCaloSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+        from TrigInDetConfig.TrigInDetConfig import trigInDetFastTrackingCfg
+        idTracking = trigInDetFastTrackingCfg(flags, roisKey=evtViewMaker.InViewRoIs, signatureName="Electron")
 
+        fastInDetReco = InViewReco('FastElectron', viewMaker=evtViewMaker)
+        fastInDetReco.mergeReco(idTracking)
+        fastInDetReco.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDVElectronFastCalo',
+                                  DataObjects=[('xAOD::TrigEMClusterContainer', 'StoreGateSvc+HLT_FastCaloEMClusters')]) )
 
-    secondStepName = 'ElectronFTF'
-    stepReco, stepView = createStepView(secondStepName)
+        from TrigEgammaHypo.TrigEgammaFastElectronFexMTConfig import fastElectronFexAlgCfg
+        fastInDetReco.mergeReco(fastElectronFexAlgCfg(flags, rois=evtViewMaker.InViewRoIs))
+        selAcc.mergeReco(fastInDetReco)
 
-    accTrk = ComponentAccumulator()
-    accTrk.addSequence(stepView)
+        fastElectronHypoAlg = CompFactory.TrigEgammaFastElectronHypoAlgMT()
+        fastElectronHypoAlg.Electrons = 'HLT_FastElectrons'
+        fastElectronHypoAlg.RunInView = True
+        selAcc.addHypoAlgo(fastElectronHypoAlg)
 
-    # # # fast ID
-    from TrigInDetConfig.TrigInDetConfig import indetInViewRecoCfg
-    fastInDetReco = indetInViewRecoCfg(flags, viewMakerName='ElectronInDet', signature='Electron')
-    accTrk.merge( fastInDetReco, sequenceName=stepReco.getName() )
-    # TODO once tracking fully works remove fake hypos
+        from TrigEgammaHypo.TrigEgammaFastElectronHypoTool import TrigEgammaFastElectronHypoToolFromDict
+        fastInDetSequence = CAMenuSequence(selAcc,
+                                           HypoToolGen=TrigEgammaFastElectronHypoToolFromDict)
 
-
-    # TODO remove once full tracking is in place
-    fakeHypoAlg = fakeHypoAlgCfg(flags, name='FakeHypoForElectron')
-
-
-    def makeFakeHypoTool(chainDict, cfg = None):
-        return CompFactory.getComp("HLTTest::TestHypoTool")(chainDict['chainName'])
-
-    accTrk.addEventAlgo(fakeHypoAlg, sequenceName=stepView.getName())
-
-    fastInDetSequence = CAMenuSequence( Sequence    = fastInDetReco.sequence(),
-                                      Maker       = fastInDetReco.inputMaker(),
-                                      Hypo        = fakeHypoAlg,
-                                      HypoToolGen = makeFakeHypoTool,
-                                      CA = accTrk)
-
-    fastInDetStep = ChainStep( name=secondStepName, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+        return ChainStep( name=selAcc.name, Sequences=[fastInDetSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
         l1Thresholds.append(part['L1threshold'])
-    
-    # # # EF calo
 
-    # # # EF ID
-    
+    # # # Precision calo
+    def __precisonCalo():
+        recoAcc = InViewReco('ElectronRoITopoClusterReco')
+        recoAcc.addRecoAlgo(CompFactory.AthViews.ViewDataVerifier(name='VDV'+recoAcc.name,
+                                                                  DataObjects=[('TrigRoiDescriptorCollection', recoAcc.inputMaker().InViewRoIs),
+                                                                               ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage')]))
+
+        from TrigCaloRec.TrigCaloRecConfig import hltCaloTopoClusteringCfg
+        recoAcc.mergeReco(hltCaloTopoClusteringCfg(flags,
+                                                   FS=False,
+                                                   roisKey=recoAcc.inputMaker().InViewRoIs)) # RoI
+
+        copier = CompFactory.egammaTopoClusterCopier('TrigEgammaTopoClusterCopierPrecisionCaloRoIs',
+                                                     InputTopoCollection='HLT_TopoCaloClustersRoI',
+                                                     OutputTopoCollection='HLT_CaloEMClusters',
+                                                     OutputTopoCollectionShallow='tmp_HLT_CaloEMClusters')
+        recoAcc.addRecoAlgo(copier)
+
+        selAcc = SelectionCA('PrecisionCalo')
+        selAcc.mergeReco(recoAcc)
+        hypoAlg = CompFactory.TrigEgammaPrecisionCaloHypoAlgMT(name='ElectronPrecisionCaloHypo',
+                                                               CaloClusters=recordable('HLT_CaloEMClusters'))
+        selAcc.addHypoAlgo(hypoAlg)
+        from TrigEgammaHypo.TrigEgammaPrecisionCaloHypoTool import TrigEgammaPrecisionCaloHypoToolFromDict
+        menuSequence = CAMenuSequence(selAcc,
+                                      HypoToolGen=TrigEgammaPrecisionCaloHypoToolFromDict)
+        return ChainStep(name=selAcc.name, Sequences=[menuSequence], chainDicts=[chainDict], multiplicity=getChainMultFromDict(chainDict))
+
+    # # # Precison tracking
+
+
     # # # offline egamma
     emptyStep = ChainStep(name="EmptyElStep", Sequences=[EmptyMenuSequence("EmptyElStep")], chainDicts=[chainDict])
-    chain = Chain( chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[fastCaloStep, fastInDetStep, emptyStep] )
-    
+    chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds,
+                            ChainSteps=[__fastCalo(), __ftf(), __precisonCalo(), emptyStep, emptyStep,])
+
     return chain
+
+if __name__ == "__main__":
+    # run with: python -m TriggerMenuMT.HLTMenuConfig.Electron.generateElectron
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior=1
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.TestDefaults import defaultTestFiles
+    ConfigFlags.Input.Files = defaultTestFiles.RAW
+    ConfigFlags.lock()
+    from ..Menu.DictFromChainName import dictFromChainName
+    chain = generateChains(ConfigFlags, dictFromChainName('HLT_e26_L1EM15'))
+    for step in chain.steps:
+        for s in step.sequences:
+            if not isinstance(s, EmptyMenuSequence):
+                s.ca.printConfig(withDetails=True, summariseProps=False) # flip the last arg to see all settings
+                s.ca.wasMerged() # to silence check for orphanted CAs

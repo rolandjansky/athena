@@ -42,16 +42,16 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_energyBalModPartGroups = buildToolMap<int>(m_tools, "TileCellEneBalModPart", nL1Triggers);
   m_timeBalModPartGroups = buildToolMap<int>(m_tools, "TileCellTimeBalModPart", nL1Triggers);
   m_maskedOnFlyGroups = buildToolMap<int>(m_tools, "TileCellStatusOnFly", Tile::MAX_ROS - 1);
-  m_maskedDueDQGroups = buildToolMap<int>(m_tools, "TileMaskChannelDueDQvsLB", Tile::MAX_ROS - 1);
-  m_maskedCellsDueDQGroups = buildToolMap<int>(m_tools, "TileMaskedCellDueDQvsLB", Tile::MAX_ROS - 1);
+  m_maskedDueDQGroups = buildToolMap<int>(m_tools, "TileMaskChannelDueDQvsLB", MAX_PART);
+  m_maskedCellsDueDQGroups = buildToolMap<int>(m_tools, "TileMaskedCellDueDQvsLB", MAX_PART);
 
-  m_maskedOnFlyLBGroups = buildToolMap<int>(m_tools, "TileMaskChannelOnFlyLB", Tile::MAX_ROS - 1);
-  m_maskedCellsLBGroups = buildToolMap<int>(m_tools, "TileMaskCellLB", Tile::MAX_ROS - 1);
+  m_maskedOnFlyLBGroups = buildToolMap<int>(m_tools, "TileMaskChannelOnFlyLB", MAX_PART);
+  m_maskedCellsLBGroups = buildToolMap<int>(m_tools, "TileMaskCellLB", MAX_PART);
 
   m_maskedGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellStatusInDB",
                                                   Tile::MAX_ROS - 1, Tile::MAX_GAIN);
 
-  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergySampE",
+  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergy_SampE",
                                                        Tile::MAX_ROS, nL1Triggers);
 
   m_moduleCorrGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellModuleCorrelation",
@@ -74,6 +74,9 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
 
   m_overThr300GeVOccupGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellDetailOccMapOvThr300GeV",
                                                               Tile::MAX_ROS - 1, nL1Triggers);
+
+  m_eneDiffChanModGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEneDiffChanMod",
+                                                          Tile::MAX_ROS - 1, nL1Triggers);
 
   m_overThrOccupGainGroups = buildToolMap<std::vector<std::vector<int>>>(m_tools, "TileCellDetailOccMapOvThrGain",
                                                                          Tile::MAX_ROS - 1, Tile::MAX_GAIN, nL1Triggers);
@@ -104,6 +107,7 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_negOccupGroups = buildToolMap<int>(m_tools, "TileCellDetailNegOccMap", Tile::MAX_ROS - 1);
   m_timeBalGroups = buildToolMap<int>(m_tools, "TileCellTimeBalance", Tile::MAX_ROS - 1);
   m_energyBalGroups = buildToolMap<int>(m_tools, "TileCellEnergyBalance", Tile::MAX_ROS - 1);
+
 
   return TileMonitorAlgorithm::initialize();
 }
@@ -193,6 +197,10 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   std::vector<int> overThr300GeVOccupModule[Tile::MAX_ROS - 1];
   std::vector<int> overThr300GeVOccupChannel[Tile::MAX_ROS - 1];
+
+  std::vector<int> eneDiff[Tile::MAX_ROS - 1];
+  std::vector<int> eneDiffChannel[Tile::MAX_ROS - 1];
+  std::vector<int> eneDiffModule[Tile::MAX_ROS - 1];
 
   std::vector<int> maskedOnFlyDrawers[Tile::MAX_ROS - 1];
   std::vector<int> maskedOnFlyChannel[Tile::MAX_ROS - 1];
@@ -560,6 +568,14 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
             energyBal[partition1].push_back(energyRatio);
             energyBalModule[partition1].push_back(module);
 
+            eneDiff[partition1].push_back(energyDiff);
+            eneDiffChannel[partition1].push_back(channel1);
+            eneDiffModule[partition1].push_back(module);
+
+            eneDiff[partition2].push_back(-1.0 * energyDiff);
+            eneDiffChannel[partition2].push_back(channel2);
+            eneDiffModule[partition2].push_back(module);
+
             if (fillEneAndTimeDiff) {
               sampEnergyDiff[partition1][sample].push_back(energyDiff);
             }
@@ -705,18 +721,6 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   for (unsigned int partition = 0; partition < Tile::MAX_ROS - 1; ++partition) {
 
-    auto monMaskedDueDQ = Monitored::Scalar<int>("nMaskedChannelsDueDQ", nMaskedChannelsDueDQ[partition]);
-    fill(m_tools[m_maskedDueDQGroups[partition]], lumiBlock, monMaskedDueDQ);
-
-    auto monMaskedCellsDueDQ = Monitored::Scalar<int>("nMaskedCellsDueDQ", nMaskedCellsDueDQ[partition]);
-    fill(m_tools[m_maskedCellsDueDQGroups[partition]], lumiBlock, monMaskedCellsDueDQ);
-
-    auto monMaskedOnFly = Monitored::Scalar<int>("nMaskedChannelsOnFly", nBadChannelsOnFly[partition]);
-    fill(m_tools[m_maskedOnFlyLBGroups[partition]], lumiBlock, monMaskedOnFly);
-
-    auto monMaskedCellsOnFly = Monitored::Scalar<int>("nMaskedCells", nBadCells[partition]);
-    fill(m_tools[m_maskedCellsLBGroups[partition]], lumiBlock, monMaskedCellsOnFly);
-
     if (!maskedOnFlyDrawers[partition].empty()) {
       auto monModule = Monitored::Collection("module", maskedOnFlyDrawers[partition]);
       auto monChannel = Monitored::Collection("channel", maskedOnFlyChannel[partition]);
@@ -786,6 +790,15 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       }
     }
 
+    if (!eneDiff[partition].empty()) {
+      auto monEnergyDiff = Monitored::Collection("energyDiff", eneDiff[partition]);
+      auto monModule = Monitored::Collection("module", eneDiffModule[partition]);
+      auto monChannel = Monitored::Collection("channel", eneDiffChannel[partition]);
+      for (int l1TriggerIdx : l1TriggersIndices) {
+        fill(m_tools[m_eneDiffChanModGroups[partition][l1TriggerIdx]], monModule, monChannel, monEnergyDiff);
+      }
+    }
+
     for (unsigned int gain = 0; gain < Tile::MAX_GAIN; ++gain) {
       if (!overThrOccupGainModule[partition][gain].empty()) {
         auto monModule = Monitored::Collection("module", overThrOccupGainModule[partition][gain]);
@@ -832,6 +845,19 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   }
 
   for (int partition = 0; partition < MAX_PART; ++partition) {
+    auto monMaskedDueDQ = Monitored::Scalar<int>("nMaskedChannelsDueDQ", nMaskedChannelsDueDQ[partition]);
+    fill(m_tools[m_maskedDueDQGroups[partition]], lumiBlock, monMaskedDueDQ);
+
+    auto monMaskedCellsDueDQ = Monitored::Scalar<int>("nMaskedCellsDueDQ", nMaskedCellsDueDQ[partition]);
+    fill(m_tools[m_maskedCellsDueDQGroups[partition]], lumiBlock, monMaskedCellsDueDQ);
+
+    auto monMaskedOnFly = Monitored::Scalar<int>("nMaskedChannelsOnFly", nBadChannelsOnFly[partition]);
+    fill(m_tools[m_maskedOnFlyLBGroups[partition]], lumiBlock, monMaskedOnFly);
+
+    auto monMaskedCellsOnFly = Monitored::Scalar<int>("nMaskedCells", nBadCells[partition]);
+    fill(m_tools[m_maskedCellsLBGroups[partition]], lumiBlock, monMaskedCellsOnFly);
+
+
     if (moduleCorr[partition].numberOfPairs() > 0) {
       const PairBuilder::PairVector pairs = moduleCorr[partition].pairs();
       auto monModule1 = Monitored::Collection("firstModule", pairs, [] (const PairBuilder::XYPair& p) {return (double) p.first;});

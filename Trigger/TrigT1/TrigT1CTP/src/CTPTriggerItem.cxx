@@ -2,12 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "./CTPTriggerItem.h"
 #include "TrigConfData/LogicParser.h"
-
 #include "TrigConfL1Data/TriggerItem.h"
 
-#include "./CTPTriggerItem.h"
-
+#include <exception>
 
 LVL1CTP::CTPTriggerItem::CTPTriggerItem()
 {}
@@ -88,8 +87,13 @@ LVL1CTP::CTPTriggerItem::evaluate( const std::map<std::string, unsigned int> & t
       if( dec && (! m_bunchGroups.empty()) ) {
          // apply bunchgroups, if set (if not set, it is part of the logic)
          for( auto & bgName : m_bunchGroups ) {
-            if( thrDecMap.at(bgName) == 0 ) {
-               dec = false; break;
+            try {
+               if( thrDecMap.at(bgName) == 0 ) {
+                  dec = false; break;
+               }
+            }
+            catch(std::exception &) {
+               throw std::runtime_error( "Problem accessing decision for bunchgroup " + bgName);
             }
          }
       }

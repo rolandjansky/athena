@@ -74,16 +74,13 @@
 #define KLGaussianMixReductionUtils_H
 
 #include "CxxUtils/features.h"
+#include "TrkGaussianSumFilter/GsfConstants.h"
+#include <array>
 #include <cstdint>
 #include <utility>
 #include <vector>
 
 namespace GSFUtils {
-
-/**
- * @brief Alignment used  for SIMD
- */
-constexpr size_t alignment = 32;
 
 /**
  * @brief struct representing 1D component
@@ -98,21 +95,50 @@ struct Component1D
 };
 
 /**
+ * @brief struct representing an array of 1D component.
+ * with the maximum size we can have after convolution
+ * with material effects.
+ */
+struct Component1DArray
+{
+  alignas(GSFConstants::alignment)
+    std::array<Component1D,
+               GSFConstants::maxComponentsAfterConvolution> components{};
+  int32_t numComponents = 0;
+};
+
+struct MergeArray
+{
+  struct merge
+  {
+    int8_t To = 0;
+    int8_t From = 0;
+  };
+  std::array<merge, GSFConstants::maxComponentsAfterConvolution> merges{};
+  int32_t numMerges=0;
+};
+
+/* typedef tracking which component has been merged
+ */
+
+using IsMergedArray =
+  std::array<bool, GSFConstants::maxComponentsAfterConvolution>;
+
+/**
  * @brief Merge the componentsIn and return
- * which componets got merged
+ * which componets got merged in each step
+ * the first element of the pair is the merged to
+ * the secone element is the merged from
  *
  * inputSize is expected to be >0, <128
  * and reducedSize < inputsize. Invalid input
  * will cause a runtime exception
  *
  * Furthemore, the input component array is assumed to be
- * GSFUtils::alignment aligned.
- * Can be created via the AlignedDynArray.
+ * GSFConstants::alignment aligned.
  */
-std::vector<std::pair<int8_t, int8_t>>
-findMerges(Component1D* componentsIn,
-           const int8_t inputSize,
-           const int8_t reducedSize);
+MergeArray
+findMerges(Component1DArray& componentsIn, const int8_t reducedSize);
 
 /**
  * @brief For finding the index of the minumum pairwise distance

@@ -65,9 +65,9 @@ def getTransform(RAWtoALL=False):
     # For digi step - make sure we can add the digitisation/simulation arguments
     # before we add this substep; allows Reco_tf to work without AtlasSimulation
     try:
-        from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addBasicDigiArgs, addPileUpTrfArgs, addCommonSimDigTrfArgs
+        from SimuJobTransforms.simTrfArgs import addForwardDetTrfArgs, addPileUpTrfArgs, addCommonSimDigTrfArgs
         from SimuJobTransforms.SimTransformUtils import addDigitizationSubstep
-        addBasicDigiArgs(trf.parser)
+        # NB "Basic Digi Args" are added by the overlay setup below, so no need for addBasicDigiArgs here
         addForwardDetTrfArgs(trf.parser)
         addPileUpTrfArgs(trf.parser)
         addCommonSimDigTrfArgs(trf.parser)

@@ -28,8 +28,9 @@ if 'ESD' not in DQMonFlags.monManEnvironment() and globalflags.DataSource == 'da
     from LArMonitoring.LArDigitMonAlg import LArDigitMonConfigOld
     topSequence +=LArDigitMonConfigOld(DQMonFlags)
 
-    from LArMonitoring.LArRODMonAlg import LArRODMonConfigOld
-    topSequence +=LArRODMonConfigOld(DQMonFlags)
+    if not DQMonFlags.doLArMon():
+        from LArMonitoring.LArRODMonAlg import LArRODMonConfigOld
+        topSequence +=LArRODMonConfigOld(DQMonFlags)
 
     from LArMonitoring.LArFEBMonAlg import LArFEBMonConfigOld
     topSequence +=LArFEBMonConfigOld(DQMonFlags)

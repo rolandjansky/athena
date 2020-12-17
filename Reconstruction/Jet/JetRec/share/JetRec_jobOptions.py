@@ -109,7 +109,7 @@ addJetRecoToAlgSequence()
 # save event shapes set with the JetAlgorithm
 #--------------------------------------------------------------
 for esTool in jtm.allEDTools:
-    jetFlags.jetAODList += [ "xAOD::EventShape#"+esTool.OutputContainer,
-                             "xAOD::EventShapeAuxInfo#"+esTool.OutputContainer+'Aux.' ]
+    jetFlags.jetAODList += [ "xAOD::EventShape#%s" % esTool.OutputContainer,
+                             "xAOD::EventShapeAuxInfo#%sAux." % esTool.OutputContainer ]
 
 jetlog.info( myname + "End." )

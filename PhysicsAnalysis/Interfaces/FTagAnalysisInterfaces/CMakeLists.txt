@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # The name of the package:
 atlas_subdir( FTagAnalysisInterfaces )
 
@@ -6,7 +8,7 @@ atlas_add_library( FTagAnalysisInterfacesLib
    FTagAnalysisInterfaces/*.h
    INTERFACE
    PUBLIC_HEADERS FTagAnalysisInterfaces
-   LINK_LIBRARIES AsgTools xAODBTagging xAODJet PATCoreLib CalibrationDataInterfaceLib PATInterfaces xAODBTaggingEfficiencyLib )
+   LINK_LIBRARIES AsgTools xAODBTaggingEfficiencyLib xAODJet PATCoreLib PATInterfaces CalibrationDataInterfaceLib )
 
 atlas_add_dictionary( FTagAnalysisInterfacesDict
    FTagAnalysisInterfaces/FTagAnalysisInterfacesDict.h

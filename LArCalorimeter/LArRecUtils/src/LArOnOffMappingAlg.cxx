@@ -1,7 +1,7 @@
 //dear emacs, this is -*-c++-*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArOnOffMappingAlg.h"
@@ -111,7 +111,6 @@ StatusCode LArOnOffMappingAlg::execute() {
 
   for (unsigned i=0;i<nChan;++i) {
     const Identifier id=Identifier(Identifier32(pBlobOnOff[i]));
-    //std::cout << "id[" << i <<"] " << std::hex << id.get_compact() << std::dec << std::endl;
     if (id.is_valid()) {
       const IdentifierHash oflHash=calocellID->calo_cell_hash(id);
       const HWIdentifier hwid=larOnlineID->channel_Id(IdentifierHash(i));

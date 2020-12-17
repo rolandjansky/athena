@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // LArG4::HEC::LocalGeometry
@@ -48,21 +48,16 @@ namespace LArG4 {
           xh = 4;
         }
 
-      //   std::cout<<"binSearch::ly "<<ly<<" depth: "<<depth<<" reg: "<<reg<<std::endl;
-      //   if(ly < m_pads[depth][xl] || ly > m_pads[depth][xh] ) return -1;
       if(ly < m_pads[depth][xl]) return xl;
       if(ly > m_pads[depth][xh] ) return xh-1;
       while( xl < xh - 1 ) {
         const int ires(xl + (xh - xl)/2);
-        //     G4cout<<"xl: "<<xl<<" xh: "<<xh<<" ires: "<<ires<<" m_pads[depth][ires]: "<< m_pads[depth][ires]<<endl;
         if (ly == m_pads[depth][ires]) return ires - 1;
         if (ly < m_pads[depth][ires])
           xh = ires;
         else
           xl = ires;
       }
-      //   std::cout<<xl<<std::endl;
-
       return xl;
     }
 
@@ -72,20 +67,16 @@ namespace LArG4 {
       int xh(14); // = NUM_ETABIN-1
       int ires(0);
 
-      //   std::cout<<"binSearchAll::ly "<<ly<<" depth: "<<depth<<" regular: "<<regular<<std::endl;
-      //   if(ly < m_pads[depth][xl] || ly > m_pads[depth][xh] ) return -1;
       if(ly < m_pads[depth][xl]) return xl;
       if(ly > m_pads[depth][xh] ) return xh-1;
       while( xl < xh - 1 ) {
         ires = xl + (xh - xl)/2;
-        //     G4cout<<"xl: "<<xl<<" xh: "<<xh<<" ires: "<<ires<<" m_pads[depth][ires]: "<< m_pads[depth][ires]<<endl;
         if (ly == m_pads[depth][ires]) return ires - 1;
         if (ly < m_pads[depth][ires])
           xh = ires;
         else
           xl = ires;
       }
-      //   std::cout<<xl<<" "<<m_pads[depth][xl]<<" "<<m_pads[depth][xl+1]<<std::endl;
       if(regular) { // we should recompute to 0.1 eta binning overall numbering
         if(xl < 4) {
           ires = xl;
@@ -95,7 +86,6 @@ namespace LArG4 {
           xl += 4;
         }
       }
-      //   std::cout<<"After recomput.: "<<xl<<std::endl;
       return xl;
     }
 
@@ -209,9 +199,6 @@ namespace LArG4 {
       //      if(g_type == kLocDead) {
       if(deadzone == 0.) {
         // The hitted volume's identier is possible to get by the name of his "mother" volume.
-        // G4cout <<" hitLogiVolume->GetNoDaughters=   " <<hitLogiVolume->GetNoDaughters()<<G4endl;
-        // G4cout <<"+++++"<<hitLogiVolume->GetDaughter(1)->GetLogicalVolume()->GetMaterial()->GetName()<<G4endl;
-        // G4cout <<"+++++"<<hitLogiVolume->GetName()<<G4endl;
 
         G4String hitVolume=a_step->GetPreStepPoint()->GetPhysicalVolume()->GetName();
 
@@ -317,9 +304,6 @@ namespace LArG4 {
         // Check, if we are not in dead zone
         double distance = deadZone(fabs(locx),locy);
         if(depthadd < 0 || distance < deadzone) { // we return the dead identifier
-#ifdef DEBUG_HEC
-          std::cout<<" In active copyModule = "<< copyModule<<std::endl;
-#endif
           if(zSide * locx < 0) phiBin = copyModule;
           else {
             if(copyModule == 31) phiBin = 0; else phiBin=copyModule+1;
@@ -332,10 +316,6 @@ namespace LArG4 {
                  << region+2
                  << etaBin
                  << phiBin;
-#ifdef DEBUG_HEC
-          std::cout <<"HEC::LocalGeometry ++Dead in active  zSide = "<<zSide<<" type = 2"<<" , sampling = "<<sampling
-                    <<"  ,  region="<<region+2 << " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
-#endif
 
         } else { // we return regular ID
 
@@ -362,10 +342,6 @@ namespace LArG4 {
                        << region
                        << etaBin
                        << phiBin;
-#ifdef DEBUG_HEC
-          std::cout <<"HEC::LocalGeometry ++Active zSide = "<<zSide<<" , sampling = "<<sampling<<"  ,  region="<<region <<
-            " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
-#endif
         }
 
         return result;
@@ -417,13 +393,7 @@ namespace LArG4 {
             if(zSide * pinLocal.x() > 0) ++phiBin;
             }
           */
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-          std::cout<<"HEC::LocalGeometry Module locy: "<<locy<<" locz: "<<locz<<std::endl;
-#endif
           if(abslocz < m_firstAbsorber[0]) { // in front of HEC
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-            std::cout<<"In front of HEC"<<std::endl;
-#endif
             type = 1;
             sampling = 2;
             region = 3;
@@ -431,9 +401,6 @@ namespace LArG4 {
             etaBin = 16 - binSearchAll(locy, 0, true);
             if( etaBin < 0 ) etaBin = 0;
           } else if(abslocz > m_depthSize[0] + m_depthSize[1] + m_depthSize[2] && abslocz < m_depthSize[0] + m_depthSize[1] + m_depthSize[2] + m_betweenWheel + m_firstAbsorber[3]) { // interwheel gap
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-            std::cout<<"interwheel gap"<<std::endl;
-#endif
             type = 1;
             sampling = 2;
             region = 4;
@@ -443,9 +410,6 @@ namespace LArG4 {
             //         sampling = localSampling(pinLocal.z()/Units::mm);
             double distance = deadZone(fabs(pinLocal.x()/Units::mm),locy);
             if(distance > deadzone) { // We should return the inactive Id !!!!
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-              std::cout<<"inactive Id"<<std::endl;
-#endif
               int depthNum;
               if(abslocz < m_depthSize[0]) {
                 sampling = 0; depthNum=0;
@@ -475,10 +439,6 @@ namespace LArG4 {
                 etaBin = 13;
               }
               etaBin -= binSearch(locy, depthNum, region);
-#ifdef DEBUG_HEC
-              std::cout <<"HEC::LocalGeometry zSide = "<<zSide<<" , sampling = "<<sampling<<"  ,  region="<<region <<
-                " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
-#endif
               if(region==1 && etaBin == 3 && (sampling == 1 || sampling == 2)) etaBin = 2;
               if(region==0 && etaBin == 0 &&  sampling == 2) etaBin = 1;
               if(region==0 && etaBin < 2 &&  sampling == 3) etaBin = 2;
@@ -491,9 +451,6 @@ namespace LArG4 {
                      << phiBin;
               return result;
             } // intermodule cracks otherwise
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-            std::cout<<"intermodule crack"<<std::endl;
-#endif
             if(zSide<0) {
               if(copyN-1<16) copyModule = abs(copyN - 1 - 15); else copyModule = 47 - (copyN - 1);
             } else {
@@ -528,9 +485,6 @@ namespace LArG4 {
               region = 2;
               etaBin = 13;
             }
-#ifdef DEBUG_HEC_OLD_DIAGNOSTIC
-            std::cout<<locy<<" "<<m_pads[depthNum][4]<<" "<<region<<std::endl;
-#endif
             etaBin -= binSearch(locy, depthNum, region-2);
           }
         } else if (copyN==50 ) { // First Absorber - in front of HEC
@@ -605,7 +559,6 @@ namespace LArG4 {
           } else { // intermodule cracks
             double distance = deadZone(fabs(locx),locy);
             if(distance > deadzone) { // We should return the inactive Id !!!!
-              //               std::cout<<"Calling kLocInactive"<<std::endl;
               return CalculateIdentifier(a_step, kLocInactive, -1, deadzone);
             }
             copyModule  = theTouchable->GetVolume(1)->GetCopyNo() - 1;
@@ -635,10 +588,6 @@ namespace LArG4 {
           }
         }
 
-#ifdef DEBUG_HEC
-        std::cout <<"HEC::LocalGeometry ++Dead   zSide = "<<zSide<<" type = "<<type<<" , sampling = "<<sampling
-                  <<"  ,  region="<<region << " , phiBin="<<phiBin<< " ,  etaBin="<<etaBin <<std::endl;
-#endif
 
         result << 10          // DeadM
                << 2*zSide     // LAr

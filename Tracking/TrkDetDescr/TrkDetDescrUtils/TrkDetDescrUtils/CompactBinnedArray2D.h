@@ -27,7 +27,7 @@ namespace Trk {
    */
 
 template<class T>
-class CompactBinnedArray2DT : public CompactBinnedArrayT<T>
+class CompactBinnedArray2DT final: public CompactBinnedArrayT<T>
 {
 
 public:
@@ -101,6 +101,12 @@ public:
   CompactBinnedArray2DT* clone() const
   {
     return new CompactBinnedArray2DT(m_arrayObjects, m_array, m_binUtility->clone(), m_buVec);
+  }
+
+  CompactBinnedArray2DT* clone(const std::vector<T*>& ptrs) const
+  {
+    assert (ptrs.size() == m_arrayObjects.size());
+    return new CompactBinnedArray2DT(ptrs, m_array, m_binUtility->clone(), m_buVec);
   }
 
   /**Virtual Destructor*/

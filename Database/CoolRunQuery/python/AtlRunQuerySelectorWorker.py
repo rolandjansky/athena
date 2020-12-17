@@ -3,14 +3,14 @@
 
 #import the selectors
 from __future__ import print_function
-from selector.AtlRunQuerySelectorDQ      import DQSelector
-from selector.AtlRunQuerySelectorTrigger import TrigKeySelector, BGSKeySelector, L1TrigKeySelector, HLTTrigKeySelector, RatesSelector, TriggerSelector
-from selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldCondition, BFieldSelector
-from selector.AtlRunQuerySelectorEvents  import EventSelector, AllEventsSelector, L1EventsSelector
-from selector.AtlRunQuerySelectorStreams import StreamSelector
-from selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, LHCCondition, OLCFillParamsCondition, OLCLBDataCondition, OLCLumiSelector, LuminositySelector, BeamspotSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorDQ      import DQSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorTrigger import TrigKeySelector, TriggerSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorMisc    import BPMSelector, LArcondSelector, DatasetsSelector, DetectorSelector, FilenameSelector, PartitionSelector, ReadyForPhysicsSelector, DurationSelector, BFieldSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorEvents  import EventSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorStreams import StreamSelector
+from CoolRunQuery.selector.AtlRunQuerySelectorLhcOlc  import LHCSelector, OLCLumiSelector, LuminositySelector, BeamspotSelector
 
-from .AtlRunQueryRun                     import Run
+from CoolRunQuery.AtlRunQueryRun                      import Run
 
 
 class SelectorWorker:
@@ -64,10 +64,12 @@ class SelectorWorker:
     @classmethod
     def selectors(cls):
         for s in SelectorWorker.getOrderedSelectorList():
-            if s.executed: continue
+            if s.executed:
+                continue
             needs = cls.getOrderedNeeds(s)
             for ss in needs:
-                if ss.executed: continue
+                if ss.executed:
+                    continue
                 yield ss.selector
                 cls.__executedSelectorsInOrder += [ss]
                 ss.executed=True
@@ -88,7 +90,7 @@ class SelectorWorker:
             dependson = cls.__selectorDependencies[selname]
             for d in dependson:
                 dep = cls.findSelectorDescriptor(d)
-                if dep==None:
+                if dep is None:
                     raise RuntimeError('Selector %s depends on %s which is not defined' % (selname,d))
                 needs.insert(0, dep)
         return needs
@@ -108,7 +110,7 @@ class SelectorWorker:
     def findSelectorDescriptor(cls, selname, selcls=None):
         """ returns a SelDescr if name and class match"""
         for s in cls.__selectors:
-            if s.selector.name == selname and (selcls==None or selcls==s.selector.__class__.__name__):
+            if s.selector.name == selname and (selcls is None or selcls==s.selector.__class__.__name__):
                 return s
         return None
 
@@ -120,8 +122,10 @@ class SelectorWorker:
         if s:
             s.doesShow=True
             cls.__showSelectorsInOrder += [s]
-            try: s.selector.addShowSelector(*args, **kwargs)
-            except: pass
+            try:
+                s.selector.addShowSelector(*args, **kwargs)
+            except Exception:
+                pass
         else:
             s = cls.CreateSelector( selname, True, *args, **kwargs)
             cls.__showSelectorsInOrder += [s]
@@ -131,8 +135,8 @@ class SelectorWorker:
     @classmethod
     def CreateSelector( cls, selname, doesShow, *args, **kwargs):
         selcls = SelectorWorker.__creationRules[selname]
-        exec('thecls=%s' % selcls)
-        newsel = thecls(name=selname, *args, **kwargs)
+        thecls = eval('%s' % selcls)
+        newsel = thecls(name=selname, *args, **kwargs)  # noqa: F821
         print ("CREATING SELECTOR %s %s('%s')" % (("SHOW" if doesShow else "RETRIEVE"), selcls, selname))
         s = cls.SelDescr(selector=newsel, priority=0, doesSelect=False, doesShow=True, executed=False)
         return s
@@ -142,10 +146,12 @@ class SelectorWorker:
     def getRetrieveSelector(cls, selname, selcls=None, *args, **kwargs):
         s = cls.findSelectorDescriptor(selname, selcls)
         if s:
-            try: s.selector.addShowSelector()
-            except: pass
+            try:
+                s.selector.addShowSelector()
+            except Exception:
+                pass
             return s.selector
-        elif selcls!=None:
+        elif selcls is not None:
             s = cls.CreateSelector( selname, False, *args, **kwargs)
             cls.__selectors += [s]
             return s.selector
@@ -157,7 +163,7 @@ class SelectorWorker:
     def getOrderedSelectorList(cls):
         # Highes priority first
         sortedSel = cls.__selectors
-        sortedSel.sort(lambda x,y: y.priority-x.priority)
+        sortedSel.sort(key = lambda x: x.priority, reverse=True)
         return sortedSel
 
     @classmethod
@@ -236,17 +242,22 @@ class SelectorWorker:
 
     @classmethod
     def parseShowOption(cls,options):
-        if not options.show: return
+        if not options.show:
+            return
 
         for s in options.show:
 
-            if s == 'summary' or s == 'dqeff' or s == 'dqsummary' or s == 'dqplots' : pass # handled outside
+            if s == 'summary' or s == 'dqeff' or s == 'dqsummary' or s == 'dqplots'  or s == 'cosmics'  or s == 'heavyions':
+                pass # handled outside
 
-            elif s=='run': Run.showrunnr = True
+            elif s=='run':
+                Run.showrunnr = True
 
-            elif s=='time': Run.showtime = True
+            elif s=='time':
+                Run.showtime = True
 
-            elif s=='duration': Run.showduration = True
+            elif s=='duration':
+                Run.showduration = True
 
             elif s[0:3]=='dq ' or s=='dq':
                 SelectorWorker.getShowSelector('dataquality').addShowChannel(s[3:])
@@ -265,9 +276,11 @@ class SelectorWorker:
 
             elif s[0:3] == 'lhc':
                 arg = ''
-                if   'all' in s: arg = 'all'
-                elif 'min' in s: arg = 'min'
-                selector = SelectorWorker.getShowSelector('lhc',addArg=arg)
+                if   'all' in s:
+                    arg = 'all'
+                elif 'min' in s:
+                    arg = 'min'
+                SelectorWorker.getShowSelector('lhc',addArg=arg)
 
             elif 'olclumi' in s:
                 SelectorWorker.getShowSelector(s)

@@ -61,7 +61,6 @@ class opt:
     doMonitorSlice    = True
     doBeamspotSlice   = True
     doCosmicSlice     = True
-    doEnhancedBiasSlice = True
     doUnconventionalTrackingSlice   = True
     reverseViews      = False
     filterViews       = False
@@ -169,6 +168,8 @@ else:   # athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
+# Run-3 Trigger produces Run-3 EDM
+ConfigFlags.Trigger.EDMVersion = 3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
@@ -183,6 +184,7 @@ if not ConfigFlags.Input.isMC:
     globalflags.DatabaseInstance='CONDBR2' if opt.useCONDBR2 else 'COMP200'
     ConfigFlags.IOVDb.DatabaseInstance=globalflags.DatabaseInstance()
 athenaCommonFlags.isOnline.set_Value_and_Lock(opt.isOnline)
+ConfigFlags.Common.isOnline = athenaCommonFlags.isOnline()
 
 log.info('Configured the following global flags:')
 globalflags.print_JobProperties()
@@ -244,6 +246,7 @@ else:           # More data modifiers
                      #Monitoring L1Topo at ROB level
                      #'L1TopoCheck',
                      'forceTileRODMap',
+                     'enableSchedulerMon'
     ]
 
 TriggerFlags.doID = ConfigFlags.Trigger.doID = opt.doID
@@ -350,26 +353,6 @@ if not hasattr(topSequence,"SGInputLoader"):
     theApp.exit(1)
 topSequence.SGInputLoader.FailIfNoProxy = opt.failIfNoProxy
 
-
-#--------------------------------------------------------------
-# Event Info setup
-#--------------------------------------------------------------
-# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
-if ConfigFlags.Input.Format == 'POOL':
-    from RecExConfig.ObjKeyStore import objKeyStore
-    from PyUtils.MetaReaderPeeker import convert_itemList
-    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
-    if objKeyStore.isInInput("xAOD::EventInfo"):
-        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-    else:
-        from AthenaCommon.AlgSequence import AthSequencer
-        condSeq = AthSequencer("AthCondSeq")
-        if not hasattr(condSeq, "xAODMaker::EventInfoCnvAlg"):
-            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
-            xAODEventInfoCnvAlgDefault(sequence=condSeq)
-else:
-    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
-
 # ----------------------------------------------------------------
 # Detector geometry
 # ----------------------------------------------------------------
@@ -379,9 +362,12 @@ DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
+    include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
-    include( "InDetRecExample/InDetRecCabling.py" )
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
@@ -396,17 +382,7 @@ if ConfigFlags.Trigger.doMuon:
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
+    
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -443,16 +419,40 @@ from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg
 CAtoGlobalWrapper(L1ConfigSvcCfg,ConfigFlags)
 
 # ---------------------------------------------------------------
-# HLT prep: RoIBResult and L1Decoder
+# Create main sequences
 # ---------------------------------------------------------------
-
-# main HLT top sequence
 from AthenaCommon.CFElements import seqOR,parOR
 hltTop = seqOR("HLTTop")
 hltBeginSeq = parOR("HLTBeginSeq")
 hltTop += hltBeginSeq
 topSequence += hltTop
 
+# ---------------------------------------------------------------
+# Event Info setup
+# ---------------------------------------------------------------
+# If no xAOD::EventInfo is found in a POOL file, schedule conversion from old EventInfo
+if ConfigFlags.Input.Format == 'POOL':
+    from RecExConfig.ObjKeyStore import objKeyStore
+    from PyUtils.MetaReaderPeeker import convert_itemList
+    objKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+    if objKeyStore.isInInput("xAOD::EventInfo"):
+        topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    else:
+        if not hasattr(hltBeginSeq, "xAODMaker::EventInfoCnvAlg"):
+            from xAODEventInfoCnv.xAODEventInfoCnvAlgDefault import xAODEventInfoCnvAlgDefault
+            xAODEventInfoCnvAlgDefault(sequence=hltBeginSeq)
+else:
+    topSequence.SGInputLoader.Load += [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+
+# ---------------------------------------------------------------
+# Add LumiBlockMuWriter creating xAOD::EventInfo decorations for pileup values
+# ---------------------------------------------------------------
+from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
+LumiBlockMuWriterDefault(sequence=hltBeginSeq)
+
+# ---------------------------------------------------------------
+# Add L1Decoder providing inputs to HLT
+# ---------------------------------------------------------------
 if opt.doL1Unpacking:
     if ConfigFlags.Input.Format == 'BS' or opt.doL1Sim:
         ConfigFlags.Trigger.L1Decoder.forceEnableAllChains = opt.forceEnableAllChains
@@ -501,12 +501,6 @@ if not opt.createHLTMenuExternally:
     if opt.endJobAfterGenerate:
         import sys
         sys.exit(0)
-
-
-
-#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
-#Can be removed once chainDump.py is used instead of log file parsing
-svcMgr.MessageSvc.infoLimit=10000
 
 
 
@@ -601,9 +595,11 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
-# Non-ComponentAccumulator Cost Monitoring
+# Cost Monitoring
 #-------------------------------------------------------------
-include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
+
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
@@ -624,15 +620,14 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
-# Disable spurious warnings from HepMcParticleLink, ATR-21838
+# MessageSvc
 #-------------------------------------------------------------
-if ConfigFlags.Input.isMC:
-    svcMgr.MessageSvc.setError += ['HepMcParticleLink']
+svcMgr.MessageSvc.Format = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
+svcMgr.MessageSvc.enableSuppression = False
 
-#-------------------------------------------------------------
-# Enable xAOD::EventInfo decorations for pileup values
-#-------------------------------------------------------------
-include ("LumiBlockComps/LumiBlockMuWriter_jobOptions.py")
+if ConfigFlags.Input.isMC:
+    # Disable spurious warnings from HepMcParticleLink, ATR-21838
+    svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------
 # Apply modifiers

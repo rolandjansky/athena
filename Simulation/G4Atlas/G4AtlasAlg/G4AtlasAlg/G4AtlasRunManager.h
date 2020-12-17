@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef G4ATLASALG_G4AtlasRunManager_h
@@ -17,7 +17,6 @@
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
 #include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IPhysicsListSvc.h"
-#include "G4AtlasInterfaces/IUserActionSvc.h"
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
 #include "G4AtlasInterfaces/IFluxRecorder.h"
 
@@ -41,13 +40,6 @@ public:
 
   /// G4 function called at end of run
   void RunTermination() override final;
-  
-  /// @name Methods to pass configuration in from G4AtlasAlg
-  /// @{
-  /// Configure the user action service handle
-  void SetUserActionSvc(const std::string& typeAndName) {
-    m_userActionSvc.setTypeAndName(typeAndName);
-  }
 
   /// Configure the detector geometry service handle
   void SetDetGeoSvc(const std::string& typeAndName) {
@@ -103,12 +95,10 @@ private:
   ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
   ServiceHandle<IPhysicsListSvc> m_physListSvc;
 
-  /// Handle to the user action service
-  ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;
   ServiceHandle<IDetectorGeometrySvc> m_detGeoSvc;
-  
+
   /// Interface to flux recording
-  
+
   std::unique_ptr<IFluxRecorder> m_fluxRecorder;
 };
 

@@ -1,4 +1,5 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 import os, subprocess, time
 from DecoratorFactory import decorate
 from AthenaCommon import Logging
@@ -33,7 +34,7 @@ class ProphecyConfig(object) :
     self.add_parameter_set( 'fromDefault' )
 
     ## Initialise values from runArgs
-    if runArgs == None :
+    if runArgs is None :
       self.logger.warning( 'No run arguments found! Using defaults.' )
     else :
       # Read values from runArgs

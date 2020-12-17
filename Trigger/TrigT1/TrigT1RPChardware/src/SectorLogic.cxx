@@ -388,6 +388,7 @@ CMAword SectorLogic::output(ubit16 i){
       bc = i+8-BCZERO;
   }
   
+ 
 
   if (m_OutFromSectorLogic[i].pt1==0) m_OutFromSectorLogic[i].pt1=7;
   if (m_OutFromSectorLogic[i].pt2==0) m_OutFromSectorLogic[i].pt2=7;
@@ -403,8 +404,8 @@ CMAword SectorLogic::output(ubit16 i){
   fmtout = fmtout | (( m_OutFromSectorLogic[i].ove2     & 0x01) << 18); // Eta overlap2
   fmtout = fmtout | (( m_OutFromSectorLogic[i].pt1      & 0x07) << 19); // Pt1
   fmtout = fmtout | (( m_OutFromSectorLogic[i].pt2      & 0x07) << 22); // Pt2
-  fmtout = fmtout | (( m_OutFromSectorLogic[i].ntrig1   & 0x01) << 25); // >1 candidate in ROI1
-  fmtout = fmtout | (( m_OutFromSectorLogic[i].ntrig2   & 0x01) << 26); // >1 candidate in ROI2
+   fmtout = fmtout | (( m_OutFromSectorLogic[i].r1   & 0x01) << 25); // >1 candidate in ROI1
+   fmtout = fmtout | (( m_OutFromSectorLogic[i].r2   & 0x01) << 26); // >1 candidate in ROI2
   fmtout = fmtout | (( bc                             & 0x07) << 27); // BCID
   fmtout = fmtout | (( m_OutFromSectorLogic[i].sign1    & 0x01) << 30); // Candidate1 sign
   fmtout = fmtout | (( m_OutFromSectorLogic[i].sign2    & 0x01) << 31); // Candidate2 sign
@@ -569,6 +570,7 @@ void SectorLogic::execute(){
       m_SortHighest_out[ibx].out.ove1 = m_SortHighest_in[ibx].pad[pad_reg4].oveta;
       m_SortHighest_out[ibx].out.ntrig1 = m_SortHighest_in[ibx].pad[pad_reg4].ntrig;
       m_SortHighest_out[ibx].out.sign1 = m_SortHighest_in[ibx].pad[pad_reg4].sign;
+      m_SortHighest_out[ibx].out.r1 = m_SortHighest_in[ibx].pad[pad_reg4].r;
       // set to 1 the number of valid tracks
       m_SortHighest_out[ibx].out.ntrig = 1;
       // and put the ouput internal register to 0
@@ -609,6 +611,7 @@ void SectorLogic::execute(){
       m_Sort2ndHighest_out[ibx].out.ove2 = m_Sort2ndHighest_in[ibx].pad[pad_reg5].oveta;
       m_Sort2ndHighest_out[ibx].out.ntrig2 = m_Sort2ndHighest_in[ibx].pad[pad_reg5].ntrig;
       m_Sort2ndHighest_out[ibx].out.sign2 = m_Sort2ndHighest_in[ibx].pad[pad_reg5].sign;
+      m_Sort2ndHighest_out[ibx].out.r2 = m_Sort2ndHighest_in[ibx].pad[pad_reg5].r;
       // set to 2 the number of valid tracks
       m_Sort2ndHighest_out[ibx].out.ntrig = 2;
       // and put the ouput internal register to 0

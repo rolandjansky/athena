@@ -1,8 +1,7 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 import sys
 
 from PyCool import cool
@@ -25,18 +24,16 @@ def getCurrentFolderTag(dbname,folderName):
     f=db.getFolder(folderName)
     try:
         current=f.resolveTag(currentGlobal)
-    except:
+    except Exception:
         print('Warning: could not resolve ',currentGlobal,' in db: ',dbname)
         if "DBR2" in dbname:
            print('resolving for the global CONDBR2-BLKPA-2014-00')
-           tmpGlobal='CONDBR2-BLKPA-2014-00'
-        else:      
+        else:
            print('resolving for the global COMCOND-BLKPA-RUN1-06')
-           tmpGlobal='COMCOND-BLKPA-RUN1-06'
 
         try:
            current=f.resolveTag('CONDBR2-BLKPA-2014-00')
-        except:
+        except Exception:
            print('Also not working, giving up')
            pass
         pass
@@ -44,7 +41,7 @@ def getCurrentFolderTag(dbname,folderName):
         # NEXT exists, try to resolve it
         try:
             next=f.resolveTag(nextGlobal)
-        except:
+        except Exception:
             pass
         pass
     

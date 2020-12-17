@@ -102,7 +102,7 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
 
     const uint64_t m_missingErrorInfo{std::numeric_limits<uint64_t>::max()-3000000000};
 
-    mutable std::mutex m_cacheMutex{};
+    mutable SG::SlotSpecificObj<std::mutex> m_cacheMutex ATLAS_THREAD_SAFE;
 
     struct IDCCacheEntry {
       EventContext::ContextEvt_t eventId = EventContext::INVALID_CONTEXT_EVT; // invalid event ID for the start

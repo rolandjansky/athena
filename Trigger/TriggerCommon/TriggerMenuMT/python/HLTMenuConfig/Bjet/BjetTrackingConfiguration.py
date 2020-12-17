@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import parOR, seqAND
 #from AthenaCommon.Constants import DEBUG
 
 def getSecondStageBjetTracking( inputRoI, dataObjects ):
@@ -25,7 +25,7 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
       viewVerify.DataObjects += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
       topSequence.SGInputLoader.Load += [( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' )]
 
-    algSequence.append( seqAND("SecondStageFastTrackingSequence",viewAlgs) )
+    algSequence.append( parOR("SecondStageFastTrackingSequence",viewAlgs) )
 
     # Precision Tracking
     from TrigInDetConfig.InDetPT import makeInDetPrecisionTracking
@@ -33,11 +33,3 @@ def getSecondStageBjetTracking( inputRoI, dataObjects ):
     algSequence.append( seqAND("PrecisionTrackingSequence",PTAlgs) )
 
     return [ algSequence, PTTrackParticles ]
-
-
-
-
-
-
-
-

@@ -111,7 +111,7 @@ BOOST_FIXTURE_TEST_SUITE(IOVDbFolderTest , GaudiKernelFixture)
       BOOST_TEST(iovDbFolder.cacheValid(cool::ValidityKey(600)) == false );
       BOOST_TEST_CHECKPOINT("After preLoadFolder method call");
       const std::string tag("");
-      auto addr=iovDbFolder.preLoadFolder(detStore.get(),0,600);
+      auto addr=iovDbFolder.preLoadFolder(tagInfoMgr.get(),0,600);
       BOOST_TEST(iovDbFolder.loadCache(cool::ValidityKey(50),600, tag, true) == true);
       BOOST_TEST_MESSAGE("After loadCache method call...");
       BOOST_TEST(iovDbFolder.timeStamp() == isEpochTimestamp);//after looking

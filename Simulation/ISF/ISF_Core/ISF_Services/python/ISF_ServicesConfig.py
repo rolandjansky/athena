@@ -35,6 +35,11 @@ def getAFIIParticleBrokerSvc(name="ISF_AFIIParticleBrokerSvc", **kwargs):
     return getParticleBrokerSvc(name, **kwargs)
 
 
+def getAFIIEnergyOrderedParticleBrokerSvc(name="ISF_AFIIEnergyOrderedParticleBrokerSvc", **kwargs):
+    kwargs.setdefault('ParticleOrderingTool', 'ISF_EnergyParticleOrderingTool')
+    return getAFIIParticleBrokerSvc(name, **kwargs)
+
+
 def getISFEnvelopeDefSvc(name="ISF_ISFEnvelopeDefSvc", **kwargs):
     # ATLAS common envlope definitions
     kwargs.setdefault("ATLASEnvelopeDefSvc", "AtlasGeometry_EnvelopeDefSvc")
@@ -68,7 +73,9 @@ def getGenParticleFilters():
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() != "cosmics":
             genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-            if (not simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal') and\
+            from AthenaCommon.DetFlags import DetFlags
+            if not (DetFlags.geometry.AFP_on() or DetFlags.geometry.ALFA_on() or DetFlags.geometry.FwdRegion_on()) and\
+               (not simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal') and\
                not (simFlags.SimulateCavern.statusOn and simFlags.SimulateCavern.get_Value()):
                 genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']

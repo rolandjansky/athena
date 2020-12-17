@@ -13,7 +13,7 @@ atlas_add_library( JetUncertaintiesLib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODEventInfo xAODJet PATInterfaces
    JetCPInterfaces
-   PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver )
+   PRIVATE_LINK_LIBRARIES xAODCore xAODTracking PathResolver ParticleJetToolsLib )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( JetUncertainties
@@ -37,12 +37,24 @@ if( XAOD_STANDALONE )
       util/MakeUncertaintyPlots.cxx
       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
       LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo
-      xAODRootAccess JetUncertaintiesLib )
+      xAODRootAccess JetUncertaintiesLib ParticleJetToolsLib )
 
    atlas_add_executable( JetUncertainties_testTool
       util/testTool.cxx
       LINK_LIBRARIES xAODJet xAODEventInfo PATInterfaces xAODRootAccess
       JetUncertaintiesLib )
+   
+   atlas_add_executable( JetUncertainties_testResolution
+      util/testResolution.cxx
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo
+      xAODRootAccess JetUncertaintiesLib ParticleJetToolsLib )
+
+   # TODO: cleanup
+   # atlas_add_executable( FFJetSmearingTool_MyExample
+   #    util/FFJetSmearingTool_MyExample.cxx
+   #    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   #    LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet xAODEventInfo xAODEventShape
+   #    xAODRootAccess JetUncertaintiesLib  )
 endif()
 
 # Install files from the package:

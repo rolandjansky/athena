@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -112,6 +112,12 @@ StatusCode xAODTestWrite::execute (const EventContext& ctx) const
     gcont->push_back (new DMTest::G);
     G& g = *gcont->back();
     g.setAnInt (count * 700 + i+1);
+    g.setgFloat (count * 700 + 100 + i+0.5);
+    std::vector<double> v;
+    for (int j=0; j<i; j++) {
+      v.push_back (count * 700 + 100*j + i+0.5);
+    }
+    g.setgvFloat (v);
   }
 
   SG::WriteHandle<DMTest::GVec> gvec (m_gvecKey, ctx);

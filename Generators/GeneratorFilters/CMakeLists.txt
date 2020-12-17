@@ -15,7 +15,7 @@ atlas_add_library( GeneratorFiltersLib
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} 
                    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib GaudiKernel StoreGateLib GeneratorModulesLib xAODJet
+                   LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AtlasHepMCLib AtlasHepMCsearchLib GaudiKernel StoreGateLib GeneratorModulesLib xAODJet
                    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} AthenaKernel CxxUtils EventInfo xAODTruth TruthUtils ParticleEvent McParticleEvent )
 
 atlas_add_component( GeneratorFilters

@@ -48,7 +48,7 @@ TruthParameters::findParticle (int barCode)
   
     // retrieve McEventCollection (from truthSelector to give G3/4 simulation independence)
     const HepMC::GenEvent* event = *m_truthSelector->mcEventCollection()->begin();
-    particle = event->barcode_to_particle(barCode);
+    particle = HepMC::barcode_to_particle(event,barCode);
 
     if (particle == 0)	ATH_MSG_DEBUG( "particle not found:  barCode " << barCode );
 

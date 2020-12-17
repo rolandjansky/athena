@@ -423,10 +423,19 @@ if hasattr(runArgs,"AMITag"):
 #==========================================================
 # Use ZLIB for compression of all temporary outputs
 #==========================================================
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr; import AthenaPoolCnvSvc.AthenaPool 
-if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile):
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
-    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+import AthenaPoolCnvSvc.AthenaPool  # noqa: F401
+from AthenaPoolCnvSvc import PoolAttributeHelper as pah
+Out = athenaCommonFlags.PoolRDOOutput()
+if hasattr(runArgs, "outputRDOFile") and ('_000' in runArgs.outputRDOFile or 'tmp.' in runArgs.outputRDOFile): # noqa: F821
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompAlg( Out, 1 ) ]
+    svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setFileCompLvl( Out, 1 ) ]
+
+# Set AutoFlush to 1 as per ATLASSIM-4274
+# This helps with the overall HITtoRDO memory footprint
+svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "CollectionTree", 1 ) ]
+svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainer", 1 ) ]
+svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ pah.setTreeAutoFlush( Out, "POOLContainerForm", 1 ) ]
 
 ## Post-include
 if hasattr(runArgs,"postInclude"):

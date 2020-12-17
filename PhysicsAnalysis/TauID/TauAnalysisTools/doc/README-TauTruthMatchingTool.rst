@@ -3,7 +3,8 @@ TauTruthMatchingTool
 ====================
 
 :authors: Dirk Duschinger
-:contact: dirk.duschinger@cern.ch
+:maintainer: Guillermo Hamity
+:contact: ghamity@cern.ch
 
 .. contents:: Table of contents
 

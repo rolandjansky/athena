@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARRAWEVENT_LARROI_MAP_H
@@ -16,6 +16,7 @@
 #include "StoreGate/DataHandle.h" 
 #include "GaudiKernel/IIncidentListener.h"
 #include "AthenaKernel/IOVSvcDefs.h"
+#include "CxxUtils/checker_macros.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <map> 
@@ -36,8 +37,10 @@ class LArFCAL_ID ;
  */
 
 
-class LArRoI_Map : public AthAlgTool,
-		      public IIncidentListener 
+// Not thread-safe due to the use of old cabling tools + callbacks
+class ATLAS_NOT_THREAD_SAFE
+      LArRoI_Map : public AthAlgTool,
+                   public IIncidentListener 
  { 
 
  public:

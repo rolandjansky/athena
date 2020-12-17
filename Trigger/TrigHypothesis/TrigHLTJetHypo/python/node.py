@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 Node - represents a tree structure. scenario and parameters which are strings 
 filled in while parsing a jet hyp[o label. A visitor is used to convert 
@@ -26,12 +26,17 @@ class Node(object):
         self.parameters = ''
         self.children = []
         self.conf_attrs = []  # list of dictionaries
-        self.tool = None
-        self.compound_condition_tools = []
+
+        # filled in by a CondtionsTollSetter:
+        self.compound_condition_tools = [] 
+        # self.tool = None
+        # self.compound_condition_tools = []
         # self.tree_top kludge carensure top level tools get chain name
         # as Tool name
+        self.chainpartinds = []
         self.tree_top = False
-
+        self.tool = None
+        
     def set_ids(self, node_id, parent_id):
         "Set ids of nodes in a tree"
 
@@ -81,6 +86,7 @@ class Node(object):
              indent + 'parent node id: %s' % self.parent_id,
              indent + 'is tree top? %s' % self.tree_top,
              indent + 'parameters: %s' % str(self.parameters),
+             indent + 'chainpartinds %s' % str(self.chainpartinds),
              indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:
             s.append(indent + str(ca))

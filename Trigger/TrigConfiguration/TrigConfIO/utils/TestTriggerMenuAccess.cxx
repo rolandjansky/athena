@@ -46,9 +46,9 @@ exampleL1Calo(const string & filename) {
    for( int ieta : { -30, -20, -10, 0, 10, 20, 30 } ) {
       unsigned int ptMinToTopo = ei_eEM.ptMinToTopo(); // the minimum energy to send to topo (not eta dependent yet)
       cout << "ptmin=" << ptMinToTopo << endl;
-      auto iso_loose  = ei_eEM.isolation(TrigConf::Isolation::WP::LOOSE, ieta);
-      auto iso_medium = ei_eEM.isolation(TrigConf::Isolation::WP::MEDIUM, ieta);
-      auto iso_tight  = ei_eEM.isolation(TrigConf::Isolation::WP::TIGHT, ieta);
+      auto iso_loose  = ei_eEM.isolation(TrigConf::Selection::WP::LOOSE, ieta);
+      auto iso_medium = ei_eEM.isolation(TrigConf::Selection::WP::MEDIUM, ieta);
+      auto iso_tight  = ei_eEM.isolation(TrigConf::Selection::WP::TIGHT, ieta);
       int reta_loose = iso_loose.reta(); 
       int had_loose = iso_loose.had(); 
       int wstot_loose = iso_loose.wstot(); 
@@ -114,7 +114,7 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
    cout << "L1 menu has " << l1menu.connectorNames().size() << " connectors configured" << endl;
    for( const string & connName : l1menu.connectorNames() ) {
       auto & conn = l1menu.connector(connName);
-      cout << "Connector " << connName << (conn.isLegacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
+      cout << "Connector " << connName << (conn.legacy() ? " (legacy)": "") << " has " << conn.size() << " trigger lines configured:" << endl;
       if( connName == "MuCTPiOpt0" ) {
          for( auto & tl : conn.triggerLines() ) {
             cout << "   Triggerline " << tl.name() << " bits=["  << tl.startbit() << ".." << tl.endbit() << "] is a muon threshold " << endl;            
@@ -125,18 +125,18 @@ testL1Menu_Connectors(const TrigConf::L1Menu & l1menu) {
                cout << "   Triggerline " << tl.name() << " (clock " << clock << ", bit "  << tl.startbit() << ") is an ALFA threshold " << endl;
             }
          }
-      } else if( conn.type() == TrigConf::L1Connector::ConnectorType::CTPIN ) {
+      } else if( conn.connectorType() == TrigConf::L1Connector::ConnectorType::CTPIN ) {
          for( auto & tl : conn.triggerLines() ) {
             cout << "   Triggerline " << tl.name() << " bits=["  << tl.startbit() << ".." << tl.endbit() << "] is a legacy threshold " << endl;            
          }
-      } else if( conn.type() == TrigConf::L1Connector::ConnectorType::OPTICAL ) {
+      } else if( conn.connectorType() == TrigConf::L1Connector::ConnectorType::OPTICAL ) {
          for( auto & tl : conn.triggerLines() ) {
             const string & tlName = tl.name();
             auto & topoAlg = l1menu.algorithmFromTriggerline(tlName);
             cout << "   Triggerline " << tlName << " bits=["  << tl.startbit() << ".." << tl.endbit() 
                  << "] is produced by topo algorithm " << topoAlg.name() << endl;
          }
-      } else if( conn.type() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) {
+      } else if( conn.connectorType() == TrigConf::L1Connector::ConnectorType::ELECTRICAL ) {
          for( size_t fpga : { 0, 1 } ) {
             for( size_t clock : { 0, 1 } ) {
                for( auto & tl : conn.triggerLines(fpga, clock) ) {
@@ -292,7 +292,7 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "  EM" << endl;
       cout << "    energy resolution (MeV) " << exEM.resolutionMeV() << endl;
       cout << "    ptMinToTopo " << exEM.ptMinToTopo() << endl;
-      for( const std::string & tt : {"HAIsoForEMthr", "EMIsoForEMthr"} ) {
+      for( const std::string tt : {"HAIsoForEMthr", "EMIsoForEMthr"} ) {
          cout << "    Isolation " << tt << endl;
          for(size_t bit = 1; bit <= 5; bit++) {
             auto & iso = exEM.isolation(tt, bit);
@@ -332,25 +332,25 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
       cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
       cout << "    working point Loose" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::LOOSE)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
       cout << "    working point Medium" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::MEDIUM)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::MEDIUM)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
       cout << "    working point Tight" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::TIGHT)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
               << ", isolation=" << iso.value() << endl;
       }
-      //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Isolation::WP::MEDIUM,-20) << endl;
-      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Isolation::WP::MEDIUM,20) << endl;
+      //cout << "    working point Medium at eta = -20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,-20) << endl;
+      cout << "    working point Medium at eta = 20:" << ex.isolation(TrigConf::Selection::WP::MEDIUM,20) << endl;
    }
    {
       auto & ex = l1menu.thrExtraInfo().jJ();
@@ -371,22 +371,22 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
       cout << "    ptMinToTopo (MeV) " << ex.ptMinToTopoMeV() << endl;
       cout << "    ptMinToTopo (counts)" << ex.ptMinToTopoCounts() << endl;
       cout << "    working point Loose" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::LOOSE)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::LOOSE)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
-              << ", isolation=" << iso.value() << endl;
+              << ", isolation=" << iso.value().isolation() << endl;
       }
       cout << "    working point Medium" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::MEDIUM)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::MEDIUM)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
-              << ", isolation=" << iso.value() << endl;
+              << ", isolation=" << iso.value().isolation() << endl;
       }
       cout << "    working point Tight" << endl;
-      for(auto & iso : ex.isolation(TrigConf::Isolation::WP::TIGHT)) {
+      for(auto & iso : ex.isolation(TrigConf::Selection::WP::TIGHT)) {
          cout << "      range etaMin=" << iso.etaMin() << ", etaMax=" << iso.etaMax() 
               << ", priority=" << iso.priority() << ", symmetric=" << (iso.symmetric() ? "yes" : "no")
-              << ", isolation=" << iso.value() << endl;
+              << ", isolation=" << iso.value().isolation() << endl;
       }
    }
 
@@ -399,7 +399,7 @@ testL1Menu_Extrainfo(const TrigConf::L1Menu & l1menu)
    cout << endl;
    if( const auto & list = exMU.exclusionListNames(); std::find(list.begin(), list.end(), "rpcFeet")!=list.end() ) {
       cout << "    exclusionList 'rpcFeet'" << endl;
-      for(auto & x : exMU.exlusionList("rpcFeet")) {
+      for(auto & x : exMU.exclusionList("rpcFeet")) {
          cout << "     sector " << x.first << ": ";
          for( auto roi : x.second ) cout << roi << " ";
          cout << endl;

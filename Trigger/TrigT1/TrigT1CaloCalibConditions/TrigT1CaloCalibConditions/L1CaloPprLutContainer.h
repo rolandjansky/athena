@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1CALOCALIBCONDITIONS_L1CALOPPRLUTCONTAINER_H
@@ -44,7 +44,7 @@ public:
 #ifndef __REFLEX__
 	// IL1CaloPersistenceCapable interface
 	using AbstractL1CaloPersistentCondition::makeTransient; // to unhide the default implementation of makeTransient
-	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*> condAttrListCollectionMap);
+	virtual void makeTransient(const std::map<std::string, CondAttrListCollection*>& condAttrListCollectionMap);
 #endif
 
 	const L1CaloPprLut* pprLut(unsigned int channelId) const;

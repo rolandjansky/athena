@@ -63,8 +63,14 @@ def TrigIsoHPtTrackTriggerHypoToolFromDict( chainDict ):
             IsoCum.append(False)
             IsoCone.append(0.3)
             IsoPt.append(5*GeV)
-        elif cpart['isoInfo'] =="icummedium":
-            log.info("Medium isolation is set")
+        elif cpart['isoInfo'] =="iaggrloose":
+            log.info("Loose Cummulative(Aggregate) isolation is set")
+            EnIso.append(True)
+            IsoCum.append(True)
+            IsoCone.append(0.3)
+            IsoPt.append(10*GeV)
+        elif cpart['isoInfo'] =="iaggrmedium":
+            log.info("Medium Cummulative(Aggregate) isolation is set")
             EnIso.append(True)
             IsoCum.append(True)
             IsoCone.append(0.3)

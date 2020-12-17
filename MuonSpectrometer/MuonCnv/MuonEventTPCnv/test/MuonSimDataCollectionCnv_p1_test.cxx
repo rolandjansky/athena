@@ -98,11 +98,11 @@ void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
   MuonSimDataCollection trans1;
   for (int i=0; i < 3; i++) {
     std::vector<MuonSimData::Deposit> deps;
-    HepMcParticleLink trkLink1(genPartVector.at(0+(3*i))->barcode(),genPartVector.at(0+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink1(HepMC::barcode(genPartVector.at(0+(3*i))),genPartVector.at(0+(3*i))->parent_event()->event_number());
     deps.emplace_back (trkLink1, MuonMCData ( 2.5+i,  3.5+i));
-    HepMcParticleLink trkLink2(genPartVector.at(1+(3*i))->barcode(),genPartVector.at(1+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink2(HepMC::barcode(genPartVector.at(1+(3*i))),genPartVector.at(1+(3*i))->parent_event()->event_number());
     deps.emplace_back (trkLink2, MuonMCData (12.5+i, 13.5+i));
-    HepMcParticleLink trkLink3(genPartVector.at(2+(3*i))->barcode(),genPartVector.at(2+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink3(HepMC::barcode(genPartVector.at(2+(3*i))),genPartVector.at(2+(3*i))->parent_event()->event_number());
     deps.emplace_back (trkLink3, MuonMCData (22.5+i, 23.5+i));
     trans1[Identifier(1234+i)] = MuonSimData (deps, 4321+i);
     trans1[Identifier(1234+i)].setPosition (Amg::Vector3D(4.5+i, 5.5+i, 6.5+i));

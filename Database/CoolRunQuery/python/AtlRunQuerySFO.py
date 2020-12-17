@@ -101,12 +101,9 @@
 #  
 
 from __future__ import with_statement, print_function
-from utils.AtlRunQueryTimer import timer
+from CoolRunQuery.utils.AtlRunQueryCache import Cache
+from CoolRunQuery.AtlRunQueryRun import Run
 
-from utils.AtlRunQueryCache import Cache
-from .AtlRunQueryRun import Run
-
-import cx_Oracle
 from time import time
 from collections import defaultdict
 
@@ -260,7 +257,8 @@ def GetSFO_NphysicseventsAll( cursor, runlist ):
         else:
             qr = executeCachedQuery(run, cursor, q, cachekey=("SumOverlap",run))
         for e in qr:
-            if e[0]!=None: res[run] = e[0]
+            if e[0] is not None:
+                res[run] = e[0]
     return res
 
 
@@ -271,60 +269,6 @@ def GetSFO_lastNruns( cursor, nruns ):
     cursor.execute( "SELECT RUNNR,STATE FROM (SELECT UNIQUE RUNNR,STATE FROM SFO_TZ_RUN WHERE STREAMTYPE!='calibration' AND RUNNR < 999999 ORDER BY RUNNR DESC) SFO_TZ_RUN2 WHERE rownum<=:arg_1", arg_1=nruns )
     return cursor.fetchall()
 
-def runInfo(runno, streams):
-    if streams==[]:
-        print ("No information available for run %i" % runno)
-        return
-
-    print ('Output for run number: %i' % runno)
-    print ('--------------------------------------------------------------------------------')
-    print ('Streams:')
-    print (streams)
-    print (' ')
-    print (' ')
-    for s in streams:
-        minlb, maxlb, lbs = GetSFO_LBs( cursor, runno, s )
-        print ('For Stream: %25s: min - max LBs: %i - %i \t(Num: %i)' % (s, minlb, maxlb, lbs))
-
-        result = GetSFO_Nevents( cursor, runno, s )
-        lbold = -1
-        allnev = 0
-        for lb,nev in result:
-            if lb != lbold:
-                if lbold != -1: print (s,'\t',lbold,'\t',allnev)
-                allnev = nev
-                lbold = lb
-            else:
-                allnev += nev
-            #for lb in range(minlb,maxlb+1):
-            #nev = GetSFO_NeventsPerLB( cursor, runno, s, lb )
-            #print ('       - LB: %i has %s events' % (lb,nev))
-
-    print (' ')
-    return
-    totnf = totsize = totev = 0
-    for s in streams:
-        nfiles, size, events = GetSFO_files( cursor, runno, s )
-        totnf   += nfiles
-        totsize += size
-        totev   += events
-        print ('Stream %-25s : %i files, %.2f GB, %i events' % (s, nfiles, size/1.0e9, events))
-    
-    print ('--------------------------------------------------------------------------------')
-    print ('Total  %-25s : %i files, %.2f GB, %.2f mio events' % (' ', totnf, totsize/1.0e9, totev/1.0e6))
-    print ('--------------------------------------------------------------------------------')
-
-    print ('Check overlaps for stream pairs')
-    for i in range(0,len(streams)):
-        nfilesi, sizei, eventsi = GetSFO_files( cursor, runno, streams[i] )
-        for j in range(i,len(streams)):
-            nfilesj, sizej, eventsj = GetSFO_files( cursor, runno, streams[i] )
-            eventsij                = GetSFO_overlap( cursor, runno, streams[i], streams[j] )
-            if eventsij:
-                print ('   [ %28s, %28s ] = %g' % (streams[i], streams[j], eventsij))
-            else:
-                print ('   [ %28s, %28s ] = None' % (streams[i], streams[j]))
-
 
 
 ##############################################################
@@ -334,7 +278,7 @@ def runInfo(runno, streams):
 ##############################################################
 
 def SetOKSLinks( runlist ):
-    from utils.AtlRunQueryUtils import coolDbConn
+    from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
     conn = coolDbConn.GetAtlasRunDBConnection()
     cursor = conn.cursor()
     query = "select ConfigSchema,ConfigData from ATLAS_RUN_NUMBER.RunNumber where RunNumber=:run"
@@ -395,7 +339,7 @@ def main():
         #runno = range(141000,143000)
 
 
-        from utils.AtlRunQueryUtils import coolDbConn
+        from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn
         connection = coolDbConn.GetSFODBConnection()
         cursor     = connection.cursor()
 
@@ -411,19 +355,19 @@ def main():
         # retrieve streams
         if True:
             start = time()
-            streams = GetSFO_streamsAll( cursor, runno )
+            GetSFO_streamsAll( cursor, runno )
             print ("streams",time()-start)
             start = time()
-            lbs     = GetSFO_LBsAll    ( cursor, runno )
+            GetSFO_LBsAll    ( cursor, runno )
             print ("lbs",time()-start)
             start = time()
-            nev     = GetSFO_NeventsAll( cursor, runno )
+            GetSFO_NeventsAll( cursor, runno )
             print ("events",time()-start)
             start = time()
-            files   = GetSFO_filesAll  ( cursor, runno )
+            GetSFO_filesAll  ( cursor, runno )
             print ("files",time()-start)
             start = time()
-            over    = GetSFO_overlapAll( cursor, runno )
+            GetSFO_overlapAll( cursor, runno )
             print ("overlap",time()-start)
 
 

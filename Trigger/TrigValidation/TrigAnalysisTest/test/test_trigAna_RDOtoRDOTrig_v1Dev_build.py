@@ -10,7 +10,7 @@
 from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 
 preExec = ';'.join([
-  'setMenu=\'LS2_v1_TriggerValidation_mc_prescale\'',
+  'setMenu=\'LS2_v1_TriggerValidation_prescale\'',
   'from TriggerJobOpts.TriggerFlags import TriggerFlags',
   'TriggerFlags.AODEDMSet.set_Value_and_Lock(\\\"AODFULL\\\")',
 ])
@@ -27,13 +27,13 @@ test.art_type = 'build'
 test.exec_steps = [ex]
 test.check_steps = CheckSteps.default_check_steps(test)
 
-# Add a step comparing counts in the log against reference
-refcomp = CheckSteps.RegTestStep("CountRefComp")
-refcomp.input_base_name = 'athena.merged'
-refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
-refcomp.reference = 'TrigAnalysisTest/ref_RDOtoRDOTrig_v1Dev_build.ref'
+# Add a step comparing counts against a reference
+chaindump = test.get_step("ChainDump")
+chaindump.args = '--json --yaml ref_RDOtoRDOTrig_v1Dev_build.new'
+refcomp = CheckSteps.ChainCompStep("CountRefComp")
+refcomp.input_file = 'ref_RDOtoRDOTrig_v1Dev_build.new'
 refcomp.required = True # Final exit code depends on this step
-CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 
 import sys
 sys.exit(test.run())

@@ -14,6 +14,7 @@
 #include "TrigCostAnalysis/TableConstructors/AlgorithmTableConstructor.h"
 #include "TrigCostAnalysis/TableConstructors/GlobalTableConstructor.h"
 #include "TrigCostAnalysis/TableConstructors/ThreadOccupancyTableConstructor.h"
+#include "TrigCostAnalysis/TableConstructors/ROSTableConstructor.h"
 
 #include "TFile.h"
 #include "TString.h"
@@ -67,6 +68,9 @@ void exportDirectory(TFile* file, const std::vector<TString>& dir, float walltim
   } else if (dir.at(1) == "Thread_Occupancy_HLT") {
     ThreadOccupancyTableConstructor totc("Thread_Occupancy_HLT");
     table = totc.getTable(file, rootDir, walltime);
+  } else if (dir.at(1) == "ROS_HLT") {
+    ROSTableConstructor rtc("ROS_HLT");
+    table = rtc.getTable(file, rootDir, walltime);
   }
 
   std::ofstream fstream(exportName.Data());
@@ -114,8 +118,8 @@ void exploreTree(TFile* file, const size_t level = 0, std::vector<TString> dir =
         exploreTree(file, level + 1, dir);
       } else {
         exportDirectory(file, dir, walltime);
-        dir.pop_back();
       }
+      dir.pop_back();
     } else if (name.First("_walltime") != kNPOS) {
       // This is fine
     } else {

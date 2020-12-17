@@ -102,5 +102,6 @@ egammaESDList.append(getItem(egammaKeys.outputTopoSeededCellLinkType(
 
 logEgammaOutputItemList_jobOptions = logging.getLogger(
     'egammaOutputItemList_jobOptions')
+
 logEgammaOutputItemList_jobOptions.info('egammaESDList: %s',  egammaESDList)
 logEgammaOutputItemList_jobOptions.info('egammaAODList: %s',  egammaAODList)

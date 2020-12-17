@@ -1,16 +1,16 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCER_H
 #define TRIGHLTJETHYPO_FASTREDUCER_H
 
-
-#include "./ConditionsDefsMT.h"
+#include "./CapacityCheckedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
 #include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
+#include "./ITrigJetHypoInfoCollector.h"
 #include <string>
 
 using TreeVec = std::vector<std::size_t>;
@@ -23,16 +23,14 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
 
-class ITrigJetHypoInfoCollector;
 
 class FastReducer {
  public:
 
   FastReducer(const HypoJetGroupCIter& groups_b,
               const HypoJetGroupCIter& groups_e,
-              const ConditionsMT& conditionObjects,
+              const ConditionPtrs& conditionObjects,
               const Tree& conditionsTree,
-              const std::vector<std::vector<int>>& sharedConditions,
               xAODJetCollector& jetCollector,
               const Collector& collector);
 
@@ -47,7 +45,7 @@ class FastReducer {
 
  private:
 
-  const ConditionsMT& m_conditions;
+  const ConditionPtrs& m_conditions;
 
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
@@ -55,12 +53,6 @@ class FastReducer {
   */
   
   Tree m_tree;
-
-  /** A vector of shared Condition indices. All shared Conditions are leaf
-   Conditions  that see the jet icoming jets.
-  */
-  
-  std::vector<std::vector<int>> m_sharedConditions;
 
   // map Condition index onto a list of indices of satisfying job groups.
   CondInd2JetGroupsInds m_satisfiedBy;
@@ -90,8 +82,7 @@ class FastReducer {
    in preparration for testing against parent conditions.
   */
   
-  bool findInitialJetGroups(const std::vector<int>& leaves,
-			    const HypoJetGroupCIter& groups_b,
+  bool findInitialJetGroups(const HypoJetGroupCIter& groups_b,
 			    const HypoJetGroupCIter& groups_e,
 			    const Collector& collector);
   
@@ -109,11 +100,13 @@ class FastReducer {
   
   void recordJetGroup(std::size_t ind,
 		      const HypoJetVector& jg,
-		      const std::unique_ptr<ITrigJetHypoInfoCollector>& collector) const;
+		      const Collector& collector) const;
 
   void collectLeafJets(xAODJetCollector& jetCollector,
 		       const Collector& collector) const;
 
+  bool capacitySatisfied(std::size_t ind,
+			 const Collector& collector) const;
 
 };
 #endif

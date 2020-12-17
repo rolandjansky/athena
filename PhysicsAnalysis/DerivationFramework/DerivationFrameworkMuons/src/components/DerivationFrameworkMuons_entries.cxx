@@ -1,3 +1,7 @@
+/*
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include "DerivationFrameworkMuons/dimuonTaggingTool.h"
 #include "DerivationFrameworkMuons/isolationDecorator.h"
 #include "DerivationFrameworkMuons/mcpDecorator.h"
@@ -7,7 +11,6 @@
 #include "DerivationFrameworkMuons/MuonJetDrTool.h"
 #include "DerivationFrameworkMuons/MuonTruthClassifierFallback.h"
 #include "DerivationFrameworkMuons/MuonTruthIsolationTool.h"
-#include "DerivationFrameworkMuons/MuonJetDrTool.h"
 #include "DerivationFrameworkMuons/MuonTPJpsiVertexFittingAlg.h"
 #include "DerivationFrameworkMuons/VertexDecoratorAlg.h"
 

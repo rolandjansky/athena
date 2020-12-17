@@ -4,7 +4,6 @@
 
 #include "MuonSegmentFinderAlg.h"
 
-#include "CscSegmentMakers/ICscSegmentFinder.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
@@ -17,21 +16,13 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "TrkParameters/TrackParameters.h"
 
 using HepGeom::Transform3D;
-MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator)
-{
-    declareProperty("PrintSummary", m_printSummary = false);
-    //
-    declareProperty("doTGCClust", m_doTGCClust = false);
-    declareProperty("doRPCClust", m_doRPCClust = false);
-    declareProperty("doClusterTruth", m_doClusterTruth = false);
-}
 
-MuonSegmentFinderAlg::~MuonSegmentFinderAlg() {}
+MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator) {
+}
 
 StatusCode
 MuonSegmentFinderAlg::initialize()
@@ -110,7 +101,7 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
             for (auto p : *rpcPrdCont) {
                 if (!p->empty()) rpcCols.push_back(p);
             }
-            createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols);
+            createSegmentsWithMDTs(*patt, handle.ptr(), rpcCols, tgcCols, ctx);
             createSegmentsFromClusters(*patt, handle.ptr());
         }  // end loop on pattern combinations
 
@@ -163,11 +154,11 @@ MuonSegmentFinderAlg::execute(const EventContext& ctx) const
             ATH_MSG_DEBUG("Retrieved CscPrepDataContainer " << cscCols.size());
             // reconstruct segments in the CSC eta and phi plane
             std::unique_ptr<MuonSegmentCombinationCollection> csc2dSegmentCombinations =
-                m_csc2dSegmentFinder->find(cscCols);
+	      m_csc2dSegmentFinder->find(cscCols, ctx);
             // combine CSC segments in eta and phi plane if any were found
             if (csc2dSegmentCombinations) {
                 std::unique_ptr<MuonSegmentCombinationCollection> csc4dSegmentCombinations =
-                    m_csc4dSegmentFinder->find(*csc2dSegmentCombinations);
+		  m_csc4dSegmentFinder->find(*csc2dSegmentCombinations, ctx);
                 if (csc4dSegmentCombinations) {
 
                     // now copy the segments into the collection, not optimal as unneeded copy
@@ -260,7 +251,7 @@ MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombinat
 void
 MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, Trk::SegmentCollection* segs,
                                              const std::vector<const Muon::RpcPrepDataCollection*> rpcCols,
-                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols) const
+                                             const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const
 {
 
     if (m_idHelperSvc->hasMM() && m_idHelperSvc->hasSTgc()) {
@@ -308,7 +299,7 @@ MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination*
             bool hasPhiMeasurements = m_patternCalibration->checkForPhiMeasurements(pattern);
             // calibrate the hits
             Muon::IMuonPatternCalibration::ROTsPerRegion hitsPerRegion;
-            m_patternCalibration->calibrate(pattern, hitsPerRegion);
+            m_patternCalibration->calibrate(pattern, hitsPerRegion, ctx);
 
             Muon::IMuonPatternCalibration::ROTsPerRegion::iterator rotit = hitsPerRegion.begin();
             for (; rotit != hitsPerRegion.end(); ++rotit) {

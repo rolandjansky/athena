@@ -3,9 +3,7 @@
 
 from __future__ import print_function
 from contextlib import contextmanager
-
 from time import time
-from os import environ
 
 class TimeCount:
     def __init__(self, name):
@@ -34,8 +32,8 @@ class TimeCount:
         for subtc in sortedByTime:
             subtc.printRecursive(lvl+1)
 
-    def __cmp__(l, r):
-        return cmp(l.name,r)
+    #def __eq__(self, r):
+    #    return self.name == r
         
 
 class TimerStats:
@@ -47,7 +45,8 @@ class TimerStats:
     @classmethod
     def saveTimeFlat(cls, exectime):
         n = cls.context[-1]
-        if not n in cls.totalFlat: cls.totalFlat[n] = [0,0]
+        if n not in cls.totalFlat:
+            cls.totalFlat[n] = [0,0]
         cls.totalFlat[n][0] += exectime
         cls.totalFlat[n][1] += 1
 
@@ -61,8 +60,9 @@ class TimerStats:
                 continue
             try:
                 idx = cur.subcounts.index(n)
+                print ('index', idx)
                 cur = cur.subcounts[idx]
-            except:
+            except ValueError:
                 cur.subcounts += [TimeCount(n)]
                 cur = cur.subcounts[-1]
         cur.totaltime += exectime
@@ -78,8 +78,8 @@ class TimerStats:
 
     @classmethod
     def printTimeFlat(cls):
-        for name, [time, callcount] in sorted(cls.totalFlat.items(),key=lambda x: x[1][0]):
-            print ("%-70s : %f (%i)" % (name, time, callcount))
+        for name, [_time, callcount] in sorted(cls.totalFlat.items(),key=lambda x: x[1][0]):
+            print ("%-70s : %f (%i)" % (name, _time, callcount))
 
 
 @contextmanager

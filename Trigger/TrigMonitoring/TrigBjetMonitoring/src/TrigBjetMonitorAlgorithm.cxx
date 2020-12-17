@@ -293,7 +293,7 @@ StatusCode TrigBjetMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 	    NameH = "wMV2c10_tr_"+trigName;
 	    ATH_MSG_DEBUG( " NameH: " << NameH  );
 	    auto wMV2c10 = Monitored::Scalar<double>(NameH,0.0);
-	    wMV2c10 = btag->auxdata<double>("MV2c10_discriminant");
+	    btag->MVx_discriminant("MV2c10",wMV2c10);
 	    ATH_MSG_DEBUG("        wMV2c10: " << wMV2c10);
 	    fill("TrigBjetMonitor",wMV2c10);
 	    

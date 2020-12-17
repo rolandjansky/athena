@@ -48,6 +48,11 @@
 #include <cmath>
 #include <sstream>
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
 struct MDTOverviewHistogramStruct {
@@ -296,35 +301,39 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   int lumiblock = -1;
   SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfo, ctx);
   lumiblock = evt->lumiBlock();
-  
-  ATH_MSG_DEBUG("MdtRawDataMonAlg::MDT RawData Monitoring Histograms being filled" );
+
+  ATH_MSG_DEBUG("MdtRawDataMonAlg::MDT RawData Monitoring Histograms being filled");
 
   // Retrieve the LVL1 Muon RoIs:
   bool trig_BARREL = false;
   bool trig_ENDCAP = false;
-  if (!m_l1RoiKey.empty()) {
+  if (!m_l1RoiKey.empty())
+  {
     SG::ReadHandle<xAOD::MuonRoIContainer> muonRoIs(m_l1RoiKey, ctx);
-    if(!muonRoIs.isValid()){
-      ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name "<< m_l1RoiKey);
+    if (!muonRoIs.isValid())
+    {
+      ATH_MSG_ERROR("evtStore() does not contain muon L1 ROI Collection with name " << m_l1RoiKey);
     }
     //DEV still needed ? does not compile
-    if(muonRoIs.isPresent() && muonRoIs.isValid()){
-      ATH_MSG_VERBOSE( "Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key() ); 
-      trig_BARREL = std::any_of(muonRoIs->begin(), muonRoIs->end(), 
-                                [](const auto& i){return i->getSource() == xAOD::MuonRoI::RoISource::Barrel;});
-      trig_ENDCAP = std::any_of(muonRoIs->begin(), muonRoIs->end(), 
-                                [](const auto& i){return i->getSource() == xAOD::MuonRoI::RoISource::Endcap;});
+    if (muonRoIs.isPresent() && muonRoIs.isValid())
+    {
+      ATH_MSG_VERBOSE("Retrieved LVL1MuonRoIs object with key: " << m_l1RoiKey.key());
+      trig_BARREL = std::any_of(muonRoIs->begin(), muonRoIs->end(),
+                                [](const auto &i) { return i->getSource() == xAOD::MuonRoI::RoISource::Barrel; });
+      trig_ENDCAP = std::any_of(muonRoIs->begin(), muonRoIs->end(),
+                                [](const auto &i) { return i->getSource() == xAOD::MuonRoI::RoISource::Endcap; });
     }
   }
 
-  //declare MDT stuff 
+  //declare MDT stuff
   SG::ReadHandle<Muon::MdtPrepDataContainer> mdt_container(m_key_mdt, ctx);
-  if(!mdt_container.isValid()){
-    ATH_MSG_ERROR("evtStore() does not contain mdt prd Collection with name "<< m_key_mdt);
+  if (!mdt_container.isValid())
+  {
+    ATH_MSG_ERROR("evtStore() does not contain mdt prd Collection with name " << m_key_mdt);
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("****** mdtContainer->size() : " << mdt_container->size());  
+  ATH_MSG_DEBUG("****** mdtContainer->size() : " << mdt_container->size());
 
   int nColl = 0;        // Number of MDT chambers with hits
   int nColl_ADCCut = 0; // Number of MDT chambers with hits above ADC cut
@@ -333,8 +342,9 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
   //declare RPC stuff
   SG::ReadHandle<Muon::RpcPrepDataContainer> rpc_container(m_key_rpc, ctx);
-  if(!rpc_container.isValid()){
-    ATH_MSG_ERROR("evtStore() does not contain rpc prd Collection with name "<< m_key_rpc);
+  if (!rpc_container.isValid())
+  {
+    ATH_MSG_ERROR("evtStore() does not contain rpc prd Collection with name " << m_key_rpc);
     return StatusCode::FAILURE;
   }
 
@@ -343,160 +353,193 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   Muon::RpcPrepDataContainer::const_iterator containerIt;
 
   /////////////////////////////this is the important plot!
-  float Nhitsrpc = 0 ;
-  for (containerIt = rpc_container->begin() ; containerIt != rpc_container->end() ; ++containerIt)
+  float Nhitsrpc = 0;
+  for (containerIt = rpc_container->begin(); containerIt != rpc_container->end(); ++containerIt)
   {
-    for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = (*containerIt)->begin(); rpcPrd!=(*containerIt)->end(); ++rpcPrd)
+    for (Muon::RpcPrepDataCollection::const_iterator rpcPrd = (*containerIt)->begin(); rpcPrd != (*containerIt)->end(); ++rpcPrd)
     {
-      ++Nhitsrpc ;
-    }}
-  float Nhitsmdt = 0 ;
+      ++Nhitsrpc;
+    }
+  }
+  float Nhitsmdt = 0;
   bool isNoiseBurstCandidate = false;
-  Muon::MdtPrepDataContainer::const_iterator MdtcontainerIt ;
-  for (MdtcontainerIt = mdt_container->begin() ; MdtcontainerIt != mdt_container->end() ; ++MdtcontainerIt)
+  Muon::MdtPrepDataContainer::const_iterator MdtcontainerIt;
+  for (MdtcontainerIt = mdt_container->begin(); MdtcontainerIt != mdt_container->end(); ++MdtcontainerIt)
   {
-    for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*MdtcontainerIt)->begin(); mdtCollection!=(*MdtcontainerIt)->end(); ++mdtCollection )
+    for (Muon::MdtPrepDataCollection::const_iterator mdtCollection = (*MdtcontainerIt)->begin(); mdtCollection != (*MdtcontainerIt)->end(); ++mdtCollection)
     {
-      ++Nhitsmdt ;
+      ++Nhitsmdt;
     }
   }
 
-  if(Nhitsmdt > m_HighOccThreshold) isNoiseBurstCandidate = true;
-  std::string type="MDT";
+  if (Nhitsmdt > m_HighOccThreshold)
+    isNoiseBurstCandidate = true;
+  std::string type = "MDT";
   std::string hardware_name;
 
-  std::map<std::string,int> evnt_hitsperchamber_map;
-  std::set<std::string>  chambers_from_tracks;
+  std::map<std::string, int> evnt_hitsperchamber_map;
+  std::set<std::string> chambers_from_tracks;
 
-  if (m_doMdtESD==true) { 
+  if (m_doMdtESD == true)
+  {
     //DEV this shouls be done in some other way, in AthenaMonManager there is
     // Gaudi::Property<std::string> m_environmentStr {this,"Environment","user"}; ///< Environment string pulled from the job option and converted to enum
     //per il momento commento...
     //    if(m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD || m_environment == AthenaMonManager::online) {
-    if(true) { //DEV to be updated
+    if (true)
+    { //DEV to be updated
 
       SG::ReadHandle<xAOD::MuonContainer> muons(m_muonKey, ctx);
-      if(!muons.isValid()){
-	ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_muonKey);
-	return StatusCode::FAILURE;
+      if (!muons.isValid())
+      {
+        ATH_MSG_ERROR("evtStore() does not contain muon Collection with name " << m_muonKey);
+        return StatusCode::FAILURE;
       }
-      for(const auto mu : *muons){
+      for (const auto mu : *muons)
+      {
 
-	if(! (mu->muonType() == xAOD::Muon::Combined)) continue;
-	xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*mu);
-	if (!(quality <= xAOD::Muon::Medium)) continue;
-	const   xAOD::TrackParticle* tp = mu->primaryTrackParticle();
-	if(tp){
-	  const Trk::Track * trk= tp->track();
-	  //this work only if tp are available
-	  if(!trk)  continue;	  
-	  //
-	  uint8_t ntri_eta=0;
-	  uint8_t n_phi=0; 
-	  tp->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers); 
-	  tp->summaryValue(n_phi, xAOD::numberOfPhiLayers); 
-	  if(ntri_eta+n_phi==0) continue;
-	}
+        if (!(mu->muonType() == xAOD::Muon::Combined))
+          continue;
+        xAOD::Muon::Quality quality = m_muonSelectionTool->getQuality(*mu);
+        if (!(quality <= xAOD::Muon::Medium))
+          continue;
+        const xAOD::TrackParticle *tp = mu->primaryTrackParticle();
+        if (tp)
+        {
+          const Trk::Track *trk = tp->track();
+          //this work only if tp are available
+          if (!trk)
+            continue;
+          //
+          uint8_t ntri_eta = 0;
+          uint8_t n_phi = 0;
+          tp->summaryValue(ntri_eta, xAOD::numberOfTriggerEtaLayers);
+          tp->summaryValue(n_phi, xAOD::numberOfPhiLayers);
+          if (ntri_eta + n_phi == 0)
+            continue;
+        }
       }
 
       MDTOverviewHistogramStruct overviewPlots;
       MDTSummaryHistogramStruct summaryPlots[4][4][16][4][4]; // [region][layer][phi][crate_region][crate]
       //loop in MdtPrepDataContainer
-      for (Muon::MdtPrepDataContainer::const_iterator containerIt = mdt_container->begin(); containerIt != mdt_container->end(); ++containerIt) {
-        if (containerIt == mdt_container->end() || (*containerIt)->size()==0) continue;  //check if there are counts  
+      std::vector<std::string> v_hit_in_chamber_allphi;
+      std::map<std::string, std::vector<std::string>> v_hit_in_chamber;
+      for (Muon::MdtPrepDataContainer::const_iterator containerIt = mdt_container->begin(); containerIt != mdt_container->end(); ++containerIt)
+      {
+        if (containerIt == mdt_container->end() || (*containerIt)->size() == 0)
+          continue; //check if there are counts
         nColl++;
-        
+
         bool isHit_above_ADCCut = false;
         // loop over hits
-        for (Muon::MdtPrepDataCollection::const_iterator mdtCollection=(*containerIt)->begin(); mdtCollection!=(*containerIt)->end(); ++mdtCollection ) 
+        for (Muon::MdtPrepDataCollection::const_iterator mdtCollection = (*containerIt)->begin(); mdtCollection != (*containerIt)->end(); ++mdtCollection)
         {
           nPrd++;
 
-
           float adc = (*mdtCollection)->adc();
-	  hardware_name = getChamberName(*mdtCollection);
-          if(hardware_name.substr(0,3) == "BMG") adc /= 4.;
-          if( adc > m_ADCCut ) 
+          hardware_name = getChamberName(*mdtCollection);
+          if (hardware_name.substr(0, 3) == "BMG")
+            adc /= 4.;
+          if (adc > m_ADCCut)
           {
             nPrdcut++;
             isHit_above_ADCCut = true;
-	    std::string phi=hardware_name.substr( hardware_name.length() - 2); 
-	    auto hit_in_chamber = Monitored::Scalar<std::string>("hits_phi_"+phi,hardware_name); 
-	    if(m_do_mdtchamberstatphislice)    fill("MdtMonitor",hit_in_chamber);    
-	    auto hit_in_chamber_allphi = Monitored::Scalar<std::string>("hits_allphi",hardware_name); 
-	    fill("MdtMonitor",hit_in_chamber_allphi);                                                                                   
+            if (m_do_mdtchamberstatphislice)
+            {
+              std::string phi = hardware_name.substr(hardware_name.length() - 2);
+              v_hit_in_chamber[phi].push_back(hardware_name);
+            }
+            v_hit_in_chamber_allphi.push_back(hardware_name);
           }
           fillMDTOverviewVects(*mdtCollection, isNoiseBurstCandidate, overviewPlots);
-	  //=======================================================================
-	  //=======================================================================
-	  //=======================================================================
+          //=======================================================================
+          //=======================================================================
+          //=======================================================================
 
-	  ATH_CHECK(fillMDTSummaryVects(*mdtCollection, chambers_from_tracks, isNoiseBurstCandidate, trig_BARREL, trig_ENDCAP, summaryPlots));
+          ATH_CHECK(fillMDTSummaryVects(*mdtCollection, chambers_from_tracks, isNoiseBurstCandidate, trig_BARREL, trig_ENDCAP, summaryPlots));
 
-	  //=======================================================================
-	  //=======================================================================
-	  //=======================================================================
-	  if(m_doChamberHists){
-	    ATH_CHECK(fillMDTHistograms(*mdtCollection));
-	  }      
+          //=======================================================================
+          //=======================================================================
+          //=======================================================================
+          if (m_doChamberHists)
+          {
+            ATH_CHECK(fillMDTHistograms(*mdtCollection));
+          }
 
-          std::map<std::string,int>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
-          if ( iter_hitsperchamber == evnt_hitsperchamber_map.end() ) { 
-            evnt_hitsperchamber_map.insert( make_pair( hardware_name, 1 ) );
-          } 
-          else {
+          std::map<std::string, int>::iterator iter_hitsperchamber = evnt_hitsperchamber_map.find(hardware_name);
+          if (iter_hitsperchamber == evnt_hitsperchamber_map.end())
+          {
+            evnt_hitsperchamber_map.insert(make_pair(hardware_name, 1));
+          }
+          else
+          {
             iter_hitsperchamber->second += 1;
-          }     
+          }
 
         } // for loop over hits mdtcollection
-        if( isHit_above_ADCCut ) 
+        if (isHit_above_ADCCut)
           nColl_ADCCut++;
       } //loop in MdtPrepDataContainer
+      if (m_do_mdtchamberstatphislice)
+      {
+        for (const auto &phiitem : v_hit_in_chamber)
+        {
+          auto hit_in_chamber = Monitored::Collection("hits_phi_" + phiitem.first, phiitem.second);
+          fill("MdtMonitor", hit_in_chamber);
+        }
+      }
+      auto hit_in_chamber_allphi = Monitored::Collection("hits_allphi", v_hit_in_chamber_allphi);
+      fill("MdtMonitor", hit_in_chamber_allphi);
 
       fillMDTOverviewHistograms(overviewPlots);
 
-      ATH_CHECK( fillMDTSummaryHistograms(summaryPlots, lumiblock) );
-      
+      ATH_CHECK(fillMDTSummaryHistograms(summaryPlots, lumiblock));
+
       int nHighOccChambers = 0;
-      for(const auto& iterstat: evnt_hitsperchamber_map) {
-	const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
-	if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end())) { // indicates software error
-	  ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
-	  continue;
-	}
-	float nTubes = iter_tubesperchamber->second;
-	float hits = iterstat.second;
-	float occ = hits/nTubes;
-	if ( occ > 0.1 ) nHighOccChambers++;
+      for (const auto &iterstat : evnt_hitsperchamber_map)
+      {
+        const auto iter_tubesperchamber = m_tubesperchamber_map.find(iterstat.first);
+        if (ATH_UNLIKELY(iter_tubesperchamber == m_tubesperchamber_map.end()))
+        { // indicates software error
+          ATH_MSG_ERROR("Unable to find chamber " << iterstat.first);
+          continue;
+        }
+        float nTubes = iter_tubesperchamber->second;
+        float hits = iterstat.second;
+        float occ = hits / nTubes;
+        if (occ > 0.1)
+          nHighOccChambers++;
       }
-      
+
       auto nHighOccChambers_mon = Monitored::Scalar<float>("nHighOccChambers_mon", nHighOccChambers);
 
       auto nPrd_mon = Monitored::Scalar<int>("nPrd_mon", nPrd);
       auto nPrdcut_mon = Monitored::Scalar<int>("nPrdcut_mon", nPrdcut);
       auto Nhitsrpc_mon = Monitored::Scalar<int>("Nhitsrpc_mon", Nhitsrpc);
-      auto nColl_mon = Monitored::Scalar<int>("nColl_mon", nColl);      
+      auto nColl_mon = Monitored::Scalar<int>("nColl_mon", nColl);
       auto nColl_ADCCut_mon = Monitored::Scalar<int>("nColl_ADCCut_mon", nColl_ADCCut);
-      
-      fill("MdtMonitor",nHighOccChambers_mon,nPrd_mon,Nhitsrpc_mon,nPrdcut_mon, nColl_mon, nColl_ADCCut_mon);
+
+      fill("MdtMonitor", nHighOccChambers_mon, nPrd_mon, Nhitsrpc_mon, nPrdcut_mon, nColl_mon, nColl_ADCCut_mon);
 
       //        if (m_mdtglobalhitstime) m_mdtglobalhitstime->Fill(m_time - m_firstTime);
 
-    }  //m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD   
-  } //m_doMdtESD==true
+    } //m_environment == AthenaMonManager::tier0 || m_environment == AthenaMonManager::tier0ESD
+  }   //m_doMdtESD==true
 
-  SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);                                                                                                   
-  if(!segms.isValid()){                                                                                                                                                                     
-    ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name "<< m_segm_type);                                                                                        
-    return StatusCode::FAILURE;                                                                                                                                                                
-  }                                  
+  SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);
+  if (!segms.isValid())
+  {
+    ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
+    return StatusCode::FAILURE;
+  }
 
-  MDTSegmentHistogramStruct   segsPlots[4][4][16]; // [region][layer][phi]
-  ATH_CHECK(handleEvent_effCalc_fillVects( segms.cptr(), segsPlots ));    
+  MDTSegmentHistogramStruct segsPlots[4][4][16]; // [region][layer][phi]
+  ATH_CHECK(handleEvent_effCalc_fillVects(segms.cptr(), segsPlots));
   ATH_CHECK(fillMDTSegmentHistograms(segsPlots));
 
   return StatusCode::SUCCESS;
-} 
+}
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 void MdtRawDataMonAlg::fillMDTOverviewVects( const Muon::MdtPrepData* mdtCollection, bool &isNoiseBurstCandidate, MDTOverviewHistogramStruct& vects ) const {
@@ -828,20 +871,15 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	    
 	    auto adc_mon =  Monitored::Collection("adc_mon", thisVects.adc_mon); 
 	    auto tdc_mon =  Monitored::Collection("tdc_mon", thisVects.tdc_mon); 
-	    fill(MDT_regionGroup, adc_mon, tdc_mon);
 	    
 	    auto tdc_mon_nb2 =  Monitored::Collection("tdc_mon_nb2", thisVects.tdc_mon_nb2); 
 	    auto adc_mon_nb2 =  Monitored::Collection("adc_mon_nb2", thisVects.adc_mon_nb2); 
-	    fill(MDT_regionGroup, tdc_mon_nb2, adc_mon_nb2);
 	    
 	    auto tdc_mon_nb1 =  Monitored::Collection("tdc_mon_nb1", thisVects.tdc_mon_nb1); 
 	    auto adc_mon_nb1 =  Monitored::Collection("adc_mon_nb1", thisVects.adc_mon_nb1); 
-	    fill(MDT_regionGroup, tdc_mon_nb1, adc_mon_nb1);
 	    
 	    auto adc_mon_adccut =  Monitored::Collection("adc_mon_adccut", thisVects.adc_mon_adccut);
 	    auto tdc_mon_adccut =  Monitored::Collection("tdc_mon_adccut", thisVects.tdc_mon_adccut);
-	    //	    fill(MDT_regionGroup, stationEta, tdc_mon_adccut, adc_mon_adccut);
-	    fill(MDT_regionGroup, tdc_mon_adccut, adc_mon_adccut);
 	    
 	    std::string varx = iregion < 2 ? "x_mon_barrel" : "x_mon_endcap";
 	    std::string vary = iregion < 2 ? "y_mon_barrel" : "y_mon_endcap";
@@ -850,19 +888,17 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	    
 	    auto x_mon =  Monitored::Collection(varx, thisVects.x_mon);
 	    auto y_mon =  Monitored::Collection(vary, thisVects.y_mon);
-	    fill("MdtMonitor",x_mon,y_mon);
 	    auto x_mon_noise =  Monitored::Collection(varx_noise, thisVects.x_mon_noise);
 	    auto y_mon_noise =  Monitored::Collection(vary_noise, thisVects.y_mon_noise);
-	    fill("MdtMonitor",x_mon_noise,y_mon_noise);
+	    fill("MdtMonitor",x_mon,y_mon,x_mon_noise,y_mon_noise);
 	    auto tdc_mon_nb3 =  Monitored::Collection("tdc_mon_nb3", thisVects.tdc_mon_nb3); 
-	    fill(MDT_regionGroup, tdc_mon_nb3);
+
 	    
 	    varx = "x_mon_"+region[iregion]+"_"+layer[ilayer];
 	    vary = "y_mon_"+region[iregion]+"_"+layer[ilayer];
 	    
 	    auto x_bin_perML =   Monitored::Collection(varx, thisVects.x_bin_perML);//get the right bin!!!! 
 	    auto y_bin_perML =   Monitored::Collection(vary, thisVects.y_bin_perML);
-	    fill(MDT_regionGroup,x_bin_perML,y_bin_perML);
 	    
 	    if(layer[ilayer]!="Extra"){
 	      varx="x_mon_"+layer[ilayer];
@@ -886,7 +922,9 @@ StatusCode MdtRawDataMonAlg::fillMDTSummaryHistograms( const MDTSummaryHistogram
 	    auto biny_name_bycrate_ontrack = "y_mon_bin_bycrate_ontrack_"+region[crate_region]+"_"+crate[icrate]; //y-axis of these histograms not yet defined
 	    auto biny_var_bycrate_ontrack = Monitored::Collection(biny_name_bycrate_ontrack, thisVects.biny_vslb_bycrate_ontrack); 
 
-	    fill(MDT_regionGroup,tdc_mon_rpc,tdc_mon_tgc,biny_var,lb_mon, biny_var, biny_var_bycrate, biny_var_bycrate_ontrack);
+	    fill(MDT_regionGroup, adc_mon, tdc_mon, tdc_mon_nb2, adc_mon_nb2, tdc_mon_adccut, adc_mon_adccut, tdc_mon_adccut, adc_mon_adccut,
+           tdc_mon_nb3, x_bin_perML, y_bin_perML, tdc_mon_rpc,tdc_mon_tgc,biny_var,lb_mon, 
+           biny_var, biny_var_bycrate, biny_var_bycrate_ontrack);
 
 	    
     //DEV to DO
@@ -1342,8 +1380,8 @@ void MdtRawDataMonAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;

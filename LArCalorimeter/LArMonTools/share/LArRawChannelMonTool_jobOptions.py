@@ -19,7 +19,7 @@ LArRawChannelMon = LArRawChannelMonTool(
     # --- set up mon tool ---
     name                      = "LArRawChannelMon",
     LArRawChannelContainerKey = "LArRawChannels",
-    histoPathBase             = "LAr/RawChannel",
+    histoPathBase             = "LAr/RawChannelOldTool",
     OutputLevel               = 3,
     # ATLAS Ready Filter Tool
 

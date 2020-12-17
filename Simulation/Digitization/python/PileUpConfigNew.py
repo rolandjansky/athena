@@ -11,11 +11,17 @@ from Digitization.RunDependentConfigNew import (
     maxNevtsPerXing,
     LumiProfileSvcCfg, NoProfileSvcCfg,
 )
+from BeamEffects.BeamEffectsAlgConfig import BeamSpotFixerAlgCfg
 
 
 def PileUpConfigdSFMT(name):
     """Local wrapper for dSFMT RNG service"""
-    return dSFMT(name + " OFFSET 340 123 345")
+    seedOffset = " OFFSET 340 123 345"
+    if name=="PileUpCollXingStream":
+        seedOffset = " OFFSET 340 123 345"
+    if name=="BEAMINT":
+        seedOffset = " OFFSET 340 678 91011"
+    return dSFMT(name + seedOffset)
 
 
 def StepArrayBMCfg(flags, name="StepArrayBM", **kwargs):
@@ -37,7 +43,7 @@ def FixedArrayBMCfg(flags, name="FixedArrayBM", **kwargs):
 def ArrayBMCfg(flags, name="ArrayBM", **kwargs):
     acc = ComponentAccumulator()
     kwargs.setdefault("IntensityPattern", flags.Digitization.PU.BeamIntensityPattern)
-    acc.merge(PileUpConfigdSFMT("PileUpCollXingStream"))
+    acc.merge(PileUpConfigdSFMT("BEAMINT"))
     kwargs.setdefault("RandomSvc", acc.getService("AtDSFMTGenSvc"))
     acc.addService(CompFactory.ArrayBM(name, **kwargs))
     return acc
@@ -259,7 +265,8 @@ def BeamHaloCacheCfg(flags, name="BeamHaloCache", **kwargs):
 
 
 def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
-    acc = ComponentAccumulator()
+    acc = BeamSpotFixerAlgCfg(flags) # Needed currently for running on 21.0 HITS
+
     # SubDet By SubDet (default) or Xing By Xing Pile-up?
     kwargs.setdefault("XingByXing", flags.Digitization.DoXingByXingPileUp)
     # Bunch Structure
@@ -313,8 +320,17 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
         acc.merge(NoProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("NoProfileSvc"))
 
-    # for beam spot fix
     kwargs.setdefault("EventInfoName", "Input_EventInfo")
+    # Note that this is a hack. It is needed to fix beam spot information
+    # as original xAOD::EventInfo is created before conditions data could
+    # be read. Only the "EventInfoName" should change.
 
     acc.addService(CompFactory.PileUpEventLoopMgr(name, **kwargs))
+    return acc
+
+
+def NoPileUpMuWriterCfg(flags, name="NoPileUpMuWriter", **kwargs):
+    """NoPileUpMuWriter configuration."""
+    acc = ComponentAccumulator()
+    acc.addEventAlgo(CompFactory.NoPileUpMuWriter(name, **kwargs))
     return acc

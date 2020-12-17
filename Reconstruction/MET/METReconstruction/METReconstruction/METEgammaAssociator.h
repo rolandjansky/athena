@@ -56,25 +56,30 @@ namespace met{
     protected: 
 
     StatusCode extractTopoClusters(const xAOD::IParticle* obj,
-				   std::vector<const xAOD::IParticle*>& tclist,
-				   const met::METAssociator::ConstitHolder& constits) const final;
+                                   std::vector<const xAOD::IParticle*>& tclist,
+                                   const met::METAssociator::ConstitHolder& constits) const final;
 
     StatusCode extractPFO(const xAOD::IParticle* obj,
-			  std::vector<const xAOD::IParticle*>& pfolist,
-			  const met::METAssociator::ConstitHolder& constits,
-			  std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+                          std::vector<const xAOD::IParticle*>& pfolist,
+                          const met::METAssociator::ConstitHolder& constits,
+                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+
+    StatusCode extractFE(const xAOD::IParticle* obj,
+                         std::vector<const xAOD::IParticle*>& felist,
+                         const met::METAssociator::ConstitHolder& constits,
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
 
     StatusCode extractTracks(const xAOD::IParticle* obj,
-			     std::vector<const xAOD::IParticle*>& constlist,
-			     const met::METAssociator::ConstitHolder& constits) const final;
+                             std::vector<const xAOD::IParticle*>& constlist,
+                             const met::METAssociator::ConstitHolder& constits) const final;
 
     StatusCode selectEgammaClusters(const xAOD::CaloCluster *swclus,
-				    const std::vector<const xAOD::IParticle*>& inputTC,
-				    std::vector<const xAOD::IParticle*>& tclist) const;
+                                    const std::vector<const xAOD::IParticle*>& inputTC,
+                                    std::vector<const xAOD::IParticle*>& tclist) const;
 
     StatusCode selectEgammaTracks(const xAOD::Egamma* el,
-				  const xAOD::TrackParticleContainer* trkCont,
-				  std::set<const xAOD::TrackParticle*>& tracklist) const;
+                                  const xAOD::TrackParticleContainer* trkCont,
+                                  std::set<const xAOD::TrackParticle*>& tracklist) const;
 
     double m_tcMatch_dR;
     double m_tcMatch_maxRat;

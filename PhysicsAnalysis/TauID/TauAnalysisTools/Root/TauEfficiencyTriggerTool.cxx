@@ -55,7 +55,7 @@ StatusCode TauEfficiencyTriggerTool::initialize()
   generateSystematicSets();
 
   // load empty systematic variation by default
-  if (applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok )
+  if (applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS )
     return StatusCode::FAILURE;
 
   return StatusCode::SUCCESS;
@@ -136,14 +136,14 @@ CP::CorrectionCode TauEfficiencyTriggerTool::getEfficiencyScaleFactor(const xAOD
 }
 
 //______________________________________________________________________________
-CP::SystematicCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
+StatusCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP::SystematicSet& sSystematicSet)
 {
   // first check if we already know this systematic configuration
   auto itSystematicSet = m_mSystematicSets.find(sSystematicSet);
   if (itSystematicSet != m_mSystematicSets.end())
   {
     m_sSystematicSet = &itSystematicSet->first;
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
   // sanity checks if systematic set is supported
@@ -163,7 +163,7 @@ CP::SystematicCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP
     // {
     //   ATH_MSG_ERROR("unsupported set of systematic variations, you should either use only \"UP\" or only \"DOWN\" systematics in one set!");
     //   ATH_MSG_ERROR("systematic set will not be applied");
-    //   return CP::SystematicCode::Unsupported;
+    //   return StatusCode::FAILURE;
     // }
     // dDirection = sSyst.parameter();
 
@@ -171,7 +171,7 @@ CP::SystematicCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP
     {
       ATH_MSG_ERROR("unsupported set of systematic variations, you should not combine \"TAUS_{TRUE|FAKE}_EFF_*_TOTAL\" with other systematic variations!");
       ATH_MSG_ERROR("systematic set will not be applied");
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
 
     // finally add the systematic to the set of systematics to process
@@ -181,7 +181,7 @@ CP::SystematicCode TauEfficiencyTriggerTool::applySystematicVariation ( const CP
   // store this calibration for future use, and make it current
   m_sSystematicSet = &m_mSystematicSets.insert(std::pair<CP::SystematicSet,std::string>(sSystematicSetAvailable, sSystematicSet.name())).first->first;
 
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 //______________________________________________________________________________

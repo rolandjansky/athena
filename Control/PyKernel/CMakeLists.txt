@@ -1,6 +1,4 @@
-################################################################################
-# Package: PyKernel
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PyKernel )
@@ -25,6 +23,6 @@ atlas_add_dictionary( PyKernelDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${Python_LIBRARIES} PyKernel )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

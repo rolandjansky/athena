@@ -29,7 +29,7 @@ class BasicCleaner: public ICleaner{
   ~BasicCleaner() {}
 
 
-  bool operator()(const pHypoJet& jet) const override;
+  bool operator()(const HypoJet::IJet& jet) const override;
   std::string toString() const noexcept override;
   std::string getName() const noexcept override;
 

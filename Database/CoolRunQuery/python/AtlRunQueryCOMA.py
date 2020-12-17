@@ -32,7 +32,8 @@ class ARQ_COMA:
 
         for c in condition:
             for p in c.split():
-                if '.' in p and not '\'' in p: usedtables.add(p.split('.')[0].lstrip('(')) # all tables specified in conditions
+                if '.' in p and '\'' not in p:
+                    usedtables.add(p.split('.')[0].lstrip('(')) # all tables specified in conditions
 
         return ["%s.%s %s" % (cls.__schema,cls.__tables[t],t) for t in usedtables] # prefix schema name to table name
 
@@ -43,7 +44,8 @@ class ARQ_COMA:
                                                 ', '.join(cls.getUsedTables(output, condition)))
         if condition:
             query += ' where ' + ' and '.join(condition)
-        if verbose: print ("="*80,"\n",query)
+        if verbose:
+            print ("="*80,"\n",query)
         c = cls.cursor()
         c.execute(str(query),bindvars)
         return c.fetchall()
@@ -73,9 +75,11 @@ class ARQ_COMA:
 
     @classmethod
     def get_periods_for_run(cls, run):
-        try:    run = int(run)
-        except: return []
-        if not run in cls.__store:
+        try:
+            run = int(run)
+        except ValueError:
+            return []
+        if run not in cls.__store:
 
             print ("FRESH Access for run" ,run)
 
@@ -108,16 +112,17 @@ class ARQ_COMA:
 
     @classmethod
     def get_all_periods(cls):
-        if cls.all_periods != None: return cls.all_periods
+        if cls.all_periods is not None:
+            return cls.all_periods
         cls.all_periods = []
-        p = re.compile("(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?$")
+        p = re.compile(r"(?P<periodletter>[A-Za-z]+)(?P<periodnumber>\d+)?$")
         try:
             result = cls.get_periods(0, 0)
             for period, projectName in result:
                 year = int(projectName[4:6])
                 m = p.match(period)
                 if not m:
-                    print ("Period '%s'does not match pattern  [A-Za-z]+\d+" % period)
+                    print ("Period '%s'does not match pattern  [A-Za-z]+\\d+" % period)
                     continue
 
                 period_letter = m.group('periodletter')
@@ -154,7 +159,7 @@ class ARQ_COMA:
         for record in result:
             run = record[0]
             info = record[1:4]
-            if not run in tmpstore:
+            if run not in tmpstore:
                 tmpstore[run] = []
             tmpstore[run] += [info]
 
@@ -175,20 +180,20 @@ if __name__ == "__main__":
         print ("4 - all periods (different format)")
         print ("\n0 - exit\n")
 
-        choice = raw_input("  enter your choice: ")
+        choice = input("  enter your choice: ")
         choice = int(choice) if choice.isdigit() else 0
         if choice==1:
-            run = int(raw_input("  run number: "))
+            run = int(input("  run number: "))
             print (ARQ_COMA.get_periods_for_run( run ))
         elif choice==2:
-            period = raw_input("  period           : ")
-            year   = raw_input("  year <RET> = all : ")
+            period = input("  period           : ")
+            year   = input("  year <RET> = all : ")
             year   = int(year) if year.isdigit() else 0
             print (', '.join([str(x) for x in ARQ_COMA.get_runs(period, year)]))
         elif choice==3:
-            year   = raw_input("  year <RET> = all           : ")
+            year   = input("  year <RET> = all           : ")
             year   = int(year) if year.isdigit() else 0
-            level  = raw_input("  level [1|2|3] <RET> = all : ")
+            level  = input("  level [1|2|3] <RET> = all : ")
             level  = int(level) if level.isdigit() else 0
             print (ARQ_COMA.get_periods(year, level))
         elif choice==4:

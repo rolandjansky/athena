@@ -14,7 +14,11 @@ class PixelID;
 
 class PixLayers {
  public:
-  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, kDBMA, kDBMC, COUNT};
+  enum PixLayersID {kECA = 0, kECC, kB0, kB1, kB2, kIBL, NFEI3LAYERS=kIBL, kDBMA, kDBMC, COUNT};
+};
+class DataReadErrors {
+ public:
+  enum DataReadErrorsID {ContainerInvalid = 0, CollectionInvalid, EmptyContainer, COUNT};
 };
 const std::string pixLayersLabel[PixLayers::COUNT] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "DBMA", "DBMC"};
 const float inv_nmod_per_layer[PixLayers::COUNT] = {1./144., 1./144., 1./286., 1./494., 1./676., 1./448., 1./12., 1./12.};
@@ -41,10 +45,11 @@ namespace PixMon {
 class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
 
  public:
-  void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights ) const;
+  void fill1DProfLumiLayers( const std::string& prof1Dname, int lb, float* weights, int nlayers = PixLayers::COUNT ) const;
   void fill2DProfLumiLayers( const std::string& prof2Dname, int lb, float (*weights)[PixLayers::COUNT], const int* nCategories ) const;
 
   int getPixLayersID(int ec, int ld) const;
+  int getNumberOfFEs(int pixlayer, int etaMod) const;
   void getPhiEtaMod(const PixelID* pid, Identifier& id, int& phiMod, int& etaMod, bool& copyFE) const;
   bool isHitOnTrack(Identifier id, std::vector<Identifier> const &RDOIDs) const;
   bool isClusterOnTrack(Identifier id, std::vector<std::pair<Identifier, double> > const &ClusterIDs) const;
@@ -64,6 +69,8 @@ class PixelAthMonitoringBase : public virtual AthMonitorAlgorithm {
     
     void add( const int layer, const Identifier& id,
 	      const PixelID* pid, float value=1.0 );
+    void add( const int layer, const Identifier& id,
+	      const PixelID* pid, int iFE, float value);
   };
   void fill2DProfLayerAccum( const VecAccumulator2DMap& accumulator ) const;
 

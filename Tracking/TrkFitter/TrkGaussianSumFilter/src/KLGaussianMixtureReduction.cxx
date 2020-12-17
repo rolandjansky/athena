@@ -4,11 +4,15 @@
 
 #include "TrkGaussianSumFilter/KLGaussianMixtureReduction.h"
 #include "CxxUtils/features.h"
+#include "CxxUtils/restrict.h"
+#include "CxxUtils/vectorize.h"
 #include "CxxUtils/vec.h"
 #include "TrkGaussianSumFilter/AlignedDynArray.h"
 #include "TrkGaussianSumFilter/GsfConstants.h"
 #include <limits>
 #include <stdexcept>
+#include <vector>
+
 #if !defined(__GNUC__)
 #define __builtin_assume_aligned(X, N) X
 #else
@@ -19,6 +23,7 @@
 #endif
 #endif
 
+ATH_ENABLE_VECTORIZATION;
 /**
  * @file  KLGaussianMixtureReduction.cxx
  * @author Anthony Morley , Christos Anastopoulos
@@ -26,7 +31,6 @@
  *
  * Implementation of KLGaussianMixtureReduction
  */
-
 namespace {
 using namespace GSFUtils;
 
@@ -65,7 +69,8 @@ createToIJMaxRowCols()
  * covI * invCovJ + covJ * invCovI + (mean1-mean2) (invcov+invcov) (mean1-mean2)
  */
 float
-symmetricKL(const Component1D& componentI, const Component1D& componentJ)
+symmetricKL(const Component1D& ATH_RESTRICT componentI,
+            const Component1D& ATH_RESTRICT componentJ)
 {
   const double meanDifference = componentI.mean - componentJ.mean;
   const double inverCovSum = componentI.invCov + componentJ.invCov;
@@ -83,7 +88,8 @@ symmetricKL(const Component1D& componentI, const Component1D& componentJ)
  * equations (2),(3),(4)
  */
 void
-combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
+combine(GSFUtils::Component1D& ATH_RESTRICT updated,
+        GSFUtils::Component1D& ATH_RESTRICT removed)
 {
 
   const double sumWeight = updated.weight + removed.weight;
@@ -120,14 +126,15 @@ combine(GSFUtils::Component1D& updated, GSFUtils::Component1D& removed)
 void
 recalculateDistances(const Component1D* componentsIn,
                      float* distancesIn,
+                     const IsMergedArray& ismerged,
                      const int32_t mini,
                      const int32_t n)
 {
   const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
+    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
 
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
 
   const int32_t j = mini;
   const int32_t indexConst = (j - 1) * j / 2;
@@ -141,9 +148,9 @@ recalculateDistances(const Component1D* componentsIn,
     const int32_t index = indexConst + i;
     // if the component has been merged already
     // keep the distance wrt to it max always
-    distances[index] = componentI.weight < 0
-                         ? std::numeric_limits<float>::max()
-                         : symmetricKL(componentI, componentJ);
+    if (!ismerged[i]) {
+      distances[index] = symmetricKL(componentI, componentJ);
+    }
   }
   // Columns
   for (int32_t i = j + 1; i < n; ++i) {
@@ -151,9 +158,9 @@ recalculateDistances(const Component1D* componentsIn,
     const int32_t index = (i - 1) * i / 2 + j;
     // if the component has been merged already
     // keep the distance wrt to it max always
-    distances[index] = componentI.weight < 0
-                         ? std::numeric_limits<float>::max()
-                         : symmetricKL(componentI, componentJ);
+    if (!ismerged[i]) {
+      distances[index] = symmetricKL(componentI, componentJ);
+    }
   }
 }
 
@@ -167,9 +174,9 @@ calculateAllDistances(const Component1D* componentsIn,
 {
 
   const Component1D* components = static_cast<const Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+    __builtin_assume_aligned(componentsIn, GSFConstants::alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
 
   for (int32_t i = 1; i < n; ++i) {
     const int32_t indexConst = (i - 1) * i / 2;
@@ -187,8 +194,8 @@ calculateAllDistances(const Component1D* componentsIn,
 void
 resetDistances(float* distancesIn, const int32_t minj, const int32_t n)
 {
-  float* distances =
-    static_cast<float*>(__builtin_assume_aligned(distancesIn, alignment));
+  float* distances = static_cast<float*>(
+    __builtin_assume_aligned(distancesIn, GSFConstants::alignment));
   const int32_t j = minj;
   const int32_t indexConst = (j - 1) * j / 2;
   // Rows
@@ -209,39 +216,36 @@ namespace GSFUtils {
  * Merge the componentsIn and return
  * which componets got merged.
  */
-std::vector<std::pair<int8_t, int8_t>>
-findMerges(Component1D* componentsIn,
-           const int8_t inputSize,
-           const int8_t reducedSize)
+MergeArray
+findMerges(Component1DArray& componentsIn, const int8_t reducedSize)
 {
-  Component1D* components = static_cast<Component1D*>(
-    __builtin_assume_aligned(componentsIn, alignment));
-
+  const int32_t n = componentsIn.numComponents;
   // Sanity check. Function  throw on invalid inputs
-  if (inputSize < 0 ||
-      inputSize > GSFConstants::maxComponentsAfterConvolution ||
-      reducedSize > inputSize) {
+  if (n < 0 || n > GSFConstants::maxComponentsAfterConvolution ||
+      reducedSize > n) {
     throw std::runtime_error("findMerges :Invalid InputSize or reducedSize");
   }
-  // We need just one for the full duration of a job
+
+  Component1D* components = static_cast<Component1D*>(__builtin_assume_aligned(
+    componentsIn.components.data(), GSFConstants::alignment));
+
+  // We need just one for the full duration of a job so static const
   const static std::vector<triangularToIJ> convert = createToIJMaxRowCols();
 
-  // Based on the inputSize allocate enough space for the pairwise distances
-  const int8_t n = inputSize;
-  const int32_t nn = n * (n - 1) / 2;
+  //Based on the inputSize n allocate enough space for the pairwise distances
   // We work with a  multiple of 8*floats (32 bytes).
+  const int32_t nn = n * (n - 1) / 2;
   const int32_t nn2 = (nn & 7) == 0 ? nn : nn + (8 - (nn & 7));
-  AlignedDynArray<float, alignment> distances(
+  AlignedDynArray<float, GSFConstants::alignment> distances(
     nn2, std::numeric_limits<float>::max());
-
-  // vector to be returned
-  std::vector<std::pair<int8_t, int8_t>> merges;
-  merges.reserve(inputSize - reducedSize);
   // initial distance calculation
   calculateAllDistances(components, distances.buffer(), n);
-
-  // merge loop
+  //keep track of where we are
   int32_t numberOfComponentsLeft = n;
+  IsMergedArray ismerged={};
+  //Result to  returned
+  MergeArray result{};
+  // merge loop
   while (numberOfComponentsLeft > reducedSize) {
     // see if we have the next already
     const int32_t minIndex = findMinimumIndex(distances.buffer(), nn2);
@@ -250,15 +254,19 @@ findMerges(Component1D* componentsIn,
     const int8_t minj = conversion.J;
     // Combine the 2 components
     combine(components[mini], components[minj]);
-    // re-calculate distances wrt the new component at mini
-    recalculateDistances(components, distances.buffer(), mini, n);
-    // Reset old weights wrt the  minj position
+    // Reset all distances wrt  to minj to float max
+    // so they can not be re-found as minimum distances.
     resetDistances(distances.buffer(), minj, n);
-    // keep track and decrement
-    merges.emplace_back(mini, minj);
+    //Set minj as merged
+    ismerged[minj]=true;
+    // re-calculate distances wrt the new component at mini
+    recalculateDistances(components, distances.buffer(), ismerged, mini, n);
+   // keep track and decrement
+    result.merges[result.numMerges]={mini, minj};
+    ++result.numMerges;
     --numberOfComponentsLeft;
   } // end of merge while
-  return merges;
+  return result;
 }
 
 /**
@@ -291,7 +299,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   const vec<int, 8> increment = { 8, 8, 8, 8, 8, 8, 8, 8 };
   vec<int, 8> indicesIn = { 0, 1, 2, 3, 4, 5, 6, 7 };
   vec<int, 8> minindices = indicesIn;
@@ -326,7 +335,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   // Do 2 vectors of 4 elements , so 8 at time
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
@@ -379,7 +389,8 @@ int32_t
 findMinimumIndex(const float* distancesIn, const int n)
 {
   using namespace CxxUtils;
-  float* array = (float*)__builtin_assume_aligned(distancesIn, alignment);
+  float* array =
+    (float*)__builtin_assume_aligned(distancesIn, GSFConstants::alignment);
   const vec<int, 4> increment = { 8, 8, 8, 8 };
   vec<int, 4> indices1 = { 0, 1, 2, 3 };
   vec<int, 4> indices2 = { 4, 5, 6, 7 };

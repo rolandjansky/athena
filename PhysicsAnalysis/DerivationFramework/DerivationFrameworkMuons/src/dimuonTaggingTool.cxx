@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 #include <string>
 #include <memory>
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODTracking/TrackingPrimitives.h"
@@ -59,8 +59,8 @@ DerivationFramework::dimuonTaggingTool::dimuonTaggingTool(const std::string& t,
 
   declareProperty("OppositeCharge", m_requireOS=true); 
   declareProperty("PairDPhiMin", m_dPhiMin=-1); 
-  declareProperty("InvariantMassLow", m_invariantMassLow=2.0*CLHEP::GeV); 
-  declareProperty("InvariantMassHigh", m_invariantMassHigh=4.3*CLHEP::GeV); 
+  declareProperty("InvariantMassLow", m_invariantMassLow=2.0*Gaudi::Units::GeV); 
+  declareProperty("InvariantMassHigh", m_invariantMassHigh=4.3*Gaudi::Units::GeV); 
 
   declareProperty("IDTrackThinningConeSize", m_thinningConeSize=0.4);
   declareProperty("BranchPrefix", m_br_prefix="");

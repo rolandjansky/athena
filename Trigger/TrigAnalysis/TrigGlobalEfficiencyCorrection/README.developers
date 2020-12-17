@@ -1,0 +1,3 @@
+The examples 0-3 should not be edited directly: the source files are produced 
+by running the script examples/generator/generateExamples.py.
+Modifications should therefore be made to the templates in the generator directory. 

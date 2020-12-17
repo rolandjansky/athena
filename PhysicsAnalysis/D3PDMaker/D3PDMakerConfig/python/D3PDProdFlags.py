@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # $Id$
 #
@@ -97,69 +97,6 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteMuonD3PD)
 listAllKnownD3PD.append (prodFlags.WriteMuonD3PD)
 
 
-class WritePhysicsD3PD (JobProperty):
-    """Produce the physics D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_PHYSICS'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "D3PDMakerConfig/PhysicsD3PD_prodJobOFragment.py"
-    TreeNames = ['physics', 'physicsTrigDec']
-    SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WritePhysicsD3PD)
-listAllKnownD3PD.append (prodFlags.WritePhysicsD3PD)
-
-
-class WriteLongLivedParticleD3PD (JobProperty):
-     """Produce the Long Lived Particle D3PD."""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamNTUP_SUSYLLP'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "LongLivedParticleD3PDMaker/LongLivedParticleD3PD_prodJob\
-OFragment.py"
-     TreeNames = ['llp']
-     SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteLongLivedParticleD3PD)
-listAllKnownD3PD.append (prodFlags.WriteLongLivedParticleD3PD)
-
-
-class WriteTopBoostJSD3PD (JobProperty):
-     """Produce the BoostedTop D3PD."""
-     statusOn = True
-     allowedTypes = ['bool']
-     StoredValue = False
-     StreamName = 'StreamNTUP_TOPBOOST'
-     FileName = ''
-     isVirtual = False
-     DPDMakerScript = "BoostedTopD3PDMaker/TopBoostJSD3PD_prodJobOFragment.py"
-     TreeNames = ['physics']
-     SubSteps = ['a2d', 'e2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteTopBoostJSD3PD)
-listAllKnownD3PD.append (prodFlags.WriteTopBoostJSD3PD)
-
-
-
-
-class WriteBackgroundD3PD (JobProperty):
-    """Produce the Background D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_BKGD'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "BackgroundD3PDMaker/BackgroundD3PD_prodJobOFragment.py"
-    TreeNames = ['background']
-    SubSteps = ['e2d', 'a2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteBackgroundD3PD)
-listAllKnownD3PD.append (prodFlags.WriteBackgroundD3PD)
-
-
 #######################################################
 #
 #                     Trigger D3PDs
@@ -179,47 +116,14 @@ jobproperties.D3PDProdFlags.add_JobProperty (WriteTriggerD3PD)
 listAllKnownD3PD.append (prodFlags.WriteTriggerD3PD)
 
 
-class WriteTrigMuonD3PD (JobProperty):
-    """Produce the TrigMuon D3PD."""
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
-    StreamName = 'StreamNTUP_TRIGMU'
-    FileName = ''
-    isVirtual = False
-    DPDMakerScript = "TrigMuonD3PDMaker/TrigMuonD3PD_prodJobOFragment.py"
-    TreeNames = ['trigger']
-    SubSteps = ['e2d', 'a2d']
-jobproperties.D3PDProdFlags.add_JobProperty (WriteTrigMuonD3PD)
-listAllKnownD3PD.append (prodFlags.WriteTrigMuonD3PD)
-
 
 #
 #
 #######################################################
 
 
-# Top D3PDs
-_importFlagsFromModule ('TopInputsD3PDMaker.TopInputsD3PDProdFlags', True)
-
-# Standard Model D3PDs
-_importFlagsFromModule ('PhysicsD3PDMaker.PhysicsD3PDProdFlags')
-
 # Jet tag D3PDs
 _importFlagsFromModule ('JetTagD3PDMaker.JetTagD3PDProdFlags')
 
-# SUSY D3PDs
-_importFlagsFromModule ('SUSYD3PDMaker.SUSYD3PDProdFlags', True)
-
-# Tracking D3PDs.
-_importFlagsFromModule ('InDetD3PDMaker.VertexD3PDAnalysisProdFlags', True)
-
 # egamma D3PDs.
 _importFlagsFromModule ('egammaD3PDMaker.egammaD3PDProdFlags')
-
-# Heavy ion D3PDs.
-_importFlagsFromModule ('HeavyIonD3PDMaker.HeavyIonD3PDProdFlags', True)
-
-# Trigger D3PDs.
-#_importFlagsFromModule ('TrigBJetD3PDMaker.TrigBJetD3PDProdFlags')
-

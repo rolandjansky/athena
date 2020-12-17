@@ -4,6 +4,7 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 import sys
+from argparse import ArgumentParser
 
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
@@ -15,9 +16,18 @@ from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 
 from EventBookkeeperTools.EventBookkeeperToolsConfig import CutFlowSvcCfg, CutFlowOutputList
 
+# Argument parsing
+parser = ArgumentParser(prog='test_CutFlowSvc')
+parser.add_argument('input', type=str, nargs='?',
+                    help='Specify the input file')
+args = parser.parse_args()
+
 # Setup configuration
 Configurable.configurableRun3Behavior = True
-ConfigFlags.Input.Files = defaultTestFiles.AOD_MC
+if args.input:
+    ConfigFlags.Input.Files = [args.input]
+else:
+    ConfigFlags.Input.Files = defaultTestFiles.AOD_MC
 ConfigFlags.Output.AODFileName = "testAOD.pool.root"
 
 # Flags relating to multithreaded execution
@@ -34,6 +44,11 @@ ConfigFlags.lock()
 # Setup service
 acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
+
+if 'EventInfo' not in ConfigFlags.Input.Collections:
+  from xAODEventInfoCnv.xAODEventInfoCnvConfig import EventInfoCnvAlgCfg
+  acc.merge(EventInfoCnvAlgCfg(ConfigFlags, disableBeamSpot=True))
+
 acc.merge(CutFlowSvcCfg(ConfigFlags))
 acc.addEventAlgo(CompFactory.TestFilterReentrantAlg("TestReentrant1", FilterKey="TestReentrant1", Modulo=2))
 acc.addEventAlgo(CompFactory.TestFilterReentrantAlg("TestReentrant2", FilterKey="TestReentrant2", Modulo=4))

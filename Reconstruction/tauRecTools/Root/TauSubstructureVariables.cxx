@@ -20,26 +20,11 @@
 #include "tauRecTools/TauSubstructureVariables.h"
 #include "tauRecTools/HelperFunctions.h"
 
-#define GeV 1000
 const float TauSubstructureVariables::DEFAULT = -1111.;
-
-
 
 TauSubstructureVariables::TauSubstructureVariables( const std::string& name )
   : TauRecToolBase(name) {
-  declareProperty("UseSubtractedCluster", m_useSubtractedCluster = true);
-}
-
-
-
-TauSubstructureVariables::~TauSubstructureVariables() {
-}
-
-
-
-StatusCode TauSubstructureVariables::initialize() {
-  ATH_CHECK(m_tauVertexCorrection.retrieve()); 
-  return StatusCode::SUCCESS;
+  declareProperty("VertexCorrection", m_doVertexCorrection = true);
 }
 
 
@@ -47,9 +32,8 @@ StatusCode TauSubstructureVariables::initialize() {
 StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
 
   CaloClusterVariables CaloClusterVariablesTool;
-  CaloClusterVariablesTool.setIncSub(m_useSubtractedCluster);
 
-  bool isFilled = CaloClusterVariablesTool.update(pTau, m_tauVertexCorrection);
+  bool isFilled = CaloClusterVariablesTool.update(pTau);
 
   if (!isFilled) {
     ATH_MSG_DEBUG("problem in calculating calo cluster variables -> will be set to -1111");
@@ -84,33 +68,24 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   double clusELead = DEFAULT;
   double clusESubLead = DEFAULT;
 
-  if (! pTau.jetLink().isValid()) {
-    ATH_MSG_ERROR("Tau jet link is invalid.");
-    return StatusCode::FAILURE;
-  }
-  const xAOD::Jet *jetSeed = pTau.jet();
-  
-  const xAOD::Vertex* jetVertex = m_tauVertexCorrection->getJetVertex(*jetSeed);
-  
-  const xAOD::Vertex* tauVertex = nullptr;
-  if (pTau.vertexLink().isValid()) tauVertex = pTau.vertex();
+  TLorentzVector tauAxis = tauRecTools::getTauAxis(pTau, m_doVertexCorrection);
 
-  TLorentzVector tauAxis = m_tauVertexCorrection->getTauAxis(pTau);
+  // TODO: check which scale is needed here
+  // p4 from cluster is at LC scale, p4 from vertexedCluster is at LC/EM scale for LC/EM seed jets
+  std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = pTau.vertexedClusters();
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList){
+    TLorentzVector clusterP4 = vertexedCluster.p4();
 
-  std::vector<const xAOD::CaloCluster*> vClusters;
-  ATH_CHECK(tauRecTools::GetJetClusterList(jetSeed, vClusters, m_useSubtractedCluster));
-  
-  for (auto cluster : vClusters){
-    totalEnergy += cluster->e();
+    totalEnergy += clusterP4.E();
 		
-    TLorentzVector clusterP4 = m_tauVertexCorrection->getVertexCorrectedP4(*cluster, tauVertex, jetVertex);
-    dr = tauAxis.DeltaR(clusterP4);    
+    dr = tauAxis.DeltaR(clusterP4); 
     
     if (0.2 <= dr && dr < 0.4) {
 	  calo_iso += clusterP4.Et();
     }
     else if (dr < 0.2) {
-	  double clusEnergyBE = ( cluster->energyBE(0) + cluster->energyBE(1) + cluster->energyBE(2) );
+      const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+	  double clusEnergyBE = ( cluster.energyBE(0) + cluster.energyBE(1) + cluster.energyBE(2) );
 		    
 	  if (clusEnergyBE > clusELead) {
 	    //change current leading cluster to subleading
@@ -137,16 +112,19 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   }
 
   // now sort cluster by energy
-  std::sort(vClusters.begin(), vClusters.end(), DefCaloClusterCompare());
+  auto compare = [](const xAOD::CaloVertexedTopoCluster& left, const xAOD::CaloVertexedTopoCluster& right) {
+    return left.e() > right.e();
+  };
+  std::sort(vertexedClusterList.begin(), vertexedClusterList.end(), compare);
 
   // determine energy sum of leading 2 and leading 3 clusters
   float sum2LeadClusterE = 0.;
-  if(vClusters.size()>0) {
-    sum2LeadClusterE = vClusters.at(0)->e();
-    if(vClusters.size()>1) sum2LeadClusterE += vClusters.at(1)->e();
+  if(vertexedClusterList.size()>0) {
+    sum2LeadClusterE = vertexedClusterList.at(0).e();
+    if(vertexedClusterList.size()>1) sum2LeadClusterE += vertexedClusterList.at(1).e();
   }
   float sum3LeadClusterE = sum2LeadClusterE;
-  if(vClusters.size()>2) sum3LeadClusterE += vClusters.at(2)->e();
+  if(vertexedClusterList.size()>2) sum3LeadClusterE += vertexedClusterList.at(2).e();
 
   if (totalEnergy != 0.) {
     pTau.setDetail(xAOD::TauJetParameters::lead2ClusterEOverAllClusterE, (sum2LeadClusterE / totalEnergy) );
@@ -160,15 +138,18 @@ StatusCode TauSubstructureVariables::execute(xAOD::TauJet& pTau) const {
   float EMEnergy(0.);
   float HADEnergy(0.);
 
-  for (auto cl : vClusters) {
-    float clEnergy = cl->e();
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList) {
+    // It is at EM/LC scale for EM/LC seed jets
+    float clEnergy = vertexedCluster.e();
 
-    //Calculate the fractions of energy in different calorimeter layers
-    float PreSampler = cl->eSample(CaloSampling::PreSamplerB) + cl->eSample(CaloSampling::PreSamplerE);
-    float EMLayer1   = cl->eSample(CaloSampling::EMB1) + cl->eSample(CaloSampling::EME1);
-    float EMLayer2   = cl->eSample(CaloSampling::EMB2) + cl->eSample(CaloSampling::EME2);
+    const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+    
+    // Calculate the fractions of energy in different calorimeter layers
+    float PreSampler = cluster.eSample(CaloSampling::PreSamplerB) + cluster.eSample(CaloSampling::PreSamplerE);
+    float EMLayer1   = cluster.eSample(CaloSampling::EMB1) + cluster.eSample(CaloSampling::EME1);
+    float EMLayer2   = cluster.eSample(CaloSampling::EMB2) + cluster.eSample(CaloSampling::EME2);
 
-    float Energy = cl->rawE();
+    float Energy = cluster.rawE();
     float PSSF = Energy != 0 ? (PreSampler + EMLayer1) / Energy : 0;
     float EM2F = Energy != 0 ? EMLayer2 / Energy : 0;
     float EMF = PSSF + EM2F;

@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // AthFilterAlgorithm.cxx
@@ -74,17 +74,17 @@ AthFilterAlgorithm::sysInitialize()
   if ( Gaudi::StateMachine::INITIALIZED <= FSMState() ) return StatusCode::SUCCESS;
 
   // Set the Algorithm's properties
-  ATH_CHECK(setProperties());
+  bindPropertiesTo( serviceLocator()->getOptsSvc() );
 
   // Bypass the initialization if the algorithm is disabled.
-  // Need to do this after setProperties.
+  // Need to do this after bindPropertiesTo.
   if ( !isEnabled( ) ) return StatusCode::SUCCESS;
 
   // ---- stolen from GaudiKernel/Algorithm::sysInitialize ------- END ---
 
   // register ourselves with the cutFlowSvc
   if ( cutFlowSvc().retrieve().isSuccess()) {
-    m_cutID = cutFlowSvc()->registerFilter(this->name(), m_filterDescr);
+    m_cutID = cutFlowSvc()->registerFilter(this->name(), m_filterDescr, false);
     if (0 == m_cutID) {
       ATH_MSG_INFO("problem registering myself with cutflow-svc");
     } else {
@@ -105,15 +105,14 @@ AthFilterAlgorithm::setFilterPassed( bool state ) const
   AthAlgorithm::setFilterPassed(state);
 
   if (state) {
-    double evtWeight=1.0;
-
     const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadHandle<xAOD::EventInfo> evtInfo (m_eventInfoKey, ctx);
     // Only try to access the mcEventWeight if we are running on Monte Carlo, duhhh!
     if ( evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION) ) {
-      evtWeight = evtInfo->mcEventWeight();
+      m_cutFlowSvc->addEvent(m_cutID, evtInfo->mcEventWeights());
+    } else {
+      m_cutFlowSvc->addEvent(m_cutID, 1.0);
     }
-    m_cutFlowSvc->addEvent(m_cutID,evtWeight);
   }
 }
 

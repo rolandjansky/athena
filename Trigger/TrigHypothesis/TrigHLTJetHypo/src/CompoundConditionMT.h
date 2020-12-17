@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_COMPOUNDCONDITIONMT_H
@@ -35,7 +35,7 @@ class CompoundConditionMT: public IConditionMT{
   virtual unsigned int capacity() const override{return m_capacity;}
 
 
-  std::string toString() const noexcept override;
+  std::string toString() const override;
  private:
 
   std::vector<ConditionMT> m_elements;

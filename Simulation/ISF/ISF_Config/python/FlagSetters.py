@@ -157,6 +157,32 @@ def configureFlagsG4FastCalo():
     simFlags.SimulationFlavour = "G4FastCalo"
     return
 
+def configureFlagsG4FastCaloEnergyOrdered():
+    configureFlagsATLFASTII()
+    ISF_Flags.ParticleBroker = "ISF_AFIIEnergyOrderedParticleBrokerSvc"
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo"
+    return
+
+def configureFlagsG4FastCaloMT():
+    configureFlagsATLFASTII()
+    ISF_Flags.ParticleBroker = ""
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCaloMT"
+
+def configureFlagsG4FastCalo_QS():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo_QS"
+    return
+
+def configureFlagsG4FastCaloMTEnergyOrdered():
+    configureFlagsATLFASTII()
+    ISF_Flags.ParticleBroker = ""
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCaloMT"
+    return
+
 def configureFlagsG4FastCaloTest():
     configureFlagsATLFASTII()
     from G4AtlasApps.SimFlags import simFlags

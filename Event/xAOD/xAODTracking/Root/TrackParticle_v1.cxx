@@ -61,10 +61,10 @@ namespace xAOD {
        makePrivateStore();
     }
     this->IParticle::operator=( tp );
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // assume that this copy will create new cache as needed
     m_perigeeParameters.reset();
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
     return *this;
   }
 
@@ -149,12 +149,12 @@ namespace xAOD {
   }
 
   void TrackParticle_v1::setDefiningParameters(float d0, float z0, float phi0, float theta, float qOverP) {
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
     static const Accessor< float > acc1( "d0" );
     acc1( *this ) = d0;
 
@@ -180,12 +180,12 @@ namespace xAOD {
 
   void TrackParticle_v1::setDefiningParametersCovMatrix(const xAOD::ParametersCovMatrix_t& cov){
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
     // reset perigee cache if existing
     if(m_perigeeParameters.isValid()) {
       m_perigeeParameters.reset();
     }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
     // Extract the diagonal elements from the matrix.
     std::vector< float > diagVec;
@@ -437,7 +437,7 @@ namespace xAOD {
     acc3( *this ) = z;
   }
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
   const Trk::Perigee& TrackParticle_v1::perigeeParameters() const {
 
     // Require the cache to be valid and check if the cached pointer has been set
@@ -470,7 +470,7 @@ namespace xAOD {
     m_perigeeParameters.set(tmpPerigeeParameters);
     return *(m_perigeeParameters.ptr());
   }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, chiSquared)
   AUXSTORE_PRIMITIVE_GETTER(TrackParticle_v1, float, numberDoF)
@@ -615,8 +615,8 @@ namespace xAOD {
     acc( *this ).at(index) = static_cast<uint8_t>(pos);
   }
 
-#ifndef XAOD_STANDALONE
-  const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {    
+#ifndef XAOD_ANALYSIS
+  const Trk::CurvilinearParameters TrackParticle_v1::curvilinearParameters(unsigned int index) const {
 
     static const Accessor< std::vector<float>  > acc( "trackParameterCovarianceMatrices" );
     unsigned int offset = index*15;
@@ -631,7 +631,7 @@ namespace xAOD {
 
     return param;
   }
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties)
   AUXSTORE_PRIMITIVE_SETTER_WITH_CAST(TrackParticle_v1, uint8_t, xAOD::TrackProperties,trackProperties, setTrackProperties)
@@ -687,7 +687,7 @@ namespace xAOD {
   }
 
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
    /// The function will return an invalid ElementLink in case nothing was set
    /// for it yet. This is to avoid users having to always check both for
    /// the decoration being available, and the link being valid.
@@ -733,13 +733,13 @@ namespace xAOD {
       }
 
       return *( acc( *this ) );
-   } 
-#endif // not XAOD_STANDALONE
-   
+   }
+#endif // not XAOD_ANALYSIS
+
    void TrackParticle_v1::resetCache(){
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
      m_perigeeParameters.reset();
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
    }
 
 } // namespace xAOD

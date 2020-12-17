@@ -89,19 +89,20 @@ constexpr std::array<Component1D, n> input = {
 int
 main()
 {
-  AlignedDynArray<Component1D, alignment> components(n);
+  GSFUtils::Component1DArray componentsArray;
+  componentsArray.numComponents = n;
   // Create an array of all components to be merged
   for (int8_t i = 0; i < n; ++i) {
-    components[i].mean = input[i].mean;
-    components[i].cov = input[i].cov;
-    components[i].invCov = input[i].invCov;
-    components[i].weight = input[i].weight;
+    componentsArray.components[i].mean = input[i].mean;
+    componentsArray.components[i].cov = input[i].cov;
+    componentsArray.components[i].invCov = input[i].invCov;
+    componentsArray.components[i].weight = input[i].weight;
   }
-  std::vector<std::pair<int8_t, int8_t>> mergeOrder =
-    findMerges(components.buffer(), n, 12);
-  for (const auto& i : mergeOrder) {
-    std::cout << "[" << static_cast<int>(i.first) << ", "
-              << static_cast<int>(i.second) << "]" << '\n';
+  const GSFUtils::MergeArray order = findMerges(componentsArray, 12);
+  const int32_t numMerges = order.numMerges;
+  for (int32_t i = 0; i < numMerges; ++i) {
+    std::cout << "[" << static_cast<int>(order.merges[i].To) << ", "
+              << static_cast<int>(order.merges[i].From) << "]" << '\n';
   }
   return 0;
 }

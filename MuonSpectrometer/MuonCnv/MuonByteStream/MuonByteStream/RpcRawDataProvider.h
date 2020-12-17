@@ -5,17 +5,18 @@
 #ifndef MUONBYTESTREAM_RPCRAWDATAPROVIDER_H
 #define MUONBYTESTREAM_RPCRAWDATAPROVIDER_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+// Base class
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "IRegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "MuonCnvToolInterfaces/IMuonRawDataProviderTool.h"
 
 namespace Muon {
 
-class RpcRawDataProvider : public AthAlgorithm
+class RpcRawDataProvider : public AthReentrantAlgorithm
 {
 public:
 
@@ -26,7 +27,7 @@ public:
   virtual StatusCode initialize();
 
   //! Execute
-  virtual StatusCode execute();
+  virtual StatusCode execute(const EventContext& ctx) const;
 
   //! Destructur
   ~RpcRawDataProvider()=default;
@@ -38,7 +39,7 @@ private:
   ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataTool{this,"ProviderTool","Muon::RPC_RawDataProviderToolMT/RpcRawDataProviderTool"};
 
   /// Handle for region selector service
-  ServiceHandle<IRegSelSvc> m_regionSelector;
+  ToolHandle<IRegSelTool> m_regsel_rpc{this, "RegionSelectionTool", "RegSelTool/RegSelTool_RPC", "RPC Region Selector Tool"};
 
   /// Property to decide whether or not to do RoI based decoding
   Gaudi::Property< bool > m_seededDecoding { this, "DoSeededDecoding", false, "If true do decoding in RoIs"};

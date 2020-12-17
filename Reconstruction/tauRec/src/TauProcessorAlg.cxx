@@ -2,16 +2,12 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "tauRec/TauProcessorAlg.h"
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
+#include "TauProcessorAlg.h"
 #include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-#include "xAODTau/TauTrackContainer.h"
 #include "xAODTau/TauTrackAuxContainer.h"
-#include "StoreGate/ReadCondHandleKey.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
+#include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "xAODPFlow/PFOAuxContainer.h"
+#include "CaloUtils/CaloClusterStoreHelper.h"
 #include "NavFourMom/INavigable4MomentumCollection.h"
 #include <boost/dynamic_bitset.hpp>
 
@@ -40,6 +36,7 @@ StatusCode TauProcessorAlg::initialize() {
   ATH_CHECK( m_tauOutputContainer.initialize() );
   ATH_CHECK( m_tauTrackOutputContainer.initialize() );
   ATH_CHECK( m_tauShotClusOutputContainer.initialize() );
+  ATH_CHECK( m_tauShotClusLinkContainer.initialize() );
   ATH_CHECK( m_tauShotPFOOutputContainer.initialize() );
   ATH_CHECK( m_tauPi0CellOutputContainer.initialize(SG::AllowEmpty) );
   
@@ -188,6 +185,10 @@ StatusCode TauProcessorAlg::execute(const EventContext& ctx) const {
       pContainer->pop_back();
     } 
   }// loop through seeds
+
+  // build cell link container for shot clusters
+  SG::WriteHandle<CaloClusterCellLinkContainer> tauShotClusLinkHandle( m_tauShotClusLinkContainer, ctx );
+  ATH_CHECK(CaloClusterStoreHelper::finalizeClusters (tauShotClusLinkHandle, tauShotClusContainer));
 
   // Check this is needed for the cell container?
   if(Pi0CellContainer) {

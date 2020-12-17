@@ -7,14 +7,14 @@ from TriggerMenuMT.HLTMenuConfig.Menu import EventBuildingInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import ChainStep, MenuSequence
 from TrigPartialEventBuilding.TrigPartialEventBuildingConf import PEBInfoWriterAlg
 from TrigPartialEventBuilding.TrigPartialEventBuildingConfig import StaticPEBInfoWriterToolCfg, RoIPEBInfoWriterToolCfg
-from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
-from libpyeformat_helper import SubDetector
+from DecisionHandling import DecisionHandlingConf
+from libpyeformat_helper import SourceIdentifier, SubDetector
 from AthenaCommon.CFElements import seqAND, findAlgorithm
 from AthenaCommon.Logging import logging
 log = logging.getLogger('EventBuildingSequenceSetup')
 
 
-def addEventBuildingSequence(chain, eventBuildType):
+def addEventBuildingSequence(chain, eventBuildType, chainDict):
     '''
     Add an extra ChainStep to a Chain object with a PEBInfoWriter sequence configured for the eventBuildType
     '''
@@ -28,7 +28,7 @@ def addEventBuildingSequence(chain, eventBuildType):
     def pebInfoWriterToolGenerator(chainDict):
         return pebInfoWriterTool(chainDict['chainName'], eventBuildType)
 
-    inputMaker = pebInputMaker(eventBuildType)
+    inputMaker = pebInputMaker(chain, eventBuildType)
     seq = MenuSequence(
         Sequence    = pebSequence(eventBuildType, inputMaker),
         Maker       = inputMaker,
@@ -36,7 +36,7 @@ def addEventBuildingSequence(chain, eventBuildType):
         HypoToolGen = pebInfoWriterToolGenerator)
 
     step_name = 'Step{:d}_PEBInfoWriter_{:s}'.format(len(chain.steps)+1, eventBuildType)
-    step = ChainStep(name=step_name, Sequences=[seq])
+    step = ChainStep(name=step_name, Sequences=[seq], chainDicts=[chainDict])
     chain.steps.append(step)
 
 
@@ -114,10 +114,15 @@ def pebInfoWriterTool(name, eventBuildType):
     return tool
 
 
-def pebInputMaker(eventBuildType):
-    maker = InputMakerForRoI("IMpeb_"+eventBuildType)
-    maker.RoITool = ViewCreatorInitialROITool()
+def pebInputMaker(chain, eventBuildType):
+    maker = DecisionHandlingConf.InputMakerForRoI("IMpeb_"+eventBuildType)
     maker.RoIs = "pebInputRoI_" + eventBuildType
+    if len(chain.steps) == 0:
+        # Streamers: use initial RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorInitialROITool()
+    else:
+        # Other chains: use previous RoI
+        maker.RoITool = DecisionHandlingConf.ViewCreatorPreviousROITool()
     return maker
 
 
@@ -163,4 +168,47 @@ def alignEventBuildingSteps(all_chains):
         if pebStepPosition < maxPebStepPosition[ebt]:
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
             log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
-            chainConfig.insertEmptySteps(chainDict,'EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+            chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
+
+
+# Unit test
+if __name__ == "__main__":
+    failures = 0
+    for eb_identifier in EventBuildingInfo.getAllEventBuildingIdentifiers():
+        tool = None
+        try:
+            tool = pebInfoWriterTool('TestTool_'+eb_identifier, eb_identifier)
+        except Exception as ex:
+            failures += 1
+            log.error('Caught exception while configuring PEBInfoWriterTool for %s: %s', eb_identifier, ex)
+            continue
+
+        if not tool:
+            failures += 1
+            log.error('No tool created for %s', eb_identifier)
+            continue
+
+        if tool.__cpp_type__ not in ['StaticPEBInfoWriterTool', 'RoIPEBInfoWriterTool']:
+            failures += 1
+            log.error('Unexpected tool type for %s: %s', eb_identifier, tool.__cpp_type__)
+            continue
+
+        robs = tool.ROBList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraROBs
+        dets = tool.SubDetList if tool.__cpp_type__ == 'StaticPEBInfoWriterTool' else tool.ExtraSubDets
+        robs_check_passed = True
+        for rob_id in robs:
+            rob_sid = SourceIdentifier(rob_id)
+            rob_det_id = rob_sid.subdetector_id()
+            if int(rob_det_id) in dets:
+                robs_check_passed = False
+                log.error('Redundant configuration for %s: ROB %s added to the ROB list while full SubDetector '
+                          '%s is already in the SubDets list', eb_identifier, rob_sid.human(), str(rob_det_id))
+
+        if not robs_check_passed:
+            failures += 1
+            continue
+
+        log.info('%s correctly configured', tool.name)
+
+    import sys
+    sys.exit(failures)

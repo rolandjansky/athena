@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRT_RAWDATABYTESTREAMCNV_TRTRAWCONTRAWEVENTTOOL_H
@@ -15,6 +15,7 @@
 
 #include "ByteStreamCnvSvcBase/FullEventAssembler.h" 
 #include "ByteStreamCnvSvcBase/SrcIdMap.h" 
+#include "ByteStreamCnvSvc/ByteStreamCnvSvc.h"
 
 
 class TRT_ID;
@@ -29,7 +30,7 @@ class TRT_ID;
                StatusCode convert(CONTAINER* cont, RawEvent* re, MsgStream& log ); 
   */
 
-class TRTRawContByteStreamTool: virtual public ITRTRawContByteStreamTool, public AthAlgTool
+class TRTRawContByteStreamTool: public extends<AthAlgTool, ITRTRawContByteStreamTool>
 {
  public:
 
@@ -47,18 +48,20 @@ class TRTRawContByteStreamTool: virtual public ITRTRawContByteStreamTool, public
   //! destructor 
   virtual ~TRTRawContByteStreamTool() ;
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
   //! New convert method which makes use of the encoder class (as done for other detectors)
-   StatusCode convert(TRT_RDO_Container* cont, RawEventWrite* re ); 
+  virtual StatusCode convert(TRT_RDO_Container* cont) const override; 
   
 private: 
-   ServiceHandle<ITRT_CablingSvc>  m_trt_CablingSvc;
+   ServiceHandle<ByteStreamCnvSvc> m_byteStreamCnvSvc
+   { this, "ByteStreamCnvSvc", "ByteStreamCnvSvc" };
+
+  ServiceHandle<ITRT_CablingSvc>  m_trt_CablingSvc;
   
    const TRT_ID*                   m_trt_idHelper;
    unsigned short                  m_RodBlockVersion;
-   FullEventAssembler<SrcIdMap>    m_fea; 
 
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "xAODBTaggingEfficiency/BTaggingEfficiencyTool.h"
@@ -19,7 +19,6 @@
 using CP::CorrectionCode;
 using CP::SystematicSet;
 using CP::SystematicVariation;
-using CP::SystematicCode;
 using CP::SystematicRegistry;
 
 using Analysis::Uncertainty;
@@ -477,7 +476,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
   }
   // systematics framework
   SystematicRegistry & registry = SystematicRegistry::getInstance();
-  if( registry.registerSystematics(*this) != SystematicCode::Ok) 
+  if( registry.registerSystematics(*this) != StatusCode::SUCCESS) 
     return StatusCode::FAILURE;
 
   // Finally, also initialise the selection tool, if needed (for now this is the case only for DL1 tag weight computations,
@@ -490,7 +489,7 @@ StatusCode BTaggingEfficiencyTool::initialize() {
     ATH_CHECK( m_selectionTool.setProperty("JetAuthor",                    m_jetAuthor) );
     ATH_CHECK( m_selectionTool.setProperty("MinPt",                        m_minPt) );
     ATH_CHECK( m_selectionTool.retrieve() );
-  }
+ }
 
   // if the user decides to ignore these errors, at least make her/him aware of this
   if (m_ignoreOutOfValidityRange) {
@@ -942,38 +941,65 @@ BTaggingEfficiencyTool::listScaleFactorSystematics(bool named) const {
   return uncertainties;
 }
 
+CorrectionCode
+BTaggingEfficiencyTool::getEigenRecompositionCoefficientMap(const std::string &label, std::map<std::string, std::map<std::string, float>> & coefficientMap){
+  // Calling EigenVectorRecomposition method in CDI and retrieve recomposition map.
+  // If success, coefficientMap would be filled and return ok.
+  // If failed, return error.
+  // label  :  flavour label
+  // coefficientMap: store returned coefficient map.
+  if (! m_initialised) {
+    ATH_MSG_ERROR("BTaggingEfficiencyTool has not been initialised");
+    return CorrectionCode::Error;
+  }
+  if(label.compare("B") != 0 &&
+     label.compare("C") != 0 &&
+     label.compare("T") != 0 &&
+     label.compare("Light") != 0){
+    ATH_MSG_ERROR("Flavour label is illegal! Label need to be B,C,T or Light.");
+    return CorrectionCode::Error;
+  }
+  CalibrationStatus status = m_CDI->runEigenVectorRecomposition(m_jetAuthor, label, m_OP);
+  if (status != Analysis::kSuccess){
+    ATH_MSG_ERROR("Failure running EigenVectorRecomposition Method.");
+    return CorrectionCode::Error;
+  }
+  coefficientMap = m_CDI->getEigenVectorRecompositionCoefficientMap();
+  return CorrectionCode::Ok;
+}
+
 // WARNING the behaviour of future calls to getEfficiency and friends are modified by this
 // method - it indicates which systematic shifts are to be applied for all future calls
-SystematicCode BTaggingEfficiencyTool::applySystematicVariation( const SystematicSet & systConfig) {
+StatusCode BTaggingEfficiencyTool::applySystematicVariation( const SystematicSet & systConfig) {
   // First filter out any systematics that do not apply to us
   SystematicSet filteredSysts;
-  if (SystematicSet::filterForAffectingSystematics(systConfig, affectingSystematics(), filteredSysts) != SystematicCode::Ok) {
+  if (SystematicSet::filterForAffectingSystematics(systConfig, affectingSystematics(), filteredSysts) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("received unsupported systematics: " << systConfig.name());
-    return SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   }
   // check the size of the remaining (filtered) SystematicSet
   if (filteredSysts.size() == 0) {
     // If it is 0 then turn off systematics
     ATH_MSG_VERBOSE("empty systematics set; nothing to be done");
     m_applySyst = false;
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   } else if (filteredSysts.size() > 1) {
     // Restriction: we allow only a single systematic variation affecting b-tagging
     ATH_MSG_WARNING("more than a single b-tagging systematic variation requested but not (yet) supported");
-    return SystematicCode::Unsupported;
+    return StatusCode::FAILURE;
   } else {
     // Interpret the (single) remaining variation
     SystematicVariation var = *(filteredSysts.begin());
     auto mapIter = m_systematicsInfo.find(var);
     if (mapIter == m_systematicsInfo.end()) {
       ATH_MSG_WARNING("variation '" << var.name() << "' not found! Cannot apply");
-      return SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
     m_applySyst = true;
     m_applyThisSyst = mapIter->second;
     ATH_MSG_VERBOSE("variation '" << var.name() << "' applied successfully");
   }
-  return SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 //
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # System import(s):
 
@@ -15,7 +15,7 @@ class AnaAlgorithmMeta ( object ):
 
     def __init__( self, stageName, affectingSystematics, inputPropName, outputPropName, metaConfig, dynConfig ):
 
-        if not stageName in self.allowedStageNames() :
+        if stageName not in self.allowedStageNames() :
             raise ValueError ('unknown stage name ' + stageName + ' allowed stage names are ' + ', '.join(self.allowedStageNames()))
 
         self.stageName = stageName

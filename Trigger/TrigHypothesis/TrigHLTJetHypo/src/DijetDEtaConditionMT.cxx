@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./DijetDEtaConditionMT.h"
@@ -48,8 +48,8 @@ DijetDEtaConditionMT::isSatisfied(const HypoJetVector& ips,
 
      std::stringstream ss1;
 
-     for(auto ip : ips){
-       address = static_cast<const void*>(ip);
+     for(const auto& ip : ips){
+       address = static_cast<const void*>(ip.get());
        ss1 << "    "  << address << " " << ip->eta() << " e " << ip->e() << '\n';
      }
      ss1 << '\n';
@@ -59,7 +59,7 @@ DijetDEtaConditionMT::isSatisfied(const HypoJetVector& ips,
 
 }
 
-std::string DijetDEtaConditionMT::toString() const noexcept {
+std::string DijetDEtaConditionMT::toString() const {
 
 
   std::stringstream ss;

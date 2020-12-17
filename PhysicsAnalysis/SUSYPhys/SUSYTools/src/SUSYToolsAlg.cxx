@@ -17,7 +17,7 @@
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 #include "TH1F.h"
 #include "TFile.h"
@@ -307,7 +307,7 @@ StatusCode SUSYToolsAlg::execute() {
     m_clock2.Start(false);
   }
 
-  if (m_SUSYTools->resetSystematics() != CP::SystematicCode::Ok) {
+  if (m_SUSYTools->resetSystematics() != StatusCode::SUCCESS) {
     ATH_MSG_ERROR( "Cannot reset SUSYTools systematics" );
   }
 
@@ -566,7 +566,7 @@ StatusCode SUSYToolsAlg::execute() {
   bool isNominal(true);
   for (const auto& sysInfo : sysInfoList) {
     CP::SystematicSet sys = sysInfo.systset;
-    if (m_SUSYTools->applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+    if (m_SUSYTools->applySystematicVariation(sys) != StatusCode::SUCCESS) {
       ATH_MSG_ERROR( "Cannot configure SUSYTools for systematic var. %s" << sys.name() );
     } else {
       ATH_MSG_VERBOSE( "Variation \"" << sys.name() << "\" configured..." );

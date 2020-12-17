@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
@@ -68,7 +68,7 @@ def mergeParallel(chainDefList, offset):
     chainName = ''
     l1Thresholds = []
     alignmentGroups = []
-
+   
     for cConfig in chainDefList:
         if chainName == '':
             chainName = cConfig.name
@@ -109,12 +109,12 @@ def mergeParallel(chainDefList, offset):
 
     return combinedChainDef
 
-def getEmptySeqName(stepName, chain_index, step_number):
+def getEmptySeqName(stepName, chain_index, step_number, alignGroup):
     #remove redundant instances of StepN
     if re.search('^Step[0-9]_',stepName):
         stepName = stepName[6:]
 
-    seqName = 'EmptySeq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
+    seqName = 'Empty'+ alignGroup +'Seq'+str(step_number)+ '_'+ stepName + '_leg' + str(chain_index)
     return seqName
 
 
@@ -122,25 +122,25 @@ def getEmptyMenuSequence(flags, name):
     return EmptyMenuSequence(name)
 
 
-def serial_zip(allSteps, chainName):
+def serial_zip(allSteps, chainName, chainDefList):
     n_chains = len(allSteps)
     newsteps = []
     for chain_index, chainsteps in enumerate(allSteps):
         for step_index, step in enumerate(chainsteps):
-            log.debug('chain_index: ' + str(chain_index) + " step_index: " + str(step_index))
+            log.debug('chain_index: %s step_index: %s', chain_index, step_index)
             # create list of correct length
             stepList = [None]*n_chains
             
             # put the step from the current sub-chain into the right place
             stepList[chain_index] = step
-            log.debug('Put step: ' + str(step.name))
+            log.debug('Put step: %s', step.name)
 
             # all other steps should contain an empty sequence
             for step_index2, emptyStep in enumerate(stepList):
                 if emptyStep is None:
-                    seqName = getEmptySeqName(step.name, chain_index, step_index+1)
+                    seqName = getEmptySeqName(step.name, chain_index, step_index+1, chainDefList[0].alignmentGroups[0])
                     emptySeq =  RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
-                    stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.chainDicts)            
+                    stepList[step_index2] = ChainStep( seqName, Sequences=[emptySeq], chainDicts=step.stepDicts)            
             
             newsteps.append(stepList)
     log.debug('After serial_zip')
@@ -170,7 +170,7 @@ def mergeSerial(chainDefList):
             log.error("Merging an already merged chain? This is odd! %s",cConfig.alignmentGroups)
         alignmentGroups.append(cConfig.alignmentGroups[0])
 
-    serialSteps = serial_zip(allSteps, chainName)
+    serialSteps = serial_zip(allSteps, chainName,chainDefList)
     mySerialSteps = deepcopy(serialSteps)
     combChainSteps =[]
     for step_index, steps in enumerate(mySerialSteps):
@@ -212,14 +212,14 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
         if step is None:
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
             currentStepName = "Step" + str(stepNumber) + "_Empty" + str(chain_index)
-            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber)
+            seqName = getEmptySeqName(currentStepName, chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
             log.debug("  step %s,  empty sequence %s", currentStepName, seqName)
             emptySeq = RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName)
 
             stepSeq.append(emptySeq)
             stepMult.append(1)
             # we need a chain dict here, use the one corresponding to this leg of the chain
-            stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].chainDicts[-1]))
+            stepDicts.append(deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1]))
         else:
             # Standard step, append it to the combined step
             log.debug("  step %s, multiplicity  = %s", step.name, str(step.multiplicity))
@@ -242,7 +242,7 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
             stepMult.append(sum(step.multiplicity))
             comboHypoTools.extend(step.comboToolConfs)
             # update the chain dict list for the combined step with the chain dict from this step
-            stepDicts += deepcopy(step.chainDicts)
+            stepDicts += deepcopy(step.stepDicts)
 
 
         # the step naming for combined chains needs to be revisted!!
@@ -256,5 +256,4 @@ def makeCombinedStep(steps, stepNumber, chainDefList):
   
     
     return theChainStep
-
 

@@ -72,7 +72,8 @@ public:
   virtual uint32_t lumiBlock();
 
 private:
-
+  void invokeFillersDebug(const std::shared_ptr<Monitored::HistogramFiller>& filler,
+                          const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const;
   
   /// THistSvc (do NOT fix the service type (only the name) to allow for a different implementation online
   ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc", "Histogramming svc" };
@@ -83,9 +84,9 @@ private:
   BooleanProperty m_useCache { this, "UseCache", true, "Cache filler lookups" };
 
   std::vector<std::shared_ptr<Monitored::HistogramFiller>> m_fillers; //!< plain list of fillers
-  mutable std::mutex m_fillMutex;
-  mutable Monitored::HistogramFiller::VariablesPack m_vars ATLAS_THREAD_SAFE;
-  mutable std::map<std::vector<std::string>,std::vector<std::shared_ptr<Monitored::HistogramFiller>>,std::less<>> m_fillerCacheMap ATLAS_THREAD_SAFE; //!< lookup map to speed up filler searches
+  mutable std::map<std::vector<std::string>,std::unique_ptr<std::vector<std::shared_ptr<Monitored::HistogramFiller>>>,std::less<>> m_fillerCacheMap ATLAS_THREAD_SAFE; //!< lookup map to speed up filler searches
+  mutable std::mutex m_cacheMutex;
+
 };
 
 /**

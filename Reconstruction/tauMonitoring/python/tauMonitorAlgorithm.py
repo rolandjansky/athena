@@ -318,18 +318,10 @@ def tauMonitoringConfig(inputFlags):
             igroup.defineHistogram(namer('JetBDTBkgMedium','JetBDTBkgMedium','Identification',postfix), title='Loose EleBDT',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
-            igroup.defineHistogram(namer('BDTEleScoreSigTrans','BDTEleScoreSigTrans','Identification',postfix), title=' Flattened Signal Transformed BDT  for Ele Rejection;Boosted Decision Tree Score',path=folder+"Identification",
-            xbins=24, xmin=-0.1, xmax=1.1 )
 
             igroup.defineHistogram(namer('BDTJetScoreSigTrans','BDTJetScoreSigTrans','Identification',postfix), title='Flattened signal Transformed BDT Score for Jet Rejection;Boosted Decision Tree Score',path=folder+"Identification",
             xbins=48, xmin=0, xmax=1.1 )
 
-
-            igroup.defineHistogram(namer('eleBDTMedium','eleBDTMedium','Identification',postfix), title='Medium EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
-
-            igroup.defineHistogram(namer('eleBDTTight','eleBDTTight','Identification',postfix), title='Tight EleBDT',path=folder+"Identification",
-            xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"])
 
             igroup.defineHistogram(namer('muonVeto','muonVeto','Identification',postfix), title='Muon Veto',path=folder+"Identification",
             xbins=2, xmin=-0.5, xmax=1.5, xlabels=["False","True"] )

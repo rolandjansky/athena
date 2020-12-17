@@ -1,18 +1,19 @@
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
+
+// PACKAGE
+#include "ActsGeometry/ActsDetectorElement.h"
 #include "ActsGeometry/ActsWriteTrackingGeometryTransforms.h"
+#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
+#include "ActsGeometry/ActsGeometryContext.h"
+
 
 // ATHENA
 #include "AthenaKernel/RNGWrapper.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "ActsInterop/Logger.h"
-
-// PACKAGE
-#include "ActsGeometryInterfaces/IActsTrackingGeometrySvc.h"
-#include "ActsGeometry/ActsGeometryContext.h"
-#include "ActsGeometry/ActsDetectorElement.h"
 
 // ACTS
 #include "Acts/Utilities/Logger.hpp"

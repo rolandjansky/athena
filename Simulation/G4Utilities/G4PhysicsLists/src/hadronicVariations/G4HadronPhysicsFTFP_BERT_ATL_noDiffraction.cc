@@ -264,7 +264,6 @@ void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::ConstructParticle()
   pShortLivedConstructor.ConstructParticle();  
 }
 
-#include "G4ProcessManager.hh"
 void G4HadronPhysicsFTFP_BERT_ATL_noDiffraction::ConstructProcess()
 {
   CreateModels();

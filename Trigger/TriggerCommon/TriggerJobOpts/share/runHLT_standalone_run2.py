@@ -191,6 +191,10 @@ defaultOptions={
 }
 
 
+# Legacy (Run-2) trigger produces Run-2 EDM
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Trigger.EDMVersion = 2
+
 #-------------------------------------------------------------
 # Transfer flags into TriggerFlags
 #-------------------------------------------------------------
@@ -324,10 +328,7 @@ if setModifiers:
 include.block("RecExCond/RecExCommon_flags.py")
 log = logging.getLogger('runHLT_standalone.py')
 
-TriggerFlags.doHLTpersistency=False
 TriggerFlags.writeBS=True
-TriggerFlags.abortOnConfigurationError=True
-
 TriggerFlags.triggerMenuSetup=setMenu
 
 def stripPrescales(menu):
@@ -377,6 +378,7 @@ TriggerFlags.doCalo=True
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.isOnline = True
+ConfigFlags.Common.isOnline = True
 
 #TriggerFlags.CosmicSlice.testCosmic=False #Makes cosmic slice more quiet by default
 
@@ -401,6 +403,8 @@ elif PoolRDOInput!=None:
     else:
         athenaCommonFlags.PoolRDOInput=PoolRDOInput
     athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
+
+ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 
 # Conditions and geometry tag
 if globalflags.InputFormat.is_pool() and (setDetDescr==None or setGlobalTag==None):

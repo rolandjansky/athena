@@ -11,8 +11,6 @@
 #+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 #+ PhysicsAnalysis/BPhys/BPhysTools
 #+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
-#+ Reconstruction/Jet/BoostedJetTaggers
-#+ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 
@@ -67,8 +65,8 @@
 + PhysicsAnalysis/AnalysisCommon/ParticleJetTools
 + PhysicsAnalysis/AnalysisCommon/PileupReweighting
 + PhysicsAnalysis/AnalysisCommon/ReweightUtils
++ PhysicsAnalysis/AnalysisCommon/TruthClassification
 + PhysicsAnalysis/D3PDTools/.*
-- PhysicsAnalysis/ElectronPhotonID/ElectronPhotonTagTools
 + PhysicsAnalysis/ElectronPhotonID/.*
 + PhysicsAnalysis/HeavyIonPhys/HIEventUtils
 + PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
@@ -84,6 +82,7 @@
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
++ Reconstruction/Jet/BoostedJetTaggers
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
@@ -104,12 +103,14 @@
 + Reconstruction/egamma/egammaUtils
 + Reconstruction/tauRecTools
 + Reconstruction/PanTau/PanTauAlgs
++ Reconstruction/LwtnnUtils
 + Tools/ART
 + Tools/DirectIOART
 + Tools/PathResolver
 + Trigger/TrigAnalysis/TrigAnalysisInterfaces
 + Trigger/TrigAnalysis/TrigBunchCrossingTool
 + Trigger/TrigAnalysis/TrigDecisionTool
++ Trigger/TrigAnalysis/TrigGlobalEfficiencyCorrection
 + Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 + Trigger/TrigAnalysis/TriggerMatchingTool
 + Trigger/TrigConfiguration/TrigConfBase

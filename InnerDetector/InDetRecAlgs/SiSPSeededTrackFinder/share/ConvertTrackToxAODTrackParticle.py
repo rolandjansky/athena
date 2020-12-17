@@ -51,7 +51,7 @@ if numThreads > 0:
 #--------------------------------------------------------------
 # use auditors
 #--------------------------------------------------------------
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]

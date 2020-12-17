@@ -21,6 +21,9 @@
 #include "StoreGate/ReadHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "xAODTrigger/eFexEMRoI.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIAuxContainer.h"
 
 #include <ctime>
 
@@ -42,7 +45,7 @@ namespace LVL1 {
   //{
   //}
 
-  //================ Initialisation =================================================
+  //---------------- Initialisation -------------------------------------------------
 
   StatusCode eFEXSysSim::initialize()
   {
@@ -51,10 +54,12 @@ namespace LVL1 {
 
     ATH_CHECK( m_eFEXSimTool.retrieve() );
 
+    ATH_CHECK(m_eFexOutKey.initialize());
+
     return StatusCode::SUCCESS;
   }
 
-  //================ Finalisation =================================================
+  //---------------- Finalisation -------------------------------------------------
 
   StatusCode eFEXSysSim::finalize()
   {
@@ -69,7 +74,7 @@ namespace LVL1 {
   void eFEXSysSim::cleanup()  {
 
     m_eFEXCollection.clear();
-    m_eTowersColl.clear();
+    //m_eTowersColl.clear();
 
   }
 
@@ -98,7 +103,7 @@ namespace LVL1 {
     // 0.7 -> 2.5
 
     // boundaries in phi: 0.2, 1.0, 1.8, 2.6, 3.4, 4.2, 5.0, 5.8
-    // Written explicityl with REAL boundaries in eta (overlaps must occur for sliding window algorithms!)
+    // Written explicitly with REAL boundaries in phi (overlaps must occur for sliding window algorithms!)
     // 0.1 -> 1.1
     // 0.9 -> 1.9
     // 1.7 -> 2.7
@@ -120,7 +125,10 @@ namespace LVL1 {
     int embEta = 13; int embPhi = 1; int embMod = 100000;
     int initialEMB = calcTowerID(embEta,embPhi,embMod); //100833;
 
-    for (int thisEFEX=0; thisEFEX<=21; thisEFEX+=3){
+    int maxPhi = 8;//maximum number of efexes in phi
+    int eFEXa = 160;//changed from 0
+
+    for (int thisEFEX=eFEXa; thisEFEX<eFEXa+maxPhi; thisEFEX++){
       
       if(fexcounter > 0){ initialEMEC += 8; initialTRANS += 8; initialEMB += 8; } // TODO // SOMEHOW REMOVE HARD-CODING?
 
@@ -139,7 +147,7 @@ namespace LVL1 {
 
 	  int towerid = initialEMEC - (thisCol * 64) + thisRow;
 
-	  if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 	  
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -154,7 +162,7 @@ namespace LVL1 {
 
 	int towerid = initialTRANS + thisRow;
 
-	if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
+	if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
 	tmp_eTowersIDs_subset[thisRow][10] = towerid;
 	tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -169,7 +177,7 @@ namespace LVL1 {
 
 	  int towerid = initialEMB - ( (thisCol-11) * 64) + thisRow;
 
-	  if( (thisEFEX == 21) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX-eFEXa == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
 	  tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 	  tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -196,6 +204,7 @@ namespace LVL1 {
 
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -209,8 +218,9 @@ namespace LVL1 {
     int initialEMB_neg = calcTowerID(embnegEta,embnegPhi,embnegMod); //100513;
     int embposEta = 0; int embposPhi = 1; int embposMod = 200000;
     int initialEMB_pos = calcTowerID(embposEta,embposPhi,embposMod); //200001;
+    int eFEXb = 176;
 
-    for (int thisEFEX=1; thisEFEX<=22; thisEFEX+=3){
+    for (int thisEFEX=eFEXb; thisEFEX-eFEXb<maxPhi; thisEFEX++){
 
       if(fexcounter > 0){  initialEMB_neg += 8; initialEMB_pos += 8; }
       
@@ -238,7 +248,7 @@ namespace LVL1 {
 	    towerid = tmp_initEMB + ( (thisCol-9) * 64) + thisRow;
 	  }
 
-	  if( (thisEFEX == 22) && (thisRow >= 7)){ towerid -= 64; };
+	  if( (thisEFEX-eFEXb == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
 
@@ -266,6 +276,7 @@ namespace LVL1 {
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
@@ -282,8 +293,9 @@ namespace LVL1 {
     initialTRANS = calcTowerID(transEta,transPhi,transMod); //400897;
     embEta = 7; embPhi = 1; embMod = 200000;
     initialEMB = calcTowerID(embEta,embPhi,embMod); //200449;
+    int eFEXc = 192;
 
-    for (int thisEFEX=2; thisEFEX<=23; thisEFEX+=3){
+    for (int thisEFEX=eFEXc; thisEFEX-eFEXc<maxPhi; thisEFEX++){
 
       if(fexcounter > 0){ initialEMEC += 8; initialTRANS += 8; initialEMB += 8; }
 
@@ -301,7 +313,7 @@ namespace LVL1 {
         for(int thisRow=0; thisRow<rows; thisRow++){
           int towerid = initialEMB + ( (thisCol) * 64) + thisRow;
 
-          if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
+          if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -314,7 +326,7 @@ namespace LVL1 {
       for(int thisRow = 0; thisRow < rows; thisRow++){
         int towerid = initialTRANS + thisRow;
 
-        if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
+        if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
         tmp_eTowersIDs_subset[thisRow][7] = towerid;
         tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -327,7 +339,7 @@ namespace LVL1 {
         for(int thisRow=0; thisRow<rows; thisRow++){
           int towerid = initialEMEC + ( (thisCol-8) * 64) + thisRow;
 
-          if( (thisEFEX == 23) && (thisRow >= 7)){ towerid -= 64; };
+          if( (thisEFEX-eFEXc == maxPhi-1) && (thisRow >= 7)){ towerid -= 64; };
 
           tmp_eTowersIDs_subset[thisRow][thisCol] = towerid;
           tmp_eTowersColl_subset.insert( std::map<int, eTower>::value_type(towerid,  *(this_eTowerContainer->findTower(towerid))));
@@ -354,22 +366,51 @@ namespace LVL1 {
       //tool use instead
       m_eFEXSimTool->init(thisEFEX);
       ATH_CHECK(m_eFEXSimTool->NewExecute(tmp_eTowersIDs_subset));
+      m_allEmTobs.insert( std::map<int, std::vector<uint32_t> >::value_type(thisEFEX, (m_eFEXSimTool->getEmTOBs() ) ));
       m_eFEXSimTool->reset();
 
       fexcounter++;
 
     }
     
-    //Collate TOBS returned from eFEXSims. Should that be here?
-    // ToDo
-    // To implement
-    // {--Implement--}
+
+    m_eContainer = std::make_unique<xAOD::eFexEMRoIContainer> ();
+    m_eAuxContainer = std::make_unique<xAOD::eFexEMRoIAuxContainer> ();
+    m_eContainer->setStore(m_eAuxContainer.get());
+
+    // iterate over all Em Tobs and fill EDM with them
+    for( auto const& [efex, tobs] : m_allEmTobs ){
+      for(auto &tob : tobs){
+	ATH_CHECK(fillEDM(efex,tob));
+      }
+    }
+    
+    SG::WriteHandle<xAOD::eFexEMRoIContainer> outputeFexHandle(m_eFexOutKey/*, ctx*/);
+    ATH_MSG_DEBUG("  write: " << outputeFexHandle.key() << " = " << "..." );
+    ATH_CHECK(outputeFexHandle.record(std::move(m_eContainer),std::move(m_eAuxContainer)));
 
 
     //Send TOBs to bytestream?
     // ToDo
     // To implement
     // {--Implement--}
+
+    return StatusCode::SUCCESS;
+
+  }
+  
+
+  StatusCode eFEXSysSim::fillEDM(uint8_t eFexNum, uint32_t tobWord){
+
+    uint8_t eFEXNumber = eFexNum; 
+    uint32_t tobWord0 = tobWord;
+    uint32_t tobWord1 = 0;
+        
+    xAOD::eFexEMRoI* myEDM = new xAOD::eFexEMRoI();
+    m_eContainer->push_back( myEDM );
+
+    myEDM->initialize(eFEXNumber, tobWord0, tobWord1);
+    ATH_MSG_DEBUG(" setting eFEX Number:  " << +myEDM->eFexNumber() << " et: " << myEDM->et() << " eta: " << myEDM->eta() <<  " phi: " << myEDM->phi() );
 
     return StatusCode::SUCCESS;
 

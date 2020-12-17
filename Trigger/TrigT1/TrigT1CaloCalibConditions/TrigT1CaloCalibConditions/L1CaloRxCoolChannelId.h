@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef L1CALORXCOOLCHANNELID_H
@@ -31,7 +31,7 @@ public:
 
   void outputAttributes(unsigned int conn, unsigned int pair);
 
-  L1CaloRxCoolChannelId& operator=(const L1CaloRxCoolChannelId& id);
+  L1CaloRxCoolChannelId& operator=(const L1CaloRxCoolChannelId& id) = default;
   bool operator==(const L1CaloRxCoolChannelId& id) const;
   bool operator<(const L1CaloRxCoolChannelId& id) const;
 

@@ -9,7 +9,10 @@
 #define TRK_ITRT_ELECTRONPIDTOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
+#include "TrkTrackSummary/TrackSummary.h"
 #include <vector>
 
 namespace Trk {
@@ -36,16 +39,54 @@ namespace Trk {
        @param[in] track the track to be identified
        @returns   vector of probabilities
      */
-    virtual std::vector<float> electronProbability(const Trk::Track& track) const = 0;
-    
-    /** @brief return high threshold probability 
+    virtual std::vector<float> electronProbability(
+      const EventContext& ctx,
+      const Trk::Track& track) const = 0;
+
+    std::vector<float> electronProbability(
+      const Trk::Track& track) const {
+      return  electronProbability(Gaudi::Hive::currentContext(),track);
+    }
+
+
+    /** @brief return high threshold probability
         @returns double of probability
     */
-    virtual double probHT( const double p, const Trk::ParticleHypothesis hypothesis, const int HitPart, const int Layer, const int Strawlayer) const = 0;
-    virtual double probHTRun2( float pTrk, Trk::ParticleHypothesis hypothesis, int TrtPart, int GasType, int StrawLayer, float ZR, float rTrkWire, float Occupancy ) const = 0;
+    virtual double probHT(const double p,
+                          const Trk::ParticleHypothesis hypothesis,
+                          const int HitPart,
+                          const int Layer,
+                          const int Strawlayer) const = 0;
+ 
+    virtual double probHTRun2(const EventContext& ctx,
+                              float pTrk,
+                              Trk::ParticleHypothesis hypothesis,
+                              int TrtPart,
+                              int GasType,
+                              int StrawLayer,
+                              float ZR,
+                              float rTrkWire,
+                              float Occupancy) const = 0;
 
-
-
+    double probHTRun2(float pTrk,
+                      Trk::ParticleHypothesis hypothesis,
+                      int TrtPart,
+                      int GasType,
+                      int StrawLayer,
+                      float ZR,
+                      float rTrkWire,
+                      float Occupancy) const
+    {
+      return probHTRun2(Gaudi::Hive::currentContext(),
+                        pTrk,
+                        hypothesis,
+                        TrtPart,
+                        GasType,
+                        StrawLayer,
+                        ZR,
+                        rTrkWire,
+                        Occupancy);
+    }
   };
 
   inline const InterfaceID& Trk::ITRT_ElectronPidTool::interfaceID()

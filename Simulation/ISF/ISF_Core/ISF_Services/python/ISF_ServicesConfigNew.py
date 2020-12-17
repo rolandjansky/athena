@@ -39,8 +39,11 @@ def GenParticleFiltersToolCfg(ConfigFlags):
         if ConfigFlags.Beam.Type != "cosmics":
             acc = ParticlePositionFilterDynamicCfg(ConfigFlags)
             genParticleFilterList += [result.popToolsAndMerge(acc)]
-            if ((ConfigFlags.Sim.CavernBG in (False, "Signal")) and
-                (not ConfigFlags.Detector.SimulateCavern)):
+            if not (ConfigFlags.Detector.SimulateAFP or
+               ConfigFlags.Detector.SimulateALFA or
+               ConfigFlags.Detector.SimulateFwdRegion) and \
+               ((ConfigFlags.Sim.CavernBG in (False, "Signal")) and
+               (not ConfigFlags.Detector.SimulateCavern)):
                 acc = EtaPhiFilterCfg(ConfigFlags)
                 genParticleFilterList += [result.popToolsAndMerge(acc)]
     acc = GenParticleInteractingFilterCfg(ConfigFlags)

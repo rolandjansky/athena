@@ -3,10 +3,10 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
-import sys, time, math
-import operator
+import time, math
 
-from ROOT import *
+from ROOT import TColor, TText, TH1F, TH2F, TCanvas, THStack, TLegend
+from ROOT import gPad, gStyle, kPink, kBlue, kOrange, kYellow, kRed, kGreen, kAzure, kGray
 from CoolRunQuery.AtlRunQueryQueryConfig import QC
 from CoolRunQuery.selector.AtlRunQuerySelectorBase import DataKey
 from CoolRunQuery.utils.AtlRunQueryUtils import importroot
@@ -20,6 +20,8 @@ from CoolRunQuery.AtlRunQueryCOMA import ARQ_COMA
 import xmlrpclib
 global server
 server = xmlrpclib.ServerProxy('http://atlasdqm.cern.ch')
+
+from DQDefects import DefectsDB
 
 global readylb
 global lumifolder
@@ -44,7 +46,8 @@ def MapToSystem(defect):
     words = defect.split('_')
     for w in words:
         for item in global_systems_map:
-            if w in item: return global_systems_map[item]
+            if w in item:
+                return global_systems_map[item]
     return ' '
 
 ########################################################################
@@ -53,9 +56,10 @@ def ComputeRunLumi(dic,run,lumiperlb):
     # consider ATLAS ready only
     global readylb
     total = 0.
-    for l in lumiperlb:
-        if l not in readylb: continue
-        total += lumiperlb[l]
+    for lbl in lumiperlb:
+        if lbl not in readylb:
+            continue
+        total += lumiperlb[lbl]
     return total
 
 
@@ -66,9 +70,11 @@ def GetLBLumi(dic,run):
     lumifolder = ''
     lumiperlb = {}
     for k,v in dic.items():
-        if not 'ofllumi' in k.ResultKey: continue
+        if 'ofllumi' not in k.ResultKey:
+            continue
         lumifolder = k.ResultKey
-    if lumifolder == '': return lumiperlb
+    if lumifolder == '':
+        return lumiperlb
 
     lbdic = dic[DataKey(lumifolder)][run]
     lbtime = dic[DataKey('#LB')][run][1]
@@ -76,11 +82,14 @@ def GetLBLumi(dic,run):
     for i,item in enumerate(lbdic):
         for lb in range(int(item.startlb),int(item.endlb)):
             lumiperlb[lb] = 0.
-            if item.value == "n.a.": continue
-            if (lbtime[lb]-lbtime[lb-1])<0: continue
+            if item.value == "n.a.":
+                continue
+            if (lbtime[lb]-lbtime[lb-1])<0:
+                continue
             # change unit (pb/nb)
             scale = 0.001
-            if usenb: scale = 1.
+            if usenb:
+                scale = 1.
             lumiperlb[lb] = float(item.value)*(lbtime[lb]-lbtime[lb-1])*0.001*scale # output in nb-1/pb-1
             #print ("DEBUG",run,lb,float(item.value),lbtime[lb]-lbtime[lb-1])
     return lumiperlb
@@ -94,8 +103,9 @@ def GetLBLiveFraction(dic,run):
         for item in trigrate:
             (lb, tbp, tap, tav) = map(int, item)
             livefraction[lb]= 0.
-            if tbp != 0: livefraction[lb] = float(tav)/tap
-    except:
+            if tbp != 0:
+                livefraction[lb] = float(tav)/tap
+    except KeyError:
         print ("%s trigger not found - no live fraction computation" % livetrigger)
     return livefraction
 
@@ -103,7 +113,7 @@ def GetLBReady(dic,run):
     rlb = []
     for b in dic[DataKey('Ready for physics')][run]:
         for lb in range(b.startlb,b.endlb):
-            if  b.value == "1" :
+            if b.value == "1" :
                 rlb.append(lb)
     return rlb
     
@@ -115,8 +125,8 @@ def MakePlot_SummaryLumiLoss(loss,colors,dicsum,name):
     global unit
 
     SetStyle()
-    gStyle.SetTitleX(0.5);
-    gStyle.SetTitleAlign(23);
+    gStyle.SetTitleX(0.5)
+    gStyle.SetTitleAlign(23)
 
     ## ATLAS Ready Recorded Lumi
     TotalLumi = dicsum[DataKey('TotalLumi')][0]
@@ -129,40 +139,50 @@ def MakePlot_SummaryLumiLoss(loss,colors,dicsum,name):
     runs.sort()
 
     ## compute TOTAL lumi per system
-    lumi = {}; max = 0.
+    lumi = {}
+    max = 0.
     for sys in loss:
         lumi[sys] = 0.
-        for r in runs: lumi[sys] += loss[sys][r]
-        if lumi[sys] > max: max=lumi[sys]
+        for r in runs:
+            lumi[sys] += loss[sys][r]
+        if lumi[sys] > max:
+            max=lumi[sys]
     max = max*1.5
 
     # if no entry, print no plot
-    if max == 0. : return
+    empty = False
+    if max == 0.:
+        empty = True
+        max = 1.
+        
 
     ## create frame
     t1 = "       Runs [%i-%i]"%(runs[0],runs[-1])
-    if len(runs) == 1: t1 = "            Run [%i]"%runs[0]
-    t2 = "ATLAS Ready Lumi: %.2f %s^{-1}"%(TotalLumi,unit)
+    if len(runs) == 1:
+        t1 = "            Run [%i]"%runs[0]
+    t2 = "ATLAS Ready Lumi: %.2f %s"%(TotalLumi,unit)
     h1_frame = TH1F("h1_frame","#splitline{%s}{%s}"%(t1,t2),len(loss),-0.5,len(loss)-0.5)
     SetXLabel(h1_frame,xlabels)
     h1_frame.SetMinimum(0.)
     h1_frame.SetMaximum(max)
     h1_frame.SetTickLength(0.,"X")
-    h1_frame.GetYaxis().SetTitle("Luminosity Loss during ATLAS Ready [%s^{-1}]"%unit)
+    h1_frame.GetYaxis().SetTitle("Luminosity Loss during ATLAS Ready [%s]"%unit)
     h1_frame.LabelsOption("a","X") # order X label by alphabetical order
 
     ## create systems plots 
-    h1_lumi = []; text_lumi = []
+    h1_lumi = []
+    text_lumi = []
     for sys in loss:
         h1_lumi.append(TH1F("h1_lumi_%s"%sys,"",len(loss),-0.5,len(loss)-0.5))
         SetXLabel(h1_lumi[-1],xlabels)
         h1_lumi[-1].LabelsOption("a","X") # order X label by alphabetical order
-        h1_lumi[-1].SetBarWidth(0.90);
+        h1_lumi[-1].SetBarWidth(0.90)
         h1_lumi[-1].SetTickLength(0.,"X")
         h1_lumi[-1].SetMinimum(0.)
         h1_lumi[-1].SetMaximum(max)
         h1_lumi[-1].SetFillColor(colors[sys])
-        if sys == '_TOTAL': h1_lumi[-1].SetFillStyle(3244)
+        if sys == '_TOTAL':
+            h1_lumi[-1].SetFillStyle(3244)
         ibin = h1_lumi[-1].GetXaxis().FindBin(sys)
         #print (sys,ibin,colors[sys],lumi[sys]/TotalLumi,h1_lumi[-1].GetName())
         h1_lumi[-1].SetBinContent(ibin,lumi[sys])
@@ -176,18 +196,28 @@ def MakePlot_SummaryLumiLoss(loss,colors,dicsum,name):
     canvas = TCanvas( 'c_SummaryLumiLoss',"Summary Lumi Losses", 200, 10, 600, 700)
     canvas.Divide(1,1)
     canvas.cd(1)
-    gPad.SetTopMargin(0.15);
+    gPad.SetTopMargin(0.15)
     h1_frame.Draw("HBAR")
     subtitle = TText(max,0.,name)
     subtitle.SetTextSize(0.03)
     subtitle.SetTextAngle(90)
     subtitle.SetTextColor(kGray+1)
     subtitle.Draw()
+    if empty:
+        bgtext = TText(0.5,round(len(loss)/2)-0.5,"No Luminosity Losses")
+        bgtext.SetTextAlign(22)
+        bgtext.SetTextColor(kRed)
+        bgtext.SetTextFont(43)
+        bgtext.SetTextSize(40)
+        bgtext.SetTextAngle(45)
+        bgtext.Draw()
+        
     for i,h in enumerate(h1_lumi):
-        h.Draw("HBAR SAME")
         text_lumi[i].SetTextAlign(12) # Vertical align
         text_lumi[i].SetTextSize(0.04) # Text Size
-        text_lumi[i].Draw()
+        if not empty:
+            h.Draw("HBAR SAME")
+            text_lumi[i].Draw()
     canvas.Update()
     from CoolRunQuery.AtlRunQueryQueryConfig import QC
     pname = QC.datapath+'/'+name+'_lumiloss.png'
@@ -202,8 +232,13 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
     ## get runs list - remove runs with no defect
     runs = []
     for r in loss['_TOTAL']:
-        if loss['_TOTAL'][r]>0. : runs.append(r)
-    if len(runs) == 0 : return
+        if loss['_TOTAL'][r]>0. :
+            runs.append(r)
+    #if len(runs) == 0 : return
+    empty = False
+    if len(runs) == 0 :
+        empty = True
+        runs.append("-")
     runs.sort()
 
     ## ATLAS Ready Recorded Lumi
@@ -211,17 +246,20 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
 
     ## center histo Title
     SetStyle()
-    gStyle.SetTitleX(0.5);
-    gStyle.SetTitleAlign(23);
+    gStyle.SetTitleX(0.5)
+    gStyle.SetTitleAlign(23)
     
     ## create stack
-    h_stack = THStack("hs_PerRun","Luminosity Loss during ATLAS Ready [%s^{-1}]"%unit); 
+    h_stack = THStack("hs_PerRun","Luminosity Loss during ATLAS Ready [%s]"%unit)
 
     ## create legends
-    x0=0.17; y0=0.62;
-    nsplits = 4; dx = 0.2; dy = 0.05;
+    x0=0.17
+    y0=0.62
+    nsplits = 4
+    dx = 0.2
+    dy = 0.05
     leg = TLegend(x0,y0,x0+dx,y0+nsplits*dy)
-    nhists = 0;
+    nhists = 0
 
     ## settings for BAR histos
     SHIFT = 0.1
@@ -236,16 +274,17 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
     h1_total.SetBarOffset(SHIFT+WIDTH)
 
     for r,run in enumerate(runs):
-        if loss['_TOTAL'][run] > 0: h1_total.Fill(r,loss['_TOTAL'][run])
+        if run != "-" and loss['_TOTAL'][run] > 0:
+            h1_total.Fill(r,loss['_TOTAL'][run])
     nhists +=1
     leg.AddEntry(h1_total,'TOTAL',"f")
                 
     ## create systems plots 
-    h1_lumi = {}; text_lumi = {}; 
-    
+    h1_lumi = {}    
     for i,sys in enumerate(loss):
             
-        if sys == '_TOTAL': continue
+        if sys == '_TOTAL':
+            continue
         
         h1_lumi[sys] = TH1F("h1_lumi_%s"%sys,"",len(runs),-0.5,len(runs)-0.5)
         h1_lumi[sys].SetMinimum(0.)
@@ -253,7 +292,8 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
         h1_lumi[sys].SetBarWidth(WIDTH)
         h1_lumi[sys].SetBarOffset(SHIFT)
         for r,run in enumerate(runs):
-            if loss[sys][run]> 0.: h1_lumi[sys].Fill(r,loss[sys][run])
+            if run != "-" and loss[sys][run]> 0.:
+                h1_lumi[sys].Fill(r,loss[sys][run])
                 
     ## Add to stack
     for sys in h1_lumi:
@@ -266,21 +306,27 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
     hmax = h_stack.GetMaximum()*1.6
 
     ## create frame
-    t1 = "       Runs [%i-%i]"%(runs[0],runs[-1])
-    if len(runs) == 1: t1 = "            Run [%i]"%runs[0]
-    t2 = "ATLAS Ready Lumi: %.2f %s^{-1}"%(TotalLumi,unit)
+    if len(runs) == 1:
+        if runs[0] == "-":
+            t1 = "            Run [-]"
+        else:
+            t1 = "            Run [%i]"%runs[0]  
+    else:
+        t1 = "       Runs [%i-%i]"%(runs[0],runs[-1])
+
+    t2 = "ATLAS Ready Lumi: %.2f %s"%(TotalLumi,unit)
     h1_frame = TH1F("h1_frame_runs","#splitline{%s}{%s}"%(t1,t2),len(runs),-0.5,len(runs)-0.5)
     SetXLabel(h1_frame,runs)
     h1_frame.SetLabelSize(0.06,"X")
     h1_frame.SetMinimum(0.)
-    h1_frame.GetYaxis().SetTitle("Luminosity Loss during ATLAS Ready [%s^{-1}]"%unit) 
+    h1_frame.GetYaxis().SetTitle("Luminosity Loss during ATLAS Ready [%s]"%unit) 
     h1_frame.GetYaxis().SetTitleOffset(1.3)
 
     ## create png
     canvas = TCanvas( 'c_PerRunLumiLoss',"Luminosity Losses Per Run", 200, 10, 600, 700)
     canvas.Divide(1,1)
     canvas.cd(1)
-    gPad.SetTopMargin(0.15);
+    gPad.SetTopMargin(0.15)
     h1_frame.SetMaximum(hmax)
     h_stack.SetMaximum(hmax)
     #h_total.SetBarOffset((shift)
@@ -294,13 +340,22 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
     leg.SetX2NDC(leg.GetX1NDC()+ncolumns*dx) # Modify legend size w.r.t number of columns
     nrows = leg.GetNRows()
     leg.SetY2NDC(leg.GetY1NDC()+nrows*dy) # Modify legend size w.r.t number of rows
-    leg.Draw() # Draw again
+    if not empty:
+        leg.Draw() # Draw again
 
     subtitle = TText(len(runs)-0.35,0.,name)
     subtitle.SetTextSize(0.03)
     subtitle.SetTextAngle(90)
-    #subtitle.SetTextColor(kGray+1)
+    subtitle.SetTextColor(kGray+1)
     subtitle.Draw()
+    if empty:
+        bgtext = TText(0.0,0.5,"No Luminosity Losses")
+        bgtext.SetTextAlign(22)
+        bgtext.SetTextColor(kRed)
+        bgtext.SetTextFont(43)
+        bgtext.SetTextSize(40)
+        bgtext.SetTextAngle(45)
+        bgtext.Draw()
 
     canvas.Update()
     from CoolRunQuery.AtlRunQueryQueryConfig import QC
@@ -308,27 +363,27 @@ def MakePlot_PerRunLumiLoss(loss,colors,dicsum,name):
     canvas.Print(pname)
     return pname
 
-def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
+def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,ignored,dic,run):
 
     global readylb
 
     from CoolRunQuery.AtlRunQueryQueryConfig import QC
     
-    hname = ['','']
-    h2_DefectVsLB = ['','','']
+    hname = ['','','']
+    h2_DefectVsLB = ['','','','']
 
     ## style
     SetStyle()
-    gStyle.SetTitleX(0.5);
-    gStyle.SetTitleAlign(23);
+    gStyle.SetTitleX(0.5)
+    gStyle.SetTitleAlign(23)
 
     lbrange = readylb[-1]-readylb[0] # can be disconnected !
     #print (run,len(readylb),lbrange)
     
     ## Intolerable ##
     if len(intolerable) > 0 :
-        #TCol = TColor.GetColor( "#5D6B7D");
-        TCol = TColor.GetColor( "#354355");
+        #TCol = TColor.GetColor( "#5D6B7D")
+        TCol = TColor.GetColor( "#0f3a60")
         hname[0]= "%s_Intolerable_Run%s"%(sys,str(dic[DataKey('Run')][run]))
         htitle = "%s - Intolerable defects - Run %s"%(sys,str(dic[DataKey('Run')][run]))
         h2_DefectVsLB[0] = TH2F("h2_defectVsLB_%s"%hname[0],htitle,
@@ -346,12 +401,15 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
             ibiny = h2_DefectVsLB[0].GetYaxis().FindBin(item)
             binxmax = h2_DefectVsLB[0].GetXaxis().GetXmax()
             frac = 100*float(len(intolerable[item]))/float(len(readylb))
-            if frac> 0.: ttext[item] = TText(binxmax,ibiny-0.8,"  %.2f %%"%frac)
-            else: ttext[item] = TText(binxmax,ibiny-0.8,"")
+            if frac> 0.:
+                ttext[item] = TText(binxmax,ibiny-0.8,"  %.2f %%"%frac)
+            else:
+                ttext[item] = TText(binxmax,ibiny-0.8,"")
             ttext[item].SetTextSize(0.03)
             ttext[item].SetTextColor(TCol)
             for lb in intolerable[item]:
-                if lb not in readylb: continue
+                if lb not in readylb:
+                    continue
                 ibinx = h2_DefectVsLB[0].GetXaxis().FindBin(lb)
                 h2_DefectVsLB[0].SetBinContent(ibinx,ibiny,1.)
         
@@ -359,21 +417,26 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
         canvas = TCanvas( 'c_Int',"Systems Defects - %s"%hname[0], 200, 10, 1000, 800)
         canvas.Divide(1,1)
         canvas.cd(1)
-        gPad.SetLeftMargin(0.40);
-        gPad.SetRightMargin(0.1);
+        gPad.SetLeftMargin(0.40)
+        gPad.SetRightMargin(0.1)
         h2_DefectVsLB[0].Draw("BOX")
-        for item in intolerable: ttext[item].Draw()
+        for item in intolerable:
+            ttext[item].Draw()
         canvas.Update()
         hname[0] = QC.datapath+"/"+hname[0]+".png"
         canvas.Print(hname[0])
-
+        
     ## Tolerable ##
     if len(tolerable) > 0 :
 
-        all = dict(tolerable.items() + intolerable.items())
+        all = dict(tolerable.items() + intolerable.items() + ignored.items())
 
-        TCol1 = TColor.GetColor( "#354355");
-        TCol2 = TColor.GetColor("#7B899B");
+        TCol1 = TColor.GetColor("#0f3a60")
+        TCol2 = TColor.GetColor("#a3c0d9")
+        TCol3 = TColor.GetColor("#4681b3")
+        #TCol1 = TColor.GetColor("#015669")
+        #TCol2 = TColor.GetColor("#5cbad0")
+        #TCol3 = TColor.GetColor("#258aa1")
         hname[1]= "%s_All_Run%s"%(sys,str(dic[DataKey('Run')][run]))
         htitle = "%s - All defects - Run %s"%(sys,str(dic[DataKey('Run')][run]))
         
@@ -386,14 +449,24 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
                                 lbrange,readylb[0]-0.5,readylb[-1]+0.5,
                                 len(all),0.,len(all))
         
+        # ignored
+        h2_DefectVsLB[3] = TH2F("h2_defectVsLB_ign_%s"%hname[1],htitle,
+                                lbrange,readylb[0]-0.5,readylb[-1]+0.5,
+                                len(all),0.,len(all))
+        
         h2_DefectVsLB[1].SetFillColor(TCol1)
         h2_DefectVsLB[2].SetFillColor(TCol2)
+        h2_DefectVsLB[3].SetFillColor(TCol3)
+        #h2_DefectVsLB[3].SetFillStyle(3004) # not a great idea for single LBs
         h2_DefectVsLB[1].GetXaxis().SetTitle("Lumiblocks with ATLAS Ready")
         h2_DefectVsLB[2].GetXaxis().SetTitle("Lumiblocks with ATLAS Ready")
+        h2_DefectVsLB[3].GetXaxis().SetTitle("Lumiblocks with ATLAS Ready")
         SetYLabel(h2_DefectVsLB[1],[defect for defect in all])
         SetYLabel(h2_DefectVsLB[2],[defect for defect in all])
+        SetYLabel(h2_DefectVsLB[3],[defect for defect in all])
         h2_DefectVsLB[1].LabelsOption("a","Y") # order Y label by alphabetical order
         h2_DefectVsLB[2].LabelsOption("a","Y") # order Y label by alphabetical order
+        h2_DefectVsLB[3].LabelsOption("a","Y") # order Y label by alphabetical order
 
         # Text to store lumi loss number
         ttext = {}
@@ -403,25 +476,38 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
             ibiny = h2_DefectVsLB[1].GetYaxis().FindBin(item)
             binxmax = h2_DefectVsLB[1].GetXaxis().GetXmax()
             frac = 100*float(len(all[item]))/float(len(readylb))
-            if frac >0.: ttext[item] = TText(binxmax,ibiny-0.8,"  %.2f %%"%frac)
-            else: ttext[item] = TText(binxmax,ibiny-0.8,"")
+            if frac >0.:
+                ttext[item] = TText(binxmax,ibiny-0.8,"  %.2f %%"%frac)
+            else:
+                ttext[item] = TText(binxmax,ibiny-0.8,"")
             ttext[item].SetTextSize(0.03)
-            if item in intolerable:ttext[item].SetTextColor(TCol1)
-            if item in tolerable:ttext[item].SetTextColor(TCol2)      
+            if item in intolerable:
+                ttext[item].SetTextColor(TCol1)
+            if item in tolerable:
+                ttext[item].SetTextColor(TCol2)
+            if item in ignored:
+                ttext[item].SetTextColor(TCol3)    
             for lb in all[item]:
                 ibinx = h2_DefectVsLB[1].GetXaxis().FindBin(lb)
-                if item in intolerable: h2_DefectVsLB[1].SetBinContent(ibinx,ibiny,1.)
-                if item in tolerable: h2_DefectVsLB[2].SetBinContent(ibinx,ibiny,1.)
+                if item in intolerable:
+                    h2_DefectVsLB[1].SetBinContent(ibinx,ibiny,1.)
+                if item in tolerable:
+                    h2_DefectVsLB[2].SetBinContent(ibinx,ibiny,1.)
+                if item in ignored:
+                    h2_DefectVsLB[3].SetBinContent(ibinx,ibiny,1.)
 
         # create png
         canvas = TCanvas( 'c_Tol',"Systems Defects - %s"%hname[1], 200, 10, 1000, 800)
         canvas.Divide(1,1)
         canvas.cd(1)
-        gPad.SetLeftMargin(0.40);
-        gPad.SetRightMargin(0.1);
+        gPad.SetLeftMargin(0.40)
+        gPad.SetRightMargin(0.1)
         h2_DefectVsLB[2].Draw("BOX")
+        h2_DefectVsLB[3].Draw("BOXSAME")
         h2_DefectVsLB[1].Draw("BOXSAME")
-        for item in all: ttext[item].Draw()
+
+        for item in all:
+            ttext[item].Draw()
         canvas.Update()
         hname[1] = QC.datapath+"/"+hname[1]+".png"
         canvas.Print(hname[1])
@@ -429,38 +515,48 @@ def MakePlot_DefectsPerSystem(sys,intolerable,tolerable,dic,run):
     return hname
 
 ########################################################################
-def SetXLabel(h,list):
-    for i in xrange(len(list)):
-         h.GetXaxis().SetBinLabel(i+1,str(list[i]))
+def SetXLabel(h,labels):
+    for i in range(len(labels)):
+         h.GetXaxis().SetBinLabel(i+1,str(labels[i]))
     return
 
-def SetYLabel(h,list):
-    for i in xrange(len(list)):
-         h.GetYaxis().SetBinLabel(i+1,str(list[i]))
+def SetYLabel(h,labels):
+    for i in range(len(labels)):
+         h.GetYaxis().SetBinLabel(i+1,str(labels[i]))
     return
 
-def listify(l): # compactify lb lists
-    if len(l) == 0 : return ''
-    i = 0; newlist=[]
-    while i < len(l):
-        start=l[i];j=i;
-        while(j+1<len(l) and l[j+1]==l[j]+1): j+=1
-        end=l[j];i=j+1
-        if start==end: newlist.append(start)
-        else: newlist.append(str(start)+'-'+str(end))
+def listify(lbl): # compactify lb lists
+    if len(lbl) == 0 :
+        return ''
+    i = 0
+    newlist=[]
+    while i < len(lbl):
+        start=lbl[i]
+        j=i
+        while(j+1<len(lbl) and lbl[j+1]==lbl[j]+1):
+            j+=1
+        end=lbl[j]
+        i=j+1
+        if start==end:
+            newlist.append(start)
+        else:
+            newlist.append(str(start)+'-'+str(end))
     return  ", ".join([str(x) for x in newlist])
 ########################################################################
 
 class DQSummary:
 
     @classmethod
-    def makeHTML(cls, dic, dicsum, doPickle=True, doDQSummary=True, doDQPlots=True):
+    def makeHTML(cls, dic, dicsum, doPickle=True, doDQSummary=True, doDQPlots=True, dqsumGRL="PHYS_StandardGRL_All_Good_25ns", dbbTag=("HEAD", "HEAD")):
         """ method returns a string (unicode is fine) of html code, with out tag <div>...</div> """
 
         #####################################################################
         # Jessica, your main code goes here                                 #
         # (note that all methods in the class are 'static' -> @classmethod  #
         #####################################################################
+        
+        ### WARNING messages
+        warning = ''
 
         ### Global Variables ###
         with timer("DQSummary"):
@@ -475,17 +571,49 @@ class DQSummary:
                 if 'data13' in ptag:
                     usenb = True
                     livetrigger = 'L1_EM5'
+                elif 'data16_hip5TeV' in ptag or 'data16_hip8TeV' in ptag:
+                    usenb = True
+                    livetrigger = 'L1_EM12'
                 elif 'data15' in ptag or 'data16' in ptag or 'data17' in ptag or 'data18' in ptag:
                     usenb = False
                     livetrigger = 'L1_EM12'
-                    
-            global unit
-            unit = 'pb'
-            if usenb: unit ='nb'
-    
-            ### WARNING messages
-            warning = ''
 
+            ## Retrieve DQ primary defects relative to GRL
+            # Check if defect data base has correct format (should be always the case)
+            if len(dbbTag) != 2:
+                warning += '<center><font color="red"> WARNING (DQSummary): The defect database tag "%s" must be a 2-element sequence. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag)
+                dbbTag = ("HEAD", "HEAD")
+            #Create dbb dummy with HEAD tag
+            ddb = DefectsDB()
+            #check if defect tag is defined in defect database
+            if dbbTag[0] not in ['HEAD'] + ddb.defects_tags:
+                warning += '<center><font color="red"> WARNING (DQSummary): The defined defect tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag[0])
+                dbbTag = ("HEAD", dbbTag[1])
+            #check if defect and logic tag is defined in defect database
+            if dbbTag[1] not in ['HEAD'] + ddb.logics_tags:
+                warning += '<center><font color="red"> WARNING (DQSummary): The defined logic tag "%s" is not defined in defect database. Will use "HEAD" tag instead!</font></center><br>' %(dbbTag[1])
+                dbbTag = (dbbTag[0], "HEAD")
+            #Now set tags
+            ddb = DefectsDB(tag=(dbbTag[0], dbbTag[1]))
+            #Check if virtual defect is defined in logic
+            if dqsumGRL in ddb.virtual_defect_logics.keys():
+                defects_primary_grl = ddb.resolve_primary_defects(ddb._resolve_evaluation_order([dqsumGRL]))
+            else:
+                warning += '<center><font color="red"> WARNING (DQSummary): The defined virtual defect or GRL "%s" is not defined in logic. Will use no GRL for calculation!</font></center><br>' %(dqsumGRL)
+                dqsumGRL = 'no'
+
+            #Check if cosmic run
+            cosmics = False
+            if 'Cosmics' in dqsumGRL:
+                cosmics = True
+           
+            global unit
+            unit = 'pb^{-1}'
+            if usenb:
+                unit ='nb^{-1}'
+            if cosmics:
+                unit = '%'
+    
             ### Total Lumi : 0 = Recorded  1 = Loss (in ATLAS Ready)
             dicsum[DataKey('TotalLumi')] = [0.,0.]
 
@@ -501,7 +629,7 @@ class DQSummary:
                                'LAR':kRed+2,'TILE':kPink-7,
                                'MS_CSC':kBlue+4,'MS_RPC':kBlue-2,'MS_MDT':kAzure+3,'MS_TGC':kBlue-9,'MBTS':kBlue-6,
                                'TRIG':kGreen-3,'GLOBAL':kGreen+3,'_TOTAL':TColor.GetColor("#585858")}
-            detectors_lumiloss = {};
+            detectors_lumiloss = {}
             detectors_affectedLBs = {}
 
             for d in detectors:
@@ -517,7 +645,7 @@ class DQSummary:
             performances_color = {'LUMI':kYellow-9,'ID':kOrange+7,'CALO':kRed+2,'TAU':kBlue+2,
                                   'EGAMMA':kGreen-3,'JET':kAzure+3,'MET':kGreen-6,'MCP':kBlue-3,
                                   'BTAG':kPink,'_TOTAL':TColor.GetColor("#585858")}
-            performances_lumiloss = {}; 
+            performances_lumiloss = {}
             performances_affectedLBs = {}
 
             for p in performances:
@@ -529,7 +657,8 @@ class DQSummary:
             performances_affectedLBs['_TOTAL']={}
 
             ### Initialize table content // Considered systems ###
-            columns = []; global_systems = [];
+            columns = []
+            global_systems = []
             columns = ['Run Info','ES1','BLK']
             global_systems = ['Calo','Tracking','Muon','Trigger & Lumi']
             columns += global_systems 
@@ -552,17 +681,31 @@ class DQSummary:
             ### create subtitle row ###
             summarytable += '<tr>'
             #for item in columns: summarytable += '<th>%s</th>'%item.split(":")[0]
-            for item in columns: summarytable += '<th>%s</th>'%item
+            for item in columns:
+                summarytable += '<th>%s</th>'%item
             summarytable += '</tr>'
 
             totalNumberOfReadyLB = 0
+            
+            tot_nlb = 0
+            #determine total number of lbs in case of cosmics
+            if cosmics:
+                for r,run in enumerate(dic[DataKey('Run')]):
+                    tot_nlb += dic[DataKey('#LB')][r][0]
 
             ### loop over runs ###
             for r,run in enumerate(dic[DataKey('Run')]):
 
                 ## Get list of ATLAS Ready LBs
                 global readylb
-                readylb = GetLBReady(dic,r)
+                #ignore ATLAS not ready for Cosmics
+                nlb = dic[DataKey('#LB')][r][0]
+
+                if cosmics:
+                    readylb = range(1,nlb+1)
+                else:
+                    readylb = GetLBReady(dic,r)
+
                 totalNumberOfReadyLB += len(readylb)
 
                 ## If no ATLAS ready LB: skip the run
@@ -571,8 +714,13 @@ class DQSummary:
                     continue
 
                 ## Get lumi per LB and live fraction for the current run
-                lumiperlb = GetLBLumi(dic,r)
-                livefrac = GetLBLiveFraction(dic,r)
+                #for cosmic use fractional lb
+                if cosmics:
+                    lumiperlb = dict(zip(readylb, [100./tot_nlb] * nlb))
+                    livefrac = dict(zip(readylb, [1] * nlb))
+                else:
+                    lumiperlb = GetLBLumi(dic,r)                  
+                    livefrac = GetLBLiveFraction(dic,r)
 
                 if len(lumiperlb) == 0:
                     warning += '<center><font color="red">WARNING! Run %s has no offline lumi info</font></center><br>'%run
@@ -580,30 +728,35 @@ class DQSummary:
 
                 ## Correct lumi per LB with live fraction
                 #print ('DEBUG',run,len(lumiperlb),len(livefrac),len(readylb))
-                for l in lumiperlb:
+                for lbl in lumiperlb:
                     # IF statement used when len(lumiperlb)!= len(livefrac)
-                    if l not in readylb: continue
-                    if l not in livefrac:
-                        print ("--> Warning: live fraction not available for LB %i. Setting live fraction to 1."%l)
+                    if lbl not in readylb:
+                        continue
+                    if lbl not in livefrac:
+                        print ("--> Warning: live fraction not available for LB %i. Setting live fraction to 1." % lbl)
                     else:
-                        lumiperlb[l]*=livefrac[l]
+                        lumiperlb[lbl]*=livefrac[lbl]
 
 
                 ## Initialize columns content for current run            
                 content = {}
-                for i,item in enumerate(columns):content[item]=''
+                for i,item in enumerate(columns):
+                    content[item]=''
 
                 ## Retrieve and store run info
-                dp = '?'; ptag = dic[DataKey('Project tag')][r][0].value
+                dp = '?'
+                ptag = dic[DataKey('Project tag')][r][0].value
                 year = '20'+ptag.split('_')[0][4:]
                 DP = ARQ_COMA.get_periods_for_run(run)
-                if len(DP)>0: dp=DP[0]
+                if len(DP)>0:
+                    dp=DP[0]
                 content['Run Info'] = '<b>%s</b>&nbsp;<font style="font-size:10px;">data period <b>%s</b></font><br>'%(str(run),dp)
 
                 ### In case some systems should be removed
                 tobeignored = ['ALFA','ZDC','LCD']
                 import re
-                if re.match('data1[3-9]', ptag[0:6]): tobeignored = []
+                if re.match('data1[3-9]', ptag[0:6]):
+                    tobeignored = []
 
                 ## useful links
                 target='target="blank"'
@@ -644,17 +797,16 @@ class DQSummary:
 
                 ## Add Total Lumi
                 lumitot = ComputeRunLumi(dic,r,lumiperlb)
-
                 dicsum[DataKey('TotalLumi')][0]+= lumitot
                 content['Run Info'] += '<font style="font-size:10px;">'
-                content['Run Info'] += 'Ready Recorded: <b>%.2f</b> %s<sup>-1</sup>'%(lumitot,unit)
+                content['Run Info'] += 'Ready Recorded: <b>%.2f</b> %s'%(lumitot,unit)
                 content['Run Info'] += '</font><br>'
 
                 ## Retrieve DQ defects
                 defects = dic[DataKey('DQ')][r]
                 ## Select only primary flags
-                defects_primary = [d for d in defects if d.value.primary]  
-
+                defects_primary = [d for d in defects if d.value.primary]
+                
                 ## Initialize list of affected LBs per detector/cp
                 ## Initialize lumi losses due to intolerable defects
                 for d in detectors:
@@ -672,10 +824,13 @@ class DQSummary:
 
                 # And the big sums
                 total_affectedLBs = []
-                GlobalNotReady = []; GlobalBusy = [];
+                GlobalNotReady = []
+                GlobalBusy = []
 
                 ## Store list of defects and affected LBs to print systems table
-                ListOfIntolerableDefects = {}; ListOfTolerableDefects = {};
+                ListOfIntolerableDefects = {}
+                ListOfTolerableDefects = {}
+                ListOfIgnoredDefects = {}
 
                 ## Loop over defects
                 for item in defects_primary:
@@ -686,6 +841,13 @@ class DQSummary:
                     endlb = item.endlb
                     tolerable = item.value.tolerable
                     system = MapToSystem(defect)
+                    grl_ignored = False
+                    
+                    #Make it relative to GRL
+                    if not dqsumGRL == 'no' and not tolerable:
+                        if defect not in defects_primary_grl:
+                            grl_ignored = True
+
 
                     if 'GLOBAL_NOTREADY' in defect:
                         GlobalNotReady += [ lb for lb in range(startlb,endlb)]
@@ -696,7 +858,8 @@ class DQSummary:
                     ## Missing Sign-Offs ##
 
                     ## FINAL sign-off
-                    if 'UNCHECKED_FINAL' in defect: continue
+                    if 'UNCHECKED_FINAL' in defect:
+                        continue
 
                     ## BULK sign-off
                     if 'BULK_UNCHECKED' in defect:
@@ -715,9 +878,11 @@ class DQSummary:
                         continue
 
                     ## Some cross-checks 
-                    word = defect.split('_'); cpdet = word[0]
-                    if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                    if not cpdet in detectors and not cpdet in performances:
+                    word = defect.split('_')
+                    cpdet = word[0]
+                    if word[0]=='MS':
+                        cpdet += "_"+word[1] # MS systems
+                    if cpdet not in detectors and cpdet not in performances:
                         print ('This system is not included: %s (%s)'%(cpdet,defect))
                         continue
 
@@ -725,28 +890,41 @@ class DQSummary:
                     if not tolerable:
                         RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb ]
                         if len(RangeDefect)>0:
-                            if not defect in ListOfIntolerableDefects:
-                                ListOfIntolerableDefects[defect]= [[],'']
-                                ListOfIntolerableDefects[defect][0] = RangeDefect
-                                ListOfIntolerableDefects[defect][1] = user+':'+comment
-                            else:
-                                ListOfIntolerableDefects[defect][0]+= RangeDefect
-                                if comment not in ListOfIntolerableDefects[defect][1]:
-                                    ListOfIntolerableDefects[defect][1]+= ' '+user+':'+comment
-                            # This is used to compute lumilosses
-                            # Here, we do not include systems "to be ignored"
-                            if cpdet in tobeignored: continue
-                            # Store list of affected LBs per detector/cp group
-                            # we can have a double counting of LBs if defects overlap - fixed later
-                            if cpdet in detectors: detectors_affectedLBs[cpdet][run]+=RangeDefect
-                            if cpdet in performances: performances_affectedLBs[cpdet][run]+=RangeDefect
-                            total_affectedLBs += RangeDefect
-
+                            if not grl_ignored:
+                                if defect not in ListOfIntolerableDefects:
+                                    ListOfIntolerableDefects[defect]= [[],'']
+                                    ListOfIntolerableDefects[defect][0] = RangeDefect
+                                    ListOfIntolerableDefects[defect][1] = user+':'+comment
+                                else:
+                                    ListOfIntolerableDefects[defect][0]+= RangeDefect
+                                    if comment not in ListOfIntolerableDefects[defect][1]:
+                                        ListOfIntolerableDefects[defect][1]+= ' '+user+':'+comment
+                                # This is used to compute lumilosses
+                                # Here, we do not include systems "to be ignored"
+                                if cpdet in tobeignored:
+                                    continue
+                                # Store list of affected LBs per detector/cp group
+                                # we can have a double counting of LBs if defects overlap - fixed later
+                                if cpdet in detectors:
+                                    detectors_affectedLBs[cpdet][run]+=RangeDefect
+                                if cpdet in performances:
+                                    performances_affectedLBs[cpdet][run]+=RangeDefect
+                                total_affectedLBs += RangeDefect
+                            #treat differently if ignored by GRL although intolerable
+                            elif grl_ignored:
+                                if defect not in ListOfIgnoredDefects:
+                                    ListOfIgnoredDefects[defect]= [[],'']
+                                    ListOfIgnoredDefects[defect][0]= RangeDefect
+                                    ListOfIgnoredDefects[defect][1]= '[%s]:%s '%(user,comment)
+                                else:
+                                    ListOfIgnoredDefects[defect][0]+= RangeDefect
+                                    if comment not in ListOfIgnoredDefects[defect][1]:
+                                        ListOfIgnoredDefects[defect][1] += '[%s]:%s '%(user,comment)                                
                     ## Store tolerable defects
                     else:
                         RangeDefect = [ lb for lb in range(startlb,endlb) if lb in readylb]
                         if len(RangeDefect)>0:
-                            if not defect in ListOfTolerableDefects:
+                            if defect not in ListOfTolerableDefects:
                                 ListOfTolerableDefects[defect]= [[],'']
                                 ListOfTolerableDefects[defect][0]= RangeDefect
                                 ListOfTolerableDefects[defect][1]= '[%s]:%s '%(user,comment)
@@ -762,7 +940,8 @@ class DQSummary:
 
                 for item in ListOfIntolerableDefects:
                     system = MapToSystem(item)
-                    if not system in global_systems: continue
+                    if system not in global_systems:
+                        continue
                     lbs = listify(ListOfIntolerableDefects[item][0])
                     tip = ListOfIntolerableDefects[item][1]
                     tipkey = "dqcomment_int_%s_%s"%(item,run)
@@ -771,10 +950,24 @@ class DQSummary:
                     content[system]+='<td class="intolerable">%s</td>'%(item)
                     content[system]+='<td class="lb">%s</td>'%(lbs)
                     content[system]+='</tr>'
+                    
+                for item in ListOfIgnoredDefects:
+                    system = MapToSystem(item)
+                    if system not in global_systems:
+                        continue
+                    lbs = listify(ListOfIgnoredDefects[item][0])
+                    tip = ListOfIgnoredDefects[item][1]
+                    tipkey = "dqcomment_ign_%s_%s"%(item,run)
+                    Run.addGlobalToolTip(tipkey,tip)
+                    content[system]+='<tr class="showTip %s" >'%(tipkey)
+                    content[system]+='<td class="ignored">%s</td>'%(item)
+                    content[system]+='<td class="lb">%s</td>'%(lbs)
+                    content[system]+='</tr>'
 
                 for item in ListOfTolerableDefects:
                     system =  MapToSystem(item)
-                    if not system in global_systems: continue
+                    if system not in global_systems:
+                        continue
                     lbs = listify(ListOfTolerableDefects[item][0])
                     tip = ListOfTolerableDefects[item][1]
                     tipkey = "dqcomment_tol_%s_%s"%(item,run)
@@ -791,24 +984,45 @@ class DQSummary:
                 ## Add defects plots in each system column
                 thumbsize = 70
                 imgsize = 600
-                for sys in global_systems:
-                    tol = {}; int = {};
+                for gsys in global_systems:
+                    tol = {}
+                    int = {}
+                    ign = {}
                     for defect in ListOfTolerableDefects:
                         # remove systems to be ignored from the plots
-                        word = defect.split('_'); cpdet = word[0]
-                        if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                        if cpdet in tobeignored: continue
-                        if sys==MapToSystem(defect): tol[defect]=ListOfTolerableDefects[defect][0]
+                        word = defect.split('_')
+                        cpdet = word[0]
+                        if word[0]=='MS':
+                            cpdet += "_"+word[1] # MS systems
+                        if cpdet in tobeignored:
+                            continue
+                        if gsys==MapToSystem(defect):
+                            tol[defect]=ListOfTolerableDefects[defect][0]
                     for defect in ListOfIntolerableDefects:
                         # remove systems to be ignored from the plots
-                        word = defect.split('_'); cpdet = word[0]
-                        if word[0]=='MS' :cpdet += "_"+word[1] # MS systems
-                        if cpdet in tobeignored: continue
-                        if sys==MapToSystem(defect): int[defect]=ListOfIntolerableDefects[defect][0]
+                        word = defect.split('_')
+                        cpdet = word[0]
+                        if word[0]=='MS':
+                            cpdet += "_"+word[1] # MS systems
+                        if cpdet in tobeignored:
+                            continue
+                        if gsys==MapToSystem(defect):
+                            int[defect]=ListOfIntolerableDefects[defect][0]
+                    for defect in ListOfIgnoredDefects:
+                        # remove systems to be ignored from the plots
+                        word = defect.split('_')
+                        cpdet = word[0]
+                        if word[0]=='MS':
+                            cpdet += "_"+word[1] # MS systems
+                        if cpdet in tobeignored:
+                            continue
+                        if gsys==MapToSystem(defect):
+                            ign[defect]=ListOfIgnoredDefects[defect][0]
 
-                    hname = MakePlot_DefectsPerSystem(sys,int,tol,dic,r)
+                    hname = MakePlot_DefectsPerSystem(gsys,int,tol,ign,dic,r)
                     for h in hname:
-                        if len(h)== 0 : continue
+                        if len(h)== 0:
+                            continue
                         title = "Click to zoom"
                         wincontent = "<img src=&quot;%s&quot; height=%s/>"%(h,imgsize)
                         openwin = "javascript:openLargeWindow('Print1','"
@@ -816,34 +1030,39 @@ class DQSummary:
                         openwin += "<html xmlns:&quot;my&quot;><head><title>Defects for run %s</title></head>"%run
                         openwin += "<body style=&quot;background-color:#ffffff&quot;>%s</body></html>"%wincontent
                         openwin += "')"
-                        content[sys]+='<a title="%s" href="%s" ><img src="%s" height=%s/></a>'%(title,openwin,h,thumbsize)
+                        content[gsys]+='<a title="%s" href="%s" ><img src="%s" height=%s/></a>'%(title,openwin,h,thumbsize)
 
                 ## Compute Global not ready ##
-                l = 0.;
-                for lb in GlobalNotReady: l += lumiperlb[lb]
-                dicsum[DataKey('TotalNotReady')] += l
+                _lblumi = 0.
+                if not GlobalNotReady:
+                    for lb in GlobalNotReady:
+                        _lblumi += lumiperlb[lb]
+                dicsum[DataKey('TotalNotReady')] += _lblumi
                 content['Run Info'] += '<font style="font-size:10px;">'
-                content['Run Info'] += 'Global Not Ready: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
+                content['Run Info'] += 'Global Not Ready: <b>%.2f</b> %s'%(_lblumi,unit)
                 content['Run Info'] += '</font><br>'
 
                 ## Compute Global Busy ##
-                l = 0.;
-                for lb in GlobalBusy: l += lumiperlb[lb]
-                dicsum[DataKey('TotalBusy')]+= l
+                _lblumi = 0.
+                for lb in GlobalBusy:
+                    _lblumi += lumiperlb[lb]
+                dicsum[DataKey('TotalBusy')]+= _lblumi
                 content['Run Info'] += '<font style="font-size:10px;">'
-                content['Run Info'] += 'Global Busy: <b>%.2f</b> %s<sup>-1</sup>'%(l,unit)
+                content['Run Info'] += 'Global Busy: <b>%.2f</b> %s'%(_lblumi,unit)
                 content['Run Info'] += '</font><br>'
 
                 ## Compute cp/det lumilosses for current run
                 for d in detectors:
-                    if len(detectors_affectedLBs[d][run]) == 0: continue
+                    if len(detectors_affectedLBs[d][run]) == 0:
+                        continue
                     # Remove double counting (defects overlap)
                     dll = list(set(detectors_affectedLBs[d][run]))
                     detectors_affectedLBs['_TOTAL'][run]+= dll
                     for lb in dll:
                         detectors_lumiloss[d][run]+= lumiperlb[lb]
                 for p in performances:
-                    if len(performances_affectedLBs[p][run]) == 0: continue
+                    if len(performances_affectedLBs[p][run]) == 0:
+                        continue
                     # Remove double counting (defects overlap)
                     pll = list(set(performances_affectedLBs[p][run]))
                     performances_affectedLBs['_TOTAL'][run]+= pll
@@ -869,12 +1088,13 @@ class DQSummary:
 
                 ## Add Total LumiLoss in run info column
                 content['Run Info'] += '<font style="font-size:10px;">'
-                content['Run Info'] += 'DQ Lumi Loss: <b>%.2f</b> %s<sup>-1</sup>'%(totallossperrun,unit) 
+                content['Run Info'] += 'DQ Lumi Loss: <b>%.2f</b> %s'%(totallossperrun,unit) 
                 content['Run Info'] += '</font><br>'
 
                 ### Print run row ###
                 summarytable+='<tr class="out2">'
-                for item in columns: summarytable+='<td>%s</td>'%content[item]
+                for item in columns:
+                    summarytable+='<td>%s</td>'%content[item]
                 summarytable+='</tr>'
 
             ### end of run loop ###
@@ -887,16 +1107,13 @@ class DQSummary:
         ##########################
 
         summaryplot = ''
-
-        from CoolRunQuery.AtlRunQueryQueryConfig import QC
-        
         plots = []
 
         plots.append(MakePlot_SummaryLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
         plots.append(MakePlot_SummaryLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))
         plots.append(MakePlot_PerRunLumiLoss(detectors_lumiloss,detectors_color,dicsum,'detectors'))
-        plots.append(MakePlot_PerRunLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))
-    
+        plots.append(MakePlot_PerRunLumiLoss(performances_lumiloss,performances_color,dicsum,'performances'))        
+        
         imgsize=500
         thumbsize=300
         title = "Click to zoom"
@@ -946,9 +1163,10 @@ class DQSummary:
 
         if totalNumberOfReadyLB>0:
             summaryinfo =  '<table align="center" style="font-size:80%;"><tr>'
-            summaryinfo += '<td> Total Luminosity Loss: <b>%.2f %s<sup>-1</sup></b> (%.2f%%)' % ( totalLumiLoss, unit, lumiLossFraction )
+            summaryinfo += '<td> Total Luminosity Loss: <b>%.2f %s</b> (%.2f%%)' % ( totalLumiLoss, unit, lumiLossFraction )
             summaryinfo += '<br>Excluded Systems: %s</td></tr>' % tobeignored
-            summaryinfo += '<tr><td style="font-size:70%%">using %s // %s</td></tr>'%(lumifolder.split(':')[2],livetrigger)
+            if not cosmics:
+                summaryinfo += '<tr><td style="font-size:70%%">using %s // %s</td></tr>'%(lumifolder.split(':')[2],livetrigger)
             summaryinfo += '</table>'
         else:
             summaryinfo =  '<table align="center" style="font-size:80%;"><tr>'
@@ -961,21 +1179,10 @@ class DQSummary:
         
         pagecontent = summaryplot +'<br>'
         pagecontent += summaryinfo +'<br>'
-        if doDQSummary: pagecontent += summarytable
+        if doDQSummary:
+            pagecontent += summarytable
         pagecontent += warning
         return pagecontent
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -984,7 +1191,6 @@ if __name__ == "__main__":
     # for standalone tests (without querying) just run this and view under test.html
     
     import pickle
-    from CoolRunQuery.AtlRunQueryQueryConfig import QC
     QC.datapath = "data"
 
     pageinfo = pickle.load(open('%s/dqsum_pi.pickle' % QC.datapath))

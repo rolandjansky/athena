@@ -17,7 +17,7 @@
 #include <xercesc/dom/DOMImplementationLS.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
 #include "GeoModelXml/StrictErrorHandler.h"
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include <iostream>
 #include <stdexcept>
 
@@ -34,7 +34,7 @@ DOMDocument *createDOMDocument(string xmlFile, DOMLSParser *parser, unsigned int
         XMLPlatformUtils::Initialize();
     }
     catch (const xercesc::XMLException &toCatch) {
-        char *message = Translate(toCatch.getMessage());
+        char *message = XMLString::transcode(toCatch.getMessage());
         cout << "XercesC error during initialization: " << message << "\n";
         XMLString::release(&message);
         return 0;
@@ -79,7 +79,7 @@ cout << "Decompressed it\n";
             else {
                 decompressed = xmlFile;
             }
-            xmlCh = Translate(decompressed.c_str());
+            xmlCh = XMLString::transcode(decompressed.c_str());
 cout << "Transcoded it\n";
             DOMLSInput *input = impl->createLSInput();
             input->setStringData(xmlCh);            
@@ -88,7 +88,7 @@ cout << "Parsed it\n";
         }
         if (errorHandler.getSawErrors()) {
             cout << "Oh oh, saw errors. \n";
-if (flags & 0x1) cout << "\n\n\n" << Translate(xmlCh) << "\n\n\n";
+if (flags & 0x1) cout << "\n\n\n" << XMLString::transcode(xmlCh) << "\n\n\n";
             return 0;
         }
         else {
@@ -101,13 +101,13 @@ if (flags & 0x1) cout << "\n\n\n" << Translate(xmlCh) << "\n\n\n";
         }
     }
     catch (const XMLException &toCatch) {
-        char *message = Translate(toCatch.getMessage());
+        char *message = XMLString::transcode(toCatch.getMessage());
         cout << "Parse-file xml exception: \n" << message << "\n";
         XMLString::release(&message);
         return 0;
     }
     catch (const DOMException &toCatch) {
-        char *message = Translate(toCatch.msg);
+        char *message = XMLString::transcode(toCatch.msg);
         cout << "DOM exception: \n" << message << "\n";
         XMLString::release(&message);
         return 0;

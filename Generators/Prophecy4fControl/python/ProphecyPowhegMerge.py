@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import os, subprocess, time, glob
 from AthenaCommon import Logging
 from PowhegControl import RepeatingTimer
@@ -26,7 +26,7 @@ class ProphecyPowhegMerge(object) :
     self.__input_prophecy_file_name = 'ProphecyOTF._1.events'
 
     ## Initialise values from runArgs
-    if runArgs == None :
+    if runArgs is None :
       self.logger.warning( 'No run arguments found! Using defaults.' )
     else :
       # Read values from runArgs

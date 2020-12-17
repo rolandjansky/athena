@@ -312,7 +312,7 @@ if __name__ == '__main__':
 
     ## Load pkgs
     ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
-    #ROOT.xAOD.TReturnCode.enableFailure()
+    #ROOT.StatusCode.enableChecking()
 
 
     ## Call the tests

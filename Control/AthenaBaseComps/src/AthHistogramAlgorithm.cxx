@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @class AthHistogramAlgorithm.h 
@@ -44,7 +44,7 @@ AthHistogramAlgorithm::AthHistogramAlgorithm( const std::string& name,
                   "ROOT objects to ROOT files" );
   //  declareProperty("THistService",      m_histSvc, "The THistSvc" );
   
-  declareProperty("RootStreamName",    m_prefix  = "/", "Name of the output ROOT stream (file) that the THistSvc uses");
+  declareProperty("RootStreamName",    m_prefix  = "/ANALYSIS", "Name of the output ROOT stream (file) that the THistSvc uses");
   declareProperty("RootDirName",       m_rootDir = "",
                   "Name of the ROOT directory inside the ROOT file where the histograms will go");
 
@@ -80,10 +80,10 @@ StatusCode AthHistogramAlgorithm::sysInitialize()
   if ( Gaudi::StateMachine::INITIALIZED <= FSMState() ) return StatusCode::SUCCESS;
 
   // Set the Algorithm's properties
-  ATH_CHECK(setProperties());
+  bindPropertiesTo( serviceLocator()->getOptsSvc() );
 
   // Bypass the initialization if the algorithm is disabled.
-  // Need to do this after setProperties.
+  // Need to do this after bindPropertiesTo.
   if ( !isEnabled( ) ) return StatusCode::SUCCESS;
   
   // ---- stolen from GaudiKernel/Algorithm::sysInitialize ------- END ---

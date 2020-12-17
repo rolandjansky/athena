@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -8,7 +8,7 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 from TrigStreamerHypo.TrigStreamerHypoConfigMT import StreamerHypoToolMTgenerator
 from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
-from AthenaCommon.CFElements import seqAND
+from AthenaCommon.CFElements import seqAND, parOR
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
 
@@ -53,7 +53,7 @@ def allTE_trkfast( signature="FS" ):
         topSequence = AlgSequence()
         topSequence.SGInputLoader.Load += [( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
 
-        beamspotSequence = seqAND( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
+        beamspotSequence = parOR( "beamspotSequence_"+signature, viewAlgs+[vertexAlg] )
         inputMakerAlg.ViewNodeName = beamspotSequence.name()
         beamspotViewsSequence = seqAND( "beamspotViewsSequence"+signature, [ inputMakerAlg, beamspotSequence ])
 
@@ -83,26 +83,31 @@ class BeamspotChainConfiguration(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):                            
         chainSteps = []
-        log.debug("Assembling chain for " + self.chainName)
-        # --------------------
-        # define here the names of the steps and obtain the chainStep configuration 
-        # --------------------
-        stepDictionary = {
-            "allTE_trkfast":[self.getAllTEStep()],
-            #"activeTE_trkfast":[self.activeTE_trkfast()],
-            "trkFS_trkfast":[self.getTrkFSStep()],
-        }
+        log.debug("Assembling chain for %s", self.chainName)
 
+        stepDictionary = self.getStepDictionary()
+      
         #key = self.chainPart['EFrecoAlg']
         key = self.chainPart['addInfo'][0] + "_" + self.chainPart['l2IDAlg'][0]#TODO: hardcoded index
         steps=stepDictionary[key]
         for step in steps:
-            chainSteps+=[step]
+            chainstep = getattr(self, step)()
+            chainSteps+=[chainstep]
             
         myChain = self.buildChain(chainSteps)
         return myChain
 
-   
+    def getStepDictionary(self):
+        # --------------------
+        # define here the names of the steps and obtain the chainStep configuration 
+        # --------------------
+        stepDictionary = {
+            "allTE_trkfast":['getAllTEStep'],
+            #"activeTE_trkfast":[self.activeTE_trkfast()],
+            "trkFS_trkfast":['getTrkFSStep']
+        }
+        return stepDictionary
+       
     # --------------------
     # Configuration of costmonitor (costmonitor ?? but isn't this is the actua chain configuration ??)
     # --------------------

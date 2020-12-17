@@ -1,16 +1,10 @@
-################################################################################
-# Package: MVAUtils
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( MVAUtils )
 
 # External dependencies:
-find_package( ROOT COMPONENTS  Tree TMVA XMLIO Core MathCore RIO)
-atlas_depends_on_subdirs( 
-     PRIVATE
-     Control/CxxUtils
-)
+find_package( ROOT COMPONENTS Tree TMVA XMLIO Core MathCore RIO)
 
 # Component(s) in the package:
 atlas_add_library( MVAUtils
@@ -24,16 +18,16 @@ atlas_add_dictionary( MVAUtilsDict
                       MVAUtils/selection.xml
                       LINK_LIBRARIES MVAUtils)
 
-atlas_install_python_modules( util/*.py )
+atlas_install_python_modules( util/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 atlas_add_executable( convertXmlToRootTree util/convertXmlToRootTree.cxx
-		      INCLUDE_DIRS MVAUtils
-		      LINK_LIBRARIES MVAUtils CxxUtils)
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} MVAUtils
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} MVAUtils CxxUtils)
 
 atlas_add_executable( check_timing_mvautils
                       util/check_timing_mvautils.cxx
-                      INCLUDE_DIRS MVAUtils
-                      LINK_LIBRARIES MVAUtils )
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} MVAUtils
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} MVAUtils )
 
 atlas_install_scripts( util/convertLGBMToRootTree.py
                        util/convertXGBoostToRootTree.py )

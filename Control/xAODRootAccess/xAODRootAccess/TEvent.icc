@@ -52,7 +52,7 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::retrieve( const T*& obj, const std::string& key ) {
+   StatusCode TEvent::retrieve( const T*& obj, const std::string& key ) {
 
       // Look among the output objects first:
       const void* result = getOutputObject( key, typeid( T ) );
@@ -65,7 +65,7 @@ namespace xAOD {
                        "Couldn't (const) retrieve \"%s/%s\"",
                        SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
                        key.c_str() );
-            return TReturnCode::kRecoverable;
+            return StatusCode::RECOVERABLE;
          }
       } else {
          // Even if there is an output object with this key, it may
@@ -78,7 +78,7 @@ namespace xAOD {
 
       // If we were successful:
       obj = reinterpret_cast< const T* >( result );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to retrieve an object from the output list.
@@ -92,7 +92,7 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::retrieve( T*& obj, const std::string& key ) {
+   StatusCode TEvent::retrieve( T*& obj, const std::string& key ) {
 
       // Only look among the output objects in this case:
       void* result = getOutputObject( key, typeid( T ) );
@@ -102,12 +102,12 @@ namespace xAOD {
                     "Couldn't (non-const) retrieve \"%s/%s\"",
                     SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
                     key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< T* >( result );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to add an object to the output. The function
@@ -122,7 +122,7 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::record( T* obj, const std::string& key,
+   StatusCode TEvent::record( T* obj, const std::string& key,
                                ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
@@ -144,11 +144,11 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::record( std::unique_ptr< T > obj, const std::string& key,
+   StatusCode TEvent::record( std::unique_ptr< T > obj, const std::string& key,
                                ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      const TReturnCode rc =
+      const StatusCode rc =
          record( obj.get(), SG::normalizedTypeinfoName( typeid( T ) ), key,
                  basketSize, splitLevel );
       if( ! rc.isSuccess() ) {
@@ -158,7 +158,7 @@ namespace xAOD {
       // If the record was successful, let's release the object from the unique
       // pointer:
       obj.release();
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function works pretty much like StoreGateSvc::contains for metadata
@@ -196,10 +196,10 @@ namespace xAOD {
    ///
    /// @param obj The pointer that will be set to the object requested
    /// @param key The key (branch name) of the object
-   /// @returns The usual TReturnCode values
+   /// @returns The usual StatusCode values
    ///
    template< typename T >
-   TReturnCode TEvent::retrieveMetaInput( const T*& obj,
+   StatusCode TEvent::retrieveMetaInput( const T*& obj,
                                           const std::string& key ) {
 
       // Only look among the output objects in this case:
@@ -210,12 +210,12 @@ namespace xAOD {
                     "Couldn't (const) retrieve \"%s/%s\"",
                     SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
                     key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< const T* >( result );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to retrieve an object from the output metadata
@@ -223,10 +223,10 @@ namespace xAOD {
    ///
    /// @param obj The pointer that will be set to the object requested
    /// @param key The key (branch name) of the object
-   /// @returns The usual TReturnCode values
+   /// @returns The usual StatusCode values
    ///
    template< typename T >
-   TReturnCode TEvent::retrieveMetaOutput( const T*& obj,
+   StatusCode TEvent::retrieveMetaOutput( const T*& obj,
                                            const std::string& key ) {
 
       // Only look among the output objects in this case:
@@ -237,12 +237,12 @@ namespace xAOD {
                     "Couldn't (const) retrieve \"%s/%s\"",
                     SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
                     key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< const T* >( result );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to retrieve an object from the output metadata
@@ -250,10 +250,10 @@ namespace xAOD {
    ///
    /// @param obj The pointer that will be set to the object requested
    /// @param key The key (branch name) of the object
-   /// @returns The usual TReturnCode values
+   /// @returns The usual StatusCode values
    ///
    template< typename T >
-   TReturnCode TEvent::retrieveMetaOutput( T*& obj, const std::string& key ) {
+   StatusCode TEvent::retrieveMetaOutput( T*& obj, const std::string& key ) {
 
       // Only look among the output objects in this case:
       void* result = getOutputObject( key, typeid( T ), kTRUE );
@@ -263,12 +263,12 @@ namespace xAOD {
                     "Couldn't (non-const) retrieve \"%s/%s\"",
                     SG::normalizedTypeinfoName( typeid( T ) ).c_str(),
                     key.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // If we were successful:
       obj = reinterpret_cast< T* >( result );
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function can be used to add a metadata object to the output.
@@ -283,7 +283,7 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::recordMeta( T* obj, const std::string& key,
+   StatusCode TEvent::recordMeta( T* obj, const std::string& key,
                                    ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
@@ -304,12 +304,12 @@ namespace xAOD {
    ///          <code>kFALSE</code> if it wasn't
    ///
    template< typename T >
-   TReturnCode TEvent::recordMeta( std::unique_ptr< T > obj,
+   StatusCode TEvent::recordMeta( std::unique_ptr< T > obj,
                                    const std::string& key,
                                    ::Int_t basketSize, ::Int_t splitLevel ) {
 
       // Just call the non-templated implementation:
-      const TReturnCode rc =
+      const StatusCode rc =
          record( obj.get(), SG::normalizedTypeinfoName( typeid( T ) ), key,
                  basketSize, splitLevel, kFALSE, kTRUE );
       if( ! rc.isSuccess() ) {
@@ -319,7 +319,7 @@ namespace xAOD {
       // If the record was successful, let's release the object from the unique
       // pointer:
       obj.release();
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
 } // namespace xAOD

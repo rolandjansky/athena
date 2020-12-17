@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: Analyzer.py
 # @purpose: a set of classes to analyze data from a perfmon tuple
@@ -15,7 +15,6 @@ __version__ = "$Revision: 1.15 $"
 __doc__     = "A set of classes to analyze data from a perfmon tuple."
 
 import logging
-import os
 
 from PerfMonAna.PyRootLib import importRoot
 
@@ -37,7 +36,8 @@ def getAnalyzer(monVarName, monName):
         klass_path = monName[0].split('.')
         m = __import__('.'.join(klass_path[:-1]), fromlist=klass_path[-1:])
         Klass = getattr(m, klass_path[-1])
-        if len(monName)==2: monName = monName[1]
+        if len(monName)==2:
+            monName = monName[1]
     else:
         raise RuntimeError('unknown analyzer [monVarName=%r, monName=%r]' %\
                            (monVarName, monName))
@@ -96,7 +96,8 @@ def mon_project(tree, monInfos, id, varexp, selection="", opt="",
     hEvol = ROOT.TH1F(id, "%s;%s;%s" % (monInfos[0], monInfos[1], monInfos[2]),
                       n, v2[0]-binWide/2., v2[n-1]+binWide/2.)
     _fill = hEvol.Fill
-    for i in xrange(n): _fill(v2[i], v1[i])
+    for i in range(n):
+        _fill(v2[i], v1[i])
     return (hEvol,hDistrib)
 
 def make_stack( canvas, pad_nbr, title, drawopt="nostack" ):
@@ -112,48 +113,49 @@ def make_stack( canvas, pad_nbr, title, drawopt="nostack" ):
 def make_canvas(name, title, items, shape=None):
     ROOT = importRoot()
     nItems = len(items)
-    if shape is None: shape=(1,nItems)
+    if shape is None:
+        shape=(1,nItems)
     c = ROOT.gROOT.FindObject(name)
     #DR if c is None:
-    if not c:        
+    if not c:
         drawOpt = ""
         c = ROOT.TCanvas(name, title)
-        setattr(c, '_stacks', [make_stack(c,i,title) for i in xrange(nItems)])
+        setattr(c, '_stacks', [make_stack(c,i,title) for i in range(nItems)])
         setattr(c, '_shape',  shape)
         def _plot(self):
             return
             #DR if self._shape is None: return
-            if not self._shape : return            
-            for ipad in xrange(self._shape[0]*self._shape[1]):
-                pad = self.cd(ipad+1)
+            if not self._shape :
+                return
+            for ipad in range(self._shape[0]*self._shape[1]):
                 stack = self._stacks[ipad]
                 print ("-->",ipad,self.GetName(),stack.GetName())
                 stack.Draw("nostack")
-                for gr in stack._graphs: gr.Draw("SAME")
+                for gr in stack._graphs:
+                    gr.Draw("SAME")
             return
         setattr(c, '_plot', _plot)
-        if nItems>=1: c.Divide(shape[0], shape[1])
-        elif nItems==0: return c
+        if nItems>=1:
+            c.Divide(shape[0], shape[1])
+        elif nItems==0:
+            return c
     else:
         drawOpt = " SAME"
 
     if nItems>=1:
         for i,o in enumerate(items):
-            pad = c.cd(i+1); pad.SetGrid()
-            stack = c._stacks[i]
+            pad = c.cd(i+1)
+            pad.SetGrid()
             drawOpt = o[1]+drawOpt
             o = o[0]
             if isinstance(o, ROOT.TGraph):
-                o.GetHistogram().Draw(drawOpt);
+                o.GetHistogram().Draw(drawOpt)
                 o.Draw(drawOpt)
-##                 stack._graphs.append(o)
-##                 stack.Add(o.GetHistogram(), drawOpt)
             else:
-##                 stack.Add(o, drawOpt)
                 o.Draw(drawOpt)
     #c._plot(c)
     return c
-    
+
 class Analyzer(object):
     """
     The base object for analyzing data from a perfmon tuple
@@ -163,14 +165,14 @@ class Analyzer(object):
         object.__init__(self)
         self.msg      = logging.getLogger( "Analyzer" )
         self.msg.setLevel( logging.INFO )
-        
+
         self.name     = name
         self.typeName = typeName
 
         self.nEntries = None
         self.minEvt   = None
         self.maxEvt   = None
-        
+
         self.histos  = { }
         return
 
@@ -182,7 +184,7 @@ class Analyzer(object):
 
         self.bookHistos( monComp )
         return
-    
+
     def run(self, monComp):
 
         if self.visit( monComp ):
@@ -191,15 +193,9 @@ class Analyzer(object):
             self.fitHistos ( monComp )
         return
 
-##     def __bookHistos(self):
-##         return
-
-##     def __fillHistos(self):
-##         return
-
     def fitHistos(self, monComp):
         return
-    
+
 ##
 class NoopAnalyzer(Analyzer):
 

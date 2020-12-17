@@ -1,72 +1,12 @@
-# $Id: CMakeLists.txt 793433 2017-01-23 10:57:26Z dguest $
-################################################################################
-# Package: JetTagTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( JetTagTools )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-    PUBLIC
-    Control/AthToolSupport/AsgTools
-    Control/AthenaBaseComps
-    Control/StoreGate
-    DetectorDescription/GeoPrimitives
-    Event/xAOD/xAODBTagging
-    Event/xAOD/xAODJet
-    Event/xAOD/xAODTracking
-    GaudiKernel
-    PhysicsAnalysis/JetTagging/JetTagInfo
-    Reconstruction/Jet/JetRec
-    Reconstruction/Jet/JetSubStructureMomentTools
-    Reconstruction/Jet/JetSubStructureUtils
-    Reconstruction/MVAUtils
-    Tracking/TrkEvent/TrkParameters
-    InnerDetector/InDetRecTools/InDetSVWithMuonTool
-
-    PRIVATE
-    Control/AthenaKernel
-    Control/Navigation
-    Event/xAOD/xAODMuon
-    InnerDetector/InDetRecTools/InDetSVWithMuonTool
-    InnerDetector/InDetRecTools/InDetTrackSelectionTool
-    InnerDetector/InDetRecTools/TrackVertexAssociationTool
-    InnerDetector/InDetRecTools/InDetRecToolInterfaces
-    PhysicsAnalysis/AnalysisCommon/ParticleJetTools
-    PhysicsAnalysis/JetTagging/JetTagCalibration
-    PhysicsAnalysis/MuonID/MuonSelectorTools
-    PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
-    Reconstruction/Jet/JetEDM
-    Reconstruction/Particle
-    Reconstruction/RecoTools/ITrackToVertex
-    Tracking/TrkEvent/TrkEventPrimitives
-    Tracking/TrkEvent/TrkLinks
-    Tracking/TrkEvent/TrkTrack
-    Tracking/TrkEvent/TrkTrackLink
-    Tracking/TrkEvent/TrkTrackSummary
-    Tracking/TrkEvent/VxJetVertex
-    Tracking/TrkEvent/VxSecVertex
-    Tracking/TrkEvent/VxVertex
-    Tracking/TrkUtilityPackages/TrkNeuralNetworkUtils
-    Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
-    )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
-#find_package( Eigen )
-find_package( lwtnn )
-find_package( FastJet )
 find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
     MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
-
-# Switch off the -Werror=return-type flag explicitly as a temporary solution
-# to a build issue against Boost.
-foreach( mode RELEASE RELWITHDEBINFO )
-    string( REPLACE "-Werror=return-type" "" CMAKE_CXX_FLAGS_${mode}
-        "${CMAKE_CXX_FLAGS_${mode}}" )
-endforeach()
 
 # Component(s) in the package:
 atlas_add_library( JetTagToolsLib
@@ -81,32 +21,25 @@ atlas_add_library( JetTagToolsLib
     src/MV1Tag.cxx src/MV2Tag.cxx
     src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
     src/MultiSVTag.cxx src/SoftMuonTag.cxx
-    src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx
-    src/DL1Tag.cxx src/TagNtupleDumper.cxx src/RNNIPTag.cxx
+    src/MultivariateTagManager.cxx
+    src/TagNtupleDumper.cxx
 
     PUBLIC_HEADERS JetTagTools
-    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${LWTNN_INCLUDE_DIRS}
-    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${FASTJET_INCLUDE_DIRS}
-    DEFINITIONS ${CLHEP_DEFINITIONS}
-
-    LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${LWTNN_LIBRARIES}
-    AsgTools AthenaBaseComps GeoPrimitives xAODBTagging xAODJet
-    xAODTracking GaudiKernel JetTagInfo JetSubStructureUtils TrkParameters
-    JetRecLib JetSubStructureMomentToolsLib egammaMVACalibLib MVAUtils
-    TrackVertexAssociationToolLib ParticleJetToolsLib JetTagCalibrationLib
-    MuonSelectorToolsLib MuonMomentumCorrectionsLib TrkNeuralNetworkUtilsLib
-    InDetSVWithMuonToolLib ITrackToVertex
-
-    PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} AthenaKernel
-    Navigation xAODMuon JetEDM Particle ITrackToVertex TrkEventPrimitives
-    TrkLinks TrkTrack TrkTrackSummary VxJetVertex VxVertex VxSecVertex
-    TrkVertexFitterInterfaces InDetTrackSelectionToolLib
-    )
+    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
+    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
+    LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthenaKernel CxxUtils GaudiKernel
+    GeoPrimitives ITrackToVertex InDetSVWithMuonToolLib JetTagCalibrationLib JetTagInfo
+    MVAUtils StoreGateLib xAODBTagging xAODJet xAODTracking
+    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} InDetTrackSelectionToolLib MuonAnalysisInterfacesLib
+    Navigation Particle ParticleJetToolsLib TrkEventPrimitives TrkLinks TrkNeuralNetworkUtilsLib
+    TrkParameters TrkTrack TrkTrackLink TrkTrackSummary TrkVertexFitterInterfaces VxJetVertex
+    VxSecVertex VxVertex xAODMuon )
 
 atlas_add_component( JetTagTools
     src/components/*.cxx
-    LINK_LIBRARIES GaudiKernel JetTagToolsLib )
+    LINK_LIBRARIES JetTagToolsLib )
 
 # Install files from the package:
 atlas_install_runtime( share/*.root share/*.txt )
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

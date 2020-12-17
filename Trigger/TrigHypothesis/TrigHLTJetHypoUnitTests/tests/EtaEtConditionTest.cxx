@@ -62,8 +62,8 @@ TEST_F(EtaEtConditionTest, artefacts){
   EXPECT_NEAR(m_tl0.Eta(), m_eta0, m_eps);
   EXPECT_NEAR(m_tl0.Et(), m_et0, m_eps);
 
-  MockJetWithLorentzVector jet0{m_tl0};
-  HypoJetVector jets{&jet0};
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  HypoJetVector jets{jet0};
 
   EXPECT_EQ(jets.size(), static_cast<unsigned int>(1));
 }
@@ -73,11 +73,11 @@ TEST_F(EtaEtConditionTest, accepts) {
 
   EtaEtCondition condition(-1., 1., 99.99999);
 
-  MockJetWithLorentzVector jet0{m_tl0};
-  HypoJetVector jets{&jet0};
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  HypoJetVector jets{jet0};
 
-  EXPECT_CALL(jet0, et()); 
-  EXPECT_CALL(jet0, eta());
+  EXPECT_CALL(*jet0, et()); 
+  EXPECT_CALL(*jet0, eta());
 
 
   EXPECT_TRUE(condition.isSatisfied(jets));
@@ -92,11 +92,11 @@ TEST_F(EtaEtConditionTest, accepts) {
 TEST_F(EtaEtConditionTest, belowEtaMinCut) {
   EtaEtCondition condition(-0.5+0.001, 1., 100.);
 
-  MockJetWithLorentzVector jet0{m_tl0};
-  HypoJetVector jets{&jet0};
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  HypoJetVector jets{jet0};
 
-  EXPECT_CALL(jet0, et()); 
-  EXPECT_CALL(jet0, eta());
+  EXPECT_CALL(*jet0, et()); 
+  EXPECT_CALL(*jet0, eta());
 
   EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -105,11 +105,11 @@ TEST_F(EtaEtConditionTest, belowEtaMinCut) {
 TEST_F(EtaEtConditionTest, aboveEtaMaxCut) {
   EtaEtCondition condition(-1.0, 0.5-0.001, 100.);
 
-  MockJetWithLorentzVector jet0{m_tl0};
-  HypoJetVector jets{&jet0};
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  HypoJetVector jets{jet0};
 
-  EXPECT_CALL(jet0, et()); 
-  EXPECT_CALL(jet0, eta());
+  EXPECT_CALL(*jet0, et()); 
+  EXPECT_CALL(*jet0, eta());
 
   EXPECT_FALSE(condition.isSatisfied(jets));
 }
@@ -118,11 +118,11 @@ TEST_F(EtaEtConditionTest, aboveEtaMaxCut) {
 TEST_F(EtaEtConditionTest, belowEtCut) {
   EtaEtCondition condition(-1.0, 1.0, 100.001);
 
-  MockJetWithLorentzVector jet0{m_tl0};
-  HypoJetVector jets{&jet0};
+  auto jet0 = std::make_shared<MockJetWithLorentzVector>(m_tl0);
+  HypoJetVector jets{jet0};
 
-  EXPECT_CALL(jet0, et()); 
-  EXPECT_CALL(jet0, eta());
+  EXPECT_CALL(*jet0, et()); 
+  EXPECT_CALL(*jet0, eta());
 
   EXPECT_FALSE(condition.isSatisfied(jets));
 }

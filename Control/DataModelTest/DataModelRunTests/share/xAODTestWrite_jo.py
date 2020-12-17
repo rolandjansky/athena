@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # File: share/xAODTestWrite_jo.py
 # Author: snyder@bnl.gov
 # Date: May 2014
@@ -81,6 +79,9 @@ fullItemList+=["DMTest::HVec#hvec"]
 fullItemList+=["DMTest::HAuxContainer#hvecAux."]
 fullItemList+=["DMTest::HView#hview"]
 fullItemList+=["DMTest::S2#S2"]
+
+fullItemList+=["xAOD::EventInfo#EventInfo"]
+fullItemList+=["xAOD::EventAuxInfo#EventInfoAux."]
 
 # Stream's output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr

@@ -10,6 +10,7 @@
 #include "HECHVPayload.h"
 
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/Bootstrap.h"
@@ -28,6 +29,34 @@
 
 #include "Identifier/HWIdentifier.h"
 
+
+namespace {
+
+
+struct ATLAS_NOT_THREAD_SAFE LegacyIdFunc
+{
+  LegacyIdFunc();
+  std::vector<HWIdentifier> operator()(HWIdentifier id)
+  {
+    return m_cablingTool->getLArElectrodeIDvec (id);
+  }
+  LArHVCablingTool* m_cablingTool;
+};
+
+
+LegacyIdFunc::LegacyIdFunc()
+{
+  ToolHandle<LArHVCablingTool> tool ("LArHVCablingTool");
+  if (!tool.retrieve().isSuccess()) {
+    std::abort();
+  }
+  m_cablingTool = tool.get();
+}
+
+
+} // Anonymous namespace
+
+
 class HECHVManager::Clockwork {
 public:
   Clockwork(const HECHVManager* manager) 
@@ -35,7 +64,7 @@ public:
     for(int iSide=0; iSide<2; ++iSide) {
       for(int iPhi=0; iPhi<32; ++iPhi) {
 	for(int iSampling=0; iSampling<4; ++iSampling) {
-	  moduleArray[iSide][iPhi][iSampling] = new HECHVModule(manager,iSide,iPhi,iSampling);
+	  moduleArray[iSide][iPhi][iSampling] = std::make_unique<HECHVModule>(manager,iSide,iPhi,iSampling);
 	}
       }
     }
@@ -51,25 +80,85 @@ public:
   }
   ~Clockwork()
   {
-    for(int iSide=0; iSide<2; ++iSide) {
-      for(int iPhi=0; iPhi<32; ++iPhi) {
-	for(int iSampling=0; iSampling<4; ++iSampling) {
-	  delete moduleArray[iSide][iPhi][iSampling];
-	}
-      }
-    }
   }
   HECHVDescriptor    descriptor{CellBinning(0,2*M_PI,32)};
-  const HECHVModule* moduleArray[2][32][4];
-  std::atomic<bool>  init{false};
-  std::mutex         mtx;
-  std::vector<HECHVPayload> payloadArray;     
+  std::unique_ptr<const HECHVModule> moduleArray[2][32][4];
   const LArElectrodeID* elecId;
   const LArHVLineID* hvId;
 };
 
+
+class HECHVManager::HECHVData::Payload
+{
+public:
+  std::vector<HECHVPayload> m_payloadArray;
+};
+
+
+HECHVManager::HECHVData::HECHVData()
+{
+}
+  
+
+HECHVManager::HECHVData::HECHVData (std::unique_ptr<Payload> payload)
+  : m_payload (std::move (payload))
+{
+}
+  
+
+HECHVManager::HECHVData&
+HECHVManager::HECHVData::operator= (HECHVData&& other)
+{
+  if (this != &other) {
+    m_payload = std::move (other.m_payload);
+  }
+  return *this;
+}
+  
+
+HECHVManager::HECHVData::~HECHVData()
+{
+}
+  
+
+bool HECHVManager::HECHVData::hvOn (const HECHVSubgap& subgap) const
+{
+  return voltage (subgap) > INVALID;
+}
+
+
+double HECHVManager::HECHVData::voltage (const HECHVSubgap& subgap) const
+{
+  return m_payload->m_payloadArray[index(subgap)].voltage;
+}
+
+
+double HECHVManager::HECHVData::current (const HECHVSubgap& subgap) const
+{
+  return m_payload->m_payloadArray[index(subgap)].current;
+}
+
+
+int  HECHVManager::HECHVData::hvLineNo  (const HECHVSubgap& subgap) const
+{
+  return m_payload->m_payloadArray[index(subgap)].hvLineNo;
+}
+
+
+int  HECHVManager::HECHVData::index  (const HECHVSubgap& subgap) const
+{
+  unsigned int subgapIndex    = subgap.getSubgapIndex();
+  const HECHVModule& module   = subgap.getModule();
+  unsigned int phiIndex       = module.getPhiIndex();
+  unsigned int samplingIndex  = module.getSamplingIndex();
+  unsigned int sideIndex      = module.getSideIndex();
+  unsigned int index          = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
+  return index;
+}
+
+
 HECHVManager::HECHVManager()
-  : m_c(new Clockwork(this))
+  : m_c (std::make_unique<Clockwork> (this))
 {
 }
 
@@ -117,116 +206,101 @@ const HECHVModule& HECHVManager::getHVModule(unsigned int iSide
 
 HECHVManager::~HECHVManager()
 {
-  delete m_c;
 }
 
-void HECHVManager::update() const {
-  std::lock_guard<std::mutex> lock(m_c->mtx);
-  if (!(m_c->init)) {
-    m_c->init=true;
-    m_c->payloadArray.reserve(2*32*4*4);
-    for (unsigned int i=0;i<1024;i++) {
-      m_c->payloadArray[i].voltage = -99999;
-    }
+HECHVManager::HECHVData
+HECHVManager::getData (idfunc_t idfunc,
+                       const std::vector<const CondAttrListCollection*>& attrLists) const
+{
+  auto payload = std::make_unique<HECHVData::Payload>();
+  payload->m_payloadArray.reserve(2*32*4*4);
+  for (unsigned int i=0;i<1024;i++) {
+    payload->m_payloadArray[i].voltage = HECHVData::INVALID;
+  }
 
-    ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "HECHVManager");
+  for (const CondAttrListCollection* atrlistcol : attrLists) {
 
-    ISvcLocator* svcLocator = Gaudi::svcLocator(); 
-    IToolSvc* toolSvc;
-    LArHVCablingTool* hvcablingTool;
+    for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
 
-    if(StatusCode::SUCCESS!=svcLocator->service("ToolSvc",toolSvc))
-      return;
+      // Construct HWIdentifier
+      // 1. decode COOL Channel ID
+      unsigned int chanID = (*citr).first;
+      int cannode = chanID/1000;
+      int line = chanID%1000;
 
-    if(StatusCode::SUCCESS!=toolSvc->retrieveTool("LArHVCablingTool",hvcablingTool))
-      return;
+      // 2. Construct the identifier
+      HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
 
-    std::vector<std::string> colnames;
-    colnames.push_back("/LAR/DCS/HV/BARREl/I16");
-    colnames.push_back("/LAR/DCS/HV/BARREL/I8");
+      std::vector<HWIdentifier> electrodeIdVec = idfunc(id);
 
-    std::vector<std::string>::const_iterator it = colnames.begin();
-    std::vector<std::string>::const_iterator ie = colnames.end();
+      for(size_t i=0;i<electrodeIdVec.size();i++) { 
+        HWIdentifier& elecHWID = electrodeIdVec[i];
 
-    for (;it!=ie;it++) {
+        int detector = m_c->elecId->detector(elecHWID);
 
-      //std::cout << " --- Start reading folder " << (*it) << std::endl;
-      const CondAttrListCollection* atrlistcol;
-      if (StatusCode::SUCCESS!=detStore->retrieve(atrlistcol,*it)) 
-        return;
+        // check we are in HEC
+        if (detector != 4) {
+          continue;
+        }
 
-      for (CondAttrListCollection::const_iterator citr=atrlistcol->begin(); citr!=atrlistcol->end();++citr) {
-
-        // Construct HWIdentifier
-        // 1. decode COOL Channel ID
-        unsigned int chanID = (*citr).first;
-        int cannode = chanID/1000;
-        int line = chanID%1000;
-
-        // 2. Construct the identifier
-        HWIdentifier id = m_c->hvId->HVLineId(1,1,cannode,line);
-
-        std::vector<HWIdentifier> electrodeIdVec = hvcablingTool->getLArElectrodeIDvec(id);
-
-	for(size_t i=0;i<electrodeIdVec.size();i++) { 
-	    HWIdentifier& elecHWID = electrodeIdVec[i];
-
-            int detector = m_c->elecId->detector(elecHWID);
-
-            // check we are in HEC
-            if (detector != 4) {
-               //std::cout << " Not HEC ??? " << std::endl;
-               continue;
-            }
-
-            float voltage = -99999.;
-            if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
-            float current = 0.;
-            if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
-            unsigned int status = 0;
-            if (!((*citr).second)["R_STAT"].isNull()) status =  ((*citr).second)["R_STAT"].data<unsigned int>(); 
+        float voltage = HECHVData::INVALID;
+        if (!((*citr).second)["R_VMEAS"].isNull()) voltage = ((*citr).second)["R_VMEAS"].data<float>();
+        float current = 0.;
+        if (!((*citr).second)["R_IMEAS"].isNull()) current = ((*citr).second)["R_IMEAS"].data<float>();
 
 	  
-	    unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);    // 0 for C side, 1 for A side, opposite to HV numbering
-	    unsigned int phiIndex=m_c->elecId->module(elecHWID);      // 0 to 31
-	    unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1; // 0 to 3
-	    unsigned int subgapIndex=m_c->elecId->gap(elecHWID);        // 0 to 3
+        unsigned int sideIndex=1-m_c->elecId->zside(elecHWID);    // 0 for C side, 1 for A side, opposite to HV numbering
+        unsigned int phiIndex=m_c->elecId->module(elecHWID);      // 0 to 31
+        unsigned int samplingIndex=m_c->elecId->hv_eta(elecHWID)-1; // 0 to 3
+        unsigned int subgapIndex=m_c->elecId->gap(elecHWID);        // 0 to 3
 
-	    unsigned int index             = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
+        unsigned int index             = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
 
 
-            if (index>1023) {
-              std::cout << "invalid index " << index << " side,phi,sampling,gap " << sideIndex << " " << phiIndex << " " << samplingIndex
-                << " " << subgapIndex << std::endl;
-              continue;
-            }
+        if (index>1023) {
+          MsgStream msg (Athena::getMessageSvc(), "EMECHVManager");
+          msg << MSG::ERROR << "invalid index " << index << " side,phi,sampling,gap " << sideIndex << " " << phiIndex << " " << samplingIndex
+              << " " << subgapIndex << endmsg;
+          continue;
+        }
 	  
-	    m_c->payloadArray[index].voltage=voltage;
-	    m_c->payloadArray[index].current=current;
-	    m_c->payloadArray[index].status=status;
-	    m_c->payloadArray[index].hvLineNo=chanID;
-        } // For (electrodeIdVec)
-      } // for (atrlistcol)
-    }
-  } // if(!m_c->init)
+        payload->m_payloadArray[index].voltage=voltage;
+        payload->m_payloadArray[index].current=current;
+        payload->m_payloadArray[index].hvLineNo=chanID;
+      } // For (electrodeIdVec)
+    } // for (atrlistcol)
+  }
+
+  return HECHVManager::HECHVData (std::move (payload));
 }
 
-void HECHVManager::reset() const {
-  m_c->init=false;
+
+HECHVManager::HECHVData
+HECHVManager::getData ATLAS_NOT_THREAD_SAFE () const
+{
+  std::vector<const CondAttrListCollection*> attrLists;
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", "EMBHVManager");
+  const CondAttrListCollection* atrlistcol = nullptr;
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I16").isSuccess()) {
+    attrLists.push_back (atrlistcol);
+  }
+  if (detStore->retrieve(atrlistcol, "/LAR/DCS/HV/BARREl/I8").isSuccess()) {
+    attrLists.push_back (atrlistcol);
+  }
+  return getData (LegacyIdFunc(), attrLists);
 }
 
-HECHVPayload *HECHVManager::getPayload(const HECHVSubgap &subgap) const {
-  update();
-  unsigned int subgapIndex    = subgap.getSubgapIndex();
-  const HECHVModule& module   = subgap.getModule();
-  unsigned int phiIndex       = module.getPhiIndex();
-  unsigned int samplingIndex  = module.getSamplingIndex();
-  unsigned int sideIndex      = module.getSideIndex();
-  unsigned int index          = 512*sideIndex+16*phiIndex+4*samplingIndex+subgapIndex;
-  return &m_c->payloadArray[index];
-}
 
 #if !(defined(SIMULATIONBASE) || defined(GENERATIONBASE))
+HECHVManager::HECHVData
+HECHVManager::getData (const LArHVIdMapping& hvIdMapping,
+                       const std::vector<const CondAttrListCollection*>& attrLists) const
+{
+  auto idfunc = [&] (HWIdentifier id) { return hvIdMapping.getLArElectrodeIDvec(id); };
+  return getData (idfunc, attrLists);
+}
+
+
 int HECHVManager::hvLineNo(const HECHVSubgap& subgap
 			   , const LArHVIdMapping* hvIdMapping) const {
   const HECHVModule& module   = subgap.getModule();

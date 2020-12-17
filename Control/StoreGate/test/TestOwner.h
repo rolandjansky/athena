@@ -1,6 +1,6 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file StoreGate/test/TestOwner.h
@@ -18,6 +18,7 @@
 
 
 #include "StoreGate/VarHandleKeyProperty.h"
+#include "StoreGate/VarHandleKeyArrayProperty.h"
 #include "GaudiKernel/PropertyHolder.h"
 #include "GaudiKernel/IProperty.h"
 
@@ -50,6 +51,7 @@ public:
   } 
   virtual void declare( Gaudi::DataHandle& )  override { std::abort(); }
   virtual void renounce( Gaudi::DataHandle& ) override { std::abort(); }
+  virtual bool renounceInput(const DataObjID&) override { std::abort(); }
 
 
   std::string m_name = "TestOwner";

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef BCM_RAWDATABYTESTREAMCNV_BCM_RAWDATAPROVIDERTOOL_H
@@ -10,11 +10,10 @@
 #include "ByteStreamData/RawEvent.h" 
 
 #include <inttypes.h>
+#include <atomic>
 
 class BCM_RDO_Container;
 class BCM_RodDecoder;
-
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 // the tool to decode a ROB fragment
 
@@ -33,19 +32,17 @@ class BCM_RawDataProviderTool : public AthAlgTool
   virtual ~BCM_RawDataProviderTool();
 
   //! initialize
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   //! finalize
-  virtual StatusCode finalize();
+  virtual StatusCode finalize() override;
   
   //! this is the main decoding method
-  StatusCode convert(std::vector<const ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont);
+  StatusCode convert(std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont) const;
 
 private:
-  int m_DecodeErrCount;
+  mutable std::atomic<int> m_DecodeErrCount;
   ToolHandle<BCM_RodDecoder>  m_decoder;
-  unsigned int       m_lastLvl1ID;
-
 };
 
 #endif

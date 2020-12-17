@@ -8,7 +8,6 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/DistanceSolution.h"
 #include "TrkGeometry/Layer.h"

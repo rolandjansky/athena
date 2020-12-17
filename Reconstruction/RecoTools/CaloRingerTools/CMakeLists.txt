@@ -1,27 +1,7 @@
-################################################################################
-# Package: CaloRingerTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloRingerTools )
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthLinks
-                          Event/xAOD/xAODBase
-                          Event/xAOD/xAODCaloEvent
-                          Event/xAOD/xAODCaloRings
-                          GaudiKernel
-                          PRIVATE
-                          Calorimeter/CaloEvent
-                          Calorimeter/CaloGeoHelpers
-                          Calorimeter/CaloUtils
-                          Control/AthenaBaseComps
-                          Control/AthenaKernel
-                          Control/CxxUtils
-                          Event/xAOD/xAODEgamma
-                          PhysicsAnalysis/AnalysisCommon/PATCore
-                          PhysicsAnalysis/RingerSelectorTools )
 
 atlas_add_library( CaloRingerToolsLib
                    CaloRingerTools/*.h
@@ -33,8 +13,7 @@ atlas_add_library( CaloRingerToolsLib
 atlas_add_component( CaloRingerTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloRingerToolsLib xAODCaloRings CaloEvent CaloGeoHelpers CaloUtilsLib AthenaBaseComps AthenaKernel CxxUtils xAODEgamma PATCoreLib RingerSelectorToolsLib )
+                     LINK_LIBRARIES AthContainers AthLinks AthenaBaseComps AthenaKernel CaloEvent CaloGeoHelpers CaloRingerToolsLib CaloUtilsLib GaudiKernel PATCoreLib RingerSelectorToolsEnumsLib StoreGateLib xAODBase xAODCaloEvent xAODCaloRings xAODEgamma )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

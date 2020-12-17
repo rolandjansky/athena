@@ -27,7 +27,7 @@ AntiLlpCleaner::AntiLlpCleaner(float fSampMaxLlpThreshold,
              hecqLlpThreshold,
              avLarQFLlpThreshold){}
 
-bool AntiLlpCleaner::operator()(const pHypoJet& jet) const{
+bool AntiLlpCleaner::operator()(const HypoJet::IJet& jet) const{
   return !LlpCleaner::operator()(jet);
 }
 

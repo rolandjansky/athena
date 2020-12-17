@@ -9,18 +9,18 @@ from CoolRunQuery.utils.AtlRunQueryUtils  import coolDbConn, MergeRanges, SmartR
 from CoolRunQuery.utils.AtlRunQueryIOV    import IOVTime, IOVRange
 
 import sys
-from time import time,strftime,gmtime
+from time import time
 from collections import namedtuple, defaultdict
 
 from itertools import groupby
 from operator import itemgetter
 
 
-O = namedtuple('O', 'channel payload iovrange isvf')
+OOO = namedtuple('OOO', 'channel payload iovrange isvf')
 def coolgen(coolobjs):
     while coolobjs.goToNext():
         obj=coolobjs.currentRef()
-        yield O(obj.channelId(),obj.payloadValue, IOVRange(obj), False)
+        yield OOO(obj.channelId(),obj.payloadValue, IOVRange(obj), False)
 
 ChDesc = namedtuple('ChDesc','CoolPayloadKey,CoolChannel,ResultKey,Header,SelectShowRetrieve')
 
@@ -52,9 +52,12 @@ class DataKey(object):
 
     @property
     def _seltype(self):
-        if self._select_show_retrieve == DataKey.SELECT: return "SELECT"
-        if self._select_show_retrieve == DataKey.SHOW: return "SHOW"
-        if self._select_show_retrieve == DataKey.RETRIEVE: return "RETRIEVE"
+        if self._select_show_retrieve == DataKey.SELECT:
+            return "SELECT"
+        if self._select_show_retrieve == DataKey.SHOW:
+            return "SHOW"
+        if self._select_show_retrieve == DataKey.RETRIEVE:
+            return "RETRIEVE"
         return ""
 
     def __repr__(self):
@@ -148,10 +151,14 @@ class Selector(object):
         self.verbose = False
         self.applySelection = True
         self.mcenabled = False
-    def select(self, runlist): return runlist
-    def prettyValue(self, value, key): return value
-    def ApplySelection(self,key): return self.applySelection
-    def runAfterQuery(self,runlist): pass
+    def select(self, runlist):
+        return runlist
+    def prettyValue(self, value, key):
+        return value
+    def ApplySelection(self, key):
+        return self.applySelection
+    def runAfterQuery(self, runlist):
+        pass
 
 
 
@@ -166,7 +173,8 @@ class Condition(Selector):
         # setting schema, folder, and tag
         self.schema, foldertag = dbfoldertag.split('::')
         self.folder, self.tagname = (foldertag.split('#')+[''])[0:2]
-        if self.tagname=="": self.tagname = self.condtag
+        if self.tagname=="":
+            self.tagname = self.condtag
         
         
     def setChannelKeys(self,channelKeys,ssr=None):
@@ -189,7 +197,8 @@ class Condition(Selector):
 
     def _getFolder(self):
         f = coolDbConn.GetDBConn(schema = self.schema,db=Selector.condDB()).getFolder(self.folder)
-        if f.versioningMode()==0: self.tagname=""
+        if f.versioningMode()==0:
+            self.tagname=""
         if self.tagname not in ["HEAD", ""]:
             self.tagname = f.resolveTag(self.tagname)
         return f
@@ -241,7 +250,8 @@ class Condition(Selector):
 
     def setShowOutput(self, listofchans=None ):
         for cd in self.ChannelDesc():
-            if listofchans and not cd.ResultKey in listofchans: continue
+            if listofchans and cd.ResultKey not in listofchans:
+                continue
             cd._select_show_retrieve |= 2 
         self._doSelectShowRetrieve = [cd.SelectShowRetrieve for cd in self._channeldesc]
         self.updateShowOrder()
@@ -249,7 +259,8 @@ class Condition(Selector):
     def updateShowOrder(self):
         from CoolRunQuery.AtlRunQueryRun import Run
         for cd in self.ChannelDesc():
-            if cd.SelectShowRetrieve<2: continue
+            if cd.SelectShowRetrieve<2:
+                continue
             Run.AddToShowOrder(cd)
 
 
@@ -260,8 +271,10 @@ class RunLBBasedCondition(Condition):
     def _retrieve(self, iovmin, iovmax, f, sortedRanges):
         chansel = None
         for ch1,ch2 in sortedRanges:
-            if chansel==None: chansel = cool.ChannelSelection(ch1,ch2,cool.ChannelSelection.sinceBeforeChannel)
-            else:             chansel.addRange(ch1,ch2)
+            if chansel is None:
+                chansel = cool.ChannelSelection(ch1,ch2,cool.ChannelSelection.sinceBeforeChannel)
+            else:
+                chansel.addRange(ch1,ch2)
         print (self.name,"browsing objects with tag",self.tagname)
         return coolgen(f.browseObjects( iovmin, iovmax, chansel, self.tagname))
 
@@ -270,15 +283,18 @@ class RunLBBasedCondition(Condition):
         iovpllist is a list [(IOV,payload),(IOV,payload),..,(IOV,payload)]
         """
         for x in iovpllist:
-            if IOVTime(runNr,1).inRange(x[0]): return x[1]
+            if IOVTime(runNr,1).inRange(x[0]):
+                return x[1]
         return 'n.a.'
 
     def getSortedAndCompletedPayloadDict(self, iovpllist, runlist, key):
         # reduce to data in the run 'runNr' and sort by iov start time
 
         pld = defaultdict(list)
-        if not iovpllist: return pld
-        if not runlist: return pld
+        if not iovpllist:
+            return pld
+        if not runlist:
+            return pld
         
         runnrlist = [r.runNr for r in runlist]
         nlb = dict([(r.runNr,r.lastlb) for r in runlist])
@@ -290,14 +306,15 @@ class RunLBBasedCondition(Condition):
         for iov, pl in iovpllist:
             first = max(firstrun,iov.startTime.run)
             last =  min(lastrun,(iov.endTime-1).run)
-            for r in xrange(first,last+1):
+            for r in range(first,last+1):
                 if r in runnrlist:
                     pld[r].append((deepcopy(iov),pl))
 
         # adjustments of IOV
         for runnr, iovplbyrun in pld.items():
             # adjust lb 0 to lb 1
-            if iovplbyrun[0][0].startTime.lb==0: iovplbyrun[0][0].startTime.lb=1
+            if iovplbyrun[0][0].startTime.lb==0:
+                iovplbyrun[0][0].startTime.lb=1
 
             # truncate first IOV to a single run
             iovplbyrun[0][0].truncateToSingleRun(runnr)
@@ -351,8 +368,10 @@ class RunLBBasedCondition(Condition):
                 ch  = obj.channel
                 for chtmp, internalKey, payloadKey in keys[ch]:
                     if type(payloadKey)==tuple:
-                        if obj.isvf: payload = obj.payload
-                        else:        payload = tuple(map(obj.payload, payloadKey))
+                        if obj.isvf:
+                            payload = obj.payload
+                        else:
+                            payload = tuple(map(obj.payload, payloadKey))
                     else:
                         payload = obj.payload(payloadKey)
 
@@ -386,7 +405,6 @@ class RunLBBasedCondition(Condition):
             #        print (k,x)
 
         condDataDict = {}
-        runnrlist = [r.runNr for r in runlist]
         for k in self.ResultKey():
             condDataDict[k] = self.getSortedAndCompletedPayloadDict(condData[k],runlist,k)
 
@@ -394,7 +412,7 @@ class RunLBBasedCondition(Condition):
 
             rejectSomething = False
             for k in self.ResultKey():
-                if not run.runNr in condDataDict[k]:
+                if run.runNr not in condDataDict[k]:
                     if self.ApplySelection(k):
                         rejectSomething = True
                     run.addResult(k, "n.a.")
@@ -406,9 +424,9 @@ class RunLBBasedCondition(Condition):
                     run.addResult(k, "n.a.")
                     continue
 
-                if 'n.a.' in datavec: run.showDataIncomplete = True
+                if 'n.a.' in datavec:
+                    run.showDataIncomplete = True
 
-                anyDataSelected = False
                 for iov, data in datavec:
                     #if k=="DQ":
                     #    print ("CCCCCCCCCCCC",k,data)
@@ -418,7 +436,8 @@ class RunLBBasedCondition(Condition):
                         rejectSomething = True
                     else:
                         run.addResult(k, self.prettyValue(data,k), iov)
-                        if self.selDataMissing: run.selDataIncomplete = True
+                        if self.selDataMissing:
+                            run.selDataIncomplete = True
 
             if not (rejectSomething and self.rejectRun(run)):
                 newrunlist += [run.runNr]
@@ -427,8 +446,10 @@ class RunLBBasedCondition(Condition):
 
         duration = time() - start
 
-        if self.applySelection:  print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                    print (" ==> Done (%g sec)" % duration)
+        if self.applySelection:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
 
         return runlist
 
@@ -446,7 +467,8 @@ class TimeBasedCondition(Condition):
         # reduce to data in the run 'runNr' and sort by iov start time
         
         pld = {}
-        if not iovpllist or not runlist: return pld
+        if not iovpllist or not runlist:
+            return pld
 
         startiovindex = 0
         for run in runlist:
@@ -536,17 +558,22 @@ class TimeBasedCondition(Condition):
 
 
     def select(self, runlist):
+        runlistNo = []
+        for run in runlist:
+           runlistNo.append(run.runNr)
+        print('runlistNo: ', runlistNo)
         print (self, end='')
         sys.stdout.flush()
         start = time()
         newrunlist = []
         f = coolDbConn.GetDBConn(schema=self.schema, db=Selector.condDB()).getFolder(self.folder)
-        
         sortedChannel = sorted( list( set( self.CoolChannels() ) ) )
         chansel = None
         for ch in sortedChannel:
-            if chansel==None: chansel = cool.ChannelSelection(ch,ch,cool.ChannelSelection.sinceBeforeChannel)
-            else:             chansel.addChannel(ch)
+            if chansel is None:
+                chansel = cool.ChannelSelection(ch,ch,cool.ChannelSelection.sinceBeforeChannel)
+            else:
+                chansel.addChannel(ch)
 
         runranges = SmartRangeCalulator(runlist,True)
         condData = defaultdict(list)
@@ -554,8 +581,8 @@ class TimeBasedCondition(Condition):
             
         # access COOL
         for rr in runranges:
-            firstrun = runlist[runlist.index(rr[0])]
-            lastrun = runlist[runlist.index(rr[1])]
+            firstrun = runlist[runlistNo.index(rr[0])]
+            lastrun = runlist[runlistNo.index(rr[1])]
             iovmin=firstrun.sor
             iovmax=lastrun.eor
 
@@ -565,9 +592,9 @@ class TimeBasedCondition(Condition):
                 ch = obj.channelId()
                 for chKey in self.ChannelKeys():
                     (channelNumber, resultKey, payloadKey) = chKey
-                    if channelNumber != ch: continue
+                    if channelNumber != ch:
+                        continue
                     isBlob = (resultKey == 'olc:bcidmask')
-
                     if isBlob:
                         payloadvalue = obj.payload()[chKey[2]].read()
                     else:
@@ -577,7 +604,8 @@ class TimeBasedCondition(Condition):
 
 
         # for each key sort the data by IOV start time
-        for k in self.ResultKey(): condData[k].sort()
+        for k in self.ResultKey():
+            condData[k].sort()
         
         condDataDict = {}
         for k in self.ResultKey():
@@ -588,7 +616,7 @@ class TimeBasedCondition(Condition):
             rejectSomething = False
             for k in self.ResultKey():
 
-                if not run.runNr in condDataDict[k]:
+                if run.runNr not in condDataDict[k]:
                     run.addResult(k, "n.a.")
                     continue
 
@@ -598,9 +626,9 @@ class TimeBasedCondition(Condition):
                     run.addResult(k, "n.a.")
                     continue
 
-                if 'n.a.' in datavec: run.showDataIncomplete=True
+                if 'n.a.' in datavec:
+                    run.showDataIncomplete=True
 
-                anyDataSelected = False
                 for iov, data in datavec:
                     self.selDataMissing = False
                     if self.ApplySelection(k) and not self.passes(data,k):
@@ -610,7 +638,8 @@ class TimeBasedCondition(Condition):
 
                     run.addResult(k, self.prettyValue(data,k), iov)
 
-                    if self.selDataMissing: run.selDataIncomplete = True
+                    if self.selDataMissing:
+                        run.selDataIncomplete = True
 
             if not (rejectSomething and self.rejectRun(run)):
                 newrunlist += [run.runNr]
@@ -620,8 +649,10 @@ class TimeBasedCondition(Condition):
 
         duration = time() - start
 
-        if self.applySelection: print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
-        else:                   print (" ==> Done (%g sec)" % duration)
+        if self.applySelection:
+            print (" ==> %i runs found (%.2f sec)" % (len(runlist),duration))
+        else:
+            print (" ==> Done (%g sec)" % duration)
 
         return runlist
 

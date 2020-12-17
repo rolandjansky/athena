@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #==========================================================================================
 #This is basically based in the  Calorimeter/CaloRec/python/CaloCellAODGetter.py (used for ESD to AOD)
@@ -38,8 +38,6 @@
 # to write extra cell for e/gamma
 #==========================================================================================
 
-from AthenaCommon.Constants import *  
-from RecExConfig.Configured import Configured
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence=AlgSequence()
 

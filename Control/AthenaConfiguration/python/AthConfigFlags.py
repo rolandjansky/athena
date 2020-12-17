@@ -1,10 +1,9 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 from copy import deepcopy
 from AthenaCommon.Logging import logging
 _msg = logging.getLogger('AthConfigFlags')
+
 class CfgFlag(object):
     __slots__ = ['_value','_setDef']
 
@@ -259,7 +258,7 @@ class AthConfigFlags(object):
         #This is to replace subsets of configuration flags like
         #egamamaFlags.GSF by egamma.TrigGSFFlavor1
         #self.dump()
-        _msg.info("cloning flags and replacing {} by {}".format( subsetToReplace, replacementSubset ) )
+        _msg.info("cloning flags and replacing %s by %s", subsetToReplace, replacementSubset)
 
         self._loadDynaFlags( subsetToReplace )
         self._loadDynaFlags( replacementSubset )
@@ -303,6 +302,9 @@ class AthConfigFlags(object):
                                + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
         newFlags._dynaflags = deepcopy(self._dynaflags)
+        
+        if self._locked:
+            newFlags.lock()
         return newFlags
 
 

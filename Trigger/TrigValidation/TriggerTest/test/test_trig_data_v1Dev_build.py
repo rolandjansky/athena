@@ -34,18 +34,19 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Ultimately there should be no per-event messages
 msgcount = test.get_step("MessageCount")
 msgcount.thresholds = {
-  'WARNING': 500,
+  'WARNING': 600,
   'INFO': 1200,
   'other': 80
 }
 msgcount.required = True # make the test exit code depend on this step
 
-# Add a step comparing counts in the log against reference
-refcomp = CheckSteps.RegTestStep("CountRefComp")
-refcomp.regex = r'TrigSignatureMoniMT\s*INFO\sHLT_.*|TrigSignatureMoniMT\s*INFO\s-- #[0-9]+ (Events|Features).*'
-refcomp.reference = 'TriggerTest/ref_data_v1Dev_build.ref'
+# Add a step comparing counts against a reference
+chaindump = test.get_step("ChainDump")
+chaindump.args = '--json --yaml ref_data_v1Dev_build.new'
+refcomp = CheckSteps.ChainCompStep("CountRefComp")
+refcomp.input_file = 'ref_data_v1Dev_build.new'
 refcomp.required = True # Final exit code depends on this step
-CheckSteps.add_step_after_type(test.check_steps, CheckSteps.LogMergeStep, refcomp)
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
 
 import sys
 sys.exit(test.run())

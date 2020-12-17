@@ -29,7 +29,7 @@ if numThreads > 0:
 # use auditors
 #--------------------------------------------------------------
 from AthenaCommon.AppMgr import ServiceMgr
-from GaudiSvc.GaudiSvcConf import AuditorSvc
+from GaudiCommonSvc.GaudiCommonSvcConf import AuditorSvc
 ServiceMgr += AuditorSvc()
 theAuditorSvc = ServiceMgr.AuditorSvc
 theAuditorSvc.Auditors  += [ "ChronoAuditor"]
@@ -49,6 +49,20 @@ msg.info(globalflags)
 
 from RecExConfig.RecFlags import rec
 rec.projectName.set_Value_and_Lock("data12_8TeV")
+
+#--------------------------------------------------------------
+# Load IOVDbSvc
+#--------------------------------------------------------------
+IOVDbSvc = Service("IOVDbSvc")
+from IOVDbSvc.CondDB import conddb
+conddb.dbdata="COMP200"
+
+if conddb.dbdata=="COMP200":
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+    InDetGeometryFlags.useDynamicAlignFolders = False
+
+IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
+IOVDbSvc.OutputLevel = 3
 
 #--------------------------------------------------------------
 # Set Detector setup
@@ -98,19 +112,6 @@ theApp.EvtMax = 20
 # Set output lvl (VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL)
 #--------------------------------------------------------------
 ServiceMgr.MessageSvc.OutputLevel = 3
-
-#--------------------------------------------------------------
-# Load IOVDbSvc
-#--------------------------------------------------------------
-IOVDbSvc = Service("IOVDbSvc")
-from IOVDbSvc.CondDB import conddb
-conddb.dbdata="COMP200"
-IOVDbSvc.GlobalTag=globalflags.ConditionsTag()
-IOVDbSvc.OutputLevel = 3
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/ROD")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/Geog")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/RODMUR")
-conddb.addFolder("SCT","/SCT/DAQ/Configuration/MUR")
 
 #--------------------------------------------------------------
 # Load DCSConditions Alg and Service

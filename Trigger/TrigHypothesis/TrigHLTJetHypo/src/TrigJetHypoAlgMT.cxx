@@ -1,13 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
-#include "Gaudi/Property.h"
 #include "TrigJetHypoAlgMT.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
-
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils;
 
@@ -19,8 +18,8 @@ TrigJetHypoAlgMT::TrigJetHypoAlgMT( const std::string& name,
 
 
 StatusCode TrigJetHypoAlgMT::initialize() {
+
   CHECK( m_hypoTools.retrieve() );
-  
   CHECK( m_jetsKey.initialize() );
   return StatusCode::SUCCESS;
 }
@@ -31,7 +30,7 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
 
 
   // read in the previous Decisions made before running this hypo Alg.
-  // The container should have only one such Decision (for L1) as deding
+  // The container should have only one such Decision (for L1) as deciding
   // on jets is a one step process.
 
   ATH_MSG_DEBUG("Retrieving L1 decision \"" << decisionInput().key() << "\"");
@@ -43,8 +42,8 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
   }
 
   if(h_prevDecisions->size() != 1){
-    ATH_MSG_ERROR(" Expected one previous decisions (L1 RoIs not used), found "
-                  << h_prevDecisions->size());
+    ATH_MSG_ERROR(" Expected one previous decisions in " << decisionInput().key()
+		  << " (L1 RoIs not used), found " << h_prevDecisions->size());
     return StatusCode::FAILURE;      
   }
 
@@ -66,7 +65,7 @@ StatusCode TrigJetHypoAlgMT::execute( const EventContext& context ) const {
   auto h_jets = SG::makeHandle(m_jetsKey, context );
   ATH_MSG_DEBUG("Retrieving jets from: " << h_jets.key());
   ATH_CHECK(h_jets.isValid());
-
+    
   const JetContainer* jets = h_jets.get();
 
   CHECK(decide(jets, previousDecision, outputDecisions)); 
@@ -87,19 +86,41 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
 
   std::vector<std::pair<const xAOD::Jet*,Decision*>> jetHypoInputs;
 
-  for (const xAOD::Jet* jet : *jets) {
+  if(m_doPresel) {
+    // In the preselection case, we create only one DecisionObject, which links
+    // all jets -- this is so as to avoid making spurious DecisionObject
+    // chains where the objects in one step have no unambiguous relationship
+    // with those in the preceding step.
+    Decision* newDecision = nullptr;
+    newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision);
+    // Needs a dummy feature link -- we will specify the input RoI
+    if(!newDecision->hasObjectLink(featureString())) {
+      newDecision->setObjectLink<TrigRoiDescriptorCollection>(TrigCompositeUtils::featureString(), 
+							      TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDecision, TrigCompositeUtils::initialRoIString()).link);
+      }
+    // We need to fill the jetHypoInputs vector, pairing each jet with
+    // the same newDecision object, such that it is updated if the hypo
+    // tool passes the jet.
+    for (const xAOD::Jet* jet : *jets) {
+      jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
+    }
+  } else {
+    // When operating as a terminal hypo selection, we create one DecisionObject
+    // per jet, which is later used to identify which jets contributed to an
+    // event passing.
+    for (const xAOD::Jet* jet : *jets) {
 
-    // Create a new Decision object to mirror this Jet.
-    // Link it to its parent Decision object and attach the jet as a "feature"
-
-    Decision* newDecision =
-      TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision);
+      Decision* newDecision = nullptr;
+      // Create a new Decision object to mirror this Jet.
+      // Link it to its parent Decision object and attach the jet as a "feature"
+      newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision);
     
-    ElementLink<xAOD::JetContainer> jetLink =
-      ElementLink<xAOD::JetContainer>(*jets, jet->index());
+      ElementLink<xAOD::JetContainer> jetLink =
+	ElementLink<xAOD::JetContainer>(*jets, jet->index());
 
-    newDecision->setObjectLink<xAOD::JetContainer>(featureString(), jetLink);
-    jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
+      newDecision->setObjectLink<xAOD::JetContainer>(featureString(), jetLink);
+      jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
+    }
   }
 
   // Extract the IDs of the jet chains which are active.

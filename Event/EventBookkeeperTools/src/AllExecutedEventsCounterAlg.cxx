@@ -25,9 +25,10 @@ StatusCode AllExecutedEventsCounterAlg::initialize()
   ATH_CHECK(m_filterParams.initialize());
 
   m_filterParams.cutFlowSvc()->registerTopFilter(m_filterParams.key(),
-                                              "Number of processed events before any cut",
-                                              xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
-                                              "AllStreams");
+                                                 "Number of processed events before any cut",
+                                                 xAOD::CutBookkeeper::CutLogic::ALLEVENTSPROCESSED,
+                                                 "AllStreams",
+                                                 false);
 
   return StatusCode::SUCCESS;
 }

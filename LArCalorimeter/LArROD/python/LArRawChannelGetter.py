@@ -2,8 +2,6 @@
 
 # specifies LArRawChannels getting
 
-from __future__ import print_function
-
 from AthenaCommon.Logging import logging
 from RecExConfig.Configured import Configured
 
@@ -25,7 +23,7 @@ class LArRawChannelGetter ( Configured )  :
             try:
                 from LArDigitization.LArDigitGetter import LArDigitGetter
                 theLArDigitGetter = LArDigitGetter()
-            except Exception as configException:
+            except Exception:
                 mlog.error("could not get handle to LArDigitGetter Quit")
                 import traceback
                 mlog.error(traceback.format_exc())
@@ -187,7 +185,7 @@ class LArRawChannelGetter ( Configured )  :
 
                 from AthenaCommon.GlobalFlags import globalflags
                 if globalflags.InputFormat() == 'bytestream':
-                    if not "LArRawChannelContainer/LArRawChannels" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                    if "LArRawChannelContainer/LArRawChannels" not in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                         svcMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArRawChannelContainer/LArRawChannels"]
 
             # In the case of DSP monitoring and reading rawchannels, need to give a different name to the LArRawChannels container
@@ -196,7 +194,7 @@ class LArRawChannelGetter ( Configured )  :
             if larRODFlags.doDSP() and larRODFlags.readRawChannels():  #Reading LArRawChannel
                 print ("Reading RawChannels in DSP physics mode")
                 # !!! The name of the LArRawChannels container read from the Bytestream is LArRawChannels_fB !!!
-                if not "LArRawChannelContainer/LArRawChannels_fB" in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
+                if "LArRawChannelContainer/LArRawChannels_fB" not in svcMgr.ByteStreamAddressProviderSvc.TypeNames:
                     svcMgr.ByteStreamAddressProviderSvc.TypeNames+=["LArRawChannelContainer/LArRawChannels_fB"]
                 print (svcMgr.ByteStreamAddressProviderSvc.TypeNames)
       
@@ -206,7 +204,7 @@ class LArRawChannelGetter ( Configured )  :
             try:
                 from AthenaCommon import CfgGetter
                 topSequence += CfgGetter.getAlgorithm("LArRawChannelBuilder", tryDefaultConfigurable=True)
-            except Exception as cfgException:
+            except Exception:
                 mlog.error("Failed to retrieve LArRawChannelBuilder. Quit")
                 import traceback
                 mlog.error(traceback.format_exc())

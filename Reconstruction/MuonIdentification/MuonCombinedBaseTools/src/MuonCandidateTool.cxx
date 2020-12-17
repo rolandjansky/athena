@@ -7,7 +7,6 @@
 //  AlgTool performing pre-selection on MS tracks, extrapolation and creation
 //  of MuonCandidate collection. 
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "TrkTrackSummary/MuonTrackSummary.h"
@@ -119,6 +118,7 @@ namespace MuonCombined {
 	  }
 	}
 	if(!skipTrack){
+	  delete standaloneTrack;
 	  standaloneTrack=new Trk::Track(msTrack);
 	  trackLinks[ standaloneTrack ] = std::make_pair(trackLink,nullptr);
 	}
@@ -168,4 +168,10 @@ namespace MuonCombined {
     // delete all remaining tracks in the set
     for( auto it = tracksToBeDeleted.begin();it!=tracksToBeDeleted.end();++it ) delete *it;
   }
+
+
+  void MuonCandidateTool::cleanUp() const {
+    m_trackBuilder->cleanUp();
+  }
+
 }	// end of namespace

@@ -149,9 +149,9 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  void MuonLayerHoughTool::getTruth() const {
+  void MuonLayerHoughTool::getTruth(const EventContext& ctx) const {
     if(m_ntuple){
-      SG::ReadHandle<xAOD::TruthParticleContainer> truthMuons(m_MuonTruthParticlesKey);
+      SG::ReadHandle<xAOD::TruthParticleContainer> truthMuons(m_MuonTruthParticlesKey, ctx);
       if (truthMuons.isValid()) {
         ATH_MSG_DEBUG("Retrieved truth muons " << truthMuons->size());
         int nmuons = 0;
@@ -173,7 +173,7 @@ namespace Muon {
           ++nmuons;
         }
         m_ntuple->nmuons = nmuons;
-        SG::ReadHandle<xAOD::MuonSegmentContainer> truthSegments(m_MuonTruthSegmentsKey);
+        SG::ReadHandle<xAOD::MuonSegmentContainer> truthSegments(m_MuonTruthSegmentsKey, ctx);
         if (truthSegments.isValid()) {
           ATH_MSG_DEBUG("Retrieved truth Segments " << truthSegments->size());
           int nsegs = 0;
@@ -208,12 +208,12 @@ namespace Muon {
       const std::vector<const CscPrepDataCollection*>& ,  
       const std::vector<const TgcPrepDataCollection*>& tgcCols,  
       const std::vector<const RpcPrepDataCollection*>& rpcCols,  
-      const MuonSegmentCombinationCollection* ) const 
+      const MuonSegmentCombinationCollection*, const EventContext& ctx ) const 
       -> std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> {
     reset();
     State state;
     ATH_MSG_DEBUG("MuonLayerHoughTool::find");
-    if( m_doTruth ) getTruth();
+    if( m_doTruth ) getTruth(ctx);
 
 
     // create structure to hold data per sector and set the sector indices
@@ -280,12 +280,12 @@ namespace Muon {
       const TgcPrepDataContainer*  tgcCont,
       const RpcPrepDataContainer*  rpcCont,
       const sTgcPrepDataContainer* stgcCont,  
-      const MMPrepDataContainer*   mmCont ) const 
+      const MMPrepDataContainer*   mmCont, const EventContext& ctx ) const 
       -> std::pair<std::unique_ptr<MuonPatternCombinationCollection>, std::unique_ptr<HoughDataPerSectorVec>> {
     reset();
     State state; 
     ATH_MSG_DEBUG("MuonLayerHoughTool::analyse");
-    if( m_doTruth ) getTruth();
+    if( m_doTruth ) getTruth(ctx);
 
     state.houghDataPerSectorVec->vec.resize(16);
 

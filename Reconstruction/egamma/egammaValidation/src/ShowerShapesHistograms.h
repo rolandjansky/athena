@@ -6,9 +6,6 @@
 #define EGAMMAVALIDATION_SHOWERSHAPESHISTOGRAMS_H
 
 #include <utility>
-
-#include <utility>
-
 #include "GaudiKernel/ITHistSvc.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"

@@ -6,6 +6,7 @@
 #define TRIGSERVICES_HLTEVENTLOOPMGR_H
 
 // Trigger includes
+#include "TrigSORFromPtreeHelper.h"
 #include "TrigKernel/ITrigEventLoopMgr.h"
 #include "TrigOutputHandling/HLTResultMTMaker.h"
 #include "TrigSteeringEvent/OnlineErrorCode.h"
@@ -28,6 +29,11 @@
 #include "GaudiKernel/IEventProcessor.h"
 #include "GaudiKernel/IEvtSelector.h"
 #include "GaudiKernel/IConversionSvc.h"
+#include "GaudiKernel/IAlgResourcePool.h"
+#include "GaudiKernel/IAlgExecStateSvc.h"
+#include "GaudiKernel/IHiveWhiteBoard.h"
+#include "GaudiKernel/IScheduler.h"
+#include "GaudiKernel/IIoComponentMgr.h"
 #include "GaudiKernel/SmartIF.h"
 #include "Gaudi/Interfaces/IOptionsSvc.h"
 
@@ -43,16 +49,10 @@
 
 // Forward declarations
 class CondAttrListCollection;
-class IAlgExecStateSvc;
 class IAlgorithm;
-class IAlgResourcePool;
-class IHiveWhiteBoard;
 class IIncidentSvc;
-class IScheduler;
 class StoreGateSvc;
 class TrigCOOLUpdateHelper;
-class TrigSORFromPtreeHelper;
-class IIoComponentMgr;
 
 namespace coral {
   class AttributeList;
@@ -73,7 +73,7 @@ public:
   /// Standard constructor
   HltEventLoopMgr(const std::string& name, ISvcLocator* svcLoc);
   /// Standard destructor
-  virtual ~HltEventLoopMgr();
+  virtual ~HltEventLoopMgr() = default;
 
   /// @name Gaudi state transitions (overriden from AthService)
   ///@{
@@ -172,12 +172,12 @@ private:
   StatusCode drainAllSlots();
 
   // ------------------------- Handles to required services/tools --------------
-  ServiceHandle<IIncidentSvc>        m_incidentSvc;
-  ServiceHandle<Gaudi::Interfaces::IOptionsSvc>      m_jobOptionsSvc;
-  ServiceHandle<StoreGateSvc>        m_evtStore;
-  ServiceHandle<StoreGateSvc>        m_detectorStore;
-  ServiceHandle<StoreGateSvc>        m_inputMetaDataStore;
-  ServiceHandle<IIoComponentMgr>     m_ioCompMgr;
+  ServiceHandle<IIncidentSvc>        m_incidentSvc{this, "IncidentSvc", "IncidentSvc"};
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jobOptionsSvc{this, "JobOptionsSvc", "JobOptionsSvc"};
+  ServiceHandle<StoreGateSvc>        m_evtStore{this, "EventStore", "StoreGateSvc"};
+  ServiceHandle<StoreGateSvc>        m_detectorStore{this, "DetectorStore", "DetectorStore"};
+  ServiceHandle<StoreGateSvc>        m_inputMetaDataStore{this, "InputMetaDataStore", "StoreGateSvc/InputMetaDataStore"};
+  ServiceHandle<IIoComponentMgr>     m_ioCompMgr{this, "IoComponentMgr", "IoComponentMgr"};
   ServiceHandle<IEvtSelector>        m_evtSelector{this, "EvtSel", "EvtSel"};
   ServiceHandle<IConversionSvc>      m_outputCnvSvc{this, "OutputCnvSvc", "OutputCnvSvc"};
   ServiceHandle<ISchedulerMonSvc>    m_schedulerMonSvc{this, "SchedulerMonSvc", "SchedulerMonSvc"};
@@ -244,6 +244,10 @@ private:
   Gaudi::Property<bool> m_rewriteLVL1{
     this, "RewriteLVL1", false,
     "Encode L1 results to ByteStream and write to the output. Possible only with athenaHLT, not online."};
+
+  Gaudi::Property<bool> m_popAll{
+    this, "PopAllMode", true, "If true, pop all finished events from scheduler and process all results before filling "
+    "the slots again. If false, pop only one and refill the slot before popping another finished event."};
 
   Gaudi::Property<bool> m_monitorScheduler{
     this, "MonitorScheduler", false, "Enable SchedulerMonSvc to collect scheduler status data in online histograms"};

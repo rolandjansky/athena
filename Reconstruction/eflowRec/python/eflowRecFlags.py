@@ -139,7 +139,13 @@ class useFlowElements(JobProperty):
     """ Flag to toggle whether to create the new FlowElement EDM objects in addition to the PFO EDM objects. """
     statusOn = True
     allowedTypes = ['bool']
-    StoredValue = False
+    StoredValue = True
+
+class doFlowElementValidation(JobProperty):
+    """Flag to turn on Validation plots for Flow Elements (only works if useFlowElements also set ON)"""
+    statusOn=True
+    allowedTypes= ['bool']
+    StoredValue= False
 
 # Defines the container for the eflowRec flags
 
@@ -151,7 +157,7 @@ class eflowRecFlags(JobPropertyContainer):
 # add the flags container to the top container
 jobproperties.add_Container(eflowRecFlags)
 
-eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,usePFTauFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements]
+eflowJobProperties = [eflowAlgType,CalType,useLocalHadWeightsOOCC,useOverLapShowerCells,useSplitShowers,useEEtaFirstInt,recoverIsolatedTracks,UseElectronHadronID,runTauMode, useLeptons,storeLeptonCells, useLCInput, useUpdated2015ChargedShowerSubtraction,useAODReductionClusterMomentList,useCalibHitTruth,usePFEGammaPFOAssoc,usePFTauFlowElementAssoc,provideShowerSubtractedClusters, useFlowElements, doFlowElementValidation]
 
 for i in eflowJobProperties :
     jobproperties.eflowRecFlags.add_JobProperty(i)

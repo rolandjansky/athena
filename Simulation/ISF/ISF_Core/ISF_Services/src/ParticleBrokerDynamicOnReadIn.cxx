@@ -30,6 +30,8 @@
 // ROOT includes
 #include "TTree.h"
 
+#include <utility>
+
 // C include
 #include <assert.h>
 
@@ -485,7 +487,7 @@ const ISF::ConstISFParticleVector& ISF::ParticleBrokerDynamicOnReadIn::popVector
   if ( m_particles.size() ) {
 
     SimSvcID returnID = m_particles.top()->nextSimID();
-
+    ISFParticleOrderedQueue tempQueue;
     // loop as long as we have particles in the m_particles queue
     do {
       // get the next particle from the ordered queue
@@ -494,14 +496,17 @@ const ISF::ConstISFParticleVector& ISF::ParticleBrokerDynamicOnReadIn::popVector
 
       // if this particle has a different SimID, or the maximum size of the return vector is reached
       //   -> don't add any more particles to the m_popParticles std::vector
-      if ( curID != returnID || m_popParticles.size() >= maxVectorSize ) break;
-
-      // add this particle to the, later returned, m_popParticles std::vector
-      m_popParticles.push_back( curParticle );
+      if ( curID != returnID || m_popParticles.size() >= maxVectorSize ) {
+        tempQueue.push(m_particles.top()); //break;
+      }
+      else {
+        // add this particle to the, later returned, m_popParticles std::vector
+        m_popParticles.push_back( curParticle );
+      }
       // remove this particle from the ordered queue
       m_particles.pop();
     } while ( m_particles.size() ) ;
-
+    m_particles = std::move(tempQueue);
   }
   // return the popParticles vector
   return m_popParticles;
