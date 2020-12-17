@@ -110,6 +110,7 @@ def interpretSelStr(selStr):
      '12.3<var<42.0' -> returns (12.3, 'var', 42.)
      'var<42.0' -> returns (None, 'var', 42.)
      '12.3<var' -> returns (12.3, 'var', None)
+    Now adjusted to read multiple selection strings connected via ','
     """
 
     if '>' in selStr:
@@ -126,8 +127,12 @@ def interpretSelStr(selStr):
         except ValueError:
           cut, v = float(parts[0]) , parts[1]
           ismin=True
-        if ismin : cmin.append(cut)
-        else: cmax.append(cut)
+        if ismin : 
+          cmin.append(cut)
+          cmax.append(None)
+        else:
+          cmax.append(cut)
+          cmin.append(None)
         var.append(v)
       elif len(parts)==3:
         cutmin, v, cutmax = parts
@@ -429,17 +434,17 @@ class SelectSpec(ToolSpec):
             # interpret it as min<v<max
             cmin, v , cmax = interpretSelStr(selexpr)
             VarList = []
+            specname = '_'.join(v)
             if args.setdefault('isEventVariable', False) :
               selProp = 'EventSelector'
               for variable in v:
                 VarList.append(retrieveEventVarToolConf(v))
-              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = VarList, ) 
+              selSpec = ToolSpec('JetEventSelector', specname+'_sel', Var = VarList, ) 
             else:
               selProp = 'Selector'
               for variable in v:
                 VarList.append(retrieveVarToolConf(v))
-              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = VarList, )
-            #from numpy import array
+              selSpec = ToolSpec('JetSelectorAttribute', specname+'_sel', Var = VarList, )
             if cmin is not []: selSpec['CutMin'] = cmin
             if cmax is not []: selSpec['CutMax'] = cmax
             args[selProp] = selSpec
