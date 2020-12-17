@@ -342,13 +342,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   }
 
 
-#define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)      \
-  { \
-    xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
-    ATH_CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
-  }
-  
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigCompositeContainer, TrigCompositeAuxContainer );
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
   CREATE_XAOD( ElectronContainer, ElectronAuxContainer );
   CREATE_XAOD( PhotonContainer, PhotonAuxContainer );
@@ -366,18 +360,16 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
   CREATE_XAOD( TauTrackContainer, TauTrackAuxContainer );
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
-  // After view collections are merged, need to update collection links
-
   CREATE_XAOD( JetContainer, JetAuxContainer );
   CREATE_XAOD( VertexContainer,VertexAuxContainer );
   CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
   CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
 
+  // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD
-#undef CREATE_XAOD_NO_MERGE
 
   // special cases
   #define CREATE_SHALLOW(__TYPE) \
