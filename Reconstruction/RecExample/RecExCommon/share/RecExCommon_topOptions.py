@@ -1285,6 +1285,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
