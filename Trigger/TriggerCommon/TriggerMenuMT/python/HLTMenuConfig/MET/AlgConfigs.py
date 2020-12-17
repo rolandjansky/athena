@@ -202,7 +202,7 @@ class MHTPufitConfig(AlgConfig):
             rhoKey = evtShapeAlg.EventDensityTool.OutputContainer
         else:
             rhoKey = ""
-        if recoDict["constitType"] == "pf":
+        if self.recoDict["constitType"] == "pf":
             inputName = inputs["MergedPFOs"]
         else:
             inputName = inputs["Clusters"]
