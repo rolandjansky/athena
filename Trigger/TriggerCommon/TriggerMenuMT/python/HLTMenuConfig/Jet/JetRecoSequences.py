@@ -183,7 +183,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     jetDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource,rhoKey)
     # If we need JVT, just rerun the JVT modifier
     doesTracking = jetRecoDict["trkopt"] != "notrk"
-    isPFlow = jetRecoDict["constitType"]
+    isPFlow = jetRecoDict["constitType"] == "pf"
     if doesTracking:
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
