@@ -388,13 +388,13 @@ using Trk::distDepth;
     bool firstTimeBaseTmp = m_firstTimeBase;
     m_firstTimeBase = false;
     
-    m_center = geoTransform.linear() * m_design->sensorCenter();
+    m_center = geoTransform * m_design->sensorCenter();
     
     //Is this needed outside e.g. ReadSiDetElements? Maybe candidate for future removal?
     m_centerCLHEP = HepGeom::Point3D<double>(m_center[0],m_center[1],m_center[2]);
 
     Amg::Vector3D centerGeoModel(0., 0., 0.);
-    m_origin = geoTransform.linear() * centerGeoModel;
+    m_origin = geoTransform * centerGeoModel;
    
     //
     // Determine directions depth, eta and phi axis in reconstruction local frame
