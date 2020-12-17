@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagElectronInJetD3PDObject.py
@@ -7,8 +7,6 @@
 ## @date Nov, 2010
 ##
 
-import JetTagD3PDMaker
-import TrackD3PDMaker
 import egammaD3PDMaker
 import EventCommonD3PDMaker
 ##from egammaD3PDMaker.isem_version import isem_version ## use 16
@@ -19,8 +17,6 @@ from ROOT import egammaPID
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
-
 
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
