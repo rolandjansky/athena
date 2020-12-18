@@ -230,7 +230,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [20?]  (3 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:EventInfo_p4
@@ -242,7 +242,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleHitContainer_p1_MyHits'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleHitContainer_p1/MyHits) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [20?]  (4 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleHitContainer_p1/MyHits) [203]  (4 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[1 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:ExampleHitContainer_p1
@@ -254,7 +254,7 @@ POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [20?]  (5 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [203]  (5 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[2 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:DataHeader_p6
@@ -266,7 +266,7 @@ POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [20?]  (6 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:DataHeaderForm_p6
@@ -278,7 +278,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'Token'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [20?]  (7 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [202]  (7 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:Token
@@ -290,7 +290,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsSimulation'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsSimulation) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [20?]  (8 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:bool
@@ -300,14 +300,14 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsCalibration'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsCalibration) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [20?]  (9 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsTestBeam)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'IsTestBeam'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsTestBeam) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [20?]  (a , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO unsigned int [????]
@@ -316,7 +316,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'McChannel'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(McChannel) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [20?]  (b , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [202]  (b , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:unsigned int
@@ -326,7 +326,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'RunNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [20?]  (c , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [202]  (c , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO unsigned long long [????]
@@ -335,7 +335,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventNumber'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [20?]  (d , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [202]  (d , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:unsigned long long
@@ -345,35 +345,35 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'LumiBlockN'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(LumiBlockN) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [20?]  (e , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(ConditionsRun)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'ConditionsRun'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(ConditionsRun) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [20?]  (f , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTime)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTime'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTime) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [20?]  (10 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [202]  (10 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTimeNanoSec)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventTimeNanoSec'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTimeNanoSec) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [20?]  (11 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(BunchId)
 POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'BunchId'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(BunchId) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [20?]  (12 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [202]  (12 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO float [????]
@@ -382,7 +382,7 @@ POOLCollectionT...  DEBUG Opening
 POOLCollectionT...  DEBUG    attributes# = 1
 POOLCollectionT...  DEBUG Branch container 'EventWeight'
 POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventWeight) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [20?]  (13 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:float
@@ -438,7 +438,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'EventInfo_p4_McEventInfo'
 CollectionTree(...  DEBUG Opened container CollectionTree(EventInfo_p4/McEventInfo) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [20?]  (3 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(EventInfo_p4/McEventInfo) [203]  (3 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventInfo_p4
@@ -450,7 +450,7 @@ CollectionTree(...  DEBUG Opening
 CollectionTree(...  DEBUG    attributes# = 1
 CollectionTree(...  DEBUG Branch container 'ExampleTrackContainer_p1_MyTracks'
 CollectionTree(...  DEBUG Opened container CollectionTree(ExampleTrackContainer_p1/MyTracks) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleTrackContainer_p1/MyTracks) [20?]  (4 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/CollectionTree(ExampleTrackContainer_p1/MyTracks) [203]  (4 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[1 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:ExampleTrackContainer_p1
@@ -460,7 +460,7 @@ POOLContainer(D...  DEBUG Opening
 POOLContainer(D...  DEBUG    attributes# = 1
 POOLContainer(D...  DEBUG Branch container 'DataHeader'
 POOLContainer(D...  DEBUG Opened container POOLContainer(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [20?]  (5 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainer(DataHeader) [203]  (5 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[2 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeader_p6
@@ -470,7 +470,7 @@ POOLContainerFo...  DEBUG Opening
 POOLContainerFo...  DEBUG    attributes# = 1
 POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [20?]  (6 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLContainerForm(DataHeaderForm) [203]  (6 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeaderForm_p6
@@ -1658,7 +1658,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [20?]  (14 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
@@ -1670,7 +1670,7 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream1'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream1) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [20?]  (15 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream1) [203]  (15 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:EventStreamInfo_p3
@@ -1682,7 +1682,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [20?]  (16 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::FileMetaData_v1
@@ -1694,7 +1694,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream1'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream1) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [20?]  (17 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream1) [203]  (17 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
 SimplePoolFile1...  DEBUG ---->Class:xAOD::EventFormat_v1
@@ -1704,14 +1704,14 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (18 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (18 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 SimplePoolFile1...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (19 , ffffffff)
+SimplePoolFile1...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (19 , ffffffff)
 SimplePoolFile1...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
@@ -1752,7 +1752,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [20?]  (7 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (7 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
@@ -1762,7 +1762,7 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream2'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [20?]  (8 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [203]  (8 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventStreamInfo_p3
@@ -1772,7 +1772,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [20?]  (9 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (9 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaData_v1
@@ -1782,7 +1782,7 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream2'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [20?]  (a , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (a , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::EventFormat_v1
@@ -1792,14 +1792,14 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [20?]  (b , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (b , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [20?]  (c , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (c , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
