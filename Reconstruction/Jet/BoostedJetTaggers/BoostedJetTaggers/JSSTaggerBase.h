@@ -32,9 +32,11 @@
 const static SG::AuxElement::ConstAccessor<float> acc_Tau1_wta( "Tau1_wta" );
 const static SG::AuxElement::ConstAccessor<float> acc_Tau2_wta( "Tau2_wta" );
 const static SG::AuxElement::ConstAccessor<float> acc_Tau3_wta( "Tau3_wta" );
+const static SG::AuxElement::ConstAccessor<float> acc_Tau4_wta( "Tau4_wta" );
 
 const static SG::AuxElement::ConstAccessor<float> acc_Tau21_wta( "Tau21_wta" );
 const static SG::AuxElement::ConstAccessor<float> acc_Tau32_wta( "Tau32_wta" );
+const static SG::AuxElement::ConstAccessor<float> acc_Tau42_wta( "Tau42_wta" );
 
 const static SG::AuxElement::ConstAccessor<float> acc_ECF1( "ECF1" );
 const static SG::AuxElement::ConstAccessor<float> acc_ECF2( "ECF2" );
@@ -49,13 +51,27 @@ const static SG::AuxElement::ConstAccessor<float> acc_Split23( "Split23" );
 
 const static SG::AuxElement::ConstAccessor<float> acc_Qw( "Qw" );
 
+const static SG::AuxElement::ConstAccessor<float> acc_ThrustMaj( "ThrustMaj" );
+
+const static SG::AuxElement::ConstAccessor<float> acc_L2( "L2" );
+const static SG::AuxElement::ConstAccessor<float> acc_L3( "L3" );
+
+const static SG::AuxElement::ConstAccessor<float> acc_ECFG_3_3_1( "ECFG_3_3_1" );
+const static SG::AuxElement::ConstAccessor<float> acc_ECFG_3_1_1( "ECFG_3_1_1" );
+const static SG::AuxElement::ConstAccessor<float> acc_ECFG_2_1_2( "ECFG_2_1_2" );
+
 /// JSS moment ratio decorators
 const static SG::AuxElement::Decorator<float> dec_Tau21_wta( "Tau21_wta" );
 const static SG::AuxElement::Decorator<float> dec_Tau32_wta( "Tau32_wta" );
+const static SG::AuxElement::Decorator<float> dec_Tau42_wta( "Tau42_wta" );
 
 const static SG::AuxElement::Decorator<float> dec_C2( "C2" );
 const static SG::AuxElement::Decorator<float> dec_D2( "D2" );
 const static SG::AuxElement::Decorator<float> dec_e3( "e3" );
+
+const static SG::AuxElement::Decorator<float> dec_L2( "L2" );
+const static SG::AuxElement::Decorator<float> dec_L3( "L3" );
+
 
 class JSSTaggerBase :   public asg::AsgTool ,
   virtual public IJetSelectorTool
