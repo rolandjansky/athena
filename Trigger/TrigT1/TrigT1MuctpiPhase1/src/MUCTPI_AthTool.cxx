@@ -14,11 +14,7 @@
 // Headers from external packages.
 
 // The new trigger configuration
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigConfL1Data/Muctpi.h"
-#include "TrigConfL1Data/ThresholdConfig.h"
-#include "TrigConfL1Data/TriggerThreshold.h"
-#include "TrigConfL1Data/L1DataDef.h"
+#include "TrigConfData/L1Menu.h"
 
 // Interfaces used by the simulation
 #include "TrigT1Interfaces/MuCTPICTP.h"
@@ -28,10 +24,10 @@
 #include "TrigT1Interfaces/Lvl1MuCTPIInputPhase1.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
-#include "TrigT1Result/MuCTPI_RDO.h"
 #include "TrigT1Result/MuCTPIRoI.h"
 #include "xAODTrigger/MuonRoI.h"
 #include "xAODTrigger/MuonRoIAuxContainer.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 #include "AnalysisTriggerEvent/LVL1_ROI.h"
 
@@ -54,18 +50,15 @@ namespace LVL1MUCTPIPHASE1 {
     :
     base_class(type, name, parent),
     m_MuCTPIL1TopoKey(LVL1MUCTPI::DEFAULT_MuonL1TopoLocation),
-    m_MuCTPIL1TopoKey_p1(""),
-    m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-    m_theMuctpi(new SimController())
+    m_theMuctpi(new SimController()),
+    m_rpcTool("LVL1::TrigT1RPCRecRoiTool/LVL1__TrigT1RPCRecRoiTool"),
+    m_tgcTool("LVL1::TrigT1TGCRecRoiTool/LVL1__TrigT1TGCRecRoiTool")
   {
     
     // Init message
     ATH_MSG_INFO( "=======================================" );
     ATH_MSG_INFO( "Constructor for Phase1 MUCTPI_AthTool."  );
     ATH_MSG_INFO( "=======================================" );
-
-    // Declare the service handles as properties:
-    declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service" );
 
     // Declare the properties of the overlap treatment:
     declareProperty( "OverlapStrategyName", m_overlapStrategyName = "NULL" );
@@ -91,6 +84,9 @@ namespace LVL1MUCTPIPHASE1 {
     declareProperty( "TGCLocID", m_tgcLocId = m_DEFAULT_L1MuctpiStoreLocationTGC );
     declareProperty( "RPCLocID", m_rpcLocId = m_DEFAULT_L1MuctpiStoreLocationRPC );
    
+    // Declare the MuonRecRoiTools
+    declareProperty( "RPCRecRoiTool", m_rpcTool, "Tool to get the eta/phi coordinates in the RPC");
+    declareProperty( "TGCRecRoiTool", m_tgcTool, "Tool to get the eta/phi coordinates in the TGC");
   }
   
   MUCTPI_AthTool::~MUCTPI_AthTool()
@@ -140,15 +136,10 @@ namespace LVL1MUCTPIPHASE1 {
       return StatusCode::FAILURE;
 
     }
-    ATH_MSG_INFO( "Retrieving trigger config service" << m_configSvc );
-    CHECK(m_configSvc.retrieve());
 
     //initialize MSP ROI configuration
     const std::string fullFileName = PathResolverFindCalibFile( m_geometryXMLFile );
-    m_theMuctpi->configureMSP(fullFileName);
-
-    m_theMuctpi->getTriggerProcessor()->setThresholds(m_configSvc->thresholdConfig()->getThresholdVector(TrigConf::L1DataDef::MUON));
-    //m_theMuctpi->getTriggerProcessor()->setThresholds(m_configSvc->muctpiConfig()->thresholds()); // maybe better to switch to this once new config is implemented
+    m_theMuctpi->configureTopo(fullFileName);
 
     //                                                                                                                                                                                        
     // Set up the overlap handling of the simulation:                                                                                                                                         
@@ -157,12 +148,10 @@ namespace LVL1MUCTPIPHASE1 {
     if( m_overlapStrategyName == "NULL" ) {
 
       ATH_MSG_DEBUG( "Setting overlap strategy: \"NULL\"" );
-      //m_theMuctpi->setOverlapStrategy( NO_OVERLAP ); // overlap removal to be implemented later
 
     } else if( m_overlapStrategyName == "LUT" ) {
 
       ATH_MSG_DEBUG( "Setting overlap strategy: \"LUT\"" );
-      //m_theMuctpi->setOverlapStrategy( LUT_OVERLAP ); // overlap removal to be implemented later
 
       if( m_flagMode ) {
 	ATH_MSG_INFO( "Using 'flagging mode' in the overlap handling" );
@@ -171,8 +160,8 @@ namespace LVL1MUCTPIPHASE1 {
       ATH_MSG_INFO( "XML LUT file defined in jobO: " << m_lutXMLFile << " with a RunPeriod=" << m_runPeriod );
       const std::string fullFileName = PathResolverFindCalibFile( m_lutXMLFile );
       ATH_MSG_DEBUG( "Full path to XML LUT file: " << fullFileName );
-      //CHECK( m_theMuctpi->initializeLUTOverlapStrategy( fullFileName, m_flagMode,
-      //                                                        m_dumpLut, m_runPeriod ) ); // overlap removal to be implemented later
+
+      m_theMuctpi->configureOverlapRemoval(fullFileName);
 
     } else {
 
@@ -188,8 +177,7 @@ namespace LVL1MUCTPIPHASE1 {
     //Initialize Read/WriteHandleKeys
     ATH_CHECK(m_muctpiPhase1KeyRPC.initialize());
     ATH_CHECK(m_muctpiPhase1KeyTGC.initialize());
-    ATH_CHECK(m_MuCTPI_RDOReadKey.initialize(m_inputSource == "RDO"));
-    ATH_CHECK(m_MuCTPI_RDOWriteKey.initialize(m_inputSource != "RDO"));
+    ATH_CHECK(m_MuCTPICTPWriteKey.initialize());
     ATH_CHECK(m_MuCTPI_xAODWriteKey.initialize());
     ATH_CHECK(m_MuCTPIL1TopoKey.initialize());
 
@@ -202,11 +190,26 @@ namespace LVL1MUCTPIPHASE1 {
     m_MuCTPIL1TopoKey_p2 = m_MuCTPIL1TopoKey.key()+std::to_string(2);
     ATH_CHECK(m_MuCTPIL1TopoKey_p2.initialize());
 
+    CHECK( m_rpcTool.retrieve() );
+    CHECK( m_tgcTool.retrieve() );
 
     return StatusCode::SUCCESS;
   }
 
+  StatusCode MUCTPI_AthTool::start()
+  {
+    ATH_MSG_INFO( "=======================================" );
+    ATH_MSG_INFO( "Start for Phase1 MUCTPI_AthTool"  );
+    ATH_MSG_INFO( "=======================================" );
 
+
+    ATH_MSG_INFO( "initialize(): use L1 trigger menu from detector store" );
+    const TrigConf::L1Menu * l1menu = nullptr;
+    ATH_CHECK( m_detStore->retrieve(l1menu) ); 
+    m_theMuctpi->getTriggerProcessor()->setMenu(l1menu);
+
+    return StatusCode::SUCCESS;
+  }
 
   //----------------------------------------------
   // execute() method called once per event
@@ -394,15 +397,12 @@ namespace LVL1MUCTPIPHASE1 {
     /// the standart processing is done for the central slice, with no Bcid offset
     if (bcidOffset == 0 ) {
       // store CTP result in interface object and put to StoreGate
-      std::vector<unsigned int> ctpData = m_theMuctpi->getCTPData();
-    //TEMPORARILY REMOVED UNTIL MUCTPICTP UPDATED TO VECTOR!
-      //LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
-      //CHECK( evtStore()->record( theCTPResult, m_ctpOutputLocId ) );
-      //ATH_MSG_DEBUG( "CTP word recorded to StoreGate with key: "
-      //               << m_ctpOutputLocId );
+      const std::vector<unsigned int>& ctpData = m_theMuctpi->getTriggerProcessor()->getCTPData();
 
-      // create MuCTPI RDO
-      const std::vector<unsigned int>& daqData = m_theMuctpi->getDAQData();
+      LVL1::MuCTPICTP* theCTPResult = new LVL1::MuCTPICTP( ctpData );
+      SG::WriteHandle<LVL1::MuCTPICTP> wh_muctpi_ctp(m_MuCTPICTPWriteKey);
+      ATH_CHECK(wh_muctpi_ctp.record(std::make_unique<LVL1::MuCTPICTP>(*theCTPResult)));
+      ATH_MSG_DEBUG( "CTP word recorded to StoreGate" );
 
       // size check
       // check that the multiplicity was properly filled
@@ -413,23 +413,21 @@ namespace LVL1MUCTPIPHASE1 {
 	return StatusCode::FAILURE;
       }
 
-      // data word
-      std::vector<unsigned int> dataWords= daqData;
-
       // create MuCTPI RDO
-      auto muCTPI_RDO = std::make_unique< MuCTPI_RDO >( std::move(ctpData), std::move(dataWords) );
-      SG::WriteHandle<MuCTPI_RDO> wh_muctpi_rdo(m_MuCTPI_RDOWriteKey);
-      ATH_CHECK(wh_muctpi_rdo.record(std::move(muCTPI_RDO)));
-      ATH_MSG_DEBUG( "MuCTPI_RDO object recorded to StoreGate");
+      const std::vector<std::pair<int, unsigned int> >& daqData = m_theMuctpi->getTriggerProcessor()->getDAQData();
 
       // create MuCTPI xAOD
       auto xAODRoIs = SG::makeHandle(m_MuCTPI_xAODWriteKey);
       ATH_CHECK(xAODRoIs.record(std::make_unique<xAOD::MuonRoIContainer>(), std::make_unique<xAOD::MuonRoIAuxContainer>()));
       ATH_MSG_DEBUG("Recorded MuonRoIContainer with key " << m_MuCTPI_xAODWriteKey.key());
-      for (const unsigned int word : daqData) {
+      for (std::pair<int, unsigned int> word : daqData) {
         xAODRoIs->push_back(new xAOD::MuonRoI);
-        // RB: dummy values just to have the objects for downstream code development
-        xAODRoIs->back()->initialize(word, 99, 99, "DummyThreshold", 99);
+
+	LVL1::TrigT1MuonRecRoiData roiData;
+	if (word.first == 0) roiData = m_rpcTool->roiData(word.second); // barrel
+	else roiData = m_tgcTool->roiData(word.second); // endcap/forward
+
+        xAODRoIs->back()->initialize(word.second, roiData.eta(), roiData.phi(), "DummyThreshold", 99);
       }
 
       // get outputs for L1Topo and store into Storegate

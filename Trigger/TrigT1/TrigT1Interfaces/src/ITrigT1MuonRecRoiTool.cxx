@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigT1MuonRecRoiTool/ITrigT1MuonRecRoiTool.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 namespace LVL1{
 

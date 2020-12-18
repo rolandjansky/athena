@@ -658,7 +658,11 @@ class rerunLVL1(_modifier):
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1Phase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
         topSequence += L1Muctpi_on_RDO()
         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
@@ -670,7 +674,10 @@ class rerunLVL1(_modifier):
             topSequence += L1TopoSimulation()
             log.info( "adding L1TopoSimulation() to topSequence" )
 
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+            if ConfigFlags.Trigger.enableL1Phase1:
+                from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as L1MuctpiTool
+            else:
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += L1MuctpiTool()
             topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
@@ -754,7 +761,11 @@ class rerunDMLVL1(_modifier):
          #Run MuCTPI simulation (before or after importing DeriveSim??)
          #rederive MuCTPI inputs to CTP from muon RDO
          #writes this to the usual MuCTPICTP storegate location
-         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+         if ConfigFlags.Trigger.enableL1Phase1:
+             from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+         else:
+             from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
          topSequence += L1Muctpi_on_RDO()
          topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
          topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
