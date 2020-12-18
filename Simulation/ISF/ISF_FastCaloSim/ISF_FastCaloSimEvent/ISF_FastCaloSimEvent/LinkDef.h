@@ -26,6 +26,7 @@
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationPiecewiseLinear.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h"
@@ -295,6 +296,7 @@
 #pragma link C++ class TFCSParametrization+;
 #pragma link C++ class TFCSInvisibleParametrization+;
 #pragma link C++ class TFCSInitWithEkin+;
+#pragma link C++ class TFCSEnergyInterpolationHistogram+;
 #pragma link C++ class TFCSEnergyInterpolationLinear+;
 #pragma link C++ class TFCSEnergyInterpolationPiecewiseLinear-;
 #pragma link C++ class TFCSEnergyInterpolationSpline+;
