@@ -3,7 +3,6 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 
-from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 
@@ -23,13 +22,8 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
     # TODO: luminosity
 
     if not disableBeamSpot:
-        try:
-            from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
-            acc.merge(BeamSpotCondAlgCfg(flags))
-        except ImportError:
-            log = logging.getLogger( 'EventInfoCnvAlgCfg' )
-            log.info( 'BeamSpotConditions not available, not using it' )
-            pass
+        from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+        acc.merge(BeamSpotCondAlgCfg(flags))
 
     xAODMaker__EventInfoCnvAlg = CompFactory.xAODMaker.EventInfoCnvAlg
     alg = xAODMaker__EventInfoCnvAlg(name, **kwargs)

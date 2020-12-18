@@ -22,12 +22,16 @@ atlas_install_python_modules( python/*.py
 atlas_install_joboptions( share/*.py )
 
 # Setup and run tests
+set( _extraFlags )
+if( SIMULATIONBASE OR GENERATIONBASE OR XAOD_ANALYSIS )
+   set( _extraFlags --noBeamSpot )
+endif()
 atlas_add_test( EvenInfoCnvConfigTest
-                SCRIPT test/EventInfoCnv_test.py
+                SCRIPT test/EventInfoCnv_test.py ${_extraFlags}
                 PROPERTIES TIMEOUT 300 )
 
 atlas_add_test( EvenInfoCnvConfigTestMT
-                SCRIPT test/EventInfoCnv_test.py -n 25 -t 3
+                SCRIPT test/EventInfoCnv_test.py -n 25 -t 3 ${_extraFlags}
                 PROPERTIES TIMEOUT 300 )
 
 if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
