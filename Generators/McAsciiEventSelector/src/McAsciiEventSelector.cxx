@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // McAsciiEventSelector.cxx 
@@ -83,9 +83,6 @@ McAsciiEventSelector::~McAsciiEventSelector()
 StatusCode McAsciiEventSelector::initialize()
 {
   ATH_MSG_INFO( "Enter McAsciiEventSelector initialization..." );
-
-  ATH_CHECK( AthService::initialize() );
-  setProperties().ignore();
 
   const std::size_t nbrAsciiFiles = m_asciiFileNames.value().size();
   if ( nbrAsciiFiles <= 0 ) {
