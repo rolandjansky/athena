@@ -1,5 +1,5 @@
 from __future__ import print_function
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -104,45 +104,44 @@ class ConfigDict(dict):
 # **********************************************************
 
 
+def interpretManySelStr(selStr):
+    selL = selStr.split('&')
+    interpL = [interpretSelStr( s ) for s in selL]
+    # interpL is in the form [ (min1,v1,max1), (min2,v2,max2),..]
+    # unpack it into 3 lists :
+    minL, varL, maxL = zip(*interpL)
+    return minL, varL, maxL
+    
 def interpretSelStr(selStr):
     """Interpret a selection string in the form '12.3<var<42.0'
     and returns a tuple.
      '12.3<var<42.0' -> returns (12.3, 'var', 42.)
      'var<42.0' -> returns (None, 'var', 42.)
      '12.3<var' -> returns (12.3, 'var', None)
-    Now adjusted to read multiple selection strings connected via ','
     """
 
     if '>' in selStr:
         print("JetMonitoring ERROR interpreting selection string ", selStr)
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
-    selstrings = selStr.split(',') 
-    cmin, cmax, var = [], [], []
-    for substring in selstrings:
-      parts = substring.split('<') 
-      if len(parts)==2:
+
+    parts = selStr.split('<')
+    cmin, cmax = -3.4e38, 3.4e38
+    var = selStr
+    if len(parts)==2:
         ismin = False
         try :
-          v, cut = parts[0] , float(parts[1]) #would fail
+            var, cut = parts[0] , float(parts[1])
         except ValueError:
-          cut, v = float(parts[0]) , parts[1]
-          ismin=True
-        if ismin : 
-          cmin.append(cut)
-          cmax.append(None)
-        else:
-          cmax.append(cut)
-          cmin.append(None)
-        var.append(v)
-      elif len(parts)==3:
-        cutmin, v, cutmax = parts
-        var.append(v)
-        cmin.append(float(cutmin))
-        cmax.append(float(cutmax))
+            cut, var = float(parts[0]) ,parts[1]
+            ismin=True
+        if ismin : cmin = cut
+        else: cmax = cut
+    elif len(parts)==3:
+        cmin, var, cmax = parts
+        cmin = float(cmin)
+        cmax = float(cmax)
 
     return cmin, var, cmax
-    
-
 
 def findSelectIndex( name):
     """ interprets 'varName[X]' into ('varName',x) """
@@ -431,22 +430,19 @@ class SelectSpec(ToolSpec):
     def __init__(self, selname, selexpr, path=None, **args):
         path = selname if path is None else path
         if '<' in selexpr:
-            # interpret it as min<v<max
-            cmin, v , cmax = interpretSelStr(selexpr)
-            VarList = []
-            specname = '_'.join(v)
+            # interpret it as a list of min<v<max
+            cminList , varList , cmaxList = interpretManySelStr(selexpr)
+            specname = '_'.join(varList)
             if args.setdefault('isEventVariable', False) :
+              VarList = [retrieveEventVarToolConf(v) for v in varList]
               selProp = 'EventSelector'
-              for variable in v:
-                VarList.append(retrieveEventVarToolConf(v))
               selSpec = ToolSpec('JetEventSelector', specname+'_sel', Var = VarList, ) 
             else:
+              VarList = [retrieveVarToolConf(v) for v in varList]
               selProp = 'Selector'
-              for variable in v:
-                VarList.append(retrieveVarToolConf(v))
               selSpec = ToolSpec('JetSelectorAttribute', specname+'_sel', Var = VarList, )
-            if cmin is not []: selSpec['CutMin'] = cmin
-            if cmax is not []: selSpec['CutMax'] = cmax
+            selSpec['CutMin'] = cminList
+            selSpec['CutMax'] = cmaxList
             args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector

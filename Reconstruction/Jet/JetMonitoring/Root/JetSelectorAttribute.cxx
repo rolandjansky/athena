@@ -1,18 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetSelectorAttribute.h"
 #include "JetMonitoring/JetVariable.h"
-#include <limits>
 
 
 JetSelectorAttribute::JetSelectorAttribute(const std::string &t) 
   : asg::AsgTool(t)
-  //, m_min(-std::numeric_limits<float>::max())
-  //, m_max(std::numeric_limits<float>::max())
-  , m_min(10)
-  , m_max(10)
   , m_var(this)
 {
   declareProperty("CutMin", m_min );
