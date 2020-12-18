@@ -8,34 +8,6 @@ from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
 from IOVDbSvc.IOVDbSvcConfig import IOVDbSvcCfg
 from AthenaPoolUtilities.DumperConfig import Dumper, find_file
-try:
-    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
-except ImportError:
-    pass
-try:
-    from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-except ImportError:
-    pass
-try:
-    from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-except ImportError:
-    pass
-try:
-    from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-except ImportError:
-    pass
-try:
-    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-except ImportError:
-    pass
-try:
-    from TileGeoModel.TileGMConfig import TileGMCfg
-except ImportError:
-    pass
-try:
-    from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
-except ImportError:
-    pass
 #from AtlasGeoModel.ForDetGeoModelConfig import ForDetGeometryCfg
 Configurable.configurableRun3Behavior = True
 
@@ -83,24 +55,31 @@ def TPCnvTest(infile, keys, useGeoModelSvc=False, useIOVDbSvc=False, doPixel=Fal
     EventCnvSuperTool = None
     if useGeoModelSvc:
         if ConfigFlags.Detector.GeometryPixel:
+            from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
             acc.merge(PixelGeometryCfg(ConfigFlags))
             useGeoModelSvc = True
         if ConfigFlags.Detector.GeometrySCT:
+            from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
             acc.merge(SCT_GeometryCfg(ConfigFlags))
             useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryTRT:
+            from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
             acc.merge(TRT_GeometryCfg(ConfigFlags))
             useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryLAr:
+            from LArGeoAlgsNV.LArGMConfig import LArGMCfg
             acc.merge(LArGMCfg(ConfigFlags))
             useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryTile:
+            from TileGeoModel.TileGMConfig import TileGMCfg
             acc.merge(TileGMCfg(ConfigFlags))
             useGeoModelSvc = True
         if ConfigFlags.Detector.GeometryMuon:
+            from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
             acc.merge(MuonGeoModelCfg(ConfigFlags))
             useGeoModelSvc = True
         #acc.merge(ForDetGeometryCfg(ConfigFlags))
+        from AtlasGeoModel.GeoModelConfig import GeoModelCfg
         acc.merge(GeoModelCfg(ConfigFlags))
         acc.getService("GeoModelSvc").IgnoreTagDifference = True
         if doTracks:
