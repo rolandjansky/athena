@@ -27,13 +27,20 @@
 
 
 Slices  = ['fsjet']
-RunEF   = False
 Events  = 2000 
 Threads = 8 
 Slots   = 8
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = [ 'Truth', 'Offline' ]
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
+         ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
+         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
+
+
+Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
+         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline " ),
+         ( "FSvtx",        "L2fsjetvtx",  "data-hists-offline-vtx.root",  " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtx     --ncols 3" ),
+         ( "FSvtxall",     "L2fsjetvtx",  "data-hists-offline.root",      " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtxall  --ncols 3" ) ]
 
 
 from AthenaCommon.Include import include 

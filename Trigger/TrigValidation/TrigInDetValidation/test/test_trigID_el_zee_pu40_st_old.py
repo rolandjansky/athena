@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-# art-description: art job for mu_Zmumu_pu40_mt-old
+# art-description: art job for el_zee_pu40_st
 # art-type: grid
 # art-include: master/Athena
-# art-input: mc15_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.recon.RDO.e3601_s2576_s2132_r7143
-# art-input-nfiles: 4
+# art-input: mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.recon.RDO.e3601_s2665_s2183_r7191
+# art-input-nfiles: 8
 # art-athena-mt: 4
 # art-memory: 4096
 # art-html: https://idtrigger-val.web.cern.ch/idtrigger-val/TIDAWeb/TIDAart/?jobdir=
@@ -28,7 +28,7 @@
 
 
 from TrigValTools.TrigValSteering import Test, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+from TrigInDetValidation.TrigInDetOldArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 import sys,getopt
 
@@ -54,14 +54,14 @@ for opt,arg in opts:
 
 
 rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['muon']
+rdo2aod.slices = ['electron']
 rdo2aod.max_events = 8000 
-rdo2aod.threads = 4
-rdo2aod.concurrent_events = 4
+rdo2aod.threads = 1 # TODO: change to 4
+rdo2aod.concurrent_events = 1 # TODO: change to 4
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
 if local:
-    rdo2aod.input = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json  
+    rdo2aod.input = 'Zee_pu40'      # defined in TrigValTools/share/TrigValInputs.json  
 else:
     rdo2aod.input = ''
     rdo2aod.args += '--inputRDOFile=$ArtInFile '
@@ -77,8 +77,8 @@ if (not exclude):
  
 # Run Tidardict
 if ((not exclude) or postproc ):
-    rdict = TrigInDetdictStep('TrigInDetDict')
-    rdict.args='TIDAdata-run3.dat -f data-hists.root -p 13 -b Test_bin.dat '
+    rdict = TrigInDetdictStep()
+    rdict.args='TIDAdata-run3.dat -f data-hists.root -p 11 -b Test_bin.dat '
     test.check_steps.append(rdict)
     rdict2 = TrigInDetdictStep('TrigInDetDict2')
     rdict2.args='TIDAdata-run3-offline.dat -r Offline  -f data-hists-offline.root -b Test_bin.dat '
@@ -86,31 +86,31 @@ if ((not exclude) or postproc ):
 
  
 # Now the comparitor steps
-comp=TrigInDetCompStep('Comp_L2muon','L2','muon')
+comp=TrigInDetCompStep('Comp_L2ele','L2','electron')
 test.check_steps.append(comp)
   
-comp2=TrigInDetCompStep('Comp_EFmuon','EF','muon')
+comp2=TrigInDetCompStep('Comp_EFele','EF','electron')
 test.check_steps.append(comp2)
 
-comp3=TrigInDetCompStep('Comp_L2muon_off','L2','muon')
-comp3.type = 'offline'
+comp3=TrigInDetCompStep('Comp_L2eleLowpt','L2','electron',lowpt=True)
 test.check_steps.append(comp3)
 
-comp4=TrigInDetCompStep('Comp_EFmuon_off','EF','muon')
-comp4.type = 'offline'
+comp4=TrigInDetCompStep('Comp_EFeleLowpt','EF','electron',lowpt=True)
 test.check_steps.append(comp4)
 
-comp5=TrigInDetCompStep('Comp_L2muonLowpt','L2','muon',lowpt=True)
+comp5=TrigInDetCompStep('Comp_L2ele_off','L2','electron')
+comp5.type = 'offline'
 test.check_steps.append(comp5)
   
-comp6=TrigInDetCompStep('Comp_EFmuonLowpt','EF','muon',lowpt=True)
+comp6=TrigInDetCompStep('Comp_EFele_off','EF','electron')
+comp6.type = 'offline'
 test.check_steps.append(comp6)
 
-comp7=TrigInDetCompStep('Comp_L2muonLowpt_off','L2','muon',lowpt=True)
+comp7=TrigInDetCompStep('Comp_L2eleLowpt_off','L2','electron',lowpt=True)
 comp7.type = 'offline'
 test.check_steps.append(comp7)
-  
-comp8=TrigInDetCompStep('Comp_EFmuonLowpt_off','EF','muon',lowpt=True)
+
+comp8=TrigInDetCompStep('Comp_EFeleLowpt_off','EF','electron',lowpt=True)
 comp8.type = 'offline'
 test.check_steps.append(comp8)
 
