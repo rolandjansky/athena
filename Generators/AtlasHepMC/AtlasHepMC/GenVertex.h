@@ -55,6 +55,7 @@ inline void line(std::ostream& os,const GenVertex& v) {v.print(os);}
 inline void line(std::ostream& os,const GenVertex* v) {v->print(os);}
 }
 inline int barcode(ConstGenVertexPtr p) { return p->barcode();}
+inline int barcode(const GenVertex p) { return p.barcode();}
 inline void* raw_pointer(GenVertexPtr p) { return p;}
 inline const void* raw_pointer(ConstGenVertexPtr p) { return p;}
 inline std::ostream& operator<<( std::ostream& os, const GenVertex* v ) { if (v) return os<<(*v); else return os;}
