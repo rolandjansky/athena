@@ -785,7 +785,7 @@ def muEFCBRecoSequence( RoIs, name ):
     cbMuonName = muNamesFS.EFCBName
 
   themuoncbcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=candidatesName, TagMaps=["muidcoTagMap"], InDetCandidateLocation="InDetCandidates_"+name,
-                                       MuonContainerLocation = cbMuonName, SegmentContainerName = "CBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
+                                       MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments", ExtrapolatedLocation = "CBExtrapolatedMuons",
                                        MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name,
                                        MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgCB_"+name))
 
@@ -921,7 +921,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
   else:
     theInsideOutRecoAlg = MuonInsideOutRecoAlg("TrigMuonInsideOutRecoAlg_"+name,InDetCandidateLocation="InDetCandidates_"+name)
     insideoutcreatoralg = MuonCreatorAlg("TrigMuonCreatorAlgInsideOut_"+name, TagMaps=["muGirlTagMap"],InDetCandidateLocation="InDetCandidates_"+name,
-                                         MuonContainerLocation = cbMuonName, SegmentContainerName = "InsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
+                                         MuonContainerLocation = cbMuonName, SegmentContainerName = "xaodInsideOutCBSegments", TrackSegmentContainerName = "TrkInsideOutCBSegments", ExtrapolatedLocation = "InsideOutCBExtrapolatedMuons",
                                          MSOnlyExtrapolatedLocation = "InsideOutCBMSOnlyExtrapolatedMuons", CombinedLocation = "InsideOutCBCombinedMuon", MonTool = MuonCreatorAlgMonitoring("MuonCreatorAlgInsideOut_"+name))
 
   efAlgs.append(theInsideOutRecoAlg)
