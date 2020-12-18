@@ -24,7 +24,7 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_2"
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_3"
             -DATLAS_GAUDI_TAG="v35r0.001")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
