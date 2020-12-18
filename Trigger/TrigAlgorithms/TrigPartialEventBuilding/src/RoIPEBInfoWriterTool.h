@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigPartialEventBuilding_RoIPEBInfoWriterTool_h
@@ -7,7 +7,6 @@
 
 #include "TrigPartialEventBuilding/PEBInfoWriterToolBase.h"
 #include "IRegionSelector/RegSelEnums.h"
-#include "IRegionSelector/IRegSelSvc.h"
 #include "IRegionSelector/IRegSelTool.h"
 
 /** @class RoIPEBInfoWriterTool
