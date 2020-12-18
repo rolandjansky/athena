@@ -368,19 +368,21 @@ using Trk::distDepth;
     
     // use aligned transform if available
     const GeoTrf::Transform3D* ptrXf;
-    
+    GeoTrf::Transform3D geotrf;
+
     if (m_geoAlignStore){ 
       ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
       if (ptrXf) {
-	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel();
+	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel(); //need .linear()?
+	geotrf = (*ptrXf);
       }
     }
     else{
-      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel());
+      m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel()); //need .linear()?
+      geotrf = getMaterialGeom()->getAbsoluteTransform();
     }
     
-    const GeoTrf::Transform3D& geoTransform = m_transformHit;
-
+    const GeoTrf::Transform3D& geoTransform = geotrf;
     m_baseCacheValid = true;
     
     bool firstTimeBaseTmp = m_firstTimeBase;
