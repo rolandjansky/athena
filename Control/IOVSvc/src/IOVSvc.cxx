@@ -855,7 +855,7 @@ IOVSvc::createCondObj(CondContBase* ccb, const DataObjID& id,
   // In that case, when we delete the address, it will
   // follow an invalid pointer.  So be sure to delete
   // the address before the object is added to CondCont.
-  ioa.release();
+  ioa.reset();
 
   // DataObject *d2 = static_cast<DataObject*>(v);
   
