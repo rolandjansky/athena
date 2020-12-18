@@ -15,10 +15,10 @@ echo "Input HITS file for    : ${HITSFile}"
 Nevents=3000
 echo "Number of test events  : ${Nevents}"
 
-ART_AOD="nightly_jet.AOD.pool.root"
+ART_AOD="nightly_jet_noPtCut.AOD.pool.root"
 echo "Output AOD file        : ${ART_AOD}"
 
-ART_Validation="nightly_jet.PHYSVAL.root"
+ART_Validation="nightly_jet_noPtCut.PHYSVAL.root"
 echo "Output Validation file : ${ART_Validation}"
 
 echo "Submitting Reconstruction ..."
@@ -31,7 +31,7 @@ Reco_tf.py \
     --valid=True \
     --validationFlags 'doInDet,doJet' \
     --autoConfiguration everything \
-    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False'
+    --preExec 'from RecExConfig.RecFlags import rec;rec.doTrigger=False; from JetRec.JetRecFlags import jetFlags; jetFlags.useCalibJetThreshold.set_Value_and_Lock(False)'
 
 rc=$?
 echo "art-result: $rc Reco"
@@ -41,10 +41,10 @@ if [ ${rc} -eq 0 ]
 then
   # Histogram comparison with DCube
   $ATLAS_LOCAL_ROOT/dcube/current/DCubeClient/python/dcube.py \
-     -p -x dcube \
-     -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/DCUBE/jet.xml \
-     -r /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/reference/nightly_jet.PHYSVAL.root \
-     nightly_jet.PHYSVAL.root
+      -p -x dcube \
+      -c /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/DCUBE/jet.xml \
+      -r /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/JetValidation/reference/nightly_jet_noPtCut.PHYSVAL.root \
+      nightly_jet_noPtCut.PHYSVAL.root
   rc2=$?
 fi
 echo "art-result: ${rc2} plot"
