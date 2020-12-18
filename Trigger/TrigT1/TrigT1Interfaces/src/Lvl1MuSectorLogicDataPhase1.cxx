@@ -28,6 +28,7 @@ namespace LVL1MUONIF {
     m_goodmf.clear();
     m_innercoin.clear();
     m_bw2or3.clear();
+    m_veto.clear();
   }
 
   void Lvl1MuSectorLogicDataPhase1::initialize()
@@ -44,6 +45,7 @@ namespace LVL1MUONIF {
       m_goodmf.push_back(-1);
       m_innercoin.push_back(-1);
       m_bw2or3.push_back(-1);
+      m_veto.push_back(0);
     }
   }
 
@@ -66,6 +68,7 @@ namespace LVL1MUONIF {
         m_goodmf[ i ] = right.m_goodmf[ i ];
         m_innercoin[ i ] = right.m_innercoin[ i ];
         m_bw2or3[ i ] = right.m_bw2or3[ i ];
+        m_veto[ i ] = right.m_veto[ i ];
       }
     }
     return *this;
@@ -90,6 +93,7 @@ namespace LVL1MUONIF {
       m_goodmf[ i ] = -1;
       m_innercoin[ i ] = -1;
       m_bw2or3[ i ] = -1;
+      m_veto[ i ] = 0;
     }
   }
 

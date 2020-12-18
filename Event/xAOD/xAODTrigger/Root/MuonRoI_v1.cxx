@@ -10,6 +10,9 @@
 // Local include(s):
 #include "xAODTrigger/versions/MuonRoI_v1.h"
 
+// get bitsmasks from common definition source:
+#include "TrigT1MuctpiBits/MuCTPI_Bits.h"
+
 namespace xAOD{
 
    MuonRoI_v1::MuonRoI_v1()
@@ -70,7 +73,8 @@ namespace xAOD{
    ///
    int MuonRoI_v1::getThrNumber() const {
 
-      return ( ( roiWord() >> 11 ) & 0x7 );
+     if (isRun3()) return ( ( roiWord() >> RUN3_CAND_PT_SHIFT ) & RUN3_CAND_PT_MASK );
+     else return ( ( roiWord() >> CAND_PT_SHIFT ) & CAND_PT_MASK );
    }
 
    /// A muon's spacial location is identified from the sector number and the
@@ -82,15 +86,26 @@ namespace xAOD{
    ///
    int MuonRoI_v1::getRoI() const {
 
-      if( this->getSource() == Forward ) {
-         return ( ( roiWord() >> 2 ) & 0x3f );
-      } else if( this->getSource() == Endcap ) {
-         return ( ( roiWord() >> 2 ) & 0xff );
-      } else if( this->getSource() == Barrel ) {
-         return ( ( roiWord() >> 2 ) & 0x1f );
-      }
-
-      return 0;
+     if (isRun3()) {
+       if( this->getSource() == Forward ) {
+	 return ( ( roiWord() >> RUN3_ROI_SHIFT ) & FORWARD_ROI_MASK );
+       } else if( this->getSource() == Endcap ) {
+	 return ( ( roiWord() >> RUN3_ROI_SHIFT ) & ENDCAP_ROI_MASK );
+       } else if( this->getSource() == Barrel ) {
+	 return ( ( roiWord() >> RUN3_ROI_SHIFT ) & BARREL_ROI_MASK );
+       }
+     }
+     else
+     {
+       if( this->getSource() == Forward ) {
+	 return ( ( roiWord() >> ROI_SHIFT ) & FORWARD_ROI_MASK );
+       } else if( this->getSource() == Endcap ) {
+	 return ( ( roiWord() >> ROI_SHIFT ) & ENDCAP_ROI_MASK );
+       } else if( this->getSource() == Barrel ) {
+	 return ( ( roiWord() >> ROI_SHIFT ) & BARREL_ROI_MASK );
+       }
+     }
+     return 0;
    }
 
    /// The sector address is an 8-bit identifier of the sector. For its detailed
@@ -105,7 +120,8 @@ namespace xAOD{
    ///
    int MuonRoI_v1::getSectorAddress() const {
 
-      return ( ( roiWord() >> 14 ) & 0xff );
+     if (isRun3()) return ( ( roiWord() >> RUN3_CAND_SECTOR_ADDRESS_SHIFT ) & CAND_SECTOR_ADDRESS_MASK );
+     else return ( ( roiWord() >> CAND_SECTOR_ADDRESS_SHIFT ) & CAND_SECTOR_ADDRESS_MASK );
    }
 
    /// Each muon trigger sector can only send information about a maximum of
@@ -114,9 +130,11 @@ namespace xAOD{
    /// assigned to it in its sector. If it's <code>false</code>, it was the
    /// <i>second candidate</i> in its sector.
    ///
+   /// actually v1 only ... 
    bool MuonRoI_v1::isFirstCandidate() const {
 
-      return ( ( roiWord() >> 22 ) & 0x1 );
+     if (isRun3()) return true; // undefined in run3, return default true
+     else return ( ( roiWord() >> CAND_HIGHEST_PT_SHIFT ) & CAND_HIGHEST_PT_MASK );
    }
 
    /// One RoI (one part of the trigger sector) can only send information about
@@ -126,7 +144,10 @@ namespace xAOD{
    ///
    bool MuonRoI_v1::isMoreCandInRoI() const {
 
-      return ( ( roiWord() >> 1 ) & 0x1 );
+     if (isRun3()) {
+       if (getSource() == Barrel) return ( ( roiWord() >> RUN3_ROI_OVERFLOW_SHIFT ) & ROI_OVERFLOW_MASK );
+       else return false; // Endcap + Fwd have no flag for this
+     } else return ( ( roiWord() >> ROI_OVERFLOW_SHIFT ) & ROI_OVERFLOW_MASK );
    }
 
    /// This flag is set to <code>true</code> if the sector that this muon
@@ -136,7 +157,8 @@ namespace xAOD{
    ///
    bool MuonRoI_v1::isMoreCandInSector() const {
 
-      return ( roiWord() & 0x1 );
+     if (isRun3()) return ( ( roiWord() >> RUN3_CAND_OVERFLOW_SHIFT ) & CAND_OVERFLOW_MASK );
+     else return ( ( roiWord() >> CAND_OVERFLOW_SHIFT ) & CAND_OVERFLOW_MASK );
    }
 
    /// The function decodes the sector type encoded in the 8-bit sector address
@@ -147,9 +169,10 @@ namespace xAOD{
    ///
    MuonRoI_v1::RoISource MuonRoI_v1::getSource() const {
 
-      if( this->getSectorAddress() & 0x80 ) {
+     //same mask for run2 and run3
+     if( this->getSectorAddress() & ENDCAP_ADDRESS_MASK ) {
          return Endcap;
-      } else if( this->getSectorAddress() & 0x40 ) {
+     } else if( this->getSectorAddress() & FORWARD_ADDRESS_MASK ) {
          return Forward;
       } else {
          return Barrel;
@@ -164,7 +187,8 @@ namespace xAOD{
    ///
    MuonRoI_v1::Hemisphere MuonRoI_v1::getHemisphere() const {
 
-      if( this->getSectorAddress() & 0x1 ) {
+     //same mask for run2 and run3
+     if( this->getSectorAddress() & SECTOR_HEMISPHERE_MASK ) {
          return Positive;
       } else {
          return Negative;
@@ -181,10 +205,18 @@ namespace xAOD{
 
       if( getSource() == Barrel ) return Undef;
 
-      if( roiWord() & 0x8000000 ) {
-         return Pos;
+      if (isRun3()) {
+	if( ( roiWord() >> RUN3_CAND_TGC_CHARGE_SIGN_SHIFT) & 0x1 ) {
+	  return Pos;
+	} else {
+	  return Neg;
+	}
       } else {
-         return Neg;
+	if( ( roiWord() >> CAND_TGC_CHARGE_SIGN_SHIFT) & 0x1 ) {
+	  return Pos;
+	} else {
+	  return Neg;
+	}
       }
    }
 
@@ -194,7 +226,16 @@ namespace xAOD{
    ///
    bool MuonRoI_v1::isVetoed() const {
 
-      return ( roiWord() & 0x10000000 );
+     if (isRun3()) return ( ( roiWord() >> RUN3_CAND_VETO_SHIFT) & 0x1 );
+     else return ( ( roiWord() >> CAND_VETO_SHIFT) & 0x1 );
+   }
+
+   /// An extra bit is added at the end of the RoI word for run3 candidates
+   /// in the EDM for technical purposes to distinguish whether we want to use
+   /// the run2 or run3 bitmasks in decoding the word
+   bool MuonRoI_v1::isRun3() const {
+
+      return ( roiWord() >> 31 & 0x1 );
    }
 
    //

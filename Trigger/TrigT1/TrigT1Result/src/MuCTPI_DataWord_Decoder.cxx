@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -150,6 +150,7 @@ uint16_t MuCTPI_DataWord_Decoder::getPt() const {
 /**
  * @return 3-bit BCID fragment saved with the candidate
  */
+
 uint16_t MuCTPI_DataWord_Decoder::getBCID() const {
   return ((m_dataWord >> MuCTPI_RDO::CAND_BCID_SHIFT) &
 	  MuCTPI_RDO::CAND_BCID_MASK);
@@ -158,6 +159,7 @@ uint16_t MuCTPI_DataWord_Decoder::getBCID() const {
 /**
  * @return flag showing whether the candidate had the highest p<sub>T</sub> in its sector
  */
+
 uint16_t MuCTPI_DataWord_Decoder::getCandidateIsHighestPt() const {
   return ((m_dataWord >> MuCTPI_RDO::CAND_HIGHEST_PT_SHIFT) &
 	  MuCTPI_RDO::CAND_HIGHEST_PT_MASK);
@@ -166,6 +168,7 @@ uint16_t MuCTPI_DataWord_Decoder::getCandidateIsHighestPt() const {
 /**
  * @return flag showing whether the candidate was sent to the RoIB
  */
+
 uint16_t MuCTPI_DataWord_Decoder::getSentRoi() const {
   return ((m_dataWord >> MuCTPI_RDO::CAND_SENT_ROI_SHIFT) &
 	  MuCTPI_RDO::CAND_SENT_ROI_MASK);
