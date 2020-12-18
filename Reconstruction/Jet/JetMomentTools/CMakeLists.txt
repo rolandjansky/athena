@@ -27,15 +27,11 @@ if( NOT XAOD_STANDALONE )
       LINK_LIBRARIES ${Boost_LIBRARIES} ${FASTJET_LIBRARIES} ${ROOT_LIBRARIES} AsgTools CaloIdentifier xAODCaloEvent xAODJet GaudiKernel JetCalibToolsLib JetEDM JetInterface JetRecLib JetUtils PFlowUtilsLib PathResolver JetMomentToolsLib ${extra_libs} )
 endif()
 
-#if( XAOD_STANDALONE )
 atlas_add_dictionary( JetMomentToolsDict
 	Root/JetMomentToolsDict.h
 	Root/selection.xml
 	LINK_LIBRARIES JetMomentToolsLib PFlowUtilsLib )
-#endif()
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
-atlas_install_runtime( share/*.root )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_data( share/*.root )
-
