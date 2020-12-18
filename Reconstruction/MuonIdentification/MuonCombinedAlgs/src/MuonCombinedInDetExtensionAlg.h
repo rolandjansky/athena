@@ -92,6 +92,7 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
         "MuGirlMETracks",
         "ME track collection",
     };
+    // these are the MuGirl segments inputs
     SG::WriteHandleKey<Trk::SegmentCollection> m_segments{
         this,
         "SegmentCollection",
