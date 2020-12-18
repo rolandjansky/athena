@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetContainer.cxx
@@ -41,6 +41,14 @@ PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
                                              vecPJ.back().user_index(), 
                                              c));
   if (m_debug){checkInvariants("PseudoJetContainer(vcPJ, c)");}
+}
+
+
+PseudoJetContainer::~PseudoJetContainer()
+{
+  for (const IConstituentExtractor* e : m_emptyExtractors) {
+    delete e;
+  }
 }
 
 
@@ -137,7 +145,7 @@ void PseudoJetContainer::append(const PseudoJetContainer* other) {
                    pj.set_user_index(pj.user_index() + offset);return pj;}
                  );
 
-  for(auto e : other->m_emptyExtractors){m_emptyExtractors.insert(e);}
+  for(auto e : other->m_emptyExtractors){m_emptyExtractors.insert(e->clone());}
 
   if (m_debug){checkInvariants("append()");}
 }
