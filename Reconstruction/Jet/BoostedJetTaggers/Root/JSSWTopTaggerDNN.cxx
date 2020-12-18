@@ -359,12 +359,28 @@ std::map<std::string,double> JSSWTopTaggerDNN::getJetProperties( const xAOD::Jet
     DNN_inputValues["Tau1_wta"] = acc_Tau1_wta(jet);
     DNN_inputValues["Tau2_wta"] = acc_Tau2_wta(jet);
     DNN_inputValues["Tau3_wta"] = acc_Tau3_wta(jet);
+    if(acc_Tau4_wta.isAvailable(jet))
+      DNN_inputValues["Tau4_wta"] = acc_Tau4_wta(jet);
 
     DNN_inputValues["Tau32_wta"] = acc_Tau32_wta(jet);
+    if(acc_Tau42_wta.isAvailable(jet)){
+      DNN_inputValues["Tau42_wta"] = acc_Tau42_wta(jet);
+    }
 
     /// Qw observable for top tagging
     DNN_inputValues["Qw"] = acc_Qw(jet);
-  
+
+    if(acc_ThrustMaj.isAvailable(jet)){
+      DNN_inputValues["ThrustMaj"] = acc_ThrustMaj(jet);
+    }
+
+    if(acc_L2.isAvailable(jet)){
+      DNN_inputValues["L2"] = acc_L2(jet);
+    }
+
+    if(acc_L3.isAvailable(jet)){
+      DNN_inputValues["L3"] = acc_L3(jet);
+    }
   }
   
   else {

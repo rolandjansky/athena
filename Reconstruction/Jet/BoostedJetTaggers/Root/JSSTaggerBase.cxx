@@ -261,10 +261,16 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
   /// WTA N-subjettiness ratios
   float tau21_wta = -999.0;
   float tau32_wta = -999.0;
+  float tau42_wta = -999.0;
 
   float tau1_wta = acc_Tau1_wta(jet);
   float tau2_wta = acc_Tau2_wta(jet);
   float tau3_wta = acc_Tau3_wta(jet);
+  float tau4_wta = 0.0;
+
+  if(acc_Tau4_wta.isAvailable(jet)){
+    tau4_wta = acc_Tau4_wta(jet);
+  }
 
   if ( tau1_wta > 1e-8 ) {
     tau21_wta = tau2_wta / tau1_wta;
@@ -273,11 +279,13 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
 
   if ( tau2_wta > 1e-8 ) {
     tau32_wta = tau3_wta / tau2_wta;
+    tau42_wta = tau4_wta / tau2_wta;
   }
   else result = 1;
 
   dec_Tau21_wta(jet) = tau21_wta;
   dec_Tau32_wta(jet) = tau32_wta;
+  dec_Tau42_wta(jet) = tau42_wta;
 
   /// ECF ratios
   float C2 = -999.0;
@@ -300,7 +308,30 @@ int JSSTaggerBase::calculateJSSRatios( const xAOD::Jet &jet ) const {
   dec_D2(jet) = D2;
   dec_e3(jet) = e3;
 
-  // TODO: Add L-series for UFO taggers
+  // L-series for UFO top taggers
+  float L2 = -999.0;
+  float L3 = -999.0;
+
+  if(!acc_L2.isAvailable(jet)){
+    if(acc_ECFG_3_3_1.isAvailable(jet) && acc_ECFG_2_1_2.isAvailable(jet)){
+      if(acc_ECFG_2_1_2(jet) > 1e-8) {
+	L2 = acc_ECFG_3_3_1(jet) / pow( acc_ECFG_2_1_2(jet), (3.0/2.0) );
+      }
+      else result = 1;
+    }
+    dec_L2(jet) = L2;
+  }
+
+  if(!acc_L3.isAvailable(jet)){
+    if(acc_ECFG_3_1_1.isAvailable(jet) && acc_ECFG_3_3_1.isAvailable(jet)){
+      if(acc_ECFG_3_1_1(jet) > 1e-8) {
+        L3 = acc_ECFG_3_1_1(jet) / pow( acc_ECFG_3_3_1(jet), (1.0/3.0) );
+      }
+      else result = 1;
+    }
+    dec_L3(jet) = L3;
+  }
+
   // TODO: Add ECFG for ANN tagger whenever it is defined
 
   return result;
