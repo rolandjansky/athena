@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for all_ttbar_pu40
+# art-description: art job for all_ttbar_pu80
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -56,11 +56,11 @@ for opt,arg in opts:
 rdo2aod = TrigInDetReco()
 rdo2aod.slices = ['muon','electron','tau','bjet']
 rdo2aod.max_events = 4000 
-rdo2aod.threads = 8
+rdo2aod.threads = 8 
 rdo2aod.concurrent_events = 8
 rdo2aod.perfmon = False
 rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar_ID'   # defined in TrigValTools/share/TrigValInputs.json  
+rdo2aod.input = 'ttbar_pu80'   # defined in TrigValTools/share/TrigValInputs.json  
 
 
 test = Test.Test()
@@ -122,7 +122,6 @@ test.check_steps.append(cpucost)
 
 cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
 test.check_steps.append(cpucost2)
-
 
 import sys
 sys.exit(test.run())

@@ -27,6 +27,7 @@
 
 
 Slices  = ['fsjet']
+RunEF   = False
 Events  = 2000 
 Threads = 1 
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
@@ -34,18 +35,11 @@ Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json
 
 postinclude_file = 'TIDAml_extensions.py'
 
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
-         ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
-         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
-
-Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
-         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline " ),
-         ( "FSvtx",        "L2fsjetvtx",  "data-hists-offline-vtx.root",  " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtx     --ncols 3" ),
-         ( "FSvtxall",     "L2fsjetvtx",  "data-hists-offline.root",      " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtxall  --ncols 3" ) ]
+TrackReference = [ 'Truth', 'Offline' ]
 
 
 from AthenaCommon.Include import include 
-include("TrigInDetValidation/TrigInDetValidation_Base.py")
+include("TrigInDetValidation/TrigInDetValidation_OldBase.py")
 
 
  
