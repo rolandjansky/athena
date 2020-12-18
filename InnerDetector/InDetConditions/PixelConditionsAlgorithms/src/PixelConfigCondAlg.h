@@ -186,7 +186,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2016", {-1,2015,2015,2015}, "FEI3 timing tuning set of barrel pixel layers in 2015/2016"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2016
-    {this, "BarrelCrossTalk2016", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2015/2016"};
+    {this, "BarrelCrossTalk2016", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2015/2016"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2016
     {this, "BarrelNoiseOccupancy2016", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2015/2016"};
@@ -289,7 +289,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2017", {-1,2018,2018,2018}, "FEI3 timing tuning set of barrel pixel layers in 2017"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2017
-    {this, "BarrelCrossTalk2017", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2017"};
+    {this, "BarrelCrossTalk2017", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2017"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2017
     {this, "BarrelNoiseOccupancy2017", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2017"};
@@ -388,7 +388,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2018", {-1,2018,2018,2018}, "FEI3 timing tuning set of barrel pixel layers in 2018"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2018
-    {this, "BarrelCrossTalk2018", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2018"};
+    {this, "BarrelCrossTalk2018", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2018"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2018
     {this, "BarrelNoiseOccupancy2018", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2018"};
