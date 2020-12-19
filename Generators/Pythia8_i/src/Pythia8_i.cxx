@@ -606,6 +606,26 @@ StatusCode Pythia8_i::genFinalize(){
 ////////////////////////////////////////////////////////////////////////////////
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
 
+#ifdef HEPMC3
+  HepMC::GenEvent *procEvent = new HepMC::GenEvent();
+
+  // Adding the LHE event to the HepMC results in undecayed partons in the event record.
+  // Pythia's HepMC converter throws up undecayed partons, so we ignore that
+  // (expected) exception this time
+  m_pythiaToHepMC.fill_next_event(m_pythia->process, procEvent, evt->event_number(), &m_pythia->info, &m_pythia->settings);
+
+  for(auto  p: *procEvent){
+    p->set_status(1003);
+  }
+
+  //This code and the HepMC2 version below assume a correct input, e.g. beams[0]->end_vertex() exists.
+  for(auto  v: procEvent->vertices()) v->set_status(1);
+  auto beams=evt->beams();
+  auto procBeams=procEvent->beams();
+  if(beams[0]->momentum().pz() * procBeams[0]->momentum().pz() < 0.) std::swap(procBeams[0],procBeams[1]);
+  for (auto p: procBeams[0]->end_vertex()->particles_out())  beams[0]->end_vertex()->add_particle_out(p);
+  for (auto p: procBeams[1]->end_vertex()->particles_out())  beams[1]->end_vertex()->add_particle_out(p);
+#else
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
   // Adding the LHE event to the HepMC results in undecayed partons in the event record.
@@ -668,6 +688,7 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
     vit = vtxCopies.find((*p)->end_vertex());
     if(vit != vtxCopies.end()) vit->second->add_particle_in(pCopy);
   }
+#endif
 
   return;
 }
