@@ -30,10 +30,10 @@ namespace InDet{
       
       InDetTrtDriftCircleCutTool(const std::string& t, const std::string& n, const IInterface*  p);
       
-      ~InDetTrtDriftCircleCutTool();
+      virtual ~InDetTrtDriftCircleCutTool();
       
       /** @brief Minimum number of drift circles using the track scoring tool */
-      int minNumberDCs(const Trk::TrackParameters*) const;
+      virtual int minNumberDCs(const Trk::TrackParameters*) const override;
       
     private:
       
