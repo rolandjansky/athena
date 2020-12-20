@@ -3,14 +3,14 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetRecAlg.cxx 
+// JetRecAlg.cxx
 
 #include <memory>
 #include "JetRecAlg.h"
 #include "JetInterface/IJetExecuteTool.h"
 #include "xAODJet/JetAuxContainer.h"
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   #include "AthenaMonitoringKernel/Monitored.h"
 #endif
 
@@ -28,7 +28,7 @@ StatusCode JetRecAlg::initialize() {
   ATH_CHECK(m_jetprovider->initWithOutput(m_output));
 
   ATH_MSG_INFO(" Initialized  IJetProvider : "<< m_jetprovider->name());
-  
+
   ATH_MSG_INFO(" Initialize .... List of modifiers: ");
   ATH_CHECK(m_modifiers.retrieve());
   for(ToolHandle<IJetModifier> t : m_modifiers){
@@ -37,7 +37,7 @@ StatusCode JetRecAlg::initialize() {
 
   ATH_CHECK(m_output.initialize());
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
 #endif
 
@@ -60,7 +60,7 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
   // We can subsequently access the jets from the handle and don't have to
   // worry about memory management.
 
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   auto t_total = Monitored::Timer<std::chrono::milliseconds>( "TIME_total" );
 
   SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
@@ -117,4 +117,3 @@ StatusCode JetRecAlg::execute(const EventContext& ctx) const {
 }
 
 //**********************************************************************
-
