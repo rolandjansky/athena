@@ -76,7 +76,7 @@ m_failureCount(0),
 m_procPtr(0),
 m_userHooksPtrs(),
 m_doLHE3Weights(false),
-m_athenaTool("IPythia8Custom")
+m_athenaTool("")
 {
   declareProperty("Commands", m_commands);
   declareProperty("CollisionEnergy", m_collisionEnergy = 14000.0);
@@ -191,7 +191,7 @@ StatusCode Pythia8_i::genInitialize() {
     m_pythia->settings.addWord(param.first, param.second);
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  if( ! m_athenaTool.empty() ){
     if(m_athenaTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Unable to retrieve Athena Tool for custom Pythia processing");
       return StatusCode::FAILURE;
@@ -201,7 +201,6 @@ StatusCode Pythia8_i::genInitialize() {
       if(status != StatusCode::SUCCESS) return status;
     }
   }
-
 
   // Now apply the settings from the JO
   for(const std::string &cmd : m_commands){
@@ -386,7 +385,8 @@ StatusCode Pythia8_i::callGenerator(){
     }
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  ATH_MSG_DEBUG("Now checking with Tool.empty() second time");
+  if( ! m_athenaTool.empty() ){
       StatusCode stat = m_athenaTool->ModifyPythiaEvent(*m_pythia);
       if(stat != StatusCode::SUCCESS) returnCode = stat;
   }
@@ -570,7 +570,7 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout << "Using FxFx cross section recipe: xs = "<< m_sigmaTotal << " / " << 1e9*info.nTried() << std::endl;
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  if( ! m_athenaTool.empty()){
     double xsmod = m_athenaTool->CrossSectionScaleFactor();
     ATH_MSG_DEBUG("Multiplying cross-section by Pythia Modifier tool factor " << xsmod );
     xs *= xsmod;
