@@ -683,6 +683,16 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
+    if isNLO and not systematics_settings is None:
+        # run systematics
+        mglog.info('Running systematics standalone')
+        systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
+        events_location=MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/events.lhe.gz'
+        syst_cmd=[python,systematics_path]+[events_location]*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings]
+        mglog.info('running: '+' '.join(syst_cmd))
+        systematics = stack_subprocess(syst_cmd)
+        systematics.wait()
+
 
     # See if MG5 did the job for us already
     if not os.access('events.lhe.gz',os.R_OK):
@@ -697,14 +707,6 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
     mglog.info('Moving generated events to be in correct format for arrange_output().')
     mglog.info('Unzipping generated events.')
     unzip = stack_subprocess(['gunzip','-f','events.lhe.gz'])
-
-    # run systematics
-    if isNLO and not systematics_settings is None:
-        mglog.info('Running systematics standalone')
-        systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
-        systematics = stack_subprocess([python,systematics_path]+['events.lhe']*2+["--"+k+"="+systematics_settings[k] for k in systematics_settings])
-        systematics.wait()
-
     unzip.wait()
 
     mglog.info('Moving file over to '+MADGRAPH_GRIDPACK_LOCATION+'/Events/'+gridpack_run_name+'/unweighted_events.lhe')
