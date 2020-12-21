@@ -91,14 +91,20 @@ def makeInDetPrecisionTracking( config = None,
 
   #-----------------------------------------------------------------------------
   #                        Ambiguity solving stage
-  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
+  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name,  get_scoremap_name
   ambSolvingStageAlgs = [
-                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
-                                                      config = config ),
-
-                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
-                                                       config = config )
+                           ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+                                                      config                = config,
+                                                      inputTrackCollection  = config.FT.trkTracksFTF(),
+                                                      outputTrackScoreMap   = get_scoremap_name( config.name ), #Map of tracks and their scores
+                                                    ),
+  
+                           ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+                                                       config                = config,
+                                                       inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
+                                                       outputTrackCollection = nameAmbiTrackCollection  )
                         ]
+   
 
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
