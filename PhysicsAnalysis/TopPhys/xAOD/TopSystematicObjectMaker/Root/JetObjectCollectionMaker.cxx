@@ -648,7 +648,20 @@ namespace top {
                                   && jet->pt() < 3000e3);
             }
             if (!calibratable_jet) continue;
+	    
+	    ///-- Apply large-R jet tagging SF uncertainties --///
+	    for (std::pair<const std::string, ToolHandle<ICPJetUncertaintiesTool> >& tagSF : m_tagSFuncertTool) {
+	      std::string fullName=tagSF.first;
+	      std::replace(std::begin(fullName),std::end(fullName),':','_');
+	      const SG::AuxElement::Accessor< char > acc("passedRangeCheck_" + fullName);
+	      
+	      if(acc.isAvailable(*jet) && acc(*jet)) {
+		top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
+	      }
+            }
+	    
           }
+	  
           ///-- Apply Corrrection --///
           if (!(isLargeR && !m_config->isMC())) { //Large-R jet uncertainties don't apply to Data
             top::check(tool->applyCorrection(*jet), "Failed to applyCorrection");
@@ -676,19 +689,6 @@ namespace top {
 		       "Failed to apply fJVT decoration");
 	  }
 
-
-          ///-- Apply large-R jet tagging SF uncertainties --///
-          if (isLargeR && m_config->isMC()) {
-            for (std::pair<const std::string, ToolHandle<ICPJetUncertaintiesTool> >& tagSF : m_tagSFuncertTool) {
-	      std::string fullName=tagSF.first;
-	      std::replace(std::begin(fullName),std::end(fullName),':','_');
-	      const SG::AuxElement::Accessor< char > acc("passedRangeCheck_" + fullName);
-	      
-	      if(acc.isAvailable(*jet) && acc(*jet)) {
-		top::check(tagSF.second->applyCorrection(*jet), "Failed to applyCorrection");
-	      }
-            }
-          }
         }
 
         ///-- set links to original objects- needed for MET calculation --///
