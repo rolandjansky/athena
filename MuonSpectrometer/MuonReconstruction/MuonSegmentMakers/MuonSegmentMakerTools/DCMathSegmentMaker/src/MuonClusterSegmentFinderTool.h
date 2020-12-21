@@ -56,6 +56,7 @@ namespace Muon {
     ToolHandle<IMuonTrackCleaner>                 m_trackCleaner;
     bool                                          m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
     double                                        m_maxClustDist;
+    int                                           m_nOfSeedLayers;
 
   public:
     //find segments given a list of MuonCluster
