@@ -1,7 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
 #
 ## @file JetTagD3PDMaker/python/AddBTagInfoToJetObject.py
 ## @brief Python function to add BTagging specific fillers and association tools to a JetD3PDObject
@@ -32,14 +30,10 @@ addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=X)
 alg+=JetD3PDObject(level, <additional options>)
 """
 import JetTagD3PDMaker
-import TrackD3PDMaker
-import TruthD3PDMaker
 import EventCommonD3PDMaker
 import MuonD3PDMaker
+import TruthD3PDMaker
 
-import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from D3PDMakerCoreComps.SimpleAssociation import SimpleAssociation
 from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
@@ -51,7 +45,6 @@ from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
 
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
-from TruthD3PDMaker.TruthD3PDMakerFlags import TruthD3PDFlags
 
 def _jetTagAssocLevel (reqlev, args):
     if not args.has_key ('target') : 
@@ -67,7 +60,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
     from AthenaCommon.Logging import logging
     addBTagInfoLogger = logging.getLogger( "addBTagInfoToJetObject" )
 
-    if JetD3PDObject.allBlocknames().has_key(JetTagD3PDKeys.BTagWeightsBlockName()) :
+    if JetTagD3PDKeys.BTagWeightsBlockName() in JetD3PDObject.allBlocknames():
         addBTagInfoLogger.warning("btag blocks already added to JetD3PDObject - ignore")
         return
 
@@ -153,7 +146,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
         
 
-        JetTrack = ContainedVectorMultiAssociation(JetD3PDObject,
+        JetTrack = ContainedVectorMultiAssociation(JetD3PDObject,  # noqa: F841
                                                    JetTagD3PDMaker.JetTagJetTrackAssociationTool,
                                                    level = btagLevelOffset+4,
                                                    prefix=JetTagD3PDKeys.JetTrackAssocPrefix(),
@@ -164,7 +157,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
 
     if LocalFlags.JetTrackGhostAssoc():
-        JetTrackAssoc = IndexMultiAssociation(JetD3PDObject,
+        JetTrackAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                               JetTagD3PDMaker.JetTagJetTrackAssociationTool,
                                               '', ## set target when calling the JetD3PDObject
                                               level = _jetTagAssocLevel,
@@ -230,7 +223,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.JetMuonAssoc():
 
-        JetMuonAssoc = IndexMultiAssociation(JetD3PDObject,
+        JetMuonAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                              JetTagD3PDMaker.JetTagJetMuonAssociationTool,
                                              '', ## set target when calling the JetD3PDObject
                                              level =_jetTagAssocLevel,
@@ -239,7 +232,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
         if LocalFlags.AddSecondMuonCollection():
 
-            JetMuon2Assoc = IndexMultiAssociation(JetD3PDObject,
+            JetMuon2Assoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                   JetTagD3PDMaker.JetTagJetMuonAssociationTool,
                                                   '',
                                                   level = _jetTagAssocLevel,
@@ -249,7 +242,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.JetElectronAssoc():
 
-        JetElectronAssoc = IndexMultiAssociation(JetD3PDObject,
+        JetElectronAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                  JetTagD3PDMaker.JetTagJetElectronAssociationTool,
                                                  '',
                                                  level = _jetTagAssocLevel,
@@ -258,7 +251,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.JetPhotonAssoc():
 
-        JetPhotonAssoc = IndexMultiAssociation(JetD3PDObject,
+        JetPhotonAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                JetTagD3PDMaker.JetTagJetPhotonAssociationTool,
                                                '',
                                                level = _jetTagAssocLevel,
@@ -269,8 +262,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
  
     if rec.doTruth and LocalFlags.JetGenSoftLeptonAssoc():
 
-        JetGenSoftLeptonAssoc = IndexMultiAssociation(\
-            JetD3PDObject,
+        JetGenSoftLeptonAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
             JetTagD3PDMaker.JetTagJetGenSoftLeptonAssociationTool,
             '',
             level = _jetTagAssocLevel,
@@ -281,8 +273,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
 
     
-        JetGenSoftLepton = ContainedVectorMultiAssociation(\
-            JetD3PDObject,
+        JetGenSoftLepton = ContainedVectorMultiAssociation(JetD3PDObject,  # noqa: F841
             JetTagD3PDMaker.JetTagJetGenSoftLeptonAssociationTool,
             level = btagLevelOffset+4,
             prefix=JetTagD3PDKeys.JetGenSoftLeptonAssocPrefix(),
@@ -475,7 +466,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.IPInfoPlus():
 
-        IPInfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,
+        IPInfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                       JetTagD3PDMaker.JetTagIPInfoPlusTrackAssociationTool,
                                                       '',
                                                       level = _jetTagAssocLevel,
@@ -515,7 +506,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
                                   AddNormDist=True)
 
 
-        SVInfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,
+        SVInfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                       JetTagD3PDMaker.JetTagSVInfoPlusTrackAssociationTool,
                                                       '',
                                                       level = _jetTagAssocLevel,
@@ -552,7 +543,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
                                   InfoType="SV0InfoPlus",
                                   AllowMissing = True)
 
-        SV0InfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,
+        SV0InfoPlusTrackAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                        JetTagD3PDMaker.JetTagSVInfoPlusTrackAssociationTool,
                                                        '',
                                                        level = _jetTagAssocLevel,
@@ -583,7 +574,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.SoftMuonInfo():
 
-        SoftMuonInfoMuonAssoc =  IndexMultiAssociation(JetD3PDObject,
+        SoftMuonInfoMuonAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                        JetTagD3PDMaker.JetTagSoftMuonInfoMuonAssociationTool,
                                                        '',
                                                        level = _jetTagAssocLevel,
@@ -630,8 +621,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
             
         if LocalFlags.AddSecondMuonCollection():
 
-            SoftMuon2InfoMuon2Assoc =  IndexMultiAssociation(\
-                JetD3PDObject,
+            SoftMuon2InfoMuon2Assoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                 JetTagD3PDMaker.JetTagSoftMuonInfoMuonAssociationTool,
                 '',
                 level = _jetTagAssocLevel,
@@ -663,7 +653,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.SoftMuonChi2Info():
 
-        SoftMuonChi2InfoMuonAssoc =  IndexMultiAssociation(JetD3PDObject,
+        SoftMuonChi2InfoMuonAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                        JetTagD3PDMaker.JetTagSoftMuonInfoMuonAssociationTool,
                                                        '',
                                                        level = _jetTagAssocLevel,
@@ -712,8 +702,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
             
         if LocalFlags.AddSecondMuonCollection():
 
-            SoftMuon2Chi2InfoMuon2Assoc =  IndexMultiAssociation(\
-                JetD3PDObject,
+            SoftMuon2Chi2InfoMuon2Assoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                 JetTagD3PDMaker.JetTagSoftMuonInfoMuonAssociationTool,
                 '',
                 level = _jetTagAssocLevel,
@@ -747,8 +736,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
     if LocalFlags.SoftElectronInfo():
 
-        SoftElectronInfoElectronAssoc =  IndexMultiAssociation(\
-            JetD3PDObject,
+        SoftElectronInfoElectronAssoc =  IndexMultiAssociation(JetD3PDObject,  # noqa: F841
             JetTagD3PDMaker.JetTagSoftElecInfoegammaAssociationTool,
             '',
             level = _jetTagAssocLevel,
@@ -784,8 +772,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
                                   AllowMissing = True)
 
 
-        MultiSVInfoPlusTrackAssoc = IndexMultiAssociation(\
-            JetD3PDObject,
+        MultiSVInfoPlusTrackAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
             JetTagD3PDMaker.JetTagMultiSVInfoMSVVtxInfoAssociationTool,
                 '',
             level = _jetTagAssocLevel,
@@ -853,7 +840,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
         if LocalFlags.JFVxOnJetAxisAssocLabel() != "":
 
-            JetVxOnJetAxisAssoc = IndexMultiAssociation(JetD3PDObject,
+            JetVxOnJetAxisAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                                                         JetTagD3PDMaker.JetTagJetVxOnJetAxisAssociationTool,
                                                         LocalFlags.JFVxOnJetAxisAssocLabel(),
                                                         level = btagLevelOffset+5,
@@ -864,8 +851,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
             if LocalFlags.JetFitterFlipVxOnJetAxisAssoc():
 
-                JFFlipJetVxOnJetAxisAssoc = IndexMultiAssociation(\
-                    JetD3PDObject,
+                JFFlipJetVxOnJetAxisAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                     JetTagD3PDMaker.JetTagJetVxOnJetAxisAssociationTool,
                     LocalFlags.JFVxOnJetAxisAssocLabel(),
                     level = btagLevelOffset+6,
@@ -877,8 +863,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
         if LocalFlags.JFTwoTrackVertexAssocLabel() != "":
 
-            JetJFTwoTrackVertexAssoc = IndexMultiAssociation(\
-                JetD3PDObject,
+            JetJFTwoTrackVertexAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                 JetTagD3PDMaker.JetTagJetJFTwoTrackVertexAssociationTool,
                 LocalFlags.JFTwoTrackVertexAssocLabel(),
                 level = btagLevelOffset+5,
@@ -889,8 +874,7 @@ def addBTagInfoToJetObject(JetD3PDObject, btagLevelOffset=0, LocalFlags=JetTagD3
 
             if LocalFlags.JetFitterFlipTwoTrackVertexAssoc():
 
-                JetJFFlipTwoTrackVertexAssoc = IndexMultiAssociation(\
-                JetD3PDObject,
+                JetJFFlipTwoTrackVertexAssoc = IndexMultiAssociation(JetD3PDObject,  # noqa: F841
                 JetTagD3PDMaker.JetTagJetJFTwoTrackVertexAssociationTool,
                 LocalFlags.JFTwoTrackVertexAssocLabel(),
                 level = btagLevelOffset+6,

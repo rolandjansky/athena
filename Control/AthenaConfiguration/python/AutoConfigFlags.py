@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from PyUtils.MetaReader import read_metadata
-from AtlasGeoModel.AtlasGeoDBInterface import AtlasGeoDBInterface
 from AthenaCommon.Logging import logging
 from functools import lru_cache
 
@@ -33,6 +32,7 @@ def _initializeGeometryParameters(geoTag):
     from PixelGeoModel import PixelGeoDB
     from LArGeoAlgsNV import LArGeoDB
     from MuonGeoModel import MuonGeoDB
+    from AtlasGeoModel.AtlasGeoDBInterface import AtlasGeoDBInterface
 
     dbGeomCursor = AtlasGeoDBInterface(geoTag)
     dbGeomCursor.ConnectAndBrowseGeoDB()

@@ -1,0 +1,619 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CxxUtils/ConcurrentStrMap.icc
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2020
+ * @brief Hash map from strings to integers allowing concurrent, lockless reads.
+ */
+
+
+namespace CxxUtils {
+
+
+#define T_CONCURRENTSTRMAP template <class VALUE, template <class> class UPDATER>
+#define CONCURRENTSTRMAP ConcurrentStrMap<VALUE, UPDATER>
+
+
+/**
+ * @brief Constructor.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity The initial table capacity.
+ *                 (Will be rounded up to a power of two.)
+ * @param ctx Execution context.
+ */
+T_CONCURRENTSTRMAP
+CONCURRENTSTRMAP::ConcurrentStrMap (Updater_t&& updater,
+                                    size_type capacity /*= 64*/,
+                                    const Context_t& ctx
+                                      /* = Updater_t::defaultContext()*/) 
+  : m_impl (std::move (updater),
+            capacity,
+            Hasher(),
+            Matcher(),
+            ctx)
+{
+}
+
+
+/** 
+ * @brief Constructor from another map.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity The initial table capacity of the new table.
+ *                 (Will be rounded up to a power of two.)
+ * @param ctx Execution context.
+ *
+ * (Not really a copy constructor since we need to pass @c updater.)
+ */
+T_CONCURRENTSTRMAP
+CONCURRENTSTRMAP::ConcurrentStrMap (const ConcurrentStrMap& other,
+                                    Updater_t&& updater,
+                                    size_type capacity /*= 64*/,
+                                    const Context_t& ctx
+                                      /*= Updater_t::defaultContext()*/)
+  : m_impl (std::move (updater),
+            capacity,
+            Hasher(),
+            Matcher(),
+            ctx)
+{
+  for (const auto& p : other) {
+    this->put (p.first, p.second, true, ctx);
+  }
+}
+
+
+/** 
+ * @brief Constructor from a range.
+ * @param f Start iterator for the range.
+ * @param l End iterator for the range.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity The initial table capacity of the new table.
+ *                 (Will be rounded up to a power of two.)
+ * @param ctx Execution context.
+ *
+ * Constructor from a range of pairs.
+ */
+T_CONCURRENTSTRMAP
+template <class InputIterator>
+CONCURRENTSTRMAP::ConcurrentStrMap (InputIterator f,
+                                    InputIterator l,
+                                    Updater_t&& updater,
+                                    size_t capacity /*= 64*/,
+                                    const Context_t& ctx
+                                      /*= Updater_t::defaultContext()*/)
+  : m_impl (std::move (updater),
+            capacity,
+            Hasher(),
+            Matcher(),
+            ctx)
+{
+  for (; f != l; ++f) {
+    this->put (f->first, f->second, true, ctx);
+  }
+}
+
+
+/**
+ * @brief Destructor.
+ */
+T_CONCURRENTSTRMAP
+CONCURRENTSTRMAP::~ConcurrentStrMap()
+{
+  // Need to delete the strings that we've stored.
+  auto [begin, end] = m_impl.range();
+  while (begin != end) {
+    if (begin.key() != Impl_t::nullval) {
+      delete keyAsString (begin.key());
+    }
+    begin.next();
+  }
+}
+
+
+/**
+ * @brief Return the number of items currently in the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::size() const -> size_type
+{
+  return m_impl.size();
+}
+
+
+/**
+ * @brief Test if the map is currently empty.
+ */
+T_CONCURRENTSTRMAP
+inline
+bool CONCURRENTSTRMAP::empty() const
+{
+  return !m_impl.size();
+}
+
+
+/**
+ * @brief Return the current size (capacity) of the hash table.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::capacity() const -> size_t
+{
+  return m_impl.capacity();
+}
+
+
+/**
+ * @brief Constructor.
+ * @param it Iterator of the underlying table.
+ */
+T_CONCURRENTSTRMAP
+inline
+CONCURRENTSTRMAP::const_iterator::const_iterator (typename Impl_t::const_iterator it)
+  : m_impl (it)
+{
+}
+
+
+/**
+ * @brief Test if this iterator is value.
+ *
+ * This should be the same as testing for != end().
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::const_iterator::valid() const -> bool
+{
+  return m_impl.valid();
+}
+
+
+/**
+ * @brief iterator_facade requirement: Increment the iterator.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::const_iterator::increment() -> void
+{
+  m_impl.next();
+}
+
+
+/**
+ * @brief iterator_facade requirement: Decrement the iterator.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::const_iterator::decrement() -> void
+{
+  m_impl.prev();
+}
+
+
+/**
+ * @brief iterator_facade requirement: Dereference the iterator.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::const_iterator::dereference() const
+  -> const const_iterator_value
+{
+  return const_iterator_value (*keyAsString (m_impl.key()),
+                               mappedAsMapped (m_impl.value()));
+}
+
+
+/**
+ * @brief iterator_facade requirement: Equality test.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::const_iterator::equal (const const_iterator& other) const
+  -> bool
+{
+  return !(m_impl != other.m_impl);
+}
+
+
+/**
+ * @brief Return an interator range covering the entire map.
+ */
+T_CONCURRENTSTRMAP
+auto CONCURRENTSTRMAP::range() const -> const_iterator_range
+{
+  auto [begin, end] = m_impl.range();
+  return const_iterator_range (begin, end);
+}
+
+
+/**
+ * @brief Iterator at the start of the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::begin() const -> const_iterator
+{
+  return const_iterator (m_impl.begin());
+}
+
+
+/**
+ * @brief Iterator at the end of the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::end() const -> const_iterator
+{
+  return const_iterator (m_impl.end());
+}
+
+
+/**
+ * @brief Iterator at the start of the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::cbegin() const -> const_iterator
+{
+  return begin();
+}
+
+
+/**
+ * @brief Iterator at the end of the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::cend() const -> const_iterator
+{
+  return end();
+}
+
+
+/**
+ * @brief Test if a key is in the container.
+ * @param key The key to test.
+ */
+T_CONCURRENTSTRMAP
+inline
+bool CONCURRENTSTRMAP::contains (const key_type& key) const
+{
+  return get(key).valid();
+}
+
+
+/**
+ * @brief Return the number of times a given key is in the container.
+ * @param key The key to test.
+ *
+ * Returns either 0 or 1, depending on whether or not the key is in the map.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::count (const key_type& key) const -> size_type
+{
+  return contains (key) ? 1 : 0;
+}
+
+
+/**
+ * @brief Look up an element in the map.
+ * @param key The element to find.
+ *
+ * Returns either an iterator referencing the found element or end().
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::find (const key_type& key) const -> const_iterator
+{
+  return const_iterator (this->get (key));
+}
+
+
+/**
+ * @brief Look up an element in the map.
+ * @param key The element to find.
+ *
+ * Returns the value associated with the key.
+ * Throws @c std::out_of_range if the key does not exist in the map.
+ */
+T_CONCURRENTSTRMAP
+auto CONCURRENTSTRMAP::at (const key_type& key) const -> mapped_type
+{
+  typename Impl_t::const_iterator it = this->get (key);
+  if (!it.valid()) {
+    throw std::out_of_range ("ConcurrentStrMap::at");
+  }
+  return mappedAsMapped (it.value());
+}
+
+
+/**
+ * @brief Return a range of iterators with entries matching @c key.
+ * @param key The element to find.
+ *
+ * As keys are unique in this container, this is either a single-element
+ * range, or both iterators are equal to end().
+ */
+T_CONCURRENTSTRMAP
+auto CONCURRENTSTRMAP::equal_range (const key_type& key) const
+  -> std::pair<const_iterator, const_iterator>
+{
+  const_iterator i1 = find (key);
+  const_iterator i2 = i1;
+  if (i2.valid()) {
+    ++i2;
+  }
+  return std::make_pair (i1, i2);
+}
+
+
+/**
+ * @brief Add an element to the map.
+ * @param key The key of the new item to add.
+ * @param val The value of the new item to add.
+ * @param ctx Execution context.
+ *
+ * This will not overwrite an existing entry.
+ * The first element in the returned pair is an iterator referencing
+ * the added item.  The second is a flag that is true if a new element
+ * was added.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::emplace (const key_type& key,
+                                mapped_type val,
+                                const Context_t& ctx
+                                  /*= Updater_t::defaultContext()*/)
+  -> std::pair<const_iterator, bool>
+{
+  return put (key, val, false, ctx);
+}
+
+
+/**
+ * @brief Add an element to the map, or overwrite an existing one.
+ * @param key The key of the new item to add.
+ * @param val The value of the new item to add.
+ * @param ctx Execution context.
+ *
+ * This will overwrite an existing entry.
+ * The first element in the returned pair is an iterator referencing
+ * the added item.  The second is a flag that is true if a new element
+ * was added.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::insert_or_assign (const key_type& key,
+                                         mapped_type val,
+                                         const Context_t& ctx
+                                           /*= Updater_t::defaultContext()*/)
+  -> std::pair<const_iterator, bool>
+{
+  return put (key, val, true, ctx);
+}
+
+
+/**
+ * @break Add an element to the map.
+ * @param p The item to add.
+ *          Should be a pair where first is the string key
+ *          and second is the integer value.
+ *
+ * This will not overwrite an existing entry.
+ * The first element in the returned pair is an iterator referencing
+ * the added item.  The second is a flag that is true if a new element
+ * was added.
+ */
+T_CONCURRENTSTRMAP
+template <class PAIR>
+inline
+auto CONCURRENTSTRMAP::insert (const PAIR& p)
+  -> std::pair<const_iterator, bool>
+{
+  return emplace (p.first, p.second);
+}
+
+
+/**
+ * @brief Insert a range of elements to the map.
+ * @param first Start of the range.
+ * @param last End of the range.
+ *
+ * The range should be a sequence of pairs where first is the string key
+ *  and second is the integer value.
+ */
+T_CONCURRENTSTRMAP
+template <class InputIterator>
+void CONCURRENTSTRMAP::insert (InputIterator first, InputIterator last)
+{
+  for (; first != last; ++first) {
+    emplace (first->first, first->second);
+  }
+}
+
+
+/**
+ * @brief Increase the table capacity.
+ * @param capacity The new table capacity.
+ * @param ctx Execution context.
+ *
+ * No action will be taken in @c capacity is smaller
+ * than the current capacity.
+ */
+T_CONCURRENTSTRMAP
+inline
+void CONCURRENTSTRMAP::reserve (size_type capacity,
+                                const Context_t& ctx
+                                  /*= Updater_t::defaultContext()*/)
+{
+  return m_impl.reserve (capacity, ctx);
+}
+
+
+/**
+ * @brief Increase the table capacity.
+ * @param capacity The new table capacity.
+ *
+ * No action will be taken in @c capacity is smaller
+ * than the current capacity.
+ */
+T_CONCURRENTSTRMAP
+inline
+void CONCURRENTSTRMAP::rehash (size_type capacity)
+{
+  return reserve (capacity);
+}
+
+
+/**
+ * @brief Called when this thread is no longer referencing anything
+ *        from this container.
+ * @param ctx Execution context.
+ */
+T_CONCURRENTSTRMAP
+inline
+void CONCURRENTSTRMAP::quiescent (const Context_t& ctx)
+{
+  return m_impl.quiescent (ctx);
+}
+
+
+/**
+ * @brief Convert an underlying key value to a string pointer.
+ * @param val The underlying key value.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::keyAsString (val_t val) -> const std::string*
+{
+  return reinterpret_cast<std::string*> (val);
+}
+
+
+/**
+ * @brief Convert a string pointer to an underlying key value.
+ * @param val The string pointer.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::keyAsVal (const std::string* s) -> val_t
+{
+  return reinterpret_cast<val_t> (s);
+}
+
+
+/**
+ * @brief Convert an underlying mapped value to this type's mapped value.
+ * @param val The underlying mapped value.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::mappedAsMapped (val_t val) -> mapped_type
+{
+  return reinterpret_cast<mapped_type> (val);
+}
+
+
+/**
+ * @brief Convert this type's mapped value to an underlying mapped value.
+ * @param val THe mapped value.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::mappedAsVal (mapped_type val) -> val_t
+{
+  return reinterpret_cast<val_t> (val);
+}
+
+
+/**
+ * @brief Do a lookup in the table.
+ * @param key The key to look up.
+ *
+ * Returns an iterator of the underlying map pointing at the found
+ * entry or end();
+ */
+T_CONCURRENTSTRMAP
+auto CONCURRENTSTRMAP::get (const key_type& key) const
+  -> typename Impl_t::const_iterator
+{
+  size_t hash = m_impl.hasher() (key);
+  return m_impl.get (keyAsVal(&key), hash);
+}
+
+
+/**
+ * @brief Insert / overwrite an entry in the table.
+ * @param key The key of the new item to add.
+ * @param val The value of the new item to add.
+ * @param overwrite If true, allow overwriting an existing entry.
+ * @param ctx Execution context.
+ *
+ * The first element in the returned pair is an iterator referencing
+ * the added item.  The second is a flag that is true if a new element
+ * was added.
+ */
+T_CONCURRENTSTRMAP
+auto CONCURRENTSTRMAP::put (const key_type& key,
+                            mapped_type val,
+                            bool overwrite /*= true*/,
+                            const Context_t& ctx /*= Updater_t::defaultContext()*/)
+  -> std::pair<const_iterator, bool>
+{
+  size_t hash = m_impl.hasher() (key);
+  std::string* newkey = new std::string (key);
+  auto [it, flag] = m_impl.put (keyAsVal(newkey), hash,
+                                mappedAsVal (val),
+                                overwrite, ctx);
+  if (!flag) delete newkey;
+  return std::make_pair (const_iterator (it), flag);
+}
+
+
+/**
+ * @brief Hash function from the underlying representation type.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::Hasher::operator() (const val_t p) const -> size_t
+{
+  return m_hash (*keyAsString(p));
+}
+
+
+/**
+ * @brief Hash function from a std::string.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::Hasher::operator() (const std::string& s) const -> size_t
+{
+  return m_hash (s);
+}
+
+
+/**
+ * @brief Compare two keys (as the underlying representation type) for equality.
+ */
+T_CONCURRENTSTRMAP
+inline
+auto CONCURRENTSTRMAP::Matcher::operator() (const val_t a, const val_t b) const -> bool
+{
+  // First test if the keys (pointers) themselves are equal.
+  if (a == b) return true;
+  // Otherwise, need to test the strings to which they point.
+  return *keyAsString(a) == *keyAsString(b);
+}
+
+
+#undef T_CONCURRENTSTRMAP
+#undef CONCURRENTSTRMAP
+
+
+} // namespace CxxUtils

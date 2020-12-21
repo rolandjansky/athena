@@ -35,7 +35,7 @@ SimpleTruthParticleFilterTool::SimpleTruthParticleFilterTool
  * @brief Test to see if we want to keep a particle.
  */
 bool
-SimpleTruthParticleFilterTool::isAccepted (const HepMC::GenParticle* p)
+SimpleTruthParticleFilterTool::isAccepted (HepMC::ConstGenParticlePtr p)
 {
   bool ok = false;
 

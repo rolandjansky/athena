@@ -197,7 +197,7 @@ unsubtr_suffix=HIJetFlags.UnsubtractedSuffix()
 for k in jtm.jetrecs :
     if unsubtr_suffix in k.name() :
         in_name=k.OutputContainer
-        out_name=in_name.replace("_%s" % unsubtr_suffix,"")
+        out_name=in_name.toStringProperty().replace("_%s" % unsubtr_suffix,"")
         #>slight tweak in case R=1.0 jets are requestd, add some substructure tools
         modifiers=GetHIModifierList(out_name,hi_tools)
         if '10HIJets' in k.name() :

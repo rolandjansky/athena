@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagMETD3PDObject.py
@@ -6,8 +6,6 @@
 ## @author Georges Aad
 ## @date Nov, 2010
 ##
-import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 import re
 
 from MissingETD3PDMaker.MissingETD3PDObject import RefFinalMETD3PDObject

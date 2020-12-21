@@ -995,13 +995,11 @@ HLT::Algo* TrigSteer::getAlgo(const std::string& name)
   if ( dynamic_cast<HLT::HypoAlgo*>(algo) ) {
     BooleanProperty enabled("Enable", m_doHypo);
     algo->setProperty(enabled).ignore();
-    algo->setProperties().ignore();
     ATH_MSG_DEBUG(( m_doHypo ? "enabling " : "disabling ") << subAlg_name << " because it is Hypo");
   }
   if ( dynamic_cast<HLT::TECreateAlgo*>(algo) ) {
     BooleanProperty enabled("Enable", m_doFex);
     algo->setProperty(enabled).ignore();
-    algo->setProperties().ignore();
     ATH_MSG_DEBUG((m_doFex ? "enabling " : "disabling ") << subAlg_name << " because it is Fex");
   }
 

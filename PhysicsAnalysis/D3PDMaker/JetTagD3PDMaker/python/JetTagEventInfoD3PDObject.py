@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagEventInfoD3PDObject.py
@@ -7,8 +7,6 @@
 ## @date Nov, 2010
 ##
 
-import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 from EventCommonD3PDMaker.EventInfoD3PDObject import EventInfoD3PDObject
 
 def getJetTagEventInfoD3PDObject(level=1, **kw):

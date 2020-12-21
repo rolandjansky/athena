@@ -54,6 +54,7 @@ namespace LVL1MUONIF {
       int goodmf( size_t id) const { return m_goodmf[ id ]; }
       int innercoin( size_t id) const { return m_innercoin[ id ]; }
       int bw2or3( size_t id) const { return m_bw2or3[ id ]; }
+      int veto( size_t id) const {return m_veto[ id ]; } // veto candidate for multiplicity counting due to overlap removal
 
       void set2candidatesInSector() { m_2candidatesInSector = true; }
       void clear2candidatesInSector() { m_2candidatesInSector = false;}
@@ -67,6 +68,7 @@ namespace LVL1MUONIF {
       void goodmf( size_t id, int value) {m_goodmf[ id ] = value; }
       void innercoin( size_t id, int value) {m_innercoin[ id ] = value; }
       void bw2or3( size_t id, int value) {m_bw2or3[ id ] = value; }
+      void veto( size_t id, int value) {m_veto[ id ] = value; }
 
       void clear();
 
@@ -95,6 +97,7 @@ namespace LVL1MUONIF {
       std::vector<int> m_goodmf; //[m_ncand]
       std::vector<int> m_innercoin; //[m_ncand]
       std::vector<int> m_bw2or3; //[m_ncand]
+      std::vector<int> m_veto; //[m_ncand]
 
    }; // class Lvl1MuSectorLogicDataPhase1
 

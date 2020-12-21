@@ -22,8 +22,6 @@ PixelConditionsSummaryTool::~PixelConditionsSummaryTool(){}
 StatusCode PixelConditionsSummaryTool::initialize(){
   ATH_MSG_DEBUG("PixelConditionsSummaryTool::initialize()");
 
-  ATH_CHECK(setProperties());
-
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
   ATH_CHECK(m_BSErrContReadKey.initialize(SG::AllowEmpty));

@@ -100,7 +100,7 @@ public:
       m_pers_old (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* token) const override
+  virtual void setObjPtr(void*& obj, const Token* token) override
   {
     if (m_pers) {
       auto vvb = new ViewVector<DataVector<Y_v2> > (*m_pers);

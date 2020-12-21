@@ -100,8 +100,13 @@ class Lvl1SimulationGetter (Configured):
                 import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig   # noqa: F401
                 import TrigT1RPCsteering.TrigT1RPCsteeringConfig  # noqa: F401
                 import TrigT1TGC.TrigT1TGCConfig                  # noqa: F401
-                from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi                
-                topSequence += L1Muctpi()
+                from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                if ConfigFlags.Trigger.enableL1Phase1:
+                    from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1
+                    topSequence += L1MuctpiPhase1()
+                else:
+                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi
+                    topSequence += L1Muctpi()
 
             if TriggerFlags.doBcm():
                 from TrigT1BCM.TrigT1BCMConf import LVL1__TrigT1BCM
@@ -167,10 +172,14 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += L1TopoSimulation()
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
-                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                    if ConfigFlags.Trigger.enableL1Phase1:
+                        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as l1MuctpiTool
+                    else:
+                        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool as l1MuctpiTool
                     from AthenaCommon.AppMgr import ToolSvc
-                    ToolSvc += L1MuctpiTool()
-                    topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                    ToolSvc += l1MuctpiTool()
+                    topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = l1MuctpiTool()
                 except ImportError:
                     pass
 

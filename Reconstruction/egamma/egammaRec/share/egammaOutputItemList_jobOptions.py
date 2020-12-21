@@ -44,14 +44,13 @@ def addAuxContainer(outputList, cType, cKey, auxOptionAll='', auxOptionAOD=''):
 AOD_outputs = [i for i, j in egammaKeysDict.outputs.items()
                if i not in ('EgammaRec', 'PhotonSuperRec',
                             'ElectronSuperRec', 'TopoSeededCellLink',
-                            'FwdClusterCellLink', 'EgammaLargeClusters',
-                            'EgammaLargeClustersCellLink')]
+                            'EgammaLargeClusters',
+                            'EgammaLargeClustersCellLink','EgammaLargeFWDClusters', 'EgammaLargeFWDClustersCellLink')]
 
 
 ESD_outputs = [i for i, j in egammaKeysDict.outputs.items()
                if i not in ('EgammaRec', 'PhotonSuperRec',
-                            'ElectronSuperRec', 'TopoSeededCellLink',
-                            'FwdClusterCellLink')]
+                            'ElectronSuperRec', 'TopoSeededCellLink')]
 
 # Define egammaAODList in the proper format (<type>#<key><option>),
 # including aux containers

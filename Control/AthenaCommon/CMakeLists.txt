@@ -1,9 +1,12 @@
-################################################################################
-# Package: AthenaCommon
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaCommon )
+
+# Set up specific Athena runtime environment:
+set( AthenaCommonEnvironment_DIR ${CMAKE_CURRENT_SOURCE_DIR}
+   CACHE PATH "Location of AthenaCommonEnvironmentConfig.cmake" )
+find_package( AthenaCommonEnvironment )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/Utils
@@ -16,6 +19,7 @@ atlas_install_runtime(share/*.pkl)
 # Aliases:
 atlas_add_alias( athena "athena.py" )
 
+# Tests:
 atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh
                 PROPERTIES TIMEOUT 300
                 LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in|built on" )

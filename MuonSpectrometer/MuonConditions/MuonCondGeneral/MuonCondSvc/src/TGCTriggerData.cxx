@@ -43,12 +43,23 @@ bool TGCTriggerData::isActive(int cwtype, int channel) const {
   return m_active[cwtype][channel];
 }
 
-const std::map<unsigned short, std::map<unsigned short, unsigned char>>& TGCTriggerData::getPtMapBw(const unsigned char side, const unsigned char octant) const
+int8_t TGCTriggerData::getTYPE(const int16_t lDR, const int16_t hDR, const int16_t lDPhi, const int16_t hDPhi) const
 {
-  unsigned char octantbit = (side<<3) + octant;
-  std::map<unsigned char, std::map<unsigned short, std::map<unsigned short, unsigned char>>>::const_iterator it = m_ptmap_bw.find(octantbit);
-  if(it == m_ptmap_bw.end()) return m_ptmap_bw.find(0)->second;  // also for non-full-CW
-  return it->second;
+  if((lDR == -DR_HIGH_RANGE) && (hDR == DR_HIGH_RANGE)) {
+    if     ((lDPhi == -DPHI_HIGH_RANGE) && (hDPhi == DPHI_HIGH_RANGE)) return COIN_HH;
+    else if((lDPhi == -DPHI_LOW_RANGE) && (hDPhi == DPHI_LOW_RANGE))   return COIN_HL;
+  } else if((lDR == -DR_LOW_RANGE) && (hDR == DR_LOW_RANGE)) {
+    if     ((lDPhi == -DPHI_HIGH_RANGE) && (hDPhi == DPHI_HIGH_RANGE)) return COIN_LH;
+    else if((lDPhi == -DPHI_LOW_RANGE) && (hDPhi == DPHI_LOW_RANGE))   return COIN_LL;
+  }
+  return -1;
+}
+
+uint8_t TGCTriggerData::getBigWheelPt(const uint32_t addr) const
+{
+  std::unordered_map<uint32_t, uint8_t>::const_iterator it = m_ptmap_bw.find(addr);
+  if(it == m_ptmap_bw.end()) return 0x0;        // outside from defined window, i.e. pT=0
+  else                       return it->second;
 }
 
 unsigned short TGCTriggerData::getTrigBitEifi(int side, int slot, int ssc, int sectorId) const

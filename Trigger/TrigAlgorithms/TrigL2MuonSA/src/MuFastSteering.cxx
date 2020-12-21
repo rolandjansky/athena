@@ -28,7 +28,6 @@
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_timerSvc("TrigTimerSvc", name),
-    m_regionSelector("RegSelSvc", name),
     m_recMuonRoIUtils(),
     m_rpcHits(), m_tgcHits(),
     m_mdtRegion(), m_muonRoad(),
@@ -61,13 +60,6 @@ HLT::ErrorCode MuFastSteering::hltInitialize()
       m_timingTimers.push_back(m_timerSvc->addItem(name()+":TotalProcessing"));
     }
   }
-
-  // Locate RegionSelector
-  if (m_regionSelector.retrieve().isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve the regionselector service");
-    return HLT::ERROR;
-  }
-  ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
 
   // Locate DataPreparator
   if (m_dataPreparator.retrieve().isFailure()) {
@@ -2277,135 +2269,3 @@ void MuFastSteering::handle(const Incident& incident) {
 }
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inputTE){
-
-  ATH_MSG_DEBUG("prepareRobRequests called");
-  
-  HLT::RobRequestInfo* RRInfo = config()->robRequestInfo();
-
-  if (!RRInfo) {
-    ATH_MSG_ERROR("Null pointer to RobRequestInfo");
-    return HLT::ERROR;
-  }
-  
-  std::vector<uint32_t> MdtRobList;
-  std::vector<uint32_t> RpcRobList;
-  std::vector<uint32_t> TgcRobList;
-  std::vector<uint32_t> CscRobList;
-  
-  std::vector<const TrigRoiDescriptor*> roids;
-  HLT::ErrorCode hec = getFeatures(inputTE, roids);
-
-  if (hec != HLT::OK) {
-    ATH_MSG_ERROR("Could not find input TE");
-    return hec;
-  }
-  
-  // RoI base data access
-  for (unsigned int i=0; i < roids.size(); i++) {
-    
-    if ( m_use_RoIBasedDataAccess_MDT) {
-
-      float roi_eta = roids[i]->eta();
-      float roi_phi = roids[i]->phi();
-      if (roi_phi < 0) roi_phi += 2.0 * M_PI;
-   
-      double etaMin = roi_eta - 0.2;
-      double etaMax = roi_eta + 0.2;
-      double phiMin = roi_phi - 0.2;
-      double phiMax = roi_phi + 0.2;
-      if( phiMin < 0 ) phiMin += 2*M_PI;
-      if( phiMax < 0 ) phiMax += 2*M_PI;
-      if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
-      if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
-
-      TrigRoiDescriptor* roi = new TrigRoiDescriptor( roi_eta, etaMin, etaMax, roi_phi, phiMin, phiMax );
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-
-      MdtRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(MDT, *iroi, MdtRobList);
-      RRInfo->addRequestScheduledRobIDs(MdtRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's,");
-
-      if(roi) delete roi;
-    }
-
-    if ( m_use_RoIBasedDataAccess_RPC) {
-
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roids[i];
-
-      RpcRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(RPC, *iroi, RpcRobList);
-      RRInfo->addRequestScheduledRobIDs(RpcRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's,");
-    }
-
-    if ( m_use_RoIBasedDataAccess_TGC) {
-
-      float roi_eta = roids[i]->eta();
-      float roi_phi = roids[i]->phi();
-      if (roi_phi < 0) roi_phi += 2.0 * M_PI;
-   
-      double etaMin = roi_eta - 0.2;
-      double etaMax = roi_eta + 0.2;
-      double phiMin = roi_phi - 0.1;
-      double phiMax = roi_phi + 0.1;
-      if( phiMin < 0 ) phiMin += 2*M_PI;
-      if( phiMax < 0 ) phiMax += 2*M_PI;
-      if( phiMin > 2*M_PI ) phiMin -= 2*M_PI;
-      if( phiMax > 2*M_PI ) phiMax -= 2*M_PI;
-
-      TrigRoiDescriptor* roi = new TrigRoiDescriptor( roi_eta, etaMin, etaMax, roi_phi, phiMin, phiMax );
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-
-      TgcRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(TGC, *iroi, TgcRobList);
-      RRInfo->addRequestScheduledRobIDs(TgcRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's,");
-
-      if(roi) delete roi;
-    }
-
-    if ( m_use_RoIBasedDataAccess_CSC) {
-
-      const IRoiDescriptor* iroi = (IRoiDescriptor*) roids[i];
-
-      CscRobList.clear();
-      if ( iroi ) m_regionSelector->DetROBIDListUint(CSC, *iroi, CscRobList);
-      RRInfo->addRequestScheduledRobIDs(CscRobList);
-      ATH_MSG_DEBUG("prepareRobRequests, find " << CscRobList.size() << " Csc Rob's,");
-    }
-  }
-  
-  // Full data access
-  if ( !m_use_RoIBasedDataAccess_MDT ) {
-    MdtRobList.clear();
-    m_regionSelector->DetROBIDListUint(MDT, MdtRobList);
-    RRInfo->addRequestScheduledRobIDs(MdtRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << MdtRobList.size() << " Mdt Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_RPC ) {
-    RpcRobList.clear();
-    m_regionSelector->DetROBIDListUint(RPC, RpcRobList);
-    RRInfo->addRequestScheduledRobIDs(RpcRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << RpcRobList.size() << " Rpc Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_TGC ) {
-    TgcRobList.clear();
-    m_regionSelector->DetROBIDListUint(TGC, TgcRobList);
-    RRInfo->addRequestScheduledRobIDs(TgcRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << TgcRobList.size() << " Tgc Rob's,");
-  }
-
-  if ( !m_use_RoIBasedDataAccess_CSC ) {
-    CscRobList.clear();
-    m_regionSelector->DetROBIDListUint(CSC, CscRobList);
-    RRInfo->addRequestScheduledRobIDs(CscRobList);
-    ATH_MSG_DEBUG("prepareRobRequests, find " << CscRobList.size() << " Csc Rob's,");
-  }
-  
-  return HLT::OK;
-}

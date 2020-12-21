@@ -204,7 +204,6 @@ namespace OverlayTesting {
       // the tested Algorithm
       m_alg = new TRTOverlay{"TRTOverlay", m_svcLoc};
       m_alg->addRef();
-      ASSERT_TRUE( m_alg->setProperties().isSuccess() );
       // ordering B, A, C, D is on purpose to test for unintended alphabetic ordering
       std::string        inputSigPropertyValue = "'StoreGateSvc+TRT_RDOs_SIG'";
       std::string        inputBkgPropertyValue = "'StoreGateSvc+TRT_RDOs_BKG'";
@@ -234,7 +233,6 @@ namespace OverlayTesting {
       if(!service) {
         return nullptr;
       }
-      EXPECT_TRUE( service->setProperties().isSuccess() );
       EXPECT_TRUE( service->configure().isSuccess() );
       EXPECT_TRUE( m_svcMgr->addService(service).isSuccess() );
       // assert that finalize() gets called once per test case
@@ -257,7 +255,6 @@ namespace OverlayTesting {
         return nullptr;
       }
 
-      EXPECT_TRUE( tool->setProperties().isSuccess() );
       EXPECT_TRUE( tool->configure().isSuccess() );
 
       // assert that finalize() gets called once per test case

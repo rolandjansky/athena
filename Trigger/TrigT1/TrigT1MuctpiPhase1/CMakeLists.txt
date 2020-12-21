@@ -11,7 +11,12 @@ atlas_add_component( TrigT1MuctpiPhase1
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES AnalysisTriggerEvent AthenaBaseComps CxxUtils GaudiKernel PathResolver StoreGateLib TrigConfInterfaces TrigConfL1Data TrigConfMuctpi TrigT1Interfaces TrigT1Result xAODTrigger )
+                     LINK_LIBRARIES AnalysisTriggerEvent 
+		     AthenaBaseComps CxxUtils GaudiKernel 
+		     PathResolver StoreGateLib TrigConfInterfaces 
+		     TrigConfData TrigConfL1Data TrigConfMuctpi 
+		     TrigT1Interfaces TrigT1Result
+		     xAODTrigger )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

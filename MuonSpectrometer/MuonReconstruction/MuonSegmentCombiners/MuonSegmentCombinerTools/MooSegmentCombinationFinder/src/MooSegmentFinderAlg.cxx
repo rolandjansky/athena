@@ -6,43 +6,11 @@
 
 #include "MuonPrepRawData/MuonPrepDataContainer.h"
 #include "MuonSegment/MuonSegment.h"
-#include "MuonSegmentCombinerToolInterfaces/IMooSegmentCombinationFinder.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 
-MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator),
-      m_keyTgc("TGC_Measurements"),
-      m_keyTgcPriorBC("TGC_MeasurementsPriorBC"),
-      m_keyTgcNextBC("TGC_MeasurementsNextBC"),
-      m_keyRpc("RPC_Measurements"),
-      m_keyCsc("CSC_Clusters"),
-      m_keyMdt("MDT_DriftCircles"),
-      m_patternCombiLocation("MuonHoughPatternCombinations"),
-      m_segmentLocation("MooreSegments")
-{
-    declareProperty("UseRPC", m_useRpc = true);
-    declareProperty("UseTGC", m_useTgc = true);
-    declareProperty("UseTGCPriorBC", m_useTgcPriorBC = false);
-    declareProperty("UseTGCNextBC", m_useTgcNextBC = false);
-    declareProperty("UseCSC", m_useCsc = true);
-    declareProperty("UseMDT", m_useMdt = true);
 
-    declareProperty("doTGCClust", m_doTGCClust = false);
-    declareProperty("doRPCClust", m_doRPCClust = false);
-    declareProperty("doClusterTruth", m_doClusterTruth = false);
-
-    declareProperty("CscPrepDataContainer", m_keyCsc);
-    declareProperty("MdtPrepDataContainer", m_keyMdt);
-    declareProperty("RpcPrepDataContainer", m_keyRpc);
-    declareProperty("TgcPrepDataContainer", m_keyTgc);
-    declareProperty("TgcPrepDataContainerPriorBC", m_keyTgcPriorBC);
-    declareProperty("TgcPrepDataContainerNextBC", m_keyTgcNextBC);
-
-    declareProperty("MuonPatternCombinationLocation", m_patternCombiLocation);
-    declareProperty("MuonSegmentOutputLocation", m_segmentLocation);
+MooSegmentFinderAlg::MooSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator) {
 }
-
-MooSegmentFinderAlg::~MooSegmentFinderAlg() {}
 
 StatusCode
 MooSegmentFinderAlg::initialize()
@@ -143,8 +111,3 @@ MooSegmentFinderAlg::execute(const EventContext& ctx) const
     return StatusCode::SUCCESS;
 }  // execute
 
-StatusCode
-MooSegmentFinderAlg::finalize()
-{
-    return StatusCode::SUCCESS;
-}

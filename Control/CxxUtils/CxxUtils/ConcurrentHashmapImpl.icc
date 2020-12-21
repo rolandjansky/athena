@@ -1,0 +1,725 @@
+/*
+ * Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+ */
+/**
+ * @file CxxUtils/ConcurrentHashmapImpl.h
+ * @author scott snyder <snyder@bnl.gov>
+ * @date Dec, 2020
+ * @brief Hash table allowing concurrent, lockless reads.
+ */
+
+
+#include <cassert>
+
+
+namespace CxxUtils {
+namespace detail {
+
+
+/**
+ * @brief Constructor.
+ * @param hash The hash of the entry we're looking for.
+ * @param mask Table mask; i.e., the table capacity - 1.
+ * @param maskBits Number of 1 bits in mask.
+ * @param probeLimit Maximum number of probes to try before failing.
+ */
+template <unsigned ENTRIES_PER_CACHELINE>
+inline
+CHMTableIterator<ENTRIES_PER_CACHELINE>::CHMTableIterator
+  (size_t hash, size_t mask, size_t maskBits, size_t probeLimit)
+    // Mask limited to the table.  Also mask off the part within a cache line.
+  : m_mask ((mask & ~ENTRIES_PER_CACHELINE_MASK)),
+    // Offset of hash within a cache line.
+    m_boffs (hash & ENTRIES_PER_CACHELINE_MASK),
+    // Starting increment between hash probes.
+    // Must be large enough to go to a new cache line, which is why
+    // we or in ENTRIES_PER_CACHELINE.
+    m_stride (((hash >> maskBits) | hash | ENTRIES_PER_CACHELINE) & ENTRIES_PER_CACHELINE_MASK),
+    m_probeLimit (probeLimit),
+    // Index at the start of the cache line containing hash.
+    m_bucket (hash & m_mask),
+    m_nprobes (0)
+{
+}
+
+
+/**
+ * @brief Offset of the element currently being probed.
+ */
+template <unsigned ENTRIES_PER_CACHELINE>
+inline
+size_t CHMTableIterator<ENTRIES_PER_CACHELINE>::offset() const
+{
+  // m_bucket the starting index of the current cache line.
+  // Count within the cache line in a circular manner starting
+  // at m_boffs.
+  return m_bucket + ((m_nprobes + m_boffs)&ENTRIES_PER_CACHELINE_MASK);
+}
+
+
+/**
+ * @brief Return the number of probes performed so far.
+ */
+template <unsigned ENTRIES_PER_CACHELINE>
+inline
+size_t CHMTableIterator<ENTRIES_PER_CACHELINE>::nprobes() const
+{
+  return m_nprobes;
+}
+
+
+/**
+ * @brief Move to the next probe.
+ * Returns true if we should continue, or false if we've hit the maximum
+ * number of probes.
+ */
+template <unsigned ENTRIES_PER_CACHELINE>
+inline
+bool CHMTableIterator<ENTRIES_PER_CACHELINE>::next()
+{
+  // Increment number of probes and stop if we've hit the maximum.
+  if (++m_nprobes >= m_probeLimit) {
+    return false;
+  }
+  // We've finished a cache line if the low bits are back to 0.
+  if ((m_nprobes & ENTRIES_PER_CACHELINE_MASK) == 0) {
+    // Move to a different cacheline.  
+    // cf knuth AOCP exercise 6.4.20.
+    // By contruction, the low bits (within the cacheline) of
+    // m_bucket, m_nprobes, and m_stride should all be 0.
+    m_bucket = (m_bucket + m_nprobes + m_stride) & m_mask;
+  }
+  return true;
+}
+
+
+//*****************************************************************************
+
+
+#define T_CHMIMPL \
+  template <template <class> class UPDATER_,     \
+            typename HASHER_,                    \
+            typename MATCHER_,                   \
+            uintptr_t NULLVAL_>
+
+#define CHMIMPL ConcurrentHashmapImpl<UPDATER_, HASHER_, MATCHER_, NULLVAL_>
+
+
+/**
+ * @brief Constructor.
+ * @param capacity Number of entries in the table.  Must be a power of 2.
+ * @param hasher Hash object to use.
+ * @param matcher Key match object to use.
+ */
+T_CHMIMPL
+CHMIMPL::Table::Table (size_t capacity,
+                       const Hasher_t& hasher /*= Hasher_t()*/,
+                       const Matcher_t& matcher /*= Matcher_t()*/)
+  : m_capacity (capacity),
+    m_maxProbe (capacity / 4),
+    m_mask (capacity-1),
+    m_maskBits (count_trailing_zeros (capacity)),
+    m_hasher (hasher),
+    m_matcher (matcher),
+    m_longestProbe (0)
+{
+  // Clear all the keys.
+  for (size_t i = 0; i < capacity; i++) {
+    m_entries[i].m_key = nullval;
+  }
+}
+
+
+/**
+ * @brief Allocator for table objects.
+ * @param capacity Size of the table (must be a power of 2).
+ *
+ * Allocate with enough space for the table of entries.
+ * Also align on a cache line.
+ */
+T_CHMIMPL
+void* CHMIMPL::Table::operator new (size_t, size_t capacity)
+{
+  void* memptr = nullptr;
+  // Allocate aligned memory block.
+  // The Table structure includes one entry at the end,
+  // so subtract 1 from capacity.
+  posix_memalign (&memptr, CACHELINE, sizeof(Table) + (capacity-1)*sizeof(entry_t));
+  if (!memptr) std::abort();
+  return memptr;
+}
+
+
+/**
+ * @brief Deallocator for table objects.
+ */
+T_CHMIMPL
+void CHMIMPL::Table::operator delete (void* p)
+{
+  free (p);
+}
+
+
+/**
+ * @brief Find a table entry for reading.
+ * @param key The key for which to search.
+ * @param hash The hash of the key.
+ *
+ * Returns the matching entry, or nullptr.
+ */
+T_CHMIMPL
+size_t CHMIMPL::Table::probeRead (val_t key, size_t hash) const
+{
+  // Iterate over table probes.
+  // We don't need to check more than the longest probe sequence
+  // used so far.
+  TableIterator it (hash, m_mask, m_maskBits, m_longestProbe);
+  do {
+    size_t offset = it.offset();
+    const entry_t* ent = m_entries + offset;
+    if (ent->m_key == nullval) {
+      // If we hit an empty key, report failure.
+      return INVALID;
+    }
+    if (m_matcher (ent->m_key, key)) {
+      // Found a matching key.
+      return offset;
+    }
+  } while (it.next());
+  // Too many probes --- return failure.
+  return INVALID;
+}
+
+
+/**
+ * @brief Find a table entry for writing.
+ * @param key The key for which to search.
+ * @param hash The hash of the key.
+ * @param entry[out] The entry found.
+ *
+ * If we find the entry, return true with @c entry pointing at it.
+ * If we don't find it, and there's still room in the table, return false
+ * with @c entry pointing at the next empty entry.
+ * Otherwise, return false with @c entry set to nullptr.
+ */
+T_CHMIMPL
+size_t CHMIMPL::Table::probeWrite (val_t key, size_t hash, bool& insert)
+{
+  // Iterate over table probes.
+  TableIterator it (hash, m_mask, m_maskBits, m_maxProbe);
+  do {
+    size_t offset = it.offset();
+    entry_t* ent = m_entries + offset;
+    if (ent->m_key == nullval) {
+      // We hit an empty key; a new entry could be added here.
+      // Update the longest probe count.
+      CxxUtils::atomic_fetch_max (&m_longestProbe, it.nprobes()+1);
+      insert = true;
+      return offset;
+    }
+    if (m_matcher (ent->m_key, key)) {
+      // Found a matching key.
+      insert = false;
+      return offset;
+    }
+  } while (it.next());
+  // Too many probes --- return failure.
+  return INVALID;
+}
+
+
+/**
+ * @brief The number of entries in the table.
+ */
+T_CHMIMPL
+inline
+size_t CHMIMPL::Table::capacity() const
+{
+  return m_capacity;
+}
+
+
+/**
+ * @brief Return the entry for an offset.
+ * @param offset The index of the desired entry.
+ */
+T_CHMIMPL
+inline
+const typename CHMIMPL::entry_t& CHMIMPL::Table::entry (size_t offset) const
+{
+  return m_entries[offset];
+}
+
+
+/**
+ * @brief Return the entry for an offset (non-const).
+ * @param offset The index of the desired entry.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::entry_t& CHMIMPL::Table::entry (size_t offset)
+{
+  return m_entries[offset];
+}
+
+
+//*****************************************************************************
+
+
+/**
+ * @brief Constructor.
+ * @param updater Object used to manage memory
+ *                (see comments at the start of the class).
+ * @param capacity Minimum initial table size.
+ * @param hasher Hash object to use.
+ * @param matcher Key match object to use.
+ * @param ctx Execution context.
+ */
+T_CHMIMPL
+CHMIMPL::ConcurrentHashmapImpl (Updater_t&& updater,
+                                size_t capacity_in,
+                                const Hasher_t& hasher,
+                                const Matcher_t& matcher,
+                                const typename Updater_t::Context_t& ctx)
+  : m_updater (std::move (updater)),
+    m_hasher (hasher),
+    m_matcher (matcher),
+    m_size (0)
+{
+  // Round up capacity to a power of 2.
+  size_t capacity = round_up (capacity_in);
+
+  m_table = new (capacity) Table (capacity, hasher, matcher);
+  m_updater.update (std::unique_ptr<Table> (m_table), ctx);
+}
+
+
+/**
+ * @brief Add an entry to the table.
+ * @param key The key to insert.
+ * @param hash The hash of the key.
+ * @param val The value to insert.
+ * @param overwrite If true, then overwrite an existing entry.
+ *                  If false, an existing entry will not be changed.
+ * @param ctx Execution context.
+ *
+ * If the key already exists, then its value will be updated.
+ * Returns an iterator pointing at the entry and a flag which is
+ * true if a new element was added.
+ */
+T_CHMIMPL
+std::pair<typename CHMIMPL::const_iterator, bool>
+CHMIMPL::put (val_t key, size_t hash, val_t val, bool overwrite,
+              const typename Updater_t::Context_t& ctx)
+{
+  assert (key != nullval);
+  lock_t lock (m_mutex);
+
+  do {
+    bool insert;
+    size_t offset = m_table->probeWrite (key, hash, insert);
+    if (offset != INVALID) {
+      entry_t& ent = m_table->entry (offset);
+      if (insert) {
+        // Found a place to put it.
+        // Be sure not to set the key until the value is in place.
+        ent.m_val = val;
+        ent.m_key = key;
+        ++m_size;
+      }
+      else {
+        // Found --- update the entry if wanted.
+        if (overwrite) {
+          if (val != ent.m_val) {
+            ent.m_val = val;
+          }
+        }
+      }
+      return std::make_pair (const_iterator (*m_table, offset), insert);
+    }
+
+    // Need to grow the table.
+  } while (grow (lock, ctx));
+
+  // grow() failed.
+  return std::make_pair (end(), false);
+}
+
+
+/**
+ * @brief Look up an entry in the table.
+ * @param key The key to find.
+ * @param hash The hash of the key.
+ *
+ * Returns an iterator pointing at the found entry, or end().
+ */
+T_CHMIMPL
+typename CHMIMPL::const_iterator CHMIMPL::get (val_t key, size_t hash) const
+{
+  const Table& table = m_updater.get();
+  size_t offset = table.probeRead (key, hash);
+  // Offset will be -1 if not found --- invalid iterator.
+  return const_iterator (table, offset);
+}
+
+
+/**
+ * @brief Return the number of items currently stored.
+ */
+T_CHMIMPL
+size_t CHMIMPL::size() const
+{
+  return m_size;
+}
+
+
+/**
+ * @brief Return the current table size.
+ */
+T_CHMIMPL
+size_t CHMIMPL::capacity() const
+{
+  const Table& table = m_updater.get();
+  return table.capacity();
+}
+
+
+/** 
+ * @brief Return the hasher object.
+ */
+T_CHMIMPL
+inline
+const typename CHMIMPL::Hasher_t& CHMIMPL::hasher() const
+{
+  return m_hasher;
+}
+
+
+/** 
+ * @brief Return the matcher object.
+ */
+T_CHMIMPL
+inline
+const typename CHMIMPL::Matcher_t& CHMIMPL::matcher() const
+{
+  return m_matcher;
+}
+
+
+/**
+ * @brief Constructor.
+ * @param table The table instance we're referencing.
+ * @param end If true, initialize this to an end iterator.
+ *            Otherwise, initialize it to a a begin iterator.
+ */
+T_CHMIMPL
+inline
+CHMIMPL::const_iterator::const_iterator (const Table& table, bool end)
+  : m_table (table),
+    m_offset (INVALID)
+{
+  // For an end iterator, we want offset to be -1.
+  // For a begin iterator, we need to advance to the first non-null entry.
+  if (!end) {
+    next();
+  }
+}
+
+
+/**
+ * @brief Constructor.
+ * @param table The table instance we're referencing.
+ * @param offset Offset of the iterator within the table.
+ *               (Must point at an occupied entry.)
+ */
+T_CHMIMPL
+CHMIMPL::const_iterator::const_iterator (const Table& table, size_t offset)
+  : m_table (table),
+    m_offset (offset)
+{
+  assert (offset == INVALID || m_table.entry (offset).m_key != nullval);
+}
+
+
+/**
+ * @brief Advance the iterator to the next occupied entry.
+ */
+T_CHMIMPL
+inline
+void CHMIMPL::const_iterator::next()
+{
+  do {
+    ++m_offset;
+    if (m_offset >= m_table.capacity()) {
+      m_offset = INVALID;
+      break;
+    }
+  } while (m_table.entry (m_offset).m_key == nullval);
+}
+
+
+/**
+ * @brief Move the iterator back to the previous occupied entry.
+ */
+T_CHMIMPL
+inline
+void CHMIMPL::const_iterator::prev()
+{
+  if (m_offset == INVALID) {
+    m_offset = m_table.capacity();
+  }
+  do {
+    --m_offset;
+    if (m_offset >= m_table.capacity()) {
+      m_offset = INVALID;
+      break;
+    }
+  } while (m_table.entry (m_offset).m_key == nullval);
+}
+
+
+/**
+ * @brief Return the key for this iterator.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::val_t CHMIMPL::const_iterator::key() const
+{
+  return m_table.entry (m_offset).m_key;
+}
+    
+
+/**
+ * @brief Return the value for this iterator.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::val_t CHMIMPL::const_iterator::value() const
+{
+  return m_table.entry (m_offset).m_val;
+}
+
+
+/**
+ * @brief Compare two iterators.
+ */
+T_CHMIMPL
+inline
+bool CHMIMPL::const_iterator::operator!= (const const_iterator& other) const
+{
+  if (m_offset != other.m_offset) return true;
+  if (m_offset == INVALID) return false;
+  return &m_table != &other.m_table;
+}
+
+
+/**
+ * @brief Check that the iterator is valid (not pointing at the end).
+ */
+T_CHMIMPL
+inline
+bool CHMIMPL::const_iterator::valid() const
+{
+  return m_offset != INVALID;
+}
+
+
+/**
+ * @brief Return a range that can be used to iterate over the container.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::const_iterator_range CHMIMPL::range() const
+{
+  const Table& table = m_updater.get();
+  return const_iterator_range (const_iterator (table, false),
+                               const_iterator (table, true));
+}
+
+
+/** 
+ * @brief A begin iterator for the container.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::const_iterator CHMIMPL::begin() const
+{
+  const Table& table = m_updater.get();
+  return const_iterator (table, false);
+}
+
+
+/** 
+ * @brief An end iterator for the container.
+ */
+T_CHMIMPL
+inline
+typename CHMIMPL::const_iterator CHMIMPL::end() const
+{
+  const Table& table = m_updater.get();
+  return const_iterator (table, true);
+}
+
+
+/**
+ * @brief Erase the table and change the capacity.
+ * @param capacity The new table capacity.
+ * @param ctx Execution context.
+ *
+ * Returns an iterator pointing at the start of the old table.
+ */
+T_CHMIMPL
+typename CHMIMPL::const_iterator
+CHMIMPL::clear (size_t capacity,
+                const typename Updater_t::Context_t& ctx)
+{
+  capacity = round_up (capacity);
+  lock_t lock (m_mutex);
+  std::unique_ptr<Table> new_table (new (capacity) Table (capacity,
+                                                          m_hasher,
+                                                          m_matcher));
+
+  // Save an iterator to the old table.
+  const_iterator it = begin();
+
+  // Publish the new table.
+  m_size = 0;
+  m_table = new_table.get();
+  m_updater.update (std::move (new_table), ctx);
+  return it;
+}
+
+
+/**
+ * @brief Erase the table (don't change the capacity).
+ * @param ctx Execution context.
+ *
+ * Returns an iterator pointing at the start of the old table.
+ */
+T_CHMIMPL
+typename CHMIMPL::const_iterator
+CHMIMPL::clear (const typename Updater_t::Context_t& ctx)
+{
+  const Table& table = m_updater.get();
+  // Possible race here in that the container capacity could increase
+  // before we take out the lock in clear().  In practice, this should
+  // not actually be a problem.
+  return clear (table.capacity(), ctx);
+}
+
+
+/**
+ * @brief Increase the table capacity.
+ * @param capacity The new table capacity.
+ * @param ctx Execution context.
+ *
+ * No action will be taken in @c capacity is smaller
+ * than the current capacity.
+ */
+T_CHMIMPL
+void CHMIMPL::reserve (size_t capacity,
+                       const typename Updater_t::Context_t& ctx)
+{
+  lock_t lock (m_mutex);
+  if (capacity < m_table->capacity()) return;
+  grow (lock, round_up (capacity), ctx);
+}
+
+
+/**
+ * @brief Called when this thread is no longer referencing anything
+ *        from this container.
+ * @param ctx Execution context.
+ */
+T_CHMIMPL
+void CHMIMPL::quiescent (const typename Updater_t::Context_t& ctx)
+{
+  m_updater.quiescent (ctx);
+}
+
+
+/**
+ * @brief Make the table larger.
+ * @param ctx Execution context.
+ *
+ * Must be holding a lock on the mutex to call this.
+ */
+T_CHMIMPL
+bool CHMIMPL::grow (lock_t& lock, const typename Updater_t::Context_t& ctx)
+{
+  // Allocate a new table with twice the capacity.
+  return grow (lock, 2*m_table->capacity(), ctx);
+}
+
+
+/**
+ * @brief Make the table larger.
+ * @param new_capacity The new table capacity (must be a power of 2).
+ * @param ctx Execution context.
+ *
+ * Must be holding a lock on the mutex to call this.
+ */
+T_CHMIMPL
+bool CHMIMPL::grow (lock_t& /*lock*/,
+                    size_t new_capacity,
+                    const typename Updater_t::Context_t& ctx)
+{
+  // The current table.
+  const Table& table = *m_table;
+
+  std::unique_ptr<Table> new_table (new (new_capacity) Table (new_capacity,
+                                                              m_hasher,
+                                                              m_matcher));
+
+  // Copy data from the existing table to the new one.
+  size_t capacity = table.capacity();
+  for (size_t i = 0; i < capacity; i++) {
+    const entry_t& ent = table.entry(i);
+    if (ent.m_key != nullval) {
+      size_t hash = m_hasher (ent.m_key);
+      bool insert;
+      size_t offset = new_table->probeWrite (ent.m_key, hash, insert);
+      if (offset == INVALID) {
+        std::abort();
+      }
+      entry_t& new_entry = new_table->entry (offset);
+      new_entry.m_key = static_cast<val_t> (ent.m_key);
+      new_entry.m_val = static_cast<val_t> (ent.m_val);
+    }
+  }
+
+  // Publish the new table.
+  m_table = new_table.get();
+  m_updater.update (std::move (new_table), ctx);
+    
+  return true;
+}
+
+
+/**
+ * @brief Round up to a power of 2.
+ * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+ */
+T_CHMIMPL
+uint64_t CHMIMPL::round_up (uint64_t x)
+{
+  if (x <= 64) return 64;
+  --x;
+  x |= (x>>1);
+  x |= (x>>2);
+  x |= (x>>4);
+  x |= (x>>8);
+  x |= (x>>16);
+  x |= (x>>32);
+  ++x;
+  return x;
+}
+
+
+#undef CHMIMPL
+#undef T_CHMIMPL
+
+
+
+} // namespace detail
+} // namespace CxxUtils
