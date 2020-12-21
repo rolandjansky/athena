@@ -138,17 +138,17 @@ namespace top {
       
       // Top taggers
       std::string taggerType = "JSSWTopTaggerDNN";
-      setConfig(taggerType,"DNNTaggerTopQuarkContained50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201203_50Eff.dat");
-      setConfig(taggerType,"DNNTaggerTopQuarkContained80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201203_80Eff.dat");
-      setConfig(taggerType,"DNNTaggerTopQuarkInclusive50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201203_50Eff.dat");
-      setConfig(taggerType,"DNNTaggerTopQuarkInclusive80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201203_80Eff.dat");
+      setConfig(taggerType,"DNNTaggerTopQuarkContained50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201216_50Eff.dat");
+      setConfig(taggerType,"DNNTaggerTopQuarkContained80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkContained_MC16_20201216_80Eff.dat");
+      setConfig(taggerType,"DNNTaggerTopQuarkInclusive50","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_50Eff.dat");
+      setConfig(taggerType,"DNNTaggerTopQuarkInclusive80","JSSDNNTagger_AntiKt10LCTopoTrimmed_TopQuarkInclusive_MC16_20201216_80Eff.dat");
       
       // WZ taggers
       taggerType="SmoothedWZTagger";
-      setConfig(taggerType,"SmoothWContained50","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201203.dat");
-      setConfig(taggerType,"SmoothWContained80","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201203.dat");
-      setConfig(taggerType,"SmoothZContained50","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201203.dat");
-      setConfig(taggerType,"SmoothZContained80","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201203.dat");
+      setConfig(taggerType,"SmoothWContained50","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat");
+      setConfig(taggerType,"SmoothWContained80","SmoothedContainedWTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
+      setConfig(taggerType,"SmoothZContained50","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency50_MC16_20201216.dat");
+      setConfig(taggerType,"SmoothZContained80","SmoothedContainedZTagger_AntiKt10LCTopoTrimmed_FixedSignalEfficiency80_MC16_20201216.dat");
 
     } else if (m_config->sgKeyLargeRJets() == "AntiKt10TrackCaloClusterTrimmedPtFrac5SmallR20Jets") {
       // WZ taggers
