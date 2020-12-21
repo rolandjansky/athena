@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1RESULT_MUCTPI_RDO_H
@@ -43,6 +43,7 @@ class MuCTPI_RDO {
 public:
   /// Enumeration defining the different sources for the muon candidates
   enum SectorLocation { BARREL = 0, ENDCAP = 1, FORWARD = 2 };
+
 
   /// "Intermediate" constructor
   /**
@@ -140,90 +141,8 @@ public:
   const std::vector< uint32_t >& dataWord() const {
     return m_dataWord;
   }
-
-  /// Binary 111 representing the maximal multiplicity value for a given threshold
-  static constexpr uint32_t MULT_VAL = 7;
-  /// Number of multiplicity bits reserved per threshold
-  static constexpr uint32_t MULT_BITS = 3;
-  /// Defining the number of p<sub>T</sub> thresholds in the system
-  static constexpr uint32_t MULT_THRESH_NUM = 6;
-  /// Telling that the 3-bit BCID comes at "position 7" in the multiplicity word
-  static constexpr uint32_t MULT_BCID_POS = 7;
-
-  /// Weird mask for the bit showing if more than two muon candidates were in the trigger sector
-  static constexpr uint32_t CAND_OVERFLOW_MASK = 0x1;
-  /// Position of the candidate overflow mask
-  static constexpr uint32_t CAND_OVERFLOW_SHIFT = 0;
-  /// Weird mask for the bit showing if more than one muon candidates were in the sector RoI
-  static constexpr uint32_t ROI_OVERFLOW_MASK = 0x1;
-  /// Position of the RoI overflow mask
-  static constexpr uint32_t ROI_OVERFLOW_SHIFT = 1;
-
-  /// Bit in the candidate's address turned on for endcap candidates
-  static constexpr uint32_t ENDCAP_ADDRESS_MASK = 0x80;
-  /// Bit in the candidate's address turned on for forward candidates
-  static constexpr uint32_t FORWARD_ADDRESS_MASK = 0x40;
-
-  /// Mask for extracting the sector ID for endcap candidates from the data word
-  static constexpr uint32_t ENDCAP_SECTORID_MASK = 0x3f;
-  /// Mask for extracting the sector ID for forward candidates from the data word
-  static constexpr uint32_t FORWARD_SECTORID_MASK = 0x1f;
-  /// Mask for extracting the sector ID for barrel candidates from the data word
-  static constexpr uint32_t BARREL_SECTORID_MASK = 0x1f;
-  /// Mask for the bit showing which hemisphere the candidate came from.(1: positive; 0: negative)
-  static constexpr uint32_t SECTOR_HEMISPHERE_MASK = 0x1;
-
-  /// Mask for extracting the RoI for barrel candidates from the data words
-  static constexpr uint32_t BARREL_ROI_MASK = 0x1f;
-  /// Mask for extracting the RoI for endcap candidates from the data words
-  static constexpr uint32_t ENDCAP_ROI_MASK = 0xff;
-  /// Mask for extracting the RoI for forward candidates from the data words
-  static constexpr uint32_t FORWARD_ROI_MASK = 0x3f;
-  /// Position of the RoI bits in the data word
-  static constexpr uint32_t ROI_SHIFT = 2;
-
-  /// Mask for extracting the overlap bits for barrel candidates from the data words
-  static constexpr uint32_t BARREL_OL_MASK = 0x3;
-  /// Position of the overlap bits in barrel data words
-  static constexpr uint32_t BARREL_OL_SHIFT = 9;
-  /// Mask for extracting the overlap bits for endcap candidates from the data words
-  static constexpr uint32_t ENDCAP_OL_MASK = 0x1;
-  /// Position of the overlap bits in endcap data words
-  static constexpr uint32_t ENDCAP_OL_SHIFT = 10;
-
-  /// Mask for extracting the p<sub>T</sub> threshold passed by the candidate from the data word
-  static constexpr uint32_t CAND_PT_MASK = 0x7;
-  /// Position of the p<sub>T</sub> threshold bits in the data words
-  static constexpr uint32_t CAND_PT_SHIFT = 11;
-
-  /// Mask for extracting the last 3 bits of the BCID of the muon candidate from the data word
-  static constexpr uint32_t CAND_BCID_MASK = 0x7;
-  /// Position of the BCID bits in the data words
-  static constexpr uint32_t CAND_BCID_SHIFT = 14;
-
-  /// Mask for extracting the address of the muon candidate from the data word
-  static constexpr uint32_t CAND_SECTOR_ADDRESS_MASK = 0xff;
-  /// Position of the muon candidate's address in the data word
-  static constexpr uint32_t CAND_SECTOR_ADDRESS_SHIFT = 17;
-
-  /// Mask for extracting the bit from the data word showing whether the candidate had the highest p<sub>T</sub> in the sector
-  static constexpr uint32_t CAND_HIGHEST_PT_MASK = 0x1;
-  /// Position of the "highest p<sub>T</sub>" bit
-  static constexpr uint32_t CAND_HIGHEST_PT_SHIFT = 25;
-
-  /// Mask for extracting the bit from the data word showing if the muon candidate was sent to the RoIB
-  static constexpr uint32_t CAND_SENT_ROI_MASK = 0x1;
-  /// Position of the "candidate sent to RoIB" bit.
-  static constexpr uint32_t CAND_SENT_ROI_SHIFT = 26;
-
-  /// Position of the bit turned on for the multiplicity words that distinguishes them from the data words
-  static constexpr uint32_t MULT_WORD_FLAG_SHIFT = 29;
-
-  /// Position of the bit specifying the candidate's sign
-  static constexpr uint32_t CAND_TGC_CHARGE_SIGN_SHIFT = 27;
-
-  /// Position of the bit specifying if a candidate was vetoed in the multiplicity sum
-  static constexpr uint32_t CAND_VETO_SHIFT = 28;
+  
+#include<TrigT1MuctpiBits/MuCTPI_Bits.h>
 
 private:
   /// Variable storing the multiplicity word(s) sent to the CTP

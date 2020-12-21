@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -155,7 +155,7 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
   m_preSampFrac=m_preSamp=m_monEta=m_monPhi=m_Energy=-9999.0;
 
-  if ( !pClus && (pClus->energy()>0.1) && (fabsf(pClus->eta())<2.1) ) {
+  if ( ! ( pClus && (pClus->energy()>0.1) && (fabsf(pClus->eta())<2.1) ) ) {
     msg() << MSG::WARNING << "No EM cluster in RoI" << endmsg;
     return HLT::OK;
   }

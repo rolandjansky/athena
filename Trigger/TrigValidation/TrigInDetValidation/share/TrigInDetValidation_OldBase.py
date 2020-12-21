@@ -1,5 +1,7 @@
 ###  #!/usr/bin/env python
 
+
+
 # Slices = ['fsjet']
 # RunEF  = False
 # Events = 10
@@ -10,14 +12,8 @@
 
 import re
 
-from TrigValTools.TrigValSteering import Test
-from TrigValTools.TrigValSteering import CheckSteps
-
-from TrigInDetValidation.TrigInDetNewArtSteps import TrigInDetReco
-from TrigInDetValidation.TrigInDetNewArtSteps import TrigInDetAna
-from TrigInDetValidation.TrigInDetNewArtSteps import TrigInDetRdictStep
-from TrigInDetValidation.TrigInDetNewArtSteps import TrigInDetCompStep
-from TrigInDetValidation.TrigInDetNewArtSteps import TrigInDetCpuCostStep
+from TrigValTools.TrigValSteering import Test, CheckSteps
+from TrigInDetValidation.TrigInDetOldArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
 
 
 import sys,getopt
@@ -32,13 +28,14 @@ except getopt.GetoptError:
     print("-n  N          run only on N events per job")
     print("-c(--config)   run with config_only and print to a pkl file")
     print("")
-    sys.exit(1)
+
 
 Events_local  = 0
 local         = False
 exclude       = False
 postproc      = False
 testconfig    = False
+lowpt_local   = []
 
 
 try: GridFiles
@@ -73,13 +70,18 @@ rdo2aod.slices            = Slices
 rdo2aod.threads           = Threads
 rdo2aod.concurrent_events = Slots 
 rdo2aod.config_only       = testconfig
-if 'Release' in dir():
-    rdo2aod.release           = Release
+
+if "Lowpt" in locals() : 
+    if isinstance( Lowpt, list ) : 
+        lowpt_local = Lowpt
+    else : 
+        lowpt_local = [ Lowpt ]
+else : 
+    lowpt_local = [ False ]
 
 
 if "Args" not in locals() : 
     Args = " "
-
 
 # allow command line to override programed number of events to process
 
@@ -114,17 +116,62 @@ if (not exclude):
 
 # Run TIDArdict
 
+# first make sure that we have a proper list ..
+if isinstance( TrackReference, str ):
+    TrackReference = [ TrackReference ]
 
-if ((not exclude) or postproc ):
-    for job in Jobs : 
-        rdict = TrigInDetRdictStep( name=job[0], args=job[1] )
-        print( "\n\033[0;32m TIDArdict "+job[1]+" \033[0m" )
+for ref in TrackReference : 
+
+    hist_file = 'data-hists.root'
+    ext       = ''
+
+    if   ( ref == 'Truth' ) :
+        args = 'TIDAdata-run3.dat  -b Test_bin.dat -o ' + hist_file + Args
+    elif ( ref == 'Offline' ) :
+        # if more than one reefrence ...
+        if len(TrackReference)>1 : 
+            hist_file = 'data-hists-offline.root'
+            ext       = 'offline'
+        args = 'TIDAdata-run3-offline.dat -r Offline  -b Test_bin.dat -o ' + hist_file
+    else :
+        # here actually we should allow functionality 
+        # to use different pdgid truth or offline as
+        # a reference:
+        # presumably we run offline muons etc as well 
+        # now in the transform
+        raise Exception( 'unknown reference: ', ref )
+
+    if ((not exclude) or postproc ):
+        rdict = TrigInDetdictStep( name=ref, reference=ref )
+        rdict.args = args
+        print( "\033[0;32m TIDArdict "+args+" \033[0m" )
+
         test.check_steps.append(rdict)
        
-        
-for _slice in Comp :
-    compstep = TrigInDetCompStep( name=_slice[0], slice=_slice[1], file=_slice[2], args=_slice[3] ) 
-    test.check_steps.append(compstep)
+    # Now the comparitor steps
+    # here, the compararitor must know the name of the root file to process
+    # we set it in the comparitor job, using the "offline" extension
+    # this isn't ideal, since we set the hist file in this code also 
+    # so really we should pass it in consistently, and the options 
+    # for the directory names should be unrelated 
+    
+    for slice in Slices :
+        for _lowpt in lowpt_local :
+            
+            stagetag = slice+ext
+            if _lowpt :
+                stagetag += "-lowpt"
+                
+            print( "stagetag "+stagetag )
+                
+            comp1=TrigInDetCompStep( 'Comp_L2'+stagetag, 'L2', slice, type=ext, lowpt=_lowpt )
+            test.check_steps.append(comp1)
+            
+            if ( RunEF ) : 
+                comp2=TrigInDetCompStep( 'Comp_EF'+stagetag, 'EF', slice, type=ext, lowpt=_lowpt )
+                test.check_steps.append(comp2)
+
+
 
 # CPU cost steps
 

@@ -276,7 +276,7 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	  // Count only tracks with a certain pT:
 	  if( fabs( (*trackIter2)->pt()) < m_maxPtInIso ) continue;
 
-	  const Trk::TrackParameters * param_at_calo = 0;
+	  //const Trk::TrackParameters * param_at_calo = 0;
 
 	  if( msgLvl() <= MSG::VERBOSE ){ 
 	    msg() << MSG::VERBOSE << "Extrapolating track to calo." << endmsg;
@@ -339,13 +339,13 @@ HLT::ErrorCode EFHadCalibHypo::hltExecute(const HLT::TriggerElement* inputTE, bo
 	      countTracksOnDeltaR++;
 	    }
 
-	  if( msgLvl() <= MSG::VERBOSE )
-	    msg() << MSG::VERBOSE << "Extrapolated "
-		  << "eta = " << param_at_calo->position().eta() << " and "
-		  << "phi = " << param_at_calo->position().phi() 
-		  << ", dR = " << dr << endmsg;
+	  //if( msgLvl() <= MSG::VERBOSE )
+	  //  msg() << MSG::VERBOSE << "Extrapolated "
+	  //	  << "eta = " << param_at_calo->position().eta() << " and "
+	  //	  << "phi = " << param_at_calo->position().phi() 
+	  //	  << ", dR = " << dr << endmsg;
 
-	  delete param_at_calo;
+	  //delete param_at_calo;
 	}
 
       if( msgLvl() <= MSG::INFO )

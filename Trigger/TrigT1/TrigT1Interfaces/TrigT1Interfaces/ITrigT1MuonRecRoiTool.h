@@ -6,7 +6,7 @@
 #define ITRIGT1MUONRECROITOOL_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "TrigT1MuonRecRoiTool/TrigT1MuonRecRoiData.h"
+#include "TrigT1MuonRecRoiData.h"
 
 namespace LVL1 {
 

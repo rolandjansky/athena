@@ -6,7 +6,7 @@
 #define PseudoJetContainer_H
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -54,6 +54,8 @@ public:
   PseudoJetContainer(const IConstituentExtractor* c, 
                      const std::vector<PseudoJet> & vecPJ,
                      bool debug=false);
+
+  ~PseudoJetContainer();
 
   // fill xAOD jet with constit&ghosts extracted from final PSeudoJet
   bool extractConstituents(xAOD::Jet&, const std::vector<PseudoJet>&) const;

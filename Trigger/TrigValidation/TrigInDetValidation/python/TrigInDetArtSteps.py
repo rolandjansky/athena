@@ -35,6 +35,7 @@ class TrigInDetReco(ExecStep):
         self.slices = []
         self.preexec_trig = ' '
         self.postinclude_trig = postinclude_file
+        self.release = 'latest'
         self.preexec_reco =  ';'.join([
             'from RecExConfig.RecFlags import rec',
             'rec.doForwardDet=False',
@@ -59,8 +60,9 @@ class TrigInDetReco(ExecStep):
         ])
         self.postexec_trig = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.RDO_TRIG=100000000000']"
 
+
         self.postexec_reco = "from AthenaCommon.AppMgr import ServiceMgr; ServiceMgr.AthenaPoolCnvSvc.MaxFileSizes=['tmp.ESD=100000000000']"
-        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG" --asetup "RAWtoESD:Athena,22.0.20" "ESDtoAOD:Athena,22.0.20" '
+        self.args = '--outputAODFile=AOD.pool.root --steering="doRDO_TRIG"'
 
 
     def configure(self, test):
@@ -100,6 +102,25 @@ class TrigInDetReco(ExecStep):
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
+        if (self.release == 'current'):
+            print( "Using current release for offline Reco steps  " )
+        else:
+            # get the current atlas base release, and the previous base release
+            import os
+            DVERSION=os.getenv('Athena_VERSION')
+            if (self.release == 'latest'):
+                if ( DVERSION is None ) :
+                    AVERSION = "22.0.20"
+                else:
+                    BASE=DVERSION[:5]
+                    SUB=int(DVERSION[5:])
+                    SUB -= 1
+                    AVERSION=BASE+str(SUB)
+            else:
+                AVERSION = self.release
+            self.args += ' --asetup "RAWtoESD:Athena,'+AVERSION+'" "ESDtoAOD:Athena,'+AVERSION+'" '
+            print( "remapping athena base release version for offline Reco steps: ", DVERSION, " -> ", AVERSION )
+
 
         self.args += ' --preExec "RDOtoRDOTrigger:{:s};" "all:{:s};" "RAWtoESD:{:s};" "ESDtoAOD:{:s};"'.format(
             self.preexec_trig, self.preexec_all, self.preexec_reco, self.preexec_aod)
@@ -126,31 +147,52 @@ class TrigInDetAna(AthenaCheckerStep):
 # Additional post-processing steps
 ##################################################
 
-class TrigInDetdictStep(Step):
+class TrigInDetRdictStep(Step):
     '''
     Execute TIDArdict for TrkNtuple files.
     '''
-    def __init__(self, name='TrigInDetdict', reference='Truth' ):
-        super(TrigInDetdictStep, self).__init__(name)
-        self.args=' '
+    def __init__(self, name='TrigInDetdict', args=None, testbin='Test_bin.dat'):
+        super(TrigInDetRdictStep, self).__init__(name)
+        self.args=args + "  -b " + testbin + " "
         self.auto_report_result = True
         self.required = True
-        self.reference = reference
         self.executable = 'TIDArdict'
 
     def configure(self, test):
-        os.system( 'get_files -data TIDAbeam.dat' )
-        os.system( 'get_files -data Test_bin.dat' )
-        os.system( 'get_files -data TIDAdata-chains-run3.dat' )
-        os.system( 'get_files -data TIDAhisto-panel.dat' )
-        os.system( 'get_files -data TIDAdata-run3.dat' )
-        os.system( 'get_files -data TIDAdata_cuts.dat' )
-        os.system( 'get_files -data TIDAdata-run3-offline.dat' )
-        os.system( 'get_files -data TIDAdata_cuts-offline.dat' )
-        os.system( 'get_files -jo   TIDAml_extensions.py' ) 
-        super(TrigInDetdictStep, self).configure(test)
+        os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
+        os.system( 'get_files -data Test_bin.dat &> /dev/null' )
+        os.system( 'get_files -data Test_bin_larged0.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-chains-run3.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-panel.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhisto-panel-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAhistos-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
+        os.system( 'get_files -jo   TIDAml_extensions.py &> /dev/null' )
+        super(TrigInDetRdictStep, self).configure(test)
 
 
+def json_chains( slice ) : 
+    json_file     = 'TrigInDetValidation/comparitor.json'
+    json_fullpath = FindFile(json_file, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
+
+    if not json_fullpath:
+        print('Failed to determine full path for input JSON %s', json_file)
+        return None
+        
+    with open(json_fullpath) as f:
+        data = json.load(f)
+       
+    chainmap = data[slice]
+
+    return chainmap['chains']
 
 
 
@@ -158,76 +200,25 @@ class TrigInDetCompStep(RefComparisonStep):
     '''
     Execute TIDAcomparitor for data.root files.
     '''
-    def __init__( self, name='TrigInDetComp', level='', slice='', input_file='data-hists.root', type='truth', lowpt=False ):
+    def __init__( self, name='TrigInDetComp', slice=None, args=None, file=None, reference=None ):
         super(TrigInDetCompStep, self).__init__(name)
-
-        self.input_file = input_file
-        # self.output_dir = 'HLT-plots'
-        self.output_dir = ''
-
-        if level == '' : 
-            raise Exception( 'no level specified' )
-
-        if slice == '' : 
-            raise Exception( 'no slice specified' )
-
-        self.level  = level
-        self.slice  = slice
-        self.lowpt  = lowpt
-        self.type   = type
-        self.chains = ' '
-        self.args   = ' --oldrms -c TIDAhisto-panel.dat '
-        self.test   = ' '
+        if reference is None :
+            self.reference  = file # do we need this any more ??? 
+            self.args  = args + " " + file + "  " + file + " --noref --oldrms "
+        else:
+            self.reference = reference
+            self.args  = args + " " + file + "  " + reference + " --oldrms "
+        self.slice = slice 
         self.auto_report_result = True
         self.required   = True
+
         self.executable = 'TIDAcomparitor'
     
 
     def configure(self, test):
-
-        json_file     = 'TrigInDetValidation/comparitor.json'
-        json_fullpath = FindFile(json_file, os.environ['DATAPATH'].split(os.pathsep), os.R_OK)
-
-        if not json_fullpath:
-            print('Failed to determine full path for input JSON %s', json_file)
-            return None
-
-        with open(json_fullpath) as f:
-            data = json.load(f)
-
-        self.output_dir = 'HLT'+self.level+'-plots'
-
-        flag = self.level+self.slice
-
-        if (self.lowpt):
-            self.output_dir = self.output_dir+'-lowpt'    
-            flag = flag+'Lowpt'
-            
-        data_object = data[flag]
-
-        self.chains = data_object['chains']
-
-        # what is all this doing ? does it need to be so complicated ?
-
-        if (self.test=='ttbar'):
-            self.output_dir = self.output_dir+"-"+self.slice
-
-        if (self.type == 'offline'):
-            self.output_dir = self.output_dir+'-offline'    
-            self.input_file = 'data-hists-offline.root'
-
-        self.args += self.input_file + ' ' 
-
-        if (self.reference is None):
-            # if no reference found, use input file as reference - athout it doesn't matter - could use --noref
-            self.args += self.input_file + ' ' 
-        else:
-            self.args += self.ref_file + ' ' 
-
-        self.args += self.chains + ' -d ' + self.output_dir
-
-        print( "TIDAComparitor " + self.args ) 
-
+        self.chains = json_chains( self.slice )
+        self.args += " " + self.chains
+        print( "\033[0;32mTIDAcomparitor "+self.args+" \033[0m" )
         super(TrigInDetCompStep, self).configure(test)
 
 
