@@ -37,6 +37,12 @@ atlas_add_poolcnv_library( xAODTrackingAthenaPoolPoolCnv
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
+# In AthAnalysis xAOD::TrackParticle doesn't know about its Trk::Track link.
+# Which makes the converter tests fail in that project...
+if( XAOD_ANALYSIS )
+   return()
+endif()
+
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
 
