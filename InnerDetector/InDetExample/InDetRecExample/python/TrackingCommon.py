@@ -325,6 +325,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+
+    if do_runI and not useTTrainedNetworks:
+      log.debug("useNNTTrainedNetworks must be True for Run I. Contact CTIDE for questions.")
+      useTTrainedNetworks = True
     
     if useTTrainedNetworks :
       log.debug("Setting up TTrainedNetworks")
