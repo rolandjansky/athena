@@ -10,9 +10,11 @@
 #include <algorithm>
 #include <sstream>
 
-FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
+FastReductionMatcher::FastReductionMatcher(ConditionPtrs& conditions,
+					   ConditionFilters& filters,
 					   const Tree& tree):
   m_conditions(std::move(conditions)),
+  m_conditionFilters(std::move(filters)),
   m_tree(tree){
 
   for (const auto& il : m_tree.leaves()){
@@ -20,12 +22,16 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs conditions,
       throw std::runtime_error("Tree leaf condition  but not from ChainPart");
     }
   }
+  if (filters.size() != conditions.size()) {
+    throw std::runtime_error("Conditions and ConditionFilters sequence sizes differ");
+  }
+
 }
 	 
 
 std::optional<bool>
-FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
-			    const HypoJetGroupCIter& groups_e,
+FastReductionMatcher::match(const HypoJetCIter& jets_b,
+			    const HypoJetCIter& jets_e,
 			    xAODJetCollector& jetCollector,
 			    const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 			    bool) const {
@@ -43,9 +49,10 @@ FastReductionMatcher::match(const HypoJetGroupCIter& groups_b,
    */
 
 
-  FastReducer reducer(groups_b,
-                      groups_e,
+  FastReducer reducer(jets_b,
+                      jets_e,
                       m_conditions,
+		      m_conditionFilters,
                       m_tree,
                       jetCollector,
                       collector);
@@ -67,6 +74,18 @@ std::string FastReductionMatcher::toString() const {
     sc.insert(sc.begin(), 3-sc.length(), ' ');
     ss << sc <<": "<< c->toString() + '\n';
   }
+
+  ss << "FastReductionMatcher ConditionFilters ["
+     << m_conditionFilters.size() << "]: \n";
+
+
+  count = 0;
+  for(const auto& c : m_conditionFilters){
+    auto sc = std::to_string(count++);
+    sc.insert(sc.begin(), 3-sc.length(), ' ');
+    ss << sc <<": "<< c->toString() + '\n';
+  }
+  
 
   return ss.str();
 }

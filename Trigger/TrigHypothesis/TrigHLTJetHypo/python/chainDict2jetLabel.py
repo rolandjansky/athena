@@ -297,9 +297,9 @@ def _make_agg_label(chain_parts, leg_label):
 
     argvals['leg_label'] = leg_label
     result =  """
-    ht([(%(htlo).0fht, %(leg_label)s)
+    agg([(%(htlo).0fht, %(leg_label)s)
         (%(etlo).0fet)
-        (%(etalo).0feta%(etahi).0f)
+    (%(etalo).0feta%(etahi).0f)
     ])"""  % argvals
     print (result)
     return result
