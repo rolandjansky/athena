@@ -11,6 +11,7 @@ class  ConfiguredNewTrackingSiPattern:
 
    def __init__(self, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[]):
       
+      from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
       from InDetRecExample.InDetJobProperties import InDetFlags
       from InDetRecExample.InDetKeys          import InDetKeys
       #
@@ -227,7 +228,7 @@ class  ConfiguredNewTrackingSiPattern:
                                                                         RoadWidth          = NewTrackingCuts.RoadWidth())
          #InDetSiDetElementsRoadMaker.OutputLevel = VERBOSE
          
-         if NewTrackingCuts.mode() == "SLHC":
+         if commonGeoFlags.Run()=="RUN4":
             InDetSiDetElementsRoadMaker.ITkGeometry = True 
          
          ToolSvc += InDetSiDetElementsRoadMaker
@@ -240,7 +241,7 @@ class  ConfiguredNewTrackingSiPattern:
 
          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
          
-         if NewTrackingCuts.mode() == "SLHC":
+         if commonGeoFlags.Run()=="RUN4":
            from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMakerITk_xk as SiTrackMaker
          else:
            from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
@@ -419,9 +420,9 @@ class  ConfiguredNewTrackingSiPattern:
           if InDetFlags.doHeavyIon() :
            InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
           
-          if NewTrackingCuts.mode() == "SLHC":
+          if commonGeoFlags.Run()=="RUN4":
               InDetSiSPSeededTrackFinder.ITKGeometry = True
-              if InDetFlags.doFastTracking():
+              if InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
                 InDetSiSPSeededTrackFinder.doFastTracking = True
                 InDetSiSPSeededTrackFinder.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
