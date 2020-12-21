@@ -42,17 +42,18 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 }
 
 StatusCode TrigJetHypoToolMT::initialize(){
-  DebugInfoCollector collector(name());
-  CHECK(m_helper->getDescription(collector));
-  auto s = collector.toString();
-  
-  for(const auto& l : lineSplitter(s)){
-    ATH_MSG_INFO(l);
-  }
-  
+
   if (m_visitDebug){
-    collector.write();
+
+    DebugInfoCollector collector(name());
+    CHECK(m_helper->getDescription(collector));
+    auto s = collector.toString();
+  
+    for(const auto& l : lineSplitter(s)){
+      ATH_MSG_INFO(l);
+    }
   }
+
   return StatusCode::SUCCESS;
 }
 

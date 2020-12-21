@@ -1469,7 +1469,7 @@ HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 50
+    0: 5
 HLT_j0_perf_L1J12_EMPTY:
   eventCount: 0
 HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:

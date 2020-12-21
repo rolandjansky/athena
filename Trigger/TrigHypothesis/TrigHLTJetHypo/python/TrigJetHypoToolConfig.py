@@ -8,8 +8,6 @@ from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
 
-from TrigHLTJetHypo.ConditionsToolSetterHT import ConditionsToolSetterHT
-
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
@@ -20,10 +18,10 @@ from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  trigJetHypoToolHelperFromDict_(
+def  nodeTreeFromChainLabel(
         chain_label, # simple([(260et,320eta490, leg000)])
         chain_name, # HLT_j260_320eta490_L1J75_31ETA49
-        toolSetter=None):
+        toolSetter):
 
     parser = ChainLabelParser(chain_label, debug=False)
 
@@ -59,12 +57,23 @@ def  trigJetHypoToolHelperFromDict_(
     log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
 
     toolSetter.mod(tree)
+    return tree
+
+
+def trigJetHypoToolHelperFromDict_(
+        chain_label, # simple([(260et,320eta490, leg000)])
+        chain_name, # HLT_j260_320eta490_L1J75_31ETA49
+        toolSetter):
+
+    nodeTreeFromChainLabel(
+        chain_label,
+        chain_name,
+        toolSetter)
+    
     tool = toolSetter.tool
-
     log.debug(toolSetter.report())
-
+    
     return tool
-
 
 def  trigJetHypoToolHelperFromDict(chain_dict):
     """Produce  a jet trigger hypo tool helper from a chainDict
@@ -91,11 +100,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     chain_name = chain_dict['chainName']
 
-    toolSetter = None
-    if 'agg' in chain_name:
-        toolSetter=ConditionsToolSetterHT()
-    else:
-        toolSetter=ConditionsToolSetterFastReduction()
+    toolSetter = ConditionsToolSetterFastReduction()
 
     return trigJetHypoToolHelperFromDict_(chain_label,
                                           chain_name,
