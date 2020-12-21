@@ -3,6 +3,9 @@
 # Declare the package name:
 atlas_subdir( AthenaConfiguration )
 
+# External dependencies.
+find_package( future )
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/iconfTool
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
