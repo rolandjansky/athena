@@ -523,8 +523,7 @@ namespace top {
                  "TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() failed to retrieve large R jets");
 
       for (auto jetPtr : *jets) {
-        //char decoration = m_largeJetSelection->passSelection(*jetPtr);
-        char decoration = '0';
+        char decoration = m_largeJetSelection->passSelection(*jetPtr);
         jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
         jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
         if (m_doLooseCuts) {
