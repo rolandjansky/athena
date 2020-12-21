@@ -85,7 +85,7 @@ def _setup():
             ret = py_sg_getitem(self, str(key).encode())
         except LookupError as err:
             raise KeyError(str(err))
-        if ret and hasattr(ret,'setStore') and not ret.hasStore():
+        if ret and hasattr(ret,'setStore') and hasattr(ret,'hasStore') and not ret.hasStore():
             if not hasattr(ret,'trackIndices') or ret.trackIndices():
                 if py_sg_contains (self, 'SG::IConstAuxStore', key + 'Aux.'):
                     aux = py_retrieve (self, 'SG::IConstAuxStore', key + 'Aux.')
