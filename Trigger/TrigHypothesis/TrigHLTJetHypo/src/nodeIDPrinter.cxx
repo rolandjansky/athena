@@ -19,6 +19,17 @@ std::string nodeIDPrinter(const std::string& name,
 }
 
 std::string nodeIDPrinter(const std::string& name,
+                          bool pass,
+                          const std::string& timerStr){
+
+  std::stringstream ss;
+  ss << "name(): " << name <<"  pass: " <<std::boolalpha << pass << " "
+     << timerStr << '\n';
+
+  return ss.str();
+}
+
+std::string nodeIDPrinter(const std::string& name,
                           int nodeID,
                           int parentID,
                           const std::optional<bool>& pass,
@@ -30,6 +41,21 @@ std::string nodeIDPrinter(const std::string& name,
   ss << "name(): " <<name <<"  node: " << nodeID
      << " parent: " << parentID
      << " pass: " << "ERROR " <<timerStr << '\n';
+
+  return ss.str();
+}
+
+std::string nodeIDPrinter(const std::string& name,
+                          const std::optional<bool>& pass,
+                          const std::string& timerStr){
+  if(pass.has_value()){
+    return nodeIDPrinter(name, *pass, timerStr);
+  }
+
+  
+  std::stringstream ss;
+  
+  ss << "name(): " << name << " pass: " << "ERROR " <<timerStr << '\n';
 
   return ss.str();
 }

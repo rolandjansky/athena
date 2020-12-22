@@ -8,6 +8,10 @@ from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
 
+from TrigHLTJetHypo.FastReductionAlgToolFactory import (
+    FastReductionAlgToolFactory,
+    )
+
 from  TrigHLTJetHypo.chainDict2jetLabel import chainDict2jetLabel
 
 from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
@@ -18,14 +22,8 @@ from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
-def  nodeTreeFromChainLabel(
-        chain_label, # simple([(260et,320eta490, leg000)])
-        chain_name, # HLT_j260_320eta490_L1J75_31ETA49
-        toolSetter):
+def  tree2tools(rootless_tree, toolSetter):
 
-    parser = ChainLabelParser(chain_label, debug=False)
-
-    rootless_tree = parser.parse()
     
     # add a root node so that split simple nodes cann connect.
     tree = Node('root')
@@ -51,29 +49,38 @@ def  nodeTreeFromChainLabel(
     # chain name in run 2 dicts were missing the 'HLT_' prefix
     # but it seems it is necessary to run the hypos in AthenaMT ?...?
 
-    if not chain_name.startswith('HLT_'):
-        chain_name = 'HLT_' + chain_name
-
-    log.info('trigJetHypoToolFromDict chain_name %s', chain_name)
-
     toolSetter.mod(tree)
-    return tree
+
+    return tree  # used by debug tools
 
 
-def trigJetHypoToolHelperFromDict_(
+def  nodeForestFromChainLabel(
         chain_label, # simple([(260et,320eta490, leg000)])
-        chain_name, # HLT_j260_320eta490_L1J75_31ETA49
-        toolSetter):
+        chain_name,): # HLT_j260_320eta490_L1J75_31ETA49
+    
+    parser = ChainLabelParser(chain_label, debug=False)
 
-    nodeTreeFromChainLabel(
-        chain_label,
-        chain_name,
-        toolSetter)
+    return parser.parse()
+   
+def trigJetHypoToolHelperFromDict_(
+        chain_label,  # simple([(260et,320eta490, leg000)])
+        chain_name,):  # HLT_j260_320eta490_L1J75_31ETA49
+
     
-    tool = toolSetter.tool
-    log.debug(toolSetter.report())
+    node_forest =  nodeForestFromChainLabel(chain_label,
+                                            chain_name)
+
+    algToolFactory = FastReductionAlgToolFactory()
+    helper_tool = algToolFactory('helper')
+
+    for tree in node_forest:
+        toolSetter = ConditionsToolSetterFastReduction()
+        tree2tools(tree, toolSetter)
+        helper_tool.HypoConfigurers.append(toolSetter.config_tool)   
+
+        log.debug(toolSetter.report())
     
-    return tool
+    return helper_tool
 
 def  trigJetHypoToolHelperFromDict(chain_dict):
     """Produce  a jet trigger hypo tool helper from a chainDict
@@ -100,11 +107,9 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     chain_name = chain_dict['chainName']
 
-    toolSetter = ConditionsToolSetterFastReduction()
 
     return trigJetHypoToolHelperFromDict_(chain_label,
-                                          chain_name,
-                                          toolSetter)
+                                          chain_name)
 
 
 def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):

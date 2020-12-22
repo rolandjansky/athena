@@ -54,7 +54,7 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
  private:
 
   // Object that matches jet groups with Conditions
-  std::unique_ptr<IJetsMatcherMT> m_matcher;
+  std::vector<std::unique_ptr<IJetsMatcherMT>> m_matchers;
 
   // Bridge objects to ICleaner predicate function objects to allow polymorphic
   // pointers to be used with the STL (pass by value).
@@ -64,18 +64,13 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
 
  // Used to generate helper objects foe TrigHLTJetHelper
  // from user supplied values
- ToolHandle<ITrigJetHypoToolNoGrouperConfig> m_config {
-   this, "HypoConfigurer", {}, "Configurer to set up TrigHLTJetHypoHelper2"}; 
+ ToolHandleArray<ITrigJetHypoToolNoGrouperConfig> m_configs {
+   this, "HypoConfigurers", {},
+   "Configurers to set up TrigJetHypoHelperNoGrouper"}; 
 
- Gaudi::Property<int>
-  m_parentNodeID {this, "parent_id", {0}, "hypo tool tree parent node id"};
-
-Gaudi::Property<int>
-  m_nodeID {this, "node_id", {0}, "hypo tool tree node id"};
-
-Gaudi::Property<bool>
+  Gaudi::Property<bool>
   m_debug {this, "debug", false, "instantantiate helpers with this debug flag"};
-
+  
 
  void collectData(const std::string& exetime,
                   const std::unique_ptr<ITrigJetHypoInfoCollector>&,
