@@ -527,7 +527,7 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
     track_steering = acc.getPrimary()
     result.merge(acc)
     
-    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="MuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
+    track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
 
     result.addEventAlgo( track_builder, primary=True )
     return result

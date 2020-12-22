@@ -55,7 +55,7 @@ if __name__=="__main__":
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     cfg.addService( muon_edm_helper_svc )
 
-    itemsToRecord = ["Trk::SegmentCollection#MuonSegments", "Trk::SegmentCollection#NCB_MuonSegments"]
+    itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     
