@@ -11,7 +11,6 @@
 #+ PhysicsAnalysis/AnalysisCommon/FakeBkgTools
 #+ PhysicsAnalysis/BPhys/BPhysTools
 #+ PhysicsAnalysis/DerivationFramework/DerivationFrameworkAnalysisTests
-#+ Reconstruction/Jet/BoostedJetTaggers
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 
 
@@ -83,6 +82,7 @@
 + PhysicsAnalysis/TauID/TauAnalysisTools
 + PhysicsAnalysis/TrackingID/.*
 + Reconstruction/EventShapes/EventShapeInterface
++ Reconstruction/Jet/BoostedJetTaggers
 - Reconstruction/Jet/JetAnalysisTools/JetAnalysisEDM
 - Reconstruction/Jet/JetEvent.*
 - Reconstruction/Jet/JetMonitoring
@@ -125,6 +125,7 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
++ Trigger/TrigT1/TrigT1MuctpiBits
 #+ Trigger/TrigValidation/TrigAnalysisTest
 
 #

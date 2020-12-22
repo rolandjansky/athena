@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*******************************************************
@@ -432,7 +432,7 @@ const {
     ATH_MSG_DEBUG("RingSet number is: " << rs);  
     for(unsigned i=0;i<rset.at(rs).samples().size();i++)
       ATH_MSG_DEBUG("   Calo layer ID is : "<< rset.at(rs).samples()[i] );
-      ATH_MSG_DEBUG("search eta window: " << m_etaSearchWindowSize << " search phi window: " << m_phiSearchWindowSize);
+    ATH_MSG_DEBUG("search eta window: " << m_etaSearchWindowSize << " search phi window: " << m_phiSearchWindowSize);
     ATH_MSG_DEBUG("deta: " << m_detaRings[rs] << " dphi: " << m_dphiRings[rs]);
     ATH_MSG_DEBUG("Pattern has size equal than: " << rset.at(rs).pattern().size());
     for(unsigned i=0;i<rset.at(rs).pattern().size();++i)

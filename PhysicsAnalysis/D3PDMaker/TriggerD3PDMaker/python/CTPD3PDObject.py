@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PD object saving the CTP_RDO information into the D3PD
@@ -6,8 +6,6 @@
 # is active...)
 #
 
-import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 import TriggerD3PDMaker
 

@@ -50,6 +50,7 @@ namespace LVL1CTP {
 
       //! extract multiplicities using new trigger configuration interface
       static int getMult( uint64_t word, unsigned int startbit, unsigned int endbit );
+      static int getMult( const std::vector<unsigned int>& words, unsigned int startbit, unsigned int endbit );
 
       //! extract multiplicities from Topo words, were the encoding is different
       static unsigned int getMultTopo( uint64_t word, unsigned int startbit, unsigned int endbit, unsigned int clock );

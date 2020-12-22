@@ -41,7 +41,7 @@ def setupMenu():
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu6_idperfLRT_l2lrt_L1MU6',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_LRT_idperf_l2lrt_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 
@@ -236,21 +236,21 @@ def setupMenu():
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_csskpf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_sktc_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_cssktc_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_csskpf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=['Online',SingleJetGroup]),
 

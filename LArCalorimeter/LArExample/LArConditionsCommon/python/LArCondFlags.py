@@ -468,7 +468,7 @@ class LArCondFlags(JobPropertyContainer):
             
         # set the tag for FebRodMap
         if "/LAR/Identifier/FebRodMap" in self.LArCondFolderTags():
-            self._log.info(' using user specified tag for /LAR/Identifier/FebRodMap' , self.LArCondFolderTags()['/LAR/Identifier/FebRodMap'])
+            self._log.info(' using user specified tag for /LAR/Identifier/FebRodMap %s' , self.LArCondFolderTags()['/LAR/Identifier/FebRodMap'])
 
         else :
             if DDVtype=="" or DDVtype not in self.DDVtoFebRodIdMCTag():

@@ -152,7 +152,8 @@ namespace Muon {
           }else{
             Trk::TrackSummary tmpSum(*summary0);
             m_trackSummaryTool->addDetailedTrackSummary(*track,tmpSum);
-            if( tmpSum.muonTrackSummary() ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
+            muonSummary0 = tmpSum.muonTrackSummary();
+            if( muonSummary0 ) nhits0 = muonSummary0->netaHits()+ muonSummary0->nphiHits();
           }
         }else{
           Trk::TrackSummary tmpSummary;

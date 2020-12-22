@@ -249,17 +249,15 @@ namespace top {
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
 
     ///-- Large R jet truth labeling --///
-//    m_jetTruthLabelingTool = nullptr;
-//    if (m_config->isMC() && m_config->useLargeRJets()) {
-//      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
-//      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
-//      if (m_config->getDerivationStream() == "PHYS") {
-//        top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//      }
-//      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
-//    }
+    m_jetTruthLabelingTool = nullptr;
+    if (m_config->isMC() && m_config->useLargeRJets()) {
+      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
+      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
+   }
 
     // set the systematics list
     m_config->systematicsJets(specifiedSystematics());
@@ -290,7 +288,7 @@ namespace top {
     if (m_config->useLargeRJets()) {
       for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
         std::string fullName = name.first + "_" + name.second;
-        m_boostedJetTaggers[fullName] = ToolHandle<IJetSelectorTool>(fullName);
+        m_boostedJetTaggers[fullName] = ToolHandle<IJetDecorator>(fullName);
         top::check(m_boostedJetTaggers[fullName].retrieve(), "Failed to retrieve " + fullName);
       }
     }
@@ -383,7 +381,13 @@ namespace top {
 
     ///-- Apply calibration --///
     ///-- Calibrate jet container --///
-    top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)), "Failed to applyCalibration");
+    if (isLargeR) {
+      top::check(m_jetCalibrationToolLargeR->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on large-R jets");
+    } else {
+      top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on small-R jets");
+    }
 
     ///-- Loop over the xAOD Container --///
     for (const auto jet : *(shallow_xaod_copy.first)) {
@@ -764,6 +768,7 @@ namespace top {
     //decorate with boosted-tagging flags
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
       std::string fullName = name.first + "_" + name.second;
+      // TODO: Rewrite this to use the new interface
 //      const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
       // TAccept has bool operator overloaded, but let's be more explicit in the output to char
 //      jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);

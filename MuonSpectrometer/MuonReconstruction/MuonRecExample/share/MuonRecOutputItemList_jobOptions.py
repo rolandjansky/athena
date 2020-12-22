@@ -82,8 +82,8 @@ if DetFlags.detdescr.Muon_on() and rec.doWriteESD():
    MuonESDList+=["RpcSectorLogicContainer#RPC_SECTORLOGIC"]
 
    # Segments
-   MuonESDList+=["Trk::SegmentCollection#MuonSegments"]
-   MuonESDList+=["Trk::SegmentCollection#NCB_MuonSegments"]
+   MuonESDList+=["Trk::SegmentCollection#TrackMuonSegments"]
+   MuonESDList+=["Trk::SegmentCollection#NCB_TrackMuonSegments"]
 
    # Tracks
    MuonESDList+=["TrackCollection#MuonSpectrometerTracks"] 

@@ -102,7 +102,6 @@ class InputConverter_test: public ::testing::Test {
     SmartIF<IService>& serviceSmartPointer = m_svcLoc->service("ISF::InputConverter/InputConverter");
     m_svc = dynamic_cast<ISF::InputConverter*>(serviceSmartPointer.get());
     EXPECT_NE(nullptr, m_svc);
-    ASSERT_TRUE( m_svc->setProperties().isSuccess() );
     ASSERT_TRUE( m_svc->configure().isSuccess() );
   }
 

@@ -226,7 +226,7 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','idperfLRT','3layersEC','cosmic',"muonqual"],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',

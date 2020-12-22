@@ -738,7 +738,7 @@ namespace MuonCombined {
           muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
         }
         else ATH_MSG_WARNING("Creating of MuGirl TrackParticle Link failed");
-      }     
+      }
     }
 
     if (outputData.xaodSegmentContainer){
@@ -746,10 +746,7 @@ namespace MuonCombined {
 
       std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
       for( const auto& segLink : tag->segments() ){ 
-	
-        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink,
-                                                                                    *outputData.xaodSegmentContainer,
-										    outputData.muonSegmentCollection);
+        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink, *outputData.xaodSegmentContainer, outputData.muonSegmentCollection);
         if( link.isValid() ) {
           //link.toPersistent();
           segments.push_back(link);
@@ -758,7 +755,7 @@ namespace MuonCombined {
         else ATH_MSG_WARNING("Creating of MuGirl segment Link failed");         
       }
       muon.setMuonSegmentLinks(segments);
-    }  
+    }
     ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());    
   }
 

@@ -134,22 +134,10 @@ if ( True ) :
 
     "Taus:Medium:1Prong",
     "Taus:Tight:1Prong",
-    
-    # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_FTF",
-    # "HLT_e.*idperf.*:InDetTrigTrackingxAODCnv_Electron_IDTrig",
-    # "HLT_mu.*_idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig;DTE",
-    # "HLT_mu.*idperf.*:InDetTrigTrackingxAODCnv_Muon_IDTrig",
-    # "HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_IDTrig",
-    # "HLT_tau.*idperf.*track:key=InDetTrigTrackingxAODCnv_Tau_FTF",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
-    
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauCore_FTF:roi=forID1",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3",
-    # "HLT_tau.*idperf.*tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3",
 
-
+    "Electron:Tight",
+    "Electron:Medium",
+    
     #    ":HLT_IDTrack_FS_FTF",
     #    ":HLT_IDTrack_FS_FTF:roi=HLT_FSRoI:vtx=HLT_IDVertex_FS",
 
@@ -172,13 +160,14 @@ if ( True ) :
 
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_FTF",
 #    "HLT_e.*_etcut.*:HLT_IDTrack_Electron_IDTrig",
-    "HLT_e.*:HLT_IDTrack_Electron_FTF",
+    "HLT_e.*:HLT_IDTrack_Electron_FTF:roi=HLT_Roi_FastElectron",
     "HLT_e.*:HLT_IDTrack_Electron_IDTrig",
 
 
     # two stage tau FTF
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauCore_FTF:roi=HLT_Roi_TauCore",
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIso",
+    "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_TauIso_FTF:roi=HLT_Roi_TauIsoBDT",
 
     # two stage tau precision tracking - empty ???
     "HLT_tau.*_idperf.*tracktwo.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_TauIso",
@@ -187,7 +176,6 @@ if ( True ) :
     # should get single stage tau
     "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_FTF:roi=HLT_Roi_Tau",
     "HLT_tau.*_idperf.*_track_.*:HLT_IDTrack_Tau_IDTrig:roi=HLT_Roi_Tau",
-
 
 
     # none of these will work

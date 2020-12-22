@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file egammaD3PDMaker/python/egammaTruthD3PDObject.py
 # @author scott snyder <snyder@bnl.gov>
@@ -20,7 +19,6 @@ from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
 import D3PDMakerCoreComps
 import EventCommonD3PDMaker
 import TruthD3PDMaker
-import egammaD3PDAnalysis
 
 
 #FIXME:

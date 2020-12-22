@@ -35,9 +35,14 @@ namespace LVL1MUCTPIPHASE1 {
     delete m_triggerProcessor;
   }
 
-  void SimController::configureMSP(const std::string& xmlFile)
+  void SimController::configureTopo(const std::string& geoFile)
   {
-    for (int i=0;i<(int)m_muonSectorProcessors.size();i++) m_muonSectorProcessors[i]->configure(xmlFile);
+    for (int i=0;i<(int)m_muonSectorProcessors.size();i++) m_muonSectorProcessors[i]->configureTopo(geoFile);
+  }
+
+  void SimController::configureOverlapRemoval(const std::string& lutFile)
+  {
+    for (int i=0;i<(int)m_muonSectorProcessors.size();i++) m_muonSectorProcessors[i]->configureOverlapRemoval(lutFile);
   }
 
   // set Configuration                                                                                                                                      
@@ -65,7 +70,7 @@ namespace LVL1MUCTPIPHASE1 {
     for (int i=0;i<nMSP;i++)
     {
       m_muonSectorProcessors[i]->setInput(input);
-      m_muonSectorProcessors[i]->removeOverlap();
+      m_muonSectorProcessors[i]->runOverlapRemoval();
       m_muonSectorProcessors[i]->makeTriggerObjectSelections();
       m_muonSectorProcessors[i]->makeL1TopoData();
       processedInputs.push_back(m_muonSectorProcessors[i]->getOutput());
@@ -78,11 +83,6 @@ namespace LVL1MUCTPIPHASE1 {
     m_triggerProcessor->makeTopoSelections();
   }
 
-  const std::vector<uint32_t>& SimController::getCTPData()
-  {
-    return m_triggerProcessor->getCTPData();
-  }
-  
   LVL1::MuCTPIL1Topo SimController::getL1TopoData(int bcidOffset)
   {
     LVL1::MuCTPIL1Topo l1topo;
@@ -92,27 +92,6 @@ namespace LVL1MUCTPIPHASE1 {
       l1topo += m_muonSectorProcessors[i]->getL1TopoData(bcidOffset);
     }
     return l1topo;
-  }
-
-  const std::vector<unsigned int>& SimController::getDAQData()
-  {
-    return m_triggerProcessor->getDAQData();
-  }
-
-  std::list<unsigned int> SimController::getRoIBData()
-  {
-    std::list<unsigned int> dummy;
-    return dummy;
-  }
-
-  bool SimController::hasBarrelCandidate()
-  {
-    return false;
-  }
-
-  bool SimController::hasEndcapCandidate()
-  {
-    return false;
   }
 
   TriggerProcessor* SimController::getTriggerProcessor()

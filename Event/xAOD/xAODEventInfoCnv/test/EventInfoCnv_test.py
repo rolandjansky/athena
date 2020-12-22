@@ -24,6 +24,7 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument("-n", "--maxEvents",  default=3, type=int, help="The number of events to run. 0 skips execution")
 parser.add_argument("-t", "--threads", default=1, type=int, help="The number of concurrent threads to run. 0 uses serial Athena.")
+parser.add_argument("-b", "--noBeamSpot", default=False, action="store_true", help="Don't try to use beamspot information in the conversion test")
 parser.add_argument("-V", "--verboseAccumulators", default=False, action="store_true", help="Print full details of the AlgSequence for each accumulator")
 args = parser.parse_args()
 
@@ -43,7 +44,7 @@ if args.threads > 0:
 ConfigFlags.lock()
 
 # Function tests
-accAlg = EventInfoCnvAlgCfg(ConfigFlags)
+accAlg = EventInfoCnvAlgCfg(ConfigFlags, disableBeamSpot=args.noBeamSpot)
 # reset to prevent errors on deletion
 accAlg.__init__()
 
@@ -52,7 +53,7 @@ acc = MainServicesCfg(ConfigFlags)
 acc.merge(PoolReadCfg(ConfigFlags))
 
 # Add event info overlay
-acc.merge(EventInfoCnvAlgCfg(ConfigFlags))
+acc.merge(EventInfoCnvAlgCfg(ConfigFlags, disableBeamSpot=args.noBeamSpot))
 
 # Add output
 acc.merge(OutputStreamCfg(ConfigFlags, "HITS"))

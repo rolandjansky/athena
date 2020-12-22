@@ -53,11 +53,11 @@ namespace Trk {
       {}    
 
       /** Constructor with averaged material and binning in 1D*/
-      BinnedMaterial(const Material*& mat, BinUtility*& bu, const std::vector<size_t>& index,
+      BinnedMaterial(const Material* mat, BinUtility*& bu, const std::vector<size_t>& index,
 		     const std::vector<IdentifiedMaterial>& detailedMat); 
 
       /** Constructor with averaged material and binning in 2D*/
-      BinnedMaterial(const Material*& mat, BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
+      BinnedMaterial(const Material* mat, BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
 		     const std::vector<std::vector<size_t> >& index,
 		     const std::vector<IdentifiedMaterial>& detailedMat);
       

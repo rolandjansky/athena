@@ -14,6 +14,6 @@ atlas_add_component( JetD3PDMaker
                      LINK_LIBRARIES ${Boost_LIBRARIES} TrigCaloEvent CaloEvent CaloGeoHelpers CaloIdentifier AthenaBaseComps AthenaKernel Navigation StoreGateLib Identifier EventKernel FourMomUtils GaudiKernel AnalysisTriggerEvent D3PDMakerInterfaces D3PDMakerUtils TriggerD3PDMakerLib JetTagEvent JetTagInfo JetEvent Particle TileConditionsLib TileEvent TileIdentifier VxVertex )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*.py )
 

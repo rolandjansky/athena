@@ -124,6 +124,14 @@ egammaLargeClusterMakerTool = ToolFactory(
     CellsName=egammaKeys.caloCellKey()
 )
 
+egammaLargeFWDClusterMakerTool = ToolFactory(
+    egammaToolsConf.egammaLargeClusterMaker,
+    name="egammaLCFWDMakerTool",
+    InputClusterCollection=egammaKeys.FwdClusterKey(),
+    CellsName=egammaKeys.caloCellKey(),
+    doFWDelesurraundingWindows = True
+)
+
 # Electron Selectors
 ElectronPIDBuilder = ToolFactory(
     EMPIDBuilderElectronBase,

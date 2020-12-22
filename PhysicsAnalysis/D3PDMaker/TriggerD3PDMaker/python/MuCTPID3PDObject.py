@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # D3PD object saving the MuCTPI_RDO information into the D3PD
@@ -6,8 +6,6 @@
 # is active...)
 #
 
-import D3PDMakerCoreComps
-from D3PDMakerCoreComps.D3PDObject import D3PDObject
 from D3PDMakerCoreComps.D3PDObject import make_SG_D3PDObject
 import TriggerD3PDMaker
 
@@ -28,8 +26,8 @@ MuCTPID3PDObject = make_SG_D3PDObject( "MuCTPI_RDO", "MUCTPI_RDO",
 
 if _haveRDO:
     # Make sure the cabling services are configured:
-    import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
-    import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
+    import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig  # noqa: F401
+    import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig  # noqa: F401
 
     # Define the blocks:
     MuCTPID3PDObject.defineBlock( 0, "RDOInfo",

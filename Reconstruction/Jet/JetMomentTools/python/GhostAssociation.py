@@ -1,8 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-from AthenaCommon.AlgSequence import AlgSequence    
+from AthenaCommon.AlgSequence import AlgSequence
 def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
     # first step : guess the finder, input , mainParam, if needed
     if finder is None:

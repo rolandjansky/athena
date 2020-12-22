@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
@@ -95,7 +94,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                log.debug ('Add to ToolSvc %s' % (tool.name()))
+                log.debug ('Add to ToolSvc %s', tool.name())
                 ToolSvc += tool
             return tool
         else :
@@ -211,7 +210,6 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
 
 
 def getEventInfoKey() :
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags    import DetFlags
 
     isData = (globalflags.DataSource == 'data')
@@ -327,6 +325,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+
+    if do_runI and not useTTrainedNetworks:
+      log.debug("useNNTTrainedNetworks must be True for Run I. Contact CTIDE for questions.")
+      useTTrainedNetworks = True
     
     if useTTrainedNetworks :
       log.debug("Setting up TTrainedNetworks")
@@ -792,7 +794,6 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
     return getInDetPrdAssociationTool(name, **setDefaults(kwargs, SetupCorrect                   = True) )
 
 def getInDetPixelConditionsSummaryTool() :
-    from AthenaCommon.GlobalFlags import globalflags
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
@@ -880,7 +881,6 @@ def getInDetSCT_ConditionsSummaryTool() :
 def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
     the_name = makeName(name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
-    from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'SctSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
@@ -900,7 +900,6 @@ def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
 @makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.DetFlags    import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'Extrapolator' not in kwargs :
@@ -945,7 +944,6 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
 @makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isGEANT4 = (globalflags.DataSource == 'geant4'))
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
     return TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
@@ -977,7 +975,6 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
 
     if 'TRT_LocalOccupancyTool' not in kwargs :

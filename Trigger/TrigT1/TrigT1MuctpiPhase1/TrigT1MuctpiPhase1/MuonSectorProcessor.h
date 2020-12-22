@@ -20,6 +20,8 @@ namespace LVL1 {
 }
 
 namespace LVL1MUCTPIPHASE1 {
+  class OverlapHelper;
+
   class ROIObject
   {
   public:
@@ -38,12 +40,13 @@ namespace LVL1MUCTPIPHASE1 {
     
   public:
     
-    MuonSectorProcessor(int subSystem);
+    MuonSectorProcessor(bool side /*1=A,0=C*/);
     ~MuonSectorProcessor();
     
-    void configure(const std::string& xmlName);
+    void configureTopo(const std::string& xmlName);
+    void configureOverlapRemoval(const std::string& lutFile);
     void setInput(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input);
-    void removeOverlap();
+    void runOverlapRemoval();
     void makeTriggerObjectSelections();
     void makeL1TopoData();
     LVL1::MuCTPIL1Topo getL1TopoData(int bcidOffset);
@@ -54,6 +57,8 @@ namespace LVL1MUCTPIPHASE1 {
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_muctpiInput;
     LVL1::MuCTPIL1Topo* m_l1topo;
     std::map<std::string, std::map<unsigned int, ROIObject> > m_roiConfig;
+    OverlapHelper* m_overlapHelper;
+    bool m_side;
   };
 }
 

@@ -7,8 +7,8 @@
 
 AllJetsGrouper:: AllJetsGrouper(){}
 
-AllJetsGrouper:: AllJetsGrouper(const HypoJetIter& b,
-				const HypoJetIter& e): m_jets(b, e){
+AllJetsGrouper:: AllJetsGrouper(const HypoJetCIter& b,
+				const HypoJetCIter& e): m_jets(b, e){
 }
 
 AllJetsGrouper:: AllJetsGrouper(const HypoJetVector& jets): m_jets{jets}{
@@ -23,14 +23,13 @@ std::vector<HypoJetGroupVector> AllJetsGrouper::group(HypoJetIter& begin,
   return std::vector<HypoJetGroupVector>{hjgv};
 }
 
-std::optional<HypoJetGroupVector> AllJetsGrouper::next(){
+std::optional<HypoJetVector> AllJetsGrouper::next(){
   if (m_done){
-    return std::optional<HypoJetGroupVector>();
+    return std::optional<HypoJetVector>();
   }
   
-  HypoJetGroupVector hjgv{HypoJetVector(m_jets)};
   m_done = true;
-  return std::make_optional<HypoJetGroupVector>(hjgv);
+  return std::make_optional<HypoJetVector>(m_jets);
 }
 
 std::string AllJetsGrouper::getName() const {

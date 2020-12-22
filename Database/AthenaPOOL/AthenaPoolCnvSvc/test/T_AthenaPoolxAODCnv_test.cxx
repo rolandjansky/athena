@@ -47,7 +47,7 @@ public:
       m_pers2 (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* /*token*/) const override
+  virtual void setObjPtr(void*& obj, const Token* /*token*/) override
   {
     if (m_pers2) {
       DataVector<Y_v2>* v = new DataVector<Y_v2>;

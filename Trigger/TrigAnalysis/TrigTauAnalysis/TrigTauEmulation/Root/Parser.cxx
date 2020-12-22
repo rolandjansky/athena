@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=2 sw=2
@@ -158,7 +158,7 @@ int Parser::get_pass_number(const std::string & item_name)
     return m_nonTOPO_items[item_name];
   else
     MY_MSG_WARNING(item_name << " is not in the map of items"); 
-    return -1;
+  return -1;
 }
 
 

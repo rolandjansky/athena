@@ -29,11 +29,14 @@ class Node(object):
 
         # filled in by a CondtionsTollSetter:
         self.compound_condition_tools = [] 
-        # self.tool = None
-        # self.compound_condition_tools = []
-        # self.tree_top kludge carensure top level tools get chain name
-        # as Tool name
         self.chainpartinds = []
+
+        # Condition objects may have filters
+        # eg HT may have an et filter. Filters are made up of conditions
+        # and are used to form jet subsets.
+        self.filter_conditions = []
+        self.filter_tool = None
+        
         self.tree_top = False
         self.tool = None
         
@@ -91,11 +94,17 @@ class Node(object):
         for ca in self.conf_attrs:
             s.append(indent + str(ca))
         
-            # this attribute added by flow network setter tool
-            s.append(indent + 'compound_condition_tools [%d]' % len(
-                self.compound_condition_tools))
+        s.append(indent + 'filter_conditions [%d]:' % (
+            len(self.filter_conditions),))
+                 
+        for fc in self.filter_conditions:
+            s.append(indent + str(fc))
 
-        s.append(indent + 'AlgTool: %s' % str(self.tool))
+        s.append(indent + 'compoundConditionTools [%d]:' % len(
+            self.compound_condition_tools))
+
+        s.append(indent + 'filter_tool :' + str(self.filter_tool))
+
         s.append(indent + 'No of children: %d\n' % len(self.children))
 
         return s

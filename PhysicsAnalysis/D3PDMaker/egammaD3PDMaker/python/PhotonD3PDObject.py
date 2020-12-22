@@ -7,26 +7,19 @@
 # @brief Configure photon D3PD object.
 #
 
-
-# from egammaD3PDMaker.isem_version            import isem_version
-from egammaD3PDMaker.defineBlockAndAlg   \
-     import defineAlgLODFunc, defineBlockAndAlg
+from egammaD3PDMaker.defineBlockAndAlg       import defineBlockAndAlg
 from EventCommonD3PDMaker.DRAssociation      import DRAssociation
 from D3PDMakerCoreComps.D3PDObject           import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.D3PDObject           import DeferArg
 from D3PDMakerCoreComps.SimpleAssociation    import SimpleAssociation
-# from D3PDMakerCoreComps.IndexAssociation     import IndexAssociation
 from D3PDMakerConfig.D3PDMakerFlags          import D3PDMakerFlags
-from D3PDMakerCoreComps.resolveSGKey         import resolveSGKey, testSGKey
+from D3PDMakerCoreComps.resolveSGKey         import testSGKey
+from D3PDMakerCoreComps.resolveSGKey         import resolveSGKey # noqa: F401
 from TrackD3PDMaker.xAODTrackSummaryFiller   import xAODTrackSummaryFiller
 from D3PDMakerCoreComps.ContainedVectorMultiAssociation import ContainedVectorMultiAssociation
-# from TriggerD3PDMaker.defineTriggerBits      import defineTriggerBits
-# from AthenaCommon.AlgSequence                import AlgSequence
 from RecExConfig.RecFlags                    import rec
 import egammaD3PDMaker
-# import egammaD3PDAnalysis
 import EventCommonD3PDMaker
-# import CaloD3PDMaker
 import D3PDMakerCoreComps
 import TruthD3PDMaker
 import TrackD3PDMaker

@@ -154,7 +154,9 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].release, 'AtlasProduction,19.1.1.9')
         self.assertEqual(tag.trfs[0].newTransform, True)
         self.assertEqual(tag.trfs[0].physics, physics)
-        self.assertEqual(tag.trfs[0].inFiles, {'inputHighPtMinbiasHitsFile': 'myHighPtMinbiasHits', 'inputLowPtMinbiasHitsFile': 'myLowPtMinbiasHits'})
+        self.assertEqual(tag.trfs[0].inFiles, {
+            'inputHighPtMinbiasHitsFile': 'mc14_13TeV.119996.Pythia8_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3038_s1967_s2007',
+            'inputLowPtMinbiasHitsFile': 'mc14_13TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3038_s1967_s2007'})
         self.assertEqual(tag.trfs[0].outFiles, {})
         self.assertEqual(tag.trfs[0].outputs, {})
         self.assertEqual(tag.trfs[0].inDS, None)
@@ -223,8 +225,9 @@ class trfAMIUnitTests(unittest.TestCase):
         self.assertEqual(tag.trfs[0].release, 'AtlasProduction,20.1.4.5')
         self.assertEqual(tag.trfs[0].newTransform, True)
         self.assertEqual(tag.trfs[0].physics, physics)
-        self.assertEqual(tag.trfs[0].inFiles, {'inputHighPtMinbiasHitsFile': 'myHighPtMinbiasHits',
-                                               'inputLowPtMinbiasHitsFile': 'myLowPtMinbiasHits'})
+        self.assertEqual(tag.trfs[0].inFiles, {
+            'inputHighPtMinbiasHitsFile': 'mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00',
+            'inputLowPtMinbiasHitsFile': 'mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00'})
         self.assertEqual(tag.trfs[0].outFiles, {})
         self.assertEqual(tag.trfs[0].outputs, {})
         self.assertEqual(tag.trfs[0].inDS, None)

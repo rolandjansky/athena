@@ -140,9 +140,6 @@ def createDigitizationCfgFlags():
     flags.addFlag("Digitization.PU.NumberOfCavern", 0.0)
     # Repeating pattern to determine which events to simulate when using Stepping Cache
     flags.addFlag("Digitization.PU.SignalPatternForSteppingCache", [])
-    # Configure EvtIdModifierSvc with a list of dictionaries of the form:
-    # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'dt': 104.496, 'evts': 1, 'mu': 0.005, 'force_new': False}
-    flags.addFlag("Digitization.PU.RunAndLumiOverrideList", [])
     
     return flags
 

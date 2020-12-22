@@ -20,7 +20,7 @@
 
 #include <string>
 
-// uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted and the end of the event
+// uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted at the end of the event
 // thus, currently, the MuonCombinedInDetExtensionAlg cannot become an AthReentrantAlgorithm
 class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
   public:
@@ -95,8 +95,8 @@ class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
     SG::WriteHandleKey<Trk::SegmentCollection> m_segments{
         this,
         "SegmentCollection",
-        "MuGirlSegments",
-        "Segment collection",
+        "",
+        "specify segment collection",
     };
 
     Gaudi::Property<bool> m_usePRDs{this, "usePRDs", false};

@@ -145,7 +145,9 @@ class HLTSimulationGetter(Configured):
         log.info("Loading RegionSelector")
         from AthenaCommon.AppMgr import ServiceMgr
         from RegionSelector.RegSelSvcDefault import RegSelSvcDefault
-        ServiceMgr += RegSelSvcDefault()
+        regsel = RegSelSvcDefault()
+        regsel.enableCalo = TriggerFlags.doCalo()
+        ServiceMgr += regsel
 
         # Configure the Data Preparation for Calo
         if TriggerFlags.doCalo():
@@ -193,10 +195,14 @@ class HLTSimulationGetter(Configured):
             if hasattr(TrigSteer_HLT.LvlTopoConverter, 'MuonInputProvider'):
 
                 try: # this is temporary until TrigT1Muctpi-00-06-29 is in the release
-                    from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+                    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+                    if ConfigFlags.Trigger.enableL1Phase1:
+                        from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as l1MuctpiTool
+                    else:
+                        from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool as l1MuctpiTool
                     from AthenaCommon.AppMgr import ToolSvc
-                    ToolSvc += L1MuctpiTool()
-                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
+                    ToolSvc += l1MuctpiTool()
+                    TrigSteer_HLT.LvlTopoConverter.MuonInputProvider.MuctpiSimTool = l1MuctpiTool()
                 except ImportError:
                     pass
 
