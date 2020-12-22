@@ -53,7 +53,7 @@ StatusCode Trk::PrimaryTruthClassifier::finalize() {
 
 void Trk::PrimaryTruthClassifier::initClassification
 (const McEventCollection& /*SimTracks*/,
- const std::vector<const HepMC::GenParticle *>* /*genSignal*/) const {
+ const std::vector<HepMC::ConstGenParticlePtr>* /*genSignal*/) const {
 
   // nothing to prepare as local data at start of collection analysis
   return;
@@ -62,7 +62,7 @@ void Trk::PrimaryTruthClassifier::initClassification
 //////////////////////////////////////////
 // classification from InDetRecStatistics
 //////////////////////////////////////////
-unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& genParticle) const {
+unsigned int Trk::PrimaryTruthClassifier::classify(HepMC::ConstGenParticlePtr genParticle) const {
 
  
   /* note on using HepMC::FourVector/3Vector against HepGeom::Point3D<double>: The versions from HepMC2 do not know
@@ -74,17 +74,17 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
   bool  secondary=false;
   bool  truncated=false;
 
-  if (genParticle.production_vertex()) {
-    HepMC::FourVector      startVertex = genParticle.production_vertex()->position();
+  if (genParticle->production_vertex()) {
+    HepMC::FourVector      startVertex = genParticle->production_vertex()->position();
 
     // primary vertex inside innermost layer?
     if ( fabs(startVertex.perp()) < m_maxRStartPrimary 
          && fabs(startVertex.z()) < m_maxZStartPrimary)
       {
-        if (genParticle.end_vertex() == 0) {  
+        if (genParticle->end_vertex() == 0) {  
           primary=true;
         } else {
-          HepMC::FourVector endVertex = genParticle.end_vertex()->position();
+          HepMC::FourVector endVertex = genParticle->end_vertex()->position();
           if (  endVertex.perp()         > m_minREndPrimary 
                 || fabs(startVertex.z()) > m_minZEndPrimary)
             primary=true; else truncated = true;
@@ -93,10 +93,10 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
     else if ( startVertex.perp()    <  m_maxRStartSecondary && 
               fabs(startVertex.z()) <  m_maxZStartSecondary)
       {
-        if (genParticle.end_vertex() == 0) {  
+        if (genParticle->end_vertex() == 0) {  
           secondary=true;
         } else {
-          HepMC::FourVector endVertex = genParticle.end_vertex()->position();
+          HepMC::FourVector endVertex = genParticle->end_vertex()->position();
           if (endVertex.perp()            > m_minREndSecondary
               || fabs(endVertex.z())      > m_minZEndSecondary) {
             secondary=true;
@@ -108,8 +108,7 @@ unsigned int Trk::PrimaryTruthClassifier::classify(const HepMC::GenParticle& gen
   if (truncated) return Trk::TruthClassification::Truncated;
   if (secondary) return Trk::TruthClassification::Secondary;
   if (primary) return Trk::TruthClassification::Primary;
-  ATH_MSG_DEBUG ( "Could not classify this particle: " 
-        << genParticle );
+  ATH_MSG_DEBUG ( "Could not classify this particle: " << genParticle );
   return Trk::TruthClassification::OutsideClassification;
 
 }
