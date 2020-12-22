@@ -1,5 +1,5 @@
 from AthenaCommon import Logging
-log = Logging.logging.getLogger('run_fromAOD.py')
+log = Logging.logging.getLogger('RunORMETReco.py')
 
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.FilesInput=[""]
