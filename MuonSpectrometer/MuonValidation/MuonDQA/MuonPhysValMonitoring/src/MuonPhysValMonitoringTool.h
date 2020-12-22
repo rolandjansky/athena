@@ -10,11 +10,6 @@
 #ifndef MUONPHYSVALMONITORING_MUONPHYSVALMONITORINGTOOL_H
 #define MUONPHYSVALMONITORING_MUONPHYSVALMONITORINGTOOL_H
 
-// STL includes
-#include <string>
-#include <vector>
-
-// FrameWork includes
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "xAODTruth/TruthParticleContainer.h"
@@ -23,32 +18,23 @@
 #include "xAODTrigMuon/L2StandAloneMuon.h"
 #include "xAODTrigMuon/L2CombinedMuonContainer.h"
 #include "xAODTrigMuon/L2CombinedMuon.h"
-
 #include "xAODMuon/SlowMuon.h"
 #include "xAODEventInfo/EventInfo.h"
-
-// Tools
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
-
-
-
-// Local includes
+#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-
-// Root includes
 #include "MuonValidationPlots.h"
 #include "TriggerMuonValidationPlots.h"
 #include "MuonTrackValidationPlots.h"
 #include "MuonSegmentValidationPlots.h"
 #include "SlowMuonValidationPlots.h"
 
-// Forward declaration
-namespace Rec {
-  class IMuonPrintingTool;
-}
+#include <string>
+#include <vector>
+
 namespace MuonPhysValMonitoring {
 
 class MuonPhysValMonitoringTool
@@ -67,7 +53,7 @@ class MuonPhysValMonitoringTool
 		  const IInterface* parent );
 
   /// Destructor: 
-  virtual ~MuonPhysValMonitoringTool(); 
+  virtual ~MuonPhysValMonitoringTool()=default;
 
   // Athena algtool's Hooks
   virtual StatusCode initialize();
@@ -124,26 +110,23 @@ class MuonPhysValMonitoringTool
   TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
   void modifyHistogram(TH1* hist);
 
-  bool m_isData;
-
-
-
+  Gaudi::Property<bool> m_isData{this,"IsData",false};
 
   // Containers
-  std::string m_tracksName;
-  std::string m_fwdtracksName;
-  std::string m_muonsName;
-  std::string m_slowMuonsName;
-  std::string m_muonsTruthName;
-  std::string m_muonTracksName;
-  std::string m_muonExtrapolatedTracksName;
-  std::string m_muonMSOnlyExtrapolatedTracksName;
-  std::string m_muonSegmentsName;
-  std::string m_muonSegmentsTruthName;
-  std::string m_muonL1TrigName;
-  std::string m_muonL2SAName;
-  std::string m_muonL2CBName;
-  std::string m_muonEFCombTrigName;
+  Gaudi::Property<std::string> m_tracksName{this,"TrackContainerName",""};
+  Gaudi::Property<std::string> m_fwdtracksName{this,"FwdTrackContainerName",""};
+  Gaudi::Property<std::string> m_muonsName{this,"MuonContainerName","Muons"};
+  Gaudi::Property<std::string> m_slowMuonsName{this,"SlowMuonContainerName","SlowMuons"};
+  Gaudi::Property<std::string> m_muonsTruthName{this,"MuonTruthParticleContainerName","MuonTruthParticles"};
+  Gaudi::Property<std::string> m_muonTracksName{this,"MuonTrackContainerName",""};
+  Gaudi::Property<std::string> m_muonExtrapolatedTracksName{this,"MuonExtrapolatedTrackContainerName",""};
+  Gaudi::Property<std::string> m_muonMSOnlyExtrapolatedTracksName{this,"MuonOnlyExtrapolatedTrackContainerName",""};
+  Gaudi::Property<std::string> m_muonSegmentsName{this,"MuonSegmentContainerName",""};
+  Gaudi::Property<std::string> m_muonSegmentsTruthName{this,"MuonTruthSegmentContainerName","MuonTruthSegments"};
+  Gaudi::Property<std::string> m_muonL1TrigName{this,"L1TrigMuonContainerName","LVL1MuonRoIs"};
+  Gaudi::Property<std::string> m_muonL2SAName{this,"L2SAMuonContainerName","HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"};
+  Gaudi::Property<std::string> m_muonL2CBName{this,"L2CBMuonContainerName","HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo"};
+  Gaudi::Property<std::string> m_muonEFCombTrigName{this,"EFCombTrigMuonContainerName","HLT_xAOD__MuonContainer_MuonEFInfo"};
 
   SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
 
@@ -158,13 +141,11 @@ class MuonPhysValMonitoringTool
   int m_SelectedAuthor;
   std::vector<unsigned int> m_selectMuonCategories;  
   bool m_doBinnedResolutionPlots;
-  bool m_doTrigMuonValidation;
-  bool m_doTrigMuonL1Validation;
-  bool m_doTrigMuonL2Validation;
-  bool m_doTrigMuonEFValidation;
-  bool m_doMuonTree;
-
-
+  Gaudi::Property<bool> m_doTrigMuonValidation{this,"DoTrigMuonValidation",false};
+  Gaudi::Property<bool> m_doTrigMuonL1Validation{this,"DoTrigMuonL1Validation",false};
+  Gaudi::Property<bool> m_doTrigMuonL2Validation{this,"DoTrigMuonL2Validation",false};
+  Gaudi::Property<bool> m_doTrigMuonEFValidation{this,"DoTrigMuonEFValidation",false};
+  Gaudi::Property<bool> m_doMuonTree{this,"DoMuonTree",false};
   
   // Tools
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
