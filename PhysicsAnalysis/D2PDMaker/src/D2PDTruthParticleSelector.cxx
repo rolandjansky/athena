@@ -297,14 +297,11 @@ StatusCode D2PDTruthParticleSelector::processObject( const TruthParticle* part,
           if( genPart->end_vertex() )
             {
               int barcode = HepMC::barcode(genPart);
-              auto childItrBegin =    genPart->end_vertex()->particles_begin(HepMC::children);
-              auto childItrEnd = genPart->end_vertex()->particles_end(HepMC::children);
-              for (auto childItr=childItrBegin; childItr!=childItrEnd; ++childItr )
+              for (auto child: *(genPart->end_vertex()))
                 {
-                  auto child = (*childItr);
                   if( child->pdg_id() == pdgID
-                      && child->barcode() != barcode
-                      && child->barcode() < 200000 )
+                      && HepMC::barcode(child) != barcode
+                      && HepMC::barcode(child) < 200000 )
                     {
                       isPassed = false;
                     }
@@ -605,17 +602,14 @@ bool D2PDTruthParticleSelector::getDaughters( HepMC::ConstGenParticlePtr genPart
   if( genPart->end_vertex() )
     {
       int pdgID   = genPart->pdg_id();
-      int barcode = genPart->barcode();
+      int barcode = HepMC::barcode(genPart);
 
       // Loop over all children
-      auto childItrBegin = genPart->end_vertex()->particles_begin(HepMC::children);
-      auto  childItrEnd = genPart->end_vertex()->particles_end(HepMC::children);
-      for (auto childItr=childItrBegin; childItr != childItrEnd; ++childItr )
+      for (auto child: *(genPart->end_vertex()))
         {
-          auto child = (*childItr);
           if( child->pdg_id() == pdgID
-              && child->barcode() != barcode
-              && child->barcode() < 200000 )
+              && HepMC::barcode(child) != barcode
+              && HepMC::barcode(child) < 200000 )
             {
               return getDaughters( child, daughters );
             }
