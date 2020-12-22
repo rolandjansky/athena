@@ -30,3 +30,4 @@ atlas_add_component( InDetEtaDependentCuts
 
 # Install files from the package:
 atlas_install_headers( InDetEtaDependentCuts )
+atlas_install_python_modules( python/*.py )

@@ -92,6 +92,8 @@ else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("MinBias")        
       elif InDetFlags.doDVRetracking():
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("LargeD0")        
+      elif InDetFlags.doSLHCLargeD0():
+        InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("SLHCLargeD0")
       else:
         InDetNewTrackingCuts      = ConfiguredNewTrackingCuts("Offline")
     InDetNewTrackingCuts.printInfo()
@@ -445,10 +447,11 @@ else:
     #     after standard reconstruction...?
     #
     # ------------------------------------------------------------
-    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0():
+    if InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doSLHCLargeD0() or InDetFlags.doLowPtLargeD0():
       #
       # --- run Si pattern for high-d0
       #
+
       if InDetFlags.doDVRetracking():
           # Cuts already defined in the mode, no need to re-load them
           InDetNewTrackingCutsLargeD0 = InDetNewTrackingCuts
@@ -457,6 +460,8 @@ else:
         from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
         if InDetFlags.doLowPtLargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("LowPtLargeD0")
+        elif InDetFlags.doSLHCLargeD0():
+          InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("SLHCLargeD0")
         elif InDetFlags.doR3LargeD0():
           InDetNewTrackingCutsLargeD0 = ConfiguredNewTrackingCuts("R3LargeD0")
         else:
@@ -960,8 +965,11 @@ else:
                                                         BroadRotCreatorTool = BroadInDetRotCreator,
                                                         MinDegreesOfFreedom = 1)
         
+
         if InDetFlags.useEtaDependentCuts() and InDetFlags.doSLHC():
-          InDetTruthTrackBuilder.InDetEtaDependentCutsSvc   = InDetEtaDependentCutsSvc
+          InDetTruthTrackBuilder.InDetEtaDependentCutsSvc   = InDetEtaDependentCutsSvcSLHC
+        elif InDetFlags.useEtaDependentCuts() and InDetFlags.doSLHCLargeD0():
+          InDetTruthTrackBuilder.InDetEtaDependentCutsSvc   = InDetEtaDependentCutsSvcSLHCLargeD0
         else:
           InDetTruthTrackBuilder.MinSiHits                  =  InDetNewTrackingCuts.minClusters()
           

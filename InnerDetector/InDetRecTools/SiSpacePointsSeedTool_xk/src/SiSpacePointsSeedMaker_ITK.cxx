@@ -87,6 +87,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_ybeam[0]  = 0.      ; m_ybeam[1]= 0.; m_ybeam[2]=1.; m_ybeam[3]=0.;
   m_zbeam[0]  = 0.      ; m_zbeam[1]= 0.; m_zbeam[2]=0.; m_zbeam[3]=1.;
   m_beamconditions         = "BeamCondSvc"       ;
+  
+  m_isLRT = false       ;
 
   declareInterface<ISiSpacePointsSeedMaker>(this);
 
@@ -121,6 +123,7 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("useOverlapSpCollection",m_useOverlap            );
   declareProperty("UseAssociationTool"    ,m_useassoTool           ); 
   declareProperty("MagFieldSvc"           ,m_fieldServiceHandle    );
+  declareProperty("isLRT"                 ,m_isLRT                 );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1120,6 +1123,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
   int  fNmax = m_fNmax[0];
   int  ir0   = 0         ;
   int  irm   = 0         ;
+  bool endcap = false    ;
   for(int i=r_first; i!=r_size;  ++i) {
     
     if(!r_map[i]) continue; 
@@ -1138,7 +1142,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
 
       // Azimuthal angle and Z-coordinate sort
       //
-      float Z = (*r)->z(); int z;
+      float Z = (*r)->z(); if (fabs(Z)>1490) endcap = true; int z;
       if(Z>0.) {
 	Z< 250.?z=5:Z< 450.?z=6:Z< 925.?z=7:Z< 1400.?z=8:Z< 2500.?z=9:z=10;
       }
@@ -1149,8 +1153,15 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
       rfz_Sorted[n].push_back(*r); if(!rfz_map[n]++) rfz_index[m_nrfz++]=n;
     }
   }
-  m_RTmin = r_rstep*ir0+30. ;
-  m_RTmax = r_rstep*irm-150.;
+
+  if ( endcap and m_isLRT) {
+    m_RTmin = r_rstep*ir0+10;
+    m_RTmax = r_rstep*irm-10;
+  }
+  else{
+    m_RTmin = r_rstep*ir0+30. ;
+    m_RTmax = r_rstep*irm-150.;
+  }
  }
 
 ///////////////////////////////////////////////////////////////////

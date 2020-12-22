@@ -179,6 +179,8 @@ namespace InDet {
       float                       m_COFK                          ;  
       float                       m_RTmin                         ;
       float                       m_RTmax                         ;
+      
+      bool                        m_isLRT                         ;
 
       int r_size                                                  ;
       int r_first                                                 ;

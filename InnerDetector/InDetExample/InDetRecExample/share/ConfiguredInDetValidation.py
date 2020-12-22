@@ -119,7 +119,7 @@ class  ConfiguredInDetValidation:
         InDetTrackClusterAssValidation.MomentumCut            = 2. * NewTrackingCuts.minPT()
         InDetTrackClusterAssValidation.MinNumberClusters      = NewTrackingCuts.minClusters()
       
-      if NewTrackingCuts.mode() != "SLHC":
+      if not NewTrackingCuts.mode() == "SLHC":
         InDetTrackClusterAssValidation.useTRT = DetFlags.haveRIO.TRT_on()
         InDetTrackClusterAssValidation.MinNumberClustersTRT   = 0
 
