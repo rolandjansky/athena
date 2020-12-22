@@ -29,6 +29,7 @@ Slices  = ['tau']
 Events  = 6000
 Threads = 8 
 Slots   = 8
+Release = "current"
 Input   = 'Ztautau_pu46'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",  " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ),
