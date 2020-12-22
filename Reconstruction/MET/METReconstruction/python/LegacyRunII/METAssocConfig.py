@@ -88,6 +88,8 @@ def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPh
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowJetAssocTool_'+suffix)
     if config.objType == 'ORPFlowJet':
         tool = CfgMgr.met__METJetAssocTool('MET_OverlapRemovedPFlowJetAssocTool_'+suffix)
+    if config.objType == 'PFlowFEJet':
+        tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
         if useFEMuonLinks: 
