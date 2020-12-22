@@ -28,7 +28,7 @@ namespace Trk {
       
      /**  public members */ 
      std::vector<const Trk::PrepRawData* > prds;
-     const HepMC::GenParticle*             genParticle;
+     HepMC::ConstGenParticlePtr             genParticle;
      size_t                                nDoF;
 
      /** defualt constructor */
@@ -39,7 +39,7 @@ namespace Trk {
      
      /** fast constructor */
      PRD_TruthTrajectory( const std::vector<const Trk::PrepRawData* >& prdVec,
-                          const HepMC::GenParticle* gP    = 0,
+                          HepMC::ConstGenParticlePtr gP    = nullptr,
                           size_t numberOfDegreesOfFreedom = 0) :
       prds(prdVec),
       genParticle(gP),
