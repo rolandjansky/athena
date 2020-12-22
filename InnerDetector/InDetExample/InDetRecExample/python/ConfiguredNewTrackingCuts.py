@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 #########################################################################
@@ -288,7 +288,7 @@ class ConfiguredNewTrackingCuts :
         # --- general pattern cuts for NewTracking
         self.__nHolesMax               = self.__maxHoles
         self.__nHolesGapMax            = self.__maxHoles
-        
+
         self.__Xi2max                  = [9.0]
         self.__Xi2maxNoAdd             = [25.0]
         self.__nWeightedClustersMin    = [6]
@@ -307,7 +307,7 @@ class ConfiguredNewTrackingCuts :
           self.__maxZImpact            = [150.0 * Units.mm]
           self.__nHolesMax             = [1]
           self.__nHolesGapMax          = [1]
-        
+
       else:
         
         # --- higher pt cut and impact parameter cut
@@ -381,11 +381,78 @@ class ConfiguredNewTrackingCuts :
       self.__maxPixelHoles      = 1
       self.__maxSctHoles        = 2
       self.__maxDoubleHoles     = 1
-      self.__radMax             = 600. * Units.mm
+      self.__radMax             = 600.0 * Units.mm
       self.__nHolesMax          = self.__maxHoles
       self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles  
       self.__seedFilterLevel   = 1
       self.__maxTracksPerSharedPRD = 2
+
+    # --- mode for high-d0 tracks for run 4                                                                                                                                               
+    if mode == "SLHCLargeD0":
+      self.__extension          = "SLHCLargeD0" # this runs parallel to NewTracking
+      if self.__indetflags.useEtaDependentCuts():
+        self.__maxPT              = [1.0 * Units.TeV]
+        self.__minPT              = [900 * Units.MeV]
+        self.__maxEta             = 5.0
+        self.__etaBins            = [0.0, 5.0]
+        self.__maxPrimaryImpact   = [398.0 * Units.mm]
+        self.__maxZImpact         = [1500.0 * Units.mm]
+        self.__maxSecondaryImpact = [300.0 * Units.mm]
+        self.__minSecondaryPt     = [500.0 * Units.MeV]
+        self.__minClusters        = [8]
+        self.__minSiNotShared     = [5]
+        self.__maxShared          = [2]  # cut is now on number of shared modules 
+        self.__minPixel           = [0]
+        self.__maxHoles           = [10]
+        self.__maxPixelHoles      = [10]
+        self.__maxSctHoles        = [10]
+        self.__maxDoubleHoles     = [1]
+        self.__radMax             = 1100. * Units.mm
+        self.__nHolesMax          = self.__maxHoles
+        self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles
+        self.__seedFilterLevel    = 1
+        self.__maxTracksPerSharedPRD = 2
+
+        self.__roadWidth          = 20 
+        self.__doZBoundary        = True
+
+        # --- seeding                                                                                                                                               
+        self.__maxdImpactSSSSeeds       = [398.0 * Units.mm]
+
+        self.__useSCTSeeding = self.__indetflags.useSCTSLHCLargeD0()
+        self.__usePixel = self.__indetflags.usePixelSLHCLargeD0()
+
+        # --- min pt cut for brem                                                                                                                                   
+        self.__minPTBrem                = [1000.0 * Units.mm]
+        self.__phiWidthBrem             = [0.3]
+        self.__etaWidthBrem             = [0.2]
+
+        self.__Xi2max                  = [9.0]
+        self.__Xi2maxNoAdd             = [25.0]
+        self.__nWeightedClustersMin    = [6]
+
+      else:
+
+        self.__maxPT              = 1.0 * Units.TeV
+        self.__minPT              = 900 * Units.MeV
+        self.__maxEta             = 5.0
+        self.__maxPrimaryImpact   = 398.0 * Units.mm
+        self.__maxZImpact         = 1500.0 * Units.mm
+        self.__maxSecondaryImpact = 300.0 * Units.mm
+        self.__minSecondaryPt     = 500.0 * Units.MeV
+        self.__minClusters        = 9
+        self.__minSiNotShared     = 5
+        self.__maxShared          = 2   # cut is now on number of shared modules 
+        self.__minPixel           = 0
+        self.__maxHoles           = 10
+        self.__maxPixelHoles      = 10
+        self.__maxSctHoles        = 10
+        self.__maxDoubleHoles     = 1
+        self.__radMax             = 1100. * Units.mm
+        self.__nHolesMax          = self.__maxHoles
+        self.__nHolesGapMax       = self.__maxHoles # not as tight as 2*maxDoubleHoles
+        self.__seedFilterLevel   = 1
+        self.__maxTracksPerSharedPRD = 2
 
     # --- mode for high-d0 tracks (re-optimisation for Run 3 by M.Danninger)
     if mode == "R3LargeD0":
@@ -517,7 +584,6 @@ class ConfiguredNewTrackingCuts :
       self.__radMin                  = 0. * Units.mm # not turn on this cut for now
       self.__doZBoundary              = False #
       self.__nWeightedClustersMin    = 6
-
 
     # --- change defaults for very low pt tracking  
     if mode == "VeryLowPt": 
@@ -1129,7 +1195,7 @@ class ConfiguredNewTrackingCuts :
     print '*'
     print '* InDetFlags.cutLevel() = ', self.__indetflags.cutLevel()
     print '*'
-    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
       tmp_list = list(self.__etaBins)
       tmp_list[0] = 0.
       print '* Using dynamic cuts with eta ranges :', tmp_list
@@ -1138,10 +1204,10 @@ class ConfiguredNewTrackingCuts :
     print '* TRT used                    :  ', self.__useTRT
     print '*'  
     print '* min pT                      :  ', self.__minPT, ' MeV'
-    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
       print '* min pT for seeding          :  ', self.__minPT[0], ' MeV'
     print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
-    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
       print '* max Z IP for seeding        :  ', self.__maxZImpact[0], ' mm'
     print '* min eta                     :  ', self.__minEta
     print '* max eta                     :  ', self.__maxEta
@@ -1153,7 +1219,7 @@ class ConfiguredNewTrackingCuts :
     print '* NewTracking cuts:'
     print '* -----------------'
     print '* max Rphi IP (primaries)     :  ', self.__maxPrimaryImpact, ' mm'
-    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
       print '* max Rphi IP for seeding     :  ', self.__maxPrimaryImpact[0], ' mm'
     print '* min number of clusters      :  ', self.__minClusters
     print '* min number of pixel hits    :  ', self.__minPixel
@@ -1170,7 +1236,7 @@ class ConfiguredNewTrackingCuts :
     print '* max holes gap in pattern    :  ', self.__nHolesGapMax
     print '* Xi2 max                     :  ', self.__Xi2max
     print '* Xi2 max no add              :  ', self.__Xi2maxNoAdd
-    if self.__indetflags.useEtaDependentCuts() and self.__mode == "SLHC":
+    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
       print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds[0]
     else:
       print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds

@@ -1,10 +1,11 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
 
-doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
-                    and InDetFlags.doParticleCreation()
-doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0() \
-                    and not InDetFlags.doLowPtLargeD0() and not InDetFlags.doDisplacedSoftPion() and InDetFlags.doParticleConversion()
+
+doCreation = ( InDetFlags.doNewTracking() or InDetFlags.doPseudoTracking() or InDetFlags.doLargeD0() or InDetFlags.doR3LargeD0() or InDetFlags.doSLHCLargeD0() or InDetFlags.doLowPtLargeD0() or InDetFlags.doDisplacedSoftPion() ) \
+             and InDetFlags.doParticleCreation()
+doConversion = not InDetFlags.doNewTracking()  and not InDetFlags.doPseudoTracking() and not InDetFlags.doLargeD0() and not InDetFlags.doR3LargeD0() and not InDetFlags.doSLHCLargeD0() \
+               and not InDetFlags.doLowPtLargeD0() and not InDetFlags.doDisplacedSoftPion() and InDetFlags.doParticleConversion()
 
 if doCreation:
     print "Creating xAOD::TrackParticles from Trk::Tracks"
