@@ -27,29 +27,24 @@ def makeInDetPrecisionTracking( config = None,
 
   #-----------------------------------------------------------------------------
   #                        Naming conventions
+  doTRT = config.PT.setting.doTRT
 
   algNamePrefix = "InDetTrigMT" 
   #Add suffix to the algorithms
   signature =  "_{}".format( config.name )
-  
-  #Name settings for output Tracks/TrackParticles
-  #This first part is for ambiguity solver tracks
-  nameAmbiTrackCollection = config.PT.trkTracksAS() 
-  
-  #Tracks from TRT extension
-  nameExtTrackCollection = config.PT.trkTracksTE() 
 
-  outPTTracks             = config.PT.trkTracksPT()
-  outPTTrackParticles     = config.PT.tracksPT( doRecord = config.isRecordable )
+
+  #Name settings for output Tracks/TrackParticles
+  outTrkTracks        = config.PT.trkTracksPT() #Final output Track collection
+  outTrackParticles   = config.PT.tracksPT( doRecord = config.isRecordable ) #Final output xAOD::TrackParticle collection
+  ambiTrackCollection = config.PT.trkTracksAS()  #Ambiguity solver tracks
 
   #Atm there are mainly two output track collections one from ambiguity solver stage and one from trt,
   #we want to have the output name of the track collection the same whether TRT was run or not,
   #Therefore, we have to adapt output names of the algorithm which produces last collection
   #However, this condition should be handled internally in configuration of the algs once TRT is configured with builders as well
-  if config.PT.setting.doTRT:
-     nameExtTrackCollection = outPTTracks
-  else:
-     nameAmbiTrackCollection = outPTTracks
+  if not doTRT:
+     ambiTrackCollection = outTrkTracks
 
   #-----------------------------------------------------------------------------
   #                        Verifying input data for the algorithms
@@ -77,7 +72,7 @@ def makeInDetPrecisionTracking( config = None,
   
   #Obsolete, will be eventually replaced
   #Note: keep Parameter_config!
-  if config.PT.setting.doTRT:
+  if doTRT:
       if "electron" in config.name  or "tau" in config.name:
          trigTrackSummaryTool.TRT_ElectronPidTool = InDetTrigTRT_ElectronPidTool
 
@@ -91,21 +86,27 @@ def makeInDetPrecisionTracking( config = None,
 
   #-----------------------------------------------------------------------------
   #                        Ambiguity solving stage
-  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name
+  from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name,  get_scoremap_name
   ambSolvingStageAlgs = [
-                           ambiguityScoreAlg_builder( name   = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
-                                                      config = config ),
-
-                           ambiguitySolverAlg_builder( name   = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
-                                                       config = config )
+                           ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+                                                      config                = config,
+                                                      inputTrackCollection  = config.FT.trkTracksFTF(),
+                                                      outputTrackScoreMap   = get_scoremap_name( config.name ), #Map of tracks and their scores
+                                                    ),
+  
+                           ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+                                                       config                = config,
+                                                       inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
+                                                       outputTrackCollection = ambiTrackCollection  )
                         ]
+   
 
   #Loading the alg to the sequence
   ptAlgs.extend( ambSolvingStageAlgs )
 
   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import  InDetTrigExtrapolator
   #TODO:implement builders and getters for TRT (WIP)
-  if config.PT.setting.doTRT:
+  if doTRT:
 
             #-----------------------------------------------------------------------------
             #                        TRT data preparation
@@ -228,7 +229,7 @@ def makeInDetPrecisionTracking( config = None,
  
             from TRT_TrackExtensionAlg.TRT_TrackExtensionAlgConf import InDet__TRT_TrackExtensionAlg
             InDetTrigTRTextensionAlg = InDet__TRT_TrackExtensionAlg( name = "%sTrackExtensionAlg%s"%(algNamePrefix, signature),
-                                                            InputTracksLocation    = nameAmbiTrackCollection,
+                                                            InputTracksLocation    = ambiTrackCollection,
                                                             TrackExtensionTool     = InDetTrigTRTExtensionTool,
                                                             ExtendedTracksLocation = 'ExtendedTrackMap'
                                                              )
@@ -265,10 +266,10 @@ def makeInDetPrecisionTracking( config = None,
             from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
             from InDetExtensionProcessor.InDetExtensionProcessorConf import InDet__InDetExtensionProcessor   
             InDetTrigExtensionProcessor = InDet__InDetExtensionProcessor (name               = "%sExtensionProcessor%s"%(algNamePrefix, signature),
-                                                                          TrackName          = nameAmbiTrackCollection,
+                                                                          TrackName          = ambiTrackCollection,
                                                                           #Cosmics           = InDetFlags.doCosmics(),
                                                                           ExtensionMap       = 'ExtendedTrackMap',
-                                                                          NewTrackName       = nameExtTrackCollection,
+                                                                          NewTrackName       = outTrkTracks,
                                                                           TrackFitter        = InDetTrigTrackFitter,
                                                                           TrackSummaryTool   = SummaryTool_config,
                                                                           ScoringTool        = InDetTrigExtScoringTool, #TODO do I provide the same tool as for ambiguity solver?
@@ -290,8 +291,8 @@ def makeInDetPrecisionTracking( config = None,
   from .InDetTrigCommon import trackParticleCnv_builder
   trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), #IDTrig suffix signifies that this is for precision tracking
                                                  config               = config,
-                                                 inTrackCollectionKey = outPTTracks,
-                                                 outTrackParticlesKey = outPTTrackParticles,
+                                                 inTrackCollectionKey = outTrkTracks,
+                                                 outTrackParticlesKey = outTrackParticles,
                                                  )
   log.debug(trackParticleCnvAlg)
   ptAlgs.append(trackParticleCnvAlg)
@@ -302,8 +303,8 @@ def makeInDetPrecisionTracking( config = None,
   
   #Potentialy other algs with more collections? 
   #Might Drop the list in the end and keep just one output key
-  nameTrackCollections =[ outPTTracks ]
-  nameTrackParticles =  [ outPTTrackParticles ]
+  nameTrackCollections =[ outTrkTracks ]
+  nameTrackParticles =  [ outTrackParticles ]
 
   
   #Return list of Track keys, TrackParticle keys, and PT algs
