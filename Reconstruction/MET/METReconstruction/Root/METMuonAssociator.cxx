@@ -22,6 +22,10 @@
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
 
+
+typedef ElementLink<xAOD::MuonContainer> MuonLink_t;
+typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
+
 namespace met {
 
   using namespace xAOD;
@@ -36,6 +40,9 @@ namespace met {
   {
     declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
     declareProperty("MuonKey",m_muContKey);
+    declareProperty( "MuonNeutralFEReadDecorKey", m_muonNeutralFEReadDecorKey = "Muons.neutralFELinks" );
+    declareProperty( "MuonChargedFEReadDecorKey", m_muonChargedFEReadDecorKey = "Muons.chargedFELinks" );
+    declareProperty( "UseFEMuonLinks", m_useFEMuonLinks = false ); 
   }
 
   // Destructor
@@ -51,6 +58,10 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
+
+    ATH_CHECK(m_muonNeutralFEReadDecorKey.initialize());
+    ATH_CHECK(m_muonChargedFEReadDecorKey.initialize());
+
     if (m_doMuonClusterMatch) {
       ATH_CHECK(m_elementLinkName.initialize());
     }
@@ -212,6 +223,8 @@ namespace met {
 
     return StatusCode::SUCCESS;
   }
+
+  // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
 
   StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj,
                                           std::vector<const xAOD::IParticle*>& felist,

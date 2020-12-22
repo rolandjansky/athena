@@ -22,6 +22,10 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h" 
+#include "StoreGate/DataHandle.h" 
+#include "StoreGate/WriteHandle.h"
+
 
 class IMETMaker :  virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETMaker)
@@ -102,9 +106,32 @@ public:
                                    const xAOD::MissingET* coreSoftTrk,
                                    bool doJetJVT) = 0;
 
+
   ///////////////////////////////////////////////////////////////////
   // Additional utility commands
   ///////////////////////////////////////////////////////////////////
+
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* collection=0) = 0;//,  
+			  //MissingETBase::UsageHandler::Policy p); //jetOR
+
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo, 
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* collection=0) = 0;//,  
+			  //MissingETBase::UsageHandler::Policy p); //jetOR
+
+  virtual const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
+			  xAOD::MissingETAssociationHelper* helper,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* collection=0, 
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow) = 0; //jetOR
 
   virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
 				   xAOD::MissingETAssociationHelper* helper,

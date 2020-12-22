@@ -33,6 +33,10 @@
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
+
+typedef ElementLink<xAOD::TauJetContainer> TauLink_t;
+typedef ElementLink<xAOD::FlowElementContainer> FELink_t;
+
 namespace met {
 
   using namespace xAOD;
@@ -45,6 +49,9 @@ namespace met {
     m_tauContKey("")
   {
     declareProperty("tauContainer",m_tauContKey);
+    declareProperty( "TauNeutralFEReadDecorKey", m_tauNeutralFEReadDecorKey = "TauJets.neutralFELinks" );
+    declareProperty( "TauChargedFEReadDecorKey", m_tauChargedFEReadDecorKey = "TauJets.chargedFELinks" );
+    declareProperty( "UseFETauLinks", m_useFETauLinks = false ); //?
   }
 
   // Destructor
@@ -60,6 +67,9 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
+
+    ATH_CHECK(m_tauNeutralFEReadDecorKey.initialize());
+    ATH_CHECK(m_tauChargedFEReadDecorKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -187,6 +197,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+  // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
   StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj,
                                          std::vector<const xAOD::IParticle*>& felist,
                                          const met::METAssociator::ConstitHolder& constits,

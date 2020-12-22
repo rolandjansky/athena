@@ -66,10 +66,54 @@ class METAssocOutputList(JobProperty):
     allowedTypes = ['list'] 
     StoredValue  = []
 
+class UsePFOElectronLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UsePFOPhotonLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UseFEElectronLinks(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UseFEPhotonLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UseFETauLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UseFEMuonLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class DoORMet(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+
+
 jobproperties.add_Container(METRecoFlags)
 
 jobproperties.METRecoFlags.add_JobProperty(DoRegions)
 jobproperties.METRecoFlags.add_JobProperty(DoPFlow)
+jobproperties.METRecoFlags.add_JobProperty(UsePFOElectronLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UsePFOPhotonLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UseFEElectronLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UseFEPhotonLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UseFETauLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UseFEMuonLinks) 
+jobproperties.METRecoFlags.add_JobProperty(DoORMet) 
 jobproperties.METRecoFlags.add_JobProperty(UseFlowElements)
 jobproperties.METRecoFlags.add_JobProperty(UseTracks)
 jobproperties.METRecoFlags.add_JobProperty(DecorateSoftConst)
@@ -82,3 +126,4 @@ jobproperties.METRecoFlags.add_JobProperty(METAssocOutputList)
 jobproperties.METRecoFlags.add_JobProperty(METAssocTools)
 
 metFlags = jobproperties.METRecoFlags
+

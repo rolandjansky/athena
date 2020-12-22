@@ -18,12 +18,16 @@
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
+#include "StoreGate/DataHandle.h" 
+#include "StoreGate/ReadDecorHandle.h" 
 
 // METInterface includes
 #include "METInterface/IMETMaker.h"
 
 // EDM includes
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h" 
+
 
 // Tracking Tool
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
@@ -112,6 +116,28 @@ namespace met {
                              const xAOD::MissingETContainer* metCoreCont,
                              xAOD::MissingETAssociationHelper* helper,
                              bool doJetJVT);
+
+    StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* collection=0);//,  
+			  //MissingETBase::UsageHandler::Policy p); //jetOR
+
+    StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo, 
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* collection=0);
+
+    const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
+			  xAOD::MissingETAssociationHelper* helper,
+			  bool retainMuon = false,
+ 			  const xAOD::IParticleContainer* collection=0, 
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow);
+
     StatusCode rebuildTrackMET(xAOD::MissingET* metJet,
                              const xAOD::JetContainer* jets,
                              xAOD::MissingETAssociationHelper* helper,
@@ -172,6 +198,7 @@ namespace met {
     bool m_orCaloTaggedMuon;
     bool m_greedyPhotons;
     bool m_veryGreedyPhotons;
+
 
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     /// Default constructor:

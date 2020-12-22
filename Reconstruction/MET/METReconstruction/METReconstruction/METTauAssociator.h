@@ -67,7 +67,7 @@ namespace met{
     StatusCode extractFE(const xAOD::IParticle* obj,
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;   // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
     
     StatusCode extractTracks(const xAOD::IParticle* obj,
                              std::vector<const xAOD::IParticle*>& constlist,
@@ -78,6 +78,9 @@ namespace met{
     /// Default constructor: 
     METTauAssociator();
     SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey;
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_tauNeutralFEReadDecorKey;
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_tauChargedFEReadDecorKey;
+    bool m_useFETauLinks;
 
   }; 
 

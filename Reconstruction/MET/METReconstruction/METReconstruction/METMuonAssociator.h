@@ -71,6 +71,9 @@ namespace met{
     private:
 
     bool m_doMuonClusterMatch;
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonNeutralFEReadDecorKey;
+    SG::ReadDecorHandleKey<xAOD::MuonContainer> m_muonChargedFEReadDecorKey;
+    bool m_useFEMuonLinks; 
 
     /// Default constructor: 
     METMuonAssociator();  

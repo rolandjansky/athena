@@ -6,6 +6,7 @@
 // Algs
 #include "../METUtilAlg.h"
 #include "../METMakerAlg.h"
+#include "../ORMETMakerAlg.h"
 
 using namespace met;
 
@@ -16,4 +17,6 @@ DECLARE_COMPONENT( METSignificance )
 
 DECLARE_COMPONENT( METUtilAlg )
 DECLARE_COMPONENT( METMakerAlg )
+DECLARE_COMPONENT( ORMETMakerAlg )
+
 
