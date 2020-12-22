@@ -1126,7 +1126,6 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
 
 
 double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
-  ANA_CHECK_SET_TYPE (StatusCode);
   double SF = 1.;
   std::vector<bool> is_tagged;
   ANA_CHECK_THROW( getDirectTaggedJets(trfinf,is_tagged) );
