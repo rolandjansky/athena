@@ -48,6 +48,10 @@ def trackSummaryTool_getter( doTRT ):
    else:
       return InDetTrigTrackSummaryTool
 
+def trigPropagator_getter():
+   from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPropagator
+   return InDetTrigPropagator
+
 #--------------------------------------------------------------------------------------
 
 
