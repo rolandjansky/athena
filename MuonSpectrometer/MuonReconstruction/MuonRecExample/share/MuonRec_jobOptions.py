@@ -193,9 +193,6 @@ elif muonRecFlags.doCalib():
     from MuonRecExample import MuonAlignConfig
     from MuonCnvExample import setupMuonCalib
     setupMuonCalib()
-else:
-    logMuon.warning("Loading %s but not setting up any MuonCalibration or Ntuple" % __name__ )
-
 
 #--------------------------------------------------------------------------
 # Evaluate tracking performance
