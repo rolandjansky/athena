@@ -356,7 +356,7 @@ StatusCode AthenaSharedMemoryTool::getObject(void** target, size_t& nbytes, int 
 }
 
 //___________________________________________________________________________
-StatusCode AthenaSharedMemoryTool::clearObject(char** tokenString, int& num) const {
+StatusCode AthenaSharedMemoryTool::clearObject(const char** tokenString, int& num) const {
    if (m_isClient) {
       ShareEventHeader* evtH = static_cast<ShareEventHeader*>(m_status->get_address());
       if (evtH->evtProcessStatus != ShareEventHeader::CLEARED) {
