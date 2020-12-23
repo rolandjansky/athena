@@ -1,4 +1,4 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+/////////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -17,14 +17,13 @@
 #ifndef METINTERFACE_IMETMAKER_H
 #define METINTERFACE_IMETMAKER_H
 
+#include "AsgDataHandles/WriteHandle.h" //
 #include "AsgTools/IAsgTool.h"
 #include "xAODBase/IParticleContainer.h"
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODPFlow/PFOContainer.h" 
-#include "StoreGate/DataHandle.h" 
-#include "StoreGate/WriteHandle.h"
 
 
 class IMETMaker :  virtual public asg::IAsgTool {

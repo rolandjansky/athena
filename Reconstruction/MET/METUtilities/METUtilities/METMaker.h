@@ -18,8 +18,6 @@
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
-#include "StoreGate/DataHandle.h" 
-#include "StoreGate/ReadDecorHandle.h" 
 
 // METInterface includes
 #include "METInterface/IMETMaker.h"
