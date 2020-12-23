@@ -377,9 +377,9 @@ else:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -403,15 +403,15 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("Could not find evgenkeywords.txt file %s in DATAPATH" % kwfile)
 
 ## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -448,7 +448,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in DATAPATH" % lkwfile)
 
 if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"):
     ## Configure POOL streaming to the output EVNT format file
