@@ -7,7 +7,7 @@ mc15_13TeV:mc15_13TeV.341000.PowhegPythia8EvtGen_CT10_AZNLOCTEQ6L1_ggH125_gamgam
 __author__ = "Bruno Lenzi"
 
 defaultFile = "$ASG_TEST_FILE_MC"
-defaultNevents = 10
+defaultNevents = 5
 
 def printMethod(x):
   print (x)

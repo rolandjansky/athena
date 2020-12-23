@@ -1,266 +1,254 @@
 EgEfficiencyCorr_testE... INFO    Environment initialised for data access
-EgEfficiencyCorr_testE...INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/DAOD_PHYSVAL/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.DAOD_PHYSVAL.e5458_s3126_r9364_r9315_AthDerivation-21.2.1.0.root
-EgEfficiencyCorr_testE...INFO    Number of available events to read in:  10000
+EgEfficiencyCorr_testE...INFO    Opening file: /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/ASG/DAOD_PHYS/v1/ttbar.FullSim.DAOD_PHYS.pool.root
+EgEfficiencyCorr_testE...INFO    Number of available events to read in:  500
 EgEfficiencyCorr_testE...INFO    Number actual events to read in:  40
 EgEfficiencyCorr_testE...INFO     
  ==> Event 0
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 35062.7 : eta = 2.20295 : Bin index = 102 : SF = 0.986223 + 0.00369058 - 0.00369058 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 27639.4 : eta = 0.854567 : Bin index = 57 : SF = 0.970743 + 0.0248389 - 0.0248389 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7121 : eta = -2.10689 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 26690.4 : eta = -1.04024 : Bin index = 50 : SF = 0.966395 + 0.0242616 - 0.0242616 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18104.9 : eta = -1.52289 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7319.67 : eta = -1.02578 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8150.9 : eta = -1.89601 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9149.49 : eta = 1.27009 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11467 : eta = -2.29421 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10183 : eta = -2.32188 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9396.98 : eta = -2.39441 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 1
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 99164.1 : eta = -1.05918 : Bin index = 190 : SF = 0.985738 + 0.00428084 - 0.00428084 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19759.4 : eta = -0.375036 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15562.8 : eta = 0.560091 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9823.87 : eta = 0.79917 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7822.62 : eta = 0.629839 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8233.85 : eta = -1.5741 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 2
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28624.1 : eta = 2.29069 : Bin index = 62 : SF = 0.986735 + 0.0354944 - 0.0354944 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24823.2 : eta = -2.05668 : Bin index = 25 : SF = 0.971204 + 0.0419866 - 0.0419866 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12037.8 : eta = -1.68731 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21558.1 : eta = -1.53033 : Bin index = 27 : SF = 0.957357 + 0.0538819 - 0.0538819 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17099.1 : eta = -1.53013 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8192.9 : eta = 1.66667 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14492.1 : eta = 0.614332 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 3
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 155221 : eta = -1.22018 : Bin index = 209 : SF = 0.982112 + 0.00971802 - 0.00971802 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 34884.9 : eta = 0.684139 : Bin index = 76 : SF = 0.986098 + 0.0042239 - 0.0042239 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13546.2 : eta = -0.373276 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14956.9 : eta = -0.560835 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14687.8 : eta = 0.630953 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 16567.2 : eta = 0.585855 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15673 : eta = 2.07228 : Bin index = 23 : SF = 0.950961 + 0.0164234 - 0.0164234 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8018.09 : eta = 2.00217 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13614.1 : eta = 1.0646 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8104.72 : eta = 0.436866 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 4
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 98583.3 : eta = -0.0482206 : Bin index = 193 : SF = 0.974481 + 0.00614227 - 0.00614227 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 42875.9 : eta = 0.985956 : Bin index = 117 : SF = 0.990069 + 0.00207617 - 0.00207617 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 25552.8 : eta = -1.85878 : Bin index = 46 : SF = 0.965055 + 0.0346151 - 0.0346151 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21989.2 : eta = 0.539812 : Bin index = 35 : SF = 0.984462 + 0.0409973 - 0.0409973 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8503.49 : eta = 0.85811 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8127.55 : eta = -0.546308 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7793.98 : eta = 0.799747 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7021.22 : eta = 0.494303 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 34028.9 : eta = -2.03045 : Bin index = 65 : SF = 0.977775 + 0.00459192 - 0.00459192 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19993.3 : eta = 0.0590775 : Bin index = 18 : SF = 0.917591 + 0.0314623 - 0.0314623 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18026 : eta = 0.297245 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14286.7 : eta = -1.36345 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14772.9 : eta = -0.834264 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11880.1 : eta = -0.335953 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10833.3 : eta = -0.82876 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 5
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7558.48 : eta = -0.681009 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18466.4 : eta = 0.346534 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7156.81 : eta = -1.17261 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7374.84 : eta = -0.411891 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9205.73 : eta = 1.05508 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 6
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 23715.9 : eta = -0.223403 : Bin index = 32 : SF = 0.99278 + 0.0391606 - 0.0391606 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10429.4 : eta = -1.05924 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13506 : eta = -1.26359 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 7
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28349.9 : eta = -0.211587 : Bin index = 52 : SF = 0.988775 + 0.01838 - 0.01838 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8851.7 : eta = -0.325928 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7042.45 : eta = 1.42373 : Bin index = 9 : SF = 1.11299 + 0.307755 - 0.307755 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8714.14 : eta = 0.127142 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7967.44 : eta = -0.180767 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8166.01 : eta = 1.67854 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10588.4 : eta = 1.67854 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 8
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 29635.3 : eta = -0.824544 : Bin index = 50 : SF = 0.966395 + 0.0242616 - 0.0242616 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7990.29 : eta = -1.29075 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 32501.5 : eta = -0.686074 : Bin index = 71 : SF = 0.981861 + 0.00517581 - 0.00517581 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22883.9 : eta = -0.434261 : Bin index = 32 : SF = 0.99278 + 0.0391606 - 0.0391606 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 80927.1 : eta = -1.43665 : Bin index = 188 : SF = 0.992296 + 0.0378888 - 0.0378888 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14550 : eta = -1.49872 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 9
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 88182.1 : eta = -1.26838 : Bin index = 189 : SF = 0.988643 + 0.00686609 - 0.00686609 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 79323 : eta = 1.60756 : Bin index = 180 : SF = 0.994929 + 0.00410004 - 0.00410004 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 26463.4 : eta = 1.74685 : Bin index = 60 : SF = 0.973292 + 0.0374203 - 0.0374203 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14005.8 : eta = 0.72265 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12958.7 : eta = 0.672065 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8211.59 : eta = 2.07736 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10791.1 : eta = 1.68854 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9064.42 : eta = 0.279223 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11063.8 : eta = 1.63572 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8515.03 : eta = 1.45961 : Bin index = 9 : SF = 1.11299 + 0.307755 - 0.307755 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10349.8 : eta = 1.77247 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 76357.2 : eta = 2.07202 : Bin index = 182 : SF = 0.974352 + 0.00453546 - 0.00453546 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22290.6 : eta = 1.88062 : Bin index = 41 : SF = 0.967562 + 0.0440447 - 0.0440447 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10960.5 : eta = 1.79373 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12923 : eta = 1.52764 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8581.37 : eta = 1.2136 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8440.18 : eta = 1.54046 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7923.13 : eta = 1.67669 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7641.7 : eta = -1.30725 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7102.46 : eta = 1.16149 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 10
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22553.4 : eta = -0.170007 : Bin index = 32 : SF = 0.99278 + 0.0391606 - 0.0391606 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22904.5 : eta = -1.19378 : Bin index = 29 : SF = 0.954843 + 0.0573894 - 0.0573894 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10847.7 : eta = -0.420778 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9348.35 : eta = -1.7426 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13389.5 : eta = -1.47724 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7907.66 : eta = 1.705 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7710.43 : eta = -1.33588 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10315.9 : eta = 1.41808 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8175.74 : eta = 1.06718 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 11
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 49065.6 : eta = -0.363024 : Bin index = 132 : SF = 0.98958 + 0.0027653 - 0.0027653 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9442.09 : eta = -0.386488 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10782.7 : eta = 1.42031 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 84851.7 : eta = 1.94137 : Bin index = 201 : SF = 1.00834 + 0.00737798 - 0.00737798 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 64459.7 : eta = -0.404127 : Bin index = 172 : SF = 0.984736 + 0.00207356 - 0.00207356 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 39485.3 : eta = -0.61948 : Bin index = 92 : SF = 0.990333 + 0.0032714 - 0.0032714 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28141.3 : eta = 0.751048 : Bin index = 56 : SF = 0.984602 + 0.0224615 - 0.0224615 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 26280 : eta = -1.67887 : Bin index = 47 : SF = 0.959489 + 0.0374976 - 0.0374976 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 20221 : eta = 0.699174 : Bin index = 36 : SF = 0.98893 + 0.0490585 - 0.0490585 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11576.5 : eta = 0.699174 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10308.7 : eta = 1.52366 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11028.7 : eta = 1.50508 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 12
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8881.72 : eta = 0.359755 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11175.5 : eta = -1.27615 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7933.76 : eta = -1.18784 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 29000.5 : eta = -0.936955 : Bin index = 50 : SF = 0.966395 + 0.0242616 - 0.0242616 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14880.6 : eta = -0.112751 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12984.5 : eta = -0.340918 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 13
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 96134.3 : eta = -1.60682 : Bin index = 187 : SF = 0.98166 + 0.00553608 - 0.00553608 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22728.5 : eta = 1.88343 : Bin index = 41 : SF = 0.967562 + 0.0440447 - 0.0440447 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13748 : eta = 1.94001 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 61158.5 : eta = -0.588724 : Bin index = 171 : SF = 0.983054 + 0.00383302 - 0.00383302 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21258.6 : eta = 0.416371 : Bin index = 35 : SF = 0.984462 + 0.0409973 - 0.0409973 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14773.1 : eta = -0.542498 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12726.1 : eta = 0.391783 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8301.65 : eta = -0.660933 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 14
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 37811.7 : eta = -1.65858 : Bin index = 87 : SF = 0.97204 + 0.00423791 - 0.00423791 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21250.3 : eta = -1.98326 : Bin index = 26 : SF = 0.963803 + 0.0403635 - 0.0403635 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18665 : eta = -2.17344 : Bin index = 23 : SF = 0.950961 + 0.0164234 - 0.0164234 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11209.9 : eta = -1.77616 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 65856.6 : eta = -2.08625 : Bin index = 165 : SF = 0.965973 + 0.00488373 - 0.00488373 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 26036.7 : eta = 0.652386 : Bin index = 56 : SF = 0.984602 + 0.0224615 - 0.0224615 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18821.2 : eta = 0.225628 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15906.6 : eta = -0.973002 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12857.1 : eta = 0.225269 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 15
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7039.22 : eta = -0.943291 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14319.5 : eta = -1.39465 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14830.5 : eta = 0.521569 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7901.64 : eta = -0.564585 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7927.38 : eta = -0.583016 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 16
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8217.01 : eta = -0.0578146 : Bin index = 6 : SF = 0.92411 + 0.0516815 - 0.0516815 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7004.07 : eta = -0.787459 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10236.3 : eta = 2.13602 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 17
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22917.8 : eta = -0.738366 : Bin index = 31 : SF = 0.979324 + 0.0459767 - 0.0459767 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7614.17 : eta = -1.22605 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8960.76 : eta = -1.22225 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7749.79 : eta = -1.28611 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7224.06 : eta = -1.29361 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7734.79 : eta = -1.5713 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 75421.9 : eta = -0.558405 : Bin index = 172 : SF = 0.984736 + 0.00207356 - 0.00207356 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 53516.7 : eta = 2.37406 : Bin index = 163 : SF = 0.916471 + 0.0130171 - 0.0130171 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8473.61 : eta = -0.898819 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7574.51 : eta = 1.27264 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 18
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24193.5 : eta = 1.29355 : Bin index = 38 : SF = 0.955247 + 0.0568997 - 0.0568997 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15746.2 : eta = 0.827398 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15447.1 : eta = 0.822988 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 30682.5 : eta = 0.0844698 : Bin index = 75 : SF = 0.98492 + 0.00418427 - 0.00418427 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13627.2 : eta = -2.38832 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 40403 : eta = -0.703627 : Bin index = 111 : SF = 0.984743 + 0.00315042 - 0.00315042 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 29122.9 : eta = -2.2202 : Bin index = 45 : SF = 0.973175 + 0.0352048 - 0.0352048 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13885.4 : eta = -2.49658 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9168.52 : eta = -0.741068 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 19
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9699.59 : eta = 0.47595 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7407.43 : eta = 0.47595 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 39702.7 : eta = -0.362452 : Bin index = 92 : SF = 0.990333 + 0.0032714 - 0.0032714 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 22531.7 : eta = -1.64835 : Bin index = 27 : SF = 0.957357 + 0.0538819 - 0.0538819 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17177 : eta = -0.363174 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7752.74 : eta = -1.70559 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 20
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17229.2 : eta = -0.152272 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14693.1 : eta = -1.01832 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18287.7 : eta = -1.06573 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13006.5 : eta = -1.00656 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7592.22 : eta = -1.04173 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15201.2 : eta = 0.601719 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18865.9 : eta = 0.563403 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15721.6 : eta = 0.937772 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14375 : eta = 1.07065 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11570 : eta = 0.930934 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 21
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 39385.2 : eta = 1.31043 : Bin index = 98 : SF = 0.965171 + 0.00385174 - 0.00385174 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 35179.2 : eta = 0.79909 : Bin index = 97 : SF = 0.983967 + 0.00303604 - 0.00303604 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 30809.1 : eta = 0.923045 : Bin index = 77 : SF = 0.980747 + 0.00438743 - 0.00438743 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21201 : eta = 0.997 : Bin index = 37 : SF = 0.976145 + 0.0519995 - 0.0519995 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7735.16 : eta = 2.24967 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15327.6 : eta = 0.194886 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11609 : eta = 0.0251858 : Bin index = 12 : SF = 0.95035 + 0.0334384 - 0.0334384 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7098.44 : eta = 0.175769 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 22
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28929.1 : eta = 0.991757 : Bin index = 57 : SF = 0.970743 + 0.0248389 - 0.0248389 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15238.5 : eta = 0.344226 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19454.7 : eta = 0.44802 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14346.8 : eta = 2.26345 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11899.5 : eta = 1.98951 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28395 : eta = 1.76345 : Bin index = 60 : SF = 0.973292 + 0.0374203 - 0.0374203 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17762.2 : eta = 1.13849 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11685.2 : eta = 1.97448 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13491 : eta = 0.392535 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8943.54 : eta = 1.09213 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 23
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 46614.9 : eta = -1.56025 : Bin index = 127 : SF = 0.98298 + 0.00317916 - 0.00317916 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21449.2 : eta = -1.54251 : Bin index = 27 : SF = 0.957357 + 0.0538819 - 0.0538819 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7777.15 : eta = -1.57804 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 30278.2 : eta = 1.24534 : Bin index = 78 : SF = 0.959585 + 0.00622516 - 0.00622516 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12931.3 : eta = 1.14068 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15355 : eta = 1.54168 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13489.2 : eta = 1.37704 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14428.4 : eta = 1.58879 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13850.2 : eta = 1.56931 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8492.81 : eta = 1.85379 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7328.87 : eta = 0.842423 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7389.38 : eta = 1.00318 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12427.2 : eta = 1.4849 : Bin index = 15 : SF = 0.88292 + 0.0770474 - 0.0770474 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7003.92 : eta = 1.55792 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 24
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13859.6 : eta = 0.950648 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9558.41 : eta = 1.08499 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7719.14 : eta = -1.83947 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8230.6 : eta = -2.43433 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8066.27 : eta = 0.781494 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 25
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 27230.1 : eta = -0.150878 : Bin index = 52 : SF = 0.988775 + 0.01838 - 0.01838 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15946.9 : eta = 0.0603886 : Bin index = 18 : SF = 0.917591 + 0.0314623 - 0.0314623 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15510.6 : eta = 0.178201 : Bin index = 18 : SF = 0.917591 + 0.0314623 - 0.0314623 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13553.7 : eta = -1.27763 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10378.7 : eta = 0.0926254 : Bin index = 12 : SF = 0.95035 + 0.0334384 - 0.0334384 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9455.41 : eta = -0.174621 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7899.72 : eta = 0.0790909 : Bin index = 6 : SF = 0.92411 + 0.0516815 - 0.0516815 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9784.42 : eta = 0.404253 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 23629.9 : eta = -0.0963224 : Bin index = 33 : SF = 0.978842 + 0.034703 - 0.034703 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21247.1 : eta = 0.560345 : Bin index = 35 : SF = 0.984462 + 0.0409973 - 0.0409973 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12487.9 : eta = -0.258706 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 26
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28953.4 : eta = -1.66502 : Bin index = 47 : SF = 0.959489 + 0.0374976 - 0.0374976 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14478.8 : eta = -1.92759 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24778.3 : eta = 0.989445 : Bin index = 37 : SF = 0.976145 + 0.0519995 - 0.0519995 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12579.1 : eta = -2.33865 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8554.29 : eta = -2.30867 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11179.7 : eta = 1.03749 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9675.5 : eta = -2.41966 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 20628.4 : eta = -1.44271 : Bin index = 28 : SF = 0.981038 + 0.0476046 - 0.0476046 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8886.67 : eta = -1.31484 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9908.72 : eta = -0.725135 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9119.58 : eta = -1.3348 : Bin index = 9 : SF = 1.11299 + 0.307755 - 0.307755 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 27
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13585.8 : eta = -0.508556 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18563.4 : eta = 0.554913 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7196.25 : eta = 1.27655 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9001.73 : eta = 1.2056 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 28
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9150.71 : eta = 0.772233 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13695.1 : eta = -1.20963 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8233.86 : eta = 2.15935 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 119969 : eta = 1.6653 : Bin index = 200 : SF = 0.99984 + 0.00572104 - 0.00572104 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 90243.1 : eta = -0.344733 : Bin index = 192 : SF = 0.986655 + 0.00339006 - 0.00339006 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 42826.1 : eta = 0.303047 : Bin index = 115 : SF = 0.988328 + 0.00235224 - 0.00235224 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18932.1 : eta = 0.329934 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9287.9 : eta = 0.232699 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8933.61 : eta = 2.22185 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7621.08 : eta = -2.24695 : Bin index = 11 : SF = 0.88084 + 0.0503971 - 0.0503971 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9539.44 : eta = 1.74374 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9619.56 : eta = 0.162237 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 29
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 27736.1 : eta = -0.690716 : Bin index = 51 : SF = 0.978632 + 0.0221812 - 0.0221812 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10030.5 : eta = 1.94449 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10282.1 : eta = 2.0743 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11324.1 : eta = 2.21385 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8128.33 : eta = -0.790805 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15861.9 : eta = 0.987072 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10140 : eta = -1.58036 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 30
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 40272.3 : eta = 0.271605 : Bin index = 115 : SF = 0.988328 + 0.00235224 - 0.00235224 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 31614.9 : eta = -1.70927 : Bin index = 67 : SF = 0.958023 + 0.00564132 - 0.00564132 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11010.1 : eta = 0.333814 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8740.62 : eta = -0.781078 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11777.9 : eta = -1.97274 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 31
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 42192.9 : eta = 1.58906 : Bin index = 120 : SF = 0.991909 + 0.00324095 - 0.00324095 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 35108.6 : eta = 0.603059 : Bin index = 96 : SF = 0.989088 + 0.00321211 - 0.00321211 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 25382.6 : eta = -1.10126 : Bin index = 50 : SF = 0.966395 + 0.0242616 - 0.0242616 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15035.2 : eta = 0.691376 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 30174.2 : eta = -1.11906 : Bin index = 70 : SF = 0.970507 + 0.00513788 - 0.00513788 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10674.8 : eta = 0.633553 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 13110 : eta = 1.5369 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7658.32 : eta = 1.15579 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10698.4 : eta = 2.33015 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 90223.6 : eta = 0.642071 : Bin index = 196 : SF = 0.991012 + 0.00568732 - 0.00568732 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 32
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 16015.2 : eta = 0.0398344 : Bin index = 18 : SF = 0.917591 + 0.0314623 - 0.0314623 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 15566.9 : eta = -1.70234 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9234.99 : eta = 1.03258 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10722.2 : eta = 1.14886 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 61646.7 : eta = -1.92786 : Bin index = 166 : SF = 0.974467 + 0.00421917 - 0.00421917 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21767.3 : eta = -0.0967198 : Bin index = 33 : SF = 0.978842 + 0.034703 - 0.034703 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18429.2 : eta = -2.21609 : Bin index = 23 : SF = 0.950961 + 0.0164234 - 0.0164234 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 16386 : eta = -1.09069 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8861.65 : eta = -1.10353 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 33
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 32487.4 : eta = -0.910938 : Bin index = 70 : SF = 0.970507 + 0.00513788 - 0.00513788 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 27248.3 : eta = 0.417456 : Bin index = 55 : SF = 0.98766 + 0.0189433 - 0.0189433 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19051.9 : eta = -0.92071 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11926.4 : eta = 0.451501 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 68091.6 : eta = -0.411301 : Bin index = 172 : SF = 0.984736 + 0.00207356 - 0.00207356 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 45296.9 : eta = -0.756959 : Bin index = 131 : SF = 0.982815 + 0.00256121 - 0.00256121 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 32616.3 : eta = -0.25735 : Bin index = 72 : SF = 0.984899 + 0.00425353 - 0.00425353 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10722.1 : eta = -0.215658 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 34
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 30704.6 : eta = -1.15638 : Bin index = 69 : SF = 0.955151 + 0.00617295 - 0.00617295 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24814.5 : eta = -1.8546 : Bin index = 26 : SF = 0.963803 + 0.0403635 - 0.0403635 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24401.6 : eta = 1.65134 : Bin index = 40 : SF = 0.97719 + 0.051071 - 0.051071 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17020.9 : eta = -1.05606 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9956.95 : eta = 0.0988143 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8531.88 : eta = 0.355186 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9239.1 : eta = -1.89102 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8988.99 : eta = 1.86053 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10280.9 : eta = 0.221358 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10400 : eta = 0.579066 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12690.2 : eta = -2.12527 : Bin index = 17 : SF = 0.92877 + 0.0417002 - 0.0417002 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 35
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 50008.1 : eta = 1.38332 : Bin index = 159 : SF = 0.963242 + 0.0371279 - 0.0371279 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9134.52 : eta = 0.261078 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 78314.7 : eta = -1.93352 : Bin index = 166 : SF = 0.974467 + 0.00421917 - 0.00421917 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 43954.8 : eta = -1.81282 : Bin index = 106 : SF = 0.977198 + 0.0035206 - 0.0035206 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8221.45 : eta = -0.9224 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7952.28 : eta = -1.82264 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11343.9 : eta = -1.80655 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 36
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28147.4 : eta = 0.736478 : Bin index = 56 : SF = 0.984602 + 0.0224615 - 0.0224615 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19748.5 : eta = 1.85298 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7811.67 : eta = 1.98864 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8381.22 : eta = 1.5272 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 37
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 38380.5 : eta = -2.08997 : Bin index = 85 : SF = 0.975186 + 0.00383902 - 0.00383902 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 16564.1 : eta = -2.07875 : Bin index = 23 : SF = 0.950961 + 0.0164234 - 0.0164234 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21512.4 : eta = -1.45239 : Bin index = 28 : SF = 0.981038 + 0.0476046 - 0.0476046 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19133.8 : eta = -1.64503 : Bin index = 22 : SF = 0.940819 + 0.0167108 - 0.0167108 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 56373 : eta = 2.07835 : Bin index = 162 : SF = 0.975982 + 0.00373301 - 0.00373301 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 20986.8 : eta = 0.77062 : Bin index = 36 : SF = 0.98893 + 0.0490585 - 0.0490585 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24578.7 : eta = 1.41433 : Bin index = 39 : SF = 1.00893 + 0.0558721 - 0.0558721 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 19162 : eta = 0.547085 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 14559.4 : eta = 1.73999 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11854 : eta = 1.56245 : Bin index = 16 : SF = 0.99244 + 0.041509 - 0.041509 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8027.03 : eta = 1.76547 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 38
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 68276.6 : eta = -1.62381 : Bin index = 167 : SF = 0.985304 + 0.0042324 - 0.0042324 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 33510.5 : eta = -0.882049 : Bin index = 70 : SF = 0.970507 + 0.00513788 - 0.00513788 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11119.4 : eta = -1.07443 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9558.22 : eta = -0.908742 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7667.19 : eta = -0.816342 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 34644.1 : eta = 1.8909 : Bin index = 81 : SF = 0.990697 + 0.00455671 - 0.00455671 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 12181 : eta = 1.20637 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 11200.1 : eta = 0.968833 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 9122.54 : eta = 1.80476 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8045.59 : eta = 1.80052 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
 EgEfficiencyCorr_testE...INFO     
  ==> Event 39
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 34268.4 : eta = -1.81815 : Bin index = 66 : SF = 0.97753 + 0.00516336 - 0.00516336 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 18095.5 : eta = 0.138934 : Bin index = 19 : SF = 0.930811 + 0.0244552 - 0.0244552 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 28502.4 : eta = -0.349429 : Bin index = 52 : SF = 0.988775 + 0.01838 - 0.01838 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10426.6 : eta = -1.07025 : Bin index = 14 : SF = 0.96333 + 0.023494 - 0.023494 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 10154.9 : eta = 0.565088 : Bin index = 13 : SF = 0.95291 + 0.0121354 - 0.0121354 <===
-EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 8099.33 : eta = 0.686051 : Bin index = 7 : SF = 0.9471 + 0.0309959 - 0.0309959 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 45155.5 : eta = -0.843181 : Bin index = 130 : SF = 0.983284 + 0.00272162 - 0.00272162 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21357.1 : eta = -1.15828 : Bin index = 29 : SF = 0.954843 + 0.0573894 - 0.0573894 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 24433.4 : eta = -0.754491 : Bin index = 30 : SF = 0.952025 + 0.0489756 - 0.0489756 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 17385.7 : eta = -1.13384 : Bin index = 20 : SF = 0.913909 + 0.0245633 - 0.0245633 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 21338.9 : eta = -1.42622 : Bin index = 28 : SF = 0.981038 + 0.0476046 - 0.0476046 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7885.47 : eta = -0.998156 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7440.35 : eta = -1.67096 : Bin index = 10 : SF = 1.0367 + 0.0618086 - 0.0618086 <===
+EgEfficiencyCorr_testE...INFO    ===> electron : Pt = 7873.97 : eta = -1.26555 : Bin index = 8 : SF = 0.98113 + 0.0324073 - 0.0324073 <===
 EgEfficiencyCorr_testE...INFO    ===> DONE <===
 
