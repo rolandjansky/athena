@@ -61,12 +61,7 @@ namespace EL
   /// currently be done with a \ref `EL::Algorithm` since it neither
   /// knows about incidents, nor has all the virtual methods that were
   /// available before.
-  ///
-  /// \todo It might be nice to make this actually dual-use at some
-  /// point, but since there seems little interest in a dual-use
-  /// algorithm that is on the back-burner.  There are some
-  /// conditional compilation directives here and there, but it was
-  /// never tested for dual-use (or even in-athena compilation).
+
 
   class AnaAlgorithm
 #ifdef XAOD_STANDALONE
