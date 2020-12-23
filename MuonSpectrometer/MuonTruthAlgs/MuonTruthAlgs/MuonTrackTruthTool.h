@@ -147,7 +147,7 @@ namespace Muon {
     ToolHandle<Trk::ITruthTrajectoryBuilder> m_truthTrajectoryBuilder{this,"TruthTrajectoryBuilder","Muon::MuonDecayTruthTrajectoryBuilder/MuonDecayTruthTrajectoryBuilder"};
 
     mutable TruthTree m_truthTree;
-    mutable std::vector<TruthTrajectory*> m_truthTrajectoriesToBeDeleted;
+    mutable std::vector<std::unique_ptr<TruthTrajectory> > m_truthTrajectoriesToBeDeleted;
     mutable std::map<int,int> m_barcodeMap; // map used to link barcode of TrackRecord particles/hits to 'final' state barcode
 
     Gaudi::Property<bool> m_manipulateBarCode{this,"ManipulateBarCode",false};
