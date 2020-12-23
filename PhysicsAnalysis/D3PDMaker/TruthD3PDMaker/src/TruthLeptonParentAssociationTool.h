@@ -59,7 +59,7 @@ public:
 private:
 
   /// Function for association to a specific lepton 
-  void addLeptonParent(const HepMC::GenParticle*);
+  void addLeptonParent(HepMC::ConstGenParticlePtr);
 
   /// TruthParticle iterator
   std::vector<const TruthParticle*> m_parents;
