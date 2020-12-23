@@ -156,13 +156,13 @@ namespace Muon {
       }
       ATH_MSG_VERBOSE(" found new particle with pdgid " << PDGCode << " in truth record, barcode " << barcode);
 
-      TruthTrajectory* truthTrajectory = 0;
+      std::unique_ptr<TruthTrajectory> truthTrajectory;
       // associate the muon truth with the gen event info
       if( genEvent ){
 	HepMC::GenParticle* genParticle = genEvent->barcode_to_particle( (*tr_it).GetBarCode() );
 	if( genParticle ){
-	  truthTrajectory = new TruthTrajectory();
-	  m_truthTrajectoryBuilder->buildTruthTrajectory(truthTrajectory,genParticle);
+	  truthTrajectory = std::make_unique<TruthTrajectory>();
+	  m_truthTrajectoryBuilder->buildTruthTrajectory(truthTrajectory.get(),genParticle);
 	  if( !truthTrajectory->empty() ){
 	    
 	    // always use barcode of the 'final' particle in chain in map
@@ -212,8 +212,8 @@ namespace Muon {
 	
       TruthTreeEntry& entry = m_truthTree[barcode];
       entry.truthTrack = &(*tr_it);
-      entry.truthTrajectory = truthTrajectory;
-      m_truthTrajectoriesToBeDeleted.push_back(truthTrajectory);
+      entry.truthTrajectory = truthTrajectory.get();
+      m_truthTrajectoriesToBeDeleted.push_back(std::move(truthTrajectory));
     }
     
     // add sim data collections
@@ -698,9 +698,6 @@ namespace Muon {
   void MuonTrackTruthTool::clear() const {
     m_truthTree.clear();
     m_barcodeMap.clear();
-    std::vector<TruthTrajectory*>::iterator dit = m_truthTrajectoriesToBeDeleted.begin();
-    std::vector<TruthTrajectory*>::iterator dit_end = m_truthTrajectoriesToBeDeleted.end();
-    for( ;dit!=dit_end;++dit ) delete *dit;
     m_truthTrajectoriesToBeDeleted.clear();
   }
 
