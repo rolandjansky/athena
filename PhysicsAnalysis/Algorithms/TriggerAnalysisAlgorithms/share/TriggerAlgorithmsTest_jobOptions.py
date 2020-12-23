@@ -27,6 +27,10 @@ theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
 
+# Needed for filtering, Athena only for now
+from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc
+CreateCutFlowSvc(svcName="CutFlowSvc", seq=athAlgSeq, addMetaDataToAllOutputFiles=False)
+
 from TriggerAnalysisAlgorithms.TriggerAnalysisAlgorithmsTest import makeSequence
 algSeq = makeSequence (dataType)
 print (algSeq) # For debugging
