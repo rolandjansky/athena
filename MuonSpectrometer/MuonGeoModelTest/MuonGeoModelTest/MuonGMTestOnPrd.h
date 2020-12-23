@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -25,24 +25,18 @@
 #include "Identifier/Identifier.h"
 #include "Identifier/IdentifierHash.h"
 
-
 class StoreGateSvc;
 class ActiveStoreSvc;
-
-
-//class MuonReadoutElement;
-
 
 class MuonGMTestOnPrd: public AthAlgorithm
 {
 public:
     
     MuonGMTestOnPrd(const std::string& name, ISvcLocator* pSvcLocator);
-    ~MuonGMTestOnPrd();
+    ~MuonGMTestOnPrd()=default;
     
     StatusCode	initialize();
     StatusCode 	execute();
-    StatusCode 	finalize();
 
 private:
 

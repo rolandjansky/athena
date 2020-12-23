@@ -30,17 +30,6 @@ TGCcablingServerSvc::queryInterface(const InterfaceID& riid, void** ppvIF)
     
     addRef();
     return StatusCode::SUCCESS;
-} 
-
-StatusCode
-TGCcablingServerSvc::initialize() 
-{
-    return StatusCode::SUCCESS;
-}
-
-StatusCode
-TGCcablingServerSvc::finalize() {
-    return StatusCode::SUCCESS;
 }
 
 StatusCode

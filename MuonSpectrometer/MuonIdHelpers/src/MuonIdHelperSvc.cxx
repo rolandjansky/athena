@@ -139,11 +139,6 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode MuonIdHelperSvc::finalize() {
-    if( AthService::finalize().isFailure() ) return StatusCode::FAILURE;
-    return StatusCode::SUCCESS;
-  }
-
   int MuonIdHelperSvc::gasGap( const Identifier& id ) const {
     if( isRpc(id) ) {
       return m_rpcIdHelper->gasGap(id);

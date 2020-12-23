@@ -57,11 +57,6 @@ RPCcablingServerSvc::initialize() {
     return StatusCode::SUCCESS;
 }
 
-StatusCode
-RPCcablingServerSvc::finalize() {
-    return StatusCode::SUCCESS;
-}
-
 StatusCode 
 RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
 
