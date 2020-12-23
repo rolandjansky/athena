@@ -331,9 +331,9 @@ if not evgenConfig.keywords:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -370,7 +370,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("Could not find evgenkeywords.txt file %s in DATAPATH" % kwfile)
 
 ## Check that the categories list is not empty:
 if not evgenConfig.categories:
@@ -380,9 +380,9 @@ if not evgenConfig.categories:
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -419,7 +419,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in DATAPATH" % lkwfile)
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
