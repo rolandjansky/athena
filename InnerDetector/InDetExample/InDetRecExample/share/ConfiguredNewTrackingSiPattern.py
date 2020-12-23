@@ -61,7 +61,10 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # ------------------------------------------------------------
 
+      doSeedMakerValidation = InDetFlags.writeSeedValNtuple()
+
       if InDetFlags.doSiSPSeededTrackFinder():
+
          #
          # --- Space points seeds maker, use different ones for cosmics and collisions
          #
@@ -95,6 +98,17 @@ class  ConfiguredNewTrackingSiPattern:
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
                                                                RapidityCut            = NewTrackingCuts.maxEta())
+
+         if doSeedMakerValidation:
+
+           InDetSiSpacePointsSeedMaker.WriteNtuple = True
+
+           from AthenaCommon.AppMgr import ServiceMgr
+           if not hasattr(ServiceMgr, 'THistSvc'):
+             from GaudiSvc.GaudiSvcConf import THistSvc
+             ServiceMgr += THistSvc()
+
+           ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
