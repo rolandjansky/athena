@@ -76,7 +76,7 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
 
   std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
   if(m_visitDebug){
-    auto collectorName = name() + std::to_string(m_eventSN->getSN());
+    auto collectorName = name() + "_" + std::to_string(m_eventSN->getSN());
     infocollector.reset(new  DebugInfoCollector(collectorName));
   }
   

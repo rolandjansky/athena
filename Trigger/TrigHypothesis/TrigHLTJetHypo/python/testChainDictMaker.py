@@ -12,7 +12,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
 from chainDict2jetLabel import chainDict2jetLabel 
 from TrigJetHypoToolConfig import (trigJetHypoToolFromDict,
-                                   nodeTreeFromChainLabel)
+                                   nodeForestFromChainLabel,
+                                   tree2tools,)
 
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
@@ -83,12 +84,15 @@ if __name__ == '__main__':
         print (d[0])
         label = chainDict2jetLabel(d[1])
         chain_name = d[1]['chainName']
-        
-        toolSetter=ConditionsToolSetterFastReduction()
+
+
+        forest = nodeForestFromChainLabel(label, chain_name)
+
+        for tree in forest:
+            toolSetter=ConditionsToolSetterFastReduction()
             
-        print (nodeTreeFromChainLabel(chain_name=d[0],
-                                      chain_label=label,
-                                      toolSetter=toolSetter).dump())
+            print (tree2tools(rootless_tree=tree,
+                              toolSetter=toolSetter).dump())
         print ()
         
 
