@@ -112,9 +112,9 @@ public:
 
   virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
 			  xAOD::MissingETAssociationHelper* metHelper,
-			  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &chargedPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &neutralPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &PFOContainerWriteHandle,
 			  bool retainMuon = false,
 			  const xAOD::IParticleContainer* collection=0) = 0;//,  
 			  //MissingETBase::UsageHandler::Policy p); //jetOR

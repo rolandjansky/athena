@@ -1089,16 +1089,16 @@ namespace met {
 
 
 
-  // Retrieve non overlapping constituents  //fede ?
+  // Retrieve non overlapping constituents  
   ////////////////////////////////////////
 
-  // Fill OverlapRemovedCHSParticleFlowObjects: view container
-  // and  OverlapRemovedCHSCharged/NeutralParticleFlowObjects: should be writable to AODs
+  // Fill OverlapRemovedCHSParticleFlowObjects
+  // and  OverlapRemovedCHSCharged/NeutralParticleFlowObjects
   StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
 			  xAOD::MissingETAssociationHelper* metHelper,
-			  SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &chargedPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &neutralPFOContainerWriteHandle,
+			  SG::WriteHandle<xAOD::PFOContainer> &PFOContainerWriteHandle,
 			  bool retainMuon,
 			  const xAOD::IParticleContainer* collection)//, 
 			  //MissingETBase::UsageHandler::Policy p); //
@@ -1109,7 +1109,7 @@ namespace met {
 
     for (const auto tmp_constit : *cpfo){ 
       xAOD::PFO* constit=new xAOD::PFO();
-      chargedPFOContainerWriteHandle->push_back(constit); 
+      (*chargedPFOContainerWriteHandle).push_back(constit); 
       *constit=*tmp_constit;
 
       bool keep=false;
@@ -1118,12 +1118,12 @@ namespace met {
       }
       if (keep==false){constit->setP4(0., 0., 0., 0.);} 
 			
-      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : "not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
     } // end cPFO loop
 
     for (const auto tmp_constit : *npfo){ 
       xAOD::PFO* constit=new xAOD::PFO();
-      neutralPFOContainerWriteHandle->push_back(constit);
+      (*neutralPFOContainerWriteHandle).push_back(constit);
       *constit=*tmp_constit;
 
       bool keep=false;
@@ -1132,21 +1132,21 @@ namespace met {
       }
       if (keep==false){constit->setP4(0., 0., 0., 0.);}
 			
-      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : "not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
     } // end nPFO loop
 	
-    // Merge charged & neutral PFOs into the global view container
-    PFOContainerWriteHandle->assign(neutralPFOContainerWriteHandle->begin(), neutralPFOContainerWriteHandle->end());
-    PFOContainerWriteHandle->insert(PFOContainerWriteHandle->end(),
-		  chargedPFOContainerWriteHandle->begin(), 
-		  chargedPFOContainerWriteHandle->end());
+    // Merge charged & neutral PFOs into global PFOs container
+    (*PFOContainerWriteHandle).assign((*neutralPFOContainerWriteHandle).begin(), (*neutralPFOContainerWriteHandle).end());
+    (*PFOContainerWriteHandle).insert((*PFOContainerWriteHandle).end(),
+		  (*chargedPFOContainerWriteHandle).begin(), 
+		  (*chargedPFOContainerWriteHandle).end());
 
     return StatusCode::SUCCESS;
   }
 
 
 
-  // Fill only OverlapRemovedCHSParticleFlowObjects, view container
+  // Fill OverlapRemovedCHSParticleFlowObjects
   StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo, 
 			  xAOD::MissingETAssociationHelper* metHelper,
 			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
@@ -1154,9 +1154,9 @@ namespace met {
 			  const xAOD::IParticleContainer* collection)
   {	
     const xAOD::PFOContainer *OR_pfos = retrieveOverlapRemovedConstituents(pfo, metHelper,retainMuon,collection);
-    *PFOContainerWriteHandle.ptr()=*OR_pfos;
+    *PFOContainerWriteHandle=*OR_pfos;
 
-    for (const auto tmp_constit : *PFOContainerWriteHandle.ptr()){ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << " in OverlapRemovedCHSParticleFlowObjects");}
+    for (const auto tmp_constit : *PFOContainerWriteHandle){ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << " in OverlapRemovedCHSParticleFlowObjects");}
 
     return StatusCode::SUCCESS;
   }
@@ -1197,7 +1197,7 @@ namespace met {
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is " << (MissingETComposition::objSelected(helper,orig) ? "" : "non-") << "selected" );
       }*/
-    } // end retainMuon
+    } // end retainMuon 
 
     const xAOD::PFOContainer* ORsignals =static_cast<const xAOD::PFOContainer*>(map->getOverlapRemovedSignals(helper,signals,p));
 

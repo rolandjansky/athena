@@ -319,30 +319,6 @@ namespace met {
       SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); //jetOR
       ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));//jetOR
 
-      /**** If want to write CHScharged/neutralOverlapRemovedPFlowObjects container to AOD ****
-
-      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); //jetOR
-      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
-  
-      ///jetOR  cPFO
-      SG::ReadHandle<xAOD::PFOContainer> cPFO("CHSChargedParticleFlowObjects");
-      if (!cPFO.isValid()) {
-        ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << cPFO.key());
-        return StatusCode::FAILURE;
-      }
-      ///jetOR  nPFO
-      SG::ReadHandle<xAOD::PFOContainer> nPFO("CHSNeutralParticleFlowObjects");
-      if (!nPFO.isValid()) {
-        ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << nPFO.key());
-         return StatusCode::FAILURE;
-      }
-      SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey,ctx); //jetOR
-      SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx); //jetOR
-      ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
-      ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
-      */
-
-
       ATH_MSG_INFO("Retrieve OR constituents");
       ConstDataVector<PFOContainer> met_PFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *PFOs) {met_PFO.push_back(pfo);}
@@ -350,14 +326,34 @@ namespace met {
       else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,PFOContainerWriteHandle,false));}
 
       /**** If want to write CHScharged/neutralOverlapRemovedPFlowObjects container to AOD ****
+      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); //jetOR
+      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
+  
+      ///jetOR  cPFO
+      SG::ReadHandle<xAOD::PFOContainer> cPFOs("CHSChargedParticleFlowObjects");
+      if (!cPFOs.isValid()) {
+        ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << cPFOs.key());
+        return StatusCode::FAILURE;
+      }
+      ///jetOR  nPFO
+      SG::ReadHandle<xAOD::PFOContainer> nPFOs("CHSNeutralParticleFlowObjects");
+      if (!nPFOs.isValid()) {
+        ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << nPFOs.key());
+         return StatusCode::FAILURE;
+      }
+      SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey,ctx); //jetOR
+      SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx); //jetOR
+      ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
+      ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
+      
 
       ConstDataVector<PFOContainer> met_cPFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *cPFOs) {met_cPFO.push_back(pfo);}
       ConstDataVector<PFOContainer> met_nPFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *nPFOs) {met_nPFO.push_back(pfo);}
       if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,false));}*/
-    }
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,false));}
+    }*/
 
     
     m_doJVT= (m_soft=="Clus" ? false : true);
@@ -385,14 +381,14 @@ namespace met {
 			    (m_soft=="Clus")? (*newMet)["SoftClus"]->source() : (*newMet)["PVSoftTrk"]->source()) 
   	     ); 
 
- xAOD::MissingET* metSum = (*newMet)["Final"+m_soft];
-  std::cout << "MET sum = " << 0.001 * metSum->met() << " GeV" << std::endl;
-  std::cout << "MET jet = " << 0.001 * (*newMet)["RefJet"]->met() << " GeV" << std::endl;
-  std::cout << "MET mu = " << 0.001 * (*newMet)["Muons"]->met() << " GeV" << std::endl;
-  std::cout << "MET el = " << 0.001 * (*newMet)["RefEle"]->met() << " GeV" << std::endl;
-  std::cout << "MET ph = " << 0.001 * (*newMet)["RefGamma"]->met() << " GeV" << std::endl;
-  std::cout << "MET tau = " << 0.001 * (*newMet)["RefTau"]->met() << " GeV" << std::endl;
-  std::cout << "MET soft = " << 0.001 * (*newMet)["Soft"+m_soft]->met() << " GeV" << std::endl;
+    xAOD::MissingET* metSum = (*newMet)["Final"+m_soft];
+    ATH_MSG_DEBUG("MET sum = " << 0.001 * metSum->met() << " GeV");
+    ATH_MSG_DEBUG("MET jet = " << 0.001 * (*newMet)["RefJet"]->met() << " GeV");
+    ATH_MSG_DEBUG("MET mu = " << 0.001 * (*newMet)["Muons"]->met() << " GeV");
+    ATH_MSG_DEBUG("MET el = " << 0.001 * (*newMet)["RefEle"]->met() << " GeV");
+    ATH_MSG_DEBUG("MET ph = " << 0.001 * (*newMet)["RefGamma"]->met() << " GeV");
+    ATH_MSG_DEBUG("MET tau = " << 0.001 * (*newMet)["RefTau"]->met() << " GeV");
+    ATH_MSG_DEBUG("MET soft = " << 0.001 * (*newMet)["Soft"+m_soft]->met() << " GeV");
 
     return StatusCode::SUCCESS;
   }

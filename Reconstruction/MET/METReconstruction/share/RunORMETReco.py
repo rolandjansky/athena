@@ -60,7 +60,7 @@ makerAlg.ElectronETA = electronETA;
 makerAlg.MuonETA = muonETA;
 makerAlg.PhotonETA = photonETA;
 makerAlg.Soft = soft
-makerAlg.OutputLevel = DEBUG 
+makerAlg.OutputLevel = VERBOSE
 topSequence += makerAlg
 metFlags.METOutputList().append("AntiKt4EMPFlow")
 
