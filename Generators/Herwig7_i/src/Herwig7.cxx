@@ -33,53 +33,6 @@
 #include "boost/thread/thread.hpp"
 #include "boost/filesystem.hpp"
 #include "boost/algorithm/string.hpp"
-#include "boost/foreach.hpp"
-#define foreach BOOST_FOREACH
-
-
-// Setup HepMC traits definition for ThePEG's converter to work
-#include "ThePEG/Vectors/HepMCConverter.h"
-#ifdef HWVER_IS_72
-namespace ThePEG {
-  template<>
-  struct HepMCTraits<HepMC::GenEvent>
-    : public HepMCTraitsBase<HepMC::GenEvent,
-                             HepMC::GenParticle,
-                             HepMC::GenParticle *,
-                             HepMC::GenVertex,
-                             HepMC::GenVertex *,
-                             HepMC::Polarization,
-                             HepMC::PdfInfo>
-  {
-    static bool hasUnits() {
-      #ifdef HEPMC_HAS_UNITS
-      return true;
-      #else
-      return false;
-      #endif
-    }
-  };
-}
-#else
-namespace ThePEG {
-  template<>
-  struct HepMCTraits<HepMC::GenEvent>
-    : public HepMCTraitsBase<HepMC::GenEvent,
-                            HepMC::GenParticle,
-                             HepMC::GenVertex,
-                             HepMC::Polarization,
-                             HepMC::PdfInfo>
-  {
-    static bool hasUnits() {
-      #ifdef HEPMC_HAS_UNITS
-      return true;
-      #else
-      return false;
-      #endif
-    }
-  };
-}
-#endif
 
 void   convert_to_HepMC(const ThePEG::Event & m_event, HepMC::GenEvent & evt, bool nocopies,ThePEG::Energy eunit, ThePEG::Length lunit);
 
