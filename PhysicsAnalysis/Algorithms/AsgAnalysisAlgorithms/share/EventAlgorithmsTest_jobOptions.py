@@ -22,7 +22,7 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
              "afii": 'ASG_TEST_FILE_MC_AFII'}
 
 # Set up the reading of the input file:
-import AthenaRootComps.ReadAthenaxAODHybrid
+import AthenaPoolCnvSvc.ReadAthenaPool
 theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]
