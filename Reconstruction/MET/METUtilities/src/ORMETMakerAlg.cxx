@@ -352,8 +352,8 @@ namespace met {
       ConstDataVector<PFOContainer> met_nPFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *nPFOs) {met_nPFO.push_back(pfo);}
       if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,false));}
-    }*/
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,false));}*/
+    }
 
     
     m_doJVT= (m_soft=="Clus" ? false : true);

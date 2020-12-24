@@ -1177,7 +1177,6 @@ namespace met {
 
       for(const auto& obj : *collection) {
 	const IParticle* orig = obj;
-	bool selected = false;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
 	if(assocs.empty()) {
@@ -1214,7 +1213,6 @@ namespace met {
       bool originalInputs = !acc_originalObject.isAvailable(*collection->front());
       for(const auto& obj : *collection) {
 	const IParticle* orig = obj;
-	bool selected = false;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
 	for (size_t ind=0; ind<muon_index.size();ind++){
