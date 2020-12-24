@@ -318,12 +318,6 @@ HLT_cscmon_CSCPEB_L1All:
     0: 20
 HLT_e12_lhloose_2mu10_L12MU10:
   eventCount: 0
-  stepCounts:
-    0: 1
-    1: 1
-  stepFeatures:
-    0: 2
-    1: 5
 HLT_e140_lhloose_L1EM22VHI:
   eventCount: 0
 HLT_e140_lhloose_nod0_L1EM22VHI:
@@ -613,6 +607,8 @@ HLT_g300_etcut_L1EM22VHI:
 HLT_g35_loose_mu18_L1EM24VHI:
   eventCount: 0
 HLT_g35_medium_g25_medium_L12EM20VH:
+  eventCount: 0
+HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI:
   eventCount: 0
 HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI:
   eventCount: 0

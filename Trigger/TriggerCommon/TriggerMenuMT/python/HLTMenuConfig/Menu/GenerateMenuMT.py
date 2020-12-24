@@ -307,7 +307,7 @@ class GenerateMenuMT(object, metaclass=Singleton):
                   alignedChainConfig = menuAlignment.single_align(chainDict, chainConfig)
                   TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )
 
-              elif len(alignmentGroups) == 2:
+              elif len(alignmentGroups) >= 2:
                   alignedChainConfig = menuAlignment.multi_align(chainDict, chainConfig, lengthOfChainConfigs)
                   TriggerConfigHLT.registerChain( chainDict, alignedChainConfig )              
 
