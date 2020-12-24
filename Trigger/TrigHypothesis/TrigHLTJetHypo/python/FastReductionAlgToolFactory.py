@@ -43,7 +43,7 @@ class FastReductionAlgToolFactory:
         klass = self.tool_factories[key][0]
         sn = self.tool_factories[key][1]
         
-        name = '%s_%d_fn' % (key, sn)
+        name = '%s_%d' % (key, sn)
         if extra: name += '_' + extra
         tool = klass(name=name)            
         self.tool_factories[key][1] += 1

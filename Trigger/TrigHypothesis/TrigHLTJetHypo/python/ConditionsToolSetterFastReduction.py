@@ -5,9 +5,6 @@ from a hypo tree."""
 
 from __future__ import print_function
 
-from TrigHLTJetHypo.FastReductionAlgToolFactory import (
-    FastReductionAlgToolFactory,)
-
 from collections import defaultdict
 
 from AthenaCommon.Logging import logging
@@ -27,9 +24,9 @@ class ConditionsToolSetterFastReduction(object):
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
 
 
-    def __init__(self):
+    def __init__(self, algToolFactory):
 
-        self.algToolFactory = FastReductionAlgToolFactory()
+        self.algToolFactory = algToolFactory
  
         # map conaining parent child ids for the node
         self.treeMap = {0: 0}

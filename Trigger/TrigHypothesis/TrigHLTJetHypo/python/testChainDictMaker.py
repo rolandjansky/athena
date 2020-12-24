@@ -19,6 +19,9 @@ from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
 
+from TrigHLTJetHypo.FastReductionAlgToolFactory import (
+    FastReductionAlgToolFactory,)
+
 
 def testChainDictMaker():
 
@@ -50,11 +53,10 @@ def testChainDictMaker():
 
         ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
                   groups=SingleJetGroup),
-        
-        # ChainProp(name='HLT_j70_j50 _0eta490_invm1000j50_dphi20_deta40_L1J20',
-        #          l1SeedThresholds=['FSNOSEED']*2,
-        #          groups=MultiJetGroup),
 
+         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
+
+        ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
     ]
 
     result = []
@@ -88,8 +90,9 @@ if __name__ == '__main__':
 
         forest = nodeForestFromChainLabel(label, chain_name)
 
+        algToolFactory = FastReductionAlgToolFactory()
         for tree in forest:
-            toolSetter=ConditionsToolSetterFastReduction()
+            toolSetter=ConditionsToolSetterFastReduction(algToolFactory)
             
             print (tree2tools(rootless_tree=tree,
                               toolSetter=toolSetter).dump())
