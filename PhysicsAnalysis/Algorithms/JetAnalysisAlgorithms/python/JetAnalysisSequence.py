@@ -161,9 +161,9 @@ def makeJetAnalysisSequence( dataType, jetCollection, postfix = '',
 
 def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollection,
                                    jetInput, postfix = '', 
-                                   runJvtUpdate = True, runFJvtUpdate = True,
-                                   runJvtSelection = True, runFJvtSelection = True,
-                                   runJvtEfficiency = True, runFJvtEfficiency = True,
+                                   runJvtUpdate = False, runFJvtUpdate = False,
+                                   runJvtSelection = True, runFJvtSelection = False,
+                                   runJvtEfficiency = True, runFJvtEfficiency = False,
                                    reduction = "Global", JEROption = "Simple"):
     """Add algorithms for the R=0.4 jets.
 
@@ -240,6 +240,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
     if runJvtUpdate :
         alg = createAlgorithm( 'CP::JvtUpdateAlg', 'JvtUpdateAlg'+postfix )
         addPrivateTool( alg, 'jvtTool', 'JetVertexTaggerTool' )
+        alg.jvtTool.JetContainer = jetCollection
         seq.append( alg, inputPropName = 'jets', outputPropName = 'jetsOut', stageName = 'selection' )
 
     if runFJvtUpdate :
@@ -266,6 +267,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
             alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/JvtSFFile_EMTopoJets.root'
             alg.efficiencyTool.MaxPtForJvt = 120e3
         alg.efficiencyTool.WorkingPoint = 'Tight' if jetInput == 'EMPFlow' else 'Medium'
+        alg.truthJetCollection = 'AntiKt4TruthDressedWZJets'
         alg.selection = 'jvt_selection'
         alg.scaleFactorDecoration = 'jvt_effSF_%SYS%'
         alg.scaleFactorDecorationRegex = jvtSysts
@@ -285,6 +287,7 @@ def makeSmallRJetAnalysisSequence( seq, cutlist, cutlength, dataType, jetCollect
         addPrivateTool( alg, 'efficiencyTool', 'CP::JetJvtEfficiency' )
         alg.efficiencyTool.SFFile = 'JetJvtEfficiency/Moriond2018/fJvtSFFile.root'
         alg.efficiencyTool.WorkingPoint = 'Tight'
+        alg.truthJetCollection = 'AntiKt4TruthDressedWZJets'
         alg.dofJVT = True
         alg.fJVTStatus = 'passFJVT,as_char'
         alg.selection = 'fjvt_selection'
