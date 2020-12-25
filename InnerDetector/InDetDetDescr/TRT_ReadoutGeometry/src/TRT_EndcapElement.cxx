@@ -22,8 +22,6 @@
 #include "TRT_ConditionsData/ExpandedIdentifier.h"
 #include "TRT_ConditionsData/StrawDxContainer.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
-
 namespace InDetDD {
 
 TRT_EndcapElement::TRT_EndcapElement(const GeoVFullPhysVol* volume,

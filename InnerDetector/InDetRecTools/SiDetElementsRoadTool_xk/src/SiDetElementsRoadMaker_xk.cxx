@@ -19,7 +19,6 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "SiDetElementsRoadTool_xk/SiDetElementsComparison.h"
-#include "SiDetElementsRoadUtils_xk.h"
 #include "StoreGate/ReadCondHandle.h"
 #include "TrkPrepRawData/PrepRawData.h"
 #include "GaudiKernel/ContextSpecificPtr.h"

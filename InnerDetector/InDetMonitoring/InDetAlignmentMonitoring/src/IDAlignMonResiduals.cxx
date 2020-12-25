@@ -20,7 +20,6 @@
 #include "TMath.h"
 #include "TProfile2D.h"
 #include "TGraphErrors.h"
-#include "TF1.h"
 #include "TFitResult.h"
 #include "TFitResultPtr.h"
 

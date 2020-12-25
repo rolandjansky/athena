@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IDPerfMonZee_H
@@ -18,7 +18,6 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Photon.h"
-#include "xAODEgamma/PhotonContainer.h"
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"

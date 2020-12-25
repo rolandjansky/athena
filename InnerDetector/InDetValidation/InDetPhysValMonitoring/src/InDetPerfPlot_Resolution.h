@@ -22,7 +22,6 @@
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 #include "xAODTruth/TruthParticle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
-#include "InDetPlotBase.h"
 #include "InDetPhysValMonitoring/ResolutionHelper.h"
 
 #include "TFitResultPtr.h"

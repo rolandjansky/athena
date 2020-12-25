@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <TTree.h>
@@ -20,8 +20,6 @@
 #include "TSystem.h"
 #include "../TTrainedNetwork.h"
 #include "TChain.h"
-
-#include <iostream>
 
 #include "TMatrixD.h"
 #include "TVectorD.h"

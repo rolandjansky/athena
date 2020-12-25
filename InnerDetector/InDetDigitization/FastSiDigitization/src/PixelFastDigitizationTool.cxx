@@ -30,7 +30,6 @@
 
 // Pile-up
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras

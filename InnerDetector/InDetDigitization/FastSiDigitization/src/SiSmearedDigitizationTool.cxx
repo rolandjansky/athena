@@ -35,7 +35,6 @@
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
