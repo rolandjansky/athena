@@ -63,36 +63,35 @@ StatusCode JetFullTruthTag::fill (const Jet& p)
     // We have an McEventCollection
     for (McEventCollection::const_iterator currentGenEventIter = mcCollection->begin();
          currentGenEventIter!=mcCollection->end(); ++currentGenEventIter) {
-      for (HepMC::GenEvent::particle_const_iterator currentGenParticleIter= (*currentGenEventIter)->particles_begin(); 
-           currentGenParticleIter!= (*currentGenEventIter)->particles_end(); ++currentGenParticleIter) {
+      for (auto currentGenParticle: *(*currentGenEventIter)) {
 
         // Grab the PDGID, used both for partons and hadrons
-        pdgid = (*currentGenParticleIter)->pdg_id();
+        pdgid = currentGenParticle->pdg_id();
 
         // Parton labeling section...
-        if((*currentGenParticleIter)->momentum().e()>=Emax && (*currentGenParticleIter)->momentum().perp()>m_min_parton_pt){
-          if( abs(pdgid)<=21 && // Should be a parton
-              abs(pdgid)!=6 && // Should not be a top
-              (abs(pdgid)==15 || abs(pdgid)<=10 || abs(pdgid)>16) && // Not a lepton
-              abs(pdgid)!=0){ // not an unrecognized thingy
+        if(currentGenParticle->momentum().e()>=Emax && currentGenParticle->momentum().perp()>m_min_parton_pt){
+          if( std::abs(pdgid)<=21 && // Should be a parton
+              std::abs(pdgid)!=6 && // Should not be a top
+              (std::abs(pdgid)==15 || std::abs(pdgid)<=10 || std::abs(pdgid)>16) && // Not a lepton
+              std::abs(pdgid)!=0){ // not an unrecognized thingy
  
-            dR2 = std::pow( std::acos( std::cos( p.phi() - (*currentGenParticleIter)->momentum().phi() ) ) , 2 );
-            dR2 += std::pow( p.eta()-(*currentGenParticleIter)->momentum().eta() , 2 );
+            dR2 = std::pow( std::acos( std::cos( p.phi() - currentGenParticle->momentum().phi() ) ) , 2 );
+            dR2 += std::pow( p.eta()-currentGenParticle->momentum().eta() , 2 );
         
             if(dR2<=m_partonMatch_dr*m_partonMatch_dr){ // We have a winner
-              Emax=(*currentGenParticleIter)->momentum().e();
-              *m_partonFlavor = (*currentGenParticleIter)->pdg_id();
+              Emax=currentGenParticle->momentum().e();
+              *m_partonFlavor = currentGenParticle->pdg_id();
               *m_partonDR = static_cast<float> (dR2);
             } // Outside of dR
           } // Wrong PDG ID
         } // Low energy
 
         // Hadron labeling section
-        if ((HepPID::isHadron (pdgid) || abs(pdgid)==15) && ((*currentGenParticleIter)->momentum().perp()>m_min_hadron_pt)){
+        if ((HepPID::isHadron (pdgid) || std::abs(pdgid)==15) && (currentGenParticle->momentum().perp()>m_min_hadron_pt)){
 
           // Check on DR match
-          dR2 = std::pow( std::acos( std::cos( p.phi() - (*currentGenParticleIter)->momentum().phi() ) ) , 2 );
-          dR2 += std::pow( p.eta()-(*currentGenParticleIter)->momentum().eta() , 2 );
+          dR2 = std::pow( std::acos( std::cos( p.phi() - currentGenParticle->momentum().phi() ) ) , 2 );
+          dR2 += std::pow( p.eta()-currentGenParticle->momentum().eta() , 2 );
 
           if( dR2<=m_hadronMatch_dr*m_hadronMatch_dr ){
             // Strict ordering bottom up - 0 -> tau -> c -> b
