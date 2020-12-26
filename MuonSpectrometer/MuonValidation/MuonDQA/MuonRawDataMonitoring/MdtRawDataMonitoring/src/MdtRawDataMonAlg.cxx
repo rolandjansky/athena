@@ -205,7 +205,6 @@ StatusCode MdtRawDataMonAlg::initialize()
   ATH_CHECK(m_l1RoiKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_muonKey.initialize());
   ATH_CHECK(m_segm_type.initialize());
-  ATH_CHECK(m_segm_typeAlt.initialize());
   ATH_CHECK(m_key_mdt.initialize());
   ATH_CHECK(m_key_rpc.initialize());
   ATH_CHECK(m_eventInfo.initialize());
@@ -530,15 +529,8 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
 
   SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);
   if (!segms.isValid()) {
-    if (m_segm_type.key()=="TrackMuonSegments") {
-      // old DataQuality_required input file (/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root) still has 'MuonSegments' stored
-      // -> @TODO: need updated input file (temporary workaround: retrieve 'MuonSegments' instead if 'TrackMuonSegments' here)
-      segms = SG::ReadHandle<Trk::SegmentCollection>(m_segm_typeAlt, ctx);
-    }
-    if (!segms.isValid()) {
-      ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
-      return StatusCode::FAILURE;
-    }
+    ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
+    return StatusCode::FAILURE;
   }
 
   MDTSegmentHistogramStruct segsPlots[4][4][16]; // [region][layer][phi]

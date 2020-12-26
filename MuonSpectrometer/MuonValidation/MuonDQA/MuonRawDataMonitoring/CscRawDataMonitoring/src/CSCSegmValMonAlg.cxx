@@ -46,7 +46,6 @@ StatusCode CSCSegmValMonAlg::initialize() {
   ATH_CHECK(m_edmHelperSvc.retrieve());
   ATH_CHECK(m_idHelperSvc.retrieve());
   ATH_CHECK(m_segmKey.initialize());
-  ATH_CHECK(m_segmKeyAlt.initialize());
 
   return AthMonitorAlgorithm::initialize();
 }  
@@ -78,15 +77,8 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
 
     SG::ReadHandle<Trk::SegmentCollection> segments(m_segmKey, ctx);
     if (!segments.isValid()) {
-      if (m_segmKey.key()=="TrackMuonSegments") {
-        // old DataQuality_required input file (/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/Tier0ChainTests/q431/21.0/myESD.pool.root) still has 'MuonSegments' stored
-        // -> @TODO: need updated input file (temporary workaround: retrieve 'MuonSegments' instead if 'TrackMuonSegments' here)
-        segments = SG::ReadHandle<Trk::SegmentCollection>(m_segmKeyAlt, ctx);
-      }
-      if (!segments.isValid()) {
-        ATH_MSG_ERROR("Could not retrieve Trk::SegmentCollection "<<m_segmKey.key());
-        return StatusCode::FAILURE;
-      }
+      ATH_MSG_ERROR("Could not retrieve Trk::SegmentCollection "<<m_segmKey.key());
+      return StatusCode::FAILURE;
     }
 
     if ( segments->empty() ){
