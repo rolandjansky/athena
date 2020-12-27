@@ -117,7 +117,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto dEta               = Monitored::Scalar<float>("dEtaEFTau_RoI",    -10.);
   auto dPhi               = Monitored::Scalar<float>("dPhiEFTau_RoI",    -10.);
   auto emRadius           = Monitored::Scalar<float>("EMRadius", -0.099);
-  auto hadRadius          = Monitored::Scalar<float>("EMRadius", -0.099);
+  auto hadRadius          = Monitored::Scalar<float>("HadRadius", -0.099);
   auto EtFinal            = Monitored::Scalar<float>("EtFinal", 0.);
   auto Et                 = Monitored::Scalar<float>("Et", 0.);
   auto EtHad              = Monitored::Scalar<float>("EtHad",-10.);
