@@ -6,7 +6,10 @@
 
 namespace Muon {
 class NSW_PadTriggerRawData {
+// TODO: Perhaps move this out of the class?
 using hitlist_t = std::vector<uint16_t>;
+friend class NSW_PadTriggerRawDataCnv_p1;
+
 private:
     static constexpr std::size_t BC_COUNT{ 3 };
 
