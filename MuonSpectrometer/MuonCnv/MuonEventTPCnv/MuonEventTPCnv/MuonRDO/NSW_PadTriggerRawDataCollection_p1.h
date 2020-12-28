@@ -6,8 +6,8 @@
 #include <vector>
 
 namespace Muon {
-struct NSW_PadTriggerRawDataCollection_p1 {
-    std::vector<NSW_PadTriggerRawData_p1> m_data;
+struct NSW_PadTriggerRawDataCollection_p1 : public std::vector<NSW_PadTriggerRawData_p1> {
+    unsigned int m_identifierHash;
 };
 } // namespace Muon
 

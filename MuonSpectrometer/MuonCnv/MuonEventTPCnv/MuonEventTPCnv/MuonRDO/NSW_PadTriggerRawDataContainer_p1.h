@@ -6,9 +6,8 @@
 #include <vector>
 
 namespace Muon {
-struct NSW_PadTriggerRawDataContainer_p1 {
-    std::vector<NSW_PadTriggerRawDataCollection_p1> m_collections;
-};
+struct NSW_PadTriggerRawDataContainer_p1 : public std::vector<NSW_PadTriggerRawDataCollection_p1>
+    { };
 } // namespace Muon
 
 #endif // MUONEVENTTPCNV_NSW_PADTRIGGERRAWDATACONTAINER_P1_H
