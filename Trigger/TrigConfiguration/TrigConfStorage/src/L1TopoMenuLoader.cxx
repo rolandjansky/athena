@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "L1TopoMenuLoader.h"
@@ -702,14 +702,12 @@ bool TrigConf::L1TopoMenuLoader::loadTopoConfig( TXC::L1TopoMenu& tcaTarget) {
       fillQuery(query0.get(), attList0);
       coral::ICursor& cursor0 = query0->execute();
 
-      TXC::L1TopoConfigGlobal* l1topoconfigglobal = new TXC::L1TopoConfigGlobal();
       while(cursor0.next()){
          const coral::AttributeList& row0 = cursor0.currentRow();
 
          string tc_name = row0["TC.TC_NAME"].data<string>();
          string tc_value = row0["TC.TC_VALUE"].data<string>();
 
-         l1topoconfigglobal->addTopoConfigElement(tc_name,tc_value);
          tcaTarget.addL1TopoConfigGlobal(TXC::TopoConfigElement(tc_name,tc_value));
       }
 

@@ -152,10 +152,3 @@ StatusCode MuonDetectorCondAlg::execute()
 
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode MuonDetectorCondAlg::finalize()
-{
-  ATH_MSG_DEBUG( "finalize " << name() );
-  return StatusCode::SUCCESS;
- }

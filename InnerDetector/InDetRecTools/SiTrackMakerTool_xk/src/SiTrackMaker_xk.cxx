@@ -565,8 +565,8 @@ void InDet::SiTrackMaker_xk::newTrigEvent(const EventContext& ctx, SiTrackMakerE
   data.inputseeds() = 0;
   data.goodseeds()  = 0;
   data.findtracks() = 0;
-  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatAllTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) data.summaryStatAll()[i][k]; }
-  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatEtaTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) { for(int r=0; r!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++r) data.summaryStatUsedInTrack()[i][k][r]; } }
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatAllTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) data.summaryStatAll()[i][k] = 0.; }
+  for(int i=0; i!=SiCombinatorialTrackFinderData_xk::kNStatEtaTypes; ++i) { for(int k = 0; k!=SiCombinatorialTrackFinderData_xk::kNSeedTypes; ++k) { for(int r=0; r!=SiCombinatorialTrackFinderData_xk::kNRapidityRanges; ++r) data.summaryStatUsedInTrack()[i][k][r] = 0.; } }
 
 }
 

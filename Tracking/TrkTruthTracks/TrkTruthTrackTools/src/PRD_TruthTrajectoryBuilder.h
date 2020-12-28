@@ -53,7 +53,7 @@ namespace Trk {
        StatusCode  finalize();
 
        /** return a vector of PrepRawData trajectories - uses internal cache**/
-       const std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >& truthTrajectories() const;
+       const std::map< HepMC::ConstGenParticlePtr, PRD_TruthTrajectory >& truthTrajectories() const;
 
        /** Event refresh - can't be an IIncident, because it has to run after PRD creation and PRD truth creation */
        StatusCode refreshEvent();
@@ -71,7 +71,7 @@ namespace Trk {
         
 	Gaudi::Property<double>                             m_minPt {this,"MinimumPt",400.,"minimum pT to be even considered"};
 	Gaudi::Property<bool>                               m_geantinos {this,"Geantinos",false,"Track geantinos or not"};
-        mutable std::map< const HepMC::GenParticle*, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
+        mutable std::map< HepMC::ConstGenParticlePtr, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         
   };
 

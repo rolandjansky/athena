@@ -53,7 +53,7 @@ public:
 
    StatusCode putObject(const void* source, size_t nbytes, int num = 0) const;
    StatusCode getObject(void** target, size_t& nbytes, int num = 0) const;
-   StatusCode clearObject(char** tokenString, int& num) const;
+   StatusCode clearObject(const char** tokenString, int& num) const;
    StatusCode lockObject(const char* tokenString, int num = 0) const;
 
 private:

@@ -551,7 +551,6 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
   //if ( newLowStatFlag ) {    }
   //if ( newLumiBlockFlag() ) {    }
   if ( newRunFlag() ) {  
-
     //if user environment specified we don't want to book new histograms at every run boundary
     //we instead want one histogram per job
     if(m_histosBooked!=0 && AthenaMonManager::environment()==AthenaMonManager::user) return StatusCode::SUCCESS;
@@ -593,28 +592,37 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     //###############
  
     
-    m_nhits_per_event = TH1F_LW::create("Nhits_per_event","Number of hits per event",1024,-0.5,1023.5);  
+    m_nhits_per_event = TH1F_LW::create("Nhits_per_event","Number of hits per event", 1024, -0.5, 1023.5);  
     RegisterHisto(al_mon,m_nhits_per_event) ;  
     m_nhits_per_event->GetXaxis()->SetTitle("Number of Hits on Tracks per Event"); 
-    m_nhits_per_event->GetYaxis()->SetTitle("Number of Events"); 
-    m_ntrk = TH1F_LW::create("ntracks","Number of Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
+    m_nhits_per_event->GetYaxis()->SetTitle("Number of Events");
+ 
+    m_ntrk = TH1F_LW::create("ntracks","Number of Tracks", m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ntrk);
+    m_ntrk->GetXaxis()->SetTitle("Number of Tracks");
+    m_ntrk->GetYaxis()->SetTitle("Number of Events");
+
     m_ngtrk = TH1F_LW::create("ngtracks","Number of Good Tracks",m_NTracksRange+1, -0.5, m_NTracksRange+0.5);
     RegisterHisto(al_mon,m_ngtrk);
-    m_nhits_per_track = TH1F_LW::create("Nhits_per_track","Number of hits per track",101,-0.5, 100.5);  
+    m_ngtrk->GetXaxis()->SetTitle("Number of Good Tracks");
+    m_ngtrk->GetYaxis()->SetTitle("Number of Events");
+
+    m_nhits_per_track = TH1F_LW::create("Nhits_per_track","Number of hits per track", 101, -0.5, 100.5);  
     RegisterHisto(al_mon,m_nhits_per_track) ; 
     m_nhits_per_track->GetXaxis()->SetTitle("Number of Hits per Track"); 
     m_nhits_per_track->GetYaxis()->SetTitle("Number of Tracks"); 
  
-    m_npixhits_per_track_barrel = TH1F_LW::create("Npixhits_per_track_barrel","Number of pixhits per track (Barrel)",14,-0.5,13.5);  
+    m_npixhits_per_track_barrel = TH1F_LW::create("Npixhits_per_track_barrel","Number of pixhits per track (Barrel)", 14,-0.5,13.5);  
     RegisterHisto(al_mon,m_npixhits_per_track_barrel) ;  
     m_npixhits_per_track_barrel->GetXaxis()->SetTitle("Number of Pixel Hits per Track in Barrel"); 
     m_npixhits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks"); 
-    m_nscthits_per_track_barrel = TH1F_LW::create("Nscthits_per_track_barrel","Number of scthits per track (Barrel)",30,-0.5,29.5);  
+
+    m_nscthits_per_track_barrel = TH1F_LW::create("Nscthits_per_track_barrel","Number of scthits per track (Barrel)", 30,-0.5,29.5);  
     RegisterHisto(al_mon,m_nscthits_per_track_barrel) ;  
     m_nscthits_per_track_barrel->GetXaxis()->SetTitle("Number of SCT Hits per Track in Barrel"); 
     m_nscthits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks"); 
-    m_ntrthits_per_track_barrel = TH1F_LW::create("Ntrthits_per_track_barrel","Number of trthits per track (Barrel)",100,-0.5,99.5);  
+
+    m_ntrthits_per_track_barrel = TH1F_LW::create("Ntrthits_per_track_barrel","Number of trthits per track (Barrel)", 100,-0.5,99.5);  
     RegisterHisto(al_mon,m_ntrthits_per_track_barrel) ; 
     m_ntrthits_per_track_barrel->GetXaxis()->SetTitle("Number of TRT Hits per Track in Barrel"); 
     m_ntrthits_per_track_barrel->GetYaxis()->SetTitle("Number of Tracks");   
@@ -623,10 +631,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_npixhits_per_track_eca) ;  
     m_npixhits_per_track_eca->GetXaxis()->SetTitle("Number of Pixel Hits per Track in ECA"); 
     m_npixhits_per_track_eca->GetYaxis()->SetTitle("Number of Tracks"); 
+
     m_nscthits_per_track_eca = TH1F_LW::create("Nscthits_per_track_eca","Number of scthits per track (Eca)",30,-0.5,29.5);  
     RegisterHisto(al_mon,m_nscthits_per_track_eca) ;  
     m_nscthits_per_track_eca->GetXaxis()->SetTitle("Number of SCT Hits per Track in ECA"); 
     m_nscthits_per_track_eca->GetYaxis()->SetTitle("Number of Tracks"); 
+
     m_ntrthits_per_track_eca = TH1F_LW::create("Ntrthits_per_track_eca","Number of trthits per track (Eca)",100,-0.5,99.5);  
     RegisterHisto(al_mon,m_ntrthits_per_track_eca) ;   
     m_ntrthits_per_track_eca->GetXaxis()->SetTitle("Number of TRT Hits per Track in ECA"); 
@@ -636,10 +646,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     RegisterHisto(al_mon,m_npixhits_per_track_ecc) ;  
     m_npixhits_per_track_ecc->GetXaxis()->SetTitle("Number of Pixel Hits per Track in ECC"); 
     m_npixhits_per_track_ecc->GetYaxis()->SetTitle("Number of Tracks"); 
+
     m_nscthits_per_track_ecc = TH1F_LW::create("Nscthits_per_track_ecc","Number of scthits per track (Ecc)",30,-0.5,29.5);  
     RegisterHisto(al_mon,m_nscthits_per_track_ecc) ;  
     m_nscthits_per_track_ecc->GetXaxis()->SetTitle("Number of SCT Hits per Track in ECC"); 
     m_nscthits_per_track_ecc->GetYaxis()->SetTitle("Number of Tracks"); 
+
     m_ntrthits_per_track_ecc = TH1F_LW::create("Ntrthits_per_track_ecc","Number of trthits per track (Ecc)",100,-0.5,99.5);  
     RegisterHisto(al_mon,m_ntrthits_per_track_ecc) ;    
     m_ntrthits_per_track_ecc->GetXaxis()->SetTitle("Number of TRT Hits per Track in ECC"); 
@@ -648,30 +660,34 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     ///////////////////////////////////////////////////////////////////////////////////////////////////
     //Monitoring plots shown in the dqm web page
     ///////////////////////////////////////////////////////////////////////////////////////////////////
-    m_chi2oDoF = TH1F_LW::create("chi2oDoF","chi2oDoF",100,0,10);  
+    m_chi2oDoF = TH1F_LW::create("chi2oDoF","chi2oDoF", 100, 0., 10.);  
     RegisterHisto(al_mon,m_chi2oDoF) ;  
     m_chi2oDoF->GetXaxis()->SetTitle("Track #chi^{2} / NDoF"); 
     m_chi2oDoF->GetYaxis()->SetTitle("Number of Tracks");  
-    m_eta = TH1F_LW::create("eta","eta",100,-m_etaRange,m_etaRange);  
+
+    m_eta = TH1F_LW::create("eta","eta", 80,-m_etaRange,m_etaRange);  
     RegisterHisto(al_mon_ls,m_eta) ;  
     m_eta->GetXaxis()->SetTitle("Track #eta"); 
-    m_eta->GetYaxis()->SetTitle("Number of Tracks"); 
-    m_phi = TH1F_LW::create("phi","phi",100,0,2*M_PI);  m_phi->SetMinimum(0);
+    m_eta->GetYaxis()->SetTitle("Number of Tracks");
+ 
+    m_phi = TH1F_LW::create("phi","phi", 80, 0,2*M_PI);  
     RegisterHisto(al_mon_ls,m_phi) ;  
+    m_phi->SetMinimum(0);
     m_phi->GetXaxis()->SetTitle("Track #phi"); 
     m_phi->GetYaxis()->SetTitle("Number of Tracks");  
-    m_d0_bscorr = TH1F_LW::create("d0_bscorr","d0 (corrected for beamspot); [mm]",400,-m_d0BsRange,m_d0BsRange);  
+
+    m_d0_bscorr = TH1F_LW::create("d0_bscorr","d0 (corrected for beamspot); d0 [mm]",200,-m_d0BsRange,m_d0BsRange);  
     RegisterHisto(al_mon_ls,m_d0_bscorr) ;  
     
     m_z0 = TH1F_LW::create("z0","z0;[mm]",100,-m_z0Range,m_z0Range);  
     RegisterHisto(al_mon,m_z0) ;  
     m_z0sintheta = TH1F_LW::create("z0sintheta","z0sintheta",100,-m_z0Range,m_z0Range);  
     RegisterHisto(al_mon,m_z0sintheta) ;  
+
     m_d0 = TH1F_LW::create("d0","d0;[mm]",400,-m_d0Range,m_d0Range);  
     RegisterHisto(al_mon,m_d0) ;  
     
 
-    
     m_npixhits_per_track = TH1F_LW::create("Npixhits_per_track","Number of pixhits per track",14,-0.5,13.5);  
     RegisterHisto(al_mon_ls,m_npixhits_per_track) ;  
     m_npixhits_per_track->GetXaxis()->SetTitle("Number of Pixel Hits per Track"); 
@@ -750,8 +766,6 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_trk_pT_asym_ecc = TH1F_LW::create("trk_pT_asym_ecc","Track Charge Asymmetry versus pT (Endcap C) ",50,0,100);
     RegisterHisto(al_mon,m_trk_pT_asym_ecc);
     
-    
-    
 
     if(m_extendedPlots){
       
@@ -781,7 +795,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon, m_trk_pT_vs_eta_eca     );
 
       m_trk_d0_barrel  = TH1F_LW::create("trk_d0_barrel","Impact parameter: all tracks (Barrel); d_{0} [mm]",100, -m_d0Range, m_d0Range);
-      m_trk_d0c_barrel = TH1F_LW::create("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100, -5, 5);  
+      m_trk_d0c_barrel = TH1F_LW::create("trk_d0c_barrel","Impact parameter (corrected for vertex): all tracks (Barrel)",100, -4., 4.);  
       m_trk_z0_barrel  = TH1F_LW::create("trk_z0_barrel","Track z0: all tracks (Barrel)",100, -m_z0Range, m_z0Range);
       m_trk_d0_eca     = TH1F_LW::create("trk_d0_eca","Impact parameter: all tracks (Endcap A)",100, -m_d0Range, m_d0Range);
       m_trk_d0c_eca    = TH1F_LW::create("trk_d0c_eca","Impact parameter (corrected for vertex): all tracks  (Endcap A)",100, -m_d0Range, m_d0Range);  
@@ -807,8 +821,6 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_trk_chi2oDoF) ;
       m_trk_chi2Prob = new TProfile("trk_chi2Prob","chi2Prob versus eta",100,-m_etaRange,m_etaRange,-5,5);  
       RegisterHisto(al_mon,m_trk_chi2Prob) ;
-
-    
 
       
       //Detailed IP Plots. All the PV Corrected are broken and need to be fixed.
@@ -887,7 +899,6 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       
       
       
-      
       //PV corrected plots. Broken. 
       m_d0_pvcorr = TH1F_LW::create("d0_pvcorr","d0 (corrected for primVtx); [mm]",400,-m_d0Range,m_d0Range);  
       RegisterHisto(al_mon,m_d0_pvcorr) ; 
@@ -939,32 +950,32 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_trk_chi2ProbDist->GetYaxis()->SetTitle("Number of Tracks");
       RegisterHisto(al_mon,m_trk_chi2ProbDist) ;
       
-      m_errCotTheta = TH1F_LW::create("errCotTheta","Error of CotTheta",50,0,0.02);
+      m_errCotTheta = TH1F_LW::create("errCotTheta","Error of CotTheta", 40, 0, 0.02);
       RegisterHisto(al_mon,m_errCotTheta);  
       m_errCotTheta->GetXaxis()->SetTitle("Track #Delta(cot(#theta))"); 
       m_errCotTheta->GetYaxis()->SetTitle("Number of Tracks"); 
       
-      m_errCotThetaVsD0BS = new TH2F("errCotThetaVsD0BS","Error of CotTheta vs d0BS",-m_d0BsRange,m_d0BsRange,40,50,0 ,0.02);
+      m_errCotThetaVsD0BS = new TH2F("errCotThetaVsD0BS","Error of CotTheta vs d0BS", 50, -m_d0BsRange, m_d0BsRange, 40, 0. ,0.02);
       RegisterHisto(al_mon,m_errCotThetaVsD0BS) ;  
       m_errCotThetaVsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errCotThetaVsD0BS->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
 
-      m_errCotThetaVsPt = new TH2F("errCotThetaVsPt","Error of CotTheta vs Pt",50,0,40,50,0 ,0.02);
+      m_errCotThetaVsPt = new TH2F("errCotThetaVsPt","Error of CotTheta vs Pt",50,0,40, 40, 0. ,0.02);
       RegisterHisto(al_mon,m_errCotThetaVsPt) ;  
       m_errCotThetaVsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
       m_errCotThetaVsPt->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
        
-      m_errCotThetaVsP = new TH2F("errCotThetaVsP","Error of CotTheta vs P",50,0,40,50,0 ,0.02);
+      m_errCotThetaVsP = new TH2F("errCotThetaVsP","Error of CotTheta vs P",50,0,40, 40, 0. ,0.02);
       RegisterHisto(al_mon,m_errCotThetaVsP) ;  
       m_errCotThetaVsP->GetXaxis()->SetTitle("P (GeV/c)"); 
       m_errCotThetaVsP->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
       
-      m_errCotThetaVsPhi = new TH2F("errCotThetaVsPhi","Error of CotTheta vs Phi",50,0,2*M_PI,50, 0 ,0.02);
+      m_errCotThetaVsPhi = new TH2F("errCotThetaVsPhi","Error of CotTheta vs Phi",50,0,2*M_PI, 40, 0. ,0.02);
       RegisterHisto(al_mon,m_errCotThetaVsPhi) ;  
       m_errCotThetaVsPhi->GetXaxis()->SetTitle("#phi0"); 
       m_errCotThetaVsPhi->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
       
-      m_errCotThetaVsEta = new TH2F("errCotThetaVsEta","Error of CotTheta vs Eta",50,-3., 3.,50, 0 ,0.02);
+      m_errCotThetaVsEta = new TH2F("errCotThetaVsEta","Error of CotTheta vs Eta",50,-3., 3., 40, 0. ,0.02);
       RegisterHisto(al_mon,m_errCotThetaVsEta) ;  
       m_errCotThetaVsEta->GetXaxis()->SetTitle("#eta"); 
       m_errCotThetaVsEta->GetYaxis()->SetTitle("Track #Delta(cot(#theta))"); 
@@ -973,12 +984,12 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_errTheta);  
       m_errTheta->GetXaxis()->SetTitle("Track #Delta(#theta)"); 
       m_errTheta->GetYaxis()->SetTitle("Number of Tracks"); 
-    
+
       m_errThetaVsD0BS = new TH2F("errThetaVsD0BS","Error of Theta vs d0BS",50,-m_d0BsRange,m_d0BsRange,50,0 ,0.02);
       RegisterHisto(al_mon,m_errThetaVsD0BS) ;  
       m_errThetaVsD0BS->GetXaxis()->SetTitle("d0 (mm)"); 
       m_errThetaVsD0BS->GetYaxis()->SetTitle("Track #delta(#theta)");
-      
+
       m_errThetaVsPt = new TH2F("errThetaVsPt","Error of Theta vs Pt",50,0,50,50,0 ,0.02);
       RegisterHisto(al_mon,m_errThetaVsPt) ;  
       m_errThetaVsPt->GetXaxis()->SetTitle("Pt (GeV/c)"); 
@@ -1134,7 +1145,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       RegisterHisto(al_mon,m_PtVsPhi0Neg);
       m_PtVsPhi0Neg->GetXaxis()->SetTitle("#phi0 (rad)"); 
       m_PtVsPhi0Neg->GetYaxis()->SetTitle("Pt (GeV/c)");  
-      
+
       m_errPtVsEta = new TH2F("errPtVsEta", "Error of Pt Vs Eta", 50, -3., 3.,50, 0., 0.5);
       RegisterHisto(al_mon,m_errPtVsEta);
       m_errPtVsEta->GetXaxis()->SetTitle("#eta"); 
@@ -1188,7 +1199,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_QPtVsEta->GetXaxis()->SetTitle("#eta"); 
       RegisterHisto(al_mon,m_QPtVsEta);
       m_QPtVsEta->GetYaxis()->SetTitle("qPt (GeV)");  
-      
+
       //Plots to check the BeamSpot
       // versus Phi0
       m_D0bsVsPhi0 = new TH2F("D0bsVsPhi0", "d0_{bs} Vs #phi0 ", 50, 0, 2*M_PI, 400, -m_d0BsRange, m_d0BsRange);
@@ -1237,7 +1248,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_D0bsVsPtBarrel->GetXaxis()->SetTitle("qPt (GeV)"); 
       RegisterHisto(al_mon,m_D0bsVsPtBarrel);
       m_D0bsVsPtBarrel->GetYaxis()->SetTitle("d0_{bs} mm )");
-     
+
       //BeamSpot Position histos
       m_YBs_vs_XBs = new TH2F("YBs_vs_XBs","BeamSpot Position: y vs x",100, -0.9,-0.1, 100, -0.9,-0.1);
       RegisterHisto(al_mon,m_YBs_vs_XBs);
@@ -1307,7 +1318,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
       m_BeamSpotTiltY_vs_LumiBlock->GetYaxis()->SetRangeUser(-1,1);
         
     }
-    
+
     
     //These plots are broken. Have to be passed to the PVbiases tool
     m_trk_d0_wrtPV = TH1F_LW::create("d0_pvcorr_est","d0 (corrected for primVtx v2); [mm]",400,-0.2,0.2);  
@@ -1551,7 +1562,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_eta_asym->GetYaxis()->SetTitle("(pos-neg)/(pos+neg)");   
 
 
-    
+
     // msg(MSG::INFO) << "lumiblock histos done " <<endmsg;
 
  
@@ -1559,27 +1570,27 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
 
     
     // lumiblock histos 
-    m_LumiBlock = TH1F_LW::create("LumiBlock","Lumi block",1024,-0.5,1023.5); 
+    m_LumiBlock = TH1F_LW::create("LumiBlock","Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon,m_LumiBlock) ;
     m_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_LumiBlock->GetYaxis()->SetTitle("# events");   
 
-    m_Tracks_per_LumiBlock = TH1F_LW::create("TracksPerLumiBlock","Tracks per Lumi block",1024,-0.5,1023.5); 
+    m_Tracks_per_LumiBlock = TH1F_LW::create("TracksPerLumiBlock","Tracks per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon,m_Tracks_per_LumiBlock) ;
     m_Tracks_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_Tracks_per_LumiBlock->GetYaxis()->SetTitle("# tracks");   
 
-    m_NPIX_per_LumiBlock = TH1F_LW::create("NPixPerLumiBlock","N pixel hits per Lumi block",1024,-0.5,1023.5); 
+    m_NPIX_per_LumiBlock = TH1F_LW::create("NPixPerLumiBlock","N pixel hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NPIX_per_LumiBlock) ;
     m_NPIX_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NPIX_per_LumiBlock->GetYaxis()->SetTitle("# pixel hits");   
 
-    m_NSCT_per_LumiBlock = TH1F_LW::create("NSCTPerLumiBlock","N SCT hits per Lumi block",1024,-0.5,1023.5); 
+    m_NSCT_per_LumiBlock = TH1F_LW::create("NSCTPerLumiBlock","N SCT hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NSCT_per_LumiBlock) ;
     m_NSCT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NSCT_per_LumiBlock->GetYaxis()->SetTitle("# SCT hits");   
 
-    m_NTRT_per_LumiBlock = TH1F_LW::create("NTRTPerLumiBlock","N TRT hits per Lumi block",1024,-0.5,1023.5); 
+    m_NTRT_per_LumiBlock = TH1F_LW::create("NTRTPerLumiBlock","N TRT hits per Lumi block", 1024, -0.5, 1023.5); 
     RegisterHisto(al_mon, m_NTRT_per_LumiBlock) ;
     m_NTRT_per_LumiBlock->GetXaxis()->SetTitle("Lumi block ID"); 
     m_NTRT_per_LumiBlock->GetYaxis()->SetTitle("# TRT hits");   
@@ -1587,7 +1598,7 @@ StatusCode IDAlignMonGenericTracks::bookHistograms()
     m_histosBooked++;
   }
   return StatusCode::SUCCESS;
-  
+
 }
 
 void IDAlignMonGenericTracks::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {

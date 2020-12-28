@@ -560,7 +560,7 @@ namespace Trk
     const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
     const xAOD::Vertex& constraint) const
   {
-    return _fit(perigeeList,neutralPerigeeList,constraint,Amg::Vector3D(),true);
+    return _fit(perigeeList,neutralPerigeeList,constraint,Amg::Vector3D::Zero(),true);
   }
 
   xAOD::Vertex*

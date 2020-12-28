@@ -374,10 +374,6 @@ StatusCode AmdcDumpOracle::DoIt()
 
 }
 
-StatusCode AmdcDumpOracle::execute() {return StatusCode::SUCCESS;}
- 
-StatusCode AmdcDumpOracle::finalize() {return StatusCode::SUCCESS;}
-
 void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
 
   std::string NameOfTheSet = "ASZT";

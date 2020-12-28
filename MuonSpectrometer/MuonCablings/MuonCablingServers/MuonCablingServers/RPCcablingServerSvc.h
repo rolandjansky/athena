@@ -30,11 +30,10 @@ class RPCcablingServerSvc : public AthService,
     public:
     // Constructor and other Service methods
     RPCcablingServerSvc(const std::string& name, ISvcLocator* svc);
-    virtual ~RPCcablingServerSvc() {}
+    virtual ~RPCcablingServerSvc()=default;
   
     virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override;
     virtual StatusCode initialize(void) override;
-    virtual StatusCode finalize(void) override;
 
     // Interface implementation
     virtual StatusCode giveCabling(const IRPCcablingSvc*&) const override;
