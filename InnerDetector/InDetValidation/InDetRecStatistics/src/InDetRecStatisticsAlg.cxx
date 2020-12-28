@@ -68,8 +68,6 @@
 #include "AtlasHepMC/GenParticle.h"
 #include "TruthHelper/PileUpType.h"
 
-#include "IdDictDetDescr/IdDictManager.h" 
-
 
 
 

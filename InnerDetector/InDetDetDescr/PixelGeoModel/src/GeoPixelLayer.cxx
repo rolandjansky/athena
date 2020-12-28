@@ -29,7 +29,6 @@
 #include "GeoModelKernel/GeoTransform.h"
 
 #include "GeoModelKernel/GeoTubs.h"
-#include "GeoModelKernel/GeoPhysVol.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
 #include <sstream>
