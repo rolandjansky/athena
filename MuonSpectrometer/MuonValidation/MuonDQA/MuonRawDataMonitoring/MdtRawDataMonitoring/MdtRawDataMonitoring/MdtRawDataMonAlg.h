@@ -161,7 +161,6 @@ class MdtRawDataMonAlg: public AthMonitorAlgorithm {
   bool m_atlas_ready;
 
   SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_typeAlt{this,"Eff_segm_typeAlt","MuonSegments","muon segments"};
 
   std::string returnString(int i) const{
     std::stringstream ss;
