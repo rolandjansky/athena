@@ -10,6 +10,7 @@
 namespace Muon {
 class NSW_PadTriggerRawDataContainer : public IdentifiableContainer<NSW_PadTriggerRawDataCollection> {
 public:
+    NSW_PadTriggerRawDataContainer();
     NSW_PadTriggerRawDataContainer(unsigned int hashMax);
     
     static const CLID& classID();
