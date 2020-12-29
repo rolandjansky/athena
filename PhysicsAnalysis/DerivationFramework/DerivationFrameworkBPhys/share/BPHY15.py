@@ -80,7 +80,7 @@ BPHY15JpsiSelectAndWrite = DerivationFramework__Reco_mumu(
     OutputVtxContainerName = "BPHY15JpsiCandidates",
     PVContainerName        = "PrimaryVertices",
     RefPVContainerName     = "SHOULDNOTBEUSED",
-    DoVertexType           = 1)
+    DoVertexType           = 7)
 
 ToolSvc += BPHY15JpsiSelectAndWrite
 print BPHY15JpsiSelectAndWrite
@@ -97,7 +97,7 @@ BPHY15_Select_Jpsi2mumu = DerivationFramework__Select_onia2mumu(
     MassMax               = 3600.0,
     Chi2Max               = 200,
     LxyMin                = 0.1,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY15_Select_Jpsi2mumu
 print      BPHY15_Select_Jpsi2mumu
@@ -227,7 +227,7 @@ BPHY15_Select_Jpsipi = DerivationFramework__Select_onia2mumu(
     MassMax               = 3600.0,
     Chi2Max               = 200,
     LxyMin                = 0.1,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY15_Select_Jpsipi
 print      BPHY15_Select_Jpsipi
@@ -275,7 +275,7 @@ BPHY15DiTrkSelectAndWrite = DerivationFramework__Reco_mumu(
     RefPVContainerName     = "SHOULDNOTBEUSED",
     CheckCollections       = True,
     CheckVertexContainers  = ['BPHY15JpsiCandidates'],
-    DoVertexType           = 1)
+    DoVertexType           = 7)
   
 ToolSvc += BPHY15DiTrkSelectAndWrite
 print      BPHY15DiTrkSelectAndWrite
@@ -382,7 +382,7 @@ BPHY15_Select_Ds = DerivationFramework__Select_onia2mumu(
     MassMax               = 1968.28+200,
     Chi2Max               = 200,
     LxyMin                = 0.1,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY15_Select_Ds
 print      BPHY15_Select_Ds
@@ -399,7 +399,7 @@ BPHY15_Select_Dp = DerivationFramework__Select_onia2mumu(
     MassMax               = 1869.59+200,
     Chi2Max               = 200,
     LxyMin                = 0.1,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY15_Select_Dp
 print      BPHY15_Select_Dp
@@ -416,7 +416,7 @@ BPHY15_Select_Dm = DerivationFramework__Select_onia2mumu(
     MassMax               = 1869.59+200,
     Chi2Max               = 200,
     LxyMin                = 0.1,
-    DoVertexType          = 1)
+    DoVertexType          = 7)
   
 ToolSvc += BPHY15_Select_Dm
 print      BPHY15_Select_Dm
@@ -588,7 +588,7 @@ BPHY15K0SelectAndWrite = DerivationFramework__Reco_mumu(
     RefPVContainerName     = "SHOULDNOTBEUSED",
     CheckCollections       = True,
     CheckVertexContainers  = ['BPHY15JpsipiCandidates','BPHY15DiTrkCandidates','BcJpsiDpstCascadeSV1'],
-    DoVertexType           = 1)
+    DoVertexType           = 7)
   
 ToolSvc += BPHY15K0SelectAndWrite
 print      BPHY15K0SelectAndWrite
