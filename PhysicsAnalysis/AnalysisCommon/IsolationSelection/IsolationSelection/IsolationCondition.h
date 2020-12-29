@@ -12,6 +12,9 @@
 #include <xAODPrimitives/tools/getIsolationAccessor.h>
 #include "AthContainers/AuxElement.h"
 #include <xAODBase/IParticle.h>
+#include <xAODMuon/Muon.h>
+#include <xAODEgamma/Electron.h>
+#include <xAODEgamma/Photon.h>
 
 // Forward Declaration(s)
 class TF1;
@@ -30,7 +33,9 @@ namespace CP {
             IsolationCondition(const std::string& name, xAOD::Iso::IsolationType isoType);
             IsolationCondition(const std::string& name, const std::vector<xAOD::Iso::IsolationType>& isoTypes);
             IsolationCondition(const std::string& name, std::string &isoType);
+            IsolationCondition(const std::string& name, std::string &isoType, std::string &isoBin);
             IsolationCondition(const std::string& name, const std::vector<std::string>& isoTypes);
+            IsolationCondition(const std::string& name, const std::vector<std::string> &isoTypes, const std::vector<std::string> &isoBins);
            
             IsolationCondition(const IsolationCondition& rhs) = delete;
             IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
@@ -41,6 +46,7 @@ namespace CP {
             unsigned int num_types() const;
             xAOD::Iso::IsolationType  type(unsigned int n = 0) const;
             SG::AuxElement::Accessor<float>* accessor(unsigned int n = 0) const;
+            SG::AuxElement::Accessor<short>* accessor_bin(unsigned int n = 0) const;
             
             virtual bool accept(const xAOD::IParticle& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
             virtual bool accept(const strObj& x, std::map<xAOD::Iso::IsolationType, float>* cutValues = 0) = 0;
@@ -48,7 +54,8 @@ namespace CP {
         private:
             std::string m_name;
             std::vector<xAOD::Iso::IsolationType> m_isolationType;
-            std::vector< std::unique_ptr<SG::AuxElement::Accessor<float>>> m_acc;           
+            std::vector< std::unique_ptr<SG::AuxElement::Accessor<float>>> m_acc;
+            std::vector< std::unique_ptr<SG::AuxElement::Accessor<short>>> m_acc_bin;
         protected:
             float m_cutValue;
     };
