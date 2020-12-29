@@ -265,11 +265,7 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
   /// Create a map to enhance access between GenParticles and TruthParticles
   TruthParticleContainer::Map_t bcToMcPart = container->m_particles;
 
-  const HepMC::GenEvent::particle_const_iterator itrEnd = evt->particles_end();
-  for ( HepMC::GenEvent::particle_const_iterator itrPart=evt->particles_begin();
-	itrPart != itrEnd;
-	++itrPart ) {
-    const HepMC::GenParticle * hepMcPart = (*itrPart);
+  for (auto hepMcPart: *evt) {
 
     TruthParticle * mcPart = new TruthParticle( hepMcPart, container );
     container->push_back( mcPart );
@@ -285,7 +281,7 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
       ATH_MSG_ERROR("TruthParticle is not wrapping the GenParticle : " 
 		    << HepMC::barcode(hepMcPart) << " !!");
     }
-    //bcToMcPart[ hepMcPart->barcoade() ] = mcPart;
+    //bcToMcPart[ hepMcPart->barcode() ] = mcPart;
     HepMcParticleLink mcLink( HepMC::barcode(hepMcPart), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION, sg ); // FIXME assuming that we are using the hard-scatter McEventCollection - would need to pass this info as an argument to the convert function.
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
