@@ -10,6 +10,16 @@ NSW_PadTriggerRawDataContainer_PERS* NSW_PadTriggerRawDataContainerCnv::createPe
 }
 
 Muon::NSW_PadTriggerRawDataContainer* NSW_PadTriggerRawDataContainerCnv::createTransient() {
-    // TODO implement
-    return new Muon::NSW_PadTriggerRawDataContainer{};
+    MsgStream log(msgSvc(), "NSW_PadTriggerRawDataContainer");
+    log << MSG::VERBOSE
+        << "NSW_PadTriggerRawDataContainerCnv::createTransient(): reading container from persistent storage"
+        << std::endl;
+    // UUID of of NSW_PadTriggerRawDataContainer_p1
+    static pool::Guid p1_guid("2B1C6988-7B4C-4332-A2F5-83DC1D219650");
+    if(compareClassGuid(p1_guid)) {
+        std::unique_ptr<Muon::NSW_PadTriggerRawDataContainer_p1> pContainer
+            { poolReadObject<Muon::NSW_PadTriggerRawDataContainer_p1>() };
+        return m_TPConverter.createTransient(pContainer.get(), log);
+    }
+    throw std::runtime_error{ "No persistent version match for GUID on-disk" };
 }

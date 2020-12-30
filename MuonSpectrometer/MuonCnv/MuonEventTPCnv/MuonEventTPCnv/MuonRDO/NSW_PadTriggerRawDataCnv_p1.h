@@ -15,7 +15,6 @@ class NSW_PadTriggerRawDataCnv_p1 : public T_AthenaPoolTPCnvBase<NSW_PadTriggerR
 public:
     void persToTrans(const NSW_PadTriggerRawData_p1* persistentObj, NSW_PadTriggerRawData* transientObj, MsgStream &log) final;
     void transToPers(const NSW_PadTriggerRawData* transientObj, NSW_PadTriggerRawData_p1* persistentObj, MsgStream &log) final;
-    NSW_PadTriggerRawData* createTransient(const NSW_PadTriggerRawData_p1* persistentObj, MsgStream& log) final;
 };
 } // namespace Muon
 

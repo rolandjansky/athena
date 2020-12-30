@@ -12,7 +12,6 @@ class NSW_PadTriggerRawDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<NSW_Pa
 public:
     void persToTrans(const NSW_PadTriggerRawDataContainer_p1* persistentObj, NSW_PadTriggerRawDataContainer* transientObj, MsgStream &log) final;
     void transToPers(const NSW_PadTriggerRawDataContainer* transientObj, NSW_PadTriggerRawDataContainer_p1* persistentObj, MsgStream &log) final;
-    NSW_PadTriggerRawDataContainer* createTransient(const NSW_PadTriggerRawDataContainer_p1* persistentObj, MsgStream& log) final;
 private:
     NSW_PadTriggerRawDataCnv_p1 m_dataConverter;
 };

@@ -2,8 +2,18 @@
 
 namespace Muon {
 void NSW_PadTriggerRawDataContainerCnv_p1::persToTrans(const NSW_PadTriggerRawDataContainer_p1* persistentObj, NSW_PadTriggerRawDataContainer* transientObj, MsgStream &log) {
-    // TODO implement
     log << MSG::VERBOSE << "NSW_PadTriggerRawDataContainerCnv_p1::persToTrans() called" << std::endl;
+    for (const auto& pCollection : *persistentObj) {
+        auto tCollection = std::make_unique<NSW_PadTriggerRawDataCollection>(pCollection.m_identifierHash);
+        tCollection->reserve(pCollection.size());
+        for (std::size_t i{}; i < pCollection.size(); i++) {
+            tCollection->push_back(m_dataConverter.createTransient(&pCollection.at(i), log));
+        }
+        auto idHash = tCollection->identifierHash();
+        if(transientObj->addCollection(tCollection.release(), idHash).isFailure()) {
+            throw std::runtime_error{ "Could not add collection to transient container!" };
+        }
+    }
 }
 
 void NSW_PadTriggerRawDataContainerCnv_p1::transToPers(const NSW_PadTriggerRawDataContainer* transientObj, NSW_PadTriggerRawDataContainer_p1* persistentObj, MsgStream &log) {
@@ -26,9 +36,4 @@ void NSW_PadTriggerRawDataContainerCnv_p1::transToPers(const NSW_PadTriggerRawDa
     }
 }
 
-NSW_PadTriggerRawDataContainer* NSW_PadTriggerRawDataContainerCnv_p1::createTransient(const NSW_PadTriggerRawDataContainer_p1* persistentObj, MsgStream& log) {
-    // TODO implement
-    log << MSG::VERBOSE << "NSW_PadTriggerRawDataContainerCnv_p1::createTransient() called" << std::endl;
-    return new NSW_PadTriggerRawDataContainer{};
-}
 } // namespace Muon
