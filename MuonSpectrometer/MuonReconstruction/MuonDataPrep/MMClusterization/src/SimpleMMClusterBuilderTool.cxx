@@ -18,7 +18,6 @@ Muon::SimpleMMClusterBuilderTool::SimpleMMClusterBuilderTool(const std::string& 
 {
   declareInterface<IMMClusterBuilderTool>(this);
   declareProperty("writeStripProperties", m_writeStripProperties = true ); // true  for debugging; needs to become false for large productions
-  declareProperty("useErrorParametrization", m_useErrorParametrization = true);
   declareProperty("maxHoleSize", m_maxHoleSize = 1);
 }
 
@@ -199,24 +198,19 @@ StatusCode Muon::SimpleMMClusterBuilderTool::getClusters(std::vector<Muon::MMPre
 
     
     Amg::Vector2D clusterLocalPosition(weightedPosX,posY);
-    
-    double covX = MMprds[j].localCovariance()(Trk::locX, Trk::locX);
-
     ///
     /// memory allocated dynamically for the PrepRawData is managed by Event Store
     ///
     Amg::MatrixX* covN = new Amg::MatrixX(1,1);
     covN->setIdentity();
-    if(!m_useErrorParametrization) {
-      (*covN)(0,0) = 6.*(nmerge + 1.)*covX;
-      if(nmerge<=1) (*covN)(0,0) = covX;
-    } else {
-      double localUncertainty = 0.074+0.66*theta-0.15*theta*theta;
-      if ( m_mmIdHelper->isStereo(MMprds[i].identify()) ) {
-	localUncertainty = 10.;
-      }
-      (*covN)(0,0) = localUncertainty * localUncertainty;
-    }
+    //  TMP Keeping loose uncertainty until final calibration will be in place
+    //  Uncertainty will come from the calibration tool under development
+    double localUncertainty = 1.5*(0.074+0.66*theta-0.15*theta*theta);
+    //      if ( m_mmIdHelper->isStereo(MMprds[i].identify()) ) {
+    //	localUncertainty = 10.;
+    //      }
+    (*covN)(0,0) = localUncertainty * localUncertainty;
+    
     ATH_MSG_VERBOSE(" make merged prepData at strip " << m_mmIdHelper->channel(MMprds[j].identify()) << " nmerge " << nmerge << " sqrt covX " << sqrt((*covN)(0,0)));
     
     ///
