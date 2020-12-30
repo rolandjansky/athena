@@ -1,8 +1,11 @@
 #ifndef MUONRDO_NSW_PADTRIGGERRAWDATA_H
 #define MUONRDO_NSW_PADTRIGGERRAWDATA_H
 
+#include "GaudiKernel/MsgStream.h"
+
 #include <array>
 #include <vector>
+#include <sstream>
 
 namespace Muon {
 class NSW_PadTriggerRawData {
@@ -45,6 +48,11 @@ public:
     std::array<uint8_t, 4> bandIDs() const;
     std::array<uint8_t, 4> phiIDs() const;
     std::array<std::array<uint8_t, 2>, 4> coincidences() const;
+
+    std::string string() const;
+
+    friend MsgStream& operator<<(MsgStream& stream, const NSW_PadTriggerRawData& rhs);
+    friend std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerRawData& rhs);
 };
 } // namespace Muon
 

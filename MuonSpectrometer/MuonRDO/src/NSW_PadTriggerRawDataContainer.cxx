@@ -16,4 +16,20 @@ const CLID& NSW_PadTriggerRawDataContainer::clID() const {
     return classID();    
 }
 
+std::string NSW_PadTriggerRawDataContainer::string() const {
+    std::stringstream sstream{};
+    sstream << "Number of collections: " << numberOfCollections() << ". Contains collections: \n" << std::endl;
+    for (const auto& collection : *this) {
+        sstream << collection->string() << std::endl;
+    }
+    return sstream.str();
+}
+
+std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerRawDataContainer& rhs) {
+    return stream << rhs.string();
+}
+
+MsgStream& operator<<(MsgStream& stream, const NSW_PadTriggerRawDataContainer& rhs) {
+    return stream << rhs.string();
+}
 } // namespace Muon

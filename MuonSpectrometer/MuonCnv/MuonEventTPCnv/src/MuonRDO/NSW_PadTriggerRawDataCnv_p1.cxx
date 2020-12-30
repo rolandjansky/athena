@@ -7,7 +7,8 @@ void NSW_PadTriggerRawDataCnv_p1::persToTrans(const NSW_PadTriggerRawData_p1* pe
     transientObj->m_endcap = persistentObj->m_endcap;
     transientObj->m_BCID = persistentObj->m_BCID;
     transientObj->m_L1ID = persistentObj->m_L1ID;
-
+    
+    // Can use std::begin() / std::end() instead of pointer arithematic here
     std::copy(persistentObj->m_hitlists, persistentObj->m_hitlists + 3, transientObj->m_hitlists.begin());
     std::copy(persistentObj->m_bandIDs, persistentObj->m_bandIDs + 4, transientObj->m_bandIDs.begin());
     std::copy(persistentObj->m_phiIDs, persistentObj->m_phiIDs + 4, transientObj->m_phiIDs.begin());

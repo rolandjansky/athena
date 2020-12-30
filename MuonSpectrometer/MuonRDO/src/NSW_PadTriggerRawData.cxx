@@ -39,4 +39,19 @@ std::array<std::array<uint8_t, 2>, 4> NSW_PadTriggerRawData::coincidences() cons
     return m_coincidences;
 }
 
+std::string NSW_PadTriggerRawData::string() const {
+    std::stringstream sstream{};
+    sstream << "Sector: " << std::to_string(m_sectorID) << ", endcap: " << std::to_string(m_endcap)
+        << ", BCID: " << std::to_string(m_BCID) << ", L1ID: " << std::to_string(m_L1ID);
+    return sstream.str();
+}
+
+MsgStream& operator<<(MsgStream& stream, const NSW_PadTriggerRawData& rhs) {
+    return stream << rhs.string();
+}
+
+std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerRawData& rhs) {
+    return stream << rhs.string();
+}
+
 } // namespace Muon
