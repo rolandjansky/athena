@@ -229,7 +229,6 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
 void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger,  const std::string trigL1Item, float L1thr) const
   {
     ATH_MSG_DEBUG ("TrigTauMonitorAlgorithm::fillL1Distributions");
-
     const double thresholdOffset{10.0};
     const TrigInfo info = getTrigInfo(trigger);
     std::vector<const xAOD::TauJet*> tau_vec; //  offline taus
@@ -250,23 +249,38 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::
       }
       }
 
-    const std::vector<Trig::Feature<TrigRoiDescriptor> > vec_L1roi_EFall =
-      m_trigDecTool->features(trigger,TrigDefs::alsoDeactivateTEs).get<TrigRoiDescriptor>("initialRoI",TrigDefs::alsoDeactivateTEs);
-    std::vector<Trig::Feature<TrigRoiDescriptor> >::const_iterator CI = vec_L1roi_EFall.begin();
 
-    for (;CI!=vec_L1roi_EFall.end(); ++CI){
-      if(!(CI->cptr())) continue;
-      const xAOD::EmTauRoI *aEmTau_ROI = findLVL1_ROI(ctx, CI->cptr());
+    std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
+    if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+    ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
+
+    auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions , tauContainerName );
+    for( auto &featLinkInfo : vec ){
+      const auto *feat = *(featLinkInfo.link);
+      if(!feat) continue;
+      // If not pass, continue                                                                                                                                                    
+      const TrigCompositeUtils::Decision* decision = featLinkInfo.source;
+
+      const TrigCompositeUtils::LinkInfo<TrigRoiDescriptorCollection> initialRoILinkInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( decision, "initialRoI" );
+      if (!initialRoILinkInfo.isValid()) {
+        ATH_MSG_WARNING("Invalid TrigRoiDescriptor");
+  	continue;
+      }
+      ElementLink<TrigRoiDescriptorCollection> roi = initialRoILinkInfo.link;
+      const xAOD::EmTauRoI *aEmTau_ROI = findLVL1_ROI(ctx, *roi);
       if(!aEmTau_ROI) continue;
       L1rois.push_back(aEmTau_ROI);
     }
 
+    if(L1rois.size()==0) {ATH_MSG_DEBUG("L1rois vector is empty");return;}
+    else ATH_MSG_DEBUG("L1rois vector size is: "<< L1rois.size());
+
     //if(info.isL1){
-      fillL1(trigL1Item, L1rois);
+    fillL1(trigL1Item, L1rois);
     //}
 
-      fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, L1rois);
-      fillL1Efficiencies(ctx, offline_for_l1_tau_vec_mp, "MP", trigL1Item, L1rois);
+    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_1p, "1P", trigL1Item, L1rois);
+    fillL1Efficiencies(ctx, offline_for_l1_tau_vec_mp, "MP", trigL1Item, L1rois);
     
     offline_for_l1_tau_vec_1p.clear();
     offline_for_l1_tau_vec_mp.clear();
@@ -308,7 +322,7 @@ void TrigTauMonitorAlgorithm::fillHLTEfficiencies(const EventContext& ctx, const
 void TrigTauMonitorAlgorithm::fillL1Efficiencies( const EventContext& ctx , std::vector<const xAOD::TauJet*> offline_tau_vec, std::string nProng, const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois) const
 {
   ATH_MSG_DEBUG("Fill L1 efficiencies: " << trigL1Item);
- 
+  ATH_MSG_DEBUG("CHECK4" << L1rois.size()); 
   std::string monGroupName = trigL1Item+"_L1_Efficiency_"+nProng;
 
   auto monGroup = getGroup(monGroupName);
@@ -361,13 +375,15 @@ const xAOD::EmTauRoI* TrigTauMonitorAlgorithm::findLVL1_ROI(const EventContext& 
  void TrigTauMonitorAlgorithm::fillL1(const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois)  const
  {
    ATH_MSG_DEBUG("Fill L1: " << trigL1Item);
-
+   //ATH_MSG_DEBUG("CHECK2" << L1rois);
    std::string monGroupName = trigL1Item+"_L1";
-
+    
    auto monGroup = getGroup(monGroupName);
    //EmTauRoI_v2.h
 
    auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eT()/1e3;});
+   //ATH_MSG_DEBUG("CHECK3" << L1RoIEt);  
+   ATH_MSG_DEBUG("CHECK3");
    auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eta();});
    auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->phi();});
    auto L1RoITauClus      = Monitored::Collection("L1RoITauClus", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->tauClus();});
