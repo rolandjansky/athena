@@ -22,20 +22,16 @@ class TGCTriggerDbAlg: public AthAlgorithm
     virtual StatusCode finalize() override;
  
   private:
-    void loadParameters(TGCTriggerData* writeCdo,
-                        const CondAttrListCollection* readKey,
-                        int cw_type);
+    void fillReadMapBw(TGCTriggerData* writeCdo, const CondAttrListCollection* readKey);
+    void fillTrigBitEifi(TGCTriggerData* writeCdo, const CondAttrListCollection* readKey);
+    void fillTrigBitTile(TGCTriggerData* writeCdo, const CondAttrListCollection* readKey);
 
-    void fillReadMapBw(TGCTriggerData* writeCdo);
-    void fillTrigBitEifi(TGCTriggerData* writeCdo);
-    void fillTrigBitTile(TGCTriggerData* writeCdo);
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_bw{this, "ReadKeyBw", "/TGC/TRIGGER/CW_BW", "SG key for CW-BW"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_eifi{this, "ReadKeyEifi", "/TGC/TRIGGER/CW_EIFI", "SG key for CW-EIFI"};
+    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_tile{this, "ReadKeyTile", "/TGC/TRIGGER/CW_TILE", "SG key for CW-TILE"};
+    SG::WriteCondHandleKey<TGCTriggerData> m_writeKey{this, "WriteKey", "TGCTriggerData", "SG Key of TGCTrigger LUTs"};
 
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_bw;
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_eifi;
-    SG::ReadCondHandleKey<CondAttrListCollection> m_readKey_tile;
-    SG::WriteCondHandleKey<TGCTriggerData> m_writeKey;    
     ServiceHandle<ICondSvc> m_condSvc;
-
 };
 
 #endif
