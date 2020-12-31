@@ -19,7 +19,6 @@
 #include "HitManagement/TimedHitPtr.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "SiDigitization/SiChargedDiodeCollection.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SiPropertiesTool/ISiPropertiesTool.h"
 

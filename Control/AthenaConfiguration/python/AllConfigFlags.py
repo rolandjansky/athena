@@ -48,8 +48,16 @@ def _createCfgFlags():
         collections = [col for col in rawCollections if not col.endswith('Aux.') ]
         return collections
 
+    def _typedInputCollections(inputFile):
+        if not inputFile:
+            return []
+
+        collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
+        return collections
+
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
     acf.addFlag('Input.SecondaryCollections', lambda prevFlags : _inputCollections(prevFlags.Input.SecondaryFiles) )
+    acf.addFlag('Input.TypedCollections', lambda prevFlags : _typedInputCollections(prevFlags.Input.Files) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)

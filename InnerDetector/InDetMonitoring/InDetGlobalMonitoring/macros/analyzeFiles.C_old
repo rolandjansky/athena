@@ -16,17 +16,12 @@
 #include <TStyle.h>
 #include <TMatrixT.h>
 #include <TMinuit.h>
-#include <iostream>
 #include <TVirtualFitter.h>
 
 using namespace std;
 
 #include "RealTrackTree.h"
 #include "TApplication.h"
-#include "TFile.h"
-#include "TStyle.h"
-#include <iostream>
-#include "TString.h"
 #include "TChain.h"
 
 

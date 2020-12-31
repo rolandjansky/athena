@@ -24,6 +24,10 @@ def CscMonitoringESD_AlgConfig(inputFlags):
     from MuonConfig.MuonGeometryConfig import MuonGeoModelCfg
     result.merge(MuonGeoModelCfg(inputFlags))
    
+    # Fixup for R21 ESD
+    from MuonConfig.MuonSegmentNameFixConfig import MuonSegmentNameFixCfg
+    result.merge(MuonSegmentNameFixCfg(inputFlags))
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper

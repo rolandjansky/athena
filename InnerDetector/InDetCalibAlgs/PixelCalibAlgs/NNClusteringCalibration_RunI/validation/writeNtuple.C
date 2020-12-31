@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define writeNtuple_cxx
@@ -9,7 +9,6 @@
 #include <TCanvas.h>
 #include <TTree.h>
 #include <TFile.h>
-#include <TCanvas.h>
 #include <TH1F.h>
 #include <TLegend.h>
 #include <iostream>
@@ -25,8 +24,6 @@
 #include <TSystem.h>
 
 #include "../TTrainedNetwork.h"
-
-#include <iostream>
 
 #include "TMatrixD.h"
 #include "TVectorD.h"
