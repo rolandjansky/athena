@@ -315,7 +315,6 @@ class TrigTauMonAlgBuilder:
                             path=monGroupPath,
                             xbins=140,xmin=10,xmax=80,
                             ybins=42,ymin=-1,ymax=20)
-    #hL1RoITauVsJet hL1RoITauVsJetDEt hL1RoITauVsJetMismatch
     monGroup.defineHistogram('L1RoIeT', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
 
                              
