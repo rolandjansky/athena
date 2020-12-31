@@ -292,7 +292,6 @@ class TrigTauMonAlgBuilder:
 
     monGroup = self.helper.addGroup( monAlg, monGroupName,
                               self.basePath+'/'+monGroupPath )
-    #hL1EtVsEta hL1EtVsPhi hL1EtaVsPhi hL1RoIEMIso hL1RoIEta hL1RoIHadCore hL1RoIHadIsol hL1RoIPhi hL1RoITauClus hL1RoITauClusEMIso hL1RoITauVsJet hL1RoITauVsJetDEt hL1RoITauVsJetMismatch hL1RoIeT hL1RoIisol
 
     monGroup.defineHistogram('L1RoIEt;L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
                             path=monGroupPath,
