@@ -35,11 +35,28 @@ def obtainChainsOfMenu(flags):
     return setupMenuModule.setupMenu(flags)
 
 
+def acceptChain(chainDict, whichSignatures):
+    """
+    Helper to accept chains to be part of the menu depending on their name or which signatures they belong to.
 
+    If the keyword "all" is present all chains that are in the menu are accepted.
+    If the keyword "emptyMenu" is present other keywords are checked.
+      They can be name of signature: e.g. Muon or name of chain(s) HLT_j50_L1J30
+    Leaving the "emptyMenu" keyword only results in no chains that are configured. As a consequence would cause an issue somewhere downstream.
+    """
+    if "all" in whichSignatures:
+        return True
+    if "emptyMenu" in whichSignatures:
+        if chainDict["chainName"] in whichSignatures:  #explicit list of chains specified
+            return True
+        if all( [ sig in whichSignatures for sig in chainDict['signatures'] ]): # all signatures for the chain are mentioned 
+            return True
+    return False
 
 def generateMenu(flags):
     """
     Using flags generate appropriate Control Flow Graph wiht all HLT algorithms
+    
     """
 
     # convert to chainDefs
@@ -75,7 +92,8 @@ def generateMenu(flags):
         for chain in chains:
             # TODO topo threshold
             mainChainDict = dictFromChainName( chain )
-            
+            if not acceptChain( mainChainDict, flags.Trigger.triggerMenuModifier ):
+                continue
             counter += 1
             mainChainDict['chainCounter'] = counter
 
