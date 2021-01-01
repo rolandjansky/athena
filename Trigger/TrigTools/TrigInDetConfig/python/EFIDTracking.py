@@ -24,17 +24,14 @@ def get_idtrig_view_verifier(name):
    viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
    viewDataVerifier.DataObjects = [
                                      ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
-                                     ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ), 
-                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),  
+                                     ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
                                      ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
-   #                                  ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ), 
-   #                                  ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ), 
-   #                                  ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ), 
-   #                                  ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
-   #    #( 'xAOD::EventInfo', 'StoreGateSvc+EventInfo' ) 
+                                     ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
+                                     ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
                                      ]
    
-   viewDataVerifier.DataObjects = [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
+   viewDataVerifier.DataObjects += [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
                                    ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
                                    ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
                                    ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
@@ -43,6 +40,10 @@ def get_idtrig_view_verifier(name):
                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
                                    ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
                                    ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                    ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
    
@@ -56,11 +57,13 @@ def get_idtrig_view_verifier(name):
      viewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                        ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
-     topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-                                        ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-                                        ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-                                        ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+                                        ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() ), 
+                                        ( 'IDCInDetBSErrContainer',  'StoreGateSvc+SCT_FlaggedCondData' ),
+                                        ]
+   #   topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+   #                                      ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
+   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
    
    return viewDataVerifier
 
@@ -155,7 +158,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
          from .InDetTrigCommon import siSPSeededTrackFinder_builder, get_full_name
          siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.name ),
-                                                                outputTracks          = config.EFID.trkTracksEFID(), ##outEFIDTracks, 
+                                                                outputTracks          = config.PT.trkTracksPT(),  # config.EFID.trkTracksEFID(), ##outEFIDTracks, 
                                                                 trackingCuts          = trackingCuts,
                                                                 usePrdAssociationTool = usePrdAssociationTool,
                                                                 nameSuffix            = config.name )
@@ -179,7 +182,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #Verifier should not be necessary when both patt. rec. and PT runs in the same view -> None
       #Also provides particle cnv alg inside
       precisionAlgs = makePrecisionInDetPatternRecognition(config      = config,
-                                                           inputTracks = config.EFID.trkTracksEFID(),
+                                                           inputTracks = config.PT.trkTracksPT(), #config.EFID.trkTracksEFID(),
                                                            verifier    = None )
 
 
@@ -216,8 +219,8 @@ def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
    ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
                                                     config                = config,
                                                     inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
-                                                    outputTrackCollection = config.PT.trkTracksPT() ) #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
-                         
+                                                    outputTrackCollection = config.PT.trkTracksPT()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
+
    ptAlgs.append( ambiguitySolverAlg )
    
    #-----------------------------------------------------------------------------
@@ -225,7 +228,7 @@ def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
    from .InDetTrigCommon import trackParticleCnv_builder
    trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), 
                                                   config               = config,
-                                                  inTrackCollectionKey = config.PT.trkTracksPT(),
+                                                  inTrackCollectionKey = config.PT.trkTracksPT()+"_Amb",
                                                   outTrackParticlesKey = config.PT.tracksPT( doRecord = config.isRecordable),
                                                   )
    
