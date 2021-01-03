@@ -20,6 +20,7 @@
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/MuonEDMHelperTool.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include <utility>
 #include <vector>
@@ -54,6 +55,7 @@ namespace Muon {
     ToolHandle<MuonEDMPrinterTool>                m_printer;   //<! Id helper tool
     ToolHandle<MuonEDMHelperTool>                 m_helper;   //<! Id helper tool
     ToolHandle<IMuonTrackCleaner>                 m_trackCleaner;
+    ToolHandle<IMuonClusterOnTrackCreator>        m_mmClusterCreator;
     bool                                          m_ipConstraint; // use a ip perigee(0,0) constraint in the segment fit
     double                                        m_maxClustDist;
     int                                           m_nOfSeedLayers;
@@ -78,7 +80,11 @@ namespace Muon {
     std::vector<std::pair<double,double> > getPadPhiOverlap(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& pads) const;
     //associate clusters to the segment seeds
     std::vector< const Muon::MuonClusterOnTrack* > getClustersOnSegment(std::vector< std::vector<const Muon::MuonClusterOnTrack*> >& clusters, 
-									std::pair<Amg::Vector3D,Amg::Vector3D>& seed, bool tight) const;
+									std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
+    //get the clusters after calibration
+    std::vector< const Muon::MuonClusterOnTrack* > getCalibratedClusters(std::vector<const Muon::MuonClusterOnTrack*>& clusters,
+                                                                         std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
+  
     //distance of cluster to segment seed
     double clusterDistanceToSeed(const Muon::MuonClusterOnTrack* clust, std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
     Amg::Vector3D intersectPlane( const Trk::PlaneSurface& surf, const Amg::Vector3D& pos, const Amg::Vector3D& dir ) const;
