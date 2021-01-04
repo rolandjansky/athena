@@ -526,6 +526,10 @@ def MuonTrackBuildingCfg(flags, name = "MuPatTrackBuilder"):
     acc = MuonTrackSteeringCfg(flags)
     track_steering = acc.getPrimary()
     result.merge(acc)
+
+    # release 21 ESDs contain a Trk::SegmentCollection named 'MuonSegments' instead of 'TrackMuonSegments', the following 2 lines account for that
+    from MuonConfig.MuonSegmentNameFixConfig import MuonSegmentNameFixCfg
+    result.merge(MuonSegmentNameFixCfg(flags))
     
     track_builder = MuPatTrackBuilder(name=name, TrackSteering = track_steering, MuonSegmentCollection="TrackMuonSegments", SpectrometerTrackOutputLocation="MuonSpectrometerTracks" )
 
