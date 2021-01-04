@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef DERIVATIONFRAMEWORK_PVCASCADETOOLS_H
@@ -38,7 +38,6 @@ namespace DerivationFramework {
   typedef ElementLink<xAOD::VertexContainer> VertexLink;
   typedef std::vector<VertexLink> VertexLinkVector;
   private:
-       const Trk::V0Tools *m_v0Tools;
        const CascadeTools *m_cascadeTools;
        const InDet::BeamSpotData *m_beamSpotData;
 
