@@ -5,6 +5,7 @@
 #include "HIEventUtils/HITowerWeightTool.h"
 #include "HIEventUtils/ZdcRecTool.h"
 #include "HIEventUtils/TopoClusterSelectionTool.h"
+#include "HIEventUtils/HIPileupTool.h"
 
 DECLARE_TOOL_FACTORY( HIEventShapeSummaryTool )
 DECLARE_TOOL_FACTORY( HITowerWeightTool )
@@ -12,6 +13,7 @@ DECLARE_TOOL_FACTORY( HI::HIVertexSelectionTool )
 DECLARE_TOOL_FACTORY( HI::HIEventSelectionTool )
 DECLARE_TOOL_FACTORY( HI::TopoClusterSelectionTool )
 DECLARE_TOOL_FACTORY( ZDC::ZdcRecTool )
+DECLARE_TOOL_FACTORY( HI::HIPileupTool )
 
 DECLARE_FACTORY_ENTRIES( HIEventUtils ) {
   DECLARE_TOOL( HIEventShapeSummaryTool );
@@ -20,5 +22,6 @@ DECLARE_FACTORY_ENTRIES( HIEventUtils ) {
   DECLARE_TOOL( HI::HIEventSelectionTool );
   DECLARE_TOOL( HI::TopoClusterSelectionTool )
   DECLARE_TOOL( ZDC::ZdcRecTool );
+  DECLARE_TOOL( HI::HIPileupTool )
 }
 
