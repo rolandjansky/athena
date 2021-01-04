@@ -169,9 +169,10 @@ def _make_vbenf_label(chain_parts, leg_label):
 
 
 def  _make_fbdjshared_label(chain_parts, leg_label):
-    """example label for a 2-tree forest. Same cuts as 
-    HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20, but the cuts are hardwired
-    here. The dijet and the forward-backward cuts run in separate trees."""
+    """example label for a 2-tree forest.
+    The fbdjshared contains a dijet and forward backward jets, in separate 
+    trees, to allow the fb jets to particoate in the dijet."""
+
     
     return """
     simple
