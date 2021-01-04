@@ -175,7 +175,11 @@ namespace Trk {
 
                                 if (ttItr != trackParticleTruthCollection->end() ) {
                                     const HepMcParticleLink& particleLink = ttItr->second.particleLink();
+#ifdef HEPMC3
+                                    HepMC::ConstGenParticlePtr genParticle = particleLink.scptr();
+#else
                                     HepMC::ConstGenParticlePtr genParticle = particleLink.cptr();
+#endif
 
                                     if(genParticle) {
                                         auto tpEvent = genParticle->parent_event();

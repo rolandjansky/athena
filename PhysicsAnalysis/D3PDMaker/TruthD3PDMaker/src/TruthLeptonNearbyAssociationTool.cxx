@@ -106,7 +106,7 @@ StatusCode TruthLeptonNearbyAssociationTool::fill (const TruthParticle& p)
   return StatusCode::SUCCESS;
 }
 
-int TruthLeptonNearbyAssociationTool::get_real_parent( HepMC::GenParticlePtr p , int depth ) const
+int TruthLeptonNearbyAssociationTool::get_real_parent( HepMC::ConstGenParticlePtr p , int depth ) const
 {
   if (depth>10) return 0;
 

@@ -23,6 +23,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
