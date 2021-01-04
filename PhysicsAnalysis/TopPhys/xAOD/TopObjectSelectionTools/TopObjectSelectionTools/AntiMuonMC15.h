@@ -24,7 +24,7 @@ namespace top {
      * @param isolation The isolation the user wants to apply.  Don't want any
      * isolation to be applied?  Then leave this as a nullptr.
      */
-    AntiMuonMC15(const double ptcut, IsolationBase* isolation);
+    AntiMuonMC15(const double ptcut, AntiMuonIsolation* isolation);
 
     ///Does nothing.
     virtual ~AntiMuonMC15() {}
@@ -53,10 +53,9 @@ namespace top {
 
     ///Proper tool to select muons.
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
-//    ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolLoose;
 
     ///Isolation tool, can be nullptr meaning "no isolation requirement"
-//    std::unique_ptr<top::IsolationBase> m_isolation;
+   std::unique_ptr<top::AntiMuonIsolation> m_isolation;
   };
 }
 
