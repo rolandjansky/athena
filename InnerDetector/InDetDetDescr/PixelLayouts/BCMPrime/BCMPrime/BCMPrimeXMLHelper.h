@@ -16,7 +16,6 @@ class BCMPrimeXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   BCMPrimeXMLHelper(int module, const PixelGeoBuilderBasics* basics);
   ~BCMPrimeXMLHelper();
 
-  int getECRingNumber() const;
   int getNumberOfModules() const;
   double getTransX() const;
   double getTransY() const;
@@ -35,6 +34,15 @@ class BCMPrimeXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   double getCuThickness() const;
   double getG10Thickness() const;
   double getDiamThickness() const;
+
+  double getSupportPosition() const;
+  double getSupportRMin() const;
+  double getSupportRMax() const;
+  double getSupportThickness() const;
+  int getSupportNSectors() const;
+  double getSupportSPhi() const;
+  double getSupportDPhi() const;
+  std::string getSupportMaterial() const;
 
  private:
   int m_module;
