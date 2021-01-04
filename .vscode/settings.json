@@ -3,6 +3,5 @@
         "ms-vscode.cpptools",
         "twxs.cmake"
     ],
-    "remote.SSH.lockfilesInTmp": true,
-    "python.pythonPath": "/bin/python3"
+    "remote.SSH.lockfilesInTmp": true
 }
