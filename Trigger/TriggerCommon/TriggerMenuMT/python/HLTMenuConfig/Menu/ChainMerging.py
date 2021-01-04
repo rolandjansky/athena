@@ -6,6 +6,7 @@ log = logging.getLogger( __name__ )
 
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import Chain, ChainStep, EmptyMenuSequence, RecoFragmentsPool
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuAlignmentTools import get_alignment_group_ordering as getAlignmentGroupOrdering
+from DecisionHandling.DecisionHandlingConfig import ComboHypoCfg
 from collections import OrderedDict
 from copy import deepcopy
 import re
@@ -314,6 +315,15 @@ def mergeSerial(chainDefList):
 
     return combinedChainDef
 
+def checkStepContent(parallel_steps):
+  
+    for step in parallel_steps:
+        if step is None:
+            continue
+        for seq in step.sequences:
+            if type(seq).__name__ != 'EmptyMenuSequence':
+                return True    
+    return False   
 
 def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], currentChainSteps = []):
     from TrigCompositeUtils.TrigCompositeUtils import legName
@@ -329,17 +339,61 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
     assert len(chainDefList)==len(parallel_steps), "[makeCombinedStep] makeCombinedStep: Length of chain defs %d does not match length of steps to merge %d" % (len(chainDefList), len(allSteps))
     
     leg_counter = 0
+    currentStepName = ''
+    # if *all* the steps we're trying to merge are either empty sequences or empty steps
+    # we need to create a single empty step instead. 
+    hasNonEmptyStep = checkStepContent(parallel_steps)
   
+    if not hasNonEmptyStep:
+        for chain_index, step in enumerate(parallel_steps): 
+            # every step is empty but some might have empty sequences and some might not
+            if len(step.sequences) == 0:
+                new_stepDict = deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1])
+                currentStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(stepNumber)+'_'+new_stepDict['chainParts'][0]['multiplicity']+new_stepDict['signature']
+
+                # we need a chain dict here, use the one corresponding to this leg of the chain
+                oldLegName = new_stepDict['chainName']
+                if re.search('^leg[0-9]{3}_',oldLegName):
+                    oldLegName = oldLegName[7:]
+                new_stepDict['chainName'] = legName(oldLegName,leg_counter)
+                stepDicts.append(new_stepDict)
+                leg_counter += 1
+            else:
+                # Standard step with empty sequence(s)
+                currentStepName = step.name
+                #remove redundant instances of StepN_ and merged_ (happens when merging already merged chains)
+                if re.search('^Step[0-9]_',currentStepName):
+                    currentStepName = currentStepName[6:]
+                if re.search('^merged_',currentStepName):
+                    currentStepName = currentStepName[7:]
+
+                # update the chain dict list for the combined step with the chain dict from this step
+                log.debug('[makeCombinedStep] adding step dictionaries %s',step.stepDicts)
+
+                for new_stepDict in deepcopy(step.stepDicts):
+                    oldLegName = new_stepDict['chainName']
+                    if re.search('^leg[0-9]{3}_',oldLegName):
+                        oldLegName = oldLegName[7:]
+                    new_stepDict['chainName'] = legName(oldLegName,leg_counter)
+                    log.debug("[makeCombinedStep] stepDict naming old: %s, new: %s", oldLegName, new_stepDict['chainName'])
+                    stepDicts.append(new_stepDict)
+                    leg_counter += 1
+
+            stepName += '_' + currentStepName
+
+        theChainStep = ChainStep(stepName, Sequences=[], multiplicity=[], chainDicts=stepDicts, comboHypoCfg=ComboHypoCfg) 
+        log.info("[makeCombinedStep] Merged empty step: \n %s", theChainStep)
+        return theChainStep
+
     for chain_index, step in enumerate(parallel_steps): #this is a horizontal merge!
-        if step is None:
+
+        if step is None or (hasNonEmptyStep and len(step.sequences) == 0):
             # this happens for merging chains with different numbers of steps, we need to "pad" out with empty sequences to propogate the decisions
             # all other chain parts' steps should contain an empty sequence
 
             new_stepDict = deepcopy(chainDefList[chain_index].steps[-1].stepDicts[-1])
-            
             seqName = getEmptySeqName(new_stepDict['signature'], chain_index, stepNumber, chainDefList[0].alignmentGroups[0])
 
-            currentStepName = ''
             if isFullScanRoI(chainDefList[chain_index].L1decisions[0]):
                 if noPrecedingStepsPostMerge(currentChainSteps, chain_index):
                     stepSeq.append(RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqName+"FS", mergeUsingFeature = False))
@@ -403,7 +457,7 @@ def makeCombinedStep(parallel_steps, stepNumber, chainDefList, allSteps = [], cu
         stepName += '_' + currentStepName
         log.debug('[makeCombinedStep] current step name %s',stepName)
         # for merged steps, we need to update the name to add the leg name
-        
+    
     comboHypoTools = list(set(comboHypoTools))
     theChainStep = ChainStep(stepName, Sequences=stepSeq, multiplicity=stepMult, chainDicts=stepDicts, comboHypoCfg=comboHypo, comboToolConfs=comboHypoTools) 
     log.info("[makeCombinedStep] Merged step: \n %s", theChainStep)
