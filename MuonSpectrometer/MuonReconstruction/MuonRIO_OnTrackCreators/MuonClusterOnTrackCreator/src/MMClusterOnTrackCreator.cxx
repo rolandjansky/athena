@@ -34,6 +34,11 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
                                                     const Amg::Vector3D& GP) const {
     MuonClusterOnTrack* MClT = nullptr;
 
+    if ( !m_muonIdHelperTool->isMM(RIO.identify()) ) {
+      ATH_MSG_ERROR("MMClusterOnTrackCreator called with an non MM identifier");
+      return MClT;
+    }
+
     // check whether PrepRawData has detector element, if not there print warning
     const Trk::TrkDetElementBase* EL = RIO.detectorElement();
     if ( !EL ) {
@@ -69,24 +74,20 @@ const Muon::MuonClusterOnTrack* Muon::MMClusterOnTrackCreator::createRIO_OnTrack
     }
     positionAlongStrip = lp[Trk::locY];
 
+    /// correct the local position based on the stereo angle                                                                                        
+    if ( m_muonIdHelperTool->mmIdHelper().isStereo(RIO.identify())) {
+      const MuonGM::MMReadoutElement* mmEL = dynamic_cast<const MuonGM::MMReadoutElement*>(EL);
+      double sAngle = mmEL->getDesign(RIO.identify())->sAngle;
+      locpar[Trk::locX] = locpar[Trk::locX]+positionAlongStrip*tan(sAngle);
+    }
+
     Amg::MatrixX loce = RIO.localCovariance();
     ATH_MSG_DEBUG("All: new err matrix is " << loce);
 
-
-
-
-    if ( m_muonIdHelperTool->isMM(RIO.identify()) ) {
-      // cast to MMPrepData
-      const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
-      if (!MClus) {
-        ATH_MSG_WARNING("RIO not of type MMPrepData, cannot create ROT");
-        return nullptr;
-      }
-      ATH_MSG_VERBOSE("generating MMClusterOnTrack in MMClusterBuilder");
-      MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
-     } else {
-      ATH_MSG_WARNING("MMClusterOnTrackCreator called with an non MM identifier");
-    }
+    // cast to MMPrepData
+    const MMPrepData* MClus   = dynamic_cast<const MMPrepData*> (&RIO);
+    ATH_MSG_VERBOSE("generating MMClusterOnTrack in MMClusterBuilder");
+    MClT = new MMClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
 
     return MClT;
 }

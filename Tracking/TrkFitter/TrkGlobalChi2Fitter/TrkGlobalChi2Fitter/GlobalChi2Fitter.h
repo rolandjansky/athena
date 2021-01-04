@@ -297,7 +297,6 @@ private:
   mutable std::vector<const Trk::Layer*> m_barrelcylinders;
   mutable std::vector<const Trk::Layer*> m_othercylinders;
   mutable bool m_fastmat;
-  mutable int m_MMCorrectionStatus;
 };
 
 //std::vector<CLHEP::HepMatrix> Trk::GlobalChi2Fitter::m_derivpool;
