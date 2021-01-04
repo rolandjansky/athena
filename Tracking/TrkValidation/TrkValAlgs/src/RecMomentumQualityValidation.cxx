@@ -135,7 +135,7 @@ StatusCode Trk::RecMomentumQualityValidation::execute()
 
       // find matching truth particle
       const TrackTruth* trackTruth = 0;
-      const HepMC::GenParticle* genParticle = 0;
+      HepMC::ConstGenParticlePtr genParticle{nullptr};
       TrackTruthCollection::const_iterator truthIterator 
         = trackTruthCollection->find( trackIterator - (*trackCollection).begin() );
       if ( truthIterator == trackTruthCollection->end() ){

@@ -90,7 +90,7 @@ class CSCSegmValAlg : public ManagedMonitorToolBase {
   std::vector<std::string> m_sampSelTriggers;
   bool m_doEvtSel;
 
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","MuonSegments","muon segments"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segmKey{this,"SegmentKey","TrackMuonSegments","muon segments"};
   double m_segmSlope;
 
   bool m_debuglevel;           //!< private member to control debug messages

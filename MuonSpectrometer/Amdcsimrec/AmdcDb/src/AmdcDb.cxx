@@ -195,9 +195,6 @@ StatusCode AmdcDb::DoUpdatedSvc()
   return StatusCode::SUCCESS;
 }
 
-/// Service finalisation
-StatusCode AmdcDb::finalize(){return StatusCode::SUCCESS;}
- 
 StatusCode AmdcDb::queryInterface(const InterfaceID& riid, void** ppvInterface)
 {
   if (IID_IRDBAccessSvc == riid)

@@ -78,7 +78,7 @@ IndexedJetsGrouper::group(HypoJetIter& begin, HypoJetIter& end) const{
 }
 
 
-std::optional<HypoJetGroupVector>
+std::optional<HypoJetVector>
 IndexedJetsGrouper::next(){
 
   // exhausts after a single group
@@ -86,14 +86,13 @@ IndexedJetsGrouper::next(){
   // check if there are enough jets find the highest (last, as the vector is
   // ordered) and see if it lies within the jet vector
 
-  if (m_done) { return std::optional<HypoJetGroupVector>(); }
-  if (m_indices.empty()) { return std::optional<HypoJetGroupVector>(); }
+  if (m_done) { return std::optional<HypoJetVector>(); }
+  if (m_indices.empty()) { return std::optional<HypoJetVector>(); }
   
-  auto hjgv = HypoJetGroupVector();
   auto last_jet_pos =  m_indices.back();
   if (m_jets.size() <= last_jet_pos) {
     m_done = true;
-    return std::optional<HypoJetGroupVector>();
+    return std::optional<HypoJetVector>();
   }
   
   // sort jets by descending Et
@@ -103,13 +102,12 @@ IndexedJetsGrouper::next(){
                      DescendingEt());
   
   // place the jets at positions in the index vector into the inner vector
-  HypoJetVector inner;
-  for (auto i : m_indices){inner.push_back(*(m_jets.begin() + i));}
+  HypoJetVector hjv;
+  for (auto i : m_indices){hjv.push_back(*(m_jets.begin() + i));}
   
   // push the inner vector into the outer vector
-  hjgv.push_back(inner);
   m_done = true;
-  return std::make_optional<HypoJetGroupVector>(hjgv);
+  return std::make_optional<HypoJetVector>(hjv);
 }
 
 

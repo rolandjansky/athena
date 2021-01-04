@@ -4,7 +4,7 @@
 atlas_subdir( ElectronPhotonShowerShapeFudgeTool )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core MathCore Hist Graph RIO )
+find_package( ROOT COMPONENTS Core MathCore Hist Graf RIO )
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib

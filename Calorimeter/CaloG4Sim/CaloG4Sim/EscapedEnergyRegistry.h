@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef CaloG4_EscapedEnergyRegistry_H
 #define CaloG4_EscapedEnergyRegistry_H
 
 #include "CaloG4Sim/VEscapedEnergyProcessing.h"
+#include "CxxUtils/checker_macros.h"
 #include "globals.hh"
 
 #include <map>
@@ -75,7 +76,7 @@ namespace CaloG4
      // Thread-to-EscapeEnergyRegistry concurrent map type
     using EERThreadMap_t = tbb::concurrent_unordered_map< std::thread::id, EscapedEnergyRegistry*, std::hash<std::thread::id> >;
     // Concurrent map of EERs, one for each thread
-    static EERThreadMap_t m_EERThreadMap;
+    static EERThreadMap_t m_EERThreadMap ATLAS_THREAD_SAFE;
     // @brief Search inside m_EERThreadMap the element with the current threadID 
     // and return it or return a null pointer if the element is not found
     static EscapedEnergyRegistry* getEER();

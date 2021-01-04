@@ -25,7 +25,7 @@ class IJetGrouper{
    */
   virtual std::vector<HypoJetGroupVector> group(HypoJetIter&,
 						HypoJetIter&) const = 0;
-  virtual std::optional<HypoJetGroupVector> next() = 0;
+  virtual std::optional<HypoJetVector> next() = 0;
   virtual std::string toString() const = 0; 
   virtual std::string getName() const = 0; 
 };

@@ -407,7 +407,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   Eta = 0;
   Region = ETA_ALL;
   int classification=-999;
-  for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) {
+  for (auto truth = gen.begin(); truth != gen.end();  ++truth) {
     classification=-999; 
     bool inTimePileup = truth->second == 0
       || (truth->second >= (int)*inTimeStart && truth->second <= (int)*inTimeEnd);
@@ -494,7 +494,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   Region = ETA_ALL;
   classification=-999;
   
-  for (std::vector <std::pair<HepMC::GenParticle *,int> >::const_iterator truth = gen.begin(); truth != gen.end();  ++truth) 
+  for (auto truth = gen.begin(); truth != gen.end();  ++truth) 
     {
       if (truth->second != 0) // only signal event GenParticles
 	continue;
@@ -868,7 +868,7 @@ bool InDet::TrackStatHelper::PassTrackCuts(const Trk::TrackParameters *para) con
 
 }
 
-int InDet::TrackStatHelper::ClassifyParticle( const HepMC::GenParticle *particle, const double prob) const {
+int InDet::TrackStatHelper::ClassifyParticle( HepMC::ConstGenParticlePtr particle, const double prob) const {
 
   int partClass=-999;
 

@@ -224,7 +224,6 @@ StatusCode TruthTestTool::processEvent()
       }
 
       int npart_prim=0, npart_sec=0;
-      HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
       for (auto currentGenParticle: *(*currentGenEventIter)) {
 
         const HepMC::FourVector mom = currentGenParticle->momentum();
@@ -284,8 +283,9 @@ StatusCode TruthTestTool::processEvent()
         m_particle_type->Fill( particleType );
 
         if ( HepMC::barcode(currentGenParticle)<200000 ) {
-          m_p_gen->Fill( mom.rho() );
-          m_log_p_gen->Fill( log(mom.rho()) );
+          double momentum=std::sqrt(mom.x()*mom.x()+mom.y()*mom.y()+mom.z()*mom.z());
+          m_p_gen->Fill( momentum );
+          m_log_p_gen->Fill( std::log(momentum) );
           m_eta_gen->Fill( mom.eta() );
           m_phi_gen->Fill( mom.phi() );
           ++npart_prim;

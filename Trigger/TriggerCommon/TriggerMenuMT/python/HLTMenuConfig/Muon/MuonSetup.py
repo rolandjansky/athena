@@ -613,7 +613,7 @@ def muEFSARecoSequence( RoIs, name ):
       Cleaner.PullCutPhi = 3
       SegmentFinder.TrackCleaner = Cleaner
       
-      theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,SegmentCollectionName="MuonSegments",
+      theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,
                                                        MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
                                                        MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
                                                        MuonTruthSummaryTool = None)
@@ -630,7 +630,7 @@ def muEFSARecoSequence( RoIs, name ):
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
   from MuonSegmentTrackMaker.MuonTrackMakerAlgsMonitoring import MuPatTrackBuilderMonitoring
-  TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "MuonSegments", 
+  TrackBuilder = CfgMgr.MuPatTrackBuilder("TrigMuPatTrackBuilder_"+name ,MuonSegmentCollection = "TrackMuonSegments", 
                                           TrackSteering=CfgGetter.getPublicToolClone("TrigMuonTrackSteering", "MuonTrackSteering"), 
                                           MonTool = MuPatTrackBuilderMonitoring("MuPatTrackBuilderMonitoringSA_"+name))
   xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("TrigMuonStandaloneTrackParticleCnvAlg_"+name)
@@ -846,7 +846,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
         Cleaner.PullCutPhi = 3
         SegmentFinder.TrackCleaner = Cleaner
       
-        theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,SegmentCollectionName="MuonSegments",
+        theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,
                                                            MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
                                                            MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
                                                            MuonTruthSummaryTool = None)

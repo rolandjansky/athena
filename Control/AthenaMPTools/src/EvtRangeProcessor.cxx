@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EvtRangeProcessor.h"
@@ -47,6 +47,7 @@ EvtRangeProcessor::EvtRangeProcessor(const std::string& type
   , m_isPileup(false)
   , m_rankId(-1)
   , m_nEventsBeforeFork(0)
+  , m_activeWorkers(0)
   , m_inpFile("")
   , m_chronoStatSvc("ChronoStatSvc", name)
   , m_incidentSvc("IncidentSvc", name)
@@ -120,6 +121,7 @@ int EvtRangeProcessor::makePool(int, int nprocs, const std::string& topdir)
   }
 
   m_nprocs = (nprocs==-1?sysconf(_SC_NPROCESSORS_ONLN):nprocs);
+  m_activeWorkers = m_nprocs;
   m_subprocTopDir = topdir;
 
   // Create rank queue and fill it
@@ -233,6 +235,15 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
 	break;
       default:
 	ATH_MSG_ERROR("Detected unexpected state " << itProcState->second << " of failed worker with PID=" << pid);
+	return StatusCode::FAILURE;
+      }
+    }
+    else {
+      // The worker finished successfully and it was the last worker. Release the Event Range Scatterer
+      if(--m_activeWorkers==0
+	 && !m_sharedFailedPidQueue->send_basic<pid_t>(-1)) {
+	// To Do: how to report this error to the pilot?
+	ATH_MSG_ERROR("Failed to release the Event Range Scatterer");
 	return StatusCode::FAILURE;
       }
     }

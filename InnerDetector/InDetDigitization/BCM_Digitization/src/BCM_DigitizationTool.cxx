@@ -17,8 +17,6 @@
 #include "xAODEventInfo/EventInfo.h"             // NEW EDM
 #include "xAODEventInfo/EventAuxInfo.h"          // NEW EDM
 
-#include "CLHEP/Random/RandomEngine.h"
-
 //----------------------------------------------------------------------
 // Constructor with parameters:
 //----------------------------------------------------------------------

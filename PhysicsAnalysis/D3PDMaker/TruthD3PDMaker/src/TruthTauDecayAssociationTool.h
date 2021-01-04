@@ -59,7 +59,7 @@ public:
 private:
 
   /// Function for association to a specific tau 
-  void addStableDaughters(const HepMC::GenParticle*);
+  void addStableDaughters(HepMC::ConstGenParticlePtr);
 
   /// TruthParticle iterator
   std::vector<const TruthParticle*> m_tau_prods;

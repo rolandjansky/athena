@@ -510,8 +510,8 @@ TriggerHLTListRun3 = [
 
     # MinBias
 
-    ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias_FTF',                 'BS ESD AODFULL', 'MinBias', 'inViews:TrkView'),
-    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MinBias_FTFAux.',          'BS ESD AODFULL', 'MinBias'),
+    ('xAOD::TrackParticleContainer#HLT_IDTrack_MinBias_IDTrig',                 'BS ESD AODFULL', 'MinBias', 'inViews:TrkView'),
+    ('xAOD::TrackParticleAuxContainer#HLT_IDTrack_MinBias_IDTrigAux.',          'BS ESD AODFULL', 'MinBias'),
 
 
     # Cosmic

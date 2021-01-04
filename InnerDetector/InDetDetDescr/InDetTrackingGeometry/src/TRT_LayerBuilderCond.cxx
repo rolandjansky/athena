@@ -22,7 +22,6 @@
 #include "TrkDetDescrUtils/BinnedArray2D.h"
 #include "TrkDetDescrUtils/BinnedArray1D.h"
 #include "TrkDetDescrUtils/BinUtility.h"
-#include "TrkDetDescrUtils/BinUtility.h"
 // GeoPrimitives
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"

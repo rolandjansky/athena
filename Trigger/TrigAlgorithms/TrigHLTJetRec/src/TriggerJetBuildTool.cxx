@@ -144,10 +144,10 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
   ATH_MSG_DEBUG("Entering prime(), call " << ++m_nprime);
 
   constexpr bool isGhost = false;
-  IParticleExtractor* extractor = new IParticleExtractor(inputs,
-                                                         m_concreteTypeStr,
-                                                         isGhost,
-                                                         m_isTrigger);
+  auto extractor = std::make_unique<const IParticleExtractor>(inputs,
+                                                             m_concreteTypeStr,
+                                                             isGhost,
+                                                             m_isTrigger);
 
   
   ATH_MSG_DEBUG("No of IParticle inputs: " << inputs->size());
@@ -180,7 +180,7 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
                 
                 
 
-  PseudoJetContainer pjc(extractor, vpj);
+  PseudoJetContainer pjc(std::move(extractor), vpj);
   m_inContainer.append(&pjc);
 }
 
@@ -194,10 +194,10 @@ void TriggerJetBuildTool::primeGhost(const xAOD::IParticleContainer* inputs, std
   ATH_MSG_DEBUG("Entering primeGhost(), call " << ++m_nprime);
 
   constexpr bool isGhost = true;
-  IParticleExtractor* extractor = new IParticleExtractor(inputs,
-                                                         ghostlabel,
-                                                         isGhost,
-                                                         m_isTrigger);
+  auto extractor = std::make_unique<const IParticleExtractor>(inputs,
+                                                              ghostlabel,
+                                                              isGhost,
+                                                              m_isTrigger);
 
   
   ATH_MSG_DEBUG("No of ghost IParticle inputs: " << inputs->size());
@@ -231,7 +231,7 @@ void TriggerJetBuildTool::primeGhost(const xAOD::IParticleContainer* inputs, std
                 
                 
 
-  PseudoJetContainer pjc(extractor, vpj);
+  PseudoJetContainer pjc(std::move(extractor), vpj);
   m_inContainer.append(&pjc);
 }
 

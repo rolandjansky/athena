@@ -266,10 +266,7 @@ StatusCode AmdcsimrecAthenaSvc::initialize() {
   if ( m_EmergencyOut == 1 ) return StatusCode::FAILURE;
   return StatusCode::SUCCESS;
 }
- 
-/// Service finalisation
-StatusCode AmdcsimrecAthenaSvc::finalize(){return StatusCode::SUCCESS;}
- 
+
 StatusCode AmdcsimrecAthenaSvc::queryInterface( const InterfaceID& riid, void** ppvInterface ) {
   if ( IID_IAmdcsimrecAthenaSvc == riid )    {
     *ppvInterface = (AmdcsimrecAthenaSvc*)this;

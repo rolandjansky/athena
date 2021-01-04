@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -33,9 +33,6 @@ TGCcablingSvc::TGCcablingSvc (const std::string& name, ISvcLocator* svc)
   declareProperty("databasePPToSL",  m_databasePPToSL="PP2SL.db");
   declareProperty("databaseSLBToROD",m_databaseSLBToROD="SLB2ROD.db");
 }
-  
-TGCcablingSvc::~TGCcablingSvc (void)
-{}
 
 StatusCode  TGCcablingSvc::queryInterface(const InterfaceID& riid,void** ppvIF)
 {

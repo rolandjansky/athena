@@ -55,3 +55,20 @@ def DetDescrInfo(geoTag):
     detDescrInfo = _initializeGeometryParameters(geoTag)
     detDescrInfo["geomTag"] = geoTag
     return detDescrInfo
+
+
+# Based on RunDMCFlags.py
+def getRunToTimestampDict():
+    # this wrapper is intended to avoid an initial import
+    from .RunToTimestampData import RunToTimestampDict
+    return RunToTimestampDict
+
+
+def getInitialTimeStampsFromRunNumbers(runNumbers):
+    """This is used to hold a dictionary of the form
+    {152166:1269948352889940910, ...} to allow the
+    timestamp to be determined from the run.
+    """
+    run2timestampDict =  getRunToTimestampDict()
+    timeStamps = [run2timestampDict.get(runNumber,1) for runNumber in runNumbers] # Add protection here?
+    return timeStamps

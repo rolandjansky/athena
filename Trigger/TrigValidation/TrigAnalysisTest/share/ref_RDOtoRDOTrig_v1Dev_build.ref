@@ -1350,6 +1350,16 @@ HLT_g35_loose_mu18_L1EM24VHI:
     7: 2
 HLT_g35_medium_g25_medium_L12EM20VH:
   eventCount: 0
+HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 5
+    1: 5
+    2: 5
+  stepFeatures:
+    0: 10
+    1: 10
+    2: 11
 HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI:
   eventCount: 0
   stepCounts:
@@ -1469,7 +1479,7 @@ HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 50
+    0: 5
 HLT_j0_perf_L1J12_EMPTY:
   eventCount: 0
 HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20:

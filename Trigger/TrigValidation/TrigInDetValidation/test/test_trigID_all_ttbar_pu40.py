@@ -29,6 +29,8 @@ Slices  = ['muon','electron','tau','bjet','fsjet']
 Events  = 4000
 Threads = 8 
 Slots   = 8
+Release = "current"
+
 Input   = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ),
