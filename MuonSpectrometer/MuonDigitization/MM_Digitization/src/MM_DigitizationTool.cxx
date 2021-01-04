@@ -213,7 +213,7 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
   //Three gas mixture mode,	Ar/CO2=93/7, Ar/CO2=80/20, Ar/CO2/Iso=93/5/2
   //each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
   declareProperty("qThreshold",                 m_qThreshold = 0.001);     // Charge Threshold
-  declareProperty("DriftGapWidth",              m_driftGapWidth = 5.168);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
+  declareProperty("DriftGapWidth",              m_driftGapWidth = 5.04);  // Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)
   declareProperty("crossTalk1",		          m_crossTalk1 = 0.2);       // Strip Cross Talk with Nearest Neighbor
   declareProperty("crossTalk2",		          m_crossTalk2 = 0.04);      // Strip Cross Talk with 2nd Nearest Neighbor
 
@@ -234,6 +234,8 @@ MM_DigitizationTool::MM_DigitizationTool(const std::string& type, const std::str
 
   declareProperty("CalibrationTool", m_calibrationTool);
   declareProperty("RandomSeed", m_randomSeed = 42);
+
+  declareProperty("correctShift", m_correctShift = -0.244); // purely empirical shift to fix the z positions of clusters: 12/20  pscholer
   
 }
 
@@ -902,6 +904,7 @@ StatusCode MM_DigitizationTool::doDigitization() {
       /// move the initial track point to the readout plane
       int gasGap = m_idHelper->gasGap(layerID);
       double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
+      shift += m_correctShift;
       double scale = 0.0;
       if ( gasGap==1 || gasGap == 3) {
 	scale = -(stripLayerPosition.z() + shift)/localDirection.z();

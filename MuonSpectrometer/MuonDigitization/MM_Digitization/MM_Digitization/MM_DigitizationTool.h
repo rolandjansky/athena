@@ -248,6 +248,8 @@ class MM_DigitizationTool : virtual public IMuonDigitizationTool, public PileUpT
 
 		ToolHandle<Muon::INSWCalibTool> m_calibrationTool;
 
+    double m_correctShift;
+
 };
 
 #endif // MM_DigitizationTool
