@@ -131,7 +131,7 @@ void InDet::TrackStatHelper::SetCuts(struct cuts ct)
 void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTracks, 
 				      std::vector <const Trk::Track *>   & rec, 
                                       Trk::PRDtoTrackMap *prd_to_track_map,
-				      std::vector <std::pair<HepMC::GenParticle *,int> > & gen, 
+				      std::vector <std::pair<HepMC::GenParticlePtr,int> > & gen, 
 				      const TrackTruthCollection         * truthMap, 
 				      const AtlasDetectorID              * const idHelper, 
 				      const PixelID                      * pixelID, 
@@ -274,8 +274,11 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	}
 	else {
 	  //classify track as coming from primary, secondary or truncated gen particle
-	  //	    if(HMPL.isValid()){
+#ifdef HEPMC3
+	  HepMC::ConstGenParticlePtr particle = HMPL.scptr();
+#else
 	  const HepMC::GenParticle *particle = HMPL.cptr();
+#endif
 	  recoClassification = ClassifyParticle(particle, trprob);
 	    
 	  if (trprob < m_cuts.fakeTrackCut)
@@ -409,13 +412,12 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   int classification=-999;
   for (auto truth = gen.begin(); truth != gen.end();  ++truth) {
     classification=-999; 
-    bool inTimePileup = truth->second == 0
-      || (truth->second >= (int)*inTimeStart && truth->second <= (int)*inTimeEnd);
+    bool inTimePileup = truth->second == 0 || (truth->second >= (int)*inTimeStart && truth->second <= (int)*inTimeEnd);
     
-    HepMC::GenParticle * const particle = truth->first;
+    auto particle = truth->first;
     
     //determine eta region
-    Eta = fabs(particle->momentum().pseudoRapidity());
+    Eta = std::abs(particle->momentum().pseudoRapidity());
     if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
     else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
     else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
@@ -501,10 +503,10 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       
       classification=-999; 
       
-      HepMC::GenParticle * const particle = truth->first;
+      auto particle = truth->first;
       
       //determine eta region
-      Eta = fabs(particle->momentum().pseudoRapidity());
+      Eta = std::abs(particle->momentum().pseudoRapidity());
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;
