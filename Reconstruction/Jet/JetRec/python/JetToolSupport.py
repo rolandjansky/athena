@@ -40,12 +40,6 @@ jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 # import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 
-from GaudiKernel.Constants import (VERBOSE,
-                                   DEBUG,
-                                   INFO,
-                                   WARNING,
-                                   ERROR,
-                                   FATAL,)
 # The tool manager
 class JetToolManager:
   prefix = "JetToolManager: "
@@ -154,7 +148,7 @@ class JetToolManager:
   # If the argument is a list, a copy is returned directly.
   # Also configures any necessary container names in the copy.
   def getModifiers(self, modifiersin, altname =None):
-    if modifiersin == None:
+    if modifiersin is None:
       if altname in ["lctopo","emtopo"]:
         return self.modifiersMap[altname+"_ungroomed"]
       elif "pflow" in altname:
@@ -170,7 +164,6 @@ class JetToolManager:
   # the appropriate calibration tool.
   def buildModifiers(self, modifiersin, finder, getters, altname, output, calibOpt, constmods=[]):
     from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
-    from JetRec.JetRecConf import JetFinder
     outmods = []
     inmods = self.getModifiers(modifiersin, altname)
     ncalib = 0
@@ -240,11 +233,11 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        if cname not in self.jetcons:
           jetlog.info( self.prefix + "Truth association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         tname = mod + "_" + salg + srad
-        if not tname in self.tools:
+        if tname not in self.tools:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
           self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTruth")
         outmods += [self.tools[tname]]
@@ -258,12 +251,12 @@ class JetToolManager:
             jetlog.info( sinp, cname, output )
             raise TypeError
         # Check that the building of the association tool has been scheduled.
-        if not cname in self.jetcons:
+        if cname not in self.jetcons:
           jetlog.info( self.prefix + "Track association skipped because container is missing: " + cname )
           jetlog.info( self.prefix + "Add to jetcons if input stream is expected to have this." )
         else:
           tname = mod + "_" + salg + srad
-          if not tname in self.tools:
+          if tname not in self.tools:
             from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
             self += JetPtAssociationTool(tname, JetContainer=output, MatchingJetContainer=cname, AssociationName="GhostTrack")
           outmods += [self.tools[tname]]
@@ -273,7 +266,7 @@ class JetToolManager:
           jetlog.info( self.prefix + "Jet filter requested without a threshold." )
           raise Exception
         tname = "jetpt" + str(self.ptminFilter)
-        if not tname in self.tools:
+        if tname not in self.tools:
           from JetRec.JetRecConf import JetFilterTool
           self.add( JetFilterTool(tname, PtMin=self.ptminFilter) ) 
         outmods += [self.tools[tname]]
@@ -292,7 +285,7 @@ class JetToolManager:
         self.add(btagger)
         outmods += [btagger]
       elif mod == "largeR":
-        outmods += jtm.modifiersMap["largeR"]
+        outmods += self.modifiersMap["largeR"]
       else:
         raise TypeError
     # Check calibration.
@@ -336,12 +329,11 @@ class JetToolManager:
       self.m_jetBuilder = self.jetBuilderWithoutArea
     else:
       self.m_jetBuilder = self.jetBuilderWithArea
-    if self.m_jetBuilder == None:
+    if self.m_jetBuilder is None:
       self.msg(0, "Jet builder must be specified")
-      raise Error
+      raise Exception
     from JetRec.JetRecConf import JetFinder
-    areaSuffix= "Area" if ghostArea>0.0 else ""
-    finder = JetFinder(toolname);
+    finder = JetFinder(toolname)
     finder.JetAlgorithm = alg
     finder.JetRadius = radius
     finder.VariableRMinRadius = variableRMinRadius
@@ -355,7 +347,7 @@ class JetToolManager:
     finder.JetBuilder = self.m_jetBuilder
     self += finder
     self.finders += [finder]
-    hifinder = finder;
+    hifinder = finder
     if type(ivtx) is int:
       from JetRec.JetRecConf import JetByVertexFinder
       vfinder = JetByVertexFinder(
@@ -365,7 +357,7 @@ class JetToolManager:
       )
       self += vfinder
       self.finders += [vfinder]
-      hifinder = vfinder;
+      hifinder = vfinder
     return (finder, hifinder)
 
   # Create a jet finder and rectool.
@@ -407,10 +399,10 @@ class JetToolManager:
     
     # Accumulate all PseudoJetGetters such that we can schedule all
     # needed PseudoJetAlgorithms before jet building
-    self.allGetters += [getter for getter in getters if not getter in self.allGetters]
+    self.allGetters += [getter for getter in getters if getter not in self.allGetters]
     # If jet finding by vertex is not specified, check for special input type names
     ivtx = ivtxin
-    if ivtx == None:
+    if ivtx is None:
       if gettersin == "ztrack": ivtx = -1        # Find tracs separatesly for each vertex
       elif gettersin == "pv0track": ivtx = 0     # Find tracks only for 1st vertex
     # Retrieve/build the jet finder.
@@ -424,14 +416,13 @@ class JetToolManager:
     if ptminFilter > 0.0: self.ptminFilter = ptminFilter
     jetrec.JetModifiers = self.buildModifiers(modifiersin, lofinder, getters, gettersin, output, calibOpt, constmods=constmods)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
-    if consumers != None:
+    if consumers is not None:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
     #jetrec.WarnIfDuplicate = warnIfDuplicate
     #jetrec.Overwrite = overwrite
-    # JetRecTool.OutputLevel = VERBOSE
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -725,7 +716,7 @@ class JetToolManager:
     jetrec.JetGroomer = groomer
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     self.autoconfigureModifiers(jetrec.JetModifiers, output)
-    if consumers != None:
+    if consumers is not None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
     jetrec.Timer = jetFlags.timeJetRecTool()
@@ -772,7 +763,6 @@ class JetToolManager:
 
   # Change the output level of a tool.
   def setOutputLevel(self, toolid, level):
-    from GaudiKernel.Proxy.Configurable import ConfigurableAlgTool
     if type(toolid) == str:
       tool = self[toolid]
     else:
@@ -780,11 +770,9 @@ class JetToolManager:
     locked = tool.isLocked()
     oldlevel = "undefined"
     if locked:
-      dbglvl = 0
       slock = "locked"
       tool.unlock()
     else:
-      dbglvl = 1
       slock = "unlocked"
     aname = "OutputLevel"
     if hasattr(tool, aname):
