@@ -49,13 +49,16 @@ G4bool SctSensorGmxSD::ProcessHits(G4Step *aStep, G4TouchableHistory * /* not us
   G4ThreeVector localPosition2 = transformation.TransformPoint(coord2);
   HepGeom::Point3D<double> lP1, lP2;
 
-  lP1[SiHit::xEta] = localPosition1[2]*CLHEP::mm;
+  //depth is local z for ITk strip sensors built using GeoModelXML
+  //For Run-2 SCT sensors, depth is local x 
+  //(so would be 2,1,0 rather than 0,1,2)
+  lP1[SiHit::xEta] = localPosition1[0]*CLHEP::mm;
   lP1[SiHit::xPhi] = localPosition1[1]*CLHEP::mm;
-  lP1[SiHit::xDep] = localPosition1[0]*CLHEP::mm;
+  lP1[SiHit::xDep] = localPosition1[2]*CLHEP::mm;
 
-  lP2[SiHit::xEta] = localPosition2[2]*CLHEP::mm;
+  lP2[SiHit::xEta] = localPosition2[0]*CLHEP::mm;
   lP2[SiHit::xPhi] = localPosition2[1]*CLHEP::mm;
-  lP2[SiHit::xDep] = localPosition2[0]*CLHEP::mm;
+  lP2[SiHit::xDep] = localPosition2[2]*CLHEP::mm;
 
   //
   //    Get the indexes of which detector the hit is in

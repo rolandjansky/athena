@@ -488,7 +488,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xPhi axis.");
             }
         }
-    
+
         if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xPhi axis does not follow correct convention.");
             m_phiDirection = true; // Don't swap.
@@ -510,6 +510,7 @@ using Trk::distDepth;
 	  ATH_MSG_ERROR( "Orientation of local xEta axis does not follow correct convention.");
             m_etaDirection = true; // Don't swap
         }
+
 
     } // end if (firstTimeBaseTemp)
     
@@ -707,19 +708,19 @@ using Trk::distDepth;
       HepGeom::Vector3D<double>(0., 0., 1.)
     };
 
+    //correct phi and eta as necessary - do not change depth, this will be defined by the transform based on the other two
+    int signPhi = m_phiDirection? +1:-1;
+    int signEta = m_etaDirection? +1:-1;
+
     const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0., 0., 0.),
-                                         localAxes[distPhi],
-                                         localAxes[distEta],
+                                         signPhi * localAxes[distPhi],
+                                         signEta *localAxes[distEta],
                                          HepGeom::Point3D<double>(0., 0., 0.),
                                          localAxes[m_hitPhi],
                                          localAxes[m_hitEta]);
 
-    // Swap direction of axis as appropriate
-    CLHEP::Hep3Vector scale(1., 1., 1.);
-    if (!m_phiDirection)   scale[distPhi]   = -1.;
-    if (!m_etaDirection)   scale[distEta]   = -1.;
-    if (!m_depthDirection) scale[distDepth] = -1.;
-    return recoToHit * HepGeom::Scale3D(scale[0], scale[1], scale[2]);
+    return recoToHit ;
+
   }
 
 
