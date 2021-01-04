@@ -52,12 +52,6 @@ BCMPrimeXMLHelper::~BCMPrimeXMLHelper()
     TerminateXML();
 }
 
-int BCMPrimeXMLHelper::getECRingNumber() const
-{
-    std::string ecring_number = getString("BCMPrimeGeo", m_moduleIndices, "ECRingNumber");
-    return atoi(ecring_number.c_str());
-}
-
 int BCMPrimeXMLHelper::getNumberOfModules() const
 {
     std::string number_of_modules = getString("BCMPrimeGeo", m_moduleIndices, "NumberOfModules");
@@ -142,4 +136,47 @@ double BCMPrimeXMLHelper::getG10Thickness() const
 double BCMPrimeXMLHelper::getDiamThickness() const
 {
     return getDouble("BCMPrimeGeo", m_moduleIndices, "DiamThickness");
+}
+
+//================= BCM' SUPPORT =================
+
+double BCMPrimeXMLHelper::getSupportPosition() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "pos");
+}
+
+double BCMPrimeXMLHelper::getSupportRMin() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "rmin");
+}
+
+double BCMPrimeXMLHelper::getSupportRMax() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "rmax");
+}
+
+double BCMPrimeXMLHelper::getSupportThickness() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "thickness");
+}
+
+int BCMPrimeXMLHelper::getSupportNSectors() const
+{
+    std::string n_modules = getString("BCMPrimeSupportGeo", m_moduleIndices, "nsectors");
+    return atoi(n_modules.c_str());
+}
+
+double BCMPrimeXMLHelper::getSupportSPhi() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "sphi");
+}
+
+double BCMPrimeXMLHelper::getSupportDPhi() const
+{
+    return getDouble("BCMPrimeSupportGeo", m_moduleIndices, "dphi");
+}
+
+std::string BCMPrimeXMLHelper::getSupportMaterial() const
+{
+    return getString("BCMPrimeSupportGeo", m_moduleIndices, "material");
 }

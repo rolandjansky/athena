@@ -435,7 +435,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	      int nsectors = ringHelper.getRingSupportNSectors(iSvc);
 	      double sphiSvc = ringHelper.getRingSupportSPhi(iSvc);
 	      double dphiSvc = ringHelper.getRingSupportDPhi(iSvc);
-	      std::string matName = ringHelper.getRingSupportMaterial(iSvc);	
+	      std::string matName = ringHelper.getRingSupportMaterial(iSvc);
 	      
 	      for (int i_sector = 0; i_sector < nsectors; i_sector++) {
 		
@@ -531,58 +531,92 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  }
 	}
 
-        // Place BCM'
-
-        bool bcmPresent   = genDBHelper.isBCMPrimePresent();
-
-        if (bcmPresent) {
-
-          BCMPrimeXMLHelper BCMPrimeDBHelper(0, basics);
-          int bcmRing = BCMPrimeDBHelper.getECRingNumber();
-          int bcmRingB = 2*bcmRing;
-
-          if (i==bcmRingB && m_layer==0) {
-
-            int nModules = BCMPrimeDBHelper.getNumberOfModules();
-            int uniqueGeoIdentifier = 11950; // Unique geo identifier, same as in Run2 sim
-                                              // Do we still need to assign GeoIdentifier 
-                                              // tags in the upgrade simulation?
-
-            for (int module = 0; module < nModules; module++) {
-
-              GeoPhysVol* bcmModPhys = m_bcmTool->buildModule( module, basics);
-              if (bcmModPhys) {
-
-                double safety = 0.001;
-                double ringOffset = m_bcmTool->getRingOffset();
-                double bcmZPos = m_ringPos[i]-zMiddle-ringOffset-safety;
-
-                ATH_MSG_DEBUG("Placing BCM' module " << module << ", side " << m_endcapSide);
-
-                CLHEP::Hep3Vector pos(m_bcmTool->getTransX(), m_bcmTool->getTransY(), bcmZPos);
-                CLHEP::HepRotation rm;
-                rm.rotateY(90*CLHEP::deg);
-                rm.rotateX(-m_bcmTool->getTilt()*CLHEP::deg);
-                rm.rotateX(m_bcmTool->getRotX()*CLHEP::deg);
-                rm.rotateY(m_bcmTool->getRotY()*CLHEP::deg);
-                rm.rotateZ((m_bcmTool->getRotZ()+m_bcmTool->getRingRot())*CLHEP::deg);
-
-                int k = 2*module + uniqueGeoIdentifier;
-                GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos.rotateZ(m_bcmTool->getRingRot()*CLHEP::deg)));
-                GeoNameTag *tag = new GeoNameTag("BCM Module");
-                ecPhys->add(tag);
-                ecPhys->add(new GeoIdentifierTag(k));
-                ecPhys->add(xform);
-                ecPhys->add(bcmModPhys);
-
-              }
-            }
-          }
-        }  // BCM' placement finished
-
       }
     }
-    
+
+    // Place BCM'
+    //
+    // 4 modules attached to a dedicated support ring,
+    // contained in the layer 0 envelope
+
+    bool bcmPresent   = genDBHelper.isBCMPrimePresent();
+
+    if (bcmPresent && m_layer==0) {
+
+      // Access the parameters which are common to all the modules,
+      // values can be read from the module 0 entry
+      BCMPrimeXMLHelper BCMPrimeDBHelper(0, basics);
+
+      // BCM' support
+      double bcmRingWorldPos = BCMPrimeDBHelper.getSupportPosition();
+      double safety = 0.001;
+      double bcmRingPos = bcmRingWorldPos-zMiddle;
+
+      double rminSvc = BCMPrimeDBHelper.getSupportRMin();
+      double rmaxSvc = BCMPrimeDBHelper.getSupportRMax();
+      double thick = BCMPrimeDBHelper.getSupportThickness();
+      int nsectors = BCMPrimeDBHelper.getSupportNSectors();
+      double sphiSvc = BCMPrimeDBHelper.getSupportSPhi();
+      double dphiSvc = BCMPrimeDBHelper.getSupportDPhi();
+      std::string matName = BCMPrimeDBHelper.getSupportMaterial();
+      
+      for (int i_sector = 0; i_sector < nsectors; i_sector++) {
+
+        if ((360. / nsectors) < dphiSvc) {
+          ATH_MSG_WARNING("Arms will overlap. Do not implement them.");
+          continue;
+        }
+
+        double Sphi  = (sphiSvc + 360. / nsectors * i_sector) * CLHEP::deg;
+        double Dphi  = dphiSvc * CLHEP::deg;
+
+        const GeoShape* bcmSupTubs = (nsectors>1) ? dynamic_cast<const GeoShape*> (new GeoTubs(rminSvc,rmaxSvc,thick*.5,Sphi,Dphi)) : dynamic_cast<const GeoShape*> (new GeoTube(rminSvc,rmaxSvc,thick*.5));
+        double matVolume = bcmSupTubs->volume();
+        const GeoMaterial* bcmSupMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
+        ATH_MSG_DEBUG("Density = " << bcmSupMat->getDensity() << " Mass = " << ( matVolume * bcmSupMat->getDensity() ));
+        GeoLogVol* _bcmSupLog = new GeoLogVol("bcmSupLog",bcmSupTubs,bcmSupMat);
+        GeoPhysVol* bcmSupPhys = new GeoPhysVol(_bcmSupLog);
+        GeoTransform* xform = new GeoTransform( HepGeom::Translate3D(0., 0., bcmRingPos));
+        ecPhys->add(xform);
+        ecPhys->add(bcmSupPhys);
+      }
+
+      // BCM' modules
+      int nModules = BCMPrimeDBHelper.getNumberOfModules();
+      double ringOffset = BCMPrimeDBHelper.getRingOffset();
+      int uniqueGeoIdentifier = 11950; // Unique geo identifier, same as in Run2 sim
+                                       // Do we still need to assign GeoIdentifier
+                                       // tags in the upgrade simulation?
+      double halfThickness = thick*.5;
+      double bcmPos = bcmRingPos-halfThickness-ringOffset-safety;
+
+      for (int module = 0; module < nModules; module++) {
+
+        GeoPhysVol* bcmModPhys = m_bcmTool->buildModule( module, basics);
+        if (bcmModPhys) {
+
+          ATH_MSG_DEBUG("Placing BCM' module " << module << ", side " << m_endcapSide);
+
+          CLHEP::Hep3Vector pos(m_bcmTool->getTransX(), m_bcmTool->getTransY(), bcmPos);
+          CLHEP::HepRotation rm;
+          rm.rotateY(90*CLHEP::deg);
+          rm.rotateX(-m_bcmTool->getTilt()*CLHEP::deg);
+          rm.rotateX(m_bcmTool->getRotX()*CLHEP::deg);
+          rm.rotateY(m_bcmTool->getRotY()*CLHEP::deg);
+          rm.rotateZ((m_bcmTool->getRotZ()+m_bcmTool->getRingRot())*CLHEP::deg);
+
+          int k = 2*module + uniqueGeoIdentifier;
+          GeoTransform* xform = new GeoTransform(HepGeom::Transform3D(rm,pos.rotateZ(m_bcmTool->getRingRot()*CLHEP::deg)));
+          GeoNameTag *tag = new GeoNameTag("BCM Module");
+          ecPhys->add(tag);
+          ecPhys->add(new GeoIdentifierTag(k));
+          ecPhys->add(xform);
+          ecPhys->add(bcmModPhys);
+
+        }
+      }
+    }  // BCM' placement finished
+
     // Place the layer supports
     std::vector<int> Layers = ringHelper.getNbLayerSupportIndex(m_layer);
     for(unsigned int iSvc=0; iSvc<Layers.size(); iSvc++) {
