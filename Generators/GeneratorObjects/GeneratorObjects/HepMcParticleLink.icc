@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration.
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
  */
 /**
  * @file GeneratorObjects/HepMcParticleLink.icc
@@ -599,4 +599,18 @@ HepMcParticleLink::barcode_type HepMcParticleLink::compress() const
 {
   return ( ((m_extBarcode.barcode()&0xFFFF) << 16) |
            eventIndex() );
+}
+
+
+/**
+ * @brief Comparison with GenParticle*.
+ * Needed with c++20 to break an ambiguity between the built-in GenParticle*
+ * equality and operator== defined above, arising due to the conversions
+ * back and forth between HepMcParticleLink and GenParticle*.
+ */
+inline
+bool operator== (const HepMC::GenParticle* a,
+                 const HepMcParticleLink& b)
+{
+  return a == b.cptr();
 }
