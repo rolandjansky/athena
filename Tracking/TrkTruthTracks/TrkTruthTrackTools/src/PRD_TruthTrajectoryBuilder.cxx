@@ -11,7 +11,6 @@
 // Trk
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasDetectorID.h"
