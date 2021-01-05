@@ -65,12 +65,19 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
     ATH_MSG_DEBUG("Determining number of weight variations");
 #ifndef GENERATIONBASE
     if (inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {
-      ATH_CHECK(loadXAODMetaData());
+      StatusCode status = loadXAODMetaData();
+      if (!status.isSuccess()) {
+        if (status.isRecoverable()) {
+          ATH_CHECK(loadPOOLMetaData());
+        } else {
+          return StatusCode::FAILURE;
+        }
+      }
     } else {
-#endif
       ATH_CHECK(loadPOOLMetaData());
-#ifndef GENERATIONBASE
     }
+#else
+    ATH_CHECK(loadPOOLMetaData());
 #endif
 
     if (m_numberOfWeightVariations == 0) {
@@ -256,7 +263,7 @@ StatusCode BookkeeperTool::copyCutflowFromService()
 StatusCode BookkeeperTool::loadXAODMetaData()
 {
 #ifdef GENERATIONBASE
-  return StatusCode::SUCCESS;
+  return StatusCode::RECOVERABLE;
 #else
 
   // Try to load MC channel number from file metadata
@@ -271,8 +278,12 @@ StatusCode BookkeeperTool::loadXAODMetaData()
     }
   }
   if (mcChannelNumber == uint32_t(-1)) {
-    ATH_MSG_WARNING("... MC channel number could not be loaded");
+    ATH_MSG_WARNING("... MC channel number could not be loaded from FileMetaData");
+#ifdef XAOD_STANDALONE
     mcChannelNumber = 0;
+#else
+    return StatusCode::RECOVERABLE;
+#endif
   }
 
   // Find the correct truth meta data object
@@ -292,9 +303,14 @@ StatusCode BookkeeperTool::loadXAODMetaData()
 
   // If no such object is found then return
   if (itTruthMetaDataPtr == metaDataContainer->end()) {
+#ifdef XAOD_STANDALONE
     m_numberOfWeightVariations = 1;
     ATH_MSG_DEBUG("Could not load weight meta data! Assumming 1 variation.");
     return StatusCode::SUCCESS;
+#else
+    ATH_MSG_DEBUG("Could not load weight meta data from TruthMetaData!");
+    return StatusCode::RECOVERABLE;
+#endif
   }
 
   // Update cached weight data
