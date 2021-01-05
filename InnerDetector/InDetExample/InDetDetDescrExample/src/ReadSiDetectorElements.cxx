@@ -53,6 +53,7 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
   declareProperty("UseConditionsTools", m_useConditionsTools = false);
+  declareProperty("PrintProbePositions", m_printProbePositions = true);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -150,8 +151,14 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // element->getIdHelper()->show(element->identify());
         //
   
-        ATH_MSG_ALWAYS(" center (x,y,z) = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
+        ATH_MSG_ALWAYS(" center (x,y,z)   = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
 	ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
+	if(m_printProbePositions){
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (1,1)          = " <<element->globalPosition(Amg::Vector2D(1,1)).perp() << "," << element->globalPosition(Amg::Vector2D(1,1)).phi() <<","<< element->globalPosition(Amg::Vector2D(1,1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (-1,-1)        = " <<element->globalPosition(Amg::Vector2D(-1,-1)).perp() << "," << element->globalPosition(Amg::Vector2D(-1,-1)).phi() <<","<< element->globalPosition(Amg::Vector2D(-1,-1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit position of (1,1,0)    = " <<element->globalPositionHit(Amg::Vector3D(1,1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(1,1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(1,1,0)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit  position of (-1,-1,0) = " <<element->globalPositionHit(Amg::Vector3D(-1,-1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(-1,-1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(-1,-1,0)).z()); 
+	}
         ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
                        << element->sinStereo());
         ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
