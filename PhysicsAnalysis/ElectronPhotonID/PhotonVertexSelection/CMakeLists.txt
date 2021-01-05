@@ -28,5 +28,7 @@ atlas_add_dictionary( PhotonVertexSelectionDict
    LINK_LIBRARIES PhotonVertexSelectionLib )
 
 # Test(s) in the package:
-atlas_add_test( PhotonVertexSelection_test
-   SCRIPT test/testPhotonVertexSelection.py )
+if( NOT XAOD_ANALYSIS )
+   atlas_add_test( PhotonVertexSelection_test
+      SCRIPT test/testPhotonVertexSelection.py )
+endif()
