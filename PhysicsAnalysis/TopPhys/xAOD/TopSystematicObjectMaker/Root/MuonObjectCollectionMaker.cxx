@@ -49,6 +49,7 @@ namespace top {
     m_isolationTool_Loose_VarRad("CP::IsolationTool_Loose_VarRad"),
     m_isolationTool_Loose_FixedRad("CP::IsolationTool_Loose_FixedRad"),
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
+    m_IFFTruthTool("TruthClassificationTool"),
 
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
     declareProperty("config", m_config);
@@ -76,6 +77,7 @@ namespace top {
     declareProperty("IsolationTool_Loose_VarRad", m_isolationTool_Loose_VarRad);
     declareProperty("IsolationTool_Loose_FixedRad", m_isolationTool_Loose_FixedRad);
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
+    declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
   }
 
@@ -106,6 +108,7 @@ namespace top {
     top::check(m_isolationTool_Loose_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Loose_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
+    if(m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     ///-- Set Systematics Information --///
     const std:: string& syststr = m_config->systematics();
@@ -148,7 +151,8 @@ namespace top {
     static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
     static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
-    static SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
+    static const SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
+    static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -208,6 +212,13 @@ namespace top {
               muon->auxdecor<float>("delta_z0_sintheta") = delta_z0 * std::sin(muon->primaryTrackParticle()->theta());
             }
           }
+        }
+
+        //Decorate muons with IFF-truth classification
+        if(m_config->isMC()){
+          unsigned int IFFclass(0);
+          top::check( m_IFFTruthTool->classify(*muon, IFFclass), "Unable the classify muon");
+          AnalysisTop_IFFTruthClass(*muon) = IFFclass;
         }
 
         ///-- Isolation selection --///

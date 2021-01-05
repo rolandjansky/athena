@@ -24,6 +24,9 @@
 // PMG include(s):
 #include "PMGTools/PMGTruthWeightTool.h"
 
+//IFF Truth Classification Tool
+#include "TruthClassification/TruthClassificationTool.h"
+
 namespace top {
   OtherCPTools::OtherCPTools(const std::string& name) :
     asg::AsgTool(name) {
@@ -40,6 +43,8 @@ namespace top {
     if (m_config->doPileupReweighting()) top::check(setupPileupReweighting(), "Failed to setup pile-up reweighting");
 
     if (m_config->isMC()) top::check(setupPMGTools(), "Failed to setup PMG tools");
+
+    if (m_config->isMC()) top::check(setupIFFTruthClassifier(), "Failed to setup IFF Truth Classification Tool");
 
     return StatusCode::SUCCESS;
   }
@@ -219,4 +224,19 @@ namespace top {
 
     return StatusCode::SUCCESS;
   }
+
+  StatusCode OtherCPTools::setupIFFTruthClassifier(){
+    //Setup IFF Truth Classifier
+    const std::string IFFTruthToolName = "TruthClassificationTool";
+
+    TruthClassificationTool *IFFTruthTool = new TruthClassificationTool(IFFTruthToolName);
+    top::check(IFFTruthTool->setProperty("separateChargeFlipElectrons", true), "Unable to set property: separateChargeFlipElectrons");
+    top::check(IFFTruthTool->setProperty("OutputLevel",  MSG::FATAL),          "Unable to set property: OutputLevel");
+    top::check(IFFTruthTool->initialize(),                                     "Unable to initialize TruthClassificationTool");
+    ATH_MSG_INFO("Intialized " << IFFTruthTool->name().c_str());
+    m_IFFTruthTool = IFFTruthTool;
+
+    return StatusCode::SUCCESS;
+  }
+
 }  // namespace top
