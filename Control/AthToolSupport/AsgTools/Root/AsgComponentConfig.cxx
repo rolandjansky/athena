@@ -12,6 +12,7 @@
 
 #include <AsgTools/AsgComponentConfig.h>
 
+#include <AsgTools/AsgToolConfig.h>
 #include <regex>
 
 #ifdef XAOD_STANDALONE
@@ -54,6 +55,16 @@ namespace asg
   AsgComponentConfig (const std::string& val_typeAndName)
   {
     setTypeAndName (val_typeAndName);
+  }
+
+
+
+  bool AsgComponentConfig ::
+  empty () const noexcept
+  {
+    return
+      m_type.empty() && m_name.empty() &&
+      m_privateTools.empty() && m_propertyValues.empty();
   }
 
 
@@ -351,7 +362,11 @@ namespace asg
       if (std::get<1>(tool.second).empty())
       {
         std::string toolPath = prefix + m_name + "." + tool.first;
-        joSvc->set (toolPath, std::get<0>(tool.second).typeAndName());
+        const auto split = toolPath.rfind ('.');
+        std::string toolName = toolPath.substr (split+1);
+        std::string componentName = toolPath.substr (0, split);
+        StringProperty athenaProperty (toolName, std::get<0>(tool.second).typeAndName());
+        ANA_CHECK (joSvc->addPropertyToCatalogue (componentName, std::move (athenaProperty)));
       }
     }
 
@@ -365,7 +380,11 @@ namespace asg
       }
       std::string valueString = Gaudi::Utils::toString (valueArray);
       std::string propertyPath = prefix + m_name + "." + toolArray.first;
-      joSvc->set (propertyPath, valueString);
+      const auto split = propertyPath.rfind ('.');
+      std::string propertyName = propertyPath.substr (split+1);
+      std::string componentName = propertyPath.substr (0, split);
+      StringProperty athenaProperty (propertyName, valueString);
+      ANA_CHECK (joSvc->addPropertyToCatalogue (componentName, std::move (athenaProperty)));
     }
 
     for (const auto& property : m_propertyValues)

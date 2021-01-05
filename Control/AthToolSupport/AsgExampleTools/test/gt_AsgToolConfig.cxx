@@ -141,6 +141,34 @@ namespace asg
 
 
 
+  TEST (AsgToolConfigTest, basic_subtoolConfigureIndirect)
+  {
+    const std::string name = makeUniqueName();
+    AsgToolConfig config ("asg::UnitTestTool2/" + name);
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1A");
+      subconfig.setPropertyFromString ("propertyInt", "17");
+      ASSERT_SUCCESS (config.addPrivateTool ("regPrivateHandle", subconfig));
+    }
+    {
+      AsgToolConfig subconfig ("asg::UnitTestTool1A");
+      subconfig.setPropertyFromString ("propertyInt", "42");
+      ASSERT_SUCCESS (config.addPrivateTool ("anaPrivateHandle", subconfig));
+    }
+    std::shared_ptr<void> cleanup;
+    ToolHandle<IUnitTestTool2> tool;
+    ASSERT_SUCCESS (config.makeTool (tool, cleanup));
+    EXPECT_EQ ("ToolSvc." + name, tool->name());
+    EXPECT_SUCCESS (tool->retrieveToolHandle("regPrivateHandle"));
+    EXPECT_TRUE (tool->getToolHandle ("regPrivateHandle")->isInitialized());
+    EXPECT_EQ (17, tool->getToolHandle ("regPrivateHandle")->getPropertyInt());
+    EXPECT_TRUE (tool->wasUserConfigured("anaPrivateHandle"));
+    EXPECT_TRUE (tool->getToolHandle ("anaPrivateHandle")->isInitialized());
+    EXPECT_EQ (42, tool->getToolHandle ("anaPrivateHandle")->getPropertyInt());
+  }
+
+
+
   TEST (AsgToolConfigTest, privateTool)
   {
     const std::string name1 = makeUniqueName();

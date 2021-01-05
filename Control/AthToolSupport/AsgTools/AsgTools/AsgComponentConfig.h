@@ -19,6 +19,7 @@ class StatusCode;
 namespace asg
 {
   class AsgComponent;
+  class AsgToolConfig;
 }
 
 namespace asg
@@ -48,6 +49,13 @@ namespace asg
     ///   out of memory II
   public:
     explicit AsgComponentConfig (const std::string& val_typeAndName);
+
+
+    /// \brief whether all properties are unset
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool empty () const noexcept;
 
 
     /// \brief the type of the component
