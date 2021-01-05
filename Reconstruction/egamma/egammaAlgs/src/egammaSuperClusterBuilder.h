@@ -103,24 +103,16 @@ private:
 
   /** Find the size of the cluster */
   PhiSize findPhiSize(const CentralPosition& cp0,
-                      const xAOD::CaloCluster* cluster) const;
+                      const xAOD::CaloCluster& cluster) const;
 
-  /** Add the EM cells from reference cluster to self; eta and phi are the ones
-     to use for limiting size. This excludes L1 (which is done as a separate
-     step). note, use raw eta and phi! */
-  StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
-                                 const xAOD::CaloCluster* ref,
-                                 const CentralPosition& cp0) const;
-
-  /** Add the preshower and L1 EM cells from reference cluster to self; note,
-   * use raw eta and phi! */
-  StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
-                                     const xAOD::CaloCluster* ref,
-                                     const CentralPosition& cp0,
-                                     const PhiSize& phiSize) const;
+  /** fill Super Clusterlimiting its size.*/
+  StatusCode fillClusterConstrained(
+    xAOD::CaloCluster& tofill,
+    const std::vector<const xAOD::CaloCluster*>& clusters,
+    const CentralPosition& cp0) const;
 
   /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster* myCluster,
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster& tofill,
                                       const CaloDetDescrManager& mgr) const;
 
   /** function to calibrate the new clusters energy */
