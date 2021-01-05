@@ -58,7 +58,8 @@ namespace top {
     m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
     m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
-    m_isolationCorr("CP::IsolationCorrectionTool") {
+    m_isolationCorr("CP::IsolationCorrectionTool"),
+    m_IFFTruthTool("TruthClassificationTool"){
     declareProperty("config", m_config);
 
     declareProperty("EgammaCalibrationAndSmearingTool", m_calibrationTool);
@@ -86,6 +87,7 @@ namespace top {
     declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IsolationCorrectionTool", m_isolationCorr);
+    declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
   }
 
   StatusCode EgammaObjectCollectionMaker::initialize() {
@@ -133,6 +135,7 @@ namespace top {
     }
 
     top::check(m_isolationCorr.retrieve(), "Failed to retrieve Isolation Correction Tool");
+    if (m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     std::set<std::string> systPhoton;
     std::set<std::string> systElectron;
@@ -307,7 +310,8 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
-    static SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
+    static const SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
+    static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
 
     const xAOD::EventInfo* eventInfo(nullptr);
 
@@ -357,6 +361,13 @@ namespace top {
             electron->auxdecor<float>("delta_z0") = delta_z0;
             electron->auxdecor<float>("delta_z0_sintheta") = delta_z0 * std::sin(electron->trackParticle()->theta());
           }
+        }
+
+	//Decorate electrons with IFF-truth classification
+        if(m_config->isMC()){
+	  unsigned int IFFclass(0);
+          top::check( m_IFFTruthTool->classify(*electron, IFFclass), "Unable the classify electron");
+          AnalysisTop_IFFTruthClass(*electron) = IFFclass;
         }
 
         ///-- Isolation selection --///

@@ -520,6 +520,7 @@ namespace top {
     std::vector<int>   m_el_true_firstEgMotherTruthType;
     std::vector<int>   m_el_true_firstEgMotherTruthOrigin;
     std::vector<int>   m_el_true_firstEgMotherPdgId;
+    std::vector<int>   m_el_true_IFFclass;
     std::vector<char>  m_el_true_isPrompt;
     std::vector<char>  m_el_true_isChargeFl;
     std::vector<char>  m_el_ECIDS;
@@ -551,6 +552,7 @@ namespace top {
     std::vector<float> m_mu_delta_z0_sintheta;
     std::vector<int>   m_mu_true_type;
     std::vector<int>   m_mu_true_origin;
+    std::vector<int>   m_mu_true_IFFclass;
     std::vector<char>  m_mu_true_isPrompt;
     std::vector<float>  m_mu_prodVtx_z;
     std::vector<float>  m_mu_prodVtx_perp;
@@ -568,6 +570,7 @@ namespace top {
     std::vector<int> m_softmu_true_type;
     std::vector<int> m_softmu_true_origin;
     std::vector<int> m_softmu_true_isPrompt;
+    std::vector<int> m_softmu_true_IFFclass;
     std::vector<float> m_softmu_SF_ID;
     std::vector<float> m_softmu_SF_ID_STAT_UP;
     std::vector<float> m_softmu_SF_ID_STAT_DOWN;

@@ -820,6 +820,7 @@ namespace top {
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthType, "el_true_firstEgMotherTruthType");
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherTruthOrigin, "el_true_firstEgMotherTruthOrigin");
           systematicTree->makeOutputVariable(m_el_true_firstEgMotherPdgId, "el_true_firstEgMotherPdgId");
+          systematicTree->makeOutputVariable(m_el_true_IFFclass, "el_true_IFFclass");
           systematicTree->makeOutputVariable(m_el_true_isPrompt, "el_true_isPrompt");
           systematicTree->makeOutputVariable(m_el_true_isChargeFl, "el_true_isChargeFl");
         }
@@ -873,6 +874,7 @@ namespace top {
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_mu_true_type, "mu_true_type");
           systematicTree->makeOutputVariable(m_mu_true_origin, "mu_true_origin");
+          systematicTree->makeOutputVariable(m_mu_true_IFFclass, "mu_true_IFFclass");
           systematicTree->makeOutputVariable(m_mu_true_isPrompt, "mu_true_isPrompt");
         }
 	if (m_config->enablePromptLeptonImprovedVetoStudies()) {
@@ -903,6 +905,7 @@ namespace top {
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_softmu_true_type, "softmu_true_type");
           systematicTree->makeOutputVariable(m_softmu_true_origin, "softmu_true_origin");
+          systematicTree->makeOutputVariable(m_softmu_true_IFFclass, "softmu_true_IFFclass");
           systematicTree->makeOutputVariable(m_softmu_SF_ID, "softmu_SF_ID");
 
           if (systematicTree->name() == nominalTTreeName || systematicTree->name() == nominalLooseTTreeName) {
@@ -2144,6 +2147,7 @@ namespace top {
         m_el_true_firstEgMotherPdgId.resize(n_electrons);
         m_el_true_isPrompt.resize(n_electrons);
         m_el_true_isChargeFl.resize(n_electrons);
+        m_el_true_IFFclass.resize(n_electrons);
       }
       if (m_config->enablePromptLeptonImprovedVetoStudies()) {
 	m_PLIV_el_PromptLeptonRNN_conversion.resize(n_electrons);
@@ -2239,6 +2243,7 @@ namespace top {
           static const SG::AuxElement::Accessor<int> firstEgMotherTruthType("firstEgMotherTruthType");
           static const SG::AuxElement::Accessor<int> firstEgMotherTruthOrigin("firstEgMotherTruthOrigin");
           static const SG::AuxElement::Accessor<int> firstEgMotherPdgId("firstEgMotherPdgId");
+          static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
 
           if (typeel.isAvailable(*elPtr)) m_el_true_type[i] = typeel(*elPtr);
           if (origel.isAvailable(*elPtr)) m_el_true_origin[i] = origel(*elPtr);
@@ -2249,7 +2254,13 @@ namespace top {
           std::pair<bool, bool> isPrompt_isChargeFl = isPromptElectron(m_el_true_type[i], m_el_true_origin[i], m_el_true_firstEgMotherTruthType[i], m_el_true_firstEgMotherTruthOrigin[i], m_el_true_firstEgMotherPdgId[i], m_el_charge[i]);
           m_el_true_isPrompt[i] = isPrompt_isChargeFl.first;
           m_el_true_isChargeFl[i] = isPrompt_isChargeFl.second;
-        }
+
+          //Write IFF classification to output 
+          if(IFFClass.isAvailable(*elPtr)){
+            m_el_true_IFFclass[i] = IFFClass(*elPtr);
+            ATH_MSG_DEBUG("Electron (pt = "<< elPtr->pt() << ") IFF classification = " << m_el_true_IFFclass[i]);
+          }
+	}
         ++i;
       }
     }
@@ -2273,6 +2284,7 @@ namespace top {
       if (m_config->isMC()) {
         m_mu_true_type.resize(n_muons);
         m_mu_true_origin.resize(n_muons);
+        m_mu_true_IFFclass.resize(n_muons);
         m_mu_true_isPrompt.resize(n_muons);
       }
       if (m_config->enablePromptLeptonImprovedVetoStudies()) {
@@ -2300,6 +2312,7 @@ namespace top {
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CaloClusterERel("PromptLeptonImprovedInput_CaloClusterERel");
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest("PromptLeptonImprovedInput_CandVertex_normDistToPriVtxLongitudinalBest");
       static const SG::AuxElement::Accessor<float> PLIV_mu_PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
+      static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
 
       for (const auto* const muPtr : event.m_muons) {
         m_mu_pt[i] = muPtr->pt();
@@ -2344,6 +2357,12 @@ namespace top {
           if (acc_mctt.isAvailable(*muPtr)) m_mu_true_type[i] = acc_mctt(*muPtr);
           if (acc_mcto.isAvailable(*muPtr)) m_mu_true_origin[i] = acc_mcto(*muPtr);
           m_mu_true_isPrompt[i] = isPromptMuon(m_mu_true_type[i], m_mu_true_origin[i]);
+
+	  //Write IFF classification to output
+          if(IFFClass.isAvailable(*muPtr)){
+            m_mu_true_IFFclass[i] = IFFClass(*muPtr);
+            ATH_MSG_DEBUG("Muon (pt = "<< muPtr->pt() << ") IFF classification = " << m_mu_true_IFFclass[i]);
+          }
         }
         ++i;
       }
@@ -2366,6 +2385,7 @@ namespace top {
       if (m_config->isMC()) {
         m_softmu_true_type.resize(n_muons);
         m_softmu_true_origin.resize(n_muons);
+        m_softmu_true_IFFclass.resize(n_muons);
         m_softmu_true_isPrompt.resize(n_muons);
         m_softmu_SF_ID.resize(n_muons);
         m_softmu_SF_ID_STAT_UP.resize(n_muons);
@@ -2419,11 +2439,19 @@ namespace top {
 
           static const SG::AuxElement::Accessor<int> acc_mctt("truthType");
           static const SG::AuxElement::Accessor<int> acc_mcto("truthOrigin");
+          static const SG::AuxElement::Accessor<int> IFFClass("AnalysisTop_IFFTruthClass");
+
           m_softmu_true_type[i] = 0;
           m_softmu_true_origin[i] = 0;
           if (acc_mctt.isAvailable(*muPtr)) m_softmu_true_type[i] = acc_mctt(*muPtr);
           if (acc_mcto.isAvailable(*muPtr)) m_softmu_true_origin[i] = acc_mcto(*muPtr);
           m_softmu_true_isPrompt[i] = isPromptMuon(m_softmu_true_type[i], m_softmu_true_origin[i]);
+
+	  //Write IFF classification to output
+          if(IFFClass.isAvailable(*muPtr)){
+            m_softmu_true_IFFclass[i] = IFFClass(*muPtr);
+            ATH_MSG_DEBUG("Muon (pt = "<< muPtr->pt() << ") IFF classification = " << m_softmu_true_IFFclass[i]);
+          }
           
           if(m_config->softmuonAdditionalTruthInfo())
           {

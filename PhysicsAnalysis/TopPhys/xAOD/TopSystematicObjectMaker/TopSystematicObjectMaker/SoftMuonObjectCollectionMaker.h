@@ -30,6 +30,7 @@
 // CP Tool include(s):
 #include "MuonAnalysisInterfaces/IMuonCalibrationAndSmearingTool.h"
 //#include "IsolationSelection/IIsolationSelectionTool.h"
+#include "AsgAnalysisInterfaces/IClassificationTool.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
 #include "MuonMomentumCorrections/MuonCalibrationPeriodTool.h"
 // Forward declaration(s):
@@ -72,6 +73,7 @@ namespace top {
 
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
     ToolHandle<CP::IMuonSelectionTool> m_muonSelectionToolVeryLooseVeto;
+    ToolHandle<CP::IClassificationTool> m_IFFTruthTool;
   };
 } // namespace
 #endif

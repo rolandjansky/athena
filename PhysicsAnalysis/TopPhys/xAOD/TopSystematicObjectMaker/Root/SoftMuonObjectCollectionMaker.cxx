@@ -25,11 +25,13 @@ namespace top {
     m_recommendedSystematics(),
 
     m_calibrationPeriodTool("CP::MuonCalibrationPeriodTool"),
-    m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
+    m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto"),
+    m_IFFTruthTool("TruthClassificationTool") {
     declareProperty("config", m_config);
 
     declareProperty("MuonCalibrationPeriodTool", m_calibrationPeriodTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
+    declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
   }
 
   StatusCode SoftMuonObjectCollectionMaker::initialize() {
@@ -37,6 +39,7 @@ namespace top {
 
     top::check(m_calibrationPeriodTool.retrieve(), "Failed to retrieve muon calibration tool");
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
+    if(m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     ///-- Set Systematics Information --///
     const std:: string& syststr = m_config->systematics();
@@ -67,6 +70,9 @@ namespace top {
   }
 
   StatusCode SoftMuonObjectCollectionMaker::execute(bool executeNominal) {
+
+    static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
+
     const xAOD::EventInfo* eventInfo(nullptr);
 
     top::check(evtStore()->retrieve(eventInfo, m_config->sgKeyEventInfo()), "Failed to retrieve EventInfo");
@@ -116,6 +122,13 @@ namespace top {
             }
           }
         }//end of if (muon->primaryTrackParticle())
+
+        //Decorate soft muons with IFF-truth classification
+        if(m_config->isMC()){
+          unsigned int IFFclass(0);
+          top::check( m_IFFTruthTool->classify(*muon, IFFclass), "Unable the classify muon");
+          AnalysisTop_IFFTruthClass(*muon) = IFFclass;
+        }
         
       }//end of loop on muons
 
