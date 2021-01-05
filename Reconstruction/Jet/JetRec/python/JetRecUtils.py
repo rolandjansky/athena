@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-from AthenaCommon.AppMgr import ToolSvc
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
@@ -103,7 +101,6 @@ def buildJetContName(finder, mainParam, input, variableRMassScale=0, variableRMi
     return buildJetAlgName(finder, mainParam, variableRMassScale, variableRMinRadius) +input+"Jets" # could be more elaborated...
 
 def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
-    myname = "JetRecUtils: "
     from AthenaCommon import Logging
     jetlog = Logging.logging.getLogger('JetRecUtils')
     # first step : guess the finder, input , mainParam, if needed

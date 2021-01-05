@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandardTools.py
 #
@@ -17,11 +17,8 @@
 # Import the jet flags.
 from JetRec.JetRecFlags import jetFlags
 
-if not "UseTriggerStore " in locals():
+if "UseTriggerStore " not in locals():
   UseTriggerStore = False
-
-# get levels defined VERBOSE=1 etc.
-from GaudiKernel.Constants import *
 
 from eflowRec.eflowRecFlags import jobproperties
 
@@ -38,13 +35,11 @@ from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
 
 try:
-  from JetRecCalo.JetRecCaloConf import MissingCellListTool
   jtm.haveJetRecCalo = True
 except ImportError:
   jtm.haveJetRecCalo = False
 from JetRec.JetRecConf import JetPseudojetRetriever
 from JetRec.JetRecConf import JetConstituentsRetriever
-from JetRec.JetRecConf import JetRecTool
 from JetRec.JetRecConf import JetFromPseudojet
 from JetRec.JetRecConf import JetConstitRemover
 from JetRec.JetRecConf import JetSorter
@@ -59,7 +54,6 @@ except ImportError:
 from JetMomentTools.JetMomentToolsConf import JetWidthTool
 from JetMomentTools.JetMomentToolsConf import JetCaloEnergies
 try:
-  from JetMomentTools.JetMomentToolsConf import JetJetBadChanCorrTool
   jtm.haveJetBadChanCorrTool = True
 except ImportError:
   jtm.haveJetBadChanCorrTool = False
@@ -96,7 +90,7 @@ except ImportError:
 try:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetQuarkLabel
   jtm.haveParticleJetTools = True
-except:
+except ImportError:
   jtm.haveParticleJetTools = False
 if jtm.haveParticleJetTools:
   from ParticleJetTools.ParticleJetToolsConf import Analysis__JetConeLabeling
@@ -295,16 +289,16 @@ jtm += MuonSegmentPseudoJetAlgorithm(
 )
 
 useVertices = True
-if False == jetFlags.useVertices:
+if not jetFlags.useVertices:
   useVertices = False
 
-if True == jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
+if jobproperties.eflowRecFlags.useUpdated2015ChargedShowerSubtraction:
   useChargedWeights = True
 else:
   useChargedWeights = False
 
 useTrackVertexTool = False
-if True == jetFlags.useTrackVertexTool:
+if jetFlags.useTrackVertexTool:
   useTrackVertexTool = True
 
 # Weight tool for charged pflow objects.
@@ -314,7 +308,7 @@ jtm += WeightPFOTool("pflowweighter")
 import cppyy
 try:
     cppyy.load_library('libxAODBaseObjectTypeDict')
-except:
+except Exception:
     pass
 from ROOT import xAODType
 xAODType.ObjectType
@@ -530,74 +524,6 @@ jtm += JetWidthTool("width")
 # Calo layer energies.
 jtm += JetCaloEnergies("jetens")
 
-# Read in missing cell map (needed for the following)
-# commented out : incompatible with trigger : ATR-9696
-## if jtm.haveJetRecCalo:
-##     def missingCellFileReader(): 
-##       import os
-##       dataPathList = os.environ[ 'DATAPATH' ].split(os.pathsep)
-##       dataPathList.insert(0, os.curdir)
-##       from AthenaCommon.Utils.unixtools import FindFile
-##       RefFileName = FindFile( "JetBadChanCorrTool.root" ,dataPathList, os.R_OK )
-##       from AthenaCommon.AppMgr import ServiceMgr
-##       if not hasattr(ServiceMgr, 'THistSvc'):
-##         from GaudiSvc.GaudiSvcConf import THistSvc
-##         ServiceMgr += THistSvc()
-##       ServiceMgr.THistSvc.Input += ["JetBadChanCorrTool DATAFILE=\'%s\' OPT=\'READ\'" % RefFileName]
-##       missingCellFileReader.called = True 
-
-##     missingCellFileReader()
-
-##     jtm += MissingCellListTool(
-##       "missingcells",
-##       AddCellList = [],
-##       RemoveCellList = [],
-##       AddBadCells = True,
-##       DeltaRmax = 1.0,
-##       AddCellFromTool = False,
-##       LArMaskBit = 608517,
-##       TileMaskBit = 1,
-##       MissingCellMapName = "MissingCaloCellsMap"
-## )
-
-## # Bad channel corrections from cells
-## if jtm.haveJetBadChanCorrTool:
-##   jtm += JetBadChanCorrTool(
-##     "bchcorrcell",
-##     NBadCellLimit = 10000,
-##     StreamName = "/JetBadChanCorrTool/",
-##     ProfileName = "JetBadChanCorrTool.root",
-##     ProfileTag = "",
-##     UseCone = True,
-##     UseCalibScale = False,
-##     MissingCellMap = "MissingCaloCellsMap",
-##     ForceMissingCellCheck = False,
-##     UseClusters = False,
-##   )
-  
-##   # Bad channel corrections from clusters
-##   jtm += JetBadChanCorrTool(
-##     "bchcorrclus",
-##     NBadCellLimit = 0,
-##     StreamName = "",
-##     ProfileName = "",
-##     ProfileTag = "",
-##     UseCone = True,
-##     UseCalibScale = False,
-##     MissingCellMap = "",
-##     ForceMissingCellCheck = False,
-##     UseClusters = True
-##   )
-
-# Jet vertex fraction.
-# jtm += JetVertexFractionTool(
-#   "jvfold",
-#   VertexContainer = jtm.vertexContainer,
-#   AssociatedTracks = "GhostTrack",
-#   TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-#   JVFName = "JVFOld"
-# )
-
 # Jet vertex fraction with selection.
 jtm += JetVertexFractionTool(
   "jvf",
@@ -616,9 +542,6 @@ jtm += JetVertexFractionTool(
 jtm += JetVertexTaggerTool(
   "jvt",
   VertexContainer = jtm.vertexContainer,
-  # AssociatedTracks = "GhostTrack",
-  # TrackVertexAssociation = jtm.tvassoc.TrackVertexAssociation,
-  # TrackSelector = jtm.trackselloose,
   JVTName = "Jvt",
 )
 
