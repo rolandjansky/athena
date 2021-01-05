@@ -31,43 +31,39 @@ StatusCode TrigCountSpacePointsMT::finalize()
 StatusCode TrigCountSpacePointsMT::execute(const EventContext &context) const
 {
 
-  //For Pixel
-  SG::ReadHandle<SpacePointContainer> pixelSP(m_pixelSpKey, context);
+  //For Pixel info decoding
   SG::ReadHandle<PixelID> pixelHelper(m_pixelHelperKey, context);
 
-  ATH_MSG_DEBUG("Successfully retrieved pixel SP container of size " << pixelSP->size());
-
   //Here monitor
-  int totPixBeforeCuts{};
-  int totNumPixSP{};
-  int totNumPixCL_1{};
-  int totNumPixCL_2{};
-  int totNumPixCLmin3{};
-  int pixClBarrel{};
-  int pixClEndcapA{};
-  int pixClEndcapC{};
+  int pixCLBeforeCuts{};
+  int pixCL{};
+  int pixCL_1{};
+  int pixCL_2{};
+  int pixCLmin3{};
+  int pixCLBarrel{};
+  int pixCLEndcapA{};
+  int pixCLEndcapC{};
+  int pixModulesOverThreshold{};
 
-  totPixBeforeCuts = pixelSP->size();
 
-  const InDet::PixelCluster *pixClust;
+  SG::ReadHandle<SpacePointContainer> pixelSP(m_pixelSpKey, context);
+  ATH_MSG_DEBUG("Successfully retrieved pixel SP container of size " << pixelSP->size());
 
   for (const auto pixSPointColl : *pixelSP)
   {
     if (pixSPointColl == nullptr)
       continue;
 
-    Identifier pixid = (pixSPointColl)->identify();
+    const Identifier pixid = (pixSPointColl)->identify();
     if (m_doOnlyBLayer == true && pixelHelper->layer_disk(pixid) != 0)
       continue;
-    int bec = pixelHelper->barrel_ec(pixid);
+    const int bec = pixelHelper->barrel_ec(pixid);
 
-    int SPpixBarr{};
-    int SPpixECA{};
-    int SPpixECC{};
     int nPixSP{}, nPixCL_1{}, nPixCL_2{}, nPixCLmin3{};
     for (const auto pSP : *pixSPointColl)
     {
-      pixClust = static_cast<const InDet::PixelCluster *>(pSP->clusterList().first);
+      pixCLBeforeCuts++;
+      const InDet::PixelCluster* pixClust = static_cast<const InDet::PixelCluster *>(pSP->clusterList().first);
 
       const int pixClSize = (pixClust->rdoList()).size();
       const int pixclToT = pixClust->totalToT();
@@ -83,50 +79,48 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext &context) const
           ++nPixCLmin3;
       }
     }
-    // barrel
-    if (bec == 0)
-    {
-      SPpixBarr = nPixSP;
-      ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX Barrel after ToT cut.");
-    }
-    else if (bec == 2)
-    { // endcap A
-      SPpixECA = nPixSP;
-      ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX ECA after ToT cut.");
-    }
-    else if (bec == -2)
-    { // endcap C
-      SPpixECC = nPixSP;
-      ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX ECC after ToT cut.");
-    }
+
     // total
     if (nPixSP > m_pixModuleThreshold)
     {
-      ATH_MSG_DEBUG(" This pixel module : " << pixid << " produced " << nPixSP << " pix spacepoints. Ignoring these spacepoints as the maximum allowed spacepoints per module is " << m_pixModuleThreshold);
-
-      //monitoring
+      ATH_MSG_DEBUG(" This pixel module : " << pixid << " produced " << nPixSP <<
+        " pix spacepoints. Ignoring these spacepoints as the maximum allowed spacepoints per module is "
+        << m_pixModuleThreshold);
+        pixModulesOverThreshold++;
     }
     else
     {
+      pixCL += nPixSP;
+      pixCL_1 += nPixCL_1;
+      pixCL_2 += nPixCL_2;
+      pixCLmin3 += nPixCLmin3;
+      if (bec == 0 )
+      {
+        pixCLBarrel += nPixSP;
+        ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX Barrel after ToT cut.");
+      }
+      else if (bec == 2)
+      {
+        pixCLEndcapA += nPixSP;
+        ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX ECA after ToT cut.");
+      }
+      else if (bec == -2)
+      {
+        pixCLEndcapC += nPixSP;
+        ATH_MSG_VERBOSE(" Formed  " << nPixSP << " PIX spacepoints in PIX ECC after ToT cut.");
+      }
 
-      totNumPixSP += nPixSP;
-      totNumPixCL_1 += nPixCL_1;
-      totNumPixCL_2 += nPixCL_2;
-      totNumPixCLmin3 += nPixCLmin3;
-      pixClBarrel += SPpixBarr;
-      pixClEndcapA += SPpixECA;
-      pixClEndcapC += SPpixECC;
     }
   }
 
-  ATH_MSG_DEBUG("REGTEST : Formed  " << totPixBeforeCuts << " pixel spacepoints in total before cuts.");
-  ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_1 << " have cl size == 1 in total.");
-  ATH_MSG_DEBUG("REGTEST : " << totNumPixCL_2 << " have cl size == 2 in total.");
-  ATH_MSG_DEBUG("REGTEST : " << totNumPixCLmin3 << "  have cl size >= 3 in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed  " << totNumPixSP << " pixel spacepoints after ToT cut in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed " << pixClBarrel << " SP in pixel barrel in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed " << pixClEndcapA << " SP in pixel ECA in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed " << pixClEndcapC << " SP in pixel ECC in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << pixCLBeforeCuts << " pixel spacepoints in total before cuts.");
+  ATH_MSG_DEBUG("REGTEST : " << pixCL_1 << " have cl size == 1 in total.");
+  ATH_MSG_DEBUG("REGTEST : " << pixCL_2 << " have cl size == 2 in total.");
+  ATH_MSG_DEBUG("REGTEST : " << pixCLmin3 << "  have cl size >= 3 in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << pixCL << " pixel spacepoints after ToT cut in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed " << pixCLBarrel << " SP in pixel barrel in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed " << pixCLEndcapA << " SP in pixel ECA in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed " << pixCLEndcapC << " SP in pixel ECC in total.");
 
   ////For SCT
 
@@ -136,75 +130,60 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext &context) const
 
   //Here monitor define
   int nSctSP{};
-  int SctSpBarrel{};
-  int SctSpEndcapA{};
-  int SctSpEndcapC{};
-  int totNumSctSP{};
+  int sctSPBarrel{};
+  int sctSPEndcapA{};
+  int sctSPEndcapC{};
+  int sctSP{};
+  int sctModulesOverThreshold{};
 
   for (const auto SctSPointColl : *SctSP)
   {
     if (SctSPointColl == nullptr)
       continue;
 
-    int SPSctBarr{};
-    int SPSctECA{};
-    int SPSctECC{};
     nSctSP = (SctSPointColl)->size();
-    Identifier Sctid = (SctSPointColl)->identify();
-    int bec = (int)SctHelper->barrel_ec(Sctid);
+    const Identifier Sctid = (SctSPointColl)->identify();
+    const int bec = (int)SctHelper->barrel_ec(Sctid);
 
     ATH_MSG_VERBOSE(" Formed " << nSctSP << " sct spacepoints"
                                << " with sctid module " << Sctid);
     // barrel
-    if (bec == 0)
-    {
-      SPSctBarr = nSctSP;
-      ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT barrel spacepoints .");
-    }
-    else if (bec == 2)
-    { // endcap, side A
-      SPSctECA = nSctSP;
-      ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT ECA spacepoints.");
-    }
-    else if (bec == -2)
-    { // endcap, side C
-      SPSctECC = nSctSP;
-      ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT ECC spacepoints.");
-    }
     // total
     if (nSctSP < m_sctModuleLowerThreshold && nSctSP > m_sctModuleHigherThreshold)
     {
       //this is noise
-      ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP << " SCT spacepoints. Ignoring these spacepoints as the number of allowed spacepoints per module is between" << m_sctModuleLowerThreshold << " and " << m_sctModuleHigherThreshold);
+      ATH_MSG_DEBUG(" This SCT module : " << Sctid << " produced " << nSctSP
+        << " SCT spacepoints. Ignoring these spacepoints as the number of allowed spacepoints per module is between"
+        << m_sctModuleLowerThreshold << " and " << m_sctModuleHigherThreshold);
+        sctModulesOverThreshold++;
     }
     else
     { // Accept the spacepoints
-      SctSpBarrel += SPSctBarr;
-      SctSpEndcapA += SPSctECA;
-      SctSpEndcapC += SPSctECC;
+      if (bec == 0)
+      {
+        sctSPBarrel +=nSctSP;
+        ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT barrel spacepoints .");
+      }
+      else if (bec == 2)
+      { // endcap, side A
+        sctSPEndcapA += nSctSP;
+        ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT ECA spacepoints.");
+      }
+      else if (bec == -2)
+      { // endcap, side C
+        sctSPEndcapC += nSctSP;
+        ATH_MSG_VERBOSE(" Formed  " << nSctSP << " SCT ECC spacepoints.");
+      }
     }
   }
 
-  totNumSctSP = SctSpEndcapC + SctSpBarrel + SctSpEndcapA;
+  sctSP = sctSPEndcapC + sctSPBarrel + sctSPEndcapA;
 
-  ATH_MSG_DEBUG("REGTEST : Formed  " << totNumSctSP << " sct spacepoints in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpEndcapC << " sct ECC spacepoints in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpBarrel << " sct Barr spacepoints in total.");
-  ATH_MSG_DEBUG("REGTEST : Formed  " << SctSpEndcapA << " sct ECA spacepoints in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << sctSP << " sct spacepoints in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << sctSPEndcapC << " sct ECC spacepoints in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << sctSPBarrel << " sct Barr spacepoints in total.");
+  ATH_MSG_DEBUG("REGTEST : Formed  " << sctSPEndcapA << " sct ECA spacepoints in total.");
 
-  auto mon_totPixBeforeCuts = Monitored::Scalar<int>("totPixBeforeCuts", totPixBeforeCuts);
-  auto mon_totNumPixCL_1 = Monitored::Scalar<int>("totNumPixCL_1", totNumPixCL_1);
-  auto mon_totNumPixCL_2 = Monitored::Scalar<int>("totNumPixCL_2", totNumPixCL_2);
-  auto mon_totNumPixCLmin3 = Monitored::Scalar<int>("totNumPixCLmin3", totNumPixCLmin3);
-  auto mon_totNumPixSP = Monitored::Scalar<int>("totNumPixSP", totNumPixSP);
-  auto mon_pixClBarrel = Monitored::Scalar<int>("pixClBarrel", pixClBarrel);
-  auto mon_pixClEndcapA = Monitored::Scalar<int>("pixClEndcapA", pixClEndcapA);
-  auto mon_pixClEndcapC = Monitored::Scalar<int>("pixClEndcapC", pixClEndcapC);
-  auto mon_totNumSctSP = Monitored::Scalar("totNumSctSP", totNumSctSP);
-  auto mon_SctSpEndcapC = Monitored::Scalar<int>("SctSpEndcapC", SctSpEndcapC);
-  auto mon_SctSpBarrel = Monitored::Scalar<int>("SctSpBarrel", SctSpBarrel);
-  auto mon_SctSpEndcapA = Monitored::Scalar<int>("SctSpEndcapA", SctSpEndcapA);
-  Monitored::Group(m_monTool, mon_totPixBeforeCuts, mon_totNumPixCL_1, mon_totNumPixCL_2, mon_totNumPixCLmin3, mon_totNumPixSP, mon_pixClBarrel, mon_pixClEndcapA, mon_pixClEndcapC, mon_totNumSctSP, mon_SctSpEndcapC, mon_SctSpBarrel, mon_SctSpEndcapA);
 
   // Recording Data
   SG::WriteHandle<xAOD::TrigCompositeContainer> spacePointHandle(m_spacePointsKey, context);
@@ -216,17 +195,34 @@ StatusCode TrigCountSpacePointsMT::execute(const EventContext &context) const
   xAOD::TrigComposite *spCounts = new xAOD::TrigComposite();
   spacePoints->push_back(spCounts);
 
-  spCounts->setDetail("totNumPixSP", totNumPixSP);
-  spCounts->setDetail("totNumPixCL_1", totNumPixCL_1);
-  spCounts->setDetail("totNumPixCL_2", totNumPixCL_2);
-  spCounts->setDetail("totNumPixCLmin3", totNumPixCLmin3);
-  spCounts->setDetail("pixClBarrel", pixClBarrel);
-  spCounts->setDetail("pixClEndcapA", pixClEndcapA);
-  spCounts->setDetail("pixClEndcapC", pixClEndcapC);
-  spCounts->setDetail("totNumSctSP", totNumSctSP);
-  spCounts->setDetail("SctSpBarrel", SctSpBarrel);
-  spCounts->setDetail("SctSpEndcapA", SctSpEndcapA);
-  spCounts->setDetail("SctSpEndcapC", SctSpEndcapC);
+  std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> monitoredVariables;
+
+#define SAVE_AND_MONITOR(__VARNAME) \
+  spCounts->setDetail(#__VARNAME, __VARNAME); \
+  auto mon_##__VARNAME = Monitored::Scalar(#__VARNAME, __VARNAME); \
+  monitoredVariables.emplace_back(mon_##__VARNAME);
+
+  SAVE_AND_MONITOR(pixCL);
+  SAVE_AND_MONITOR(pixCL_1);
+  SAVE_AND_MONITOR(pixCL_2);
+  SAVE_AND_MONITOR(pixCLmin3);
+  SAVE_AND_MONITOR(pixCLBarrel);
+  SAVE_AND_MONITOR(pixCLEndcapA);
+  SAVE_AND_MONITOR(pixCLEndcapC);
+  SAVE_AND_MONITOR(sctSP);
+  SAVE_AND_MONITOR(sctSPBarrel);
+  SAVE_AND_MONITOR(sctSPEndcapA);
+  SAVE_AND_MONITOR(sctSPEndcapC);
+#undef SAVE_AND_MONITOR
+
+  auto mon_pixCLBeforeCuts = Monitored::Scalar<int>("pixCLBeforeCuts", pixCLBeforeCuts);
+  monitoredVariables.emplace_back(mon_pixCLBeforeCuts);
+  auto mon_pixModulesOverThreshold = Monitored::Scalar<int>("pixModulesOverThreshold", pixModulesOverThreshold);
+  monitoredVariables.emplace_back(mon_pixModulesOverThreshold);
+  auto mon_sctModulesOverThreshold = Monitored::Scalar<int>("sctModulesOverThreshold", sctModulesOverThreshold);
+  monitoredVariables.emplace_back(mon_sctModulesOverThreshold);
+  Monitored::Group(m_monTool, monitoredVariables);
+
 
   ATH_CHECK(spacePointHandle.record(std::move(spacePoints), std::move(spacePointsAux)));
 

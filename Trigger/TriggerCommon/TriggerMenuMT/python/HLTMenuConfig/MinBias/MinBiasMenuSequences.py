@@ -19,10 +19,10 @@ def SPCountHypoToolGen(chainDict):
     from TrigT2MinBias.TrigT2MinBiasConf import SPCountHypoTool
     hypo = SPCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
-        hypo.totNumSctSP = int(chainDict["chainParts"][0]["hypoL2Info"].strip("sp"))
+        hypo.sctSP = int(chainDict["chainParts"][0]["hypoL2Info"].strip("sp"))
     if "mb_sptrk" in chainDict["chainName"]:
-        hypo.totNumPixSP = 2
-        hypo.totNumSctSP = 3
+        hypo.pixCL = 2
+        hypo.sctSP = 3
             # will set here thresholds
     return hypo
 

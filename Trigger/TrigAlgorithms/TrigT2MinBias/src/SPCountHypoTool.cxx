@@ -33,17 +33,17 @@ StatusCode SPCountHypoTool::decide(SPCountsInfo &spinfo) const
 		ATH_MSG_DEBUG("Already rejected");
 		return StatusCode::SUCCESS;
 	}
-	std::vector<bool> decisionCuts({applyCut(m_totNumPixSP, spinfo.counts),
-									applyCut(m_totNumPixCL_1, spinfo.counts),
-									applyCut(m_totNumPixCL_2, spinfo.counts),
-									applyCut(m_totNumPixCLmin3, spinfo.counts),
-									applyCut(m_pixClBarrel, spinfo.counts),
-									applyCut(m_pixClEndcapA, spinfo.counts),
-									applyCut(m_pixClEndcapC, spinfo.counts),
-									applyCut(m_totNumSctSP, spinfo.counts),
-									applyCut(m_SctSpBarrel, spinfo.counts),
-									applyCut(m_SctSpEndcapA, spinfo.counts),
-									applyCut(m_SctSpEndcapC, spinfo.counts)});
+	std::vector<bool> decisionCuts({applyCut(m_pixCL, spinfo.counts),
+									applyCut(m_pixCL_1, spinfo.counts),
+									applyCut(m_pixCL_2, spinfo.counts),
+									applyCut(m_pixCLmin3, spinfo.counts),
+									applyCut(m_pixCLBarrel, spinfo.counts),
+									applyCut(m_pixCLEndcapA, spinfo.counts),
+									applyCut(m_pixCLEndcapC, spinfo.counts),
+									applyCut(m_sctSP, spinfo.counts),
+									applyCut(m_sctSPBarrel, spinfo.counts),
+									applyCut(m_sctSPEndcapA, spinfo.counts),
+									applyCut(m_sctSPEndcapC, spinfo.counts)});
 
 	if (m_logicAnd && !std::all_of(decisionCuts.begin(), decisionCuts.end(), [](bool k) { return k; }))
 	{
