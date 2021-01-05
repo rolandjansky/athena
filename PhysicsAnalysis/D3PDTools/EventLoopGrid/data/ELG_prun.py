@@ -21,7 +21,6 @@ def ELG_prun(sample) :
     #These are options that can be set by the user
     opts = ['destSE',
             'site',
-            'cloud',
             'rootVer',
             'cmtConfig',
             'excludedSite',
@@ -41,8 +40,7 @@ def ELG_prun(sample) :
             'tmpDir']
 
     #These are options that can be set by the user
-    switches = ['useChirpServer',
-                'express',
+    switches = ['express',
                 'noSubmit',
                 'skipScout',
                 'disableAutoRetry',
@@ -50,8 +48,7 @@ def ELG_prun(sample) :
                 'official',
                 'mergeOutput',
                 'useRootCore',
-                'useAthenaPackages',
-                'useContElementBoundary']
+                'useAthenaPackages']
 
     for opt in opts :
         arg = sample.getMetaDouble('nc_' + opt, -1)        
