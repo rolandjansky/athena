@@ -2473,7 +2473,7 @@ namespace Trk {
 
   std::unique_ptr<Track> GlobalChi2Fitter::fit(
     const EventContext& ctx,
-    const MeasurementSet & rots_in,
+    const MeasurementSet & rots,
     const TrackParameters & param,
     const RunOutlierRemoval runOutlier,
     const ParticleHypothesis matEffects
@@ -2490,60 +2490,6 @@ namespace Trk {
     }
     
     trajectory.m_fieldprop = trajectory.m_straightline ? Trk::NoField : Trk::FullField;
-
-    MeasurementSet rots;
-
-    bool need_to_correct = false;
-
-    for (const auto *itSet : rots_in) {
-      if (
-        (itSet != nullptr) &&
-        itSet->associatedSurface().associatedDetectorElementIdentifier().is_valid() &&
-        m_DetID->is_mm(itSet->associatedSurface().associatedDetectorElementIdentifier())
-      ) {
-        need_to_correct = true;
-        break;
-      }
-    }
-
-    if (need_to_correct) {
-      MeasurementSet rots_new;
-
-      for (const auto *itSet : rots_in) {
-        if (itSet == nullptr) {
-          ATH_MSG_WARNING( "There is an empty MeasurementBase object in the track! Skip this object.." );
-          continue;
-        }
-          
-        const RIO_OnTrack *rot = dynamic_cast<const RIO_OnTrack *>(itSet);
-        
-        if (
-          (rot != nullptr) && 
-          m_DetID->is_mm(rot->identify()) &&
-          rot->associatedSurface().type() == Trk::Surface::Plane
-        ) {
-          const PlaneSurface* surf = static_cast<const PlaneSurface *>(&rot->associatedSurface());
-            
-          AtaPlane atapl(
-            surf->center(),
-            param.parameters()[Trk::phi],
-            param.parameters()[Trk::theta],
-            param.parameters()[Trk::qOverP], 
-            *surf
-          );
-
-          const RIO_OnTrack *new_rot = m_ROTcreator->correct(*(rot->prepRawData()), atapl);
-
-          rots_new.push_back(new_rot);
-        } else {
-          rots_new.push_back(itSet); 
-        }
-      }
-
-      rots = rots_new;
-    } else {
-      rots = rots_in;
-    }
 
     for (const auto *itSet : rots) {
       if (itSet == nullptr) {
