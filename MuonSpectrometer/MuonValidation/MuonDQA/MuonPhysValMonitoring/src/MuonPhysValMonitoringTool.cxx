@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx 
@@ -204,7 +204,7 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
   if (m_slowMuonsName!="") separateSAFMuons = false; // no such muons in case of SlowMuon reco
   
   std::string muonContainerName = m_muonsName.name();
-  for (const auto category : m_selectMuonCategoriesStr) {
+  for (const auto& category : m_selectMuonCategoriesStr) {
     std::string categoryPath = m_muonsName+"/"+category+"/";
     m_muonValidationPlots.push_back( new MuonValidationPlots(0, categoryPath,
               m_selectMuonWPs, m_selectMuonAuthors, m_isData,
@@ -826,7 +826,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
         }//m_vRecoMuons_EffDen
       }//m_muonItems
 //@@@@@ L1 items efficiency @@@@@
-      for (const auto L1MuonItem : m_L1MuonItems) { 
+      for (const auto& L1MuonItem : m_L1MuonItems) { 
         m_vRecoMuons_EffDen=m_vRecoMuons_EffDen_CB; m_SelectedAuthor=1;
         float treshold=0.;
         if(L1MuonItem=="L1_MU4") treshold=4000;
