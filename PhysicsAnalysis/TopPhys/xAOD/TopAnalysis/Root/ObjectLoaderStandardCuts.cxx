@@ -92,10 +92,8 @@ namespace top {
     ///-- Muons --///
     if (topConfig->useMuons()) {
       if (topConfig->useAntiMuons()) objectSelection->muonSelection(new top::AntiMuonMC15(topConfig->muonPtcut(),
-                                                                                          new top::StandardIsolation(
-                                                                                            topConfig->muonIsolation(),
-                                                                                            topConfig->
-        muonIsolationLoose())));
+                                                                                          new top::AntiMuonIsolation(
+                                                                                            topConfig->muonIsolation())));
       else objectSelection->muonSelection(new top::MuonMC15(topConfig->muonPtcut(),
                                                             new top::StandardIsolation(topConfig->muonIsolation(),
                                                                                        topConfig->muonIsolationLoose()),
