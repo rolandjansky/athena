@@ -22,6 +22,8 @@ from TrigHLTJetHypo.NodeSplitterVisitor import NodeSplitterVisitor
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
+algToolFactory = FastReductionAlgToolFactory()
+
 def  tree2tools(rootless_tree, toolSetter):
 
     
@@ -70,11 +72,10 @@ def trigJetHypoToolHelperFromDict_(
     node_forest =  nodeForestFromChainLabel(chain_label,
                                             chain_name)
 
-    algToolFactory = FastReductionAlgToolFactory()
     helper_tool = algToolFactory('helper')
 
     for tree in node_forest:
-        toolSetter = ConditionsToolSetterFastReduction()
+        toolSetter = ConditionsToolSetterFastReduction(algToolFactory)
         tree2tools(tree, toolSetter)
         helper_tool.HypoConfigurers.append(toolSetter.config_tool)   
 
