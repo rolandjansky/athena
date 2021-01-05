@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
@@ -7,7 +7,6 @@
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 
 #include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrackContainer.h"
 
 #include "TauTrackFinder.h"
@@ -208,6 +207,8 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   //These are set again in TauTrackClassifier                                                                                                                  
   pTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) pTau.nTracks());
   pTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) pTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
+  // keep track of total number of associated tracks, in case of tau track thinning
+  pTau.setDetail(xAOD::TauJetParameters::nAllTracks, (int) pTau.nAllTracks());
 
   for (unsigned int i = 0; i < otherTracks.size(); ++i) {
     const xAOD::TrackParticle* trackParticle = otherTracks.at(i);
@@ -295,8 +296,7 @@ StatusCode TauTrackFinder::executeTrackFinder(xAOD::TauJet& pTau, xAOD::TauTrack
   // store information only in ExtraDetailsContainer
   if(!m_bypassExtrapolator)
     {
-      StatusCode sc;
-      sc = extrapolateToCaloSurface(pTau);
+      StatusCode sc = extrapolateToCaloSurface(pTau);
       if (sc.isFailure() && !sc.isRecoverable()) {
 	ATH_MSG_ERROR("couldn't extrapolate tracks to calo surface");
 	return StatusCode::FAILURE;
@@ -530,7 +530,7 @@ float TauTrackFinder::getZ0(const xAOD::TrackParticle* track, const xAOD::Vertex
 
     if (!track) return MAX;
 
-    const Trk::Perigee* perigee = 0;
+    const Trk::Perigee* perigee = nullptr;
     if (vertex) perigee = m_trackToVertexTool->perigeeAtVertex(*track, vertex->position());
     else        perigee = m_trackToVertexTool->perigeeAtVertex(*track); //will use beamspot or 0,0,0 instead
 
@@ -553,7 +553,7 @@ bool TauTrackFinder::isLargeD0Track(const xAOD::TrackParticle* track) const
     ATH_MSG_DEBUG("LargeD0Track found");
     return true;
   }
-  return false;
 
+  return false;
 }
 #endif
