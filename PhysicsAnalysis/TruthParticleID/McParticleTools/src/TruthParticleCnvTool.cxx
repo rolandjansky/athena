@@ -285,7 +285,6 @@ TruthParticleCnvTool::convert( const McEventCollection * mcCollection,
       ATH_MSG_ERROR("TruthParticle is not wrapping the GenParticle : " 
 		    << HepMC::barcode(hepMcPart) << " !!");
     }
-    //bcToMcPart[ hepMcPart->barcode() ] = mcPart;
     HepMcParticleLink mcLink( HepMC::barcode(hepMcPart), genEventIndex, EBC_MAINEVCOLL, HepMcParticleLink::IS_POSITION, sg ); // FIXME assuming that we are using the hard-scatter McEventCollection - would need to pass this info as an argument to the convert function.
     bcToMcPart[ mcLink.compress() ] = mcPart;
 
