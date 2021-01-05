@@ -405,7 +405,7 @@ StatusCode Muon::UTPCMMClusterBuilderTool::finalFit(const std::vector<Muon::MMPr
     double cov = (s->GetCovarianceMatrix())(0,1);
     ATH_MSG_DEBUG("covariance is: "<<cov);
     double fitSlope = ffit->GetParameter(1);
-    double dHalfGap = 2.5;  // half the thickness of the gas gap
+    double dHalfGap = 2.52;  // half the thickness of the gas gap
     double interceptCorr = dHalfGap - ffit->GetParameter(0);
     x0 = interceptCorr/fitSlope;
     sigmaX0 = pow(m_scaleClusterError,2)*(pow(ffit->GetParError(0)/interceptCorr,2)+pow(ffit->GetParError(1)/fitSlope,2) - 2./(fitSlope*interceptCorr)*cov)*pow(x0,2);
