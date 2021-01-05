@@ -81,6 +81,8 @@ def _createCfgFlags():
             return "AthSimulation"
         if "AthGeneration_DIR" in os.environ:
             return "AthGeneration"
+        if "AthAnalysis_DIR" in os.environ:
+            return "AthAnalysis"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
