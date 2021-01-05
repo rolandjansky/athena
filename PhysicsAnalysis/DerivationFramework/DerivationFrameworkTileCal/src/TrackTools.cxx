@@ -252,12 +252,14 @@ double TrackTools::getPathInsideCell(const TRACK *track, const CaloCell *cell){
     switch(sampling){
     case 12: 
       sampling_entrance = 12;
-      if      (cell_tower>=0 && cell_tower<=7) sampling_exit = 14; 
+      if      (cell_tower>=0 && cell_tower<=6) sampling_exit = 14; 
+      else if (cell_tower==7) sampling_exit = 13;                  // for A8, the exit is BC8 
       else if (cell_tower>=8 && cell_tower<=9) sampling_exit = 20; // for A9 and A10, the exit is D5 
       break;
     case 13: 
       sampling_entrance = 12; 
-      if      (cell_tower>=0 && cell_tower<=7) sampling_exit = 14; 
+      if      (cell_tower>=0 && cell_tower<=6) sampling_exit = 14; 
+      else if (cell_tower==7)                  sampling_exit = 13; // for BC8, the exit is BC8
       else if (cell_tower==8)                  sampling_exit = 20; // for B9, the exit is D5 
       break;
     case 14: sampling_entrance = 12; sampling_exit = 14; break;
@@ -266,8 +268,8 @@ double TrackTools::getPathInsideCell(const TRACK *track, const CaloCell *cell){
     case 17: sampling_entrance = 17; sampling_exit = 19; break;
     case 18: 
       sampling_entrance = 18; 
-      if      (cell_tower>=11 && cell_tower<=14) sampling_exit = 20; 
-      else if (cell_tower==15)                   sampling_exit = 19; // for A16, the exit is B15 
+      if      (cell_tower>=11 && cell_tower<=13) sampling_exit = 20; 
+      else if (cell_tower>=14 && cell_tower<=15) sampling_exit = 19; // for A15 and A16, the exit is B15 
       break;
     case 19:
       if      (cell_tower==10)                   {sampling_entrance = 19; sampling_exit = 20;} // for B11, the entrance is B11, the exit is D5 
