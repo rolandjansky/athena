@@ -308,7 +308,7 @@ if not evgenConfig.nEventsPerJob:
     evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ')
     evgenLog.info('#############################################################')
 else:
-    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+    evgenLog.info(' nEventsPerJob = ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
     raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
@@ -331,7 +331,7 @@ else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
-    evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
+    evgenLog.info('Requested output events = '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
@@ -347,6 +347,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = " + kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -363,7 +364,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("keywords = not found ")
 
 ## Configure and schedule jet finding algorithms
 ## NOTE: This generates algorithms for jet containers defined in the user's JO fragment
@@ -408,9 +409,9 @@ svcMgr.EventSelector.RunNumber = int(dsid)
 
 if postSeq.CountHepMC.CorrectRunNumber:
     postSeq.CountHepMC.NewRunNumber = int(dsid)
-    evgenLog.info("Set new run number in skel " + str(postSeq.CountHepMC.NewRunNumber))
+    evgenLog.info("Set new run number in skel NewRunNumber = " + str(postSeq.CountHepMC.NewRunNumber))
 else:
-    evgenLog.info("No new run number set in skel " + dsid)
+    evgenLog.info("No new run number set in skel RunNumber = " + dsid)
 
 #svcMgr.EventSelector.RunNumber = runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
