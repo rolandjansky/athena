@@ -79,6 +79,8 @@ class MuonPhysValMonitoringTool
   /// Default constructor: 
   MuonPhysValMonitoringTool();
 
+  enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
+
   void handleMuon(const xAOD::Muon* mu,const xAOD::SlowMuon *smu=0);
   void handleSlowMuon(const xAOD::SlowMuon *smu);
   void handleTruthMuon(const xAOD::TruthParticle* truthMu);
@@ -106,57 +108,53 @@ class MuonPhysValMonitoringTool
   xAOD::Muon* getCorrectedMuon(const xAOD::Muon &mu);
     
   const xAOD::TrackParticleContainer* m_MSTracks;
-  
+  std::map<std::string,int> m_counterBits;
+  std::vector<std::string> m_muonItems;
+  std::vector<std::string> m_L1Seed;
+  int m_SelectedAuthor;
+
   TH1F* findHistogram(std::vector<HistData> hists,std::string hnameTag,std::string hdirTag,std::string hNewName);
   void modifyHistogram(TH1* hist);
 
-  Gaudi::Property<bool> m_isData{this,"IsData",false};
-
-  // Containers
-  Gaudi::Property<std::string> m_tracksName{this,"TrackContainerName",""};
+  Gaudi::Property<std::string> m_tracksName{this,"TrackContainerName","InDetTrackParticles"};
   Gaudi::Property<std::string> m_fwdtracksName{this,"FwdTrackContainerName",""};
   Gaudi::Property<std::string> m_muonsName{this,"MuonContainerName","Muons"};
   Gaudi::Property<std::string> m_slowMuonsName{this,"SlowMuonContainerName","SlowMuons"};
   Gaudi::Property<std::string> m_muonsTruthName{this,"MuonTruthParticleContainerName","MuonTruthParticles"};
-  Gaudi::Property<std::string> m_muonTracksName{this,"MuonTrackContainerName",""};
-  Gaudi::Property<std::string> m_muonExtrapolatedTracksName{this,"MuonExtrapolatedTrackContainerName",""};
-  Gaudi::Property<std::string> m_muonMSOnlyExtrapolatedTracksName{this,"MuonOnlyExtrapolatedTrackContainerName",""};
-  Gaudi::Property<std::string> m_muonSegmentsName{this,"MuonSegmentContainerName",""};
+  Gaudi::Property<std::string> m_muonTracksName{this,"MuonTrackContainerName","MuonSpectrometerTrackParticles"};
+  Gaudi::Property<std::string> m_muonExtrapolatedTracksName{this,"MuonExtrapolatedTrackContainerName","ExtrapolatedMuonTrackParticles"};
+  Gaudi::Property<std::string> m_muonMSOnlyExtrapolatedTracksName{this,"MuonOnlyExtrapolatedTrackContainerName","MSOnlyExtrapolatedMuonTrackParticles"};
+  Gaudi::Property<std::string> m_muonSegmentsName{this,"MuonSegmentContainerName","MuonSegments"};
   Gaudi::Property<std::string> m_muonSegmentsTruthName{this,"MuonTruthSegmentContainerName","MuonTruthSegments"};
   Gaudi::Property<std::string> m_muonL1TrigName{this,"L1TrigMuonContainerName","LVL1MuonRoIs"};
   Gaudi::Property<std::string> m_muonL2SAName{this,"L2SAMuonContainerName","HLT_xAOD__L2StandAloneMuonContainer_MuonL2SAInfo"};
   Gaudi::Property<std::string> m_muonL2CBName{this,"L2CBMuonContainerName","HLT_xAOD__L2CombinedMuonContainer_MuonL2CBInfo"};
   Gaudi::Property<std::string> m_muonEFCombTrigName{this,"EFCombTrigMuonContainerName","HLT_xAOD__MuonContainer_MuonEFInfo"};
 
-  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
+  Gaudi::Property<std::vector<int>> m_selectMuonWPs{this,"SelectMuonWorkingPoints",{xAOD::Muon::Loose,xAOD::Muon::Medium}};
+  Gaudi::Property<std::vector<unsigned int>> m_selectMuonAuthors{this,"SelectMuonAuthors",{xAOD::Muon::MuidCo,xAOD::Muon::MuTagIMO,xAOD::Muon::MuidSA,xAOD::Muon::MuGirl,xAOD::Muon::CaloTag,xAOD::Muon::CaloLikelihood}};
+  Gaudi::Property<std::vector<std::vector<std::string>>> m_selectHLTMuonItems{this,"SelectHLTMuonItems",{}};
+  Gaudi::Property<std::vector<std::string>> m_L1MuonItems{this,"SelectL1MuonItems",{}};
+  Gaudi::Property<std::vector<unsigned int>> m_selectMuonCategories{this,"SelectMuonCategories",{MUCATEGORY::ALL,MUCATEGORY::PROMPT,MUCATEGORY::INFLIGHT,MUCATEGORY::NONISO,MUCATEGORY::REST}};
 
-  // Configurable properties
-  std::map<std::string,int> m_counterBits;
-  std::vector<int> m_selectMuonWPs;
-  std::vector<unsigned int> m_selectMuonAuthors;
-  std::vector<std::vector<std::string>> m_selectHLTMuonItems;
-  std::vector<std::string> m_muonItems;
-  std::vector<std::string> m_L1Seed;
-  std::vector<std::string> m_L1MuonItems;
-  int m_SelectedAuthor;
-  std::vector<unsigned int> m_selectMuonCategories;  
-  bool m_doBinnedResolutionPlots;
+  Gaudi::Property<bool> m_doBinnedResolutionPlots{this,"DoBinnedResolutionPlots",true};
   Gaudi::Property<bool> m_doTrigMuonValidation{this,"DoTrigMuonValidation",false};
   Gaudi::Property<bool> m_doTrigMuonL1Validation{this,"DoTrigMuonL1Validation",false};
   Gaudi::Property<bool> m_doTrigMuonL2Validation{this,"DoTrigMuonL2Validation",false};
   Gaudi::Property<bool> m_doTrigMuonEFValidation{this,"DoTrigMuonEFValidation",false};
   Gaudi::Property<bool> m_doMuonTree{this,"DoMuonTree",false};
+  Gaudi::Property<bool> m_isData{this,"IsData",false};
+
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfo{this,"EventInfo","EventInfo","event info"};
   
   // Tools
   ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
   ToolHandle<Rec::IMuonPrintingTool> m_muonPrinter;
   ToolHandle<Trig::TrigDecisionTool> m_trigDec;
   ToolHandle<Trk::ITrackSelectorTool> m_trackSelector;
-  ToolHandle<CP::IIsolationSelectionTool> m_isoTool;
-
-
+  ToolHandle<CP::IIsolationSelectionTool> m_isoTool{this,"IsoTool",""};
  
-  enum MUCATEGORY{ALL=0, PROMPT, INFLIGHT, NONISO, REST};
+  
   std::vector<std::string> m_selectMuonCategoriesStr;
   MuonPhysValMonitoringTool::MUCATEGORY getMuonSegmentTruthCategory(const xAOD::MuonSegment* truthMuSeg, const xAOD::TruthParticleContainer* muonTruthContainer);
   MuonPhysValMonitoringTool::MUCATEGORY getMuonTruthCategory(const xAOD::IParticle* prt);
