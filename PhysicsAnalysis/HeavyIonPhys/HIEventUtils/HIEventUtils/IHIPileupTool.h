@@ -26,6 +26,8 @@ public:
   //virtual int talk() const =0;
   virtual const Root::TAccept& getTAccept(const xAOD::HIEventShapeContainer& evShCont, const xAOD::ZdcModuleContainer& ZdcCont) const = 0;
   //virtual const Root::TAccept& accept() const = 0;
+  virtual bool is_pileup   (const xAOD::HIEventShapeContainer&, const xAOD::ZdcModuleContainer& ) const =0;
+  virtual bool is_Outpileup(const xAOD::HIEventShapeContainer&, const int                       ) const =0;
 
 };
 }
