@@ -1,16 +1,21 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Instantiate egammaRecBuilder with default configuration"
+__doc__ = """
+          Instantiate egammaRecBuilder with default configuration
+          """
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from egammaTools.EMTrackMatchBuilderConfig import EMTrackMatchBuilderCfg
 from egammaTools.EMConversionBuilderConfig import EMConversionBuilderCfg
-egammaRecBuilder=CompFactory.egammaRecBuilder
+egammaRecBuilder = CompFactory.egammaRecBuilder
 
 
-def egammaRecBuilderCfg(flags, name='egammaRecBuilder', **kwargs):
+def egammaRecBuilderCfg(
+        flags,
+        name='egammaRecBuilder',
+        **kwargs):
 
     mlog = logging.getLogger(name)
     mlog.debug('Start configuration')
@@ -26,8 +31,12 @@ def egammaRecBuilderCfg(flags, name='egammaRecBuilder', **kwargs):
         kwargs["ConversionBuilderTool"] = emcnv.popPrivateTools()
         acc.merge(emcnv)
 
-    kwargs.setdefault("egammaRecContainer", flags.Egamma.Keys.Internal.EgammaRecs)
-    kwargs.setdefault("InputTopoClusterContainerName", flags.Egamma.Keys.Internal.EgammaTopoClusters)
+    kwargs.setdefault(
+        "egammaRecContainer",
+        flags.Egamma.Keys.Internal.EgammaRecs)
+    kwargs.setdefault(
+        "InputTopoClusterContainerName",
+        flags.Egamma.Keys.Internal.EgammaTopoClusters)
 
     egrecAlg = egammaRecBuilder(name, **kwargs)
 

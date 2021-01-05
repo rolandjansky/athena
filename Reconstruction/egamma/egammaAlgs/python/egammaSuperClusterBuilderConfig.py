@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "Instantiate the two supercluster builders with default configuration"
+__doc__ = """Instantiate the two supercluster
+builders with default configuration"""
 
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -36,9 +37,15 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
         kwargs["ClusterCorrectionTool"] = egswtool.popPrivateTools()
         acc.merge(egswtool)
 
-    kwargs.setdefault("InputEgammaRecContainerName",    flags.Egamma.Keys.Internal.EgammaRecs)
-    kwargs.setdefault("SuperElectronRecCollectionName", flags.Egamma.Keys.Internal.ElectronSuperRecs)
-    kwargs.setdefault("egammaCheckEnergyDepositTool", egammaCheckEnergyDepositTool())
+    kwargs.setdefault(
+        "InputEgammaRecContainerName",
+        flags.Egamma.Keys.Internal.EgammaRecs)
+    kwargs.setdefault(
+        "SuperElectronRecCollectionName",
+        flags.Egamma.Keys.Internal.ElectronSuperRecs)
+    kwargs.setdefault(
+        "egammaCheckEnergyDepositTool",
+        egammaCheckEnergyDepositTool())
     kwargs.setdefault("EtThresholdCut", 1000)
 
     elscAlg = electronSuperClusterBuilder(name, **kwargs)
@@ -47,7 +54,10 @@ def electronSuperClusterBuilderCfg(flags, name='electronSuperClusterBuilder', **
     return acc
 
 
-def photonSuperClusterBuilderCfg(flags, name='photonSuperClusterBuilder', **kwargs):
+def photonSuperClusterBuilderCfg(
+        flags,
+        name='photonSuperClusterBuilder',
+        **kwargs):
 
     from egammaAlgs.egammaAlgsConf import photonSuperClusterBuilder
 
@@ -71,9 +81,15 @@ def photonSuperClusterBuilderCfg(flags, name='photonSuperClusterBuilder', **kwar
         kwargs["ClusterCorrectionTool"] = egswtool.popPrivateTools()
         acc.merge(egswtool)
 
-    kwargs.setdefault("InputEgammaRecContainerName",    flags.Egamma.Keys.Internal.EgammaRecs)
-    kwargs.setdefault("SuperPhotonRecCollectionName", flags.Egamma.Keys.Internal.PhotonSuperRecs)
-    kwargs.setdefault("egammaCheckEnergyDepositTool", egammaCheckEnergyDepositTool())
+    kwargs.setdefault(
+        "InputEgammaRecContainerName",
+        flags.Egamma.Keys.Internal.EgammaRecs)
+    kwargs.setdefault(
+        "SuperPhotonRecCollectionName",
+        flags.Egamma.Keys.Internal.PhotonSuperRecs)
+    kwargs.setdefault(
+        "egammaCheckEnergyDepositTool",
+        egammaCheckEnergyDepositTool())
 
     phscAlg = photonSuperClusterBuilder(name, **kwargs)
 
