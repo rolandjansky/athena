@@ -12,11 +12,11 @@ atlas_add_library( EvgenProdToolsLib
                    PUBLIC_HEADERS EvgenProdTools
                    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
                    LINK_LIBRARIES ${ROOT_LIBRARIES} AtlasHepMCLib AtlasHepMCsearchLib AthenaBaseComps TruthHelper GeneratorModulesLib GenInterfacesLib
-                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils )
+                   PRIVATE_LINK_LIBRARIES AthenaKernel EventInfo GaudiKernel TruthUtils IOVDbDataModel AthenaPoolUtilities )
 
 atlas_add_component( EvgenProdTools
                      src/components/*.cxx
-                     LINK_LIBRARIES EvgenProdToolsLib )
+                     LINK_LIBRARIES EvgenProdToolsLib IOVDbDataModel AthenaPoolUtilities )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
