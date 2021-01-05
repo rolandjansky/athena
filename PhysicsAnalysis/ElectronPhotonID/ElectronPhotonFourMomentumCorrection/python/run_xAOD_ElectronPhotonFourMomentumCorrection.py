@@ -37,12 +37,12 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
     elif type(event_numbers) is int:
         event_numbers = [event_numbers]
 
-    for ievent in xrange(tree.GetEntries()):
+    for ievent in range(tree.GetEntries()):
         tree.GetEntry(ievent)
         ei = tree.EventInfo
         event_number = ei.eventNumber()
         if event_numbers:
-            if not event_number in event_numbers:
+            if event_number not in event_numbers:
                 continue
         logging.debug("=== event number %d ievent = %d", event_number, ievent)
         if newevent_function is not None:
@@ -50,7 +50,7 @@ def xAOD_particle_generator(tree, collection_getter, newevent_function=None, end
 
         collection = collection_getter(tree)
 
-        for i in xrange(collection.size()):
+        for i in range(collection.size()):
             p = collection.at(i)
             if min_pt is not None and p.pt() < min_pt:
                 continue
@@ -93,7 +93,7 @@ def main(filename, **args):
         f.Print()
         return
 
-    logging.info("input has %d entries" % tree.GetEntries())
+    logging.info("input has %d entries", tree.GetEntries())
 
     logging.debug("initializing tool")
     tool = ROOT.CP.EgammaCalibrationAndSmearingTool("tool")
@@ -168,7 +168,6 @@ def main(filename, **args):
     fout.Close()
 
 if __name__ == '__main__':
-    ROOT.gROOT.ProcessLine(".x $ROOTCOREDIR/scripts/load_packages.C")
     import argparse
 
     parser = argparse.ArgumentParser(description='Run on xAOD and dump calibrated energy for electron and photons',

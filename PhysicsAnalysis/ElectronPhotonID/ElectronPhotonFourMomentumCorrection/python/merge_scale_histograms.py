@@ -51,7 +51,7 @@ def merge_histograms(old, new, merge_error=True):
             new_values.append(old.GetBinContent(iold))
             new_errors.append(old.GetBinError(iold))
             if ir_new == OVERFLOW:
-                remainer = iold
+                remainer = iold  # noqa: F841
             print("breaking")
             break
     last_old = iold
