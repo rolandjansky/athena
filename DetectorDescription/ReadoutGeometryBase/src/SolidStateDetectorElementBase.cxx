@@ -560,15 +560,8 @@ using Trk::distDepth;
                                double& zMin, double& zMax,
                                double& phiMin, double& phiMax) const
   {
-
-     double radialShift = 0.;
-     /*
-    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
-    const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-    if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
-     */
-
-     //NS this probably needs updates to get a shift from the m_design!!!!
+    Amg::Vector3D sensorCenter = m_design->sensorCenter();
+    double radialShift = sensorCenter[0];//in sensor frame, x is radius
 
     HepGeom::Point3D<double> corners[4];
     getCorners(corners);
@@ -578,11 +571,11 @@ using Trk::distDepth;
     double phiOffset = 0.;
 
    
-    const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
+    const HepGeom::Transform3D rShift = HepGeom::TranslateY3D(radialShift);//in local frame, radius is y=distEta
 
     for (int i = 0; i < 4; i++) {
 
-      //if (testDesign) corners[i].transform(rShift); see comment re ITk...
+      corners[i].transform(rShift);
 
       // m_tranform is already there as  part of the cache construction
       // This method seems to be used only as a helper for updateCache
