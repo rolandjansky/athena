@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,8 +20,6 @@ MissingET_v1::MissingET_v1( bool createStore )
       createPrivateStore();
       setName(this->name());
    }
-   else
-      m_nameHash = 0;
 }
 
 MissingET_v1::MissingET_v1( const std::string& name,
