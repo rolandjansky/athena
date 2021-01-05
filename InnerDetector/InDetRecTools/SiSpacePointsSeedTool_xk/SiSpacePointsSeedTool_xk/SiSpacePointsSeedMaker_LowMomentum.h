@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -109,9 +109,9 @@ namespace InDet {
     virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
 
-    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const;
+    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
 
-    virtual bool getWriteNtupleBoolProperty() const;
+    virtual bool getWriteNtupleBoolProperty() const override;
 
     ///////////////////////////////////////////////////////////////////
     /// @name Print internal tool parameters and status

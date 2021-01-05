@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -128,9 +128,9 @@ namespace InDet {
     * and 1->Pixel. givesTrack is determined by whether or not the given seed forms atleast 
     * one track candidate. 0->No track candidate 1->At least one track Candidate
     **/  
-    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const;
+    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
 
-    virtual bool getWriteNtupleBoolProperty() const;
+    virtual bool getWriteNtupleBoolProperty() const override;
 
     ///////////////////////////////////////////////////////////////////
     /// @name Print internal tool parameters and status
@@ -495,7 +495,6 @@ namespace InDet {
 
     ITHistSvc* m_thistSvc;
 
-    TFile* m_outputFile;
     TTree* m_outputTree;
 
     mutable std::mutex m_mutex;
@@ -521,12 +520,9 @@ namespace InDet {
     mutable double                 m_r3                   ATLAS_THREAD_SAFE;
     mutable float                  m_quality              ATLAS_THREAD_SAFE;
     mutable int                    m_type                 ATLAS_THREAD_SAFE;
-    mutable int                    m_status               ATLAS_THREAD_SAFE;
     mutable double                 m_dzdr_t               ATLAS_THREAD_SAFE;
     mutable double                 m_dzdr_b               ATLAS_THREAD_SAFE;
     mutable bool                   m_givesTrack           ATLAS_THREAD_SAFE;
-    mutable float                  m_trackD0              ATLAS_THREAD_SAFE;
-    mutable float                  m_trackZ0              ATLAS_THREAD_SAFE;
     mutable float                  m_trackPt              ATLAS_THREAD_SAFE;
     mutable float                  m_trackEta             ATLAS_THREAD_SAFE;
     mutable long                   m_eventNumber          ATLAS_THREAD_SAFE;
