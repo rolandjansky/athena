@@ -64,7 +64,10 @@ namespace xAOD {
     void setCaloCells(const std::vector<CaloCell*>& cells);
 
   private:
-    /// charge
+    /// charge (unused in AnalysisBase)
+#ifdef __clang__
+    [[maybe_unused]]
+#endif
     float m_charge;
 
     /// parameters of the intersections with detector layers

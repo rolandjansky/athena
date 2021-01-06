@@ -390,7 +390,7 @@ void RingSetConf_v1::getRawConfCol(
   // Clear previous collection
   rawConfCol.clear();
   // Push back new configuration
-  for ( const auto &rsConf : *container ) {
+  for ( const auto *rsConf : *container ) {
     rawConfCol.push_back( rsConf->getRawConf() );
   }
 }

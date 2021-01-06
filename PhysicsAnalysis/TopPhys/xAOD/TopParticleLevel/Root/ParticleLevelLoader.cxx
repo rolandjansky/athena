@@ -828,7 +828,7 @@ namespace top {
       "originalTruthParticle"
     };
 
-    for (const auto& particle : dressedParticles) {
+    for (const auto *particle : dressedParticles) {
       bool tp_isValid = false;
       ElementLink<xAOD::TruthParticleContainer> truthProxy;
       try {

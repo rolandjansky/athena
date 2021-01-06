@@ -34,7 +34,6 @@ namespace SH
   void DiskListEOS :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

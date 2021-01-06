@@ -278,7 +278,7 @@ CorrectionCode JetJvtEfficiency::applyAllEfficiencyScaleFactor(const xAOD::IPart
     ATH_MSG_ERROR("Unable to match truthJets to jets in tagTruth() method");
     return CP::CorrectionCode::Error;
   }
-  for(const auto& ipart : *jets) {
+  for(const auto *ipart : *jets) {
     if (ipart->type()!=xAOD::Type::Jet) {
       ATH_MSG_ERROR("Input is not a jet");
       return CP::CorrectionCode::Error;
@@ -352,10 +352,10 @@ StatusCode JetJvtEfficiency::sysApplySystematicVariation(const CP::SystematicSet
 }
 
 StatusCode JetJvtEfficiency::tagTruth(const xAOD::IParticleContainer *jets,const xAOD::IParticleContainer *truthJets) {
-    for(const auto& jet : *jets) {
+    for(const auto *jet : *jets) {
       bool ishs = false;
       bool ispu = true;
-      for(const auto& tjet : *truthJets) {
+      for(const auto *tjet : *truthJets) {
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }

@@ -87,7 +87,6 @@ namespace SH
   void SampleHandler ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

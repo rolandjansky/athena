@@ -30,7 +30,7 @@ namespace CP {
   const xAOD::Vertex* getVertexFromTrack(const xAOD::TrackParticle* track,
                                          const xAOD::VertexContainer* vertices)
   {
-    for (const auto& vx : *vertices) {
+    for (const auto *vx : *vertices) {
       for (const auto& tpLink : vx->trackParticleLinks()) {
         if (*tpLink == track) { return vx; }
       }

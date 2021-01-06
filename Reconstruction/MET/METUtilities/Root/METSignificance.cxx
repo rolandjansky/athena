@@ -224,7 +224,7 @@ namespace met {
     m_met_vect.SetXYZ(m_metx, m_mety, 0);
 
     // Fill the remaining terms
-    for(const auto& met : *metCont) {
+    for(const xAOD::MissingET *met : *metCont) {
 
       // skip the invisible and total MET
       if(MissingETBase::Source::isTotalTerm(met->source())){

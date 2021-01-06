@@ -536,7 +536,7 @@ namespace met {
         return StatusCode::FAILURE;
       }
 
-      for(const auto& vx : *PV) {
+      for(const auto *vx : *PV) {
 	if(vx->vertexType()==VxType::PriVtx)
 
           {pv = vx; break;}

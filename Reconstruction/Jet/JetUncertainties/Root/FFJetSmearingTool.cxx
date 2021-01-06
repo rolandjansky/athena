@@ -407,7 +407,7 @@ StatusCode FFJetSmearingTool::getMatchedTruthJet(xAOD::Jet& jet_reco, xAOD::Jet&
 
     //Loop over the truth jets in the event to match
     const xAOD::Jet* close_jet = nullptr;
-    for (const auto& jet_truth : *jets_truth) {
+    for (const auto *jet_truth : *jets_truth) {
         float dR_Test = jet_reco.p4().DeltaR(jet_truth->p4());
         if ( dR_Test < dRmax_truthJet){
             if(dR_Test < dRmin){
