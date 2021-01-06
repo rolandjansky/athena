@@ -278,6 +278,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   double m_targetMu; //!< What pileup level the prediction is targeting
   double m_targetBunches; //!< How many bunches the prediction is targeting
   double m_targetLumi; //!< What instantaneous luminosity the prediction is targeting
+  uint32_t m_runNumber; //!<What is the RunNumber
   double m_ratesDenominator; //!< How much walltime is seen by the algorithm. This is what we need to normalise to.
   uint32_t m_eventCounter; //!< Count how many events processed
   double m_weightedEventCounter; //!< Count how many weighted events were processed

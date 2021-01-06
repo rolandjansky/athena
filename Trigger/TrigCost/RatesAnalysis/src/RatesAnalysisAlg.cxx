@@ -21,6 +21,7 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   m_targetMu(0.),
   m_targetBunches(0.),
   m_targetLumi(0.),
+  m_runNumber(0.),
   m_ratesDenominator(0),
   m_eventCounter(0),
   m_weightedEventCounter(0),
@@ -696,7 +697,8 @@ void RatesAnalysisAlg::writeMetadata() {
     return;
   }
 
-  m_metadataTree->Branch("runNumber", &m_enhancedBiasRatesTool->RunNumber);
+  m_runNumber = m_enhancedBiasRatesTool->getRunNumber();
+  m_metadataTree->Branch("runNumber", &m_runNumber);
   
   m_metadataTree->Branch("targetMu", &m_targetMu);
   m_metadataTree->Branch("targetBunches", &m_targetBunches);
