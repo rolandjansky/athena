@@ -1534,12 +1534,24 @@ namespace Muon {
       updateHits(hits,hough);
     }
 
+    Identifier id_hit = hits.front()->tgc ? hits.front()->tgc->etaCluster.hitList.front()->identify() : hits.front()->prd->identify();
+    MuonHough::MuonLayerHoughSelector selectorLoose;
+    MuonHough::MuonLayerHoughSelector selector;
+
+    if ( m_idHelperSvc->issTgc(id_hit) || m_idHelperSvc->isMM(id_hit) ) {
+      selectorLoose = MuonHough::MuonLayerHoughSelector({std::make_pair(0,9.9)}); 
+      selector      = MuonHough::MuonLayerHoughSelector({std::make_pair(0,13.9)}); 
+    }
+    else {
+      selectorLoose = m_selectorsLoose[hough.m_descriptor.chIndex];
+      selector      = m_selectors[hough.m_descriptor.chIndex];
+    }
     
 //    Muon::MuonStationIndex::StIndex stIndex = Muon::MuonStationIndex::toStationIndex(hough.m_descriptor.chIndex);
     unsigned int nmaxima = 0;
     while( nmaxima < 5 ){
       MuonHough::MuonLayerHough::Maximum maximum;
-      if( hough.findMaximum( maximum, m_selectorsLoose[hough.m_descriptor.chIndex] ) ) {
+      if( hough.findMaximum( maximum, selectorLoose ) ) {
         hough.associateHitsToMaximum(maximum,hits);
         ATH_MSG_DEBUG("findMaxima: Found Eta Maximum " << nmaxima 
                         <<     "  "          << maximum.max 
@@ -1579,7 +1591,7 @@ namespace Muon {
         if( nmdt > 0 || (nmm + nstgc) > 0) {
           maxima.push_back( new MuonHough::MuonLayerHough::Maximum(maximum) );
           // add to seed list if 
-          if( maximum.max > m_selectors[hough.m_descriptor.chIndex].getCutValue(maximum.pos) ) seedMaxima.push_back(maxima.back());        
+          if( maximum.max > selector.getCutValue(maximum.pos) ) seedMaxima.push_back(maxima.back());        
           ++nmaxima;
         }
         hough.fillLayer2(maximum.hits,true);
