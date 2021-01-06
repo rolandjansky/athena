@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../TrigCostAnalysis/TableConstructorBase.h"
@@ -75,7 +75,7 @@ void TableConstructorBase::getHistograms(const std::string& name) {
     TObject* obj = key->ReadObj();
     if ( obj->IsA()->InheritsFrom( TH1::Class() ) ) {
       bool found = false;
-      for (const TString exp : m_expectedHistograms) {
+      for (const TString& exp : m_expectedHistograms) {
         const TString objName( obj->GetName() );
         const TString expName = TString(name) + "_" + exp;
         if (objName.EndsWith(expName)) {
@@ -86,8 +86,8 @@ void TableConstructorBase::getHistograms(const std::string& name) {
       }
       if (!found) {
         msg() << MSG::ERROR << "Was not expecting histogram " << obj->GetName() << endmsg;
-        for (const TString exp : m_expectedHistograms) {
-          const TString expName = TString(name) + "_" + exp;
+        for (const TString& exp : m_expectedHistograms) {
+          const TString& expName = TString(name) + "_" + exp;
           msg() << MSG::ERROR << "  -- Expected " << expName << endmsg;
         }
       }
