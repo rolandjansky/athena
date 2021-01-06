@@ -95,6 +95,81 @@ def _cuts_from_momCuts(momCuts):
     return ''
 
 
+def _make_fbdjnoshared_label(chain_parts, leg_label):
+    """Marshal information from the selected chainParts to create a
+    fbdjnoshared (forward-backward and dijet, no jet sharing) label. 
+    """
+
+    assert len(chain_parts) == 1
+    
+    scenario = chain_parts[0]['hypoScenario']
+    assert scenario.startswith('f')
+    args = _args_from_scenario(scenario)
+
+    arg_res = [
+        [re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'), 0],
+        [re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'), 0],
+        [re.compile(r'(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)'), 0],
+    ]
+
+    defaults = {
+        'et0': ('101', 'inf'),
+        'et1': ('103', 'inf'),
+        'mass0': ('800', 'inf'),
+        'fbet0': ('501', 'inf'),
+    }
+
+    # n_et: counter for the min et of the jets particpating in
+    # the dijet. There are two such et min values in the scenario
+    # string
+
+    n_et = 0  
+    argvals = {}
+    assert len(args) == len(arg_res) + 1  # +1 because et occurs twice.
+    while args:
+        arg = args.pop()
+        for ar  in arg_res:
+            regx = ar[0]
+            occurence=ar[1]  # no iof time this argument is used eg et used 2x
+            m = regx.match(arg)
+            if m is not None:
+                gd = m.groupdict()
+                key = gd['key'] + str(occurence)
+                ar[1] += 1  # bump the occurrence cout
+                try:
+                    lo = float(gd['lo'])
+                except ValueError:
+                    lo = defaults[key][0]
+                argvals[key+'lo'] = lo 
+                try:
+                    hi = float(gd['hi'])
+                except ValueError:
+                    hi = defaults[key][1]
+                argvals[key+'hi'] =  hi
+
+    assert len(args) == 0
+
+    argvals['leg_label'] = leg_label
+
+    return """
+    all
+    (
+      []
+      simple
+      (
+        [(%(fbet0lo).0fet, 500neta, leg000)(%(fbet0lo).0fet, peta500, %(leg_label)s)]
+      )
+      dijet
+      (
+        [(%(mass0lo).0fdjmass, 26djdphi)]
+        simple
+        (
+          [(%(et0lo).0fet, 0eta320, leg000)(%(et1lo).0fet, 0eta320, %(leg_label)s)]
+        )
+      )
+    )""" % argvals
+
+
 def _make_vbenf_label(chain_parts, leg_label):
     """Marshal information from the selected chainParts to create a
     vbenf label. Use a Reducer for elimination of unusable jets
@@ -343,6 +418,7 @@ def chainDict2jetLabel(chain_dict):
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
         'fbdjshared': _make_fbdjshared_label,
+        'fbdjnoshared': _make_fbdjnoshared_label,
     }
 
     # chain_part - scenario association

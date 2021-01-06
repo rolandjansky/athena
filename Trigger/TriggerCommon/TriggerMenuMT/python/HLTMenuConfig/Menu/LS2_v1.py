@@ -267,8 +267,7 @@ def setupMenu():
         ChainProp(name='HLT_j460_a10sd_csskpf_jes_ftf_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10sd_csskpf_jes_ftf_35smcINF_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_2j330_a10sd_csskpf_jes_ftf_35smcINF_L1J100', groups=SingleJetGroup),
-
-        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),

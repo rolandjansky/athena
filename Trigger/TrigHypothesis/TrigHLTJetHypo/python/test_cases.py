@@ -128,7 +128,8 @@ test_strings = [
                                  combgen([] 
                                          dijet([(71djmass91)])
                                          simple([(12et)(13et)])))))""",
-    # forest
+
+    # forest: forward backward jets + dijet sharing
     """simple
     (
         [(50et, 500neta, leg000)(50et, peta500, leg000)]
@@ -140,8 +141,24 @@ test_strings = [
         (
             [(10et, 0eta320, leg000)(20et, 0eta320, leg000)]
         )
-    )"""
-    
+    )""",
+
+    # single tree forward backward jets + dijet no sharing
+    """ all([]
+        simple
+        (
+           [(50et, 500neta, leg000)(50et, peta500, leg000)]
+        )
+        dijet
+        (
+            [(34mass, 26djdphi, leg000)]
+            simple
+            (
+                [(10et, 0eta320, leg000)(20et, 0eta320, leg000)]
+            )
+        )
+    )""",
+
 ]
 
 
