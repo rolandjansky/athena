@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "Pythia8_i/Pythia8_i.h"
 #include "Pythia8_i/UserProcessFactory.h"
@@ -175,19 +175,19 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
 
-  for(const std::pair<std::string, double> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<double>()){
+  for(const std::pair<const std::string, double> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<double>()){
     m_pythia->settings.addParm(param.first, param.second, false, false, 0., 0.);
   }
 
-  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
+  for(const std::pair<const std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
     m_pythia->settings.addMode(param.first, param.second, false, false, 0., 0.);
   }
 
-  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()){
+  for(const std::pair<const std::string, bool> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()){
     m_pythia->settings.addFlag(param.first, param.second);
   }
 
-  for(const std::pair<std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
+  for(const std::pair<const std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
     m_pythia->settings.addWord(param.first, param.second);
   }
 
