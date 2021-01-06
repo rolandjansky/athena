@@ -61,7 +61,7 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
 	int i,j,nPixelID;
 	double fXShift,fYShift,fZShift;
 	AFPTOF_LBARDIMENSIONS LQBarDims;
-    HepGeom::Transform3D TotTransform;
+       HepGeom::Transform3D TotTransform;
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
@@ -219,11 +219,14 @@ void AFP_GeoModelFactory::addSensor(const char* pszStationName, const int nQuart
 			fX1Pos=-(0.0+i)*TofCfg.fPixelX1Dim;//-(0.5+i)*m_TofCfg.fPixelX1Dim
 			fX2Pos=(0.0+j)*TofCfg.fPixelX2Dim;//(0.5+j)*m_TofCfg.fPixelX2Dim;
 
-			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
+
+//			sprintf(szlabel,"%s_Q%i_LogTDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
+                        sprintf(szlabel,"%s_Q%i_LogTDSensor[%i]",pszStationName,nQuarticID,nPixelID);
 			TotTransform=TransInMotherVolume*HepGeom::Translate3D(fX1Pos,-0.5*m_AfpConstants.ToF_SensorThickness-fSensor2BarDistance,fX2Pos);
 			GeoLogVol* pLogSensor=new GeoLogVol(szlabel,pSolSensor,m_MapMaterials["SiliconPMT"]);
 			GeoOpticalPhysVol* pPhysSensor=new GeoOpticalPhysVol(pLogSensor);
-			sprintf(szlabel,"%s_Q%i_TDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
+//			sprintf(szlabel,"%s_Q%i_TDSensor[%i][%02i]",pszStationName,nQuarticID,nPixelID,nPixelID);
+                        sprintf(szlabel,"%s_Q%i_TDSensor[%i]",pszStationName,nQuarticID,nPixelID);
 			pPhysMotherVolume->add(new GeoNameTag(szlabel));
 			pPhysMotherVolume->add(new GeoTransform(TotTransform));
 			pPhysMotherVolume->add(pPhysSensor);

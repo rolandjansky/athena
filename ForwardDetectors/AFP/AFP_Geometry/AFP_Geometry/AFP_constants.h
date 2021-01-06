@@ -88,8 +88,8 @@ struct AFP_CONSTANTS {
 };
 
 #define DETXSIDE (-1)
-#define LHCXOFFSET (-97.0*CLHEP::mm)
-
+//#define LHCXOFFSET (-97.0*CLHEP::mm)
+#define LHCXOFFSET (0.0*CLHEP::mm)
 //#define RP00FLOORDISTANCE (1.5*CLHEP::mm)
 //#define RP01FLOORDISTANCE (1.5*CLHEP::mm)
 //#define RP02FLOORDISTANCE (4.04*CLHEP::mm)

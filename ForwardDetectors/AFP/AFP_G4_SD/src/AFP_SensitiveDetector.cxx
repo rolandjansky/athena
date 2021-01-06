@@ -38,14 +38,16 @@ AFP_SensitiveDetector::AFP_SensitiveDetector(const std::string& name, const std:
   , m_pTDSimHitCollection(TDhitCollectionName)
   , m_pSIDSimHitCollection(SIDhitCollectionName)
 {
+  AFP_CONSTANTS AfpConstants;
+
   for( int i=0; i < 4; i++){
     m_nNOfSIDSimHits[i] = 0;
     for( int j=0; j < 32; j++){
       m_nNOfTDSimHits[i][j] = 0;
     }
     for( int j=0; j < 10; j++){
-      m_death_edge[i][j] = SID_DEATH_EDGE; //in mm, it is left edge as the movement is horizontal
-      m_lower_edge[i][j] = SID_LOWER_EDGE; //in mm,
+      m_death_edge[i][j] = AfpConstants.SiT_DeathEdge; //in mm, it is left edge as the movement is horizontal
+      m_lower_edge[i][j] = AfpConstants.SiT_LowerEdge; //in mm,
     }
   }
 }
