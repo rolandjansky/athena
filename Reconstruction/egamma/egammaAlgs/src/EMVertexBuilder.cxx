@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -63,7 +63,7 @@ StatusCode EMVertexBuilder::execute(const EventContext& ctx) const
   }
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> verticesPair =
-    m_vertexFinderTool->findVertex(TPCol.cptr());
+    m_vertexFinderTool->findVertex(ctx,TPCol.cptr());
 
   if (!verticesPair.first || !verticesPair.second){
     ATH_MSG_ERROR("Null pointer to conversion container");
