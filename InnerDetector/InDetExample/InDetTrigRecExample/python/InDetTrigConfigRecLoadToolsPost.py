@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -114,7 +114,7 @@ if InDetTrigFlags.doNewTracking():
                                        ImpactPoint3dEstimator   = InDetTrigImpactPoint3dEstimator,
 
                                        AnnealingMaker           = InDetTrigAnnealingMaker,
-                                       VertexSmoother           = InDetTrigSequentialVertexSmoother,
+                                       VertexSmoother           = InDetTrigVertexSmoother,
                                        DoSmoothing              = True) # false is default
 
   else:
@@ -229,7 +229,7 @@ if InDetTrigFlags.doNewTracking():
     # if jobproperties.Beam.zeroLuminosity():
     #    InDetTrigPriVxFinderTool.enableMultipleVertices = 0;
     # else:
-    InDetTrigPriVxFinderTool.enableMultipleVertices = 1;
+    InDetTrigPriVxFinderTool.enableMultipleVertices = 1
     #    InDetTrigPriVxFinderTool.useBeamConstraint = InDetTrigFlags.useBeamConstraint()
     if InDetTrigFlags.vertexSeedFinder() == 'SlidingWindowMultiSeedFinder':
       InDetTrigPriVxFinderTool.PriVxSeedFinder = InDetTrigMultiSeedFinder

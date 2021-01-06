@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigFlags.py
@@ -15,11 +15,7 @@ __doc__    = "InDetTrigFlags"
 
 __all__    = [ "InDetTrigFlags" ]
 
-from AthenaCommon.JobProperties import jobproperties, JobProperty
-#from InDetRecExample.InDetJobProperties import InDetJobProperties, InDetFlags, InDetFlagsJobProperty
-#from InDetTrigRecExample.InDetTrigJobProperties import *
-
-from InDetTrigRecExample.InDetTrigJobProperties import *
+from InDetTrigRecExample.InDetTrigJobProperties import jobproperties
 #
 #class InDetTrigJobProperties(InDetJobProperties):
 #  """Container for EF ID job properties"""

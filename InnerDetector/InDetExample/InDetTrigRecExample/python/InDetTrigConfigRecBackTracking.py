@@ -1,14 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # ----------- Draft version of TRT Segment finding
 #
 # common things
-from __future__ import print_function
 
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.Include import include
-
-from AthenaCommon.Logging import logging 
+from AthenaCommon.Logging import logging
 log = logging.getLogger("InDetTrigConfigBackTracking.py")
 
 
@@ -17,8 +14,6 @@ class InDetTrigTrackPRD_Association_EF( InDet__InDetTrigTrackPRD_Association ):
    __slots__ = []
    def __init__(self, name="InDetTrigTrackPRD_Association_Photon_EF", type="photon"):
       super( InDet__InDetTrigTrackPRD_Association, self ).__init__( name )
-      
-      import os
       
       if name.rfind('TRTStandalone') != -1:
          self.TracksName = []
@@ -40,9 +35,8 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator, InDetTrigPatternUpdator, InDetTrigTRTDriftCircleCut
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigPatternPropagator, InDetTrigPatternUpdator, InDetTrigTRTDriftCircleCut  # noqa: F401
       from InDetTrigRecExample.InDetTrigConfigRecLoadToolsBack import InDetTrigTRTDetElementsRoadMaker
-      from AthenaCommon.SystemOfUnits import GeV
       if seqType == "TRTOnly":
          from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCutsTRT
          InDetTrigCutValues = EFIDTrackingCutsTRT
@@ -66,7 +60,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
                                                                     DriftCircleCutTool    = InDetTrigTRTDriftCircleCut,
                                                                     UseDriftRadius        = not InDetTrigFlags.noTRTTiming(),
                                                                     RoadTool              = InDetTrigTRTDetElementsRoadMaker,
-								    MinNumberDriftCircles = InDetTrigCutValues.minTRTonTrk(),
+                                                                    MinNumberDriftCircles = InDetTrigCutValues.minTRTonTrk(),
                                                                     ScaleHitUncertainty   = 2.,
                                                                     RoadWidth             = 20.,
                                                                     UseParameterization   = InDetTrigCutValues.useParameterizedTRTCuts())
@@ -93,7 +87,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
                                                                             PRDtoTrackMap           = "",
                                                                             TrackExtensionTool      = InDetTrigTRTExtensionTool,
                                                                             MinNumberDriftCircles   = MinNumberDCs,
-									    RemoveNoiseDriftCircles = InDetTrigFlags.removeTRTNoise())
+                                                                            RemoveNoiseDriftCircles = InDetTrigFlags.removeTRTNoise())
       
       InDetTrigTRT_TrackSegmentsMaker.pTmin = InDetTrigSliceSettings[('pTmin',type)]
 
@@ -122,7 +116,7 @@ class TRT_TrigTrackSegmentsFinder_EF( InDet__TRT_TrigTrackSegmentsFinder ):
       ToolSvc += InDetTrigTRT_TrackSegmentsMaker
       if (InDetTrigFlags.doPrintConfigurables()):
         print (      InDetTrigTRT_TrackSegmentsMaker)
- 	 
+
       # TRT track reconstruction
       self.SegmentsMakerTool = InDetTrigTRT_TrackSegmentsMaker
       # if type is 'cosmicsN':
@@ -155,13 +149,14 @@ class TRTSeededTrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
       super(InDet__InDetTrigAmbiguitySolver , self ).__init__( name )
 
       from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool,InDetTrigTRTDriftCircleCut  
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool,InDetTrigTRTDriftCircleCut  # noqa: F401
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import EFIDTrackingCuts
       InDetTrigCutValues = EFIDTrackingCuts
 
       # load InnerDetector TrackSelectionTool
       #
+      import InDetRecExample.TrackingCommon as TrackingCommon
       from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
       TRTSeededInDetTrigAmbiTrackSelectionTool = InDet__InDetAmbiTrackSelectionTool(name               = 'TRTSeededInDetTrigAmbiTrackSelectionTool',
                                                                                     DriftCircleCutTool  =  InDetTrigTRTDriftCircleCut,

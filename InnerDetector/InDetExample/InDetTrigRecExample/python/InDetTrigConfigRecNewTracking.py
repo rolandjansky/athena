@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -8,7 +8,6 @@ from __future__ import print_function
 #
 # ------------------------------------------------------------
 # common things
-from AthenaCommon.AppMgr import ToolSvc
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import \
     EFIDTrackingCuts,EFIDTrackingCutsCosmics,EFIDTrackingCutsBeamGas, \
@@ -38,9 +37,9 @@ class SiTrigTrackFinder_EF( InDet__SiTrigSPSeededTrackFinder ):
     self.RegSelTool_SCT   = makeRegSelTool_SCT()
 
 
-    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
-        InDetTrigPatternPropagator, InDetTrigPatternUpdator, \
-        InDetTrigRotCreator
+    from InDetTrigRecExample.InDetTrigConfigRecLoadTools import (InDetTrigPrdAssociationTool,  # noqa: F401
+        InDetTrigPatternPropagator, InDetTrigPatternUpdator,
+        InDetTrigRotCreator )
     from AthenaCommon.AppMgr import ToolSvc
     
     # configure tools used
@@ -268,9 +267,9 @@ class TrigAmbiguitySolver_EF( InDet__InDetTrigAmbiguitySolver ):
 
       slice = type
       from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool, \
-          InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool, \
-          InDetTrigTRTDriftCircleCut
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import ( InDetTrigPrdAssociationTool,  # noqa: F401
+          InDetTrigTrackFitter, InDetTrigExtrapolator, InDetTrigTrackSummaryTool,
+          InDetTrigTRTDriftCircleCut )
 
       # load InnerDetector TrackSelectionTool
       #
@@ -469,6 +468,7 @@ class TRTTrackExtAlg_EF( InDet__TRT_TrigTrackExtensionAlg ):
                print (     InDetTrigWeightCalculator)
       
             from InDetCompetingRIOsOnTrackTool.InDetCompetingRIOsOnTrackToolConf import InDet__CompetingTRT_DriftCirclesOnTrackTool
+            from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigRotCreator
             InDetTrigCompetingTRT_DC_Tool =  \
                 InDet__CompetingTRT_DriftCirclesOnTrackTool( name     = 'InDetTrigCompetingTRT_DC_Tool',
                                                              MagneticFieldMode   = 'MapSolenoid',      # default
@@ -525,7 +525,7 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
           Trk__CompetingRIOsOnTrackTool( name       = 'InDetTrigCompetingRotCreator',
                                          ToolForCompPixelClusters    = None,      # default
                                          ToolForCompSCT_Clusters     = None,      # default
-                                         ToolForCompTRT_DriftCircles = InDetTrigCompetingTRT_DC_Tool )
+                                         ToolForCompTRT_DriftCircles = InDetTrigCompetingTRT_DC_Tool )  # noqa: F821 (code is likely broken)
       ToolSvc += InDetTrigCompetingRotCreator
       if (InDetTrigFlags.doPrintConfigurables()):
         print (     InDetTrigCompetingRotCreator)
@@ -549,7 +549,6 @@ class TrigExtProcessor_EF( InDet__InDetTrigExtensProcessor ):
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitterCosmics
         InDetTrigExtensionFitter = InDetTrigTrackFitterCosmics
       else:
-        from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackFitter
         InDetTrigExtensionFitter = InDetTrigTrackFitter
 
       
@@ -646,7 +645,6 @@ class InDetTrigDetailedTrackTruthMaker_EF( InDet__InDetTrigDetailedTrackTruthMak
     
       #monitoring
     from InDetTrigTruthAlgs.InDetTrigDetailedTruthMonitoring import InDetTrigDetailedTruthValidationMonitor
-    from InDetTrigTruthAlgs.InDetTrigDetailedTruthMonitoring import InDetTrigDetailedTruthOnlineMonitor
     from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
     truthtime = TrigTimeHistToolConfig("TruthTime")
     truthtime.TimerHistLimits = [0,200]
