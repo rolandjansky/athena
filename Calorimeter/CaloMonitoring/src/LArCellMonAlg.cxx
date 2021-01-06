@@ -121,7 +121,7 @@ StatusCode LArCellMonAlg::initialize() {
   }
 
   //retrieve trigger decision tool and chain groups
-  if( m_useTrigger) {
+  if( m_useTrigger && !getTrigDecisionTool().empty() ) {
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
     ATH_MSG_INFO("TrigDecisionTool retrieved");
     for (size_t i=0;i<NOTA;++i) {

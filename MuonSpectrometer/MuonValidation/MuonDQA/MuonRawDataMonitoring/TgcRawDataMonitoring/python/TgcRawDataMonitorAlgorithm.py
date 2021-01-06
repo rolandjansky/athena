@@ -14,6 +14,13 @@ def TgcRawDataMonitoringConfig(inputFlags):
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     result = ComponentAccumulator()
 
+    from MagFieldServices.MagFieldServicesConfig import MagneticFieldSvcCfg
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+    result.merge(MagneticFieldSvcCfg(inputFlags))
+    result.merge(AtlasGeometryCfg(inputFlags))
+    result.merge(TrackingGeometrySvcCfg(inputFlags))
+
     from AthenaMonitoring import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'TgcRawDataMonitorCfg')
 

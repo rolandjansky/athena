@@ -136,7 +136,7 @@ LArNoiseCorrelationMonAlg::fillHistograms(const EventContext& ctx) const
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
 
      bool passBCID;
-     if(trigTool) {
+     if(!trigTool.empty()) {
        // BCIDs of the abort gap
        const int ABORT_GAP_START = 3446;
        const int ABORT_GAP_END   = 3563;

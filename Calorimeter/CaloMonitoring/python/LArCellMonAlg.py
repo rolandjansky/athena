@@ -30,12 +30,12 @@ def LArCellMonConfigOld(inputFlags):
     from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
     CaloNoiseCondAlg()
 
-    LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
+    algo = LArCellMonConfigCore(helper, LArCellMonAlg,inputFlags,isCosmics, isMC)
 
     from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
-    helper.monSeq.LArCellMonAlg.ReadyFilterTool = GetAtlasReadyFilterTool()
+    algo.ReadyFilterTool = GetAtlasReadyFilterTool()
     from AthenaMonitoring.BadLBFilterTool import GetLArBadLBFilterTool
-    helper.monSeq.LArCellMonAlg.BadLBTool = GetLArBadLBFilterTool()
+    algo.BadLBTool = GetLArBadLBFilterTool()
 
     return helper.result()
 
@@ -46,15 +46,15 @@ def LArCellMonConfig(inputFlags):
     from AthenaMonitoring.AthMonitorCfgHelper import AthMonitorCfgHelper
     helper = AthMonitorCfgHelper(inputFlags,'LArCellMonAlgCfg')
 
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    cfg=ComponentAccumulator()
+
     if not inputFlags.DQ.enableLumiAccess:
        mlog.warning('This algo needs Lumi access, returning empty config')
-       from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
-       cfg=ComponentAccumulator()
-       cfg.merge(helper.result())
        return cfg
 
     from LArGeoAlgsNV.LArGMConfig import LArGMCfg
-    cfg = LArGMCfg(inputFlags)
+    cfg.merge(LArGMCfg(inputFlags))
     from TileGeoModel.TileGMConfig import TileGMCfg
     cfg.merge(TileGMCfg(inputFlags))
 
@@ -81,18 +81,17 @@ def LArCellMonConfig(inputFlags):
         algname=algname+'Cosmics'
 
     isCosmics = ( inputFlags.Beam.Type == 'cosmics' )
-    LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
-
-    acc=helper.result()
+    algo = LArCellMonConfigCore(helper, lArCellMonAlg,inputFlags, isCosmics, inputFlags.Input.isMC, algname)
+    algo.useTrigger = inputFlags.DQ.useTrigger
 
     from AthenaMonitoring.AtlasReadyFilterConfig import AtlasReadyFilterCfg
-    acc.getEventAlgo(algname).ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
+    algo.ReadyFilterTool = cfg.popToolsAndMerge(AtlasReadyFilterCfg(inputFlags))
 
     if not inputFlags.Input.isMC:
        from AthenaMonitoring.BadLBFilterToolConfig import LArBadLBFilterToolCfg
-       acc.getEventAlgo(algname).BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
+       algo.BadLBTool=cfg.popToolsAndMerge(LArBadLBFilterToolCfg(inputFlags))
 
-    cfg.merge(acc)
+    cfg.merge(helper.result())
 
     return cfg
 
@@ -494,6 +493,7 @@ def LArCellMonConfigCore(helper, algclass, inputFlags, isCosmics=False, isMC=Fal
         cellMonGroup.defineTree('sporadicCellE,sporadicCellTime,sporadicCellQuality,sporadicCellID,lumiBlock,adoptedEThreshold;SporadicNoisyCellsTree', path=sporadic_hist_path,
                                 treedef='sporadicCellE/F:sporadicCellTime/F:sporadicCellQuality/s:sporadicCellID/l:lumiBlock/i')
 
+    return LArCellMonAlg
 
 
 if __name__=='__main__':
