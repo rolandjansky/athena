@@ -696,6 +696,8 @@ void RatesAnalysisAlg::writeMetadata() {
     return;
   }
 
+  m_metadataTree->Branch("runNumber", &m_enhancedBiasRatesTool->RunNumber);
+  
   m_metadataTree->Branch("targetMu", &m_targetMu);
   m_metadataTree->Branch("targetBunches", &m_targetBunches);
   m_metadataTree->Branch("targetLumi", &m_targetLumi);

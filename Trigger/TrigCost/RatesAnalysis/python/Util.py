@@ -90,6 +90,15 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
   with open(fileName, 'w') as outFile:
     json.dump(obj=jsonDict, fp=outFile, indent=2, sort_keys=True)
 
+  metajsonDict = {}
+  metajsonDict['PredictionLumi'] = metadata['targetLumi']
+  metajsonDict['TargetMu'] = metadata['targetMu']
+  metajsonDict['RunNumber'] = metadata['runNumber']
+  metajsonDict['NEvents'] = metadata['n_evts']
+  
+  with open('metadata.json', 'w') as outMetaFile:
+    json.dump(obj=metajsonDict, fp=outMetaFile, indent=2, sort_keys=True)
+
 
 def getMetadata(inputFile):
   metatree = inputFile.Get("metadata")
@@ -98,6 +107,8 @@ def getMetadata(inputFile):
 
   metatree.GetEntry(0)
   metadata = {}
+
+  metadata['runNumber'] = metatree.runNumber
 
   metadata['targetMu'] = metatree.targetMu
   metadata['targetBunches'] = metatree.targetBunches
