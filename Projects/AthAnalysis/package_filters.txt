@@ -19,13 +19,14 @@
 # EDM:
 + Event/EventPrimitives
 + Event/FourMomUtils
++ Event/PyDumper
 + Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODTriggerCnv
 + Event/xAOD/xAODTrackingCnv
 + Event/xAOD/xAODEventFormatCnv
 + Event/xAOD/xAODCoreCnv
 + Event/xAOD/xAODTruthCnv
-#+ Event/xAOD/xAODEventInfoCnv
++ Event/xAOD/xAODEventInfoCnv
 - Event/xAOD/.*Cnv
 + Event/xAOD/.*
 
@@ -128,6 +129,7 @@
 + Trigger/TrigEvent/TrigRoiConversion
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
++ Trigger/TrigT1/TrigT1MuctpiBits
 + Trigger/TrigValidation/TrigAnalysisTest
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 #+ Reconstruction/RecoTools/IsolationTool
@@ -137,6 +139,7 @@
 
 # Core Athena (would like to reduce) :
 + Control/AthAllocators
++ Control/AthenaConfiguration
 + Control/AthenaServices
 + Control/StoreGate
 + Control/SGComps

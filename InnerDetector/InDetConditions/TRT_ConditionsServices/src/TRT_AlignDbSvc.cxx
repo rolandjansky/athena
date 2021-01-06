@@ -23,7 +23,6 @@
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 // Amg

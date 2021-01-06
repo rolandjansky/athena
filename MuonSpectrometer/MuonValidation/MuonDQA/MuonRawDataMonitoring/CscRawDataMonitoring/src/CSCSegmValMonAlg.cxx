@@ -76,6 +76,10 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
     }
 
     SG::ReadHandle<Trk::SegmentCollection> segments(m_segmKey, ctx);
+    if (!segments.isValid()) {
+      ATH_MSG_ERROR("Could not retrieve Trk::SegmentCollection "<<m_segmKey.key());
+      return StatusCode::FAILURE;
+    }
 
     if ( segments->empty() ){
       ATH_MSG_DEBUG( "      Segm Collection is Empty, done...    ");

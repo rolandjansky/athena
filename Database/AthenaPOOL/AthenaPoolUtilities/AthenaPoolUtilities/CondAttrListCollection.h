@@ -114,6 +114,8 @@ public:
 
     /// channel number for index: (index = 0 to size-1)
     ChanNum              chanNum(unsigned int index) const;
+
+    bool                 fixChanNum(ChanNum oldChan, ChanNum newChan);
     
     /// attribute list for a given channel number
     const AttributeList& attributeList(ChanNum chanNum) const;
@@ -673,6 +675,26 @@ CondAttrListCollection::isSameButMinRange ( const CondAttrListCollection& rhs,
     return true;
 }
 
+    
+inline bool
+    CondAttrListCollection::fixChanNum(const ChanNum oldChan,
+                                       const ChanNum newChan) {
+      auto attrRet = m_attrMap.emplace(newChan, m_attrMap[oldChan]);
+      // if a new element was inserted, erase the old one
+      if (attrRet.second) m_attrMap.erase(oldChan);
+
+      auto iovRet = m_iovMap.emplace(newChan, m_iovMap[oldChan]);
+      // if a new element was inserted, erase the old one
+      if (iovRet.second) m_iovMap.erase(oldChan);
+
+      auto nameRet = m_nameMap.emplace(newChan, m_nameMap[oldChan]);
+      // if a new element was inserted, erase the old one
+      if (nameRet.second) m_nameMap.erase(oldChan);
+
+      return attrRet.first->first == newChan
+          && iovRet.first->first == newChan
+          && nameRet.first->first == newChan;
+    }
     
     
 

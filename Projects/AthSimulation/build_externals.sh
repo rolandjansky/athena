@@ -24,8 +24,8 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_2"
-            -DATLAS_GAUDI_TAG="v35r0.001")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_3"
+            -DATLAS_GAUDI_TAG="v35r0.002")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -91,7 +91,7 @@ fi
 # Get the version of AthSimulation for the build.
 version=`cat ${thisdir}/version.txt`
 # Generate hash of any extra cmake arguments.
-cmakehash=`echo -n "${EXTRACMAKE}" | openssl md5 | awk '{print $2}'`
+cmakehash=`echo -n "${EXTRACMAKE[@]}" | openssl md5 | awk '{print $2}'`
 
 # Check if previous externals build can be reused:
 externals_stamp=${BUILDDIR}/build/AthSimulationExternals/externals-${version}-${cmakehash}.stamp

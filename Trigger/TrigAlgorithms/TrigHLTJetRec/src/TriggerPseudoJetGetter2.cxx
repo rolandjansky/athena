@@ -37,9 +37,9 @@ void TriggerPseudoJetGetter2::prime(const xAOD::CaloClusterContainer* inputs) {
   // to determine the function used to select the incomming IParticles.
 
   constexpr bool isGhost = false;
-  IConstituentExtractor* extractor = new IParticleExtractor(inputs,
-                                                            m_label,
-                                                            isGhost);
+  auto extractor = std::make_unique<const IParticleExtractor>(inputs,
+                                                              m_label,
+                                                              isGhost);
   
   constexpr bool noRejection = true;
   std::vector<fastjet::PseudoJet> vpj = 
@@ -48,7 +48,7 @@ void TriggerPseudoJetGetter2::prime(const xAOD::CaloClusterContainer* inputs) {
                                                 m_noNegE,
                                                 noRejection);
   
-  auto ppjc(std::make_unique<const PseudoJetContainer>(extractor, vpj));
+  auto ppjc(std::make_unique<const PseudoJetContainer>(std::move(extractor), vpj));
   m_pseudoJetContainer.swap(ppjc);
 }
 

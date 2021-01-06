@@ -18,6 +18,7 @@
 #include "TrkValEvent/TruthClassificationDefs.h"
 
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 namespace Trk {
 
@@ -40,9 +41,9 @@ namespace Trk {
 
       /** explain */
       virtual void initClassification(const McEventCollection&,
-                                      const std::vector<const HepMC::GenParticle *>*) const;
+                                      const std::vector<HepMC::ConstGenParticlePtr>*) const;
 
-      virtual unsigned int classify(const HepMC::GenParticle&) const;
+      virtual unsigned int classify(HepMC::ConstGenParticlePtr) const;
 
       virtual std::string nameOfClassifier() const;
 

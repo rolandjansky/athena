@@ -202,9 +202,10 @@ def PixelConfigCondAlg_MC():
     alg.FEI3BarrelHitDuplication2016 = [  False,  False,  False,  False]
     alg.FEI3BarrelSmallHitToT2016    = [     -1,     -1,     -1,     -1]
     alg.FEI3BarrelTimingSimTune2016  = [     -1,   2015,   2015,   2015]
-    alg.BarrelCrossTalk2016          = [   0.30,   0.06,   0.06,   0.06]
+    alg.BarrelCrossTalk2016          = [   0.30,   0.12,   0.12,   0.12]
     alg.BarrelNoiseOccupancy2016     = [   5e-8,   5e-8,   5e-8,   5e-8]
     alg.BarrelDisableProbability2016 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2016   = [    1.0,    1.0,    1.0,    1.0]
     alg.DefaultBarrelBiasVoltage2016 = [   80.0,  350.0,  200.0,  150.0]
     alg.BarrelFluence2016            = [0.80e14,1.61e14,0.71e14,0.48e14]
 
@@ -221,6 +222,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2016          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2016 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2016   = [  1.0,  1.0,  1.0]
     alg.DefaultEndcapBiasVoltage2016 = [150.0,150.0,150.0]
 
     alg.DBMToTThreshold2016       = [   -1,   -1,   -1]
@@ -247,9 +249,10 @@ def PixelConfigCondAlg_MC():
     alg.FEI3BarrelHitDuplication2017 = [  False,  False,  False,  False]
     alg.FEI3BarrelSmallHitToT2017    = [     -1,     -1,     -1,     -1]
     alg.FEI3BarrelTimingSimTune2017  = [     -1,   2018,   2018,   2018]
-    alg.BarrelCrossTalk2017          = [   0.30,   0.06,   0.06,   0.06]
+    alg.BarrelCrossTalk2017          = [   0.30,   0.12,   0.12,   0.12]
     alg.BarrelNoiseOccupancy2017     = [   5e-8,   5e-8,   5e-8,   5e-8]
     alg.BarrelDisableProbability2017 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2017   = [    1.0,    1.0,    1.0,    1.0]
     alg.DefaultBarrelBiasVoltage2017 = [  350.0,  350.0,  200.0,  150.0]
     alg.BarrelFluence2017            = [3.18e14,3.42e14,1.50e14,1.01e14]
 
@@ -266,6 +269,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2017          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2017 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2017   = [  1.0,  1.0,  1.0]
     alg.DefaultEndcapBiasVoltage2017 = [150.0,150.0,150.0]
 
     alg.DBMToTThreshold2017       = [   -1,   -1,   -1]
@@ -286,9 +290,10 @@ def PixelConfigCondAlg_MC():
     alg.FEI3BarrelHitDuplication2018 = [  False,  False,  False,  False]
     alg.FEI3BarrelSmallHitToT2018    = [     -1,     -1,     -1,     -1]
     alg.FEI3BarrelTimingSimTune2018  = [     -1,   2018,   2018,   2018]
-    alg.BarrelCrossTalk2018          = [   0.30,   0.06,   0.06,   0.06]
+    alg.BarrelCrossTalk2018          = [   0.30,   0.12,   0.12,   0.12]
     alg.BarrelNoiseOccupancy2018     = [   5e-8,   5e-8,   5e-8,   5e-8]
     alg.BarrelDisableProbability2018 = [   9e-3,   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorr2018   = [    1.0,    1.0,    1.0,    1.0]
     alg.DefaultBarrelBiasVoltage2018 = [  400.0,  400.0,  250.0,  250.0]
     alg.BarrelFluence2018            = [5.50e14,5.19e14,2.28e14,1.53e14]
 
@@ -305,6 +310,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalk2018          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbability2018 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorr2018   = [  1.0,  1.0,  1.0]
     alg.DefaultEndcapBiasVoltage2018 = [250.0,250.0,250.0]
 
     alg.DBMToTThreshold2018       = [   -1,   -1,   -1]
@@ -327,10 +333,11 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalkRUN1          = [   0.06,   0.06,   0.06]
     alg.BarrelNoiseOccupancyRUN1     = [   5e-8,   5e-8,   5e-8]
     alg.BarrelDisableProbabilityRUN1 = [   9e-3,   9e-3,   9e-3]
+    alg.BarrelLorentzAngleCorrRUN1   = [    1.0,    1.0,    1.0]
     alg.DefaultBarrelBiasVoltageRUN1 = [  150.0,  150.0,  150.0]
     alg.BarrelFluenceRUN1            = [1.01e14,0.44e14,0.30e14]
 
-    alg.BarrelFluenceMapRUN1 = ["PixelDigitization/maps_PIX_250V_fl1_01e14.root",
+    alg.BarrelFluenceMapRUN1 = ["PixelDigitization/maps_PIX_150V_fl1_01e14.root",
                                 "PixelDigitization/maps_PIX_150V_fl0_44e14.root",
                                 "PixelDigitization/maps_PIX_150V_fl0_3e14.root"]
 
@@ -342,6 +349,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalkRUN1          = [ 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0]
     alg.DefaultEndcapBiasVoltageRUN1 = [150.0,150.0,150.0]
 
     alg.BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0]
@@ -353,6 +361,7 @@ def PixelConfigCondAlg_MC():
     alg.BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06]
     alg.BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8]
     alg.BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3]
+    alg.BarrelLorentzAngleCorrITK   = [   1.0,   1.0,   1.0,   1.0,   1.0]
     alg.DefaultBarrelBiasVoltageITK = [ 150.0, 150.0, 150.0, 150.0, 150.0]
     alg.BarrelFluenceITK            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14]
 
@@ -366,6 +375,7 @@ def PixelConfigCondAlg_MC():
     alg.EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06]
     alg.EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8]
     alg.EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3]
+    alg.EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
     alg.DefaultEndcapBiasVoltageITK = [150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0,150.0]
 
     alg.InnermostNoiseShapeITK     = [0.0, 1.0]

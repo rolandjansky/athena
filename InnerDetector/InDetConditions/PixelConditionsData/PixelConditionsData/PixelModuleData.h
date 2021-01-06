@@ -139,6 +139,11 @@ class PixelModuleData {
     float getDefaultQ2TotE() const;
     float getDefaultQ2TotC() const;
 
+    // Lorentz angle correction
+    void setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr);
+    void setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr);
+    double getLorentzAngleCorr(int bec, int layer) const;
+
     // DCS parameters
     void setDefaultBiasVoltage(float biasVoltage);
     float getDefaultBiasVoltage() const;
@@ -282,6 +287,9 @@ class PixelModuleData {
     float m_paramA;
     float m_paramE;
     float m_paramC;
+
+    std::vector<double> m_BarrelLorentzAngleCorr;
+    std::vector<double> m_EndcapLorentzAngleCorr;
 
     float m_biasVoltage;
     float m_temperature;

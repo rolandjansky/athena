@@ -23,7 +23,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackStateValidation.h"
-#include "xAODTracking/TrackStateValidationContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"

@@ -802,11 +802,11 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 		<< "-Pt" << dataWord.getPt();
     } 
 
-    
+    /*
     if (dataWord.getBCID() == multWord.getBCID()) {
       // Fill the muctpi map for later comparision to RPC and TGC
       muctpiCandidates.insert ( std::pair<std::string,MuCTPI_DataWord_Decoder>(keystring.str(),dataWord) );
- 
+    
      //Use only candidates from the same BCID for overlap histograms
       if (dataWord.getOverlapBits()) {
 	if (dataWord.getSectorLocation() == MuCTPI_RDO::ENDCAP) {
@@ -825,6 +825,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 	}
       }
     }
+*/
   }
 
   for ( int y = 0; y < 96; y++ ) {
@@ -866,7 +867,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
    * BCIDs 
    */
   uint16_t mictpBcid = multWord.getBCID();
-  uint16_t candidateBcid = 0;
+  //uint16_t candidateBcid = 0;
   uint16_t headerBcid =
     (theMuCTPI_RIO) ? theMuCTPI_RIO->getHeaderBCID() : 0;
   bcidMictpHeader->Fill(mictpBcid - (headerBcid & 7));
@@ -896,7 +897,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
       forwardRoiSectorIDAll->Fill(dataWord.getSectorID()+24*dataWord.getHemisphere(), dataWord.getRoiNumber());
     }
 
-    candidateBcid = dataWord.getBCID();
+/*    candidateBcid = dataWord.getBCID();
 
     int candbcdiff = candidateBcid - mictpBcid;	
     if (candbcdiff > 3) candbcdiff -= 8; 
@@ -911,9 +912,10 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
       errorPerLumiBlock->Fill(m_currentLumiBlock);
     }
     else errorSummary->Fill(8,0);
-    
+*/  
     //Use only non-vetoed candidates from the same BCID for multiplicity calculation
-    if ( (dataWord.getBCID() == multWord.getBCID()) && !dataWord.getVetoed() ) {
+    if ( //(dataWord.getBCID() == multWord.getBCID()) && 
+	 !dataWord.getVetoed() ) {
       uint16_t candPt = dataWord.getPt();
       pt->Fill(candPt);
       if (0 < candPt && candPt <= MuCTPI_RDO::MULT_THRESH_NUM) {
@@ -1066,7 +1068,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
     int rpcnum = rpcCandidates.count(it_mui->first); 
     if (tgcnum > 0 || rpcnum > 0 ) {
       ATH_MSG(DEBUG) << "MuCTPI to RPC/TGC match found: MuCTPI key/ MuCTPI BCID / #TGC matches / #RPC matches: "
-		     << it_mui->first << " / " << it_mui->second.getBCID() << " / " 
+		     << it_mui->first << " / " << /*it_mui->second.getBCID() <<*/ " / " 
 		     << tgcnum << " / " << rpcnum << endmsg;
     } else {
       if ( (it_mui->first).substr(0,2) == "BA" )  { 
@@ -1089,7 +1091,7 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
 			 << (it_mui->first).substr(0,2) << endmsg;
       }
       ATH_MSG(WARNING) << "No Muctpi to RPC/TGC match found: MuCTPI key / MuCTPI BCID: " 
-		       << it_mui->first  << " / " << it_mui->second.getBCID() << endmsg;
+		       << it_mui->first  << " / " << /*it_mui->second.getBCID() <<*/ endmsg;
     }
   }
 
@@ -1707,8 +1709,9 @@ doMuonRoI(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO,
 	    if (dataWord.getSectorLocation() == MuCTPI_RDO::BARREL)
 	      sectorID=dataWord.getSectorID(1);
 	    
-	    if ((dataWord.getBCID() == theMuCTPI_RIO->getBCID())
-		&& (sectorID == secID)
+	    if (//(dataWord.getBCID() == theMuCTPI_RIO->getBCID())
+		//&& 
+		(sectorID == secID)
 		&& (dataWord.getRoiNumber() == roInum)
 		&& (dataWord.getSectorLocation() == sysID)
 		&& (dataWord.getHemisphere() == hemisphere)) {

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigTauRec.TrigTauRecConf import TrigTauRecMergedMT
-from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly
+from TrigTauRec.TrigTauRecMonitoring import tauMonitoringCaloOnly, tauMonitoringCaloOnlyMVA, tauMonitoringPreselection, tauMonitoringPrecision, tauMonitoringPrecisionMVA
 
 class TrigTauRecMerged_TauCaloOnly (TrigTauRecMergedMT) :
 
@@ -45,7 +45,9 @@ class TrigTauRecMerged_TauCaloOnlyMVA (TrigTauRecMergedMT) :
 
         def __init__(self, name = "TrigTauRecMerged_TauCaloOnlyMVA"):
             super( TrigTauRecMerged_TauCaloOnlyMVA , self ).__init__( name )
-
+            self.MonTool = tauMonitoringCaloOnlyMVA()
+            self._mytools = [] 
+          
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -84,8 +86,9 @@ class TrigTauRecMerged_TauPreselection (TrigTauRecMergedMT) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPreselection"):
             super( TrigTauRecMerged_TauPreselection , self ).__init__( name )
+            self.MonTool = tauMonitoringPreselection()
             self._mytools = []
-            
+             
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []
 
@@ -129,6 +132,7 @@ class TrigTauRecMerged_TauPrecision (TrigTauRecMergedMT) :
         __slots__ = [ '_mytools']
         def __init__(self, name = "TrigTauRecMerged_TauPrecision"):
             super( TrigTauRecMerged_TauPrecision , self ).__init__( name )
+            self.MonTool = tauMonitoringPrecision()
             self._mytools = []
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
@@ -189,6 +193,7 @@ class TrigTauRecMerged_TauPrecisionMVA (TrigTauRecMergedMT) :
         def __init__(self, name = "TrigTauRecMerged_TauPrecisionMVA", doMVATES=False, doTrackBDT=False, doRNN=False):
         
             super( TrigTauRecMerged_TauPrecisionMVA , self ).__init__( name )
+            self.MonTool = tauMonitoringPrecisionMVA()
 
             import TrigTauRec.TrigTauAlgorithmsHolder as taualgs
             tools = []

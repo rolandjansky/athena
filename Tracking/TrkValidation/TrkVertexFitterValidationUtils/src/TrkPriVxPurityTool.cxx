@@ -79,36 +79,47 @@ namespace Trk {
 //getting the signal event itself
                 McEventCollection::const_iterator it = mcCollection->begin();
                 const HepMC::GenEvent* genEvent= ( *it );
+#ifdef HEPMC3
+                if( genEvent->vertices().empty() ) {
+                  ATH_MSG_DEBUG( "No vertices found in first GenEvent" );
+                  return 0;
+                }
+               auto pv = genEvent->vertices()[0];
+#else
 //        std::cout<<"The ID of the first event of the collection: "<<genEvent->event_number()<<std::endl;
                 if( genEvent->vertices_empty() ) {
                   ATH_MSG_DEBUG( "No vertices found in first GenEvent" );
                   return 0;
                 }
+               auto pv = *(genEvent->vertices_begin());
+#endif
 
 //analysing the MC event to create PV candidate
 //first finding the vertex of primary pp interaction
-                HepMC::GenEvent::vertex_const_iterator pv = genEvent->vertices_begin();
 
 //and storing its position
-                CLHEP::HepLorentzVector pv_pos ( ( *pv )->position().x(),
-                                          ( *pv )->position().y(),
-                                          ( *pv )->position().z(),
-                                          ( *pv )->position().t() );
+                CLHEP::HepLorentzVector pv_pos ( pv ->position().x(),
+                                          pv ->position().y(),
+                                          pv ->position().z(),
+                                          pv ->position().t() );
                 double pv_r = pv_pos.perp();
                 double pv_z = pv_pos.z();
 
 // storing all the ids of vertices reasonably close to the primary one.
 // here the region of interest is selected.
-                std::map<int,HepMC::GenVertex *> vertex_ids;
-
-                for ( HepMC::GenEvent::vertex_const_iterator i = genEvent->vertices_begin();
-                      i != genEvent->vertices_end()  ;++i ) {
-                    CLHEP::HepLorentzVector lv_pos ( ( *i )->position().x(),
-                                              ( *i )->position().y(),
-                                              ( *i )->position().z(),
-                                              ( *i )->position().t() );
-                    if ( fabs ( lv_pos.perp() - pv_r ) <m_r_tol  && fabs ( lv_pos.z() - pv_z ) <m_z_tol ) {
-                        vertex_ids[ ( *i )->barcode() ]= ( *i );
+                std::map<int,HepMC::ConstGenVertexPtr> vertex_ids;
+#ifdef HEPMC3
+                for (auto vtx: genEvent->vertices()){
+#else
+                for ( HepMC::GenEvent::vertex_const_iterator i = genEvent->vertices_begin(); i != genEvent->vertices_end()  ;++i ) {
+                    auto vtx=*i;
+#endif
+                    CLHEP::HepLorentzVector lv_pos ( vtx->position().x(),
+                                              vtx->position().y(),
+                                              vtx->position().z(),
+                                              vtx->position().t() );
+                    if ( std::abs ( lv_pos.perp() - pv_r ) <m_r_tol  && std::abs ( lv_pos.z() - pv_z ) <m_z_tol ) {
+                        vertex_ids[ HepMC::barcode(vtx) ]= vtx;
                     }//end of accepted vertices check
                 }//end  of loop over all the vertices
 
@@ -128,7 +139,6 @@ namespace Trk {
 //looping over the tracks to find those matched to the GenParticle originating from signal PV
                 std::vector<Trk::VxTrackAtVertex *>::const_iterator vt = tracks->begin();
                 std::vector<Trk::VxTrackAtVertex *>::const_iterator ve = tracks->end();
-//         unsigned int total_size = 0;
                 unsigned int n_failed = 0;
                 std::vector<double> in_weights ( 0 );
                 std::vector<double> out_weights ( 0 );
@@ -147,7 +157,6 @@ namespace Trk {
                             // get to the original track particle
                             LinkToTrackParticleBase * tr_part = dynamic_cast< LinkToTrackParticleBase * > ( origLink );
                             if ( tr_part !=0  && tr_part->isValid()) {
-//                 ++total_size;
                 
 
                                 std::map< Rec::TrackParticleTruthKey, TrackParticleTruth>::const_iterator ttItr = trackParticleTruthCollection->end();
@@ -166,22 +175,26 @@ namespace Trk {
 
                                 if (ttItr != trackParticleTruthCollection->end() ) {
                                     const HepMcParticleLink& particleLink = ttItr->second.particleLink();
-                                    const HepMC::GenParticle* genParticle = particleLink.cptr();
+#ifdef HEPMC3
+                                    HepMC::ConstGenParticlePtr genParticle = particleLink.scptr();
+#else
+                                    HepMC::ConstGenParticlePtr genParticle = particleLink.cptr();
+#endif
 
-                                    if(genParticle !=0) {
-                                        HepMC::GenEvent * tpEvent = genParticle->parent_event();
+                                    if(genParticle) {
+                                        auto tpEvent = genParticle->parent_event();
                                         if(tpEvent==genEvent) { 
-                                            const HepMC::GenVertex * pVertex(0);
-                                            if (genParticle!=0) pVertex = genParticle->production_vertex();
-                                            if ( pVertex != 0 ) {
+                                            HepMC::ConstGenVertexPtr pVertex{nullptr};
+                                            if (genParticle) pVertex = genParticle->production_vertex();
+                                            if ( pVertex) {
                                                 int link_pid = genParticle->pdg_id();
                                                 bool primary_track = false;
                                                 bool secondary_track = false;
                   
 //loop over the particles until decision is really taken
                                                 do {
-                                                    int tvrt_code = pVertex->barcode();
-                                                    std::map<int, HepMC::GenVertex *>::const_iterator idf_res = vertex_ids.find ( tvrt_code );
+                                                    int tvrt_code = HepMC::barcode(pVertex);
+                                                    auto idf_res = vertex_ids.find ( tvrt_code );
 
 //for the HepMcParticle Link, the signal event has an index 0.
 // tagging on it
@@ -193,11 +206,19 @@ namespace Trk {
 //this vertex is not from the central region.
 //checking whether it is a bremsstrahlung
 //if so, propagating track to its origin, otherwise rejecting it completely.
+#ifdef HEPMC3
+                                                        if ( pVertex->particles_in().size() == 1 ) {
+#else
                                                         if ( pVertex->particles_in_size() == 1 ) {
+#endif
 // one mother particle: is it a brem of some kind?
-                                                            HepMC::GenVertex::particles_in_const_iterator inp = pVertex->particles_in_const_begin() ;
-                                                            HepMC::GenVertex * tmpVertex_loc = ( *inp )->production_vertex();
-                                                            if ( ( *inp )->pdg_id() == link_pid  && tmpVertex_loc) {
+#ifdef HEPMC3
+                                                            auto inp = pVertex->particles_in()[0] ;
+#else
+                                                            auto inp =*(pVertex->particles_in_const_begin()) ;
+#endif
+                                                            auto tmpVertex_loc = inp ->production_vertex();
+                                                            if ( inp ->pdg_id() == link_pid  && tmpVertex_loc) {
 // seems like a brem (this can be generator/simulation dependent unfortunately)
 // continue iterating
                                                                 pVertex = tmpVertex_loc;

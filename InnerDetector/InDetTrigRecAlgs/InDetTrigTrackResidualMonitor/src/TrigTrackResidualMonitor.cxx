@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigTrackResidualMonitor/TrigTrackResidualMonitor.h"
@@ -19,7 +19,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkValTools/TrackDiff.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
-#include "TrkTrack/Track.h"
 #include "TrkSurfaces/Surface.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/SiliconID.h"

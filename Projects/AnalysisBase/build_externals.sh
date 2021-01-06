@@ -85,7 +85,7 @@ fi
 # Get the version of AnalysisBase for the build.
 version=`cat ${thisdir}/version.txt`
 # Generate hash of any extra cmake arguments.
-cmakehash=`echo -n "${EXTRACMAKE}" | openssl md5 | awk '{print $2}'`
+cmakehash=`echo -n "${EXTRACMAKE[@]}" | openssl md5 | awk '{print $2}'`
 
 # Check if previous externals build can be reused:
 externals_stamp=${BUILDDIR}/build/AnalysisBaseExternals/externals-${version}-${cmakehash}.stamp

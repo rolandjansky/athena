@@ -12,6 +12,7 @@
 #define EVENTUTILS_PARTICLESORTINGALG_H 1
 
 // FrameWork includes
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -20,7 +21,6 @@
 #include <string>
 
 // Forward declarations
-class IJobOptionsSvc;
 namespace DerivationFramework {
   class IAugmentationTool;
 }
@@ -43,13 +43,13 @@ class ParticleSortingAlg
   virtual ~ParticleSortingAlg();
 
   /// Athena algorithm's initalize hook
-  virtual StatusCode  initialize();
+  virtual StatusCode initialize() override;
 
   /// Athena algorithm's execute hook
-  virtual StatusCode  execute();
+  virtual StatusCode execute() override;
 
   /// Athena algorithm's finalize hook
-  virtual StatusCode  finalize();
+  virtual StatusCode finalize() override;
 
 
 private:
@@ -75,7 +75,7 @@ private:
  private:
   /// The job options service (will be used to forward this algs properties to
   /// the private tool)
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jos;
 
   /// The ToolHandle to the private ParticleSortingTool
   ToolHandle<DerivationFramework::IAugmentationTool> m_tool;

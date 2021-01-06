@@ -11,7 +11,10 @@
 #include "./JetGroupIndAllocator.h"
 #include "./xAODJetCollector.h"
 #include "./ITrigJetHypoInfoCollector.h"
+#include "./JetGroupRegister.h"
+#include "./ConditionFilter.h"
 #include <string>
+#include <map>
 
 using TreeVec = std::vector<std::size_t>;
 using IDJetGroup = std::map<std::size_t, HypoJetVector>;
@@ -22,14 +25,16 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 */
 
 using JetGroupInd2ElemInds = std::map<int, std::vector<std::size_t>>;
+using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
 
 
 class FastReducer {
  public:
 
-  FastReducer(const HypoJetGroupCIter& groups_b,
-              const HypoJetGroupCIter& groups_e,
+  FastReducer(const HypoJetCIter& jets_b,
+              const HypoJetCIter& jets_e,
               const ConditionPtrs& conditionObjects,
+	      const ConditionFilters& conditionFilters,
               const Tree& conditionsTree,
               xAODJetCollector& jetCollector,
               const Collector& collector);
@@ -45,7 +50,11 @@ class FastReducer {
 
  private:
 
+  // conditions owned by the matcher
   const ConditionPtrs& m_conditions;
+
+  // conditionFilters owned by the matcher
+  const ConditionFilters& m_conditionFilters;
 
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
@@ -75,15 +84,16 @@ class FastReducer {
 
   HypoJetVector m_passingJets;
 
-  JetGroupIndAllocator m_jgIndAllocator;
-  
+  //  JetGroupIndAllocator m_jgIndAllocator;
+
+  JetGroupRegister m_jgRegister;
   /** set up the data structures for propagation. Propagation is the
    act of combining jet groups satisfying children
    in preparration for testing against parent conditions.
   */
   
-  bool findInitialJetGroups(const HypoJetGroupCIter& groups_b,
-			    const HypoJetGroupCIter& groups_e,
+  bool findInitialJetGroups(const HypoJetCIter& jets_b,
+			    const HypoJetCIter& jets_e,
 			    const Collector& collector);
   
   
@@ -101,6 +111,11 @@ class FastReducer {
   void recordJetGroup(std::size_t ind,
 		      const HypoJetVector& jg,
 		      const Collector& collector) const;
+
+  void recordFiltering(std::size_t leaf_ind,
+		       std::size_t n_inputjets,
+		       int n_filteredjets,
+		       const Collector& collector) const;
 
   void collectLeafJets(xAODJetCollector& jetCollector,
 		       const Collector& collector) const;

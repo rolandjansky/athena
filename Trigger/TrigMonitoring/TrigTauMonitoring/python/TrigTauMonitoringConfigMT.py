@@ -230,6 +230,7 @@ class TrigTauMonAlgBuilder:
     for l1seed in l1seeds:
         if not l1seed : 
             continue
+        self.bookL1( monAlg, l1seed )
         self.bookL1EffHistograms( monAlg, l1seed, nProng='1P')
         self.bookL1EffHistograms( monAlg, l1seed, nProng='MP') 
    
@@ -280,6 +281,43 @@ class TrigTauMonAlgBuilder:
     defineEachStepHistograms('tauPhi','#phi', 16, -3.2, 3.2)
     defineEachStepHistograms('averageMu', 'average pileup', 10, 0., 80.)
 
+  #
+  # Booking L1 Variables
+  #
+
+  def bookL1( self, monAlg, trigL1Item):
+
+    monGroupName = trigL1Item+'_L1'
+    monGroupPath = 'L1/'+trigL1Item+'/L1'
+
+    monGroup = self.helper.addGroup( monAlg, monGroupName,
+                              self.basePath+'/'+monGroupPath )
+
+    monGroup.defineHistogram('L1RoIEt;L1RoIEta', type='TH2F', title='L1 RoI Et vs Eta; E_{T}[GeV]; #eta',
+                            path=monGroupPath,
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-2.6,ymax=2.6)
+    monGroup.defineHistogram('L1RoIEt;L1RoIPhi', type='TH2F', title='L1 RoI Et vs Phi; E_{T}[GeV]; #phi',
+                            path=monGroupPath,
+                            xbins=100,xmin=0,xmax=100,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEta;L1RoIPhi', type='TH2F', title='L1 RoI Eta vs Phi; #eta; #phi',
+                            path=monGroupPath,
+                            xbins=100,xmin=-2.6,xmax=2.6,
+                            ybins=100,ymin=-3.2,ymax=3.2)
+    monGroup.defineHistogram('L1RoIEMIso', title='L1 RoI EM Isol ; E_{T}^{EM Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIEta', title='L1 RoI Eta ; #eta; N RoI',xbins=100,xmin=-2.6,xmax=2.6)
+    monGroup.defineHistogram('L1RoIHadCore', title='L1 RoI HAD Core ; E_{T}^{HAD}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIHadIsol', title='L1 RoI HAD Isol ; E_{T}^{HAD Isol}[GeV]; N RoI',xbins=16,xmin=-2,xmax=30)
+    monGroup.defineHistogram('L1RoIPhi', title='L1 RoI Phi ; #phi; N RoI',xbins=100,xmin=-3.2,xmax=3.2)
+    monGroup.defineHistogram('L1RoITauClus', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+    monGroup.defineHistogram('L1RoITauClus;L1RoIEMIso', type='TH2F', title='L1 RoI TauClus vs EMiso ; E_{T}[GeV]; E_{T}^{EM Isol}[GeV]',
+                            path=monGroupPath,
+                            xbins=140,xmin=10,xmax=80,
+                            ybins=42,ymin=-1,ymax=20)
+    monGroup.defineHistogram('L1RoIeT', title='L1 RoI Tau Clust Energy; E_{T}[GeV]; N RoI',xbins=260,xmin=0,xmax=130)
+
+                             
   #
   # Book RNN Variables
   #

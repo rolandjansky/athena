@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagTriggerBitsD3PDObject.py
@@ -44,6 +44,6 @@ defineTriggerBits(JetTagTriggerBitsD3PDObject, 0, ["L1_MU4.*","L2_mu4T.*","EF_mu
 
 def getJetTagTriggerBitsD3PDObject(triggerList):
 
-    defineTriggerBits(JetTagTriggerBitsD3PDObject,0,triggerList);
+    defineTriggerBits(JetTagTriggerBitsD3PDObject,0,triggerList)
 
     return JetTagTriggerBitsD3PDObject(0)

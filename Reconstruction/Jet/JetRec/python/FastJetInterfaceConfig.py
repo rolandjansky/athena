@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
-from AthenaCommon.SystemOfUnits import *
+from AthenaCommon.SystemOfUnits import GeV
 from AthenaCommon.Logging import logging
 
 from JetRec.JetRecConf import FastJetInterfaceTool
@@ -96,10 +96,10 @@ def checkAndUpdate(**options):
     for k in options.keys():
         if k not in defFastJetInterfaceConfigDict :
             if ignoreUnknown :
-                _fastjetLog.warning("Option %s unknown - ignoring it!"%(k))
+                _fastjetLog.warning("Option %s unknown - ignoring it!",k)
                 options.pop(k)
             else :
-                _fastjetLog.error("Option %s unknown - abort configuration!"%(k))
+                _fastjetLog.error("Option %s unknown - abort configuration!",k)
                 raise Exception
 
     checkedOptions = dict(defFastJetInterfaceConfigDict)
@@ -114,7 +114,6 @@ def checkAndUpdate(**options):
     # check settings for Strategy
     key = "Strategy"
     #    print checkedOptions
-    tag = checkedOptions[key]
     _fastjetLog.info("Test option %s",key)
     if checkedOptions[key] not in fastjet_conf_tags.Strategy :
         _fastjetLog.error("Strategy \042%s\042 not recognized - fatal! Allowed values are: ",checkedOptions['Strategy'])

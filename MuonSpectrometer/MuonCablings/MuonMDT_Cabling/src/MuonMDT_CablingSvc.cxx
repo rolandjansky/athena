@@ -39,10 +39,6 @@ AthService(svcName,sl),
     declareProperty("doCalStreamInit",m_doCalStreamInit=false);
 }
 
-MuonMDT_CablingSvc::~MuonMDT_CablingSvc()
-    { }
-
-
 /** Initialization method */
 StatusCode MuonMDT_CablingSvc::initialize()
 {
@@ -148,14 +144,6 @@ StatusCode MuonMDT_CablingSvc::initialize()
 
     return sc;
 }
-
-/** Finalization method */
-StatusCode MuonMDT_CablingSvc::finalize()
-{
-   return StatusCode::SUCCESS;
-}
-
-
 
 // queryInterface 
 StatusCode MuonMDT_CablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 

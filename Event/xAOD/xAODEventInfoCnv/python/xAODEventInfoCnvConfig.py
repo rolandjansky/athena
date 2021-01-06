@@ -21,7 +21,7 @@ def EventInfoCnvAlgCfg(flags, name="EventInfoCnvAlg",
 
     # TODO: luminosity
 
-    if not disableBeamSpot and flags.Common.Project not in ["AthSimulation", "AthGeneration"]:
+    if not disableBeamSpot:
         from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
         acc.merge(BeamSpotCondAlgCfg(flags))
 

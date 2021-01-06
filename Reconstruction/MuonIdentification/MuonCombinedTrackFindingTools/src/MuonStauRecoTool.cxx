@@ -788,7 +788,8 @@ namespace MuonCombined {
     if( tracks.size() == 1 ) return true;
 
     // more than 1 track call ambiguity solver and select first track
-    TrackCollection* resolvedTracks=m_trackAmbibuityResolver->process(&tracks);
+    std::unique_ptr<TrackCollection> resolvedTracks
+      (m_trackAmbibuityResolver->process(&tracks));
     Trk::Track* selectedTrack = resolvedTracks->front();
 
     // get candidate

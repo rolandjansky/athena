@@ -166,7 +166,7 @@ using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
   vec_fb<T, N> operator op (const vec_fb<T, N>& a, const vec_fb<T, N>& b) \
   {                                                                       \
     vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; i++)                                        \
+    for (size_t i = 0; i < N; ++i)                                        \
       c.m_arr[i] = a.m_arr[i] op b.m_arr[i];                              \
     return c;                                                             \
   }                                                                       \
@@ -175,7 +175,7 @@ using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
   vec_fb<T, N> operator op (const vec_fb<T, N>& a, U b)                   \
   {                                                                       \
     vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; i++)                                        \
+    for (size_t i = 0; i < N; ++i)                                        \
       c.m_arr[i] = a.m_arr[i] op b;                                       \
     return c;                                                             \
   }                                                                       \
@@ -184,7 +184,7 @@ using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
   vec_fb<T, N> operator op (U a, const vec_fb<T, N>& b)                   \
   {                                                                       \
     vec_fb<T, N> c;                                                       \
-    for (size_t i = 0; i < N; i++)                                        \
+    for (size_t i = 0; i < N; ++i)                                        \
       c.m_arr[i] = a op b.m_arr[i];                                       \
     return c;                                                             \
   }                                                                       \
@@ -192,7 +192,7 @@ using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
   inline                                                                  \
   vec_fb<T, N>& operator op ## = (vec_fb<T, N>& a, const vec_fb<T, N>& b) \
   {                                                                       \
-     for (size_t i = 0; i < N; i++)                                       \
+     for (size_t i = 0; i < N; ++i)                                       \
       a.m_arr[i] op ## = b.m_arr[i];                                      \
     return a;                                                             \
   }                                                                       \
@@ -200,7 +200,7 @@ using ivec = vec_fb<typename boost::int_t<sizeof(T)*8>::exact, N>;
   inline                                                                  \
   vec_fb<T, N>& operator op ## = (vec_fb<T, N>& a, U b)                   \
   {                                                                       \
-    for (size_t i = 0; i < N; i++)                                        \
+    for (size_t i = 0; i < N; ++i)                                        \
       a.m_arr[i] op ## = b;                                               \
     return a;                                                             \
   }
@@ -229,7 +229,7 @@ BINOP(<<)
   vec_fb<T, N> operator op (const vec_fb<T, N>& a)                      \
   {                                                                     \
     vec_fb<T, N> c;                                                     \
-    for (size_t i = 0; i < N; i++)                                      \
+    for (size_t i = 0; i < N; ++i)                                      \
       c.m_arr[i] = op a.m_arr[i];                                       \
     return c;                                                           \
   }                                                                     \
@@ -251,7 +251,7 @@ UNOP(~)
   ivec<T, N> operator op (const vec_fb<T, N>& a, const vec_fb<T, N>& b) \
   {                                                                     \
     ivec<T, N> c;                                                       \
-    for (size_t i = 0; i < N; i++)                                      \
+    for (size_t i = 0; i < N; ++i)                                      \
       c.m_arr[i] = a.m_arr[i] op b.m_arr[i];                            \
     return c;                                                           \
   }
@@ -273,7 +273,7 @@ inline
 ivec<T, N> operator! (const vec_fb<T, N>& a)
 {
   ivec<T, N> c;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     c.m_arr[i] = a.m_arr[i] == 0;
   return c;
 }
@@ -285,7 +285,7 @@ inline
 ivec<T, N> operator&& (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
 {
   ivec<T, N> c;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     c.m_arr[i] = (a.m_arr[i]!=0) & (b.m_arr[i]!=0);
   return c;
 }
@@ -297,7 +297,7 @@ inline
 ivec<T, N> operator&& (U a, const vec_fb<T, N>& b)
 {
   ivec<T, N> c;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     c.m_arr[i] = a ? b.m_arr[i] != 0 : 0;
   return c;
 }
@@ -309,7 +309,7 @@ inline
 ivec<T, N> operator&& (const vec_fb<T, N>& a, U b)
 {
   ivec<T, N> c;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     c.m_arr[i] = (a.m_arr[i]!=0) & (b ? -1 : 0);
   return c;
 }
@@ -321,7 +321,7 @@ inline
 ivec<T, N> operator|| (const vec_fb<T, N>& a, const vec_fb<T, N>& b)
 {
   ivec<T, N> c;
-  for (size_t i = 0; i < N; i++)
+  for (size_t i = 0; i < N; ++i)
     c.m_arr[i] = (a.m_arr[i]!=0) | (b.m_arr[i]!=0);
   return c;
 }
@@ -416,7 +416,7 @@ vbroadcast(VEC& v, T x)
   // This may look inefficient, but the loop goes away when we
   // compile with optimization.
   constexpr size_t N = CxxUtils::vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     v[i] = x;
   }
 #else
@@ -461,7 +461,7 @@ vselect(VEC& dst, const VEC& a, const VEC& b, const mask_type_t<VEC>& mask)
 {
 #if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     dst[i] = mask[i] ? a[i] : b[i];
   }
 #else
@@ -479,7 +479,7 @@ vmin(VEC& dst, const VEC& a, const VEC& b)
 {
 #if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     dst[i] = a[i] < b[i] ? a[i] : b[i];
   }
 #else
@@ -497,7 +497,7 @@ vmax(VEC& dst, const VEC& a, const VEC& b)
 {
 #if !HAVE_VECTOR_TERNARY_OPERATOR || WANT_VECTOR_FALLBACK
   constexpr size_t N = vec_size<VEC>();
-  for (size_t i = 0; i < N; i++) {
+  for (size_t i = 0; i < N; ++i) {
     dst[i] = a[i] > b[i] ? a[i] : b[i];
   }
 #else

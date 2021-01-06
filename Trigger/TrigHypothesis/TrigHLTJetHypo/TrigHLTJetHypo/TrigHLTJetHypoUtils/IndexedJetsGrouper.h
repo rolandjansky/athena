@@ -36,7 +36,7 @@ public:
   std::vector<HypoJetGroupVector>
   group(HypoJetIter&, HypoJetIter&) const override;
   
-  std::optional<HypoJetGroupVector> next() override;
+  std::optional<HypoJetVector> next() override;
       
   std::string getName() const override;
   std::string toString() const override;

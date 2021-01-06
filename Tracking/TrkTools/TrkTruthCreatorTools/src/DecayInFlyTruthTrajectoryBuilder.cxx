@@ -36,17 +36,17 @@ StatusCode DecayInFlyTruthTrajectoryBuilder::initialize() {
 
 //================================================================
 void DecayInFlyTruthTrajectoryBuilder::
-buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) const
+buildTruthTrajectory(TruthTrajectory *result, HepMC::ConstGenParticlePtr input) const
 {
   result->clear();
   if(input) {
-    const HepMC::GenParticle *next(nullptr);
-    const HepMC::GenParticle *current = input;
+    HepMC::ConstGenParticlePtr  next{nullptr};
+    HepMC::ConstGenParticlePtr  current = input;
 
     // Extend trajectory outwards.  The last particle should go at [0]
     // in the TruthTrajectory, so we need to use a tmp storage while
     // traversing the structure.
-    std::stack<const HepMC::GenParticle*> tmp;
+    std::stack<HepMC::ConstGenParticlePtr> tmp;
     while( (next = getDaughter(current)) ) {
       tmp.push(current = next);
     }
@@ -69,18 +69,11 @@ buildTruthTrajectory(TruthTrajectory *result, const HepMC::GenParticle *input) c
 
 //================================================================
 DecayInFlyTruthTrajectoryBuilder::MotherDaughter
-DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vtx) const
+DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const
 {
-  const HepMC::GenParticle *mother(nullptr);
-  const HepMC::GenParticle *daughter(nullptr);
-  
-  // only truth vertices with 1 incoming particle
-  if(vtx && (vtx->particles_in_size() == 1)) {
-
-    mother = *vtx->particles_in_const_begin();
-    // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
-    if( mother && (mother->status() < 3) ) {
-    
+  HepMC::ConstGenParticlePtr mother{nullptr};
+  HepMC::ConstGenParticlePtr daughter{nullptr};
+     // only truth vertices with 1 incoming particle     
       // Restrict to quasi-elastic processes (e.g. brems, delta-rays, pi->pi+Delta).
       // 
       // Require not more than 2 outgoing particles. Note that
@@ -89,14 +82,21 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
       // is that with the higher energy (NOT pt).
       // 
       // allow 1 outgoing to cover possible vertexes from interaction in detector material
-      if (vtx->particles_out_size() <= 2) {
+#ifdef HEPMC3
+  if(vtx && (vtx->particles_in().size() == 1) && (vtx->particles_out().size() <= 2)  ) {
+
+    mother = vtx->particles_in().front();
+#else 
+  if(vtx && (vtx->particles_in_size() == 1) && (vtx->particles_out_size() <= 2) ) {
+
+    mother = *vtx->particles_in_const_begin();
+#endif    
+    // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
+    if( mother && (mother->status() < 3) ) {
 
 	int num_passed_cuts = 0;
-	const HepMC::GenParticle *passed_cuts(nullptr);
-	for(HepMC::GenVertex::particles_in_const_iterator it = vtx->particles_out_const_begin();
-	    it != vtx->particles_out_const_end(); ++it) {
-	
-	  const HepMC::GenParticle *candidate = *it;
+	HepMC::ConstGenParticlePtr passed_cuts{nullptr};
+	for(HepMC::ConstGenParticlePtr candidate: *vtx){
 	  if(candidate->pdg_id() == mother->pdg_id()) {
 
 	    if(passed_cuts && (mother->pdg_id() == 11)) { // second negative electron is a special case
@@ -119,8 +119,6 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
 	if(num_passed_cuts==1) { // disallow hadronic pi->N*pi etc.
 	  daughter = passed_cuts;
 	}
-
-      } // if (vtx->particles_out_size() <= 2)
     } // if( mother && (mother->status() == 1) )
   }
   
@@ -128,9 +126,9 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(const HepMC::GenVertex *vt
 }
 
 //================================================================
-const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const HepMC::GenParticle* mother) const {
+HepMC::ConstGenParticlePtr DecayInFlyTruthTrajectoryBuilder::getDaughter(HepMC::ConstGenParticlePtr mother) const {
 
-  const HepMC::GenParticle *daughter = nullptr;
+  HepMC::ConstGenParticlePtr daughter{nullptr};
   
   if(mother) {
 
@@ -145,9 +143,9 @@ const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getDaughter(const He
 }
 
 //================================================================
-const HepMC::GenParticle* DecayInFlyTruthTrajectoryBuilder::getMother(const HepMC::GenParticle* daughter) const {
+HepMC::ConstGenParticlePtr DecayInFlyTruthTrajectoryBuilder::getMother(HepMC::ConstGenParticlePtr daughter) const {
 
-  const HepMC::GenParticle *mother = nullptr;
+  HepMC::ConstGenParticlePtr mother{nullptr};
 
   if(daughter) {
 

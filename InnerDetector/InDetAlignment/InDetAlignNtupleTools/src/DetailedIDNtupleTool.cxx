@@ -401,7 +401,11 @@ namespace InDet {
         HepMcParticleLink HMPL = trtruth.particleLink();
 
         if (HMPL.isValid()) {
+#ifdef HEPMC3
+          HepMC::ConstGenParticlePtr genparptr = HMPL.scptr();
+#else
           const HepMC::GenParticle* genparptr = HMPL.cptr();
+#endif
 
           if (genparptr) {
             if (genparptr->production_vertex()) {

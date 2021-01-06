@@ -84,9 +84,9 @@ TruthLeptonParentAssociationTool::reset (const TruthParticle& p)
   return StatusCode::SUCCESS;
 }
 
-void TruthLeptonParentAssociationTool::addLeptonParent(const HepMC::GenParticle* part) {
+void TruthLeptonParentAssociationTool::addLeptonParent(HepMC::ConstGenParticlePtr part) {
 
-  HepMC::GenVertex* begvx = part->production_vertex();
+  auto begvx = part->production_vertex();
   if(!begvx){ // no parents
     return;
   }
@@ -95,22 +95,27 @@ void TruthLeptonParentAssociationTool::addLeptonParent(const HepMC::GenParticle*
   if (begvx==part->end_vertex()) return;
 
   // More complex loop catch
-  if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),begvx->barcode()) != m_barcode_trace.end()){
+  if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),HepMC::barcode(begvx)) != m_barcode_trace.end()){
     ATH_MSG_DEBUG( "Found a loop (a la Sherpa sample).  Backing out." );
     return;
   }
-  m_barcode_trace.push_back(begvx->barcode());
+  m_barcode_trace.push_back(HepMC::barcode(begvx));
 
   // Loop over the parents of this particle.
+#ifdef HEPMC3
+  auto itrPar = begvx->particles_in().begin();
+  auto endPar = begvx->particles_in().end();
+#else  
   HepMC::GenVertex::particle_iterator itrPar = begvx->particles_begin(HepMC::parents);
   HepMC::GenVertex::particle_iterator endPar = begvx->particles_end(HepMC::parents);
+#endif
   int n_iter=0;
   for(;itrPar!=endPar; ++itrPar){
     if ( !(*itrPar) ) continue;  // parent didn't exist
     n_iter++;
     if (n_iter>2) break; // No point in trying - this vertex does not have a quantum meaning...
 
-    int pdg = abs((*itrPar)->pdg_id());
+    int pdg = std::abs((*itrPar)->pdg_id());
 
     if ( (31<pdg && pdg<38) || // BSM Higgs / W' / Z' / etc
          pdg==39 ||
@@ -125,7 +130,7 @@ void TruthLeptonParentAssociationTool::addLeptonParent(const HepMC::GenParticle*
          (pdg == 15 && !m_primary_is_tau) || // Tau
          HepPID::isHadron (pdg) // from a hadron!
         ){
-      m_parent_barcodes.push_back( (*itrPar)->barcode() ); 
+      m_parent_barcodes.push_back( HepMC::barcode(*itrPar) ); 
     } else { // Will get to here if we are coming from the same lepton again
       addLeptonParent( *itrPar );
     } // End of catch on PDG ID

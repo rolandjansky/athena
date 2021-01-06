@@ -29,17 +29,9 @@ class MuonMDT_CablingSvc : public AthService ,
  public:
 
   MuonMDT_CablingSvc(const std::string& name,ISvcLocator* sl);
-  virtual ~MuonMDT_CablingSvc();
+  virtual ~MuonMDT_CablingSvc()=default;
   
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
-
-  /** methods called at trigger stop/start */
-  //  virtual StatusCode start();
-  //  virtual StatusCode stop();
-
-  /** method for begin run transition */
-  //  virtual void handle(const Incident&);
 
   static const InterfaceID& interfaceID() { return IID_IMuonMDT_CablingSvc; }
 

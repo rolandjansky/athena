@@ -205,7 +205,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit> &phit, SiC
   double collectionDist = 0.2*CLHEP::mm;
   double smearScale = 1. + 0.35*smearRand;
   double tanLorentz = m_lorentzAngleTool->getTanLorentzAngle(Module.identifyHash());
-  double coLorentz=sqrt(1+pow(tanLorentz,2));
+  double coLorentz=std::sqrt(1.0+pow(tanLorentz,2));
 
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;
   const HepMcParticleLink::PositionFlag idxFlag = (phit.eventId()==0) ? HepMcParticleLink::IS_POSITION: HepMcParticleLink::IS_INDEX;

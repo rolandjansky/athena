@@ -64,10 +64,10 @@ private:
   void PrintMatchMatrix() {};
 
   /** ReadHandleKey for Trk::SegmentCollection from CSC */
-  SG::ReadHandleKey<Trk::SegmentCollection> m_cscSegmentContainerReadHandleKey{this,"cscSegmentContainerKey","NCB_MuonSegments","ReadHandleKey for Trk::SegmentCollection from CSC"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_cscSegmentContainerReadHandleKey{this,"cscSegmentContainerKey","NCB_TrackMuonSegments","ReadHandleKey for Trk::SegmentCollection from CSC"};
 
   /** ReadHandleKey for Trk::SegmentCollection from MDT */
-  SG::ReadHandleKey<Trk::SegmentCollection> m_mdtSegmentContainerReadHandleKey{this,"mdtSegmentContainerKey","MuonSegments","ReadHandleKey for Trk::SegmentCollection from MDT"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_mdtSegmentContainerReadHandleKey{this,"mdtSegmentContainerKey","TrackMuonSegments","ReadHandleKey for Trk::SegmentCollection from MDT"};
 
   /** ReadHandleKey for CaloClusterContainer */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_caloClusterContainerReadHandleKey{this,"caloClusterContainerKey","CaloCalTopoClusters","ReadHandleKey for CaloClusterContainer"};

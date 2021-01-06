@@ -61,24 +61,24 @@ if( NOT XAOD_ANALYSIS )
    atlas_add_test( TrigLiveFractionCondAlg_test
       SOURCES test/TrigLiveFractionCondAlg_test.cxx
       LINK_LIBRARIES GaudiKernel LumiBlockData LumiBlockCompsLib TestTools )
+
+   atlas_add_test( LuminosityCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+   atlas_add_test( LBDurationCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+   atlas_add_test( TrigLiveFractionCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+   atlas_add_test( LumiBlockMuWriterConfig_test
+                   SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+
+   atlas_add_test( BunchCrossingCondAlg
+                   SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py
+                   POST_EXEC_SCRIPT " /usr/bin/diff BCData.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/BCData.txt.ref > BC_diff.log " )
 endif()
-
-atlas_add_test( LuminosityCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
-
-atlas_add_test( LBDurationCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
-
-atlas_add_test( TrigLiveFractionCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
-
-atlas_add_test( LumiBlockMuWriterConfig_test
-                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
-
-atlas_add_test( BunchCrossingCondAlg
-                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py
-                POST_EXEC_SCRIPT " /usr/bin/diff BCData.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/BCData.txt.ref > BC_diff.log " )

@@ -17,7 +17,7 @@ atlas_add_library( xAODTrigger
    xAODTrigger/*.h xAODTrigger/versions/*.h xAODTrigger/versions/*.icc
    Root/*.cxx
    PUBLIC_HEADERS xAODTrigger
-   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigNavStructure CxxUtils
+   LINK_LIBRARIES AthContainers AthLinks xAODCore xAODBase TrigNavStructure CxxUtils TrigT1MuctpiBits
    ${extra_libs} )
 
 atlas_add_xaod_smart_pointer_dicts(

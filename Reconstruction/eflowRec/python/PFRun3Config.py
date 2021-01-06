@@ -128,6 +128,10 @@ def PFCfg(inputFlags,**kwargs):
     result.addEventAlgo(getChargedPFOCreatorAlgorithm(inputFlags,""))
     result.addEventAlgo(getNeutralPFOCreatorAlgorithm(inputFlags,""))
 
+    from eflowRec.PFCfg import getChargedFlowElementCreatorAlgorithm,getNeutralFlowElementCreatorAlgorithm
+    result.addEventAlgo(getChargedFlowElementCreatorAlgorithm(inputFlags,""))
+    result.addEventAlgo(getNeutralFlowElementCreatorAlgorithm(inputFlags,""))
+
     return result
 
 if __name__=="__main__":

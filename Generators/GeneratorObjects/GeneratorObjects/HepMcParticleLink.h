@@ -489,6 +489,13 @@ public:
    */
   const HepMC::GenParticle* cptr() const;
 
+#ifdef HEPMC3
+  /**
+   * @brief Dereference/smart pointer.
+   */
+  HepMC3::ConstGenParticlePtr scptr() const;
+#endif
+
 
   /** 
    * @brief Validity check.  Dereference and check for null.

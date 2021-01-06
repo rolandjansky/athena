@@ -206,6 +206,10 @@ def createTriggerFlags():
     # name of the trigger menu
     flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
 
+    # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
+
+    flags.addFlag('Trigger.triggerMenuModifier', ['all'])
+
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)
 

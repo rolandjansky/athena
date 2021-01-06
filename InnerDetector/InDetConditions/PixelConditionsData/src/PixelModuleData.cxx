@@ -280,6 +280,16 @@ float PixelModuleData::getDefaultQ2TotA() const { return m_paramA; }
 float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
 float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 
+// Lorentz angle correction
+void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = BarrelLorentzAngleCorr; }
+void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = EndcapLorentzAngleCorr; }
+double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
+  double LAcorr = 1.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelLorentzAngleCorr.size()) { LAcorr=m_BarrelLorentzAngleCorr.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapLorentzAngleCorr.size()) { LAcorr=m_EndcapLorentzAngleCorr.at(layer); }
+  return LAcorr;
+}
+
 // DCS parameters
 void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
 float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }

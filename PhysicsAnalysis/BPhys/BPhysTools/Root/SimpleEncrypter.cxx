@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // system include:
@@ -21,8 +21,12 @@ namespace xAOD {
   //--------------------------------------------------------------------------
   // Private static constants
   //--------------------------------------------------------------------------
+  // This gives 0x10000 on a 64-bit platform.
+  // ??? Would probably be better to write these using bit operations,
+  // rather than FP, to avoid potential rounding issues.
+  //  (eg. the maximum uint64_t cannot be represented exactly as a double)
   const SimpleEncrypter::ULLI_t SimpleEncrypter::m_MAXRANGE =
-    (SimpleEncrypter::ULLI_t)pow(std::numeric_limits<ULLI_t>::max(), 0.25);
+    (SimpleEncrypter::ULLI_t)pow(static_cast<double>(std::numeric_limits<ULLI_t>::max()), 0.25);
   const SimpleEncrypter::ULLI_t SimpleEncrypter::m_MINRANGE =
     (SimpleEncrypter::ULLI_t)SimpleEncrypter::m_MAXRANGE/10;
   const unsigned int SimpleEncrypter::m_MAXHEXDIGITS =
