@@ -321,7 +321,7 @@ class JetInputConfig(AlgInputConfig):
         recoDict = {k: v for k, v in recoDict.items() if k != "forceTracks"}
         jetRecoDict = jetRecoDictForMET(trkopt=trkopt, **recoDict)
         # hard code to em (for now) - there are no LC jets in EDM
-        jetRecoDict["calib"] = "em"
+        jetRecoDict["clusterCalib"] = "em"
 
         # Extract the track collections part from our input dict
         trkcolls = {} if trkopt == "notrk" else getTrkColls(inputs)
