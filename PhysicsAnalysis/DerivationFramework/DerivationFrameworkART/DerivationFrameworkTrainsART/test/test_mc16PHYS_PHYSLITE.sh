@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# art-include: 21.2/AthDerivation
+# art-include: master/Athena
 # art-description: DAOD building PHYS PHYSLITE mc16
 # art-type: grid
 # art-athena-mt: 8
