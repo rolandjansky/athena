@@ -1,0 +1,27 @@
+#!/bin/sh
+
+# art-include: master/Athena
+# art-description: DAOD building PHYS data18
+# art-type: grid
+# art-output: *.pool.root
+# art-output: checkFile.txt
+# art-output: checkxAOD.txt
+# art-athena-mt: 8
+
+set -e
+
+Reco_tf.py --inputAODFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DerivationFrameworkART/data18_13TeV.00364292.physics_Main.merge.AOD.f1002_m2037._lb0163._0006.1 --outputDAODFile art.pool.root --reductionConf PHYS --maxEvents -1 --multithreaded="True" --preExec 'rec.doApplyAODFix.set_Value_and_Lock(True); from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12Onl-08-49"; from AthenaCommon.AlgSequence import AlgSequence; topSequence = AlgSequence(); topSequence += CfgMgr.xAODMaker__DynVarFixerAlg( "InDetTrackParticlesFixer", Containers = [ "InDetTrackParticlesAux." ] )' 
+
+echo "art-result: $? reco"
+
+DAODMerge_tf.py --inputDAOD_PHYSFile DAOD_PHYS.art.pool.root --outputDAOD_PHYS_MRGFile art_merged.pool.root
+
+echo "art-result: $? merge"
+
+checkFile.py DAOD_PHYS.art.pool.root > checkFile.txt
+
+echo "art-result: $?  checkfile"
+
+checkxAOD.py DAOD_PHYS.art.pool.root > checkxAOD.txt
+
+echo "art-result: $?  checkxAOD"
