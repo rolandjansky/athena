@@ -268,23 +268,25 @@ condSeq = AthSequencer("AthCondSeq")
 
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import theApp, ServiceMgr, ToolSvc
+
+
 
 ## define the DB Gobal Tag :
-svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
+ServiceMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
 try:
-   svcMgr.IOVDbSvc.DBInstance=""
+   ServiceMgr.IOVDbSvc.DBInstance=""
 except: 
    pass
 
-theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
+theByteStreamInputSvc=ServiceMgr.ByteStreamInputSvc
 if not 'FullFileName' in dir():
    PedestalAutoCorrLog.info( "No FullFileName! Please give a FullFileName list")
    theApp.exit(-1)
 else :   
-   svcMgr.EventSelector.Input=FullFileName
+   ServiceMgr.EventSelector.Input=FullFileName
    
-scvMgr.EventSelector.MaxBadEvents = 0
+ServiceMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #
@@ -293,8 +295,8 @@ scvMgr.EventSelector.MaxBadEvents = 0
 # maybe useful one day                                                                       #
 #                                                                                            #
 # else                                                                                        #
-#   svcMgr.EventSelector.Input=OneFileName                                           #
-#   for i in range(len(svcMgr.EventSelector.Input)):                                 #
+#   ServiceMgr.EventSelector.Input=OneFileName                                           #
+#   for i in range(len(ServiceMgr.EventSelector.Input)):                                 #
 #      theByteStreamInputSvc.NumFile+=[10000]                                                #
 ##############################################################################################
 
@@ -309,9 +311,21 @@ scvMgr.EventSelector.MaxBadEvents = 0
 ## All three are vectors of integers
 #################################################################
 
+
+from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+
+theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+theLArRawCalibDataReadingAlg.LArAccDigitKey=GainList[0]
+theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+
+
+topSequence+=theLArRawCalibDataReadingAlg
+
+
+"""
 if not SuperCells:
    from LArByteStream.LArByteStreamConf import LArRodDecoder
-   svcMgr.ToolSvc += LArRodDecoder()
+   ServiceMgr.ToolSvc += LArRodDecoder()
 
 #ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
 #ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
@@ -322,7 +336,7 @@ if not SuperCells:
 #ToolSvc.LArRodDecoder.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
 #ToolSvc.LArRodDecoder.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
 
-theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
+theByteStreamAddressProviderSvc =ServiceMgr.ByteStreamAddressProviderSvc
 
 if not SuperCells:
    theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
@@ -337,6 +351,7 @@ if not SuperCells:
    
 if SuperCells:
    theByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/SC"]
+"""
 
 from IOVDbSvc.CondDB import conddb
 
@@ -403,18 +418,18 @@ else :
    PedestalAutoCorrLog.info( "Read Bad Channels from SQLite file") 
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
-svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
+ServiceMgr.PoolSvc.ReadCatalog += larCalibCatalogs
 
 ## define the DB Gobal Tag :
-svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
+ServiceMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
 try:
-   svcMgr.IOVDbSvc.DBInstance=""
+   ServiceMgr.IOVDbSvc.DBInstance=""
 except: 
    pass
 
 # Temperature folder
 #conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#ServiceMgr.EventSelector.InitialTimeStamp = 1284030331
 #import cx_Oracle
 #import time
 #import datetime
@@ -430,8 +445,8 @@ except:
 #   iovtemp=1284030331
 
 #printfunc ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
-#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#ServiceMgr.IOVDbSvc.forceTimestamp = 1283145454
+#ServiceMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 if ( doLArCalibDataQuality  ) :
    if  Pedestal :
@@ -500,12 +515,12 @@ if ( doLArCalibDataQuality  ) :
                                           DoMasking=True,
                                           ProblemsToMask=[]
                                           )
-   svcMgr.ToolSvc+=theLArPedValBCMask
+   ServiceMgr.ToolSvc+=theLArPedValBCMask
    theLArACValBCMask=LArBadChannelMasker("ACValBCMask",
                                           DoMasking=True,
                                           ProblemsToMask=[]
                                           )
-   svcMgr.ToolSvc+=theLArACValBCMask
+   ServiceMgr.ToolSvc+=theLArACValBCMask
    
    if  Pedestal :
       from LArCalibDataQuality.Thresholds import pedThr,rmsThr, pedThrFEB,rmsThrFEB
@@ -631,10 +646,10 @@ if ( doMonitoring ) :
    from GaudiSvc.GaudiSvcConf import THistSvc
    if os.path.exists(OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName): 
       os.remove(OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName)
-   svcMgr += THistSvc()
-   #svcMgr.THistSvc.Output = ["AllMon DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='New'"]
+   ServiceMgr += THistSvc()
+   #ServiceMgr.THistSvc.Output = ["AllMon DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='New'"]
 
-   svcMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='RECREATE'"]
+   ServiceMgr.THistSvc.Output = ["GLOBAL DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" +RootHistOutputFileName+"' OPT='RECREATE'"]
 
 
 
@@ -669,8 +684,8 @@ if ( WriteNtuple ) :
    from GaudiSvc.GaudiSvcConf import NTupleSvc
    if os.path.exists(OutputPedAutoCorrRootFileDir + "/" + OutputPedAutoCorrRootFileName): 
       os.remove(OutputPedAutoCorrRootFileDir + "/" + OutputPedAutoCorrRootFileName)
-   svcMgr += NTupleSvc()
-   svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" + OutputPedAutoCorrRootFileName+"' OPT='NEW'" ]
+   ServiceMgr += NTupleSvc()
+   ServiceMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputPedAutoCorrRootFileDir + "/" + OutputPedAutoCorrRootFileName+"' OPT='NEW'" ]
 
 
 if ( WritePoolFile ) :
@@ -687,24 +702,24 @@ if ( WritePoolFile ) :
         OutputConditionsAlg.Run1 = IOVBegin
         if IOVEnd>0:
               OutputConditionsAlg.Run2=IOVEnd
-        svcMgr.IOVDbSvc.dbConnection  = OutputDB
+        ServiceMgr.IOVDbSvc.dbConnection  = OutputDB
         
         from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
-        svcMgr += IOVRegistrationSvc()
-        svcMgr.IOVRegistrationSvc.OutputLevel = DEBUG
-        svcMgr.IOVRegistrationSvc.RecreateFolders = False
+        ServiceMgr += IOVRegistrationSvc()
+        ServiceMgr.IOVRegistrationSvc.OutputLevel = DEBUG
+        ServiceMgr.IOVRegistrationSvc.RecreateFolders = False
        
         
 
 ###########################################################################
 
-svcMgr.EventSelector.SkipEvents = SkipEvents
+ServiceMgr.EventSelector.SkipEvents = SkipEvents
 
-svcMgr.MessageSvc.OutputLevel  = INFO
-svcMgr.MessageSvc.defaultLimit = 10000
-svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.OutputLevel  = INFO
+ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)
+ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = INFO)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable
@@ -712,9 +727,9 @@ theAuditorSvc += getConfigurable("MemStatAuditor")(OutputLevel = WARNING)
 theApp.AuditAlgorithms=True
 theAuditorSvc += getConfigurable("ChronoAuditor")(OutputLevel = WARNING)
 theAuditorSvc += getConfigurable("NameAuditor")(OutputLevel = WARNING)
-svcMgr.ChronoStatSvc.OutputLevel  = INFO
+ServiceMgr.ChronoStatSvc.OutputLevel  = INFO
 
 ###########################################################################
-#svcMgr.IOVDbSvc.OutputLevel = DEBUG 
+#ServiceMgr.IOVDbSvc.OutputLevel = DEBUG 
 
 printfunc (condSeq)
