@@ -43,7 +43,7 @@ class LArRawCalibDataReadingAlg : public  AthReentrantAlgorithm {
 
   Gaudi::Property<std::vector<unsigned> > m_vBEPreselection{this,"BEPreselection",{},"For channel-selection: Barrel=0, Endcap=1"};
   Gaudi::Property<std::vector<unsigned> > m_vPosNegPreselection{this,"PosNegPreselection",{}, "For channel-selection: C-Side:0, A-Side: 1"};
-  Gaudi::Property<std::vector<unsigned> > m_vFTPreselection{this,"FTPreselection",{}, "For channel-selection: Feedthrough numbers (e.g. 0 - 31 for barrel)"};
+  Gaudi::Property<std::vector<unsigned> > m_vFTPreselection{this,"FTNumPreselection",{}, "For channel-selection: Feedthrough numbers (e.g. 0 - 31 for barrel)"};
 
   std::set<unsigned> m_vFinalPreselection;
 
