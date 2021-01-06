@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./HTConditionFastReduction.h"
@@ -12,8 +12,8 @@
 #include <numeric>
 
 HTConditionFastReduction::HTConditionFastReduction(double ht_min,
-						   double ht_max):
-  m_htMin(ht_min), m_htMax(ht_max) {
+						   double /*ht_max*/):
+  m_htMin(ht_min) {
 }
 
 
