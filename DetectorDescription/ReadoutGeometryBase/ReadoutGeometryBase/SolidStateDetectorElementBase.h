@@ -501,7 +501,7 @@ inline HepGeom::Point3D<double> SolidStateDetectorElementBase::globalPositionHit
 inline Amg::Vector3D SolidStateDetectorElementBase::globalPosition(const Amg::Vector2D &localPos) const
 {
     if (!m_baseCacheValid) updateCache();
-    return m_origin + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
+    return m_center + localPos[Trk::distEta] * m_etaAxis + localPos[Trk::distPhi] * m_phiAxis;
 }
 
 inline Amg::Vector3D SolidStateDetectorElementBase::globalPositionHit(const Amg::Vector3D &localPos) const
@@ -512,7 +512,7 @@ inline Amg::Vector3D SolidStateDetectorElementBase::globalPositionHit(const Amg:
 inline HepGeom::Point3D<double> SolidStateDetectorElementBase::globalPositionCLHEP(const Amg::Vector2D &localPos) const
 {
     if (!m_baseCacheValid) updateCache();
-    return m_originCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
+    return m_centerCLHEP + localPos[Trk::distEta] * m_etaAxisCLHEP + localPos[Trk::distPhi] * m_phiAxisCLHEP;
 }
 
 inline Amg::Vector3D SolidStateDetectorElementBase::globalPosition(const Amg::Vector3D &localPos) const
