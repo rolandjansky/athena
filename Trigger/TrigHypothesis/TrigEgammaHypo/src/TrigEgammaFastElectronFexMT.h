@@ -129,6 +129,10 @@ class TrigEgammaFastElectronFexMT : public AthAlgorithm  {
       "Electrons",                                             // default value of StoreGate key
       "output Electron container name "};
 
+  SG::WriteHandleKey<xAOD::TrigElectronContainer> m_outputDummyElectronsKey{ this,
+      "DummyElectronsName",                  // property name
+      "Electrons",                                             // default value of StoreGate key
+      "output Dummy Electron container name "};
 
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };
   

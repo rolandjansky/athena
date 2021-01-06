@@ -99,6 +99,7 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_idperf_L1EM3', groups=SingleElectronGroup),        #idperf chains
 
         # low et threshold chains using Ringer
         ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
@@ -128,6 +129,8 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
+        ChainProp(name='HLT_e28_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
         ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=SingleElectronGroup),
@@ -140,8 +143,10 @@ def setupMenu():
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
 
+        
         # TnP triggers
-        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),    
+        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e20_lhmedium_e15_idperf_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg    
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
    
