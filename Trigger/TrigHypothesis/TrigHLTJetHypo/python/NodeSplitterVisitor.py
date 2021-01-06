@@ -74,10 +74,6 @@ if __name__ == '__main__':
                       l1SeedThresholds=['FSNOSEED']*3,
                       groups=MultiJetGroup),
             
-            ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
-                      l1SeedThresholds=['FSNOSEED'],
-                      groups=MultiJetGroup),
-            
             ChainProp(name='HLT_10j40_L1J15',
                       l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
             

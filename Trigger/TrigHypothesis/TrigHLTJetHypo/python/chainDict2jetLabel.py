@@ -170,79 +170,6 @@ def _make_fbdjnoshared_label(chain_parts, leg_label):
     )""" % argvals
 
 
-def _make_vbenf_label(chain_parts, leg_label):
-    """Marshal information from the selected chainParts to create a
-    vbenf label. Use a Reducer for elimination of unusable jets
-    """
-
-    # toy label for development: run simple and dijet independently.
-    # simple makes Et cuts on two jets. Independently (sharing possible)
-    # of jets choosean by simple,  the dijet
-    # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
-
-    assert len(chain_parts) == 1
-    
-    scenario = chain_parts[0]['hypoScenario']
-    assert scenario.startswith('vbenf')
-    args = _args_from_scenario(scenario)
-    if not args:
-        return 'all([]simple([(50et)(70et)])dijet([(900djmass, 26djdphi)] all[], all[])))'        
-    arg_res = [
-        re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
-        re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
-        re.compile(r'(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)'),
-    ]
-
-    defaults = {
-        'et': ('101', 'inf'),
-        'mass': ('800', 'inf'),
-        'fbet': ('501', 'inf'),
-    }
-
-    argvals = {}
-    while args:
-        assert len(args) == len(arg_res)
-        arg = args.pop()
-        for r in arg_res:
-            m = r.match(arg)
-            if m is not None:
-                arg_res.remove(r)
-                gd = m.groupdict()
-                key = gd['key']
-                try:
-                    lo = float(gd['lo'])
-                except ValueError:
-                    lo = defaults[key][0]
-                argvals[key+'lo'] = lo 
-                try:
-                    hi = float(gd['hi'])
-                except ValueError:
-                    hi = defaults[key][1]
-                argvals[key+'hi'] =  hi
-
-    assert len(args) == len(arg_res)
-    assert len(args) == 0
-
-    argvals['leg_label'] = leg_label
-    return """
-    all
-    (
-      []
-      simple
-      (
-        [(%(fbetlo).0fet, 500neta, leg000)(%(fbetlo).0fet, peta500, %(leg_label)s)]
-      )
-      dijet
-      (
-        [(%(masslo).0fdjmass, 26djdphi)]
-        simple
-        (
-          [(10et, 0eta320, leg000)(20et, 0eta320, %(leg_label)s)]
-        )
-      )
-    )""" % argvals
-
-
 def  _make_fbdjshared_label(chain_parts, leg_label):
     """example label for a 2-tree forest.
     The fbdjshared contains a dijet and forward backward jets, in separate 
@@ -415,7 +342,6 @@ def chainDict2jetLabel(chain_dict):
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
-        'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
         'fbdjshared': _make_fbdjshared_label,
         'fbdjnoshared': _make_fbdjnoshared_label,

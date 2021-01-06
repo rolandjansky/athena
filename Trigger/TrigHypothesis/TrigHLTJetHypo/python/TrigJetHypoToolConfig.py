@@ -151,7 +151,10 @@ class TestStringMethods(unittest.TestCase):
     def testValidConfigs(self):
         from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
             dictFromChainName,)
-        chain_names = ('HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',)
+
+        chain_names = (
+            'HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',)
+        
         wid = max(len(c) for c in chain_names)
         for chain_name in chain_names:
             chain_dict = dictFromChainName(chain_name)

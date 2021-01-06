@@ -331,8 +331,11 @@ class ChainLabelParser(object):
 def _test(s):
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s, debug=True)
-    tree = parser.parse()
-    print(tree.dump())
+    trees = parser.parse()
+
+    print ('No of trees produced: ', len(trees))
+    for t in trees:
+        print(t.dump())
 
 
 def test():
