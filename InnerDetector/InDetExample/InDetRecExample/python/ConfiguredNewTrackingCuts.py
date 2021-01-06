@@ -31,6 +31,8 @@ class ConfiguredNewTrackingCuts :
     self.__useTRT   = DetFlags.haveRIO.TRT_on()
     self.__useSCTSeeding = True
 
+    self.__useEtaDepCuts = False
+
     # --------------------------------------
     # --- NEW TRACKING cuts
     # --------------------------------------
@@ -269,6 +271,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "SLHC":
       self.__extension               = "SLHC"
       if self.__indetflags.useEtaDependentCuts():
+        self.__useEtaDepCuts           = True
         self.__maxEta                  = 4.0
         self.__etaBins                 = [-1.0, 2.0, 2.6, 4.0]
         self.__minPT                   = [0.9 * Units.GeV, 0.4 * Units.GeV, 0.4 * Units.GeV]
@@ -391,6 +394,7 @@ class ConfiguredNewTrackingCuts :
     if mode == "SLHCLargeD0":
       self.__extension          = "SLHCLargeD0" # this runs parallel to NewTracking
       if self.__indetflags.useEtaDependentCuts():
+        self.__useEtaDepCuts      = True
         self.__maxPT              = [1.0 * Units.TeV]
         self.__minPT              = [900 * Units.MeV]
         self.__maxEta             = 5.0
@@ -1180,6 +1184,9 @@ class ConfiguredNewTrackingCuts :
 
   def useTRT( self ) :
     return self.__useTRT
+
+  def useEtaDependentCuts( self ) :
+    return self.__useEtaDepCuts
   
   def doZBoundary( self ) :
     return self.__doZBoundary
@@ -1195,7 +1202,8 @@ class ConfiguredNewTrackingCuts :
     print '*'
     print '* InDetFlags.cutLevel() = ', self.__indetflags.cutLevel()
     print '*'
-    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
+    print '* Eta-dependent cuts used     :  ', self.__useEtaDepCuts
+    if self.__useEtaDepCuts:
       tmp_list = list(self.__etaBins)
       tmp_list[0] = 0.
       print '* Using dynamic cuts with eta ranges :', tmp_list
@@ -1204,10 +1212,10 @@ class ConfiguredNewTrackingCuts :
     print '* TRT used                    :  ', self.__useTRT
     print '*'  
     print '* min pT                      :  ', self.__minPT, ' MeV'
-    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
+    if self.__useEtaDepCuts:
       print '* min pT for seeding          :  ', self.__minPT[0], ' MeV'
     print '* max Z IP                    :  ', self.__maxZImpact, ' mm'
-    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
+    if self.__useEtaDepCuts:
       print '* max Z IP for seeding        :  ', self.__maxZImpact[0], ' mm'
     print '* min eta                     :  ', self.__minEta
     print '* max eta                     :  ', self.__maxEta
@@ -1219,7 +1227,7 @@ class ConfiguredNewTrackingCuts :
     print '* NewTracking cuts:'
     print '* -----------------'
     print '* max Rphi IP (primaries)     :  ', self.__maxPrimaryImpact, ' mm'
-    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
+    if self.__useEtaDepCuts:
       print '* max Rphi IP for seeding     :  ', self.__maxPrimaryImpact[0], ' mm'
     print '* min number of clusters      :  ', self.__minClusters
     print '* min number of pixel hits    :  ', self.__minPixel
@@ -1236,7 +1244,7 @@ class ConfiguredNewTrackingCuts :
     print '* max holes gap in pattern    :  ', self.__nHolesGapMax
     print '* Xi2 max                     :  ', self.__Xi2max
     print '* Xi2 max no add              :  ', self.__Xi2maxNoAdd
-    if self.__indetflags.useEtaDependentCuts() and (self.__mode == "SLHC" or self.__mode == "SLHCLargeD0"):
+    if self.__useEtaDepCuts:
       print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds[0]
     else:
       print '* max impact on seeds PPS/SSS :  ', self.__maxdImpactPPSSeeds,', ',self.__maxdImpactSSSSeeds
