@@ -4,10 +4,6 @@
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
 #include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
 
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
