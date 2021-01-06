@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
@@ -195,7 +195,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -401,7 +401,7 @@ namespace TrigCompositeUtils {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const auto& seed : getLinkToPrevious(start)) {
+    for (const auto seed : getLinkToPrevious(start)) {
       found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, visitedCache);
     }
     // Fully explored this node
@@ -500,7 +500,7 @@ namespace TrigCompositeUtils {
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }
