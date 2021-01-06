@@ -52,7 +52,7 @@ StatusCode TGCTriggerDbAlg::execute()
     return StatusCode::FAILURE; 
   } 
 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_bw.fullKey() << " readCdo->size()= " << readCdo_bw->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_bw.fullKey() << " = " << readCdo_bw->size());
  
   EventIDRange rangeW_bw;
   if ( !readHandle_bw.range(rangeW_bw) ) {
@@ -72,7 +72,7 @@ StatusCode TGCTriggerDbAlg::execute()
     return StatusCode::FAILURE; 
   } 
 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_eifi.fullKey() << " readCdo->size()= " << readCdo_eifi->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_eifi.fullKey() << " = " << readCdo_eifi->size());
  
   EventIDRange rangeW_eifi;
   if ( !readHandle_eifi.range(rangeW_eifi) ) {
@@ -90,7 +90,7 @@ StatusCode TGCTriggerDbAlg::execute()
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   } 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_tile.fullKey() << " readCdo->size()= " << readCdo_tile->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_tile.fullKey() << " = " << readCdo_tile->size());
 
   EventIDRange rangeW_tile;
   if ( !readHandle_tile.range(rangeW_tile) ) {
@@ -116,7 +116,6 @@ StatusCode TGCTriggerDbAlg::execute()
   }		  
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeIntersection << " into Conditions Store");
 
-   
   return StatusCode::SUCCESS;
 }
 
@@ -136,20 +135,16 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
   const std::string modulename[kNMODULETYPE]         = {"0","1","2a","2b","3","4","5a","5b","6","7","8a","8b"};
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
-  CondAttrListCollection::const_iterator itr = readCdo->begin();
-  CondAttrListCollection::const_iterator itr_e = readCdo->end();
-
-  for(; itr!=itr_e; ++itr) {
-    const coral::AttributeList& atr = (*itr).second;
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_BW] = atr["active"].data<bool>();
     writeCdo->m_type[TGCTriggerData::CW_BW]   = atr["type"].data<std::string>();
 
     std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
     std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
-    ATH_MSG_DEBUG("channel: " << (*itr).first << ", file: " << file);
-
-    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
-                 << " active: " << writeCdo->m_active[TGCTriggerData::CW_EIFI] << " version: " << version);
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
+    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_BW]
+                 << " active: " << writeCdo->m_active[TGCTriggerData::CW_BW] << " version: " << version);
 
     if (!writeCdo->m_active[TGCTriggerData::CW_BW]) continue;
 
@@ -239,7 +234,7 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
       }   // end of if(tag)...
     }   // end of while(getline...)
 
-  }   // end of for(itr)
+  }   // end of for(attrmap)
 
   ATH_MSG_DEBUG("BW-CW LUT size: " << writeCdo->m_ptmap_bw.size());
 }
@@ -249,17 +244,14 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
 {
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
-  CondAttrListCollection::const_iterator itr = readCdo->begin();
-  CondAttrListCollection::const_iterator itr_e = readCdo->end();
-
-  for(; itr!=itr_e; ++itr) {
-    const coral::AttributeList& atr = (*itr).second;
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_EIFI] = atr["active"].data<bool>();
     writeCdo->m_type[TGCTriggerData::CW_EIFI]   = atr["type"].data<std::string>();
 
     std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
     std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
-    ATH_MSG_DEBUG("channel: " << (*itr).first << ", file: " << file);
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
 
     ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
                  << " active: " << writeCdo->m_active[TGCTriggerData::CW_EIFI] << " version: " << version);
@@ -345,7 +337,7 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
 
     if (!fullCW) break;
 
-  }  // end of for(itr)
+  }  // end of for(attrmap)
 
   ATH_MSG_DEBUG("EIFI-CW LUT size: " << writeCdo->m_flagpt_eifi.size() + writeCdo->m_flagroi_eifi.size() + writeCdo->m_trigbit_eifi.size());
 }
@@ -353,15 +345,12 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
 void TGCTriggerDbAlg::fillTrigBitTile(TGCTriggerData* writeCdo,
                                       const CondAttrListCollection* readCdo)
 {
-  CondAttrListCollection::const_iterator itr = readCdo->begin();
-  CondAttrListCollection::const_iterator itr_e = readCdo->end();
-
-  for(; itr!=itr_e; ++itr) {
-    const coral::AttributeList& atr = (*itr).second;
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
     writeCdo->m_active[TGCTriggerData::CW_TILE] = atr["active"].data<bool>();
     writeCdo->m_type[TGCTriggerData::CW_TILE]   = atr["type"].data<std::string>();
 
-    ATH_MSG_DEBUG("channel: " << (*itr).first << ", file: " << atr["file"].data<std::string>());
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << atr["file"].data<std::string>());
     ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_TILE]
                   << " active: " << writeCdo->m_active[TGCTriggerData::CW_TILE]
                   << " version: " << atr["version"].data<std::string>());
