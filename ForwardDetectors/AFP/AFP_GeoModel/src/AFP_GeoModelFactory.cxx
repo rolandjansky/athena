@@ -106,8 +106,8 @@ void AFP_GeoModelFactory::defineMaterials()
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,pMatOptVacuum));
 
     // Steel Grade 316L (Roman Pot)
-    matName="Steel";
-    GeoMaterial *steel=new GeoMaterial("Steel", 8*g/cm3);
+    matName="Steel_AFP";
+    GeoMaterial *steel=new GeoMaterial(matName, 8*g/cm3);
 
     aFe=62.045*Fe->getA()/(CLHEP::g/CLHEP::mole);
     aC =0.03*C ->getA()/(CLHEP::g/CLHEP::mole);
@@ -216,7 +216,7 @@ void AFP_GeoModelFactory::defineMaterials()
     m_MapMaterials.insert(std::pair<std::string,GeoMaterial*>(matName,pMatWater));
 
     // Beryllium
-    matName="Beryllium";
+    matName="Beryllium_AFP";
     GeoMaterial* pMaterialBe=new GeoMaterial(matName, 1.848*CLHEP::g/CLHEP::cm3);
 
     pMaterialBe->add(const_cast<GeoElement*> (Be), 1);

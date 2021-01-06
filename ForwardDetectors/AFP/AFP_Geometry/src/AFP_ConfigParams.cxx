@@ -64,7 +64,7 @@ void AFP_SIDCONFIGURATION::clear()
 	vecSensorYPos.resize(AfpConstants.SiT_Plate_amount);
 
 	std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.ToF_DistanceToFloor);
-	std::fill_n(vecXStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
+	std::fill_n(vecYStaggering.begin(),AfpConstants.SiT_Plate_amount,0.0*CLHEP::mm);
 	std::fill_n(vecChipXPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_x);
 	std::fill_n(vecChipYPos.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_y);
 	std::fill_n(vecChipRotAngle.begin(),AfpConstants.SiT_Plate_amount,AfpConstants.SiT_Chip_rot);
