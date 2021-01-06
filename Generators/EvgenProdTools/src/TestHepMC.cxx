@@ -81,7 +81,6 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   m_partMomentumNANandINFCheckRate = 0;
   m_undecayedPi0statuscode12CheckRate = 0;
   m_unstableNoEndVtxCheckRate = 0;
-  m_negativeEnergyTachyonicCheckRateCnt = 0;
   m_negativeEnergyTachyonicCheckRate = 0;
   m_decayCheckRate = 0;
   m_undisplacedLLHdaughtersCheckRate = 0;
@@ -94,7 +93,6 @@ TestHepMC::TestHepMC(const string& name, ISvcLocator* pSvcLocator)
   m_unstablePartNoDecayVtxCheckRate = 0;
   m_undecayedPi0CheckRate = 0;
   m_Status1ShortLifetime  = 0;
-  m_vtxDisplacedMoreThan_1m_CheckRateCnt = 0;
   m_vtxDisplacedMoreThan_1m_CheckRate = 0;
   m_undisplacedDecayDaughtersOfDisplacedVtxCheckRate = 0;
   m_nonG4_energyCheckRate = 0;
@@ -315,6 +313,7 @@ StatusCode TestHepMC::execute() {
     // Check vertices
     int m_vtxDisplacedstatuscode12CheckRateCnt=0;
     int m_vtxDisplacedstatuscodenot12CheckRateCnt=0;
+    int m_vtxDisplacedMoreThan_1m_CheckRateCnt=0;
     for (HepMC::GenEvent::vertex_const_iterator vitr = evt->vertices_begin(); vitr != evt->vertices_end(); ++vitr ) {
       const HepMC::GenVertex* vtx = *vitr;
       const HepMC::ThreeVector pos = vtx->point3d();
@@ -415,7 +414,7 @@ StatusCode TestHepMC::execute() {
           filter_pass = false;
         }
        }
-     m_negativeEnergyTachyonicCheckRateCnt = 0;
+    int m_negativeEnergyTachyonicCheckRateCnt = 0;
     // Check particles
     for (HepMC::GenEvent::particle_const_iterator pitr = evt->particles_begin(); pitr != evt->particles_end(); ++pitr ) {
 
@@ -605,7 +604,7 @@ StatusCode TestHepMC::execute() {
 
     } // End of loop over particles in the event
 
-// if at least one tachyon was count the event
+// if at least one tachyon was found, count the event
       if (m_negativeEnergyTachyonicCheckRateCnt > 0) ++m_negativeEnergyTachyonicCheckRate;
 
     // Energy of interacting particles not known by Geant4
