@@ -7,12 +7,14 @@ A typical jet trigger chain may look like:
 ```mermaid
 graph TD;
 
+  subgraph Overview
   L1[Step: L1 seed] --> R1(Reject):::reject
   L1 --> HLT1;
   HLT1[Step: HLT calo jet presel] --> R2(Reject):::reject;
   HLT1 --> HLT2;
   HLT2[Step: HLT track jet final] --> R3(Reject):::reject;
   HLT2 --> A(Accept):::accept;
+  end
 
   classDef reject fill:#0dd;
   classDef accept fill:#dd0;
@@ -28,6 +30,7 @@ sequenceDiagram
   participant SG as Data (StoreGate)
   participant Reco as Reconstruction
   participant Hypo as Hypo selection
+  rect rgb(255, 255, 0);
   Hypo ->> Reco: L1 accept
   activate Reco
   SG -->> Reco: Topoclusters
@@ -43,6 +46,7 @@ sequenceDiagram
   deactivate Reco
   SG ->> Hypo: Particle Flow Jets
   Hypo ->> SG: HLT Decision
+  end
 ```
 In this (simplified) picture, the HLT chain is implemented as repeated interactions of the form:
 * Upstream hypo decision unlocks step reconstruction
@@ -57,7 +61,8 @@ Although simple to understand, this linear picture may be misleading. Because th
 
 The scheduler creates a graph showing how the algorithmic flow would proceed for one chain:
 ```mermaid
-flowchart TD;
+graph TD;
+  subgraph Chain
   L1a(L1Accept):::decision --> TopoClusterMaker:::alg
   
   subgraph Step 1
@@ -76,9 +81,9 @@ flowchart TD;
 
   subgraph Step 2
   
-  FSTrk --> Tracks:::data
-  Tracks --> PFlow
-  PFlow --> PFOs[/PFlowObjects/]:::data
+  FSTrk --> Tracks[/Tracks/]:::data
+  Tracks --> PFlowReco
+  PFlowReco --> PFOs[/PFlowObjects/]:::data
   PFOs --> PFlowJetReco:::alg
   PFlowJetReco --> PFlowJets[/PFlowJets/]:::data
   PFlowJets --> PFlowJetHypo:::alg
@@ -86,6 +91,7 @@ flowchart TD;
   end
   
   PFlowJetHypo --> HLT2A[HLT final accept]:::decision
+  end
 
   classDef data fill:#dd0;
   classDef alg fill:#faf;
@@ -95,7 +101,9 @@ The step decisions function as gates which enable the succeeding algorithms to b
 
 However, it is more interesting to consider what happens when we have many chains in parallel, e.g. some running only calo reco, some using large-radius jets and others running small-radius jets. This could expand to a situation like the following:
 ```mermaid
-flowchart TD;
+graph TD;
+
+ subgraph Jet slice
 
   Start --> L1A(L1Accept A):::decision
   Start --> L1B(L1Accept B):::decision
@@ -114,13 +122,13 @@ flowchart TD;
     Filter1b -.->|activates| CaloJetRecoA10
 
 
-    TopoClusterMaker:::alg --> Topoclusters:::data
+    TopoClusterMaker:::alg --> Topoclusters[/Topoclusters/]:::data
     Topoclusters --> CaloJetRecoA4:::alg
     Topoclusters --> CaloJetRecoA10:::alg
 
-    CaloJetRecoA4 --> AntiKt4CaloJets:::data
+    CaloJetRecoA4 --> AntiKt4CaloJets[/AntiKt4CaloJets/]:::data
     AntiKt4CaloJets --> CaloJetHypoA4:::alg
-    CaloJetRecoA10 --> AntiKt10CaloJets:::data
+    CaloJetRecoA10 --> AntiKt10CaloJets[/AntiKt10CaloJets/]:::data
     AntiKt10CaloJets --> CaloJetHypoA10:::alg
 
   end 
@@ -132,8 +140,8 @@ flowchart TD;
   
   Topoclusters --> PFlow:::alg
   
-  HLT1A --> Filter2a
-  HLT1B --> Filter2b
+  HLT1A --> Filter2a:::filter
+  HLT1B --> Filter2b:::filter
 
   subgraph Step 2
 
@@ -144,16 +152,16 @@ flowchart TD;
     Filter2b -.->|activates| PFlowJetRecoA10
 
     FSTrk --> Tracks:::data
-    Tracks --> PFlow
+    Tracks --> PFlowReco
   
-    PFlow --> PFOs[PFlowObjects]:::data
+    PFlowReco --> PFOs[/PFlowObjects/]:::data
     PFOs --> PFlowJetRecoA4:::alg
     PFOs --> PFlowJetRecoA10:::alg
 
-    PFlowJetRecoA4 --> AntiKt4PFlowJets:::data
+    PFlowJetRecoA4 --> AntiKt4PFlowJets[/AntiKt4PFlowJets/]:::data
     AntiKt4PFlowJets --> PFlowJetHypoA4:::alg  
 
-    PFlowJetRecoA10 --> AntiKt10PFlowJets:::data
+    PFlowJetRecoA10 --> AntiKt10PFlowJets[/AntiKt10PFlowJets/]:::data
     AntiKt10PFlowJets --> PFlowJetHypoA10:::alg 
 
   end
@@ -161,9 +169,11 @@ flowchart TD;
   PFlowJetHypoA4 --> HLT2A(HLT final accept A):::decision
   PFlowJetHypoA10 --> HLT2B(HLT final accept B):::decision
 
+  end
+
   classDef data fill:#dd0;
   classDef alg fill:#faf;
-  classDef filter fill:#ddd;
+  classDef filter fill:#bdb;
   classDef decision fill:#aff;
 ```
 
