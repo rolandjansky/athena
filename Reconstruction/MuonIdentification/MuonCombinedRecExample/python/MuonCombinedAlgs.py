@@ -174,7 +174,10 @@ def MuonCreatorAlg( name="MuonCreatorAlg",**kwargs ):
 def MuonCreatorAlg_LRT( name="MuonCreatorAlg_LRT",**kwargs ):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("MuonCreatorTool_LRT"))
     recordMuonCreatorAlgObjs (kwargs)
-    kwargs.setdefault("TagMaps",["muidcoTagMap_LRT","stacoTagMap_LRT","segmentTagMap_LRT","MuGirlMap_LRT","caloTagMap_LRT"])
+    tag_maps = ["muidcoTagMap_LRT","segmentTagMap_LRT","caloTagMap_LRT"]
+    if muonCombinedRecFlags.doMuGirl():
+        tag_maps += ["stacoTagMap_LRT","MuGirlMap_LRT"]
+    kwargs.setdefault("TagMaps",tag_maps)
     kwargs.setdefault("MuonContainerLocation", MuonCbKeys.FinalMuonsLargeD0())
     kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0())
     kwargs.setdefault("ExtrapolatedLocation", "ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0())
@@ -186,9 +189,6 @@ def MuonCreatorAlg_LRT( name="MuonCreatorAlg_LRT",**kwargs ):
     kwargs.setdefault("MakeClusters", False)
     kwargs.setdefault("ClusterContainerName", "")
     return CfgMgr.MuonCreatorAlg(name,**kwargs)
-
-
-
 
 def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("MuonCreatorTool",getPublicTool("StauCreatorTool"))
