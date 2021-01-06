@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile muon receiver decision algorithm"""
 
@@ -58,7 +58,7 @@ def TileMuonReceiverDecisionOutputCfg(flags, **kwargs):
         muRcvContainer = muRcvDecisionAlg.TileMuonReceiverContainer
     else:
         muRcvContainer = muRcvDecisionAlg.getDefaultProperty('TileMuonReceiverContainer')
-    muRcvContainer = muRcvContainer.split('+').pop()
+    muRcvContainer = str(muRcvContainer).split('+').pop()
     outputItemList = ['TileMuonReceiverContainer#' + muRcvContainer]
 
     if flags.Output.doWriteRDO:

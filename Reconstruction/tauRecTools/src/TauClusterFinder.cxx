@@ -20,6 +20,8 @@ TauRecToolBase(name) {
 
 
 StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
+  tau.clearClusterLinks();
+    
   if (! tau.jetLink().isValid()) {
     ATH_MSG_ERROR("Tau jet link is invalid.");
     return StatusCode::FAILURE;
@@ -30,9 +32,14 @@ StatusCode TauClusterFinder::execute(xAOD::TauJet& tau) const {
   std::vector<const xAOD::CaloCluster*> clusterList = getClusterList(*jetSeed);
 
   for (const xAOD::CaloCluster* cluster : clusterList) {
+    if (cluster == nullptr) {
+      ATH_MSG_WARNING("Find cluster with nullptr, please check the configuration !");
+      continue;
+    }
+    
     // Clusters with negative energy will be thinned, and the elementlinks to these
     // clusters will not be valid. 
-    if (!cluster || cluster->e() <=0) continue;
+    if (m_skipNegativeEnergy && cluster->rawE() <= .0) continue;
 
     ElementLink<xAOD::IParticleContainer> linkToCluster;
     linkToCluster.toContainedElement(
@@ -59,12 +66,17 @@ std::vector<const xAOD::CaloCluster*> TauClusterFinder::getClusterList(const xAO
       ATH_MSG_DEBUG("CaloCluster: ");
 	  ATH_MSG_DEBUG("eta: " << cluster->eta() << " phi: " << cluster->phi() << " e: " << cluster->e());
 	  
-      // Cluster in Topo jets is a shallow copy of CaloCalTopoCluster. Since jets may not be stored to AOD in R22,
-      // we will not be able retrieve the cluster from the jets with AOD as input. To fix this, we retrieve
-      // the cluster in the orignial container, i.e. CaloCalTopoCluster.
-      const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*cluster);
-      const xAOD::CaloCluster* orignialCluster = static_cast<const xAOD::CaloCluster*>(originalParticle);
-	  clusterList.push_back(orignialCluster);
+      // If jet perfroms the vertex correction, then cluster in Topo jets is in a shallow copy of CaloCalTopoCluster. 
+      // Since jets and the shallow copy may not be stored to AOD in R22, these clusters will be invalid with AOD as input. 
+      // To fix this issue, we now retrieve the clusters in the original CaloCalTopoCluster. 
+      if (m_doJetVertexCorrection) {
+        const xAOD::IParticle* originalParticle = xAOD::getOriginalObject(*cluster);
+        const xAOD::CaloCluster* orignialCluster = static_cast<const xAOD::CaloCluster*>(originalParticle);
+        clusterList.push_back(orignialCluster);
+      }
+      else {
+        clusterList.push_back(cluster);
+      }
     }
     else if ( constituent->type() == xAOD::Type::ParticleFlow ) {
 	  const xAOD::PFO* pfo = static_cast<const xAOD::PFO*>(constituent->rawConstituent());

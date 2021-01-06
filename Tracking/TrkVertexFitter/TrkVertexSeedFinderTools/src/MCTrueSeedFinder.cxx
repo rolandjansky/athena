@@ -67,13 +67,6 @@ namespace Trk
   StatusCode MCTrueSeedFinder::initialize() 
   { 
     ATH_CHECK( m_mcEventCollectionKey.initialize() );
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MCTrueSeedFinder::finalize() 
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -145,9 +138,7 @@ namespace Trk
       
       //get "intensity" (scalar sum ot p_T^2)
       double sum_pt2(0.0);
-      HepMC::GenEvent::particle_const_iterator pitr;
-      for (pitr = myEvent->particles_begin(); pitr != myEvent->particles_end(); ++pitr ) {
-	HepMC::GenParticle *part = (*pitr);
+      for (auto part: *myEvent) {
 	if(!pass(part, mcEventCollection.cptr())) continue; //select stable charged particles
 	sum_pt2 += part->momentum().perp2();
       }
@@ -155,7 +146,11 @@ namespace Trk
       
       //get position of interaction from first non-zero vertex
       Amg::Vector3D vtxPosition;
+#ifdef HEPMC3
+      auto Vert = myEvent->vertices().begin();
+#else
       HepMC::GenEvent::vertex_const_iterator Vert = myEvent->vertices_begin();
+#endif
       msg(MSG::DEBUG) << "Retrieved position  x: " << (*Vert)->position().x()  << 
 	" y: " << (*Vert)->position().y() << 
 	" z: " << (*Vert)->position().z() << endmsg;
@@ -188,9 +183,13 @@ namespace Trk
     //we select in-time pile-up interactions and hard-scattering, if valid
 
 
+#ifdef HEPMC3
+    bool isEmpty = ( evt->particles().size() == 0 );
+#else
     bool isEmpty = ( evt->particles_size() == 0 );
+#endif
     bool isDummy = ( ( evt->event_number() == -1 ) &&
-		     ( evt->signal_process_id() == 0 ) );
+		     ( HepMC::signal_process_id(evt) == 0 ) );
     if( isDummy ) isEmpty = false;
 
     if( isEmpty ) return false;
@@ -210,7 +209,7 @@ namespace Trk
     int gotzero = 1;
     for( ; iter != end; ++iter ) {
       if( ( ( ( *iter )->event_number() == -1 ) &&
-            ( ( *iter )->signal_process_id() == 0 ) ) ) {
+            ( HepMC::signal_process_id( *iter ) == 0 ) ) ) {
 	++gotzero;
       }
       if( evt == *iter ) break;
@@ -224,14 +223,14 @@ namespace Trk
     return true;
   }
 
-  bool MCTrueSeedFinder::pass( const HepMC::GenParticle* part,
+  bool MCTrueSeedFinder::pass( HepMC::ConstGenParticlePtr part,
 			       const McEventCollection* coll ) const {
 
     // Check if the particle is coming from a "good" GenEvent:
     if( ! pass( part->parent_event(), coll ) ) return false;
 
     // Now check for stable particles
-    if (part->barcode() < 200000) {
+    if (HepMC::barcode(part) < 200000) {
       if( ! TruthHelper::IsGenStable()( part ) ) return false;
       if( ! TruthHelper::IsGenInteracting()( part ) ) return false;
     }
@@ -240,13 +239,13 @@ namespace Trk
     int pdg = part->pdg_id();
 
     /// remove gluons and quarks of status 2 that pass IsGenStable!!!
-    if( abs(pdg) < 7 || abs(pdg) == 21 ) return false;
+    if( std::abs(pdg) < 7 || std::abs(pdg) == 21 ) return false;
 
-    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( abs( pdg ) );
+    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( std::abs( pdg ) );
     if( ! pd ) {
       ATH_MSG_DEBUG( "Could not get particle data for pdg = " << pdg 
-		     << " status " << part->status() << " barcode " <<part->barcode()
-		     << " process id " <<part->parent_event()->signal_process_id());
+		     << " status " << part->status() << " barcode " <<HepMC::barcode(part)
+		     << " process id " <<HepMC::signal_process_id(part->parent_event()));
       return false;
     }
     float charge = pd->charge();

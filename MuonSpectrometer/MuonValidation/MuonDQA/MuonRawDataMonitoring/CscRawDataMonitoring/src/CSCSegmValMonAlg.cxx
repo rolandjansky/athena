@@ -76,6 +76,10 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
     }
 
     SG::ReadHandle<Trk::SegmentCollection> segments(m_segmKey, ctx);
+    if (!segments.isValid()) {
+      ATH_MSG_ERROR("Could not retrieve Trk::SegmentCollection "<<m_segmKey.key());
+      return StatusCode::FAILURE;
+    }
 
     if ( segments->empty() ){
       ATH_MSG_DEBUG( "      Segm Collection is Empty, done...    ");
@@ -178,7 +182,6 @@ StatusCode CSCSegmValMonAlg::fillHistograms(const EventContext& ctx) const{
         int segm_stationPhi  = m_idHelperSvc->cscIdHelper().stationPhi(segmId);
         int segm_stationEta  = m_idHelperSvc->cscIdHelper().stationEta(segmId);
         int segm_stationName = m_idHelperSvc->cscIdHelper().stationName(segmId);
-        std::string segm_stationString = m_idHelperSvc->cscIdHelper().stationNameString(segm_stationName);
         int segm_chamberType = Muon::MuonStationIndex::CSS == segm_stationName ? 0 : 1;
         auto segm_sectorNo = Monitored::Scalar<int>("segm_sectorNo", (segm_stationEta * (2 * segm_stationPhi - segm_chamberType)) ); // [-16 -> -1] and [+1 -> +16]
         int segm_isec = segm_sectorNo < 0 ? segm_sectorNo*(-1) : segm_sectorNo+16; // [-16 -> -1] shifted to [1 -> 16] and [+1 -> +16] shifted to [+17 -> +32]

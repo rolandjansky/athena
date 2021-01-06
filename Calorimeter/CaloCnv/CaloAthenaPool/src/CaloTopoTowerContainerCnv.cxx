@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CaloTopoTowerContainerCnv.h"
@@ -10,6 +10,7 @@
 // Gaudi
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IToolSvc.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 
 // Athena
 #include "CaloUtils/CaloTopoTowerBuilderToolBase.h"
@@ -70,6 +71,7 @@ CaloTopoTowerContainer* CaloTopoTowerContainerCnv::createTransient() {
     Cont->init();
 
     // rebuild the CaloTopoTowers in the container.
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     m_TopoTowerBldr= getTool("CaloTopoTowerBuilderTool","TopoTowerTwrBldr");
     if(!m_TopoTowerBldr){
@@ -77,7 +79,7 @@ CaloTopoTowerContainer* CaloTopoTowerContainerCnv::createTransient() {
       return 0;
     }
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "creating CaloTopoTowerContainerCnv::PoolToDataObject" << endmsg; 
-    StatusCode scfcal = m_TopoTowerBldr->execute(Cont);
+    StatusCode scfcal = m_TopoTowerBldr->execute(ctx, Cont);
     if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<" TopoTowers rebuild m_TopoTowerBldr->execute(Cont); Successful "<<endmsg; 
     if (scfcal.isFailure()) {
       log<<MSG::ERROR<<" TopoTowers rebuild failed "<<endmsg; 

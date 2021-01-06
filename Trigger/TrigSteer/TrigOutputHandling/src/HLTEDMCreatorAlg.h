@@ -17,11 +17,10 @@
 class HLTEDMCreatorAlg : public AthReentrantAlgorithm {
 public:
   HLTEDMCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~HLTEDMCreatorAlg() override;
+  virtual ~HLTEDMCreatorAlg() override = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;
-  virtual StatusCode finalize() override;
 
 private:
   ToolHandleArray<IHLTOutputTool> m_tools{ this, "OutputTools", {}, "Tools that generate output"};

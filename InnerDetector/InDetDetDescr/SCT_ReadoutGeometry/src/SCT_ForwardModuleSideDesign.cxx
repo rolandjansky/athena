@@ -15,7 +15,7 @@
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "CLHEP/Geometry/Vector3D.h"
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
 
 namespace InDetDD {
 

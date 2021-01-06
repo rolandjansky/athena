@@ -24,6 +24,8 @@ namespace FlavorTagDiscriminants {
 
     // returns 0 for success
     virtual void decorate(const xAOD::Jet& jet) const override;
+
+    virtual std::set<std::string> getDecoratorKeys() const override;
   private:
     std::unique_ptr<BTagMuonAugmenter> m_aug;
     std::string m_muonAssociationName;

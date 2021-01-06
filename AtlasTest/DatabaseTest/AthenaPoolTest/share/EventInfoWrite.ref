@@ -1,0 +1,411 @@
+TagInfoMgr          DEBUG initialize()
+TagInfoMgr          DEBUG ExtraTagValuePairs 
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr.IOVD...  DEBUG in initialize()
+TagInfoMgr.IOVD...  DEBUG initialize(): need to modify folders
+TagInfoMgr          DEBUG Adding private ToolHandle tool TagInfoMgr.IOVDbMetaDataTool (IOVDbMetaDataTool)
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG matched ITagInfoMgr
+TagInfoMgr          DEBUG addTag - adding name/value pairs: IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Align
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/BadChannels/BadChannels
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/BadChannels/MissingFEBs
+TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/CalibIdMap
+TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/FebRodMap
+TagInfoMgr          DEBUG addTag - adding name/value pairs: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/OnOffIdMap
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/CES
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/CIS/FIT/LIN
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/CIS/FIT/NLN
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/EMS
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/LAS/FIBER
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/LAS/LIN
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/CALIB/LAS/NLN
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/NOISE/SAMPLE
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/STATUS/ADC
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/OFL02/TIME/CHANNELOFFSET/PHY
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /TILE/ONL01/STATUS/ADC
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnAttrIdMapAtlas
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTOnOffIdMapAtlas
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /CALO/Ofl/Identifier/CaloTTPpmRxIdMapAtlas
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/AutoCorr
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/LArCellPositionShift
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/DAC2uA
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/HVScaleCorr
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/MinBias
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/MinBiasAverage
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/MphysOverMcal
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/Noise
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/Pedestal
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/Ramp
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/Shape
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/Identifier/LArTTCellMapAtlas
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/fSampl
+TagInfoMgr          DEBUG removeTagFromInput - adding tag name to be removed: /LAR/ElecCalibMC/uA2MeV
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG matched ITagInfoMgr
+TagInfoMgr          DEBUG adding IOV callback object to DetStore
+TagInfoMgr          DEBUG Registered IOV callback for TagInfo changes
+EventInfoWriter     DEBUG EventInfoWriter::initialize()
+EventInfoWriter     DEBUG CreateDummyTags          'CreateDummyTags':False
+EventInfoWriter     DEBUG RemoveDummyTags          'RemoveDummyTags':False
+EventInfoWriter     DEBUG CreateDummyOverrideTags  'CreateDummyOverrideTags':False
+TagInfoMgr          DEBUG in queryInterface()
+TagInfoMgr          DEBUG matched ITagInfoMgr
+EventInfoWriter     DEBUG Added tag to TagInfoMgr
+EventInfoWriter     DEBUG EventInfoWriter::fillTagInfo()
+EventInfoWriter     DEBUG Called fillTagInfo
+TagInfoMgr          DEBUG start()
+TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [1,1:0] 
+TagInfoMgr          DEBUG handle: currentRun = 1
+TagInfoMgr          DEBUG Signaled begin run to IOVDbSvc [1,1:0]
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: det store does NOT contain AttrListColl for TagInfo
+TagInfoMgr          DEBUG fillTagInfo: 
+TagInfoMgr          DEBUG fillTagInfo: Add in tags from EventInfo
+TagInfoMgr          DEBUG fillTagInfo: Event ID: [1,4294967296:0] 
+TagInfoMgr          DEBUG fillTagInfo: EventInfo/EventType has no tags
+TagInfoMgr          DEBUG fillTagInfo: Added EventInfo tags to TagInfo current/input
+TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: print out tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from input event 
+TagInfoMgr          DEBUG entering fillMetaData
+TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
+TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr.IOVD...  DEBUG begin registerFolder 
+TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
+TagInfoMgr.IOVD...  DEBUG No IOVMetaDataContainer in MetaDataStore for folder /TagInfo. Created a new instance
+TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
+TagInfoMgr.IOVD...  DEBUG begin addPayload 
+TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
+TagInfoMgr.IOVD...  DEBUG Added new payload for folder /TagInfo
+TagInfoMgr.IOVD...  DEBUG {[1,0] - [2,0]} iov size 0
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
+TagInfoMgr          DEBUG handle: TagInfo successfully processed by IOVDbSvc to register callback
+TagInfoMgr          DEBUG updateAddress
+TagInfoMgr          DEBUG IOV callback
+TagInfoMgr          DEBUG notifyListeners  (1 registered)
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967296:0] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967297:5] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967298:10] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967299:15] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967300:20] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967301:25] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967302:30] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967303:35] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967304:40] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967305:45] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967306:50] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967307:55] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967308:60] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967309:65] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967310:70] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967311:75] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [1,4294967312:80] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+TagInfoMgr          DEBUG handle: entering handle(), incidence type BeginRun from AthenaEventLoopMgr
+TagInfoMgr          DEBUG handle: BeginRun incident - Event ID: [2,1:85] 
+TagInfoMgr          DEBUG handle: currentRun = 2
+TagInfoMgr          DEBUG updateTagInfo: getting /TagInfo
+TagInfoMgr          DEBUG updateTagInfo: det store does NOT contain AttrListColl for TagInfo
+TagInfoMgr          DEBUG fillTagInfo: 
+TagInfoMgr          DEBUG fillTagInfo: Add in tags from EventInfo
+TagInfoMgr          DEBUG fillTagInfo: Event ID: [2,1:85] 
+TagInfoMgr          DEBUG fillTagInfo: EventInfo/EventType has no tags
+TagInfoMgr          DEBUG fillTagInfo: Added EventInfo tags to TagInfo current/input
+TagInfoMgr          DEBUG fillTagInfo: print out tags before adding extra tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG fillTagInfo: Adding extra value/tag pair: IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr          DEBUG fillTagInfo: print out tags
+TagInfoMgr          DEBUG TagInfo tag: 
+TagInfoMgr          DEBUG updateTagInfo: Filled TagInfo from input event 
+TagInfoMgr          DEBUG entering fillMetaData
+TagInfoMgr          DEBUG fillMetaData: Adding value/tag pairs to file meta data: 
+TagInfoMgr          DEBUG /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+TagInfoMgr          DEBUG /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+TagInfoMgr          DEBUG /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+TagInfoMgr          DEBUG IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+TagInfoMgr.IOVD...  DEBUG begin registerFolder 
+TagInfoMgr.IOVD...  DEBUG begin getMetaDataContainer 
+TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer already in MetaDataStore for folder /TagInfo
+TagInfoMgr.IOVD...  DEBUG IOVMetaDataContainer  for folder /TagInfo has been registered 
+TagInfoMgr.IOVD...  DEBUG begin addPayload 
+TagInfoMgr.IOVD...  DEBUG Retrieved IOVMetaDataContainer from MetaDataStore for folder /TagInfo
+TagInfoMgr.IOVD...  DEBUG Could not add new payload for folder /TagInfo (may be duplicate payload).
+TagInfoMgr          DEBUG updateTagInfo: Wrote TagInfo to MetaDataStore 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,1:85] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,2:90] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,3:95] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,4:100] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,5:105] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,6:110] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,7:115] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::execute()
+EventInfoWriter     DEBUG Event ID: [2,8:120] 
+EventInfoWriter     DEBUG Event type: user type McEvent
+EventInfoWriter     DEBUG Tags from TagInfoMgr:
+EventInfoWriter     DEBUG TagInfo tag: 
+EventInfoWriter     DEBUG Current tags: 
+EventInfoWriter     DEBUG     /LAR/Identifier/CalibIdMap LARIdentifierCalibIdMap-012
+EventInfoWriter     DEBUG     /LAR/Identifier/FebRodMap LARIdentifierFebRodMap-005
+EventInfoWriter     DEBUG     /LAR/Identifier/OnOffIdMap LARIdentifierOnOffIdMap-012
+EventInfoWriter     DEBUG     IOVDbGlobalTag OFLCOND-SDR-BS7T-04-00
+EventInfoWriter     DEBUG Input tags: 
+EventInfoWriter     DEBUG EventInfoWriter::finalize()
+TagInfoMgr          DEBUG finalize()

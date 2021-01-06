@@ -8,6 +8,9 @@
 
 #ifndef TRKSURFACES_STRAIGHTLINESURFACE_H
 #define TRKSURFACES_STRAIGHTLINESURFACE_H
+// Amg
+#include "EventPrimitives/EventPrimitives.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 // Trk
 #include "TrkDetDescrUtils/SharedObject.h"
@@ -15,9 +18,6 @@
 #include "TrkSurfaces/CylinderBounds.h"
 #include "TrkSurfaces/NoBounds.h"
 #include "TrkSurfaces/Surface.h"
-// Amg
-#include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "CxxUtils/CachedValue.h"
 
 class Identifier;

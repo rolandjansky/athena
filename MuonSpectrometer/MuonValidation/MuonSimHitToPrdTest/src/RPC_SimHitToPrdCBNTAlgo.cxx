@@ -459,7 +459,7 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 
     ATH_MSG_DEBUG ("McEvent n.  " <<eventCounter ) ;        
     int particleCounter=0;    
-    for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin();	 p!= (**e).particles_end(); ++p) {
+    for (auto p: (**e)) {
 	++particleCounter;	
 	ATH_MSG_DEBUG ("McEvent n.  " <<eventCounter << " particle # "<<particleCounter) ;        
 	float xv = -999999.;
@@ -467,18 +467,18 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 	float zv = -999999.;
 	float tv = -999999.;
 // the following lines give troubles  - protect them 
-	if ((**p).production_vertex())
+	if (p->production_vertex())
 	  {
-	    xv = (**p).production_vertex()->position().x();
-	    yv = (**p).production_vertex()->position().y();
-	    zv = (**p).production_vertex()->position().z();
-	    tv = (**p).production_vertex()->position().t();
+	    xv = p->production_vertex()->position().x();
+	    yv = p->production_vertex()->position().y();
+	    zv = p->production_vertex()->position().z();
+	    tv = p->production_vertex()->position().t();
 	  }
- 	float xd = (**p).momentum().px();
- 	float yd = (**p).momentum().py();
- 	float zd = (**p).momentum().pz();
- 	float mag = sqrt(xd*xd + yd*yd + zd*zd);
-	if (fabs(mag)>0.001) 
+ 	float xd = p->momentum().px();
+ 	float yd = p->momentum().py();
+ 	float zd = p->momentum().pz();
+ 	float mag = std::sqrt(xd*xd + yd*yd + zd*zd);
+	if (std::fabs(mag)>0.001) 
 	{
 	    
 	    direction[0]=(xd/mag);
@@ -486,11 +486,11 @@ StatusCode RPC_SimHitToPrdCBNTAlgo::doMCtruth()
 	    direction[2]=(zd/mag);
 	     
 	}
-	int status  =  (**p).status();
-	int barcode =  (**p).barcode();
-	double generatedMass = (**p).generated_mass();
+	int status  =  p->status();
+	int barcode =  HepMC::barcode(p);
+	double generatedMass = p->generated_mass();
 
-	 float pdgId =  (**p).pdg_id();
+	 float pdgId =  p->pdg_id();
 	 
 	 m_c->m_partVertX  [ipart] =xv            ;
 	 m_c->m_partVertY  [ipart] =yv            ;

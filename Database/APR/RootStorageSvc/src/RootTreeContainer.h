@@ -18,6 +18,7 @@
 // Framework include files
 #include "StorageSvc/DbDatabase.h"
 #include "StorageSvc/DbContainerImp.h"
+#include "RootAuxDynIO/RootAuxDynIO.h"
 
 #include <map>
 #include <vector>
@@ -72,7 +73,7 @@ namespace pool  {
       // extra variables used by Aux dynamic
       size_t            rows_written = 0;
       // AuxDyn reader if used by this branch
-      IRootAuxDynReader*aux_reader = nullptr;
+      std::unique_ptr<IRootAuxDynReader> aux_reader;
       int               aux_iostore_IFoffset = -1;
       bool              is_basic_type = false;
       bool              written = false;

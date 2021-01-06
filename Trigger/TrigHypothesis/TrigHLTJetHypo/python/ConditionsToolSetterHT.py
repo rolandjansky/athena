@@ -16,9 +16,8 @@ class ConditionsToolSetterHT(object):
 
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
     
-    def __init__(self, name):
+    def __init__(self):
 
-        self.name = name
         # for simple, use TrigJetConditionConfig_etaet. Needs to be
         # completed because simple can conain any single jet condition
         self.tool_factories = {
@@ -49,7 +48,7 @@ class ConditionsToolSetterHT(object):
 
         return rep
 
-    def mod(self, node):
+    def mod(self, anode):
         """Entry point for this module. HT specific.
         Set up 
         TrigJetConditionConfig_ht,
@@ -60,21 +59,25 @@ class ConditionsToolSetterHT(object):
         # navigate the tree filling in node-parent and node- Condtion factory
         # relations
 
-
-        # root = Node(scenario='root')
-        # root.children = [node]
-
-        # self._check_scenarios(root)
-
         # root is an alias for node - as in ConditionTooSetterFastReduction
+        node = None
+        if anode.scenario == 'root':
+            assert len(anode.children)==1
+            node =anode.children[0]
+        else:
+            node = anode
+            
         assert node.scenario == 'ht'
 
-        print (node)
         conditionMaker = self._get_tool_instance('htcondition')
         config_tool = self._get_tool_instance('htconfig')
         cut_windows = {}
-        [cut_windows.update(d) for d in node.conf_attrs]
-        print (cut_windows)
+
+        # HT not handled by FastReducer. Cut mulitplicity must be 1.
+        for d in node.conf_attrs: assert d[1] == 1
+        
+        [cut_windows.update(d[0]) for d in node.conf_attrs]
+
         conditionMaker.htmin = cut_windows['ht']['min']
         conditionMaker.etmin = cut_windows['et']['min']
         conditionMaker.etamin = cut_windows['eta']['min']

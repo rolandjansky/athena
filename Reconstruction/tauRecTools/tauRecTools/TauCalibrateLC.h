@@ -53,8 +53,8 @@ class TauCalibrateLC : public TauRecToolBase {
     bool m_isCaloOnly;   //!< switch for CaloOnly corrections
 
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
-        "AveIntPerXKey", 
-        "EventInfo.AveIntPerXDecor",
+        "averageInteractionsPerCrossingKey", 
+        "EventInfo.averageInteractionsPerCrossing",
         "Decoration for Average Interaction Per Crossing"};
   
     SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer {this,

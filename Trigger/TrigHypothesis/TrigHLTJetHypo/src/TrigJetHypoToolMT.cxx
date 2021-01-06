@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -23,6 +23,8 @@
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
+#include <sstream>
+
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
@@ -40,17 +42,18 @@ TrigJetHypoToolMT::~TrigJetHypoToolMT(){
 }
 
 StatusCode TrigJetHypoToolMT::initialize(){
-  DebugInfoCollector collector(name());
-  CHECK(m_helper->getDescription(collector));
-  auto s = collector.toString();
-  
-  for(const auto& l : lineSplitter(s)){
-    ATH_MSG_INFO(l);
-  }
-  
+
   if (m_visitDebug){
-    collector.write();
+
+    DebugInfoCollector collector(name());
+    CHECK(m_helper->getDescription(collector));
+    auto s = collector.toString();
+  
+    for(const auto& l : lineSplitter(s)){
+      ATH_MSG_INFO(l);
+    }
   }
+
   return StatusCode::SUCCESS;
 }
 
@@ -62,7 +65,7 @@ StatusCode
 TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                           const TrigCompositeUtils::DecisionIDContainer& previousDecisionIDs,
                           std::vector<JetDecision>& jetHypoInputs) const {
-
+  
   if (not TrigCompositeUtils::passed(getId().numeric(), previousDecisionIDs)) {
     // This HypoTool's chain is not active -
     // we must not check this tool's logic.
@@ -71,7 +74,13 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
     return StatusCode::SUCCESS;
   }
 
-
+  std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
+  if(m_visitDebug){
+    auto collectorName = name() + "_" + std::to_string(m_eventSN->getSN());
+    infocollector.reset(new  DebugInfoCollector(collectorName));
+  }
+  
+   
   HypoJetVector hypoJets(jets->size());
   
   std::transform(jets -> begin(),
@@ -86,11 +95,7 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                 << "...");
 
   // steady_clock::time_point t =  steady_clock::now();
-  std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
-  if(m_visitDebug){
-    auto collectorName = name() + std::to_string(m_eventSN->getSN());
-    infocollector.reset(new  DebugInfoCollector(collectorName));
-  } 
+  
 
   xAODJetCollector jetCollector;
   bool pass;
@@ -101,56 +106,37 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
                   << e.what());
     return StatusCode::FAILURE;
   }
+  
 
+  if (!pass) {
+   
+    if (infocollector){
 
-  std::size_t decision_count{0};
-  if (pass) {
-    if (jetCollector.empty()) {
-      ATH_MSG_ERROR("HypoTool passed the event for " <<
-                    getId().name() <<
-                    ", but did not specify which jets participated");
-      return StatusCode::FAILURE;
+      std::string msg =
+      "hypo testing done: no of input jets " + std::to_string(jets->size())
+      + " no of participating jets " + std::to_string(jetCollector.size())
+      +  " pass: false ";
+    
+      infocollector->collect("TrigJetHypoToolMT", msg);
+      infocollector->write();
     }
-
-    // jet hypo inputs:
-    // pairs of const xAOD::Jet* (first) and mutable Decision* (second)
-
-    auto participating_jets = jetCollector.xAODJets();
-    if (infocollector) {
-      infocollector->
-	collect(name(),
-		"no of xAODJets " + std::to_string(participating_jets.size()));
-    }
-
-    for (auto& pair : jetHypoInputs) { 
-      auto it = std::find(participating_jets.begin(),
-                          participating_jets.end(),
-                          pair.first);
-      if (it != participating_jets.end()) {
-	ATH_MSG_VERBOSE("Passing jet: pt " << (*it)->pt() << ", eta " << (*it)->eta() );
-	// This jet particpated in passing the event.
-        // Add this HypoTool's ID to this Decision object. 
-
-        TrigCompositeUtils::addDecisionID(getId().numeric(), pair.second);
-	++decision_count;
-      }
-    }
+    
+    return StatusCode::SUCCESS;
   }
 
+  CHECK(checkPassingJets(jetCollector, infocollector));
+  CHECK(reportPassingJets(jetCollector, jetHypoInputs));
+  
   // accumulateTime(steady_clock::now() - t);
 
   
   std::string msg =
     "hypo testing done: no of input jets " + std::to_string(jets->size())
     + " no of particlating jets " + std::to_string(jetCollector.size())
-    + " decision count " + std::to_string(decision_count) 
-    +  " pass ";
-  if (pass) {msg += "true"; } else { msg += "false";}
-  
+    +  " pass: true";
 
   ATH_MSG_DEBUG(msg);
-
-
+  
   if (infocollector){
     infocollector->collect("TrigJetHypoToolMT", msg);
     infocollector->write();
@@ -158,6 +144,72 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   return StatusCode::SUCCESS;
 }
 
+
 const HLT::Identifier& TrigJetHypoToolMT::getId() const{
   return m_decisionId;
-} 
+}
+
+
+StatusCode
+TrigJetHypoToolMT::checkPassingJets(xAODJetCollector& jetCollector,
+				std::unique_ptr<ITrigJetHypoInfoCollector>& infocollector) const {
+  
+  if (jetCollector.empty()) {
+    ATH_MSG_ERROR("HypoTool passed the event for " <<
+		  getId().name() <<
+		  ", but did not specify which jets participated");
+    return StatusCode::FAILURE;
+  }
+  
+  // jet hypo inputs:
+  // pairs of const xAOD::Jet* (first) and mutable Decision* (second)
+  
+  auto participating_jets = jetCollector.xAODJets();
+  if (infocollector) {
+    infocollector->
+      collect(name(),
+	      "no of xAODJets " + std::to_string(participating_jets.size()));
+    
+    auto legInds = jetCollector.legInds();
+    std::stringstream ss;
+    
+    for(const auto& label : legInds){
+      auto jets = jetCollector.xAODJets(label);
+      ss << label << " [\n";
+      for(const auto& j : jets){
+	ss << static_cast<const void*>(j) << '\n';
+      }
+      ss << "]\n";
+    }
+    infocollector->collect(name(), ss.str());
+  }
+  
+  return StatusCode::SUCCESS;
+
+}
+
+StatusCode
+TrigJetHypoToolMT::reportPassingJets(xAODJetCollector& jetCollector,
+				     std::vector<JetDecision>& jetHypoInputs) const {
+  auto participating_jets = jetCollector.xAODJets();
+  
+  for (auto& pair : jetHypoInputs) {
+
+    auto it = std::find(participating_jets.begin(),
+			participating_jets.end(),
+			pair.first);
+
+    if (it == participating_jets.end()) {
+      // the input jet is not a jet that contributed
+      // to passing the hypo.
+      continue;
+    }
+
+    // This jet particpated in passing the event.
+    // Add this HypoTool's ID to this Decision object. 
+    
+    TrigCompositeUtils::addDecisionID(getId().numeric(), pair.second);
+  }
+  
+  return StatusCode::SUCCESS;
+}

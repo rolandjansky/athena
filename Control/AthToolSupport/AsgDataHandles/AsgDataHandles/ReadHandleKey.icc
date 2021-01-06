@@ -31,19 +31,19 @@ ReadHandleKey<T>::ReadHandleKey (const std::string& key)
 }
 
 
-// /**
-//  * @brief Auto-declaring Property constructor.
-//  * @param owner Owning component.
-//  * @param name Name of the Property.
-//  * @param key  Default StoreGate key for the object.
-//  * @param doc Documentation string.
-//  *
-//  * Will associate the named Property with this RHK via declareProperty.
-//  *
-//  * The provided key may actually start with the name of the store,
-//  * separated by a "+":  "MyStore+Obj".  If no "+" is present
-//  * the store named by @c storeName is used.
-//  */
+/**
+ * @brief Auto-declaring Property constructor.
+ * @param owner Owning component.
+ * @param name Name of the Property.
+ * @param key  Default StoreGate key for the object.
+ * @param doc Documentation string.
+ *
+ * Will associate the named Property with this RHK via declareProperty.
+ *
+ * The provided key may actually start with the name of the store,
+ * separated by a "+":  "MyStore+Obj".  If no "+" is present
+ * the store named by @c storeName is used.
+ */
 template <class T>
 template <class OWNER, class K>
 inline

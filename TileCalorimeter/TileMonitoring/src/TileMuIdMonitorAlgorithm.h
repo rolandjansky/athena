@@ -42,15 +42,15 @@ class TileMuIdMonitorAlgorithm : public TileMonitorAlgorithm {
     std::vector<int> m_muId1TagEnergyGroups;
     std::vector<int> m_muId1TagQualityGroups;
     std::vector<int> m_muId1TagEtaPhiGroups;
-    std::vector<int> m_muId1TagEneEtaGroups;
-    std::vector<int> m_muId1TagEnePhiGroups;
+    std::vector<int> m_muId1TagEtaGroups;
+    std::vector<int> m_muId1TagPhiGroups;
     std::vector<int> m_muId1TagEneQualityGroups;
 
     std::vector<int> m_muId2TagEnergyGroups;
     std::vector<int> m_muId2TagQualityGroups;
     std::vector<int> m_muId2TagEtaPhiGroups;
-    std::vector<int> m_muId2TagEneEtaGroups;
-    std::vector<int> m_muId2TagEnePhiGroups;
+    std::vector<int> m_muId2TagEtaGroups;
+    std::vector<int> m_muId2TagPhiGroups;
     std::vector<int> m_muId2TagEneQualityGroups;
 };
 

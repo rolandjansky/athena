@@ -59,7 +59,7 @@ class TrigCostDataStore {
    * @returns Success unless and class is not initialized, then Failure
    */
   template<typename ENTRY>
-  StatusCode push_back(const AlgorithmIdentifier& ai, const ENTRY& entry);
+  StatusCode push_back(const AlgorithmIdentifier& ai, ENTRY&& entry);
 
   /**
    * @brief Retrieve a payload from the map given an AlgorithmIdentifier

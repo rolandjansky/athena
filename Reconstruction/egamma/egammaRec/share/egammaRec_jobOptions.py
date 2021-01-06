@@ -1,5 +1,5 @@
 # all these tests, except egamma, should be in egammaGetter
-from CaloRec.CaloRecFlags import jobproperties
+from CaloRec.CaloRecFlags import jobproperties as caloproperties
 from egammaRec.egammaRecFlags import jobproperties
 from RecExConfig.RecFlags import rec
 from AthenaCommon.Resilience import treatException
@@ -21,7 +21,7 @@ if not DetFlags.detdescr.ID_on():
     jobproperties.egammaRecFlags.doVertexBuilding = False
 
 # We can not run without having the Calo
-if not (rec.readESD() or jobproperties.CaloRecFlags.doCaloTopoCluster()):
+if not (rec.readESD() or caloproperties.CaloRecFlags.doCaloTopoCluster()):
     jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
     jobproperties.egammaRecFlags.doEgammaForwardSeeded = False
 

@@ -46,9 +46,6 @@ TileROD_Decoder::TileROD_Decoder(const std::string& type, const std::string& nam
   , m_runPeriod(0){
 
   declareInterface<TileROD_Decoder>(this);
-
-  m_WarningCounter = 0;
-  m_ErrorCounter = 0;
  
   for (std::atomic<const uint32_t*>& p : m_OFPtrs) {
     p = nullptr;

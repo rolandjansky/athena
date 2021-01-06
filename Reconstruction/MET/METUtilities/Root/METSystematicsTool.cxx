@@ -245,7 +245,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  CP::SystematicCode METSystematicsTool::sysApplySystematicVariation(const CP::SystematicSet& systSet){//this should already be filtered for MET systematics
+  StatusCode METSystematicsTool::sysApplySystematicVariation(const CP::SystematicSet& systSet){//this should already be filtered for MET systematics
     ATH_MSG_VERBOSE (__PRETTY_FUNCTION__ );
     // Only a single systematic can be applied at a time:
     // If at some point we can deal with multiple systematics, we will check here that the combination we are given will work
@@ -253,10 +253,10 @@ namespace met {
     m_appliedSystEnum = NONE;
     if( systSet.size()==0 ) {
       ATH_MSG_DEBUG("No affecting systematics received.");
-      return CP::SystematicCode::Ok;
+      return StatusCode::SUCCESS;
     } else if( systSet.size() > 1 ) {
       ATH_MSG_WARNING("Tool does not support multiple systematics, returning unsupported" );
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
     CP::SystematicVariation systVar = *systSet.begin();
     if     ( systVar == CP::SystematicVariation("") )           m_appliedSystEnum = NONE                  ;
@@ -272,12 +272,12 @@ namespace met {
     else if( systVar == jetTrkAffSyst::MET_JetTrk_ScaleDown)   m_appliedSystEnum = MET_JETTRK_SCALEDOWN  ;
     else{
       ATH_MSG_WARNING("unsupported systematic applied " );
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
 
     ATH_MSG_DEBUG("applied systematic is " << m_appliedSystEnum );
 
-    return CP::SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
 
   CP::CorrectionCode METSystematicsTool::applyCorrection(xAOD::MissingET& inputMet,

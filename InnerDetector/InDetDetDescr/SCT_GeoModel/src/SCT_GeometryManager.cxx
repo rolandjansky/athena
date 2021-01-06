@@ -6,7 +6,7 @@
 
 #include "InDetGeoModelUtils/DistortedMaterialManager.h"
 #include "InDetIdentifier/SCT_ID.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "SCT_GeoModel/SCT_BarrelParameters.h"
 #include "SCT_GeoModel/SCT_BarrelModuleParameters.h"
 #include "SCT_GeoModel/SCT_DataBase.h"

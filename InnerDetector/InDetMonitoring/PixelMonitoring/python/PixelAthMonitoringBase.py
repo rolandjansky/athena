@@ -6,17 +6,7 @@
 @file PixelAthMonitoringBase.py
 @brief Helper functions for Run 3 Pixel monitoring algorithm configuration
 '''
-# hack to deal with global variables in this module
-# check if we are in "old-" or "new-style" configuration
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-from RecExConfig.AutoConfiguration import GetRunNumber
-if ConfigFlags.DQ.isReallyOldStyle:
-    runtext = ''
-    if GetRunNumber() is not None:
-        runtext = ' (Run %d)' % GetRunNumber()
-else:
-    runtext = ' (Run %d)' % ConfigFlags.Input.RunNumber[0]
-
+runtext = ''
 
 NumLayersDisk = 3
 NumLayersDBM  = 3
@@ -43,6 +33,10 @@ xminsl   = [ -0.5, -0.5,-6.5,-6.5,-6.5,-16.5,  -0.5,  -0.5]
 ybinsl   = [   48,   48,  22,  38,  52,   14,     4,     4]
 etatxt   = [ditxt,ditxt,btxt,btxt,btxt,sbtxt,dbmtxt,dbmtxt]
 phitext  = ";phi index of module"
+xbinsfel = [   24,   24, 104, 104, 104,   32,     3,     3]
+xminsfel = [ -0.5, -0.5, -52, -52, -52,-16.5,  -0.5,  -0.5]
+ybinsfel = [   96,   96,  44,  76, 104,   14,     4,     4]
+
 totcuts  = [   15,   15,  15,  15,  15,    4,     4,     4] 
 xbinsem  = [    3,    3,  13,  13,  13,   20,     3,     3]
 xminsem  = [  0.5,  0.5,-6.5,-6.5,-6.5,  -10,   0.5,   0.5]
@@ -80,6 +74,26 @@ ModulesIBL = [
 LayersDBM = ["Layer 0", "Layer 1", "Layer 2"] #xDBM
 
 LabelX = [LayersDisk, LayersDisk, ModulesBarrel, ModulesBarrel, ModulesBarrel, ModulesIBL, LayersDBM, LayersDBM]
+
+#same for FE
+LayersDiskFE = [" ", " ", " ", "Disk 1", " ", " ", " ", " ",
+              " ", " ", " ", "Disk 2", " ", " ", " ", " ",
+              " ", " ", " ", "Disk 3", " ", " ", " ", " "]
+ModulesBarrelFE = [
+    " ", " ", " ", "M6C", " ", " ", " ", " ",
+    " ", " ", " ", "M5C", " ", " ", " ", " ",
+    " ", " ", " ", "M4C", " ", " ", " ", " ",
+    " ", " ", " ", "M3C", " ", " ", " ", " ",
+    " ", " ", " ", "M2C", " ", " ", " ", " ",
+    " ", " ", " ", "M1C", " ", " ", " ", " ",
+    " ", " ", " ", "M0", " ", " ", " ", " ",
+    " ", " ", " ", "M1A", " ", " ", " ", " ",
+    " ", " ", " ", "M2A", " ", " ", " ", " ",
+    " ", " ", " ", "M3A", " ", " ", " ", " ",
+    " ", " ", " ", "M4A", " ", " ", " ", " ",
+    " ", " ", " ", "M5A", " ", " ", " ", " ",
+    " ", " ", " ", "M6A", " ", " ", " ", " "]
+LabelFEX = [LayersDiskFE, LayersDiskFE, ModulesBarrelFE, ModulesBarrelFE, ModulesBarrelFE, ModulesIBL, LayersDBM, LayersDBM]
 
 ModulesECA = [
     "B01_S2_M1", "B01_S2_M6", "B01_S2_M2", "B01_S2_M5", "B01_S2_M3",
@@ -139,6 +153,24 @@ StavesIBL = [
 
 LabelY = [ModulesECA, ModulesECC, StavesL0, StavesL1, StavesL2, StavesIBL, ModulesDBM, ModulesDBM]
 
+#same for per-FE
+ModulesFEECA = []
+for i in ModulesECA: 
+    ModulesFEECA.extend([i, ' '])
+ModulesFEECC = []
+for i in ModulesECC: 
+    ModulesFEECC.extend([i, ' '])
+StavesFEL0 = []
+for i in StavesL0:
+    StavesFEL0.extend([i, ' '])
+StavesFEL1 = []
+for i in StavesL1:
+    StavesFEL1.extend([i, ' '])
+StavesFEL2 = []
+for i in StavesL2:
+    StavesFEL2.extend([i, ' '])
+LabelFEY = [ModulesFEECA, ModulesFEECC, StavesFEL0, StavesFEL1, StavesFEL2, StavesIBL, ModulesDBM, ModulesDBM]
+
 #PP0
 PP0sEC = [
     "D1_B01_S2", "D1_B02_S1", "D1_B02_S2", "D1_B03_S1", "D1_B03_S2", "D1_B04_S1", "D1_B04_S2", "D1_B01_S1",
@@ -149,69 +181,69 @@ PP0LabelX = [PP0sEC, PP0sEC, StavesL0, StavesL1, StavesL2, StavesIBL, StavesIBL]
 
 #Errors
 ErrStateLabelsFEI3 = [
-      ("ROD_Timeout", "ROD Formatter Timeout"),
-      ("ROD_Sync_BCID_errors", "ROD BCID Sync"),
-      ("ROD_Sync_LVL1ID_errors", "ROD LVL1ID Sync"),
-      ("Optical_Errors", "Preamble/Header"),
-      ("Mod_Sync_LVL1ID_errors", "FE/MCC LVL1ID Sync"),
-      ("Mod_Sync_BCID2_errors", "FE/MCC BCID2 Sync"),
-      ("Mod_Sync_BCID1_errors", "FE/MCC BCID1 Sync"),
-      ("Mod_Trunc_EoE_Overflow_errors", "FE/MCC EoE Overflow Trunc"),
-      ("Mod_Trunc_Hit_Overflow_errors", "FE/MCC Hit Overflow Trunc"),
-      ("FE_Warning", "FE Warning"),
-      ("SEU_Hit_Parity", "SEU Hit Parity"),
-      ("SEU_Register_Parity", "SEU Register Parity"),
-      ("SEU_Hamming", "SEU Hamming Code"),
-      ("Mod_Trunc_EOC_errors", "FE/MCC EoC Trunc"),
-      ("ROD_Trailer_Bit_errors", "ROD Trailer Bit"),
-      ("ROD_Trunc_HT_Limit_errors", "ROD H/T Limit Trunc"),
-      ("ROD_Trunc_ROD_OF_errors", "ROD Overflow Trunc")
+      ("RODTimeout", "ROD Formatter Timeout"),
+      ("RODSyncBCIDErrors", "ROD BCID Sync"),
+      ("RODSyncLVL1IDErrors", "ROD LVL1ID Sync"),
+      ("OpticalErrors", "Preamble/Header"),
+      ("ModSyncLVL1IDErrors", "FE/MCC LVL1ID Sync"),
+      ("ModSyncBCID2Errors", "FE/MCC BCID2 Sync"),
+      ("ModSyncBCID1Errors", "FE/MCC BCID1 Sync"),
+      ("ModTruncEoEOverflowErrors", "FE/MCC EoE Overflow Trunc"),
+      ("ModTruncHitOverflowErrors", "FE/MCC Hit Overflow Trunc"),
+      ("FEWarning", "FE Warning"),
+      ("SEUHitParity", "SEU Hit Parity"),
+      ("SEURegisterParity", "SEU Register Parity"),
+      ("SEUHamming", "SEU Hamming Code"),
+      ("ModTruncEOCErrors", "FE/MCC EoC Trunc"),
+      ("RODTrailerBitErrors", "ROD Trailer Bit"),
+      ("RODTruncHTLimitErrors", "ROD H/T Limit Trunc"),
+      ("RODTruncRODOFErrors", "ROD Overflow Trunc")
 ]
 ErrStateLabelsFEI4 = [
-      ("ROD_Timeout_errors", "ROD Timeout"),
-      ("ROD_BCID_errors", "ROD BCID synchronization"),
-      ("ROD_LVL1ID_errors", "ROD LVL1ID synchronization"),
-      ("ROD_Preamble_errors", "ROD Preamble"),
-      ("ROD_Trailer_errors", "ROD Trailer"),
-      ("ROD_Row-Column_errors", "ROD row-column"),
-      ("ROD_Masked_link", "ROD Masked link"),
-      ("ROD_Limit_errors", "ROD Header Trailer limit"),
-      ("SR0_BCID_counter_errors", "SR0 BCID counter"),
-      ("SR1_Hamming_code_0_errors", "SR1 Hamming code in word 0"),
-      ("SR2_Hamming_code_1_errors", "SR2 Hamming code in word 1"),
-      ("SR3_Hamming_code_2_errors", "SR3 Hamming code in word 2"),
-      ("SR4_L1_in_counter_errors", "SR4 L1 in counter"),
-      ("SR5_L1_request_counter_errors", "SR5 L1 request counter"),
-      ("SR6_L1_register_errors", "SR6 L1 register"),
-      ("SR7_L1_Trigger_ID_errors", "SR7 L1 trigger ID"),
-      ("SR8_FE_readout_process_errors", "SR8 FE readout process"),
-      ("SR15_Skippped_trig_count_errors", "SR15 Skipped trigger counter"),
-      ("SR16_Truncated_event_flag_errors", "SR16 Truncated event"),
-      ("SR24_Triple_redundant_errors_CNFGMEM", "SR24 Triple redundant CNFGMEM"),
-      ("SR25_Write_reg_data_errors", "SR25 Write register data"),
-      ("SR26_Address_errors", "SR26 Address"),
-      ("SR27_Other_CMD_decoder_errors", "SR27 CMD decoder"),
-      ("SR28_CMD_decoder_bitflip_errors", "SR28 CMD decoder bit flip"),
-      ("SR29_Triple_redundant_errors_CMD", "SR29 Triple redundant CMD"),
-      ("SR30_Data_bus_address_errors", "SR30 Data bus address"),
-      ("SR31_Triple_redundant_errors_EFUSE", "SR31 Triple redundant EFUSE")
+      ("RODTimeoutErrors", "ROD Timeout"),
+      ("RODBCIDErrors", "ROD BCID synchronization"),
+      ("RODLVL1IDErrors", "ROD LVL1ID synchronization"),
+      ("RODPreambleErrors", "ROD Preamble"),
+      ("RODTrailerErrors", "ROD Trailer"),
+      ("RODRowColumnErrors", "ROD row-column"),
+      ("RODMaskedLink", "ROD Masked link"),
+      ("RODLimitErrors", "ROD Header Trailer limit"),
+      ("SR0BCIDCounterErrors", "SR0 BCID counter"),
+      ("SR1HammingCode0Errors", "SR1 Hamming code in word 0"),
+      ("SR2HammingCode1Errors", "SR2 Hamming code in word 1"),
+      ("SR3HammingCode2Errors", "SR3 Hamming code in word 2"),
+      ("SR4L1InCounterErrors", "SR4 L1 in counter"),
+      ("SR5L1RequestCounterErrors", "SR5 L1 request counter"),
+      ("SR6L1RegisterErrors", "SR6 L1 register"),
+      ("SR7L1TriggerIDErrors", "SR7 L1 trigger ID"),
+      ("SR8FEReadoutProcessErrors", "SR8 FE readout process"),
+      ("SR15SkipppedTrigCountErrors", "SR15 Skipped trigger counter"),
+      ("SR16TruncatedEventFlagErrors", "SR16 Truncated event"),
+      ("SR24TripleRedundantErrorsCNFGMEM", "SR24 Triple redundant CNFGMEM"),
+      ("SR25WriteRegDataErrors", "SR25 Write register data"),
+      ("SR26AddressErrors", "SR26 Address"),
+      ("SR27OtherCMDDecoderErrors", "SR27 CMD decoder"),
+      ("SR28CMDDecoderBitflipErrors", "SR28 CMD decoder bit flip"),
+      ("SR29TripleRedundantErrorsCMD", "SR29 Triple redundant CMD"),
+      ("SR30DataBusAddressErrors", "SR30 Data bus address"),
+      ("SR31TripleRedundantErrorsEFUSE", "SR31 Triple redundant EFUSE")
 ]
 
 ErrCatRODModLabels = [
-      ("SyncErrors_Mod", "FE/MCC Sync Errors"),
-      ("SyncErrors_ROD", "ROD Sync Errors"),
-      ("TruncErrors_Mod", "FE/MCC Trunc Errors"),
-      ("TruncErrors_ROD", "ROD Trunc Errors"),
-      ("OpticalErrors_RODMod", "Preamble/Header Errors"),
-      ("SEUErrors_RODMod", "SEU Errors"),
-      ("TimeoutErrors_RODMod", "Timeout Errors")
+      ("SyncErrorsMod", "FE/MCC Sync Errors"),
+      ("SyncErrorsROD", "ROD Sync Errors"),
+      ("TruncErrorsMod", "FE/MCC Trunc Errors"),
+      ("TruncErrorsROD", "ROD Trunc Errors"),
+      ("OpticalErrorsRODMod", "Preamble/Header Errors"),
+      ("SEUErrorsRODMod", "SEU Errors"),
+      ("TimeoutErrorsRODMod", "Timeout Errors")
 ]
 
 ErrCatRODModLabelsNorm = [
-      "SyncErrors_Mod_Frac_per_event",
-      "SyncErrors_ROD_Frac_per_event",
-      "TruncErrors_Mod_Frac_per_event",
-      "TruncErrors_ROD_Frac_per_event"
+      "SyncErrorsModFracPerEvent",
+      "SyncErrorsRODFracPerEvent",
+      "TruncErrorsModFracPerEvent",
+      "TruncErrorsRODFracPerEvent"
 ]
 
 ErrCatLabels = [
@@ -223,11 +255,17 @@ ErrCatLabels = [
 ]
 
 ErrCatLabelsNorm = [
-      "SyncErrorsFrac_per_event", 
-      "TruncationErrorsFrac_per_event", 
-      "OpticalErrorsFrac_per_event", 
-      "SEUErrorsFrac_per_event", 
-      "TimeoutErrorsFrac_per_event"
+      "SyncErrorsFracPerEvent", 
+      "TruncationErrorsFracPerEvent", 
+      "OpticalErrorsFracPerEvent", 
+      "SEUErrorsFracPerEvent", 
+      "TimeoutErrorsFracPerEvent"
+]
+
+ReadingDataErrLabels = [
+      "Invalid container",
+      "Invalid collection", 
+      "Container empty"
 ]
 
 layergroups = {}
@@ -262,7 +300,7 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
     for i, layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + etatxt[i] + phitext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
         layerGroup = getLayerGroup(helper, alg, layer)
 
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
@@ -280,6 +318,49 @@ def define2DProfHist(helper, alg, name, title, path, type='TProfile2D', doWeight
                                     zmin=zmin, zmax=zmax,
                                     duration=lifecycle,
                                     opt=opt, xlabels=LabelX[i], ylabels=LabelY[i])
+
+def define2DProfPerFEHist(helper, alg, name, title, path, type='TProfile2D', doWeight=False, lifecycle='run', zmin=None, zmax=None, opt='', histname=None, onlylayers=layers):
+    '''
+    This function configures 2D (Profile) histograms (or maps) for Pixel layers per FE.
+
+    Arguments:
+         helper     -- AthMonitorCfgHelper(Old) instance
+         alg        -- algorithm - Configurable object returned from addAlgorithm
+         name       -- Name of histogram (Name = name_layer)
+         title      -- Title of histogram (Title = title +' '+layer)
+         path       -- Path in output file for histogram
+         type       -- Type of histogram (TH2D, TProfile2D)
+         lifecycle  -- global life duration of histograms (run, lowstat [i.e. 20 LB], lumiblock) - APPLIES to MonGroup only
+         zmin(zmax) -- fix the displayed range - simply chopping the range!!!
+         opt        -- history depth of a histogram e.g. 'kLBNHistoryDepth=10'
+         histname   -- another way of naming the histogram(s), useful when multiple histograms are filled from exactly the same variables, but in a different way
+         onlylayers -- sublist of layers 
+    '''
+    assert(set(onlylayers).issubset(layers))
+    if histname is None:
+        histname = name
+    for i, layer in enumerate(layers):
+        if layer not in onlylayers: 
+            continue
+        fulltitle   = title + ', {0}'.format(layer) + runtext + etatxt[i] + phitext
+        layerGroup = getLayerGroup(helper, alg, layer)
+
+        fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'em', 'pm')
+        weightvar = ''
+        if 'Profile' in type: 
+            fullvarstring += ',{0}_{1}'.format(name, 'val')
+        elif doWeight:
+            weightvar = '{0}_{1}'.format(name, 'val') # re-use the same variable for TH2 for now.
+            
+        fullvarstring += ';' + histname + '_{0}'.format(layer)
+        layerGroup.defineHistogram(fullvarstring, 
+                                    type=type, path=path, title=fulltitle, weight=weightvar,
+                                    xbins=xbinsfel[i], xmin=xminsfel[i], xmax=xminsfel[i]+xbinsfel[i], 
+                                    ybins=ybinsfel[i], ymin=-0.5, ymax=-0.5+ybinsfel[i],
+                                    zmin=zmin, zmax=zmax,
+                                    duration=lifecycle,
+                                    opt=opt, xlabels=LabelFEX[i], ylabels=LabelFEY[i])
+
 
 def definePP0Histos(helper, alg, name, title, path, opt=''):
     '''
@@ -304,7 +385,7 @@ def definePP0Histos(helper, alg, name, title, path, opt=''):
             yatxt += 'FE'
         else :
             yatxt += 'module'
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xatxt + yatxt
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xatxt + yatxt
         groupname   = name  + '_{0}'.format(layer)
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1},{0}_{2}'.format(name, 'pospp0x', 'val')
@@ -337,7 +418,7 @@ def define1DProfLumiLayers(helper, alg, name, title, path, yaxistext, type='TPro
     for layer in layers:
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'val')
@@ -368,7 +449,7 @@ def defineMapVsLumiLayers(helper, alg, name, title, path, xaxistext, yaxistext, 
     for idx,layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + lumitext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + lumitext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'lb')
         if 'Profile' in type: fullvarstring += ',{0}_{1}'.format(name, 'cat')
@@ -408,7 +489,7 @@ def define1DLayers(helper, alg, name, title, path, xaxistext, yaxistext, xbins, 
     for idx,layer in enumerate(layers):
         if layer not in onlylayers: 
             continue
-        fulltitle   = title + ' {0}'.format(layer) + runtext + xaxistext + yaxistext
+        fulltitle   = title + ', {0}'.format(layer) + runtext + xaxistext + yaxistext
         layerGroup = getLayerGroup(helper, alg, layer)
         fullvarstring = '{0}_{1}'.format(name,'val')
         fullvarstring += ';' + histname  + '_{0}'.format(layer)
@@ -426,7 +507,7 @@ def addOnTrackTxt(name, ontrack, wSpace=False):
         if wSpace:
             name += ' OnTrack'
         else:
-            name += '_OnTrack'
+            name += 'OnTrack'
     return name
 
 def addOnTrackToPath(name, ontrack):

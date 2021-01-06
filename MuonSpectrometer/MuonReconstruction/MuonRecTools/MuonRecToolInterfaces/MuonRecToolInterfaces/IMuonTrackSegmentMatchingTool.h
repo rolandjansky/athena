@@ -32,7 +32,7 @@ namespace Muon {
 	The caller should ensure the track gets deleted. */
     virtual bool match( const Trk::Track& track, const MuonSegment& segment, bool useTightCuts = false ) const = 0;
 
-    void cleanUp() const {};
+    virtual void cleanUp() const = 0;
   };
   
   inline const InterfaceID& IMuonTrackSegmentMatchingTool::interfaceID()

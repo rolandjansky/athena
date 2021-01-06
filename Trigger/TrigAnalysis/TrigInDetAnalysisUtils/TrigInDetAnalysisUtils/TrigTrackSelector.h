@@ -104,7 +104,7 @@ public:
   void selectTracks( const xAOD::TruthParticleContainer* truthtracks );
 
 
-  bool selectTrack( const HepMC::GenParticle* track );
+  bool selectTrack( HepMC::ConstGenParticlePtr track );
 
 
   // add a TruthParticle 
@@ -117,7 +117,7 @@ public:
 
 
   // make a TIDA::Track from a GenParticle 
-  TIDA::Track* makeTrack( const HepMC::GenParticle* track );
+  TIDA::Track* makeTrack( HepMC::ConstGenParticlePtr track );
 
   // make a TIDA::Track from a TruthParticle 
   TIDA::Track* makeTrack( const TruthParticle* track, unsigned long tid=0 );

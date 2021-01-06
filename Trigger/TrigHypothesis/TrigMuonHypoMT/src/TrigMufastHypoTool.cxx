@@ -324,11 +324,12 @@ StatusCode TrigMufastHypoTool::multiplicitySelection(std::vector<TrigMufastHypoT
    HLT::Index2DVec passingSelection( m_ptBins.size() );
 
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
-      size_t elementIndex{ 0 };      
+      size_t elementIndex{ 0 };
       for ( auto& i: toolInput ) {
 
 	if(!m_acceptAll && m_applyOR && !i.passOR) {
 	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
+	  elementIndex++;
 	  continue;
 	}
 
@@ -698,10 +699,7 @@ StatusCode TrigMufastHypoTool::chooseBestMuon(std::vector<TrigMufastHypoTool::Mu
   for(i=0; i<numMuon; i++) {
     ATH_MSG_DEBUG( "++ i=" << i << ": result=" << mufastResult[i] );
     if( mufastResult[i] != i ) {
-      ATH_MSG_DEBUG( "   overlap to some one. skip." );
-
-      (*input[i]).passOR = false;
-
+      ATH_MSG_DEBUG( "   overlap to some one. already the best one was chosen. skip." );
       continue;
     }
     std::vector<unsigned int> others;

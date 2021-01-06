@@ -31,8 +31,6 @@
 #include "LArHV/FCALHVManager.h"
 #include "LArHV/FCALHVLine.h"
 
-#include "LArHV/LArHVManager.h"
-
 #include "LArIdentifier/LArElectrodeID.h"
 #include "LArIdentifier/LArHVLineID.h"
 #include "LArIdentifier/LArOnlineID.h"
@@ -1619,7 +1617,7 @@ float LArHVCondAlg::HV_nominal(const char *identification,const float myparamete
 
 void LArHVCondAlg::extendPhiRegion(float phi, float & phi_min, float & phi_max) const {
 
-  static float epsilon=1e-4;
+  static const float epsilon=1e-4;
   
   phi = CaloPhiRange::fix(phi);
 

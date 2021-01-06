@@ -109,6 +109,10 @@ namespace InDet {
     virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
 
+    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const;
+
+    virtual bool getWriteNtupleBoolProperty() const;
+
     ///////////////////////////////////////////////////////////////////
     /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////

@@ -13,7 +13,7 @@ ATLAS Collaboration
 #include "SiSpacePointFormation/SiTrackerSpacePointFinder.h"
 
 // For processing clusters
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
@@ -113,8 +113,6 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 
   if (!m_monTool.empty()) CHECK(m_monTool.retrieve());
 
-  ATH_MSG_INFO( "SiTrackerSpacePointFinder::initialized for package version " << PACKAGE_VERSION );
-  
   return StatusCode::SUCCESS;
 }
 

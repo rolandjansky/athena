@@ -8,16 +8,16 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 
 def precisionElectronSequence(ConfigFlags):
-    """ fourth step:  precision electron....."""
+    """ fifth step:  precision electron....."""
     InViewRoIs = "precisionElectron"
     # EVCreator:
     precisionElectronViewsMaker = EventViewCreatorAlgorithm("IMprecisionElectron")
     precisionElectronViewsMaker.RoIsLink = "initialRoI"
-    precisionElectronViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionElectronViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionElectronViewsMaker.InViewRoIs = InViewRoIs
     precisionElectronViewsMaker.Views = "precisionElectronViews" #precisionElectronViews
     precisionElectronViewsMaker.ViewFallThrough = True
@@ -40,7 +40,7 @@ def precisionElectronMenuSequence():
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaPrecisionElectronHypoAlgMT
-    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT")
+    thePrecisionElectronHypo = TrigEgammaPrecisionElectronHypoAlgMT("TrigEgammaPrecisionElectronHypoAlgMT_noGSF")
     thePrecisionElectronHypo.Electrons = sequenceOut
     thePrecisionElectronHypo.RunInView = True
 
@@ -50,5 +50,6 @@ def precisionElectronMenuSequence():
                           Sequence    = electronPrecisionAthSequence,
                           Hypo        = thePrecisionElectronHypo,
                           HypoToolGen = TrigEgammaPrecisionElectronHypoToolFromDict )
+
 
 

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTRACKING_VERSIONS_VERTEX_V1_H
@@ -17,20 +17,15 @@
 // EDM include(s):
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#ifndef XAOD_STANDALONE
-#ifndef XAOD_MANACORE
+#ifndef XAOD_ANALYSIS
 #  include "VxVertex/VxTrackAtVertex.h"
-#endif // not XAOD_MANACORE
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
 
 // xAOD include(s):
 #include "xAODTracking/TrackingPrimitives.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 #include "xAODTracking/NeutralParticleContainer.h"
 #include "xAODBase/ObjectType.h"
-
-// Local include(s):
-#include "xAODTracking/TrackingPrimitives.h"
 
 //MT CachedValue
 #include "CxxUtils/CachedValue.h"
@@ -93,7 +88,7 @@ namespace xAOD {
       /// Returns the @f$ \chi^2 @f$ of the vertex fit as float.
       float chiSquared() const;
       /// Returns the number of degrees of freedom of the vertex fit as float.
-      float numberDoF() const;   
+      float numberDoF() const;
       /// Set the 'Fit Quality' information.
       void setFitQuality( float chiSquared, float numberDoF );
 
@@ -104,14 +99,14 @@ namespace xAOD {
       /// Set the type of the vertex
       void setVertexType( VxType::VertexType vType );
 
-#if ( ! defined(XAOD_STANDALONE) ) && ( ! defined(XAOD_MANACORE) )
+#ifndef XAOD_ANALYSIS
       /// Non-const access to the VxTrackAtVertex vector
       std::vector< Trk::VxTrackAtVertex >& vxTrackAtVertex();
       /// Const access to the vector of tracks fitted to the vertex (may not exist!)
       const std::vector< Trk::VxTrackAtVertex >& vxTrackAtVertex() const;
       /// Check if VxTrackAtVertices are attached to the object
       bool vxTrackAtVertexAvailable() const;
-#endif // not XAOD_STANDALONE and not XAOD_MANACORE
+#endif // not XAOD_ANALYSIS
 
       /// @name Track particle contents operations
       /// @{

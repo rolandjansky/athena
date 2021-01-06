@@ -31,7 +31,7 @@ public:
 
   ~AntiTightCleaner() {}
 
-  bool operator()(const pHypoJet& jet) const override;
+  bool operator()(const HypoJet::IJet& jet) const override;
   std::string getName() const noexcept override;
 };
 

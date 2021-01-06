@@ -49,6 +49,11 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
     auto deltaPhi1 = Monitored::Scalar<float>("deltaPhi1",0.0);
     auto deltaPhi2 = Monitored::Scalar<float>("deltaPhi2",0.0);
     auto deltaPhi3 = Monitored::Scalar<float>("deltaPhi3",0.0);
+    auto deltaPhiRescaled0 = Monitored::Scalar<float>("deltaPhiRescaled0",0.0);
+    auto deltaPhiRescaled1 = Monitored::Scalar<float>("deltaPhiRescaled1",0.0);
+    auto deltaPhiRescaled2 = Monitored::Scalar<float>("deltaPhiRescaled2",0.0);
+    auto deltaPhiRescaled3 = Monitored::Scalar<float>("deltaPhiRescaled3",0.0);
+    auto deltaPhiFromLastMeasurement = Monitored::Scalar<float>("deltaPhiFromLastMeasurement",0.0);
 
 
     for (const auto& electron : *electrons){
@@ -60,10 +65,17 @@ void egammaMonitorElectronAlgorithm::filltopoElectronTrackCaloMatch( const Event
         electron->trackCaloMatchValue(deltaPhi1,xAOD::EgammaParameters::deltaPhi1);
         electron->trackCaloMatchValue(deltaPhi2,xAOD::EgammaParameters::deltaPhi2);
         electron->trackCaloMatchValue(deltaPhi3,xAOD::EgammaParameters::deltaPhi3);
+        electron->trackCaloMatchValue(deltaPhiRescaled0,xAOD::EgammaParameters::deltaPhiRescaled0);
+        electron->trackCaloMatchValue(deltaPhiRescaled1,xAOD::EgammaParameters::deltaPhiRescaled1);
+        electron->trackCaloMatchValue(deltaPhiRescaled2,xAOD::EgammaParameters::deltaPhiRescaled2);
+        electron->trackCaloMatchValue(deltaPhiRescaled3,xAOD::EgammaParameters::deltaPhiRescaled3);
+        electron->trackCaloMatchValue(deltaPhiFromLastMeasurement,xAOD::EgammaParameters::deltaPhiFromLastMeasurement);
                     
     }
   
-    auto mon = Monitored::Group(m_monTool, deltaEta0,deltaEta1,deltaEta2,deltaEta3,deltaPhi0,deltaPhi1,deltaPhi2,deltaPhi3);
+    auto mon = Monitored::Group(m_monTool, deltaEta0,deltaEta1,deltaEta2,deltaEta3,deltaPhi0,deltaPhi1,deltaPhi2,
+                                deltaPhi3,deltaPhiRescaled0,deltaPhiRescaled1,deltaPhiRescaled2,deltaPhiRescaled3,deltaPhiFromLastMeasurement );
+
     ATH_MSG_DEBUG("Electron - Track Online Monitoring in Reconstruction ..."); 
     
     

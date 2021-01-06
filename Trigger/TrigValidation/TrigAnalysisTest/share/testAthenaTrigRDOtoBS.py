@@ -32,6 +32,10 @@ doTAG=False
 rec.doCBNT=False
 #rec.doTruth=True
 
+# Legacy (Run-2) trigger produces Run-2 EDM
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
+ConfigFlags.Trigger.EDMVersion = 2
+
 #-----------------------------------------------------------
 include("RecExCond/RecExCommon_flags.py")
 #-----------------------------------------------------------

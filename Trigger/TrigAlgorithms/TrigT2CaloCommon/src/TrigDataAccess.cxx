@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -583,10 +583,11 @@ StatusCode TrigDataAccess::LoadCollections (
 		    reset_LArCol ( col );
 		    //return StatusCode::SUCCESS;
         	  } else { // End of if small size
-        	        m_lardecoder->setRobFrag(m_robFrags[i]);
-        	        m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
+                        uint32_t error = 
+                          m_lardecoder->fillCollectionHLT(*m_robFrags[i],
+                                                          roddata1,roddatasize,*col);
 		        // Accumulates inferior byte from ROD Decoder
-		        m_error|=m_lardecoder->report_error();
+		        m_error |= error;
 		  } //roddatasize < 3
 		} // check rob frag valid
 		//rodidx++;
@@ -800,10 +801,11 @@ StatusCode TrigDataAccess::LoadCollections (
 		    //return StatusCode::SUCCESS;
                   } // End of if small size
 		  else {
-                        m_lardecoder->setRobFrag(m_robFrags[i]);
-                        m_lardecoder->fillCollectionHLTFeb(roddata1,roddatasize,*m_febcoll);
+                        uint32_t error = 
+                          m_lardecoder->fillCollectionHLTFeb(*m_robFrags[i],
+                                                             roddata1,roddatasize,*m_febcoll);
                         // if (col->size() == 0) return StatusCode::FAILURE;
-                        m_error|=m_lardecoder->report_error();
+                        m_error |= error;
 		  }
 		}
         } // End of for through RobFrags
@@ -920,10 +922,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		    //return StatusCode::SUCCESS;
                   } // End of if small size
 		  else {
-                        m_lardecoder->setRobFrag(m_robFrags[i]);
-                        m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
+                        uint32_t error = 
+                          m_lardecoder->fillCollectionHLT(*m_robFrags[i],
+                                                          roddata1,roddatasize,*col);
 		        // Accumulates inferior byte from ROD Decoder
-                        m_error|=m_lardecoder->report_error();
+                        m_error |= error;
 		  }
                 }
 	} // end of if it
@@ -1065,9 +1068,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  m_error|=0x20000000; 
 		  //return StatusCode::SUCCESS;
                 } else {
-                       m_lardecoder->setRobFrag(m_robFrags[i]);
-                       m_lardecoder->fillCollectionHLTFeb(roddata1,roddatasize,*m_febcoll);
-                       m_error|=m_lardecoder->report_error();
+                      uint32_t error = 
+                         m_lardecoder->fillCollectionHLTFeb(*m_robFrags[i],
+                                                            roddata1,roddatasize,*m_febcoll);
+                      m_error |= error;
 		}
 	    } else {
               ATH_MSG_WARNING( "Error reading bytestream"
@@ -1095,9 +1099,10 @@ StatusCode TrigDataAccess::LoadFullCollections (
                        m_error|=0x20000000;
                        //return StatusCode::SUCCESS;
                 } else {
-                      m_lardecoder->setRobFrag(m_robFrags[i]);
-                      m_lardecoder->fillCollectionHLTROSFeb(roddata1,roddatasize,*m_febcoll);
-                      m_error|=m_lardecoder->report_error();
+                      uint32_t error = 
+                        m_lardecoder->fillCollectionHLTROSFeb(*m_robFrags[i],
+                                                              roddata1,roddatasize,*m_febcoll);
+                      m_error |= error;
                 }
 	      } else {
 		ATH_MSG_WARNING( "Error reading bytestream"
@@ -1244,10 +1249,11 @@ StatusCode TrigDataAccess::LoadFullCollections (
 		  //return StatusCode::SUCCESS;
                 } // End of if small size
                 else {
-                      m_lardecoder->setRobFrag(m_robFrags[i]);
-                      m_lardecoder->fillCollectionHLT(roddata1,roddatasize,*col);
+                      uint32_t error = 
+                        m_lardecoder->fillCollectionHLT(*m_robFrags[i],
+                                                        roddata1,roddatasize,*col);
                       // Accumulates inferior byte from ROD Decoder
-                      m_error|=m_lardecoder->report_error();
+                      m_error |= error;
                 }
 	   }
         } // end of if it

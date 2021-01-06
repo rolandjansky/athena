@@ -21,7 +21,7 @@
 #include "AthenaKernel/IIOVSvc.h"
 #include "AthenaKernel/CLIDRegistry.h"
 #include "AthenaKernel/errorcheck.h"
-//#include "CxxUtils/PageAccessControl.h"
+#include "AthenaKernel/StoreID.h"
 #include "GaudiKernel/IHistorySvc.h"
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/IConversionSvc.h"
@@ -41,8 +41,6 @@
 #include "StoreGate/ActiveStoreSvc.h"
 #include "StoreGate/StoreClearedIncident.h"
 #include "AthAllocators/ArenaHeader.h"
-#include "AthenaKernel/errorcheck.h"
-#include "AthenaKernel/StoreID.h"
 
 // StoreGateSvc. must come before SGImplSvc.h
 #include "StoreGate/StoreGateSvc.h"
@@ -1313,15 +1311,21 @@ SGImplSvc::removeProxy(DataProxy* proxy, const void* pTrans,
   }
 
   // remove all entries from t2p map
-  this->t2pRemove(pTrans);
-  SG::DataProxy::CLIDCont_t clids = proxy->transientID();
-  for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
-       i != clids.end();
-       ++i)
+  //  --- only if the proxy actually has an object!
+  //      otherwise, we can trigger I/O.
+  //      besides being useless here, we can get deadlocks if we
+  //      call into the I/O code while holding the SG lock.
+  if (proxy->isValidObject()) {
+    this->t2pRemove(pTrans);
+    SG::DataProxy::CLIDCont_t clids = proxy->transientID();
+    for (SG::DataProxy::CLIDCont_t::const_iterator i = clids.begin();
+         i != clids.end();
+         ++i)
     {
       void* ptr = SG::DataProxy_cast (proxy, *i);
       this->t2pRemove(ptr);
     }
+  }
 
   // remove from store
   return m_pStore->removeProxy(proxy, forceRemove, true);

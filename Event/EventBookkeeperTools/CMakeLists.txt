@@ -69,4 +69,14 @@ if( NOT XAOD_STANDALONE )
                    SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py
                    PROPERTIES TIMEOUT 300
                    POST_EXEC_SCRIPT nopost.sh )
+
+   atlas_add_test( CutFlowSvcOutputMT
+                   SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py --threads=2
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
+
+   atlas_add_test( CutFlowSvcOutputMP
+                   SCRIPT athena EventBookkeeperTools/TestCutFlowSvcOutput.py --nprocs=2
+                   PROPERTIES TIMEOUT 300
+                   POST_EXEC_SCRIPT nopost.sh )
 endif()

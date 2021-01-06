@@ -1,36 +1,21 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-///////////////////////////////////////////////////////////////////
-//  Header file for class TauImpactParameterExtractionTool
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// Tool to store information needed in PanTau Algorithms
-///////////////////////////////////////////////////////////////////
-// limbach@physik.uni-bonn.de
-///////////////////////////////////////////////////////////////////
 
 #ifndef PANTAUALGS_TOOL_DECAYMODEDETERMINATOR_H
 #define PANTAUALGS_TOOL_DECAYMODEDETERMINATOR_H
 
-
-//! C++
-#include <vector>
 #include <string>
 
-//! Gaudi
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
-//! PanTau
 #include "PanTauAlgs/ITool_PanTauTools.h"
 #include "PanTauAlgs/ITool_ModeDiscriminator.h"
 #include "PanTauAlgs/ITool_InformationStore.h"
 
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
 
 
@@ -58,26 +43,22 @@ namespace PanTau {
         virtual ~Tool_DecayModeDeterminator ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize  ();
         
-        virtual StatusCode execute(PanTau::PanTauSeed2* inSeed);
+        virtual StatusCode execute(PanTau::PanTauSeed* inSeed);
         
     private:
         
-        ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
-        
+        ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;        
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p0n_vs_1p1n;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p1n_vs_1pXn;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_3p0n_vs_3pXn;
-
 
 	std::string m_Tool_InformationStoreName;
 
 	std::string m_Tool_ModeDiscriminator_1p0n_vs_1p1nName;
 	std::string m_Tool_ModeDiscriminator_1p1n_vs_1pXnName;
 	std::string m_Tool_ModeDiscriminator_3p0n_vs_3pXnName;
-        
-        
+                
         //configurables to be retrieved from information store
         
         //variable prefix for the decay mode

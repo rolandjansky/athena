@@ -6,7 +6,6 @@
  * @file CaloConditions/src/CaloLocalHadCoeff.cxx
  * @brief Hold binned correction data for local hadronic calibration procedure
  */
-//#include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadCoeff.h"
 #include "CaloConditions/CaloLocalHadDefs.h"
 #include <algorithm>

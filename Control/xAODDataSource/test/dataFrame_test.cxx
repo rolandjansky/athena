@@ -11,6 +11,7 @@
 #include "xAODRootAccess/tools/Message.h"
 #include "xAODBase/IParticleContainer.h"
 #include "CxxUtils/ubsan_suppress.h"
+#include "AsgMessaging/MessageCheck.h"
 
 // ROOT include(s).
 #include <ROOT/RDataFrame.hxx>
@@ -21,11 +22,15 @@
 #include <iostream>
 
 int main() {
+
+   ANA_CHECK_SET_TYPE (int);
+   using namespace asg::msgUserCode;
+
    // Suppress ubsan warning.
    CxxUtils::ubsan_suppress ([]() { TInterpreter::Instance(); });
 
    // Set up the runtime environment.
-   CHECK( xAOD::Init() );
+   ANA_CHECK( xAOD::Init() );
 
    // Create a data frame object.
    auto df = xAOD::MakeDataFrame( "${ASG_TEST_FILE_DATA}" );

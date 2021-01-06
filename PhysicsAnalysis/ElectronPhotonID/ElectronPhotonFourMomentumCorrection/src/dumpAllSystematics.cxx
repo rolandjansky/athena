@@ -24,7 +24,7 @@
 
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 #include "GaudiKernel/ITHistSvc.h"
@@ -34,33 +34,7 @@
 #include "dumpAllSystematics.h"
 
 DumpAllSystematics::DumpAllSystematics(const std::string& name, ISvcLocator* svcLoc)
-  : AthAlgorithm(name, svcLoc),
-  m_EventNumber(0),
-  m_RunNumber(0),
-  m_instance_index(0),
-  m_actualIntPerXing(0.),
-  m_averageIntPerXing(0.),
-  m_truth_pt(0.),
-  m_truth_phi(0.),
-  m_truth_eta(0.),
-  m_truth_E(0.),
-  m_truth_pdgId(0),
-  m_truth_parent_pdgId(0),
-  m_truth_matched(false),
-  m_truth_isConv(false),
-  m_truth_Rconv(0.),
-  m_npv(0),
-  m_cl_phi(0.),
-  m_cl_eta(0.),
-  m_cl_etaCalo(0.),
-  m_cl_rawcl_Es0(0.),
-  m_cl_rawcl_Es1(0.),
-  m_cl_rawcl_Es2(0.),
-  m_cl_rawcl_Es3(0.),
-  m_cl_E(0.),
-  m_ph_Rconv(0.),
-  m_ph_convFlag(0),
-  m_wstot(0.)
+  : AthAlgorithm(name, svcLoc)
 {
   declareProperty("EgammaCalibrationAndSmearingTools", m_EgammaCalibrationAndSmearingTools);
   declareProperty("particle", m_particle_name="", "electron/photon");
@@ -343,7 +317,7 @@ StatusCode DumpAllSystematics::do_energy(xAOD::Egamma& particle, int itool)
   m_nominal_E[itool] = m_energy_variations_sum_up[itool] = m_energy_variations_sum_down[itool] = -999.;
   std::fill(m_energy_variations[itool].begin(), m_energy_variations[itool].end(), -999.);
 
-  if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
+  if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(CP::SystematicSet()) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("cannot apply nominal energy");
     return StatusCode::FAILURE;
   }
@@ -367,7 +341,7 @@ StatusCode DumpAllSystematics::do_energy(xAOD::Egamma& particle, int itool)
     CP::SystematicSet ss;
     ss.insert(sys);
 
-    if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(ss) != CP::SystematicCode::Ok)  {
+    if (m_EgammaCalibrationAndSmearingTools[itool]->applySystematicVariation(ss) != StatusCode::SUCCESS)  {
       ATH_MSG_ERROR("Cannot configure calibration tool for systematic");
       continue;
     }

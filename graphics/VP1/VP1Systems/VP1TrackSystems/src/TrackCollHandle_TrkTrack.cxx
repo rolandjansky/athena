@@ -16,7 +16,6 @@
 #include "VP1TrackSystems/TrackHandle_TrkTrack.h"
 #include "VP1Base/IVP1System.h"
 #include "VP1TrackSystems/TrackSystemController.h"
-#include "VP1Base/IVP1System.h"
 #include "VP1Base/VP1QtUtils.h"
 #include "VP1Utils/VP1JobConfigInfo.h"
 #include "VP1Utils/VP1SGContentsHelper.h"

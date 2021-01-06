@@ -22,7 +22,6 @@
 #include "TrkDetDescrUtils/BinnedArray2D.h"
 #include "TrkDetDescrUtils/BinnedArray1D.h"
 #include "TrkDetDescrUtils/BinUtility.h"
-#include "TrkDetDescrUtils/BinUtility.h"
 // GeoPrimitives
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
@@ -39,14 +38,14 @@
 
 namespace {
   template <class T>
-  class PtrVectorWrapper 
+  class PtrVectorWrapper
   {
   public:
-    PtrVectorWrapper () 
+    PtrVectorWrapper ()
       : m_ptr(new std::vector<const T *>)
     {
     }
-    
+
     ~PtrVectorWrapper() {
       if (m_ptr) {
 	for (const T *elm : *m_ptr ) {
@@ -57,16 +56,16 @@ namespace {
     }
     std::vector<const T *> &operator*() { return *m_ptr; }
     const std::vector<const T *> &operator*() const { return *m_ptr; }
-    
+
     std::vector<const T *> *operator->() { return m_ptr.get(); }
     const std::vector<const T *> *operator->() const { return m_ptr.get(); }
-    
+
     std::vector<const T *> *release() { return m_ptr.release(); }
-    
+
   private:
     std::unique_ptr<std::vector<const T *> > m_ptr;
   };
-  
+
 }
 
 // constructor
@@ -159,7 +158,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
   int    nBarrelRings  = trtNums->getNBarrelRings();
   int    nBarrelPhiSectors = trtNums->getNBarrelPhi();
   double layerPhiStep      = 2*M_PI/nBarrelPhiSectors;
-  
+
   int nTotalBarrelLayers = 0;
 
   // get the overall dimensions
@@ -171,7 +170,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
   // pre-loop for overall layer numbers & some ordering ---------------------------------------
   for (int ring=0; ring < nBarrelRings; ring++) {
-     // the number of barrel layers 
+     // the number of barrel layers
      int nBarrelLayers = trtNums->getNBarrelLayers(ring);
      nTotalBarrelLayers += nBarrelLayers;
      // loop over layers
@@ -181,7 +180,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
          for (int iposneg=0; iposneg<2; ++iposneg){
             // get the element
             const InDetDD::TRT_BarrelElement* trtbar = m_trtMgr->getBarrelElement(iposneg, ring, phisec, layer);
-            
+
             // get overall dimensions only one time
             const Trk::PlaneSurface*    elementSurface = dynamic_cast<const Trk::PlaneSurface*>(&(trtbar->surface()));
             if (!elementSurface) {
@@ -205,12 +204,12 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        }
     }
   }
-  
+
   if (nTotalBarrelLayers==0) {
       ATH_MSG_WARNING( "nTotalBarrelLayers = 0 ... aborting and returning 0 !" );
       return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
   }
-  
+
   // calculate delta(R) steps and delta(R)
   double rDiff           = fabs(rMax-rMin);
   double rStep           = rDiff/(m_modelBarrelLayers+1);
@@ -245,7 +244,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
        // -- material with 1D binning
        Trk::BinUtility layerBinUtility1DZ(m_barrelLayerBinsZ,-layerHalflength, layerHalflength, Trk::open, Trk::binZ);
        if (m_barrelLayerBinsPhi==1){
-         // no binning in phi  
+         // no binning in phi
          layerMaterial =new Trk::BinnedLayerMaterial(layerBinUtility1DZ);
        } else { // -- material with 2D binning : Rphi*Z optimized for cylinder layer
          Trk::BinUtility layerBinUtility2DRPhiZ(m_barrelLayerBinsPhi,
@@ -253,7 +252,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                                                 (*layerRadiusIter)*M_PI,
                                                 Trk::closed,
                                                 Trk::binRPhi);
-         layerBinUtility2DRPhiZ += layerBinUtility1DZ;                                         
+         layerBinUtility2DRPhiZ += layerBinUtility1DZ;
          layerMaterial =new Trk::BinnedLayerMaterial(layerBinUtility2DRPhiZ);
        }
        // Barrel layers are centered around (0,0,0) by definition
@@ -265,15 +264,15 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
      }
   } else {
     // (B) complex geometry section
-    
+
     int nMaterialLayerStep  = int(nTotalBarrelLayers/m_modelBarrelLayers+1);
     int cMaterialLayerCount = 0;
-    
+
     // loop over rings
     ATH_MSG_VERBOSE("TRT Barrel has " << nBarrelRings << " rings.");
-    
+
     for (int ring=0; ring < nBarrelRings; ring++){
-        
+
          int nBarrelLayers = trtNums->getNBarrelLayers(ring);
          ATH_MSG_VERBOSE("-> Ring " << ring << " has " << nBarrelLayers << " barrel layers.");
          // loop over layers
@@ -289,28 +288,28 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
               double layerRadiusMax      =  0.;
               double layerPhiMin         =  10.;
               double layerPhiMax         = -10;
-              
-              // per phi sector we make a 2D binnin in phi-z 
+
+              // per phi sector we make a 2D binnin in phi-z
               std::vector< std::pair<Trk::BinnedArray<Trk::Surface>*, Amg::Vector3D >  > layerSectorArrays;
               Amg::Vector3D layerSectorPosition(0.,0.,0.);
-              
+
               // the sector approaching surfaces
-              std::vector< std::pair< Trk::SharedObject<const Trk::ApproachSurfaces>, Amg::Vector3D > > layerApproachSurfaces; 
+              std::vector< std::pair< Trk::SharedObject<const Trk::ApproachSurfaces>, Amg::Vector3D > > layerApproachSurfaces;
 
               // layer sector arrays
               for (int phisec=0; phisec < nBarrelPhiSectors; phisec++){
                  // ----------------------------------------------------------------------------------
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " gahtering the details.");
                  // -------------- a phi sector (expands in +/- z) -----------------------------------
-                 
+
                  // order the straws onto layers
                  std::vector< Trk::SurfaceOrderPosition > strawsPerPhiSecLayer;
                  // get the min an max phi, the min and max z
                  double phiMin       =  10.;
-                 double phiMax       = -10.;  
+                 double phiMax       = -10.;
                  // sector stuff
                  int    sectorStraws = 0;
-                 // positive and negative sector      
+                 // positive and negative sector
                  for (int posneg=0; posneg<2; ++posneg){
                      // sort the elements
                      const InDetDD::TRT_BarrelElement* currentElement = m_trtMgr->getBarrelElement(posneg, ring, phisec, layer);
@@ -320,13 +319,13 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                          ATH_MSG_WARNING( "elementSurface: dynamic_cast to Trk::PlaneSurface failed - skipping ... ring/layer/phisec/posneg = " << ring << "/" << layer << "/" << phisec << "/" << posneg );
                          continue;
                      }
-                     
+
                      // create teh approach surfaces --------------------------------------------------------------------------------------------------
                      // getTransformFromRotTransl(Amg::RotationMatrix3D rot, Amg::Vector3D transl_vec )
                      Trk::ApproachSurfaces* aSurfaces         = new Trk::ApproachSurfaces;
                      const Amg::Transform3D& elementTransform = elementSurface->transform();
                      const Amg::Vector3D&    elementCenter    = elementSurface->center();
-                     const Amg::Vector3D&    elementNormal    = elementSurface->normal();     
+                     const Amg::Vector3D&    elementNormal    = elementSurface->normal();
                      Amg::RotationMatrix3D   elementRotation  = elementTransform.rotation();
                      // outer / inner
                      Amg::Vector3D outerCenter(elementCenter+(0.5*m_layerThickness+m_layerStrawRadius)*elementNormal);
@@ -334,30 +333,30 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
 
                      // assign the layer sector position for the straw array ordering
                      layerSectorPosition = elementSurface->center();
-                             
+
                      // now register the two surfaces
                      aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, innerCenter))));
                      aSurfaces->push_back(new Trk::PlaneSurface(new Amg::Transform3D(Amg::getTransformFromRotTransl(elementRotation, outerCenter))));
-                     
+
                      // now register it to for building the array
                      layerApproachSurfaces.push_back( std::pair< Trk::SharedObject<const Trk::ApproachSurfaces>, Amg::Vector3D >( Trk::SharedObject<const Trk::ApproachSurfaces>(aSurfaces),elementCenter));
-                     // screen output 
+                     // screen output
                      ATH_MSG_VERBOSE("---> Sector " << phisec << " - posneg - " << posneg << " - with central phi = " << elementSurface->center().phi() );
                      // sector phi centers
                      takeSmallerBigger(layerPhiMin,layerPhiMax,elementSurface->center().phi());
-                     
+
                      // loop over straws, fill them and find the phi boundaries
                      for (unsigned int istraw=0; istraw<currentElement->nStraws(); ++istraw)
                      {
                        Identifier strawId = trtIdHelper->straw_id(currentElement->identify(), istraw);
                        const Trk::Surface* currentStraw = &(currentElement->surface(strawId));
-                       // get the phi values 
+                       // get the phi values
                        double currentPhi = currentStraw->center().phi();
                        if (phisec == m_barrelSectorAtPiBoundary && currentPhi < 0.){
                            currentPhi  = M_PI + currentPhi;
                            currentPhi += M_PI;
                        }
-                       // the layer radius 
+                       // the layer radius
                        takeSmallerBigger(layerRadiusMin,layerRadiusMax,currentStraw->center().perp());
                        takeSmallerBigger(phiMin, phiMax, currentPhi);
                        // make the ordering position
@@ -374,43 +373,43 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                      } // loop over straws done
                  }  // loop over posneg done
                  // show the phiMin/phiMax to the screen
-                 // prepare the 
+                 // prepare the
                  // fix to CID 24918
                  if (!sectorStraws) {
                    return std::pair<EventIDRange,const std::vector<const Trk::CylinderLayer* >* >(range,nullptr);
                  }
                  double deltaPhi  = (phiMax-phiMin);
-                 double phiStep   = deltaPhi/(0.5*sectorStraws-1);   
+                 double phiStep   = deltaPhi/(0.5*sectorStraws-1);
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " - with " << 0.5*sectorStraws << " straws - straw phiMin/phiMax (step) = " << phiMin << " / " << phiMax << " (" << phiStep << ")");
-                 // phi min / phi max 
+                 // phi min / phi max
                  phiMin -= 0.5*phiStep;
                  phiMax += 0.5*phiStep;
-                 // correct for the +pi/-pi module 
+                 // correct for the +pi/-pi module
                  // now create the BinUtility
                  Trk::BinUtility* layerStrawPhiZUtility     = new Trk::BinUtility(sectorStraws/2,phiMin,phiMax,Trk::open, Trk::binPhi);
                                  (*layerStrawPhiZUtility)  += Trk::BinUtility(2,-layerZmax, layerZmax, Trk::open, Trk::binZ);
                  // create the 2D BinnedArray
                  Trk::BinnedArray2D<Trk::Surface>* layerStrawPhiSector = new Trk::BinnedArray2D<Trk::Surface>(strawsPerPhiSecLayer,layerStrawPhiZUtility);
                  ATH_MSG_VERBOSE("---> Sector " << phisec << " - BinnedArray for straws prepared for " << strawsPerPhiSecLayer.size() << " straws.");
-                 // fill the array                  
-                 layerSectorArrays.push_back(std::pair< Trk::BinnedArray<Trk::Surface>*, Amg::Vector3D >(layerStrawPhiSector, layerSectorPosition));                 
+                 // fill the array
+                 layerSectorArrays.push_back(std::pair< Trk::BinnedArray<Trk::Surface>*, Amg::Vector3D >(layerStrawPhiSector, layerSectorPosition));
                 // ---------------- enf of phi sector ----------------------------------------------------
               } // loop over PhiSectors done
-              
+
               // build the mean of the layer Radius
               layerRadius = 0.5*(layerRadiusMin+layerRadiusMax)+0.5*m_layerStrawRadius;
-              
+
               bool assignMaterial = false;
               if (cMaterialLayerCount == nMaterialLayerStep) {
                   assignMaterial      = true;
                   cMaterialLayerCount = 0;
                   ATH_MSG_VERBOSE( "--> Creating a material+straw layer at radius  : " << layerRadius );
-              } else 
+              } else
                   ATH_MSG_VERBOSE( "--> Creating a straw          layer at radius  : " << layerRadius );
-              
+
               // now order the plane layers to sit on cylindrical layers
               Trk::CylinderBounds* barrelLayerBounds = new Trk::CylinderBounds(layerRadius, layerHalflength);
-              
+
               // ---- correct phi -------------------------------------------------------------------
               ATH_MSG_VERBOSE("    prepare approach description with " << nBarrelPhiSectors << " barrel sectors.");
               ATH_MSG_VERBOSE("    min phi / max phi detected  : " << layerPhiMin << " / " << layerPhiMax );
@@ -422,25 +421,25 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                   layerPhiMaxCorrected += layerPhiStep;
               }
               ATH_MSG_VERBOSE("    min phi / max phi corrected : " << layerPhiMinCorrected << " / " << layerPhiMaxCorrected );
-              
+
               // the sector surfaces
               Trk::BinUtility* layerSectorBinUtility = new Trk::BinUtility(nBarrelPhiSectors,layerPhiMinCorrected,layerPhiMaxCorrected,Trk::closed,Trk::binPhi);
               Trk::BinnedArrayArray<Trk::Surface>* strawArray = new Trk::BinnedArrayArray<Trk::Surface>(layerSectorArrays, layerSectorBinUtility );
-              
+
               ATH_MSG_VERBOSE("--> Layer " << layer << " has been built with " << strawArray->arrayObjects().size() << " straws.");
-              
+
               // ApproachDescriptor
               // build a BinUtility for the ApproachDescritptor
               Trk::BinUtility* aDescriptorBinUtility = new Trk::BinUtility(nBarrelPhiSectors,layerPhiMinCorrected,layerPhiMaxCorrected,Trk::closed,Trk::binPhi);
                            (*aDescriptorBinUtility) += Trk::BinUtility(2,-layerHalflength,layerHalflength,Trk::open, Trk::binZ);
 
-              auto aDescriptorBinnedArray = std::make_unique<Trk::BinnedArray2D<Trk::ApproachSurfaces>> (layerApproachSurfaces, aDescriptorBinUtility);             
-            
+              auto aDescriptorBinnedArray = std::make_unique<Trk::BinnedArray2D<Trk::ApproachSurfaces>> (layerApproachSurfaces, aDescriptorBinUtility);
+
               // build an approach surface
-              Trk::CylinderSurface* approachSurface  = new Trk::CylinderSurface(barrelLayerBounds->clone());
+              auto approachSurface = std::make_unique<Trk::CylinderSurface> (barrelLayerBounds->clone());
               Trk::ApproachDescriptor* aDescritpor =
                 new Trk::ApproachDescriptor(std::move(aDescriptorBinnedArray),
-                                            approachSurface);
+                                           std::move( approachSurface));
 
               // do not give every layer material properties
               if (assignMaterial) {
@@ -455,10 +454,10 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                                                                -layerRadius*M_PI, layerRadius*M_PI,
                                                                 Trk::closed,
                                                                 Trk::binRPhi);
-                                                                 layerBinUtilityRPhiZ += layerBinUtilityZ;                       
+                                                                 layerBinUtilityRPhiZ += layerBinUtilityZ;
                    layerMaterial =new Trk::BinnedLayerMaterial(layerBinUtilityRPhiZ);
                  }
-              
+
                   barrelLayers->push_back(new Trk::CylinderLayer(barrelLayerBounds,
                                                                  strawArray,
                                                                  *layerMaterial,
@@ -466,7 +465,7 @@ std::pair<EventIDRange, const std::vector< const Trk::CylinderLayer* >* > InDet:
                                                                  new InDet::TRT_OverlapDescriptor(trtIdHelper),
                                                                  aDescritpor));
                    delete layerMaterial;
-              
+
               } else
                   barrelLayers->push_back(new Trk::CylinderLayer(barrelLayerBounds,
                                                                  strawArray,
@@ -557,7 +556,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
                                                Trk::closed,
                                                Trk::binPhi);
                             // make it rPhi now
-                       layerBinUtilityR += layerBinUtilityPhi;                   
+                       layerBinUtilityR += layerBinUtilityPhi;
      layerMaterial =new Trk::BinnedLayerMaterial(layerBinUtilityR);
   }
 
@@ -568,7 +567,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
   // loop for surface ordering
   int maxendcaps=2;
   if (m_endcapConly) maxendcaps=1;
-  
+
   for (int iposneg=0; iposneg<maxendcaps; ++iposneg){
 
     // fill the positions of the disc layers
@@ -578,7 +577,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
     double stepdir = iposneg ? 1. : -1.;
     double zStart = stepdir*zMin;
 
-    ATH_MSG_VERBOSE( " -> Creating " << m_modelEndcapLayers << " disc-layers on each side between " 
+    ATH_MSG_VERBOSE( " -> Creating " << m_modelEndcapLayers << " disc-layers on each side between "
                     << zMin << " and " << zMax << " ( at step "<< zStep << " )");
 
     // take a different modelling for the layers - use these layers for the model geometry and the real geometry
@@ -589,7 +588,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
    std::vector<double>::const_iterator zPosIter    = zPositions.begin();
    std::vector<double>::const_iterator zPosIterEnd = zPositions.end();
 
-   // (a) simplified geometry 
+   // (a) simplified geometry
    if (m_modelGeometry){
       // build the layers actually
       for ( ; zPosIter != zPosIterEnd; ++zPosIter){
@@ -603,12 +602,12 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
         }
 
    } else {
-      // (b) complex geometry 
+      // (b) complex geometry
       int nMaterialLayerStep  = int(numTotalLayers/m_modelEndcapLayers+1);
       int cMaterialLayerCount = 0;
-      
+
       // complex geometry - needs a little bit of joggling
-      int    currentLayerCounter = 0;      
+      int    currentLayerCounter = 0;
       for (unsigned int iwheel=0; iwheel<nEndcapWheels; ++iwheel)
       {
         // do the loop per side
@@ -617,7 +616,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
          // increase the layerCounter for material layer decission
          ++currentLayerCounter;
          ++cMaterialLayerCount;
-         
+
          // count the straws;
          int numberOfStraws = 0;
 
@@ -646,7 +645,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            // the layer thickness - for approaching surfaces
            double zMin = 10e10;
            double zMax = -10e10;
-           
+
            for (unsigned int iphisec=0; iphisec<nEndcapPhiSectors; ++iphisec){
                ATH_MSG_VERBOSE("Building sector " << iphisec << " of endcap wheel " << iwheel );
                 const InDetDD::TRT_EndcapElement* currentElement = m_trtMgr->getEndcapElement(iposneg, iwheel, ilayer, iphisec);
@@ -658,7 +657,7 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
                     // get the z position
                     double zPos = currentStraw->center().z();
                     takeSmaller(zMin,zPos);
-                    takeBigger(zMax,zPos);                    
+                    takeBigger(zMax,zPos);
                     Trk::SharedObject<const Trk::Surface> sharedSurface(currentStraw, [](const Trk::Surface*){});
                     strawPerEndcapLayer.push_back(Trk::SurfaceOrderPosition(sharedSurface, strawOrderPos));
                     ++numberOfStraws;
@@ -669,12 +668,12 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
              //fix coverity 118656
              delete fullDiscBounds;
              return std::pair<EventIDRange,const std::vector<const Trk::DiscLayer* >* >(range,nullptr);
-           } 
+           }
            Trk::BinUtility* currentBinUtility = new Trk::BinUtility(numberOfStraws, -M_PI, M_PI, Trk::closed, Trk::binPhi);
            Trk::BinnedArray<Trk::Surface>*  strawArray = new Trk::BinnedArray1D<Trk::Surface>(strawPerEndcapLayer, currentBinUtility);
            Trk::DiscLayer* currentLayer = 0;
 
-           // redefine the discZ 
+           // redefine the discZ
            discZ = 0.5*(zMin+zMax);
            Amg::Transform3D* fullDiscTransform = new Amg::Transform3D;
            (*fullDiscTransform) = Amg::Translation3D(0.,0.,discZ);
@@ -686,10 +685,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            // get the position of the approach surfaces
            const Amg::Vector3D aspPosition(0.,0.,zMin-m_layerStrawRadius);
            const Amg::Vector3D asnPosition(0.,0.,zMax+m_layerStrawRadius);
-           
+
            // create new surfaces
-           Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));   
-           Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));   
+           Amg::Transform3D* asnTransform = new Amg::Transform3D(Amg::Translation3D(asnPosition));
+           Amg::Transform3D* aspTransform = new Amg::Transform3D(Amg::Translation3D(aspPosition));
            // order in an optimised way for collision direction
            if (discZ > 0.){
                aSurfaces->push_back( new Trk::DiscSurface(asnTransform, fullDiscBounds->clone()) );
@@ -697,10 +696,10 @@ std::pair<EventIDRange, const std::vector< const Trk::DiscLayer* >* > InDet::TRT
            } else {
                aSurfaces->push_back( new Trk::DiscSurface(aspTransform, fullDiscBounds->clone()) );
                aSurfaces->push_back( new Trk::DiscSurface(asnTransform, fullDiscBounds->clone()) );
-           }               
+           }
            // approach descriptor
            Trk::ApproachDescriptor* aDescriptor = new Trk::ApproachDescriptor(std::move(aSurfaces),false);
-           
+
            // do not give every layer material properties
            if (assignMaterial)
               currentLayer = new Trk::DiscLayer(fullDiscTransform,

@@ -49,17 +49,17 @@ public:
 //   typedef typename SG::TopBase<T>::type topbase_t;
 
 
-//   /**
-//    * @brief Constructor.
-//    * @param key The StoreGate key for the object.
-//    * @param storeName Name to use for the store, if it's not encoded in sgkey.
-//    *
-//    * The provided key may actually start with the name of the store,
-//    * separated by a "+":  "MyStore+Obj".  If no "+" is present
-//    * the store named by @c storeName is used.
-//    */
-//   ReadDecorHandleKey (const std::string& key = "",
-//                       const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
+  /**
+   * @brief Constructor.
+   * @param key The StoreGate key for the object.
+   * @param storeName Name to use for the store, if it's not encoded in sgkey.
+   *
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store named by @c storeName is used.
+   */
+  ReadDecorHandleKey (const std::string& key = "");
+                      // const std::string& storeName = StoreID::storeName(StoreID::EVENT_STORE));
 
 
   /**
@@ -81,9 +81,30 @@ public:
                       const K& key = {},
                       const std::string& doc = "");
 
-  
-  /// Can get this from the base class.
-  using Base::operator=;
+
+  /**
+   * @brief Change the key of the object to which we're referring.
+   * @param sgkey The StoreGate key for the object.
+   * 
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present,
+   * the store is not changed.
+   */
+  ReadDecorHandleKey& operator= (const std::string& sgkey);
+
+
+  /**
+   * @brief Change the key of the object to which we're referring.
+   * @param sgkey The StoreGate key for the object.
+   * 
+   * The provided key may actually start with the name of the store,
+   * separated by a "+":  "MyStore+Obj".  If no "+" is present
+   * the store is not changed.  A key name that starts with a slash
+   * is interpreted as a hierarchical key name, not an empty store name.
+   *
+   * Returns failure the key string format is bad.
+   */
+  virtual StatusCode assign (const std::string& sgkey) override;
 
 
 //   /**
@@ -92,6 +113,27 @@ public:
 //    * Overridden here to return the CLID for @c T instead of @c topbase_t.
 //    */
 //   CLID clid() const;
+
+
+  /**
+   * @brief If this object is used as a property, then this should be called
+   *        during the initialize phase.  It will fail if the requested
+   *        StoreGate service cannot be found or if the key is blank.
+   * @param used If false, then this handle is not to be used.
+   *             Instead of normal initialization, the key will be cleared.
+   */
+  StatusCode initialize (bool used = true);
+
+
+  /**
+   * @brief Return the handle key for the container.
+   */
+  const ReadHandleKey<T>& contHandleKey() const;
+
+
+private:
+  /// The container handle.
+  ReadHandleKey<T> m_contHandleKey;
 };
 
 

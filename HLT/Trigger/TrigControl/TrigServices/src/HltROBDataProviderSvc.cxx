@@ -3,6 +3,7 @@
 */
 #include "HltROBDataProviderSvc.h"
 #include "TrigKernel/HltExceptions.h"
+#include "TrigTimeAlgs/TrigTimeStamp.h"
 
 // Gaudi
 #include "Gaudi/Interfaces/IOptionsSvc.h"
@@ -319,6 +320,8 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 				       const std::vector<uint32_t>& robIds, std::vector<const ROBF*>& robFragments, 
 				       const std::string_view callerName)
 {
+  TrigTimeStamp rosStartTime;
+
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << ": Number of ROB Ids to get = " << robIds.size() 
 		  << " caller name = " << callerName);
   EventCache* cache = m_eventsCache.get( context );
@@ -328,19 +331,6 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 
   // check input ROB list against cache
   eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
-
-  // check if event should be monitored
-  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
-
-    for (const uint32_t id : robIds) {
-      auto ROBData = robmonitor::ROBDataStruct(id);
-
-      if (m_trigCostSvcHandle->monitorROS(context, std::move(ROBData)).isFailure()) {
-        ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
-      }
-    }
-  }
-
 
   // no missing ROB fragments, return the found ROB fragments 
   if (robIds_missing.size() == 0) {
@@ -352,7 +342,7 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
   ATH_MSG_DEBUG( __FUNCTION__ << ": Number of ROB Ids to retrieve with DCM = " << robIds_missing.size()); 
 
   typedef std::vector<hltinterface::DCM_ROBInfo> ROBInfoVec;
-  ROBInfoVec vRobInfos ;
+  ROBInfoVec vRobInfos;
 
   // Get ROB Fragments with DataCollector
   vRobInfos.reserve( robIds_missing.size() ) ;
@@ -383,11 +373,75 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
 		    << " retrieved from DCM for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
     robFragments_missing.push_back( it->robFragment );
   }
-  // add the ROBs to the cache/rob map
-  eventCache_addRobData(cache, robFragments_missing) ;
 
-  // return all the requested ROB fragments from the cache
-  eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
+  // Check if event should be monitored and monitor ROB data
+  auto monitorData = robmonitor::ROBDataMonitorStruct(cache->currentLvl1ID, std::string(callerName));
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+    // Monitor HLT cached ROBs
+    for (const ROBF* robFrag : robFragments) {
+      monitorData.requested_ROBs[robFrag->source_id()] = robmap_getRobData(*robFrag, robmonitor::HLT_CACHED);
+    }
+
+    // Add the ROBs to the cache/rob map and collect ignored robs
+    std::set<uint32_t> robIds_ignored;
+    eventCache_addRobData(cache, robFragments_missing, robIds_ignored);
+
+    // Monitor DCM ROBs
+    for (const hltinterface::DCM_ROBInfo& robInfo : vRobInfos) {
+      robmonitor::ROBHistory status;
+
+      // Check ROB history
+      if (robIds_ignored.find(robInfo.robFragment.source_id()) != robIds_ignored.end()) {
+        status = robmonitor::IGNORED;
+      }
+      else {
+        status = robInfo.robIsCached ? robmonitor::DCM_CACHED : robmonitor::RETRIEVED;
+      }
+
+      monitorData.requested_ROBs[robInfo.robFragment.source_id()] = robmap_getRobData(robInfo.robFragment, status);
+    }
+
+    // Return all the requested ROB fragments from the cache and collect disabled ROBs
+    std::set<uint32_t> robIds_disabled;
+    eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing, robIds_disabled);
+
+    // Fill disabled ROBs
+    for (uint32_t robId : robIds_disabled) {
+        monitorData.requested_ROBs[robId] = robmonitor::ROBDataStruct(robId);
+        monitorData.requested_ROBs[robId].rob_history = robmonitor::DISABLED;
+    }
+  }
+  else {
+    // add the ROBs to the cache/rob map
+    eventCache_addRobData(cache, robFragments_missing) ;
+
+    // return all the requested ROB fragments from the cache
+    eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing) ;
+  }
+
+  // Save ROS processing time and pass ROS data to CostMonitor
+  if (m_doCostMonitoring && m_trigCostSvcHandle->isMonitoredEvent(context, /*includeMultiSlot =*/ false)) {
+    TrigTimeStamp rosEndTime;
+
+    monitorData.start_time = rosStartTime.microsecondsSinceEpoch();
+    monitorData.end_time = rosEndTime.microsecondsSinceEpoch();
+
+    // Check if ROBMonitorDataStruct is move-constructible
+    static_assert(std::is_nothrow_move_constructible<robmonitor::ROBDataMonitorStruct>::value);
+    if (m_trigCostSvcHandle->monitorROS(context, std::move(monitorData)).isFailure()) {
+      ATH_MSG_WARNING("TrigCost ROS monitoring failed!");
+    }  
+  }
+}
+
+robmonitor::ROBDataStruct HltROBDataProviderSvc::robmap_getRobData(const ROBF& robFrag, robmonitor::ROBHistory robStatus)
+{
+  auto robData = robmonitor::ROBDataStruct(robFrag.source_id());
+  robData.rob_size = robFrag.fragment_size_word();
+  robData.rob_status_word = robFrag.nstatus() ? robFrag.status()[0] : 0;
+  robData.rob_history = robStatus;
+
+  return robData;
 }
 
 /// Retrieve the full event fragment
@@ -549,7 +603,8 @@ void HltROBDataProviderSvc::eventCache_clear(EventCache* cache)
 
 void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, const std::vector<uint32_t>& robIds_toCheck, 
 							     std::vector<const ROBF*>& robFragments_inCache, 
-							     std::vector<uint32_t>& robIds_missing )
+							     std::vector<uint32_t>& robIds_missing,
+                   std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_disabled )
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " number of ROB Ids to check = " << robIds_toCheck.size());
 
@@ -583,12 +638,15 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
 
     // check if ROB is actually enabled for readout
     if (m_enabledROBs.value().size() != 0) {
-      std::vector<uint32_t>::const_iterator rob_enabled_it =
-	std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),id);
+      std::vector<uint32_t>::const_iterator rob_enabled_it = 
+        std::find(m_enabledROBs.value().begin(), m_enabledROBs.value().end(),id);
       if(rob_enabled_it == m_enabledROBs.value().end()) {
-	ATH_MSG_VERBOSE(__FUNCTION__ << " ROB Id : 0x" << MSG::hex << id << MSG::dec
-		      << " will be not added, since it is not on the list of enabled ROBs.");
-	continue;
+        ATH_MSG_VERBOSE(__FUNCTION__ << " ROB Id : 0x" << MSG::hex << id << MSG::dec
+                << " will be not added, since it is not on the list of enabled ROBs.");
+        if (robIds_disabled) {
+          robIds_disabled->get().insert(id);
+        }
+        continue;
       }
     }
 
@@ -598,7 +656,8 @@ void HltROBDataProviderSvc::eventCache_checkRobListToCache(EventCache* cache, co
   } // end loop over input ROB Ids to check
 }
 
-void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::vector<ROBF>& robFragments)
+void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::vector<ROBF>& robFragments,
+              std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored)
 {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__ << " number of ROB fragments to add = " << robFragments.size());
 
@@ -648,6 +707,9 @@ void HltROBDataProviderSvc::eventCache_addRobData(EventCache* cache, const std::
 			<< " with Generic Status Code = 0x" << std::setw(4) << tmpstatus.generic()
 			<< " and Specific Status Code = 0x" << std::setw(4) << tmpstatus.specific() << MSG::dec
 			<< " removed for (global Id, L1 Id) = (" << cache->globalEventNumber << "," << cache->currentLvl1ID <<")" );
+      }
+      if (robIds_ignored) {
+        robIds_ignored->get().insert(id);
       }
       continue;
     }

@@ -51,12 +51,6 @@
 #include "GeoModelKernel/GeoPgon.h"
 #include "GeoModelKernel/GeoPara.h"
 #include "GeoModelKernel/GeoVolumeCursor.h"
-#include "GeoModelKernel/GeoShape.h"
-#include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelKernel/GeoShapeSubtraction.h"
-#include "GeoModelKernel/GeoBox.h"
-#include "GeoModelKernel/GeoTrd.h"
-#include "GeoModelKernel/GeoVolumeCursor.h"
 
 #include <map>
 #include <fstream>

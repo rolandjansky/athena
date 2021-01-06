@@ -18,29 +18,25 @@ TrigEgammaFastCaloHypoToolInc::TrigEgammaFastCaloHypoToolInc( const std::string&
 		    const IInterface* parent ) 
   : base_class( type, name, parent ),
     m_selectorTool(),
-    m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool"),
-    m_decisionId( HLT::Identifier::fromToolName( name ) ) 
+    m_decisionId( HLT::Identifier::fromToolName( name ) )
 {
-declareProperty("LumiBlockMuTool", m_lumiBlockMuTool, "Luminosity Tool" );
 }
 
 StatusCode TrigEgammaFastCaloHypoToolInc::initialize()  {
 
-ATH_MSG_DEBUG("Name: "<<name()<<" UseRinger: "<<m_useRinger);
+  ATH_MSG_DEBUG("Name: "<<name()<<" UseRinger: "<<m_useRinger);
 
-if (m_useRinger){ 
-  m_selectorTool.setConstantsCalibPath( m_constantsCalibPath ); 
-  m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath ); 
+  if (m_useRinger){
+    m_selectorTool.setConstantsCalibPath( m_constantsCalibPath );
+    m_selectorTool.setThresholdsCalibPath( m_thresholdsCalibPath );
 
-  if(m_selectorTool.initialize().isFailure())
-    return StatusCode::FAILURE;
-  
-  if (m_lumiBlockMuTool.retrieve().isFailure())
-    return StatusCode::FAILURE;
-  
-  ATH_MSG_INFO("TrigEgammaFastCaloRingerHypo initialization completed successfully.");
- 
-}
+    if(m_selectorTool.initialize().isFailure())
+      return StatusCode::FAILURE;
+
+    if (m_lumiBlockMuTool.retrieve().isFailure())
+      return StatusCode::FAILURE;
+  }
+
   ATH_MSG_DEBUG( "Initialization completed successfully"   );   
   ATH_MSG_DEBUG( "AcceptAll           = " << ( m_acceptAll==true ? "True" : "False" ) ); 
   ATH_MSG_DEBUG( "EtaBins        = " << m_etabin      );
@@ -83,8 +79,6 @@ if (m_useRinger){
 }
 
 
-
-TrigEgammaFastCaloHypoToolInc::~TrigEgammaFastCaloHypoToolInc(){}
 
 int TrigEgammaFastCaloHypoToolInc::findCutIndex( float eta ) const {
   const float absEta = std::abs(eta);
@@ -390,12 +384,13 @@ bool TrigEgammaFastCaloHypoToolInc::decide_ringer ( const ITrigEgammaFastCaloHyp
   
   ATH_MSG_DEBUG("Et = "<< et << " Eta = "<<eta << " mu = " << avgmu << "rsize = "<< refRings.size()); 
 
-  auto output = m_selectorTool.calculate( refRings, et, eta, avgmu, propagate_time, preproc_time );
+  // use the energy (in MeV) and eta from emCluster
+  auto output = m_selectorTool.calculate( refRings, emCluster->et(), emCluster->eta(), avgmu, propagate_time, preproc_time );
   rnnOutMon = output;
   ATH_MSG_DEBUG(name()<< " generate as NN output " <<  output );
   
   decide_time.start();
-  bool accept = m_selectorTool.accept(output, et,eta,avgmu);
+  bool accept = m_selectorTool.accept(output, emCluster->et(),emCluster->eta(),avgmu);
   decide_time.stop();
 
   total_time.stop();

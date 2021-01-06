@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODMISSINGET_VERSIONS_MISSINGET_V1_H
@@ -9,8 +9,9 @@
 
 #include "AthContainers/AuxElement.h"
 
-#include "xAODBase/IParticle.h"
+#include "CxxUtils/CachedValue.h"
 
+#include "xAODBase/IParticle.h"
 #include "xAODMissingET/versions/MissingETBase.h"
 
 #include <string>
@@ -31,7 +32,7 @@ namespace xAOD
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with identifiers */
     MissingET_v1(const IParticle* particle, const std::string& name="MissingET",
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with particle */
-    MissingET_v1(double mpx,double mpy,double sumet,const std::string& name="MissingET",
+    MissingET_v1(float mpx,float mpy,float sumet,const std::string& name="MissingET",
 		 MissingETBase::Types::bitmask_t src=MissingETBase::Source::unknown()); /*!< @brief Constructor with initial kinematics */
     MissingET_v1(const MissingET_v1& met);                                              /*!< @brief Copy constructor */
     ~MissingET_v1();                                                                    /*!< @brief Implementation class destructor */
@@ -39,18 +40,18 @@ namespace xAOD
 
     /*! @name Kinematic accessors */
     /*!@{*/
-    double mpx()    const; /*!< @brief Returns @f$ p_{x}^{\rm miss} @f$ */
-    double mpy()    const; /*!< @brief Returns @f$ p_{y}^{\rm miss} @f$ */
-    double met()   const; /*!< @brief Returns @f$ E_{\rm T}^{\rm miss} = \sqrt{(p_{x}^{\rm miss})^{2} + (p_{y}^{\rm miss})^{2}} @f$ */
-    double phi()   const; /*!< @brief Returns @f$ \phi(E_{\rm T}^{\rm miss}) @f$ */
-    double sumet() const; /*!< @brief Returns */
+    float mpx()    const; /*!< @brief Returns @f$ p_{x}^{\rm miss} @f$ */
+    float mpy()    const; /*!< @brief Returns @f$ p_{y}^{\rm miss} @f$ */
+    float met()   const; /*!< @brief Returns @f$ E_{\rm T}^{\rm miss} = \sqrt{(p_{x}^{\rm miss})^{2} + (p_{y}^{\rm miss})^{2}} @f$ */
+    float phi()   const; /*!< @brief Returns @f$ \phi(E_{\rm T}^{\rm miss}) @f$ */
+    float sumet() const; /*!< @brief Returns */
     /*!@}*/
 
     /*! @name Kinematic setters */
     /*@{*/
-    void setMpx(double value);    /*!< @brief Set the @f$ p_{x}^{\rm miss} @f$ component */
-    void setMpy(double value);    /*!< @brief Set the @f$ p_{y}^{\rm miss} @f$ component */
-    void setSumet(double value); /*!< @brief Set @f$ \Sigma E_{\rm T} @f$ */
+    void setMpx(float value);    /*!< @brief Set the @f$ p_{x}^{\rm miss} @f$ component */
+    void setMpy(float value);    /*!< @brief Set the @f$ p_{y}^{\rm miss} @f$ component */
+    void setSumet(float value); /*!< @brief Set @f$ \Sigma E_{\rm T} @f$ */
     /*@}*/
 
     /*! @brief Identifier getters */
@@ -70,8 +71,8 @@ namespace xAOD
     /*! @name Manipulating the kinematic data */
     /*!@{*/
     void add(const IParticle* particle);                 /*!< @brief Add particle kinematics to MET */
-    void add(const IParticle* particle,double scale);    /*!< @brief Add scaled particle kinematics to MET */
-    void add(double px,double py,double pt);             /*!< @brief Add kinematic variables to MET */
+    void add(const IParticle* particle,float scale);    /*!< @brief Add scaled particle kinematics to MET */
+    void add(float px,float py,float pt);             /*!< @brief Add kinematic variables to MET */
     MissingET_v1& operator=(const MissingET_v1& met); /*!< @brief Add particle kinematics to MET */
     MissingET_v1& operator+=(const IParticle* particle); /*!< @brief Add particle kinematics to MET */
     MissingET_v1& operator-=(const IParticle* part);     /*!< @brief Remove particle kinematics to MET */
@@ -81,8 +82,8 @@ namespace xAOD
     /*!@{*/
     MissingET_v1& operator+=(const MissingET_v1& met); /*!< @brief Add another MET object */
     MissingET_v1& operator-=(const MissingET_v1& met); /*!< @brief Subtract another MET object */
-    MissingET_v1& operator*=(double scale);            /*!< @brief Applying a scale factor */
-    MissingET_v1& operator/=(double scale);            /*!< @brief Dividing by a scale factor */
+    MissingET_v1& operator*=(float scale);            /*!< @brief Applying a scale factor */
+    MissingET_v1& operator/=(float scale);            /*!< @brief Dividing by a scale factor */
     /*!@}*/
 
     /*! @name Stored data management */
@@ -104,16 +105,20 @@ namespace xAOD
 
     /*! @name Internal data modification support */
     /*!@{*/
-    double&                           f_mpx();     /*!< @brief Returns reference to @f$ p_{x} @f$ store */
-    double&                           f_mpy();     /*!< @brief Returns reference to @f$ p_{y} @f$ store */
-    double&                           f_sumet();  /*!< @brief Returns reference to @f$ \Sigma E_{\rm T} @f$ store */
+    float&                           f_mpx();     /*!< @brief Returns reference to @f$ p_{x} @f$ store */
+    float&                           f_mpy();     /*!< @brief Returns reference to @f$ p_{y} @f$ store */
+    float&                           f_sumet();  /*!< @brief Returns reference to @f$ \Sigma E_{\rm T} @f$ store */
     std::string&                      f_name();   /*!< @brief Returns reference to MET object name store */
-    const std::string&                f_nameConst(); /*!< @brief Returns const reference to the MET object name store*/
+    const std::string&                f_nameConst() const; /*!< @brief Returns const reference to the MET object name store*/
     MissingETBase::Types::bitmask_t&  f_source(); /*!< @brief Returns reference to MET object source store */
     /*!@}*/
 
   private:
-    std::size_t m_nameHash;/*!< @brief Stores the hash for the current f_name string */
+    CxxUtils::CachedValue<std::size_t> m_nameHash; /*!< @brief Stores the hash for the current f_name string */
+
+    static const SG::AuxElement::Accessor<float> m_acc_mpx;
+    static const SG::AuxElement::Accessor<float> m_acc_mpy;
+    static const SG::AuxElement::Accessor<float> m_acc_sumet;
   };
 }
 
@@ -123,9 +128,9 @@ namespace xAOD
 /*!@{*/
 xAOD::MissingET_v1 operator+(const xAOD::MissingET_v1& met0,const xAOD::MissingET_v1& met1); /*!< @brief Create new MET object from sum of two MissingET_v1 objects */
 xAOD::MissingET_v1 operator-(const xAOD::MissingET_v1& met0,const xAOD::MissingET_v1& met1); /*!< @brief Create new MET object from difference between two MissingET_v1 objects */
-xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,double scale);                    /*!< @brief Create new MET object from source with scaled (weighted) kinematics */
-xAOD::MissingET_v1 operator*(double scale,const xAOD::MissingET_v1& met);                    /*!< @brief Create new MET object from source with scaled (weighted) kinematics */
-xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale);                    /*!< @brief Create new MET object from source with scaled kinematics */
+xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,float scale);                    /*!< @brief Create new MET object from source with scaled (weighted) kinematics */
+xAOD::MissingET_v1 operator*(float scale,const xAOD::MissingET_v1& met);                    /*!< @brief Create new MET object from source with scaled (weighted) kinematics */
+xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,float scale);                    /*!< @brief Create new MET object from source with scaled kinematics */
 /*!@}*/
 
 #include "xAODMissingET/versions/MissingET_v1.icc"

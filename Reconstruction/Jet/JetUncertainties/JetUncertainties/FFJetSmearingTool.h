@@ -16,7 +16,7 @@
 //includes for systematics ATLAS structure
 #include "PATInterfaces/SystematicsTool.h"//To set the systematics as it is done in JetJvtEfficiency
 
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h"
 
@@ -120,7 +120,7 @@ namespace CP {
             virtual CP::SystematicSet recommendedSystematics() const override;
 
             /// Configure tool to apply systematic variation
-            virtual CP::SystematicCode applySystematicVariation
+            virtual StatusCode applySystematicVariation
             (const CP::SystematicSet& systematics) override;
 
             /// @}

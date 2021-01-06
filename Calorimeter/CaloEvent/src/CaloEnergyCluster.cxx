@@ -145,6 +145,18 @@ CaloEnergyCluster::addUniqueCellNoKine(const CaloCellContainer* theContainer,
 }
 
 
+void
+CaloEnergyCluster::addUniqueCellNoKine(const ElementLink<CaloCellContainer>& theContainer,
+                                       index_type theIndex,
+                                       double weight,
+                                       size_t size_hint)
+{
+  if ((int)theIndex < 0) abort();
+  ElementLink<CaloCellContainer> el (theContainer, theIndex);
+  this->insertElement(el,weight,size_hint);
+}
+
+
 void 
 CaloEnergyCluster::removeCell(/*CaloCellContainer::const_reference*/
 			      const CaloCell* theCell)

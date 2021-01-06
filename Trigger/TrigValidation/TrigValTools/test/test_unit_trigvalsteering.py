@@ -4,7 +4,7 @@
 # This is not an ART test. This is a unit test of the framework used for
 # steering Trigger ART tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, Common
+from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps, PyStep, Common
 import logging
 
 import os
@@ -26,19 +26,33 @@ for test_type in ['athena','athenaHLT','Reco_tf','Trig_reco_tf']:
     ex.args = '--help'
     test.exec_steps.append(ex)
 
+def hello():
+    print('### Hello World')
+
+def hello_throw():
+    raise RuntimeError('Hello World')
+
+test.exec_steps.append(PyStep.PyStep(hello, name='hello_stdout'))
+test.exec_steps.append(PyStep.PyStep(hello_throw))
+s = PyStep.PyStep(hello, name='hello_file')
+s.output_stream = s.OutputStream.FILE_AND_STDOUT
+test.exec_steps.append(s)
+
+
 test.art_type = 'build'
 test.check_steps = CheckSteps.default_check_steps(test)
 
-regtest_ref_text = [
-    '### athena.log ###',
-    '### athena.Test_athena.log ###',
-    '### athenaHLT.Test_athenaHLT.log ###',
-    '### Reco_tf.Test_Reco_tf.log ###',
-    '### Trig_reco_tf.Test_Trig_reco_tf.log ###',
-]
+regtest_ref_text = """\
+### athena.log ###
+### athena.Test_athena.log ###
+### athenaHLT.Test_athenaHLT.log ###
+### Reco_tf.Test_Reco_tf.log ###
+### Trig_reco_tf.Test_Trig_reco_tf.log ###
+### hello_file.log ###
+### Hello World"""
 
 with open('regtest.ref','w') as f:
-    f.write('\n'.join(regtest_ref_text))
+    f.write(regtest_ref_text)
 
 refcomp = CheckSteps.RegTestStep('RefComp')
 refcomp.input_base_name = 'athena.merged'

@@ -99,7 +99,8 @@ else:
 ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 theApp.EvtSel = "EventSelector"
 # Number of input events to be skipped
-ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+if hasattr(runArgs,"skipEvents"):
+    ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 #--------------------------------------------------------------
 # Setup Output

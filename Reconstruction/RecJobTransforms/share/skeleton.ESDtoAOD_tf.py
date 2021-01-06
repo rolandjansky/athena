@@ -21,14 +21,18 @@ recoLog.info( '****************** STARTING ESD->AOD MAKING *****************' )
 
 from AthenaCommon.AppMgr import ServiceMgr; import AthenaPoolCnvSvc.AthenaPool
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 ## Input
-if hasattr(runArgs,"inputFile"): athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
+if hasattr(runArgs,"inputFile"):
+    athenaCommonFlags.FilesInput.set_Value_and_Lock( runArgs.inputFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
 if hasattr(runArgs,"inputESDFile"):
     globalflags.InputFormat.set_Value_and_Lock('pool')
     rec.readESD.set_Value_and_Lock( True )
     rec.readRDO.set_Value_and_Lock( False )
     athenaCommonFlags.PoolESDInput.set_Value_and_Lock( runArgs.inputESDFile )
+    ConfigFlags.Input.Files = athenaCommonFlags.PoolESDInput()
 
 ## Pre-exec
 if hasattr(runArgs,"preExec"):
@@ -48,21 +52,11 @@ if hasattr(runArgs,"outputAODFile"):
     rec.doAOD.set_Value_and_Lock( True )
     rec.doWriteAOD.set_Value_and_Lock( True ) 
     athenaCommonFlags.PoolAODOutput.set_Value_and_Lock( runArgs.outputAODFile )
-    # Begin temporary trigger block
-    if TriggerFlags.doMT():
-        # Lock DQ configuration to prevent downstream override
-        from AthenaMonitoring.DQMonFlags import DQMonFlags
-        print('DQMonFlags override')
-        if not rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(False)
-        if DQMonFlags.useTrigger() and rec.doTrigger():
-            DQMonFlags.useTrigger.set_Value_and_Lock(True)
-        # Don't run any trigger - only pass the HLT contents from ESD to AOD
-        # Configure here, and extract HLT content in RecExCommon_topOptions
-        # after the rest of the job is configured
-        from RecExConfig.RecAlgsFlags import recAlgs
-        recAlgs.doTrigger.set_Value_and_Lock( False )
-        rec.doTrigger.set_Value_and_Lock( False )
+    # Lock DQ configuration to prevent downstream override
+    # RB 15/12/2020: This logic was added in !36737, not sure if still needed
+    from AthenaMonitoring.DQMonFlags import DQMonFlags
+    print('DQMonFlags.useTrigger override')
+    DQMonFlags.useTrigger.set_Value_and_Lock(rec.doTrigger() and DQMonFlags.useTrigger())
 
 if hasattr(runArgs,"outputTAGFile"):
     # should be used as outputTAGFile_e2a=myTAG.root so that it does not trigger AODtoTAG

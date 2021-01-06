@@ -201,3 +201,8 @@ void dqm_algorithms::LastBinThresholdAction<Exceed, Action>::printDescription(st
   out << "Optional parameter: NBinsToWatch - number of final bins that will be checked. (NBinsToWatch >= 1, default = -1)" << std::endl;
 }
 
+
+// Make sure these are completely instantiated here, as the definitions
+// are only in this file.
+template class dqm_algorithms::LastBinThresholdAction<dqm_algorithms::GreaterThan, dqm_algorithms::TileDQAction>;
+template class dqm_algorithms::LastBinThresholdAction<dqm_algorithms::DifferentThan, dqm_algorithms::TileDQAction>;

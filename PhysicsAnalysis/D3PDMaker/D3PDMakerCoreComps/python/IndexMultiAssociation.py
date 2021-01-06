@@ -41,7 +41,7 @@ def IndexMultiAssociation (parent,
     Extra arguments are passed to the association tool.
 """
 
-    if blockname == None:
+    if blockname is None:
         blockname = assoctool.__name__
 
     def maker (name, prefix, object_name, **kw2):
@@ -52,7 +52,7 @@ def IndexMultiAssociation (parent,
 
         if this_target == '':
             this_target = []
-        elif type(this_target) != type([]):
+        elif not isinstance(this_target, list):
             this_target = [ this_target ]
 
         assoc = assoctool (name + 'Assoc', **kw2)

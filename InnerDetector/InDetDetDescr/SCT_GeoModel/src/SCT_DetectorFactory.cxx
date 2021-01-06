@@ -7,57 +7,58 @@
 //
 
 
-#include "SCT_GeoModel/SCT_DetectorFactory.h" 
+#include "SCT_GeoModel/SCT_DetectorFactory.h"
 
-#include "SCT_GeoModel/SCT_DataBase.h"
-#include "SCT_GeoModel/SCT_Identifier.h"
-#include "SCT_GeoModel/SCT_GeometryManager.h" 
-#include "SCT_GeoModel/SCT_MaterialManager.h"
-#include "SCT_GeoModel/SCT_GeneralParameters.h"
-#include "InDetReadoutGeometry/Version.h" 
-#include "InDetReadoutGeometry/SiCommonItems.h" 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
-#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h" 
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
-#include "SCT_GeoModel/SCT_Barrel.h"
-#include "SCT_GeoModel/SCT_Forward.h"
-#include "SCT_GeoModel/SCT_DataBase.h"
-#include "SCT_GeoModel/SCT_GeoModelAthenaComps.h"
+#include "DetDescrConditions/AlignableTransformContainer.h"
 
 //
 // GeoModel include files:
 //
-#include "GeoModelKernel/GeoMaterial.h"  
-#include "GeoModelKernel/GeoTube.h"  
-#include "GeoModelKernel/GeoLogVol.h"  
-#include "GeoModelKernel/GeoNameTag.h"  
-#include "GeoModelKernel/GeoIdentifierTag.h"  
-#include "GeoModelKernel/GeoPhysVol.h"  
-#include "GeoModelKernel/GeoVPhysVol.h"  
-#include "GeoModelKernel/GeoTransform.h"  
-#include "GeoModelKernel/GeoAlignableTransform.h"  
-#include "GeoModelKernel/GeoShape.h"
-#include "GeoModelKernel/GeoShapeUnion.h"
-#include "GeoModelKernel/GeoShapeShift.h"
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
-#include "GeoModelUtilities/DecodeVersionKey.h"
-#include "RDBAccessSvc/IRDBAccessSvc.h"
-#include "RDBAccessSvc/IRDBRecordset.h"
-#include "RDBAccessSvc/IRDBRecord.h"
-#include "AthenaPoolUtilities/CondAttrListCollection.h"
-#include "DetDescrConditions/AlignableTransformContainer.h"
-#
-#include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/ISvcLocator.h"
-
+#include "GeoModelInterfaces/StoredMaterialManager.h"
+#include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
+#include "GeoModelKernel/GeoIdentifierTag.h"
+#include "GeoModelKernel/GeoLogVol.h"
+#include "GeoModelKernel/GeoMaterial.h"
+#include "GeoModelKernel/GeoNameTag.h"
+#include "GeoModelKernel/GeoPhysVol.h"
+#include "GeoModelKernel/GeoShape.h"
+#include "GeoModelKernel/GeoShapeShift.h"
+#include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoTransform.h"
+#include "GeoModelKernel/GeoTube.h"
+#include "GeoModelKernel/GeoVPhysVol.h"
+#include "GeoModelUtilities/DecodeVersionKey.h"
+
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
+#include "InDetReadoutGeometry/Version.h"
+
+#include "RDBAccessSvc/IRDBAccessSvc.h"
+#include "RDBAccessSvc/IRDBRecord.h"
+#include "RDBAccessSvc/IRDBRecordset.h"
+
+#include "SCT_GeoModel/SCT_Barrel.h"
+#include "SCT_GeoModel/SCT_DataBase.h"
+#include "SCT_GeoModel/SCT_Forward.h"
+#include "SCT_GeoModel/SCT_GeneralParameters.h"
+#include "SCT_GeoModel/SCT_GeometryManager.h"
+#include "SCT_GeoModel/SCT_GeoModelAthenaComps.h"
+#include "SCT_GeoModel/SCT_Identifier.h"
+#include "SCT_GeoModel/SCT_MaterialManager.h"
+
+#include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
+
+#include "StoreGate/StoreGateSvc.h"
+
+#include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/SystemOfUnits.h"
 
-
-
-#include <iostream> 
-#include <iomanip> 
+#include <iomanip>
+#include <iostream>
 #include <string>
  
 using InDetDD::SCT_DetectorManager; 

@@ -124,8 +124,6 @@ McVtxFilter & McVtxFilter::operator=(const McVtxFilter &rhs)
   return *this;
 }
 
-/// Destructor
-///////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Const methods: 
@@ -315,7 +313,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   }
   
   if ( m_msg.level() <= MSG::VERBOSE ) {
-    vtx->print();
+    HepMC::Print::line(std::cout,vtx);
   }
 
   /// Check if number of parents is OK
@@ -366,7 +364,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
 
   m_msg << MSG::VERBOSE << ">>> CheckParentBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << vtx->barcode()
+	<< " vtx= " << HepMC::barcode(vtx)
 	<< endmsg;
   return accepted;
 }
@@ -376,7 +374,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   m_msg << MSG::VERBOSE << "In checkChildBranch..." << endmsg;
 
   if ( m_msg.level() <= MSG::VERBOSE ) {
-    vtx->print();
+    HepMC::Print::line(std::cout,vtx);
   }
 
   /// Check we aren't in the "any particle" case
@@ -420,7 +418,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
 
   m_msg << MSG::VERBOSE << ">>> CheckChildBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
-	<< " vtx= " << vtx->barcode()
+	<< " vtx= " << HepMC::barcode(vtx)
 	<< endmsg;
   return accepted;
 }

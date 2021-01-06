@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatCandidateTool.h"
@@ -61,8 +61,21 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode MuPatCandidateTool::stop() {
+
+    // Clean up all garbage now.
+    // If we leave it for later, we may end up with dangling references
+    // to Surface objects that have already been deleted.
+    for (CacheEntry& ent : m_cache) {
+      ent.cleanUp();
+    }
+    return StatusCode::SUCCESS;
+  }
+
   MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
   {
+    CacheEntry& ent = getCache();
+
     Identifier chid = m_edmHelperSvc->chamberId(segment);
     if( m_idHelperSvc->isTrigger(chid) ){
       ATH_MSG_WARNING("Trigger hit only segments not supported " << m_idHelperSvc->toStringChamber(chid) );
@@ -100,7 +113,8 @@ namespace Muon {
 
     updateHits(*info,info->segment->containedMeasurements(),m_doMdtRecreation,m_doCscRecreation, true );
     MuPatHitList& hitList = info->hitList();
-    m_hitHandler->create( segment, hitList );
+    m_hitHandler->create( segment, hitList,
+                          ent.m_hitsToBeDeleted, ent.m_parsToBeDeleted );
 
     return info;
   }
@@ -156,13 +170,7 @@ namespace Muon {
   void MuPatCandidateTool::updateHits( MuPatCandidateBase& entry, const MuPatCandidateTool::MeasVec& measurements, 
 				     bool recreateMDT, bool recreateCSC, bool createComp ) const {
 
-    std::lock_guard<std::mutex> lock{m_mutex};    
-    const EventContext& ctx = Gaudi::Hive::currentContext();
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt != ctx.evt()) {
-      ent->m_evt = ctx.evt();
-      ent->cleanUp();
-    }
+    CacheEntry& ent = getCache();
 
     MeasVec etaHits;
     MeasVec phiHits;
@@ -239,7 +247,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating MdtDriftCircleOnTrack " );
 	    const MdtDriftCircleOnTrack* newMdt = m_mdtRotCreator->createRIO_OnTrack(*mdt->prepRawData(),mdt->globalPosition());
-	    ent->m_measurementsToBeDeleted.push_back(newMdt);
+	    ent.m_measurementsToBeDeleted.push_back(newMdt);
 	    meas = newMdt;
 	  }
 	}
@@ -282,7 +290,7 @@ namespace Muon {
 	    }
 	    ATH_MSG_DEBUG(" recreating CscClusterOnTrack " );
 	    const MuonClusterOnTrack* newCsc = m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(),csc->globalPosition());
-	    ent->m_measurementsToBeDeleted.push_back(newCsc);
+	    ent.m_measurementsToBeDeleted.push_back(newCsc);
 	    meas = newCsc;
 
 	  }
@@ -313,8 +321,8 @@ namespace Muon {
     }
     
     if( createComp ){
-      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, ent->m_measurementsToBeDeleted);
-      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, ent->m_measurementsToBeDeleted);
+      if( m_createCompetingROTsEta && !triggerHitsEta.empty() ) createAndAddCompetingROTs(triggerHitsEta, etaHits, allHits, ent.m_measurementsToBeDeleted);
+      if( m_createCompetingROTsPhi && !triggerHitsPhi.empty() ) createAndAddCompetingROTs(triggerHitsPhi, phiHits, allHits, ent.m_measurementsToBeDeleted);
     }
 
     entry.nmdtHitsMl1 = nmdtHitsMl1;
@@ -435,6 +443,8 @@ namespace Muon {
 
   bool MuPatCandidateTool::recalculateCandidateSegmentContent( MuPatTrack& candidate ) const {
 
+    CacheEntry& ent = getCache();
+
     // loop over track and get the chambers on the track
     const DataVector<const Trk::TrackStateOnSurface>* states = candidate.track().trackStateOnSurfaces();
     if( !states ) return false;
@@ -485,7 +495,8 @@ namespace Muon {
 
     // recalculate hit list
     candidate.hitList().clear();
-    m_hitHandler->create( candidate.track(),candidate.hitList() ); 	  
+    m_hitHandler->create( candidate.track(),candidate.hitList(),
+                          ent.m_hitsToBeDeleted );
     // update the hit summary
     updateHits(candidate,candidate.track().measurementsOnTrack()->stdcont());
 
@@ -528,14 +539,8 @@ namespace Muon {
   
   void MuPatCandidateTool::cleanUp() const {
     // delete segments and clear vector
-    std::lock_guard<std::mutex> lock{m_mutex};
-    const EventContext& ctx = Gaudi::Hive::currentContext();
-    CacheEntry* ent{m_cache.get(ctx)};
-    if (ent->m_evt != ctx.evt()) {
-      ent->m_evt = ctx.evt();
-    }
-    m_hitHandler->cleanUp();
-    ent->cleanUp();
+    CacheEntry& ent = getCache();
+    ent.cleanUp();
   }
 
   std::string MuPatCandidateTool::print( const MuPatSegment& segment, int level ) const {
@@ -593,6 +598,17 @@ namespace Muon {
     if( track ) return print(*track,level);
 
     return "Unknown candidate type";
+  }
+
+  MuPatCandidateTool::CacheEntry& MuPatCandidateTool::getCache() const
+  {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+    CacheEntry* ent{m_cache.get(ctx)};
+    if (ent->m_evt != ctx.evt()) {
+      ent->m_evt = ctx.evt();
+      ent->cleanUp();
+    }
+    return *ent;
   }
 
 } // namespace Muon

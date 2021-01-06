@@ -109,11 +109,13 @@ def print_event_diff(inp_data, ref_data, key):
 
 
 def print_step_diff(inp_data, ref_data, key):
-    if inp_data[key] != ref_data[key]:
+    inp_steps = inp_data.get(key, dict())
+    ref_steps = ref_data.get(key, dict())
+    if inp_steps != ref_steps:
         logging.info('    %s:', key)
-        for step in range(max(len(inp_data[key]), len(ref_data[key]))):
-            inp_count = inp_data[key][step] if step in inp_data[key] else 0
-            ref_count = ref_data[key][step] if step in ref_data[key] else 0
+        for step in range(max(len(inp_steps), len(ref_steps))):
+            inp_count = inp_steps.get(step, 0)
+            ref_count = ref_steps.get(step, 0)
             if inp_count != ref_count:
                 logging.info('      %d: %d -> %d', step, ref_count, inp_count)
 

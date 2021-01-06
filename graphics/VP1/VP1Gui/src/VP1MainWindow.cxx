@@ -65,7 +65,6 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QtGui>
-#include <QSettings>
 #include <QScrollBar>
 
 

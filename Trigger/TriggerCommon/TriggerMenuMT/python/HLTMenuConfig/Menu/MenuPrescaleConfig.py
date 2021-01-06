@@ -29,10 +29,18 @@ def MenuPrescaleConfig(triggerConfigHLT):
         if 'tight_mc_prescale' in menu_name:
             L1Prescales = Prescales.L1Prescales_tight_mc_prescale
             HLTPrescales = Prescales.HLTPrescales_tight_mc_prescale
-        elif 'TriggerValidation_mc_prescale' in menu_name:
-            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_mc_prescale, "Online")
-            L1Prescales = Prescales.L1Prescales_trigvalid_mc_prescale
-            HLTPrescales = Prescales.HLTPrescales_trigvalid_mc_prescale
+        elif 'TriggerValidation_prescale' in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales_trigvalid_prescale, "Online")
+            L1Prescales = Prescales.L1Prescales_trigvalid_prescale
+            HLTPrescales = Prescales.HLTPrescales_trigvalid_prescale
+        elif 'BulkMCProd_prescale' in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales_bulkmcprod_prescale, "Online")
+            L1Prescales = Prescales.L1Prescales_bulkmcprod_prescale
+            HLTPrescales = Prescales.HLTPrescales_bulkmcprod_prescale
+        elif 'CPSampleProd_prescale' in menu_name:
+            disableChains(TriggerFlags, Prescales.HLTPrescales_cpsampleprod_prescale, "Online")
+            L1Prescales = Prescales.L1Prescales_cpsampleprod_prescale
+            HLTPrescales = Prescales.HLTPrescales_cpsampleprod_prescale
         else:
             L1Prescales = Prescales.L1Prescales
             HLTPrescales = Prescales.HLTPrescales        
@@ -109,7 +117,7 @@ def MenuPrescaleConfig(triggerConfigHLT):
 
     return (L1Prescales, HLTPrescales)
 
-def disableChains(flags, trigvalid_prescales, type_group):
+def disableChains(flags, type_prescales, type_group):
     signatures = []
     slice_props = [prop for prop in dir(flags) if prop.endswith("Slice")]
     for slice_prop in slice_props:
@@ -125,7 +133,7 @@ def disableChains(flags, trigvalid_prescales, type_group):
         if type_group in chain.groups:
             chain_online_list.append(chain.name)
 
-    trigvalid_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1, 0,-1] ]))
+    type_prescales.update(zip(chain_online_list,len(chain_online_list)*[ [-1, 0,-1] ]))
 
 
 def applyHLTPrescale(triggerPythonConfig, HLTPrescale, signaturesOverwritten):
@@ -160,10 +168,15 @@ class PrescaleClass(object):
     #   - If only the first value is specified,
     #     the default value of pass-through (=0) will be used
     #----------------------------------------------------------
-    HLTPrescales = {
-        }
+    HLTPrescales = {}
 
-    L1Prescales_trigvalid_mc_prescale  = {}
-    HLTPrescales_trigvalid_mc_prescale = {}
+    L1Prescales_trigvalid_prescale  = {}
+    HLTPrescales_trigvalid_prescale = {}
+
+    L1Prescales_bulkmcprod_prescale  = {}
+    HLTPrescales_bulkmcprod_prescale = {}
+
+    L1Prescales_cpsampleprod_prescale  = {}
+    HLTPrescales_cpsampleprod_prescale = {}
 
     chain_list=[]

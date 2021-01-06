@@ -19,6 +19,4 @@ atlas_add_executable( getSharedMemory
                       src/memory-profiler/getPss.cc )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py python/tests/*.py )
-atlas_install_joboptions( share/AthenaMP_EventService.py )
-
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

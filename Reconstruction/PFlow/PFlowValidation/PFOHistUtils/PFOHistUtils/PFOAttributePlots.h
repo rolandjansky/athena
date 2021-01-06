@@ -7,6 +7,7 @@
 
 #include "TrkValHistUtils/PlotBase.h"
 #include "xAODPFlow/PFO.h"
+#include "xAODPFlow/FlowElement.h"
 
 namespace PFO {
 
@@ -14,9 +15,10 @@ namespace PFO {
 
   public:
 
-     PFOAttributePlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName);
+    PFOAttributePlots(PlotBase *pParent, std::string sDir, std::string sPFOContainerName, std::string sFEContainerName);
 
      void fill(const xAOD::PFO& PFO);
+     void fill(const xAOD::FlowElement& FE);
 
   private:
 
@@ -26,8 +28,12 @@ namespace PFO {
      TH1* m_PFO_LAYER_ENERGY_Tile0;
      TH1* m_PFO_TIMING;
 
+     // only attribute available to the FE is the timing
+     TH1* m_FE_TIMING;
+
      void initializePlots();
      std::string m_sPFOContainerName;
+     std::string m_sFEContainerName;
 
   };
 

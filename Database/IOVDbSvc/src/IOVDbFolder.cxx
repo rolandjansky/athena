@@ -898,7 +898,7 @@ IOVDbFolder::preLoadFolder(ITagInfoMgr *tagInfoMgr , const unsigned int cacheRun
   } else {
     // folder description from meta-data set already earlier
   }
-  ATH_MSG_DEBUG( "Folder description " << m_folderDescription);
+  ATH_MSG_DEBUG( "Folder description for " << m_foldername << ": " << m_folderDescription);
   // register folder with meta-data tool if writing metadata
   if (m_writemeta) {
     if (StatusCode::SUCCESS!=p_metaDataTool->registerFolder(m_foldername,m_folderDescription)) {

@@ -32,22 +32,31 @@ namespace Muon
       virtual ~TGC_RawDataProviderTool()=default;
       
       /** Standard AlgTool method */
-      virtual StatusCode initialize();
+      virtual StatusCode initialize() override;
       
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert(const ROBFragmentList& vecRobs);
+      virtual StatusCode convert(const ROBFragmentList& vecRobs) override;
       /** Old decoding method which uses IROBDataProviderSvc in TgcRdoToPrepDataTool with IdentifierHash vector */
       virtual StatusCode convert(const ROBFragmentList& vecRobs,
-				 const std::vector<IdentifierHash>& rdoIdhVect);
+				 const std::vector<IdentifierHash>& rdoIdhVect) override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool */
-      virtual StatusCode convert();
+      virtual StatusCode convert() override;
       /** New decoding methods which do not use IROBDataProviderSvc in TgcRdoToPrepDataTool with ID Hash vector */
-      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect);
+      virtual StatusCode convert(const std::vector<IdentifierHash>& rdoIdhVect) override;
+      
+      /** EventContext ones **/
+      virtual StatusCode convert(const ROBFragmentList&, const EventContext&) const override;
+      virtual StatusCode convert(const ROBFragmentList&, const std::vector<IdentifierHash>&, const EventContext&) const override;
+      virtual StatusCode convert(const EventContext&) const override;
+      virtual StatusCode convert(const std::vector<IdentifierHash>&, const EventContext&) const override;
 
     private:
 
       /** convert from vector of ROB IDs is not available */
-      virtual StatusCode convert(const std::vector<uint32_t>&) {return StatusCode::FAILURE;}
+      virtual StatusCode convert(const std::vector<uint32_t>&) override {return StatusCode::FAILURE;}
+      /** EventContext ones **/
+      virtual StatusCode convert(const std::vector<uint32_t>&, const EventContext&) const override {return StatusCode::FAILURE;}
+
 
     };
 } // end of namespace

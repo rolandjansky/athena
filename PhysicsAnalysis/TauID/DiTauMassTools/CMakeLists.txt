@@ -1,29 +1,7 @@
-# $Id: CMakeLists.txt 776850 2016-10-06 13:20:48Z krasznaa $
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare a name for the package:
 atlas_subdir( DiTauMassTools )
-
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( XAOD_STANDALONE )
-   set( extra_dep Control/xAODRootAccess
-      Control/AthContainers
-      Event/xAOD/xAODJet )
-else()
-   set( extra_dep GaudiKernel )
-endif()
-
-# Set up the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   Event/xAOD/xAODMissingET
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODBase
-   PRIVATE
-   Event/xAOD/xAODTau
-   ${extra_dep} )
 
 # Find the external(s):
 find_package( ROOT COMPONENTS Core RIO Math Physics )
@@ -33,13 +11,13 @@ atlas_add_library( DiTauMassToolsLib
    DiTauMassTools/*.h Root/*.cxx
    PUBLIC_HEADERS DiTauMassTools
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES AsgTools PATInterfaces xAODMissingET xAODEventInfo xAODBase
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools PATInterfaces xAODMissingET xAODEventInfo xAODBase
    PRIVATE_LINK_LIBRARIES xAODTau )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( DiTauMassTools
       src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel DiTauMassToolsLib )
+      LINK_LIBRARIES DiTauMassToolsLib )
 endif()
 
 atlas_add_dictionary( DiTauMassToolsDict

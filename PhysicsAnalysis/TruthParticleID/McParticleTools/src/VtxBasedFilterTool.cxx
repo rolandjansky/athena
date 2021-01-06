@@ -57,9 +57,6 @@ VtxBasedFilterTool::~VtxBasedFilterTool()
   ATH_MSG_DEBUG("Calling destructor");
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -117,13 +114,6 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 					      HepMC::GenEvent* out )
@@ -192,7 +182,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
     vtx = HepMC::newGenVertexPtr();
     vtx->set_position( srcVtx->position() );
     vtx->set_id( srcVtx->id() );
-    vtx->suggest_barcode( srcVtx->barcode() );
+    vtx->suggest_barcode( HepMC::barcode(srcVtx) );
     vtx->weights() = srcVtx->weights();
     evt->add_vertex(vtx);
   }
@@ -249,7 +239,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 bool 
 VtxBasedFilterTool::isFromHardScattering( const HepMC::GenVertex* vtx ) const
 {
-  if ( std::abs(vtx->barcode()) <= m_maxHardScatteringVtxBarcode.value() &&
+  if ( std::abs(HepMC::barcode(vtx)) <= m_maxHardScatteringVtxBarcode.value() &&
        m_ppFilter.isAccepted(vtx) &&
        ! m_showerFilter.isAccepted(vtx) ) {
 

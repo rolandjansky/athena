@@ -168,6 +168,8 @@ else:   # athenaHLT
 
 ConfigFlags.Input.Format = 'BS' if globalflags.InputFormat=='bytestream' else 'POOL'
 
+# Run-3 Trigger produces Run-3 EDM
+ConfigFlags.Trigger.EDMVersion = 3
 
 # Set final Cond/Geo tag based on input file, command line or default
 globalflags.DetDescrVersion = opt.setDetDescr or ConfigFlags.Trigger.OnlineGeoTag
@@ -360,9 +362,12 @@ DetFlags.BField_setOn()
 include ("RecExCond/AllDet_detDescr.py")
 
 if ConfigFlags.Trigger.doID:
+    include("InDetTrigRecExample/InDetTrigRec_jobOptions.py")
+    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+    InDetTrigFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
     from InDetRecExample.InDetJobProperties import InDetFlags
     InDetFlags.doPrintConfigurables = log.getEffectiveLevel() <= logging.DEBUG
-    include( "InDetRecExample/InDetRecCabling.py" )
+    include("InDetRecExample/InDetRecConditionsAccess.py")
 
 if ConfigFlags.Trigger.doCalo:
     from TrigT2CaloCommon.TrigT2CaloCommonConfig import TrigDataAccess
@@ -377,17 +382,7 @@ if ConfigFlags.Trigger.doMuon:
 
     include ("MuonRecExample/MuonRecLoadTools.py")
 
-# ---------------------------------------------------------------
-# ID conditions
-# ---------------------------------------------------------------
-if ConfigFlags.Trigger.doID:
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-    InDetTrigFlags.doPixelClusterSplitting = False
-
-    # PixelLorentzAngleSvc and SCTLorentzAngleSvc
-    from AthenaCommon.Include import include
-    include("InDetRecExample/InDetRecConditionsAccess.py")
-
+    
 # ----------------------------------------------------------------
 # Pool input
 # ----------------------------------------------------------------
@@ -395,11 +390,6 @@ if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS
-    if ConfigFlags.Trigger.doTransientByteStream:
-        log.info("setting up transient BS")
-        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-
 
 # ----------------------------------------------------------------
 # ByteStream input
@@ -474,6 +464,13 @@ if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
+# ---------------------------------------------------------------
+# Transient ByteStream
+# ---------------------------------------------------------------
+if ConfigFlags.Trigger.doTransientByteStream:
+    log.info("Configuring transient ByteStream")
+    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
+    CAtoGlobalWrapper(triggerTransBSCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # HLT generation
@@ -506,12 +503,6 @@ if not opt.createHLTMenuExternally:
     if opt.endJobAfterGenerate:
         import sys
         sys.exit(0)
-
-
-
-#Needed to get full output from TrigSignatureMoniMT with a large menu: see ATR-21487
-#Can be removed once chainDump.py is used instead of log file parsing
-svcMgr.MessageSvc.infoLimit=10000
 
 
 
@@ -606,9 +597,11 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
 
 #-------------------------------------------------------------
-# Non-ComponentAccumulator Cost Monitoring
+# Cost Monitoring
 #-------------------------------------------------------------
-include("TrigCostMonitorMT/TrigCostMonitorMT_jobOptions.py")
+
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
@@ -629,9 +622,13 @@ if opt.reverseViews or opt.filterViews:
 include("TriggerTest/disableChronoStatSvcPrintout.py")
 
 #-------------------------------------------------------------
-# Disable spurious warnings from HepMcParticleLink, ATR-21838
+# MessageSvc
 #-------------------------------------------------------------
+svcMgr.MessageSvc.Format = "% F%40W%C%4W%R%e%s%8W%R%T %0W%M"
+svcMgr.MessageSvc.enableSuppression = False
+
 if ConfigFlags.Input.isMC:
+    # Disable spurious warnings from HepMcParticleLink, ATR-21838
     svcMgr.MessageSvc.setError += ['HepMcParticleLink']
 
 #-------------------------------------------------------------

@@ -158,13 +158,13 @@ class JobRunner:
            parameters is relevant. insertAtFront can be set to True to force early
            evaluation of a given parameter."""
         p = self.params[name] = self.params.get(name,JobRunnerParameter(name))
-        if value!=None:
+        if value is not None:
             p.value = value
-        if description!=None:
+        if description is not None:
             p.description = description
-        if isSpecial!=None:
+        if isSpecial is not None:
             p.isSpecial=isSpecial
-        if not name in self.paramOrder:
+        if name not in self.paramOrder:
             if insertAtFront:
                 self.paramOrder.insert(0,name)
             else:
@@ -176,7 +176,7 @@ class JobRunner:
            setParam is called to create it. If it does exist, only the value is updated
            and the description and flag arguments are ignored."""
         if name in self.params:
-            if value!=None:
+            if value is not None:
                 p = self.params[name]
                 if isinstance(p.value,str) and p.value:
                     p.value = p.value + endOfLine + value
@@ -217,7 +217,7 @@ class JobRunner:
                     tmp[p] = value % tmp
                 else:
                     tmp[p] = value
-        except:
+        except Exception:
             raise JobRunnerError ('Unable to evaluate parameter: '+p+' = '+value+' (check parameter order)')
 
 
@@ -380,7 +380,7 @@ class JobRunner:
             inputfiles = self.getParam('inputfiles')
             jobInputDict = {}
             jobLBDict = {}
-            lbpattern = re.compile('lb(\d+)')
+            lbpattern = re.compile(r'lb(\d+)')
             for f in inputfiles:
                 lbnrs = lbpattern.findall(f)
                 
@@ -400,13 +400,13 @@ class JobRunner:
 
                     jobId = int((lbnr-1)/lbperjob)
                     #print ('LB = %4i  jobid = %i' % (lbnr,jobId))
-                    if not jobId in jobInputDict:
+                    if jobId not in jobInputDict:
                         jobInputDict[jobId] = [f]
                         jobLBDict[jobId] = [lbnr]
                     else:
-                        if not f in jobInputDict[jobId] :
+                        if f not in jobInputDict[jobId] :
                             jobInputDict[jobId].append(f)
-                        if not lbnr in jobLBDict[jobId] :    
+                        if lbnr not in jobLBDict[jobId] :
                             jobLBDict[jobId].append(lbnr)
 
                     lbnr = lbnr+1
@@ -451,7 +451,7 @@ class JobRunner:
 
     def runJob(self,jobnr):
         """Run a single configured job."""
-        if not jobnr in self.jobs:
+        if jobnr not in self.jobs:
             raise JobRunnerError ('Job number %s is not configured' % jobnr)
         jobConfig = self.jobs[jobnr]
         subprocess.call('touch '+jobConfig['subflag'], shell=True)

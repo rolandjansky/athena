@@ -2,44 +2,7 @@
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-
-# based on https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/AthenaServices/python/Configurables.py#0247
-def EvtIdModifierSvc_add_modifier(svc,
-        run_nbr=None, evt_nbr=None, time_stamp=None, lbk_nbr=None,
-        nevts=1):
-    if run_nbr is None:
-        modify_run_nbr = 0
-        run_nbr = 0
-    else:
-        modify_run_nbr = 1
-
-
-    if evt_nbr is None:
-        modify_evt_nbr = 0
-        evt_nbr = 0
-    else:
-        modify_evt_nbr = 1
-
-    if time_stamp is None:
-        modify_time_stamp = 0
-        time_stamp = 0
-    else:
-        modify_time_stamp = 1
-
-    if lbk_nbr is None:
-        modify_lbk_nbr = 0
-        lbk_nbr = 0
-    else:
-        modify_lbk_nbr = 1
-
-    mod_bit = int(0b0000
-                | (modify_run_nbr << 0)
-                | (modify_evt_nbr << 1)
-                | (modify_time_stamp << 2)
-                | (modify_lbk_nbr << 3))
-
-    svc.Modifiers += [run_nbr, evt_nbr, time_stamp, lbk_nbr,
-                    nevts, mod_bit]
+from OverlayConfiguration.OverlayHelpers import accFromFragment
 
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
@@ -53,7 +16,7 @@ def defaultSimulationFlags(ConfigFlags):
     ConfigFlags.GeoModel.Align.Dynamic = False
 
     #Frozen showers OFF = 0
-    ConfigFlags.Sim.LArParameterization = 2
+    # ConfigFlags.Sim.LArParameterization = 2
 
 
     #set the detector flags: - all on currently
@@ -136,6 +99,8 @@ def fromRunArgs(runArgs):
 
     if hasattr(runArgs, 'DataRunNumber'):
         ConfigFlags.Input.RunNumber = [runArgs.DataRunNumber] # is it updating?
+        ConfigFlags.Input.OverrideRunNumber = True
+        ConfigFlags.Input.LumiBlockNumber = [1] # dummy value
 
     if hasattr(runArgs, 'outputHITSFile'):
         ConfigFlags.Sim.PhysicsList = runArgs.physicsList
@@ -158,14 +123,14 @@ def fromRunArgs(runArgs):
     defaultSimulationFlags(ConfigFlags)
 
     # Pre-exec
-    #simFlags error?
-    # if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-    #     for cmd in runArgs.preExec:
-    #         exec(cmd)
+    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
+        for cmd in runArgs.preExec:
+            exec(cmd)
 
     # Pre-include
-    # if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-    #     raise ValueError('preInclude not supported')
+    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
+        for fragment in runArgs.preInclude:
+            accFromFragment(fragment, ConfigFlags)
     
     # Lock flags
     ConfigFlags.lock()
@@ -179,26 +144,6 @@ def fromRunArgs(runArgs):
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     cfg.merge(PoolReadCfg(ConfigFlags))
     cfg.merge(PoolWriteCfg(ConfigFlags))
-    # todo its own cfg ...
-    #todo check evtMax=-1 works with this method
-    myRunNumber = 284500
-    myFirstLB = 1
-    myInitialTimeStamp = 1446539185
-    from AthenaConfiguration.ComponentFactory import CompFactory
-    evtIdModifierSvc = CompFactory.EvtIdModifierSvc(EvtStoreName="StoreGateSvc")
-    iovDbMetaDataTool = CompFactory.IOVDbMetaDataTool()
-    iovDbMetaDataTool.MinMaxRunNumbers = [myRunNumber, 2147483647]
-    cfg.addPublicTool(iovDbMetaDataTool)
-    EvtIdModifierSvc_add_modifier(evtIdModifierSvc, run_nbr=myRunNumber, lbk_nbr=myFirstLB, time_stamp=myInitialTimeStamp, nevts=evtMax)
-    eventSelector = cfg.getService("EventSelector")
-    eventSelector.OverrideRunNumber = True
-    eventSelector.RunNumber = myRunNumber
-    eventSelector.FirstLB = myFirstLB
-    eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
-    if hasattr(eventSelector, "OverrideRunNumberFromInput"):
-        eventSelector.OverrideRunNumberFromInput = True
-    cfg.addService(evtIdModifierSvc, create=True)
-    # ... up to here?
 
     # add BeamEffectsAlg
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
@@ -211,21 +156,89 @@ def fromRunArgs(runArgs):
     from TileGeoG4SD.TileGeoG4SDToolConfig import TileGeoG4SDCalcCfg
     cfg.merge(TileGeoG4SDCalcCfg(ConfigFlags))
 
+    #Add to item list 
+    #TODO - make a separate function (combine with G4AtlasAlg one?)
+    ItemList = ["EventInfo#*",
+                "McEventCollection#TruthEvent",
+                "JetCollection#*"]
+
+    if ConfigFlags.Sim.IncludeParentsInG4Event:
+        ItemList += ["McEventCollection#GEN_EVENT"]
+
+    ItemList += ["xAOD::JetContainer#*",
+                 "xAOD::JetAuxContainer#*"]
+
+    if ConfigFlags.Detector.SimulateID:
+        ItemList += ["SiHitCollection#*",
+                     "TRTUncompressedHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateITk:
+        ItemList += ["SiHitCollection#*",
+                     "TrackRecordCollection#CaloEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateCalo:
+        ItemList += ["CaloCalibrationHitContainer#*",
+                     "LArHitContainer#*",
+                     "TileHitVector#*",
+                     "TrackRecordCollection#MuonEntryLayer"]
+
+    if ConfigFlags.Detector.SimulateMuon:
+        ItemList += ["RPCSimHitCollection#*",
+                     "TGCSimHitCollection#*",
+                     "MDTSimHitCollection#*",
+                     "TrackRecordCollection#MuonExitLayer"]
+        if ConfigFlags.Detector.GeometryCSC:
+            ItemList += ["CSCSimHitCollection#*"]
+        if ConfigFlags.Detector.GeometrysTGC:
+            ItemList += ["sTGCSimHitCollection#*"]
+        if ConfigFlags.Detector.GeometryMM:
+            ItemList += ["MMSimHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateLucid:
+        ItemList += ["LUCID_SimHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateFwdRegion:
+        ItemList += ["SimulationHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateZDC:
+        ItemList += ["ZDC_SimPixelHit_Collection#*",
+                     "ZDC_SimStripHit_Collection#*"]
+
+    if ConfigFlags.Detector.SimulateALFA:
+        ItemList += ["ALFA_HitCollection#*",
+                     "ALFA_ODHitCollection#*"]
+
+    if ConfigFlags.Detector.SimulateAFP:
+        ItemList += ["AFP_TDSimHitCollection#*",
+                     "AFP_SIDSimHitCollection#*"]
+
+    # TimingAlg
+    ItemList += ["RecoTimingObj#EVNTtoHITS_timings"]
+
+    from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+    cfg.merge( OutputStreamCfg(ConfigFlags,"HITS", ItemList=ItemList, disableEventTag=True) )
+
+    # FIXME hack because deduplication is broken
+    PoolAttributes = ["TREE_BRANCH_OFFSETTAB_LEN = '100'"]
+    PoolAttributes += ["DatabaseName = '" + ConfigFlags.Output.HITSFileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '1'"]
+    cfg.getService("AthenaPoolCnvSvc").PoolAttributes += PoolAttributes
+
+
     # Post-include
-    # if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-    #     # from OverlayConfiguration.OverlayHelpers import accFromFragment
-    #     for fragment in runArgs.postInclude:
-    #         cfg.merge(accFromFragment(fragment, ConfigFlags))
+    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
+        for fragment in runArgs.postInclude:
+            cfg.merge(accFromFragment(fragment, ConfigFlags))
 
     # Post-exec
-    # if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-    #     for cmd in runArgs.postExec:
-    #         exec(cmd)
+    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
+        for cmd in runArgs.postExec:
+            exec(cmd)
 
     import time
     tic = time.time()
     # Run the final accumulator
-    sc = cfg.run()
+    sc = cfg.run(maxEvents=evtMax)
     log.info("Run ISF_MainConfigNew_Test in " + str(time.time()-tic) + " seconds")
     
     sys.exit(not sc.isSuccess())

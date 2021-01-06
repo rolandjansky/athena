@@ -32,12 +32,6 @@
 
 #include "MuonReadoutGeometry/MuonStation.h"
 
-#include "RegSelLUT/RegSelSiLUT.h"
-
-
-/// not implemented yet
-/// #include "Muon_sTGC_Cabling/MuonMM_CablingSvc.h"
-
 #include "sTGC_RegSelCondAlg.h"
 
 
@@ -87,10 +81,10 @@ std::unique_ptr<RegSelSiLUT> sTGC_RegSelCondAlg::createTable( const EventContext
   std::vector<Identifier>::const_iterator  idlast =  helper->module_end();
  
   /// do we want the module context ...
-  ///  const IdContext ModuleContext = helper->module_context();
+  const IdContext ModuleContext = helper->module_context();
   
   /// or the detector element context ? Keep them both untill we are sure 
-  const IdContext ModuleContext = helper->detectorElement_context();
+  /// const IdContext ModuleContext = helper->detectorElement_context();
 
   ATH_MSG_DEBUG("createTable()");
   

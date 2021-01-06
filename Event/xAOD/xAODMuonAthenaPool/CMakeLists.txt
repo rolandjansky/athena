@@ -23,6 +23,13 @@ atlas_add_poolcnv_library( xAODMuonAthenaPoolPoolCnv
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# In AthAnalysis xAOD::Muon doesn't know about its MuonSegment link. Which
+# makes the converter tests fail in that project...
+if( XAOD_ANALYSIS )
+   return()
+endif()
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -30,19 +37,19 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODMUONATHENAPOOL_REFERENCE_TAG
        xAODMuonAthenaPoolReference-01-01-00 )
-  run_tpcnv_legacy_test( xAODMuonAthenaPool_master-20190911   AOD-master-20190911-full
+  run_tpcnv_test( xAODMuonAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODMuonAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_test( xAODMuonAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODMuonAthenaPool_20.7.2.2   AOD-20.7.2.2-full
+  run_tpcnv_test( xAODMuonAthenaPool_20.7.2.2   AOD-20.7.2.2-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODMuonAthenaPool_20.7.9.9   AOD-20.7.9.9-full
+  run_tpcnv_test( xAODMuonAthenaPool_20.7.9.9   AOD-20.7.9.9-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODMuonAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_test( xAODMuonAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODMuonAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODMUONATHENAPOOL_REFERENCE_TAG} )
 else()

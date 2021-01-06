@@ -15,6 +15,11 @@ from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from AthenaCommon.Include import include
 
+assertMsg = 'This file is meant for Trigger configuration in RAWtoESD/RAWtoALL data reconstruction.'
+assert rec.doTrigger(), assertMsg + ' Since rec.doTrigger is disabled, this file should not be included.'
+assert not recAlgs.doTrigger(), assertMsg + \
+    ' Trigger selection should not run in offline reconstruction, so recAlgs.doTrigger should be False'
+
 # First check is HLT psk is ok, if not, turn trigger off.
 if tf.configForStartup() != 'HLToffline':
     include( "TriggerJobOpts/TriggerConfigCheckHLTpsk.py" )
@@ -29,8 +34,7 @@ if rec.doTrigger():
     tf.readBS=True # needed in HLTTriggerGetter - do not understand why it is not
     # true by default when globalflags.InputFormat = 'bytestream'
     tf.doLVL1= False # needed to not rerun the trigger
-    tf.doEF= False # needed to not rerun the trigger
-    tf.doLVL2 = False  # needed to not rerun the trigger
+    tf.doHLT= False # needed to not rerun the trigger
     tf.configurationSourceList = ['ds']
 
     try:
@@ -131,14 +135,13 @@ if rec.doTrigger():
             getattr(ToolSvc, toolName).LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #---------------------------------------------------------------------------
-    if recAlgs.doTrigger():
-        try:
-            from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
-            triggerGetter = T0TriggerGetter()
-        except Exception:
-            from AthenaCommon.Resilience import treatException
-            treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
-            recAlgs.doTrigger=False
-    elif rec.doWriteBS():
+    try:
+        from TriggerJobOpts.T0TriggerGetter import T0TriggerGetter
+        triggerGetter = T0TriggerGetter()
+    except Exception:
+        from AthenaCommon.Resilience import treatException
+        treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
+        recAlgs.doTrigger=False
+    if rec.doWriteBS():
         include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
 ## end of configure the HLT config

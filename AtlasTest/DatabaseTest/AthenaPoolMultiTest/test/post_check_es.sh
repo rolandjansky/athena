@@ -38,7 +38,8 @@ else
              grep -v 'PoolXMLFileCatalog' |\
              grep -v 'AthenaSealSvc' |\
              grep -v 'EventBookkeeper' |\
-             grep -v 'EventTagWriter' > ${joblog}.small
+             grep -v 'EventTagWriter' |\
+             grep -v 'Py:ConfigurableDb' > ${joblog}.small
 	joblog=${joblog}.small
 	if [ -r $reflog ]
 	    then
@@ -94,7 +95,9 @@ else
                 # ignore root version changes
                 egrep -a -v 'File version:' |\
                 # output stream helper tools
-                egrep -a -v 'Found HelperTools'
+                egrep -a -v 'Found HelperTools' |\
+                # FID changes
+                egrep -a -v 'FID ='
 
 	    diffStatus=$?
 	    if [ $diffStatus -ne 1 ] 

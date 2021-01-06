@@ -65,7 +65,7 @@
 // Other includes
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "PathResolver/PathResolver.h"
 
 #include "METUtilities/METSystematicsTool.h"
@@ -120,7 +120,7 @@ int main( int argc, char* argv[] ) {
   ANA_CHECK_SET_TYPE (int);
 
   //StatusCode::enableFailure();
-  CP::SystematicCode::enableFailure();
+  StatusCode::enableFailure();
   CP::CorrectionCode::enableFailure();
 
   // The application's name:
@@ -382,7 +382,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
     mucuts.push_back(elcutsCurrentSyst);
   }
 
-  if (objTool.resetSystematics() != CP::SystematicCode::Ok) {
+  if (objTool.resetSystematics() != StatusCode::SUCCESS) {
     Error(APP_NAME, "Cannot reset SUSYTools systematics" );
     exit(-2);
   }
@@ -701,7 +701,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
       //ANA_CHECK( store.record(goodJets, "MySelJets" + sys.name()) ); //NOT WORKING? //MT,WB
       
       // Tell the SUSYObjDef_xAOD which variation to apply
-      if (objTool.applySystematicVariation(sys) != CP::SystematicCode::Ok) {
+      if (objTool.applySystematicVariation(sys) != StatusCode::SUCCESS) {
         Error(APP_NAME, "Cannot configure SUSYTools for systematic var. %s", (sys.name()).c_str() );
       } else {
         if (debug) Info(APP_NAME, "Variation \"%s\" configured...", (sys.name()).c_str() );
@@ -1040,7 +1040,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
 
           // CP::SystematicSet testSet("TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015__1up");
           // testSet.insert( CP::SystematicVariation("TAUS_TRUEHADTAU_EFF_TRIGGER_SYST2015", 1) );
-          // if(objTool.applySystematicVariation(testSet) != CP::SystematicCode::Ok){
+          // if(objTool.applySystematicVariation(testSet) != StatusCode::SUCCESS){
           //   Error( APP_NAME, "Problems with tau trig eff systematic settings!");
           // }
           
@@ -1052,7 +1052,7 @@ est.pool.root",relN,(isData?"Data":"MC"),SUSYx);
                          objTool.GetSignalTauSF(*tau,true,true,"tau25_medium1_tracktwo"));
                  }
           Info( APP_NAME, " Total Event Tau SF = %.4f", objTool.GetTotalTauSF(*taus, true, true, "tau25_medium1_tracktwo"));
-          // if(objTool.resetSystematics() != CP::SystematicCode::Ok){
+          // if(objTool.resetSystematics() != StatusCode::SUCCESS){
           //   Error( APP_NAME, "Problems going back to default systematic set!");
           // }
         }

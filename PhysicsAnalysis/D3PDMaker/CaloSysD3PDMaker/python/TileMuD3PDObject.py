@@ -7,8 +7,8 @@ from D3PDMakerCoreComps.D3PDObject import D3PDObject
 def makeTileMuD3PDObject (name, prefix, object_name='TileMuD3PDObject', getter = None,
                            sgkey = None,
                            label = None):
-    if sgkey == None: sgkey = 'TileMuObj'
-    if label == None: label = prefix
+    if sgkey is None: sgkey = 'TileMuObj'
+    if label is None: label = prefix
 
     
     print(" makeTileMuD3PDObject: name = ", name)

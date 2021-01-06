@@ -41,7 +41,8 @@ from DataModelTestDataCommon.DataModelTestDataCommonConf import \
      DMTest__xAODTestWriteCVec, \
      DMTest__xAODTestWriteCInfo, \
      DMTest__xAODTestDecor, \
-     DMTest__xAODTestReadDecor
+     DMTest__xAODTestReadDecor, \
+     DMTest__xAODTestShallowCopy
 from DataModelTestDataWrite.DataModelTestDataWriteConf import \
      DMTest__xAODTestWrite
 topSequence += DMTest__xAODTestWriteCVec ("xAODTestWriteCVec")
@@ -50,5 +51,10 @@ topSequence += DMTest__xAODTestWrite ("xAODTestWrite")
 topSequence += DMTest__xAODTestDecor ("xAODTestDecor")
 topSequence += DMTest__xAODTestReadDecor ("xAODTestReadDecor")
 
+topSequence += DMTest__xAODTestShallowCopy ("xAODTestShallowCopy",
+                                            CVecWDReadKey = '',
+                                            CTrigReadKey = '')
+topSequence += DMTest__xAODTestReadDecor ("xAODTestReadDecorSCopy",
+                                          ReadPrefix = "scopy_")
 
 include ('DataModelRunTests/commonTrailer.py')

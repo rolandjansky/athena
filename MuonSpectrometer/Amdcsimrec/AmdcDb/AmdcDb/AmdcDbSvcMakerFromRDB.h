@@ -2,10 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDbSvcMakerFromRDB_H
-#define AmdcDbSvcMakerFromRDB_H
+#ifndef AMDCDB_AMDCDBSVCMAKERFROMRDB_H
+#define AMDCDB_AMDCDBSVCMAKERFROMRDB_H
 
-#include "AmdcDb/AmdcDbMisc.h"
+#include <string>
+#include <map>
 
 class IRDBAccessSvc;
 class AmdcDbSvc;
@@ -27,7 +28,7 @@ namespace AmdcDb_detail {
 class AmdcDbSvcMakerFromRDB{
 public:
     AmdcDbSvcMakerFromRDB();
-    virtual ~AmdcDbSvcMakerFromRDB()=default;
+    ~AmdcDbSvcMakerFromRDB()=default;
 
 public:
 ///////////////////////////////////

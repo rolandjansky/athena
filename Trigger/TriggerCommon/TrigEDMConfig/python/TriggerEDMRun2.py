@@ -89,7 +89,7 @@ UnusedProperties = ["Likelihood", "SafeLikelihood", "BDTEleScore", "BDTJetScoreS
                     "vetoFlags", "isTauFlags", "trackFlags", "trackFilterProngs", "trackFilterQuality", "trackEtaStrip", "trackPhiStrip",
                     "TauJetVtxFraction", "LeadClusterFrac", "UpsilonCluster", "ClustersMeanSecondLambda", "ClustersMeanEMProbability", 
                     "ClustersMeanCenterLambda", "ClustersMeanPresamplerFrac", "mu", "nVtxPU", "ClustersMeanFirstEngDens", "nModifiedIsolationTracks",
-                    "NUMWIDETRACK", "NUMTRACK", "MU", "absipSigLeadTrk" ]
+                    "NUMWIDETRACK", "NUMTRACK", "MU", "absipSigLeadTrk", "VertexedClusters" ]
 
 UnusedFourMom = ["ptIntermediateAxis", "etaIntermediateAxis", "phiIntermediateAxis", "mIntermediateAxis",
                  "ptTauEtaCalib", "etaTauEtaCalib", "phiTauEtaCalib", "mTauEtaCalib", "EM_TES_scale"]
@@ -137,7 +137,7 @@ RemoveEgammaIsoVariables = ".-"+identifier.join(UnusedEgammaIsoVariables)
 
 # Add Dynamic Var
 identifierAdd = "."
-l2saVariableToAdd = ['mdtHitId','cscHitResolution']
+l2saVariableToAdd = []
 addL2saVars = "." + identifierAdd.join(l2saVariableToAdd)
 
 # temporary functionality to discover version of EDM

@@ -16,7 +16,7 @@
 #include <TObject.h>
 
 // Local include(s):
-#include "xAODRootAccess/tools/TReturnCode.h"
+#include "AsgMessaging/StatusCode.h"
 
 // Forward declaration(s):
 namespace SG {
@@ -46,7 +46,7 @@ namespace xAOD {
       TFileChecker();
 
       /// Execute all sanity checks on a given file
-      TReturnCode check( TEvent& event );
+      StatusCode check( TEvent& event );
 
       /// Set whether the validation should stop when an error is found
       void setStopOnError( ::Bool_t value );
@@ -62,7 +62,7 @@ namespace xAOD {
 
    private:
       /// Check the health of a container
-      TReturnCode checkContainer( const SG::AuxVectorBase& vec,
+      StatusCode checkContainer( const SG::AuxVectorBase& vec,
                                   const std::string& name );
 
       /// Stop the validation when an issue is found?

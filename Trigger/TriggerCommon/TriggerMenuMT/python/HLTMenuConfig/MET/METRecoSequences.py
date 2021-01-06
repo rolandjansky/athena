@@ -45,6 +45,9 @@ def jetRecoDictForMET(**recoDict):
         if jrd["dataType"] == "pf":
             # We only use em calibration for PFOs
             jrd["calib"] = "em"
+    # For various reasons, we can store the constituent modifiers separately
+    # to the data type, so we have to add that back in
+    jrd["dataType"] = recoDict.get("constitmod", "") + jrd["dataType"]
     if jrd["jetCalib"] == "default":
         jrd["jetCalib"] = interpretJetCalibDefault(jrd)
     return jrd
@@ -91,6 +94,20 @@ class ClusterInputConfig(AlgInputConfig):
             )
         else:
             raise ValueError(f"Invalid value for cluster calibration: {calib}")
+        sequences = [tcSeq]
+        if recoDict.get("constitmod"):
+            # Force the datatype to topoclusters
+            recoDict = copy.copy(recoDict)
+            recoDict["jetDataType"] = "tc"
+            jetRecoDict = jetRecoDictForMET(**recoDict)
+            constit = aliasToInputDef(
+                defineJetConstit(jetRecoDict, clustersKey=clusterName)
+            )
+            constit_mod_seq = getConstitModAlg(constit)
+            sequences.append(constit_mod_seq)
+            # Update the name to the modified container name
+            clusterName = constit.containername
+
         return [tcSeq], {"Clusters": clusterName}
 
 
@@ -165,13 +182,18 @@ class PFOInputConfig(AlgInputConfig):
             tracktype="ftf",
         )
         # The jet constituent modifier sequence here is to apply the correct weights
-        # and decorate the PV matching decoration
+        # and decorate the PV matching decoration. If we've specified constituent
+        # modifiers those are also applied.
+        recoDict = copy.copy(recoDict)
+        # Force the jet data type to the correct thing
+        recoDict["jetDataType"] = "pf"
         jetRecoDict = jetRecoDictForMET(trkopt="ftf", **recoDict)
-        jetRecoDict["calib"] = "em"
-        jetRecoDict["dataType"] = "pf"
-        constit_mod_seq = getConstitModAlg(
-            aliasToInputDef(defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix))
-        )
+        constit = aliasToInputDef(defineJetConstit(jetRecoDict, pfoPrefix=pfoPrefix))
+        constit_mod_seq = getConstitModAlg(constit)
+        # Update the PFO prefix
+        pfoPrefix = constit.containername
+        if pfoPrefix.endswith("ParticleFlowObjects"):
+            pfoPrefix = pfoPrefix[:-19]
         allSeqs = [pfSeq]
         if constit_mod_seq:
             allSeqs.append(constit_mod_seq)
@@ -179,8 +201,8 @@ class PFOInputConfig(AlgInputConfig):
             allSeqs,
             {
                 "PFOPrefix": pfoPrefix,
-                "cPFOs": pfoPrefix + "CHSChargedParticleFlowObjects",
-                "nPFOs": pfoPrefix + "CHSNeutralParticleFlowObjects",
+                "cPFOs": pfoPrefix + "ChargedParticleFlowObjects",
+                "nPFOs": pfoPrefix + "NeutralParticleFlowObjects",
             },
         )
 

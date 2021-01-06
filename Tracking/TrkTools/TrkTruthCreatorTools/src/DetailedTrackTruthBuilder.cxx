@@ -165,7 +165,7 @@ buildDetailedTrackTruth(DetailedTrackTruthCollection *output,
       const TruthTrajectory& t = i->second.trajectory();
       msg(MSG::VERBOSE)<<"Particles on the trajectory:\n";
       for(unsigned k=0; k<t.size(); ++k) {
-	msg(MSG::VERBOSE)<<*t[k]<<"\n";
+	msg(MSG::VERBOSE)<<t[k]<<"\n";
       }
       msg(MSG::VERBOSE)<<"\n"<<endmsg;
     }
@@ -353,12 +353,12 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   while(!seeds.empty()) {
     HepMcParticleLink link = *seeds.begin();
     Sprout current_sprout;
-    std::queue<const HepMC::GenParticle*> tmp;
+    std::queue<HepMC::ConstGenParticlePtr> tmp;
     ExtendedEventIndex eventIndex(link, proxy);
     const HepMC::GenParticle *current = link.cptr();
 
     do {
-      HepMcParticleLink curlink( eventIndex.makeLink(current->barcode(), proxy));
+      HepMcParticleLink curlink( eventIndex.makeLink(HepMC::barcode(current), proxy));
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
@@ -410,7 +410,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     // This may add only hits that are *not* on the current track.
     // Thus no need to update stats track and stats common.
 
-    const HepMC::GenParticle* current = *s->second.begin();
+    auto current = *s->second.begin();
     while( (current = m_truthTrajBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
@@ -420,7 +420,7 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink((*ppart)->barcode(), proxy)));
+      traj.push_back(HepMcParticleLink(ExtendedEventIndex(s->first, proxy).makeLink(HepMC::barcode(*ppart), proxy)));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -446,9 +446,9 @@ void DetailedTrackTruthBuilder::makeTruthToRecMap( PRD_InverseTruth& result, con
   for( const auto& i : rec2truth ) {
     // i.first = Identifier
     // i.second = HepMcParticleLink
-    const HepMC::GenParticle* pa = i.second.cptr();
+    auto pa = i.second.cptr();
     if( !pa ) { continue; } // skip noise
-    if( pa->barcode()==std::numeric_limits<int32_t>::max() &&
+    if( HepMC::barcode(pa)==std::numeric_limits<int32_t>::max() &&
         pa->pdg_id()==999 ) { continue; } // skip geantinos
     result.insert(std::make_pair(i.second, i.first));
   }

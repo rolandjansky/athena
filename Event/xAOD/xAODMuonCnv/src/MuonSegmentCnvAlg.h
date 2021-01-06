@@ -1,26 +1,15 @@
-// Dear emacs, this is -*- c++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: MuonSegmentCnvAlg.h 297747 2013-10-28 15:14:24Z krasznaa $
 #ifndef XAODMUONCNV_MUONSEGMENTCNVALG_H
 #define XAODMUONCNV_MUONSEGMENTCNVALG_H
 
-// System include(s):
-#include <string>
-
-// Athena/Gaudi include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
-// xAOD include
 #include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 
-namespace Analysis {
-  class Muon;
-}
-
+#include <string>
 
 namespace xAODMaker {
 
@@ -46,10 +35,11 @@ namespace xAODMaker {
       virtual StatusCode execute();
 
    private:
-     SG::ReadHandleKey<Trk::SegmentCollection>   m_muonSegmentLocation; //!< Location/Key for Muon::MuonSegment
-     SG::WriteHandleKey<xAOD::MuonSegmentContainer>   m_xaodContainerName; //!< Location/Key for xAOD::MuonSegment
+     // the following segments do NOT contain MuGirl segments
+     SG::ReadHandleKey<Trk::SegmentCollection> m_muonSegmentLocation{this,"SegmentContainerName","TrackMuonSegments"};
+     SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_xaodContainerName{this,"xAODContainerName","MuonSegments"};
 
-      ToolHandle<xAODMaker::IMuonSegmentConverterTool>  m_muonSegmentConverterTool;
+     ToolHandle<xAODMaker::IMuonSegmentConverterTool> m_muonSegmentConverterTool{this,"MuonSegmentConverterTool","Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"};
    }; // class MuonSegmentCnvAlg
 
 } // namespace xAODMaker

@@ -112,7 +112,7 @@ printfunc (fullItemList)
 
 # Stream's output file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-Stream1 = AthenaPoolOutputStream( "Stream1", "SimplePoolFile.root", asAlg = True, noTag=True )
+Stream1 = AthenaPoolOutputStream( "Stream1", "EventInfoPoolFile.root", asAlg = True, noTag=True )
 # List of DO's to write out
 Stream1.ItemList   += fullItemList
 

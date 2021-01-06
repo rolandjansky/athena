@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -272,18 +272,7 @@ McEventSelector::createContext(Context*& refpCtxt) const
 
 StatusCode McEventSelector::initialize()     {
   ATH_MSG_INFO (" Enter McEventSelector Initialization ");
-  StatusCode sc = AthService::initialize();
-  msg().setLevel( m_outputLevel.value() );
-  if( sc.isSuccess() ) {
-    setProperties().ignore();
-  } else {
-    ATH_MSG_ERROR ("Unable to initialize service ");
-    return sc;
-  }
-
-  ATH_MSG_DEBUG (" McEventSelector Initialized Properly ... ");
-
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode McEventSelector::stop()     {
@@ -301,11 +290,6 @@ StatusCode McEventSelector::stop()     {
   return StatusCode::SUCCESS;
 }
 
-StatusCode McEventSelector::finalize()     {
-  ATH_MSG_INFO ("finalize");
-
-  return StatusCode::SUCCESS;
-}
 
 // IEvtSelector::next
 StatusCode

@@ -286,19 +286,28 @@ const xAOD::TruthVertex* InDetPerfPlot_VertexTruthMatching::getTruthVertex(const
     const xAOD::TruthVertex* truthVtx = nullptr;
     if (recoVtx) {
         const static xAOD::Vertex::Decorator<std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>> truthMatchingInfos("TruthEventMatchingInfos");
-        const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
-        if (!truthInfos.empty()) {
-            const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
-            const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
-            const xAOD::TruthEvent* truthEvent = nullptr;
-            if (truthEventLink.isValid()) {
-                truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
-                if (truthEvent) {
-                    truthVtx = truthEvent->truthVertex(0);
+        try{
+            if (!truthMatchingInfos.isAvailable(*recoVtx)){
+                ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR not available -- returning nullptr!");
+                return truthVtx;
+            }
+            const std::vector<InDetVertexTruthMatchUtils::VertexTruthMatchInfo>& truthInfos = truthMatchingInfos(*recoVtx);
+            if (!truthInfos.empty()) {
+                const InDetVertexTruthMatchUtils::VertexTruthMatchInfo& truthInfo = truthInfos.at(0);
+                const ElementLink<xAOD::TruthEventBaseContainer> truthEventLink = std::get<0>(truthInfo);
+                const xAOD::TruthEvent* truthEvent = nullptr;
+                if (truthEventLink.isValid()) {
+                    truthEvent = static_cast<const xAOD::TruthEvent*>(*truthEventLink);
+                    if (truthEvent) {
+                        truthVtx = truthEvent->truthVertex(0);
+                    }
                 }
             }
+            else {
+                ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
+            }
         }
-        else {
+        catch (SG::ExcBadAuxVar &){
             ATH_MSG_WARNING("TruthEventMatchingInfos DECORATOR yields empty vector -- returning nullptr!");
         }
     }
@@ -352,6 +361,10 @@ void InDetPerfPlot_VertexTruthMatching::fill(const xAOD::VertexContainer& vertex
         const xAOD::Vertex* bestRecoHSVtx_sumpt2 = getHSRecoVertexSumPt2(vertexContainer); // Could potentially use the first vertex in the container if sumpt2-ordered
         // Best reco HS vertex identified via truth HS weights
         const xAOD::Vertex* bestRecoHSVtx_truth = InDetVertexTruthMatchUtils::bestHardScatterMatch(vertexContainer);
+        if (!bestRecoHSVtx_truth){
+            ATH_MSG_INFO("No bestRecoHS vertex - not filling vertex truth matching.");
+            return;
+        }
 
         // Did we correctly select the best reco HS vertex using sumpt2?
         truthVtx = getTruthVertex(bestRecoHSVtx_sumpt2);

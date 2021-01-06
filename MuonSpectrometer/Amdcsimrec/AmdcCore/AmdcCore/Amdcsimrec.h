@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef Amdcsimrec_H
-#define Amdcsimrec_H
+#ifndef AMDCCORE_AMDCSIMREC_H
+#define AMDCCORE_AMDCSIMREC_H
 
-#include "AmdcCore/AmdcsimrecMisc.h"
+#include <string>
 
   /**
    @class Amdcsimrec

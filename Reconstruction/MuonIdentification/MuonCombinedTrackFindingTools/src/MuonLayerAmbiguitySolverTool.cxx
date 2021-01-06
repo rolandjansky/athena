@@ -325,5 +325,10 @@ namespace Muon {
     std::swap(existingLayerIntersections,combinedIntersections);
   }
 
+
+  void MuonLayerAmbiguitySolverTool::cleanUp() const {
+    m_muonTrackBuilder->cleanUp();
+    //m_segmentMatchingTool->cleanUp();
+  }
 }
  

@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file EventCommonD3PDMaker/python/DRIndexAssociation.py
 # @author scott snyder <snyder@bnl.gov>
@@ -27,7 +26,7 @@ def DRIndexAssociation (parent,
                    *args, **kw):
     """Helper for setting up a nearest-DR association, represented by an index.
 """
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'DRIndexAssoc'
 
     def maker (name, prefix, object_name,

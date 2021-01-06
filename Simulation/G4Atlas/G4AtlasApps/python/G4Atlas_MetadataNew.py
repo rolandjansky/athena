@@ -1,9 +1,10 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ### This module contains functions which may need to peek at the input file metadata
 
+from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 simMDlog = logging.getLogger('Sim_Metadata')
 
 def fillAtlasMetadata(ConfigFlags, dbFiller):
@@ -26,7 +27,6 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
 
     #---------  
     ## Simulated detector flags: add each enabled detector to the simulatedDetectors list
-    from AthenaCommon.DetFlags import DetFlags
     simDets = []
     for det in ['Pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','MM','sTGC','Truth','LVL1']:
         attrname = "Detector.Geometry"+det
@@ -37,7 +37,7 @@ def fillAtlasMetadata(ConfigFlags, dbFiller):
         else:
             simMDlog.info("No flag called '%s' found in ConfigFlags", attrname)
 
-    simMDlog.info("Setting 'SimulatedDetectors' = %s" % repr(simDets))
+    simMDlog.info("Setting 'SimulatedDetectors' = %r", simDets)
     dbFiller.addSimParam('SimulatedDetectors', repr(simDets))
 
     ## Hard-coded simulation hit file magic number (for major changes)
@@ -50,22 +50,10 @@ def fillISFMetadata(dbFiller):
     dbFiller.addSimParam('Simulator', ISF_Flags.Simulator())
 
 
-def getRunNumberRangeForOutputMetadata(ConfigFlags):
-    myRunNumber = ConfigFlags.Input.RunNumber[0]
-    myEndRunNumber = 2147483647 # the max run number
-
-    #if myRunNumber > 0 :
-    #    simMDlog.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
-    #    myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
-    #else :
-    #    simMDlog.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
-    #    myRunNumber = 0
-    return myRunNumber, myEndRunNumber
-
 def writeSimulationParametersMetadata(ConfigFlags):
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    myRunNumber, myEndRunNumber = getRunNumberRangeForOutputMetadata(ConfigFlags)
+    myRunNumber, myEndRunNumber = getMinMaxRunNumbers(ConfigFlags)
     simMDlog.debug('ParameterDbFiller BeginRun = %s', str(myRunNumber) )
     dbFiller.setBeginRun(myRunNumber)
     simMDlog.debug('ParameterDbFiller EndRun   = %s', str(myEndRunNumber) )

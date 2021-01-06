@@ -14,8 +14,8 @@
 
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "Identifier/Identifier.h"
-#include "InDetReadoutGeometry/SiCellId.h"
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 
 #include <cmath>
 

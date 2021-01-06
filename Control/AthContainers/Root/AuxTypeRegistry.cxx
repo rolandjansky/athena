@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file AthContainers/AuxTypeRegistry.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -68,9 +66,12 @@ SG::auxid_t
 AuxTypeRegistry::findAuxID( const std::string& name,
                             const std::string& clsname ) const
 {
-  lock_t lock (m_mutex);
-  key_t key (name, clsname);
-  id_map_t::const_iterator i = m_auxids.find (key);
+  // No locking needed here.
+  // The extra test here is to avoid having to copy a string
+  // in the common case where clsname is blank.
+  id_map_t::const_iterator i = m_auxids.find (clsname.empty() ?
+                                              name :
+                                              makeKey (name, clsname));
   if (i != m_auxids.end()) {
     return i->second;
   }
@@ -118,6 +119,21 @@ AuxTypeRegistry::makeVectorFromData (SG::auxid_t auxid,
   const SG::IAuxTypeVectorFactory* factory = getFactory (auxid);
   assert (factory != 0);
   return factory->createFromData (data, isPacked, ownMode);
+}
+
+
+/**
+ * @brief Return the key used to look up an entry in m_auxids.
+ * @param name The name of the aux data item.
+ * @param clsname The name of its associated class.  May be blank.
+ */
+std::string AuxTypeRegistry::makeKey (const std::string& name,
+                                      const std::string& clsname)
+{
+  if (clsname.empty()) {
+    return name;
+  }
+  return clsname + "::" + name;
 }
 
 
@@ -294,34 +310,16 @@ void AuxTypeRegistry::clear (SG::auxid_t auxid, void* dst, size_t dst_index)
  * @brief Return the vector factory for a given vector element type.
  * @param ti The type of the vector element.
  *
- * Returns 0 if the type is not known.
+ * Returns nullptr if the type is not known.
  * (Use @c addFactory to add new mappings.)
  */
 const IAuxTypeVectorFactory*
 AuxTypeRegistry::getFactory (const std::type_info& ti) const
 {
-  lock_t lock (m_mutex);
-  return getFactory (lock, ti);
-}
-
-
-/**
- * @brief Return the vector factory for a given vector element type.
- *        (external locking)
- * @param lock The registry lock.
- * @param ti The type of the vector element.
- *
- * Returns 0 if the type is not known.
- * (Use @c addFactory to add new mappings.)
- */
-const IAuxTypeVectorFactory*
-AuxTypeRegistry::getFactory (lock_t& /*lock*/,
-                             const std::type_info& ti) const
-{
   ti_map_t::const_iterator it = m_factories.find (ti.name());
   if (it != m_factories.end())
     return it->second;
-  return 0;
+  return nullptr;
 }
 
 
@@ -358,7 +356,7 @@ void AuxTypeRegistry::addFactory (lock_t& /*lock*/,
                                   const std::type_info& ti,
                                   IAuxTypeVectorFactory* factory)
 {
-  ti_map_t::iterator it = m_factories.find (ti.name());
+  ti_map_t::const_iterator it = m_factories.find (ti.name());
   if (it != m_factories.end()) {
     if (it->second->isDynamic() && !factory->isDynamic()) {
       // Replacing a dynamic factory with a non-dynamic one.
@@ -366,13 +364,13 @@ void AuxTypeRegistry::addFactory (lock_t& /*lock*/,
       // Instead, push it on a vector to remember it so we can delete
       // it later.
       m_oldFactories.push_back (it->second);
-      it->second = factory;
+      m_factories.insert_or_assign (ti.name(), factory);
     }
     else
       delete factory;
   }
   else
-    m_factories[ti.name()] = factory;
+    m_factories.insert_or_assign (ti.name(), factory);
 }
 
 
@@ -382,6 +380,8 @@ void AuxTypeRegistry::addFactory (lock_t& /*lock*/,
  * Populates the type -> factory mappings for standard C++ types.
  */
 AuxTypeRegistry::AuxTypeRegistry()
+  : m_auxids (id_map_t::Updater_t()),
+    m_factories (ti_map_t::Updater_t())
 {
   m_types.reserve (auxid_set_size_hint);
 
@@ -419,7 +419,7 @@ AuxTypeRegistry::AuxTypeRegistry()
  */
 AuxTypeRegistry::~AuxTypeRegistry()
 {
-  for (ti_map_t::value_type& p : m_factories)
+  for (auto& p : m_factories)
     delete p.second;
   for (const IAuxTypeVectorFactory* p : m_oldFactories)
     delete p;
@@ -453,9 +453,9 @@ AuxTypeRegistry::findAuxID (const std::string& name,
                             const std::type_info& ti,
                             IAuxTypeVectorFactory* (AuxTypeRegistry::*makeFactory) () const)
 {
-  lock_t lock (m_mutex);
-  key_t key (name, clsname);
-  id_map_t::iterator i = m_auxids.find (key);
+  lock_t lock (m_mutex);  // May be able to relax this lock.
+  std::string key = makeKey (name, clsname);
+  id_map_t::const_iterator i = m_auxids.find (key);
   if (i != m_auxids.end()) {
     typeinfo_t& m = m_types[i->second];
 
@@ -479,7 +479,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
         IAuxTypeVectorFactory* fac2 = (*this.*makeFactory)();
         if (fac2) {
           addFactory (lock, ti, fac2);
-          m.m_factory = getFactory (lock, ti);
+          m.m_factory = getFactory (ti);
         }
       }
       return i->second;
@@ -490,12 +490,12 @@ AuxTypeRegistry::findAuxID (const std::string& name,
     // fall through, get a new auxid and real type info
     // new auxid needed so a new data vector is created in the AuxStore
   }
-  const IAuxTypeVectorFactory* fac = getFactory (lock, ti);
+  const IAuxTypeVectorFactory* fac = getFactory (ti);
   if (!fac || fac->isDynamic()) {
     IAuxTypeVectorFactory* fac2 = (*this.*makeFactory)();
     if (fac2) {
       addFactory (lock, ti, fac2);
-      fac = getFactory (lock, ti);
+      fac = getFactory (ti);
     }
   }
   if (!fac) return null_auxid;
@@ -508,7 +508,7 @@ AuxTypeRegistry::findAuxID (const std::string& name,
   t.m_factory = fac;
   t.m_flags = flags;
   AthContainers_detail::fence_seq_cst();
-  m_auxids[key] = auxid;
+  m_auxids.insert_or_assign (key, auxid);
 
   return auxid;
 }

@@ -225,13 +225,13 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
   double sf(1.);
 
   //Set the new systematic variation
-  CP::SystematicCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  StatusCode ret = m_photonEfficiencySFTool->applySystematicVariation(systConfig);
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
   }
 
   ret = m_photonIsolationSFTool->applySystematicVariation(systConfig);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
   }
 
@@ -257,12 +257,12 @@ double SUSYObjDef_xAOD::GetSignalPhotonSFsys(const xAOD::Photon& ph, const CP::S
 
   //Roll back to current sys
   ret = m_photonEfficiencySFTool->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool back to default.");
   }
 
   ret = m_photonIsolationSFTool->applySystematicVariation(m_currentSyst);
-  if (ret != CP::SystematicCode::Ok) {
+  if (ret != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Cannot configure AsgPhotonEfficiencyCorrectionTool for systematic var. " << systConfig.name() );
   }
 

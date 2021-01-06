@@ -146,8 +146,10 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
 
   ATH_MSG_DEBUG("Calculating muon score for track particle with eta="<<track_eta);
 
-  // - associate calocells to trackparticle, cone size 0.2, use cache
-  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,0.2,nullptr);
+  ATH_MSG_DEBUG("Finding calo cell association for track particle within cone of delta R="<<m_CaloCellAssociationConeSize);
+
+  // - associate calocells to trackparticle
+  std::unique_ptr<const Rec::ParticleCellAssociation> association = m_caloCellAssociationTool->particleCellAssociation(*trk,m_CaloCellAssociationConeSize,nullptr);
   if(!association){
     ATH_MSG_VERBOSE("Could not get particleCellAssociation");
     return -1.;
@@ -157,8 +159,16 @@ float CaloMuonScoreTool::getMuonScore( const xAOD::TrackParticle* trk ) const {
   // create input vectors from calo cell association
   std::vector<float> eta, phi, energy;
   std::vector<int> sampling;
-  fillInputVectors(association, eta, phi, energy, sampling);
 
+  fillInputVectors(association, eta, phi, energy, sampling);
+  
+  // if any of the vectors are empty, return. 
+  // They are filled in the same loop in `fillInputVectors`, so it is enough to check one
+  if (eta.empty()){
+    ATH_MSG_VERBOSE("Input vectors for CaloMuonScore are empty");
+    return -1.;
+  }
+    
   // create tensor from vectors
   std::vector<float> inputTensor = getInputTensor(eta, phi, energy, sampling);
 

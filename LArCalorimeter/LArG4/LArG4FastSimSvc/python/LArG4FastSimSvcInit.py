@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 def LArG4FastSimSvcInit():
 
     from AthenaCommon.Logging import logging
@@ -7,11 +9,11 @@ def LArG4FastSimSvcInit():
     from G4AtlasApps.SimFlags import simFlags
 
     if not hasattr(simFlags, 'LArParameterization'):
-        log.warning("JobProperty LArParameterization is not defined! Can not set up fast simulation!");
+        log.warning("JobProperty LArParameterization is not defined! Can not set up fast simulation!")
         return
 
     if simFlags.LArParameterization() == 0:
-        log.warning("JobProperty LArParameterization is zero! No fast simulation requested!");
+        log.warning("JobProperty LArParameterization is zero! No fast simulation requested!")
         return
 
     # get service manager

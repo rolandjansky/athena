@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./AcceptAllConditionMT.h"
@@ -28,8 +28,8 @@ AcceptAllConditionMT::isSatisfied(const HypoJetVector& ips,
     
     std::stringstream ss1;
     
-    for(auto ip : ips){
-      address = static_cast<const void*>(ip);
+    for(const auto& ip : ips){
+      address = static_cast<const void*>(ip.get());
       ss1 << "    "  << address << " " << ip->eta() << " e " << ip->e() << '\n';
     }
     ss1 << '\n';
@@ -41,7 +41,7 @@ AcceptAllConditionMT::isSatisfied(const HypoJetVector& ips,
 
 
 
-std::string AcceptAllConditionMT::toString() const noexcept {
+std::string AcceptAllConditionMT::toString() const {
   std::stringstream ss;
   
   ss << "AcceptAllConditionMT (" << this << ") capacity " <<  m_capacity <<'\n';

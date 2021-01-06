@@ -61,7 +61,10 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # ------------------------------------------------------------
 
+      doSeedMakerValidation = InDetFlags.writeSeedValNtuple()
+
       if InDetFlags.doSiSPSeededTrackFinder():
+
          #
          # --- Space points seeds maker, use different ones for cosmics and collisions
          #
@@ -95,6 +98,17 @@ class  ConfiguredNewTrackingSiPattern:
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
                                                                RapidityCut            = NewTrackingCuts.maxEta())
+
+         if doSeedMakerValidation:
+
+           InDetSiSpacePointsSeedMaker.WriteNtuple = True
+
+           from AthenaCommon.AppMgr import ServiceMgr
+           if not hasattr(ServiceMgr, 'THistSvc'):
+             from GaudiSvc.GaudiSvcConf import THistSvc
+             ServiceMgr += THistSvc()
+
+           ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
@@ -501,8 +515,7 @@ class  ConfiguredNewTrackingSiPattern:
          # @TODO is the cluster split probability container needed here ?
          ambi_track_summary_tool = TrackingCommon.getInDetTrackSummaryTool(namePrefix                 = 'InDetAmbiguityProcessorSplitProb',
                                                                            nameSuffix                 = NewTrackingCuts.extension(),
-                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                                                           RenounceInputHandles       = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                                                           ClusterSplitProbabilityName= 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
          if InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "DBM"):
            # DenseEnvironmentsAmbiguityScoreProcessorTool
            from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__DenseEnvironmentsAmbiguityScoreProcessorTool as ScoreProcessorTool
@@ -524,8 +537,13 @@ class  ConfiguredNewTrackingSiPattern:
            fitter_args = setDefaults({},
                                      nameSuffix                   = 'Ambi'+NewTrackingCuts.extension(),
                                      SplitClusterMapExtension     = NewTrackingCuts.extension(),
-                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension(),
-                                     RenounceInputHandles         = ['InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension()])
+                                     ClusterSplitProbabilityName  = 'InDetAmbiguityProcessorSplitProb'+NewTrackingCuts.extension())
+           if InDetFlags.holeSearchInGX2Fit():
+               fitter_args = setDefaults(fitter_args,
+               DoHoleSearch                 = True,
+               BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
+               
+
            fitter_list=[     CfgGetter.getPublicToolClone('InDetTrackFitter'+'Ambi'+NewTrackingCuts.extension(), 'InDetTrackFitter',**fitter_args)    if not use_low_pt_fitter \
                              else CfgGetter.getPublicToolClone('InDetTrackFitterLowPt'+NewTrackingCuts.extension(), 'InDetTrackFitterLowPt',**fitter_args)]
 
@@ -552,7 +570,8 @@ class  ConfiguredNewTrackingSiPattern:
                                                    tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
                                                    caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
                                                    pTminBrem          = NewTrackingCuts.minPTBrem(),
-                                                   RefitPrds          = True)
+                                                   RefitPrds          = True,
+                                                   KeepHolesFromBeforeRefit = InDetFlags.useHolesFromPattern())
 
          else:
            from AthenaCommon import CfgGetter

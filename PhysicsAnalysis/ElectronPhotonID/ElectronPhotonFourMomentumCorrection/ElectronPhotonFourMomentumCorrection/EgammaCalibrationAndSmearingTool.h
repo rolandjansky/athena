@@ -1,7 +1,5 @@
-// Dear Emacs, this is -*- C++ -*-
-
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -57,7 +55,7 @@ namespace xAOD {
   inline float get_eta_calo(const xAOD::CaloCluster& cluster, int author, bool do_throw=false)
 	{
 	  double eta_calo;
-	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){ 
+	  if(author== xAOD::EgammaParameters::AuthorFwdElectron){
             eta_calo = cluster.eta();
           }
 	  else if (cluster.retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,
@@ -118,7 +116,7 @@ public:
   //Systematics to be used for physics analysis
   virtual CP::SystematicSet recommendedSystematics() const override;
   //Use specific systematic
-  virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
+  virtual StatusCode applySystematicVariation(const CP::SystematicSet& systConfig) override;
   virtual void setRandomSeed(unsigned seed=0) override;
   virtual void setRandomSeedFunction(const IdFunction&& function) { m_set_seed_function = function; }
 	const IdFunction getRandomSeedFuction() const { return m_set_seed_function; }

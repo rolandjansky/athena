@@ -69,7 +69,7 @@ namespace TestMuonSF {
         }
         CP::SystematicSet syst_set;
         syst_set.insert(syst);
-        if (m_handle->applySystematicVariation(syst_set) != CP::SystematicCode::Ok) {
+        if (m_handle->applySystematicVariation(syst_set) != StatusCode::SUCCESS) {
             return CP::CorrectionCode::Error;
         }
         return m_handle->getTriggerScaleFactor(*muons, Var, name());
@@ -86,9 +86,12 @@ namespace TestMuonSF {
     MuonSFBranches::MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name) :
                 MuonEffiBranches(tree),
                 m_handle(handle),
-                m_uncorrelate_sys(dynamic_cast<const CP::MuonEfficiencyScaleFactors*>(handle.operator->())->uncorrelate_sys()),
                 m_release(rel_name),
-                m_SFs() {
+                m_SFs()
+    {
+      auto mesf = dynamic_cast<const CP::MuonEfficiencyScaleFactors*>(handle.operator->());
+      if (!mesf) std::abort();
+      m_uncorrelate_sys = mesf->uncorrelate_sys();
     }
     CP::CorrectionCode MuonSFBranches::fill(const xAOD::Muon& muon) {
         /// Only the raw systematic sets have been activated
@@ -132,7 +135,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     CP::CorrectionCode MuonSFBranches::fill_systematic(const xAOD::Muon muon, std::pair<const CP::SystematicSet, MuonSFBranches::SFSet>&  Syst_SF){
-        if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+        if (m_handle->applySystematicVariation(Syst_SF.first) != StatusCode::SUCCESS) {
             Error("MuonSFBranches()", "Failed to apply variation %s for %s", Syst_SF.first.name().c_str(), name().c_str());
             return CP::CorrectionCode::Error;
         }            
@@ -193,7 +196,7 @@ namespace TestMuonSF {
     }
     CP::CorrectionCode MuonReplicaBranches::fill(const xAOD::Muon& muon) {
         for (auto& Syst_SF : m_SFs) {
-            if (m_handle->applySystematicVariation(Syst_SF.first) != CP::SystematicCode::Ok) {
+            if (m_handle->applySystematicVariation(Syst_SF.first) != StatusCode::SUCCESS) {
                 return CP::CorrectionCode::Error;
             }
             CP::CorrectionCode cc = m_handle->getEfficiencyScaleFactorReplicas(muon, Syst_SF.second);

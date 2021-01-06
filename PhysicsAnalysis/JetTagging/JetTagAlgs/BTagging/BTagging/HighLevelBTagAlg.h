@@ -55,6 +55,7 @@ namespace Analysis
 
         SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_dec_track_pos {this, "trackDisplacement","trackDisplacement","trackDisplacement of tracks" };
         SG::ReadDecorHandleKey< xAOD::TrackParticleContainer > m_dec_track_mom {this, "trackMomentum","trackMomentum","trackMomentum of tracks" };
+        std::vector<std::unique_ptr<SG::WriteDecorHandleKey<xAOD::BTaggingContainer>>> m_outputKeys;
 
   }; // End class
 

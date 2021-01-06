@@ -132,7 +132,7 @@ int main (int argc, char* argv[])
         CP::SystematicSet* syst = new CP::SystematicSet();
         syst->insert(CP::SystematicVariation("JET_Flavor_Response",-1.5));
         syst->insert(CP::SystematicVariation("JET_PunchThrough_MC15",+1.5));
-        if (tool->applySystematicVariation(*syst) != CP::SystematicCode::Ok)
+        if (tool->applySystematicVariation(*syst) != StatusCode::SUCCESS)
             exit(2);
         
         // Try below eta boundary of flavour
@@ -147,7 +147,7 @@ int main (int argc, char* argv[])
         syst = new CP::SystematicSet();
         syst->insert(CP::SystematicVariation("JET_Flavor_Response",+1.5));
         syst->insert(CP::SystematicVariation("JET_PunchThrough_MC15",+1.5));
-        if (tool->applySystematicVariation(*syst) != CP::SystematicCode::Ok)
+        if (tool->applySystematicVariation(*syst) != StatusCode::SUCCESS)
             exit(2);
         
         // Re-try below eta boundary of flavour
@@ -194,7 +194,7 @@ int main (int argc, char* argv[])
         CP::SystematicSet* syst = new CP::SystematicSet();
         syst->insert(CP::SystematicVariation("JET_Rtrk_Baseline",-1.5));
         syst->insert(CP::SystematicVariation("JET_Rtrk_Modelling",+1.5));
-        if (tool->applySystematicVariation(*syst) != CP::SystematicCode::Ok)
+        if (tool->applySystematicVariation(*syst) != StatusCode::SUCCESS)
             exit(2);
         
         // Add D2 information

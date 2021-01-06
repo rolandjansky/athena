@@ -17,7 +17,6 @@
 #include "MuonReadoutGeometry/RpcReadoutSet.h"
 #include "MuonReadoutGeometry/MuonStation.h"
 #include "CSCcabling/CSCcablingSvc.h"
-#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <iostream>
 #include <vector>

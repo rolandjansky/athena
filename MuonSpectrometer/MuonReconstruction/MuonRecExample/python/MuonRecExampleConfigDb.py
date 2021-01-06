@@ -39,6 +39,7 @@ addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternTool", "MuonHoughPatternTo
 addTool( "MuonRecExample.MuonRecTools.MuonHoughPatternFinderTool", "MuonHoughPatternFinderTool" )
 
 addService("MuonRecExample.MuonRecTools.AtlasTrackingGeometrySvc","AtlasTrackingGeometrySvc")
+addService("MuonRecExample.MuonRecTools.TrackingVolumesSvc","TrackingVolumesSvc")
 
 addTool( "MuonRecExample.MuonRecTools.MuonNavigator", "MuonNavigator" )
 

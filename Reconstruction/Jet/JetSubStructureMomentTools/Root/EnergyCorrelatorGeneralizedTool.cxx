@@ -107,6 +107,9 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
 
     float beta = moment.first;
 
+    /// Note that the indexing for these follows the 
+    /// convention of ECFG_angles_n
+
     /// These are used for M2 and N2
     float ECFG_2_1_value = -999.0;
     float ECFG_3_2_value = -999.0;
@@ -124,41 +127,31 @@ int EnergyCorrelatorGeneralizedTool::modifyJet(xAOD::Jet &injet) const {
     if( calculate ) {
 
       /// These are used for N2 and M2
-      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2(2, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
       JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_2_1(1, 2, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1(1, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+      JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_2(2, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
 
       ECFG_2_1_value = ECFG_2_1.result(jet);
+      ECFG_3_1_value = ECFG_3_1.result(jet);
       ECFG_3_2_value = ECFG_3_2.result(jet);
 
       /// These are used for dichroic N2 and M2
       if( calculate_ungroomed ) {
         ECFG_2_1_ungroomed_value = ECFG_2_1.result(jet_ungroomed);
+        ECFG_3_1_ungroomed_value = ECFG_3_1.result(jet_ungroomed);
         ECFG_3_2_ungroomed_value = ECFG_3_2.result(jet_ungroomed);
       }
 
-      /// These are used for M3 and N3
-      if( m_doM3 || m_doN3 ) {
+      /// This is used for M3
+      if( m_doM3 ) {
+        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_1(1, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        ECFG_4_1_value = ECFG_4_1.result(jet);
+      }
 
-        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_3_1(1, 3, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-
-        ECFG_3_1_value = ECFG_3_1.result(jet);
-
-        if( calculate_ungroomed ) {
-          ECFG_3_1_ungroomed_value = ECFG_3_1.result(jet_ungroomed);
-        }
-
-        /// This is used for M3
-        if( m_doM3 ) {
-          JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_1(1, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-          ECFG_4_1_value = ECFG_4_1.result(jet);
-        }
-
-        /// This is used for N3
-        if( m_doN3 ) {
-          JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_2(2, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
-          ECFG_4_2_value = ECFG_4_2.result(jet);
-        }
-
+      /// This is used for N3
+      if( m_doN3 ) {
+        JetSubStructureUtils::EnergyCorrelatorGeneralized ECFG_4_2(2, 4, beta, JetSubStructureUtils::EnergyCorrelator::pt_R);
+        ECFG_4_2_value = ECFG_4_2.result(jet);
       }
 
     }

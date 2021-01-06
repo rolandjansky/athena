@@ -6,21 +6,67 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline, addFolders
 
-def InDetTrackSummaryHelperToolCfg(flags, name='InDetTrackSummaryHelperTool', **kwargs):
+def InDetPrdAssociationToolCfg(name='InDetPrdAssociationTool',**kwargs) :
+  acc = ComponentAccumulator()
+  '''
+  Provide an instance for all clients in which the tool is only set in c++
+  '''
+  the_name = makeName( name, kwargs)
+
+  kwargs.setdefault("PixelClusterAmbiguitiesMapName", 'PixelClusterAmbiguitiesMap') # InDetKeys.GangedPixelMap
+  kwargs.setdefault("addTRToutliers", True)
+
+  InDetPRD_AssociationToolGangedPixels = CompFactory.InDet.InDetPRD_AssociationToolGangedPixels(the_name, **kwargs)
+  acc.setPrivateTools(InDetPRD_AssociationToolGangedPixels)
+  return acc
+
+def InDetPrdAssociationTool_setupCfg(name='InDetPrdAssociationTool_setup',**kwargs) :
+  '''
+  Provide an instance for all clients which set the tool explicitely
+  '''
+  kwargs.setdefault("SetupCorrect", True)
+  return InDetPrdAssociationToolCfg(name, **kwargs)
+
+def InDetTrigPrdAssociationToolCfg(name='InDetTrigPrdAssociationTool_setup',**kwargs) :
+  kwargs.setdefault("PixelClusterAmbiguitiesMapName", "TrigPixelClusterAmbiguitiesMap")
+  kwargs.setdefault("addTRToutliers", False)
+
+  return InDetPrdAssociationToolCfg(name, **kwargs)
+
+def InDetTrackSummaryHelperToolCfg(flags, name='InDetSummaryHelper', **kwargs):
   result = ComponentAccumulator()
-  
+
+  the_name = makeName( name, kwargs)
+  isHLT=kwargs.pop("isHLT",False)
+
+  if 'AssoTool' not in kwargs :
+    if not isHLT:
+      InDetPrdAssociationTool_setup = result.popToolsAndMerge(InDetPrdAssociationTool_setupCfg())
+      result.addPublicTool(InDetPrdAssociationTool_setup)
+      kwargs.setdefault("AssoTool", InDetPrdAssociationTool_setup)
+    else:
+      InDetTrigPrdAssociationTool = result.popToolsAndMerge(InDetTrigPrdAssociationToolCfg())
+      result.addPublicTool(InDetTrigPrdAssociationTool)
+      kwargs.setdefault("AssoTool", InDetTrigPrdAssociationTool)
+
   if "HoleSearch" not in kwargs:
     acc = InDetTrackHoleSearchToolCfg(flags)
     # FIXME: assuming we don't use DetailedPixelHoleSearch (since it seems to be off in standard workflows)
     kwargs.setdefault("HoleSearch", acc.getPrimary())
     result.merge(acc)
 
-  from InDetOverlay.TRT_ConditionsConfig import TRT_StrawStatusSummaryToolCfg
-  tmpAcc = TRT_StrawStatusSummaryToolCfg(flags)
-  kwargs.setdefault("TRTStrawSummarySvc", tmpAcc.getPrimary()) 
-  result.merge(tmpAcc)
+  if not flags.Detector.RecoTRT:
+    kwargs.setdefault("TRTStrawSummarySvc", "")
 
-  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(name, **kwargs), primary=True)
+  kwargs.setdefault("PixelToTPIDTool", None)
+  kwargs.setdefault("TestBLayerTool", None)
+  kwargs.setdefault("RunningTIDE_Ambi", flags.InDet.doTIDE_Ambi)
+  kwargs.setdefault("DoSharedHits", False)
+  kwargs.setdefault("usePixel", flags.Detector.RecoPixel)
+  kwargs.setdefault("useSCT", flags.Detector.RecoSCT)
+  kwargs.setdefault("useTRT", flags.Detector.RecoTRT)
+
+  result.addPublicTool(CompFactory.InDet.InDetTrackSummaryHelperTool(the_name, **kwargs), primary=True)
   return result
 
 def InDetBoundaryCheckToolCfg(flags, name='InDetBoundaryCheckTool', **kwargs):
@@ -241,7 +287,7 @@ def SCT_ConfigurationConditionsToolCfg(flags, name="SCT_ConfigurationConditionsT
     SCTConfigurationFolderPath=''
 
   cond_kwargs = {}
-  cond_kwargs["ChannelFolder"] = SCTConfigurationFolderPath+("ChipSlim" if flags.Input.isMC else "Chip")
+  cond_kwargs["ChannelFolder"] = SCTConfigurationFolderPath+("Chip" if flags.IOVDb.DatabaseInstance=="COMP200" else "ChipSlim")
   cond_kwargs["ModuleFolder"] = SCTConfigurationFolderPath+"Module"
   cond_kwargs["MurFolder"] = SCTConfigurationFolderPath+"MUR"
   cond_kwargs["dbInstance"] = "SCT"
@@ -302,7 +348,7 @@ def getSCTDAQConfigFolder(flags) :
 def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs):
   result = ComponentAccumulator()
   config_folder_prefix = getSCTDAQConfigFolder(flags)
-  channelFolder = config_folder_prefix+("ChipSlim" if flags.Input.isMC else "Chip")
+  channelFolder = config_folder_prefix+("Chip" if flags.IOVDb.DatabaseInstance=="COMP200" else "ChipSlim")
   kwargs.setdefault("ReadKeyChannel", channelFolder)
   kwargs.setdefault("ReadKeyModule", config_folder_prefix+"Module")
   kwargs.setdefault("ReadKeyMur", config_folder_prefix+"MUR")
@@ -327,6 +373,10 @@ def SCT_ConfigurationCondAlgCfg(flags, name="SCT_ConfigurationCondAlg", **kwargs
                                            splitMC=True))
   acc = SCT_CablingToolCfg(flags)
   kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
+  result.merge(acc)
+
+  acc = SCT_ReadoutToolCfg(flags)
+  kwargs.setdefault("SCT_ReadoutTool", acc.popPrivateTools())
   result.merge(acc)
 
   result.addCondAlgo(CompFactory.SCT_ConfigurationCondAlg(name, **kwargs))
@@ -369,8 +419,13 @@ def SCT_ReadCalibDataToolCfg(flags, name="SCT_ReadCalibDataTool", cond_kwargs={}
 
 
 def SCT_FlaggedConditionToolCfg(flags, name="SCT_FlaggedConditionTool", **kwargs):
-  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result = ComponentAccumulator()
+
+  # For SCT_ID and SCT_DetectorElementCollection used in SCT_FlaggedConditionTool
+  from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
+  result.merge(SCT_GeometryCfg(flags))
+
+  tool = CompFactory.SCT_FlaggedConditionTool(name, **kwargs)
   result.setPrivateTools(tool)
   return result
 
@@ -407,12 +462,29 @@ def SCT_ByteStreamErrorsToolCfg(flags, name="SCT_ByteStreamErrorsTool", **kwargs
   return result
 
 def SCT_CablingToolCfg(flags):
-    from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
-    result = SCT_CablingCondAlgCfg(flags)
+  result = ComponentAccumulator()
 
-    tool = CompFactory.SCT_CablingTool()
-    result.setPrivateTools(tool)
-    return result
+  # For SCT_ID used in SCT_CablingTool
+  from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+  result.merge(GeoModelCfg(flags))
+
+  from SCT_Cabling.SCT_CablingConfig import SCT_CablingCondAlgCfg
+  result.merge(SCT_CablingCondAlgCfg(flags))
+
+  tool = CompFactory.SCT_CablingTool()
+  result.setPrivateTools(tool)
+  return result
+
+def SCT_ReadoutToolCfg(flags, name="SCT_ReadoutTool", **kwargs):
+  result = ComponentAccumulator()
+
+  acc = SCT_CablingToolCfg(flags)
+  kwargs.setdefault("SCT_CablingTool", acc.popPrivateTools())
+  result.merge(acc)
+
+  tool = CompFactory.SCT_ReadoutTool(**kwargs)
+  result.setPrivateTools(tool)
+  return result
 
 def SCT_TdaqEnabledToolCfg(flags, name="InDetSCT_TdaqEnabledTool", **kwargs):
   if flags.Input.isMC:

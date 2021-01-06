@@ -146,7 +146,7 @@ void checkHistograms (const std::string& submitdir,
 
 TEST (DuplicateCheckerTest, all_tests)
 {
-  xAOD::TReturnCode::enableFailure();
+  StatusCode::enableFailure();
   xAOD::Init ().ignore();
 
   std::string prefix = "DuplicateCheckerSubmit";

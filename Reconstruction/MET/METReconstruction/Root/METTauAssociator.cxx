@@ -21,6 +21,7 @@
 // Tau EDM
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTau/TauTrack.h"
+#include "xAODTau/TauxAODHelpers.h"
 
 // Tracking EDM
 #include "xAODTracking/Vertex.h"
@@ -28,6 +29,8 @@
 // DeltaR calculation
 #include "FourMomUtils/xAODP4Helpers.h"
 
+#include "tauRecTools/HelperFunctions.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #include "PFlowUtils/IWeightPFOTool.h"
 
 namespace met {
@@ -107,12 +110,26 @@ namespace met {
                                                    const met::METAssociator::ConstitHolder& /*tcCont*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
 
-    for (const xAOD::IParticle* particle : tau->clusters(0.2)) {
-      const CaloCluster* cluster = static_cast<const CaloCluster*>(particle);
-      tclist.push_back(cluster);
+    auto clusterList = tau->clusters();
+    for (const xAOD::IParticle* particle : clusterList) {
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+      
+      TLorentzVector clusterP4 = cluster->p4();
+      
+      // Correct the four momentum to point at the tau vertex
+      if (tauVertex) {
+        xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, tauVertex->position()); 
+        clusterP4 = vertexedCluster.p4();
+      }
+        
+      if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
+    
+      tclist.push_back(particle);
     }
-
+  
     return StatusCode::SUCCESS;
   }
 

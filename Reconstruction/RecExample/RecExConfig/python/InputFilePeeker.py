@@ -19,10 +19,7 @@ inputFileSummary = {}
 def _setup():
 
     global inputFileSummary
-    import os
-    from RecExConfig.RecFlags import rec
     import AthenaCommon.Logging as L
-    from AthenaCommon.Resilience import treatException
 
     #define a logger
     msg = L.logging.getLogger('inputFilePeeker' )
@@ -51,7 +48,7 @@ def _setup():
             fi = athFile.fopen(inFile)
             inputFileSummary = fi.fileinfos
         except Exception as err:
-            msg.warning("Unable to open file [%s]"%inFile)
+            msg.warning("Unable to open file [%s]",inFile)
             msg.warning('caught:\n%s',err)
             import traceback
             traceback.print_exc()
@@ -66,11 +63,11 @@ def _setup():
         if inputFileSummary['stream_names'] == []:
             try:
                 inputFileSummary['stream_names'] = [fi.infos['metadata_items'][0][1]]
-            except Exception as err:
+            except Exception:
                 msg.info("Unable to find stream names in file metadata.")
 
         #If stream_names still not found, check for bytestream case or give default value
-        if inputFileSummary['stream_names']==None or inputFileSummary['stream_names']==[]:
+        if inputFileSummary['stream_names'] is None or len(inputFileSummary['stream_names'])==0:
             if inputFileSummary['file_type']=='bs':
                 msg.info("stream_names not present in input bytestream file. Giving default name 'StreamRAW'")
                 inputFileSummary['stream_names']=['StreamRAW']
@@ -82,10 +79,10 @@ def _setup():
 
         #DR TAG do not have run number        
         if len(inputFileSummary['run_number']) >0 or 'TAG' in inputFileSummary['stream_names'] :
-            msg.info("Successfully filled inputFileSummary from file %s"%inFile)
+            msg.info("Successfully filled inputFileSummary from file %s",inFile)
             break
         else:
-            msg.warning("Unable to fill inputFileSummary from file %s. File is probably empty. Will try again with next (if any)."%inFile)
+            msg.warning("Unable to fill inputFileSummary from file %s. File is probably empty. Will try again with next (if any).",inFile)
 
         ## everything failed...
             failed_trials += 1
@@ -94,7 +91,7 @@ def _setup():
         ## with file summaries which are irrelevant.
         ## FIXME: should the trigger be jobo-settable ?
         if failed_trials > 10:
-            msg.warning("Unable to fill inputFileSummary [%d] times. flushing athfile cache..." % failed_trials)
+            msg.warning("Unable to fill inputFileSummary [%d] times. flushing athfile cache...", failed_trials)
             athFile.flush_cache()
         pass
 
@@ -104,7 +101,7 @@ def _setup():
         return
 
     #Exception: if input is TAG, you need to follow the link to fill inputFileSummary
-    msg.info("Extracted streams %s from input file " % inputFileSummary['stream_names'] )   
+    msg.info("Extracted streams %s from input file ", inputFileSummary['stream_names'] )
 
 
     inputFileSummary['TagStreamsRef']=None
@@ -116,7 +113,7 @@ def _setup():
 
         from RecExConfig.AutoConfiguration import GetDefaultTagRefStream
         streamTarget=GetDefaultTagRefStream(tagStreamsRef)
-        msg.info ( "will redirect to target %s " % streamTarget )
+        msg.info ( "will redirect to target %s ", streamTarget )
 
         # now get the file on which the TAG is pointing
         from PyUtils.PoolFile import PoolFileCatalog as pfc
@@ -141,14 +138,14 @@ def _setup():
             #get guid of file to be navigated to, then get corresponding physics file name
             aTagStreamsRef=tagStreamsRef[streamTarget][0]
             newInFile=pfc(catalog=catalog_name).pfn(aTagStreamsRef)
-            msg.info ( "reading TAG redirected to file fid: %s pfn:%s " % (aTagStreamsRef,newInFile))
+            msg.info ( "reading TAG redirected to file fid: %s pfn:%s ", aTagStreamsRef, newInFile)
             try:
                 fi = athFile.fopen(newInFile)
             except Exception:    
-                msg.warning ( "AthFile.fopen failed ! Could not redirect input TAG to first target file %s. Probably not available. Now trying them all." % newInfile )
+                msg.warning ( "AthFile.fopen failed ! Could not redirect input TAG to first target file %s. Probably not available. Now trying them all.", newInFile )
                 newInFile=None
         except Exception:
-            msg.warning ( "could not redirect input TAG to first target file %s. Probably not in catalog. Now trying them all." % aTagStreamsRef )
+            msg.warning ( "could not redirect input TAG to first target file %s. Probably not in catalog. Now trying them all.", aTagStreamsRef )
             newInFile=None
 
         if newInFile is None:    
@@ -158,7 +155,7 @@ def _setup():
                 try:
                     newInFile=pfc(catalog=catalog_name).pfn(aTagStreamsRef)
                     fi = athFile.fopen(newInFile)
-                    msg.info ( "finally redirected input TAG to file fid: %s pfn:%s " % (aTagStreamsRef,newInFile))
+                    msg.info ( "finally redirected input TAG to file fid: %s pfn:%s ", aTagStreamsRef, newInFile)
                     break
                 except Exception:
 
@@ -204,7 +201,7 @@ def _setup():
     inputFileSummary['metadata_itemsList']=fullList
 
     #Catch common problems
-    if inputFileSummary['conditions_tag']==None:
+    if inputFileSummary['conditions_tag'] is None:
         inputFileSummary['conditions_tag']=""
 
     if inputFileSummary['evt_type']==[] and inputFileSummary['file_type']=='bs':
@@ -218,12 +215,12 @@ def _setup():
         else:
             inputFileSummary['evt_type']=('IS_DATA', 'Unknown', 'Unknown')
             pass
-        msg.warning("Input file has zero events and hence no EventInfo object. Guessed that evt_type=%s, but this is not certain. Using auto-configuration is not safe if this info is wrong."%(inputFileSummary['evt_type'][0]))
+        msg.warning("Input file has zero events and hence no EventInfo object. Guessed that evt_type=%s, but this is not certain. Using auto-configuration is not safe if this info is wrong.", inputFileSummary['evt_type'][0])
         pass
 
     #Final print out (DEBUG)
     msg.debug("inputFileSummary is:")
-    msg.debug(str(inputFileSummary))
+    msg.debug("%s",inputFileSummary)
     return
 
 # execute function at module import

@@ -8,7 +8,6 @@ from AthenaCommon.Include import include  # to include old style job options
 from AthenaCommon.AppMgr import theApp
 
 from RecExConfig.RecFlags  import rec
-from RecExConfig.RecAlgsFlags import recAlgs
 
 
 from RecExConfig.Configured import Configured
@@ -41,7 +40,7 @@ class Lvl1ResultBuilderGetter(Configured):
         topSequence = AlgSequence()
 
 
-        if recAlgs.doTrigger():
+        if rec.doTrigger():
             if (rec.doESD() or rec.doAOD()) and (not(rec.readAOD() or \
                                                          rec.readESD())):
                 if jobproperties.Global.InputFormat() == 'bytestream':

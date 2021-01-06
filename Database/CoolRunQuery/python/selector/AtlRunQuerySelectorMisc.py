@@ -7,7 +7,7 @@ from time import gmtime
 
 from CoolRunQuery.AtlRunQueryRun import Run
 from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, GetRanges
-from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition, DataKey
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition, DataKey
 
 
 class FilenameSelector(RunLBBasedCondition):

@@ -224,7 +224,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
 
       if(thrType == "EM") {
          auto & eminfo = l1menu.thrExtraInfo().EM();
-         for(const std::string & isoSet : { "EMIsoForEMthr", "HAIsoForEMthr" }) {
+         for(const std::string isoSet : { "EMIsoForEMthr", "HAIsoForEMthr" }) {
             jThrType["isolation"][isoSet]["thrtype"] = isoSet;
             jThrType["isolation"][isoSet]["Parametrization"] = json::array_t({});
             for(size_t bit = 1; bit<=5; ++bit) {
@@ -412,7 +412,7 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const L1Me
          {L1TopoAlgorithm::AlgorithmType::MULTIPLICITY, "multiplicityAlgorithms"}
       };
 
-      for( const std::string & topoCat : {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"} ) {
+      for( const std::string topoCat : {"TOPO", "MUTOPO", "MULTTOPO", "R2TOPO"} ) {
          for(auto & algName : l1menu.topoAlgorithmNames(topoCat)) {
             json jalg = json::object_t({});
             auto & alg = l1menu.algorithm(algName,topoCat);

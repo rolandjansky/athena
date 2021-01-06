@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 This module defines miscellaneous utility functions.
 """
@@ -17,12 +17,12 @@ def getRunFromName(name,default='',asInt=False):
     name = os.path.basename(name)
     try:
         run = re.sub('^0*','',name.split('.')[1])
-        if not re.search('^\d+$',run):
+        if not re.search(r'^\d+$',run):
             # Probably wasn't the run number, so use the default instead
             run = default
         else:
             run = int(run) if asInt else run
-    except:
+    except Exception:
         run = default
     return run
 
@@ -50,7 +50,7 @@ def getUserName(default='UNKNOWN'):
     user = ''
     try:
         user = os.getlogin()     # this doesn't seem to work with acrontab
-    except:
+    except Exception:
         pass
     if not user:
         user = os.getenv('USER',default)

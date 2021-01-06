@@ -53,7 +53,7 @@ namespace InDet {
     virtual CP::SystematicSet recommendedSystematics() const = 0;
     
     /// configure the tool to apply a given list of systematic variations
-    virtual CP::SystematicCode applySystematicVariation( const CP::SystematicSet& ) = 0;
+    virtual StatusCode applySystematicVariation( const CP::SystematicSet& ) = 0;
     
 
   };/// class IInDetTrackSmearingTool

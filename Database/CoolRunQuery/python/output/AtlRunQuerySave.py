@@ -47,7 +47,7 @@ def CreateResultDict( runlist ):
     SaveResultTxt(runlist, header)
 
     dic = CreateDic(runlist, header)
-
+    
     dic_basic = CreateDicBasicTypes(dic)
 
     SaveTypelessPickleResult(dic_basic)
@@ -96,7 +96,7 @@ def SaveResultTxt(runlist, header):
 
 def SaveTypelessPickleResult(pdic, filename = 'atlrunquery.pickle'):
     # write pickle output
-    pf = open( '%s/atlrunquery.pickle' % QC.datapath, 'w' )
+    pf = open( '%s/atlrunquery.pickle' % QC.datapath, 'wb' )
     try:
         pickle.dump(pdic, pf)
     except Exception as e:
@@ -164,11 +164,11 @@ def CreateSummary(dic):
                 dicsum[key][0] += entry.value[0]
                 dicsum[key][1] += entry.value[1]
             else:
-                try:            
+                try:
                     ir = int(r)
                     if key not in dicsum:
                         dicsum[key] = 0
                     dicsum[key] += ir
-                except ValueError:
+                except (ValueError, TypeError):
                     pass
     return dicsum

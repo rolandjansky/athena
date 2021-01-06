@@ -128,6 +128,12 @@ namespace std {
 namespace {
   // this exists to avoid reallocating memory on every invokeFillers call
   thread_local Monitored::HistogramFiller::VariablesPack tl_vars ATLAS_THREAD_SAFE;
+
+  // Ensure that TLS defined in this library actually gets used.
+  // Avoids a potential slowdown in accessing TLS seen in simualation.
+  // See ATLASSIM-4932.
+  [[maybe_unused]]
+  const Monitored::HistogramFiller::VariablesPack& varDum = tl_vars;
 }
 
 void GenericMonitoringTool::invokeFillers(const std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>>& monitoredVariables) const {

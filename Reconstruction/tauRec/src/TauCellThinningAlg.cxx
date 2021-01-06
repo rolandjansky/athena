@@ -40,12 +40,22 @@ StatusCode TauCellThinningAlg::execute (const EventContext& ctx) const
   }
 
   for (const xAOD::TauJet* tau : *taus) {
-    std::vector<const xAOD::CaloCluster*> clusters;
-    ATH_CHECK( tauRecTools::GetJetClusterList(tau->jet(), clusters, m_useSubtractedCluster) );
+    // Assume we always do the vertex correction
+    TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
+    const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);
 
-    for (const xAOD::CaloCluster* cluster : clusters) {
-      // only keep cells for clusters within 0.2
-      if (cluster->p4().DeltaR(tau->p4())>0.2) continue;
+    auto clusterList = tau->clusters();
+    for (const xAOD::IParticle* particle : clusterList) {
+      const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
+      TLorentzVector clusterP4 = cluster->p4();
+
+      // Correct the four momentum to point at the tau vertex
+      if (tauVertex) {
+        xAOD::CaloVertexedTopoCluster vertexedCluster(*cluster, tauVertex->position()); 
+        clusterP4 = vertexedCluster.p4();
+      }
+
+      if (clusterP4.DeltaR(tauAxis) > 0.2) continue;
 
       const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
       if (!cellLinks) {

@@ -331,7 +331,8 @@ if DQMonFlags.doMonitoring():
       elif globalflags.InputFormat() == 'pool':
          ConfigFlags.Input.Files=svcMgr.EventSelector.InputCollections
 
-      ConfigFlags.GeoModel.Align.Dynamic=InDetFlags.useDynamicAlignFolders()
+      from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+      ConfigFlags.GeoModel.Align.Dynamic=InDetGeometryFlags.useDynamicAlignFolders()
       ConfigFlags.Detector.GeometryPixel=DetFlags.pixel_on()
       ConfigFlags.Detector.GeometrySCT=DetFlags.SCT_on()
       ConfigFlags.Detector.GeometryTRT=DetFlags.TRT_on()
@@ -355,7 +356,8 @@ if DQMonFlags.doMonitoring():
       Steering.doGlobalMon=DQMonFlags.doGlobalMon()
       Steering.doLVL1CaloMon=DQMonFlags.doLVL1CaloMon()
       Steering.doCTPMon=DQMonFlags.doCTPMon()
-      Steering.doHLTMon=DQMonFlags.doHLTMon()
+      # do not enable new HLT monitoring if we are not in Run 3 EDM
+      Steering.doHLTMon=DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 3
       Steering.doPixelMon=DQMonFlags.doPixelMon()
       Steering.doSCTMon=DQMonFlags.doSCTMon()
       Steering.doTRTMon=DQMonFlags.doTRTMon()

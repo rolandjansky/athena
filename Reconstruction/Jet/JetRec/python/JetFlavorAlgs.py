@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetFlavorAlgs.py
 #
@@ -20,7 +20,6 @@ def scheduleCopyTruthParticles():
   from ParticleJetTools.ParticleJetToolsConf import CopyFlavorLabelTruthParticles
   from ParticleJetTools.ParticleJetToolsConf import CopyBosonTopLabelTruthParticles
   from ParticleJetTools.ParticleJetToolsConf import CopyTruthPartons
-  from ParticleJetTools.CopyTruthParticlesAlg import CopyTruthParticlesAlg
 
   tools = []
   for ptype in jetFlags.truthFlavorTags():

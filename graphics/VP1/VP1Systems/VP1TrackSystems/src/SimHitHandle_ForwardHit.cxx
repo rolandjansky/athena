@@ -21,8 +21,6 @@
 #include "ForwardRegion_SimEv/SimulationHit.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
-// #include "TrkSurfaces/PlaneSurface.h"
-// #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/Surface.h"
 

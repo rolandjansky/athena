@@ -14,7 +14,6 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonReadoutGeometry/MuonStation.h"
-#include "RegSelLUT/RegSelSiLUT.h"
 
 #include <iostream>
 #include <vector>

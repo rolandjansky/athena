@@ -57,6 +57,17 @@ void test1 (SGTest::TestStore& store)
   evcoll->push_back (std::make_unique<HepMC::GenEvent>());
 
   auto ge = std::make_unique<HepMC::GenEvent>();
+#ifdef HEPMC3
+  auto gv=HepMC::newGenVertexPtr() ;
+  std::vector<HepMC::GenParticlePtr> parts;
+  for (size_t i = 0; i < 5; i++) {
+    auto gp = HepMC::newGenParticlePtr(HepMC::FourVector(i*10 + 1.5,i*10 + 2.5,i*10 + 3.5,i*10 + 4.5),i+20);
+    HepMC::suggest_barcode(gp,1000+i);
+    parts.push_back (gp);
+    gv->add_particle_out(gp);
+  }
+  ge->add_vertex (gv);
+#else
   auto gv = std::make_unique<HepMC::GenVertex>();
   std::vector<HepMC::GenParticle*> parts;
   for (size_t i = 0; i < 5; i++) {
@@ -71,6 +82,7 @@ void test1 (SGTest::TestStore& store)
     gv->add_particle_out (gp.release());
   }
   ge->add_vertex (gv.release());
+#endif
   evcoll->push_back (std::move(ge));
   store.record (std::move(evcoll), "mcevt");
   ElementLink<McEventCollection> evlink ("mcevt", 2);

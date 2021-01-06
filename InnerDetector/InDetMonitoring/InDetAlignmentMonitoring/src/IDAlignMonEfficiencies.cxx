@@ -399,11 +399,12 @@ StatusCode IDAlignMonEfficiencies::initialize()
   }
 
   // get TrackSummaryTool
-  if ( m_trackSumTool.retrieve().isFailure() ) {
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Failed to retrieve tool " << m_trackSumTool << endmsg;
+  if ( m_trackSumTool.retrieve().isSuccess() ) {
+    ATH_MSG_DEBUG ("Retrieving success of track summary tool " << m_trackSumTool);
+  } 
+  else {
+    ATH_MSG_WARNING ("Failed to retrieve track summary tool " << m_trackSumTool);
     return StatusCode::SUCCESS;
-  } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
   }
 
   // ReadHandleKey initialization
@@ -713,9 +714,9 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1* histo) {
   if (strncmp (HistName,"hit",3) == 0) histo->GetYaxis()->SetTitle("Number of Possible Hits on Tracks");   
 
   const char * pch;
-  pch = strstr (HistName,"Phi"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
-  pch = strstr (HistName,"Eta"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Eta Identifier");  
-  pch = strstr (HistName,"pT"); if (pch != NULL) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
+  pch = strstr (HistName,"Phi"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
+  pch = strstr (HistName,"Eta"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Eta Identifier");  
+  pch = strstr (HistName,"pT"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
 }
 
 void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
@@ -731,9 +732,9 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH1F_LW* histo) {
   if (strncmp (HistName,"hit",3) == 0) histo->GetYaxis()->SetTitle("Number of Possible Hits on Tracks");   
 
   const char * pch;
-  pch = strstr (HistName,"Phi"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
-  pch = strstr (HistName,"Eta"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Eta Identifier");  
-  pch = strstr (HistName,"pT"); if (pch != NULL) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
+  pch = strstr (HistName,"Phi"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
+  pch = strstr (HistName,"Eta"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Eta Identifier");  
+  pch = strstr (HistName,"pT"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
 }
 
 void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile* histo, const std::string & yAxisName) {
@@ -754,9 +755,9 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile* histo, const
   if (strncmp (HistName,"hole",4) == 0) histo->GetYaxis()->SetTitle("Hole Fraction");     
 
   const char * pch;
-  pch = strstr (HistName,"Phi"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
-  pch = strstr (HistName,"Eta"); if (pch != NULL) histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
-  pch = strstr (HistName,"pT"); if (pch != NULL) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
+  pch = strstr (HistName,"Phi"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Phi Identifier"); 
+  pch = strstr (HistName,"Eta"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Module Eta Identifier"); 
+  pch = strstr (HistName,"pT"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Signed Track pT [GeV]"); 
 }
 
 void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TH2* histo) {
@@ -781,16 +782,18 @@ void IDAlignMonEfficiencies::RegisterHisto(MonGroup& mon, TProfile2D* histo) {
 
   const char* HistName = histo->GetName();
   const char * pch;
-  pch = strstr (HistName,"pix_eca"); if (pch != NULL) histo->GetXaxis()->SetTitle("Pixel ECA Disk"); 
-  pch = strstr (HistName,"pix_ecc"); if (pch != NULL) histo->GetXaxis()->SetTitle("Pixel ECC Disk"); 
-  pch = strstr (HistName,"sct_eca"); if (pch != NULL) histo->GetXaxis()->SetTitle("SCT ECA Disk"); 
-  pch = strstr (HistName,"sct_ecc"); if (pch != NULL) histo->GetXaxis()->SetTitle("SCT ECC Disk"); 
+  pch = strstr (HistName,"pix_eca"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Pixel ECA Disk"); 
+  pch = strstr (HistName,"pix_ecc"); if (pch != nullptr) histo->GetXaxis()->SetTitle("Pixel ECC Disk"); 
+  pch = strstr (HistName,"sct_eca"); if (pch != nullptr) histo->GetXaxis()->SetTitle("SCT ECA Disk"); 
+  pch = strstr (HistName,"sct_ecc"); if (pch != nullptr) histo->GetXaxis()->SetTitle("SCT ECC Disk"); 
+  return;
 }
 
-
+///////////////////////////////////////////////////
 StatusCode IDAlignMonEfficiencies::fillHistograms()
 {
   m_events++;
+  ATH_MSG_DEBUG ("IDAlignMonEfficiencies::fillHistograms ** START ** call for m_events " << m_events << " for track collection: " <<   m_tracksName.key());
 
   SG::ReadHandle<xAOD::EventInfo> eventInfo{m_eventInfoKey};
   if (not eventInfo.isValid()) {
@@ -798,28 +801,34 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     return StatusCode::FAILURE;
   }
   unsigned int LumiBlock = eventInfo->lumiBlock();
+  ATH_MSG_DEBUG ("IDAlignMonResiduals::fillHistograms ** Run: " << eventInfo->runNumber() 
+		 << "   Event: " <<  eventInfo->eventNumber()
+		 << "   LumiBlock: " << LumiBlock);
   
   // get TrackCollection
   SG::ReadHandle<TrackCollection> tracks{m_tracksName};
   if (not tracks.isValid()) {
-    ATH_MSG_ERROR(m_tracksName.key() << " could not be retrieved");
+    ATH_MSG_WARNING (m_tracksName.key() << " could not be retrieved");
+    ATH_MSG_DEBUG ("IDAlignMonEfficiencies::fillHistograms ** COMPLETED ** for m_events " << m_events << " -- NO track collection: " <<   m_tracksName.key() << " -- ");
     return StatusCode::RECOVERABLE;
   }
+
   const DataVector<Trk::Track>* trks = m_trackSelection->selectTracks(tracks);
   DataVector<Trk::Track>::const_iterator trksItr  = trks->begin();
   DataVector<Trk::Track>::const_iterator trksItrE = trks->end();
-  for (; trksItr != trksItrE; ++trksItr) {
-    
-  
+
+  int nTrackCount = 0;
+  ATH_MSG_DEBUG ("** IDAlignMonEfficiencies::fillHistograms ** starting loop over tracks. Ntrks: " << tracks->size()); 
+  for (; trksItr != trksItrE; ++trksItr) {    
+    nTrackCount++;
+    ATH_MSG_DEBUG ("  dealing with track #" << nTrackCount << " / " << tracks->size());
     float qOverP         = -999;
     float trkpt          = -999;
     float charge         = 0;
     float abs_trkpt      = -999;     //charge*trkpt
 
-    
-
     const Trk::Perigee* measPer = (*trksItr)->perigeeParameters();
-    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : NULL;
+    const AmgSymMatrix(5)* covariance = measPer ? measPer->covariance() : nullptr;
     
     if (measPer && covariance) {
       AmgVector(5) perigeeParams = measPer->parameters();
@@ -830,10 +839,9 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       else charge=+1; 			      
       abs_trkpt = charge*trkpt;                        
     }
-    else
-      {
-	if(msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No measured perigee parameters assigned to the track" << endmsg; 
-      }
+    else {
+      ATH_MSG_WARNING ("No measured perigee parameters assigned to the track " << nTrackCount); 
+    }
 
     // loop over all hits on track
     const DataVector<const Trk::TrackStateOnSurface>* TSOS;
@@ -841,13 +849,12 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItr  = TSOS->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator TSOSItrE = TSOS->end();
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)<<"starting to loop over TSOS"<<endmsg;
+    ATH_MSG_VERBOSE ("Track #" << nTrackCount << "/" <<tracks->size() << " has " << TSOS->size() << " TSOS. Starting loop over TSOS");
      
     for (; TSOSItr != TSOSItrE; ++TSOSItr) {
-
       //check that we have track parameters defined for the surface (pointer is not null)
       if(!((*TSOSItr)->trackParameters())) {
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit skipped because no associated track parameters" << endmsg;
+	ATH_MSG_DEBUG ("hit skipped because no associated track parameters");
 	continue;
       }
       
@@ -855,7 +862,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       const Trk::MeasurementBase* mesb=(*TSOSItr)->measurementOnTrack();
 
       // hits, outliers
-      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
 
       // holes, perigee 
       else surfaceID = (*TSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier(); 
@@ -883,14 +890,12 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
       //hit quality cuts for Si hits if tool is configured - default is NO CUTS
       if (detType ==0 ||  detType==1){
 	if (detType==0){//pixel
-	  
 	  barrelEC  = m_pixelID -> barrel_ec(surfaceID);
 	  layerDisk = m_pixelID -> layer_disk(surfaceID);
 	  modEta    = m_pixelID -> eta_module(surfaceID);
 	  modPhi    = m_pixelID -> phi_module(surfaceID);
 	}
 	else {          //sct. Since detType == 0 or detType == 1 here
-	 
 	  barrelEC  = m_sctID->barrel_ec(surfaceID);
 	  layerDisk = m_sctID->layer_disk(surfaceID);
 	  modEta    = m_sctID->eta_module(surfaceID);
@@ -898,18 +903,21 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  sctSide   = m_sctID->side(surfaceID);
 	}
 
-
 	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to Silicon hit..." << endmsg;
+	  ATH_MSG_DEBUG ("applying hit quality cuts to Silicon hit...");
 	  
 	  const Trk::RIO_OnTrack* hit = m_hitQualityTool->getGoodHit(*TSOSItr);
-	  if(hit==NULL) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit failed quality cuts and is rejected." << endmsg;
+	  if(hit == nullptr) {
+	    ATH_MSG_DEBUG(" -- hit failed quality cuts and is rejected.");
 	    continue;
 	  }
-	    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit passed quality cuts" << endmsg;
+	  else {
+	    ATH_MSG_DEBUG (" -- hit passed quality cuts");
+	  }
 	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit quality cuts NOT APPLIED to Silicon hit." << endmsg;
+	else {
+	  ATH_MSG_DEBUG ("hit quality cuts NOT APPLIED to Silicon hit.");
+	}
       }
 
       /** Get information for the TRT hits */
@@ -1235,306 +1243,313 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	
       } // end of outliers 
     } // TSOS on track 
+    ATH_MSG_DEBUG(" End of loop on TSOS of track " << nTrackCount << "  Now searching for holes ");
     
-    std::unique_ptr<Trk::TrackSummary> summary = m_trackSumTool->summary(**trksItr);
-    if( !summary->get(Trk::numberOfPixelHits) && !summary->get(Trk::numberOfSCTHits) && (summary->get(Trk::numberOfPixelHoles)==0) && (summary->get(Trk::numberOfSCTHoles)==0) && (m_doHoleSearch)){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Pixel or SCT hits skip hole search" << endmsg;
-      continue;
-    }
-
     const DataVector<const Trk::TrackStateOnSurface>* HTSOS;
-    HTSOS = m_holeSearchTool->getHolesOnTrack(**trksItr); 
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItr  = HTSOS->begin();
-    DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItrE = HTSOS->end();
+    if (m_holeSearchTool != 0) {
+      HTSOS = m_holeSearchTool->getHolesOnTrack(**trksItr);
+      ATH_MSG_DEBUG (" -- Hole TSOS collection has size " << HTSOS->size());
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItr  = HTSOS->begin();
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator HTSOSItrE = HTSOS->end();
 
-    for (; HTSOSItr != HTSOSItrE; ++HTSOSItr) { // Loop on Holes on Track (HTSOS)    
-      Identifier surfaceID;
-      const Trk::MeasurementBase* mesb=(*HTSOSItr)->measurementOnTrack();
-      // hits, outliers
-      if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!=NULL) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
-      // holes, perigee 
-      else surfaceID = (*HTSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier(); 
-
-      int detType = 99;
-      int barrelEC = 99;
-      int layerDisk = 99;
-      int sctSide   = 99;
-      int modEta = 9999;
-      int modPhi = 9999;
-      if (m_idHelper->is_trt(surfaceID)) detType = 2;
-      else if (m_idHelper->is_sct(surfaceID)) detType = 1;
-      else if (m_idHelper->is_pixel(surfaceID)) detType = 0;
-      //hit quality cuts for Si hits if tool is configured - default is NO CUTS
-      if (detType==0 ||  detType==1){
-	if (detType==0){//pixel
-	  
-	  barrelEC  = m_pixelID -> barrel_ec(surfaceID);
-	  layerDisk = m_pixelID -> layer_disk(surfaceID);
-	  modEta    = m_pixelID -> eta_module(surfaceID);
-	  modPhi    = m_pixelID -> phi_module(surfaceID);
-	}
-	else {          //sct. Since detType == 0 or detType == 1 here
-	  
-	  barrelEC  = m_sctID->barrel_ec(surfaceID);
-	  layerDisk = m_sctID->layer_disk(surfaceID);
-	  modEta    = m_sctID->eta_module(surfaceID);
-	  modPhi    = m_sctID->phi_module(surfaceID);
-	  sctSide   = m_sctID->side(surfaceID);
-	}
-	if(m_doHitQuality) {
-	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hole quality cuts to Silicon hole..." << endmsg;
-	  
-	  if(!m_hitQualityTool->getGoodHole(*HTSOSItr)) {
-	    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole failed quality cuts and is rejected." << endmsg;
-	    continue;
-	  }
-	  else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole passed quality cuts" << endmsg;
-	}
-	else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hole quality cuts NOT APPLIED to Silicon hole." << endmsg;
-      }
-      
-      
-      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
-
-	// all possible type of holes
-	// --- pixel
-	if (detType==0){
-	  if (barrelEC == 0){
-	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endmsg;
-	  
-	   
-	    bool knownType = false;
-	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
-	      knownType = true;
-	      //std::cout << " Type: Measurement ";
-	    }
-	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) {
-	      knownType = true;
-	      //std::cout << " Type: Outlier ";
-	    }
-	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole)) {
-	      knownType = true;
-	      //std::cout << " Type: Hole ";
-	    }
-	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- "<<std::endl;
+      int holeCount = 0;
+      for (; HTSOSItr != HTSOSItrE; ++HTSOSItr) { // Loop on Holes on Track (HTSOS)
+	holeCount++;
+	ATH_MSG_VERBOSE (" -- Hole number " << holeCount);
+	
+	Identifier surfaceID;
+	const Trk::MeasurementBase* mesb=(*HTSOSItr)->measurementOnTrack();
+	// hits, outliers
+	if (mesb != 0 && mesb->associatedSurface().associatedDetectorElement()!= nullptr) surfaceID = mesb->associatedSurface().associatedDetectorElement()->identify();
+	// holes, perigee
+	else surfaceID = (*HTSOSItr)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
+	
+	int detType = 99;
+	int barrelEC = 99;
+	int layerDisk = 99;
+	int sctSide   = 99;
+	int modEta = 9999;
+	int modPhi = 9999;
+	if (m_idHelper->is_trt(surfaceID)) detType = 2;
+	else if (m_idHelper->is_sct(surfaceID)) detType = 1;
+	else if (m_idHelper->is_pixel(surfaceID)) detType = 0;
+	//hit quality cuts for Si hits if tool is configured - default is NO CUTS
+	if (detType==0 ||  detType==1){
+	  if (detType==0){//pixel
 	    
-  
-	     m_hits_vs_layer_barrel -> Fill(layerDisk);
-	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
-	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	    m_hits_vs_LB_pix_b[layerDisk]  -> Fill(float(LumiBlock));
-	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	   
-	  }//barrel
-	  // ----------- eca
-	  else if (barrelEC == 2){ 
-	    m_hits_vs_layer_eca -> Fill(layerDisk);
-	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	    m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
-	  } // eca
-	  // ----------- ecc
-	  else if (barrelEC == -2){ 
-	    m_hits_vs_layer_ecc -> Fill(layerDisk);
-	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_ecc[layerDisk]  -> Fill(float(LumiBlock));
-	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
-	  } // ecc
-	} // pixels
-
-	// --- sct
-	else if (detType==1){
-	  if (barrelEC == 0)
-	    { 
-
-	      m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
+	    barrelEC  = m_pixelID -> barrel_ec(surfaceID);
+	    layerDisk = m_pixelID -> layer_disk(surfaceID);
+	    modEta    = m_pixelID -> eta_module(surfaceID);
+	    modPhi    = m_pixelID -> phi_module(surfaceID);
+	  }
+	  else {          //sct. Since detType == 0 or detType == 1 here
+	    
+	    barrelEC  = m_sctID->barrel_ec(surfaceID);
+	    layerDisk = m_sctID->layer_disk(surfaceID);
+	    modEta    = m_sctID->eta_module(surfaceID);
+	    modPhi    = m_sctID->phi_module(surfaceID);
+	    sctSide   = m_sctID->side(surfaceID);
+	  }
+	  if(m_doHitQuality) {
+	    ATH_MSG_DEBUG ("applying hole quality cuts to Silicon hole...");
+	    
+	    if(!m_hitQualityTool->getGoodHole(*HTSOSItr)) {
+	      ATH_MSG_DEBUG ("hole failed quality cuts and is rejected.");
+	      continue;
+	    }
+	    else {
+	      ATH_MSG_DEBUG ("hole passed quality cuts");
+	    }
+	  }
+	  else {
+	    ATH_MSG_DEBUG ("hole quality cuts NOT APPLIED to Silicon hole.");
+	  }
+	}
+	
+	if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) || (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
+	  
+	  // all possible type of holes
+	  // --- pixel
+	  if (detType==0){
+	    if (barrelEC == 0){
+	      // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endmsg;
 	      
-	      m_hits_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
-	      if (sctSide == 0) m_hits_vs_Eta_Phi_sct_s0_b[layerDisk] -> Fill(modEta,modPhi);
-	      if (sctSide == 1) m_hits_vs_Eta_Phi_sct_s1_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_hits_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
-	      m_hits_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
-	      m_hits_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	      m_hits_vs_LB_sct_b[layerDisk] -> Fill(float(LumiBlock));
+	      
+	      bool knownType = false;
+	      if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
+		knownType = true;
+	      }
+	      if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier)) {
+		knownType = true;
+	      }
+	      if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole)) {
+		knownType = true;
+	      }
+	      if (!knownType) ATH_MSG_DEBUG ("IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- ");
+	      
+	      
+	      m_hits_vs_layer_barrel -> Fill(layerDisk);
+	      m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
+	      m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	      m_hits_vs_LB_pix_b[layerDisk]  -> Fill(float(LumiBlock));
+	      m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_hits_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	      
+	    }//barrel
+	    // ----------- eca
+	    else if (barrelEC == 2){ 
+	      m_hits_vs_layer_eca -> Fill(layerDisk);
+	      m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
+	      m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	      m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	    } // eca
+	    // ----------- ecc
+	    else if (barrelEC == -2){ 
+	      m_hits_vs_layer_ecc -> Fill(layerDisk);
+	      m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
+	      m_hits_vs_LB_pix_ecc[layerDisk]  -> Fill(float(LumiBlock));
+	      m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	    } // ecc
+	  } // pixels
+	  
+	  // --- sct
+	  else if (detType==1){
+	    if (barrelEC == 0)
+	      { 
+		
+		m_hits_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk + sctSide);
+		
+		m_hits_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
+		if (sctSide == 0) m_hits_vs_Eta_Phi_sct_s0_b[layerDisk] -> Fill(modEta,modPhi);
+		if (sctSide == 1) m_hits_vs_Eta_Phi_sct_s1_b[layerDisk] -> Fill(modEta,modPhi);
+		m_hits_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+		m_hits_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+		m_hits_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
+		m_hits_vs_LB_sct_b[layerDisk] -> Fill(float(LumiBlock));
+	      }
+	    else if (barrelEC == 2){ 
+	      m_hits_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	      m_hits_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
+	      
+	      m_hits_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
 	    }
-	  else if (barrelEC == 2){ 
-	    m_hits_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
-	    m_hits_vs_Phi_sct_eca[layerDisk] -> Fill(modPhi);
-	    
-	    m_hits_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
-	  }
-	  else if (barrelEC == -2){ 
-	    m_hits_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
-	    m_hits_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);	  
-	    m_hits_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
-	  }
-	}//sct
-      } // all possible holes
-
-      // filling histograms for holes being holes
-      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
-
-	// holes per layer and per hit
-	// --- pixel
-	if (detType==0){
-	  if (barrelEC == 0){
-	    m_holes_vs_layer_barrel -> Fill(layerDisk);
-	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	  }
-	  // ----------- eca
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }
-	  // ----------- ecc
-	  else if (barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
-	  }
-	} // pix
-	// --- sct holes
-	else if (detType==1){
-	  if (barrelEC==0) {
-	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
-	    
-	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
-	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
-	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
-	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	   
-	  }
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
-	  }
-	  
-	  else if (detType==1 && barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
-	  }	
-	} // sct
-      } // holes as holes     
-
-      // filling histograms for holes being outliers
-      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
+	    else if (barrelEC == -2){ 
+	      m_hits_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	      m_hits_vs_Phi_sct_ecc[layerDisk] -> Fill(modPhi);	  
+	      m_hits_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	    }
+	  }//sct
+	} // all possible holes
 	
-	//This section has to be removed. There is no hole flagged as outlier. I've checked it (PF)
+	// filling histograms for holes being holes
+	if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Hole) ){
+	  
+	  // holes per layer and per hit
+	  // --- pixel
+	  if (detType==0){
+	    if (barrelEC == 0){
+	      m_holes_vs_layer_barrel -> Fill(layerDisk);
+	      m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	    }
+	    // ----------- eca
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	    }
+	    // ----------- ecc
+	    else if (barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	    }
+	  } // pix
+	  // --- sct holes
+	  else if (detType==1){
+	    if (barrelEC==0) {
+	      m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	      
+	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
+	      
+	    }
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
+	    }
+	    
+	    else if (detType==1 && barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	    }	
+	  } // sct
+	} // holes as holes     
 	
-	// holes per layer and per hit
-	// --- pixel
-	if (detType==0){
-	  if (barrelEC == 0){
-	    m_holes_vs_layer_barrel -> Fill(layerDisk);
-	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	  }
-	  // ----------- eca
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }
-	  // ----------- ecc
-	  else if (barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
-	  }
-	} // pix
-
-	// --- sct holes
-	else if (detType==1){
-	  if (barrelEC==0) {
-	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
-	    
+	// filling histograms for holes being outliers
+	if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
+	  
+	  //This section has to be removed. There is no hole flagged as outlier. I've checked it (PF)
+	  
+	  // holes per layer and per hit
+	  // --- pixel
+	  if (detType==0){
+	    if (barrelEC == 0){
+	      m_holes_vs_layer_barrel -> Fill(layerDisk);
+	      m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	    }
+	    // ----------- eca
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	    }
+	    // ----------- ecc
+	    else if (barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	    }
+	  } // pix
+	  
+	  // --- sct holes
+	  else if (detType==1){
+	    if (barrelEC==0) {
+	      m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	      
 	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
 	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
 	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
 	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	   
-	  }
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
-	  }
-	  
-	  else if (detType==1 && barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
-	  }	
-	} // sct
-      } // holes as outliers     
-
-      // filling histograms for holes being measurements 
-      if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
-
-	//This has to be removed. There are no holes flagged as measurements. Checked it. PF
-
-	// holes per layer and per hit
-	// --- pixel
-	if (detType==0){
-	  if (barrelEC == 0){
-	    m_holes_vs_layer_barrel -> Fill(layerDisk);
-	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
-	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
-	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
-	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
-	  }
-	  // ----------- eca
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	  }
-	  // ----------- ecc
-	  else if (barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(layerDisk);
-	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
-	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
-	  }
-	} // pix
-
-	// --- sct holes
-	else if (detType==1){
-	  if (barrelEC==0) {
-	    m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	      
+	    }
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
+	    }
 	    
+	    else if (detType==1 && barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	    }	
+	  } // sct
+	} // holes as outliers     
+	
+	// filling histograms for holes being measurements 
+	if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
+	  
+	  //This has to be removed. There are no holes flagged as measurements. Checked it. PF
+	  
+	  // holes per layer and per hit
+	  // --- pixel
+	  if (detType==0){
+	    if (barrelEC == 0){
+	      m_holes_vs_layer_barrel -> Fill(layerDisk);
+	      m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
+	      m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	      m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	      m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
+	    }
+	    // ----------- eca
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
+	    }
+	    // ----------- ecc
+	    else if (barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(layerDisk);
+	      m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
+	      m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
+	    }
+	  } // pix
+	  
+	  // --- sct holes
+	  else if (detType==1){
+	    if (barrelEC==0) {
+	      m_holes_vs_layer_barrel -> Fill(m_NPixLayers + 2*layerDisk +sctSide);
+	      
 	      m_holes_vs_Eta_Phi_sct_b[layerDisk] -> Fill(modEta,modPhi);
 	      m_holes_vs_Eta_sct_b[layerDisk] -> Fill(modEta);
 	      m_holes_vs_Phi_sct_b[layerDisk] -> Fill(modPhi);
 	      m_holes_vs_pT_sct_b[layerDisk] -> Fill(abs_trkpt);
-	   
-	  }
-	  else if (barrelEC == 2){ 
-	    m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
-	  }
-	  
-	  else if (detType==1 && barrelEC == -2){ 
-	    m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
-	    m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
-	  }	
-	} // sct
-      } // holes as measurements (?)    
-    }   
-    delete HTSOS;   
+	      
+	    }
+	    else if (barrelEC == 2){ 
+	      m_holes_vs_layer_eca -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_eca -> Fill(layerDisk, modPhi);
+	    }
+	    
+	    else if (detType==1 && barrelEC == -2){ 
+	      m_holes_vs_layer_ecc -> Fill(3 + 2*layerDisk + sctSide);
+	      m_holes_vs_Eta_Phi_sct_ecc -> Fill(layerDisk, modPhi);
+	    }	
+	  } // sct
+	} // holes as measurements (?)    
+      }   
+      ATH_MSG_DEBUG ("end of loop on " << HTSOS->size() << " holes ");
+      delete HTSOS;
+    } // hole tool exists   
   } 
+  ATH_MSG_DEBUG ("end of loop on " << nTrackCount << " tracks ok");
   delete trks; 
+
+  ATH_MSG_DEBUG ("IDAlignMonEfficiencies::fillHistograms ** COMPLETED ** for m_events " << m_events << " and track collection: " <<   m_tracksName.key());
   return StatusCode::SUCCESS;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* h_eff) {
+
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
       h_eff->Reset("ICE");
   }
@@ -1556,38 +1571,33 @@ void IDAlignMonEfficiencies::makeEffHisto(TH1F* h_num, TH1F* h_denom, TProfile* 
   SetMinWindow(h_eff, m_minSiliconEffWindow, m_maxSiliconEffWindow); 
 }
 
+/////////////////////////////////////////////////////////////////////////////////////////
 void IDAlignMonEfficiencies::makeEffHisto(TH1F_LW* h_num, TH1F_LW* h_denom, TProfile* h_eff) {
   if ( AthenaMonManager::environment() == AthenaMonManager::online ) {
       h_eff->Reset("ICE");
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in makeEffHisto  " << endmsg;
+  ATH_MSG_DEBUG ("in makeEffHisto for " << h_num->GetName() << " / " << h_denom->GetName());
   int Nbins;
   Nbins = h_num->GetNbinsX();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nbins is  " << Nbins << endmsg;
+  ATH_MSG_DEBUG ("Nbins is: " << Nbins);
   for (int bin=0; bin!=Nbins; ++bin) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "bin is  " << bin << endmsg;
     int Npass = int(h_num->GetBinContent(bin+1));
     int Nfail = int(h_denom->GetBinContent(bin+1)) - Npass;
     
     float binSize = (h_denom->getXMax() - h_denom->getXMin())/h_denom->GetNbinsX();
     double x = h_denom->getXMin() + binSize * bin + binSize/2;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Npass is  " << Npass << endmsg;
     for (int pass=0; pass<Npass; ++pass) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "pass is  " << pass << endmsg;
       h_eff->Fill(x,1.);
     }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Nfail is  " << Nfail << endmsg;
     for (int fail=0; fail<Nfail; ++fail) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "fail is  " << fail << endmsg;
       h_eff->Fill(x,0.);
     }
   }
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Out of loop  " << endmsg;
   SetMinWindow(h_eff, m_minSiliconEffWindow, m_maxSiliconEffWindow); 
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving makeEffHisto  " << Nbins << endmsg;
+  ATH_MSG_DEBUG ("leaving makeEffHisto with Nbins " << Nbins);
   return;
 }
 
@@ -1663,8 +1673,10 @@ void IDAlignMonEfficiencies::makeEffHisto(TH2F* h_num, TH2F* h_denom, TH2F* h_ef
 	      if (myEff < 0.01) myEff = 0.01; //trick to distinguish between few entries and not working modules or too low statistics (doComputeEff = false --> Eff = 0 % )
 	      h_eff->SetBinContent(bin+1,binY+1, myEff);
       }
-      if (doComputeEff) std::cout << "  Eff= " << myEff;
-      std::cout << std::endl;
+      ATH_MSG_INFO (" -- eff for module ( " << bin << ", " << binY << ")" 
+		    <<"  Nseen= " << NSeenHits
+		    << "  NExpected= " << NExpected 
+		    << "  Eff= " << h_eff->GetBinContent(bin, binY));
     }
   }
   return;
@@ -1687,7 +1699,7 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
       NExpected = h_denom->GetBinContent(bin+1,binY+1);
       doComputeEff = false; // check that there is a mimimum of entries
       if (NExpected > 10) doComputeEff = true; 
-      if (NSeenHits >  3) doComputeEff = true;
+      if (NSeenHits >  5) doComputeEff = true;
       if (doComputeEff) {
         float this_x = h_denom->GetXaxis()->GetBinCenter(bin+1);
         float this_y = h_denom->GetYaxis()->GetBinCenter(binY+1);
@@ -1696,19 +1708,19 @@ void IDAlignMonEfficiencies::makeEffHistoWithCut(TH2F* h_num, TH2F* h_denom, TPr
           h_eff->Fill(this_x, this_y, fillValue);
         }
       }
-      std::cout << " -- SALVA -- eff for module ( " << bin << ", " << binY << ")  Nseen= " << NSeenHits << "  NExpected= " << NExpected;
-      std::cout << "  ComputeEff= " << doComputeEff;
-      if (doComputeEff) std::cout << "  Eff= " << h_eff->GetBinContent(bin, binY);
-      std::cout << std::endl;
+      ATH_MSG_INFO (" -- eff for module ( " << bin << ", " << binY << ")" 
+		    <<"  Nseen= " << NSeenHits
+		    << "  NExpected= " << NExpected 
+		    << "  Eff= " << h_eff->GetBinContent(bin, binY));
     }
   }
   return;
 }
 
-
+///////////////////////////////////////////////////////////////////////////////////////////////
 StatusCode IDAlignMonEfficiencies::procHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms" << endmsg;
+  ATH_MSG_DEBUG("-- procHistograms -- START");
   if( endOfRunFlag() || ( ( AthenaMonManager::environment() == AthenaMonManager::online ) && endOfLumiBlockFlag() ) ) {
     // -----------------------------------------------------------------------
     //
@@ -1873,11 +1885,10 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
       }
 
     /**  TRT Processing */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Doint the TRT pocessing" << endmsg;
+    ATH_MSG_DEBUG ("Doing the TRT Barrel pocessing");
     /** TRT Barrel */
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Barrel" << endmsg;
     for(int i=0; i<3;i++) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "layer is " << i << endmsg;
+      ATH_MSG_DEBUG (" -- TRT barrel layer is " << i);
       makeEffHisto(m_trt_b_hist->outliers_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->outliers_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->hits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->hits_eff_vs_phiSector[i]);
       makeEffHisto(m_trt_b_hist->tubeHits_vs_phiSector[i], m_trt_b_hist->totHits_vs_phiSector[i], m_trt_b_hist->tubeHits_eff_vs_phiSector[i]);
@@ -1886,10 +1897,10 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
     makeEffHisto(m_trt_b_hist->hits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->hits_eff_vs_StrawLay);
     makeEffHisto(m_trt_b_hist->tubeHits_vs_StrawLay, m_trt_b_hist->totHits_vs_StrawLay, m_trt_b_hist->tubeHits_eff_vs_StrawLay);
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Endcap" << endmsg;
+    ATH_MSG_DEBUG ("Doing the TRT EndCap pocessing");
     /**  TRT Endcap */
     for(unsigned int endcap = 0; endcap<2; ++endcap){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "endcap is " << endcap << endmsg;
+      ATH_MSG_DEBUG ("-- TRT endcap is " << endcap);
       makeEffHisto(m_trt_ec_hist->outliers_vs_ring[endcap], 
 		   m_trt_ec_hist->totHits_vs_ring[endcap], 
 		   m_trt_ec_hist->outliers_eff_vs_ring[endcap]);
@@ -1914,7 +1925,7 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 		   m_trt_ec_hist->totHits_vs_phiSector[endcap],
 		   m_trt_ec_hist->tubeHits_eff_vs_phiSector[endcap]);
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Done TRT Processing" << endmsg;
+    ATH_MSG_DEBUG ("TRT Processing completed");
     //========================
   
 
@@ -1966,8 +1977,8 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in  IDAlignMonEfficiencies::findOverlapHit()"<< endmsg;
 
-  const Trk::TrackStateOnSurface* xOverlap = NULL;
-  const Trk::TrackStateOnSurface* yOverlap = NULL;
+  const Trk::TrackStateOnSurface* xOverlap = nullptr;
+  const Trk::TrackStateOnSurface* yOverlap = nullptr;
 
   if(!hit) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit is NULL; abandoning overlap search"<< endmsg;
@@ -1976,7 +1987,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
   }
 
   Identifier hitId;
-  if (hit->associatedSurface().associatedDetectorElement()!=NULL) hitId = hit->associatedSurface().associatedDetectorElement()->identify();
+  if (hit->associatedSurface().associatedDetectorElement()!= nullptr) hitId = hit->associatedSurface().associatedDetectorElement()->identify();
   else {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "hit doesn't have an associated detector element; abandoning overlap search"<< endmsg;
     std::pair <const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> result(xOverlap, yOverlap);
@@ -2024,11 +2035,11 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     int modEta2 = -99; 
     int modPhi2 = -99;
     const Trk::MeasurementBase* hit2 =tsos2->measurementOnTrack();
-    if (hit2== NULL) continue;//the first hit on the track never has associated hit information - just stores track parameters
+    if (hit2 == nullptr) continue;//the first hit on the track never has associated hit information - just stores track parameters
     nHits++;
         
     Identifier hitId2;
-    if (hit2->associatedSurface().associatedDetectorElement()!=NULL) hitId2 = hit2->associatedSurface().associatedDetectorElement()->identify();
+    if (hit2->associatedSurface().associatedDetectorElement()!= nullptr) hitId2 = hit2->associatedSurface().associatedDetectorElement()->identify();
     else {
       if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "hit tested for overlap doesn't have an associated detector element"<< endmsg;
       continue;
@@ -2099,7 +2110,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
     const AmgSymMatrix(5)* covariance = TrackParameters->covariance();
     
     
-    if(covariance==NULL) {
+    if(covariance == nullptr) {
       
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because overlap hit does not have associated measuredTrackParameters" << endmsg;
       continue;
@@ -2111,7 +2122,7 @@ std::pair<const Trk::TrackStateOnSurface*, const Trk::TrackStateOnSurface*> IDAl
 	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "applying hit quality cuts to overlap hit..." << endmsg;
 	
 	hit2 = m_hitQualityTool->getGoodHit(tsos2);
-	if(hit2==NULL) {
+	if(hit2 == nullptr) {
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "overlap rejected because failed hit quality cuts." << endmsg;
 	  continue;
 	}

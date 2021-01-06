@@ -265,7 +265,7 @@ def applyJetCalibration(jetalg,algname,sequence,largeRjetconfig = 'comb', suffix
                       'AntiKt4LCTopo':('JES_data2016_data2015_Recommendation_Dec2016_rel21.config',
                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt4EMPFlow':('JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config',
-                                        'JetArea_Residual_EtaJES_GSC_Smear'),
+                                        'JetArea_Residual_EtaJES_GSC'),
                       'AntiKt10LCTopoTrimmedPtFrac5SmallR20':('JES_MC15recommendation_FatJet_Nov2016_QCDCombinationUncorrelatedWeights.config',
                                                               'EtaJES_JMS'),
                       'AntiKt2LCTopo':('JES_2015_2016_data_Rscan2LC_18Dec2018_R21.config',
@@ -448,6 +448,79 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
         extjetlog.info('ExtendedJetCommon: Applying JetTruthLabel augmentation to jet collection: ' + jetalg + 'Jets' + ' using ' + labelname +' definition')
         applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
 
+##################################################################  
+
+def getPFlowfJVT(jetalg,algname,sequence,primaryVertexCont="PrimaryVertices",trackVertexAssociation="JetTrackVtxAssoc",overlapLabel="",outLabel="fJvt",includePV=False):
+    supportedJets = ['AntiKt4EMPFlow','AntiKt4PFlowCustomVtxHgg']
+    if jetalg not in supportedJets:
+        extjetlog.error('*** PFlow fJvt augmentation requested for unsupported jet collection {}! ***'.format(jetalg))
+        return
+    else:
+        from AthenaCommon.AppMgr import ToolSvc
+        jetaugtool = getJetAugmentationTool(jetalg,suffix=algname)
+
+        #Check if the calibration and JVT tools exist already
+        jetcalibtoolname_default = 'DFJetCalib_'+jetalg
+        jetjvttoolname_default = 'DFJetJvt_'+jetalg
+
+        if '_BTagging' in jetalg:
+            jetalg_basename = jetalg[:jetalg.find('_BTagging')]
+        elif 'PFlowCustomVtx' in jetalg:
+            jetalg_basename = 'AntiKt4EMPFlow'
+        else:
+            jetalg_basename = jetalg
+
+        jvtefftoolname = getJvtEffToolName(jetalg_basename)
+
+        #Jet calibration tool 
+        if hasattr(ToolSvc, jetcalibtoolname_default):
+            jetaugtool.JetCalibTool = getattr(ToolSvc, jetcalibtoolname_default)
+        else:
+            applyJetCalibration(jetalg,algname,sequence,suffix=algname)
+
+        #JVT tool
+        if hasattr(ToolSvc, jetjvttoolname_default) and hasattr(ToolSvc, jvtefftoolname):
+            jetaugtool.JetJvtTool = getattr(ToolSvc, jetjvttoolname_default)
+            jetaugtool.JetJvtEffTool = getattr(ToolSvc, jvtefftoolname)
+        else:
+            updateJVT(jetalg,algname,sequence,customVxColl=primaryVertexCont,suffix=algname)
+
+        # Calibration tool specific for pFlow fJVT: without GSC and smearing
+        jetcalibtoolname = 'DFJetCalib_PFfJvt_'+jetalg
+        if hasattr(ToolSvc, jetcalibtoolname):
+            jetaugtool.JetCalibToolfJvt = getattr(ToolSvc,jetcalibtoolname)
+        else:
+            jetcalibrationtool = CfgMgr.JetCalibrationTool(jetcalibtoolname,
+                                                           JetCollection=jetalg,
+                                                           ConfigFile="JES_MC16Recommendation_Consolidated_PFlow_Apr2019_Rel21.config",
+                                                           CalibSequence="JetArea_Residual_EtaJES",
+                                                           CalibArea="00-04-82",
+                                                           IsData=False)
+
+            ToolSvc += jetcalibrationtool
+
+        wpfotoolname = "DFwPFO_"+jetalg+algname
+        wpfotool = CfgMgr.CP__WeightPFOTool(wpfotoolname)
+
+        pffjvttoolname = 'DFJetPFfJvt_'+jetalg+algname
+        jetCont = jetalg+"Jets"
+
+        if hasattr(ToolSvc,pffjvttoolname):
+            jetaugtool.JetForwardPFlowJvtTool = getattr(ToolSvc,pffjvttoolname)
+            jetaugtool.fJvtMomentKey = outLabel
+        else:
+            pffjvttool = CfgMgr.JetForwardPFlowJvtTool(pffjvttoolname,
+                verticesName=primaryVertexCont, JetContainer=jetCont,
+                TrackVertexAssociation=jtm.tvassoc.TrackVertexAssociation,
+                WeightPFOTool=wpfotool, JetCalibrationTool=jetcalibrationtool,
+                ORName=overlapLabel, FjvtRawName='DFCommonJets_'+outLabel, includePV=includePV)
+            ToolSvc += pffjvttool
+            jetaugtool.JetForwardPFlowJvtTool = pffjvttool
+            jetaugtool.fJvtMomentKey = outLabel
+
+        extjetlog.info('ExtendedJetCommon: Applying PFlow fJvt augmentation to jet collection: '+jetalg+'Jets')
+        applyJetAugmentation(jetalg,algname,sequence,jetaugtool)
+
 ################################################################## 
 
 def applyBTaggingAugmentation(jetalg,algname='default',sequence=DerivationFrameworkJob,btagtooldict={}):
@@ -529,15 +602,21 @@ def addQGTaggerTool(jetalg, sequence, algname, truthjetalg=None ):
 ################################################################## 
 
 def applyOverlapRemoval(sequence=DerivationFrameworkJob):
+
+    from  DerivationFrameworkTau.TauCommon import AddTauAugmentation
+    AddTauAugmentation(sequence,doLoose=True)
+
     from AssociationUtils.config import recommended_tools
     from AssociationUtils.AssociationUtilsConf import OverlapRemovalGenUseAlg
     outputLabel = 'DFCommonJets_passOR'
     bJetLabel = '' #default
+    tauLabel = 'DFTauLoose'
     orTool = recommended_tools(outputLabel=outputLabel,bJetLabel=bJetLabel)
     algOR = OverlapRemovalGenUseAlg('OverlapRemovalGenUseAlg',
-                OverlapLabel=outputLabel,
-                            OverlapRemovalTool=orTool,
-                            BJetLabel=bJetLabel)
+                                    OverlapLabel=outputLabel,
+                                    OverlapRemovalTool=orTool,
+                                    TauLabel=tauLabel,
+                                    BJetLabel=bJetLabel)
     sequence += algOR
 
     from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__MuonJetDrTool
@@ -576,9 +655,9 @@ def eventCleanLoose_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolLoose.JetCleanPrefix = prefix
     ecToolLoose.JetCleaningTool = getJetCleaningTool("LooseBad")
     algCleanLoose = EventCleaningTestAlg('EventCleaningTestAlg_Loose',
-                            EventCleaningTool=ecToolLoose,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix)
+                                         EventCleaningTool=ecToolLoose,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix)
     sequence += algCleanLoose
 
 ##################################################################  
@@ -591,11 +670,11 @@ def eventCleanTight_xAODColl(jetalg='AntiKt4EMTopo',sequence=DerivationFramework
     ecToolTight.JetCleanPrefix = prefix
     ecToolTight.JetCleaningTool = getJetCleaningTool("TightBad")
     algCleanTight = EventCleaningTestAlg('EventCleaningTestAlg_Tight',
-                            EventCleaningTool=ecToolTight,
-                            JetCollectionName="AntiKt4EMTopoJets",
-                            EventCleanPrefix=prefix,
-                            CleaningLevel="TightBad",
-                            doEvent=False)
+                                         EventCleaningTool=ecToolTight,
+                                         JetCollectionName="AntiKt4EMTopoJets",
+                                         EventCleanPrefix=prefix,
+                                         CleaningLevel="TightBad",
+                                         doEvent=False)
     sequence += algCleanTight
 
 ##################################################################  
@@ -781,11 +860,12 @@ def addCHSPFlowObjects():
 ##################################################################
 applyJetCalibration_xAODColl("AntiKt4EMTopo")
 updateJVT_xAODColl("AntiKt4EMTopo")
+applyJetCalibration_xAODColl("AntiKt4EMPFlow")
+updateJVT_xAODColl("AntiKt4EMPFlow")
 
-# Need DFCommonElectronsLHLoose for these to work
-#applyOverlapRemoval()
-#eventCleanLoose_xAODColl("AntiKt4EMTopo")
-#eventCleanTight_xAODColl("AntiKt4EMTopo")
-#eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
+applyOverlapRemoval()
+eventCleanLoose_xAODColl("AntiKt4EMTopo")
+eventCleanTight_xAODColl("AntiKt4EMTopo")
+eventCleanLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanSuperLooseLLP_xAODColl("AntiKt4EMTopo")
 #eventCleanVeryLooseLLP_xAODColl("AntiKt4EMTopo")

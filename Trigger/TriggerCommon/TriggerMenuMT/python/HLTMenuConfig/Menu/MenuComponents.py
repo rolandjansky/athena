@@ -1,5 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from GaudiKernel.DataHandle import DataHandle
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 from collections import MutableSequence
@@ -19,10 +20,10 @@ class Node(object):
         self.outputs=[]
 
     def addOutput(self, name):
-        self.outputs.append(name)
+        self.outputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def addInput(self, name):
-        self.inputs.append(name)
+        self.inputs.append(str(name) if isinstance(name, DataHandle) else name)
 
     def getOutputList(self):
         return self.outputs
@@ -77,7 +78,7 @@ class AlgNode(Node):
             log.debug("Output DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.outputProp != '':
-                self.setPar(self.outputProp,name)
+                self.setPar(self.outputProp, name)
             else:
                 log.debug("no outputProp set for output of %s", self.Alg.getName())
         Node.addOutput(self, name)
@@ -91,7 +92,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             outputs.extend(cval)
         else:
-            outputs.append(cval)
+            outputs.append(str(cval))
         return outputs
 
     def addInput(self, name):
@@ -100,7 +101,7 @@ class AlgNode(Node):
             log.debug("Input DH not added in %s: %s already set!", self.Alg.getName(), name)
         else:
             if self.inputProp != '':
-                self.setPar(self.inputProp,name)
+                self.setPar(self.inputProp, name)
             else:
                 log.debug("no InputProp set for input of %s", self.Alg.getName())
         Node.addInput(self, name)
@@ -115,7 +116,7 @@ class AlgNode(Node):
         if isinstance(cval, MutableSequence):
             inputs.extend(cval)
         else:
-            inputs.append(cval)
+            inputs.append(str(cval))
         return inputs
 
     def __repr__(self):
@@ -354,10 +355,11 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, the_name):
+    def __init__(self, the_name, mergeUsingFeature = False):
         self._name = the_name
         Maker = CompFactory.InputMakerForRoI("IM"+the_name)
         Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
+        Maker.mergeUsingFeature = mergeUsingFeature
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(the_name, [Maker]))
@@ -529,9 +531,16 @@ class MenuSequence(object):
 class CAMenuSequence(MenuSequence):
     ''' MenuSequence with Compoment Accumulator '''
 
-    def __init__(self, Sequence, Maker,  Hypo, HypoToolGen, CA):
-        self.ca = CA
-        MenuSequence.__init__(self, Sequence, Maker,  Hypo, HypoToolGen)
+    def __init__(self, ca, HypoToolGen ):
+        self.ca = ca
+        allAlgs = ca.getEventAlgos()
+        inputMaker = [ a for a in allAlgs if isInputMakerBase(a)]
+        assert len(inputMaker) == 1, "Wrong number of input makers in the compnent accumulator {}".format(len(inputMaker))
+        inputMaker = inputMaker[0]
+        hypoAlg = [ a for a in allAlgs if isHypoAlg(a)]
+        assert len(hypoAlg) == 1, "Wrong number of hypo algs in the compnent accumulator {}".format(len(hypoAlg))
+        hypoAlg = hypoAlg[0]
+        MenuSequence.__init__(self, ca.getSequence(), inputMaker,  hypoAlg, HypoToolGen)
 
     @property
     def sequence(self):
@@ -732,6 +741,9 @@ class CFSequence(object):
         the filter is connected only once (to avoid multiple DH links)
         """
         log.debug("CFSequence: connect Filter %s with %d menuSequences of step %s, using %d connections", compName(self.filter.Alg), len(self.step.sequences), self.step.name, len(connections))
+        log.debug("   --- sequences: ")
+        for seq in self.step.sequences:
+            log.debug(seq)
         if len(connections) == 0:
             log.error("ERROR, no filter outputs are set!")
 
@@ -781,19 +793,24 @@ class StepComponent(object):
 # next:  can we remove multiplicity array, if it can be retrieved from the ChainDict?
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
-    def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
+    def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False):
 
         # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
         else:
             # sanity check on inputs, excluding empty steps
+            if len(chainDicts) != len(multiplicity):
+                log.error("[ChainStep] Sequences: %s",Sequences)
+                log.error("[ChainStep] chainDicts: %s",chainDicts)
+                log.error("[ChainStep] multiplicity: %s",multiplicity)
+                raise RuntimeError("[ChainStep] Tried to configure a ChainStep %s with %i multiplicity and %i dictionaries. These lists must have the same size" % (name, len(multiplicity), len(chainDicts)) )
+            
             if len(Sequences) != len(multiplicity):
+                log.error("[ChainStep] Sequences: %s",Sequences)
+                log.error("[ChainStep] multiplicities: %s",multiplicity)
                 raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
-
-            if len(Sequences) != len(chainDicts):
-                raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i dictionaries. These lists must have the same size" % (name, len(Sequences), len(chainDicts)) )
-
+ 
         self.name = name
         self.sequences=Sequences
         self.multiplicity = multiplicity
@@ -801,7 +818,7 @@ class ChainStep(object):
         self.comboToolConfs=comboToolConfs
         self.stepDicts = chainDicts # one dict per leg
         self.isCombo=sum(multiplicity)>1
-        self.isEmpty=sum(multiplicity)==0
+        self.isEmpty=(sum(multiplicity)==0 or isEmpty)
         self.combo=None
         if self.isCombo:
             self.makeCombo()
@@ -872,13 +889,11 @@ class InEventReco( ComponentAccumulator ):
 
     def mergeReco( self, ca ):
         """ Merged CA movnig reconstruction algorithms into the right sequence """
-        return self.merge( ca, sequenceName=self.recoSeq.getName() )
+        return self.merge( ca, sequenceName=self.recoSeq.name )
 
-    def addHypoAlg(self, alg):
-        self.addEventAlgo( alg, self.mainSeq.name )
-
-    def sequence( self ):
-        return self.mainSeq
+    def addRecoAlgo( self, algo ):
+        """ Place algorithm in the correct reconstruction sequence """
+        return self.addEventAlgo( algo, sequenceName=self.recoSeq.name )
 
     def inputMaker( self ):
         return self.inputMakerAlg
@@ -910,29 +925,32 @@ class InViewReco(ComponentAccumulator):
         self.viewsSeq = parOR( self.viewMakerAlg.ViewNodeName )
         self.addSequence( self.viewsSeq, self.mainSeq.name )
 
-    def addInput(self, inKey, outKey ):
-        """Adds input (DecisionsContainer) from which the views should be created """
-        self.viewMakerAlg.InputMakerInputDecisions += [ inKey ]
-        self.viewMakerAlg.InputMakerOutputDecisions = outKey
-
     def mergeReco( self, ca ):
         """ Merge CA movnig reconstruction algorithms into the right sequence """
-        return self.merge( ca, sequenceName=self.viewsSeq.getName() )
+        return self.merge( ca, sequenceName=self.viewsSeq.name )
 
     def addRecoAlgo( self, algo ):
         """ Place algorithm in the correct reconstruction sequence """
-        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.getName() )
-
-
-    def addHypoAlg(self, alg):
-        self.addEventAlgo( alg, self.mainSeq.name )
-
-    def sequence( self ):
-        return self.mainSeq
+        return self.addEventAlgo( algo, sequenceName=self.viewsSeq.name )
 
     def inputMaker( self ):
         return self.viewMakerAlg
 
+class SelectionCA(ComponentAccumulator):
+    def __init__(self, name):
+        self.name = name
+        super( SelectionCA, self ).__init__()
+        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+        self.addSequence(self.stepViewSequence)
+
+    def mergeReco(self, other):
+        self.merge(other, sequenceName=self.stepRecoSequence.name)
+
+    def mergeHypo(self, other):
+        self.merge(other, sequenceName=self.stepViewSequence.name)
+
+    def addHypoAlgo(self, algo):
+        self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
 class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """
@@ -967,7 +985,8 @@ class RecoFragmentsPool(object):
                allargs.update(kwargs)
         
         sortedkeys = sorted(allargs.keys())
-        sortedvals = [allargs[key] for key in sortedkeys]
+        sortedvals = [str(allargs[key]) if isinstance(allargs[key], DataHandle)
+                      else allargs[key] for key in sortedkeys]
 
         requestHash = hash( ( creator, tuple(sortedkeys), tuple(sortedvals) ) )
         if requestHash not in cls.fragments:

@@ -1,10 +1,10 @@
 // this is a -*- C++ -*- file
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////
-/// \class JetRecAlg 
+/// \class JetRecAlg
 ///
 /// Algorithm tasked to create a single JetContainer
 /// This algorithm makes use of 2 types of tools :
@@ -23,12 +23,15 @@
 #include "JetInterface/IJetProvider.h"
 #include "JetInterface/IJetModifier.h"
 
+#if !defined(GENERATIONBASE) && !defined(XAOD_ANALYSIS)
+  #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
+#endif
 
 class IJetExecuteTool;
 
-class JetRecAlg : public AthReentrantAlgorithm { 
+class JetRecAlg : public AthReentrantAlgorithm {
 
-public: 
+public:
 
   using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
@@ -43,8 +46,10 @@ private:
   ToolHandle<IJetProvider> m_jetprovider ={this , "Provider" , {} , "Tool providing the jets (fastjet, copy, grooming...)"};
   ToolHandleArray<IJetModifier> m_modifiers = {this , "Modifiers", {}, "moment calculators" };
   SG::WriteHandleKey<xAOD::JetContainer> m_output= {this, "OutputContainer", "AntiKt4LCtopoJets", "The output jet container name"};
-  
-}; 
-
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
+  ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 #endif
 
+};
+
+#endif

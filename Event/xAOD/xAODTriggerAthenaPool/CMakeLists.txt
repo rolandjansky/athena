@@ -37,11 +37,12 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::BunchConfContainer xAOD::BunchConfAuxContainer
    xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer
    CNV_PFX xAOD
-   LINK_LIBRARIES TrigNavToolsLib AthContainers AthenaKernel AthenaPoolCnvSvcLib
+   LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib
    AthenaPoolUtilities xAODTrigger )
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -49,10 +50,10 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRIGGERATHENAPOOL_REFERENCE_TAG
        xAODTriggerAthenaPoolReference-01-00-00 )
-  run_tpcnv_legacy_test( xAODTriggerAthenaPool_master-20190911   AOD-master-20190911-full
+  run_tpcnv_test( xAODTriggerAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODTriggerAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGGERATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODTriggerAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_test( xAODTriggerAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTriggerAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRIGGERATHENAPOOL_REFERENCE_TAG} )
 else()

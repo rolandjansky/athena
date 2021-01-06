@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_ETAETCONDITIONMT_H
@@ -34,7 +34,7 @@ class EtaEtConditionMT: public IConditionMT{
                    const std::unique_ptr<ITrigJetHypoInfoCollector>&) const override;
 
   virtual unsigned int capacity() const override{return s_capacity;}
-  std::string toString() const noexcept override;
+  std::string toString() const override;
   
  private:
 

@@ -17,7 +17,6 @@ Created  : Feb 2007
 #include "GaudiKernel/AlgTool.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
 #include "CaloUtils/ToolWithConstants.h"
-//#include "GaudiKernel/AlgTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include <string>
 

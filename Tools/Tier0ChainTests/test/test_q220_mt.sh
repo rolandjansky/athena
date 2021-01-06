@@ -2,11 +2,8 @@
 #
 # art-description: RecoTrf
 # art-type: grid
-# art-include: 21.0/Athena
-# art-include: 21.0-TrigMC/Athena
 # art-include: master/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
+# art-athena-mt: 8
 
 Reco_tf.py --AMI=q220 --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --imf False
 echo "art-result: $?"

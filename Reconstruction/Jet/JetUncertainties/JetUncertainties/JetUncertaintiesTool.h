@@ -148,7 +148,7 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
         virtual CP::SystematicSet affectingSystematics() const;
         virtual CP::SystematicSet recommendedSystematics() const;
         virtual CP::SystematicSet appliedSystematics() const;
-        virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
+        virtual StatusCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
         
         // Retrieve the correlation matrix for the loaded configuration
@@ -257,9 +257,9 @@ class JetUncertaintiesTool :    virtual public ICPJetUncertaintiesTool,
 
         // Helper methods for CP::ISystematicsTool functions
         bool checkIfRecommendedSystematic(const jet::UncertaintyGroup& systematic) const;
-        virtual CP::SystematicCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
-        virtual CP::SystematicCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
-        virtual CP::SystematicCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);	
+        virtual StatusCode addAffectingSystematic(const CP::SystematicVariation& systematic, bool recommended);
+        virtual StatusCode getFilteredSystematicSet(const CP::SystematicSet& systConfig, CP::SystematicSet& filteredSet);
+        virtual StatusCode getUncertaintySet(const CP::SystematicSet& filteredSet, jet::UncertaintySet*& uncSet);	
 
         // accessor to taggign efficiency SF
         SG::AuxElement::Accessor<float> m_accTagScaleFactor;

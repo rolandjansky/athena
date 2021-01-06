@@ -19,9 +19,6 @@ __author__  = "Marcello Barisonzi <Marcello.Barisonzi@desy.de>"
 
 import AthenaPython.PyAthena as PyAthena
 
-from AthenaCommon.AlgSequence import AlgSequence
-from AthenaCommon.Logging import logging
-
 import tokenize
 from io import StringIO
 
@@ -93,7 +90,7 @@ class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
                         self.msg.error("Algorithm %s not found" , tokval)
                         return False
                     else:
-                        self.msg.debug("Found algorithm: %s -> %s" % (tokval, _alg))
+                        self.msg.debug("Found algorithm: %s -> %s", tokval, _alg)
 
                     exec('self.%s = _alg' % tokval)
                     self.cutFlowSvc().declareChildFilter(tokval,self.cutID)
@@ -114,7 +111,7 @@ class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
             self.msg.debug("String changed internally to:\n%s", self.cmd)
 
             #execute command once to validate
-            response = bool(eval(self.cmd))
+            eval(self.cmd)
         except Exception as e:
             self.msg.fatal("Not a valid Python string. Exception: %s" % e)
             import traceback
@@ -129,7 +126,7 @@ class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
 
         self.nEventsProcessed+=1
         for k,v in self.algdict.iteritems():
-            self.msg.debug("Alg %s : %s" % (k, v.filterPassed()))
+            self.msg.debug("Alg %s : %s", k, v.filterPassed())
             pass
 
         
@@ -137,13 +134,13 @@ class LogicalFilterCombiner( PyAthena.AthFilterAlgorithm ):
         response = bool(eval(self.cmd))
         if response:
             self.nEventsPassed+=1
-        self.msg.debug("Response is: %s" % response)
+        self.msg.debug("Response is: %s", response)
         self.setFilterPassed(response)
         return True
 
     def finalize(self):
-        self.msg.info("nEventsProcessed is: %s" % self.nEventsProcessed)
-        self.msg.info("nEventsPassed is: %s" % self.nEventsPassed)        
+        self.msg.info("nEventsProcessed is: %s", self.nEventsProcessed)
+        self.msg.info("nEventsPassed is: %s", self.nEventsPassed)
         return True
 
 

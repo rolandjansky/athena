@@ -559,10 +559,6 @@ class MultipleStreamManager:
         from AthenaCommon.AppMgr import theApp
         svcMgr = theApp.serviceMgr()
 
-        from AthenaCommon import CfgMgr
-        streamMarkUpTool = CfgMgr.xAODMaker__FileMetaDataMarkUpTool( StreamName + "_FileMetaDataMarkUpTool" )
-        streamMarkUpTool.Key = StreamName
-        theStream.Stream.HelperTools += [ streamMarkUpTool ]
         theStream.Stream.WritingTool.SubLevelBranchName = "<key>"
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; COMPRESSION_LEVEL = '5'" ]
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-20000000'" ]

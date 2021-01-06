@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,38 +9,44 @@
 // MissingET_v1 Inline Functions: Getters //
 ////////////////////////////////////////////
 
-inline double xAOD::MissingET_v1::met()   const { return sqrt(this->mpx()*this->mpx()+this->mpy()*this->mpy()); }
-inline double xAOD::MissingET_v1::phi()   const { return atan2(this->mpy(),this->mpx()); }
-inline double xAOD::MissingET_v1::mpx()   const { static const SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
-inline double xAOD::MissingET_v1::mpy()   const { static const SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
-inline double xAOD::MissingET_v1::sumet() const { static const SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
+inline float xAOD::MissingET_v1::met()   const { return sqrt(this->mpx()*this->mpx()+this->mpy()*this->mpy()); }
+inline float xAOD::MissingET_v1::phi()   const { return atan2(this->mpy(),this->mpx()); }
+inline float xAOD::MissingET_v1::mpx()   const { return m_acc_mpx(*this); }
+inline float xAOD::MissingET_v1::mpy()   const { return m_acc_mpy(*this); }
+inline float xAOD::MissingET_v1::sumet() const { return m_acc_sumet(*this); }
 
 inline const std::string&              xAOD::MissingET_v1::name()     const { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
-inline std::size_t xAOD::MissingET_v1::nameHash() const { return m_nameHash; }
+inline std::size_t xAOD::MissingET_v1::nameHash() const {
+  if (!m_nameHash.isValid()) { m_nameHash.set(std::hash<std::string>()(this->f_nameConst())); }
+  return *m_nameHash.ptr();
+}
 inline MissingETBase::Types::bitmask_t xAOD::MissingET_v1::source()   const { static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
 ////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Setters //
 ////////////////////////////////////////////
 
-inline double& xAOD::MissingET_v1::f_mpx()   { static const SG::AuxElement::Accessor<double> acc("mpx"); return acc(*this); }
-inline double& xAOD::MissingET_v1::f_mpy()   { static const SG::AuxElement::Accessor<double> acc("mpy"); return acc(*this); }
-inline double& xAOD::MissingET_v1::f_sumet() { static const SG::AuxElement::Accessor<double> acc("sumet"); return acc(*this); }
+inline float& xAOD::MissingET_v1::f_mpx()   { return m_acc_mpx(*this); }
+inline float& xAOD::MissingET_v1::f_mpy()   { return m_acc_mpy(*this); }
+inline float& xAOD::MissingET_v1::f_sumet() { return m_acc_sumet(*this); }
 
 inline std::string& xAOD::MissingET_v1::f_name()                       { static const SG::AuxElement::Accessor<std::string> acc("name"); return acc(*this); }
-inline const std::string& xAOD::MissingET_v1::f_nameConst()            { static const SG::AuxElement::ConstAccessor<std::string> acc("name"); return acc(*this); }
+inline const std::string& xAOD::MissingET_v1::f_nameConst() const      { static const SG::AuxElement::ConstAccessor<std::string> acc("name"); return acc(*this); }
 inline MissingETBase::Types::bitmask_t& xAOD::MissingET_v1::f_source() { static const SG::AuxElement::Accessor<MissingETBase::Types::bitmask_t> acc("source"); return acc(*this); }
 
-inline void xAOD::MissingET_v1::setMpx(double mpx)     { this->f_mpx() = mpx; }
-inline void xAOD::MissingET_v1::setMpy(double mpy)     { this->f_mpy() = mpy; }
-inline void xAOD::MissingET_v1::setSumet(double sumet) { this->f_sumet() = sumet; }
+inline void xAOD::MissingET_v1::setMpx(float mpx)     { this->f_mpx() = mpx; }
+inline void xAOD::MissingET_v1::setMpy(float mpy)     { this->f_mpy() = mpy; }
+inline void xAOD::MissingET_v1::setSumet(float sumet) { this->f_sumet() = sumet; }
 
 inline void xAOD::MissingET_v1::setName(const std::string& name) {
   this->f_name() = name;
   updateHash();
 }
 
-inline void xAOD::MissingET_v1::updateHash() { m_nameHash = std::hash<std::string>()(this->f_nameConst()); }
+inline void xAOD::MissingET_v1::updateHash() {
+  m_nameHash.reset();
+  m_nameHash.set(std::hash<std::string>()(this->f_nameConst()));
+}
 inline void xAOD::MissingET_v1::setSource(MissingETBase::Types::bitmask_t src) { this->f_source() = src; }
 
 ///////////////////////////////////////////////////
@@ -56,11 +62,11 @@ inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator+=(const MissingET_v1& me
 inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator-=(const MissingET_v1& met)
 { this->f_mpx() -= met.mpx(); this->f_mpy() -= met.mpy(); this->f_sumet() -= met.sumet(); return *this; }
 
-inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(double scale)
+inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(float scale)
 { this->f_mpx() *= scale; this->f_mpy() *= scale; this->f_sumet() *= scale; return *this; }
 
-inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(double scale)
-{ double f(MissingETBase::Numerical::divide(1.,scale)); this->operator*=(f); return *this; }
+inline xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(float scale)
+{ float f(MissingETBase::Numerical::divide(1.,scale)); this->operator*=(f); return *this; }
 
 ///////////////////////////////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Object Algebra in Global Namespace //
@@ -72,14 +78,14 @@ inline xAOD::MissingET_v1 operator+(const xAOD::MissingET_v1& met0,const xAOD::M
 inline xAOD::MissingET_v1 operator-(const xAOD::MissingET_v1& met0,const xAOD::MissingET_v1& met1)
 { return xAOD::MissingET_v1(met0.mpx()-met1.mpx(),met0.mpy()-met1.mpy(),met0.sumet()-met1.sumet()); }
 
-inline xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,double scale)
+inline xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,float scale)
 { return xAOD::MissingET_v1(met.mpx()*scale,met.mpy()*scale,met.sumet()*scale); }
 
-inline xAOD::MissingET_v1 operator*(double scale,const xAOD::MissingET_v1& met)
+inline xAOD::MissingET_v1 operator*(float scale,const xAOD::MissingET_v1& met)
 { return met * scale; }
 
-inline xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale)
-{ double f(MissingETBase::Numerical::divide(1.,scale)); return f * met; }
+inline xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,float scale)
+{ float f(MissingETBase::Numerical::divide(1.,scale)); return f * met; }
 
 ////////////////////////////////////////////////
 // MissingET_v1 Inline Functions: Comparators //
@@ -110,7 +116,7 @@ inline void xAOD::MissingET_v1::clear()
  *  The latter is supported by constructors with just @link xAOD::MissingET_v1::MissingET_v1(const std::string&,MissingETBase::Types::bitmask_t) name and source indicator @endlink,
  *  initial kinematics are set to zero), and constructors storing (initial or final) kinematic contributions, either from a
  *  @link xAOD::MissingET_v1::MissingET_v1(const IParticle*,const std::string&,MissingETBase::Types::bitmask_t) physics or signal object reference @endlink
- *  or from @link xAOD::MissingET_v1::MissingET_v1(double,double,double,const std::string&,MissingETBase::Types::bitmask_t) individually specified kinematics @endlink.
+ *  or from @link xAOD::MissingET_v1::MissingET_v1(float,float,float,const std::string&,MissingETBase::Types::bitmask_t) individually specified kinematics @endlink.
  *
  *  @note This object is designed to store only the summed kinematics of a MET term, together with some identifiers. The actual contribution to this term from
  *        any physics or signal object to this MET term is not stored here, but in a dedicated @link xAOD::MissingETComponent_v1 MET component object @endlink.
@@ -179,7 +185,7 @@ inline void xAOD::MissingET_v1::clear()
  *        object instantiated this way is not storable, it is otherwise a fully usable.
  */
 
-/*! @fn xAOD::MissingET_v1::MissingET_v1(double mpx,double mpy,double pt,const std::string& name,MissingETBase::Types::bitmask_t src);
+/*! @fn xAOD::MissingET_v1::MissingET_v1(float mpx,float mpy,float pt,const std::string& name,MissingETBase::Types::bitmask_t src);
  *
  *  A MET object with a name (optional) and a source indicator (optional) is constructed. The initial MET components
  *  @f$ (p_{x},p_{y},\Sigma E_{\rm T}) @f$ are given in the argument list.
@@ -209,7 +215,7 @@ inline void xAOD::MissingET_v1::clear()
 // Setters //
 /////////////
 
-/*! @fn void xAOD::MissingET_v1::setMpx(double value)
+/*! @fn void xAOD::MissingET_v1::setMpx(float value)
  *
  *  @param[in] value new value for component.
  *
@@ -219,12 +225,12 @@ inline void xAOD::MissingET_v1::clear()
  *           xAOD::MissingET_v1::add methods for coherent update of all related data.
  */
 
-/*! @fn void xAOD::MissingET_v1::setMpy(double value)
- *  @copydetails xAOD::MissingET_v1::setMpx(double)
+/*! @fn void xAOD::MissingET_v1::setMpy(float value)
+ *  @copydetails xAOD::MissingET_v1::setMpx(float)
  */
 
-/*! @fn void xAOD::MissingET_v1::setSumet(double value)
- *  @copydetails xAOD::MissingET_v1::setMpx(double)
+/*! @fn void xAOD::MissingET_v1::setSumet(float value)
+ *  @copydetails xAOD::MissingET_v1::setMpx(float)
  */
 
 /*! @fn void xAOD::MissingET_v1::setName(const std::string& name)
@@ -279,10 +285,10 @@ inline void xAOD::MissingET_v1::clear()
  *        has to be explicitly done by the user.
  */
 
-/*! @fn virtual void xAOD::MissingET_v1::add(const IParticle* particle,double scale)
+/*! @fn virtual void xAOD::MissingET_v1::add(const IParticle* particle,float scale)
  *
  *  Here the particle kinematics is added to the MET object with a common scale factor. This method updates the internal data stores. If each
- *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used.
+ *  MET component needs a different scale, xAOD::MissingET_v1::add(float,float,float) can be used.
  *
  *  @param[in] particle pointer to the particle object
  *  @param[in] scale    scale factor
@@ -300,7 +306,7 @@ inline void xAOD::MissingET_v1::clear()
  *        has to be explicitly done by the user.
  */
 
-/*! @fn virtual void xAOD::MissingET_v1::add(double px,double py)
+/*! @fn virtual void xAOD::MissingET_v1::add(float px,float py)
  *
  *  The given kinematic quantities are added to MET.
  *
@@ -319,7 +325,7 @@ inline void xAOD::MissingET_v1::clear()
 /*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator-=(const IParticle* part)
  *
  *  The particle kinematics is subtracted to the MET object This method updates the internal data stores. If each
- *  MET component needs a different scale, xAOD::MissingET_v1::add(double,double,double) can be used.
+ *  MET component needs a different scale, xAOD::MissingET_v1::add(float,float,float) can be used.
  *
  *  @return Reference to (updated) self.
  *
@@ -368,7 +374,7 @@ inline void xAOD::MissingET_v1::clear()
  *  @f$ (p_{x}^{{\rm miss}\prime},p_{y}^{{\rm miss}\prime},\Sigma E_{\rm T}^{\prime}) @f$ are the components of the subtracted object.
  */
 
-/*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(double scale)
+/*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator*=(float scale)
  *
  *  @return Reference to self.
  *
@@ -384,7 +390,7 @@ inline void xAOD::MissingET_v1::clear()
  *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor.
  */
 
-/*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(double scale)
+/*! @fn xAOD::MissingET_v1& xAOD::MissingET_v1::operator/=(float scale)
  *
  *  @return Reference to self.
  *
@@ -399,7 +405,7 @@ inline void xAOD::MissingET_v1::clear()
  *
  *  Here @f$ (p_{x}^{\rm miss},p_{y}^{\rm miss},\Sigma E_{\rm T}) @f$ are the components of this object, and @f$ f @f$ is the scale factor.
  *
- *  @note If @f$ f = 0 @f$, the rule implemented in MissingETBase::Numerical::divide(double,double) is applied to the results for each
+ *  @note If @f$ f = 0 @f$, the rule implemented in MissingETBase::Numerical::divide(float,float) is applied to the results for each
  *        component.
  */
 
@@ -437,18 +443,18 @@ inline void xAOD::MissingET_v1::clear()
 // Protected Functions //
 /////////////////////////
 
-/*! @fn double& xAOD::MissingET_v1::f_mpx(()
+/*! @fn float& xAOD::MissingET_v1::f_mpx(()
  *
  *  The underlying SG::AuxElement store is accessed through references to keyed, modifiable data members.
  *
  *  @return Reference to modifiable dataword storing MET object data.
  */
 
-/*! @fn double& xAOD::MissingET_v1::f_py()
+/*! @fn float& xAOD::MissingET_v1::f_py()
  * @copydetails xAOD::MissingET_v1::f_mpx()
  */
 
-/*! @fn double& xAOD::MissingET_v1::f_sumet()
+/*! @fn float& xAOD::MissingET_v1::f_sumet()
  * @copydetails xAOD::MissingET_v1::f_mpx()
  */
 
@@ -486,10 +492,10 @@ inline void xAOD::MissingET_v1::clear()
  *  @param[in] met1 reference to non-modifiable second MET object
  */
 
-/*! @fn xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,double scale)
+/*! @fn xAOD::MissingET_v1 operator*(const xAOD::MissingET_v1& met,float scale)
  *
  *  The kinematic components of the referenced MET objects are scaled by (1) creating a copy of the referenced MET object and
- *  (2) use the xAOD::MissingET_v1::operator*=(double) method to apply the scale to the components of the new MET object.
+ *  (2) use the xAOD::MissingET_v1::operator*=(float) method to apply the scale to the components of the new MET object.
  *
  *  @return New MissingET_v1 object reflecting the result of the multiply operation.
  *
@@ -497,14 +503,14 @@ inline void xAOD::MissingET_v1::clear()
  *  @param[in] scale scale factor to be applied
  */
 
-/*! @fn xAOD::MissingET_v1 operator*(double scale,const xAOD::MissingET_v1& met)
- *  @copydetails operator*(const xAOD::MissingET_v1&,double)
+/*! @fn xAOD::MissingET_v1 operator*(float scale,const xAOD::MissingET_v1& met)
+ *  @copydetails operator*(const xAOD::MissingET_v1&,float)
  */
 
-/*! @fn xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,double scale);
+/*! @fn xAOD::MissingET_v1 operator/(const xAOD::MissingET_v1& met,float scale);
  *
  *  The kinematic components of the referenced MET objects are scaled by (1) creating a copy of the referenced MET object and
- *  (2) use the xAOD::MissingET_v1::operator/=(double) method to divide the components of the new MET object by the scale factor.
+ *  (2) use the xAOD::MissingET_v1::operator/=(float) method to divide the components of the new MET object by the scale factor.
  *
  *  @return New MissingET_v1 object reflecting the result of the divide operation.
  *

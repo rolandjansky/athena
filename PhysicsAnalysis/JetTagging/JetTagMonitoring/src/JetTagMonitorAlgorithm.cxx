@@ -80,6 +80,7 @@ JetTagMonitorAlgorithm::~JetTagMonitorAlgorithm() {}
 
 StatusCode JetTagMonitorAlgorithm::initialize() {
 
+  ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_jetContainerKey.initialize());
   ATH_CHECK(m_muonContainerKey.initialize());
   ATH_CHECK(m_electronContainerKey.initialize());
@@ -87,7 +88,29 @@ StatusCode JetTagMonitorAlgorithm::initialize() {
   ATH_CHECK(m_vertContainerKey.initialize());
   ATH_CHECK(m_trackContainerKey.initialize());
 
-  return AthMonitorAlgorithm::initialize();
+  if (m_btagLinkKey.empty()) {
+    m_btagLinkKey = m_jetContainerKey.key() + ".btaggingLink";
+  }
+  ATH_CHECK(m_btagLinkKey.initialize());
+
+  if (m_btagResultKey.empty()) {
+    if (m_mv_algorithmName=="DL1" || m_mv_algorithmName=="DL1r" || m_mv_algorithmName=="DL1rnn") {
+      std::string rawJetContainerName = m_jetContainerKey.key();
+      const size_t jetStringItr = rawJetContainerName.find("Jets");
+      if (jetStringItr != std::string::npos) {
+        rawJetContainerName = rawJetContainerName.replace(jetStringItr, std::string::npos, "");
+      }
+      m_btagResultKey = "BTagging_" + rawJetContainerName + "." + m_mv_algorithmName + "_pb";
+    }
+  }
+  ATH_CHECK(m_btagResultKey.initialize(SG::AllowEmpty));
+
+  ATH_CHECK(m_MuonEtIsoDecorKey.initialize());
+  ATH_CHECK(m_MuonPtIsoDecorKey.initialize());
+  ATH_CHECK(m_EleEtIsoDecorKey.initialize());
+  ATH_CHECK(m_ElePtIsoDecorKey.initialize());
+
+  return StatusCode::SUCCESS;
 }
 
 
@@ -745,7 +768,9 @@ double JetTagMonitorAlgorithm::getMVweight(const xAOD::Jet *jet) const {
     bTaggingObject->pc(m_mv_algorithmName,mv_pc);
     bTaggingObject->pb(m_mv_algorithmName,mv_pb);
     //DL1* formula (standard)
-    mv = log( mv_pb / ( mv_pu * ( 1 - m_mv_cFraction ) + mv_pc * m_mv_cFraction ) );
+    if ( mv_pb != 0 && (mv_pu != 0 || mv_pc != 0)) {
+      mv = log( mv_pb / ( mv_pu * ( 1 - m_mv_cFraction ) + mv_pc * m_mv_cFraction ) );
+    }
     //DL1*c formula (for DL1c)
     //mv = log( mv_pb / ( mv_pu * ( 1 - m_mv_bFraction ) + mv_pc * m_mv_bFraction ) );
   }

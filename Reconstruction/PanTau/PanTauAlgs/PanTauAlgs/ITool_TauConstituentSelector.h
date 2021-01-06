@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_TAUCONSTITUENTSELECTOR_H
 #define PANTAUALGS_ITOOL_TAUCONSTITUENTSELECTOR_H
 
-// Gaudi
 #include "AsgTools/IAsgTool.h"
 
 #include <vector>
@@ -26,18 +25,8 @@ namespace PanTau {
 
         public:
     virtual bool isInitialized() = 0;
-            virtual StatusCode SelectTauConstituents(std::vector<TauConstituent2*> inputList,
-                                                     std::vector<TauConstituent2*>& outputList) const = 0;
-        protected:
-//            virtual bool    passesSelection_NeutralConstituent(TauConstituent2* tauConstituent) const = 0;
-//            virtual bool    passesSelection_Pi0NeutConstituent(TauConstituent2* tauConstituent) const = 0;
-//            virtual bool    passesSelection_ChargedConstituent(TauConstituent2* tauConstituent) const = 0;
-//            virtual bool    passesSelection_OutNeutConstituent(TauConstituent2* TauConstituent) const = 0;
-//            virtual bool    passesSelection_OutChrgConstituent(TauConstituent2* TauConstituent) const = 0;
-//            virtual bool    passesSelection_NeutLowAConstituent(TauConstituent2* TauConstituent) const = 0;
-//            virtual bool    passesSelection_NeutLowBConstituent(TauConstituent2* TauConstituent) const = 0;
-            
-//            virtual double  getEtCut(double eta, PanTau::TauConstituent2::Type constituentType) const = 0;
+            virtual StatusCode SelectTauConstituents(std::vector<TauConstituent*> inputList,
+                                                     std::vector<TauConstituent*>& outputList) const = 0;
     };
     
 }

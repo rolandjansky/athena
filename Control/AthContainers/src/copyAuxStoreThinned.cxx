@@ -62,6 +62,8 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     sel_auxids = iio->getSelectedAuxIDs();
   }
 
+  SG::auxid_set_t new_auxids = copy.getAuxIDs();
+
   copy.resize (nremaining);
 
   // Loop over all the variables of the original container:
@@ -70,11 +72,23 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     if(auxid == SG::null_auxid) continue;
 
     // Skip non-selected dynamic variables.
-    if (dyn_auxids.test(auxid)) {
+    // Handle variable vetoes requested via ThinningInfo.
+    // We want to allow vetoing a variable if it's defined
+    // as a dyamic variable in the source source, or if it doesn't
+    // exist in the destination source (in which case it will be
+    // dynamic there).  The latter case happens for example when
+    // we save a static store object as the AuxContainerBaseClass
+    // in order to make all variables dynamic.
+    if (dyn_auxids.test(auxid) || !new_auxids.test(auxid)) {
       if (info) {
         if (info->vetoed(auxid)) continue;
       }
-      if (!sel_auxids.test(auxid)) continue;
+    }
+
+    // Also check for a veto requested through the store selection interface.
+    // (But this shouldn't really be used anymore.)
+    if (dyn_auxids.test(auxid) && !sel_auxids.test(auxid)) {
+      continue;
     }
 
     // Access the source variable:

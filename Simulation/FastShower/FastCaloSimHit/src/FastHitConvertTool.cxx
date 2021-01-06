@@ -35,29 +35,14 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
                                        const IInterface*  parent )
   :
   base_class(type,name,parent),
-  m_embHitContainer("LArHitEMB"),
-  m_emecHitContainer("LArHitEMEC"),
-  m_fcalHitContainer("LArHitFCAL"),
-  m_hecHitContainer("LArHitHEC"),
-  m_tileHitVector("TileHitVec"),
   m_storeGateFastCalo("StoreGateSvc/FastCalo",name),
   m_pMergeSvc(nullptr),
   m_tileInfo(nullptr),
   m_larEmID(nullptr),
   m_larFcalID(nullptr),
   m_larHecID(nullptr),
-  m_tileID(nullptr),
-  m_pileup(false)
+  m_tileID(nullptr)
 {
-  declareProperty("doPileup",m_pileup,"Pileup mode (default=false)");
-  declareProperty("embHitContainername",m_embHitContainer,"Name of output FastSim LAr EM Barrel Hit Container");
-  declareProperty("emecHitContainername",m_emecHitContainer,"Name of output FastSim LAr EM Endcap Hit Container");
-  declareProperty("fcalHitContainername",m_fcalHitContainer,"Name of output FastSim LAr FCAL Hit Container");
-  declareProperty("hecHitContainername",m_hecHitContainer,"Name of output FastSim LAr HEC Hit Container");
-  declareProperty("tileHitContainername",m_tileHitVector,"Name of output FastSim Tile Hit Container");
-
-  //  template for property decalration
-  //declareProperty("PropertyName", m_propertyName);
 }
 
 //================ Destructor =================================================
@@ -68,7 +53,7 @@ FastHitConvertTool::FastHitConvertTool(const std::string& type,
 
 //================ Initialisation =================================================
 
-StatusCode  FastHitConvertTool::initialize()
+StatusCode FastHitConvertTool::initialize()
 {
 
   //Service for Pileup
@@ -97,73 +82,34 @@ StatusCode  FastHitConvertTool::initialize()
   ATH_CHECK(m_fSamplKey.initialize());
   CHECK(detStore()->retrieve(m_tileInfo, "TileInfo"));
 
+  // Output keys
+  ATH_CHECK(m_embHitContainerKey.initialize());
+  ATH_CHECK(m_emecHitContainerKey.initialize());
+  ATH_CHECK(m_fcalHitContainerKey.initialize());
+  ATH_CHECK(m_hecHitContainerKey.initialize());
+  ATH_CHECK(m_tileHitVectorKey.initialize());
+
+  // Inputs for pileup (only initialized if m_pileup==true)
+  ATH_CHECK(m_pileup_evt.initialize(m_pileup));
+  ATH_CHECK(m_pileup_pOverEvent.initialize(m_pileup));
+
   return StatusCode::SUCCESS;
 }
 
-StatusCode  FastHitConvertTool::process (CaloCellContainer* theCellContainer,
-                                         const EventContext& ctx) const
-{
-  if (ctx.slot() > 1) {
-    ATH_MSG_ERROR ("FastHitConvertTool doesn't work with MT.");
-    return StatusCode::FAILURE;
-  }
-  return const_cast<FastHitConvertTool*>(this)->process_nc (theCellContainer);
-}
-StatusCode  FastHitConvertTool::process_nc(CaloCellContainer *theCellContainer)
-{
-  const EventContext& ctx = Gaudi::Hive::currentContext();
-  if (ctx.slot() > 1) {
-    ATH_MSG_ERROR ("FastHitConvertTool doesn't work with MT.");
-    return StatusCode::FAILURE;
-  }
-
-  CHECK(this->initEvent());
-  CHECK(this->hitConstruction(theCellContainer));
-  CHECK(this->finaliseEvent());
-  return StatusCode::SUCCESS;
-}
-
-StatusCode  FastHitConvertTool::initEvent()
+StatusCode FastHitConvertTool::process(CaloCellContainer* theCellCont, const EventContext& ctx) const
 {
   ATH_MSG_DEBUG("initEvent()");
-  //  m_embHitContainer=new LArHitContainer();
-  //  m_emecHitContainer=new LArHitContainer();
-  //  m_fcalHitContainer=new LArHitContainer();
-  //  m_hecHitContainer=new LArHitContainer();
-  //  m_tileHitVector=new TileHitVector(m_tileHitContainerName);
+  auto embHitContainer  = SG::makeHandle<LArHitContainer>( m_embHitContainerKey, ctx );
+  auto emecHitContainer = SG::makeHandle<LArHitContainer>( m_emecHitContainerKey, ctx );
+  auto fcalHitContainer = SG::makeHandle<LArHitContainer>( m_fcalHitContainerKey, ctx );
+  auto hecHitContainer  = SG::makeHandle<LArHitContainer>( m_hecHitContainerKey, ctx );
+  auto tileHitVector    = SG::makeHandle<TileHitVector>(   m_tileHitVectorKey, ctx );
+  embHitContainer  = std::make_unique<LArHitContainer>( m_embHitContainerKey.key() );
+  emecHitContainer = std::make_unique<LArHitContainer>( m_emecHitContainerKey.key() );
+  fcalHitContainer = std::make_unique<LArHitContainer>( m_fcalHitContainerKey.key() );
+  hecHitContainer  = std::make_unique<LArHitContainer>( m_hecHitContainerKey.key() );
+  tileHitVector    = std::make_unique<TileHitVector>(   m_tileHitVectorKey.key() );
 
-  if(!m_embHitContainer.isValid() ) { m_embHitContainer  = std::make_unique<LArHitContainer>(m_embHitContainer.name());}
-  if(!m_emecHitContainer.isValid()) { m_emecHitContainer = std::make_unique<LArHitContainer>(m_emecHitContainer.name());}
-  if(!m_fcalHitContainer.isValid()) { m_fcalHitContainer = std::make_unique<LArHitContainer>(m_fcalHitContainer.name());}
-  if(!m_hecHitContainer.isValid() ) { m_hecHitContainer  = std::make_unique<LArHitContainer>(m_hecHitContainer.name());}
-  if(!m_tileHitVector.isValid()        ) { m_tileHitVector         = std::make_unique<TileHitVector>(m_tileHitVector.name());}
-
-  return StatusCode::SUCCESS;
-}
-StatusCode  FastHitConvertTool::finaliseEvent()
-{
-  ATH_MSG_DEBUG("finaliseEvent()");
-  ATH_MSG_DEBUG(m_embHitContainer.name()<<" : "<<m_embHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_emecHitContainer.name()<<" : "<<m_emecHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_fcalHitContainer.name()<<" : "<<m_fcalHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_hecHitContainer.name()<<" : "<<m_hecHitContainer->size()<<" hits ");
-  ATH_MSG_DEBUG(m_tileHitVector.name()<<" : "<<m_tileHitVector->size()<<" hits ");
-
-  if(m_pileup)
-    {
-      CHECK((*m_storeGateFastCalo).clearStore(true));
-      const EventInfo *evt(nullptr);
-      CHECK(evtStore()->retrieve(evt,"MyEvent"));
-      const EventInfo* newEvt=new EventInfo(*evt);
-      PileUpEventInfo *pOverEvent(nullptr);
-      CHECK(evtStore()->retrieve(pOverEvent,"OverlayEvent"));
-      pOverEvent->addSubEvt(0,PileUpTimeEventIndex::Signal,newEvt,&(*m_storeGateFastCalo));
-    }
-  return StatusCode::SUCCESS;
-}
-
-StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
-{
   ATH_MSG_DEBUG("ATLFASTIIDigi "<<this->name()<<" hitConstruction");
   const double minEnergy=1e-9;
   double hitTime=0.0;
@@ -184,7 +130,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
   double eLArFCALConv=0.0;
   double eTileConv=0.0;
 
-  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey);
+  SG::ReadCondHandle<ILArfSampl> fSamplHdl(m_fSamplKey, ctx);
   const ILArfSampl* fSampl=*fSamplHdl;
 
   CaloCellContainer::const_iterator it1=theCellCont->beginConstCalo(CaloCell_ID::LAREM);
@@ -209,12 +155,12 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
               if(m_larEmID->is_em_barrel(cellid))
                 {
                   ATH_MSG_DEBUG("Storing em barrel hit");
-                  m_embHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+                  embHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
                 }
               else if(m_larEmID->is_em_endcap(cellid))
                 {
                   ATH_MSG_DEBUG("Storing em endcap hit");
-                  m_emecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+                  emecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
                 }
             }
         }
@@ -244,7 +190,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
           if(m_larHecID->is_lar_hec(cellid))
             {
               ATH_MSG_DEBUG("Storing hec hit");
-              m_hecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+              hecHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
             }
         }
       countFastCell++;
@@ -270,7 +216,7 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
           if(m_larFcalID->is_lar_fcal(cellid))
             {
               ATH_MSG_DEBUG("Storing fcal hit");
-              m_fcalHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
+              fcalHitContainer->push_back(new LArHit(cellid,energyConv,hitTime));
             }
         }
       countFastCell++;
@@ -306,12 +252,12 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
               ATH_MSG_DEBUG("Storing tile hit");
               if(m_tileID->is_tile_gapscin(cellid))
                 {
-                  m_tileHitVector->push_back(TileHit(pmt_id0,energyConv,hitTime));
+                  tileHitVector->push_back(TileHit(pmt_id0,energyConv,hitTime));
                 }
               else
                 {
-                  m_tileHitVector->push_back(TileHit(pmt_id0,energyConv/2.0,hitTime));
-                  m_tileHitVector->push_back(TileHit(pmt_id1,energyConv/2.0,hitTime));
+                  tileHitVector->push_back(TileHit(pmt_id0,energyConv/2.0,hitTime));
+                  tileHitVector->push_back(TileHit(pmt_id1,energyConv/2.0,hitTime));
                 }
             }
         }
@@ -321,5 +267,29 @@ StatusCode FastHitConvertTool::hitConstruction(CaloCellContainer *theCellCont)
   ATH_MSG_DEBUG("eLArEMRead= "<<eLArEMRead<<" eLArHECRead= "<<eLArHECRead<<" eLArFCALRead= "<<eLArFCALRead<<" eTileRead= "<<eTileRead);
   ATH_MSG_DEBUG("eConvTot= "<<eLArEMConv+eLArHECConv+eLArFCALConv+eTileConv);
   ATH_MSG_DEBUG("eLArEMConv= "<<eLArEMConv<<" eLArHECConv= "<<eLArHECConv<<"eLArFCALConv"<<eLArFCALConv<<"eTileConv"<<eTileConv);
+
+  ATH_MSG_DEBUG("finaliseEvent()");
+  ATH_MSG_DEBUG(embHitContainer.name()<<" : "<<embHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(emecHitContainer.name()<<" : "<<emecHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(fcalHitContainer.name()<<" : "<<fcalHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(hecHitContainer.name()<<" : "<<hecHitContainer->size()<<" hits ");
+  ATH_MSG_DEBUG(tileHitVector.name()<<" : "<<tileHitVector->size()<<" hits ");
+
+  if(m_pileup)
+    {
+      CHECK((*m_storeGateFastCalo).clearStore(true));
+      auto evt = SG::makeHandle<EventInfo>(m_pileup_evt, ctx);
+      const EventInfo* newEvt=new EventInfo(*evt);
+
+      // Migration note: this was an evtStore()->retrieve for a non-const pointer
+      // Using a const_cast to preserve the old behaviour, but this is MT-unfriendly
+      if (ctx.slot() > 1) {
+         ATH_MSG_ERROR ("FastHitConvertTool doesn't support pileup in AthenaMT");
+         return StatusCode::FAILURE;
+      }
+      auto pOverEventHandle = SG::makeHandle<PileUpEventInfo>(m_pileup_pOverEvent, ctx);
+      auto pOverEvent = const_cast<PileUpEventInfo*>(pOverEventHandle.get());
+      pOverEvent->addSubEvt(0,PileUpTimeEventIndex::Signal,newEvt,&(*m_storeGateFastCalo));
+    }
   return StatusCode::SUCCESS;
 }

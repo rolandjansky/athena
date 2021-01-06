@@ -523,8 +523,7 @@ namespace top {
                  "TopObjectSelection::applySelectionPreOverlapRemovalLargeRJets() failed to retrieve large R jets");
 
       for (auto jetPtr : *jets) {
-        //char decoration = m_largeJetSelection->passSelection(*jetPtr);
-        char decoration = '0';
+        char decoration = m_largeJetSelection->passSelection(*jetPtr);
         jetPtr->auxdecor<char>(m_passPreORSelection) = decoration;
         jetPtr->auxdecor<char>(m_ORToolDecoration) = decoration * 2;
         if (m_doLooseCuts) {
@@ -554,7 +553,7 @@ namespace top {
         jetPtr->auxdecor<char>(m_passPreORSelectionLoose) = decoration;
       }
 
-      if (m_config->sgKeyTrackJetsType() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
+      if (m_config->sgKeyTrackJets() == "AntiKtVR30Rmax4Rmin02TrackJets") { // Event cleaning for variable-R track jets
         float pt_baseline = 5e3;
         float radius1 = std::max(0.02, std::min(0.4, 30000. / jetPtr->pt()));
 
@@ -771,8 +770,8 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       // Save to StoreGate / TStore
       std::string outputSGKeyNominalAux = sgKeyNominal + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(systEventCont, sgKeyNominal);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyNominalAux);
+      StatusCode save = evtStore()->tds()->record(systEventCont, sgKeyNominal);
+      StatusCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyNominalAux);
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
       }
@@ -790,8 +789,8 @@ void TopObjectSelection::applySelectionPreOverlapRemovalJetGhostTracks() {
       // Save to StoreGate / TStore
       std::string outputSGKeyAux = sgKey + "Aux.";
 
-      xAOD::TReturnCode save = evtStore()->tds()->record(systEventCont, sgKey);
-      xAOD::TReturnCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyAux);
+      StatusCode save = evtStore()->tds()->record(systEventCont, sgKey);
+      StatusCode saveAux = evtStore()->tds()->record(systEventAuxCont, outputSGKeyAux);
       if (!save || !saveAux) {
         return StatusCode::FAILURE;
       }

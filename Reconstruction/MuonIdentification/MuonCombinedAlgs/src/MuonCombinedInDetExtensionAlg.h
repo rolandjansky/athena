@@ -6,7 +6,7 @@
 #define MUONCOMBINEDALGS_MUONCOMBINEDINDETEXTENSIONALG_H
 
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 #include "MuonCombinedEvent/InDetCandidateToTagMap.h"
@@ -20,13 +20,15 @@
 
 #include <string>
 
-class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
+// uses (further down the call chain) the MuPatHitTool that has a mutable cache of pointers to-be-deleted at the end of the event
+// thus, currently, the MuonCombinedInDetExtensionAlg cannot become an AthReentrantAlgorithm
+class MuonCombinedInDetExtensionAlg : public AthAlgorithm {
   public:
     MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator);
     ~MuonCombinedInDetExtensionAlg()=default;
 
     StatusCode initialize();
-    StatusCode execute(const EventContext& ctx) const;
+    StatusCode execute();
 
   private:
     ToolHandleArray<MuonCombined::IMuonCombinedInDetExtensionTool> m_muonCombinedInDetExtensionTools{this,"MuonCombinedInDetExtensionTools",{}};
@@ -93,8 +95,8 @@ class MuonCombinedInDetExtensionAlg : public AthReentrantAlgorithm {
     SG::WriteHandleKey<Trk::SegmentCollection> m_segments{
         this,
         "SegmentCollection",
-        "MuGirlSegments",
-        "Segment collection",
+        "",
+        "specify segment collection",
     };
 
     Gaudi::Property<bool> m_usePRDs{this, "usePRDs", false};

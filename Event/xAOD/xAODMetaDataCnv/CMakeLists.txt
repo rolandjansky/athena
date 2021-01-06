@@ -9,24 +9,39 @@ if( XAOD_STANDALONE )
   # The main library is an installed one in this case:
   atlas_add_library( xAODMetaDataCnv
     xAODMetaDataCnv/*.h Root/*.cxx
-    PUBLIC_HEADERS xAODMetaDataCnv
-    LINK_LIBRARIES AsgTools xAODMetaData )
+    PUBLIC_HEADERS
+      xAODMetaDataCnv
+    LINK_LIBRARIES
+      AsgTools
+      xAODMetaData )
 
   # Plus we also build a dictionary:
   atlas_add_dictionary( xAODMetaDataCnvDict
     xAODMetaDataCnv/xAODMetaDataCnvDict.h
     xAODMetaDataCnv/selection.xml
-    LINK_LIBRARIES xAODMetaDataCnv )
+    LINK_LIBRARIES
+      xAODMetaDataCnv )
 
 else()
 
   # The main library is a component one in this case:
   atlas_add_component( xAODMetaDataCnv
     xAODMetaDataCnv/*.h src/*.cxx Root/*.cxx src/components/*.cxx
-    LINK_LIBRARIES AsgTools xAODMetaData GaudiKernel AthenaKernel
-    AthenaPoolUtilities EventInfo )
+    LINK_LIBRARIES
+      AsgTools
+      xAODMetaData
+      AthenaKernel
+      AthenaPoolUtilities
+      xAODEventInfo
+      PersistentDataModel
+      IOVDbDataModel )
+
+  atlas_add_test( WriteFileMetaData
+    SCRIPT python -m "xAODMetaDataCnv.TestWriteFileMetaData" )
+
 
 endif()
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

@@ -51,7 +51,7 @@ class MuonCalibrationPeriodTool : public virtual IMuonCalibrationAndSmearingTool
     // Interface - Systematics to be used for physics analysis
     virtual SystematicSet recommendedSystematics() const override;
     // Interface - Use specific systematic
-    virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig ) override;
+    virtual StatusCode applySystematicVariation ( const SystematicSet& systConfig ) override;
     
     // Constructor
     MuonCalibrationPeriodTool( const std::string& name );

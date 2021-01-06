@@ -13,7 +13,6 @@
 //  for clarity (i.e. to avoid an overly long class) the inner loop over
 //  measurements is performed by MeasurementProcessor
 //
-//  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef TRKIPATFITTERUTILS_FITPROCEDURE_H
@@ -67,7 +66,7 @@ public:
     
     // retrieve result
     Track*	constructTrack (const std::vector<FitMeasurement*>&		measurements,
-				const FitParameters&				parameters,
+				FitParameters&				parameters,
 				const TrackInfo&				trackInfo,
 				const DataVector<const TrackStateOnSurface>*	leadingTSOS = 0);
     

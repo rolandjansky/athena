@@ -1,7 +1,8 @@
-#job options to activate the dump of the NSWPRDVal nTuple
-#This file can be used with Digi_tf by specifying --postinclude MuonPRDTest/NSWPRDValAlg.digi.py
-#It dumps Truth, MuEntry and Hits, Digits, SDOs and RDOs for MM and sTGC
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+# jobOptions to activate the dump of the NSWPRDValAlg nTuple
+# This file can be used with Digi_tf by specifying --postInclude MuonPRDTest/NSWPRDValAlg.digi.py
+# It dumps Truth, MuEntry and Hits, Digits, SDOs and RDOs for MM and sTGC
 
 #-----------------------------------------------------------------------------
 # Algorithms

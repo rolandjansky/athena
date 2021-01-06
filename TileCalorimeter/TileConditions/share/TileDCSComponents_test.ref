@@ -1,21 +1,20 @@
 
 
 Initializing Gaudi ApplicationMgr using job opts jobOptions_TileDCSTest.txt
-JobOptionsSvc        INFO # =======> /home/sss/atlas/dvtest/build/../tests/jobOptions_TileDCSTest.txt
+JobOptionsSvc        INFO # =======> /tmp/mnowak/build/jobOptions_TileDCSTest.txt
 JobOptionsSvc        INFO # (1,1): ApplicationMgr.ExtSvc += ["StoreGateSvc/DetectorStore", "StoreGateSvc/ConditionStore"]
 JobOptionsSvc        INFO # (2,1): GeoModelSvc.SupportedGeometry = 21
 JobOptionsSvc        INFO # (3,1): GeoModelSvc.AtlasVersion = "ATLAS-R2-2016-01-00-01"
 JobOptionsSvc        INFO Job options successfully read in from jobOptions_TileDCSTest.txt
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v27r1p99)
-                                          running on karma on Mon Oct  1 13:23:29 2018
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0p1)
+                                          running on aibuild20-040.cern.ch on Wed Dec  2 17:39:01 2020
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
-ClassIDSvc           INFO  getRegistryEntries: read 5402 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 4742 CLIDRegistry entries for module ALL
 EventLoopMgr      WARNING Unable to locate service "EventSelector" 
 EventLoopMgr      WARNING No events will be processed from external input.
-HistogramPersis...WARNING Histograms saving not required.
 ApplicationMgr       INFO Application Manager Initialized successfully
 ApplicationMgr Ready
 TileHWID             INFO initialize_from_dictionary 
@@ -42,7 +41,7 @@ AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'Det
 Test TileDCSState
 
 Test TileDCSCondAlg
-ClassIDSvc           INFO  getRegistryEntries: read 372 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 379 CLIDRegistry entries for module ALL
 TileDCSCondAlgTest   INFO Will read the following folders: /TILE/TEST/DCS/HV  /TILE/TEST/DCS/STATES
 DetDescrCnvSvc       INFO  initializing 
 DetDescrCnvSvc       INFO Found DetectorStore service
@@ -85,11 +84,14 @@ DetDescrCnvSvc       INFO  filling address for CaloCell_ID with CLID 123500438 a
 DetDescrCnvSvc       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
 DetDescrCnvSvc       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+TagInfoMgr           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
 GeoModelSvc::RD...WARNING  Getting PixTBMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting PixTBMaterials with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMatComponents with default tag
 GeoModelSvc::RD...WARNING  Getting InDetMaterials with default tag
-GeoModelSvc       WARNING Cannot register compareTags function for key ProcessingTags
+IOVSvc               INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvc.IOVSvcTool    INFO IOVRanges will be checked at every Event
+ClassIDSvc           INFO  getRegistryEntries: read 1137 CLIDRegistry entries for module ALL
 TileCablingSvc       INFO RUN2 ATLAS geometry flag detected for geometry: ATLAS-R2-2016-01-00-01
 TileCablingSvc       INFO Setting RUN2 (2014-2017) cabling
 TileCablingSvc       INFO Setting Cabling type to 4
@@ -99,7 +101,7 @@ TileCablingSvc    WARNING Unable to retrieve TileDetDescrManager from DetectorSt
 TileCablingSvc    WARNING Will not set Tile online hash ID in CaloDetDescrElements
 TileDCSCondAlgTest   INFO Will read the following folders: /TILE/TEST/DCS/HV  /TILE/TEST/DCS/STATES
 Tile cabling type: 5
-ClassIDSvc           INFO  getRegistryEntries: read 2528 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 1878 CLIDRegistry entries for module ALL
 FOLDER [{[536870911,l:536870911] - [2147483647,l:2147483647]}]: 
 min range: {[0,0] - [2147483647,4294967295]}
 chan, attr: 15

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDDATA_TGCCONDDBDATA_H
@@ -49,7 +49,6 @@ private:
 };
 
 CLASS_DEF( TgcCondDbData, 130737053, 1)
-#include "AthenaKernel/CondCont.h"
 CLASS_DEF( CondCont<TgcCondDbData>, 178252645, 0)
 
 #endif

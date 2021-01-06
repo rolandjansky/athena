@@ -19,13 +19,6 @@
 #include "TauJetAccessors_v3.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
-namespace{
-  bool
-  inRange(const double val, const double lo, const double hi){
-    return (val>=lo) and (val<=hi);
-  }
-
-}
 
 namespace xAOD {
   
@@ -112,9 +105,7 @@ namespace xAOD {
 
   TauJet_v3::FourMom_t TauJet_v3::p4() const {
     FourMom_t p4{};
-    bool validAnswer = inRange(eta(),-10,10);
-    validAnswer&= inRange(phi(),-M_PI,+M_PI);
-    if (validAnswer) p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
+    p4.SetPtEtaPhiM( pt(), eta(), phi(),m()); 
     return p4;	
   }
 
@@ -628,41 +619,11 @@ namespace xAOD {
   }
 
 
-  std::vector<const IParticle*> TauJet_v3::clusters(double dRMax) const {
+  std::vector<const IParticle*> TauJet_v3::clusters() const {
     std::vector<const IParticle*> particleList;
 
     for (const auto& link : clusterAcc(*this)) {
       const IParticle* particle = *link;
-
-      if (dRMax > 0.0) {
-        const xAOD::CaloCluster* cluster = static_cast<const xAOD::CaloCluster*>(particle);
-        const xAOD::Vertex* vertex = nullptr;
-        TLorentzVector clusterP4;
-        TLorentzVector tauP4;
-        
-        // Apply the vertex correction if there is a vertex
-        if (this->vertexLink().isValid()) {
-          vertex = this->vertex();
-          tauP4 = this->p4(xAOD::TauJetParameters::IntermediateAxis);  
-        }
-        else {
-          const xAOD::Jet* jet = this->jet();
-          bool isAvailable = jet->getAssociatedObject("OriginVertex", vertex);
-          if (!isAvailable) vertex = nullptr;
-          tauP4 = this->p4(xAOD::TauJetParameters::DetectorAxis);
-        }
-
-        if (vertex) {
-          clusterP4 = xAOD::CaloVertexedTopoCluster(*cluster, vertex->position()).p4();
-        }
-        else {
-          clusterP4 = cluster->p4();
-        }
-
-        double dR = clusterP4.DeltaR(tauP4);
-        if (dR > dRMax) continue;
-      }
-
       particleList.push_back(particle);
     }
 
@@ -694,6 +655,11 @@ namespace xAOD {
     clusterAcc( *this ).clear();
   }
 
+  static const SG::AuxElement::Accessor< std::vector< xAOD::CaloVertexedTopoCluster > > vertexedClustersAcc( "VertexedClusters" );
+
+  std::vector<xAOD::CaloVertexedTopoCluster> TauJet_v3::vertexedClusters() const {
+    return vertexedClustersAcc(*this);
+  }
 
   // setters and getters for the pi0 links
   AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v3,

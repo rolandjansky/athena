@@ -11,7 +11,17 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
 from chainDict2jetLabel import chainDict2jetLabel 
-from TrigJetHypoToolConfig import trigJetHypoToolFromDict
+from TrigJetHypoToolConfig import (trigJetHypoToolFromDict,
+                                   nodeForestFromChainLabel,
+                                   tree2tools,)
+
+from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
+    ConditionsToolSetterFastReduction,
+)
+
+from TrigHLTJetHypo.FastReductionAlgToolFactory import (
+    FastReductionAlgToolFactory,)
+
 
 def testChainDictMaker():
 
@@ -37,6 +47,16 @@ def testChainDictMaker():
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
                   l1SeedThresholds=['FSNOSEED'],
                   groups=MultiJetGroup),
+
+        ChainProp(name='HLT_10j40_L1J15',
+                  l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
+
+        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
+                  groups=SingleJetGroup),
+
+         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
+
+        ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
     ]
 
     result = []
@@ -58,6 +78,26 @@ if __name__ == '__main__':
         print (d[0])
         print (chainDict2jetLabel(d[1]))
         print ()
+
+        
+    print ('\n node trees:\n')
+    
+    for d in dicts:
+        print (d[0])
+        label = chainDict2jetLabel(d[1])
+        chain_name = d[1]['chainName']
+
+
+        forest = nodeForestFromChainLabel(label, chain_name)
+
+        algToolFactory = FastReductionAlgToolFactory()
+        for tree in forest:
+            toolSetter=ConditionsToolSetterFastReduction(algToolFactory)
+            
+            print (tree2tools(rootless_tree=tree,
+                              toolSetter=toolSetter).dump())
+        print ()
+        
 
     print ('\nMaking TrigJetHypoTool for each dictiomary\n')
     for d in dicts:

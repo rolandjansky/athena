@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXSEEDFINDERTOOLS_MCTRUESEEDFINDER_H
@@ -45,7 +45,6 @@ namespace Trk
 
 
     virtual StatusCode initialize() override;
-    virtual StatusCode finalize() override;
 
 
     using IVertexSeedFinder::findSeed;
@@ -106,7 +105,7 @@ namespace Trk
     bool pass( const HepMC::GenEvent* evt,
 	       const McEventCollection* coll = 0 ) const;
     /// Function selecting GenParticle objects
-    bool pass( const HepMC::GenParticle* part,
+    bool pass( HepMC::ConstGenParticlePtr part,
 	       const McEventCollection* coll = 0 ) const;
 
     StatusCode retrieveInteractionsInfo (std::vector<Amg::Vector3D>& interactions) const;

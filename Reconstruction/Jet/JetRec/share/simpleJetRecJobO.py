@@ -48,7 +48,7 @@ JetFinder_AntiKt4.JetBuilder = JetBuilder_AntiKt4
 JetRecTool = CfgMgr.JetRecTool("MTAntiKt4EMTopoJets",
                                OutputLevel=VERBOSE)
 JetRecTool.JetFinder = JetFinder_AntiKt4
-JetRecTool.InputPseudoJets = [emget.OutputContainer]
+JetRecTool.InputPseudoJets = [str(emget.OutputContainer)]
 JetRecTool.OutputContainer = "MTAntiKt4EMTopoJets"
 
 topSequence += CfgMgr.JetAlgorithm("MTJetAlg",Tools = [JetRecTool])

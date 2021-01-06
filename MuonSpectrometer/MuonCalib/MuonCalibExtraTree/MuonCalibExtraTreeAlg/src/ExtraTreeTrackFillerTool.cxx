@@ -22,7 +22,6 @@
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkTrack/Track.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkEventPrimitives/ParamDefs.h"

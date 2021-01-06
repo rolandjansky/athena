@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //<<<<<< INCLUDES                                                       >>>>>>
@@ -27,7 +27,10 @@ StatusCode
 TrkEDMTestAlg::initialize()
 {
   // summary is special (normally want to write it)
-  if (m_dumpSummaryToFile) m_summaryFileOutput.open(m_summaryDumpFileName.c_str()); ATH_MSG_VERBOSE("SUM dump="<<m_summaryDumpFileName);
+  if (m_dumpSummaryToFile) {
+    m_summaryFileOutput.open(m_summaryDumpFileName.c_str());
+    ATH_MSG_VERBOSE("SUM dump="<<m_summaryDumpFileName);
+  }
 
   return AthAlgorithm::initialize();
 }

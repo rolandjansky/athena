@@ -35,7 +35,7 @@ if hasattr(runArgs,"beamType"):
 
 # Avoid command line preInclude for event service
 if hasattr(runArgs, "eventService") and runArgs.eventService:
-    include('AthenaMP/AthenaMP_EventService.py')
+    import AthenaMP.EventService
 
 ## autoConfiguration keywords triggering pre-defined functions
 ## if hasattr(runArgs,"autoConfiguration"):

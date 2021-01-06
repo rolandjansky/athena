@@ -6,8 +6,8 @@
 
 #include "MuonCombinedEvent/MuonCandidateCollection.h"
 
-MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator) {
+MuonCombinedInDetExtensionAlg::MuonCombinedInDetExtensionAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthAlgorithm(name, pSvcLocator) {
 }
 
 StatusCode
@@ -31,8 +31,9 @@ MuonCombinedInDetExtensionAlg::initialize()
 }
 
 StatusCode
-MuonCombinedInDetExtensionAlg::execute(const EventContext& ctx) const
-{
+MuonCombinedInDetExtensionAlg::execute() {
+
+    const EventContext& ctx = Gaudi::Hive::currentContext();
 
     SG::ReadHandle<InDetCandidateCollection> indetCandidateCollection(m_indetCandidateCollectionName, ctx);
     if (!indetCandidateCollection.isValid()) {
@@ -42,8 +43,10 @@ MuonCombinedInDetExtensionAlg::execute(const EventContext& ctx) const
 
     ATH_MSG_VERBOSE("Loaded InDetCandidateCollection " << m_indetCandidateCollectionName << " with  "
                                                        << indetCandidateCollection->size() << " elements.");
-    for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
-        ATH_MSG_VERBOSE(candidate->toString());
+    if (msgLvl(MSG::VERBOSE)) {
+      for (const MuonCombined::InDetCandidate* candidate : *indetCandidateCollection)
+        msg(MSG::VERBOSE) << candidate->toString() << endmsg;
+    }
 
     SG::WriteHandle<MuonCombined::InDetCandidateToTagMap> tagMap(m_tagMap, ctx);
     ATH_CHECK(tagMap.record(std::make_unique<MuonCombined::InDetCandidateToTagMap>()));

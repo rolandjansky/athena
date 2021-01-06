@@ -66,9 +66,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   ANA_CHECK (xAOD::Init()) ;
   //enable status code failures
   CP::CorrectionCode::enableFailure();
-  CP::SystematicCode::enableFailure();
   StatusCode::enableFailure();
-  xAOD::TReturnCode::enableFailure();
 #else
   IAppMgrUI* app = POOL::Init(); //important to do this first!
 #endif
@@ -267,7 +265,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   }
 
 #ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
+  ANA_CHECK( app->finalize() );
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

@@ -141,15 +141,13 @@ class TriggerConfigGetter(Configured):
 
         # first check the input
         if "HIT2RDO" in self._environment:
-            TriggerFlags.doLVL2 = False
-            TriggerFlags.doEF = False
+            TriggerFlags.doHLT = False
             log.info("For simulation jobs the following flags are set:")
             log.info("globalflags.InputFormat             : %s", globalflags.InputFormat())
             log.info("globalflags.DataSource              : %s", globalflags.DataSource())
             log.info("TriggerFlags.configForStartup       : %s", TriggerFlags.configForStartup())
             log.info("TriggerFlags.dataTakingConditions   : %s", TriggerFlags.dataTakingConditions())
-            log.info("TriggerFlags.doLVL2                 : %s", TriggerFlags.doLVL2())
-            log.info("TriggerFlags.doEF                   : %s", TriggerFlags.doEF())
+            log.info("TriggerFlags.doHLT                  : %s", TriggerFlags.doHLT())
         else:
             if not self.checkInput():
                 log.error("Could not determine job input. Can't setup trigger configuration and will return!")
@@ -172,7 +170,12 @@ class TriggerConfigGetter(Configured):
         self.l1Folders      = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='Lvl1Only'
         self.hltFolders     = TriggerFlags.dataTakingConditions()=='FullTrigger' or TriggerFlags.dataTakingConditions()=='HltOnly'
         self.isRun1Data     = False 
-        self.hasxAODMeta    = ("metadata_items" in metadata and any(('TriggerMenu' or 'MenuJSON' in key) for key in metadata["metadata_items"].keys()))
+        self.hasxAODMeta    = ( 
+          ("metadata_items" in metadata)
+          and 
+          any((('TriggerMenu' or 'MenuJSON') in key) for key in metadata["metadata_items"].keys())
+        )
+
         if globalflags.DataSource()=='data':
             from RecExConfig.AutoConfiguration  import GetRunNumber
             runNumber = GetRunNumber()
@@ -185,14 +188,14 @@ class TriggerConfigGetter(Configured):
 
         # reading from the TriggerDB can mean different things:
 
-        # a) TriggerFlags doLVL2() and doEF() are both False:
+        # a) TriggerFlags doHLT() is False:
         #    - create a tmp sqlite file with the conditions (menu)
         #    - use DSConfigSvc
 
 
-        # b) TriggerFlags doLVL2() or doEF() is True:
+        # b) TriggerFlags doHLT() is True:
         #    - use HLTConfigSvc
-        if self.readTriggerDB and (TriggerFlags.doLVL2() or TriggerFlags.doEF() or TriggerFlags.doHLT()):
+        if self.readTriggerDB and TriggerFlags.doHLT():
 
             self.ConfigSrcList = ['xml'] # to use L1/HLTConfigSvc and not DSConfigSvc, but only if we are running the HLT
 
@@ -239,10 +242,8 @@ class TriggerConfigGetter(Configured):
         ########################################################################
         # START OF TEMPORARY SOLUTION FOR RUN-3 TRIGGER DEVELOPMENT
         ########################################################################
-        from TriggerJobOpts.HLTTriggerResultGetter import EDMDecodingVersion
-        EDMDecodingVersion()  # In most use cases this needs to be called much earlier than in HLTTriggerResultGetter
-
-        if TriggerFlags.EDMDecodingVersion() >= 3:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.EDMVersion >= 3:
             if self.hasxAODMeta:
                 if not hasattr(svcMgr, 'xAODConfigSvc'):
                     from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODConfigSvc
@@ -318,7 +319,8 @@ class TriggerConfigGetter(Configured):
         
         if not self.hasxAODMeta:
             self.setupxAODWriting()
-
+        else:
+            log.info("Input file already has xAOD trigger metadata. Will not re-create it.")
 
         # all went fine we are configured
         return True
@@ -431,7 +433,6 @@ class TriggerConfigGetter(Configured):
 
         # Get the algorithm sequence:
         from AthenaCommon.AlgSequence import AlgSequence
-        from .TriggerFlags import TriggerFlags
         topAlgs = AlgSequence()
 
         # Add the algorithm creating the trigger configuration metadata for
@@ -439,7 +440,8 @@ class TriggerConfigGetter(Configured):
         try: 
             writeTriggerMenu = True
             writeMenuJSON = False
-            if TriggerFlags.EDMDecodingVersion() <= 2:
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            if ConfigFlags.Trigger.EDMVersion <= 2:
                 from TrigConfxAOD.TrigConfxAODConf import TrigConf__xAODMenuWriter
                 topAlgs += TrigConf__xAODMenuWriter( OverwriteEventObj = True )
             else:
@@ -458,7 +460,6 @@ class TriggerConfigGetter(Configured):
                 Configurable.configurableRun3Behavior += 1
                 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator, appendCAtoAthena
                 from TrigConfigSvc.TrigConfigSvcCfg import  L1PrescaleCondAlgCfg, HLTPrescaleCondAlgCfg
-                from AthenaConfiguration.AllConfigFlags import ConfigFlags
                 acc = ComponentAccumulator()
                 acc.merge( L1PrescaleCondAlgCfg( ConfigFlags ) )
                 acc.merge( HLTPrescaleCondAlgCfg( ConfigFlags ) )
@@ -489,7 +490,7 @@ class TriggerConfigGetter(Configured):
                                 ]
                 objKeyStore.addManyTypesMetaData( metadataItems )
 
-            if TriggerFlags.EDMDecodingVersion() >= 3:
+            if ConfigFlags.Trigger.EDMVersion >= 3:
                 from TrigEDMConfig.TriggerEDMRun3 import recordable
                 from AthenaConfiguration.ComponentFactory import CompFactory
                 from AthenaConfiguration.ComponentAccumulator import conf2toConfigurable

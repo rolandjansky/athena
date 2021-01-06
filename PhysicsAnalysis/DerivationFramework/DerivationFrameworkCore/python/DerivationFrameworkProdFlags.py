@@ -2011,6 +2011,20 @@ class WriteDAOD_FTAG5Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG5Stream)
 listAODtoDPD.append(WriteDAOD_FTAG5Stream.StreamName)
 
+class WriteDAOD_FTAG6Stream (JobProperty):
+    """FTAG5: MC-based optimization studies"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_FTAG6'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkFlavourTag/FTAG6.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_FTAG6Stream)
+listAODtoDPD.append(WriteDAOD_FTAG6Stream.StreamName)
+
+
 ######################################
 # Defined by the B-physics group
 ######################################

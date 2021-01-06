@@ -25,12 +25,19 @@ def MM_DigitizationTool(name="MM_DigitizationTool",**kwargs):
     kwargs.setdefault("CheckSimHits", True)
     kwargs.setdefault("InputObjectName", "MicromegasSensitiveDetector")
     kwargs.setdefault("OutputObjectName", "MM_DIGITS")
-    kwargs.setdefault("OutputSDOName", "MM_SDO")
+    if jobproperties.Digitization.PileUpPremixing and 'OverlayMT' in jobproperties.Digitization.experimentalDigi():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        kwargs.setdefault("OutputSDOName", overlayFlags.bkgPrefix() + "MM_SDO")
+    else:
+        kwargs.setdefault("OutputSDOName", "MM_SDO")
     kwargs.setdefault("SmearingTool","MMCalibSmearingTool")
     if 'NewMerge' in jobproperties.Digitization.experimentalDigi():
         kwargs.setdefault("UseMcEventCollectionHelper",True)
     else:
         kwargs.setdefault("UseMcEventCollectionHelper",False)
+
+    # Temporary until migrated away from TRandom
+    kwargs.setdefault("RandomSeed", jobproperties.Digitization.rndmSeedOffset1.get_Value())
 
     return CfgMgr.MM_DigitizationTool(name,**kwargs)
 
@@ -53,6 +60,7 @@ def MM_Response_DigitTool(name="MM_Response_DigitTool",**kwargs):
 def MM_OverlayDigitizationTool(name="MM_OverlayDigitizationTool",**kwargs):
     from OverlayCommonAlgs.OverlayFlags import overlayFlags
     if overlayFlags.isOverlayMT():
+        kwargs.setdefault("OnlyUseContainerName", False)
         kwargs.setdefault("OutputObjectName", overlayFlags.sigPrefix() + "MM_DIGITS")
         if not overlayFlags.isDataOverlay():
             kwargs.setdefault("OutputSDOName", overlayFlags.sigPrefix() + "MM_SDO")

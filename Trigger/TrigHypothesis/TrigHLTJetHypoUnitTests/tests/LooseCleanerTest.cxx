@@ -55,7 +55,7 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1., 1., 1., 2., 1.};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   constexpr float eps = 0.00001;
@@ -65,21 +65,21 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1.-eps, 1+ eps, 1,  2., 1.};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
   // jet above  fSampMaxTightThreshold, outside applicable eta range
   {
     std::array<float, 5> args{1.-eps, 0.5- eps, 1,  2., 1.};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_TRUE(cleaner(&jet));
+    EXPECT_TRUE(cleaner(jet));
   }
 
   // jet below _emfLowTightThreshold
   {
     std::array<float, 5> args{1., 1., 1+eps,  2., 1.};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
 
@@ -87,7 +87,7 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1., 1., 0.5,  1.-eps, 1.};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
 
@@ -95,7 +95,7 @@ TEST(LooseCleanerTest, SimpleThresholds) {
   {
     std::array<float, 5> args{1., 1., 1.0,  1.0, 1. -eps};
     auto cleaner = makeLooseCleaner(args[0], args[1], args[2], args[3], args[4]);
-    EXPECT_FALSE(cleaner(&jet));
+    EXPECT_FALSE(cleaner(jet));
   }
 
 }
@@ -110,5 +110,5 @@ TEST(LooseCleanerTest, ThrowsOnUncleanableJet) {
 
   
 
-  EXPECT_THROW(cleaner(&jet), UncleanableJet);
+  EXPECT_THROW(cleaner(jet), UncleanableJet);
 }

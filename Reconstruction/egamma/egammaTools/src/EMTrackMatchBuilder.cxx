@@ -138,15 +138,14 @@ EMTrackMatchBuilder::trackExecute(
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve(trkMatches.size());
     const std::string key = EL(*trackPC, 0).dataID();
-    IProxyDict* sg = SG::CurrentEventStore::store();
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: " << m.dR << " second  dR: " << m.seconddR
                                   << " hasPix: " << m.hasPix
                                   << " hitsScore: " << m.hitsScore);
       if (key.empty()) {
-        trackParticleLinks.emplace_back(*trackPC, m.trackNumber, sg);
+        trackParticleLinks.emplace_back(*trackPC, m.trackNumber, ctx);
       } else {
-        trackParticleLinks.emplace_back(key, m.trackNumber, sg);
+        trackParticleLinks.emplace_back(key, m.trackNumber, ctx);
       }
     }
     eg->setTrackParticles(trackParticleLinks);

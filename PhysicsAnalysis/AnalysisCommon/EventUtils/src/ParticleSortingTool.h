@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSortingTool.h
@@ -10,10 +10,6 @@
 ///////////////////////////////////////////////////////////////////
 #ifndef EVENTUTILS_PARTICLESORTINGTOOL_H
 #define EVENTUTILS_PARTICLESORTINGTOOL_H 1
-
-// STL includes
-#include <vector>
-#include <string>
 
 // FrameWork includes
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -25,7 +21,10 @@
 #include "xAODBase/IParticleContainer.h"
 #include "AthContainers/ConstDataVector.h"
 
-
+// STL includes
+#include <vector>
+#include <string>
+#include <cmath>
 
 class ParticleSortingTool
   : virtual public ::DerivationFramework::IAugmentationTool,
@@ -140,37 +139,37 @@ StatusCode ParticleSortingTool::doSortConst( ConstDataVector<CONTAINERTYPE>* con
   }
   // Actually do the sorting, using a C++11 lambda function construct
   // to be able to use the member function here
-  if ( abs(m_sortID) == 1 ) {
+  if ( std::abs(m_sortID) == 1 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->comparePt(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 2 ) {
+  else if ( std::abs(m_sortID) == 2 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareEta(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 3 ) {
+  else if ( std::abs(m_sortID) == 3 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->comparePhi(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 4 ) {
+  else if ( std::abs(m_sortID) == 4 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareMass(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 5 ) {
+  else if ( std::abs(m_sortID) == 5 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareEnergy(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 6 ) {
+  else if ( std::abs(m_sortID) == 6 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareRapidity(a,b);
                 } );
   }
-  else if ( abs(m_sortID) == 7 ) {
+  else if ( std::abs(m_sortID) == 7 ) {
     cont->sort( [this](const xAOD::IParticle* a, const xAOD::IParticle* b) {
                   return this->compareAuxData(a,b);
                 } );

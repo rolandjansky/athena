@@ -6,7 +6,10 @@ log = logging.getLogger( 'Trigger_topOptions_standalone.py' )
 from TriggerJobOpts.TriggerFlags import TriggerFlags
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
+# Legacy (Run-2) trigger produces Run-2 EDM
+ConfigFlags.Trigger.EDMVersion = 2
 
 if globalflags.InputFormat() == 'bytestream':
     TriggerFlags.doLVL1=False
@@ -133,7 +136,7 @@ if TriggerFlags.doMuon():
     # load services needed for converters
     import MuonCnvExample.MuonCablingConfig  # noqa: F401 configuration by import, old Run-2 job options
     import MuonRecExample.MuonReadCalib  # noqa: F401 configuration by import, old Run-2 job options
-    if (TriggerFlags.doEF() or TriggerFlags.doHLT()) and 'forceMuonDataPrep' in dir():
+    if TriggerFlags.doHLT() and 'forceMuonDataPrep' in dir():
         if (TriggerFlags.MuonSlice.doEFRoIDrivenAccess()):
             include("MuonRdoToPrepData/CscRdoToCscPrepData_jobOptions.py")
         else:

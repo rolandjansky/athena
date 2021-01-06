@@ -168,7 +168,7 @@ private:
     this, "prefetchAllROBsfromROS", false , "When ROBs from a ROS are requested then prefetch all ROBs in this ROS"};
 
   Gaudi::Property<bool> m_doCostMonitoring{
-    this, "DoCostMonitoring", true, "Enables start-of-event cost monitoring behavior."};
+    this, "doCostMonitoring", false, "Enables start-of-event cost monitoring behavior."};
 
   ServiceHandle<ITrigCostMTSvc> m_trigCostSvcHandle{ 
     this, "TrigCostMTSvc", "TrigCostMTSvc", "The trigger cost service" };
@@ -179,6 +179,13 @@ private:
    */
   /// method to filter ROBs with given Status code
   bool robmap_filterRobWithStatus(const ROBF*);
+
+  /// method to get ROB fragment from ROBF
+  /// input:
+  ///     context
+  ///     ROB fragment to be parsed
+  ///     ROB history status
+  robmonitor::ROBDataStruct robmap_getRobData(const ROBF&, robmonitor::ROBHistory) ;
 
   /*------------------------------+
    * Methods acting on EventCache |
@@ -196,14 +203,19 @@ private:
   /// output:
   ///     vector of ROB fragments available already in cache
   ///     vector of ROB Ids missing in cache
+  ///     set of disabled ROBs
   void eventCache_checkRobListToCache(EventCache*, const std::vector<uint32_t>&, 
-				      std::vector<const ROBF*>&, std::vector<uint32_t>& );
+				      std::vector<const ROBF*>&, std::vector<uint32_t>&, 
+              std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_disabled = std::nullopt);
 
   /// method to add ROB fragments to an event cache in a slot
   /// input:
   ///     pointer to cache
   ///     vector of ROB fragments to add to the cache
-  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&) ;
+  /// output:
+  ///     set of ignored ROBs
+  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&,
+              std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored = std::nullopt) ;
 
   /// Monitoring tool
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};

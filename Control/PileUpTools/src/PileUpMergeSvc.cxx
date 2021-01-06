@@ -10,9 +10,6 @@
 #include "PileUpTools/IPileUpXingFolder.h"
 
 #include "EventInfo/EventInfo.h"
-#include "xAODEventInfo/EventInfoContainer.h"
-
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventType.h" 
 #include "EventInfo/PileUpEventInfo.h" 
@@ -91,8 +88,13 @@ void PileUpMergeSvc::decodeIntervals() {
 /// Service initialisation
 StatusCode 
 PileUpMergeSvc::initialize()    {
+
   msg() << MSG::INFO << "Initializing AthService " << name() 
 	<< " - package version " << PACKAGE_VERSION << endmsg ;
+
+  m_autoRetrieveTools = false;
+  m_checkToolDeps = false;
+
   // set up the SG service:
   if ( !(p_overStore.retrieve()).isSuccess() ) 
   {

@@ -75,7 +75,9 @@ DetFlags.readRIOBS.all_setOff()
 DetFlags.readRIOPool.all_setOff()
 DetFlags.writeRIOPool.all_setOff()
 
-
+if conddb.dbdata=="COMP200":
+    from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags
+    InDetGeometryFlags.useDynamicAlignFolders = False
 
 import AtlasGeoModel.SetGeometryVersion
 import AtlasGeoModel.GeoModelInit

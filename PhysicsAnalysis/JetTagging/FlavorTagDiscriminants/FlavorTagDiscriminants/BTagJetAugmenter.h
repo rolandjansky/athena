@@ -6,7 +6,7 @@
 #define BTAG_JET_AUGMENTER_HH
 
 #include "FlavorTagDiscriminants/FlipTagEnums.h"
-#include "FlavorTagDiscriminants/ftagfloat_t.h"
+#include "xAODBTagging/ftagfloat_t.h"
 
 // ATLAS things
 #include "xAODBTagging/BTagging.h"

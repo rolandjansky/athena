@@ -24,7 +24,8 @@ BUILDDIR=""
 BUILDTYPE="RelWithDebInfo"
 FORCE=""
 CI=""
-EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_2")
+EXTRACMAKE=(-DLCG_VERSION_NUMBER=98 -DLCG_VERSION_POSTFIX="python3_ATLAS_3"
+            -DATLAS_GAUDI_TAG="v35r0.002")
 while getopts ":t:b:x:fch" opt; do
     case $opt in
         t)
@@ -98,7 +99,7 @@ fi
 # Get the version of AthGeneration for the build.
 version=`cat ${thisdir}/version.txt`
 # Generate hash of any extra cmake arguments.
-cmakehash=`echo -n "${EXTRACMAKE}" | openssl md5 | awk '{print $2}'`
+cmakehash=`echo -n "${EXTRACMAKE[@]}" | openssl md5 | awk '{print $2}'`
 
 # Check if previous externals build can be reused:
 externals_stamp=${BUILDDIR}/build/AthGenerationExternals/externals-${version}-${cmakehash}.stamp
@@ -165,45 +166,6 @@ ${scriptsdir}/build_atlasexternals.sh \
    (set +e
     ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" AthGenerationExternals ${BUILDDIR}/build/AthGenerationExternals/cmake_config.log
     ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" AthGenerationExternals ${BUILDDIR}/build/AthGenerationExternals/cmake_build.log
-   )
- } || true
-}
-
-# Get the "platform name" from the directory created by the AthGenerationExternals
-# build:
-platform=$(cd ${BUILDDIR}/install/AthGenerationExternals/${version}/InstallArea;ls)
-
-# Read in the tag/branch to use for Gaudi:
-GaudiVersion=$(awk '/^GaudiVersion/{print $3}' ${thisdir}/externals.txt)
-
-# Check out Gaudi from the right branch/tag:
-${scriptsdir}/checkout_Gaudi.sh \
-    -t ${GaudiVersion} \
-    -s ${BUILDDIR}/src/GAUDI 2>&1 | tee ${BUILDDIR}/src/checkout.GAUDI.log
-
-{
- test "X${NIGHTLY_STATUS}" != "X" && {
-   (set +e
-    ${scriptsdir_nightly_status}/checkout_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/src/checkout.GAUDI.log
-   )
- } || true
-}
-
-# Build Gaudi:
-${scriptsdir}/build_Gaudi.sh \
-    -s ${BUILDDIR}/src/GAUDI \
-    -b ${BUILDDIR}/build/GAUDI \
-    -i ${BUILDDIR}/install \
-    -e ${BUILDDIR}/install/AthGenerationExternals/${version}/InstallArea/${platform} \
-    -v ${version} \
-    -p AthGenerationExternals -f ${platform} ${RPMOPTIONS} -t ${BUILDTYPE} \
-    ${EXTRACMAKE[@]/#/-x } || ((ERROR_COUNT++))
-
-{
- test "X${NIGHTLY_STATUS}" != "X" && {
-   (set +e
-    ${scriptsdir_nightly_status}/cmake_config_status.sh "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_config.log
-    ${scriptsdir_nightly_status}/cmake_build_status.sh  "$branch" "$BINARY_TAG" "$timestamp_tmp" GAUDI ${BUILDDIR}/build/GAUDI/cmake_build.log
    )
  } || true
 }

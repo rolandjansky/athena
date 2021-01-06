@@ -19,7 +19,8 @@ def _buildJetAlgForInput(suffix, tools ):
 def buildJetSelectedTracks( parentjetdef, inputspec ):
     from JetRecTools import JetRecToolsConfig
     # Jet track selection
-    t = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True)
+    t = JetRecToolsConfig.getTrackSelTool(doWriteTracks=True,
+                                          cutLevel="NoCut", minPt=500) 
     return _buildJetAlgForInput("JetSelectedTrack",
                                 tools = [ t ]
                                 )

@@ -91,6 +91,7 @@ class MTCalibPebHypoOptions:
         self.NumBurnCycles = 0
         self.BurnTimeRandomly = True
         self.Crunch = False
+        self.CheckDataConsistency = False
         self.ROBAccessDict = rob_access_dict
         self.TimeBetweenROBReqMillisec = 0
         self.PEBROBList = []
@@ -168,6 +169,7 @@ def make_hypo_tool(name, options=default_options):
     hypo_tool.NumBurnCycles             = options.NumBurnCycles
     hypo_tool.BurnTimeRandomly          = options.BurnTimeRandomly
     hypo_tool.Crunch                    = options.Crunch
+    hypo_tool.CheckDataConsistency      = options.CheckDataConsistency
     hypo_tool.ROBAccessDict             = options.ROBAccessDict
     hypo_tool.TimeBetweenROBReqMillisec = options.TimeBetweenROBReqMillisec
     hypo_tool.PEBROBList                = options.PEBROBList
@@ -219,8 +221,8 @@ def configure_hlt_result(hypo_algs):
     serialiser = TriggerEDMSerialiserToolCfg('Serialiser')
     for hypo in hypo_algs:
         serialiser.addCollectionListToMainResult([
-            'xAOD::TrigCompositeContainer_v1#'+hypo.HypoOutputDecisions,
-            'xAOD::TrigCompositeAuxContainer_v2#'+hypo.HypoOutputDecisions+'Aux.',
+            'xAOD::TrigCompositeContainer_v1#%s' % hypo.HypoOutputDecisions,
+            'xAOD::TrigCompositeAuxContainer_v2#%sAux.' % hypo.HypoOutputDecisions,
         ])
 
     # Data scouting example
@@ -279,7 +281,7 @@ def configure_hlt_result(hypo_algs):
     # Tool adding stream tags to HLT result
     stmaker = StreamTagMakerToolCfg()
     stmaker.ChainDecisions = 'HLTNav_Summary'
-    stmaker.PEBDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
+    stmaker.PEBDecisionKeys = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
 
     # Tool adding HLT bits to HLT result
     bitsmaker = TriggerBitsMakerToolCfg()
@@ -296,15 +298,15 @@ def make_summary_algs(hypo_algs):
     from DecisionHandling.DecisionHandlingConf import TriggerSummaryAlg
     summary = TriggerSummaryAlg('TriggerSummaryAlg')
     summary.InputDecision = 'L1DecoderSummary'
-    summary.FinalDecisions = [hypo.HypoOutputDecisions for hypo in hypo_algs]
+    summary.FinalDecisions = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
 
     from TrigOutputHandling.TrigOutputHandlingConf import DecisionSummaryMakerAlg
     summMaker = DecisionSummaryMakerAlg()
-    summMaker.FinalDecisionKeys = [hypo.HypoOutputDecisions for hypo in hypo_algs]
+    summMaker.FinalDecisionKeys = [str(hypo.HypoOutputDecisions) for hypo in hypo_algs]
     summMaker.FinalStepDecisions = {}
     for hypo in hypo_algs:
         for tool in hypo.HypoTools:
-            summMaker.FinalStepDecisions[tool.getName()] = hypo.HypoOutputDecisions
+            summMaker.FinalStepDecisions[tool.getName()] = [str(hypo.HypoOutputDecisions)]
     log.info('summMaker = %s', summMaker)
     return [summary, summMaker]
 

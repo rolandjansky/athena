@@ -41,7 +41,7 @@
 #include "LArRawEvent/LArCalibDigit.h"
 #include "LArRawEvent/LArCalibDigitContainer.h"
 
-#include "LArCabling/LArCablingLegacyService.h"
+#include "LArCabling/LArOnOffIdMapping.h"
 #include "LArByteStream/LArRodBlockStructure.h"
 //#include "LArByteStream/LArRodBlockStructure_0.h"
 //#include "LArByteStream/LArRodBlockStructure_1.h"
@@ -56,7 +56,10 @@ class LArRodEncoder
 public: 
 
   // constructor 
-  LArRodEncoder(); 
+  LArRodEncoder (const LArOnlineID& onlineHelper,
+                 const CaloDetDescrManager& calodd,
+                 const LArOnOffIdMapping& onOffIdMapping,
+                 LArRodBlockStructure* BlStruct); 
   // destructor 
   ~LArRodEncoder(); 
 
@@ -79,7 +82,6 @@ public:
 //  void fillROD(std::vector<uint32_t>& v, MsgStream& logstr) ; 
   void fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const CaloNoise& noise, double nsigma) ;
 
-  static void setRodBlockStructure(LArRodBlockStructure* BlStructPtr);
 
 private:
   /*
@@ -110,11 +112,11 @@ private:
   //std::vector<FebData> m_vFEB;
   std::map<uint32_t,FebData_t> m_mFEB;
 
-  //Static members;
-  static LArRodBlockStructure* m_BlStruct;
-  static LArCablingLegacyService*    m_cablingSvc; 
-  static const CaloDetDescrManager* m_CaloDetDescrManager;
-  static const LArOnlineID*    m_onlineHelper; 
+  const LArOnlineID&         m_onlineHelper; 
+  const CaloDetDescrManager& m_CaloDetDescrManager;
+  const LArOnOffIdMapping&   m_onOffIdMapping;
+  LArRodBlockStructure* m_BlStruct;
+
   /*
  public:
   static int m_digitcounter; //for debug purpose only

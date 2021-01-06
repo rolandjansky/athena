@@ -1,8 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 import CaloD3PDMaker
 import CaloSysD3PDMaker
-import D3PDMakerCoreComps
 import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerConfig.D3PDMakerFlags import D3PDMakerFlags

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # $Id: root_pickle.py,v 1.1 2007-07-22 01:51:43 binet Exp $
@@ -156,7 +156,7 @@ Root objects.
         """Clears the pickler's internal memo."""
         self.__pickle.memo.clear()
         return
-    
+
 
 
     def _persistent_id (self, o):
@@ -169,7 +169,7 @@ Root objects.
             pid = "%s;%d" % (k.GetName(), k.GetCycle())
             return pid
         return
-    
+
 
 
 _compat_hooks = None
@@ -182,11 +182,11 @@ class Root_Proxy:
         self.__o = None
         return
     def __getattr__ (self, a):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
         return getattr (self.__o, a)
     def __obj (self):
-        if self.__o == None:
+        if self.__o is None:
             self.__o = self.__f.Get (self.__pid)
         return self.__o
 class Unpickler:
@@ -211,7 +211,8 @@ FILE should be a Root TFile.
     def load (self):
         """Read a pickled object representation from the open file."""
         o = None
-        if _compat_hooks: save = _compat_hooks[0]()
+        if _compat_hooks:
+            save = _compat_hooks[0]()
         try:
             self.__n += 1
             s = self.__file.Get ('_pickle;%d' % self.__n)
@@ -219,9 +220,10 @@ FILE should be a Root TFile.
             o = self.__unpickle.load()
             self.__io.reopen ()
         finally:
-            if _compat_hooks: save = _compat_hooks[1](save)
+            if _compat_hooks:
+                save = _compat_hooks[1](save)
         return o
-    
+
     def _persistent_load (self, pid):
         if self.__use_proxy:
             o = Root_Proxy (self.__file, pid)
@@ -253,7 +255,7 @@ FILE should be a Root TFile.
             setattr (mod, name, Dummy)
             return Dummy
         return
-        
+
 
 
 def compat_hooks (hooks):
@@ -262,7 +264,7 @@ If this is set, then hooks[0] is called before loading,
 and hooks[1] is called after loading.  hooks[1] is called with
 the return value of hooks[0] as an argument.  This is useful
 for backwards compatibility in some situations."""
-    _compat_hooks = hooks
+    _compat_hooks = hooks # noqa: F841
     return
 
 

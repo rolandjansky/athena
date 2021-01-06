@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -12,7 +12,7 @@
 #include "xAODCore/ShallowCopy.h"
 #include "PATInterfaces/SystematicVariation.h"
 #include "PATInterfaces/SystematicRegistry.h"
-#include "PATInterfaces/SystematicCode.h"
+#include "AsgMessaging/StatusCode.h"
 #include "ElectronPhotonFourMomentumCorrection/EgammaCalibrationAndSmearingTool.h"
 
 // local include
@@ -91,7 +91,7 @@ StatusCode testAthenaEgammaCalibTool::execute()
     for (sysListItr = sysList.begin(); sysListItr != sysList.end(); ++sysListItr)
       {
 	// Tell the calibration tool which variation to apply
-	if (m_EgammaCalibrationAndSmearingTool->applySystematicVariation(*sysListItr) != CP::SystematicCode::Ok)
+	if (m_EgammaCalibrationAndSmearingTool->applySystematicVariation(*sysListItr) != StatusCode::SUCCESS)
 	  {
 	    ATH_MSG_ERROR("Cannot configure calibration tool for systematics");
 	  }

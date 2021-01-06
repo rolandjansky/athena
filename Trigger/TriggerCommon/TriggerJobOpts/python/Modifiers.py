@@ -11,7 +11,6 @@
 #  Permanent fixes that are only applied online should be
 #  put into Trigger_topOptions_standalone.py
 ###############################################################
-from __future__ import print_function
 
 from AthenaCommon.AppMgr import theApp
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -362,6 +361,45 @@ class useOnlineLumi(_modifier):
         LuminosityCondAlgOnlineDefault()
 
 
+class forceConditions(_modifier):
+    """
+    Force all conditions (except prescales) to match run from input file
+    """
+    def postSetup(self):
+        # Do not override these folders:
+        ignore = ['/TRIGGER/HLT/PrescaleKey']   # see ATR-22143
+
+        # All time-based folders (from IOVDbSvc DEBUG message, see athena!38274)
+        timebased = ['/TDAQ/OLC/CALIBRATIONS',
+                     '/TDAQ/Resources/ATLAS/SCT/Robins',
+                     '/SCT/DAQ/Config/ChipSlim',
+                     '/SCT/DAQ/Config/Geog',
+                     '/SCT/DAQ/Config/MUR',
+                     '/SCT/DAQ/Config/Module',
+                     '/SCT/DAQ/Config/ROD',
+                     '/SCT/DAQ/Config/RODMUR',
+                     '/SCT/HLT/DCS/HV',
+                     '/SCT/HLT/DCS/MODTEMP',
+                     '/MUONALIGN/Onl/MDT/BARREL',
+                     '/MUONALIGN/Onl/MDT/ENDCAP/SIDEA',
+                     '/MUONALIGN/Onl/MDT/ENDCAP/SIDEC',
+                     '/MUONALIGN/Onl/TGC/SIDEA',
+                     '/MUONALIGN/Onl/TGC/SIDEC']
+
+        from RecExConfig.RecFlags import rec
+        from TrigCommon.AthHLT import get_sor_params
+        sor = get_sor_params(rec.RunNumber())
+
+        for i,f in enumerate(svcMgr.IOVDbSvc.Folders):
+            if any(name in f for name in ignore):
+                continue
+            if any(name in f for name in timebased):
+                svcMgr.IOVDbSvc.Folders[i] += '<forceTimestamp>%d</forceTimestamp>' % (sor['SORTime'] // int(1e9))
+            else:
+                svcMgr.IOVDbSvc.Folders[i] += '<forceRunNumber>%d</forceRunNumber>' % sor['RunNumber']
+
+
+
 ###############################################################
 # Algorithm modifiers
 ###############################################################
@@ -456,33 +494,8 @@ class optimizeChainOrder(_modifier):
             topSequence.TrigSteer_HLT.ExecutionOrderStrategy.order=[ 'name:.+beamspot.+',
                                                                     'name:.+j.+',
                                                                     'name:.+2tau.+',
+
                                                                     'name:.+tau.+'  ]
-
-class disablePixels(_modifier):
-    """
-    Turns off pixels in region selector
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.enablePixel=False
-
-class disableSCTBarrel(_modifier):
-    """
-    Turns off SCT Barrel in region selector and badly mapped ROB
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.DeleteSiRobList=range(0x210000,0x21000a+1)+range(0x210100,0x21010a+1)+range(0x220000,0x22000a+1)+range(0x220100,0x22010a+1)+[0x240005]
-
-class disableIBL(_modifier):
-    """
-    Turn off IBL from readout
-    """
-
-    def postSetup(self):
-        import TrigInDetValidation.InDetModules as IDM
-        pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),0))
-        svcMgr.RegSelSvc.DeletePixelHashList=pixel_barrel_layer1_hashes
-        svcMgr.ROBDataProviderSvc.ignoreROB=[1310848, 1310849, 1310850, 1310851, 1310899, 1310944, 1310913, 1310946, 1310929, 1310912, 1310914, 1310736, 1310737, 1310738, 1310739, 1310752, 1310753, 1310754, 1310755, 1310883, 1310897, 1310930, 1310896, 1310898, 1310768, 1310769, 1310770, 1310771, 1310784, 1310785, 1310786, 1310787, 1310867, 1310931, 1310881, 1310880, 1310882, 1310800, 1310801, 1310802, 1310803, 1310816, 1310817, 1310818, 1310819, 1310915, 1310865, 1310864, 1310945, 1310928, 1310866, 1310832, 1310833, 1310834, 1310835, 1310947]
-
 class disableIBLInTracking(_modifier):
     """
     Turn off IBL in tracking algorithms (data still available for PEB etc)
@@ -595,10 +608,6 @@ class rerunLVL1(_modifier):
     """
     def preSetup(self):
 
-        # Do nothing for EF only running
-        if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-            return
-
         from AthenaCommon.Include import include
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
@@ -624,7 +633,11 @@ class rerunLVL1(_modifier):
 
         #rederive MuCTPI inputs to CTP from muon RDO
         #writes this to the usual MuCTPICTP storegate location
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1Phase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
         topSequence += L1Muctpi_on_RDO()
         topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
         topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
@@ -636,7 +649,10 @@ class rerunLVL1(_modifier):
             topSequence += L1TopoSimulation()
             log.info( "adding L1TopoSimulation() to topSequence" )
 
-            from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
+            if ConfigFlags.Trigger.enableL1Phase1:
+                from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1Tool as L1MuctpiTool
+            else:
+                from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiTool
             from AthenaCommon.AppMgr import ToolSvc
             ToolSvc += L1MuctpiTool()
             topSequence.L1TopoSimulation.MuonInputProvider.MuctpiSimTool = L1MuctpiTool()
@@ -698,10 +714,6 @@ class rerunDMLVL1(_modifier):
     """
     def preSetup(self):
 
-         # Do nothing for EF only running
-         if not TriggerFlags.doLVL2() and TriggerFlags.doEF():
-             return
-
          from AthenaCommon.Include import include
          from AthenaCommon.AlgSequence import AlgSequence
          topSequence = AlgSequence()
@@ -724,7 +736,11 @@ class rerunDMLVL1(_modifier):
          #Run MuCTPI simulation (before or after importing DeriveSim??)
          #rederive MuCTPI inputs to CTP from muon RDO
          #writes this to the usual MuCTPICTP storegate location
-         from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_RDO
+         from AthenaConfiguration.AllConfigFlags import ConfigFlags
+         if ConfigFlags.Trigger.enableL1Phase1:
+             from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
+         else:
+             from TrigT1Muctpi.TrigT1MuctpiConfig import L1MuctpiPhase1_on_RDO as L1Muctpi_on_RDO
          topSequence += L1Muctpi_on_RDO()
          topSequence.L1Muctpi_on_RDO.CTPOutputLocID = "L1MuCTPItoCTPLocation"
          topSequence.L1Muctpi_on_RDO.RoIOutputLocID = "L1MuCTPItoRoIBLocation"
@@ -1354,21 +1370,6 @@ class LumiFromSqlite(_modifier):
                 folders += [f]
         svcMgr.IOVDbSvc.Folders = folders
 
-class LumiRegionZmax168(_modifier):
-    """
-    decrease the size (equivalent of 3*sigma_z) of luminous region for ID tracking to 168 mm
-    """
-    def preSetup(self):
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts
-        from AthenaCommon.SystemOfUnits import mm
-        L2IDTrackingCuts.setRegSelZmax(168* mm)
-
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault")
-        from AthenaCommon.SystemOfUnits import mm
-        RegSelSvc.DeltaZ = 168* mm
 
 class useDynamicAlignFolders(_modifier):
     """

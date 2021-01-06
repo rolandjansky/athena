@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // PseudoJetContainer.cxx
@@ -14,22 +14,21 @@
 #include <ios>
 #include <iostream>
 #include <exception>
-#include <map>
 
 using fastjet::PseudoJet;
 
 PseudoJetContainer::PseudoJetContainer() {
   checkInvariants("PseudoJetContainer()");
 }
-  
-PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
+
+PseudoJetContainer::PseudoJetContainer(std::unique_ptr<const IConstituentExtractor> c,
                                        const std::vector<PseudoJet> & vecPJ,
                                        bool debug){
 
   m_debug = debug;
   
   if (vecPJ.empty()){
-    m_emptyExtractors.insert(c);
+    m_emptyExtractors.insert(std::move(c));
     return;
   }
 
@@ -38,12 +37,11 @@ PseudoJetContainer::PseudoJetContainer(const IConstituentExtractor* c,
 
   // the limits of the Extractor index range correposnd to the 
   // numbering of the EDM objects in th extractors.
-  m_extractorRanges.push_back(ExtractorRange(0, 
-                                             vecPJ.back().user_index(), 
-                                             c));
+  m_extractorRanges.emplace_back(0, 
+                                 vecPJ.back().user_index(), 
+                                 std::move(c));
   if (m_debug){checkInvariants("PseudoJetContainer(vcPJ, c)");}
 }
-
 
 bool
 PseudoJetContainer::extractConstituents(xAOD::Jet& jet, 
@@ -62,12 +60,12 @@ PseudoJetContainer::extractConstituents(xAOD::Jet& jet,
   // to the extractor is received. But an empty list is used 
   // by the extractors to fill zeros into the jet.
   for(const auto& er : m_extractorRanges){
-    sorter.emplace(er.m_e, std::vector<int>{});
+    sorter.emplace(er.m_e.get(), std::vector<int>{});
   }
 
   // see header file for explanation of empty extractors.
   for(const auto& e : m_emptyExtractors){
-    sorter.emplace(e, std::vector<int>{});
+    sorter.emplace(e.get(), std::vector<int>{});
   }
 
   // check whether inputs are lgal if m_debug == true
@@ -93,7 +91,7 @@ PseudoJetContainer::extractConstituents(xAOD::Jet& jet,
 
     if(e == m_extractorRanges.end()){return false;}
    
-    sorter[(*e).m_e].push_back(pj_ind - (*e).m_lo);
+    sorter[(*e).m_e.get()].push_back(pj_ind - (*e).m_lo);
   }
 
   // send the jet to the each extractor with a vector of EDM
@@ -138,7 +136,7 @@ void PseudoJetContainer::append(const PseudoJetContainer* other) {
                    pj.set_user_index(pj.user_index() + offset);return pj;}
                  );
 
-  for(auto e : other->m_emptyExtractors){m_emptyExtractors.insert(e);}
+  for(const auto &e : other->m_emptyExtractors){m_emptyExtractors.emplace(e->clone());}
 
   if (m_debug){checkInvariants("append()");}
 }
@@ -159,7 +157,7 @@ std::string PseudoJetContainer::toString(int level, int extLevel) const {
     oss << "\n Extractor dump: \n";
     for(const auto& er : m_extractorRanges){
       oss << "Extractor at [" ;
-      oss << er.m_e;
+      oss << er.m_e.get();
       oss << "]\n";
       oss << er.m_e->toString(extLevel) << '\n';
     }

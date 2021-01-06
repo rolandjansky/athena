@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -9,13 +9,12 @@
 
 #include "./conditionsFactoryMT.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJetFactory.h"
-// #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TrigHLTJetHypoHelper2.h"
-#include "./groupsMatcherFactoryMT.h"
 #include "./CapacityCheckedCondition.h"
+#include "./FastReductionMatcher.h"
+#include "./Tree.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -46,25 +45,6 @@ StatusCode TrigJetHypoToolConfig_fastreduction::initialize() {
     return StatusCode::FAILURE;
   }
   
-  // gymnastics as cannot pass vecor<vecotr<int>> as a Gaudi::Property
-  if(m_sharedNodesVec.empty()){
-    ATH_MSG_ERROR("shared node vector empty");
-
-    return StatusCode::FAILURE;}
-
-  std::vector<int> shared;
-  for(const auto& i : m_sharedNodesVec){
-    if(i  == -1){
-      m_sharedNodes.push_back(shared);
-      shared = std::vector<int>();
-    } else {
-      shared.push_back(i);
-    }
-  }
-  if(!shared.empty()){
-    m_sharedNodes.push_back(shared);
-  }
-
   
   /* set the capacity of the acceptAll nodes (or nay
      nodes with modifiable capciity.
@@ -136,7 +116,7 @@ TrigJetHypoToolConfig_fastreduction::getCapacityCheckedConditions() const {
   // return an invalid optional if any src signals a problem
 
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(std::make_unique<CapacityCheckedCondition>(std::move(cm->getCondition())));
+    conditions.push_back(cm->getCapacityCheckedCondition());
   }
       
   return std::make_optional<ConditionPtrs>(std::move(conditions));
@@ -148,10 +128,26 @@ TrigJetHypoToolConfig_fastreduction::getConditions() const {
   
   ConditionsMT conditions;
   for(const auto& cm : m_conditionMakers){
-    conditions.push_back(std::move(cm->getCondition()));
+    conditions.push_back(cm->getCapacityCheckedCondition());
   }
   
   return std::make_optional<ConditionsMT>(std::move(conditions));
+}
+
+
+std::vector<std::unique_ptr<ConditionFilter>>
+TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
+
+  auto filters = std::vector<std::unique_ptr<ConditionFilter>>();
+  
+  for(const auto& cm : m_filtConditionMakers){
+    ConditionPtrs filterConditions;  // will contain a single Condition
+    filterConditions.push_back(std::move(cm->getCapacityCheckedCondition()));
+    auto cf = std::make_unique<ConditionFilter>(filterConditions);
+    filters.push_back(std::move(cf));
+  }
+  
+  return filters;
 }
 
 // following function not used for treeless hypos
@@ -160,24 +156,27 @@ TrigJetHypoToolConfig_fastreduction::requiresNJets() const {
   return 0;
 }
 
- 
-std::unique_ptr<IJetGrouper>
-TrigJetHypoToolConfig_fastreduction::getJetGrouper() const {
-  return std::make_unique<SingleJetGrouper>();
-}
 
-std::unique_ptr<IGroupsMatcherMT>
+std::unique_ptr<IJetsMatcherMT>
 TrigJetHypoToolConfig_fastreduction::getMatcher () const {
 
   auto opt_conds = getCapacityCheckedConditions();
 
   if(!opt_conds.has_value()){
-    return std::unique_ptr<IGroupsMatcherMT>(nullptr);
+    return std::unique_ptr<IJetsMatcherMT>(nullptr);
   }
 
-  return groupsMatcherFactoryMT_FastReduction(std::move(*opt_conds),
-					      m_treeVec,
-					      m_sharedNodes);
+  auto matcher =  std::unique_ptr<IJetsMatcherMT>();
+  //  matcher.reset(new FastReductionMatcher(std::move(*opt_conds),
+  //					 Tree(m_treeVec)));
+
+  auto conditions = std::move(*opt_conds);
+  auto filters = getConditionFilters();
+  auto fpm = new FastReductionMatcher(conditions,
+				      filters,
+				      Tree(m_treeVec));
+  matcher.reset(fpm);
+  return matcher;
 }
 
 StatusCode TrigJetHypoToolConfig_fastreduction::checkVals() const {

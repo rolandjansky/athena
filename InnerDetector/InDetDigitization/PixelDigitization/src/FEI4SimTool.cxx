@@ -70,6 +70,14 @@ void FEI4SimTool::process(SiChargedDiodeCollection &chargedDiodes,PixelRDO_Colle
     Identifier diodeID = chargedDiodes.getId(diode.diode());
     double charge = diode.charge();
 
+    // charge scaling function applied. (Reference: ATL-COM-INDET-2018-052)
+    if (moduleData->getUseFEI4SpecialScalingFunction()) {
+      double corrQ = 1.11*(1.0-(-7.09*1000.0)/(23.72*1000.0+charge)+(-0.22*1000.0)/(-0.42*1000.0+charge));
+      if (corrQ<1.0) { corrQ = 1.0; }
+      charge *= 1.0/corrQ;
+    }
+    charge *= moduleData->getFEI4ChargScaling();
+
     int circ = m_pixelCabling->getFE(&diodeID,moduleID);
     int type = m_pixelCabling->getPixelType(diodeID);
 

@@ -17,7 +17,6 @@
 #include "MuonRecToolInterfaces/IMuonCompetingClustersOnTrackCreator.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
@@ -63,7 +62,7 @@ namespace Muon {
       const Trk::TrackParameters*  pars;
       std::unique_ptr<Trk::ResidualPull>     resPull;
       std::unique_ptr<MdtDriftCircleOnTrack> flippedMdt;
-      std::unique_ptr<CompetingMuonClustersOnTrack> cleanedCompROT;
+      std::unique_ptr<const CompetingMuonClustersOnTrack> cleanedCompROT;
       const Trk::FitQuality*       fitQ;
 
       MCTBCleaningInfo( const Trk::TrackStateOnSurface* orState ) : 

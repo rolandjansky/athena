@@ -16,15 +16,12 @@
 #include "AmdcMGM/AmdcDumpGeoModel.h"
 
 
-AmdcDumpGeoModel::AmdcDumpGeoModel(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name ) 
+AmdcDumpGeoModel::AmdcDumpGeoModel(const std::string& name, ISvcLocator* pSvcLocator) 
+  : AthAlgorithm(name, pSvcLocator)
+  , p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name ) 
 {
-
-  m_AmdcsimrecAthenaSvcUpdatedSvcDONE = false ; 
   m_KountCallsDoIt   = 0 ;
-
-   p_MuonDetectorManager = 0 ; 
+  p_MuonDetectorManager = 0 ; 
 
 // CheckTEC if 1 perform the comparison for TEC 
 // EpsLoTEC Min value on the position difference to output warning for TEC
@@ -64,16 +61,16 @@ p_AmdcsimrecAthenaSvc ( "AmdcsimrecAthenaSvc",name )
    declareProperty("CenterCscMean"             , m_CenterCscMean            = 0     ) ;
    declareProperty("EmergencyOut"              , m_EmergencyOut             = 1     ) ;
 
-   declareProperty("AntiStationSelection"          , m_AntiStationSelection         = 0     ) ;
-   declareProperty("AntiStationSelected"           , m_AntiStationSelected           ) ;
+   declareProperty("AntiStationSelection"      , m_AntiStationSelection     = 0     ) ;
+   declareProperty("AntiStationSelected"       , m_AntiStationSelected              ) ;
 
    declareProperty("StationSelection"          , m_StationSelection         = 0     ) ;
-   declareProperty("StationSelected"           , m_StationSelected           ) ;
+   declareProperty("StationSelected"           , m_StationSelected                  ) ;
 
    declareProperty("ChamberSelection"          , m_ChamberSelection         = 0     ) ;
-   declareProperty("StationNameSelected"       , m_StationNameSelected       ) ;
-   declareProperty("StationAbsAmdcJzzSelected" , m_StationAbsAmdcJzzSelected ) ;
-   declareProperty("StationAmdcJffSelected"    , m_StationAmdcJffSelected    ) ;
+   declareProperty("StationNameSelected"       , m_StationNameSelected              ) ;
+   declareProperty("StationAbsAmdcJzzSelected" , m_StationAbsAmdcJzzSelected        ) ;
+   declareProperty("StationAmdcJffSelected"    , m_StationAmdcJffSelected           ) ;
 
 
    declareProperty("AmdcsimrecAthenaSvc", p_AmdcsimrecAthenaSvc);
@@ -183,21 +180,7 @@ StatusCode AmdcDumpGeoModel::initialize(){
     ATH_CHECK(p_AmdcsimrecAthenaSvc.retrieve());
     ATH_MSG_INFO( "Retrieved service " << p_AmdcsimrecAthenaSvc ) ;
 
-    if (p_AmdcsimrecAthenaSvc->InitializedSvc()) {
-      ATH_MSG_INFO( "p_AmdcsimrecAthenaSvc->InitializedSvc() is true " ) ;
-      m_AmdcsimrecAthenaSvcUpdatedSvcDONE = true ; 
-    }else{
-      ATH_MSG_INFO( "p_AmdcsimrecAthenaSvc->InitializedSvc() is false " ) ;
-      ATH_CHECK(regFcnDoIt());
-      ATH_MSG_INFO( "Done: regFcnDoIt " ) ;
-    }
-
-//  Do something now if possible
-    if ( m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
-      ATH_MSG_INFO( "m_AmdcsimrecAthenaSvcUpdatedSvcDONE found true in initialize " ) ;
-      ATH_CHECK(DoIt());
-    }
-
+    ATH_CHECK(DoIt());
   }
   
   ATH_MSG_INFO( "Initialisation ended     " ) ;
@@ -207,52 +190,9 @@ StatusCode AmdcDumpGeoModel::initialize(){
 }
 
 // Do it
-StatusCode AmdcDumpGeoModel::DoItCallback(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO( "DoItCallback called     " ) ;  
-
-  if ( !(p_AmdcsimrecAthenaSvc->UsableSvc()) ) {
-    ATH_MSG_INFO( "BUT p_AmdcsimrecAthenaSvc found NOT usable yet  " ) ;  
-    return StatusCode::SUCCESS;
-  }else{
-    m_AmdcsimrecAthenaSvcUpdatedSvcDONE = true ;
-    ATH_MSG_INFO( "AND p_AmdcsimrecAthenaSvc found usable   " ) ;  
-  }
-
-  StatusCode sc = DoIt() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "DoIt failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-  
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode AmdcDumpGeoModel::regFcnDoIt()
-{
-
-  StatusCode sc = detStore()->regFcn(
-                         &AmdcsimrecAthenaSvc::UpdatedSvc,(&*p_AmdcsimrecAthenaSvc),
-                         &AmdcDumpGeoModel::DoItCallback,this,true
-                        );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcDumpGeoModel::DoItCallback from AmdcsimrecAthenaSvc::UpdatedSvc " ) ;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO( "Done: Register callback on AmdcDumpGeoModel::DoItCallback from AmdcsimrecAthenaSvc::UpdatedSvc " ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
 StatusCode AmdcDumpGeoModel::DoIt() 
 {
   ATH_MSG_INFO( "DoIt called     " ) ;  
-
-  if ( !m_AmdcsimrecAthenaSvcUpdatedSvcDONE ){
-    ATH_MSG_INFO( "DoIt() called BUT m_AmdcsimrecAthenaSvcUpdatedSvcDONE is false    " ) ;
-    return StatusCode::SUCCESS;
-  }
 
   if (m_SwitchOff == 0) {
 

@@ -18,5 +18,4 @@ atlas_add_dictionary( ForwardRegion_EventTPCnvDict
 atlas_add_test( SimulationHitCnv_p1_test
                 SOURCES
                 test/SimulationHitCnv_p1_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                 LINK_LIBRARIES ForwardRegion_EventTPCnv GaudiKernel TestTools )

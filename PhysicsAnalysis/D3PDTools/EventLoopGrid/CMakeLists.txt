@@ -1,13 +1,7 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # The name of the package:
 atlas_subdir( EventLoopGrid )
-
-# The dependencies of the package:
-atlas_depends_on_subdirs(
-   PUBLIC
-   PhysicsAnalysis/D3PDTools/EventLoop
-   PhysicsAnalysis/D3PDTools/SampleHandler
-   PRIVATE
-   PhysicsAnalysis/D3PDTools/RootCoreUtils )
 
 # External dependencies of the package:
 find_package( ROOT COMPONENTS Core RIO PyROOT Tree )
@@ -22,15 +16,14 @@ atlas_add_root_dictionary( EventLoopGrid EventLoopGridCintDict
 atlas_add_library( EventLoopGrid
    EventLoopGrid/*.h Root/*.h Root/*.cxx ${EventLoopGridCintDict}
    PUBLIC_HEADERS EventLoopGrid
-   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} EventLoop SampleHandler
-   PRIVATE_LINK_LIBRARIES RootCoreUtils PathResolver )
+   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES EventLoop
+   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} RootCoreUtils SampleHandler PathResolver )
 
 target_compile_definitions (EventLoopGrid PUBLIC USE_CMAKE)
 
 # Install files from the package:
 atlas_install_data( data/* )
-
 
 file (GLOB util_sources RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/util/[a-zA-Z0-9]*.cxx")
 foreach (source ${util_sources})

@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ### JobOptions to run MuonCaloTag in xAOD
 
 from AthenaCommon import CfgMgr
-from AthenaCommon.CfgGetter import getPublicTool,getService, getPrivateTool
+from AthenaCommon.CfgGetter import getPublicTool, getPrivateTool
 
 ###############################################################################
 ## Helper function for defining THistSvc inputs
@@ -39,9 +39,6 @@ def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
-def CaloMuonScoreONNXRuntimeSvc(name='CaloMuonScoreONNXRuntimeSvc', **kwargs):
-    return CfgMgr.CaloMuonScoreONNXRuntimeSvc(name, **kwargs)
-
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
     kwargs.setdefault("ParticleCaloExtensionTool",       getPublicTool("MuonParticleCaloExtensionTool") )
     return CfgMgr.CaloMuonLikelihoodTool(name,**kwargs)
@@ -50,7 +47,11 @@ def CaloMuonScoreTool(name='CaloMuonScoreTool', **kwargs ):
     from TrackToCalo.TrackToCaloConf import Rec__ParticleCaloCellAssociationTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     kwargs.setdefault("ParticleCaloCellAssociationTool",       caloCellAssociationTool )
-    kwargs.setdefault("CaloMuonScoreONNXRuntimeSvc", getService("CaloMuonScoreONNXRuntimeSvc") )
+    
+    from AthOnnxruntimeService.AthOnnxruntimeServiceConf import AthONNX__ONNXRuntimeSvc
+    onnxRuntimeSvc = AthONNX__ONNXRuntimeSvc( )
+    kwargs.setdefault("ONNXRuntimeSvc", onnxRuntimeSvc)
+
     return CfgMgr.CaloMuonScoreTool(name,**kwargs)
 
 def MuonCaloTagTool( name='MuonCaloTagTool', **kwargs ):  

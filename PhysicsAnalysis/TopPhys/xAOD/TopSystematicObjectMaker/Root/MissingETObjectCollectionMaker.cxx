@@ -42,7 +42,7 @@ namespace top {
     top::check(m_met_maker.retrieve(), "Failed to retrieve met maker tool");
     top::check(m_met_systematics.retrieve(), "Failed to retrieve met systematic tool");
 
-    std::string jet_collection = m_config->sgKeyJetsType();
+    std::string jet_collection = m_config->sgKeyJets();
     jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
 
     m_MET_core = "MET_Core_" + jet_collection;
@@ -127,7 +127,8 @@ namespace top {
                                                                  const std::string& outputContainerSuffix) {
     // decoration for objects that pass pre OR selection
     std::string passPreORSelection = "passPreORSelection";
-    const std::string jet_collection = m_config->sgKeyJetsType();
+    std::string jet_collection = m_config->sgKeyJets();
+    jet_collection.erase(jet_collection.length() - 4); //erase "Jets" from jet collection name
 
     const bool is_loose_event = (event->isLooseEvent() == 1 ? true : false);
 
@@ -278,13 +279,15 @@ namespace top {
         // https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/MET/METUtilities/tags/METUtilities-00-01-43/util/example_METMaker_METSystematicsTool.cxx
 
         //get the soft cluster term, and applyCorrection
-        xAOD::MissingET* softClusMet = (*new_met_container)["SoftClus"];
+        xAOD::MissingET* softClusMet = (*new_met_container)["SoftClusCore"];
         if (softClusMet != nullptr) { //check we retrieved the clust term
+          m_met_systematics->setRandomSeed(static_cast<int>(1e6*softClusMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softClusMet), "Failed to applyCorrection");
         }
 
-        xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrk"];
+        xAOD::MissingET* softTrkMet = (*new_met_container)["PVSoftTrkCore"];
         if (softTrkMet != nullptr) { //check we retrieved the soft trk
+          m_met_systematics->setRandomSeed(static_cast<int>(1e6*softTrkMet->phi()));
           top::check(m_met_systematics->applyCorrection(*softTrkMet), "Failed to applyCorrection");
         }
       }
@@ -312,10 +315,10 @@ namespace top {
     outputSGKey+=outputContainerSuffix;
     const std::string outputSGKeyAux = outputSGKey + "Aux.";
 
-    xAOD::TReturnCode save = evtStore()->tds()->record(new_met_container, outputSGKey);
-    xAOD::TReturnCode saveAux = evtStore()->tds()->record(new_met_aux_container, outputSGKeyAux);
+    StatusCode save = evtStore()->tds()->record(new_met_container, outputSGKey);
+    StatusCode saveAux = evtStore()->tds()->record(new_met_aux_container, outputSGKeyAux);
 
-    if (!save || !saveAux) {
+    if (save.isFailure() || saveAux.isFailure()) {
       return StatusCode::FAILURE;
     }
 

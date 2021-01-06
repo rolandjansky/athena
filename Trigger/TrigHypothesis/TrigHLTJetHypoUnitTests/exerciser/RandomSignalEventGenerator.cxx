@@ -80,7 +80,7 @@ RandomSignalHypoJetVectorGenerator::get() {
     if(m_flip()){
       tlv.SetZ(-tlv.Z()); // randomly flip the sign of the +vly generated tlv.
     }
-    result.push_back(new TLorentzVectorAsIJet(tlv));
+    result.push_back(std::shared_ptr<const HypoJet::IJet>(new TLorentzVectorAsIJet(tlv)));
   }
 
   if(m_nbkgd){
@@ -92,7 +92,7 @@ RandomSignalHypoJetVectorGenerator::get() {
       if(m_flip()){
 	tlv.SetZ(-tlv.Z()); // randomly flip the sign of the +vly generated tlv.
       }  
-      result.push_back(new TLorentzVectorAsIJet(tlv));
+      result.push_back(std::shared_ptr<const HypoJet::IJet>(new TLorentzVectorAsIJet(tlv)));
     }
   }
 

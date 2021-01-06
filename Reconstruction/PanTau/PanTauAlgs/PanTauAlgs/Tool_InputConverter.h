@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_TOOL_INPUTCONVERTER
@@ -9,14 +9,12 @@
 #include <vector>
 #include <string>
 
-//! ASG
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
 
 #include "PanTauAlgs/ITool_InformationStore.h"
 #include "PanTauAlgs/ITool_InputConverter.h"
 
-//! xAOD EDM
 #include "xAODPFlow/PFO.h"
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/PFODefs.h"
@@ -26,7 +24,7 @@ namespace Rec {
 }
 
 namespace PanTau {
-    class TauConstituent2;
+    class TauConstituent;
 }
 
 
@@ -42,10 +40,9 @@ namespace PanTau {
         virtual ~Tool_InputConverter ();
         
         virtual StatusCode initialize();
-//         virtual StatusCode finalize();
         
-        virtual StatusCode ConvertToTauConstituent2(xAOD::PFO* pfo,
-                                                   PanTau::TauConstituent2* &tauConstituent,
+        virtual StatusCode ConvertToTauConstituent(xAOD::PFO* pfo,
+                                                   PanTau::TauConstituent* &tauConstituent,
                                                    const xAOD::TauJet* tauJet) const;
         
     protected:
@@ -74,8 +71,6 @@ namespace PanTau {
 
 
 }//end namespace PanTau
-
-
 
 
 #endif // PANTAUALGS_TOOL_INPUTCONVERTER

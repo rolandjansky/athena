@@ -58,36 +58,40 @@ def makeOverlapSequence (dataType) :
                            outputName = 'AnalysisJets_%SYS%' )
     algSeq += jetSequence
 
+    # TODO: disabled for now
     # Include, and then set up the tau analysis algorithm sequence:
-    from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
-    tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
-    tauSequence.configure( inputName = 'TauJets',
-                           outputName = 'AnalysisTauJets_%SYS%' )
-    algSeq += tauSequence
+    # from TauAnalysisAlgorithms.TauAnalysisSequence import makeTauAnalysisSequence
+    # tauSequence = makeTauAnalysisSequence( dataType, 'Tight' )
+    # tauSequence.configure( inputName = 'TauJets',
+    #                        outputName = 'AnalysisTauJets_%SYS%' )
+    # algSeq += tauSequence
 
     # Include, and then set up the overlap analysis algorithm sequence:
     from AsgAnalysisAlgorithms.OverlapAnalysisSequence import \
         makeOverlapAnalysisSequence
-    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True, enableCutflow=True )
+    overlapSequence = makeOverlapAnalysisSequence( dataType, doMuPFJetOR=True, doTaus=False, enableCutflow=True )
     overlapSequence.configure(
         inputName = {
             'electrons' : 'AnalysisElectrons_%SYS%',
             'photons'   : 'AnalysisPhotons_%SYS%',
             'muons'     : 'AnalysisMuons_%SYS%',
             'jets'      : 'AnalysisJets_%SYS%',
-            'taus'      : 'AnalysisTauJets_%SYS%' },
+            # 'taus'      : 'AnalysisTauJets_%SYS%'
+        },
         outputName = {
             'electrons' : 'AnalysisElectronsOR_%SYS%',
             'photons'   : 'AnalysisPhotonsOR_%SYS%',
             'muons'     : 'AnalysisMuonsOR_%SYS%',
             'jets'      : 'AnalysisJetsOR_%SYS%',
-            'taus'      : 'AnalysisTauJetsOR_%SYS%' },
+            # 'taus'      : 'AnalysisTauJetsOR_%SYS%'
+        },
         affectingSystematics = {
             'electrons' : electronSequence.affectingSystematics(),
             'photons'   : photonSequence.affectingSystematics(),
             'muons'     : muonSequence.affectingSystematics(),
             'jets'      : jetSequence.affectingSystematics(),
-            'taus'      : tauSequence.affectingSystematics() } )
+            # 'taus'      : tauSequence.affectingSystematics()
+        } )
     algSeq += overlapSequence
 
     # Set up an ntuple to check the job with:
@@ -123,12 +127,13 @@ def makeOverlapSequence (dataType) :
         'AnalysisJetsOR_%SYS%.eta -> jet_OR_%SYS%_eta',
         'AnalysisJetsOR_%SYS%.phi -> jet_OR_%SYS%_phi',
         'AnalysisJetsOR_%SYS%.pt  -> jet_OR_%SYS%_pt',
-        'AnalysisTauJets_%SYS%.eta -> tau_%SYS%_eta',
-        'AnalysisTauJets_%SYS%.phi -> tau_%SYS%_phi',
-        'AnalysisTauJets_%SYS%.pt  -> tau_%SYS%_pt',
-        'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
-        'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
-        'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt' ]
+        # 'AnalysisTauJets_%SYS%.eta -> tau_%SYS%_eta',
+        # 'AnalysisTauJets_%SYS%.phi -> tau_%SYS%_phi',
+        # 'AnalysisTauJets_%SYS%.pt  -> tau_%SYS%_pt',
+        # 'AnalysisTauJetsOR_%SYS%.eta -> tau_OR_%SYS%_eta',
+        # 'AnalysisTauJetsOR_%SYS%.phi -> tau_OR_%SYS%_phi',
+        # 'AnalysisTauJetsOR_%SYS%.pt  -> tau_OR_%SYS%_pt'
+    ]
     ntupleMaker.systematicsRegex = '.*'
     algSeq += ntupleMaker
     treeFiller = createAlgorithm( 'CP::TreeFillerAlg', 'TreeFiller' )

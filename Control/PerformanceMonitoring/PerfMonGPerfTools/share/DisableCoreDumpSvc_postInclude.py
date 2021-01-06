@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # This posInclude fragment is used when setting up GPT profiling of an Athena job
 # to turn off CoreDumpSvc. CoreDumpSvc hooks into certain signal events, which
 # seems to interfere with GPerfTools and causes random crashes

@@ -4,15 +4,7 @@
 
 #include "GeoModelXml/shape/MakeUnion.h"
 #include <string>
-
-#ifndef STANDALONE_GMX
-#include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
-#else
-#include <iostream>
-#endif
-
+#include "GeoModelXml/OutputDirector.h"
 #include <xercesc/dom/DOM.hpp>
 //   #include <CLHEP/Geometry/Transform3D.h>
 #include "GeoModelKernel/RCBase.h"
@@ -20,7 +12,7 @@
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoDefinitions.h"
 
-#include "GeoModelXml/translate.h"
+#include "xercesc/util/XMLString.hpp"
 #include "GeoModelXml/GmxUtil.h"
 
 using namespace xercesc;
@@ -44,7 +36,7 @@ const RCBase * MakeUnion::make(const xercesc::DOMElement *element, GmxUtil &gmxU
                     break;
                 }
                 case 1: { // Second element is transformation or transformationref
-                    char *toRelease = Translate(child->getNodeName());
+                    char *toRelease = XMLString::transcode(child->getNodeName());
                     string nodeName(toRelease);
                     XMLString::release(&toRelease);
                     GeoTransform *geoXf = nodeName == "transformation"? 
@@ -58,13 +50,8 @@ const RCBase * MakeUnion::make(const xercesc::DOMElement *element, GmxUtil &gmxU
                     break;
                 }
                 default: // More than 3 elements?
-#ifndef STANDALONE_GMX
-                    ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
-                    MsgStream log(&(*msgh), "GeoModelXml");
-                    log << MSG::FATAL << "MakeUnion: Incompatible DTD? got more than 3 child elements" << endmsg;
-#else
-		    std::cout<<"MakeUnion: Incompatible DTD? got more than 3 child elements" << std::endl;
-#endif
+                    OUTPUT_STREAM;
+                    msglog << MSG::FATAL << "MakeUnion: Incompatible DTD? got more than 3 child elements" << endmsg;
             }
             elementIndex++;
         }

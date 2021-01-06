@@ -46,21 +46,31 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         # Digitization parameters
         CondArgs.update(
             BunchSpace=25.0,
-            FEI4BarrelHitDiscConfig=[2]
+            FEI4BarrelHitDiscConfig=[2],
+            ChargeScaleFEI4=1.0,
+            UseFEI4SpecialScalingFunction=False
         )
         #====================================================================================
         # Run-dependent SIMULATION(digitization) parameters:
         #====================================================================================
-        # RUN2 2015/2016
+        # RUN2 2015/2016 (mc16a)
+        # The pixel conditions are matched with 2016 data (mc16a) at L=17.3fb-1 (run#303638).
         CondArgs.update(
-            BarrelToTThreshold2016       = [   -1,    5,    5,    5],
-            FEI3BarrelLatency2016        = [    0,  151,  256,  256],
-            FEI3BarrelHitDuplication2016 = [False,False,False,False],
-            FEI3BarrelSmallHitToT2016    = [   -1,   -1,   -1,   -1],
-            FEI3BarrelTimingSimTune2016  = [   -1, 2015, 2015, 2015],
-            BarrelCrossTalk2016          = [ 0.30, 0.06, 0.06, 0.06],
-            BarrelNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8, 5e-8],
-            BarrelDisableProbability2016 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelToTThreshold2016       = [     -1,      5,      5,      5],
+            FEI3BarrelLatency2016        = [      0,    151,    256,    256],
+            FEI3BarrelHitDuplication2016 = [  False,  False,  False,  False],
+            FEI3BarrelSmallHitToT2016    = [     -1,     -1,     -1,     -1],
+            FEI3BarrelTimingSimTune2016  = [     -1,   2015,   2015,   2015],
+            BarrelCrossTalk2016          = [   0.30,   0.12,   0.12,   0.12],
+            BarrelNoiseOccupancy2016     = [   5e-8,   5e-8,   5e-8,   5e-8],
+            BarrelDisableProbability2016 = [   9e-3,   9e-3,   9e-3,   9e-3],
+            BarrelLorentzAngleCorr2016   = [    1.0,    1.0,    1.0,    1.0],
+            DefaultBarrelBiasVoltage2016 = [   80.0,  350.0,  200.0,  150.0],
+            BarrelFluence2016            = [0.80e14,1.61e14,0.71e14,0.48e14],
+            BarrelFluenceMap2016 = ["PixelDigitization/maps_IBL_PL_80V_fl0_8e14.root",
+                                    "PixelDigitization/maps_PIX_350V_fl1_61e14.root",
+                                    "PixelDigitization/maps_PIX_200V_fl0_71e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl0_48e14.root"],
             EndcapToTThreshold2016       = [    5,    5,    5],
             FEI3EndcapLatency2016        = [  256,  256,  256],
             FEI3EndcapHitDuplication2016 = [False,False,False],
@@ -69,6 +79,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2016          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2016 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2016   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2016       = [   -1,   -1,   -1],
             DBMCrossTalk2016          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2016     = [ 5e-8, 5e-8, 5e-8],
@@ -83,16 +94,24 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             #                  [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.1735, 0.3380, 0.4733, 0.5829, 0.6730, 0.7516, 0.8234, 0.8916, 0.9595, 1.0]]
         )
         #====================================================================================
-        # RUN2 2017
+        # RUN2 2017 (mc16d)
+        # The pixel conditions are matched with 2017 data (mc16d) at L=69.0fb-1 (run#336506).
         CondArgs.update(
-            BarrelToTThreshold2017       = [   -1,    5,    5,    5],
-            FEI3BarrelLatency2017        = [    0,  151,  256,  256],
-            FEI3BarrelHitDuplication2017 = [False,False,False,False],
-            FEI3BarrelSmallHitToT2017    = [   -1,   -1,   -1,   -1],
-            FEI3BarrelTimingSimTune2017  = [   -1, 2018, 2018, 2018],
-            BarrelCrossTalk2017          = [ 0.30, 0.06, 0.06, 0.06],
-            BarrelNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8, 5e-8],
-            BarrelDisableProbability2017 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelToTThreshold2017       = [     -1,      5,      5,      5],
+            FEI3BarrelLatency2017        = [      0,    151,    256,    256],
+            FEI3BarrelHitDuplication2017 = [  False,  False,  False,  False],
+            FEI3BarrelSmallHitToT2017    = [     -1,     -1,     -1,     -1],
+            FEI3BarrelTimingSimTune2017  = [     -1,   2018,   2018,   2018],
+            BarrelCrossTalk2017          = [   0.30,   0.12,   0.12,   0.12],
+            BarrelNoiseOccupancy2017     = [   5e-8,   5e-8,   5e-8,   5e-8],
+            BarrelDisableProbability2017 = [   9e-3,   9e-3,   9e-3,   9e-3],
+            BarrelLorentzAngleCorr2017   = [    1.0,    1.0,    1.0,    1.0],
+            DefaultBarrelBiasVoltage2017 = [  350.0,  350.0,  200.0,  150.0],
+            BarrelFluence2017            = [3.18e14,3.42e14,1.50e14,1.01e14],
+            BarrelFluenceMap2017 = ["PixelDigitization/maps_IBL_PL_350V_fl3_18e14.root",
+                                    "PixelDigitization/maps_PIX_350V_fl3_42e14.root",
+                                    "PixelDigitization/maps_PIX_200V_fl1_5e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl1_01e14.root"],
             EndcapToTThreshold2017       = [    5,    5,    5],
             FEI3EndcapLatency2017        = [  256,  256,  256],
             FEI3EndcapHitDuplication2017 = [False,False,False],
@@ -101,6 +120,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2017          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2017 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2017   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2017       = [   -1,   -1,   -1],
             DBMCrossTalk2017          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2017     = [ 5e-8, 5e-8, 5e-8],
@@ -110,16 +130,24 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             PixelNoiseShape2017  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
         #====================================================================================
-        # RUN2 2018
+        # RUN2 2018 (mc16e)
+        # The pixel conditions are matched with 2018 data (mc16e) at L=119.4fb-1 (run#357193).
         CondArgs.update(
-            BarrelToTThreshold2018       = [   -1,    3,    5,    5],
-            FEI3BarrelLatency2018        = [    0,  151,  256,  256],
-            FEI3BarrelHitDuplication2018 = [False,False,False,False],
-            FEI3BarrelSmallHitToT2018    = [   -1,   -1,   -1,   -1],
-            FEI3BarrelTimingSimTune2018  = [   -1, 2018, 2018, 2018],
-            BarrelCrossTalk2018          = [ 0.30, 0.06, 0.06, 0.06],
-            BarrelNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8, 5e-8],
-            BarrelDisableProbability2018 = [ 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelToTThreshold2018       = [     -1,      3,      5,      5],
+            FEI3BarrelLatency2018        = [      0,    151,    256,    256],
+            FEI3BarrelHitDuplication2018 = [  False,  False,  False,  False],
+            FEI3BarrelSmallHitToT2018    = [     -1,     -1,     -1,     -1],
+            FEI3BarrelTimingSimTune2018  = [     -1,   2018,   2018,   2018],
+            BarrelCrossTalk2018          = [   0.30,   0.12,   0.12,   0.12],
+            BarrelNoiseOccupancy2018     = [   5e-8,   5e-8,   5e-8,   5e-8],
+            BarrelDisableProbability2018 = [   9e-3,   9e-3,   9e-3,   9e-3],
+            BarrelLorentzAngleCorr2018   = [    1.0,    1.0,    1.0,    1.0],
+            DefaultBarrelBiasVoltage2018 = [  400.0,  400.0,  250.0,  250.0],
+            BarrelFluence2018            = [5.50e14,5.19e14,2.28e14,1.53e14],
+            BarrelFluenceMap2018 = ["PixelDigitization/maps_IBL_PL_400V_fl5_5e14.root",
+                                    "PixelDigitization/maps_PIX_400V_fl5_19e14.root",
+                                    "PixelDigitization/maps_PIX_250V_fl2_28e14.root",
+                                    "PixelDigitization/maps_PIX_250V_fl1_53e14.root"],
             EndcapToTThreshold2018       = [    5,    5,    5],
             FEI3EndcapLatency2018        = [  256,  256,  256],
             FEI3EndcapHitDuplication2018 = [False,False,False],
@@ -128,6 +156,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalk2018          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbability2018 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorr2018   = [  1.0,  1.0,  1.0],
             DBMToTThreshold2018       = [   -1,   -1,   -1],
             DBMCrossTalk2018          = [ 0.06, 0.06, 0.06],
             DBMNoiseOccupancy2018     = [ 5e-8, 5e-8, 5e-8],
@@ -139,14 +168,20 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         #====================================================================================
         # RUN1
         CondArgs.update(
-            BarrelToTThresholdRUN1       = [    3,    3,    3],
-            FEI3BarrelLatencyRUN1        = [  256,  256,  256],
-            FEI3BarrelHitDuplicationRUN1 = [ True, True, True],
-            FEI3BarrelSmallHitToTRUN1    = [    7,    7,    7],
-            FEI3BarrelTimingSimTuneRUN1  = [ 2009, 2009, 2009],
-            BarrelCrossTalkRUN1          = [ 0.06, 0.06, 0.06],
-            BarrelNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8],
-            BarrelDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3],
+            BarrelToTThresholdRUN1       = [      3,      3,      3],
+            FEI3BarrelLatencyRUN1        = [    256,    256,    256],
+            FEI3BarrelHitDuplicationRUN1 = [   True,   True,   True],
+            FEI3BarrelSmallHitToTRUN1    = [      7,      7,      7],
+            FEI3BarrelTimingSimTuneRUN1  = [   2009,   2009,   2009],
+            BarrelCrossTalkRUN1          = [   0.06,   0.06,   0.06],
+            BarrelNoiseOccupancyRUN1     = [   5e-8,   5e-8,   5e-8],
+            BarrelDisableProbabilityRUN1 = [   9e-3,   9e-3,   9e-3],
+            BarrelLorentzAngleCorrRUN1   = [    1.0,    1.0,    1.0],
+            DefaultBarrelBiasVoltageRUN1 = [  150.0,  150.0,  150.0],
+            BarrelFluenceRUN1            = [1.01e14,0.44e14,0.30e14],
+            BarrelFluenceMapRUN1 = ["PixelDigitization/maps_PIX_150V_fl1_01e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl0_44e14.root",
+                                    "PixelDigitization/maps_PIX_150V_fl0_3e14.root"],
             EndcapToTThresholdRUN1       = [    3,    3,    3],
             FEI3EndcapLatencyRUN1        = [  256,  256,  256],
             FEI3EndcapHitDuplicationRUN1 = [ True, True, True],
@@ -155,23 +190,47 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
             EndcapCrossTalkRUN1          = [ 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyRUN1     = [ 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityRUN1 = [ 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorrRUN1   = [  1.0,  1.0,  1.0],
             BLayerNoiseShapeRUN1 = [0.0, 0.0, 0.0, 0.0, 0.2204, 0.5311, 0.7493, 0.8954, 0.9980, 1.0],
             PixelNoiseShapeRUN1  = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.2418, 0.4397, 0.5858, 0.6949, 0.7737, 0.8414, 0.8959, 0.9414, 0.9828, 1.0],
         )
         #====================================================================================
         # ITK
         CondArgs.update(
-            BarrelToTThresholdITK       = [    3,    3,    3,    3,    3],
-            BarrelCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06],
-            BarrelNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
-            BarrelDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
+            BarrelToTThresholdITK       = [     3,     3,     3,     3,     3],
+            BarrelCrossTalkITK          = [  0.06,  0.06,  0.06,  0.06,  0.06],
+            BarrelNoiseOccupancyITK     = [  5e-8,  5e-8,  5e-8,  5e-8,  5e-8],
+            BarrelDisableProbabilityITK = [  9e-3,  9e-3,  9e-3,  9e-3,  9e-3],
+            BarrelLorentzAngleCorrITK   = [   1.0,   1.0,   1.0,   1.0,   1.0],
+            DefaultBarrelBiasVoltageITK = [ 150.0, 150.0, 150.0, 150.0, 150.0],
+            BarrelFluenceITK            = [0.0e14,0.0e14,0.0e14,0.0e14,0.0e14],
+            BarrelFluenceMapITK = ["PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root",
+                                   "PixelDigitization/maps_IBL_PL_80V_fl0e14.root"],
             EndcapToTThresholdITK       = [    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3,    3],
             EndcapCrossTalkITK          = [ 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06],
             EndcapNoiseOccupancyITK     = [ 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8, 5e-8],
             EndcapDisableProbabilityITK = [ 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3, 9e-3],
+            EndcapLorentzAngleCorrITK   = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0],
             InnermostNoiseShapeITK     = [0.0, 1.0],
             NextInnermostNoiseShapeITK = [0.0, 1.0],
             PixelNoiseShapeITK         = [0.0, 1.0]
+        )
+    else:
+        # for data, make sure no Lorentz angle correction
+        CondArgs.update(
+            BarrelLorentzAngleCorr2016 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2016 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorr2017 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2017 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorr2018 = [  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorr2018 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorrRUN1 = [  1.0,  1.0,  1.0],
+            BarrelLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0],
+            EndcapLorentzAngleCorrITK  = [  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0,  1.0]
         )
 
     # Charge calibration parameters
@@ -186,7 +245,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         DefaultTemperature=-7.0
     )
     # Cabling parameters
-    useCablingConditions = False
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
     if flags.Input.isMC or flags.Overlay.DataOverlay:
         # ITk:
@@ -215,10 +273,8 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
         
     elif not flags.Input.isMC:
         if runNum < 222222:
-            useCablingConditions = False
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
-            useCablingConditions = True
             # Even though we are reading from COOL, set the correct fallback map.
             if (runNum >= 344494):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -232,7 +288,6 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
     CondArgs.update(
-        UseCablingConditions=useCablingConditions,
         CablingMapToFile=False,
         CablingMapFileName=IdMappingDat
     )
@@ -279,62 +334,13 @@ def PixelCablingCondAlgCfg(flags, name="PixelCablingCondAlg", **kwargs):
     if not flags.Input.isMC and not flags.Overlay.DataOverlay:
         acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList"))
         kwargs.setdefault("ReadKey", "/PIXEL/CablingMap")
+        if flags.Input.RunNumber[0]<222222:
+            kwargs.setdefault("ReadKey", "")
     else:
         kwargs.setdefault("ReadKey", "")
-
-    # Cabling parameters
-    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    rodIDForSingleLink40=0
-    if flags.Input.isMC or flags.Overlay.DataOverlay:
-        # ITk:
-        if flags.GeoModel.Run == "RUN4":
-            IdMappingDat = "ITk_Atlas_IdMapping.dat"
-            if flags.GeoModel.Type == "BrlIncl4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_InclBrl4.dat"
-            elif flags.GeoModel.Type == "IBrlExt4.0ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_IExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt4.0_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
-            elif flags.GeoModel.Type == "BrlExt3.2_ref":
-                IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif flags.GeoModel.Run == "RUN2" or flags.GeoModel.Run == "RUN3":
-            # Planar IBL
-            if flags.GeoModel.IBLLayout == "planar":
-                if flags.GeoModel.Run == "RUN2":
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
-                else:
-                    IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
-            # Hybrid IBL plus DBM
-            elif flags.GeoModel.IBLLayout == "3D":
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-        else:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        
-    elif not flags.Input.isMC:
-        runNum = flags.Input.RunNumber[0]
-        if runNum < 222222:
-            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-            rodIDForSingleLink40=1300000
-        else:
-            rodIDForSingleLink40=1300000
-            # Even though we are reading from COOL, set the correct fallback map.
-            if (runNum >= 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            elif (runNum >= 314940 and runNum < 344494):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_314940.dat"
-            elif (runNum >= 289350 and runNum < 314940): # 2016
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-            elif (runNum >= 222222 and runNum < 289350): # 2015
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
-            else:
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-
-    kwargs.setdefault("RodIDForSingleLink40", rodIDForSingleLink40)
-    kwargs.setdefault("MappingFile", IdMappingDat)
     kwargs.setdefault("PixelModuleData", "PixelModuleData")
     kwargs.setdefault("PixelReadoutSpeedData", "PixelReadoutSpeedData")
     kwargs.setdefault("WriteKey", "PixelCablingCondData")
-    kwargs.setdefault("RecordInInitialize", not flags.Detector.OverlayPixel)
     acc.addCondAlgo(CompFactory.PixelCablingCondAlg(name, **kwargs))
     return acc
 

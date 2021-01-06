@@ -529,15 +529,15 @@ namespace ST {
     float totalSF = 1.;
 
     //Set the new systematic variation
-    CP::SystematicCode ret = m_btagEffTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_btagEffTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool for systematic var. " << systConfig.name() );
     }
 
     totalSF = BtagSF( jets );
 
     ret = m_btagEffTool->applySystematicVariation(m_currentSyst);
-    if ( ret != CP::SystematicCode::Ok) {
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure BTaggingEfficiencyTool for systematic var. " << systConfig.name() );
     }
 
@@ -581,8 +581,8 @@ namespace ST {
     if (!m_applyJVTCut) return totalSF;
 
     //Set the new systematic variation
-    CP::SystematicCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
-    if ( ret != CP::SystematicCode::Ok) {
+    StatusCode ret = m_jetJvtEfficiencyTool->applySystematicVariation(systConfig);
+    if ( ret != StatusCode::SUCCESS) {
       ATH_MSG_ERROR("Cannot configure JVTEfficiencyTool for systematic var. " << systConfig.name() );
     }
 
@@ -591,7 +591,7 @@ namespace ST {
 
     if (m_applyJVTCut) {
       ret = m_jetJvtEfficiencyTool->applySystematicVariation(m_currentSyst);
-      if ( ret != CP::SystematicCode::Ok) {
+      if ( ret != StatusCode::SUCCESS) {
         ATH_MSG_ERROR("Cannot configure JVTEfficiencyTool for systematic var. " << systConfig.name() );
       }
     }

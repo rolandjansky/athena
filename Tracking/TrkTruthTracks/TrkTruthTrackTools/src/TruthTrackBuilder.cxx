@@ -130,7 +130,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     ATH_MSG_VERBOSE("The PRD Truth trajectory contains " << prdTraj.prds.size() << " PRDs.");
 
     // get the associated GenParticle
-    const HepMC::GenParticle* genPart = prdTraj.genParticle;
+    auto genPart = prdTraj.genParticle;
     if (!genPart) {
         ATH_MSG_WARNING("No GenParticle associated to this PRD_TruthTrajectory. Ignoring track creation.");
         return 0;
@@ -147,7 +147,7 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
                                  genPart->momentum().y(),
                                  genPart->momentum().z());
     //!< get the charge via the particle table ...
-    int barcode = genPart->barcode();
+    int barcode = HepMC::barcode(genPart);
     int pdgCode = genPart->pdg_id();
     int absPdgCode = abs(pdgCode);
     // get the charge: ap->charge() is used later, DOES NOT WORK RIGHT NOW

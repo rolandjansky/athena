@@ -49,6 +49,11 @@ muonRecFlags.doCalibNtuple = False # write calibration ntuple?
 rec.doTruth.set_Value_and_Lock(False)
 
 rec.doTrigger = False
+rec.doWriteAOD=True
+
+#Disables PFO Thnning - these cotnainers do not exist, unless you run jet finding
+from ParticleBuilderOptions.AODFlags import AODFlags
+AODFlags.ThinNegativeEnergyNeutralPFOs.set_Value_and_Lock(False)
 
 muonRecFlags.doStandalone.set_Value_and_Lock(True)
 muonRecFlags.doTrackPerformance    = True

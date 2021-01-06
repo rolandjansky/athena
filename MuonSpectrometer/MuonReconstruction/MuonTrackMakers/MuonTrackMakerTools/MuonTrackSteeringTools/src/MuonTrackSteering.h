@@ -19,8 +19,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackCollection.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
-
-#include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentInOverlapResolvingTool.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentMerger.h"
@@ -106,7 +104,7 @@ namespace Muon {
     TrackCollection* findTracks( SegColVec& chamberSegments, SegColVec& stationSegments ) const;
     bool extractSegments( const MuonSegmentCollection& coll, SegColVec& chamberSegments, SegColVec& stationSegments, ChSet&  chambersWithSegments, StSet& stationsWithSegments  ) const;
 
-    void cleanUp() const;
+    virtual void cleanUp() const override;
 
     StatusCode decodeStrategyVector(const std::vector<std::string>& strategy);
     const MuonTrackSteeringStrategy* decodeStrategy(const std::string& strategy) const;

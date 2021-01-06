@@ -82,8 +82,8 @@ private:
     
     BooleanProperty m_ArgonXenonSplitter{this, "doArgonXenonSeparation", true};
     
-    int m_totalEvents;
-    float m_longToTCut;
+    int m_totalEvents{0};
+    FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
     
     int m_min_si_hits;
     int m_min_pixel_hits;
@@ -148,8 +148,8 @@ private:
 		return Gas;
 	}
     
-    bool m_isCosmics;
-    int  m_EventBurstCut;
+    BooleanProperty m_isCosmics{this, "IsCosmics", false};
+    IntegerProperty m_EventBurstCut{this, "EventBurstCut", -1};
    
 };
 #endif

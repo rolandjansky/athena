@@ -43,7 +43,7 @@ class LArRawSC  {
       @param[in] gain_value  Gain
       @param[in] sample_value Reference of vector with ADC samples
   */
-  LArRawSC(const HWIdentifier & channel_value, const short chan, const unsigned int sourceId, const std::vector < int > & energies, const std::vector<unsigned short> bcids, std::vector<bool> satur):
+  LArRawSC(const HWIdentifier & channel_value, const short chan, const unsigned int sourceId, const std::vector < int > & energies, const std::vector<unsigned short>& bcids, std::vector<bool>& satur):
     m_hardwareID(channel_value), m_chan(chan),m_sourceId(sourceId), m_energies(energies), m_BCId(bcids), m_satur(satur) {}
 
   LArRawSC(const HWIdentifier & channel_value,
@@ -87,12 +87,12 @@ class LArRawSC  {
     /** @brief Set energies .
         @param[in] samples  vector of energies
     */
-    void setEnergies( std::vector < int > energies);
+    void setEnergies( const std::vector < int >& energies);
 
     /** @brief Set bcids.
         @param[in] samples  vector of bcids
     */
-    void setBCIds( std::vector < unsigned short > bcids);
+    void setBCIds( const std::vector < unsigned short >& bcids);
 
     /** @brief Destructor */
     virtual ~LArRawSC() { }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -25,8 +25,7 @@
 
 #include "ByteStreamData/RawEvent.h" 
 #include "eformat/SourceIdentifier.h"
-
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+#include <atomic>
 
 class BCM_RodDecoder : public AthAlgTool
 {
@@ -45,29 +44,19 @@ public:
   // destructor 
   virtual ~BCM_RodDecoder(); 
 
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+  virtual StatusCode initialize() override;
+  virtual StatusCode finalize() override;
 
-  StatusCode fillCollection(const ROBFragment *robFrag, BCM_RDO_Container* rdoCont, std::vector<unsigned int>* vecHash = NULL);
+  StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment *robFrag, BCM_RDO_Container* rdoCont, std::vector<unsigned int>* vecHash = NULL) const;
 
-  inline void setDet(const eformat::SubDetector det);
-
-  unsigned int getChannelID(int ROD_source_ID, unsigned int dataword_position);
-  BCM_RDO_Collection* getCollection(unsigned int chan, BCM_RDO_Container* cont);
+  unsigned int getChannelID(int ROD_source_ID, unsigned int dataword_position) const;
+  BCM_RDO_Collection* getCollection(unsigned int chan, BCM_RDO_Container* cont) const;
   
 private:
-
-  eformat::SubDetector        m_det;
-
-  unsigned int                m_fragment_number;
-  unsigned int                m_LVL1A_number;
-  unsigned int                m_hit_number;
+  mutable std::atomic<unsigned int>   m_fragment_number;
+  mutable std::atomic<unsigned int>   m_LVL1A_number;
+  mutable std::atomic<unsigned int>   m_hit_number;
   
 };
-
-inline void BCM_RodDecoder::setDet(const eformat::SubDetector det)
-{
-  m_det = det;
-}
 
 #endif //BCM_RAWDATABYTESTREAMCNV_BCM_RODDECODER_H

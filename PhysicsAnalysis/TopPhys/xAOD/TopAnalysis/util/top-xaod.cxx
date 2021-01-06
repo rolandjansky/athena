@@ -215,6 +215,7 @@ int main(int argc, char** argv) {
     }
 
     topConfig->setIsMC(isMC);
+    topConfig->setIsDataOverlay(isOverlay);
 
     const bool isPrimaryxAOD = top::isFilePrimaryxAOD(testFile.get());
     topConfig->setIsPrimaryxAOD(isPrimaryxAOD);
@@ -493,13 +494,11 @@ int main(int argc, char** argv) {
   bool recalculateNominalWeightSum = false;
   int dsid = topConfig->getDSID();
   int isAFII = topConfig->isAFII();
-  std::string generators = topConfig->getGenerators();
   std::string AMITag = topConfig->getAMITag();
   ULong64_t totalEvents = 0;
   ULong64_t totalEventsInFiles = 0;
   sumWeights->Branch("dsid", &dsid);
   sumWeights->Branch("isAFII", &isAFII);
-  sumWeights->Branch("generators", &generators);
   sumWeights->Branch("AMITag", &AMITag);
   sumWeights->Branch("totalEventsWeighted", &totalEventsWeighted);
   if (topConfig->doMCGeneratorWeights()) {// the main problem is that we don't have the list of names a priori
@@ -562,38 +561,29 @@ int main(int argc, char** argv) {
     std::vector<float> LHE3_sumW_file;
     std::vector<std::string> LHE3_names_file;
 
-    // See https://twiki.cern.ch/twiki/bin/view/AtlasProtected/AnalysisMetadata#Event_Bookkeepers
-    const xAOD::CutBookkeeperContainer* cutBookKeepers = 0;
-    // Try to get the cut bookkeepers.
-    // <tom.neep@cern.ch> (4/4/16): Not there in DAOD_TRUTH1?
-    // If we can't get them and we are running on TRUTH then carry on,
-    // but anything else is bad!
+    const xAOD::CutBookkeeperContainer* cutBookKeepers = nullptr;
     if(topConfig->isTruthDxAOD())
     {
       ATH_MSG_INFO("Bookkeepers are not read for TRUTH derivations");   
-    }
-    else if (!xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers")) {
-      ATH_MSG_ERROR("Failed to retrieve cut book keepers");
-      return 1;
     } else {
+      top::check(xaodEvent.retrieveMetaInput(cutBookKeepers, "CutBookkeepers"), "Cannot retrieve CutBookkeepers");
       if (topConfig->isMC()) {
-        // try to retrieve CutBookKeepers for LHE3Weights first
-        top::parseCutBookkeepers(cutBookKeepers, LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
 
         // here we attempt to name the CutBookkeepers based on the MC weight names
         // but we might end up in a situation where we don't have PMGTruthWeightTool
         // e.g. if TruthMetaData container is broken in derivation
         // we continue without names of the MC weights, only indices will be available
         ToolHandle<PMGTools::IPMGTruthWeightTool> m_pmg_weightTool("PMGTruthWeightTool");
-        if (m_pmg_weightTool.retrieve()) {
-          const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
-          // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
-          top::renameCutBookkeepers(LHE3_names_file, weight_names);
-        } else {
-          for (std::string &name : LHE3_names_file) {
-            name = "?";
-          }
+        if (!m_pmg_weightTool.retrieve()) {
+          ATH_MSG_ERROR("Cannot retrieve PMGTruthWeightTool");   
+          return 1;
         }
+
+        const std::vector<std::string> &weight_names = m_pmg_weightTool->getWeightNames();
+        // try to retrieve CutBookKeepers for LHE3Weights first
+        top::parseCutBookkeepers(xaodEvent, weight_names.size(), LHE3_names_file, LHE3_sumW_file, topConfig->HLLHC());
+        // if we have MC generator weights, we rename the bookkeepers in sumWeights TTree to match the weight names from MetaData
+        top::renameCutBookkeepers(LHE3_names_file, weight_names);
 
         // raw number of events taken from "AllExecutedEvents" bookkeeper, which corresponds to 0th MC weight
         // but these are raw entries, so doesn't matter if 0th MC weight is nominal or not
@@ -690,22 +680,24 @@ int main(int argc, char** argv) {
         pileupWeight = topScaleFactors->pileupWeight();
       }
 
-      // perform any operation common to both reco and truth level
-      // currently we load the MC generator weights inside, if requested
-      eventSaver->execute();
-
-      ///-- Truth events --///
       if (topConfig->isMC()) {
-        // Save, if requested, MC truth block, PDFInfo, TopPartons
-        // This will be saved for every event
-
+        // if requested, pre-calculate TopPartons and PDF info
         // Run topPartonHistory
         if (topConfig->doTopPartonHistory()) top::check(topPartonHistory->execute(), "Failed to execute topPartonHistory");
 
         // calculate PDF weights
         if (topConfig->doLHAPDF()) top::check(PDF_SF->execute(),
                                               "Failed to execute PDF SF");
+      }
 
+      // perform any operation common to both reco and truth level
+      // currently we load the MC generator weights and PDFs if requested
+      eventSaver->execute();
+
+      ///-- Truth events --///
+      if (topConfig->isMC()) {
+
+        // Save, if requested, MC truth block, PDFInfo, TopPartons
         eventSaver->saveTruthEvent();
         if(topConfig->doTopPartonLevel()) ++eventSavedTruth;
 

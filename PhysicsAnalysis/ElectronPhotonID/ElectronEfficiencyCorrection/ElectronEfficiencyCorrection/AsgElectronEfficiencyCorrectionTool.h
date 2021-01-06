@@ -83,9 +83,9 @@ public:
         }
 
         /// Configure this tool for the given systematics
-        virtual CP::SystematicCode applySystematicVariation ( const CP::SystematicSet& systConfig ) ;
+        virtual StatusCode applySystematicVariation ( const CP::SystematicSet& systConfig ) ;
 
-        CP::SystematicCode registerSystematics();
+        StatusCode registerSystematics();
 
         int systUncorrVariationIndex( const xAOD::Electron &inputObject) const;
 
@@ -102,7 +102,7 @@ private:
 
 
         /// The main calculate method: the actual correction factors are determined here
-        CP::SystematicCode InitSystematics();
+        StatusCode InitSystematics();
 
         // struct for toys
         struct SystConf{

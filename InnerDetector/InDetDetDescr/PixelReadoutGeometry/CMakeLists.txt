@@ -10,5 +10,5 @@ find_package( GeoModelCore )
 atlas_add_library( PixelReadoutGeometry
   src/*.cxx
   PUBLIC_HEADERS PixelReadoutGeometry
-  LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils GeoPrimitives InDetIdentifier InDetReadoutGeometry TrkDetElementBase TrkSurfaces
+  LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils GeoPrimitives InDetIdentifier InDetReadoutGeometry ReadoutGeometryBase TrkDetElementBase TrkSurfaces
   PRIVATE_LINK_LIBRARIES AthenaBaseComps AthenaPoolUtilities DetDescrConditions Identifier StoreGateLib TrkEventPrimitives )

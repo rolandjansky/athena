@@ -1,49 +1,22 @@
-################################################################################
-# Package: PixelGeoModelXml
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelGeoModelXml )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaKernel
-                          Database/AthenaPOOL/RDBAccessSvc
-                          DetectorDescription/GeoModelXml
-			  DetectorDescription/GeoModel/GeoModelUtilities
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetGeoModelUtils
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/PixelReadoutGeometry
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          InnerDetector/InDetSimEvent
-                          PRIVATE
-                          Control/CLIDSvc
-                          Control/SGTools
-                          Control/StoreGate
-                          Database/AthenaPOOL/AthenaPoolUtilities
-                          DetectorDescription/DetDescrCond/DetDescrConditions
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeometryDBSvc
-                          DetectorDescription/Identifier
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-			  Tools/PathResolver )
-
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
+find_package( GeoModelCore )
 
 # Component(s) in the package:
 atlas_add_library( PixelGeoModelXmlLib
                    src/*.cxx
                    PUBLIC_HEADERS PixelGeoModelXml
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} 
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES} AthenaKernel GeoModelXml GeoModelUtilities GaudiKernel InDetGeoModelUtils InDetReadoutGeometry PixelReadoutGeometry PixelReadoutGeometry StoreGateLib InDetSimEvent
-                   PRIVATE_LINK_LIBRARIES SGTools AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PathResolver)
+                   PRIVATE_INCLUDE_DIRS ${GEOMODELCORE_INCLUDE_DIRS}
+                   LINK_LIBRARIES GaudiKernel GeoModelUtilities GeoModelXml InDetGeoModelUtils PixelReadoutGeometry
+                   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaPoolUtilities DetDescrConditions GeoModelInterfaces GeometryDBSvcLib ReadoutGeometryBase InDetReadoutGeometry InDetSimEvent PathResolver RDBAccessSvcLib SGTools StoreGateLib )
 
 atlas_add_component( PixelGeoModelXml
-		     src/components/*.cxx
-		     LINK_LIBRARIES SGTools StoreGateLib SGtests AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier PixelGeoModelXmlLib )
+                     src/components/*.cxx
+		             LINK_LIBRARIES PixelGeoModelXmlLib )
                      
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

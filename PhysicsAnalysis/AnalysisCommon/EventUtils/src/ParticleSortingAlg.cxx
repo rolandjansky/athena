@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ParticleSortingAlg.cxx
@@ -12,14 +12,9 @@
 // EventUtils includes
 #include "ParticleSortingAlg.h"
 
-// STL includes
-
 // FrameWork includes
 #include "Gaudi/Property.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
-
-
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -105,22 +100,22 @@ StatusCode ParticleSortingAlg::initialize()
   if (m_setInCollKey) {
     ATH_MSG_DEBUG( "Setting property" << m_inCollKey
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_inCollKey) );
+    m_jos->set (fullToolName + "." + m_inCollKey.name(), m_inCollKey.toString());
   }
   if (m_setOutCollKey) {
     ATH_MSG_DEBUG( "Setting property" << m_outCollKey
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_outCollKey) );
+    m_jos->set (fullToolName + "." + m_outCollKey.name(), m_outCollKey.toString());
   }
   if (m_setSortVar) {
     ATH_MSG_DEBUG( "Setting property" << m_sortVar
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortVar) );
+    m_jos->set (fullToolName + "." + m_sortVar.name(), m_sortVar.toString());
   }
   if (m_setSortDescending) {
     ATH_MSG_DEBUG( "Setting property" << m_sortDescending
                    << " of private tool with name: '" << fullToolName << "'" );
-    ATH_CHECK( m_jos->addPropertyToCatalogue (fullToolName,m_sortDescending) );
+    m_jos->set (fullToolName + "." + m_sortDescending.name(),  m_sortDescending.toString());
   }
   ATH_MSG_DEBUG( "Done setting properties of the tool");
 

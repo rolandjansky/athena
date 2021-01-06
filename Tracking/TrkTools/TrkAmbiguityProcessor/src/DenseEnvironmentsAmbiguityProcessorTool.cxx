@@ -88,9 +88,9 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
 
   ATH_CHECK( m_extrapolatorTool.retrieve());
 
-  ATH_CHECK(m_clusterSplitProbContainerIn.initialize(!m_clusterSplitProbContainerIn.key().empty()));
-  ATH_CHECK(m_clusterSplitProbContainerOut.initialize(!m_clusterSplitProbContainerOut.key().empty()));
-
+  if (initializeClusterSplitProbContainer().isFailure()) {
+     sc=StatusCode::FAILURE;
+  }
   // Configuration of the material effects
   Trk::ParticleSwitcher particleSwitch;
   m_particleHypothesis = particleSwitch.particle[m_matEffects];
@@ -110,7 +110,6 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::initialize(){
   }
   return sc;
 }
-//==================================================================================================
 
 StatusCode 
 Trk::DenseEnvironmentsAmbiguityProcessorTool::finalize(){
@@ -177,28 +176,7 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
      stat.incrementCounterByRegion(CounterIndex::kNcandidates,scoreTrack.first);
   }
   const EventContext& ctx = Gaudi::Hive::currentContext();
-  SG::ReadHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerIn;
-  if (!m_clusterSplitProbContainerIn.key().empty()) {
-     splitProbContainerIn = SG::ReadHandle( m_clusterSplitProbContainerIn, ctx);
-     if (!splitProbContainerIn.isValid()) {
-        ATH_MSG_ERROR( "Failed to get input cluster split probability container "  << m_clusterSplitProbContainerIn.key());
-     }
-  }
-  std::unique_ptr<Trk::ClusterSplitProbabilityContainer> splitProbContainerCleanup(!m_clusterSplitProbContainerIn.key().empty()
-                                                                                      ? std::make_unique<ClusterSplitProbabilityContainer>(*splitProbContainerIn)
-                                                                                      : std::make_unique<ClusterSplitProbabilityContainer>());
-  SG::WriteHandle<Trk::ClusterSplitProbabilityContainer> splitProbContainerHandle;
-  Trk::ClusterSplitProbabilityContainer *splitProbContainer;
-  if (!m_clusterSplitProbContainerOut.key().empty()) {
-     splitProbContainerHandle=SG::WriteHandle<Trk::ClusterSplitProbabilityContainer>( m_clusterSplitProbContainerOut, ctx);
-     if (splitProbContainerHandle.record(std::move(splitProbContainerCleanup)).isFailure()) {
-        ATH_MSG_FATAL( "Failed to record output cluster split probability container "  << m_clusterSplitProbContainerOut.key());
-     }
-     splitProbContainer = splitProbContainerHandle.ptr();
-  }
-  else {
-     splitProbContainer = splitProbContainerCleanup.get();
-  }
+  UniqueClusterSplitProbabilityContainerPtr splitProbContainer(createAndRecordClusterSplitProbContainer(ctx));
   ATH_MSG_DEBUG ("Starting to solve tracks");
   // now loop as long as map is not empty
   while ( !scoreTrackFitflagMap.empty() ){
@@ -232,7 +210,10 @@ Trk::DenseEnvironmentsAmbiguityProcessorTool::solveTracks(const TracksScores &tr
       ATH_MSG_DEBUG ("Good track("<< atrack.track() << ") but need to fit this track first, score, add it into map again and retry ! ");
       Trk::Track * pRefittedTrack = refitTrack(atrack.track(),prdToTrackMap, stat);
       if(pRefittedTrack) {
-        if (atrack.track()->trackSummary()) pRefittedTrack->setTrackSummary(std::make_unique<Trk::TrackSummary>(*atrack.track()->trackSummary()));
+        /// If we want to keep the holes from before the refit (instead of triggering a new search), 
+        /// copy over the existing summary to prevent a new hole search.
+        /// Not done in default tracking, only relevant when using holes from pattern recognition. 
+        if (m_keepHolesFromBeforeFit && atrack.track()->trackSummary()) pRefittedTrack->setTrackSummary(std::make_unique<Trk::TrackSummary>(*atrack.track()->trackSummary()));
         addTrack( pRefittedTrack, true , scoreTrackFitflagMap, prdToTrackMap, trackDustbin, stat);
       }
       // remove original copy, but delay removal since some pointer to it or its constituents may still be in used

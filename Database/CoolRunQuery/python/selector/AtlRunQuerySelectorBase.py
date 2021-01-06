@@ -558,6 +558,10 @@ class TimeBasedCondition(Condition):
 
 
     def select(self, runlist):
+        runlistNo = []
+        for run in runlist:
+           runlistNo.append(run.runNr)
+        print('runlistNo: ', runlistNo)
         print (self, end='')
         sys.stdout.flush()
         start = time()
@@ -577,8 +581,8 @@ class TimeBasedCondition(Condition):
             
         # access COOL
         for rr in runranges:
-            firstrun = runlist[runlist.index(rr[0])]
-            lastrun = runlist[runlist.index(rr[1])]
+            firstrun = runlist[runlistNo.index(rr[0])]
+            lastrun = runlist[runlistNo.index(rr[1])]
             iovmin=firstrun.sor
             iovmax=lastrun.eor
 

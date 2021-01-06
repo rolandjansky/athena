@@ -15,7 +15,7 @@
 class HLTResultMTMakerAlg : public AthReentrantAlgorithm {
 public:
   HLTResultMTMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
-  virtual ~HLTResultMTMakerAlg() override;
+  virtual ~HLTResultMTMakerAlg() override = default;
 
   virtual StatusCode initialize() override;
   virtual StatusCode execute(const EventContext& context) const override;

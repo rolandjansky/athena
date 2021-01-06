@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./EtaEtAsymmetricConditionMT.h"
@@ -39,7 +39,7 @@ EtaEtAsymmetricConditionMT::isSatisfied(const pHypoJet& ip,
                                       
                                       
     std::stringstream ss1;
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     ss1 << "    jet: ("  << j_addr << ")"
         << " eta " << eta
         << " et " << et << '\n';
@@ -59,7 +59,7 @@ EtaEtAsymmetricConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string EtaEtAsymmetricConditionMT::toString() const noexcept {
+std::string EtaEtAsymmetricConditionMT::toString() const {
   std::stringstream ss;
   ss << "EtaEtAsymmetric ConditionMT: etaMin "
      <<  m_etaMin 

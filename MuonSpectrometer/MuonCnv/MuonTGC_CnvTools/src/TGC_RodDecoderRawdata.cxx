@@ -65,7 +65,7 @@ StatusCode Muon::TGC_RodDecoderRawdata::finalize()
 
 //================ fillCollection ===============================================
 
-StatusCode Muon::TGC_RodDecoderRawdata::fillCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc)
+StatusCode Muon::TGC_RodDecoderRawdata::fillCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const
 {
   try   
     {
@@ -164,7 +164,7 @@ TgcRdo* Muon::TGC_RodDecoderRawdata::getCollection(const ROBFragment& robFrag, T
 
 void Muon::TGC_RodDecoderRawdata::byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs,
 						 TgcRdo& rdo,
-						 uint32_t source_id)
+						 uint32_t source_id) const
 {
   ATH_MSG_DEBUG( "Muon::TGC_RodDecoder::byteStream2Rdo" );
     

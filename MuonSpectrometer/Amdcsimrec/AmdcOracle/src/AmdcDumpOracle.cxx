@@ -11,21 +11,18 @@
 #include "RDBAccessSvc/IRDBRecord.h"
 #include "RDBAccessSvc/IRDBRecordset.h"
 
-/////////////////////////////////////////////////////////
-#include "AmdcDb/IRDBAccessSvcWithUpdate.h"
-
 #include "AmdcOracle/AmdcDumpOracle.h"
 
 #include "AmdcDb/AmdcDbRecord.h"
 
 #include "AmdcDb/AmdcDb2Sql.h"
 
-AmdcDumpOracle::AmdcDumpOracle(const std::string& name, ISvcLocator* pSvcLocator) :
-  AthAlgorithm(name, pSvcLocator),
-p_IRDBAccessSvcWithUpdate ( "AmdcDb",name )
-{
+#include <fstream>
 
-  m_IRDBAccessSvcWithUpdateUpdatedSvcDONE = false ; 
+AmdcDumpOracle::AmdcDumpOracle(const std::string& name, ISvcLocator* pSvcLocator) 
+  : AthAlgorithm(name, pSvcLocator)
+  , m_amdcDb ( "AmdcDb",name )
+{
 
 //Set Default values
    m_KountCallsDoIt   = 0 ;
@@ -56,42 +53,9 @@ StatusCode AmdcDumpOracle::initialize(){
   ATH_MSG_INFO( "= SwitchOff          " << m_SwitchOff          ) ;
   ATH_MSG_INFO( "================================" ) ;
 
-
   if (m_SwitchOff == 0) {
-    StatusCode sc ;
-
-//  Retrieve p_IRDBAccessSvcWithUpdate and set up call back
-    if ( p_IRDBAccessSvcWithUpdate.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve service " << p_IRDBAccessSvcWithUpdate ) ;
-      return StatusCode::FAILURE;
-    } 
-    ATH_MSG_INFO( "Retrieved service " << p_IRDBAccessSvcWithUpdate ) ;
-
-    if (p_IRDBAccessSvcWithUpdate->InitializedSvc()) {
-      ATH_MSG_INFO( "p_IRDBAccessSvcWithUpdate->InitializedSvc() is true " ) ;
-      m_IRDBAccessSvcWithUpdateUpdatedSvcDONE = true ; 
-    }else{
-      ATH_MSG_INFO( "p_IRDBAccessSvcWithUpdate->InitializedSvc() is false " ) ;
-
-      sc=regFcnDoIt();
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL("regFcnDoIt failed" ) ;
-        return StatusCode::FAILURE;
-      }
-      ATH_MSG_INFO( "Done: regFcnDoIt " ) ;
-     
-    }
-
-//  Do something now if possible
-    if ( m_IRDBAccessSvcWithUpdateUpdatedSvcDONE ){
-      ATH_MSG_INFO( "m_IRDBAccessSvcWithUpdateUpdatedSvcDONE found true in initialize " ) ;
-      sc = DoIt() ;
-      if ( sc.isFailure() ) {
-        ATH_MSG_FATAL( "DoIt failed" ) ; 
-        return StatusCode::FAILURE;
-      }
-    }
-  
+    ATH_CHECK(m_amdcDb.retrieve());
+    ATH_CHECK(DoIt());
   }
 
   ATH_MSG_INFO( "Initialisation ended     " ) ;
@@ -100,53 +64,9 @@ StatusCode AmdcDumpOracle::initialize(){
 
 }
 
-// Do it
-StatusCode AmdcDumpOracle::DoItCallback(IOVSVC_CALLBACK_ARGS)
-{
-  ATH_MSG_INFO( "DoItCallback called     " ) ;  
-
-  if ( !(p_IRDBAccessSvcWithUpdate->UsableSvc()) ) {
-    ATH_MSG_INFO( "BUT p_IRDBAccessSvcWithUpdate found NOT usable yet  " ) ;  
-    return StatusCode::SUCCESS;
-  }else{
-    m_IRDBAccessSvcWithUpdateUpdatedSvcDONE = true ;
-    ATH_MSG_INFO( "AND p_IRDBAccessSvcWithUpdate found usable   " ) ;  
-  }
-
-  StatusCode sc = DoIt() ;
-  if ( sc.isFailure() ) {
-    ATH_MSG_FATAL( "DoIt failed" ) ; 
-    return StatusCode::FAILURE;
-  }
-  
-  return StatusCode::SUCCESS;
-
-}
-
-StatusCode AmdcDumpOracle::regFcnDoIt()
-{
-
-  StatusCode sc = detStore()->regFcn(
-                         &IRDBAccessSvcWithUpdate::UpdatedSvc,dynamic_cast<IRDBAccessSvcWithUpdate*>(&*p_IRDBAccessSvcWithUpdate),
-                         &AmdcDumpOracle::DoItCallback,this,true
-                        );
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Unable to register callback on AmdcDumpOracle::DoItCallback from IRDBAccessSvcWithUpdate::UpdatedSvc " ) ;
-    return StatusCode::FAILURE;
-  }
-  ATH_MSG_INFO( "Done: Register callback on AmdcDumpOracle::DoItCallback from IRDBAccessSvcWithUpdate::UpdatedSvc " ) ;
-
-  return StatusCode::SUCCESS;
-  
-}
 StatusCode AmdcDumpOracle::DoIt()
 {
   ATH_MSG_INFO( "DoIt called     " ) ;  
-
-  if ( !m_IRDBAccessSvcWithUpdateUpdatedSvcDONE ){
-    ATH_MSG_INFO( "DoIt() called BUT m_IRDBAccessSvcWithUpdateUpdatedSvcDONE is false    " ) ;
-    return StatusCode::SUCCESS;
-  }
 
   if (m_SwitchOff == 0) {
   
@@ -166,10 +86,10 @@ StatusCode AmdcDumpOracle::DoIt()
     aAmdcDb2Sql.SetUseKeysOn(m_UseKeysOn);
     
     StringBidon = "Out.AmdcOracle.DB" + KountCallsDoItASstring ;
-    aAmdcDb2Sql.DoIt(StringBidon,"RDB",(&*p_IRDBAccessSvcWithUpdate));
+    aAmdcDb2Sql.DoIt(StringBidon,"RDB",m_amdcDb.get());
     
     StringBidon = "Out.AmdcOracle.AM" + KountCallsDoItASstring ;
-    aAmdcDb2Sql.DoIt(StringBidon,"Amdc",(&*p_IRDBAccessSvcWithUpdate));
+    aAmdcDb2Sql.DoIt(StringBidon,"Amdc",m_amdcDb.get());
 
 //  Check contents
     StringBidon = "Out.AmdcOracle" + KountCallsDoItASstring ;
@@ -185,7 +105,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ASZT
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpASZT((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpASZT(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -195,7 +115,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ISZT
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpISZT((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpISZT(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -205,7 +125,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check APTP
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpAPTP((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpAPTP(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -215,7 +135,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ALMN
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpALMN((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpALMN(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -225,7 +145,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ALIN
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpALIN((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpALIN(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -235,7 +155,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WMDT
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWMDT((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWMDT(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -245,7 +165,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WSPA
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWSPA((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWSPA(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -255,7 +175,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WSUP
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWSUP((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWSUP(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -265,7 +185,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WCHV
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWCHV((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWCHV(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -275,7 +195,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WCMI
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWCMI((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWCMI(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -285,7 +205,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WCRO
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWCRO((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWCRO(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -295,7 +215,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WLBI
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWLBI((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWLBI(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -305,7 +225,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WDED
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWDED((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWDED(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -315,7 +235,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ASMP
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpASMP((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpASMP(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -325,7 +245,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check DBAM
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpDBAM((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpDBAM(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -335,7 +255,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WCSC
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWCSC((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWCSC(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -345,7 +265,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ATLN
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpATLN((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpATLN(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -355,7 +275,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check GGLN
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpGGLN((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpGGLN(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -365,7 +285,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WTGC
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWTGC((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWTGC(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -375,7 +295,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check AWLN
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpAWLN((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpAWLN(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -385,7 +305,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check WRPC
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpWRPC((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpWRPC(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -395,7 +315,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ACUT
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpACUT((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpACUT(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -405,7 +325,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check ATYP
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpATYP((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpATYP(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -415,7 +335,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check AMDC
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpAMDC((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpAMDC(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -425,7 +345,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check HwSwIdMapping
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpHwSwIdMapping((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpHwSwIdMapping(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -435,7 +355,7 @@ StatusCode AmdcDumpOracle::DoIt()
 //  Check XtomoData
     Kwarn = 0 ;
     Kchck = 0 ;
-    DumpXtomoData((&*p_IRDBAccessSvcWithUpdate),KountCallsDoItASstring,Kwarn,Kchck);
+    DumpXtomoData(m_amdcDb.get(),KountCallsDoItASstring,Kwarn,Kchck);
     KwarnTot = KwarnTot + Kwarn ;
     KchckTot = KchckTot + Kchck ;
     OutFile 
@@ -453,10 +373,6 @@ StatusCode AmdcDumpOracle::DoIt()
   return StatusCode::SUCCESS;
 
 }
-
-StatusCode AmdcDumpOracle::execute() {return StatusCode::SUCCESS;}
- 
-StatusCode AmdcDumpOracle::finalize() {return StatusCode::SUCCESS;}
 
 void AmdcDumpOracle::DumpASZT( IRDBAccessSvc* pIRDBAccessSvc, std::string TagAdd, int& Kwarn,int& Kchck){
 

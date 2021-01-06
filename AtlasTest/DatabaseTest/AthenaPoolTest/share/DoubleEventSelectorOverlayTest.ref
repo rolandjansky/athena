@@ -58,7 +58,7 @@ Stream1.Stream1...   INFO Initializing Stream1.Stream1Tool - package version Ath
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
-Stream1              INFO Data output: OutputRDO.root
+Stream1              INFO Data output: OverlayRDO.root
 Stream1              INFO I/O reinitialization...
 DoubleEventSele...  DEBUG Property update for OutputLevel : new value = 2
 DoubleEventSele...  DEBUG Initializing DoubleEventSelector
@@ -182,8 +182,8 @@ ClassIDSvc           INFO  getRegistryEntries: read 180 CLIDRegistry entries for
 DbSession            INFO     Open     DbSession    
 Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
 Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] 22B32F76-1345-524A-B55B-D789FB399093
-Domain[ROOT_All]     INFO                           OutputRDO.root
-RootDatabase.open    INFO OutputRDO.root File version:61800
+Domain[ROOT_All]     INFO                           OverlayRDO.root
+RootDatabase.open    INFO OverlayRDO.root File version:61800
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO DataHeader_p6 [4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D]
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
@@ -887,7 +887,7 @@ Stream1              INFO Metadata records written: 11
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 8BCD9728-EB56-6042-AFDF-61C0C379D70E
 /home/sss/nobac...   INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] 9553B87B-1832-3346-A65E-916E6C1DEAB5
-OutputRDO.root       INFO Database being retired...
+OverlayRDO.root      INFO Database being retired...
 Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] 22B32F76-1345-524A-B55B-D789FB399093
 Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 ApplicationMgr       INFO Application Manager Stopped successfully

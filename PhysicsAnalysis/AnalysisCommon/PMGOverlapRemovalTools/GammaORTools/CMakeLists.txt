@@ -1,40 +1,22 @@
-################################################################################
-# Package: GammaORTools
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( GammaORTools )
 
-# Extra dependencies, based on the environment:
-if( XAOD_STANDALONE )
-    set( extra_deps Control/xAODRootAccess )
-else()
-   set( extra_deps Control/AthenaBaseComps GaudiKernel PhysicsAnalysis/POOLRootAccess)
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODTruth
-   Event/xAOD/xAODEventInfo
-   PhysicsAnalysis/Interfaces/PMGAnalysisInterfaces
-   PRIVATE
-   ${extra_deps} 
-   )
-
+# External dependencies:
+find_package( Boost )
 
 # Libraries in the package:
 atlas_add_library( GammaORToolsLib
    GammaORTools/*.h Root/*.cxx
    PUBLIC_HEADERS GammaORTools
-   INCLUDE_DIRS 
-   LINK_LIBRARIES AsgTools xAODTruth xAODEventInfo MCTruthClassifierLib )
+   INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
+   LINK_LIBRARIES ${Boost_LIBRARIES} AsgTools xAODTruth MCTruthClassifierLib )
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( GammaORTools
     src/components/*.cxx
-    LINK_LIBRARIES AthenaBaseComps GaudiKernel GammaORToolsLib)
+    LINK_LIBRARIES GammaORToolsLib)
 endif()
 
 atlas_add_dictionary( GammaORToolsDict

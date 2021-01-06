@@ -531,6 +531,9 @@ Trk::Extrapolator::extrapolateStepwiseImpl(const EventContext& ctx,
       msg << "Will not cleanup " << static_cast<const void*>(cache.m_parametersOnDetElements);
       throw std::logic_error(msg.str());
     }
+    for (const Trk::TrackParameters* p : tmp) {
+      delete p;
+    }
     tmp.clear();
   }
   return Trk::TrackParametersUVector(tmp.begin(), tmp.end());

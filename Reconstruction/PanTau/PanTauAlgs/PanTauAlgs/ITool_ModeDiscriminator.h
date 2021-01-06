@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PANTAUALGS_ITOOL_MODEDISCRIMINATOR_H
@@ -7,12 +7,9 @@
 
 #include "AsgTools/IAsgTool.h"
 
-
-//class Jet;
 namespace PanTau {
-    class PanTauSeed2;
+    class PanTauSeed;
 }
-
 
 namespace PanTau {
 
@@ -29,8 +26,7 @@ namespace PanTau {
         public:
 
     virtual bool isInitialized() = 0;
-            //virtual double getModeLikeliness(PanTau::PanTauSeed2* inSeed, bool& wasSuccessful) = 0;
-            virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK) = 0;
+    virtual double getResponse(PanTau::PanTauSeed* inSeed, bool& isOK) = 0;
     };
 
 }

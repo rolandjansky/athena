@@ -29,25 +29,17 @@
 #include "MuonPrepRawData/MMPrepData.h"
 #include "MuonPrepRawData/sTgcPrepData.h"
 #include "TrkParameters/TrackParameters.h" 
-#include "TrkTrack/Track.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkSurfaces/PerigeeSurface.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
-#include "TrkPrepRawData/PrepRawData.h"
-#include "TrkMeasurementBase/MeasurementBase.h"
-#include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrackRecord/TrackRecordCollection.h"
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "MuonRIO_OnTrack/MuonClusterOnTrack.h"
 #include "MuonRIO_OnTrack/MMClusterOnTrack.h"
-#include "MuonPrepRawData/MdtPrepData.h"
-#include "MuonPrepRawData/MMPrepData.h"
-#include "MuonPrepRawData/sTgcPrepData.h"
 #include "MuonPrepRawData/MuonCluster.h"
 #include "MuonSegment/MuonSegment.h"
-#include "AtlasHepMC/GenParticle.h"
 #include "MuonRecHelperTools/MuonEDMPrinterTool.h"
 #include "MuonRecHelperTools/IMuonEDMHelperSvc.h"
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
@@ -415,7 +407,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     const HepMC::GenParticle *current = link.cptr();
     
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
@@ -477,7 +469,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -966,7 +958,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory
@@ -1214,7 +1206,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     TruthTrajectory traj;
     traj.reserve(2); // The average size is about 1.05.  Hardcode that instead of using slow list::size().
     for(Sprout::const_iterator ppart=s->second.begin(); ppart!=s->second.end(); ppart++) {
-      traj.push_back(HepMcParticleLink((*ppart)->barcode(), s->first.eventIndex()));
+      traj.push_back(HepMcParticleLink(HepMC::barcode(*ppart), s->first.eventIndex()));
     }
 
     // Count PRDs on the TruthTrajectory

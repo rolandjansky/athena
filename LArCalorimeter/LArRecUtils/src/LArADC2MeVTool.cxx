@@ -417,8 +417,9 @@ StatusCode LArADC2MeVTool::getADC2MeV() const {
 
 
 // *** retrieve ADC2MEV for a given cell ***
-const std::vector<float>& LArADC2MeVTool::ADC2MEV(const HWIdentifier& CellID, 
-						  int gain ) const
+const std::vector<float>& LArADC2MeVTool::ADC2MEV ATLAS_NOT_THREAD_SAFE
+  (const HWIdentifier& CellID, 
+   int gain ) const
 {
   HWIdentifier id;
   if (m_MCSym) 
@@ -439,8 +440,9 @@ const std::vector<float>& LArADC2MeVTool::ADC2MEV(const HWIdentifier& CellID,
 }
 
 // *** retrieve ADC2MEV for a given cell ***
-const std::vector<float>& LArADC2MeVTool::ADC2MEV(const Identifier& CellID, 
-						  int gain) const
+const std::vector<float>& LArADC2MeVTool::ADC2MEV ATLAS_NOT_THREAD_SAFE
+  (const Identifier& CellID, 
+   int gain) const
 {
   HWIdentifier id;
   if (m_MCSym)

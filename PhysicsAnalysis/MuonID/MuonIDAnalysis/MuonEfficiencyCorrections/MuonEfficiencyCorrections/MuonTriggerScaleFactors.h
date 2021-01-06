@@ -51,7 +51,7 @@ namespace CP {
 
             virtual CP::SystematicSet recommendedSystematics() const;
 
-            virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet& systConfig);
+            virtual StatusCode applySystematicVariation(const CP::SystematicSet& systConfig);
 
             virtual int getBinNumber(const xAOD::Muon& muon, const std::string& trigger) const;
 
@@ -75,7 +75,7 @@ namespace CP {
                 return *m_appliedSystematics;
             }
 
-            CP::SystematicCode registerSystematics();
+            StatusCode registerSystematics();
             
             StatusCode LoadTriggerMap(unsigned int year);
 

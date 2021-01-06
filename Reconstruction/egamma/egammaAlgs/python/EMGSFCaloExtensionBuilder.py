@@ -1,6 +1,7 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-__doc__ = "ToolFactory to instantiate the EMGSFCaloExtensionBuilder with default configuration"
+__doc__ = """ToolFactory to instantiate the
+              EMGSFCaloExtensionBuilder with default configuration"""
 __author__ = "Christos"
 
 from egammaAlgs import egammaAlgsConf

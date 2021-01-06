@@ -49,7 +49,6 @@ Comments to be added here...
 #include <iomanip>
 #include <utility>
 #include <string>
-#include <sstream>
 #include <sys/stat.h>
 
 class MM_DigitToolInput;
@@ -65,7 +64,7 @@ public :
   virtual ~MM_StripsResponseSimulation();
   MM_StripToolOutput GetResponseFrom(const MM_DigitToolInput & digiInput);
 
-  void initialize ();
+  void initialize (unsigned long int seed);
   void writeHistos();
   void initHistos ();
   void clearValues ();
@@ -105,6 +104,8 @@ public :
   MsgStream& msg(const MSG::Level lvl) const { return m_msg << lvl ; }
   bool msgLvl(const MSG::Level lvl) const { return m_msg.get().level() <= lvl ; }
   void setMessageLevel(const MSG::Level lvl) const { m_msg.get().setLevel(lvl); return; }
+
+  inline void writeOutputFile(bool val) {m_writeOutputFile = val;}
 
 private:
 
@@ -165,7 +166,7 @@ private:
   MM_StripsResponseSimulation & operator=(const MM_StripsResponseSimulation &right);
   MM_StripsResponseSimulation(const MM_StripsResponseSimulation&);
 
-  std::vector<MM_IonizationCluster> m_IonizationClusters;
+  std::vector<std::unique_ptr<MM_IonizationCluster>> m_IonizationClusters;
 
   std::map<TString, TH1F* > m_mapOfHistograms;
   std::map<TString, TH2F* > m_mapOf2DHistograms;

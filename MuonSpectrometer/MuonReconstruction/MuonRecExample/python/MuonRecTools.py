@@ -188,6 +188,9 @@ def AtlasTrackingGeometrySvc(name="AtlasTrackingGeometrySvc",**kwargs):
     from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
     return AtlasTrackingGeometrySvc
 
+def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
+    from TrkDetDescrSvc.TrkDetDescrSvcConf import Trk__TrackingVolumesSvc
+    return Trk__TrackingVolumesSvc("TrackingVolumesSvc")
 
 # default muon navigator
 def MuonNavigator(name = "MuonNavigator",**kwargs):
@@ -291,7 +294,6 @@ class MuonParticleCreatorTool(Trk__TrackParticleCreatorTool,ConfiguredBase):
 
     def __init__(self,name="MuonParticleCreatorTool",**kwargs):
         self.applyUserDefaults(kwargs,name)
-        kwargs.setdefault("Extrapolator", "AtlasExtrapolator" )
         kwargs.setdefault("TrackSummaryTool", "MuonTrackSummaryTool" )
         kwargs.setdefault("KeepAllPerigee", True )
         kwargs.setdefault("UseMuonSummaryTool", True)

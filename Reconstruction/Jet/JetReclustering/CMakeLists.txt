@@ -34,7 +34,7 @@ atlas_add_dictionary( JetReclusteringDict
    LINK_LIBRARIES JetReclusteringLib )
 
 # Test(s) in the package:
-if( NOT XAOD_STANDALONE )
+if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( ut_JetReclusteringTool_test
       SOURCES test/ut_JetReclusteringTool_test.cxx
       LINK_LIBRARIES xAODRootAccess AsgTools JetInterface xAODJet

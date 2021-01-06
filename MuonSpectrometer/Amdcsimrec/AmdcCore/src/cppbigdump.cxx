@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AmdcCore/Amdcsimrec.h"
-#include "AmdcCore/AmdcsimrecMisc.h"
+#include <fstream>
+#include <iomanip>
 
 using std::setiosflags;
 

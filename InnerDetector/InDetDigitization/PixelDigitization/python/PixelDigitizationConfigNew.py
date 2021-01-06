@@ -84,15 +84,6 @@ def SensorSimPlanarToolCfg(flags, name="SensorSimPlanarTool", **kwargs):
     kwargs.setdefault("LorentzAngleTool", LorentzTool)
     SensorSimPlanarTool = CompFactory.SensorSimPlanarTool
     kwargs.setdefault("doRadDamage", flags.Digitization.DoRadiationDamage)
-    # TODO This is 2018 fluence setting. These parameters should be controlled by the conditions data.
-    kwargs.setdefault("fluence", 6.4)
-    kwargs.setdefault("fluenceB", 4.6)
-    kwargs.setdefault("fluence1", 2.1)
-    kwargs.setdefault("fluence2", 1.3)
-    kwargs.setdefault("voltage", 400)
-    kwargs.setdefault("voltageB", 400)
-    kwargs.setdefault("voltage1", 250)
-    kwargs.setdefault("voltage2", 250)
     acc.setPrivateTools(SensorSimPlanarTool(name, **kwargs))
     return acc
 
@@ -160,7 +151,6 @@ def EndcapFEI3SimToolCfg(flags, name="EndcapFEI3SimTool", **kwargs):
 def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kwargs):
     """Return ComponentAccumulator with configured PixelDigitizationTool"""
     acc = PixelGeometryCfg(flags)
-
     # module parameters
     acc.merge(PixelConfigCondAlgCfg(flags))
     # charge calibration
@@ -324,7 +314,6 @@ def PixelOverlayDigitizationBasicCfg(flags, **kwargs):
 
     # Set common overlay extra inputs
     kwargs.setdefault("ExtraInputs", flags.Overlay.ExtraInputs)
-
     PixelDigitization = CompFactory.PixelDigitization
     acc.addEventAlgo(PixelDigitization(name="PixelOverlayDigitization", **kwargs))
     return acc

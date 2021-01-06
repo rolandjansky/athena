@@ -43,8 +43,6 @@ namespace MuonCalib {
   class IRtResolution;
   class MdtTubeFitContainer;
 }
-//class CalibDBCoral;
-#include "MdtCalibUtils/RtDataFromFile.h"
 
 // interface to enable retrieving of a pointer to the singleton //
 const InterfaceID IID_IMdtCalibOutputDbSvc("MdtCalibOutputDbSvc", 1, 0);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetKinematicHistos.h"
@@ -15,7 +15,7 @@ JetKinematicHistos::JetKinematicHistos(const std::string &t) : JetHistoBase(t)
                                                              ,m_phi(0)
                                                              ,m_m(0)
                                                              ,m_e(0)
-                                                             , m_jetScale(xAOD::JetAssignedScaleMomentum)
+                                                             ,m_jetScale("JetAssignedScaleMomentum")
 {
   declareProperty("JetScale", m_jetScale);
   declareProperty("PlotNJet", m_doN = false);
@@ -34,12 +34,11 @@ int JetKinematicHistos::buildHistos(){
   // -------------- Modify histo names/titles --------
   //  if we're plotting a defined scale, modify the Histo titles and names
   
-  std::map<xAOD::JetScale, std::string> scale2str( { 
-      { xAOD::JetEMScaleMomentum , "EMScale" } , 
-      { xAOD::JetConstitScaleMomentum , "ConstitScale" } } );
-  TString scaleTag = scale2str[ (xAOD::JetScale) m_jetScale ] ; // defaults to ""
+  std::map<std::string, std::string> scale2str( { 
+      { "JetEMScaleMomentum" , "EMScale" } , 
+      { "JetConstitScaleMomentum" , "ConstitScale" } } );
+  TString scaleTag = scale2str[ m_jetScale ] ; // defaults to ""
 
-  
   TString prefixn = scaleTag;
   if(prefixn != "") prefixn +="_";
   // -------------- 
@@ -107,27 +106,30 @@ int JetKinematicHistos::fillHistosFromContainer(const xAOD::JetContainer & cont)
 
 int JetKinematicHistos::fillHistosFromJet(const xAOD::Jet &j){
 
-  if(j.isAvailable<float>((m_jetScale)+"_pt")){
-    // m_jetScale is a property of the base tool
-    const xAOD::JetFourMom_t p4 = j.jetP4( (xAOD::JetScale) m_jetScale);
-    m_pt->Fill( p4.Pt()*toGeV );
-    m_eta->Fill( p4.Eta() );
-    m_phi->Fill( p4.Phi() );
-    if (p4.Pt()*toGeV > 200.0){ // high eta
-      m_pt_high->Fill( p4.Pt()*toGeV );
-      m_eta_high->Fill( p4.Eta() );
-      if(m_doE) m_e_high->Fill( p4.E()*toGeV );
-      if(m_doM) m_m_high->Fill( p4.M()*toGeV );
-      if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents() );
-    }
-
-    if(m_doE) m_e->Fill( p4.E()*toGeV );
-    if(m_doM) m_m->Fill( p4.M()*toGeV );
-  
-    if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi() );
-    if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV);
-    if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV);
+  if(m_jetScale != "JetAssignedScaleMomentum" && !j.isAvailable<float>(m_jetScale+"_pt")){
+    if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
+    return 0;
   }
+
+  // m_jetScale is a property of the base tool
+  const xAOD::JetFourMom_t p4 = j.jetP4(m_jetScale);
+  m_pt->Fill( p4.Pt()*toGeV );
+  m_eta->Fill( p4.Eta() );
+  m_phi->Fill( p4.Phi() );
+  if (p4.Pt()*toGeV > 200.0){ // high eta
+    m_pt_high->Fill( p4.Pt()*toGeV );
+    m_eta_high->Fill( p4.Eta() );
+    if(m_doE) m_e_high->Fill( p4.E()*toGeV );
+    if(m_doM) m_m_high->Fill( p4.M()*toGeV );
+    if(m_doNConstit) m_nConstit_high->Fill( j.numConstituents() );
+  }
+
+  if(m_doE) m_e->Fill( p4.E()*toGeV );
+  if(m_doM) m_m->Fill( p4.M()*toGeV );
+  
+  if(m_doOccupancy) m_occupancyEtaPhi->Fill( p4.Eta(), p4.Phi() );
+  if(m_doAveragePt) m_averagePtEtaPhi->Fill( p4.Eta(), p4.Phi() , p4.Pt()*toGeV);
+  if(m_doAverageE) m_averageE_EtaPhi->Fill( p4.Eta(), p4.Phi() , p4.E()*toGeV);
 
   if(m_doNConstit) m_nConstit->Fill( j.numConstituents() );
   return 0;

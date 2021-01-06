@@ -11,6 +11,7 @@ from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
 import cppyy
+import functools
  
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentFactory import CompFactory as CfgMgr
@@ -175,6 +176,12 @@ class TrigEgammaMonAlgBuilder:
             ]
 
     monitoring_photon = [
+            'HLT_g20_loose_L1EM15VHI',
+            'HLT_g20_medium_L1EM15VHI',
+            'HLT_g20_tight_L1EM15VHI',
+            'HLT_g20_tight_icalotight_L1EM15VHI',
+            'HLT_g20_tight_icalomedium_L1EM15VHI',
+            'HLT_g20_tight_icaloloose_L1EM15VHI',
             'HLT_g20_loose_L1EM15VH',
             'HLT_g20_medium_L1EM15VH',
             'HLT_g20_tight_L1EM15VH',
@@ -191,7 +198,14 @@ class TrigEgammaMonAlgBuilder:
             ]
 
     monitoringTP_electron = [
+            'HLT_e17_lhvloose_L1EM15VHI', 
             'HLT_e24_lhvloose_L1EM20VH', 
+            'HLT_e26_lhloose_L1EM15VH',
+            'HLT_e26_lhmedium_L1EM15VH',
+            'HLT_e26_lhtight_L1EM15VH',
+            'HLT_e26_lhtight_ivarloose_L1EM15VH',
+            'HLT_e26_lhtight_ivarmedium_L1EM15VH',
+            'HLT_e26_lhtight_ivartight_L1EM15VH',
             'HLT_e26_lhloose_L1EM22VHI',
             'HLT_e26_lhmedium_L1EM22VHI',
             'HLT_e26_lhtight_L1EM22VHI',
@@ -400,8 +414,8 @@ class TrigEgammaMonAlgBuilder:
     if self.activate_photon and self.phMonAlg:
       self.bookExpertHistograms( self.phMonAlg, self.phMonAlg.TriggerList )
   
-
- 
+  # If we've already defined the group, return the object already defined
+  @functools.lru_cache(None)
   def addGroup( self, monAlg, name, path ):
     return self.helper.addGroup( monAlg, name, path )
 

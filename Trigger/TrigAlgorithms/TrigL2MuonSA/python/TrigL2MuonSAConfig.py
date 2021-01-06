@@ -6,6 +6,7 @@ from AthenaCommon.AppMgr import ServiceMgr,ToolSvc
 from AthenaCommon.DetFlags import DetFlags
 from TrigMuonBackExtrapolator.TrigMuonBackExtrapolatorConfig import MuonBackExtrapolatorForAlignedDet, MuonBackExtrapolatorForMisalignedDet,  MuonBackExtrapolatorForData
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
 from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
 from RegionSelector.RegSelToolConfig import makeRegSelTool_TGC
@@ -39,7 +40,7 @@ if not MuonGeometryFlags.hasCSC():
     theDataPreparator.CSCDataPreparator.CSCPrepDataContainer  = ""
 
 #Need different PRD collection names to run offline and Run 2 trigger in same job
-if not TriggerFlags.doMT():
+if ConfigFlags.Trigger.EDMVersion <= 2:
     from MuonMDT_CnvTools.MuonMDT_CnvToolsConf import Muon__MdtRdoToPrepDataTool
     from MuonCnvExample import MuonCalibConfig
 

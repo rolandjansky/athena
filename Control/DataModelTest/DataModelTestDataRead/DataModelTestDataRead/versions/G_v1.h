@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file DataModelTestDataRead/versions/G_v1.h
  * @file G_v1.h
@@ -31,6 +29,10 @@ class G_v1
 public:
   int anInt() const;
   void setAnInt (int i);
+  float gFloat() const;
+  void setgFloat (float d);
+  const std::vector<float>& gvFloat() const;
+  void setgvFloat (const std::vector<float>& v);
 };
 
 

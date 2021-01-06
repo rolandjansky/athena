@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./EtConditionMT.h"
@@ -29,7 +29,7 @@ bool EtConditionMT::isSatisfied(const pHypoJet& ip,
         << " et thresh " << m_min
         << " pass: "  << std::boolalpha << pass << '\n';
 
-    auto j_addr = static_cast<const void*>(ip);
+    auto j_addr = static_cast<const void*>(ip.get());
     std::stringstream ss1;
     ss1 <<  "     jet : ("<< j_addr << ")"
         " et " << et << '\n';
@@ -49,7 +49,7 @@ EtConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string EtConditionMT::toString() const noexcept {
+std::string EtConditionMT::toString() const {
   std::stringstream ss;
   ss << "EtConditionMT (" << this << ") "
      << " Et threshold: " 

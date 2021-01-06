@@ -8,8 +8,9 @@
 # jet reco code.
 
 from JetRecConfig.JetDefinition import JetConstitSeq,JetConstitSource, xAODType, JetDefinition
-from . import TriggerJetMods # this is to define the ConstitFourMom_copy JetModifierC
-TriggerJetMods.ConstitFourMom_copy
+# this is to define trigger specific JetModifiers (ex: ConstitFourMom_copy) : 
+from .TriggerJetMods import jetmoddict  # noqa: F401
+
 from AthenaCommon.Logging import logging
 log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Jet.JetRecoConfiguration")
 
@@ -97,6 +98,8 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
         constitModWithAlternateTrk("CorrectPFO", trkopt) 
         constitMods = ["CorrectPFO"+trkopt]
         # apply constituent pileup suppression
+        if "vs" in jetRecoDict["dataType"]:
+            constitMods.append("Vor")
         if "cs" in jetRecoDict["dataType"]:
             constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
@@ -118,6 +121,8 @@ def defineJetConstit(jetRecoDict,clustersKey=None,pfoPrefix=None):
             
     if "tc" in jetRecoDict["dataType"]:
         # apply constituent pileup suppression
+        if "vs" in jetRecoDict["dataType"]:
+            constitMods.append("Vor")
         if "cs" in jetRecoDict["dataType"]:
             constitMods.append("CS")
         if "sk" in jetRecoDict["dataType"]:
@@ -169,18 +174,21 @@ def defineReclusteredJets(jetRecoDict,smallRjets):
     return rcJetDef
 
 def defineGroomedJets(jetRecoDict,ungroomedDef):#,ungroomedJetsName):
-    from JetRecConfig.JetGrooming import JetTrimming, JetSoftDrop
+    from JetRecConfig.JetGrooming import JetTrimmingTrig, JetSoftDropTrig
     groomAlg = jetRecoDict["recoAlg"][3:] if 'sd' in jetRecoDict["recoAlg"] else jetRecoDict["recoAlg"][-1]
+    suffix = "_"+ jetRecoDict["jetCalib"]
+    if jetRecoDict["trkopt"]!="notrk":
+        suffix += "_"+jetRecoDict["trkopt"]
+    
     groomDef = {
-        "sd":JetSoftDrop(ungroomedDef,zcut=0.1,beta=1.0),
-        "t" :JetTrimming(ungroomedDef,smallR=0.2,ptfrac=0.04),
+        "sd":JetSoftDropTrig(ungroomedDef,ZCut=0.1,Beta=1.0, suffix=suffix),
+        "t" :JetTrimmingTrig(ungroomedDef,RClus=0.2,PtFrac=0.04, suffix=suffix),
     }[groomAlg]
     return groomDef
 
 ##########################################################################################
 # Generation of modifier lists. So far only calib, but can add track, substructure mods
 
-from JetRecConfig.StandardJetMods import jetmoddict
 
 # Make generating the list a bit more comprehensible
 def getModSpec(modname,modspec=''):
@@ -194,9 +202,12 @@ def defineTrackMods(trkopt):
     ]
     return trkmods
 
+def getFilterCut(recoAlg):
+    return {"a4":5000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[recoAlg]
+
 # Translate calib specification into something understood by
 # the calibration config helper
-def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
+def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
     # Minimum modifier set for calibration w/o track GSC
     # Should eventually build in more mods, depend on track info etc
@@ -212,7 +223,7 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
 
         if jetRecoDict["dataType"].endswith("tc"):
             calibContext,calibSeq = {
-                ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"),        # Calo GSC only
+                ("a4","subjes"):   ("TrigRun2","JetArea_EtaJES_GSC"), # Calo GSC only
                 ("a4","subjesIS"): ("TrigRun2","JetArea_EtaJES_GSC"), # Calo GSC only
                 ("a4","subjesgscIS"): ("TrigRun2GSC","JetArea_EtaJES_GSC"), # Calo+Trk GSC
                 ("a4","subresjesgscIS"): ("TrigRun2GSC","JetArea_Residual_EtaJES_GSC"), # pu residual + calo+trk GSC
@@ -246,12 +257,25 @@ def defineCalibFilterMods(jetRecoDict,dataSource,rhoKey="auto"):
         if jetalg=="a4":
             calibMods = ["ConstitFourMom_copy",
                          "CaloEnergies", # Needed for GSC
-                         "Calib:"+calibSpec,
-                         "Sort"]
+                         "Calib:"+calibSpec]
         else:
             calibMods = ["ConstitFourMom_copy",
-                         "Calib:"+calibSpec,
-                         "Sort"]
+                         "Calib:"+calibSpec]
 
-    filtercut = {"a4":7000, "a10":50000, "a10r": 50000, "a10t":50000, "a10sd":50000}[jetalg]
-    return calibMods + ["Filter:"+str(filtercut)]
+    return calibMods
+
+def getDecorList(doTracks,isPFlow):
+    # Basic jet info provided by the jet builder
+    decorlist = [ 'AlgorithmType', 'InputType' 
+                  'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
+                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt']
+
+    if doTracks:
+        decorlist += ["GhostTrack",
+                      "NumTrkPt500","NumTrkPt1000",
+                      "SumPtTrkPt500","SumPtTrkPt1000",
+                      "TrackWidthPt1000",
+                      "JVFCorr"]
+        if isPFlow:
+            decorlist += ["SumPtChargedPFOPt500"]
+    return decorlist

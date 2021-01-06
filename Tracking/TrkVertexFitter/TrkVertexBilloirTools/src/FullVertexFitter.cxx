@@ -110,13 +110,6 @@ namespace Trk
 			msg(MSG::INFO) << "Retrieved tool " << m_linFactory << endmsg;
 		
 
-		msg(MSG::INFO)  << "Initialize successful" << endmsg;
-		return StatusCode::SUCCESS;
-	}
-
-	StatusCode FullVertexFitter::finalize()
-	{
-		msg(MSG::INFO)  << "Finalize successful" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 

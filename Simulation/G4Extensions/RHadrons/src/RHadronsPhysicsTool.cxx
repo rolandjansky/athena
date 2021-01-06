@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // class header
@@ -15,11 +15,9 @@
 #include "G4Transportation.hh"
 #include "G4hMultipleScattering.hh"
 #include "G4hIonisation.hh"
-#include "G4Transportation.hh"
 #include "G4ProcessManager.hh"
 #include "G4Decay.hh"
 #include "G4BaryonConstructor.hh"
-#include "G4ProcessManager.hh"
 
 // STL headers
 #include <string>

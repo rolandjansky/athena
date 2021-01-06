@@ -2,15 +2,11 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef AmdcDb_H
-#define AmdcDb_H
+#ifndef AMDCDB_AMDCDB_H
+#define AMDCDB_AMDCDB_H
 
 #include "AthenaBaseComps/AthService.h"
-#include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h" 
-#include "AthenaKernel/IOVSvcDefs.h"
-#include "AmdcDb/AmdcDbMisc.h"
-#include "AmdcDb/IRDBAccessSvcWithUpdate.h"
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 #include "RDBAccessSvc/IRDBQuery.h"
 #include <memory>
@@ -30,21 +26,14 @@ template <class TYPE> class SvcFactory;
  *
  */
 
-class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
+class AmdcDb final : public AthService, virtual public IRDBAccessSvc {
  public:
   static const InterfaceID& interfaceID() { return IID_IRDBAccessSvc; }
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 
-  virtual bool       InitializedSvc() override;
-  virtual bool       UsableSvc() override;
-  virtual StatusCode UpdatedSvc(IOVSVC_CALLBACK_ARGS) override;
-
-  StatusCode AmdcsimrecAthenaSvcUpdatedSvc(IOVSVC_CALLBACK_ARGS);
-  
   virtual IRDBRecordset_ptr getRecordsetPtr(const std::string& node,
                                             const std::string& tag,
                                             const std::string& tag2node="",
@@ -74,14 +63,10 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
   virtual ~AmdcDb();
 
  private:
-   bool m_IsUsable ; //!< Tell usuability state 
-   
-   bool m_IsInitialized ; //!< Tell initialisation state 
-   
-   StoreGateSvc* p_detStore     ; //!< Pointer On detector store
+   StoreGateSvc* m_detStore     ; //!< Pointer On detector store
   
-   AmdcDbSvc* p_AmdcDbSvcFromAmdc ; //!< Pointer on AmdcDbSvc
-   AmdcDbSvc* p_AmdcDbSvcFromRDB  ; //!< Pointer on AmdcDbSvc
+   AmdcDbSvc* m_AmdcDbSvcFromAmdc ; //!< Pointer on AmdcDbSvc
+   AmdcDbSvc* m_AmdcDbSvcFromRDB  ; //!< Pointer on AmdcDbSvc
 
    std::string m_AMDBtag; //!< name of Oracle node
 
@@ -110,15 +95,13 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvcWithUpdate {
    
    IRDBRecordset_ptr m_emptyRecordset ; //!< Pointer on an empty Recordset
 
-   ServiceHandle<AmdcsimrecAthenaSvc> p_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
+   ServiceHandle<AmdcsimrecAthenaSvc> m_AmdcsimrecAthenaSvc;  //!< Pointer On AmdcsimrecAthenaSvc
 
    //Db Keys
    std::string m_detectorKey  ;
    std::string m_detectorNode ;
 
-   StatusCode regFcnAmdcsimrecAthenaSvcUpdatedSvc();
    StatusCode DoUpdatedSvc();
-   int m_AmdcsimrecAthenaSvcUpdatedSvcDONE ;
 };
 
 #endif

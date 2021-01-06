@@ -64,7 +64,7 @@ AsgPhotonEfficiencyCorrectionTool::AsgPhotonEfficiencyCorrectionTool( std::strin
   declareProperty( "CorrectionFileNameUnconv", m_corrFileNameUnconv="",
                    "File that stores the correction factors for simulation for unconverted photons");
 				   
-  declareProperty("MapFilePath", m_mapFile = "" ,
+  declareProperty("MapFilePath", m_mapFile = "PhotonEfficiencyCorrection/2015_2018/rel21.2/Summer2020_Rec_v1/map1.txt",
                   "Full path to the map file");  
 				  
   declareProperty( "ForceDataType", m_dataTypeOverwrite=-1,
@@ -172,7 +172,7 @@ StatusCode AsgPhotonEfficiencyCorrectionTool::initialize()
   
 
   // Add the recommended systematics to the registry
-  if ( registerSystematics() != CP::SystematicCode::Ok) {
+  if ( registerSystematics() != StatusCode::SUCCESS) {
     return StatusCode::FAILURE;
   }
   
@@ -369,13 +369,13 @@ CP::SystematicSet AsgPhotonEfficiencyCorrectionTool::affectingSystematics() cons
 }
 
 /// Register the systematics with the registry and add them to the recommended list
-CP::SystematicCode AsgPhotonEfficiencyCorrectionTool::registerSystematics() {
+StatusCode AsgPhotonEfficiencyCorrectionTool::registerSystematics() {
   CP::SystematicRegistry& registry = CP::SystematicRegistry::getInstance();
-  if (registry.registerSystematics(*this) != CP::SystematicCode::Ok) {
+  if (registry.registerSystematics(*this) != StatusCode::SUCCESS) {
     ATH_MSG_ERROR("Failed to add systematic to list of recommended systematics.");
-	return CP::SystematicCode::Unsupported;
+	return StatusCode::FAILURE;
   }
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 /// returns: the list of all systematics this tool recommends to use
@@ -388,7 +388,7 @@ CP::SystematicSet AsgPhotonEfficiencyCorrectionTool::recommendedSystematics() co
 }
 
 
-CP::SystematicCode AsgPhotonEfficiencyCorrectionTool::
+StatusCode AsgPhotonEfficiencyCorrectionTool::
 applySystematicVariation ( const CP::SystematicSet& systConfig )
 {
   // First, check if we already know this systematic configuration
@@ -402,7 +402,7 @@ applySystematicVariation ( const CP::SystematicSet& systConfig )
     CP::SystematicSet filteredSys;   
 	if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)){
       ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
-      return CP::SystematicCode::Unsupported;
+      return StatusCode::FAILURE;
     }
 	
     // Insert filtered set into the map
@@ -411,7 +411,7 @@ applySystematicVariation ( const CP::SystematicSet& systConfig )
 
   CP::SystematicSet& mySysConf = itr->second;
   m_appliedSystematics = &mySysConf;
-  return CP::SystematicCode::Ok;
+  return StatusCode::SUCCESS;
 }
 
 //===============================================================================

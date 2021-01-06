@@ -40,7 +40,7 @@ namespace top {
     }
 
     static const std::string cdi_file_default =
-      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_Sh228_v3.root";
+      "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-12-02_v2.root";
 
     m_tagger = ""; // Extract in the loop
     if (m_config->bTaggingCDIPath() != "Default") {
@@ -85,15 +85,13 @@ namespace top {
     // Calibrated and uncalibrated working points for VR track jets for all algorithms
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "MV2c10", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
-    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
+    top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", true, "DL1r", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
     top::check(setTaggerWorkingPoints("AntiKtVR30Rmax4Rmin02TrackJets", false, "DL1rmu", {"FixedCutBEff_60", "FixedCutBEff_70", "FixedCutBEff_77", "FixedCutBEff_85", "Continuous"}), "Error setting AntiKtVR30Rmax4Rmin02TrackJets WP");
 
 
-    std::string caloJets_type = m_config->sgKeyJetsType();
-    std::string caloJets_collection = m_config->sgKeyJets();
+    const std::string caloJets_collection = m_config->sgKeyJets();
 
-    std::string trackJets_type = m_config->sgKeyTrackJetsType();
-    std::string trackJets_collection = m_config->sgKeyTrackJets();
+    const std::string trackJets_collection = m_config->sgKeyTrackJets();
 
     const std::string calib_file_path = PathResolverFindCalibFile(m_cdi_file);
     const std::string excludedSysts = m_config->bTagSystsExcludedFromEV() == "none" ? "" : m_config->bTagSystsExcludedFromEV();
@@ -110,8 +108,8 @@ namespace top {
       m_tagger = TaggerBtagWP.first;
       std::string btagWP = TaggerBtagWP.second;
       std::string bTagWPName = m_tagger + "_" + btagWP;
-      if ((caloJets_type == "AntiKt4EMTopoJets" && std::find(m_calo_WPs.begin(), m_calo_WPs.end(), bTagWPName) == m_calo_WPs.end()) ||
-          (caloJets_type == "AntiKt4EMPFlowJets" && std::find(m_pflow_WPs.begin(), m_pflow_WPs.end(), bTagWPName) == m_pflow_WPs.end())) {
+      if ((caloJets_collection == "AntiKt4EMTopoJets" && std::find(m_calo_WPs.begin(), m_calo_WPs.end(), bTagWPName) == m_calo_WPs.end()) ||
+          (caloJets_collection == "AntiKt4EMPFlowJets" && std::find(m_pflow_WPs.begin(), m_pflow_WPs.end(), bTagWPName) == m_pflow_WPs.end())) {
         ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
         ATH_MSG_WARNING("     b-tagging WP: " + bTagWPName + " not supported for jet collection " + caloJets_collection + " with algorithm " + m_tagger);
         ATH_MSG_WARNING("     it will therefore be ignored");
@@ -124,7 +122,7 @@ namespace top {
         BTaggingSelectionTool* btagsel = new BTaggingSelectionTool(btagsel_tool_name);
         top::check(btagsel->setProperty("TaggerName", m_tagger),
                    "Failed to set b-tagging selecton tool TaggerName");
-        top::check(btagsel->setProperty("JetAuthor", caloJets_collection),
+        top::check(btagsel->setProperty("JetAuthor", caloJets_collection+"_BTagging201903"),
                    "Failed to set b-tagging selection JetAuthor");
         top::check(btagsel->setProperty("FlvTagCutDefinitionsFileName",
                                         m_cdi_file),
@@ -142,8 +140,8 @@ namespace top {
         m_btagging_selection_tools.push_back(btagsel);
         m_config->setBTagAlgo_available(m_tagger, btagsel_tool_name);
 
-        if ((caloJets_type == "AntiKt4EMTopoJets" && std::find(m_calo_WPs_calib.begin(), m_calo_WPs_calib.end(), bTagWPName) == m_calo_WPs_calib.end()) ||
-            (caloJets_type == "AntiKt4EMPFlowJets" && std::find(m_pflow_WPs_calib.begin(), m_pflow_WPs_calib.end(), bTagWPName) == m_pflow_WPs_calib.end())) {
+        if ((caloJets_collection == "AntiKt4EMTopoJets" && std::find(m_calo_WPs_calib.begin(), m_calo_WPs_calib.end(), bTagWPName) == m_calo_WPs_calib.end()) ||
+            (caloJets_collection == "AntiKt4EMPFlowJets" && std::find(m_pflow_WPs_calib.begin(), m_pflow_WPs_calib.end(), bTagWPName) == m_pflow_WPs_calib.end())) {
           ATH_MSG_WARNING("top::FlavorTaggingCPTools::initialize");
           ATH_MSG_WARNING("     b-tagging WP: " + bTagWPName + " is not calibrated for jet collection " + caloJets_collection);
           ATH_MSG_WARNING("     it will therefore be ignored for the scale-factors, although the tagging decisions will be saved");
@@ -157,11 +155,11 @@ namespace top {
                      "Failed to set b-tagging TaggerName");
           top::check(btageff->setProperty("OperatingPoint", btagWP),
                      "Failed to set b-tagging OperatingPoint");
-          top::check(btageff->setProperty("JetAuthor", caloJets_collection),
+          top::check(btageff->setProperty("JetAuthor", caloJets_collection+"_BTagging201903"),
                      "Failed to set b-tagging JetAuthor");
-	  top::check(btageff->setProperty("MinPt",
-                                      static_cast<double>(m_config->jetPtcut())),
-		     "Failed to set b-tagging selection tool MinPt");
+          top::check(btageff->setProperty("MinPt",
+                                          static_cast<double>(m_config->jetPtcut())),
+                     "Failed to set b-tagging selection tool MinPt");
           top::check(btageff->setProperty("EfficiencyFileName", calib_file_path),
                      "Failed to set path to b-tagging CDI file");
           top::check(btageff->setProperty("ScaleFactorFileName", calib_file_path),
@@ -200,13 +198,13 @@ namespace top {
         std::string bTagWPName = m_tagger + "_" + btagWP;
         std::vector<std::string> track_WPs = {};
         std::vector<std::string> track_WPs_calib = {};
-        if (trackJets_type == "AntiKtVR30Rmax4Rmin02TrackJets") {
+        if (trackJets_collection == "AntiKtVR30Rmax4Rmin02TrackJets") {
           track_WPs = m_trackAntiKtVR_WPs;
           track_WPs_calib = m_trackAntiKtVR_WPs_calib;
-        } else if (trackJets_type == "AntiKt2PV0TrackJets") {
+        } else if (trackJets_collection == "AntiKt2PV0TrackJets") {
           track_WPs = m_trackAntiKt2_WPs;
           track_WPs_calib = m_trackAntiKt2_WPs_calib;
-        } else if (trackJets_type == "AntiKt4PV0TrackJets") {
+        } else if (trackJets_collection == "AntiKt4PV0TrackJets") {
           track_WPs = m_trackAntiKt4_WPs;
           track_WPs_calib = m_trackAntiKt4_WPs_calib;
         }

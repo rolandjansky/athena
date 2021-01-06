@@ -51,13 +51,11 @@ TriggerFlags.readHLTconfigFromXML=False
 TriggerFlags.inputLVL1configFile=''
 TriggerFlags.inputHLTconfigFile=''
 TriggerFlags.doLVL1=True
-TriggerFlags.doLVL2=True
-TriggerFlags.doEF=True
+TriggerFlags.doHLT=True
 TriggerFlags.L1PrescaleSet  = 'L1Prescales100_' +TriggerFlags.triggerMenuSetup()
 TriggerFlags.HLTPrescaleSet = 'HLTPrescales100_'+TriggerFlags.triggerMenuSetup()
 TriggerFlags.configurationSourceList=['xml']
 TriggerFlags.enableMonitoring = [ 'Time', 'CostAthena' ]
-TriggerFlags.disableRandomPrescale=False
 
 if setMenu.count('simpleL1Calib') or setMenu.count('InitialBeam') or setMenu.count('Cosmic'):
     TriggerFlags.useL1CaloCalibration=False

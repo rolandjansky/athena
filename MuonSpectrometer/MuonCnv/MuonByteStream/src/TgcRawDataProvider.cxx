@@ -11,10 +11,8 @@ using eformat::helper::SourceIdentifier;
 
 Muon::TgcRawDataProvider::TgcRawDataProvider(const std::string& name,
         ISvcLocator* pSvcLocator) :
-        AthAlgorithm(name, pSvcLocator),
-        m_regionSelector  ("RegSelSvc",name)
+        AthReentrantAlgorithm(name, pSvcLocator)
 {
-    declareProperty ("RegionSelectionSvc", m_regionSelector, "Region Selector");
 }
 
 StatusCode Muon::TgcRawDataProvider::initialize()
@@ -28,23 +26,27 @@ StatusCode Muon::TgcRawDataProvider::initialize()
 
   if(m_seededDecoding) {
     // We only need the region selector in RoI seeded mode
-    if (m_regionSelector.retrieve().isFailure()) {
-      ATH_MSG_FATAL("Unable to retrieve RegionSelector Svc");
+    if (m_regsel_tgc.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Unable to retrieve RegionSelector Tool");
       return StatusCode::FAILURE;
     }  
   }//seededDecoding
+  else m_regsel_tgc.disable();
 
   return StatusCode::SUCCESS;
 }
 
-StatusCode Muon::TgcRawDataProvider::execute()
+// --------------------------------------------------------------------
+// Execute
+
+StatusCode Muon::TgcRawDataProvider::execute(const EventContext& ctx) const
 {
     ATH_MSG_VERBOSE( "TgcRawDataProvider::execute"  );
 
   if(m_seededDecoding) {
     
     // read in the RoIs to process
-    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey);
+    SG::ReadHandle<TrigRoiDescriptorCollection> muonRoI(m_roiCollectionKey, ctx);
     if(!muonRoI.isValid()){
       ATH_MSG_WARNING("Cannot retrieve muonRoI "<<m_roiCollectionKey.key());
       return StatusCode::SUCCESS;
@@ -55,10 +57,10 @@ StatusCode Muon::TgcRawDataProvider::execute()
     for(auto roi : *muonRoI){
       ATH_MSG_DEBUG("Get ROBs for RoI " << *roi);
       // get list of hash IDs from region selection
-      m_regionSelector->DetHashIDList(TGC, *roi, tgc_hash_ids);
+      m_regsel_tgc->HashIDList(*roi, tgc_hash_ids);
 
       // decode the ROBs
-      if(m_rawDataTool->convert(tgc_hash_ids).isFailure()) {
+      if(m_rawDataTool->convert(tgc_hash_ids, ctx).isFailure()) {
         ATH_MSG_ERROR( "RoI seeded BS conversion into RDOs failed"  );
       }
       // clear vector of hash IDs ready for next RoI
@@ -66,7 +68,7 @@ StatusCode Muon::TgcRawDataProvider::execute()
     }
   } else {
     // ask TgcRawDataProviderTool to decode full detector and to fill the IDC
-    if (m_rawDataTool->convert().isFailure())
+    if (m_rawDataTool->convert(ctx).isFailure())
       ATH_MSG_ERROR( "BS conversion into RDOs failed"  );
   }
 

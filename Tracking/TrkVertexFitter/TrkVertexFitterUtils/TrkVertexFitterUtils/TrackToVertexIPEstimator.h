@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKVERTEXFITTERUTILS_TRACKTOVERTEXIPESTIMATOR_H
@@ -78,9 +78,8 @@ namespace Trk
  /**
   * Default Athena interface methods
   */
-    StatusCode initialize();
-    
-    StatusCode finalize();
+    virtual StatusCode initialize() override;
+
  
  /**
   * Default Athena interface constructor and destructor 
@@ -93,41 +92,47 @@ namespace Trk
  * Estimate methods returning a d0 and its calculated sigma.
  * All  methods do check whether a track is actually fitted to a vertex
  */  
-   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const xAOD::Vertex * vtx, bool doRemoval) const;
+   virtual const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval) const override;
+   virtual const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const xAOD::Vertex * vtx, bool doRemoval) const override;
 
-   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track,const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const;
+   virtual const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track,const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const override;
+   virtual const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const override;
 
-   virtual const xAOD::Vertex *   getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const ;
-   virtual const xAOD::Vertex *   getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const ;
+   virtual const xAOD::Vertex *   getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const override;
+   virtual const xAOD::Vertex *   getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const override;
   
 
-   virtual const ImpactParametersAndSigma  * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex* vtx)const;
-   virtual const ImpactParametersAndSigma  * estimate(const TrackParameters * track, const xAOD::Vertex* vtx)const;
+   virtual const ImpactParametersAndSigma  * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex* vtx)const override;
+   virtual const ImpactParametersAndSigma  * estimate(const TrackParameters * track, const xAOD::Vertex* vtx)const override;
    
 
    /* Methods which provide the lifetime Sign for the Impact Parameter (2D, Z, 3D)  */
+   virtual
    double get3DLifetimeSignOfTrack(const TrackParameters & track,
                                    const Amg::Vector3D & jetDirection,
-                                   const xAOD::Vertex & primaryVertex) const;
+                                   const xAOD::Vertex & primaryVertex) const override;
+   virtual
    double get3DLifetimeSignOfTrack(const TrackParameters & track,
                                    const CLHEP::Hep3Vector & jetDirection,
-                                   const xAOD::Vertex & primaryVertex) const;
+                                   const xAOD::Vertex & primaryVertex) const override;
 
+   virtual
    double get2DLifetimeSignOfTrack(const TrackParameters & track,
                                    const Amg::Vector3D & jetDirection,
-                                   const xAOD::Vertex & primaryVertex) const;
+                                   const xAOD::Vertex & primaryVertex) const override;
+   virtual
    double get2DLifetimeSignOfTrack(const TrackParameters & track,
                                    const CLHEP::Hep3Vector & jetDirection,
-                                   const xAOD::Vertex & primaryVertex) const;
+                                   const xAOD::Vertex & primaryVertex) const override;
 
+   virtual
    double getZLifetimeSignOfTrack(const TrackParameters & track,
                                   const Amg::Vector3D & jetDirection,
-                                  const xAOD::Vertex & primaryVertex) const;
+                                  const xAOD::Vertex & primaryVertex) const override;
+   virtual
    double getZLifetimeSignOfTrack(const TrackParameters & track,
                                   const CLHEP::Hep3Vector & jetDirection,
-                                  const xAOD::Vertex & primaryVertex) const;
+                                  const xAOD::Vertex & primaryVertex) const override;
 
 
 

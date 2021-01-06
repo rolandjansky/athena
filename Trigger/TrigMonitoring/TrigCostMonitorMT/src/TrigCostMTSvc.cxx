@@ -174,7 +174,7 @@ StatusCode TrigCostMTSvc::monitor(const EventContext& context, const AlgorithmId
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 
-StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataStruct payload){
+StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor::ROBDataMonitorStruct payload){
   ATH_MSG_DEBUG( "Received ROB payload " << payload );
 
   // Associate payload with an algorithm
@@ -186,8 +186,8 @@ StatusCode TrigCostMTSvc::monitorROS(const EventContext& /*context*/, robmonitor
   }
 
   // Record data in TrigCostDataStore
-  ATH_MSG_DEBUG( "Adding " << payload.rob_id << " to " << theAlg.m_hash );
-  ATH_CHECK( m_rosData.push_back(theAlg, payload) );
+  ATH_MSG_DEBUG( "Adding ROBs from" << payload.requestor_name << " to " << theAlg.m_hash );
+  ATH_CHECK( m_rosData.push_back(theAlg, std::move(payload)) );
 
   return StatusCode::SUCCESS;
 }
@@ -342,25 +342,54 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
     aiToHandleIndex[ai.m_hash] = costOutputHandle->size() - 1;
   }
 
-  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<robmonitor::ROBDataStruct>, AlgorithmIdentifierHashCompare>::const_iterator ROBConstIt;
+  typedef tbb::concurrent_hash_map< AlgorithmIdentifier, std::vector<robmonitor::ROBDataMonitorStruct>, AlgorithmIdentifierHashCompare>::const_iterator ROBConstIt;
   ROBConstIt beginRob;
   ROBConstIt endRob;
   
   ATH_CHECK(m_rosData.getIterators(context, msg(), beginRob, endRob));
   
   for (ROBConstIt it = beginRob; it != endRob; ++it) {
-    // TrigComposite for ROS caching
-    xAOD::TrigComposite* tcr = new xAOD::TrigComposite();
-    rosOutputHandle->push_back( tcr ); 
-
     size_t aiHash = it->first.m_hash;
+
     if (aiToHandleIndex.count(aiHash) == 0) {
-      ATH_MSG_WARNING("Algorithm with hash " << TrigConf::HLTUtils::hash2string( aiHash, "ALG") << " not found!");
+      ATH_MSG_WARNING("Algorithm with hash " << aiHash << " not found!");
     }
 
-    bool result = true;
-    result &= tcr->setDetail("alg_idx", aiToHandleIndex[aiHash]);
-    if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
+    // Save ROB data via TrigComposite
+    for (const robmonitor::ROBDataMonitorStruct& robData : it->second) {
+      xAOD::TrigComposite* tc = new xAOD::TrigComposite();
+      rosOutputHandle->push_back(tc); 
+
+      // Retrieve ROB requests data into primitives vectors
+      std::vector<uint32_t> robs_id;
+      std::vector<uint32_t> robs_size;
+      std::vector<unsigned> robs_history;
+      std::vector<uint8_t> robs_status;
+
+      robs_id.reserve(robData.requested_ROBs.size());
+      robs_size.reserve(robData.requested_ROBs.size());
+      robs_history.reserve(robData.requested_ROBs.size());
+      robs_status.reserve(robData.requested_ROBs.size());
+
+      for (const auto& rob : robData.requested_ROBs) {
+        robs_id.push_back(rob.second.rob_id);
+        robs_size.push_back(rob.second.rob_size);
+        robs_history.push_back(rob.second.rob_history);
+        robs_status.push_back(rob.second.isStatusOk());
+      }
+
+      bool result = true;
+      result &= tc->setDetail("alg_idx", aiToHandleIndex[aiHash]);
+      result &= tc->setDetail("lvl1ID", robData.lvl1ID);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_id", robs_id);
+      result &= tc->setDetail<std::vector<uint32_t>>("robs_size", robs_size);
+      result &= tc->setDetail<std::vector<unsigned>>("robs_history", robs_history);
+      result &= tc->setDetail<std::vector<uint8_t>>("robs_status", robs_status);
+      result &= tc->setDetail("start", robData.start_time);
+      result &= tc->setDetail("stop", robData.end_time);
+
+      if (!result) ATH_MSG_WARNING("Failed to append one or more details to trigger cost ROS TC");
+    }
   }
 
   if (msg().level() <= MSG::VERBOSE) {
@@ -377,6 +406,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       ATH_MSG_VERBOSE("  Stop Time:" << tc->getDetail<uint64_t>("stop") << " mu s");
     }
   }
+
   
   return StatusCode::SUCCESS;
 }

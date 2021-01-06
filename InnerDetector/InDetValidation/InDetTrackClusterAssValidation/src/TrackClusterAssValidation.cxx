@@ -1437,7 +1437,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
       bool Q = false;
       for(; mc!=mce; ++mc) {
 	if((*mc).first != ID) break;
-	if((*mc).second.cptr()->barcode()==k) {Q=true; break;}
+	if(HepMC::barcode((*mc).second.cptr())==k) {Q=true; break;}
       }
 
       if(!Q) continue;
@@ -1458,7 +1458,7 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles(const InDet::Tra
       out<<"| "
 	     <<std::setw(4)<<n
 	       <<std::setw(6)<<pa->pdg_id()
-	       <<std::setw(10)<<pa->barcode()
+	       <<std::setw(10)<<HepMC::barcode(pa)
 	       <<std::setw(4)<<event_data.m_kinecluster   .count(k)
 	       <<std::setw(4)<<event_data.m_kineclusterTRT.count(k)
 	       <<std::setw(4)<<event_data.m_kinespacepoint.count(k)
@@ -1521,7 +1521,7 @@ int InDet::TrackClusterAssValidation::charge(const InDet::TrackClusterAssValidat
   PRD_MultiTruthCollection::const_iterator mc = findTruth(event_data,d,mce);
 
   for(; mc!=mce; ++mc) {
-    if((*mc).second.cptr()->barcode()==k) {
+    if(HepMC::barcode((*mc).second.cptr())==k) {
 
       const HepMC::GenParticle*   pat  = (*mc).second.cptr();
 

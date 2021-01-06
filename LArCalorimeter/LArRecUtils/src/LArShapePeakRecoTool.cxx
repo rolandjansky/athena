@@ -31,8 +31,7 @@ StatusCode LArShapePeakRecoTool::finalize()
 // input vector of samples must be pedestal substracted
 std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples, const std::vector<double>& wave ) const 
 {
-  static std::vector<float> solution; 
-  solution.clear();
+  std::vector<float> solution; 
 
   float  shape_max,delay_max;
   float  sample_max,adc_max;
@@ -76,7 +75,7 @@ std::vector<float> LArShapePeakRecoTool::peak (const std::vector<float>& samples
 
   float adc_2ndmax = 0;
   int   sample_2ndmax = static_cast<int> (sample_max);
-  for (;it_sample!=it_sample_end;it_sample++) { //Loop over sample vector
+  for (;it_sample!=it_sample_end;++it_sample) { //Loop over sample vector
     if((*it_sample>adc_2ndmax) & (*it_sample<=adc_max)) {
       adc_2ndmax = *it_sample;
       sample_2ndmax = distance(samples.begin(),it_sample);

@@ -34,15 +34,15 @@ StatusCode TileMuIdMonitorAlgorithm::initialize() {
   m_muId1TagEnergyGroups = buildToolMap<int>(m_tools, "TileMuId1TagEnergy", nL1Triggers);
   m_muId1TagQualityGroups = buildToolMap<int>(m_tools, "TileMuId1TagQuality", nL1Triggers);
   m_muId1TagEtaPhiGroups = buildToolMap<int>(m_tools, "TileMuId1TagEtaPhi", nL1Triggers);
-  m_muId1TagEneEtaGroups = buildToolMap<int>(m_tools, "TileMuId1TagEneEta", nL1Triggers);
-  m_muId1TagEnePhiGroups = buildToolMap<int>(m_tools, "TileMuId1TagEnePhi", nL1Triggers);
+  m_muId1TagEtaGroups = buildToolMap<int>(m_tools, "TileMuId1TagEta", nL1Triggers);
+  m_muId1TagPhiGroups = buildToolMap<int>(m_tools, "TileMuId1TagPhi", nL1Triggers);
   m_muId1TagEneQualityGroups = buildToolMap<int>(m_tools, "TileMuId1TagEneQuality", nL1Triggers);
 
   m_muId2TagEnergyGroups = buildToolMap<int>(m_tools, "TileMuId2TagEnergy", nL1Triggers);
   m_muId2TagQualityGroups = buildToolMap<int>(m_tools, "TileMuId2TagQuality", nL1Triggers);
   m_muId2TagEtaPhiGroups = buildToolMap<int>(m_tools, "TileMuId2TagEtaPhi", nL1Triggers);
-  m_muId2TagEneEtaGroups = buildToolMap<int>(m_tools, "TileMuId2TagEneEta", nL1Triggers);
-  m_muId2TagEnePhiGroups = buildToolMap<int>(m_tools, "TileMuId2TagEnePhi", nL1Triggers);
+  m_muId2TagEtaGroups = buildToolMap<int>(m_tools, "TileMuId2TagEta", nL1Triggers);
+  m_muId2TagPhiGroups = buildToolMap<int>(m_tools, "TileMuId2TagPhi", nL1Triggers);
   m_muId2TagEneQualityGroups = buildToolMap<int>(m_tools, "TileMuId2TagEneQuality", nL1Triggers);
 
   return TileMonitorAlgorithm::initialize();
@@ -95,8 +95,8 @@ StatusCode TileMuIdMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       fill(m_tools[m_muId1TagEnergyGroups[l1TriggerIdx]], monEnergy);
       fill(m_tools[m_muId1TagQualityGroups[l1TriggerIdx]], monQuality);
       fill(m_tools[m_muId1TagEtaPhiGroups[l1TriggerIdx]], monEta, monPhi);
-      fill(m_tools[m_muId1TagEneEtaGroups[l1TriggerIdx]], monEta, monEnergy);
-      fill(m_tools[m_muId1TagEnePhiGroups[l1TriggerIdx]], monPhi, monEnergy);
+      fill(m_tools[m_muId1TagEtaGroups[l1TriggerIdx]], monEta, monEnergy);
+      fill(m_tools[m_muId1TagPhiGroups[l1TriggerIdx]], monPhi, monEnergy);
       fill(m_tools[m_muId1TagEneQualityGroups[l1TriggerIdx]], monEnergy, monQuality);
     }
   } else if (nTags == 2) {
@@ -104,8 +104,8 @@ StatusCode TileMuIdMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
       fill(m_tools[m_muId2TagEnergyGroups[l1TriggerIdx]], monEnergy);
       fill(m_tools[m_muId2TagQualityGroups[l1TriggerIdx]], monQuality);
       fill(m_tools[m_muId2TagEtaPhiGroups[l1TriggerIdx]], monEta, monPhi);
-      fill(m_tools[m_muId2TagEneEtaGroups[l1TriggerIdx]], monEta, monEnergy);
-      fill(m_tools[m_muId2TagEnePhiGroups[l1TriggerIdx]], monPhi, monEnergy);
+      fill(m_tools[m_muId2TagEtaGroups[l1TriggerIdx]], monEta, monEnergy);
+      fill(m_tools[m_muId2TagPhiGroups[l1TriggerIdx]], monPhi, monEnergy);
       fill(m_tools[m_muId2TagEneQualityGroups[l1TriggerIdx]], monEnergy, monQuality);
     }
   }

@@ -68,8 +68,6 @@
 #include "AtlasHepMC/GenParticle.h"
 #include "TruthHelper/PileUpType.h"
 
-#include "IdDictDetDescr/IdDictManager.h" 
-
 
 
 
@@ -298,7 +296,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // apply pt, eta etc cuts to generated tracks
     // devide generated tracks into primary, truncated, secondary
 
-    std::vector <std::pair<HepMC::GenParticle *,int> > GenSignal;
+    std::vector <std::pair<HepMC::GenParticlePtr,int> > GenSignal;
     //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;   
     unsigned int inTimeStart = 0;
     unsigned int inTimeEnd   = 0;
@@ -583,7 +581,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
 // select charged, stable particles in allowed pt and eta range
 void InDet :: InDetRecStatisticsAlg ::
 selectGenSignal  (const McEventCollection* SimTracks, 
-		  std::vector <std::pair<HepMC::GenParticle *,int> > & GenSignal,
+		  std::vector <std::pair<HepMC::GenParticlePtr,int> > & GenSignal,
 		  unsigned int /*inTimeStart*/, unsigned int /*inTimeEnd*/,
                   InDet::InDetRecStatisticsAlg::CounterLocal &counter) const //'unused' compiler warning
 {
@@ -604,26 +602,27 @@ selectGenSignal  (const McEventCollection* SimTracks,
   for(unsigned int ievt=0; ievt<nb_mc_event; ++ievt)
     {
       const HepMC::GenEvent* genEvent = SimTracks->at(ievt);
-      counter.m_counter[kN_gen_tracks_processed] += ((SimTracks->at(ievt)))->particles_size();
+#ifdef HEPMC3
+      counter.m_counter[kN_gen_tracks_processed] += genEvent->particles().size();
+#else
+      counter.m_counter[kN_gen_tracks_processed] += genEvent->particles_size();
+#endif
       if (put && inTimeMBbegin != inTimeMBend) // if not, inTimeStart and End are untouched
 	{
 	  //if (genEvent == *inTimeMBbegin) inTimeStart = ievt;
 	  //if (genEvent == *inTimeMBend)   inTimeEnd   = ievt;
 	}
-      HepMC::GenParticle * particle = NULL;
-      for (HepMC::GenEvent::particle_const_iterator it = genEvent->particles_begin();
-	   it != genEvent->particles_end(); ++it)
+      for (auto particle: *genEvent)
 	{
-	  particle = *it;
 	  // require stable particle from generation or simulation\	  s
 	  if ((particle->status()%1000) != 1 )
 	    continue;
 	  int   pdgCode = particle->pdg_id();
-	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(abs(pdgCode));
+	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
 	  if (!pd) {
 	    ATH_MSG_DEBUG("Could not get particle data for particle with "
 			 <<"pdgCode="<<pdgCode<< ", status=" << particle->status() 
-			 << ", barcode=" << particle->barcode());
+			 << ", barcode=" << HepMC::barcode(particle));
 	    ATH_MSG_DEBUG("GenParticle= " << particle);
 	    continue;
 	  }
@@ -632,7 +631,7 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	      continue;
 	  if (fabs(particle->momentum().perp()) >  m_minPt  &&  
 	      fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
-	    std::pair<HepMC::GenParticle *,int> thisPair(particle,ievt);
+	    std::pair<HepMC::GenParticlePtr,int> thisPair(particle,ievt);
 	    GenSignal.push_back(thisPair);
 	  }
 	} // End of a particle iteration

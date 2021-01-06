@@ -125,7 +125,6 @@ StatusCode TauShotFinder::executeShotFinder(xAOD::TauJet& tau, xAOD::CaloCluster
     tau.addShotPFOLink(PFOElementLink);
     
     // Remove used cells from list
-    std::vector<const CaloCell*>::iterator cellItrNonConst;
     auto cellIndex = std::find(seedCells.begin(), seedCells.end(), cell);
     seedCells.erase(cellIndex);
     if (phiNeigCell) {

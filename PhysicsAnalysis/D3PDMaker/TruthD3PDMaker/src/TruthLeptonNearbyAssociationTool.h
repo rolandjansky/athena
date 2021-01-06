@@ -59,7 +59,7 @@ private:
   float *m_iso02;
   float *m_iso03;
 
-  int get_real_parent( HepMC::GenParticle * , int depth=0 ) const;
+  int get_real_parent( HepMC::ConstGenParticlePtr , int depth=0 ) const;
 
 };
 

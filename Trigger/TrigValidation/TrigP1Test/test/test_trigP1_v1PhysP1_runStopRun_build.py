@@ -7,14 +7,14 @@
 # Skipping art-output which has no effect for build tests.
 # If you create a grid version, check art-output in existing grid tests.
 
-from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
+from TrigValTools.TrigValSteering import Test, ExecStep
 from TrigP1Test import TrigP1TestSteps
 
 ex = ExecStep.ExecStep()
 ex.type = 'athenaHLT'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
 ex.input = 'data'
-ex.args = '-i -M -ul -c "setMenu=\'PhysicsP1_pp_run3_v1\';"'
+ex.args = '-i -M -ul -c "setMenu=\'PhysicsP1_pp_run3_v1\';enableCostMonitoring=False;"'
 ex.perfmon = False # perfmon currently not fully supported with athenaHLT -M
 
 # Pass the transitions file into athenaHLT -i
@@ -29,14 +29,12 @@ test.check_steps = TrigP1TestSteps.default_check_steps_OHMon(test, 'run_2.root')
 logmerge = test.get_step("LogMerge")
 logmerge.extra_log_regex = 'athenaHLT-.*-.*(.out|.err)'
 
-# Extra step comparing histograms between the two runs
-rc = CheckSteps.RootCompStep("RootComp_runStopRun")
+# Change RootComp step to compare histograms between the two runs
+rc = test.get_step("RootComp")
 rc.input_file = 'run_2.root'
 rc.reference = 'run_1.root'
-rc.args += ' --output=rootcomp_runStopRun'
 rc.explicit_reference = True  # Don't check if reference exists at configuration time
 rc.required = True  # Final exit code depends on this step
-test.check_steps.append(rc)
 
 import sys
 sys.exit(test.run())

@@ -12,14 +12,11 @@
 
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 #include "xAODTruth/TruthParticle.h"
 #include "xAODTruth/TruthVertex.h"
 
-//#include "CLHEP/Geometry/Transform3D.h"
-
-//#include "TrkEventPrimitives/GlobalPosition.h"
-//#include "TrkEventPrimitives/GlobalMomentum.h"
 
 #include "HepPDT/ParticleDataTable.hh"
 //#include "TrkParameters/Perigee.h"
@@ -61,7 +58,7 @@ StatusCode Trk::TruthToTrack::initialize() {
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const {
   Trk::TrackParameters *result = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable) {
@@ -128,7 +125,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(HepMC::ConstGenParticlePtr part) const {
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {

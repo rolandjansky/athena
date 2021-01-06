@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 # @file: PerfMonComps/FastMon.py
 # @author: Sebastien Binet
 # $Id: FastMon.py,v 1.2 2007-12-03 19:07:38 binet Exp $

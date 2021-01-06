@@ -148,6 +148,12 @@ StatusCode::operator unsigned long() const {
    return m_code;
 }
 
+bool StatusCode::isRecoverable() const {
+
+  m_checked = true;
+  return ( m_code == RECOVERABLE );
+}
+
 void StatusCode::enableFailure() {
 
    s_failure = true;

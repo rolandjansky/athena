@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetTrtDriftCircleCutTool_H
@@ -26,16 +26,14 @@ namespace InDet{
       
     public:
   
-      StatusCode initialize();
+      virtual StatusCode initialize() override;
       
-      StatusCode finalize();
+      InDetTrtDriftCircleCutTool(const std::string& t, const std::string& n, const IInterface*  p);
       
-      InDetTrtDriftCircleCutTool(const std::string& t, const std::string& n, const IInterface*  p); 
-      
-      ~InDetTrtDriftCircleCutTool();
+      virtual ~InDetTrtDriftCircleCutTool();
       
       /** @brief Minimum number of drift circles using the track scoring tool */
-      int minNumberDCs(const Trk::TrackParameters*) const;
+      virtual int minNumberDCs(const Trk::TrackParameters*) const override;
       
     private:
       

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ****** **************************************************************
@@ -26,7 +26,6 @@
 #include "TileEvent/TileRawChannelContainer.h"
 #include "CaloIdentifier/TileID.h"
 #include "TileIdentifier/TileHWID.h"
-#include "TileCalibBlobObjs/TileCalibUtils.h"
 #include "TileEvent/TileDigitsContainer.h"
 #include "TileEvent/TileBeamElemContainer.h"
 #include "TileByteStream/TileBeamElemContByteStreamCnv.h"

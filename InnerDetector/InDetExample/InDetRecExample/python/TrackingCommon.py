@@ -1,7 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
 
@@ -95,7 +94,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                log.debug ('Add to ToolSvc %s' % (tool.name()))
+                log.debug ('Add to ToolSvc %s', tool.name())
                 ToolSvc += tool
             return tool
         else :
@@ -211,7 +210,6 @@ def getRIO_OnTrackErrorScalingCondAlg( **kwargs) :
 
 
 def getEventInfoKey() :
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags    import DetFlags
 
     isData = (globalflags.DataSource == 'data')
@@ -327,6 +325,10 @@ def getNnClusterizationFactory(name='NnClusterizationFactory', **kwargs) :
     useTTrainedNetworks = InDetFlags.useNNTTrainedNetworks()
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as geoFlags
     do_runI = geoFlags.Run() not in ["RUN2", "RUN3"]
+
+    if do_runI and not useTTrainedNetworks:
+      log.debug("useNNTTrainedNetworks must be True for Run I. Contact CTIDE for questions.")
+      useTTrainedNetworks = True
     
     if useTTrainedNetworks :
       log.debug("Setting up TTrainedNetworks")
@@ -513,7 +515,7 @@ def getInDetTRT_DriftCircleOnTrackUniversalToolCosmics(name='TRT_DriftCircleOnTr
 
 @makePublicTool
 def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
-    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix']
+    strip_args=['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix']
     pix_cluster_on_track_args = copyArgs(kwargs,strip_args)
     # note nameSuffix is strupped by makeName
     the_name = makeName( name, kwargs)
@@ -548,7 +550,7 @@ def getInDetRotCreator(name='InDetRotCreator', **kwargs) :
 
 def getInDetRotCreatorPattern(name='InDetRotCreatorPattern', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster = getInDetPixelClusterOnTrackToolPattern(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
@@ -556,7 +558,7 @@ def getInDetRotCreatorPattern(name='InDetRotCreatorPattern', **kwargs) :
 
 def getInDetRotCreatorDBM(name='InDetRotCreatorDBM', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
         from InDetRecExample.InDetJobProperties import InDetFlags
         from AthenaCommon.DetFlags              import DetFlags
         if InDetFlags.loadRotCreator() and DetFlags.haveRIO.pixel_on():
@@ -569,7 +571,7 @@ def getInDetRotCreatorDBM(name='InDetRotCreatorDBM', **kwargs) :
 
 def getInDetRotCreatorDigital(name='InDetRotCreatorDigital', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster = getInDetPixelClusterOnTrackToolDigital(**pix_cluster_on_track_args))
     return getInDetRotCreator(name=name, **kwargs)
@@ -577,7 +579,7 @@ def getInDetRotCreatorDigital(name='InDetRotCreatorDigital', **kwargs) :
 # @TODO rename to InDetBroadRotCreator
 def getInDetBroadRotCreator(name='InDetBroadInDetRotCreator', **kwargs) :
     if 'ToolPixelCluster' not in kwargs :
-        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','RenounceInputHandles','nameSuffix'])
+        pix_cluster_on_track_args = copyArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
         kwargs = setDefaults(kwargs,
                              ToolPixelCluster    = getInDetBroadPixelClusterOnTrackTool(**pix_cluster_on_track_args))
     if 'ToolSCT_Cluster' not in kwargs :
@@ -792,7 +794,6 @@ def getInDetPrdAssociationTool_setup(name='InDetPrdAssociationTool_setup',**kwar
     return getInDetPrdAssociationTool(name, **setDefaults(kwargs, SetupCorrect                   = True) )
 
 def getInDetPixelConditionsSummaryTool() :
-    from AthenaCommon.GlobalFlags import globalflags
     from InDetRecExample.InDetJobProperties import InDetFlags
     from PixelConditionsTools.PixelConditionsToolsConf import PixelConditionsSummaryTool
     pixelConditionsSummaryToolSetup = PixelConditionsSummaryTool("PixelConditionsSummaryTool",
@@ -880,7 +881,6 @@ def getInDetSCT_ConditionsSummaryTool() :
 def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
     the_name = makeName(name, kwargs)
     from AthenaCommon.DetFlags import DetFlags
-    from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'SctSummaryTool' not in kwargs :
         kwargs = setDefaults( kwargs, SctSummaryTool   = getInDetSCT_ConditionsSummaryTool()  if DetFlags.haveRIO.SCT_on()   else None)
@@ -900,7 +900,6 @@ def getInDetBoundaryCheckTool(name="InDetBoundarySearchTool", **kwargs):
 @makePublicTool
 def getInDetHoleSearchTool(name = 'InDetHoleSearchTool', **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.DetFlags    import DetFlags
     from InDetRecExample.InDetJobProperties import InDetFlags
 
     if 'Extrapolator' not in kwargs :
@@ -945,7 +944,6 @@ def getInDetRecTestBLayerTool(name='InDetRecTestBLayerTool', **kwargs) :
 @makePublicTool
 def getInDetTRTStrawStatusSummaryTool(name = "InDetTRT_StrawStatusSummaryTool", **kwargs) :
     the_name = makeName( name, kwargs)
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, isGEANT4 = (globalflags.DataSource == 'geant4'))
     from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_StrawStatusSummaryTool
     return TRT_StrawStatusSummaryTool(name = the_name, **kwargs )
@@ -977,7 +975,6 @@ def getInDetTRT_dEdxTool(name = "InDetTRT_dEdxTool", **kwargs) :
             or  InDetFlags.useExistingTracksAsInput(): # TRT_RDOs (used by the TRT_LocalOccupancy tool) are not present in ESD
         return None
 
-    from AthenaCommon.GlobalFlags import globalflags
     kwargs = setDefaults( kwargs, TRT_dEdx_isData = (globalflags.DataSource == 'data'))
 
     if 'TRT_LocalOccupancyTool' not in kwargs :
@@ -1069,9 +1066,8 @@ def getInDetSummaryHelperSharedHits(name='InDetSummaryHelperSharedHits',**kwargs
 def getInDetTrackSummaryTool(name='InDetTrackSummaryTool',**kwargs) :
     # makeName will remove the namePrefix in suffix from kwargs, so copyArgs has to be first
     hlt_args = copyArgs(kwargs,['isHLT','namePrefix'])
-    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
+    id_helper_args = copyArgs(kwargs,['ClusterSplitProbabilityName','namePrefix','nameSuffix']) if 'ClusterSplitProbabilityName' in kwargs else {}
     kwargs.pop('ClusterSplitProbabilityName',None)
-    kwargs.pop('RenounceInputHandles',None)
     kwargs.pop('isHLT',None)
     the_name = makeName( name, kwargs)
     do_holes=kwargs.get("doHolesInDet",True)
@@ -1097,13 +1093,12 @@ def getInDetTrackSummaryToolNoHoleSearch(name='InDetTrackSummaryToolNoHoleSearch
 def getInDetTrackSummaryToolSharedHits(name='InDetTrackSummaryToolSharedHits',**kwargs) :
 
     if 'InDetSummaryHelperTool' not in kwargs :
-        copy_args=['ClusterSplitProbabilityName','RenounceInputHandles','namePrefix','nameSuffix']
+        copy_args=['ClusterSplitProbabilityName','namePrefix','nameSuffix']
         do_holes=kwargs.get("doHolesInDet",True)
         if do_holes :
             copy_args += ['isHLT']
         id_helper_args = copyArgs(kwargs,copy_args) if 'ClusterSplitProbabilityName' in kwargs else {}
         kwargs.pop('ClusterSplitProbabilityName',None)
-        kwargs.pop('RenounceInputHandles',None)
         kwargs = setDefaults( kwargs, InDetSummaryHelperTool = getInDetSummaryHelperSharedHits(**id_helper_args))
 
     if 'TRT_ElectronPidTool' not in kwargs :
@@ -1469,9 +1464,10 @@ def searchProb(prob_val) :
                if isinstance(prop,ConfigurableAlgTool) and not prop.isInToolSvc() :
                    yield prop
 
+    from GaudiKernel.DataHandle import DataHandle
     for a_comp in iterateComp() :
         for name,prop in a_comp.getProperties().items() :
-            if isinstance(prop ,str) and prop == prob_val :
+            if isinstance(prop,(str,DataHandle)) and str(prop) == prob_val :
                 return True
     return False
 
@@ -1594,6 +1590,7 @@ def combinedClusterSplitProbName() :
           pass # CombinedInDetClusterSplitProbContainer = ClusterSplitProbContainer # @TODO handle cluster splitting probability ?
       if InDetFlags.doDBMstandalone():
           CombinedInDetClusterSplitProbContainer=''
+
   return CombinedInDetClusterSplitProbContainer if hasSplitProb(CombinedInDetClusterSplitProbContainer) else ''
 
 def pixelClusterSplitProbName() :

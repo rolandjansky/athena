@@ -130,6 +130,16 @@ def Lvl1SimulationSequence( flags = None ):
         ToolSvc += L1MuctpiPhase1Tool("MUCTPI_AthTool")
         ToolSvc.MUCTPI_AthTool.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
 
+        #Add the RecRoiTools
+        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3RPCRecRoiTool
+        from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConfig import getRun3TGCRecRoiTool
+        ToolSvc += getRun3RPCRecRoiTool("RPCRecRoiTool")
+        ToolSvc += getRun3TGCRecRoiTool("TGCRecRoiTool")
+
+        ToolSvc.MUCTPI_AthTool.RPCRecRoiTool = ToolSvc.RPCRecRoiTool
+        ToolSvc.MUCTPI_AthTool.TGCRecRoiTool = ToolSvc.TGCRecRoiTool
+
+        #Add the LVL1 config service to the MUCTPI algorithm
         muctpi = L1MuctpiPhase1()
         muctpi.LVL1ConfigSvc = svcMgr.LVL1ConfigSvc
 
@@ -148,7 +158,7 @@ def Lvl1SimulationSequence( flags = None ):
     from MuonRecExample import MuonAlignConfig # noqa: F401
 
     l1MuonSim = seqAND("l1MuonSim", [
-        
+
         MuonRdoToMuonDigit( "MuonRdoToMuonDigit",
                             MuonRdoToMuonDigitTool = ToolSvc.MuonRdoToMuonDigitTool),
 
@@ -158,7 +168,7 @@ def Lvl1SimulationSequence( flags = None ):
                   RPCbytestream     = False,
                   RPCbytestreamFile = "",
                   RPCDigitContainer = "RPC_DIGITS_L1"),
-        
+
         # based on Trigger/TrigT1/TrigT1TGC/python/TrigT1TGCConfig.py
         # interesting is that this JO sets inexisting properties, commented out below
         LVL1TGCTrigger__LVL1TGCTrigger("LVL1TGCTrigger",
@@ -187,22 +197,20 @@ def Lvl1SimulationSequence( flags = None ):
     ##################################################
 
     l1TopoSim = None
+    from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
+    l1TopoSim = L1TopoSimulation()
+    l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     if flags.Trigger.enableL1Phase1:
-        log.info("No phase1 configuration for L1Topo simulation is available")
+        l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
     else:
-        from L1TopoSimulation.L1TopoSimulationConfig import L1TopoSimulation
-        l1TopoSim = L1TopoSimulation()
-
-        l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
-
-        # enable the reduced (coarse) granularity topo simulation
-        # currently only for MC
-        from AthenaCommon.GlobalFlags  import globalflags
-        if globalflags.DataSource()!='data':
-            l1TopoSim.MuonInputProvider.MuonEncoding = 1
-        else:
-            l1TopoSim.MuonInputProvider.MuonEncoding = 0
+    # enable the reduced (coarse) granularity topo simulation
+    # currently only for MC
+    from AthenaCommon.GlobalFlags  import globalflags
+    if globalflags.DataSource()!='data':
+        l1TopoSim.MuonInputProvider.MuonEncoding = 1
+    else:
+        l1TopoSim.MuonInputProvider.MuonEncoding = 0
 
     ##################################################
     # CTP
@@ -213,7 +221,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = not flags.Trigger.enableL1Phase1
-    ctp.UseCondL1Menu = False
+    ctp.UseNewConfig = True
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp])
 

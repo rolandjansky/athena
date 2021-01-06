@@ -126,16 +126,10 @@ namespace Trk
   } 
     msg(MSG::INFO) << "Retrieved tool " << m_AnnealingMaker << endmsg;
   
-  
-    msg(MSG::INFO)  << "Initialize successful" << endmsg;
+
     return StatusCode::SUCCESS;
   }
   
-  StatusCode AdaptiveVertexFitter::finalize()
-  {
-    msg(MSG::INFO)  << "Finalize successful" << endmsg;
-    return StatusCode::SUCCESS;
-  }
 
   xAOD::Vertex*
   AdaptiveVertexFitter::_fit(
@@ -566,7 +560,7 @@ namespace Trk
     const std::vector<const Trk::NeutralParameters*>& neutralPerigeeList,
     const xAOD::Vertex& constraint) const
   {
-    return _fit(perigeeList,neutralPerigeeList,constraint,Amg::Vector3D(),true);
+    return _fit(perigeeList,neutralPerigeeList,constraint,Amg::Vector3D::Zero(),true);
   }
 
   xAOD::Vertex*

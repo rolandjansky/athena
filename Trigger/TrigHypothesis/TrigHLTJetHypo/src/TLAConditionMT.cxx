@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TLAConditionMT.h"
@@ -87,7 +87,7 @@ bool TLAConditionMT::isSatisfied(const HypoJetVector& ips,
     m_massMax > mass;
 }
 
-std::string TLAConditionMT::toString() const noexcept {
+std::string TLAConditionMT::toString() const {
   std::stringstream ss;
   ss << "TLAConditionMT: etaMin "
      <<  m_etaMin 

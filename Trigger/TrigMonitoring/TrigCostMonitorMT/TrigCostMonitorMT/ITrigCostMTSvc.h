@@ -58,7 +58,7 @@ public:
   /**
    * @brief To be used to cache ROBs for ROS
    */
-  virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataStruct payload) = 0;
+  virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload) = 0;
 
 };
 

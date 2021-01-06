@@ -1,7 +1,7 @@
 //  -*- c++ -*- 
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETMONITORING_JETKINEMATICHISTOS_H
@@ -52,7 +52,7 @@ protected:
   TProfile2D* m_averagePtEtaPhi;
   TProfile2D* m_averageE_EtaPhi;
   
-  int m_jetScale;
+  std::string  m_jetScale;
 
   bool m_doN;
   bool m_doM;

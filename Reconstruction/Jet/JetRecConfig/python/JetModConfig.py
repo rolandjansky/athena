@@ -13,25 +13,26 @@ modlog = Logging.logging.getLogger('JetModConfig')
 
 def getModifier(jetdef, moddef, modspec):
     """Translate JetModifier into a concrete tool"""
-    modtool = None
     modlog.verbose("Retrieving modifier {0}".format(str(moddef)))
-
-    # Define some optional keyword arguments
-    kwargs = {}
-    if moddef.passJetDef:
-        kwargs["jetdef"] = jetdef
-    if modspec!="":
-        kwargs["modspec"] = modspec
 
     # Get the modifier tool
     try:
-        modtool = moddef.createfn(**kwargs)
+        modtool = moddef.createfn(jetdef, modspec)
     except Exception as e:
         modlog.error( "Unhandled modifier specification {0} for mod {1} acting on jet def {2}!".format(modspec,moddef,jetdef.basename) )
         modlog.error( "Received exception \"{0}\"".format(e) )
         modlog.error( "Helper function is \"{0}\"".format(moddef.createfn) )
         raise ValueError( "JetModConfig unable to handle mod {0} with spec \"{1}\"".format(moddef,modspec) )
 
+
+    # now we overwrite the default properties of the tool, by those
+    # set in the moddef :
+    for k,v in moddef.properties.items():
+        if callable(v) :
+            # The value we got is a function : we call it to get the actual value we want to set on the tool
+            v = v(jetdef, modspec)
+        setattr(modtool, k, v)
+    
     return modtool
 
 
@@ -90,8 +91,6 @@ def jetModWithAlternateTrk(jetdef, trkopt):
     IMPORTANT : this must be called after instantiateAliases() .
     """
     
-    from JetRecTools.JetRecToolsConfig import trackcollectionmap
-
     def changeJetModSpec( mod ):
         if mod in ['mod:JVT','mod:JVF', 'mod:TrackMoments', 'mod:TrackSumMoments']:
             return mod+':'+trkopt

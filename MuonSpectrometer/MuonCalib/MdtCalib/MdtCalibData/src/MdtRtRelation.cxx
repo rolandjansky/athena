@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtCalibData/IRtRelation.h"
 #include "MdtCalibData/IRtResolution.h"
 #include "MdtCalibData/TrRelation.h"
 #include "MdtCalibData/MdtRtRelation.h"
-#include "MdtCalibData/TrRelation.h"
 
 namespace MuonCalib {
 

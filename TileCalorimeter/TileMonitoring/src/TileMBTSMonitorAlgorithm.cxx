@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TileMBTSMonitorAlgorithm.h"
@@ -280,6 +280,7 @@ StatusCode TileMBTSMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
     auto monHFN = Monitored::Scalar<float>("HFN", 0.0F);
 
     for (const TileDigitsCollection* digitsCollection : *digitsContainer) {
+      if (digitsCollection->empty()) continue;
       HWIdentifier adc_id = digitsCollection->front()->adc_HWID();
       int ros = m_tileHWID->ros(adc_id);
       if (ros > 2) { // Extended barrel

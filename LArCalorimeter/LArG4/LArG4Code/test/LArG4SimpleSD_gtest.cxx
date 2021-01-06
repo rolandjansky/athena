@@ -2,6 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
+#include "CxxUtils/checker_macros.h"
+ATLAS_NO_CHECK_FILE_THREAD_SAFETY;
+
 #include "LArG4Code/LArG4SimpleSD.h"
 
 #include "gtest/gtest.h"

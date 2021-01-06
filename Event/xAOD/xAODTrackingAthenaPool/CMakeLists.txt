@@ -35,6 +35,13 @@ atlas_add_poolcnv_library( xAODTrackingAthenaPoolPoolCnv
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
+
+# In AthAnalysis xAOD::TrackParticle doesn't know about its Trk::Track link.
+# Which makes the converter tests fail in that project...
+if( XAOD_ANALYSIS )
+   return()
+endif()
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
@@ -42,16 +49,16 @@ find_package( AthenaPoolUtilitiesTest )
 if( ATHENAPOOLUTILITIESTEST_FOUND )
   set( XAODTRACKINGATHENAPOOL_REFERENCE_TAG
        xAODTrackingAthenaPoolReference-02-01-00 )
-  run_tpcnv_legacy_test( xAODTrackingAthenaPool_20.1.7.2   AOD-20.1.7.2-full
+  run_tpcnv_test( xAODTrackingAthenaPool_20.1.7.2   AOD-20.1.7.2-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODTrackingAthenaPool_20.7.2.2   AOD-20.7.2.2-full
+  run_tpcnv_test( xAODTrackingAthenaPool_20.7.2.2   AOD-20.7.2.2-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODTrackingAthenaPool_21.0.79   AOD-21.0.79-full
+  run_tpcnv_test( xAODTrackingAthenaPool_21.0.79   AOD-21.0.79-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
-  run_tpcnv_legacy_test( xAODTrackingAthenaPool_master-20190911   AOD-master-20190911-full
+  run_tpcnv_test( xAODTrackingAthenaPool_master-20190911   AOD-master-20190911-full
                    REQUIRED_LIBRARIES xAODTrackingAthenaPoolPoolCnv
                    REFERENCE_TAG ${XAODTRACKINGATHENAPOOL_REFERENCE_TAG} )
 else()

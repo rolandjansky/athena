@@ -96,7 +96,7 @@ def makeLongBeamspotVertexPositioner(name="LongBeamspotVertexPositioner", **kwar
     return Simulation__LongBeamspotVertexPositioner(name, **kwargs)
 
 
-def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
     """Return an accumulator and algorithm for beam effects, wihout output"""
     acc = ComponentAccumulator()
     alg = Simulation__BeamEffectsAlg(name="BeamEffectsAlg", **kwargs)
@@ -122,9 +122,9 @@ def BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs):
     return acc
 
 
-def BeamEffectsAlgCfg(ConfigFlags, **kwargs):
+def BeamEffectsAlgOutputCfg(ConfigFlags, **kwargs):
     """Return an accumulator and algorithm for beam effects, with output"""
-    acc = BeamEffectsAlgBasicCfg(ConfigFlags, **kwargs)
+    acc = BeamEffectsAlgCfg(ConfigFlags, **kwargs)
     # Set to write HITS pool file
     alg = acc.getPrimary()
     ItemList = ["McEventCollection#" + alg.OutputMcEventCollection]

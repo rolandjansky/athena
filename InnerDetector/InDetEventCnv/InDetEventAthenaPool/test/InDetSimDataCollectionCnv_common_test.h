@@ -15,6 +15,7 @@
 
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
+#include "AtlasHepMC/Operators.h"
 #include "GeneratorObjectsTPCnv/initMcEventCollection.h"
 #include "InDetIdentifier/PixelID.h"
 #include "IdDictParser/IdDictParser.h"
@@ -89,12 +90,12 @@ void testit(const InDetSimDataCollection& trans1)
 // TCnv: InDetSimDataCollectionCnv_pX
 // T: InDetSimDataCollection_pX
 template<typename TCnv, typename T>
-void test1(std::vector<HepMC::GenParticle*>& genPartVector)
+void test1(std::vector<HepMC::GenParticlePtr>& genPartVector)
 {
   std::cout << "test1\n";
-  const HepMC::GenParticle *particle = genPartVector.at(0);
+  auto particle = genPartVector.at(0);
   // Create HepMcParticleLink outside of leak check.
-  HepMcParticleLink dummyHMPL(particle->barcode(), particle->parent_event()->event_number());
+  HepMcParticleLink dummyHMPL(HepMC::barcode(particle), particle->parent_event()->event_number());
   assert(dummyHMPL.cptr()==particle);
   Athena_test::Leakcheck check;
 
@@ -102,11 +103,11 @@ void test1(std::vector<HepMC::GenParticle*>& genPartVector)
   // Assumme genPartVector is filled by Athena_test::initMcEventCollection. Do not check the vector size.
   for (int i=0; i<3; i++) {
     std::vector<InDetSimData::Deposit> deps;
-    HepMcParticleLink trkLink1(genPartVector.at(0+(3*i))->barcode(), genPartVector.at(0+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink1(HepMC::barcode(genPartVector.at(0+(3*i))), genPartVector.at(0+(3*i))->parent_event()->event_number());
     deps.emplace_back(trkLink1,  2.5+i);
-    HepMcParticleLink trkLink2(genPartVector.at(1+(3*i))->barcode(), genPartVector.at(1+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink2(HepMC::barcode(genPartVector.at(1+(3*i))), genPartVector.at(1+(3*i))->parent_event()->event_number());
     deps.emplace_back(trkLink2, 13.5+i);
-    HepMcParticleLink trkLink3(genPartVector.at(2+(3*i))->barcode(), genPartVector.at(2+(3*i))->parent_event()->event_number());
+    HepMcParticleLink trkLink3(HepMC::barcode(genPartVector.at(2+(3*i))), genPartVector.at(2+(3*i))->parent_event()->event_number());
     deps.emplace_back(trkLink3, 23.5+i);
 
     trans1[Identifier(1234+i)] = InDetSimData(deps, 4321+i);
@@ -145,7 +146,7 @@ int commonMain()
   // Make PixelID for InDetSimDataCollectionCnv_pX (TCnv)
   makePixelID(pSvcLoc);
 
-  std::vector<HepMC::GenParticle*> genPartVector;
+  std::vector<HepMC::GenParticlePtr> genPartVector;
   // Fill genPartVector
   // false is to skip Athena_test::initGaudi in Athena_test::initMcEventCollection.
   if (!Athena_test::initMcEventCollection(pSvcLoc, genPartVector, false)) {

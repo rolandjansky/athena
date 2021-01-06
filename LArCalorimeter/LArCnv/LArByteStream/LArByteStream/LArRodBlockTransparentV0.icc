@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of a LArRODBlockStructure class
@@ -128,7 +128,7 @@ void LArRodBlockTransparentV0<DSPHEADER>::setRawDataFixed(const int channel, con
    logstr << MSG::ERROR << "Number of samples mismatch!\n";
    logstr << "  nsamples       =" << nsamples;
    logstr << "  samples.size() =" << samples.size() << endmsg;
-   exit(0);
+   std::abort();
  }
  //std::cout << "Size of Raw Data block # " << febgain << " = " << m_RawDataBlock.size();
 

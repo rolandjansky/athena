@@ -265,7 +265,7 @@ namespace InDet {
     return InDetTrackSystematicsTool::recommendedSystematics();
   }
 
-  CP::SystematicCode InDetTrackTruthFilterTool::applySystematicVariation( const CP::SystematicSet& systs )
+  StatusCode InDetTrackTruthFilterTool::applySystematicVariation( const CP::SystematicSet& systs )
   {
     return InDetTrackSystematicsTool::applySystematicVariation(systs);
   }

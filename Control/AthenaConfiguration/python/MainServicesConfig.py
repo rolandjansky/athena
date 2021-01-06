@@ -84,6 +84,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
 
     msgsvc=CompFactory.MessageSvc()
     msgsvc.OutputLevel=cfgFlags.Exec.OutputLevel
+    msgsvc.Format = "% F%{:d}W%C%7W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
     cfg.addService(msgsvc)
 
     if cfgFlags.Exec.DebugStage != "":
@@ -97,7 +98,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # Migrated code from AtlasThreadedJob.py
         AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
-        msgsvc.Format = "% F%40W%S%4W%R%e%s%8W%R%T %0W%M"
+        msgsvc.Format = "% F%{:d}W%C%4W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
         SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
@@ -116,6 +117,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         scheduler.ShowDataDependencies = cfgFlags.Scheduler.ShowDataDeps
         scheduler.ShowDataFlow         = cfgFlags.Scheduler.ShowDataFlow
         scheduler.ShowControlFlow      = cfgFlags.Scheduler.ShowControlFlow
+        scheduler.VerboseSubSlots      = cfgFlags.Scheduler.EnableVerboseViews
         scheduler.ThreadPoolSize       = cfgFlags.Concurrency.NumThreads
         cfg.addService(scheduler)
 

@@ -18,6 +18,7 @@
 #include "BCM_RawDataByteStreamCnv/BCM_RawContByteStreamTool.h"
 #include "ByteStreamCnvSvcBase/ByteStreamCnvSvcBase.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/StorableConversions.h"
 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h" 
 #include "InDetBCM_RawData/InDetBCM_RawDataCLASS_DEF.h"
@@ -25,9 +26,9 @@
 ////////////////////////
 // constructor
 ////////////////////////
-BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converter(storageType(), classID(),svcloc),
-  m_BCMRawContBSTool{},
-  m_ByteStreamEventAccess{}
+BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc) :
+  AthConstConverter(storageType(), classID(),svcloc,"BCM_RawContByteStreamCnv"),
+  m_BCMRawContBSTool{}
 {
 }
 
@@ -42,31 +43,12 @@ BCM_RawContByteStreamCnv::BCM_RawContByteStreamCnv(ISvcLocator* svcloc):Converte
 ////////////////////////
 StatusCode BCM_RawContByteStreamCnv::initialize() {
 
-  StatusCode sc = Converter::initialize(); 
-  if(StatusCode::SUCCESS!=sc) { 
-    return sc; 
-  } 
-
-  // Check ByteStreamCnvSvc
-  if (StatusCode::SUCCESS != service("ByteStreamCnvSvc", m_ByteStreamEventAccess) || !m_ByteStreamEventAccess) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ByteStreamEventAccess interface" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  if (msgLevel(MSG::INFO)) msg(MSG::INFO) << "ByteStreamCnvSvc retireved" << endmsg;
+  ATH_CHECK( AthConstConverter::initialize() );
 
   // retrieve Tool
-  IToolSvc* toolSvc;
-  if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get ToolSvc" << endmsg;
-    return StatusCode::FAILURE;
-  }
-  std::string toolType;
-  toolType = "BCM_RawContByteStreamTool"; 
-  if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_BCMRawContBSTool)) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can't get BCM_RawContByteStreamTool Tool" << endmsg;
-    return StatusCode::FAILURE;
-  }
-
+  IToolSvc* toolSvc = nullptr;
+  ATH_CHECK( service("ToolSvc",toolSvc) );
+  ATH_CHECK( toolSvc->retrieveTool("BCM_RawContByteStreamTool", m_BCMRawContBSTool) );
   return StatusCode::SUCCESS;
 }
 
@@ -84,25 +66,20 @@ long BCM_RawContByteStreamCnv::storageType() {
 ////////////////////////
 // createRep() - convert BCM_RawData in the container into ByteStream
 ////////////////////////
-StatusCode BCM_RawContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
-
-  RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
+StatusCode
+BCM_RawContByteStreamCnv::createRepConst(DataObject* pObj, IOpaqueAddress*& pAddr) const
+{
   BCM_RDO_Container* cont = 0;
-  StoreGateSvc::fromStorable(pObj,cont);
+  SG::fromStorable(pObj,cont);
   if(!cont) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not cast to BCM_RDO_Container" << endmsg;
+    ATH_MSG_ERROR( "Can not cast to BCM_RDO_Container" );
     return StatusCode::FAILURE;
   }
 
   std::string nm = pObj->registry()->name();
-  ByteStreamAddress* addr = new ByteStreamAddress(classID(),nm,"");
-  pAddr = addr;
+  pAddr = new ByteStreamAddress(classID(),nm,"");
 
-  StatusCode sc = m_BCMRawContBSTool->convert(cont, re);
-  if(sc.isFailure()){
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << " Could not convert rdo with m_BCMRawContBSTool " << endmsg;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( m_BCMRawContBSTool->convert(cont) );
 
   return StatusCode::SUCCESS;
 }

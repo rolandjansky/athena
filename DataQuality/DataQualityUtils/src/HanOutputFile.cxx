@@ -36,6 +36,7 @@
 #include <TBufferJSON.h>
 #include <TString.h>
 #include <TEfficiency.h>
+#include <TGraphAsymmErrors.h>
 #include "TPluginManager.h"
 
 #define BINLOEDGE(h,n) h->GetXaxis()->GetBinLowEdge(n)
@@ -1008,8 +1009,10 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
   TObject* hobj = hkey->ReadObj();
   TObject* ref(0);
   TH1* hRef(0);
+  TEfficiency* eRef(0);
   TH2* h2Ref(0);
   std::vector<TH1*> hRefs;
+  std::vector<TEfficiency*> eRefs;
   bool hasPlotted(false);
   TH1* h = dynamic_cast<TH1*>( hobj );
   TH2* h2 = dynamic_cast<TH2*>( h );
@@ -1305,7 +1308,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	    while ((ref2=icolln->Next())) {
 	      hRef = dynamic_cast<TH1*>(ref2);
 	      if (hRef) {
-		if (hRef->GetDimension() == h->GetDimension()) {
+	        if (hRef->GetDimension() == h->GetDimension()) {
 		  hRefs.push_back(hRef);
 		}
 	      }
@@ -1315,6 +1318,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 	}
         groupDir->cd();
       }
+
       if( hRefs.size() > 0 ){
         legend = new TLegend(0.55,0.77,0.87,0.87);
         legend->SetTextFont(62);
@@ -1517,10 +1521,75 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 
   /*************************************************************************************************************/
   if( e != 0 ) {
+    hasPlotted=false;
     auto myC = std::make_unique<TCanvas>( nameHis.c_str(), "myC", ww, wh );
-    myC->cd();
     formatTEfficiency( myC.get(), e );
-    e->Draw((std::string("AP") + drawopt).c_str());
+    if(drawRefs){
+      groupDir->cd((nameHis+"_/Results").c_str());
+      gDirectory->GetObject("Reference;1",ref);
+      eRef = dynamic_cast<TEfficiency*>(ref); 
+      if(eRef){
+         eRefs.push_back(eRef);
+      } else{
+         TCollection* colln = dynamic_cast<TCollection*>(ref);
+         if (colln) {
+            WasCollectionReference = true;
+            TIterator* icolln = colln->MakeIterator();
+            TObject* ref2;
+            while ((ref2=icolln->Next())) {
+              eRef = dynamic_cast<TEfficiency*>(ref2);
+              if (eRef) {
+                if (eRef->GetDimension() == e->GetDimension()) {
+                  eRefs.push_back(eRef);
+                }
+              }
+              else std::cout << "eRef cast failed!!!" << std::endl;
+            }
+          }
+      }
+      groupDir->cd();
+    }
+    if(eRefs.size() > 0 ){
+      legend = new TLegend(0.55,0.77,0.87,0.87);
+      legend->SetTextFont(62);
+      legend->SetMargin(0.15);
+      legend->SetFillStyle(0);
+      legend->SetBorderSize(0);
+      legend->AddEntry(e,datatitle.c_str());
+      int itrcolor(0);
+      for (auto eRef : eRefs) {
+        myC->cd();
+        e->Draw("");
+        eRef->Draw("");
+        gPad->Update();
+       
+        int local_color = root_color_choices[itrcolor];
+	itrcolor++;
+        
+        formatTEfficiency( myC.get(), eRef );
+        eRef->SetMarkerColor(local_color); 
+        eRef->SetLineColor(local_color);          
+
+        if (!hasPlotted) {
+           e->Draw((std::string("AP") + drawopt).c_str());
+	   hasPlotted=true;
+	}
+        eRef->Draw("SAME");
+        myC->Update();
+
+        if (WasCollectionReference) {
+	    legend->AddEntry(eRef, eRef->GetName());
+        } else {
+	    std::string refInfo = getStringName(pathname + "/"+ nameHis+"_/Config/annotations/refInfo");
+	    legend->AddEntry(eRef, refInfo != "Undefined" ? refInfo.c_str() : "Reference");
+        }
+      }
+      legend->Draw();
+    } else {
+      myC->cd();
+      e->Draw((std::string("AP") + drawopt).c_str());
+    }
+    myC->cd();
     displayExtra(myC.get(),display);
     TLatex t;
     t.SetNDC();
@@ -1550,6 +1619,7 @@ std::pair<std::string,std::string> HanOutputFile:: getHistogram( std::string nam
 bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::string location, 
 				 TDirectory* groupDir1, TDirectory* groupDir2, 
 				 bool drawRefs,std::string run_min_LB, std::string pathName,int cnvsType){
+
   dqi::DisableMustClean disabled;
   groupDir1->cd();
   gStyle->SetFrameBorderMode(0);
@@ -1778,7 +1848,7 @@ bool HanOutputFile::saveHistogramToFileSuperimposed( std::string nameHis, std::s
     tt.SetNDC();
     tt.SetTextSize(0.03);
     tt.DrawLatex(0.02,0.01,pathName.c_str());
-    
+
     convertToGraphics(cnvsType,myC.get(),namePNG,nameJSON);
     
     gStyle->Reset();

@@ -5,7 +5,7 @@
 # script to produce a one-to-one copy of the oracle Run 2 MC TriggerDB to sqlite
 
 from TrigConfIO.TriggerConfigAccessBase import ConfigDBLoader
-
+from copy import deepcopy
 import sqlite3
 
 def parseCmdline():
@@ -105,25 +105,32 @@ class OracleExporter:
         self.connection = connection
         self.primaryKeys = None
         self.foreignKeys = None
-        self.tables = None
-        self.ignoreTablesR2 = [ 'TT_WRITELOCK', 'HLT_SMT_TO_HRE', 'HLT_PARAMETER', 'HLT_RELEASE', 'TRIGGER_LOG',
-                                'DBCOPY_SOURCE_DATABASE', 'HLT_RULE_SET', 'TEMP', 'HLT_RULE_PARAMETER', 'HLT_RULE_COMPONENT',
-                                'HLT_SETUP', 'TT_USERS', 'HLT_RULE', "HLT_HRC_TO_HRP", "HLT_HRE_TO_HRS", 
-                                "HLT_HRS_TO_HRU", "HLT_HRU_TO_HRC", "HLT_PRESCALE_SET_ALIAS", "HLT_PRESCALE_SET_COLL",
-                                "PRESCALE_SET_ALIAS", "TRIGGER_ALIAS", "L1_PRESCALE_SET_ALIAS", "L1_CALO_SIN_COS",
-                                "L1_CI_TO_CSC", "L1_JET_INPUT", "L1_MUON_THRESHOLD_SET", "L1_CTP_FILES", "L1_CTP_SMX" ]
+        self.indexes = None
+        self.allTables = None
+        self.ignoreTablesCreate = [ 'TT_WRITELOCK', 'HLT_SMT_TO_HRE', 'HLT_PARAMETER', 'HLT_RELEASE', 'TRIGGER_LOG',
+                                    'DBCOPY_SOURCE_DATABASE', 'HLT_RULE_SET', 'TEMP', 'HLT_RULE_PARAMETER', 'HLT_RULE_COMPONENT',
+                                    'HLT_SETUP', 'TT_USERS', 'HLT_RULE', "HLT_HRC_TO_HRP", "HLT_HRE_TO_HRS",
+                                    "HLT_HRS_TO_HRU", "HLT_HRU_TO_HRC", "HLT_PRESCALE_SET_ALIAS", "HLT_PRESCALE_SET_COLL",
+                                    "PRESCALE_SET_ALIAS", "TRIGGER_ALIAS", "L1_PRESCALE_SET_ALIAS", "L1_CALO_SIN_COS",
+                                    "L1_CI_TO_CSC", "L1_JET_INPUT", "L1_MUON_THRESHOLD_SET"]
+        self.ignoreTablesFill = self.ignoreTablesCreate + [ ]
+        print("Tables to ignore creation: %r" % len(self.ignoreTablesCreate))
+        print("Tables to ignore filling: %r" % len(self.ignoreTablesFill))
 
-    def getTables(self, isRun2MC = True):
-        if self.tables:
-            return self.tables
-        query_ListAllTables = "SELECT table_name FROM all_tables WHERE owner=:SCHEMA"
-        data = { "SCHEMA" : self.connection.schema }
-        result = self.executeQuery(query_ListAllTables, data)
-        self.tables = [x[0] for x in result]
-        if isRun2MC:
-            for x in self.ignoreTablesR2:
-                self.tables.remove(x)
-        return self.tables
+
+    def getTables(self, exceptTables):
+        if self.allTables is None:
+            query_ListAllTables = "SELECT table_name FROM all_tables WHERE owner=:SCHEMA"
+            data = { "SCHEMA" : self.connection.schema }
+            result = self.executeQuery(query_ListAllTables, data)
+            self.allTables = [x[0] for x in result]
+            print("All tables: %i" % len(self.allTables))
+        tables = deepcopy(self.allTables)
+        if exceptTables is not None:
+            for x in exceptTables:
+                if x in tables:
+                    tables.remove(x)
+        return tables
 
     def executeQuery(self, query, data = {}):
         cursor = self.connection.cursor()
@@ -144,6 +151,22 @@ class OracleExporter:
         result = self.executeQuery( query = query_ColumnNames, data = data )
         colNames, colTypes = zip(*result)
         return colNames, colTypes
+
+    def getIndexes(self):
+        if self.indexes is not None:
+            return self.indexes
+        self.indexes = {}
+        print("retrieving indexes from Oracle")
+        query_Indexes = """
+        SELECT table_name, index_name, column_name FROM sys.all_ind_columns WHERE table_owner = :SCHEMA
+        """
+        data = { "SCHEMA" : self.connection.schema }
+        result = self.executeQuery( query = query_Indexes, data = data )
+        for table_name, index_name, column_name in result:
+            if table_name not in self.indexes:
+                self.indexes[table_name] = {}
+            self.indexes[table_name][index_name] = column_name
+        return self.indexes
 
     def getPrimaryKeys(self):
         if self.primaryKeys is not None:
@@ -198,7 +221,7 @@ class OracleExporter:
           }
         return d[oraType]
 
-    def tableCreationCommand(self, tableName, primaryKeys, foreignKeys):
+    def tableCreationCommand(self, tableName, primaryKeys, foreignKeys, indexes):
         colNames, colTypes = self.columnNames(tableName)
         lines = []
         for colName, colType in zip(colNames,colTypes):
@@ -209,15 +232,18 @@ class OracleExporter:
         creationCommand = f"CREATE TABLE IF NOT EXISTS {tableName} (\n    "
         creationCommand += ",\n    ".join(lines)
         creationCommand += "\n);\n"
+        for index_name in indexes:
+            creationCommand += "CREATE INDEX %s on %s(%s);\n" % (index_name, tableName, indexes[index_name])
         return creationCommand
 
-    def extractSchema(self, creationFileName, isRun2MC = True):
+    def extractSchema(self, creationFileName):
         fk = self.getForeignKeys()
         pk = self.getPrimaryKeys()
+        indexes = self.getIndexes()
         with open(creationFileName, "w") as fh:
             print("Creating schema file for sqlite: %s" % creationFileName)
-            for tableName in self.getTables(isRun2MC):
-                print(self.tableCreationCommand(tableName, pk[tableName], fk[tableName] if tableName in fk else []), file = fh)
+            for tableName in self.getTables(exceptTables = self.ignoreTablesCreate):
+                print(self.tableCreationCommand( tableName, pk[tableName], fk.get(tableName, list()), indexes.get(tableName, list())), file = fh)
 
     def copyTable(self, tableName, sqliteInserter, size):
         # build insert statement
@@ -264,16 +290,23 @@ def main():
 
         # collect some info about the size, to not run completely blind
         entries = {}
-        for tableName in oraExp.getTables():
+        tablesToCreate = oraExp.getTables(exceptTables = oraExp.ignoreTablesCreate)
+        tablesToFill = oraExp.getTables(exceptTables = oraExp.ignoreTablesFill)
+        print("Tables to create: %i" % len(tablesToCreate))
+        print("Tables to fill: %i" % len(tablesToFill))
+
+
+        for tableName in tablesToCreate:
             entries[tableName] = oraExp.tableSize(tableName)
-            print("  table %s has %i entries" % (tableName, entries[tableName]) )
+            doNotCopy = tableName not in tablesToFill
+            print("  table %s has %i entries %s" % (tableName, entries[tableName], ("(will not copy)" if doNotCopy else "") ) )
         totalEntries = sum(entries.values())
         print("\nTotal number of entries: %i" %totalEntries)
-
+        
         # copy the data one table at the time
         print("Start copying data")
         copiedEntries = 0
-        for tableName in oraExp.getTables():            
+        for tableName in tablesToFill:            
             print("Copying table %s" % tableName, end = '', flush=True)
             oraExp.copyTable(tableName, sqliteInserter, entries[tableName])
             copiedEntries += entries[tableName]

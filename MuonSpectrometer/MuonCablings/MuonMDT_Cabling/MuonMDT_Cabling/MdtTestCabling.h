@@ -29,10 +29,9 @@ class MdtTestCabling : public AthAlgorithm {
  public:
 
   MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator);
-  ~MdtTestCabling();
+  ~MdtTestCabling()=default;
 
   virtual StatusCode initialize();
-  virtual StatusCode finalize();
   virtual StatusCode execute();
 
  private:

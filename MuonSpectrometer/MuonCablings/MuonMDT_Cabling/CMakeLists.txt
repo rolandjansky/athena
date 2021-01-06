@@ -9,10 +9,10 @@ atlas_subdir( MuonMDT_Cabling )
 atlas_add_library( MuonMDT_CablingLib
                    src/*.cxx
                    PUBLIC_HEADERS MuonMDT_Cabling
-                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib MuonCondInterface MuonCablingData AthenaPoolUtilities
-                   PRIVATE_LINK_LIBRARIES  Identifier EventInfo MuonCondSvcLib PathResolver EventInfoMgtLib )
+                   LINK_LIBRARIES AthenaBaseComps AthenaKernel GaudiKernel StoreGateLib SGtests MuonIdHelpersLib MuonCondInterface MuonCablingData AthenaPoolUtilities EventInfoMgtLib
+                   PRIVATE_LINK_LIBRARIES  Identifier MuonCondSvcLib PathResolver )
 
 atlas_add_component( MuonMDT_Cabling
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel MuonMDT_CablingLib )
+                     LINK_LIBRARIES GaudiKernel EventInfoMgtLib MuonMDT_CablingLib )
 

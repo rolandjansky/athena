@@ -50,7 +50,9 @@ class ISCT_CalibEvtInfo: virtual public IAlgTool {
       virtual int numLumiBlocks() const =0;
 
       virtual void setRunNumber(const int rn)=0;
+      virtual void setEventNumber(const int en)=0;
       virtual int runNumber() const =0;
+      virtual int eventNumber() const =0;
 
       virtual void setCounter(const int counterVal)=0;
       virtual void incrementCounter()=0;

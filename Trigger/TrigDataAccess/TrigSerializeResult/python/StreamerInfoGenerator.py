@@ -1,6 +1,6 @@
 #!/usr/bin/env pyroot.py 
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 import cppyy
 import ROOT
 
@@ -16,7 +16,7 @@ class StreamerInfoGenerator:
     self.type.EnableCintex()
     cppyy.load_library('libAtlasSTLAddReflexDict')
     #MN: switch off auto dict generation - god knows what that can mess up
-    cppyy.gbl.gROOT.ProcessLine(".autodict")
+    ROOT.gROOT.ProcessLine(".autodict")
 
     
   def inspect(self, typename):
@@ -42,9 +42,11 @@ class StreamerInfoGenerator:
         return
       if t.IsAbstract(): 
         dontAdd = True 
-    except:
+    except Exception:
       pass
 
+    # can't handle anonymous types
+    exceptions = ["string::(anonymous)"]
     try:
       # This doesn't work in ROOT 6.22 anymore
       # cl = cppyy.makeClass(typename)
@@ -60,12 +62,14 @@ class StreamerInfoGenerator:
       print("Making class {} -> {}".format(typename, bind_name))
       print("cl = " + bind_name)
       exec("cl = " + bind_name, globals())
-      print(cl)
+      print(cl)  # noqa: F821
       if not dontAdd:
         self.classlist.append(typename)
         print("appended type to the classlist")
-    except:
-      print('Cannot create class of ', typename)
+    except Exception as ex:
+      print('Cannot create class of {}: {}'.format(typename, ex))
+      if typename not in exceptions:
+        raise ex
 
     t = self.type.ByName(typename)
 
@@ -89,7 +93,7 @@ class StreamerInfoGenerator:
         print('std::business removed')
         try:
           self.classlist.remove(typename)
-        except:
+        except Exception:
           pass
       for i in range(t.TemplateArgumentSize()):
         tt = t.TemplateArgumentAt(i)
@@ -123,7 +127,7 @@ class StreamerInfoGenerator:
 
 
 if __name__ == '__main__':
-  from ROOT import TClass, TFile
+  from ROOT import TClass, TFile  # noqa: F401
   a = StreamerInfoGenerator()
   a.inspect('TrigTauClusterContainer_tlp1')
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """Define method to construct configured Tile hits to TTL1 algorithm"""
 
@@ -75,14 +75,14 @@ def TileTTL1OutputCfg(flags, TileHitToTTL1):
         tileTTL1Container = TileHitToTTL1.TileTTL1Container
     else:
         tileTTL1Container = TileHitToTTL1.getDefaultProperty('TileTTL1Container')
-    tileTTL1Container = tileTTL1Container.split('+').pop()
+    tileTTL1Container = str(tileTTL1Container).split('+').pop()
     outputItemList = ['TileTTL1Container#' + tileTTL1Container]
 
     if hasattr(TileHitToTTL1, 'TileMBTSTTL1Container'):
         mbtsTTL1Container = TileHitToTTL1.TileMBTSTTL1Container
     else:
         mbtsTTL1Container = TileHitToTTL1.getDefaultProperty('TileMBTSTTL1Container')
-    mbtsTTL1Container = mbtsTTL1Container.split('+').pop()
+    mbtsTTL1Container = str(mbtsTTL1Container).split('+').pop()
     outputItemList += ['TileTTL1Container#' + mbtsTTL1Container]
 
     acc = ComponentAccumulator()

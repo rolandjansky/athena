@@ -1,7 +1,6 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from CaloIdentifier import SUBCALO
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 def makeCaloCellFilterAlg( CellsName = "AllCalo",
                            OutputCellsName="SelectedCells",
@@ -16,10 +15,10 @@ def makeCaloCellFilterAlg( CellsName = "AllCalo",
     caloCellFilter.CaloNums=CaloNums
     caloCellFilter.CaloSamplings=CaloSamplings
 
-    from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-    theCaloNoiseTool = CaloNoiseToolDefault()
-    svcMgr.ToolSvc+=theCaloNoiseTool
-    caloCellFilter.NoiseTool = theCaloNoiseTool
+    noiseType = "totalNoise"
+    from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
+    CaloNoiseCondAlg(noisetype=noiseType)
+    caloCellFilter.CaloNoise = noiseType
 
     caloCellFilter.CellsName = CellsName
     caloCellFilter.OutputCellsName = OutputCellsName 

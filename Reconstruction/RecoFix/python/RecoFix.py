@@ -53,7 +53,7 @@ def RecoFix_Init():
     import os
     curRelease=os.getenv("AtlasVersion") or ''
 
-    logRecoFix.debug("curRelease set to " + curRelease)
+    logRecoFix.debug("curRelease set to %s", curRelease)
     
     
     ##################
@@ -81,7 +81,7 @@ def RecoFix_Init():
             prevAODFix=''
 
     logRecoFix.info("Summary of MetaData for RecoFix:")
-    logRecoFix.info(" AODFix version <%s> was previously applied." % prevAODFix)
+    logRecoFix.info(" AODFix version <%s> was previously applied.", prevAODFix)
 
     ##################
     # determine which RecoFix to run (if actually running--to be determined later)
@@ -107,7 +107,7 @@ def RecoFix_Init():
             logRecoFix.info("No RecoFix scheduled for this release.")
 
     else:
-        logRecoFix.info("Current release is of strange form: %s" % curRelease)
+        logRecoFix.info("Current release is of strange form: %s", curRelease)
 
 # The interface routines
 def RecoFix_addMetaData():

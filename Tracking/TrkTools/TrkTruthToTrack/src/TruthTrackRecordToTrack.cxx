@@ -65,7 +65,7 @@ StatusCode Trk::TruthTrackRecordToTrack::initialize() {
 }
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const {
 
   if (part == nullptr || m_particleDataTable==nullptr) return nullptr;
 
@@ -90,13 +90,13 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
   for (TrackRecordCollection::const_iterator record = recordCollection->begin();  record != recordCollection->end();++record){
           
-    if ( (*record).GetBarCode() == part->barcode() ) {
+    if ( (*record).GetBarCode() == HepMC::barcode(part) ) {
 
       id = (*record).GetPDGCode();
       pd = m_particleDataTable->particle(std::abs(id));
       if (!pd) {
         ATH_MSG_WARNING ("found barcode but could not digest pdg_id. " <<
-                         part->barcode() << " , " << id);
+                         HepMC::barcode(part) << " , " << id);
         continue;
       }
 
@@ -108,7 +108,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
                             (*record).GetMomentum().z());
       globalMom = hv2;
 
-      ATH_MSG_DEBUG("found barcode " << part->barcode() << " with pdg ID " <<
+      ATH_MSG_DEBUG("found barcode " << HepMC::barcode(part) << " with pdg ID " <<
                     id << ", momentum " << hv2 << " production " << globalPos);
       
 
@@ -207,7 +207,7 @@ const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makeProdVertexParamete
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthTrackRecordToTrack::makePerigeeParameters(HepMC::ConstGenParticlePtr part) const {
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {

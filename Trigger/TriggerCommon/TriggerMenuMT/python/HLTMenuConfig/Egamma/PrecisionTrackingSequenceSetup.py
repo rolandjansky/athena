@@ -8,7 +8,7 @@ from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence, RecoFragmentsPool
 from AthenaCommon.CFElements import parOR, seqAND
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
-from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
+from DecisionHandling.DecisionHandlingConf import ViewCreatorPreviousROITool
 
 
 def precisionEtcutSequence(ConfigFlags):
@@ -16,8 +16,8 @@ def precisionEtcutSequence(ConfigFlags):
     InViewRoIs = "precisionEtcut"
     # EVCreator:
     precisionEtcutViewsMaker = EventViewCreatorAlgorithm("IMprecisionEtcut")
-    precisionEtcutViewsMaker.RoIsLink = "initialRoI"
-    precisionEtcutViewsMaker.RoITool = ViewCreatorInitialROITool()
+    precisionEtcutViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
+    precisionEtcutViewsMaker.RoITool = ViewCreatorPreviousROITool()
     precisionEtcutViewsMaker.InViewRoIs = InViewRoIs
     precisionEtcutViewsMaker.Views = "precisionEtcutViews"
     precisionEtcutViewsMaker.ViewFallThrough = True
@@ -45,7 +45,6 @@ def precisionTrackingMenuSequence(name):
     from TrigEgammaHypo.TrigEgammaPrecisionEtcutHypoTool import TrigEgammaPrecisionEtcutHypoToolFromDict
 
     thePrecisionEtcutHypo = TrigEgammaPrecisionEtcutHypoAlgMT(name+"precisionEtcutHypo")
-    thePrecisionEtcutHypo.CaloClusters = caloclusters
 
     return MenuSequence( Sequence    = sequence,
                          Maker       = precisionEtcutViewsMaker, 

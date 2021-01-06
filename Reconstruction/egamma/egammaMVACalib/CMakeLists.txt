@@ -5,10 +5,8 @@ atlas_subdir( egammaMVACalib )
 
 # Extra dependencies for Athena capable builds:
 set( extra_libs )
-if( XAOD_STANDALONE )
-   set( extra_libs xAODRootAccess)
-else()
-   set( extra_libs GaudiKernel egammaInterfacesLib )
+if( NOT XAOD_STANDALONE )
+   set( extra_libs PRIVATE_LINK_LIBRARIES GaudiKernel )
 endif()
 
 # External dependencies:
@@ -19,7 +17,8 @@ atlas_add_library( egammaMVACalibLib
    egammaMVACalib/*.h Root/*.cxx
    PUBLIC_HEADERS egammaMVACalib
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib xAODCaloEvent xAODEgamma ${extra_libs} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib xAODCaloEvent xAODEgamma
+   ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
 atlas_add_component( egammaMVACalib

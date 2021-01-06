@@ -55,26 +55,17 @@ if DetFlags.pixel_on():
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
-        useCablingConditions = False
-        IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-        rodIDForSingleLink40=0
         if (globalflags.DataSource()=='geant4'):
             from PixelDigitization.PixelDigitizationConfig import PixelConfigCondAlg_MC, IdMapping
             condSeq += PixelConfigCondAlg_MC()
-            IdMappingDat=IdMapping()
-        
+
         elif (globalflags.DataSource=='data'):
             from RecExConfig.AutoConfiguration import GetRunNumber
             runNum = GetRunNumber()
-            if (runNum is None):
-                IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
-            elif (runNum<222222):
-                useCablingConditions = False
+            IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
+            if (runNum<222222):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
-                rodIDForSingleLink40=1300000
             else:
-                useCablingConditions = True
-                rodIDForSingleLink40=1300000
                 # Even though we are reading from COOL, set the correct fallback map.
                 if (runNum >= 344494):
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
@@ -88,8 +79,7 @@ if DetFlags.pixel_on():
                     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_344494.dat"
 
             alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
-                                    UseCablingConditions=useCablingConditions,
-                                    CablingMapFileName=IdMappingDat)
+                                     CablingMapFileName=IdMappingDat)
             if jobproperties.Beam.beamType() == 'cosmics':
                 alg.BarrelTimeJitter=[25.0,25.0,25.0,25.0]
                 alg.EndcapTimeJitter=[25.0,25.0,25.0]
@@ -102,7 +92,9 @@ if DetFlags.pixel_on():
                 alg.DBMTimeOffset=[100.0,100.0,100.0]
 
             if athenaCommonFlags.isOnline():
-                alg.ReadDeadMapKey = ""
+                alg.ReadDeadMapKey = ''
+            if useNewDeadmapFormat:
+                alg.ReadDeadMapKey = ''
             condSeq += alg
 
     if useNewDeadmapFormat:
@@ -150,40 +142,6 @@ if DetFlags.pixel_on():
         if not hasattr(condSeq, 'PixelChargeLUTCalibCondAlg'):
             from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelChargeLUTCalibCondAlg
             condSeq += PixelChargeLUTCalibCondAlg(name="PixelChargeLUTCalibCondAlg", ReadKey="/PIXEL/ChargeCalibration")
-
-    #####################
-    # Cabling map Setup #
-    #####################
-    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
-        conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
-
-        if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-            condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
-
-    if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
-        if not (globalflags.DataSource() == 'geant4'):
-            conddb.addFolder("PIXEL", "/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
-        else:
-            conddb.addFolderSplitMC("PIXEL","/PIXEL/ReadoutSpeed","/PIXEL/ReadoutSpeed", className="AthenaAttributeList")
-
-    if not hasattr(condSeq, 'PixelReadoutSpeedAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelReadoutSpeedAlg
-        condSeq += PixelReadoutSpeedAlg(name="PixelReadoutSpeedAlg")
-
-    if (globalflags.DataSource=='data' and conddb.dbdata == 'CONDBR2'):
-        if not conddb.folderRequested("/PIXEL/CablingMap"):
-            conddb.addFolderSplitOnline("PIXEL", "/PIXEL/Onl/CablingMap","/PIXEL/CablingMap", className="AthenaAttributeList")
-
-    if not hasattr(condSeq, 'PixelCablingCondAlg'):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelCablingCondAlg
-        alg = PixelCablingCondAlg(name="PixelCablingCondAlg",
-                                  MappingFile=IdMappingDat,
-                                  RodIDForSingleLink40=rodIDForSingleLink40)
-        if (not conddb.folderRequested("/PIXEL/CablingMap") and
-            not conddb.folderRequested("/PIXEL/Onl/CablingMap")):
-            alg.ReadKey = ''
-        condSeq += alg
 
     if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested('/PIXEL/PixdEdx'):
@@ -274,10 +232,10 @@ if DetFlags.haveRIO.SCT_on():
         pass
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    if globalflags.DataSource() == "data":
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip")
+    if SCTConfigurationFolderPath=='/SCT/DAQ/Configuration/':
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"Chip") # Run 1 data (COMP200)
     else:
-        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200)
+        sct_ConfigurationConditionsToolSetup.setChannelFolder(SCTConfigurationFolderPath+"ChipSlim") # For MC (OFLP200) and Run 2, 3 data (CONDBR2)
     sct_ConfigurationConditionsToolSetup.setModuleFolder(SCTConfigurationFolderPath+"Module")
     sct_ConfigurationConditionsToolSetup.setMurFolder(SCTConfigurationFolderPath+"MUR")
     sct_ConfigurationConditionsToolSetup.setup()

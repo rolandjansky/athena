@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef RPCcablingServerSvc_H
@@ -9,17 +9,14 @@
 
 #include "AthenaBaseComps/AthService.h"
 #include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "MuonCablingServers/ICallBackRPCcablingServerSvc.h"
+#include "EventInfoMgt/ITagInfoMgr.h"
 
 #include <atomic>
 
-class StoreGateSvc;
-class ITagInfoMgr;
-
-
 
 class RPCcablingServerSvc : public AthService, 
-                            virtual public IRPCcablingServerSvc, virtual public ICallBackRPCcablingServerSvc 
+                            virtual public IRPCcablingServerSvc,
+                            virtual public ITagInfoMgr::Listener
 {
     private:
     BooleanProperty m_atlas;
@@ -27,25 +24,25 @@ class RPCcablingServerSvc : public AthService,
     bool m_forcedUse;
     BooleanProperty m_useMuonRPC_CablingSvc;
 
-    StoreGateSvc* m_pDetStore;        // The Transient Detector Store Service
     ITagInfoMgr*  m_tagInfoMgr;                   // Tag Info Manager
     
 
     public:
     // Constructor and other Service methods
     RPCcablingServerSvc(const std::string& name, ISvcLocator* svc);
-    virtual ~RPCcablingServerSvc() {}
+    virtual ~RPCcablingServerSvc()=default;
   
-    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
-    virtual StatusCode initialize(void);
-    virtual StatusCode finalize(void);
+    virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF) override;
+    virtual StatusCode initialize(void) override;
 
     // Interface implementation
-    virtual StatusCode giveCabling(const IRPCcablingSvc*&) const;
-    virtual bool isAtlas(void) const;
-    virtual bool isConfigured(void) const {return m_tagsCompared;}
+    virtual StatusCode giveCabling(const IRPCcablingSvc*&) const override;
+    virtual bool isAtlas(void) const override;
+    // ITagInfoMgr callback
+    virtual void tagInfoUpdated() override final { compareTags().ignore(); }
 
-    virtual StatusCode compareTags(IOVSVC_CALLBACK_ARGS);
+    bool isConfigured(void) const {return m_tagsCompared;}
+    StatusCode compareTags();
 
 };
  

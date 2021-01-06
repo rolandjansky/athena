@@ -8,6 +8,9 @@
 #include "GaudiKernel/StatusCode.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
 
+#include <map>
+#include <vector>
+
 /**
  * @class CostData
  * @brief Caches and propagates event data to be used by monitoring algorithms.
@@ -39,14 +42,34 @@ class CostData {
     CostData(const CostData&) = delete;
 
     /**
-     * @brief Cache the cost collection, after formally requesting it from storegate.
+     * @brief Cache the cost and ros collections, after formally requesting it from storegate.
      */
-    StatusCode set(const xAOD::TrigCompositeContainer* costCollection, uint32_t onlineSlot);
+    StatusCode set(const xAOD::TrigCompositeContainer* costCollection, const xAOD::TrigCompositeContainer* rosCollection, uint32_t onlineSlot);
 
     /**
      * @brief Getter of the cached algorithm cost collection pointer.
      */
     const xAOD::TrigCompositeContainer& costCollection() const;
+
+    /**
+     * @brief Getter of the cached ros cost collection pointer.
+     */
+    const xAOD::TrigCompositeContainer& rosCollection() const;
+
+    /**
+     * @brief Getter of the ROS to ROB map.
+     */
+    const std::map<std::string, std::vector<uint32_t>>& rosToRobMap() const;
+
+    /**
+     * @brief Set ROS to ROB map
+     */
+    void setRosToRobMap(const std::map<std::string, std::vector<uint32_t>>& rosToRobMap);
+
+    /**
+     * @brief Getter of map between algorithm (index in costCollection) and ROS requests (indicies in rosCollection)
+     */
+    const std::map<size_t, std::vector<size_t>>& algToRequestMap() const;
 
     /**
      * @brief Setter of effective P1 walltime represented by the current event.
@@ -118,12 +141,16 @@ class CostData {
     StatusCode cache();
 
     const xAOD::TrigCompositeContainer* m_costCollection; //!< Cached non-owning pointer to main algorithm cost collection.
+    const xAOD::TrigCompositeContainer* m_rosCollection; //!< Cached non-owning pointer to ros cost collection.
     uint64_t m_algTotalTime; //!< Integrated CPU time of all algorithms in the event. Stored in discrete microseconds.
     float m_liveTime; //!< Effective walltime of either the event or the LB, in seconds (@see m_liveTimeIsPerEvent).
     uint32_t m_lb; //!< Current luminosity block number
     uint32_t m_slot; //!< Current online slot number
     bool m_liveTimeIsPerEvent; //!< If the livetime represents a single event or all of the current LB
     const std::unordered_map<uint32_t, std::string>* m_typeMapPtr; //!< Cached non-owning pointer mapping algorithm instance names to types
+    std::map<size_t, std::vector<size_t>> m_algToRos; //!< Mapping of indexes from m_costCollection to corresponding ROS requests made by algorithm
+    const std::map<std::string, std::vector<uint32_t>>* m_rosToRob; //!< Mapping of ROS corresponding to ROB requests
+
 };
 
 #endif // TRIGCOSTANALYSIS_COSTDATA_H

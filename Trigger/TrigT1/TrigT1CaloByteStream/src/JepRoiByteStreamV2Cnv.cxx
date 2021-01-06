@@ -31,8 +31,7 @@
 namespace LVL1BS {
 
 JepRoiByteStreamV2Cnv::JepRoiByteStreamV2Cnv( ISvcLocator* svcloc )
-    : Converter( storageType(), classID(), svcloc ),
-      m_name("JepRoiByteStreamV2Cnv"),
+    : AthConstConverter( storageType(), classID(), svcloc, "JepRoiByteStreamV2Cnv" ),
       m_tool("LVL1BS::JepRoiByteStreamV2Tool/JepRoiByteStreamV2Tool")
 {
 }
@@ -66,12 +65,12 @@ StatusCode JepRoiByteStreamV2Cnv::initialize()
 
 // createRep should create the bytestream from RDOs.
 
-StatusCode JepRoiByteStreamV2Cnv::createRep( DataObject* pObj,
-                                             IOpaqueAddress*& pAddr )
+StatusCode JepRoiByteStreamV2Cnv::createRepConst ( DataObject* pObj,
+                                                   IOpaqueAddress*& pAddr ) const
 {
   LVL1::JEPRoIBSCollectionV2* jep = 0;
   if( !SG::fromStorable( pObj, jep ) ) {
-    REPORT_ERROR (StatusCode::FAILURE) << " Cannot cast to JEPRoIBSCollectionV2";
+    ATH_MSG_ERROR( " Cannot cast to JEPRoIBSCollectionV2" );
     return StatusCode::FAILURE;
   }
 

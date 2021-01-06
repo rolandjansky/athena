@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file CaloSysD3PDMaker/python/LArNoisROD3PDObject.py
 # @author Laurent Duflot <duflot at lal.in2p3.fr>
@@ -10,9 +9,7 @@
 
 
 import CaloSysD3PDMaker
-from D3PDMakerConfig.D3PDMakerFlags    import D3PDMakerFlags
 from D3PDMakerCoreComps.D3PDObject     import make_SG_D3PDObject
-from RecExConfig.ObjKeyStore           import cfgKeyStore
 
 LArNoisyROD3PDObject = \
            make_SG_D3PDObject ('LArNoisyROSummary',

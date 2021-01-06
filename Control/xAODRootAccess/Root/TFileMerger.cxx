@@ -58,7 +58,7 @@ namespace xAOD {
       closeFiles().ignore();
    }
 
-   TReturnCode TFileMerger::setOutputFileName( const std::string& name,
+   StatusCode TFileMerger::setOutputFileName( const std::string& name,
                                                const std::string& mode ) {
 
       // Try to open the file:
@@ -68,7 +68,7 @@ namespace xAOD {
                 XAOD_MESSAGE( "Couldn't open output file \"%s\" in mode "
                               "\"%s\"" ),
                 name.c_str(), mode.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Tell the user what happened:
@@ -79,10 +79,10 @@ namespace xAOD {
       gROOT->cd();
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TFileMerger::addFile( const std::string& name,
+   StatusCode TFileMerger::addFile( const std::string& name,
                                      bool copyLocally ) {
 
       // Decide whether to use the file from its current location, or to make
@@ -101,7 +101,7 @@ namespace xAOD {
                    XAOD_MESSAGE( "Couldn't create local copy of \"%s\" under "
                                  "\"%s\"" ),
                    name.c_str(), localName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          // Tell the user what happened:
          Info( "addFile", "Made a local copy of: %s", name.c_str() );
@@ -112,7 +112,7 @@ namespace xAOD {
       if( ! ifile ) {
          Error( "addFile", XAOD_MESSAGE( "Couldn't open file \"%s\"" ),
                 localName.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Add it to our list:
@@ -124,7 +124,7 @@ namespace xAOD {
       gROOT->cd();
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// In order to merge various kinds of metadata from the input files
@@ -134,19 +134,19 @@ namespace xAOD {
    /// type in the background.
    ///
    /// @param typeName The type name of the tool to create
-   /// @returns <code>TReturnCode::kSuccess</code> if the tool was successfully
-   ///          created, <code>TReturnCode::kFailure</code> if the tool could
-   ///          not be created, and <code>TReturnCode::kRecoverable</code> if
+   /// @returns <code>StatusCode::SUCCESS</code> if the tool was successfully
+   ///          created, <code>StatusCode::FAILURE</code> if the tool could
+   ///          not be created, and <code>StatusCode::RECOVERABLE</code> if
    ///          a tool of this type is already held by the object
    ///
-   TReturnCode TFileMerger::addMetaDataTool( const std::string& typeName ) {
+   StatusCode TFileMerger::addMetaDataTool( const std::string& typeName ) {
 
       // Check if we already have a tool of this type:
       if( m_metaDataToolNames.find( typeName ) != m_metaDataToolNames.end() ) {
          Warning( "addMetaDataTool",
                   "Tool of type \"%s\" is already specified",
                   typeName.c_str() );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Try to create an instance of the tool:
@@ -155,7 +155,7 @@ namespace xAOD {
          Error( "addMetaDataTool",
                 XAOD_MESSAGE( "Tool of type \"%s\" not found" ),
                 typeName.c_str() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Remember the type:
@@ -168,7 +168,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This is the main function of the class. It executes the merging of the
@@ -177,21 +177,21 @@ namespace xAOD {
    /// @param mode The merging mode to be used
    /// @param entries Entries to be merged into the output file. Only effective
    ///                in slow merging mode.
-   /// @return <code>TReturnCode::kSuccess</code> if the merging was successful,
-   ///         or <code>TReturnCode::kFailure</code> if it wasn't
+   /// @return <code>StatusCode::SUCCESS</code> if the merging was successful,
+   ///         or <code>StatusCode::FAILURE</code> if it wasn't
    ///
-   TReturnCode TFileMerger::merge( EMergeMode mode, ::Long64_t entries ) {
+   StatusCode TFileMerger::merge( EMergeMode mode, ::Long64_t entries ) {
 
       // Check that we have an output file:
       if( ! m_output ) {
          Error( "merge", XAOD_MESSAGE( "No output file specified" ) );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check that we have input files:
       if( ! m_input.size() ) {
          Warning( "merge", "No input files were specified" );
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Check that we received consistent parameters:
@@ -217,7 +217,7 @@ namespace xAOD {
       RETURN_CHECK( "xAOD::TFileMerger::merge", closeFiles() );
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    TEvent::EAuxMode TFileMerger::accessMode() const {
@@ -253,7 +253,7 @@ namespace xAOD {
       return;
    }
 
-   TReturnCode TFileMerger::closeFiles() {
+   StatusCode TFileMerger::closeFiles() {
 
       if( m_verbosity >= 1 ) {
          Info( "closeFiles", "Closing all open files" );
@@ -288,7 +288,7 @@ namespace xAOD {
                Error( "closeFiles",
                       XAOD_MESSAGE( "Couldn't remove local file: %s" ),
                       p.Data() );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
             if( m_verbosity >= 2 ) {
                Info( "closeFiles", "Deleted: %s", m_input[ i ]->GetName() );
@@ -319,7 +319,7 @@ namespace xAOD {
       m_helperFiles.clear();
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function does most of the heavy-lifting in the code. It recursively
@@ -330,10 +330,10 @@ namespace xAOD {
    /// @param output The corresponding directory in the output file
    /// @param mode The merging mode for the xAOD trees
    /// @param topLevelDir Flag whether this is the top directory in the file(s)
-   /// @return <code>TReturnCode::kSuccess</code> if the merging succeeded, or
-   ///         <code>TReturnCode::kFailure</code> if it didn't
+   /// @return <code>StatusCode::SUCCESS</code> if the merging succeeded, or
+   ///         <code>StatusCode::FAILURE</code> if it didn't
    ///
-   TReturnCode TFileMerger::mergeDirectory( ::TDirectory& input,
+   StatusCode TFileMerger::mergeDirectory( ::TDirectory& input,
                                             ::TDirectory& output,
                                             EMergeMode mode,
                                             bool topLevelDir ) {
@@ -350,7 +350,7 @@ namespace xAOD {
          Error( "mergeDirectory",
                 XAOD_MESSAGE( "Couldn't get list of keys from input directory "
                               "\"%s\"" ), input.GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       //
@@ -368,7 +368,7 @@ namespace xAOD {
             Error( "mergeDirectory",
                    XAOD_MESSAGE( "Couldn't case object to TKey. No idea "
                                  "why..." ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          if( m_verbosity >= 3 ) {
             Info( "mergeDirectory", "Evaluating key \"%s;%hi\" with type "
@@ -384,7 +384,7 @@ namespace xAOD {
                    XAOD_MESSAGE( "Couldn't access object with name "
                                  "\"%s;%hi\"" ),
                    key->GetName(), key->GetCycle() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          //
@@ -401,7 +401,7 @@ namespace xAOD {
             if( ! indir ) {
                Error( "mergeDirectory",
                       XAOD_MESSAGE( "Couldn't cast to object to TDirectory" ) );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
 
             // Check if such a directory already exists in the output:
@@ -415,7 +415,7 @@ namespace xAOD {
                          XAOD_MESSAGE( "Failed creating subdirectory with "
                                        "name: %s" ),
                          key->GetName() );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
             }
 
@@ -471,7 +471,7 @@ namespace xAOD {
                       XAOD_MESSAGE( "Couldn't access \"%s\" with a TTree "
                                     "pointer" ),
                       treeObj->GetName() );
-               return TReturnCode::kFailure;
+               return StatusCode::FAILURE;
             }
 
             // Skip trees that have friends. Those don't play nicely with
@@ -546,7 +546,7 @@ namespace xAOD {
                             XAOD_MESSAGE( "ief = %p, oef = %p" ),
                             static_cast< const void* >( ief ),
                             static_cast< void* >( oef ) );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
                   auto itr = ief->begin();
                   auto end = ief->end();
@@ -617,7 +617,7 @@ namespace xAOD {
                         Error( "mergeDirectory",
                                XAOD_MESSAGE( "Internal logic error "
                                              "detected" ) );
-                        return TReturnCode::kFailure;
+                        return StatusCode::FAILURE;
                      }
                      auxIndices[ index ] = br;
                      obranches->RemoveAt( index );
@@ -647,7 +647,7 @@ namespace xAOD {
                         Error( "mergeDirectory",
                                XAOD_MESSAGE( "Invalid TTreeCloner (%s)" ),
                                cloner.GetWarning() );
-                        return TReturnCode::kFailure;
+                        return StatusCode::FAILURE;
                      }
                   }
 
@@ -657,7 +657,7 @@ namespace xAOD {
                   if( ! cloner.Exec() ) {
                      Error( "mergeDirectory",
                             XAOD_MESSAGE( "Failed to execute TTreeCloner" ) );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
 
                   // Put back the branches that have no counterpart in the input
@@ -685,7 +685,7 @@ namespace xAOD {
                                   XAOD_MESSAGE( "Failed to fill branch \"%s\" "
                                                 "with default content" ),
                                   br->GetName() );
-                           return TReturnCode::kFailure;
+                           return StatusCode::FAILURE;
                         }
                      }
                   }
@@ -728,7 +728,7 @@ namespace xAOD {
                             XAOD_MESSAGE( "TTree \"%s\" couldn't be cloned "
                                           "into the output" ),
                             itree->GetName() );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
                   otree->SetDirectory( &output );
                   otree->AutoSave();
@@ -753,7 +753,7 @@ namespace xAOD {
                   if( ! ofile ) {
                      Error( "mergeDirectory",
                             XAOD_MESSAGE( "Internal logic error found" ) );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
                   RETURN_CHECK( "xAOD::TFileMerger::mergeDirectory",
                                 event->writeTo( ofile, 200, key->GetName() ) );
@@ -780,7 +780,7 @@ namespace xAOD {
                             XAOD_MESSAGE( "Couldn't get entry %i from tree "
                                           "%s" ),
                            static_cast< int >( entry ), key->GetName() );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   }
 
                   // Give the user feedback about the processing status:
@@ -803,7 +803,7 @@ namespace xAOD {
                             XAOD_MESSAGE( "There was an error in writing entry "
                                           "%i from tree %s" ),
                             static_cast< int >( entry ), key->GetName() );
-                     return TReturnCode::kFailure;
+                     return StatusCode::FAILURE;
                   } else if( bytes == 0 ) {
                      Warning( "mergeDirectory",
                               "No payload was written for entry %i",
@@ -843,7 +843,7 @@ namespace xAOD {
             // If the output object already exists, and we can merge this input
             // object into it, then that's all that we need to do:
             if( oobj ) {
-               const TReturnCode ret = mergeObject( *obj, *oobj );
+               const StatusCode ret = mergeObject( *obj, *oobj );
                if( ret.isSuccess() ) {
                   // Make sure that the output object is updated in the output
                   // file:
@@ -854,7 +854,7 @@ namespace xAOD {
                   Error( "mergeDirectory",
                          XAOD_MESSAGE( "Error detected while merging object "
                                        "\"%s\"" ), obj->GetName() );
-                  return TReturnCode::kFailure;
+                  return StatusCode::FAILURE;
                }
             }
 
@@ -870,26 +870,26 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function is used internally to merge two generic ROOT objects in
    /// the file together. It's not the most trivial, since TObject doesn't have
    /// a merge function itself.
    ///
-   /// The function fails with <code>TReturnCode::kRecoverable</code> when
+   /// The function fails with <code>StatusCode::RECOVERABLE</code> when
    /// encountering types that don't have a Merge(...) function defined. In this
    /// case we need to save both objects, with different versions, into the
    /// output.
    ///
    /// @param input The input object
    /// @param output The output object
-   /// @return <code>TReturnCode::Success</code> if the merging succeeded,
-   ///         <code>TReturnCode::kFailure</code> if there was a technical
-   ///         issue, and <code>TReturnCode::kRecoverable</code> if the objects
+   /// @return <code>StatusCode::Success</code> if the merging succeeded,
+   ///         <code>StatusCode::FAILURE</code> if there was a technical
+   ///         issue, and <code>StatusCode::RECOVERABLE</code> if the objects
    ///         don't define a merging function.
    ///
-   TReturnCode TFileMerger::mergeObject( ::TObject& input, ::TObject& output ) {
+   StatusCode TFileMerger::mergeObject( ::TObject& input, ::TObject& output ) {
 
       if( m_verbosity >= 3 ) {
          Info( "mergeObject", "Called mergeObject( %s, %s )",
@@ -904,7 +904,7 @@ namespace xAOD {
                 XAOD_MESSAGE( "input = %s" ), input.IsA()->GetName() );
          Error( "mergeObject",
                 XAOD_MESSAGE( "output = %s" ), output.IsA()->GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Check if there is a merge function defined for these objects:
@@ -915,7 +915,7 @@ namespace xAOD {
          if( m_verbosity >= 3 ) {
             Info( "mergeObject", "Type doesn't have a Merge function" );
          }
-         return TReturnCode::kRecoverable;
+         return StatusCode::RECOVERABLE;
       }
 
       // Put the input object into a list, since that's what we need to give
@@ -932,10 +932,10 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
-   TReturnCode TFileMerger::createMetaDataTools() {
+   StatusCode TFileMerger::createMetaDataTools() {
 
       // Create all the specified tool types:
       for( const std::string& typeName : m_metaDataToolNames ) {
@@ -951,14 +951,14 @@ namespace xAOD {
             Error( "createMetaDataTools",
                    XAOD_MESSAGE( "Tool of type \"%s\" not found" ),
                    typeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          void* ptr = cl->New();
          if( ! ptr ) {
             Error( "createMetaDataTools",
                    XAOD_MESSAGE( "Failed to create an instance of tool "
                                  "\"%s\"" ), typeName.c_str() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
 
          // Try to call the tool's initialize() function:
@@ -1009,7 +1009,7 @@ namespace xAOD {
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
    /// This function finds branches that appear in the first tree, but don't
@@ -1106,9 +1106,9 @@ namespace xAOD {
    ///
    /// @param otree The output tree to create the branch in
    /// @param ibranch Pointer to the branch in the input tree
-   /// @returns The usual <code>TReturnCode</code> types
+   /// @returns The usual <code>StatusCode</code> types
    ///
-   TReturnCode TFileMerger::addAuxBranch( ::TTree* otree,
+   StatusCode TFileMerger::addAuxBranch( ::TTree* otree,
                                           ::TBranch* ibranch ) const {
 
       // Get the type of the branch:
@@ -1118,7 +1118,7 @@ namespace xAOD {
          Error( "addAuxBranch",
                 XAOD_MESSAGE( "Type could not be extracted for branch \"%s\"" ),
                 ibranch->GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Pointer to the output branch:
@@ -1136,7 +1136,7 @@ namespace xAOD {
                    XAOD_MESSAGE( "Couldn't create auxiliary branch \"%s\" with "
                                  "type: %s" ),
                    ibranch->GetName(), cl->GetName() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       } else if( dt != kOther_t ) {
          // It's a primitive type:
@@ -1146,7 +1146,7 @@ namespace xAOD {
             Error( "addAuxBranch",
                     XAOD_MESSAGE( "Type can't be extracted for EDataType = %i"),
                     static_cast< int >( dt ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
          std::ostringstream leaflist;
          leaflist << ibranch->GetName() << "/" << rootType;
@@ -1159,13 +1159,13 @@ namespace xAOD {
                    XAOD_MESSAGE( "Couldn't create auxiliary branch \"%s\" with "
                                  "data type: %i" ),
                    ibranch->GetName(), static_cast< int >( dt ) );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       } else {
          Error( "addAuxBranch",
                 XAOD_MESSAGE( "Couldn't figure out the type of branch \"%s\"" ),
                 ibranch->GetName() );
-         return TReturnCode::kFailure;
+         return StatusCode::FAILURE;
       }
 
       // Fill up the branch with dummy entries:
@@ -1175,12 +1175,12 @@ namespace xAOD {
             Error( "addAuxBranch",
                   XAOD_MESSAGE( "Failed to fill branch \"%s\" with dummy "
                                "data" ), obranch->GetName() );
-            return TReturnCode::kFailure;
+            return StatusCode::FAILURE;
          }
       }
 
       // Return gracefully:
-      return TReturnCode::kSuccess;
+      return StatusCode::SUCCESS;
    }
 
 } // namespace xAOD

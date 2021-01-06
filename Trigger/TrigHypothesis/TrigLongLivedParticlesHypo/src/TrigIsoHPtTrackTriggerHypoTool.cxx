@@ -10,6 +10,7 @@
 #include "TrigCompositeUtils/Combinators.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigIsoHPtTrackTriggerHypoTool.h"
+#include "GaudiKernel/PhysicalConstants.h"
 #include <math.h>
 using namespace TrigCompositeUtils;
 
@@ -124,7 +125,7 @@ bool TrigIsoHPtTrackTriggerHypoTool::decideOnSingleObject( const xAOD::TrackPart
       
       float dEta = (*trackIter)->eta() - (track)->eta();
       float dPhi = fabs((*trackIter)->phi() - (track)->phi());
-      dPhi = dPhi > CLHEP::pi ? dPhi-2*CLHEP::pi : dPhi;
+      dPhi = dPhi > Gaudi::Units::pi ? dPhi-2*Gaudi::Units::pi : dPhi;
       
       if( sqrt( dEta*dEta+dPhi*dPhi )>m_IsoDR[cutIndex] ) continue;
 

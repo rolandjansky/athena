@@ -16,6 +16,10 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 
+#include "TrkTrack/Track.h"
+#include "TrkParameters/TrackParameters.h"
+
+#include "StoreGate/ReadCondHandle.h"
 #include <iomanip>
 #include <ostream>
 
@@ -25,7 +29,11 @@
 
 InDet::SiSpacePointsSeedMaker_ATLxk::SiSpacePointsSeedMaker_ATLxk
 (const std::string& t,const std::string& n,const IInterface* p)
-  : base_class(t, n, p)
+  : base_class(t, n, p),
+    m_thistSvc(nullptr),
+    m_outputTree(nullptr),
+    m_treeName(""),
+    m_treeFolder("/valNtuples/")
 {
 }
 
@@ -60,6 +68,46 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
     initializeEventData(data);
     data.nprint=0;
     dump(data, msg(MSG::DEBUG));
+  }
+
+  if (m_writeNtuple) {
+
+    ATH_CHECK( service("THistSvc",m_thistSvc)  );
+ 
+    m_treeName = (std::string("SeedTree_")+name());
+    std::replace( m_treeName.begin(), m_treeName.end(), '.', '_' );
+ 
+    m_outputTree = new TTree( m_treeName.c_str() , "SeedMakerValTool"); 
+
+    m_outputTree->Branch("eventNumber",    &m_eventNumber); 
+    m_outputTree->Branch("d0",             &m_d0);
+    m_outputTree->Branch("z0",             &m_z0);
+    m_outputTree->Branch("pt",             &m_pt);
+    m_outputTree->Branch("eta",            &m_eta);
+    m_outputTree->Branch("x1",             &m_x1);
+    m_outputTree->Branch("x2",             &m_x2);
+    m_outputTree->Branch("x3",             &m_x3);
+    m_outputTree->Branch("y1",             &m_y1);
+    m_outputTree->Branch("y2",             &m_y2);
+    m_outputTree->Branch("y3",             &m_y3);
+    m_outputTree->Branch("z1",             &m_z1);
+    m_outputTree->Branch("z2",             &m_z2);
+    m_outputTree->Branch("z3",             &m_z3);
+    m_outputTree->Branch("r1",             &m_r1);
+    m_outputTree->Branch("r2",             &m_r2);
+    m_outputTree->Branch("r3",             &m_r3);
+    m_outputTree->Branch("quality",        &m_quality);
+    m_outputTree->Branch("seedType",       &m_type);
+    m_outputTree->Branch("givesTrack",     &m_givesTrack);
+    m_outputTree->Branch("dzdr_b",  	   &m_dzdr_b);
+    m_outputTree->Branch("dzdr_t",         &m_dzdr_t);
+    m_outputTree->Branch("track_pt",       &m_trackPt);
+    m_outputTree->Branch("track_eta",      &m_trackEta);
+
+    TString fullTreeName = m_treeFolder + m_treeName;
+
+    ATH_CHECK(  m_thistSvc->regTree( fullTreeName.Data(), m_outputTree )  );
+
   }
 
   return sc;
@@ -147,6 +195,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
     // by the user for strip seeds
     data.maxSeedsPerSP = m_maxOneSizeSSS;
     data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedStripSeeds;
+    
   } ///< end if-statement for iteration 0 
   else {  /// for the second iteration (PPP pass), don't redo the full init required the first time 
     data.r_first = 0;     ///< reset the first radial bin 
@@ -154,6 +203,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newEvent(const EventContext& ctx, Even
     // by the user for pixel seeds
     data.maxSeedsPerSP = m_maxOneSizePPP;
     data.keepAllConfirmedSeeds = m_alwaysKeepConfirmedPixelSeeds;
+
     /// call fillLists to repopulate the candidate space points and exit 
     fillLists(data);
     return;
@@ -1767,6 +1817,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 	      if(z0 > zmax || z0 < zmin) continue;
         /// found a bottom SP candidate, write it into the data object
         data.SP[Nb] = (*iter_otherSP);
+        if(m_writeNtuple) data.SP[Nb]->setDZDR(dZdR);
         /// if we are exceeding the SP capacity of our data object,
         /// make it resize its vectors. Will add 50 slots by default,
         /// so rarely should happen more than once per event.  
@@ -1815,6 +1866,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
  	      if(z0 > zmax || z0 < zmin) continue;
         /// add SP to the list
         data.SP[Nt] = (*iter_otherSP);
+        if (m_writeNtuple)  data.SP[Nt]->setDZDR(dZdR);
         /// if we are exceeding the SP capacity of our data object,
         /// make it resize its vectors. Will add 50 slots by default,
         /// so rarely should happen more than once per event.  
@@ -1904,6 +1956,11 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
         
         /// average value of 1/tan(theta), approximate the slope at the location of the central space point
         float meanOneOverTanTheta = (Tzb+data.Tz[t])/2.; 
+        float theta = 0.;
+        if(m_writeNtuple){
+          /// theta estimate of the seed based on the average value of 1/tan(theta)
+          theta = atan(1./meanOneOverTanTheta);
+        }
         /// squared error on the difference in tan(theta) due to space point position errors. 
         float sigmaSquaredSpacePointErrors = Erb+data.Er[t]   /// pre-computed individual squared errors on 1/tan(theta) for the two segments 
                         + 2. * covz0 * data.R[t]*data.R[b]    /// mixed term with z-uncertainty on central SP
@@ -1956,7 +2013,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
          * pt. This refines the cut applied above, following the same logic ("delta² - sigma² ?<=0")
          **/
         if (BSquare  > ipt2K*onePlusAsquare || remainingSquaredDelta*onePlusAsquare > BSquare*sigmaSquaredScatteringPtDependent) continue;
-
         /** This is an estimate of the transverse impact parameter. 
         * The reasoning is that, in the x-y frame with the central SP as origin and 
         * the x axis pointing away from the IP, we have for the distance between
@@ -1992,11 +2048,18 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
           /// deviate from a straight line in r-z
           data.SP[t]->setScorePenalty(std::abs((Tzb-data.Tz[t])/(dr*sTzb2)));
           data.SP[t]->setParam(d0);
+
+          if(m_writeNtuple){
+            /// set parameters for ntuple writing
+            data.SP[t]->setEta(-log(tan(0.5*theta)));
+            data.SP[t]->setPt(std::sqrt(onePlusAsquare/BSquare)/(1000*data.K)); 
+          }
           /// record one possible seed candidate, sort by the curvature 
           data.CmSp.emplace_back(std::make_pair(B/std::sqrt(onePlusAsquare), data.SP[t]));
           /// store the transverse IP, will later be used as a quality estimator 
 
         }
+   
       }   ///< end loop over top space point candidates
       /// now apply further cleaning on the seed candidates for this central+bottom pair. 
       if (!data.CmSp.empty()) {
@@ -2006,6 +2069,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     ///record seeds found in this run  
     fillSeeds(data);
     nseed += data.fillOneSeeds;
+   
   } ///< end loop over central SP 
 }
 
@@ -2287,12 +2351,15 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
       float topR=(*it_commonTopSP).second->radius();
       float topZ=(*it_commonTopSP).second->z();
 
-      float theta1=std::atan2(topR-bottomR,topZ-bottomZ);
-      float eta1=-std::log(std::tan(.5*theta1));
+      float Zot = std::abs(topR - bottomR) > 10e-9 ?
+        bottomZ - (bottomR - originalSeedQuality) * ((topZ - bottomZ) / (topR - bottomR)) : bottomZ;
 
-      float Zot=bottomZ - (bottomR-originalSeedQuality) * ((topZ-bottomZ)/(topR-bottomR));
-      float theta0=std::atan2(seedIP,Zot);
-      float eta0=-std::log(std::tan(.5*theta0));
+      float theta1 = std::abs(topR - bottomR) > 10e-9 ?
+        std::atan2(topR - bottomR, topZ - bottomZ) : 0.;
+      float eta1 = theta1 > 0 ? -std::log(std::tan(.5 * theta1)) : 0.;
+
+      float theta0 = seedIP > 0 ? std::atan2(seedIP, Zot) : 0;
+      float eta0 = theta0 > 0 ? -std::log(std::tan(.5 * theta0)) : 0.;
 
       float deltaEta=std::abs(eta1-eta0); //For LLP daughters, the direction of the track is correlated with the direction of the LLP (which is correlated with the direction of the point of closest approach
       //calculate weighted average of d0 and deltaEta, normalized by their maximum values
@@ -2383,6 +2450,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::newOneSeedWithCurvaturesComparison
 
 void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds(EventData& data) const
 {
+
   data.fillOneSeeds = 0;
 
   std::multimap<float,InDet::SiSpacePointsProSeed*>::iterator it_firstSeedCandidate = data.mapOneSeeds_Pro.begin();
@@ -2439,6 +2507,7 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(const 
       }
       /// iterate until we find a valid seed satisfying certain quality cuts in set3 
     } while (!(*data.i_seed_Pro++).set3(data.seedOutput));
+
     /// then return this next seed candidate 
     return &data.seedOutput;
   } else {
@@ -2451,6 +2520,50 @@ const InDet::SiSpacePointsSeed* InDet::SiSpacePointsSeedMaker_ATLxk::next(const 
     return &data.seedOutput;
   }
   return nullptr;
+}
+
+///////////////////////////////////////////////////////////////////////////////////
+/// Method to write ntuple entries for an input seed
+///////////////////////////////////////////////////////////////////////////////////
+void InDet::SiSpacePointsSeedMaker_ATLxk::writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const{
+  
+  if(m_writeNtuple) {
+    std::lock_guard<std::mutex> lock(m_mutex);
+
+    if(track != nullptr) {
+      m_trackPt = (track->trackParameters()->front()->pT())/1000.;
+      m_trackEta = std::abs(track->trackParameters()->front()->eta());
+    }
+    else {
+      m_trackPt = -1.;
+      m_trackEta = -1.; 
+    }
+    m_d0           =   seed->d0();
+    m_z0           =   seed->zVertex();
+    m_eta          =   seed->eta();
+    m_x1           =   seed->x1();
+    m_x2           =   seed->x2();
+    m_x3           =   seed->x3();
+    m_y1           =   seed->y1();
+    m_y2           =   seed->y2();
+    m_y3           =   seed->y3();      
+    m_z1           =   seed->z1();
+    m_z2           =   seed->z2();
+    m_z3           =   seed->z3();
+    m_r1           =   seed->r1();
+    m_r2           =   seed->r2();
+    m_r3           =   seed->r3();
+    m_type         =   seedType;
+    m_dzdr_b       =   seed->dzdr_b();
+    m_dzdr_t       =   seed->dzdr_t();
+    m_pt           =   seed->pt();
+    m_givesTrack   =   !(track == nullptr);
+    m_eventNumber  =   eventNumber;
+
+    m_outputTree->Fill();
+
+  }
+
 }
 
 bool InDet::SiSpacePointsSeedMaker_ATLxk::isZCompatible  
@@ -2559,3 +2672,7 @@ bool InDet::SiSpacePointsSeedMaker_ATLxk::isConfirmedSeed(const InDet::SiSpacePo
     /// PPS: the confirmation is the only quality modifier applied
     else return (quality < 0.); 
 }
+
+bool InDet::SiSpacePointsSeedMaker_ATLxk::getWriteNtupleBoolProperty() const{
+    return m_writeNtuple;
+} 

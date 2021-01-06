@@ -96,7 +96,16 @@ class  ConfiguredNewTrackingTRTExtension:
                printfunc (InDetExtensionFitter)
          else:
             from AthenaCommon import CfgGetter
-            InDetExtensionFitter = CfgGetter.getPublicTool('InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt')
+            fitter_args = {}
+            if InDetFlags.holeSearchInGX2Fit():
+               from InDetRecExample.TrackingCommon import setDefaults
+               fitter_args = setDefaults(fitter_args,
+               DoHoleSearch                 = True,
+               BoundaryCheckTool            = TrackingCommon.getInDetBoundaryCheckTool())
+            InDetExtensionFitter = CfgGetter.getPublicToolClone('InDetTrackFitter_TRTExtension'+NewTrackingCuts.extension(),'InDetTrackFitter' if NewTrackingCuts.mode() != "LowPt" else  'InDetTrackFitterLowPt',**fitter_args)
+           
+
+            
 
          #
          # --- load scoring for extension

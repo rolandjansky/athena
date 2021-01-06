@@ -11,7 +11,7 @@ DBConnectionCOOL_ONL = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=
 
 include("LArCalibProcessing/LArCalib_Flags.py")
 include("LArCalibProcessing/LArCalib_MinimalSetup.py")
-include("RecExCommission/GetInputFiles.py")
+include("LArCalibProcessing/GetInputFiles.py")
 include("AthenaCommon/Atlas_Gen.UnixStandardJob.py")
 
 from AthenaCommon.AlgSequence import AlgSequence

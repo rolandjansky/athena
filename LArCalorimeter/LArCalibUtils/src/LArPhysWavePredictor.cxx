@@ -34,8 +34,6 @@
 #include "LArCalibUtils/LArPhysWaveTool.h"     // added by FT
 #include "LArCalibUtils/LArPhysWaveHECTool.h"  // added by FT
 
-#include "LArCalibUtils/LArPhysWaveTool.h"
-
 #include <stdio.h>
 #include <iostream>
 #include <fstream>

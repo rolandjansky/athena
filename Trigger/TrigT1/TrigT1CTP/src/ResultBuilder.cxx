@@ -38,6 +38,9 @@ LVL1CTP::ResultBuilder::ResultBuilder( const std::string& type,
 
 LVL1CTP::ResultBuilder::~ResultBuilder() {
    delete m_ctpDataFormat;
+   for(auto & x : m_internalTrigger) {
+      delete x.second;
+   }
 }
 
 
@@ -78,10 +81,10 @@ LVL1CTP::ResultBuilder::createTriggerConfigMaps(const ConfigSource & cfgSrc) con
       }
 
       // build map of name to ctp thresholds
-      m_thrConfigMap = new ThresholdMap( cfgSrc.l1menu() );
+      m_thrConfigMap = std::make_unique<ThresholdMap>( cfgSrc.l1menu() );
 
       // build map of name to ctp items
-      m_itemConfigMap = new ItemMap( cfgSrc.l1menu() );
+      m_itemConfigMap = std::make_unique<ItemMap>( cfgSrc.l1menu() );
 
    } else if( cfgSrc.ctpConfig() != nullptr ) {
 
@@ -102,9 +105,9 @@ LVL1CTP::ResultBuilder::createTriggerConfigMaps(const ConfigSource & cfgSrc) con
          m_internalTrigger[ rndm->name() ] = rndm;
       }
 
-      m_thrConfigMap = new ThresholdMap( cfgSrc.ctpConfig()->menu().thresholdVector());
+      m_thrConfigMap = std::make_unique<ThresholdMap>( cfgSrc.ctpConfig()->menu().thresholdVector());
 
-      m_itemConfigMap = new ItemMap( cfgSrc.ctpConfig()->menu().itemVector(), 
+      m_itemConfigMap = std::make_unique<ItemMap>( cfgSrc.ctpConfig()->menu().itemVector(),
                                      cfgSrc.ctpConfig()->prescaleSet() );
    } else {
       ATH_MSG_FATAL("No L1 trigger menu was provided");
@@ -118,7 +121,6 @@ StatusCode
 LVL1CTP::ResultBuilder::constructTIPVector( const std::map<std::string, unsigned int> & thrMultiMap,
                                             std::vector<uint32_t> & tip ) const
 {
-
    tip.resize( m_ctpDataFormat->getTIPwords(), 0 );
    
    for( auto & entry : thrMultiMap ) {
@@ -184,7 +186,7 @@ LVL1CTP::ResultBuilder::buildItemDecision( const std::map<std::string, unsigned 
    itemDecisionMap.clear();
 
    try {
-      for( auto itemName : m_itemConfigMap->itemNames() ) {
+      for( const auto & itemName : m_itemConfigMap->itemNames() ) {
          auto ctpItem = m_itemConfigMap->getItem(itemName);
 
          bool pass_beforePrescale =  ctpItem->evaluate(thrMultiMap);
@@ -246,7 +248,7 @@ LVL1CTP::ResultBuilder::constructResultVectors( const std::map<std::string, unsi
       ATH_MSG_DEBUG( "  --> Trigger item " << itemName << 
                      " is " << ( !passBP ? "INACTIVE" : ( passAV ? "ACTIVE" : "ACTIVE (but PRESCALED)" ) ) );
    }
-   ATH_MSG_DEBUG( "REGTEST - " << "TriggerType byte is: 0x" << std::hex << std::setw( 2 ) << std::setfill( '0' ) << triggerType );
+   ATH_MSG_DEBUG( "REGTEST - " << "TriggerType byte is: 0x" << std::setw( 2 ) << std::setfill( '0' ) << std::hex << int(triggerType) );
 
    return StatusCode::SUCCESS;
 }

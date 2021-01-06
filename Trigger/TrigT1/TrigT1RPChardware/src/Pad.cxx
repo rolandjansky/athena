@@ -25,6 +25,8 @@ Pad::Pad(int run, int event, CMAword debug,
 //                   CMA data are loaded in the PAD with the method "load"
 //
 padDebug=debug;
+//padDebug=0x3f; all debug ON
+    
 const ubit16 df=0;
 m_run = run;
 m_event=event;
@@ -147,6 +149,7 @@ if(m_lowhigh) {
  overlap();
  makeOut();
  if (m_feet_on) makeFeet();
+ if(padDebug&1<<df) display(0);
 }//end-of-if(m_lowhigh
 }//end-of-Pad::execute
 //---------------------------------------------------------//
@@ -170,7 +173,8 @@ for(m=0; m<2; m++) {          // Low- High-Pt
       thisThreshold = 3*m + m_padIn[m][j][i][l][0];
 // find highest threshold 
       if(thisThreshold > m_padStep2[l][j][i] ) {
-       m_padStep2[l][j][i] = thisThreshold;
+        if (m_padStep2[l][j][i]==0) m_padStep2[l][j][7]++; // num of RoI with threshold
+        m_padStep2[l][j][i] = thisThreshold;
       }//end-of-if
       //if( !j && (thisThreshold > m_padStep2[l][j][2]) ) {
       if( thisThreshold > m_padStep2[l][j][2] ) {
@@ -183,7 +187,7 @@ for(m=0; m<2; m++) {          // Low- High-Pt
            <<m_padStep2[l][j][2]<<endl;
        }//end-of-if(padDebug&1<<df)
       }//end-of-if(m_padStep2
-      m_padStep2[l][j][4]++;                      // number of RoIs with thresh.
+      m_padStep2[l][j][4]++;                      // number of CMs with thresh.
      }//end-of-if( m && m_hitInOuterPlane 
     }//end-of-if(m_padIn
    }//end-of-for(l
@@ -286,8 +290,7 @@ for(l=0; l<m_nBunMax; l++) {  //loop on Bunches
         }
      if(m_padStep2[l][1][5]) m_padOut[l][3] = 1; // ovl phi
      if(m_padStep2[l][0][5]) m_padOut[l][4] = 1; // ovl eta
-     m_padOut[l][5] = m_padStep2[l][0][7]; // roi ambiguity
-
+     if(m_padStep2[l][0][7]+m_padStep2[l][1][7]>2) m_padOut[l][5] = 1; // roi ambiguity
  }//end-of-if
 }//end-of-for(l
 }//end-of-Pad::makeOutEtaAndPhi()

@@ -104,7 +104,7 @@ namespace SG {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 template <typename T>
-MetaCont<T>::~MetaCont<T>() {
+MetaCont<T>::~MetaCont() {
   for (auto t : m_metaSet) {
     delete t.second;
   }
@@ -211,7 +211,6 @@ MetaCont<T>::sources() const {
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "AthenaKernel/CLASS_DEF.h"
 CLASS_DEF( MetaContBase , 34480469 , 1 )
 
 

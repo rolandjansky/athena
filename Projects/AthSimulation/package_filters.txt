@@ -124,6 +124,7 @@
 + DetectorDescription/IdDictDetDescrCnv
 + DetectorDescription/IdDictParser
 + DetectorDescription/Identifier
++ DetectorDescription/ReadoutGeometryBase
 + Event/EventAthenaPool
 + Event/EventBookkeeperAthenaPool
 + Event/EventBookkeeperMetaData
@@ -151,6 +152,9 @@
 + Event/xAOD/xAODEventInfoCnv
 + Event/xAOD/xAODJet
 + Event/xAOD/xAODJetAthenaPool
++ Event/xAOD/xAODMetaData
++ Event/xAOD/xAODMetaDataAthenaPool
++ Event/xAOD/xAODMetaDataCnv
 + Event/xAOD/xAODPrimitives
 + Event/xAOD/xAODTruth
 + Event/xAOD/xAODTruthAthenaPool
@@ -308,11 +312,11 @@
 + Simulation/ISF/ISF_HepMC/ISF_HepMC_Tools
 + Simulation/ISF/ISF_SimulationSelectors
 + Simulation/ISF/ISF_Tracking/ISF_TrackingInterfaces
-+ Simulation/ISF/ISF_Validation
 + Simulation/Interfaces/HepMC_Interfaces
 + Simulation/RunDependentSim/RunDependentSimComps
 + Simulation/SimuJobTransforms
 + Simulation/SimulationJobOptions
++ Simulation/Tests/ISF_Validation
 + Simulation/Tools/AtlasCLHEP_RandomGenerators
 + Simulation/Tools/McEventCollectionFilter
 + TileCalorimeter/TileCalib/TileCalibBlobObjs

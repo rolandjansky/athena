@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file  LArRecUtils/src/LArFCalTowerBuilderToolTestAlg.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -18,7 +16,9 @@
 #include "CaloInterface/ICaloTowerBuilderToolBase.h"
 #include "CaloDetDescr/CaloDetDescrManager.h"
 #include "AthenaKernel/errorcheck.h"
+#include "TestTools/random.h"
 #include "CLHEP/Units/SystemOfUnits.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 #include <cstdlib>
 #include <iostream>
 #include <cmath>
@@ -28,34 +28,6 @@ using CLHEP::GeV;
 
 
 namespace {
-
-
-// Dufus-quality RNG, using LCG.  Constants from numerical recipies.
-// I don't particularly care about RNG quality here, just about
-// getting something that's reproducible.
-#include <stdint.h>
-uint32_t seed = 1;
-uint32_t rngmax = static_cast<uint32_t> (-1);
-uint32_t rng()
-{
-  seed = (1664525*seed + 1013904223);
-  return seed;
-}
-
-float randf (float rmax, float rmin = 0)
-{
-  return static_cast<double>(rng()) / rngmax * (rmax-rmin) + rmin;
-}
-int randi (int rmax, int rmin = 0)
-{
-  return static_cast<int> (randf(rmax, rmin));
-}
-
-struct RNG
-{
-  int operator() (int n) const { return randi (n); }
-};
-//RNG stlrand;
 
 
 bool comp (double x1, double x2, double thresh = 1e-6)
@@ -77,7 +49,8 @@ LArFCalTowerBuilderToolTestAlg::LArFCalTowerBuilderToolTestAlg
   (const std::string& name,
    ISvcLocator* pSvcLocator)
     : AthAlgorithm (name, pSvcLocator),
-      m_builder ("LArFCalTowerBuilderTool")
+      m_builder ("LArFCalTowerBuilderTool"),
+      m_seed (1)
 {
 }
 
@@ -108,7 +81,7 @@ LArFCalTowerBuilderToolTestAlg::make_cells()
     for (const CaloDetDescrElement* dde :
            ddman->element_range (subcalo))
     {
-      float energy = randf (100*GeV);
+      float energy = Athena_test::randf_seed (m_seed, 100*GeV);
       cells->push_back (new CaloCell (dde, energy, 0, 0, 0, 
                                       CaloGain::LARMEDIUMGAIN) );
     }
@@ -119,12 +92,13 @@ LArFCalTowerBuilderToolTestAlg::make_cells()
 
 
 StatusCode
-LArFCalTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
+LArFCalTowerBuilderToolTestAlg::test_subseg (const EventContext& ctx,
+                                             const CaloTowerSeg::SubSeg& subseg,
                                              const CaloCellContainer* cells,
                                              const CaloTowerContainer* tow0)
 {
   CaloTowerContainer* tow = new CaloTowerContainer (subseg.segmentation());
-  CHECK( m_builder->execute (tow, cells, &subseg) );
+  CHECK( m_builder->execute (ctx, tow, cells, &subseg) );
 
   for (size_t i = 0; i < tow->size(); i++) {
     typedef CaloTowerContainer::index_t index_t;
@@ -183,10 +157,11 @@ LArFCalTowerBuilderToolTestAlg::test_subseg (const CaloTowerSeg::SubSeg& subseg,
 StatusCode LArFCalTowerBuilderToolTestAlg::test1()
 {
   std::cout << "test1\n";
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
   const CaloCellContainer* cells = make_cells();
   CaloTowerContainer* tow1 = new CaloTowerContainer (m_seg);
-  CHECK( m_builder->execute (tow1, cells) );
+  CHECK( m_builder->execute (ctx, tow1, cells) );
 
 #if 0
   std::cout << "cells\n";
@@ -214,8 +189,8 @@ StatusCode LArFCalTowerBuilderToolTestAlg::test1()
     std::cout << "\n";
   }
 
-  CHECK( test_subseg (m_seg.subseg ( 4.5, 0.3, -0.2, 0.4), cells, tow1) );
-  CHECK( test_subseg (m_seg.subseg (-4.5, 0.3,  3.1, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg ( 4.5, 0.3, -0.2, 0.4), cells, tow1) );
+  CHECK( test_subseg (ctx, m_seg.subseg (-4.5, 0.3,  3.1, 0.4), cells, tow1) );
 
   delete cells;
   delete tow1;

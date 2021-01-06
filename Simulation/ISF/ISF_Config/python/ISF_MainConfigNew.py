@@ -57,6 +57,10 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
     kwargs.setdefault("InputEvgenCollection", "BeamTruthEvent")
     kwargs.setdefault("OutputTruthCollection", "TruthEvent")
 
+    #Write MetaData container
+    from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
+    acc.merge(writeSimulationParametersMetadata(flags))
+ 
     acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs))
     return acc
 

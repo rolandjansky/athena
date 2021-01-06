@@ -1,14 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # specifies egamma"standard"
 from AthenaCommon.Logging import logging
-from AthenaCommon.SystemOfUnits import *
-from AthenaCommon.Constants import *
 import traceback
-import EventKernel.ParticleDataType
-from egammaRec.egammaRecFlags import jobproperties
 from egammaRec import egammaKeys
 from InDetRecExample.InDetKeys import InDetKeys
 from RecExConfig.Configured import Configured

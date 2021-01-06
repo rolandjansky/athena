@@ -1,25 +1,25 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from LArG4FastSimSvc.LArG4FastSimSvcConf import LArG4FastSimSvc
 from AthenaCommon.SystemOfUnits import GeV
+from AthenaCommon.Logging import logging
 
 class DefaultLArG4FastSimSvc(LArG4FastSimSvc):
     __slots__ = []
+    log = logging.getLogger( 'LArG4FastSimSvc' )
 
     def __init__(self, name = "DefaultLArG4FastSimSvc"):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'LArG4FastSimSvc' )
 
         # get parametrisation level
         from G4AtlasApps.SimFlags import simFlags
         
         if not hasattr(simFlags, 'LArParameterization'):
-            log.warning("JobProperty LArParameterization is not defined! Can not set up fast simulation!");
+            self.log.warning("JobProperty LArParameterization is not defined! Can not set up fast simulation!")
             return
 
         if simFlags.LArParameterization() == 0:
-            log.warning("JobProperty LArParameterization is zero! No fast simulation requested!");
+            self.log.warning("JobProperty LArParameterization is zero! No fast simulation requested!")
             return
 
     def setDefaults(cls, handle):
@@ -32,7 +32,7 @@ class LArG4EMBFastSimSvc(DefaultLArG4FastSimSvc):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
 
         from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'LArG4EMBFastSimSvc' )
+        self.log = logging.getLogger( 'LArG4EMBFastSimSvc' )
 
         # set defaults
         self.EFlagToShowerLib=True
@@ -64,7 +64,7 @@ class LArG4EMBFastSimSvc(DefaultLArG4FastSimSvc):
         from AthenaCommon.AppMgr import ServiceMgr
 
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
-            log.warning("ShowerLibSvc not setup")
+            cls.log.warning("ShowerLibSvc not setup")
 
         if handle.EFlagToShowerLib:
             ServiceMgr.LArG4ShowerLibSvc.FileNameList+=["LArG4ShowerLib.EMB.11.root"]
@@ -77,12 +77,10 @@ class LArG4EMBFastSimSvc(DefaultLArG4FastSimSvc):
 
 class LArG4EMECFastSimSvc(DefaultLArG4FastSimSvc):
     __slots__ = []
+    log = logging.getLogger( 'LArG4EMECFastSimSvc' )
 
     def __init__(self, name = "LArG4EMECFastSimSvc"):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'LArG4EMECFastSimSvc' )
 
         # set defaults
         self.EFlagToShowerLib=True
@@ -113,7 +111,7 @@ class LArG4EMECFastSimSvc(DefaultLArG4FastSimSvc):
         from AthenaCommon.AppMgr import ServiceMgr
 
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
-            log.warning("ShowerLibSvc not setup")
+            cls.log.warning("ShowerLibSvc not setup")
 
         if handle.EFlagToShowerLib:
             ServiceMgr.LArG4ShowerLibSvc.FileNameList+=["LArG4ShowerLib.EMEC.11.root"]
@@ -127,12 +125,10 @@ class LArG4EMECFastSimSvc(DefaultLArG4FastSimSvc):
 
 class LArG4FCALFastSimSvc(DefaultLArG4FastSimSvc):
     __slots__ = []
+    log = logging.getLogger( 'LArG4FCALFastSimSvc' )
 
     def __init__(self, name = "LArG4FCALFastSimSvc"):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'LArG4FCALFastSimSvc' )
 
         # set defaults
         self.EFlagToShowerLib=True
@@ -158,7 +154,7 @@ class LArG4FCALFastSimSvc(DefaultLArG4FastSimSvc):
         from AthenaCommon.AppMgr import ServiceMgr
 
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
-            log.warning("ShowerLibSvc not setup")
+            cls.log.warning("ShowerLibSvc not setup")
 
         if handle.EFlagToShowerLib:
             ServiceMgr.LArG4ShowerLibSvc.FileNameList+=["LArG4ShowerLib.FCAL1.11.root"]
@@ -172,12 +168,10 @@ class LArG4FCALFastSimSvc(DefaultLArG4FastSimSvc):
 
 class LArG4FCAL2FastSimSvc(DefaultLArG4FastSimSvc):
     __slots__ = []
+    log = logging.getLogger( 'LArG4FCAL2FastSimSvc' )
 
     def __init__(self, name = "LArG4FCAL2FastSimSvc"):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'LArG4FCAL2FastSimSvc' )
 
         # set defaults
         self.EFlagToShowerLib=True
@@ -203,7 +197,7 @@ class LArG4FCAL2FastSimSvc(DefaultLArG4FastSimSvc):
         from AthenaCommon.AppMgr import ServiceMgr
 
         if not hasattr( ServiceMgr, 'LArG4ShowerLibSvc' ):
-            log.warning("ShowerLibSvc not setup")
+            cls.log.warning("ShowerLibSvc not setup")
 
         if handle.EFlagToShowerLib:
             ServiceMgr.LArG4ShowerLibSvc.FileNameList+=["LArG4ShowerLib.FCAL2.11.root"]
@@ -217,12 +211,10 @@ class LArG4FCAL2FastSimSvc(DefaultLArG4FastSimSvc):
 
 class DeadMaterialFastSimSvc(DefaultLArG4FastSimSvc):
     __slots__ = []
+    log = logging.getLogger( 'DeadMaterialFastSimSvc' )
 
     def __init__(self, name = "DeadMaterialFastSimSvc"):
         super( DefaultLArG4FastSimSvc, self ).__init__( name )
-
-        from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'DeadMaterialFastSimSvc' )
 
         self.EMinEneShowerLib = 0.*GeV # electrons with this or lower energy will be killed on sight
         self.EMaxEneShowerLib = 1000.*GeV # particles with energy higher than this will be left alive

@@ -1,30 +1,10 @@
-# $Id: CMakeLists.txt 776838 2016-10-06 12:21:19Z krasznaa $
-################################################################################
-# Package: ElectronPhotonShowerShapeFudgeTool
-################################################################################
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ElectronPhotonShowerShapeFudgeTool )
 
-# Extra dependencies based on the environment:
-set( extra_dep )
-if( NOT XAOD_STANDALONE )
-   set( extra_dep GaudiKernel )
-endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODEgamma
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/Interfaces/EgammaAnalysisInterfaces	
-   PRIVATE
-   Tools/PathResolver
-   ${extra_dep} )
-
 # External dependencies:
-find_package( ROOT COMPONENTS Core MathCore Hist RIO Gui Gpad )
+find_package( ROOT COMPONENTS Core MathCore Hist Graf RIO )
 
 # Component(s) in the package:
 atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
@@ -32,13 +12,13 @@ atlas_add_library( ElectronPhotonShowerShapeFudgeToolLib
    ElectronPhotonShowerShapeFudgeTool/*.icc Root/*.cxx
    PUBLIC_HEADERS ElectronPhotonShowerShapeFudgeTool
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEgamma PATInterfaces EgammaAnalysisInterfacesLib
-   PRIVATE_LINK_LIBRARIES PathResolver )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools EgammaAnalysisInterfacesLib
+   PRIVATE_LINK_LIBRARIES PathResolver xAODEgamma )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( ElectronPhotonShowerShapeFudgeTool
       src/components/*.cxx
-      LINK_LIBRARIES GaudiKernel ElectronPhotonShowerShapeFudgeToolLib )
+      LINK_LIBRARIES ElectronPhotonShowerShapeFudgeToolLib )
 endif()
 
 atlas_add_dictionary( ElectronPhotonShowerShapeFudgeToolDict

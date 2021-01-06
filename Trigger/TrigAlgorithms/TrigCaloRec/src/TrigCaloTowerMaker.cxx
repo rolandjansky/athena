@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -20,6 +20,7 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/ListItem.h"
+#include "GaudiKernel/ThreadLocalContext.h"
 //
 #include "TrigT1Interfaces/TrigT1Interfaces_ClassDEF.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -266,6 +267,7 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
 
   // Now Build the towers -----------------------------------------------------------------
 
+  const EventContext& ctx = Gaudi::Hive::currentContext();
   if(!m_towerMakerNames.empty()) {
 
     //CaloTowerSeg theTowerSeg(m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
@@ -288,14 +290,14 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
 	//return HLT::TOOL_FAILURE;
       //}
       if ( m_includeFcal ) {
-        if ( (*itrtwr)->execute(m_pCaloTowerContainer, theCellCont).isFailure() ) {
+        if ( (*itrtwr)->execute(ctx, m_pCaloTowerContainer, theCellCont).isFailure() ) {
          	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endmsg;
         } else {
          	if(msgLvl() <= MSG::DEBUG)
 	          msg() << MSG::DEBUG << "Executed tool " << m_towerMakerNames[index] << endmsg;
         }
       } else {
-        if ( (*itrtwr)->execute(m_pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
+        if ( (*itrtwr)->execute(ctx, m_pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
          	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endmsg;
         } else {
          	if(msgLvl() <= MSG::DEBUG)

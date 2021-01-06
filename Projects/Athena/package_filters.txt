@@ -32,7 +32,6 @@
 + PhysicsAnalysis/Algorithms/SelectionHelpers
 + PhysicsAnalysis/Algorithms/SystematicsHandles
 - PhysicsAnalysis/Algorithms/.*
-- PhysicsAnalysis/AnalysisCommon/PMGTools
 - PhysicsAnalysis/D3PDTools/EventLoop.*
 - PhysicsAnalysis/D3PDTools/MultiDraw
 - PhysicsAnalysis/D3PDTools/SampleHandler
@@ -51,9 +50,6 @@
 # until we have Run 3 Tier-0 ops
 #- DataQuality/DataQualityConfigurations
 #- DataQuality/DCSCalculator2
-
-# Huge D3PD librarys not really useful any more
-- PhysicsAnalysis/D3PDMaker/InDetD3PDMaker
 
 # Don't build PerfMonVTune which has external Intel tool dependency
 - Control/PerformanceMonitoring/PerfMonVTune

@@ -15,7 +15,7 @@
 #endif
 
 #include "PATInterfaces/CorrectionTool.h"
-#include "PATInterfaces/SystematicCode.h"     
+#include "AsgMessaging/StatusCode.h"     
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PATInterfaces/SystematicVariation.h" 
 #include "PathResolver/PathResolver.h"
@@ -135,7 +135,7 @@ namespace CP {
     }
     // Add the affecting systematics to the global registry
     SystematicRegistry& registry = SystematicRegistry::getInstance();
-    if (registry.registerSystematics(*this) != SystematicCode::Ok){
+    if (registry.registerSystematics(*this) != StatusCode::SUCCESS){
       ATH_MSG_ERROR("Unable to register the systematics");
       return StatusCode::FAILURE;
     }
@@ -242,7 +242,7 @@ namespace CP {
   }
 
 
-  SystematicCode JetTileCorrectionTool :: applySystematicVariation ( const SystematicSet& systConfig ) {
+  StatusCode JetTileCorrectionTool :: applySystematicVariation ( const SystematicSet& systConfig ) {
 
     // First, check if we already know this systematic configuration
     auto itr = m_systFilter.find(systConfig);
@@ -255,7 +255,7 @@ namespace CP {
       CP::SystematicSet filteredSys;   
       if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)){
 	ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
-	return CP::SystematicCode::Unsupported;
+	return StatusCode::FAILURE;
       }
       
       // Insert filtered set into the map
@@ -264,7 +264,7 @@ namespace CP {
     
     CP::SystematicSet& mySysConf = itr->second;
     m_appliedSystematics = &mySysConf;
-    return SystematicCode::Ok;
+    return StatusCode::SUCCESS;
   }
   
 

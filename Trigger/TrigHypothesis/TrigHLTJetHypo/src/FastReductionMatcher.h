@@ -6,19 +6,22 @@
 #define TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
 
 
-#include "./IGroupsMatcherMT.h"
+#include "./IJetsMatcherMT.h"
 #include "./CapacityCheckedConditionsDefs.h"
+#include "./ConditionFilter.h"
 #include "./Tree.h"
 
 using TreeVec = std::vector<std::size_t>;
 class ITrigJetHypoInfoCollector;
 
-class FastReductionMatcher: public IGroupsMatcherMT {
+using  ConditionFilters = std::vector<std::unique_ptr<ConditionFilter>>;
+
+class FastReductionMatcher: public IJetsMatcherMT {
  public:
 
-  FastReductionMatcher(ConditionPtrs,
-		       const Tree&,
-		       const std::vector<std::vector<int>>&);
+  FastReductionMatcher(ConditionPtrs&,
+		       ConditionFilters&,
+		       const Tree&);
 
 
   /** determine whether a set of jets satisfies all hypo conditions.
@@ -31,8 +34,8 @@ class FastReductionMatcher: public IGroupsMatcherMT {
   */
   
   virtual std::optional<bool>
-    match(const HypoJetGroupCIter& groups_b,
-	  const HypoJetGroupCIter& groups_e,
+    match(const HypoJetCIter& jets_b,
+	  const HypoJetCIter& jets_e,
 	  xAODJetCollector&,
 	  const std::unique_ptr<ITrigJetHypoInfoCollector>& collector,
 	  bool
@@ -43,19 +46,13 @@ class FastReductionMatcher: public IGroupsMatcherMT {
  private:
 
   ConditionPtrs m_conditions;
-
+  std::vector<std::unique_ptr<ConditionFilter>> m_conditionFilters;
   /** tree structure for Conditions objects.
    The conditions tree gives relations among conditions (eg parent-child
    and siblings-of)
   */
   
   Tree m_tree;
-
-  /** a vector of shared nodes. All shared nodes are leaf node that
-  see the jet collection.
-  */
-  
-  std::vector<std::vector<int>> m_sharedNodes;
 
 };
 #endif

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*********************************************************************
@@ -27,14 +27,6 @@ namespace Trk
   { 
     ATH_CHECK( AlgTool::initialize() );
     ATH_CHECK( m_mode1dfinder.retrieve() );
-    ATH_MSG_INFO( "Initialize successfull"  );
-    return StatusCode::SUCCESS;
-  }
-
-
-  StatusCode Mode3dTo1dFinder::finalize() 
-  {
-    ATH_MSG_INFO( "Finalize successfull"  );
     return StatusCode::SUCCESS;
   }
 

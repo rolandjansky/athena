@@ -59,11 +59,6 @@ namespace top {
     //Jets
     evtStore()->event()->setAuxItemList(m_prefix + m_config->sgKeyJets() + "Aux.", "pt.eta.phi.m.btaggingLink");
 
-    //b-tagging
-    const std::string btagName = "BTagging_" + m_config->sgKeyJets().substr(0, m_config->sgKeyJets().size() - 4);
-    evtStore()->event()->setAuxItemList(btagName + "Aux.", "MV1_discriminant");
-
-    //MET seems to be pretty small already
   }
 
   void EventSaverxAOD::saveEvent(const top::Event& event) {

@@ -1,8 +1,9 @@
-#job options to activate the dump of the NSWPRDVal nTuple
-#This file can be used with Reco_tf by specifying --postinclude MuonPRDTest/NSWPRDValAlg.reco.py
-#It dumps Truth, MuEntry and Hits, Digits, SDOs, RDOs and PRDs for MM and sTGC
-#It should only be used with Reco since the alg crashes in the absence of PRDs
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+# jobOptions to activate the dump of the NSWPRDValAlg nTuple
+# This file can be used with Reco_tf by specifying --postInclude MuonPRDTest/NSWPRDValAlg.reco.py
+# It dumps Truth, MuEntry and Hits, Digits, SDOs, RDOs and PRDs for MM and sTGC
+# It should only be used with Reco since the alg crashes in the absence of PRDs
 
 #-----------------------------------------------------------------------------
 # Algorithms

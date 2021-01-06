@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
  /////////////////////////////////////////////////////////////////// 	 
@@ -24,7 +24,7 @@ const InterfaceID& BCM_RawDataProviderTool::interfaceID( )
 { return IID_IBCM_RawCollByteStreamTool; }
 
 ////////////////////////
-// contructor
+// constructor
 ////////////////////////
 BCM_RawDataProviderTool::BCM_RawDataProviderTool
 ( const std::string& type, const std::string& name,const IInterface* parent )
@@ -33,7 +33,6 @@ BCM_RawDataProviderTool::BCM_RawDataProviderTool
 {
   declareProperty ("Decoder", m_decoder);
   declareInterface<BCM_RawDataProviderTool>(this);   
-  m_lastLvl1ID = 0xffffffff;
   m_DecodeErrCount =0;
 }
 
@@ -48,19 +47,11 @@ BCM_RawDataProviderTool::~BCM_RawDataProviderTool()
 ////////////////////////
 StatusCode BCM_RawDataProviderTool::initialize()
 {
-   StatusCode sc = AthAlgTool::initialize(); 
-   if (sc.isFailure()) {
-     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to init baseclass" << endmsg;
-     return StatusCode::FAILURE;
-   }
+   ATH_CHECK( AthAlgTool::initialize() );
 
    // Retrieve decoder
-   if (m_decoder.retrieve().isFailure()) {
-     if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endmsg;
-     return StatusCode::FAILURE;
-   } else {
-     if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved tool " << m_decoder << endmsg;
-   }
+   ATH_CHECK( m_decoder.retrieve() );
+   ATH_MSG_INFO( "Retrieved tool " << m_decoder );
 
    return StatusCode::SUCCESS;
 }
@@ -70,27 +61,16 @@ StatusCode BCM_RawDataProviderTool::initialize()
 ////////////////////////
 StatusCode BCM_RawDataProviderTool::finalize()
 {
-   StatusCode sc = AthAlgTool::finalize();
-   return sc;
+   ATH_CHECK( AthAlgTool::finalize() );
+   return StatusCode::SUCCESS;
 }
 
 
-StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont)
+StatusCode BCM_RawDataProviderTool::convert( std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>& vecRobs, BCM_RDO_Container* rdoCont) const
 {
   if(vecRobs.size() == 0) return StatusCode::SUCCESS;
 
-  std::vector<const ROBFragment*>::const_iterator rob_it = vecRobs.begin();
-
-  // are we working on a new event ?
-  if ( (*rob_it)->rod_lvl1_id() != m_lastLvl1ID) {
-#ifdef BCM_DEBUG
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "New event, reset the collection set" << endmsg;
-#endif
-    // remember last Lvl1ID
-    m_lastLvl1ID = (*rob_it)->rod_lvl1_id();
-    // and clean up the container!
-    rdoCont->clear();
-  }
+  std::vector<const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*>::const_iterator rob_it = vecRobs.begin();
 
   // loop over the ROB fragments
   for(; rob_it!=vecRobs.end(); ++rob_it) {
@@ -98,9 +78,9 @@ StatusCode BCM_RawDataProviderTool::convert( std::vector<const ROBFragment*>& ve
     StatusCode sc = m_decoder->fillCollection(&**rob_it, rdoCont);
     if (sc != StatusCode::SUCCESS) {
        if (m_DecodeErrCount < 100) {
-          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Problem with BCM ByteStream Decoding!" << endmsg;
+          ATH_MSG_INFO( "Problem with BCM ByteStream Decoding!" );
        } else if (100 == m_DecodeErrCount) {
-          if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Too many Problems with BCM Decoding. Turning message off." << endmsg;
+          ATH_MSG_INFO( "Too many Problems with BCM Decoding. Turning message off." );
        }
         m_DecodeErrCount++;
       }

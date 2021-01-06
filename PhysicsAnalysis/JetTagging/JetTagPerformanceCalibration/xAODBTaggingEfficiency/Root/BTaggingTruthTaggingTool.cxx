@@ -18,7 +18,6 @@ using std::string;
 using CP::CorrectionCode;
 using CP::SystematicSet;
 using CP::SystematicVariation;
-using CP::SystematicCode;
 using CP::SystematicRegistry;
 
 using Analysis::Uncertainty;
@@ -105,14 +104,14 @@ SystematicSet BTaggingTruthTaggingTool::affectingSystematics() const {
   return m_effTool->affectingSystematics();
 }
 
-SystematicCode BTaggingTruthTaggingTool::applySystematicVariation( const CP::SystematicSet & systConfig )
+StatusCode BTaggingTruthTaggingTool::applySystematicVariation( const CP::SystematicSet & systConfig )
 {
     for (auto syst : systConfig) {
         CP::SystematicSet myset;
         ATH_MSG_WARNING("applySystematicVariation was called for " << syst.name() << " but BTaggingTruthTaggingTool does not apply Systematic Variations");
         //the truth tagging tool provides results for all possible systematic variations in its results objects, the user does not need to call each one seperatly.
     }
-   return SystematicCode::Ok;
+   return StatusCode::SUCCESS;
 }
 
 bool BTaggingTruthTaggingTool::isAffectedBySystematic( const CP::SystematicVariation & systematic ) const
@@ -1105,7 +1104,7 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
   is_tagged.clear();
   std::vector<int> appo;
   
-  for(const auto jet : trfinf.jets) {
+  for(const auto& jet : trfinf.jets) {
     ATH_MSG_DEBUG("pt " << jet.vars.jetPt << "   eta " << jet.vars.jetEta << "   wei " << jet.vars.jetTagWeight);
     bool is_btagged = false;
     if(!m_continuous)
@@ -1127,7 +1126,6 @@ StatusCode BTaggingTruthTaggingTool::getDirectTaggedJets(TRFinfo &trfinf,std::ve
 
 
 double BTaggingTruthTaggingTool::getEvtSF(TRFinfo &trfinf,int sys){
-  ANA_CHECK_SET_TYPE (StatusCode);
   double SF = 1.;
   std::vector<bool> is_tagged;
   ANA_CHECK_THROW( getDirectTaggedJets(trfinf,is_tagged) );

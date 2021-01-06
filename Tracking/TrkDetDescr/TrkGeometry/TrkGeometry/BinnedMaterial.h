@@ -16,6 +16,7 @@
 #include <iomanip>
 #include <string>
 #include <climits>
+#include <memory>
 #include "TrkGeometry/Material.h"
 #include "TrkDetDescrUtils/CompactBinnedArray.h"
 #include "TrkDetDescrUtils/CompactBinnedArray1D.h"
@@ -38,9 +39,7 @@ namespace Trk {
     public:
 
       /** Default Constructor needed for POOL */
-      BinnedMaterial():
-      Material(),
-      m_matBins(nullptr){}
+      BinnedMaterial() = default;
 
       /** Constructor with arguments */
       BinnedMaterial(float iX0, 
@@ -54,38 +53,22 @@ namespace Trk {
       {}    
 
       /** Constructor with averaged material and binning in 1D*/
-      BinnedMaterial(const Material*& mat, BinUtility*& bu, const std::vector<size_t>& index,
-		     const std::vector< const IdentifiedMaterial*>& detailedMat); 
+      BinnedMaterial(const Material* mat, BinUtility*& bu, const std::vector<size_t>& index,
+		     const std::vector<IdentifiedMaterial>& detailedMat); 
 
       /** Constructor with averaged material and binning in 2D*/
-      BinnedMaterial(const Material*& mat, BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
+      BinnedMaterial(const Material* mat, BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
 		     const std::vector<std::vector<size_t> >& index,
-		     const std::vector< const IdentifiedMaterial* >& detailedMat);
+		     const std::vector<IdentifiedMaterial>& detailedMat);
       
       /** Copy Constructor */
-      BinnedMaterial(const BinnedMaterial& amc) :
-      Material(amc),
-	m_matBins(amc.m_matBins? amc.m_matBins->clone() : nullptr )
-      {}
+      BinnedMaterial(const BinnedMaterial& amc);
 
-      /** Desctructor - delete the composition if there */
-      ~BinnedMaterial() { if (m_matBins) delete m_matBins;  }
+      /** Destructor - delete the composition if there */
+      ~BinnedMaterial() = default;
 
       /** Assignment operator */
-      BinnedMaterial& operator=(const BinnedMaterial& amc) {
-          if (this != &amc){
-              X0          = amc.X0;
-              L0          = amc.L0;
-              A           = amc.A;
-              Z           = amc.Z;
-              rho         = amc.rho;  
-              dEdX        = amc.dEdX;  
-              zOaTr       = amc.zOaTr;  
-              delete m_matBins;
-              m_matBins =  amc.m_matBins ? amc.m_matBins->clone() : nullptr;
-          }
-          return (*this);
-      }
+      BinnedMaterial& operator=(const BinnedMaterial& amc);
 
       /** access to layer bin utility */
       const Trk::BinUtility*  layerBinUtility(const Amg::Vector3D& position) const;
@@ -98,8 +81,10 @@ namespace Trk {
       const IdentifiedMaterial* materialNext(const Amg::Vector3D& pos,const Amg::Vector3D& dir, bool layOnly ) const;
   
   private:
-      const CompactBinnedArray< const IdentifiedMaterial >* m_matBins;  
-
+      std::vector<const Trk::IdentifiedMaterial* > ptrs() const;
+      std::vector<IdentifiedMaterial> m_matVec;
+      using binsPtr_t = std::unique_ptr<const CompactBinnedArray< const IdentifiedMaterial > >;
+      binsPtr_t m_matBins;  
   };
 
 

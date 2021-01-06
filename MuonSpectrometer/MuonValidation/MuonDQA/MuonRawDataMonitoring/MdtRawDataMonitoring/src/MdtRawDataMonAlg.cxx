@@ -48,6 +48,11 @@
 #include <cmath>
 #include <sstream>
 
+namespace {
+  // the tube number of a tube in a tubeLayer in encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
+}
+
 enum {enumInner, enumMiddle, enumOuter, enumExtra};
 
 struct MDTOverviewHistogramStruct {
@@ -523,8 +528,7 @@ StatusCode MdtRawDataMonAlg::fillHistograms(const EventContext& ctx) const
   }   //m_doMdtESD==true
 
   SG::ReadHandle<Trk::SegmentCollection> segms(m_segm_type, ctx);
-  if (!segms.isValid())
-  {
+  if (!segms.isValid()) {
     ATH_MSG_ERROR("evtStore() does not contain mdt segms Collection with name " << m_segm_type);
     return StatusCode::FAILURE;
   }
@@ -1375,8 +1379,8 @@ void MdtRawDataMonAlg::initDeadChannels(const MuonGM::MdtReadoutElement* mydetEl
     for(int tube = 1; tube <= mydetEl->getNtubesperlayer(); tube++){
       bool tubefound = false;
       for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-        int tubegeo = cv->getIdOfChildVol(kk) % 100;
-        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+        int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+        int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
         if( tubegeo == tube && layergeo == layer ) {
           tubefound=true;
           break;

@@ -24,7 +24,6 @@
 #include "ICaloTrkMuIdTools/ICaloMuonScoreTool.h"
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
-#include "ICaloTrkMuIdTools/ICaloMuonScoreONNXRuntimeSvc.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "StoreGate/ReadHandleKey.h"
 
@@ -57,6 +56,7 @@ namespace MuonCombined {
     virtual void extendWithPRDs(const InDetCandidateCollection& inDetCandidates, InDetCandidateToTagMap* tagMap, IMuonCombinedInDetExtensionTool::MuonPrdData prdData,
 				TrackCollection* combTracks, TrackCollection* meTracks, Trk::SegmentCollection* segments, const EventContext& ctx) const override;
 
+    virtual void cleanUp() const override;
 
   private:
     
@@ -103,7 +103,6 @@ namespace MuonCombined {
     // --- CaloTrkMuIdTools ---
     ToolHandle<ICaloMuonLikelihoodTool>  m_caloMuonLikelihood{this,"CaloMuonLikelihoodTool","CaloMuonLikelihoodTool/CaloMuonLikelihoodTool"};
     ToolHandle<ICaloMuonScoreTool>  m_caloMuonScoreTool{this, "CaloMuonScoreTool", "CaloMuonScoreTool/CaloMuonScoreTool"};
-    ServiceHandle<ICaloMuonScoreONNXRuntimeSvc>  m_caloMuonScoreONNXRuntimeSvc{this, "CaloMuonScoreONNXRuntimeSvc", "CaloMuonScoreTool/CaloMuonScoreONNXRuntimeSvc"};
 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagLoose{this,"CaloMuonTagLoose","CaloMuonTag/CaloMuonTagLoose","CaloTrkMuIdTools::CaloMuonTag for loose tagging"}; 
     ToolHandle<ICaloMuonTag>             m_caloMuonTagTight{this,"CaloMuonTagTight","CaloMuonTag/CaloMuonTag","CaloTrkMuIdTools::CaloMuonTag for tight tagging"}; 

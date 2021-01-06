@@ -96,6 +96,8 @@ private:
   SG::WriteHandleKey<TrackRecordCollection> m_muonEntryLayerKey{this, "MuonEntryLayerKey", "MuonEntryLayer", ""};
   SG::WriteHandleKey<TrackRecordCollection> m_muonExitLayerKey{this, "MuonExitLayerKey", "MuonExitLayer", ""};
 
+  /// Force geoID recalculation for each particle
+  Gaudi::Property<bool> m_forceGeoIDSvc{this, "AlwaysUseGeoIDSvc", false, "Force geoID recalculation for each particle" };
 
   /// Input converter service (from Generator->ISF particle types)
   ServiceHandle<IInputConverter> m_inputConverter{this, "InputConverter", "", "Input McEventCollection->ISFParticleContainer conversion service."};
@@ -127,6 +129,8 @@ private:
   /// Map of the simulation flavours used in this job to the corresponding Simulation Services
   std::map<ISF::SimulationFlavor, ISimulatorTool*> m_simToolMap;
 
+  /// Number of particles simultaneously sent to simulator
+  size_t m_maxParticleVectorSize{10240};
 };
 
 } // namespace ISF

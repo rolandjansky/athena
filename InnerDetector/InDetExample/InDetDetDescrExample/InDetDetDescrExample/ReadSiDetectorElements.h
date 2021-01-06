@@ -9,7 +9,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaKernel/IOVSvcDefs.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "StoreGate/ReadCondHandleKey.h"
@@ -66,6 +66,7 @@ public:
   const SCT_ID * m_sctIdHelper;
 
   bool m_first;
+  bool m_printProbePositions;
   
 
 };

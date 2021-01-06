@@ -57,7 +57,7 @@ public:
   SlidingCylinderSurface& operator=(const SlidingCylinderSurface& psf);
 
   /**Equality operator*/
-  virtual bool operator==(const Surface& sf) const override;
+  virtual bool operator==(const Surface& sf) const override final;
 
   /** This method returns true if the GlobalPosition is on the Surface for both,
     within or without check of whether the local position is inside boundaries
@@ -65,31 +65,31 @@ public:
   virtual bool isOnSurface(const Amg::Vector3D& glopo,
                            BoundaryCheck bchk = true,
                            double tol1 = 0.,
-                           double tol2 = 0.) const override;
+                           double tol2 = 0.) const override final;
 
   /** Specialized for DiscSurface: LocalToGlobal method without dynamic memory
    * allocation */
   virtual void localToGlobal(const Amg::Vector2D& locp,
                              const Amg::Vector3D& mom,
-                             Amg::Vector3D& glob) const override;
+                             Amg::Vector3D& glob) const override final;
 
   /** Specialized for DiscSurface: GlobalToLocal method without dynamic memory
    * allocation - boolean checks if on surface
    */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override;
+                             Amg::Vector2D& loc) const override final;
 
   /** fast straight line distance evaluation to Surface */
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
-    const Amg::Vector3D& dir) const override;
+    const Amg::Vector3D& dir) const override final;
 
   /** fast straight line distance evaluation to Surface - with bound option*/
   virtual DistanceSolution straightLineDistanceEstimate(
     const Amg::Vector3D& pos,
     const Amg::Vector3D& dir,
-    bool Bound) const override;
+    bool Bound) const override final;
 
   /**This method allows access to the bin utility*/
   const Trk::BinUtility* binUtility() const { return m_etaBin; }

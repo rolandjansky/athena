@@ -59,7 +59,7 @@ StatusCode jSuperCellTowerMapper::initialize()
 
 StatusCode jSuperCellTowerMapper::AssignTriggerTowerMapper(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw){
   
-  static constexpr float pi_over_32 = std::acos(-1)/32;
+  static constexpr float pi_over_32 = M_PI/32;
 
   SG::ReadHandle<xAOD::TriggerTowerContainer> jk_triggerTowerCollection(m_triggerTowerCollectionSGKey/*,ctx*/);
   if(!jk_triggerTowerCollection.isValid()){

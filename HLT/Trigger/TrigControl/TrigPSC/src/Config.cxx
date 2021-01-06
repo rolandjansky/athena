@@ -207,12 +207,14 @@ std::string psc::Config::dumpOptions() const
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-std::string psc::Config::getOption(const std::string& key) const
+std::string psc::Config::getOption(const std::string& key, bool quiet) const
 {
   std::map<std::string, std::string>::const_iterator it = optmap.find(key);
   if (it == optmap.end()) {
-    ERS_PSC_WARNING("Could not find requested option = " << key) ;
-    ERS_DEBUG(1, " " << dumpOptions() ) ;
+    if (!quiet) {
+      ERS_PSC_WARNING("Could not find requested option = " << key);
+      ERS_DEBUG(1, " " << dumpOptions() );
+    }
     return "";
   }
   return it->second;

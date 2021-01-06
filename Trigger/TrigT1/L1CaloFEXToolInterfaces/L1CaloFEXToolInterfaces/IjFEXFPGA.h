@@ -39,8 +39,8 @@ Interface definition for jFEXFPGA
 
     virtual int ID() = 0;
 
-    virtual void SetTowersAndCells_SG(int [][9]) = 0;
-    virtual void SetTowersAndCells_SG(int [][8]) = 0;
+    virtual void SetTowersAndCells_SG(int [][17]) = 0;
+    virtual void SetTowersAndCells_SG(int [][24]) = 0;
 
   private:
 

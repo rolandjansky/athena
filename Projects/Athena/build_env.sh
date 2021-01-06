@@ -62,14 +62,6 @@ env_setup() {
         source ${extDir}/*/setup.sh
     fi
 
-    # Point to Gaudi:
-    # Get platform from the GAUDI build - we're assuming here that there's only one platform installed.
-    if [ -z "${GAUDI_ROOT+1}" ]; then
-        platform=$(cd ${BUILDDIR}/install/GAUDI/${version}/InstallArea/;ls)
-        export GAUDI_ROOT=${BUILDDIR}/install/GAUDI/${version}/InstallArea/${platform}
-    fi
-    echo "Taking Gaudi from: ${GAUDI_ROOT}"
-
     cd $startdir
 }
 

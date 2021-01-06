@@ -42,7 +42,15 @@ class JetTagMonitorAlgorithm : public AthMonitorAlgorithm {
   SG::ReadHandleKey<xAOD::JetContainer> m_jetContainerKey;
   SG::ReadHandleKey<xAOD::MuonContainer> m_muonContainerKey;
   SG::ReadHandleKey<xAOD::ElectronContainer> m_electronContainerKey;
-  
+  SG::ReadDecorHandleKey<xAOD::JetContainer> m_btagLinkKey{this,"BTagLinkKey","","RDHK for btag links"};
+  SG::ReadDecorHandleKey<xAOD::BTaggingContainer> m_btagResultKey{this,"BTagResultKey","","RDHK for monitored BTag variables"};
+
+  // isolation decoration keys
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonEtIsoDecorKey { this, "MuonEtIsoDecorKey", "Muons.topoetcone20" };
+  SG::ReadDecorHandleKey<xAOD::MuonContainer> m_MuonPtIsoDecorKey { this, "MuonPtIsoDecorKey", "Muons.ptvarcone30" };
+  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_EleEtIsoDecorKey { this, "EleEtIsoDecorKey", "Electrons.topoetcone20" };
+  SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_ElePtIsoDecorKey { this, "ElePtIsoDecorKey", "Electrons.ptvarcone20" };
+
   bool m_skipJetFilter; //true for HI/HI-p collisions, false for pp collisions
   std::string m_trackParticleName;
   std::string m_primaryVertexName;

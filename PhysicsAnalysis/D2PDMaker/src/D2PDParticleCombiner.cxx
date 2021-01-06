@@ -1385,13 +1385,13 @@ bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart 
     {
       // Get the GenParticle from the TruthParticle
       const TruthParticle* part = (*partItr);
-      const HepMC::GenParticle* genPart = part->genParticle();
+      auto genPart = part->genParticle();
       const int pdgID = genPart->pdg_id();
       
       // Now, get the origin of this generated particle
       McEventCollection::const_iterator mcEventItr = m_mcEventColl->begin();
-      const int primaryBarcode = genPart->barcode()%1000000;
-      const HepMC::GenParticle* primaryPart = (*mcEventItr)->barcode_to_particle(primaryBarcode);
+      const int primaryBarcode = HepMC::barcode(genPart)%1000000;
+      auto primaryPart = HepMC::barcode_to_particle((*mcEventItr),primaryBarcode);
 
       // Check that we really have the primaryPart
       if ( !primaryPart )
@@ -1401,7 +1401,7 @@ bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart 
         }
 
       // Now get the production vertex
-      const HepMC::GenVertex*  prodVert = primaryPart->production_vertex();
+      auto  prodVert = primaryPart->production_vertex();
       if ( !prodVert )
         {
           ATH_MSG_WARNING ( "Could not get the ProductionVertex... skipping!" );
@@ -1409,7 +1409,11 @@ bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart 
         }
 
       // Check that we have only one mother
+#ifdef HEPMC3
+      if ( prodVert->particles_in().size() > 1 )
+#else
       if ( prodVert->particles_in_size() > 1 )
+#endif
         {
           ATH_MSG_WARNING ( "The ProductionVertex has more than one incomming particles... skipping!" );
           return true;
@@ -1418,21 +1422,24 @@ bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart 
 
       // Loop over the mother particles
       // Make sure that we ignore bremsstrahlung and decays into itself
-      const HepMC::GenVertex* originVert = prodVert ;
-      //const HepMC::GenVertex* tmpVert(0);
+      auto originVert = prodVert;
       int originPdgID = pdgID;
       int originBarcode(0);
       int counter(0);
       do
         {
           ++counter;
+#ifdef HEPMC3
+          for ( auto mother: originVert->particles_in()) {
+#else
           HepMC::GenVertex::particles_in_const_iterator motherItr    = originVert->particles_in_const_begin();
           HepMC::GenVertex::particles_in_const_iterator motherItrEnd = originVert->particles_in_const_end();
-          for ( ; motherItr != motherItrEnd; ++motherItr )
-            {	     
-              originPdgID   = (*motherItr)->pdg_id();
-              originVert    = (*motherItr)->production_vertex();
-              originBarcode = (*motherItr)->barcode();
+          for ( ; motherItr != motherItrEnd; ++motherItr ) {
+              auto mother=*motherItr;
+#endif
+              originPdgID   = mother->pdg_id();
+              originVert    = mother->production_vertex();
+              originBarcode = HepMC::barcode(mother);
             }
 
           // Protect against infinite loop
@@ -1441,7 +1448,7 @@ bool D2PDParticleCombiner::mcTruthSelections( const CompositeParticle* compPart 
               ATH_MSG_WARNING ( "Stuck in an infinite while loop... breaking out!" );
               break;
             }
-        } while ( abs(originPdgID) == abs(pdgID) && originVert != 0 );
+        } while ( std::abs(originPdgID) == std::abs(pdgID) && originVert );
 
       // Attach the PDG_ID and barcode of the origin particle to the vectors
       pdgIDList.push_back( originPdgID );

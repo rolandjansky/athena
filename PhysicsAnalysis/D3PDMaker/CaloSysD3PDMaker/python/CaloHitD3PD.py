@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file CaloSysD3PDMaker/python/CaloHitD3PD.py
@@ -11,10 +11,8 @@
 from EventCommonD3PDMaker.EventInfoD3PDObject     import EventInfoD3PDObject
 from CaloSysD3PDMaker.LArHitD3PDObject            import LArHitEMBD3PDObject, LArHitEMECD3PDObject, LArHitHECD3PDObject, LArHitFCALD3PDObject
 from CaloSysD3PDMaker.TileHitD3PDObject           import TileHitD3PDObject, MBTSHitD3PDObject
-from CaloSysD3PDMaker.CaloCalibHitD3PDObject         import LArActiveCaloCalibHitD3PDObject, LArInactiveCaloCalibHitD3PDObject, LArDMCaloCalibHitD3PDObject, TileCaloCalibHitD3PDObject, TileDMCaloCalibHitD3PDObject, TileDMOCaloCalibHitD3PDObject,TileActiveCaloCalibHitD3PDObject, TileInactiveCaloCalibHitD3PDObject, TileDMCaloCalibHitD3PDObject
+from CaloSysD3PDMaker.CaloCalibHitD3PDObject         import LArActiveCaloCalibHitD3PDObject, LArInactiveCaloCalibHitD3PDObject, LArDMCaloCalibHitD3PDObject, TileCaloCalibHitD3PDObject, TileDMCaloCalibHitD3PDObject, TileDMOCaloCalibHitD3PDObject,TileActiveCaloCalibHitD3PDObject, TileInactiveCaloCalibHitD3PDObject
 from D3PDMakerCoreComps.resolveSGKey              import testSGKey
-from D3PDMakerCoreComps.D3PDObject                import D3PDObject
-import CaloD3PDMaker
 
 
 def CaloHitD3PD (alg = None,

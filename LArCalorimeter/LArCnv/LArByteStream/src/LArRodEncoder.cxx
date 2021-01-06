@@ -15,65 +15,17 @@
 #include <Identifier/HWIdentifier.h>
 #include "CaloInterface/ICaloNoiseTool.h"
 
-// static variables
-LArCablingLegacyService*    LArRodEncoder::m_cablingSvc=NULL;
-const LArOnlineID*    LArRodEncoder::m_onlineHelper=NULL; 
-LArRodBlockStructure* LArRodEncoder::m_BlStruct=NULL;
-const CaloDetDescrManager* LArRodEncoder::m_CaloDetDescrManager=NULL;
-
-void LArRodEncoder::setRodBlockStructure(LArRodBlockStructure* BlStructPtr)
-{
-  m_BlStruct=BlStructPtr; 
-}
-
 
 // constructor 
-LArRodEncoder::LArRodEncoder()
+LArRodEncoder::LArRodEncoder (const LArOnlineID& onlineHelper,
+                              const CaloDetDescrManager& calodd,
+                              const LArOnOffIdMapping& onOffIdMapping,
+                              LArRodBlockStructure* BlStruct)
+  : m_onlineHelper (onlineHelper),
+    m_CaloDetDescrManager (calodd),
+    m_onOffIdMapping (onOffIdMapping),
+    m_BlStruct (BlStruct)
 {
-  if(m_cablingSvc==NULL || m_onlineHelper==NULL) {
-    // Message service
-    IMessageSvc*  msgSvc;
-    StatusCode sc = Gaudi::svcLocator()->service( "MessageSvc", msgSvc  );
-    MsgStream log(msgSvc, "LArRodEncoder");
-    if ( log.level() <= MSG::DEBUG )
-      log << MSG::DEBUG << "initialize" << endmsg;
-    // Cabling Service
-    IToolSvc* toolSvc;
-    sc   = Gaudi::svcLocator()->service( "ToolSvc",toolSvc  );
-    if(sc.isSuccess())
-      {
-	sc = 
-	  toolSvc->retrieveTool("LArCablingLegacyService",m_cablingSvc);
-      } else {  // check if it fails
-        // what do you want to do if it fails...
-	log << MSG::FATAL << "Could not get LArCablingService !" << endmsg;
-	exit(1);
-      }
-    //m_cablingSvc = LArCablingService::getInstance(); 
-    // retrieve onlineHelper
-    const LArOnlineID* online_id = 0;
-    StoreGateSvc* detStore = 0;
-    sc =Gaudi::svcLocator()->service( "DetectorStore", detStore );
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to locate DetectorStore" << endmsg;
-      exit(1);
-    } else {
-      if ( log.level() <= MSG::INFO ) 
-        log << MSG::INFO << "Successfully located DetectorStore" << endmsg;
-    }     
-    sc = detStore->retrieve(online_id, "LArOnlineID");
-    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get LArOnlineID helper !" << endmsg;
-      exit(1);
-    } 
-    else {
-      m_onlineHelper=online_id;
-      if ( log.level() <= MSG::DEBUG ) 
-        log << MSG::DEBUG << " Found the LArOnlineID helper. " << endmsg;
-    }
-  }
-
-  m_CaloDetDescrManager = CaloDetDescrManager::instance();
 }
 
 // destructor 
@@ -85,28 +37,31 @@ LArRodEncoder::~LArRodEncoder()
 // Add LArRawChannel
 void LArRodEncoder::add(const LArRawChannel* rc)
 {
- uint32_t FEB_ID = (m_onlineHelper->feb_Id(rc->channelID()).get_identifier32().get_compact());
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(rc->channelID()).get_identifier32().get_compact());
  if ( m_mFEB[FEB_ID].vLArRC.empty() ){
 	m_mFEB[FEB_ID].vLArRC.resize(128,0);
 	//for(int i=0;i<128;i++) m_mFEB[FEB_ID].vLArRC.push_back(0);
  }
- uint32_t chan = m_BlStruct->FebToRodChannel(m_onlineHelper->channel( rc->channelID() ) );
+ uint32_t chan = m_BlStruct->FebToRodChannel(m_onlineHelper.channel( rc->channelID() ) );
  m_mFEB[FEB_ID].vLArRC[chan]=rc;
 }
 
 // Add free gain digits
 void LArRodEncoder::add(const LArDigit* dg)
-{uint32_t FEB_ID = (m_onlineHelper->feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArDigit.push_back(dg);
 }
 //Add fixed gain digits
 void LArRodEncoder::add(const LArDigit* dg, const int gain)
-{uint32_t FEB_ID = (m_onlineHelper->feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArDigitFixed[gain].push_back(dg);
 }
 //Add calibration digits
 void LArRodEncoder::add(const LArCalibDigit* dg, const int gain)
-{uint32_t FEB_ID = (m_onlineHelper->feb_Id(dg->hardwareID()).get_identifier32().get_compact());
+{
+ uint32_t FEB_ID = (m_onlineHelper.feb_Id(dg->hardwareID()).get_identifier32().get_compact());
  m_mFEB[FEB_ID].vLArCalibDigit[gain].push_back(dg);
 }
 
@@ -154,7 +109,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 
         for (const LArRawChannel *theChannel : it->second.vLArRC) {
 	  if ( theChannel != nullptr ){
-	  int cId =  m_onlineHelper->channel(theChannel->hardwareID());
+	  int cId =  m_onlineHelper.channel(theChannel->hardwareID());
 
 	  int e=theChannel->energy();
           uint32_t quality = theChannel->quality();
@@ -162,9 +117,9 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 				    quality,theChannel->gain());
 	  
 	  // you convert from hardwareID to offline channle ID hash (???)
-	  myofflineID = m_cablingSvc->cnvToIdentifier(theChannel->hardwareID()) ;
+	  myofflineID = m_onOffIdMapping.cnvToIdentifier(theChannel->hardwareID()) ;
 	  //std::cout << "Got Offile id 0x" << std::hex << myofflineID.get_compact() << std::dec << std::endl;
-          const CaloDetDescrElement* caloDDE = m_CaloDetDescrManager->get_element(myofflineID);
+          const CaloDetDescrElement* caloDDE = m_CaloDetDescrManager.get_element(myofflineID);
 	  // This is probably NOT what one wants. You want the cell gain!
           double cellnoise = noise.getNoise(myofflineID,theChannel->gain());
           if( e > (nsigma*cellnoise) && (quality != 65535 ) ){
@@ -189,7 +144,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
       // Order channels according to ROD numbering
       m_BlStruct->sortDataVector(it->second.vLArDigit);
       for (const LArDigit* digit : it->second.vLArDigit) {
-        int cId =  m_onlineHelper->channel(digit->hardwareID());
+        int cId =  m_onlineHelper.channel(digit->hardwareID());
         m_BlStruct->setRawData(cId, digit->samples(), digit->gain());
       } // end of for digits
     } // End of can Include Raw Data check
@@ -203,7 +158,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
       if(digit_it!=digit_it_end) { //Container not empty
 	m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
 	for (;digit_it!=digit_it_end;++digit_it)  {
-	  int cId =  m_onlineHelper->channel((*digit_it)->hardwareID());
+	  int cId =  m_onlineHelper.channel((*digit_it)->hardwareID());
 	  //cId = m_BlStruct->FebToRodChannel(cId);
 	  m_BlStruct->setRawData(cId, (*digit_it)->samples(), (*digit_it)->gain());
 	} 
@@ -221,7 +176,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	if(digit_it!=digit_it_end) {//Container not empty
 	  m_BlStruct->setNumberOfSamples((*digit_it)->samples().size());
 	  for (;digit_it!=digit_it_end;++digit_it)  {
-	    int cId =  m_onlineHelper->channel((*digit_it)->hardwareID()); 
+	    int cId =  m_onlineHelper.channel((*digit_it)->hardwareID()); 
 	    //cId = m_BlStruct->FebToRodChannel(cId);
 	    m_BlStruct->setRawDataFixed(cId, (*digit_it)->samples(), (*digit_it)->gain());
 	  }
@@ -241,7 +196,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	    m_BlStruct->setDelay((*digit_it)->delay());
 	    m_BlStruct->setDAC((*digit_it)->DAC());
 	    for (;digit_it!=digit_it_end;++digit_it) { 
-	      int cId =  m_onlineHelper->channel((*digit_it)->hardwareID()); 
+	      int cId =  m_onlineHelper.channel((*digit_it)->hardwareID()); 
 	      //cId = m_BlStruct->FebToRodChannel(cId);
 	      m_BlStruct->setRawDataFixed(cId, (*digit_it)->samples(), (*digit_it)->gain());
 	      if ((*digit_it)->isPulsed())
@@ -263,7 +218,7 @@ void LArRodEncoder::fillROD(std::vector<uint32_t>& v, MsgStream& logstr, const C
 	  m_BlStruct->setDAC((*digit_it)->DAC());
 	  m_BlStruct->setDelay((*digit_it)->delay());
 	  for (;digit_it!=digit_it_end;digit_it++) { 
-	    int cId =  m_cablingSvc->channel((*digit_it)->channelID()); 
+	    int cId =  m_onOffIdMapping.channel((*digit_it)->channelID()); 
 	    cId = m_BlStruct->FebToRodChannel(cId);
 	    m_BlStruct->setRawData(cId, (*digit_it)->samples(), (*digit_it)->gain());
 	    m_BlStruct->setIsPulsed(cId);

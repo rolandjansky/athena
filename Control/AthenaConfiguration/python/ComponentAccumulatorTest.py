@@ -32,8 +32,8 @@ class TestComponentAccumulator( unittest.TestCase ):
 
         def AlgsConf1(flags):
             acc = ComponentAccumulator()
-            a1=TestAlgo("Algo1")
-            a2=TestAlgo("Algo2")
+            a1=TestAlgo("Algo1", MyInt = 12345, MyBool = False, MyDouble=2.718, MyStringVec=["Very", "important"])
+            a2=TestAlgo("Algo2", MyInt = 98765, MyBool = True, MyDouble=1.41, MyStringVec=["unimportant"])
             return acc,[a1,a2]
 
 
@@ -75,9 +75,9 @@ class TestComponentAccumulator( unittest.TestCase ):
         accNA1=AlgsConf4(dummyCfgFlags)
         acc.merge(accNA1[0])
         acc.addEventAlgo(accNA1[1:],"sub2Sequence1" )
-        outf = open("testFile.pkl", "wb")
-        acc.store(outf)
-        outf.close()
+        with open("testFile.pkl", "wb") as outf:
+            acc.store(outf)
+        acc.printConfig(withDetails=True, summariseProps=True)
         self.acc = acc
 
 
@@ -100,8 +100,8 @@ class TestComponentAccumulator( unittest.TestCase ):
 
     def test_readBackConfiguration( self ):
         import pickle
-        f = open('testFile.pkl', 'rb')
-        s = pickle.load( f )
+        with open('testFile.pkl', 'rb') as f: 
+            s = pickle.load( f )
         self.assertIsNotNone( s, "The pickle has no content")
 
     def test_foreach_component( self ):
@@ -115,7 +115,33 @@ class TestComponentAccumulator( unittest.TestCase ):
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo1").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
         self.assertEqual(self.acc.getEventAlgo("NestedAlgo2").OutputLevel, INFO, "wrong OutputLevel value for NestedAlgo1")
 
+def test_gatherProps(self):
+    self.acc.addEventAlgo(TestAlgo("GPTest", MyInt=123, MyBool=True))
+    appPropsToSet, mspPropsToSet, bshPropsToSet = self.acc.gatherProps()
 
+    self.assertIn(
+        "ExtSvc", appPropsToSet, "ExtSvc not present in appPropsToSet"
+    )
+    self.assertIn(
+        "OutputLevel",
+        mspPropsToSet,
+        "OutputLevel not present in mspPropsToSet",
+    )
+    # all bshPropsToSet elements should be should be tuples with 3 elements: (component_name, property_name, property_value)
+    self.assertTrue(
+        all(len(element) == 3 for element in bshPropsToSet),
+        "bshPropsToSet element length not equal to 3. Should be: (component_name, property_name, property_value)",
+    )
+    self.assertIn(
+        ("GPTest", "MyInt", "123"),
+        bshPropsToSet,
+        "MyInt prop not gathered by gatherProps",
+    )
+    self.assertIn(
+        ("GPTest", "MyBool", "True"),
+        bshPropsToSet,
+        "MyBool prop not gathered by gatherProps",
+    )
 
 class TestHLTCF( unittest.TestCase ):
     def runTest( self ):
@@ -302,24 +328,25 @@ class MergeMovingAlgorithms( unittest.TestCase ):
 class TestComponentAccumulatorAccessors( unittest.TestCase ):
     def runTest( self ):
         ca = ComponentAccumulator()
+        ca.wasMerged()
         ca.addEventAlgo(TestAlgo("alg1"))
 
         self.assertEqual( len(ca.getEventAlgos()), 1 , "Found single alg")
-# no idea why this assersts do not recognise exceptions
-#        self.assertRaises(ConfigurationError, ca.getEventAlgo("alg2"))
+        from .ComponentAccumulator import ConfigurationError
+        self.assertRaises(ConfigurationError, lambda: ca.getEventAlgo("alg2"))
 
         ca.addEventAlgo(TestAlgo("alg2"))
 
         self.assertIsNotNone( ca.getEventAlgo("alg2"), "Found single alg")
         self.assertEqual( len(ca.getEventAlgos()), 2 , "Found single alg")
- #       self.assertRaises(ConfigurationError, ca.getEventAlgo(), "Single Alg API ambiguity")
+        self.assertRaises(ConfigurationError, lambda: ca.getEventAlgo()) # Single Alg API ambiguity
 
 
 
         ca.addPublicTool( dummyTool(name="tool1") )
         self.assertIsNotNone( ca.getPublicTool(), "Found single tool")
         ca.addPublicTool( dummyTool(name="tool2") )
-#        self.assertRaises(ConfigurationError, ca.getPublicTool(), "Found single tool")
+        self.assertRaises(ConfigurationError, lambda: ca.getPublicTool()) # Found single tool
 
 class TestDeduplication( unittest.TestCase ):
     def runTest( self ):

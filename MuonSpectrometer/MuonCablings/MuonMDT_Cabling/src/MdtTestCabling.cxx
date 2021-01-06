@@ -10,9 +10,6 @@ MdtTestCabling::MdtTestCabling(const std::string& name, ISvcLocator* pSvcLocator
 { 
 }
 
-MdtTestCabling::~MdtTestCabling() { }
-
-
 StatusCode MdtTestCabling::initialize()
 {
   ATH_CHECK( m_chronoSvc.retrieve() );
@@ -42,12 +39,6 @@ StatusCode MdtTestCabling::execute()
 
   }
 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode MdtTestCabling::finalize()
-{
   return StatusCode::SUCCESS;
 }
 

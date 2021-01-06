@@ -41,6 +41,8 @@ typedef std::istringstream mystream;
 
 namespace {
   static constexpr double const& invRad = 180/M_PI;
+  // the tube number of a tube in a tubeLayer is encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
+  static constexpr unsigned int const maxNTubesPerLayer = 120;
 }
 
 using namespace MuonGM;
@@ -1339,8 +1341,8 @@ void MuonGMCheck::checkreadoutmdtgeo()
 			     if(nGrandchildren <= 0) continue;
 			     bool tubefound = false;
 			     for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
-			       int tubegeo = cv->getIdOfChildVol(kk) % 100;
-			       int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / 100;
+			       int tubegeo = cv->getIdOfChildVol(kk) % maxNTubesPerLayer;
+			       int layergeo = ( cv->getIdOfChildVol(kk) - tubegeo ) / maxNTubesPerLayer;
 			       if( tubegeo == tube && layergeo == tl ) {
 				 tubefound=true;
 				 break;

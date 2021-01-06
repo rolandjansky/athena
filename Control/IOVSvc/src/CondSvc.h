@@ -7,7 +7,6 @@
 
 #include "GaudiKernel/ICondSvc.h"
 #include "GaudiKernel/Service.h"
-#include "AthenaBaseComps/AthService.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaBaseComps/AthService.h"
 #include "ICondSvcSetupDone.h"
@@ -65,7 +64,7 @@ public:
   // unimplemented interfaces
   
   /// Asynchronously setup conditions
-  virtual ConditionSlotFuture* startConditionSetup(const EventContext&) {
+  virtual ConditionSlotFuture* startConditionSetup(const EventContext&) override {
     return nullptr;
   }
 

@@ -92,7 +92,6 @@ Trk::MultipleScatteringUpdator::initialize() {
   } else {
     ATH_MSG_VERBOSE("Gaussian mixture model = OFF");
   }
-  ATH_MSG_INFO("initialize() successful");
 
   return StatusCode::SUCCESS;
 }

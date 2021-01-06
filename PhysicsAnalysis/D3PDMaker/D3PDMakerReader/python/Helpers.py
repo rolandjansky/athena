@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $
 #
 # This module collects some functions used by the helper scripts of
 # the package.
@@ -99,11 +98,11 @@ def dictionaryClasses( filenames ):
         # Open the header file:
         hfile = open( header, "rU" )
         if not hfile:
-            logger.error( "Couldn't open header file: " + hfile )
+            logger.error( "Couldn't open header file: %s", hfile )
             return 255
         for line in hfile:
             import re
-            m1 = re.match( ".*ClassDef\( (\w+), 0 \)", line )
+            m1 = re.match( r".*ClassDef\( (\w+), 0 \)", line )
             m2 = re.match( ".*(VarHandle< .* >).*", line )
             m3 = re.match( ".*(VarProxy< .* >).*", line )
             if m1:
@@ -179,15 +178,15 @@ def writeLinkDefFile( filename, classnames, headers = [] ):
     # Open the linkdef file:
     linkdef = open( filename, "w" )
     if not linkdef:
-        logger.error( "Couldn't open %s for writing!" % filename )
+        logger.error( "Couldn't open %s for writing!", filename )
         return 255
     else:
-        logger.info( "Writing linkdef file to: %s" % filename )
+        logger.info( "Writing linkdef file to: %s", filename )
         pass
 
     # Write the file's header:
     linkdef.write( "// Dear emacs, this is -*- c++ -*-\n" )
-    linkdef.write( "// $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n" );
+    linkdef.write( "// $Id: Helpers.py 600807 2014-06-08 15:26:51Z krasznaa $\n" )
     linkdef.write( "#ifndef D3PDREADER_LINKDEF_H\n" )
     linkdef.write( "#define D3PDREADER_LINKDEF_H\n\n" )
 
@@ -286,13 +285,12 @@ def makeRootCorePackageSkeleton( directory, name ):
     # Check whether the output directory exists:
     import os.path
     if not os.path.exists( directory ):
-        logger.error( "The output directory (%s) doesn't exist!" % directory )
+        logger.error( "The output directory (%s) doesn't exist!", directory )
         return 255
 
     # Check that the package's directory doesn't exist yet:
     if os.path.exists( directory + "/" + name ):
-        logger.error( "The directory for the package (%s) already exists!" % \
-                      directory + "/" + name )
+        logger.error( "The directory for the package (%s/%s) already exists!", directory, name )
         return 255
 
     # Create the directory structure:
@@ -353,13 +351,12 @@ def makeSFramePackageSkeleton( directory, name ):
     # Check whether the output directory exists:
     import os.path
     if not os.path.exists( directory ):
-        logger.error( "The output directory (%s) doesn't exist!" % directory )
+        logger.error( "The output directory (%s) doesn't exist!", directory )
         return 255
 
     # Check that the package's directory doesn't exist yet:
     if os.path.exists( directory + "/" + name ):
-        logger.error( "The directory for the package (%s) already exists!" % \
-                      directory + "/" + name )
+        logger.error( "The directory for the package (%s/%s) already exists!", directory, name )
         return 255
 
     # Create the directory structure:

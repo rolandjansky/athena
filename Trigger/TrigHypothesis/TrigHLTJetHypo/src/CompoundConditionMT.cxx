@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 #
 #include "./CompoundConditionMT.h"
@@ -42,7 +42,7 @@ bool CompoundConditionMT::isSatisfied(const HypoJetVector& ips,
         << " pass: "  << std::boolalpha << pass << '\n';
 
     for(const auto& ip : ips){
-      auto j_addr = static_cast<const void*>(ip);
+      auto j_addr = static_cast<const void*>(ip.get());
       std::stringstream ss1;
       ss1 <<  "     jet : ("<< j_addr << ")\n";
     
@@ -53,7 +53,7 @@ bool CompoundConditionMT::isSatisfied(const HypoJetVector& ips,
 }
 
 
-std::string CompoundConditionMT::toString() const noexcept {
+std::string CompoundConditionMT::toString() const {
   std::stringstream ss;
   ss << "CompoundConditionMT (" << this << ") Capacity: " << m_capacity << '\n';
   for(const auto& el :m_elements){

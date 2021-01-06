@@ -9,7 +9,7 @@ atlas_add_library( TopSystematicObjectMaker
    PUBLIC_HEADERS TopSystematicObjectMaker
    LINK_LIBRARIES AsgTools PATInterfaces EgammaAnalysisInterfacesLib
    FTagAnalysisInterfacesLib JetAnalysisInterfacesLib MuonAnalysisInterfacesLib
-   IsolationSelectionLib IsolationCorrectionsLib JetCalibToolsLib
+   IsolationSelectionLib IsolationCorrectionsLib JetCalibToolsLib ParticleJetToolsLib
    JetCPInterfaces JetInterface METInterface xAODEgamma xAODJet xAODTracking
    TopJetSubstructure MuonMomentumCorrectionsLib TauAnalysisToolsLib
    PRIVATE_LINK_LIBRARIES AthContainers xAODBTagging xAODBase xAODCore xAODEventInfo

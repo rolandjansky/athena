@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetTrackSelectorTool_H
@@ -44,19 +44,17 @@ namespace InDet
 
     public:
 
-      StatusCode initialize();
-
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
 
       InDetTrackSelectorTool(const std::string& t, const std::string& n, const IInterface*  p);
 
       ~InDetTrackSelectorTool();
 
-      bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const;
+      virtual bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const override;
 
-      bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const;
+      virtual bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const override;
 
-      bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const {
+      virtual bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const override {
 	ATH_MSG_WARNING("xAOD::TrackParticle selection not implemented yet");
 	return false;
       }

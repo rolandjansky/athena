@@ -1,26 +1,26 @@
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-from TriggerJobOpts.TriggerFlags import TriggerFlags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 monitoring_muonNonIso = ['HLT_mu50']
 monitoring_muonNonIso_HI = ['HLT_mu8','HLT_mu3', 'HLT_mu4']#8TeV
 #monitoring_muonNonIso_HI = ['HLT_mu10','HLT_mu14']
 monitoring_muonNonIso_pp = ['HLT_mu50']
-if TriggerFlags.EDMDecodingVersion == 3:
+if ConfigFlags.Trigger.EDMVersion == 3:
     monitoring_muonNonIso = ['HLT_mu50_L1MU20']
     monitoring_muonNonIso_pp = ['HLT_mu50_L1MU20']
 
 monitoring_muonIso = ['HLT_mu26_ivarmedium']
 monitoring_muonIso_HI = ['']
 monitoring_muonIso_pp = ['HLT_mu26_ivarmedium']
-if TriggerFlags.EDMDecodingVersion == 3:
+if ConfigFlags.Trigger.EDMVersion == 3:
     monitoring_muonIso = ['HLT_mu26_ivarmedium_L1MU20']
     monitoring_muonIso_pp = ['HLT_mu26_ivarmedium_L1MU20']
 
 monitoring_MSonly = ['HLT_mu60_0eta105_msonly']
 monitoring_MSonly_HI = ['HLT_mu15_msonly']
 monitoring_MSonly_pp = ['HLT_mu60_0eta105_msonly']
-if TriggerFlags.EDMDecodingVersion == 3:
+if ConfigFlags.Trigger.EDMVersion == 3:
     monitoring_MSonly = ['HLT_mu60_0eta105_msonly_L1MU20']
     monitoring_MSonly_pp = ['HLT_mu60_0eta105_msonly_L1MU20']
 

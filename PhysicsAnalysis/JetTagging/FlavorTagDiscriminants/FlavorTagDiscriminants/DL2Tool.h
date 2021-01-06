@@ -16,6 +16,7 @@ namespace FlavorTagDiscriminants {
   struct DL2Properties {
     std::string nnFile;
     std::string flipTagConfig;
+    std::map<std::string,std::string> variableRemapping;
   };
 
   class DL2Tool : public asg::AsgTool, virtual public ISingleJetDecorator
@@ -29,6 +30,8 @@ namespace FlavorTagDiscriminants {
 
     // returns 0 for success
     virtual void decorate(const xAOD::Jet& jet) const override;
+
+    virtual std::set<std::string> getDecoratorKeys() const override;
   private:
     DL2Properties m_props; //!
     std::unique_ptr<DL2HighLevel> m_dl2; //!

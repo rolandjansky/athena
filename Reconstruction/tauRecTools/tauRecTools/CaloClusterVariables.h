@@ -5,10 +5,7 @@
 #ifndef CALOCLUSTERVARIABLES_H
 #define CALOCLUSTERVARIABLES_H
 
-#include "tauRecTools/ITauVertexCorrection.h"
-
 #include "xAODTau/TauJet.h"
-#include "AsgTools/ToolHandle.h"
 #include "CxxUtils/fpcompare.h"
 
 #include "TLorentzVector.h"
@@ -26,9 +23,7 @@ public:
     ~CaloClusterVariables() {
     }
 
-    bool update(const xAOD::TauJet& pTau, const ToolHandle<ITauVertexCorrection>& handle); //!< update the internal variables for the given tau
-
-    void setIncSub(bool flag) {m_useSubtractedCluster=flag;}
+    bool update(const xAOD::TauJet& pTau); //!< update the internal variables for the given tau
 
     // ID Variables
     unsigned int numConstituents() { return (unsigned int) m_numConstit; }
@@ -59,9 +54,6 @@ private:
 
     // Calculate the geometrical center of the tau constituents
     TLorentzVector calculateTauCentroid(int nConst, const std::vector<TLorentzVector>& clusterP4Vector);
-
-    // use shower subtracted clusters with PFlow jet seeds
-    bool m_useSubtractedCluster;
 };
 
 //-------------------------------------------------------------------------

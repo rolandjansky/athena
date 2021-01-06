@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -27,7 +27,7 @@ namespace PanTau {
     */
 
 
-  class TauConstituent2 : public xAOD::IParticle {
+  class TauConstituent : public xAOD::IParticle {
 
   public:
     
@@ -60,7 +60,7 @@ namespace PanTau {
     static double       DefaultCharge()         {return -47111337;}
     static std::string  AllConstituentsName()   {return "All";}
     
-    static std::string  getTypeName(PanTau::TauConstituent2::Type aType);
+    static std::string  getTypeName(PanTau::TauConstituent::Type aType);
     static bool         isNeutralType(int tauConstituentType);
     static bool         isCoreType(int tauConstituentType);
     
@@ -68,14 +68,14 @@ namespace PanTau {
 
       
     /** Default Constructor for POOL. Do not use! */
-    TauConstituent2();
+    TauConstituent();
     
     /**
      * @param itsMomentum The P4EEtaPhiM of this particle
      * @param itsType The type of this particle using this class' enumeration 
      * @param itsBDTValue If a BDT was used ot ID this particle, provide the BDT response
      */
-    TauConstituent2(TLorentzVector                           itsMomentum,
+    TauConstituent(TLorentzVector                           itsMomentum,
                    int                                      itsCharge,
                    std::vector<int>                         itsType,
                    double                                   itsBDTValue,
@@ -83,14 +83,14 @@ namespace PanTau {
     
     
     /** Destructor */
-    virtual ~TauConstituent2();
+    virtual ~TauConstituent();
     
     
     /** Copy Constructor */
-    TauConstituent2(const TauConstituent2& tauConst);
+    TauConstituent(const TauConstituent& tauConst);
 
     /** Assignment operator */
-    TauConstituent2& operator=(const TauConstituent2& tauConst);
+    TauConstituent& operator=(const TauConstituent& tauConst);
 
      /// @name xAOD::IParticle functions
      /// These are already virtual due to IParticle
@@ -141,19 +141,19 @@ namespace PanTau {
 
 
     //no setter functions needed as all properties are set in constructor
-    void                                    removeTypeFlag(TauConstituent2::Type aType);
+    void                                    removeTypeFlag(TauConstituent::Type aType);
     
     //Getter functions
     std::vector<std::string>                getTypeName() const;
     std::string                             getTypeNameString() const;
     std::vector<int>                        getTypeFlags() const;
-    bool                                    isOfType(TauConstituent2::Type aType) const;
+    bool                                    isOfType(TauConstituent::Type aType) const;
     double                                  getBDTValue() const;
     int                                     getCharge() const;
     xAOD::PFO*                              getPFO() const;
     
-    void                                    addShot(TauConstituent2* shot);
-    std::vector<TauConstituent2*>            getShots();
+    void                                    addShot(TauConstituent* shot);
+    std::vector<TauConstituent*>            getShots();
     unsigned int                            getNShots();
     
     void                                    setNPhotonsInShot(int nPhotons);
@@ -179,7 +179,7 @@ namespace PanTau {
     xAOD::PFO*                      m_PFOLink;
     
     // the constituents in there are owned by this! delete them!
-    std::vector<TauConstituent2*>    m_Shots;
+    std::vector<TauConstituent*>    m_Shots;
     int                             m_nPhotonsInShot;
     
 

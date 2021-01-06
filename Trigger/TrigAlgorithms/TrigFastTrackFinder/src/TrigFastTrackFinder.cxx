@@ -80,6 +80,8 @@
 #include "TrigAccelEvent/TrigInDetAccelEDM.h"
 #include "TrigAccelEvent/TrigInDetAccelCodes.h"
 
+#include "PathResolver/PathResolver.h"
+
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
   HLT::FexAlgo(name, pSvcLocator), 
@@ -108,7 +110,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_particleHypothesis(Trk::pion),
   m_useNewLayerNumberScheme(false), 
   m_useGPU(false),
-  m_LRTmode(false)
+  m_LRTmode(false),
+  m_trigseedML_LUT("")
 {
 
   /** Doublet finding properties. */
@@ -123,8 +126,15 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("Triplet_nMaxPhiSlice",     m_tcs.m_nMaxPhiSlice = 53);
   declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3);
   declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false);
-
+  declareProperty("TripletDoPPS",            m_tcs.m_tripletDoPPS = true);
+  
   declareProperty("Triplet_DtCut",            m_tcs.m_tripletDtCut      = 10.0);//i.e. 10*sigma_MS
+
+  /** settings for the ML-enhanced track seeding */
+
+  declareProperty("UseTrigSeedML",              m_tcs.m_useTrigSeedML = 0);
+  declareProperty("TrigSeedML_LUT",             m_trigseedML_LUT = "trigseed_ml_pixel_barrel_kde.lut");
+  declareProperty("maxEC_Pixel_cluster_length", m_tcs.m_maxEC_len = 1.5);
 
   declareProperty( "VertexSeededMode",    m_vertexSeededMode = false);
   declareProperty( "doZFinder",           m_doZFinder = true);
@@ -317,10 +327,37 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
   ATH_MSG_INFO("Use GPU acceleration : "<<std::boolalpha<<m_useGPU);
 
   if (m_LRTmode) {
-    ATH_MSG_INFO(" FTF configures in Long Range Tracking Mode");
+    ATH_MSG_INFO(" FTF configures in Large Radius Tracking Mode");
     // set TrigTrackSeedGenerator to LRTmode
     m_tcs.m_LRTmode=m_LRTmode;
 
+  }
+
+  if(m_tcs.m_useTrigSeedML > 0) {
+    //LUT params
+    int lut_w = 30;
+    int lut_h = 45;
+    float lut_range[4] = {0.0,3.0,0.0,9.0};
+    TrigSeedML_LUT L(1,lut_w,lut_h,lut_range);
+    //read data from LUT file 
+    std::string lut_fileName = PathResolver::find_file(m_trigseedML_LUT, "DATAPATH");
+    if (lut_fileName.empty()) {
+      ATH_MSG_ERROR("Cannot find TrigSeedML LUT file " << lut_fileName);
+      return HLT::BAD_JOB_SETUP;
+    }
+    else {
+      ATH_MSG_INFO(lut_fileName);
+      std::ifstream ifs(lut_fileName.c_str());
+      int row, col0, col1;
+      while(!ifs.eof()) {
+        ifs >> row >> col0 >> col1;
+        if(ifs.eof()) break;
+        for(int c=col0;c<=col1;c++) L.setBin(row, c);
+      }
+      ifs.close();
+      ATH_MSG_INFO("TrigSeedML LUT initialized from file " << m_trigseedML_LUT);
+      m_tcs.m_vLUT.push_back(L);
+    }
   }
   
   ATH_MSG_DEBUG(" Initialized successfully"); 
@@ -485,17 +522,19 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   auto mnt_roi_nSPsSCT = Monitored::Scalar<int>("roi_nSPsSCT", 0);
   auto monSP = Monitored::Group(m_monTool, mnt_roi_nSPsPIX, mnt_roi_nSPsSCT);
 
+  auto mnt_timer_Total                 = Monitored::Timer<std::chrono::milliseconds>("TIME_Total");
   auto mnt_timer_SpacePointConversion  = Monitored::Timer<std::chrono::milliseconds>("TIME_SpacePointConversion");
   auto mnt_timer_PatternReco           = Monitored::Timer<std::chrono::milliseconds>("TIME_PattReco");
   auto mnt_timer_TripletMaking         = Monitored::Timer<std::chrono::milliseconds>("TIME_Triplets");
   auto mnt_timer_CombTracking          = Monitored::Timer<std::chrono::milliseconds>("TIME_CmbTrack");
   auto mnt_timer_TrackFitter           = Monitored::Timer<std::chrono::milliseconds>("TIME_TrackFitter");
-  auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_SpacePointConversion,
+  auto monTime = Monitored::Group(m_monTool, mnt_roi_nTracks, mnt_roi_nSPs, mnt_timer_Total, mnt_timer_SpacePointConversion,
 				  mnt_timer_PatternReco, mnt_timer_TripletMaking, mnt_timer_CombTracking, mnt_timer_TrackFitter);
 
   auto mnt_roi_lastStageExecuted = Monitored::Scalar<int>("roi_lastStageExecuted", 0);
   auto monDataError              = Monitored::Group(m_monTool, mnt_roi_lastStageExecuted);
 
+  mnt_timer_Total.start(); // Run3 monitoring
   mnt_timer_SpacePointConversion.start(); // Run3 monitoring
 
   
@@ -745,6 +784,7 @@ StatusCode TrigFastTrackFinder::findTracks(InDet::SiTrackMakerEventData_xk &trac
   }
 
   mnt_timer_TrackFitter.stop(); // Run3 monitoring
+  mnt_timer_Total.stop(); // Run3 monitoring
 
   if( outputTracks.empty() ) {
     ATH_MSG_DEBUG("REGTEST / No tracks reconstructed");

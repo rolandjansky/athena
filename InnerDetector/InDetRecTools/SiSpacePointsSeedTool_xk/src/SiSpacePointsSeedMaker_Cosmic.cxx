@@ -1160,3 +1160,10 @@ void InDet::SiSpacePointsSeedMaker_Cosmic::initializeEventData(EventData& data) 
                   0, // sizeRFZV not used
                   false); // checkEta not used
 }
+
+void InDet::SiSpacePointsSeedMaker_Cosmic::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_Cosmic::getWriteNtupleBoolProperty() const{
+    return false;
+}

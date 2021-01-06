@@ -3,12 +3,10 @@
 from AthenaCommon.Logging import logging
 mlog = logging.getLogger( 'ElectronRingerSelectorDefs.py' )
 
-from AthenaCommon.Configurable import Configurable
-
 # Import from Ringer utilities:
 import ROOT
 ROOT.gSystem.Load('libRingerSelectorToolsEnumsDict.so')
-from ROOT.Ringer import ElectronTAccept_v1
+from ROOT import Ringer
 
 from RingerSelectorTools.RingerSelectorToolsConf import Ringer__AsgElectronRingerSelector
 from CaloRingerAlgs.CaloRingerKeys import outputElectronRingSetsConfKey
@@ -28,7 +26,7 @@ def removeClusterCutsFromIsEMMask(CutIDIsEMMask):
 class BaseElectronSelectorConf ( Ringer__AsgElectronRingerSelector ):
   def _setDefault(self,attrName, default, **kwargs):
     "Overwrites AsgElectronRingerSelector default to new default value."
-    if not kwargs.has_key(attrName):
+    if attrName not in kwargs:
       setattr(self, attrName, default)
 
   def _setCutIDSelector(self,defaultName,quality,menu,**kwargs):
@@ -37,12 +35,12 @@ class BaseElectronSelectorConf ( Ringer__AsgElectronRingerSelector ):
     available in the kwargs
     """
     removeMask = False
-    if not kwargs.has_key("cutIDConfDict") and not kwargs.has_key("CutIDSelector"):
+    if "cutIDConfDict" not in kwargs and "CutIDSelector" not in kwargs:
       removeMask = True
-    if not kwargs.has_key("CutIDSelector"):
-      CutIDSelectorTool = ConfiguredAsgElectronIsEMSelector(defaultName, \
-        quality, \
-        menu, \
+    if "CutIDSelector" not in kwargs:
+      CutIDSelectorTool = ConfiguredAsgElectronIsEMSelector(defaultName,
+        quality,
+        menu,
         **kwargs.pop("cutIDConfDict",{}))
       from AthenaCommon.AppMgr import ToolSvc
       ToolSvc += CutIDSelectorTool
@@ -71,8 +69,8 @@ class ElectronRingerSelectorTestLoose( BaseElectronSelectorConf ):
                      "RingerSelectorTools/TestMenu_20150605_v1/ElectronRingerOfflineThresLoose.root",
                      **kwargs)
     self._setDefault("CutsMask",
-                     ElectronTAccept_v1.getAppliedCutMsk(Ringer.Loose,
-                                                         kwargs.get("useCutIDTrack",False)),
+                     Ringer.ElectronTAccept_v1.getAppliedCutMsk(Ringer.Loose,
+                                                                kwargs.get("useCutIDTrack",False)),
                      **kwargs)
     self._setCutIDSelector("LooseRingerIsEMSelector",\
         egammaPID.ElectronIDLoosePP, \
@@ -88,8 +86,8 @@ class ElectronRingerSelectorTestMedium( BaseElectronSelectorConf ):
                      "RingerSelectorTools/TestMenu_20150605_v1/ElectronRingerOfflineThresMedium.root",
                      **kwargs)
     self._setDefault("CutsMask",
-                     ElectronTAccept_v1.getAppliedCutMsk(Ringer.Medium,
-                                                         kwargs.get("useCutIDTrack",False)),
+                     Ringer.ElectronTAccept_v1.getAppliedCutMsk(Ringer.Medium,
+                                                                kwargs.get("useCutIDTrack",False)),
                      **kwargs)
     self._setCutIDSelector("MediumRingerIsEMSelector", \
         egammaPID.ElectronIDMediumPP, \
@@ -106,8 +104,8 @@ class ElectronRingerSelectorTestTight( BaseElectronSelectorConf ):
                      "RingerSelectorTools/TestMenu_20150605_v1/ElectronRingerOfflineThresTight.root",
                      **kwargs)
     self._setDefault("CutsMask",
-                     ElectronTAccept_v1.getAppliedCutMsk(Ringer.Tight,
-                                                         kwargs.get("useCutIDTrack",False)),
+                     Ringer.ElectronTAccept_v1.getAppliedCutMsk(Ringer.Tight,
+                                                                kwargs.get("useCutIDTrack",False)),
                      **kwargs)
     self._setCutIDSelector("TightRingerIsEMSelector", \
         egammaPID.ElectronIDTightPP, \
@@ -124,8 +122,8 @@ class ElectronRingerSelectorTestNoCut( BaseElectronSelectorConf ):
                      "RingerSelectorTools/TestMenu_20150605_v1/ElectronRingerOfflineThresMedium.root",
                      **kwargs)
     self._setDefault("CutsMask",
-                     ElectronTAccept_v1.getAppliedCutMsk(Ringer.NoCut,
-                                                         kwargs.get("useCutIDTrack",False)),
+                     Ringer.ElectronTAccept_v1.getAppliedCutMsk(Ringer.NoCut,
+                                                                kwargs.get("useCutIDTrack",False)),
                      **kwargs)
     self._setCutIDSelector("NoCutRingerIsEMSelector", \
         egammaPID.ElectronIDNoCut, \

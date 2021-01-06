@@ -25,73 +25,21 @@
 # art-output: cost-perEvent-chain
 # art-output: *.dat 
 
+Slices = ['bjet']
+Events  = 4000
+Threads = 8 
+Slots   = 8
+Input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
-from TrigValTools.TrigValSteering import Test, CheckSteps
-from TrigInDetValidation.TrigInDetArtSteps import TrigInDetReco, TrigInDetAna, TrigInDetdictStep, TrigInDetCompStep, TrigInDetCpuCostStep
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
+         ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
 
-
-import sys,getopt
-
-try:
-    opts, args = getopt.getopt(sys.argv[1:],"lxp",["local"])
-except getopt.GetoptError:
-    print("Usage:  ")
-    print("-l(--local)    run locally with input file from art eos grid-input")
-    print("-x             don't run athena or post post-processing, only plotting")
-    print("-p             run post-processing, even if -x is set")
-
-
-local=False
-exclude=False
-postproc=False
-for opt,arg in opts:
-    if opt in ("-l", "--local"):
-        local=True
-    if opt=="-x":
-        exclude=True
-    if opt=="-p":
-        postproc=True
+Comp = [ ( "L2bjet",              "L2bjet",      "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
+         ( "L2bjetoffline",       "L2bjet",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ),
+         ( "EFbjet",              "EFbjet",      "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTEF-plots " ),
+         ( "EFbjetoffline",       "EFbjet",      "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTEF-plots-offline " ) ]
 
 
+from AthenaCommon.Include import include 
+include("TrigInDetValidation/TrigInDetValidation_Base.py")
 
-rdo2aod = TrigInDetReco()
-rdo2aod.slices = ['bjet']
-rdo2aod.max_events = 4000 
-rdo2aod.threads = 4 
-rdo2aod.concurrent_events = 4 
-rdo2aod.perfmon = False
-rdo2aod.timeout = 18*3600
-rdo2aod.input = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
-
-
-test = Test.Test()
-test.art_type = 'grid'
-if (not exclude):
-    test.exec_steps = [rdo2aod]
-    test.exec_steps.append(TrigInDetAna()) # Run analysis to produce TrkNtuple
-    test.check_steps = CheckSteps.default_check_steps(test)
-
-# Run Tidardict
-if ((not exclude) or postproc ):
-    rdict = TrigInDetdictStep()
-    rdict.args='TIDAdata-run3.dat  -f data-hists.root -b Test_bin.dat '
-    test.check_steps.append(rdict)
-
- 
-# Now the comparitor steps
-comp1=TrigInDetCompStep('Comp_L2bjet','L2','bjet')
-test.check_steps.append(comp1)
-
-comp2=TrigInDetCompStep('Comp_EFbjet','EF','bjet')
-test.check_steps.append(comp2)
-
-
-# CPU cost steps
-cpucost=TrigInDetCpuCostStep('CpuCostStep1', ftf_times=False)
-test.check_steps.append(cpucost)
-
-cpucost2=TrigInDetCpuCostStep('CpuCostStep2')
-test.check_steps.append(cpucost2)
-
-import sys
-sys.exit(test.run())

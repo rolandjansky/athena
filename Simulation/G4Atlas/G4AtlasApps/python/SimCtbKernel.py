@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 """
 Main configuration module for the ATLAS test-beams
@@ -11,15 +11,12 @@ LAr  standalone test beams at H6
 __author__ = 'M. Gallas'
 
 
-import math
-from AthenaCommon               import PhysicalConstants
 from AthenaCommon.AppMgr        import theApp
 from AthenaCommon.Include       import include
 from AthenaCommon.GlobalFlags   import globalflags
 from AthenaCommon.DetFlags      import DetFlags
 from AthenaCommon.JobProperties import jobproperties
-from AthenaCommon.BeamFlags     import jobproperties
-import PyG4Atlas, AtlasG4Eng
+import AtlasG4Eng
 from SimSkeleton import SimSkeleton
 
 
@@ -58,12 +55,12 @@ class CtbSim(TBSimSkeleton):
         ATLAS Combined Test Beam (2004)
     """
     def __init__(self):
-        if not(AtlasG4Eng.G4Eng.Dict.has_key('simu_skeleton')):
+        if 'simu_skeleton' not in AtlasG4Eng.G4Eng.Dict:
             AtlasG4Eng.G4Eng.Dict['simu_skeleton']=self
             AtlasG4Eng.G4Eng.Name="CTB_G4Sim"         # assigns a name
         else:
-            AtlasG4Eng.G4Eng.log.warning(' SimSkeleton: the simulation '+\
-            'has already a skeleton, you can find it in the '+\
+            AtlasG4Eng.G4Eng.log.warning(' SimSkeleton: the simulation '
+            'has already a skeleton, you can find it in the '
             'G4AtlasEng.G4Eng.Dict()')
 
     @classmethod
@@ -95,16 +92,16 @@ class CtbSim(TBSimSkeleton):
         if (simFlags.BeamConditions.statusOn and
             simFlags.BeamConditions.get_Value()):
                 try:
-                    AtlasG4Eng.G4Eng.log.info(' SimCtbKernel: '+\
-                           ' loading CTB beam-conditions from the'+\
+                    AtlasG4Eng.G4Eng.log.info(' SimCtbKernel: '
+                           ' loading CTB beam-conditions from the'
                            ' CTB run-condition file !!')
-                    BeamCond=__import__(modulepath,globals(),locals(),prepath).BeamCond
+                    BeamCond=__import__(modulepath,globals(),locals(),prepath).BeamCond  # noqa: F821 (broken?)
                     beam_cond_obj=BeamCond.retrieve_Run(simFlags.RunNumber.get_Value())
                     beam_cond_obj._map()
-                except:
-                    AtlasG4Eng.G4Eng.log.warning(' SimCtbKernel: '+
-                    'No particular beam conditions found for the run '+\
-                    str(simFlags.RunNumber.get_Value()))
+                except Exception:
+                    AtlasG4Eng.G4Eng.log.warning(' SimCtbKernel: '
+                    'No particular beam conditions found for the run %s',
+                    simFlags.RunNumber.get_Value())
         # - switch off non-existing detectors
         DetFlags.FCal_setOff()
         DetFlags.HEC_setOff()
@@ -173,8 +170,7 @@ class CtbSim(TBSimSkeleton):
     def _do_external(self):
         """ Place to handle the external services: GeoModel, CondDB, etc.
         """
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'starting')
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external starting')
         from AthenaCommon.AppMgr import ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         Geo2G4Svc=Geo2G4Svc()
@@ -184,7 +180,7 @@ class CtbSim(TBSimSkeleton):
         Geo2G4Svc.GetTopTransform = False
 
         #--- GeoModel stuff ----------------------------------------------------
-        from AtlasGeoModel import SetGeometryVersion
+        from AtlasGeoModel import SetGeometryVersion  # noqa: F401
 
         from AthenaCommon.Configurable import Configurable
         if Configurable.allConfigurables.get('GeoModelSvc'):
@@ -201,7 +197,7 @@ class CtbSim(TBSimSkeleton):
         elif(simFlags.GeoModelTileVersion.get_Value()=='TileTB-3B3EB-00'):
             GeoModelSvc.TileVersionOverride='TileTB-3B3EB-00'
 
-        from AtlasGeoModel import GeoModelInit
+        from AtlasGeoModel import GeoModelInit  # noqa: F401
         if(DetFlags.Calo_on()):
             # Common for the Calo
             include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
@@ -230,8 +226,8 @@ class CtbSim(TBSimSkeleton):
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
         ServiceMgr += getService('PhysicsListSvc')
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'done')
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external done')
+
 
 #--- Tile TB 2000-2003  ------------------------------------------------
 class Tile2000_2003(TBSimSkeleton):
@@ -242,12 +238,12 @@ class Tile2000_2003(TBSimSkeleton):
 
     """
     def __init__(self):
-        if not(AtlasG4Eng.G4Eng.Dict.has_key('simu_skeleton')):
+        if 'simu_skeleton' not in AtlasG4Eng.G4Eng.Dict:
             AtlasG4Eng.G4Eng.Dict['simu_skeleton']=self
             AtlasG4Eng.G4Eng.Name="Tile2000_2003"  # assigns a name
         else:
-            G4AtlasEngine.log.warning(' SimSkeleton: the simulation '+\
-            'has already a skeleton, you can find it in the '+\
+            AtlasG4Eng.G4Eng.log.warning(' SimSkeleton: the simulation '
+            'has already a skeleton, you can find it in the '
             'G4AtlasEng.G4Eng.Dict()')
 
     @classmethod
@@ -320,8 +316,7 @@ class Tile2000_2003(TBSimSkeleton):
     def _do_external(self):
         """ Place to handle the external services: GeoModel, CondDB, etc.
         """
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'starting')
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external starting')
         from AthenaCommon.AppMgr import ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
         Geo2G4Svc=Geo2G4Svc()
@@ -329,7 +324,7 @@ class Tile2000_2003(TBSimSkeleton):
         ServiceMgr +=Geo2G4Svc
         Geo2G4Svc.GetTopTransform = False
 
-        from AtlasGeoModel import SetGeometryVersion
+        from AtlasGeoModel import SetGeometryVersion  # noqa: F401
         from AthenaCommon.Configurable import Configurable
         if Configurable.allConfigurables.get('GeoModelSvc'):
             GeoModelSvc=Configurable.allConfigurables.get('GeoModelSvc')
@@ -351,7 +346,7 @@ class Tile2000_2003(TBSimSkeleton):
             # 5 Barrels
             GeoModelSvc.TileVersionOverride='TileTB-5B-00'
 
-        from AtlasGeoModel import GeoModelInit
+        from AtlasGeoModel import GeoModelInit  # noqa: F401
         if(DetFlags.Calo_on()):
             # Common for the Calo
             include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
@@ -378,8 +373,8 @@ class Tile2000_2003(TBSimSkeleton):
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
         ServiceMgr += getService('PhysicsListSvc')
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'done')
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external done')
+
 
 #--- LAr TB 2002-2004  ------------------------------------------------
 class LArH6_TB(TBSimSkeleton):
@@ -388,12 +383,12 @@ class LArH6_TB(TBSimSkeleton):
 
     """
     def __init__(self):
-        if not(AtlasG4Eng.G4Eng.Dict.has_key('simu_skeleton')):
+        if 'simu_skeleton' not in AtlasG4Eng.G4Eng.Dict:
             AtlasG4Eng.G4Eng.Dict['simu_skeleton']=self
             AtlasG4Eng.G4Eng.Name="LArH6"         # assigns a name
         else:
-            G4AtlasEngine.log.warning(' SimSkeleton: the simulation '+\
-            'has already a skeleton, you can find it in the '+\
+            AtlasG4Eng.G4Eng.log.warning(' SimSkeleton: the simulation '
+            'has already a skeleton, you can find it in the '
             'G4AtlasEng.G4Eng.Dict()')
 
     @classmethod
@@ -473,11 +468,7 @@ class LArH6_TB(TBSimSkeleton):
     def _do_external(self):
         """ Place to handle the external services: GeoModel, CondDB, etc.
         """
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'starting')
-
-       #from LArH6Detectors import Det_Layouts
-        from tbLArH6_calo import Det_Layouts
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external starting')
 
         from AthenaCommon.AppMgr import ServiceMgr
         from Geo2G4.Geo2G4Conf import Geo2G4Svc
@@ -488,8 +479,8 @@ class LArH6_TB(TBSimSkeleton):
         Geo2G4Svc.GetTopTransform = False
 
         #--- GeoModel stuff ----------------------------------------------------
-        from AtlasGeoModel import SetGeometryVersion
-        from AtlasGeoModel import GeoModelInit
+        from AtlasGeoModel import SetGeometryVersion  # noqa: F401
+        from AtlasGeoModel import GeoModelInit  # noqa: F401
 
         from AthenaCommon.Configurable import Configurable
         if Configurable.allConfigurables.get('GeoModelSvc'):
@@ -508,8 +499,7 @@ class LArH6_TB(TBSimSkeleton):
         from AthenaCommon.AppMgr import ServiceMgr
         ServiceMgr += getService('DetectorGeometrySvc')
         ServiceMgr += getService('PhysicsListSvc')
-        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external '+\
-                                       'done')
+        AtlasG4Eng.G4Eng.log.info('SimSkeleton :: _do_external done')
 
         # mgallas do more here: this is not yet supported
 

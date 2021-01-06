@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, \
   TrigGenericMonitoringToolConfig
@@ -24,7 +24,7 @@ class SiTrigSPSeededTrackFinderMonitorBase(TrigGenericMonitoringToolConfig):
     if deta>3:
       maxtr = 1000
       maxid = 3000
-      maxseed = 30000
+      maxseeds = 30000
     elif deta>0.7:
       maxtr = 400
       maxid = 2000

@@ -42,16 +42,16 @@ StatusCode TileCellMonitorAlgorithm::initialize() {
   m_energyBalModPartGroups = buildToolMap<int>(m_tools, "TileCellEneBalModPart", nL1Triggers);
   m_timeBalModPartGroups = buildToolMap<int>(m_tools, "TileCellTimeBalModPart", nL1Triggers);
   m_maskedOnFlyGroups = buildToolMap<int>(m_tools, "TileCellStatusOnFly", Tile::MAX_ROS - 1);
-  m_maskedDueDQGroups = buildToolMap<int>(m_tools, "TileMaskChannelDueDQvsLB", Tile::MAX_ROS - 1);
-  m_maskedCellsDueDQGroups = buildToolMap<int>(m_tools, "TileMaskedCellDueDQvsLB", Tile::MAX_ROS - 1);
+  m_maskedDueDQGroups = buildToolMap<int>(m_tools, "TileMaskChannelDueDQvsLB", MAX_PART);
+  m_maskedCellsDueDQGroups = buildToolMap<int>(m_tools, "TileMaskedCellDueDQvsLB", MAX_PART);
 
-  m_maskedOnFlyLBGroups = buildToolMap<int>(m_tools, "TileMaskChannelOnFlyLB", Tile::MAX_ROS - 1);
-  m_maskedCellsLBGroups = buildToolMap<int>(m_tools, "TileMaskCellLB", Tile::MAX_ROS - 1);
+  m_maskedOnFlyLBGroups = buildToolMap<int>(m_tools, "TileMaskChannelOnFlyLB", MAX_PART);
+  m_maskedCellsLBGroups = buildToolMap<int>(m_tools, "TileMaskCellLB", MAX_PART);
 
   m_maskedGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellStatusInDB",
                                                   Tile::MAX_ROS - 1, Tile::MAX_GAIN);
 
-  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergySampE",
+  m_energySampEGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellEventEnergy_SampE",
                                                        Tile::MAX_ROS, nL1Triggers);
 
   m_moduleCorrGroups = buildToolMap<std::vector<int>>(m_tools, "TileCellModuleCorrelation",
@@ -721,18 +721,6 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
 
   for (unsigned int partition = 0; partition < Tile::MAX_ROS - 1; ++partition) {
 
-    auto monMaskedDueDQ = Monitored::Scalar<int>("nMaskedChannelsDueDQ", nMaskedChannelsDueDQ[partition]);
-    fill(m_tools[m_maskedDueDQGroups[partition]], lumiBlock, monMaskedDueDQ);
-
-    auto monMaskedCellsDueDQ = Monitored::Scalar<int>("nMaskedCellsDueDQ", nMaskedCellsDueDQ[partition]);
-    fill(m_tools[m_maskedCellsDueDQGroups[partition]], lumiBlock, monMaskedCellsDueDQ);
-
-    auto monMaskedOnFly = Monitored::Scalar<int>("nMaskedChannelsOnFly", nBadChannelsOnFly[partition]);
-    fill(m_tools[m_maskedOnFlyLBGroups[partition]], lumiBlock, monMaskedOnFly);
-
-    auto monMaskedCellsOnFly = Monitored::Scalar<int>("nMaskedCells", nBadCells[partition]);
-    fill(m_tools[m_maskedCellsLBGroups[partition]], lumiBlock, monMaskedCellsOnFly);
-
     if (!maskedOnFlyDrawers[partition].empty()) {
       auto monModule = Monitored::Collection("module", maskedOnFlyDrawers[partition]);
       auto monChannel = Monitored::Collection("channel", maskedOnFlyChannel[partition]);
@@ -857,6 +845,19 @@ StatusCode TileCellMonitorAlgorithm::fillHistograms( const EventContext& ctx ) c
   }
 
   for (int partition = 0; partition < MAX_PART; ++partition) {
+    auto monMaskedDueDQ = Monitored::Scalar<int>("nMaskedChannelsDueDQ", nMaskedChannelsDueDQ[partition]);
+    fill(m_tools[m_maskedDueDQGroups[partition]], lumiBlock, monMaskedDueDQ);
+
+    auto monMaskedCellsDueDQ = Monitored::Scalar<int>("nMaskedCellsDueDQ", nMaskedCellsDueDQ[partition]);
+    fill(m_tools[m_maskedCellsDueDQGroups[partition]], lumiBlock, monMaskedCellsDueDQ);
+
+    auto monMaskedOnFly = Monitored::Scalar<int>("nMaskedChannelsOnFly", nBadChannelsOnFly[partition]);
+    fill(m_tools[m_maskedOnFlyLBGroups[partition]], lumiBlock, monMaskedOnFly);
+
+    auto monMaskedCellsOnFly = Monitored::Scalar<int>("nMaskedCells", nBadCells[partition]);
+    fill(m_tools[m_maskedCellsLBGroups[partition]], lumiBlock, monMaskedCellsOnFly);
+
+
     if (moduleCorr[partition].numberOfPairs() > 0) {
       const PairBuilder::PairVector pairs = moduleCorr[partition].pairs();
       auto monModule1 = Monitored::Collection("firstModule", pairs, [] (const PairBuilder::XYPair& p) {return (double) p.first;});

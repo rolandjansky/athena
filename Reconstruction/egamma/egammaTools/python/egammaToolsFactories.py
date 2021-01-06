@@ -6,7 +6,6 @@ __author__ = "Bruno Lenzi"
 
 
 from ROOT import egammaPID
-import cppyy
 from ElectronPhotonSelectorTools.ConfiguredAsgForwardElectronIsEMSelectors \
     import ConfiguredAsgForwardElectronIsEMSelector
 from .EMPIDBuilderBase import EMPIDBuilderPhotonBase
@@ -22,8 +21,6 @@ from egammaRec import egammaKeys
 # to set jobproperties.egammaRecFlags
 from egammaRec.egammaRecFlags import jobproperties
 
-import six
-
 
 _clusterTypes = dict(
     Ele35='ele35', Ele55='ele55', Ele37='ele37',
@@ -35,10 +32,7 @@ _clusterTypes = dict(
 # Configure fixed-size (non-supercell) corrections
 def configureFixedSizeClusterCorrections(swTool):
     "Add attributes ClusterCorrectionToolsXX to egammaSwTool object for fixed-size cluster corrections."
-    from CaloClusterCorrection.CaloSwCorrections import (
-        make_CaloSwCorrections, rfac, etaoff_b1, etaoff_e1,
-        etaoff_b2, etaoff_e2, phioff_b2, phioff_e2, update,
-        time, listBadChannel)
+    from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
     from CaloRec.CaloRecMakers import _process_tools
 
     for attrName, clName in _clusterTypes.items():
@@ -130,6 +124,14 @@ egammaLargeClusterMakerTool = ToolFactory(
     CellsName=egammaKeys.caloCellKey()
 )
 
+egammaLargeFWDClusterMakerTool = ToolFactory(
+    egammaToolsConf.egammaLargeClusterMaker,
+    name="egammaLCFWDMakerTool",
+    InputClusterCollection=egammaKeys.FwdClusterKey(),
+    CellsName=egammaKeys.caloCellKey(),
+    doFWDelesurraundingWindows = True
+)
+
 # Electron Selectors
 ElectronPIDBuilder = ToolFactory(
     EMPIDBuilderElectronBase,
@@ -161,6 +163,6 @@ TightForwardElectronSelector = ToolFactory(
 # -------------------------
 
 # Import the factories that are not defined here
-from .EMTrackMatchBuilder import EMTrackMatchBuilder
-from .egammaOQFlagsBuilder import egammaOQFlagsBuilder
-from .EMShowerBuilder import EMShowerBuilder
+from .EMTrackMatchBuilder import EMTrackMatchBuilder    # noqa: F401
+from .egammaOQFlagsBuilder import egammaOQFlagsBuilder  # noqa: F401
+from .EMShowerBuilder import EMShowerBuilder            # noqa: F401

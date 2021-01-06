@@ -24,8 +24,8 @@ StatusCode HLTEDMCreator::initHandles( const HandlesGroup<T>&  handles ) {
   renounceArray( handles.views );
 
   // the case w/o reading from views, both views handles and collection in views should be empty
-  if ( handles.views.size() == 0 ) {
-    ATH_CHECK( handles.in.size() == 0 );
+  if ( handles.views.empty() ) {
+    ATH_CHECK( handles.in.empty() );
   } else {
     // the case with views, for every output we expect an input View and an input collection inside that View
     ATH_CHECK( handles.out.size() == handles.in.size() );
@@ -100,13 +100,19 @@ StatusCode HLTEDMCreator::initialize()
 #undef INIT
 #undef INIT_XAOD
 
-  ATH_CHECK( m_CaloClusterContainerShallowCopy.initialize() );
-  renounceArray( m_CaloClusterContainerShallowCopy );
-  for ( auto k: m_CaloClusterContainerShallowCopy )
-    m_CaloClusterContainerShallowCopyOut.push_back(k.key());
-  ATH_CHECK( m_CaloClusterContainerShallowCopyOut.initialize() );
-  renounceArray( m_CaloClusterContainerShallowCopyOut );
-  
+#define INIT_SHALLOW(__TYPE) \
+  ATH_CHECK( m_##__TYPE##ShallowCopy.initialize() ); \
+  renounceArray( m_##__TYPE##ShallowCopy ); \
+  for ( auto k: m_##__TYPE##ShallowCopy ) \
+    m_##__TYPE##ShallowCopyOut.push_back(k.key()); \
+  ATH_CHECK( m_##__TYPE##ShallowCopyOut.initialize() ); \
+  renounceArray( m_##__TYPE##ShallowCopyOut )
+
+  INIT_SHALLOW( CaloClusterContainer );
+  INIT_SHALLOW( JetContainer );
+
+#undef INIT_SHALLOW
+
   return StatusCode::SUCCESS;
 }
 
@@ -161,7 +167,7 @@ template<typename T>
 StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::ReadHandleKey<T>& inViewKey,
                EventContext const& context, T & output ) const {
   
-  typedef typename T::base_value_type type_in_container;
+  using type_in_container = typename T::base_value_type;
   StoreGateSvc* sg = evtStore().operator->(); // why the get() method is returing a null ptr is a puzzle, we have to use this ugly call to operator instead of it
   ATH_CHECK( sg != nullptr );
   ViewHelper::ViewMerger merger( sg, msg() );
@@ -172,7 +178,7 @@ StatusCode  HLTEDMCreator::viewsMerge( ViewContainer const& views, const SG::Rea
 
  
 StatusCode HLTEDMCreator::fixLinks() const {
-  if ( m_fixLinks.size() == 0 ) {
+  if ( m_fixLinks.value().empty() ) {
     ATH_MSG_DEBUG("fixLinks: No collections defined for this tool");
     return StatusCode::SUCCESS;
   }
@@ -263,7 +269,7 @@ StatusCode HLTEDMCreator::createIfMissing( const EventContext& context, const Co
   for (size_t i = 0; i < handles.out.size(); ++i) {
     SG::WriteHandleKey<T> writeHandleKey = handles.out.at(i);
 
-    if ( handles.views.size() == 0 ) { // no merging will be needed
+    if ( handles.views.empty() ) { // no merging will be needed
       // Note: This is correct. We are testing if we can read, and if we cannot then we write.
       // What we write will either be a dummy (empty) container, or be populated from N in-View collections.
       SG::ReadHandle<T> readHandle( writeHandleKey.key() );
@@ -336,13 +342,7 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   }
 
 
-#define CREATE_XAOD_NO_MERGE(__TYPE, __STORE_TYPE)      \
-  { \
-    xAODGenerator<xAOD::__TYPE, xAOD::__STORE_TYPE> generator; \
-    ATH_CHECK( createIfMissing<xAOD::__TYPE>( context, ConstHandlesGroup<xAOD::__TYPE>( m_##__TYPE, m_##__TYPE##InViews, m_##__TYPE##Views ), generator, &HLTEDMCreator::noMerge<xAOD::__TYPE> )  ); \
-  }
-  
-  CREATE_XAOD_NO_MERGE( TrigCompositeContainer, TrigCompositeAuxContainer );
+  CREATE_XAOD( TrigCompositeContainer, TrigCompositeAuxContainer );
   CREATE_XAOD( TrigElectronContainer, TrigElectronAuxContainer );
   CREATE_XAOD( ElectronContainer, ElectronAuxContainer );
   CREATE_XAOD( PhotonContainer, PhotonAuxContainer );
@@ -360,32 +360,36 @@ StatusCode HLTEDMCreator::createOutput(const EventContext& context) const {
   CREATE_XAOD( TauJetContainer, TauJetAuxContainer );
   CREATE_XAOD( TauTrackContainer, TauTrackAuxContainer );
   CREATE_XAOD( CaloClusterContainer, CaloClusterTrigAuxContainer ); // NOTE: Difference in interface and aux
-  // After view collections are merged, need to update collection links
-
   CREATE_XAOD( JetContainer, JetAuxContainer );
   CREATE_XAOD( VertexContainer,VertexAuxContainer );
   CREATE_XAOD( TrigBphysContainer, TrigBphysAuxContainer );
   CREATE_XAOD( BTaggingContainer,BTaggingAuxContainer );
   CREATE_XAOD( BTagVertexContainer,BTagVertexAuxContainer );
 
+  // After view collections are merged, need to update collection links
   ATH_CHECK( fixLinks() );
   
 #undef CREATE_XAOD
-#undef CREATE_XAOD_NO_MERGE
 
   // special cases
-  {
-    for ( size_t index = 0; index < m_CaloClusterContainerShallowCopy.size(); ++index ){
-      auto readHandle = SG::makeHandle<xAOD::CaloClusterContainer> (  m_CaloClusterContainerShallowCopy[index], context );
-      if ( not readHandle.isValid() ) { // collection is missing
-	ATH_MSG_DEBUG( "Creating missing CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopy[index].key() );
-	auto writeHandle = SG::makeHandle( m_CaloClusterContainerShallowCopyOut[index], context );
-	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::CaloClusterContainer>(), std::make_unique<xAOD::ShallowAuxContainer>() ));
-      } else {
-	ATH_MSG_DEBUG( "CaloClusterContainerShallowCopy " <<  m_CaloClusterContainerShallowCopyOut[index].key() << " present in the event, done nothing");
-      }
-    }
+  #define CREATE_SHALLOW(__TYPE) \
+  { \
+    for ( size_t index = 0; index < m_##__TYPE##ShallowCopy.size(); ++index ){ \
+      auto readHandle = SG::makeHandle<xAOD::__TYPE> (  m_##__TYPE##ShallowCopy[index], context ); \
+      if ( not readHandle.isValid() ) { \
+	ATH_MSG_DEBUG( "Creating missing "#__TYPE"ShallowCopy " <<  m_##__TYPE##ShallowCopy[index].key() ); \
+	auto writeHandle = SG::makeHandle( m_##__TYPE##ShallowCopyOut[index], context ); \
+	ATH_CHECK( writeHandle.record( std::make_unique<xAOD::__TYPE>(), std::make_unique<xAOD::ShallowAuxContainer>() )); \
+      } else { \
+	ATH_MSG_DEBUG( #__TYPE"ShallowCopy " <<  m_##__TYPE##ShallowCopyOut[index].key() << " present in the event, done nothing"); \
+      } \
+    } \
   }
+
+  CREATE_SHALLOW( CaloClusterContainer )
+  CREATE_SHALLOW( JetContainer )
+
+  #undef CREATE_SHALLOW
 
   if ( m_dumpSGAfter )  
     ATH_MSG_DEBUG( evtStore()->dump() );

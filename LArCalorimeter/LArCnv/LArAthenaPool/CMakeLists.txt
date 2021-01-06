@@ -15,13 +15,14 @@ atlas_add_poolcnv_library( LArAthenaPoolPoolCnv
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
+atlas_install_scripts( test/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 
 # Set up (a) test(s) for the converter(s):
 find_package( AthenaPoolUtilitiesTest )
 
 if( ATHENAPOOLUTILITIESTEST_FOUND )
-  run_tpcnv_legacy_test( LArTPCnv_15.6.7   ESD-15.6.7-data )
-  run_tpcnv_legacy_test( LArTPCnv_20.1.7.2 ESD-20.1.7.2 )
+  run_tpcnv_test( LArTPCnv_15.6.7   ESD-15.6.7-data )
+  run_tpcnv_test( LArTPCnv_20.1.7.2 ESD-20.1.7.2 )
 else()
    message( WARNING
       "Couldn't find AthenaPoolUtilitiesTest. No test(s) set up." )

@@ -47,9 +47,6 @@ public:
    /// Virtual destructor
    virtual ~IProxyDict() {}
 
-   /// In order not to clash with the standalone version of StatusCode
-   typedef xAOD::TReturnCode StatusCode;
-
    /// get proxy for a given data object address in memory
    virtual SG::DataProxy* proxy( const void* const pTransient ) const = 0;
 

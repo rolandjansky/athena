@@ -137,10 +137,10 @@ StatusCode MultiParticleGunPileup::callGenerator() {
 //-----------------------------------------
 
       // change the process ID to incorporate the BCID * 10000
-      int pid=evt->signal_process_id();
-      evt->set_signal_process_id(pid+10000*bcid);
+      int pid=HepMC::signal_process_id(evt);
+      HepMC::set_signal_process_id(evt,pid+10000*bcid);
       ATH_MSG_DEBUG("Signal process ID " << pid << " set to " <<
-		    evt->signal_process_id() << " for BCID " << bcid);
+		    HepMC::signal_process_id(evt) << " for BCID " << bcid);
       m_evts.push_back(evt);
       ++m_ngen;
     }
