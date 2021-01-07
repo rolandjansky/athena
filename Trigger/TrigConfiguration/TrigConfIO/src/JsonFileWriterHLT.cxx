@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/JsonFileWriterHLT.h"
@@ -36,12 +36,12 @@ TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const H
    }
 
    json sequencers({});
-   for ( const auto [seqName, algsList]: menu.sequencers() ) {
+   for ( const auto& [seqName, algsList]: menu.sequencers() ) {
       json jSeq( algsList );
       sequencers[seqName] = jSeq;
    }
    json streams({});
-   for ( const auto stream: menu.streams() ) {
+   for ( const auto& stream: menu.streams() ) {
       json jStream({});
       jStream["name"] = stream["name"];
       jStream["type"] = stream["type"];
