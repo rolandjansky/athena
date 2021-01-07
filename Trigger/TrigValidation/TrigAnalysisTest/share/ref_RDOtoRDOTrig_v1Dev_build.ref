@@ -134,13 +134,13 @@ HLT_2g50_loose_L12EM20VH:
     0: 2
   stepFeatures:
     0: 2
-HLT_2j330_a10sd_csskpf_jes_ftf_35smcINF_L1J100:
+HLT_2j330_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
   stepFeatures:
     0: 3
-HLT_2j330_a10sd_csskpf_nojcalib_ftf_35smcINF_L1J100:
+HLT_2j330_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
@@ -1726,7 +1726,13 @@ HLT_j420_subresjesgscIS_ftf_L1J100:
     0: 3
 HLT_j45_L1J15:
   eventCount: 0
-HLT_j45_csskpf_nojcalib_ftf_L1J15:
+HLT_j45_cssk_nojcalib_L1J15:
+  eventCount: 15
+  stepCounts:
+    0: 15
+  stepFeatures:
+    0: 27
+HLT_j45_cssk_pf_nojcalib_ftf_L1J15:
   eventCount: 17
   stepCounts:
     0: 20
@@ -1734,12 +1740,6 @@ HLT_j45_csskpf_nojcalib_ftf_L1J15:
   stepFeatures:
     0: 20
     1: 37
-HLT_j45_cssktc_nojcalib_L1J15:
-  eventCount: 15
-  stepCounts:
-    0: 15
-  stepFeatures:
-    0: 27
 HLT_j45_ftf_L1J15:
   eventCount: 19
   stepCounts:
@@ -1838,7 +1838,7 @@ HLT_j45_pf_subjesgscIS_ftf_boffperf_split_L1J20:
     0: 19
     1: 49
     2: 49
-HLT_j45_sktc_nojcalib_L1J15:
+HLT_j45_sk_nojcalib_L1J15:
   eventCount: 15
   stepCounts:
     0: 15
@@ -1930,25 +1930,25 @@ HLT_j460_a10r_L1J100:
   eventCount: 0
 HLT_j460_a10r_L1J20:
   eventCount: 0
-HLT_j460_a10sd_csskpf_jes_ftf_35smcINF_L1J100:
+HLT_j460_a10sd_cssk_pf_jes_ftf_35smcINF_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
   stepFeatures:
     0: 3
-HLT_j460_a10sd_csskpf_jes_ftf_L1J100:
+HLT_j460_a10sd_cssk_pf_jes_ftf_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
   stepFeatures:
     0: 3
-HLT_j460_a10sd_csskpf_nojcalib_ftf_35smcINF_L1J100:
+HLT_j460_a10sd_cssk_pf_nojcalib_ftf_35smcINF_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
   stepFeatures:
     0: 3
-HLT_j460_a10sd_csskpf_nojcalib_ftf_L1J100:
+HLT_j460_a10sd_cssk_pf_nojcalib_ftf_L1J100:
   eventCount: 0
   stepCounts:
     0: 3
