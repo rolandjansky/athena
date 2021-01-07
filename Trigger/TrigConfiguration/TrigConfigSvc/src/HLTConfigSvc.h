@@ -16,6 +16,9 @@
 #include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfHLTData/HLTFrame.h"
 
+#include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
+
 
 class TH1F;
 class TH2I;
@@ -24,8 +27,11 @@ class TrigTimer;
 namespace TrigConf {
 
    class CTPConfig;
+   class EventContext;
    class HLTChainList;
    class HLTSequenceList;
+   class HLTMenu;
+   class HLTPrescalesSet;
    class HLTPrescaleSet;
    class TrigDBConnectionConfig;
 
@@ -45,6 +51,15 @@ namespace TrigConf {
       const HLTSequenceList* sequenceList() const __attribute__ ((deprecated));
       const HLTSequenceList& sequences() const;
       
+      const HLTMenu& hltMenu(const EventContext&) const {
+	const static TrigConf::HLTMenu dummy = TrigConf::HLTMenu();
+	return dummy;
+      }
+      const HLTPrescalesSet& hltPrescalesSet(const EventContext&) const {
+	const static TrigConf::HLTPrescalesSet dummy = TrigConf::HLTPrescalesSet();
+	return dummy;
+      }
+
       /*@brief constructor*/
       HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
       virtual ~HLTConfigSvc();

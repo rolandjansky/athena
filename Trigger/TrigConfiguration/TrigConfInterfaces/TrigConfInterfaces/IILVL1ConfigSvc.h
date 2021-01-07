@@ -18,8 +18,12 @@ namespace TrigConf {
 
    // Forward declaration(s):
    class CTPConfig;
+   class EventContext;
    class ThresholdConfig;
    class BunchGroupSet;
+   class L1Menu;
+   class L1PrescalesSet;
+   class L1BunchGroupSet;
 
    /**
     * Interface for all services/tools that provide LVL1 menu configuration
@@ -45,6 +49,15 @@ namespace TrigConf {
 
       /**@brief accessor to the configuration lvl1 prescale key*/
       virtual uint32_t lvl1PrescaleKey() const = 0;
+
+      /// Returns the JSON configured L1 ptree
+      virtual const L1Menu& l1Menu(const EventContext& ctx) const = 0;
+
+      /// Returns the JSON configured L1 prescales ptree
+      virtual const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx) const = 0;
+
+      /// Returns the JSON configured bunchgroup ptree
+      virtual const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx) const = 0;
 
    }; // class IILVL1ConfigSvc
 

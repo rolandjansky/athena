@@ -12,10 +12,18 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1PrescalesSet.h"
+#include "TrigConfData/L1BunchGroupSet.h"
+
 
 class StoreGateSvc;
 
 namespace TrigConf {
+
+   class EventContext;
+   class L1Menu;
+   class L1PrescalesSet;
+   class L1BunchGroupSet;
 
    /**
     *  $Date: 2009-02-04 09:12:03 $
@@ -42,6 +50,18 @@ namespace TrigConf {
       const ThresholdConfig* thresholdConfig() const;
       const BunchGroupSet* bunchGroupSet() const;
       uint32_t lvl1PrescaleKey() const { return static_cast<uint32_t>(m_prescaleSetID); }
+      const L1Menu& l1Menu(const EventContext&) const {
+	const static TrigConf::L1Menu dummy = TrigConf::L1Menu();
+	return dummy;
+      }
+      const L1PrescalesSet& l1PrescalesSet(const EventContext&) const {
+	const static TrigConf::L1PrescalesSet dummy = TrigConf::L1PrescalesSet();
+	return dummy;
+      }
+      const L1BunchGroupSet& l1BunchGroupSet(const EventContext&) const {
+	const static TrigConf::L1BunchGroupSet dummy = TrigConf::L1BunchGroupSet();
+	return dummy;
+      }
 
    private:
 
