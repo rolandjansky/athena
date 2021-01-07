@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetTrigRecExample/python/InDetTrigSliceSettings.py
@@ -325,9 +325,9 @@ class InDetTrigSliceSettingsDB:
       q = self.db[quantity]
       try:
         v = q[slice]
-      except:
+      except Exception:
         print ('get InDetTrigSliceSettingsDB has no slice %s configured' % slice)
-    except:
+    except Exception:
       print ('get InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
     return v
@@ -338,9 +338,9 @@ class InDetTrigSliceSettingsDB:
       q = self.db[quantity]
       try:
         q[slice] = value
-      except:
+      except Exception:
         print ('set InDetTrigSliceSettingsDB has no slice %s configured' % slice)
-    except:
+    except Exception:
       print ('set InDetTrigSliceSettingsDB has no quantity %s configured' % quantity)
 
 

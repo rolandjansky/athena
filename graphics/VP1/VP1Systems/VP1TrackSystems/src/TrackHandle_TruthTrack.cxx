@@ -28,18 +28,18 @@
 class TrackHandle_TruthTrack::Imp {
 public:
   Imp(TrackHandle_TruthTrack * tc,
-      const SimBarCode& sbc,const SimHitList& shl,const HepMC::GenParticle* p)
+      const SimBarCode& sbc,const SimHitList& shl,HepMC::ConstGenParticlePtr p)
     : theclass(tc),
       simBarCode(sbc),
       simHitList(shl),
       genParticle(p),
       ascObjVis(false),
       ascObjs(0),
-      trkTrack(0) {}
+      trkTrack(nullptr) {}
   TrackHandle_TruthTrack * theclass;
   SimBarCode simBarCode;
   SimHitList simHitList;
-  const HepMC::GenParticle* genParticle;
+  HepMC::ConstGenParticlePtr genParticle;
 
   bool ascObjVis;
   std::vector<AscObj_TruthPoint*> * ascObjs;
@@ -47,11 +47,11 @@ public:
   const Trk::Track * trkTrack;
   void ensureInitTrkTracks();
 
-  static Trk::Perigee * createTrkPerigeeFromProdVertex(const HepMC::GenParticle * p, const double& charge )
+  static Trk::Perigee * createTrkPerigeeFromProdVertex(HepMC::ConstGenParticlePtr p, const double& charge )
   {
     if (!p)
       return 0;//Fixme: message!
-    const HepMC::GenVertex * v = p->production_vertex();
+    auto v = p->production_vertex();
     if (!v)
       return 0;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -62,11 +62,11 @@ public:
     return new Trk::Perigee(0.,0.,mom.phi(), mom.theta(), charge/absmom, pos);
    }
 
-  static Trk::TrackParameters * createTrkParamFromDecayVertex(const HepMC::GenParticle * p, const double& charge )
+  static Trk::TrackParameters * createTrkParamFromDecayVertex(HepMC::ConstGenParticlePtr p, const double& charge )
   {
     if (!p)
       return 0;//Fixme: message!
-    const HepMC::GenVertex * v = p->end_vertex();
+    auto v = p->end_vertex();
     if (!v)
       return 0;//Fixme: message!
     Amg::Vector3D mom(p->momentum().px(),p->momentum().py(),p->momentum().pz());
@@ -125,7 +125,7 @@ public:
 TrackHandle_TruthTrack::TrackHandle_TruthTrack( TrackCollHandleBase* ch,
 						const SimBarCode& simBarCode,
 						const SimHitList& simHitList,
-						const HepMC::GenParticle* genPart )
+						HepMC::ConstGenParticlePtr genPart )
   : TrackHandleBase(ch), m_d(new Imp(this,simBarCode,simHitList,genPart))
 {
   if (VP1Msg::verbose()) {
@@ -262,7 +262,7 @@ bool TrackHandle_TruthTrack::hasVertexAtIR(const double& rmaxsq, const double& z
 {
   if (!m_d->genParticle)
     return false;
-  const HepMC::GenVertex * v = m_d->genParticle->production_vertex();
+  auto v = m_d->genParticle->production_vertex();
   if (!v)
     return false;
 
@@ -308,8 +308,12 @@ void TrackHandle_TruthTrack::Imp::ensureInitAscObjs()
   if (ascObjs)
     return;
   ascObjs = new std::vector<AscObj_TruthPoint*>;
-  const HepMC::GenVertex * vprod = genParticle ? genParticle->production_vertex() : 0;
-  const HepMC::GenVertex * vend = genParticle ? genParticle->end_vertex() : 0;
+  HepMC::ConstGenVertexPtr vprod{nullptr};
+  HepMC::ConstGenVertexPtr vend{nullptr};
+  if (genParticle) {
+   vprod=genParticle->production_vertex(); 
+   vend=genParticle->end_vertex();
+  }
   ascObjs->reserve((vprod?1:0)+(vend?1:simHitList.size()));
   if (vprod)
     ascObjs->push_back(new AscObj_TruthPoint(theclass,vprod,genParticle));

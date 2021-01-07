@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id$
 #
 # @file TruthD3PDMaker/python/TruthLeptonParentAssociation.py
 # @author Zach Marshall <zach.marshall@cern.ch>
@@ -18,7 +17,7 @@ def TruthLeptonParentAssociation (parent,
                    *args, **kw):
     """Helper for setting up an association to lepton parents in the truth record"""
 
-    if blockname == None:
+    if blockname is None:
         blockname = prefix + 'LeptonParentMultiAssoc'
 
     return IndexMultiAssociation (parent,

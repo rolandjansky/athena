@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file TruthD3PDMaker/python/GenParticleD3PDObject.py
@@ -6,8 +6,6 @@
 ## @author Georges Aad
 ## @date Nov, 2010
 ##
-
-from AthenaCommon.AppMgr import ToolSvc
 
 import TruthD3PDMaker
 
@@ -17,7 +15,6 @@ from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 
 from TruthD3PDAnalysis.AllTruthFilterTool import AllTruthFilterTool
 from TruthD3PDMaker.TruthD3PDMakerKeys import TruthD3PDKeys
-from TruthD3PDMaker.TruthD3PDMakerFlags import TruthD3PDFlags
 
 def make_GenEvent_D3PDObject( default_prefix, default_sgkey,
                               default_object_name = "",
@@ -28,9 +25,9 @@ def make_GenEvent_D3PDObject( default_prefix, default_sgkey,
                   getter = None, sgkey = None, filter = default_filter,
                   label = default_label, **kw ):
 
-        if sgkey == None: sgkey = default_sgkey
-        if label == None: label = TruthD3PDKeys.GenEventGetterLabel()
-        if getter == None:
+        if sgkey is None: sgkey = default_sgkey
+        if label is None: label = TruthD3PDKeys.GenEventGetterLabel()
+        if getter is None:
             getter = TruthD3PDMaker.GenEventGetterTool( name + '_Getter',
                                                         Label = label,
                                                         Selector = filter,

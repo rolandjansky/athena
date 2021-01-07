@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -19,7 +19,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
-#include "IRegionSelector/IRegSelSvc.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CaloEvent/CaloBCIDAverage.h"
@@ -47,8 +46,6 @@ class T2CaloEgammaReFastAlgo : public AthReentrantAlgorithm {
     // float calculateZ0(const float etaLayer1, const float etaLayer2);
   
   private:
-    ServiceHandle<IRegSelSvc> m_regionSelector;
-  
     // Properties:
     Gaudi::Property<float> m_l1eta{this, "L1ForceEta", -10.0, "Forced LVL1 eta"};
     Gaudi::Property<float> m_l1phi{this, "L1ForcePhi", -10.0, "Forced LVL1 phi"};

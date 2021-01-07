@@ -186,13 +186,16 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2016", {-1,2015,2015,2015}, "FEI3 timing tuning set of barrel pixel layers in 2015/2016"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2016
-    {this, "BarrelCrossTalk2016", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2015/2016"};
+    {this, "BarrelCrossTalk2016", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2015/2016"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2016
     {this, "BarrelNoiseOccupancy2016", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2015/2016"};
 
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2016
     {this, "BarrelDisableProbability2016", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2015/2016"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2016
+    {this, "BarrelLorentzAngleCorr2016", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2015/2016"};
 
 // So far, Gaudi::Property does not support 2D vector.
 //    Gaudi::Property<std::vector<std::vector<float>>> m_BarrelNoiseShape2016
@@ -235,6 +238,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2016
     {this, "EndcapDisableProbability2016", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2015/2016"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2016
+    {this, "EndcapLorentzAngleCorr2016", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2015/2016"};
 
     // DBM RUN2 2015/2016
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2016
@@ -283,13 +289,16 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2017", {-1,2018,2018,2018}, "FEI3 timing tuning set of barrel pixel layers in 2017"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2017
-    {this, "BarrelCrossTalk2017", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2017"};
+    {this, "BarrelCrossTalk2017", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2017"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2017
     {this, "BarrelNoiseOccupancy2017", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2017"};
 
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2017
     {this, "BarrelDisableProbability2017", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2017"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2017
+    {this, "BarrelLorentzAngleCorr2017", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2017"};
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2017
@@ -328,6 +337,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2017
     {this, "EndcapDisableProbability2017", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2017"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2017
+    {this, "EndcapLorentzAngleCorr2017", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2017"};
 
     // DBM RUN2 2017
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2017
@@ -376,13 +388,16 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "FEI3BarrelTimingSimTune2018", {-1,2018,2018,2018}, "FEI3 timing tuning set of barrel pixel layers in 2018"};
 
     Gaudi::Property<std::vector<double>> m_BarrelCrossTalk2018
-    {this, "BarrelCrossTalk2018", {0.30,0.06,0.06,0.06}, "Cross-talk fraction of barrel pixel layers in 2018"};
+    {this, "BarrelCrossTalk2018", {0.30,0.12,0.12,0.12}, "Cross-talk fraction of barrel pixel layers in 2018"};
 
     Gaudi::Property<std::vector<double>> m_BarrelNoiseOccupancy2018
     {this, "BarrelNoiseOccupancy2018", {5e-8,5e-8,5e-8,5e-8}, "Noise occupancy of barrel pixel layers in 2018"};
 
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbability2018
     {this, "BarrelDisableProbability2018", {9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in 2018"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorr2018
+    {this, "BarrelLorentzAngleCorr2018", {1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in 2018"};
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_IBLNoiseShape2018
@@ -422,6 +437,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbability2018
     {this, "EndcapDisableProbability2018", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in 2018"};
 
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorr2018
+    {this, "EndcapLorentzAngleCorr2018", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in 2018"};
+
     // DBM RUN2 2018
     Gaudi::Property<std::vector<int>> m_DBMToTThreshold2018
     {this, "DBMToTThreshold2018", {-1,-1,-1}, "ToT thresholds for DBM layers in 2018"};
@@ -450,7 +468,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     {this, "BarrelFluenceRUN1", {1.01e14, 0.44e14, 0.30e14}, "Barrel fluence for radiation damage in RUN1"};
 
     Gaudi::Property<std::vector<std::string>> m_BarrelFluenceMapRUN1
-    {this, "BarrelFluenceMapRUN1", {"PixelDigitization/maps_PIX_250V_fl1_01e14.root",   // this needs to be updated
+    {this, "BarrelFluenceMapRUN1", {"PixelDigitization/maps_PIX_150V_fl1_01e14.root",   // this needs to be updated
                                     "PixelDigitization/maps_PIX_150V_fl0_44e14.root",
                                     "PixelDigitization/maps_PIX_150V_fl0_3e14.root"},
                                     "Barrel fluence map for radiation damage in RUN1"};
@@ -475,6 +493,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbabilityRUN1
     {this, "BarrelDisableProbabilityRUN1", {9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in RUN1"};
+
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorrRUN1
+    {this, "BarrelLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in RUN1"};
 
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_BLayerNoiseShapeRUN1
@@ -511,6 +532,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbabilityRUN1
     {this, "EndcapDisableProbabilityRUN1", {9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in RUN1"};
 
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrRUN1
+    {this, "EndcapLorentzAngleCorrRUN1", {1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in RUN1"};
+
     //====================================================================================
     // Barrel ITK
     Gaudi::Property<std::vector<int>> m_BarrelToTThresholdITK
@@ -539,6 +563,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
     Gaudi::Property<std::vector<double>> m_BarrelDisableProbabilityITK
     {this, "BarrelDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of barrel pixel layers in ITK"};
 
+    Gaudi::Property<std::vector<double>> m_BarrelLorentzAngleCorrITK
+    {this, "BarrelLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of barrel pixel layers in ITK"};
+
     // This is ad-hoc solution.
     Gaudi::Property<std::vector<float>> m_InnermostNoiseShapeITK
     {this, "InnermostNoiseShapeITK", {0.0,1.0}, "Noise shape for IBL in ITK"};
@@ -564,6 +591,9 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     Gaudi::Property<std::vector<double>> m_EndcapDisableProbabilityITK
     {this, "EndcapDisableProbabilityITK", {9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3,9e-3}, "Disable probability of endcap pixel layers in ITK"};
+
+    Gaudi::Property<std::vector<double>> m_EndcapLorentzAngleCorrITK
+    {this, "EndcapLorentzAngleCorrITK", {1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0}, "Scale factor for Lorentz angle of endcap pixel layers in ITK"};
 
     //====================================================================================
     // The following parameters are default values which will be overwritten by the one 

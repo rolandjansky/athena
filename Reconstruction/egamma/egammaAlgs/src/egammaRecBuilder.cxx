@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "egammaRecBuilder.h"
@@ -104,7 +104,7 @@ egammaRecBuilder::execute(const EventContext& ctx) const
   const size_t nTopo = topoclusters->size();
   egammaRecs->reserve(nTopo);
   for (size_t i(0); i < nTopo; i++) {
-    const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i);
+    const ElementLink<xAOD::CaloClusterContainer> clusterLink(*topoclusters, i, ctx);
     const std::vector<ElementLink<xAOD::CaloClusterContainer>> ClusterLink{
       clusterLink
     };

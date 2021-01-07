@@ -44,7 +44,7 @@ public:
      
     /**ITruthParameters interface:
        obtain PerigeeParameters corresponding to a simulated particle from a HepMC GenParticle */
-    virtual const PerigeeParameters*	perigeeParameters(const HepMC::GenParticle&	particle,
+    virtual const PerigeeParameters*	perigeeParameters(HepMC::ConstGenParticlePtr	particle,
 							  const Amg::Vector3D&		vertex) = 0;
        
     /**ITruthParameters interface: 
@@ -53,7 +53,7 @@ public:
            
     /**ITruthParameters interface: 
        obtain TrackParameters corresponding to a simulated particle from a HepMC GenParticle */
-    virtual const TrackParameters*	trackParameters(const HepMC::GenParticle& particle) = 0;
+    virtual const TrackParameters*	trackParameters(HepMC::ConstGenParticlePtr particle) = 0;
 };
 
 #endif // IPATINTERFACES_ITRUTHPARAMETERS_H

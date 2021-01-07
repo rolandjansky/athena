@@ -346,7 +346,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(*track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,*track, CacheBeamSpotData(ctx));
       if (!result){
 
         ATH_MSG_WARNING("Failed to extrapolate to Beamline");
@@ -532,7 +532,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,track, CacheBeamSpotData(ctx));
       if (!result){
         ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created.");
         return nullptr;

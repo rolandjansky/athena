@@ -265,7 +265,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
   }
 
 #ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
-  app->finalize();
+  ANA_CHECK( app->finalize() );
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

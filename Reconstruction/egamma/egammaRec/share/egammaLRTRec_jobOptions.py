@@ -1,9 +1,6 @@
 # all these tests, except egamma, should be in egammaGetter
-from CaloRec.CaloRecFlags import jobproperties
 from egammaRec.egammaRecFlags import jobproperties
-from RecExConfig.RecFlags import rec
 from AthenaCommon.Resilience import treatException
-from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AlgSequence import AlgSequence
 
 topSequence = AlgSequence()
@@ -16,7 +13,7 @@ def setupGSF_LRT():
     try:
         from egammaRec.LRTEgammaConfig import (
             LRTegammaSelectedTrackCopy)
-        LRTegammaSelectedTrackCopy(doPrint=True) # for debugging
+        LRTegammaSelectedTrackCopy(doPrint=False)  # for debugging
     except Exception:
         treatException(
             "Could not set up the egamma track Selection for LRT GSF."
@@ -24,7 +21,7 @@ def setupGSF_LRT():
     try:
         from egammaRec.LRTEgammaConfig import (
             LRTEMBremCollectionBuilder)
-        LRTEMBremCollectionBuilder(doPrint=True)
+        LRTEMBremCollectionBuilder(doPrint=False)
     except Exception:
         treatException(
             "Could not set up LRTEMBremCollectionBuilder."
@@ -32,7 +29,7 @@ def setupGSF_LRT():
     try:
         from egammaRec.LRTEgammaConfig import (
             LRTEMGSFCaloExtensionBuilder)
-        LRTEMGSFCaloExtensionBuilder(doPrint=True)
+        LRTEMGSFCaloExtensionBuilder(doPrint=False)
     except Exception:
         treatException("Could not set up LRTEMGSFCaloExtensionBuilder.")
 
@@ -45,29 +42,18 @@ def setupTopoSeededEgamma_LRT():
         from egammaRec.LRTtopoEgammaGetter import LRTtopoEgammaGetter
         LRTtopoEgammaGetter(ignoreExistingDataObject=True)
     except Exception:
-        treatException("Could not set up  LRTtopoEgammaGetter. Switch it off !")
+        treatException(
+            "Could not set up  LRTtopoEgammaGetter. Switch it off !")
         # If we wanted Topo based cluster seeded egamma it just failed
         jobproperties.egammaRecFlags.doEgammaCaloSeeded = False
         LRTtopoEgammaGetter(disable=True)
-
-#def setupTopoSeededEgamma_LRT():
-#    try:
-#        from egammaRec.LRTEgammaConfig import (
-#            LRTtopoEgammaBuilder)
-#        LRTtopoEgammaBuilder(doPrint=True)
-#    except Exception:
-#        treatException("Could not set up  LRTtopoEgammaBuilder. Switch it off !")
-#        # If we wanted Topo based cluster seeded egamma it just failed
-#        LRTtopoEgammaBuilder(disable=True)
-
-# Function to schedule the Truth Association
 
 
 def setupTruthAssociation_LRT():
     try:
         from egammaRec.LRTEgammaConfig import (
             LRTegammaTruthAssociationAlg)
-        LRTegammaTruthAssociationAlg(doPrint=True)
+        LRTegammaTruthAssociationAlg(doPrint=False)
     except Exception:
         treatException(
             "Could not set up LRTegammaTruthAssociationAlg. Switched off !")

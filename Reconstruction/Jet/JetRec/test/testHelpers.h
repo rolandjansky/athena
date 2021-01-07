@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <memory>
 
 int JetContainerIndex (0);
 
@@ -80,15 +81,14 @@ struct IPtoPSConverter{
   }
 };
 
-IParticleExtractor* makeExtractor(const xAOD::IParticleContainer* iparticles,
+std::unique_ptr<const IParticleExtractor> makeExtractor(const xAOD::IParticleContainer* iparticles,
                                   bool isGhost, bool isTrigger=false){
   
   // Create an Extractor
   std::string label("EMTopo");
-  IParticleExtractor* extractor = new IParticleExtractor(iparticles,
-                                                         label,
-                                                         isGhost,
-                                                         isTrigger);
-  return extractor;
+  return std::make_unique<const IParticleExtractor>(iparticles,
+                                                    label,
+                                                    isGhost,
+                                                    isTrigger);
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -21,7 +21,6 @@ PURPOSE: Tool
 #include "FillAlignTRTHits.h"
 #include "TRT_CalibData/TrackInfo.h"
 #include "TrkTrack/Track.h"
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/LocalParameters.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"

@@ -117,7 +117,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto dEta               = Monitored::Scalar<float>("dEtaEFTau_RoI",    -10.);
   auto dPhi               = Monitored::Scalar<float>("dPhiEFTau_RoI",    -10.);
   auto emRadius           = Monitored::Scalar<float>("EMRadius", -0.099);
-  auto hadRadius          = Monitored::Scalar<float>("EMRadius", -0.099);
+  auto hadRadius          = Monitored::Scalar<float>("HadRadius", -0.099);
   auto EtFinal            = Monitored::Scalar<float>("EtFinal", 0.);
   auto Et                 = Monitored::Scalar<float>("Et", 0.);
   auto EtHad              = Monitored::Scalar<float>("EtHad",-10.);
@@ -125,12 +125,12 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto EMFrac             = Monitored::Scalar<float>("EMFrac",-10.);
   auto IsoFrac            = Monitored::Scalar<float>("IsoFrac",-1.);
   auto centFrac           = Monitored::Scalar<float>("centFrac",-10.);
-  auto nWideTrk           = Monitored::Scalar<int>("EF_nWideTrk",0);
+  auto nWideTrk           = Monitored::Scalar<int>("nWideTrk",-10);
   auto ipSigLeadTrk       = Monitored::Scalar<float>("ipSigLeadTrk",-1000.);
   auto trFlightPathSig    = Monitored::Scalar<float>("trFlightPathSig",-10.);
   auto massTrkSys         = Monitored::Scalar<float>("massTrkSys",-10.);
   auto dRmax              = Monitored::Scalar<float>("dRmax",-10.);
-  auto numTrack           = Monitored::Scalar<int>("EF_NTrk", -10);
+  auto numTrack           = Monitored::Scalar<int>("NTrk", -10);
   auto trkAvgDist         = Monitored::Scalar<float>("TrkAvgDist",-1.0);
   auto etovPtLead         = Monitored::Scalar<float>("EtovPtLead",-10.);
   auto PSSFraction        = Monitored::Scalar<float>("PSSFraction",-999.9);

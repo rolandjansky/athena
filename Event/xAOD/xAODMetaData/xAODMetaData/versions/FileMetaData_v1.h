@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: FileMetaData_v1.h 685184 2015-07-23 20:25:43Z cranshaw $
@@ -106,11 +106,11 @@ namespace xAOD {
 
    }; // class FileMetaData_v1
 
-} // namespace xAOD
+   /// A convenience print operator for xAOD::FileMetaData_v1::MetaDataType
+   std::ostream& operator<< ( std::ostream& out,
+                              xAOD::FileMetaData_v1::MetaDataType type );
 
-/// A convenience print operator for xAOD::FileMetaData_v1::MetaDataType
-std::ostream& operator<< ( std::ostream& out,
-                           xAOD::FileMetaData_v1::MetaDataType type );
+} // namespace xAOD
 
 // Declare a base class for the type:
 #include "xAODCore/BaseInfo.h"

@@ -590,7 +590,11 @@ StatusCode IDAlignMonNtuple::fillHistograms()
       	HepMcParticleLink HMPL = trkTruth.particleLink();
 
 	if ( HMPL.isValid()) {
+#ifdef HEPMC3
+     HepMC::ConstGenParticlePtr genParticle = HMPL.scptr(); 
+#else
 	  const HepMC::GenParticle *genParticle = HMPL.cptr(); 
+#endif
 	  
 	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Particle with PDG "<< genParticle->pdg_id() << " Status "<< genParticle->status()<<" mass "<< genParticle->momentum().m() <<" pt "<<genParticle->momentum().perp()<<" eta "<<genParticle->momentum().eta()<<" phi "<<genParticle->momentum().phi()<<endmsg;
 

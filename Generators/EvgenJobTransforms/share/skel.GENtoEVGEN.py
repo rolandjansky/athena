@@ -79,11 +79,21 @@ if hasattr(runArgs, "runNumber"):
 
 if hasattr(runArgs, "inputGenConfFile"):
    raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
+
+if hasattr(runArgs, "inputGeneratorFile"):
+   evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
+ 
+if hasattr(runArgs, "outputYODAFile"):
+    evgenLog.info("outputYODAFile specified " + runArgs.outputYODAFile)
  
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
 if not hasattr(runArgs, "outputEVNTFile") and not hasattr(runArgs, "outputEVNT_PreFile"):
-    raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
+    if hasattr(runArgs, "outputYODAFile"):
+        evgenLog.info("No outputEVNTFile specified but outputYODAFile is used")
+        evgenLog.info("Will run GENtoEVGEN without saving the output EVNT file, asuming a valid outputYODAFile will be produced")
+    else:
+        raise RuntimeError("No output evgen EVNT or EVNT_Pre file provided.")
 
 ## Ensure that mandatory args have been supplied (complain before processing the includes)
 if not hasattr(runArgs, "ecmEnergy"):
@@ -166,6 +176,8 @@ if hasattr(runArgs, "rivetAnas"):
     anaSeq += Rivet_i()
     anaSeq.Rivet_i.Analyses = runArgs.rivetAnas
     anaSeq.Rivet_i.DoRootHistos = True
+    if hasattr(runArgs, "outputYODAFile"):
+      anaSeq.Rivet_i.HistoFile = runArgs.outputYODAFile
 
 ##==============================================================
 ## Pre- and main config parsing
@@ -249,6 +261,9 @@ include(jofile)
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
 
+if hasattr(runArgs,'inputGeneratorFile') and int(evgenConfig.inputFilesPerJob) == 0 : 
+   evgenConfig.inputFilesPerJob = 1 
+
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
     evgenLog.info(opt)
@@ -311,15 +326,29 @@ rounding = 0
 if hasattr(runArgs,'inputGeneratorFile') and ',' in runArgs.inputGeneratorFile:   multiInput = runArgs.inputGeneratorFile.count(',')+1
 else:
    multiInput = 0
-   
-if evgenConfig.nEventsPerJob < 1:
-    raise RunTimeError("evgenConfig.nEventsPerJob must be at least 1")
+
+# check if default nEventsPerJob used 
+if not evgenConfig.nEventsPerJob:
+    evgenLog.info('#############################################################')
+    evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ') 
+    evgenLog.info('#############################################################')
+else:
+    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+
+if evgenConfig.minevents > 0 :
+    raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
+elif evgenConfig.nEventsPerJob > 100000:
+    raise RuntimeError("evgenConfig.nEventsPerJob can be max. 100000")
 else:
     allowed_nEventsPerJob_lt1000 = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]
     msg = "evgenConfig.nEventsPerJob = %d: " % evgenConfig.nEventsPerJob
 
-    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob % 1000 != 0 and 10000 % evgenConfig.nEventsPerJob != 0 :
-           msg += "nEventsPerJob in range >= 1K must be a multiple of 1K and a divisor of 10K"
+    if evgenConfig.nEventsPerJob >= 1000 and evgenConfig.nEventsPerJob <=10000 and (evgenConfig.nEventsPerJob % 1000 != 0 or 10000 % 
+evgenConfig.nEventsPerJob != 0) :
+           msg += "nEventsPerJob in range [1K, 10K] must be a multiple of 1K and a divisor of 10K"
+           raise RuntimeError(msg)
+    elif evgenConfig.nEventsPerJob > 10000  and evgenConfig.nEventsPerJob % 10000 != 0:
+           msg += "nEventsPerJob >10K must be a multiple of 10K"
            raise RuntimeError(msg)
     elif evgenConfig.nEventsPerJob < 1000 and evgenConfig.nEventsPerJob not in allowed_nEventsPerJob_lt1000:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
@@ -331,9 +360,9 @@ else:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -356,15 +385,15 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("Could not find evgenkeywords.txt file %s in DATAPATH" % kwfile )
 
 ## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -397,7 +426,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in $DATAPATH" % lkwfile)
 
 ## Configure POOL streaming to the output EVNT format file
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
@@ -465,6 +494,38 @@ if hasattr(testSeq, "TestHepMC") and not gens_testhepmc(evgenConfig.generators):
     evgenLog.info("Removing TestHepMC sanity checker")
     del testSeq.TestHepMC
 
+##=============================================================
+## Check release number
+##=============================================================
+# Function to check blacklist (from Spyros'es logParser.py)
+def checkBlackList(relFlavour,cache,generatorName) :
+    isError = None
+    with open('/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/common/BlackList_caches.txt') as bfile:
+        for line in bfile.readlines():
+            if not line.strip():
+                continue
+            # Blacklisted release flavours
+            badRelFlav=line.split(',')[0].strip()
+            # Blacklisted caches
+            badCache=line.split(',')[1].strip()
+            # Blacklisted generators
+            badGens=line.split(',')[2].strip()
+            
+            used_gens = ','.join(generatorName)
+            #Match Generator and release type e.g. AtlasProduction, MCProd
+            if relFlavour==badRelFlav and cache==badCache and re.search(badGens,used_gens) is not None:
+                if badGens=="": badGens="all generators"
+                isError=relFlavour+","+cache+" is blacklisted for " + badGens
+                return isError
+    return isError
+## Announce start of JO checkingrelease number checking
+evgenLog.debug("****************** CHECKING RELEASE IS NOT BLACKLISTED *****************")
+rel = os.popen("echo $AtlasVersion").read()
+rel = rel.strip()
+errorBL = checkBlackList("AthGeneration",rel,gennames)
+if (errorBL): 
+   raise RuntimeError("This run is blacklisted for this generator, please use a different one !! "+ errorBL)  
+#    evgenLog.warning("This run is blacklisted for this generator, please use a different one !! "+ errorBL )
 
 ##==============================================================
 ## Handling of a post-include/exec args at the end of standard configuration
@@ -659,12 +720,6 @@ else:
         raise RuntimeError("evgenConfig.inputfilecheck specified in %s, but generators %s do not require an input file" %
                            (runArgs.jobConfig, str(gennames)))
 
-## Check conf files, as above but for a different command line arg, and with omission allowed
-if hasattr(runArgs, "inputGenConfFile") and runArgs.inputGenConfFile != "NONE":
-    if evgenConfig.inputconfcheck and not re.search(evgenConfig.inputconfcheck, runArgs.inputGenConfFile):
-        raise RuntimeError("inputGenConfFile=%s is incompatible with inputconfcheck (%s) in %s" %
-                           (runArgs.inputGenConfFile, evgenConfig.inputconfcheck, runArgs.jobConfig))
-
 ## Do the aux-file copying
 if evgenConfig.auxfiles:
     from PyJobTransformsCore.trfutil import get_files
@@ -682,6 +737,19 @@ def _checkattr(attr, required=False):
             raise RuntimeError("Required " + msg)
         return False
     return True
+
+if hasattr(runArgs, "outputTXTFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+    printfunc("MetaData: %s = %s" % ("Number of produced LHE events ", count_ev))
+elif hasattr(runArgs, "inputGeneratorFile"):
+    # counting the number of events in LHE output
+    with open(eventsFile) as f:
+        contents = f.read()
+        count_ev = contents.count("<event>")
+    printfunc("MetaData: %s = %s" % ("Number of input LHE events ", count_ev))
 
 if _checkattr("description", required=True):
     msg = evgenConfig.description

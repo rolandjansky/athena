@@ -16,26 +16,15 @@ class description
 #include "TrigT1Interfaces/MuCTPICTP.h"
 #include "TrigT1Interfaces/MuCTPIL1Topo.h"
 
-#include "TrigT1Result/MuCTPI_RDO.h"
 #include "xAODTrigger/MuonRoIContainer.h"
-
-#include "TrigT1MuctpiPhase1/Configuration.h"
-
-#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-
-//#include "TrigConfL1Data/Run3MuonTriggerThreshold.h"
-#include "TrigConfL1Data/TriggerThresholdValue.h"
-#include "TrigConfL1Data/L1DataDef.h"
-#include "TrigConfL1Data/L1DataBaseclass.h"
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
-namespace TrigConf {
-   class ILVL1ConfigSvc;
-   class TriggerThreshold;
+namespace LVL1 {
+  class ITrigT1MuonRecRoiTool;
 }
 
 namespace LVL1MUCTPIPHASE1 {
@@ -54,6 +43,7 @@ namespace LVL1MUCTPIPHASE1 {
 
     virtual void handle(const Incident&) override;
     virtual StatusCode initialize() override;
+    virtual StatusCode start() override;
     virtual StatusCode execute() override;
 
     virtual StatusCode fillMuCTPIL1Topo(LVL1::MuCTPIL1Topo& l1topoCandidates, int bcidOffset) const override;
@@ -85,14 +75,15 @@ namespace LVL1MUCTPIPHASE1 {
 
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyRPC{this, "MuctpiPhase1LocationRPC", "L1MuctpiStoreRPC", "Location of muctpiPhase1 for Rpc"};
     SG::ReadHandleKey<LVL1MUONIF::Lvl1MuCTPIInputPhase1> m_muctpiPhase1KeyTGC{this, "MuctpiPhase1LocationTGC", "L1MuctpiStoreTGC", "Location of muctpiPhase1 for Tgc"};
-    SG::ReadHandleKey<MuCTPI_RDO> m_MuCTPI_RDOReadKey{this, "MUCTPI_RDOReadKey", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
-    SG::WriteHandleKey<MuCTPI_RDO> m_MuCTPI_RDOWriteKey{this, "MUCTPI_RDOWriteKey", "MUCTPI_RDO", "Location of MuCTPI_RDO"};
+    SG::WriteHandleKey<LVL1::MuCTPICTP> m_MuCTPICTPWriteKey{this, "MuCTPICTPLocation", "MuCTPICTP", "Location of MuCTPICTP"};
     SG::WriteHandleKey<xAOD::MuonRoIContainer> m_MuCTPI_xAODWriteKey{this, "MUCTPI_xAODLocation", "LVL1MuonRoIs", "Location of xAOD::MuonRoIContainer"};
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m2;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_m1;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_p1;
     SG::WriteHandleKey<LVL1::MuCTPIL1Topo> m_MuCTPIL1TopoKey_p2;
+
+
 
     // These properties control how the multiplicity summation happens:
     std::string m_multiplicityStrategyName;
@@ -116,8 +107,12 @@ namespace LVL1MUCTPIPHASE1 {
     static const std::string m_DEFAULT_roibLocation;
     static const std::string m_DEFAULT_geometryXMLFile;
     
-    ServiceHandle< TrigConf::ILVL1ConfigSvc > m_configSvc;
+    ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
+
     SimController* m_theMuctpi;
+    ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_rpcTool;
+    ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_tgcTool;
+
 
     /// Function pointer to the execute function we want to use:
     StatusCode ( LVL1MUCTPIPHASE1::MUCTPI_AthTool::*m_executeFunction )( void );

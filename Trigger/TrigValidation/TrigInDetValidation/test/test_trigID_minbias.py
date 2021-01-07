@@ -28,13 +28,16 @@
 
 
 Slices  = ['minbias']
-RunEF   = False
 Events  = 8000 
 Threads = 8 
 Slots   = 8
 Input   = 'minbias'    # defined in TrigValTools/share/TrigValInputs.json  
 
-TrackReference = [ 'Truth', 'Offline' ]
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root" ),
+         ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
+
+Comp = [ ( "L2minbias",        "L2minbias", "data-hists.root",         " -c TIDAhisto-panel.dat  -d HLTL2-plots " ),
+         ( "L2minbiasoffline", "L2minbias", "data-hists-offline.root", " -c TIDAhisto-panel.dat  -d HLTL2-plots-offline " ) ]
 
 
 from AthenaCommon.Include import include 

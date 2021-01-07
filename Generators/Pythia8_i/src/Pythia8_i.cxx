@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "Pythia8_i/Pythia8_i.h"
 #include "Pythia8_i/UserProcessFactory.h"
@@ -76,7 +76,7 @@ m_failureCount(0),
 m_procPtr(0),
 m_userHooksPtrs(),
 m_doLHE3Weights(false),
-m_athenaTool("IPythia8Custom")
+m_athenaTool("")
 {
   declareProperty("Commands", m_commands);
   declareProperty("CollisionEnergy", m_collisionEnergy = 14000.0);
@@ -175,23 +175,23 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
 
-  for(const std::pair<std::string, double> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<double>()){
+  for(const std::pair<const std::string, double> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<double>()){
     m_pythia->settings.addParm(param.first, param.second, false, false, 0., 0.);
   }
 
-  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
+  for(const std::pair<const std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<int>()){
     m_pythia->settings.addMode(param.first, param.second, false, false, 0., 0.);
   }
 
-  for(const std::pair<std::string, int> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()){
+  for(const std::pair<const std::string, bool> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<bool>()){
     m_pythia->settings.addFlag(param.first, param.second);
   }
 
-  for(const std::pair<std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
+  for(const std::pair<const std::string, std::string> &param : Pythia8_UserHooks::UserHooksFactory::userSettings<std::string>()){
     m_pythia->settings.addWord(param.first, param.second);
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  if( ! m_athenaTool.empty() ){
     if(m_athenaTool.retrieve().isFailure()){
       ATH_MSG_ERROR("Unable to retrieve Athena Tool for custom Pythia processing");
       return StatusCode::FAILURE;
@@ -201,7 +201,6 @@ StatusCode Pythia8_i::genInitialize() {
       if(status != StatusCode::SUCCESS) return status;
     }
   }
-
 
   // Now apply the settings from the JO
   for(const std::string &cmd : m_commands){
@@ -386,7 +385,8 @@ StatusCode Pythia8_i::callGenerator(){
     }
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  ATH_MSG_DEBUG("Now checking with Tool.empty() second time");
+  if( ! m_athenaTool.empty() ){
       StatusCode stat = m_athenaTool->ModifyPythiaEvent(*m_pythia);
       if(stat != StatusCode::SUCCESS) returnCode = stat;
   }
@@ -570,7 +570,7 @@ StatusCode Pythia8_i::genFinalize(){
     std::cout << "Using FxFx cross section recipe: xs = "<< m_sigmaTotal << " / " << 1e9*info.nTried() << std::endl;
   }
 
-  if(m_athenaTool.typeAndName() != "IPythia8Custom"){
+  if( ! m_athenaTool.empty()){
     double xsmod = m_athenaTool->CrossSectionScaleFactor();
     ATH_MSG_DEBUG("Multiplying cross-section by Pythia Modifier tool factor " << xsmod );
     xs *= xsmod;
@@ -606,6 +606,26 @@ StatusCode Pythia8_i::genFinalize(){
 ////////////////////////////////////////////////////////////////////////////////
 void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
 
+#ifdef HEPMC3
+  HepMC::GenEvent *procEvent = new HepMC::GenEvent();
+
+  // Adding the LHE event to the HepMC results in undecayed partons in the event record.
+  // Pythia's HepMC converter throws up undecayed partons, so we ignore that
+  // (expected) exception this time
+  m_pythiaToHepMC.fill_next_event(m_pythia->process, procEvent, evt->event_number(), &m_pythia->info, &m_pythia->settings);
+
+  for(auto  p: *procEvent){
+    p->set_status(1003);
+  }
+
+  //This code and the HepMC2 version below assume a correct input, e.g. beams[0]->end_vertex() exists.
+  for(auto  v: procEvent->vertices()) v->set_status(1);
+  auto beams=evt->beams();
+  auto procBeams=procEvent->beams();
+  if(beams[0]->momentum().pz() * procBeams[0]->momentum().pz() < 0.) std::swap(procBeams[0],procBeams[1]);
+  for (auto p: procBeams[0]->end_vertex()->particles_out())  beams[0]->end_vertex()->add_particle_out(p);
+  for (auto p: procBeams[1]->end_vertex()->particles_out())  beams[1]->end_vertex()->add_particle_out(p);
+#else
   HepMC::GenEvent *procEvent = new HepMC::GenEvent(evt->momentum_unit(), evt->length_unit());
 
   // Adding the LHE event to the HepMC results in undecayed partons in the event record.
@@ -668,6 +688,7 @@ void Pythia8_i::addLHEToHepMC(HepMC::GenEvent *evt){
     vit = vtxCopies.find((*p)->end_vertex());
     if(vit != vtxCopies.end()) vit->second->add_particle_in(pCopy);
   }
+#endif
 
   return;
 }

@@ -182,10 +182,6 @@ void TGCTriggerDbAlg::loadParameters(TGCTriggerData* writeCdo,
 
 void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo)
 {
-  for(auto peroctant : writeCdo->m_ptmap_bw) {
-    for(auto persubsec : peroctant.second) persubsec.second.clear();
-  }
-
   if (!writeCdo->isActive(TGCTriggerData::CW_BW)) {
     return;
   }
@@ -193,18 +189,18 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo)
   bool fullCW = (writeCdo->getType(TGCTriggerData::CW_BW) == "full");
   std::string vername = writeCdo->getVersion(TGCTriggerData::CW_BW);
 
-  const int kNMODULETYPE = 12;
-  const unsigned short modulenumber[kNMODULETYPE]    = {0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 8};
+  const uint8_t kNMODULETYPE = 12;
+  const uint8_t modulenumber[kNMODULETYPE]    = {0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 8};
   const std::string modulename[kNMODULETYPE]         = {"0","1","2a","2b","3","4","5a","5b","6","7","8a","8b"};
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
   for(size_t iSide = 0; iSide < TGCTriggerData::N_SIDE; iSide++) {
     for(size_t iOctant = 0; iOctant < TGCTriggerData::N_OCTANT; iOctant++) {
 
-      std::map<unsigned short, std::map<unsigned short, unsigned char>> per_octant;
-      //   SUBSECADDR | 16 bits | unsigned int  |
+      uint32_t octaddr = (iSide<<TGCTriggerData::SIDE_SHIFT) +
+                         ((iOctant & TGCTriggerData::OCTANT_MASK)<<TGCTriggerData::OCTANT_SHIFT);
 
-      for(int iModule = 0; iModule < kNMODULETYPE; iModule++) {
+      for(size_t iModule = 0; iModule < kNMODULETYPE; iModule++) {
 
         std::ostringstream dbname;
         dbname << "RPhiCoincidenceMap.";
@@ -216,77 +212,60 @@ void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo)
 
         char delimiter = '\n';
         std::string field, tag;
-        unsigned char phimod2 = modulename[iModule].find("b") != std::string::npos ? 1 : 0;
+        uint32_t phimod2 = modulename[iModule].find("b") != std::string::npos ? 1 : 0;
 
-        std::map<unsigned short, unsigned char> pt_by_delta;
+        uint32_t modaddr = ((modulenumber[iModule] & TGCTriggerData::MODULE_MASK)<<TGCTriggerData::MODULE_SHIFT) +
+                           ((phimod2 & TGCTriggerData::PHIMOD2_MASK)<<TGCTriggerData::PHIMOD2_SHIFT);
 
         while (std::getline(stream, field, delimiter)) {
 
           std::istringstream header(field);
-          header>>tag;
+          header >> tag;
 
           if (tag == "#") { // read header part.
-            unsigned short ssId, mod;
-            short lDR, hDR, lDPhi, hDPhi;
-            unsigned short ptLevel;
-            header>>ptLevel>>ssId>>mod>>lDR>>hDR>>lDPhi>>hDPhi;
+            uint16_t ptLevel, roi, mod;
+            int16_t lDR, hDR, lDPhi, hDPhi;
+            header >> ptLevel >> roi >> mod >> lDR >> hDR >> lDPhi >> hDPhi;
 
-            char type = getTYPE( lDR, hDR, lDPhi, hDPhi );
+            int16_t type = writeCdo->getTYPE( lDR, hDR, lDPhi, hDPhi );
 
             // check moduleNumber and ptLevel
-            if (mod != modulenumber[iModule] || ptLevel > TGCTriggerData::N_PT_THRESH || type < 0 ) {
-              ATH_MSG_WARNING("Invalid configuration of DB file.");
+            if( mod != modulenumber[iModule] ||
+                ptLevel > TGCTriggerData::N_PT_THRESH || type < 0 ) {
+              ATH_MSG_WARNING("Invalid configuration of DB file! - Nothing to load this DB file");
               break;
             }
 
-            unsigned short roiaddr = getRoIAddr(type, phimod2, mod, ssId);
+            uint32_t cwaddr = ((uint8_t(type) & TGCTriggerData::TYPE_MASK)<<TGCTriggerData::TYPE_SHIFT) + 
+                              ((roi & TGCTriggerData::ROI_MASK)<<TGCTriggerData::ROI_SHIFT);
 
             // get window data
             std::getline(stream, field, delimiter);
             std::istringstream cont(field);
 
-            for (unsigned short ir = 0; ir < 31; ir++) {
-              unsigned int bit;
-              cont>>bit;
+            for (uint8_t ir = 0; ir < 31; ir++) {  // ir=0, 15 and 30 point to -15, 0 and +15 of dR, respectively.
+              uint32_t draddr = (ir & TGCTriggerData::DR_MASK)<<TGCTriggerData::DR_SHIFT;
+
+              uint32_t bit;
+              cont >> bit;
               if (bit == 0) continue; // none of window is opened in this dR
 
-              for(unsigned short iphi=0; iphi<15; iphi++) {
-                unsigned short delta = (ir<<4) + iphi;
-                if(bit>>iphi & 0x1) pt_by_delta[delta] = (unsigned char)(ptLevel & 0x7);
+              for(uint8_t iphi=0; iphi<15; iphi++) {  // iphi=0, 7 and 14 point to -7, 0 and +7 of dPhi, respectively.
+                if(bit>>iphi & 0x1) {
+                  uint32_t theaddr = octaddr + modaddr + cwaddr + draddr + iphi;
+                  writeCdo->m_ptmap_bw[theaddr] = (uint8_t)(ptLevel & TGCTriggerData::PT_MASK);
+                }
               }
-            }
-            if((ptLevel&0x7) == 0x6) {
-              per_octant[roiaddr] = pt_by_delta;
-              pt_by_delta.clear();
             }
 
           }   // end of if(tag)...
         }   // end of while(getline...)
       }   // end of for(iModule)
 
-      unsigned char octantbit = iSide<<3 & iOctant;
-      writeCdo->m_ptmap_bw[octantbit] = per_octant;
-
       if(!fullCW) break;
     }   // end of for(iOctant)
     if(!fullCW) break;
   }   // end of for(iSide)
-}
-
-char TGCTriggerDbAlg::getTYPE(const short lDR, const short hDR, const short lDPhi, const short hDPhi) const
-{
-  char type = -1;
-  if ( (lDR==-15) && (hDR==15) && (lDPhi==-7) && (hDPhi==7))      type = TGCTriggerData::COIN_HH;
-  else if ( (lDR==-15) && (hDR==15) && (lDPhi==-3) && (hDPhi==3)) type = TGCTriggerData::COIN_HL;
-  else if ( (lDR==-7) && (hDR==7) && (lDPhi==-7) && (hDPhi==7))   type = TGCTriggerData::COIN_LH;
-  else if ( (lDR==-7) && (hDR==7) && (lDPhi==-3) && (hDPhi==3))   type = TGCTriggerData::COIN_LL;
-  return type;
-}
-
-unsigned short TGCTriggerDbAlg::getRoIAddr(const char type, const unsigned char phimod2,
-                                           const unsigned short module, const unsigned short roi) const
-{
-  return (type<<13) + ((phimod2&0x1)<<12) + ((module&0xf)<<8) + roi;
 }
 
 void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo)

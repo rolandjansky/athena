@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -22,6 +22,9 @@
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "GaudiKernel/ITHistSvc.h"
+#include "TFile.h"
+#include "TTree.h"
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // MagField cache
@@ -35,6 +38,8 @@
 #include <vector>
 
 class MsgStream;
+//class TFile;
+//class TTree;
 
 namespace InDet {
 
@@ -117,7 +122,16 @@ namespace InDet {
     **/ 
     virtual const SiSpacePointsSeed* next(const EventContext& ctx, EventData& data) const override;
     //@}
-      
+     
+    /** This method is called by the SiSPSeededTrackFinder algorithm to fill ntuples for 
+    * seeds seen by the algorithm. seedType represents Pixel/SCT type seeds, where 0->SCT
+    * and 1->Pixel. givesTrack is determined by whether or not the given seed forms atleast 
+    * one track candidate. 0->No track candidate 1->At least one track Candidate
+    **/  
+    virtual void writeNtuple(const SiSpacePointsSeed* seed, const Trk::Track* track, int seedType, long eventNumber) const override;
+
+    virtual bool getWriteNtupleBoolProperty() const override;
+
     ///////////////////////////////////////////////////////////////////
     /// @name Print internal tool parameters and status
     ///////////////////////////////////////////////////////////////////
@@ -475,6 +489,43 @@ namespace InDet {
      * @return true if the seed is confirmed, false otherwise 
      **/ 
     bool isConfirmedSeed(const InDet::SiSpacePointForSeed* bottomSP, const InDet::SiSpacePointForSeed* topSP, float quality) const; 
+
+    ///Flag to write validation ntuples. Turned off by default
+    Gaudi::Property<bool> m_writeNtuple {this, "WriteNtuple", false, "Flag to write Validation Ntuples"};
+
+    ITHistSvc* m_thistSvc;
+
+    TTree* m_outputTree;
+
+    mutable std::mutex m_mutex;
+
+    mutable std::string          m_treeName               ATLAS_THREAD_SAFE;
+    mutable TString              m_treeFolder             ATLAS_THREAD_SAFE;
+
+    mutable float                  m_d0                   ATLAS_THREAD_SAFE;
+    mutable float                  m_z0                   ATLAS_THREAD_SAFE;
+    mutable float                  m_pt                   ATLAS_THREAD_SAFE;
+    mutable float                  m_eta                  ATLAS_THREAD_SAFE;
+    mutable double                 m_x1                   ATLAS_THREAD_SAFE;
+    mutable double                 m_x2                   ATLAS_THREAD_SAFE;
+    mutable double                 m_x3                   ATLAS_THREAD_SAFE;
+    mutable double                 m_y1                   ATLAS_THREAD_SAFE;
+    mutable double                 m_y2                   ATLAS_THREAD_SAFE;
+    mutable double                 m_y3                   ATLAS_THREAD_SAFE;
+    mutable double                 m_z1                   ATLAS_THREAD_SAFE;
+    mutable double                 m_z2                   ATLAS_THREAD_SAFE;
+    mutable double                 m_z3                   ATLAS_THREAD_SAFE;
+    mutable double                 m_r1                   ATLAS_THREAD_SAFE;
+    mutable double                 m_r2                   ATLAS_THREAD_SAFE;
+    mutable double                 m_r3                   ATLAS_THREAD_SAFE;
+    mutable float                  m_quality              ATLAS_THREAD_SAFE;
+    mutable int                    m_type                 ATLAS_THREAD_SAFE;
+    mutable double                 m_dzdr_t               ATLAS_THREAD_SAFE;
+    mutable double                 m_dzdr_b               ATLAS_THREAD_SAFE;
+    mutable bool                   m_givesTrack           ATLAS_THREAD_SAFE;
+    mutable float                  m_trackPt              ATLAS_THREAD_SAFE;
+    mutable float                  m_trackEta             ATLAS_THREAD_SAFE;
+    mutable long                   m_eventNumber          ATLAS_THREAD_SAFE;
   };
   
 } // end of name space

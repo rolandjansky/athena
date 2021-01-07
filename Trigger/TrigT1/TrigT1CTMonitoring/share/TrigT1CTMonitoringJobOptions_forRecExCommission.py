@@ -184,8 +184,13 @@ if not athenaCommonFlags.isOnline() and jp.ConcurrencyFlags.NumThreads() == 0:
         #svcMgr.DSConfigSvc.readLVL1Thr=True
         #svcMgr.DSConfigSvc.readLVL1BG=True
 
-        from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
-        topSequence += L1Muctpi_on_Data()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.enableL1Phase1:
+            from TrigT1MuctpiPhase1.TrigT1MuctpiPhase1Config import L1MuctpiPhase1_on_Data
+            topSequence += L1MuctpiPhase1_on_Data()
+        else:
+            from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi_on_Data
+            topSequence += L1Muctpi_on_Data()
 
         from TrigT1CTMonitoring.TrigT1CTMonitoringConf import TrigT1CTMonitoring__DeriveSimulationInputs as DeriveSimulationInputs
         topSequence += DeriveSimulationInputs(do_MuCTPI_input=True,

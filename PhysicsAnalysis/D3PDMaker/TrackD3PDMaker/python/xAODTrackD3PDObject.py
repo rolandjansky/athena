@@ -7,7 +7,6 @@ from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.IndexAssociation import IndexAssociation
 from TrackD3PDMaker.PerigeeAssociation import PerigeeAssociation
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
-from AthenaCommon.AppMgr import ToolSvc
 
 
 def xAODTrackD3PDObject(_label='trkTrack',
@@ -54,16 +53,14 @@ def xAODTrackD3PDObject(_label='trkTrack',
                                   InDetTestBLayerTool = ToolSvc.InDetRecTestBLayerTool)
 
     # perigee at Primary Vertex
-    PerigeeAtPVAssoc = PerigeeAssociation\
-                       (object,
+    PerigeeAtPVAssoc = PerigeeAssociation(object,  # noqa: F841
                         TrackD3PDMaker.TrackParticlePerigeeAtPVAssociationTool,
                         "PerigeeAtPV",
                         suffix='_wrtPV',
                         levelName = 'trackParametersAtPrimaryVertexLevelOfDetails')
 
     # perigee at Beam Spot
-    PerigeeAtBSAssoc = PerigeeAssociation\
-                       (object,
+    PerigeeAtBSAssoc = PerigeeAssociation(object,  # noqa: F841
                         TrackD3PDMaker.TrackParticlePerigeeAtBSAssociationTool,
                         "PerigeeAtBS",
                         suffix='_wrtBS', 
@@ -242,8 +239,7 @@ def xAODTrackD3PDObject(_label='trkTrack',
                                 'patternRecoInfo'])
 
     # Vertex association
-    VertexAssoc = IndexAssociation  (
-        object,
+    VertexAssoc = IndexAssociation(object,  # noqa: F841
         TrackD3PDMaker.TrackParticleVertexAssociationTool,
         vertexTarget,
         prefix = vertexPrefix,

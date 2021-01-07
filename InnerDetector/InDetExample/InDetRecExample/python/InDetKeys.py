@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ##
 ## @file InDetRecExample/python/InDetKeys.py
@@ -16,8 +13,6 @@ from __future__ import print_function
 __author__ = "A. Wildauer"
 __version__= "$Revision: 1.19 $"
 __doc__    = "InDetContainerKeys"
-
-__all__    = [ "InDetKeyContainers" ]
 
 # kindly stolen from AthenaCommonFlags from S. Binet and M. Gallas
 
@@ -108,19 +103,18 @@ class TRT_RDOs(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'TRT_RDOs'
 
-	   
 class PixelPURDOs(JobProperty):
     """StoreGate key for PU pixel raw data objects"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'Pixel_PU_RDOs'
-	
+
 class SCT_PU_RDOs(JobProperty):
     """StoreGate key for PU SCT raw data objects"""
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'SCT_PU_RDOs'
-	
+
 class TRT_PU_RDOs(JobProperty):
     """StoreGate key for PU TRT raw data objects"""
     statusOn     = True
@@ -603,7 +597,7 @@ class TRTTracks_NewT(JobProperty):
     statusOn     = True
     allowedTypes = ['str']
     StoredValue  = 'TRTStandaloneTracks'
-	
+
 class PseudoTracks(JobProperty):
     """StoreGate key for the final track collection (PseudoTracking)"""
     statusOn     = True

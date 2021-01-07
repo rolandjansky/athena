@@ -16,13 +16,13 @@ class SingleJetGrouper: public IJetGrouper{
   std::vector<HypoJetGroupVector> group(HypoJetIter&,
 					HypoJetIter&) const override;
 
-  std::optional<HypoJetGroupVector> next() override;
+  std::optional<HypoJetVector> next() override;
   std::string getName() const override; 
   std::string toString() const override;
 
 private:
-  HypoJetVector m_jets;
-  std::size_t m_size;
+  HypoJetVector m_jets{};
+  std::size_t m_size{0};
   std::size_t m_index{0};
 };
 #endif

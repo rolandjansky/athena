@@ -736,9 +736,8 @@ StatusCode EventSelectorByteStream::recordAttributeListImpl(lock_t& lock) const
       }
    }
 
-   // build spec and the new attr list
-   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification(); // the newly created attribute list owns the spec
-   auto attrList = std::make_unique<AthenaAttributeList>(*spec);
+   // build the new attr list
+   auto attrList = std::make_unique<AthenaAttributeList>();
 
    // fill the attr list
    ATH_CHECK(fillAttributeListImpl(attrList.get(), "", false, lock));

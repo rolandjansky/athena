@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr,CfgGetter
+from AthenaCommon import CfgGetter
 import AthenaCommon.SystemOfUnits as Units
 from InDetRecExample.TrackingCommon import setDefaults,copyArgs
 
@@ -195,7 +195,7 @@ def KalmanDNAFitter(name='KalmanDNAFitter',**kwargs) :
 
 def DistributedKalmanFilter(name="DistributedKalmanFilter", **kwargs) :
     pix_cluster_on_track_args = stripArgs(kwargs,['SplitClusterMapExtension','ClusterSplitProbabilityName','nameSuffix'])
-
+    from InDetRecExample                         import TrackingCommon
     from InDetRecExample.TrackingCommon          import setDefaults
     if 'ExtrapolatorTool' not in kwargs :
         kwargs = setDefaults(kwargs, ExtrapolatorTool = TrackingCommon.getInDetExtrapolator())
@@ -313,7 +313,6 @@ def InDetGlobalChi2FitterLowPt(name='InDetGlobalChi2FitterLowPt', **kwargs) :
                            RotCreatorTool        = TrackingCommon.getInDetRotCreator(**pix_cluster_on_track_args))
 
     from InDetRecExample.InDetJobProperties import InDetFlags
-    use_broad_cluster_any = InDetFlags.useBroadClusterErrors() and (not InDetFlags.doDBMstandalone())
     if 'BroadRotCreatorTool' not in kwargs and  not InDetFlags.doRefit():
         kwargs=setDefaults(kwargs,
                            BroadRotCreatorTool   = TrackingCommon.getInDetBroadRotCreator(**pix_cluster_on_track_args))

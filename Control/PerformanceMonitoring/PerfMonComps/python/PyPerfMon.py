@@ -2,7 +2,6 @@
 
 # @file: PyPerfMon.py
 # @author: Sebastien Binet <binet@cern.ch>
-from __future__ import with_statement
 
 __author__  = "Sebastien Binet <binet@cern.ch>"
 __version__ = "$Revision: 1.51 $"
@@ -10,17 +9,12 @@ __doc__     = """python module holding a python service to monitor athena perfor
 """
 
 import os,sys
-from time import time
-import resource
-from resource import getrusage as resource_getrusage
-import string
 
-import array
 import AthenaCommon.Logging as L
 
 _perfMonStates = ('ini','evt','fin')
 
-from PerfMonComps.PyMonUtils import *
+from PerfMonComps.PyMonUtils import Units, pymon
 
 from PyUtils.Decorators import memoize, forking
 
@@ -54,7 +48,6 @@ class Svc(object):
     instances = {}
 
     def __init__(self, name, properties = None):
-        import AthenaCommon.Logging as L
         ## init base class
         super(Svc,self).__init__()
         self.name  = name
@@ -94,9 +87,12 @@ class Svc(object):
                 cfg_module = 'PerfMonComps'
             elif c in cfgs:
                 cfg = cfgs[c]
-                if isinstance(cfg, ConfigurableAlgorithm): cfg_type = 'alg'
-                elif isinstance(cfg, ConfigurableAlgTool): cfg_type = 'algtool'
-                elif isinstance(cfg, ConfigurableService): cfg_type = 'svc'
+                if isinstance(cfg, ConfigurableAlgorithm):
+                    cfg_type = 'alg'
+                elif isinstance(cfg, ConfigurableAlgTool):
+                    cfg_type = 'algtool'
+                elif isinstance(cfg, ConfigurableService):
+                    cfg_type = 'svc'
                 cfg_class  = cfg.__class__.__name__
                 cfg_module = cfg.__class__.__module__
             else:
@@ -139,7 +135,7 @@ class Svc(object):
 
         ## perfmon domains
         try:
-            import DomainsRegistry as pdr
+            import PerfMonComps.DomainsRegistry as pdr
             self.meta['domains_a2d'] = pdr.a2d_db()
         except Exception:
             _msg.info('problem retrieving domains-registry...')
@@ -159,7 +155,9 @@ class Svc(object):
                 'rt':       (0.,0.),
                 }
 
-        import gc; gc.collect(); del gc
+        import gc
+        gc.collect()
+        del gc
         return
 
     def domains_db(self):
@@ -170,7 +168,6 @@ class Svc(object):
     
     @property
     def msg(self):
-        import AthenaCommon.Logging as L
         return L.logging.getLogger(self.name)
 
     def _set_stats(self, name,
@@ -227,7 +224,7 @@ class Svc(object):
             self._do_malloc_mon = False
         _msg.info('installing pmon-malloc hooks: %s', self._do_malloc_mon)
         import AthenaPython.PyAthena as PyAthena
-        lib = PyAthena.load_library('PerfMonEventDict')
+        PyAthena.load_library('PerfMonEventDict')
         memstats = PyAthena.PerfMon.MemStats
         memstats.enable(bool(self._do_malloc_mon))
         _msg.info('pmon-malloc hooks enabled: %s', bool(memstats.enabled()))
@@ -308,10 +305,10 @@ class Svc(object):
             statm = {}
             from sys import platform
             if platform != 'darwin' :
-                for l in open('/proc/self/status', 'r'):
+                for z in open('/proc/self/status', 'r'):
                     # lines are of the form:
                     # VmPeak: some value
-                    ll = list(map(str.strip, l.split(':')))
+                    ll = list(map(str.strip, z.split(':')))
                     k = ll[0]
                     v = ' '.join(ll[1:])
                     statm[k] = v
@@ -343,9 +340,9 @@ class Svc(object):
             for evtstr,fitn,fitted_slope in self._slope_data['fits']:
                 maxfitn=max(maxfitn,fitn)
             for evtstr,fitn,fitted_slope in self._slope_data['fits']:
-                _msg.info( '  evt %s fitted vmem-slope (%s points): %s'%
-                           (evtstr,str(fitn).rjust(len(str(maxfitn))),
-                            '%7.1f kb/evt'%fitted_slope if fitn>=2 else 'N/A') )
+                _msg.info( '  evt %s fitted vmem-slope (%s points): %s',
+                           evtstr,str(fitn).rjust(len(str(maxfitn))),
+                            '%7.1f kb/evt'%fitted_slope if fitn>=2 else 'N/A' )
             summary['job']['vmem_slope'] = self._slope_data
         else:
             _msg.info('vmem-leak estimation: [N/A]')
@@ -353,8 +350,10 @@ class Svc(object):
             
         ## try to recoup some memory by flushing out ROOT stuff...
         headerFile = os.path.splitext(self.outFileName)[0]+".dat"
-        if os.path.exists(headerFile):       os.remove(headerFile)
-        if os.path.exists(self.outFileName): os.remove(self.outFileName)
+        if os.path.exists(headerFile):
+            os.remove(headerFile)
+        if os.path.exists(self.outFileName):
+            os.remove(self.outFileName)
 
         ## build the callgraph...
         #import PerfMonComps.PerfMonSerializer as pmon_ser
@@ -431,12 +430,15 @@ class Svc(object):
         ## write out meta-data
         import PyUtils.dbsqlite as dbs
         meta = dbs.open(headerFile, 'n')
-        for k,v in six.iteritems (self.meta): meta[k] = v
+        for k,v in six.iteritems (self.meta):
+            meta[k] = v
         meta['version_id'] = '0.4.0' # stream-format + header file
         meta['pmon_tuple_files'] = map( os.path.basename, outFiles[1:] )
         import socket
-        try:   meta['hostname'] = socket.gethostname()
-        except Exception: meta['hostname'] = '<unknown>'
+        try:
+            meta['hostname'] = socket.gethostname()
+        except Exception:
+            meta['hostname'] = '<unknown>'
         meta.close()
 
         
@@ -447,8 +449,10 @@ class Svc(object):
         try:
             for outFile in outFiles:
                 outFileDirName = os.path.dirname(outFile)
-                try: os.chdir(outFileDirName)
-                except OSError as err: pass
+                try:
+                    os.chdir(outFileDirName)
+                except OSError:
+                    pass
                 outFile = os.path.basename(outFile)
                 _msg.info(' --> [%s] => %8.3f kb',
                           outFile,
@@ -517,10 +521,12 @@ class PoolMonTool(object):
         from AthenaCommon import CfgMgr
         from AthenaCommon.Configurable import Configurable
         for c in list(Configurable.allConfigurables.values()):
-            if not isinstance(c, CfgMgr.AthenaOutputStream): continue
+            if not isinstance(c, CfgMgr.AthenaOutputStream):
+                continue
             try:
                 outFile = c.properties()["OutputFile"]
-            except KeyError: continue
+            except KeyError:
+                continue
             if outFile.startswith("ROOTTREE:"):
                 outFile = outFile[len("ROOTTREE:"):]
             outFiles.add( outFile )
@@ -530,7 +536,6 @@ class PoolMonTool(object):
         
     @property
     def msg(self):
-        import AthenaCommon.Logging as L
         return L.logging.getLogger(self.name)
 
     def initialize(self):
@@ -620,7 +625,8 @@ class PoolMonTool(object):
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    inFileName )
                     self.msg.info( "Reason: %s", err )
-                    if 'inFile' in dir(): del inFile               
+                    if 'inFile' in dir():
+                        del inFile
                 _msg.unMute()
         if len(self.outputPoolFiles)>0:
             self.msg.info( "Content of output POOL files:" )
@@ -651,7 +657,8 @@ class PoolMonTool(object):
                     self.msg.info( "Could not run checkFile on [%s] !!",
                                    outFileName )
                     self.msg.info( "Reason: %s", err )
-                    if 'outFile' in dir(): del outFile               
+                    if 'outFile' in dir():
+                        del outFile
                 _msg.unMute()
                 
         return
@@ -678,13 +685,13 @@ class HephaestusMonTool(object):
         # during our finalize.
         self._heph_has_checkPoint = False 
         import sys
-        if not 'Hephaestus.atexit' in sys.modules.keys():
+        if 'Hephaestus.atexit' not in sys.modules.keys():
             self.msg.warning('Hephaestus was not correctly initialized !')
             self.msg.warning('Final report may be inaccurate...')
             self.msg.warning('(to fix this, run athena with --leak-check)')
 
         import dl, Hephaestus.MemoryTracker as m
-        _hephLib = dl.open (m.__file__, dl.RTLD_GLOBAL | dl.RTLD_NOW)
+        dl.open (m.__file__, dl.RTLD_GLOBAL | dl.RTLD_NOW)
         memtrack = m
 
         from os.path import splitext
@@ -742,7 +749,7 @@ class HephaestusMonTool(object):
         
         # consolidate last events with end-of-job leak report
         _clearCheckPoint = self.memtrack.CheckPoints.clearCheckPoint
-        for _ in xrange(self.lag):
+        for _ in range(self.lag):
             _clearCheckPoint( 0 )
 
         # put the per-evt leaks into a different file

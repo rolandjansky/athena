@@ -1,13 +1,11 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-# $Id: EmTauROID3PDObject.py 633616 2014-12-04 10:10:12Z ssnyder $
 #
 # D3PD object saving the LVL1 Em/Tau RoI information into the D3PD
 #
 
 from D3PDMakerCoreComps.D3PDObject  import make_SGDataVector_D3PDObject
 import TriggerD3PDMaker
-import EventCommonD3PDMaker
 import D3PDMakerCoreComps
 
 

@@ -21,6 +21,7 @@ public:PprMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
     double phi1d;     /// phi for 1d phi distributions (taking into account granularity in eta) 
     int jepET;
     bool isDuplicate; /// Bookkeeping of multiple bins in phi for a given eta bin in the forward region 
+    double maxADC;    /// max ADC timeslice
   };
 
 
@@ -35,13 +36,17 @@ private:
   /// Properties
   Gaudi::Property<double> m_phiScaleTT{this, "phiScaleTT", 32./M_PI, "Scale factor to convert trigger tower phi to integer binning"};
   Gaudi::Property<int> m_TT_ADC_HitMap_Thresh{this, "TT_ADC_HitMap_Thresh", 50, "ADC cut for hit maps"};
-
+  Gaudi::Property<int> m_SliceNo{this, "SliceNo", 15, "Number of possible time slices in the readout"};
+  Gaudi::Property<int> m_EMFADCCut{this, "EMFADCCut", 40, "EM FADC cut for signal"};
+  Gaudi::Property<int> m_TT_ADC_Pedestal{this, "ADCPedestal", 32, "Nominal pedestal value"};
 
   /// Helper functions
   StatusCode fillPPMTowerEtaPhi( const xAOD::TriggerTower_v2* tt, 
                                std::vector<MonitorTT> &vecMonTT_EM, 
                                std::vector<MonitorTT> &vecMonTT_HAD,  
                                std::vector<MonitorTT> &vecMonTT) const;
+
+  double recTime(const std::vector<short unsigned int> &vFADC, int cut) const;
 
 };
 #endif

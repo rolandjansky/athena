@@ -51,12 +51,27 @@ private:
   /** @brief Cell container*/
   SG::ReadHandleKey<CaloCellContainer> m_cellsKey {this,
       "CellsName", "AllCalo", "Names of containers which contain cells"};
+
+  /** @brief do FWD cell **/
+  Gaudi::Property<bool> m_isFWD{ this,
+      "doFWDelesurraundingWindows",
+      false,
+      "Save FWD electron surraunding windows" };
   
   Gaudi::Property<double> m_neta {this, "Neta", 7.0,
       "Number of eta cells in each sampling in which to look for hottest cell"};
 
   Gaudi::Property<double> m_nphi {this, "Nphi", 7.0,
       "Number of phi cell in each sampling in which to look for hottest cell"};
+
+  Gaudi::Property<double> m_netaFWD {this, "NetaFWD", 6.0,
+      "Number of eta cells in each sampling in which to look for hottest cell"};
+
+  Gaudi::Property<double> m_nphiFWD {this, "NphiFWD", 6.0,
+      "Number of phi cell in each sampling in which to look for hottest cell"};
+
+  Gaudi::Property<double> m_drFWD {this, "deltaR_FCAL", 0.4,
+      "Cone size to collec cell around hottest-cell FCAL"};
 
 
 };

@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: AthMessageSvc.cpp,v 1.27 2008/10/21 16:25:55 marcocle Exp $
 
 #include "GaudiKernel/Kernel.h"
 #include "GaudiKernel/StatusCode.h"
@@ -123,10 +122,6 @@ StatusCode LoggedMessageSvc::initialize() {
   // Release pointer to myself done in Service base class
   SmartIF<IMessageSvc> &si = const_cast<SmartIF<IMessageSvc>&> (msgSvc());
   si.reset();
-
-  // Set my own properties
-  sc = setProperties();
-  if (sc.isFailure()) return sc;
 
 #ifdef _WIN32
   m_color = false;

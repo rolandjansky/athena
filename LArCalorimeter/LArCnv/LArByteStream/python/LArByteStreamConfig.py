@@ -1,19 +1,17 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
-from LArByteStream.LArByteStreamConf import LArRawDataContByteStreamTool
-
+from AthenaConfiguration.ComponentFactory import CompFactory
 
 
 def LArRawDataContByteStreamToolConfig (name="LArRawDataContByteStreamTool",
                                         InitializeForWriting = False,
                                         stream=None,
                                         **kwargs):
-      tool = LArRawDataContByteStreamTool (name, **kwargs)
+      tool = CompFactory.LArRawDataContByteStreamTool (name, **kwargs)
       if InitializeForWriting:
-         from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
          from LArCabling.LArCablingAccess import LArOnOffIdMapping, LArFebRodMapping
-         noisealg = CaloNoiseCondAlg ('totalNoise')
+         noisealg = CompFactory.CaloNoiseCondAlg ('totalNoise')
          LArOnOffIdMapping()
          LArFebRodMapping()
          if stream:

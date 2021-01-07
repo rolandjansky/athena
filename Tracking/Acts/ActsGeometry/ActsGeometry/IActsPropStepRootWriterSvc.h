@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ACTSGEOMETRY_IACTSPROPSTEPROOTWRITERSVC_H
@@ -10,7 +10,7 @@
 
 namespace Acts {
   namespace detail {
-    class Step;
+    struct Step;
   }
 }
 

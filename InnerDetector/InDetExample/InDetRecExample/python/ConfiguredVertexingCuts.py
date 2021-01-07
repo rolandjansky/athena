@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -32,10 +32,7 @@ class ConfiguredVertexingCuts :
 #pointer to InDetFlags, don't use them directly
 #to allow sharing this code with the trigger  
    self.__set_indetflags()     
- 			      
-   from AthenaCommon.GlobalFlags import globalflags
-   from AthenaCommon.DetFlags import DetFlags
-   from AthenaCommon.BeamFlags import jobproperties
+
    from RecExConfig.RecFlags import rec
 
 #-----------------------------------------------------------------------

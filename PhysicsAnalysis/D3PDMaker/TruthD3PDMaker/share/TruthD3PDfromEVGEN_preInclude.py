@@ -34,14 +34,6 @@ from JetRec.JetRecFlags import jetFlags
 jetFlags.noStandardConfig.set_Value_and_Lock(True)
 jetFlags.evgenJets.set_Value_and_Lock(True)
 
-# This is necessary to properly disable JVF tools...
-#  Unfortunately, the functions only exist in newer releases...
-try:
-    from JetMomentTools import JetMomentsConfigHelpers
-    JetMomentsConfigHelpers.recommendedAreaAndJVFMoments = lambda *l,**a:None
-except:
-    pass
-
 #--------------------------------------------------------------------------
 # Configuration
 #--------------------------------------------------------------------------

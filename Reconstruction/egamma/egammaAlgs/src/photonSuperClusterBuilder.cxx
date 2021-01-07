@@ -162,7 +162,7 @@ photonSuperClusterBuilder::execute(const EventContext& ctx) const
 
     // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(*outputClusterContainer,
-                                                        outputClusterContainer->size() - 1);
+                                                        outputClusterContainer->size() - 1,ctx);
     std::vector<ElementLink<xAOD::CaloClusterContainer>> phCluster{ clusterLink };
 
     ///////////////////////////////////////////////////////

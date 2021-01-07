@@ -41,7 +41,7 @@ def setupMenu():
         #test chains
         ChainProp(name='HLT_mu6_L1MU6',     groups=SingleMuonGroup),
 
-        ChainProp(name='HLT_mu6_idperfLRT_l2lrt_L1MU6',     groups=SingleMuonGroup),
+        ChainProp(name='HLT_mu6_LRT_idperf_l2lrt_L1MU6',     groups=SingleMuonGroup),
 
         ChainProp(name='HLT_mu6_ivarmedium_L1MU6', groups=SingleMuonGroup),
 
@@ -99,17 +99,23 @@ def setupMenu():
         ChainProp(name='HLT_e5_lhmedium_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_noringer_nod0_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_idperf_L1EM3', groups=SingleElectronGroup),        #idperf chains
 
         # low et threshold chains using Ringer
         ChainProp(name='HLT_e5_lhloose_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhmedium_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_L1EM3', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_gsf_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e5_lhtight_nod0_L1EM3', groups=SingleElectronGroup),
         
         # Primary
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VH',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e17_lhvloose_nod0_L1EM15VHI',  groups=SingleElectronGroup),
+        ChainProp(name='HLT_e17_lhvloose_L1EM15VH',  groups=SingleElectronGroup),
+        ChainProp(name='HLT_e17_lhvloose_L1EM15VHI',  groups=SingleElectronGroup),
+        ChainProp(name='HLT_e17_lhvloose_gsf_L1EM15VHI',  groups=SingleElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_L1EM20VH', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e24_lhvloose_gsf_L1EM20VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhloose_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhmedium_L1EM15VH', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_L1EM15VH', groups=SingleElectronGroup),
@@ -118,10 +124,13 @@ def setupMenu():
         ChainProp(name='HLT_e26_lhtight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_gsf_L1EM22VHI', groups=SingleElectronGroup), #Placeholder for GSF chain
         ChainProp(name='HLT_e26_lhtight_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_lhtight_gsf_ivarloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivarmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_ivartight_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e26_lhtight_nod0_L1EM24VHI', groups=SingleElectronGroup),
+        ChainProp(name='HLT_e26_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
+        ChainProp(name='HLT_e28_idperf_L1EM24VHI', groups=SingleElectronGroup),      #idperf chains
         ChainProp(name='HLT_e60_lhmedium_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e60_lhmedium_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=SingleElectronGroup),
@@ -134,8 +143,10 @@ def setupMenu():
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
 
+        
         # TnP triggers
-        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),    
+        ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),
+        ChainProp(name='HLT_e20_lhmedium_e15_idperf_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg    
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
    
@@ -236,21 +247,21 @@ def setupMenu():
         ChainProp(name='HLT_j45_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_pf_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_010jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_020jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_050jvt_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_subjesIS_ftf_preselj20_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j85_pf_ftf_L1J20', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j45_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_sktc_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_cssktc_nojcalib_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
-        ChainProp(name='HLT_j45_csskpf_nojcalib_ftf_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_sktc_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_cssktc_nojcalib_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
+        ChainProp(name='HLT_j45_csskpf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j260_320eta490_L1J20', groups=['Online',SingleJetGroup]),
 
@@ -269,9 +280,13 @@ def setupMenu():
         ChainProp(name='HLT_2j330_a10sd_csskpf_jes_ftf_35smcINF_L1J100', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
+
+        ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',
+                  l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
         # ATR-20624
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['Online',SingleJetGroup]),
@@ -425,7 +440,7 @@ def setupMenu():
 #        ChainProp(name='HLT_e9_lhvloose_mu20_mu8noL1_L1MU20', l1SeedThresholds=['EM3','MU20','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
 #        ChainProp(name='HLT_g35_loose_mu15_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','MU6','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
         ChainProp(name='HLT_g35_tight_icalotight_mu18noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
-        #        ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
+        ChainProp(name='HLT_g35_tight_icalotight_mu15noL1_mu2noL1_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED','FSNOSEED'], stream=[PhysicsStream], groups=EgammaMuonGroup),
     
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []

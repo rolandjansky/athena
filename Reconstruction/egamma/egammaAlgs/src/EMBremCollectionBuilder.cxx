@@ -253,7 +253,7 @@ EMBremCollectionBuilder::createNew(
     ElementLink<xAOD::TrackParticleContainer>>
     tP("originalTrackParticle");
   ElementLink<xAOD::TrackParticleContainer> linkToOriginal(*AllTracks,
-                                                           origIndex);
+                                                           origIndex,ctx);
   tP(*aParticle) = linkToOriginal;
 
   if (m_doTruth) {
@@ -303,7 +303,7 @@ EMBremCollectionBuilder::createNew(
   // Now  Slim the Trk::Track for writing to disk
   m_slimTool->slimTrack(*(Info.track));
   finalTracks->push_back(std::move(Info.track));
-  ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1);
+  ElementLink<TrackCollection> trackLink(*finalTracks,finalTracks->size()-1,ctx);
   aParticle->setTrackLink( trackLink );
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2017, 2019, 2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: CaloRingerElectronsReader.cxx 786306 2016-11-24 13:40:42Z wsfreund $
@@ -121,6 +121,7 @@ StatusCode CaloRingerElectronsReader::execute()
       m_clRingsBuilderElectronFctor->operator()( electron );
     }
 
+    m_clRingsBuilderElectronFctor->checkRelease();
   }
 
   StatusCode sc;

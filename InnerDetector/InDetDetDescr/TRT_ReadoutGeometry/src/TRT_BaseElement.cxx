@@ -11,7 +11,6 @@
 #include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#include "GeoModelUtilities/GeoAlignmentStore.h"
 #include "InDetIdentifier/TRT_ID.h"
 
 #include <vector>

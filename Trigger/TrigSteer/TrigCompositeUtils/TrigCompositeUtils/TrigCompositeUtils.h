@@ -457,7 +457,7 @@ namespace TrigCompositeUtils {
                           branch once a link has been located and collected. 
    * @param[inout] visitedCache Optional cache used by the recursive algorithm to avoid exploring each node multiple times. 
    */
-  bool typelessfindLinks(const Decision* start, 
+  bool typelessFindLinks(const Decision* start, 
     const std::string& linkName,
     std::vector<uint32_t>& key,
     std::vector<uint32_t>& clid,

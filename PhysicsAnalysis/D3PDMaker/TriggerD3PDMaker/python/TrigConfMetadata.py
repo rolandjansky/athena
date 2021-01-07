@@ -5,7 +5,7 @@
 # metadata to the D3PD.
 #
 
-def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCostL2 = False, doCostEF = False, doCostHLT = False, saveKeys = True, tuplePath = "" ):
+def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, saveKeys = True, tuplePath = "" ):
 
     """Helper function that adds the necessary tool(s) and service(s) to the
        job to save the trigger configuration metadata to the output D3PD
@@ -20,7 +20,6 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
     """
 
     # Create a logger for the function:
-    if "logger" in dir(): orig_logger = logger
     from AthenaCommon.Logging import logging
     logger = logging.getLogger( "addTrigConfMetadata" )
 
@@ -41,9 +40,9 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
     _d3pdSvc = getattr( ServiceMgr, _d3pdSvcName )
 
     # If no D3PD::MakerAlg has been provided, create a dummy one:
-    if d3pdalg == None:
+    if d3pdalg is None:
         logger.warning( "No D3PD MakerAlg given to function!" )
-        logger.warning( "The trigger configuration will be saved into file: " +
+        logger.warning( "The trigger configuration will be saved into file: "
                         "\"TrigConfig.root\"" )
         from AthenaCommon.AlgSequence import AlgSequence
         theJob = AlgSequence()
@@ -53,7 +52,7 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
 
     # Add the metadata tool:
     _d3pdToolName = "TrigConfMetadataTool"
-    if not _d3pdToolName in [ t.name() for t in d3pdalg.MetadataTools ]:
+    if _d3pdToolName not in [ t.name() for t in d3pdalg.MetadataTools ]:
         import TriggerD3PDMaker
         if (tuplePath == ""):
           tuplePath = d3pdalg.TuplePath
@@ -62,34 +61,22 @@ def addTrigConfMetadata( d3pdalg = None, useTrigConfEventSummaries = False, doCo
                                                                ConfigDir = tuplePath + "Meta" )
         _trigConfTool.UseTrigConfEventSummaries = useTrigConfEventSummaries
         if useTrigConfEventSummaries:
-            # Figure out if old or new style HLT if using CostMon to get correct storegate key
-            # Old key fomat was HLT_OPI_HLT_monitoring_config
-            if (doCostL2 == True or doCostEF == True or doCostHLT == True):
-              logger.info( "TrigConfMetadataTool will use passed arguments [L2="+str(doCostL2)+",EF="+str(doCostEF)+",HLT="+str(doCostHLT)+"]" )
-              if (doCostL2 == True or doCostEF == True):
-                _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_EF_monitoring_config"
-              elif (doCostHLT == True):
+            logger.info( "TrigConfMetadataTool will use TriggerFlags flags for config" )
+            from TriggerJobOpts.TriggerFlags import TriggerFlags
+            if TriggerFlags.doHLT():
                 _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config"
-            else: 
-              logger.info( "TrigConfMetadataTool will use TriggerFlags flags for config" )
-              from TriggerJobOpts.TriggerFlags import TriggerFlags
-              if TriggerFlags.doHLT():
-                _trigConfTool.keyConfig = "HLT_TrigMonConfigCollection_OPI_HLT_monitoring_config"
-            logger.info( "TrigConfMetadataTool will use the StoreGate key " + _trigConfTool.keyConfig )
+            logger.info( "TrigConfMetadataTool will use the StoreGate key %s", _trigConfTool.keyConfig )
             d3pdalg.MetadataTools += [ _trigConfTool ]
     else:
       logger.info( "TrigConfMetadataTool was already added to the D3PD::MakerAlg" )
 
     # Add the DB key filler object:
-    if saveKeys == True:
+    if saveKeys is True:
       _dbKeysFillerName = "TrigDBKeysFiller"
       if not hasattr( d3pdalg, _dbKeysFillerName ):
           from TriggerD3PDMaker.TrigDBKeysD3PDObject import TrigDBKeysD3PDObject
           d3pdalg += TrigDBKeysD3PDObject( 0 )
       else:
           logger.info( "TrigDBKeysD3PDObject already added to the D3PD::MakerAlg" )
-
-    # Restore the original logger if necessary:
-    if "orig_logger" in dir(): logger = orig_logger
 
     return

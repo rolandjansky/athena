@@ -96,7 +96,7 @@ AsgElectronLikelihoodTool::AsgElectronLikelihoodTool(const std::string& myname) 
   declareProperty("useOneExtraHighETLHBin",m_rootTool->m_useOneExtraHighETLHBin,"Use one extra bin for high ET LH");
   // cut on Wstot above HighETBinThreshold
   declareProperty("CutWstotAtHighET",m_rootTool->m_cutWstotAtHighET,"Cut on Wstot above HighETBinThreshold");
-  // cut on EoverP above HighETBinThreshold 
+  // cut on EoverP above HighETBinThreshold
   declareProperty("CutEoverPAtHighET",m_rootTool->m_cutEoverPAtHighET,"Cut on EoverP above HighETBinThreshold");
   // ET threshold for using high ET cuts and bin
   declareProperty("HighETBinThreshold",m_rootTool->m_highETBinThreshold,"ET threshold for using high ET cuts and bin");
@@ -145,34 +145,34 @@ StatusCode AsgElectronLikelihoodTool::initialize()
 {
 
     ATH_MSG_INFO("initialize : WP " << m_WorkingPoint.size() << " " << m_configFile.size());
-    
+
   std::string PDFfilename(""); //Default
 
   if(!m_WorkingPoint.empty()){
     m_configFile=AsgConfigHelper::findConfigFile(m_WorkingPoint,EgammaSelectors::LHPointToConfFile);
     ATH_MSG_INFO("operating point : " << this->getOperatingPointName());
   }
-  
+
   if(!m_configFile.empty()){
     std::string configFile = PathResolverFindCalibFile( m_configFile);
-    if(configFile.empty()){ 
+    if(configFile.empty()){
       ATH_MSG_ERROR("Could not locate " << m_configFile );
       return StatusCode::FAILURE;
-    } 
+    }
 
     ATH_MSG_DEBUG("Configfile to use  " << m_configFile );
     TEnv env(configFile.c_str());
-    
+
     // Get the input PDFs in the tool.
     ATH_MSG_DEBUG("Get the input PDFs in the tool ");
-    
+
     if(!m_pdfFileName.empty())
       {  //If the property was set by the user, take that.
         ATH_MSG_INFO("Setting user specified PDF file " << m_pdfFileName);
         PDFfilename = m_pdfFileName;
       } else {
       if (m_configFile.find("dev/") != std::string::npos) {
-	
+
         std::string PDFdevval = env.GetValue("inputPDFFileName", "ElectronPhotonSelectorTools/v1/ElectronLikelihoodPdfs.root");
         PDFfilename = ("dev/"+PDFdevval);
         ATH_MSG_DEBUG ( "Getting the input PDFs from: " << PDFfilename  );
@@ -235,25 +235,25 @@ StatusCode AsgElectronLikelihoodTool::initialize()
     m_rootTool->m_discLooseForPileupTransform4GeV = AsgConfigHelper::HelperDouble("DiscLooseForPileupTransform4GeV",env);
     m_rootTool->m_discMaxForPileupTransform = env.GetValue("DiscMaxForPileupTransform", 2.0);
     m_rootTool->m_pileupMaxForPileupTransform = env.GetValue("PileupMaxForPileupTransform", 50);
-   
+
   } else{  //Error if it cant find the conf
       ATH_MSG_ERROR("Could not find configuration file");
       return StatusCode::FAILURE;
   }
   ///-----------End of text config----------------------------
-  
+
   // Setup primary vertex key handle
   ATH_CHECK( m_primVtxContKey.initialize(m_usePVCont) );
-  // Setup HI container key handle (must come after init from env) 
+  // Setup HI container key handle (must come after init from env)
   bool doCentralityTransform = m_rootTool->m_doCentralityTransform;
   ATH_CHECK(m_HIESContKey.initialize(doCentralityTransform&&m_useCaloSumsCont));
- 
+
 
   // Get the name of the current operating point, and massage the other strings accordingly
   ATH_MSG_VERBOSE( "Going to massage the labels based on the provided operating point..." );
   // Get the message level and set the underlying ROOT tool message level accordingly
   m_rootTool->msg().setLevel(this->msg().level());
-  
+
   // We need to initialize the underlying ROOT TSelectorTool
   if ( m_rootTool->initialize().isFailure() ){
     ATH_MSG_ERROR ( "ERROR! Could not initialize the TElectronLikelihoodTool!" );
@@ -272,7 +272,7 @@ const asg::AcceptInfo& AsgElectronLikelihoodTool::getAcceptInfo() const
 }
 
 //=============================================================================
-// The main accept method: the actual cuts are applied here 
+// The main accept method: the actual cuts are applied here
 //=============================================================================
 asg::AcceptData AsgElectronLikelihoodTool::accept(const xAOD::Electron* el, double mu ) const
 {
@@ -290,7 +290,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   if ( !cluster ){
     ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
     return m_rootTool->accept();
-  }  
+  }
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
@@ -298,29 +298,29 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   }
 
   const double energy = cluster->e();
-  const float  eta    = (cluster->etaBE(2)); 
+  const float  eta    = (cluster->etaBE(2));
 
   if( isForwardElectron(el,eta) ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
-    return m_rootTool->accept();    
+    return m_rootTool->accept();
   }
-  
+
   double et = 0.;
   if(el->trackParticle() && !m_caloOnly) {
     et  = ( cosh(el->trackParticle()->eta()) != 0.) ? energy/cosh(el->trackParticle()->eta()) : 0.;
-  } else 
+  } else
     et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
-  
+
   // number of track hits
   uint8_t nSiHitsPlusDeadSensors(0);
   uint8_t nPixHitsPlusDeadSensors(0);
-  bool passBLayerRequirement(false); 
+  bool passBLayerRequirement(false);
   float d0(0.0);
   float deltaEta=0;
   float deltaPhiRescaled2=0;
   float wstot=0;
   float EoverP=0;
-  uint8_t ambiguityBit(0); 
+  uint8_t ambiguityBit(0);
   double ip(0);
 
   bool allFound = true;
@@ -335,17 +335,17 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   // get the ambiguity type from the decoration
   if ( !m_rootTool->m_cutAmbiguity.empty() ) {
     if ( el->isAvailable<uint8_t>("ambiguityType") ) {
-      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
+      static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
       ambiguityBit = acc(*el);
     } else {
       allFound = false;
       notFoundList += "ambiguityType ";
     }
   }
-  
+
   if(!m_caloOnly) {
       // retrieve associated track
-      const xAOD::TrackParticle* t  = el->trackParticle();    
+      const xAOD::TrackParticle* t  = el->trackParticle();
       if (t) {
         nSiHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfSiliconHitsAndDeadSensors(t);
         nPixHitsPlusDeadSensors = ElectronSelectorHelpers::numberOfPixelHitsAndDeadSensors(t);
@@ -379,7 +379,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     ip = mu;
   }
 
-  // for now don't cache. 
+  // for now don't cache.
   double likelihood = calculate(ctx, el, ip);
 
   ATH_MSG_VERBOSE(Form(
@@ -395,7 +395,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     ATH_MSG_ERROR("Skipping LH rectangular cuts! The following variables are missing: " << notFoundList);
     return m_rootTool->accept();
   }
-  
+
   // Get the answer from the underlying ROOT tool
   return m_rootTool->accept( likelihood,
                              eta,
@@ -431,39 +431,39 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   if (!m_caloOnly) {
     if(eg->type() == xAOD::Type::Electron){
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
-    return accept(el, mu);
-    } 
+    return accept(ctx,el, mu);
+    }
       ATH_MSG_ERROR("Input is not an electron and not caloOnly is set");
       return m_rootTool->accept();
-    
+
   }
-  
+
   //Calo only LH
   const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
     return m_rootTool->accept();
-  }  
+  }
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
     return m_rootTool->accept();
   }
-  
+
   const double energy =  cluster->e();
-  const float eta = (cluster->etaBE(2)); 
+  const float eta = (cluster->etaBE(2));
   if( isForwardElectron(eg,eta) ){
     ATH_MSG_WARNING(
         "Failed, this is a forward electron! The AsgElectronLikelihoodTool is "
         "only suitable for central electrons!");
     return m_rootTool->accept();
   }
-  
+
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
-  
+
   // Variables the EFCaloLH ignores
   uint8_t nSiHitsPlusDeadSensors(0);
   uint8_t nPixHitsPlusDeadSensors(0);
-  bool passBLayerRequirement(false); 
+  bool passBLayerRequirement(false);
   uint8_t ambiguityBit(0);
 
   // Get the pileup or centrality information
@@ -478,8 +478,8 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
   else {
     ip = mu;
   }
-  // for now don't cache. 
-  double likelihood = calculate(ctx, eg, ip); 
+  // for now don't cache.
+  double likelihood = calculate(ctx, eg, ip);
 
   double deltaEta=0;
   double deltaPhiRescaled2=0;
@@ -492,7 +492,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
 
   // Wstot for use when CutWstotAtHighET vector is filled
   if( !eg->showerShapeValue(wstot, xAOD::EgammaParameters::wtots1) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "wtots1 ";
   }
 
@@ -524,7 +524,7 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
                              ip
                            );
 }
-   
+
 //=============================================================================
 // The main result method: the actual likelihood is calculated here
 //=============================================================================
@@ -543,14 +543,14 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
     return -999;
-  }  
+  }
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
     return -999;
   }
 
   const double energy =  cluster->e();
-  const float eta = cluster->etaBE(2); 
+  const float eta = cluster->etaBE(2);
 
   if( isForwardElectron(el,eta) ){
     ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
@@ -563,7 +563,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
   } else {
     et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
   }
-  
+
   // number of track hits and other track quantities
   float trackqoverp(0.0);
   float d0(0.0);
@@ -579,7 +579,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 
   if (!m_caloOnly){
   // retrieve associated TrackParticle
-    const xAOD::TrackParticle* t = el->trackParticle();    
+    const xAOD::TrackParticle* t = el->trackParticle();
     if (t)
       {
         trackqoverp = t->qOverP();
@@ -589,12 +589,12 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
           d0sigma=sqrtf(vard0);
         }
         if( !t->summaryValue(TRT_PID, xAOD::eProbabilityHT) ){
-          allFound = false; 
+          allFound = false;
           notFoundList += "eProbabilityHT ";
         }
 
         //Transform the TRT PID output for use in the LH tool.
-        double tau = 15.0; 
+        double tau = 15.0;
         double fEpsilon = 1.0e-30;  // to avoid zero division
 	double pid_tmp = TRT_PID;
         if (pid_tmp >= 1.0) pid_tmp = 1.0 - 1.0e-15;  //this number comes from TMVA
@@ -603,20 +603,20 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 
         unsigned int index;
         if(  t->indexOfParameterAtPosition(index, xAOD::LastMeasurement) ) {
-	
-	  double refittedTrack_LMqoverp  = 
+
+	  double refittedTrack_LMqoverp  =
 	    t->charge() / sqrt(std::pow(t->parameterPX(index), 2) +
 			     std::pow(t->parameterPY(index), 2) +
 			     std::pow(t->parameterPZ(index), 2));
-	
+
 	  dpOverp = 1 - trackqoverp/(refittedTrack_LMqoverp);
         }
 	else if (!m_skipDeltaPoverP){
-	    allFound = false; 
+	    allFound = false;
 	    notFoundList += "deltaPoverP ";
 	}
- 
-      
+
+
       }
     else
       {
@@ -636,7 +636,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 
   // reta = e237/e277
   if( !el->showerShapeValue(Reta, xAOD::EgammaParameters::Reta) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Reta ";
   }
   // rphi e233/e237
@@ -705,7 +705,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
       eta, et, f3, Rhad, Rhad1, Reta,
       w2, f1, Eratio,
       deltaEta, d0,
-      d0sigma, 
+      d0sigma,
       Rphi, dpOverp, deltaPhiRescaled2,
       TRT_PID, trans_TRT_PID,
       ip ) );
@@ -739,7 +739,7 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 //=============================================================================
 // Calculate method for EFCaloLH in the trigger; do full LH if !CaloCutsOnly
 //=============================================================================
-double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const 
+double AsgElectronLikelihoodTool::calculate( const xAOD::Egamma* eg, double mu ) const
 {
   //Backward compatibility
   return calculate(Gaudi::Hive::currentContext(), eg, mu);
@@ -757,31 +757,31 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
         const xAOD::Electron* el = static_cast<const xAOD::Electron*>(eg);
         return calculate(ctx, el);
       }
-      
+
         ATH_MSG_ERROR("Input is not an electron and not Calo Only is required");
         return -999;
-      
+
   }
 
  const xAOD::CaloCluster* cluster = eg->caloCluster();
   if ( !cluster ){
     ATH_MSG_ERROR ("Failed, no cluster.");
     return -999;
-  }  
+  }
 
   if( !cluster->hasSampling(CaloSampling::CaloSample::EMB2) && !cluster->hasSampling(CaloSampling::CaloSample::EME2) ){
     ATH_MSG_ERROR("Failed, cluster is missing samplings EMB2 and EME2");
     return -999;
   }
-  
+
   const double energy =  cluster->e();
-  const float eta = cluster->etaBE(2); 
+  const float eta = cluster->etaBE(2);
 
   if( isForwardElectron(eg,eta) ){
      ATH_MSG_WARNING("Failed, this is a forward electron! The AsgElectronLikelihoodTool is only suitable for central electrons!");
     return -999;
   }
-  
+
   const double et  = ( cosh(eta) != 0.) ? energy/cosh(eta) : 0.;
 
   // Track variables that the EFCaloLH will not use
@@ -808,42 +808,42 @@ double AsgElectronLikelihoodTool::calculate( const EventContext& ctx, const xAOD
 
   // reta = e237/e277
   if( !eg->showerShapeValue(Reta, xAOD::EgammaParameters::Reta) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Reta ";
   }
   // rphi e233/e237
   if( !eg->showerShapeValue(Rphi, xAOD::EgammaParameters::Rphi) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Rphi ";
   }
   // rhad1 = ethad1/et
   if( !eg->showerShapeValue(Rhad1, xAOD::EgammaParameters::Rhad1) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Rhad1 ";
   }
   // rhad = ethad/et
   if( !eg->showerShapeValue(Rhad, xAOD::EgammaParameters::Rhad) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Rhad ";
   }
   // shower width in 2nd sampling
   if( !eg->showerShapeValue(w2, xAOD::EgammaParameters::weta2) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "weta2 ";
   }
   // fraction of energy reconstructed in the 1st sampling
   if( !eg->showerShapeValue(f1, xAOD::EgammaParameters::f1) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "f1 ";
   }
   // E of 2nd max between max and min in strips
   if( !eg->showerShapeValue(Eratio, xAOD::EgammaParameters::Eratio) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "Eratio ";
   }
   // fraction of energy reconstructed in the 3rd sampling
   if( !eg->showerShapeValue(f3, xAOD::EgammaParameters::f3) ){
-    allFound = false; 
+    allFound = false;
     notFoundList += "f3 ";
   }
 
@@ -914,10 +914,10 @@ asg::AcceptData AsgElectronLikelihoodTool::accept(const EventContext& ctx, const
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return accept(ctx, el);
   }
-  
+
     ATH_MSG_ERROR("Input is not an electron");
     return m_rootTool->accept();
-  
+
 }
 
 double AsgElectronLikelihoodTool::calculate(const xAOD::IParticle* part) const
@@ -932,20 +932,20 @@ double AsgElectronLikelihoodTool::calculate(const EventContext& ctx, const xAOD:
     const xAOD::Electron* el = static_cast<const xAOD::Electron*>(part);
     return calculate(ctx, el);
   }
-  
+
       ATH_MSG_ERROR ( "Input is not an electron" );
       return -999;
-  
+
 }
 
 //=============================================================================
 // Helper method to get the number of primary vertices
-// We don't want to iterate over all vertices in the event for each electron!!! 
+// We don't want to iterate over all vertices in the event for each electron!!!
 //=============================================================================
 unsigned int AsgElectronLikelihoodTool::getNPrimVertices(const EventContext& ctx) const
 {
   unsigned int nVtx(0);
-  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey, ctx); 
+  SG::ReadHandle<xAOD::VertexContainer> vtxCont (m_primVtxContKey, ctx);
   for ( unsigned int i = 0; i < vtxCont->size(); i++ ) {
       const xAOD::Vertex* vxcand = vtxCont->at(i);
       if ( vxcand->nTrackParticles() >= 2 ) nVtx++;
@@ -959,7 +959,7 @@ unsigned int AsgElectronLikelihoodTool::getNPrimVertices(const EventContext& ctx
 double AsgElectronLikelihoodTool::getFcalEt(const EventContext& ctx) const
 {
   double fcalEt(0.);
-  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey,ctx); 
+  SG::ReadHandle<xAOD::HIEventShapeContainer> HIESCont (m_HIESContKey,ctx);
   xAOD::HIEventShapeContainer::const_iterator es_itr = HIESCont->begin();
   xAOD::HIEventShapeContainer::const_iterator es_end = HIESCont->end();
   for (; es_itr != es_end; es_itr++){
@@ -975,7 +975,7 @@ bool AsgElectronLikelihoodTool::isForwardElectron( const xAOD::Egamma* eg, const
   static const SG::AuxElement::ConstAccessor< uint16_t > accAuthor( "author" );
 
   if( accAuthor.isAvailable(*eg) ){
-    
+
     // cannot just do eg->author() because it isn't always filled
     // at trigger level
     if( accAuthor(*eg) == xAOD::EgammaParameters::AuthorFwdElectron ){
@@ -984,7 +984,7 @@ bool AsgElectronLikelihoodTool::isForwardElectron( const xAOD::Egamma* eg, const
     }
   }
   else{
-    //Check for fwd via eta range the old logic 
+    //Check for fwd via eta range the old logic
     if ( fabs(eta) > 2.5 ) {
       ATH_MSG_WARNING("Failed, cluster->etaBE(2) range due to " << eta << " seems like a fwd electron" );
       return true;

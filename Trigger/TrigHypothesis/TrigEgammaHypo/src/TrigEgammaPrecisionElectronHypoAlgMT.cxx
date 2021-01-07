@@ -52,9 +52,10 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
   // loop over previous decisions
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    //get RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
-    
+
+    //get updated RoI  
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
+
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
     const auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
@@ -77,7 +78,6 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 	    auto d = newDecisionIn( decisions, name() );
 	    d->setObjectLink( "feature",  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    d->setObjectLink( roiString(), roiELInfo.link );
 	    toolInput.emplace_back( d, roi, electronHandle.cptr()->at(cl), previousDecision );
 	    validelectrons++;
 

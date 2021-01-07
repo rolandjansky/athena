@@ -118,7 +118,7 @@ def xAODTrackSummaryFiller (obj, lod, blockName,
                             **kw):
     varlist = []
     for tags, v in sumvars:
-        if type(tags) != type([]): tags = [tags]
+        if not isinstance(tags, list): tags = [tags]
         sel = FullInfo
         for t in tags:
             sel += eval(t)

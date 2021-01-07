@@ -23,6 +23,7 @@
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 #include "InDetSimEvent/SiHit.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -1040,14 +1041,24 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
       
       auto particle = siHit.particleLink();
       pdgid[hitNumber]   = particle->pdg_id();
-      truep[hitNumber]  = particle->momentum().rho();
-      if ( particle->production_vertex() ){
-        auto vertex =  particle->production_vertex();
+      HepMC::FourVector mom=particle->momentum();
+      truep[hitNumber]  = std::sqrt(mom.x()*mom.x()+mom.y()*mom.y()+mom.z()*mom.z());
+      auto vertex =  particle->production_vertex();
+//AV Please note that taking the first particle as a mother is ambiguous.
+#ifdef HEPMC3
+      if ( vertex && vertex->particles_in().size()>0){
+        auto mother_of_particle=vertex->particles_in().at(0);             
+        motherBarcode[hitNumber] =  HepMC::barcode(mother_of_particle);
+        motherPdgid[hitNumber]    = mother_of_particle->pdg_id();
+      }
+#else
+      if ( vertex ){
         if( vertex->particles_in_const_begin() !=  vertex->particles_in_const_end() ){
           motherBarcode[hitNumber] =  (*vertex->particles_in_const_begin())->barcode();
           motherPdgid[hitNumber]    =  (*vertex->particles_in_const_begin())->pdg_id();
         }
       }
+#endif
     }
     chargeDep[hitNumber] = siHit.energyLoss() ;
     

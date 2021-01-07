@@ -429,12 +429,13 @@ Trk::KalmanFitter::fit(const EventContext& ctx,
     ATH_MSG_VERBOSE( "list of parameters as they are on the input track:");
     DataVector<const TrackParameters>::const_iterator it
       = inputTrack.trackParameters()->begin();
-    for(int i=0 ; it!=inputTrack.trackParameters()->end(); ++it, ++i)
+    for(int i=0 ; it!=inputTrack.trackParameters()->end(); ++it, ++i) {
       ATH_MSG_VERBOSE( "TrackPar" << (i<10 ? "  " : " ") << i 
             << " position mag : " << (*it)->position().mag()
             << ", to ref is " << ((*it)->position()-m_sortingRefPoint).mag());
-      ATH_MSG_VERBOSE( "Now getting track parameters near origin " 
-                              << (m_option_enforceSorting? "via STL sort" : "as first TP (convention)"));
+    }
+    ATH_MSG_VERBOSE( "Now getting track parameters near origin " 
+                     << (m_option_enforceSorting? "via STL sort" : "as first TP (convention)"));
   }
   // fill internal trajectory through external preparator class
   const TrackParameters* minPar = nullptr;
@@ -1182,13 +1183,13 @@ bool Trk::KalmanFitter::invokeAnnealingFilter(const Trk::TrackParameters*&  star
           dafStatus = m_smoother->fitWithReference(m_trajectory, newFitQuality, kalMec);
         else
           dafStatus = m_smoother->fit(m_trajectory, newFitQuality, kalMec);
-          ATH_MSG_INFO( "Internal DAF returned with chi2 chain:");
-          for (Trk::Trajectory::const_iterator it=m_trajectory.begin();it!=m_trajectory.end(); it++) {
-            if (!it->isOutlier()) {
-              if (it->fitQuality()) ATH_MSG_INFO( it->fitQuality()->chiSquared() << " % ");
-              else                  ATH_MSG_INFO( "Problem - no FitQ % ");
-            }
+        ATH_MSG_INFO( "Internal DAF returned with chi2 chain:");
+        for (Trk::Trajectory::const_iterator it=m_trajectory.begin();it!=m_trajectory.end(); it++) {
+          if (!it->isOutlier()) {
+            if (it->fitQuality()) ATH_MSG_INFO( it->fitQuality()->chiSquared() << " % ");
+            else                  ATH_MSG_INFO( "Problem - no FitQ % ");
           }
+        }
       } 
           
       bool successfulRecovery  = newFitQuality!= nullptr

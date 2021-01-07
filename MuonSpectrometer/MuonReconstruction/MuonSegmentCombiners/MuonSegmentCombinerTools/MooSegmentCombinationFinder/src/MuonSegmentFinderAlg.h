@@ -106,11 +106,11 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
         "Csc4dSegmentMaker/Csc4dSegmentMaker",
     };
 
-
+    // the following Trk::SegmentCollection MuonSegments are standard MuonSegments, the MuGirl segments are stored in MuonCreatorAlg.h
     SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey{
         this,
         "SegmentCollectionName",
-        "MuonSegments",
+        "TrackMuonSegments",
         "Muon Segments",
     };
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey{

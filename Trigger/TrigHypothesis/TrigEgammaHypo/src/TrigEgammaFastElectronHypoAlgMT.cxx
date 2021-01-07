@@ -39,6 +39,9 @@ StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context
   ATH_CHECK( previousDecisionsHandle.isValid() );
   ATH_MSG_DEBUG( "Running with "<< previousDecisionsHandle->size() <<" previous decisions");
   
+  //Printing event No.
+  ATH_MSG_DEBUG("Event No.: "<<context.eventID().event_number());
+  
   // new output decisions
   SG::WriteHandle<DecisionContainer> outputHandle = createAndStore(decisionOutput(), context ); 
   auto decisions = outputHandle.ptr();

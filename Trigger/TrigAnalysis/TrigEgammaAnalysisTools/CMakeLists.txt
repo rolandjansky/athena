@@ -22,8 +22,7 @@ atlas_add_component( TrigEgammaAnalysisTools
    LINK_LIBRARIES AsgTools AthenaBaseComps AthenaMonitoringLib TrigEgammaAnalysisToolsLib xAODEgamma )
 
 # Install files from the package:
-atlas_install_python_modules( python/TrigEgamma*.py )
-atlas_install_joboptions( share/test*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_generic( share/trigEgammaDQ.py share/get_trigEgammaDQ.sh 
    DESTINATION share
    EXECUTABLE )

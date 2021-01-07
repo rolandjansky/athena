@@ -92,12 +92,11 @@ if __name__=='__main__':
                ((ConfigFlags.DQ.Steering.InDet, "doGlobalMon") and ConfigFlags.DQ.Steering.InDet.doGlobalMon) or \
                ((ConfigFlags.DQ.Steering.InDet, "doPerfMon") and ConfigFlags.DQ.Steering.InDet.doPerfMon):
                 ConfigFlags.Detector.GeometryID = True
-        if hasattr(ConfigFlags.DQ.Steering, "doPixelMon") and ConfigFlags.DQ.Steering.doPixelMon:
-            ConfigFlags.Detector.GeometryPixel = True
-        if hasattr(ConfigFlags.DQ.Steering, "doSCTMon") and ConfigFlags.DQ.Steering.doSCTMon:
-            ConfigFlags.Detector.GeometrySCT = True
-        if hasattr(ConfigFlags.DQ.Steering, "doTRTMon") and ConfigFlags.DQ.Steering.doTRTMon:
-            ConfigFlags.Detector.GeometryTRT = True
+
+    # Just assume we want the full ID geometry, if we are reading in geometry
+    ConfigFlags.Detector.GeometryPixel = True
+    ConfigFlags.Detector.GeometrySCT = True
+    ConfigFlags.Detector.GeometryTRT = True
             
     log.info('FINAL CONFIG FLAGS SETTINGS FOLLOW')
     ConfigFlags.dump()

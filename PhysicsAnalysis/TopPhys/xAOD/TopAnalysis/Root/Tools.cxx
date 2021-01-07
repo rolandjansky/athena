@@ -165,7 +165,10 @@ namespace top {
   void parseCutBookkeepers(xAOD::TEvent& xaodEvent, const std::size_t size,
       std::vector<std::string> &names, std::vector<float>& sumW, const bool isHLLHC) {
 
-    for (std::size_t icbk = 0; icbk < size; ++icbk) {
+    // workaround for PMGTruthWeightTool returning ZERO weights, when sample has ONLY ONE weight...
+    const std::size_t modifiedSize = (size == 0) ? 1 : size;
+
+    for (std::size_t icbk = 0; icbk < modifiedSize; ++icbk) {
       const std::string cbkName = (icbk == 0) ? "CutBookkeepers" : "CutBookkeepers_weight_" + std::to_string(icbk);
       const xAOD::CutBookkeeperContainer* cutBookKeepers = nullptr;
       top::check(xaodEvent.retrieveMetaInput(cutBookKeepers, cbkName), "Cannot retrieve CutBookkeepers: " + cbkName);

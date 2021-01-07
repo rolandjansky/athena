@@ -215,6 +215,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   //histograms
   
   TH1F* m_totalEvents{};
+  TH1F* m_hTotalTracks{};
   TH1F* m_sirescalcfailure{};
   std::vector<TH3F*> m_sct_b_Oxresxvsmodetaphi_3ds;
   std::vector<TH3F*> m_sct_b_Oyresxvsmodetaphi_3ds;

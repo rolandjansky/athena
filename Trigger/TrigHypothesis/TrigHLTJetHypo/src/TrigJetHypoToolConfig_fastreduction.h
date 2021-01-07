@@ -13,22 +13,23 @@
  *********************************************************************/
 
 
-#include "ITrigJetHypoToolConfig.h"
+#include "ITrigJetHypoToolNoGrouperConfig.h"
 #include "./CapacityCheckedConditionsDefs.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
+#include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ICleaner.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "./ITrigJetCapacityCheckedConditionConfig.h"
+#include "./ConditionFilter.h"
 
 class TrigJetHypoToolConfig_fastreduction:
-public extends<AthAlgTool, ITrigJetHypoToolConfig> {
+public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
 
  public:
   
@@ -39,17 +40,24 @@ public extends<AthAlgTool, ITrigJetHypoToolConfig> {
 
   virtual StatusCode initialize() override;
   virtual std::vector<std::shared_ptr<ICleaner>> getCleaners() const override;
-  virtual std::unique_ptr<IJetGrouper> getJetGrouper() const override;
-  virtual std::unique_ptr<IGroupsMatcherMT> getMatcher() const override;
+  virtual std::unique_ptr<IJetsMatcherMT> getMatcher() const override;
   virtual std::optional<ConditionsMT> getConditions() const override;
+
+  virtual std::vector<std::unique_ptr<ConditionFilter>>
+  getConditionFilters() const override;
+
   virtual std::size_t requiresNJets() const override;
   virtual StatusCode checkVals() const override;
 
 
  private:
   ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_conditionMakers{
-    this, "conditionMakers", {}, "hypo tree node to conditiionMaker map"};
+    this, "conditionMakers", {}, "hypo tree Condition builder AlgTools"};
 
+  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_filtConditionMakers{
+    this, "filtConditionsMakers", {},
+    "hypo tree Condition builder AlgTools for Condition filters"};
+  
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};
 

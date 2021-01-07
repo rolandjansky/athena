@@ -355,10 +355,11 @@ class EmptyMenuSequence(object):
     """ Class to emulate reco sequences with no Hypo"""
     """ By construction it has no Hypo;"""
     
-    def __init__(self, the_name):
+    def __init__(self, the_name, mergeUsingFeature = False):
         self._name = the_name
         Maker = CompFactory.InputMakerForRoI("IM"+the_name)
         Maker.RoITool = CompFactory.ViewCreatorInitialROITool()
+        Maker.mergeUsingFeature = mergeUsingFeature
         self._maker       = InputMakerNode( Alg = Maker )
         self._seed=''
         self._sequence    = Node( Alg = seqAND(the_name, [Maker]))
@@ -740,6 +741,9 @@ class CFSequence(object):
         the filter is connected only once (to avoid multiple DH links)
         """
         log.debug("CFSequence: connect Filter %s with %d menuSequences of step %s, using %d connections", compName(self.filter.Alg), len(self.step.sequences), self.step.name, len(connections))
+        log.debug("   --- sequences: ")
+        for seq in self.step.sequences:
+            log.debug(seq)
         if len(connections) == 0:
             log.error("ERROR, no filter outputs are set!")
 
@@ -789,19 +793,24 @@ class StepComponent(object):
 # next:  can we remove multiplicity array, if it can be retrieved from the ChainDict?
 class ChainStep(object):
     """Class to describe one step of a chain; if multiplicity is greater than 1, the step is combo/combined.  Set one multiplicity value per sequence"""
-    def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[]):
+    def __init__(self, name,  Sequences=[], multiplicity=[1], chainDicts=[], comboHypoCfg=ComboHypoCfg, comboToolConfs=[], isEmpty = False):
 
         # include cases of emtpy steps with multiplicity = [] or multiplicity=[0,0,0///]
         if sum(multiplicity)==0:
             multiplicity=[]
         else:
             # sanity check on inputs, excluding empty steps
+            if len(chainDicts) != len(multiplicity):
+                log.error("[ChainStep] Sequences: %s",Sequences)
+                log.error("[ChainStep] chainDicts: %s",chainDicts)
+                log.error("[ChainStep] multiplicity: %s",multiplicity)
+                raise RuntimeError("[ChainStep] Tried to configure a ChainStep %s with %i multiplicity and %i dictionaries. These lists must have the same size" % (name, len(multiplicity), len(chainDicts)) )
+            
             if len(Sequences) != len(multiplicity):
+                log.error("[ChainStep] Sequences: %s",Sequences)
+                log.error("[ChainStep] multiplicities: %s",multiplicity)
                 raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i multiplicities. These lists must have the same size" % (name, len(Sequences), len(multiplicity)) )
-
-            if len(Sequences) != len(chainDicts):
-                raise RuntimeError("Tried to configure a ChainStep %s with %i Sequences and %i dictionaries. These lists must have the same size" % (name, len(Sequences), len(chainDicts)) )
-
+ 
         self.name = name
         self.sequences=Sequences
         self.multiplicity = multiplicity
@@ -809,7 +818,7 @@ class ChainStep(object):
         self.comboToolConfs=comboToolConfs
         self.stepDicts = chainDicts # one dict per leg
         self.isCombo=sum(multiplicity)>1
-        self.isEmpty=sum(multiplicity)==0
+        self.isEmpty=(sum(multiplicity)==0 or isEmpty)
         self.combo=None
         if self.isCombo:
             self.makeCombo()
@@ -927,6 +936,21 @@ class InViewReco(ComponentAccumulator):
     def inputMaker( self ):
         return self.viewMakerAlg
 
+class SelectionCA(ComponentAccumulator):
+    def __init__(self, name):
+        self.name = name
+        super( SelectionCA, self ).__init__()
+        self.stepRecoSequence, self.stepViewSequence = createStepView(name)
+        self.addSequence(self.stepViewSequence)
+
+    def mergeReco(self, other):
+        self.merge(other, sequenceName=self.stepRecoSequence.name)
+
+    def mergeHypo(self, other):
+        self.merge(other, sequenceName=self.stepViewSequence.name)
+
+    def addHypoAlgo(self, algo):
+        self.addEventAlgo(algo, sequenceName=self.stepViewSequence.name)
 
 class RecoFragmentsPool(object):
     """ Class to host all the reco fragments that need to be reused """

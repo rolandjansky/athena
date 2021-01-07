@@ -133,12 +133,15 @@ JetChainParts = {
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
                       'vbenf',  # Test VBF-like chain
+                      'fbdjshared',  # Test VBF-like chain with dijet-fworward/backward sharing
                       'vbenfSEP30etSEP34mass35SEP50fbet', # Test VBF-like chain with more info
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
-                      'aggSEP100htSEP10etSEP0eta320',],
+                      'aggSEP100htSEP10etSEP0eta320',
+                      'aggSEP50htSEP10etSEP0eta320',
+                      ],
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
@@ -226,7 +229,7 @@ MuonChainParts = {
     'IDinfo'         : [],
     'isoInfo'        : ['ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','idperfLRT','3layersEC','cosmic',"muonqual"],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',

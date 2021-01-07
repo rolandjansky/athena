@@ -99,13 +99,13 @@ def make_CorrectionClusterGetter (typ, eta_size, phi_size,
     else:
         sizekey = "%d%d" % (eta_size, phi_size)
 
-    if output_key == None:
+    if output_key is None:
         output_key = name_base + typ + sizekey + suffix
 
-    if algname == None:
+    if algname is None:
         algname = output_key
 
-    if copier_name == None:
+    if copier_name is None:
         copier_name = algname + '_copier'
 
     key = typ

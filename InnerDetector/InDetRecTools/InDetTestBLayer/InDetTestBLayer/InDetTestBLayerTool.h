@@ -8,25 +8,24 @@
 #include "InDetRecToolInterfaces/IInDetTestBLayerTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ThreadLocalContext.h" //for Gaudi::Hive::currentContext()
 #include "TrkParameters/TrackParameters.h"
-#include "TrkEventPrimitives/ResidualPull.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkToolInterfaces/IResidualPullCalculator.h"
-
-#include "InDetTestBLayer/TrackStateOnBLayerInfo.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace Trk {
-class Track;
+  class Track;
+  class ResidualPull;
 }
-namespace Rec { class TrackParticle; }
-class AtlasDetectorID;
-class Identifier;
-class PixelID;
 
+class AtlasDetectorID;
+class PixelID;
+class TrackStateOnBLayerInfo;
+class EventContext;
 
 namespace InDet {
 

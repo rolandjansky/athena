@@ -21,11 +21,6 @@ class TGCTriggerDbAlg: public AthAlgorithm
     virtual StatusCode execute() override;
     virtual StatusCode finalize() override;
  
-  protected:
-    char getTYPE(const short lDR, const short hDR, const short lDPhi, const short hDPhi) const;
-    unsigned short getRoIAddr(const char type, const unsigned char phimod2, 
-                              const unsigned short module, const unsigned short roi) const;
- 
   private:
     void loadParameters(TGCTriggerData* writeCdo,
                         const CondAttrListCollection* readKey,

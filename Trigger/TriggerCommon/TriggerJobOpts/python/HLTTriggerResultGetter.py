@@ -8,7 +8,6 @@ from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.AppMgr import ServiceMgr
 from RecExConfig.Configured import Configured
 
-from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 
 from TrigRoiConversion.TrigRoiConversionConf import RoiWriter
@@ -305,11 +304,10 @@ class HLTTriggerResultGetter(Configured):
             xaodcnvrt = xAODConversionGetter()
             xAODContainers = xaodcnvrt.xaodlist
 
-        if recAlgs.doTrigger() or TriggerFlags.doTriggerConfigOnly():
-            if ConfigFlags.Trigger.EDMVersion <= 2:
-                tdt = TrigDecisionGetterRun2()  # noqa: F841
-            else:
-                tdt = TrigDecisionGetter()  # noqa: F841
+        if ConfigFlags.Trigger.EDMVersion <= 2 and (rec.doTrigger() or TriggerFlags.doTriggerConfigOnly()):
+            tdt = TrigDecisionGetterRun2()  # noqa: F841
+        elif ConfigFlags.Trigger.EDMVersion >= 3 and TriggerFlags.readBS():
+            tdt = TrigDecisionGetter()  # noqa: F841
 
         # Temporary hack to add Run-3 navigation to ESD and AOD
         if (rec.doESD() or rec.doAOD()) and ConfigFlags.Trigger.EDMVersion == 3:

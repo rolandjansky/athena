@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////
@@ -33,17 +33,13 @@
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
-
 #include "TrkEventUtils/PRDtoTrackMap.h"
+#include "InDetRecToolInterfaces/ISiSpacePointsSeedMaker.h"
+#include "InDetRecToolInterfaces/ISiZvertexMaker.h"
+#include "InDetRecToolInterfaces/ISiTrackMaker.h"
 
 //forward declarations
 class TrigTimer;
-
-namespace InDet {
-  class ISiSpacePointsSeedMaker;
-  class ISiZvertexMaker;
-  class ISiTrackMaker;
-}
 
 namespace InDet {
   

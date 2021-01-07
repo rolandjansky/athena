@@ -37,9 +37,9 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
 
   
 
-  Gaudi::Property<std::size_t> m_chainPartInd {this,
+  Gaudi::Property<int> m_chainPartInd {this,
     "chainPartInd",
-    {0},
+    {-1},
     "identifier for chain leg - used to group jets for jet hypo clients "};
 
 

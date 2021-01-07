@@ -249,11 +249,16 @@ StatusCode TruthHitAnalysis::execute() {
     if (currentGenEventIter != mcCollection->end()) {
       int nvtx = 0;
       int nvtx_sec=0;
-      for (HepMC::GenEvent::vertex_const_iterator vtx=(*currentGenEventIter)->vertices_begin(); vtx!=(*currentGenEventIter)->vertices_end(); ++vtx) {
-	double x = (*vtx)->position().x();
-	double y = (*vtx)->position().y();
-	double z = (*vtx)->position().z();
-	double r = sqrt(x*x+y*y);
+#ifdef HEPMC3
+    for (auto vtx: (*currentGenEventIter)->vertices()) {
+#else
+    for (HepMC::GenEvent::vertex_const_iterator vtxit=(*currentGenEventIter)->vertices_begin(); vtxit!=(*currentGenEventIter)->vertices_end(); ++vtxit) {
+    auto vtx=*vtxit;
+#endif
+	double x = vtx->position().x();
+	double y = vtx->position().y();
+	double z = vtx->position().z();
+	double r = std::sqrt(x*x+y*y);
 	m_h_vtx_x->Fill(x);
 	m_h_vtx_y->Fill(y);
 	m_h_vtx_r->Fill(r);
@@ -284,9 +289,9 @@ StatusCode TruthHitAnalysis::execute() {
 
       int npart_prim=0; 
       int npart_sec=0;
-      HepMC::GenEvent::particle_const_iterator currentGenParticleIter;
-      for (currentGenParticleIter=(*currentGenEventIter)->particles_begin(); currentGenParticleIter!=(*currentGenEventIter)->particles_end(); ++currentGenParticleIter) {
-	const HepMC::FourVector mom = (*currentGenParticleIter)->momentum();
+
+      for (auto currentGenParticle: *(*currentGenEventIter)) {
+	const HepMC::FourVector mom = currentGenParticle->momentum();
 
 	m_h_truth_px->Fill(mom.x());
 	m_h_truth_py->Fill(mom.y());
@@ -294,27 +299,27 @@ StatusCode TruthHitAnalysis::execute() {
 	m_h_truth_pt->Fill(mom.perp());
 	m_h_truth_eta->Fill(mom.eta());
 	m_h_truth_phi->Fill(mom.phi());
-	m_h_barcode->Fill((*currentGenParticleIter)->barcode());
-	m_h_part_status->Fill((*currentGenParticleIter)->status());
+	m_h_barcode->Fill(HepMC::barcode(currentGenParticle));
+	m_h_part_status->Fill(currentGenParticle->status());
 	m_truth_px->push_back(mom.x());
 	m_truth_py->push_back(mom.y());
 	m_truth_pz->push_back(mom.z());
 	m_truth_pt->push_back(mom.perp());
 	m_truth_eta->push_back(mom.eta());
 	m_truth_phi->push_back(mom.phi());
-	m_barcode->push_back((*currentGenParticleIter)->barcode());		
-	m_status->push_back((*currentGenParticleIter)->status());
+	m_barcode->push_back(HepMC::barcode(currentGenParticle));		
+	m_status->push_back(currentGenParticle->status());
 	
-	int pdg = (*currentGenParticleIter)->pdg_id();
+	int pdg = currentGenParticle->pdg_id();
 	m_pdgid->push_back(pdg);
 	
-	if ((*currentGenParticleIter)->barcode() < 200000) {
+	if (HepMC::barcode(currentGenParticle) < 200000) {
 	  m_h_part_pdgid->Fill(pdg);
-	  m_h_part_p->Fill(mom.rho());
+	  m_h_part_p->Fill(std::sqrt(mom.x()*mom.x()+mom.y()*mom.y()+mom.z()*mom.z()));
 	  m_h_part_eta->Fill(mom.eta());
 	  m_h_part_phi->Fill(mom.phi());
 	  ++npart_prim; 
-	  if ((*currentGenParticleIter)->barcode() < 10000) {
+	  if (HepMC::barcode(currentGenParticle) < 10000) {
 	    m_h_n_generations->Fill(0);
 	  }
 	  else {
@@ -324,7 +329,7 @@ StatusCode TruthHitAnalysis::execute() {
 	else {
 	  m_h_part_pdgid_sec->Fill(pdg);
 	  ++npart_sec;
-	  const int gen = (*currentGenParticleIter)->barcode()/1000000 + 2;
+	  const int gen = HepMC::barcode(currentGenParticle)/1000000 + 2;
 	  m_h_n_generations->Fill(gen);    
 	}
       } // End iteration over particles

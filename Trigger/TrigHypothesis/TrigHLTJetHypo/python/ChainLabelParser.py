@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 
@@ -304,18 +304,12 @@ class ChainLabelParser(object):
             print('error, stack size', len(self.tree), 'expected 2')
             print(self.state_history)
             
-        if len(self.tree[0].children) != 1:
-            error = True
-            print('error, top node has %d cdildren, expected 1' % (
-                len(self.tree[0].children)))
 
         final_state = 'end_scenario'
         if self.state != final_state:
             error = True
             print('error: final state is %s, expected %s' % (self.state,
                                                              final_state))
-        # print 'tree dump:'
-        # print self.tree[0].dump()
         print('parse', end=' ')
         if not error:
             print('succeeded')
@@ -331,8 +325,8 @@ class ChainLabelParser(object):
         for c in self.tree[0].children:
             c.tree_top = True
 
-        # for now (02/01/2019), no reco. First tree is only tree is hypo
-        return self.tree[0].children[0]
+        # return hypo forest (>= 1 trees)
+        return self.tree[0].children
 
 def _test(s):
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 //Author: Lianyou Shan <lianyou.shan@cern.ch>
 
@@ -42,7 +42,6 @@
 #include "VxVertex/VxTrackAtVertex.h"
 //#include "DataModel/DataVector.h"
 #include "AthContainers/DataVector.h"
-#include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 
 #include "TrkTrackLink/ITrackLink.h"

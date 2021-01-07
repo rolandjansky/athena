@@ -12,12 +12,8 @@ from JetD3PDMaker.jetMETD3PDTrigger           import jetMETTriggerBitsD3PDObject
 from MuonD3PDMaker.MuonD3PDObject             import MuonD3PDObject
 from JetD3PDMaker.JetD3PDObject               import JetD3PDObject
 from TrackD3PDMaker.xAODVertexD3PDObject      import PrimaryxAODVertexD3PDObject
-from MissingETD3PDMaker.MissingETD3PDObject   import *
-from CaloD3PDMaker.MBTSD3PDObject             import MBTSD3PDObject
-from egammaD3PDAnalysis.egammaUserDataConfig  import egammaUserDataConfig
 from EventCommonD3PDMaker.LBMetadataConfig    import LBMetadataConfig
 from TruthD3PDMaker.GenEventD3PDObject        import GenEventD3PDObject
-from TruthD3PDAnalysis.truthParticleConfig    import truthParticleConfig
 from TruthD3PDMaker.TruthParticleD3PDObject   import TruthParticleD3PDObject
 from RecExConfig.RecFlags                     import rec
 
@@ -47,7 +43,6 @@ def JetD3PD (file,
                                       file = file,
                                       D3PDSvc = D3PDSvc,
                                       streamNameRoot = streamNameRoot)
-    JetIncludes = ['AssocTrackCont']
 
     alg += EventInfoD3PDObject        (**_args (level, 'EventInfo', kw ))
     alg += ElectronD3PDObject         (**_args (level, 'Electron', kw))

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file: PerfMonFlags.py
 # @purpose: a container of flags for Performance Monitoring
@@ -58,8 +58,6 @@ class doPersistencyMonitoring(JobProperty):
         if not jobproperties.PerfMonFlags.doMonitoring():
             jobproperties.PerfMonFlags.doMonitoring = True
             pass
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        #svcMgr.PerfMonSvc.MonLvl = -1
         return
 # 
 class doDetailedMonitoring(JobProperty):
@@ -105,8 +103,6 @@ class doFullMon(JobProperty):
         jobproperties.PerfMonFlags.doFastMon = False
         jobproperties.PerfMonFlags.doMonitoring = True
         # setup values
-        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-        #svcMgr.PerfMonSvc.MonLvl = -1
         # enable DSO monitoring
         jobproperties.PerfMonFlags.doDsoMonitoring = True
         # activate persistency monitoring too
@@ -410,7 +406,7 @@ def _decode_pmon_opts(opts):
         elif opt.startswith('+'):
             val = True
             flag_name = flag_name[1:]
-        if not flag_name in dispatch:
+        if flag_name not in dispatch:
             raise ValueError(
                 '[%s] is not a valid PerfMonFlag (allowed: %r)' %
                 (flag_name, dispatch.keys())

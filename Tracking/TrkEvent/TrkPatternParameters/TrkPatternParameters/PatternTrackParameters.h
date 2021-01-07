@@ -206,7 +206,7 @@ namespace Trk {
   inline void PatternTrackParameters::setParameters
     (const Surface* s,const double* p)
     {
-      m_surface.reset(s->isFree() ? s->clone() : s);
+      m_surface.reset(s && s->isFree() ? s->clone() : s);
       m_parameters[ 0] = p[ 0];
       m_parameters[ 1] = p[ 1];
       m_parameters[ 2] = p[ 2];
@@ -250,7 +250,7 @@ namespace Trk {
   inline void PatternTrackParameters::setParametersWithCovariance
     (const Surface* s,const double* p,const double* c)
     {
-      m_surface.reset(s->isFree() ? s->clone() : s);
+      m_surface.reset(s && s->isFree() ? s->clone() : s);
       m_parameters[ 0] = p[ 0];
       m_parameters[ 1] = p[ 1];
       m_parameters[ 2] = p[ 2];

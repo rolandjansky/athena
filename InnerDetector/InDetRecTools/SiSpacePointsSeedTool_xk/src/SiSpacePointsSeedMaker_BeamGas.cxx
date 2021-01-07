@@ -1216,3 +1216,10 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::initializeEventData(EventData& data)
                   0, // sizeRFZV not used
                   false); // checkEta not used
 }
+
+void InDet::SiSpacePointsSeedMaker_BeamGas::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_BeamGas::getWriteNtupleBoolProperty() const{
+    return false;
+}

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -391,7 +391,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
 
       if ( m_useTrtElectronPidTool ) {
 
-        double position = ( fabs(BEC) == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
+        double position = ( std::abs(BEC) == 1 ? hitGlobalPosition.z() : hitGlobalPosition.perp() );
 
         double probability;
         if ( abs( particleEncoding ) == 11 && kineticEnergy > 5000. ) {  // electron

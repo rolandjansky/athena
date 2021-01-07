@@ -17,17 +17,6 @@ groupsMatcherFactoryMT_SingleCondition (ConditionsMT&& conditions){
 }
 
 
-std::unique_ptr<IGroupsMatcherMT> 
-groupsMatcherFactoryMT_FastReduction (ConditionPtrs&& conditions,
-				      const std::vector<std::size_t>& treeVec){
-  
-  if (conditions.size() == 1) {
-    return std::make_unique<SingleConditionMatcherMT>(std::move(conditions[0]));
-  } else {
-    return std::make_unique<FastReductionMatcher>(std::move(conditions),
-						  treeVec);
-  } 
-}
 
 
 

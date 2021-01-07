@@ -1,7 +1,7 @@
 #!/bin/sh
 #
 # art-description: Athena runs jet reconstruction, using the new job configuration for Run 3, from an ESD file
-# art-type: local
+# art-type: grid
 # art-athena-mt
 # art-include: master/Athena
 
