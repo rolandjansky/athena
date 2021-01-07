@@ -36,7 +36,6 @@ rec.doCaloRinger.set_Value_and_Lock(False)
 #Turn of TAG
 rec.doWriteTAG.set_Value_and_Lock(False)
 
-<<<<<<< Reconstruction/eflowRec/share/run_ESDStandardReco_FlowElements.py
 #disables VertexCnvAlg
 from InDetRecExample.InDetJobProperties import jobproperties
 jobproperties.InDetJobProperties.doxAOD.set_Value_and_Lock(False)
@@ -51,7 +50,6 @@ CaloNoiseCondAlg(noisetype="electronicNoise")
 
 athenaCommonFlags.EvtMax=30
 #Run pflopw jet finding - this cannot be enabled via reconstruction flags currently! (without enabling other things we don't want)
->>>>>>> Reconstruction/eflowRec/share/run_ESDStandardReco_FlowElements.py
 UserAlgs = ["eflowRec/jetAlgs.py"]
 include ("RecExCommon/RecExCommon_topOptions.py")
 
