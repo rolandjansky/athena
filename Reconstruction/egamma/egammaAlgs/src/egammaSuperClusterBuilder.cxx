@@ -464,16 +464,14 @@ egammaSuperClusterBuilder::fillClusterConstrained(
       // lets remove from consideration if outside the range
       if (cp0.emaxB > 0) { // cluster has cells in the barrel
         if (std::abs(cp0.etaB - dde->eta_raw()) < m_addCellsWindowEtaBarrel &&
-            std::abs(
-              P4Helpers::deltaPhi(cp0.phiB, cell->caloDDE()->phi_raw())) <
+            std::abs(P4Helpers::deltaPhi(cp0.phiB, dde->phi_raw())) <
               m_addCellsWindowPhiBarrel) {
           inBroadRange = true;
         }
       }
       if (cp0.emaxEC > 0) { // cluster has cells in the endcap
         if (std::abs(cp0.etaEC - dde->eta_raw()) < m_addCellsWindowEtaEndcap &&
-            std::abs(
-              P4Helpers::deltaPhi(cp0.phiEC, cell->caloDDE()->phi_raw())) <
+            std::abs(P4Helpers::deltaPhi(cp0.phiEC, dde->phi_raw())) <
               m_addCellsWindowPhiEndcap) {
           inBroadRange = true;
         }
