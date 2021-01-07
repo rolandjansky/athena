@@ -312,7 +312,11 @@ void MergeMcEventCollTool::printDetailsOfMergedMcEventCollection() const {
       const int signal_process_id(HepMC::signal_process_id((*outputEventItr))), event_number((*outputEventItr)->event_number()), separator_hack(HepMC::mpi((*outputEventItr)));
       const IndexKey key(makekey(signal_process_id,event_number,separator_hack));
       const PileUpBackgroundMap::const_iterator event(m_backgroundClassificationMap.find(key));
+#ifdef HEPMC3
+      ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<<", category="<<event->second<<", number of Vertices="<<(*outputEventItr)->vertices().size() );
+#else
       ATH_MSG_INFO ( "GenEvent #"<<event_number<<", signal_process_id="<<signal_process_id<<", category="<<event->second<<", number of Vertices="<<(*outputEventItr)->vertices_size() );
+#endif
       ++outputEventItr;
     }
     ATH_MSG_INFO ( "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$" );
