@@ -29,7 +29,8 @@ atlas_add_library( TruthUtils
    TruthUtils/*.h Root/*.cxx
    PUBLIC_HEADERS TruthUtils
    INCLUDE_DIRS ${extra_includes}
-   LINK_LIBRARIES ${extra_libs} )
+   LINK_LIBRARIES ${extra_libs}
+   PRIVATE_LINK_LIBRARIES CxxUtils )
 
 # Install files from the package:
 atlas_install_runtime( share/*.txt )
