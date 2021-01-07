@@ -287,7 +287,10 @@ class ConfiguredNewTrackingCuts :
         self.__maxDoubleHoles          = [1]
         self.__maxPrimaryImpact        = [2.0 * Units.mm, 2.0 * Units.mm, 10.0 * Units.mm]
         self.__maxZImpact              = [200.0 * Units.mm]
-     
+        self.__minPTSeed               = 0.9 * Units.GeV
+        self.__maxPrimaryImpactSeed    = 2.0 * Units.mm
+        self.__maxZImpactSeed          = 200.0 * Units.mm
+
         # --- general pattern cuts for NewTracking
         self.__nHolesMax               = self.__maxHoles
         self.__nHolesGapMax            = self.__maxHoles
@@ -396,11 +399,15 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.useEtaDependentCuts():
         self.__useEtaDepCuts      = True
         self.__maxPT              = [1.0 * Units.TeV]
-        self.__minPT              = [900 * Units.MeV]
+        self.__minPT              = [0.9 * Units.GeV]
         self.__maxEta             = 5.0
         self.__etaBins            = [0.0, 5.0]
         self.__maxPrimaryImpact   = [398.0 * Units.mm]
         self.__maxZImpact         = [1500.0 * Units.mm]
+        self.__minPTSeed          = 0.9 * Units.GeV
+        self.__maxPrimaryImpactSeed = 398.0 * Units.mm
+        self.__maxZImpactSeed     = 1500.0 * Units.mm
+
         self.__maxSecondaryImpact = [300.0 * Units.mm]
         self.__minSecondaryPt     = [500.0 * Units.MeV]
         self.__minClusters        = [8]
@@ -978,14 +985,6 @@ class ConfiguredNewTrackingCuts :
       self.__usePixel         = True
 
         
-#        elif rec.Commissioning():
-#        self.__minClusters             = 7               # Igor 6, was 7
-#        self.__maxHoles                = 5               # was 5
-#        self.__maxSctHoles             = 5               # was 5
-#        self.__maxDoubleHoles          = 4               # was 2
-#        self.__maxPrimaryImpact        = 50.0 * Units.mm # low lumi
-#        self.__maxZImpact              = 500.0 * Units.mm
-        
 # ----------------------------------------------------------------------------
 # --- private method
   def __set_indetflags(self):
@@ -1004,6 +1003,12 @@ class ConfiguredNewTrackingCuts :
 
   def minPT( self ) :
     return self.__minPT
+
+  def minPTSeed( self ) :
+    if self.__useEtaDepCuts:
+      return self.__minPTSeed
+    else:
+      return self.__minPT
   
   def etaBins( self ) :
     return self.__etaBins
@@ -1023,11 +1028,23 @@ class ConfiguredNewTrackingCuts :
   def maxPrimaryImpact( self ) :
     return self.__maxPrimaryImpact
 
+  def maxPrimaryImpactSeed( self ) :
+    if self.__useEtaDepCuts:
+      return self.__maxPrimaryImpactSeed
+    else:
+      return self.__maxPrimaryImpact
+
   def maxSecondaryImpact( self ) :
     return self.__maxSecondaryImpact
 
   def maxZImpact( self ) :
     return self.__maxZImpact
+
+  def maxZImpactSeed( self ) :
+    if self.__useEtaDepCuts:
+      return self.__maxZImpactSeed
+    else:
+      return self.__maxZImpact
 
   def minEta( self ) :
     return self.__minEta
