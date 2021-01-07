@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TrigJetHypoToolHelperNoGrouper.h"
@@ -22,7 +22,7 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
 
   for (const auto& config : m_configs) {
-    m_matchers.push_back(std::move(config->getMatcher()));
+    m_matchers.push_back(config->getMatcher());
   }
 		  
   return StatusCode::SUCCESS;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -142,7 +142,7 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   
   for(const auto& cm : m_filtConditionMakers){
     ConditionPtrs filterConditions;  // will contain a single Condition
-    filterConditions.push_back(std::move(cm->getCapacityCheckedCondition()));
+    filterConditions.push_back(cm->getCapacityCheckedCondition());
     auto cf = std::make_unique<ConditionFilter>(filterConditions);
     filters.push_back(std::move(cf));
   }
