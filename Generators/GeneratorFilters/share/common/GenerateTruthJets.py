@@ -43,76 +43,79 @@ def ScheduleAntiKtTruthJets(jetradius,algseq,mods=""):
         jetlog.warning("Jet algorithm \"{0}\" already scheduled! Skipping...".format(jetcollname))
         return
 
-    # Set up the PseudoJetGetter
+    from AthenaCommon import CfgMgr
+# Convert EM clusters to pseudojets
+# In the midst of this migration, we can only cope with one pseudojet type
+# otherwise we end up trying to update an object in SG, which is not allowed
+# Needs JE's PseudojetContainer developments
+# Set up the PseudoJetGetter
     pjget = None
     if mods=="":
-        if "truthget" in ToolSvc:
-            pjget = ToolSvc.truthget
-        else:
-            pjget = JetRecConf.PseudoJetGetter("truthget",
-                                               Label = "Truth",
-                                               InputContainer = ToolSvc.truthpartcopy.OutputName,
-                                               OutputContainer = "PseudoJetTruth",
-                                               GhostScale = 0.0,
-                                               SkipNegativeEnergy = True
-                                               )
+            pjget =  CfgMgr.PseudoJetAlgorithm(
+                     "truthget",
+                     InputContainer = ToolSvc.truthpartcopy.OutputName,
+                     Label = "Truth",
+                     OutputContainer = "PseudoJetTruth",
+                     SkipNegativeEnergy = True,
+#                     GhostScale = 0.0,
+                     OutputLevel=VERBOSE,
+  )
+
     elif mods=="WZ":
-        if "truthwzget" in ToolSvc:
-            pjget = ToolSvc.truthwzget
-        else:
-            pjget = JetRecConf.PseudoJetGetter("truthwzget",
-                                               Label = "TruthWZ",
-                                               InputContainer = ToolSvc.truthpartcopywz.OutputName,
-                                               OutputContainer = "PseudoJetTruthWZ",
-                                               GhostScale = 0.0,
-                                               SkipNegativeEnergy = True,
-                                               )        
-    if pjget:
-        ToolSvc += pjget
-    else:
-        jetlog.error("Unsupported jet collection \"{0}\" requested!".format(jetcollname))
+            pjget = CfgMgr.PseudoJetAlgorithm(
+                    "truthwzget",
+                    Label = "TruthWZ",
+                    InputContainer = ToolSvc.truthpartcopywz.OutputName,
+                    OutputContainer = "PseudoJetTruthWZ",
+#                    GhostScale = 0.0,
+                    SkipNegativeEnergy = True,
+                    OutputLevel=VERBOSE,
+                           )
 
-    # Set up the jet builder (no area moments)
-    if not "jbld" in ToolSvc:
-        ToolSvc += JetRecConf.JetFromPseudojet("jbld")
-
-    # Set up the jet finder
-    finder = JetRecConf.JetFinder(jetcollname+"Finder",
-                                  JetAlgorithm = "AntiKt",
-                                  JetRadius = jetradius,
-                                  JetBuilder = ToolSvc.jbld,
-                                  GhostArea = 0.01,
-                                  PtMin = 5000
-                                  )
-    ToolSvc += finder
-
-    if "truthpartonget" in ToolSvc:
-        truthpartonget = ToolSvc.truthpartonget
-    else:
-        truthpartonget = JetRecConf.PseudoJetGetter("truthpartonget",
-                                                    Label = "GhostPartons",
-                                                    InputContainer = ToolSvc.truthpartonscopy.OutputName,
-                                                    OutputContainer = "PseudoJetGhostPartons",
-                                                    GhostScale = 1e-40,
-                                                    SkipNegativeEnergy = True,
-                                                    )
-        ToolSvc += truthpartonget
+ 
 
 
-    from ParticleJetTools import ParticleJetToolsConf
-    partontruthlabel = ParticleJetToolsConf.Analysis__JetPartonTruthLabel("partontruthlabel")
-    ToolSvc += partontruthlabel
+    algseq += pjget
 
-    #Now we setup a JetRecTool which will use the above JetFinder
-    jetrectool = JetRecConf.JetRecTool(jetcollname+"Rec",
-                                       JetFinder = finder,
-                                       PseudoJetGetters = [pjget,truthpartonget],
-                                       OutputContainer = jetcollname,
-                                       JetModifiers = [partontruthlabel]
-                                       )
-    ToolSvc += jetrectool
+# Set up the jet finder
+    JetFinder_AntiKt4 = CfgMgr.JetFinder(jetcollname+"Finder",
+                                          JetAlgorithm = "AntiKt",
+                                          JetRadius = jetradius,
+                                          GhostArea = 0.01,
+                                          PtMin = 5000,
+                                          OutputLevel=VERBOSE,
+                                          )
 
-    algseq += JetRecConf.JetAlgorithm(jetcollname+"Alg", Tools=[jetrectool])
+
+#Then we setup a jet builder to calculate the areas needed for the rho subtraction
+# Actually, we don't really need the areas but we may as well use this one
+    JetBuilder_AntiKt4 = CfgMgr.JetFromPseudojet("jblda", Attributes = ["ActiveArea", "ActiveArea4vec"],
+                                              OutputLevel=VERBOSE)
+    JetFinder_AntiKt4.JetBuilder = JetBuilder_AntiKt4
+ 
+#Now we setup a JetRecTool which will use the above JetFinder
+    JetRecTool = CfgMgr.JetRecTool(jetcollname+"Rec",
+                                OutputLevel=VERBOSE)
+    JetRecTool.JetFinder = JetFinder_AntiKt4
+    JetRecTool.InputPseudoJets = [pjget.OutputContainer]
+    JetRecTool.OutputContainer = jetcollname
+ 
+    algseq += CfgMgr.JetAlgorithm(jetcollname+"Alg",Tools = [JetRecTool])
+    
+
+    write_xAOD = False
+    if write_xAOD:
+       from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
+       xaodStream = MSMgr.NewPoolRootStream( "StreamAOD", "xAOD.pool.root" )
+       xaodStream.AddItem("xAOD::EventInfo#EventInfo")
+       xaodStream.AddItem("xAOD::EventAuxInfo#EventInfoAux.")
+       xaodStream.AddItem("xAOD::JetContainer#"+jetcollname)
+       xaodStream.AddItem("xAOD::JetAuxContainer#"+jetcollname+"Aux.")
+#     xaodStream.AddItem("xAOD::JetContainer#MTAntiKt4EMTopoJets")
+#     xaodStream.AddItem("xAOD::JetAuxContainer#MTAntiKt4EMTopoJetsAux.")
+#     xaodStream.AddItem("xAOD::CaloClusterContainer#CaloCalTopoClusters")
+#     xaodStream.AddItem("xAOD::CaloClusterAuxContainer#CaloCalTopoClustersAux.")
+
 
 def ScheduleAntiKtTruthWZJets(jetradius,algseq):
     ScheduleAntiKtTruthJets(jetradius,algseq,mods="WZ")
