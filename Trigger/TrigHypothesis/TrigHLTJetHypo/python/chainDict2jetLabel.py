@@ -106,6 +106,8 @@ def _make_fbdjnoshared_label(chain_parts, leg_label):
     assert scenario.startswith('f')
     args = _args_from_scenario(scenario)
 
+    # arg res tuples constain a regex, and a counter
+    # to count the number of matches.
     arg_res = [
         [re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'), 0],
         [re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'), 0],
@@ -119,11 +121,6 @@ def _make_fbdjnoshared_label(chain_parts, leg_label):
         'fbet0': ('501', 'inf'),
     }
 
-    # n_et: counter for the min et of the jets particpating in
-    # the dijet. There are two such et min values in the scenario
-    # string
-
-    n_et = 0  
     argvals = {}
     assert len(args) == len(arg_res) + 1  # +1 because et occurs twice.
     while args:
