@@ -9,6 +9,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfData/HLTMenu.h"
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -722,6 +723,7 @@ void RatesAnalysisAlg::writeMetadata() {
 
   std::vector<int32_t> bunchGroups;
   bunchGroups.reserve(16);
+
   uint32_t masterKey = 0;
   uint32_t hltPrescaleKey = 0;
   uint32_t lvl1PrescaleKey = 0;
@@ -742,6 +744,34 @@ void RatesAnalysisAlg::writeMetadata() {
     }
   }
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
+
+  std::vector<std::vector<std::string>> hltChainIDGroup;
+  hltChainIDGroup.reserve(m_triggers.size());
+  for (int i = 0; i < m_triggers.size(); i++)
+    hltChainIDGroup[i].resize(3);
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::HLTMenu& hltmenu = m_configSvc.hltMenu();
+    
+    TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
+    TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
+    for( ; chain_itr != chain_end; ++chain_itr ) {
+      std::string chainName = ( *chain_itr )->className() ;
+      unsigned int chainID = ( *chain_itr )->counter();
+      std::vector<std::string> chainGroups = ( *chain_itr )->groups();
+      std::string singlechainGroups = std::accumulate(chainGroups.begin(), chainGroups.end(), std::string(","));
+      
+      std::vector idgroupperchain;
+      idgroupperchain.resize(3);
+      idgroupperchain.push_back(chainName);
+      idgroupperchain.push_back(std::to_string(chainID));
+      idgroupperchain.push_back(singlechainGroups);
+
+      hltChainIDGroup.push_back(idgroupperchain);
+    }
+  }
+
+  m_metadataTree->Branch("hltChainIDGroup", &hltChainIDGroup);
 
   m_metadataTree->Branch("masterKey", &masterKey);
   m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);
