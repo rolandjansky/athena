@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Encoder class 
@@ -822,7 +822,7 @@ void TileROD_Encoder::fillRODTileMuRcvObj(std::vector<uint32_t>& v) {
     
                 if (msgLvl(MSG::INFO)) {
                    std::stringstream ss;
-                   for (const auto & val : slin) {
+                   for (const bool val : slin) {
                       ss<<std::setw(2)<<val;
                    }
                    msg(MSG::INFO) << "Result for module: "<<modid<<" in TMDB board "<<modid%8<<MSG::hex<<": 0x"<<word4b<<MSG::dec<<" from "<<ss.str() << endmsg; 
