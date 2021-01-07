@@ -93,7 +93,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
-  declareProperty("buildgBlockJets", m_buildgBlockJets=true);
+  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
 
   declareProperty("gJet_r", m_gJet_r=1.0);
   declareProperty("gJet_block_tower_noise_multiplier", m_gJet_block_tower_noise_multiplier = 0.0);
@@ -104,8 +104,8 @@ histSvc("THistSvc",name){
   declareProperty("useRMS", m_useRMS=true);
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("gFEX_useNegTowers", m_gFEX_useNegTowers=true);
-  declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true); 
-  declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
+  declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=false); 
+  declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=true); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
 
   declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200510.r11881.root");  //correction file for jXERHO
@@ -390,6 +390,7 @@ StatusCode JGTowerReader::BuildBlocksFromTowers(std::vector<TowerObject::Block>&
     std::vector<int> neighbors = grid.neighbors(*seed, r, c);
     float seed_Et = seed->et();
     if(!useNegTowers && seed->et() < 0)continue;
+
     double block_area(0.0);
     double sum_deta(0.0);
     double sum_dphi(0.0);
@@ -703,17 +704,22 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   
   CHECK(evtStore()->record(RhoCont,"EventVariables"));
   CHECK(evtStore()->record(RhoContAux,"EventVariablesAux."));
-
   CHECK(JetAlg::BuildFatJet(*gCaloTowers, "gL1Jets", m_gJet_r, gT_noise, m_gJet_tower_noise_multiplier,m_gJet_block_min_ET_MeV, m_gJet_jet_min_ET_MeV, rhoA, rhoB, rhoC, m_gFEX_useNegTowers));
   if(m_buildgBlockJets) CHECK(JetAlg::BuildgBlocksJets(gBs, "gBlockJets",rhoA,rhoB, rhoC));
+
   //gFEX MET algorithms
   std::vector<float> noNoise; 
+  TString lut_path = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20201215.MiddleTrain.r11881.root";
+  if(m_gFEX_Rho_useNegTowers) lut_path = "/cvmfs/atlas.cern.ch/repo/sw/database/GroupData/Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20210105.MiddleTrainNoNoiseCut.r11881.root";
+
   CHECK(METAlg::NoiseCut_MET(pu_sub, "gXERHO", noNoise, m_gFEX_useNegTowers));
   CHECK(METAlg::NoiseCut_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(pu_sub, puSub_gBlocks,"gXEJWOJRHO",m_gFEX_pTcone_cut, /*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ false));//do not use negative towers, so if the subtracted ET is < 0 you remove the tower
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,lut_path, false) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT_offline",rhoA,rhoB,rhoC,lut_path, true) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
@@ -776,8 +782,9 @@ StatusCode JGTowerReader::ProcessObjects(){
     xAOD::EnergySumRoIAuxInfo* METContAux = new xAOD::EnergySumRoIAuxInfo();
     xAOD::EnergySumRoI* METCont = new xAOD::EnergySumRoI();
     METCont->setStore(METContAux);
-    
+
     std::shared_ptr<METAlg::MET> met = it->second;
+
     CHECK(HistBookFill(Form("MET_%s_et",it->first.Data()), 50, 0, 500, met->et*1e-3, 1.));
     METCont->setEnergyX(met->ex); 
     METCont->setEnergyY(met->ey); 

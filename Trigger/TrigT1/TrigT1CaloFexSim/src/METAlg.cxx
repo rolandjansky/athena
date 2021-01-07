@@ -423,7 +423,6 @@ StatusCode METAlg::Softkiller_MET(const xAOD::JGTowerContainer* towers, TString 
 }
 
 StatusCode METAlg::JwoJ_MET(const xAOD::JGTowerContainer* towers, const std::vector<TowerObject::Block> gBlocks, TString metName, float pTcone_cut, bool useRho, float RhoA, float RhoB, float RhoC, bool useNegTowers){
-
   /*
     Function retrieve components of jets without jets
     Then evaluate the calibrated version using the coefficients below 
@@ -624,5 +623,61 @@ float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNeg
   return rho;
 }
 
+StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool useOffline){
 
+  const unsigned int size = towers->size();
+  TFile* file = TFile::Open(lut_path, "READ");
 
+  float metX = 0;
+  float metY = 0;
+
+  for(unsigned int i = 0; i < size; i++){
+    const xAOD::JGTower* tower = towers->at(i);
+
+    float eta = tower->eta();
+    float Et = tower->et();
+    float phi = tower->phi();
+    float rho = 0;
+
+    /*std::cout<<"Tower info"<<std::endl;
+    std::cout<<"Et = "<<Et<<std::endl;
+    std::cout<<"eta = "<<eta<<std::endl;
+    std::cout<<"phi ="<<phi<<std::endl;*/
+
+    int ieta = GFEX_iEta(eta);
+    std::string fpga = GFEX_pFPGA(eta);
+    if(fpga=="A") rho = rhoA;
+    else if(fpga=="B") rho = rhoB;
+    else rho = rhoC;
+
+    TProfile* pr = (TProfile*)file->Get(Form("Rho_ieta%d", ieta));
+    int bin = pr->FindBin(rho);
+    float thresh = 3*pr->GetBinError(bin);
+    float mean = pr->GetBinContent(bin);
+    //std::cout<<ieta<<" rho = "<<rho<<", rms = "<<thresh<<std::endl;
+
+    float Et_sub = Et - rho;
+    if(useOffline) Et_sub = Et - mean;
+
+    if(Et_sub < thresh) continue;
+
+    metX += Et_sub*TMath::Cos(phi);
+    metY += Et_sub*TMath::Sin(phi);
+
+    delete pr;
+
+  }
+
+  std::shared_ptr<MET> met  = std::make_shared<MET>();
+
+  float EtMiss = TMath::Sqrt(metX*metX + metY*metY);
+
+  met->ex=metX;
+  met->ey=metY;
+  met->et=EtMiss;
+
+  delete file;
+  if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
+
+  return StatusCode::SUCCESS;
+}
