@@ -125,7 +125,7 @@ def interpretSelStr(selStr):
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
 
     parts = selStr.split('<')
-    cmin, cmax = -3.4e38, 3.4e38
+    cmin, cmax = -3.4e38, 3.4e38 #we declare std::vector<float> for both on the c++ side, but will not necessarily pass actual values for them, so we use min/max float values in python as default (hardcoded numbers, because not easily accessible)
     var = selStr
     if len(parts)==2:
         ismin = False
