@@ -101,11 +101,14 @@ private:
    * or do a second pass for electrons based on the cluster to find true photons
    * **/
   template<class T>
-  MCTruthInfo_t particleTruthClassifier(const T*, Cache*) const;
+  MCTruthInfo_t particleTruthClassifier(const EventContext& ctx,
+                                        const T*,
+                                        Cache*) const;
 
   /** @brief Create a copy a truth particle, add it to the new container and
    * decorate it with a link to the original particle **/
   void getNewTruthParticle(
+    const EventContext& ctx,
     xAOD::TruthParticleContainer& egammaTruthContainer,
     const xAOD::TruthParticle* truth,
     const xAOD::TruthParticleContainer* oldContainer) const;

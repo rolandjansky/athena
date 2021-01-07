@@ -106,8 +106,10 @@ egammaTruthAssociationAlg::execute(const EventContext& ctx) const
       const xAOD::TruthParticle* truthParticle = *truthParticleLink;
       if (!isPromptEgammaParticle(truthParticle))
         continue;
-      getNewTruthParticle(
-        *egammaTruthContainer, truthParticle, truthParticleLink.getDataPtr());
+      getNewTruthParticle(ctx,
+                          *egammaTruthContainer,
+                          truthParticle,
+                          truthParticleLink.getDataPtr());
     }
   }
   // Decorate containers with truth info, including links to truth particles
@@ -196,11 +198,11 @@ egammaTruthAssociationAlg::isPromptEgammaParticle(
 
 void
 egammaTruthAssociationAlg::getNewTruthParticle(
+  const EventContext& ctx,
   xAOD::TruthParticleContainer& egammaTruthContainer,
   const xAOD::TruthParticle* truth,
   const xAOD::TruthParticleContainer* oldContainer) const
 {
-  ATH_MSG_DEBUG("In getNewTruthParticle");
   xAOD::TruthParticle* truthParticle = new xAOD::TruthParticle();
   egammaTruthContainer.push_back(truthParticle);
   truthParticle->setPdgId(truth->pdgId());
@@ -230,15 +232,13 @@ egammaTruthAssociationAlg::getNewTruthParticle(
   }
   accElLink(*truthParticle) = ElectronLink_t();
   accPhLink(*truthParticle) = PhotonLink_t();
-  accTruthLink(*truthParticle) = TruthLink_t(truth, *oldContainer);
+  accTruthLink(*truthParticle) = TruthLink_t(truth, *oldContainer,ctx);
   accTruthLink(*truthParticle).toPersistent();
-  ATH_MSG_DEBUG("Decorating truth particle with link to old truth, index = "
-                << accTruthLink(*truthParticle).index());
   // MCTruthClassifier info
-  auto info = m_mcTruthClassifier->particleTruthClassifier(truth);
+  IMCTruthClassifier::Info mcinfo(ctx);
+  auto info = m_mcTruthClassifier->particleTruthClassifier(truth,&mcinfo);
   accType(*truthParticle) = static_cast<int>(info.first);
   accOrigin(*truthParticle) = static_cast<int>(info.second);
-  ATH_MSG_DEBUG("Exiting getNewTruthParticle");
 }
 
 xAOD::TruthParticle*
@@ -301,11 +301,12 @@ egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(
 template<class T>
 egammaTruthAssociationAlg::MCTruthInfo_t
 egammaTruthAssociationAlg::particleTruthClassifier(
+  const EventContext& ctx,
   const T* particle,
   Cache* extrapolationCache) const
 {
   MCTruthInfo_t info;
-  IMCTruthClassifier::Info mcinfo;
+  IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(particle, &mcinfo);
   info.genPart = mcinfo.genPart;
@@ -319,11 +320,12 @@ egammaTruthAssociationAlg::particleTruthClassifier(
 template<>
 egammaTruthAssociationAlg::MCTruthInfo_t
 egammaTruthAssociationAlg::particleTruthClassifier<xAOD::Electron>(
+  const EventContext& ctx,
   const xAOD::Electron* electron,
   Cache* extrapolationCache) const
 {
   MCTruthInfo_t info;
-  IMCTruthClassifier::Info mcinfo;
+  IMCTruthClassifier::Info mcinfo(ctx);
   mcinfo.extrapolationCache = extrapolationCache;
   auto ret = m_mcTruthClassifier->particleTruthClassifier(electron, &mcinfo);
   if (ret.first == MCTruthPartClassifier::Unknown &&
@@ -356,7 +358,8 @@ egammaTruthAssociationAlg::match(
 
   for (auto particle : *decoHandles.readHandle()) {
 
-    MCTruthInfo_t info = particleTruthClassifier(particle, &extrapolationCache);
+    MCTruthInfo_t info =
+      particleTruthClassifier(ctx, particle, &extrapolationCache);
 
     const xAOD::TruthParticle* truthParticle = info.genPart;
     if (truthParticle) {
