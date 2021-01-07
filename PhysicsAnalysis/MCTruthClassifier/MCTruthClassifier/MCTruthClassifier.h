@@ -193,8 +193,16 @@ private:
 
   /* Private functions */
 #if !defined(XAOD_ANALYSIS) && !defined(GENERATIONBASE) /*Athena Only*/
-  bool genPartToCalo(const xAOD::CaloCluster*, const xAOD::TruthParticle*, bool, double&, bool&, Cache* cache) const;
-  const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*, bool, Info* info) const;
+  bool genPartToCalo(const EventContext& ctx,
+                     const xAOD::CaloCluster*,
+                     const xAOD::TruthParticle*,
+                     bool,
+                     double&,
+                     bool&,
+                     Cache* cache) const;
+  const xAOD::TruthParticle* egammaClusMatch(const xAOD::CaloCluster*,
+                                             bool,
+                                             Info* info) const;
 #endif
 
 #ifndef GENERATIONBASE /*Disable when no recostruction packages are expected*/
