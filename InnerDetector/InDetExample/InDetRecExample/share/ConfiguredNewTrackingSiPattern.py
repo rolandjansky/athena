@@ -96,22 +96,15 @@ class  ConfiguredNewTrackingSiPattern:
                                                                # useSCT                 = NewTrackingCuts.useSCT(),
                                                                useSCT                 = (NewTrackingCuts.useSCT() and NewTrackingCuts.useSCTSeeding()),
                                                                SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
-                                                               # useOverlapSpCollection = NewTrackingCuts.useSCT(),
                                                                useOverlapSpCollection = (NewTrackingCuts.useSCT() and NewTrackingCuts.useSCTSeeding()),
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
+                                                               pTmin                  =  NewTrackingCuts.minPTSeed(),
+                                                               maxdImpact             =  NewTrackingCuts.maxPrimaryImpactSeed(),
+                                                               maxZ                   =  NewTrackingCuts.maxZImpactSeed(),
+                                                               minZ                   = -NewTrackingCuts.maxZImpactSeed(),
                                                                etaMax                 = NewTrackingCuts.maxEta())
-          
-         if not NewTrackingCuts.useEtaDependentCuts():
-            InDetSiSpacePointsSeedMaker.pTmin                  =  NewTrackingCuts.minPT()
-            InDetSiSpacePointsSeedMaker.maxdImpact             =  NewTrackingCuts.maxPrimaryImpact()
-            InDetSiSpacePointsSeedMaker.maxZ                   =  NewTrackingCuts.maxZImpact()
-            InDetSiSpacePointsSeedMaker.minZ                   = -NewTrackingCuts.maxZImpact()
-         else:
-            InDetSiSpacePointsSeedMaker.pTmin                  =  NewTrackingCuts.minPT()[0]
-            InDetSiSpacePointsSeedMaker.maxdImpact             =  NewTrackingCuts.maxPrimaryImpact()[0]
-            InDetSiSpacePointsSeedMaker.maxZ                   =  NewTrackingCuts.maxZImpact()[0]
-            InDetSiSpacePointsSeedMaker.minZ                   = -NewTrackingCuts.maxZImpact()[0] 
+
           
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
