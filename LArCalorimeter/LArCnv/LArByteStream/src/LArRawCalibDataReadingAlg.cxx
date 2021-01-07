@@ -73,6 +73,24 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
 
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  
+
+
+  //Build list of preselected Feedthroughs
+  if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
+    ATH_MSG_INFO("Building list of selected feedthroughs");
+    for (const unsigned iBE : m_vBEPreselection) {
+      for (const unsigned iPN: m_vPosNegPreselection) {
+	for (const unsigned iFT: m_vFTPreselection) {
+	  HWIdentifier finalFTId=m_onlineId->feedthrough_Id(iBE,iPN,iFT);
+	  unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
+	  ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << iBE << " pos/neg=" << iPN << " FT=" << iFT 
+		       << " (0x" << std::hex << finalFTId32 << std::dec << ")");
+	  m_vFinalPreselection.insert(finalFTId32);
+	}
+      }
+    }
+  }//end if something set
+
   return StatusCode::SUCCESS;
 }     
   
@@ -192,6 +210,16 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
 	else
 	  continue;
       }
+
+      if (m_vFinalPreselection.size()) {
+	const unsigned int ftId=m_onlineId->feedthrough_Id(fId).get_identifier32().get_compact();
+	if (m_vFinalPreselection.find(ftId)==m_vFinalPreselection.end()) {
+	  ATH_MSG_DEBUG("Feedthrough with id 0x" << MSG::hex << ftId << MSG::dec <<" not in preselection. Ignored.");
+	  continue;
+	}
+      }
+
+
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
 
       //Decode LArCalibDigits (if requested)
