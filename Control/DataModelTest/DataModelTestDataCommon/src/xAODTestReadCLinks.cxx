@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file DataModelTestDataCommon/src/xAODTestReadCLinks.cxx
@@ -82,7 +82,7 @@ StatusCode xAODTestReadCLinks::execute (const EventContext& ctx) const
 
     std::ostringstream ss2;
     ss2 << "  ";
-    for (const EL& el : clinksaod->elv()) {
+    for (const EL el : clinksaod->elv()) {
       ss2 << formEL (el) << " ";
     }
     ATH_MSG_INFO (ss2.str());
