@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ StatusCode PixelPrepDataToxAOD::execute()
   SG::ReadCondHandle<PixelDCSHVData> dcsHV(m_readKeyHV);
   SG::ReadCondHandle<PixelDCSTempData> dcsTemp(m_readKeyTemp);
 
-  for( const auto& clusterCollection : * PixelClusterContainer ){
+  for( const auto clusterCollection : * PixelClusterContainer ){
 
     //Fill Offset container
     (*offsets)[clusterCollection->identifyHash()] = counter;
