@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -54,7 +54,7 @@ if (InDetTrigFlags.doPrintConfigurables()):
   print (     InDetTrigScoringToolCosmics_SiPattern)
 
 
-from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
+from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool  # noqa: F401
 from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetAmbiTrackSelectionTool
 from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTRTDriftCircleCut
 import InDetRecExample.TrackingCommon as TrackingCommon

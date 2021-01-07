@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 from __future__ import print_function
@@ -77,7 +77,6 @@ if InDetTrigFlags.loadRotCreator():
 
   # tool to always make conservative pixel cluster errors
   from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
-  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
 
   if InDetTrigFlags.doPixelClusterSplitting():
     from TrkNeuralNetworkUtils.TrkNeuralNetworkUtilsConf import Trk__NeuralNetworkToHistoTool
@@ -141,7 +140,6 @@ if InDetTrigFlags.loadRotCreator():
     print (InDetTrigBroadSCT_ClusterOnTrackTool)
 
   #--
-  from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
   InDetTrigBroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetTrigBroadPixelClusterOnTrackTool",
                                                                          ErrorStrategy = 0,
                                                                          LorentzAngleTool = TrigPixelLorentzAngleTool,
@@ -257,7 +255,6 @@ if InDetTrigFlags.loadUpdator():
 if InDetTrigFlags.loadExtrapolator():
 
   # set up geometry
-  from AthenaCommon.Include import include
   from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
   
   #
@@ -283,11 +280,10 @@ if InDetTrigFlags.loadExtrapolator():
   # Setup the Navigator (default, could be removed)
   #
   from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-  AtlasTrackingGeometrySvc  = svcMgr.AtlasTrackingGeometrySvc 
 
   from TrkExTools.TrkExToolsConf import Trk__Navigator
   InDetTrigNavigator = Trk__Navigator(name = 'InDetTrigNavigator',
-                                      TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+                                      TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc)
 
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
@@ -625,7 +621,6 @@ if InDetTrigFlags.loadFitter():
 InDetTrigPixelConditionsSummaryTool = PixelConditionsSetup.summaryTool
 
 if DetFlags.haveRIO.SCT_on():
-  from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
   from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ConditionsSummaryTool
   InDetTrigSCTConditionsSummaryTool = SCT_ConditionsSummaryTool(SCT_ConditionsSetup.instanceName('InDetSCT_ConditionsSummaryTool'))
 else:
@@ -709,7 +704,7 @@ if InDetTrigFlags.loadSummaryTool():
   from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRTStrawStatusSummaryTool
   
   from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
+  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup  # noqa: F401
   InDetTrigTrackSummaryHelperTool = InDet__InDetTrackSummaryHelperTool(name          = "InDetTrigSummaryHelper",
                                                                        HoleSearch    = InDetTrigHoleSearchTool,
                                                                        AssoTool      = InDetTrigPrdAssociationTool,
@@ -749,7 +744,6 @@ if InDetTrigFlags.loadSummaryTool():
 
   from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
   from TRT_ElectronPidTools.TRT_ElectronPidToolsConf import InDet__TRT_ElectronPidToolRun2,InDet__TRT_LocalOccupancy,TRT_ToT_dEdx
-  from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
   # Calibration DB Tool
   from TRT_ConditionsServices.TRT_ConditionsServicesConf import TRT_CalDbTool
   InDetTRTCalDbTool = TRT_CalDbTool(name = "TRT_CalDbTool")
@@ -767,7 +761,6 @@ if InDetTrigFlags.loadSummaryTool():
                                                           TRTStrawStatusSummaryTool = InDetTrigTRTStrawStatusSummaryTool)
   ToolSvc += InDetTrigTRT_LocalOccupancy
 
-  import InDetRecExample.TrackingCommon as TrackingCommon
   InDetTrigTRT_ToT_dEdx = TRT_ToT_dEdx(name = "InDetTrig_TRT_ToT_dEdx",
                                        AssociationTool = InDetTrigPrdAssociationTool,
                                        TRTStrawSummaryTool = InDetTrigTRTStrawStatusSummaryTool,
@@ -811,7 +804,6 @@ if InDetTrigFlags.loadSummaryTool():
     # Configrable version of loading the InDetTrackSummaryHelperTool
     #
     from InDetTrackSummaryHelperTool.InDetTrackSummaryHelperToolConf import InDet__InDetTrackSummaryHelperTool
-    from InDetTrigRecExample.InDetTrigConditionsAccess import TRT_ConditionsSetup
     InDetTrigTrackSummaryHelperToolSharedHits = InDet__InDetTrackSummaryHelperTool(name         = "InDetTrigSummaryHelperSharedHits",
                                                                                    AssoTool     = InDetTrigPrdAssociationTool,
                                                                                    DoSharedHits = InDetTrigFlags.doSharedHits(),
