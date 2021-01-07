@@ -7,18 +7,6 @@
 #include <algorithm>
 #include <stdexcept>
 
-// In "standalone mode" xAOD::IParticleContainer doesn't have a CLID
-// defined for it. But this code requires one to be set.
-//
-// The following is incredibly ugly, but this is the best that I could
-// come up with on short notice. Note that the CLID value is copy-pasted
-// from the IParticleContainer.h header.
-#include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
-
 // xAOD include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
 

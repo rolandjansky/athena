@@ -23,6 +23,7 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkToolInterfaces/ITrackSummaryTool.h"
+#include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 
 namespace Muon {
 
@@ -84,9 +85,15 @@ class MuonClusterSegmentFinderTool : virtual public IMuonClusterSegmentFinderToo
         "TrackSummaryTool",
         "Trk::TrackSummaryTool/MuidTrackSummaryTool",
     };
+    ToolHandle<IMuonClusterOnTrackCreator> m_mmClusterCreator{
+        this,
+	"MMClusterCreator",
+	"Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"
+    };
 
     bool   m_ipConstraint;  // use a ip perigee(0,0) constraint in the segment fit
     double m_maxClustDist;
+    int    m_nOfSeedLayers;
 
   public:
     // find segments given a list of MuonCluster
@@ -120,7 +127,10 @@ class MuonClusterSegmentFinderTool : virtual public IMuonClusterSegmentFinderToo
     // associate clusters to the segment seeds
     std::vector<const Muon::MuonClusterOnTrack*> getClustersOnSegment(
         std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& clusters,
-        std::pair<Amg::Vector3D, Amg::Vector3D>& seed, bool tight) const;
+        std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const;
+    //get the clusters after calibration
+    std::vector< const Muon::MuonClusterOnTrack* > getCalibratedClusters(std::vector<const Muon::MuonClusterOnTrack*>& clusters,
+                                                                         std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const;
     // distance of cluster to segment seed
     double        clusterDistanceToSeed(const Muon::MuonClusterOnTrack*          clust,
                                         std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUCALIBRATELC_H
@@ -15,8 +15,6 @@ class TF1;
 
 /**
  * @brief Implementation of tau energy scale (TES) with eta and pile-up correction.
- * 
- *  The energy and eta (direction) correction are done separatly and steered by flags.
  * 
  * @author Margar Simonyan
  * @author Felix Friedrich
@@ -42,7 +40,6 @@ class TauCalibrateLC : public TauRecToolBase {
     std::vector<std::vector<std::unique_ptr<TF1>>> m_calibFunc;
     std::vector<std::unique_ptr<TH1>> m_slopeNPVHist; 
     std::unique_ptr<TH1> m_etaBinHist = nullptr; 
-    std::unique_ptr<TH1> m_etaCorrectionHist = nullptr; 
 
     unsigned int m_minNTrackAtVertex=0;
     int    m_nEtaBins=0;

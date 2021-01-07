@@ -75,18 +75,17 @@ StatusCode HLTMinBiasMonAlgMT::monitorSPCounts(const EventContext& context) cons
       else ATH_MSG_DEBUG("Chain "<<trig <<" is passed: NO");
 
       if (cg->getPrescale()) {
-        auto pixelSPLow  = Scalar( "PixelSPLow", spCountsHandle->at(0)->getDetail<int>("totNumPixSP") );
-        auto pixelSPHigh = Scalar( "PixelSPHigh", spCountsHandle->at(0)->getDetail<int>("totNumPixSP") );
-        auto PixBarr_SP  = Scalar( "PixBarr_SP", spCountsHandle->at(0)->getDetail<int>("pixClBarrel") );
-        auto PixECA_SP   = Scalar( "PixECA_SP", spCountsHandle->at(0)->getDetail<int>("pixClEndcapA") );
-        auto PixECC_SP   = Scalar( "PixECC_SP", spCountsHandle->at(0)->getDetail<int>("pixClEndcapC") );
+        auto pixelCL  = Scalar( "PixelCL", spCountsHandle->at(0)->getDetail<int>("pixCL") );
+        auto PixBarr_SP  = Scalar( "PixBarr_SP", spCountsHandle->at(0)->getDetail<int>("pixCLBarrel") );
+        auto PixECA_SP   = Scalar( "PixECA_SP", spCountsHandle->at(0)->getDetail<int>("pixCLEndcapA") );
+        auto PixECC_SP   = Scalar( "PixECC_SP", spCountsHandle->at(0)->getDetail<int>("pixCLEndcapC") );
 
-        auto SctTot       = Scalar( "SctTot", spCountsHandle->at(0)->getDetail<int>("totNumSctSP") );
-        auto SctBarr_SP  = Scalar( "SctBarr_SP", spCountsHandle->at(0)->getDetail<int>("SctSpBarrel") );
-        auto SctECA_SP   = Scalar( "SctECA_SP", spCountsHandle->at(0)->getDetail<int>("SctSpEndcapA") );
-        auto SctECC_SP   = Scalar( "SctECC_SP", spCountsHandle->at(0)->getDetail<int>("SctSpEndcapC") );
+        auto SctTot       = Scalar( "SctTot", spCountsHandle->at(0)->getDetail<int>("sctSP") );
+        auto SctBarr_SP  = Scalar( "SctBarr_SP", spCountsHandle->at(0)->getDetail<int>("sctSPBarrel") );
+        auto SctECA_SP   = Scalar( "SctECA_SP", spCountsHandle->at(0)->getDetail<int>("sctSPEndcapA") );
+        auto SctECC_SP   = Scalar( "SctECC_SP", spCountsHandle->at(0)->getDetail<int>("sctSPEndcapC") );
 
-        fill(thisTrig, pixelSPLow, pixelSPHigh, PixBarr_SP,PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP);
+        fill(thisTrig, pixelCL, PixBarr_SP,PixECA_SP, PixECC_SP, SctTot, SctBarr_SP, SctECA_SP, SctECC_SP);
       }
     }
 

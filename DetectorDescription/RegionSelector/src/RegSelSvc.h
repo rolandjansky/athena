@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -73,7 +73,6 @@ class ATLAS_NOT_THREAD_SAFE RegSelSvc: public extends2<AthService, IRegSelSvc, I
 
   bool reinitialiseInternal();
   bool reinitialiseInternalFromOKS();
-  bool GetEnabledROBsFromOKS(); 
 
   //! @method initialize standard Service interface
   /*!
@@ -438,13 +437,6 @@ private:
   //! Data structure to hold FCALHAD data.
   RegSelectorHashMap m_ttfcalhadData;
 
-  std::vector<uint32_t>        m_deleteRobList;
-  //  std::vector<IdentifierHash>  m_deletePixelHashList;
-  //  std::vector<IdentifierHash>  m_deleteSCTHashList;
-  std::vector<unsigned int>  m_deletePixelHashList;
-  std::vector<unsigned int>  m_deleteSCTHashList;
-  std::vector<unsigned int>  m_deleteTRTHashList;
-
 private:
   typedef SimpleProperty< std::vector<uint32_t> > Uint32ArrayProperty;
   
@@ -455,11 +447,7 @@ private:
   std::vector<std::string> m_enabledDetectors;
   bool m_errorFlag;
   
-  
-  //! Flag to read the rob list from OKS
-  BooleanProperty     m_readSiROBListFromOKS;
-  
-  //! List of all ROBs to be enabled if setting from OKS    
+  //! List of all ROBs to be enabled if setting from OKS
   Uint32ArrayProperty m_enabledROBs;
   
   double m_DeltaZ;

@@ -566,7 +566,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
     if(trackpara->size() > 0){
       const Trk::TrackParameters* para = trackpara->front();
       if (para){
-	if (para->pT() >  m_minPt && fabs(para->eta()) < m_maxEta) {
+	if (para->pT() >  m_minPt && std::abs(para->eta()) < m_maxEta) {
 	  RecSignal.push_back(*it);
 	}
       }
@@ -615,8 +615,7 @@ selectGenSignal  (const McEventCollection* SimTracks,
       for (auto particle: *genEvent)
 	{
 	  // require stable particle from generation or simulation\	  s
-	  if ((particle->status()%1000) != 1 )
-	    continue;
+	  if ((particle->status()%1000) != 1 ) continue;
 	  int   pdgCode = particle->pdg_id();
 	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
 	  if (!pd) {
@@ -627,10 +626,9 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	    continue;
 	  }
 	  float charge = pd->charge();
-	  if (fabs(charge)<0.5)
-	      continue;
-	  if (fabs(particle->momentum().perp()) >  m_minPt  &&  
-	      fabs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
+	  if (std::abs(charge)<0.5) continue;
+	  if (std::abs(particle->momentum().perp()) >  m_minPt  &&  
+	      std::abs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
 	    std::pair<HepMC::GenParticlePtr,int> thisPair(particle,ievt);
 	    GenSignal.push_back(thisPair);
 	  }

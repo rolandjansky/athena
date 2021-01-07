@@ -115,10 +115,12 @@ JetChainParts = {
     # Reco information
     'recoAlg'      : # Jet clustering algorithm
       ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
-    'dataType'     : # Jet input type (rename?)
-      ['tc','pf','sktc','cssktc','csskpf'],
-    'calib'        : # Topocluster calibration (change to constit mods?)
+    'constitType'  : # Jet input type
+      ['tc','pf'], # 'ufo' might be added at some point
+    'clusterCalib' : # Topocluster calibration
       ['em', 'lcw'],
+    'constitMod'   : # Constituent modifiers
+      ['sk', 'cssk'],
     'jetCalib'     : # Jet calibration
       ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : # No longer used?
@@ -181,8 +183,9 @@ JetChainParts_Default = {
     'subSigs'       : ['Jet'],
     #
     'recoAlg'       :'a4',
-    'dataType'      :'tc',
-    'calib'         :'em',
+    'constitType'   :'tc',
+    'clusterCalib'  :'em',
+    'constitMod'    :'',
     'jetCalib'      :'default',
     'scan'          :'FS',
     'trkopt'        : 'notrk',
@@ -341,7 +344,7 @@ METChainParts = {
     'jetCalib'       : JetChainParts['jetCalib'],
     'L2recoAlg'      : [],
     'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
-    'jetDataType'    : JetChainParts['dataType'],
+    'constitType'    : JetChainParts['constitType'],
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
@@ -364,7 +367,7 @@ METChainParts_Default = {
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
-    'jetDataType'    : 'tc',
+    'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']

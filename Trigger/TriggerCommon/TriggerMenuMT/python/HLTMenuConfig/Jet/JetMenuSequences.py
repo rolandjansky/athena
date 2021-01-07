@@ -37,7 +37,7 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
     # Get the topocluster reconstruction sequence
     from .JetRecoSequences import jetClusterSequence, jetRecoSequence
     topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
-        jetClusterSequence, configFlags, RoIs=RoIs, clusterCalib=jetRecoDict["calib"])
+        jetClusterSequence, configFlags, RoIs=RoIs, clusterCalib=jetRecoDict["clusterCalib"])
 
     # Get the jet reconstruction sequence including the jet definition and output collection
     jetRecoSeq, jetsOut, jetDef  = RecoFragmentsPool.retrieve(
