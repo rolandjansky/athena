@@ -174,6 +174,7 @@ StatusCode BookkeeperTool::metaDataStop()
       name.append("_weight_");
       name.append(std::to_string(i));
     }
+    std::string incompleteName = "Incomplete" + name;
 
     // In MP we might already have them written out
     if (outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)) {
@@ -182,20 +183,24 @@ StatusCode BookkeeperTool::metaDataStop()
         ATH_MSG_ERROR("Could not get " << name << " CutBookkeepers from output MetaDataStore");
         return StatusCode::FAILURE;
       }
-      xAOD::CutBookkeeperContainer *incomplete{};
-      if (!outputMetaStore()->retrieve(incomplete, "Incomplete" + name).isSuccess()) {
-        ATH_MSG_ERROR("Could not get " << "Incomplete" + name << " CutBookkeepers from output MetaDataStore");
-        return StatusCode::FAILURE;
-      }
       xAOD::CutFlowHelpers::updateContainer(complete, m_completeContainers.at(i));
-      xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
     } else {
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.cont[i]), name));
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.aux[i]), name + "Aux."));
+    }
+
+    if (outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incompleteName)) {    
+      xAOD::CutBookkeeperContainer *incomplete{};
+      if (!outputMetaStore()->retrieve(incomplete, incompleteName).isSuccess()) {
+        ATH_MSG_ERROR("Could not get " << incompleteName << " CutBookkeepers from output MetaDataStore");
+        return StatusCode::FAILURE;
+      }
+      xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
+    } else {
       // Only write non-empty incomplete containers
       if (i > 0 && !m_incompleteContainers.at(i)->empty()) {
-        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), "Incomplete" + name));
-        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), "Incomplete" + name + "Aux."));
+        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), incompleteName));
+        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), incompleteName + "Aux."));
       }
     }
   }
