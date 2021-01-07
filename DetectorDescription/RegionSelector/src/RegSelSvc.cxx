@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -20,7 +20,6 @@
 #include "RegSelLUT/StoreGateIDRS_ClassDEF.h"
 
 #include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -103,11 +102,6 @@ RegSelSvc::RegSelSvc(const std::string& name, ISvcLocator* sl)
   declareProperty( "CSCRegionSelectorTable",     m_lutCreatorToolCSC);
   declareProperty( "MMRegionSelectorTable",      m_lutCreatorToolMM);
   declareProperty( "sTGCRegionSelectorTable",    m_lutCreatorToolsTGC);
-  declareProperty( "readSiROBListFromOKS",       m_readSiROBListFromOKS, "read silicon rob list to from oks");
-  declareProperty( "DeletePixelHashList",        m_deletePixelHashList,  "delete pixel modules with these ids");
-  declareProperty( "DeleteSCTHashList",          m_deleteSCTHashList,    "delete sct modules with these ids");
-  declareProperty( "DeleteTRTHashList",          m_deleteTRTHashList,    "delete trt modules with these ids");
-  declareProperty( "DeleteSiRobList",            m_deleteRobList,        "delete indet modules corresponding to these robs ids");
   declareProperty( "LArFebRodMapKey",            m_LArFebRodMapKey,      "Condition to trigger RegSelSvc initialization");
   declareProperty( "DeltaZ",                     m_DeltaZ,               "z vertex range");
   declareProperty( "DisableFromConditions",      m_disableFromConditions=false,  "disable id modules based on the conditions summary svc");
@@ -234,18 +228,6 @@ StatusCode RegSelSvc::initialize() {
     incidentSvc->addListener( this , "BeginEvent");
     ATH_MSG_INFO( " registered Listener with IncidentSvc" );
   } 	 
-
-  // if we need to initialise from oks, then get the list of robs 
-  // to initialise
-
-  // don't do anything if rob list isn't to be read from OKS
-  if ( m_readSiROBListFromOKS.value()==true ) { 
-    // try to get the new list of rob ids to enable from OKS  
-    if ( !GetEnabledROBsFromOKS() ) {
-      ATH_MSG_ERROR( "Could not get rob list from OKS" );
-      errorFlag = true;
-    }
-  }
 
   m_errorFlag=errorFlag; // Treatment later on
 
@@ -1924,45 +1906,6 @@ bool RegSelSvc::reinitialiseInternal() {
 }
 
 
-
-bool RegSelSvc::GetEnabledROBsFromOKS() 
-{
-  bool robOKSconfigFound = false;
-
-  IJobOptionsSvc* p_jobOptionSvc;
-  if (service("JobOptionSvc", p_jobOptionSvc).isFailure()) {
-    ATH_MSG_ERROR( "Could not find JobOptionSvc" );
-    return robOKSconfigFound;
-  } 
-  
-  // get the data flow config property  
-  const std::vector<const Gaudi::Details::PropertyBase*>* dataFlowProps = p_jobOptionSvc->getProperties("DataFlowConfig");
-  
-  // go through looking for the enabled robs
-  std::vector<const Gaudi::Details::PropertyBase*>::const_iterator propp(dataFlowProps->begin());
-  for ( ; propp!=dataFlowProps->end() ; propp++) {
-    // the enabled ROB list is found
-    if ( (*propp)->name() == "DF_Enabled_ROB_IDs" ) {
-      if (m_enabledROBs.assign(**propp)) {
-	robOKSconfigFound = true;
-	ATH_MSG_INFO( " ---> Read from OKS                       = " 
-                      << m_enabledROBs.value().size() << " enabled ROB IDs." );
-
-	// is m_enabledROBs.value() a std::vector<uint32_t> ????
-	
-	//	std::vector<uint32_t>& r = m_enabledROBs.value();
-
-      } else {
-        ATH_MSG_WARNING( " Could not set Property 'enabledROBs' from OKS." );
-      }
-    }
-  }
-
-  p_jobOptionSvc->release();
-
-  return robOKSconfigFound;
-}
- 
 void RegSelSvc::DisableMissingROBs(const std::vector<uint32_t>& vec){
 
     m_larData.DisableMissingROBs( vec );
