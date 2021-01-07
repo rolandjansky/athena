@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ForDetEnvelopeTool_h 
@@ -8,7 +8,7 @@
 #include "GeoModelUtilities/GeoModelTool.h"
 class ForDetEnvelopeManager;
 
-class ForDetEnvelopeTool : public GeoModelTool 
+class ForDetEnvelopeTool final : public GeoModelTool 
 {
  public:
 

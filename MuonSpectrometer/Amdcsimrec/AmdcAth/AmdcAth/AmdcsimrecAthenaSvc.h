@@ -51,7 +51,6 @@ public:
    static const InterfaceID& interfaceID() { return IID_IAmdcsimrecAthenaSvc; }
 
    virtual StatusCode initialize();
-   virtual StatusCode finalize();
 
    virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
 

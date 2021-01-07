@@ -52,8 +52,8 @@ if not ('fileList' in dir()) and not ('RunningRTT' in dir()):
 #added for RTT-chainstore conmpatibility
 if not ('RunningRTT' in dir()):
     acf.FilesInput=fileList
-    ConfigFlags.Input.Files = acf.FilesInput()
-#acf.FilesInput=fileList
+
+ConfigFlags.Input.Files = acf.FilesInput() or acf.PoolAODInput()
 
 ###############################
 

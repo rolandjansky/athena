@@ -75,11 +75,11 @@ TauTruthMatchingTool::getTruth(const xAOD::TauJet& xTau,
 
   // if matched to a truth tau return its pointer, else return a null pointer
   static SG::AuxElement::ConstAccessor<char> accIsTruthMatched("IsTruthMatched");
-  if ((bool)accIsTruthMatched(xTau))
+  static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
+  if ((accIsTruthMatched.isAvailable(xTau) && accIsTruthMatched(xTau)) || accTruthTau.isAvailable(xTau))
   {
     if (m_bWriteTruthTaus or m_bTruthTauAvailable)
     {
-      static SG::AuxElement::ConstAccessor< ElementLink< xAOD::TruthParticleContainer >  > accTruthTau("truthParticleLink");
       if (accTruthTau(xTau).isValid())
       {
         return *accTruthTau(xTau);
@@ -340,7 +340,7 @@ StatusCode TauTruthMatchingTool::findTruthTau(const xAOD::TauJet& xTau,
 {
   // check if decorations were already added to the first passed tau
   if (!m_bIsTruthMatchedAvailable.isValid()) {
-    bool avail = xTau.isAvailable<char>("IsTruthMatched");
+    bool avail = xTau.isAvailable<char>("IsTruthMatched") || xTau.isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink");
     m_bIsTruthMatchedAvailable.set (avail);
   }
   if (*m_bIsTruthMatchedAvailable.ptr())

@@ -2,23 +2,23 @@
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
-    PFTrackSelector=CompFactory.PFTrackSelector
-    PFTrackSelector=PFTrackSelector(algName)
+    PFTrackSelectorFactory=CompFactory.PFTrackSelector
+    PFTrackSelector=PFTrackSelectorFactory(algName)
 
     from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg    
-    Trk__ParticleCaloExtensionTool=CompFactory.Trk.ParticleCaloExtensionTool
+    Trk__ParticleCaloExtensionToolFactory=CompFactory.Trk.ParticleCaloExtensionTool
     result = AtlasExtrapolatorCfg(inputFlags)
-    pcExtensionTool = Trk__ParticleCaloExtensionTool(Extrapolator = result.popPrivateTools())
+    pcExtensionTool = Trk__ParticleCaloExtensionToolFactory(Extrapolator = result.popPrivateTools())
 
     eflowTrackCaloExtensionTool=CompFactory.eflowTrackCaloExtensionTool
     TrackCaloExtensionTool=eflowTrackCaloExtensionTool(TrackCaloExtensionTool=pcExtensionTool)
-    if False is useCaching:
+    if (not useCaching):
       TrackCaloExtensionTool.PFParticleCache = ""
 
     PFTrackSelector.trackExtrapolatorTool = TrackCaloExtensionTool
 
-    InDet__InDetTrackSelectionTool=CompFactory.InDet.InDetTrackSelectionTool
-    TrackSelectionTool = InDet__InDetTrackSelectionTool("PFTrackSelectionTool")
+    InDet__InDetTrackSelectionToolFactory=CompFactory.InDet.InDetTrackSelectionTool
+    TrackSelectionTool = InDet__InDetTrackSelectionToolFactory("PFTrackSelectionTool")
 
     TrackSelectionTool.CutLevel = "TightPrimary"
     TrackSelectionTool.minPt = 500.0 
@@ -31,8 +31,8 @@ def PFTrackSelectorAlgCfg(inputFlags,algName,useCaching=True):
 
 def getPFClusterSelectorTool(clustersin,calclustersin,algName):
 
-    PFClusterSelectorTool = CompFactory.PFClusterSelectorTool
-    PFClusterSelectorTool = PFClusterSelectorTool(algName)
+    PFClusterSelectorToolFactory = CompFactory.PFClusterSelectorTool
+    PFClusterSelectorTool = PFClusterSelectorToolFactory(algName)
     if clustersin:
         PFClusterSelectorTool.clustersName = clustersin
     if calclustersin:
@@ -50,19 +50,19 @@ def getPFTrackClusterMatchingTool(inputFlags,matchCut,distanceType,clusterPositi
 
 
 def getPFCellLevelSubtractionTool(inputFlags,toolName):
-    PFCellLevelSubtractionTool = CompFactory.PFCellLevelSubtractionTool
-    PFCellLevelSubtractionTool = PFCellLevelSubtractionTool(toolName)
+    PFCellLevelSubtractionToolFactory = CompFactory.PFCellLevelSubtractionTool
+    PFCellLevelSubtractionTool = PFCellLevelSubtractionToolFactory(toolName)
     
     eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFCellLevelSubtractionTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss()
 
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.CalcEOverP = True
         PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = -1
     else:
         PFCellLevelSubtractionTool.nMatchesInCellLevelSubtraction = 1
 
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,0.2,"EtaPhiSquareDistance","PlainEtaPhi","CalObjBldMatchingTool")
     else:
         PFCellLevelSubtractionTool.PFTrackClusterMatchingTool = getPFTrackClusterMatchingTool(inputFlags,1.64,"EtaPhiSquareSignificance","GeomCenterEtaPhi","CalObjBldMatchingTool")
@@ -72,8 +72,8 @@ def getPFCellLevelSubtractionTool(inputFlags,toolName):
     return PFCellLevelSubtractionTool
 
 def getPFRecoverSplitShowersTool(inputFlags,toolName):
-    PFRecoverSplitShowersTool = CompFactory.PFRecoverSplitShowersTool
-    PFRecoverSplitShowersTool = PFRecoverSplitShowersTool(toolName)
+    PFRecoverSplitShowersToolFactory = CompFactory.PFRecoverSplitShowersTool
+    PFRecoverSplitShowersTool = PFRecoverSplitShowersToolFactory(toolName)
 
     eflowCellEOverPTool_mc12_JetETMiss = CompFactory.eflowCellEOverPTool_mc12_JetETMiss
     PFRecoverSplitShowersTool.eflowCellEOverPTool = eflowCellEOverPTool_mc12_JetETMiss("eflowCellEOverPTool_mc12_JetETMiss_Recover")
@@ -85,8 +85,8 @@ def getPFRecoverSplitShowersTool(inputFlags,toolName):
     return PFRecoverSplitShowersTool
 
 def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
-    PFMomentCalculatorTool = CompFactory.PFMomentCalculatorTool
-    PFMomentCalculatorTool = PFMomentCalculatorTool("PFMomentCalculatorTool")
+    PFMomentCalculatorToolFactory = CompFactory.PFMomentCalculatorTool
+    PFMomentCalculatorTool = PFMomentCalculatorToolFactory("PFMomentCalculatorTool")
 
     from CaloRec.CaloTopoClusterConfig import getTopoMoments
     PFClusterMomentsMaker = getTopoMoments(inputFlags)
@@ -97,7 +97,7 @@ def getPFMomentCalculatorTool(inputFlags, momentsToCalculateList):
     PFClusterCollectionTool = CompFactory.PFClusterCollectionTool
     PFMomentCalculatorTool.PFClusterCollectionTool = PFClusterCollectionTool("PFClusterCollectionTool")
 
-    if(True is inputFlags.PF.useCalibHitTruthClusterMoments):
+    if(inputFlags.PF.useCalibHitTruthClusterMoments):
         PFMomentCalculatorTool.UseCalibHitTruth=True
         from CaloRec.CaloTopoClusterConfig import getTopoCalibMoments
         PFMomentCalculatorTool.CaloCalibClusterMomentsMaker2 = getTopoCalibMoments(inputFlags)
@@ -123,26 +123,49 @@ def getPFLCCalibTool(inputFlags):
     return PFLCCalibTool
 
 def getChargedPFOCreatorAlgorithm(inputFlags,chargedPFOOutputName):
-    PFOChargedCreatorAlgorithm = CompFactory.PFOChargedCreatorAlgorithm
-    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithm("PFOChargedCreatorAlgorithm")
+    PFOChargedCreatorAlgorithmFactory = CompFactory.PFOChargedCreatorAlgorithm
+    PFOChargedCreatorAlgorithm = PFOChargedCreatorAlgorithmFactory("PFOChargedCreatorAlgorithm")
     if chargedPFOOutputName:
         PFOChargedCreatorAlgorithm.PFOOutputName = chargedPFOOutputName
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFOChargedCreatorAlgorithm.PFOOutputName="EOverPChargedParticleFlowObjects"
 
     return PFOChargedCreatorAlgorithm
 
 def getNeutralPFOCreatorAlgorithm(inputFlags,neutralPFOOutputName):
-
-    PFONeutralCreatorAlgorithm = CompFactory.PFONeutralCreatorAlgorithm
-    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithm("PFONeutralCreatorAlgorithm")
+    PFONeutralCreatorAlgorithmFactory = CompFactory.PFONeutralCreatorAlgorithm
+    PFONeutralCreatorAlgorithm =  PFONeutralCreatorAlgorithmFactory("PFONeutralCreatorAlgorithm")
     if neutralPFOOutputName:
         PFONeutralCreatorAlgorithm.PFOOutputName = neutralPFOOutputName
-    if(True is inputFlags.PF.EOverPMode):
+    if(inputFlags.PF.EOverPMode):
         PFONeutralCreatorAlgorithm.PFOOutputName="EOverPNeutralParticleFlowObjects"
-    if(True is inputFlags.PF.useCalibHitTruthClusterMoments and True is inputFlags.PF.addClusterMoments):
+    if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
         PFONeutralCreatorAlgorithm.UseCalibHitTruth=True
 
     PFONeutralCreatorAlgorithm.DoClusterMoments=inputFlags.PF.addClusterMoments
         
     return PFONeutralCreatorAlgorithm
+
+def getChargedFlowElementCreatorAlgorithm(inputFlags,chargedFlowElementOutputName):    
+    FlowElementChargedCreatorAlgorithmFactory = CompFactory.PFChargedFlowElementCreatorAlgorithm
+    FlowElementChargedCreatorAlgorithm = FlowElementChargedCreatorAlgorithmFactory("PFChargedFlowElementCreatorAlgorithm")
+    if chargedFlowElementOutputName:
+        FlowElementChargedCreatorAlgorithm.FlowElementOutputName=chargedFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+        FlowElementChargedCreatorAlgorithm.FlowElementOutputName="EOverPChargedFlowElements"
+
+    return FlowElementChargedCreatorAlgorithm
+
+def getNeutralFlowElementCreatorAlgorithm(inputFlags,neutralFlowElementOutputName):
+    FlowElementNeutralCreatorAlgorithmFactory = CompFactory.PFNeutralFlowElementCreatorAlgorithm
+    FlowElementNeutralCreatorAlgorithm = FlowElementNeutralCreatorAlgorithmFactory("PFNeutralFlowElementCreatorAlgorithm")
+    if neutralFlowElementOutputName:
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName=neutralFlowElementOutputName
+    if(inputFlags.PF.EOverPMode):
+        FlowElementNeutralCreatorAlgorithm.FlowElementOutputName="EOverPNeutralFlowElements"
+    if(inputFlags.PF.useCalibHitTruthClusterMoments and inputFlags.PF.addClusterMoments):
+        FlowElementNeutralCreatorAlgorithm.useCalibHitTruth=True
+
+
+    return FlowElementNeutralCreatorAlgorithm
+            

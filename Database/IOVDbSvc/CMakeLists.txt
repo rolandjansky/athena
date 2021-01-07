@@ -183,7 +183,7 @@ atlas_add_test( Base64Codec_test
    LINK_LIBRARIES ${Boost_LIBRARIES} ${CORAL_LIBRARIES}
    POST_EXEC_SCRIPT "nopost.sh" )
 
-if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
+if( NOT SIMULATIONBASE AND NOT GENERATIONBASE AND NOT XAOD_ANALYSIS )
    atlas_add_test( IOVDbSvcCfgTest
       SCRIPT python -m IOVDbSvc.IOVDbSvcConfig
       POST_EXEC_SCRIPT "nopost.sh" )

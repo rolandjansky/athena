@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagClustersD3PDObject.py
@@ -6,8 +6,6 @@
 ## @author Georges Aad
 ## @date Nov, 2010
 ##
-import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 
 def getJetTagClusterD3PDObject(level=0, **kw):
 

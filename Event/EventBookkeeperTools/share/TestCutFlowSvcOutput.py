@@ -43,8 +43,11 @@ from AthenaCommon.AppMgr import theApp
 import AthenaPoolCnvSvc.ReadAthenaPool  # noqa: F401
 
 # setup some configuration
-from RecExConfig.RecFlags import rec
-rec.mergingStreamName = 'Stream1'
+try:
+    from RecExConfig.RecFlags import rec
+    rec.mergingStreamName = 'Stream1'
+except ModuleNotFoundError:
+    pass
 
 # setup the CutFlowSvc and corresponding tools
 from EventBookkeeperTools.CutFlowHelpers import CreateCutFlowSvc

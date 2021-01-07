@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_pu40_new
+# art-description: art job for fsjet_nopps_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -30,16 +30,15 @@ os.system("echo 'ftf = findAlgorithm(topSequence, \"TrigFastTrackFinder__jet\")'
 os.system("echo 'ftf.TripletDoPPS=False' >> dopps.py")
 
 Slices  = ['fsjet']
-RunEF   = False
 Events  = 2000 
 Threads = 8 
 Slots   = 8
 postinclude_file = 'dopps.py'
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-Jobs = [ ( "Truth",       " TIDAdata-run3.dat              -o data-hists.root" ), 
-         ( "Offline",     " TIDAdata-run3-offline.dat      -o data-hists-offline.root" ),
-         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat  -o data-hists-offline-vtx.root" ) ]
+Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
+         ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
+         ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
 
 
 Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots " ),
@@ -49,7 +48,7 @@ Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c T
 
 
 from AthenaCommon.Include import include 
-include("TrigInDetValidation/TrigInDetValidation_NewBase.py")
+include("TrigInDetValidation/TrigInDetValidation_Base.py")
 
 
  

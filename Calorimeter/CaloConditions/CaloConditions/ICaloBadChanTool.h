@@ -8,13 +8,22 @@
 #include "Identifier/Identifier.h"
 #include "CaloConditions/CaloBadChannel.h"
 #include "GaudiKernel/IAlgTool.h"
+#include "GaudiKernel/EventContext.h"
+#include "GaudiKernel/ThreadLocalContext.h"
+
 
 class ICaloBadChanTool : public virtual IAlgTool {
 public:
 					  
   virtual ~ICaloBadChanTool() {}
-  
-  virtual CaloBadChannel caloStatus( Identifier id) const = 0;
+
+  virtual CaloBadChannel caloStatus(const EventContext& ctx,
+                                    Identifier id) const = 0;
+
+  virtual CaloBadChannel caloStatus(Identifier id) const
+  {
+    return caloStatus(Gaudi::Hive::currentContext(), id);
+  }
 
   static const InterfaceID& interfaceID() { 
     static const InterfaceID id("ICaloBadChanTool", 1 , 0);

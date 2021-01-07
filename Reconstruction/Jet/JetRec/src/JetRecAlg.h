@@ -4,7 +4,7 @@
 */
 
 ////////////////////////////////////////////////////
-/// \class JetRecAlg 
+/// \class JetRecAlg
 ///
 /// Algorithm tasked to create a single JetContainer
 /// This algorithm makes use of 2 types of tools :
@@ -29,9 +29,9 @@
 
 class IJetExecuteTool;
 
-class JetRecAlg : public AthReentrantAlgorithm { 
+class JetRecAlg : public AthReentrantAlgorithm {
 
-public: 
+public:
 
   using AthReentrantAlgorithm::AthReentrantAlgorithm;
 
@@ -46,11 +46,10 @@ private:
   ToolHandle<IJetProvider> m_jetprovider ={this , "Provider" , {} , "Tool providing the jets (fastjet, copy, grooming...)"};
   ToolHandleArray<IJetModifier> m_modifiers = {this , "Modifiers", {}, "moment calculators" };
   SG::WriteHandleKey<xAOD::JetContainer> m_output= {this, "OutputContainer", "AntiKt4LCtopoJets", "The output jet container name"};
-#if !defined (GENERATIONBASE) && !defined (XAOD_STANDALONE)
+#if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 #endif
 
-}; 
+};
 
 #endif
-

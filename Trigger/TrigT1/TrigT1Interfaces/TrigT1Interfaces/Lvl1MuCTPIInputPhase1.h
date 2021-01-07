@@ -68,10 +68,14 @@ namespace LVL1MUONIF {
 
 
       const Lvl1MuSectorLogicDataPhase1& getSectorLogicData( size_t systemAddress,
-                                                       size_t subSystemAddress,
-                                                       size_t sectorAddress,
-						       int    bcid=0        ) const;
-
+							     size_t subSystemAddress,
+							     size_t sectorAddress,
+							     int    bcid=0        ) const;
+      std::shared_ptr<Lvl1MuSectorLogicDataPhase1> getSectorLogicDataPtr( size_t systemAddress,
+									  size_t subSystemAddress,
+									  size_t sectorAddress,
+									  int    bcid=0        );
+      
       void setSectorLogicData( const Lvl1MuSectorLogicDataPhase1& data,
                                size_t systemAddress,
                                size_t subSystemAddress,
@@ -126,7 +130,6 @@ namespace LVL1MUONIF {
      typedef std::vector<std::shared_ptr <Lvl1MuSectorLogicDataPhase1> > Lvl1MuVect;
      typedef std::pair<int, Lvl1MuVect>  Lvl1MuVectWithBC; 
      std::vector<Lvl1MuVectWithBC> m_data[ NumberOfMuonSystem ];
-
    }; // class Lvl1MuCTPIInputPhase1
    
    inline size_t Lvl1MuCTPIInputPhase1::idBarrelSystem() { return Barrel; }

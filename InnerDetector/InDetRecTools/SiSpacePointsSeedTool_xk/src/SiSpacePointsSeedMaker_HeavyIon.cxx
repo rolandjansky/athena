@@ -1743,3 +1743,10 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::initializeEventData(EventData& data
                   SizeRFZV,
                   false); // checkEta not used
 }
+
+void InDet::SiSpacePointsSeedMaker_HeavyIon::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_HeavyIon::getWriteNtupleBoolProperty() const{
+    return false;
+}

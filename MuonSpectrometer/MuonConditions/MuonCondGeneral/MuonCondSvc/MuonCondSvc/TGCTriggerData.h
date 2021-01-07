@@ -11,11 +11,72 @@
 #include <map>
 #include <vector>
 
+
+/** Contents of Run-2 BW-CW LUT
+ *  ===========================
+ *   std::unordered_map<GLOBALADDR, PTVALUE>
+ *  where
+ *   GLOBALADDR | 27 bits | unsigned int  | side, octant, type, phimod2, module, roi,
+ *                                        | DR(0...0x1f for -15...15)<<4 & DPhi(0...0xf for -7...7)
+ *   PTVALUE    |  3 bits | unsigned char | pT value (0x0 and 0x7 is no cand.)
+ *
+ *  for GLOBALADDR
+ *  | 29 |28|27|26|25|24|23|   22  |21|20|19|18|17|16|15|14|13|12|11|10| 9| 8| 7| 6| 5| 4| 3| 2| 1| 0|
+ *  |side| octant | 0|type |phimod2|  module   |          RoI          | 0|   delta R    | delta Phi |
+ *  where side   = 0x0 (A-side), 0x1 (C-side).
+ *        octant = 0x(0...7)
+ *        type   = 0x0 (HH), 0x1 (HL), 0x2 (LH), 0x3 (LL): HL means 3-station-wire and 2-station-strip.
+ */
+
 class TGCTriggerData
 {
  friend class TGCTriggerDbAlg;
 
  public:
+  /// Mask for extracting the side from the GLOBALADDR
+  static constexpr uint8_t SIDE_MASK = 0x1;
+  /// Bit position of the side bit in the GLOBALADDR
+  static constexpr uint8_t SIDE_SHIFT = 29;
+  /// Mask for extracting the octant from the GLOBALADDR
+  static constexpr uint8_t OCTANT_MASK = 0x7;
+  /// Bit position of the octant bits in the GLOBALADDR
+  static constexpr uint8_t OCTANT_SHIFT = 26;
+  /// Mask for extracting the octant from the GLOBALADDR
+  static constexpr uint8_t TYPE_MASK = 0x7;
+  /// Bit position of the octant bits in the GLOBALADDR
+  static constexpr uint8_t TYPE_SHIFT = 26;
+  /// Mask for extracting the phi(F or B) from the GLOBALADDR
+  static constexpr uint8_t PHIMOD2_MASK = 0x1;
+  /// Bit position of the module number bits in the GLOBALADDR
+  static constexpr uint8_t PHIMOD2_SHIFT = 22;
+  /// Mask for extracting the module number from the GLOBALADDR
+  static constexpr uint8_t MODULE_MASK = 0xf;
+  /// Bit position of the module number bits in the GLOBALADDR
+  static constexpr uint8_t MODULE_SHIFT = 18;
+  /// Mask for extracting the module number from the GLOBALADDR
+  static constexpr uint8_t ROI_MASK = 0xff;
+  /// Bit position of the module number bits in the GLOBALADDR
+  static constexpr uint8_t ROI_SHIFT = 10;
+  /// Mask for extracting the deltaR from the GLOBALADDR
+  static constexpr uint8_t DR_MASK = 0x1f;
+  /// Bit position of the deltaR bits in the GLOBALADDR
+  static constexpr uint8_t DR_SHIFT = 4;
+  /// Mask for extracting the deltaPhi from the GLOBALADDR
+  static constexpr uint8_t DPHI_MASK = 0xf;
+  /// Bit position of the deltaPhi bits in the GLOBALADDR
+  static constexpr uint8_t DPHI_SHIFT = 0;
+  /// Mask for pT value for Run-2
+  static constexpr uint8_t PT_MASK = 0x7;
+
+  /// Range of DR in the BW coincidence window for 3-station
+  static constexpr uint8_t DR_HIGH_RANGE = 15;
+  /// Range of DR in the BW coincidence window for 2-station
+  static constexpr uint8_t DR_LOW_RANGE = 7;
+  /// Range of DPhi in the BW coincidence window for 3-station
+  static constexpr uint8_t DPHI_HIGH_RANGE = 7;
+  /// Range of DPhi in the BW coincidence window for 2-station
+  static constexpr uint8_t DPHI_LOW_RANGE = 3;
+
   enum {CW_BW=0, CW_EIFI=1, CW_TILE=2, CW_NUM=3};
   enum {N_PT_THRESH=6,
         N_SIDE=2,
@@ -40,7 +101,9 @@ class TGCTriggerData
   std::string getType(int cwtype, int channel = 0) const;
   bool isActive(int cwtype, int channel = 0) const;
 
-  const std::map<unsigned short, std::map<unsigned short, unsigned char>>& getPtMapBw(const unsigned char side, const unsigned char octant) const;
+  int8_t getTYPE(const int16_t lDR, const int16_t hDR, const int16_t lDPhi, const int16_t hDPhi) const;
+
+  uint8_t getBigWheelPt(const uint32_t addr) const;
 
   unsigned short getTrigBitEifi(int side, int slot, int ssc, int sectorId) const;
   unsigned char getFlagPtEifi(int side, int ssc, int sectorId) const;
@@ -58,24 +121,8 @@ class TGCTriggerData
   std::vector<std::string> m_type[CW_NUM];
   std::vector<bool>        m_active[CW_NUM];
 
-  /** Contents of Run-2 BW-CW LUT
-   *  ===========================
-   *     map<OCTANT, map<SUBSECADDR, map<DELTAADDR, PTVALUE> > >
-   *  where
-   *   OCTANT     |  4 bits | unsigned char  | side(A=0, C=1)<<3 & octant(0...7)
-   *   SUBSECADDR | 16 bits | unsigned short | consists of type, phimod2, module, and roi
-   *   DELTAADDR  |  9 bits | unsigned short | DR(0...0x1f for -15...15)<<4 & DPhi(0...0xf for -7...7)
-   *   PTVALUE    |  3 bits | unsigned char  | pT value (0x0 and 0x7 is no cand.)
-   *
-   *  for SUBSECADDR
-   *  | 15 | 14 | 13 |    12   | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
-   *  |  0 |  type   | phimod2 |      module     |              RoI              |
-   *  where type = 0x0 (HH), 0x1 (HL), 0x2 (LH), 0x3 (LL): HL means 3-station-wire and 2-station-strip.
-   *  This may reduce the malloc size when the fullCW option is not used.
-   */
-  std::map<unsigned char, std::map<unsigned short, std::map<unsigned short, unsigned char>>> m_ptmap_bw;
-
-//  std::map<int, std::map<int,int> > m_readmap_bw[N_SIDE][N_OCTANT][N_PT_THRESH];
+  /// Run-2 BW-CW LUT map
+  std::unordered_map<uint32_t, uint8_t> m_ptmap_bw;
 
   /** Bit information of Run-2 EIFI-LUT
    *  =================================

@@ -8,9 +8,12 @@
 
 #include <vector>
 #include <list>
+#include <map>
+#include <string>
+#include <utility>
 
 namespace TrigConf {
-  class TriggerThreshold;
+  class L1Menu;
 }
 
 namespace LVL1MUONIF {
@@ -27,20 +30,26 @@ namespace LVL1MUCTPIPHASE1 {
     TriggerProcessor();
     ~TriggerProcessor();
 
-    void setThresholds(const std::vector<TrigConf::TriggerThreshold*>& thresholds);
+    void setMenu(const TrigConf::L1Menu* l1menu);
     void mergeInputs(std::vector<LVL1MUONIF::Lvl1MuCTPIInputPhase1*> inputs);
     void computeMultiplicities(int bcid);
     void makeTopoSelections();
     const std::vector<unsigned int>& getCTPData();
-    const std::vector<unsigned int>& getDAQData();
+
+    //subsystem - daq word pairs
+    const std::vector<std::pair<int, unsigned int> >& getDAQData();
 
   private:
 
+    std::vector<std::string> parseString(std::string str, std::string sep);
+
     std::vector<unsigned int> m_ctp_words;
-    std::vector<unsigned int> m_daq_data;
+    std::vector<std::pair<int, unsigned int> > m_daq_data;
 
     LVL1MUONIF::Lvl1MuCTPIInputPhase1* m_mergedInputs;
-    std::vector<TrigConf::TriggerThreshold*> m_thresholds;
+    const TrigConf::L1Menu* m_l1menu;
+
+    std::map<std::string, std::vector<std::vector<std::string> > > m_parsed_tgcFlags;
   };
 }
 

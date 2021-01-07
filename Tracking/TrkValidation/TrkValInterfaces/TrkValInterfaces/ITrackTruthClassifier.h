@@ -33,9 +33,9 @@ class ITrackTruthClassifier : virtual public IAlgTool {
     
     /** explain */
     virtual void initClassification(const McEventCollection&,
-                                    const std::vector<const HepMC::GenParticle *>*) const=0;
+                                    const std::vector<HepMC::ConstGenParticlePtr>*) const=0;
 
-    virtual unsigned int classify(const HepMC::GenParticle&) const = 0;
+    virtual unsigned int classify(HepMC::ConstGenParticlePtr) const = 0;
 
     virtual std::string nameOfClassifier() const = 0;
 

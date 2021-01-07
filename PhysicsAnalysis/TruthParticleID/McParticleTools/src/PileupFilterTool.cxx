@@ -220,11 +220,8 @@ StatusCode PileupFilterTool::selectSpclMcBarcodes()
      HepMC::GenEvent::particle_const_iterator partE = genEvent->particles_end();
      for ( ; part != partE; ++part ) {
         const int id      = (*part)->pdg_id();
-        //const int ida     = std::abs(id);
         const HepMC::FourVector hlv = (*part)->momentum();
         const double pt   = hlv.perp();
-        //const double eta  = hlv.pseudoRapidity();
-        //const double mass = hlv.m();
         const int barcode = (*part)->barcode();
         const HepMC::GenVertex * decayVtx = (*part)->end_vertex();
         const HepMC::GenVertex * prodVtx  = (*part)->production_vertex();

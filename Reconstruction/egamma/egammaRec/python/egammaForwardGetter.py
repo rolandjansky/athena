@@ -47,11 +47,11 @@ egammaForwardBuilder = AlgFactory(
 
 
 class egammaForwardGetter (Configured):
-
+    
     def configure(self):
         mlog = logging.getLogger('egammaForwardGetter.py::configure:')
         mlog.info('entering')
-
+        
         # configure egammaForward here:
         try:
             self._egammaFwdBuilderHandle = egammaForwardBuilder()
@@ -59,7 +59,21 @@ class egammaForwardGetter (Configured):
             mlog.error("could not get handle to egammaForward")
             traceback.print_exc()
             return False
+            
+            # the egammaLargeFWDClusterMaker
+            # (Which chooses the cells to store in the AOD)
+        from egammaAlgs.egammaLargeFWDClusterMakerAlg import (
+            egammaLargeFWDClusterMakerAlg)
+        try:
+            self._egammaLargeClusterMaker = egammaLargeFWDClusterMakerAlg()
+        except Exception:
+            mlog.error("could not get handle to egammaLargeClusterMaker")
+            import traceback
+            traceback.print_exc()
+            return False
+                
         return True
-
+                
     def egammaFwdBuilderHandle(self):
         return self._egammaFwdBuilderHandle
+                    

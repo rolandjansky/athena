@@ -249,17 +249,15 @@ namespace top {
     if (m_config->jetSubstructureName() == "SubjetMaker") m_jetSubstructure.reset(new top::SubjetMaker);
 
     ///-- Large R jet truth labeling --///
-//    m_jetTruthLabelingTool = nullptr;
-//    if (m_config->isMC() && m_config->useLargeRJets()) {
-//      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
-//      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
-//      if (m_config->getDerivationStream() == "PHYS") {
-//        top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//        top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
-//      }
-//      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
-//    }
+    m_jetTruthLabelingTool = nullptr;
+    if (m_config->isMC() && m_config->useLargeRJets()) {
+      m_jetTruthLabelingTool = std::unique_ptr<JetTruthLabelingTool>(new JetTruthLabelingTool("JetTruthLabeling"));
+      // For DAOD_PHYS we need to pass few more arguments as it uses TRUTH3
+      top::check(m_jetTruthLabelingTool->setProperty("UseTRUTH3", true), "Failed to set UseTRUTH3 for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthBosonContainerName", "TruthBoson"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->setProperty("TruthTopQuarkContainerName", "TruthTop"), "Failed to set truth container name for m_jetTruthLabelingTool");
+      top::check(m_jetTruthLabelingTool->initialize(), "Failed to initialize m_jetTruthLabelingTool");
+   }
 
     // set the systematics list
     m_config->systematicsJets(specifiedSystematics());
@@ -383,7 +381,13 @@ namespace top {
 
     ///-- Apply calibration --///
     ///-- Calibrate jet container --///
-    top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)), "Failed to applyCalibration");
+    if (isLargeR) {
+      top::check(m_jetCalibrationToolLargeR->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on large-R jets");
+    } else {
+      top::check(m_jetCalibrationTool->applyCalibration(*(shallow_xaod_copy.first)),
+          "Failed to do applyCalibration on small-R jets");
+    }
 
     ///-- Loop over the xAOD Container --///
     for (const auto jet : *(shallow_xaod_copy.first)) {

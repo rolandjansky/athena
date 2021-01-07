@@ -132,10 +132,24 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
 def decodeCfg(flags, RoIs):
     acc = ComponentAccumulator()
+
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RegSelTool_RPC = acc.popToolsAndMerge(regSelTool_RPC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    RegSelTool_TGC = acc.popToolsAndMerge(regSelTool_TGC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
+
     # Get RPC BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
     rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
+    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
     acc.merge( rpcAcc )
 
     # Get RPC BS->RDO convertor
@@ -148,6 +162,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
     tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
+    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
     acc.merge( tgcAcc )
 
     # Get TGC BS->RDO convertor
@@ -160,6 +175,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
     mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
+    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
     acc.merge( mdtAcc )
 
     # Get MDT BS->RDO convertor
@@ -172,6 +188,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
     cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
     acc.merge( cscAcc )
 
     # Get CSC BS->RDO convertor
@@ -377,7 +394,7 @@ def generateChains( flags, chainDict ):
         recoCB.mergeReco(muonCombCfg)
 
         muonCreatorCBCfg = MuonCreatorAlgCfg(muonflags, name="TrigMuonCreatorAlgCB_RoI", MuonCandidateLocation="MuonCandidates", TagMaps=["muidcoTagMap"], 
-                                            InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "CBSegments", 
+                                            InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                             ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_RoI")
         recoCB.mergeReco(muonCreatorCBCfg)
 

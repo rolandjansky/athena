@@ -34,13 +34,15 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
                 'smchi': 'inf',                
                 'jvtlo': '0',
                 'jvthi': 'inf',
+                'htlo' : '1000.',
+                'hthi' : 'inf',
     }
 
     if parameter.startswith('mom'):
         parameter = 'momCuts'
 
     if parameter not in  defaults:
-        print ('defaultParameters: unknown parameter, tryurning default ',
+        print ('defaultParameters: unknown parameter, returning default ',
                parameter)
 
     return defaults.get(parameter, default)
@@ -284,6 +286,47 @@ class TreeParameterExpander_simple(object):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
 
+class TreeParameterExpander_agg(object):
+    """Convert parameter string into duction holding low, high window
+        cut vals, as for the  'simple' scenario. Then place conditions
+        not in the agg list in the filters dict. These conditions wil be used
+        to select the subset of the jet collection to be presented to the agg
+        conditions."""
+
+    agg_conditions = ('ht',)
+    
+    def __init__(self):
+        self.msgs = []
+
+    def mod(self, node):
+
+        simple_expander = TreeParameterExpander_simple()
+        simple_expander.mod(node)
+
+        # example conf_attrs:
+        # conf_attrs [3]:
+        # (defaultdict(<class 'dict'>,
+        #              {'ht': {'min': '1000000.0', 'max': 'inf'}}), 1)
+        # (defaultdict(<class 'dict'>,
+        #              {'et': {'min': '30000.0', 'max': 'inf'}}), 1)
+        # (defaultdict(<class 'dict'>,
+        #             {'eta': {'min': '0.0', 'max': '3.2'}}), 1)
+
+
+        for ca in node.conf_attrs:
+            assert len(ca) == 2  # (dict, mult)
+            assert len(ca[0]) == 1  # one entry in dict
+            ca_keys = ca[0].keys()
+            cond_name = list(ca_keys)[0]
+            if cond_name not in self.agg_conditions:
+                node.filter_conditions.append(ca)
+        for fc in node.filter_conditions:
+            node.conf_attrs.remove(fc)
+
+    def report(self):
+        return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
+
+
 class TreeParameterExpander_dijet(object):
     """Convert parameter string into tuples holding low, high window
     cut vals. Specialistaion for the dijet scenario
@@ -360,7 +403,7 @@ class TreeParameterExpander(object):
         'z': TreeParameterExpander_null,
         'root': TreeParameterExpander_null,
         'simple': TreeParameterExpander_simple,
-        'ht': TreeParameterExpander_simple,
+        'agg': TreeParameterExpander_agg,
         'dijet': TreeParameterExpander_dijet,
         'qjet': TreeParameterExpander_simple,
         'all': TreeParameterExpander_all,

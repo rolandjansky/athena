@@ -166,25 +166,25 @@ StatusCode AuxDiscoverySvc::receiveStore(const IAthenaSerializeSvc* serSvc, cons
       return(StatusCode::SUCCESS);
    }
    Guid classId;
-   classId.fromString(static_cast<char*>(buffer));
+   classId.fromString(static_cast<const char*>(buffer));
    if (!ipcTool->getObject(&buffer, nbytes, num).isSuccess() || nbytes == 0) {
       return(StatusCode::FAILURE);
    }
-   const std::string contName = std::string(static_cast<char*>(buffer));
+   const std::string contName = std::string(static_cast<const char*>(buffer));
    if (classId != Guid::null() && this->getAuxStore(obj, classId, contName)) {
-      void* attrName = nullptr;
-      void* typeName = nullptr;
-      void* elemName = nullptr;
+      void* nameData = nullptr;
       // StreamingTool owns buffer, will stay around until last dynamic attribute is copied
-      while (ipcTool->getObject(&attrName, nbytes, num).isSuccess() && nbytes > 0 &&
-	      ipcTool->getObject(&typeName, nbytes, num).isSuccess() && nbytes > 0 &&
-	      ipcTool->getObject(&elemName, nbytes, num).isSuccess() && nbytes > 0) {
+      while (ipcTool->getObject(&nameData, nbytes, num).isSuccess() && nbytes > 0) {
+         const char* del1 = static_cast<const char*>(memchr(nameData, '\n', nbytes));
+         const char* del2 = static_cast<const char*>(memchr(del1 + 1, '\n', nbytes - (del1 - static_cast<const char*>(nameData) - 1)));
+         const std::string dataStr(static_cast<const char*>(nameData));
+         const std::string& attrName = dataStr.substr(0, del1 - static_cast<const char*>(nameData));
+         const std::string& typeName = dataStr.substr(del1 - static_cast<const char*>(nameData) + 1, del2 - del1 - 1);
+         const std::string& elemName = dataStr.substr(del2 - static_cast<const char*>(nameData) + 1);
          if (ipcTool->getObject(&buffer, nbytes, num).isSuccess()) {
-            SG::auxid_t auxid = this->getAuxID(static_cast<char*>(attrName),
-	            static_cast<char*>(elemName),
-	            static_cast<char*>(typeName));
+            SG::auxid_t auxid = this->getAuxID(attrName, elemName, typeName);
             if (auxid != SG::null_auxid) {
-              const RootType type(std::string(static_cast<char*>(typeName)));
+              const RootType type(typeName);
               void* dynAttr = nullptr;
               if (type.IsFundamental()) {
                 dynAttr = new char[nbytes];
@@ -218,12 +218,8 @@ StatusCode AuxDiscoverySvc::sendStore(const IAthenaSerializeSvc* serSvc,
       }
    }
    for (SG::auxid_set_t::const_iterator iter = auxIDs.begin(), last = auxIDs.end(); iter != last; iter++) {
-      const std::string& attrName = this->getAttrName(*iter);
-      const std::string& typeName = this->getTypeName(*iter);
-      const std::string& elemName = this->getElemName(*iter);
-      if (!ipcTool->putObject(attrName.c_str(), attrName.size() + 1, num).isSuccess() ||
-	      !ipcTool->putObject(typeName.c_str(), typeName.size() + 1, num).isSuccess() ||
-	      !ipcTool->putObject(elemName.c_str(), elemName.size() + 1, num).isSuccess()) {
+      const std::string& dataStr = this->getAttrName(*iter) + "\n" + this->getTypeName(*iter) + "\n" + this->getElemName(*iter);
+      if (!ipcTool->putObject(dataStr.c_str(), dataStr.size() + 1, num).isSuccess()) {
          return(StatusCode::FAILURE);
       }
       const std::type_info* tip = this->getType(*iter);

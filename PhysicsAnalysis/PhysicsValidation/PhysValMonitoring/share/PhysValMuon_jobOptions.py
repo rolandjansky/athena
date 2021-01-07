@@ -7,26 +7,10 @@ from RecExConfig.RecFlags import rec as recFlags
 tool1 = MuonPhysValMonitoring__MuonPhysValMonitoringTool( name = 'muphysval' )
 tool1.IsData = not recFlags.doTruth()
 
-#
-tool1.MuonContainerName = 'Muons'
+#add if you need any of the following containers
+#tool1.FwdTrackContainerName='InDetForwardTrackParticles'
 tool1.SlowMuonContainerName = ''
-tool1.MuonTruthParticleContainerName = 'MuonTruthParticles'
-tool1.DoBinnedResolutionPlots = True
 
-#comment out if you don't need any of the following containers
-tool1.TrackContainerName = 'InDetTrackParticles'
-# #tool1.FwdTrackContainerName='InDetForwardTrackParticles'
-tool1.MuonTrackContainerName = 'MuonSpectrometerTrackParticles'
-tool1.MuonExtrapolatedTrackContainerName = 'ExtrapolatedMuonTrackParticles'
-tool1.MuonOnlyExtrapolatedTrackContainerName = 'MSOnlyExtrapolatedMuonTrackParticles'
-tool1.MuonSegmentContainerName = 'MuonSegments'
-
-
-#tool1.MuonTruthParticleContainerName = 'MuonTruthParticle' # uncomment for release 19
-# tool1.DoTrigMuonValidation =True
-# tool1.DoTrigMuonEFValidation = True
-# tool1.DoTrigMuonL2Validation = True
-# tool1.DoTrigMuonL1Validation = True
 tool1.SelectHLTMuonItems = [
   ["HLT_mu20","L1_MU20"],
   ["HLT_mu20_iloose_L1MU15","L1_MU15"],
@@ -54,8 +38,10 @@ tool1.SelectMuonWorkingPoints = [ 1 ]
 tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8, 9 ]
 
 #Select Muon Categories... (origin of muons, empty: all categories, 0: ALL, 1: PROMPT, 2: IN-FLIGHT, 3: NON-ISOLATED, 4: REST)
-#tool1.SelectMuonCategories = [ 0, 1, 2, 3, 4 ] # all possible categories
 tool1.SelectMuonCategories = [ 0, 1 ] # lighter version, good for official validation tasks overriden when in data mode
+
+if not recFlags.doTruth():
+    tool1.SelectMuonCategories = [0, 1, 4]
 
 from IsolationSelection.IsolationSelectionConf import CP__IsolationSelectionTool
 IsolationTool = CP__IsolationSelectionTool( "IsolationSelectionTool",

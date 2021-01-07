@@ -22,17 +22,25 @@ public:
   CaloBadChanTool(const std::string& type, const std::string& name, 
 		  const IInterface* parent);
 
-  virtual ~CaloBadChanTool();
+  virtual ~CaloBadChanTool() override;
 					  
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
-  virtual CaloBadChannel caloStatus( Identifier id) const;
-
+  using ICaloBadChanTool::caloStatus;
+  virtual CaloBadChannel caloStatus(const EventContext& ctx,
+                                    Identifier id) const override;
 
 private:
-
-  SG::ReadCondHandleKey<LArBadChannelCont> m_larBCKey{this, "LArBadChanKey", "LArBadChannel", "LAr bad channel SG key"};
-  ToolHandle<ICaloBadChanTool> m_tileBCT{this, "TileBadChanTool", "TileBadChanTool", "Tile bad channel tool"};
+  SG::ReadCondHandleKey<LArBadChannelCont> m_larBCKey{
+    this,
+    "LArBadChanKey",
+    "LArBadChannel",
+    "LAr bad channel SG key"
+  };
+  ToolHandle<ICaloBadChanTool> m_tileBCT{ this,
+                                          "TileBadChanTool",
+                                          "TileBadChanTool",
+                                          "Tile bad channel tool" };
   const CaloCell_ID* m_caloID;
 };
 

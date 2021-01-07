@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagTrackD3PDObject.py
@@ -6,8 +6,6 @@
 ## @author Georges Aad
 ## @date Nov, 2010
 ##
-import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 from TrackD3PDMaker.TrackD3PDMakerFlags import TrackD3PDFlags
 from TrackD3PDMaker.xAODTrackD3PDObject import xAODTrackD3PDObject
 from RecExConfig.RecFlags import rec
@@ -15,7 +13,6 @@ from RecExConfig.RecFlags import rec
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 from JetTagD3PDMaker.JetTagD3PDMakerFlags import JetTagD3PDFlags
 from TruthD3PDMaker.TruthD3PDMakerFlags import TruthD3PDFlags
-from TruthD3PDMaker.TruthD3PDMakerKeys import TruthD3PDKeys
 
 ## configure TrackD3PDFlags before calling this function
 ##eg:
@@ -45,7 +42,7 @@ def getJetTagTrackD3PDObject(level=20, **kw):
     if not rec.doTruth:
         TrackD3PDFlags.doTruth = False
 
-    if TruthD3PDFlags.GenParticleAssocLabel() == None or TruthD3PDFlags.GenParticleAssocLabel() == "":
+    if TruthD3PDFlags.GenParticleAssocLabel() is None or TruthD3PDFlags.GenParticleAssocLabel() == "":
         TrackD3PDFlags.doTruth = False
         
  

@@ -1,242 +1,147 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
-#           Setup of precision tracking
+#           Setup of offline pattern recognition tracking for ID Trigger
+#Heavily inspired by the offline version:
+#https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
 
 from __future__ import print_function
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
 include("InDetTrigRecExample/InDetTrigRec_jobOptions.py") # this is needed to get InDetTrigFlags
-#from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 from AthenaCommon.Logging import logging 
 log = logging.getLogger("EFIDTracking")
 
-#Start using already decided naming conventions
-#TODO: remap might not be needed in the end once this is consistent with FTF configuration
-#def remap_signature( signature ):
-#   if signature == 'electron':
-#       return 'Electron'
-#   else:
-#        return signature
 
-#def makeInDetPrecisionTracking( whichSignature, verifier = False, inputFTFtracks='TrigFastTrackFinder_Tracks', outputTrackPrefixName = "HLT_ID", rois = 'EMViewRoIs' ):
-#  doTRTextension = False 
-#  ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
-
-
-  #-----------------------------------------------------------------------------
-  #                        Naming conventions
-
-
-
-
-
-  #-----------------------------------------------------------------------------
-  #                        Verifying input data for the algorithms
-  
-  #If run in views need to check data dependancies!
-  #NOTE: this seems necessary only when PT is called from a different view than FTF otherwise causes stalls
-#  if verifier:
-#         verifier.DataObjects += [  ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' ),
-#                                  ( 'TrackCollection' , 'StoreGateSvc+' + inputFTFtracks ) ] 
-      
-  
-  #-----------------------------------------------------------------------------
-  #                        Pattern recognition stage
-#def __init__(self, InputCollections = None, ResolvedTrackCollectionKey = None, SiSPSeededTrackCollectionKey = None , NewTrackingCuts = None, TrackCollectionKeys=[] , TrackCollectionTruthKeys=[]):
-
-#Start using already decided naming conventions
-#TODO: remap might not be needed in the end once this is consistent with FTF configuration
-#TODO unify with PT remap
-#def remap_signature( signature ):
-#   if signature == 'electron':
-#       return 'Electron'
-#   else:
-#        return signature
-
-
-def makeInDetPatternRecognition( whichSignature, rois = 'EMViewRoIs', InputCollections=None,  NewTrackingCuts = None ):
-      from InDetRecExample.InDetJobProperties import InDetFlags
-      #Global keys/names for collections 
-      from InDetRecExample.InDetKeys          import InDetKeys #FIXME: to be replaced with Trig keys?
-      from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
-
-      from AthenaCommon.DetFlags import DetFlags
-
-      from AthenaCommon.AppMgr import ToolSvc
-
-      prefix     = 'InDetTrigMT'
-      suffix =  '_%s'%whichSignature if whichSignature else '' 
-      #Final output track collection
-      #SiSPSeededTrackCollectionKey = "SiSPSeededTracks_%s"%whichSignature 
-      outEFIDTracks             = "HLT_IDTrkTrack_%s_%s"         %( whichSignature, 'EFID')
-      outEFIDTrackParticles     = "HLT_IDTrack_%s_%s"            %( whichSignature, 'EFID')
+#Create a view verifier for necessary data collections
+def get_idtrig_view_verifier(name):
+   import AthenaCommon.CfgMgr as CfgMgr
+   from AthenaCommon.GlobalFlags import globalflags
+   from .InDetTrigCollectionKeys import  TrigPixelKeys, TrigSCTKeys
+   from InDetRecExample.InDetKeys import InDetKeys
+   from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
+   viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
+   viewDataVerifier.DataObjects = [
+                                     ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
+                                     ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
+                                     ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
+                                     ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
+                                     ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
+                                     ]
+   
+   viewDataVerifier.DataObjects += [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
+                                   ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
+                                   ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
+                                   ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
+                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
+                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
+                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
+                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+   
+   # Load RDOs if we aren't loading bytestream
+   from AthenaCommon.AlgSequence import AlgSequence
+   topSequence = AlgSequence()
+   
+   topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
+   
+   if not globalflags.InputFormat.is_bytestream():
+     viewDataVerifier.DataObjects +=   [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                        ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                        ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
+                                        ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() ), 
+                                        ( 'IDCInDetBSErrContainer',  'StoreGateSvc+SCT_FlaggedCondData' ),
+                                        ]
+   #   topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+   #                                      ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
+   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+   
+   return viewDataVerifier
 
 
+#Temporary fix before we port offline cuts to trigger code, we are using offline configuration
+def remapToOffline( name ):
+   if name == 'cosmics':
+      return 'Cosmic'
+   else:
+       return name
 
+def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       viewAlgs = [] #list of all algs running in this module
-      #
-      # --- decide if use the association tool
-      #
-      #FIXME: Make the same decision as offline (based on the tracking cuts)?
-      #if (len(InputCollections) > 0) and (NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0" or NewTrackingCuts.mode() == "BeamGas" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks"  or NewTrackingCuts.mode() == "Disappearing" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" or NewTrackingCuts.mode() == "SLHCConversionFinding"):
 
-      #Why not use association tool? what are the cases when not needed?
+      #Load necessary data
+      dataVerifier = None
+      #FIXME: Should not be necessary
+      if verifier:
+         dataVerifier = get_idtrig_view_verifier(verifier+config.name)
+         viewAlgs.append( dataVerifier )
+
+
+      #FIXME: For now id setup but eventually port parameters into ConfigSetting in TrigInDetConfig pkg
+      from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
+      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+      offName = remapToOffline( config.name )
+      trackingCuts = ConfiguredNewTrackingCuts( offName ) #FIXME: replace cosmic 
+      trackingCuts.__indetflags = InDetTrigFlags
+
+      #TODO: to be taken from config info
+      #prefix     = 'InDetTrigMT'
+      #suffix     = '_%s'%whichSignature if whichSignature else '' 
+
+      #outEFIDTracks             = "HLT_IDTrkTrack_%s_%s"         %( whichSignature, 'EFID')
+      #outEFIDTrackParticles     = "HLT_IDTrack_%s_%s"            %( whichSignature, 'EFID')
+
+
+      # --- decide if use the association tool
+      #FIXME: Make the same decision as offline (based on the tracking cuts)?
+      #Are all of these needed?
+      #if (len(InputCollections) > 0) and (trackingCuts.mode() == "LowPt" or trackingCuts.mode() == "VeryLowPt" or trackingCuts.mode() == "LargeD0" or trackingCuts.mode() == "LowPtLargeD0" or trackingCuts.mode() == "BeamGas" or trackingCuts.mode() == "ForwardTracks" or trackingCuts.mode() == "ForwardSLHCTracks"  or trackingCuts.mode() == "Disappearing" or trackingCuts.mode() == "VeryForwardSLHCTracks" or trackingCuts.mode() == "SLHCConversionFinding"):
       #usePrdAssociationTool = True
       #else:
-      usePrdAssociationTool = False
-
-
-      import InDetRecExample.TrackingCommon as TrackingCommon
+      usePrdAssociationTool = False #Keep false for now
+      #Do we actually need it?
       if usePrdAssociationTool:
+         from .InDetTrigCommon import prdAssociation_builder
          print ('Running SiSPseedTrackFinder!')
-         #FIXME: switch to naming based on tracking
+         InputCollections = None #Dummy atm
+         prdAssociation = prdAssociation_builder( InputCollections )
+         viewAlgs.append( prdAssociation )
 
-         #FIXME: If so:
-         # 1] Get a new association tool
-         #associationTool = TrackingCommon.getInDetTrigPRDtoTrackMapToolGangedPixels(),
 
-         # 2] Use the ganged pixel from here?
-         #from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPrdAssociationTool
-
-         # 3] Create the new one as in offline tracking:
-         InDetTrigPrdAssociation = TrackingCommon.getInDetTrackPRD_Association(namePrefix     = prefix,
-                                                                               nameSuffix     = suffix,
-                                                                               TracksName     = list(InputCollections))#This is readHandle #What input collection Thought there are no tracks at this point??! 
-         # 4] if so do I use normal or ganged?
-         #from InDetAssociationTools.InDetAssociationToolsConf import InDet__InDetPRD_AssociationToolGangedPixels
-         #InDetTrigPrdAssociationl = InDet__InDetPRD_AssociationToolGangedPixels(name = "%sPrdAssociationTool%s"%(prefix,suffix),
-         #                                                                          PixelClusterAmbiguitiesMapName = TrigPixelKeys.PRDtoTrackMap )
-         viewAlgs.append( InDetTrigPrdAssociation )
+      #-----------------------------------------------------------------------------
+      #                      Track building stage
 
 
       #FIXME? use trigger flags?
+      # What are the instances when we don't need this?
       #if InDetFlags.doSiSPSeededTrackFinder():
-      doSiSPSeededTrackFinder = True
+      doSiSPSeededTrackFinder = True #True by default to test this
       if doSiSPSeededTrackFinder:
          print ('Running SiSPseedTrackFinder!')
 
-         #FIXME: Need to add different options based on the 
-         from SiSpacePointsSeedTool_xk.SiSpacePointsSeedTool_xkConf import InDet__SiSpacePointsSeedMaker_ATLxk as SiSpacePointsSeedMaker
-
-
-         InDetSiSpacePointsSeedMaker = SiSpacePointsSeedMaker (      name                   = "%sInDetSpSeedsMaker%s"%(prefix, suffix), #+NewTrackingCuts.extension(),
-                                                                     pTmin                  = NewTrackingCuts.minPT(),
-                                                                     maxdImpact             = NewTrackingCuts.maxPrimaryImpact(),
-                                                                     maxZ                   = NewTrackingCuts.maxZImpact(),
-                                                                     minZ                   = -NewTrackingCuts.maxZImpact(),
-                                                                     usePixel               = NewTrackingCuts.usePixel(),
-                                                                     SpacePointsPixelName   = TrigPixelKeys.SpacePoints,
-                                                                     # useSCT                 = NewTrackingCuts.useSCT(),
-                                                                     useSCT                 = (NewTrackingCuts.useSCT() and NewTrackingCuts.useSCTSeeding()),
-                                                                     SpacePointsSCTName     = TrigSCTKeys.SpacePoints,
-                                                                     # useOverlapSpCollection = NewTrackingCuts.useSCT(),
-                                                                     useOverlapSpCollection = (NewTrackingCuts.useSCT() and NewTrackingCuts.useSCTSeeding()),
-                                                                     SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
-                                                                     radMax                 = NewTrackingCuts.radMax(),
-                                                                     RapidityCut            = NewTrackingCuts.maxEta())
-
-         ToolSvc += InDetSiSpacePointsSeedMaker
-         #FIXME consider specific settings here
-         #if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
-         #        InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
-         #        InDetSiSpacePointsSeedMaker.maxdImpactSSS = NewTrackingCuts.maxdImpactSSSSeeds()
-
-         if usePrdAssociationTool:
-         #   # not all classes have that property !!!
-            InDetSiSpacePointsSeedMaker.PRDtoTrackMap      = TrigPixelKeys.PRDtoTrackMap #InDetTrigPrdAssociationTool
-
-         #if not InDetFlags.doCosmics():
-         #   InDetSiSpacePointsSeedMaker.maxRadius1         = 0.75*NewTrackingCuts.radMax()
-         #   InDetSiSpacePointsSeedMaker.maxRadius2         = NewTrackingCuts.radMax()
-         #   InDetSiSpacePointsSeedMaker.maxRadius3         = NewTrackingCuts.radMax()
-         #if NewTrackingCuts.mode() == "LowPt" or NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-         #   try :
-         #      InDetSiSpacePointsSeedMaker.pTmax              = NewTrackingCuts.maxPT()
-         #   except:
-         #      pass 
-         #   InDetSiSpacePointsSeedMaker.mindRadius         = 4.0
-         #if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCConversionFinding":
-         #   InDetSiSpacePointsSeedMaker.minRadius1         = 0
-         #   InDetSiSpacePointsSeedMaker.minRadius2         = 0
-         #   InDetSiSpacePointsSeedMaker.minRadius3         = 0
-         #   InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
-         #   InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
-         #   InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
-         #if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
-         #   InDetSiSpacePointsSeedMaker.checkEta           = True
-         #   InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
-         #   InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
-         #   InDetSiSpacePointsSeedMaker.RapidityCut        = NewTrackingCuts.maxEta()
-         #if NewTrackingCuts.mode() == "DBM":
-         #   InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
-         #   InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
-         #   InDetSiSpacePointsSeedMaker.useDBM = True
- 
-
-
-         #Z finder for the vtx
-         #
-         # --- Z-coordinates primary vertices finder (only for collisions)
-         #
-         if InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM":
-            from SiZvertexTool_xk.SiZvertexTool_xkConf import InDet__SiZvertexMaker_xk
-            InDetZvertexMaker = InDet__SiZvertexMaker_xk(name          = '%sInDetZvertexMaker%s'%(prefix,suffix),
-                                                         Zmax          = NewTrackingCuts.maxZImpact(),
-                                                         Zmin          = -NewTrackingCuts.maxZImpact(),
-                                                         minRatio      = 0.17) # not default
-            InDetZvertexMaker.SeedMakerTool = InDetSiSpacePointsSeedMaker
-
-            if InDetFlags.doHeavyIon():
-               InDetZvertexMaker.HistSize = 2000
-               ###InDetZvertexMaker.minContent = 200 
-               InDetZvertexMaker.minContent = 30
-               
-            ToolSvc += InDetZvertexMaker
-            #if (InDetFlags.doPrintConfigurables()):
-            #   printfunc (InDetZvertexMaker)
-
-         else:
-            InDetZvertexMaker = None
-
-         #
-      #   # --- SCT and Pixel detector elements road builder
-      #   #
-         #FIXME which propagator
-         # 1] 
-         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigPropagator
-
-         # 2] How about offline
-
-         from SiDetElementsRoadTool_xk.SiDetElementsRoadTool_xkConf import InDet__SiDetElementsRoadMaker_xk
-         InDetSiDetElementsRoadMaker = InDet__SiDetElementsRoadMaker_xk(name               = '%sInDetSiRoadMaker%s'%(prefix,suffix),#+NewTrackingCuts.extension(),
-                                                                        PropagatorTool     = InDetTrigPropagator,#InDetPatternPropagator,
-                                                                        usePixel           = NewTrackingCuts.usePixel(),
-                                                                        PixManagerLocation = InDetKeys.PixelManager(),
-                                                                        useSCT             = NewTrackingCuts.useSCT(), 
-                                                                        SCTManagerLocation = InDetKeys.SCT_Manager(), #FIXME change the name?        
-                                                                        RoadWidth          = NewTrackingCuts.RoadWidth())
-
-         ToolSvc += InDetSiDetElementsRoadMaker
-         #if (InDetFlags.doPrintConfigurables()):
-         #   printfunc (     InDetSiDetElementsRoadMaker)
-         # Condition algorithm for InDet__SiDetElementsRoadMaker_xk
+         from AthenaCommon.DetFlags import DetFlags 
+         # --- Loading Pixel, SCT conditions
          if DetFlags.haveRIO.pixel_on():
-         #FIXME:
-         #pixelOn = True
-         #if pixelOn:
-             # Condition algorithm for SiCombinatorialTrackFinder_xk
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
-                from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-                condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name     = "InDetSiDetElementBoundaryLinksPixelCondAlg",
-                                                                      ReadKey  = "PixelDetectorElementCollection",
-                                                                      WriteKey = "PixelDetElementBoundaryLinks_xk",
-                                                                      UsePixelDetectorManager = True)
+               from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
+               condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name     = "InDetSiDetElementBoundaryLinksPixelCondAlg",
+                                                                     ReadKey  = "PixelDetectorElementCollection",
+                                                                     WriteKey = "PixelDetElementBoundaryLinks_xk",)
 
-         if NewTrackingCuts.useSCT():
+
+
+         if trackingCuts.useSCT():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
@@ -245,223 +150,88 @@ def makeInDetPatternRecognition( whichSignature, rois = 'EMViewRoIs', InputColle
 
             if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksSCTCondAlg"):
                from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiDetElementBoundaryLinksCondAlg_xk
-               condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name = "InDetSiDetElementBoundaryLinksSCTCondAlg",
-                                                                     ReadKey = "SCT_DetectorElementCollection",
-                                                                     WriteKey = "SCT_DetElementBoundaryLinks_xk")
+               condSeq += InDet__SiDetElementBoundaryLinksCondAlg_xk(name     = "InDetSiDetElementBoundaryLinksSCTCondAlg",
+                                                                  ReadKey  = "SCT_DetectorElementCollection",
+                                                                  WriteKey = "SCT_DetElementBoundaryLinks_xk")
+            #-------------------------------------------------------
 
 
-      #   #
-      #   # --- Local track finding using sdCaloSeededSSSpace point seed
-      #   #
-      #   # @TODO ensure that PRD association map is used if usePrdAssociationTool is set
-         is_dbm = InDetFlags.doDBMstandalone() or NewTrackingCuts.extension()=='DBM'
-         rot_creator_digital = TrackingCommon.getInDetRotCreatorDigital() if not is_dbm else TrackingCommon.getInDetRotCreatorDBM()
+         from .InDetTrigCommon import siSPSeededTrackFinder_builder, get_full_name
+         siSPSeededTrackFinder = siSPSeededTrackFinder_builder( name                  = get_full_name( 'siSPSeededTrackFinder', config.name ),
+                                                                outputTracks          = config.PT.trkTracksPT(),  # config.EFID.trkTracksEFID(), ##outEFIDTracks, 
+                                                                trackingCuts          = trackingCuts,
+                                                                usePrdAssociationTool = usePrdAssociationTool,
+                                                                nameSuffix            = config.name )
 
-
-         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSCTConditionsSummaryTool, InDetTrigPatternUpdator
-
-         from SiCombinatorialTrackFinderTool_xk.SiCombinatorialTrackFinderTool_xkConf import InDet__SiCombinatorialTrackFinder_xk
-         track_finder = InDet__SiCombinatorialTrackFinder_xk(name                  = '%sInDetSiComTrackFinder%s'%(prefix,suffix),#+NewTrackingCuts.extension(),
-                                                             PropagatorTool        = InDetTrigPropagator,#InDetPatternPropagator,
-                                                             UpdatorTool           = InDetTrigPatternUpdator,#InDetPatternUpdator,
-                                                             SctSummaryTool        = InDetTrigSCTConditionsSummaryTool,
-                                                             RIOonTrackTool        = rot_creator_digital,
-                                                             usePixel              = DetFlags.haveRIO.pixel_on(),
-                                                             useSCT                = DetFlags.haveRIO.SCT_on() if not is_dbm else False,
-                                                             PixelClusterContainer = TrigPixelKeys.Clusters,#InDetKeys.PixelClusters(),
-                                                             SCT_ClusterContainer  = TrigSCTKeys.Clusters )#InDetKeys.SCT_Clusters())
-
-         ToolSvc += track_finder
-         if is_dbm :
-            track_finder.MagneticFieldMode     = "NoField"
-            track_finder.TrackQualityCut       = 9.3
-
-         
-         #track_finder.SctSummaryTool = InDetTrigSCTConditionsSummaryTool
-         #if (DetFlags.haveRIO.SCT_on()):
-         #   track_finder.SctSummaryTool = InDetSCT_ConditionsSummaryTool
-         #else:
-         #   track_finder.SctSummaryTool = None
-
-      #   ToolSvc += track_finder
-
-         useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "DBM"
-         from SiTrackMakerTool_xk.SiTrackMakerTool_xkConf import InDet__SiTrackMaker_xk as SiTrackMaker
-         InDetSiTrackMaker = SiTrackMaker(name                          = '%sInDetSiTrackMaker%s'%(prefix,suffix),#+NewTrackingCuts.extension(),
-                                          useSCT                        = NewTrackingCuts.useSCT(),
-                                          usePixel                      = NewTrackingCuts.usePixel(),
-                                          RoadTool                      = InDetSiDetElementsRoadMaker,
-                                          CombinatorialTrackFinder      = track_finder,
-                                          pTmin                         = NewTrackingCuts.minPT(),
-                                          pTminBrem                     = NewTrackingCuts.minPTBrem(),
-                                          pTminSSS                      = InDetFlags.pT_SSScut(),
-                                          nClustersMin                  = NewTrackingCuts.minClusters(),
-                                          nHolesMax                     = NewTrackingCuts.nHolesMax(),
-                                          nHolesGapMax                  = NewTrackingCuts.nHolesGapMax(),
-                                          SeedsFilterLevel              = NewTrackingCuts.seedFilterLevel(),
-                                          Xi2max                        = NewTrackingCuts.Xi2max(),
-                                          Xi2maxNoAdd                   = NewTrackingCuts.Xi2maxNoAdd(),
-                                          nWeightedClustersMin          = NewTrackingCuts.nWeightedClustersMin(),
-                                          CosmicTrack                   = InDetFlags.doCosmics(),
-                                          Xi2maxMultiTracks             = NewTrackingCuts.Xi2max(), # was 3.
-                                          useSSSseedsFilter             = InDetFlags.doSSSfilter(),
-                                          doMultiTracksProd             = True,
-                                          useBremModel                  = InDetFlags.doBremRecovery() and useBremMode, # only for NewTracking the brem is debugged !!!
-                                          doCaloSeededBrem              = InDetFlags.doCaloSeededBrem(),
-                                          doHadCaloSeedSSS              = InDetFlags.doHadCaloSeededSSS(),
-                                          phiWidth                      = NewTrackingCuts.phiWidthBrem(),
-                                          etaWidth                      = NewTrackingCuts.etaWidthBrem(),
-                                          InputClusterContainerName     = InDetKeys.CaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                          InputHadClusterContainerName  = InDetKeys.HadCaloClusterROIContainer(), # "InDetCaloClusterROIs" 
-                                          UseAssociationTool            = usePrdAssociationTool)
-
-         ToolSvc += InDetSiTrackMaker
-
-      #FIXME: do only cosmics for now, but change later
-      #   if NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks" :
-      #      InDetSiTrackMaker.ITKGeometry = True
-
-      #   if NewTrackingCuts.mode() == "DBM":
-      #      InDetSiTrackMaker.MagneticFieldMode = "NoField"
-      #      InDetSiTrackMaker.useBremModel = False
-      #      InDetSiTrackMaker.doMultiTracksProd = False
-      #      InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'       
-      #      InDetSiTrackMaker.pTminSSS = -1
-      #      InDetSiTrackMaker.CosmicTrack = False
-      #      InDetSiTrackMaker.useSSSseedsFilter = False
-      #      InDetSiTrackMaker.doCaloSeededBrem = False
-      #      InDetSiTrackMaker.doHadCaloSeedSSS = False
-
-         #elif InDetFlags.doCosmics():
-         #  InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
-         InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_Cosmic'
+         print(siSPSeededTrackFinder)
+         viewAlgs.append( siSPSeededTrackFinder )
+      #-----------------------------------------------------------------------------
+      #                      Track particle conversion algorithm (for pattern rec.)
+      #                        atm disabled but might be useful later for debugging
       #
-      #   elif InDetFlags.doHeavyIon():
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_HeavyIon'
-      #   
-      #   elif NewTrackingCuts.mode() == "LowPt":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LowMomentum'
+      #from .InDetTrigCommon import trackParticleCnv_builder
+      #trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_EFID' ), 
+      #                                               config               = config,
+      #                                               inTrackCollectionKey = config.PT.trkTracksPT(),#config.EFID.trkTracksEFID(),
+      #                                               outTrackParticlesKey = config.EFID.tracksEFID( doRecord = config.isRecordable),
+      #                                               )
 
-      #   elif NewTrackingCuts.mode() == "VeryLowPt" or (NewTrackingCuts.mode() == "Pixel" and InDetFlags.doMinBias()):
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryLowMomentum'           
+      #-----------------------------------------------------------------------------
+      #                      Precision algorithms
 
-      #   elif NewTrackingCuts.mode() == "BeamGas":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_BeamGas'
- 
-      #   elif NewTrackingCuts.mode() == "ForwardTracks":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardTracks'
-
-      #   elif NewTrackingCuts.mode() == "ForwardSLHCTracks":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_ForwardSLHCTracks'
-
-      #   elif NewTrackingCuts.mode() == "VeryForwardSLHCTracks": 
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_VeryForwardSLHCTracks' 
-
-      #   elif NewTrackingCuts.mode() == "SLHCConversionFinding":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_SLHCConversionTracks'
-
-      #   elif NewTrackingCuts.mode() == "LargeD0" or NewTrackingCuts.mode() == "LowPtLargeD0":
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSpacePointsSeedMaker_LargeD0'
-      #  
-      #   else:
-      #     InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
-      #           
-         if InDetFlags.doStoreTrackSeeds():
-              from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool
-              InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool(name       = "%sInDet_SeedToTrackConversion%s"%(prefix, suffix),
-                                                                             OutputName = InDetKeys.SiSPSeedSegments()+NewTrackingCuts.extension())
-              InDetSiTrackMaker.SeedToTrackConversion = InDet_SeedToTrackConversion
-              InDetSiTrackMaker.SeedSegmentsWrite = True
-
-      #   #InDetSiTrackMaker.OutputLevel = VERBOSE             
-      #   ToolSvc += InDetSiTrackMaker
-      #   if (InDetFlags.doPrintConfigurables()):
-      #      printfunc (InDetSiTrackMaker)
-      #   #
-      #   # set output track collection name
-      #  #
-      #   self.__SiTrackCollection = SiSPSeededTrackCollectionKey
-      #   #
-      #   # --- Setup Track finder using space points seeds
-      #   #
-
-         #FIXME: which summary tool to use??
-         # trackSummaryTool = TrackingCommon.getInDetTrackSummaryToolNoHoleSearch()
-         #ToolSvc += trackSummaryTool
-         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigTrackSummaryTool
+      #Verifier should not be necessary when both patt. rec. and PT runs in the same view -> None
+      #Also provides particle cnv alg inside
+      precisionAlgs = makePrecisionInDetPatternRecognition(config      = config,
+                                                           inputTracks = config.PT.trkTracksPT(), #config.EFID.trkTracksEFID(),
+                                                           verifier    = None )
 
 
-         from SiSPSeededTrackFinder.SiSPSeededTrackFinderConf import InDet__SiSPSeededTrackFinder
-         InDetSiSPSeededTrackFinder = InDet__SiSPSeededTrackFinder(name                 = '%sInDetSiSpTrackFinder%s'%(prefix, suffix),# +NewTrackingCuts.extension(),
-                                                                    TrackTool           = InDetSiTrackMaker,
-                                                                    PRDtoTrackMap       = TrigPixelKeys.PRDtoTrackMap if usePrdAssociationTool else '',
-                                                                    SpacePointsPixelName= TrigPixelKeys.SpacePoints,
-                                                                    SpacePointsSCTName  = TrigSCTKeys.SpacePoints,
-                                                                    TrackSummaryTool    = InDetTrigTrackSummaryTool,
-                                                                    TracksLocation      = outEFIDTracks,
-                                                                    SeedsTool           = InDetSiSpacePointsSeedMaker,
-                                                                    useZvertexTool      = InDetFlags.useZvertexTool(),
-                                                                    ZvertexTool         = InDetZvertexMaker )
-
-         if NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks":
-                                                                    InDetSiSPSeededTrackFinder.useNewStrategy     = False
-                                                                    InDetSiSPSeededTrackFinder.useMBTSTimeDiff    = InDetFlags.useMBTSTimeDiff()
-                                                                    InDetSiSPSeededTrackFinder.useZBoundFinding   = False
-      #    if InDetFlags.doHeavyIon() :
-      #     InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-         else:
-                                                                    InDetSiSPSeededTrackFinder.useZvertexTool      = InDetFlags.useZvertexTool() and NewTrackingCuts.mode() != "DBM"
-                                                                    InDetSiSPSeededTrackFinder.useNewStrategy      = InDetFlags.useNewSiSPSeededTF() and NewTrackingCuts.mode() != "DBM"
-                                                                    InDetSiSPSeededTrackFinder.useMBTSTimeDiff     = InDetFlags.useMBTSTimeDiff()
-                                                                    InDetSiSPSeededTrackFinder.useZBoundFinding    = NewTrackingCuts.doZBoundary() and NewTrackingCuts.mode() != "DBM"   
+      viewAlgs += precisionAlgs
 
 
-
-         
-         viewAlgs.append( InDetSiSPSeededTrackFinder )
-         
-         #for alg in viewAlgs:
-         #   print alg
-
-      #    if InDetFlags.doHeavyIon() :
-      #     InDetSiSPSeededTrackFinder.FreeClustersCut = 2 #Heavy Ion optimization from Igor
-
-      #   #InDetSiSPSeededTrackFinder.OutputLevel =VERBOSE 
-      #   topSequence += InDetSiSPSeededTrackFinder
-      #   if (InDetFlags.doPrintConfigurables()):
-      #      printfunc (InDetSiSPSeededTrackFinder)
-
-      #   if not InDetFlags.doSGDeletion():
-      #      if InDetFlags.doTruth():
-      #         #
-      #         # set up the truth info for this container
-      #         #
-      #         include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-      #         InDetTracksTruth = ConfiguredInDetTrackTruth(self.__SiTrackCollection,
-      #                                                      self.__SiTrackCollection+"DetailedTruth",
-      #                                                      self.__SiTrackCollection+"TruthCollection")
-      #         #
-      #         # add final output for statistics
-      #         #
-      #         TrackCollectionKeys      += [ InDetTracksTruth.Tracks() ]
-      #         TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
-      #      else:
-      #         TrackCollectionKeys      += [ self.__SiTrackCollection ]
-      #         
+      return  viewAlgs, dataVerifier
 
 
-      #Convert final track collection to xAOD track particles
-      from .InDetTrigCommon import getTrackParticleCnv  
-      viewAlgs.append( getTrackParticleCnv( prefix, suffix + "_EFID", outEFIDTracks, outEFIDTrackParticles ) )
+#TODO: potentially  unify with makeInDetPrecisionTracking in the InDetPT.py?
+#TODO better name?
+def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
+   ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
+   
+   #-----------------------------------------------------------------------------
+   #                        Verifying input data for the algorithms
+   if verifier:
+     verifier.DataObjects += [ #( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+' + TrigPixelKeys.PixelClusterAmbiguitiesMap ),
+                               ( 'TrackCollection' , 'StoreGateSvc+' + inputTracks )]
+   
+   
+   #-----------------------------------------------------------------------------
+   #                        Ambiguity solving stage
+   from .InDetTrigCommon import ambiguityScoreAlg_builder, ambiguitySolverAlg_builder, get_full_name, get_scoremap_name
+   
+   ambiguityScoreAlg = ambiguityScoreAlg_builder( name                  = get_full_name(  core = 'TrkAmbiguityScore', suffix  = config.name ),
+                                                  config                = config,
+                                                  inputTrackCollection  = inputTracks,
+                                                  outputTrackScoreMap   = get_scoremap_name( config.name ), #Map of tracks and their scores
+                                                 )
+   ptAlgs.append( ambiguityScoreAlg )
+   
+   #FIXME: these alg internally don't expect EFID setting (but FTF), have to take into consideration
+   ambiguitySolverAlg = ambiguitySolverAlg_builder( name                  = get_full_name( core = 'TrkAmbiguitySolver', suffix = config.name ),
+                                                    config                = config,
+                                                    inputTrackScoreMap    = get_scoremap_name( config.name ), #Map of tracks and their scores, 
+                                                    outputTrackCollection = config.PT.trkTracksPT()+"_Amb" )  #FIXME: for now keep PT but if TRT added this will ahve to become intermediate collection
 
+   ptAlgs.append( ambiguitySolverAlg )
+   
+   #-----------------------------------------------------------------------------
+   #                      Track particle conversion algorithm
+   from .InDetTrigCommon import trackParticleCnv_builder
+   trackParticleCnvAlg = trackParticleCnv_builder(name                 = get_full_name( 'xAODParticleCreatorAlg',config.name + '_IDTrig' ), 
+                                                  config               = config,
+                                                  inTrackCollectionKey = config.PT.trkTracksPT()+"_Amb",
+                                                  outTrackParticlesKey = config.PT.tracksPT( doRecord = config.isRecordable),
+                                                  )
+   
+   ptAlgs.append( trackParticleCnvAlg )
 
-      #print viewAlgs
-      #print 'VIEWS!', len(viewAlgs)
-      #print(len(viewAlgs))
-
-      return  viewAlgs
-
-  #-----------------------------------------------------------------------------
-  #                        Ambiguity solving stage
-      #TODO:
-
+   return ptAlgs

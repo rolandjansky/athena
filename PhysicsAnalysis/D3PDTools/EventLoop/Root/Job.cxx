@@ -68,7 +68,6 @@ namespace EL
   const std::string Job::optOutputSampleName = "nc_outputSampleName";
   const std::string Job::optGridDestSE = "nc_destSE";
   const std::string Job::optGridSite = "nc_site";
-  const std::string Job::optGridCloud = "nc_cloud";
   const std::string Job::optGridExcludedSite = "nc_excludedSite";
   const std::string Job::optGridNGBPerJob = "nc_nGBPerJob";
   const std::string Job::optGridMemory = "nc_memory";
@@ -78,11 +77,9 @@ namespace EL
   const std::string Job::optGridNJobs = "nc_nJobs";
   const std::string Job::optGridMaxFileSize = "nc_maxFileSize";
   const std::string Job::optGridMaxNFilesPerJob = "nc_maxNFilesPerJob";
-  const std::string Job::optGridUseChirpServer = "nc_useChirpServer";
   const std::string Job::optGridExpress = "nc_express";
   const std::string Job::optGridNoSubmit = "nc_noSubmit";
   const std::string Job::optGridMergeOutput = "nc_mergeOutput";
-  const std::string Job::optGridUseContElementBoundary = "nc_useContElementBoundary";
   const std::string Job::optGridAddNthFieldOfInDSToLFN = "nc_addNthFieldOfInDSToLFN";
   const std::string Job::optGridWorkingGroup = "nc_workingGroup";
   const std::string Job::optGridShowCmd = "nc_showCmd";

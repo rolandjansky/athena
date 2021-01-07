@@ -726,6 +726,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       /// move the initial track point to the readout plane
       int gasGap = m_idHelperSvc->mmIdHelper().gasGap(layerID);
       double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
+      shift += m_correctShift;
       double scale = 0.0;
       if ( gasGap==1 || gasGap == 3) {
 	scale = -(stripLayerPosition.z() + shift)/localDirection.z();

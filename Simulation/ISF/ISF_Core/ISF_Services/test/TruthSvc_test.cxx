@@ -189,7 +189,6 @@ namespace ISFTesting {
       m_svc = dynamic_cast<ISF::TruthSvc*>(svc.get());
       ASSERT_NE(nullptr, m_svc);
 
-      ASSERT_TRUE( m_svc->setProperties().isSuccess() );
       ASSERT_TRUE( m_svc->configure().isSuccess() );
     }
 

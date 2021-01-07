@@ -1,7 +1,7 @@
 <lcgdict>
 
   <!-- MuCTPI RDO -->
-  <class name="MuCTPI_RDO" id="5BE3FA7E-CC70-4842-A095-CA046164764D" />
+  <!--class name="MuCTPI_RDO" id="5BE3FA7E-CC70-4842-A095-CA046164764D" /-->
 
   <!-- CTP RDO -->
   <class name="CTP_RDO" id="56C714CC-DC17-4927-B413-9151C82792BB" />

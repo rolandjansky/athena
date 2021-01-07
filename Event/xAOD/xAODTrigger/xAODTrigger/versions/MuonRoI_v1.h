@@ -111,6 +111,8 @@ namespace xAOD {
       Charge getCharge() const;
       /// Returns the veto flag for the candidate
       bool isVetoed() const;
+      /// Returns extra flag at end of RoI word indicating that it's in Run3 format
+      bool isRun3() const;
 
       /// @}
 

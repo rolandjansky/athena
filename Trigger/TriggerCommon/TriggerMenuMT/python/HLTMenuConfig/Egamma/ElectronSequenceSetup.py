@@ -1,6 +1,7 @@
 #
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
+
 from AthenaConfiguration.AllConfigFlags import ConfigFlags 
 
 # menu components   
@@ -36,7 +37,8 @@ def fastElectronSequence(ConfigFlags):
     theElectronFex.TrigEMClusterName = CaloMenuDefs.L2CaloClusters
     theElectronFex.TrackParticlesName = TrackParticlesName
     theElectronFex.ElectronsName=recordable("HLT_FastElectrons")
-
+    theElectronFex.DummyElectronsName= "HLT_FastDummyElectrons"
+ 
     # EVCreator:
     l2ElectronViewsMaker = EventViewCreatorAlgorithm("IMl2Electron")
     l2ElectronViewsMaker.RoIsLink = "initialRoI" # Merge inputs based on their initial L1 ROI
@@ -57,18 +59,21 @@ def fastElectronSequence(ConfigFlags):
     l2ElectronViewsMaker.ViewNodeName = "electronInViewAlgs"
 
     electronAthSequence = seqAND("electronAthSequence", [l2ElectronViewsMaker, electronInViewAlgs ] )
-    return (electronAthSequence, l2ElectronViewsMaker, theElectronFex.ElectronsName)
-
-
-def fastElectronMenuSequence():
+    return (electronAthSequence, l2ElectronViewsMaker)
+   
+def fastElectronMenuSequence(do_idperf):
     """ Creates 2nd step Electron  MENU sequence"""
     # retrievee the reco seuqence+IM
-    (electronAthSequence, l2ElectronViewsMaker, sequenceOut) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
+    (electronAthSequence, l2ElectronViewsMaker) = RecoFragmentsPool.retrieve(fastElectronSequence, ConfigFlags)
 
     # make the Hypo
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaFastElectronHypoAlgMT
-    theElectronHypo = TrigEgammaFastElectronHypoAlgMT()
-    theElectronHypo.Electrons = sequenceOut
+    if do_idperf is True:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT_idperf")
+        theElectronHypo.Electrons = "HLT_FastDummyElectrons"
+    else:
+        theElectronHypo = TrigEgammaFastElectronHypoAlgMT("TrigEgammaFastElectronHypoAlgMT")
+        theElectronHypo.Electrons = "HLT_FastElectrons"
 
     theElectronHypo.RunInView=True
 

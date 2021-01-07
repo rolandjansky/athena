@@ -1,34 +1,34 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
+
+#include "RpcPadContainerCnv_p2.h"
 
 #include "MuonRDO/RpcPad.h"
 #include "MuonRDO/RpcPadContainer.h"
 #include "MuonEventAthenaPool/RpcPad_p1.h"
 #include "MuonEventAthenaPool/RpcPadContainer_p2.h"
-#include "MuonIdHelpers/RpcIdHelper.h"
 #include "RpcPadCnv_p1.h"
-#include "RpcPadContainerCnv_p2.h"
-
-// Gaudi
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/StatusCode.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/MsgStream.h"
-
-// Athena
 #include "StoreGate/StoreGateSvc.h"
-
 #include "AthAllocators/DataPool.h"
 
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
+#include "RPCcablingInterface/IRPCcablingServerSvc.h" // to be removed
+#include "RPCcablingInterface/RpcPadIdHash.h" // to be removed
+#include "RPCcablingInterface/IRPCcablingSvc.h" // to be removed
+
+RpcPadContainerCnv_p2::RpcPadContainerCnv_p2() :
+  m_rpcCabling(nullptr),
+  m_isInitialized(false),
+  m_rpcCondData(nullptr) {
+}
 
 
-StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log,
-                                             IRPCcablingSvc* cabling /*= nullptr*/) {
+StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log, IRPCcablingSvc* cabling) {
                                              
    // Do not initialize again:
     m_isInitialized=true;
@@ -51,20 +51,9 @@ StatusCode RpcPadContainerCnv_p2::initialize(MsgStream &log,
       sc = RpcCabGet->giveCabling(m_rpcCabling);
       if (sc.isFailure()) {
         log << MSG::FATAL << "Could not get RPCcablingSvc from the Server !" << endmsg;
-        m_rpcCabling = 0;
+        m_rpcCabling = nullptr;
         return StatusCode::FAILURE;
       }
-    }
-
-    {
-      if (!m_rpcCabling->padHashFunction())
-	{
-	  m_padhashmax = 1000;
-	  log<<MSG::INFO << "... hoewever it doesn't look like been already init; container size set by hand to "<< m_padhashmax << endmsg;
-	}
-      else m_padhashmax = m_rpcCabling->padHashFunction()->max();
-      if (log.level() <= MSG::INFO)    log <<MSG::INFO    << " RPCcablingSvc obtained - hashmax  = "<<m_padhashmax << endmsg;
-      //      if (log.level() <= MSG::VERBOSE) log <<MSG::VERBOSE << " RPCcablingSvc obtained " << endmsg;
     }
 
     if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
@@ -85,8 +74,6 @@ void RpcPadContainerCnv_p2::transToPers(const RpcPadContainer* transCont,  RpcPa
     persCont->m_pads.resize(numColl);    log << MSG::DEBUG  << " Preparing " << persCont->m_pads.size() << "Collections" << endmsg;
 
     for (collIndex = 0; it_Coll != it_CollEnd; ++collIndex, it_Coll++)  {
-        // Add in new collection
-        //log << MSG::DEBUG  << " New collection" << endmsg;
         RpcPad_p1* pcoll = &( persCont->m_pads[collIndex] );
         cnv.transToPers( &(**it_Coll), pcoll , log);
     }
@@ -111,8 +98,13 @@ void  RpcPadContainerCnv_p2::persToTrans(const RpcPadContainer_p2* persCont, Rpc
         } else {
             StatusCode sc = transCont->addCollection(coll, coll->identifyHash());
             if (sc.isFailure()) {
-                log << MSG::WARNING<<"Could not add collection with hash="<<coll->identifyHash()
+                if (m_rpcCondData) {
+                    log << MSG::WARNING<<"Could not add collection with hash="<<coll->identifyHash()
+                    <<" to IDC which has hash max of "<<transCont->size()<<" (PadHashFunction gives "<<m_rpcCondData->max()<<")"<<endmsg;
+                } else {
+                    log << MSG::WARNING<<"Could not add collection with hash="<<coll->identifyHash()
                     <<" to IDC which has hash max of "<<transCont->size()<<" (PadHashFunction gives "<<m_rpcCabling->padHashFunction()->max()<<")"<<endmsg;
+                }
                 throw std::runtime_error("Failed to add collection to ID Container. Hash = "+std::to_string(coll->identifyHash()));
             }
         }
@@ -130,13 +122,12 @@ RpcPadContainer* RpcPadContainerCnv_p2::createTransient(const RpcPadContainer_p2
         if (this->initialize(log) != StatusCode::SUCCESS) {
             log << MSG::FATAL << "Could not initialize RpcPadContainerCnv_p2 " << endmsg;
             return 0;
-        } 
+        }
     }
-    // log<<MSG::INFO<<"creating new pad container with hashmax= "<<m_rpcCabling->padHashFunction()->max()<<endmsg;
-    
-    // std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(m_rpcCabling->padHashFunction()->max() ));
-    // std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(404 ))  ; // hardcoded number from above. FIXME!
-    std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(m_padhashmax))  ; // hardcoded number from above. FIXME!
+    int hashMax=-1;
+    if (m_rpcCondData) hashMax = m_rpcCondData->max();
+    else hashMax = m_rpcCabling->padHashFunction()->max();
+    std::unique_ptr<RpcPadContainer> trans(new RpcPadContainer(hashMax));
     
     persToTrans(persObj, trans.get(), log);
     return(trans.release());

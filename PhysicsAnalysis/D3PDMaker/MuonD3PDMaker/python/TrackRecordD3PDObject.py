@@ -1,13 +1,7 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-
-# $Id: TrackRecordD3PDObject.py
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # Import all needed modules:
 import MuonD3PDMaker
-import D3PDMakerCoreComps
-from D3PDMakerCoreComps.resolveSGKey import testSGKey
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
-from D3PDMakerCoreComps.D3PDObject   import D3PDObject
 from D3PDMakerCoreComps.D3PDObject   import make_SGDataVector_D3PDObject
 
 

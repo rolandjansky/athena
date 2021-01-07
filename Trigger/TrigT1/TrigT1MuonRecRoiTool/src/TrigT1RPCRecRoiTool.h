@@ -5,7 +5,7 @@
 #ifndef TRIGT1RPCRECROITOOL_H
 #define TRIGT1RPCRECROITOOL_H
 
-#include "TrigT1MuonRecRoiTool/ITrigT1MuonRecRoiTool.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
 namespace Muon{

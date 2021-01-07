@@ -38,11 +38,11 @@ namespace InDet
 
     ~InDetCosmicTrackSelectorTool();
 
-    bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const;
+    virtual bool decision(const Trk::Track& track,const Trk::Vertex* vertex) const override;
 
-    bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const;
+    virtual bool decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vertex) const override;
 
-    bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const {
+    virtual bool decision(const xAOD::TrackParticle&,const xAOD::Vertex*) const  override {
       ATH_MSG_WARNING("xAOD::TrackParticle selection not implemented yet");
       return false;
     }

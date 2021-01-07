@@ -3,6 +3,5 @@
    <class name="CP::MetBuilderAlg" />
    <class name="CP::MetMakerAlg" />
    <class name="CP::MetSignificanceAlg" />
-   <class name="CP::MetSystematicsAlg" />
 
 </lcgdict>

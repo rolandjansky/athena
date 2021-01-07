@@ -97,6 +97,15 @@ if ( IS_DIRECTORY /usr/include/ck )
     PRIVATE "-DHAVE_CK" )
 endif()
 
+atlas_add_test( ConcurrentStrMap_test
+  SOURCES test/ConcurrentStrMap_test.cxx
+  INCLUDE_DIRS ${TBB_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CK_INCLUDE}
+  LINK_LIBRARIES CxxUtils TestTools ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${CK_LIBRARIES} )
+if ( IS_DIRECTORY /usr/include/ck )
+  target_compile_definitions(CxxUtils_ConcurrentStrMap_test
+    PRIVATE "-DHAVE_CK" )
+endif()
+
 atlas_add_test( exctrace2_test
    SOURCES test/exctrace2_test.cxx
    LINK_LIBRARIES CxxUtils
@@ -118,7 +127,8 @@ foreach( test sincos_test ArrayScanner_test Arrayrep_test
       atomic_fetch_minmax_test
       MurmurHash2_test bitmask_test crc64_test Ring_test
       restrict_test vectorize_test get_unaligned_test aligned_vector_test
-      vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test)
+      vec_int_test vec_float_test vec_fb_int_test vec_fb_float_test
+      ConcurrentHashmapImpl_test SimpleUpdater_test )
    atlas_add_test( ${test}
       SOURCES test/${test}.cxx
       LOG_IGNORE_PATTERN "no version information available"

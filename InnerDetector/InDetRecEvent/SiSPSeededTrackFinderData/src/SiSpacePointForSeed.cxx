@@ -21,6 +21,10 @@ namespace InDet {
     m_covr  = 0.;
     m_covz  = 0.;
     m_param = 0.;
+    m_d0    = 0.;
+    m_eta   = 0.;
+    m_dzdr  = 0.;
+    m_pt    = 0.;
     m_q     = 0.;
     m_su    = 0 ;
     m_sn    = 0 ;
@@ -38,6 +42,10 @@ namespace InDet {
       m_covr      = sp.m_covr    ;
       m_covz      = sp.m_covz    ;
       m_q         = sp.m_q       ;
+      m_dzdr      = sp.m_dzdr    ;
+      m_d0        = sp.m_d0      ;
+      m_eta       = sp.m_eta     ;
+      m_pt        = sp.m_pt      ;
       m_su        = sp.m_su      ;
       m_sn        = sp.m_sn      ;        
     }
@@ -47,13 +55,13 @@ namespace InDet {
   SiSpacePointForSeed::SiSpacePointForSeed
   (const Trk::SpacePoint*const& sp,const float* r) 
   {
-    set(sp,r); m_param = 0.;
+    set(sp,r); m_param = 0.;  
   }
 
   SiSpacePointForSeed::SiSpacePointForSeed
   (const Trk::SpacePoint*const& sp,const float* r,const float* sc) 
   {
-    set(sp,r,sc); m_param = 0.;
+    set(sp,r,sc); m_param = 0.; 
   }
 
   /////////////////////////////////////////////////////////////////////////////////
@@ -157,9 +165,30 @@ namespace InDet {
   {
     m_param = p;
   }
+
+  void SiSpacePointForSeed::setD0(const float& d0)
+  {
+    m_d0 = d0;
+  } 
+
+  void SiSpacePointForSeed::setEta(const float& eta)
+  {
+    m_eta = eta;
+  }
+
   void  SiSpacePointForSeed::setQuality(float q)
   {
     if(q <= m_q) m_q = q;
+  }
+
+  void  SiSpacePointForSeed::setDZDR(const float& dzdr)
+  {
+    m_dzdr = dzdr;
+  }
+
+  void  SiSpacePointForSeed::setPt(const float& pt)
+  {
+    m_pt = pt;
   }
  
 } // end of name space

@@ -286,10 +286,3 @@ StatusCode MuonMDT_CablingAlg::execute(){
   
   return StatusCode::SUCCESS;
 }
-
-
-StatusCode MuonMDT_CablingAlg::finalize(){
-  
-  ATH_MSG_DEBUG( "finalize " << name() );
-  return StatusCode::SUCCESS;
-}

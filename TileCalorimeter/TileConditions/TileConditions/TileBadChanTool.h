@@ -51,7 +51,9 @@ class TileBadChanTool: public extends<AthAlgTool, ITileBadChanTool, ICaloBadChan
      * @brief ICaloBadChanTool interface.
      * @param cell_id Calo cell identifier
      */
-    virtual CaloBadChannel caloStatus(Identifier cell_id) const override;
+    using ICaloBadChanTool::caloStatus;
+    virtual CaloBadChannel caloStatus(const EventContext& ctx,
+                                      Identifier cell_id) const override;
 
     //===============================================================
     //=== ITileBadChanTool methods

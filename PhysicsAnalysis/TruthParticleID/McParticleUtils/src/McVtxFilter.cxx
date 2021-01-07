@@ -124,8 +124,6 @@ McVtxFilter & McVtxFilter::operator=(const McVtxFilter &rhs)
   return *this;
 }
 
-/// Destructor
-///////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Const methods: 

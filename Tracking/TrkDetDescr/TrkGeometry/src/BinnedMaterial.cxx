@@ -5,7 +5,7 @@
 #include "TrkGeometry/BinnedMaterial.h"
 
 /** Constructor with averaged material and binning in 1D*/
-Trk::BinnedMaterial::BinnedMaterial(const Trk::Material*& mat, Trk::BinUtility*& bu, const std::vector<size_t>& index, 
+Trk::BinnedMaterial::BinnedMaterial(const Trk::Material* mat, Trk::BinUtility*& bu, const std::vector<size_t>& index, 
 				    const std::vector<Trk::IdentifiedMaterial>& detailedMat ) : 
   Trk::Material(*mat),
   m_matVec (detailedMat),
@@ -14,7 +14,7 @@ Trk::BinnedMaterial::BinnedMaterial(const Trk::Material*& mat, Trk::BinUtility*&
 }    
 
 /** Constructor with averaged material and binning in 2D*/
-Trk::BinnedMaterial::BinnedMaterial(const Trk::Material*& mat, Trk::BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
+Trk::BinnedMaterial::BinnedMaterial(const Trk::Material* mat, Trk::BinUtility*& bu, std::vector< Trk::BinUtility*>& bVec,
 				    const std::vector<std::vector<size_t> >& index, 
 				    const std::vector<Trk::IdentifiedMaterial>& detailedMat ) :
   Trk::Material(*mat),

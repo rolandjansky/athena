@@ -111,16 +111,8 @@ EtaPtFilterTool::~EtaPtFilterTool()
   ATH_MSG_DEBUG("Calling destructor");
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
-					McEventCollection* out )
+StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,McEventCollection* out )
 {
   if ( 0 == in || 0 == out ) {
     ATH_MSG_ERROR("Invalid pointer to McEventCollection !" << endmsg
@@ -169,16 +161,12 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
 
 /////////////////////////////////////////////////////////////////// 
 /// Const methods: 
 ///////////////////////////////////////////////////////////////////
 
-StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in,
-					   HepMC::GenEvent* out )
+StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in, HepMC::GenEvent* out )
 {
   if ( 0 == in || 0 == out ) {
     ATH_MSG_ERROR("Invalid pointer to GenEvent !!" << endmsg

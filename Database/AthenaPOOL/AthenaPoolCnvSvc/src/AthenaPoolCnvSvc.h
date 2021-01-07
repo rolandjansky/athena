@@ -99,7 +99,7 @@ public:
 
    /// @param obj [OUT] pointer to the Data Object.
    /// @param token [IN] string token of the Data Object for which a Pool Ref is filled.
-   void setObjPtr(void*& obj, const Token* token) const;
+   void setObjPtr(void*& obj, const Token* token);
 
    /// @return a boolean for using detailed time and size statistics.
    bool useDetailChronoStat() const;
@@ -152,7 +152,7 @@ public:
    virtual StatusCode makeClient(int num);
 
    /// Read the next data object
-   virtual StatusCode readData() const;
+   virtual StatusCode readData();
 
    /// Send abort to SharedWriter clients if the server quits on error
    /// @param client_n [IN] number of the current client, -1 if no current

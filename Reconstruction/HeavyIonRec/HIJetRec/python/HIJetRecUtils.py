@@ -8,8 +8,8 @@ from JetRec.JetRecFlags import jetFlags
 def AddToOutputList(tname, objType='xAOD::JetContainer') :
 
     #filter container based on package flags
-    if HIJetFlags.UnsubtractedSuffix() in tname and not HIJetFlags.WriteUnsubtracted() : return
-    if HIJetFlags.SeedSuffix() in tname and not HIJetFlags.WriteSeeds() : return
+    if HIJetFlags.UnsubtractedSuffix() in str(tname) and not HIJetFlags.WriteUnsubtracted() : return
+    if HIJetFlags.SeedSuffix() in str(tname) and not HIJetFlags.WriteSeeds() : return
 
     has_key=False
     for k in HIJetFlags.HIJetOutputList() :
@@ -120,7 +120,7 @@ def MakeModulatorTool(mod_key, **kwargs) :
 
 def MakeSubtractionTool(shapeKey, moment_name='', momentOnly=False, **kwargs) :
     HIJetConstituentSubtractionTool=CompFactory.HIJetConstituentSubtractionTool
-    suffix=shapeKey
+    suffix=shapeKey.toStringProperty()
     if momentOnly : suffix+='_'+moment_name
 
     if 'modulator' in kwargs.keys() : mod_tool=kwargs['modulator']
@@ -371,7 +371,8 @@ def HITruthParticleCopy() :
 def BuildHarmonicName(shape_key, **kwargs) :
     tname=shape_key
     if 'harmonics' in kwargs.keys() :
-        for n in kwargs['harmonics'] : tname += '_V%d' % n
+        for n in kwargs['harmonics'] :
+            tname = str(tname) + str('_V%d' % n)
     return tname
 
 def GetNullModulator() :

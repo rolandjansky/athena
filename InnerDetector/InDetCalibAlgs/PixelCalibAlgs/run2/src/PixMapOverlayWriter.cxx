@@ -7,7 +7,6 @@
 #include "PixelConditionsData/SpecialPixelMap.h"
 #include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 #include "AthenaPoolUtilities/CondAttrListCollection.h" 
-#include "PixelConditionsTools/ISpecialPixelMapSvc.h"
 
 // geometry
 #include "InDetIdentifier/PixelID.h"

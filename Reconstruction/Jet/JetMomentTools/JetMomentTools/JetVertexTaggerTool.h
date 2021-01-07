@@ -21,7 +21,7 @@
 /// JVFCorr: a corrected JVF calculation accounting for the number of PU tracks in the event.
 ///
 /// Calculation requires three main types of information
-///     1. Vertex container for the event (from evtStore), with respect to which the JVT track sums 
+///     1. Vertex container for the event (from evtStore), with respect to which the JVT track sums
 ///     2. Tracks associated to each of the input jet (in the jet aux store)
 ///     3. Track vertex association object (from evtStore)
 ///     4. The track container needed for PU track counting
@@ -44,7 +44,7 @@
 ///  AssociatedTracks - name for attribute holding the list of associated tracks
 ///  TrackVertexAssociation - name for the container holding the track-vertex associations
 ///  TrackSelector - tool to select tracks (none ==> no selection)
-///  JVTFileName - ROOT Filename containing JVT likelihood histogram	
+///  JVTFileName - ROOT Filename containing JVT likelihood histogram
 ///  JVTLikelihoodHistName - JVT Likelihood histogram name
 ///  JVTName - name for the 3 JVT attributes (default is "JVT")
 ///  K_JVFCorrScale - the scale factor for pileup tracks in the JVFCorr calculation (default is 0.01)
@@ -107,7 +107,7 @@ private:  // data
   // Configurable parameters
   Gaudi::Property<std::string> m_jetContainerName{this,"JetContainer", "", "SG key for the input jet container"};
   Gaudi::Property<std::string> m_jvtlikelihoodHistName{this, "JVTLikelihoodHistName", "JVTRootCore_kNN100trim_pt20to50_Likelihood", "JVT likelihood histogram name"};
-  Gaudi::Property<std::string> m_jvtfileName{this, "JVTFileName", "JVTlikelihood_20140805.root", "JVT likelihood file name"};
+  Gaudi::Property<std::string> m_jvtfileName{this, "JVTFileName", "JetMomentTools/JVTlikelihood_20140805.root", "JVT likelihood file name"};
 
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexContainer_key{this, "VertexContainer", "PrimaryVertices", "SG key for input vertex container"};
   SG::ReadDecorHandleKey<xAOD::JetContainer> m_jvfCorrKey{this, "JVFCorrName", "JVFCorr", "SG key for input JVFCorr decoration"};
@@ -123,4 +123,3 @@ private:  // data
 
 
 #endif
-

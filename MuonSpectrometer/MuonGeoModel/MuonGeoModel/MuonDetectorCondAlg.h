@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONGEOMODEL_MUONDETECTORCONDALG_H
@@ -26,8 +26,6 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
-  virtual StatusCode finalize() override final;
-
 
 private:
   

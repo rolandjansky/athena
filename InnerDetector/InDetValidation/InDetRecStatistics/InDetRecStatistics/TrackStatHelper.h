@@ -22,7 +22,6 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-#include "TrkTrack/TrackInfo.h"
 
 #include <vector>
 #include <string>

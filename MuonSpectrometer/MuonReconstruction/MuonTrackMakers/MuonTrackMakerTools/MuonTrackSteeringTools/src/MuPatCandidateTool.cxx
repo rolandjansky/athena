@@ -61,6 +61,17 @@ namespace Muon {
     return StatusCode::SUCCESS;
   }
 
+  StatusCode MuPatCandidateTool::stop() {
+
+    // Clean up all garbage now.
+    // If we leave it for later, we may end up with dangling references
+    // to Surface objects that have already been deleted.
+    for (CacheEntry& ent : m_cache) {
+      ent.cleanUp();
+    }
+    return StatusCode::SUCCESS;
+  }
+
   MuPatSegment* MuPatCandidateTool::createSegInfo( const MuonSegment& segment ) const
   {
     CacheEntry& ent = getCache();

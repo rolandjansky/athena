@@ -390,11 +390,6 @@ if ConfigFlags.Input.Format == 'POOL':
     import AthenaPoolCnvSvc.ReadAthenaPool   # noqa
     svcMgr.AthenaPoolCnvSvc.PoolAttributes = [ "DEFAULT_BUFFERSIZE = '2048'" ]
     svcMgr.PoolSvc.AttemptCatalogPatch=True
-    # enable transient BS
-    if ConfigFlags.Trigger.doTransientByteStream:
-        log.info("setting up transient BS")
-        include( "TriggerJobOpts/jobOfragment_TransBS_standalone.py" )
-
 
 # ----------------------------------------------------------------
 # ByteStream input
@@ -469,6 +464,13 @@ if opt.doL1Sim:
     from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
     hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
+# ---------------------------------------------------------------
+# Transient ByteStream
+# ---------------------------------------------------------------
+if ConfigFlags.Trigger.doTransientByteStream:
+    log.info("Configuring transient ByteStream")
+    from TriggerJobOpts.TriggerTransBSConfig import triggerTransBSCfg
+    CAtoGlobalWrapper(triggerTransBSCfg, ConfigFlags, seqName="HLTBeginSeq")
 
 # ---------------------------------------------------------------
 # HLT generation

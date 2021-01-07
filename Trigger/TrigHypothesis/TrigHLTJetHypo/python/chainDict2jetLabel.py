@@ -155,7 +155,7 @@ def _make_vbenf_label(chain_parts, leg_label):
       []
       simple
       (
-        [(%(etlo).0fet, 500neta, leg000)(%(etlo).0fet, peta500, %(leg_label)s)]
+        [(%(fbetlo).0fet, 500neta, leg000)(%(fbetlo).0fet, peta500, %(leg_label)s)]
       )
       dijet
       (
@@ -168,6 +168,25 @@ def _make_vbenf_label(chain_parts, leg_label):
     )""" % argvals
 
 
+def  _make_fbdjshared_label(chain_parts, leg_label):
+    """example label for a 2-tree forest.
+    The fbdjshared contains a dijet and forward backward jets, in separate 
+    trees, to allow the fb jets to particoate in the dijet."""
+
+    
+    return """
+    simple
+    (
+    [(50et, 500neta, leg000)(50et, peta500, leg000)]
+    )
+    dijet
+    (
+    [(34djmass, 26djdphi)]
+        simple
+        ([(10et, 0eta320, leg000)(20et, 0eta320, leg000)])
+    )"""
+
+    
 def _make_dijet_label(chain_parts, leg_label):
     """dijet label. supports dijet cuts, and cuts on particpating jets
     Currently supported cuts:
@@ -297,9 +316,9 @@ def _make_agg_label(chain_parts, leg_label):
 
     argvals['leg_label'] = leg_label
     result =  """
-    ht([(%(htlo).0fht, %(leg_label)s)
+    agg([(%(htlo).0fht, %(leg_label)s)
         (%(etlo).0fet)
-        (%(etalo).0feta%(etahi).0f)
+    (%(etalo).0feta%(etahi).0f)
     ])"""  % argvals
     print (result)
     return result
@@ -323,6 +342,7 @@ def chainDict2jetLabel(chain_dict):
         'agg':   _make_agg_label,
         'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
+        'fbdjshared': _make_fbdjshared_label,
     }
 
     # chain_part - scenario association
@@ -348,8 +368,10 @@ def chainDict2jetLabel(chain_dict):
 
     assert labels
     nlabels = len(labels)
+    return ''.join(labels)
     if nlabels == 1: return labels[0]
     if nlabels == 2:
+        # two labels occur when combining simple and a non-simple scenario
         alabel = """\
 all([]
     %s

@@ -153,7 +153,7 @@ class MM_DigitizationTool : public PileUpToolBase {
 		//Three gas mixture mode,	Ar/CO2=93/7, Ar/CO2=80/20, Ar/CO2/Iso=93/5/2
 		//each mode have different transverseDiffusionSigma/longitudinalDiffusionSigma/driftVelocity/avalancheGain/interactionDensityMean/interactionDensitySigma/lorentzAngle
 		Gaudi::Property<float> m_qThreshold{this,"qThreshold",0.001,"Charge Threshold"};
-		Gaudi::Property<float> m_driftGapWidth{this,"DriftGapWidth",5.168,"Drift Gap Width of 5.04 mm + 0.128 mm (the amplification gap)"};
+		Gaudi::Property<float> m_driftGapWidth{this,"DriftGapWidth",5.04,"Drift Gap Width of 5.04 mm"};
 		Gaudi::Property<float> m_crossTalk1{this,"crossTalk1",0.2,"Strip Cross Talk with Nearest Neighbor"};
 		Gaudi::Property<float> m_crossTalk2{this,"crossTalk2",0.04,"Strip Cross Talk with 2nd Nearest Neighbor"};
 
@@ -172,6 +172,8 @@ class MM_DigitizationTool : public PileUpToolBase {
 
 		// Temporary until moving away from TRandom
 		Gaudi::Property<unsigned long int> m_randomSeed{this, "RandomSeed", 42, ""};
+
+		Gaudi::Property<double> m_correctShift{this,"correctShift",-0.244,"purely empirical shift to fix the z positions of clusters"}; //  12/20  pscholer
 
 		TFile *m_file{};
 		TTree *m_ntuple{};

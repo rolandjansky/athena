@@ -35,7 +35,7 @@ StatusCode CaloClusterBadChannelList::initialize()
 }
 
 
-void CaloClusterBadChannelList::makeCorrection (const Context& /*myctx*/,
+void CaloClusterBadChannelList::makeCorrection (const Context& myctx,
                                                 CaloCluster* cluster) const
 {
   xAOD::CaloClusterBadChannelList badChanList;
@@ -44,8 +44,8 @@ void CaloClusterBadChannelList::makeCorrection (const Context& /*myctx*/,
   CaloCluster::cell_iterator cellIterEnd = cluster->cell_end();
   for( ;cellIter!=cellIterEnd;cellIter++) {
       const CaloCell* cell = (*cellIter);
-      const Identifier id = cell->ID(); 
-      CaloBadChannel status = m_badChannelTool->caloStatus(id);
+      const Identifier id = cell->ID();
+      CaloBadChannel status = m_badChannelTool->caloStatus(myctx.ctx(),id);
       bool isBad = cell->badcell();
       if (status.dead() || status.noisy() || isBad )   {
          const float eta = cell->eta();
@@ -56,8 +56,9 @@ void CaloClusterBadChannelList::makeCorrection (const Context& /*myctx*/,
          if (isBad && !status.dead()) {
             CaloBadChannel::setBit(CaloBadChannel::deadBit,myword,true);
          }
-         ATH_MSG_DEBUG(" bad channel found eta,phi,layer,status " << eta << " " << phi << " " << layer << " " << myword);
-	 badChanList.emplace_back(eta,phi,layer,myword);
+         ATH_MSG_DEBUG(" bad channel found eta,phi,layer,status "
+                       << eta << " " << phi << " " << layer << " " << myword);
+         badChanList.emplace_back(eta, phi, layer, myword);
       }
   }  // end loop over cells
   cluster->setBadChannelList(badChanList);

@@ -68,8 +68,6 @@
 #include "AtlasHepMC/GenParticle.h"
 #include "TruthHelper/PileUpType.h"
 
-#include "IdDictDetDescr/IdDictManager.h" 
-
 
 
 
@@ -298,7 +296,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // apply pt, eta etc cuts to generated tracks
     // devide generated tracks into primary, truncated, secondary
 
-    std::vector <std::pair<HepMC::GenParticle *,int> > GenSignal;
+    std::vector <std::pair<HepMC::GenParticlePtr,int> > GenSignal;
     //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;   
     unsigned int inTimeStart = 0;
     unsigned int inTimeEnd   = 0;
@@ -583,7 +581,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
 // select charged, stable particles in allowed pt and eta range
 void InDet :: InDetRecStatisticsAlg ::
 selectGenSignal  (const McEventCollection* SimTracks, 
-		  std::vector <std::pair<HepMC::GenParticle *,int> > & GenSignal,
+		  std::vector <std::pair<HepMC::GenParticlePtr,int> > & GenSignal,
 		  unsigned int /*inTimeStart*/, unsigned int /*inTimeEnd*/,
                   InDet::InDetRecStatisticsAlg::CounterLocal &counter) const //'unused' compiler warning
 {
@@ -604,7 +602,11 @@ selectGenSignal  (const McEventCollection* SimTracks,
   for(unsigned int ievt=0; ievt<nb_mc_event; ++ievt)
     {
       const HepMC::GenEvent* genEvent = SimTracks->at(ievt);
-      counter.m_counter[kN_gen_tracks_processed] += ((SimTracks->at(ievt)))->particles_size();
+#ifdef HEPMC3
+      counter.m_counter[kN_gen_tracks_processed] += genEvent->particles().size();
+#else
+      counter.m_counter[kN_gen_tracks_processed] += genEvent->particles_size();
+#endif
       if (put && inTimeMBbegin != inTimeMBend) // if not, inTimeStart and End are untouched
 	{
 	  //if (genEvent == *inTimeMBbegin) inTimeStart = ievt;

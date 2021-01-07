@@ -137,7 +137,7 @@ RemoveEgammaIsoVariables = ".-"+identifier.join(UnusedEgammaIsoVariables)
 
 # Add Dynamic Var
 identifierAdd = "."
-l2saVariableToAdd = ['mdtHitId','cscHitResolution']
+l2saVariableToAdd = []
 addL2saVars = "." + identifierAdd.join(l2saVariableToAdd)
 
 # temporary functionality to discover version of EDM

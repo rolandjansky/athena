@@ -1,3 +1,5 @@
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 runNumber = 2147483647
 
 if('inputPat' not in dir()):
@@ -5,20 +7,6 @@ if('inputPat' not in dir()):
   
 import glob
 myInputFiles = glob.glob(inputPat)
-
-#Lots of pulses
-#defInputFile = "/afs/cern.ch/user/l/lampen/public/bytestreamTest/daq.cal.0079571.No.Streaming.LB0000.CSC-EB._0001.data"
-#myGeometryTag = 'ATLAS-GEO-01-00-00'
-#myIsCosmics = False
-#Old Cosmics
-#defInputFile = "rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001209_file01.data"
-#myGeometryTag = "MuonSpectrometer-CSC-CS-00"
-#myIsCosmics = True
-#Cosmics
-#defInputFile = "rfio:/castor/cern.ch/atlas/muon/CSC/daq_CSC-EB-RCD__0001853_file01.data"
-#myGeometryTag = "MuonSpectrometer-CSC-CS-00"
-#myIsCosmics = True
-############################
 
 #######################################################################
 #Input/Ouptut job settings. 
@@ -91,8 +79,14 @@ printfunc (MuonCscRawDataProviderTool)
 
 # --- RawData Provider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
-    ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+cscRawDataProvider = Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
+                                              ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+cscRawDataProvider.RegionSelectionTool = makeRegSelTool_CSC()
+
+topSequence += cscRawDataProvider
+
 printfunc (topSequence.MuonCscRawDataProvider)
 
 # --- BS Converter 

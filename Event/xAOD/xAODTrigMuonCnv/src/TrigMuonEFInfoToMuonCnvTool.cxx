@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -27,13 +27,6 @@ TrigMuonEFInfoToMuonCnvTool::TrigMuonEFInfoToMuonCnvTool(const std::string& type
 }
 
 /**
- * Destructor - nothing to do so far.
- */
-TrigMuonEFInfoToMuonCnvTool::~TrigMuonEFInfoToMuonCnvTool() {
-    
-}
-
-/**
  * Initialize the tool
  */
 StatusCode TrigMuonEFInfoToMuonCnvTool::initialize() {
@@ -42,13 +35,6 @@ StatusCode TrigMuonEFInfoToMuonCnvTool::initialize() {
     else ATH_MSG_INFO("Will not make links to EF ID xAOD track particles");
     ATH_MSG_INFO("EF ID track particle container name: " << m_inDetTrackParticles);
     
-    return StatusCode::SUCCESS;
-}
-
-/**
- * Finalize the tool
- */
-StatusCode TrigMuonEFInfoToMuonCnvTool::finalize() {
     return StatusCode::SUCCESS;
 }
 

@@ -7,12 +7,13 @@
 
 SingleJetGrouper::SingleJetGrouper(){}
 
-SingleJetGrouper::SingleJetGrouper(const HypoJetVector& v): m_jets(v){
+SingleJetGrouper::SingleJetGrouper(const HypoJetVector& v):
+  m_jets(v), m_size{v.size()}{
 }
 
 SingleJetGrouper::SingleJetGrouper(const HypoJetCIter& b,
 				   const HypoJetCIter& e):
-  m_jets(b, e){
+  m_jets(b, e), m_size{m_jets.size()}{
 }
 
 std::vector<HypoJetGroupVector> SingleJetGrouper::group(HypoJetIter& begin,
@@ -28,15 +29,14 @@ std::vector<HypoJetGroupVector> SingleJetGrouper::group(HypoJetIter& begin,
   return std::vector<HypoJetGroupVector>{hjgv};
 }
 
-std::optional<HypoJetGroupVector>
+std::optional<HypoJetVector>
 SingleJetGrouper::next() {
   if (m_index == m_size){
-    return std::optional<HypoJetGroupVector>();
+    return std::optional<HypoJetVector>();
   }
   
-  HypoJetGroupVector result;
-  result.push_back(HypoJetVector{m_jets[m_index++]});
-  return std::make_optional<HypoJetGroupVector>(result);
+  HypoJetVector result{m_jets[m_index++]};
+  return std::make_optional<HypoJetVector>(result);
 }
 
 std::string SingleJetGrouper::getName() const {

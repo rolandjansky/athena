@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -37,7 +37,6 @@ TrigMonitorToolBase::~TrigMonitorToolBase()
 
 
 StatusCode TrigMonitorToolBase::initialize() {
-  ATH_CHECK( setProperties() );
   ATH_CHECK( m_histSvc.retrieve() );
   return StatusCode::SUCCESS;
 }

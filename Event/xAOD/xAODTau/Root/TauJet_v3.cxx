@@ -1,9 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: TauJet_v3.cxx 725228 2016-02-19 22:59:42Z griffith $
-
 
 // System include(s):
 #include <cstdint>
@@ -27,19 +24,19 @@ namespace xAOD {
   }
   
 
+  //primitive setters and getters for default 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, pt)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, eta)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phi)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, m)
 
-
-  //primitive setters and getters for jetseed 4-vector
+  //primitive setters and getters for JetSeed 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiJetSeed)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mJetSeed)
 
-  //primitive setters and getters for jetseed 4-vector
+  //primitive setters and getters for DetectorAxis 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptDetectorAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaDetectorAxis)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiDetectorAxis)
@@ -56,38 +53,32 @@ namespace xAOD {
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiTauEnergyScale)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mTauEnergyScale)
-  // double TauJet_v3::etaTauEnergyScale() const { return etaIntermediateAxis(); }
-  // double TauJet_v3::phiTauEnergyScale() const { return phiIntermediateAxis(); }
-  // double TauJet_v3::mTauEnergyScale() const { return 0; }
 
-
-  //primitive setters and getters for jetseed 4-vector
+  //primitive setters and getters for ptTauEtaCalib 4-vector - deprecated in R22
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiTauEtaCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mTauEtaCalib)
-  // double TauJet_v3::phiTauEtaCalib() const { return phiIntermediateAxis(); }
-  // double TauJet_v3::mTauEtaCalib() const { return 0; }
 
-  //primitive setters and getters for jetseed 4-vector
+  //primitive setters and getters for PanTauCellBasedProto 4-vector - deprecated in R22
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptPanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaPanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiPanTauCellBasedProto)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mPanTauCellBasedProto)
 
-  //primitive setters and getters for jetseed 4-vector
+  //primitive setters and getters for PanTauCellBased 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiPanTauCellBased)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mPanTauCellBased)
 
-  //primitive setters and getters for HLT 4-vector
+  //primitive setters and getters for TrigCaloOnly 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptTrigCaloOnly)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaTrigCaloOnly)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiTrigCaloOnly)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, mTrigCaloOnly)
 
-  //primitive setters and getters for HLT 4-vector
+  //primitive setters and getters for FinalCalib 4-vector
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, ptFinalCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, etaFinalCalib)
   AUXSTORE_PRIMITIVE_GETTER_WITH_CAST( TauJet_v3, float, double, phiFinalCalib)
@@ -280,44 +271,20 @@ namespace xAOD {
     //-------------------------------------------------------------------------
     // Accept
     //-------------------------------------------------------------------------
-    bool TauJet_v3::isTau(
-            TauJetParameters::IsTauFlag flag ) const
+    bool TauJet_v3::isTau( TauJetParameters::IsTauFlag flag ) const
     {
       static const Accessor< uint32_t > acc( "isTauFlags" );
       std::bitset<32> isTauFlags( acc( *this ) );
       return isTauFlags[flag];
     }
 
-    void TauJet_v3::setIsTau(
-            TauJetParameters::IsTauFlag flag, bool value )
+    void TauJet_v3::setIsTau( TauJetParameters::IsTauFlag flag, bool value )
     {
       static const Accessor< uint32_t > acc( "isTauFlags" );
       std::bitset<32> isTauFlags( acc( *this ) );
       isTauFlags[flag] = value;
       acc( *this ) = isTauFlags.to_ulong();
     }
-
-  //r21 cleanup
-    // //-------------------------------------------------------------------------
-    // // Veto flags accessors
-    // //-------------------------------------------------------------------------
-    // void TauJet_v3::setFlag(
-    //         TauJetParameters::VetoFlags flag, bool value )
-    // {
-    //   static const Accessor< uint32_t > acc( "vetoFlags" );
-    //   std::bitset<32> vetoFlags( acc( *this ) );
-    //   vetoFlags[flag] = value;
-    //   acc( *this ) = vetoFlags.to_ulong();
-    // }
-
-    // bool TauJet_v3::flag(
-    //         TauJetParameters::VetoFlags flag ) const
-    // {
-    //   static const Accessor< uint32_t > acc( "vetoFlags" );
-    //   std::bitset<32> vetoFlags( acc( *this ) );
-    //   return vetoFlags[flag];
-    // }
-
 
 
   //-------------------------------------------------------------------------
@@ -468,6 +435,8 @@ namespace xAOD {
   const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinksWithMask(unsigned int mask) const{
     TauJet_v3::TauTrackLinks_t links;
     for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       if( (*link)->flagWithMask(mask))
 	links.push_back(link);
     }
@@ -488,6 +457,8 @@ namespace xAOD {
     uint tracks_pass_mask=0;
 
     for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	if(tracks_pass_mask==i) {
@@ -526,9 +497,11 @@ namespace xAOD {
   }
 
   /// Get the v<const pointer> to a given tauTrack collection associated with this tau
-  std::vector<const TauTrack*> TauJet_v3::tracksWithMask(unsigned int mask )const {
+  std::vector<const TauTrack*> TauJet_v3::tracksWithMask( unsigned int mask ) const {
   std::vector<const TauTrack*> trks;
     for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(mask)){
 	trks.push_back(trk);
@@ -585,6 +558,8 @@ namespace xAOD {
   size_t TauJet_v3::nTracksWithMask(unsigned int flags) const{
     size_t n(0);
     for(const ElementLink< xAOD::TauTrackContainer >& link : tauTrackAcc(*this) ){
+      // protection against tau track thinning
+      if(!link.isValid()) continue;
       const TauTrack* trk = *link;
       if(trk->flagWithMask(flags)) n++;
     }    
@@ -593,7 +568,11 @@ namespace xAOD {
 
   //all tracks regardless of classification or lack thereof
   size_t TauJet_v3::nAllTracks() const{
-    return tauTrackAcc( *this ).size();
+    // unsafe w.r.t. tau track thinning
+    //return tauTrackAcc( *this ).size();
+    // return the number of tracks with valid element link
+    TauTrack::TrackFlagType mask=0;
+    return nTracksWithMask( mask );
   }
 
   /// add a TauTrack to the tau
@@ -1021,4 +1000,3 @@ namespace xAOD {
   
 } // namespace xAOD
 
-//  LocalWords:  panTauDetail mJetSeed

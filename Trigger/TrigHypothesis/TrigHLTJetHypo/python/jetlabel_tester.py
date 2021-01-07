@@ -4,39 +4,35 @@ from __future__ import print_function
 
 
 from ChainLabelParser import ChainLabelParser
-from  TrigHLTJetHypo.treeVisitors import TreeParameterExpander
-from  TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
-    ConditionsToolSetterFastReduction,)
 
-def compile(label, setter, expand=False, do_dump=False, do_print=False):
+def compile(label, do_dump=False, do_print=False):
     print ('compile:',  label)
 
     parser = ChainLabelParser(label, debug=False)
-    tree = parser.parse()
+    forest = parser.parse()
 
-    tree.set_ids(node_id=0, parent_id=0)
+    print ('forest has %d' % len(forest),' tree(s)\n')
+    
+    for i, tree in enumerate(forest):
+
+        print ('tree ', i, '\n')
+
+        tree.set_ids(node_id=0, parent_id=0)
     
     
-    if expand:
-        visitor = TreeParameterExpander()
-        tree.accept(visitor)
-
-        if setter is not None:
-            setter.mod(tree)
-
-    print ('compile: tree.scenario', tree.scenario)
+        print ('compile: tree.scenario', tree.scenario)
 
         
         
-    if do_print:
-        print ('\nnode dumping top node only:\n')
-        print (tree)
+        if do_print:
+            print ('\nnode dumping top node only:\n')
+            print (tree)
 
-    if do_dump:
-        print ('\nnode dump tree:\n')
-        print (tree.dump())
+        if do_dump:
+            print ('\nnode dump tree:\n')
+            print (tree.dump())
         
-    return tree
+    return forest
 
 def compile_(label, setter=None, expand=True, do_dump=False, do_print=False):
     compile(label, setter, expand, do_dump)
@@ -65,11 +61,5 @@ if __name__ == '__main__':
     print('index', index)
     label = test_strings[index]
 
-    setter = ConditionsToolSetterFastReduction('toolSetterFastReduction')
-    
-    tree = compile(label, setter=setter,  expand=True, do_dump=True)
+    tree = compile(label, do_dump=True)
 
-    print ('tvec: %s' % str(setter.tool))
-    print ('svec: %s' % setter.shared)
-    print ('conditionsVec [%d]: %s' % (len(setter.conditionsVec),
-                                       str(setter.conditionsVec)))

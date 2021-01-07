@@ -47,8 +47,7 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   /// does the standard handling of input decisions: read from handles with all the checks, create merged output handles and link them, copies links and return outputHandles
   StatusCode decisionInputToOutput(const EventContext& context, SG::WriteHandle<TrigCompositeUtils::DecisionContainer>& outputHandle) const;
 
-  /// Checks for merge-able Decision objects coming from N upstream filters. Check based on stored element link in typed CONTAINER with 'linkNameToMatch'
-  template<typename CONTAINER>
+  /// Checks for merge-able Decision objects coming from N upstream filters. Check based on most-recent element link with name 'linkNameToMatch'. Works for any link type.
   size_t matchDecision(const TrigCompositeUtils::DecisionContainer* outDecisions, 
     const TrigCompositeUtils::Decision* toMatch, 
     const std::string& linkNameToMatch) const;
@@ -67,7 +66,5 @@ This is a base class for HLT InputMakers to reduce boilerplate and enforce the c
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_outputs { this, "InputMakerOutputDecisions", "", "Output Decisions" };
   
 };
-
-#include "InputMakerBase.icc"
 
 #endif // DECISIONHANDLING_INPUTMAKERBASE_H

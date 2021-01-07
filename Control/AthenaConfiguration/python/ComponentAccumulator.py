@@ -898,7 +898,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
         _log.warning( "%sComponent: \"%s\" is of type string, no conversion, some properties possibly not set?", indent, comp )
         return comp
 
-    _log.info( "%sConverting from GaudiConfig2 object %s type %s", indent, compName(comp), comp.__class__.__name__ )
+    _log.debug( "%sConverting from GaudiConfig2 object %s type %s", indent, compName(comp), comp.__class__.__name__ )
 
     def __alreadyConfigured( instanceName ):
         from AthenaCommon.Configurable import Configurable
@@ -1032,14 +1032,14 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
                     pvalue=pvalue.data
 
                 if pname not in alreadySetProperties:
-                    _log.info( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )
+                    _log.debug( "%sAdding property: %s for %s", indent, pname, newConf2Instance.getName() )
                     try:
                         setattr(existingConfigurableInstance, pname, pvalue)
                     except AttributeError:
                         _log.info("%s Could not set attribute. Type of existingConfigurableInstance %s.",indent, type(existingConfigurableInstance) )
                         raise
                 elif alreadySetProperties[pname] != pvalue:
-                    _log.info( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
+                    _log.debug( "%sMerging property: %s for %s", indent, pname, newConf2Instance.getName() )
                     # create surrogate
                     clone = newConf2Instance.getInstance("Clone")
                     setattr(clone, pname, alreadySetProperties[pname])
@@ -1055,10 +1055,10 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
 
                     setattr(existingConfigurableInstance, pname, updatedPropValue)
                     del clone
-                    _log.info("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
-                              "for property %s of %s",
-                              indent, alreadySetProperties[pname], pvalue, pname,
-                              updatedPropValue, existingConfigurable.getFullName())
+                    _log.debug("%s invoked GaudiConf2 semantics to merge the %s and the %s to %s "
+                               "for property %s of %s",
+                               indent, alreadySetProperties[pname], pvalue, pname,
+                               updatedPropValue, existingConfigurable.getFullName())
 
     _log.debug( "%s Conf2 Full name: %s ", indent, comp.getFullJobOptName() )
     existingConfigurable = __alreadyConfigured( comp.name )

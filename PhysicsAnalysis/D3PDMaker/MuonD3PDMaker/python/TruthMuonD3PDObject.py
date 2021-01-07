@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file  MuonD3PDMaker/python/TruthMuonD3PDObject.py
 # $author  Srivas Prasad <srivas.prasad@cern.ch>
@@ -9,7 +9,6 @@
 import MuonD3PDMaker
 import EventCommonD3PDMaker
 from D3PDMakerCoreComps.D3PDObject         import make_SGDataVector_D3PDObject
-from D3PDMakerCoreComps.resolveSGKey       import testSGKey
 from D3PDMakerConfig.D3PDMakerFlags        import D3PDMakerFlags
 from AthenaCommon.AlgSequence              import AlgSequence
 from RecExConfig.ObjKeyStore               import cfgKeyStore

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/DataStore.h"
@@ -208,11 +208,16 @@ DataStore::removeProxy(DataProxy* proxy, bool forceRemove, bool hard)
     int index = it->second.first;
     sc = StatusCode::SUCCESS;
 
+    // Remove primary entry.
     m_keyMap.erase (it);
     if (storeIter != m_storeMap.end()) {
       if (1 == storeIter->second.erase(name)) {
         proxy->release();
       }
+    }
+    else {
+      // A dummy proxy.
+      proxy->release();
     }
 
     // Remove all symlinks too.

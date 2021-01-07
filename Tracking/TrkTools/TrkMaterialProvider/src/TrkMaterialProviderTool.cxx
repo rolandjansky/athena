@@ -405,63 +405,44 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 #endif
   
   // find last ID TSOS
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator lastIDwP  = inputTSOS_ID->end();
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator it        = inputTSOS_ID->end()-1;
-  DataVector<const Trk::TrackStateOnSurface>::const_iterator itFront   = inputTSOS_ID->begin();
-  while(*it) {
+  DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator lastIDwP  = inputTSOS_ID->rbegin();
+  for (auto it = inputTSOS_ID->rbegin(); it != inputTSOS_ID->rend(); ++it) {
     if(this->getVolumeByGeo(*it)==1 && (*it)->trackParameters()) {
       lastIDwP = it;
       break;
     }
-    if(it==itFront) break;
-    --it;
   }
   
   // find first MS TSOS
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMS   = inputTSOS_MS->end();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMSwP = inputTSOS_MS->end();
-  it = inputTSOS_MS->begin();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator itEnd = inputTSOS_MS->end();
-  for(; it!=itEnd; ++it) {
+  for(auto it = inputTSOS_MS->begin(); it!=itEnd ; ++it) {
     if(this->getVolumeByGeo(*it)==3) {// && !(*it)->type(Trk::TrackStateOnSurface::Perigee)) {
       if(firstMS==itEnd) 
-	firstMS = it;
+	      firstMS = it;
       if((*it)->trackParameters() && (*it)->trackParameters()->covariance()) {
-	firstMSwP = it;
-	break;
+	      firstMSwP = it;
+      	break;
       }
     }
   }
 
-  if(lastIDwP == inputTSOS_ID->end()) {
+  if(lastIDwP == inputTSOS_ID->rbegin()) {
     ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    /** deprecated outputLevel()
-    if(outputLevel() >= MSG::VERBOSE) {
-      for(auto m : *inputTSOS_ID)
-	      printTSOS(m, "DEBUG-ID-TSOS");
-    }    
-    **/
     return;
   }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    /** deprecated outputLevel()
-    if(outputLevel() >= MSG::VERBOSE) {
-      for(auto m : *inputTSOS_MS)
-	       printTSOS(m, "DEBUG-MS-TSOS");
-    }
-    **/
     return;
   }
 
   // check that first MS TSOS is not a PerigeeSurface
-  //bool removeOoC = false;
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMSnotPerigee = firstMS;
   if( (*firstMS)->type(Trk::TrackStateOnSurface::Perigee) && (firstMS+1)!=inputTSOS_MS->end()) {
     firstMSnotPerigee=firstMS+1;
-    //removeOoC = true;
   }
 
 #ifdef DEBUGON

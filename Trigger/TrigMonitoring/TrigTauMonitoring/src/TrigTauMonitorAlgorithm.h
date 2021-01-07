@@ -50,11 +50,13 @@ class TrigTauMonitorAlgorithm : public AthMonitorAlgorithm {
   void fillRNNTrack(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillRNNCluster(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
   void fillbasicVars(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec, bool online) const;
+  void fillL1(const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois)  const;
   void fillBDTNoCorr(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
   void fillBDTOut(const std::string trigger, std::vector<const xAOD::TauJet*> tau_vec,const std::string nProng) const;
-  void fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger, float HLTthr, const bool fill_l1eff, const std::string trigL1Item, float L1Tthr) const;
+  void fillDistributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, const std::string trigger, float HLTthr) const;
+  void fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger, const std::string trigL1Item, float L1thr) const;
   void fillHLTEfficiencies(const EventContext& ctx,const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec, std::vector<const xAOD::TauJet*> online_tau_vec, std::string nProng) const;
-  void fillL1Efficiencies(const EventContext& ctx, const std::string trigger, std::vector<const xAOD::TauJet*> offline_tau_vec,std::string nProng, const std::string trigL1Item) const;
+  void fillL1Efficiencies(const EventContext& ctx, std::vector<const xAOD::TauJet*> offline_tau_vec, std::string nProng, const std::string trigL1Item, std::vector<const xAOD::EmTauRoI*> L1rois) const;
 
   inline double dR(const double eta1, const double phi1, const double eta2, const double phi2) const
   {

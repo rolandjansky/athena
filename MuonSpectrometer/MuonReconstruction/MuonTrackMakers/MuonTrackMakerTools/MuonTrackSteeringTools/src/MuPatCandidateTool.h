@@ -65,13 +65,16 @@ namespace Muon {
     MuPatCandidateTool(const std::string&, const std::string&, const IInterface*);
     
     /** destructor */
-    ~MuPatCandidateTool() = default;
+    virtual ~MuPatCandidateTool() = default;
     
     /** initialize method, method taken from bass-class AlgTool */
-    StatusCode initialize();
+    virtual StatusCode initialize() override;
 
     /** finialize method, method taken from bass-class AlgTool */
-    StatusCode finalize();
+    virtual StatusCode finalize() override;
+
+    /** stop method, used to clean up garbage */
+    virtual StatusCode stop() override;
     
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_MuPatCandidateTool; }
