@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -137,7 +137,7 @@ StatusCode LArFebErrorSummaryMaker::execute()
   }
     
 
-  for (const auto& it : *hdrCont) {
+  for (const auto it : *hdrCont) {
       HWIdentifier febid= it->FEBId();
       unsigned int int_id =  febid.get_identifier32().get_compact();
    
