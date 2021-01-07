@@ -1,46 +1,19 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// std
-#include <sys/stat.h>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <string>
-
-// other packages
-#include "GaudiKernel/GaudiException.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ServiceHandle.h"
-#include "Identifier/Identifier.h"
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-
-// this package
-#include "MdtCalibSvc/MdtCalibrationShiftMapBase.h"
-#include "MdtCalibSvc/MdtCalibrationTMaxShiftSvc.h"
+#include "MdtCalibSvc/MdtCalibrationTMaxShiftTool.h"
 
 // TRandom2 for random smearing
 // should later be replaced with std
 #include "TRandom2.h"
-// temporary
-#include "TCanvas.h"
-#include "TH1D.h"
 
-//
-// private helper functions
-//
+MdtCalibrationTMaxShiftTool::MdtCalibrationTMaxShiftTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  MdtCalibrationShiftMapBase(type, name, parent),
+  m_tUpper(688.1818) {
+}
 
-MdtCalibrationTMaxShiftSvc::MdtCalibrationTMaxShiftSvc(const std::string &name,
-                                                       ISvcLocator *pSvcLocator)
-    : MdtCalibrationShiftMapBase(name, pSvcLocator), m_tUpper(688.1818) {}
-
-MdtCalibrationTMaxShiftSvc::~MdtCalibrationTMaxShiftSvc() { ; }
-
-StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
+StatusCode MdtCalibrationTMaxShiftTool::initializeMap() {
   if (m_mapIsInitialized) {
     ATH_MSG_WARNING(
         "Map already initalized. Multiple calls of initalizeMap "
@@ -61,19 +34,15 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
   /* initialize random number generator that creates the shift values */
   TRandom2 rng(/*seed*/ 20160211);
 
-  /* idHelper to retrieve channel Identifiers */
-  const MdtIdHelper *idhelper = nullptr;
-  const ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore",
-                                             "detStore");
-  ATH_CHECK(detStore->retrieve(idhelper, "MDTIDHELPER"));
-
-  // Cabling Map (part of cablingSvc) must be retrieved AFTER the first event
-  // i.e. this can NOT happen in initialize
-  /* initialize cabling from which IDs are read */
-  ATH_CHECK(m_cablingSvc.retrieve());
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_mdtCab, Gaudi::Hive::currentContext()};
+  const MuonMDT_CablingMap* mdtCabling{*readHandle};
+  if(!mdtCabling){
+    ATH_MSG_ERROR("Null pointer to the MDT cabling conditions object");
+    return StatusCode::FAILURE;
+  }
 
   /* Get ROBs */
-  std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
+  std::vector<uint32_t> robVector = mdtCabling->getAllROBId();
 
   std::map<uint8_t, MdtSubdetectorMap *> *listOfSubdet;
   std::map<uint8_t, MdtSubdetectorMap *>::const_iterator it_sub;
@@ -87,8 +56,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
   std::map<uint8_t, MdtAmtMap *> *listOfAmt;
   std::map<uint8_t, MdtAmtMap *>::const_iterator it_amt;
 
-  const MuonMDT_CablingMap* cablingMap = m_cablingSvc->getCablingMap();
-  listOfSubdet = cablingMap->getListOfElements();
+  listOfSubdet = mdtCabling->getListOfElements();
 
   int subdetectorId, rodId, csmId, amtId;
   int stationName, stationEta, stationPhi, multiLayer, layer, tube;
@@ -113,7 +81,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
 
           for (int tubeId = 0; tubeId < 24; ++tubeId) {
             /* Get the offline ID, given the current detector element */
-            if (!m_cablingSvc->getOfflineId(
+            if (!mdtCabling->getOfflineId(
                     subdetectorId, rodId, csmId, amtId, tubeId, stationName,
                     stationEta, stationPhi, multiLayer, layer, tube)) {
               std::ostringstream ss;
@@ -129,7 +97,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
 
             bool isValid = false;
             const Identifier channelIdentifier =
-                idhelper->channelID(stationName, stationEta, stationPhi,
+                m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi,
                                     multiLayer, layer, tube, true, &isValid);
 
             // this debug msg can be removed eventually
@@ -180,7 +148,7 @@ StatusCode MdtCalibrationTMaxShiftSvc::initializeMap() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode MdtCalibrationTMaxShiftSvc::setTUpper(float tUpper) {
+StatusCode MdtCalibrationTMaxShiftTool::setTUpper(const float tUpper) {
   if (m_mapIsInitialized) {
     ATH_MSG_FATAL("You cannot change m_tUpper once the map is initialized.");
     return StatusCode::FAILURE;
