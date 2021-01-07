@@ -8,76 +8,10 @@
 atlas_subdir( SUSYTools )
 
 # Extra dependencies based on the build environment:
-set( extra_deps )
 set( extra_libs )
 if( NOT XAOD_STANDALONE )
-   set( extra_deps GaudiKernel PhysicsAnalysis/POOLRootAccess
-      Control/AthAnalysisBaseComps Control/AthenaBaseComps
-      Control/AthenaKernel )
    set( extra_libs GaudiKernel AthAnalysisBaseCompsLib )
 endif()
-
-# Declare the package's dependencies:
-atlas_depends_on_subdirs(
-   PUBLIC
-   Control/AthToolSupport/AsgTools
-   Event/xAOD/xAODCore
-   Event/xAOD/xAODEgamma
-   Event/xAOD/xAODEventInfo
-   Event/xAOD/xAODJet
-   Event/xAOD/xAODMissingET
-   Event/xAOD/xAODTrigMissingET
-   Event/xAOD/xAODMuon
-   Event/xAOD/xAODTau
-   Event/xAOD/xAODTracking
-   Event/xAOD/xAODTruth
-   PhysicsAnalysis/AnalysisCommon/AssociationUtils
-   PhysicsAnalysis/AnalysisCommon/PATInterfaces
-   PhysicsAnalysis/AnalysisCommon/PMGTools
-   PhysicsAnalysis/MCTruthClassifier
-   Reconstruction/Jet/JetJvtEfficiency
-   Reconstruction/Jet/JetSubStructureUtils
-   Trigger/TrigAnalysis/TrigDecisionTool
-   PRIVATE
-   AsgExternal/Asg_Test
-   Control/xAODRootAccess
-   Control/AthContainers
-   DataQuality/GoodRunsLists
-   Event/EventPrimitives
-   Event/FourMomUtils
-   Event/xAOD/xAODBTagging
-   Event/xAOD/xAODBase
-   Event/xAOD/xAODCaloEvent
-   Event/xAOD/xAODCutFlow
-   Event/xAOD/xAODPrimitives
-   PhysicsAnalysis/AnalysisCommon/IsolationSelection
-   PhysicsAnalysis/AnalysisCommon/PileupReweighting
-   PhysicsAnalysis/ElectronPhotonID/ElectronEfficiencyCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonFourMomentumCorrection
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
-   PhysicsAnalysis/ElectronPhotonID/ElectronPhotonShowerShapeFudgeTool
-   PhysicsAnalysis/ElectronPhotonID/IsolationCorrections
-   PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
-   PhysicsAnalysis/Interfaces/AsgAnalysisInterfaces
-   PhysicsAnalysis/JetMissingEtID/JetSelectorTools
-   PhysicsAnalysis/JetTagging/JetTagPerformanceCalibration/xAODBTaggingEfficiency
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonEfficiencyCorrections
-   PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
-   PhysicsAnalysis/MuonID/MuonSelectorTools
-   PhysicsAnalysis/TauID/TauAnalysisTools
-   Reconstruction/Jet/JetCPInterfaces
-   Reconstruction/Jet/JetCalibTools
-   Reconstruction/Jet/JetInterface
-   Reconstruction/Jet/JetResolution
-   Reconstruction/Jet/JetUncertainties
-   Reconstruction/Jet/JetMomentTools
-   Reconstruction/MET/METInterface
-   Reconstruction/MET/METUtilities
-   Tools/PathResolver
-   Trigger/TrigAnalysis/TriggerMatchingTool
-   Trigger/TrigConfiguration/TrigConfInterfaces
-   Trigger/TrigConfiguration/TrigConfxAOD
-   ${extra_deps} )
 
 # External dependencies:
 find_package( Boost )
@@ -114,7 +48,7 @@ if( NOT XAOD_STANDALONE )
       AthenaKernel AthAnalysisBaseCompsLib xAODEventInfo xAODMuon xAODPrimitives
       xAODJet xAODBTagging xAODEgamma xAODMissingET xAODTracking xAODTau
       TauAnalysisToolsLib xAODCore AthContainers AsgTools xAODBase xAODCutFlow
-      PATInterfaces PathResolver SUSYToolsLib )
+      PATInterfaces PathResolver SUSYToolsLib MuonAnalysisInterfacesLib JetAnalysisInterfacesLib EgammaAnalysisInterfacesLib )
 endif()
 
 atlas_add_dictionary( SUSYToolsDict
