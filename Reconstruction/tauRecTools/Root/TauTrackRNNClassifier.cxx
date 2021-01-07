@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ASG include(s)
@@ -51,14 +51,14 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
   std::vector<xAOD::TauTrack*> vTracks = xAOD::TauHelpers::allTauTracksNonConst(&xTau, &tauTrackCon);
 
   for (xAOD::TauTrack* xTrack : vTracks)
-  {
-    // reset all track flags and set status to unclassified
-    xTrack->setFlag(xAOD::TauJetParameters::classifiedCharged, false);
-    xTrack->setFlag(xAOD::TauJetParameters::classifiedConversion, false);
-    xTrack->setFlag(xAOD::TauJetParameters::classifiedIsolation, false);
-    xTrack->setFlag(xAOD::TauJetParameters::classifiedFake, false);
-    xTrack->setFlag(xAOD::TauJetParameters::unclassified, true);
-  }
+    {
+      // reset all track flags and set status to unclassified
+      xTrack->setFlag(xAOD::TauJetParameters::classifiedCharged, false);
+      xTrack->setFlag(xAOD::TauJetParameters::classifiedConversion, false);
+      xTrack->setFlag(xAOD::TauJetParameters::classifiedIsolation, false);
+      xTrack->setFlag(xAOD::TauJetParameters::classifiedFake, false);
+      xTrack->setFlag(xAOD::TauJetParameters::unclassified, true);
+    }
   
   for (auto cClassifier : m_vClassifier) {
     ATH_CHECK(cClassifier->classifyTracks(vTracks, xTau));
@@ -74,10 +74,16 @@ StatusCode TauTrackRNNClassifier::executeTrackClassifier(xAOD::TauJet& xTau, xAO
   xTau.setDetail(xAOD::TauJetParameters::nChargedTracks, (int) xTau.nTracks());
   xTau.setDetail(xAOD::TauJetParameters::nIsolatedTracks, (int) xTau.nTracks(xAOD::TauJetParameters::classifiedIsolation));
 
+  // decorations for now, may be turned into Aux
+  static const SG::AuxElement::Accessor<int> nTrkConv("nConversionTracks");
+  static const SG::AuxElement::Accessor<int> nTrkFake("nFakeTracks");
+  nTrkConv(xTau) = (int) xTau.nTracks(xAOD::TauJetParameters::classifiedConversion);
+  nTrkFake(xTau) = (int) xTau.nTracks(xAOD::TauJetParameters::classifiedFake);
+
   //set modifiedIsolationTrack
   for (xAOD::TauTrack* xTrack : vTracks) {
     if( not xTrack->flag(xAOD::TauJetParameters::classifiedCharged) and 
-    xTrack->flag(xAOD::TauJetParameters::passTrkSelector) ) xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, true);
+	xTrack->flag(xAOD::TauJetParameters::passTrkSelector) ) xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, true);
     else xTrack->setFlag(xAOD::TauJetParameters::modifiedIsolationTrack, false);
   }
   xTau.setDetail(xAOD::TauJetParameters::nModifiedIsolationTracks, (int) xTau.nTracks(xAOD::TauJetParameters::modifiedIsolationTrack));
@@ -118,22 +124,15 @@ StatusCode TrackRNN::initialize()
 //______________________________________________________________________________
 StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD::TauJet& xTau) const
 {
-  std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
-
   if(vTracks.size() == 0)
     return StatusCode::SUCCESS;
+
+  std::sort(vTracks.begin(), vTracks.end(), [](const xAOD::TauTrack * a, const xAOD::TauTrack * b) {return a->pt() > b->pt();});
 
   static const SG::AuxElement::Accessor<float> idScoreCharged("rnn_chargedScore");
   static const SG::AuxElement::Accessor<float> idScoreIso("rnn_isolationScore");
   static const SG::AuxElement::Accessor<float> idScoreConv("rnn_conversionScore");
   static const SG::AuxElement::Accessor<float> idScoreFake("rnn_fakeScore");
-  static const SG::AuxElement::Accessor<float> idScoreUncl("rnn_unclassifiedScore");
-
-  static const SG::AuxElement::Accessor<int> nTrkCharged("nRnnChargedTracks");
-  static const SG::AuxElement::Accessor<int> nTrkIso("nRnnIsolationTracks");
-  static const SG::AuxElement::Accessor<int> nTrkConv("nRnnConvertionTracks");
-  static const SG::AuxElement::Accessor<int> nTrkFake("nRnnFakeTracks");
-  static const SG::AuxElement::Accessor<int> nTrkUncl("nRnnUnclassifiedTracks");
 
   VectorMap valueMap;
   ATH_CHECK(calulateVars(vTracks, xTau, valueMap));
@@ -147,11 +146,6 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
 
   std::vector<double> vClassProb(5);
 
-  int nChargedTracks = 0;
-  int nIsoTracks = 0;
-  int nConvTracks = 0;
-  int nFakeTracks = 0;
-  int nUnclTracks = 0;
   for (unsigned int i = 0; i < vTracks.size(); ++i){
 
     if(i >= m_nMaxNtracks && m_nMaxNtracks > 0){
@@ -172,7 +166,6 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
     idScoreConv(*vTracks[i]) = vClassProb[1];
     idScoreIso(*vTracks[i]) = vClassProb[2];
     idScoreFake(*vTracks[i]) = vClassProb[3];
-    idScoreUncl(*vTracks[i]) = vClassProb[4];
 
     int iMaxIndex = 3; // for safty reasons set this to FT to circumvent bias
     for (unsigned int j = 0; j < vClassProb.size(); ++j){
@@ -180,29 +173,18 @@ StatusCode TrackRNN::classifyTracks(std::vector<xAOD::TauTrack*>& vTracks, xAOD:
     }
 
     if(iMaxIndex == 3){
-        vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedFake, true);
-        nFakeTracks++;
-      }else if(iMaxIndex == 0){
-        vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedCharged, true);
-        nChargedTracks++;
-      }else if(iMaxIndex == 1){
-        vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedConversion, true);
-        nConvTracks++;
-      }else if(iMaxIndex == 2){
-        vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedIsolation, true);
-        nIsoTracks++;
-      }else if(iMaxIndex == 4){
-        vTracks[i]->setFlag(xAOD::TauJetParameters::unclassified, true);
-        nUnclTracks++;
-      }
+      vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedFake, true);
+    }else if(iMaxIndex == 0){
+      vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedCharged, true);
+    }else if(iMaxIndex == 1){
+      vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedConversion, true);
+    }else if(iMaxIndex == 2){
+      vTracks[i]->setFlag(xAOD::TauJetParameters::classifiedIsolation, true);
+    }else if(iMaxIndex == 4){
+      vTracks[i]->setFlag(xAOD::TauJetParameters::unclassified, true);
     }
-
-    nTrkCharged(xTau) = nChargedTracks;
-    nTrkIso(xTau) = nIsoTracks;
-    nTrkConv(xTau) = nConvTracks;
-    nTrkFake(xTau) = nFakeTracks;
-    nTrkUncl(xTau) = nUnclTracks;
-
+  }
+  
   return StatusCode::SUCCESS;
 }
 
@@ -266,61 +248,57 @@ StatusCode TrackRNN::calulateVars(const std::vector<xAOD::TauTrack*>& vTracks, c
 
   unsigned int i = 0;
   for(xAOD::TauTrack* xTrack : vTracks)
-  {
-    const xAOD::TrackParticle* xTrackParticle = xTrack->track();
+    {
+      const xAOD::TrackParticle* xTrackParticle = xTrack->track();
 
-    double fTrackPt = xTrackParticle->pt();
-    double fTrackEta = xTrackParticle->eta();
-    double fTrackCharge = xTrackParticle->charge();
-    double fZ0SinthetaTJVA = xTrack->z0sinthetaTJVA();
-    double fRConv = xTrack->rConv();
-    double fRConvII = xTrack->rConvII();
-    double fDRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
-    double fD0 = xTrack->d0TJVA();
-    double fQoverP = xTrackParticle->qOverP();
+      double fTrackPt = xTrackParticle->pt();
+      double fTrackEta = xTrackParticle->eta();
+      double fTrackCharge = xTrackParticle->charge();
+      double fZ0SinthetaTJVA = xTrack->z0sinthetaTJVA();
+      double fRConv = xTrack->rConv();
+      double fRConvII = xTrack->rConvII();
+      double fDRJetSeedAxis = xTrack->dRJetSeedAxis(xTau);
+      double fD0 = xTrack->d0TJVA();
+      double fQoverP = xTrackParticle->qOverP();
 
-    uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
-    uint8_t iTracksNPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits) );
-    uint8_t iTracksNPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits) );
-    uint8_t iTracksNPixelDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors) );
-    uint8_t iTracksNSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits) );
-    uint8_t iTracksNSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits) );
-    uint8_t iTracksNSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
-    uint8_t iTracksNTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
-    uint8_t iTracksNTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits) );
-    uint8_t iNumberOfContribPixelLayers = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers) );
-    uint8_t iNumberOfPixelHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles) );
-    uint8_t iNumberOfSCTHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles) );
+      uint8_t iTracksNumberOfInnermostPixelLayerHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNumberOfInnermostPixelLayerHits, xAOD::numberOfInnermostPixelLayerHits) );
+      uint8_t iTracksNPixelHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelHits, xAOD::numberOfPixelHits) );
+      uint8_t iTracksNPixelSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelSharedHits, xAOD::numberOfPixelSharedHits) );
+      uint8_t iTracksNPixelDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNPixelDeadSensors, xAOD::numberOfPixelDeadSensors) );
+      uint8_t iTracksNSCTHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTHits, xAOD::numberOfSCTHits) );
+      uint8_t iTracksNSCTSharedHits = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTSharedHits, xAOD::numberOfSCTSharedHits) );
+      uint8_t iTracksNSCTDeadSensors = 0; ATH_CHECK( xTrackParticle->summaryValue(iTracksNSCTDeadSensors, xAOD::numberOfSCTDeadSensors) );
+      uint8_t iTracksNTRTHighThresholdHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits) );
+      uint8_t iTracksNTRTHits = 0; ATH_CHECK( xTrackParticle->summaryValue( iTracksNTRTHits, xAOD::numberOfTRTHits) );
+      //uint8_t iNumberOfContribPixelLayers = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfContribPixelLayers, xAOD::numberOfContribPixelLayers) );
+      //uint8_t iNumberOfPixelHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfPixelHoles, xAOD::numberOfPixelHoles) );
+      //uint8_t iNumberOfSCTHoles = 0; ATH_CHECK( xTrackParticle->summaryValue(iNumberOfSCTHoles, xAOD::numberOfSCTHoles) );
 
-    float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
+      float fTracksEProbabilityHT; ATH_CHECK( xTrackParticle->summaryValue( fTracksEProbabilityHT, xAOD::eProbabilityHT) );
   
-    //float fNumberOfContribPixelLayers = float(iNumberOfContribPixelLayers);
-    //float fNumberOfPixelHoles = float(iNumberOfPixelHoles);
-    //float fNumberOfSCTHoles = float(iNumberOfSCTHoles);
+      valueMap["log(trackPt)"][i] = std::log(fTrackPt);
+      valueMap["log(jetSeedPt)"][i] = log_TauSeedPt;
+      valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
+      valueMap["trackEta"][i] = fTrackEta;
+      valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
+      valueMap["log(rConv)"][i] = std::log(fRConv);
+      valueMap["tanh(rConvII/500)"][i] = std::tanh(fRConvII/500.0);
+      valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
+      valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10.);
+      valueMap["qOverP*1000"][i] = fQoverP*1000.0;
+      valueMap["numberOfInnermostPixelLayerHits"][i] = (float) iTracksNumberOfInnermostPixelLayerHits;
+      valueMap["numberOfPixelSharedHits"][i] = (float) iTracksNPixelSharedHits;
+      valueMap["numberOfSCTSharedHits"][i] = (float) iTracksNSCTSharedHits;
+      valueMap["numberOfTRTHits"][i] = (float) iTracksNTRTHits;
+      valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
+      valueMap["nPixHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors);
+      valueMap["nSiHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors + iTracksNSCTHits + iTracksNSCTDeadSensors);
+      valueMap["charge"][i] = fTrackCharge;
 
-    valueMap["log(trackPt)"][i] = std::log(fTrackPt);
-    valueMap["log(jetSeedPt)"][i] = log_TauSeedPt;
-    valueMap["(trackPt/jetSeedPt[0])"][i] = (fTrackPt/fTauSeedPt);
-    valueMap["trackEta"][i] = fTrackEta;
-    valueMap["z0sinThetaTJVA"][i] = fZ0SinthetaTJVA;
-    valueMap["log(rConv)"][i] = std::log(fRConv);
-    valueMap["tanh(rConvII/500)"][i] = std::tanh(fRConvII/500.0);
-    valueMap["dRJetSeedAxis"][i] = fDRJetSeedAxis;
-    valueMap["tanh(d0/10)"][i] = std::tanh(fD0/10.);
-    valueMap["qOverP*1000"][i] = fQoverP*1000.0;
-    valueMap["numberOfInnermostPixelLayerHits"][i] = (float) iTracksNumberOfInnermostPixelLayerHits;
-    valueMap["numberOfPixelSharedHits"][i] = (float) iTracksNPixelSharedHits;
-    valueMap["numberOfSCTSharedHits"][i] = (float) iTracksNSCTSharedHits;
-    valueMap["numberOfTRTHits"][i] = (float) iTracksNTRTHits;
-    valueMap["eProbabilityHT"][i] = fTracksEProbabilityHT;
-    valueMap["nPixHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors);
-    valueMap["nSiHits"][i] = (float) (iTracksNPixelHits + iTracksNPixelDeadSensors + iTracksNSCTHits + iTracksNSCTDeadSensors);
-    valueMap["charge"][i] = fTrackCharge;
-
-    ++i;
-    if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks)
-      break;
-  }
+      ++i;
+      if(m_nMaxNtracks > 0 && i >= m_nMaxNtracks)
+	break;
+    }
 
   return StatusCode::SUCCESS;
 } 
