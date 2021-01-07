@@ -327,6 +327,12 @@ def generateChains( flags, chainDict ):
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     accMS.merge(TrackingGeometrySvcCfg(muonflags))
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    accMS.merge(LArGMCfg(muonflags))
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    accMS.merge(TileGMCfg(muonflags))
     ###################
 
     EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
