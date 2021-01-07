@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNNUtils.h"
@@ -69,7 +69,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     // Calculate variables for selected clusters
     bool success = true;
     double value;
-    for (const auto cluster : clusters) {
+    for (const xAOD::CaloVertexedTopoCluster& cluster : clusters) {
         success = success && func(tau, cluster, value);
         out.push_back(value);
     }
