@@ -82,9 +82,9 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
     conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-  if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-    condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+      condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
   if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
     if not (globalflags.DataSource() == 'geant4'):

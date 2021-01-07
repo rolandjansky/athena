@@ -31,7 +31,7 @@ def SCTHitsNoiseMonAlgConfig(inputFlags):
     myMonAlg.TriggerChain = ""
 
     # Trigger histogram will be made only for data.
-    myMonAlg.doTrigger = (not inputFlags.Input.isMC)
+    myMonAlg.doTrigger = (not inputFlags.Input.isMC and inputFlags.DQ.useTrigger)
 
     from ROOT import SCT_Monitoring as sctMon #import SCT_MonitoringNumbers.h
 

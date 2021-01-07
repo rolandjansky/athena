@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EMClusterTool.h"
@@ -192,7 +192,7 @@ EMClusterTool::setNewCluster(const EventContext& ctx,
   outputClusterContainer->push_back(cluster);
 
   // Set the link to the new cluster
-  ClusterLink_t clusterLink(cluster, *outputClusterContainer);
+  ClusterLink_t clusterLink(cluster, *outputClusterContainer, ctx);
   const std::vector<ClusterLink_t> clusterLinks{ clusterLink };
   eg->setCaloClusterLinks(clusterLinks);
 }

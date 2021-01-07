@@ -127,9 +127,9 @@ else{
     {
       // change the channel number where /Generation/Parameters are found
       auto newChannelNumber =
-          static_cast< const CondAttrListCollection::ChanNum >(m_newRunNumber);
+          static_cast< CondAttrListCollection::ChanNum >(m_newRunNumber);
       auto oldChannelNumber = 
-          static_cast< const CondAttrListCollection::ChanNum >(oldRunNumber);
+          static_cast< CondAttrListCollection::ChanNum >(oldRunNumber);
 
       const char* key = "/Generation/Parameters";
       const IOVMetaDataContainer * iovContainer = nullptr;

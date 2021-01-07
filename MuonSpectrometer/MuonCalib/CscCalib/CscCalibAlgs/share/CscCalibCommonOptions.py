@@ -1,3 +1,5 @@
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 #**************************************************************
 #
 #       Read in ByteStream events, and Access CSC RDO
@@ -66,8 +68,14 @@ printfunc (MuonCscRawDataProviderTool)
 
 # load the CscRawDataProvider
 from MuonByteStream.MuonByteStreamConf import Muon__CscRawDataProvider
-topSequence += Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
-                                    ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+cscDataProvider = Muon__CscRawDataProvider(name         = "MuonCscRawDataProvider",
+                                           ProviderTool = ToolSvc.MuonCscRawDataProviderTool)
+
+from RegionSelector.RegSelToolConfig import makeRegSelTool_CSC
+cscDataProvider.RegionSelectionTool = makeRegSelTool_CSC()
+
+topSequence += cscDataProvider
+
 printfunc (topSequence.MuonCscRawDataProvider)
 
 

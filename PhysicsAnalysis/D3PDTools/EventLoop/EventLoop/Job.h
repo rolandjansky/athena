@@ -395,7 +395,6 @@ namespace EL
   public:
     static const std::string optGridDestSE;
     static const std::string optGridSite;
-    static const std::string optGridCloud;
     static const std::string optGridExcludedSite;
     static const std::string optGridNGBPerJob;
     static const std::string optGridMemory;
@@ -405,11 +404,9 @@ namespace EL
     static const std::string optGridNJobs;
     static const std::string optGridMaxFileSize;
     static const std::string optGridMaxNFilesPerJob;
-    static const std::string optGridUseChirpServer;
     static const std::string optGridExpress;
     static const std::string optGridNoSubmit;
     static const std::string optGridMergeOutput;
-    static const std::string optGridUseContElementBoundary;
     static const std::string optGridAddNthFieldOfInDSToLFN;
     static const std::string optGridWorkingGroup;
     static const std::string optGridShowCmd;

@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAODTAU_VERSIONS_TAUJETAUXCONTAINER_V3_H
@@ -117,6 +117,7 @@ namespace xAOD {
     //after the first pass of TauTrackFinder
     std::vector< int > nChargedTracks;
     std::vector< int > nIsolatedTracks;
+    std::vector< int > nAllTracks;
 
     typedef std::vector< ElementLink< IParticleContainer > > IParticleLink_t;
     std::vector< IParticleLink_t > clusterLinks;//actually xAOD::CaloClusters

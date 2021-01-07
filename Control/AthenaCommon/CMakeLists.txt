@@ -29,8 +29,10 @@ atlas_add_test( AthAppMgrUnitTests SCRIPT test/test_AthAppMgrUnitTests.sh
 atlas_add_test( ConfigurableUnitTests SCRIPT test/test_ConfigurableUnitTests.sh
                 PROPERTIES TIMEOUT 300
                 LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
-atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh
-                LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
+if (NOT XAOD_ANALYSIS)
+   atlas_add_test( JobOptionsUnitTests SCRIPT test/test_JobOptionsUnitTests.sh
+                   LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
+endif()
 atlas_add_test( JobPropertiesUnitTests SCRIPT test/test_JobPropertiesUnitTests.sh
                 LOG_IGNORE_PATTERN "Warning in <TFile::Init>: no StreamerInfo found|^Ran .* tests in" )
 atlas_add_test( KeyStoreUnitTests SCRIPT test/test_KeyStoreUnitTests.sh

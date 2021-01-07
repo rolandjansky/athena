@@ -14,4 +14,3 @@ RpcIdHelper          INFO The element hash max is 600
 RpcIdHelper          INFO The detector element hash max is 1122
 RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
 test1
-test                 INFO  RPCcablingSvc obtained - hashmax  = 3

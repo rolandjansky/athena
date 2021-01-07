@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonValidationPlots.h"
@@ -16,7 +16,7 @@ MuonValidationPlots::MuonValidationPlots(PlotBase* pParent, std::string sDir,std
     m_truthSelections[1] = "MSAcceptance"; //truth muons in MS acceptance (at least 4 associated hits in the MS)
     
     //histogram classes for all muons
-    for(const auto truthSelection : m_truthSelections) {
+    for(const auto& truthSelection : m_truthSelections) {
       m_oTruthMuonPlots.push_back(new Muon::TruthMuonPlotOrganizer(this,"truth/"+truthSelection));
     }
     m_oTruthRelatedMuonPlots = new Muon::TruthRelatedMuonPlotOrganizer(this, "matched/AllMuons", doBinnedResolutionPlots);//, doMuonTree);
@@ -248,7 +248,7 @@ bool MuonValidationPlots::isGoodTruthTrack(const xAOD::TruthParticle& truthMu) {
   int nPrecHits=0;
   bool hasEnoughPrecHits=false;
 
-  for (const auto hitTypeItr : hitTypes) {
+  for (const auto& hitTypeItr : hitTypes) {
     if (truthMu.isAvailable<uint8_t>(hitTypeItr)) {
       nPrecHits+=truthMu.auxdata<uint8_t>(hitTypeItr);
       if (nPrecHits>=minPrecHits) {
