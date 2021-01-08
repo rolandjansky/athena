@@ -15,7 +15,7 @@ atlas_add_library( MuonEventAthenaPoolLib
    LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} AthenaPoolUtilities
    AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment AthAllocators
    AthContainers AthenaKernel StoreGateLib AthenaPoolCnvSvcLib
-   Identifier GaudiKernel RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv
+   Identifier GaudiKernel CscCalibEvent MuonEventTPCnv RPC_CondCablingLib
    MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib MuonChamberT0s
    MuonPrepRawData MuonTrigCoinData MuonSimData AthenaPoolServicesLib )
 
@@ -54,7 +54,7 @@ atlas_add_poolcnv_library( MuonEventAthenaPoolPoolCnv
                   AtlasSealCLHEP MuonRDO MuonRIO_OnTrack MuonSegment
                   AthAllocators AthContainers AthenaKernel StoreGateLib
                   AthenaPoolCnvSvcLib Identifier GaudiKernel
-                  RPCcablingInterfaceLib CscCalibEvent MuonEventTPCnv
+                  CscCalibEvent MuonEventTPCnv RPC_CondCablingLib
                   MuonReadoutGeometry MuonDigitContainer MuonIdHelpersLib
                   MuonChamberT0s MuonPrepRawData MuonTrigCoinData MuonSimData
                   RPC_CondCablingLib MuonEventAthenaPoolLib )
