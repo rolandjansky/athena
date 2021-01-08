@@ -102,6 +102,14 @@ class ConfigDict(dict):
 # **********************************************************
 
 
+def interpretManySelStr(selStr):
+    selL = selStr.split('&')
+    interpL = [interpretSelStr( s ) for s in selL]
+    # interpL is in the form [ (min1,v1,max1), (min2,v2,max2),..]
+    # unpack it into 3 lists :
+    minL, varL, maxL = zip(*interpL)
+    return minL, varL, maxL
+    
 def interpretSelStr(selStr):
     """Interpret a selection string in the form '12.3<var<42.0'
     and returns a tuple.
@@ -113,8 +121,9 @@ def interpretSelStr(selStr):
     if '>' in selStr:
         print("JetMonitoring ERROR interpreting selection string ", selStr)
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
+
     parts = selStr.split('<')
-    cmin, cmax = None, None
+    cmin, cmax = -3.4e38, 3.4e38 #we declare std::vector<float> for both on the c++ side, but will not necessarily pass actual values for them, so we use min/max float values in python as default (hardcoded numbers, because not easily accessible)
     var = selStr
     if len(parts)==2:
         ismin = False
@@ -131,8 +140,6 @@ def interpretSelStr(selStr):
         cmax = float(cmax)
 
     return cmin, var, cmax
-    
-
 
 def findSelectIndex( name):
     """ interprets 'varName[X]' into ('varName',x) """
@@ -421,16 +428,19 @@ class SelectSpec(ToolSpec):
     def __init__(self, selname, selexpr, path=None, **args):
         path = selname if path is None else path
         if '<' in selexpr:
-            # interpret it as min<v<max
-            cmin, v , cmax = interpretSelStr(selexpr)
+            # interpret it as a list of min<v<max
+            cminList , varList , cmaxList = interpretManySelStr(selexpr)
+            specname = '_'.join(varList)
             if args.setdefault('isEventVariable', False) :
+              VarList = [retrieveEventVarToolConf(v) for v in varList]
               selProp = 'EventSelector'
-              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveEventVarToolConf(v), )
+              selSpec = ToolSpec('JetEventSelector', specname+'_sel', Var = VarList, ) 
             else:
+              VarList = [retrieveVarToolConf(v) for v in varList]
               selProp = 'Selector'
-              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
-            if cmin is not None: selSpec['CutMin'] = cmin
-            if cmax is not None: selSpec['CutMax'] = cmax
+              selSpec = ToolSpec('JetSelectorAttribute', specname+'_sel', Var = VarList, )
+            selSpec['CutMin'] = cminList
+            selSpec['CutMax'] = cmaxList
             args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector
