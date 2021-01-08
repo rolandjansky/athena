@@ -1,5 +1,4 @@
-from __future__ import print_function
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -29,7 +28,6 @@ from __future__ import print_function
 ##
 ## See python/JetMonitoringExample.py for usage of the system
 
-import six
 from AthenaCommon import  SystemOfUnits
 
 class ConfigDict(dict):
@@ -44,7 +42,7 @@ class ConfigDict(dict):
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             dict.__setattr__(self, k,  v)
     def __getattr__(self, attr):
         try:
@@ -70,7 +68,7 @@ class ConfigDict(dict):
     def clone(self, **kwargs):
         from copy import deepcopy
         c = deepcopy(self)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             setattr(c,k,v)
         return c
 
@@ -87,7 +85,7 @@ class ConfigDict(dict):
     def _dump(self, writeFunc):
         def write(s, e='\n'): writeFunc('  '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if isinstance(v, ConfigDict):
                 write(k+' = ','')
                 v._dump(write)
@@ -167,7 +165,7 @@ class ToolSpec(ConfigDict):
         conf.pop('topLevelDir',None)
         conf.pop('bottomLevelDir',None)
         conf.pop('defineHistoFunc',None) # not used here.
-        for k, v in six.iteritems (conf):
+        for k, v in conf.items():
             if isinstance(v,ToolSpec):
                 v.topLevelDir = self.topLevelDir
                 v.bottomLevelDir = self.bottomLevelDir
@@ -547,7 +545,7 @@ class JetMonAlgSpec(ConfigDict):
         def write(s,e='\n'): writeFunc('  '+s,e)
         def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if k == 'FillerTools':
                 write('FillerTools = [')
                 for hspec in v:

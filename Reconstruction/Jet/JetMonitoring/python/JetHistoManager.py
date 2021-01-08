@@ -1,8 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
-import six
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 class JetHistoManager(object):
 
@@ -31,7 +27,7 @@ class JetHistoManager(object):
         return t
         
     def printTools(self):
-        for n, t in six.iteritems(self.knownTools):
+        for n, t in self.knownTools.items():
             print ('%20s    %40s'%(n, type(t)))
 
 jetHistoManager = JetHistoManager()
