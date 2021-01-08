@@ -25,8 +25,6 @@
 #include <vector>
 
 namespace {
-// Should be smaller than the eta half-width of any cell.
-constexpr float eps = 0.001;
 /**
  * Duplicate code
  * @brief Return eta/phi ranges encompassing +- 1 cell.
@@ -52,6 +50,8 @@ etaphi_range(const CaloDetDescrManager& dd_man,
              double& deta,
              double& dphi)
 {
+  // Should be smaller than the eta half-width of any cell.
+  constexpr double eps = 0.001;
   deta = 0;
   dphi = 0;
   // Get the DD element for the central cell.
@@ -150,14 +150,13 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& name,
   m_searchWindowEtaEndcap = m_searchWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
 
   m_addCellsWindowEtaBarrel =
-    m_addCellsWindowEtaCellsBarrel * s_cellEtaSize * 0.5 + eps;
+    m_addCellsWindowEtaCellsBarrel * s_cellEtaSize * 0.5;
   m_addCellsWindowEtaEndcap =
-    m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5 + eps;
-  // The +- to account for the different L3 eta granularity (the eps will come
-  // from the m_addCellsWindowEta so not add again)
+    m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
+  // The +- to account for the different L3 eta granularity
   m_extraL3EtaSize = m_extraL3EtaSizeCells * s_cellEtaSize * 0.5;
   // the + is to account for different L0/L1 phi granularity
-  m_extraL0L1PhiSize = m_extraL0L1PhiSizeCells * s_cellPhiSize + eps;
+  m_extraL0L1PhiSize = m_extraL0L1PhiSizeCells * s_cellPhiSize;
 }
 
 StatusCode
@@ -185,27 +184,27 @@ egammaSuperClusterBuilder::initialize()
     m_egammaCheckEnergyDepositTool.disable();
   }
   m_addCellsWindowEtaBarrel =
-    m_addCellsWindowEtaCellsBarrel * s_cellEtaSize * 0.5 + eps;
+    m_addCellsWindowEtaCellsBarrel * s_cellEtaSize * 0.5;
   m_addCellsWindowEtaEndcap =
-    m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5 + eps;
-  // The +- to account for the different L3 eta granularity (the eps will come
-  // from the m_addCellsWindowEta so not add again)
+    m_addCellsWindowEtaCellsEndcap * s_cellEtaSize * 0.5;
+  // The +- to account for the different L3 eta granularity
   m_extraL3EtaSize = m_extraL3EtaSizeCells * s_cellEtaSize * 0.5;
 
   // the + is to account for different L0/L1 phi granularity
-  m_extraL0L1PhiSize = m_extraL0L1PhiSizeCells * s_cellPhiSize + eps;
+  m_extraL0L1PhiSize = m_extraL0L1PhiSizeCells * s_cellPhiSize;
   ATH_MSG_INFO(
     '\n'
-    << "Dynamic e/gamma clusters" << '\n'
-    << "-> Eta Window size for L0/L1/L2 cells : " << '\n'
+    << "e/gamma super clusters" << '\n'
+    << "--> Eta Window size for L0/L1/L2 cells : " << '\n'
     << "Barrel +- " << m_addCellsWindowEtaBarrel << '\n'
     << "EndCap +- " << m_addCellsWindowEtaEndcap << '\n'
-    << "-> Eta Window size for L3 cells : " << '\n'
+    << "--> Eta Window size for L3 cells : " << '\n'
     << "Barrel +- " << (m_addCellsWindowEtaBarrel + m_extraL3EtaSize) << '\n'
     << "EndCap +- " << (m_addCellsWindowEtaEndcap + m_extraL3EtaSize) << '\n'
-    << " -> L0/L1 cells are constrained in phi " << '\n'
-    << "+- " << m_extraL0L1PhiSize << '\n'
-    << " with respect the L2 phi size of the cluster");
+    << " -> Phi window is fully dynamic for L2/L3" << '\n'
+    << " -> L0/L1 cells in phi will be collected in a window" << '\n'
+    << "(L2 neg extend - " << m_extraL0L1PhiSize << " , "
+    << "L2 pos extend + " << m_extraL0L1PhiSize << ")");
 
   return StatusCode::SUCCESS;
 }
@@ -426,7 +425,7 @@ egammaSuperClusterBuilder::fillClusterConstrained(
       bool inEtaRange = false;
       // Check if is inside the eta range wrt to the hottest
       // cell(s) for the cluster we construct
-      if (cp0.emaxB > 0) { // cluster has cells in the barrel
+      if (cp0.emaxB > 0) { // barrel
         if (isL2Cell &&
             (std::abs(cp0.etaB - dde->eta_raw()) < addCellsWindowEtaBarrel)) {
           inEtaRange = true;
@@ -436,7 +435,7 @@ egammaSuperClusterBuilder::fillClusterConstrained(
           inEtaRange = true;
         }
       }
-      if (cp0.emaxEC > 0) { // cluster has cells in the endcap
+      if (cp0.emaxEC > 0) { // endcap
         if (isL2Cell &&
             (std::abs(cp0.etaEC - dde->eta_raw()) < addCellsWindowEtaEndcap)) {
           inEtaRange = true;
@@ -494,12 +493,12 @@ egammaSuperClusterBuilder::fillClusterConstrained(
       bool inEtaRange = false;
       // Check if is inside the eta range wrt to the hottest
       // cell(s) for the cluster we construct
-      if (cp0.emaxB > 0) { // cluster has cells in the barrel
+      if (cp0.emaxB > 0) { // barrel
         if (std::abs(cp0.etaB - dde->eta_raw()) < addCellsWindowEtaBarrel) {
           inEtaRange = true;
         }
       }
-      if (cp0.emaxEC > 0) { // cluster has cells in the endcap
+      if (cp0.emaxEC > 0) { // endcap
         if (std::abs(cp0.etaEC - dde->eta_raw()) < addCellsWindowEtaEndcap) {
           inEtaRange = true;
         }
@@ -510,13 +509,13 @@ egammaSuperClusterBuilder::fillClusterConstrained(
 
       // Add L0/L1 when we are in the narrow range
       bool inPhiRange = false;
-      if (cp0.emaxB > 0) { // cluster has cells in the barrel
+      if (cp0.emaxB > 0) { // barrel
         const double cell_phi = proxim(dde->phi_raw(), cp0.phiB);
         if (cell_phi > phiMinusB && cell_phi < phiPlusB) {
           inPhiRange = true;
         }
       }
-      if (cp0.emaxEC > 0) { // cluster has cells in the endcap
+      if (cp0.emaxEC > 0) { // endcap
         const double cell_phi = proxim(dde->phi_raw(), cp0.phiEC);
         if (cell_phi > phiMinusEC && cell_phi < phiPlusEC) {
           inPhiRange = true;
