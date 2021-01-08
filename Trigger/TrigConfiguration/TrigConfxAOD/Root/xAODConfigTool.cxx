@@ -229,7 +229,7 @@ namespace TrigConf {
       }
    }
 
-   const HLTMenu& xAODConfigTool::hltMenu() const {
+   const HLTMenu& xAODConfigTool::hltMenu(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -237,7 +237,7 @@ namespace TrigConf {
       return m_impl->m_currentHlt;
    }
 
-   const L1Menu& xAODConfigTool::l1Menu() const {
+   const L1Menu& xAODConfigTool::l1Menu(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -245,7 +245,7 @@ namespace TrigConf {
       return m_impl->m_currentL1;
    }
 
-   const HLTPrescalesSet& xAODConfigTool::hltPrescalesSet() const {
+   const HLTPrescalesSet& xAODConfigTool::hltPrescalesSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -253,7 +253,7 @@ namespace TrigConf {
       return m_impl->m_currentHltps;
    }
 
-   const L1PrescalesSet& xAODConfigTool::l1PrescalesSet() const {
+   const L1PrescalesSet& xAODConfigTool::l1PrescalesSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -261,7 +261,7 @@ namespace TrigConf {
       return m_impl->m_currentL1ps;
    }
 
-   const L1BunchGroupSet& xAODConfigTool::l1BunchGroupSet() const {
+   const L1BunchGroupSet& xAODConfigTool::l1BunchGroupSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );

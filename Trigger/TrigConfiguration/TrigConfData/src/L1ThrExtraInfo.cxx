@@ -45,6 +45,8 @@ std::weak_ptr<TrigConf::L1ThrExtraInfoBase>
 TrigConf::L1ThrExtraInfo::addExtraInfo(const std::string & thrTypeName, const boost::property_tree::ptree & data) {
    try {
       if( auto extraInfo = L1ThrExtraInfo::createExtraInfo( thrTypeName, data) ) {
+         std::cout << " TIIM - PRINT RAW" << std::endl;
+         extraInfo->printRaw();
          auto success = m_thrExtraInfo.emplace(thrTypeName, std::shared_ptr<TrigConf::L1ThrExtraInfoBase>(std::move(extraInfo)));
          return std::weak_ptr<TrigConf::L1ThrExtraInfoBase>( success.first->second );
       }
