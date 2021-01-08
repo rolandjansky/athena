@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( CaloRec )
@@ -29,6 +29,11 @@ atlas_add_library( CaloRecLib
 atlas_add_component( CaloRec
    src/components/*.cxx
    LINK_LIBRARIES CaloRecLib CaloLumiConditions )
+
+atlas_add_dictionary( CaloRecDict
+                      CaloRec/CaloRecDict.h
+                      CaloRec/selection.xml
+                      LINK_LIBRARIES CaloRecLib )
 
 # Test(s) in the package:
 atlas_add_test( CaloClusterProcessor_test
