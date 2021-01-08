@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -7,6 +7,10 @@
 ///////////////////////////////////////////////////////////////////
 
 // Trk include
+#include <cmath>
+
+
+
 #include "TrkDetDescrTools/TrackingVolumeArrayCreator.h"
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinUtility.h"
@@ -547,7 +551,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	std::vector<float>::iterator iter = phiSteps[binr].begin();
 	bool known = false;
 	while (iter!=phiSteps[binr].end() ) {
-	  if ( fabs(phi1-(*iter))<tol ) { known=true; break; }
+	  if ( std::fabs(phi1-(*iter))<tol ) { known=true; break; }
 	  if ( phi1 < (*iter)) { phiSteps[binr].insert(iter,phi1); known=true; break; }
 	  iter++;
 	}
@@ -555,15 +559,15 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	iter = phiSteps[binr].begin();
 	known = false;
 	while (iter!=phiSteps[binr].end() ) {
-	  if ( fabs(phi2-(*iter))<tol ) { known=true; break; }
+	  if ( std::fabs(phi2-(*iter))<tol ) { known=true; break; }
 	  if ( phi2 < (*iter)) { phiSteps[binr].insert(iter,phi2); known=true; break; }
 	  iter++;
 	}
 	if (!known) phiSteps[binr].push_back(phi2);
 	//if ( phiSectors[binZ]>0. &&  phiSectors[binZ] != dphi ) phiSectors[binZ] = -1.;
       } else {
-	phiSteps[binr].push_back(fmin(phi1,phi2));
-	phiSteps[binr].push_back(fmax(phi1,phi2));
+	phiSteps[binr].push_back(std::fmin(phi1,phi2));
+	phiSteps[binr].push_back(std::fmax(phi1,phi2));
 	//	phiSectors[binZ] = dphi ;
       }
     }
@@ -695,7 +699,7 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	std::vector<float>::iterator iter = phiSteps[binZ].begin();
 	bool known = false;
 	while (iter!=phiSteps[binZ].end() ) {
-	  if ( fabs(phi1-(*iter))<tol ) { known=true; break; }
+	  if ( std::fabs(phi1-(*iter))<tol ) { known=true; break; }
 	  if ( phi1 < (*iter)) { phiSteps[binZ].insert(iter,phi1); known=true; break; }
 	  iter++;
 	}
@@ -703,15 +707,15 @@ Trk::TrackingVolumeArray* Trk::TrackingVolumeArrayCreator::cylinderVolumesArrayI
 	iter = phiSteps[binZ].begin();
 	known = false;
 	while (iter!=phiSteps[binZ].end() ) {
-	  if ( fabs(phi2-(*iter))<tol ) { known=true; break; }
+	  if ( std::fabs(phi2-(*iter))<tol ) { known=true; break; }
 	  if ( phi2 < (*iter)) { phiSteps[binZ].insert(iter,phi2); known=true; break; }
 	  iter++;
 	}
 	if (!known) phiSteps[binZ].push_back(phi2);
 	//if ( phiSectors[binZ]>0. &&  phiSectors[binZ] != dphi ) phiSectors[binZ] = -1.;
       } else {
-	phiSteps[binZ].push_back(fmin(phi1,phi2));
-	phiSteps[binZ].push_back(fmax(phi1,phi2));
+	phiSteps[binZ].push_back(std::fmin(phi1,phi2));
+	phiSteps[binZ].push_back(std::fmax(phi1,phi2));
 	//	phiSectors[binZ] = dphi ;
       }
     }

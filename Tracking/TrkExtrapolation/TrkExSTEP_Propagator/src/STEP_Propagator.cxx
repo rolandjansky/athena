@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -11,6 +11,10 @@
 // Version 0.1 16/2/2005 Esben Lund
 // Version 1.0 27/7/2006 Esben Lund
 /////////////////////////////////////////////////////////////////////////////////
+
+#include <cmath>
+
+
 
 #include "TrkExSTEP_Propagator/STEP_Propagator.h"
 #include "TrkDetDescrUtils/BinUtility.h"
@@ -1655,7 +1659,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
             std::pair<size_t,float> d2n = lbu->distanceToNext(probe,propDir*direction);
             distanceToNextBin += d2n.second+h;
           }
-        } else if ( dist2next.first < lbu->bins() && fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
+        } else if ( dist2next.first < lbu->bins() && std::fabs(distanceToNextBin) < 0.01 && h>0.01 ) {     // tolerance 10 microns ?
           double localp[5];
           Trk::RungeKuttaUtils::transformGlobalToLocal(P, localp);
           const Trk::CurvilinearParameters* cPar =
@@ -1873,7 +1877,7 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
     if (fabs( h) > fabs( distanceToTarget)) h = distanceToTarget;
 
     //don't step beyond bin boundary - adjust step
-    if (cache.m_binMat && fabs( h) > fabs(distanceToNextBin)+0.001 ) {
+    if (cache.m_binMat && fabs( h) > std::fabs(distanceToNextBin)+0.001 ) {
       if ( distanceToNextBin>0 ) {     // TODO : investigate source of negative distance in BinningData
         //std::cout <<"adjusting step because of bin boundary:"<< h<<"->"<< distanceToNextBin*propDir<< std::endl;
         h = distanceToNextBin*propDir;
