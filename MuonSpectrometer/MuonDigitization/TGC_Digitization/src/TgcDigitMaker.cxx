@@ -522,7 +522,7 @@ uint16_t TgcDigitMaker::bcTagging(const double digitTime, const double window, c
 void TgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const {
   if ((bctag & 0x1) != 0) {
     bool duplicate = false;
-    for (const auto& digit : *digits) {
+    for (const auto digit : *digits) {
       if (id==digit->identify() && TgcDigit::BC_PREVIOUS==digit->bcTag()) {
         duplicate = true;
         break;
@@ -535,7 +535,7 @@ void TgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, TgcDigit
   }
   if ((bctag & 0x2) != 0) {
     bool duplicate = false;
-    for (const auto& digit : *digits) {
+    for (const auto digit : *digits) {
       if (id==digit->identify() && TgcDigit::BC_CURRENT==digit->bcTag()) {
         duplicate = true;
         break;
@@ -548,7 +548,7 @@ void TgcDigitMaker::addDigit(const Identifier id, const uint16_t bctag, TgcDigit
   }
   if ((bctag & 0x4) != 0) {
     bool duplicate = false;
-    for (const auto& digit : *digits) {
+    for (const auto digit : *digits) {
       if (id==digit->identify() && TgcDigit::BC_NEXT==digit->bcTag()) {
         duplicate = true;
         break;
