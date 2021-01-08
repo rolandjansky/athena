@@ -1,7 +1,7 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon import  SystemOfUnits
-from JetMonitoring.JetMonitoringConfig import HistoSpec, EventHistoSpec, VarSpec, ConfigDict, ToolSpec
+from JetMonitoring.JetMonitoringConfig import HistoSpec, VarSpec, ConfigDict, ToolSpec
 
 # ***********************************************    
 # ***********************************************

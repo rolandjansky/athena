@@ -398,7 +398,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       testElement(id, cellIds, positions, elements);
 
     }
-  } else if (m_managerName == "SCT") {
+  } else if (m_managerName == "SCT" || m_managerName == "ITkStrip") {
     
     //const SCT_ID * idHelper = dynamic_cast<const SCT_ID *>(m_manager->getIdHelper());
     const SCT_ID * idHelper = m_sctIdHelper;
@@ -420,9 +420,11 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       cellIds.push_back(SiCellId(32)); // phi,eta
       cellIds.push_back(SiCellId(1)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
-      cellIds.push_back(SiCellId(-2)); // phi,eta
-      cellIds.push_back(SiCellId(-3)); // phi,eta
+      if(m_managerName == "SCT"){
+	cellIds.push_back(SiCellId(-1)); // phi,eta
+	cellIds.push_back(SiCellId(-2)); // phi,eta
+	cellIds.push_back(SiCellId(-3)); // phi,eta
+      }
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
@@ -448,7 +450,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
+      if (m_managerName == "SCT") cellIds.push_back(SiCellId(-1)); // phi,eta
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi

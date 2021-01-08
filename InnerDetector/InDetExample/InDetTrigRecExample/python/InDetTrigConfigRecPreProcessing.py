@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -77,7 +77,7 @@ class PixelClustering_EF( InDet__Pixel_TrgClusterization ):
       # ClusterMakerTool (public), needed by Pixel and SCT Clusterization
       from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigClusterMakerTool
 
-      from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup
+      from InDetTrigRecExample.InDetTrigConditionsAccess import PixelConditionsSetup  # noqa: F401
 
       # MergedPixelTool (public)
       from SiClusterizationTool.SiClusterizationToolConf import InDet__MergedPixelsTool
@@ -136,10 +136,7 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
 
-      from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-      from SCT_ConditionsTools.SCT_ConditionsToolsConf import SCT_ByteStreamErrorsTool
       from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
-      InDetTrigBSErrorTool = SCT_ByteStreamErrorsTool(name=SCT_ConditionsSetup.instanceName("InDetSCT_ByteStreamErrorsTool"))
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCT_RodDecoder
       InDetTrigSCTRodDecoder = SCT_RodDecoder(name = "InDetTrigSCTRodDecoder")
@@ -149,7 +146,6 @@ class SCTClustering_EF( InDet__SCT_TrgClusterization ):
 
 
       from SCT_RawDataByteStreamCnv.SCT_RawDataByteStreamCnvConf import SCTRawDataProviderTool
-      from InDetTrigRecExample.InDetTrigConditionsAccess import SCT_ConditionsSetup
       InDetTrigSCTRawDataProviderTool = SCTRawDataProviderTool(name    = "InDetTrigSCTRawDataProviderTool",
                                                                Decoder = InDetTrigSCTRodDecoder)
 
@@ -246,8 +242,7 @@ class TRTDriftCircleMaker_EF(  InDet__TRT_TrgRIO_Maker ):
 
       ToolSvc += InDetTrigTRTRawDataProvider
       
-      from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRT_DriftFunctionTool, \
-           InDetTrigTRT_DriftCircleTool
+      from InDetTrigRecExample.InDetTrigCommonTools import InDetTrigTRT_DriftCircleTool
 
       self.RawDataProvider   = InDetTrigTRTRawDataProvider
       self.TRT_DriftCircleTool = InDetTrigTRT_DriftCircleTool
@@ -284,7 +279,6 @@ class InDetTrigPRD_MultiTruthMaker_EF( InDet__PRD_TrigMultiTruthMaker ):
 
       #monitoring
       from InDetTrigTruthAlgs.PRD_TrigMultiTruthMonitoring import PRD_TrigMultiTruthValidationMonitor
-      from InDetTrigTruthAlgs.PRD_TrigMultiTruthMonitoring import PRD_TrigMultiTruthOnlineMonitor
       from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
       prdtime = TrigTimeHistToolConfig("PRDTime")
       prdtime.TimerHistLimits = [0,200]

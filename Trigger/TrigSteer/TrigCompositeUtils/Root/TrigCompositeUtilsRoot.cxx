@@ -4,10 +4,6 @@
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
 #include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
 
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -445,6 +441,57 @@ namespace TrigCompositeUtils {
     clid = clidVec.at(0);
     index = indexVec.at(0);
     return true; 
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    Combinations combinations(filter);
+    combinations.reserve(legMultiplicities.size());
+    if (legMultiplicities.size() == 1)
+      combinations.addLeg(legMultiplicities.at(0), features);
+    else
+      for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
+      {
+        HLT::Identifier legID = createLegName(chainName, legIdx);
+        std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
+        for (const LinkInfo<xAOD::IParticleContainer>& info : features)
+          if (isAnyIDPassing(info.source, {legID.numeric()}))
+            legFeatures.push_back(info);
+      combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
+      }
+    return combinations;
+  }
+
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    return buildCombinations(chainName, features, chainInfo->leg_multiplicities(), filter);
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, chainInfo, getFilter(filter));
   }
 
 

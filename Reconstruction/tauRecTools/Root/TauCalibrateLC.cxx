@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauCalibrateLC.h"
@@ -67,18 +67,6 @@ StatusCode TauCalibrateLC::initialize() {
     return StatusCode::FAILURE;
   }
     
-  // get the histogram with eta corrections
-  key = "etaCorrection";
-  histo = dynamic_cast<TH1*>(file->Get(key.c_str()));
-  if (histo) {
-    histo->SetDirectory(0);
-    m_etaCorrectionHist = std::unique_ptr<TH1>(histo);
-  }
-  else {
-    ATH_MSG_FATAL("Failed to get an object with  key " << key);
-    return StatusCode::FAILURE;
-  }
-
   TString tmpSlopKey[s_nProngBins] = {"slopeNPV1P", "slopeNPV3P"};
   TString tmpFuncBase[s_nProngBins] = {"OneP_Eta_", "MultiP_Eta_"};
 

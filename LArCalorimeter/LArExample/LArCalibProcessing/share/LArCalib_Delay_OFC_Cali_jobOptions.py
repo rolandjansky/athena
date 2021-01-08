@@ -444,17 +444,17 @@ from AthenaCommon.AlgSequence import AthSequencer
 condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
-from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
+from AthenaCommon.AppMgr import theApp, ServiceMgr, ToolSvc
 
-theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
+theByteStreamInputSvc=ServiceMgr.ByteStreamInputSvc
 if not 'FullFileName' in dir():
    DelayOFCLog.info( "No FullFileName! Please give a FullFileName list.")
    theApp.exit(-1)
 else :   
-   #svcMgr.EventSelector.Input=FullFileName
-   svcMgr.EventSelector.Input = FullFileName
+   #ServiceMgr.EventSelector.Input=FullFileName
+   ServiceMgr.EventSelector.Input = FullFileName
    
-scvMgr.EventSelector.MaxBadEvents = 0
+ServiceMgr.EventSelector.MaxBadEvents = 0
 
 ##############################################################################################
 #                                                                                            #
@@ -463,11 +463,19 @@ scvMgr.EventSelector.MaxBadEvents = 0
 # maybe useful one day                                                                       #
 #                                                                                            #
 # else                                                                                        #
-#   svcMgr.EventSelector.Input=OneFileName                                           #
-#   for i in range(len(svcMgr.EventSelector.Input)):                                 #
+#   ServiceMgr.EventSelector.Input=OneFileName                                           #
+#   for i in range(len(ServiceMgr.EventSelector.Input)):                                 #
 #      theByteStreamInputSvc.NumFile+=[10000]                                                #
 ##############################################################################################
    
+
+
+
+from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+
+theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
 
 ###############################################################
 #                                                             #
@@ -479,18 +487,18 @@ scvMgr.EventSelector.MaxBadEvents = 0
 ## All three are vectors of integers
 #################################################################
 
-from LArByteStream.LArByteStreamConf import LArRodDecoder
-svcMgr.ToolSvc += LArRodDecoder()
-
-#ToolSvc.LArRodDecoder.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
-#ToolSvc.LArRodDecoder.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
-#ToolSvc.LArRodDecoder.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
+#theLArRawCalibDataReadingAlg.OutputLevel=VERBOSE
+#theLArRawCalibDataReadingAlg.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
+#theLArRawCalibDataReadingAlg.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
+#theLArRawCalibDataReadingAlg.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
    
+topSequence+=theLArRawCalibDataReadingAlg
+
 
 ###########################################################################
 #                                                                         #
@@ -498,23 +506,6 @@ svcMgr.ToolSvc += LArRodDecoder()
 #                                                                         #
 ###########################################################################
 
-if ( runAccumulator ) :
-   # this is a OLD jobOptions which can maybe work but only for the barrel                        #
-   # can be used as a skeleton if needed but                                                      #
-   # need to be updated for the barrel and the patterns for EMEC, HEC and FCAL need to be added   #
-   ByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
-   #if SuperCells is False:
-   #   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-   
-   include("./LArCalib_CalibrationPatterns.py")
-
-else:
-   theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
-   theByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
-#   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/FREE"  ]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/HIGH"  ]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/MEDIUM"]
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArAccumulatedCalibDigitContainer/LOW"   ]
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
@@ -530,7 +521,7 @@ if CheckBadEvents:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher      
       
-svcMgr.EventSelector.SkipEvents=skipEvents
+ServiceMgr.EventSelector.SkipEvents=skipEvents
 theApp.EvtMax = maxEvents
 
 ##########################################################################
@@ -547,9 +538,9 @@ PoolFileList     = []
 
 #include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
@@ -579,15 +570,15 @@ condSeq+=theLArBadFebCondAlg
 
 
 ## define the DB Gobal Tag :
-svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
+ServiceMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB   
 try:
-   svcMgr.IOVDbSvc.DBInstance=""
+   ServiceMgr.IOVDbSvc.DBInstance=""
 except: 
    pass
 
 # Temperature folder
 #conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
-#svcMgr.EventSelector.InitialTimeStamp = 1284030331
+#ServiceMgr.EventSelector.InitialTimeStamp = 1284030331
 #import cx_Oracle
 #import time
 #import datetime
@@ -603,11 +594,11 @@ except:
 #   iovtemp=1283145454
 
 #printfunc ("Setting timestamp for run ",RunNumberList[0]," to ",iovtemp)
-#svcMgr.IOVDbSvc.forceTimestamp = 1283145454
-#svcMgr.IOVDbSvc.forceTimestamp = iovtemp
+#ServiceMgr.IOVDbSvc.forceTimestamp = 1283145454
+#ServiceMgr.IOVDbSvc.forceTimestamp = iovtemp
 
 from LArCalibProcessing.LArCalibCatalogs import larCalibCatalogs
-svcMgr.PoolSvc.ReadCatalog += larCalibCatalogs
+ServiceMgr.PoolSvc.ReadCatalog += larCalibCatalogs
 
 if ( doLArCalibDataQuality  ) :
    ## The reference is the Oracle DB
@@ -624,9 +615,9 @@ if (SubtractPed):
          PedestalTagSpec = ""
          from LArRecUtils.LArRecUtilsConf import LArFlatConditionSvc
          theLArCondSvc=LArFlatConditionSvc(DoSuperCells=False,DoRegularCells=True)
-         svcMgr+=theLArCondSvc
-         svcMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
-         svcMgr.LArFlatConditionSvc.PedestalInput=PedestalFolder
+         ServiceMgr+=theLArCondSvc
+         ServiceMgr.ProxyProviderSvc.ProviderNames += [ "LArFlatConditionSvc" ]
+         ServiceMgr.LArFlatConditionSvc.PedestalInput=PedestalFolder
          PedChannelSelection=""
       else :   
          DelayOFCLog.info( "Read Pedestal from SQLite file")
@@ -646,11 +637,11 @@ if (SubtractPed):
 if ( len(PoolFileList)>0 ):
    
    from AthenaCommon.ConfigurableDb import getConfigurable
-   svcMgr += getConfigurable( "ProxyProviderSvc" )()
-   svcMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
+   ServiceMgr += getConfigurable( "ProxyProviderSvc" )()
+   ServiceMgr.ProxyProviderSvc.ProviderNames += [ "CondProxyProvider" ]
    
-   svcMgr += getConfigurable( "CondProxyProvider" )()
-   svcMgr.CondProxyProvider.InputCollections += PoolFileList
+   ServiceMgr += getConfigurable( "CondProxyProvider" )()
+   ServiceMgr.CondProxyProvider.InputCollections += PoolFileList
 
 if ( ShortCorrector ):
    
@@ -791,7 +782,7 @@ if ( doLArCalibDataQuality  ) :
                                             ProblemsToMask=["deadReadout","deadCalib","deadPhys","almostDead",
                                                             "highNoiseHG","highNoiseMG","highNoiseLG"]
                                             )
-   svcMgr.ToolSvc+=theLArDelayValBCMask
+   ServiceMgr.ToolSvc+=theLArDelayValBCMask
    from LArCalibDataQuality.Thresholds import cwFWHMThr, cwAmpThr,cwAmpThrFEB, cwFWHMThrFEB  
    theCaliWaveValidationAlg=LArCaliWaveValidationAlg("CaliWaveVal")
    theCaliWaveValidationAlg.BadChannelMaskingTool=theLArDelayValBCMask
@@ -860,9 +851,9 @@ if ( doMonitoring ) :
    from GaudiSvc.GaudiSvcConf import THistSvc
    if os.path.exists(OutputRootFileDir+ "/" +RootHistOutputFileName): 
       os.remove(OutputRootFileDir + "/" +RootHistOutputFileName)
-   svcMgr += THistSvc()
+   ServiceMgr += THistSvc()
 
-   svcMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
+   ServiceMgr.THistSvc.Output =  ["GLOBAL DATAFILE='"+OutputRootFileDir+ "/" +RootHistOutputFileName+"' OPT='New'"]
 
 
 if (WriteNtuple):
@@ -883,8 +874,8 @@ if (WriteNtuple):
    from GaudiSvc.GaudiSvcConf import NTupleSvc
    if os.path.exists(OutputRootFileDir+"/"+OutputCaliWaveRootFileName): 
       os.remove(OutputRootFileDir+"/"+OutputCaliWaveRootFileName)  
-   svcMgr += NTupleSvc()
-   svcMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputRootFileDir+"/"+OutputCaliWaveRootFileName+"' OPT='NEW'" ]
+   ServiceMgr += NTupleSvc()
+   ServiceMgr.NTupleSvc.Output = [ "FILE1 DATAFILE='"+OutputRootFileDir+"/"+OutputCaliWaveRootFileName+"' OPT='NEW'" ]
 
 
 if ( WritePoolFile ) :
@@ -903,11 +894,11 @@ if ( WritePoolFile ) :
    #OutputConditionsAlg.IOVTagList += [OutputObjectSpecTagOFC]
 
 
-   svcMgr.IOVDbSvc.dbConnection  = OutputDB
+   ServiceMgr.IOVDbSvc.dbConnection  = OutputDB
    
    from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
-   svcMgr += IOVRegistrationSvc()
-   svcMgr.IOVRegistrationSvc.RecreateFolders = False
+   ServiceMgr += IOVRegistrationSvc()
+   ServiceMgr.IOVRegistrationSvc.RecreateFolders = False
 
 
 
@@ -963,17 +954,17 @@ if doOFC:
 
    if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
       os.remove(OutputRootFileDir+"/"+OutputOFCRootFileName)  
-   svcMgr += NTupleSvc()
-   svcMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
+   ServiceMgr += NTupleSvc()
+   ServiceMgr.NTupleSvc.Output += [ "FILE2 DATAFILE='"+OutputRootFileDir+"/"+OutputOFCRootFileName+"' OPT='NEW'" ]
    
    
 ###########################################################################
 
-svcMgr.MessageSvc.OutputLevel  = INFO
-svcMgr.MessageSvc.defaultLimit = 10000
-svcMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
+ServiceMgr.MessageSvc.OutputLevel  = INFO
+ServiceMgr.MessageSvc.defaultLimit = 10000
+ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-svcMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
+ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

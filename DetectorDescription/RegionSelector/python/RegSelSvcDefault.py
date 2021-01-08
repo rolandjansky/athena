@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
@@ -100,18 +100,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
         self.MMRegionSelectorTable    = mmTable
         self.sTGCRegionSelectorTable  = stgcTable
 
-        # have some job options to *disable* robs and modules
-        # but also have an *enable* list from OKS, so, first, 
-        # - OKS can *enable* robs, then  
-        # - it *disables* any robs from the rob list, then
-        # - it *disables* any modules from the module lists.
-        # so be careful !!!
-        self.readSiROBListFromOKS  = False        
-        self.DeleteSiRobList       = []
-        self.DeletePixelHashList   = []
-        self.DeleteSCTHashList     = []
-        self.DeleteTRTHashList     = []
-        
         # set geometry and detector flags based on global properties
         # now obtained by default from GeoModelSvc at C++ init.
         #from AthenaCommon.GlobalFlags import globalflags

@@ -1,43 +1,18 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// std
-#include <fstream>
-#include <string>
-#include <iostream>
-#include <cstring>
-#include <sys/stat.h>
-
-// other packages
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/GaudiException.h"
-#include "Identifier/Identifier.h"
-#include "StoreGate/DataHandle.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "MuonCablingData/MuonMDT_CablingMap.h"
-#include "MuonIdHelpers/MdtIdHelper.h"
-
-// this package
-#include "TTree.h"
-#include "MdtCalibSvc/MdtCalibrationShiftMapBase.h"
-#include "MdtCalibSvc/MdtCalibrationT0ShiftSvc.h"
+#include "MdtCalibSvc/MdtCalibrationT0ShiftTool.h"
 
 // TRandom3 for random smearing
 // should later be replaced with std
 #include "TRandom3.h"
 
-//
-// private helper functions
-//
+MdtCalibrationT0ShiftTool::MdtCalibrationT0ShiftTool(const std::string& type, const std::string& name, const IInterface* parent) :
+  MdtCalibrationShiftMapBase(type, name, parent) {
+}
 
-MdtCalibrationT0ShiftSvc::MdtCalibrationT0ShiftSvc(const std::string &name,
-                                                   ISvcLocator* pSvcLocator)
-    : MdtCalibrationShiftMapBase(name, pSvcLocator) {}
-
-MdtCalibrationT0ShiftSvc::~MdtCalibrationT0ShiftSvc() {}
-
-StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
+StatusCode MdtCalibrationT0ShiftTool::initializeMap()
 {
   if (m_mapIsInitialized) {
     ATH_MSG_WARNING("Map already initalized. Multiple calls of initalizeMap should not happen.");
@@ -57,19 +32,15 @@ StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
   /* initialize random number generator that creates the shift values */
   TRandom3 rng(/*seed*/ 20120704);
 
-  /* idHelper to retrieve channel Identifiers */
-  const MdtIdHelper *idhelper = nullptr;
-  const ServiceHandle<StoreGateSvc> detStore("StoreGateSvc/DetectorStore", "detStore");
-  ATH_CHECK( detStore->retrieve(idhelper, "MDTIDHELPER") );
-
-
-  // Cabling Map (part of cablingSvc) must be retrieved AFTER the first event
-  // i.e. this can NOT happen in initialize
-  /* initialize cabling from which IDs are read */
-  ATH_CHECK( m_cablingSvc.retrieve() );
+  SG::ReadCondHandle<MuonMDT_CablingMap> readHandle{m_mdtCab, Gaudi::Hive::currentContext()};
+  const MuonMDT_CablingMap* mdtCabling{*readHandle};
+  if(!mdtCabling){
+    ATH_MSG_ERROR("Null pointer to the MDT cabling conditions object");
+    return StatusCode::FAILURE;
+  }
 
   /* Get ROBs */
-  std::vector<uint32_t> robVector = m_cablingSvc->getAllROBId();
+  std::vector<uint32_t> robVector = mdtCabling->getAllROBId();
 
   std::map<uint8_t, MdtSubdetectorMap*> *listOfSubdet;
   std::map<uint8_t, MdtSubdetectorMap*>::const_iterator it_sub;
@@ -83,8 +54,7 @@ StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
   std::map<uint8_t, MdtAmtMap*> *listOfAmt;
   std::map<uint8_t, MdtAmtMap*>::const_iterator it_amt;
 
-  const MuonMDT_CablingMap* cablingMap = m_cablingSvc->getCablingMap();
-  listOfSubdet = cablingMap->getListOfElements();
+  listOfSubdet = mdtCabling->getListOfElements();
 
   int subdetectorId, rodId, csmId, amtId;
   int stationName, stationEta, stationPhi, multiLayer, layer, tube;
@@ -108,7 +78,7 @@ StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
           for (int tubeId = 0; tubeId < 24; ++tubeId) {
 
             /* Get the offline ID, given the current detector element */
-            if (!m_cablingSvc->getOfflineId(
+            if (!mdtCabling->getOfflineId(
                     subdetectorId, rodId, csmId, amtId, tubeId, stationName,
                     stationEta, stationPhi, multiLayer, layer, tube)) {
               std::ostringstream ss;
@@ -124,7 +94,7 @@ StatusCode MdtCalibrationT0ShiftSvc::initializeMap()
 
             bool             isValid = false;
             const Identifier channelIdentifier =
-                idhelper->channelID(stationName, stationEta, stationPhi,
+                m_idHelperSvc->mdtIdHelper().channelID(stationName, stationEta, stationPhi,
                                     multiLayer, layer, tube, true, &isValid);
             // this debug msg can be removed eventually
             std::ostringstream ss;

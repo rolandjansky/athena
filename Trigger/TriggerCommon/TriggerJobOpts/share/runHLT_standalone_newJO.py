@@ -85,9 +85,6 @@ from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu a
 from TriggerJobOpts.TriggerConfig import triggerRunCfg
 acc.merge(triggerRunCfg(flags, seqName="AthMasterSeq", menu=generateHLTMenu))
 
-from RegionSelector.RegSelConfig import regSelCfg
-acc.merge(regSelCfg(flags))
-
 # The L1 presacles do not get created in the avoce menu setup
 from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
 createL1PrescalesFileFromMenu(flags)
