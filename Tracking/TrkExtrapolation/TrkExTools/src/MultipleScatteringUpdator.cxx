@@ -108,7 +108,7 @@ Trk::MultipleScatteringUpdator::sigmaSquare(const MaterialProperties &mat,
                                             double pathcorrection,
                                             ParticleHypothesis particle,
                                             double) const {
-  if (mat.thicknessInX0() <= 0. || particle == Trk::geantino) {
+  if (mat.thicknessInX0() <= 0. || particle == Trk::geantino || particle == Trk::undefined) {
     return 0.;
   }
 
