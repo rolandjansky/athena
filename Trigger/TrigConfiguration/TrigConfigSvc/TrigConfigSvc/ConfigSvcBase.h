@@ -41,6 +41,7 @@ namespace TrigConf {
       int                m_dbHLTPSKey { 0 };
       std::string        m_dbHLTPSKeySet { "[]" };
       BooleanProperty    m_useFrontier { false };
+      BooleanProperty    m_useSQLite { true };
       int                m_printMenuLevel { 1 };
       std::unique_ptr<TrigDBConnectionConfig> m_dbconfig;
 
