@@ -30,3 +30,15 @@ atlas_install_generic( ${xmldoc_dir}/*.xml ${xmldoc_dir}/*.dat
    ${xmldoc_dir}/*.tbl ${xmldoc_dir}/*.eps
    DESTINATION share/Pythia8/xmldoc
    TYPENAME XmlDoc )
+
+# Install the files from the pdfdata directory into the offline release. New in Pythia8.3
+set( pdfdata_dir "${PYTHIA8_LCGROOT}/share/Pythia8/pdfdata" )
+if( NOT IS_DIRECTORY ${pdfdata_dir} )
+   message( INFO " Can't access ${pdfdata_dir} (Needed only for Pythia8.3)" )
+   return()
+endif()
+
+atlas_install_generic( ${pdfdata_dir}/*.*
+   DESTINATION share/Pythia8/pdfdata
+   TYPENAME XmlDoc )
+
