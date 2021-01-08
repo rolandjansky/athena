@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METHelpers.cxx
@@ -34,14 +34,14 @@ namespace met {
   void addGhostMuonsToJets(const xAOD::MuonContainer& muons, xAOD::JetContainer& jets)
   {
     std::vector<const xAOD::TrackParticle*> jet_tracks;
-    for (xAOD::Jet *jet: jets) {
+    for (xAOD::Jet* jet: jets) {
       // Fill this with muons to be associated
       std::vector<const xAOD::Muon*> muons_in_jet;
       // Get the tracks associated to the jet 
       jet_tracks.clear(); 
       if ( jet->getAssociatedObjects("GhostTrack", jet_tracks) ) {
 
-        for(const auto *muon : muons) {
+        for(const auto muon : muons) {
           const xAOD::TrackParticle* idtrack = muon->trackParticle( xAOD::Muon::InnerDetectorTrackParticle );
           if(!idtrack) continue;
           // check if this is ghost associated to a jet
