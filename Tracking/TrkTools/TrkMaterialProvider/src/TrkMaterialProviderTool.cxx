@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -28,7 +28,7 @@
 #include "MuidInterfaces/IMuidCaloEnergyParam.h"
 #include "MuidInterfaces/IMuidTrackIsolation.h"
 
-//#define DEBUGON //To activate printout for TSOS lists at various stages
+// #define DEBUGON //To activate printout for TSOS lists at various stages
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
@@ -413,6 +413,12 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     }
   }
   
+  if(lastIDwP == inputTSOS_ID->rend()) {
+    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
+    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    return;
+  }
+  
   // find first MS TSOS
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMS   = inputTSOS_MS->end();
   DataVector<const Trk::TrackStateOnSurface>::const_iterator firstMSwP = inputTSOS_MS->end();
@@ -428,11 +434,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     }
   }
 
-  if(lastIDwP == inputTSOS_ID->rbegin()) {
-    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
-    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    return;
-  }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
