@@ -134,9 +134,8 @@ JetChainParts = {
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
-                      'vbenf',  # Test VBF-like chain
-                      'fbdjshared',  # Test VBF-like chain with dijet-fworward/backward sharing
-                      'vbenfSEP30etSEP34mass35SEP50fbet', # Test VBF-like chain with more info
+                      'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
+                      'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
