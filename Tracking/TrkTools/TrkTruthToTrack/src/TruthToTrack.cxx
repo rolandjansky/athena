@@ -58,7 +58,7 @@ StatusCode Trk::TruthToTrack::initialize() {
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const {
   Trk::TrackParameters *result = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable) {
@@ -125,7 +125,7 @@ const Trk::TrackParameters* Trk::TruthToTrack::makeProdVertexParameters(const xA
 
 
 //================================================================
-const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(const HepMC::GenParticle* part) const {
+const Trk::TrackParameters* Trk::TruthToTrack::makePerigeeParameters(HepMC::ConstGenParticlePtr part) const {
   const Trk::TrackParameters* generatedTrackPerigee = nullptr;
 
   if(part && part->production_vertex() && m_particleDataTable && m_extrapolator) {

@@ -13,18 +13,14 @@ from math import pi as M_PI
 
 def InDetGlobalTrackMonAlgCfg(helper, alg, **kwargs):
 
-    # values	
-    m_doIBL = True
+    # values
     m_nBinsEta = 50
     m_nBinsPhi = 50
     m_trackBin = 75
     m_c_etaRange = 2.5
-    m_c_etaTrackletsMin = 2.4
-    m_c_etaTrackletsMax = 2.7
     m_c_etaRangeTRT = 2.0
     m_c_range_LB = 3000
     m_trackMax = 75
-    #M_PI = math.pi
 
     # this creates a "trackGroup" called "alg" which will put its histograms into the subdirectory "Track"
     trackGroup = helper.addGroup(alg, 'Track')

@@ -13,32 +13,25 @@
 #define TAUIDVARCALCULATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
-#include "AsgTools/ToolHandle.h"
 
-class TauIDVarCalculator: public TauRecToolBase 
-{
+class TauIDVarCalculator: public TauRecToolBase {
+
+public:
+  
   ASG_TOOL_CLASS2(TauIDVarCalculator, TauRecToolBase, ITauToolBase)
-
-    public:
   
   TauIDVarCalculator(const std::string& name = "TauIDVarCalculator");
   
-  virtual ~TauIDVarCalculator() {}
-
-  virtual StatusCode initialize() override;
+  virtual ~TauIDVarCalculator() = default;
 
   virtual StatusCode execute(xAOD::TauJet&) const override;
 
   static const float LOW_NUMBER;
-  
- private:
 
-  bool m_useSubtractedCluster;
+private:
 
-  ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
+  bool m_doVertexCorrection;
 };
 
 #endif

@@ -196,8 +196,11 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamspot(const Trk::Track& tra
   return perigeeAtVertex(track, beamspot ? beamspot->beamVtx().position() : s_origin);
 }
 
-
-const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& track, const InDet::BeamSpotData* beamspotptr) const
+const Trk::Perigee*
+Reco::TrackToVertex::perigeeAtBeamline(
+  const EventContext& ctx,
+  const Trk::Track& track,
+  const InDet::BeamSpotData* beamspotptr) const
 {
 
   Amg::Vector3D beamspot(s_origin);
@@ -218,7 +221,7 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
 
   const Trk::Perigee* vertexPerigee = nullptr;
   const Trk::TrackParameters* extrapResult =
-    m_extrapolator->extrapolate(track, persf);
+    m_extrapolator->extrapolate(ctx,track, persf);
   if (extrapResult && extrapResult->surfaceType() == Trk::Surface::Perigee) {
     vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);
   }
@@ -227,14 +230,13 @@ const Trk::Perigee* Reco::TrackToVertex::perigeeAtBeamline(const Trk::Track& tra
     // try again using the first track parameter set, since the current extrapolator will
     // use "the closest" track parameterset which is not necessarily the mostuseful one to
     // start the extrapolation with.
-    // @TODO should try to improve the extrapolator to pick the correct start parameters.
     const DataVector<const Trk::TrackParameters> *track_parameter_list= track.trackParameters();
     if (track_parameter_list) {
       for(const Trk::TrackParameters *trk_params: *track_parameter_list) {
         if (!trk_params) {
           continue;
         }
-        extrapResult = m_extrapolator->extrapolate(*trk_params, persf);
+        extrapResult = m_extrapolator->extrapolate(ctx,*trk_params, persf);
         if (extrapResult &&
             extrapResult->surfaceType() == Trk::Surface::Perigee) {
           vertexPerigee = static_cast<const Trk::Perigee*>(extrapResult);

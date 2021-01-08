@@ -1,19 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
- 
- -----------------------------------------
- ***************************************************************************/
-
-//<doc><file>	$Id: AtlasDetectorIDHelper.h,v 1.6 2006-01-11 09:24:23 schaffer Exp $
-//<version>	$Name: not supported by cvs2svn $
-
 #ifndef SRC_ATLASDETECTORIDHELPER_H
-# define SRC_ATLASDETECTORIDHELPER_H
-
-//<<<<<< INCLUDES                                                       >>>>>>
+#define SRC_ATLASDETECTORIDHELPER_H
 
 #include "Identifier/Identifier.h"
 #include "Identifier/IdContext.h"
@@ -21,18 +11,9 @@
 #include <string>
 #include <vector>
 
-//<<<<<< PUBLIC DEFINES                                                 >>>>>>
-//<<<<<< PUBLIC CONSTANTS                                               >>>>>>
-//<<<<<< PUBLIC TYPES                                                   >>>>>>
-
 class IdDictField;
 
-//<<<<<< PUBLIC VARIABLES                                               >>>>>>
-//<<<<<< PUBLIC FUNCTIONS                                               >>>>>>
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
-
-class AtlasDetectorIDHelper
-{
+class AtlasDetectorIDHelper {
 public:
     
     enum ERRORS { UNDEFINED = 999 };
@@ -48,7 +29,7 @@ public:
     /// Initialization from the identifier dictionary
   int         initialize_from_dictionary(const IdDictMgr& dict_mgr, bool quiet);
 
-    ~AtlasDetectorIDHelper(void);
+    ~AtlasDetectorIDHelper()=default;
     
     size_type   pixel_region_index();
     size_type   sct_region_index();

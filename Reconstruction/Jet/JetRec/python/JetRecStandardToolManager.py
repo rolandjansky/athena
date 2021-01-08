@@ -15,8 +15,6 @@
 from AthenaCommon import Logging
 jetlog = Logging.logging.getLogger('JetRec_jobOptions')
 
-import copy
-
 myname = "JetRecStandardToolManager.py: "
 
 jetlog.info( myname + "Defining standard tools" )
@@ -73,13 +71,13 @@ jtm.ptminFinder = 2000
 jtm.ptminFilter =    0
 
 # Add standard tool definitions to the tool manager.
-import JetRec.JetRecStandardTools
+import JetRec.JetRecStandardTools as JetRecStandardTools
+jetlog.verbose("Use trigger store? %s", JetRecStandardTools.UseTriggerStore)
 
 # Function to filter out skipped tools.
 def filterout(skiptoolnames, tools):
   outtools = []
   remtoolnames = []
-  nrem = 0
   for tool in tools:
     keep = True
     for toolname in skiptoolnames:

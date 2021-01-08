@@ -12,7 +12,6 @@
 //  hybrid (measured + parametrized) energy deposit evaluation
 //  using the IMuidCaloMaterialParam and IMuidCaloEnergy interfaces
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 //<<<<<< INCLUDES                                                       >>>>>>

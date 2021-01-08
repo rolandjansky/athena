@@ -1,8 +1,22 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 # Run this file in order to print out the empty slots
 
-from ..Base.L1MenuFlags import L1MenuFlags
+from TriggerMenuMT.L1.Base.L1MenuFlags import L1MenuFlags
+
+def print_available():
+    import logging
+    defineMenu()
+    available = list(set(range(509)) - set(L1MenuFlags.CtpIdMap.value.values()) - set([508]))
+    freeItems = 512 - len(L1MenuFlags.items.value) # correct for ZB and CALREQ items
+    floatingItems = sorted(list(set(L1MenuFlags.items.value) - set(L1MenuFlags.CtpIdMap.value.keys()))) # these items get their CTPID assigned automatically
+    unusedItemsWithCTPID = set(L1MenuFlags.CtpIdMap.value.keys()) - set(L1MenuFlags.items.value) # this should be empty, otherwise remove the items from the CtpIdMap
+    available.sort()
+    logging.info("There are %d available CTP IDs: %s", len(available), ",".join(map(str,available)))
+    logging.info("IDs >= 472 go in partition 2, IDs >= 492 go in partition 3")
+    logging.info("There are %d free items", freeItems)
+    logging.info("There are %d floating items: %s", len(floatingItems), ",".join(map(str,floatingItems)))
+    logging.info("There are %d unused items with CTP ID: %s", len(unusedItemsWithCTPID), ",".join(map(str,unusedItemsWithCTPID)))
 
 def defineMenu():
 
@@ -191,7 +205,7 @@ def defineMenu():
         'L1_EM12_XS20', 'L1_EM15_XS30',
         
         # RNDM
-        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB',
+        'L1_RD0_FILLED', 'L1_RD0_UNPAIRED_ISO',  'L1_RD0_EMPTY', 'L1_RD0_ABORTGAPNOTCALIB', 'L1_RD0_FIRSTEMPTY',
         'L1_RD1_EMPTY',
         'L1_RD2_EMPTY',
         'L1_RD2_FILLED',
@@ -542,6 +556,7 @@ def defineMenu():
         'L1_RD0_FILLED' : 200,
         'L1_RD0_UNPAIRED_ISO' : 201,
         'L1_RD0_EMPTY' : 202,
+        'L1_RD0_FIRSTEMPTY' : 209,
         'L1_RD1_EMPTY' : 204,
         'L1_RD2_FILLED' : 205,
         'L1_RD2_EMPTY' : 206,
@@ -788,5 +803,4 @@ def defineMenu():
 
     }
 
-
-
+if __name__ == "__main__": print_available()

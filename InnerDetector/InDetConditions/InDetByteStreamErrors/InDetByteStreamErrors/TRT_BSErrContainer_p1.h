@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -14,7 +14,6 @@
 #include <stdint.h>
 #include "AthContainers/DataVector.h"
 #include "AthenaKernel/CLASS_DEF.h"
-#include <stdint.h>
 
 typedef DataVector<std::pair<uint8_t, uint32_t> > TRT_BSErrContainer_p1; // <type, index>
 

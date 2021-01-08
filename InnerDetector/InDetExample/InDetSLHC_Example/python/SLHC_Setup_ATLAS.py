@@ -9,18 +9,17 @@ from __future__ import print_function
 __author__ =   "A. Salzburger"
 __version__=   "$Revision: 1.13 $"
 __doc__    =   "SLHC_PathSetting"
-__all__    = [ "SLHC_PathSetting" ]
 
 import os
 from os.path import exists, join
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
-from PyJobTransformsCore.envutil import *
+from PyJobTransformsCore.envutil import find_file_env
 
 class SLHC_Setup :
     # constructor requires the SLHC_Flags
     def __init__(self):
 
-        import os, shutil
+        import os
         
         #--------------------------------------------------------------
         # XML reader

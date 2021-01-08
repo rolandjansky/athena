@@ -306,7 +306,7 @@ def make_summary_algs(hypo_algs):
     summMaker.FinalStepDecisions = {}
     for hypo in hypo_algs:
         for tool in hypo.HypoTools:
-            summMaker.FinalStepDecisions[tool.getName()] = str(hypo.HypoOutputDecisions)
+            summMaker.FinalStepDecisions[tool.getName()] = [str(hypo.HypoOutputDecisions)]
     log.info('summMaker = %s', summMaker)
     return [summary, summMaker]
 

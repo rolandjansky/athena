@@ -14,8 +14,7 @@
 TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
                                              const std::string& name,
                                              const IInterface*  parent):
-  AthAlgTool(type, name, parent),
-  m_regionSelector( "RegSelSvc", name )
+  AthAlgTool(type, name, parent)
 {
 }
 
@@ -25,6 +24,10 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
 StatusCode TrigL2MuonSA::RpcRoadDefiner::initialize()
 {
   ATH_CHECK(m_idHelperSvc.retrieve());
+
+  ATH_CHECK(m_regionSelector.retrieve());
+  ATH_MSG_DEBUG("Retrieved the RegionSelector tool ");
+
   return StatusCode::SUCCESS;
 }
 
@@ -159,8 +162,11 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
 
-  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
-  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+  if (iroi) m_regionSelector->HashIDList(*iroi, mdtHashList);
+  else {
+    TrigRoiDescriptor fullscan_roi( true );
+    m_regionSelector->HashIDList(fullscan_roi, mdtHashList);
+  }
 
   if(roi) delete roi;
 

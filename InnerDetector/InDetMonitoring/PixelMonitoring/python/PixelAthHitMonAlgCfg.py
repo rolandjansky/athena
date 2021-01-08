@@ -12,7 +12,7 @@ from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers, defin
 from PixelMonitoring.PixelAthMonitoringBase import define1DLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, lumibinsx, bcidbinsx
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
 
 def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     '''
@@ -32,6 +32,12 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     pathGroup   = addOnTrackToPath(path, ontrack)
 
     hitGroup = helper.addGroup(alg, 'Hit')
+
+    varName = 'hitdataread_err;ReadingHitDataErr'
+    title = 'Number of Hit data reading errors;error type;# events'
+    hitGroup.defineHistogram(varName,
+                             type='TH1I', path=pathGroup, title=title,
+                             xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
     varName = 'pixhitsmontool_lb,nhits_per_event'
     title = fullDressTitle('Average number of pixel hits per event per LB', ontrack, ';lumi block', ';# hits/event')

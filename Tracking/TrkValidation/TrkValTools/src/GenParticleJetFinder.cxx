@@ -40,7 +40,7 @@ StatusCode Trk::GenParticleJetFinder::finalize() {
 ///////////////////////////////
 /// jetMCFinder
 ///////////////////////////////
-std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <const HepMC::GenParticle *>&  GenStableCharged) const
+std::vector< Trk::GenParticleJet >* Trk::GenParticleJetFinder::jetMCFinder(  std::vector <HepMC::ConstGenParticlePtr>&  GenStableCharged) const
 {
   if (GenStableCharged.size() == 0) {
     ATH_MSG_INFO ("no selected charged particles!");

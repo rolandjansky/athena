@@ -5,12 +5,12 @@
 #ifndef TAUREC_TAUJETRNN_H
 #define TAUREC_TAUJETRNN_H
 
-#include <memory>
+#include "xAODTau/TauJet.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 #include "AsgMessaging/AsgMessaging.h"
 
-#include "xAODTau/TauJet.h"
-
+#include <memory>
 
 // Forward declaration
 namespace lwt {
@@ -51,12 +51,12 @@ public:
     // Compute the signal probability in [0, 1] or a default value
     float compute(const xAOD::TauJet &tau,
                   const std::vector<const xAOD::TauTrack *> &tracks,
-                  const std::vector<const xAOD::CaloCluster *> &clusters) const;
+                  const std::vector<xAOD::CaloVertexedTopoCluster> &clusters) const;
 
     // Compute all input variables and store them in the maps that are passed by reference
     bool calculateInputVariables(const xAOD::TauJet &tau,
                   const std::vector<const xAOD::TauTrack *> &tracks,
-                  const std::vector<const xAOD::CaloCluster *> &clusters,
+                  const std::vector<xAOD::CaloVertexedTopoCluster> &clusters,
                   std::map<std::string, std::map<std::string, double>>& scalarInputs,
                   std::map<std::string, std::map<std::string, std::vector<double>>>& vectorInputs) const;
 

@@ -56,8 +56,8 @@ class _Settings :
       self._doTRT               = False #Apply TRT extension sequence after ambiguity solving
       self._keepTrackParameters = False #Keep track parameters in conversion to TrackParticles
       self._usePixelSP          = True
-      self._d0TrackMax          = 20.
-      self._z0TrackMax          = 300.
+      self._d0TrackMax          = 20.0
+      self._z0TrackMax          = 300.0
       self._isLRT               = False
 
 #Previous version in:
@@ -132,8 +132,13 @@ class _Settings :
       return self._doTRT
 
    @property
+   def keepTrackParameters(self):
+      return self._keepTrackParameters
+
+   @property
    def usePixelSP(self):
        return self._usePixelSP
+
    @property
    def d0TrackMax(self):
        return self._d0TrackMax
@@ -141,10 +146,6 @@ class _Settings :
    @property
    def z0TrackMax(self):
        return self._z0TrackMax
-
-   @property
-   def keepTrackParameters(self):
-      return self._keepTrackParameters
 
    @property
    def isLRT(self):
@@ -177,10 +178,6 @@ class _Tracking_electron( _Settings ):
       self._checkRedundantSeeds = True
       self._doTRT               = True
       self._keepTrackParameters = True
-
-class _Tracking_photon(_Settings):
-    def __init__(self):
-        _Settings.__init__(self)
 
 class _Tracking_tauCore( _Settings ):
    def __init__( self ):
@@ -230,17 +227,9 @@ class _Tracking_muonIso( _Settings ):
 class _Tracking_bjet( _Settings ):
    def __init__( self ):
       _Settings.__init__(self)
-      self._etaHalfWidth    = 0.2
-      self._phiHalfWidth    = 0.201
+      self._etaHalfWidth    = 0.4
+      self._phiHalfWidth    = 0.4
       self._doTRT           = False
-
-class _Tracking_bjetVtx(_Settings):
-    def __init__(self):
-        _Settings.__init__(self)
-        self._phiHalfWidth = 0.201
-        self._etaHalfWidth = 0.2
-        self._pTmin = 5.*GeV
-        self._doTRT = False
 
 class _Tracking_fullScan( _Settings ):
    def __init__( self ):
@@ -251,43 +240,11 @@ class _Tracking_fullScan( _Settings ):
       self._dRdoubletMax    = 200
       self._seedRadBinWidth = 10
 
-class _Tracking_fullScan2(_Settings):
-    def __init__(self):
-        self._pTmin = 2. * GeV
-        self._etaHalfWidth = 3.0
-        self._phiHalfWidth = 3.14159
-        self._doFullScan = True
-
-class _Tracking_fullScan500(_Settings):
-    def __init__(self):
-        self._pTmin = 0.5 * GeV
-        self._etaHalfWidth = 3.0
-        self._phiHalfWidth = 3.14159
-        self._doFullScan = True
-
-class _Tracking_minBias400( _Settings ):
-   def __init__( self ):
-      _Settings.__init__(self)
-      self._doFullScan      = True
-      self._pTmin           = 0.39*GeV
-      self._etaHalfWidth    = 3
-      self._phiHalfWidth    = 3.14159
-      self._doTRT           = False
-
 class _Tracking_minBias( _Settings ):
    def __init__( self ):
       _Settings.__init__(self)
       self._doFullScan      = True
-      self._pTmin           = 0.2*GeV
-      self._etaHalfWidth    = 3
-      self._phiHalfWidth    = 3.14159
-      self._doTRT           = False
-
-class _Tracking_minBias2( _Settings ):
-   def __init__( self ):
-      _Settings.__init__(self)
-      self._doFullScan      = True
-      self._pTmin           = 0.5*GeV
+      self._pTmin           = 0.2*GeV # TODO: double check
       self._etaHalfWidth    = 3
       self._phiHalfWidth    = 3.14159
       self._doTRT           = False
@@ -302,7 +259,6 @@ class _Tracking_beamSpot( _Settings ):
       self._etaHalfWidth    = 3
       self._phiHalfWidth    = 3.14159
       self._doTRT           = False
-      self._checkRedundantSeeds = True
 
 class _Tracking_cosmic( _Settings ):
    def __init__( self ):
@@ -313,32 +269,6 @@ class _Tracking_cosmic( _Settings ):
       self._etaHalfWidth    = 3
       self._phiHalfWidth    = 3.14159
       self._doTRT           = False
-      #do these settings still apply, were defined in TrigFastTrackFinder_Config.py but not in slicesettings
-      self._d0TrackMax = 1000.
-      self._z0TrackMax = 1000.
-
-class _Tracking_cosmicsN(_Settings):
-    def __init__(self):
-        _Settings.__init__(self)
-        self._etaHalfWidth = 3.0
-        self._phiHalfWidth = 3.14159
-        self._doFullScan = True
-        self._pTmin = 0.5*GeV
-
-class _Tracking_beamgas(_Settings):
-    def __init__(self):
-        _Settings.__init__(self)
-        self._pTmin = 0.1 * GeV
-        self._etaHalfWidth = 3.0
-        self._phiHalfWidth = 3.14159
-        self._doFullScan = True
-
-class _Tracking_hadCalib(_Settings):
-    def __init__(self):
-        _Settings.__init__(self)
-        self._pTmin = 0.5*GeV
-        self._etaHalfWidth = 0.4
-        self._phiHalfWidth = 0.4
 
 class _Tracking_bphysics( _Settings ):
    def __init__( self ):
@@ -349,36 +279,6 @@ class _Tracking_bphysics( _Settings ):
       self._phiHalfWidth        = 0.75
       self._checkRedundantSeeds = True
       self._doTRT               = False
-
-class _Tracking_bphysicsHighPt( _Settings ):
-   def __init__( self ):
-      _Settings.__init__(self)
-      self._d0SeedMax           = 10.
-      self._doSpPhiFiltering    = False
-      self._etaHalfWidth        = 0.75
-      self._phiHalfWidth        = 0.75
-      self._doTRT               = False
-      self._pTmin = 2. * GeV
-
-class _Tracking_heavyIon(_Settings):
-   def __init__( self ):
-      _Settings.__init__(self)
-
-class _Tracking_heavyIonFS(_Settings):
-   def __init__( self ):
-      _Settings.__init__(self)
-      self._etaHalfWidth=3.0
-      self._phiHalfWidth=3.14159
-      self._doFullScan=True
-
-class _Tracking_lowPt(_Settings):
-   def __init__( self ):
-      _Settings.__init__(self)
-      self._pTmin = 0.1 * GeV
-      self._etaHalfWidth = 3.0
-      self._phiHalfWidth = 3.14159
-      self._doFullScan = True
-
 
 class _Tracking_electronLRT(_Settings):
     def __init__(self):
@@ -439,53 +339,32 @@ class _Tracking_bjetLRT(_Settings):
       self._z0TrackMax = 500.
       self._isLRT = True
 
-
 #Map to retrieve available configurations of Tracking
 _TrackingConfigSettings = {
     "electron"     : _Tracking_electron(),
-    "electronLRT"  : _Tracking_electronLRT(),
-
-    "photon"       : _Tracking_photon(),
 
     #Muon signatures
     "muon"         : _Tracking_muon(),
     "muonIso"      : _Tracking_muonIso(),
     "muonCore"     : _Tracking_muonCore(),
-    "muonLRT"      : _Tracking_muonLRT(),
 
     "tau"          : _Tracking_tau(),
     "tauCore"      : _Tracking_tauCore(),
     "tauIso"       : _Tracking_tauIso(),
-    "tauLRT"       : _Tracking_tauLRT(),
 
     "bjet"         : _Tracking_bjet(),
-    "bjetVtx"      : _Tracking_bjetVtx(),
-    "bjetLRT"      : _Tracking_bjetLRT(),
-
     "fullScan"     : _Tracking_fullScan(),
-    "fullScanLRT"  : _Tracking_fullScanLRT(),
-    "fullScan2"    : _Tracking_fullScan2(),
-    "fullScan500"  : _Tracking_fullScan500(),
 
-    "minBias"      : _Tracking_minBias(),
-    "minBias2"     : _Tracking_minBias2(),
-    "minBias400"   : _Tracking_minBias400(),
-
+    "minBias400"   : _Tracking_minBias(),
     "beamSpot"     : _Tracking_beamSpot(),
     "cosmics"      : _Tracking_cosmic(),
-    "cosmicsN"     : _Tracking_cosmicsN(),
-    "beamgas"      : _Tracking_beamgas(),
-
     "bphysics"     : _Tracking_bphysics(),
-    "bphysHighPt"  : _Tracking_bphysicsHighPt(),
 
-    "lowPt"        : _Tracking_lowPt(),
-
-    "hadCalib"     : _Tracking_hadCalib(),
-
-    "heavyIon"     : _Tracking_heavyIon(),
-    "heavyIonFS"   : _Tracking_heavyIonFS()
-
+    "electronLRT"  : _Tracking_electronLRT(),
+    "muonLRT"      : _Tracking_muonLRT(),
+    "tauLRT"       : _Tracking_tauLRT(),
+    "bjetLRT"      : _Tracking_bjetLRT(),
+    "fullScanLRT"  : _Tracking_fullScanLRT(),
                   }
 
 
@@ -533,9 +412,6 @@ class _FastTracking():
    @property
    def signatureType(self):
       return self._signatureType
-   @property
-   def config(self):
-      return self._config
 
 class _PrecisionTracking():
    def __init__( self, signatureType, nameSuffix ) :
@@ -655,16 +531,6 @@ class _Settings_muonFS( _GlobalSettings ):
       self._configPT =   _PrecisionTracking( signatureType = 'muon', nameSuffix = 'MuonFS' )
       self._doRecord = True #Allow recording of track collections
 
-class _Settings_muonLRT( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name      = "muonLRT" #To be appended to alg names
-      self._roi       = "HLT_Roi_Muon"
-      self._configFT  = _FastTracking(      signatureType = 'muonLRT', nameSuffix = 'MuonLRT' )
-      self._configPT  = _PrecisionTracking( signatureType = 'muonLRT', nameSuffix = 'Muon' )
-      self._doRecord  = True #Allow recording of track collections
-      self._isLRT      = True
-
 class _Settings_muonCore( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -694,17 +560,6 @@ class _Settings_tauCore( _GlobalSettings ):
       #self._configPT =   #_PrecisionTracking( signatureType = 'tauCore', nameSuffix = 'TauCore' )
       self._doRecord = True #Allow recording of track collections
 
-class _Settings_tauLRT( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "tauLRT" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauCore" #FIXME: possibly different!
-      self._configFT =  _FastTracking(      signatureType = 'tauLRT', nameSuffix = 'TauLRT' )
-      #There should not be a need for tauCore PT!
-      #self._configPT =   #_PrecisionTracking( signatureType = 'tauCore', nameSuffix = 'TauCore' )
-      self._doRecord = True #Allow recording of track collections
-      self._isLRT = True
-
 class _Settings_tauIso( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -715,45 +570,6 @@ class _Settings_tauIso( _GlobalSettings ):
       self._doRecord = True #Allow recording of track collections
 
 #This might be redundant but lets keep them for the time being...
-class _Settings_tauId( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "tauId" #To be appended to alg names
-      self._roi      = "HLT_Roi_Tau" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'tau', nameSuffix = 'Tau' )
-      self._configPT = _PrecisionTracking( signatureType = 'tau', nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauEF( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "tauEF" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauIso" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauTrk( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "tauTrk" #To be appended to alg names
-      self._roi      = "HLT_Roi_Tau" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'tau',    nameSuffix = 'Tau' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
-#This might be redundant but lets keep them for the time being...
-class _Settings_tauTrkTwo( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "tauTrkTwo" #To be appended to alg names
-      self._roi      = "HLT_Roi_TauIso" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'tauIso', nameSuffix = 'TauIso' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'tau',    nameSuffix = 'Tau' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = False #FIXME: Do I need to record these?
-
 class _Settings_tauIsoBDT( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -772,25 +588,6 @@ class _Settings_bjet( _GlobalSettings ):
       self._configPT = _PrecisionTracking( signatureType = 'bjet',   nameSuffix = 'Bjet' )
       self._doRecord = True
 
-class _Settings_bjetVtx( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "bjetVtx" #To be appended to alg names
-      self._roi      = "HLT_Roi_Bjet" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'bjetVtx',   nameSuffix = 'Bjet' )
-      self._configPT = _PrecisionTracking( signatureType = 'bjetVtx',   nameSuffix = 'Bjet' )
-      self._doRecord = False
-
-class _Settings_bjetLRT( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "bjetLRT" #To be appended to alg names
-      self._roi      = "HLT_Roi_Bjet" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'bjetLRT',   nameSuffix = 'BjetLRT' )
-      self._configPT = _PrecisionTracking( signatureType = 'bjetLRT',   nameSuffix = 'BjetLRT' )
-      self._isLRT = True
-      self._doRecord = True
-
 class _Settings_jet( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -805,26 +602,8 @@ class _Settings_minBias( _GlobalSettings ):
       _GlobalSettings.__init__(self)
       self._name     = "minBias" #To be appended to alg names
       self._roi      = "HLT_Roi_MinBias" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'minBias',  nameSuffix = 'MinBias' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'minBias',  nameSuffix = 'MinBias' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = True
-
-class _Settings_minBias400( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "minBias" #To be appended to alg names
-      self._roi      = "HLT_Roi_MinBias" #FIXME: possibly different!
       self._configFT = _FastTracking(      signatureType = 'minBias400',  nameSuffix = 'MinBias' ) #
       self._configPT = _PrecisionTracking( signatureType = 'minBias400',  nameSuffix = 'MinBias' ) #Final collection is being renamed to just tau apparently...
-      self._doRecord = True
-
-class _Settings_minBias2( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "minBias" #To be appended to alg names
-      self._roi      = "HLT_Roi_MinBias" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'minBias2',  nameSuffix = 'MinBias' ) #
-      self._configPT = _PrecisionTracking( signatureType = 'minBias2',  nameSuffix = 'MinBias' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True
 
 class _Settings_beamSpot( _GlobalSettings ):
@@ -845,31 +624,6 @@ class _Settings_fullScan( _GlobalSettings ):
       self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
       self._doRecord = False
 
-class _Settings_fullScan2( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "fullScan2" #To be appended to alg names
-      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
-      self._configFT = _FastTracking(   signatureType = 'fullScan2',  nameSuffix = 'FS' ) #
-      self._doRecord = False
-
-class _Settings_fullScan500( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "fullScan500" #To be appended to alg names
-      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
-      self._configFT = _FastTracking(   signatureType = 'fullScan500',  nameSuffix = 'FS' ) #
-      self._doRecord = False
-
-class _Settings_fullScanLRT( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "fullScanLrt" #To be appended to alg names
-      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
-      self._configFT = _FastTracking(   signatureType = 'fullScanLRT',  nameSuffix = 'FSLRT' ) #
-      self._doRecord = False
-      self._isLRT    = True
-
 class _Settings_cosmics( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -878,31 +632,6 @@ class _Settings_cosmics( _GlobalSettings ):
       self._configFT = _FastTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' ) #
       self._doRecord = False
 
-class _Settings_cosmicsN( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "cosmicsN" #To be appended to alg names
-      self._roi      = "HLT_Roi_Cosmics" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'cosmicsN',  nameSuffix = 'Cosmic' ) #
-      self._doRecord = False
-
-class _Settings_bphysics( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "bphysics" #To be appended to alg names
-      self._roi      = "HLT_Roi_Bjet" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'bphysics',   nameSuffix = 'Bjet' ) #TODO: get correct nameSuffix
-      self._configPT = _PrecisionTracking( signatureType = 'bphysics',   nameSuffix = 'Bjet' )
-      self._doRecord = False
-
-class _Settings_bphysicsHighPt( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "bphysicsHighPt" #To be appended to alg names
-      self._roi      = "HLT_Roi_Bjet" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'bphysHighPt',   nameSuffix = 'Bjet' ) #TODO: Get correct nameSuffix
-      self._configPT = _PrecisionTracking( signatureType = 'bphysHighPt',   nameSuffix = 'Bjet' )
-      self._doRecord = False
 
 class _Settings_bmumux( _GlobalSettings ):
    def __init__( self ):
@@ -913,23 +642,56 @@ class _Settings_bmumux( _GlobalSettings ):
       self._configPT  = _PrecisionTracking( signatureType = 'bphysics', nameSuffix = 'Bmumux' )
       self._doRecord  = True #Allow recording of track collections
 
-class _Settings_beamgas( _GlobalSettings ):
-   def __init__( self ):
-      _GlobalSettings.__init__(self)
-      self._name     = "beamgas" #To be appended to alg names
-      self._roi      = "HLT_Roi_Beamgas" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'beamgas',   nameSuffix = 'beamgas' ) #TODO: Get correct nameSuffix
-      self._configPT = _PrecisionTracking( signatureType = 'beamgas',   nameSuffix = 'beamgas' )
-      self._doRecord = False
 
-class _Settings_hadCalib( _GlobalSettings ):
+class _Settings_electronLRT( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
-      self._name     = "hadcalib" #To be appended to alg names
-      self._roi      = "HLT_Roi_hadCalib" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'hadCalib',   nameSuffix = 'beamgas' ) #TODO: Get correct nameSuffix
-      self._configPT = _PrecisionTracking( signatureType = 'hadCalib',   nameSuffix = 'beamgas' )
+      self._name      = "electronLRT" #To be appended to alg names
+      self._roi       = "HLT_Roi_Electron"
+      self._configFT  = _FastTracking(      signatureType = 'electronLRT', nameSuffix = 'ElectronLRT' )
+      self._configPT  = _PrecisionTracking( signatureType = 'electronLRT', nameSuffix = 'Electron' )
+      self._doRecord  = True #Allow recording of track collections
+      self._isLRT = True
+
+class _Settings_muonLRT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name      = "muonLRT" #To be appended to alg names
+      self._roi       = "HLT_Roi_Muon"
+      self._configFT  = _FastTracking(      signatureType = 'muonLRT', nameSuffix = 'MuonLRT' )
+      self._configPT  = _PrecisionTracking( signatureType = 'muonLRT', nameSuffix = 'Muon' )
+      self._doRecord  = True #Allow recording of track collections
+      self._isLRT      = True
+
+class _Settings_tauLRT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "tauLRT" #To be appended to alg names
+      self._roi      = "HLT_Roi_TauCore" #FIXME: possibly different!
+      self._configFT =  _FastTracking(      signatureType = 'tauLRT', nameSuffix = 'TauLRT' )
+      #There should not be a need for tauCore PT!
+      #self._configPT =   #_PrecisionTracking( signatureType = 'tauCore', nameSuffix = 'TauCore' )
+      self._doRecord = True #Allow recording of track collections
+      self._isLRT = True
+
+class _Settings_bjetLRT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "bjetLRT" #To be appended to alg names
+      self._roi      = "HLT_Roi_Bjet" #FIXME: possibly different!
+      self._configFT = _FastTracking(      signatureType = 'bjetLRT',   nameSuffix = 'BjetLRT' )
+      self._configPT = _PrecisionTracking( signatureType = 'bjetLRT',   nameSuffix = 'BjetLRT' )
+      self._isLRT = True
+      self._doRecord = True
+
+class _Settings_fullScanLRT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "fullScanLrt" #To be appended to alg names
+      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
+      self._configFT = _FastTracking(   signatureType = 'fullScanLRT',  nameSuffix = 'FSLRT' ) #
       self._doRecord = False
+      self._isLRT    = True
 
 _ConfigSettings = {
    "electron"     : _Settings_electron(),
@@ -939,41 +701,30 @@ _ConfigSettings = {
     "muonCore"    : _Settings_muonCore(),
     "muonFS"      : _Settings_muonFS(),
     "muonLate"    : _Settings_muonLate(),
-    "muonLRT"     : _Settings_muonLRT(),
 
     #Tau signatures
     "tauTau"      : _Settings_tauTau(),
     "tauCore"     : _Settings_tauCore(),
     "tauIso"      : _Settings_tauIso(),
-    "tauLRT"      : _Settings_tauLRT(),
-    #Might be potentially removed
-    "tauId"       : _Settings_tauId(),
-    "tauTrk"      : _Settings_tauTrk(),
-    "tauTrkTwo"   : _Settings_tauTrkTwo(),
-    "tauEF"       : _Settings_tauEF(),
     "tauIsoBDT"   : _Settings_tauIsoBDT(),
 
     "bjet"        : _Settings_bjet(),
-    "bjetVtx"        : _Settings_bjetVtx(),
-    "bjetLRT"     : _Settings_bjetLRT(),
     "jet"         : _Settings_jet(),
 
     "fullScan"    : _Settings_fullScan(),
-    "fullScan2"   : _Settings_fullScan2(),
-    "fullScan500" : _Settings_fullScan500(),
-    "fullScanLRT" : _Settings_fullScanLRT(),
 
     "beamSpot"    : _Settings_beamSpot(),
     "cosmics"     : _Settings_cosmics(),
-    "minBias"     : _Settings_minBias400(),
-    "minBias2"     : _Settings_minBias2(),
-    "minBias0"     : _Settings_minBias(),
-    "bphysics"    : _Settings_bphysics(),
-    "bphysHighPt" : _Settings_bphysicsHighPt(),
     "bmumux"      : _Settings_bmumux(),
+    
+    "minBias"     : _Settings_minBias(),
+    #"bphysics"    : _Settings_bphysics(),
 
-    "beamgas"     : _Settings_beamgas(),
-    "hadCalib"    : _Settings_hadCalib()
+    "electronLRT" : _Settings_electronLRT(),
+    "muonLRT"     : _Settings_muonLRT(),
+    "tauLRT"      : _Settings_tauLRT(),
+    "bjetLRT"     : _Settings_bjetLRT(),
+    "fullScanLRT" : _Settings_fullScanLRT(),
                   }
 
 #FTF Remap which eventually will be dropped once naming is aligned with signature settings
@@ -995,14 +746,13 @@ remap  = {
    #"Jet"      : "bjet",
    #"JetFS"    : "fullScan",
    "FS"       : "fullScan",
+   #"bjetVtx"  : "bjetVtx",
    #"FullScan" : "fullScan",
    "BeamSpot" : "beamSpot",
    #"Bphysics" : "bphysics",
    #"Cosmic"   : "cosmics",
    #"MinBias"  : "minBias400",
-   #"minBias"  : "minBias400",
-   "minBias400": "minBias",
-   "tau": "tauTau"
+   #"minBias"  : "minBias400"
 }
 
 def remap_type( signature ):

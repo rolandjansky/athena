@@ -220,10 +220,10 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 	while (pathLengthTraveled < pathLength){
 
 		// N.B. Needs correction from alpha angle still...
-		MM_IonizationCluster IonizationCluster(hitx, pathLengthTraveled*sin(theta), pathLengthTraveled*cos(theta));
-		IonizationCluster.createElectrons(m_random);
+		std::unique_ptr<MM_IonizationCluster> IonizationCluster = std::make_unique<MM_IonizationCluster>(hitx, pathLengthTraveled*sin(theta), pathLengthTraveled*cos(theta));
+		IonizationCluster -> createElectrons(m_random);
 
-		TVector2 initialPosition = IonizationCluster.getIonizationStart();
+		TVector2 initialPosition = IonizationCluster->getIonizationStart();
 
 		ATH_MSG_DEBUG("New interaction starting at x,y, pathLengthTraveled: "
 			<< initialPosition.X()
@@ -233,16 +233,16 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 			<< pathLengthTraveled
 			);
 
-        for (auto& Electron : IonizationCluster.getElectrons()) {
+        for (auto& Electron : IonizationCluster->getElectrons()) {
             Electron->setOffsetPosition(getTransverseDiffusion(initialPosition.Y()) , getLongitudinalDiffusion(initialPosition.Y()) );
         }
 
-		IonizationCluster.propagateElectrons( lorentzAngle , m_driftVelocity );
+		IonizationCluster->propagateElectrons( lorentzAngle , m_driftVelocity );
 
 
 		int tmpEffectiveNElectrons = 0;
 
-		for (auto& Electron : IonizationCluster.getElectrons()){
+		for (auto& Electron : IonizationCluster->getElectrons()){
 
 			//float effectiveCharge = m_polyaFunction->GetRandom();
 			float effectiveCharge = getEffectiveCharge();
@@ -264,7 +264,7 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		if(m_writeOutputFile)	m_mapOfHistograms["effectiveNElectrons"]->Fill( tmpEffectiveNElectrons / m_avalancheGain);
 
 		//---
-		m_IonizationClusters.push_back(IonizationCluster);
+		m_IonizationClusters.push_back(std::move(IonizationCluster));
 
 		pathLengthTraveled +=  getPathLengthTraveled();
 
@@ -310,15 +310,16 @@ void MM_StripsResponseSimulation::whichStrips( const float & hitx,
 		if(m_outputFile) m_outputFile->cd();
 		TGraph grIonizationXZ( m_IonizationClusters.size() );
 		for (int iIonization=0; iIonization <  (int) m_IonizationClusters.size(); iIonization++) {
-			TVector2 ionizationPosition( m_IonizationClusters.at(iIonization).getIonizationStart() );
+			TVector2 ionizationPosition( m_IonizationClusters.at(iIonization)->getIonizationStart() );
 			grIonizationXZ.SetPoint( iIonization, ionizationPosition.X(), ionizationPosition.Y() );
 		}
 		grIonizationXZ.Write("ionizationXZ");
 
 		TGraph grElectronsXZ( stripResponseObject.getNElectrons() );
-		std::vector<MM_Electron*> tmpElectrons = stripResponseObject.getElectrons();
-		for (int iElectron=0; iElectron < (int) tmpElectrons.size(); iElectron++){
-			grElectronsXZ.SetPoint( iElectron, tmpElectrons.at(iElectron)->getX(), tmpElectrons.at(iElectron)->getY() );
+		int iElectron = 0;
+		for (const auto & electron: stripResponseObject.getElectrons()){
+			grElectronsXZ.SetPoint( iElectron, electron->getX(), electron->getY() );
+			iElectron++;
 		}
 		grElectronsXZ.Write("electronsXZ");
 	}

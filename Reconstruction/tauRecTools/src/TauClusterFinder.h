@@ -6,7 +6,6 @@
 #define TAUCLUSTERFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "AsgTools/ToolHandle.h"
 

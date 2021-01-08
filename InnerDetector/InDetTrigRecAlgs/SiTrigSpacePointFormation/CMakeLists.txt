@@ -9,7 +9,7 @@ include_directories(src)
 atlas_add_component( SiTrigSpacePointFormation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps BeamSpotConditionsData EventPrimitives GaudiKernel IRegionSelector Identifier InDetIdentifier InDetPrepRawData InDetReadoutGeometry InDetTrigToolInterfacesLib SiSpacePointFormationLib SiSpacePointToolLib StoreGateLib TrigInterfacesLib TrigSteeringEvent TrigTimeAlgsLib TrkSpacePoint )
+                     LINK_LIBRARIES AthenaBaseComps BeamSpotConditionsData EventPrimitives GaudiKernel IRegionSelector Identifier InDetIdentifier InDetPrepRawData ReadoutGeometryBase InDetReadoutGeometry InDetTrigToolInterfacesLib SiSpacePointFormationLib SiSpacePointToolLib StoreGateLib TrigInterfacesLib TrigSteeringEvent TrigTimeAlgsLib TrkSpacePoint )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

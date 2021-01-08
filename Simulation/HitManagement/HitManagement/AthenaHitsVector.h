@@ -47,11 +47,11 @@ public:
   //
   // default constructor for rootcint
 #ifdef __CINT__ 
-  AthenaHitsVector<T>( ) {} 
+  AthenaHitsVector( ) {} 
   //
   // methods not provided to rootcint
 #else 
-  AthenaHitsVector<T>(const std::string& collectionName="DefaultCollectionName")
+  AthenaHitsVector(const std::string& collectionName="DefaultCollectionName")
     {
       IMessageSvc* msgSvc(Athena::getMessageSvc());
       MsgStream log(msgSvc, "AthenaHitsVector");
@@ -59,7 +59,7 @@ public:
       
       m_name = collectionName;
     }
-  ~AthenaHitsVector<T> () {Clear();}
+  ~AthenaHitsVector () {Clear();}
   void Clear()
     {
 	for (unsigned int i=0;i<m_hitvector.size();i++)

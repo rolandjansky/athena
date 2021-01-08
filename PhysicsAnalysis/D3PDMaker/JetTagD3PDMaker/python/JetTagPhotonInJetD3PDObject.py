@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagPhotonInJetD3PDObject.py
@@ -7,14 +7,11 @@
 ## @date Nov, 2010
 ##
 
-import JetTagD3PDMaker
-import TrackD3PDMaker
 import egammaD3PDMaker
 import EventCommonD3PDMaker
 
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from D3PDMakerConfig.D3PDMakerFlags  import D3PDMakerFlags
 
 from JetTagD3PDMaker.JetTagD3PDMakerKeys import JetTagD3PDKeys
 

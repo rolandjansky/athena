@@ -1,6 +1,6 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # @file PerfMonAna/bin/perfgrind.py
 # @purpose a little script to convert a pmon.gz file into a kcachegrind one
 # @date December 2009
@@ -10,7 +10,6 @@ __doc__ = "a little script to convert a pmon.gz file into a kcachegrind one"
 __author__ = "Sebastien Binet"
 
 ### imports -------------------------------------------------------------------
-import os
 import sys
 import argparse
 

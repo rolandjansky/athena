@@ -126,8 +126,10 @@ void TEvent::setActive() {
 long TEvent::getEntries() {
    if(m_size>=0) return m_size;
    if(!m_evtLoop.isSet()) { if(m_evtLoop.retrieve().isFailure()) return 0; }
-   m_size = dynamic_cast<ICollectionSize*>(&*m_evtLoop)->size();
-   return m_size;
+   if (ICollectionSize* isize = dynamic_cast<ICollectionSize*>(&*m_evtLoop)) {
+     return isize->size();
+   }
+   return 0;
 }
 
 StatusCode TEvent::readFrom( TFile* file ) {
@@ -153,7 +155,9 @@ StatusCode TEvent::readFrom( const char* file ) {
       std::unique_ptr<TObjArray> theFiles(gSystem->GetFromPipe(("ls " + std::string(file)).c_str()).Tokenize("\n"));
       for(int i=0;i<theFiles->GetEntries();i++) {
          //std::cout << "Adding " << dynamic_cast<TObjString*>(theFiles->At(i))->String().Data() << std::endl;
-	myFiles.push_back(gSystem->ExpandPathName(dynamic_cast<TObjString*>(theFiles->At(i))->String().Data()));
+        if (TObjString* objstr = dynamic_cast<TObjString*>(theFiles->At(i))) {
+          myFiles.push_back(gSystem->ExpandPathName(objstr->String().Data()));
+        }
       }
      } else {
        myFiles.push_back( gSystem->ExpandPathName(sFile.Data()) );

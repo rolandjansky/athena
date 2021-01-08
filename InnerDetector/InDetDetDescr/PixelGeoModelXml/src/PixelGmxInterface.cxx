@@ -15,11 +15,11 @@
 
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
-#include "PixelReadoutGeometry/PixelDiodeMatrix.h"
-#include "PixelReadoutGeometry/PixelMultipleConnection1D.h"
+#include "ReadoutGeometryBase/PixelDiodeMatrix.h"
+#include "ReadoutGeometryBase/PixelMultipleConnection1D.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 
 const int PixelHitIndex = 0;
 

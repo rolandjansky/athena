@@ -30,3 +30,27 @@ AUX_VAR( MV2c20_discriminant );
 AUX_VAR( MV2c10mu_discriminant );
 AUX_VAR( MV2c10rnn_discriminant );
 AUX_VAR( SMT_discriminant );
+
+AUX_VAR( IP2D_pb );
+AUX_VAR( IP2D_pc );
+AUX_VAR( IP2D_pu );
+
+AUX_VAR( IP3D_pb );
+AUX_VAR( IP3D_pc );
+AUX_VAR( IP3D_pu );
+
+AUX_VAR( IP2D_cu );
+AUX_VAR( IP2D_bu );
+AUX_VAR( IP2D_bc );
+
+AUX_VAR( IP3D_cu );
+AUX_VAR( IP3D_bu );
+AUX_VAR( IP3D_bc );
+
+AUX_VAR( DL1rmu_pb );
+AUX_VAR( DL1rmu_pc );
+AUX_VAR( DL1rmu_pu );
+
+AUX_VAR( softMuon_pb );
+AUX_VAR( softMuon_pc );
+AUX_VAR( softMuon_pu );

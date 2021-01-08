@@ -6,11 +6,9 @@
 #define TAUREC_TAUJETRNNEVALUATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
-#include "tauRecTools/ITauVertexCorrection.h"
 
 #include "xAODTau/TauJet.h"
-
-#include "AsgTools/ToolHandle.h"
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 
 #include <memory>
 
@@ -40,14 +38,13 @@ public:
     const TauJetRNN* get_rnn_1p() const;
     const TauJetRNN* get_rnn_3p() const;
 
-public:
     // Selects tracks to be used as input to the network
     StatusCode get_tracks(const xAOD::TauJet &tau,
                           std::vector<const xAOD::TauTrack *> &out) const;
 
     // Selects clusters to be used as input to the network
     StatusCode get_clusters(const xAOD::TauJet &tau,
-                            std::vector<const xAOD::CaloCluster *> &out) const;
+                            std::vector<xAOD::CaloVertexedTopoCluster> &out) const;
 
 private:
     std::string m_output_varname;
@@ -57,6 +54,7 @@ private:
     std::size_t m_max_tracks;
     std::size_t m_max_clusters;
     float m_max_cluster_dr;
+    bool m_doVertexCorrection;
 
     // Configuration of the weight file
     std::string m_input_layer_scalar;
@@ -69,12 +67,6 @@ private:
     std::unique_ptr<TauJetRNN> m_net_0p; //!
     std::unique_ptr<TauJetRNN> m_net_1p; //!
     std::unique_ptr<TauJetRNN> m_net_3p; //!
-
-    bool m_useSubtractedCluster;
-
-    ToolHandle<ITauVertexCorrection> m_tauVertexCorrection { this, 
-      "TauVertexCorrection", "TauVertexCorrection", "Tool to perform the vertex correction"};
 };
-
 
 #endif // TAUREC_TAUJETRNNEVALUATOR_H

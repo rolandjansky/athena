@@ -40,6 +40,7 @@ using HepMC3::GenParticle;
 }
 #else
 #include "HepMC/GenParticle.h"
+#include <memory>
 namespace HepMC {
 typedef GenParticle* GenParticlePtr;
 typedef const GenParticle* ConstGenParticlePtr;
@@ -48,8 +49,9 @@ inline GenParticlePtr newGenParticlePtr(const HepMC::FourVector &mom = HepMC::Fo
 }
 inline int barcode(GenParticle p) {   return    p.barcode(); }
 template <class T> inline int barcode(T p) {   return    p->barcode(); }
-template <class T> bool suggest_barcode(T p, int i) {return p->suggest_barcode(i);}
-inline bool suggest_barcode(GenParticle p, int i) {return p.suggest_barcode(i);}
+template <class T> bool suggest_barcode(T& p, int i) {return p.suggest_barcode(i);}
+//Smart pointers should not be used with HepMC2. But it happens.
+template <> inline  bool suggest_barcode<std::unique_ptr<HepMC::GenParticle> >(std::unique_ptr<HepMC::GenParticle>& p, int i) {return p->suggest_barcode(i);}
 template <class T> bool suggest_barcode(T* p, int i) {return p->suggest_barcode(i);}
 namespace Print {
 inline void line(std::ostream& os,const GenParticle& p) {p.print(os);}

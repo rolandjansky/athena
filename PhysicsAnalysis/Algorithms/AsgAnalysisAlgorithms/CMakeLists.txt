@@ -30,36 +30,33 @@ atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-  # AnalysisBase migration: disabled until GRLSelectorAlg is added
-  #atlas_add_test( EventAlgsTestJobData
-  #   SCRIPT EventAlgorithmsTest_eljob.py --data-type data --unit-test
-  #   PROPERTIES TIMEOUT 600 )
-  atlas_add_test( EventAlgsTestJobFullSim
-     SCRIPT EventAlgorithmsTest_eljob.py --data-type mc --unit-test
-     PROPERTIES TIMEOUT 600 )
-  atlas_add_test( EventAlgsTestJobFastSim
-     SCRIPT EventAlgorithmsTest_eljob.py --data-type afii --unit-test
-     PROPERTIES TIMEOUT 600 )
+   atlas_add_test( EventAlgsTestJobData
+      SCRIPT EventAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( EventAlgsTestJobFullSim
+      SCRIPT EventAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( EventAlgsTestJobFastSim
+      SCRIPT EventAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 
-  # AnalysisBase migration: disabled until EgammaAnalysisAlgorithms is added
-  #atlas_add_test( OverlapRemovalTestJobData
-  #   SCRIPT OverlapAlgorithmsTest_eljob.py --data-type data --unit-test
-  #   PROPERTIES TIMEOUT 600 )
-  #atlas_add_test( OverlapRemovalTestJobFullSim
-  #   SCRIPT OverlapAlgorithmsTest_eljob.py --data-type mc --unit-test
-  #   PROPERTIES TIMEOUT 600 )
-  #atlas_add_test( OverlapRemovalTestJobFastSim
-  #   SCRIPT OverlapAlgorithmsTest_eljob.py --data-type afii --unit-test
-  #   PROPERTIES TIMEOUT 600 )
+   atlas_add_test( OverlapRemovalTestJobData
+      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( OverlapRemovalTestJobFullSim
+      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( OverlapRemovalTestJobFastSim
+      SCRIPT OverlapAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 
-  # AnalysisBase migration: disabled until PileupReweightingTool is updated
-  #atlas_add_test( GeneratorAlgsTestJobFullSim
-  #   SCRIPT GeneratorAlgorithmsTest_eljob.py --data-type mc --unit-test
-  #   PROPERTIES TIMEOUT 600 )
+   atlas_add_test( GeneratorAlgsTestJobFullSim
+      SCRIPT GeneratorAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
 
 else()
 
-  atlas_add_test( EventAlgsTestJobData
+   atlas_add_test( EventAlgsTestJobData
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type data
       PROPERTIES TIMEOUT 600 )
@@ -71,6 +68,7 @@ else()
       SCRIPT athena.py
              AsgAnalysisAlgorithms/EventAlgorithmsTest_jobOptions.py - --data-type afii
       PROPERTIES TIMEOUT 600 )
+
    atlas_add_test( GeneratorAlgsTestJob
       SCRIPT athena.py
                AsgAnalysisAlgorithms/GeneratorAlgorithmsTest_jobOptions.py - --data-type mc

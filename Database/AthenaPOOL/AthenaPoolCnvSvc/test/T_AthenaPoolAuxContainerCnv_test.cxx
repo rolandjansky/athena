@@ -49,7 +49,7 @@ public:
       m_pers2 (nullptr)
   {}
 
-  virtual void setObjPtr(void*& obj, const Token* /*token*/) const override
+  virtual void setObjPtr(void*& obj, const Token* /*token*/) override
   {
     if (m_pers2) {
       obj = new YAuxCont_v2 (*m_pers2);

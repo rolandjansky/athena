@@ -173,7 +173,7 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     // Push back the new cluster into the output container.
     outputClusterContainer->push_back(std::move(newClus));
     ElementLink<xAOD::CaloClusterContainer> clusterLink(*outputClusterContainer,
-                                                        outputClusterContainer->size() - 1);
+                                                        outputClusterContainer->size() - 1,ctx);
     std::vector<ElementLink<xAOD::CaloClusterContainer>> elClusters{ clusterLink };
 
     // Make egammaRec object, and push it back into output container.

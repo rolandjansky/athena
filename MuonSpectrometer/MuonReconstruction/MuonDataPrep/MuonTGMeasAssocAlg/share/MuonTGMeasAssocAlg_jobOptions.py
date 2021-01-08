@@ -9,23 +9,25 @@ MuonStandAloneGeometryBuilder = Trk__GeometryBuilder( name = "MuonStandAloneGeom
 ToolSvc += MuonStandAloneGeometryBuilder
 ToolSvc.MuonStandAloneGeometryBuilder.InDetTrackingGeometry = False
 ToolSvc.MuonStandAloneGeometryBuilder.CaloTrackingGeometry = False
-ToolSvc.MuonStandAloneGeometryBuilder.MuonTrackingGeometry = True 
+ToolSvc.MuonStandAloneGeometryBuilder.MuonTrackingGeometry = True
 print MuonStandAloneGeometryBuilder
 
 # combined tracking geometry options
-from TrkDetDescrSvc.TrkDetDescrSvcConf import TrackingGeometrySvc
-MuonTrackingGeometrySvc = TrackingGeometrySvc( name ="MuonTrackingGeometrySvc",
-                                                    TrackingGeometryName = "MuonStandaloneTrackingGeometry",
-                                                    GeometryBuilder = MuonStandAloneGeometryBuilder,
-                                                    BuildGeometryFromTagInfo = False,
-                                                    AssignMaterialFromCOOL = False )
-theApp.CreateSvc += [ "TrackingGeometrySvc/MuonTrackingGeometrySvc" ]
+from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+MuonTrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg(name = "MuonTrackingGeometryCondAlg",
+                                                  GeometryBuilder = MuonStandAloneGeometryBuilder,
+                                                  BuildGeometryFromTagInfo = False,
+                                                  TrackingGeometryWriteKey = 'MuonStandaloneTrackingGeometry')
 
-# navigator 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+condSeq+= TrkGeoCondAlg
+
+# navigator
 from TrkExTools.TrkExToolsConf import Trk__Navigator
 MuonNavigator = Trk__Navigator(name = "MuonNavigator" )
 ToolSvc += MuonNavigator
-ToolSvc.MuonNavigator.TrackingGeometrySvc = "MuonTrackingGeometrySvc" 
+ToolSvc.MuonNavigator.TrackingGeometrySvc = "MuonTrackingGeometrySvc"
 ToolSvc.MuonNavigator.OutputLevel = 5
 print MuonNavigator
 
@@ -35,7 +37,7 @@ MuonMatUpdator = Trk__MaterialEffectsUpdator( name = "MuonMatUpdator" )
 ToolSvc += MuonMatUpdator
 print MuonMatUpdator
 
-# propagator 
+# propagator
 from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator
 MuonPropagator = Trk__STEP_Propagator(name = 'MuonPropagator')
 ToolSvc += MuonPropagator
@@ -44,7 +46,7 @@ print MuonPropagator
 
 # extrapolator
 from TrkExTools.TrkExToolsConf import Trk__Extrapolator
-MuonExtrapolator = Trk__Extrapolator(  name = 'MuonExtrapolator', 
+MuonExtrapolator = Trk__Extrapolator(  name = 'MuonExtrapolator',
                                    Propagators = [ MuonPropagator ] ,
                                    Navigator = MuonNavigator,
                                    MaterialEffectsUpdators = [ MuonMatUpdator ]
@@ -57,7 +59,7 @@ print MuonExtrapolator
 #
 from MuonTGMeasAssocAlg.MuonTGMeasAssocAlgConf import Muon__MuonTGMeasAssocAlg
 MuonTGMeasAssocAlg = Muon__MuonTGMeasAssocAlg(  name = 'MuonTGMeasAssocAlg',
-                                                Extrapolator = MuonExtrapolator, 
+                                                Extrapolator = MuonExtrapolator,
                                                 TrackingGeometry = 'MuonStandaloneTrackingGeometry',
                                                 ProcessSegments = True )
 topSequence += MuonTGMeasAssocAlg

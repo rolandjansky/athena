@@ -19,7 +19,6 @@
 #include <TLine.h>
 #include <TLegend.h>
 #include <TLegendEntry.h>
-#include <THStack.h>
 #include <TEventList.h>
 #include <TPad.h>
 #include <TPaveText.h>

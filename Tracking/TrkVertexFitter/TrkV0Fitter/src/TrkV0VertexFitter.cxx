@@ -111,6 +111,7 @@ namespace Trk
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk) const
   {
     Amg::Vector3D tmpVtx;
+    tmpVtx.setZero();
     return fit(vectorTrk, tmpVtx);
   }
 
@@ -205,6 +206,7 @@ namespace Trk
   xAOD::Vertex * TrkV0VertexFitter::fit(const std::vector<const Trk::TrackParameters*>& originalPerigees) const
   {
     Amg::Vector3D tmpVtx;
+    tmpVtx.setZero();
     return fit(originalPerigees, tmpVtx);
   }
 

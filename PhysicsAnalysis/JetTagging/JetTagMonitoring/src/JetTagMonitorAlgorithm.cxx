@@ -213,7 +213,8 @@ StatusCode JetTagMonitorAlgorithm::fillHistograms( const EventContext& ctx ) con
   //////////////////////
   
   bool useTriggerDecisionTool = true;
-  const auto& trigDecTool = getTrigDecisionTool();
+  const auto* trigDecTool = (getTrigDecisionTool().empty() ?
+                             nullptr : getTrigDecisionTool().operator->());
 
   // only apply trigger selection if bool is true (false for express stream) and trigDecTool is ok
   if (useTriggerDecisionTool && trigDecTool != 0) {

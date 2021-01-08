@@ -74,7 +74,7 @@ std::vector<HepMC::GenEvent> xAODtoHepMCTool :: getHepMCEvents(const xAOD::Truth
     // Insert into McEventCollection
     mcEventCollection.push_back(hepmcEvent);    
     if( doPrint ) ATH_MSG_DEBUG("XXX Printing HepMC Event");
-    if( doPrint ) hepmcEvent.print();
+    if( doPrint ) HepMC::Print::line(std::cout,hepmcEvent);
     // Quit if signal only
     if( m_signalOnly ) break;
   }  
@@ -93,7 +93,7 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
   
   // PARTICLES AND VERTICES  
   // Map of existing vertices - needed for the tree linking
-  std::map<const xAOD::TruthVertex*,HepMC::GenVertex*> vertexMap;
+  std::map<const xAOD::TruthVertex*,HepMC::GenVertexPtr> vertexMap;
 
   // Loop over all of the particles in the event, call particle builder
   // Call suggest_barcode only after insertion!  
@@ -117,7 +117,11 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
 
     // Create GenParticle
     //presumably the GenEvent takes ownership of this, but creating a unique_ptr here as that will only happen if there's an associated vertex
+#ifdef HEPMC3
+    auto hepmcParticle=createHepMCParticle(xPart) ;
+#else
     std::unique_ptr<HepMC::GenParticle> hepmcParticle( createHepMCParticle(xPart) );
+#endif
     int bcpart = xPart->barcode();
     
     // status 10902 should be treated just as status 2
@@ -129,18 +133,22 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
       // skip production vertices with barcode > 200000 --> Geant4 secondaries 
       if ( std::abs(xAODProdVtx->barcode()) > 200000 ) continue; 
       bool prodVtxSeenBefore(false); // is this new?
-      HepMC::GenVertex* hepmcProdVtx = vertexHelper(xAODProdVtx,vertexMap,prodVtxSeenBefore);
+      auto hepmcProdVtx = vertexHelper(xAODProdVtx,vertexMap,prodVtxSeenBefore);
       // Set the decay/production links
+#ifdef HEPMC3
+      hepmcProdVtx->add_particle_out(hepmcParticle);
+#else
       hepmcProdVtx->add_particle_out(hepmcParticle.release());
+#endif
       // Insert into Event
       if (!prodVtxSeenBefore){ 
 	genEvt.add_vertex(hepmcProdVtx);
-	if( !hepmcProdVtx->suggest_barcode(xAODProdVtx->barcode()) ){
+	if( !HepMC::suggest_barcode(hepmcProdVtx,xAODProdVtx->barcode()) ){
 	  ATH_MSG_WARNING("suggest_barcode failed for vertex "<<xAODProdVtx->barcode());
 	  ++m_badSuggest;
 	}
             }
-      if( !hepmcParticle->suggest_barcode(bcpart) ){
+      if( !HepMC::suggest_barcode(hepmcParticle,bcpart) ){
 	ATH_MSG_DEBUG("suggest_barcode failed for particle " <<bcpart);
 	++m_badSuggest;
       }
@@ -152,22 +160,26 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
     if( xPart->hasDecayVtx() ){
       const xAOD::TruthVertex* xAODDecayVtx = xPart->decayVtx();
       // skip decay vertices with barcode > 200000 --> Geant4 secondaries 
-      if ( fabs(xAODDecayVtx->barcode()) > 200000 ) continue; 
+      if ( std::abs(xAODDecayVtx->barcode()) > 200000 ) continue; 
       bool decayVtxSeenBefore(false); // is this new?
-      HepMC::GenVertex* hepmcDecayVtx = vertexHelper(xAODDecayVtx,vertexMap,decayVtxSeenBefore);
+      auto hepmcDecayVtx = vertexHelper(xAODDecayVtx,vertexMap,decayVtxSeenBefore);
       // Set the decay/production links
+#ifdef HEPMC3
+      hepmcDecayVtx->add_particle_in(hepmcParticle);
+#else
       hepmcDecayVtx->add_particle_in(hepmcParticle.release());
+#endif
       // Insert into Event
       if (!decayVtxSeenBefore){ 
 	genEvt.add_vertex(hepmcDecayVtx);
-	if( !hepmcDecayVtx->suggest_barcode(xAODDecayVtx->barcode()) ){
+	if( !HepMC::suggest_barcode(hepmcDecayVtx,xAODDecayVtx->barcode()) ){
 	  ATH_MSG_WARNING("suggest_barcode failed for vertex "
 			  <<xAODDecayVtx->barcode());
 	  ++m_badSuggest;
 	}
       }
       if( bcpart != 0 ){
-	if( !hepmcParticle->suggest_barcode(bcpart) ){
+	if( !HepMC::suggest_barcode(hepmcParticle,bcpart) ){
 	  ATH_MSG_DEBUG("suggest_barcode failed for particle " <<bcpart);
 	  ++m_badSuggest;
 	}
@@ -185,12 +197,12 @@ HepMC::GenEvent xAODtoHepMCTool::createHepMCEvent(const xAOD::TruthEvent* xEvt, 
 
 // Helper to check whether a vertex exists or not using a map; 
 // calls createHepMCVertex if not
-HepMC::GenVertex* xAODtoHepMCTool::vertexHelper(const xAOD::TruthVertex* xaodVertex,
-						std::map<const xAOD::TruthVertex*,HepMC::GenVertex*> &vertexMap,
+HepMC::GenVertexPtr xAODtoHepMCTool::vertexHelper(const xAOD::TruthVertex* xaodVertex,
+						std::map<const xAOD::TruthVertex*,HepMC::GenVertexPtr> &vertexMap,
 						bool &seenBefore) const {
   
-  HepMC::GenVertex* hepmcVertex;
-  std::map<const xAOD::TruthVertex*,HepMC::GenVertex*>::iterator vMapItr;
+  HepMC::GenVertexPtr hepmcVertex;
+  std::map<const xAOD::TruthVertex*,HepMC::GenVertexPtr>::iterator vMapItr;
   vMapItr=vertexMap.find(xaodVertex);
   // Vertex seen before?
   if (vMapItr!=vertexMap.end()) {
@@ -209,20 +221,20 @@ HepMC::GenVertex* xAODtoHepMCTool::vertexHelper(const xAOD::TruthVertex* xaodVer
 
 // Create the HepMC GenParticle
 // Call suggest_barcode after insertion!
-HepMC::GenParticle* xAODtoHepMCTool::createHepMCParticle(const xAOD::TruthParticle* particle) const {
+HepMC::GenParticlePtr xAODtoHepMCTool::createHepMCParticle(const xAOD::TruthParticle* particle) const {
   ATH_MSG_VERBOSE("Creating GenParticle for barcode " <<particle->barcode());
   const HepMC::FourVector fourVec( m_momFac * particle->px(), m_momFac * particle->py(), m_momFac * particle->pz(), m_momFac * particle->e() );
-  HepMC::GenParticle* hepmcParticle=new HepMC::GenParticle(fourVec, particle->pdgId(), particle->status());
+  auto hepmcParticle=HepMC::newGenParticlePtr(fourVec, particle->pdgId(), particle->status());
   hepmcParticle->set_generated_mass( m_momFac * particle->m());
   return hepmcParticle;
 }
 
 // Create the HepMC GenVertex
 // Call suggest_barcode after insertion!
-HepMC::GenVertex* xAODtoHepMCTool::createHepMCVertex(const xAOD::TruthVertex* vertex) const {
+HepMC::GenVertexPtr xAODtoHepMCTool::createHepMCVertex(const xAOD::TruthVertex* vertex) const {
   ATH_MSG_VERBOSE("Creating GenVertex for barcode " <<vertex->barcode());
   HepMC::FourVector prod_pos( m_lenFac * vertex->x(), m_lenFac * vertex->y(),m_lenFac * vertex->z(), m_lenFac * vertex->t() );
-  HepMC::GenVertex* genVertex=new HepMC::GenVertex(prod_pos);
+  auto genVertex=HepMC::newGenVertexPtr(prod_pos);
   return genVertex;
 }
 

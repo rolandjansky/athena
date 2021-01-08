@@ -9,7 +9,6 @@ from __future__ import print_function
 __author__ =   "A. Salzburger"
 __version__=   "$Revision: 1.13 $"
 __doc__    =   "SLHC_PathSetting"
-__all__    = [ "SLHC_PathSetting" ]
 
 import os
 from os.path import exists, join

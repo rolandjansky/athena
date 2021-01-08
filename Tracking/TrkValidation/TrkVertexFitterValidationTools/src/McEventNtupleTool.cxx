@@ -123,8 +123,13 @@ StatusCode Trk::McEventNtupleTool::finalize() {
 
 StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEvent) const {
 
+#ifdef HEPMC3
+    auto Vert = myEvent.vertices().begin();
+    auto Vert_end = myEvent.vertices().end();
+#else
     HepMC::GenEvent::vertex_const_iterator Vert = myEvent.vertices_begin();
     HepMC::GenEvent::vertex_const_iterator Vert_end = myEvent.vertices_end();
+#endif
      //store primary vertex
      CLHEP::HepLorentzVector pv_pos((*Vert)->position().x(),
 			     (*Vert)->position().y(),
@@ -132,16 +137,23 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
 			     (*Vert)->position().t());
      double pv_r = pv_pos.perp();
      double pv_z = pv_pos.z();
-     std::map<int,HepMC::GenVertex *> pv_vtx_ids;
-     std::vector<std::map<int,HepMC::GenVertex *> > sec_vtx_ids_vec;
+     std::map<int,HepMC::ConstGenVertexPtr> pv_vtx_ids;
+     std::vector<std::map<int,HepMC::ConstGenVertexPtr> > sec_vtx_ids_vec;
+#ifdef HEPMC3
+     auto  Part = myEvent.particles().begin();
+     auto  Part_end = myEvent.particles().end();
+#else
      HepMC::GenEvent::particle_const_iterator  Part = myEvent.particles_begin();
-     for (;Part!=myEvent.particles_end(); ++Part){
+     HepMC::GenEvent::particle_const_iterator  Part_end = myEvent.particles_end();
+#endif
+
+     for (;Part!=Part_end; ++Part){
           //information about incomming and outgoing particles
           CLHEP::HepLorentzVector par_mom((*Part)->momentum().px(),
 				   (*Part)->momentum().py(),
 				   (*Part)->momentum().pz(),
 				   (*Part)->momentum().e());
-          HepMC::GenVertex* par_vert = (*Part)->production_vertex();
+          auto par_vert = (*Part)->production_vertex();
 	  if (par_vert)
           {
            CLHEP::HepLorentzVector lv_pos(par_vert->position().x(),
@@ -149,7 +161,7 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
 				   par_vert->position().z(),
 				   par_vert->position().t());
 
-           if (par_mom.perp() > m_ptCut && fabs(par_mom.eta()) <= m_etaCut && fabs(lv_pos.perp()) <= m_radiusCut &&  fabs(lv_pos.z()) <= m_zPosCut){
+           if (par_mom.perp() > m_ptCut && fabs(par_mom.eta()) <= m_etaCut && std::fabs(lv_pos.perp()) <= m_radiusCut &&  std::fabs(lv_pos.z()) <= m_zPosCut){
 
              if(fabs(lv_pos.perp() - pv_r)<m_radiusRes  && fabs(lv_pos.z() - pv_z)<m_zPosRes)
              {
@@ -159,8 +171,8 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
                 //loop over all entries in sec_vtx_ids_vec = vector of sec_vtx_map's
                 for (unsigned int sec_vec_itr = 0; sec_vec_itr < sec_vtx_ids_vec.size(); ++sec_vec_itr)
                 {
-                  std::map<int,HepMC::GenVertex *> sec_vtx_map = sec_vtx_ids_vec[sec_vec_itr];
-                  std::map<int,HepMC::GenVertex *>::iterator map_itr = sec_vtx_map.begin();
+                  std::map<int,HepMC::ConstGenVertexPtr> sec_vtx_map = sec_vtx_ids_vec[sec_vec_itr];
+                  std::map<int,HepMC::ConstGenVertexPtr>::iterator map_itr = sec_vtx_map.begin();
                   for (; map_itr!= sec_vtx_map.end(); ++map_itr)
                   {
                     CLHEP::HepLorentzVector sec_pos((*map_itr).second->position().x(),
@@ -180,22 +192,22 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
                 }
                 if(new_sec_vtx) //store new entry in sec_vtx_ids_vec
                 {
-                  std::map<int,HepMC::GenVertex *> new_map;
-                  new_map.insert(std::make_pair(par_vert->barcode(),par_vert));
+                  std::map<int,HepMC::ConstGenVertexPtr> new_map;
+                  new_map.insert(std::make_pair(HepMC::barcode(par_vert),par_vert));
                   sec_vtx_ids_vec.push_back(new_map);
                 }
              }//if not primary
            }//eta && mom cut
           }//if production vertex
       }//end loop over particles
-      std::map<int,HepMC::GenVertex *>::iterator pv_map_itr = pv_vtx_ids.begin();
+      std::map<int,HepMC::ConstGenVertexPtr>::iterator pv_map_itr = pv_vtx_ids.begin();
       m_true_pri_x = (*pv_map_itr).second->position().x();
       m_true_pri_y = (*pv_map_itr).second->position().y();
       m_true_pri_z = (*pv_map_itr).second->position().z();
       for (unsigned int sec_vtx_itr = 0; sec_vtx_itr < sec_vtx_ids_vec.size(); ++sec_vtx_itr)
       {
-           std::map<int,HepMC::GenVertex *> sec_map =  sec_vtx_ids_vec[sec_vtx_itr];
-           std::map<int,HepMC::GenVertex *>::iterator map_itr = sec_map.begin();
+           std::map<int,HepMC::ConstGenVertexPtr> sec_map =  sec_vtx_ids_vec[sec_vtx_itr];
+           std::map<int,HepMC::ConstGenVertexPtr>::iterator map_itr = sec_map.begin();
            CLHEP::HepLorentzVector sec_vtx_pos;
            for (; map_itr != sec_map.end(); ++map_itr){
                 sec_vtx_pos.setX(sec_vtx_pos.x() + (*map_itr).second->position().x());

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Pre and Post debug_stream analysis operations for trigger transform
 # @details: Code to carry out operations that are needed for running the trigger debug_stream analysis in transform
@@ -18,8 +18,7 @@ from TrigTransform.dbgEventInfo import dbgEventInfo
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
 from PyCool import cool
 
-from PyUtils import RootUtils
-ROOT = RootUtils.import_root()
+import ROOT
 from ROOT import TFile
 
 def dbgPreRun(inputFileList,outputFileList):
@@ -36,7 +35,7 @@ def dbgPreRun(inputFileList,outputFileList):
     data = []
     l1Info = []
     hltInfo = []
-    relInfo = str()
+    relInfo = []
     runInfo = 0
     for inputFile in inputFileList.value:
         
@@ -63,17 +62,20 @@ def dbgPreRun(inputFileList,outputFileList):
             eventInfo.event_count(event)
             eventInfo.event_info(event, l1Info, hltInfo)
             eventInfo.fillTree()
+
     #close output TFile
     hfile.Write()
     hfile.Close() 
+
     #Release format should be good, if relInfo is 'uknown' then print this error 
-    if not re.match(r'(\d+\.{0,1})+$',relInfo):
-        msg.error('Not able to find release from DB (or it was badly formatted), release : %s' % relInfo )
+    release = relInfo[0]
+    if not re.match(r'(\d+\.{0,1})+$', release):
+        msg.error('Not able to find release from DB (or it was badly formatted), release : %s' % release )
         msg.error('Problem with DB configuration in COOL DB, most likely during data-taking' )
         
     msg.info('Finished running debug_stream analysis PreRun operations')     
     #returns the local asetupString from runs in input files and to be used by asetup 
-    return getAsetupString(relInfo)
+    return getAsetupString(*relInfo)
     
 def dbgPostRun(inputFileList,outputFileList):
     msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFileList))
@@ -88,7 +90,7 @@ def dbgPostRun(inputFileList,outputFileList):
     data = []
     l1Info = []
     hltInfo = []
-    relInfo = str()
+    relInfo = []
     for inputFile in inputFileList.value:
     
         if not os.path.isfile(inputFile):
@@ -122,16 +124,16 @@ def dbgPostRun(inputFileList,outputFileList):
     
 def TriggerDBInfo(run):
     #Get the connection to CONDBR2  
-    dbconn  = TriggerCoolUtil.GetConnection("CONDBR2")
+    dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
     #dbconn  = TriggerCoolUtil.GetConnection("COMP")
     l1Info = []
     
-    limmin=run<<32
-    limmax=(run+1)<<32
+    limmin = run<<32
+    limmax = (run+1)<<32
 
     ## Get L1 Info from DB
-    l1Conn= dbconn.getFolder( "/TRIGGER/LVL1/Menu" )
-    l1Chansel=cool.ChannelSelection.all()
+    l1Conn = dbconn.getFolder( "/TRIGGER/LVL1/Menu" )
+    l1Chansel = cool.ChannelSelection.all()
     l1Objs = l1Conn.browseObjects( limmin,limmax,l1Chansel)
     itemName = {}
     l1Counts = 0
@@ -160,17 +162,17 @@ def TriggerDBInfo(run):
 
     ## Get HLT Info
     f = dbconn.getFolder( "/TRIGGER/HLT/Menu" )
-    chansel=cool.ChannelSelection.all()
+    chansel = cool.ChannelSelection.all()
     objs = f.browseObjects( limmin,limmax,chansel)
     hltInfo = []
     chainCount = 0
     chainNamesHLT = {}
 
     while objs.goToNext():
-        hltObj=objs.currentRef()
-        hltPayload=hltObj.payload()
-        hltName     = hltPayload['ChainName']
-        hltCounter  = hltPayload['ChainCounter']
+        hltObj = objs.currentRef()
+        hltPayload = hltObj.payload()
+        hltName = hltPayload['ChainName']
+        hltCounter = hltPayload['ChainCounter']
         chainNamesHLT[int(hltCounter)] = hltName
         hltInfo = (max(chainNamesHLT.keys())+1) * [0]
 
@@ -178,17 +180,21 @@ def TriggerDBInfo(run):
         hltInfo.pop(channel)
         hltInfo.insert(channel,chainNamesHLT[channel])
 
-    # Get HLT Release number
+    # Get Atlas Project and HLT Release number
     f = dbconn.getFolder( "/TRIGGER/HLT/HltConfigKeys" )
-    chansel=cool.ChannelSelection.all()
+    chansel = cool.ChannelSelection.all()
     objs = f.browseObjects( limmin,limmax,chansel)
     relInfo = 'unknown'
         
     while objs.goToNext():
-        relObj=objs.currentRef()
-        relPayload=relObj.payload()
-        confsrc     = relPayload['ConfigSource'].split(',')
-        if len(confsrc)>1: relInfo = confsrc[1]
+        relObj = objs.currentRef()
+        relPayload = relObj.payload()
+        confsrc = relPayload['ConfigSource'].split(',')
+
+        if len(confsrc) > 2:
+            # Skip database name
+            relInfo = confsrc[1:]
+
         msg.info("release: %s", relInfo)
 
     return (l1Info, hltInfo, relInfo) 
@@ -242,37 +248,28 @@ def getL1InfoXML():
     return l1Info
 
     
-def getAsetupString(release):
-    #From release and os.environ, sets asetupString for runwrapper.BSRDOtoRAW.sh
-    asetupString = None
-    AtlasProject = str()
-    AtlasPatchArea = str()
-    TestArea = str()
-    userEnvironment = str()
-    #Environment variables list for dictionary to be filled from os.environ
-    eVarList = ['AtlasProject','AtlasPatchArea','CORAL_AUTH_PATH','CORAL_DBLOOKUP_PATH','TestArea']
-    eVarDic = {}
-    for eVar in eVarList :
-        if eVar in os.environ:
-            eVarDic[eVar] = os.environ[eVar].rstrip() 
+def getAsetupString(release, AtlasProject):
+    # From release and os.environ, sets asetupString for runwrapper.BSRDOtoRAW.sh
 
-    #Sets AtlasProject to AtlasP1HLT by default otherwise it gest is from the enviroment.
-    if eVarDic['AtlasProject'] :
-        AtlasProject = eVarDic['AtlasProject']
-    else:
-        msg.info('failed to find env variable : $'+eVar)
-        AtlasProject='AtlasP1HLT'
+    if not AtlasProject:
+        msg.warn("Atlas Project not available in TRIGGERDB - reading env variable")
 
-    #If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-RELEASE), then returns tzero/software/patches/AtlasP1HLT-release where release is the parameter given to this function getAsetupString(release)    
-    if eVarDic.get('TestArea') :
-        TestArea = eVarDic['TestArea']
-        if  TestArea.find("tzero/software/patches/AthenaP1-") > 0 :
+        if os.environ['AtlasProject']:
+            AtlasProject = os.environ['AtlasProject'].rstrip()
+            msg.info("Found Atlas Project %s" % AtlasProject)
+        else:
+            msg.error("Couldn't find Atlas Project!")
+
+    asetupString = AtlasProject + ',' + release
+
+    # If TestArea is for tzero (tzero/software/patches/AtlasP1HLT-RELEASE), 
+    #   then returns tzero/software/patches/AtlasP1HLT-release where release is 
+    #   the parameter given to this function getAsetupString(release)    
+    if os.environ['TestArea']:
+        TestArea = os.environ['TestArea']
+        if TestArea.find("tzero/software/patches/AthenaP1-") > 0 :
             testarea = TestArea.split('-')
-            TestArea = testarea[0]+'-'+release
-        asetupString = AtlasProject + ',' + release + ',gcc62 --testarea '+ TestArea
-        return asetupString
+            TestArea = testarea[0] + '-' + release
+        asetupString += ' --testarea '+ TestArea
 
-    #else, there is no TestArea,  then use the local directory    
-    else :
-        asetupString = AtlasProject + ',' + release + ',gcc62,here'
     return asetupString

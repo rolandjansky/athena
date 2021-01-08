@@ -204,6 +204,8 @@ namespace Muon {
   std::unique_ptr<Trk::Track> MooTrackFitter::fit( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2, const PrepVec* externalPhiHits ) const {
 
     GarbageCan localGarbage;
+    MuPatHitTool::HitGarbage hitsToBeDeleted;
+    MuPatHitTool::ParGarbage parsToBeDeleted;
 
     ++m_nfits;
 
@@ -211,7 +213,7 @@ namespace Muon {
     FitterData fitterData;
 
     // extract hits and geometrical information
-    if( !extractData(entry1,entry2,fitterData, localGarbage) ) {
+    if( !extractData(entry1,entry2,fitterData, localGarbage, parsToBeDeleted ) ) {
       ATH_MSG_DEBUG(" Failed to extract data for initial fit" );
       localGarbage.cleanUp();
       return std::unique_ptr<Trk::Track>();
@@ -238,7 +240,8 @@ namespace Muon {
     ++m_nfailedParsInital;
 
     // clean phi hits and reevaluate hits. Do not run for cosmics
-    bool hasCleaned = m_cleanPhiHits ? cleanPhiHits( startPars->momentum().mag(), fitterData, externalPhiHits, localGarbage ) : true;
+    bool hasCleaned = m_cleanPhiHits ? cleanPhiHits( startPars->momentum().mag(), fitterData, externalPhiHits,
+                                                     localGarbage, hitsToBeDeleted, parsToBeDeleted ) : true;
     if( hasCleaned ){
       ATH_MSG_DEBUG(" Cleaned phi hits, re-extracting hits" );
       bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
@@ -361,12 +364,12 @@ namespace Muon {
     if( track ) ++m_nsuccess;
     
     localGarbage.cleanUp();
-    m_hitHandler->cleanUp();
     if( msgLvl(MSG::DEBUG) && track ) msg(MSG::DEBUG) << MSG::DEBUG << " Track found " << endmsg;
     return track;
   }
 
-  bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData, GarbageCan& garbage ) const {
+  bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatCandidateBase& entry2 , MooTrackFitter::FitterData& fitterData, GarbageCan& garbage,
+                                    MuPatHitTool::ParGarbage& parsToBeDeleted) const {
     // sanity checks on the entries
     if( corruptEntry( entry1 ) ) {
       ATH_MSG_DEBUG(" corrupt first entry,  cannot perform fit: eta hits " << entry1.etaHits().size() );
@@ -410,7 +413,7 @@ namespace Muon {
     copyHitList(entry1.hitList(),fitterData.copyHitList1,garbage);
     copyHitList(entry2.hitList(),fitterData.copyHitList2,garbage);
 
-    if( !m_hitHandler->merge(fitterData.copyHitList1,fitterData.copyHitList2,hitList) ) return false;
+    if( !m_hitHandler->merge(fitterData.copyHitList1,fitterData.copyHitList2,hitList, parsToBeDeleted) ) return false;
 
     bool usePrecise = m_usePreciseHits ? true : (fitterData.firstHasMomentum || fitterData.secondHasMomentum);
     if( msgLvl(MSG::DEBUG) ){
@@ -1929,7 +1932,9 @@ namespace Muon {
   } 
 
   bool MooTrackFitter::cleanPhiHits( double momentum, MooTrackFitter::FitterData& fitterData, 
-				     const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageCan& garbage ) const {
+				     const std::vector<const Trk::PrepRawData*>* patternPhiHits, GarbageCan& garbage,
+                                     MuPatHitTool::HitGarbage& hitsToBeDeleted,
+                                     MuPatHitTool::ParGarbage& parsToBeDeleted) const {
 
     ATH_MSG_VERBOSE(" cleaning phi hits " );
 
@@ -2096,8 +2101,8 @@ namespace Muon {
     if( !measurementsToBeAdded.empty() ){
       if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << " adding measurements " << std::endl;
       MuPatHitList newHitList;
-      m_hitHandler->create(fitterData.firstEntry->entryPars(),measurementsToBeAdded,newHitList);
-      m_hitHandler->merge(newHitList,fitterData.hitList);
+      m_hitHandler->create(fitterData.firstEntry->entryPars(),measurementsToBeAdded,newHitList, hitsToBeDeleted, parsToBeDeleted);
+      m_hitHandler->merge(newHitList,fitterData.hitList, parsToBeDeleted);
     }
 
     ATH_MSG_VERBOSE(" done cleaning " );

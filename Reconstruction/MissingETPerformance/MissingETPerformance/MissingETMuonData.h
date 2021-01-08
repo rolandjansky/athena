@@ -32,7 +32,7 @@ class MissingETMuonData : public AthAlgTool {
   std::string m_JetKey;
    
   //Muon containers
-  std::vector<const HepMC::GenParticle*> m_truth_Muons;
+  std::vector<HepMC::ConstGenParticlePtr> m_truth_Muons;
   std::vector<const Analysis::Muon*> m_crack_Muons;
   std::vector<const Analysis::Muon*> m_MuonBoy_Spectro_Muons;
   std::vector<const Analysis::Muon*> m_MuonBoy_Track_Muons;
@@ -67,7 +67,7 @@ public:
 
   bool isIsolated(const Analysis::Muon *mu, const JetCollection *jets);
 
-  const std::vector<const HepMC::GenParticle*> &used_truth_muons() {return m_truth_Muons;}
+  const std::vector<HepMC::ConstGenParticlePtr> &used_truth_muons() {return m_truth_Muons;}
   const std::vector<const Analysis::Muon*> &used_crack_Muons() {return m_crack_Muons;}
   const std::vector<const Analysis::Muon*> &used_MuonBoy_Spectro_Muons() {return m_MuonBoy_Spectro_Muons;}
   const std::vector<const Analysis::Muon*> &used_MuonBoy_Track_Muons() {return m_MuonBoy_Track_Muons;}

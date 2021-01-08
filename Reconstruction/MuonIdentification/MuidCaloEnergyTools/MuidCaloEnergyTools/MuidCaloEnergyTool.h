@@ -15,7 +15,6 @@
  IEEE Trans. Nucl. Sci., vol. 54, no. 5, pt. 2, pp. 1792-1796, Oct. 2007.
 
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 

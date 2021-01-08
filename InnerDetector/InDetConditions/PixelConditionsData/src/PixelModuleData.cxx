@@ -280,9 +280,30 @@ float PixelModuleData::getDefaultQ2TotA() const { return m_paramA; }
 float PixelModuleData::getDefaultQ2TotE() const { return m_paramE; }
 float PixelModuleData::getDefaultQ2TotC() const { return m_paramC; }
 
+// Lorentz angle correction
+void PixelModuleData::setBarrelLorentzAngleCorr(std::vector<double> BarrelLorentzAngleCorr) { m_BarrelLorentzAngleCorr = BarrelLorentzAngleCorr; }
+void PixelModuleData::setEndcapLorentzAngleCorr(std::vector<double> EndcapLorentzAngleCorr) { m_EndcapLorentzAngleCorr = EndcapLorentzAngleCorr; }
+double PixelModuleData::getLorentzAngleCorr(int bec, int layer) const {
+  double LAcorr = 1.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelLorentzAngleCorr.size()) { LAcorr=m_BarrelLorentzAngleCorr.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapLorentzAngleCorr.size()) { LAcorr=m_EndcapLorentzAngleCorr.at(layer); }
+  return LAcorr;
+}
+
 // DCS parameters
 void PixelModuleData::setDefaultBiasVoltage(float biasVoltage) { m_biasVoltage=biasVoltage; }
 float PixelModuleData::getDefaultBiasVoltage() const { return m_biasVoltage; }
+
+void PixelModuleData::setDefaultBarrelBiasVoltage(std::vector<float> BarrelBiasVoltage) { m_BarrelBiasVoltage = BarrelBiasVoltage; }
+void PixelModuleData::setDefaultEndcapBiasVoltage(std::vector<float> EndcapBiasVoltage) { m_EndcapBiasVoltage = EndcapBiasVoltage; }
+void PixelModuleData::setDefaultDBMBiasVoltage(std::vector<float>    DBMBiasVoltage)    { m_DBMBiasVoltage = DBMBiasVoltage; }
+float PixelModuleData::getDefaultBiasVoltage(int bec, int layer) const {
+  float biasVoltage = 0.0;
+  if (std::abs(bec)==0 && layer<(int)m_BarrelBiasVoltage.size()) { biasVoltage=m_BarrelBiasVoltage.at(layer); }
+  if (std::abs(bec)==2 && layer<(int)m_EndcapBiasVoltage.size()) { biasVoltage=m_EndcapBiasVoltage.at(layer); }
+  if (std::abs(bec)==4 && layer<(int)m_DBMBiasVoltage.size())    { biasVoltage=m_DBMBiasVoltage.at(layer); }
+  return biasVoltage;
+}
 
 void PixelModuleData::setDefaultTemperature(float temperature) { m_temperature=temperature; }
 float PixelModuleData::getDefaultTemperature() const { return m_temperature; }
@@ -293,6 +314,23 @@ bool PixelModuleData::getCablingMapToFile() const { return m_cablingMapToFile; }
 
 void PixelModuleData::setCablingMapFileName(std::string cablingMapFileName) { m_cablingMapFileName = cablingMapFileName; }
 std::string PixelModuleData::getCablingMapFileName() const { return m_cablingMapFileName; }
+
+// Map for radiation damage simulation
+void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
+double PixelModuleData::getFluenceLayer(int layer) const { return m_fluenceLayer.at(layer); }
+
+void PixelModuleData::setLorentzMap_e(std::vector<TH2F*> lorentzMap_e) { m_lorentzMap_e = lorentzMap_e; }
+void PixelModuleData::setLorentzMap_h(std::vector<TH2F*> lorentzMap_h) { m_lorentzMap_h = lorentzMap_h; }
+TH2F* PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
+TH2F* PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
+
+void PixelModuleData::setDistanceMap_e(std::vector<TH2F*> distanceMap_e) { m_distanceMap_e = distanceMap_e; }
+void PixelModuleData::setDistanceMap_h(std::vector<TH2F*> distanceMap_h) { m_distanceMap_h = distanceMap_h; }
+TH2F* PixelModuleData::getDistanceMap_e(int layer) const { return m_distanceMap_e.at(layer); }
+TH2F* PixelModuleData::getDistanceMap_h(int layer) const { return m_distanceMap_h.at(layer); }
+
+void PixelModuleData::setRamoPotentialMap(std::vector<TH3F*> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
+TH3F* PixelModuleData::getRamoPotentialMap(int layer) const { return m_ramoPotentialMap.at(layer); }
 
 // Distortion parameters
 void PixelModuleData::setDistortionInputSource(int distortionInputSource) { m_distortionInputSource = distortionInputSource; }

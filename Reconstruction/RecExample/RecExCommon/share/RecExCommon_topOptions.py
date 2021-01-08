@@ -147,6 +147,9 @@ amitag = ""
 from PyUtils.MetaReaderPeeker import metadata
 try:
     amitag = metadata['AMITag']
+    # In some cases AMITag can be a list, just take the last one
+    if type(amitag) == list:
+        amitag=amitag[-1]
 except:
     logRecExCommon_topOptions.info("Cannot access TagInfo/AMITag")
 
@@ -551,38 +554,57 @@ if rec.readESD() and rec.doESD():
     rec.doTrigger=False
     recAlgs.doTrigger=False
     logRecExCommon_topOptions.info("detected re-reconstruction from ESD, will switch trigger OFF !")
-#try:
+
+# Disable Trigger output reading in MC if there is none, unless running Trigger selection algorithms
+if not globalflags.InputFormat.is_bytestream() and not recAlgs.doTrigger:
+    try:
+        from RecExConfig.ObjKeyStore import cfgKeyStore
+        from PyUtils.MetaReaderPeeker import convert_itemList
+        cfgKeyStore.addManyTypesInputFile(convert_itemList(layout='#join'))
+        # Check for Run-1, Run-2 or Run-3 Trigger content in the input file
+        if not cfgKeyStore.isInInputFile("HLT::HLTResult", "HLTResult_EF") \
+                and not cfgKeyStore.isInInputFile("xAOD::TrigNavigation", "TrigNavigation") \
+                and not cfgKeyStore.isInInputFile("xAOD::TrigCompositeContainer", "HLTNav_Summary"):
+            logRecExCommon_topOptions.info('Disabled rec.doTrigger because recAlgs.doTrigger=False and there is no Trigger content in the input file')
+            rec.doTrigger = False
+    except Exception:
+        logRecExCommon_topOptions.warning('Failed to check input file for Trigger content, leaving rec.doTrigger value unchanged (%s)', rec.doTrigger)
+
 if rec.doTrigger:
-    if globalflags.DataSource() == 'data'and globalflags.InputFormat == 'bytestream':
+    if globalflags.DataSource() == 'data' and globalflags.InputFormat == 'bytestream':
         try:
             include("TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py")
         except Exception:
             treatException("Could not import TriggerJobOpts/BStoESD_Tier0_HLTConfig_jobOptions.py . Switching trigger off !" )
-            recAlgs.doTrigger=False
+            rec.doTrigger = recAlgs.doTrigger = False
     else:
         try:
             from TriggerJobOpts.TriggerGetter import TriggerGetter
             triggerGetter = TriggerGetter()
         except Exception:
             treatException("Could not import TriggerJobOpts.TriggerGetter . Switched off !" )
-            recAlgs.doTrigger=False
+            rec.doTrigger = recAlgs.doTrigger = False
 
-# Run-3 Trigger Outputs
-from AthenaConfiguration.AllConfigFlags import ConfigFlags
-if ConfigFlags.Trigger.EDMVersion == 3 and rec.readESD() and rec.doAOD():
-    # Don't run any trigger - only pass the HLT contents from ESD to AOD
-    # Add HLT output
-    from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
-    hltOutput = HLTTriggerResultGetter()
-    # Add Trigger menu metadata
-    if rec.doFileMetaData():
-        from RecExConfig.ObjKeyStore import objKeyStore
-        metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
-                          "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
-        objKeyStore.addManyTypesMetaData( metadataItems )
-    # Add L1 output (to be consistent with R2)
-    from TrigEDMConfig.TriggerEDM import getLvl1AODList
-    objKeyStore.addManyTypesStreamAOD(getLvl1AODList())        
+    # ESDtoAOD Run-3 Trigger Outputs: Don't run any trigger - only pass the HLT contents from ESD to AOD
+    if rec.readESD() and rec.doAOD():
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        # The simplest protection in case ConfigFlags.Input.Files is not set, doesn't cover all cases:
+        if ConfigFlags.Input.Files == ['_ATHENA_GENERIC_INPUTFILE_NAME_'] and athenaCommonFlags.FilesInput():
+            ConfigFlags.Input.Files = athenaCommonFlags.FilesInput()
+
+        if ConfigFlags.Trigger.EDMVersion == 3:
+            # Add HLT output
+            from TriggerJobOpts.HLTTriggerResultGetter import HLTTriggerResultGetter
+            hltOutput = HLTTriggerResultGetter()
+            # Add Trigger menu metadata
+            if rec.doFileMetaData():
+                from RecExConfig.ObjKeyStore import objKeyStore
+                metadataItems = [ "xAOD::TriggerMenuContainer#TriggerMenu",
+                                "xAOD::TriggerMenuAuxContainer#TriggerMenuAux." ]
+                objKeyStore.addManyTypesMetaData( metadataItems )
+            # Add L1 output (to be consistent with R2)
+            from TrigEDMConfig.TriggerEDM import getLvl1AODList
+            objKeyStore.addManyTypesStreamAOD(getLvl1AODList())
 
 AODFix_postTrigger()
 
@@ -1263,6 +1285,8 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
             if ( rec.readESD() or jobproperties.egammaRecFlags.Enabled ) and not rec.ScopingLevel()==4 and rec.doEgamma :
                 from egammaRec import egammaKeys
                 addClusterToCaloCellAOD(egammaKeys.outputClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputFwdClusterKey())
+                addClusterToCaloCellAOD(egammaKeys.outputEgammaLargeFWDClustersKey())
                 if "itemList" in metadata:
                     if ('xAOD::CaloClusterContainer', egammaKeys.EgammaLargeClustersKey()) in metadata["itemList"]:
                         # check first for priority if both keys are in metadata
@@ -1301,8 +1325,7 @@ if ( rec.doAOD() or rec.doWriteAOD()) and not rec.readAOD() :
                                                  StreamName = 'StreamAOD',
                                                  Cells = 'AllCalo',
                                                  CellLinks = 'CaloCalTopoClusters_links',
-                                                 Taus = "TauJets",
-                                                 UseSubtractedCluster = tauFlags.useSubtractedCluster())
+                                                 Taus = "TauJets")
                 topSequence += tauCellAlg3
                 
         except Exception:

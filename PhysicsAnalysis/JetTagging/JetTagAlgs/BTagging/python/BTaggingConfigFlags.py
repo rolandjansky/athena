@@ -19,6 +19,9 @@ def createBTaggingConfigFlags():
                                         "InANDNInShared", "PixShared", "SctShared",
                                         "InANDNInSplit", "PixSplit",
                                         "Good"])
+    # Taggers for validation
+    btagcf.addFlag("BTagging.SaveSV1Probabilities",False)
+    btagcf.addFlag("BTagging.RunJetFitterNN",False)
     #Do we really need this in AthConfigFlags?
     #Comments in BTaggingConfiguration.py
     btagcf.addFlag("BTagging.OutputFiles.Prefix", "BTagging_")

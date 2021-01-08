@@ -77,11 +77,16 @@ def jetRecoSequence( configFlags, clustersKey, **jetRecoDict ):
 def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDict ):
     jetDefString = jetRecoDictToString(jetRecoDict)
     buildSeq = parOR( "JetBuildSeq_"+jetDefString, [])
-    trkcolls = getTrkColls(jetRecoDict) if jetRecoDict["trkopt"]!="notrk" else {}
+    doesTracking = jetRecoDict["trkopt"]!="notrk"
+    trkcolls = getTrkColls(jetRecoDict) if doesTracking else {}
+    if doesTracking and not trkcolls:
+        raise RuntimeError("Failed to retrieve track collections for trkopt '{}'".format(jetRecoDict["trkopt"]))
+
+    isPFlow = jetRecoDict["constitType"] == "pf"
 
     # Add particle flow reconstruction if needed
-    if "pf" in jetRecoDict["dataType"]:
-        if not trkcolls:
+    if isPFlow:
+        if not doesTracking:
             raise RuntimeError("PFlow jet chain requested with no tracking option!")
         from eflowRec.PFHLTSequence import PFHLTSequence
         (pfseq, pfoPrefix) = RecoFragmentsPool.retrieve(
@@ -95,8 +100,8 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     # chosen jet collection
     jetsFullName = jetDef.fullname()
     jetsOut = recordable(jetsFullName)
-    doConstitMods = jetRecoDict["dataType"] in ["sktc","cssktc", "pf", "csskpf"]
     JetRecConfig.instantiateAliases(jetDef)
+    doConstitMods = jetRecoDict["constitMod"]+jetRecoDict["constitType"] in ["sktc","cssktc", "pf", "csskpf"]
     if doConstitMods:
         # Get online monitoring jet rec tool
         from JetRecTools import OnlineMon                                                  
@@ -114,11 +119,10 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     # Basic list of PseudoJets is just the constituents
     # Append ghosts (tracks) if desired
     pjs = [constitPJKey]
-    if trkcolls:
-        pjs.append(trkcolls["GhostTracks"])
-
+    # Also compile modifier list
     jetModList = []
-    if trkcolls:
+    if doesTracking:
+        pjs.append(trkcolls["GhostTracks"])
         trkMods = JetRecoConfiguration.defineTrackMods(jetRecoDict["trkopt"])
         jetModList += trkMods
 
@@ -177,8 +181,13 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         rhoKey = str(eventShapeAlg.EventDensityTool.OutputContainer)
 
     jetDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource,rhoKey)
-    jetDef.modifiers += jetDefNoCalib.modifiers[:-2] # Leave off sort + filter
-    copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef)
+    # If we need JVT, just rerun the JVT modifier
+    doesTracking = jetRecoDict["trkopt"] != "notrk"
+    isPFlow = jetRecoDict["constitType"] == "pf"
+    if doesTracking:
+        jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
+    decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
+    copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef,decorations=decorList)
 
     recoSeq += copyCalibAlg
 

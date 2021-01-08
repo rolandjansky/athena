@@ -1,0 +1,5 @@
+# Options used by cmake --graphviz
+set( GRAPHVIZ_CUSTOM_TARGETS TRUE )
+set( GRAPHVIZ_GENERATE_DEPENDERS FALSE )
+set( GRAPHVIZ_GENERATE_PER_TARGET FALSE )
+set( GRAPHVIZ_IGNORE_TARGETS ".*Pkg$" ".*PkgPrivate$" "^__.*" )

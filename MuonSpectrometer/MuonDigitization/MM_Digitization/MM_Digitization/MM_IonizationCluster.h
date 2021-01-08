@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MM_DIGITIZATION_MM_IONIZATIONCLUSTER_H
@@ -63,17 +63,16 @@ class MM_IonizationCluster {
 
   MM_IonizationCluster ();
   MM_IonizationCluster (float HitX, float IonizationX, float IonizationY);
-  MM_IonizationCluster (const MM_IonizationCluster& MM_IonizationCluster);
   void createElectrons(TRandom3* rndm);
   void propagateElectrons(float lorentzAngle, float driftVel);
-  std::vector<MM_Electron*> getElectrons() const;
+  std::vector<std::unique_ptr<MM_Electron>>& getElectrons();
   float getHitX() const { return m_HitX; }
   TVector2 getIonizationStart() const { return m_IonizationStart; }
 
  private:
 
   // Members supplied by user
-  std::vector<MM_Electron*> m_Electrons;
+  std::vector<std::unique_ptr<MM_Electron>> m_Electrons;
   float m_HitX;
   TVector2 m_IonizationStart;
 

@@ -110,7 +110,7 @@ StatusCode Trk::TruthTrackCreation::execute()
 
     // ----------------------------------- main loop ------------------------------------------------------------------
     // get the PRD truth trajectories
-    const std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >& truthTraj =
+    const std::map< HepMC::ConstGenParticlePtr, PRD_TruthTrajectory >& truthTraj =
         m_prdTruthTrajectoryBuilder->truthTrajectories();
     // some screen output
     ATH_MSG_VERBOSE("PRD_TruthTrajectoryBuilder delivered " << truthTraj.size() << " PRD truth trajectories, starting track creation.");

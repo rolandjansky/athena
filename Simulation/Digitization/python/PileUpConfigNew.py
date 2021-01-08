@@ -311,7 +311,7 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     kwargs.setdefault("firstXing", flags.Digitization.PU.InitialBunchCrossing)
     kwargs.setdefault("lastXing", flags.Digitization.PU.FinalBunchCrossing)
 
-    if flags.Digitization.PU.RunAndLumiOverrideList:
+    if flags.Input.RunAndLumiOverrideList:
         kwargs.setdefault("MaxMinBiasCollPerXing", maxNevtsPerXing(flags))
         acc.merge(LumiProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("LumiProfileSvc"))

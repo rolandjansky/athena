@@ -2,7 +2,7 @@
 
 
 from __future__ import print_function
-from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, O
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, OOO
 from CoolRunQuery.utils.AtlRunQueryIOV    import IOVRange
 from CoolRunQuery.utils.AtlRunQueryUtils  import coolDbConn
 from CoolRunQuery.utils.AtlRunQueryLookup import DQChannel
@@ -16,7 +16,7 @@ DD = namedtuple("DD","description comment since until")
 
 def vfgen(vfobjs):
     for obj in vfobjs:
-        yield O(obj.channel, (str(obj.Code),obj.Comment), IOVRange(starttime=obj.since, endtime=obj.until), True)
+        yield OOO(obj.channel, (str(obj.Code),obj.Comment), IOVRange(starttime=obj.since, endtime=obj.until), True)
 
 class DQSelector(Selector):
     def __init__(self, name='dataquality'):
@@ -590,7 +590,7 @@ class DQDefectCondition(RunLBBasedCondition):
                 # list of source defects in case of virtual defects
                 
                 #o = O("DQDEFECT", (d.channel, d.comment, ignore), IOVRange(starttime=d.since.real, endtime=d.until.real), True)
-                o = O("DQDEFECT", defPayload, IOVRange(starttime=d.since.real, endtime=d.until.real), True)
+                o = OOO("DQDEFECT", defPayload, IOVRange(starttime=d.since.real, endtime=d.until.real), True)
                 yield o
 
 

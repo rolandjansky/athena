@@ -311,8 +311,10 @@ TopoSteering::executeDecisionConnector(TCS::DecisionConnector *conn) {
    for(TCS::Connector* inputConnector: conn->inputConnectors()) {
        // TODO DG-2017-04-18 the sort overflow (>10 TOBs) in the SortAlg is not implemented yet
        if(inputConnector->isSortingConnector()) {
-           sortOverflow = (sortOverflow ||
-                            dynamic_cast<SortingConnector*>(inputConnector)->sortingAlgorithm()->overflow());
+         if (auto sortConn = dynamic_cast<SortingConnector*>(inputConnector)) {
+           sortOverflow = sortConn->sortingAlgorithm()->overflow();
+           if (sortOverflow) break;
+         }
        }
    }
    conn->m_decision.setOverflow(conn->hasInputOverflow() || sortOverflow);

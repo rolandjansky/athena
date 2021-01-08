@@ -214,13 +214,14 @@ private:
   Gaudi::Property<double> m_lineMomentum{ this,
                                           "LineMomentum",
                                           100. * Gaudi::Units::GeV };
-  ToolHandle<IMaterialAllocator> m_materialAllocator;
-  ToolHandle<IIntersector> m_rungeKuttaIntersector;
-  ToolHandle<IIntersector> m_solenoidalIntersector;
-  ToolHandle<IPropagator> m_stepPropagator;
-  ToolHandle<IIntersector> m_straightLineIntersector;
-  ServiceHandle<ITrackingVolumesSvc> m_trackingVolumesSvc;
-  ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool;
+
+  ToolHandle<IMaterialAllocator> m_materialAllocator{this,"MaterialAllocator","Trk::MaterialAllocator/MaterialAllocator"};
+  ToolHandle<IIntersector> m_rungeKuttaIntersector{this,"RungeKuttaIntersector","Trk::RungeKuttaIntersector/RungeKuttaIntersector"};
+  ToolHandle<IIntersector> m_solenoidalIntersector{this,"SolenoidalIntersector","Trk::SolenoidalIntersector/SolenoidalIntersector"};
+  ToolHandle<IPropagator> m_stepPropagator{this,"Propagator","Trk::STEP_Propagator/AtlasSTEP_Propagator"};
+  ToolHandle<IIntersector> m_straightLineIntersector{this,"StraightLineIntersector","Trk::StraightLineIntersector/StraightLineIntersector"};
+  ServiceHandle<ITrackingVolumesSvc> m_trackingVolumesSvc{this,"TrackingVolumesSvc","TrackingVolumesSvc/TrackingVolumesSvc"};
+  ToolHandle<Trk::IExtendedTrackSummaryTool> m_trackSummaryTool{this,"TrackSummaryTool","MuonTrackSummaryTool"};
 
   // configurable tolerances, warnings
   Gaudi::Property<double> m_orderingTolerance{ this,

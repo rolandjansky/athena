@@ -17,7 +17,6 @@
 #include "tauRecTools/TauIDVarCalculator.h"
 #include "tauRecTools/TauJetRNNEvaluator.h"
 #include "tauRecTools/TauDecayModeNNClassifier.h"
-#include "tauRecTools/TauVertexCorrection.h"
 
 #ifdef __CINT__
 
@@ -43,7 +42,5 @@
 #pragma link C++ class TauIDVarCalculator+;
 #pragma link C++ class TauJetRNNEvaluator+;
 #pragma link C++ class TauDecayModeNNClassifier+;
-#pragma link C++ class ITauVertexCorrection+;
-#pragma link C++ class TauVertexCorrection+;
 
 #endif

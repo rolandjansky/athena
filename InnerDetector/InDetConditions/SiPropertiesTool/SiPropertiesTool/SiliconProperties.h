@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SIPROPERTIESTOOL_SILICONPROPERTIES_H
@@ -16,7 +16,7 @@
 // Authors: Grant Gorfine
 ///////////////////////////////////////////////////////////////////
 
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 namespace InDet {
 

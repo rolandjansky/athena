@@ -84,9 +84,7 @@ int JetByVertexFinder::find_(const PseudoJetContainer& cont,
   string sinp0 = xAOD::JetInput::typeName(inputtype);
   ATH_MSG_DEBUG("  Input type: " << sinp0);
 
-  // FIXME - bypass const of cont parameter
-  PseudoJetContainer content = cont;
-  const std::vector<PseudoJet>* vpj = content.casVectorPseudoJet();
+  const std::vector<PseudoJet>* vpj = cont.casVectorPseudoJet();
 
   std::vector<PseudoJetVector> psjvectors;
   std::vector<const Vertex*> vertices;

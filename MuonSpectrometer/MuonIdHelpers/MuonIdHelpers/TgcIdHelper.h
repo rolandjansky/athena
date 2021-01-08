@@ -2,19 +2,9 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// ******************************************************************************
-// ATLAS Muon Identifier Helpers Package
-// -----------------------------------------
-// ******************************************************************************
-
-//<doc><file> $Id: TgcIdHelper.h,v 1.32 2009-01-20 22:44:13 kblack Exp $
-//<version>   $Name: not supported by cvs2svn $
-
 #ifndef MUONIDHELPERS_TGCIDHELPER_H
 #define MUONIDHELPERS_TGCIDHELPER_H
 
-// Includes
-class MsgStream;
 #include "MuonIdHelpers/MuonIdHelper.h"
 
 // ******************************************************************************
@@ -67,7 +57,7 @@ class TgcIdHelper : public MuonIdHelper
 
   // Destructor
 
-  virtual ~TgcIdHelper();
+  virtual ~TgcIdHelper()=default;
 
   ///////////// compact identifier stuff begins ////////////////////////////////////// 
 

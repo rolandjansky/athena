@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -29,9 +29,8 @@ def MuonCacheCfg():
 
 ## This configuration function sets up everything for decoding RPC bytestream data into RDOs
 #
-# The forTrigger paramater is used to put the algorithm in RoI mode
 # The function returns a ComponentAccumulator and the data-decoding algorithm, which should be added to the right sequence by the user
-def RpcBytestreamDecodeCfg(flags, forTrigger=False):
+def RpcBytestreamDecodeCfg(flags, name="RpcRawDataProvider"):
     acc = ComponentAccumulator()
     
     # We need the RPC cabling to be setup
@@ -57,7 +56,7 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     MuonRpcRawDataProviderTool = Muon__RPC_RawDataProviderToolMT(name    = "RPC_RawDataProviderToolMT",
                                                                  Decoder = RPCRodDecoder,
                                                                  RdoLocation = keyName )
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         MuonRpcRawDataProviderTool.RpcContainerCacheKey   = MuonCacheNames.RpcCache
         MuonRpcRawDataProviderTool.WriteOutRpcSectorLogic = False
 
@@ -65,18 +64,23 @@ def RpcBytestreamDecodeCfg(flags, forTrigger=False):
     
     # Setup the RAW data provider algorithm
     Muon__RpcRawDataProvider=CompFactory.Muon.RpcRawDataProvider
-    RpcRawDataProvider = Muon__RpcRawDataProvider(name         = "RpcRawDataProvider",
+    RpcRawDataProvider = Muon__RpcRawDataProvider(name         = name,
                                                   ProviderTool = MuonRpcRawDataProviderTool )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         # Configure the RAW data provider for ROI access
         from L1Decoder.L1DecoderConfig import mapThresholdToL1RoICollection
         RpcRawDataProvider.RoIs = mapThresholdToL1RoICollection("MU")
+        RpcRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+        RpcRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_RPC_Cfg( flags ) )
+
 
     acc.addEventAlgo(RpcRawDataProvider, primary=True)
     return acc
 
-def TgcBytestreamDecodeCfg(flags, forTrigger=False):
+def TgcBytestreamDecodeCfg(flags, name="TgcRawDataProvider"):
     acc = ComponentAccumulator()
 
     # We need the TGC cabling to be setup
@@ -103,21 +107,27 @@ def TgcBytestreamDecodeCfg(flags, forTrigger=False):
                                                                  Decoder = TGCRodDecoder,
                                                                  RdoLocation = keyName )
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         MuonTgcRawDataProviderTool.TgcContainerCacheKey   = MuonCacheNames.TgcCache
 
     acc.addPublicTool( MuonTgcRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
     Muon__TgcRawDataProvider=CompFactory.Muon.TgcRawDataProvider
-    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = "TgcRawDataProvider",
+    TgcRawDataProvider = Muon__TgcRawDataProvider(name         = name,
                                                   ProviderTool = MuonTgcRawDataProviderTool )
-    
+    if flags.Muon.MuonTrigger:
+        TgcRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+        TgcRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_TGC_Cfg( flags ) )
+
+
     acc.addEventAlgo(TgcRawDataProvider,primary=True)
 
     return acc
 
-def MdtBytestreamDecodeCfg(flags, forTrigger=False):
+def MdtBytestreamDecodeCfg(flags, name="MdtRawDataProvider"):
     acc = ComponentAccumulator()
 
     # We need the MDT cabling to be setup
@@ -148,21 +158,27 @@ def MdtBytestreamDecodeCfg(flags, forTrigger=False):
                                                                  Decoder = MDTRodDecoder,
                                                                  RdoLocation = keyName)
 
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         MuonMdtRawDataProviderTool.CsmContainerCacheKey = MuonCacheNames.MdtCsmCache
 
     acc.addPublicTool( MuonMdtRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
 
     # Setup the RAW data provider algorithm
     Muon__MdtRawDataProvider=CompFactory.Muon.MdtRawDataProvider
-    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = "MdtRawDataProvider",
+    MdtRawDataProvider = Muon__MdtRawDataProvider(name         = name,
                                                   ProviderTool = MuonMdtRawDataProviderTool )
+    if flags.Muon.MuonTrigger:
+        MdtRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+        MdtRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
+
 
     acc.addEventAlgo(MdtRawDataProvider,primary=True)
 
     return acc
 
-def CscBytestreamDecodeCfg(flags, forTrigger=False):
+def CscBytestreamDecodeCfg(flags, name="CscRawDataProvider"):
     acc = ComponentAccumulator()
 
     # We need the CSC cabling to be setup
@@ -188,15 +204,21 @@ def CscBytestreamDecodeCfg(flags, forTrigger=False):
     MuonCscRawDataProviderTool = Muon__CSC_RawDataProviderToolMT(name    = "CSC_RawDataProviderToolMT",
                                                                  Decoder = CSCRodDecoder,
                                                                  RdoLocation = keyName)
-    if forTrigger:
+    if flags.Muon.MuonTrigger:
         MuonCscRawDataProviderTool.CscContainerCacheKey = MuonCacheNames.CscCache
 
     acc.addPublicTool( MuonCscRawDataProviderTool ) # This should be removed, but now defined as PublicTool at MuFastSteering 
     
     # Setup the RAW data provider algorithm
     Muon__CscRawDataProvider=CompFactory.Muon.CscRawDataProvider
-    CscRawDataProvider = Muon__CscRawDataProvider(name         = "CscRawDataProvider",
+    CscRawDataProvider = Muon__CscRawDataProvider(name         = name,
                                                   ProviderTool = MuonCscRawDataProviderTool )
+    if flags.Muon.MuonTrigger:
+        CscRawDataProvider.DoSeededDecoding = True
+        # add RegSelTool
+        from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+        CscRawDataProvider.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_CSC_Cfg( flags ) )
+
 
     acc.addEventAlgo(CscRawDataProvider,primary=True)
 

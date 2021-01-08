@@ -356,13 +356,11 @@ def getTrfConfigFromPANDA(tag):
             if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                 value=physics.pop(arg)
                 msg.debug("Found input file argument %s=%s.", arg, value ) 
-                fmt=arg.lstrip('-').replace('input','').replace('File','')
-                trf.inFiles[arg]=getInputFileName(arg)
+                trf.inFiles[arg]=value
             elif arg.lstrip('-').startswith('output') and arg.endswith('File'):
                 value=physics.pop(arg)
                 msg.debug("Found output file argument %s=%s.", arg, value )
-                fmt=arg.lstrip('-').replace('output','').replace('File','')
-                trf.outFiles[arg]=getOutputFileName(fmt)
+                trf.outFiles[arg]=value
 
         msg.debug("Checking for not set arguments...")
         for arg,value in listitems(physics):
@@ -471,7 +469,7 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
 
             if suppressNonJobOptions:
                 for k in list(physics):
-                    if k in ['productionStep', 'transformation', 'SWReleaseCache']:
+                    if k in ['inputs', 'outputs', 'productionStep', 'transformation', 'SWReleaseCache']:
                         physics.pop(k)
 
             for k, v in iteritems(physics):
@@ -490,13 +488,11 @@ def getTrfConfigFromAMI(tag, suppressNonJobOptions = True):
                 if arg.lstrip('-').startswith('input') and arg.endswith('File'):
                     value = physics.pop(arg)
                     msg.debug("Found input file argument %s=%s.", arg, value)
-                    fmt = arg.lstrip('-').replace('input', '').replace('File', '')
-                    trf.inFiles[arg] = getInputFileName(arg)
+                    trf.inFiles[arg] = value
                 elif arg.lstrip('-').startswith('output') and arg.endswith('File'):
                     value = physics.pop(arg)
                     msg.debug("Found output file argument %s=%s.", arg, value)
-                    fmt = arg.lstrip('-').replace('output', '').replace('File', '')
-                    trf.outFiles[arg] = getOutputFileName(fmt)
+                    trf.outFiles[arg] = value
 
             msg.debug("Checking for not set arguments...")
             for arg, value in listitems(physics):

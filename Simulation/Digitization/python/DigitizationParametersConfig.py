@@ -1,27 +1,13 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
+from AthenaKernel.EventIdOverrideConfig import getMinMaxRunNumbers
 from AthenaCommon.Logging import logging
 logDigitizationWriteMetadata = logging.getLogger( 'DigitizationParametersConfig' )
-
-myRunNumber = 0
-myEndRunNumber = 2147483647 # the max run number
-
-def getRunNumberRangeForOutputMetadata(ConfigFlags):
-    myRunNumber = ConfigFlags.Input.RunNumber[0]
-    myEndRunNumber = 2147483647 # the max run number
-
-    if myRunNumber > 0 :
-        logDigitizationWriteMetadata.info('Found Run Number %s in hits file metadata.', str(myRunNumber) )
-        myEndRunNumber = myRunNumber+1 # got a reasonable run number so set end run to be the next run after this one.
-    else :
-        logDigitizationWriteMetadata.info('Found unexpected Run Number %s in hits file metadata. Not overriding RunNumber to match hits file for this job.', str(myRunNumber) )
-        myRunNumber = 0
-    return myRunNumber, myEndRunNumber
 
 def writeDigitizationMetadata(ConfigFlags):
     from IOVDbMetaDataTools import ParameterDbFiller
     dbFiller = ParameterDbFiller.ParameterDbFiller()
-    myRunNumber, myEndRunNumber = getRunNumberRangeForOutputMetadata(ConfigFlags)
+    myRunNumber, myEndRunNumber = getMinMaxRunNumbers(ConfigFlags)
     logDigitizationWriteMetadata.debug('ParameterDbFiller BeginRun = %s', str(myRunNumber) )
     dbFiller.setBeginRun(myRunNumber)
     logDigitizationWriteMetadata.debug('ParameterDbFiller EndRun   = %s', str(myEndRunNumber) )

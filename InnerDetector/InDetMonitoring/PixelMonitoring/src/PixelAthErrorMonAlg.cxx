@@ -74,8 +74,10 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   float num_errormodules_per_cat[ErrorCategory::COUNT][PixLayers::COUNT] = {{0}};
   float num_errormodules_per_cat_rodmod[ErrorCategoryRODMOD::COUNT][PixLayers::COUNT] = {{0}};
 
-  // Generate femcc_errwords and per LB maps, all _per module_, including IBL.
+  // Generate femcc_errwords, ROB error and per LB maps.
   VecAccumulator2DMap femcc_errwords_maps("FEMCCErrorwords");
+  VecAccumulator2DMap trunc_rob_errors_maps("TruncatedROBErrors", true);
+  VecAccumulator2DMap masked_rob_errors_maps("MaskedROBErrors", true);
   VecAccumulator2DMap all_errors_maps("ErrorsLB");
   VecAccumulator2DMap modsync_errors_maps("ErrorsModSyncLB");
   VecAccumulator2DMap rodsync_errors_maps("ErrorsRODSyncLB");
@@ -135,16 +137,25 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
       is_fei4 = false;
     }
     // flagging/counting categorized errors per module.
-    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {false};
-    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {0};
+    bool has_err_cat[ErrorCategory::COUNT][nFEIBL2D] = {{false}};
+    int nerrors_cat_rodmod[ErrorCategoryRODMOD::COUNT][nFEIBL2D] = {{0}};
 
     // count number of words w/ MCC/FE flags per module
     unsigned int num_femcc_errwords = 0;
 
+    uint64_t mod_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx);
+
+    // extracting ROB error information
+    //
+    if ( PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::TruncatedROB) ) {
+      trunc_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+    }
+    if ( PixelByteStreamErrors::hasError(mod_errorword, PixelByteStreamErrors::MaskedROB) ) {
+      masked_rob_errors_maps.add(pixlayer, waferID, m_pixelid, 1.0);
+    }
     // getting module_error information (only fei3 layers)
     //
     if (!is_fei4) {
-      uint64_t mod_errorword = m_pixelCondSummaryTool->getBSErrorWord(modHash, ctx);
       std::bitset<kNumErrorStatesFEI3> stateFEI3 = getErrorStateFEI3Mod(mod_errorword);  
       num_errors[pixlayer]+=stateFEI3.count();
       for (unsigned int state = 0; state < stateFEI3.size(); ++state) {
@@ -297,6 +308,8 @@ StatusCode PixelAthErrorMonAlg::fillHistograms( const EventContext& ctx ) const 
   }
   // Fill the accumulated maps
   fill2DProfLayerAccum(femcc_errwords_maps);
+  fill2DProfLayerAccum(trunc_rob_errors_maps);
+  fill2DProfLayerAccum(masked_rob_errors_maps);
   fill2DProfLayerAccum(all_errors_maps);
   fill2DProfLayerAccum(modsync_errors_maps);
   fill2DProfLayerAccum(rodsync_errors_maps);

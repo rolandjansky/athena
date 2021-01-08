@@ -5,6 +5,7 @@
 
 from RecExConfig.RecFlags import rec
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 if not ('fileList' in dir()):
      fileList=['/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/valid1.105200.T1_McAtNlo_Jimmy.recon.AOD.e380_s764_r1295/AOD.134900._000001.pool.root.1']
@@ -12,7 +13,7 @@ if not ('fileList' in dir()):
 # allow this to work in RTT
 if not fileList == []:
     acf.FilesInput=fileList
-
+    ConfigFlags.Input.Files = acf.FilesInput()
 
 if not 'RootNtupleOutput' in dir():
     rec.RootNtupleOutput="ntuple_fromAOD.root"

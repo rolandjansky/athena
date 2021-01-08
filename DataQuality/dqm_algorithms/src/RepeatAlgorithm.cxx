@@ -118,12 +118,13 @@ execute( const std::string& name, const TObject& data, const dqm_core::Algorithm
     }
     tags[ireference->GetName() + std::string("|Status")] = subResult->status_; 
     if ( dqm_algorithms::tools::GetFirstFromMap("RepeatAlgorithm--ResultsNEntries", config.getParameters(), 0) > 0 ) {
-      TH1* hireference = dynamic_cast<TH1*>(ireference);
-      if (hireference) {
-	tags[ireference->GetName() + std::string("|NEntries")] = hireference->GetEntries();
-      } else {
-	throw dqm_core::BadConfig( ERS_HERE, "RepeatAlgorithm", std::string("Reference ") + ireference->GetName() + " is not TH1, yet we want to get # entries" );
-      }
+
+       if( ireference->IsA()->InheritsFrom( "TH1" )){
+          TH1* hireference = dynamic_cast<TH1*>(ireference);
+          if (hireference) {
+            tags[ireference->GetName() + std::string("|NEntries")] = hireference->GetEntries();
+          } 
+       }
     }
 
     if (subResult->getObject()) {

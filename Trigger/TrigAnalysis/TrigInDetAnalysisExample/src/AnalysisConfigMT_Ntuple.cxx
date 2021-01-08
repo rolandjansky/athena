@@ -23,7 +23,7 @@ std::string date();
 
 
 //function to find true taus
-const HepMC::GenParticle* fromParent( int pdg_id, const HepMC::GenParticle* p, bool printout=false );
+HepMC::ConstGenParticlePtr fromParent( int pdg_id, HepMC::ConstGenParticlePtr p, bool printout=false );
   
 
 

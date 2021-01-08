@@ -83,9 +83,6 @@ private:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  /** Method to calculate the updated momentum based on material effects */
-  bool updateP(AmgVector(5) &, double) const;
-
 private:
   ToolHandle<IMultiStateMaterialEffects> m_materialEffects{
     this,

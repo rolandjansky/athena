@@ -31,6 +31,24 @@ class CaloDetDescrManager;
  **/
 class egammaSuperClusterBuilder : public AthReentrantAlgorithm
 {
+public:
+  struct CentralPosition
+  {
+    float etaB = 999;
+    float phiB = 999;
+    float emaxB = -999 * Gaudi::Units::GeV;
+    float etaEC = 999;
+    float phiEC = 999;
+    float emaxEC = -999 * Gaudi::Units::GeV;
+  };
+
+  struct PhiSize
+  {
+    float plusB = 0;
+    float minusB = 0;
+    float plusEC = 0;
+    float minusEC = 0;
+  };
 
 protected:
   /** Protected constructor since this class should not be instantiated by
@@ -75,52 +93,18 @@ protected:
                                  //!< units of phi
   //
 private:
-  struct CentralPosition
-  {
-    float etaB = 999;
-    float phiB = 999;
-    float emaxB = -999 * Gaudi::Units::GeV;
-    float etaEC = 999;
-    float phiEC = 999;
-    float emaxEC = -999 * Gaudi::Units::GeV;
-  };
-
-  /** Find the reference position (eta, phi) relative to which cells are
-     restricted. The return value is whether it succeeded in finding a positive
-     energy max value. (If rv = false, the output variables are passed as
-     arguments are not updated.)
-  */
-  CentralPosition findCentralPosition(
-    const std::vector<const xAOD::CaloCluster*>& clusters) const;
-
-  struct PhiSize
-  {
-    float plusB = 0;
-    float minusB = 0;
-    float plusEC = 0;
-    float minusEC = 0;
-  };
-
   /** Find the size of the cluster */
   PhiSize findPhiSize(const CentralPosition& cp0,
-                      const xAOD::CaloCluster* cluster) const;
+                      const xAOD::CaloCluster& cluster) const;
 
-  /** Add the EM cells from reference cluster to self; eta and phi are the ones
-     to use for limiting size. This excludes L1 (which is done as a separate
-     step). note, use raw eta and phi! */
-  StatusCode addEMCellsToCluster(xAOD::CaloCluster* newCluster,
-                                 const xAOD::CaloCluster* ref,
-                                 const CentralPosition& cp0) const;
-
-  /** Add the preshower and L1 EM cells from reference cluster to self; note,
-   * use raw eta and phi! */
-  StatusCode addL0L1EMCellsToCluster(xAOD::CaloCluster* newCluster,
-                                     const xAOD::CaloCluster* ref,
-                                     const CentralPosition& cp0,
-                                     const PhiSize& phiSize) const;
+  /** fill Super Clusterlimiting its size.*/
+  StatusCode fillClusterConstrained(
+    xAOD::CaloCluster& tofill,
+    const std::vector<const xAOD::CaloCluster*>& clusters,
+    const CentralPosition& cp0) const;
 
   /** functions to add all tile Gap 3 cells in a window*/
-  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster* myCluster,
+  StatusCode addTileGap3CellsinWindow(xAOD::CaloCluster& tofill,
                                       const CaloDetDescrManager& mgr) const;
 
   /** function to calibrate the new clusters energy */

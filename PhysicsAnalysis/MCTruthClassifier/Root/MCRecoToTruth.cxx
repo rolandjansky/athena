@@ -416,7 +416,7 @@ MCTruthClassifier::findJetConstituents(const xAOD::Jet* jet,
                                                           << " has valid ReadHandle ");
 
     // find the matching truth particles
-    for (const auto thePart : *truthParticleContainerReadHandle) {
+    for (const auto *const thePart : *truthParticleContainerReadHandle) {
       // match truth particles to the jet
       if (thePart->status() == 1 && deltaR((*thePart), (*jet)) < m_jetPartDRMatch) {
         constituents.insert(thePart);
@@ -425,7 +425,7 @@ MCTruthClassifier::findJetConstituents(const xAOD::Jet* jet,
   } // end if DR
   else {
     xAOD::JetConstituentVector vec = jet->getConstituents();
-    for (auto particle0 : vec) {
+    for (const auto *particle0 : vec) {
       const xAOD::TruthParticle* thePart = dynamic_cast<const xAOD::TruthParticle*>(particle0->rawConstituent());
       if (thePart->status() == 1) {
         constituents.insert(thePart);
@@ -465,10 +465,10 @@ MCTruthClassifier::fracParticleInJet(const xAOD::TruthParticle* thePart,
     frac = 1.0 * intersect.size() / daughters.size();
   } else {
     double tot = 0;
-    for (auto daughter : daughters) {
+    for (const auto *daughter : daughters) {
       tot += 1.0 * daughter->pt();
     }
-    for (auto particle : intersect) {
+    for (const auto *particle : intersect) {
       frac += 1.0 * particle->pt() / tot;
     }
   }

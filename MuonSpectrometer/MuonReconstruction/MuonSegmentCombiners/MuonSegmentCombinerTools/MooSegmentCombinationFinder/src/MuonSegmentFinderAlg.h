@@ -20,24 +20,19 @@
 #include "MuonRecToolInterfaces/IMuonTruthSummaryTool.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinderTool.h"
+#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternCalibration.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonPatternSegmentMaker.h"
 #include "MuonSegmentMakerToolInterfaces/IMuonSegmentOverlapRemovalTool.h"
 #include "TrkSegment/SegmentCollection.h"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-
-namespace Muon {
-class IMuonClusterSegmentFinder;
-}
-
-class MsgStream;
-class ICscSegmentFinder;
+#include "CscSegmentMakers/ICscSegmentFinder.h"
 
 class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
   public:
     MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
-    virtual ~MuonSegmentFinderAlg();
+    virtual ~MuonSegmentFinderAlg()=default;
 
     virtual StatusCode initialize() override;
     virtual StatusCode execute(const EventContext& ctx) const override;
@@ -111,11 +106,11 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
         "Csc4dSegmentMaker/Csc4dSegmentMaker",
     };
 
-
+    // the following Trk::SegmentCollection MuonSegments are standard MuonSegments, the MuGirl segments are stored in MuonCreatorAlg.h
     SG::WriteHandleKey<Trk::SegmentCollection> m_segmentCollectionKey{
         this,
         "SegmentCollectionName",
-        "MuonSegments",
+        "TrackMuonSegments",
         "Muon Segments",
     };
     SG::ReadHandleKey<Muon::CscPrepDataContainer> m_cscPrdsKey{
@@ -166,15 +161,12 @@ class MuonSegmentFinderAlg : public AthReentrantAlgorithm {
                                 const std::vector<const Muon::TgcPrepDataCollection*> tgcCols, const EventContext& ctx) const;
     void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, Trk::SegmentCollection* segments) const;
 
-    bool m_printSummary;
+    Gaudi::Property<bool> m_printSummary{this,"PrintSummary",false};
+    Gaudi::Property<bool> m_doTGCClust{this,"doTGCClust",false,"selection flags for cluster based segment finding"};
+    Gaudi::Property<bool> m_doRPCClust{this,"doRPCClust",false,"selection flags for cluster based segment finding"};
+    Gaudi::Property<bool> m_doClusterTruth{this,"doClusterTruth",false,"selection flags for cluster based segment finding"};
 
-    /** selection flags for cluster based segment finding */
-    bool m_doTGCClust;
-    bool m_doRPCClust;
-    bool m_doClusterTruth;
 };
 
 #endif
 
-/*  LocalWords:  ifndef
- */

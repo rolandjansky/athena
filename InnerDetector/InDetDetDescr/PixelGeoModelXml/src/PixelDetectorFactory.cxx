@@ -16,7 +16,7 @@
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 #include "GeoModelUtilities/DecodeVersionKey.h"
 
-#include "InDetReadoutGeometry/SiCommonItems.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"

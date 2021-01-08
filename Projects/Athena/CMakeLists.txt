@@ -76,6 +76,7 @@ if( AtlasHIP_FOUND )
 endif()
 
 # Find some auxiliary packages:
+find_package( Frontier_Client )
 find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )

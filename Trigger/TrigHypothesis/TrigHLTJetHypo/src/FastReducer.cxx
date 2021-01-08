@@ -3,6 +3,7 @@
 */
 
 #include "./FastReducer.h"
+#include "./GrouperByCapacityFactory.h"
 #include "./ITrigJetHypoInfoCollector.h"
 
 #include <map>
@@ -36,13 +37,14 @@ struct IndexVecComp{
 };
 
 
-FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
-                         const HypoJetGroupCIter& groups_e,
+FastReducer::FastReducer(const HypoJetCIter& jets_b,
+                         const HypoJetCIter& jets_e,
                          const ConditionPtrs& conditions,
+			 const ConditionFilters& filters,
                          const Tree& tree,
                          xAODJetCollector& jetCollector,
                          const Collector& collector):
-  m_conditions(conditions),  m_tree(tree) {
+  m_conditions(conditions),  m_conditionFilters(filters), m_tree(tree) {
 
   // create an empty vector of indices of satisfying jet groups
   // for each Condition.
@@ -52,8 +54,8 @@ FastReducer::FastReducer(const HypoJetGroupCIter& groups_b,
   }
 
 
-  if(!findInitialJetGroups(groups_b,
-			   groups_e,
+  if(!findInitialJetGroups(jets_b,
+			   jets_e,
 			   collector)){
     if(collector){
       collector->collect("FastReducer early return",
@@ -162,57 +164,57 @@ void FastReducer::collectLeafJets(xAODJetCollector& jetCollector,
 }
 
 
-bool FastReducer::findInitialJetGroups(const HypoJetGroupCIter& groups_b,
-				       const HypoJetGroupCIter& groups_e,
+bool FastReducer::findInitialJetGroups(const HypoJetCIter& jets_b,
+				       const HypoJetCIter& jets_e,
 				       const Collector& collector) {
   
 
   /*
-    Will now test the incoming jet groups against the leaf conditions.
+    Will now test the incoming jets against the leaf conditions.
   */
 
   std::size_t ijg{0};
   auto leaves = m_tree.leaves();
 
-  for(auto iter = groups_b; iter != groups_e; ++iter){
-    auto jg = *iter;
+  // if a jet group satisfies a condition, note the fact,
+  // and store it by index
+
+  for(const auto& leaf: leaves){
+
+    auto& filter = m_conditionFilters[leaf];
+    auto filtered_jets = filter->filter(jets_b, jets_e, collector);
+
+    recordFiltering(leaf, jets_e-jets_b, filtered_jets.size(), collector);
+
     
-    if(jg.size() != 1){
-      collector->collect("FastReducer", "Initial jet group size != 1");
-      return false;
-    }
-    
-    // if a jet group satisfies a condition, note the fact,
-    // and store it by index
-    bool jg_used{false};
-    
-    auto cur_jg = m_jgIndAllocator(std::vector<std::size_t>{ijg});
-    for(const auto& leaf: leaves){
-      
-      m_testedBy[leaf].insert(cur_jg);
+    auto grouper = grouperByCapacityFactory(m_conditions[leaf]->capacity(),
+					    filtered_jets.begin(),
+					    filtered_jets.end());
+
+    while(true){
+      auto ojg = grouper->next();
+      if (!ojg.has_value()) {break;}
+
+      auto jg = *ojg;
+      auto jg_ind = m_jgRegister.record(jg);
+      m_testedBy[leaf].insert(jg_ind);
       if (m_conditions[leaf]->isSatisfied(jg, collector)){
-	jg_used= true;
-	if(collector){recordJetGroup(cur_jg, jg, collector);}
+	if(collector){recordJetGroup(jg_ind, jg, collector);}
 	// do the following for each satisfied condition ...
-	m_satisfiedBy[leaf].push_back(cur_jg);
+	m_satisfiedBy[leaf].push_back(jg_ind);
+	m_jg2elemjgs[jg_ind] =  std::vector<std::size_t>{jg_ind};
+	m_indJetGroup.emplace(jg_ind, jg);
+	++ijg;
       }
     }
-    
-    if(jg_used){
-      m_jg2elemjgs[cur_jg] =  std::vector<std::size_t>{cur_jg};
-      m_indJetGroup.emplace(cur_jg, jg);
-      ++ijg;
-    }
-    
   }
-  
+    
   if(collector){
     for(const auto& p : m_indJetGroup){
       recordJetGroup(p.first, p.second, collector);
     }
   }
-
-
+  
   // check all leaf conditions are satisfied
   for (const auto& i : leaves) {
     if (!capacitySatisfied(i, collector)) {
@@ -220,47 +222,9 @@ bool FastReducer::findInitialJetGroups(const HypoJetGroupCIter& groups_b,
     }
   }
   
-  /*
-    For the special but important case where all leaf nodes have
-    the root node as a parent, check that there are enough jets
-    to pass the hypo. This prevents doing a long calculation 
-    to discover that the hypo will fail. For example, if the chain
-    requires 10j40, and there are 5 jets that pass the condition,
-    each condition will be satisfied by th 5 jets, and 5^10 combinations
-    will be attempted in th seach for a successful combination. As there
-    are only 5 jets involved, such a combination does not exist.
-
-    Such trees have a tree vector with all entries == 0.
-
-    This check cannot be applied in the general case. For example,
-    if the root condition requires 4 jets, and has three children,
-    two of which are leaf nodes, while the other is not, then the
-    check will fail the event as no jets have yet ben assigned to the
-    second child, while the full popagation through the tree may pass the
-    event.
-
-    A possible way to tighten the chck would be to forbid children to be
-    separated from thir parent by more than 1 generation.
-  */
-
-  if (std::all_of(m_tree.cbegin(),
-		  m_tree.cend(),
-		  [](std::size_t i){return i == 0;})) {
-    
-    if (m_conditions[0]->capacity() > ijg) {
-      
-      if (collector){
-	collector->collect("FastReducer", "too few children. root capacity "
-			   + std::to_string(m_conditions[0]->capacity()) +
-			   " no of children: " + std::to_string(ijg));
-      }
-
-      return false;
-    }
-  }
-  
   return true;
 }  
+  
 
 bool FastReducer::propagateJetGroups(const Collector& collector){
   
@@ -395,18 +359,20 @@ bool FastReducer::propagate_(std::size_t child,
     }
 
     HypoJetVector jg;
-
+    for(const auto& i : elem_jgs){
+      jg.push_back(m_indJetGroup.at(i)[0]);  // why [0]? assume elemental jg has size 1
+    }
+    
     // obtain an index for the new jet group.
-    auto cur_jg = m_jgIndAllocator(elem_jgs);
+    // auto cur_jg = m_jgIndAllocator(elem_jgs);
+    auto cur_jg = m_jgRegister.record(jg);
     if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
       next = jg_product.next(collector);
       continue;
     }
     m_testedBy[par].insert(cur_jg);
 	
-    for(const auto& i : elem_jgs){
-      jg.push_back(m_indJetGroup.at(i)[0]);  // why [0]? assume elemental jg has size 1
-    }
+
 
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
@@ -523,6 +489,22 @@ void FastReducer::recordJetGroup(std::size_t ind,
 	 << " et " << ip->et();
   }
   ss1 << '\n';
+  collector->collect(ss0.str(), ss1.str());
+}
+
+void FastReducer::recordFiltering(std::size_t leaf_ind,
+				  std::size_t n_injets,
+				  int n_filteredjets,
+				  const Collector& collector) const {
+
+  if(!collector) {return;}
+  
+  std::stringstream ss0;
+  ss0  << "FastReducer filtering Condition index: "  << leaf_ind;
+  
+  std::stringstream ss1;
+  ss1  << "n jets. in: " << n_injets << " filtered: " << n_filteredjets << '\n';
+  
   collector->collect(ss0.str(), ss1.str());
 }
 

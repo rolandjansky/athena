@@ -14,7 +14,6 @@
 Trk::TrackSummaryUpdater::TrackSummaryUpdater
 (const std::string& name, ISvcLocator* pSvcLocator  ) :
   AthAlgorithm(name, pSvcLocator ),
-  m_createViewCollection(true),
   m_updateSharedHits(true),
   m_updateAdditionalInfo(false){
   m_inputTracksStoregateKey = "CombinedInDetTracks";

@@ -414,19 +414,6 @@ namespace Trk {
          double                       *,
          bool                         &) const;
 
-        /** Propagation methods straight line step*/
-
-        double straightLineStep
-        (bool   ,     
-         double ,
-         double*) const;
-
-        /** Test new propagation to cylinder boundary */
-
-        bool newCrossPoint
-        (const CylinderSurface&,
-         const double         *,
-         const double         *) const;
 
         /** Step estimator with directions correction */
 
@@ -441,12 +428,6 @@ namespace Trk {
         double stepReduction(const double*) const;
 
         /** Build new track parameters without propagation */
-
-        TrackParameters*  buildTrackParametersWithoutPropagation
-        (const TrackParameters &,double*) const;
-
-        NeutralParameters*  buildTrackParametersWithoutPropagation
-        (const NeutralParameters&,double*) const;
 
         void globalOneSidePositions
         (Cache& cache                   ,
@@ -465,13 +446,6 @@ namespace Trk {
          const CylinderBounds           &,
          double                          ,
          ParticleHypothesis particle=pion) const;
-
-        Trk::TrackParameters* crossPoint
-        (const TrackParameters    &,
-         std::vector<DestSurf>    &,
-         std::vector<unsigned int>&,
-         double                   *,
-         std::pair<double,int>    &) const;
 
         void getField(
           Cache& cache, 

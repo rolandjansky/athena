@@ -64,13 +64,13 @@ StatusCode Trk::InDetReconstructableSelector::finalize() {
   return StatusCode::SUCCESS;
 }
 
-std::vector<const HepMC::GenParticle*>*
+std::vector<HepMC::ConstGenParticlePtr>*
 Trk::InDetReconstructableSelector::selectGenSignal (const McEventCollection* SimTracks) const {
 
   if (! SimTracks) return NULL;
 
-  std::vector<const HepMC::GenParticle *>* genSignal = 
-    new std::vector<const HepMC::GenParticle *>;
+  std::vector<HepMC::ConstGenParticlePtr>* genSignal = 
+    new std::vector<HepMC::ConstGenParticlePtr>;
 
   // pile-up: vector of MCEC has more than one entry
   DataVector<HepMC::GenEvent>::const_iterator itCollision = SimTracks->begin();

@@ -84,7 +84,7 @@ namespace {
 // Standard constructor
 // =============================================================================
 TrigByteStreamCnvSvc::TrigByteStreamCnvSvc(const std::string& name, ISvcLocator* svcLoc)
-: ByteStreamCnvSvc(name, svcLoc) {}
+: ByteStreamCnvSvcBase(name, svcLoc) {}
 
 // =============================================================================
 // Standard destructor
@@ -96,7 +96,7 @@ TrigByteStreamCnvSvc::~TrigByteStreamCnvSvc() {}
 // =============================================================================
 StatusCode TrigByteStreamCnvSvc::initialize() {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
-  ATH_CHECK(ByteStreamCnvSvc::initialize());
+  ATH_CHECK(ByteStreamCnvSvcBase::initialize());
   ATH_CHECK(m_evtStore.retrieve());
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   if (!m_monTool.empty()) ATH_CHECK(m_monTool.retrieve());
@@ -114,7 +114,7 @@ StatusCode TrigByteStreamCnvSvc::finalize() {
   if (m_evtStore.release().isFailure())
     ATH_MSG_WARNING("Failed to release service " << m_evtStore.typeAndName());
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
-  ATH_CHECK(ByteStreamCnvSvc::finalize());
+  ATH_CHECK(ByteStreamCnvSvcBase::finalize());
   return StatusCode::SUCCESS;
 }
 
@@ -122,22 +122,19 @@ StatusCode TrigByteStreamCnvSvc::finalize() {
 // Implementation of IConversionSvc::connectOutput
 // The argument outputFile is not used
 // =============================================================================
-StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& /*outputFile*/) {
+StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& outputFile) {
+  const EventContext* eventContext = currentContext();
+  if (eventContext == nullptr) return StatusCode::FAILURE;
+  return connectOutput(outputFile, *eventContext);
+}
+
+StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& /*outputFile*/, const EventContext& eventContext) {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  // Get the EventContext via event store because the interface doesn't allow passing it explicitly as an argument
-  // and we don't want to use ThreadLocalContext. Don't use ReadHandle here because it calls ThreadLocalContext if
-  // not given a context (which we want to retrieve).
-  const EventContext* eventContext = nullptr;
-  if (m_evtStore->retrieve(eventContext).isFailure()) {
-    ATH_MSG_ERROR("Failed to retrieve EventContext from the event store");
-    return StatusCode::FAILURE;
-  }
-
-  ATH_MSG_DEBUG("Creating new RawEventWrite for EventContext = " << *eventContext);
+  ATH_MSG_DEBUG("Creating new RawEventWrite for EventContext = " << eventContext);
   // Create a new RawEventWrite and copy the header from the input RawEvent
-  RawEventWrite* re = setRawEvent (std::make_unique<RawEventWrite>());
-  const uint32_t* inputRawEvent = m_robDataProviderSvc->getEvent(*eventContext)->start();
+  RawEventWrite* re = setRawEvent(std::make_unique<RawEventWrite>(), eventContext);
+  const uint32_t* inputRawEvent = m_robDataProviderSvc->getEvent(eventContext)->start();
   if (!inputRawEvent) {
     ATH_MSG_ERROR("Input RawEvent is nullptr, cannot create output");
     return StatusCode::FAILURE;
@@ -163,12 +160,18 @@ StatusCode TrigByteStreamCnvSvc::connectOutput(const std::string& outputFile, co
 // The arguments outputFile and do_commit are not used
 // NOTE: In online HLT, m_rawEventWrite is not a full event, it contains only the HLTResult ROBFragments
 // =============================================================================
-StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/, bool /*do_commit*/) {
+StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& outputFile, bool do_commit) {
+  const EventContext* eventContext = currentContext();
+  if (eventContext == nullptr) return StatusCode::FAILURE;
+  return commitOutput(outputFile, do_commit, *eventContext);
+}
+
+StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/, bool /*do_commit*/, const EventContext& eventContext) {
   ATH_MSG_VERBOSE("start of " << __FUNCTION__);
 
-  if (msgLvl(MSG::DEBUG)) printRawEvent();
+  if (msgLvl(MSG::DEBUG)) printRawEvent(eventContext);
 
-  RawEventWrite* re = getRawEvent();
+  RawEventWrite* re = getRawEvent(eventContext);
 
   // Serialise the output FullEventFragment
   std::unique_ptr<uint32_t[]> rawEventPtr;
@@ -184,10 +187,12 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
   }
   catch (const std::exception& e) {
     ATH_MSG_ERROR("FullEventFragment serialisation failed, caught an unexpected std::exception " << e.what());
+    clearRawEvent(eventContext);
     return StatusCode::FAILURE;
   }
   catch (...) {
     ATH_MSG_ERROR("FullEventFragment serialisation failed, caught an unexpected exception");
+    clearRawEvent(eventContext);
     return StatusCode::FAILURE;
   }
 
@@ -215,10 +220,46 @@ StatusCode TrigByteStreamCnvSvc::commitOutput(const std::string& /*outputFile*/,
     result = StatusCode::FAILURE;
   }
 
-  setRawEvent (std::unique_ptr<RawEventWrite>());
+  clearRawEvent(eventContext);
 
   ATH_MSG_VERBOSE("end of " << __FUNCTION__);
   return result;
+}
+
+// =============================================================================
+const EventContext* TrigByteStreamCnvSvc::currentContext() const {
+  // Get the EventContext via event store because the base class doesn't allow passing it explicitly as an argument
+  // and we don't want to use ThreadLocalContext. Don't use ReadHandle here because it calls ThreadLocalContext if
+  // not given a context (which we want to retrieve). This relies on IHiveWhiteBoard::selectStore being called on the
+  // current thread before we arrive here (it is done in HltEventLoopMgr).
+  const EventContext* eventContext = nullptr;
+  if (m_evtStore->retrieve(eventContext).isFailure()) {
+    ATH_MSG_ERROR("Failed to retrieve EventContext from the event store");
+  }
+  return eventContext;
+}
+
+// =============================================================================
+RawEventWrite* TrigByteStreamCnvSvc::getRawEvent() {
+  const EventContext* eventContext = currentContext();
+  if (eventContext == nullptr) return nullptr;
+  return getRawEvent(*eventContext);
+}
+
+// =============================================================================
+RawEventWrite* TrigByteStreamCnvSvc::getRawEvent(const EventContext& eventContext) const {
+  return m_rawEventWriteCache.get(eventContext)->get();
+}
+
+// =============================================================================
+RawEventWrite* TrigByteStreamCnvSvc::setRawEvent(std::unique_ptr<RawEventWrite>&& rawEventWrite, const EventContext& eventContext) {
+  *(m_rawEventWriteCache.get(eventContext)) = std::move(rawEventWrite);
+  return getRawEvent(eventContext);
+}
+
+// =============================================================================
+void TrigByteStreamCnvSvc::clearRawEvent(const EventContext& eventContext) {
+  m_rawEventWriteCache.get(eventContext)->reset();
 }
 
 // =============================================================================
@@ -346,8 +387,8 @@ void TrigByteStreamCnvSvc::monitorRawEvent(const std::unique_ptr<uint32_t[]>& ra
 }
 
 // =============================================================================
-void TrigByteStreamCnvSvc::printRawEvent() {
-  RawEventWrite* re = getRawEvent();
+void TrigByteStreamCnvSvc::printRawEvent(const EventContext& eventContext) const {
+  RawEventWrite* re = getRawEvent(eventContext);
 
   if (!re) {
     ATH_MSG_WARNING("RawEventWrite pointer is null");

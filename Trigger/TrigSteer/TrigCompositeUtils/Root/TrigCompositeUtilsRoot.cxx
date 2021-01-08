@@ -4,10 +4,6 @@
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
 #include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
 
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -351,24 +347,54 @@ namespace TrigCompositeUtils {
   {
     using namespace msgFindLink;
     if (visitedCache != nullptr) {
-      // We only need to recursivly explore back from each node in the graph once.
+      // We only need to recursively explore back from each node in the graph once.
       // We can keep a record of nodes which we have already explored, these we can safely skip over.
       if (visitedCache->count(start) == 1) {
         return false; // Early exit
       }
     }
-
+    // As the append vectors are user-supplied, perform some input validation. 
+    if (keyVec.size() != clidVec.size() or clidVec.size() != indexVec.size()) {
+      ANA_MSG_WARNING("In typelessFindLinks, keyVec, clidVec, indexVec must all be the same size. Instead have:"
+        << keyVec.size() << ", " << clidVec.size()  << ", " << indexVec.size());
+      return false;
+    }
+    // Locate named links. Both collections of links and individual links are supported.
     bool found = false;
+    std::vector<uint32_t> tmpKeyVec;
+    std::vector<uint32_t> tmpClidVec;
+    std::vector<uint16_t> tmpIndexVec;
     if (start->hasObjectCollectionLinks(linkName)) {
-      found = start->typelessGetObjectCollectionLinks(linkName, keyVec, clidVec, indexVec);
+      found = start->typelessGetObjectCollectionLinks(linkName, tmpKeyVec, tmpClidVec, tmpIndexVec);
     }
     if (start->hasObjectLink(linkName)) {
-      uint32_t key, clid;
-      uint16_t index;
-      found |= start->typelessGetObjectLink(linkName, key, clid, index);
-      keyVec.push_back(key);
-      clidVec.push_back(clid);
-      indexVec.push_back(index);
+      uint32_t tmpKey, tmpClid;
+      uint16_t tmpIndex;
+      found |= start->typelessGetObjectLink(linkName, tmpKey, tmpClid, tmpIndex);
+      tmpKeyVec.push_back(tmpKey);
+      tmpClidVec.push_back(tmpClid);
+      tmpIndexVec.push_back(tmpIndex);
+    }
+    // De-duplicate
+    for (size_t tmpi = 0; tmpi < tmpKeyVec.size(); ++tmpi) {
+      bool alreadyAdded = false;
+      const uint32_t tmpKey = tmpKeyVec.at(tmpi);
+      const uint32_t tmpClid = tmpClidVec.at(tmpi);
+      const uint16_t tmpIndex = tmpIndexVec.at(tmpi);
+      for (size_t veci = 0; veci < keyVec.size(); ++veci) {
+        if (keyVec.at(veci) == tmpKey 
+          and clidVec.at(veci) == tmpClid
+          and indexVec.at(veci) == tmpIndex)
+        {
+          alreadyAdded = true;
+          break;
+        }
+      }
+      if (!alreadyAdded) {
+        keyVec.push_back( tmpKey );
+        clidVec.push_back( tmpClid );
+        indexVec.push_back( tmpIndex );
+      }
     }
     // Early exit
     if (found && behaviour == TrigDefs::lastFeatureOfType) {
@@ -395,7 +421,7 @@ namespace TrigCompositeUtils {
     // only want the most recent.
     // Hence we can supply TrigDefs::lastFeatureOfType.                                                         /--> parent3(link)
     // We can still have more then one link found if there is a branch in the navigation. E.g. start --> parent1 --> parent2(link)
-    // If both parent2 and parent3 posessed an admisable ElementLink, then the warning below will trigger, and only one of the
+    // If both parent2 and parent3 possessed an admissible ElementLink, then the warning below will trigger, and only one of the
     // links will be returned (whichever of parent2 or parent3 happened to be the first seed of parent1).
     std::vector<uint32_t> keyVec;
     std::vector<uint32_t> clidVec;
@@ -415,6 +441,57 @@ namespace TrigCompositeUtils {
     clid = clidVec.at(0);
     index = indexVec.at(0);
     return true; 
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    Combinations combinations(filter);
+    combinations.reserve(legMultiplicities.size());
+    if (legMultiplicities.size() == 1)
+      combinations.addLeg(legMultiplicities.at(0), features);
+    else
+      for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
+      {
+        HLT::Identifier legID = createLegName(chainName, legIdx);
+        std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
+        for (const LinkInfo<xAOD::IParticleContainer>& info : features)
+          if (isAnyIDPassing(info.source, {legID.numeric()}))
+            legFeatures.push_back(info);
+      combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
+      }
+    return combinations;
+  }
+
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    return buildCombinations(chainName, features, chainInfo->leg_multiplicities(), filter);
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, chainInfo, getFilter(filter));
   }
 
 

@@ -22,7 +22,7 @@
 #include "G4ParticleTable.hh"
 #include "G4ThreeVector.hh"
 #include "TLorentzVector.h"
-#include "MCUtils/HepMCUtils.h"
+#include "MCUtils/PIDUtils.h"
 
 // STL includes
 #include <cstdlib>

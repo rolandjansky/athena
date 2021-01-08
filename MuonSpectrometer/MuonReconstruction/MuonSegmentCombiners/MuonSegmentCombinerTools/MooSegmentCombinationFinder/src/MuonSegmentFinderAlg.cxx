@@ -4,7 +4,6 @@
 
 #include "MuonSegmentFinderAlg.h"
 
-#include "CscSegmentMakers/ICscSegmentFinder.h"
 #include "MuonPattern/MuonPatternChamberIntersect.h"
 #include "MuonPattern/MuonPatternCombination.h"
 #include "MuonPattern/MuonPatternCombinationCollection.h"
@@ -17,21 +16,13 @@
 #include "MuonSegment/MuonSegment.h"
 #include "MuonSegment/MuonSegmentCombination.h"
 #include "MuonSegment/MuonSegmentCombinationCollection.h"
-#include "MuonSegmentMakerToolInterfaces/IMuonClusterSegmentFinder.h"
 #include "TrkParameters/TrackParameters.h"
 
 using HepGeom::Transform3D;
-MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator)
-    : AthReentrantAlgorithm(name, pSvcLocator)
-{
-    declareProperty("PrintSummary", m_printSummary = false);
-    //
-    declareProperty("doTGCClust", m_doTGCClust = false);
-    declareProperty("doRPCClust", m_doRPCClust = false);
-    declareProperty("doClusterTruth", m_doClusterTruth = false);
-}
 
-MuonSegmentFinderAlg::~MuonSegmentFinderAlg() {}
+MuonSegmentFinderAlg::MuonSegmentFinderAlg(const std::string& name, ISvcLocator* pSvcLocator) :
+  AthReentrantAlgorithm(name, pSvcLocator) {
+}
 
 StatusCode
 MuonSegmentFinderAlg::initialize()

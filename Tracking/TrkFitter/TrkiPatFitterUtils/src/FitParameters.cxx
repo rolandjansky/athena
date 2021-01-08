@@ -21,7 +21,7 @@
 #include "TrkiPatFitterUtils/ParameterType.h"
 
 namespace Trk{
-  
+
 FitParameters::FitParameters (const Perigee& perigee)
     : m_cosPhi1				(0.),
       m_cosTheta1			(0.),
@@ -49,7 +49,7 @@ FitParameters::FitParameters (const Perigee& perigee)
       m_vertex		       		(perigee.associatedSurface().center()),
       m_z0				(perigee.position().z())
 {
-    Amg::Vector3D momentum	=  perigee.momentum(); 
+    Amg::Vector3D momentum	=  perigee.momentum();
     double ptInv0		=  1./momentum.perp();
     m_cosPhi			=  ptInv0*momentum.x();
     m_sinPhi			=  ptInv0*momentum.y();
@@ -164,7 +164,7 @@ FitParameters::addAlignment (bool constrained, double angle, double offset)
     {
 	m_alignmentAngleConstraint[m_numberAlignments]	= angle;
 	m_alignmentOffsetConstraint[m_numberAlignments]	= offset;
-    }	
+    }
     ++m_numberAlignments;
 }
 
@@ -270,7 +270,7 @@ FitParameters::parameterDifference (const Amg::VectorX& parameters) const
     difference(0,4) = (parameters(5) - m_qOverP)*Gaudi::Units::TeV;
     return difference;
 }
- 
+
 void
 FitParameters::performCutStep (double cutStep)
 {
@@ -344,7 +344,7 @@ FitParameters::print (MsgStream& log) const
 	<< std::setw(11) << std::setprecision(6) << std::atan2(m_sinPhi,m_cosPhi)
 	<< " phi"
 	<< std::setw(11) << std::setprecision(6) << std::acos(m_cosTheta)
-	<< " theta" 
+	<< " theta"
 	<< std::setw(13) << std::setprecision(3) << m_sinTheta/(m_qOverP*Gaudi::Units::GeV)
 	<< " pT (GeV)";
 }
@@ -394,11 +394,11 @@ FitParameters::printVerbose (MsgStream& log) const
 	    << std::setw(10) << std::setprecision(4) << differences(0)
 	    << " (0) "
 	    << std::setw(10) << std::setprecision(4) << differences(1)
-	    << " (1) "                                                          
+	    << " (1) "
 	    << std::setw(10) << std::setprecision(5) << differences(2)
-	    << " (2) "                          
+	    << " (2) "
 	    << std::setw(10) << std::setprecision(5) << differences(3)
-	    << " (3) "                     
+	    << " (3) "
 	    << std::setw(13) << std::setprecision(9)
 	    << differences(4)*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " (4) ";
 	if (m_fitEnergyDeposit)
@@ -406,7 +406,7 @@ FitParameters::printVerbose (MsgStream& log) const
 		<< std::setw(13) << std::setprecision(9)
 		<< differences(5)*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " (5) ";
 	log << std::endl;
-	    
+
 	if (m_numberAlignments)
 	{
 	    log << "       dAlign ==== ";
@@ -453,17 +453,17 @@ FitParameters::printVerbose (MsgStream& log) const
 	<< std::setw(12) << std::setprecision(4) << m_d0
 	<< " transverse impact  "
 	<< std::setw(10) << std::setprecision(4) << m_position.z()
-	<< " z0  "  
+	<< " z0  "
 	<< std::setw(10) << std::setprecision(6) << std::atan2(m_sinPhi,m_cosPhi)
 	<< std::setw(10) << std::setprecision(6) << m_cotTheta
-	<< " phi,cotTheta  " 
+	<< " phi,cotTheta  "
 	<< std::setw(13) << std::setprecision(9) << m_qOverP/m_sinTheta
 	<< " inverse pT  "
 	<< std::setw(12) << std::setprecision(6) << m_sinTheta/(m_qOverP*Gaudi::Units::GeV)
 	<< " signed pT  ";
     if (m_fitEnergyDeposit)
     {
-	// TODO: should give fitted energy loss 
+	// TODO: should give fitted energy loss
 	log << std::endl
 	    << "    E before/after energy deposit"
 	    << std::setw(12) << std::setprecision(3) << 1./std::abs(m_qOverP*Gaudi::Units::GeV)
@@ -519,7 +519,7 @@ FitParameters::reset (const FitParameters& parameters)
 {
     // method is needed to complement copy in places where design uses
     // a reference to a FitParameter pointer
-    // essentially a copy, with history of previous iteration removed 
+    // essentially a copy, with history of previous iteration removed
     m_cosPhi         	       	= parameters.m_cosPhi;
     m_cosPhi1			= parameters.m_cosPhi1;
     m_cosTheta			= parameters.m_cosTheta;
@@ -562,8 +562,8 @@ FitParameters::reset (const FitParameters& parameters)
 	m_scattererPhi[s]	= parameters.m_scattererPhi[s];
 	m_scattererTheta[s]	= parameters.m_scattererTheta[s];
     }
-    
-    // restore difference history	
+
+    // restore difference history
     delete m_differences;
     if (parameters.m_differences)
     {
@@ -601,7 +601,7 @@ FitParameters::scatteringAngles (const FitMeasurement& fitMeasurement, int scatt
 				    scattererSigmaTheta);
     }
 }
-    
+
 void
 FitParameters::setPhiInstability (void)
 { m_phiInstability = true; }
@@ -614,7 +614,7 @@ FitParameters::startingPerigee (void) const
     double		charge		= 1.;
     if (m_qOverP < 0.)	charge		= -1.;
     Amg::Vector3D	momentum(pT*m_cosPhi,pT*m_sinPhi,pT*m_cotTheta);
-    
+
     return new Perigee(m_position,
 		       momentum,
 		       charge,
@@ -624,7 +624,7 @@ FitParameters::startingPerigee (void) const
 const TrackParameters*
 FitParameters::trackParameters (MsgStream&		log,
 				const FitMeasurement&	measurement,
-				bool			withCovariance) const
+				bool			withCovariance)
 {
     // make checks necessary for the TrackParameters to be computed
     //   1) a Surface is required
@@ -640,7 +640,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endmsg;
 	return nullptr;
     }
-	
+
     //   3) the intersection position has to lie sufficiently close to the Surface
     const TrackSurfaceIntersection&	intersection	= measurement.intersection(FittedTrajectory);
     Amg::Vector2D localPos;
@@ -651,7 +651,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endmsg;
 	return nullptr;
     }
-	
+
     // cache parameters at EnergyDeposit
     if (measurement.isEnergyDeposit())
     {
@@ -661,7 +661,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	m_cosTheta1	= intersection.direction().z();
 	m_qOverP1	= measurement.qOverP();
     }
-    
+
     // propagate full covariance to form localCovariance
     AmgSymMatrix(5)* covMatrix	= nullptr;
     if (withCovariance
@@ -739,7 +739,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	}
 	theta	= M_PI - theta;
     }
-	
+
     // finally can create the appropriate 'concrete' TrackParameters
     const TrackParameters* parameters	= nullptr;
     const StraightLineSurface* line	= dynamic_cast<const StraightLineSurface*>(measurement.surface());
@@ -767,7 +767,7 @@ FitParameters::trackParameters (MsgStream&		log,
 				       covMatrix);
 	return parameters;
     }
-    
+
     const CylinderSurface* cylinder = dynamic_cast<const CylinderSurface*>(measurement.surface());
     if (cylinder)
     {
@@ -793,7 +793,7 @@ FitParameters::trackParameters (MsgStream&		log,
 				      covMatrix);
 	return parameters;
     }
-    
+
     const PerigeeSurface* peri	= dynamic_cast<const PerigeeSurface*>(measurement.surface());
     if (peri)
     {
@@ -806,7 +806,7 @@ FitParameters::trackParameters (MsgStream&		log,
 				      covMatrix);
 	return parameters;
     }
-    
+
     log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endmsg;
     delete covMatrix;
     return nullptr;
@@ -837,7 +837,7 @@ FitParameters::update (const Amg::VectorX& differences)
 	(*a++) += differences(++align);
 	(*o++) += differences(++align);
     }
-    
+
     // scattering angles
     std::vector<double>::iterator p = m_scattererPhi.begin();
     std::vector<double>::iterator t = m_scattererTheta.begin();
@@ -847,14 +847,14 @@ FitParameters::update (const Amg::VectorX& differences)
 	(*p++) += differences(++scat);
 	(*t++) += differences(++scat);
     }
-    
+
     // qOverP, cotTheta
     if (m_fitMomentum)		m_qOverP += differences(4)/Gaudi::Units::TeV;
     m_cotTheta	-= differences(3)/(m_sinTheta*m_sinTheta);
-        
+
     // impose charge conservation and decreasing energy
     if (m_fitEnergyDeposit)
-    {	
+    {
 	m_qOverP1 += differences(5)/Gaudi::Units::TeV;
 	double deposit = 1./std::abs(m_qOverP) - 1./std::abs(m_qOverP1);
 	if (std::abs(deposit) < std::abs(m_minEnergyDeposit)
@@ -865,7 +865,7 @@ FitParameters::update (const Amg::VectorX& differences)
 	    if (m_qOverP1 < 0.) m_qOverP = -m_qOverP;
 	}
     }
-    
+
     // protect phi against some rounding instabilities
     double sinDPhi	=  differences(2);
     double cosDPhi	=  0.;
@@ -896,7 +896,7 @@ FitParameters::update (const Amg::VectorX& differences)
 					 m_vertex.y() + m_d0*m_cosPhi,
 					 m_z0);
 }
-   
+
 void
 FitParameters::update (Amg::Vector3D		position,
 		       Amg::Vector3D		direction,

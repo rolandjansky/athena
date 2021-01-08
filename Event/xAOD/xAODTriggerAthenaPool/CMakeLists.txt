@@ -37,7 +37,7 @@ atlas_add_poolcnv_library( xAODTriggerAthenaPoolPoolCnv
    xAOD::BunchConfContainer xAOD::BunchConfAuxContainer
    xAOD::TrigPassBitsContainer xAOD::TrigPassBitsAuxContainer
    CNV_PFX xAOD
-   LINK_LIBRARIES TrigNavToolsLib AthContainers AthenaKernel AthenaPoolCnvSvcLib
+   LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib
    AthenaPoolUtilities xAODTrigger )
 
 # Install files from the package.

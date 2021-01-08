@@ -1,14 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCombinedAlg.h"
 
 MuonCombinedAlg::MuonCombinedAlg(const std::string& name, ISvcLocator* pSvcLocator):
-  AthAlgorithm(name,pSvcLocator)
-{}
-
-MuonCombinedAlg::~MuonCombinedAlg(){}
+  AthAlgorithm(name,pSvcLocator) {
+}
 
 StatusCode MuonCombinedAlg::initialize()
 {
@@ -63,10 +61,8 @@ StatusCode MuonCombinedAlg::execute()
   //note that STACO does not create new Trk::Tracks so it doesn't need collections here
   m_muonCombinedTool->combine(*muonCandidateCollection,*inDetCandidateCollection,maps,muidCombTracks.ptr(),muidMETracks.ptr());
 
+  m_muonCombinedTool->cleanUp();
+  
   return StatusCode::SUCCESS;
 }
 
-StatusCode MuonCombinedAlg::finalize()
-{
-  return StatusCode::SUCCESS;
-}

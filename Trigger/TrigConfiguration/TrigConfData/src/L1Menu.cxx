@@ -28,7 +28,7 @@ TrigConf::L1Menu::update()
    try {
       m_name = getAttribute("name");
       // thresholds
-      for( const std::string & path : {"thresholds", "thresholds.legacyCalo" } ) {
+      for( const std::string path : {"thresholds", "thresholds.legacyCalo" } ) {
          for( auto & thrByType : data().get_child( path ) ) {
             const std::string & thrType = thrByType.first;
             if (thrType == "legacyCalo")
@@ -93,7 +93,7 @@ TrigConf::L1Menu::update()
 
    try {
       // algorithms
-      for( const std::string & algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
+      for( const std::string algoCategory : { "TOPO", "MULTTOPO", "MUTOPO", "R2TOPO" } ) {
          auto & v = m_algorithmsByCategory[algoCategory] = std::vector<TrigConf::L1TopoAlgorithm>();
          if(algoCategory == "MULTTOPO") {
             for( auto & alg : data().get_child( "topoAlgorithms." + algoCategory + ".multiplicityAlgorithms" ) ) {

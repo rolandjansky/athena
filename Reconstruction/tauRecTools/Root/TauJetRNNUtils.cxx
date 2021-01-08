@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauRecTools/TauJetRNNUtils.h"
@@ -53,7 +53,7 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
 }
 
 bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
-                      const std::vector<const xAOD::CaloCluster *> &clusters,
+                      const std::vector<xAOD::CaloVertexedTopoCluster> &clusters,
                       std::vector<double> &out) const {
     out.clear();
 
@@ -69,8 +69,8 @@ bool VarCalc::compute(const std::string &name, const xAOD::TauJet &tau,
     // Calculate variables for selected clusters
     bool success = true;
     double value;
-    for (const auto cls : clusters) {
-        success = success && func(tau, *cls, value);
+    for (const xAOD::CaloVertexedTopoCluster& cluster : clusters) {
+        success = success && func(tau, cluster, value);
         out.push_back(value);
     }
 
@@ -450,67 +450,67 @@ bool eProbabilityHT(const xAOD::TauJet& /*tau*/, const xAOD::TauTrack &track,
 namespace Cluster {
 using MomentType = xAOD::CaloCluster::MomentType;
 
-bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
+bool et_log(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
             double &out) {
-    out = std::log10(cluster.et());
+    out = std::log10(cluster.p4().Et());
     return true;
 }
 
-bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::CaloCluster& /*cluster*/,
+bool pt_jetseed_log(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster& /*cluster*/,
                     double &out) {
     out = std::log10(tau.ptJetSeed());
     return true;
 }
 
-bool dEta(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster,
+bool dEta(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster,
           double &out) {
     out = cluster.eta() - tau.eta();
     return true;
 }
 
-bool dPhi(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster,
+bool dPhi(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster,
           double &out) {
     out = cluster.p4().DeltaPhi(tau.p4());
     return true;
 }
 
-bool SECOND_R(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
+bool SECOND_R(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
               double &out) {
-    const auto success = cluster.retrieveMoment(MomentType::SECOND_R, out);
+    const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_R, out);
     out = std::log10(out + 0.1);
     return success;
 }
 
-bool SECOND_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
+bool SECOND_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
                    double &out) {
-    const auto success = cluster.retrieveMoment(MomentType::SECOND_LAMBDA, out);
+    const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_LAMBDA, out);
     out = std::log10(out + 0.1);
     return success;
 }
 
-bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloCluster &cluster,
+bool CENTER_LAMBDA(const xAOD::TauJet& /*tau*/, const xAOD::CaloVertexedTopoCluster &cluster,
                    double &out) {
-    const auto success = cluster.retrieveMoment(MomentType::CENTER_LAMBDA, out);
+    const auto success = cluster.clust().retrieveMoment(MomentType::CENTER_LAMBDA, out);
     out = std::log10(out + 1e-6);
     return success;
 }
 
-bool SECOND_LAMBDAOverClustersMeanSecondLambda(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
+bool SECOND_LAMBDAOverClustersMeanSecondLambda(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
   float ClustersMeanSecondLambda = tau.auxdata<float>("ClustersMeanSecondLambda");
 
   double secondLambda(0);
-  const auto success = cluster.retrieveMoment(MomentType::SECOND_LAMBDA, secondLambda);
+  const auto success = cluster.clust().retrieveMoment(MomentType::SECOND_LAMBDA, secondLambda);
 
   out = secondLambda/ClustersMeanSecondLambda;
 
   return success;
 }
 
-bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
+bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
   float ClustersMeanCenterLambda = tau.auxdata<float>("ClustersMeanCenterLambda");
 
   double centerLambda(0);
-  const auto success = cluster.retrieveMoment(MomentType::CENTER_LAMBDA, centerLambda);
+  const auto success = cluster.clust().retrieveMoment(MomentType::CENTER_LAMBDA, centerLambda);
   if (ClustersMeanCenterLambda == 0.){
     out = 250.;
   }else {
@@ -523,12 +523,12 @@ bool CENTER_LAMBDAOverClustersMeanCenterLambda(const xAOD::TauJet &tau, const xA
 }
 
 
-bool FirstEngDensOverClustersMeanFirstEngDens(const xAOD::TauJet &tau, const xAOD::CaloCluster &cluster, double &out) {
+bool FirstEngDensOverClustersMeanFirstEngDens(const xAOD::TauJet &tau, const xAOD::CaloVertexedTopoCluster &cluster, double &out) {
   // the ClustersMeanFirstEngDens is the log10 of the energy weighted average of the First_ENG_DENS 
   // divided by ETot to make it dimension-less, 
   // so we need to evaluate the differance of log10(clusterFirstEngDens/clusterTotalEnergy) and the ClustersMeanFirstEngDens
   double clusterFirstEngDens = 0.0;
-  bool status = cluster.retrieveMoment(MomentType::FIRST_ENG_DENS, clusterFirstEngDens);
+  bool status = cluster.clust().retrieveMoment(MomentType::FIRST_ENG_DENS, clusterFirstEngDens);
   if (clusterFirstEngDens < 1e-6) clusterFirstEngDens = 1e-6;
 
   float clusterTotalEnergy = tau.auxdata<float>("ClusterTotalEnergy");

@@ -8,17 +8,8 @@
 
 TGCTriggerDbAlg::TGCTriggerDbAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator),
-  m_readKey_bw("/TGC/TRIGGER/CW_BW"),
-  m_readKey_eifi("/TGC/TRIGGER/CW_EIFI"),
-  m_readKey_tile("/TGC/TRIGGER/CW_TILE"),
-  m_writeKey("TGCTriggerData"),
   m_condSvc("CondSvc", name)
-{
-  declareProperty("ReadKeyBw", m_readKey_bw);
-  declareProperty("ReadKeyEifi", m_readKey_eifi);
-  declareProperty("ReadKeyTile", m_readKey_tile);
-  declareProperty("WriteKey", m_writeKey);
-}
+{}
 
 StatusCode TGCTriggerDbAlg::initialize(){
 
@@ -40,10 +31,8 @@ StatusCode TGCTriggerDbAlg::initialize(){
   return StatusCode::SUCCESS;
 }
 
-StatusCode TGCTriggerDbAlg::execute(){
-  
-  ATH_MSG_DEBUG( "start execute " << name() ); 
-    
+StatusCode TGCTriggerDbAlg::execute()
+{
   SG::WriteCondHandle<TGCTriggerData> writeHandle{m_writeKey};
   if (writeHandle.isValid()) {
     ATH_MSG_DEBUG("CondHandle " << writeHandle.fullKey() << " is already valid."
@@ -54,7 +43,6 @@ StatusCode TGCTriggerDbAlg::execute(){
 
   auto writeCdo = std::make_unique<TGCTriggerData>();
 
-
   // Big wheel
   SG::ReadCondHandle<CondAttrListCollection> readHandle_bw(m_readKey_bw);
   const CondAttrListCollection* readCdo_bw(*readHandle_bw);
@@ -64,7 +52,7 @@ StatusCode TGCTriggerDbAlg::execute(){
     return StatusCode::FAILURE; 
   } 
 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_bw.fullKey() << " readCdo->size()= " << readCdo_bw->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_bw.fullKey() << " = " << readCdo_bw->size());
  
   EventIDRange rangeW_bw;
   if ( !readHandle_bw.range(rangeW_bw) ) {
@@ -73,7 +61,7 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_bw);
 
-  loadParameters(writeCdo.get(), readCdo_bw, TGCTriggerData::CW_BW);
+  fillReadMapBw(writeCdo.get(), readCdo_bw);
 
   // EIFI
   SG::ReadCondHandle<CondAttrListCollection> readHandle_eifi(m_readKey_eifi);
@@ -84,7 +72,7 @@ StatusCode TGCTriggerDbAlg::execute(){
     return StatusCode::FAILURE; 
   } 
 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_eifi.fullKey() << " readCdo->size()= " << readCdo_eifi->size());
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_eifi.fullKey() << " = " << readCdo_eifi->size());
  
   EventIDRange rangeW_eifi;
   if ( !readHandle_eifi.range(rangeW_eifi) ) {
@@ -93,19 +81,17 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_eifi);
 
-  loadParameters(writeCdo.get(), readCdo_eifi, TGCTriggerData::CW_EIFI);
+  fillTrigBitEifi(writeCdo.get(), readCdo_eifi);
  
   // Tile
   SG::ReadCondHandle<CondAttrListCollection> readHandle_tile(m_readKey_tile);
-  const CondAttrListCollection* readCdo_tile(*readHandle_tile);
-  
-  if (readCdo_tile == 0) {
+  const CondAttrListCollection* readCdo_tile = *readHandle_tile;
+  if (readCdo_tile == nullptr) {
     ATH_MSG_ERROR("Null pointer to the read conditions object");
     return StatusCode::FAILURE; 
   } 
+  ATH_MSG_INFO("Size of CondAttrListCollection" << readHandle_tile.fullKey() << " = " << readCdo_tile->size());
 
-  ATH_MSG_INFO("Size of CondAttrListCollection " << readHandle_tile.fullKey() << " readCdo->size()= " << readCdo_tile->size());
- 
   EventIDRange rangeW_tile;
   if ( !readHandle_tile.range(rangeW_tile) ) {
     ATH_MSG_ERROR("Failed to retrieve validity range for " << readHandle_tile.key());
@@ -113,13 +99,7 @@ StatusCode TGCTriggerDbAlg::execute(){
   } 
   ATH_MSG_INFO("Range of input is " << rangeW_tile);
 
-  loadParameters(writeCdo.get(), readCdo_tile, TGCTriggerData::CW_TILE);
-
-  // fill maps 
-  fillReadMapBw(writeCdo.get());
-  fillTrigBitEifi(writeCdo.get());
-  fillTrigBitTile(writeCdo.get());
-
+  fillTrigBitTile(writeCdo.get(), readCdo_tile);
 
   // write condition object
   EventIDRange rangeIntersection = EventIDRange::intersect(rangeW_bw,rangeW_eifi,rangeW_tile);
@@ -136,7 +116,6 @@ StatusCode TGCTriggerDbAlg::execute(){
   }		  
   ATH_MSG_INFO("recorded new " << writeHandle.key() << " with range " << rangeIntersection << " into Conditions Store");
 
-   
   return StatusCode::SUCCESS;
 }
 
@@ -148,178 +127,163 @@ StatusCode TGCTriggerDbAlg::finalize(){
 }
 
 
-void TGCTriggerDbAlg::loadParameters(TGCTriggerData* writeCdo,
-                                     const CondAttrListCollection* readCdo,
-                                     int cw_type) {
-
-  CondAttrListCollection::const_iterator itr = readCdo->begin();
-  CondAttrListCollection::const_iterator itr_e = readCdo->end();
-
-  for(; itr!=itr_e; ++itr) {
-    const unsigned int channel = (*itr).first;
-    const coral::AttributeList& atr = (*itr).second;
-
-    ATH_MSG_DEBUG("channel: " << channel);
-   
-    std::string file    = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
-    std::string data    = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
-    std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
-    std::string type    = *(static_cast<const std::string*>((atr["type"]).addressOfData()));
-    bool active         = *(static_cast<const bool*>((atr["active"]).addressOfData()));
- 
-    writeCdo->m_datamap[cw_type][file] = data;
-    writeCdo->m_data[cw_type].push_back(data);
-    writeCdo->m_file[cw_type].push_back(file);
-    writeCdo->m_version[cw_type].push_back(version);
-    writeCdo->m_type[cw_type].push_back(type);
-    writeCdo->m_active[cw_type].push_back(active);
-
-    ATH_MSG_INFO("active: " << active << " file: " << file);
-    ATH_MSG_DEBUG("data: " << data);
-  }
-}
-
-
-void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo)
+void TGCTriggerDbAlg::fillReadMapBw(TGCTriggerData* writeCdo,
+                                    const CondAttrListCollection* readCdo)
 {
-  for(auto peroctant : writeCdo->m_ptmap_bw) {
-    for(auto persubsec : peroctant.second) persubsec.second.clear();
-  }
-
-  if (!writeCdo->isActive(TGCTriggerData::CW_BW)) {
-    return;
-  }
-
-  bool fullCW = (writeCdo->getType(TGCTriggerData::CW_BW) == "full");
-  std::string vername = writeCdo->getVersion(TGCTriggerData::CW_BW);
-
-  const int kNMODULETYPE = 12;
-  const unsigned short modulenumber[kNMODULETYPE]    = {0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 8};
+  const uint8_t kNMODULETYPE = 12;
+  const uint8_t modulenumber[kNMODULETYPE]    = {0, 1, 2, 2, 3, 4, 5, 5, 6, 7, 8, 8};
   const std::string modulename[kNMODULETYPE]         = {"0","1","2a","2b","3","4","5a","5b","6","7","8a","8b"};
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
-  for(size_t iSide = 0; iSide < TGCTriggerData::N_SIDE; iSide++) {
-    for(size_t iOctant = 0; iOctant < TGCTriggerData::N_OCTANT; iOctant++) {
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
+    writeCdo->m_active[TGCTriggerData::CW_BW] = atr["active"].data<bool>();
+    writeCdo->m_type[TGCTriggerData::CW_BW]   = atr["type"].data<std::string>();
 
-      std::map<unsigned short, std::map<unsigned short, unsigned char>> per_octant;
-      //   SUBSECADDR | 16 bits | unsigned int  |
+    std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
+    std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
+    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_BW]
+                 << " active: " << writeCdo->m_active[TGCTriggerData::CW_BW] << " version: " << version);
 
-      for(int iModule = 0; iModule < kNMODULETYPE; iModule++) {
+    if (!writeCdo->m_active[TGCTriggerData::CW_BW]) continue;
 
-        std::ostringstream dbname;
-        dbname << "RPhiCoincidenceMap.";
-        if (fullCW) dbname << sidename[iSide] << iOctant << ".";
-        dbname << "mod" << modulename[iModule] + "." + vername +"._12.db";
+    bool fullCW = (writeCdo->m_type[TGCTriggerData::CW_BW] == "full");
 
-        std::string data = writeCdo->getData(TGCTriggerData::CW_BW, dbname.str());
-        std::istringstream stream(data);
-
-        char delimiter = '\n';
-        std::string field, tag;
-        unsigned char phimod2 = modulename[iModule].find("b") != std::string::npos ? 1 : 0;
-
-        std::map<unsigned short, unsigned char> pt_by_delta;
-
-        while (std::getline(stream, field, delimiter)) {
-
-          std::istringstream header(field);
-          header>>tag;
-
-          if (tag == "#") { // read header part.
-            unsigned short ssId, mod;
-            short lDR, hDR, lDPhi, hDPhi;
-            unsigned short ptLevel;
-            header>>ptLevel>>ssId>>mod>>lDR>>hDR>>lDPhi>>hDPhi;
-
-            char type = getTYPE( lDR, hDR, lDPhi, hDPhi );
-
-            // check moduleNumber and ptLevel
-            if (mod != modulenumber[iModule] || ptLevel > TGCTriggerData::N_PT_THRESH || type < 0 ) {
-              ATH_MSG_WARNING("Invalid configuration of DB file.");
-              break;
-            }
-
-            unsigned short roiaddr = getRoIAddr(type, phimod2, mod, ssId);
-
-            // get window data
-            std::getline(stream, field, delimiter);
-            std::istringstream cont(field);
-
-            for (unsigned short ir = 0; ir < 31; ir++) {
-              unsigned int bit;
-              cont>>bit;
-              if (bit == 0) continue; // none of window is opened in this dR
-
-              for(unsigned short iphi=0; iphi<15; iphi++) {
-                unsigned short delta = (ir<<4) + iphi;
-                if(bit>>iphi & 0x1) pt_by_delta[delta] = (unsigned char)(ptLevel & 0x7);
-              }
-            }
-            if((ptLevel&0x7) == 0x6) {
-              per_octant[roiaddr] = pt_by_delta;
-              pt_by_delta.clear();
-            }
-
-          }   // end of if(tag)...
-        }   // end of while(getline...)
-      }   // end of for(iModule)
-
-      unsigned char octantbit = iSide<<3 & iOctant;
-      writeCdo->m_ptmap_bw[octantbit] = per_octant;
-
-      if(!fullCW) break;
-    }   // end of for(iOctant)
-    if(!fullCW) break;
-  }   // end of for(iSide)
-}
-
-char TGCTriggerDbAlg::getTYPE(const short lDR, const short hDR, const short lDPhi, const short hDPhi) const
-{
-  char type = -1;
-  if ( (lDR==-15) && (hDR==15) && (lDPhi==-7) && (hDPhi==7))      type = TGCTriggerData::COIN_HH;
-  else if ( (lDR==-15) && (hDR==15) && (lDPhi==-3) && (hDPhi==3)) type = TGCTriggerData::COIN_HL;
-  else if ( (lDR==-7) && (hDR==7) && (lDPhi==-7) && (hDPhi==7))   type = TGCTriggerData::COIN_LH;
-  else if ( (lDR==-7) && (hDR==7) && (lDPhi==-3) && (hDPhi==3))   type = TGCTriggerData::COIN_LL;
-  return type;
-}
-
-unsigned short TGCTriggerDbAlg::getRoIAddr(const char type, const unsigned char phimod2,
-                                           const unsigned short module, const unsigned short roi) const
-{
-  return (type<<13) + ((phimod2&0x1)<<12) + ((module&0xf)<<8) + roi;
-}
-
-void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo)
-{
-  // remove all entries
-  for(size_t sector=0; sector<TGCTriggerData::N_ENDCAP_SECTOR; sector++) {
-    for(size_t ssc=0; ssc<TGCTriggerData::N_ENDCAP_SSC; ssc++) {
-      for(size_t pos=0; pos<TGCTriggerData::N_EIFI_INPUT; pos++) writeCdo->m_trigbit_eifi[sector][ssc][pos].clear();
-      writeCdo->m_flagpt_eifi[sector][ssc].clear();
-      writeCdo->m_flagroi_eifi[sector][ssc].clear();
+    uint8_t sideId = 0;  // if the file is not fullCW, sideId should be zero.
+    if(fullCW) {
+      std::string side = file.substr(strlen("RPhiCoincidenceMap."), 1);
+      for(int id=0; id<TGCTriggerData::N_SIDE; id++) {
+        if(sidename[id] == side) {
+           sideId = id;
+           break;
+        }
+      }
     }
-  }
 
-  if (!writeCdo->isActive(TGCTriggerData::CW_EIFI)) {
-    return;
-  }
+    uint16_t octantId = 0;  // if the file is not fullCW, octantId should be zero.
+    if(fullCW) {
+      octantId = std::stoi(file.substr(strlen("RPhiCoincidenceMap.X"), 1));
+    }
 
-  bool fullCW = (writeCdo->getType(TGCTriggerData::CW_EIFI) == "full");
-  std::string vername = writeCdo->getVersion(TGCTriggerData::CW_EIFI);
+    uint32_t octaddr = ((sideId & TGCTriggerData::SIDE_MASK)<<TGCTriggerData::SIDE_SHIFT) +
+                       ((octantId & TGCTriggerData::OCTANT_MASK)<<TGCTriggerData::OCTANT_SHIFT);
+
+    uint16_t moduleId = 0;
+    for(size_t iModule = 0; iModule < kNMODULETYPE; iModule++) {
+      std::ostringstream dbname;
+      dbname << "RPhiCoincidenceMap.";
+      if (fullCW) dbname << sidename[sideId] << octantId << ".";
+      dbname << "mod" << modulename[iModule] + "." + version +"._12.db";
+      if(dbname.str() == file) {
+        moduleId = iModule;
+        break;
+      }
+    }
+
+    std::string data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+    std::istringstream stream(data);
+
+    char delimiter = '\n';
+    std::string field, tag;
+    uint32_t phimod2 = modulename[moduleId].find("b") != std::string::npos ? 1 : 0;
+    uint32_t modaddr = ((modulenumber[moduleId] & TGCTriggerData::MODULE_MASK)<<TGCTriggerData::MODULE_SHIFT) +
+                       ((phimod2 & TGCTriggerData::PHIMOD2_MASK)<<TGCTriggerData::PHIMOD2_SHIFT);
+
+    while (std::getline(stream, field, delimiter)) {
+
+      std::istringstream header(field);
+      header >> tag;
+
+      if (tag == "#") { // read header part.
+        uint16_t ptLevel, roi, mod;
+        int16_t lDR, hDR, lDPhi, hDPhi;
+        header >> ptLevel >> roi >> mod >> lDR >> hDR >> lDPhi >> hDPhi;
+
+        int16_t type = writeCdo->getTYPE( lDR, hDR, lDPhi, hDPhi );
+
+        // check moduleNumber and ptLevel
+        if( mod != modulenumber[moduleId] ||
+          ptLevel > TGCTriggerData::N_PT_THRESH || type < 0 ) {
+          ATH_MSG_WARNING("Invalid configuration of DB file! - Nothing to load this DB file");
+          break;
+        }
+
+        uint32_t cwaddr = ((uint8_t(type) & TGCTriggerData::TYPE_MASK)<<TGCTriggerData::TYPE_SHIFT) + 
+                          ((roi & TGCTriggerData::ROI_MASK)<<TGCTriggerData::ROI_SHIFT);
+
+        // get window data
+        std::getline(stream, field, delimiter);
+        std::istringstream cont(field);
+
+        for (uint8_t ir = 0; ir < 31; ir++) {  // ir=0, 15 and 30 point to -15, 0 and +15 of dR, respectively.
+          uint32_t draddr = (ir & TGCTriggerData::DR_MASK)<<TGCTriggerData::DR_SHIFT;
+
+          uint32_t bit;
+          cont >> bit;
+          if (bit == 0) continue; // none of window is opened in this dR
+
+          for(uint8_t iphi=0; iphi<15; iphi++) {  // iphi=0, 7 and 14 point to -7, 0 and +7 of dPhi, respectively.
+            if(bit>>iphi & 0x1) {
+              uint32_t theaddr = octaddr + modaddr + cwaddr + draddr + iphi;
+              writeCdo->m_ptmap_bw[theaddr] = (uint8_t)(ptLevel & TGCTriggerData::PT_MASK);
+            }
+          }
+        }
+
+      }   // end of if(tag)...
+    }   // end of while(getline...)
+
+  }   // end of for(attrmap)
+
+  ATH_MSG_DEBUG("BW-CW LUT size: " << writeCdo->m_ptmap_bw.size());
+}
+
+void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo,
+                                      const CondAttrListCollection* readCdo)
+{
   const std::string sidename[TGCTriggerData::N_SIDE] = {"A","C"};
 
-  for (int iSide = 0; iSide < TGCTriggerData::N_SIDE; iSide++) {
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
+    writeCdo->m_active[TGCTriggerData::CW_EIFI] = atr["active"].data<bool>();
+    writeCdo->m_type[TGCTriggerData::CW_EIFI]   = atr["type"].data<std::string>();
+
+    std::string version = *(static_cast<const std::string*>((atr["version"]).addressOfData()));
+    std::string file = *(static_cast<const std::string*>((atr["file"]).addressOfData()));
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << file);
+
+    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_EIFI]
+                 << " active: " << writeCdo->m_active[TGCTriggerData::CW_EIFI] << " version: " << version);
+
+    if (!writeCdo->m_active[TGCTriggerData::CW_EIFI]) continue;
+
+    bool fullCW = (writeCdo->m_type[TGCTriggerData::CW_EIFI] == "full");
+
+    uint8_t sideId = 0;  // if the file is not fullCW, sideId should be zero.
+    if(fullCW) {
+      std::string side = file.substr(strlen("InnerCoincidenceMap."), 1);
+      for(int id=0; id<TGCTriggerData::N_SIDE; id++) {
+        if(sidename[id] == side) {
+           sideId = id;
+           break;
+        }
+      }
+    }
 
     std::string dbname="";
     if (!fullCW) {
-      dbname = "InnerCoincidenceMap." + vername + "._12.db";
+      dbname = "InnerCoincidenceMap." + version + "._12.db";
     } else {
-      dbname = "InnerCoincidenceMap." + sidename[iSide]
-               + "." + vername + "._12.db";
+      dbname = "InnerCoincidenceMap." + sidename[sideId]
+               + "." + version + "._12.db";
+    }
+    if(file != dbname) {
+      ATH_MSG_WARNING("The file name is different. Skip to load.");
+      continue;
     }
 
-    std::string data = writeCdo->getData(TGCTriggerData::CW_EIFI, dbname);
-    std::istringstream stream(data);
+    std::istringstream stream(*(static_cast<const std::string*>((atr["data"]).addressOfData())));
 
     char delimiter = '\n';
     std::string field;
@@ -341,93 +305,113 @@ void TGCTriggerDbAlg::fillTrigBitEifi(TGCTriggerData* writeCdo)
         return;
       }
 
-      unsigned char flag_pt = 0x0;
+      uint16_t addr = ((uint16_t(sideId) & TGCTriggerData::SIDE_MASK)<<TGCTriggerData::ADDR_SIDE_SHIFT) +
+                      ((uint16_t(sectorId) & TGCTriggerData::SECTOR_MASK)<<TGCTriggerData::ADDR_SECTOR_SHIFT) +
+                      (uint16_t(sscId) & TGCTriggerData::SSC_MASK);
+
+      uint8_t flag_pt = 0x0;
       for (size_t pt = 0; pt < TGCTriggerData::N_PT_THRESH; pt++){
-        unsigned char use;
+        uint8_t use;
         header  >> use;
         flag_pt |= (use&0x1)<<pt;
       }
-      writeCdo->m_flagpt_eifi[sectorId][sscId].push_back(flag_pt);
+      writeCdo->m_flagpt_eifi[addr] = flag_pt;
 
-      unsigned char flag_roi = 0x0;
+      uint8_t flag_roi = 0x0;
       for (size_t pos = 0; pos < TGCTriggerData::N_ROI_IN_SSC; pos++){
-        unsigned char use;
+        uint8_t use;
         header >> use;
         flag_roi |= (use&0x1)<<pos;
       }
-      writeCdo->m_flagroi_eifi[sectorId][sscId].push_back(flag_roi);
+      writeCdo->m_flagroi_eifi[addr] = flag_roi;
 
       std::getline(stream, field, delimiter);
       std::istringstream cont(field);
       for(size_t pos=0; pos < TGCTriggerData::N_EIFI_INPUT; pos++){
         unsigned int word;
         cont >> word;
-        writeCdo->m_trigbit_eifi[sectorId][sscId][pos].push_back(word);
+        uint16_t inputaddr = (addr<<TGCTriggerData::EIFI_TRIGBIT_SHIFT) + pos;
+        writeCdo->m_trigbit_eifi[inputaddr] = word;
       }
     }  // end of while(std::geline(...))
 
     if (!fullCW) break;
 
-  }  // end of for(iSide)
+  }  // end of for(attrmap)
+
+  ATH_MSG_DEBUG("EIFI-CW LUT size: " << writeCdo->m_flagpt_eifi.size() + writeCdo->m_flagroi_eifi.size() + writeCdo->m_trigbit_eifi.size());
 }
 
-void TGCTriggerDbAlg::fillTrigBitTile(TGCTriggerData* writeCdo)
+void TGCTriggerDbAlg::fillTrigBitTile(TGCTriggerData* writeCdo,
+                                      const CondAttrListCollection* readCdo)
 {
-  if (!writeCdo->isActive(TGCTriggerData::CW_TILE)) {
-    return;
+  for(auto& attrmap : *readCdo) {
+    const coral::AttributeList& atr = attrmap.second;
+    writeCdo->m_active[TGCTriggerData::CW_TILE] = atr["active"].data<bool>();
+    writeCdo->m_type[TGCTriggerData::CW_TILE]   = atr["type"].data<std::string>();
+
+    ATH_MSG_DEBUG("channel: " << attrmap.first << ", file: " << atr["file"].data<std::string>());
+    ATH_MSG_INFO("type: " << writeCdo->m_type[TGCTriggerData::CW_TILE]
+                  << " active: " << writeCdo->m_active[TGCTriggerData::CW_TILE]
+                  << " version: " << atr["version"].data<std::string>());
+
+    if(!writeCdo->m_active[TGCTriggerData::CW_TILE]) continue;
+
+    std::istringstream stream(*(static_cast<const std::string*>((atr["data"]).addressOfData())));
+
+    char delimiter = '\n';
+    std::string field;
+
+    while (std::getline(stream, field, delimiter)) {
+
+      int16_t sideId   = -1;
+      int16_t sectorId = -1;
+      int16_t sscId    = -1;
+
+      std::istringstream header(field);
+      std::string tag;
+      header >> tag;
+      if (tag=="#"){ // read header part.
+        header >> sideId >> sectorId >> sscId;
+      }
+
+      if(sideId < 0   || sideId >= TGCTriggerData::N_SIDE ||
+         sectorId < 0 || sectorId >= TGCTriggerData::N_ENDCAP_SECTOR ||
+         sscId < 0    || sscId >= TGCTriggerData::N_ENDCAP_SSC ) {
+        ATH_MSG_WARNING("Invalid configuration of DB file.");
+        return;
+      }
+      uint16_t addr = ((uint16_t(sideId) & TGCTriggerData::SIDE_MASK)<<TGCTriggerData::ADDR_SIDE_SHIFT) +
+                      ((uint16_t(sectorId) & TGCTriggerData::SECTOR_MASK)<<TGCTriggerData::ADDR_SECTOR_SHIFT) +
+                      (uint16_t(sscId) & TGCTriggerData::SSC_MASK);
+
+      uint8_t flagpt = 0;
+      for (size_t pt = 0; pt < TGCTriggerData::N_PT_THRESH; pt++){
+        uint8_t use;
+        header >> use;
+        flagpt |= (use&0x1)<<pt;
+      }
+      writeCdo->m_flagpt_tile[addr] = flagpt;
+
+      uint8_t roi = 0;
+      for (size_t pos=0; pos< TGCTriggerData::N_ROI_IN_SSC; pos++){
+        uint8_t use;
+        header >> use;
+        roi |= (use&0x1)<<pos;
+      }
+      writeCdo->m_flagroi_tile[addr] = roi;
+
+      std::getline(stream, field, delimiter);
+      std::istringstream cont(field);
+      uint16_t trigbit = 0x0;
+      for(size_t pos=0; pos < TGCTriggerData::N_TILE_INPUT; pos++){
+        uint16_t word;
+        cont >> word;
+        trigbit |= (word & 0xf)<<(pos*4);
+     }
+     writeCdo->m_trigbit_tile[addr] = trigbit;
+    }
   }
 
-  std::string vername = writeCdo->getVersion(TGCTriggerData::CW_TILE);
-
-  std::string dbname = "TileMuCoincidenceMap." + vername + "._12.db";
-
-  std::string data = writeCdo->getData(TGCTriggerData::CW_TILE, dbname);
-  std::istringstream stream(data);
-
-  char delimiter = '\n';
-  std::string field;
-  std::string tag;
-
-  while (std::getline(stream, field, delimiter)) {
-    int sideId = -1;
-    int sectorId = -1;
-    int sscId    = -1;
-
-    std::istringstream header(field);
-    header >> tag;
-    if (tag=="#"){ // read header part.
-      header >> sideId >> sectorId >> sscId;
-    }
-
-    if(sideId < 0   || sideId >= TGCTriggerData::N_SIDE ||
-       sectorId < 0 || sectorId >= TGCTriggerData::N_ENDCAP_SECTOR ||
-       sscId < 0    || sscId >= TGCTriggerData::N_ENDCAP_SSC ) {
-      ATH_MSG_WARNING("Invalid configuration of DB file.");
-      return;
-    }
-
-    writeCdo->m_flagpt_tile[sscId][sectorId][sideId] = 0x0;
-    for (size_t pt = 0; pt < TGCTriggerData::N_PT_THRESH; pt++){
-      unsigned char use;
-      header >> use;
-      writeCdo->m_flagpt_tile[sscId][sectorId][sideId] |= (use&0x1)<<pt;
-    }
-
-    writeCdo->m_flagroi_tile[sscId][sectorId][sideId] = 0x0;
-    for (size_t pos=0; pos< TGCTriggerData::N_ROI_IN_SSC; pos++){
-      unsigned char use;
-      header >> use;
-      writeCdo->m_flagroi_tile[sscId][sectorId][sideId] |= (use&0x1)<<pos;
-    }
-
-    std::getline(stream, field, delimiter);
-    std::istringstream cont(field);
-    writeCdo->m_trigbit_tile[sscId][sectorId][sideId] = 0x0;
-    for(size_t pos=0; pos < TGCTriggerData::N_TILE_INPUT; pos++){
-      unsigned short word;
-      cont >> word;
-      writeCdo->m_trigbit_tile[sscId][sectorId][sideId] |= (word & 0xf)<<(pos*4);
-    }
-  }
-
+  ATH_MSG_DEBUG("Tile-CW LUT size: " << writeCdo->m_flagpt_tile.size() + writeCdo->m_flagroi_tile.size() + writeCdo->m_trigbit_tile.size());
 }

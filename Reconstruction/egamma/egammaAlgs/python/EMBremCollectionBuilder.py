@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __doc__ = """ToolFactory to instantiate  egammaBremCollectionBuilder
 with default configuration"""
@@ -11,8 +11,7 @@ from AthenaCommon.Logging import logging
 from egammaAlgs import egammaAlgsConf
 from egammaRec import egammaKeys
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import (AtlasPublicExtrapolator,
-                                             egammaExtrapolator)
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
@@ -74,7 +73,7 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
             GSFBuildTRT_ElectronPidTool = (
                 TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
-                    CalculateNNPid=True,
+                    CalculateNNPid=False,
                     MinimumTrackPtForNNPid=0.,
                     private=True))
 
@@ -116,7 +115,6 @@ class egammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            Extrapolator=AtlasPublicExtrapolator(),
             UseTrackSummaryTool=False)
         #
         #  Track slimming (private not in ToolSvc)

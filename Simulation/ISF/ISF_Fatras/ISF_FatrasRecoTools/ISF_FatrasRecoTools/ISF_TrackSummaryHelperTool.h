@@ -46,6 +46,7 @@ namespace iFatras {
     */
     using IExtendedTrackSummaryHelperTool::analyse;
     using IExtendedTrackSummaryHelperTool::updateSharedHitCount;
+    using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
     using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
     virtual void analyse(
       const EventContext& ctx,

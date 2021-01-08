@@ -62,12 +62,12 @@ public:
 				    FitParameters&			fitParameters,
                                     Garbage_t&                          garbage) const;
 
-    // allocate material 
-    void	allocateMaterial (std::vector<FitMeasurement*>&		measurements,
-				  ParticleHypothesis			particleHypothesis,
-				  const FitParameters&			fitParameters,
-				  const TrackParameters&		startParameters,
-                                  Garbage_t&                            garbage) const;
+    // allocate material
+    void allocateMaterial(std::vector<FitMeasurement*>& measurements,
+                          ParticleHypothesis particleHypothesis,
+                          FitParameters& fitParameters,
+                          const TrackParameters& startParameters,
+                          Garbage_t& garbage) const;
 
     // initialize scattering (needs to know X0 integral)
     void	initializeScattering (std::vector<FitMeasurement*>&	measurements) const;
@@ -81,13 +81,13 @@ public:
     void	orderMeasurements(std::vector<FitMeasurement*>&	measurements,
 				  Amg::Vector3D			startDirection,
 				  Amg::Vector3D			startPosition) const;
-    
-    // has material been reallocated? 
-    bool	reallocateMaterial (std::vector<FitMeasurement*>&	measurements,
-				    const FitParameters&		fitParameters,
-                                    Garbage_t&                          garbage) const;
 
-private:
+    // has material been reallocated?
+    bool reallocateMaterial(std::vector<FitMeasurement*>& measurements,
+                            FitParameters& fitParameters,
+                            Garbage_t& garbage) const;
+
+  private:
     // add material delimiters to control aggregation
     void	addSpectrometerDelimiters (std::vector<FitMeasurement*>&	measurements) const;
 
@@ -106,11 +106,11 @@ private:
         Garbage_t&                              garbage) const;
 
     // allocate material in inner detector
-    void	indetMaterial (std::vector<FitMeasurement*>&		measurements,
-			       ParticleHypothesis			particleHypothesis,
-			       const TrackParameters&			startParameters,
-                               Garbage_t& garbage) const;
-    
+    void indetMaterial(std::vector<FitMeasurement*>& measurements,
+                       ParticleHypothesis particleHypothesis,
+                       const TrackParameters& startParameters,
+                       Garbage_t& garbage) const;
+
     // material aggregation
     std::pair<FitMeasurement*,FitMeasurement*>	materialAggregation (
 	const std::vector<const TrackStateOnSurface*>&	material,
@@ -129,11 +129,11 @@ private:
     void	printMeasurements(std::vector<FitMeasurement*>&		measurements) const;
 
     // allocate material in spectrometer
-    void	spectrometerMaterial (std::vector<FitMeasurement*>&	measurements,
-				      ParticleHypothesis		particleHypothesis,
-				      const FitParameters&		fitParameters,
-				      const TrackParameters&		startParameters,
-                                      Garbage_t& garbage) const;
+    void spectrometerMaterial(std::vector<FitMeasurement*>& measurements,
+                              ParticleHypothesis particleHypothesis,
+                              FitParameters& fitParameters,
+                              const TrackParameters& startParameters,
+                              Garbage_t& garbage) const;
 
     // Makes sure m_spectrometerEntrance is created, once only, and thread-safe
     void createSpectrometerEntranceOnce() const;

@@ -26,11 +26,20 @@ endif()
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core RIO )
-find_package( HepMC )
-
+if ( HEPMC3_USE )
+  find_package( hepmc3 )
+  MESSAGE( STATUS "Trying HepMC3")
 # Libraries in the package:
-if( HEPMC_FOUND )
-   list(INSERT extra_libs 0 AtlasHepMCLib )
+  if( HEPMC3_FOUND )
+    MESSAGE( STATUS "HepMC3 FOUND!")
+    list(INSERT extra_libs 0 AtlasHepMCLib )
+  endif()
+else()
+  find_package( HepMC )
+# Libraries in the package:
+  if( HEPMC_FOUND )
+    list(INSERT extra_libs 0 AtlasHepMCLib )
+  endif()
 endif()
 
 atlas_add_library( MCTruthClassifierLib

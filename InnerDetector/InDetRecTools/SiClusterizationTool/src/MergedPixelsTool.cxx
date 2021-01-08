@@ -18,7 +18,7 @@
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h"
+#include "ReadoutGeometryBase/SiLocalPosition.h"
 #include "InDetIdentifier/PixelID.h"
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetConditionsSummaryService/IInDetConditionsTool.h"

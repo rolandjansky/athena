@@ -17,7 +17,7 @@ if( NOT XAOD_ANALYSIS )
 endif()
 atlas_add_library( LumiBlockCompsLib
    LumiBlockComps/*.h src/*.h Root/*.cxx
-   src/CreateLumiBlockCollectionFromFile.cxx 
+   src/CreateLumiBlockCollectionFromFile.cxx
    ${extra_srcs}
    PUBLIC_HEADERS LumiBlockComps
    INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
@@ -48,34 +48,37 @@ atlas_install_python_modules( python/*.py
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/*.txt )
 
-atlas_add_test( LBDurationCondAlg_test
-   SOURCES test/LBDurationCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib TestTools )
+if( NOT XAOD_ANALYSIS )
+   atlas_add_test( LBDurationCondAlg_test
+      SOURCES test/LBDurationCondAlg_test.cxx
+      LINK_LIBRARIES GaudiKernel LumiBlockData LumiBlockCompsLib TestTools )
 
-atlas_add_test( LuminosityCondAlg_test
-   SOURCES test/LuminosityCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib AthenaPoolUtilities TestTools )
+   atlas_add_test( LuminosityCondAlg_test
+      SOURCES test/LuminosityCondAlg_test.cxx
+      LINK_LIBRARIES GaudiKernel LumiBlockData LumiBlockCompsLib
+      AthenaPoolUtilities TestTools )
 
-atlas_add_test( TrigLiveFractionCondAlg_test
-   SOURCES test/TrigLiveFractionCondAlg_test.cxx
-   LINK_LIBRARIES GaudiKernel LumiBlockCompsLib TestTools )
+   atlas_add_test( TrigLiveFractionCondAlg_test
+      SOURCES test/TrigLiveFractionCondAlg_test.cxx
+      LINK_LIBRARIES GaudiKernel LumiBlockData LumiBlockCompsLib TestTools )
 
-atlas_add_test( LuminosityCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+   atlas_add_test( LuminosityCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.LuminosityCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
-atlas_add_test( LBDurationCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+   atlas_add_test( LBDurationCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.LBDurationCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
-atlas_add_test( TrigLiveFractionCondAlgConfig_test
-                SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+   atlas_add_test( TrigLiveFractionCondAlgConfig_test
+                   SCRIPT python -m LumiBlockComps.TrigLiveFractionCondAlgConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
-atlas_add_test( LumiBlockMuWriterConfig_test
-                SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
-                LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
+   atlas_add_test( LumiBlockMuWriterConfig_test
+                   SCRIPT python -m LumiBlockComps.LumiBlockMuWriterConfig
+                   LOG_SELECT_PATTERN "ComponentAccumulator|^---|^IOVDbSvc" )
 
-atlas_add_test( BunchCrossingCondAlg 
-                SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py
-                POST_EXEC_SCRIPT " /usr/bin/diff BCData.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/BCData.txt.ref > BC_diff.log " )
+   atlas_add_test( BunchCrossingCondAlg
+                   SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/python/BunchCrossingCondAlgTest.py
+                   POST_EXEC_SCRIPT " /usr/bin/diff BCData.txt ${CMAKE_CURRENT_SOURCE_DIR}/share/BCData.txt.ref > BC_diff.log " )
+endif()

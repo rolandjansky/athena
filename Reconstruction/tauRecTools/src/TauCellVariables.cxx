@@ -15,28 +15,16 @@
 #include <cmath>
 #include <vector>
 
-//______________________________________________________________________________
+
 TauCellVariables::TauCellVariables(const std::string& name) :
   TauRecToolBase(name) {
 }
 
-//______________________________________________________________________________
-TauCellVariables::~TauCellVariables() {
-}
 
-//______________________________________________________________________________
+
 StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
-  if (! pTau.jetLink().isValid()) {
-    ATH_MSG_ERROR("tau does not have jet seed for cell variable calculation");
-    return StatusCode::FAILURE;
-  }
-  const xAOD::Jet* pJetSeed = pTau.jet();
-  
-  ATH_MSG_VERBOSE("cluster position is eta=" << pTau.eta() << " phi=" << pTau.phi() );
-
   int numStripCell = 0;
-  int numEMCell = 0;
 
   double sumCellET = 0.;
   double sumCellET01 = 0;
@@ -51,15 +39,16 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
 
   std::vector<double> cellRingEnergys(7,0.);
 
-  std::vector<const xAOD::CaloCluster*> clusterList;
-  ATH_CHECK(tauRecTools::GetJetClusterList(pJetSeed, clusterList, m_useSubtractedCluster));
-
   int numCells = 0;
   std::bitset<200000> cellSeen;
 
+  TLorentzVector tauAxis = tauRecTools::getTauAxis(pTau, m_doVertexCorrection);
+  
   // loop over cells in all the clusters and calculate the variables
-  for (auto cluster : clusterList){
-    const CaloClusterCellLink* cellLinks = cluster->getCellLinks();
+  std::vector<xAOD::CaloVertexedTopoCluster> vertexedClusterList = pTau.vertexedClusters();
+  for (const xAOD::CaloVertexedTopoCluster& vertexedCluster : vertexedClusterList){
+    const xAOD::CaloCluster& cluster = vertexedCluster.clust();
+    const CaloClusterCellLink* cellLinks = cluster.getCellLinks();
     
     for (const CaloCell* cell : *cellLinks) {
       ++numCells;
@@ -72,26 +61,24 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
         cellSeen.set(cell->caloDDE()->calo_hash());
       }
       
+      // cell four momentum corrected to point at the required vertex
       double cellPhi = cell->phi();
       double cellEta = cell->eta();
       double cellET = cell->et();
       double cellEnergy = cell->energy();
-      TLorentzVector tauAxis = pTau.p4(xAOD::TauJetParameters::DetectorAxis);
-
-      // correct cell four momentum based on tau vertex
-      if (m_doVertexCorrection && pTau.vertexLink().isValid()) {
+      
+      const xAOD::Vertex* vertex = tauRecTools::getTauVertex(pTau, inTrigger());
+      if (m_doVertexCorrection && vertex) {
         CaloVertexedCell vxCell (*cell, pTau.vertex()->position());
         cellPhi = vxCell.phi();
         cellEta = vxCell.eta();
         cellET = vxCell.et();
         cellEnergy = vxCell.energy();
-        tauAxis = pTau.p4(xAOD::TauJetParameters::IntermediateAxis);
       }
-      
+
       double dR = Tau1P3PKineUtils::deltaR(tauAxis.Eta(), tauAxis.Phi(), cellEta, cellPhi);
       CaloSampling::CaloSample calo = cell->caloDDE()->getSampling();
       
-      // use cells with dR < m_cellCone relative to tau intermediate axis:
       if (dR < m_cellCone) {
         sumCellET += cellET;
       
@@ -104,7 +91,6 @@ StatusCode TauCellVariables::execute(xAOD::TauJet& pTau) const {
         if (isEMLayer(calo)) {
           EMRadius += dR*cellET;
           sumEMCellET += cellET;
-          if (cellEnergy > m_cellEthr) numEMCell += 1;
 
           // Strip layer: EMB1 and EME1 
           if (isStripLayer(calo) && (std::abs(cellEta) < 2.5)) {

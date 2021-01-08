@@ -31,6 +31,8 @@ namespace MuonCombined {
     /**IMuonCandidateTool interface: build a MuonCandidateCollection from a TrackCollection of spectrometer tracks */
     virtual void create( const xAOD::TrackParticleContainer& tracks, MuonCandidateCollection& outputCollection, TrackCollection& outputTracks ) = 0;
 
+  virtual void cleanUp() const = 0; 
+
   };
 
   inline const InterfaceID& IMuonCandidateTool::interfaceID() { 

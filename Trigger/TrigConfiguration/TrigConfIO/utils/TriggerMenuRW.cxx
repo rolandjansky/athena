@@ -7,6 +7,7 @@
 
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfIO/JsonFileWriter.h"
+#include "TrigConfIO/JsonFileWriterHLT.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
 #include "TrigConfIO/TrigDBJobOptionsLoader.h"
 #include "TrigConfIO/TrigDBL1PrescalesSetLoader.h"
@@ -170,15 +171,21 @@ namespace {
          filename += ".json";
          TrigConf::JsonFileLoader fileLoader;
          return fileLoader.saveFile(filename, ds); 
-      } else if ( cfg.writeFromDataStructure && kind=="L1Menu" ) {
+      } else if ( cfg.writeFromDataStructure ) {
          std::string filename = kind;
          if ( cfg.base != "" ) {
             filename += "_" + cfg.base;
          }
          filename += ".fromDS.json";
-         TrigConf::JsonFileWriter fileWriter;
-         const auto & l1menu = dynamic_cast<const TrigConf::L1Menu &>(ds);
-         return fileWriter.writeJsonFile(filename, l1menu); 
+         if ( kind=="L1Menu" ) {
+            TrigConf::JsonFileWriter fileWriter;
+            const auto & l1menu = dynamic_cast<const TrigConf::L1Menu &>(ds);
+            return fileWriter.writeJsonFile(filename, l1menu); 
+         } else if ( kind == "HLTMenu") {
+            TrigConf::JsonFileWriterHLT fileWriter;
+            const auto & hltmenu = dynamic_cast<const TrigConf::HLTMenu &>(ds);
+            return fileWriter.writeJsonFile(filename, hltmenu);
+         }
       }
       return true;
    }

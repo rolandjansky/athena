@@ -1,8 +1,5 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
-
-
 #########################################################################
 # ConfiguredNewtrackingCuts class
 #########################################################################
@@ -22,10 +19,7 @@ class ConfiguredNewTrackingCuts :
     self.__set_indetflags()     #pointer to InDetFlags, don't use them directly
                                 #to allow sharing this code with the trigger
 
-    from AthenaCommon.GlobalFlags import globalflags
     from AthenaCommon.DetFlags import DetFlags
-    from AthenaCommon.BeamFlags import jobproperties
-    from RecExConfig.RecFlags import rec
 
     # --- put defaults to run Pixel/SCT/TRT
     self.__usePixel = DetFlags.haveRIO.pixel_on()

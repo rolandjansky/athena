@@ -99,14 +99,14 @@ namespace Trk
     // retrieve the necessary Extrapolators (muon tracking geometry is very picky!)
     ATH_CHECK( m_extrapolator.retrieve() );
     ATH_MSG_DEBUG("Retrieved tool " << m_extrapolator);
-    
+
     ATH_CHECK( m_intersector.retrieve() );
     ATH_MSG_DEBUG("Retrieved tool " << m_intersector);
 
     // retrieve services
     ATH_CHECK( m_trackingGeometrySvc.retrieve() );
     ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
-    
+
     // need to create the IndetExit and MuonEntrance TrackingVolumes
     ATH_CHECK( m_trackingVolumesSvc.retrieve() );
     ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
@@ -605,7 +605,7 @@ namespace Trk
   void
   MaterialAllocator::allocateMaterial(std::vector<FitMeasurement*>& measurements,
                                       ParticleHypothesis particleHypothesis,
-                                      const FitParameters& fitParameters,
+                                      FitParameters& fitParameters,
                                       const TrackParameters& startParameters,
                                       Garbage_t& garbage) const {
     // different strategies used for indet and muon spectrometer
@@ -705,9 +705,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no leading material will be added
         m_messageHelper->printWarning(0);
         return nullptr;
-      } 
+      }
         createSpectrometerEntranceOnce();
-      
+
     }
 
     // check input parameters are really in the spectrometer
@@ -860,7 +860,7 @@ namespace Trk
 
   bool
   MaterialAllocator::reallocateMaterial(std::vector<FitMeasurement*>& measurements,
-                                        const FitParameters& parameters,
+                                        FitParameters& parameters,
                                         Garbage_t& garbage) const {
     ATH_MSG_DEBUG(" reallocateSpectrometerMaterial ");
 
@@ -2189,7 +2189,7 @@ namespace Trk
   void
   MaterialAllocator::spectrometerMaterial(std::vector<FitMeasurement*>& measurements,
                                           ParticleHypothesis particleHypothesis,
-                                          const FitParameters& fitParameters,
+                                          FitParameters& fitParameters,
                                           const TrackParameters& startParameters,
                                           Garbage_t& garbage) const {
     // return if no MS measurement
@@ -2302,9 +2302,9 @@ namespace Trk
         // missing TrackingGeometrySvc - no spectrometer material added
         m_messageHelper->printWarning(2);
         return;
-      } 
+      }
         createSpectrometerEntranceOnce();
-      
+
     }
 
     // entranceParameters are at the MS entrance surface (0 if perigee downstream)

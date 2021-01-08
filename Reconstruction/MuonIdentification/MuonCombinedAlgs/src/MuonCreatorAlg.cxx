@@ -16,8 +16,13 @@
 #include "xAODMuon/SlowMuonAuxContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+#include "GaudiKernel/SystemOfUnits.h"
 
 #include <vector>
+
+namespace {
+  static constexpr const double MeVtoGeV = 1/Gaudi::Units::GeV;
+}
 
 MuonCreatorAlg::MuonCreatorAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator) {
@@ -33,8 +38,6 @@ StatusCode MuonCreatorAlg::initialize()
   ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
   //Can't use a flag in intialize for an array of keys
   if(!m_doSA) ATH_CHECK(m_tagMaps.initialize());
-  m_segTrkContainerName = "Trk"+m_segContainerName.key();
-  m_segContainerName = "xaod"+m_segContainerName.key();
   ATH_CHECK(m_segContainerName.initialize());
   ATH_CHECK(m_segTrkContainerName.initialize());
   m_combinedTrkCollectionName = m_combinedCollectionName.key()+"Tracks";
@@ -176,26 +179,26 @@ StatusCode MuonCreatorAlg::execute()
   //---------------------------------------------------------------------------------------------------------------------//
 
   // Only run monitoring for online algorithms
-  if ( not m_monTool.name().empty() ) {
+  if (!m_monTool.name().empty()) {
     // Monitoring histograms and variables
     auto muon_n     = Monitored::Scalar<int>("muon_n", wh_muons->size());
-    auto muon_pt    = Monitored::Collection("muon_pt",    *(wh_muons.ptr()),  [](auto const& mu) {return mu->pt()/1000.0;}); // converted to GeV
+    auto muon_pt    = Monitored::Collection("muon_pt",    *(wh_muons.ptr()),  [](auto const& mu) {return mu->pt()*MeVtoGeV;}); // converted to GeV
     auto muon_eta   = Monitored::Collection("muon_eta",   *(wh_muons.ptr()),  &xAOD::Muon_v1::eta);
     auto muon_phi   = Monitored::Collection("muon_phi",   *(wh_muons.ptr()),  &xAOD::Muon_v1::phi);
 
     auto satrks_n     = Monitored::Scalar<int>("satrks_n", wh_extrtp->size());
-    auto satrks_pt  = Monitored::Collection("satrks_pt",  *(wh_extrtp.ptr()), [](auto const& satrk) {return satrk->pt()/1000.0;}); // converted to GeV
+    auto satrks_pt  = Monitored::Collection("satrks_pt",  *(wh_extrtp.ptr()), [](auto const& satrk) {return satrk->pt()*MeVtoGeV;}); // converted to GeV
     auto satrks_eta = Monitored::Collection("satrks_eta", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::eta);
     auto satrks_phi = Monitored::Collection("satrks_phi", *(wh_extrtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
     auto cbtrks_n   = Monitored::Scalar<int>("cbtrks_n", wh_combtp->size());    
-    auto cbtrks_pt  = Monitored::Collection("cbtrks_pt",  *(wh_combtp.ptr()), [](auto const& cbtrk) {return cbtrk->pt()/1000.0;}); // converted to GeV
+    auto cbtrks_pt  = Monitored::Collection("cbtrks_pt",  *(wh_combtp.ptr()), [](auto const& cbtrk) {return cbtrk->pt()*MeVtoGeV;}); // converted to GeV
     auto cbtrks_eta = Monitored::Collection("cbtrks_eta", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::eta);
     auto cbtrks_phi = Monitored::Collection("cbtrks_phi", *(wh_combtp.ptr()), &xAOD::TrackParticle_v1::phi);
 
     if (!m_doSA) {
       auto idtrks_n   = Monitored::Scalar<int>("idtrks_n", indetCandidateCollection->size());
-      auto idtrks_pt  = Monitored::Collection("idtrks_pt", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().pt()/1000.0;});
+      auto idtrks_pt  = Monitored::Collection("idtrks_pt", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().pt()*MeVtoGeV;});
       auto idtrks_eta = Monitored::Collection("idtrks_eta", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().eta();});
       auto idtrks_phi = Monitored::Collection("idtrks_phi", *indetCandidateCollection, [](auto const& idtrk) {return idtrk->indetTrackParticle().phi();});
       auto monitorIt = Monitored::Group(m_monTool, muon_n, muon_pt, muon_eta, muon_phi, satrks_n, satrks_pt, satrks_eta, satrks_phi, cbtrks_n, cbtrks_pt,

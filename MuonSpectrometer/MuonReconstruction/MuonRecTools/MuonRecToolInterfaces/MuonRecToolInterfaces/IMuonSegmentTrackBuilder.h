@@ -90,6 +90,8 @@ namespace Muon {
      */
     virtual Trk::TrackParameters* getClosestParameters( const Trk::Track& track, const Trk::Surface& surf ) const = 0;
 
+    virtual void cleanUp() const = 0;
+
   };
   
   inline const InterfaceID& IMuonSegmentTrackBuilder::interfaceID()

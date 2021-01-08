@@ -176,7 +176,7 @@ class MdtRawDataValAlg: public ManagedMonitorToolBase {
   uint32_t m_firstTime;
   int m_numberOfEvents;
 
-  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","MuonSegments","muon segments"};
+  SG::ReadHandleKey<Trk::SegmentCollection> m_segm_type{this,"Eff_segm_type","TrackMuonSegments","muon segments"};
 
   std::string returnString(int i){
     std::stringstream ss;

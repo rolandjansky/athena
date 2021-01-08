@@ -1,5 +1,3 @@
-#ifndef XAOD_ANALYSIS
-
 /*
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
@@ -24,7 +22,7 @@
 
 using namespace std;
 
-GoodRunsListSelectorTool::GoodRunsListSelectorTool( const std::string& type, const std::string& name, const IInterface* parent ) 
+GoodRunsListSelectorTool::GoodRunsListSelectorTool( const std::string& type, const std::string& name, const IInterface* parent )
  : AthAlgTool( type, name, parent )
  , m_reader(0)
  , m_boolop(0)
@@ -66,7 +64,7 @@ GoodRunsListSelectorTool::~GoodRunsListSelectorTool()
 }
 
 
-StatusCode 
+StatusCode
 GoodRunsListSelectorTool::queryInterface( const InterfaceID& riid, void** ppvIf )
 {
   if ( riid == IGoodRunsListSelectorTool::interfaceID() )  {
@@ -126,7 +124,7 @@ GoodRunsListSelectorTool::initialize()
   /// start reading xml files
   if ( !m_goodrunslistVec.empty() ) {
     m_reader->Reset();
-    for (itr=m_goodrunslistVec.begin(); itr!=m_goodrunslistVec.end() && !m_usecool; ++itr) { 
+    for (itr=m_goodrunslistVec.begin(); itr!=m_goodrunslistVec.end() && !m_usecool; ++itr) {
       //const char* fname;
       std::string fname;
       if ( itr->find("/")==0 || itr->find("$")==0 || itr->find(".")==0 || itr->find(":")!=string::npos )  {
@@ -163,8 +161,8 @@ GoodRunsListSelectorTool::initialize()
 }
 
 
-bool 
-GoodRunsListSelectorTool::passEvent(const EventIDBase& pEvent) 
+bool
+GoodRunsListSelectorTool::passEvent(const EventIDBase& pEvent)
 {
   ATH_MSG_DEBUG ("passEvent() ");
 
@@ -224,7 +222,7 @@ GoodRunsListSelectorTool::passThisRunLB( const std::vector<std::string>& grlname
   if (m_passthrough) {
     ATH_MSG_DEBUG ("passThisRunLB() :: Pass through mode.");
     pass = true;
-  } 
+  }
   /// decide from XML files
   else {
     pass = this->passRunLB(runNumber,lumiBlockNr,grlnameVec,brlnameVec);
@@ -245,9 +243,9 @@ GoodRunsListSelectorTool::passRunLB( int runNumber, int lumiBlockNr,
   if (m_passthrough) {
     ATH_MSG_DEBUG ("passRunLB() :: Pass through mode.");
     return true;
-  } 
+  }
 
-  /// decision based on merged blackrunslist 
+  /// decision based on merged blackrunslist
   if ( m_rejectanybrl && m_eventselectormode ) {
     if ( m_brlcollection->HasRunLumiBlock(runNumber,lumiBlockNr) ) {
       ATH_MSG_DEBUG ("passRunLB() :: Event rejected by (_any_ of) merged black runs list.");
@@ -261,7 +259,7 @@ GoodRunsListSelectorTool::passRunLB( int runNumber, int lumiBlockNr,
       brlitr = m_brlcollection->find(brlnameVec[i]);
       if (brlitr!=m_brlcollection->end())
         reject = brlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
-    }    
+    }
     if (reject) {
       ATH_MSG_DEBUG ("passRunLB() :: Event rejected by specific black runs list.");
       return false;
@@ -276,23 +274,23 @@ GoodRunsListSelectorTool::passRunLB( int runNumber, int lumiBlockNr,
       grlitr = m_grlcollection->find(grlnameVec[i]);
       if (grlitr!=m_grlcollection->end())
         pass = grlitr->HasRunLumiBlock(runNumber,lumiBlockNr);
-    } 
+    }
     if (pass) {
       ATH_MSG_DEBUG ("passRunLB() :: Event accepted by specific good runs list.");
       return true;
-    }    
-  /// decision based on merged goodrunslist 
+    }
+  /// decision based on merged goodrunslist
   } else if (m_grlcollection->HasRunLumiBlock(runNumber,lumiBlockNr)) {
     ATH_MSG_DEBUG ("passRunLB() :: Event accepted by (_any_ of) merged good runs list.");
     return true;
-  } 
+  }
 
   ATH_MSG_DEBUG ("passRunLB() :: Event rejected, not in (any) good runs list.");
   return false;
 }
 
 
-StatusCode 
+StatusCode
 GoodRunsListSelectorTool::finalize()
 {
   ATH_MSG_DEBUG ("finalize() ");
@@ -305,7 +303,7 @@ GoodRunsListSelectorTool::fileExists(const char* fileName)
 {
   struct stat info;
   int ret = -1;
- 
+
   //get the file attributes
   ret = stat(fileName, &info);
 
@@ -313,7 +311,7 @@ GoodRunsListSelectorTool::fileExists(const char* fileName)
     /// stat() is able to get the file attributes, so the file obviously exists
     /// if filesize==0 assume the copying failed.
     //if (info.st_size == 0) return false;
-    //else 
+    //else
     return true;
   } else {
     /// stat() is not able to get the file attributes, so the file obviously does not exist.
@@ -322,7 +320,7 @@ GoodRunsListSelectorTool::fileExists(const char* fileName)
 }
 
 
-bool 
+bool
 GoodRunsListSelectorTool::registerGRLSelector(const std::string& name, const std::vector<std::string>& grlnameVec, const std::vector<std::string>& brlnameVec)
 {
   if (m_registry.find(name)!=m_registry.end()) {
@@ -358,5 +356,3 @@ GoodRunsListSelectorTool::registerGRLSelector(const std::string& name, const std
   m_registry[name] = vvPair(grlnameVec,brlnameVec);
   return true;
 }
-
-#endif // XAOD_ANALYSIS

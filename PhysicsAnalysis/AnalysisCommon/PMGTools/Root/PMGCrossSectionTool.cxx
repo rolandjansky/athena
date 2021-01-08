@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: PMGCrossSectionTool.cxx 764400 2016-07-26 17:47:39Z tripiana $
@@ -208,7 +208,7 @@ double PMGCrossSectionTool::getSampleXsection(const int dsid) const
 std::vector<int> PMGCrossSectionTool::getLoadedDSIDs() const {
   std::vector<int> dsids;
   dsids.reserve(m_fStoreSampleInfo.size());
-  for (const std::pair<unsigned, AllSampleInfo>& key_info : m_fStoreSampleInfo) {
+  for (const std::pair<const unsigned, AllSampleInfo>& key_info : m_fStoreSampleInfo) {
     dsids.push_back(key_info.second.dsid);
   }
   return dsids;

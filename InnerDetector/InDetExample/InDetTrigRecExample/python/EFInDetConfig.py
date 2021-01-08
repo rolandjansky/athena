@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # Configuration classes for EF InDet Algs
@@ -20,9 +20,8 @@
 #              defines the class and instance name
 #
 
-from __future__ import print_function
+# flake8: noqa  (legacy trigger)
 
-# 
 from AthenaCommon.Include import include
 
 include.block("InDetTrigRecExample/EFInDetConfig.py")

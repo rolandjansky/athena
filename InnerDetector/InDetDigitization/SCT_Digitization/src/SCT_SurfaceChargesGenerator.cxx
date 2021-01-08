@@ -213,13 +213,13 @@ float SCT_SurfaceChargesGenerator::driftTime(float zhit, const SiDetectorElement
         ATH_MSG_ERROR("driftTime: negative argument X for log(X) " << zhit);
       }
       return -1.0;
-    } else { 
+    } else {
       // (m_biasVoltage<m_depletionVoltage) can happen with underdepleted sensors, lose charges in that volume
       return -10.0;
     }
   }
 
-  float t_drift{log((depletionVoltage + biasVoltage) / denominator)};
+  float t_drift{std::log((depletionVoltage + biasVoltage) / denominator)};
   t_drift *= thickness * thickness / (2.0 * m_siPropertiesTool->getSiProperties(hashId).holeDriftMobility() * depletionVoltage);
   return t_drift;
 }
@@ -236,7 +236,7 @@ float SCT_SurfaceChargesGenerator::diffusionSigma(float zhit, const SiDetectorEl
   const float t{driftTime(zhit, element)}; // in ns
 
   if (t > 0.0) {
-    const float sigma{static_cast<float>(sqrt(2. * m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant() * t))}; // in mm
+    const float sigma{static_cast<float>(std::sqrt(2. * m_siPropertiesTool->getSiProperties(hashId).holeDiffusionConstant() * t))}; // in mm
     return sigma;
   } else {
     return 0.0;
@@ -351,7 +351,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const float cPhi{static_cast<float>(endPos[SiHit::xPhi]) - xPhi};
   const float cDep{static_cast<float>(endPos[SiHit::xDep]) - xDep};
 
-  const float LargeStep{sqrt(cEta*cEta + cPhi*cPhi + cDep*cDep)};
+  const float LargeStep{std::sqrt(cEta*cEta + cPhi*cPhi + cDep*cDep)};
   const int numberOfSteps{static_cast<int>(LargeStep / m_smallStepLength) + 1};
   const float steps{static_cast<float>(m_numberOfCharges * numberOfSteps)};
   const float e1{static_cast<float>(phit.energyLoss() / steps)};
@@ -394,7 +394,7 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiDetectorElement* element,
   const float StepX{cEta / numberOfSteps};
   const float StepY{cPhi / numberOfSteps};
   const float StepZ{cDep / numberOfSteps};
-  
+
   // check the status of truth information for this SiHit
   // some Truth information is cut for pile up events
   const EBC_EVCOLL evColl = EBC_MAINEVCOLL;

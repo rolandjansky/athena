@@ -3,15 +3,105 @@
 #  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
+from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+from AthenaCommon.Logging import logging
+log = logging.getLogger('RunTrigCostAnalysis.py')
+
+
+# Configure Cost Analysis algorithm
+def trigCostAnalysisCfg(flags, baseWeight=1.0, useEBWeights=False):
+  from TrigCostAnalysis.ROSToROB import ROSToROBMap
+  from Gaudi.Configuration import DEBUG
+
+  acc = ComponentAccumulator()
+
+  # Retrieve run number
+  from AthenaConfiguration.AutoConfigFlags import GetFileMD
+  runNumbers = GetFileMD(ConfigFlags.Input.Files)['runNumbers']
+
+  if len(runNumbers) > 1:
+    log.error('Multiple run numbers from metadata! Only one expected per cost processing')
+    return acc
+
+  enhancedBiasWeighter = CompFactory.EnhancedBiasWeighter()
+  enhancedBiasWeighter.RunNumber = runNumbers[0]
+  enhancedBiasWeighter.UseBunchCrossingTool = False
+
+  trigCostAnalysis = CompFactory.TrigCostAnalysis()
+  trigCostAnalysis.OutputLevel = DEBUG
+  trigCostAnalysis.RootStreamName = "COSTSTREAM"
+  trigCostAnalysis.BaseEventWeight = baseWeight
+  trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
+  trigCostAnalysis.UseEBWeights = useEBWeights
+  trigCostAnalysis.MaxFullEventDumps = 100
+  trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
+  trigCostAnalysis.ROSToROBMap = ROSToROBMap().get_mapping()
+
+  acc.addEventAlgo(trigCostAnalysis)
+
+  return acc
+
+
+# Configure deserialisation
+def decodingCfg(flags):
+  from AthenaCommon.CFElements import seqAND
+  from TrigEDMConfig import DataScoutingInfo
+
+  acc = ComponentAccumulator()
+
+  acc.addSequence(seqAND("Decoding"))
+  acc.addEventAlgo(CompFactory.HLTResultMTByteStreamDecoderAlg(), "Decoding")
+
+  costDataDeserialiser = CompFactory.TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
+  costDataDeserialiser.ModuleID = DataScoutingInfo.DataScoutingIdentifiers["CostMonDS"]
+  acc.addEventAlgo(costDataDeserialiser, "Decoding")
+
+  return acc
+
+
+# Configure HLTConfigSvc with JSON Menu file
+def hltConfigSvcCfg(flags):
+  acc = ComponentAccumulator()
+
+  hltConfigSvc = CompFactory.getComp("TrigConf::HLTConfigSvc")("HLTConfigSvc")
+  hltConfigSvc.ConfigSource = "None"
+  hltConfigSvc.XMLMenuFile = "None"
+  hltConfigSvc.InputType = "file"
+  hltConfigSvc.JsonFileName = getHltMenu()
+  acc.addService(hltConfigSvc, False, True)
+
+  return acc
+
+
+# Get HLT Menu from json file or from DB
+def getHltMenu():
+  # Try to find local menu file
+  menuFileName = 'HLTMenu_.*json'
+
+  import re, os
+  r = re.compile(menuFileName)
+  menuFiles = list(filter(r.match, os.listdir('.')))
+
+  if len(menuFiles) > 1:
+    log.info("Found more than one menu file! Saving first match %s", menuFiles[0])
+
+  # If local file not found - read HLTMenu from database
+  if len(menuFiles) == 0:
+    log.error("Menu file not found!")
+    # TODO retrieve menu from db
+
+  else:
+    return menuFiles[0]
+
+
 if __name__=='__main__':
   import sys
-  from argparse import ArgumentParser
-  parser = ArgumentParser()
-  #
-  parser.add_argument('--outputHist', default='TrigCostRoot_Results.root', type=str, help='Histogram output ROOT file')
-  #
-  parser.add_argument('--maxEvents', type=int, default=-1, help='Maximum number of events to process')
-  parser.add_argument('--loglevel', type=int, default=3, help='Verbosity level')
+  from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  parser = ConfigFlags.getArgumentParser()
+  parser.add_argument('--outputHist', type=str, default='TrigCostRoot_Results.root', help='Histogram output ROOT file')
+  parser.add_argument('--baseWeight', type=float, default=1.0, help='Base events weight')
+  parser.add_argument('--useEBWeights', type=bool, default=False, help='Apply Enhanced Bias weights')
   parser.add_argument('flags', nargs='*', help='Config flag overrides')
   args = parser.parse_args()
 
@@ -20,59 +110,27 @@ if __name__=='__main__':
   Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
-  from AthenaConfiguration.AllConfigFlags import ConfigFlags
-
-  # Set the Athena configuration flags
-  ConfigFlags.Input.Files = ["root://eosatlas.cern.ch//eos/atlas/atlasdatadisk/rucio/data16_13TeV/8d/de/AOD.10654269._000566.pool.root.1"]
-
+  ConfigFlags.fillFromArgs(parser=parser)
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
   from AthenaConfiguration.MainServicesConfig import MainServicesCfg 
-  from AthenaConfiguration.ComponentFactory import CompFactory
-  from AthenaCommon import CfgMgr
-  from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
-  from TrigEDMConfig import DataScoutingInfo
-  from AthenaCommon.CFElements import seqAND
-  from Gaudi.Configuration import DEBUG
-
   cfg = MainServicesCfg(ConfigFlags)
+
+  from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
   cfg.merge(ByteStreamReadCfg(ConfigFlags))
 
   histSvc = CompFactory.THistSvc()
   histSvc.Output += ["COSTSTREAM DATAFILE='" + args.outputHist + "' OPT='RECREATE'"]
   cfg.addService(histSvc)
 
-  cfg.addSequence(seqAND("Decoding"))
-  cfg.addEventAlgo(CfgMgr.HLTResultMTByteStreamDecoderAlg(), "Decoding")
-  costDataDeserialiser = CfgMgr.TriggerEDMDeserialiserAlg("CostDataTrigDeserialiser")
-  costDataDeserialiser.ModuleID = DataScoutingInfo.DataScoutingIdentifiers["CostMonDS"]
-  cfg.addEventAlgo(costDataDeserialiser, "Decoding")
-
-  hltConfigSvc = CfgMgr.TrigConf__HLTConfigSvc( "HLTConfigSvc" )
-  hltConfigSvc.ConfigSource = "None"
-  hltConfigSvc.XMLMenuFile = "None"
-  hltConfigSvc.InputType = "file"
-  hltConfigSvc.JsonFileName = "HLTMenu_9.json"
-  cfg.addService(hltConfigSvc)
-
-  enhancedBiasWeighter = CfgMgr.EnhancedBiasWeighter()
-  enhancedBiasWeighter.RunNumber = 379158
-  enhancedBiasWeighter.UseBunchCrossingTool = False
-
-  trigCostAnalysis = CfgMgr.TrigCostAnalysis()
-  trigCostAnalysis.OutputLevel = DEBUG
-  trigCostAnalysis.RootStreamName = "COSTSTREAM"
-  trigCostAnalysis.BaseEventWeight = 10.0
-  trigCostAnalysis.EnhancedBiasTool = enhancedBiasWeighter
-  trigCostAnalysis.UseEBWeights = False
-  trigCostAnalysis.MaxFullEventDumps = 100
-  trigCostAnalysis.FullEventDumpProbability = 1 # X. Where probability is 1 in X
-  cfg.addEventAlgo(trigCostAnalysis)
+  cfg.merge(decodingCfg(ConfigFlags))
+  cfg.merge(hltConfigSvcCfg(ConfigFlags))
+  cfg.merge(trigCostAnalysisCfg(ConfigFlags, args.baseWeight, args.useEBWeights))
 
   # If you want to turn on more detailed messages ...
   # exampleMonitorAcc.getEventAlgo('ExampleMonAlg').OutputLevel = 2 # DEBUG
   cfg.printConfig(withDetails=False) # set True for exhaustive info
 
-  sc = cfg.run(args.maxEvents, args.loglevel)
+  sc = cfg.run(args.evtMax, args.loglevel)
   sys.exit(0 if sc.isSuccess() else 1)

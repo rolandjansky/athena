@@ -62,7 +62,7 @@ namespace Muon {
       const Trk::TrackParameters*  pars;
       std::unique_ptr<Trk::ResidualPull>     resPull;
       std::unique_ptr<MdtDriftCircleOnTrack> flippedMdt;
-      std::unique_ptr<CompetingMuonClustersOnTrack> cleanedCompROT;
+      std::unique_ptr<const CompetingMuonClustersOnTrack> cleanedCompROT;
       const Trk::FitQuality*       fitQ;
 
       MCTBCleaningInfo( const Trk::TrackStateOnSurface* orState ) : 

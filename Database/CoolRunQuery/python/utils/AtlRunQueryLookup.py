@@ -247,7 +247,7 @@ def InitDetectorMaskDecoderRun1():
             if dName[i] == n:
                 NotInAll[i] = ' NotInAll'
 
-    vetoedbits = [3, 50, 51, 52, 53] + [x for x in range(54,64)]
+    vetoedbits = [3, 50, 51, 52, 53] + list(range(54,64))
 
     return (dName, NotInAll, vetoedbits)
 
@@ -333,7 +333,7 @@ def InitDetectorMaskDecoderRun2():
 
     NotInAll = map(lambda x: ' NotInAll' if x in notInAll else '', dName)
 
-    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] + [x for x in range(64,128)] #+ range(64,128)
+    vetoedbits = [3, 41, 42, 44, 50, 51, 52, 53, 55, 57, 58, 59] + list(range(64,128)) #+ range(64,128)
 
     return (dName, NotInAll, vetoedbits)
 

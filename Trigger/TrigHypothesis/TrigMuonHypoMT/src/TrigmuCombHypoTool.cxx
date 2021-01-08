@@ -277,11 +277,12 @@ StatusCode TrigmuCombHypoTool::multiplicitySelection(std::vector<TrigmuCombHypoT
    HLT::Index2DVec passingSelection( m_ptBins.size() );
 
    for ( size_t cutIndex=0; cutIndex < m_ptBins.size(); ++cutIndex ) {
-      size_t elementIndex{ 0 };      
+      size_t elementIndex{ 0 };
       for ( auto& i: input ) {
 
 	if(!m_acceptAll && m_applyOR && !i.passOR) {
 	  ATH_MSG_DEBUG("skip due to overap, DecisionID " << m_decisionId );
+	  elementIndex++;
 	  continue;
 	}
 

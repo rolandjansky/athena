@@ -172,14 +172,6 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
       m_trackSummaryTool.disable();
     }
 
-    /* Retrieve track extrapolator from ToolService */
-    if ( m_extrapolator.retrieve().isFailure() ) {
-      ATH_MSG_FATAL( "Failed to retrieve tool " << m_extrapolator );
-      return StatusCode::FAILURE;
-    }
-      ATH_MSG_DEBUG( "Retrieved tool " << m_extrapolator );
-
-
     if (detStore()->retrieve(m_detID, "AtlasID" ).isFailure()) {
       ATH_MSG_FATAL ("Could not get AtlasDetectorID ");
       return StatusCode::FAILURE;
@@ -354,7 +346,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(*track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,*track, CacheBeamSpotData(ctx));
       if (!result){
 
         ATH_MSG_WARNING("Failed to extrapolate to Beamline");
@@ -540,7 +532,7 @@ TrackParticleCreatorTool::TrackParticleCreatorTool(const std::string& t,
     }
     else if (m_perigeeExpression == "BeamLine"){
       const Trk::Perigee* result =
-        m_trackToVertex->perigeeAtBeamline(track, CacheBeamSpotData(ctx));
+        m_trackToVertex->perigeeAtBeamline(ctx,track, CacheBeamSpotData(ctx));
       if (!result){
         ATH_MSG_WARNING("Failed to extrapolate to Beamline - No TrackParticle created.");
         return nullptr;

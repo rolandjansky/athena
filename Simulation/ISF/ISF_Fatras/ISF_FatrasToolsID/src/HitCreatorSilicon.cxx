@@ -29,7 +29,7 @@
 #include "SiClusterizationTool/ClusterMakerTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiDiodesParameters.h"
+#include "ReadoutGeometryBase/SiDiodesParameters.h"
 #include "InDetPrepRawData/SiWidth.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"

@@ -126,7 +126,7 @@ ConfigFlags.Tile.correctTime = False
 ConfigFlags.lock()
 
 # test this flag
-ConfigFlags.Sim.RunToTimestampDict
+ConfigFlags.IOVDb.RunToTimestampDict
 
 # Core components
 acc = MainServicesCfg(ConfigFlags)

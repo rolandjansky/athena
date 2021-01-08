@@ -13,12 +13,12 @@ __version__ = "$Revision: 1.21 $"
 __doc__     = "A set of classes to analyze (Mem) data from a perfmon tuple."
 
 import logging
-import numpy, pylab
+import numpy
 import matplotlib.pyplot as plt
 from .PyRootLib import importRoot
-from .Analyzer  import Analyzer, bookAvgHist, mon_project, make_canvas
+from .Analyzer  import Analyzer, bookAvgHist
 from .Constants import Units
-    
+
 class MemAnalyzer( Analyzer ):
     """analyzer working on memory related quantities. It reads the perfmon
     tuple and extracts virtual memory and resident set size memory consumptions
@@ -36,17 +36,16 @@ class MemAnalyzer( Analyzer ):
         return
 
     def visit(self, monComp):
-        if not monComp.type in ['alg','user']:
+        if monComp.type not in ['alg','user']:
             self.msg.debug( " skipping %s [%s]",monComp.name,monComp.type )
             return False
-        
+
         return True
-    
+
     def bookHistos(self, monComp):
         ROOT = importRoot()
-        from .PyRootLib import setupRootStyle; setupRootStyle();
-        
-        #Analyzer.__bookHistos(self)
+        from .PyRootLib import setupRootStyle
+        setupRootStyle()
 
         from .App import DataSetMgr
         for dataSetName in monComp.data.keys():
@@ -82,46 +81,40 @@ class MemAnalyzer( Analyzer ):
         return
 
     def fillHistos(self, monComp):
-        
+
         from .App import DataSetMgr
         self.msg.debug("filling histograms...")
 
         # short-hands
         msg = self.msg
-        
-        # convert page-size into MB
-        Mb =  Units.Mb
+
         # convert page-size into kB
         kb =  Units.kb
 
-        monName = monComp.name
         dsNames = DataSetMgr.names()
         ymin = {'vmem':[], 'malloc':[]}
         ymax = {'vmem':[], 'malloc':[]}
         allGood = True
-        
+
         for dsName in dsNames:
-            if not dsName in monComp.data:
+            if dsName not in monComp.data:
                 continue
-            #print "---",dsName,monComp.name
             data = monComp.data[dsName]
-            if not 'evt' in data:
+            if 'evt' not in data:
                 continue
             data = data['evt']
             if data is None:
                 ## print "---",dsName,monComp.name,"data['evt'] is None"
                 continue
 
-            if not 'mem' in data.dtype.names:
+            if 'mem' not in data.dtype.names:
                 allGood = False
                 msg.debug('component [%s] has empty mem infos for '
                           'dataset [%s]',
                           monComp.name,
                           dsName)
-                ## print "--->",dsName,monComp.name,data.dtype.names
                 continue
 
-            ## print "+++",dsName,monComp.name
             mem = data['mem']
             dvmem = mem['vmem'][:,2]
             ymin['vmem'].append(dvmem[self.minEvt:].min()*kb)
@@ -142,28 +135,28 @@ class MemAnalyzer( Analyzer ):
             self.msg.debug("Component [%s] has no 'evt' level data",
                            monComp.name)
             return
-        
+
         for k in ymin.keys():
             ymin[k] = min(ymin[k])
             ymax[k] = max(ymax[k])
             pass
 
-        
+
         for dsName in dsNames:
-            if not dsName in monComp.data:
+            if dsName not in monComp.data:
                 continue
             data = monComp.data[dsName]
-            if not 'evt' in data:
+            if 'evt' not in data:
                 continue
             data = data['evt']
             if data is None:
                 continue
-            
-            if not 'mem' in data.dtype.names:
+
+            if 'mem' not in data.dtype.names:
                 continue
 
             bins = DataSetMgr.instances[dsName].bins
-            if not 'evt/mem' in monComp.figs:
+            if 'evt/mem' not in monComp.figs:
                 monComp.figs['evt/mem'] = plt.figure()
                 monComp.figs['evt/mem'].add_subplot(221).hold( True )
                 monComp.figs['evt/mem'].add_subplot(222).hold( True )
@@ -174,21 +167,21 @@ class MemAnalyzer( Analyzer ):
             mem = data['mem']
             dvmem = mem['vmem'][:,2]
             dmall = mem['mall'][:,2]
-            
+
             ## VMem
             ax = fig.axes[0]
             binMax = len(dvmem[self.minEvt:len(bins)])
-            pl = ax.plot(bins[self.minEvt:binMax],
-                         dvmem[self.minEvt:binMax] * kb,
-                         linestyle = 'steps',
-                         label     = dsName)
+            ax.plot(bins[self.minEvt:binMax],
+                    dvmem[self.minEvt:binMax] * kb,
+                    linestyle = 'steps',
+                    label     = dsName)
             ax.grid(True)
             ax.set_title ('Delta V-Mem\n[%s]' % monComp.name)
             ax.set_ylabel('Delta V-Mem [kb]')
             ax.set_xlabel('Event number')
             ax.set_ylim((ax.get_ylim()[0]*0.9,
                          ax.get_ylim()[1]*1.1))
-            
+
             h,b = numpy.histogram(
                 dvmem[self.minEvt:binMax] * kb,
                 bins  = 20,
@@ -204,17 +197,17 @@ class MemAnalyzer( Analyzer ):
 
             ## Malloc
             ax = fig.axes[1]
-            pl = ax.plot(bins[self.minEvt:binMax],
-                         dmall[self.minEvt:binMax] * kb,
-                         linestyle = 'steps',
-                         label     = dsName)
+            ax.plot(bins[self.minEvt:binMax],
+                    dmall[self.minEvt:binMax] * kb,
+                    linestyle = 'steps',
+                    label     = dsName)
             ax.grid(True)
             ax.set_title ('Delta Malloc\n[%s]' % monComp.name)
             ax.set_ylabel('Delta Malloc [kb]')
             ax.set_xlabel('Event number')
             ax.set_ylim((ax.get_ylim()[0]*0.9,
                          ax.get_ylim()[1]*1.1))
-            
+
             h,b = numpy.histogram(
                 dmall[self.minEvt:binMax] * kb,
                 bins  = 20,
@@ -254,8 +247,6 @@ class MemAnalyzer( Analyzer ):
         return
 
     def fitHistos(self, monComp):
-        # convert page-size into MB
-        Mb = Units.Mb
         # convert page-size into kB
         kb = Units.kb
 
@@ -263,12 +254,12 @@ class MemAnalyzer( Analyzer ):
         ROOT = importRoot()
         RootFct = ROOT.TF1
         dummyCanvas = ROOT.TCanvas( 'dummyFitCanvas' )
-        
-        histos = [ h for h in self.histos.values() 
+
+        histos = [ h for h in self.histos.values()
                    if hasattr(h, 'tag') and h.tag == 'summary' and \
                       not h.GetName().startswith("cfg.")
         ]
-        
+
         for h in histos:
             x = h.GetXaxis()
             xMin = x.GetXmin()
@@ -279,7 +270,7 @@ class MemAnalyzer( Analyzer ):
             #        could make sense for mem-leak...
             xMin = xMin + ( xMax-xMin) / 2.
 
-            modelFct = prl.Polynom( degree = 1 )
+            prl.Polynom( degree = 1 )
             fct = RootFct( 'fitFct_%s' % name, "pol1", xMin, xMax )
             ## Q: quiet
             ## R: Use the range specified in the function range
@@ -294,7 +285,7 @@ class MemAnalyzer( Analyzer ):
             self.msg.info( msg )
             pass
         del dummyCanvas
-        
+
         return
-    
+
     pass # class MemAnalyzer

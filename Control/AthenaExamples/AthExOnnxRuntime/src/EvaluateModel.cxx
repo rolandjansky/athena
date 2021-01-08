@@ -182,7 +182,7 @@ namespace AthONNX {
         ATH_MSG_DEBUG("Input tensor size after converted to Ort tensor: "<<input_tensor.GetTensorTypeAndShapeInfo().GetShape());     	
         // Makes sure input tensor has same dimensions as input layer of the model
         assert(input_tensor.IsTensor()&&
-     		input_tensors.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims.size());
+     		input_tensor.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims);
 
      	/********* Score model by feeding input tensor and get output tensor in return *****************************/
         auto output_tensor = m_session->Run(Ort::RunOptions{nullptr}, 
@@ -243,7 +243,7 @@ namespace AthONNX {
                                                                       input_node_dims.size());         /*** [5, 28, 28] = 3 ***/
 
                 assert(batch_input_tensors.IsTensor()&&
-                	batch_input_tensors.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims.size());
+                	batch_input_tensors.GetTensorTypeAndShapeInfo().GetShape() == input_node_dims);
    
         	auto batch_output_tensors = m_session->Run(Ort::RunOptions{nullptr}, 
                                                    input_node_names.data(), 
@@ -252,9 +252,10 @@ namespace AthONNX {
                                                    output_node_names.data(), 
                                                    output_node_names.size());  /** 1, dense_1/Softmax:0 **/  
  
-      		assert(batch_output_tensors.size() == output_names.size() &&
-             		batch_output_tensors.IsTensor() &&
-             		batch_output_tensors.GetTensorTypeAndShapeInfo().GetShape()[0] == m_sizeOfBatch);
+      		assert(batch_output_tensors.size() == output_node_names.size() &&
+                       !batch_output_tensors.empty() &&
+             		batch_output_tensors[0].IsTensor() &&
+             		batch_output_tensors[0].GetTensorTypeAndShapeInfo().GetShape()[0] == m_sizeOfBatch);
         
 		// Get pointer to output tensor float values
 

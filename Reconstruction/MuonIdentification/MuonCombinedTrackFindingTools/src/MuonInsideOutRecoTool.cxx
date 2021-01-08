@@ -344,6 +344,7 @@ namespace MuonCombined {
 
   void MuonInsideOutRecoTool::cleanUp() const {
     m_candidateTrackBuilder->cleanUp();
+    m_ambiguityResolver->cleanUp();
   }
 
 }

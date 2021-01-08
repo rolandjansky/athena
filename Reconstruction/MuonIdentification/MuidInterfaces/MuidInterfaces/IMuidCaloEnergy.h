@@ -6,7 +6,6 @@
 // IMuidCaloEnergy
 //  tool interface for estimating the energy loss of a muon with its error.
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 

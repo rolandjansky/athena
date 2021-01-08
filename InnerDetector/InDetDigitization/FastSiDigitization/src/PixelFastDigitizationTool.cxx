@@ -13,9 +13,9 @@
 // Det Descr
 #include "Identifier/Identifier.h"
 
-#include "InDetReadoutGeometry/SiReadoutCellId.h"
+#include "ReadoutGeometryBase/SiReadoutCellId.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetSimData/InDetSimDataCollection.h"
 
@@ -30,7 +30,6 @@
 
 // Pile-up
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
@@ -817,9 +816,13 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
         //           clusterPosition = SG::ReadCondHandle<PixelDistortionData>(m_distortionKey)->correctSimulation(m_pixel_ID->wafer_hash(hitSiDetElement->identify()), clusterPosition, localDirection);
 
         // from InDetReadoutGeometry: width from eta
-        double etaWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromColumnRange(etaIndexMin, etaIndexMax);
+        auto pixModDesign = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design());
+        if (!pixModDesign) {
+          return StatusCode::FAILURE;
+        }
+        double etaWidth = pixModDesign->widthFromColumnRange(etaIndexMin, etaIndexMax);
         // from InDetReadoutGeometry : width from phi
-        double phiWidth = dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design())->widthFromRowRange(phiIndexMin, phiIndexMax);
+        double phiWidth = pixModDesign->widthFromRowRange(phiIndexMin, phiIndexMax);
 
         InDet::SiWidth siWidth(Amg::Vector2D(siDeltaPhiCut,siDeltaEtaCut),
                                Amg::Vector2D(phiWidth,etaWidth));

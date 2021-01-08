@@ -4,7 +4,7 @@
 */
 #ifndef XAODTRACKING_XAODTRACKINGDICT_H
 #define XAODTRACKING_XAODTRACKINGDICT_H
- 
+
 // Local include(s).
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
@@ -74,9 +74,9 @@ namespace {
                                            SCTRawHitValidationContainer_v1 );
 
       // Type(s) needed for the dictionary generation to succeed.
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
       XAOD_INSTANTIATE_CONTAINER_TYPES( TrackCollection );
-#endif // not XAOD_STANDALONE
+#endif // not XAOD_ANALYSIS
       xAOD::CurvilinearParameters_t dummy;
    };
 }

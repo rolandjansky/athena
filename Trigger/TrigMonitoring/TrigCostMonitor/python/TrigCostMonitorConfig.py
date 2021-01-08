@@ -594,8 +594,9 @@ def postSetupOnlineCost():
 
     if 'doCostMonitoring' in svcMgr.ROBDataProviderSvc.properties():
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
-        svcMgr.ROBDataProviderSvc.doCostMonitoring = (ConfigFlags.Trigger.CostMonitoring.doCostMonitoring and ConfigFlags.Trigger.CostMonitoring.monitorROBs)
-        log.info('Set ROBDataProviderSvc.doCostMonitoring=True')
+        svcMgr.ROBDataProviderSvc.doCostMonitoring = \
+            (ConfigFlags.Trigger.CostMonitoring.doCostMonitoring and ConfigFlags.Trigger.CostMonitoring.monitorROBs)
+        log.info('Set ROBDataProviderSvc.doCostMonitoring=%s', svcMgr.ROBDataProviderSvc.doCostMonitoring)
     else:
         log.info('ROBDataProviderSvc does not have property doCostMonitoring - will not do cost monitor for ROS.')
 

@@ -119,8 +119,8 @@ RungeKuttaIntersector::finalize()
  			 << " step reductions and" << std::setw(5) << std::setprecision(2)
 			 << norm*static_cast<double>(m_countShortStep)
 			 << " short final steps";
-    }
     msg(MSG::INFO)   << endmsg;
+    }
 
     return StatusCode::SUCCESS;
 }

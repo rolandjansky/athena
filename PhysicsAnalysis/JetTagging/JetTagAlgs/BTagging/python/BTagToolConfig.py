@@ -45,7 +45,7 @@ def BTagToolCfg(ConfigFlags, TaggerList, PrimaryVertexCollectionName="", scheme 
 
       if 'JetFitterNN' in TaggerList:
           from JetTagTools.JetFitterTagConfig import JetFitterTagCfg
-          jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme))
+          jetfitterNNtool = acc.popToolsAndMerge(JetFitterTagCfg(ConfigFlags, 'JetFitterTagNN', scheme, runNN=ConfigFlags.BTagging.RunJetFitterNN))
           tagToolList.append(jetfitterNNtool)
       
       if 'SoftMu' in TaggerList:

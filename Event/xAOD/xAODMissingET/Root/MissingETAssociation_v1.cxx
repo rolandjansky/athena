@@ -17,6 +17,25 @@ using std::vector;
 
 namespace xAOD {
 
+    // Static accessors
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpx("calpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpy("calpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calpz("calpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_cale("cale");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_calsumpt("calsumpt");
+
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpx("trkpx");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpy("trkpy");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trkpz("trkpz");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trke("trke");
+    const SG::AuxElement::Accessor<std::vector<float> > MissingETAssociation_v1::m_acc_trksumpt("trksumpt");
+
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpx("jettrkpx");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpy("jettrkpy");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrkpz("jettrkpz");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrke("jettrke");
+    const SG::AuxElement::Accessor<float> MissingETAssociation_v1::m_acc_jettrksumpt("jettrksumpt");
+
   MissingETBase::Types::bitmask_t getObjMask(size_t objIndex)
   { 
     if(objIndex==MissingETBase::Numerical::invalidIndex()) return 0;

@@ -1,6 +1,6 @@
 
 //
-//  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+//  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 //
 
 #include "xAODJet/Jet.h"
@@ -39,8 +39,10 @@ namespace xAOD {
   template<> inline
   bool Jet::getAttribute<float>( const std::string& name, 
 				 float& value ) const {
-    return dynamic_cast<const Athena_test::MockxAODJet*>( this )
-      ->getAttributeFloat( name, value );
+    if (auto mockJet = dynamic_cast<const Athena_test::MockxAODJet*>( this )) {
+      return mockJet->getAttributeFloat( name, value );
+    }
+    return false;
   }
   
 }

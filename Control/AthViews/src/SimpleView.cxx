@@ -120,7 +120,6 @@ SG::DataProxy * SimpleView::findProxy( const CLID& id, const std::string& key, c
  */
 SG::DataProxy * SimpleView::proxy( const void* const pTransient ) const
 {
-  throw std::runtime_error( "Not implemented: SimpleView::proxy" );
   return m_store->proxy( pTransient );
 }
 

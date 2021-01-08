@@ -14,6 +14,8 @@
 #include "AthenaMonitoringKernel/IHistogramProvider.h"
 #include "AthenaMonitoringKernel/IMonitoredVariable.h"
 
+class TProfile;
+
 namespace Monitored {
 
   // Forward declare generic histogram filler (see HistogramFillerUtils.h)

@@ -3,11 +3,7 @@
 */
 
 #include "MuonIdHelpers/RpcIdHelper.h"
-
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/IMessageSvc.h"
+#include "AthenaKernel/getMessageSvc.h"
 
 RpcIdHelper::RpcIdHelper():
   MuonIdHelper("RpcIdHelper"),
@@ -33,6 +29,7 @@ int RpcIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   }
 
   // init base object
+  AtlasDetectorID::setMessageSvc(Athena::getMessageSvc());
   if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
 
   // Register version of the MuonSpectrometer dictionary

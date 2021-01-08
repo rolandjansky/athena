@@ -8,6 +8,10 @@
 #include <memory>
 #include <sstream>
 
+#include "PathResolver/PathResolver.h"
+#include "TFile.h"
+
+
 PixelConfigCondAlg::PixelConfigCondAlg(const std::string& name, ISvcLocator* pSvcLocator):
   ::AthReentrantAlgorithm(name, pSvcLocator)
 {
@@ -167,6 +171,10 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   writeCdo -> setCablingMapToFile(m_cablingMapToFile);
   writeCdo -> setCablingMapFileName(m_cablingMapFileName);
 
+  // mapping files for radiation damage simulation
+  std::vector<std::string> mapsPath_list;
+
+
   int currentRunNumber = ctx.eventID().run_number();
   if (currentRunNumber<222222) {
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdRUN1);
@@ -177,6 +185,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkRUN1);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyRUN1);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityRUN1);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrRUN1);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltageRUN1);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdRUN1);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatencyRUN1);
@@ -186,6 +196,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkRUN1);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyRUN1);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityRUN1);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrRUN1);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageRUN1);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_BLayerNoiseShapeRUN1.size(); i++) { writeCdo->setBarrelNoiseShape(0,m_BLayerNoiseShapeRUN1[i]); }
@@ -196,8 +208,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_PixelNoiseShapeRUN1.size(); i++)  {
       for (size_t layer:{0,1,2}) { writeCdo->setEndcapNoiseShape(layer,m_PixelNoiseShapeRUN1[i]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluenceRUN1);
+    for (size_t i=0; i<m_BarrelFluenceMapRUN1.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMapRUN1[i]));
+    }
   }
-  else if (currentRunNumber<240000) {  // RUN2
+  else if (currentRunNumber<240000) {  // RUN2 (mc15)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2016);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2016);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2016);
@@ -206,6 +224,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2016);
@@ -215,11 +235,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2016);
     writeCdo -> setDBMNoiseOccupancy(m_DBMNoiseOccupancy2016);
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2016);
+    writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2016);
 
     /* 
        So far, Gaudi::Property does not support 2D vector.
@@ -244,17 +267,27 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    {
       for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2016[i]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluence2016);
+    for (size_t i=0; i<m_BarrelFluenceMap2016.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2016[i]));
+    }
   }
   else if (currentRunNumber<250000) {  // RUN4
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdITK);
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkITK);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyITK);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityITK);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrITK);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltageITK);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdITK);
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkITK);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyITK);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityITK);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrITK);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageITK);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_InnermostNoiseShapeITK.size(); i++)     { writeCdo->setBarrelNoiseShape(0,m_InnermostNoiseShapeITK[i]); }
@@ -266,8 +299,15 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_EndcapToTThresholdITK.size(); i++) {
       for (size_t j=0; j<m_PixelNoiseShapeITK.size(); j++)  { writeCdo->setEndcapNoiseShape(i,m_PixelNoiseShapeITK[j]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluenceITK);
+    for (size_t i=0; i<m_BarrelFluenceMapITK.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMapITK[i]));
+    }
+
   }
-  else if (currentRunNumber<300000) {  // RUN2 2015/2016
+  else if (currentRunNumber<300000) {  // RUN2 2015/2016 (mc16a)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2016);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2016);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2016);
@@ -276,6 +316,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2016);
@@ -285,11 +327,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2016);
     writeCdo -> setDBMNoiseOccupancy(m_DBMNoiseOccupancy2016);
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2016);
+    writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2016);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2016[i]); }
@@ -305,8 +350,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_IBLNoiseShape2016.size(); i++)    {
       for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2016[i]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluence2016);
+    for (size_t i=0; i<m_BarrelFluenceMap2016.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2016[i]));
+    }
   }
-  else if (currentRunNumber<310000) {  // RUN2 2017
+  else if (currentRunNumber<310000) {  // RUN2 2017 (mc16d)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2017);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2017);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2017);
@@ -315,6 +366,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2017);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2017);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2017);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2017);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2017);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2017);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2017);
@@ -324,11 +377,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2017);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2017);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2017);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2017);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2017);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2017);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2017);
     writeCdo -> setDBMNoiseOccupancy(m_DBMNoiseOccupancy2017);
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2017);
+    writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2017);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_IBLNoiseShape2017.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2017[i]); }
@@ -344,8 +400,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_IBLNoiseShape2017.size(); i++)    {
       for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2017[i]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluence2017);
+    for (size_t i=0; i<m_BarrelFluenceMap2017.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2017[i]));
+    }
   }
-  else {  // RUN2 2018
+  else {  // RUN2 2018 (mc16e)
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThreshold2018);
     writeCdo -> setFEI3BarrelLatency(m_FEI3BarrelLatency2018);
     writeCdo -> setFEI3BarrelHitDuplication(m_FEI3BarrelHitDuplication2018);
@@ -354,6 +416,8 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2018);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2018);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2018);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2018);
+    writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2018);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2018);
     writeCdo -> setFEI3EndcapLatency(m_FEI3EndcapLatency2018);
@@ -363,11 +427,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2018);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2018);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2018);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2018);
+    writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2018);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2018);
     writeCdo -> setDBMCrossTalk(m_DBMCrossTalk2018);
     writeCdo -> setDBMNoiseOccupancy(m_DBMNoiseOccupancy2018);
     writeCdo -> setDBMDisableProbability(m_DBMDisableProbability2018);
+    writeCdo -> setDefaultDBMBiasVoltage(m_DBMBiasVoltage2018);
 
     // This is ad-hoc solution.
     for (size_t i=0; i<m_IBLNoiseShape2018.size(); i++)    { writeCdo->setBarrelNoiseShape(0,m_IBLNoiseShape2018[i]); }
@@ -383,7 +450,44 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     for (size_t i=0; i<m_IBLNoiseShape2018.size(); i++)    {
       for (size_t layer:{0,1,2}) { writeCdo->setDBMNoiseShape(layer,m_IBLNoiseShape2018[i]); }
     }
+
+    // Radiation damage simulation
+    writeCdo -> setFluenceLayer(m_BarrelFluence2018);
+    for (size_t i=0; i<m_BarrelFluenceMap2018.size(); i++) {
+      mapsPath_list.push_back(PathResolverFindCalibFile(m_BarrelFluenceMap2018[i]));
+    }
   }
+
+  std::vector<TH3F*> ramoPotentialMap;
+  std::vector<TH2F*> lorentzMap_e;
+  std::vector<TH2F*> lorentzMap_h;
+  std::vector<TH2F*> distanceMap_e;
+  std::vector<TH2F*> distanceMap_h;
+
+  for (unsigned int i=0; i<mapsPath_list.size(); i++) {
+    ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
+    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
+
+    //Setup ramo weighting field map
+    TH3F* ramoPotentialMap_hold = 0;
+    ramoPotentialMap_hold = (TH3F*)mapsFile->Get("hramomap1");
+    if (ramoPotentialMap_hold==0) { ramoPotentialMap_hold=(TH3F*)mapsFile->Get("ramo3d"); }
+    if (ramoPotentialMap_hold==0) {
+      ATH_MSG_FATAL("Did not find a Ramo potential map and an approximate form is available yet. Exit...");
+      return StatusCode::FAILURE;
+    }
+    ramoPotentialMap.push_back(ramoPotentialMap_hold);
+
+    lorentzMap_e.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
+    lorentzMap_h.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
+    distanceMap_e.push_back((TH2F*)mapsFile->Get("edistance"));
+    distanceMap_h.push_back((TH2F*)mapsFile->Get("hdistance"));
+  }
+  writeCdo -> setLorentzMap_e(lorentzMap_e);
+  writeCdo -> setLorentzMap_h(lorentzMap_h);
+  writeCdo -> setDistanceMap_e(distanceMap_e);
+  writeCdo -> setDistanceMap_h(distanceMap_h);
+  writeCdo -> setRamoPotentialMap(ramoPotentialMap);
 
   //=======================
   // Combine time interval
@@ -404,4 +508,5 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
   return StatusCode::SUCCESS;
 }
+
 

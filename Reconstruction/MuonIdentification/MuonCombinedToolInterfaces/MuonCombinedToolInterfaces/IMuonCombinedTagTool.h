@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -35,6 +35,8 @@ namespace MuonCombined {
     virtual void combine( const MuonCandidate& muonCandidate, const std::vector<const InDetCandidate*>& indetCandidates, InDetCandidateToTagMap& tagMap,
 			  TrackCollection* combTracks, TrackCollection* METracks) const = 0;
 
+
+    virtual void cleanUp() const = 0;
   };
 
   inline const InterfaceID& IMuonCombinedTagTool::interfaceID()

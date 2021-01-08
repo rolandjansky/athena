@@ -36,8 +36,8 @@ def TrigMinBias(configFlags):
         'HLT/MinBiasMon/Purities&Efficiencies/'+chain+'/')
 
       # correct the titles of following histograms
-        mbGroup.defineHistogram( "PixelSPLow", title="Number of SP in whole Pixels detector for all events in low range", xbins=100, xmin=0, xmax=100)
-        mbGroup.defineHistogram( "PixelSPHigh", title="Number of SP in whole Pixels detector for all events in high range", xbins=100, xmin=0, xmax=30000)
+        mbGroup.defineHistogram( "PixelCL;PixelCLNarrowRange", title="Number of SP in whole Pixels detector for all events", xbins=100, xmin=0, xmax=100)
+        mbGroup.defineHistogram( "PixelCL;PixelCLWideRange", title="Number of SP in whole Pixels detector for all events", xbins=100, xmin=0, xmax=30000)
         mbGroup.defineHistogram( "PixBarr_SP", title="Number of SP for all events in Barrel", xbins=100, xmin=0, xmax=30000)
         mbGroup.defineHistogram( "PixECA_SP", title="Number of SP for all events in ECA", xbins=100, xmin=0, xmax=30000)
         mbGroup.defineHistogram( "PixECC_SP", title="Number of SP for all events in ECC", xbins=100, xmin=0, xmax=30000)

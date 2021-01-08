@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -89,12 +89,12 @@ class PixelConditionsServicesSetup:
             IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl4.dat"
           elif "BrlExt3.2_ref" == commonGeoFlags.GeoType():
             IdMappingDat = "ITk_Atlas_IdMapping_ExtBrl32.dat"
-        elif (geoFlags.isIBL() == False):
+        elif (geoFlags.isIBL() is False):
           IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
         else:
           # Planar IBL
           if (geoFlags.IBLLayout() == "planar"):
-            if (geoFlags.isDBM() == True):
+            if (geoFlags.isDBM() is True):
               IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL_DBM.dat"
             else:
               IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_inclIBL.dat"
@@ -228,7 +228,7 @@ class PixelConditionsServicesSetup:
     #####################
     # Cabling map Setup #
     #####################
-    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
+    if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL() is True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
       conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
     if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
@@ -384,7 +384,7 @@ class SCT_ConditionsToolsSetup:
     condTools = []
     for condToolHandle in self.summaryTool.ConditionsTools:
       if condToolHandle not in condTools:
-        if not "SCT_FlaggedConditionTool" in condToolHandle.getFullName():
+        if "SCT_FlaggedConditionTool" not in condToolHandle.getFullName():
           condTools.append(condToolHandle)
     summaryToolWoFlagged.ConditionsTools = condTools
     if self._print:  print (summaryToolWoFlagged)
@@ -425,7 +425,6 @@ class SCT_ConditionsToolsSetup:
 
     from SCT_ConditionsTools.SCT_ConfigurationConditionsToolSetup import SCT_ConfigurationConditionsToolSetup
     sct_ConfigurationConditionsToolSetup = SCT_ConfigurationConditionsToolSetup()
-    from AthenaCommon.GlobalFlags import globalflags
     if (sctdaqpath=='/SCT/DAQ/Configuration'):
       sct_ConfigurationConditionsToolSetup.setChannelFolder(sctdaqpath+"/Chip") # For Run 1 data (COMP200)
     else:
@@ -541,9 +540,7 @@ class SCT_ConditionsToolsSetup:
                                           SiConditionsTool = sctSiliconConditionsTool,
                                           UseMagFieldCache = True,
                                           UseMagFieldDcs = (not athenaCommonFlags.isOnline()))
-      sctSiLorentzAngleCondAlg = condSeq.SCTSiLorentzAngleCondAlg
 
-    "Inititalize Lorentz angle Tool"
     from SiLorentzAngleTool.SiLorentzAngleToolConf import SiLorentzAngleTool
     SCTLorentzAngleTool = SiLorentzAngleTool(name=instanceName, DetectorName="SCT", SiLorentzAngleCondData="SCTSiLorentzAngleCondData")
     SCTLorentzAngleTool.UseMagFieldCache = True

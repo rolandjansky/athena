@@ -7,7 +7,7 @@
 
 /* @author Giovanni Marchiori <giovanni.marchiori@cern.ch>
  *
- *  Reimplementation of FudgeMCTool with photon fudge factors 
+ *  Reimplementation of FudgeMCTool with photon fudge factors
  *  stored in ROOT files instead of a C++ file
  *
  */
@@ -36,11 +36,11 @@ namespace IDVAR
 }
 
 
-class TPhotonMCShifterTool 
+class TPhotonMCShifterTool
 {
 
  public:
-  
+
   TPhotonMCShifterTool();
   ~TPhotonMCShifterTool();
 
@@ -79,7 +79,7 @@ class TPhotonMCShifterTool
 		     float& eratio ,
 		     int    isConv  ,
 		     int    preselection=-999);
-	
+
   // fudge showers using D3PD vectors (except for eratio)
   void FudgeShowers( std::vector<float> clE,
 		     std::vector<float> eta2   ,
@@ -105,107 +105,179 @@ class TPhotonMCShifterTool
   {
       std::vector<float> *eratio = new std::vector<float>();
       for (unsigned int i = 0; i < emaxs1.size(); ++i)
-	eratio->push_back(emaxs1[i] + Emax2[i] == 0 ? 0 : 
+	eratio->push_back(emaxs1[i] + Emax2[i] == 0 ? 0 :
 			  (emaxs1[i] - Emax2[i])/(emaxs1[i] + Emax2[i]));
       return eratio;
   }
-  
+
   // get fudge factor for predefined preselection
   double GetFF_Rhad1 (double pt, double eta2, int conv){
-    if (conv) return (h_c_rhad1->GetBinContent(h_u_rhad1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rhad1->GetBinContent(h_u_rhad1->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rhad1->GetBinContent(h_u_rhad1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rhad1->GetBinContent(h_u_rhad1->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Rhad  (double pt, double eta2, int conv){
-    if (conv) return (h_c_rhad->GetBinContent(h_c_rhad->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rhad->GetBinContent(h_u_rhad->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rhad->GetBinContent(h_c_rhad->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rhad->GetBinContent(h_u_rhad->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_E277  (double pt, double eta2, int conv){
-    if (conv) return (h_c_e277->GetBinContent(h_c_e277->FindBin(pt, fabs(eta2))));
-    else      return (h_u_e277->GetBinContent(h_u_e277->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_e277->GetBinContent(h_c_e277->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_e277->GetBinContent(h_u_e277->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Reta  (double pt, double eta2, int conv){
-    if (conv) return (h_c_reta->GetBinContent(h_c_reta->FindBin(pt, fabs(eta2))));
-    else      return (h_u_reta->GetBinContent(h_u_reta->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_reta->GetBinContent(h_c_reta->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_reta->GetBinContent(h_u_reta->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Rphi  (double pt, double eta2, int conv){
-    if (conv) return (h_c_rphi->GetBinContent(h_c_rphi->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rphi->GetBinContent(h_u_rphi->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rphi->GetBinContent(h_c_rphi->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rphi->GetBinContent(h_u_rphi->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Weta2 (double pt, double eta2, int conv){
-    if (conv) return (h_c_weta2->GetBinContent(h_c_weta2->FindBin(pt, fabs(eta2))));
-    else      return (h_u_weta2->GetBinContent(h_u_weta2->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_weta2->GetBinContent(h_c_weta2->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_weta2->GetBinContent(h_u_weta2->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_F1    (double pt, double eta2, int conv){
-    if (conv) return (h_c_f1->GetBinContent(h_c_f1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_f1->GetBinContent(h_u_f1->FindBin(pt, fabs(eta2))));};
-  
+    if (conv)
+      { return h_c_f1->GetBinContent(h_c_f1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_f1->GetBinContent(h_u_f1->FindBin(pt, fabs(eta2))); }
+  }
+
   double GetFF_DE    (double pt, double eta2, int conv){
-    if (conv) return (h_c_de->GetBinContent(h_c_de->FindBin(pt, fabs(eta2))));
-    else      return (h_u_de->GetBinContent(h_u_de->FindBin(pt, fabs(eta2))));};
-  
+    if (conv)
+      { return h_c_de->GetBinContent(h_c_de->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_de->GetBinContent(h_u_de->FindBin(pt, fabs(eta2))); }
+  }
+
   double GetFF_Eratio(double pt, double eta2, int conv){
-    if (conv) return (h_c_eratio->GetBinContent(h_c_eratio->FindBin(pt, fabs(eta2))));
-    else      return (h_u_eratio->GetBinContent(h_u_eratio->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_eratio->GetBinContent(h_c_eratio->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_eratio->GetBinContent(h_u_eratio->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Fside (double pt, double eta2, int conv){
-    if (conv) return (h_c_fside->GetBinContent(h_c_fside->FindBin(pt, fabs(eta2))));
-    else      return (h_u_fside->GetBinContent(h_u_fside->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_fside->GetBinContent(h_c_fside->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_fside->GetBinContent(h_u_fside->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_Wtot  (double pt, double eta2, int conv){
-    if (conv) return (h_c_wtot->GetBinContent(h_c_wtot->FindBin(pt, fabs(eta2))));
-    else      return (h_u_wtot->GetBinContent(h_u_wtot->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_wtot->GetBinContent(h_c_wtot->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_wtot->GetBinContent(h_u_wtot->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF_W1    (double pt, double eta2, int conv){
-    if (conv) return (h_c_w1->GetBinContent(h_c_w1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_w1->GetBinContent(h_u_w1->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_w1->GetBinContent(h_c_w1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_w1->GetBinContent(h_u_w1->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Rhad1 (double pt, double eta2, int conv){
-    if (conv) return (h_c_rhad1->GetBinError(h_u_rhad1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rhad1->GetBinError(h_u_rhad1->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rhad1->GetBinError(h_u_rhad1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rhad1->GetBinError(h_u_rhad1->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Rhad  (double pt, double eta2, int conv){
-    if (conv) return (h_c_rhad->GetBinError(h_c_rhad->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rhad->GetBinError(h_u_rhad->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rhad->GetBinError(h_c_rhad->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rhad->GetBinError(h_u_rhad->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_E277  (double pt, double eta2, int conv){
-    if (conv) return (h_c_e277->GetBinError(h_c_e277->FindBin(pt, fabs(eta2))));
-    else      return (h_u_e277->GetBinError(h_u_e277->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_e277->GetBinError(h_c_e277->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_e277->GetBinError(h_u_e277->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Reta  (double pt, double eta2, int conv){
-    if (conv) return (h_c_reta->GetBinError(h_c_reta->FindBin(pt, fabs(eta2))));
-    else      return (h_u_reta->GetBinError(h_u_reta->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_reta->GetBinError(h_c_reta->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_reta->GetBinError(h_u_reta->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Rphi  (double pt, double eta2, int conv){
-    if (conv) return (h_c_rphi->GetBinError(h_c_rphi->FindBin(pt, fabs(eta2))));
-    else      return (h_u_rphi->GetBinError(h_u_rphi->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_rphi->GetBinError(h_c_rphi->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_rphi->GetBinError(h_u_rphi->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Weta2 (double pt, double eta2, int conv){
-    if (conv) return (h_c_weta2->GetBinError(h_c_weta2->FindBin(pt, fabs(eta2))));
-    else      return (h_u_weta2->GetBinError(h_u_weta2->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_weta2->GetBinError(h_c_weta2->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_weta2->GetBinError(h_u_weta2->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_F1    (double pt, double eta2, int conv){
-    if (conv) return (h_c_f1->GetBinError(h_c_f1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_f1->GetBinError(h_u_f1->FindBin(pt, fabs(eta2))));};
-  
+    if (conv)
+      { return h_c_f1->GetBinError(h_c_f1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_f1->GetBinError(h_u_f1->FindBin(pt, fabs(eta2))); }
+  }
+
   double GetFFerr_DE    (double pt, double eta2, int conv){
-    if (conv) return (h_c_de->GetBinError(h_c_de->FindBin(pt, fabs(eta2))));
-    else      return (h_u_de->GetBinError(h_u_de->FindBin(pt, fabs(eta2))));};
-  
+    if (conv)
+      { return h_c_de->GetBinError(h_c_de->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_de->GetBinError(h_u_de->FindBin(pt, fabs(eta2))); }
+  }
+
   double GetFFerr_Eratio(double pt, double eta2, int conv){
-    if (conv) return (h_c_eratio->GetBinError(h_c_eratio->FindBin(pt, fabs(eta2))));
-    else      return (h_u_eratio->GetBinError(h_u_eratio->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_eratio->GetBinError(h_c_eratio->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_eratio->GetBinError(h_u_eratio->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Fside (double pt, double eta2, int conv){
-    if (conv) return (h_c_fside->GetBinError(h_c_fside->FindBin(pt, fabs(eta2))));
-    else      return (h_u_fside->GetBinError(h_u_fside->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_fside->GetBinError(h_c_fside->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_fside->GetBinError(h_u_fside->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_Wtot  (double pt, double eta2, int conv){
-    if (conv) return (h_c_wtot->GetBinError(h_c_wtot->FindBin(pt, fabs(eta2))));
-    else      return (h_u_wtot->GetBinError(h_u_wtot->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_wtot->GetBinError(h_c_wtot->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_wtot->GetBinError(h_u_wtot->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFFerr_W1    (double pt, double eta2, int conv){
-    if (conv) return (h_c_w1->GetBinError(h_c_w1->FindBin(pt, fabs(eta2))));
-    else      return (h_u_w1->GetBinError(h_u_w1->FindBin(pt, fabs(eta2))));};
+    if (conv)
+      { return h_c_w1->GetBinError(h_c_w1->FindBin(pt, fabs(eta2))); }
+    else
+      { return h_u_w1->GetBinError(h_u_w1->FindBin(pt, fabs(eta2))); }
+  }
 
   double GetFF (int var, double pt, double eta2, int conv){
     switch (var) {
@@ -224,8 +296,8 @@ class TPhotonMCShifterTool
     default: return 0.0;
     }
   }
-		
-  // fudge a specific variable 				    				    
+
+  // fudge a specific variable
   double Fudge_Rhad1 ( double rhad1,  double pt, double eta2, int conv){ return ( rhad1  + GetFF_Rhad1  ( pt, eta2, conv ) ); }
   double Fudge_Rhad  ( double rhad,   double pt, double eta2, int conv){ return ( rhad   + GetFF_Rhad   ( pt, eta2, conv ) ); }
   double Fudge_E277  ( double e277,   double pt, double eta2, int conv){ return ( e277   + GetFF_E277   ( pt, eta2, conv ) ); }
@@ -240,16 +312,16 @@ class TPhotonMCShifterTool
   double Fudge_W1    ( double w1,     double pt, double eta2, int conv){ return ( w1     + GetFF_W1     ( pt, eta2, conv ) ); }
 
   // set shower preselection cuts
-  // *** 2010 
+  // *** 2010
   // 0 = tight  isolated
   // 1 = loose  isolated
   // 2 = tightx isolated
   // 3 = tighty isolated
-  // 4 = tight  isolated . Distorted material 
-  // *** 2011 
+  // 4 = tight  isolated . Distorted material
+  // *** 2011
   // 5 = tight  isolated
   // 6 = tight  non-isolated
-  // ***  
+  // ***
   // 10= tight  isolated. Old menu rel15 (tune 3 in PhotonIDTool).
   // ..
   void SetVerbose( bool verbose=true ){ m_verbose=verbose; }
@@ -271,13 +343,15 @@ class TPhotonMCShifterTool
   TGraphErrors* GetFFmap_DE    (double eta, int isConv, int preselection);
   TGraphErrors* GetFFmap_Eratio(double eta, int isConv, int preselection);
   //  TH2D* GetFFTH2D(int var, int isConv, int preselection);
-  void LoadFFs(int preselection);
+  void LoadFFs(int preselection, std::string file);
 
  private:
   bool m_verbose;
 
   //shower preselection to extract FFs
   int m_preselection;
+
+  std::string m_corr_file;
 
   // collections of fudge factors
   TH2D* h_u_rhad1;
@@ -341,8 +415,8 @@ TPhotonMCShifterTool::TPhotonMCShifterTool()
   h_c_eratio = 0;
 
   m_verbose = false;
-  //  std::cout << "Initiliazing the tool ---->>> preselection " << preselection << std::endl; 
-  
+  //  std::cout << "Initiliazing the tool ---->>> preselection " << preselection << std::endl;
+
 }
 
 TPhotonMCShifterTool::~TPhotonMCShifterTool()

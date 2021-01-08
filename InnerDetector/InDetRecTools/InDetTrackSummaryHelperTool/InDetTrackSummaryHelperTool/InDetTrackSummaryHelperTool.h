@@ -59,7 +59,8 @@ namespace InDet {
     */
     using IExtendedTrackSummaryHelperTool::analyse;
     using IExtendedTrackSummaryHelperTool::addDetailedTrackSummary;
-
+    using IExtendedTrackSummaryHelperTool::updateExpectedHitInfo;
+    
     virtual void analyse(
       const EventContext& ctx,
       const Trk::Track& track,
@@ -83,6 +84,12 @@ namespace InDet {
     virtual void addDetailedTrackSummary(const EventContext& ctx,
                                          const Trk::Track&,
                                          Trk::TrackSummary&) const override final;
+
+    /** This method updates the expect... hit info*/
+    virtual void updateExpectedHitInfo(
+      const EventContext& ctx,
+      const Trk::Track& track,
+      Trk::TrackSummary& summary) const override final;
 
     /** Input : track, partHyp
         Output: Changes in information
@@ -112,11 +119,6 @@ namespace InDet {
                                       float& dedx,
                                       int& nclus,
                                       int& noverflowclus) const override final;
-
-    /** This method updates the expect... hit info*/
-    virtual void updateExpectedHitInfo(
-      const Trk::Track& track,
-      Trk::TrackSummary& summary) const override final;
 
   private:
     const Trk::ClusterSplitProbabilityContainer::ProbabilityInfo&

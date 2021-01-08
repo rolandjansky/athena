@@ -109,7 +109,7 @@ def _algoTauPreselection(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPreselection
     algo                                 = TrigTauRecMerged_TauPreselection(name= "TrigTauRecMerged_TauPreselection_"+step)
     algo.RoIInputKey                     = inputRoIs
-    algo.L1RoIKey                        = "TAUCaloRoIs"
+    algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
@@ -123,7 +123,7 @@ def _algoTauPrecision(inputRoIs, tracks, step):
     from TrigTauRec.TrigTauRecConfigMT import TrigTauRecMerged_TauPrecision
     algo                                 = TrigTauRecMerged_TauPrecision(name= "TrigTauRecMerged_TauPrecision_"+step)
     algo.RoIInputKey                     = inputRoIs
-    algo.L1RoIKey                        = "TAUCaloRoIs"
+    algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
     algo.Key_trackPartInputContainer     = tracks
@@ -143,7 +143,7 @@ def _algoTauPrecisionMVA(inputRoIs, tracks, step):
     if "EF" in step:
        algo                              = TrigTauRecMerged_TauPrecisionMVA(name= "TrigTauRecMerged_TauPrecisionMVA"+step, doMVATES=False, doTrackBDT=False, doRNN=True)
     algo.RoIInputKey                     = inputRoIs
-    algo.L1RoIKey                        = "TAUCaloRoIs"
+    algo.L1RoIKey                        = "HLT_TAURoI"
     algo.clustersKey                     = ""
     algo.Key_vertexInputContainer        = ""
     algo.Key_trigTauJetInputContainer    = "HLT_TrigTauRecMerged_CaloOnly"
@@ -177,7 +177,7 @@ def tauCaloMVARecoSequence(InViewRoIs, SeqName):
 def tauCaloSequence(ConfigFlags):
     """ Creates L2 Fast Calo sequence for Taus"""
     # EV creator
-    InViewRoIs                           = "TAUCaloRoIs"
+    InViewRoIs                           = "HLT_TAURoI"
     RecoSequenceName                     = "tauCaloInViewSequence"
 
     tauCaloViewsMaker                    = EventViewCreatorAlgorithm( "IMtauCalo")
@@ -190,7 +190,7 @@ def tauCaloSequence(ConfigFlags):
     (tauCaloInViewSequence, sequenceOut) = tauCaloRecoSequence( InViewRoIs, RecoSequenceName)
 
     tauCaloRecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloRecoVDV" )
-    tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+    tauCaloRecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI' ),
                                   ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                   ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.actualInteractionsPerCrossing' ),
@@ -203,7 +203,7 @@ def tauCaloSequence(ConfigFlags):
 def tauCaloMVASequence(ConfigFlags):
     """ Creates L2 Fast Calo sequence for Taus"""
     # EV creator
-    InViewRoIs                              = "TAUCaloRoIs"
+    InViewRoIs                              = "HLT_TAURoI"
     RecoSequenceName                        = "tauCaloMVAInViewSequence"
 
     tauCaloMVAViewsMaker                    = EventViewCreatorAlgorithm( "IMtauCaloMVA")
@@ -216,7 +216,7 @@ def tauCaloMVASequence(ConfigFlags):
     (tauCaloMVAInViewSequence, sequenceOut) = tauCaloMVARecoSequence(InViewRoIs, RecoSequenceName)
 
     tauCaloMVARecoVDV = CfgMgr.AthViews__ViewDataVerifier( "tauCaloMVARecoVDV" )
-    tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+    tauCaloMVARecoVDV.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI' ),
                                      ( 'CaloBCIDAverage' , 'StoreGateSvc+CaloBCIDAverage' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.actualInteractionsPerCrossing' ),
@@ -235,7 +235,7 @@ def preSelSequence( RoIs, name):
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
 
     ViewVerifyPreSel = CfgMgr.AthViews__ViewDataVerifier("tauPSViewDataVerifier_"+signatureName)
-    ViewVerifyPreSel.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs'    ),
+    ViewVerifyPreSel.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI'    ),
                                     ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTau'      ),
                                     ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauIso'   ),
                                     ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing'   ),
@@ -268,7 +268,7 @@ def tauIdSequence( RoIs, name):
     IDTrigConfig = getInDetTrigConfig( signatureNameID )
 
     ViewVerifyId = CfgMgr.AthViews__ViewDataVerifier("tauIdViewDataVerifier_"+signatureName)
-    ViewVerifyId.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs'    ),
+    ViewVerifyId.DataObjects = [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI'    ),
                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs      ),
                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+RoiForTauCore'  ),
                                 ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_Presel'),  
@@ -311,7 +311,7 @@ def precTrackSequence( RoIs , name):
     ViewVerifyTrk.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+%s' % IDTrigConfig.FT.tracksFTF() ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ),
                                  ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s' % RoIs ),
-                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+TAUCaloRoIs' ),
+                                 ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+HLT_TAURoI' ),
                                  ( 'xAOD::TauTrackContainer' , 'StoreGateSvc+HLT_tautrack_dummy' ),
                                  ( 'xAOD::TauJetContainer' , 'StoreGateSvc+HLT_TrigTauRecMerged_CaloOnly' ),    
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),

@@ -66,7 +66,7 @@ def MooSegmentFinderAlg( name="MuonSegmentMaker",**kwargs ):
     kwargs.setdefault("SegmentFinder", getPublicToolClone("MuonSegmentFinder","MooSegmentFinder",
                                                           DoSummary=muonStandaloneFlags.printSummary()))
     kwargs.setdefault("MuonClusterSegmentFinderTool",getPublicTool("MuonClusterSegmentFinder"))
-    kwargs.setdefault("MuonSegmentOutputLocation", "MuonSegments")
+    kwargs.setdefault("MuonSegmentOutputLocation", "TrackMuonSegments")
     kwargs.setdefault("UseCSC", muonRecFlags.doCSCs())
     kwargs.setdefault("UseMDT", muonRecFlags.doMDTs())
     kwargs.setdefault("UseRPC", muonRecFlags.doRPCs())
@@ -94,8 +94,7 @@ def MooSegmentFinderNCBAlg( name="MuonSegmentMaker_NCB",**kwargs ):
                                                                                                  segmentTool = getPublicTool("CscSegmentUtilTool_NCB")) if MuonGeometryFlags.hasCSC() else ""),
                                                          DoMdtSegments=False,DoSegmentCombinations=False,DoSegmentCombinationCleaning=False))
     kwargs.setdefault("MuonPatternCombinationLocation", "NCB_MuonHoughPatternCombinations")
-    kwargs.setdefault("MuonSegmentOutputLocation", "NCB_MuonSegments")
-    kwargs.setdefault("MuonSegmentOutputLocation", "NCB_MuonSegments")
+    kwargs.setdefault("MuonSegmentOutputLocation", "NCB_TrackMuonSegments")
     kwargs.setdefault("UseCSC", muonRecFlags.doCSCs())
     kwargs.setdefault("UseMDT", False)
     kwargs.setdefault("UseRPC", False)
@@ -146,7 +145,7 @@ class MuonStandalone(ConfiguredMuonRec):
         super(MuonStandalone,self).configure(keys)
         if not self.isEnabled(): return
 
-        SegmentLocation = "MuonSegments"
+        SegmentLocation = "TrackMuonSegments"
         if muonStandaloneFlags.segmentOrigin == 'TruthTracking':
             SegmentLocation = "ThirdChainSegments"
 
@@ -189,7 +188,7 @@ class MuonStandalone(ConfiguredMuonRec):
             self.addAlg(MooSegmentFinderNCBAlg("MuonSegmentMaker_NCB"))
 
             if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments_NCB')):
-                self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_MuonSegments",xAODContainerName="NCB_MuonSegments") )
+                self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg_NCB",SegmentContainerName="NCB_TrackMuonSegments",xAODContainerName="NCB_MuonSegments") )
 
         if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
             self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
@@ -200,13 +199,9 @@ class MuonStandalone(ConfiguredMuonRec):
         #
         # add the algorithm (which uses the MuonTrackSteering)
         # 
-        TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering = getPublicTool("MuonTrackSteering") )
+        TrackBuilder = CfgMgr.MuPatTrackBuilder("MuPatTrackBuilder", TrackSteering=getPublicTool("MuonTrackSteering"), SpectrometerTrackOutputLocation="MuonSpectrometerTracks", MuonSegmentCollection="TrackMuonSegments")
         self.addAlg( TrackBuilder )
-        
-        self.registerOutputKey("MuonSpectrometerTracks",   self.MuPatTrackBuilder, "SpectrometerTrackOutputLocation")
-        self.registerInputKey ("MuonSegments", self.MuPatTrackBuilder, "MuonSegmentCollection"   )
 
-        
         if muonStandaloneFlags.createTrackParticles():
             xAODTrackParticleCnvAlg = MuonStandaloneTrackParticleCnvAlg("MuonStandaloneTrackParticleCnvAlg")
             self.addAlg( xAODTrackParticleCnvAlg )

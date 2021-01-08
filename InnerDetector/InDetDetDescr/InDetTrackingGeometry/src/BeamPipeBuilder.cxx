@@ -177,7 +177,7 @@ const std::vector< const Trk::CylinderLayer* >* InDet::BeamPipeBuilder::cylindri
                                              beamPipeBounds,
                                              *beamPipeLayerMaterial,
                                              m_beamPipeThickness));
-  //delete beamPipeLayerMaterial; 
+  delete beamPipeLayerMaterial;
   return beamPipe;
   
 } 

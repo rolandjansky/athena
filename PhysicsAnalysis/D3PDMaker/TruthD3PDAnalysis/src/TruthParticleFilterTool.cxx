@@ -230,7 +230,8 @@ TruthParticleFilterTool::isAccepted (const HepMC::GenParticle* p)
   if(m_writeAllLeptons && (pdg_id>10 && pdg_id<19)) // Include 4th generation...
     ok = true;
 
-  if ((m_writeBSMProducts || m_writeBosonProducts || m_writeTopAndDecays) && p->production_vertex()){ // Either way we have to go through parents
+  if ((m_writeBSMProducts || m_writeBosonProducts || m_writeTopAndDecays) && p->production_vertex()){ 
+   // Either way we have to go through parents
     HepMC::GenVertex::particle_iterator itrParent = p->production_vertex()->particles_begin(HepMC::parents);
     HepMC::GenVertex::particle_iterator endParent = p->production_vertex()->particles_end(HepMC::parents);
     for(;itrParent!=endParent; ++itrParent){

@@ -9,7 +9,6 @@
  the active measurements in the traversed calorimeter cells.
 
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 ///////////////////////////////////////////////////////////////////
 

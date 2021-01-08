@@ -384,3 +384,9 @@ EGAM7SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 
 # This line must come after we have finished configuring EGAM7SlimmingHelper
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)
+
+#Add full CellContainer
+EGAM7Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM7Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
+
+

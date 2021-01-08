@@ -28,8 +28,6 @@
 #include <iomanip>
 #include <nlohmann/json.hpp>
 
-#include "boost/format.hpp"
-
 // Other Libraries
 #include <algorithm>
 #include <cmath>
@@ -86,6 +84,7 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   void report2Log_EventLevel();
   void report2Log_Summary();  // make it const
   void report2Log_CpuInfo() const;
+  void report2Log_EnvInfo() const;
 
   /// Report to the JSON File
   void report2JsonFile();
@@ -104,8 +103,12 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
 
   bool isCheckPoint();
 
+  /// A few helper methods to get system information
+  /// These should be carried to PerfMonMTUtils at some point
+  std::string get_info_from_file(const std::string& fileName, const std::string& fieldName) const;
   std::string get_cpu_model_info() const;
   int get_cpu_core_info() const;
+  long get_memory_info() const;
 
   PMonMT::StepComp generate_state(const std::string& stepName, const std::string& compName) const;
 
@@ -195,6 +198,9 @@ class PerfMonMTSvc : virtual public IPerfMonMTSvc, virtual public IIncidentListe
   // Leak estimates
   PerfMon::LinFitSglPass m_fit_vmem;
   PerfMon::LinFitSglPass m_fit_pss;
+
+  // Estimate CPU efficiency
+  int getCpuEfficiency() const;
 
 };  // class PerfMonMTSvc
 

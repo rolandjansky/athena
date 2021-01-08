@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 # @file PerfMonComps/python/DomainsRegistry.py
 # @purpose hold a registry of alg names and their association w/ domain
@@ -158,8 +158,6 @@ class Registry(object):
         """
         if registry is None:
             registry=self._registry
-        start_alg = None
-        idx = None
         for ielmt, elmt in enumerate(registry):
             if elmt[0] == name:
                 return ielmt, elmt[1]
@@ -328,7 +326,7 @@ class Registry(object):
         if not self._dirty_db:
             return dict(self._d2a_db)
         # side-effect of calling self.algs: will build  self._d2a_db
-        a2d = self.algs
+        a2d = self.algs # noqa: F841
         return dict(self._d2a_db)
 
     @property
@@ -443,9 +441,6 @@ def _test_main():
         print("    ref: ",ref[d])
         assert algs == ref[d]
 
-    db = pdr.a2d_db()
-    db = pdr.d2a_db()
-    
     print("OK")
     return 0
 

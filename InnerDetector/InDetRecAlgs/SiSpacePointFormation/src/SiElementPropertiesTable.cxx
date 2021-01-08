@@ -12,7 +12,7 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SiDetectorDesign.h"
-#include "InDetReadoutGeometry/SiLocalPosition.h" 
+#include "ReadoutGeometryBase/SiLocalPosition.h" 
 
 namespace InDet{
 

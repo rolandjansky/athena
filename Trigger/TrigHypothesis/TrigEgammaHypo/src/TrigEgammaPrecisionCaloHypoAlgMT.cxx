@@ -43,9 +43,10 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
   // loop over previous decisions
   size_t counter=0;
   for ( auto previousDecision: *previousDecisionsHandle ) {
-    //get RoI  
-    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
-    
+
+    //get updated RoI  
+    auto roiELInfo = findLink<TrigRoiDescriptorCollection>( previousDecision, roiString() );
+      
     ATH_CHECK( roiELInfo.isValid() );
     const TrigRoiDescriptor* roi = *(roiELInfo.link);
 
@@ -70,7 +71,6 @@ StatusCode TrigEgammaPrecisionCaloHypoAlgMT::execute( const EventContext& contex
 	    auto d = newDecisionIn( decisions, name() );
 	    d->setObjectLink( featureString(),  el );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
-	    d->setObjectLink( roiString(), roiELInfo.link );
 	    toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(cl), previousDecision );
 	    validclusters++;
 

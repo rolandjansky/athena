@@ -16,11 +16,7 @@
 */
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
-#ifdef USE_NEW_TOOL
 #include "ElectronPhotonShowerShapeFudgeTool/TPhotonMCShifterTool.h"
-#else
-#include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
-#endif
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
 #include "EgammaAnalysisInterfaces/IElectronPhotonShowerShapeFudgeTool.h"
 #include "TEnv.h"
@@ -57,16 +53,13 @@ public:
 
 private:
 
-#ifdef USE_NEW_TOOL   
    TPhotonMCShifterTool* m_ph_rootTool;
-#else
-   FudgeMCTool* m_ph_rootTool;
-#endif   
    TElectronMCShifterTool* m_el_rootTool;
 
    int m_preselection;
 
    std::string m_configFile;
+   std::string m_ffFile;
 
    /** Copied over from the configuration helper so that the selector tools do not need to be included */
    std::vector<float> GetFloatVector(const std::string& input,  TEnv& env);

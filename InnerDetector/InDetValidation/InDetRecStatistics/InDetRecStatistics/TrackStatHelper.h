@@ -22,7 +22,6 @@
 #include "TrkToolInterfaces/IExtendedTrackSummaryTool.h"
 #include "TrkToolInterfaces/IPRDtoTrackMapTool.h"
 #include "TrkTruthData/TrackTruthCollection.h"
-#include "TrkTrack/TrackInfo.h"
 
 #include <vector>
 #include <string>
@@ -146,7 +145,7 @@ namespace InDet {
     void     addEvent   (const TrackCollection *, 
 			       std::vector<const Trk::Track *> &, 
                                Trk::PRDtoTrackMap *prd_to_track_map,
-			       std::vector <std::pair<HepMC::GenParticle *,int> > &,   
+			       std::vector <std::pair<HepMC::GenParticlePtr,int> > &,   
 			       const TrackTruthCollection *, 
 			       const AtlasDetectorID * const, 
 			       const PixelID *, 
@@ -175,7 +174,7 @@ namespace InDet {
     /** defines 'good' reco tracks*/
     bool     PassTrackCuts(const Trk::TrackParameters *para) const;
     /** classifies gen particle as primary, secondary or truncated */
-    int      ClassifyParticle( const HepMC::GenParticle *particle, const double prob) const;
+    int      ClassifyParticle( HepMC::ConstGenParticlePtr particle, const double prob) const;
 
 
     static std::string getSummaryTypeHeader();

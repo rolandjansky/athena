@@ -154,12 +154,15 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   if ( !(tracks.isValid()) ) {
     ATH_MSG_ERROR("PixelMonitoring: Track container "<< m_tracksKey.key() << " could not be found.");
+    auto dataread_err = Monitored::Scalar<int>( "trkdataread_err", DataReadErrors::ContainerInvalid );
+    fill(trackGroup, dataread_err);
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("PixelMonitoring: Track container "<< tracks.name() <<" is found.");
   }
 
   int ntracksPerEvent = 0;
+  bool havePixelHits(false);
   std::vector<std::pair<Identifier, double> > ClusterIDs;
 
   auto lbval    = Monitored::Scalar<int>( "pixclusmontool_lb", lb );
@@ -298,9 +301,14 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       auto trkChiN = Monitored::Scalar<float>( "fit_chi2byndf", trkfitchi2 / trkfitndf);
       fill(trackGroup, trkChiN);
     }
+    havePixelHits = havePixelHits || (nPixelHits > 0);
   } // end of track loop
   
- 
+  if (!havePixelHits) {
+    auto dataread_err = Monitored::Scalar<int>( "trkdataread_err", DataReadErrors::EmptyContainer );
+    fill(trackGroup, dataread_err); 
+  }
+
   fill2DProfLayerAccum( HolesRatio );
   fill2DProfLayerAccum( MissHitsRatio );
   if (!m_doOnline) { 
@@ -353,6 +361,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   if ( !(pixel_clcontainer.isValid()) ) {
     ATH_MSG_ERROR("Pixel Monitoring: Pixel Cluster container "<< m_clustersKey.key() << " could not be found.");
+    auto dataread_err = Monitored::Scalar<int>( "clsdataread_err", DataReadErrors::ContainerInvalid );
+    fill(clusterGroup, dataread_err);
     return StatusCode::RECOVERABLE;
   } else {
     ATH_MSG_DEBUG("Pixel Monitoring: Pixel Cluster container "<< pixel_clcontainer.name() <<" is found.");
@@ -373,6 +383,8 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
     const InDet::PixelClusterCollection* ClusterCollection(*colNext);
     if (!ClusterCollection) {
       ATH_MSG_DEBUG("Pixel Monitoring: Pixel Cluster container is empty.");
+      auto dataread_err = Monitored::Scalar<int>( "clsdataread_err", DataReadErrors::CollectionInvalid );
+      fill(clusterGroup, dataread_err);
       continue;
     }
 
@@ -502,7 +514,10 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
 
   if (nclusters>0) {
     auto clsFracOnTrack = Monitored::Scalar<float>( "cls_frac_ontrack", (float)nclusters_ontrack / nclusters );
-    fill( clusterGroup_OnTrack, lbval, clsFracOnTrack);
+    fill(clusterGroup_OnTrack, lbval, clsFracOnTrack);
+  } else {
+    auto dataread_err = Monitored::Scalar<int>( "clsdataread_err", DataReadErrors::EmptyContainer );
+    fill(clusterGroup, dataread_err);
   }
 
   fill1DProfLumiLayers( "ClustersPerLumi", lb, nclusters_mod);

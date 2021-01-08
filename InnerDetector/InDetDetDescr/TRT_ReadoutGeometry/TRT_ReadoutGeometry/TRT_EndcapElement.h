@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ namespace InDetDD {
       virtual HepGeom::Transform3D defStrawTransform(int straw) const override final;
     
       /** Active straw length */
-      virtual const double & strawLength() const;
+      virtual const double & strawLength() const override;
     
       /** StrawDirection. +1 if axis is in same direction as local coordinate, -1 otherwise. */
       virtual int strawDirection() const override final;
@@ -103,14 +103,14 @@ namespace InDetDD {
     private:
       /** These transforms are effectively to the local coord
         system of a straw derived from GeoModel -> hence CLHEP */
-      HepGeom::Transform3D calculateStrawTransform(int straw) const;
+      virtual HepGeom::Transform3D calculateStrawTransform(int straw) const override;
       HepGeom::Transform3D calculateLocalStrawTransform(int straw) const;
     
       /** return the surface of the element */ 
-      const Trk::Surface & elementSurface() const;
+      virtual const Trk::Surface & elementSurface() const override;
 
       /** create the cache for the element */
-      void createSurfaceCache() const;
+      virtual void createSurfaceCache() const override;
       std::unique_ptr<SurfaceCache> createSurfaceCacheHelper() const;
       /** create the cache for the straw of identifier id */
       void createSurfaceCache(Identifier id) const;

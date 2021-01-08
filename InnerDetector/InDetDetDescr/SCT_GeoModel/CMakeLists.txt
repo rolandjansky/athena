@@ -10,7 +10,7 @@ find_package( GeoModelCore )
 atlas_add_component( SCT_GeoModel
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils GeoModelInterfaces GeoModelUtilities GeoPrimitives GaudiKernel InDetGeoModelUtils InDetReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier GeometryDBSvcLib RDBAccessSvcLib )
+                     LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils GeoModelInterfaces GeoModelUtilities GeoPrimitives GaudiKernel InDetGeoModelUtils ReadoutGeometryBase InDetReadoutGeometry SCT_ReadoutGeometry SGTools StoreGateLib AthenaPoolUtilities DetDescrConditions Identifier InDetIdentifier GeometryDBSvcLib RDBAccessSvcLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

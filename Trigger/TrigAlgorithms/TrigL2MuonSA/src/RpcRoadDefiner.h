@@ -17,7 +17,7 @@
 #include "RpcFitResult.h"
 #include "BarrelRoadData.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "RegionSelector/IRegSelSvc.h"
+#include "IRegionSelector/IRegSelTool.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 
 #include <string>
@@ -50,7 +50,6 @@ class RpcRoadDefiner: public AthAlgTool
 			double                              roiEtaMinHigh,
 			double                              roiEtaMaxHigh) const;
 
-  void setMdtGeometry(const ServiceHandle<IRegSelSvc>& regionSelector){ m_regionSelector = regionSelector; };
   void setRoadWidthForFailure(double rWidth_RPC_Failed){ m_rWidth_RPC_Failed = rWidth_RPC_Failed; };
   void setRpcGeometry(bool use_rpc){ m_use_rpc = use_rpc; };
 
@@ -62,7 +61,7 @@ class RpcRoadDefiner: public AthAlgTool
   double m_rWidth_RPC_Failed{0};
   bool m_use_rpc{true};
 
-  ServiceHandle<IRegSelSvc> m_regionSelector;
+  ToolHandle<IRegSelTool> m_regionSelector{this, "RegionSelectionTool", "RegSelTool/RegSelTool_MDT", "MDT Region Selector Tool"};
   ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 };
 

@@ -5,10 +5,7 @@
 #ifndef CALOCLUSTERVARIABLES_H
 #define CALOCLUSTERVARIABLES_H
 
-#include "tauRecTools/ITauVertexCorrection.h"
-
 #include "xAODTau/TauJet.h"
-#include "AsgTools/ToolHandle.h"
 #include "CxxUtils/fpcompare.h"
 
 #include "TLorentzVector.h"

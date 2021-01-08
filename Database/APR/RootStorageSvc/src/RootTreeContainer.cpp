@@ -430,7 +430,7 @@ RootTreeContainer::loadObject(void** obj_p, ShapeH /*shape*/, Token::OID_t& oid)
                ::strcpy(q.c_str, p.c_str);
                break;
             case DbColumn::BLOB:
-               q.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
+               p.blob->adopt((char*)s_char_Blob.m_buffer,s_char_Blob.m_size);
                s_char_Blob.release(false);
                break;
             case DbColumn::POINTER:

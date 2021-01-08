@@ -20,6 +20,8 @@ from EventBookkeeperTools.EventBookkeeperToolsConfig import CutFlowSvcCfg, CutFl
 parser = ArgumentParser(prog='test_CutFlowSvc')
 parser.add_argument('input', type=str, nargs='?',
                     help='Specify the input file')
+parser.add_argument('-t', '--threads', default=2, type=int,
+                    help='The number of concurrent threads to run. 0 uses serial Athena.')
 args = parser.parse_args()
 
 # Setup configuration
@@ -31,9 +33,11 @@ else:
 ConfigFlags.Output.AODFileName = "testAOD.pool.root"
 
 # Flags relating to multithreaded execution
-threads = 2
+threads = args.threads
+maxEvents = 10
 ConfigFlags.Concurrency.NumThreads = threads
 if threads > 0:
+  maxEvents = 10 * threads
   ConfigFlags.Scheduler.ShowDataDeps = True
   ConfigFlags.Scheduler.ShowDataFlow = True
   ConfigFlags.Scheduler.ShowControlFlow = True
@@ -62,7 +66,7 @@ acc.getPublicTool('CutBookkeepersTool').OutputLevel = VERBOSE
 acc.getEventAlgo('AllExecutedEventsCounterAlg').OutputLevel = VERBOSE
 
 # Execute and finish
-sc = acc.run(maxEvents=10*threads)
+sc = acc.run(maxEvents=maxEvents)
 
 # Success should be 0
 sys.exit(not sc.isSuccess())

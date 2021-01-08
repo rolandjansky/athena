@@ -51,7 +51,7 @@ namespace Trk {
      *  object. (Wrapping it into a smart pointer may be the most
      *  convenient way to make sure the memory is freed.)
      */
-    virtual const Trk::TrackParameters* makeProdVertexParameters(const HepMC::GenParticle* part) const = 0;
+    virtual const Trk::TrackParameters* makeProdVertexParameters(HepMC::ConstGenParticlePtr part) const = 0;
     virtual const Trk::TrackParameters* makeProdVertexParameters(const xAOD::TruthParticle* part) const = 0;
 
     /** This function extrapolates track to the perigee, and returns
@@ -61,7 +61,7 @@ namespace Trk {
      * operator new.  The caller is responsible for deletion of the
      * object.
      */
-    virtual const Trk::TrackParameters* makePerigeeParameters(const HepMC::GenParticle* part) const = 0;
+    virtual const Trk::TrackParameters* makePerigeeParameters(HepMC::ConstGenParticlePtr part) const = 0;
     virtual const Trk::TrackParameters* makePerigeeParameters(const xAOD::TruthParticle* part) const = 0;
 
   };

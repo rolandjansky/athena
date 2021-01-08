@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetRecStandard.py
 #
@@ -23,7 +23,6 @@ jetlog.info( myname + "Begin.")
 
 from RecExConfig.RecFlags import rec 
 from InDetRecExample.InDetJobProperties import InDetFlags
-from JetRec.JetRecFlags import jetFlags
 
 # Function to display flag value and status.
 def sflagstat(flag):
@@ -106,7 +105,7 @@ if not recAlgs.doEFlow():
 
 # Set the list of rho calculations.
 # If caller has set jetFlags.eventShapeTools(), then we use those values.
-if jetFlags.eventShapeTools() == None:
+if jetFlags.eventShapeTools() is None:
   jetFlags.eventShapeTools = []
   if jetFlags.useTopo():
     jetFlags.eventShapeTools += ['emtopo', 'lctopo']
@@ -117,7 +116,9 @@ if jetFlags.eventShapeTools() == None:
 
 # Import the jet tool manager.
 from JetRec.JetRecStandardToolManager import jtm
+jetlog.verbose("Initialised jtm with tools %s", jtm.tools)
 # Import the constituent tool manager
 from JetRecTools.ConstitToolManager import ctm
+jetlog.verbose("Initialised ctm with modifiers %s", ctm.modifiersMap)
 
 jetlog.info( myname + "End." )

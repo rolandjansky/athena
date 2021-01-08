@@ -15,7 +15,7 @@ from __future__ import print_function
 from functools import reduce
 import sys,re
 
-from utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
+from CoolRunQuery.utils.AtlRunQueryLookup import InitDetectorMaskDecoder, DecodeDetectorMask, DQChannels
 
 from DQDefects import DefectsDB
 
@@ -156,7 +156,7 @@ class ArgumentParser:
         """
         arg = arg.split(None,1)[1] # remove keyword 'run'
 
-        from .AtlRunQueryInterpretDataPeriods import GetRuns
+        from CoolRunQuery.AtlRunQueryInterpretDataPeriods import GetRuns
 
         list_of_runs = GetRuns(arg)
                 

@@ -132,8 +132,8 @@ class trigRecoExecutor(athenaExecutor):
             optionList = getTranslated(self.conf.argdict, name=self._name, substep=self._substep, first=self.conf.firstExecutor, output = outputFiles)
             self._cmd.extend(optionList)
 
-            #Run preRun step debug_stream analysis if debug_stream=True
-            if 'debug_stream' in self.conf.argdict:
+            # Run preRun step debug stream analysis if output BS file and output histogram are set
+            if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict and 'BS' in self.conf.dataDictionary:
                 inputFiles = dict()
                 for dataType in input:
                     inputFiles[dataType] = self.conf.dataDictionary[dataType]
@@ -141,23 +141,19 @@ class trigRecoExecutor(athenaExecutor):
                 for dataType in output:
                     outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
-                #set default file name for debug_stream analysis output
-                fileNameDbg = ['debug-stream-monitoring.root']
-                if 'HIST_DEBUGSTREAMMON' in output:
-                    fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
-                
-                #if file exist then rename file to -old.root to keep as backup
-                if(os.path.isfile(fileNameDbg[0])):
-                    oldOutputFileNameDbg = fileNameDbg[0].replace(".root","_old.root")
-                    msg.info('Renaming %s to %s' % (fileNameDbg[0], oldOutputFileNameDbg) )                    
-                    os.rename(fileNameDbg[0], oldOutputFileNameDbg)
+                # Set file name for debug stream analysis output
+                fileNameDbg = outputFiles['HIST_DEBUGSTREAMMON'].value
 
-                #do debug_stream preRun step and get asetup string from debug_stream input files
+                # Do debug stream preRun step and get asetup string from debug stream input files
                 dbgAsetupString  = dbgStream.dbgPreRun(inputFiles['BS_RDO'],fileNameDbg)
-                # setup asetup from debug_stream if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
+                # Setup asetup from debug stream 
+                # if no --asetup r2b:string was given and is not running with tzero/software/patches as TestArea
                 if asetupString == None and dbgAsetupString != None : 
                     asetupString = dbgAsetupString
-                    msg.info('Will use asetup string for debug_stream analsys %s' % dbgAsetupString)
+                    msg.info('Will use asetup string for debug stream analsys %s' % dbgAsetupString)
+            else:
+                msg.warn("Flag outputHIST_DEBUGSTREAMMONFile or outputBSFile not defined - debug stream anaylsis will not run.")
+                    
                     
         #call athenaExecutor parent as the above overrides what athenaExecutor would have done 
         super(athenaExecutor, self).preExecute(input, output)
@@ -259,6 +255,7 @@ class trigRecoExecutor(athenaExecutor):
         log = self._logFileName
         msg.debug('Now scanning logfile {0} for HLTMPPU Child Issues'.format(log))
         # Using the generator so that lines can be grabbed by subroutines if needed for more reporting
+
         try:
             myGen = lineByLine(log, substepName=self._substep)
         except IOError as e:
@@ -341,6 +338,8 @@ class trigRecoExecutor(athenaExecutor):
         msg.info("Search for created BS files, and rename if single file found")
         #The following is needed to handle the BS file being written with a different name (or names)
         #base is from either the tmp value created by the transform or the value entered by the user
+
+        argInDict = {}
         if self._rc != 0:
             msg.error('HLT step failed (with status %s) so skip BS filename check' % self._rc)
         elif 'BS' in self.conf.dataDictionary:
@@ -361,7 +360,7 @@ class trigRecoExecutor(athenaExecutor):
             elif(len(matchedOutputFileNames)):
                 msg.info('Single BS file found: will split (if requested) and rename file')
 
-                #First check if we want to produce the COST DRAW output
+                # First check if we want to produce the COST DRAW output
                 if 'DRAW_TRIGCOST' in self.conf.dataDictionary:
                     splitFailed = self._splitBSfile('CostMonitoring', matchedOutputFileNames[0],self.conf.dataDictionary['DRAW_TRIGCOST'].value[0])
                     if(splitFailed):
@@ -382,30 +381,30 @@ class trigRecoExecutor(athenaExecutor):
         else:
             msg.info('BS output filetype not defined so skip BS filename check')
 
-        #Run PostRun step debug_stream analysis if debug_stream=True
-        if 'debug_stream' in self.conf.argdict:
-            msg.info("debug_stream analysis in postExecute")
+
+        # Run postRun step debug stream analysis if output BS file and output histogram are set
+        if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict and 'BS' in self.conf.dataDictionary:
+            msg.info("debug stream analysis in postExecute")
     
-            #set default file name for debug_stream analysis output
-            fileNameDbg = ['debug-stream-monitoring.root']
-            if "outputHIST_DEBUGSTREAMMONFile" in self.conf.argdict:
-                fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
-                msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
+            # Set file name for debug stream analysis output
+            fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
+            msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
 
             #TODO add merging of mother and child debug files
 
             if(os.path.isfile(fileNameDbg[0])):
-                #keep filename if not defined
-                msg.info('Will use file created  in PreRun step {0}'.format(fileNameDbg) )
+                # Keep filename if not defined
+                msg.info('Will use file created in PreRun step {0}'.format(fileNameDbg) )
             else :
                 msg.info('No file created  in PreRun step {0}'.format(fileNameDbg) )
 
-            #do debug_stream postRun step
-            dbgStream.dbgPostRun(argInDict,fileNameDbg)
+            # Do debug stream postRun step
+            dbgStream.dbgPostRun(argInDict, fileNameDbg)
+
             #
             # TODO is the reset now redundant? (not needed for reprocessing)
             #
-            #now reset metadata for outputBSFile needed for trf file validation
+            # Now reset metadata for outputBSFile needed for trf file validation
             self.conf.dataDictionary['BS']._resetMetadata()
 
         msg.info('Now run athenaExecutor:postExecute')

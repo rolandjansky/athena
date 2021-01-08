@@ -300,7 +300,11 @@ StatusCode InDetAlignFillTrack::FillTrack() {
           HepMcParticleLink HMPL = trkTruth.particleLink();
 
           if (HMPL.isValid()) {
+#ifdef HEPMC3
+            HepMC::ConstGenParticlePtr genParticle = HMPL.scptr();
+#else
             const HepMC::GenParticle* genParticle = HMPL.cptr();
+#endif
 
             double charge = 1.0;
             if (genParticle->pdg_id() < 0) charge = -charge;

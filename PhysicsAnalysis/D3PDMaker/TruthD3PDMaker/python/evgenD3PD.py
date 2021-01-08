@@ -9,13 +9,9 @@
 
 
 import D3PDMakerCoreComps
-from D3PDMakerConfig.D3PDMakerFlags                  import D3PDMakerFlags
-
 
 from EventCommonD3PDMaker.EventInfoD3PDObject        import EventInfoD3PDObject
-from JetD3PDMaker.JetD3PDObject                      import JetD3PDObject
 from TruthD3PDMaker.TruthJetD3PDObject               import TruthJetD3PDObject
-from MissingETD3PDMaker.MissingETD3PDMakerFlags      import MissingETD3PDMakerFlags
 from TruthD3PDMaker.Atlfast1MissingETD3PDObject      import TruthMETD3PDObject
 
 from TruthD3PDMaker.GenEventD3PDObject               import GenEventD3PDObject
@@ -24,7 +20,7 @@ from TruthD3PDMaker.TruthJetFilterConfig             import TruthJetFilterConfig
 from TruthD3PDMaker.TruthParticleD3PDObject          import TruthParticleD3PDObject
 from TruthD3PDMaker.PartonJetConfig                  import PartonJetConfig
 from RecExConfig.RecFlags                            import rec
-from JetRec.JetGetters                               import *  
+from JetRec.JetGetters                               import make_StandardJetGetter
 
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
@@ -76,8 +72,8 @@ def evgenD3PD (file,
         antikt6truthAlg.AlgTools['InputToJet'].InputCollectionKeys = ['FilteredD3PDTruth']
         if doExcludeWZdecays:
             # Reconstruct standard ATLAS truth jets
-            antikt4truthAlgStd = make_StandardJetGetter('AntiKt',0.4,'Truth',disable=False).jetAlgorithmHandle()
-            antikt6truthAlgStd = make_StandardJetGetter('AntiKt',0.6,'Truth',disable=False).jetAlgorithmHandle()
+            antikt4truthAlgStd = make_StandardJetGetter('AntiKt',0.4,'Truth',disable=False).jetAlgorithmHandle()  # noqa: F841
+            antikt6truthAlgStd = make_StandardJetGetter('AntiKt',0.6,'Truth',disable=False).jetAlgorithmHandle()  # noqa: F841
 
 
     #--------------------------------------------------------------------------

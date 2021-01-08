@@ -35,11 +35,13 @@ def EFMuonCBViewDataVerifierCfg():
 def EFMuonViewDataVerifierCfg():
     EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon")
     EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                          ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),
-                                          ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
-                                          ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                          ( 'Muon::CscStripPrepDataContainer' , 'StoreGateSvc+CSC_Measurements' ),
-                                          ( 'Muon::CscPrepDataContainer' , 'StoreGateSvc+CSC_Clusters' ),
+                                          ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EFMuMSRecoRoIs' ),
+                                          ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
+                                          ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
+                                          ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
+                                          ( 'TgcRdo_Cache' , 'StoreGateSvc+TgcRdoCache' ),
+                                          ( 'MdtCsm_Cache' , 'StoreGateSvc+MdtCsmRdoCache' ),
+                                          ( 'CscRawDataCollection_Cache' , 'StoreGateSvc+CscRdoCache' )
                                       ]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonViewDataVerifier)
@@ -111,6 +113,10 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     kwargs.setdefault("RecTrackParticleContainerCnvTool", acc.popPrivateTools())
     result.merge(acc)
 
+    acc = MuonRecTrackParticleContainerCnvToolCfg(flags)
+    kwargs.setdefault("RecTrackParticleContainerCnvTool", acc.popPrivateTools())
+    result.merge(acc)
+
     kwargs.setdefault("TrackContainerName", "MuonSpectrometerTracks")
     kwargs.setdefault("xAODTrackParticlesFromTracksContainerName", "MuonSpectrometerTrackParticles")
     kwargs.setdefault("AODContainerName", "")
@@ -124,6 +130,81 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
     result.addEventAlgo( trackcnv, primary=True )
     return result
 
+def decodeCfg(flags, RoIs):
+    acc = ComponentAccumulator()
+
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RegSelTool_RPC = acc.popToolsAndMerge(regSelTool_RPC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    RegSelTool_TGC = acc.popToolsAndMerge(regSelTool_TGC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
+
+    # Get RPC BS decoder
+    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
+    rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
+    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
+    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
+    acc.merge( rpcAcc )
+
+    # Get RPC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg
+    rpcAcc = RpcRDODecodeCfg( flags, name= "RpcRdoToRpcPrepData_"+RoIs )
+    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData_"+RoIs).RoIs = RoIs
+    acc.merge( rpcAcc )
+
+    # Get TGC BS decoder
+    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
+    tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
+    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
+    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
+    acc.merge( tgcAcc )
+
+    # Get TGC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg
+    tgcAcc = TgcRDODecodeCfg( flags, name="TgcRdoToTgcPrepData_"+RoIs )
+    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData_"+RoIs).RoIs = RoIs
+    acc.merge( tgcAcc )
+
+    # Get MDT BS decoder
+    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
+    mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
+    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
+    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
+    acc.merge( mdtAcc )
+
+    # Get MDT BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg
+    mdtAcc = MdtRDODecodeCfg( flags, name="MdtRdoToMdtPrepData_"+RoIs )
+    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData_"+RoIs).RoIs = RoIs
+    acc.merge( mdtAcc )
+
+    # Get CSC BS decoder
+    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
+    cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
+    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
+    acc.merge( cscAcc )
+
+    # Get CSC BS->RDO convertor
+    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg
+    cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
+    cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).RoIs = RoIs
+    acc.merge( cscAcc )
+
+    # Get CSC cluster builder
+    from MuonConfig.MuonRdoDecodeConfig import CscClusterBuildCfg
+    cscAcc = CscClusterBuildCfg( flags, name="CscThresholdClusterBuilder_"+RoIs )
+    acc.merge( cscAcc )
+
+    return acc
+
+
 def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
     TrigMuonEFHypoAlg = CompFactory.TrigMuonEFHypoAlg
     efHypo = TrigMuonEFHypoAlg(name)
@@ -133,6 +214,9 @@ def efMuHypoCfg(flags, name="UNSPECIFIED", inputMuons="UNSPECIFIED"):
 
 def generateChains( flags, chainDict ):
     chainDict = splitChainDict(chainDict)[0]
+
+    #Clone and replace offline flags so we can set muon trigger specific values
+    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
 
     # Step 1 (L2MuonSA)
     stepName = 'L2MuonSA'
@@ -148,76 +232,23 @@ def generateChains( flags, chainDict ):
     #external data loading to view
     reco.mergeReco( MuFastViewDataVerifier() )
 
-
     # decoding
-    # Get RPC BS decoder
-    from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
-    rpcAcc = RpcBytestreamDecodeCfg( flags, forTrigger=True )
-    rpcAcc.getEventAlgo("RpcRawDataProvider").RoIs = reco.name+"RoIs"
-    reco.mergeReco( rpcAcc )
-
-    # Get RPC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import RpcRDODecodeCfg
-    rpcAcc = RpcRDODecodeCfg( flags, forTrigger=True )
-    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData").RoIs = reco.name+"RoIs"
-    reco.mergeReco( rpcAcc )
-
-    # Get TGC BS decoder
-    from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
-    tgcAcc = TgcBytestreamDecodeCfg( flags, forTrigger=True )
-    tgcAcc.getEventAlgo("TgcRawDataProvider").RoIs = reco.name+"RoIs"
-    reco.mergeReco( tgcAcc )
-
-    # Get TGC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import TgcRDODecodeCfg
-    tgcAcc = TgcRDODecodeCfg( flags, forTrigger=True )
-    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData").RoIs = reco.name+"RoIs"
-    reco.mergeReco( tgcAcc )
-
-    # Get MDT BS decoder
-    from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
-    mdtAcc = MdtBytestreamDecodeCfg( flags, forTrigger=True )
-    mdtAcc.getEventAlgo("MdtRawDataProvider").RoIs = reco.name+"RoIs"
-    reco.mergeReco( mdtAcc )
-
-    # Get MDT BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import MdtRDODecodeCfg
-    mdtAcc = MdtRDODecodeCfg( flags, forTrigger=True )
-    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData").RoIs = reco.name+"RoIs"
-    reco.mergeReco( mdtAcc )
-
-    # Get CSC BS decoder
-    from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
-    cscAcc = CscBytestreamDecodeCfg( flags, forTrigger=True )
-    cscAcc.getEventAlgo("CscRawDataProvider").RoIs = reco.name+"RoIs"
-    reco.mergeReco( cscAcc )
-
-    # Get CSC BS->RDO convertor
-    from MuonConfig.MuonRdoDecodeConfig import CscRDODecodeCfg
-    cscAcc = CscRDODecodeCfg( flags, forTrigger=True )
-    cscAcc.getEventAlgo("CscRdoToCscPrepData").RoIs = reco.name+"RoIs"
-    reco.mergeReco( cscAcc )
-
-    # Get CSC cluster builder
-    from MuonConfig.MuonRdoDecodeConfig import CscClusterBuildCfg
-    cscAcc = CscClusterBuildCfg( flags, forTrigger=True )
-    reco.mergeReco( cscAcc )
-
+    decodeAcc = decodeCfg(muonflags, reco.name+"RoIs")
+    reco.mergeReco(decodeAcc)
 
 
     # Get Reco alg of muFast Step in order to set into the view
-    algAcc, alg = l2MuFastAlgCfg( flags, roisKey=reco.name+"RoIs")
+    algAcc, alg = l2MuFastAlgCfg( muonflags, roisKey=reco.name+"RoIs")
 
     l2MuFastAlgAcc = ComponentAccumulator()
     l2MuFastAlgAcc.addEventAlgo(alg)
 
     reco.mergeReco( l2MuFastAlgAcc )
     reco.merge( algAcc )
-    #    l2muFastReco = l2MuFastRecoCfg(flags)
     acc.merge( reco, sequenceName=stepReco.getName() )
 
     ### Set muon step1 ###
-    l2muFastHypo = l2MuFastHypoCfg( flags,
+    l2muFastHypo = l2MuFastHypoCfg( muonflags,
                                     name = 'TrigL2MuFastHypo',
                                     muFastInfo = 'MuonL2SAInfo' )
 
@@ -238,18 +269,18 @@ def generateChains( flags, chainDict ):
         accL2CB.addSequence(stepL2CBView)
 
         # Set EventViews for L2MuonCB step
-        recoL2CB = l2MuCombRecoCfg(flags)
+        recoL2CB = l2MuCombRecoCfg(muonflags)
         #external data loading to view
         recoL2CB.inputMaker().RequireParentView = True
         recoL2CB.mergeReco( MuCombViewDataVerifier() )
 
         #ID tracking
-        accID = trigInDetFastTrackingCfg( flags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
+        accID = trigInDetFastTrackingCfg( muonflags, roisKey=recoL2CB.inputMaker().InViewRoIs, signatureName="Muon" )
         recoL2CB.mergeReco(accID)
 
         accL2CB.merge(recoL2CB, sequenceName = stepL2CBReco.getName())
 
-        l2muCombHypo = l2MuCombHypoCfg(flags,
+        l2muCombHypo = l2MuCombHypoCfg(muonflags,
                                        name = 'TrigL2MuCombHypo',
                                        muCombInfo = 'HLT_MuonL2CBInfo' )
 
@@ -264,9 +295,6 @@ def generateChains( flags, chainDict ):
     #EF MS only
     stepEFMSName = 'EFMSMuon'
     stepEFMSReco, stepEFMSView = createStepView(stepEFMSName)
-
-    #Clone and replace offline flags so we can set muon trigger specific values
-    muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
 
     accMS = ComponentAccumulator()
     accMS.addSequence(stepEFMSView)
@@ -286,23 +314,33 @@ def generateChains( flags, chainDict ):
     
     #Probably this block will eventually need to move somewhere more central
     from BeamPipeGeoModel.BeamPipeGMConfig import BeamPipeGeometryCfg
-    accMS.merge( BeamPipeGeometryCfg(flags) )
+    accMS.merge( BeamPipeGeometryCfg(muonflags) )
 
     from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-    accMS.merge(PixelGeometryCfg(flags))
+    accMS.merge(PixelGeometryCfg(muonflags))
     
     from SCT_GeoModel.SCT_GeoModelConfig import SCT_GeometryCfg
-    accMS.merge(SCT_GeometryCfg(flags))
+    accMS.merge(SCT_GeometryCfg(muonflags))
     
     from TRT_GeoModel.TRT_GeoModelConfig import TRT_GeometryCfg
-    accMS.merge(TRT_GeometryCfg(flags))
+    accMS.merge(TRT_GeometryCfg(muonflags))
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    accMS.merge(TrackingGeometrySvcCfg(flags))
+    accMS.merge(TrackingGeometrySvcCfg(muonflags))
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    accMS.merge(LArGMCfg(muonflags))
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    accMS.merge(TileGMCfg(muonflags))
     ###################
 
     EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
     recoMS.mergeReco(EFMuonViewDataVerifier)
+
+    # decoding
+    decodeAcc = decodeCfg(muonflags, recoMS.name+"RoIs")
+    recoMS.mergeReco(decodeAcc)
     
     from MuonConfig.MuonSegmentFindingConfig import MooSegmentFinderAlgCfg
     segCfg = MooSegmentFinderAlgCfg(muonflags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False)
@@ -362,7 +400,7 @@ def generateChains( flags, chainDict ):
         recoCB.mergeReco(muonCombCfg)
 
         muonCreatorCBCfg = MuonCreatorAlgCfg(muonflags, name="TrigMuonCreatorAlgCB_RoI", MuonCandidateLocation="MuonCandidates", TagMaps=["muidcoTagMap"], 
-                                            InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "CBSegments", 
+                                            InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
                                             ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_RoI")
         recoCB.mergeReco(muonCreatorCBCfg)
 
@@ -385,11 +423,11 @@ def generateChains( flags, chainDict ):
         l1Thresholds.append(part['L1threshold'])
 
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
-
+    def _empty(name):
+        return ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
     if 'msonly' in chainDict['chainName']:
-        emptyStep = ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, emptyStep, efmuMSStep, emptyStep ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, _empty("EmptyNoL2MuComb"), efmuMSStep, _empty("EmptyNoEFCB"), _empty("JustEmpty") ] )
     else:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep, efmuCBStep ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep, efmuCBStep, _empty("JustEmpty") ] )
     return chain
 

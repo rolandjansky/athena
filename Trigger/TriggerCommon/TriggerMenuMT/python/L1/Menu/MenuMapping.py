@@ -20,5 +20,7 @@ menuMap = {
     "PhysicsP1_pp_run3_v1" : "MC_pp_v8",
     "PhysicsP1_HI_run3_v1" : "MC_pp_v8",
     "Dev_HI_run3_v1" : "MC_pp_v8",
-    "LS2_v1_TriggerValidation_mc_prescale" : "MC_pp_v8"
+    "LS2_v1_TriggerValidation_prescale" : "MC_pp_v8",
+    "LS2_v1_BulkMCProd_prescale" : "MC_pp_v8",
+    "LS2_v1_CPSampleProd_prescale" : "MC_pp_v8"
 }

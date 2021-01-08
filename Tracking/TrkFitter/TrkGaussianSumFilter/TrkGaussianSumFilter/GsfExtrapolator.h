@@ -252,13 +252,6 @@ private:
     PropDirection direction = anyDirection,
     ParticleHypothesis particleHypothesis = nonInteracting) const;
 
-  std::string layerRZoutput(const Trk::Layer* lay) const;
-
-  std::string positionOutput(const Amg::Vector3D& pos) const;
-
-  int radialDirection(const Trk::MultiComponentState& pars,
-                      PropDirection dir) const;
-
   ToolHandleArray<IPropagator> m_propagators{ this, "Propagators", {}, "" };
   ToolHandle<INavigator> m_navigator{ this,
                                       "Navigator",

@@ -83,7 +83,7 @@ class ARQ_AMI:
     def amiclient(cls):
         if cls._amiclient is None:
             from os import getenv
-            from utils.AtlRunQueryUtils import runsOnServer
+            from CoolRunQuery.utils.AtlRunQueryUtils import runsOnServer
             if runsOnServer():
                 home = "/data/atrqadm/data/"
             else:

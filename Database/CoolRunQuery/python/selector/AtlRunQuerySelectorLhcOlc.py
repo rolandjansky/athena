@@ -5,7 +5,7 @@ import sys
 from CoolRunQuery.utils.AtlRunQueryTimer import timer
 from CoolRunQuery.utils.AtlRunQueryUtils import GetRanges
 
-from .AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector, RunLBBasedCondition, TimeBasedCondition
 
 class LHCSelector(Selector):
     def __init__(self, name, lhc=[], addArg=''):

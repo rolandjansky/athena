@@ -18,7 +18,7 @@
 # run simulation on 25 events using the asymmetric Run3 layout
 LOG_SIM="log_Run3_asymmetric_sim.log"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
-          --geometryVersion 'default:ATLAS-R3-2021-01-00-00_VALIDATION' \
+          --geometryVersion 'default:ATLAS-R3-2021-01-00-01_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 25 \
           --imf False \
@@ -43,7 +43,7 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 # the postInclude adds a validation algorithm which writes out an ntuple for digit/RDO validation
 # (without the postInclude, a standard digitisation job would run)
 LOG_DIGI="log_Run3_asymmetric_digi.log"
-Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v1.root \
+Digi_tf.py --inputHITSFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run3/HITS/AsymmetricLayout_HITS_v2.root \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.digi.py \
            --outputRDOFile OUT_RDO.root &> ${LOG_DIGI}
@@ -75,7 +75,6 @@ fi
 # (without the postInclude, a standard reconstruction job would run)
 LOG_RECO="log_Run3_asymmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
-           --preExec "from MuonRecExample.MuonRecFlags import muonRecFlags;muonRecFlags.setDefaults();muonRecFlags.doFastDigitization=False;muonRecFlags.useLooseErrorTuning.set_Value_and_Lock(True);from RecExConfig.RecFlags import rec;rec.doTrigger=False;rec.doEgamma=True;rec.doLucid=True;rec.doZdc=True;rec.doJetMissingETTag=True" \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \

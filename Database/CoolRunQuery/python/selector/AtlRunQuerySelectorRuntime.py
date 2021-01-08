@@ -8,7 +8,7 @@ from PyCool import cool
 
 from CoolRunQuery.utils.AtlRunQueryUtils import coolDbConn, GetRanges
 
-from .AtlRunQuerySelectorBase import Selector
+from CoolRunQuery.selector.AtlRunQuerySelectorBase import Selector
 
 from CoolRunQuery.AtlRunQueryRun import Run
 

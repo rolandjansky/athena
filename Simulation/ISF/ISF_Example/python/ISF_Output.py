@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
 ## Get the logger
-from AthenaCommon.Logging import *
+from AthenaCommon.Logging import logging
 isfoplog = logging.getLogger('ISF_Output')
 
 def getHITSStreamItemList():

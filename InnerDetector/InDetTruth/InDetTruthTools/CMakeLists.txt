@@ -7,7 +7,7 @@ atlas_subdir( InDetTruthTools )
 atlas_add_component( InDetTruthTools
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps TrkEventPrimitives AtlasDetDescr InDetIdentifier InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData InDetTruthInterfaces TrkTruthTrackInterfaces )
+                     LINK_LIBRARIES AtlasHepMCLib AthenaBaseComps TrkEventPrimitives AtlasDetDescr InDetIdentifier ReadoutGeometryBase InDetReadoutGeometry InDetSimData InDetPrepRawData TrkPrepRawData TrkTruthData InDetTruthInterfaces TrkTruthTrackInterfaces )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

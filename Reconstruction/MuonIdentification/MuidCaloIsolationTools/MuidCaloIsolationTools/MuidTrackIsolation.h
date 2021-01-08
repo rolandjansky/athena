@@ -8,7 +8,6 @@
  energetic inner detector tracks in a cone surrounding a muon
  
   @author Konstantinos.Nikolopoulos@cern.ch, Alan.Poppleton@cern.ch
- (c) ATLAS Combined Muon software
 */
 //////////////////////////////////////////////////////////////////////////////
 

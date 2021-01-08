@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # JetAlgorithm.py
 #
@@ -40,16 +40,16 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
   from JetRec.JetRecStandard import jtm
 
   # Set sequence and flags as needed.
-  if job == None:
+  if job is None:
     from AthenaCommon.AlgSequence import AlgSequence
     job = AlgSequence()
-  if useTruth == None:
+  if useTruth is None:
     useTruth = jetFlags.useTruth()
-  if eventShapeTools == None:
+  if eventShapeTools is None:
     eventShapeTools = jetFlags.eventShapeTools()
-    if eventShapeTools == None:
+    if eventShapeTools is None:
       eventShapeTools = []
-  if separateJetAlgs == None:
+  if separateJetAlgs is None:
     separateJetAlgs = jetFlags.separateJetAlgs()
 
 
@@ -198,7 +198,7 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
     from JetRec.JetRecConf import JetToolRunner
     jtm += JetToolRunner("jetrun",
                          EventShapeTools=[],
-                         Tools=rtools+jtm.jetrecs,
+                         Tools=jtm.jetrecs,
                          Timer=jetFlags.timeJetToolRunner()
                          )
     runners += [jtm.jetrun]

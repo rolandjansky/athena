@@ -32,7 +32,6 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetParticleCreatorTool_split = Trk__TrackParticleCreatorTool(name              = "InDetParticleCreatorTool_split",
                                                                    KeepParameters    = True,
-                                                                   Extrapolator      = InDetExtrapolator,
                                                                    TrackSummaryTool  = InDetTrackSummaryTool,
                                                                    PerigeeExpression = "Origin")
     ToolSvc += InDetParticleCreatorTool_split
@@ -60,7 +59,7 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
     #truth tracks
     if rec.doTruth():
         include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
-        
+
         InDetTracksTruth = ConfiguredInDetTrackTruth(InDetKeys.Tracks()+"_split",
                                                      InDetKeys.DetailedTracksTruth()+"_split",
                                                      InDetKeys.Tracks()+"_Truth_split")

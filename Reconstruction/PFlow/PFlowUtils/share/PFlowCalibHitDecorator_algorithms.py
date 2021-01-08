@@ -15,6 +15,7 @@ PFlowCalibPFODecoratorAlgorithm = PFlowCalibPFODecoratorAlgorithm()
 PFlowCalibPFOTruthAttributerTool = CalibClusterTruthAttributerTool("PFlowCalibPFOTruthAttributerTool")
 PFlowCalibPFODecoratorAlgorithm.TruthAttributerTool = PFlowCalibPFOTruthAttributerTool
 #allow flow element decoration if the eflowRec JO permits it
+
 from eflowRec.eflowRecFlags import jobproperties as jobprops
 if(jobprops.eflowRecFlags.useFlowElements==True):
     PFlowCalibPFODecoratorAlgorithm.useFlowElements=True

@@ -426,6 +426,24 @@ namespace xAOD
   private:
     std::map<const IParticle*,ConstVec> m_override;
 
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpx;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpy;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calpz;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_cale;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_calsumpt;
+
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpx;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpy;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trkpz;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trke;
+    static const SG::AuxElement::Accessor<std::vector<float> > m_acc_trksumpt;
+
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpx;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpy;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrkpz;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrke;
+    static const SG::AuxElement::Accessor<float> m_acc_jettrksumpt;
+
   }; // MissingETAssociation_v1
 }
 

@@ -7,6 +7,7 @@ atlas_subdir( AthenaPython )
 find_package( Python COMPONENTS Development )
 find_package( ROOT COMPONENTS Core PyROOT ROOTTPython
    cppyy${Python_VERSION_MAJOR}_${Python_VERSION_MINOR} )
+find_package( future )
 
 # Component(s) in the package:
 atlas_add_library( AthenaPython

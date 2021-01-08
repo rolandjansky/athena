@@ -115,10 +115,12 @@ JetChainParts = {
     # Reco information
     'recoAlg'      : # Jet clustering algorithm
       ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
-    'dataType'     : # Jet input type (rename?)
-      ['tc','pf','sktc','cssktc','csskpf'],
-    'calib'        : # Topocluster calibration (change to constit mods?)
+    'constitType'  : # Jet input type
+      ['tc','pf'], # 'ufo' might be added at some point
+    'clusterCalib' : # Topocluster calibration
       ['em', 'lcw'],
+    'constitMod'   : # Constituent modifiers
+      ['sk', 'cssk'],
     'jetCalib'     : # Jet calibration
       ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : # No longer used?
@@ -133,12 +135,15 @@ JetChainParts = {
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
                       'vbenf',  # Test VBF-like chain
+                      'fbdjshared',  # Test VBF-like chain with dijet-fworward/backward sharing
                       'vbenfSEP30etSEP34mass35SEP50fbet', # Test VBF-like chain with more info
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
-                      'aggSEP100htSEP10etSEP0eta320',],
+                      'aggSEP100htSEP10etSEP0eta320',
+                      'aggSEP50htSEP10etSEP0eta320',
+                      ],
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
@@ -179,8 +184,9 @@ JetChainParts_Default = {
     'subSigs'       : ['Jet'],
     #
     'recoAlg'       :'a4',
-    'dataType'      :'tc',
-    'calib'         :'em',
+    'constitType'   :'tc',
+    'clusterCalib'  :'em',
+    'constitMod'    :'',
     'jetCalib'      :'default',
     'scan'          :'FS',
     'trkopt'        : 'notrk',
@@ -222,11 +228,11 @@ MuonChainParts = {
     'trigType'       : ['mu'],
     'etaRange'       : ['0eta2550','0eta105'],
     'threshold'      : '',
-    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io'],
+    'extra'          : ['noL1', 'msonly','lateMu', "Dr", "muoncalib" ,'l2io','l2lrt'],
     'IDinfo'         : [],
     'isoInfo'        : ['ivarmedium'],
     'invMassInfo'    : ['10invm70'],
-    'addInfo'        : ['1step','idperf','3layersEC','cosmic',"muonqual"],
+    'addInfo'        : ['1step','idperf','LRT','3layersEC','cosmic',"muonqual"],
     'topo'           : AllowedTopos_mu,
     'flavour'        : [],
     'sigFolder'     : 'Muon',
@@ -339,7 +345,7 @@ METChainParts = {
     'jetCalib'       : JetChainParts['jetCalib'],
     'L2recoAlg'      : [],
     'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
-    'jetDataType'    : JetChainParts['dataType'],
+    'constitType'    : JetChainParts['constitType'],
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
@@ -362,7 +368,7 @@ METChainParts_Default = {
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
-    'jetDataType'    : 'tc',
+    'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']

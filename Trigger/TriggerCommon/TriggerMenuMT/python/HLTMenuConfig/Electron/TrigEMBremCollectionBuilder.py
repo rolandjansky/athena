@@ -9,8 +9,7 @@ from AthenaCommon.Logging import logging
 # import base class
 from egammaAlgs import egammaAlgsConf
 from egammaRec.Factories import AlgFactory
-from egammaTools.egammaExtrapolators import (AtlasPublicExtrapolator,
-                                             egammaExtrapolator)
+from egammaTools.egammaExtrapolators import egammaExtrapolator
 
 # default configuration of the EMBremCollectionBuilder
 from InDetRecExample.InDetJobProperties import InDetFlags
@@ -113,7 +112,6 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildInDetParticleCreatorTool = Trk__TrackParticleCreatorTool(
             name="GSFBuildInDetParticleCreatorTool",
             KeepParameters=True,
-            Extrapolator=AtlasPublicExtrapolator(),
             UseTrackSummaryTool=False)
         #
         #  Track slimming (private not in ToolSvc)

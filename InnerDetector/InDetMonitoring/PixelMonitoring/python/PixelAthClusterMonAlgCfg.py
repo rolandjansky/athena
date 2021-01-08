@@ -12,7 +12,7 @@ from PixelMonitoring.PixelAthMonitoringBase import define1DLayers, defineMapVsLu
 from PixelMonitoring.PixelAthMonitoringBase import define1DProfLumiLayers
 from PixelMonitoring.PixelAthMonitoringBase import layers, totcuts, xbinsem, xminsem, lumibinsx, ztotbinsy, ztotminsy
 from PixelMonitoring.PixelAthMonitoringBase import addOnTrackTxt, addOnTrackToPath, fullDressTitle
-from PixelMonitoring.PixelAthMonitoringBase import runtext
+from PixelMonitoring.PixelAthMonitoringBase import runtext, ReadingDataErrLabels
 
 
 def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
@@ -35,7 +35,7 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 
     if doLumiBlock:
         title = 'Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive)'
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lumiblock', histname='MapOfModulesStatusLB')
+        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TProfile2D', lifecycle='lowstat', histname='MapOfModulesStatusLB')
 
     if doFEPlots:
         histoGroupName = 'MapOfFEsStatus' 
@@ -146,6 +146,12 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
         histoGroupName = 'MissHitsRatio5min' 
         title = 'Hole+Outlier per track reset every 5 min'
         define2DProfHist(helper, alg, 'MissHitsRatio', title, path, type='TProfile2D', zmin=0, zmax=1.1, opt='kLBNHistoryDepth=5', histname=histoGroupName)
+
+    varName = 'trkdataread_err;ReadingTrackDataErr'
+    title = 'Number of Track data reading errors;error type;# events'
+    trackGroup.defineHistogram(varName,
+                               type='TH1I', path=path, title=title,
+                               xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
 ### end track histograms
 ### begin cluster histograms
@@ -299,6 +305,11 @@ def PixelAthClusterMonAlgCfg(helper, alg, **kwargs):
 ### 
 ### end cluster ToT and charge
 
-
+        if not ontrack:
+            varName = 'clsdataread_err;ReadingClusterDataErr'
+            title = 'Number of Cluster data reading errors;error type;# events'
+            trackGroup.defineHistogram(varName,
+                                       type='TH1I', path=pathGroup, title=title,
+                                       xbins=len(ReadingDataErrLabels), xmin=-0.5, xmax=-0.5+len(ReadingDataErrLabels), xlabels=ReadingDataErrLabels)
 
 ### end cluster histograms

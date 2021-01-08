@@ -209,6 +209,8 @@ private: // properties
    ToolHandleArray<IAthenaSelectorTool> m_helperTools{this};
    ToolHandle<IAthenaSelectorTool> m_counterTool{this, "CounterTool", "", ""};
    ToolHandle<IAthenaIPCTool> m_eventStreamingTool{this, "SharedMemoryTool", "", ""};
+   /// Make this instance a Streaming Client during first iteration automatically
+   IntegerProperty m_makeStreamingToolClient{this,"MakeStreamingToolClient",0};
 
    /// The following are included for compatibility with McEventSelector and are not really used.
    /// However runNo, oldRunNo and overrideRunNumberFromInput are used to reset run number for

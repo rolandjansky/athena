@@ -15,7 +15,6 @@
 #include "CxxUtils/checker_macros.h"
 #include "TRT_ConditionsServices/ITRT_DCS_ConditionsSvc.h"
 #include "TRT_ConditionsServices/ITRT_ConditionsSvc.h"
-#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ICondSvc.h"

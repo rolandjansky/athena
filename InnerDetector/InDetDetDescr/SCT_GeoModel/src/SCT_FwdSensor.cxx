@@ -2,15 +2,6 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-///////////////////////////////////////////////
-// Simulation for the COMBINED TESTBEAM 2004 //
-//                                           //
-//       Zdenka.Broklova@matfyz.cz           //
-//       Carlos.Escobar@ific.uv.es           //
-//       Peter.Kodys@ific.uv.es              //
-//        January 23, 2004                   //
-///////////////////////////////////////////////
-
 #include "SCT_GeoModel/SCT_FwdSensor.h"
 
 #include "SCT_GeoModel/SCT_GeometryManager.h"
@@ -38,8 +29,8 @@
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
-#include "InDetReadoutGeometry/SiCommonItems.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/SiCommonItems.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 
 #include <cmath>
 

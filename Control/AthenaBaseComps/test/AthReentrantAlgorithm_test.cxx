@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -114,7 +114,6 @@ void test1 (ISvcLocator* svcLoc)
   std::cout << "test1\n";
 
   MyAlg alg ("ralg", svcLoc);  alg.addRef();
-  //assert (alg.setProperties().isSuccess());
   assert (alg.sysInitialize().isSuccess());
 
   assert (alg.rkey.clid() == 293847295);

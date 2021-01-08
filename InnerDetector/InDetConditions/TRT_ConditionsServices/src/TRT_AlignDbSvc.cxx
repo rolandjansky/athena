@@ -19,11 +19,10 @@
 
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 
 #include "TRT_ConditionsData/FloatArrayStore.h"
-#include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "AthenaKernel/IOVSvcDefs.h"
 
 // Amg

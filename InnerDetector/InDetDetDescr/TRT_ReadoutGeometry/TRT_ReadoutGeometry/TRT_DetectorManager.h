@@ -14,7 +14,7 @@
 #include "TRT_ReadoutGeometry/TRT_Conditions.h"
 #include "TRT_ReadoutGeometry/TRT_BarrelElement.h"
 #include "TRT_ReadoutGeometry/TRT_EndcapElement.h"
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
+#include "ReadoutGeometryBase/InDetDD_Defs.h"
 #include "InDetReadoutGeometry/Version.h"
 #include "TRT_ReadoutGeometry/TRT_DetElementCollection.h"
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -25,8 +25,6 @@
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
 #include "CLHEP/Geometry/Transform3D.h"
-
-#include "InDetReadoutGeometry/InDetDD_Defs.h"
 
 #include "CxxUtils/checker_macros.h"
 

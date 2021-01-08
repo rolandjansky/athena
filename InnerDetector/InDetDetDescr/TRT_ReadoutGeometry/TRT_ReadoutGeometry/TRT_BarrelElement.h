@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -131,12 +131,12 @@ namespace InDetDD {
     const TRT_BarrelElement& operator=(const TRT_BarrelElement& right) = delete;
     /** These transforms are effectively to the local coord
       system of a straw derived from GeoModel -> hence CLHEP */
-    HepGeom::Transform3D calculateStrawTransform(int straw) const;
+    virtual HepGeom::Transform3D calculateStrawTransform(int straw) const override;
     HepGeom::Transform3D calculateLocalStrawTransform(int straw) const;
     /** return the surface of the element */ 
-    const Trk::Surface & elementSurface() const;
+    virtual const Trk::Surface & elementSurface() const override;
     /** create the cache for the element */
-    void createSurfaceCache() const;
+    virtual void createSurfaceCache() const override;
     std::unique_ptr<SurfaceCache> createSurfaceCacheHelper() const;
 
     // Private Member data:

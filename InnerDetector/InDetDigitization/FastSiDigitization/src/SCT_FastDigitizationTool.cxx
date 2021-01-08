@@ -20,7 +20,7 @@
 #include "SCT_ReadoutGeometry/SCT_ForwardModuleSideDesign.h"
 
 // FATRAS
-#include "InDetReadoutGeometry/SiCellId.h"
+#include "ReadoutGeometryBase/SiCellId.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 #include "TrkExUtils/LineIntersection2D.h"

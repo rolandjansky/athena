@@ -31,6 +31,35 @@
 #include <algorithm>
 #include <vector>
 
+namespace {
+std::unique_ptr<Trk::FitQuality>
+buildFitQuality(const Trk::SmoothedTrajectory& smoothedTrajectory)
+{
+
+  double chiSquared = 0.;
+  int numberDoF = -5;
+  // Loop over all TrackStateOnSurface objects in trajectory
+  Trk::SmoothedTrajectory::const_iterator stateOnSurface =
+    smoothedTrajectory.begin();
+  for (; stateOnSurface != smoothedTrajectory.end(); ++stateOnSurface) {
+    if (!(*stateOnSurface)->type(Trk::TrackStateOnSurface::Measurement)) {
+      continue;
+    }
+    if ((*stateOnSurface)->fitQualityOnSurface() == nullptr) {
+      continue;
+    }
+    chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
+    numberDoF += (*stateOnSurface)->fitQualityOnSurface()->numberDoF();
+  }
+
+  if (std::isnan(chiSquared) || chiSquared <= 0.) {
+    return nullptr;
+  }
+
+  return std::make_unique<Trk::FitQuality>(chiSquared, numberDoF);
+}
+}
+
 Trk::GaussianSumFitter::GaussianSumFitter(const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
@@ -719,34 +748,6 @@ Trk::GaussianSumFitter::makePerigee(
                                      pattern,
                                      modeQoverP);
   return perigeeMultiStateOnSurface;
-}
-
-std::unique_ptr<Trk::FitQuality>
-Trk::GaussianSumFitter::buildFitQuality(
-  const Trk::SmoothedTrajectory& smoothedTrajectory) const
-{
-
-  double chiSquared = 0.;
-  int numberDoF = -5;
-  // Loop over all TrackStateOnSurface objects in trajectory
-  SmoothedTrajectory::const_iterator stateOnSurface =
-    smoothedTrajectory.begin();
-  for (; stateOnSurface != smoothedTrajectory.end(); ++stateOnSurface) {
-    if (!(*stateOnSurface)->type(TrackStateOnSurface::Measurement)) {
-      continue;
-    }
-    if ((*stateOnSurface)->fitQualityOnSurface() == nullptr) {
-      continue;
-    }
-    chiSquared += (*stateOnSurface)->fitQualityOnSurface()->chiSquared();
-    numberDoF += (*stateOnSurface)->fitQualityOnSurface()->numberDoF();
-  }
-
-  if (std::isnan(chiSquared) || chiSquared <= 0.) {
-    return nullptr;
-  }
-
-  return std::make_unique<FitQuality>(chiSquared, numberDoF);
 }
 
 /*

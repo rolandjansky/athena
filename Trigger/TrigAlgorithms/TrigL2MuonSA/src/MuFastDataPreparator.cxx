@@ -12,8 +12,7 @@
 TrigL2MuonSA::MuFastDataPreparator::MuFastDataPreparator(const std::string& type, 
                                                          const std::string& name,
                                                          const IInterface*  parent): 
-  AthAlgTool(type,name,parent),
-  m_regionSelector("RegSelSvc", name)
+  AthAlgTool(type,name,parent)
 {
 }
 
@@ -33,9 +32,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_readKey.initialize());
   
-   ATH_CHECK(m_regionSelector.retrieve());
-   ATH_MSG_DEBUG("Retrieved the RegionSelector service ");
-
    if (m_use_rpc) {
      ATH_CHECK(m_rpcDataPreparator.retrieve());
      ATH_MSG_DEBUG("Retrieved service " << m_rpcDataPreparator);
@@ -64,10 +60,6 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
 
    ATH_CHECK(m_rpcPatFinder.retrieve());
    ATH_MSG_DEBUG("Retrieved service " << m_rpcPatFinder);
-
-   // set the geometry tools
-   m_rpcRoadDefiner->setMdtGeometry(m_regionSelector);
-   m_tgcRoadDefiner->setMdtGeometry(m_regionSelector);
 
    return StatusCode::SUCCESS; 
 }

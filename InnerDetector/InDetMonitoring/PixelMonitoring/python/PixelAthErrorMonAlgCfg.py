@@ -73,6 +73,14 @@ def PixelAthErrorMonAlgCfg(helper, alg, **kwargs):
     title          = "Average FE/MCC Error Words"
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TProfile2D', onlylayers=fei3layers)
 
+    histoGroupName = "TruncatedROBErrors"
+    title          = "Truncated ROB Errors"
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    histoGroupName = "MaskedROBErrors"
+    title          = "Masked ROB Errors"
+    define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
     if doLumiBlock:
         histoGroupName = "ErrorsLB"
         title          = "Errors"

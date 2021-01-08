@@ -75,6 +75,5 @@ def fastL2EgammaClusteringAlg( flags, roisKey="EMCaloRoIs", doRinger=False):
     alg.CalibListEndcap += [EgammaHitsCalibrationEndcapConfig()]
     alg.CalibListEndcap += [EgammaGapCalibrationConfig()]
 
-
     acc.addEventAlgo( alg )
     return acc

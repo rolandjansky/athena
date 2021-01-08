@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // IAsgSelectionTool.h 
@@ -10,9 +10,6 @@
 /////////////////////////////////////////////////////////////////// 
 #ifndef PATCORE_IASGSELECTIONTOOL_H
 #define PATCORE_IASGSELECTIONTOOL_H 1
-
-// STL includes
-
 
 // FrameWork includes
 #include "AsgTools/IAsgTool.h"
@@ -25,7 +22,6 @@
 namespace xAOD{
   class IParticle;
 }
-
 
 class  IAsgSelectionTool
   : virtual public asg::IAsgTool
@@ -51,6 +47,6 @@ class  IAsgSelectionTool
   virtual asg::AcceptData accept( const xAOD::IParticle* /*part*/ ) const = 0;
 
 
-}; 
+};
 
 #endif //> !PATCORE_IASGSELECTIONTOOL_H

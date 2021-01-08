@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file TruthD3PDMaker/python/GenParticleD3PDObject.py
@@ -31,9 +31,9 @@ def make_GenParticle_D3PDObject( default_prefix, default_sgkey,
                   getter = None, sgkey = None, filter = default_filter,
                   label = default_label, **kw ):
 
-        if sgkey == None: sgkey = default_sgkey
-        if label == None: label = prefix
-        if getter == None:
+        if sgkey is None: sgkey = default_sgkey
+        if label is None: label = prefix
+        if getter is None:
             getter = TruthD3PDMaker.GenParticleGetterTool (name + "_Getter",
                                                            Label = label,
                                                            SGKey = sgkey,
@@ -62,14 +62,14 @@ GenParticleD3PDObject = make_GenParticle_D3PDObject( TruthD3PDKeys.GenParticlePr
 GenParticleD3PDObject.defineBlock( 0, 'GenParticle',
                                    TruthD3PDMaker.GenParticleFillerTool )
 
-if TruthD3PDFlags.GenEventAssocLabel() != None and TruthD3PDFlags.GenEventAssocLabel() != "": 
+if TruthD3PDFlags.GenEventAssocLabel() is not None and TruthD3PDFlags.GenEventAssocLabel() != "":
     GenPartEventAssoc = IndexAssociation( GenParticleD3PDObject,
                                           TruthD3PDMaker.GenParticleEventAssociationTool,
                                           TruthD3PDFlags.GenEventAssocLabel(),
                                           blockname = "GenPartEventAssoc",
                                           prefix = 'mcevt_' )
 
-if TruthD3PDFlags.GenVertexAssocLabel() != None and TruthD3PDFlags.GenVertexAssocLabel() != "":
+if TruthD3PDFlags.GenVertexAssocLabel() is not None and TruthD3PDFlags.GenVertexAssocLabel() != "":
     GenPartProdVertexAssoc = IndexAssociation( GenParticleD3PDObject,
                                                TruthD3PDMaker.GenParticleVertexAssociationTool,
                                                TruthD3PDFlags.GenVertexAssocLabel(),
@@ -91,7 +91,7 @@ if TruthD3PDFlags.GenParticleMother():
                                                 prefix = 'mother_',
                                                 InParticles = True)
 
-if TruthD3PDFlags.GenVertexAssocLabel() != None and TruthD3PDFlags.GenVertexAssocLabel() != "":
+if TruthD3PDFlags.GenVertexAssocLabel() is not None and TruthD3PDFlags.GenVertexAssocLabel() != "":
     GenPartDecayVertexAssoc = IndexAssociation( GenParticleD3PDObject,
                                                 TruthD3PDMaker.GenParticleVertexAssociationTool,
                                                 TruthD3PDFlags.GenVertexAssocLabel(),
@@ -113,7 +113,7 @@ if TruthD3PDFlags.GenParticleChild():
                                                prefix = 'child_',
                                                InParticles = False )
 
-if TruthD3PDFlags.TruthTrackAssocLabel() != None and TruthD3PDFlags.TruthTrackAssocLabel() != "":
+if TruthD3PDFlags.TruthTrackAssocLabel() is not None and TruthD3PDFlags.TruthTrackAssocLabel() != "":
     GenPartTruthTrackAssoc = IndexAssociation( GenParticleD3PDObject,
                                                TruthD3PDMaker.GenParticleParticleAssociationTool,
                                                TruthD3PDFlags.TruthTrackAssocLabel(),

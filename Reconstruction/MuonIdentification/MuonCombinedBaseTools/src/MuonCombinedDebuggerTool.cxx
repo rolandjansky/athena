@@ -6,7 +6,6 @@
 // MuonCombinedDebuggerTool
 //  AlgTool to dump ROOT TTree with debugging information to tune muon combined
 //  fit preselection
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #include "MuonCombinedDebuggerTool.h"

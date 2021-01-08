@@ -11,7 +11,7 @@ log = logging.getLogger("TriggerMenuMT.HLTMenuConfig.Muon.MuonDef")
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
 
-from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
+from TriggerMenuMT.HLTMenuConfig.Muon.MuonSequenceSetup import muFastSequence, muFastOvlpRmSequence, muCombSequence, muCombLRTSequence, muCombOvlpRmSequence, mul2IOOvlpRmSequence, muEFSASequence, muEFCBSequence, muEFSAFSSequence, muEFCBFSSequence, muEFIsoSequence, efLateMuRoISequence, efLateMuSequence
 from TrigMuonHypoMT.TrigMuonHypoMTConfig import TrigMuonEFInvMassHypoToolFromDict
 
 # this must be moved to the HypoTool file:
@@ -34,6 +34,9 @@ def muFastOvlpRmSequenceCfg(flags):
 
 def muCombSequenceCfg(flags):
     return muCombSequence()
+
+def muCombLRTSequenceCfg(flags):
+    return muCombLRTSequence()
 
 def muCombOvlpRmSequenceCfg(flags):
     return muCombOvlpRmSequence()
@@ -82,6 +85,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         key = self.chainPart['extra']+self.chainPart['isoInfo']
 
+
         steps=stepDictionary[key]
 
         for step_level in steps:
@@ -112,7 +116,9 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "Dr": [['getmuFastDr', 'getmuCombDr']],
-            "muoncalib":[['getmuFast']]
+            "muoncalib":[['getmuFast']],
+            "l2lrt":[['getmuFast', 'getmuComb']],
+
         }
 
         return stepDictionary
@@ -137,6 +143,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
          
     # --------------------
     def getmuComb(self):
+
         doOvlpRm = False
         if "bTau" in self.chainName or "bJpsi" in self.chainName or "bUpsi" in self.chainName or "bDimu" in self.chainName or "bBmu" in self.chainName:
            doOvlpRm = False
@@ -147,8 +154,11 @@ class MuonChainConfiguration(ChainConfigurationBase):
         else:
            doOvlpRm = False
 
+
         if doOvlpRm:
            return self.getStep(2, 'muComb', [muCombOvlpRmSequenceCfg] )
+        elif "LRT" in self.chainName:
+           return self.getStep(2, 'muCombLRT', [muCombLRTSequenceCfg] )
         else:
            return self.getStep(2, 'muComb', [muCombSequenceCfg] )
 

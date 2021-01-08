@@ -23,7 +23,7 @@ def writeFileMetaData(flags):
 
     accumulator.merge(
         xAODEventInfoCnvConfig.EventInfoCnvAlgCfg(
-            flags=flags, inputKey="",
+            flags=flags, inputKey="", disableBeamSpot=flags.Common.Project!="Athena"
         )
     )
 

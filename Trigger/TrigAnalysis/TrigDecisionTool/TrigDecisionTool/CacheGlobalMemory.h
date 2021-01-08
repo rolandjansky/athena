@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGGER_DECISION_TOOL_CACHE_GLOBAL_MEMORY_H
@@ -43,7 +43,7 @@
 #include "xAODTrigger/TrigDecision.h"
 #include "xAODTrigger/TrigNavigation.h"
 
-#ifndef XAOD_STANDALONE
+#ifndef XAOD_ANALYSIS
 #include "EventInfo/EventInfo.h"
 #include "TrigDecisionEvent/TrigDecision.h"
 #endif
@@ -68,7 +68,7 @@ namespace Trig {
   class CacheGlobalMemory : public virtual Logger {
 
   using Logger::msgLvl;//resolve ambiguity from also inheriting from Logger
-  
+
   public:
     // constructors, destructor
     CacheGlobalMemory();
@@ -81,16 +81,16 @@ namespace Trig {
     /**
      * @brief creates new chain group
      * @param patterns list of patterns i.e. regexes, if chain groups already exists it is just given back
-     *        The chain group is considered to exist if the patterns are the same. 
+     *        The chain group is considered to exist if the patterns are the same.
      *        Patterns are stored and made unique i.e. "EF_mu4", "EF_mu6" is the same as "EF_mu6", "EF_mu4".
      *        It is not the same though as "EF_mu.*" even if in particular case that would mean the same 2 chains.
-     *        
+     *
      * @param alias is the short human readable name for the triggers which are in the group i.e. myMuons
      **/
     const Trig::ChainGroup* createChainGroup(const std::vector< std::string >& patterns,
                                              const std::string& alias="");
     /**
-     * @brief Updates configuration of the chain groups 
+     * @brief Updates configuration of the chain groups
      * (i.e. regexes are reapplied to new set of chains)
      **/
     void update(const TrigConf::HLTChainList* confChains,
@@ -100,7 +100,7 @@ namespace Trig {
     const LVL1CTP::Lvl1Item* item(const TrigConf::TriggerItem& i) const;     //!< CTP item from given config item
     const TrigConf::TriggerItem* config_item(const std::string& name) const; //!< CTP config item from given name
     float item_prescale(int ctpid) const;                                      //!< Prescale for CPT item
-    
+
     const HLT::Chain* chain(const std::string& name) const;                  //!< HLT chain object from given name (0 pointer returned if no match)
     const HLT::Chain* chain(const TrigConf::HLTChain& chIt) const;           //!< HLT chain object from given config chain
     const TrigConf::HLTChain* config_chain(const std::string& name) const;   //!< HLT config chain from given name
@@ -111,10 +111,10 @@ namespace Trig {
           ATH_MSG_WARNING("unpack Navigation failed");
 	      }
       }
-      return m_navigation; 
+      return m_navigation;
     }
     void navigation(HLT::TrigNavStructure* nav) { m_navigation = nav; }       //!< sets navigation object pointer
-    
+
     std::map< std::vector< std::string >, Trig::ChainGroup* >& getChainGroups() {return m_chainGroupsRef;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() {return m_items;};
     //    std::map<unsigned, const LVL1CTP::Lvl1Item*>  getItems() const {return m_items;};
@@ -130,13 +130,13 @@ namespace Trig {
     /**
      * @brief cheks if new event arrived with the decision
      * Need tu use before any call to CacheGlobalMemory.
-     * @return true if all went fine about decision, false otherwise     
+     * @return true if all went fine about decision, false otherwise
      **/
     bool assert_decision();
 
     void setUnpacker( Trig::IDecisionUnpacker* up ){ m_unpacker = up; }
     Trig::IDecisionUnpacker* unpacker(){ return m_unpacker; }
-    
+
 
     /// Set the event store to be used by the object
     void setStore( EventPtr_t store ) { m_store = store; }
@@ -148,19 +148,19 @@ namespace Trig {
     void setRun3NavigationKeyPtr(SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>* k) { m_run3NavigationKeyPtr = k; }
     SG::ReadHandleKey<TrigCompositeUtils::DecisionContainer>& getRun3NavigationKeyPtr() { return *m_run3NavigationKeyPtr; }
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
     void setOldDecisionKeyPtr(SG::ReadHandleKey<TrigDec::TrigDecision>* k) { m_oldDecisionKeyPtr = k; }
     void setOldEventInfoKeyPtr(SG::ReadHandleKey<EventInfo>* k) { m_oldEventInfoKeyPtr = k; }
 #endif
 
     SG::ReadHandleKey<xAOD::TrigDecision>* xAODTrigDecisionKey() { return m_decisionKeyPtr; }
 
-    // 
+    //
     template<class T>
     void deleteAtTheEndOfEvent(T t) const { m_deleteAtEndOfEvent.insert(t); }
 
 
-    
+
 
   private:
     friend class DecisionAccess;
@@ -185,14 +185,14 @@ namespace Trig {
 
     /// Pointer to the event store in use
     EventPtr_t m_store;
-    
+
     /// Trigger decision unpacker helper
     IDecisionUnpacker* m_unpacker;
 
     // Navigation owned by CGM
     HLT::TrigNavStructure* m_navigation;
-    
-    // chain groups 
+
+    // chain groups
     typedef std::map< std::vector< std::string >, Trig::ChainGroup* >::iterator ChGrIt;
     std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroups;     //!< primary storage for chain groups
     std::map< std::vector< std::string >, Trig::ChainGroup* > m_chainGroupsRef;  //!< this map keeps the chain group more than once i.e. when alias is given
@@ -200,11 +200,11 @@ namespace Trig {
     //    std::map<CTPID, const LVL1CTP::Lvl1Item*>          m_items;    //!< items keyed by id (changing every event)
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_l2chains; //!< chains keyed by chain counter (chainging every event)
     //    std::map<CHAIN_COUNTER, const HLT::Chain*>         m_efchains;
-    
+
     std::unordered_map<std::string, const LVL1CTP::Lvl1Item*> m_itemsByName;     //!< items keyed by configuration name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_l2chainsByName;  //!< L2 chains keyed by chain name (chainging every event)
     std::unordered_map<std::string, const HLT::Chain*> m_efchainsByName;  //!< L2 chains keyed by chain name (chainging every event)
-    
+
     typedef unsigned CTPID;
     typedef unsigned CHAIN_COUNTER;
     std::map<CTPID, LVL1CTP::Lvl1Item*>  m_itemsCache;               //!< cache of all CTP items possible (given configuration)
@@ -213,14 +213,14 @@ namespace Trig {
 
     std::map<std::string, std::vector<std::string> > m_groups;          //!< mapping from group to list of chains
     std::map<std::string, std::vector<std::string> > m_streams;         //!< mapping from stream to list of chains
-    
+
     const TrigConf::ItemContainer* m_confItems;             //!< items configuration
     const TrigConf::HLTChainList*  m_confChains;            //!< all chains configuration
     mutable const xAOD::TrigCompositeContainer* m_expressStreamContainer;
 
     SG::ReadHandleKey<xAOD::TrigDecision>* m_decisionKeyPtr; //!< Parent TDT's read handle key
 
-#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full Athena
+#ifndef XAOD_ANALYSIS // Full Athena
     SG::ReadHandleKey<TrigDec::TrigDecision>* m_oldDecisionKeyPtr; //!< Parent TDT's read handle key
     SG::ReadHandleKey<EventInfo>* m_oldEventInfoKeyPtr; //!< Parent TDT's read handle key
 #endif
@@ -230,29 +230,29 @@ namespace Trig {
 
     typedef std::unordered_map<std::string, const TrigConf::HLTChain*> ChainHashMap_t;
     ChainHashMap_t     m_mConfChains;            //!< map of conf chains
-  
+
     char     m_bgCode; //!< the encoded bunchgroup information
-    
-    
+
+
     class AnyTypeDeleter {
 
-      
+
       struct iholder {
         virtual ~iholder() {}
         virtual void* ptr() const { return 0;}
       };
 
       struct holder_comp {
-        bool operator()(iholder* lhs, iholder* rhs) const { 
-          return lhs->ptr() < rhs->ptr(); }      
+        bool operator()(iholder* lhs, iholder* rhs) const {
+          return lhs->ptr() < rhs->ptr(); }
       };
       template<class T>
-      class holder : public iholder {    
+      class holder : public iholder {
       public:
         holder(T& t): m_held(t) {}
-        virtual ~holder() { 
+        virtual ~holder() {
           delete m_held;
-          m_held = 0; }    
+          m_held = 0; }
         virtual void* ptr() const { return (void*)m_held;}
       private:
         T m_held;
@@ -266,14 +266,14 @@ namespace Trig {
       void clear() {
         for(iholder* i : m_todel) {
           delete i;
-        }    
+        }
         m_todel.clear();
       }
       ~AnyTypeDeleter();
-    private:  
+    private:
       std::set< iholder*, holder_comp > m_todel;
     };  // end of deleter
-    
+
     mutable AnyTypeDeleter m_deleteAtEndOfEvent;
 
     mutable std::recursive_mutex m_cgmMutex; //!< R3 MT protection only against --threads > 1. Needs refacotring...

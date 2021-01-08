@@ -34,18 +34,13 @@ namespace LVL1MUCTPIPHASE1 {
     SimController();
     ~SimController();
 
-    void configureMSP(const std::string& xmlName);
+    void configureTopo(const std::string& geoFile);
+    void configureOverlapRemoval(const std::string& lutFile);
 
     void processData(LVL1MUONIF::Lvl1MuCTPIInputPhase1* input, int bcid=0);
     void setConfiguration( const Configuration& conf );
 
-    const std::vector<unsigned int>& getCTPData();
     LVL1::MuCTPIL1Topo getL1TopoData(int bcidOffset);
-    const std::vector<unsigned int>& getDAQData();
-    std::list< unsigned int > getRoIBData();
-
-    bool hasBarrelCandidate();
-    bool hasEndcapCandidate();
 
     TriggerProcessor* getTriggerProcessor();
 

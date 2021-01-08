@@ -86,8 +86,8 @@ StatusCode TrackRecordGenerator::callGenerator() {
         double dPhi = std::atan2( m_smearTR, R );
         dPhi = CLHEP::RandFlat::shoot( &randomEngine(), -dPhi, dPhi );
         double theta = std::atan2( particle4Position.x() , particle4Position.y() );
-        particle4Position.setX( R*sin( theta + dPhi ) );
-        particle4Position.setY( R*cos( theta + dPhi ) );
+        particle4Position.setX( R*std::sin( theta + dPhi ) );
+        particle4Position.setY( R*std::cos( theta + dPhi ) );
       }
       ATH_MSG_DEBUG( "Shifted track record to " << particle4Position );
     }
@@ -182,11 +182,11 @@ StatusCode TrackRecordGenerator::fillEvt(HepMC::GenEvent* event) {
       // event is responsible for those pointers.
 
       // Create the particle, and specify its polarization.
-      HepMC::GenParticle* particle = new HepMC::GenParticle( m_fourMom[v], m_pdgCode[v], 1);
-      particle->set_polarization( m_polarization[v] );
+      HepMC::GenParticlePtr particle = HepMC::newGenParticlePtr( HepMC::FourVector(m_fourMom[v].x(),m_fourMom[v].y(),m_fourMom[v].z(),m_fourMom[v].t()),  m_pdgCode[v], 1);
+      HepMC::set_polarization(particle, m_polarization[v]);
 
       // Create the vertex, and add the particle to the vertex.
-      HepMC::GenVertex* vertex = new HepMC::GenVertex(m_fourPos[v]);
+      HepMC::GenVertexPtr vertex = HepMC::newGenVertexPtr(HepMC::FourVector(m_fourPos[v].x(),m_fourPos[v].y(),m_fourPos[v].z(),m_fourPos[v].t()));
       vertex->add_particle_out( particle );
 
       // Add the vertex to the event.

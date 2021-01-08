@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 class HforConfig:
     """
@@ -35,7 +35,6 @@ class HforConfig:
         self.getConfigFile(runArgs, filepath)
         self.getDSID(runArgs)
         self.getHforType()
-        #self.checkConsistency()
         return self.config_String
 
 
@@ -50,12 +49,11 @@ class HforConfig:
         """
 
         #Identify Hfor type
-        from AthenaCommon.Utils.unixtools import FindFile
-        import sys, os
+        import sys
 
         try:
             self.file = open(filepath)
-        except:
+        except Exception:
             currentError = "Exiting. Configuration file should be in "+str(filepath)
             self.hforLog.error(currentError)
             sys.exit(0)
@@ -87,7 +85,7 @@ class HforConfig:
                 try:
                     #try to get the DSID from runArgs
                     self.curr_DSID = runArgs.RunNumber
-                except:
+                except Exception:
                     #if cannot access runargs parse input file name for DSID
                     if len(self.fList) != 0:
                         files = self.fList 
@@ -98,7 +96,7 @@ class HforConfig:
                                 self.curr_DSID = firstFile[index+1]
                         try:
                             int(self.curr_DSID)
-                        except:
+                        except Exception:
                             self.hforLog.error("Could not find DSID from filename. The Hfor tool will not be correctly configured! Have you obeyed the naming convention?")
                             self.curr_DSID = 0
 
@@ -139,33 +137,3 @@ class HforConfig:
 
             if self.config_String == "fail":
                 self.hforLog.warning("failed to find DSID in configuration file. Hfor has not been activated. Does this sample require Hfor? ")
-
-
-
-
-    def checkConsistency(self):
-            """
-            Checks that all the files have the same DSID
-            Currently not used - remove?
-
-            """
-            import re
-
-
-            #check that all samples are of the same Hfor type otherwise exit
-            #What to do in case of runArgs being used?
-            for newfile in self.fList:
-                tmp2 = newfile.split(".")
-                for index, x in enumerate(tmp2):
-                    if re.search('mc[1234567890]{2}', x) is not None:
-                        thisDSID = index
-
-                try:
-                    if proc_dict[tmp2[thisDSID+1]] != self.config_String:
-                        self.hforLog.error("This tool must be used with samples of the same Hfor type. Terminating now")
-                        sys.exit(0)
-                except:
-                    
-                    self.hforLog.error("failure when checking if all DSIDs are of same type")
-
-

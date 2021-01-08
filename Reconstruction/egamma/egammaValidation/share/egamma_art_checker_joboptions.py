@@ -1,35 +1,38 @@
 #
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration.
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
 #
 
-from AthenaCommon.AppMgr                    import theApp
-from AthenaCommon.AppMgr                    import ServiceMgr as svcMgr
-from AthenaCommon.AlgSequence               import AlgSequence
-from GaudiSvc.GaudiSvcConf                  import THistSvc
+
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+from AthenaCommon.AlgSequence import AlgSequence
+from GaudiSvc.GaudiSvcConf import THistSvc
+from AthenaCommon.GlobalFlags import jobproperties
+from AthenaCommon.DetFlags import DetFlags
+from AthenaCommon.GlobalFlags import globalflags
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
-MCClassifier = MCTruthClassifier( name                      = "MCTruthClassifier",
-                                  ParticleCaloExtensionTool = "" )
+MCClassifier = MCTruthClassifier(name="MCTruthClassifier",
+                                 ParticleCaloExtensionTool="")
 ToolSvc += MCClassifier
 # Ouput Message Level
 svcMgr.MessageSvc.OutputLevel = INFO
 
-Geometry="ATLAS-R2-2016-01-00-01"
-from AthenaCommon.GlobalFlags import globalflags
+Geometry = "ATLAS-R2-2016-01-00-01"
 globalflags.DetGeo.set_Value_and_Lock('atlas')
-from AthenaCommon.DetFlags import DetFlags
 DetFlags.detdescr.all_setOn()
 DetFlags.Forward_setOff()
 DetFlags.ID_setOff()
 
-from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion=Geometry
+jobproperties.Global.DetDescrVersion = Geometry
 
-from AtlasGeoModel import SetGeometryVersion
+# We need the following two here to properly have
+# Geometry
 from AtlasGeoModel import GeoModelInit
-include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py" )
-include( "LArDetDescr/LArDetDescr_joboptions.py" )
+from AtlasGeoModel import SetGeometryVersion
+include("CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
+include("LArDetDescr/LArDetDescr_joboptions.py")
 
 
 # ART File
@@ -38,7 +41,7 @@ svcMgr.EventSelector.InputCollections = [testFile]
 
 
 job = CfgMgr.AthSequencer("AthAlgSeq")
-job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType = particleType)
+job += CfgMgr.EgammaMonitoring('MonitoringAlg', sampleType=particleType)
 
 
 theApp.EvtMax = 60000
@@ -46,7 +49,8 @@ theApp.EvtMax = 60000
 
 outputFile = 'Nightly-monitoring_'+particleType+'.hist.root'
 svcMgr += CfgMgr.THistSvc()
-svcMgr.THistSvc.Output = ["MONITORING DATAFILE='"+outputFile+"' OPT='RECREATE'"]
+svcMgr.THistSvc.Output = [
+    "MONITORING DATAFILE='"+outputFile+"' OPT='RECREATE'"]
 
 
-print ( "\n\nALL OK\n\n" )
+print("\n\nALL OK\n\n")

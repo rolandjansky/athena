@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """ Derive from the offline class and override InDetFlags
 """
@@ -18,7 +18,7 @@ del _sharedcuts
 class ConfiguredNewTrackingTrigCuts(InDetTrigTrackingCuts):
   pass
 
-if not 'EFIDTrackingCuts' in globals():
+if 'EFIDTrackingCuts' not in globals():
   EFIDTrackingCuts = ConfiguredNewTrackingTrigCuts("Offline")
   EFIDTrackingCutsCosmics = ConfiguredNewTrackingTrigCuts("Cosmics")
   EFIDTrackingCutsBeamGas = ConfiguredNewTrackingTrigCuts("BeamGas")

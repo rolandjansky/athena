@@ -35,6 +35,44 @@
 
 namespace {
 const bool useBoundaryMaterialUpdate(true);
+
+std::string
+layerRZoutput(const Trk::Layer* lay)
+{
+  std::string result("NULL");
+  if (not lay) {
+    return result;
+  }
+  result = "[r,z] = [ " +
+           std::to_string(lay->surfaceRepresentation().bounds().r()) + ", " +
+           std::to_string(lay->surfaceRepresentation().center().z()) +
+           " ] - Index ";
+  result += std::to_string(lay->layerIndex().value());
+  return result;
+}
+
+std::string
+positionOutput(const Amg::Vector3D& pos)
+{
+  std::stringstream outStream;
+  outStream << "[r,phi,z] = [ " << pos.perp() << ", " << pos.phi() << ", "
+            << pos.z() << " ]";
+  return outStream.str();
+}
+
+int
+radialDirection(const Trk::MultiComponentState& pars, Trk::PropDirection dir)
+{
+  // safe inbound/outbound estimation
+  double prePositionR = pars.begin()->first->position().perp();
+  return (prePositionR >
+          (pars.begin()->first->position() +
+           dir * 0.5 * prePositionR * pars.begin()->first->momentum().unit())
+            .perp())
+           ? -1
+           : 1;
+}
+
 }
 
 Trk::GsfExtrapolator::GsfExtrapolator(const std::string& type,
@@ -1576,44 +1614,6 @@ Trk::GsfExtrapolator::addMaterialtoVector(Cache& cache,
                   << layerRZoutput(nextLayer) << ". Size is now "
                   << cache.m_matstates->size());
   }
-}
-
-std::string
-Trk::GsfExtrapolator::layerRZoutput(const Trk::Layer* lay) const
-{
-  std::string result("NULL");
-  if (not lay) {
-    return result;
-  }
-  result = "[r,z] = [ " +
-           std::to_string(lay->surfaceRepresentation().bounds().r()) + ", " +
-           std::to_string(lay->surfaceRepresentation().center().z()) +
-           " ] - Index ";
-  result += std::to_string(lay->layerIndex().value());
-  return result;
-}
-
-std::string
-Trk::GsfExtrapolator::positionOutput(const Amg::Vector3D& pos) const
-{
-  std::stringstream outStream;
-  outStream << "[r,phi,z] = [ " << pos.perp() << ", " << pos.phi() << ", "
-            << pos.z() << " ]";
-  return outStream.str();
-}
-
-int
-Trk::GsfExtrapolator::radialDirection(const Trk::MultiComponentState& pars,
-                                      PropDirection dir) const
-{
-  // safe inbound/outbound estimation
-  double prePositionR = pars.begin()->first->position().perp();
-  return (prePositionR >
-          (pars.begin()->first->position() +
-           dir * 0.5 * prePositionR * pars.begin()->first->momentum().unit())
-            .perp())
-           ? -1
-           : 1;
 }
 
 bool

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file JetTagD3PDMaker/python/JetTagVxOnJetAxisD3PDObject.py
@@ -9,12 +9,9 @@
 
 
 import JetTagD3PDMaker
-import EventCommonD3PDMaker
-import TrackD3PDMaker
 
 import D3PDMakerCoreComps
 from D3PDMakerCoreComps.D3PDObject import D3PDObject
-from D3PDMakerCoreComps.D3PDObject import make_SGDataVector_D3PDObject
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 from AthenaCommon.AlgSequence             import AlgSequence
 from RecExConfig.ObjKeyStore              import cfgKeyStore

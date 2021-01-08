@@ -13,6 +13,7 @@
 #include "AthenaBaseComps/AthConstConverter.h"
 #include "ByteStreamData/RawEvent.h" 
 #include "ByteStreamCnvSvcBase/ByteStreamAddress.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
@@ -24,6 +25,8 @@ class LArCalibDigitContainer;
 class LArRawDataContByteStreamTool ; 
 class IROBDataProviderSvc; 
 class ByteStreamCnvSvc;
+class LArCalibLineMapping;
+class LArOnOffIdMapping;
 
 /** This class is the converter to read/write LArCalibDigitContainer from/to ByteStream
    * @author W. Lampl, R. Lafaye
@@ -54,6 +57,8 @@ private:
   ServiceHandle<IROBDataProviderSvc> m_rdpSvc;
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess;
   ByteStreamCnvSvc* m_byteStreamCnvSvc;
+  SG::ReadCondHandleKey<LArCalibLineMapping> m_calibLineMappingKey;
+  SG::ReadCondHandleKey<LArOnOffIdMapping> m_onOffIdMappingKey;
 };
 #endif
 

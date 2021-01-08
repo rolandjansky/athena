@@ -7,7 +7,6 @@
 //  tool interface for estimating the number, total charged momentum and most
 //  energetic inner detector tracks in a cone surrounding a muon
 //
-//  (c) ATLAS Combined Muon software
 //////////////////////////////////////////////////////////////////////////////
 
 #ifndef MUIDINTERFACES_IMUIDTRACKISOLATION_H
