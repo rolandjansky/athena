@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrackVertexAssociationTool/TrackVertexAssociationTool.h"
@@ -383,7 +383,7 @@ bool TrackVertexAssociationTool::trackParticleUsedInVertexFit(const xAOD::TrackP
     return false;
   }
 
-  for (const auto *vx : *vertices)
+  for (const auto vx : *vertices)
     if (trackParticleUsedInVertexFit(trk, *vx)) return true;
 
   return false;
