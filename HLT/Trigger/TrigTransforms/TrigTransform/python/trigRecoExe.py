@@ -390,8 +390,6 @@ class trigRecoExecutor(athenaExecutor):
             fileNameDbg= self.conf.argdict["outputHIST_DEBUGSTREAMMONFile"].value                
             msg.info('outputHIST_DEBUGSTREAMMONFile argument is {0}'.format(fileNameDbg) )
 
-            #TODO add merging of mother and child debug files
-
             if(os.path.isfile(fileNameDbg[0])):
                 # Keep filename if not defined
                 msg.info('Will use file created in PreRun step {0}'.format(fileNameDbg) )
