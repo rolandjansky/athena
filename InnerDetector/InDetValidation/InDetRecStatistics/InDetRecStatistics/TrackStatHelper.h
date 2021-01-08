@@ -145,7 +145,7 @@ namespace InDet {
     void     addEvent   (const TrackCollection *, 
 			       std::vector<const Trk::Track *> &, 
                                Trk::PRDtoTrackMap *prd_to_track_map,
-			       std::vector <std::pair<HepMC::GenParticlePtr,int> > &,   
+			       const std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > &,   
 			       const TrackTruthCollection *, 
 			       const AtlasDetectorID * const, 
 			       const PixelID *, 

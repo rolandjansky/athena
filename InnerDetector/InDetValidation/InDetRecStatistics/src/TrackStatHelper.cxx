@@ -131,7 +131,7 @@ void InDet::TrackStatHelper::SetCuts(struct cuts ct)
 void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTracks, 
 				      std::vector <const Trk::Track *>   & rec, 
                                       Trk::PRDtoTrackMap *prd_to_track_map,
-				      std::vector <std::pair<HepMC::GenParticlePtr,int> > & gen, 
+				      const std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > & gen, 
 				      const TrackTruthCollection         * truthMap, 
 				      const AtlasDetectorID              * const idHelper, 
 				      const PixelID                      * pixelID, 
@@ -182,7 +182,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       Region =  ETA_UNKNOWN;
     }
     else {
-      Eta = fabs(para->eta());
+      Eta = std::abs(para->eta());
       if (Eta < m_cuts.maxEtaBarrel) Region = ETA_BARREL;
       else if  (Eta < m_cuts.maxEtaTransition) Region = ETA_TRANSITION;
       else if  (Eta < m_cuts.maxEtaEndcap) Region = ETA_ENDCAP;

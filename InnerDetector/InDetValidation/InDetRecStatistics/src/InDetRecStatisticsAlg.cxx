@@ -26,10 +26,6 @@
 #include <iostream>
 #include <sstream>
 
-// Private Helpers
-
-// Trk
-
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/TRT_ID.h"
@@ -296,7 +292,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // apply pt, eta etc cuts to generated tracks
     // devide generated tracks into primary, truncated, secondary
 
-    std::vector <std::pair<HepMC::GenParticlePtr,int> > GenSignal;
+    std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > GenSignal;
     //     GenSignalPrimary, GenSignalTruncated, GenSignalSecondary;   
     unsigned int inTimeStart = 0;
     unsigned int inTimeEnd   = 0;
@@ -306,8 +302,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
     // corresponding TrackTruthCollections and produce statistics for each
 
     if (m_SignalCounters.size()<=0) {
-      ATH_MSG_ERROR("No reco track collection specified! Aborting." 
-	);
+      ATH_MSG_ERROR("No reco track collection specified! Aborting.");
       return StatusCode::FAILURE;
     }
 
@@ -336,17 +331,13 @@ StatusCode InDet::InDetRecStatisticsAlg::execute(const EventContext &ctx)  const
       const TrackCollection       * RecCollection = &(**rec_track_collections_iter);
       const TrackTruthCollection  * TruthMap  = NULL;
 
-      if (RecCollection)  ATH_MSG_DEBUG("Retrieved "
-			      << RecCollection->size()
-			      << " reconstructed tracks from storegate"
-			);
+      if (RecCollection)  ATH_MSG_DEBUG("Retrieved " << RecCollection->size() << " reconstructed tracks from storegate");
 
       if (m_doTruth) {
         ATH_MSG_DEBUG("Acessing TrackTruthCollection " <<  m_TrackTruthCollection_keys.at(truth_track_collections_iter - truth_track_collections.begin()).key());
         assert( truth_track_collections_iter != truth_track_collections.end());
         TruthMap = &(**truth_track_collections_iter);
-        if (TruthMap)   ATH_MSG_DEBUG("Retrieved " << TruthMap->size() 
-			    << " TrackTruth elements from storegate");
+        if (TruthMap)   ATH_MSG_DEBUG("Retrieved " << TruthMap->size() << " TrackTruth elements from storegate");
         ++truth_track_collections_iter;
       }
 
@@ -433,8 +424,7 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
     StatusCode sc = evtStore()->service("PartPropSvc", partPropSvc, true);
 
     if (sc.isFailure()) {
-        ATH_MSG_FATAL(" Could not initialize Particle Properties Service" 
-	);
+        ATH_MSG_FATAL(" Could not initialize Particle Properties Service" );
         return StatusCode::FAILURE;
     }
       
@@ -581,7 +571,7 @@ void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCol
 // select charged, stable particles in allowed pt and eta range
 void InDet :: InDetRecStatisticsAlg ::
 selectGenSignal  (const McEventCollection* SimTracks, 
-		  std::vector <std::pair<HepMC::GenParticlePtr,int> > & GenSignal,
+		  std::vector <std::pair<HepMC::ConstGenParticlePtr,int> > & GenSignal,
 		  unsigned int /*inTimeStart*/, unsigned int /*inTimeEnd*/,
                   InDet::InDetRecStatisticsAlg::CounterLocal &counter) const //'unused' compiler warning
 {
@@ -607,14 +597,8 @@ selectGenSignal  (const McEventCollection* SimTracks,
 #else
       counter.m_counter[kN_gen_tracks_processed] += genEvent->particles_size();
 #endif
-      if (put && inTimeMBbegin != inTimeMBend) // if not, inTimeStart and End are untouched
-	{
-	  //if (genEvent == *inTimeMBbegin) inTimeStart = ievt;
-	  //if (genEvent == *inTimeMBend)   inTimeEnd   = ievt;
-	}
-      for (auto particle: *genEvent)
-	{
-	  // require stable particle from generation or simulation\	  s
+      for (auto particle: *genEvent){
+	  // require stable particle from generation or simulation
 	  if ((particle->status()%1000) != 1 ) continue;
 	  int   pdgCode = particle->pdg_id();
 	  const HepPDT::ParticleData* pd = m_particleDataTable->particle(std::abs(pdgCode));
@@ -917,8 +901,6 @@ const Trk::TrackParameters *  InDet::InDetRecStatisticsAlg::getUnbiasedTrackPara
 
 
 Identifier  InDet::InDetRecStatisticsAlg::getIdentifier(const Trk::MeasurementBase* measurement ){
-
-  
   Identifier id;
   const Trk::CompetingRIOsOnTrack *comprot = 0;
   // identify by ROT:
