@@ -4,19 +4,21 @@
 ### Trig_reco_tf.py
 Based on Reco_tf.py this transform runs both rerunning the trigger and the reconstruction of this output.
 
-Rerunning the trigger can be done using athenaHLT or athena, and can be configured to run from the trigger database.
+- Rerunning the trigger can be done using athenaHLT or athena, and can be configured to run from the trigger database.
+- Outputs are renamed by the transform in cases where the argument name isn't handled directly
+- Reconstruction can be set to run in the same job or separately (at which point should be identical to running Reco_tf.py)
 
 Full details of the transform are documented on the twiki:
 https://twiki.cern.ch/twiki/bin/viewauth/Atlas/TriggerTransform
 
 ### Cost output
 
-As well as rerunning the trigger, the outputs required for uploading to the trigCost website are produced as one of the steps when running the
+As well as rerunning the trigger, the outputs required for uploading to the trigCost website are produced as one of the sub-steps when running the
 transform. These are produced starting from the DRAW_TRIGCOST file, which is the BS file containing the COSTMON stream
 
 ### Debug Stream Recovery
 
 When running the debug stream recovery there is an additional output file produced from looking at the contents of the HLTResult before and after
-rerruning the trigger. Also the input file is used to make sure exactly the same release is used to reprocess the data, unless any local patches are
-included in teh setup.
+rerunning the trigger. Also the input file is used to make sure exactly the same release is used to reprocess the data, unless any local patches are
+included in the setup.
 
