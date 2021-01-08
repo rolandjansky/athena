@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id$
@@ -13,287 +13,13 @@
 #undef NDEBUG
 #include "../src/RpcPadContainerCnv_p2.h"
 #include "AthenaBaseComps/AthService.h"
-#include "RPCcablingInterface/IRPCcablingSvc.h"
-#include "RPCcablingInterface/RpcPadIdHash.h"
 #include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/DeclareFactoryEntries.h"
 #include "TestTools/initGaudi.h"
 #include "TestTools/leakcheck.h"
 #include <cassert>
 #include <iostream>
 
 #include "make_dd.icc"
-
-
-class TestRPC_CablingSvc
-  : public extends<AthService, IRPCcablingSvc>
-{
-public:
-  TestRPC_CablingSvc(const std::string& name,ISvcLocator* sl);
-  virtual StatusCode initialize();
-
-  virtual StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
-  
-  virtual const CablingRPCBase* getRPCCabling() const { std::abort(); }
-  virtual StatusCode initMappingModel(IOVSVC_CALLBACK_ARGS) { std::abort(); }
-  virtual const CablingRPCBase::RDOmap& give_RDOs() const;
-  virtual const CMAparameters::CMAlist give_CMAs(const int,const ViewType,
-                                                 const int,const int) const
-  { std::abort(); }
-    
-  virtual void printType(int,int,std::string,bool)const
-  { std::abort(); }
-    
-  virtual void printSector(int,int,std::string,bool)const
-  { std::abort(); }
-
-  virtual bool give_global_address(unsigned int,int&,int&,int&,int&) const
-  { std::abort(); }
-				    
-  virtual bool give_RoI_borders (unsigned short int /*SubsystemId*/,
-                                 unsigned short int /*SectorId*/,
-                                 unsigned short int /*RoIId*/,
-                                 unsigned int& /*EtaLowBorder*/,
-                                 unsigned int& /*EtaHighBorder*/,
-                                 unsigned int& /*PhiLowBorder*/,
-                                 unsigned int& /*PhiHighBorder*/) const
-  { std::abort(); }
-
-  virtual bool give_RoI_borders_id (unsigned short int /*SubsystemId*/,
-                                    unsigned short int /*SectorId*/,
-                                    unsigned short int /*RoIId*/,
-                                    Identifier& /*EtaLowBorder_id*/,
-                                    Identifier& /*EtaHighBorder_id*/,
-                                    Identifier& /*PhiLowBorder_id*/,
-                                    Identifier& /*PhiHighBorder_id*/) const
-  { std::abort(); }
-
-  virtual bool give_LowPt_borders (unsigned short int /*SubsystemId*/,
-                                   unsigned short int /*SectorId*/,
-                                   unsigned short int /*RoIId*/,
-                                   unsigned int& /*EtaLowBorder*/,
-                                   unsigned int& /*EtaHighBorder*/,
-                                   unsigned int& /*PhiLowBorder*/,
-                                   unsigned int& /*PhiHighBorder*/) const
-  { std::abort(); }
-
-  virtual bool give_LowPt_borders_id (unsigned short int /*SubsystemId*/,
-                                      unsigned short int /*SectorId*/,
-                                      unsigned short int /*RoIId*/,
-                                      Identifier& /*EtaLowBorder_id*/,
-                                      Identifier& /*EtaHighBorder_id*/,
-                                      Identifier& /*PhiLowBorder_id*/,
-                                      Identifier& /*PhiHighBorder_id*/) const
-  { std::abort(); }
-
-
-  virtual bool give_HighPt_borders (unsigned short int /*SubsystemId*/,
-                                    unsigned short int /*SectorId*/,
-                                    unsigned short int /*RoIId*/,
-                                    unsigned int& /*EtaLowBorder*/,
-                                    unsigned int& /*EtaHighBorder*/,
-                                    unsigned int& /*PhiLowBorder*/,
-                                    unsigned int& /*PhiHighBorder*/) const
-  { std::abort(); }
-
-  virtual bool give_HighPt_borders_id (unsigned short int /*SubsystemId*/,
-                                       unsigned short int /*SectorId*/,
-                                       unsigned short int /*RoIId*/,
-                                       Identifier& /*EtaLowBorder_id*/,
-                                       Identifier& /*EtaHighBorder_id*/,
-                                       Identifier& /*PhiLowBorder_id*/,
-                                       Identifier& /*PhiHighBorder_id*/) const
-  { std::abort(); }
-   
-  virtual bool give_Pad_Parameters(unsigned short int /*logic_sector*/,
-                                   unsigned short int /*PADId*/,
-                                   bool & /*feet*/,
-                                   bool & /*eta_and_phi*/,
-                                   unsigned short int  & /*cma_mask*/,
-                                   unsigned short int  & /*feet_th0*/,
-                                   unsigned short int  & /*feet_th1*/,
-                                   unsigned short int  & /*feet_th2*/ ) const
-  { std::abort(); }
-    
-    
-  virtual unsigned long int strip_code_fromOffId (std::string /*stationName*/, 
-                                                  int /*stationEta*/, 
-                                                  int /*stationPhi*/, 
-                                                  int /*doubletR*/, int /*doubletZ*/, int /*doubletPhi*/, 
-                                                  int /*gasGap*/, int /*measuresPhi*/, int /*strip*/) const
-  { std::abort(); }
-
-  virtual Identifier strip_OffId_fromCode(unsigned long int /*strip_code_cab*/) const
-  { std::abort(); }
-   
-  virtual std::list<unsigned int> give_strip_code
-  (unsigned short int /*SubsystemId*/,
-   unsigned short int /*SectorId*/,
-   unsigned short int /*PADId*/,
-   unsigned short int /*CMAId*/,
-   unsigned short /*ijk*/,
-   unsigned short int /*Channel*/) const
-  { std::abort(); }
-
-  virtual std::list<Identifier> give_strip_id
-  (unsigned short int /*SubsystemId*/,
-   unsigned short int /*SectorId*/,
-   unsigned short int /*PADId*/,
-   unsigned short int /*CMAId*/,
-   unsigned short /*ijk*/,
-   unsigned short int /*Channel*/) const
-  { std::abort(); }
-    
-  //give access to onlineID from compact OfflineID (return == true if OK)
-  virtual bool giveOnlineID(const Identifier /*compactID*/,
-                            unsigned short int& /*ROBid*/,
-                            unsigned short int& /*RODid*/,
-                            unsigned short int& /*side*/,
-                            unsigned short int& /*SLid*/,
-                            unsigned short int& /*RXid*/,
-                            unsigned short int& /*PADid*/) const
-  { std::abort(); }
-   
-  virtual bool giveOnlineID(const unsigned int /*hashID*/,
-                            unsigned short int& /*ROBid*/,
-                            unsigned short int& /*RODid*/,
-                            unsigned short int& /*side*/,
-                            unsigned short int& /*SLid*/,
-                            unsigned short int& /*RXid*/,
-                            unsigned short int& /*PADid*/) const
-  { std::abort(); }
-   
-  virtual bool giveOffflineID(unsigned short int /*Side*/,
-                              unsigned short int /*Sector*/,
-                              unsigned short int /*PADID*/,
-                              Identifier& /*ID*/) const
-  { std::abort(); }
-
-    
-  //map a single PRD HashId into a vector of RDO HashIds
-  virtual StatusCode giveRDO_fromPRD(const IdentifierHash /*prdHashId*/,  
-                                     std::vector<IdentifierHash>& /*rdoHashVec*/) const
-  { std::abort(); }
-                                  
-  //map a vector of PRD HashIds into a vector of RDO HashIds
-  virtual StatusCode giveRDO_fromPRD(const std::vector<IdentifierHash>& /*prdHashVec*/,  
-                                     std::vector<IdentifierHash>& /*rdoHashVec*/) const
-  { std::abort(); }
-                                     
-  //map a single ROB Id into a vector of RDO HashIds
-  virtual StatusCode giveRDO_fromROB(const uint32_t /*robId*/,  
-                                     std::vector<IdentifierHash>& /*rdoHashVec*/) const
-  { std::abort(); }
-                                  
-  //map a vector of ROB Ids into a vector of RDO HashIds
-  virtual StatusCode giveRDO_fromROB(const std::vector<uint32_t>& /*robIdVec*/,  
-                                     std::vector<IdentifierHash>& /*rdoHashVec*/) const
-  { std::abort(); }
-                                  
-  //map a single PRD HashId into a vector of corresponding ROB Ids
-  virtual StatusCode giveROB_fromPRD(const IdentifierHash /*prdHashId*/,
-                                     std::vector<uint32_t>& /*robIdVec*/) const
-  { std::abort(); }
-                                     
-  //map a vector of PRD HashIds into a vector of corresponding ROB Ids
-  virtual StatusCode giveROB_fromPRD(const std::vector<IdentifierHash>& /*prdHashVec*/,
-                                     std::vector<uint32_t>& /*robIdVec*/) const
-  { std::abort(); }
-                                  
-  //map a single RDO HashId into a single ROB Id
-  virtual StatusCode giveROB_fromRDO(const IdentifierHash /*rdoHashId*/,
-                                     uint32_t& /*robId*/) const
-  { std::abort(); }
-                                     
-  //map a vector of RDO HashIds into a vector of corresponding ROB Ids
-  virtual StatusCode giveROB_fromRDO(const std::vector<IdentifierHash>& /*rdoHashVec*/,
-                                     std::vector<uint32_t>& /*robIdVec*/) const
-  { std::abort(); }
-   
-  //provide the full list of ROB id
-  virtual std::vector<uint32_t> giveFullListOfRobIds() const
-  { std::abort(); }
-    
-  // method used in RPCgeometry
-  virtual std::vector<const RDOindex*> GiveHashVec() const
-  { std::abort(); }
-
-  // hash function 
-  virtual RpcPadIdHash* padHashFunction() const
-  { return m_hash.get(); }
-    
-  // access to service name 
-  virtual std::string rpcCabSvcType() const
-  { std::abort(); }
-
-private:
-  std::unique_ptr<RpcPadIdHash> m_hash;
-  CablingRPCBase::RDOmap m_rdomap;  // map<int, RDOindex>
-};
-
-
-TestRPC_CablingSvc::TestRPC_CablingSvc(const std::string& name,ISvcLocator* sl)
-  : extends<AthService, IRPCcablingSvc> (name, sl)
-{
-  // lvl1 code:
-  //    strip_number + rpc_z_index*100 + rpc_layer*10*1000 +
-  //    lvl1_station*100*1000 + logic_sector*1000*1000 +
-  //    strip_type*100*1000*1000
-  //      1 <= strip_type <= 2
-  //      0 <= logic_sector <= 63
-  //      1 <= station_value <= 3
-  //      0 <= rpc_layer <= 1
-  int code0= 0 + 1*100 + 0*10*1000 + 1*100*1000 + 1*1000*1000 + 1*100*1000*1000;
-  int code1= 1 + 2*100 + 0*10*1000 + 2*100*1000 + 2*1000*1000 + 1*100*1000*1000;
-  int code2= 2 + 3*100 + 0*10*1000 + 3*100*1000 + 3*1000*1000 + 1*100*1000*1000;
-  // pad code name station_eta[-8:8] station_phi[1:8] doubletR[1:2]
-  //   doubletZ[1:3] doubletPhi[1:2]
-  m_rdomap.emplace (0, RDOindex (0, code0, "BIL", 1, 2, 1, 1, 2));
-  m_rdomap.emplace (1, RDOindex (1, code1, "BIL", 6, 7, 2, 2, 1));
-  m_rdomap.emplace (2, RDOindex (2, code2, "BIL", 7, 5, 1, 3, 2));
-  m_rdomap.find(0)->second.set_hash(0);
-  m_rdomap.find(1)->second.set_hash(1);
-  m_rdomap.find(2)->second.set_hash(2);
-
-  //IDs: 0x6024c40000000000  0x603b680000000000  0x603e540000000000
-}
-
-
-StatusCode TestRPC_CablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
-{
-    msg(MSG::VERBOSE) << "queryInterface Start" << endmsg;
-    if(IRPCcablingSvc::interfaceID().versionMatch(riid) ) 
-    {
-        msg(MSG::VERBOSE) << "versionMatch=true" << endmsg;
-        *ppvIF = (IRPCcablingSvc*)(this);
-    } else {
-        msg(MSG::VERBOSE) << "cannot find the interface!" << endmsg;
-        return AthService::queryInterface(riid, ppvIF); 
-      }
-  msg(MSG::VERBOSE) << "queryInterface succesfull" << endmsg;
-  addRef();  // is this needed ?? yes it is ! 
-  return StatusCode::SUCCESS;
-}
-
-
-StatusCode TestRPC_CablingSvc::initialize()
-{
-  m_hash = std::make_unique<RpcPadIdHash> (this);
-  return StatusCode::SUCCESS;
-}
-
-
-const CablingRPCBase::RDOmap& TestRPC_CablingSvc::give_RDOs() const
-{
-  return m_rdomap;
-}
-
-
-DECLARE_COMPONENT( TestRPC_CablingSvc )
-
-
-//****************************************************************************
-
 
 void compare (const RpcFiredChannel& p1,
               const RpcFiredChannel& p2)
@@ -356,11 +82,11 @@ void compare (const RpcPadContainer& p1,
 }
 
 
-void testit (const RpcPadContainer& trans1, IRPCcablingSvc* cabling)
+void testit (const RpcPadContainer& trans1)
 {
   MsgStream log (0, "test");
   RpcPadContainerCnv_p2 cnv;
-  assert( cnv.initialize (log, cabling).isSuccess() );
+  assert( cnv.initialize (log).isSuccess() );
   RpcPadContainer_p2 pers;
   cnv.transToPers (&trans1, &pers, log);
   std::unique_ptr<RpcPadContainer> trans2 (cnv.createTransient (&pers, log));
@@ -368,7 +94,7 @@ void testit (const RpcPadContainer& trans1, IRPCcablingSvc* cabling)
 }
 
 
-void test1 (IRPCcablingSvc* cabling)
+void test1 ()
 {
   std::cout << "test1\n";
 
@@ -407,7 +133,7 @@ void test1 (IRPCcablingSvc* cabling)
     assert (trans1.addCollection (pad.release(), k).isSuccess());
   }
 
-  testit (trans1, cabling);
+  testit (trans1);
 }
 
 
@@ -421,12 +147,6 @@ int main()
 
   make_dd();
 
-  ServiceHandle<IRPCcablingSvc> cabling ("TestRPC_CablingSvc", "test");
-  if (cabling.retrieve().isFailure()) {
-    std::cerr << "Cannot get cabling\n";
-    return 0;
-  }
-
-  test1 (cabling.get());
+  // test1();
   return 0;
 }
