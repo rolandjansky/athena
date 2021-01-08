@@ -113,6 +113,7 @@ class JGTowerReader: public ::AthAlgorithm {
 
   std::string m_noise_file;
   
+  std::string m_gXERHOLUT_file;
   std::string m_jXERHO_correction_file;
   float  m_jXERHO_fixed_noise_cut;  
   float  m_jXERHO_rho_up_threshold;
