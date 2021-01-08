@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "BeamHaloGenerator/BeamHaloGeneratorAlg.h"
@@ -206,7 +206,7 @@ StatusCode BeamHaloGeneratorAlg::callGenerator() {
 
     double values[4];
     int pdgId;
-    for (const auto& hepmc_part: m_evt) {
+    for (const auto hepmc_part: m_evt) {
       auto prodVertex = hepmc_part->production_vertex();
       if(!prodVertex) continue;
       
