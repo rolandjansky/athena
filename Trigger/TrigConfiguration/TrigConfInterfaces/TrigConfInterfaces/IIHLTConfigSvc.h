@@ -13,10 +13,11 @@ extern "C" {
 #   include <stdint.h>
 }
 
+class EventContext;
+
 namespace TrigConf {
 
    // Forward declaration(s):
-   class EventContext;
    class HLTChainList;
    class HLTSequenceList;
    class HLTMenu;
@@ -52,10 +53,10 @@ namespace TrigConf {
       virtual uint32_t hltPrescaleKey() const = 0;
 
       /// Returns the JSON configured HLTMenu ptree
-      virtual const HLTMenu& hltMenu(const EventContext& ctx) const = 0;
+      virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext& ctx) const = 0;
 
       /// Returns the JSON configured HLT prescales ptree
-      virtual const HLTPrescalesSet& hltPrescalesSet(const EventContext& ctx) const = 0;
+      virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext& ctx) const = 0;
 
 
    }; // class IIHLTConfigSvc

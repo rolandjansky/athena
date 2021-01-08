@@ -23,16 +23,13 @@
 class TH1F;
 class TH2I;
 class TrigTimer;
+class EventContext;
 
 namespace TrigConf {
 
    class CTPConfig;
-   class EventContext;
    class HLTChainList;
    class HLTSequenceList;
-   class HLTMenu;
-   class HLTPrescalesSet;
-   class HLTPrescaleSet;
    class TrigDBConnectionConfig;
 
    /**
@@ -51,14 +48,19 @@ namespace TrigConf {
       const HLTSequenceList* sequenceList() const __attribute__ ((deprecated));
       const HLTSequenceList& sequences() const;
       
-      const HLTMenu& hltMenu(const EventContext&) const {
-	const static TrigConf::HLTMenu dummy = TrigConf::HLTMenu();
-	return dummy;
+      /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.
+      /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
+      /// @{
+      virtual const ::TrigConf::HLTMenu& hltMenu(const ::EventContext&) const override {
+         const static ::TrigConf::HLTMenu dummy = ::TrigConf::HLTMenu();
+         return dummy;
       }
-      const HLTPrescalesSet& hltPrescalesSet(const EventContext&) const {
-	const static TrigConf::HLTPrescalesSet dummy = TrigConf::HLTPrescalesSet();
-	return dummy;
+
+      virtual const ::TrigConf::HLTPrescalesSet& hltPrescalesSet(const ::EventContext&) const override {
+         const static ::TrigConf::HLTPrescalesSet dummy = ::TrigConf::HLTPrescalesSet();
+         return dummy;
       }
+      /// @}
 
       /*@brief constructor*/
       HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );

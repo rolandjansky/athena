@@ -17,13 +17,11 @@
 
 
 class StoreGateSvc;
+class EventContext;
 
 namespace TrigConf {
 
-   class EventContext;
    class L1Menu;
-   class L1PrescalesSet;
-   class L1BunchGroupSet;
 
    /**
     *  $Date: 2009-02-04 09:12:03 $
@@ -50,18 +48,25 @@ namespace TrigConf {
       const ThresholdConfig* thresholdConfig() const;
       const BunchGroupSet* bunchGroupSet() const;
       uint32_t lvl1PrescaleKey() const { return static_cast<uint32_t>(m_prescaleSetID); }
-      const L1Menu& l1Menu(const EventContext&) const {
-	const static TrigConf::L1Menu dummy = TrigConf::L1Menu();
-	return dummy;
+
+      /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
+      /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
+      /// @{
+      virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext&) const override {
+        const static ::TrigConf::L1Menu dummy = ::TrigConf::L1Menu();
+        return dummy;
       }
-      const L1PrescalesSet& l1PrescalesSet(const EventContext&) const {
-	const static TrigConf::L1PrescalesSet dummy = TrigConf::L1PrescalesSet();
-	return dummy;
+
+      virtual const ::TrigConf::L1PrescalesSet& l1PrescalesSet(const ::EventContext&) const override {
+        const static TrigConf::L1PrescalesSet dummy = ::TrigConf::L1PrescalesSet();
+        return dummy;
       }
-      const L1BunchGroupSet& l1BunchGroupSet(const EventContext&) const {
-	const static TrigConf::L1BunchGroupSet dummy = TrigConf::L1BunchGroupSet();
-	return dummy;
+
+      virtual const ::TrigConf::L1BunchGroupSet& l1BunchGroupSet(const ::EventContext&) const override {
+        const static ::TrigConf::L1BunchGroupSet dummy = ::TrigConf::L1BunchGroupSet();
+        return dummy;
       }
+      /// @}
 
    private:
 

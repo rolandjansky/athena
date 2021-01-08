@@ -746,28 +746,26 @@ void RatesAnalysisAlg::writeMetadata() {
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
 
   std::vector<std::vector<std::string>> hltChainIDGroup;
-  hltChainIDGroup.reserve(m_triggers.size());
-  for (int i = 0; i < m_triggers.size(); i++)
-    hltChainIDGroup[i].resize(3);
+  hltChainIDGroup.resize(m_triggers.size());
+  for (size_t i = 0; i < m_triggers.size(); i++)
+    hltChainIDGroup.at(i).resize(3);
 
   if(m_configSvc.isValid()) {
-    const TrigConf::HLTMenu& hltmenu = m_configSvc.hltMenu();
+    const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
     
     TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
     TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
+    size_t c = 0;
     for( ; chain_itr != chain_end; ++chain_itr ) {
-      std::string chainName = ( *chain_itr )->className() ;
-      unsigned int chainID = ( *chain_itr )->counter();
-      std::vector<std::string> chainGroups = ( *chain_itr )->groups();
+      std::string chainName = ( *chain_itr ).className() ;
+      unsigned int chainID = ( *chain_itr ).counter();
+      std::vector<std::string> chainGroups = ( *chain_itr ).groups();
       std::string singlechainGroups = std::accumulate(chainGroups.begin(), chainGroups.end(), std::string(","));
       
-      std::vector idgroupperchain;
-      idgroupperchain.resize(3);
-      idgroupperchain.push_back(chainName);
-      idgroupperchain.push_back(std::to_string(chainID));
-      idgroupperchain.push_back(singlechainGroups);
-
-      hltChainIDGroup.push_back(idgroupperchain);
+      hltChainIDGroup.at(c).at(0) = chainName;
+      hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
+      hltChainIDGroup.at(c).at(2) = singlechainGroups;
+      ++c;
     }
   }
 

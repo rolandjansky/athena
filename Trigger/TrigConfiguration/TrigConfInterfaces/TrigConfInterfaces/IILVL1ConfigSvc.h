@@ -13,12 +13,13 @@ extern "C" {
 #   include <stdint.h>
 }
 
+class EventContext;
+
 /// Namespace holding all the trigger configuration code
 namespace TrigConf {
 
    // Forward declaration(s):
    class CTPConfig;
-   class EventContext;
    class ThresholdConfig;
    class BunchGroupSet;
    class L1Menu;
@@ -51,13 +52,13 @@ namespace TrigConf {
       virtual uint32_t lvl1PrescaleKey() const = 0;
 
       /// Returns the JSON configured L1 ptree
-      virtual const L1Menu& l1Menu(const EventContext& ctx) const = 0;
+      virtual const ::TrigConf::L1Menu& l1Menu(const ::EventContext& ctx) const = 0;
 
       /// Returns the JSON configured L1 prescales ptree
-      virtual const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx) const = 0;
+      virtual const ::TrigConf::L1PrescalesSet& l1PrescalesSet(const ::EventContext& ctx) const = 0;
 
       /// Returns the JSON configured bunchgroup ptree
-      virtual const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx) const = 0;
+      virtual const ::TrigConf::L1BunchGroupSet& l1BunchGroupSet(const ::EventContext& ctx) const = 0;
 
    }; // class IILVL1ConfigSvc
 
