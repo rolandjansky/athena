@@ -108,7 +108,7 @@ ConfigFlags.Digitization.PU.NumberOfCavern = 0.0
 ConfigFlags.Digitization.PU.NumberOfHighPtMinBias = 0.2099789464
 ConfigFlags.Digitization.PU.NumberOfLowPtMinBias = 80.290021063135
 ConfigFlags.Digitization.PU.BeamIntensityPattern = test_BeamIntensityPattern
-ConfigFlags.Digitization.PU.RunAndLumiOverrideList = test_fragment
+ConfigFlags.Input.RunAndLumiOverrideList = test_fragment
 
 cols = makeBkgInputCol(ConfigFlags, defaultTestFiles.HITS_MINBIAS_HIGH,
                        ConfigFlags.Digitization.PU.NumberOfHighPtMinBias, True)
