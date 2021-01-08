@@ -447,7 +447,7 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster* cluster,
 bool
 EMTrackMatchBuilder::TrackMatchSorter::operator()(
   const EMTrackMatchBuilder::TrackMatch& match1,
-  const EMTrackMatchBuilder::TrackMatch& match2)
+  const EMTrackMatchBuilder::TrackMatch& match2) const
 {
   if (match1.hasPix != match2.hasPix) { // prefer pixels first
     return match1.hasPix;
