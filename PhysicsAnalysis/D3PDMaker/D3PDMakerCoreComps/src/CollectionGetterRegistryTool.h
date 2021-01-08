@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CollectionGetterRegistryTool.h 781599 2016-11-01 15:42:00Z ssnyder $
 /**
  * @file D3PDMakerCoreComps/src/CollectionGetterRegistryTool.h
  * @author scott snyder <snyder@bnl.gov>
@@ -21,7 +20,7 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/IJobOptionsSvc.h"
+#include "Gaudi/Interfaces/IOptionsSvc.h"
 
 #include <unordered_map>
 
@@ -87,7 +86,7 @@ public:
 
 private:
   /// Property: The job options service.
-  ServiceHandle<IJobOptionsSvc> m_jos;
+  ServiceHandle<Gaudi::Interfaces::IOptionsSvc> m_jos;
 
   /// Property: The tool service.
   ServiceHandle<IToolSvc> m_toolsvc;
