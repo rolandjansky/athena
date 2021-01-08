@@ -83,15 +83,12 @@ protected:
   };
 
   // these are calculated search window values
-  float m_searchWindowEtaBarrel; //!< half of search window size, converted to
-                                 //!< units of eta
-  float m_searchWindowPhiBarrel; //!< half of search window size, converted to
-                                 //!< units of phi
-  float m_searchWindowEtaEndcap; //!< half of search window size, converted to
-                                 //!< units of eta
-  float m_searchWindowPhiEndcap; //!< half of search window size, converted to
-                                 //!< units of phi
-  //
+  // half of search window size, converted to units of eta,phi
+  float m_searchWindowEtaBarrel;
+  float m_searchWindowPhiBarrel;
+  float m_searchWindowEtaEndcap;
+  float m_searchWindowPhiEndcap;
+
 private:
   /** Find the size of the cluster */
   PhiSize findPhiSize(const CentralPosition& cp0,
@@ -117,7 +114,6 @@ private:
   /** function to decorate the calo cluster with position variables */
   StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster,
                                  const CaloDetDescrManager& mgr) const;
-  // above can't be const because m_caloCellDetPos acceses are not const
 
   /** functions to refine position in eta1*/
   StatusCode refineEta1Position(xAOD::CaloCluster* cluster,
@@ -126,18 +122,20 @@ private:
                              const CaloDetDescrManager& mgr,
                              const CaloSampling::CaloSample sample) const;
 
-  // these are calculated window values for the windows in which cells of
-  // topoclusters are edded
-  float m_addCellsWindowEtaBarrel; //!< half of addCells window size, converted
-                                   //!< to units of eta
-  float m_addCellsWindowPhiBarrel; //!< half of addCells window size, converted
-                                   //!< to units of phi
-  float m_addCellsWindowEtaEndcap; //!< half of addCells window size, converted
-                                   //!< to units of eta
-  float m_addCellsWindowPhiEndcap; //!< half of addCells window size, converted
-                                   //!< to units of phi
-  float
-    m_extraL0L1PhiSize; //!< calculated value of cells to add in units of phi
+  // window values for the windows
+  // in which cells of topoclusters are added
+  // half of addCells window size, converted in units of eta/phi
+  float m_addCellsWindowEtaBarrel;
+  float m_addCellsWindowPhiBarrel;
+  float m_addCellsWindowEtaEndcap;
+  float m_addCellsWindowPhiEndcap;
+  // Extra opening in phi for L0,L1
+  float m_extraL0L1PhiSize;
+  // Extra opening in eta for L3 cells
+  float m_extraL3EtaSize;
+
+  /** @brief Position in Calo frame**/
+  CaloCellDetPos m_caloCellDetPos;
 
   /** @brief Size of topocluster search window in eta for the barrel */
   Gaudi::Property<int> m_searchWindowEtaCellsBarrel{
@@ -172,7 +170,7 @@ private:
   };
 
   /** @brief Size of windows et eta in which cells of topoclusters are edded for
-   * the barrel */
+   * the barrel (units of 2nd layer cells) */
   Gaudi::Property<int> m_addCellsWindowEtaCellsBarrel{
     this,
     "AddCellsWindowEtaCellsBarrel",
@@ -180,17 +178,8 @@ private:
     "Number of cells in eta of window around topocluster center to add cells"
   };
 
-  /** @brief Size of windows et phi in which cells of topoclusters are edded for
-   * the barrel */
-  Gaudi::Property<int> m_addCellsWindowPhiCellsBarrel{
-    this,
-    "AddCellsWindowPhiCellsBarrel",
-    999,
-    "Number of cells in phi of window around topocluster center to add cells"
-  };
-
   /** @brief Size of windows et eta in which cells of topoclusters are edded for
-   * the endcap */
+   * the endcap (units of 2nd layer cells) */
   Gaudi::Property<int> m_addCellsWindowEtaCellsEndcap{
     this,
     "AddCellsWindowEtaCellsEndcap",
@@ -198,23 +187,27 @@ private:
     "Number of cells in eta of window around topocluster center to add cells"
   };
 
-  /** @brief Size of windows et phi in which cells of topoclusters are edded for
-   * the endcap */
-  Gaudi::Property<int> m_addCellsWindowPhiCellsEndcap{
-    this,
-    "AddCellsWindowPhiCellsEndcap",
-    999,
-    "Number of cells in phi of window around topocluster center to add cells"
-  };
-
-  /** @brief "When adding L0 (PS) and L1 cells, how much wider than L2 is the
-   * acceptance */
+  /** @brief "When adding L0 (PS) and L1 cells, how much wider than
+   * the L2 size of the cluster  is the acceptance in phi
+   * (units of 2nd layer cells)*/
   Gaudi::Property<int> m_extraL0L1PhiSizeCells{
     this,
     "ExtraL0L1PhiSize",
     1,
-    "When adding L0 (PS) and L1 cells, how much wider than L2 (in L2 cells "
-    "units) is the acceptance"
+    "When adding L0 (PS) and L1 cells in phi, "
+    "how much wider (+/- of the value) than the L2 phi size of the "
+    "cluster (in L2 cells units) is the acceptance"
+  };
+
+  /** @brief "When adding L3 cells, how much wider than
+   * the L2 */
+  Gaudi::Property<int> m_extraL3EtaSizeCells{
+    this,
+    "ExtraL3EtaSizeCells",
+    1,
+    "When adding L3 cells  how much wider (+/- 0.5 of the value) "
+    "than L2 (in L2 cells "
+    "units) is the acceptance in eta"
   };
 
   /** @brief Handle to the MVA calibration service **/
@@ -238,9 +231,6 @@ private:
     "",
     "Optional tool that performs basic checks of viability of cluster"
   };
-
-  /** @brief Position in Calo frame**/
-  CaloCellDetPos m_caloCellDetPos;
 };
 
 #endif
