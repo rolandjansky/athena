@@ -204,7 +204,7 @@ private:
   Gaudi::Property<int> m_extraL3EtaSizeCells{
     this,
     "ExtraL3EtaSizeCells",
-    1,
+    0,
     "When adding L3 cells  how much wider (+/- 0.5 of the value) "
     "than L2 (in L2 cells "
     "units) is the acceptance in eta"

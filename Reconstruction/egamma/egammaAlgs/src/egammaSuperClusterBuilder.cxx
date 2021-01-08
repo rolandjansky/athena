@@ -217,17 +217,17 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
   // Check around both measurements of the seed
   if (ref->hasSampling(CaloSampling::EMB2) &&
       ref->hasSampling(CaloSampling::EME2)) {
-    float dEta(std::abs(ref->eta() - clus->eta()));
-    float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
+    const float dEta(std::abs(ref->eta() - clus->eta()));
+    const float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     //
-    float dEtaBarrel(
+    const float dEtaBarrel(
       std::abs(ref->etaSample(CaloSampling::EMB2) - clus->eta()));
-    float dPhiBarrel(std::abs(
+    const float dPhiBarrel(std::abs(
       P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EMB2), clus->phi())));
     //
-    float dEtaEndcap(
+    const float dEtaEndcap(
       std::abs(ref->etaSample(CaloSampling::EME2) - clus->eta()));
-    float dPhiEndcap(std::abs(
+    const float dPhiEndcap(std::abs(
       P4Helpers::deltaPhi(ref->phiSample(CaloSampling::EME2), clus->phi())));
     // Matches any in case of split
     return (
@@ -239,12 +239,12 @@ egammaSuperClusterBuilder::matchesInWindow(const xAOD::CaloCluster* ref,
        dPhiEndcap < m_searchWindowPhiEndcap));
   }
   if (xAOD::EgammaHelpers::isBarrel(clus)) {
-    float dEta(std::abs(ref->eta() - clus->eta()));
-    float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
+    const float dEta(std::abs(ref->eta() - clus->eta()));
+    const float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
     return (dEta < m_searchWindowEtaBarrel && dPhi < m_searchWindowPhiBarrel);
   }
-  float dEta(std::abs(ref->eta() - clus->eta()));
-  float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
+  const float dEta(std::abs(ref->eta() - clus->eta()));
+  const float dPhi(std::abs(P4Helpers::deltaPhi(ref->phi(), clus->phi())));
   return (dEta < m_searchWindowEtaEndcap && dPhi < m_searchWindowPhiEndcap);
 }
 
