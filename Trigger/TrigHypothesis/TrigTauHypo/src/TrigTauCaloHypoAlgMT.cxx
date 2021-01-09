@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "Gaudi/Property.h"
@@ -43,7 +43,7 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
 
   // loop over previous decisions
   int counter=-1;
-  for ( const auto& previousDecision: *previousDecisionsHandle ) {
+  for ( const xAOD::TrigComposite* previousDecision: *previousDecisionsHandle ) {
     counter++;
 
     //get RoI
