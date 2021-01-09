@@ -17,11 +17,17 @@ FastReductionMatcher::FastReductionMatcher(ConditionPtrs& conditions,
   m_conditionFilters(std::move(filters)),
   m_tree(tree){
 
+  int minNjets{0};
   for (const auto& il : m_tree.leaves()){
-    if (!m_conditions[il]->isFromChainPart()) {
+    const auto& condition = m_conditions[il];
+    if (!condition->isFromChainPart()) {
       throw std::runtime_error("Tree leaf condition  but not from ChainPart");
     }
+    minNjets += condition->capacity() * condition->multiplicity();
   }
+
+  m_minNjets = std::max(1, minNjets);
+  
   if (filters.size() != conditions.size()) {
     throw std::runtime_error("Conditions and ConditionFilters sequence sizes differ");
   }
@@ -48,6 +54,20 @@ FastReductionMatcher::match(const HypoJetCIter& jets_b,
     there is a match.
    */
 
+  auto njets = jets_e - jets_b;
+  if (njets < 0) {
+    throw std::runtime_error("Negative number of jets"); 
+  }
+
+  if (njets < m_minNjets) {
+    if (collector) {
+      collector->collect("FastReductionMatcher",
+			"have " + std::to_string(njets) +
+			" jets need " + std::to_string(m_minNjets) +
+			 "pass: false");
+    }
+    return false;
+  }
 
   FastReducer reducer(jets_b,
                       jets_e,
