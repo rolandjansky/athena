@@ -358,13 +358,12 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
 bool
 TruthJetFilterTool::acceptParticle (const HepMC::GenParticle* p)
 {
-	bool ok = false;
-
+  bool ok = false;
   int pdg_id = std::abs (p->pdg_id());
   int status = p->status();
-  int barcode = p->barcode();
+  int barcode = HepMC::barcode(p);
 
-	if (p->barcode() > GEANTMIN && !m_writeGeant)
+	if (barcode > GEANTMIN && !m_writeGeant)
 		return false;
 
 	if (m_excludeWZdecays) {

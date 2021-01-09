@@ -143,7 +143,7 @@ TruthParticleFilterTool::isAccepted (const HepMC::GenParticle* p)
   bool ok = false;
 
   int pdg_id = std::abs (p->pdg_id());
-  int barcode = p->barcode();
+  int barcode = HepMC::barcode(p);
 
   // Keep first N particles
   if (m_particleCountSoFar<m_writeFirstN){
@@ -151,7 +151,7 @@ TruthParticleFilterTool::isAccepted (const HepMC::GenParticle* p)
     ok=true;
   }
 
-  if (p->barcode() > GEANTMIN && !m_writeGeant && !m_writeEverything && !ok) {
+  if (HepMC::barcode(p) > GEANTMIN && !m_writeGeant && !m_writeEverything && !ok) {
     if (! (pdg_id == PDG::gamma &&
            m_geantPhotonPtThresh >= 0 &&
            p->momentum().perp() > m_geantPhotonPtThresh) )
@@ -253,12 +253,12 @@ bool TruthParticleFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) co
 
   int pdg = part->pdg_id();
 
-  if(abs(pdg) != 11 &&
-     abs(pdg) != 12 &&
-     abs(pdg) != 13 &&
-     abs(pdg) != 14 &&
-     abs(pdg) != 15 &&
-     abs(pdg) != 16) return false; // all leptons including tau.
+  if(std::abs(pdg) != 11 &&
+     std::abs(pdg) != 12 &&
+     std::abs(pdg) != 13 &&
+     std::abs(pdg) != 14 &&
+     std::abs(pdg) != 15 &&
+     std::abs(pdg) != 16) return false; // all leptons including tau.
   
   HepMC::GenVertex* prod = part->production_vertex();
   if(!prod) return false; // no parent.
@@ -293,14 +293,14 @@ bool TruthParticleFilterTool::isFromTau(const HepMC::GenParticle* part) {
 
   int pdg = part->pdg_id();
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  auto prod = part->production_vertex();
   if(!prod) return false; // no parent.
 
   // Simple loop catch
   if (prod==part->end_vertex()) return false;
 
   // More complex loop catch
-  if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),prod->barcode()) != m_barcode_trace.end()){
+  if ( find(m_barcode_trace.begin(),m_barcode_trace.end(),HepMC::barcode(prod)) != m_barcode_trace.end()){
     ATH_MSG_DEBUG( "Found a loop (a la Sherpa sample).  Backing out." );
     return false;
   }
@@ -380,7 +380,7 @@ bool TruthParticleFilterTool::isFsrFromLepton(const HepMC::GenParticle* part) co
   if(std::abs(pdg) != 22) return false; // photon
   if(HepMC::barcode(part) >=  200000) return false; // Geant photon
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  auto prod = part->production_vertex();
   if(!prod) return false; // no parent.
 
   // Loop over the parents of this particle.
@@ -388,10 +388,10 @@ bool TruthParticleFilterTool::isFsrFromLepton(const HepMC::GenParticle* part) co
   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
   for(;itrParent!=endParent; ++itrParent){
     int parentId = (*itrParent)->pdg_id();
-    if(abs(parentId) == 11 || 
-       abs(parentId) == 13 ||
-       abs(parentId) == 15) {
-      ATH_MSG_DEBUG("Photon with barcode " << part->barcode() << " matched to particle with pdgId = " << parentId );
+    if(std::abs(parentId) == 11 || 
+       std::abs(parentId) == 13 ||
+       std::abs(parentId) == 15) {
+      ATH_MSG_DEBUG("Photon with barcode " << HepMC::barcode(part) << " matched to particle with pdgId = " << parentId );
       return true; // Has lepton parent
     }
 

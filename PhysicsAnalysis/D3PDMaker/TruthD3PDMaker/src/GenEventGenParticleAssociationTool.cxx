@@ -65,7 +65,7 @@ GenEventGenParticleAssociationTool::reset (const HepMC::GenEvent& p)
 const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
 {
   if (m_it == m_end)
-    return 0;
+    return nullptr;
   
   const HepMC::GenParticle* out;
 
