@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TrigBmumuxComboHypo_H
@@ -107,7 +107,7 @@ class TrigBmumuxComboHypo: public ::ComboHypo {
 
   bool isIdenticalTracks(const xAOD::TrackParticle* lhs, const xAOD::TrackParticle* rhs) const;
   bool isIdenticalTracks(const xAOD::Muon* lhs, const xAOD::Muon* rhs) const;
-  bool passDimuonTrigger(const std::vector<const DecisionIDContainer*>& previousDecisionIDs) const;
+  bool passDimuonTrigger(const std::vector<const TrigCompositeUtils::DecisionIDContainer*>& previousDecisionIDs) const;
   bool isInMassRange(double mass, const std::pair<double, double>& range) const { return (mass > range.first && mass < range.second); }
 
   SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackParticleContainerKey {this,
