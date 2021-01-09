@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: tabstop=2:shiftwidth=2:expandtab
@@ -460,7 +460,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
 
 
     // OI : here we probably should check that electron object has passed identification at the previous step
-    for ( const auto& muel : lepContainerEF1 ) {
+    for ( const ElementLink<xAOD::ElectronContainer> muel : lepContainerEF1 ) {
    
       //if ( (*muel)->lepType() != xAOD::Lep::Combined && (*muel)->lepType() != xAOD::Lep::SegmentTagged) {
       //  ATH_MSG_DEBUG("Lep from roi1 is neither Combined or SegmentTagged - reject" );
@@ -497,7 +497,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     }
     ATH_MSG_DEBUG("Found LepContainer, Got LepEF (2) Feature, size = " << lepContainerEF2.size());
     
-    for ( const auto& muel : lepContainerEF2 ) {
+    for ( const ElementLink<xAOD::ElectronContainer> muel : lepContainerEF2 ) {
       //if ( (*muel)->lepType() != xAOD::Electron::Combined && (*muel)->lepType() != xAOD::Electron::SegmentTagged) {
       //  ATH_MSG_DEBUG("Lep from roi2 is neither Combined or SegmentTagged - reject" );
       //  continue;
@@ -519,14 +519,14 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
     
     // build a map of the tracks and corresponding leps
     std::map<const xAOD::TrackParticle*, ElementLink<xAOD::ElectronContainer> > mapTrkToLeps;
-    for (const auto& mu : lepContainerEF1) {
+    for (const ElementLink<xAOD::ElectronContainer> mu : lepContainerEF1) {
             auto idtp  = (*mu)->trackParticleLink();
             if (!idtp.isValid()) continue;
             if (!*idtp) continue;
             //if (!(*idtp)->track()) continue;
             mapTrkToLeps[(*idtp)] = mu;
     } // lepContainerEF1
-    for (const auto& mu : lepContainerEF2) {
+    for (const ElementLink<xAOD::ElectronContainer> mu : lepContainerEF2) {
             auto idtp  = (*mu)->trackParticleLink();
             if (!idtp.isValid()) continue;
             if (!*idtp) continue;
@@ -711,7 +711,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                 std::map<const xAOD::TrackParticle*, ElementLink<xAOD::TrackParticleContainer> > mapTrackToEL;
                 
                 int idCounter(0);
-                for (const auto& trk: tracksRoiI1) {
+                for (const ElementLink<xAOD::TrackParticleContainer> trk: tracksRoiI1) {
                     // merged_tracks.push_back(trk);
                     addUnique(merged_tracks,*trk);
                     ElIndex tmp;
@@ -722,7 +722,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
                     ++idCounter;
                 }
                 idCounter = 0;
-                for (const auto& trk: tracksRoiI2) {
+                for (const ElementLink<xAOD::TrackParticleContainer> trk: tracksRoiI2) {
                     // merged_tracks.push_back(trk);
                     addUnique(merged_tracks,*trk);
                     ElIndex tmp;
@@ -1130,7 +1130,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
         ATH_MSG_WARNING("Failed to getFeaturesLinks trigBphys_X Collection in outputTE" );
         } else {
             if(msgLvl() <= MSG::DEBUG)
-            for ( const auto& eltp: ELvecTBPh) {
+              for ( const ElementLink<xAOD::TrigBphysContainer> eltp: ELvecTBPh) {
               msg() << MSG::DEBUG << "  ===== TrigBphys Container ElementLinks : " 
               << " index: "  << eltp.index()
               << " sgkey: "  << eltp.dataID()
@@ -1147,7 +1147,7 @@ HLT::ErrorCode TrigEFBEEXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerE
               ElementLink<xAOD::TrigBphysContainer> secEL;
 //               secEL.resetWithKeyAndIndex(KEY,(*BPobj)->secondaryDecayLink().index());
               // match transient secondary decay ELs with those from persistified container
-              for(const auto& persistentSecEL : ELvecTBPh ) {
+              for(const ElementLink<xAOD::TrigBphysContainer> persistentSecEL : ELvecTBPh ) {
                 if(*persistentSecEL == *(*BPobj)->secondaryDecayLink())
                   secEL = persistentSecEL;
               }
