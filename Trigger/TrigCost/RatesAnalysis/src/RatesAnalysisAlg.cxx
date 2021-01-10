@@ -395,6 +395,39 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     }
   }
 
+  ATH_MSG_INFO("Retrieving HLT chain's ID and Group from HLT menu.");
+
+  m_hltChainIDGroup.resize(m_triggers.size());
+  for (size_t i = 0; i < m_triggers.size(); i++)
+    m_hltChainIDGroup.at(i).resize(3);
+
+  if(m_configSvc.isValid()) {
+    std::cout << "populateTriggers::INFO inside hltchainIDGroup part" << std::endl;
+    const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
+    
+    std::cout << "populateTriggers::INFO after hltmenu call" << std::endl;
+
+    TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
+    TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
+    size_t c = 0;
+
+    std::cout << "populateTriggers::INFO before loop" << std::endl;
+    for( ; chain_itr != chain_end; ++chain_itr ) {
+      std::cout << "populateTriggers::INFO inside loop" << std::endl;
+      std::string chainName = ( *chain_itr ).className() ;
+      unsigned int chainID = ( *chain_itr ).counter();
+      std::vector<std::string> chainGroups = ( *chain_itr ).groups();
+      std::string singlechainGroups = std::accumulate(chainGroups.begin(), chainGroups.end(), std::string(","));
+      std::cout << "populateTriggers::INFO chainName: " << chainName << " chainID: " << chainID << " chainGroups: " << singlechainGroups << std::endl;
+      
+      m_hltChainIDGroup.at(c).at(0) = chainName;
+      m_hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
+      m_hltChainIDGroup.at(c).at(2) = singlechainGroups;
+      ++c;
+    }
+  }
+
+  
   // Print all triggers
   if (msgLevel(MSG::DEBUG)) {
     if (m_triggers.size()) {
@@ -745,31 +778,7 @@ void RatesAnalysisAlg::writeMetadata() {
   }
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
 
-  std::vector<std::vector<std::string>> hltChainIDGroup;
-  hltChainIDGroup.resize(m_triggers.size());
-  for (size_t i = 0; i < m_triggers.size(); i++)
-    hltChainIDGroup.at(i).resize(3);
-
-  if(m_configSvc.isValid()) {
-    const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
-    
-    TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
-    TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
-    size_t c = 0;
-    for( ; chain_itr != chain_end; ++chain_itr ) {
-      std::string chainName = ( *chain_itr ).className() ;
-      unsigned int chainID = ( *chain_itr ).counter();
-      std::vector<std::string> chainGroups = ( *chain_itr ).groups();
-      std::string singlechainGroups = std::accumulate(chainGroups.begin(), chainGroups.end(), std::string(","));
-      
-      hltChainIDGroup.at(c).at(0) = chainName;
-      hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
-      hltChainIDGroup.at(c).at(2) = singlechainGroups;
-      ++c;
-    }
-  }
-
-  m_metadataTree->Branch("hltChainIDGroup", &hltChainIDGroup);
+  m_metadataTree->Branch("hltChainIDGroup", &m_hltChainIDGroup);
 
   m_metadataTree->Branch("masterKey", &masterKey);
   m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);

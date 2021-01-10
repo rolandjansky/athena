@@ -251,6 +251,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::unordered_map<std::string, const Trig::ChainGroup*> m_existingTriggers; //!< Map of triggers which we ask the TDT ChainGroup for the pass/fail 
   std::unordered_map<std::string, std::string> m_lowerTrigger; //!< Map of triggers lower chain, to tell if a HLT trigger ran or not. 
 
+  std::vector<std::vector<std::string>> m_hltChainIDGroup;
 
   const std::string m_l1GroupName = "L1";
   const std::string m_l2GroupName = "Main";
