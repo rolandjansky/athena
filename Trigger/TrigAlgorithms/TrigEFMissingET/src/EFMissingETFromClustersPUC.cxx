@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -172,7 +172,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   vector<double> ExInMask, EyInMask, EtInMask, AreaInMask;
 
   // Calculate initial energy
-  for (const auto& clus : *caloCluster) {
+  for (const auto clus : *caloCluster) {
       float phi = clus->phi(m_clusterstate), eta = clus->eta(m_clusterstate), Et  = clus->pt(m_clusterstate),
             E = clus->p4(m_clusterstate).E();
       float cosPhi, sinPhi; sincosf(phi, &sinPhi, &cosPhi);
