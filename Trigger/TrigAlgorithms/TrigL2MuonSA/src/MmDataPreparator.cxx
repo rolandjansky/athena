@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MmDataPreparator.h"
@@ -120,7 +120,7 @@ StatusCode TrigL2MuonSA::MmDataPreparator::prepareData(const TrigRoiDescriptor* 
     }
 
     // Get MM collections
-    for(const auto& mmcoll : *mmPrds) {
+    for(const auto mmcoll : *mmPrds) {
       mmCols.push_back(mmcoll);
     }
 
