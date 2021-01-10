@@ -1867,6 +1867,14 @@ def remap_lhe_pdgids(lhe_file_old,lhe_file_new=None,pdgid_map={},delete_old_lhe=
                 blockName = line.strip().upper().split()[pos]
             elif '</slha>' in line:
                 blockName = None
+            # Check for comments - just write those and move on
+            if len(line.split('#')[0].strip())==0:
+                line_mod = line
+                for pdgid in pdgid_map_str:
+                    if pdgid in line_mod.split():
+                        line_mod = line_mod.replace( pdgid , pdgid_map_str[pdgid] )
+                newlhe.write(line_mod)
+                continue
             # Replace the PDG ID in the mass block
             if blockName=='MASS' and line.split()[0] in pdgid_map_str:
                 newlhe.write( line.replace( line.split()[0] , pdgid_map_str[ line.split()[0] ] , 1 ) )
