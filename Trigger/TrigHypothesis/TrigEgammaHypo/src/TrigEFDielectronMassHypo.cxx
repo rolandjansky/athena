@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -121,7 +121,7 @@ bool TrigEFDielectronMassHypo::checkMasses(const xAOD::TrigCompositeContainer* m
     bool status=false;
     float mass=-999.;
     m_monCut = 2;
-    for(const auto &comp:*masses){
+    for(const auto comp:*masses){
         if(comp->name()==key){
             if(!comp->getDetail("mass",mass)){
                 ATH_MSG_WARNING("REGTEST: Cannot retrieve mass");
@@ -150,7 +150,7 @@ bool TrigEFDielectronMassHypo::checkMasses(const xAOD::TrigCompositeContainer* m
 //Following method for validation purposes
 bool TrigEFDielectronMassHypo::checkComposites(const xAOD::TrigCompositeContainer* masses){
     float mass=-999.;
-    for(const auto &comp:*masses){
+    for(const auto comp:*masses){
         if(!comp->getDetail("mass",mass)){
             ATH_MSG_ERROR("REGTEST: Cannot retrieve mass");
             return false; 
