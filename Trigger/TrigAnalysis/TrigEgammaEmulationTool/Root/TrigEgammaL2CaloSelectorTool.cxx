@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -88,7 +88,7 @@ bool TrigEgammaL2CaloSelectorTool::emulationL2(const xAOD::TrigEMCluster *pClus,
   pass=false;
   const xAOD::EmTauRoI *pEmTauRoi=nullptr;
  
-  for(const auto& emTauRoi : *m_emTauRois){
+  for(const auto emTauRoi : *m_emTauRois){
     //match by roiword between L1 and L2Calo
     if(emTauRoi->roiWord() == pClus->RoIword()){
       pEmTauRoi=emTauRoi;
