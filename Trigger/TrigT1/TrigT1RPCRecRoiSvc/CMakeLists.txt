@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigT1RPCRecRoiSvc )
@@ -7,8 +7,7 @@ atlas_subdir( TrigT1RPCRecRoiSvc )
 atlas_add_library( TrigT1RPCRecRoiSvcLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigT1RPCRecRoiSvc
-                   LINK_LIBRARIES GaudiKernel MuonIdHelpersLib MuonReadoutGeometry RPC_CondCablingLib StoreGateLib TrigT1Interfaces
-                   PRIVATE_LINK_LIBRARIES RPCcablingInterfaceLib )
+                   LINK_LIBRARIES GaudiKernel MuonIdHelpersLib MuonReadoutGeometry RPC_CondCablingLib StoreGateLib TrigT1Interfaces RPCcablingInterfaceLib )
 
 atlas_add_component( TrigT1RPCRecRoiSvc
                      src/components/*.cxx
