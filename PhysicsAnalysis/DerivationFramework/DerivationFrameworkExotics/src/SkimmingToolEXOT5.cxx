@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////////
@@ -87,14 +87,14 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
   recoJets->setStore(recoJetsAux.get());
 
   std::pair<xAOD::JetContainer*, xAOD::ShallowAuxContainer*> jets_shallowCopy = xAOD::shallowCopyContainer(*jets);
-  for (const auto &jet : *jets_shallowCopy.first) {
+  for (const auto jet : *jets_shallowCopy.first) {
     if (jet->pt() > 100000.) passUncalibMonojetCut = true;
   }
   if (m_jetCalibrationTool->applyCalibration(*jets_shallowCopy.first).isFailure()) {
     ATH_MSG_ERROR("Problem applying jet calibration");
     return false;
   }
-  for (const auto &jet : *jets_shallowCopy.first) {
+  for (const auto jet : *jets_shallowCopy.first) {
     xAOD::Jet* newJet = new xAOD::Jet();
     newJet->makePrivateStore(*jet);
     recoJets->push_back(newJet);
@@ -120,7 +120,7 @@ bool DerivationFramework::SkimmingToolEXOT5::eventPassesFilter() const
     std::unique_ptr<xAOD::JetAuxContainer> truthJetsAux = make_unique<xAOD::JetAuxContainer>();
     truthJets->setStore(truthJetsAux.get());
 
-    for (const auto &truthJet : *truthJetContainer) {
+    for (const auto truthJet : *truthJetContainer) {
       xAOD::Jet* newTruthJet = new xAOD::Jet();
       newTruthJet->makePrivateStore(*truthJet);
       truthJets->push_back(newTruthJet);
