@@ -313,6 +313,8 @@ class ConfiguredNewTrackingCuts :
           self.__maxZImpact            = [150.0 * Units.mm]
           self.__nHolesMax             = [1]
           self.__nHolesGapMax          = [1]
+          self.__minPTSeed             = 1.0 * Units.GeV
+          self.__maxZImpactSeed        = 150.0 * Units.mm
 
       else:
         
