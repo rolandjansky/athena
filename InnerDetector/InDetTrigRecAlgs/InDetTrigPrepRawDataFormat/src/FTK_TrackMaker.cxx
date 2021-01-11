@@ -115,7 +115,7 @@ namespace InDet{
     //initial debugging - can be removed later
     const TrigRoiDescriptor fullScanRoi(true);
     std::vector<IdentifierHash> listOfIds;
-    m_regionSelector->DetHashIDList( FTK, fullScanRoi, listOfIds);
+    // m_regionSelector->DetHashIDList( FTK, fullScanRoi, listOfIds);
     ATH_MSG_DEBUG( "REGTEST: FTK: FullScan Roi contains " 
 		   << listOfIds << " det. Elements" );
 
@@ -184,7 +184,7 @@ namespace InDet{
     TrigRoiDescriptor fullScanRoi(true);
 
     std::vector<unsigned int> uIntListOfRobs;
-    m_regionSelector->DetROBIDListUint( FTK, fullScanRoi, uIntListOfRobs );
+    // m_regionSelector->DetROBIDListUint( FTK, fullScanRoi, uIntListOfRobs );
 
     ATH_MSG_DEBUG( "list of pre-registered ROB ID in FTK: ");
     for(auto i : uIntListOfRobs) {
