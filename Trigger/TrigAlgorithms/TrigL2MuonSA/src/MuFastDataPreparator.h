@@ -109,8 +109,8 @@ class MuFastDataPreparator: public AthAlgTool {
   ToolHandle<StgcDataPreparator>  m_stgcDataPreparator{this,"STGCDataPreparator","TrigL2MuonSA::StgcDataPreparator"};
   ToolHandle<MmDataPreparator>    m_mmDataPreparator{this,  "MMDataPreparator",  "TrigL2MuonSA::MmDataPreparator"};
 
-  ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{"TrigL2MuonSA::RpcRoadDefiner"};
-  ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{"TrigL2MuonSA::TgcRoadDefiner"};
+  ToolHandle<RpcRoadDefiner>      m_rpcRoadDefiner{this, "RpcRoadDefiner", "TrigL2MuonSA::RpcRoadDefiner"};
+  ToolHandle<TgcRoadDefiner>      m_tgcRoadDefiner{this, "TgcRoadDefiner", "TrigL2MuonSA::TgcRoadDefiner"};
   ToolHandle<RpcPatFinder>        m_rpcPatFinder{"TrigL2MuonSA::RpcPatFinder"};
   
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool{nullptr};
