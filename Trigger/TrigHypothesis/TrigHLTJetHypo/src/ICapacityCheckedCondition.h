@@ -35,6 +35,7 @@ class ICapacityCheckedCondition: public IConditionMT {
 
 
   virtual int label() const = 0;
+  virtual std::size_t multiplicity() const = 0;
   virtual std::string toString() const = 0;
   virtual bool isFromChainPart() const = 0;
 
