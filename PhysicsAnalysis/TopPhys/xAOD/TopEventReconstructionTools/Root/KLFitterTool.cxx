@@ -550,7 +550,6 @@ namespace top {
                                                   outputSGKey),
                       "KLFitterTools::execute(): can not retrieve xAOD::KLFitterResultContainer from evtStore()");
 
-
     // loop over all permutations
     xAOD::KLFitterResult* result = NULL;
     if(m_jetSelectionModeKLFitterEnum == top::KLFitterJetSelection::kAutoSet) {
@@ -640,15 +639,26 @@ namespace top {
 	xAOD::KLFitterResult* combinedResult = new xAOD::KLFitterResult {};
 	bestContainer->push_back(combinedResult);
 
-	/*note: didn't manage to propagate these two, would return error when compiling
-	  result->parameters();
-	  result->parameterErrors();
-	 */
+	std::vector<double> param(0);
+	for(double pr : st1->parameters()) param.push_back(pr);
+	for(double pr : st2->parameters()) param.push_back(pr);
+	combinedResult->setParameters(param);
+	std::vector<double> paramEr(0);
+	for(double pr : st1->parameterErrors()) paramEr.push_back(pr);
+	for(double pr : st2->parameterErrors()) paramEr.push_back(pr);
+	combinedResult->setParameterErrors(paramEr);
+	 
+
 	combinedResult->setSelectionCode(st1->selectionCode());
-	combinedResult->setMinuitDidNotConverge(st1->minuitDidNotConverge()*st2->minuitDidNotConverge());
-	combinedResult->setFitAbortedDueToNaN(st1->fitAbortedDueToNaN()*st2->fitAbortedDueToNaN());
-	combinedResult->setAtLeastOneFitParameterAtItsLimit(st1->atLeastOneFitParameterAtItsLimit()*st2->atLeastOneFitParameterAtItsLimit());
-	combinedResult->setInvalidTransferFunctionAtConvergence(st1->invalidTransferFunctionAtConvergence()*st2->invalidTransferFunctionAtConvergence());
+	if(st1->minuitDidNotConverge()>0 || st2->minuitDidNotConverge()>0) std::cout << "minuitDidNotConverge" << std::endl;
+	combinedResult->setMinuitDidNotConverge(std::max(st1->minuitDidNotConverge(),st2->minuitDidNotConverge()));
+	combinedResult->setFitAbortedDueToNaN(std::max(st1->fitAbortedDueToNaN(),st2->fitAbortedDueToNaN()));
+	if(st1->fitAbortedDueToNaN()>0 || st2->fitAbortedDueToNaN()>0) std::cout << "fitAbortedDueToNaN" << std::endl;
+
+	combinedResult->setAtLeastOneFitParameterAtItsLimit(std::max(st1->atLeastOneFitParameterAtItsLimit(),st2->atLeastOneFitParameterAtItsLimit()));
+	if(st1->atLeastOneFitParameterAtItsLimit()>0 || st2->atLeastOneFitParameterAtItsLimit()>0) std::cout << "atLeastOneFitParameterAtItsLimit" << std::endl;
+	combinedResult->setInvalidTransferFunctionAtConvergence(std::max(st1->invalidTransferFunctionAtConvergence(),st2->invalidTransferFunctionAtConvergence()));
+	if(st1->invalidTransferFunctionAtConvergence()>0 || st2->invalidTransferFunctionAtConvergence()>0) std::cout << "invalidTransferFunctionAtConvergence()" << std::endl;
       
 	combinedResult->setLogLikelihood(st1->logLikelihood()+st2->logLikelihood());
 	combinedResult->setEventProbability(st1->eventProbability()*st2->eventProbability());
@@ -1057,6 +1067,7 @@ namespace top {
       }
       auto jet = event.m_jets.at(qji);
       jet_p4.SetPtEtaPhiE(jet->pt() / 1.e3, jet->eta(), jet->phi(), jet->e() / 1.e3);
+
       //should work without this (results to be checked) --> float eff(0.), ineff(0.); 
       double weight(0);
       HasTag(*jet, weight);
@@ -1082,6 +1093,7 @@ namespace top {
     for (int iperm = 0; iperm < nperm; ++iperm) {
       // Perform the fit
       m_myFitter->Fit(iperm);
+
       // create a result
       result = new xAOD::KLFitterResult {};
       resultContainer->push_back(result);
@@ -1110,7 +1122,6 @@ namespace top {
       
       KLFitter::Particles* myModelParticles = m_myFitter->Likelihood()->ParticlesModel();
       KLFitter::Particles** myPermutedParticles = m_myFitter->Likelihood()->PParticlesPermuted();
-
 
       if (m_LHType == "ttbar" || m_LHType == "ttH" || m_LHType == "ttbar_JetAngles" || m_LHType == "ttZTrilepton" ||
           m_LHType == "ttbar_BoostedLJets") {
@@ -1395,10 +1406,9 @@ namespace top {
   void KLFitterTool::findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability) {      
 
     float bestEventProbability(0.);
-    unsigned int iPerm1(0);
 
-    for (auto x : *resultContainer) {
-      unsigned int iPerm2(0);
+    for (unsigned int iPerm1=0; iPerm1<resultContainer->size(); iPerm1++) {
+      xAOD::KLFitterResult *x = resultContainer->at(iPerm1);
 
       float prob_1 = x->eventProbability();
       short minuitDidNotConverge_1 = x->minuitDidNotConverge();
@@ -1410,39 +1420,37 @@ namespace top {
       unsigned int iljI1 = x->model_lj1_from_top1_jetIndex();
       unsigned int iljII1 = x->model_lj2_from_top1_jetIndex();
 
-      ++iPerm1;
-      for (auto y : *resultContainer) {
+      if(minuitDidNotConverge_1 || fitAbortedDueToNaN_1 || atLeastOneFitParameterAtItsLimit_1 || invalidTransferFunctionAtConvergence_1) continue;
+
+      for (unsigned int iPerm2=iPerm1+1;iPerm2<resultContainer->size(); iPerm2++) {
+
+	xAOD::KLFitterResult *y = resultContainer->at(iPerm2);
 
 	//first check that it's not the same jets
 	unsigned int ib2 = y->model_b_from_top1_jetIndex();
 	unsigned int iljI2 = y->model_lj1_from_top1_jetIndex();
 	unsigned int iljII2 = y->model_lj2_from_top1_jetIndex();
-	++iPerm2;
 
 	if(ib2==ib1 || ib2==iljI1 || ib2==iljII1 ||
 	   iljI2==ib1 || iljI2==iljI1 || iljI2==iljII1 ||
 	   iljII2==ib1 || iljII2==iljI1 || iljII2==iljII1) continue;
 
-	float prob = prob_1*y->eventProbability();
-	sumEventProbability += prob;
-
 	//now check that this one is ok
-	short minuitDidNotConverge = minuitDidNotConverge_1*y->minuitDidNotConverge();
-	short fitAbortedDueToNaN = fitAbortedDueToNaN_1*y->fitAbortedDueToNaN();
-	short atLeastOneFitParameterAtItsLimit = atLeastOneFitParameterAtItsLimit_1*y->atLeastOneFitParameterAtItsLimit();
-	short invalidTransferFunctionAtConvergence = invalidTransferFunctionAtConvergence_1*y->invalidTransferFunctionAtConvergence();	
+	short minuitDidNotConverge_2 = y->minuitDidNotConverge();
+	short fitAbortedDueToNaN_2 = y->fitAbortedDueToNaN();
+	short atLeastOneFitParameterAtItsLimit_2 = y->atLeastOneFitParameterAtItsLimit();
+	short invalidTransferFunctionAtConvergence_2 = y->invalidTransferFunctionAtConvergence();	
 	
 	// check if the best value has the highest event probability AND converged
-	if (minuitDidNotConverge) continue;
-	if (fitAbortedDueToNaN) continue;
-	if (atLeastOneFitParameterAtItsLimit) continue;
-	if (invalidTransferFunctionAtConvergence) continue;
+	if(minuitDidNotConverge_2 || fitAbortedDueToNaN_2 || atLeastOneFitParameterAtItsLimit_2 || invalidTransferFunctionAtConvergence_2) continue;
+
+	float prob = prob_1*y->eventProbability();
+	sumEventProbability += prob;
 	
 	if (prob > bestEventProbability) {
 	  bestEventProbability = prob;
-	  // Using iPerm -1 because it has already been incremented before
-	  bestPermutation1 = iPerm1 - 1;
-	  bestPermutation2 = iPerm2 - 1;
+	  bestPermutation1 = iPerm1;
+	  bestPermutation2 = iPerm2;
 	}
       }
     }
