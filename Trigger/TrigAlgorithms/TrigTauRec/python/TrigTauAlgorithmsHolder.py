@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -6,7 +6,6 @@
 #
 #@brief All tau algorithms needed for tau reconstruction are configured here.
 #
-#@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
 from AthenaCommon.SystemOfUnits import mm, MeV, GeV
@@ -97,7 +96,9 @@ def getEnergyCalibrationLC(caloOnly=False):
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = calibFileName)
+                                    calibrationFile = calibFileName,
+                                    doPtResponse = False,
+                                    VertexCorrection = doVertexCorrection)
 
     TauCalibrateLC.isCaloOnly = caloOnly
     #Need to empty the vertex key collection in the trigger case
