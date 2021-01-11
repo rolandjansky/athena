@@ -9,7 +9,7 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
 #if DerivationFrameworkIsMonteCarlo:
-DerivationFrameworkIsMonteCarlo = True
+DerivationFrameworkIsMonteCarlo
 if True:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
