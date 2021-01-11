@@ -418,12 +418,12 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
        ATH_CHECK(detStore()->retrieve(m_pixelManager, "Pixel"));
        ATH_CHECK(detStore()->retrieve(m_pixelHelper, "PixelID"));
 
-       static constexpr int nbins_R = 75;
+       static constexpr int nbins_R = 76;
        double bins_R[nbins_R+1];
-       for(unsigned int i=0; i<=14; i++) bins_R[i] = 2*i - 1.;          // 2 mm bin width below R=27 mm, centered on R=24 mm (beampipe)
-       bins_R[15] = 30.; // 27-30 makes junction with pixel bins
+       for(unsigned int i=0; i<=15; i++) bins_R[i] = 2*i - 1.;          // 2 mm bin width below R=29 mm, centered on R=24 mm (beampipe)
+       bins_R[16] = 30.; // 29-30 makes junction with pixel bins, veto IPT R=29.3 mm
        static constexpr double Rbinwidth_pixel = 6.;
-       for(unsigned int i=1; i<=60; i++) bins_R[i+15] = 30 + Rbinwidth_pixel*i; // 6 mm bin width beyond R=30 mm
+       for(unsigned int i=1; i<=60; i++) bins_R[i+16] = 30 + Rbinwidth_pixel*i; // 6 mm bin width beyond R=30 mm
 
        static constexpr int nbins_Z = 1000;
        static constexpr double zmax = 3000.;
@@ -470,6 +470,35 @@ InDetVKalVxInJetTool::InDetVKalVxInJetTool(const std::string& type,
 
        // Fill map with beam pipe radius for all z
        for(double z = -zmax + 0.5*zbinwidth; z<zmax; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,beamPipeRadius);
+
+
+       // Retrieve IPT radius
+       // Labelled as anonymous volume so taken as pixel volume with smallest radius
+
+       double IPTRadius = -1.;
+
+       PVConstLink pixelTopVolume =  m_pixelManager->getTreeTop(0);
+
+       for(unsigned int i=0;i<pixelTopVolume->getNChildVols();i++){
+
+	 PVConstLink childTopVolume =  pixelTopVolume->getChildVol(i);
+	 const GeoLogVol* childLogVolume = childTopVolume->getLogVol();
+	 const GeoTube* childTube = 0;
+
+	 if (childLogVolume){
+	   childTube = dynamic_cast<const GeoTube*>(childLogVolume->getShape());
+	   if (childTube){
+	     double radius = 0.5*(childTube->getRMin()+childTube->getRMax());
+	     if(IPTRadius<0. || radius<IPTRadius) IPTRadius = radius;
+	   }
+	 }
+	 
+       }
+
+       ATH_MSG_INFO("IPTRadius used for material rejection="<<IPTRadius);
+
+       // Fill map with IPT radius for all z
+       for(double z = -zmax + 0.5*zbinwidth; z<zmax; z+=zbinwidth) m_ITkPixMaterialMap->Fill(z,IPTRadius);
 
 
        InDetDD::SiDetectorElementCollection::const_iterator iter;
