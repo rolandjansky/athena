@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -71,7 +71,7 @@ class TauRecAODProcessor ( TauRecConfigured ) :
             ###############################################################################################
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())
-            tools.append(taualgs.getCombinedP4FromRecoTaus())
+            tools.append(taualgs.getTauCombinedTES())
             tools.append(taualgs.getIDPileUpCorrection())
             
             # TauDiscriminant:

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -701,14 +701,14 @@ def getMvaTESEvaluator():
     return MvaTESEvaluator
 
 ########################################################################
-# CombinedP4FromRecoTaus
-def getCombinedP4FromRecoTaus():
-    _name = sPrefix + 'CombinedP4FromRecoTaus'
-    from tauRecTools.tauRecToolsConf import CombinedP4FromRecoTaus
-    CombinedP4FromRecoTaus = CombinedP4FromRecoTaus(name = _name,
-                                                    WeightFileName = tauFlags.tauRecCombinedP4Config())
-    cached_instances[_name] = CombinedP4FromRecoTaus
-    return CombinedP4FromRecoTaus
+# TauCombinedTES
+def getTauCombinedTES():
+    _name = sPrefix + 'TauCombinedTES'
+    from tauRecTools.tauRecToolsConf import TauCombinedTES
+    TauCombinedTES = TauCombinedTES(name = _name,
+                                    WeightFileName = tauFlags.tauRecCombinedTESConfig())
+    cached_instances[_name] = TauCombinedTES
+    return TauCombinedTES
     
 #########################################################################
 def getTauTrackClassifier():
