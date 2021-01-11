@@ -112,7 +112,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenEvent* evt,
    int gotzero = 1;
    for( ; iter != end; ++iter ) {
       if( ( ( ( *iter )->event_number() == -1 ) &&
-            ( ( *iter )->signal_process_id() == 0 ) ) ) {
+            ( HepMC::signal_process_id(( *iter )) == 0 ) ) ) {
          ++gotzero;
       }
       if( evt == *iter ) break;
@@ -393,7 +393,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
    /// remove gluons and quarks of status 2 that pass IsGenStable!!!
    if( abs(pdg) < 7 || abs(pdg) == 21 ) return false;
 
-   const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( abs( pdg ) );
+   const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( std::abs( pdg ) );
    if( ! pd ) {
      ATH_MSG_DEBUG( "Could not get particle data for pdg = " << pdg 
 		      << " status " << part->status() << " barcode " <<HepMC::barcode(part)

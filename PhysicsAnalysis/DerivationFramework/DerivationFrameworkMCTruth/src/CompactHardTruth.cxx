@@ -375,12 +375,6 @@ StatusCode CompactHardTruth::execute() {
 
   bool moreP = true;
   typedef std::pair<HepMC::GenVertex*, HepMC::GenParticle*> vpPair;
-  // std::vector<vpPair> removePV;
-  // std::vector<vpPair> addinPV;
-  // std::vector<vpPair> addoutPV;
-  // std::vector<HepMC::GenVertex*> removeV;
-  // std::list<HepMC::GenParticle*> deleteP;
-  // std::list<HepMC::GenVertex*> deleteV;
   removePV.clear();
   addinPV.clear();
   addoutPV.clear();

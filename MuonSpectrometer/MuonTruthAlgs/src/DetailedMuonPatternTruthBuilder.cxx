@@ -897,7 +897,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     const HepMC::GenParticle *current = link.cptr();
     
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
@@ -1145,7 +1145,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     const HepMC::GenParticle *current = link.cptr();
     
     do {
-      HepMcParticleLink curlink(current->barcode(), eventIndex);
+      HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
 
       // remove the current particle from the list of particles to consider (if it is still there)
       seeds.erase(curlink);
