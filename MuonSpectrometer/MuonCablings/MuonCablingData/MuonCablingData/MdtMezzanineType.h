@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMDT_CABLING_MDTMEZZANINETYPE_H
@@ -10,8 +10,7 @@
  *  @brief Atlas MDT Mezzanine Type
  *  
  *  This class describes the internal mapping of a 
- *  generic MDT mezzanine type. It is initialized 
- *  by the MuonMDT_CablingSvc from COOL
+ *  generic MDT mezzanine type.
  *
  *  @author Stefano.Rosati@roma1.infn.it
  *
