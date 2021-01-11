@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
-#define TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
+#ifndef TAURECTOOLS_TAUCOMBINEDTES_H
+#define TAURECTOOLS_TAUCOMBINEDTES_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -16,11 +16,11 @@
 #include <array>
 #include <string>
 
-class CombinedP4FromRecoTaus : public TauRecToolBase {
+class TauCombinedTES : public TauRecToolBase {
 public:
-  ASG_TOOL_CLASS2( CombinedP4FromRecoTaus, TauRecToolBase, ITauToolBase )
+  ASG_TOOL_CLASS2( TauCombinedTES, TauRecToolBase, ITauToolBase )
 
-  CombinedP4FromRecoTaus(const std::string& name="CombinedP4FromRecoTaus");  
+  TauCombinedTES(const std::string& name="TauCombinedTES");
     
   virtual StatusCode initialize() override;
       
@@ -84,7 +84,7 @@ private:
 
   /** Get the combined Et of calo TES and PanTau */
   double getCombinedEt(const double& caloEt, const double& et_substructure,
-		               const xAOD::TauJetParameters::DecayMode& decayMode, const float& eta, 
+		       const xAOD::TauJetParameters::DecayMode& decayMode, const float& eta, 
                        Variables& variables) const;
   
   /** Get the allowed difference between calo TES and PanTau */ 
@@ -136,4 +136,4 @@ private:
   std::unique_ptr<TF1> m_nSigmaCompatibility; //!
 };
 
-#endif // TAURECTOOLS_COMBINEDP4FROMRECOTAUS_H
+#endif // TAURECTOOLS_TAUCOMBINEDTES_H
