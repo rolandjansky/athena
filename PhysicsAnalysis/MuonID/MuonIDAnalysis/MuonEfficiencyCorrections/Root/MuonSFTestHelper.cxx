@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "MuonEfficiencyCorrections/MuonSFTestHelper.h"
@@ -338,7 +338,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::MuonContainer* muons) {
-        for (const auto *mu : *muons) {
+        for (const auto mu : *muons) {
             if (fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
             fillTree();
         }
