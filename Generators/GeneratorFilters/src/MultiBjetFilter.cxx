@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 // This is a general-purpose multi-b-jet filter. It can cut on:
 //    - Multiplicity of b-jets (both min and max can be specified)
@@ -21,8 +21,6 @@
 
 #include <fstream>
 
-using HepMC::GenVertex;
-using HepMC::GenParticle;
 
 MultiBjetFilter::MultiBjetFilter(const std::string& name, ISvcLocator* pSvcLocator)
   : GenFilter(name,pSvcLocator){
@@ -90,7 +88,7 @@ StatusCode MultiBjetFilter::filterEvent() {
   std::vector<xAOD::JetContainer::const_iterator> jets,bjets;
   for(jitr = (*truthjetTES).begin(); jitr !=(*truthjetTES).end(); ++jitr) {
     if((*jitr)->pt() < m_jetPtMin) continue;
-    if(fabs((*jitr)->eta()) > m_jetEtaMax) continue;
+    if(std::abs((*jitr)->eta()) > m_jetEtaMax) continue;
     if((*jitr)->pt() > lead_jet_pt) lead_jet_pt = (*jitr)->pt();
     jets.push_back(jitr);
   }
@@ -109,20 +107,18 @@ StatusCode MultiBjetFilter::filterEvent() {
   for(itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
     weight = genEvt->weights().front();
-    HepMC::GenEvent::particle_const_iterator pitr;
-
     // Make a vector containing all the event's b-hadrons
-    std::vector< HepMC::GenEvent::particle_const_iterator > bHadrons;
-    for(pitr=genEvt->particles_begin(); pitr!=genEvt->particles_end(); ++pitr ) {
-      if( !isBwithWeakDK( (*pitr)->pdg_id()) ) continue;
-      if( (*pitr)->momentum().perp() < m_bottomPtMin ) continue;
-      if( fabs( (*pitr)->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
+    std::vector< HepMC::ConstGenParticlePtr > bHadrons;
+    for(auto pitr: *genEvt) {
+      if( !isBwithWeakDK( pitr->pdg_id()) ) continue;
+      if( pitr->momentum().perp() < m_bottomPtMin ) continue;
+      if( std::abs( pitr->momentum().pseudoRapidity() ) > m_bottomEtaMax) continue;
       bHadrons.push_back(pitr);
     }
     // Count how many truth jets contain b-hadrons
     for(uint i = 0; i < jets.size(); i++){
       for(uint j = 0; j < bHadrons.size(); j++){
-        HepMC::FourVector tmp = (*bHadrons[j])->momentum();
+        HepMC::FourVector tmp = bHadrons.at(j)->momentum();
         TLorentzVector genpart(tmp.x(), tmp.y(), tmp.z(), tmp.t());
         double dR = (*jets[i])->p4().DeltaR(genpart);
         if(dR<m_deltaRFromTruth){
@@ -151,7 +147,7 @@ StatusCode MultiBjetFilter::filterEvent() {
 
 bool MultiBjetFilter::isBwithWeakDK(const int pID) const
 {
-  int id = abs(pID);
+  int id = std::abs(pID);
   if ( id == 511   ||    // B+
        id == 521   ||    // B0
        id == 531   ||    // Bs
