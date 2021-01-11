@@ -534,56 +534,6 @@ def getInDetTrackSelectorToolxAOD():
     
     cached_instances[_name] = myInDetTrackSelectionTool
     return myInDetTrackSelectionTool
-
-
-############################################################################
-# setup up JVA tools
-# Currently not used - moved into TauRecConfigured.py and added directly to topSequence
-def setupTauJVFTool():
-
-    #Configures tau track selection tool for TJVA
-    """
-    #Configures tau track selector tool for TJVA
-    from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
-    InDetTrackSelectorToolForTJVA = InDet__InDetDetailedTrackSelectorTool(name = sPrefix + 'InDetTrackSelectorToolForTJVA',
-                                                                pTMin                = 1000.,
-                                                                IPd0Max              = 9999.*mm,
-                                                                IPz0Max              = 9999.*mm,                                                                 
-                                                                nHitPix              = 2,  # PixelHits + PixelDeadSensors
-                                                                nHitSct              = 0,  # SCTHits + SCTDeadSensors
-                                                                nHitSi               = 7,  # PixelHits + SCTHits + PixelDeadSensors + SCTDeadSensors
-                                                                fitChi2OnNdfMax      = 99999,
-                                                                TrackSummaryTool     = None,
-                                                                Extrapolator         = getAtlasExtrapolator())        
-        
-    ToolSvc += InDetTrackSelectorToolForTJVA
-    """
-    from JetRec.JetRecConf import JetAlgorithm
-    jetTrackAlg = JetAlgorithm("JetTrackAlg_forTaus")
-
-    """
-    from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
-    jetTrackAlg.Tools  += JetTrackSelectionTool(InputContainer = _DefaultTrackContainer, 
-                                     OutputContainer="JetSelectedTracks_forTaus", 
-                                     Selector=InDetTrackSelectorToolForTJVA, 
-                                     OutputLevel=2
-                                     # what is about ptmin, eta min/max???
-                                     )
-    """
-
-    from JetRecTools.JetRecToolsConf import TrackVertexAssociationTool
-    jetTrackAlg.Tools += TrackVertexAssociationTool(TrackParticleContainer = _DefaultTrackContainer ,
-                                                    TrackVertexAssociation="JetTrackVtxAssoc_forTaus", 
-                                                    VertexContainer= _DefaultVertexContainer,
-                                                    MaxTransverseDistance = 2.5 *mm,
-                                                    #MaxLongitudinalDistance = 2 *mm, 
-                                                    MaxZ0SinTheta = 3.0 *mm,
-                                                    #OutputLevel=2
-                                                )
-
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()    
-    topSequence+=jetTrackAlg
     
 #########################################################################
 def getTauVertexFinder(doUseTJVA=False):
@@ -602,8 +552,8 @@ def getTauVertexFinder(doUseTJVA=False):
                                       AssociatedTracks="GhostTrack", # OK??
                                       InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
                                       Key_trackPartInputContainer=_DefaultTrackContainer,
-                                      Key_JetTrackVtxAssoc_forTaus="JetTrackVtxAssoc_forTaus",
-                                      Key_vertexInputContainer = _DefaultVertexContainer
+                                      Key_vertexInputContainer = _DefaultVertexContainer,
+                                      TVATool = getTVATool()
                                       )
     
     cached_instances[_name] = TauVertexFinder         
@@ -1006,3 +956,26 @@ def getParticleCache():
         ParticleCache = ""
     
     return ParticleCache
+
+def getTVATool():
+    _name = sPrefix + "TVATool"
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+    TVATool = CP__TrackVertexAssociationTool(name = _name,
+                                             WorkingPoint = "Custom",
+                                             d0_cut = 2.5*mm,
+                                             use_d0sig = False,
+                                             d0sig_cut = -1,
+                                             dzSinTheta_cut = 3.0*mm,
+                                             doUsedInFit = False,
+                                             requirePriVtx=False
+                                             )
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TVATool
+
+    cached_instances[_name] = TVATool
+    return TVATool
+

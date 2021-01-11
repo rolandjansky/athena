@@ -77,6 +77,6 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib InDetTrackSelectionToolLib BeamSpotConditionsData
-         tauRecToolsLib )
+         tauRecToolsLib TrackVertexAssociationToolLib)
    endif()
 endif()
