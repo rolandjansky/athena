@@ -8,6 +8,7 @@
 #include "AnaAlgorithm/AnaAlgorithm.h"
 #ifdef ROOTCORE
 #include "AnaAlgorithm/AnaAlgorithmConfig.h"
+#include "AnaAlgorithm/AnaAlgorithmWrapper.h"
 #endif
 
 #endif

@@ -16,7 +16,10 @@ namespace EL
   class FilterReporterParams;
 
 #ifdef ROOTCORE
+  struct AlgorithmWorkerData;
   class AnaAlgorithmConfig;
+  class AnaAlgorithmWrapper;
+  class IAlgorithmWrapper;
   class IFilterWorker;
   class IHistogramWorker;
   class ITreeWorker;
