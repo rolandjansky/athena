@@ -8,7 +8,9 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-if DerivationFrameworkHasTruth:
+#if DerivationFrameworkIsMonteCarlo:
+DerivationFrameworkIsMonteCarlo = True
+if True:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -56,8 +58,11 @@ ToolSvc += SUSY19TrackSelection
 
 AugmentationTools.append(SUSY19TrackSelection)
 
-thinning_expression = "InDetTrackParticles.DFLoose && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)"
+#thinning_expression = "InDetTrackParticles.DFLoose && (InDetTrackParticles.pt > 0.5*GeV) && (abs(DFCommonInDetTrackZ0AtPV*sin(InDetTrackParticles.theta) ) < 3.0)"
 #thinning_expression = ""
+# JEFF: remove the track thinning (pt > 0.5 GeV shouldn't actually do any thinning)
+thinning_expression = "(InDetTrackParticles.pt > 0.5*GeV)"
+
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackParticleThinning
 # TrackParticles directly
 SUSY19TPThinningTool = DerivationFramework__TrackParticleThinning(name = "SUSY19TPThinningTool",
@@ -106,10 +111,57 @@ thinningTools.append(SUSY19PhotonTPThinningTool)
 
 
 
+
+
+# JEFF: run V0 finder
+# JEFF: See also:
+#       https://gitlab.cern.ch/atlas/athena/-/tree/21.2/InnerDetector/InDetRecAlgs/InDetV0Finder
+#       https://twiki.cern.ch/twiki/bin/view/Main/InclusiveSecondaryVertexFinder
+#       https://gitlab.cern.ch/atlas/athena/-/tree/master/InnerDetector/InDetRecAlgs/InDetInclusiveSecVtx
+#====================================================================
+# Add K_S0->pi+pi- reconstruction (TOPQDERIV-69)
+#====================================================================
+doSimpleV0Finder = False
+if doSimpleV0Finder:
+    include("DerivationFrameworkBPhys/configureSimpleV0Finder.py")
+else:
+    include("DerivationFrameworkBPhys/configureV0Finder.py")
+
+SUSY19_V0FinderTools = BPHYV0FinderTools("SUSY19")
+print SUSY19_V0FinderTools
+
+from DerivationFrameworkBPhys.DerivationFrameworkBPhysConf import DerivationFramework__Reco_V0Finder
+SUSY19_Reco_V0Finder   = DerivationFramework__Reco_V0Finder(
+    name                   = "SUSY19_Reco_V0Finder",
+    V0FinderTool           = SUSY19_V0FinderTools.V0FinderTool,
+    OutputLevel            = WARNING,
+    V0ContainerName        = "SUSY19RecoV0Candidates",
+    KshortContainerName    = "SUSY19RecoKshortCandidates",
+    LambdaContainerName    = "SUSY19RecoLambdaCandidates",
+    LambdabarContainerName = "SUSY19RecoLambdabarCandidates",
+    CheckVertexContainers  = ["PrimaryVertices"]
+)
+
+ToolSvc += SUSY19_Reco_V0Finder
+DecorationTools.append(SUSY19_Reco_V0Finder)
+print SUSY19_Reco_V0Finder
+
+
+
+
+
+
+
+
+
+
+
+
 #====================================================================
 # TRUTH THINNING
 #====================================================================
-if DerivationFrameworkHasTruth:
+#if DerivationFrameworkIsMonteCarlo:
+if True:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     SUSY19TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY19TruthThinningTool",
@@ -157,10 +209,8 @@ SUSY19TrackIsoTool.TrackSelectionTool.minPt= 1000.
 SUSY19TrackIsoTool.TrackSelectionTool.CutLevel= "Loose"
 ToolSvc += SUSY19TrackIsoTool
 
-if DerivationFrameworkIsDataOverlay:
-    raise RuntimeError('Not sure how to run over overlay data for SUSY19!')
 from IsolationCorrections.IsolationCorrectionsConf import CP__IsolationCorrectionTool
-SUSY19IsoCorrectionTool = CP__IsolationCorrectionTool (name = "SUSY19IsoCorrectionTool", IsMC = DerivationFrameworkHasTruth)
+SUSY19IsoCorrectionTool = CP__IsolationCorrectionTool (name = "SUSY19IsoCorrectionTool", IsMC = DerivationFrameworkIsMonteCarlo)
 ToolSvc += SUSY19IsoCorrectionTool
 
 # tool to collect topo clusters in cone
@@ -238,16 +288,29 @@ DecorationTools.append(SUSY19PixelTrackDecorator)
 # Lepton selection
 muonsRequirements = '(Muons.pt > 2.*GeV) && (abs(Muons.eta) < 2.7) && (Muons.DFCommonMuonsPreselection)'
 electronsRequirements = '(Electrons.pt > 3*GeV) && (abs(Electrons.eta) < 2.6) && ((Electrons.Loose) || (Electrons.DFCommonElectronsLHVeryLoose))'
-leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 1)'
+leptonSelection = '(count('+electronsRequirements+') + count('+muonsRequirements+') >= 0)'
 stdTrackRequirements = ' ( InDetTrackParticles.pt >= 1*GeV ) && ( ( InDetTrackParticles.ptcone20 / InDetTrackParticles.pt ) < 0.2 )'
 pixTrackRequirements = ' ( InDetPixelPrdAssociationTrackParticles.pt >= 1*GeV ) && ( ( InDetPixelPrdAssociationTrackParticles.ptcone20 / InDetPixelPrdAssociationTrackParticles.pt ) < 0.2 ) '
 trackExpression='( count('+stdTrackRequirements+') + count('+pixTrackRequirements+')>= 2 )'
-expression='('+leptonSelection+' && '+trackExpression+')'
+
+# ------------------------------------------------------------
+# JEFF: Jet selection for skimming (which jet collection to use?)
+applyJetCalibration_xAODColl('AntiKt4EMPFlow',SeqSUSY19) # JEFF: trying this, otherwise breaks with PFlow jets
+jetRequirements = 'AntiKt4EMPFlowJets.DFCommonJets_Calib_pt > 200*GeV && abs(AntiKt4EMPFlowJets.DFCommonJets_Calib_eta) < 2.8'
+jetSelection = '(count('+jetRequirements+') >= 1)'
+
+#expression='('+leptonSelection+' && '+trackExpression+')' # nominal version from Tomasso
+#expression='('+leptonSelection+' && '+trackExpression+' && '+jetSelection+')' # JEFF: add jet selection
+expression='('+jetSelection+')' # JEFF: add jet selection
+
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 
 SUSY19LeptonSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "SUSY19LeptonSkimmingTool",
                                                                         expression = expression)
-ToolSvc += SUSY19LeptonSkimmingTool
+
+#ToolSvc += SUSY19LeptonSkimmingTool
+ToolSvc += SUSY19LeptonSkimmingTool # JEFF: turn this back on to add jet skimming
+
 
 # ------------------------------------------------------------
 # JetMET trigger name contained ' - ' cause crash when using xAODStringSkimmingTool
@@ -260,43 +323,39 @@ SUSY19InclusiveTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( n
 ToolSvc += SUSY19InclusiveTriggerSkimmingTool
 
 SUSY19TriggerSkimmingTool=None
-if DerivationFrameworkHasTruth:
+if DerivationFrameworkIsMonteCarlo:
     # one muon + jet + met trigger
-    SUSY19SoftOneMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19OneMuonTriggerSkimmingTool",
-                                                                                     TriggerListAND = ['HLT_mu4','HLT_xe50_mht','HLT_j110'])
-    ToolSvc += SUSY19SoftOneMuonTriggerSkimmingTool
+    #SUSY19SoftOneMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19OneMuonTriggerSkimmingTool",
+    #                                                                                TriggerListAND = ['HLT_mu4','HLT_xe50_mht','HLT_j110'])
+    #ToolSvc += SUSY19SoftOneMuonTriggerSkimmingTool
     
     # dimuon + jet + met trigger
-    SUSY19SoftTwoMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19TwoMuonTriggerSkimmingTool",
-                                                                                     TriggerListAND = ['HLT_2mu4','HLT_j85'])
-    ToolSvc += SUSY19SoftTwoMuonTriggerSkimmingTool
+    #SUSY19SoftTwoMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19TwoMuonTriggerSkimmingTool",
+    #                                                                                TriggerListAND = ['HLT_2mu4','HLT_j85'])
+    #ToolSvc += SUSY19SoftTwoMuonTriggerSkimmingTool
 
     # OR of soft muon stuff or inclusive MET triggers
     SUSY19TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY19TriggerSkimmingTool", 
-                                                                         FilterList = [SUSY19InclusiveTriggerSkimmingTool,
-                                                                                       SUSY19SoftOneMuonTriggerSkimmingTool,
-                                                                                       SUSY19SoftTwoMuonTriggerSkimmingTool])
+                                                                         FilterList = [SUSY19InclusiveTriggerSkimmingTool])
     ToolSvc += SUSY19TriggerSkimmingTool
 else:
-    # for data we can keep all of the prescaled triggers, may be nice to have them.
-    SUSY19SoftMuonTriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool( name = "SUSY19SoftMuonTriggerSkimmingTool",
-                                                                                     TriggerListOR = triggersSoftMuonEmulation)
-    ToolSvc += SUSY19SoftMuonTriggerSkimmingTool
-
     # OR of soft muon stuff or inclusive MET triggers
     SUSY19TriggerSkimmingTool = DerivationFramework__FilterCombinationOR(name = "SUSY19TriggerSkimmingTool", 
-                                                                         FilterList = [SUSY19InclusiveTriggerSkimmingTool,
-                                                                                       SUSY19SoftMuonTriggerSkimmingTool])
+                                                                         FilterList = [SUSY19InclusiveTriggerSkimmingTool])
     ToolSvc += SUSY19TriggerSkimmingTool
     
 # ------------------------------------------------------------
 
 # ------------------------------------------------------------
 # Final MET-based skim selection, with trigger selection and lepton selection
-SUSY19SkimmingTool_MET = DerivationFramework__FilterCombinationAND(name = "SUSY19SkimmingTool_MET", 
-                                                                   FilterList = [SUSY19LeptonSkimmingTool, 
-                                                                                 SUSY19TriggerSkimmingTool])
-ToolSvc += SUSY19SkimmingTool_MET
+#SUSY19SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY19SkimmingTool", 
+#                                                               FilterList = [SUSY19TriggerSkimmingTool])
+
+# JEFF: add the jet cut
+SUSY19SkimmingTool = DerivationFramework__FilterCombinationAND(name = "SUSY19SkimmingTool",
+                                                               FilterList = [SUSY19LeptonSkimmingTool, SUSY19TriggerSkimmingTool])
+
+ToolSvc += SUSY19SkimmingTool
 
 #====================================================================
 # Max Cell sum decoration tool
@@ -317,6 +376,19 @@ from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramew
 # Add sumOfWeights metadata for LHE3 multiweights =======
 from DerivationFrameworkCore.LHE3WeightMetadata import *
 
+#==============================================================================
+# SUSY signal augmentation (before skimming!)
+#==============================================================================
+from DerivationFrameworkSUSY.DecorateSUSYProcess import IsSUSYSignal
+if IsSUSYSignal():
+   
+   from DerivationFrameworkSUSY.DecorateSUSYProcess import DecorateSUSYProcess
+   SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel("SUSY19KernelSigAug",
+                                                            AugmentationTools = DecorateSUSYProcess("SUSY19")
+                                                            )
+   
+   from DerivationFrameworkSUSY.SUSYWeightMetadata import *
+
 
 #==============================================================================
 # SUSY skimming selection
@@ -324,7 +396,7 @@ from DerivationFrameworkCore.LHE3WeightMetadata import *
 SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
   "SUSY19KernelSkim",
   AugmentationTools = DecorationTools,
-  SkimmingTools = [SUSY19SkimmingTool_MET]
+  SkimmingTools = [SUSY19SkimmingTool]
 )
 
 
@@ -334,10 +406,6 @@ SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
 #==============================================================================
 #re-tag PFlow jets so they have b-tagging info.
 FlavorTagInit(JetCollections = ['AntiKt4EMPFlowJets'], Sequencer = SeqSUSY19)
-
-## Adding decorations for fJVT PFlow jets                                                                                                                                                                   
-getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=SeqSUSY19, algname='JetForwardPFlowJvtToolAlg')
-applyMVfJvtAugmentation(jetalg='AntiKt4EMTopo',sequence=SeqSUSY19, algname='JetForwardJvtToolBDTAlg')
 
 
 #==============================================================================
@@ -366,20 +434,6 @@ SeqSUSY19 += JetTagConfig.GetDecoratePromptLeptonAlgs()
 SeqSUSY19 += JetTagConfig.GetDecoratePromptTauAlgs()
 
 
-#====================================================================
-# TrackAssociatedCaloSampleDecorator
-#====================================================================
-from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__TrackAssociatedCaloSampleDecorator
-
-SUSY19_TrackAssociatedCaloSampleDecorator = DerivationFramework__TrackAssociatedCaloSampleDecorator(
-  name             = "SUSY19_TrackAssociatedCaloSampleDecorator",
-  ContainerName    = "InDetTrackParticles"
-)
-ToolSvc += SUSY19_TrackAssociatedCaloSampleDecorator
-SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
-  "SUSY19KernelDeco",
-  AugmentationTools = [SUSY19_TrackAssociatedCaloSampleDecorator]
-)
 
 #====================================================================
 # CONTENT LIST  
@@ -388,9 +442,10 @@ SeqSUSY19 += CfgMgr.DerivationFramework__DerivationKernel(
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 from DerivationFrameworkSUSY.SUSY19ContentList import *
 SUSY19SlimmingHelper = SlimmingHelper("SUSY19SlimmingHelper")
-SUSY19SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons","AntiKt4EMTopoJets",
+SUSY19SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons",
+                                         #"AntiKt4EMTopoJets", # JEFF
                                          "AntiKt4EMPFlowJets",
-                                         "MET_Reference_AntiKt4EMTopo",
+                                         #"MET_Reference_AntiKt4EMTopo", # JEFF
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "PrimaryVertices",
                                          #"BTagging_AntiKt4EMTopo",
@@ -399,15 +454,17 @@ SUSY19SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons","AntiKt
                                          "AntiKt4EMPFlowJets_BTagging201903",
                                         "BTagging_AntiKt4EMPFlow_201810",
                                         "BTagging_AntiKt4EMPFlow_201903",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
-                                         "MET_Reference_AntiKt4EMTopo",
+                                        #"AntiKt4EMTopoJets_BTagging201810", # JEFF
+                                        #"BTagging_AntiKt4EMTopo_201810", # JEFF
+                                         #"MET_Reference_AntiKt4EMTopo", # JEFF
                                          "MET_Reference_AntiKt4EMPFlow",
                                          "InDetTrackParticles"
                                          ]
 
 SUSY19SlimmingHelper.AllVariables = ["TruthParticles", "TruthEvents", "TruthVertices", "MET_Truth",
- "MET_Core_AntiKt4EMTopo","METAssoc_AntiKt4EMTopo", "InDetPixelPrdAssociationTrackParticles"]
+                                     #"MET_Core_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
+                                     #"METAssoc_AntiKt4EMTopo", # JEFF: why no equivalent for PFlow?
+                                     "InDetPixelPrdAssociationTrackParticles"]
 SUSY19SlimmingHelper.ExtraVariables = SUSY19ExtraVariables
 SUSY19SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptVariablesForDxAOD()
 SUSY19SlimmingHelper.ExtraVariables += JetTagConfig.GetExtraPromptTauVariablesForDxAOD()
@@ -419,9 +476,36 @@ SUSY19SlimmingHelper.IncludeTauTriggerContent = False
 SUSY19SlimmingHelper.IncludeEtMissTriggerContent = True
 SUSY19SlimmingHelper.IncludeBJetTriggerContent = False
 
+
+
+
+# JEFF
+StaticContent = []
+StaticContent += [
+            'xAOD::VertexContainer#SUSY19RecoV0Candidates',
+            'xAOD::VertexAuxContainer#SUSY19RecoV0CandidatesAux'
+            + '.-vxTrackAtVertex'
+            + '.-vertexType'
+            + '.-neutralParticleLinks'
+            + '.-neutralWeights'
+            + '.-KshortLink'
+            + '.-LambdaLink'
+            + '.-LambdabarLink'
+            + '.-gamma_fit'
+            + '.-gamma_mass'
+            + '.-gamma_massError'
+            + '.-gamma_probability',
+ ]
+SUSY19SlimmingHelper.StaticContent = StaticContent
+
+
+
+
+
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-if DerivationFrameworkHasTruth:
+#if DerivationFrameworkIsMonteCarlo:
+if True:
 
   SUSY19SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
