@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2020, 2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -114,7 +114,7 @@ int postProcessDir(TDirectory* dir, IDPVM::ResolutionHelper & theHelper){
   // walk through all keys in this directory 
   dir->cd();
   auto keys = dir->GetListOfKeys();
-  for (const auto & key : *keys){
+  for (const auto key : *keys){
     TObject* gotIt = dir->Get(key->GetName()); 
     
     // if we encounter a directory, descend into it and repeat the process

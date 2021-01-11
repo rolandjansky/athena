@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -174,7 +174,7 @@ InDetPhysHitDecoratorAlg::decorateTrack(const xAOD::TrackParticle &particle,
       }
       ATH_MSG_DEBUG("Num. track states in track " << ++trackNumber << ": " << allTrackStates.size());
 
-      for (const auto& thisTrackState: allTrackStates) {
+      for (const auto thisTrackState: allTrackStates) {
         // Copy logic from InDetRttPerformance to get hits/outliers/holes
         // Variable specifying measurement type filled
         SingleResult_t thisResult(invalidResult);
