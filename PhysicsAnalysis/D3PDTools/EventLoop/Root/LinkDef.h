@@ -10,7 +10,7 @@
 #pragma link C++ nestedclass;
 
 #pragma link C++ class EL::Algorithm+;
-#pragma link C++ class EL::AnaAlgorithmWrapper+;
+#pragma link C++ class EL::AlgorithmWrapper+;
 #pragma link C++ class EL::BatchDriver+;
 #pragma link C++ class EL::BatchJob+;
 #pragma link C++ class EL::BatchSample+;
