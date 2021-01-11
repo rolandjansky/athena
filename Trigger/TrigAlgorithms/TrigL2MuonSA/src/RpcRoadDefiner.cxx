@@ -16,6 +16,7 @@ TrigL2MuonSA::RpcRoadDefiner::RpcRoadDefiner(const std::string& type,
                                              const IInterface*  parent):
   AthAlgTool(type, name, parent)
 {
+  declareProperty("RegionSelectionTool", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------

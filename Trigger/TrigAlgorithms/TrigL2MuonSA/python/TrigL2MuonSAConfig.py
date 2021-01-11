@@ -24,6 +24,8 @@ theDataPreparator.TGCDataPreparator  = MuonSA.TrigL2MuonSA__TgcDataPreparator( D
 theDataPreparator.CSCDataPreparator  = MuonSA.TrigL2MuonSA__CscDataPreparator( DecodeBS = DetFlags.readRDOBS.CSC_on())
 theDataPreparator.STGCDataPreparator = MuonSA.TrigL2MuonSA__StgcDataPreparator(DecodeBS = DetFlags.readRDOBS.sTGC_on())
 theDataPreparator.MMDataPreparator   = MuonSA.TrigL2MuonSA__MmDataPreparator(  DecodeBS = DetFlags.readRDOBS.Micromegas_on())
+theDataPreparator.RpcRoadDefiner     = MuonSA.TrigL2MuonSA__RpcRoadDefiner()
+theDataPreparator.TgcRoadDefiner     = MuonSA.TrigL2MuonSA__TgcRoadDefiner()
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 if not MuonGeometryFlags.hasSTGC():
@@ -248,6 +250,8 @@ class TrigL2MuonSAConfig(MuonSA.MuFastSteering):
         self.DataPreparator.RPCDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
         self.DataPreparator.TGCDataPreparator.RegSel_TGC = makeRegSelTool_TGC()
         self.DataPreparator.CSCDataPreparator.RegSel_CSC = makeRegSelTool_CSC()
+        self.DataPreparator.RpcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
+        self.DataPreparator.TgcRoadDefiner.RegionSelectionTool=makeRegSelTool_MDT()
 
         self.R_WIDTH_TGC_FAILED = 200
         self.R_WIDTH_RPC_FAILED = 400
