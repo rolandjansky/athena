@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL
@@ -621,7 +621,10 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
   int Zdir= (subsystem==LVL1MUONIF::Lvl1MuCTPIInput::idSideA() ? 1 : -1);
 
   sldata->clear2candidatesInSector();// for temporary
-  sldata->bcid(0);
+
+  const int muctpiBcId_offset = TgcDigit::BC_CURRENT;
+  sldata->bcid(m_bctagInProcess - muctpiBcId_offset);
+
   if ((selectorOut->getNCandidate()) >= 1) {
     sldata->roi(0,((selectorOut->getR(0))<<2)+(selectorOut->getPhi(0)));
     //      ovl --> veto  
