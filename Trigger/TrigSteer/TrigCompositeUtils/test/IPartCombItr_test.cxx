@@ -55,12 +55,20 @@ namespace
     return ret;
   }
 
-  std::vector<std::size_t> getIndices(
+  template <class T>
+  class printable_vector
+    : public std::vector<T>
+  {
+  public:
+    using std::vector<T>::vector;
+  };
+
+  printable_vector<std::size_t> getIndices(
       const std::vector<LinkInfo<xAOD::IParticleContainer>> &infos,
       const std::vector<std::vector<LinkInfo<xAOD::IParticleContainer>>::const_iterator> &startItrs)
   {
     assert(infos.size() == startItrs.size());
-    std::vector<std::size_t> ret;
+    printable_vector<std::size_t> ret;
     auto infoItr = infos.begin();
     auto startsItr = startItrs.begin();
     for (; infoItr != infos.end(); ++infoItr, ++startsItr)
@@ -77,19 +85,19 @@ namespace
     return ret;
   }
 
-  std::vector<std::vector<std::size_t>> getAllIndices(
+  printable_vector<printable_vector<std::size_t>> getAllIndices(
       const Combinations &combinations,
       const std::vector<std::vector<LinkInfo<xAOD::IParticleContainer>>::const_iterator> &startItrs)
   {
-    std::vector<std::vector<std::size_t>> ret;
+    printable_vector<printable_vector<std::size_t>> ret;
     for (const auto &combo : combinations)
       ret.push_back(getIndices(combo, startItrs));
     return ret;
   }
 
-  /// Allow printing vector<T>
+  /// Allow printing
   template <typename T>
-  std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
+  std::ostream &operator<<(std::ostream &os, const printable_vector<T> &v)
   {
     os << "[";
     if (v.size() > 0)
