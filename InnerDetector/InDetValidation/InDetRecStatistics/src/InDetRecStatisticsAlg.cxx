@@ -613,7 +613,7 @@ selectGenSignal  (const McEventCollection* SimTracks,
 	  if (std::abs(charge)<0.5) continue;
 	  if (std::abs(particle->momentum().perp()) >  m_minPt  &&  
 	      std::abs(particle->momentum().pseudoRapidity()) < m_maxEta ) { 
-	    std::pair<HepMC::GenParticlePtr,int> thisPair(particle,ievt);
+	    std::pair<HepMC::ConstGenParticlePtr,int> thisPair(particle,ievt);
 	    GenSignal.push_back(thisPair);
 	  }
 	} // End of a particle iteration
