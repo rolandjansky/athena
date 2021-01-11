@@ -59,7 +59,36 @@ int StripGmxInterface::sensorId(map<string, int> &index) {
     
 }
 
+int StripGmxInterface::splitSensorId(map<string, int> &index, pair<string,int> &extraIndex, map<string, int> &updatedIndex ) {
+//
+//    Return the Simulation HitID (nothing to do with "ATLAS Identifiers" aka "Offline Identifiers"
+ 
+  if(extraIndex.first != "eta_module"){
+    *m_log << MSG::FATAL  << "Base Identifier: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+                                       index["eta_module"] << " " << index["phi_module"] << " " << index["side"] << endmsg;
+    *m_log << MSG::FATAL  <<  "Attempting to split "<< extraIndex.second << endmsg;
+    *m_log << MSG::FATAL << "Only splitting of eta_module supported for ITk strips!!!" << endmsg;
+    return -1;
+  }
+  
+  //add the required amount to the requested field
+  updatedIndex = index;
+  updatedIndex[extraIndex.first] += extraIndex.second;  
 
+  int hitIdOfWafer = SiHitIdHelper::GetHelper()->buildHitId(SCT_HitIndex, index["barrel_endcap"], index["layer_wheel"], 
+							    index["eta_module"]+extraIndex.second, index["phi_module"], index["side"]);
+  
+  *m_log << MSG::DEBUG  << "Index list: " << index["barrel_endcap"] << " " << index["layer_wheel"] << " " << 
+    index["eta_module"]+extraIndex.second << " " << index["phi_module"] << " " << index["side"] << endmsg;
+  *m_log << MSG::DEBUG << "hitIdOfWafer = " << std::hex << hitIdOfWafer << std::dec << endmsg;
+  *m_log << MSG::DEBUG << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
+                                      " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) << 
+    " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) << 
+    " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
+    " side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << endmsg; 
+  return hitIdOfWafer;
+  
+}
 void StripGmxInterface::addSensorType(string clas, string typeName, map<string, string> parameters) {
 
     *m_log << MSG::DEBUG << "StripGmxInterface::addSensorType called for class " << clas << " typeName " << typeName << 
@@ -157,11 +186,14 @@ double length(25.0);
 //
 //    Make Sensor Design and add to DetectorManager
 //
-//   ADA    const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,
-//   ADA                                                                        carrier, nRows, nStrips, pitch, length);
+//   ADA    const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,carrier, nRows, nStrips, pitch, length);
+//   ADA
+
+    //if we need a z-shift per design, loop over nRows to apply it - for the moment, just set nRows to 1 and length the length/nRows in constructor
+                                                                        
     std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-                                                                        thickness, readoutSide,carrier, nRows, nStrips, pitch,
-                                                                        length);
+                                                                        thickness, readoutSide,carrier, 1, nStrips, pitch,
+											      (length/nRows));
 
 //   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
     m_detectorManager->addDesign(std::move(design));
@@ -274,19 +306,42 @@ vector<double> endR;
         *m_log << MSG::FATAL << "StripGmxInterface::makeStereoAnnulus: Error: Wrong number of endR's " << typeName << endmsg;
         exit(999);
     }
+
+    std::vector<int> singleRowStrips;
+    std::vector<double> singleRowPitch;
+    std::vector<double> singleRowMinR;
+    std::vector<double> singleRowMaxR;
+
 //
 //    Make Sensor Design and add it to the DetectorManager
 //
 //   ADA    const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
 //   ADA     thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
-    std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-        fieldDirection,thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR);
-//   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
-    m_detectorManager->addDesign(std::move(design));
-//
-//    Add to map for addSensor routine
 
-    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+    for(int stripRow=0;stripRow<nRows;stripRow++){
+      
+      singleRowStrips.clear();
+      singleRowPitch.clear();
+      singleRowMinR.clear();
+      singleRowMaxR.clear();
+      
+
+      singleRowStrips.push_back(nStrips[stripRow]);
+      singleRowPitch.push_back(phiPitch[stripRow]);
+      singleRowMinR.push_back(startR[stripRow]);
+      singleRowMaxR.push_back(endR[stripRow]);
+
+      std::cout<<"single row sizes: "<<singleRowPitch.size()<<std::endl;
+
+      std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
+														    fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, centreR);
+      //   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
+      m_detectorManager->addDesign(std::move(design));
+      //
+      //    Add to map for addSensor routine
+      
+      m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+    }
 }
 
 string StripGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {
@@ -310,6 +365,9 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
     Identifier id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
                                           index["eta_module"], index["side"]);
     IdentifierHash hashId = sctIdHelper->wafer_hash(id);
+    std::cout<<"adding sensor with hash "<<hashId<<std::endl;
+    std::cout<<"adding ID: "<<index["barrel_endcap"]<<", "<<index["layer_wheel"]<<" , "<<index["phi_module"]<<" , "<< 
+      index["eta_module"]<<" , "<<index["side"]<<std::endl;
 //
 //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
 //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 

@@ -24,6 +24,7 @@
 class GmxInterface {
 public:
     virtual int sensorId(std::map<std::string, int> &index);
+    virtual int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex); //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
     virtual void addSensorType(std::string type, std::string name, std::map<std::string, std::string> parameters);
     virtual void addSensor(std::string name, std::map<std::string, int> &index, int id, 
                            GeoVFullPhysVol *fpv);

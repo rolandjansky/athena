@@ -26,6 +26,7 @@ public:
     StripGmxInterface(InDetDD::SCT_DetectorManager *detectorManager, InDetDD::SiCommonItems *commonItems, WaferTree *waferTree);
     ~StripGmxInterface();
     int sensorId(std::map<std::string, int> &index);
+    int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex); //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
     void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
     void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
                    GeoVFullPhysVol *fpv);

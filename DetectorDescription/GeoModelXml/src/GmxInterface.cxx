@@ -20,6 +20,11 @@ int GmxInterface::sensorId(map<string, int> &/*index*/) {
     return sequentialId++;
 }
 
+int GmxInterface::splitSensorId(map<string, int> &/*index*/, std::pair<std::string, int> &/*extraIndex*/, map<string, int> &/*updatedIndex*/) {
+    static int sequentialId;
+    return sequentialId++;
+}
+
 void GmxInterface::addSensorType(string clas, string type, map<string, string> params) {
     OUTPUT_STREAM;
 

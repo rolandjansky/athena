@@ -122,64 +122,89 @@ GeoNameTag *physVolName;
     toAdd.push_back(physVolName);
     bool sensitive = element->hasAttribute(XMLString::transcode("sensitive"));
     int sensId = 0;
+    //std::vector<int> extraSensIds;//extra Identfiers to be used in case we split this volume into multiple DetectorElements
     map<string, int> index;
+    map<string, int> updatedIndex;//extra indices to be used in case we split this volume
     if (sensitive) {
-        gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
-        gmxUtil.positionIndex.indices(index, gmxUtil.eval);
-        sensId = gmxUtil.gmxInterface()->sensorId(index);
-//        toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
-        toAdd.push_back(new GeoIdentifierTag(sensId)); 
+      gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
+      std::cout<<"setting indices in logVol..."<<std::endl;
+      gmxUtil.positionIndex.indices(index, gmxUtil.eval);
+      std::cout<<"*****************"<<std::endl;
+      sensId = gmxUtil.gmxInterface()->sensorId(index);
+      //        toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
+      toAdd.push_back(new GeoIdentifierTag(sensId)); 
     }
     else {
-        toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
-        gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
+      toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
+      gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
     } 
-//
-//    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
-//
+    //
+    //    Make a new PhysVol and add everything to it, then add it to the list of things for my caller to add
+    //
     char *toRelease = XMLString::transcode(element->getAttribute(XMLString::transcode("alignable")));
     string alignable(toRelease);
     XMLString::release(&toRelease);
     if (sensitive || (alignable.compare(string("true")) == 0)) {
-        GeoFullPhysVol *pv = new GeoFullPhysVol(lv);
-        for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
-            pv->add(*node);
-        }
-        toAdd.push_back(pv); // NB: the *PV is third item added, so reference as toAdd[2].
-//
-//    Add sensitive volumes to detector manager via GmxInterface
-//
-        if (sensitive) {
-            name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("sensitive")));
-            string sensitiveName(name2release);
-            XMLString::release(&name2release);
-            gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
-        }
+      GeoFullPhysVol *pv = new GeoFullPhysVol(lv);
+      for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
+	pv->add(*node);
+      }
+      toAdd.push_back(pv); // NB: the *PV is third item added, so reference as toAdd[2].
+      //
+      //    Add sensitive volumes to detector manager via GmxInterface
+      //
+      if (sensitive) {
+	name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("sensitive")));
+	string sensitiveName(name2release);
+	XMLString::release(&name2release);
+	std::cout<<"sensitive name: "<<sensitiveName<<std::endl;
+	std::cout<<"sensitive id: "<<sensId<<std::endl;
+	gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	//splitting sensors where we would like multiple DetectorElements per GeoVFullPhysVol (e.g.ITk Strips)
+	bool split = element->hasAttribute(XMLString::transcode("splitLevel"));
+	char* splitString;
+	int splitLevel = 1;
+	if (split) {
+	  splitString = XMLString::transcode(element->getAttribute(XMLString::transcode("splitLevel")));
+	  splitLevel = gmxUtil.evaluate(splitString);
+	  XMLString::release(&splitString);
+	  for(int i=1;i<splitLevel;i++){ //start from 1st, 0th is already made above
+	    std::cout<<"split "<<i<<std::endl;
+	    std::string field = "eta_module";//eventually specify in Xml the field to split in?
+	    std::pair<std::string,int> extraIndex(field,i);
+	    //int extraId = gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex);
+	    gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex);
+	    //extraSensIds.push_back(extraId);
+	    gmxUtil.gmxInterface()->addSensor(sensitiveName, updatedIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	  }
+	}
+	std::cout<<"------------------"<<std::endl;
+      }
     }
     else {
-        GeoPhysVol *pv = new GeoPhysVol(lv);
-        for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
-            pv->add(*node);
-        }
-        toAdd.push_back(pv);
+      GeoPhysVol *pv = new GeoPhysVol(lv);
+      for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
+	pv->add(*node);
+      }
+      toAdd.push_back(pv);
     }
-
+    
     gmxUtil.positionIndex.decrementLevel();
-
+    //std::cout<<"£££££££££££££££££££££"<<std::endl;
     return;
 }
 
 void LogvolProcessor::zeroId(const xercesc::DOMElement *element) {
-
-    char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
-    string name(name2release);
-    XMLString::release(&name2release);
-//
-//    Look for the logvol in the map; if not yet there, add it
-//
-    map<string, LogVolStore>::iterator entry;
-    if ((entry = m_map.find(name)) != m_map.end()) {
-        entry->second.id = 0;
-    }
-/* else: Not an error: it is usually just about to be made with id = 0; no action needed. */
+  
+  char *name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("name")));
+  string name(name2release);
+  XMLString::release(&name2release);
+  //
+  //    Look for the logvol in the map; if not yet there, add it
+  //
+  map<string, LogVolStore>::iterator entry;
+  if ((entry = m_map.find(name)) != m_map.end()) {
+    entry->second.id = 0;
+  }
+  /* else: Not an error: it is usually just about to be made with id = 0; no action needed. */
 }
