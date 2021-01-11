@@ -1,12 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
-##
+#
 #@file TauAlgorithmsHolder.py
 #
 #@brief All tau algorithms needed for tau reconstruction are configured here.
 #
-#@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
 from AthenaCommon.SystemOfUnits import GeV, mm
@@ -94,7 +93,6 @@ def getEnergyCalibrationLC(correctEnergy=True, correctAxis=False, postfix=''):
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
                                     calibrationFile = tauFlags.tauRecCalibrateLCConfig(),
-                                    doPtResponse = True,
                                     Key_vertexInputContainer = _DefaultVertexContainer)
             
     cached_instances[_name] = TauCalibrateLC                
