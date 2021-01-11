@@ -9,7 +9,7 @@
 
 namespace Muon {
 class NSW_PadTriggerSegment {
-friend class NSW_PadTriggerRawDataCnv_p1;
+friend class NSW_PadTriggerSegmentCnv_p1;
 public:
     NSW_PadTriggerSegment() = default;
     NSW_PadTriggerSegment(uint8_t bandID, uint8_t phiID, std::array<uint8_t, 2> activeLayers);

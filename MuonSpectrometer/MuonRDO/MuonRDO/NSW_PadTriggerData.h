@@ -13,10 +13,17 @@
 namespace Muon {
 class NSW_PadTriggerData : public DataVector<NSW_PadTriggerSegment> {
 public:
-    NSW_PadTriggerData(IdentifierHash identifierHash);
+    NSW_PadTriggerData(IdentifierHash identifierHash, uint8_t sectorID, uint8_t sectorSize, uint8_t endcap,
+        uint32_t BCID, uint32_t L1ID);
     IdentifierHash identifierHash() const;
 
     std::string string() const;
+
+    uint8_t sectorID() const;
+    uint8_t sectorSize() const;
+    uint8_t endcap() const;
+    uint32_t BCID() const;
+    uint32_t L1ID() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerData& rhs);
     friend MsgStream& operator<<(MsgStream& stream, const NSW_PadTriggerData& rhs);
@@ -27,6 +34,7 @@ private:
     uint8_t m_endcap;
     uint32_t m_BCID;
     uint32_t m_L1ID;
+    // TODO(yzach) add hit list
 };
 } // namespace Muon
 

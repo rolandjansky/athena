@@ -143,10 +143,10 @@
     <class name="std::vector< std::pair<unsigned int, Muon::CscSimData_p2> >" />
     <class name="Muon::CscSimDataCollection_p2" id="023993E1-BAAA-4F36-8CD4-8F03E3983E8D"/>
 
-    <class name="Muon::NSW_PadTriggerRawData_p1" />
-    <class name="std::vector<Muon::NSW_PadTriggerRawData_p1>" />
-    <class name="Muon::NSW_PadTriggerRawDataCollection_p1" />
-    <class name="std::vector<Muon::NSW_PadTriggerRawDataCollection_p1>" />
-    <class name="Muon::NSW_PadTriggerRawDataContainer_p1" id="2B1C6988-7B4C-4332-A2F5-83DC1D219650" />
+    <class name="Muon::NSW_PadTriggerSegment_p1" />
+    <class name="std::vector<Muon::NSW_PadTriggerSegment_p1>" />
+    <class name="Muon::NSW_PadTriggerData_p1" />
+    <class name="std::vector<Muon::NSW_PadTriggerData_p1>" />
+    <class name="Muon::NSW_PadTriggerDataContainer_p1" id="E506DD96-47F1-43E0-BAA0-485A3FB407A1" />
 
 </lcgdict>
