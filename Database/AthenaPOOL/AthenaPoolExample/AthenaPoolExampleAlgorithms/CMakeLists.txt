@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaPoolExampleAlgorithms )
@@ -53,7 +53,7 @@ endfunction( _add_test )
 # Write 'Hits', with multistreamand
 _add_test( AthenaPoolExample_Write 
    "athena.py AthenaPoolExampleAlgorithms/AthenaPoolExample_WriteJobOptions.py"
-   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList"
+   IGNORE "Warning in <TFile::Init>: no StreamerInfo found|BYTES_READ|READ_CALLS|DEBUG lookupPFN|DEBUG registered PFN|XMLCatalog +INFO|Found address:|DEBUG.*ThinningCacheTool|DEBUG setAttribute|metadataItemList|Creating branch for new dynamic"
    PRE_EXEC test/pre_check.sh )
 # Read 'Hits' and write 'Tracks'
 _add_test( AthenaPoolExample_ReWrite
