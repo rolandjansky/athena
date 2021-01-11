@@ -1,30 +1,21 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1RPCRecRoiTool.h"
-#include "MuonIdHelpers/IMuonIdHelperSvc.h"
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
-#include "RPC_CondCabling/RpcCablingCondData.h"
-#include "RPCcablingInterface/IRPCcablingServerSvc.h"
 #include <fstream>
 
 namespace LVL1 {
-  TrigT1RPCRecRoiTool::TrigT1RPCRecRoiTool( const std::string& type, const std::string& name, const IInterface* parent) : base_class(type,name,parent)
-  {
+  TrigT1RPCRecRoiTool::TrigT1RPCRecRoiTool( const std::string& type, const std::string& name, const IInterface* parent) :
+    base_class(type,name,parent) {
   }
-  
-  TrigT1RPCRecRoiTool::~TrigT1RPCRecRoiTool() {
-  }
-  
+
   StatusCode TrigT1RPCRecRoiTool::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK( detStore()->retrieve(m_muonMgr) );
-    ATH_CHECK( m_idHelperSvc.retrieve() );
-    ServiceHandle<IRPCcablingServerSvc> rpcCabGet ("RPCcablingServerSvc", name());
-    ATH_CHECK( rpcCabGet.retrieve() );
-    ATH_CHECK( rpcCabGet->giveCabling(m_cabling) );
+    ATH_CHECK(detStore()->retrieve(m_muonMgr));
+    ATH_CHECK(m_idHelperSvc.retrieve() );
+    ATH_CHECK(m_rpcKey.initialize());
     if(m_useRun3Config){
       ATH_MSG_INFO("update to Run 3 bit mask");
       updateBitMask( Run3 );
@@ -52,10 +43,13 @@ namespace LVL1 {
     Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
     Amg::Vector3D PhiLowBorder_pos(0.,0.,0.);
     Amg::Vector3D PhiHighBorder_pos(0.,0.,0.);
+
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    const RpcCablingCondData* rpcCab{*rpcReadHandle};
     
-    if(m_cabling->give_RoI_borders_id(data.side(), data.sector(), data.roi(),
+    if(rpcCab->give_RoI_borders_id(data.side(), data.sector(), data.roi(),
 				      EtaLowBorder_id, EtaHighBorder_id,
-				      PhiLowBorder_id, PhiHighBorder_id)) 
+				      PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) 
       {
 
 	const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
@@ -106,15 +100,15 @@ namespace LVL1 {
     double etaMax_Low=0;
     double etaMax_High=0;
     
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-    std::unique_ptr<const RpcCablingCondData> readCdo(*readHandle);
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    std::unique_ptr<const RpcCablingCondData> rpcCab(*rpcReadHandle);
     
     auto data = roiData(roiWord);
     phiMin_LowHigh=data.phiMin();
     phiMax_LowHigh=data.phiMax();
     
-    bool low  = etaDimLow(data,etaMin_Low,etaMax_Low, std::move(readCdo));
-    bool high = etaDimHigh(data,etaMin_High,etaMax_High, std::move(readCdo));
+    bool low  = etaDimLow(data,etaMin_Low,etaMax_Low, std::move(rpcCab));
+    bool high = etaDimHigh(data,etaMin_High,etaMax_High, std::move(rpcCab));
     
     if (low&&high) {
       etaMin_LowHigh=std::min(etaMin_Low,etaMin_High);
@@ -138,8 +132,8 @@ namespace LVL1 {
     const unsigned int maxLogicSector = 32;
     const unsigned int maxRoI = 32;
     
-    SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-    std::unique_ptr<const RpcCablingCondData> readCdo(*readHandle);
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    std::unique_ptr<const RpcCablingCondData> rpcCab(*rpcReadHandle);
     
     std::ofstream roi_map;
     roi_map.open(filename.c_str(), std::ios::out );
@@ -154,8 +148,8 @@ namespace LVL1 {
 	    unsigned long int roIWord = (m_useRun3Config) ? (roi+(side<<21)+(sector<<22)) : ((roi<<2)+(side<<14)+(sector<<15));
 	    auto data = roiData(roIWord);
 	    double etaMinLow(0),etaMaxLow(0),etaMinHigh(0),etaMaxHigh(0);
-	    etaDimLow (data,etaMinLow, etaMaxLow, std::move(readCdo));
-	    etaDimHigh(data,etaMinHigh,etaMaxHigh, std::move(readCdo));
+	    etaDimLow (data,etaMinLow, etaMaxLow, std::move(rpcCab));
+	    etaDimHigh(data,etaMinHigh,etaMaxHigh, std::move(rpcCab));
 	    roi_map << std::setw(8)  << side     << " "
 		    << std::setw(8)  << sector   << " "
 		    << std::setw(8)  << roi      << " "
@@ -178,7 +172,7 @@ namespace LVL1 {
   
   bool TrigT1RPCRecRoiTool::etaDimLow (const TrigT1MuonRecRoiData& data,
 				       double& etaMin, double& etaMax,
-				       std::unique_ptr<const RpcCablingCondData> readCdo) const
+				       std::unique_ptr<const RpcCablingCondData> rpcCab) const
   {
     // Get the strips delimiting the RoIs from rPCcablingSvc
     Identifier EtaLowBorder_id;
@@ -188,7 +182,7 @@ namespace LVL1 {
     Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
     Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
     
-    if(!readCdo->give_LowPt_borders_id(data.side(), data.sector(), data.roi(),
+    if(!rpcCab->give_LowPt_borders_id(data.side(), data.sector(), data.roi(),
                                        EtaLowBorder_id, EtaHighBorder_id,
                                        PhiLowBorder_id, PhiHighBorder_id,
 				       &m_idHelperSvc->rpcIdHelper())) return false;
@@ -224,7 +218,7 @@ namespace LVL1 {
   
   bool TrigT1RPCRecRoiTool::etaDimHigh (const TrigT1MuonRecRoiData& data,
 					double& etaMin, double& etaMax,
-					std::unique_ptr<const RpcCablingCondData> readCdo) const
+					std::unique_ptr<const RpcCablingCondData> rpcCab) const
   {
     // Get the strips delimiting the RoIs from rPCcablingSvc
     Identifier EtaLowBorder_id;
@@ -234,7 +228,7 @@ namespace LVL1 {
     Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
     Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
     
-    if(!readCdo->give_HighPt_borders_id(data.side(), data.sector(), data.roi(),
+    if(!rpcCab->give_HighPt_borders_id(data.side(), data.sector(), data.roi(),
 					EtaLowBorder_id, EtaHighBorder_id,
 					PhiLowBorder_id, PhiHighBorder_id,
 					&m_idHelperSvc->rpcIdHelper())) return false;
