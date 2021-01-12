@@ -2,7 +2,7 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
@@ -107,7 +107,7 @@ TH1* TFCSPCAEnergyParametrization::get_totalE_probability_ratio(int Ekin_bin) co
 
 FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/) const
 {
-  
+
   if (!simulstate.randomEngine()) {
     return FCSFatal;
   }
@@ -147,7 +147,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    {
     double mean=vals_gauss_means[l];
     double rms =vals_gauss_rms[l];
-    double gauszz = CLHEP::RandGauss::shoot(simulstate.randomEngine(), mean, rms);
+    double gauszz = CLHEP::RandGaussZiggurat::shoot(simulstate.randomEngine(), mean, rms);
     input_data[l]=gauszz;
    }
 
@@ -172,7 +172,7 @@ FCSReturnCode TFCSPCAEnergyParametrization::simulate(TFCSSimulationState& simuls
    {
     simdata[l]*=scalefactor;
    }
-   
+
    //Apply hit-and-miss reweighting of total energy response
    //This needs to run before simulstate is modified, otherwise a clean retry is not possible
    TH1* h_totalE_ratio=get_totalE_probability_ratio(pcabin);
