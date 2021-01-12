@@ -92,8 +92,12 @@ StatusCode GenObjectsFilterTool::initialize() {
 
 bool GenObjectsFilterTool::pass( const HepMC::GenEvent* evt,
                                  const McEventCollection* coll ) const {
+#ifdef HEPMC3
+   bool isEmpty = ( evt->particles().size() == 0 );
 
+#else
    bool isEmpty = ( evt->particles_size() == 0 );
+#endif
    bool isDummy = ( ( evt->event_number() == -1 ) &&
                     ( HepMC::signal_process_id(evt) == 0 ) );
    if( isDummy ) isEmpty = false;
@@ -139,7 +143,7 @@ bool GenObjectsFilterTool::isBCHadron(const HepMC::GenParticle* part) const{
 }
 
 bool GenObjectsFilterTool::isBC(int pdg) const{
-  if(abs(pdg)==5 || abs(pdg)==4)return true;
+  if(std::abs(pdg)==5 || std::abs(pdg)==4)return true;
   return false;
 }
 
@@ -155,7 +159,7 @@ bool GenObjectsFilterTool::isLeptonicWZ(const HepMC::GenParticle* part) const{
 
   int pdg = part->pdg_id();
 
-  if(abs(pdg)!=24 && abs(pdg)!=23) return false;
+  if(std::abs(pdg)!=24 && std::abs(pdg)!=23) return false;
   
   /// take into account W/Z->W/Z->lnu/ll
 
@@ -165,7 +169,7 @@ bool GenObjectsFilterTool::isLeptonicWZ(const HepMC::GenParticle* part) const{
     HepMC::GenVertex::particle_iterator endChild = end->particles_end(HepMC::children);
     for(;firstChild!=endChild; ++firstChild){
       int cpdg = (*firstChild)->pdg_id();
-      if(abs(cpdg) == 11 || abs(cpdg) == 13 || abs(cpdg) == 15){
+      if(std::abs(cpdg) == 11 || std::abs(cpdg) == 13 || std::abs(cpdg) == 15){
 	return true;
       }
       if(cpdg == pdg){
@@ -276,7 +280,7 @@ bool GenObjectsFilterTool::isRequested( const HepMC::GenParticle* part) const{
 
 
    if(m_keepLeptonicWZBosons){
-     if(abs(pdg)==24 || abs(pdg)==23){
+     if(std::abs(pdg)==24 || std::abs(pdg)==23){
        if(isLeptonicWZ(part)) return true;
      }
    }
@@ -291,7 +295,7 @@ bool GenObjectsFilterTool::isRequested( const HepMC::GenParticle* part) const{
 	 HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
 
 	 for(;firstParent!=endParent; ++firstParent){
-	   if( abs((*firstParent)->pdg_id())==24 || abs((*firstParent)->pdg_id())==23){
+	   if( std::abs((*firstParent)->pdg_id())==24 || std::abs((*firstParent)->pdg_id())==23){
 	     if( isLeptonicWZ(*firstParent) ){
 	       isleptonicWZ=true;
 	       break;
@@ -312,7 +316,7 @@ bool GenObjectsFilterTool::isRequested( const HepMC::GenParticle* part) const{
        HepMC::GenVertex::particle_iterator endChild = end->particles_end(HepMC::children);
 
        for(;firstChild!=endChild; ++firstChild){
-	 if( abs((*firstChild)->pdg_id())==24 || abs((*firstChild)->pdg_id())==23){
+	 if( std::abs((*firstChild)->pdg_id())==24 || std::abs((*firstChild)->pdg_id())==23){
 	   if( isLeptonicWZ(*firstChild) ){
 	     isleptonicWZ=true;
 	     break;
@@ -335,7 +339,7 @@ bool GenObjectsFilterTool::isRequested( const HepMC::GenParticle* part) const{
 	   HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::ancestors);
 
 	   for(;firstParent!=endParent; ++firstParent){
-	     if( abs((*firstParent)->pdg_id())==24 || abs((*firstParent)->pdg_id())==23){
+	     if( std::abs((*firstParent)->pdg_id())==24 || std::abs((*firstParent)->pdg_id())==23){
 	       if( isLeptonicWZ(*firstParent) ){
 		 isleptonicWZ=true;
 		 break;
@@ -365,7 +369,7 @@ bool GenObjectsFilterTool::passParticleCuts( const HepMC::GenParticle* part) con
   double eta = p4.eta();
 
   if( pt < m_ptMinCut ) return false;
-  if( ( fabs( eta ) > m_etaCut ) && ( m_etaCut >= 0. ) ) return false;
+  if( ( std::abs( eta ) > m_etaCut ) && ( m_etaCut >= 0. ) ) return false;
 
   return true;
 
@@ -391,7 +395,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
 
    int pdg = part->pdg_id();
    /// remove gluons and quarks of status 2 that pass IsGenStable!!!
-   if( abs(pdg) < 7 || abs(pdg) == 21 ) return false;
+   if( std::abs(pdg) < 7 || std::abs(pdg) == 21 ) return false;
 
    const HepPDT::ParticleData* pd = m_partPropSvc->PDT()->particle( std::abs( pdg ) );
    if( ! pd ) {
@@ -402,7 +406,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
    }
    float charge = pd->charge();
 
-   if( fabs( charge ) < 1E-5 ) return false;
+   if( std::abs( charge ) < 1E-5 ) return false;
 
    return true;
 }
@@ -410,7 +414,7 @@ bool GenObjectsFilterTool::pass( const HepMC::GenParticle* part,
 bool GenObjectsFilterTool::pass( const HepMC::GenVertex* vtx,
                                  const McEventCollection* coll ) const {
 
-  HepMC::GenEvent* event = vtx->parent_event();
+  const HepMC::GenEvent* event = vtx->parent_event();
 
    // Check if the vertex is coming from a "good" GenEvent:
    if( ! pass(event , coll ) ) return false;
@@ -425,10 +429,8 @@ bool GenObjectsFilterTool::pass( const HepMC::GenVertex* vtx,
    if(m_addOnlyFirstVertex) return false;
 
    // Check if any of the incoming particles pass our selection cuts:
-   std::vector< HepMC::GenParticle* >::const_iterator iter =
-      vtx->particles_in_const_begin();
-   std::vector< HepMC::GenParticle* >::const_iterator end =
-      vtx->particles_in_const_end();
+   std::vector< HepMC::GenParticle* >::const_iterator iter = vtx->particles_in_const_begin();
+   std::vector< HepMC::GenParticle* >::const_iterator end =  vtx->particles_in_const_end();
    for( ; iter != end; ++iter ) {
       if( pass( *iter ) ) return true;
    }

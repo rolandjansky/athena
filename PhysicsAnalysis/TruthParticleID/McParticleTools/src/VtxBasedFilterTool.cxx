@@ -25,10 +25,6 @@
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 using namespace TruthHelper;
 
 /// Constructors
@@ -127,19 +123,17 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
   }
 
   // loop over vertices
-  for ( HepMC::GenEvent::vertex_const_iterator vtx = in->vertices_begin();
-	vtx != in->vertices_end(); 
-	++vtx ) {
-
-    if ( !isAccepted(*vtx) ) {
+  for ( HepMC::GenEvent::vertex_const_iterator vtxit = in->vertices_begin(); vtxit != in->vertices_end(); ++vtxit ) {
+    auto vtx=*vtxit;
+    if ( !isAccepted(vtx) ) {
       // no in-going nor out-going particles at this vertex matches 
       // the requirements: ==> Skip it
       continue;
     }
     
-    if ( addVertex( *vtx, out ).isFailure() ) {
+    if ( addVertex( vtx, out ).isFailure() ) {
       msg(MSG::WARNING)
-	<< "Could not add vertex [" << (*vtx)->barcode() << "]" << endmsg;
+	<< "Could not add vertex [" << HepMC::barcode(vtx) << "]" << endmsg;
     }
   } //> end loop over vertices
   

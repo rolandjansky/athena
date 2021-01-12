@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// FrameWork includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 
@@ -34,8 +32,6 @@ class PileupFilterTool : public TruthParticleFilterBaseTool
   // Public methods: 
   /////////////////////////////////////////////////////////////////// 
  public: 
-
-  // Copy constructor: 
 
   /// Constructor with parameters: 
   PileupFilterTool( const std::string& type,

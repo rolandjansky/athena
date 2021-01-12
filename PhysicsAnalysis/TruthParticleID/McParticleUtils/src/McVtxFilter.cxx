@@ -8,9 +8,6 @@
 // Author: S.Binet<binet@cern.ch>
 /////////////////////////////////////////////////////////////////// 
 
-
-// STL includes
-
 // Framework includes
 #include "AthenaKernel/getMessageSvc.h"
 #include "GaudiKernel/MsgStream.h"
@@ -142,8 +139,7 @@ bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
        vtx->particles_out_size() == static_cast<unsigned int>( 1 ) ) {
     const HepMC::GenParticle * part = *(vtx->particles_out_const_begin());
     const ParticleCandidateList * item = *( m_childList.begin() );
-    if ( item->hasInList( static_cast<PDG::pidType>(part->pdg_id()), 
-			  m_matchSign ) ) {
+    if ( item->hasInList( static_cast<PDG::pidType>(part->pdg_id()),  m_matchSign ) ) {
       return true;
     } else { 
       return false;
@@ -395,8 +391,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
     childIds.push_back( (*itrPart)->pdg_id() );
   }
 
-  AnalysisUtils::Permutation<std::vector<int> > permute( &childIds, 
-							 m_childList.size() );
+  AnalysisUtils::Permutation<std::vector<int> > permute( &childIds, m_childList.size() );
   std::vector<int> children;
 
   bool accepted = false;
@@ -457,9 +452,7 @@ bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
     for( ParticleCandidateList::const_iterator itr2 = children2->begin();
 	 itr2 != children2->end();
 	 ++itr2 ) {
-      m_msg << MSG::VERBOSE << "Checking the pair : " 
-	    << (*itr1) << "/" << (*itr2) 
-	    << endmsg;
+      m_msg << MSG::VERBOSE << "Checking the pair : " << (*itr1) << "/" << (*itr2)  << endmsg;
 
       /// If the strict match sign has been required, we check if
       /// the PDG ids are matching

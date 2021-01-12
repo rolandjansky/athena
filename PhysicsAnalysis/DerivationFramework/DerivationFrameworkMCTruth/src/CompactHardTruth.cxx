@@ -979,7 +979,7 @@ bool CompactHardTruth::isFinalParton(const HepMC::GenParticle* p) {
 // Hadron excludes leptons and BSM particles
 // Includes clusters to find, e.g., partons->cluster vertices
 bool CompactHardTruth::isHadron(const HepMC::GenParticle* p) {
-  int ida = abs(p->pdg_id());
+  int ida = std::abs(p->pdg_id());
   if ((ida >= 80 && ida < 1000000) || ida > 9000000) return true;
   return false;
 }
