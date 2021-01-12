@@ -69,6 +69,9 @@ class TrigInDetReco(ExecStep):
         chains = '['
         flags = ''
         for i in self.slices:
+            if (i=='L2muonLRT') :
+                chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
+                flags += 'doMuonLRTSlice=True;'
             if (i=='muon') :
                 chains += "'HLT_mu6_idperf_L1MU6',"
                 chains += "'HLT_mu24_idperf_L1MU20',"
