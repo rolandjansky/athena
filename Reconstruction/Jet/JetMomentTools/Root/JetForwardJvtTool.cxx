@@ -46,7 +46,7 @@
       ATH_MSG_ERROR("JetForwardJvtTool needs to have its input jet container configured!");
       return StatusCode::FAILURE;
     }
-    m_orKey = m_jetContainerName + "." + m_orKey.key();
+    if(!m_orKey.key().empty()) m_orKey = m_jetContainerName + "." + m_orKey.key();
     m_outKey = m_jetContainerName + "." + m_outKey.key();
     m_isHSKey = m_jetContainerName + "." + m_isHSKey.key();
     m_isPUKey = m_jetContainerName + "." + m_isPUKey.key();
@@ -55,7 +55,7 @@
     m_jvtMomentKey = m_jetContainerName + "." + m_jvtMomentKey.key();
     m_sumPtsKey = m_jetContainerName + "." + m_sumPtsKey.key();
 
-    ATH_CHECK(m_orKey.initialize());
+    ATH_CHECK(m_orKey.initialize(!m_orKey.key().empty()));
     ATH_CHECK(m_outKey.initialize());
     ATH_CHECK(m_isHSKey.initialize());
     ATH_CHECK(m_isPUKey.initialize());
@@ -152,10 +152,12 @@
   }
 
   bool JetForwardJvtTool::centralJet(const xAOD::Jet *jet) const {
-    SG::ReadDecorHandle<xAOD::JetContainer, char> orHandle(m_orKey);
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if ( !orHandle(*jet) ) return false;
+    if(!m_orKey.key().empty()){
+      SG::ReadDecorHandle<xAOD::JetContainer, char> orHandle(m_orKey);
+      if(!orHandle(*jet)) return false;
+    }
     float jvt = 0;
     SG::ReadDecorHandle<xAOD::JetContainer, float> jvtMomentHandle(m_jvtMomentKey);
     jvt = jvtMomentHandle(*jet);
