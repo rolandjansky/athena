@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// FrameWork includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 

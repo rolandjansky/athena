@@ -12,16 +12,11 @@
 #include "GaudiKernel/PhysicalConstants.h"
 using namespace Gaudi::Units;
 
-//#include <boost/functional/hash.hpp>
 #include <vector>
 using std::vector;
 #include <string>
 using std::string;
 #include <cmath>
-using std::sqrt;
-using std::abs;
-// using std::cout;
-// using std::endl;
 typedef std::pair<int, int> IndexKey;
 namespace {
   double charge( const int id ) {
@@ -48,14 +43,14 @@ namespace {
         i != 0:           baryon, i j k quarks    l = 2*spin+1
         Default is 0; */
 
-    const int sid = abs(id);
+    const int sid = std::abs(id);
     double q = 0;
     if ( sid==11 || sid==13 || sid==15 || sid==17 ) q=1; // charged leptons
     else if (  sid==12 || sid==14 || sid==16 || sid==18 || sid==22 ) q=0; // neutral leptons and photon
     else if ( sid == 2212 || sid==24 ) q=1; //proton/anti-proton and W
     else if ( sid == 2112 || sid==23 ) q=0; //neutron/anti-neutron and Z
     else { // quarks, gluons, measons and other baryons
-      int idmod = abs(id) % 10000;
+      int idmod = std::abs(id) % 10000;
       int q1 = (idmod/10) % 10;
       int q2 = (idmod/100) % 10;
       int q3 = (idmod/1000) % 10;
@@ -79,13 +74,9 @@ namespace {
     //std::size_t key(0);
     //Check for Separtor GenEvents
     if(signal_process_id==0 && event_number==-1) {
-      //boost::hash_combine(key, separator_hack);
       return std::make_pair(separator_hack, event_number);
     }
     return std::make_pair(signal_process_id, event_number);
-    //else { boost::hash_combine(key, signal_process_id); }
-    //boost::hash_combine(key, event_number);
-    //return key;
   }
 
   class GenEventSorter {
@@ -438,8 +429,8 @@ StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollecti
   HepMC::GenEvent& currentBackgroundEvent(*(m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)));
   currentBackgroundEvent.set_event_number(currentBkgEventIndex);
   puType currentGenEventClassification(RESTOFMB);
-  if ( fabs(currentEventTime)<51.0 ) {
-    currentGenEventClassification = ( fabs(currentEventTime)<1.0 ) ? INTIME : OUTOFTIME;
+  if ( std::abs(currentEventTime)<51.0 ) {
+    currentGenEventClassification = ( std::abs(currentEventTime)<1.0 ) ? INTIME : OUTOFTIME;
   }
   updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent),
                           currentBackgroundEvent.event_number(),
@@ -464,7 +455,6 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
   HepMC::GenEvent::vertex_const_iterator currentVertexIter(currentBackgroundEvent.vertices_begin());
   const HepMC::GenEvent::vertex_const_iterator endOfCurrentListOfVertices(currentBackgroundEvent.vertices_end());
   ATH_MSG_VERBOSE( "Starting a vertex loop ... " );
-  //cout << "Starting a vertex loop ... " <<endl;
   for (; currentVertexIter != endOfCurrentListOfVertices; ++currentVertexIter) {
     const HepMC::GenVertexPtr  pCurrentVertex(*currentVertexIter);
     HepMC::GenVertexPtr  pCopyOfVertexForClassification[NOPUTYPE];
@@ -479,7 +469,6 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
 
     //loop over outgoing particles in the current GenVertex keeping those not classified as NOPUTYPE
     ATH_MSG_VERBOSE( "Starting an outgoing particle loop ... " );
-    //cout << "Starting an outgoing particle loop ... " <<endl;
     HepMC::GenVertex::particles_out_const_iterator currentVertexParticleIter(pCurrentVertex->particles_out_const_begin());
     const HepMC::GenVertex::particles_out_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_out_const_end());
     for (; currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex; ++currentVertexParticleIter) {
@@ -492,12 +481,10 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
         particleClassification=INTIME;
       }
       //add particle to appropriate vertex
-      //  cout << "Parttype is " << particleClassification << endl;
       if (particleClassification<NOPUTYPE && m_saveType[particleClassification]) {
         if (!pCopyOfVertexForClassification[particleClassification]) {
           pCopyOfVertexForClassification[particleClassification] = new HepMC::GenVertex(pCurrentVertex->position());
           ATH_MSG_VERBOSE( "Added bkg vertex " << pCopyOfVertexForClassification[particleClassification]
-                           //  << " at position " << pCurrentVertex->position()
                            << " at position " << HepMC::GenVertex(pCurrentVertex->position())
                            << " for pu type = " << particleClassification );
         }
@@ -509,7 +496,6 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
     } //particle loop
     /** add the in-coming particles to the in-time minbias vertex only */
     if (m_saveType[INTIME] && pCopyOfVertexForClassification[INTIME]) {
-      //        cout << "saving incoming parts for INTIME vertex " <<  pCopyOfVertexForClassification[INTIME] << endl;
       HepMC::GenVertex::particles_in_const_iterator currentVertexParticleIter(pCurrentVertex->particles_in_const_begin());
       const HepMC::GenVertex::particles_in_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_in_const_end());
       for (; currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex; ++currentVertexParticleIter) {
@@ -524,8 +510,6 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
       }
     }
   } //vertex loop
-  //       if(m_doSlimming) ATH_MSG_VERBOSE( "execute: copied skimmed Background GenEvent into Output McEventCollection." );
-  //       else ATH_MSG_VERBOSE( "execute: copied full Background GenEvent into Output McEventCollection." );
   return StatusCode::SUCCESS;
 }
 
@@ -556,21 +540,20 @@ MergeMcEventCollTool::puType MergeMcEventCollTool::classifyVertex(const HepMC::G
     //throw away unstable particles and particles outside eta cut
     if ( m_keepUnstable || MC::isSimStable(pCurrentVertexParticle) ) {
       /** cut to select between minbias and cavern background pileup events */
-      if ( fabs(pCurrentParticleProductionVertex->position().z()) < m_zRange ) {
+      if ( std::abs(pCurrentParticleProductionVertex->position().z()) < m_zRange ) {
         const float xi((pCurrentParticleProductionVertex->position()).x());
         const float yi((pCurrentParticleProductionVertex->position()).y());
         if ( !m_doSlimming || ( (xi*xi + yi*yi < m_r2Range) && (pCurrentVertexParticle->momentum().perp() > m_ptMin) ) ) {
           const double eta(pCurrentVertexParticle->momentum().pseudoRapidity());
-          if ( !m_doSlimming || (fabs(eta) <= m_absEtaMax) ) {
+          if ( !m_doSlimming || (std::abs(eta) <= m_absEtaMax) ) {
             const bool currentEventIsInTime((m_lowTimeToKeep<=currentEventTime) && (currentEventTime<=m_highTimeToKeep));
             if ( currentEventIsInTime ) {
               // cout << "the Time is " << currentEventTime << std::endl;
               if ( 0.0==currentEventTime ) {
                 particleClassification=INTIME;
               }
-              else if (fabs(eta) <= m_absEtaMax_outOfTime) {
+              else if (std::abs(eta) <= m_absEtaMax_outOfTime) {
                 particleClassification=OUTOFTIME;
-                //cout << "out of time MB, -2BC, +2BC and |eta<3|" << endl;
               }
               else {
                 particleClassification=RESTOFMB;

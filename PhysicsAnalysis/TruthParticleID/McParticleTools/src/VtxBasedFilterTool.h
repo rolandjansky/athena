@@ -55,8 +55,6 @@ class VtxBasedFilterTool : public TruthParticleFilterBaseTool
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   VtxBasedFilterTool( const std::string& type,
 		      const std::string& name, 

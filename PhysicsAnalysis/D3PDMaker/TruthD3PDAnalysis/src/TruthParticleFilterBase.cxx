@@ -298,8 +298,7 @@ TruthParticleFilterBase::isolations (TruthEtIsolationsContainer const* &isocont)
     return StatusCode::FAILURE;
   }
 
-  std::string isoname =
-    m_isolationTool->etIsolationsName (m_mcEventsOutputName);
+  std::string isoname = m_isolationTool->etIsolationsName (m_mcEventsOutputName);
 
   CHECK( evtStore()->retrieve (isocont, isoname) );
 
