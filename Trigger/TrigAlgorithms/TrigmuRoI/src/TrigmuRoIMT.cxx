@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigmuRoIMT.h"
@@ -11,9 +11,7 @@
 // ================================================================================
 
 TrigmuRoIMT::TrigmuRoIMT(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthReentrantAlgorithm(name, pSvcLocator),
-    m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
-    m_recTGCRoiSvc("LVL1TGC::TGCRecRoiSvc","")
+  : AthReentrantAlgorithm(name, pSvcLocator)
 {   
 }
 
@@ -29,8 +27,8 @@ StatusCode TrigmuRoIMT::initialize()
 
   // Retrieve the tools/services
   ATH_CHECK(m_trigMuonRoITool.retrieve());
-  ATH_CHECK(m_recRPCRoiSvc.retrieve());
-  ATH_CHECK(m_recTGCRoiSvc.retrieve());
+  ATH_CHECK(m_recRPCRoiTool.retrieve());
+  ATH_CHECK(m_recTGCRoiTool.retrieve());
   ATH_CHECK(m_roisWriteHandleKey.initialize());
 
   if (!m_monTool.empty()) {
@@ -115,24 +113,23 @@ StatusCode TrigmuRoIMT::execute(const EventContext& ctx) const
 
     if ( sysID == 0 ) outOfTimeRpc.push_back((it).second);
     else              outOfTimeTgc.push_back((it).second);
-      
-    const LVL1::RecMuonRoiSvc* recMuonRoiSvc = 0;
+    
+    LVL1::TrigT1MuonRecRoiData roiData;
     std::string region = "";
     if( sysID == 0 ) {
-      recMuonRoiSvc = &(*m_recRPCRoiSvc);
+      roiData = m_recRPCRoiTool->roiData(((it).first).roIWord());
       region = "Barrel region";
     } else if ( sysID == 1 ){
-      recMuonRoiSvc = &(*m_recTGCRoiSvc);
+      roiData = m_recTGCRoiTool->roiData(((it).first).roIWord());
       region = "Endcap region";
     } else {
-      recMuonRoiSvc = &(*m_recTGCRoiSvc);
+      roiData = m_recTGCRoiTool->roiData(((it).first).roIWord());
       region = "Forward region";
     }
 	   
-    recMuonRoiSvc->reconstruct( ((it).first).roIWord() );
     // create new trigger element for this out of time RoI
-    double eta = recMuonRoiSvc->eta();
-    double phi = recMuonRoiSvc->phi();
+    double eta = roiData.eta();
+    double phi = roiData.phi();
     etaRoI.push_back(eta);
     phiRoI.push_back(phi);
      
