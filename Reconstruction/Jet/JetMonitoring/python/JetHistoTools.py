@@ -1,11 +1,15 @@
-# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-from JetMonitoring.JetMonitoringConf import JetKinematicHistos, HistosForJetSelection, LeadingJetsRelations, EfficiencyResponseHistos
+from __future__ import print_function
+
+from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, HistosForJetSelection, LeadingJetsRelations, EfficiencyResponseHistos
 
 
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 from JetMonitoring.JetAttributeHistoManager   import attributeHistoManager
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
+
+import six
 
 # The dict below defines default specification to plot Jet attributes.
 # Specifications are given in a 1-line compact format.
@@ -154,8 +158,14 @@ compactSpecification = {
     #"CHF": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ),
     #"CHF[0]": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf[0]", "vector<float>", "gev") ),
     #CBG
-    #
-
+    #New PFlow Variables
+    "DFCommonJets_QGTagger_NTracks": (("DFCommonJets_QGTagger_NTracks; DFCommonJets_QGTagger_NTracks;",30,0.,30.), ("DFCommonJets_QGTagger_NTracks", "float") ),
+    "DFCommonJets_QGTagger_TracksWidth": (("DFCommonJets_QGTagger_TracksWidth; DFCommonJets_QGTagger_TracksWidth;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksWidth", "float") ),
+    "DFCommonJets_QGTagger_TracksC1": (("DFCommonJets_QGTagger_TracksC1; DFCommonJets_QGTagger_TracksC1;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksC1", "float") ),
+    "DFCommonJets_fJvt": (("DFCommonJets_fJvt; DFCommonJets_fJvt;",23,0.,2.3), ("DFCommonJets_fJvt", "float") ),
+    #RG and ZG
+    "rg": (("rg; rg;",29,-1.2,1.7), ("rg", "float") ),
+    "zg": (("zg; zg;",19,-1.2,0.7), ("zg", "float") ),
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
@@ -178,8 +188,8 @@ attributeHistoManager.buildKnownTools(compactSpecification)
 # Jet histogramming tools
 jhm.addTool( JetKinematicHistos("allkinematics",PlotOccupancy=True, PlotAveragePt=True, PlotNJet=True  , PlotNConstit = True) )
 jhm.addTool( JetKinematicHistos("basickinematics")  )
-jhm.addTool( JetKinematicHistos("basickinematics_emscale", JetScale="JetEMScaleMomentum")  )
-jhm.addTool( JetKinematicHistos("basickinematics_constscale", JetScale="JetConstitScaleMomentum")  )
+jhm.addTool( JetKinematicHistos("basickinematics_emscale", JetScale=0)  )
+jhm.addTool( JetKinematicHistos("basickinematics_constscale", JetScale=1)  )
 
 jhm.addTool( LeadingJetsRelations("leadingjetrel",
                                   HistoDef = [
@@ -259,7 +269,7 @@ def selectionAndHistos( selectType, histos, selectionName="", histoNameSuffix=""
     selTool.HistoTools = interpretedTools
 
     # set other args if any:
-    for k,v in otherArgs.items():
+    for k,v in six.iteritems(otherArgs):
         setattr(selTool, k, v)
     return selTool
 

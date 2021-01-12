@@ -57,15 +57,32 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
         jhm.leadingjetrel,
         ]
 
-    if "Topo" in container or "PFlow" in container:
+    if ( ("Topo" in container or "PFlow" in container) and "Trimmed" not in container) and "SoftDrop" not in container:
         filler.HistoTools += [
          
             # jet states
             jhm.basickinematics_emscale,
+            #track variables
+            jhm.tool("JVF[0]"),
+            jhm.JVF,
+            jhm.JVFCorr,
+            jhm.Jvt,
+            jhm.JvtRpt,
+
+            # calo variables
+            jhm.NegativeE,
+            jhm.Timing,
+            jhm.LArQuality,
+
+        ]
+
+    if "Topo" in container or "PFlow" in container or "UFO" in container:
+        filler.HistoTools += [
+            
+            # jet states
             jhm.basickinematics_constscale,
 
             # track variables
-            jhm.tool("JVF[0]"),
             jhm.SumPtTrkPt500,
             jhm.tool("SumPtTrkPt500[0]"),
             jhm.tool("NumTrkPt500[0]"),
@@ -74,17 +91,10 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
             jhm.GhostTrackCount,
             jhm.GhostTruthAssociationFraction,
             jhm.GhostMuonSegmentCount,
-            jhm.JVF,
-            jhm.JVFCorr,
-            jhm.Jvt,
-            jhm.JvtRpt,
 
             # calo variables
-            jhm.NegativeE,
             jhm.EMFrac,
             jhm.HECFrac,
-            jhm.Timing,
-            jhm.LArQuality,
 
             jhm.EMB2,
             jhm.EMB3,            
@@ -107,6 +117,10 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
                 jhm.tool("NumChargedPFOPt500[0]"),
                 jhm.tool("NumChargedPFOPt1000[0]"),
                 jhm.tool("ChargedPFOWidthPt1000[0]"),
+                jhm.DFCommonJets_QGTagger_NTracks,
+                jhm.DFCommonJets_QGTagger_TracksWidth,
+                jhm.DFCommonJets_QGTagger_TracksC1,
+                jhm.DFCommonJets_fJvt,
             ]
 
 
@@ -115,7 +129,14 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
             filler.HistoTools += [jhm.effresponse,]
             filler.HistoTools['effresponse'].RefContainer = refcontainer
 
-        if "Trimmed" in container:
+        if "SoftDrop" in container:
+            filler.HistoTools += [
+                jhm.rg,
+                jhm.zg,
+            ]
+
+
+        if "Trimmed" in container or "SoftDrop" in container:
             filler.HistoTools += [
                
               #main list of substrcture variables
@@ -153,15 +174,15 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
                jhm.ZCut23,
                jhm.ZCut34,
                jhm.Mu12,
-               jhm.ECF1_Beta2,
-               jhm.ECF2_Beta2,
-               jhm.ECF3_Beta2,
+#               jhm.ECF1_Beta2,
+#               jhm.ECF2_Beta2,
+#               jhm.ECF3_Beta2,
                jhm.C1,
                jhm.C2,
                jhm.D2,
-               jhm.C1_Beta2,
-               jhm.C2_Beta2,
-               jhm.D2_Beta2,
+#               jhm.C1_Beta2,
+#               jhm.C2_Beta2,
+#               jhm.D2_Beta2,
                jhm.ThrustMin,
                jhm.ThrustMaj,
                jhm.FoxWolfram1,
@@ -176,9 +197,9 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
                jhm.Pull_C10,
                jhm.Pull_C11,
                jhm.Charge,
-               jhm.ShowerDeconstructionW,
-               jhm.ShowerDeconstructionTop,
-               jhm.Volatility,
+#               jhm.ShowerDeconstructionW,
+#               jhm.ShowerDeconstructionTop,
+#               jhm.Volatility,
                 ]
 
     #filler.OutputLevel =2 
@@ -200,6 +221,8 @@ athenaMonTool = JetMonitoringTool(HistoTools = [
     #   the containers that are commented out are kept so as to make it possible to swicth them on in the future if needed
     #commonPhysValTool( "AntiKt10LCTopoJets" ),
     commonPhysValTool( "AntiKt10LCTopoTrimmedPtFrac5SmallR20Jets" ),
+    commonPhysValTool( "AntiKt10UFOCSSKSoftDropBeta100Zcut10Jets" ),
+    commonPhysValTool( "AntiKt10TruthSoftDropBeta100Zcut10Jets" ),
     #commonPhysValTool( "AntiKt10PV0TracksJets" ),
     #commonPhysValTool( "AntiKt10TruthJets" ),
     commonPhysValTool( "AntiKt10TruthTrimmedPtFrac5SmallR20Jets" ),
