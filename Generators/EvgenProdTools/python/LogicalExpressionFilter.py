@@ -80,8 +80,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
                   error = 'could not retrieve IAlgManager/ApplicationMgr'
                   self.msg.error (error)
                   raise RuntimeError (error)
-              import PyCintex
-              _alg = PyCintex.libPyROOT.MakeNullPointer("IAlgorithm")
+              import cppyy
+     #         _alg = cppyy.gbl.MakeNullPointer("IAlgorithm")
+              _alg = cppyy.bind_object(0, "IAlgorithm")
               if algmgr.createAlgorithm(filterType,filterName,_alg).isFailure() or not _alg:
                   self.msg.error ('could not create alg: ' + filterTypeAndName)
                   raise RuntimeError ('could not create alg: ' + filterTypeAndName)
@@ -165,9 +166,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
 
     def evalFilter(self, filterName):
       if not self.algdict[filterName].isExecuted():
-#         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
-         self.algdict[filterName].sysExecute()
-         self.algdict[filterName].setExecuted(True)
+         self.algdict[filterName].sysExecute( self.getContext() ) # only rel. 21+
+#         self.algdict[filterName].sysExecute()
+#         self.algdict[filterName].setExecuted(True)
       decision = self.algdict[filterName].filterPassed()
       self.msg.verbose(filterName + " decision=" + str(decision))
       return decision
