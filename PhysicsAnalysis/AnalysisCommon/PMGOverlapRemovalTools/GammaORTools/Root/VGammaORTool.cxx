@@ -137,6 +137,7 @@ StatusCode VGammaORTool::setInput(std::vector<TLorentzVector>& leptons_out,
   const xAOD::TruthParticleContainer* truthParticles = nullptr;
   if(lepton_p4s==0 || photon_p4s==0){
     ANA_CHECK( evtStore()->retrieve(truthParticles, m_truthparticle_collection_name) );
+    if (truthParticles->size() == 0) ATH_MSG_ERROR("TruthParticleContainer is empty, truth photons and leptons are needed to run the tool");
   }
 
   // relevant photons and leptons identified
