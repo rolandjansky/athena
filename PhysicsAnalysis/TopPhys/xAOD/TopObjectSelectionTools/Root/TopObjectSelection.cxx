@@ -342,7 +342,7 @@ namespace top {
   }
 
   void TopObjectSelection::applySelectionPreOverlapRemovalSoftMuons() {
-    for (const std::pair<std::size_t, std::string>& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+    for (const auto& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
       ///-- if executeNominal, skip other systematics (and vice-versa) --///
       if (m_executeNominal && !m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;
       if (!m_executeNominal && m_config->isSystNominal(m_config->systematicName(currentSystematic.first))) continue;

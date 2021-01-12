@@ -247,7 +247,7 @@ std::vector<TLorentzVector> VGammaORTool::filterLeptonOrigins(const std::vector<
 std::vector<TLorentzVector> VGammaORTool::getLeptonP4s(const xAOD::TruthParticleContainer& truthParticles) const {
   std::vector<const xAOD::TruthParticle*> tau_candidates;
   std::vector<const xAOD::TruthParticle*> elmu_candidates;
-  for (const auto& p : truthParticles) {
+  for (const auto *p : truthParticles) {
     // ignore all particles with geant barcodes
     if (p->barcode() > m_max_barcode) {
       continue;
@@ -306,7 +306,7 @@ std::vector<TLorentzVector> VGammaORTool::getLeptonP4s(const xAOD::TruthParticle
 std::vector<TLorentzVector> VGammaORTool::getPhotonP4s(const xAOD::TruthParticleContainer& truthParticles) const {
   std::vector<TLorentzVector> photon_p4s;
   std::vector<int> photon_origins;
-  for (const auto& p : truthParticles) {
+  for (const auto *p : truthParticles) {
     // consider only final state photons, not from geant, above a lower pt cut
     if (p->status() != 1 || p->barcode() > m_max_barcode || p->pdgId() != 22 || p->pt() < m_min_considered_photon_pT) {
       continue;
@@ -369,7 +369,7 @@ bool VGammaORTool::frixioneIsolated(const xAOD::TruthParticle& photon,
   }
   // create map between hadron-photon dr and hadron pt
   std::map<float, float> dr_to_pt;
-  for (const auto& p : truthParticles) {
+  for (const auto *p : truthParticles) {
     // consider status 1  not from geant
     if (p->status() != 1 || p->barcode() > m_max_barcode) {
       continue;

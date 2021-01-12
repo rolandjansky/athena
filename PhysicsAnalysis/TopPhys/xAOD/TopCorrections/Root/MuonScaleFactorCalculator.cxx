@@ -330,7 +330,7 @@ namespace top {
     }
 
     ///-- Loop over all soft muon collections --///
-    for (const std::pair<std::size_t, std::string>& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
+    for (const auto& currentSystematic : *m_config->systSgKeyMapSoftMuons()) {
       const xAOD::MuonContainer* softmuons(nullptr);
       top::check(evtStore()->retrieve(softmuons, currentSystematic.second),
                  "Failed to retrieve softmuons");

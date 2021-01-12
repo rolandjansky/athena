@@ -186,7 +186,7 @@ int main(int argc, char* argv[]) {
         RETURN_CHECK(APP_NAME, event.retrieve(muons, "Muons"));
         Info(APP_NAME, "Number of muons: %i", static_cast<int>(muons->size()));
 
-        for (const auto& mu : *muons) {
+        for (const auto *mu : *muons) {
             // Print some info about the selected muon:
             Info(APP_NAME, "  Selected muon: eta = %g, phi = %g, pt = %g", mu->eta(), mu->phi(), mu->pt());
             for (auto& effi : EffiTools) {

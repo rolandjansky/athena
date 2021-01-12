@@ -68,7 +68,7 @@ float JetWidthTool::width(const xAOD::Jet& jet, float& widthEta, float& widthPhi
   float ptSum = 0;
 
   const xAOD::JetConstituentVector constituents = jet.getConstituents();
-  for (const auto& constituent : constituents) {
+  for (const auto *constituent : constituents) {
     const float dR   = jet::JetDistances::deltaR(jetEta, jetPhi, constituent->eta(),  constituent->phi() );
     const float dEta = fabs(jet::JetDistances::deltaEta(jetEta, constituent->eta() ));
     const float dPhi = fabs(jet::JetDistances::deltaPhi(jetPhi, constituent->phi() ));

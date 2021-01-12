@@ -30,7 +30,6 @@ namespace SH
   void DiskWriterXRD :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

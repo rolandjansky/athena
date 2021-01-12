@@ -64,7 +64,7 @@ OriginalAodCounts getOriginalAodCounts(xAOD::TEvent& event,
   // Now, let's actually find the right one that contains all the needed info...
   const xAOD::CutBookkeeper* allEventsCBK = 0;
   int maxCycle = -1;
-  for (const auto& cbk: *completeCBC) {
+  for (const auto *cbk: *completeCBC) {
     if (cbk->cycle() > maxCycle &&
         cbk->name() == "AllExecutedEvents" &&
         cbk->inputStream() == "StreamAOD") {

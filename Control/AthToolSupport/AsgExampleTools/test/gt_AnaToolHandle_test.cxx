@@ -391,7 +391,7 @@ namespace asg
   // check ASG_MAKE_ANA_TOOL
   TEST_F (AnaToolHandleUseTest, makeMacro)
   {
-    ASSERT_DEATH (ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1), "");
+    ASSERT_DEATH ((void) ASG_MAKE_ANA_TOOL (tool, asg::UnitTestTool1), "");
   }
 #endif
 

@@ -92,7 +92,8 @@ namespace xAOD {
       // This way we don't mistakenly float compress a random type based on wrong user input.
       SG::auxid_set_t fauxids;
 
-      for ( const SG::auxid_t& auxid : fullset ) {
+      // not using reference, because our iterator doesn't return a reference
+      for ( const SG::auxid_t auxid : fullset ) {
         const std::string cType = SG::AuxTypeRegistry::instance().getTypeName( auxid );
         if( cType == "float" || cType == "std::vector<float>" ) {
           fauxids.insert( auxid );
