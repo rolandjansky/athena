@@ -1194,6 +1194,28 @@ HLT_e7_lhmedium_mu24_L1MU20:
     6: 2
     7: 2
     8: 2
+HLT_e9_lhvloose_mu20_mu8noL1_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 3
+    1: 3
+    2: 3
+    3: 3
+    4: 2
+    5: 2
+    6: 1
+    7: 1
+    8: 1
+  stepFeatures:
+    0: 10
+    1: 11
+    2: 10
+    3: 10
+    4: 6
+    5: 6
+    6: 3
+    7: 3
+    8: 3
 HLT_eb_low_L1RD2_FILLED:
   eventCount: 20
   stepCounts:
@@ -1462,6 +1484,26 @@ HLT_g25_tight_L1EM20VH:
     3: 5
 HLT_g300_etcut_L1EM22VHI:
   eventCount: 0
+HLT_g35_loose_mu15_mu2noL1_L1EM22VHI:
+  eventCount: 0
+  stepCounts:
+    0: 2
+    1: 2
+    2: 2
+    3: 2
+    4: 2
+    5: 2
+    6: 2
+    7: 1
+  stepFeatures:
+    0: 6
+    1: 6
+    2: 6
+    3: 6
+    4: 6
+    5: 6
+    6: 6
+    7: 3
 HLT_g35_loose_mu18_L1EM24VHI:
   eventCount: 1
   stepCounts:
