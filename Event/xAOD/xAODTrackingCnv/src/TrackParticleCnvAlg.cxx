@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: TrackParticleCnvAlg.cxx 298303 2013-12-05 08:41:30Z emoyse $
@@ -64,11 +64,11 @@ namespace xAODMaker {
     ATH_CHECK(m_particleCreator.retrieve());
     if(m_addTruthLink) ATH_CHECK(m_truthClassifier.retrieve());
     else m_truthClassifier.disable();
-    ATH_CHECK( m_TrackCollectionCnvTool.retrieve() );
+    ATH_CHECK( m_TrackCollectionCnvTool.retrieve(  DisableTool{ !m_convertTracks } ) );
     ATH_CHECK( m_RecTrackParticleContainerCnvTool.retrieve(DisableTool{!m_convertAODTrackParticles}) );
     // to preserve the inisialised parameters of the ParticleCreatorTool:
     ATH_MSG_DEBUG( "Overriding particle creator tool settings." );
-    ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
+    if(m_convertTracks) ATH_CHECK( m_TrackCollectionCnvTool->setParticleCreatorTool( &m_particleCreator ) );
     if(m_convertAODTrackParticles) ATH_CHECK( m_RecTrackParticleContainerCnvTool->setParticleCreatorTool( &m_particleCreator ) );
 
     ATH_CHECK(m_xaodout.initialize(m_convertTracks));
