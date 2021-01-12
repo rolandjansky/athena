@@ -1,9 +1,7 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- */
 /**
  * @file CxxUtils/features.h
  * @author scott snyder <snyder@bnl.gov>
@@ -18,7 +16,8 @@
 /// the target attribute
 #if defined(__ELF__) && defined(__GNUC__) && !defined(__CLING__) &&            \
   !defined(__ICC) && !defined(__COVERITY__) && !defined(__CUDACC__) &&         \
-  !defined(CL_SYCL_LANGUAGE_VERSION) && !defined(__HIP__)
+  !defined(CL_SYCL_LANGUAGE_VERSION) && !defined(SYCL_LANGUAGE_VERSION) &&     \
+  !defined(__HIP__)
 # define HAVE_FUNCTION_MULTIVERSIONING 1
 #else
 # define HAVE_FUNCTION_MULTIVERSIONING 0
