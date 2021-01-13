@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -19,10 +19,7 @@
 TrigL2MuonSA::RpcDataPreparator::RpcDataPreparator(const std::string& type, 
                                                    const std::string& name,
                                                    const IInterface*  parent): 
-   AthAlgTool(type,name,parent),
-   m_regionSelector("RegSelTool/RegSelTool_RPC",this)
-{
-  declareProperty("RegSel_RPC", m_regionSelector);
+   AthAlgTool(type,name,parent) {
 }
 
 // --------------------------------------------------------------------------------
@@ -34,8 +31,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::initialize()
    // Locate RegionSelector
    ATH_CHECK( m_regionSelector.retrieve() );
 
-   ATH_CHECK( m_recRPCRoiSvc.retrieve() );
-   ATH_MSG_DEBUG( "Retrieved Service " << m_recRPCRoiSvc );
+   ATH_CHECK( m_recRPCRoiTool.retrieve() );
 
    // consistency check for decoding flag settings
    if(m_decodeBS && !m_doDecoding) {
@@ -279,11 +275,12 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
        //Determine deta, dphi threshold in case of dynamicDeltaRpcMode
        if( m_doMultiMuon ){
          ATH_MSG_DEBUG("Collected RPC hits by MultiMuonTriggerMode");
-         m_recRPCRoiSvc->reconstruct( roiWord );
-         float RoiPhiMin = m_recRPCRoiSvc->phiMin();
-         float RoiPhiMax = m_recRPCRoiSvc->phiMax();
-         float RoiEtaMin = m_recRPCRoiSvc->etaMin();
-         float RoiEtaMax = m_recRPCRoiSvc->etaMax();
+         m_recRPCRoiTool->roiData( roiWord );
+         double RoiPhiMin(0);
+         double RoiPhiMax(0);
+         double RoiEtaMin(0);
+         double RoiEtaMax(0);
+         m_recRPCRoiTool->RoIsize(roiWord, RoiEtaMin, RoiEtaMax, RoiPhiMin, RoiPhiMax);
          ATH_MSG_DEBUG( "RoI Phi min = " << RoiPhiMin << " RoI Phi max = " << RoiPhiMax << " RoI Eta min = " << RoiEtaMin << " RoI Eta max = " << RoiEtaMax );
          deta_thr = std::abs( RoiEtaMax - RoiEtaMin )/2. + dynamic_add;
          dphi_thr = std::abs( acos( cos( RoiPhiMax - RoiPhiMin ) ) )/2. + dynamic_add;

@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuFastDataPreparator.h"
 
-#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#include <utility>
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -27,10 +27,7 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::initialize()
     
    ATH_CHECK(AthAlgTool::initialize());
 
-   ATH_CHECK(m_recRPCRoiSvc.retrieve());
-   ATH_MSG_INFO("Retrieved Service " << m_recRPCRoiSvc);
-
-   ATH_CHECK(m_readKey.initialize());
+   ATH_CHECK(m_recRPCRoiTool.retrieve());
   
    if (m_use_rpc) {
      ATH_CHECK(m_rpcDataPreparator.retrieve());
@@ -201,17 +198,14 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   } else {
     ATH_MSG_DEBUG("Skip RpcDataPreparator");
   }
-
-  SG::ReadCondHandle<RpcCablingCondData> readHandle{m_readKey};
-  const RpcCablingCondData* readCdo{*readHandle};
  
-  m_recRPCRoiSvc->reconstruct(p_roi->roiWord());
+  auto data = m_recRPCRoiTool->roiData(p_roi->roiWord());
   double roiEtaMinLow = 0.;
   double roiEtaMaxLow = 0.;
   double roiEtaMinHigh = 0.;
   double roiEtaMaxHigh = 0.;
-  m_recRPCRoiSvc->etaDimLow(roiEtaMinLow, roiEtaMaxLow, readCdo);
-  m_recRPCRoiSvc->etaDimHigh(roiEtaMinHigh, roiEtaMaxHigh, readCdo);
+  m_recRPCRoiTool->etaDimLow(data, roiEtaMinLow, roiEtaMaxLow);
+  m_recRPCRoiTool->etaDimHigh(data, roiEtaMinHigh, roiEtaMaxHigh);
 
   ATH_MSG_DEBUG("nr of RPC hits=" << rpcHits.size());
 
