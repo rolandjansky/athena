@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "CscOverlay/CscOverlay.h"
@@ -11,7 +11,7 @@
 #include "MuonIdHelpers/CscIdHelper.h"
 
 #include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include <iostream>
 #include <typeinfo>
@@ -329,7 +329,7 @@ void CscOverlay::overlayContainer(CscRawDataContainer *main,
                                      << " continuing ..." << endmsg; 
               } else {
                 for (unsigned int k=0; k<samples.size(); ++k) {
-		  double theNoise = CLHEP::RandGauss::shoot(m_rndmEngine, 0.0, noise);
+		  double theNoise = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, noise);
 		  float adcCount = samples[k] + theNoise;
 		  if ( adcCount > MAX_AMPL ) {
 		    msg<<MSG::DEBUG<< "value out of range (copying over signal): " << adcCount << " " 
@@ -708,7 +708,7 @@ std::vector<CscRawData*> CscOverlay::overlay( const std::map< int,std::vector<ui
       int myhashw=myhash+width; if (needtoflip(myaddress)) {myhashw=myhash-width;}
       double noise = m_cscCalibTool->stripNoise( (myhashw), false );//in ADC counts
        for ( unsigned int j=0; j<(*ovl).second.size(); ++j ) {
-	  double theNoise = CLHEP::RandGauss::shoot(m_rndmEngine, 0.0, noise);
+	  double theNoise = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0.0, noise);
           float adcCount = (*ovl).second.at(j) + theNoise ;//add noise
           if ( adcCount > MAX_AMPL ) {
 	    msg << MSG::DEBUG << "value out of range (adding noise): " << adcCount << " "
