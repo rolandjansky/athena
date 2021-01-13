@@ -45,7 +45,6 @@ JetCollections['MT'] = {
   'HLT_AntiKt10LCTopoJets_subjes'                    : { 'MatchTo' : 'NONE' },               # a10
   'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes' : { 'MatchTo' : 'NONE' },               # a10t
   'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf'            : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # calo jet w/ calo+track GSC
-  'HLT_AntiKt4EMPFlowJets_subjesIS_ftf'              : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/o calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf'           : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ calo+track GSC
   'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf'        : { 'MatchTo' : 'AntiKt4EMPFlowJets' }, # pflow w/ residual + calo+track GSC
   'HLT_AntiKt4EMPFlowJets_nojcalib_ftf'              : { 'MatchTo' : 'NONE' },               # pflow nojcalib
@@ -61,9 +60,9 @@ Chains2Monitor['MT'] = {
   'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_AntiKt10LCTopoJets_subjes',                    'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j45_pf_ftf_L1J15'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',              'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  'HLT_j45_pf_ftf_L1J15'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_pf_subjesgscIS_ftf_L1J15'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
-  'HLT_j85_pf_ftf_L1J20'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesIS_ftf',              'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
+  'HLT_j85_pf_ftf_L1J20'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
   'HLT_j45_pf_nojcalib_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',              'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_cssk_pf_nojcalib_ftf_L1J15'     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_10j40_pf_subresjesgscIS_ftf_L14J15' : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
