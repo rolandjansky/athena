@@ -13,7 +13,8 @@ atlas_add_library( xAODParticleEvent
    PUBLIC_HEADERS xAODParticleEvent
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks xAODBase xAODCore
-   xAODEgamma xAODJet xAODMissingET xAODMuon xAODTau xAODTruth )
+   xAODEgamma xAODJet xAODMissingET xAODMuon xAODTau xAODTruth
+   PRIVATE_LINK_LIBRARIES TruthUtils )
 
 atlas_add_xaod_smart_pointer_dicts(
    INPUT xAODParticleEvent/selection.xml
