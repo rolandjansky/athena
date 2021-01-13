@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,7 @@
 #include "TrkDetDescrUtils/GeometryStatics.h"
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 //Truth
 #include "GeneratorObjects/HepMcParticleLink.h"
@@ -496,8 +497,8 @@ StatusCode sTgcDigitizationTool::doDigitization(const EventContext& ctx) {
         float newTime = (*it_digiHits)->time();
         int newChannelType = m_idHelperSvc->stgcIdHelper().channelType((*it_digiHits)->identify());
 
-        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsStrip);
-        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(rndmEngine, 0, m_timeJitterElectronicsPad);
+        float timeJitterElectronicsStrip = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, m_timeJitterElectronicsStrip);
+        float timeJitterElectronicsPad = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, m_timeJitterElectronicsPad);
         if(newChannelType==1)
           newTime += timeJitterElectronicsStrip;
         else

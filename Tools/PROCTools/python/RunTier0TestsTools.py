@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #####
 # CI Reference Files Map
@@ -31,10 +31,10 @@ ciRefFileMap = {
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v2',
                 'overlay-d1498-22.0'   : 'v38',
-                'overlay-d1592-22.0'   : 'v2',
+                'overlay-d1592-22.0'   : 'v3',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
-                'dataoverlay-d1590-22.0' : 'v5',
+                'dataoverlay-d1590-22.0' : 'v6',
                 'dataoverlay-hits-22.0'  : 'v1',
                }
 

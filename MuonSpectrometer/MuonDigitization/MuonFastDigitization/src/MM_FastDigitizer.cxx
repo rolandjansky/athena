@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MM_FastDigitizer.h"
@@ -18,6 +18,7 @@
 #include "MuonAGDDDescription/MMDetectorDescription.h"
 #include "MuonAGDDDescription/MMDetectorHelper.h"
 #include "AthenaKernel/RNGWrapper.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include <sstream>
 #include <iostream>
@@ -335,7 +336,7 @@ StatusCode MM_FastDigitizer::execute() {
       resolution = .07;
     else
       resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
-    double sp = CLHEP::RandGauss::shoot(rndmEngine, 0, resolution);
+    double sp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0, resolution);
 
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
     
@@ -502,7 +503,7 @@ StatusCode MM_FastDigitizer::execute() {
           cov->setIdentity();
           (*cov.get())(0,0) = resolution*resolution;
 
-          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(rndmEngine, 0., 5.);
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGaussZiggurat::shoot(rndmEngine, 0., 5.);
           Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
 
           stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);
