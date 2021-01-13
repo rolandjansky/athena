@@ -3,10 +3,6 @@
 */
 
 #include "CaloJiveXML/CaloClusterRetriever.h"
-
-//#include "CaloEvent/CaloClusterContainer.h"
-//#include "CaloEvent/CaloCell.h"
-
 #include "AthenaKernel/Units.h"
 
 using Athena::Units::GeV;
