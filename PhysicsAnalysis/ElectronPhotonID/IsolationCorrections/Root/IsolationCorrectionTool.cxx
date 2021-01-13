@@ -7,7 +7,6 @@
 #include "xAODEgamma/Electron.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "xAODEgamma/Photon.h"
-#include "xAODMetaData/FileMetaData.h"
 #include "PATInterfaces/SystematicRegistry.h"
 #include "PathResolver/PathResolver.h"
 #include <boost/algorithm/string.hpp>
