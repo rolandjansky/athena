@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -576,11 +576,9 @@ def muEFSARecoSequence( RoIs, name ):
 
   from AthenaCommon import CfgMgr
   from AthenaCommon.CFElements import parOR
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonStandaloneTrackParticleCnvAlg, MuonSegmentFinderAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedMuonCandidateAlg, MuonCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
-
-  from MuonRecExample.MuonRecFlags import muonRecFlags
 
   muEFSARecoSequence = parOR("efmsViewNode_"+name)
 
@@ -605,27 +603,8 @@ def muEFSARecoSequence( RoIs, name ):
   if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
       theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
       efAlgs.append(theMuonLayerHough)
-      SegmentFinder = CfgGetter.getPublicTool("MuonClusterSegmentFinderTool")
-      Cleaner = CfgGetter.getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
-      Cleaner.Extrapolator = CfgGetter.getPublicTool("MuonStraightLineExtrapolator")
-      Cleaner.Fitter = CfgGetter.getPublicTool("MCTBSLFitterMaterialFromTrack")
-      Cleaner.PullCut = 3
-      Cleaner.PullCutPhi = 3
-      SegmentFinder.TrackCleaner = Cleaner
-      
-      theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,
-                                                       MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
-                                                       MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
-                                                       MuonTruthSummaryTool = None)
-    # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
-      if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
-          CfgGetter.getPublicTool("CscSegmentUtilTool")
-          CfgGetter.getPublicTool("Csc2dSegmentMaker")
-          CfgGetter.getPublicTool("Csc4dSegmentMaker")
-      else:
-          theSegmentFinderAlg.Csc2dSegmentMaker = ""
-          theSegmentFinderAlg.Csc4dSegmentMaker = ""
 
+      theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
   else:
     theSegmentFinderAlg = MooSegmentFinderAlg("TrigMuonSegmentMaker_"+name)
 
@@ -809,10 +788,9 @@ def muEFInsideOutRecoSequence(RoIs, name):
   from AthenaCommon.CFElements import parOR
   from AthenaCommon import CfgMgr
 
-  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg
+  from MuonRecExample.MuonStandalone import MooSegmentFinderAlg, MuonSegmentFinderAlg
   from MuonCombinedRecExample.MuonCombinedAlgs import MuonCombinedInDetCandidateAlg, MuonInsideOutRecoAlg, MuGirlStauAlg, MuonCreatorAlg, StauCreatorAlg
   from MuonCombinedAlgs.MuonCombinedAlgsMonitoring import MuonCreatorAlgMonitoring
-  from MuonRecExample.MuonRecFlags import muonRecFlags
 
   efAlgs = []
 
@@ -827,7 +805,6 @@ def muEFInsideOutRecoSequence(RoIs, name):
     #need MdtCondDbAlg for the MuonStationIntersectSvc (required by segment and track finding)
     from AthenaCommon.AlgSequence import AthSequencer
     from MuonCondAlg.MuonTopCondAlgConfigRUN2 import MdtCondDbAlg
-    import AthenaCommon.CfgGetter as CfgGetter
     if not athenaCommonFlags.isOnline:
       condSequence = AthSequencer("AthCondSeq")
       if not hasattr(condSequence,"MdtCondDbAlg"):
@@ -838,27 +815,7 @@ def muEFInsideOutRecoSequence(RoIs, name):
       if (MuonGeometryFlags.hasSTGC() and MuonGeometryFlags.hasMM()):
         theMuonLayerHough = CfgMgr.MuonLayerHoughAlg( "MuonLayerHoughAlg")
         efAlgs.append(theMuonLayerHough)
-        SegmentFinder = CfgGetter.getPublicTool("MuonClusterSegmentFinderTool")
-        Cleaner = CfgGetter.getPublicToolClone("MuonTrackCleaner_seg","MuonTrackCleaner")
-        Cleaner.Extrapolator = CfgGetter.getPublicTool("MuonStraightLineExtrapolator")
-        Cleaner.Fitter = CfgGetter.getPublicTool("MCTBSLFitterMaterialFromTrack")
-        Cleaner.PullCut = 3
-        Cleaner.PullCutPhi = 3
-        SegmentFinder.TrackCleaner = Cleaner
-      
-        theSegmentFinderAlg = CfgMgr.MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name,
-                                                           MuonPatternCalibration = CfgGetter.getPublicTool("MuonPatternCalibration"), 
-                                                           MuonPatternSegmentMaker = CfgGetter.getPublicTool("MuonPatternSegmentMaker"), 
-                                                           MuonTruthSummaryTool = None)
-        # we check whether the layout contains any CSC chamber and if yes, we check that the user also wants to use the CSCs in reconstruction
-        if MuonGeometryFlags.hasCSC() and muonRecFlags.doCSCs():
-          CfgGetter.getPublicTool("CscSegmentUtilTool")
-          CfgGetter.getPublicTool("Csc2dSegmentMaker")
-          CfgGetter.getPublicTool("Csc4dSegmentMaker")
-        else:
-          theSegmentFinderAlg.Csc2dSegmentMaker = ""
-          theSegmentFinderAlg.Csc4dSegmentMaker = ""
-
+        theSegmentFinderAlg = MuonSegmentFinderAlg( "TrigMuonSegmentMaker_"+name)
       else:
         theSegmentFinderAlg = MooSegmentFinderAlg("TrigLateMuonSegmentMaker_"+name)
 
