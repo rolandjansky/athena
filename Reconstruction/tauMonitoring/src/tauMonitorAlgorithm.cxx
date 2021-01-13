@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "tauMonitorAlgorithm.h"
@@ -171,7 +171,7 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
     nTauCandidates = 0;
 
     
-    for (const auto& tau : *shallowTaus) {
+    for (const auto tau : *shallowTaus) {
         // avoid unphysical tau calibration
         if (abs(tau->etaFinalCalib()) < 5) {
             TLorentzVector calibratedVec = tau->p4(xAOD::TauJetParameters::FinalCalib);
