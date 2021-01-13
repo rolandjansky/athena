@@ -11,6 +11,7 @@
 // We have to include the deprecated IJobOptionsSvc header. Silence the warning.
 // This can be removed in Gaudi v36 together with the IJobOptionsSvc removal:
 #define GAUDI_INTERNAL_NO_IJOBOPTIONSSVC_H_DEPRECATION 1
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "GaudiKernel/IJobOptionsSvc.h"
 
 #include "Gaudi/Interfaces/IOptionsSvc.h"
