@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataQualityUtils )
@@ -9,6 +9,7 @@ find_package( COOL COMPONENTS CoolKernel CoolApplication )
 find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
 find_package( ROOT COMPONENTS Graf Gpad MathCore RooFit RooFitCore Minuit Cint Core Tree TreePlayer Hist RIO pthread MathMore Minuit2 Matrix Physics HistPainter Rint Graf3d Html Postscript Gui GX11TTF GX11 )
 find_package( stomppy )
+find_package( FFTW ) # Needed for RooFFTConvPdf
 
 # Component(s) in the package:
 atlas_add_root_dictionary( DataQualityUtils
