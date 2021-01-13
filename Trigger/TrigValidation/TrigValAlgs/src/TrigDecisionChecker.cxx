@@ -65,8 +65,6 @@
 #include "xAODTrigMinBias/TrigVertexCounts.h"
 #include "xAODTrigMinBias/TrigTrackCounts.h"
 
-// tools
-#include "MuonCombinedToolInterfaces/IMuonPrintingTool.h"
 
 #include <cmath>
 #include <algorithm>
@@ -75,39 +73,10 @@
 
 TrigDecisionChecker::TrigDecisionChecker(const std::string &name, ISvcLocator *pSvcLocator)
 : AthAlgorithm(name, pSvcLocator),
-  m_smk(0),
-  m_l1psk(0),
-  m_hltpsk(0),
-  m_printout_file(""),
-  m_first_event(true),
-  m_event_number(0),
-  m_mu_sum(0.0),
-  m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_configSvc( "TrigConf::TrigConfigSvc/TrigConfigSvc", name ),
-  m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool")
+  m_first_event(true)
 {
     
-    declareProperty("TrigDecisionKey",   m_trigDecisionKey = "TrigDecision");
-    declareProperty("TrigDecisionTool",  m_trigDec, "The tool to access TrigDecision");
-    declareProperty("MonitoredChains",   m_count_sig_names );
-    //declareProperty("MonitoredTauChain", m_tauItem = "tau20_r1medium1");
-    declareProperty("MonitoringBlock",   m_monitoring_block_size = 100);
-    declareProperty("WriteEventDecision",m_event_decision_printout = true);
-    declareProperty("WriteOutCounts",    m_printout_counts   = false);
-    declareProperty("WriteOutFilename",  m_printout_filename = "trigger_counts.log");
-    declareProperty("EventInfoName",     m_eventInfoName="", "The name of the EventInfo container" );
-    declareProperty("SMK",               m_smKey=0, "The super master key to use" );
-    declareProperty("MuonItems",         m_muonItems, "Muon triggers to test");
-    declareProperty("BjetItems",         m_bjetItems, "Bjet triggers to test");
-    declareProperty("BphysicsItems",         m_bphysItems, "Bphysics triggers to test");
-    declareProperty("ElectronItems",     m_electronItems, "Electron triggers to test");
-    declareProperty("PhotonItems",       m_photonItems, "Photon triggers to test");
-    declareProperty("TauItems",       m_TauItems, "Tau triggers to test");
-    declareProperty("MinBiasItems",      m_minBiasItems, "MinBias triggers to test");
-    declareProperty("JetItems",       m_jetItems, "Jet triggers to test");
-    declareProperty("MetItems",       m_metItems, "Met triggers to test");
-    declareProperty("CheckTrigPassBits",       m_checkBits=false, "TrigPassBits retrieval from TDT");
-    
+
 }
 
 
@@ -118,23 +87,18 @@ StatusCode TrigDecisionChecker::initialize()
 {
     // reset event counters
     m_first_event=true;
-    m_event_number=0;
-    m_mu_sum=0.0;
+    m_eventNumber=0;
+    m_muSum=0.0;
     
     // Reset keys
-    m_smk=0;
-    m_l1psk=0;
-    m_hltpsk=0;
     
     // print out properties
     ATH_MSG_INFO("Initializing...");
-    ATH_MSG_INFO("TrigDecisionKey:    " << m_trigDecisionKey);
-    ATH_MSG_INFO("MonitoredChains:    " << m_count_sig_names);
+    ATH_MSG_INFO("MonitoredChains:    " << m_countSigNames);
     //ATH_MSG_INFO("MonitoredTauItem:   " << m_tauItem);
-    ATH_MSG_INFO("MonitoringBlock:    " << m_monitoring_block_size);
-    ATH_MSG_INFO("PrintOutCounts:     " << m_printout_counts);
-    if (m_printout_counts) {
-      ATH_MSG_INFO("PrintOutFilename:   " << m_printout_filename);
+    ATH_MSG_INFO("MonitoringBlock:    " << m_monitoringBlockSize);
+    if (not m_printoutFileName.empty()) {
+      ATH_MSG_INFO("PrintOutFilename:   " << m_printoutFileName);
     }
     ATH_MSG_INFO("SuperMasterKey:     " << m_smKey);
     
@@ -148,30 +112,28 @@ StatusCode TrigDecisionChecker::initialize()
     
     // reserve space for vectors
     m_summary.reserve(700);
-    m_summary_chain_passraw.reserve(700);
-    m_summary_chain_passraw.reserve(700);
-    m_summary_chain_PT.reserve(700);
-    m_summary_chain_PS.reserve(700);
-    m_summary_passraw.reserve(700);
-    m_summary_pass.reserve(700);
-    m_summary_passphys.reserve(700);
-    m_chain_prescales.reserve(700);
-    m_chain_prescales_calculated.reserve(700);
+    m_summaryChainPassRaw.reserve(700);
+    m_summaryChainPassRaw.reserve(700);
+    m_summaryChainPT.reserve(700);
+    m_summaryChainPS.reserve(700);
+    m_summaryPassRaw.reserve(700);
+    m_summaryPass.reserve(700);
+    m_summaryPassPhys.reserve(700);
+    m_chainPrescales.reserve(700);
+    m_chainPrescalesCalculated.reserve(700);
     m_chain_passthrough.reserve(700);
     m_chain_passthrough_calculated.reserve(700);
     m_lower_chain_accept.reserve(700);
     
     // initialize vectors for chains to monitor
     ATH_MSG_INFO("Monitoring number of events passing these chains (blocks of "
-                 << m_monitoring_block_size << " events):");
-    for (unsigned int i=0; i < m_count_sig_names.size(); ++i) {
-        ATH_MSG_INFO("Initializing monitoring counters for " << m_count_sig_names[i]);
-        m_count_sigs.push_back(new std::vector<int>());
-        m_run_count_sigs.push_back(0);
+                 << m_monitoringBlockSize << " events):");
+    for (unsigned int i=0; i < m_countSigNames.size(); ++i) {
+        ATH_MSG_INFO("Initializing monitoring counters for " << m_countSigNames[i]);
+        m_countSigs.push_back(new std::vector<int>());
+        m_runCountSigs.push_back(0);
     }
     
-    // retrieve muon printing tool
-    ATH_CHECK(m_muonPrinter.retrieve());
     
     ATH_MSG_INFO("Initialization successful");    
     
@@ -188,15 +150,15 @@ StatusCode TrigDecisionChecker::finalize()
     msg(MSG::INFO) << "==========================================================" << endmsg;
     
     // LVL1
-    std::map<std::string,int>::iterator itL1,itL1End=m_L1_summary.end();
-    for ( itL1=m_L1_summary.begin(); itL1!=itL1End; ++itL1 ) {
+    std::map<std::string,int>::iterator itL1,itL1End=m_L1Summary.end();
+    for ( itL1=m_L1Summary.begin(); itL1!=itL1End; ++itL1 ) {
         msg(MSG::INFO) << "REGTEST item " << (*itL1).first << " accepted events=" << (*itL1).second << endmsg;
     }
     
     // HLT
     for ( unsigned int i=0; i<m_summary.size(); ++i) {
-        msg(MSG::INFO) << "REGTEST chain " << m_summary[i] << " accepted events= " << m_summary_passphys[i]
-        <<" ( PS: " << m_summary_chain_PS[i] << " , PT: " << m_summary_chain_PT[i] << ")" << endmsg;
+        msg(MSG::INFO) << "REGTEST chain " << m_summary[i] << " accepted events= " << m_summaryPassPhys[i]
+        <<" ( PS: " << m_summaryChainPS[i] << " , PT: " << m_summaryChainPT[i] << ")" << endmsg;
     }
     
     // print out nr. of events passed in blocks of N events for specific chains (configurable)
@@ -204,14 +166,14 @@ StatusCode TrigDecisionChecker::finalize()
     ATH_MSG_INFO("TrigDecisionTool tests: monitored chain efficiency");
     ATH_MSG_INFO("==================================================");
     msg(MSG::INFO) << "REGTEST  Nr.events: ";
-    for (unsigned int k=0; k<m_count_event.size();++k) {
-        msg() << m_count_event[k] << " ";
+    for (unsigned int k=0; k<m_countEvent.size();++k) {
+        msg() << m_countEvent[k] << " ";
     }
     msg() << endmsg;
-    for (unsigned int i=0; i<m_count_sig_names.size();++i) {
-        msg(MSG::INFO) << "REGTEST " << m_count_sig_names[i] << " : ";
-        for (unsigned int j=0; j<(m_count_sigs[i])->size();++j) {
-            msg() << (*m_count_sigs[i])[j] << " ";
+    for (unsigned int i=0; i<m_countSigNames.size();++i) {
+        msg(MSG::INFO) << "REGTEST " << m_countSigNames[i] << " : ";
+        for (unsigned int j=0; j<(m_countSigs[i])->size();++j) {
+            msg() << (*m_countSigs[i])[j] << " ";
         }
         msg() << endmsg;
     }
@@ -224,66 +186,66 @@ StatusCode TrigDecisionChecker::finalize()
     msg(MSG::INFO) << "REGTEST Chain (passed raw) PS(conf) PS(counts) PT(conf) PT(counts) (Lower chain)";
     for ( unsigned int i=0; i<m_summary.size(); ++i) {
         if (m_lower_chain_accept[i]!=0) {
-            msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summary_chain_PT[i] << ") \t"
-            << " \t" << m_chain_prescales[i] << " \t" << m_chain_prescales_calculated[i] ///m_lower_chain_accept[i]
+            msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summaryChainPT[i] << ") \t"
+            << " \t" << m_chainPrescales[i] << " \t" << m_chainPrescalesCalculated[i] ///m_lower_chain_accept[i]
             << " \t" << m_chain_passthrough[i] << " \t" << m_chain_passthrough_calculated[i] ///m_lower_chain_accept[i]
             << " (" << m_lower_chain_accept[i] << ")" << endmsg;
         } else {
-            msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summary_chain_PT[i] << ") \t"
-            << " \t" << m_chain_prescales[i] << "   ---   "
+            msg(MSG::INFO) << "REGTEST " << m_summary[i] << " (" << m_summaryChainPT[i] << ") \t"
+            << " \t" << m_chainPrescales[i] << "   ---   "
             << " \t" << m_chain_passthrough[i] << "   ---   "
             << " (lower chain passed no events)" << endmsg;
         }
     }
-    ATH_MSG_INFO("REGTEST ran on " << m_event_number << " events");
-    ATH_MSG_INFO("Average mu value " << m_mu_sum/float(m_event_number));
+    ATH_MSG_INFO("REGTEST ran on " << m_eventNumber << " events");
+    ATH_MSG_INFO("Average mu value " << m_muSum/float(m_eventNumber));
     
     // open output file and write out counts
-    if (m_printout_counts) {
+    if (not m_printoutFileName.empty()) {
         ATH_MSG_INFO("==================================================");
-        ATH_MSG_INFO("Opening " << m_printout_filename << " for writing trigger counts");
-        m_printout_file.open(m_printout_filename.c_str());
+        ATH_MSG_INFO("Opening " << m_printoutFileName << " for writing trigger counts");
+        std::ofstream printoutFile(m_printoutFileName);
         
         /*
-         m_L1_summary - isPassed for L1
-         m_summary_chain_passraw  - chainPassedRaw for HLT     
-         m_summary_pass     - chain Passed for HLT     
-         m_summary_passphys - chain Physics Passed for HLT     
-         m_summary_chain_PS - chainPassedRaw && !isPrescaled for HLT     
-         m_summary_chain_PT - (chainPassedRaw && !isPrescaled) || isPassedThrough for HLT     
+         m_L1Summary - isPassed for L[1
+         m_summaryChainPassRaw  - chainPassedRaw for HLT     
+         m_summaryPass     - chain Passed for HLT     
+         m_summaryPassPhys - chain Physics Passed for HLT     
+         m_summaryChainPS - chainPassedRaw && !isPrescaled for HLT     
+         m_summaryChainPT - (chainPassedRaw && !isPrescaled) || isPassedThrough for HLT     
          */
         
-        m_printout_file  << std::setiosflags(std::ios::left) << std::setw(25) << "* L1 item"
+        printoutFile  << std::setiosflags(std::ios::left) << std::setw(25) << "* L1 item"
         << std::setw(15) << " #Passed " << std::endl;
-        std::map<std::string,int>::iterator l1,l1End=m_L1_summary.end();
-        for ( l1=m_L1_summary.begin(); l1!=l1End; ++l1 ) {
-            m_printout_file << std::setiosflags(std::ios::left) << (*l1).first 
+        std::map<std::string,int>::iterator l1,l1End=m_L1Summary.end();
+        for ( l1=m_L1Summary.begin(); l1!=l1End; ++l1 ) {
+            printoutFile << std::setiosflags(std::ios::left) << (*l1).first 
             << std::setw(10) << (*l1).second << std::endl;
         }
         
-        m_printout_file  << std::setiosflags(std::ios::left) << std::setw(25) << "* Chain name"
+        printoutFile  << std::setiosflags(std::ios::left) << std::setw(25) << "* Chain name"
         << std::setw(15) << " #Passed Raw "
         << std::setw(15) << " #passed  "
         << std::setw(15) << " #Physics Passed "<< std::endl;
         for ( unsigned int i=0; i<m_summary.size(); ++i) {
-            m_printout_file << std::setiosflags(std::ios::left) << std::setw(25) << m_summary[i] 
-            << std::setw(15) << m_summary_passraw[i] 
-            << std::setw(15) << m_summary_pass[i] 
-            << std::setw(15) << m_summary_passphys[i] << std::endl;
+            printoutFile << std::setiosflags(std::ios::left) << std::setw(25) << m_summary[i] 
+            << std::setw(15) << m_summaryPassRaw[i] 
+            << std::setw(15) << m_summaryPass[i] 
+            << std::setw(15) << m_summaryPassPhys[i] << std::endl;
             
             //    std::cout << std::setiosflags(std::ios::dec) << std::setw(6) << i << "|"
             // 	      << std::setiosflags(std::ios::dec) << std::setw(4) << (*(m_elink_vec[i]))->algorithmId() << "|"
             // 	      << std::setw(11) << *(m_elink_vec[i]) << "|";
         }
-        ATH_MSG_INFO("Closing output file " << m_printout_filename);
-        m_printout_file.close();
+        ATH_MSG_INFO("Closing output file " << m_printoutFileName);
+        printoutFile.close();
     }
     
     // cleanup newed vectors
     ATH_MSG_INFO("==================================================");
     ATH_MSG_INFO("Cleaning up counters...");
-    for (unsigned int i=0; i<m_count_sigs.size(); ++i) {
-        delete m_count_sigs[i];
+    for (unsigned int i=0; i<m_countSigs.size(); ++i) {
+        delete m_countSigs[i];
     }
     ATH_MSG_INFO("Finalised successfully");
     
@@ -295,35 +257,35 @@ uint32_t TrigDecisionChecker_old_smk=0;
 StatusCode TrigDecisionChecker::execute()
 {
     // Fill the variables:
-    m_smk = m_configSvc->masterKey();
-    m_l1psk = m_configSvc->lvl1PrescaleKey();
-    m_hltpsk = m_configSvc->hltPrescaleKey();
+    uint32_t smk = m_configSvc->masterKey();
+    uint32_t l1psk = m_configSvc->lvl1PrescaleKey();
+    uint32_t hltpsk = m_configSvc->hltPrescaleKey();
     
     // If the keys returned by the configuration service don't seem to make sense,
     // use something else as the SMK. (Needed mostly for MC test jobs.)
-    if( ( ( m_smk == 0 ) && ( m_l1psk == 0 ) && ( m_hltpsk == 0 ) ) ||
-       ( static_cast< int >( m_smk )    < 0 ) ||
-       ( static_cast< int >( m_l1psk )  < 0 ) ||
-       ( static_cast< int >( m_hltpsk ) < 0 ) ) {
+    if( ( ( smk == 0 ) && ( l1psk == 0 ) && ( hltpsk == 0 ) ) ||
+       ( static_cast< int >( smk )    < 0 ) ||
+       ( static_cast< int >( l1psk )  < 0 ) ||
+       ( static_cast< int >( hltpsk ) < 0 ) ) {
 
-        m_smk = CxxUtils::crc64( m_configSvc->configurationSource() ) & 0xffff;
-        m_l1psk = 0;
-        m_hltpsk = 0;
+        smk = CxxUtils::crc64( m_configSvc->configurationSource() ) & 0xffff;
+        l1psk = 0;
+        hltpsk = 0;
     }
     
-    if(TrigDecisionChecker_old_smk!=m_smk) {
-        ATH_MSG_INFO("New SMK found = " << m_smk);
-        TrigDecisionChecker_old_smk=m_smk;
+    if(TrigDecisionChecker_old_smk!=smk) {
+        ATH_MSG_INFO("New SMK found = " << smk);
+        TrigDecisionChecker_old_smk=smk;
     }
-    ATH_MSG_DEBUG("SMK = " << m_smk);
+    ATH_MSG_DEBUG("SMK = " << smk);
     
     // Check to see whether this is an event which we should process
-    if(m_smk!=m_smKey && m_smKey!=0) {
+    if(smk!=m_smKey && m_smKey!=0) {
         // We do not have a matching super master key so skip the event and return success
         return StatusCode::SUCCESS;
     }
     
-    m_event_number++;
+    m_eventNumber++;
     
     // check mu value
     const EventInfo* eventInfo;
@@ -348,8 +310,8 @@ StatusCode TrigDecisionChecker::execute()
         float muave =  eventInfo->averageInteractionsPerCrossing(); 
         msg(MSG::INFO) << "run number  " << eventInfo->event_ID()->run_number() << " event number " << eventInfo->event_ID()->event_number() << 
         " lumi block " << eventInfo->event_ID()->lumi_block() << endmsg;
-        msg(MSG::INFO) << "mu value " << mu << " average mu value " << muave <<  " event number " << m_event_number <<  endmsg;
-        m_mu_sum = m_mu_sum + eventInfo->actualInteractionsPerCrossing();
+        msg(MSG::INFO) << "mu value " << mu << " average mu value " << muave <<  " event number " << m_eventNumber <<  endmsg;
+        m_muSum = m_muSum + eventInfo->actualInteractionsPerCrossing();
     }
     
     
@@ -467,7 +429,7 @@ StatusCode TrigDecisionChecker::execute()
     }
     ATH_MSG_INFO("REGTEST =========END of Met EDM/Navigation check============");
     
-    if (m_event_decision_printout) {
+    if (m_eventDecisionPrintout) {
         msg(MSG::INFO) << "TrigDecisionChecker::execute" << endmsg;
         
         msg(MSG::INFO) << "Pass state     = " << m_trigDec->isPassed("EF_.*") << endmsg;
@@ -482,7 +444,7 @@ StatusCode TrigDecisionChecker::execute()
     // L1
     std::vector<std::string> allItems = m_trigDec->getListOfTriggers("L1_.*");
     if (!allItems.empty()) {
-        if (m_event_decision_printout) msg(MSG::INFO) << "Items : " << allItems.size() << endmsg;
+        if (m_eventDecisionPrintout) msg(MSG::INFO) << "Items : " << allItems.size() << endmsg;
         
         for (std::vector<std::string>::const_iterator itemIt = allItems.begin();
              itemIt != allItems.end(); ++itemIt) {
@@ -492,16 +454,16 @@ StatusCode TrigDecisionChecker::execute()
             if (!aItem) continue;
             if (aItem->name()=="") continue;
             
-            if (m_event_decision_printout) msg(MSG::INFO) << "Item " << aItem->name() << " : Item ID " << aItem->hashId() << " : " << aItem->isPassed() << endmsg;
+            if (m_eventDecisionPrintout) msg(MSG::INFO) << "Item " << aItem->name() << " : Item ID " << aItem->hashId() << " : " << aItem->isPassed() << endmsg;
             
             // fill bookkeeping map with zeros if first event
             std::string item_name = aItem->name();
-            if (m_first_event) m_L1_summary[item_name] = 0;
+            if (m_first_event) m_L1Summary[item_name] = 0;
             
             // increment counter for L1 summary
-            if (aItem->isPassed()) m_L1_summary[item_name] = (m_L1_summary[item_name]+1);
-            int count = (m_L1_summary.find(item_name))->second;
-            if (m_event_decision_printout) msg(MSG::INFO) << "L1_map[" << item_name << "] = " << count << endmsg;
+            if (aItem->isPassed()) m_L1Summary[item_name] = (m_L1Summary[item_name]+1);
+            int count = (m_L1Summary.find(item_name))->second;
+            if (m_eventDecisionPrintout) msg(MSG::INFO) << "L1_map[" << item_name << "] = " << count << endmsg;
             
             
         }
@@ -519,16 +481,16 @@ StatusCode TrigDecisionChecker::execute()
     // resize & initialise counters in first event
     if (m_first_event) {
         m_summary.resize(0); // vector for chain names
-        m_summary_passraw.resize(confChains.size(),0);
-        m_summary_pass.resize(confChains.size(),0);
-        m_summary_passphys.resize(confChains.size(),0);
-        m_summary_chain_passraw.resize(confChains.size(),0);
-        m_summary_chain_pass.resize(confChains.size(),0);
-        m_summary_chain_passphys.resize(confChains.size(),0);
-        m_summary_chain_PT.resize(confChains.size(),0);
-        m_summary_chain_PS.resize(confChains.size(),0);
-        m_chain_prescales.resize(confChains.size(),0);
-        m_chain_prescales_calculated.resize(confChains.size(),0);
+        m_summaryPassRaw.resize(confChains.size(),0);
+        m_summaryPass.resize(confChains.size(),0);
+        m_summaryPassPhys.resize(confChains.size(),0);
+        m_summaryChainPassRaw.resize(confChains.size(),0);
+        m_summaryChainPass.resize(confChains.size(),0);
+        m_summaryChainPassPhys.resize(confChains.size(),0);
+        m_summaryChainPT.resize(confChains.size(),0);
+        m_summaryChainPS.resize(confChains.size(),0);
+        m_chainPrescales.resize(confChains.size(),0);
+        m_chainPrescalesCalculated.resize(confChains.size(),0);
         m_chain_passthrough.resize(confChains.size(),0);
         m_chain_passthrough_calculated.resize(confChains.size(),0);
         m_lower_chain_accept.resize(confChains.size(),0);
@@ -543,7 +505,7 @@ StatusCode TrigDecisionChecker::execute()
             m_summary.push_back(name);
             t_pt_map[name] = ch->pass_through();
             t_ps_map[name] = ch->prescale();
-            m_lower_chain_map[name] = ch->lower_chain_name();
+            m_lowerChainMap[name] = ch->lower_chain_name();
             ATH_MSG_DEBUG("Configured chain: " << name
                           << "; prescale=" << ch->prescale()
                           << "; passthrough=" << ch->pass_through()
@@ -559,7 +521,7 @@ StatusCode TrigDecisionChecker::execute()
             std::map<std::string,float>::iterator psIt=t_ps_map.find(m_summary[k]);
             float ps = -1;
             if (psIt!=t_ps_map.end()) ps = (*psIt).second;
-            m_chain_prescales[k]=ps;
+            m_chainPrescales[k]=ps;
             // passthrough
             std::map<std::string,float>::iterator ptIt=t_pt_map.find(m_summary[k]);
             float pt = -1;
@@ -582,15 +544,15 @@ StatusCode TrigDecisionChecker::execute()
         // use TrigDecisionTool methods directly
         if ( m_trigDec->isPassed(name, TrigDefs::allowResurrectedDecision | TrigDefs::requireDecision) ) {
             ATH_MSG_VERBOSE("chain: " << name << " Passed RAW");
-            ++m_summary_passraw[i];
+            ++m_summaryPassRaw[i];
         }
         if ( m_trigDec->isPassed(name) ) {
             ATH_MSG_VERBOSE("chain: " << name << " Passed");
-            ++m_summary_pass[i];
+            ++m_summaryPass[i];
         }
         if ( m_trigDec->isPassed(name) ) {
             ATH_MSG_VERBOSE("chain: " << name << " Passed PHYSICS");
-            ++m_summary_passphys[i];
+            ++m_summaryPassPhys[i];
         }
         
         
@@ -598,51 +560,51 @@ StatusCode TrigDecisionChecker::execute()
         // http://alxr.usatlas.bnl.gov/lxr/source/atlas/Trigger/TrigMonitoring/TrigSteerMonitor/src/TrigChainMoni.cxx#380
         // chainPassed == (chainPassedRaw() && !aChain->isPrescaled()) || isPassedThrough
         if (aChain->chainPassedRaw()){
-            ++m_summary_chain_passraw[i];
+            ++m_summaryChainPassRaw[i];
         }
         if (aChain->chainPassedRaw() && !aChain->isPrescaled()){
-            ++m_summary_chain_PS[i];
+            ++m_summaryChainPS[i];
         }
         if (aChain->chainPassed()){
-            ++m_summary_chain_PT[i];
+            ++m_summaryChainPT[i];
         }
         if (!(aChain->isPrescaled())){ // get prescale fraction by counting events
-            ++m_chain_prescales_calculated[i];
+            ++m_chainPrescalesCalculated[i];
         }
         if (aChain->isPassedThrough()){ // get passthrough fraction by counting events
             ++m_chain_passthrough_calculated[i];
         }
         // events accepted by the lower chain
-        std::map<std::string,std::string>::iterator lcIt=m_lower_chain_map.find(m_summary[i]);
-        if (lcIt!=m_lower_chain_map.end()) {
+        std::map<std::string,std::string>::iterator lcIt=m_lowerChainMap.find(m_summary[i]);
+        if (lcIt!=m_lowerChainMap.end()) {
             if ( !m_trigDec->getListOfTriggers((*lcIt).second).empty() &&m_trigDec->isPassed((*lcIt).second) ) {
                 ++m_lower_chain_accept[i];
             }
         }
         // print info for each event
-        if (m_event_decision_printout){
+        if (m_eventDecisionPrintout){
             msg(MSG::INFO) << "chain " << name << " = "
-            << m_summary_chain_passraw[i] << endmsg;
+            << m_summaryChainPassRaw[i] << endmsg;
         }
     }
     
     // TrigDecisionTool tests on a few specific sigs:
-    for (unsigned int i=0; i < m_count_sig_names.size(); ++i) {
-        ATH_MSG_DEBUG("Monitoring " << m_count_sig_names[i]);
-        if ( !m_trigDec->getListOfTriggers(m_count_sig_names[i]).empty() ) {
-            if ( m_trigDec->isPassed(m_count_sig_names[i]) )
-                m_run_count_sigs[i] = m_run_count_sigs[i]+1;
+    for (unsigned int i=0; i < m_countSigNames.size(); ++i) {
+        ATH_MSG_DEBUG("Monitoring " << m_countSigNames[i]);
+        if ( !m_trigDec->getListOfTriggers(m_countSigNames[i]).empty() ) {
+            if ( m_trigDec->isPassed(m_countSigNames[i]) )
+                m_runCountSigs[i] = m_runCountSigs[i]+1;
         } else {
-            msg(MSG::WARNING) << m_count_sig_names[i] << " not configured!" << endmsg;
+            msg(MSG::WARNING) << m_countSigNames[i] << " not configured!" << endmsg;
         }
     }
     
-    if (m_event_number%m_monitoring_block_size == 0) {
-        m_count_event.push_back(m_event_number);
+    if (m_eventNumber%m_monitoringBlockSize == 0) {
+        m_countEvent.push_back(m_eventNumber);
         
-        for (unsigned int i=0; i < m_count_sig_names.size(); ++i) {
-            (m_count_sigs[i])->push_back(m_run_count_sigs[i]);
-            m_run_count_sigs[i]=0;
+        for (unsigned int i=0; i < m_countSigNames.size(); ++i) {
+            (m_countSigs[i])->push_back(m_runCountSigs[i]);
+            m_runCountSigs[i]=0;
         }
     }
     
