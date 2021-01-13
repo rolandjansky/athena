@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.6 )
@@ -60,9 +60,9 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
 # Generate replacement rules for the installed paths:
 set( _replacements )
-if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
-   get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir} "\${AthSimulation_DIR}/../../../.." )
+if( NOT "$ENV{ATLAS_BUILD_DIR}" STREQUAL "" )
+   list( APPEND _replacements "$ENV{ATLAS_BUILD_DIR}/install"
+                              "\${AthSimulation_DIR}/../../../.." )
 endif()
 
 # Now generate and install the installed setup files:
