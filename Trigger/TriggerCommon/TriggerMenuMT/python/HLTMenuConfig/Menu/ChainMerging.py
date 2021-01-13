@@ -167,6 +167,29 @@ def noPrecedingStepsPostMerge(newsteps, ileg):
             return False
     return True
         
+def getCurrentAG(chainStep):
+
+    filled_seq_ag = []
+    for iseq,seq in enumerate(chainStep.sequences):
+        if type(seq).__name__ == 'EmptyMenuSequence':
+            continue
+        else:
+            # get the alignment group of the leg that is running a non-empty sequence
+            # if we double-serial merge enough this will have to be recursive. Throw an error here for now
+            # if the length is greater than one. I don't think this will ever come up
+            if len(chainStep.stepDicts[iseq]['chainParts']) > 1:
+                log.error("[getCurrentAG] The leg has more than one chainPart (%s). Either the alignmentGroup property is bad or this is an unimplemented situation.",chainStep.stepDicts[iseq]['chainParts'])
+                raise Exception("[getCurrentAG] Not sure what is happening here, but I don't know what to do.")
+            filled_seq_ag += [chainStep.stepDicts[iseq]['chainParts'][0]['alignmentGroup']]
+
+    if len(filled_seq_ag) == 0:
+        log.error("[getCurrentAG] No non-empty sequences were found in %s", chainStep.sequences)
+        raise Exception("[getCurrentAG] Cannot find the current alignment group for this chain")
+    elif len(set(filled_seq_ag)) > 1:
+        log.error("[getCurrentAG] Found more than one alignment group for this step %s", filled_seq_ag)
+        raise Exception("[getCurrentAG] Cannot find the current alignment group for this chain")
+    else:
+        return filled_seq_ag[0]
 
 def serial_zip(allSteps, chainName, chainDefList):
 
@@ -179,6 +202,9 @@ def serial_zip(allSteps, chainName, chainDefList):
 
     for chain_index, chainSteps in enumerate(allSteps): #per-part (horizontal) iteration
         for step_index, step in enumerate(chainSteps):  #serial step iteration
+            if step_index == 0:
+                prev_ag_step_index = step_index
+                previousAG = getCurrentAG(step)
             log.debug('[serial_zip] chain_index: %s step_index: %s', chain_index, step_index)
             # create list of correct length (chainSteps in parallel)
             stepList = [None]*n_parts
@@ -201,16 +227,32 @@ def serial_zip(allSteps, chainName, chainDefList):
                         emptyChainDicts = allSteps[chain_index2][0].stepDicts
 
                     sigNames = []
-                    for emptyChainDict in emptyChainDicts:
-                        if isFullScanRoI(chainDefList[chain_index2].L1decisions[0]):
+                    for ileg,emptyChainDict in enumerate(emptyChainDicts):
+                        if isFullScanRoI(chainDefList[chain_index2].L1decisions[ileg]):
                             sigNames +=[emptyChainDict['chainParts'][0]['signature']+'FS']
                         else:
                             sigNames +=[emptyChainDict['chainParts'][0]['signature']]
 
                     seqMultName = '_'.join([mult+sigName for mult, sigName in zip(mult_per_leg,sigNames)])
-                    seqStepName = 'Empty' + chainDefList[chain_index].alignmentGroups[0]+'Align'+str(step_index+1)+'_'+seqMultName
+                    currentAG = ''
+                    if len(set(chainDefList[chain_index].alignmentGroups)) == 1:
+                        currentAG = chainDefList[chain_index].alignmentGroups[0]
+                        ag_step_index = step_index+1
+                    else:
+                        # this happens if one of the bits to serial merge is already serial merged.
+                        currentAG = getCurrentAG(step)
+                        if currentAG == previousAG:
+                            ag_step_index = prev_ag_step_index + 1
+                            prev_ag_step_index = ag_step_index
+                        else:
+                            ag_step_index = 1
+                            previousAG = currentAG
+                            prev_ag_step_index = 1
+                     
+                    seqStepName = 'Empty' + currentAG +'Align'+str(ag_step_index)+'_'+seqMultName
 
-                    seqNames = [getEmptySeqName(emptyChainDicts[iSeq]['signature'], chain_index, step_index+1, chainDefList[chain_index].alignmentGroups[0]) for iSeq in range(nLegs)]
+                    seqNames = [getEmptySeqName(emptyChainDicts[iSeq]['signature'], chain_index, ag_step_index, currentAG) for iSeq in range(nLegs)]
+
                     if doBonusDebug:                        
                         log.debug("[serial_zip] step name for this leg: %s", seqStepName)
                         log.debug("[serial_zip] created empty sequence(s): %s", seqNames)
@@ -218,10 +260,10 @@ def serial_zip(allSteps, chainName, chainDefList):
 
                     emptySequences = []
                     for ileg in range(nLegs):
-                        if isFullScanRoI(chainDefList[chain_index2].L1decisions[0]) and noPrecedingStepsPreMerge(newsteps,chain_index2, ileg):
+                        if isFullScanRoI(chainDefList[chain_index2].L1decisions[ileg]) and noPrecedingStepsPreMerge(newsteps,chain_index2, ileg):
                             log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = False ")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = False)]
-                        elif isFullScanRoI(chainDefList[chain_index2].L1decisions[0]):
+                        elif isFullScanRoI(chainDefList[chain_index2].L1decisions[ileg]):
                             log.debug("[serial_zip] adding FS empty sequence with mergeUsingFeature = True ")
                             emptySequences += [RecoFragmentsPool.retrieve(getEmptyMenuSequence, flags=None, name=seqNames[ileg]+"FS", mergeUsingFeature = True)]
                         else:
