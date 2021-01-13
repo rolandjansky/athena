@@ -35,6 +35,10 @@ namespace LVL1 {
 			   double& phiMin, double& phiMax) const override;
       
       virtual bool dumpRoiMap(const std::string& filename) const override;
+
+      // does not exists for TGCs
+      bool etaDimLow (const TrigT1MuonRecRoiData& , double& , double& ) const override {return false;}
+      bool etaDimHigh(const TrigT1MuonRecRoiData& , double& , double& ) const override {return false;}
       
   private:
       

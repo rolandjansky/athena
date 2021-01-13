@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ITRIGT1MUONRECROITOOL_H
@@ -15,7 +15,7 @@ namespace LVL1 {
     
     ITrigT1MuonRecRoiTool();
 
-    virtual ~ITrigT1MuonRecRoiTool() {}
+    virtual ~ITrigT1MuonRecRoiTool()=default;
 
     DeclareInterfaceID( ITrigT1MuonRecRoiTool, 1, 0);
 
@@ -63,6 +63,10 @@ namespace LVL1 {
     unsigned int ForwardPhiMask() const {return m_ForwardPhiMask;}
     unsigned int OverflowPerRoIMask() const {return m_OverflowPerRoIMask;}
     unsigned int OverflowPerSectorMask() const {return m_OverflowPerSectorMask;}
+
+    // etaDimLow and etaDimHigh only exist for RPCs, but without this, one cannot use the interface in MuFastDataPreparator
+    virtual bool etaDimLow (const TrigT1MuonRecRoiData& data, double& etaMin, double& etaMax) const = 0;
+    virtual bool etaDimHigh(const TrigT1MuonRecRoiData& data, double& etaMin, double& etaMax) const = 0;
 
   private:
 

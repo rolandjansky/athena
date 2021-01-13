@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//
-//
 
 // STL include(s):
 #include <algorithm>
@@ -66,8 +64,8 @@ StatusCode RoIBResultToxAOD::initialize() {
 
    if( m_doMuon ) {
       // Get the RPC RecRoI service
-      ATH_CHECK( m_recRPCRoiSvc.retrieve() );
-      ATH_MSG_DEBUG( "Connected to " << m_recRPCRoiSvc.typeAndName() );
+      ATH_CHECK( m_recRPCRoiTool.retrieve() );
+      ATH_MSG_DEBUG( "Connected to " << m_recRPCRoiTool.typeAndName() );
 
       // Get the TGC RecRoI service
       ATH_CHECK( m_recTGCRoiSvc.retrieve() );
@@ -544,7 +542,7 @@ StatusCode RoIBResultToxAOD::createMuonRoI( const ROIB::RoIBResult& result,
       ATH_MSG_DEBUG( MSG::hex << std::setw( 8 ) << roIWord );
 
       // RecRoI
-      const LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiSvc.get(),
+      const LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiTool.get(),
                                      m_recTGCRoiSvc.get(), &muonThresholds );
 
       const double thrValue = recRoI.getThresholdValue() * GeV;

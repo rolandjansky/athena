@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_MUFASTDATAPREPARATOR_H
@@ -15,7 +15,7 @@
 
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
-#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 #include "MuFastDataPreparatorOptions.h"
@@ -99,9 +99,8 @@ class MuFastDataPreparator: public AthAlgTool {
 
  private:
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;
-  SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
 
-  ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
   ToolHandle<RpcDataPreparator>   m_rpcDataPreparator{this, "RPCDataPreparator", "TrigL2MuonSA::RpcDataPreparator"};
   ToolHandle<TgcDataPreparator>   m_tgcDataPreparator{this, "TGCDataPreparator", "TrigL2MuonSA::TgcDataPreparator"};
   ToolHandle<MdtDataPreparator>   m_mdtDataPreparator{this, "MDTDataPreparator", "TrigL2MuonSA::MdtDataPreparator"};

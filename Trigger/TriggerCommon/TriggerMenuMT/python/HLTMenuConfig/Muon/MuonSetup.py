@@ -1,9 +1,10 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.GlobalFlags import globalflags
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 log = logging.getLogger('MuonSetup')
 
@@ -396,6 +397,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   from RegionSelector.RegSelToolConfig import makeRegSelTool_MDT
   L2MdtDataPreparator.RegSel_MDT = makeRegSelTool_MDT()
 
+  from TrigT1MuonRecRoiTool.TrigT1MuonRecRoiToolConf import LVL1__TrigT1RPCRecRoiTool
+  trigRpcRoiTool = LVL1__TrigT1RPCRecRoiTool("RPCRecRoiTool", UseRun3Config=ConfigFlags.Trigger.enableL1Phase1)
 
   ### RPC RDO data - turn off the data decoding here ###
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__RpcDataPreparator
@@ -404,7 +407,8 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
                                                         RpcPrepDataContainer = "RPC_Measurements",
                                                         RpcRawDataProvider   = "",
                                                         DoDecoding           = False,
-                                                        DecodeBS             = False)
+                                                        DecodeBS             = False,
+                                                        TrigT1RPCRecRoiTool  = trigRpcRoiTool)
   ToolSvc += L2RpcDataPreparator
   from RegionSelector.RegSelToolConfig import makeRegSelTool_RPC
   L2RpcDataPreparator.RegSel_RPC = makeRegSelTool_RPC()
@@ -453,7 +457,7 @@ def muFastRecoSequence( RoIs, doFullScanID = False, InsideOutMode=False ):
   muFastAlg = TrigL2MuonSAMTConfig("Muon"+postFix)
 
   from TrigL2MuonSA.TrigL2MuonSAConf import TrigL2MuonSA__MuFastDataPreparator
-  MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator()
+  MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator(TrigT1RPCRecRoiTool = trigRpcRoiTool)
   if MuonGeometryFlags.hasCSC():
     MuFastDataPreparator.CSCDataPreparator  = L2CscDataPreparator
   else:
