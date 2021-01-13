@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <sstream>
@@ -110,7 +110,7 @@ StatusCode LUCID_HitsMoniTool::fillHistograms() {
   if (!rawdata.isValid()) { ATH_MSG_WARNING(" Could not retireved LUCID_RawDataContainer from StoreGate "); return StatusCode::FAILURE; }
   else                      ATH_MSG_DEBUG(" LUCID_RawDataContainer is retireved from StoreGate ");
   
-  for (const auto& LUCID_RawData_itr : *rawdata) {
+  for (const auto LUCID_RawData_itr : *rawdata) {
     
     ATH_MSG_DEBUG(LUCID_RawData_itr);
 
