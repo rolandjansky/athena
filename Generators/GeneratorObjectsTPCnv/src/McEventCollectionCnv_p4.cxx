@@ -126,7 +126,7 @@ void McEventCollectionCnv_p4::persToTrans( const McEventCollection_p4* persObj,
       if (!persEvt.m_pdfinfo.empty())
         {
           const std::vector<double>& pdf = persEvt.m_pdfinfo;
-              HepMC3::GenPdfInfoPtr pi;
+              HepMC3::GenPdfInfoPtr pi = std::make_shared<HepMC3::GenPdfInfo>();
               pi->set(
               static_cast<int>(pdf[6]), // id1
               static_cast<int>(pdf[5]), // id2
