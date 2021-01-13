@@ -16,6 +16,7 @@
 #include "MissingETD3PDMaker/MissingETCaloSamplingFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCaloEMFracSETFillerTool.h"
 #include "MissingETD3PDMaker/MissingETCompAssociationTool.h"
+#include "MissingETD3PDMaker/JetVariablesTool.h"
 #include "../MissingETContainerFillerTool.h"
 
 
@@ -37,5 +38,5 @@ DECLARE_COMPONENT( D3PD::MissingETRegionFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETCaloSamplingFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETCaloEMFracSETFillerTool )
 DECLARE_COMPONENT( D3PD::MissingETCompAssociationTool )
+DECLARE_COMPONENT( D3PD::JetVariablesTool )
 DECLARE_COMPONENT( D3PD::MissingETContainerFillerTool )
-

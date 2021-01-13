@@ -1,9 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "MissingETPerformance/JetVariablesTool.h"
-//#include "JetUtils/JetCaloHelper.h"
+#include "MissingETD3PDMaker/JetVariablesTool.h"
 #include "CaloEvent/CaloSamplingHelper.h"
 #include "CaloGeoHelpers/CaloSampling.h"
 #include "Particle/TrackParticleContainer.h"
@@ -81,6 +80,8 @@ int nLeadingCells(const Jet* jet,double threshold)
 
 } // anonymous namespace
 
+
+namespace D3PD {
 
 JetVariablesTool::JetVariablesTool( const std::string& type,
 			      const std::string& name,
@@ -614,3 +615,5 @@ float JetVariablesTool::secondJetEta() {
 float JetVariablesTool::secondJetPhi() {
   return secondJetPhi(m_jetColl);
 }
+
+} // namespace D3PD

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef JETVARIABLESTOOL_H
-#define JETVARIABLESTOOL_H
+#ifndef MISSINGETD3PDMAKER_JETVARIABLESTOOL_H
+#define MISSINGETD3PDMAKER_JETVARIABLESTOOL_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
@@ -11,10 +11,11 @@
 
 #include "JetEvent/Jet.h"
 #include "JetEvent/JetCollection.h"
-//#include "JetUtils/JetCaloHelper.h"
 #include "JetUtils/JetCaloQualityUtils.h"
 
 #include "Particle/TrackParticleContainer.h"
+
+namespace D3PD {
 
 static const InterfaceID IID_JetVariablesTool("JetVariablesTool", 1, 0);
 
@@ -138,4 +139,6 @@ public:
   const Rec::TrackParticleContainer *m_trackParticles;
 };
 
-#endif // JETVARIABLESTOOL_H
+} // namespace D3PD
+
+#endif // MISSINGETD3PDMAKER_JETVARIABLESTOOL_H
