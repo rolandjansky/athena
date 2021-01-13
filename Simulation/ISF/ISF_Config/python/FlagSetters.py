@@ -124,6 +124,16 @@ def configureFlagsATLFASTII_PileUp():
 
 ## methods for simulators which use G4 + FastCaloSim V2
 
+def configureFlagsATLFAST3():
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "ATLFAST3" 
+    from ISF_Config.ISF_jobProperties import ISF_Flags
+    ISF_Flags.UsingGeant4 = True
+    mergeDict = {'ID':False, 'CALO':True, 'MUON':False}
+    ISF_Flags.HITSMergingRequired.get_Value().update(mergeDict)
+    return
+
+
 def configureFlagsG4FastCalo():
     configureFlagsATLFASTII()
     from G4AtlasApps.SimFlags import simFlags

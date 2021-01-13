@@ -40,6 +40,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTII_PileUp",   "ISF_Kern
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4HS_FastPileup",     "ISF_Kernel_G4HS_FastPileup")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDOnly",   "ISF_Kernel_ATLFASTIIF_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDCalo",   "ISF_Kernel_ATLFASTIIF_IDCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFAST3",           "ISF_Kernel_ATLFAST3")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo",          "ISF_Kernel_G4FastCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo_QS",       "ISF_Kernel_G4FastCalo_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloTest",      "ISF_Kernel_G4FastCaloTest")
