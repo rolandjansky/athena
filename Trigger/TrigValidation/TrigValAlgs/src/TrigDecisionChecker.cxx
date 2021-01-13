@@ -57,8 +57,7 @@
 
 #include "CxxUtils/crc64.h"
 
-#include "EventInfo/EventInfo.h"
-#include "EventInfo/EventID.h"
+#include "xAODEventInfo/EventInfo.h"
 
 #include "xAODTrigMinBias/TrigSpacePointCounts.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
@@ -288,13 +287,13 @@ StatusCode TrigDecisionChecker::execute()
     m_eventNumber++;
     
     // check mu value
-    const EventInfo* eventInfo;
+    const xAOD::EventInfo* eventInfo;
     //#sc = evtStore()->retrieve(eventInfo, m_eventInfoName);
     StatusCode sc;
     if (m_eventInfoName == "") {
         sc=evtStore()->retrieve(eventInfo);
     } else {
-        sc=evtStore()->retrieve(eventInfo ,m_eventInfoName);
+        sc=evtStore()->retrieve(eventInfo, m_eventInfoName);
     }
     if ( sc.isFailure() || !eventInfo )
     {
@@ -308,8 +307,8 @@ StatusCode TrigDecisionChecker::execute()
     if ( eventInfo ) {
         float mu = eventInfo->actualInteractionsPerCrossing();
         float muave =  eventInfo->averageInteractionsPerCrossing(); 
-        msg(MSG::INFO) << "run number  " << eventInfo->event_ID()->run_number() << " event number " << eventInfo->event_ID()->event_number() << 
-        " lumi block " << eventInfo->event_ID()->lumi_block() << endmsg;
+        msg(MSG::INFO) << "run number  " << eventInfo->runNumber() << " event number " << eventInfo->eventNumber() << 
+        " lumi block " << eventInfo->lumiBlock() << endmsg;
         msg(MSG::INFO) << "mu value " << mu << " average mu value " << muave <<  " event number " << m_eventNumber <<  endmsg;
         m_muSum = m_muSum + eventInfo->actualInteractionsPerCrossing();
     }
