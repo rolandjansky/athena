@@ -108,6 +108,34 @@ namespace asg
       ASSERT_EQ (expected, result);
     }
 
+    TEST (StringMapTest, packTest_simple)
+    {
+      std::map<std::string,std::string> mymap;
+      mymap.emplace ("a", "b");
+      mymap.emplace ("1", "2");
+      std::string packed;
+      ASSERT_SUCCESS (packStringMap (mymap, packed));
+      ASSERT_EQ ("{1:2,a:b}", packed);
+    }
+
+    TEST (StringMapTest, unpackTest_empty)
+    {
+      std::map<std::string,std::string> result;
+      ASSERT_SUCCESS (unpackStringMap (" { } ", result));
+      std::map<std::string,std::string> expected;
+      ASSERT_EQ (expected, result);
+    }
+
+    TEST (StringMapTest, unpackTest_simple)
+    {
+      std::map<std::string,std::string> result;
+      ASSERT_SUCCESS (unpackStringMap (" { \"x\" : \"X\", \"y\" : [\"Y\"] } ", result));
+      std::map<std::string,std::string> expected;
+      expected.emplace ("\"x\"", "\"X\"");
+      expected.emplace ("\"y\"", "[\"Y\"]");
+      ASSERT_EQ (expected, result);
+    }
+
     TEST (GetStringHelperTest, get_int)
     {
       std::string str;
