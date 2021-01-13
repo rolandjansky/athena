@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////// 
@@ -125,19 +125,29 @@ McVtxFilter & McVtxFilter::operator=(const McVtxFilter &rhs)
 /////////////////////////////////////////////////////////////////// 
 /// Const methods: 
 ///////////////////////////////////////////////////////////////////
-bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
+bool McVtxFilter::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
-  m_msg << MSG::VERBOSE
-	<< "In McVtxFilter::isAccepted(...)" << endmsg;
-
+  m_msg << MSG::VERBOSE << "In McVtxFilter::isAccepted(...)" << endmsg;
+//AV TODO: add here a check to prevent null pointer dereference
+#ifdef HEPMC3
+  unsigned int number_particles_out = vtx->particles_out().size();
+  unsigned int number_particles_in  = vtx->particles_in().size();
+#else
+  unsigned int number_particles_out = vtx->particles_out_size();
+  unsigned int number_particles_in  = vtx->particles_in_size();
+#endif
   ////////////////////////////////////////////////////////////////
   /// First handle special case where the filter has only 1 child
   /// and no parent : one is looking for a stable particle with
   /// no end_vertex
   if ( m_childList.size()        == static_cast<unsigned int>( 1 ) &&
        m_parentList.size()       == static_cast<unsigned int>( 0 ) &&
-       vtx->particles_out_size() == static_cast<unsigned int>( 1 ) ) {
-    const HepMC::GenParticle * part = *(vtx->particles_out_const_begin());
+       number_particles_out == static_cast<unsigned int>( 1 ) ) {
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr part = vtx->particles_out().at(0);
+#else
+    HepMC::ConstGenParticlePtr part = *(vtx->particles_out_const_begin());
+#endif
     const ParticleCandidateList * item = *( m_childList.begin() );
     if ( item->hasInList( static_cast<PDG::pidType>(part->pdg_id()),  m_matchSign ) ) {
       return true;
@@ -154,8 +164,8 @@ bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
     //
     // Test only if there is enough *output* branches to match for
     //
-    if ( static_cast<unsigned int>(vtx->particles_in_size())  < m_parentList.size() ||
-	 static_cast<unsigned int>(vtx->particles_out_size()) < m_childList.size()  ) {
+    if ( number_particles_in  < m_parentList.size() ||
+	 number_particles_out < m_childList.size()  ) {
       return false;
     }
 
@@ -163,8 +173,8 @@ bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
     //
     // Strict match of output branches
     //
-    if ( static_cast<unsigned int>(vtx->particles_in_size())  != m_parentList.size() ||
-	 static_cast<unsigned int>(vtx->particles_out_size()) != m_childList.size()  ) {
+    if ( number_particles_in  != m_parentList.size() ||
+	 number_particles_out != m_childList.size()  ) {
       return false;
     }
   }
@@ -299,7 +309,7 @@ void McVtxFilter::setDecayPattern( const std::string& decayPattern )
 /// Protected methods: 
 /////////////////////////////////////////////////////////////////// 
 
-bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
+bool McVtxFilter::checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const
 {
   m_msg << MSG::VERBOSE << "In checkParentBranch..." << endmsg;
 
@@ -313,9 +323,15 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   }
 
   /// Check if number of parents is OK
+#ifdef HEPMC3
+  if ( static_cast<unsigned int>(vtx->particles_in().size()) < m_parentList.size() ){
+    return false;
+  }
+#else
   if ( static_cast<unsigned int>(vtx->particles_in_size()) < m_parentList.size() ){
     return false;
   }
+#endif
 
   if ( m_msg.level() <= MSG::VERBOSE ) {
     m_msg << MSG::VERBOSE 
@@ -326,14 +342,19 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   }
 
   std::vector<int> parentIds;
+#ifdef HEPMC3
+  for ( auto Part: vtx->particles_in() ) {
+    parentIds.push_back( Part->pdg_id() );
+  }
+#else
   for ( HepMC::GenVertex::particles_in_const_iterator itrPart = vtx->particles_in_const_begin();
 	itrPart != vtx->particles_in_const_end();
 	++itrPart ) {
     parentIds.push_back( (*itrPart)->pdg_id() );
   }
+#endif
 
-  AnalysisUtils::Permutation<std::vector<int> > permute( &parentIds,
-							 m_parentList.size() );
+  AnalysisUtils::Permutation<std::vector<int> > permute( &parentIds, m_parentList.size() );
   std::vector<int> parents;
 
   bool accepted = false;
@@ -365,7 +386,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   return accepted;
 }
 
-bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
+bool McVtxFilter::checkChildBranch( HepMC::ConstGenVertexPtr vtx ) const
 {
   m_msg << MSG::VERBOSE << "In checkChildBranch..." << endmsg;
 
@@ -379,16 +400,16 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   }
 
   /// Check there is enough outgoing particles in the current vertex
+#ifdef HEPMC3
+  if ( static_cast<unsigned int>(vtx->particles_out().size()) < m_childList.size() ) return false;
+#else
   if ( static_cast<unsigned int>(vtx->particles_out_size()) < m_childList.size() ) return false;
-
-  m_msg << MSG::VERBOSE << "Number of list of children : " 
-	<< m_childList.size() << endmsg;
+#endif
+  m_msg << MSG::VERBOSE << "Number of list of children : " << m_childList.size() << endmsg;
 
   std::vector<int> childIds;
-  for ( HepMC::GenVertex::particles_out_const_iterator itrPart = vtx->particles_out_const_begin(); 
-	itrPart != vtx->particles_out_const_end();
-	++itrPart ) {
-    childIds.push_back( (*itrPart)->pdg_id() );
+  for ( auto Part: *vtx) {
+    childIds.push_back( Part->pdg_id() );
   }
 
   AnalysisUtils::Permutation<std::vector<int> > permute( &childIds, m_childList.size() );
@@ -418,7 +439,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   return accepted;
 }
 
-bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
+bool McVtxFilter::checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const
 {
   m_msg << MSG::VERBOSE << "In checkTwoBodyDecay..." << endmsg;
 
@@ -438,11 +459,16 @@ bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
   const ParticleCandidateList * children2 = m_childList[1];
 
   /// Cache the id of the outgoing particles of the vertex being analysed
-  HepMC::GenVertex::particles_out_const_iterator 
-    itrPart = vtx->particles_out_const_begin();
+//AV It would be a very good idea to have a chack of the number of output particles here.
+#ifdef HEPMC3
+  const PDG::pidType pdgId1=static_cast<PDG::pidType>(vtx->particles_out().at(0)->pdg_id());
+  const PDG::pidType pdgId2=static_cast<PDG::pidType>(vtx->particles_out().at(1)->pdg_id());
+#else
+  HepMC::GenVertex::particles_out_const_iterator itrPart = vtx->particles_out_const_begin();
   const PDG::pidType pdgId1 = static_cast<PDG::pidType>((*itrPart)->pdg_id());
   ++itrPart;
   const PDG::pidType pdgId2 = static_cast<PDG::pidType>((*itrPart)->pdg_id());
+#endif
 
   /// Loop over candidates for the 1st child
   for( ParticleCandidateList::const_iterator itr1 = children1->begin();
