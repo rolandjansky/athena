@@ -3,7 +3,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 import InDetConfig.TrackingCommonConfig         as   TC
 
-def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', TrackingFlags = None, extension = "", **kwargs):
+def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', extension = "", **kwargs):
     acc = ComponentAccumulator()
 
     #
@@ -12,7 +12,7 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', T
     InDetTrackSummaryTool = acc.popToolsAndMerge(TC.InDetTrackSummaryToolCfg(flags))
     acc.addPublicTool(InDetTrackSummaryTool)
 
-    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags, TrackingFlags= TrackingFlags)
+    InDetTRTDriftCircleCut = TC.InDetTRTDriftCircleCutForPatternRecoCfg(flags)
     acc.addPublicTool(InDetTRTDriftCircleCut)
 
     #
@@ -20,27 +20,27 @@ def InDetTrtTrackScoringToolCfg(flags, name ='InDetTRT_StandaloneScoringTool', T
     #
     if extension == "_TRT":
         # TRT track segments
-        pTmin = TrackingFlags.minPT
+        pTmin = flags.InDet.Tracking.minPT
     else:
         # TRT standalone
-        pTmin = TrackingFlags.minTRTonlyPt # new cut parameter to make it flexible...
+        pTmin = flags.InDet.Tracking.minTRTonlyPt # new cut parameter to make it flexible...
 
     kwargs.setdefault("SummaryTool", InDetTrackSummaryTool)
     kwargs.setdefault("DriftCircleCutTool", InDetTRTDriftCircleCut)
     kwargs.setdefault("useAmbigFcn", True)
     kwargs.setdefault("useSigmaChi2", False)
     kwargs.setdefault("PtMin", pTmin)
-    kwargs.setdefault("minTRTonTrk", TrackingFlags.minTRTonly)
+    kwargs.setdefault("minTRTonTrk", flags.InDet.Tracking.minTRTonly)
     kwargs.setdefault("maxEta", 2.1)
-    kwargs.setdefault("UseParameterization", TrackingFlags.useTRTonlyParamCuts)
-    kwargs.setdefault("OldTransitionLogic", TrackingFlags.useTRTonlyOldLogic)
-    kwargs.setdefault("minTRTPrecisionFraction", TrackingFlags.minSecondaryTRTPrecFrac)
+    kwargs.setdefault("UseParameterization", flags.InDet.Tracking.useTRTonlyParamCuts)
+    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.useTRTonlyOldLogic)
+    kwargs.setdefault("minTRTPrecisionFraction", flags.InDet.Tracking.minSecondaryTRTPrecFrac)
 
     InDetTRT_StandaloneScoringTool = CompFactory.InDet.InDetTrtTrackScoringTool(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_StandaloneScoringTool)
     return acc
 
-def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', TrackingFlags = None, extension = "", usePrdAssociationTool = True, **kwargs):
+def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', extension = "", usePrdAssociationTool = True, **kwargs):
     acc = ComponentAccumulator()
     #
     # set up TRT_SegmentToTrackTool
@@ -63,8 +63,7 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', Tracki
     InDetExtrapolator = tmpAcc.getPrimary()
     acc.merge(tmpAcc)
     
-    InDetTRT_StandaloneScoringTool = acc.popToolsAndMerge(InDetTrtTrackScoringToolCfg(flags,name='InDetTRT_StandaloneScoringTool'+ extension, 
-                                                                                            TrackingFlags = TrackingFlags,
+    InDetTRT_StandaloneScoringTool = acc.popToolsAndMerge(InDetTrtTrackScoringToolCfg(flags,name='InDetTRT_StandaloneScoringTool'+ extension,
                                                                                             extension=extension))
     acc.addPublicTool(InDetTRT_StandaloneScoringTool)
     
@@ -74,14 +73,14 @@ def TRT_SegmentToTrackToolCfg(flags, name ='InDetTRT_SegmentToTrackTool', Tracki
     kwargs.setdefault("ScoringTool", InDetTRT_StandaloneScoringTool)
     kwargs.setdefault("Extrapolator", InDetExtrapolator)
     kwargs.setdefault("FinalRefit", True)
-    kwargs.setdefault("MaxSharedHitsFraction", TrackingFlags.maxTRTonlyShared)
+    kwargs.setdefault("MaxSharedHitsFraction", flags.InDet.Tracking.maxTRTonlyShared)
     kwargs.setdefault("SuppressHoleSearch", True)
 
     InDetTRT_SegmentToTrackTool = CompFactory.InDet.TRT_SegmentToTrackTool(name = name, **kwargs)
     acc.setPrivateTools(InDetTRT_SegmentToTrackTool)
     return acc
 
-def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', TrackingFlags = None, extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
+def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
 
     usePrdAssociationTool = True
@@ -94,18 +93,17 @@ def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', 
     #
     # set up TRT_SegmentToTrackTool
     #
-    InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension, 
-                                                                                        TrackingFlags = TrackingFlags,
+    InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension,
                                                                                         extension=extension,
                                                                                         usePrdAssociationTool = usePrdAssociationTool))
     acc.addPublicTool(InDetTRT_SegmentToTrackTool)
 
-    kwargs.setdefault("MinNumDriftCircles", TrackingFlags.minTRTonly)
-    kwargs.setdefault("MinPt", TrackingFlags.minTRTonlyPt)
+    kwargs.setdefault("MinNumDriftCircles", flags.InDet.Tracking.minTRTonly)
+    kwargs.setdefault("MinPt", flags.InDet.Tracking.minTRTonlyPt)
     kwargs.setdefault("InputSegmentsLocation", BarrelSegments)
     kwargs.setdefault("MaterialEffects", 0)
     kwargs.setdefault("PRDtoTrackMap", prd_to_track_map)
-    kwargs.setdefault("OldTransitionLogic", TrackingFlags.useTRTonlyOldLogic)
+    kwargs.setdefault("OldTransitionLogic", flags.InDet.Tracking.useTRTonlyOldLogic)
     kwargs.setdefault("OutputTracksLocation", TRTStandaloneTracks)
     kwargs.setdefault("TRT_SegToTrackTool", InDetTRT_SegmentToTrackTool)
 
@@ -113,7 +111,7 @@ def TRT_StandaloneTrackFinderCfg(flags, name ='InDetTRT_StandaloneTrackFinder', 
     acc.addEventAlgo(InDetTRT_StandaloneTrackFinder)
     return acc
 
-def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', TrackingFlags = None, extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
+def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', extension = "", BarrelSegments = None, prd_to_track_map = '', **kwargs):
     acc = ComponentAccumulator()
 
     usePrdAssociationTool = True
@@ -127,8 +125,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', Trac
     #
     # set up TRT_SegmentToTrackTool
     #
-    InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension, 
-                                                                                        TrackingFlags = TrackingFlags,
+    InDetTRT_SegmentToTrackTool = acc.popToolsAndMerge(TRT_SegmentToTrackToolCfg(flags, name='InDetTRT_SegmentToTrackTool'+ extension,
                                                                                         extension=extension,
                                                                                         usePrdAssociationTool = usePrdAssociationTool))
     acc.addPublicTool(InDetTRT_SegmentToTrackTool)
@@ -151,7 +148,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', Trac
     kwargs.setdefault("SummaryTool", InDetTrackSummaryToolTRTTracks)
     kwargs.setdefault("AssociationTool", InDetPRDtoTrackMapToolGangedPixels if prd_to_track_map !='' else None,)
     kwargs.setdefault("InputAssociationMapName", prd_to_track_map)
-    kwargs.setdefault("MinNHit", TrackingFlags.minTRTonly)
+    kwargs.setdefault("MinNHit", flags.InDet.Tracking.minTRTonly)
     kwargs.setdefault("OutlierRemoval", True)
     kwargs.setdefault("MaterialEffects", False)
 
@@ -163,7 +160,7 @@ def TRT_SegmentsToTrackCfg( flags, name ='InDetTRT_SegmentsToTrack_Barrel', Trac
 # ----------- TRT Standelone Track Finding
 #
 # ------------------------------------------------------------------------------------
-def TRTStandaloneCfg( flags, extension = '', InputCollections = None, TrackingFlags = None, BarrelSegments = None, PRDtoTrackMap = ''):
+def TRTStandaloneCfg( flags, extension = '', InputCollections = None, BarrelSegments = None, PRDtoTrackMap = ''):
     acc = ComponentAccumulator()
     # --- Always use PRD association tool (even if only 1 collection) to remove TRT
     #     segments with significant overlaping hits 
@@ -186,7 +183,6 @@ def TRTStandaloneCfg( flags, extension = '', InputCollections = None, TrackingFl
         # --- TRT standalone tracks algorithm
         #
         acc.merge(TRT_StandaloneTrackFinderCfg(flags,   name = 'InDetTRT_StandaloneTrackFinder'+extension,
-                                                        TrackingFlags = TrackingFlags,
                                                         extension=extension,
                                                         BarrelSegments = BarrelSegments,
                                                         prd_to_track_map = prd_to_track_map))
@@ -195,7 +191,6 @@ def TRTStandaloneCfg( flags, extension = '', InputCollections = None, TrackingFl
         # --- cosmics segment to track conversion for Barrel
         #
         acc.merge(TRT_SegmentsToTrackCfg(flags, name = 'InDetTRT_SegmentsToTrack_Barrel'+extension,
-                                                TrackingFlags = TrackingFlags,
                                                 extension=extension,
                                                 BarrelSegments = BarrelSegments,
                                                 prd_to_track_map = prd_to_track_map))
@@ -301,21 +296,18 @@ if __name__ == "__main__":
     if not ConfigFlags.InDet.doDBMstandalone:
         top_acc.merge(TRTPreProcessingCfg(ConfigFlags,(not ConfigFlags.InDet.doTRTPhaseCalculation or ConfigFlags.Beam.Type =="collisions"),False))
     ########################### TRTSegmentFindingCfg configuration ##########################
-    TrackingFlags = ConfigFlags.InDet.Tracking
     # NewTracking collection keys
     InputCombinedInDetTracks = []
 
     top_acc.merge(TRTSegmentFindingCfg( ConfigFlags,
                                         "",
                                         InputCombinedInDetTracks,
-                                        TrackingFlags,
                                         'TRTSegments')) # InDetKeys.TRT_Segments
     #########################################################################################
     ############################### TRTStandalone configuration #############################
     top_acc.merge(TRTStandaloneCfg( ConfigFlags, 
                                     extension = "",
                                     InputCollections = [],
-                                    TrackingFlags = TrackingFlags,
                                     BarrelSegments = 'TRTSegments')) # InDetKeys.TRT_Segments()
 
     iovsvc = top_acc.getService('IOVDbSvc')
