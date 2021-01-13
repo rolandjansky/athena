@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Example script used for building one of the projects from the atlasexternals
 # repository.
@@ -17,7 +17,7 @@ set -o pipefail
 usage() {
     echo "Usage: build_atlasexternals.sh <-s source dir> <-b build dir> " \
         "<-i install dir> [-p project] [-r RPM dir] [-t build type] " \
-        "[-x extra CMake arguments]"
+        "[-x extra CMake arguments] [-m extra 'build tool' arguments]"
 }
 
 # Parse the command line arguments:
@@ -29,7 +29,8 @@ RPMDIR=""
 BUILDTYPE="Release"
 PROJECTVERSION=""
 EXTRACMAKE=()
-while getopts ":s:b:i:p:r:t:v:hx:" opt; do
+EXTRAMAKE=()
+while getopts ":s:b:i:p:r:t:v:hx:m:" opt; do
     case $opt in
         s)
             SOURCEDIR=$OPTARG
@@ -51,6 +52,9 @@ while getopts ":s:b:i:p:r:t:v:hx:" opt; do
             ;;
         x)
             EXTRACMAKE+=($OPTARG)
+            ;;
+        m)
+            EXTRAMAKE+=($OPTARG)
             ;;
         v)
             PROJECTVERSION=$OPTARG
@@ -79,9 +83,8 @@ if [ "$SOURCEDIR" = "" ] || [ "$BUILDDIR" = "" ] || [ "$INSTALLDIR" = "" ]; then
     exit 1
 fi
 
-# Create the build directory if it doesn't exist, and move to it:
-mkdir -p ${BUILDDIR} || ((ERROR_COUNT++))
-cd ${BUILDDIR} || ((ERROR_COUNT++))
+# Create the build directory if it doesn't exist.
+mkdir -p "${BUILDDIR}" || ((ERROR_COUNT++))
 
 # Extra settings for providing a project version for the build if necessary:
 EXTRACONF=
@@ -92,56 +95,56 @@ fi
 # Configure the build:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
- rm -f CMakeCache.txt
+ rm -f ${BUILDDIR}/CMakeCache.txt
  cmake -DCMAKE_BUILD_TYPE:STRING=${BUILDTYPE} -DCTEST_USE_LAUNCHERS:BOOL=TRUE \
     ${EXTRACONF} ${EXTRACMAKE[@]} \
-    ${SOURCEDIR}/Projects/${PROJECT}/ || touch $error_stamp
-} 2>&1 | tee cmake_config.log 
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp #FIXME: w/o $error_stamp one can't pass the status outside  { ... } | tee ... shell
+    -B "${BUILDDIR}/" \
+    -S "${SOURCEDIR}/Projects/${PROJECT}/" || touch $error_stamp
+} 2>&1 | tee "${BUILDDIR}/cmake_config.log"
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 # Build it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
- make -k || touch $error_stamp
-} 2>&1 | tee cmake_build.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
+ cmake --build "${BUILDDIR}" ${EXTRAMAKE[@]} || touch $error_stamp
+} 2>&1 | tee "${BUILDDIR}/cmake_build.log"
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
 # Install it:
 error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
 {
- make -k install/fast DESTDIR=${INSTALLDIR} || touch $error_stamp
-} 2>&1 | tee cmake_install.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
- 
+ DESTDIR="${INSTALLDIR}" cmake --install "${BUILDDIR}" || touch $error_stamp
+} 2>&1 | tee "${BUILDDIR}/cmake_install.log"
+test -f $error_stamp && ((ERROR_COUNT++))
+rm -f $error_stamp
 
-# If no RPM directory was specified, stop here:
-if [ "$RPMDIR" = "" ]; then
-    exit ${ERROR_COUNT}
+# Only perform the packaging if an "RPM directory" was specified.
+if [ "${RPMDIR}" != "" ]; then
+
+    # Build the RPM or other package for the project.
+    error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+    {
+        cpack -B "${BUILDDIR}" --config "${BUILDDIR}/CPackConfig.cmake" || touch $error_stamp
+    } 2>&1 | tee "${BUILDDIR}/cmake_cpack.log"
+    test -f $error_stamp && ((ERROR_COUNT++))
+    rm -f $error_stamp
+
+    # Copy the produced package file(s) into the specified directory.
+    error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
+    {
+        mkdir -p "${RPMDIR}" && \
+        FILES=`ls ${BUILDDIR}/${PROJECT}*.rpm ${BUILDDIR}/${PROJECT}*.tar.gz ${BUILDDIR}/${PROJECT}*.dmg 2>/dev/null ; true ;` && \
+        test "X$FILES" != "X" && \
+        cp ${FILES} "${RPMDIR}/" || touch $error_stamp
+    } 2>&1 | tee "${BUILDDIR}/cp_rpm.log"
+    test -f $error_stamp && ((ERROR_COUNT++))
+    rm -f $error_stamp
 fi
 
-# Build the RPM or other package for the project:
-error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
-{
-cpack || touch $error_stamp
-} 2>&1 | tee cmake_cpack.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
-    
-error_stamp=`mktemp .tmp.error.XXXXX` ; rm -f $error_stamp
-{
- mkdir -p ${RPMDIR} && \
- FILES=`ls ${PROJECT}*.rpm  ${PROJECT}*.tar.gz  ${PROJECT}*.dmg 2>/dev/null ; true ;` && \
- test "X$FILES" != "X" && \
- cp ${FILES} ${RPMDIR} || touch $error_stamp
-} 2>&1 | tee cp_rpm.log
-test -f $error_stamp && ((ERROR_COUNT++)) 
-rm -f $error_stamp 
-
+# Tell the user how the build went.
 if [ $ERROR_COUNT -ne 0 ]; then
-	echo "AtlasExternals build script counted $ERROR_COUNT errors"
+	echo "AtlasExternals build script counted $ERROR_COUNT error(s)"
 fi
-
 exit ${ERROR_COUNT}
