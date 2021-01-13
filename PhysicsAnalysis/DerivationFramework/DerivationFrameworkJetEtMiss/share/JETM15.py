@@ -252,7 +252,6 @@ from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 
 from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm15Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 jetm15Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
 
 #SCHEDULE BTAGGING FOR PFLOW JETS
@@ -364,8 +363,6 @@ JETM15SlimmingHelper = SlimmingHelper("JETM15SlimmingHelper")
 JETM15SlimmingHelper.AppendToDictionary = {
   "Kt4EMPFlowNeutEventShape": "xAOD::EventShape",
   "Kt4EMPFlowNeutEventShapeAux": "xAOD::AuxInfoBase",
-  "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape",
-  "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase",
   "AntiKt10LCTopoCSSKJets"   :   "xAOD::JetContainer"        ,
   "AntiKt10LCTopoCSSKJetsAux.":   "xAOD::JetAuxContainer"        ,
   "AntiKt10LCTopoJets"   :   "xAOD::JetContainer"        ,
