@@ -191,7 +191,7 @@ TRIG7SlimmingHelper.SmartCollections = ["PrimaryVertices",
 #                                        "InDetTrackParticles"]
                                       
 
-TRIG7SlimmingHelper.AllVariables = ["Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
+TRIG7SlimmingHelper.AllVariables = ["Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
 #                                    "TruthVertices",
 #                                    "TruthEvents", 
 #                                    "TruthParticles"]

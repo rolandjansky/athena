@@ -113,7 +113,7 @@ for radius in [0.2, 0.3, 0.5, 0.6, 0.7, 0.8]:
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM9SlimmingHelper = SlimmingHelper("JETM9SlimmingHelper")
 JETM9SlimmingHelper.SmartCollections = ["AntiKt4EMTopoJets","AntiKt2LCTopoJets","AntiKt3LCTopoJets","AntiKt4LCTopoJets","AntiKt5LCTopoJets","AntiKt6LCTopoJets","AntiKt7LCTopoJets","AntiKt8LCTopoJets","PrimaryVertices"]
-JETM9SlimmingHelper.AllVariables = ["TruthEvents","MuonSegments","Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape"]
+JETM9SlimmingHelper.AllVariables = ["TruthEvents","MuonSegments","Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
 JETM9SlimmingHelper.ExtraVariables = ["TruthVertices.z"]
 
 # Trigger content

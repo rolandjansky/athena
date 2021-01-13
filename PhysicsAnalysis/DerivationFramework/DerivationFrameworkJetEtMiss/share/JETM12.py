@@ -256,7 +256,7 @@ JETM12SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJe
                                         ]
 JETM12SlimmingHelper.AllVariables = ["MuonTruthParticles","TruthParticles", "TruthVertices",
                                     "MuonSegments","InDetTrackParticles",
-                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","MET_Truth","CaloCalTopoClusters",
+                                    "Kt4EMTopoOriginEventShape","Kt4LCTopoOriginEventShape","Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape","MET_Truth","CaloCalTopoClusters",
                                     "TruthMuons","TruthElectrons","TruthPhotons","TruthTaus","TruthNeutrinos",
                                     ]
 JETM12SlimmingHelper.ExtraVariables = ["InDetTrackParticles.TrkIsoPt1000_ptcone40.TrkIsoPt1000_ptcone30.TrkIsoPt1000_ptcone20.TrkIsoPt500_ptcone40.TrkIsoPt500_ptcone30.TrkIsoPt500_ptcone20"]

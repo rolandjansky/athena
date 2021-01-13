@@ -128,8 +128,6 @@ getPFlowfJVT(jetalg='AntiKt4EMPFlow',sequence=jetm5Seq, algname='JetForwardPFlow
 # Alternative rho definition
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
-from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm5Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #====================================================================
 # SET UP STREAM   
@@ -149,10 +147,6 @@ svcMgr += createThinningSvc( svcName="JETM5ThinningSvc", outStreams=[evtStream] 
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM5SlimmingHelper = SlimmingHelper("JETM5SlimmingHelper")
-JETM5SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
-}
 
 JETM5SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",

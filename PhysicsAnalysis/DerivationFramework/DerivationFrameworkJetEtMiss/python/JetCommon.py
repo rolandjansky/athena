@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -533,6 +533,13 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
 if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
     addDistanceInTrain(DerivationFrameworkJob)
 ##################################################################
+
+# If we are not running on EVNT then add PFlow Rho for precision recommendations
+if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    addCHSPFlowObjects()
+    DerivationFrameworkJob += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+
 
 ##################################################################
 #       Set up helpers for adding jets to the output streams
