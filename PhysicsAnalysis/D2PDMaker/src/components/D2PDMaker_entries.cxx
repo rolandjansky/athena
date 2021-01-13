@@ -4,7 +4,6 @@
 #include "D2PDMaker/D2PDPhotonSelector.h"
 #include "D2PDMaker/D2PDMuonSelector.h"
 #include "D2PDMaker/D2PDTauSelector.h"
-#include "D2PDMaker/D2PDJetSelector.h"
 #include "D2PDMaker/D2PDTrackParticleSelector.h"
 #include "D2PDMaker/D2PDVertexSelector.h"
 #include "D2PDMaker/D2PDTruthParticleSelector.h"
@@ -16,7 +15,6 @@ DECLARE_COMPONENT( D2PDElectronSelector )
 DECLARE_COMPONENT( D2PDPhotonSelector )
 DECLARE_COMPONENT( D2PDMuonSelector )
 DECLARE_COMPONENT( D2PDTauSelector )
-DECLARE_COMPONENT( D2PDJetSelector )
 DECLARE_COMPONENT( D2PDTrackParticleSelector )
 DECLARE_COMPONENT( D2PDVertexSelector )
 DECLARE_COMPONENT( D2PDTruthParticleSelector )

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( D2PDMaker )
@@ -15,8 +15,8 @@ atlas_add_component( D2PDMaker
    AtlasHepMCLib CaloEvent AthenaBaseComps AthenaKernel AthContainers AthLinks
    Navigation EventKernel NavFourMom GaudiKernel
    GeneratorObjects AnalysisUtilsLib PATCoreLib ParticleEvent AssociationKernel
-   McParticleEvent JetEvent muonEvent Particle egammaEvent tauEvent VxVertex
-   GeoPrimitives TruthHelper MissingETPerformanceLib TrkTrackSummary )
+   McParticleEvent muonEvent Particle egammaEvent tauEvent VxVertex
+   GeoPrimitives TruthHelper TrkTrackSummary )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
