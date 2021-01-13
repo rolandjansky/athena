@@ -153,6 +153,8 @@ if ( True ) :
     "HLT_mu.*i.*:HLT_IDTrack_MuonIso_FTF:roi=HLT_Roi_MuonIso",
     "HLT_mu.*i.*:HLT_IDTrack_MuonIso_IDTrig:roi=HLT_Roi_MuonIso",
 
+    "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT",
+
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_FTF",
     "HLT_b.*perf.*:HLT_IDTrack_Bjet_IDTrig",
     "HLT_j.*perf.*:HLT_IDTrack_Bjet_FTF",
