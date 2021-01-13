@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # default configuration of RegSelSvc
 # example of a configuration in class deriving from a Configurable
@@ -39,26 +39,11 @@ class RegSelSvcDefault ( RegSelSvc )  :
         cscTable  = None
         mmTable   = None
         stgcTable = None
-        ftkTable  = None       
-      
 
         from AthenaCommon.AppMgr import ToolSvc
         from AthenaCommon.DetFlags import DetFlags
 
         if DetFlags.detdescr.ID_on():
-            # if DetFlags.detdescr.ftk_on(): ### is the ftk properly integrated yet ??? 
-            from InDetRegionSelector.InDetRegionSelectorConf import FTK_RegionSelectorTable
-            if DetFlags.detdescr.FTK_on():
-
-                ftkTable = FTK_RegionSelectorTable(name        = "FTK_RegionSelectorTable",
-                                                   ManagerName = "",
-                                                   OutputFile  = "RoITableFTK.txt",
-                                                   PrintHashId = True,
-                                                   PrintTable  = False)
-                ToolSvc += ftkTable
-                mlog.debug(ftkTable)
-    
-
             if DetFlags.detdescr.pixel_on():
                 from InDetRegionSelector.InDetRegionSelectorConf import SiRegionSelectorTable
                 pixTable = SiRegionSelectorTable(name        = "PixelRegionSelectorTable",
@@ -150,7 +135,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
         self.PixelRegionLUT_CreatorTool  = pixTable
         self.SCT_RegionLUT_CreatorTool   = sctTable
         self.TRT_RegionLUT_CreatorTool   = trtTable
-        self.FTK_RegionLUT_CreatorTool   = ftkTable
 
         self.LArRegionSelectorTable      = larTable
         self.TileRegionSelectorTable     = tileTable
@@ -193,10 +177,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
                 self.enableTRT = True
             else:
                 self.enableTRT = False
-            if DetFlags.detdescr.FTK_on():
-                self.enableFTK = True
-            else:
-                self.enableFTK = False
         else:
             self.enableID = False
 
@@ -246,7 +226,6 @@ class RegSelSvcDefault ( RegSelSvc )  :
             self.enablePixel = False
             self.enableSCT   = False
             self.enableTRT   = False
-            self.enableFTK   = False
             self.enableCalo  = False
             self.enableMuon  = False
                                                                      

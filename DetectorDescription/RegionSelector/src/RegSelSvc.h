@@ -510,10 +510,6 @@ private:
   StringProperty m_SCTConditionsSvc;
   StringProperty m_TRTConditionsSvc;
 
-  BooleanProperty                    m_initFTK;
-  ToolHandle<IRegionIDLUT_Creator>   m_lutCreatorToolFTK;
-  RegSelSiLUT*                       m_ftklut;
-
   bool m_duplicateRemoval;
 
 };
