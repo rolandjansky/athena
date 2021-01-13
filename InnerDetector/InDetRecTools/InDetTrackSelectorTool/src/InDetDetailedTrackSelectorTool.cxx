@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetDetailedTrackSelectorTool.h"
@@ -192,7 +192,7 @@ namespace InDet
     }
     const Trk::Vertex* myVertex=vertex;
     //in case no Vertex is provided by the user, beam position will be used if available
-    if (myVertex==0) {
+    if (myVertex==nullptr) {
       //ATH_MSG_DEBUG( "No vertex given, using beam spot or 0,0,0" );
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       if (beamSpotHandle.isValid()) {
@@ -203,7 +203,7 @@ namespace InDet
       }
     }
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
-    const Trk::TrackParameters *firstmeaspar=0;
+    const Trk::TrackParameters *firstmeaspar=nullptr;
     for (unsigned int i=0;i<track.trackParameters()->size();i++){
       if ( (*track.trackParameters())[i]->covariance() && !dynamic_cast<const Trk::Perigee*>((*track.trackParameters())[i])) {
         firstmeaspar=(*track.trackParameters())[i];
@@ -219,13 +219,13 @@ namespace InDet
 	      //clean up vertex
 	      if (myVertex!=vertex) {
 	        delete myVertex;
-	        myVertex=0;
+	        myVertex=nullptr;
 	      }
 	      return false;
 	    }
     }
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() ); 
-    const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
+    const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
     if (!extrapolatedPerigee || !extrapolatedPerigee->covariance() ) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
       if (extrapolatedParameters) {
@@ -237,10 +237,10 @@ namespace InDet
     
     //decision based on the track parameters 
     const Trk::RecVertex* recVertex = dynamic_cast<const Trk::RecVertex*>(myVertex);
-    bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : 0 );
+    bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : nullptr );
     if (myVertex!=vertex) {
       delete myVertex;
-      myVertex=0;
+      myVertex=nullptr;
     }
     bool isInTrtAcceptance=true;
     if (!extrapolatedPerigee || std::fabs(extrapolatedPerigee->momentum().eta())>m_TrtMaxEtaAcceptance) {
@@ -248,7 +248,7 @@ namespace InDet
     }
     if (extrapolatedPerigee!=track.perigeeParameters()) {
       delete extrapolatedPerigee;
-      extrapolatedPerigee=0;
+      extrapolatedPerigee=nullptr;
     }
     if(!dec) { 
       ATH_MSG_DEBUG("Track rejected because of perigee parameters!");
@@ -256,7 +256,7 @@ namespace InDet
     }
     if (m_useTrackQualityInfo) {
       const Trk::FitQuality*  TrkQuality=track.fitQuality();
-      if (TrkQuality==0) {
+      if (TrkQuality==nullptr) {
         ATH_MSG_WARNING( "Requested cut on track quality was not possible. Track has no FitQuality object attached. Selection failed." );
         return false;
       }
@@ -269,14 +269,14 @@ namespace InDet
       // first ask track for summary
       std::unique_ptr<Trk::TrackSummary> summaryUniquePtr;
       const Trk::TrackSummary* summary = track.trackSummary();
-      if (m_trackSumToolAvailable && summary == 0) {
+      if (m_trackSumToolAvailable && summary == nullptr) {
         summaryUniquePtr = m_trackSumTool->summary(track);
         summary = summaryUniquePtr.get();
       }
       if (!m_trackSumToolAvailable) {
         ATH_MSG_WARNING( " No Track Summary Tool available. This should be the case only when running on AOD" );
       }
-      if (0==summary ) {
+      if (nullptr==summary ) {
         ATH_MSG_WARNING( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
         return false;
       }
@@ -328,7 +328,7 @@ namespace InDet
     }
     if (m_useTrackQualityInfo) {
       const Trk::FitQuality*  TrkQuality=track.fitQuality();
-      if (TrkQuality==0) {
+      if (TrkQuality==nullptr) {
         ATH_MSG_WARNING( "Requested cut on track quality was not possible. TrackParticleBase has no FitQuality object attached. Selection failed." );
         return false;
       }
@@ -339,7 +339,7 @@ namespace InDet
     if (m_useTrackSummaryInfo) {
       //number of hits, silicon hits, b-layer
       const Trk::TrackSummary* summary = track.trackSummary();
-      if (0==summary ) { 
+      if (nullptr==summary ) { 
         ATH_MSG_WARNING( "Track preselection: cannot create a track summary (but useTrackSummary is true). Selection failed." );
         return false;
       }
@@ -367,7 +367,7 @@ namespace InDet
     }
     const Trk::Perigee* extrapolatedPerigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
     const Trk::Vertex* myVertex=vertex;
-    if (vertex==0) {
+    if (vertex==nullptr) {
       SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
       if (beamSpotHandle.isValid()) {
         myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
@@ -377,7 +377,7 @@ namespace InDet
       }
     }
     Trk::PerigeeSurface perigeeSurface(myVertex->position());
-    const Trk::TrackParameters *firstmeaspar=0;
+    const Trk::TrackParameters *firstmeaspar=nullptr;
     for (unsigned int i=0;i<track.trackParameters().size();i++) {
       if ((track.trackParameters())[i]->covariance() &&
 	     !dynamic_cast<const Trk::Perigee*>((track.trackParameters())[i])) {
@@ -390,7 +390,7 @@ namespace InDet
 	      ATH_MSG_DEBUG( " Track Paraemters at first measurement not found. Perigee not found. Cannot do TrackSelection..." );
 	      if (myVertex!=vertex) {
 	        delete myVertex;
-	        myVertex=0;
+	        myVertex=nullptr;
 	      }
 	      return false;
       }
@@ -402,9 +402,9 @@ namespace InDet
     ATH_MSG_VERBOSE ("Extrapolating to position: " << myVertex->position()[0] << " , " <<
 		     myVertex->position()[1] << " , " << myVertex->position()[2]);
     const Trk::TrackParameters* extrapolatedParameters= firstmeaspar ?
-      m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion ) : 0;
-    extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
-    if (extrapolatedPerigee==0 || !extrapolatedPerigee->covariance()) {
+      m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion ) : nullptr;
+    extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
+    if (extrapolatedPerigee==nullptr || !extrapolatedPerigee->covariance()) {
       ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
       if (extrapolatedParameters) {
 	      ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
@@ -414,14 +414,14 @@ namespace InDet
     }
     if (extrapolatedParameters) ATH_MSG_VERBOSE ("Result: " << *extrapolatedParameters);
     const Trk::RecVertex* recVertex = dynamic_cast<const Trk::RecVertex*>(myVertex);
-    bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : 0 );
+    bool dec = decision(extrapolatedPerigee, recVertex ? &recVertex->covariancePosition() : nullptr );
     if (myVertex!=vertex) {
       delete myVertex;
-      myVertex=0;
+      myVertex=nullptr;
     }
     if (extrapolatedPerigee!=&(track.definingParameters())) {
       delete extrapolatedPerigee;
-      extrapolatedPerigee=0;
+      extrapolatedPerigee=nullptr;
     }
     if(!dec) {
       ATH_MSG_DEBUG("Track rejected because of perigee parameters!");
@@ -642,10 +642,10 @@ namespace InDet
     Trk::PerigeeSurface perigeeSurface( getPosOrBeamSpot(vertex) );
     
     const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(perigee,perigeeSurface,Trk::anyDirection,true,Trk::pion );
-    const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0; 
-    if (extrapolatedPerigee==0) {
+    const Trk::Perigee* extrapolatedPerigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : nullptr; 
+    if (extrapolatedPerigee==nullptr) {
       ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << std::endl << perigee );
-      if (extrapolatedParameters!=0) {
+      if (extrapolatedParameters!=nullptr) {
         ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
         delete extrapolatedParameters;
         extrapolatedParameters=nullptr;
@@ -658,7 +658,7 @@ namespace InDet
       AmgSymMatrix(3) vertexError = vertex->covariancePosition();
       dec = decision(extrapolatedPerigee,&vertexError);
     }else{
-      dec = decision(extrapolatedPerigee,0);
+      dec = decision(extrapolatedPerigee,nullptr);
     }
 
     delete extrapolatedPerigee;
@@ -676,7 +676,7 @@ namespace InDet
   bool InDetDetailedTrackSelectorTool::decision(const Trk::Perigee* track,const AmgSymMatrix(3)* covariancePosition) const {
 
     // checking pointer first
-    if(0==track || !track->covariance()) { 
+    if(nullptr==track || !track->covariance()) { 
       ATH_MSG_WARNING( "Decision on measured perigee: Zero pointer to measured perigee passed. Selection failed." );
       return false;
     }
@@ -684,7 +684,7 @@ namespace InDet
     const AmgVector(5)& perigeeParms = track->parameters();
     
     // only check pt if mag. field is on
-    EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     if (fieldCondObj == nullptr) {
@@ -816,7 +816,7 @@ namespace InDet
   // ---------------------------------------------------------------------
   bool InDetDetailedTrackSelectorTool::decision(const Trk::FitQuality*  trkQuality) const
   {
-    if(0 == trkQuality) {
+    if(nullptr == trkQuality) {
       ATH_MSG_WARNING( "Null FitQuality pointer passed. No track Quality cut possible. Selection failed." );
       return false;
     }
@@ -855,7 +855,7 @@ namespace InDet
 						const Trk::Perigee * track,
                                                 const int nHitTrt, const int nHitTrtPlusOutliers) const
   {
-    if (summary==0) {
+    if (summary==nullptr) {
       ATH_MSG_WARNING( "Null TrackSummary pointer passed. Selection failed." );
       return false;
     }
@@ -1079,7 +1079,7 @@ namespace InDet
     const AmgVector(5)& perigeeParms = myPerigee.parameters();
     
     // only check pt if mag. field is on
-    EventContext ctx = Gaudi::Hive::currentContext();
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
     const AtlasFieldCacheCondObj* fieldCondObj{*readHandle};
     if (fieldCondObj == nullptr) {
