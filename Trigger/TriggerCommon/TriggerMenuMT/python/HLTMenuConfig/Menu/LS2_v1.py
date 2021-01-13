@@ -237,8 +237,8 @@ def setupMenu():
 
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
-        ChainProp(name='HLT_j85_L1J20', groups=['Online',SingleJetGroup]),
-        ChainProp(name='HLT_j45_L1J15', groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_j85_L1J20', groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j45_L1J15', groups=['PS:Online',SingleJetGroup]),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subresjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_011jvt_L1J15', groups=SingleJetGroup),
@@ -263,10 +263,10 @@ def setupMenu():
         ChainProp(name='HLT_j45_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_cssk_pf_nojcalib_ftf_L1J15', groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j260_320eta490_L1J20', groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_j260_320eta490_L1J20', groups=['PS:Online',SingleJetGroup]),
 
-        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=['Online',SingleJetGroup]),
-        ChainProp(name='HLT_j460_a10r_L1J20', groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_j460_a10_lcw_subjes_L1J20', groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j460_a10r_L1J20', groups=['PS:Online',SingleJetGroup]),
         ChainProp(name='HLT_j460_a10t_lcw_nojcalib_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_j460_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
         ChainProp(name='HLT_2j330_a10t_lcw_nojcalib_35smcINF_L1J100', groups=SingleJetGroup),
@@ -290,7 +290,7 @@ def setupMenu():
                   l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
 
         # ATR-20624
-        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['PS:Online',SingleJetGroup]),
 
         # TLA test chain, ATR-20395 
         ChainProp(name='HLT_JetDS_j0_L1J100', stream=['JetDS'], groups=SingleJetGroup), 
@@ -446,7 +446,7 @@ def setupMenu():
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
-        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
+        ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
     ]
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
         # ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
@@ -454,7 +454,7 @@ def setupMenu():
     ]
     TriggerFlags.CalibSlice.signatures     =    TriggerFlags.CalibSlice.signatures() + [
         ChainProp(name='HLT_alfacalib_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']),
-        #ChainProp(name='HLT_larnoiseburst_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['Online', 'RATE:DISCARD', 'BW:DISCARD'])
+        #ChainProp(name='HLT_larnoiseburst_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online', 'RATE:DISCARD', 'BW:DISCARD'])
     ]
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
     ]
