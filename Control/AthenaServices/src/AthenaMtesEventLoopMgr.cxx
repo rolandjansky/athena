@@ -117,6 +117,8 @@ AthenaMtesEventLoopMgr::AthenaMtesEventLoopMgr(const std::string& nam
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
 
+  declareProperty("ESTestPilotMessages", m_testPilotMessages, "List of messages from fake pilot for test mode");
+
   m_scheduledStop = false;
 
 }
@@ -294,6 +296,15 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
   // Print if we override the event number using the one from secondary event
   if(m_useSecondaryEventNumber) {
     info() << "Using secondary event number." << endmsg;
+  }
+
+  if( m_testPilotMessages.value().size() > 0 ) {
+     info() << "runnung in standalone TEST MODE" << endmsg;
+     info() << "  test contains " << m_testPilotMessages.value().size() << " event ranges" << endmsg;
+     for( const std::string& range: m_testPilotMessages.value() ) {
+        debug() << "    " << range << endmsg;
+     }
+     m_inTestMode = true;
   }
   return sc;
 }
@@ -1269,9 +1280,12 @@ AthenaMtesEventLoopMgr::drainScheduler(int& finishedEvts,yampl::ISocket* socket)
     if(rangeReport) {
       std::string outputFileReport = rangeReport->second + std::string(",ID:")
 	+ rangeReport->first + std::string(",CPU:N/A,WALL:N/A");
-      void* message2pilot = malloc(outputFileReport.size());
-      memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
-      socket->send(message2pilot,outputFileReport.size());
+      if( not m_inTestMode ) {
+         // In standalone test mode there is no pilot to talk to
+         void* message2pilot = malloc(outputFileReport.size());
+         memcpy(message2pilot,outputFileReport.data(),outputFileReport.size());
+         socket->send(message2pilot,outputFileReport.size());
+      }
       info() << "Reported the output " << outputFileReport << endmsg;
     }
 
@@ -1342,18 +1356,28 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
   std::string strReady("Ready for events");
   std::string strStopProcessing("No more events");
 
-  // Signal the Pilot that we are ready for event processing
-  void* ready_message = malloc(strReady.size());
-  memcpy(ready_message,strReady.data(),strReady.size());
-  socket->send(ready_message,strReady.size());
-  void* eventRangeMessage;
-  ssize_t eventRangeSize = socket->recv(eventRangeMessage);
-  std::string range((const char*)eventRangeMessage,eventRangeSize);
-  size_t carRet = range.find('\n');
-  if(carRet!=std::string::npos) range = range.substr(0,carRet);
+  std::string range;
+  if( m_inTestMode ) {
+     static size_t line_n = 0;
+     info() <<"in TEST MODE, Range #" << line_n+1 << endmsg;
+     range = (line_n < m_testPilotMessages.value().size()) ? m_testPilotMessages.value()[line_n++] : strStopProcessing;
+  } else {
+     // Signal the Pilot that we are ready for event processing
+     void* ready_message = malloc(strReady.size());
+     memcpy(ready_message,strReady.data(),strReady.size());
+     socket->send(ready_message,strReady.size());
+     void* eventRangeMessage;
+     ssize_t eventRangeSize = socket->recv(eventRangeMessage);
+     range = std::string((const char*)eventRangeMessage,eventRangeSize);
+     size_t carRet = range.find('\n');
+     if(carRet!=std::string::npos) range = range.substr(0,carRet);
+  }
 
   std::unique_ptr<RangeStruct> result = std::make_unique<RangeStruct>();
-  if(range.compare(strStopProcessing)==0) return result;
+  if(range.compare(strStopProcessing)==0) {
+     info() << "No more events from the server" << endmsg;
+     return result;
+  }
   info() << "Got Event Range from the pilot: " << range << endmsg;
 
   // _____________________ Decode range string _____________________________
@@ -1452,9 +1476,11 @@ std::unique_ptr<AthenaMtesEventLoopMgr::RangeStruct> AthenaMtesEventLoopMgr::get
     // Report the error to the pilot and reset the result, so that the next range can be tried
     warning() << errorStr << endmsg;
     info() << "Ignoring this event range" << endmsg;
-    void* errorMessage = malloc(errorStr.size());
-    memcpy(errorMessage,errorStr.data(),errorStr.size());
-    socket->send(errorMessage,errorStr.size());
+    if( not m_inTestMode ) {
+       void* errorMessage = malloc(errorStr.size());
+       memcpy(errorMessage,errorStr.data(),errorStr.size());
+       socket->send(errorMessage,errorStr.size());
+    }
     result.reset();
   }
 
