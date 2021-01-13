@@ -299,7 +299,7 @@ using Trk::distDepth;
   }
 
   SiIntersect
-  SolidStateDetectorElementBase::inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const
+  SolidStateDetectorElementBase::inDetector(const Amg::Vector3D& globalPosition, double phiTol, double etaTol) const
   {
     return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
   }
