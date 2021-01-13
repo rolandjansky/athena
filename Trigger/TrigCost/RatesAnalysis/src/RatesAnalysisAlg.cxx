@@ -402,24 +402,22 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     m_hltChainIDGroup.at(i).resize(3);
 
   if(m_configSvc.isValid()) {
-    std::cout << "populateTriggers::INFO inside hltchainIDGroup part" << std::endl;
     const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
     
-    std::cout << "populateTriggers::INFO after hltmenu call" << std::endl;
-
     TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
     TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
     size_t c = 0;
 
-    std::cout << "populateTriggers::INFO before loop" << std::endl;
     for( ; chain_itr != chain_end; ++chain_itr ) {
-      std::cout << "populateTriggers::INFO inside loop" << std::endl;
-      std::string chainName = ( *chain_itr ).className() ;
+      std::string chainName = ( *chain_itr ).name() ;
       unsigned int chainID = ( *chain_itr ).counter();
       std::vector<std::string> chainGroups = ( *chain_itr ).groups();
-      std::string singlechainGroups = std::accumulate(chainGroups.begin(), chainGroups.end(), std::string(","));
-      std::cout << "populateTriggers::INFO chainName: " << chainName << " chainID: " << chainID << " chainGroups: " << singlechainGroups << std::endl;
-      
+      std::string singlechainGroups = "";
+      for (unsigned int j=0; j < chainGroups.size(); ++j){
+	if (j==0) singlechainGroups += chainGroups[j];
+	else singlechainGroups += ", "+chainGroups[j];
+      }
+            
       m_hltChainIDGroup.at(c).at(0) = chainName;
       m_hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
       m_hltChainIDGroup.at(c).at(2) = singlechainGroups;
