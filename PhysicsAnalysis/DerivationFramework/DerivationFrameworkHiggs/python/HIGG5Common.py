@@ -203,7 +203,7 @@ def getHIGG5Common() :
     return Common
 
 def getHIGG5CommonTruthContainers() :
-    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonsWithDecayParticles","TruthBosonsWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
+    return ["TruthPrimaryVertices","HardScatterParticles","HardScatterVertices","TruthBosonsWithDecayParticles","TruthBosonsWithDecayVertices","TruthTopQuarkWithDecayParticles","TruthTopQuarkWithDecayVertices","TruthElectrons","TruthMuons","TruthTaus","TruthPhotons","TruthTausWithDecayParticles","TruthTausWithDecayVertices","TruthTaus","TruthNeutrinos","TruthBSM","TruthHFWithDecayParticles","TruthHFWithDecayVertices"]
 
 def getHIGG5CommonTruth() :
     return [
@@ -374,7 +374,7 @@ def getTruth3Collections(kernel) :
                                     prefix='Taus')
      #STEP9
      # Add back the navigation contect for the collections we want
-    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonsWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
+    addTruthCollectionNavigationDecorations(kernel,["HardScatterParticles","TruthBosonsWithDecayParticles","TruthTopQuarkWithDecayParticles","TruthElectrons","TruthMuons","TruthPhotons","TruthTausWithDecayParticles","TruthNeutrinos","TruthBSM"])
 
 
 
