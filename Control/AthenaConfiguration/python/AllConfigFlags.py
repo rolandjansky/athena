@@ -156,6 +156,7 @@ def _createCfgFlags():
     # Run dependent simulation
     # map from runNumber to timestamp; migrated from RunDMCFlags.py
     acf.addFlag("IOVDb.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
+    acf.addFlag("IOVDb.DBConnection", lambda prevFlags : "sqlite://;schema=mycool.db;dbname=" + prevFlags.IOVDb.DatabaseInstance)
 
 
     def __bfield():
