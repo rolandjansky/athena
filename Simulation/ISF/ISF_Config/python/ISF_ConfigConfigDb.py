@@ -42,6 +42,7 @@ addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4HS_FastPileup",     "ISF_Ker
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDOnly",   "ISF_Kernel_ATLFASTIIF_IDOnly")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_ATLFASTIIF_IDCalo",   "ISF_Kernel_ATLFASTIIF_IDCalo")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo",          "ISF_Kernel_G4FastCalo")
+addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCalo_QS",       "ISF_Kernel_G4FastCalo_QS")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloTest",      "ISF_Kernel_G4FastCaloTest")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_G4FastCaloDNN",          "ISF_Kernel_G4FastCaloDNN")
 addAlgorithm("ISF_Config.ISF_MainConfig.getKernel_Fatras_newExtrapolation","ISF_Kernel_Fatras_newExtrapolation")

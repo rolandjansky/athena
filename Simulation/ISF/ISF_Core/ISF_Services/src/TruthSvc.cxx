@@ -452,7 +452,18 @@ HepMC::GenVertex *ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITruthIn
     }
     else {
       //oldVertex->suggest_barcode( vtxbcode );
-      oldVertex->set_position( ti.position() );
+      const auto& old_pos=oldVertex->position();
+      const auto& new_pos=ti.position();
+      HepMC::ThreeVector diff(new_pos.x()-old_pos.x(),new_pos.y()-old_pos.y(),new_pos.z()-old_pos.z()); //complicated, but HepMC::ThreeVector and FourVector have no + or - operators
+      
+      if(diff.r()>1*Gaudi::Units::mm) { //Check for a change of the vertex position by more than 1mm
+        ATH_MSG_WARNING("For particle: " << *parent);
+        ATH_MSG_WARNING("  decay vertex before QS partice sim: " << *oldVertex );
+        oldVertex->set_position( ti.position() );
+        ATH_MSG_WARNING("  decay vertex after  QS partice sim:  " << *oldVertex );
+      } else {
+        oldVertex->set_position( ti.position() );
+      }  
       oldVertex->set_id( vtxID );
       oldVertex->weights() = weights;
 #ifdef DEBUG_TRUTHSVC

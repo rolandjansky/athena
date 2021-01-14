@@ -48,6 +48,7 @@ namespace TrigConf {
       // setters
       void setConnectionString(const std::string & connStr) { m_connectionString = connStr; }
       void setUseFrontier(bool useFrontier) { m_useFrontier = useFrontier; }
+      void setUseSQLite(bool useSQLite) { m_useSQLite = useSQLite; }
       void setRetrialPeriod(int retrialPeriod) { m_retrialPeriod = retrialPeriod; }
       void setRetrialTimeout(int retrialTimeout) { m_retrialTimeout = retrialTimeout; }
       void setConnectionTimeout(int connectionTimeout) { m_connectionTimeout = connectionTimeout; }
@@ -61,6 +62,7 @@ namespace TrigConf {
       // accessors
       const std::string& connection() const { return m_connectionString; }
       bool useFrontier() const { return m_useFrontier; }
+      bool useSQLite() const { return m_useSQLite; }
       int retrialPeriod() const { return m_retrialPeriod; }
       int retrialTimeout() const { return m_retrialTimeout; }
       int connectionTimeout() const { return m_connectionTimeout; }
@@ -87,6 +89,7 @@ namespace TrigConf {
       std::string            m_user { "" };        ///< user name
       std::string            m_password { "" };    ///< password
       bool                   m_useFrontier { false }; ///< uses frontier instead of oracle
+      bool                   m_useSQLite { true }; ///< resolve sqlite in the replicaSorter
       int                    m_retrialPeriod {0};
       int                    m_retrialTimeout {0};
       int                    m_connectionTimeout {0};
