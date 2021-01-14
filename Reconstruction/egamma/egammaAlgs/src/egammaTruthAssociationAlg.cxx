@@ -104,7 +104,7 @@ egammaTruthAssociationAlg::execute(const EventContext& ctx) const
       if (!truthParticleLink.isValid())
         continue;
       const xAOD::TruthParticle* truthParticle = *truthParticleLink;
-      if (!isPromptEgammaParticle(truthParticle))
+      if (!isPromptEgammaParticle(ctx, truthParticle))
         continue;
       getNewTruthParticle(ctx,
                           *egammaTruthContainer,
@@ -169,6 +169,7 @@ egammaTruthAssociationAlg::execute(const EventContext& ctx) const
 
 bool
 egammaTruthAssociationAlg::isPromptEgammaParticle(
+  const EventContext& ctx,
   const xAOD::TruthParticle* truth) const
 {
 
@@ -177,8 +178,8 @@ egammaTruthAssociationAlg::isPromptEgammaParticle(
       truth->barcode() > m_barcodeOffset || truth->pt() < m_minPt) {
     return false;
   }
-
-  auto type = m_mcTruthClassifier->particleTruthClassifier(truth);
+  IMCTruthClassifier::Info mcinfo(ctx);
+  auto type = m_mcTruthClassifier->particleTruthClassifier(truth, &mcinfo);
 
   // Isolated electron or photon
   if (type.first == MCTruthPartClassifier::IsoElectron ||
@@ -232,11 +233,11 @@ egammaTruthAssociationAlg::getNewTruthParticle(
   }
   accElLink(*truthParticle) = ElectronLink_t();
   accPhLink(*truthParticle) = PhotonLink_t();
-  accTruthLink(*truthParticle) = TruthLink_t(truth, *oldContainer,ctx);
+  accTruthLink(*truthParticle) = TruthLink_t(truth, *oldContainer, ctx);
   accTruthLink(*truthParticle).toPersistent();
   // MCTruthClassifier info
   IMCTruthClassifier::Info mcinfo(ctx);
-  auto info = m_mcTruthClassifier->particleTruthClassifier(truth,&mcinfo);
+  auto info = m_mcTruthClassifier->particleTruthClassifier(truth, &mcinfo);
   accType(*truthParticle) = static_cast<int>(info.first);
   accOrigin(*truthParticle) = static_cast<int>(info.second);
 }
@@ -292,10 +293,11 @@ egammaTruthAssociationAlg::initializeDecorKeys(
 // constructor
 template<class T>
 egammaTruthAssociationAlg::writeDecorHandles<T>::writeDecorHandles(
-  const SG::WriteDecorHandleKeyArray<T>& hkeys,const EventContext& ctx)
-  : el(hkeys.at(0),ctx)
-  , type(hkeys.at(1),ctx)
-  , origin(hkeys.at(2),ctx)
+  const SG::WriteDecorHandleKeyArray<T>& hkeys,
+  const EventContext& ctx)
+  : el(hkeys.at(0), ctx)
+  , type(hkeys.at(1), ctx)
+  , origin(hkeys.at(2), ctx)
 {}
 
 template<class T>
@@ -351,7 +353,7 @@ egammaTruthAssociationAlg::match(
   xAOD::TruthParticleContainer* egammaTruthContainer) const
 {
 
-  writeDecorHandles<T> decoHandles(hkeys,ctx);
+  writeDecorHandles<T> decoHandles(hkeys, ctx);
 
   // Extrapolation Cache
   Cache extrapolationCache{};

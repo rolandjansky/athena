@@ -115,7 +115,8 @@ private:
 
   /** @brief Return true if the truth particle is a prompt electron or photon
    * **/
-  bool isPromptEgammaParticle(const xAOD::TruthParticle* truth) const;
+  bool isPromptEgammaParticle(const EventContext& ctx,
+                              const xAOD::TruthParticle* truth) const;
 
   /** @brief Return the truth particle in the egamma truth container that
    * corresponds to the given truth particle (egammaTruthContainer is non-const
