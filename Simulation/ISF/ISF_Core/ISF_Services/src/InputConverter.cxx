@@ -294,6 +294,26 @@ ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOL
     if(std::abs(e-teste)>0.01*e) {
       ATH_MSG_WARNING("Difference in energy for: " << genPartPtr<<" Morg="<<pMomentum.m()<<" Mmod="<<pMass<<" Eorg="<<e<<" Emod="<<teste);
     }
+    if(genPartPtr->status()==2 && pVertex && genPartPtr->end_vertex()) { //check for possible changes of gamma for quasi stable particles
+      const auto& prodVtx = genPartPtr->production_vertex()->position();
+      const auto& endVtx = genPartPtr->end_vertex()->position();
+      CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
+
+      if(dist3D.mag()>1*Gaudi::Units::mm) { 
+        CLHEP::HepLorentzVector mom( pMomentum.x(), pMomentum.y(), pMomentum.z(), pMomentum.t() );
+        double gamma_org=mom.gamma();
+        mom.setE(teste);
+        double gamma_new=mom.gamma();
+        
+        if(std::abs(gamma_new-gamma_org)/(gamma_new+gamma_org)>0.001) {
+          ATH_MSG_WARNING("Difference in boost gamma for Quasi stable particle "<<*genPartPtr);
+          ATH_MSG_WARNING("  gamma(m="<<mom.m()<<")="<<gamma_org<<" gamma(m="<<pMass<<")="<<gamma_new);
+        } else {
+          ATH_MSG_VERBOSE("Quasi stable particle "<<*genPartPtr);
+          ATH_MSG_VERBOSE("  gamma(m="<<mom.m()<<")="<<gamma_org<<" gamma(m="<<pMass<<")="<<gamma_new);
+        }  
+      }  
+    }
   }  
 
   const int pPdgId = genPartPtr->pdg_id();
@@ -489,6 +509,21 @@ const G4ParticleDefinition* ISF::InputConverter::getG4ParticleDefinition(int pdg
   return nullptr;
 }
 
+double SetProperTimeFromDetectorFrameDecayLength(G4PrimaryParticle& g4particle,const double GeneratorDecayLength) 
+{
+  //particle with velocity v travels distance l in time t=l/v
+  //proper time: c^2 tau^2 = c^2 t^2 - l^2 = l^2/c^2 * (1/beta^2 -1)
+  //beta^2 = p^2/E^2 with particle momentum p and energy E; E^2=m^2 + p^2
+  //tau^2 = l^2/c^2 * m^2/p^2
+  const double p2=std::pow(g4particle.GetTotalMomentum(),2); //magnitude of particle momentum squared
+  const double m2=std::pow(g4particle.GetMass(),2);          //mass^2 of particle
+  const double l2=std::pow(GeneratorDecayLength,2);          //distance^2 of particle decay length
+  const double tau2=l2*m2/p2/CLHEP::c_squared;
+  const double tau=std::sqrt(tau2);
+  g4particle.SetProperTime( tau );
+  return tau;
+}
+
 //________________________________________________________________________
 #ifdef HEPMC3
 G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(HepMC::ConstGenParticlePtr genpart) const{
@@ -518,21 +553,35 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(HepMC::ConstGenPart
     //  to validate for every generator on earth...
     const auto& prodVtx = genpart->production_vertex()->position();
     const auto& endVtx = genpart->end_vertex()->position();
-    const G4LorentzVector lv0 ( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
-    const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
-    g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+    //const G4LorentzVector lv0 ( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+    //const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
+    //Old calculation, not taken because vertex information is not sufficiently precise
+    //g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+
+    CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
+    double tau=SetProperTimeFromDetectorFrameDecayLength(*g4particle,dist3D.mag());
+
+    if(msgLvl(MSG::VERBOSE)) {
+      double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
+      pmag2*=pmag2;                                //magnitude of particle momentum squared
+      double e2=g4particle->GetTotalEnergy();      //energy of particle
+      e2*=e2;                                      //energy of particle squared
+      double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
+      double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
+      ATH_MSG_VERBOSE("lifetime tau(beta)="<<std::sqrt(tau2)<<" tau="<<tau);
+    }  
 
     if(m_quasiStableParticlesIncluded) {
       ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
       ATH_MSG_VERBOSE( "Will add the primary particle set on." );
       ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
-      ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size() );
+      ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart.end_vertex() );
     }
     else {
       ATH_MSG_WARNING( "Detected primary particle with end vertex." );
       ATH_MSG_WARNING( "Will add the primary particle set on." );
       ATH_MSG_WARNING( "Primary Particle: " << genpart );
-      ATH_MSG_WARNING( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size() );
+      ATH_MSG_WARNING( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart.end_vertex() );
     }
     // Add all necessary daughter particles
     for ( auto daughter: genpart->end_vertex()->particles_out() ) {
@@ -590,21 +639,35 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const HepMC::GenPar
     //  to validate for every generator on earth...
     const auto& prodVtx = genpart.production_vertex()->position();
     const auto& endVtx = genpart.end_vertex()->position();
-    const G4LorentzVector lv0 ( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
-    const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
-    g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+    //const G4LorentzVector lv0 ( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+    //const G4LorentzVector lv1 ( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
+    //Old calculation, not taken because vertex information is not sufficiently precise
+    //g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+
+    CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
+    double tau=SetProperTimeFromDetectorFrameDecayLength(*g4particle,dist3D.mag());
+
+    if(msgLvl(MSG::VERBOSE)) {
+      double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
+      pmag2*=pmag2;                                //magnitude of particle momentum squared
+      double e2=g4particle->GetTotalEnergy();      //energy of particle
+      e2*=e2;                                      //energy of particle squared
+      double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
+      double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
+      ATH_MSG_VERBOSE("lifetime tau(beta)="<<std::sqrt(tau2)<<" tau="<<tau);
+    }  
 
     if(m_quasiStableParticlesIncluded) {
       ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
       ATH_MSG_VERBOSE( "Will add the primary particle set on." );
       ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
-      ATH_MSG_VERBOSE( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size() );
+      ATH_MSG_VERBOSE( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size()<<" at position "<<genpart.end_vertex());
     }
     else {
       ATH_MSG_WARNING( "Detected primary particle with end vertex." );
       ATH_MSG_WARNING( "Will add the primary particle set on." );
       ATH_MSG_WARNING( "Primary Particle: " << genpart );
-      ATH_MSG_WARNING( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size() );
+      ATH_MSG_WARNING( "Number of daughters of "<<genpart.barcode()<<": " << genpart.end_vertex()->particles_out_size()<<" at position "<<genpart.end_vertex() );
     }
     // Add all necessary daughter particles
     for ( auto daughterIter=genpart.end_vertex()->particles_out_const_begin();
@@ -698,19 +761,43 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(const ISF::ISFParti
       /// that we have to validate for every generator on earth...
       const auto& prodVtx = genpart->production_vertex()->position();
       const auto& endVtx = genpart->end_vertex()->position();
-      const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
-      const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
-      g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+      
+      CLHEP::Hep3Vector dist3D(endVtx.x()-prodVtx.x(), endVtx.y()-prodVtx.y(), endVtx.z()-prodVtx.z());
+      double tau=SetProperTimeFromDetectorFrameDecayLength(*g4particle,dist3D.mag());
+      
+      if(msgLvl(MSG::VERBOSE)) {
+        double pmag2=g4particle->GetTotalMomentum(); //magnitude of particle momentum
+        pmag2*=pmag2;                                //magnitude of particle momentum squared
+        double e2=g4particle->GetTotalEnergy();      //energy of particle
+        e2*=e2;                                      //energy^2 of particle
+        double beta2=pmag2/e2;                       //beta^2=v^2/c^2 for particle
+        double mass2=g4particle->GetMass();          //mass of particle
+        mass2*=mass2;                                //mass^2 of particle
+        
+        double tau2=dist3D.mag2()*(1/beta2-1)/Gaudi::Units::c_squared;
 
+        const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+        const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
+        //Old calculation, not taken because vertex information is not sufficiently precise
+        //g4particle->SetProperTime( (lv1-lv0).mag()/Gaudi::Units::c_light );
+        G4LorentzVector dist4D(lv1);
+        dist4D-=lv0;
+
+        G4LorentzVector fourmom(g4particle->GetMomentum(),g4particle->GetTotalEnergy());
+        //double tau2=dist3D.mag2()*(1/(fourmom.beta()*fourmom.beta())-1)/Gaudi::Units::c_light/Gaudi::Units::c_light;
+        
+        ATH_MSG_VERBOSE( "gammaVertex="<<dist4D.gamma()<<" gammamom="<<fourmom.gamma()<<" gamma(beta)="<<1/std::sqrt(1-beta2)<<" lifetime tau(beta)="<<std::sqrt(tau2)<<" lifetime tau="<<tau);
+      }
+      
       if(m_quasiStableParticlesIncluded) {
         ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
         ATH_MSG_VERBOSE( "Will add the primary particle set on." );
         ATH_MSG_VERBOSE( "ISF Particle: " << isp );
         ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
 #ifdef HEPMC3
-        ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size() );
+        ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size() << " at position "<< genpart->end_vertex() );
 #else
-        ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out_size() );
+        ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out_size() << " at position "<< genpart->end_vertex() );
 #endif
       }
       else {
