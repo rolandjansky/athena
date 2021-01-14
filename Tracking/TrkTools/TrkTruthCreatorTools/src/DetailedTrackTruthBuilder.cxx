@@ -30,7 +30,6 @@
 #include <algorithm>
 
 namespace {
-  //template<class Map>  void printMap(const Map& m);
 
   template<class Map>  void printMap(const Map& m) {
     std::cout<<"printMap(): [";
@@ -62,9 +61,8 @@ namespace {
     return res;
   }
   
-
   // Truth trajectory sprouts
-  class Sprout : public std::list<const HepMC::GenParticle*> {
+  class Sprout : public std::list<HepMC::ConstGenParticlePtr> {
   public:
     SubDetPRDs stat;
   };
@@ -244,10 +242,8 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
   IProxyDict *proxy=ctx.getExtension<Atlas::ExtendedEventContext>().proxy();
   //----------------------------------------------------------------
   //loop over the RIO_OnTrack
-  DataVector<const Trk::MeasurementBase>::const_iterator itMeasurements
-    = (*track)->measurementsOnTrack()->begin();
-  DataVector<const Trk::MeasurementBase>::const_iterator itMeasEnd
-    = (*track)->measurementsOnTrack()->end();
+  DataVector<const Trk::MeasurementBase>::const_iterator itMeasurements = (*track)->measurementsOnTrack()->begin();
+  DataVector<const Trk::MeasurementBase>::const_iterator itMeasEnd = (*track)->measurementsOnTrack()->end();
   for ( ; itMeasurements != itMeasEnd; ++itMeasurements){
 
     // not all MB are necessarily ROTs.
@@ -355,7 +351,11 @@ void DetailedTrackTruthBuilder::addTrack(DetailedTrackTruthCollection *output,
     Sprout current_sprout;
     std::queue<HepMC::ConstGenParticlePtr> tmp;
     ExtendedEventIndex eventIndex(link, proxy);
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr current = link.scptr();
+#else    
     const HepMC::GenParticle *current = link.cptr();
+#endif
 
     do {
       HepMcParticleLink curlink( eventIndex.makeLink(HepMC::barcode(current), proxy));
