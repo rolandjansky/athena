@@ -55,14 +55,14 @@ public:
 
 
   /// Test to see if we want to keep a particle.
-  virtual bool isAccepted (const HepMC::GenParticle* p);
+  virtual bool isAccepted (HepMC::ConstGenParticlePtr p);
 
   // New member functions.
-  bool isLeptonFromTau(const HepMC::GenParticle* part) const;
-  bool isFsrFromLepton(const HepMC::GenParticle* part) const;
-  bool isFromTau(const HepMC::GenParticle* part);
-  bool isBSM(const HepMC::GenParticle* part) const;
-  bool isBoson(const HepMC::GenParticle* part) const;
+  bool isLeptonFromTau(HepMC::ConstGenParticlePtr part) const;
+  bool isFsrFromLepton(HepMC::ConstGenParticlePtr part) const;
+  bool isFromTau(HepMC::ConstGenParticlePtr part);
+  bool isBSM(HepMC::ConstGenParticlePtr part) const;
+  bool isBoson(HepMC::ConstGenParticlePtr part) const;
 
 private:
   /// Parameter: Keep partons?
