@@ -740,17 +740,14 @@ StatusCode MM_DigitizationTool::doDigitization() {
       
       // For collection of inputs to throw back in SG
       
-      MMSimHit* copyHit = new MMSimHit( hitID,
-					m_globalHitTime+m_eventTime,
-					globalHitPosition,
-					hit.particleEncoding(),
-					hit.kineticEnergy(),
-					hit.globalDirection(),
-					hit.depositEnergy(),
-					trklink
-					);
-      
-      inputSimHitColl->Insert(*copyHit);
+      inputSimHitColl->Emplace(hitID,
+		       m_globalHitTime+m_eventTime,
+		       globalHitPosition,
+		       hit.particleEncoding(),
+		       hit.kineticEnergy(),
+		       hit.globalDirection(),
+		       hit.depositEnergy(),
+		       trklink);
       
       // remove hits in masked multiplet
       if( m_maskMultiplet == m_idHelper->multilayer(layerID) ) continue;
