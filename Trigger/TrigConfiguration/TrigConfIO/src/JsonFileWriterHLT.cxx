@@ -25,7 +25,7 @@ TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const H
    for ( const auto & chain : menu ) {
       json jChain({});
       jChain["counter"] = chain.counter();
-      jChain["nameHash"] = chain.name();
+      jChain["nameHash"] = chain.namehash();
       jChain["l1item"] = chain.l1item();
       jChain["legMultiplicities"] = chain.legMultiplicities();
       jChain["l1thresholds"] = chain.l1thresholds();
@@ -59,6 +59,29 @@ TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const H
    j["streams"] = streams;
 
 
+   std::ofstream outfile(filename);
+   outfile << std::setw(4) << j << std::endl;
+
+   TRG_MSG_INFO("Saved file " << filename);
+   return true;
+}
+bool
+TrigConf::JsonFileWriterHLT::writeJsonFile(const std::string & filename, const HLTMenu & menu, const HLTPrescalesSet & ps) const
+{
+   json chains({});
+   for ( const auto & chain : menu ) {
+      json jChain({});
+      jChain["name"] = chain.name();
+      jChain["counter"] = chain.counter();
+      jChain["hash"] = chain.namehash();
+      jChain["prescale"] = ps.prescale(chain.name()).prescale;
+      jChain["enabled"] = ps.prescale(chain.name()).enabled;
+      chains[chain.name()] = jChain;
+   }
+   json j({});
+   j["filetype"] = "hltprescale";
+   j["name"] = ps.name();
+   j["prescales"] = chains;
    std::ofstream outfile(filename);
    outfile << std::setw(4) << j << std::endl;
 

@@ -38,6 +38,10 @@ atlas_add_executable( TrigConfTestTriggerDBCoolMix
                       src/test/TestTriggerDBCoolMix.cxx
                       LINK_LIBRARIES TrigConfStorage )
 
+atlas_add_test( test_Run2Run3Conversion
+                SCRIPT TrigConfReadWrite -i TRIGGERDB 2766,24128,18513 -o r3json
+                PROPERTIES TIMEOUT 300 )                      
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( scripts/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )

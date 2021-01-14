@@ -66,7 +66,6 @@
 
 using namespace std;
 using namespace TrigConf;
-HLTMenu convertRun2HLTtoRun3(const HLTFrame* frame);
 
 void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) {
   o << "================================================================================\n";
@@ -132,6 +131,7 @@ public:
    string       l1topoOutFile { "L1TopoConfig.xml" };
    string       hltxmlOutFile { "HLTConfig.xml" };
    string       hltJsonOutFile { "HLTMenu.json" };
+   string       hltPSJsonOutFile { "HLTPrescale.json" };
    string       coolInputConnection { "" };
    string       coolOutputConnection { "" };
    unsigned int coolOutputRunNr { 0 };
@@ -320,6 +320,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          l1topoOutFile = "L1TopoConfig_" + outBase + ".xml";
          hltxmlOutFile = "HLTconfig_" + outBase + ".xml";
          hltJsonOutFile = "HLTMenu_" + outBase + ".json";
+         hltPSJsonOutFile = "HLTPrescale_" + outBase + ".json";
       }
    }
 
@@ -679,7 +680,8 @@ int main( int argc, char* argv[] ) {
        *-----------------*/
       // TODO add L1 menu
       if(hltFrame) {
-         convertRun2HLTtoRun3(hltFrame, gConfig.hltJsonOutFile);
+         convertRun2HLTMenuToRun3(hltFrame, gConfig.hltJsonOutFile);
+         convertRun2HLTPrescalesToRun3(hltFrame, gConfig.hltPSJsonOutFile);
       }
 
    }
