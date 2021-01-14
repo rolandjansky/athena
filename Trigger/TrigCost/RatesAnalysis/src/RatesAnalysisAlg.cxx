@@ -9,6 +9,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfData/HLTMenu.h"
 //uncomment the line below to use the HistSvc for outputting trees and histograms
 #include "GaudiKernel/ITHistSvc.h"
 #include "TH1.h"
@@ -21,6 +22,7 @@ RatesAnalysisAlg::RatesAnalysisAlg( const std::string& name, ISvcLocator* pSvcLo
   m_targetMu(0.),
   m_targetBunches(0.),
   m_targetLumi(0.),
+  m_runNumber(0.),
   m_ratesDenominator(0),
   m_eventCounter(0),
   m_weightedEventCounter(0),
@@ -393,6 +395,37 @@ StatusCode RatesAnalysisAlg::populateTriggers() {
     }
   }
 
+  ATH_MSG_INFO("Retrieving HLT chain's ID and Group from HLT menu.");
+
+  m_hltChainIDGroup.resize(m_triggers.size());
+  for (size_t i = 0; i < m_triggers.size(); i++)
+    m_hltChainIDGroup.at(i).resize(3);
+
+  if(m_configSvc.isValid()) {
+    const TrigConf::HLTMenu& hltmenu = m_configSvc->hltMenu( Gaudi::Hive::currentContext() );
+    
+    TrigConf::HLTMenu::const_iterator chain_itr = hltmenu.begin();
+    TrigConf::HLTMenu::const_iterator chain_end = hltmenu.end();
+    size_t c = 0;
+
+    for( ; chain_itr != chain_end; ++chain_itr ) {
+      std::string chainName = ( *chain_itr ).name() ;
+      unsigned int chainID = ( *chain_itr ).counter();
+      std::vector<std::string> chainGroups = ( *chain_itr ).groups();
+      std::string singlechainGroups = "";
+      for (unsigned int j=0; j < chainGroups.size(); ++j){
+	if (j==0) singlechainGroups += chainGroups[j];
+	else singlechainGroups += ", "+chainGroups[j];
+      }
+            
+      m_hltChainIDGroup.at(c).at(0) = chainName;
+      m_hltChainIDGroup.at(c).at(1) = std::to_string(chainID);
+      m_hltChainIDGroup.at(c).at(2) = singlechainGroups;
+      ++c;
+    }
+  }
+
+  
   // Print all triggers
   if (msgLevel(MSG::DEBUG)) {
     if (m_triggers.size()) {
@@ -696,6 +729,9 @@ void RatesAnalysisAlg::writeMetadata() {
     return;
   }
 
+  m_runNumber = m_enhancedBiasRatesTool->getRunNumber();
+  m_metadataTree->Branch("runNumber", &m_runNumber);
+  
   m_metadataTree->Branch("targetMu", &m_targetMu);
   m_metadataTree->Branch("targetBunches", &m_targetBunches);
   m_metadataTree->Branch("targetLumi", &m_targetLumi);
@@ -718,6 +754,7 @@ void RatesAnalysisAlg::writeMetadata() {
 
   std::vector<int32_t> bunchGroups;
   bunchGroups.reserve(16);
+
   uint32_t masterKey = 0;
   uint32_t hltPrescaleKey = 0;
   uint32_t lvl1PrescaleKey = 0;
@@ -738,6 +775,8 @@ void RatesAnalysisAlg::writeMetadata() {
     }
   }
   m_metadataTree->Branch("bunchGroups", &bunchGroups);
+
+  m_metadataTree->Branch("hltChainIDGroup", &m_hltChainIDGroup);
 
   m_metadataTree->Branch("masterKey", &masterKey);
   m_metadataTree->Branch("lvl1PrescaleKey", &lvl1PrescaleKey);

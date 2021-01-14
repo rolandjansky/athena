@@ -708,6 +708,9 @@ bool EnhancedBiasWeighter::isMC() const {
   return m_isMC;
 }
 
+uint32_t EnhancedBiasWeighter::getRunNumber() const {
+  return m_runNumber;
+}
 
 double EnhancedBiasWeighter::getLBLumi(const xAOD::EventInfo* eventInfo) const
 {
