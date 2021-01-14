@@ -66,7 +66,7 @@ class DoPunchThroughSimulation(JobProperty):
     """ Determines whether to run the punch through simulation"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class PunchThroughParamsInputFilename(JobProperty):
     """ Filename of the muon punch through input parametrizations file. """
