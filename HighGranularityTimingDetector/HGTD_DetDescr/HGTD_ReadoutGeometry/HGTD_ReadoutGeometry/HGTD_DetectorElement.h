@@ -68,6 +68,15 @@ public:
 
     ///////////////////////////////////////////////////////////////////
     //
+    /// @name Transformation/Orientation
+    //
+    ///////////////////////////////////////////////////////////////////
+
+    /** Returns the full list of surfaces associated to this detector element */
+    virtual const std::vector<const Trk::Surface*>& surfaces() const;
+
+    ///////////////////////////////////////////////////////////////////
+    //
     /// @name Element Extent
     /// Methods to get extent of element in r,phi and z.  
     ///////////////////////////////////////////////////////////////////
@@ -115,6 +124,7 @@ protected:
     // Cached values.
     //
     mutable bool m_cacheValid; // used only for HGTD_DetectorElement specific cache values
+    mutable std::vector<const Trk::Surface*> m_surfaces;
 
 };
 

@@ -69,6 +69,18 @@ HGTD_DetectorElement::cellIdFromIdentifier(const Identifier & identifier) const
     return cellId;
 }
 
+const std::vector<const Trk::Surface*>& HGTD_DetectorElement::surfaces() const 
+{
+    // This method is needed to satisfy inheritance from TrkDetElementBase
+    // so just return the one surface
+    if (!m_surfaces.size()){
+        // get this surface
+        m_surfaces.push_back(&surface());
+    }
+    // return the surfaces
+    return m_surfaces;
+}
+
 double HGTD_DetectorElement::get_rz() const
 {
     // Calculate z (endcap)

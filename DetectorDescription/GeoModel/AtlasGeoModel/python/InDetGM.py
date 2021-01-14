@@ -78,6 +78,12 @@ elif ( DetFlags.detdescr.ID_on() ):
         trtDetectorTool.useDynamicAlignFolders = InDetGeometryFlags.useDynamicAlignFolders()
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
+    if ( DetFlags.detdescr.HGTD_on() ) :
+        from HGTD_GeoModel.HGTD_GeoModelConf import HGTD_DetectorTool
+        hgtd = HGTD_DetectorTool()
+        GeoModelSvc.DetectorTools += [ hgtd ]
+
+
     if not InDetGeometryFlags.isSLHC():
      #ITK uses a different method in InDetDetDesr/PixelLayouts for building services
      from InDetServMatGeoModel.InDetServMatGeoModelConf import InDetServMatTool
