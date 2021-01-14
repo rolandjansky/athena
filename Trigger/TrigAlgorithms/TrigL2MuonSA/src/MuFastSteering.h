@@ -150,6 +150,7 @@ class MuFastSteering : public HLT::FexAlgo,
      Update monitoring variables
   */
   StatusCode updateMonitor(const LVL1::RecMuonRoI*                  roi,
+                           const bool                               isRpcFakeRoi,
 			   const TrigL2MuonSA::MdtHits&             mdtHits,
                            std::vector<TrigL2MuonSA::TrackPattern>& trackPatterns );
  protected:
