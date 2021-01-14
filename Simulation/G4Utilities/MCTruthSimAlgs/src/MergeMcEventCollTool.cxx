@@ -387,7 +387,8 @@ StatusCode MergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtCol
   }
   //GenEvt is there
 
-  //Examine the properties of the GenEvent - if it looks like a TruthFiltered background event (contains a Geantino?!) then save the whole event as below, otherwise do the usual classification.
+  //Examine the properties of the GenEvent - if it looks like a TruthFiltered background event (contains a Geantino?!) 
+  //then save the whole event as below, otherwise do the usual classification.
   if(isTruthFiltertedMcEventCollection(pMcEvtColl)) {
     if ( processTruthFilteredEvent(pMcEvtColl,  currentEventTime, currentBkgEventIndex).isSuccess() ) {
       ++m_nBkgEventsReadSoFar;

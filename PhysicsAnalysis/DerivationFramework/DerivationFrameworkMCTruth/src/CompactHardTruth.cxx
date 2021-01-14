@@ -20,11 +20,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// mc tools
-//#include "McParticleKernel/IMcVtxFilterTool.h"
-//#include "McParticleKernel/ITruthParticleCnvTool.h"
-//#include "McParticleEvent/TruthParticle.h"
-//#include "McParticleEvent/TruthParticleContainer.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
