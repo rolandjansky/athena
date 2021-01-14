@@ -332,11 +332,10 @@ def mergeSerial(chainDefList):
         alignmentGroups.extend(cConfig.alignmentGroups)
 
     serialSteps = serial_zip(allSteps, chainName, chainDefList)
-    mySerialSteps = deepcopy(serialSteps)
     combChainSteps =[]
     for chain_index in range(len(chainDefList)):
         log.debug('[mergeSerial] Chain object to merge (i.e. chainDef) %s', chainDefList[chain_index])
-    for step_index, steps in enumerate(mySerialSteps):
+    for step_index, steps in enumerate(serialSteps):
         mySteps = list(steps)
         combStep = makeCombinedStep(mySteps, step_index+1, chainDefList)
         combChainSteps.append(combStep)
