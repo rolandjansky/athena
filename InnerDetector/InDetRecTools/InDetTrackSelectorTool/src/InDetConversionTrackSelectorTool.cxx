@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrackSelectorTool/InDetConversionTrackSelectorTool.h"
@@ -65,13 +65,15 @@ namespace InDet
 
  bool InDetConversionTrackSelectorTool::decision(const Trk::Track& track,const Trk::Vertex* vx) const
  {
+   const EventContext& ctx = Gaudi::Hive::currentContext();
    bool pass = false;
    const Trk::Perigee* perigee=dynamic_cast<const Trk::Perigee*>(track.perigeeParameters());
    const bool vertexSuppliedByUser{vx!=nullptr};
    const Trk::Vertex* myVertex=vx;
    //in case no Vertex is provided by the user, beam position will be used if available
    if (not vertexSuppliedByUser) {
-     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{ m_beamSpotKey,
+                                                             ctx };
      if (beamSpotHandle.isValid()) {
        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
      } else {
@@ -80,7 +82,7 @@ namespace InDet
      }
    }
    Trk::PerigeeSurface perigeeSurface(myVertex->position());
-   const Trk::TrackParameters *firstmeaspar=0;
+   const Trk::TrackParameters *firstmeaspar=nullptr;
    for (unsigned int i=0;i<track.trackParameters()->size();i++){
      if ( (*track.trackParameters())[i]->covariance() && !dynamic_cast<const Trk::Perigee*>((*track.trackParameters())[i])) {
        firstmeaspar=(*track.trackParameters())[i];
@@ -99,11 +101,19 @@ namespace InDet
      }
    }
 
-   const Trk::TrackParameters * extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,track.info().particleHypothesis() );
-   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0;
-   if (perigee==0 || !perigee->covariance() ) {
+   const Trk::TrackParameters* extrapolatedParameters =
+     m_extrapolator->extrapolate(ctx,
+                                 *firstmeaspar,
+                                 perigeeSurface,
+                                 Trk::anyDirection,
+                                 true,
+                                 track.info().particleHypothesis());
+   perigee = extrapolatedParameters
+               ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters)
+               : nullptr;
+   if (perigee==nullptr || !perigee->covariance() ) {
      ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
-     if (extrapolatedParameters!=0) {
+     if (extrapolatedParameters!=nullptr) {
        ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!");
        delete extrapolatedParameters;
        if (not vertexSuppliedByUser) delete myVertex;
@@ -166,6 +176,7 @@ namespace InDet
 
  bool InDetConversionTrackSelectorTool::decision(const Trk::TrackParticleBase& track,const Trk::Vertex* vx) const
  {
+   const EventContext& ctx = Gaudi::Hive::currentContext();
    bool pass = false;
    const Trk::TrackParameters* definintParameters=&(track.definingParameters());
    const Trk::Perigee* perigee=dynamic_cast<const Trk::Perigee*>(definintParameters);
@@ -173,7 +184,8 @@ namespace InDet
    const bool vertexSuppliedByUser{vx!=nullptr};
    //in case no Vertex is provided by the user, beam position will be used if available
    if (not vertexSuppliedByUser) {
-     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
+     SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{ m_beamSpotKey,
+                                                             ctx };
      if (beamSpotHandle.isValid()) {
        myVertex=new Trk::RecVertex(beamSpotHandle->beamVtx());
      } else {
@@ -183,7 +195,7 @@ namespace InDet
    }
 
    Trk::PerigeeSurface perigeeSurface(myVertex->position());
-   const Trk::TrackParameters *firstmeaspar=0;
+   const Trk::TrackParameters *firstmeaspar=nullptr;
    for (unsigned int i=0;i<track.trackParameters().size();i++){
      if ( (track.trackParameters())[i]->covariance() && !dynamic_cast<const Trk::Perigee*>((track.trackParameters())[i])) {
        firstmeaspar=(track.trackParameters())[i];
@@ -199,11 +211,15 @@ namespace InDet
        return false;
      }
    }
-   const Trk::TrackParameters * extrapolatedParameters= m_extrapolator->extrapolate(*firstmeaspar,perigeeSurface,Trk::anyDirection,true,Trk::pion );
-   perigee = extrapolatedParameters ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters) : 0;
-   if (perigee==0 || !perigee->covariance()) {
+   const Trk::TrackParameters* extrapolatedParameters =
+     m_extrapolator->extrapolate(
+       ctx, *firstmeaspar, perigeeSurface, Trk::anyDirection, true, Trk::pion);
+   perigee = extrapolatedParameters
+               ? dynamic_cast<const Trk::Perigee*>(extrapolatedParameters)
+               : nullptr;
+   if (perigee == nullptr || !perigee->covariance()) {
      ATH_MSG_WARNING( "Track Selector failed to extrapolate track to the vertex: " << myVertex->position() );
-     if (extrapolatedParameters!=0) {
+     if (extrapolatedParameters!=nullptr) {
        ATH_MSG_WARNING( "The return object of the extrapolator was not a perigee even if a perigeeSurface was used!" );
        delete extrapolatedParameters;
        if (not vertexSuppliedByUser) delete myVertex;
@@ -266,24 +282,38 @@ namespace InDet
    return pass;
  }
 
- Amg::Vector3D InDetConversionTrackSelectorTool::getPosOrBeamSpot(const xAOD::Vertex* vertex) const
+ Amg::Vector3D
+ InDetConversionTrackSelectorTool::getPosOrBeamSpot(
+   const EventContext& ctx,
+   const xAOD::Vertex* vertex) const
  {
-    if(vertex) return vertex->position();
-    SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle { m_beamSpotKey };
-    if(beamSpotHandle.isValid()) return beamSpotHandle->beamVtx().position();
-    else return Amg::Vector3D(0,0,0);
+   if (vertex) {
+     return vertex->position();
+   }
+   SG::ReadCondHandle<InDet::BeamSpotData> beamSpotHandle{ m_beamSpotKey, ctx };
+   if (beamSpotHandle.isValid()) {
+     return beamSpotHandle->beamVtx().position();
+   } else {
+     return Amg::Vector3D(0, 0, 0);
+   }
  }
 
    // ---------------------------------------------------------------------
   bool InDetConversionTrackSelectorTool::decision(const xAOD::TrackParticle& tp,const xAOD::Vertex* vertex) const
   {
+    const EventContext& ctx = Gaudi::Hive::currentContext();
     bool pass = false;
     const Trk::Perigee& perigee=tp.perigeeParameters();
-    //in case no Vertex is provided by the user, beam position will be used if available
-    Trk::PerigeeSurface perigeeSurface( getPosOrBeamSpot(vertex) );
-    const Trk::TrackParameters* extrapolatedParameters= m_extrapolator->extrapolate(perigee,perigeeSurface,Trk::anyDirection,false,Trk::pion );
-    if (extrapolatedParameters==0) {
-      ATH_MSG_WARNING( "Extrapolation to the vertex failed: " << perigeeSurface << "\n" << perigee );
+    // in case no Vertex is provided by the user, beam position will be used if
+    // available
+    Trk::PerigeeSurface perigeeSurface(getPosOrBeamSpot(ctx, vertex));
+    const Trk::TrackParameters* extrapolatedParameters =
+      m_extrapolator->extrapolate(
+        ctx, perigee, perigeeSurface, Trk::anyDirection, false, Trk::pion);
+    if (extrapolatedParameters == nullptr) {
+      ATH_MSG_WARNING("Extrapolation to the vertex failed: " << perigeeSurface
+                                                             << "\n"
+                                                             << perigee);
       return false;
     }
     double qOverP = perigee.parameters()[Trk::qOverP];
