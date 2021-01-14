@@ -761,7 +761,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
       float vmmStartTime = (*(merged_pad_digits.begin())).time();
 
-      sTgcVMMSim* theVMM = new sTgcVMMSim(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM (new sTgcVMMSim(merged_pad_digits, vmmStartTime, m_deadtimePad, m_readtimePad, m_produceDeadDigits, 0));  // object to simulate the VMM response
       theVMM->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       theVMM->initialReport();
 
@@ -784,7 +784,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
             ATH_MSG_VERBOSE(" charge = "    << flushedDigit->charge()) ;
           }
           else ATH_MSG_VERBOSE("No digit for this timestep on Pad REID[" << it_REID->first.getString() << "]");
-        }
+	}
       }
     }
   }
@@ -805,7 +805,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
    * and decide which digits to keep.
   */
   ATH_MSG_VERBOSE("Processing Strip Digits");
-  std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
+  std::map< Identifier, std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > > > vmmArray; // map holding the VMMSim objects and a bool indicating if the channel is done processing
   int nStripDigits = 0;
   for (std::map< Identifier, std::map< Identifier, std::vector<sTgcSimDigitData> > >::iterator it_DETEL = unmergedStripDigits.begin(); it_DETEL!= unmergedStripDigits.end(); ++it_DETEL) {
     for (std::map< Identifier, std::vector<sTgcSimDigitData> >::iterator it_REID = it_DETEL->second.begin(); it_REID != it_DETEL->second.end(); ++it_REID) {  //loop on Pads
@@ -860,16 +860,17 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       ATH_MSG_VERBOSE("Merging complete for Strip REID[" << it_REID->first.getString() << "]");
       ATH_MSG_VERBOSE(it_REID->second.size() << " digits on the channel after merging");
       vmmArray[it_DETEL->first][it_REID->first].first = true;
-      vmmArray[it_DETEL->first][it_REID->first].second = new sTgcVMMSim(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> vMMSimPtr(new sTgcVMMSim(merged_strip_digits, (earliestEventTime-25), m_deadtimeStrip, m_readtimeStrip, m_produceDeadDigits, 1)); // object to simulate the VMM response
+      vmmArray[it_DETEL->first][it_REID->first].second = std::move(vMMSimPtr);
       vmmArray[it_DETEL->first][it_REID->first].second->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
       ATH_MSG_VERBOSE("VMM instantiated for Strip REID[" << it_REID->first.getString() << "]");
     }
   }
-  for(std::map< Identifier, std::map< Identifier, std::pair <bool, sTgcVMMSim* > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
+  for(std::map< Identifier, std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > > >::iterator it_DETEL = vmmArray.begin(); it_DETEL != vmmArray.end(); ++it_DETEL) {
     bool vmmTerminateSignal = false; // when all channels are done processing this will flip true
     while(true){
       vmmTerminateSignal = false;
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM ticks
+      for (std::map< Identifier, std::pair <bool, std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM ticks
         ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
         if (it_VMM->second.first) it_VMM->second.first = it_VMM->second.second->tick();  // returns true if there are still digits to process as well as advances the clock
         vmmTerminateSignal = (vmmTerminateSignal || it_VMM->second.first);  // record the presence of at least one channel with digits to process
@@ -879,7 +880,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         ATH_MSG_VERBOSE("No more digits to process.  Breaking VMM Loop.");
         break; //Break the Loop if there are no more digits to process
       }
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM tocks
+      for (std::map< Identifier, std::pair <bool,  std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM tocks
         bool thresholdCrossed = false;
         if (it_VMM->second.first) {
           ATH_MSG_VERBOSE("Strip REID[" << it_VMM->first.getString() << "]");
@@ -912,7 +913,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         }
       }
 
-      for (std::map< Identifier, std::pair <bool, sTgcVMMSim* > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
+
+      for (std::map< Identifier, std::pair <bool,  std::unique_ptr<sTgcVMMSim> > >::iterator it_VMM = it_DETEL->second.begin(); it_VMM != it_DETEL->second.end(); ++it_VMM) { // Loop over VMM flushes
         sTgcDigit* flushedDigit = it_VMM->second.second->flush();  //Readout the digit buffer
         if(flushedDigit) {
           outputDigits[it_DETEL->first][it_VMM->first].push_back(*flushedDigit);  // If a digit was in the buffer: store it to the RDO
@@ -1001,7 +1003,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 
       float vmmStartTime = (*(merged_wire_digits.begin())).time();
 
-      sTgcVMMSim* theVMM = new sTgcVMMSim(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2);  // object to simulate the VMM response
+      std::unique_ptr<sTgcVMMSim> theVMM(new sTgcVMMSim(merged_wire_digits, vmmStartTime, m_deadtimeWire, m_readtimeWire, m_produceDeadDigits, 2));  // object to simulate the VMM response
       theVMM->setMessageLevel(msgLevel());
       theVMM->initialReport();
 
