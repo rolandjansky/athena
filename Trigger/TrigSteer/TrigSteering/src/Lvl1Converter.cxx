@@ -505,9 +505,11 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
       }
 
       // reconstruct RoIs
+      // naming convention follows 
+      // https://twiki.cern.ch/twiki/bin/viewauth/Atlas/L1CaloUpgradeSimulation#Mapping_of_container_names_to_me
       ATH_MSG_DEBUG("JetEnergy RoIs");
       const std::vector<const xAOD::JetRoIContainer *> & jetContainers = { &*m_jJet, &*m_jLJet, &*m_gJet };
-      const std::vector<std::string> & jetThresholdFilters = {"jJ", "jLJ", "gJ"};
+      const std::vector<std::string> & jetThresholdFilters = {"jJ", "jLJ", "gLJ"};
       const std::vector<const xAOD::EnergySumRoI *> & metROIs = { &*m_gFEXMETPufit, &*m_gFEXMETRho, &*m_gFEXMETJwoJ };
       const std::vector<std::string> & metThresholdFilters  = { "gXEPUFIT", "gXERHO", "gXEJWOJ" };
 

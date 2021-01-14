@@ -1019,12 +1019,14 @@ LVL1CTP::CTPEmulation::calculateJetMultiplicity( const TrigConf::TriggerThreshol
 
    } else {
       // Run-3 threshold
+      // naming convention follows 
+      // https://twiki.cern.ch/twiki/bin/viewauth/Atlas/L1CaloUpgradeSimulation#Mapping_of_container_names_to_me
       const DataHandle< xAOD::JetRoIContainer > * dh { nullptr };
-      if( confThr->name().find("g") == 0 ) {
+      if( confThr->name().find("gLJ") == 0 ) {
 	 dh = & m_gJet;
-      } else if( confThr->name().find("jL") == 0 ) {
+      } else if( confThr->name().find("jLJ") == 0 ) {
 	 dh = & m_jLJet;
-      } else if( confThr->name().find("j") == 0 ) {
+      } else if( confThr->name().find("jJ") == 0 ) {
 	 dh = & m_jJet;
       } else {
 	 ATH_MSG_ERROR( "Unexpected threshold name " << confThr->name() << ". Should start with j, jL, g, or J.");
