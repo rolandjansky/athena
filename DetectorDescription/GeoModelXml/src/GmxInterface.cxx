@@ -46,6 +46,19 @@ void GmxInterface::addSensor(string name, map<string, int> &index, int sequentia
     msglog << "\nSequential ID = " << sequentialId << endmsg;
 }
 
+void GmxInterface::addSplitSensor(string name, map<string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) {
+    OUTPUT_STREAM;
+
+    msglog << MSG::DEBUG << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << 
+                         ". Indices:   ";		
+    for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
+        msglog << i->second << "   ";
+    }
+    msglog << "\n and additional Indices " << extraIndex.first << " : "<<
+      extraIndex.second;
+    msglog << "\nSequential ID = " << sequentialId << endmsg;
+}
+
 void GmxInterface::addAlignable(int level, map<std::string, int> &index, GeoVFullPhysVol *fpv, 
                                 GeoAlignableTransform */*transform*/) {
 //

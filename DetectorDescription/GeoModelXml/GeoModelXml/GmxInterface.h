@@ -26,8 +26,8 @@ public:
     virtual int sensorId(std::map<std::string, int> &index);
     virtual int splitSensorId(std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, std::map<std::string, int> &updatedIndex); //For "artificially" adding to Identifiers; specify the field (e.g. "eta_module") and the value to add
     virtual void addSensorType(std::string type, std::string name, std::map<std::string, std::string> parameters);
-    virtual void addSensor(std::string name, std::map<std::string, int> &index, int id, 
-                           GeoVFullPhysVol *fpv);
+    virtual void addSensor(std::string name, std::map<std::string, int> &index, int id, GeoVFullPhysVol *fpv);
+    virtual void addSplitSensor(std::string name, std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, int id, GeoVFullPhysVol *fpv);
     virtual void addAlignable(int level, std::map<std::string, int> &index, 
                               GeoVFullPhysVol *fpv, GeoAlignableTransform *transform);
 

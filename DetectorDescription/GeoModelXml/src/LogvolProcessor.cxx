@@ -127,9 +127,7 @@ GeoNameTag *physVolName;
     map<string, int> updatedIndex;//extra indices to be used in case we split this volume
     if (sensitive) {
       gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
-      std::cout<<"setting indices in logVol..."<<std::endl;
       gmxUtil.positionIndex.indices(index, gmxUtil.eval);
-      std::cout<<"*****************"<<std::endl;
       sensId = gmxUtil.gmxInterface()->sensorId(index);
       //        toAdd.push_back(new GeoIdentifierTag(m_map[name].id)); // Normal copy number
       toAdd.push_back(new GeoIdentifierTag(sensId)); 
@@ -157,8 +155,6 @@ GeoNameTag *physVolName;
 	name2release = XMLString::transcode(element->getAttribute(XMLString::transcode("sensitive")));
 	string sensitiveName(name2release);
 	XMLString::release(&name2release);
-	std::cout<<"sensitive name: "<<sensitiveName<<std::endl;
-	std::cout<<"sensitive id: "<<sensId<<std::endl;
 	gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
 	//splitting sensors where we would like multiple DetectorElements per GeoVFullPhysVol (e.g.ITk Strips)
 	bool split = element->hasAttribute(XMLString::transcode("splitLevel"));
@@ -169,16 +165,13 @@ GeoNameTag *physVolName;
 	  splitLevel = gmxUtil.evaluate(splitString);
 	  XMLString::release(&splitString);
 	  for(int i=1;i<splitLevel;i++){ //start from 1st, 0th is already made above
-	    std::cout<<"split "<<i<<std::endl;
 	    std::string field = "eta_module";//eventually specify in Xml the field to split in?
 	    std::pair<std::string,int> extraIndex(field,i);
-	    //int extraId = gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex);
-	    gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex);
-	    //extraSensIds.push_back(extraId);
-	    gmxUtil.gmxInterface()->addSensor(sensitiveName, updatedIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	    //gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex); maybe this method not acrually needed if addSplitSensor does its jobs?
+	    //gmxUtil.gmxInterface()->addSensor(sensitiveName, updatedIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	    gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, updatedIndex,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv)); //TODO implement is derived class
 	  }
 	}
-	std::cout<<"------------------"<<std::endl;
       }
     }
     else {
@@ -190,7 +183,6 @@ GeoNameTag *physVolName;
     }
     
     gmxUtil.positionIndex.decrementLevel();
-    //std::cout<<"£££££££££££££££££££££"<<std::endl;
     return;
 }
 

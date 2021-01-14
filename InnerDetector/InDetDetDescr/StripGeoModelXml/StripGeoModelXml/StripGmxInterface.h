@@ -30,10 +30,25 @@ public:
     void addSensorType(std::string clas, std::string typeName, std::map<std::string, std::string> parameters);
     void addSensor(std::string typeName, std::map<std::string, int> &index, int sequentialId, 
                    GeoVFullPhysVol *fpv);
+    void addSplitSensor(std::string typeName, std::map<std::string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv);
     void addAlignable(int level, std::map<std::string, int> &index, GeoVFullPhysVol *fpv, 
                       GeoAlignableTransform *transform);
     void makeSiStripBox(std::string typeName, std::map<std::string, std::string> &par);
     void makeStereoAnnulus(std::string typeName, std::map<std::string, std::string> &par);
+
+    template <typename T> bool checkparm(const std::string /*typeName*/, const std::string name, 
+					 const std::map<std::string, std::string> &par, T &value){
+      //Needs some kind of versioning to stop this being abused...
+      std::map<std::string, std::string>::const_iterator found;
+      if ((found = par.find(name)) != par.end()) {
+	std::istringstream(found->second) >> value;
+	return true;
+      }
+      else {
+	return false;
+      }
+
+    }
 
     template <typename T> void getparm(const std::string typeName, const std::string name, 
                                        const std::map<std::string, std::string> &par, T &value) {

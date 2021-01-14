@@ -103,6 +103,7 @@ void StripGmxInterface::addSensorType(string clas, string typeName, map<string, 
         *m_log << MSG::ERROR << "StripGmxInterface::addSensorType: unrecognised sensor class, " << clas << endmsg;
         *m_log << MSG::ERROR << "No sensor design created" << endmsg;
     }
+
 }
 
 void StripGmxInterface::makeSiStripBox(string typeName, map<string, string> &par) { 
@@ -186,21 +187,30 @@ double length(25.0);
 //
 //    Make Sensor Design and add to DetectorManager
 //
-//   ADA    const InDetDD::StripBoxDesign *design = new InDetDD::StripBoxDesign(stripDirection, fieldDirection, thickness, readoutSide,carrier, nRows, nStrips, pitch, length);
-//   ADA
 
-    //if we need a z-shift per design, loop over nRows to apply it - for the moment, just set nRows to 1 and length the length/nRows in constructor
-                                                                        
-    std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-                                                                        thickness, readoutSide,carrier, 1, nStrips, pitch,
-											      (length/nRows));
-
-//   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
-    m_detectorManager->addDesign(std::move(design));
-//
-//    Add to map for addSensor routine
-
-    m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+    int split = 0;
+    if(checkparm(typeName, "splitLevel", par, split)){
+      for(int i = 0;i<split;i++){
+	//do we need some kind of shift for e.g. the corners and centre?	
+	 std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
+												   thickness, readoutSide,carrier, 1, nStrips, pitch,length);//single row
+	 m_detectorManager->addDesign(std::move(design));
+	 std::string splitName = typeName+"_"+std::to_string(i);
+	 m_geometryMap[splitName] = m_detectorManager->numDesigns() -1;
+      }
+    }
+                                                                      
+    else{
+      std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
+												thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
+      
+      //   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
+      m_detectorManager->addDesign(std::move(design));
+      //
+      //    Add to map for addSensor routine
+      
+      m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+    }
 }
 
 void StripGmxInterface::makeStereoAnnulus(string typeName, map<std::string, string> &par) { 
@@ -331,15 +341,14 @@ vector<double> endR;
       singleRowMinR.push_back(startR[stripRow]);
       singleRowMaxR.push_back(endR[stripRow]);
 
-      std::cout<<"single row sizes: "<<singleRowPitch.size()<<std::endl;
-
       std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
 														    fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, centreR);
       //   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
       m_detectorManager->addDesign(std::move(design));
       //
       //    Add to map for addSensor routine
-      
+      //    This is not ideal, as the map will return value of 0 (which is a valid design in the manager) for a non-existing key
+      //    Can lead to wrong detector design being loaded silently... to be improved!
       m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
     }
 }
@@ -357,6 +366,63 @@ string StripGmxInterface::getstr(const string typeName, const string name, const
 
 }
 
+void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
+  
+  map<string, int> updatedIndex;
+  splitSensorId(index,extraIndex,updatedIndex);
+  int splitIndex = extraIndex.second;
+  //TODO - implement!!
+  //
+//    Get the ATLAS "Offline" wafer identifier 
+//
+    const SCT_ID *sctIdHelper = dynamic_cast<const SCT_ID *> (m_commonItems->getIdHelper());
+    Identifier id = sctIdHelper->wafer_id(updatedIndex["barrel_endcap"], updatedIndex["layer_wheel"], updatedIndex["phi_module"], 
+                                          updatedIndex["eta_module"], updatedIndex["side"]);
+    IdentifierHash hashId = sctIdHelper->wafer_hash(id);
+    //
+    //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
+    //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 
+    //    if allowed through. To do the check, we ask for the hash-id of this id. Invalid ids give a 
+    //    special invalid hash-id (0xFFFFFFFF). But we don't exit the run, to help debug things quicker.
+    //
+    if (!hashId.is_valid()) {
+      *m_log << MSG::ERROR <<"Invalid id for sensitive wafer " << typeName << " volume with indices \n";
+      for (map<string, int>::iterator i = updatedIndex.begin(); i != index.end(); ++i) {
+	*m_log << MSG::ERROR << i->first << " = " << i->second << "; ";
+      }
+      *m_log << MSG::ERROR << 
+	"\nRefusing to make it into a sensitive element. Incompatible gmx and identifier-xml files." << endmsg;
+      return;
+    }
+    //
+    //    Create the detector element and add to the DetectorManager
+    //
+    
+    string splitTypeName = typeName + "_" + std::to_string(splitIndex);
+    const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[splitTypeName]);
+    
+    if (!design) {
+      *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
+	" not found.\n" << endmsg;
+      exit(999);
+    }
+    InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
+    m_detectorManager->addDetectorElement(detector);
+    //
+    //    Build up a map-structure for numerology
+    //
+    Wafer wafer((unsigned int) hashId);
+    string errorMessage("");
+    if (!m_waferTree->add(updatedIndex["barrel_endcap"], updatedIndex["layer_wheel"], updatedIndex["eta_module"], 
+                          updatedIndex["phi_module"], updatedIndex["side"], wafer, errorMessage)) {
+      *m_log << MSG::ERROR << errorMessage << endmsg;
+    }
+    
+    return;
+    
+}
+
+
 void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
 //
 //    Get the ATLAS "Offline" wafer identifier 
@@ -365,9 +431,6 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
     Identifier id = sctIdHelper->wafer_id(index["barrel_endcap"], index["layer_wheel"], index["phi_module"], 
                                           index["eta_module"], index["side"]);
     IdentifierHash hashId = sctIdHelper->wafer_hash(id);
-    std::cout<<"adding sensor with hash "<<hashId<<std::endl;
-    std::cout<<"adding ID: "<<index["barrel_endcap"]<<", "<<index["layer_wheel"]<<" , "<<index["phi_module"]<<" , "<< 
-      index["eta_module"]<<" , "<<index["side"]<<std::endl;
 //
 //    Now do our best to check if this is a valid id. If either the gmx file is wrong, or the xml file
 //    defining the allowed id's is wrong, you can get disallowed id's. These cause a crash later 
@@ -386,6 +449,7 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
 //
 //    Create the detector element and add to the DetectorManager
 //
+
     const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
 
     if (!design) {
