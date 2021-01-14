@@ -16,6 +16,7 @@
 
 namespace InDetDD {
     class AthenaComps;
+    class SiCommonItems;
     class HGTD_ModuleDesign;
 }
 class GeoPhysVol;
@@ -64,7 +65,7 @@ struct GeoBoxVolParams {
 
 class HGTD_DetectorFactory : public InDetDD::DetectorFactoryBase {
 public:
-    HGTD_DetectorFactory(InDetDD::AthenaComps *athenaComps, bool fullGeo);
+    HGTD_DetectorFactory(InDetDD::AthenaComps* athenaComps, InDetDD::SiCommonItems* commonItems, bool fullGeo);
     virtual ~HGTD_DetectorFactory();
 
     // Creation of geometry:
@@ -84,6 +85,7 @@ private:
 
     HGTD_DetectorManager* m_detectorManager;
     InDetDD::AthenaComps* m_athenaComps;
+    InDetDD::SiCommonItems* m_commonItems;
 
     bool m_fullGeo;  // true->FULL, false->RECO
 

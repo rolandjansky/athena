@@ -50,7 +50,6 @@ HGTD_DetectorTool::HGTD_DetectorTool(const std::string &type,
 
 HGTD_DetectorTool::~HGTD_DetectorTool() {
     delete m_athenaComps;
-    delete m_commonItems;
 }
 
 StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
@@ -66,6 +65,7 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     ATH_CHECK(detStore->retrieve(theExpt, "ATLAS"));
 
     const HGTD_ID *idHelper;
+    // TODO: fix the following - HGTD_ID not retrieving properly during runtime
     ATH_CHECK(detStore->retrieve(idHelper, "HGTD_ID"));
 
 //
@@ -89,7 +89,7 @@ StatusCode HGTD_DetectorTool::create(StoreGateSvc* detStore) {
     // The * converts a ConstPVLink to a ref to a GeoVPhysVol
     // The & takes the address of the GeoVPhysVol
     GeoPhysVol *world = &*theExpt->getPhysVol();
-    HGTDGeo::HGTD_DetectorFactory theHGTDFactory(m_athenaComps, m_geometryConfig=="FULL");
+    HGTDGeo::HGTD_DetectorFactory theHGTDFactory(m_athenaComps, m_commonItems, m_geometryConfig=="FULL");
     theHGTDFactory.setHGTDBaseline(m_HGTD_isbaseline);
 
     theHGTDFactory.create(world);

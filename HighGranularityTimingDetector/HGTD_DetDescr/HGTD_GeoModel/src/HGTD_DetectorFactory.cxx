@@ -25,9 +25,13 @@
 #include "GeoModelUtilities/StoredPhysVol.h"
 #include "GeoModelUtilities/StoredAlignX.h"
 
+#include "HGTD_Identifier/HGTD_ID.h"
+
 #include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
+#include "HGTD_ReadoutGeometry/HGTD_DetectorElement.h"
 
+#include "ReadoutGeometryBase/SiCommonItems.h"
 #include "ReadoutGeometryBase/PixelDiodeMatrix.h"
 
 #include "RDBAccessSvc/IRDBAccessSvc.h"
@@ -38,10 +42,11 @@ using namespace std;
 
 namespace HGTDGeo {
 
-HGTD_DetectorFactory::HGTD_DetectorFactory(InDetDD::AthenaComps* athenaComps, bool fullGeo) :
+HGTD_DetectorFactory::HGTD_DetectorFactory(InDetDD::AthenaComps* athenaComps, InDetDD::SiCommonItems* commonItems, bool fullGeo) :
     InDetDD::DetectorFactoryBase(athenaComps),
     m_detectorManager(),
     m_athenaComps(athenaComps),
+    m_commonItems(commonItems),
     m_fullGeo(fullGeo),
     m_HGTD_isbaseline(true)
 {
@@ -184,7 +189,7 @@ GeoFullPhysVol* HGTD_DetectorFactory::createEnvelope(bool bPos) {
 }
 
 void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManager>& matmanager,
-                                           GeoFullPhysVol* HGTDparent, bool /*isPos*/) {
+                                           GeoFullPhysVol* HGTDparent, bool isPos) {
 
     msg(MSG::INFO) << "**************************************************" << endmsg;
     msg(MSG::INFO) << "                 Building HGTD                    " << endmsg;
@@ -421,9 +426,9 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
     moduleVolumes.push_back("HGTD::Hybrid");
     if (m_boxVolPars["HGTD::ModuleSpace"].zHalf) moduleVolumes.push_back("HGTD::ModuleSpace");
 
-    int layer_offset  = 5;
+    int endcap_side   = isPos ? +1 : -1;
 
-    // TODO: here used to be the creation of a PixelModuleDesign object, so likely corresponding HGTD object should be made here
+    InDetDD::HGTD_ModuleDesign* design = createHgtdDesign(2.*m_boxVolPars["HGTDSiSensor0"].zHalf, m_HGTD_isbaseline); // assumes thickness same for 0-3
 
     // loop over layers
     for (int layer = 0; layer < 4; layer++) {
@@ -473,7 +478,7 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
                 int eta = (q*max_rows) + positions[front_back].at(element).row;
                 int phi = positions[front_back].at(element).el_in_row;
 
-                std::string module_string = "_layer_"+std::to_string(layer_offset+layer)+"_"+std::to_string(phi)+"_"+std::to_string(eta);
+                std::string module_string = "_layer_"+std::to_string(layer)+"_"+std::to_string(phi)+"_"+std::to_string(eta);
 
                 double myModuleHalfHeight = moduleHalfHeight;
                 double myModuleHalfWidth  = moduleHalfWidth;
@@ -510,11 +515,11 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
                     GeoFullPhysVol* sensorCompPhysicalVol = new GeoFullPhysVol(sensorCompLogicalVol);
 
                     // each SiSensor then has a detector element
-                    // TODO: not adding detector elements yet until a proper solution (not involving pixelBasics) can be implemented
                     if (volumes[comp] == sensorName) {
-		        // TODO: create identifier, previously done based on endcap_side, layer_offset+layer, "phi", "eta"
-		        // TODO: create detector element and feed it the identifier, design, physical volume of active sensor part, etc
-                        // TODO: add detector element through the detector manager
+                        const HGTD_ID* hgtdId = dynamic_cast<const HGTD_ID*>( m_commonItems->getIdHelper() );
+                        Identifier idwafer = hgtdId->wafer_id(endcap_side, layer, phi, eta);
+                        InDetDD::HGTD_DetectorElement* detElement = new InDetDD::HGTD_DetectorElement(idwafer, design, sensorCompPhysicalVol, m_commonItems);
+                        m_detectorManager->addDetectorElement(detElement);
                         HepGeom::Transform3D sensorTransform = HepGeom::TranslateZ3D(m_boxVolPars[c].zOffsetLocal)*
                                                                HepGeom::TranslateX3D(xOffsetLocal);
                         GeoAlignableTransform* xform = new GeoAlignableTransform(sensorTransform);
