@@ -38,7 +38,7 @@ std::vector<int> legMult(const TrigConf::HLTChain* cptr) {
       }
       if ( maxMult.size() < mult.size() ) {
          maxMult = mult;
-      }  
+      }
    }
    return maxMult;
 }
@@ -49,10 +49,8 @@ std::vector<std::string> l1thresholds(const TrigConf::HLTFrame* frame, const Tri
       for ( const auto te: sig->outputTEs() ) {
          auto sequence = frame->sequences().getSequence(te->name());
          for ( const auto inTE: sequence->inputTEs() ) {
-            std::cout << "IN TE" << inTE->name()  << " \n";
             if ( not ( inTE->name().find("L2_") == 0 or inTE->name().find("EF_") == 0 or inTE->name().find("HLT_") == 0 ) ) {
                names.insert(inTE->name());
-               std::cout << "L1 is " << inTE->name()  << " \n";
             }
          }
       }
@@ -60,8 +58,14 @@ std::vector<std::string> l1thresholds(const TrigConf::HLTFrame* frame, const Tri
    return std::vector<std::string>( names.begin(), names.end() );
 }
 
+void printJSON(boost::property_tree::ptree& p) {
+   // this code is useful to debug JSON before it is pushed to menu objects expecting certain structure in place
+   std::stringstream ss;
+   boost::property_tree::json_parser::write_json(ss, p);
+   std::cout << ss.str() << std::endl;
+}
 
-void convertRun2HLTtoRun3(const TrigConf::HLTFrame* frame, const std::string& filename) {
+bool convertHLTMenu(const TrigConf::HLTFrame* frame, TrigConf::HLTMenu& menu) {
    using ptree = boost::property_tree::ptree;
    ptree top;
    top.put("filetype", "hltmenu");
@@ -78,7 +82,7 @@ void convertRun2HLTtoRun3(const TrigConf::HLTFrame* frame, const std::string& fi
       pChain.add_child("l1thresholds", asArray(l1thresholds(frame, cptr)));
       pChain.add_child("legMultiplicities", asArray(legMult(cptr)) );
       pChain.add_child("sequencers", asArray(std::vector<std::string>({"missing"})));
-      
+
       std::vector<std::string> strNames;
       for ( const auto st: cptr->streams()) {
          strNames.push_back(st->stream());
@@ -96,7 +100,7 @@ void convertRun2HLTtoRun3(const TrigConf::HLTFrame* frame, const std::string& fi
       pStream.put("name", sname);
       pStream.put("type", stream->type());
       pStream.put("obeyLB", stream->obeyLB());
-      pStream.put("forceFullEventBuilding", true);  // TODO understand how to get this information from old menu    
+      pStream.put("forceFullEventBuilding", true);  // TODO understand how to get this information from old menu
       pStreams.push_back(std::make_pair(sname, pStream));
    }
 
@@ -107,14 +111,46 @@ void convertRun2HLTtoRun3(const TrigConf::HLTFrame* frame, const std::string& fi
    pSequencers.add_child("missing", asArray(std::vector<std::string>({""})));
    top.add_child("sequencers", pSequencers);
 
-   std::stringstream ss;
-   boost::property_tree::json_parser::write_json(ss, top);
-//   std::cout << ss.str() << std::endl;
+   menu.setData(std::move(top));
+   menu.setSMK(frame->smk());
+   return true;
+}
 
+void convertRun2HLTMenuToRun3(const TrigConf::HLTFrame* frame, const std::string& filename) {
+  TrigConf::HLTMenu menu;
+  convertHLTMenu(frame, menu);
 
-  TrigConf::HLTMenu menu(std::move(top));
   TrigConf::JsonFileWriterHLT writer;
   std::cout << "Saving file: " << filename << std::endl;
   writer.writeJsonFile(filename, menu);
 
+}
+
+
+void convertRun2HLTPrescalesToRun3(const TrigConf::HLTFrame* frame, const std::string& filename) {
+   using ptree = boost::property_tree::ptree;
+   ptree top;
+   top.put("filetype", "hltprescale");
+   top.put("name", frame->name());
+   ptree pChains;
+   for ( auto cptr : frame->chains() ) {
+      ptree pChain;
+      pChain.put("name", cptr->chain_name());
+      pChain.put("counter", cptr->chain_counter());
+      pChain.put("hash", cptr->chain_hash_id());
+      pChain.put("prescale", cptr->prescale());
+      pChain.put("enabled", (cptr->prescale()>0 ? true: false));
+
+      pChains.push_back(std::make_pair(cptr->chain_name(), pChain));
+   }
+   top.add_child("prescales", pChains);
+   TrigConf::HLTPrescalesSet psk(std::move(top));
+
+   TrigConf::HLTMenu menu;
+   convertHLTMenu(frame, menu);
+
+
+   TrigConf::JsonFileWriterHLT writer;
+   std::cout << "Saving file: " << filename << std::endl;
+   writer.writeJsonFile(filename, menu, psk);
 }
