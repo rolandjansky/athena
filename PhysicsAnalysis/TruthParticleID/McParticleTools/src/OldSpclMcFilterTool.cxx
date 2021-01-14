@@ -380,13 +380,9 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	  }
 
 	  if ( bcNext.first != bcNext.second ) {
-	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endmsg
-			    << "\tbcNext: " << bcNext.first
-			    << " --> " << bcNext.second);
+	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endmsg << "\tbcNext: " << bcNext.first << " --> " << bcNext.second);
 	  } else {
-	    ATH_MSG_DEBUG("\tIterator OK:" << endmsg
-			  << "\tbcNext: " << bcNext.first
-			  << " --> " << bcNext.second);
+	    ATH_MSG_DEBUG("\tIterator OK:" << endmsg << "\tbcNext: " << bcNext.first << " --> " << bcNext.second);
 	  }
 	}
 

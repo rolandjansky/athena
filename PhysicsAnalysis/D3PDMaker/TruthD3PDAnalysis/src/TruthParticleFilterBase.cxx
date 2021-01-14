@@ -174,8 +174,7 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
  * @brief Filter a single @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
-                                      HepMC::GenEvent* ev_out)
+TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEvent* ev_out)
 {
   // Loop over particles.
   // (range-based for doesn't work here because particle_const_iterator
@@ -196,8 +195,7 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
  * @brief Add a @c GenParticle (and its production vertex) to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
-                                      HepMC::GenEvent* ev)
+TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p, HepMC::GenEvent* ev)
 {
   // Add parent vertex if it exists.  Otherwise, add decay vertex.
   if (p->production_vertex())
@@ -238,8 +236,7 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
-                                    HepMC::GenEvent* ev)
+TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v, HepMC::GenEvent* ev)
 {
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());

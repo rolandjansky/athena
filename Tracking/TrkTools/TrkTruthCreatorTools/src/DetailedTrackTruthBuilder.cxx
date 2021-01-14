@@ -30,7 +30,6 @@
 #include <algorithm>
 
 namespace {
-  //template<class Map>  void printMap(const Map& m);
 
   template<class Map>  void printMap(const Map& m) {
     std::cout<<"printMap(): [";
