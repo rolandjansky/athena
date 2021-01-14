@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMASUPERCLUSTERBUILDER_H
@@ -126,9 +126,7 @@ private:
   // in which cells of topoclusters are added
   // half of addCells window size, converted in units of eta/phi
   float m_addCellsWindowEtaBarrel;
-  float m_addCellsWindowPhiBarrel;
   float m_addCellsWindowEtaEndcap;
-  float m_addCellsWindowPhiEndcap;
   // Extra opening in phi for L0,L1
   float m_extraL0L1PhiSize;
   // Extra opening in eta for L3 cells
