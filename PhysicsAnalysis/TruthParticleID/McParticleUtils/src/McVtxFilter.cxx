@@ -185,7 +185,7 @@ bool McVtxFilter::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
   if ( m_matchBranches                                           &&
        m_parentList.size()       == static_cast<unsigned int>(1) &&
        m_childList.size()        == static_cast<unsigned int>(2) &&
-       vtx->particles_out_size() >= 2 ) {
+       number_particles_out >= 2 ) {
     return checkTwoBodyDecay( vtx );
   } //> two-body decay
 
@@ -262,7 +262,6 @@ void McVtxFilter::setDecayPattern( const std::string& decayPattern )
   
   DecayParser parser( m_decayPattern );
   
-  //std::cout << "Populate parent list" << std::endl;
   std::vector<std::vector<std::string> > parents = parser.getParents();
   for(std::vector<std::vector<std::string> >::const_iterator itr = parents.begin();
       itr != parents.end();
@@ -281,7 +280,6 @@ void McVtxFilter::setDecayPattern( const std::string& decayPattern )
       delete list;
     }
   }
-  //std::cout << "Populate children list" << std::endl;
   std::vector<std::vector<std::string> > children = parser.getChildren();
   for(std::vector<std::vector<std::string> >::const_iterator itr = children.begin();
       itr != children.end();
@@ -366,8 +364,7 @@ bool McVtxFilter::checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const
 	m_parentList[i]->hasInList( static_cast<PDG::pidType>(parents[i]), 
 				    m_matchSign );
       if ( !hasInList ) {
-	// this permutation is not suiting, going to the next one
-	// (if any)
+	// this permutation is not suiting, going to the next one (if any)
 	accepted = false;
 	break;
       }
@@ -424,8 +421,7 @@ bool McVtxFilter::checkChildBranch( HepMC::ConstGenVertexPtr vtx ) const
 	m_childList[i]->hasInList( static_cast<PDG::pidType>(children[i]), 
 				   m_matchSign );
       if ( !hasInList ) {
-	// this permutation is not suiting, going to the next one
-	// (if any)
+	// this permutation is not suiting, going to the next one (if any)
 	accepted = false;
 	break;
       }
