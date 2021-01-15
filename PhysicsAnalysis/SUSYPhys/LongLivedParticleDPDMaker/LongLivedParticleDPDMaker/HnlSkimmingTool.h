@@ -87,16 +87,12 @@ namespace DerivationFramework {
 
     float m_dPhiMin;
 
-    //void getPromptMuonCandidates(const xAOD::MuonContainer* muons,
     void getPromptMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                  std::vector<const xAOD::Muon*>& promptMuonCandidates) const;
-    //void getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
     void getDisplacedMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                     std::vector<const xAOD::Muon*>& displacedMuonCandidates) const;
-    //void getPromptElectronCandidates(const xAOD::ElectronContainer* electrons,
     void getPromptElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                      std::vector<const xAOD::Electron*>& promptElectronCandidates) const;
-    //void getDisplacedElectronCandidates(const xAOD::ElectronContainer* electrons,
     void getDisplacedElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                         std::vector<const xAOD::Electron*>& displacedElectronCandidates) const;
   };

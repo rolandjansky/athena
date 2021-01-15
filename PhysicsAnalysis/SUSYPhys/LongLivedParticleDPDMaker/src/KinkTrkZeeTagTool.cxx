@@ -77,8 +77,6 @@ StatusCode DerivationFramework::KinkTrkZeeTagTool::initialize()
 
   ATH_CHECK(m_electronSGKey.initialize());
   ATH_CHECK(m_clusterSGKey.initialize());
-  //ATH_CHECK(m_DiEleMassKey.initialize() );
-  //ATH_CHECK(m_ProbeEleEtKey.initialize() );
 
   return StatusCode::SUCCESS;
 }

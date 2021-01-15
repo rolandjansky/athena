@@ -227,7 +227,6 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
   return acceptEvent;
 }
 
-//void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(const xAOD::MuonContainer* muons,
 void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                                                    std::vector<const xAOD::Muon*>& promptMuonCandidates) const
 {
@@ -267,7 +266,6 @@ void DerivationFramework::HnlSkimmingTool::getPromptMuonCandidates(SG::ReadHandl
   }
 }
 
-//void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(const xAOD::MuonContainer* muons,
 void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(SG::ReadHandle<DataVector<xAOD::Muon_v1>>& muons,
                                                                       std::vector<const xAOD::Muon*>& displacedMuonCandidates) const
 {
@@ -319,7 +317,6 @@ void DerivationFramework::HnlSkimmingTool::getDisplacedMuonCandidates(SG::ReadHa
   }
 }
 
-//void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(const xAOD::ElectronContainer* electrons,
 void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                                                        std::vector<const xAOD::Electron*>& promptElectronCandidates) const
 {
@@ -350,7 +347,6 @@ void DerivationFramework::HnlSkimmingTool::getPromptElectronCandidates(SG::ReadH
   }
 }
 
-//void DerivationFramework::HnlSkimmingTool::getDisplacedElectronCandidates(const xAOD::ElectronContainer* electrons,
 void DerivationFramework::HnlSkimmingTool::getDisplacedElectronCandidates(SG::ReadHandle<DataVector<xAOD::Electron_v1>>& electrons,
                                                                           std::vector<const xAOD::Electron*>& displacedElectronCandidates) const
 {

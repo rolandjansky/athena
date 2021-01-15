@@ -76,8 +76,6 @@ namespace DerivationFramework {
     float m_dPhiMax;
 
     std::string m_sgKeyPrefix;
-    //SG::WriteHandleKey< std::vector<float> > m_DiEleMassKey { this, "KinkTrkDiEleMass", "", "" };
-    //SG::WriteHandleKey< std::vector<float> > m_ProbeEleEtKey { this, "KinkTrkProbeEleEt", "", "" };
 
   }; 
  
