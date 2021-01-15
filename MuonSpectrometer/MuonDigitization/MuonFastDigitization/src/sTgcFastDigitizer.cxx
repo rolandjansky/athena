@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
@@ -26,7 +26,7 @@
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "PathResolver/PathResolver.h"
 
@@ -396,7 +396,7 @@ StatusCode sTgcFastDigitizer::execute() {
       if( type == 1 ){
 // switch off smearing
 	resolution = getResolution(inAngle_time);
-	sp = CLHEP::RandGauss::shoot(m_rndmEngine, hitOnSurface.x(), resolution);
+	sp = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, hitOnSurface.x(), resolution);
       }
       //ATH_MSG_DEBUG("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z());
 

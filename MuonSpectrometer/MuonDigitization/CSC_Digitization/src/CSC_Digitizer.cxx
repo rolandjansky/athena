@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Author: Ketevi A. Assamagan
@@ -15,7 +15,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CSC_Digitization/CSC_Digitizer.h"
-//#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGamma.h"
 #include "CLHEP/Random/RandPoisson.h"
@@ -53,14 +52,7 @@ StatusCode CSC_Digitizer::initialize() {
   // This method must be called before looping over the hits
   // to digitize them using the method digitize_hit below
   m_bunchTime = 0.0;
-
-  // initialize random number generators
-  //  double average_int = 30;  // average interactions per cm
-  //  m_FlatDist = CLHEP::RandFlat::shoot(m_rndmEngine, 0.0,1.0);
-  //  m_GaussDist = CLHEP::RandGauss::shoot(m_rndmEngine,0.0,1.0);  
-  //  m_GammaDist = CLHEP::RandGamma::shoot(m_rndmEngine, (1.0+m_Polia), 1.0); 
-  //  m_PoissonDist = CLHEP::RandPoisson::shoot(m_rndmEngine, average_int); 
-  
+ 
   // initialize the CSC identifier helper
   m_cscIdHelper = m_muonMgr->cscIdHelper();
   //if (!m_cscIdHelper) return status;
