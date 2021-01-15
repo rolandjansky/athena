@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_LVL1ConfigSvc
@@ -37,17 +37,17 @@ namespace TrigConf {
       LVL1ConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
       virtual ~LVL1ConfigSvc();
       
-      StatusCode initialize();
-      StatusCode finalize();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
 
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvIF );
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
       // Access functions described by ILVL1ConfigSvc:
-      const Muctpi* muctpiConfig() const { return m_muctpi; }
-      const CTPConfig* ctpConfig() const { return m_ctpConfig; }
-      const ThresholdConfig* thresholdConfig() const;
-      const BunchGroupSet* bunchGroupSet() const;
-      uint32_t lvl1PrescaleKey() const { return static_cast<uint32_t>(m_prescaleSetID); }
+      virtual const Muctpi* muctpiConfig() const override { return m_muctpi; }
+      virtual const CTPConfig* ctpConfig() const override { return m_ctpConfig; }
+      virtual const ThresholdConfig* thresholdConfig() const override;
+      virtual const BunchGroupSet* bunchGroupSet() const override;
+      virtual uint32_t lvl1PrescaleKey() const override { return static_cast<uint32_t>(m_prescaleSetID); }
 
       /// @name Dummy implementations of the Run 3 L1 JSON trigger configuration interface in IILVL1ConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
