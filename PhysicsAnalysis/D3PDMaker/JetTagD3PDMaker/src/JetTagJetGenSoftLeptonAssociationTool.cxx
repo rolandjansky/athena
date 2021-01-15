@@ -37,13 +37,17 @@ StatusCode JetTagJetGenSoftLeptonAssociationTool::initialize()
 
   CHECK ( m_resolver.initialize<McEventCollection>() );
 
-  m_dummyParticle = new HepMC::GenParticle();
+  m_dummyParticle = HepMC::newGenParticlePtr();
 
   return StatusCode::SUCCESS;
 }
 StatusCode JetTagJetGenSoftLeptonAssociationTool::finalize()
 {
+#ifdef HEPMC3
+
+#else
   delete m_dummyParticle;
+#endif
   return base::finalize();
 }
 
@@ -94,7 +98,11 @@ StatusCode JetTagJetGenSoftLeptonAssociationTool::reset (const  Jet& p)
  *
  * Return 0 when the association has been exhausted.
  */
+#ifdef HEPMC3
+const HepMC3::GenParticle* JetTagJetGenSoftLeptonAssociationTool::next()
+#else
 const HepMC::GenParticle* JetTagJetGenSoftLeptonAssociationTool::next()
+#endif
 {
 
   // reached the end
@@ -112,9 +120,9 @@ const HepMC::GenParticle* JetTagJetGenSoftLeptonAssociationTool::next()
     *m_barcode = barc;
   }
   
-  const HepMC::GenParticle* mcpart = 0;
+  HepMC::ConstGenParticlePtr mcpart{nullptr};
   if(m_genEvent){
-    mcpart = m_genEvent->barcode_to_particle(barc);
+    mcpart = HepMC::barcode_to_particle(m_genEvent,barc);
   }
 
 
@@ -125,7 +133,11 @@ const HepMC::GenParticle* JetTagJetGenSoftLeptonAssociationTool::next()
   if(!mcpart) mcpart = m_dummyParticle; 
 
   ++m_lepItr;
+#ifdef HEPMC3
+  return mcpart.get();
+#else
   return mcpart;
+#endif
 
 
 }
