@@ -9,7 +9,7 @@
 using namespace Crest;
 
 int main() {
-  std::cout << "CREST Client Libtary test 2\n";
+  std::cout << "CREST Client Libtary test 2" << std::endl;
 
   int retv = 0;
 
@@ -22,7 +22,7 @@ int main() {
   //==============================================
   // Tag Creation
 
-  std::cout << std:: endl << "test: createTag" << std::endl;
+  std::cout << std::endl << "test: createTag" << std::endl;
 
   // Tag description as a JSON:
 
@@ -41,10 +41,10 @@ int main() {
 
   try{
     testCrestClient.createTag(js);
-    std::cout << std:: endl << "test: createTag (success)" << std::endl;
+    std::cout << std::endl << "test: createTag (success)" << std::endl;
   }
   catch (const std::runtime_error& e) {
-    std::cout << std:: endl << "test: createTag (failed)" << std::endl;
+    std::cout << std::endl << "test: createTag (failed)" << std::endl;
     retv = 1;
   }
 
@@ -52,16 +52,16 @@ int main() {
   //==============================================
   // Tag Reading
 
-     std::cout << std:: endl << "test: findTag" << std::endl;
+     std::cout << std::endl << "test: findTag" << std::endl;
      std::string tagname = "test_MvG3a";
 
      try {
         nlohmann::json tag_info = testCrestClient.findTag(tagname);
-        std::cout << std:: endl << "test: findTag (result)" << std::endl
+        std::cout << std::endl << "test: findTag (result)" << std::endl
         << tag_info.dump(4) << std::endl;
      }
      catch(const std::runtime_error& e){
-        std::cout << std:: endl << "test: findTag (failed)" << std::endl;
+        std::cout << std::endl << "test: findTag (failed)" << std::endl;
         retv = 1;
      }
    //

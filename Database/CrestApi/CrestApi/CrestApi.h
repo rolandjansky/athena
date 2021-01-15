@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2019, 2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2019 CERN for the benefit of the ATLAS collaboration
  */
 
 
@@ -18,6 +18,7 @@
 #include <iosfwd>
 #include <cstdint>
 #include "nlohmann/json.hpp"
+#include <curl/curl.h>
 
 // Boost Function Fragment (begin)
 
@@ -29,6 +30,9 @@
 //
 BOOST_PARAMETER_NAME(page)
 BOOST_PARAMETER_NAME(size)
+BOOST_PARAMETER_NAME(tagname)
+BOOST_PARAMETER_NAME(sort)
+BOOST_PARAMETER_NAME(dateformat)
 //
 
 // Boost Function Fragment (end)
@@ -111,7 +115,6 @@ namespace Crest {
  */
     CrestClient(bool rewriteIfExists, const std::string& root_folder = "/tmp/crest_dump");
 
-//
 
 /**
  * CrestClient constructor for Internet mode. If CrestClient is created with this method the data will be sent to the
@@ -143,7 +146,7 @@ namespace Crest {
 
 /**
  * General auxiliary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags...).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
@@ -169,7 +172,7 @@ namespace Crest {
 
 /**
  * General auxillary method to make request to the CREST Server. This method is used by other methods realizing the
- * requests with the concrete kinds of data (iovs|payloads|tags...).
+ * requests with the concrete kinds of data (iovs|payloads|tags…).
  *
  * @param current_path - URL request path
  * @param action - Action (GET|POST|DELETE)
@@ -208,11 +211,20 @@ namespace Crest {
 
 /**
  * Auxillary method to convert string in to JSON object.
- * @param str - string (sdt::string)
+ * @param str - string (std::string)
  * @return - JSON object as nlohmann::json
  *
  */
     nlohmann::json getJson(const std::string& str); // string to json
+
+/**
+ * Auxillary method to convert string in to JSON object.
+ * @param str - string (std::string)
+ * @param method - method name, wthich calls this method. This parameter is used to throw an error exception.
+ * @return - JSON object as nlohmann::json
+ *
+ */
+    nlohmann::json getJson(const std::string& str, const std::string& method); // string to json  
 
 /**
  * Auxillary method to get a file as a string.
@@ -522,6 +534,11 @@ namespace Crest {
 // MonitoringApi
 //
 
+/**
+ * This method retrieves monitoring information on all payloads as a list of payload tag information.
+ * (This method is an analogue of the list_payload_tag_info method in Python)
+ */
+    nlohmann::json listPayloadTagInfo();
 
 /**
  * This method retrieves monitoring information on payload as a list of payload tag information.
@@ -953,11 +970,58 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
     nlohmann::json getResFirst(nlohmann::json& js);
 
 
-    /**
-     *  Auxillary method to check if the JSON object contain an error message.
-     * @param js - a JSON object to be checked.
-     */
-    int checkErrors(nlohmann::json& js);
+/**
+*  Auxillary method to check if the CrestApi library initialized to work with the file system.
+*  It was used to throw an exception if the library method not implemented for file system.
+* @param method_name - method name.
+*/
+void checkFsException(std::string& method_name);
+
+
+/**
+*  Auxillary method to check if the JSON object contain an error message. 
+* @param js - a JSON object to be checked. Example: <br>
+* <pre>
+*    nlohmann::json js =
+*    {
+*       "message": "Cannot create tag because name already exists: test_MvG3b",
+*       "type": "error"
+*    }
+* </pre>
+* @param method - method name, where was the error.
+*/
+int checkErrors(const nlohmann::json& js, const std::string& method);
+
+/**
+ * This method removes all XML/HTML tags from a string. 
+ * (It is an auxillary method to clear the CREST Server response.)
+ * @param xmlBuffer - the text (a std::string ) to be cleared.
+ */
+ std::string ParseXMLOutput(std::string xmlBuffer);
+
+/**
+ * This method removes all end of line and carriage return symbols from a string. 
+ * (It is an auxillary method to clear the CREST Server response.)
+ * @param str - the text (a std::string ) to be cleared.
+ */
+ std::string removeCR(const std::string& str);
+
+/**
+ * This method checks if a string is in the JSON format. 
+ * (It is an auxillary method to check the CREST Server response format.)
+ * @param str - the string to be checked.
+ */
+ bool isJson(const std::string& str);
+
+/**
+ * This auxillary method checks the CURL response. 
+ * It contais a error checking routine (common for all CURL request methods).
+ * @param res - CURL response status,
+ * @param response_code - the CURL response code, 
+ * @param st - the CURL response,
+ * @param method_name - the name on a method which calls one of the perform request methods. 
+ */
+void checkResult(CURLcode res, long response_code, const std::string& st, const std::string& method_name);
 
 // Tag Meta Info Methods
 
@@ -1074,6 +1138,8 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
 /**
  * This method returns the tag list. It is a verion of this method with all parameters.
  * (This method is an analogue of the list_tags method in Python)
+ * @param size - page size.
+ * @param page - page number.
  */
   nlohmann::json listTags(int size, int page);
 
@@ -1092,11 +1158,6 @@ void storeBatchPayloadsFs(std::string tag_name, nlohmann::json& js);
  *
  *  nlohmann::json listTagsParams(int _size, int _page);
  */
-#ifdef __clang__
-// Suppress clang warning about unused argument from boost code.
-# pragma clang diagnostic push
-# pragma clang diagnostic ignored "-Wunused-parameter"
-#endif
 BOOST_PARAMETER_MEMBER_FUNCTION(
    (nlohmann::json), 
    listTagsParams,
@@ -1110,14 +1171,57 @@ BOOST_PARAMETER_MEMBER_FUNCTION(
 )
 {
 
-   return listTags(size, page); 
+  return listTags(size, page); 
 }
-#ifdef __clang__
-# pragma clang diagnostic pop
-#endif
+
+
+/**
+ * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all parameters.
+ * (This method is an analogue of the find_all_iovs method in Python)
+ * @param tagname - tag name.
+ * @param size - page size.
+ * @param page - page number.
+ */
+ nlohmann::json findAllIovs(const std::string& tagname, int size, int page, const std::string& sort, const std::string& dateformat);
+
+
+/**
+ * This method finds all iovs for a given tag name. The result is a JSON object. It is a verion of this method with all parameters.
+ * (This method is an analogue of the find_all_iovs method in Python)
+ * @param tagname - tag name.
+ * @param _size - page size. Default value is 1000.
+ * @param _page - page number. Default value is 0.
+ * @param _sort - sorting order, "id.since:ASC" or "id.since:DESC". Default value is "id.since:ASC"
+ * @param _dateformat - date format
+ * Examples: <br>
+ * <pre>
+ *   nlohmann::json list1 = myCrestClient.findAllIovsParams("myTag");
+ *   nlohmann::json list2 = myCrestClient.findAllIovsParams("myTag",100,200);
+ *   nlohmann::json list2 = myCrestClient.findAllIovsParams("myTag",_page=3,_size=5);
+ * </pre>
+ */
+BOOST_PARAMETER_MEMBER_FUNCTION(
+   (nlohmann::json), 
+   findAllIovsParams,
+   tag, 
+   (required 
+     (tagname, (std::string))
+   )
+   (optional 
+     (size, (int) , 1000)
+     (page, (int) , 0)
+     (sort, (std::string), "id.since:ASC")
+     (dateformat, (std::string), "ms")  
+   )
+)
+{
+
+  return findAllIovs(tagname, size, page, sort, dateformat); 
+}
 
 
 // Boost Function Fragment (end)
+
 
   };
 
