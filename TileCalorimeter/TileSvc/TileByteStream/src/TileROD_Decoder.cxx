@@ -3938,36 +3938,29 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
 {
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
-  if (ros == 1) {
-    int drawer = (frag_id & 0xFF);
-    TileCellCollection::iterator pCell = v.begin();
-    pCell += 2;
-    if (d0cells.m_D0Existneg[drawer] && d0cells.m_D0Existpos[drawer]) {
-      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
-      double amp2 = d0cells.m_D0channeg[drawer].amplitude();
-      int gain1 = d0cells.m_D0chanpos[drawer].adc();
-      int gain2 = d0cells.m_D0channeg[drawer].adc();
-      if ((!d0cells.m_D0Maskneg[drawer]) && (!d0cells.m_D0Maskpos[drawer])) {
-        (*pCell)->setEnergy(amp1, amp2, gain1, gain2);
-        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
-        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time(), 1);
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 1);
-      } else if (d0cells.m_D0Maskpos[drawer]) {
-        (*pCell)->setEnergy(amp2, amp2, gain1, gain2);
-        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 0);
-      } else {
-        (*pCell)->setEnergy(amp1, amp1, gain1, gain1);
-        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
-      }
-    } else if (d0cells.m_D0Existpos[drawer]) {
-      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
-      int gain1 = d0cells.m_D0chanpos[drawer].adc();
-      (*pCell)->setEnergy(amp1, d0cells.m_D0chanpos[drawer].time(), gain1, 1);
-      (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 1);
-    }
+  if ( ros != 1 ) return; // Only in positive barrel
+  int drawer = (frag_id & 0xFF);
+  TileCell* pCell  = d0cells.cells[drawer];
+  if ( !pCell ) return;
+  double amp1(0.0), amp2(0.0);
+  amp1 = d0cells.m_D0chanpos[drawer].amplitude();
+  amp2 = d0cells.m_D0channeg[drawer].amplitude();
+  int gain1 = d0cells.m_D0chanpos[drawer].adc();
+  int gain2 = d0cells.m_D0channeg[drawer].adc();
+  if ((!d0cells.m_D0Maskneg[drawer]) && (!d0cells.m_D0Maskpos[drawer])) {
+    (pCell)->setEnergy(amp1, amp2, gain1, gain2);
+    (pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+    (pCell)->setTime(d0cells.m_D0channeg[drawer].time(), 1);
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 1);
+  } else if (d0cells.m_D0Maskpos[drawer]) {
+    (pCell)->setEnergy(amp2, amp2, gain1, gain2);
+    (pCell)->setTime(d0cells.m_D0channeg[drawer].time());
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 0);
+  } else {
+    (pCell)->setEnergy(amp1, amp1, gain1, gain1);
+    (pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
   }
 }
 
