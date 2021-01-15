@@ -623,7 +623,7 @@ float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNeg
   return rho;
 }
 
-StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool useOffline){
+StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool useOffline, bool useNegTowers){
 
   const unsigned int size = towers->size();
   TFile* file = TFile::Open(lut_path, "READ");
@@ -644,6 +644,10 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
     std::cout<<"eta = "<<eta<<std::endl;
     std::cout<<"phi ="<<phi<<std::endl;*/
 
+    if(!useNegTowers){
+      if(Et < 0) continue;
+    }
+
     int ieta = GFEX_iEta(eta);
     std::string fpga = GFEX_pFPGA(eta);
     if(fpga=="A") rho = rhoA;
@@ -659,7 +663,12 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
     float Et_sub = Et - rho;
     if(useOffline) Et_sub = Et - mean;
 
-    if(Et_sub < thresh) continue;
+
+    if(useNegTowers && Et_sub < 0){
+      if(Et_sub > -1*thresh) continue;
+    }else{
+      if(Et_sub < 3*thresh) continue;
+    }
 
     metX += Et_sub*TMath::Cos(phi);
     metY += Et_sub*TMath::Sin(phi);

@@ -104,10 +104,10 @@ histSvc("THistSvc",name){
   declareProperty("useRMS", m_useRMS=true);
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("gFEX_useNegTowers", m_gFEX_useNegTowers=true);
-  declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true); 
+  declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true);
   declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=true); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
-  declareProperty("gXERHOLUT_file", m_gXERHOLUT_file="Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20201215.MiddleTrain.r11881.root");
+  declareProperty("gXERHOLUT_file", m_gXERHOLUT_file="Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20210105.MiddleTrainNoNoiseCut.r11881.root");
 
   declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200510.r11881.root");  //correction file for jXERHO
   declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
@@ -722,8 +722,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, false) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT_offline",rhoA,rhoB,rhoC,m_gXERHOLUT_file, true) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, false, m_gFEX_useNegTowers) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT_offline",rhoA,rhoB,rhoC,m_gXERHOLUT_file, true, m_gFEX_useNegTowers) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
