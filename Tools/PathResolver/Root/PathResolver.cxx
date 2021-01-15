@@ -42,7 +42,12 @@ asg::AsgMessaging& PathResolver::asgMsg() {
 #else
    static asg::AsgMessaging asgMsg ATLAS_THREAD_SAFE ("PathResolver");
 #endif
-   asgMsg.msg().setLevel (m_level);
+/// In AnalysisBase this method is not available
+#ifndef XAOD_ANALYSIS
+   asgMsg.setLevel(m_level);   
+#else
+   asgMsg.msg().setLevel(m_level);
+#endif
    return asgMsg;
 }
 
