@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021CERN for the benefit of the ATLAS collaboration
 */
 
 //Gaudi - Core
@@ -32,8 +32,7 @@
 
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
-
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include <string>
 #include <sstream>
@@ -348,7 +347,7 @@ StatusCode MM_FastDigitizer::execute() {
       resolution = .07;
     else
       resolution = ( -.001/3.*fabs(inAngle_XZ) ) + .28/3.;
-    double sp = CLHEP::RandGauss::shoot(m_rndmEngine, 0, resolution);
+    double sp = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0, resolution);
     ATH_MSG_VERBOSE("slpos.z " << slpos.z() << ", ldir " << ldir.z() << ", scale " << scale << ", hitOnSurface.z " << hitOnSurface.z() );
     
     double errX = 0;
@@ -537,7 +536,7 @@ StatusCode MM_FastDigitizer::execute() {
           cov->setIdentity();
           (*cov)(0,0) = resolution*resolution;
 
-          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGauss::shoot(m_rndmEngine, 0., 5.);
+          tdrift = CurrentHitInDriftGap.z() / vdrift + CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0., 5.);
           Amg::Vector2D CurrenPosOnSurf(CurrentHitInDriftGap.x(),CurrentHitInDriftGap.y());
 
           stripNumber = detEl->stripNumber(CurrenPosOnSurf,layid);

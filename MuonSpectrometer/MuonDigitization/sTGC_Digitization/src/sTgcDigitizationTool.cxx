@@ -45,7 +45,7 @@
 //Random Numbers
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include <sstream>
 #include <iostream>
@@ -611,8 +611,8 @@ StatusCode sTgcDigitizationTool::doDigitization() {
         float newTime = (*it_digiHits)->time();
         int newChannelType = m_idHelper->channelType((*it_digiHits)->identify());
 
-        float timeJitterElectronicsStrip = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
-        float timeJitterElectronicsPad = CLHEP::RandGauss::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
+        float timeJitterElectronicsStrip = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0, m_timeJitterElectronicsStrip);
+        float timeJitterElectronicsPad = CLHEP::RandGaussZiggurat::shoot(m_rndmEngine, 0, m_timeJitterElectronicsPad);
         if(newChannelType==1)
           newTime += timeJitterElectronicsStrip;
         else
