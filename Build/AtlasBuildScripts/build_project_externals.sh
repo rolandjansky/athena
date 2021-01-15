@@ -5,8 +5,6 @@
 #
 # The includer script must set (default) values for the following variables
 # before sourcing this script:
-#  - ATLAS_PROJECT_NAME: The name of the main project, for which this script
-#    is building an "externals project".
 #  - ATLAS_PROJECT_DIR: Directory of the project that this script is being used
 #    from.
 #  - ATLAS_EXT_PROJECT_NAME: The name of the "externals project" needed by the
@@ -21,7 +19,7 @@
 
 # Function printing the usage information for the script.
 usage() {
-   echo "Script building ${ATLAS_EXT_PROJECT_NAME} for ${ATLAS_PROJECT_NAME}"
+   echo "Script building ${ATLAS_EXT_PROJECT_NAME}."
    echo ""
    echo "Usage: build_externals.sh [options]"
    echo "Options:"
@@ -111,7 +109,7 @@ mkdir -p "${ATLAS_BUILD_DIR}"
 ATLAS_BUILD_DIR=$(cd "${ATLAS_BUILD_DIR}" && pwd)
 
 # Greet the user.
-echo "Building the externals for ${ATLAS_PROJECT_NAME} in: ${ATLAS_BUILD_DIR}"
+echo "Building ${ATLAS_EXT_PROJECT_NAME} in: ${ATLAS_BUILD_DIR}"
 
 # Clean the build directory, if necessary.
 if [ "$ATLAS_FORCE_REBUILD" = "1" ]; then
@@ -180,7 +178,7 @@ fi
 
 # Exit with the error count taken into account.
 if [ ${ERROR_COUNT} -ne 0 ]; then
-    echo "${ATLAS_PROJECT_NAME} externals build encountered ${ERROR_COUNT} error(s)"
+    echo "${ATLAS_EXT_PROJECT_NAME} build encountered ${ERROR_COUNT} error(s)"
 else
     cp "${ATLAS_PROJECT_DIR}/externals.txt" "${externals_stamp}"
 fi
