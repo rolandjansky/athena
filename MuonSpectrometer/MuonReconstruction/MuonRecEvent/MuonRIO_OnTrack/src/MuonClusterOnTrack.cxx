@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ std::ostream& MuonClusterOnTrack::dump( std::ostream&    stream) const
 }
 
 const Amg::Vector3D& MuonClusterOnTrack::globalPosition() const {
-  if (detectorElement()==0){
+  if (detectorElement()==nullptr){
     // Not much we can do here - no detelement, so just return 0,0,0
     m_globalPosition.set(std::make_unique<const Amg::Vector3D>(0.0,0.0,0.0));
   }
