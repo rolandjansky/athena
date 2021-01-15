@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020  CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021  CERN for the benefit of the ATLAS collaboration
  */
 
 /*
@@ -36,7 +36,7 @@ UPDATE : 25/06/2018
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name,
                                                  ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthReentrantAlgorithm(name, pSvcLocator)
   , m_AllClusters{}
   , m_SelectedClusters{}
   , m_AllTracks{}
@@ -85,7 +85,7 @@ egammaSelectedTrackCopy::egammaSelectedTrackCopy::finalize()
 }
 
 StatusCode
-egammaSelectedTrackCopy::execute_r(const EventContext& ctx) const
+egammaSelectedTrackCopy::execute(const EventContext& ctx) const
 {
   SG::ReadHandle<xAOD::CaloClusterContainer> clusterTES(m_clusterContainerKey,
                                                         ctx);
@@ -96,7 +96,7 @@ egammaSelectedTrackCopy::execute_r(const EventContext& ctx) const
   }
   SG::ReadHandle<xAOD::TrackParticleContainer> trackTES(
     m_trackParticleContainerKey, ctx);
- 
+
   if (!trackTES.isValid()) {
     ATH_MSG_FATAL("Failed to retrieve TrackParticle container: "
                   << m_trackParticleContainerKey.key());
@@ -216,8 +216,9 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
     Et = cluster->et();
   }
   // a few sanity checks
-  if (fabs(clusterEta) > 10.0 || fabs(trkEta) > 10.0 || Et < 10.0) {
-    ATH_MSG_DEBUG("FAILS sanity checks :  Track Eta : " << trkEta << ", Cluster Eta " << clusterEta);
+  if (std::abs(clusterEta) > 10.0 || std::abs(trkEta) > 10.0 || Et < 10.0) {
+    ATH_MSG_DEBUG("FAILS sanity checks :  Track Eta : "
+                  << trkEta << ", Cluster Eta " << clusterEta);
     return false;
   }
 
@@ -246,11 +247,14 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
    * The second if it matched from Perigee rescales
    */
   // Broad phi check
-  if ((fabs(deltaPhiRescaled) > m_broadDeltaPhi) && (fabs(deltaPhiTrack) > m_broadDeltaPhi) &&
-      (fabs(deltaPhiStd) > m_broadDeltaPhi)) {
-    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
-                  << "cluster phi corrected, cluster phi): ( " << trkPhi << ", " << phiRotRescaled << ", "
-                  << phiRotTrack << ", " << clusterPhiCorrected << ", " << cluster->phi() << ")");
+  if ((std::abs(deltaPhiRescaled) > m_broadDeltaPhi) &&
+      (std::abs(deltaPhiTrack) > m_broadDeltaPhi) &&
+      (std::abs(deltaPhiStd) > m_broadDeltaPhi)) {
+    ATH_MSG_DEBUG(
+      "FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
+      << "cluster phi corrected, cluster phi): ( " << trkPhi << ", "
+      << phiRotRescaled << ", " << phiRotTrack << ", " << clusterPhiCorrected
+      << ", " << cluster->phi() << ")");
     return false;
   }
   // if TRT we can stop here , we can not check much in eta really.
@@ -260,10 +264,12 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
   const double clusterEtaCorrected = XYZClusterWrtTrackPerigee.eta();
 
   // Broad eta check
-  if (fabs(cluster->eta() - trkEta) >  m_broadDeltaEta &&
-      fabs(clusterEtaCorrected - trkEta) > m_broadDeltaEta) {
-    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( "
-                  << trkEta << ", " << cluster->etaBE(2) << ", " << clusterEtaCorrected << " )");
+  if (std::abs(cluster->eta() - trkEta) > m_broadDeltaEta &&
+      std::abs(clusterEtaCorrected - trkEta) > m_broadDeltaEta) {
+    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, "
+                  "cluster eta corrected): ( "
+                  << trkEta << ", " << cluster->etaBE(2) << ", "
+                  << clusterEtaCorrected << " )");
     return false;
   }
 
@@ -300,17 +306,20 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
     }
   }
   // Selection in narrow eta/phi window from last measurement
-  if (fabs(deltaEta[2]) < m_narrowDeltaEta && deltaPhi[2] < m_narrowDeltaPhi && deltaPhi[2] > -m_narrowDeltaPhiBrem) {
-    ATH_MSG_DEBUG("Match from Last measurement is successful :  " << deltaPhi[2]);
+  if (std::abs(deltaEta[2]) < m_narrowDeltaEta &&
+      deltaPhi[2] < m_narrowDeltaPhi && deltaPhi[2] > -m_narrowDeltaPhiBrem) {
+    ATH_MSG_DEBUG(
+      "Match from Last measurement is successful :  " << deltaPhi[2]);
     return true;
   }
   /*
-   * Cases where 
-   * - it passes  deltaEta[2] from last measurement (rescaling should not affect the eta side)
+   * Cases where
+   * - it passes  deltaEta[2] from last measurement (rescaling should not affect
+   * the eta side)
    * - and we have a cluster with higher Et.
    * Rescale up the track to account for radiative loses and retry
    */
-  if (fabs(deltaEta[2]) < m_narrowDeltaEta && cluster->et() > track->pt()) {
+  if (std::abs(deltaEta[2]) < m_narrowDeltaEta && cluster->et() > track->pt()) {
     // Extrapolate from Perigee Rescaled
     std::array<double, 4> etaRes = { -999.0, -999.0, -999.0, -999.0 };
     std::array<double, 4> phiRes = { -999.0, -999.0, -999.0, -999.0 };
@@ -331,7 +340,8 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
       return false;
     }
     // Redo the check with rescale
-    if (fabs(deltaEtaRes[2]) < m_narrowDeltaEta && deltaPhiRes[2] < m_narrowRescale &&
+    if (std::abs(deltaEtaRes[2]) < m_narrowDeltaEta &&
+        deltaPhiRes[2] < m_narrowRescale &&
         deltaPhiRes[2] > -m_narrowRescaleBrem) {
       ATH_MSG_DEBUG("Rescale Match success " << deltaPhiRes[2]);
       return true;
