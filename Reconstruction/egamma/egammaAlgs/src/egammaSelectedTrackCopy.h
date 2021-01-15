@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef EGAMMAALGS_EGAMMASELECTEDTRACKCOPY_H
@@ -13,7 +13,7 @@
 
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
@@ -33,7 +33,7 @@
 
 class CaloCluster;
 
-class egammaSelectedTrackCopy : public AthAlgorithm
+class egammaSelectedTrackCopy : public AthReentrantAlgorithm
 {
 public:
   /** @brief Default constructor*/
@@ -41,13 +41,7 @@ public:
 
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
-  virtual StatusCode execute() override final
-  {
-    return execute_r(Algorithm::getContext());
-  }
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-  StatusCode execute_r(const EventContext& ctx) const;
+  virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
   /** @brief broad track selection */
