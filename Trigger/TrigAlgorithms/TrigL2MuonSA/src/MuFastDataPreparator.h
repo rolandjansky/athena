@@ -54,6 +54,7 @@ class MuFastDataPreparator: public AthAlgTool {
   
   StatusCode prepareData(const LVL1::RecMuonRoI*     p_roi,
 			 const TrigRoiDescriptor*    p_roids,
+                         bool&                       isRpcFakeRoi,
 			 const bool                  insideOut,
 			 TrigL2MuonSA::RpcHits&      rpcHits,
 			 TrigL2MuonSA::MuonRoad&     muonRoad,
@@ -93,9 +94,7 @@ class MuFastDataPreparator: public AthAlgTool {
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
-  bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
-
-  void setMultiMuonTrigger( const bool multiMuonTrigger ) {m_doMultiMuon = multiMuonTrigger;};
+  void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
   TrigL2MuonSA::MuFastDataPreparatorOptions m_options;

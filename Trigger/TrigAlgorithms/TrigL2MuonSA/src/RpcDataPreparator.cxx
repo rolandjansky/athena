@@ -79,6 +79,7 @@ void TrigL2MuonSA::RpcDataPreparator::setMultiMuonTrigger( const bool multiMuonT
 
 StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*    p_roids,
                                                         unsigned int roiWord,
+                                                        bool&        isFakeRoi,
                                                         TrigL2MuonSA::RpcHits&      rpcHits,
                                                         TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
                                                         ToolHandle<RpcPatFinder>*   rpcPatFinder)
@@ -87,7 +88,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   rpcHits.clear();
   
   // set to false the flag indicating whether the roi is a fake one.
-  m_isFakeRoi = false;
+  isFakeRoi = false;
 
   if( m_emulateNoRpcHit )
     return StatusCode::SUCCESS;
@@ -108,7 +109,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
     ATH_MSG_WARNING("Roi Number: " << roiNumber << " not compatible with side, sector: "
         << side <<  " " << sector << " (padIdHash=" << padIdHash << ")");
     // set the bool flag to send the event to the debug stream
-    m_isFakeRoi = true;
+    isFakeRoi = true;
   }
   else {
     ATH_MSG_DEBUG("Roi Number: " << roiNumber << " side, sector: " << side <<  " " << sector);

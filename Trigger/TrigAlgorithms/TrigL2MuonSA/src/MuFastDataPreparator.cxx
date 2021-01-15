@@ -159,8 +159,17 @@ void TrigL2MuonSA::MuFastDataPreparator::setExtrapolatorTool(ToolHandle<ITrigMuo
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+void TrigL2MuonSA::MuFastDataPreparator::setMultiMuonTrigger( const bool multiMuonTrigger ) 
+{
+  m_rpcDataPreparator->setMultiMuonTrigger(multiMuonTrigger);
+}
+
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRoI*     p_roi,
                                                            const TrigRoiDescriptor*    p_roids,
+                                                           bool&                       isRpcFakeRoi,
                                                            const bool                  insideOut,
                                                            TrigL2MuonSA::RpcHits&      rpcHits,
                                                            TrigL2MuonSA::MuonRoad&     muonRoad,
@@ -181,16 +190,13 @@ StatusCode TrigL2MuonSA::MuFastDataPreparator::prepareData(const LVL1::RecMuonRo
   
   if(m_use_rpc && !insideOut) {
 
-    m_rpcDataPreparator->setMultiMuonTrigger(m_doMultiMuon);
     unsigned int roiWord = p_roi->roiWord();
     sc = m_rpcDataPreparator->prepareData(p_roids,
 					  roiWord,
+                                          isRpcFakeRoi, // check if the RoI is fake and se the flag
                                           rpcHits,
                                           rpcLayerHits,
                                           &m_rpcPatFinder);
-
-    // check if the RoI is fake and se the flag
-    m_isRpcFakeRoi = m_rpcDataPreparator->isFakeRoi();
 
     if (!sc.isSuccess()) {
       ATH_MSG_DEBUG("Error in RPC data prepapration. Continue using RoI");
