@@ -86,6 +86,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_neighborThresholdOnEtorAbsEt     (  100.*MeV), 
     m_seedThresholdOnEtorAbsEt         (  200.*MeV),
     m_seedThresholdOnTAbs              (  12.5*ns),
+    m_timeCutUpperLimit                (    20.),
     m_useNoiseTool                     (false),
     m_usePileUpNoise                   (false),
     m_noiseTool                        ("CaloNoiseTool"),
@@ -100,6 +101,7 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
     m_clusterEtorAbsEtCut              (    0.*MeV),
     m_seedCutsInT                      (false),
     m_cutOOTseed                       (false),
+    m_useTimeCutUpperLimit             (false),
     m_twogaussiannoise                 (false),
     m_treatL1PredictedCellsAsGood      (true),
     m_minSampling                      (0),
@@ -137,6 +139,9 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
   // Time thresholds (in abs. val.)
   declareProperty("SeedThresholdOnTAbs",m_seedThresholdOnTAbs);
 
+  // Significance upper limit for applying time cut
+  declareProperty("TimeCutUpperLimit",m_timeCutUpperLimit);
+
   // Seed and cluster cuts are in E or Abs E
   declareProperty("SeedCutsInAbsE",m_seedCutsInAbsE);
 
@@ -150,6 +155,9 @@ CaloTopoClusterMaker::CaloTopoClusterMaker(const std::string& type,
   declareProperty("SeedCutsInT",m_seedCutsInT);
   //exclude out-of-time seeds from neighbouring and cell stage              
   declareProperty("CutOOTseed",m_cutOOTseed);
+  //do not apply time cut on cells of large significance
+  declareProperty("UseTimeCutUpperLimit",m_useTimeCutUpperLimit);
+
 
   // Noise Sigma
   declareProperty("NoiseSigma",m_noiseSigma);
@@ -244,6 +252,9 @@ CaloTopoClusterMaker::geoInit(IOVSVC_CALLBACK_ARGS)
 	  ", CellThresholdOnEinSigma=")
       << m_cellThresholdOnEorAbsEinSigma
       << endreq;
+
+  ATH_MSG_INFO( "Time cut option: " << ((!m_seedCutsInT) ? "None" : (m_cutOOTseed ? "Seed Extended" : "Seed")));
+  ATH_MSG_INFO( "E/sigma veto on T cut: m_useTimeCutUpperLimit=" << (m_useTimeCutUpperLimit ? "true" : "false") << ", m_timeCutUpperLimit=" << m_timeCutUpperLimit);
 
   //--- set Neighbor Option
 
@@ -525,8 +536,8 @@ StatusCode CaloTopoClusterMaker::execute(xAOD::CaloClusterContainer* clusColl)
 	    && ( m_usePileUpNoise || ((m_seedCutsInAbsE?std::abs(signedEt):signedEt) > m_seedThresholdOnEtorAbsEt ));
 
 
-
-	  bool passTimeCut_seedCell = (!m_seedCutsInT || passCellTimeCut(pCell,m_seedThresholdOnTAbs));
+	  bool applyTimeCut = m_seedCutsInT && !(m_useTimeCutUpperLimit && signedRatio > m_timeCutUpperLimit);
+	  bool passTimeCut_seedCell = (!applyTimeCut || passCellTimeCut(pCell,m_seedThresholdOnTAbs));
 	  bool passedSeedAndTimeCut = (passedSeedCut && passTimeCut_seedCell); //time cut is applied here
 
 	  bool passedNeighborAndTimeCut = passedNeighborCut;

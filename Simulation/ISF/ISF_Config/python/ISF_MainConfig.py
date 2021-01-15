@@ -318,6 +318,29 @@ def getKernel_G4FastCalo(name="ISF_Kernel_G4FastCalo", **kwargs):
     simFlags.SimulationFlavour = "G4FastCalo"
     return getKernel_GenericSimulator(name, **kwargs)
 
+############## Simulator: G4FastCalo_QS ###############
+def getKernel_G4FastCalo_QS(name="ISF_Kernel_G4FastCalo_QS", **kwargs):
+    kwargs.setdefault("ParticleBroker"             , 'ISF_AFIIParticleBrokerSvc'                        )
+
+    kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("IDSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("CaloSimulationSelectors"    , [ 'ISF_MuonAFII_QS_Geant4Selector',
+                                                       'ISF_EtaGreater5ParticleKillerSimSelector',
+                                                       'ISF_PionG4FastCalo_QS_Geant4Selector',
+                                                       'ISF_ProtonG4FastCalo_QS_Geant4Selector',
+                                                       'ISF_NeutronG4FastCalo_QS_Geant4Selector',
+                                                       'ISF_ChargedKaonG4FastCalo_QS_Geant4Selector',
+                                                       'ISF_KLongG4FastCalo_QS_Geant4Selector',
+                                                       'ISF_DefaultFastCaloSimV2Selector' ] )
+    kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultAFII_QS_Geant4Selector' ]            )
+    kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector'  ]           )
+    kwargs.setdefault("InputConverter"             , 'ISF_LongLivedInputConverter'                      )
+    kwargs.setdefault("QuasiStablePatcher"         , 'ZeroLifetimePositioner'                           )
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo_QS"
+    return getKernel_GenericSimulator(name, **kwargs)
+
+
 ############## Simulator: G4FastCaloTest ###############
 def getKernel_G4FastCaloTest(name="ISF_Kernel_G4FastCaloTest", **kwargs):
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultAFIIGeant4Selector' ]            )

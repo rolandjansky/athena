@@ -26,6 +26,10 @@ def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
     # GenParticleSimWhiteList
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
+def getGenParticleSimQuasiStableFilter(name="ISF_GenParticleSimQuasiStableFilter", **kwargs):
+    # GenParticleSimQuasiStableFilter
+    return CfgMgr.ISF__GenParticleSimQuasiStableFilter(name, **kwargs)
+
 def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
     # GenParticleSimWhiteList_LongLived
     kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
