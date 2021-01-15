@@ -1,39 +1,29 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-/*
- * IDTrackCaloDepositsDecoratorTool.h
- *
- *  Created on: Oct 29, 2015
- *      Author: mbellomo
- */
-
 #ifndef IDTRACKCALODEPOSITSDECORATORTOOL_H_
 #define IDTRACKCALODEPOSITSDECORATORTOOL_H_
 
-
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-
 #include "DerivationFrameworkMuons/IIDTrackCaloDepositsDecoratorTool.h"
-
-
-#ifndef XAOD_ANALYSIS
 #include "ICaloTrkMuIdTools/ITrackDepositInCaloTool.h"
-#endif
+
+
 class IDTrackCaloDepositsDecoratorTool :
           public asg::AsgTool,
           virtual public IIDTrackCaloDepositsDecoratorTool {
     ASG_TOOL_CLASS(IDTrackCaloDepositsDecoratorTool, IIDTrackCaloDepositsDecoratorTool)
 public:
-    IDTrackCaloDepositsDecoratorTool(std::string myname);
-    virtual StatusCode      initialize  ();
-    StatusCode              decorate (const xAOD::IParticle* part) const;
-protected:
+    IDTrackCaloDepositsDecoratorTool(const std::string& myname);
+    virtual ~IDTrackCaloDepositsDecoratorTool() = default;
+    StatusCode  initialize() override;
+    StatusCode decorate (const xAOD::IParticle* part) const override;
+private:
 
-#ifndef XAOD_ANALYSIS
+
     ToolHandle<ITrackDepositInCaloTool>  m_trkDepositInCalo;
-#endif
+
     StatusCode    recompute_and_decorate (const xAOD::IParticle* part) const;
 
     SG::AuxElement::Decorator< float > m_dec_EMB1_dep;
