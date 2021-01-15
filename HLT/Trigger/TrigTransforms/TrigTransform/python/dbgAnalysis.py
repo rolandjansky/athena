@@ -23,60 +23,58 @@ msg = logging.getLogger("PyJobTransforms." + __name__)
 
 
 def dbgPreRun(inputFileList, outputFileList):
-
     msg.info('Running debug_stream analysis PreRun operations on files :{0} '.format(inputFileList))
     msg.info('Running debug_stream analysis PreRun, histogram output in :{0} '.format(outputFileList))
 
-    total = 0
     # Open root output file
-    out_file = outputFileList[0]
-    hfile = TFile(out_file, 'RECREATE')
+    outFile = outputFileList[0]
+    hfile = TFile(outFile, 'RECREATE')
+
     # Inicialize dbgEventInfo, this is the main event analysis class
     eventInfo = dbgEventInfo('_Pre', inputFileList.value[0])
     data = []
     l1Info = []
     hltInfo = []
     relInfo = []
-    runInfo = 0
     for inputFile in inputFileList.value:
         bsfile = eformat.istream(inputFile)
-        events = len(bsfile)
-        total += events
         n = 0
         isFirstEvent = True
 
         for event in bsfile:
-            # If fist event get l1 and hlt counter and chain info from DB or XML file
+            # If first event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
+                runInfo = 0
                 if event.run_no() == 0:
                     runInfo = int(inputFile.split(".")[1])
                 else:
                     runInfo = event.run_no()
-                #e = bsfile[0]
                 l1Info, hltInfo, relInfo = TriggerDBInfo(runInfo)
                 isFirstEvent = False
-                #runInfo.append(relInfo)
             n += 1
+            # Log the details of first 5 events
             if n < 5:
                 data = [event.run_no(), event.lumi_block(), event.global_id(),
                         event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
                 msg.info('Event details :%s', data)
+
             # Run debug event analysis and fill output TTree
-            eventInfo.event_count(event)
-            eventInfo.event_info(event, l1Info, hltInfo)
+            eventInfo.eventCount(event)
+            eventInfo.eventInfo(event, l1Info, hltInfo)
             eventInfo.fillTree()
 
     # Close output TFile
     hfile.Write()
     hfile.Close()
 
-    # Release format should be good, if relInfo is 'uknown' then print this error
+    # Check release format, if relInfo is 'unknown' then print error
     release = relInfo[0]
     if not re.match(r'(\d+\.{0,1})+$', release):
         msg.error('Not able to find release from DB (or it was badly formatted), release : {0}'.format(release))
         msg.error('Problem with DB configuration in COOL DB, most likely during data-taking')
 
     msg.info('Finished running debug_stream analysis PreRun operations')
+
     # Returns the local asetupString from runs in input files and to be used by asetup
     return getAsetupString(*relInfo)
 
@@ -85,40 +83,40 @@ def dbgPostRun(inputFileList, outputFileList):
     msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFileList))
     msg.info('Running debug_stream analysis PostRun, histogram output in :{0} '.format(outputFileList))
 
-    total = 0
     # Open root output file
-    out_file = outputFileList[0]
-    hfile = TFile(out_file, 'UPDATE')
+    outFile = outputFileList[0]
+    hfile = TFile(outFile, 'UPDATE')
+
     # Inicialize dbgEventInfo,  this is the main event analysis class
     eventInfo = dbgEventInfo('_Pos', inputFileList.value[0])
     data = []
     l1Info = []
     hltInfo = []
-    relInfo = []
     for inputFile in inputFileList.value:
         if not os.path.isfile(inputFile):
             msg.error('No BS file created with file name :{0} '.format(inputFileList))
             continue
+
         bsfile = eformat.istream(inputFile)
-        events = len(bsfile)
-        total += events
         n = 0
         isFirstEvent = True
 
         for event in bsfile:
             # If fist event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
-                # e = bsfile[0]
-                l1Info, hltInfo, relInfo = TriggerDBInfo(event.run_no())
+                l1Info, hltInfo, _ = TriggerDBInfo(event.run_no())
                 isFirstEvent = False
             n += 1
+
+            # Log the details of first 5 events
             if n < 5:
                 data = [event.run_no(), event.lumi_block(), event.global_id(),
                         event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
                 msg.info('Event details :{0}'.format(data))
+
             # Run debug event analysis and fill output TTree
-            eventInfo.event_count(event)
-            eventInfo.event_info(event, l1Info, hltInfo)
+            eventInfo.eventCount(event)
+            eventInfo.eventInfo(event, l1Info, hltInfo)
             eventInfo.fillTree()
 
     # Close output TFile
@@ -127,66 +125,58 @@ def dbgPostRun(inputFileList, outputFileList):
     msg.info('Finished running debug_stream analysis PostRun operations')
 
 
-def TriggerDBInfo(run):
+def TriggerDBInfo(runNumber):
     # Get the connection to CONDBR2
     dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
     #dbconn  = TriggerCoolUtil.GetConnection("COMP")
-    l1Info = []
-    limmin = run << 32
-    limmax = (run+1) << 32
+    limMin = runNumber << 32
+    limMax = (runNumber+1) << 32
 
     # Get L1 Info from DB
     l1Conn = dbconn.getFolder('/TRIGGER/LVL1/Menu')
-    l1Chansel = cool.ChannelSelection.all()
-    l1Objs = l1Conn.browseObjects(limmin, limmax, l1Chansel)
-    itemName = {}
-    l1Counts = 0
-    while l1Objs.goToNext():
-        l1Obj = l1Objs.currentRef()
-        l1Channel = l1Obj.channelId()
+    chanSel = cool.ChannelSelection.all()
+    objs = l1Conn.browseObjects(limMin, limMax, chanSel)
+    l1Info = []
+    itemNames = {}
+    while objs.goToNext():
+        l1Obj = objs.currentRef()
+        l1TriggerItem = l1Obj.channelId()
         l1Payload = l1Obj.payload()
-        itemname = l1Payload['ItemName']
-        itemName[l1Channel] = itemname
-        if (l1Channel > l1Counts):
-            l1Counts = l1Channel
+        itemNames[l1TriggerItem] = l1Payload['ItemName']
 
-    for i in range(l1Counts+1):
-        l1Info.insert(i, 0)
+    # Insert into map a pair for every l1 count and fill with item names if available
+    l1Info = (max(itemNames.keys()) + 1) * [0]
 
-    for c in itemName:
-        name = itemName[c]
-        l1Info.pop(c)
-        l1Info.insert(c, name)
+    for triggerItem in itemNames:
+        l1Info[triggerItem] = itemNames[triggerItem]
 
+    # TODO revisit and remove the hack: left for standalone testing purposes
     # L1 Info from DB failed, now try from XML file
     if len(l1Info) == 1 and l1Info[0] == 0:
         msg.info('Failed to get L1Info from DB now trying using xml file hack')
-        # TODO revisit: left for standalone testing purposes
         l1Info = getL1InfoXML()
 
     # Get HLT Info
     hltConn = dbconn.getFolder('/TRIGGER/HLT/Menu')
-    chansel = cool.ChannelSelection.all()
-    objs = hltConn.browseObjects(limmin, limmax, chansel)
+    chanSel = cool.ChannelSelection.all()
+    objs = hltConn.browseObjects(limMin, limMax, chanSel)
     hltInfo = []
-    chainNamesHLT = {}
-
+    chainNames = {}
     while objs.goToNext():
         hltObj = objs.currentRef()
         hltPayload = hltObj.payload()
-        hltName = hltPayload['ChainName']
         hltCounter = hltPayload['ChainCounter']
-        chainNamesHLT[int(hltCounter)] = hltName
-        hltInfo = (max(chainNamesHLT.keys())+1) * [0]
+        chainNames[int(hltCounter)] = hltPayload['ChainName']
 
-    for channel in chainNamesHLT:
-        hltInfo.pop(channel)
-        hltInfo.insert(channel, chainNamesHLT[channel])
+    hltInfo = (max(chainNames.keys()) + 1) * [0]
+
+    for chainCounter in chainNames:
+        hltInfo[chainCounter] = chainNames[chainCounter]
 
     # Get Atlas Project and HLT Release number
     hltConn = dbconn.getFolder('/TRIGGER/HLT/HltConfigKeys')
-    chansel = cool.ChannelSelection.all()
-    objs = hltConn.browseObjects(limmin, limmax, chansel)
+    chanSel = cool.ChannelSelection.all()
+    objs = hltConn.browseObjects(limMin, limMax, chanSel)
     relInfo = 'unknown'
 
     while objs.goToNext():
@@ -198,11 +188,12 @@ def TriggerDBInfo(run):
             # Skip database name
             relInfo = confsrc[1:]
 
-        msg.info('release: %s', relInfo)
+        msg.info('Found release: %s', relInfo)
 
     return (l1Info, hltInfo, relInfo)
 
 
+# will be removed
 def getL1InfoXML():
     # Try to find env var $AtlasPatchArea, then opens LVL1config xml file to extract L1 info
     AtlasPatchArea = str()
@@ -221,7 +212,8 @@ def getL1InfoXML():
     if not file:
         msg.info('failed to open: {0}'.format(lvl1XML))
         sys.exit(1)
-    #print "dirty hack to read ctpid->name mapping"
+
+    # dirty hack to read ctpid->name mapping
     for line in file.readlines():
         if line.find('<TriggerItem') != -1:
             ctpid = -1
@@ -250,14 +242,13 @@ def getL1InfoXML():
         name = ctpNames[c]
         l1Info.pop(c)
         l1Info.insert(c, name)
-        #print ("CTP counter : "+str(c)+"  chain :"+name)
+        msg.debug("CTP counter: {0} chain: {1}".format(c, name))
 
     return l1Info
 
 
 def getAsetupString(release, AtlasProject):
     # From release and os.environ, set asetupString for runwrapper.BSRDOtoRAW.sh
-
     if not AtlasProject:
         msg.warn('Atlas Project not available in TRIGGERDB - reading env variable')
 

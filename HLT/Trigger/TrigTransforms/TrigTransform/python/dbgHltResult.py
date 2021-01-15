@@ -4,82 +4,82 @@
 #### This is the dbgHLTResult class for the Debug Stream event analysis
 
 from __future__ import print_function
-
+import logging
 import ROOT
 
 from CLIDComps.clidGenerator import clidGenerator
 clidg = clidGenerator("")
 
-
-ActualHLTResult = ROOT.HLT.HLTResult
-stringSerializer = ROOT.StringSerializer()
+msg = logging.getLogger('PyJobTransforms.' + __name__)
 
 
-class hltResult(ActualHLTResult):
+class hltResult(ROOT.HLT.HLTResult):
   def __init__(self):
     super( hltResult, self ).__init__()
-    self.as_int_v = ROOT.std.vector('unsigned int')()
+    self.hltResultVector = ROOT.std.vector('unsigned int')()
 
 
   def load(self, rob):
     self.nav_payload = []
-
     data = list(rob.rod_data())
-    self.as_int_v.clear()
-    self.as_int_v.reserve(len(data))
-    [ self.as_int_v.push_back(i) for i in data ]
+    self.hltResultVector.clear()
+    self.hltResultVector.reserve(len(data))
+    [ self.hltResultVector.push_back(i) for i in data ]
 
-    if not self.deserialize(self.as_int_v):
+    if not self.deserialize(self.hltResultVector):
       raise Exception('deserialization of the HLT result failed')
-    self.__unpack_navigation()
+    self.__unpackNavigation()
 
     
-  def __unpack_navigation(self):    
-    nav_data = list(self.getNavigationResult())
-    if len(nav_data) <= 1:
+  def __unpackNavigation(self):    
+    navData = list(self.getNavigationResult())
+    if len(navData) <= 1:
+      msg.debug("Navigation data not available")
       return
     
-    fidx=nav_data[2]
-    blob = get_feature_data_blob(nav_data, fidx)
+    featureIdx = navData[2]
+    blob = getFeatureDataBlob(navData, featureIdx)
+  
     while len(blob):
-      fsize = len(blob)
+      featureSize = len(blob)
       clid = blob[0]
       stidx = blob[1]
-      slabel =  blob[2]
+      slabel = blob[2]
       lwords = blob[3:3+slabel]
       sdata = len(blob) - slabel - 3
       
-      label = deserialize_string(lwords)
-      self.nav_payload.append( (clidg.getNameFromClid(clid), label, fsize*4, sdata*4, clid, stidx) )
-      fidx = fidx + fsize + 1
-      blob = get_feature_data_blob(nav_data, fidx)
+      label = deserializeString(lwords)
+      self.nav_payload.append((clidg.getNameFromClid(clid), label, featureSize * 4, sdata * 4, clid, stidx))
+      featureIdx = featureIdx + featureSize + 1
+      blob = getFeatureDataBlob(navData, featureIdx)
 
 
   def appName(self):
     if self.getExtras().size() > 1:
-      return deserialize_string(self.getExtras())
+      return deserializeString(self.getExtras())
     else:
       return ''
       
     
-def get_feature_data_blob(data, index):
+def getFeatureDataBlob(data, index):
   if index == len(data):
+    msg.debug("Index out of range")
     return []
+
   size = data[index]
-  begin = index
-  begin += 1
-  end = index
-  end +=1
-  end += size
+  begin = index + 1
+  end = index + size + 1
+
   if end <= len(data):
     index = end
-    #print ("getting blob of data from: ", begin, " to ", end )
+    msg.debug("Getting blob of data from: {0} to {1}".format(begin, end))
     return data[begin:end]
   else:
+    msg.debug("Data out of range")
     return []
-  
 
-def deserialize_string(lwords):
+
+def deserializeString(lwords):
   """Wrapper for the C++ StringSerializer"""
   
   v = ROOT.std.vector['unsigned int']()
@@ -87,13 +87,15 @@ def deserialize_string(lwords):
   v.reserve(len(lwords))
   for w in lwords: 
     v.push_back(w)
+    
+  stringSerializer = ROOT.StringSerializer()
   stringSerializer.deserialize(v, s)
 
   return str(s)
 
   
 #############################################################################
-# Printing utils
+# Printing utils used for debugging
 
 def print_ranges(l):
   for i in range(len(l)):
