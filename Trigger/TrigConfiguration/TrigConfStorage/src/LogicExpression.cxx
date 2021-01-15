@@ -297,9 +297,6 @@ LogicExpression::print(const std::string& indent) const {
 void
 LogicExpression::clear() {
    m_State = kELEMENT;
-   for (LogicExpression* e : m_SubLogics) {
-     delete e;
-   }
    m_SubLogics.clear();
    m_Element = "";
 }
