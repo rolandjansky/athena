@@ -11,6 +11,8 @@
 # art-output: NSWPRDValAlg.digi.ntuple.root
 # art-output: NSWDigiCheck.txt
 # art-output: OUT_ESD.root
+# art-output: OUT_ESD_1thread.root
+# art-output: OUT_ESD_5thread.root
 # art-output: NSWPRDValAlg.reco.ntuple.root
 # art-output: NSWRecoCheck.txt
 
@@ -95,6 +97,36 @@ echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in
 python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root --checkPRD &> NSWRecoCheck.txt
 exit_code=$?
 echo  "art-result: ${exit_code} NSWRecoCheck"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# now run reconstruction with AthenaMT with 1 thread
+LOG_RECO="log_Run3_symmetric_reco_1thread.log"
+Reco_tf.py --inputRDOFile OUT_RDO.root \
+           --autoConfiguration everything \
+           --athenaopts="--threads=1" \
+           --outputESDFile OUT_ESD_1thread.root &> ${LOG_RECO}
+exit_code=$?
+echo  "art-result: ${exit_code} Reco_tf.py_1thread"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
+#####################################################################
+
+#####################################################################
+# now run reconstruction with AthenaMT with 5 threads
+LOG_RECO="log_Run3_symmetric_reco_5thread.log"
+Reco_tf.py --inputRDOFile OUT_RDO.root \
+           --autoConfiguration everything \
+           --athenaopts="--threads=5" \
+           --outputESDFile OUT_ESD_5thread.root &> ${LOG_RECO}
+exit_code=$?
+echo  "art-result: ${exit_code} Reco_tf.py_8thread"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
