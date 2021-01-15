@@ -6,8 +6,8 @@
 #define XAODMETADATACNV_FILEMETADATACREATORTOOL_H
 
 // System include(s):
-#include <string>
 #include <memory>
+#include <string>
 
 // Infrastructure include(s):
 #include "Gaudi/Property.h"
@@ -65,16 +65,22 @@ class FileMetaDataCreatorTool
   /// Called before actually streaming objects.
   StatusCode preStream() override;
 
-  /// Called at the end of AthenaOutputStream::execute().
+  /// Fill the FileMetaData with event information
+  ///
+  /// Use information from @c xAOD::EventIngo to fill
+  /// xAOD::FileMetaData::mcProcID and @c DataHeader to set
+  /// xAOD::FileMetaData::dataType
   StatusCode postExecute() override;
 
-  /// Called at the beginning of AthenaOutputStream::finalize().
+  /// Write the FileMetaData object to the MetaDataStore via the MetaDataSvc
   StatusCode preFinalize() override;
   /// @}
 
   /// @name IIncidentListener methods
   //@{
   /// Handle BeginInputFile incident after MetaDataSvc
+  ///
+  /// Calls  updateFromNonEvent on BeginInputFile
   void handle(const Incident&) override;
   //@}
 
@@ -84,35 +90,31 @@ class FileMetaDataCreatorTool
       this,
       "OutputKey",
       "FileMetaData",
-      "Key to use for FileMetaData in MetaDataStore"
+      "Key used to write FileMetaData into MetaDataStore"
   };
 
   /// Read tag information
-  SG::ReadHandleKey< IOVMetaDataContainer > m_tagInfoKey {
+  Gaudi::Property< std::string > m_tagInfoKey {
       this,
       "TagInfoKey",
-      "InputMetaDataStore+/TagInfo",
-      "Store and Key to use to look up tags"
+      "/TagInfo",
+      "Key to look up tags from InputMetaDataStore"
   };
 
   /// Read simulation parameters
-  SG::ReadHandleKey< IOVMetaDataContainer > m_simInfoKey {
+  Gaudi::Property< std::string > m_simInfoKey {
       this,
       "SimInfoKey",
-      "InputMetaDataStore+/Simulation/Parameters",
-      "Store and Key to use to look up simulation parameters"
+      "/Simulation/Parameters",
+      "Key to look up simulation parameters from InputMetaDataStore"
   };
-
-  /// DataHeader is produced by another OutputTool, so need StoreGateSvc
-  ServiceHandle< StoreGateSvc > m_eventStore{"StoreGateSvc", name()};
-
 
   /// Key for xAOD::EventInfo to update MC channel number
   Gaudi::Property< std::string > m_eventInfoKey {
       this,
       "EventInfoKey",
       "EventInfo",
-      "StoreGate key to read xAOD::EventInfo"
+      "Key to read xAOD::EventInfo from EventStore"
   };
 
   /// Key for DataHeader in StoreGateSvc
@@ -120,11 +122,18 @@ class FileMetaDataCreatorTool
       this,
       "StreamName",
       "",
-      "key of data header in event store"
+      "Key to read data header from event store"
   };
+
+  /// DataHeader is produced by another OutputTool, so need StoreGateSvc
+  ServiceHandle< StoreGateSvc > m_eventStore{"StoreGateSvc", name()};
 
   /// Use MetaDataSvc store interface to support output in EventService
   ServiceHandle< IMetaDataSvc > m_metaDataSvc{"MetaDataSvc", name()};
+
+  /// Use MetaDataSvc store interface to support output in EventService
+  ServiceHandle< StoreGateSvc > m_inputMetaDataStore{
+    "InputMetaDataStore", name()};
 
   /// Update from Simulation Parameters and TagInfo
   StatusCode updateFromNonEvent();

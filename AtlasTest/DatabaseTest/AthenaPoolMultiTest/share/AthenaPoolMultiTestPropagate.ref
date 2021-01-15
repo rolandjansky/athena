@@ -7,7 +7,6 @@ StreamAllP.Stre...   INFO Initializing StreamAllP.StreamAllP_MakeEventStreamInfo
 StreamAllP           INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAllP_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/StreamAllP_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_StreamAllP'])
 StreamAllP           INFO Data output: AthenaPoolMultiTest_Propagate.root
 StreamAllP           INFO I/O reinitialization...
-StreamAllP.File...   INFO Invalid "/TagInfo" handle
 StorageSvc           INFO EventStreamInfo_p3 [11DF1B8C-0DEE-4687-80D7-E74B520ACBB4]
 StreamAllP           INFO Metadata records written: 21
 ItemListSvc         DEBUG STREAM StreamAllP has (10) items
