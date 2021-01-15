@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -49,8 +49,8 @@ namespace InDet{
   @author Andreas.Salzburger@cern.ch
    */
 
-  class TRT_DriftCircleOnTrack :   public Trk::RIO_OnTrack{
-	
+  class TRT_DriftCircleOnTrack final: public Trk::RIO_OnTrack {
+
     public:
       friend class  Trk::ITrkEventCnvTool;
       /**Default constructor - needed for POOL*/
@@ -60,7 +60,7 @@ namespace InDet{
       /**Assignment operator*/
       TRT_DriftCircleOnTrack &operator=(const TRT_DriftCircleOnTrack &);
       /**Move assignment operator*/
-      TRT_DriftCircleOnTrack &operator=(TRT_DriftCircleOnTrack &&);
+      TRT_DriftCircleOnTrack &operator=(TRT_DriftCircleOnTrack &&) noexcept;
 		
      /** Constructor with parameters and without externalPrediction:
       RIO pointer, LocalPosition*, LocalErrorMatrix*, 
@@ -95,18 +95,18 @@ namespace InDet{
       virtual ~TRT_DriftCircleOnTrack();
 		
       /**allows copying without losing the type information. Used in Trk::Track*/
-      virtual TRT_DriftCircleOnTrack* clone() const override;
+      virtual TRT_DriftCircleOnTrack* clone() const override final;
 	
      /** return the global position of this RIO_OnTrack
       @todo convention about z coordinate 
       - fullfills Trk::MeasurementBase interface
       */
-      virtual const Amg::Vector3D& globalPosition() const override;
+      virtual const Amg::Vector3D& globalPosition() const override final;
      
      /** returns the surface for the local to global transformation
       - fullfills Trk::MeasurementBase interface 
       */
-      virtual const Trk::Surface& associatedSurface() const override;
+      virtual const Trk::Surface& associatedSurface() const override final;
 
       virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
       {
@@ -116,18 +116,18 @@ namespace InDet{
      /** returns the PrepRawData - is a TRT_DriftCircle in this scope
       - fullfills Trk::RIO_OnTrack interface
       */
-      virtual const TRT_DriftCircle* prepRawData() const override;
+      virtual const TRT_DriftCircle* prepRawData() const override final;
       const ElementLinkToIDCTRT_DriftCircleContainer& prepRawDataLink() const;
     
      /** returns the DE hashID
       - fullfills Trk::RIO_OnTrack interface
       */
-      virtual IdentifierHash idDE() const override;
+      virtual IdentifierHash idDE() const override final;
   
      /** returns the detector element, assoicated with the PRD of this class
       - fullfills Trk::RIO_OnTrack interface
       */
-      virtual const InDetDD::TRT_BaseElement* detectorElement() const override;
+      virtual const InDetDD::TRT_BaseElement* detectorElement() const override final;
 
      /** returns the side on which the drift radius is. 
       (for more information see the definition of
@@ -151,9 +151,9 @@ namespace InDet{
       double timeOverThreshold() const;
 
       /**returns some information about this RIO_OnTrack.*/
-      virtual MsgStream&    dump( MsgStream& out ) const override;	
+      virtual MsgStream&    dump( MsgStream& out ) const override final;	
       /**returns some information about this RIO_OnTrack.*/
-      virtual std::ostream& dump( std::ostream& out ) const override;
+      virtual std::ostream& dump( std::ostream& out ) const override final;
 
       float localAngle() const;
       float positionAlongWire() const;
@@ -162,8 +162,9 @@ namespace InDet{
     private:
     /** ONLY for use in custom convertor
       Allows the custom convertor to reset values when persistying/reading back RoTs*/
-      virtual void setValues(const Trk::TrkDetElementBase* detEl, const Trk::PrepRawData* prd) override;
- 
+      virtual void setValues(const Trk::TrkDetElementBase* detEl,
+                             const Trk::PrepRawData* prd) override final;
+
       /** @calculate and set the global coord of this hit. 
        The detector element surface is used. Can be used from the convertor
        after setValues if the element is constructed without a detEl*/

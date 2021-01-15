@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -53,7 +53,7 @@ namespace Muon
 
 /** @brief This class represents the corrected MDT measurements, 
     where the corrections include the effects of wire sag etc.*/
-class MdtDriftCircleOnTrack :   public Trk::RIO_OnTrack
+class MdtDriftCircleOnTrack final: public Trk::RIO_OnTrack 
 {
 public:    
                         
@@ -67,7 +67,7 @@ public:
     MdtDriftCircleOnTrack(const MdtDriftCircleOnTrack &);
 
     MdtDriftCircleOnTrack &operator=(const MdtDriftCircleOnTrack &);
-    MdtDriftCircleOnTrack &operator=(MdtDriftCircleOnTrack &&);
+    MdtDriftCircleOnTrack &operator=(MdtDriftCircleOnTrack &&) noexcept;
 
 
 
@@ -162,32 +162,32 @@ public:
     Trk::DriftCircleStatus status() const;
 
     /** @copydoc Trk::RIO_OnTrack::clone()  */
-    virtual MdtDriftCircleOnTrack* clone() const override;
+    virtual MdtDriftCircleOnTrack* clone() const override final;
 
     /** @brief Returns the PrepRawData used to create this corrected measurement */
-    virtual const MdtPrepData* prepRawData() const override;
+    virtual const MdtPrepData* prepRawData() const override final;
     const ElementLinkToIDC_MDT_Container& prepRawDataLink() const;
 
     /** @brief Returns the hashID of the PRD collection */
-    virtual IdentifierHash collectionHash() const;
+    IdentifierHash collectionHash() const;
 
     /** @brief Returns an invalid hash @todo Remove*/
-    virtual IdentifierHash idDE() const override { return IdentifierHash(); } 
+    virtual IdentifierHash idDE() const override final{ return IdentifierHash(); } 
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
-    virtual const MuonGM::MdtReadoutElement* detectorElement() const override;
+    virtual const MuonGM::MdtReadoutElement* detectorElement() const override final;
 
     /** @brief Returns the surface on which this measurement was taken. 
         - If hasSaggedSurface()==false, then the surface will be that of the matching Detector Element
         - If hasSaggedSurface()==true, then the surface will be a special surface, representing the sagged position 
         of the wire at the coords of this measurement.*/
-    virtual const Trk::Surface& associatedSurface() const override;
+    virtual const Trk::Surface& associatedSurface() const override final;
 
     /** @brief Returns the global Position. 
     Be aware that this is calculated from the predicted position along 
     the tube, and the drift radius. i.e. it is partly inferred from other data, 
     and so is not a 'true' measurement.*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final;
 
     virtual bool rioType(Trk::RIO_OnTrackType::Type type) const override final
     {
@@ -223,10 +223,10 @@ public:
     const MuonDriftCircleErrorStrategy& errorStrategy() const;
     
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const override;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const override;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
     
     // /////////////////////////////////////////////////////////////////
     // Private data:
@@ -239,7 +239,7 @@ private:
     /**@brief Sets the DetElement and Trk::PrepRawData pointers after reading from disk.
     @warning Only intended for use by persistency convertors*/
     virtual void setValues(const Trk::TrkDetElementBase*,
-                           const Trk::PrepRawData*) override;
+                           const Trk::PrepRawData*) override final;
                            
     /** @brief Uses the passed loc3Dframe to calculate and set the global coord of this hit. 
     If there is a sagged wire defined, this will be used for the transformation, otherwise the detector element surface is used*/

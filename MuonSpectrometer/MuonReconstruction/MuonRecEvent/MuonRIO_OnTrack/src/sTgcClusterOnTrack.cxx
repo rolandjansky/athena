@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonRIO_OnTrack/sTgcClusterOnTrack.h"
@@ -12,7 +12,7 @@ namespace Muon
   sTgcClusterOnTrack::sTgcClusterOnTrack():
     MuonClusterOnTrack(), // call base class ctor
     m_rio(),
-    m_detEl(0)
+    m_detEl(nullptr)
   {}
 
   // copy constructor:
