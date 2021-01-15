@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Header include
@@ -298,7 +298,7 @@ namespace VKalVrtAthena {
     xAOD::TrackParticleContainer *selectedBaseTracks ( nullptr );
     ATH_CHECK( evtStore()->retrieve(selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
     
-    for ( const auto& trk : *selectedBaseTracks ) {
+    for ( xAOD::TrackParticle* trk : *selectedBaseTracks ) {
       
       if( m_FillNtuple ) {
         uint8_t tmpT;

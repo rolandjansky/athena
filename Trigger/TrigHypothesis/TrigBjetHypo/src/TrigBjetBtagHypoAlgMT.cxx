@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigBjetBtagHypoAlgMT.h"
@@ -47,7 +47,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   ATH_MSG_DEBUG( "Retrieved " << trackELs.size() << " precision tracks..." );
 
 
-  for ( const ElementLink< xAOD::TrackParticleContainer >& trackLink : trackELs )
+  for ( const ElementLink< xAOD::TrackParticleContainer > trackLink : trackELs )
     ATH_MSG_DEBUG( "   * pt=" << (*trackLink)->p4().Et() << 
 		   " eta=" << (*trackLink)->eta() <<
 		   " phi=" << (*trackLink)->phi() );
@@ -372,7 +372,7 @@ ElementLinkVector<xAOD::BTaggingContainer> TrigBjetBtagHypoAlgMT::collect_valid_
     const ElementLinkVector< xAOD::BTaggingContainer >& bTaggingEL, std::string tagger ) const {
 
   ElementLinkVector<xAOD::BTaggingContainer> valid_bTaggingEL;
-  for (const ElementLink< xAOD::BTaggingContainer >& bTagLink : bTaggingEL) {
+  for (const ElementLink< xAOD::BTaggingContainer > bTagLink : bTaggingEL) {
     if ( not (*bTagLink)->auxdata<char>(tagger+"_isDefaults") ) { valid_bTaggingEL.push_back( bTagLink ); }
   }
   return valid_bTaggingEL;
@@ -444,7 +444,7 @@ StatusCode TrigBjetBtagHypoAlgMT::monitor_btagging( const ElementLinkVector< xAO
   auto monitor_group_for_IP3D = Monitored::Group( m_monTool, 
     monitor_for_IP3D_bu, monitor_for_IP3D_bc, monitor_for_IP3D_cu
   );
-  for ( const ElementLink< xAOD::BTaggingContainer >& bTagLink : validIP3D_bTaggingEL ) {
+  for ( const ElementLink< xAOD::BTaggingContainer > bTagLink : validIP3D_bTaggingEL ) {
     MONITOR_BTAG_AUX_TRACK_VAR(IP3D_valD0wrtPVofTracks, float);
     MONITOR_BTAG_AUX_TRACK_VAR(IP3D_sigD0wrtPVofTracks, float);
     MONITOR_BTAG_AUX_TRACK_VAR(IP3D_valZ0wrtPVofTracks, float);
