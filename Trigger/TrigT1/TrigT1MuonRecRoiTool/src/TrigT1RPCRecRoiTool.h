@@ -41,7 +41,6 @@ namespace LVL1 {
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey","MuonDetectorManager","Key of input MuonDetectorManager condition data"};
       SG::ReadCondHandleKey<RpcCablingCondData> m_rpcKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
-      const MuonGM::MuonDetectorManager* m_muonMgr{nullptr};
       
     }; // end of TrigT1RPCRecRoiTool
   

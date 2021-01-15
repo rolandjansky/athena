@@ -13,7 +13,6 @@ namespace LVL1 {
 
   StatusCode TrigT1RPCRecRoiTool::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK(detStore()->retrieve(m_muonMgr));
     ATH_CHECK(m_idHelperSvc.retrieve() );
     ATH_CHECK(m_rpcKey.initialize());
     if(m_useRun3Config){
@@ -52,15 +51,13 @@ namespace LVL1 {
 				      PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) 
       {
 
-	const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-	if(m_useConditionData){
-	  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-	  muonMgr = DetectorManagerHandle.cptr(); 
-	  if(muonMgr==nullptr){
-	    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	    muonMgr = m_muonMgr;
-	  }
+	SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+	if(muonMgr==nullptr){
+	  ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+	  return data;
 	}
+	
   
 	const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
 	  muonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -184,15 +181,13 @@ namespace LVL1 {
 				       &m_idHelperSvc->rpcIdHelper())) return false;
     
 
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return false;
     }
+    
   
     const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
       muonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -231,14 +226,11 @@ namespace LVL1 {
 					PhiLowBorder_id, PhiHighBorder_id,
 					&m_idHelperSvc->rpcIdHelper())) return false;
     
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return false;
     }
 
     const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
