@@ -246,7 +246,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     )
     # Cabling parameters
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    if flags.Input.isMC or flags.Overlay.DataOverlay:
+    if flags.Input.isMC:
         # ITk:
         if flags.GeoModel.Run == "RUN4":
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -270,8 +270,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
         else:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        
-    elif not flags.Input.isMC:
+    else:
         if runNum < 222222:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
