@@ -16,8 +16,7 @@ MURoIsUnpackingTool::MURoIsUnpackingTool( const std::string& type,
 					  const std::string& name, 
 					  const IInterface* parent )
   : RoIsUnpackingToolBase  ( type, name, parent ),
-    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name ),
-    m_recTgcRoISvc( "LVL1TGC::TGCRecRoiSvc/LVL1TGC::TGCRecRoiSvc", name )
+    m_configSvc( "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name )
 {
 }
 
@@ -29,7 +28,7 @@ StatusCode MURoIsUnpackingTool::initialize() {
   CHECK( m_trigRoIsKey.initialize() );
   CHECK( m_recRoIsKey.initialize() );
   CHECK( m_recRpcRoITool.retrieve() );
-  CHECK( m_recTgcRoISvc.retrieve() );
+  CHECK( m_recTgcRoITool.retrieve() );
 
   return StatusCode::SUCCESS;
 }
@@ -74,7 +73,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 		       << thresholdNumber << ", force setting it to 1" );
       thresholdNumber = 1;
     }
-    LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI( roIWord, m_recRpcRoITool.get(), m_recTgcRoISvc.get(), &m_muonThresholds );
+    LVL1::RecMuonRoI* recRoI = new LVL1::RecMuonRoI( roIWord, m_recRpcRoITool.get(), m_recTgcRoITool.get(), &m_muonThresholds );
     recRoIs->push_back( recRoI );
     auto trigRoI = new TrigRoiDescriptor( roIWord, 0u ,0u,
 					  recRoI->eta(), recRoI->eta()-m_roIWidth, recRoI->eta()+m_roIWidth,

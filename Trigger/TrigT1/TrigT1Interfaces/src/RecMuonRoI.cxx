@@ -36,10 +36,10 @@ namespace LVL1 {
       this->construct( roIWord, theRecRPCRoiSvc, theRecTGCRoiSvc, theMuonConfig );
    }
    RecMuonRoI::RecMuonRoI( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
-                           const RecMuonRoiSvc* theRecTGCRoiSvc,
+                           const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                            const std::vector< TriggerThreshold* >* theMuonConfig ) {
 
-      this->construct( roIWord, theRecRPCRoiTool, theRecTGCRoiSvc, theMuonConfig );
+      this->construct( roIWord, theRecRPCRoiTool, theRecTGCRoiTool, theMuonConfig );
    }
 
    void RecMuonRoI::construct( unsigned int roIWord, const RecMuonRoiSvc* theRecRPCRoiSvc,
@@ -131,7 +131,7 @@ namespace LVL1 {
       return;
    }
    void RecMuonRoI::construct( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
-                               const RecMuonRoiSvc* theRecTGCRoiSvc,
+                               const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                                const std::vector< TriggerThreshold* >* theMuonConfig ) {
 
       m_roiWord = roIWord;
@@ -194,11 +194,11 @@ namespace LVL1 {
            m_phi = roiData.phi();
         }
       } else {               // TGC
-        if( theRecTGCRoiSvc ) {
+        if( theRecTGCRoiTool ) {
            // set eta and phi values
-           theRecTGCRoiSvc->reconstruct( roIWord );
-           m_eta = theRecTGCRoiSvc->eta();
-           m_phi = theRecTGCRoiSvc->phi();
+           LVL1::TrigT1MuonRecRoiData roiData = theRecTGCRoiTool->roiData( roIWord );
+           m_eta = roiData.eta();
+           m_phi = roiData.phi();
         }
       }
 

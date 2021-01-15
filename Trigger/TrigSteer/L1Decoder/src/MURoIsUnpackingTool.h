@@ -55,7 +55,7 @@ private:
 
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRpcRoITool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
-  ServiceHandle<LVL1::RecMuonRoiSvc> m_recTgcRoISvc;
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTgcRoITool{this, "TgcRpcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool"};
 
   std::vector<TrigConf::TriggerThreshold*> m_muonThresholds;
 }; 
