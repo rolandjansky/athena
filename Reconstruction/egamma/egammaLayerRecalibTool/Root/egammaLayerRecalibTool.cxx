@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -65,9 +65,28 @@ float GetAmountFormula::operator()(const StdCalibrationInputs & input) const {
   return m_formula.Eval(input.eta, input.phi, input.RunNumber);
 }
 
-
 float GetAmountHVPSGuillaume::operator()(const StdCalibrationInputs & input) const {
   return m_tool.getCorr(input.RunNumber, input.eta, input.phi);
+}
+
+float GetAmountHVEMECPS207::operator() (const StdCalibrationInputs & input) const {
+  return m_toolEMECPS.getCorr(input.RunNumber, input.eta, input.phi);
+}
+
+float GetAmountPileupE0::operator()(const StdCalibrationInputs & input) const {
+  return m_tool->getCorr(0, input.RunNumber, input.averageInteractionsPerCrossing, input.eta);
+}
+
+float GetAmountPileupE1::operator()(const StdCalibrationInputs & input) const {
+  return m_tool->getCorr(1, input.RunNumber, input.averageInteractionsPerCrossing, input.eta);
+}
+
+float GetAmountPileupE2::operator()(const StdCalibrationInputs & input) const {
+  return m_tool->getCorr(2, input.RunNumber, input.averageInteractionsPerCrossing, input.eta);
+}
+
+float GetAmountPileupE3::operator()(const StdCalibrationInputs & input) const {
+  return m_tool->getCorr(3, input.RunNumber, input.averageInteractionsPerCrossing, input.eta);
 }
 
 
@@ -76,7 +95,9 @@ CP::CorrectionCode InputModifier::operator()(StdCalibrationInputs& inputs, float
   if (amount == VALUE_OVERFLOW) return CP::CorrectionCode::OutOfValidityRange;
   switch (m_base)
   {
-    case SHIFT: scale_inputs(inputs, amount); return CP::CorrectionCode::Ok;
+    case SHIFT: shift_inputs(inputs, amount); return CP::CorrectionCode::Ok;
+    case SUBTRACT: shift_inputs(inputs, -amount); return CP::CorrectionCode::Ok;
+    case SCALE: scale_inputs(inputs, amount); return CP::CorrectionCode::Ok;
     case ZEROBASED: scale_inputs(inputs, 1. + amount); return CP::CorrectionCode::Ok;
     case ONEBASED: scale_inputs(inputs, amount); return CP::CorrectionCode::Ok;
     case ONEBASED_ALPHA: scale_inputs(inputs, 1. / amount); return CP::CorrectionCode::Ok;
@@ -85,25 +106,16 @@ CP::CorrectionCode InputModifier::operator()(StdCalibrationInputs& inputs, float
   };
 }
 
-void ScaleE0::scale_inputs(StdCalibrationInputs & inputs, float amount) const
-{
-  inputs.E0raw *= amount;
-}
+void ScaleE0::scale_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E0raw *= amount; }
+void ScaleE1::scale_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E1raw *= amount; }
+void ScaleE2::scale_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E2raw *= amount; }
+void ScaleE3::scale_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E3raw *= amount; }
 
-void ScaleE1::scale_inputs(StdCalibrationInputs & inputs, float amount) const
-{
-  inputs.E1raw *= amount;
-}
+void ScaleE0::shift_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E0raw += amount; }
+void ScaleE1::shift_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E1raw += amount; }
+void ScaleE2::shift_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E2raw += amount; }
+void ScaleE3::shift_inputs(StdCalibrationInputs & inputs, float amount) const { inputs.E3raw += amount; }
 
-void ScaleE2::scale_inputs(StdCalibrationInputs & inputs, float amount) const
-{
-  inputs.E2raw *= amount;
-}
-
-void ScaleE3::scale_inputs(StdCalibrationInputs & inputs, float amount) const
-{
-  inputs.E3raw *= amount;
-}
 
 void ScaleE1overE2::scale_inputs(StdCalibrationInputs & inputs, float amount) const
 {
@@ -121,11 +133,24 @@ void ScaleE1overE2::scale_inputs(StdCalibrationInputs & inputs, float amount) co
   inputs.E2raw = Es2 * sum / den;
 }
 
+void ScaleE1overE2::shift_inputs(StdCalibrationInputs &, float) const
+{
+  // not very useful, never used
+  throw std::runtime_error("not implemented");
+}
+
 void ScaleEaccordion::scale_inputs(StdCalibrationInputs & inputs, float amount) const
 {
   inputs.E1raw *= amount;
   inputs.E2raw *= amount;
   inputs.E3raw *= amount;
+}
+
+void ScaleEaccordion::shift_inputs(StdCalibrationInputs & inputs, float amount) const
+{
+  inputs.E1raw += amount;
+  inputs.E2raw += amount;
+  inputs.E3raw += amount;
 }
 
 void ScaleEcalorimeter::scale_inputs(StdCalibrationInputs & inputs, float amount) const
@@ -136,6 +161,13 @@ void ScaleEcalorimeter::scale_inputs(StdCalibrationInputs & inputs, float amount
   inputs.E3raw *= amount;
 }
 
+void ScaleEcalorimeter::shift_inputs(StdCalibrationInputs & inputs, float amount) const
+{
+  inputs.E0raw += amount;
+  inputs.E1raw += amount;
+  inputs.E2raw += amount;
+  inputs.E3raw += amount;
+}
 
 std::string egammaLayerRecalibTool::resolve_alias(const std::string& tune) const {
 
@@ -181,6 +213,35 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   std::string tune = resolve_alias(tuneIn);
 
   if (tune.empty()) { }
+  else if ("es2017_21.0_v0" == tune) {
+    add_scale("run2_alt_with_layer2_r21_v0");
+  }
+  else if ("es2017_20.7_final" == tune) {
+    add_scale("pileup_20.7");
+    add_scale("run2_alt_with_layer2_modif");
+  }
+  else if ("es2017_20.7_improved" == tune) {
+    add_scale("pileup_20.7");                // new pileup correction Guillaume for 20.7
+    //TEMPORARY HACK REMOVED (two intermediate tags with this ES model use different layer corrections)
+    add_scale("2012_alt_with_layer2_modif"); // temporary old corrections from run1 + EMECPS HV
+  }
+  else if ("pileup_20.7" == tune) {
+    m_pileup_tool = new corr_pileupShift();
+    add_scale(new ScaleE0(InputModifier::SUBTRACT), new GetAmountPileupE0(m_pileup_tool));
+    add_scale(new ScaleE1(InputModifier::SUBTRACT), new GetAmountPileupE1(m_pileup_tool));
+    add_scale(new ScaleE2(InputModifier::SUBTRACT), new GetAmountPileupE2(m_pileup_tool));
+    add_scale(new ScaleE3(InputModifier::SUBTRACT), new GetAmountPileupE3(m_pileup_tool));
+  }
+  //Run 2
+  else if ("run2_alt_with_layer2_r21_v0"==tune) {
+    add_scale("layer2_alt_run2_r21_v0");
+    add_scale("ps_2016_r21_v0");
+  }
+  else if("run2_alt_with_layer2_modif" == tune) { 
+    add_scale("ps_EMECHV1"); 
+    add_scale("layer2_alt_run2_v1"); 
+    add_scale("ps_2016");
+  } 
   // 2012
   else if ("2012" == tune) {
     add_scale("ps_HV1");
@@ -199,6 +260,12 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   }
   else if("2012_alt_with_layer2" == tune) {
     add_scale("ps_HV1");
+    add_scale("layer2_alt_2012_v5");
+    add_scale("ps_2012");
+  }
+  else if("2012_alt_with_layer2_modif" == tune) {
+    add_scale("ps_HV1");
+    add_scale("ps_EMECHV1");
     add_scale("layer2_alt_2012_v5");
     add_scale("ps_2012");
   }
@@ -369,6 +436,9 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
   else if ("ps_HV1" == tune) {
     add_scale(new ScaleE0(InputModifier::ONEBASED), new GetAmountHVPSGuillaume());
   }
+  else if ("ps_EMECHV1" == tune) {
+    add_scale(new ScaleE0(InputModifier::ONEBASED), new GetAmountHVEMECPS207());
+  }
   else if ("test1" == tune) {
     TH1F h_presampler("h_presampler", "h_presampler", 10, -2.5, 2.5);
     // just as an example, correct E0 by 0.1 * sign(eta)
@@ -524,6 +594,22 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     add_scale(new ScaleE1(InputModifier::ZEROBASED_ALPHA),
 	      new GetAmountHisto1DErrorDown(*histo));
   }
+  else if("layer2_alt_run2_r21_v0"==tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v5/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2mu_2016_rel21_v1"));
+    assert(histo);
+    add_scale(new ScaleE2(InputModifier::ONEBASED),
+              new GetAmountHisto1D(*histo));
+  }
+  else if("layer2_alt_run2_v1" == tune) { 
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v3/egammaLayerRecalibTunes.root"); 
+    TFile f(file.c_str()); 
+    TH1D* histo = static_cast<TH1D*>(f.Get("hE1E2mu_2016_v1"));
+    assert(histo); 
+    add_scale(new ScaleE2(InputModifier::ONEBASED), 
+              new GetAmountHisto1D(*histo)); 
+  } 
   else if("layer2_alt_2012_v5" == tune) {
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v1/egammaLayerRecalibTunes.root");
     TFile f(file.c_str());
@@ -659,6 +745,22 @@ void egammaLayerRecalibTool::add_scale(const std::string& tuneIn)
     assert(histo);
     add_scale(new ScaleE2(InputModifier::ONEBASED),
 	      new GetAmountHisto1DErrorUp(*histo));
+  }
+  else if ("ps_2016_r21_v0" == tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v5/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1F* histo_ps_tot_error = static_cast<TH1F*>(f.Get("hPS_2016_rel21"));
+    assert(histo_ps_tot_error);
+    add_scale(new ScaleE0(InputModifier::ONEBASED_ALPHA),
+              new GetAmountHisto1D(*histo_ps_tot_error));
+  }
+  else if ("ps_2016_v1" == tune) {
+    const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v4/egammaLayerRecalibTunes.root");
+    TFile f(file.c_str());
+    TH1F* histo_ps_tot_error = static_cast<TH1F*>(f.Get("hPS_2016"));
+    assert(histo_ps_tot_error);
+    add_scale(new ScaleE0(InputModifier::ONEBASED_ALPHA),
+	      new GetAmountHisto1D(*histo_ps_tot_error));
   }
   else if ("ps_2012_v3" == tune) {
     const std::string file = PathResolverFindCalibFile("egammaLayerRecalibTool/v1/egammaLayerRecalibTunes.root");
@@ -808,6 +910,7 @@ CP::CorrectionCode egammaLayerRecalibTool::scale_inputs(StdCalibrationInputs & i
   for (const auto& modifier : m_modifiers)  {
     const float amount = (*modifier.second)(inputs);
     const auto s = (*modifier.first)(inputs, amount);
+    ATH_MSG_DEBUG("  after E0|E1|E2|E3 = " << inputs.E0raw << "|" << inputs.E1raw << "|" << inputs.E2raw << "|" << inputs.E3raw);
     if (s != CP::CorrectionCode::Ok) {
       if (status != CP::CorrectionCode::Error) { status = s; }
     }
@@ -822,15 +925,16 @@ CP::CorrectionCode egammaLayerRecalibTool::applyCorrection(xAOD::Egamma& particl
     ATH_MSG_ERROR("egamma particle without CaloCluster");
     return CP::CorrectionCode::Error;
   }
-
-  StdCalibrationInputs inputs{
-    event_info.runNumber(),
+  
+  StdCalibrationInputs inputs {
+    event_info.averageInteractionsPerCrossing(),
+      event_info.runNumber(),
       cluster->eta(),
       cluster->phi(),
       cluster->energyBE(0),
       cluster->energyBE(1),
       cluster->energyBE(2),
-      cluster->energyBE(3),};
+      cluster->energyBE(3) };
 
   const CP::CorrectionCode status = scale_inputs(inputs);
 
