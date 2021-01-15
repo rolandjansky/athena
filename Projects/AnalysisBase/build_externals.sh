@@ -6,7 +6,6 @@
 #
 
 # Set up the variables necessary for the script doing the heavy lifting.
-ATLAS_PROJECT_NAME="AnalysisBase"
 ATLAS_PROJECT_DIR=$(cd $(dirname ${BASH_SOURCE[0]}) && pwd)
 ATLAS_EXT_PROJECT_NAME="AnalysisBaseExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
