@@ -63,13 +63,13 @@ StatusCode RoIBResultToxAOD::initialize() {
    ATH_MSG_DEBUG( "Connected to " << m_configSvc.typeAndName() );
 
    if( m_doMuon ) {
-      // Get the RPC RecRoI service
+      // Get the RPC RecRoI tool
       ATH_CHECK( m_recRPCRoiTool.retrieve() );
       ATH_MSG_DEBUG( "Connected to " << m_recRPCRoiTool.typeAndName() );
 
-      // Get the TGC RecRoI service
-      ATH_CHECK( m_recTGCRoiSvc.retrieve() );
-      ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiSvc.typeAndName() );
+      // Get the TGC RecRoI tool
+      ATH_CHECK( m_recTGCRoiTool.retrieve() );
+      ATH_MSG_DEBUG( "Connected to " << m_recTGCRoiTool.typeAndName() );
    }
 
    if( m_doCalo ) {
@@ -543,7 +543,7 @@ StatusCode RoIBResultToxAOD::createMuonRoI( const ROIB::RoIBResult& result,
 
       // RecRoI
       const LVL1::RecMuonRoI recRoI( roIWord, m_recRPCRoiTool.get(),
-                                     m_recTGCRoiSvc.get(), &muonThresholds );
+                                     m_recTGCRoiTool.get(), &muonThresholds );
 
       const double thrValue = recRoI.getThresholdValue() * GeV;
       const int index = recRoI.getThresholdNumber() - 1;

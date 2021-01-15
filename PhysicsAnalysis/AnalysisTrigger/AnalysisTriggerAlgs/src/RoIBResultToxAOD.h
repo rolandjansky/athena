@@ -16,7 +16,6 @@
 // Tool/service include(s):
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
@@ -84,8 +83,8 @@ private:
    /// The RPC RoI reconstruction tool
    ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool { this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
    /// The TGC RoI reconstruction service
-   ServiceHandle< LVL1::RecMuonRoiSvc > m_recTGCRoiSvc {
-      this, "RecTgcRoiSvc", LVL1::ID_RecTgcRoiSvc,
+   ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_recTGCRoiTool {
+      this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool",
       "TGC RoI reconstruction service" };
 
    /// @}

@@ -77,7 +77,7 @@ namespace LVL1 {
                   const RecMuonRoiSvc* theRecTGCRoiSvc,
                   const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
       RecMuonRoI( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
-                  const RecMuonRoiSvc* theRecTGCRoiSvc,
+                  const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                   const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
 
       // does exactly like the constructor
@@ -85,7 +85,7 @@ namespace LVL1 {
                       const RecMuonRoiSvc* theRecTGCRoiSvc,
                       const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
       void construct( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
-                      const RecMuonRoiSvc* theRecTGCRoiSvc,
+                      const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                       const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
 
       /** returns roi word*/
