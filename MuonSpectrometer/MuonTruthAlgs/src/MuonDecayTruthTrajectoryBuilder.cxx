@@ -102,7 +102,11 @@ namespace Muon {
     // only truth vertices with 1 incoming particle
     if(vtx && (particles_in_size == 1)) {
 
+#ifdef HEPMC3
+      mother = vtx->particles_in().front();
+#else
       mother = *vtx->particles_in_const_begin();
+#endif
     
       if( mother && msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " new mother: " << mother->pdg_id() << " status " << mother->status() << " particles out " << particles_out_size << endmsg;
       // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
