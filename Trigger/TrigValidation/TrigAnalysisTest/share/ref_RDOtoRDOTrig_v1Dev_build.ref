@@ -544,7 +544,7 @@ HLT_JetDS_j0_L1J100:
     2: 3
   stepFeatures:
     0: 137
-    1: 33
+    1: 32
     2: 3
 HLT_alfacalib_AlfaPEB_L1ALFA_ANY:
   eventCount: 0
@@ -1661,13 +1661,13 @@ HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20:
   stepCounts:
     0: 7
   stepFeatures:
-    0: 176
+    0: 173
 HLT_j0_fbdjshared_L1J20:
   eventCount: 7
   stepCounts:
     0: 7
   stepFeatures:
-    0: 179
+    0: 176
 HLT_j0_perf_L1J12_EMPTY:
   eventCount: 0
 HLT_j225_subjesgscIS_ftf_bmv2c1040_split_L1J100:
@@ -1751,7 +1751,7 @@ HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20:
   stepCounts:
     0: 19
   stepFeatures:
-    0: 493
+    0: 492
 HLT_j420_L1J100:
   eventCount: 0
 HLT_j420_pf_subresjesgscIS_ftf_L1J100:
@@ -1789,7 +1789,7 @@ HLT_j45_ftf_L1J15:
     1: 19
   stepFeatures:
     0: 20
-    1: 55
+    1: 54
 HLT_j45_ftf_preselj20_L1J15:
   eventCount: 19
   stepCounts:
@@ -1797,7 +1797,7 @@ HLT_j45_ftf_preselj20_L1J15:
     1: 19
   stepFeatures:
     0: 20
-    1: 55
+    1: 54
 HLT_j45_nojcalib_L1J15:
   eventCount: 17
   stepCounts:
@@ -1893,7 +1893,7 @@ HLT_j45_subjesIS_ftf_preselj20_L1J15:
     1: 19
   stepFeatures:
     0: 20
-    1: 50
+    1: 49
 HLT_j45_subjesgscIS_ftf_011jvt_L1J15:
   eventCount: 18
   stepCounts:
@@ -1963,7 +1963,7 @@ HLT_j45_subresjesgscIS_ftf_L1J15:
     1: 19
   stepFeatures:
     0: 20
-    1: 55
+    1: 54
 HLT_j460_a10_lcw_subjes_L1J100:
   eventCount: 0
 HLT_j460_a10_lcw_subjes_L1J20:
@@ -2033,13 +2033,13 @@ HLT_j85_ftf_L1J20:
     0: 19
     1: 22
 HLT_j85_pf_ftf_L1J20:
-  eventCount: 14
+  eventCount: 13
   stepCounts:
     0: 19
-    1: 14
+    1: 13
   stepFeatures:
     0: 19
-    1: 23
+    1: 22
 HLT_mb_sptrk_L1RD0_FILLED:
   eventCount: 0
 HLT_mu0_muoncalib_L1MU20:
@@ -3155,13 +3155,13 @@ HLT_xe100_tcpufit_L1XE50:
   stepFeatures:
     0: 6
 HLT_xe100_trkmht_L1XE50:
-  eventCount: 9
+  eventCount: 8
   stepCounts:
     0: 10
-    1: 9
+    1: 8
   stepFeatures:
     0: 10
-    1: 9
+    1: 8
 HLT_xe100_trkmht_xe85_tcpufit_xe65_cell_L1XE50:
   eventCount: 5
   stepCounts:
