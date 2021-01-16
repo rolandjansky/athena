@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_FASTDIGITIZER_H
@@ -14,7 +14,6 @@
 //Random
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
-#include "CLHEP/Random/RandGauss.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
