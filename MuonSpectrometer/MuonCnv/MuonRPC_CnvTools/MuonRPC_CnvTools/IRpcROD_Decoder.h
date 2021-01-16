@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef IMUONRPCRODDECODER_H
@@ -16,15 +16,10 @@ class IdentifierHash;
 namespace Muon
 {
 
-static const InterfaceID IID_IRpcROD_Decoder("Muon::IRpcROD_Decoder", 1, 0);
-
 class IRpcROD_Decoder : virtual public IAlgTool
 {
 public:
-    static const InterfaceID& interfaceID()
-    {
-        return IID_IRpcROD_Decoder;
-    }
+    DeclareInterfaceID( IRpcROD_Decoder, 1, 0 );
 
     // enter declaration of your interface-defining member functions here
     // bool decodeSL - Used to determine whether sector logic is being decoded too
