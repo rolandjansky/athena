@@ -20,11 +20,11 @@ public:
 
     std::string string() const;
 
-    uint8_t sectorID() const;
-    uint8_t sectorSize() const;
-    uint8_t endcap() const;
-    uint32_t BCID() const;
-    uint32_t L1ID() const;
+    uint8_t sectorID() const noexcept;
+    uint8_t sectorSize() const noexcept;
+    uint8_t endcap() const noexcept;
+    uint32_t BCID() const noexcept;
+    uint32_t L1ID() const noexcept;
     const std::array<hitlist_t, 3>& hitlists() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerData& rhs);

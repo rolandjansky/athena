@@ -16,23 +16,23 @@ std::string NSW_PadTriggerData::string() const {
     return sstream.str();
 }
 
-uint8_t NSW_PadTriggerData::sectorID() const {
+uint8_t NSW_PadTriggerData::sectorID() const noexcept {
     return m_sectorID;
 }
 
-uint8_t NSW_PadTriggerData::sectorSize() const {
+uint8_t NSW_PadTriggerData::sectorSize() const noexcept {
     return m_sectorSize;
 }
 
-uint8_t NSW_PadTriggerData::endcap() const {
+uint8_t NSW_PadTriggerData::endcap() const noexcept {
     return m_endcap;
 }
 
-uint32_t NSW_PadTriggerData::BCID() const {
+uint32_t NSW_PadTriggerData::BCID() const noexcept {
     return m_BCID;
 }
 
-uint32_t NSW_PadTriggerData::L1ID() const {
+uint32_t NSW_PadTriggerData::L1ID() const noexcept {
     return m_L1ID;
 }
 
