@@ -1,6 +1,6 @@
 """Main overlay transform configuration helpers
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argRDOFile, argString, argSubstep
@@ -10,10 +10,6 @@ from PyJobTransforms.trfExe import athenaExecutor
 def addOverlayTrfArgs(parser):
     """Add common overlay command-line parser arguments."""
     parser.defineArgGroup('Overlay', 'Common Overlay Options')
-    parser.add_argument('--detectors', nargs='*',
-                        type=argFactory(argString),
-                        help='Detectors autoconfiguration string',
-                        group='Overlay')
     parser.add_argument('--outputRDO_SGNLFile', nargs='+',
                         type=argFactory(argRDOFile, io='output'),
                         help='The output RDO file of the MC signal alone',
