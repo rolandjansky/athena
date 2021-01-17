@@ -7,6 +7,8 @@
 
 #include "AthenaPoolCnvSvc/T_AthenaPoolTPConverter.h"
 
+#include <array>
+
 namespace Muon {
 class NSW_PadTriggerDataContainerCnv_p1 : public T_AthenaPoolTPCnvBase<NSW_PadTriggerDataContainer, NSW_PadTriggerDataContainer_p1> {
 public:

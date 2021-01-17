@@ -13,6 +13,10 @@ struct NSW_PadTriggerData_p1 : public std::vector<NSW_PadTriggerSegment_p1> {
     uint8_t m_endcap;
     uint32_t m_BCID;
     uint32_t m_L1ID;
+    // Hitlists from the BCs preceding, following, and at the time of the L1A
+    std::vector<uint16_t> m_precedingHitlist;
+    std::vector<uint16_t> m_currentHitlist;
+    std::vector<uint16_t> m_followingHitlist;
 };
 } // namespace Muon
 

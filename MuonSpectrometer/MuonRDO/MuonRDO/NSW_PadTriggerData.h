@@ -12,9 +12,10 @@
 
 namespace Muon {
 class NSW_PadTriggerData : public DataVector<NSW_PadTriggerSegment> {
+using hitlist_t = std::vector<uint16_t>;
 public:
     NSW_PadTriggerData(IdentifierHash identifierHash, uint8_t sectorID, uint8_t sectorSize, uint8_t endcap,
-        uint32_t BCID, uint32_t L1ID);
+        uint32_t BCID, uint32_t L1ID, const std::array<hitlist_t, 3>& hitlists);
     IdentifierHash identifierHash() const;
 
     std::string string() const;
@@ -24,6 +25,7 @@ public:
     uint8_t endcap() const;
     uint32_t BCID() const;
     uint32_t L1ID() const;
+    const std::array<hitlist_t, 3>& hitlists() const;
 
     friend std::ostream& operator<<(std::ostream& stream, const NSW_PadTriggerData& rhs);
     friend MsgStream& operator<<(MsgStream& stream, const NSW_PadTriggerData& rhs);
@@ -34,7 +36,8 @@ private:
     uint8_t m_endcap;
     uint32_t m_BCID;
     uint32_t m_L1ID;
-    // TODO(yzach) add hit list
+    // List of pad hits, in a 3BC window around the L1A BC
+    std::array<hitlist_t, 3> m_hitlists;
 };
 } // namespace Muon
 
