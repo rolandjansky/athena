@@ -147,6 +147,6 @@
     <class name="std::vector<Muon::NSW_PadTriggerSegment_p1>" />
     <class name="Muon::NSW_PadTriggerData_p1" />
     <class name="std::vector<Muon::NSW_PadTriggerData_p1>" />
-    <class name="Muon::NSW_PadTriggerDataContainer_p1" id="E506DD96-47F1-43E0-BAA0-485A3FB407A1" />
+    <class name="Muon::NSW_PadTriggerDataContainer_p1" id="2930850B-526A-4A6B-BDC6-C86D43B06C7C" />
 
 </lcgdict>

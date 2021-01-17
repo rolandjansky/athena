@@ -15,7 +15,7 @@ Muon::NSW_PadTriggerDataContainer* NSW_PadTriggerDataContainerCnv::createTransie
         << "NSW_PadTriggerDataContainerCnv::createTransient(): reading container from persistent storage"
         << std::endl;
     // UUID of of NSW_PadTriggerDataContainer_p1
-    static pool::Guid p1_guid("E506DD96-47F1-43E0-BAA0-485A3FB407A1");
+    static pool::Guid p1_guid("2930850B-526A-4A6B-BDC6-C86D43B06C7C");
     if(compareClassGuid(p1_guid)) {
         std::unique_ptr<Muon::NSW_PadTriggerDataContainer_p1> pContainer
             { poolReadObject<Muon::NSW_PadTriggerDataContainer_p1>() };
