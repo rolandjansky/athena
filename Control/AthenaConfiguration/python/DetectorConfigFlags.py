@@ -121,6 +121,37 @@ def createDetectorConfigFlags():
                                                               prevFlags.Detector.SimulateCalo or prevFlags.Detector.SimulateMuon or
                                                               prevFlags.Detector.SimulateForward or prevFlags.Detector.SimulateCavern))
 
+    #Detector.Digitize
+    dcf.addFlag('Detector.DigitizeBCM',   False)
+    dcf.addFlag('Detector.DigitizeDBM',   False)
+    dcf.addFlag('Detector.DigitizePixel', False)
+    dcf.addFlag('Detector.DigitizeSCT',   False)
+    dcf.addFlag('Detector.DigitizeTRT',   False) # Set default according to prevFlags.GeoModel.Run?
+    dcf.addFlag('Detector.DigitizeID',    lambda prevFlags : (prevFlags.Detector.DigitizeBCM or prevFlags.Detector.DigitizeDBM or
+                                                              prevFlags.Detector.DigitizePixel or prevFlags.Detector.DigitizeSCT or
+                                                              prevFlags.Detector.DigitizeTRT))
+    
+    dcf.addFlag('Detector.DigitizeBCMPrime',   False)
+    dcf.addFlag('Detector.DigitizeITkPixel',   False)
+    dcf.addFlag('Detector.DigitizeITkStrip',   False)
+    dcf.addFlag('Detector.DigitizeITk',    lambda prevFlags : (prevFlags.Detector.DigitizeBCMPrime or prevFlags.Detector.DigitizeITkPixel or prevFlags.Detector.DigitizeITkStrip))
+
+    dcf.addFlag('Detector.DigitizeLAr',   False) # Add separate em HEC and FCAL flags?
+    dcf.addFlag('Detector.DigitizeTile',  False)
+    dcf.addFlag('Detector.DigitizeCalo',  lambda prevFlags : (prevFlags.Detector.DigitizeLAr or prevFlags.Detector.DigitizeTile))
+    dcf.addFlag('Detector.DigitizeL1Calo',False)
+    dcf.addFlag('Detector.DigitizeCSC',   False)
+    dcf.addFlag('Detector.DigitizeMDT',   False)
+    dcf.addFlag('Detector.DigitizeRPC',   False)
+    dcf.addFlag('Detector.DigitizeTGC',   False)
+    dcf.addFlag('Detector.DigitizesTGC',  False) # Set default according to prevFlags.GeoModel.Run?
+    dcf.addFlag('Detector.DigitizeMM',    False) # Set default according to prevFlags.GeoModel.Run?
+    #Forward Detector digitization not supported yet
+    dcf.addFlag('Detector.DigitizeMuon',  lambda prevFlags : (prevFlags.Detector.DigitizeCSC or prevFlags.Detector.DigitizeMDT or
+                                                              prevFlags.Detector.DigitizeRPC or prevFlags.Detector.DigitizeTGC or
+                                                              prevFlags.Detector.DigitizesTGC or prevFlags.Detector.DigitizeMM))
+    dcf.addFlag('Detector.Digitize',      lambda prevFlags : (prevFlags.Detector.DigitizeID or prevFlags.Detector.DigitizeCalo or prevFlags.Detector.DigitizeMuon))
+
     #Detector.Overlay
     dcf.addFlag('Detector.OverlayBCM',   False)
     dcf.addFlag('Detector.OverlayDBM',   False)

@@ -3,7 +3,7 @@
 Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
-from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argRDOFile, argString, argSubstep
+from PyJobTransforms.trfArgClasses import argBSFile, argFactory, argRDOFile, argSubstep
 from PyJobTransforms.trfExe import athenaExecutor
 
 

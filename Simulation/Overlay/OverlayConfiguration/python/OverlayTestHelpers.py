@@ -6,7 +6,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from argparse import ArgumentParser
 
-from OverlayConfiguration.OverlayHelpers import setupOverlayDetectorFlags
+from OverlayConfiguration.OverlaySteering import setupOverlayDetectorFlags
 from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
 
 
