@@ -30,6 +30,7 @@ namespace LVL1MUONIF {
         m_goodmf[ i ] = right.goodmf(i);
         m_innercoin[ i ] = right.innercoin(i);
         m_bw2or3[ i ] = right.bw2or3(i);
+        m_veto[ i ] = right.veto(i);
       }
     }
     return *this;
