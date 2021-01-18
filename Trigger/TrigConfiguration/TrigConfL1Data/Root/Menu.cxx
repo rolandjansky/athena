@@ -16,6 +16,26 @@ TrigConf::Menu::Menu()
    : L1DataBaseclass()
 {}
 
+TrigConf::Menu::~Menu()
+{
+   for (PIT *pit : m_PITs)
+   {
+      delete pit;
+   }
+   for (TIP *tip : m_TIPs)
+   {
+      delete tip;
+   }
+   for (ThresholdMonitor *thrm : m_ThresholdMonitorVector)
+   {
+      delete thrm;
+   }
+   for (TriggerItem *item : m_TriggerItemVector)
+   {
+      delete item;
+   }
+}
+
 std::vector<uint16_t>
 TrigConf::Menu::bunchgroupMask() const {
    std::vector<uint16_t> bgmask(512);
