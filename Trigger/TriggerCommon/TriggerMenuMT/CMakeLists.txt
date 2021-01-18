@@ -115,8 +115,9 @@ atlas_install_joboptions( share/*.py
 
 atlas_install_xmls( data/*.dtd data/*.xml )
 
-#----------------------------------
+
 # Tests:
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT_newJO )
 atlas_add_test( generateMenuMT_newJO
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.Menu.LS2_v1_newJO
@@ -124,12 +125,14 @@ atlas_add_test( generateMenuMT_newJO
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
 
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest )
 atlas_add_test( ViewCFTest
                 SCRIPT python -m unittest -v TriggerMenuMT.HLTMenuConfig.Test.ViewCFTest
                 PROPERTIES WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_ViewCFTest
                 POST_EXEC_SCRIPT nopost.sh )
 
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_generateMenuMT )
 atlas_add_test( generateMenuMT
                 SCRIPT test_HLTmenu.sh
@@ -137,6 +140,7 @@ atlas_add_test( generateMenuMT
                 PROPERTIES TIMEOUT 4000
                 POST_EXEC_SCRIPT nopost.sh )
 
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_full_menu_cf )
 atlas_add_test( full_menu_cf
                 SCRIPT scripts/test_full_menu_cf.sh
@@ -144,6 +148,7 @@ atlas_add_test( full_menu_cf
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
                 
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_LS2_emu_menu_DH )
 atlas_add_test( LS2_emu_menu_DH
                 SCRIPT test_emu_step_menu_processing.sh
@@ -151,6 +156,7 @@ atlas_add_test( LS2_emu_menu_DH
                 PROPERTIES TIMEOUT 500
                 POST_EXEC_SCRIPT nopost.sh )
 
+file( REMOVE_RECURSE ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
 file( MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unitTestRun_EventBuildingSequenceSetup )
 atlas_add_test( EventBuildingSequenceSetup
                 SCRIPT python -m TriggerMenuMT.HLTMenuConfig.CommonSequences.EventBuildingSequenceSetup
