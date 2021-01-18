@@ -492,9 +492,9 @@ HepMC::GenVertexPtr  ISF::TruthSvc::createGenVertexFromTruthIncident( ISF::ITrut
     else {
       const auto& old_pos=oldVertex->position();
       const auto& new_pos=ti.position();
-      HepMC::ThreeVector diff(new_pos.x()-old_pos.x(),new_pos.y()-old_pos.y(),new_pos.z()-old_pos.z()); //complicated, but HepMC::ThreeVector and FourVector have no + or - operators
-      
-      if(diff.r()>1*Gaudi::Units::mm) { //Check for a change of the vertex position by more than 1mm
+      double diffr=std::sqrt(std::pow(new_pos.x()-old_pos.x(),2)+std::pow(new_pos.y()-old_pos.y(),2)+std::pow(new_pos.z()-old_pos.z(),2));
+      //AV The comparison below is not portable.
+      if(diffr>1*Gaudi::Units::mm) { //Check for a change of the vertex position by more than 1mm
         ATH_MSG_WARNING("For particle: " << *parent);
         ATH_MSG_WARNING("  decay vertex before QS partice sim: " << *oldVertex );
         oldVertex->set_position( ti.position() );
