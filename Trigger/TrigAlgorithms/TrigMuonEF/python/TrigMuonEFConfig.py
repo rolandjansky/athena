@@ -173,9 +173,8 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
 
 
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
-    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
-    return Trk__TrkMaterialProviderTool(name,**kwargs)
+    return TrackingCommon.getTrkMaterialProviderTool(name,**kwargs)
 
 
 def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs):

@@ -41,7 +41,6 @@ void myLocal_resetTrack(Trk::Track& track )
 Trk::TrkMaterialProviderTool::TrkMaterialProviderTool(const std::string& t, const std::string& n, const IInterface* p)
   :	AthAlgTool(t,n,p),
 	m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",n),
-	m_trackingGeometrySvc("TrackingGeometrySvc/AtlasTrackingGeometrySvc",n),
         m_scattool("Trk::MultipleScatteringUpdator/AtlasMultipleScatteringUpdator"),
 	m_caloMeasTool		("Rec::MuidCaloEnergyMeas/MuidCaloEnergyMeas"),
 	m_caloParamTool		("Rec::MuidCaloEnergyParam/MuidCaloEnergyParam"),
@@ -130,7 +129,12 @@ Trk::TrkMaterialProviderTool::initialize()
     return StatusCode::FAILURE;
   }
 
-  ATH_CHECK(m_trackingGeometrySvc.retrieve());
+#ifdef LEGACY_TRKGEOM
+  if (!m_trackingGeometrySvc.empty()) {
+     ATH_CHECK(m_trackingGeometrySvc.retrieve());
+  }
+#endif
+  ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
 
   return StatusCode::SUCCESS;
 }
@@ -542,8 +546,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
   std::vector<const Trk::TrackStateOnSurface*>* caloTSOS = new std::vector<const Trk::TrackStateOnSurface*>();
   const Trk::TrackingVolume* targetVolume;
   Trk::PropDirection dir;
+  const EventContext& ctx = Gaudi::Hive::currentContext();
 
-  const Trk::TrackingGeometry* trackingGeometry =  m_trackingGeometrySvc->trackingGeometry();
+  const Trk::TrackingGeometry* trackingGeometry =  retrieveTrackingGeometry( ctx );
   if(!trackingGeometry) {
     ATH_MSG_WARNING("Unable to retrieve tracking geometry");
     return caloTSOS;
@@ -2040,5 +2045,11 @@ double Trk::TrkMaterialProviderTool::getFinalMeasuredEnergy(Rec::CaloMeas* caloM
 		   << " Mop Dep = "			<< MopLoss);//<< " +- " << MopError/CLHEP::GeV );
 
   return FinalMeasuredEnergy;
-}  
-  
+}
+
+void Trk::TrkMaterialProviderTool::throwFailedToGetTrackingGeomtry() const {
+   std::stringstream msg;
+   msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+   throw std::runtime_error(msg.str());
+}
+
