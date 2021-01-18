@@ -225,7 +225,7 @@ from DerivationFrameworkFlavourTag.HbbCommon import addRecommendedXbbTaggers
 addRecommendedXbbTaggers(jetm4Seq, ToolSvc)
 
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 
 #====================================================================

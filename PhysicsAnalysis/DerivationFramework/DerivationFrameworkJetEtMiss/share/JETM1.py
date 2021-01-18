@@ -148,7 +148,7 @@ addQGTaggerTool(jetalg="AntiKt4EMTopo",sequence=jetm1Seq,algname="QGTaggerToolAl
 addQGTaggerTool(jetalg="AntiKt4EMPFlow",sequence=jetm1Seq,algname="QGTaggerToolPFAlg")
 
 # Add alternative rho definitions
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
 jetm1Seq += defineEDAlg(R=0.4, inputtype="EMPFlowNeut")
