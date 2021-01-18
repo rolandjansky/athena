@@ -328,29 +328,39 @@ vector<double> endR;
 //   ADA    const InDetDD::StripStereoAnnulusDesign *design = new InDetDD::StripStereoAnnulusDesign(stripDirection, fieldDirection,
 //   ADA     thickness, readoutSide, carrier, nRows, nStrips, phiPitch, startR, endR, stereoAngle, centreR); 
 
-    for(int stripRow=0;stripRow<nRows;stripRow++){
-      
-      singleRowStrips.clear();
-      singleRowPitch.clear();
-      singleRowMinR.clear();
-      singleRowMaxR.clear();
-      
-
-      singleRowStrips.push_back(nStrips[stripRow]);
-      singleRowPitch.push_back(phiPitch[stripRow]);
-      singleRowMinR.push_back(startR[stripRow]);
-      singleRowMaxR.push_back(endR[stripRow]);
-
-      std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,
-														    fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, centreR);
-      //   ADA    m_detectorManager->addDesign(dynamic_cast <const InDetDD::SiDetectorDesign*> (design));
-      m_detectorManager->addDesign(std::move(design));
-      //
-      //    Add to map for addSensor routine
-      //    This is not ideal, as the map will return value of 0 (which is a valid design in the manager) for a non-existing key
-      //    Can lead to wrong detector design being loaded silently... to be improved!
-      m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
-    }
+     int split = 0;
+     if(checkparm(typeName, "splitLevel", par, split)){
+       for(int i = 0;i<split;i++){
+	 
+	 
+	 singleRowStrips.clear();
+	 singleRowPitch.clear();
+	 singleRowMinR.clear();
+	 singleRowMaxR.clear();
+	 
+	 
+	 singleRowStrips.push_back(nStrips[i]);
+	 singleRowPitch.push_back(phiPitch[i]);
+	 singleRowMinR.push_back(startR[i]);
+	 singleRowMaxR.push_back(endR[i]);
+	 
+	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, centreR);
+	 m_detectorManager->addDesign(std::move(design));
+	 //
+	 //    Add to map for addSensor routine
+	 //    This is not ideal, as the map will return value of 0 (which is a valid design in the manager) for a non-existing key
+	 //    Can lead to wrong detector design being loaded silently... to be improved!
+	 std::string splitName = typeName+"_"+std::to_string(i);
+	 m_geometryMap[splitName] = m_detectorManager->numDesigns() -1;
+       }
+     } 
+     
+     else{
+       std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       m_detectorManager->addDesign(std::move(design));
+       m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+     }
+     
 }
 
 string StripGmxInterface::getstr(const string typeName, const string name, const map<string, string> &par) {

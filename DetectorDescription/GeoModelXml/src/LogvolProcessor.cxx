@@ -124,7 +124,7 @@ GeoNameTag *physVolName;
     int sensId = 0;
     //std::vector<int> extraSensIds;//extra Identfiers to be used in case we split this volume into multiple DetectorElements
     map<string, int> index;
-    map<string, int> updatedIndex;//extra indices to be used in case we split this volume
+    //map<string, int> updatedIndex;//extra indices to be used in case we split this volume
     if (sensitive) {
       gmxUtil.positionIndex.setCopyNo(m_map[name].id++);
       gmxUtil.positionIndex.indices(index, gmxUtil.eval);
@@ -169,7 +169,7 @@ GeoNameTag *physVolName;
 	    std::pair<std::string,int> extraIndex(field,i);
 	    //gmxUtil.gmxInterface()->splitSensorId(index,extraIndex,updatedIndex); maybe this method not acrually needed if addSplitSensor does its jobs?
 	    //gmxUtil.gmxInterface()->addSensor(sensitiveName, updatedIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
-	    gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, updatedIndex,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv)); //TODO implement is derived class
+	    gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, index,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv)); //TODO implement is derived class
 	  }
 	}
       }
