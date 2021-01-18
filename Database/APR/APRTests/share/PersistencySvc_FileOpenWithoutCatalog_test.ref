@@ -1,61 +1,18 @@
 [OVAL] Creating the test driver.
 [OVAL] Creating a file catalog
-WARNING: $POOL_CATALOG is not defined
-using default `xmlcatalog_file:PoolFileCatalog.xml'
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1190
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1191
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1308
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1309
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1870
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1871
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1883
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasAnalysis/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasAnalysis.components:1884
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:608
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:609
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:1012
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:1013
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:1198
-WARNING: failed to parse line /afs/cern.ch/atlas/software/builds/nightlies/mig6/AtlasTrigger/rel_0/InstallArea/x86_64-slc6-gcc48-opt/lib/AtlasTrigger.components:1199
 [OVAL] Loading the shared libraries.
 Loading library test_TestDictionaryDict
 [OVAL] Writing objects in the database.
 Creating the persistency service
 Writing 100 objects.
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<bool>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<double>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<float>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-char>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-int>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-long>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.vector<unsigned-short>=vector.dll vectorbool.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<double>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<float>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<int>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<long>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.list<string>=list.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,double>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,float>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<string,int>=map.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.map<int,int>=map2.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.multimap<string,int>=multimap.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<double>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<float>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<int>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<long>=set.dll> for level 0; ignored
-Warning in <TEnvRec::ChangeValue>: duplicate entry <Library.set<string>=set.dll> for level 0; ignored
-RootDatabase.open Success pool.root File version:53418
 Committing the transaction.
 [OVAL] ...done
 [OVAL] Reading the objects back from the database.
 Creating the persistency service
-RootDatabase.open Success pool.root File version:53418
-RootDatabase.open Success pool.root File version:53418
 Container : SimpleTestClass_Container
 100 objects found in the container.
 Committing the transaction.
+XMLCatalog           INFO File 'PoolFileCatalog.xml' does not exist. New file created.
 [OVAL] ...done
 [OVAL] Number of floating tokens : 0
 [OVAL] Exiting...

@@ -1,12 +1,15 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include <exception>
 #include "TestDriver.h"
+#include "TestTools/initGaudi.h"
 
 int main( int argc, char** argv ) {
+  ISvcLocator* svcloc = nullptr;
+  if (!Athena_test::initGaudi (svcloc)) std::abort();
   try {
     std::cout << "[OVAL] Creating the test driver." << std::endl;
     TestDriver driver;
