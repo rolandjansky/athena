@@ -1,12 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-//-----------------------------------------------------
-// TgcDigitMaker.cxx
-//-----------------------------------------------------
-// Y. HASEGAWA
-//-----------------------------------------------------
 
 #include "TgcDigitMaker.h"
 
@@ -41,13 +35,13 @@ TgcDigitMaker::TgcDigitMaker(TgcHitIdHelper*                    hitIdHelper,
   m_mdManager               = mdManager;
   m_runperiod               = runperiod;
   m_idHelper                = 0;
-  m_efficiencyOfWireGangs   = 1.000; // 100% efficiency for TGCSimHit_p1
-  m_efficiencyOfStrips      = 1.000; // 100% efficiency for TGCSimHit_p1
-  m_timeWindowOffsetWire    = 0.;
-  m_timeWindowOffsetStrip   = 0.;
-  m_timeWindowWire          = 29.32; // 29.32 ns = 26 ns +  4 * 0.83 ns
-  m_timeWindowStrip         = 40.94; // 40.94 ns = 26 ns + 18 * 0.83 ns
-  m_bunchCrossingTime       = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
+  m_efficiency[kWIRE] = m_efficiency[kSTRIP] = 1.000; // 100% efficiency for TGCSimHit_p1
+  m_timeWindowOffsetSensor[kWIRE]  = m_timeWindowOffsetSensor[kSTRIP] = 0.;
+  m_gateTimeWindow[kOUTER][kWIRE]  = 29.32; // 29.32ns = 26ns + 4  * 0.83ns(outer station)
+  m_gateTimeWindow[kOUTER][kSTRIP] = 40.94; // 40.94ns = 26ns + 18 * 0.83ns(outer station)
+  m_gateTimeWindow[kINNER][kWIRE]  = 33.47; // 33.47ns = 26ns + 9  * 0.83ns(inner station)
+  m_gateTimeWindow[kINNER][kSTRIP] = 45.09; // 45.09ns = 26ns + 23 * 0.83ns(inner station)
+  m_bunchCrossingTime              = 24.95; // 24.95 ns =(40.08 MHz)^(-1)
 }
 
 //----- Destructor
@@ -107,9 +101,6 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 
   // Check the chamber is dead or not. 
   if(isDeadChamber(stationName, stationEta, stationPhi, ilyr)) return 0;
-
-  m_timeWindowOffsetWire  = getTimeWindowOffset(stationName, stationEta, 0);
-  m_timeWindowOffsetStrip = getTimeWindowOffset(stationName, stationEta, 1);
 
   const Identifier elemId = m_idHelper -> elementID(stationName,stationEta,stationPhi);
   if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() - element identifier is: " << m_idHelper->show_to_string(elemId) << endmsg;
@@ -175,7 +166,8 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   float jitter = jitterInitial; // calculated at wire group calculation and used also for strip calculation
 
   /////////////   wire group number calculation   ///////////////
-  int isStrip = 0;
+  TgcSensor sensor = kWIRE;
+  m_timeWindowOffsetSensor[sensor] = getTimeWindowOffset(stationName, stationEta, sensor);
 
   double energyDeposit = hit->energyDeposit(); // Energy deposit in MeV 
   // If TGCSimHit_p1 is used, energyDeposit is the default value of -9999. 
@@ -184,8 +176,8 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   // For TGCSimHit_p1, old efficiency check with only isStrip variable is used. 
   // For TGCSimHit_p2, new efficiency check with chamber dependent energy threshold is used. 
 
-  if((energyDeposit< -1. && efficiencyCheck(isStrip, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1. 
-     (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, isStrip, energyDeposit)) // New efficiencyCheck for TGCSimHit_p2
+  if((energyDeposit< -1. && efficiencyCheck(sensor, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1. 
+     (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, sensor, energyDeposit)) // New efficiencyCheck for TGCSimHit_p2
      ) {  
 
     int iWireGroup[2];
@@ -242,7 +234,10 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	// stationPhi%2==1 : -1. : ASD attached at the larger phi side of TGC
 	float wDigitTime = bunchTime + jit + wirePropagationTime*(ySignPhi*yLocal + tgcChamber->chamberWidth(zLocal)/2.);
 
-	if(wDigitTime < -m_bunchCrossingTime+m_timeWindowOffsetWire || m_bunchCrossingTime+m_timeWindowOffsetWire+m_timeWindowWire < wDigitTime) {
+	TgcStation station = (m_idHelper->stationName(elemId) > 46) ? kINNER : kOUTER;
+        uint16_t bctag = bcTagging(wDigitTime,m_gateTimeWindow[station][sensor],m_timeWindowOffsetSensor[sensor]);
+
+        if(bctag == 0x0) {
 	  if(msgLevel(MSG::DEBUG)) {
 	    msg(MSG::DEBUG ) << "WireGroup: digitized time is outside of time window. " << wDigitTime
 			     << " bunchTime: " << bunchTime << " time jitter: " << jitter 
@@ -251,17 +246,16 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	}
 	else {
 	  Identifier newId = m_idHelper -> channelID(stationName,stationEta,stationPhi,
-						     ilyr, isStrip, iwg);
-	  uint16_t bctag = bcTagging(wDigitTime,isStrip);
+						     ilyr, (int)sensor, iwg);
 	  addDigit(newId,bctag, digits.get());
 
 	  if(iwg==iWG[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iwg, posInWG[0], wDigitTime, rndmEngine, digits.get());
+	    randomCrossTalk(elemId, ilyr, sensor, iwg, posInWG[0], wDigitTime, rndmEngine, digits.get());
 	  }	 
  
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "WireGroup: newid breakdown digitTime x/y/z direcos height_gang bctag: "
 						   << newId << " " << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr << "/"
-						   << isStrip << "/" << iwg << " " 
+						   << sensor << "/" << iwg << " " 
 						   << wDigitTime << " " << localPos.x() << "/"  << localPos.y() << "/" << localPos.z() << " "
 						   << direCos.x() << "/"  << direCos.y() << "/" << direCos.z() << " "
 						   << height << " " << tgcChamber->getNWires(ilyr,iwg) << " "
@@ -277,12 +271,12 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   } // end of wire group calculation
 
   //////////////  strip number calculation  //////////////
-
-  isStrip = 1;
+  sensor = kSTRIP;
+  m_timeWindowOffsetSensor[sensor] = getTimeWindowOffset(stationName, stationEta, sensor);
 
   if((ilyr != 2 || (stationName.substr(0,2) != "T1")) && // no stip in middle layers of T1* 
-     ((energyDeposit< -1. && efficiencyCheck(isStrip, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1.
-      (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, isStrip, energyDeposit))) // New efficiencyCheck for TGCSimHit_p2
+     ((energyDeposit< -1. && efficiencyCheck(sensor, rndmEngine)) || // Old efficiencyCheck for TGCSimHit_p1.
+      (energyDeposit>=-1. && efficiencyCheck(stationName, stationEta, stationPhi, ilyr, sensor, energyDeposit))) // New efficiencyCheck for TGCSimHit_p2
      ) { 
 
     int iStation = atoi(stationName.substr(1,1).c_str())-1;
@@ -381,7 +375,10 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	// else                                               : +1. : ASD attached at the shorter base of TGC   
 	float sDigitTime = bunchTime + jitter + stripPropagationTime*(height/2. + frameZwidth + zSignEta*zLocal);
 
-	if(sDigitTime < -m_bunchCrossingTime+m_timeWindowOffsetStrip || +m_bunchCrossingTime+m_timeWindowOffsetStrip+ m_timeWindowStrip < sDigitTime) {
+	TgcStation station = (m_idHelper->stationName(elemId) > 46) ? kINNER : kOUTER;
+	uint16_t bctag = bcTagging(sDigitTime,m_gateTimeWindow[station][sensor],m_timeWindowOffsetSensor[sensor]);
+
+	if(bctag == 0x0) {
 	  if(msgLevel(MSG::DEBUG)) {
 	    msg(MSG::DEBUG) << "Strip: Digitized time is outside of time window. " << sDigitTime
 			    << " bunchTime: " << bunchTime << " time jitter: " << jitter 
@@ -390,21 +387,21 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  }
 	}
 	else {
-	  Identifier newId = m_idHelper -> channelID(stationName,stationEta,stationPhi, ilyr, isStrip, istr);
-	  uint16_t bctag = bcTagging(sDigitTime,isStrip);
+	  Identifier newId = m_idHelper -> channelID(stationName,stationEta,stationPhi,
+						     ilyr, (int)sensor, istr);
 	  addDigit(newId, bctag, digits.get());
+
+	  if(istr==iStr[0]) {
+	    randomCrossTalk(elemId, ilyr, sensor, iStr[0], posInStr[0], sDigitTime, rndmEngine, digits.get());
+	  }
 
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: newid breakdown digitTime x/y/z direcos r_center bctag: "
 						   << newId << " " << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr << "/"
-						   << isStrip << "/" << istr << " "
+						   << sensor << "/" << istr << " "
 						   << sDigitTime << " " << localPos.x() << "/" << localPos.y() << "/" << localPos.z() << " " 
 						   << direCos.x() << "/"  << direCos.y() << "/" << direCos.z() << " "
 						   << height/2.+hmin << " "
 						   << bctag << endmsg;
-
-	  if(istr==iStr[0]) {
-	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime, rndmEngine, digits.get());
-	  }
 	}
       }
       else {
@@ -495,34 +492,19 @@ float TgcDigitMaker::timeJitter(const Amg::Vector3D direCosLocal, CLHEP::HepRand
   return jitter;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool TgcDigitMaker::efficiencyCheck(const int isStrip, CLHEP::HepRandomEngine* rndmEngine) const {
-  if(isStrip == 0) { // wire group
-    if(CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) < m_efficiencyOfWireGangs) return true;
-  }
-  else if(isStrip == 1) { // strip
-    if(CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) < m_efficiencyOfStrips) return true;
-  }
-  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed. isStrip: " << isStrip << endmsg;
+bool TgcDigitMaker::efficiencyCheck(const TgcSensor sensor, CLHEP::HepRandomEngine* rndmEngine) const {
+    if(CLHEP::RandFlat::shoot(rndmEngine,0.0,1.0) < m_efficiency[sensor]) return true;
+    if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed for sensor= " << sensor << "(0=WIRE,1=STRIP)" << endmsg;
   return false;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-bool TgcDigitMaker::efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const int isStrip, const double energyDeposit) const {
+bool TgcDigitMaker::efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const {
   // If the energy deposit is equal to or greater than the threshold value of the chamber, 
   // return true. 
-  return (energyDeposit >= getEnergyThreshold(stationName, stationEta, stationPhi, gasGap, isStrip));
+  return (energyDeposit >= getEnergyThreshold(stationName, stationEta, stationPhi, gasGap, sensor));
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
-uint16_t TgcDigitMaker::bcTagging(const double digitTime, const int isStrip) const {
-
-  double offset, window;
-  if(isStrip == 0) { // Wire gang
-    offset = m_timeWindowOffsetWire;
-    window = m_timeWindowWire;
-  }
-  else { // Strip
-    offset = m_timeWindowOffsetStrip;
-    window = m_timeWindowStrip;
-  }
+uint16_t TgcDigitMaker::bcTagging(const double digitTime, const double window, const double offset) const {
 
   uint16_t bctag = 0;
   if(-m_bunchCrossingTime+offset < digitTime && digitTime < -m_bunchCrossingTime+offset+window) {
@@ -959,7 +941,7 @@ void TgcDigitMaker::readFileOfAlignment() {
   ifs.close();
 }
 
-double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, int isStrip) const {
+double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
@@ -968,7 +950,6 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
   stationEta   -= OFFSET_STATIONETA;
   stationPhi   -= OFFSET_STATIONPHI;
   gasGap       -= OFFSET_GASGAP; 
-  isStrip      -= OFFSET_ISSTRIP;
 
   double energyThreshold = +999999.;
 
@@ -976,9 +957,8 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
   if((iStationName>=0 && iStationName<N_STATIONNAME) && 
      (stationEta  >=0 && stationEta  <N_STATIONETA ) && 
      (stationPhi  >=0 && stationPhi  <N_STATIONPHI ) && 
-     (gasGap      >=0 && gasGap      <N_GASGAP     ) && 
-     (isStrip     >=0 && isStrip     <N_ISSTRIP    )) {  
-    energyThreshold = m_energyThreshold[iStationName][stationEta][stationPhi][gasGap][isStrip];
+     (gasGap      >=0 && gasGap      <N_GASGAP     )) { 
+    energyThreshold = m_energyThreshold[iStationName][stationEta][stationPhi][gasGap][sensor];
   }
 
   // Show the energy threshold value
@@ -988,7 +968,7 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
 		      << " stationEta= " << stationEta+OFFSET_STATIONETA 
 		      << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
 		      << " gasGap= " << gasGap+OFFSET_GASGAP 
-		      << " isStrip= " << isStrip+OFFSET_ISSTRIP
+		      << " sensor= " << sensor
 		      << " energyThreshold(MeV)= " << energyThreshold
 		      << endmsg;
   }
@@ -999,7 +979,7 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
                                     const int gasGap,
-                                    const int isStrip,
+                                    const TgcSensor sensor,
                                     const int channel,
                                     const float posInChan,
                                     const double digitTime,
@@ -1010,7 +990,6 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
   int stationEta  = m_idHelper->stationEta(elemId)  - OFFSET_STATIONETA;
   int stationPhi  = m_idHelper->stationPhi(elemId)  - OFFSET_STATIONPHI;
   int iGasGap     = gasGap                          - OFFSET_GASGAP; 
-  int iIsStrip    = isStrip                         - OFFSET_ISSTRIP; 
 
   double prob1CrossTalk  = 0.;
   double prob11CrossTalk = 0.;
@@ -1021,10 +1000,10 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
      (stationEta >=0 && stationEta <N_STATIONETA ) &&
      (stationPhi >=0 && stationPhi <N_STATIONPHI ) &&
      (iGasGap    >=0 && iGasGap    <N_GASGAP     )) {
-    prob1CrossTalk  = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][0];
-    prob11CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][1];
-    prob20CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][2];
-    prob21CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][iIsStrip][3];
+    prob1CrossTalk  = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][0];
+    prob11CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][1];
+    prob20CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][2];
+    prob21CrossTalk = m_crossTalk[stationName][stationEta][stationPhi][iGasGap][sensor][3];
   }
 
   int nCrossTalks_neg = 0; 
@@ -1053,16 +1032,16 @@ void TgcDigitMaker::randomCrossTalk(const Identifier elemId,
 
   // No time structure is implemented yet. 
   double dt = digitTime; 
-  uint16_t bctag = bcTagging(dt, isStrip); 
-
+  TgcStation station = (stationName > 46) ? kINNER : kOUTER;
+  uint16_t bctag = bcTagging(dt, m_gateTimeWindow[station][sensor], m_timeWindowOffsetSensor[sensor]);
   // obtain max channel number
-  Identifier thisId = m_idHelper->channelID(elemId, gasGap, isStrip, channel);
+  Identifier thisId = m_idHelper->channelID(elemId, gasGap, (int)sensor, channel);
   int maxChannelNumber = m_idHelper->channelMax(thisId);
 
   for(int jChan=channel-nCrossTalks_neg; jChan<=channel+nCrossTalks_pos; jChan++) {
     if(jChan == channel || jChan < 1 || jChan > maxChannelNumber) continue;
 
-    Identifier newId = m_idHelper->channelID(elemId, gasGap, isStrip, jChan);
+    Identifier newId = m_idHelper->channelID(elemId, gasGap, (int)sensor, jChan);
     addDigit(newId, bctag, digits); // TgcDigit can be duplicated. 
   }
 }
@@ -1101,22 +1080,20 @@ bool TgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta,
   return v_isDeadChamber; 
 }
 
-double TgcDigitMaker::getTimeWindowOffset(const std::string stationName, int stationEta, int isStrip) const {
+double TgcDigitMaker::getTimeWindowOffset(const std::string stationName, int stationEta, const TgcSensor sensor) const {
   // Convert std::string stationName to int iStationName from 41 to 48
   int iStationName = getIStationName(stationName);
 
   // Subtract offsets to use these as the indices of the energyThreshold array
   iStationName -= OFFSET_STATIONNAME;
   stationEta   -= OFFSET_STATIONETA;
-  isStrip      -= OFFSET_ISSTRIP;
 
   // Check the indices are valid
   if(iStationName<0 || iStationName>=N_STATIONNAME) return 0.;
   if(stationEta  <0 || stationEta  >=N_STATIONETA ) return 0.;
-  if(isStrip     <0 || isStrip     >=N_ISSTRIP    ) return 0.;
   
   // Values were determined to reproduce the fraction of Previous BC hit fraction in Z->mumu data during Periods B,D,E in 2011.
-  return m_timeWindowOffset[iStationName][stationEta][isStrip];
+  return m_timeWindowOffset[iStationName][stationEta][sensor];
 }
 
 int TgcDigitMaker::getIStationName(const std::string stationName) const {
