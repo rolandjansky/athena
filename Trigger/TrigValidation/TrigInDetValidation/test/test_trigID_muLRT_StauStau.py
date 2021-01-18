@@ -32,8 +32,8 @@ RunEF   = True
 Events  = 200 
 Threads = 8 
 Slots   = 8
-Input   = 'Zmumu_pu40'    # defined in TrigValTools/share/TrigValInputs.json
-GridFiles=True
+Input   = 'StauStau'    # defined in TrigValTools/share/TrigValInputs.json
+GridFiles = False
 
 
 Jobs = [ ( "Truth",  " TIDAdata-run3.dat -o data-hists.root -p 13" ),
@@ -41,7 +41,6 @@ Jobs = [ ( "Truth",  " TIDAdata-run3.dat -o data-hists.root -p 13" ),
 
 Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots " ) ]
 
-Args = " -p 13 "
 TrackReference = [ 'Truth', 'Offline' ]
 Lowpt          = [ False, True ] 
 
