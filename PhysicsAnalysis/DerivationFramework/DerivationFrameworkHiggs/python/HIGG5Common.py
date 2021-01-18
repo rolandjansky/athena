@@ -26,7 +26,7 @@ def getJetEMTopoName() :
 
 def addVRSmallJets(sequence, largeRColls = None, do_ghost=False, logger=None, doFlipTagger=False, training='201810', *pos_opts, **opts):
     from AthenaCommon import Logging
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
     addCHSPFlowObjects()
 
     if logger is None:
@@ -52,7 +52,7 @@ def addVRSmallJets(sequence, largeRColls = None, do_ghost=False, logger=None, do
 #
 def getJetRecTool(collection, getParent=True):
     from JetRec.JetRecStandardToolManager import jtm
-    from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+    from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
     addCHSPFlowObjects()
     if "AntiKt4EMPFlowJets" not in jtm.tools:
         jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,   "empflow", "pflow_ungroomed", ghostArea=0.01, ptmin= 5000, ptminFilter= 10000, calibOpt="arj:pflow")

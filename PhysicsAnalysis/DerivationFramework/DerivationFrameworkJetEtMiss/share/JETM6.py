@@ -377,7 +377,7 @@ if DerivationFrameworkHasTruth:
   import DerivationFrameworkCore.LHE3WeightMetadata
 
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
 
 #====================================================================
