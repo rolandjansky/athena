@@ -159,19 +159,25 @@ namespace Muon {
       std::unique_ptr<TruthTrajectory> truthTrajectory;
       // associate the muon truth with the gen event info
       if( genEvent ){
-	HepMC::GenParticle* genParticle = genEvent->barcode_to_particle( (*tr_it).GetBarCode() );
+	HepMC::GenParticlePtr genParticle = HepMC::barcode_to_particle(genEvent, (*tr_it).GetBarCode() );
 	if( genParticle ){
 	  truthTrajectory = std::make_unique<TruthTrajectory>();
 	  m_truthTrajectoryBuilder->buildTruthTrajectory(truthTrajectory.get(),genParticle);
 	  if( !truthTrajectory->empty() ){
 	    
 	    // always use barcode of the 'final' particle in chain in map
-	    barcode = truthTrajectory->front()->barcode();
+	    barcode = HepMC::barcode(truthTrajectory->front());
 	    
 	    if( msgLvl(MSG::VERBOSE) ) {
+#ifdef HEPMC3
+	      ATH_MSG_VERBOSE(" found GenParticle: size " 
+                                << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
+                                << " p " << truthTrajectory->front()->momentum().length());
+#else
 	      ATH_MSG_VERBOSE(" found GenParticle: size " 
                                 << truthTrajectory->size() << " fs barcode " << barcode << " pdg " << truthTrajectory->front()->pdg_id()
                                 << " p " << truthTrajectory->front()->momentum().rho());
+#endif
 	      if( truthTrajectory->front()->production_vertex() ) {
                 ATH_MSG_VERBOSE(" vertex: r  " << truthTrajectory->front()->production_vertex()->position().perp() 
                                   << " z " << truthTrajectory->front()->production_vertex()->position().z());
@@ -182,11 +188,14 @@ namespace Muon {
 	    std::vector<HepMcParticleLink>::const_iterator pit = truthTrajectory->begin();
 	    std::vector<HepMcParticleLink>::const_iterator pit_end = truthTrajectory->end();
 	    for( ;pit!=pit_end;++pit ){
-	      int code = (*pit)->barcode();
+	      int code = HepMC::barcode(*pit);
               
               if( msgLvl(MSG::VERBOSE) && code != barcode ) {
-                ATH_MSG_VERBOSE("  secondary barcode: " << code << " pdg " << (*pit)->pdg_id() 
-                                  << " p " << (*pit)->momentum().rho());
+#ifdef HEPMC3
+                ATH_MSG_VERBOSE("  secondary barcode: " << code << " pdg " << (*pit)->pdg_id()  << " p " << (*pit)->momentum().length());
+#else
+                ATH_MSG_VERBOSE("  secondary barcode: " << code << " pdg " << (*pit)->pdg_id()  << " p " << (*pit)->momentum().rho());
+#endif
                 if( (*pit)->production_vertex() ) ATH_MSG_VERBOSE(" vertex: r  " << (*pit)->production_vertex()->position().perp() 
                                                                     << " z " << (*pit)->production_vertex()->position().z());
 		// sanity check 

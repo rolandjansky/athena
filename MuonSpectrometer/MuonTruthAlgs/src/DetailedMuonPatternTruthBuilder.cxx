@@ -56,8 +56,6 @@
 #include <iterator>
 #include <algorithm>
 
-const MuonSimDataCollection* retrieveTruthCollection( std::string colName );
-const MuonSimData::Deposit* getDeposit( const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart, const Identifier& id );
 
 struct DetectorLayer {
   DetectorLayer() : stIndex(Muon::MuonStationIndex::StUnknown), isEndcap(false), minPos(1e9),maxPos(-1e9),nnsw(0),nmdtS(0),nmdtL(0),nphi(0) {}
@@ -108,7 +106,7 @@ namespace {
 
 
   // Truth trajectory sprouts
-  class Sprout : public std::list<const HepMC::GenParticle*> {
+  class Sprout : public std::list<HepMC::ConstGenParticlePtr> {
   public:
     SubDetPRDs stat;
   };
@@ -195,7 +193,7 @@ buildDetailedMuonPatternTruth(DetailedMuonPatternTruthCollection *output,
       const TruthTrajectory& t = i->second.trajectory(); 
       msg(MSG::VERBOSE)<<"Particles on the trajectory:\n"; 
       for(unsigned k=0; k<t.size(); ++k) { 
-        msg(MSG::VERBOSE)<<*t[k]<<"\n"; 
+        msg(MSG::VERBOSE)<<t[k]<<"\n"; 
       } 
       msg(MSG::VERBOSE)<<"\n"<<endmsg; 
     }        
@@ -402,9 +400,13 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     HepMcParticleLink link = *seeds.begin();
     
     Sprout current_sprout;
-    std::queue<const HepMC::GenParticle*> tmp;
+    std::queue<HepMC::ConstGenParticlePtr> tmp;
     unsigned eventIndex = link.eventIndex();
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr current = link.scptr();
+#else
     const HepMC::GenParticle *current = link.cptr();
+#endif
     
     do {
       HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
@@ -459,7 +461,7 @@ void DetailedMuonPatternTruthBuilder::addTrack(DetailedMuonPatternTruthCollectio
     // This may add only hits that are *not* on the current track.
     // Thus no need to update stats track and stats common.
 
-    const HepMC::GenParticle* current = *s->second.begin();
+    HepMC::ConstGenParticlePtr current = *s->second.begin();
     while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
@@ -515,7 +517,7 @@ SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const Trut
 
 //================================================================
 Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::MuonSegment &segment,
-								   std::list<const HepMC::GenParticle*> genPartList,
+								   std::list<HepMC::ConstGenParticlePtr> genPartList,
 								   int truthPos,
 								   std::set<Muon::MuonStationIndex::ChIndex> chIndices)
 {
@@ -590,9 +592,9 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
         continue;
       }
       
-      const MuonSimData::Deposit* deposit = 0;
-      for (std::list<const HepMC::GenParticle*>::const_iterator it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
-        deposit = getDeposit(*mdtSimDataMap, **it ,id);
+      const MuonSimData::Deposit* deposit = nullptr;
+      for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
+        deposit = getDeposit(*mdtSimDataMap, *it ,id);
       }
       if( !deposit ){
         ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
@@ -653,8 +655,8 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
     }else if( mm ){
 
       const MuonSimData::Deposit* deposit = 0;
-      for (std::list<const HepMC::GenParticle*>::const_iterator it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
-        deposit = getDeposit(*mmSimDataMap, **it ,id);
+      for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
+        deposit = getDeposit(*mmSimDataMap, *it ,id);
       }
       if( !deposit ){
         ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
@@ -719,8 +721,8 @@ Amg::Vector3D DetailedMuonPatternTruthBuilder::getPRDTruthPosition(const Muon::M
       // if( !stgcSimDataMap ) continue;
      
       const MuonSimData::Deposit* deposit = 0;
-      for (std::list<const HepMC::GenParticle*>::const_iterator it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
-        deposit = getDeposit(*stgcSimDataMap, **it ,id);
+      for (auto it = genPartList.begin(); it != genPartList.end() && !deposit; ++it) {
+        deposit = getDeposit(*stgcSimDataMap, *it ,id);
       }
       if( !deposit ){
         ATH_MSG_WARNING(" Deposit for GenParticle not found " << m_idHelperSvc->toString(id) );
@@ -892,9 +894,13 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     HepMcParticleLink link = *seeds.begin();
     
     Sprout current_sprout;
-    std::queue<const HepMC::GenParticle*> tmp;
+    std::queue<HepMC::ConstGenParticlePtr> tmp;
     unsigned eventIndex = link.eventIndex();
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr current = link.scptr();
+#else
     const HepMC::GenParticle *current = link.cptr();
+#endif
     
     do {
       HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
@@ -948,7 +954,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruth(std::vector<Detailed
     // This may add only hits that are *not* on the current track.
     // Thus no need to update stats track and stats common.
 
-    const HepMC::GenParticle* current = *s->second.begin();
+    HepMC::ConstGenParticlePtr current = *s->second.begin();
     while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
@@ -1020,25 +1026,6 @@ buildDetailedTrackTruthFromSegments(std::vector<DetailedSegmentTruth> *output,
 		" Entries with TruthTrajectories of more then one particle shown at the DEBUG level.\n"
 		" Use VERBOSE level for complete dump.");
 
-/*
-  for(TrackTruthCollection::const_iterator i=output->begin(); i!=output->end(); i++) {
-    bool interesting = (i.trajectory().size() > 1);
-
-  // TODO:  Reinsert the following code once I understand the compile-time error
-//    msg(interesting  ? MSG::DEBUG : MSG::VERBOSE)
-//      <<"out: trk="<<i->first.index()<<" => "<<i->second<<endmsg;
-
-    if(interesting) {
-      const TruthTrajectory& t = i.trajectory();
-      msg(MSG::VERBOSE)<<"Particles on the trajectory:\n";
-      for(unsigned k=0; k<t.size(); ++k) {
-	msg(MSG::VERBOSE)<<*t[k]<<"\n";
-      }
-      msg(MSG::VERBOSE)<<"\n"<<endmsg;
-    }
-	  
-  }
-*/
   
 
 }
@@ -1140,9 +1127,13 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     HepMcParticleLink link = *seeds.begin();
     
     Sprout current_sprout;
-    std::queue<const HepMC::GenParticle*> tmp;
+    std::queue<HepMC::ConstGenParticlePtr> tmp;
     unsigned eventIndex = link.eventIndex();
+#ifdef HEPMC3
+    HepMC::ConstGenParticlePtr current = link.scptr();
+#else
     const HepMC::GenParticle *current = link.cptr();
+#endif
     
     do {
       HepMcParticleLink curlink(HepMC::barcode(current), eventIndex);
@@ -1196,7 +1187,7 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     // This may add only hits that are *not* on the current track.
     // Thus no need to update stats track and stats common.
 
-    const HepMC::GenParticle* current = *s->second.begin();
+    HepMC::ConstGenParticlePtr current = *s->second.begin();
     while( (current = m_truthTrackBuilder->getDaughter(current)) ) {
       s->second.push_front(current);
     }
@@ -1222,8 +1213,8 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
 
 }
 
-
-  const MuonSimData::Deposit* DetailedMuonPatternTruthBuilder::getDeposit( const MuonSimDataCollection& simCol, const HepMC::GenParticle& genPart, const Identifier& id ) 
+//AV Note: MuonSimData::Deposit  typedef std::pair<HepMcParticleLink, MuonMCData> Deposit;
+  const MuonSimData::Deposit* DetailedMuonPatternTruthBuilder::getDeposit( const MuonSimDataCollection& simCol, HepMC::ConstGenParticlePtr genPart, const Identifier& id ) 
   {
     MuonSimDataCollection::const_iterator it = simCol.find(id);
     if( it == simCol.end() ) {
@@ -1232,22 +1223,30 @@ void DetailedMuonPatternTruthBuilder::addDetailedTrackTruthFromSegment(std::vect
     }
    
     const MuonSimData& simData = it->second;
-    const MuonSimData::Deposit* deposit = 0;
+    const MuonSimData::Deposit* deposit = nullptr;
     std::vector<MuonSimData::Deposit>::const_iterator dit = simData.getdeposits().begin();
     std::vector<MuonSimData::Deposit>::const_iterator dit_end = simData.getdeposits().end();
     for( ; dit!=dit_end;++dit ){
-      const HepMC::GenParticle* gp = dit->first;
-      if( gp == &genPart ){
+#ifdef HEPMC3
+      HepMC::ConstGenParticlePtr gp = dit->first.scptr();
+      if( gp == genPart ){
         deposit = &*dit;
         break;
       }
+#else
+      const HepMC::GenParticle* gp = dit->first;
+      if( gp == genPart ){
+        deposit = &*dit;
+        break;
+      }
+#endif
     }
     return deposit;
   }
 
   const MuonSimDataCollection* DetailedMuonPatternTruthBuilder::retrieveTruthCollection( std::string colName ) {
     // Retrieve SDO map for this event
-    if(!evtStore()->contains<MuonSimDataCollection>(colName)) return 0;
+    if(!evtStore()->contains<MuonSimDataCollection>(colName)) return nullptr;
 
     const MuonSimDataCollection* truthCol(0);
     if(!evtStore()->retrieve(truthCol, colName).isSuccess()) {
