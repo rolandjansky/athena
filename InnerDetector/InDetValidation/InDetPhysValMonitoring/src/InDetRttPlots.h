@@ -42,6 +42,7 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "InDetPerfPlot_Resolution.h"
+#include "InDetPerfNtuple_TruthToReco.h" 
 
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
@@ -79,6 +80,10 @@ public:
   ///fill for fakes
   void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx);
 
+  // fill IDPVM Ntuple
+  void fillNtuple(const xAOD::TrackParticle& track);
+  void fillNtuple(const xAOD::TruthParticle& truth);
+  void fillNtuple(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, const int truthMatchRanking); 
 private:
   InDetPerfPlot_TrackParameters m_trackParameters;
   InDetPerfPlot_nTracks m_nTracks;
@@ -95,6 +100,7 @@ private:
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
   InDetPerfPlot_TRTExtension m_trtExtensionPlots;
   InDetPerfPlot_ANTracking m_anTrackingPlots;
+  InDetPerfNtuple_TruthToReco m_ntupleTruthToReco;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsFakeTracksPlots{nullptr};

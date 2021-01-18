@@ -61,6 +61,10 @@ def getInDetPhysValMonitoringTool(**kwargs) :
          kwargs=setDefaults(kwargs,
                             JetContainerName    ='' ,
                             FillTrackInJetPlots = False)
+      
+      if InDetPhysValFlags.doValidateTruthToRecoNtuple():
+         kwargs=setDefaults(kwargs,
+                           FillTruthToRecoNtuple = True)
 
       #adding the VeretxTruthMatchingTool
       from InDetTruthVertexValidation.InDetTruthVertexValidationConf import InDetVertexTruthMatchTool
@@ -94,7 +98,8 @@ def getInDetPhysValMonitoringTool(**kwargs) :
                          # the jet container is actually meant to be a truth jet container
                          JetContainerName           ='',
                          FillTrackInJetPlots        = False,
-                         FillTrackInBJetPlots       = False)
+                         FillTrackInBJetPlots       = False,
+                         FillTruthToRecoNtuple      = False)
 
    # Control the number of output histograms
    if InDetPhysValFlags.doPhysValOutput() :

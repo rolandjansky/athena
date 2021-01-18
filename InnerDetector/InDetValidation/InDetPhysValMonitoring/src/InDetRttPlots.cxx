@@ -31,10 +31,10 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_hardScatterVertexTruthMatchingPlots(this, "Vertices/HardScatteringVertex"),
   m_trtExtensionPlots(this, "Tracks/TRTExtension"),
   m_anTrackingPlots(this, "Tracks/ANT"),
+  m_ntupleTruthToReco(this, "Ntuples", "TruthToReco"),
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true),
-  m_doTrackInBJetPlots(true) //FIX CONFIGURATION
-{
+  m_doTrackInBJetPlots(true) {
   this->m_iDetailLevel = iDetailLevel;
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
@@ -364,3 +364,25 @@ InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& j
    if(isBjet) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake); 
 }
 
+//IDPVM Ntuple
+void
+InDetRttPlots::fillNtuple(const xAOD::TrackParticle& track) {
+  // Fill track only entries with dummy truth values
+  m_ntupleTruthToReco.fillTrack(track);
+  m_ntupleTruthToReco.fillTree();
+}
+
+void
+InDetRttPlots::fillNtuple(const xAOD::TruthParticle& truth) {
+  // Fill truth only entries with dummy track values
+  m_ntupleTruthToReco.fillTruth(truth);
+  m_ntupleTruthToReco.fillTree();
+}
+
+void 
+InDetRttPlots::fillNtuple(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, const int truthMatchRanking) {
+  // Fill track and truth entries
+  m_ntupleTruthToReco.fillTrack(track, truthMatchRanking);
+  m_ntupleTruthToReco.fillTruth(truth);
+  m_ntupleTruthToReco.fillTree();
+}
