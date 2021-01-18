@@ -29,7 +29,7 @@
 
 Slices  = ['L2muonLRT']
 RunEF   = True
-Events  = 200 
+Events  = 8000 
 Threads = 8 
 Slots   = 8
 Input   = 'StauStau'    # defined in TrigValTools/share/TrigValInputs.json
