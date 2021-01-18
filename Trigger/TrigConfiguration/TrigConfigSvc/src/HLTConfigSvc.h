@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_HLTConfigSvc
@@ -42,11 +42,11 @@ namespace TrigConf {
    public:
 
       // implementing IIHLTConfigSvc
-      const HLTChainList*    chainList() const __attribute__ ((deprecated));
-      const HLTChainList&    chains() const;
+      virtual const HLTChainList*    chainList() const override __attribute__ ((deprecated));
+      virtual const HLTChainList&    chains() const override;
       
-      const HLTSequenceList* sequenceList() const __attribute__ ((deprecated));
-      const HLTSequenceList& sequences() const;
+      virtual const HLTSequenceList* sequenceList() const override  __attribute__ ((deprecated));
+      virtual const HLTSequenceList& sequences() const override;
       
       /// @name Dummy implementations of the Run 3 HLT JSON trigger configuration interface in IIHLTConfigSvc.
       /// @brief Use the xAODConfigSvc or xAODConfigTool to access these data.
@@ -66,18 +66,18 @@ namespace TrigConf {
       HLTConfigSvc( const std::string& name, ISvcLocator* pSvcLocator );
       virtual ~HLTConfigSvc();
 
-      StatusCode initialize();
-      StatusCode finalize();
-      StatusCode start();
+      virtual StatusCode initialize() override;
+      virtual StatusCode finalize() override;
+      virtual StatusCode start() override;
 
-      StatusCode queryInterface( const InterfaceID& riid, void** ppvIF );
+      virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvIF ) override;
 
-      StatusCode updatePrescaleSets(uint requestcount);
+      virtual StatusCode updatePrescaleSets(uint requestcount) override;
 
       // Access functions described by IHLTConfigSvc:
       const HLTFrame*        hltFrame() const { return &m_HLTFrame; }
-      uint32_t               masterKey() const;
-      uint32_t               hltPrescaleKey() const;
+      virtual uint32_t               masterKey() const override;
+      virtual uint32_t               hltPrescaleKey() const override;
 
       void setL2LowerChainCounter(const CTPConfig*);
 
@@ -91,7 +91,7 @@ namespace TrigConf {
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
 
-      StatusCode assignPrescalesToChains(uint lumiblock );
+      virtual StatusCode assignPrescalesToChains(uint lumiblock ) override;
 
       StatusCode bookHistograms();
       void applyPrescaleSet(const HLTPrescaleSet& pss);
