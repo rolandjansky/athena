@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkMaterialProvider/TrkMaterialProviderTool.h"
@@ -28,7 +28,7 @@
 #include "MuidInterfaces/IMuidCaloEnergyParam.h"
 #include "MuidInterfaces/IMuidTrackIsolation.h"
 
-//#define DEBUGON //To activate printout for TSOS lists at various stages
+// #define DEBUGON //To activate printout for TSOS lists at various stages
 // for line-by-line debugging
 #define MYDEBUG() std::cout<<__FILE__<<" "<<__func__<<" "<<__LINE__<<std::endl
 
@@ -403,7 +403,7 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   for(auto m : *inputTSOS_ID) printTSOS(m, "TSOS ID TRACK");
   for(auto m : *inputTSOS_MS) printTSOS(m, "TSOS MS TRACK");
 #endif
-  
+
   // find last ID TSOS
   DataVector<const Trk::TrackStateOnSurface>::const_reverse_iterator lastIDwP  = inputTSOS_ID->rbegin();
   for (auto it = inputTSOS_ID->rbegin(); it != inputTSOS_ID->rend(); ++it) {
@@ -411,6 +411,12 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
       lastIDwP = it;
       break;
     }
+  }
+  
+  if(lastIDwP == inputTSOS_ID->rend()) {
+    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
+    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    return;
   }
   
   // find first MS TSOS
@@ -428,11 +434,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
     }
   }
 
-  if(lastIDwP == inputTSOS_ID->rbegin()) {
-    ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
-    ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
-    return;
-  }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
@@ -466,7 +467,6 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   }
   fieldCondObj->getInitializedCache (fieldCache);
 
-  
   double Eloss = 0.; 
   double X0ScaleMS = 0.;
   double ElossScaleMS = 0.;
@@ -477,26 +477,35 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
 									    (*firstMSnotPerigee)->surface(),
 									    Trk::alongMomentum, 
 									    Trk::muon,
-                                                                            Eloss, X0ScaleMS, ElossScaleMS,
+                      Eloss, X0ScaleMS, ElossScaleMS,
 									    (firstMSwP == inputTSOS_MS->end()) ? nullptr : (*firstMSwP)->trackParameters(),
 									    false,
 									    true); 
-  
-  if(!caloTSOS || caloTSOS->size()!=3) {
-    if((!fieldCache.toroidOn()&&fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP])*4000.<1)|| (fieldCache.toroidOn()&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=1/100000.&&msTrack.perigeeParameters()->parameters()[Trk::qOverP]!=0)) {
-// Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
-      if(!fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1./idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
-      if(fieldCache.toroidOn()) ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1./msTrack.perigeeParameters()->parameters()[Trk::qOverP]);
-      ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
-      if(!caloTSOS) {
-         ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
-      } else {
-         ATH_MSG_WARNING(" nr Calorimeter TSOS from extrapolateM+aggregation not equal to 3 " << caloTSOS->size());
+
+    if (!caloTSOS || caloTSOS->size() != 3)
+    {
+      double idqOverP = fabs(idTrack.perigeeParameters()->parameters()[Trk::qOverP]);
+      double msqOverP = msTrack.perigeeParameters() ? msTrack.perigeeParameters()->parameters()[Trk::qOverP] : (*firstMS)->trackParameters()->parameters()[Trk::qOverP] ;
+
+      if ((!fieldCache.toroidOn() && idqOverP * 4000. < 1) || (fieldCache.toroidOn() && msqOverP != 1 / 100000. && msqOverP != 0))
+      {
+        // Warnings only for high momentum ID tracks and MS tracks that have measured curvature (Straight track has pq= 100000)
+        if (!fieldCache.toroidOn())
+          ATH_MSG_WARNING(" Toroid off q*momentum of ID track " << 1. / idqOverP);
+        if (fieldCache.toroidOn())
+          ATH_MSG_WARNING(" Toroid on q*momentum of MS track " << 1. / msqOverP);
+        ATH_MSG_WARNING("Unable to retrieve Calorimeter TSOS from extrapolateM+aggregation (null or !=3)");
+        if (!caloTSOS) {
+          ATH_MSG_WARNING(" Zero Calorimeter TSOS from extrapolateM+aggregation");
+        } else {
+          ATH_MSG_WARNING(" nr Calorimeter TSOS from extrapolateM+aggregation not equal to 3 " << caloTSOS->size());
+        }
       }
-    }    
-    if(caloTSOS) deleteTSOS(caloTSOS);
-    return;
-  }
+
+      if (caloTSOS) deleteTSOS(caloTSOS);
+
+      return;
+    }
 
   for (unsigned int i=0;i<caloTSOS->size(); i++){
     const Trk::MaterialEffectsOnTrack *meot=dynamic_cast<const Trk::MaterialEffectsOnTrack *>((*caloTSOS)[i]->materialEffectsOnTrack());
