@@ -344,7 +344,9 @@ vector<double> endR;
 	 singleRowMinR.push_back(startR[i]);
 	 singleRowMaxR.push_back(endR[i]);
 	 
-	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, centreR);
+	 double thisCentreR = (singleRowMinR[0]+singleRowMaxR[0])*0.5;
+	 
+	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR);
 	 m_detectorManager->addDesign(std::move(design));
 	 //
 	 //    Add to map for addSensor routine
