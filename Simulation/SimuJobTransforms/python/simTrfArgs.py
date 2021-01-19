@@ -197,6 +197,9 @@ def addCommonSimDigTrfArgs(parser):
     parser.add_argument('--jobNumber',
                         type=argFactory(argInt),
                         help='The number of this job in the current RunDependentSimulation task.', group='SimDigi')
+    parser.add_argument('--detectors', nargs='*',
+                        type=argFactory(argString),
+                        help='Detectors autoconfiguration string', group='SimDigi')
 
 def addHITSMergeArgs(parser):
     # Use arggroup to get these arguments in their own sub-section (of --help)
