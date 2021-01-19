@@ -51,21 +51,28 @@ JetCollections['MT'] = {
   'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf'          : { 'MatchTo' : 'NONE' },               # pflow cssk nojcalib
 }
 Chains2Monitor['MT'] = {
+  # Small-R EMTopo chains
   'HLT_j420_L1J100'                        : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j260_320eta490_L1J75_31ETA49'       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_5j70_0eta240_L14J20'                : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_3j200_L1J100'                       : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10JetRCJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j80_j60_L1J15'                      : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesIS',                   'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_subjesgscIS_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMTopoJets_subjesgscIS_ftf',            'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
-  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_AntiKt10LCTopoJets_subjes',                    'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Small-R PFlow chains
   'HLT_j45_pf_ftf_L1J15'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_pf_subjesgscIS_ftf_L1J15'       : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subjesgscIS_ftf',           'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j85_pf_ftf_L1J20'                   : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'HLT_j45_pf_ftf_L1J15', 'OfflineColl' : 'AntiKt4EMPFlowJets' },
   'HLT_j45_pf_nojcalib_ftf_L1J15'          : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_nojcalib_ftf',              'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_j45_cssk_pf_nojcalib_ftf_L1J15'     : { 'HLTColl' : 'HLT_AntiKt4EMPFlowCSSKJets_nojcalib_ftf',          'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
   'HLT_10j40_pf_subresjesgscIS_ftf_L14J15' : { 'HLTColl' : 'HLT_AntiKt4EMPFlowJets_subresjesgscIS_ftf',        'RefChain' : 'NONE',                 'OfflineColl' : 'NONE' },
+  # Large-R reclustered chains
+  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_AntiKt10JetRCJets_subjesIS',                   'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R LCTopo chains
+  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_AntiKt10LCTopoJets_subjes',                    'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R trimmed chains
+  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10t_lcw_jes_30smcINF_L1J100'  : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_AntiKt10LCTopoTrimmedPtFrac4SmallR20Jets_jes', 'RefChain' : 'HLT_j85_L1J20',        'OfflineColl' : 'AntiKt4EMTopoJets' },
 }
 
 # Legacy
@@ -76,14 +83,20 @@ JetCollections['Legacy'] = {
   'HLT_xAOD__JetContainer_a10ttclcwjesFS'      : { 'MatchTo' : 'NONE' }, # a10t
 }
 Chains2Monitor['Legacy'] = {
+  # Small-R chains
   'HLT_j420'                               : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
   'HLT_j260_320eta490'                     : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j45_320eta490', 'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS', 'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10tclcwsubjesFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
-  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j80_j60_L1J15'                      : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'NONE',              'OfflineColl' : 'NONE' },
   'HLT_5j70_0eta240'                       : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'NONE',              'OfflineColl' : 'NONE' },
   'HLT_3j200'                              : { 'HLTColl' : 'HLT_xAOD__JetContainer_a4tcemsubjesISFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R reclustered chains
+  'HLT_j460_a10r_L1J100'                   : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10r_tcemsubjesISFS', 'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R LCTopo chains
+  'HLT_j460_a10_lcw_subjes_L1J100'         : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10tclcwsubjesFS',    'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  # Large-R trimmed chains
+  'HLT_j460_a10t_lcw_jes_L1J100'           : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_j460_a10t_lcw_jes_30smcINF_L1J100'  : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
+  'HLT_2j330_a10t_lcw_jes_35smcINF_L1J100' : { 'HLTColl' : 'HLT_xAOD__JetContainer_a10ttclcwjesFS',      'RefChain' : 'HLT_j175',          'OfflineColl' : 'AntiKt4EMTopoJets' },
 }
 
 #########################################################
@@ -453,7 +466,7 @@ def jetEfficiencyMonitoringConfig(inputFlags,onlinejetcoll,offlinejetcoll,chain,
        # create a monitoring group with the histo path starting from the parentAlg
        group = monhelper.addGroup(parentAlg, conf.Group, conf.topLevelDir+jetcollFolder+'/')
        # define the histogram
-       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=1000 , xmin=0, xmax=1000000. ,)
+       group.defineHistogram('trigPassed,jetVar',title='titletrig', type="TEfficiency", path=chainFolder, xbins=10000 , xmin=0, xmax=800000. ,)
 
    # Get jet index and eta selection for offline jets
    parts        = chain.split('j')
