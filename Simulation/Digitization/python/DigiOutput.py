@@ -62,7 +62,7 @@ def getStreamRDO_ItemList(log):
     else:
         StreamRDO_ItemList = []
 
-    if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp():
+    if DetFlags.pileup.any_on() or digitizationFlags.doXingByXingPileUp() or digitizationFlags.doBeamSpotSizeReweighting():
         if DetFlags.writeRDOPool.any_on():
             outputKey = 'EventInfo'
             if digitizationFlags.PileUpPremixing and 'OverlayMT' in digitizationFlags.experimentalDigi():

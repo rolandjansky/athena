@@ -57,7 +57,7 @@ namespace Simulation
     
     SG::ReadHandleKey<McEventCollection> m_inputMcEventCollection { this, "InputMcEventCollection", "TruthEvent", "The name of the input McEventCollection" };
     
-    SG::WriteDecorHandleKey<xAOD::EventInfo> m_beamSpotWeight {this, "BeamSpotWeight", "EventInfo.BeamSpotWeight", "Decoration for a beam spot weight when reweighting the beam spot size" };
+    SG::WriteDecorHandleKey<xAOD::EventInfo> m_beamSpotWeight {this, "beamSpotWeight", "EventInfo.beamSpotWeight", "Decoration for a beam spot weight when reweighting the beam spot size" };
       
     SG::ReadCondHandleKey<InDet::BeamSpotData> m_beamSpotKey { this, "BeamSpotKey", "BeamSpotData", "SG key for beam spot" };  
     
