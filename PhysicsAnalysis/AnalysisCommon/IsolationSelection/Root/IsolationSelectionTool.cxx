@@ -237,25 +237,24 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("MuonPLVLooseDefault", "PromptLeptonVeto", "-1.05",true));
             wp->addCut(new IsolationConditionFormula("MuonPLVTightSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<18.603e3)*(0.998203 -0.0597252*(x/1000) -0.000992265*pow((x/1000),2)) + (x>18.603e3)*(max(-0.88, -0.929774 +2.9159 *exp(-(x/1000)/10.2339)))"));
             wp->addCut(new IsolationConditionFormula("MuonLowPtPLVTightSmooth", "LowPtPLV", "(x<12e3)*(0.207732 + 0.056019*(x/1000) -0.004141*pow((x/1000),2) + 0.000099*pow((x/1000),3)) + (x>12e3)*(-2)",true));
-        } else if (muWPname == "PLIVTight") {
-	  std::string PLVvar = "PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.7631"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.01186*(x/1000) - 0.6445"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00122*(x/1000) - 0.8537"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7}, "0.00854*(x/1000) - 1.0776"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7}, "0.00905714285714*(x/1000) - 1.11342857143"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7}, "0.01066363636360*(x/1000) - 1.18573636364"));
-	  wp->addCut(new IsolationConditionFormula("MuonPLIVTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.6732"));
-	}
-	else if (muWPname == "PLIVVeryTight") {
-	  std::string PLVvar ="PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.7908"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.00932*(x/1000) - 0.6976"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00356*(x/1000) - 0.8342"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7},  "0.00108*(x/1000) - 0.9092"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7},  "0.00357142857143*(x/1000) - 1.04148571429"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7},  "0.00804545454545*(x/1000) - 1.20235454545"));
-          wp->addCut(new IsolationConditionFormula("MuonPLIVVeryTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.8469"));
+        } else if (muWPname == "PLImprovedTight") {
+            std::string PLVvar = "PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.7631"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.01186*(x/1000) - 0.6445"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00122*(x/1000) - 0.8537"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7}, "0.00854*(x/1000) - 1.0776"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7}, "0.00905714285714*(x/1000) - 1.11342857143"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7}, "0.01066363636360*(x/1000) - 1.18573636364"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.6732"));
+        } else if (muWPname == "PLImprovedVeryTight") {
+            std::string PLVvar ="PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin0", PLVvar, PLVbin, {-99,0}, {0,2.7}, "-0.7908"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin1", PLVvar, PLVbin, {1,1},   {0,2.7}, "-0.00932*(x/1000) - 0.6976"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin2", PLVvar, PLVbin, {2,2},   {0,2.7}, "-0.00356*(x/1000) - 0.8342"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin3", PLVvar, PLVbin, {3,3},   {0,2.7},  "0.00108*(x/1000) - 0.9092"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin4", PLVvar, PLVbin, {4,4},   {0,2.7},  "0.00357142857143*(x/1000) - 1.04148571429"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin5", PLVvar, PLVbin, {5,5},   {0,2.7},  "0.00804545454545*(x/1000) - 1.20235454545"));
+            wp->addCut(new IsolationConditionFormula("MuonPLImprovedVeryTightBin6", PLVvar, PLVbin, {6,99},  {0,2.7}, "-0.8469"));
         }
 	else{
 	  ATH_MSG_ERROR("Unknown muon isolation WP: " << muWPname);
@@ -411,44 +410,41 @@ namespace CP {
             wp->addCut(new IsolationConditionFormula("ElecPLVLooseDefault", "PromptLeptonVeto", "-1.05", true));
             wp->addCut(new IsolationConditionFormula("ElecPLVTightSmooth", "PromptLeptonVeto", "(x<12e3)*2 + (x<16.697e3)*(1.13016  -0.0750674*(x/1000) -0.000722487*pow((x/1000),2)) + (x>16.697e3)*(max(-0.88, -0.881497 +2.29469*exp(-(x/1000)/11.5776)))"));
             wp->addCut(new IsolationConditionFormula("ElecLowPtPLVTightSmooth", "LowPtPLV", "(x<12e3)*(0.152846 + 0.041502*(x/1000) -0.002542*pow((x/1000),2) + 0.000041*pow((x/1000),3)) + (x>12e3)*(-2)",true));
-	} 
-	else if (elWPname == "PLIVTight") {
-	  std::string PLVvar = "PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin0_BARR", PLVvar+"BARR", PLVbin, {-99,0}, {0,1.37}, "-0.7842"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin1_BARR", PLVvar+"BARR", PLVbin, {1,1},   {0,1.37}, "-0.00968*(x/1000) - 0.6874"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin2_BARR", PLVvar+"BARR", PLVbin, {2,2},   {0,1.37}, "-0.00154*(x/1000) - 0.8511"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin3_BARR", PLVvar+"BARR", PLVbin, {3,3},   {0,1.37}, "0.0018*(x/1000) - 0.9416"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin4_BARR", PLVvar+"BARR", PLVbin, {4,4},   {0,1.37}, "0.00958571428571*(x/1000) - 1.15654285714"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin5_BARR", PLVvar+"BARR", PLVbin, {5,5},   {0,1.37}, "0.00811818181818*(x/1000) - 1.12238181818"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin6_BARR", PLVvar+"BARR", PLVbin, {6,99},  {0,1.37}, "-0.7039"));
+	} else if (elWPname == "PLImprovedTight") {
+            std::string PLVvar = "PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin0_BARR", PLVvar+"BARR", PLVbin, {-99,0}, {0,1.37}, "-0.7842"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin1_BARR", PLVvar+"BARR", PLVbin, {1,1},   {0,1.37}, "-0.00968*(x/1000) - 0.6874"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin2_BARR", PLVvar+"BARR", PLVbin, {2,2},   {0,1.37}, "-0.00154*(x/1000) - 0.8511"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin3_BARR", PLVvar+"BARR", PLVbin, {3,3},   {0,1.37}, "0.0018*(x/1000) - 0.9416"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin4_BARR", PLVvar+"BARR", PLVbin, {4,4},   {0,1.37}, "0.00958571428571*(x/1000) - 1.15654285714"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin5_BARR", PLVvar+"BARR", PLVbin, {5,5},   {0,1.37}, "0.00811818181818*(x/1000) - 1.12238181818"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin6_BARR", PLVvar+"BARR", PLVbin, {6,99},  {0,1.37}, "-0.7039"));
 
-	  wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin0_ECAP", PLVvar+"ECAP", PLVbin, {-99,0}, {1.53,2.47}, "-0.7631"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin1_ECAP", PLVvar+"ECAP", PLVbin, {1,1},   {1.53,2.47}, "-0.01186*(x/1000) - 0.6445"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin2_ECAP", PLVvar+"ECAP", PLVbin, {2,2},   {1.53,2.47}, "-0.00122*(x/1000) - 0.8537"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin3_ECAP", PLVvar+"ECAP", PLVbin, {3,3},   {1.53,2.47}, "0.00854*(x/1000) - 1.0776"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin4_ECAP", PLVvar+"ECAP", PLVbin, {4,4},   {1.53,2.47}, "0.00905714285714*(x/1000) - 1.11342857143"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin5_ECAP", PLVvar+"ECAP", PLVbin, {5,5},   {1.53,2.47}, "0.0106636363636*(x/1000) - 1.18573636364"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVTightBin6_ECAP", PLVvar+"ECAP", PLVbin, {6,99},  {1.53,2.47}, "-0.6732"));
-        }
-        else if (elWPname == "PLIVVeryTight") {
-	  std::string PLVvar ="PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin0_BARR", PLVvar+"BARR", PLVbin, {-99,0}, {0,1.37}, "-0.7908"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin1_BARR", PLVvar+"BARR", PLVbin, {1,1},   {0,1.37}, "-0.00932*(x/1000) - 0.6976"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin2_BARR", PLVvar+"BARR", PLVbin, {2,2},   {0,1.37}, "-0.00356*(x/1000) - 0.8342"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin3_BARR", PLVvar+"BARR", PLVbin, {3,3},   {0,1.37},  "0.00108*(x/1000) - 0.9092"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin4_BARR", PLVvar+"BARR", PLVbin, {4,4},   {0,1.37},  "0.00357142857143*(x/1000) - 1.04148571429"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin5_BARR", PLVvar+"BARR", PLVbin, {5,5},   {0,1.37},  "0.00804545454545*(x/1000) - 1.20235454545"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin6_BARR", PLVvar+"BARR", PLVbin, {6,99},  {0,1.37}, "-0.8469"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin0_ECAP", PLVvar+"ECAP", PLVbin, {-99,0}, {1.53,2.47}, "-0.7631"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin1_ECAP", PLVvar+"ECAP", PLVbin, {1,1},   {1.53,2.47}, "-0.01186*(x/1000) - 0.6445"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin2_ECAP", PLVvar+"ECAP", PLVbin, {2,2},   {1.53,2.47}, "-0.00122*(x/1000) - 0.8537"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin3_ECAP", PLVvar+"ECAP", PLVbin, {3,3},   {1.53,2.47}, "0.00854*(x/1000) - 1.0776"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin4_ECAP", PLVvar+"ECAP", PLVbin, {4,4},   {1.53,2.47}, "0.00905714285714*(x/1000) - 1.11342857143"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin5_ECAP", PLVvar+"ECAP", PLVbin, {5,5},   {1.53,2.47}, "0.0106636363636*(x/1000) - 1.18573636364"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedTightBin6_ECAP", PLVvar+"ECAP", PLVbin, {6,99},  {1.53,2.47}, "-0.6732"));
+        } else if (elWPname == "PLImprovedVeryTight") {
+            std::string PLVvar ="PromptLeptonImprovedVeto", PLVbin = "PromptLeptonImprovedInput_MVAXBin";
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin0_BARR", PLVvar+"BARR", PLVbin, {-99,0}, {0,1.37}, "-0.7908"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin1_BARR", PLVvar+"BARR", PLVbin, {1,1},   {0,1.37}, "-0.00932*(x/1000) - 0.6976"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin2_BARR", PLVvar+"BARR", PLVbin, {2,2},   {0,1.37}, "-0.00356*(x/1000) - 0.8342"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin3_BARR", PLVvar+"BARR", PLVbin, {3,3},   {0,1.37},  "0.00108*(x/1000) - 0.9092"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin4_BARR", PLVvar+"BARR", PLVbin, {4,4},   {0,1.37},  "0.00357142857143*(x/1000) - 1.04148571429"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin5_BARR", PLVvar+"BARR", PLVbin, {5,5},   {0,1.37},  "0.00804545454545*(x/1000) - 1.20235454545"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin6_BARR", PLVvar+"BARR", PLVbin, {6,99},  {0,1.37}, "-0.8469"));
 
-	  wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin0_ECAP", PLVvar+"ECAP", PLVbin, {-99,0}, {1.53,2.47}, "-0.7908"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin1_ECAP", PLVvar+"ECAP", PLVbin, {1,1},   {1.53,2.47}, "-0.00932*(x/1000) - 0.6976"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin2_ECAP", PLVvar+"ECAP", PLVbin, {2,2},   {1.53,2.47}, "-0.00356*(x/1000) - 0.8342"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin3_ECAP", PLVvar+"ECAP", PLVbin, {3,3},   {1.53,2.47},  "0.00108*(x/1000) - 0.9092"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin4_ECAP", PLVvar+"ECAP", PLVbin, {4,4},   {1.53,2.47},  "0.00357142857143*(x/1000) - 1.04148571429"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin5_ECAP", PLVvar+"ECAP", PLVbin, {5,5},   {1.53,2.47},  "0.00804545454545*(x/1000) - 1.20235454545"));
-          wp->addCut(new IsolationConditionFormula("ElectronPLIVVeryTightBin6_ECAP", PLVvar+"ECAP", PLVbin, {6,99},  {1.53,2.47}, "-0.8469"));
-        }
-	else {
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin0_ECAP", PLVvar+"ECAP", PLVbin, {-99,0}, {1.53,2.47}, "-0.7908"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin1_ECAP", PLVvar+"ECAP", PLVbin, {1,1},   {1.53,2.47}, "-0.00932*(x/1000) - 0.6976"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin2_ECAP", PLVvar+"ECAP", PLVbin, {2,2},   {1.53,2.47}, "-0.00356*(x/1000) - 0.8342"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin3_ECAP", PLVvar+"ECAP", PLVbin, {3,3},   {1.53,2.47},  "0.00108*(x/1000) - 0.9092"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin4_ECAP", PLVvar+"ECAP", PLVbin, {4,4},   {1.53,2.47},  "0.00357142857143*(x/1000) - 1.04148571429"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin5_ECAP", PLVvar+"ECAP", PLVbin, {5,5},   {1.53,2.47},  "0.00804545454545*(x/1000) - 1.20235454545"));
+            wp->addCut(new IsolationConditionFormula("ElectronPLImprovedVeryTightBin6_ECAP", PLVvar+"ECAP", PLVbin, {6,99},  {1.53,2.47}, "-0.8469"));
+        } else {
 	  ATH_MSG_ERROR("Unknown electron isolation WP: " << elWPname);
             delete wp;
             return StatusCode::FAILURE;
