@@ -306,10 +306,10 @@ ISF::InputConverter::convertParticle(HepMC::GenParticlePtr genPartPtr, EBC_EVCOL
         double gamma_new=mom.gamma();
         
         if(std::abs(gamma_new-gamma_org)/(gamma_new+gamma_org)>0.001) {
-          ATH_MSG_WARNING("Difference in boost gamma for Quasi stable particle "<<*genPartPtr);
+          ATH_MSG_WARNING("Difference in boost gamma for Quasi stable particle "<<genPartPtr);
           ATH_MSG_WARNING("  gamma(m="<<mom.m()<<")="<<gamma_org<<" gamma(m="<<pMass<<")="<<gamma_new);
         } else {
-          ATH_MSG_VERBOSE("Quasi stable particle "<<*genPartPtr);
+          ATH_MSG_VERBOSE("Quasi stable particle "<<genPartPtr);
           ATH_MSG_VERBOSE("  gamma(m="<<mom.m()<<")="<<gamma_org<<" gamma(m="<<pMass<<")="<<gamma_new);
         }  
       }  
@@ -575,13 +575,13 @@ G4PrimaryParticle* ISF::InputConverter::getG4PrimaryParticle(HepMC::ConstGenPart
       ATH_MSG_VERBOSE( "Detected primary particle with end vertex." );
       ATH_MSG_VERBOSE( "Will add the primary particle set on." );
       ATH_MSG_VERBOSE( "Primary Particle: " << genpart );
-      ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart.end_vertex() );
+      ATH_MSG_VERBOSE( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart->end_vertex() );
     }
     else {
       ATH_MSG_WARNING( "Detected primary particle with end vertex." );
       ATH_MSG_WARNING( "Will add the primary particle set on." );
       ATH_MSG_WARNING( "Primary Particle: " << genpart );
-      ATH_MSG_WARNING( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart.end_vertex() );
+      ATH_MSG_WARNING( "Number of daughters of "<<HepMC::barcode(genpart)<<": " << genpart->end_vertex()->particles_out().size()<<" at position "<<genpart->end_vertex() );
     }
     // Add all necessary daughter particles
     for ( auto daughter: genpart->end_vertex()->particles_out() ) {
