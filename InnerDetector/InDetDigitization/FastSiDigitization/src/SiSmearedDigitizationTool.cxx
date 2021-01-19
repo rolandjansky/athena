@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 // Random numbers
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -1297,7 +1296,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         if (sigmaX != 0.) {
           double sParX = 0.;
           do {
-            sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaX);
+            sParX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine, 0., sigmaX);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
           } while (std::fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()*0.5));
           interX += sParX;
@@ -1305,7 +1304,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         if (sigmaY != 0.) {
           double sParY = 0.;
           do {
-            sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaY);
+            sParY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine, 0., sigmaY);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
           }  while (std::fabs(interY+sParY)>(hitPlanarDetElement->lengthY()*0.5));
           interY += sParY;
