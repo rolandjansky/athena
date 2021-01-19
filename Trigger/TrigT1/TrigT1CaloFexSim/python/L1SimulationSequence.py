@@ -80,7 +80,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
     #python options for supercells
-    if(simflags.Calo.DataNoPedestal()==False):
+    if(simflags.Calo.DataNoPedestal()==False and globalflags.DataSource()=='data'==False ):
         include('LArROD/LArConfigureCablingSCFolder.py')
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
@@ -116,13 +116,14 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
     if simflags.Calo.SCellType() == "Pulse":
         # These are fully simulated supercells, from supercell pulse 
         # collection is CaloCellContainer#SCell
-        SCIn="SCell"
+        SCIn="SCellnoBCID"
     elif simflags.Calo.SCellType() == "BCID":
         # These are fully simulated supercells with applied BCID corrections
         # This is the only kind of supercells where BCID corrections are applied
-        from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
-        l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SCell",SCellContainerOut="SCellBCID")
-        SCIn="SCellBCID"
+        #from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
+        #l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SCell",SCellContainerOut="SCellBCID")
+        #Pedestal corrections are now applied from HITS->RDO, which is what is needed to work correctly. 
+        SCIn="SCell"
     elif simflags.Calo.SCellType() == "Emulated" and simflags.Calo.DataNoPedestal() == True:
         # If the pedestal correction is broken, then disable the things 
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -134,7 +135,6 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         SCIn="SimpleSCell" 
     elif simflags.Calo.SCellType() == "Emulated" and simflags.Calo.DataNoPedestal() == False:
         # Supercells are reconstructed from the ET sum of the constituent calo cells 
-        # This sets simflags.Calo.ApplySCQual to False
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
         from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
         theNoiseTool=CaloNoiseToolDefault()
@@ -147,8 +147,8 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         #Normally needs ot read SimpleSCellNoBCID
         l1simAlgSeq += LArSCSimpleMaker( SCellContainer="SimpleSCellNoBCID", CaloNoiseTool=theNoiseTool, LumiBCIDTool=theBCIDTool )
         #Now run the BCID correction per supercell. Take the container generated above, then return SimpleSCell
-        from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDAlg
-        l1simAlgSeq += createSuperCellBCIDAlg(SCellContainerIn="SimpleSCellNoBCID",SCellContainerOut="SimpleSCell")
+        from TrigT1CaloFexSim.TrigT1CaloFexSimConfig import createSuperCellBCIDEmAlg
+        l1simAlgSeq += createSuperCellBCIDEmAlg(SCellContainerIn="SimpleSCellNoBCID",SCellContainerOut="SimpleSCell")
         #Tell the rest of the sequence we want to use SimpleSCell, e.g., for building electrons, towers, jets and triggering on dark matter! 
         SCIn="SimpleSCell"
     else:
