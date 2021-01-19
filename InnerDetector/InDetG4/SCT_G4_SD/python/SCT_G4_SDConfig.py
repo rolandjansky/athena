@@ -21,7 +21,7 @@ def getSctSensorSD(name="SctSensorSD", **kwargs):
 
 
 def getSLHC_SctSensorSD(name="SLHC_SctSensorSD", **kwargs):
-    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensor","ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
+    kwargs.setdefault("LogicalVolumeNames", ["ITkStrip::BRLSensorSS","ITkStrip::BRLSensorMS",
                                              "ITkStrip::ECSensor0","ITkStrip::ECSensor1","ITkStrip::ECSensor2",
                                              "ITkStrip::ECSensor3","ITkStrip::ECSensor4","ITkStrip::ECSensor5"])
     return getSctSensorSD(name, **kwargs)
