@@ -649,7 +649,7 @@ xAOD::TrigBphys* TrigBmumuxComboHypo::makeTriggerObject(const xAOD::Vertex* vert
     const Trk::TrackParameters* perigee = vertex->vxTrackAtVertex()[i].perigeeAtVertex();
     if (!perigee) return nullptr;
     const Amg::Vector3D& p = perigee->momentum();
-    momenta.emplace_back(p[Trk::px], p[Trk::py], p[Trk::pz], trkMass[i]);
+    momenta.emplace_back(p.x(), p.y(), p.z(), trkMass[i]);
     momentum += momenta.back();
   }
 

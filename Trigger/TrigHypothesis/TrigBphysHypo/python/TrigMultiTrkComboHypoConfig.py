@@ -1,10 +1,25 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from TrigBphysHypo.TrigBphysHypoConf import TrigMultiTrkComboHypo, TrigMultiTrkComboHypoTool
 from TrigBphysHypo.TrigMultiTrkComboHypoMonitoringConfig import TrigMultiTrkComboHypoMonitoring, TrigMultiTrkComboHypoToolMonitoring
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrigMultiTrkComboHypoConfig')
+
+trigMultiTrkComboHypoToolDict = {
+    'bJpsimumu'     : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsi'         : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bJpsimumul2io' : { 'massRange' : (2500.,  4300.), 'chi2' : 20. },
+    'bUpsimumu'     : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bUpsi'         : { 'massRange' : (8000., 12000.), 'chi2' : 20. },
+    'bDimu'         : { 'massRange' : (1500., 14000.), 'chi2' : 20. },
+    'bDimu2700'     : { 'massRange' : ( 100.,  2700.), 'chi2' : 20. },
+    'bDimu6000'     : { 'massRange' : ( 100.,  6000.), 'chi2' : 20. },
+    'bBmumu'        : { 'massRange' : (4000.,  8500.), 'chi2' : 20. },
+    'bPhi'          : { 'massRange' : ( 940.,  1100.), 'chi2' : 10. },
+    'bTau'          : { 'massRange' : (   0.,  2700.), 'chi2' : 50. },
+}
+
 
 def DimuL2ComboHypoCfg(name):
     log.debug('DimuL2ComboHypoCfg.name = %s ', name)
@@ -42,7 +57,7 @@ class TrigMultiTrkComboHypoConfig(object):
             value = trigLevelDict[trigLevel]
             log.debug('TrigMultiTrkComboHypo.trigLevel = %s ', value)
         except KeyError:
-            log.error('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
+            raise Exception('TrigMultiTrkComboHypo.trigLevel should be L2 or EF, but %s provided.', trigLevel)
 
         from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
         from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
@@ -79,81 +94,22 @@ class TrigMultiTrkComboHypoConfig(object):
 
     def ConfigurationComboHypoTool(self, chainDict):
 
-        topoAlgs = chainDict['chainName']
-        log.debug("Set for algorithm %s", topoAlgs)
+        tool = TrigMultiTrkComboHypoTool(chainDict['chainName'])
 
-        tool = TrigMultiTrkComboHypoTool(topoAlgs)
+        try:
+            topo = chainDict['topo'][0]
+            value = trigMultiTrkComboHypoToolDict[topo]
+            tool.massRange = value['massRange']
+            tool.chi2 = value['chi2']
+            tool.totalCharge = 0
+        except LookupError:
+            raise Exception('TrigMultiTrkComboHypo misconfigured for \'%s\': topo \'%s\' is not supported.', chainDict['chainName'], topo)
 
-        if 'nocut' in topoAlgs:
+        if 'nocut' in chainDict['topo']:
             tool.AcceptAll = True
 
-        if 'noos' in topoAlgs:
-            tool.TotChargeCut = -100 #Negative number to indicate no charge cut
-
-        tool.ApplyUpperMassCut = True
-        tool.ApplyChi2Cut = True
-        tool.Chi2VtxCut = 20
-        tool.trkPtThresholds = getBphysThresholds(chainDict)
-
-        if 'bJpsimumu' in topoAlgs:
-            tool.LowerMassCut =  2500 #MeV
-            tool.UpperMassCut =  4300 #MeV
-
-        elif 'bUpsimumu' in topoAlgs:
-            tool.LowerMassCut =  8000 #MeV
-            tool.UpperMassCut = 12000 #MeV
-
-        elif 'bBmumu' in topoAlgs:
-            tool.LowerMassCut =  4000 #MeV
-            tool.UpperMassCut =  8500 #MeV
-
-        elif 'bDimu' in topoAlgs:
-            tool.LowerMassCut =  1500 #MeV
-            tool.UpperMassCut = 14000 #MeV
-
-        elif 'bDimu2700' in topoAlgs:
-            tool.LowerMassCut =   100 #MeV
-            tool.UpperMassCut =  2700 #MeV
-
-        elif 'bPhi' in topoAlgs:
-            tool.LowerMassCut =   940 #MeV
-            tool.UpperMassCut =  1100 #MeV
-            tool.Chi2VtxCut = 10
-
-        elif 'bTau' in topoAlgs:
-            tool.LowerMassCut =     0 #MeV
-            tool.UpperMassCut =  2700 #MeV
-            tool.Chi2VtxCut = 50
+        if 'noos' in chainDict['topo']:
+            tool.totalCharge = -100 # negative number to indicate no charge cut
 
         tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool
-
-
-def getBphysThresholds(chainDict):
-    mult = 0
-    trkmuons = []
-
-    for part in chainDict['chainParts']:
-        mult = mult + int(part['multiplicity'])
-
-    for dictpart in chainDict['chainParts']:
-        if 'mu' in dictpart['trigType']:
-            for x in range(0,int(dictpart['multiplicity'])):
-                if dictpart['threshold']!='0':
-                    dthr = float(dictpart['threshold'] )
-                    thr= dthr * 1000.  # in MeV;
-
-                    #lower to match EF muon threshols
-                    if dthr < 9.5 :
-                        thr = thr - 350.
-                    elif dthr < 11.5 :
-                        thr = thr - 550.
-                    elif dthr < 21.5  :
-                        thr = thr - 750.
-                    else :
-                        thr = thr - 1000.
-
-                else :
-                    thr = 900.
-                trkmuons.append(thr)
-    return trkmuons

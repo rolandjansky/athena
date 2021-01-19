@@ -407,6 +407,15 @@ def setupMenu():
         ChainProp(name='HLT_2mu4_bBmumux_BsmumuPhi_L12MU4', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu4_bBmumux_BdmumuKst_L12MU4', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu4_bBmumux_LbPqKm_L12MU4', groups=BphysicsGroup),
+        #ATR-22223
+        ChainProp(name='HLT_3mu4_bJpsi_L13MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_3mu4_bUpsi_L13MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_3mu4_bTau_L13MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_3mu4_bPhi_L13MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_3mu6_bDimu_L13MU6', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_2mu4_bDimu2700_L1MU6_3MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_mu6_2mu4_bDimu6000_L1MU6_3MU4', groups=BphysicsGroup),
+        ChainProp(name='HLT_4mu4_bDimu6000_L14MU4', groups=BphysicsGroup),
         #ATR-21003
         ChainProp(name='HLT_2mu6_bJpsimumul2io_L12MU6', groups=BphysicsGroup),
         ChainProp(name='HLT_2mu6_bJpsimumu_L12MU6',     groups=BphysicsGroup),
