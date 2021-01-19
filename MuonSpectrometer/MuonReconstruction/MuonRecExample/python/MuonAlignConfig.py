@@ -49,6 +49,9 @@ MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/MDT/ENDCAP/SIDEC",
                                "/MUONALIGN/TGC/SIDEA",
                                "/MUONALIGN/TGC/SIDEC"]
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+    MuonAlignAlg.IsData = False
 condSequence+=MuonAlignAlg
 
 # Disable caching. This will have some memory impact (TBC) but is necessary for the moment to make this thread safe.
@@ -103,4 +106,7 @@ if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorCondAlg
 MuonDetectorManagerCond = MuonDetectorCondAlg()
 MuonDetectorManagerCond.MuonDetectorTool = MuonDetectorTool
+if conddb.dbdata != 'COMP200' and conddb.dbmc != 'COMP200' and \
+   'HLT' not in globalflags.ConditionsTag() and not conddb.isOnline :
+    MuonDetectorManagerCond.IsData = False
 condSequence+=MuonDetectorManagerCond
