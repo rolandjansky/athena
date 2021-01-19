@@ -188,7 +188,17 @@ HLT_3j200_pf_subresjesgscIS_ftf_L1J100:
   eventCount: 0
 HLT_3j200_subresjesgscIS_ftf_L1J100:
   eventCount: 0
+HLT_3mu4_bJpsi_L13MU4:
+  eventCount: 0
+HLT_3mu4_bPhi_L13MU4:
+  eventCount: 0
+HLT_3mu4_bTau_L13MU4:
+  eventCount: 0
+HLT_3mu4_bUpsi_L13MU4:
+  eventCount: 0
 HLT_3mu6_L13MU6:
+  eventCount: 0
+HLT_3mu6_bDimu_L13MU6:
   eventCount: 0
 HLT_3mu6_msonly_L13MU6:
   eventCount: 0
@@ -209,6 +219,8 @@ HLT_4j120_subresjesgscIS_ftf_L13J50:
   stepFeatures:
     0: 2
 HLT_4mu4_L14MU4:
+  eventCount: 0
+HLT_4mu4_bDimu6000_L14MU4:
   eventCount: 0
 HLT_5j70_0eta240_L14J20:
   eventCount: 0
@@ -1268,6 +1280,10 @@ HLT_mu60_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu6_2mu4_bDimu2700_L1MU6_3MU4:
+  eventCount: 0
+HLT_mu6_2mu4_bDimu6000_L1MU6_3MU4:
+  eventCount: 0
 HLT_mu6_L1MU6:
   eventCount: 0
   stepCounts:
