@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: MuonTrackSummaryAccessors_v1.cxx 796148 2017-02-08 10:18:43Z wleight $
 
 // System include(s):
 #include <iostream>
@@ -105,8 +103,6 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer3TGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer4TGCHoles );
 
-        // New Small Wheel
-        // STGC
         DEFINE_ACCESSOR( uint8_t, phiLayer1STGCHits );
         DEFINE_ACCESSOR( uint8_t, phiLayer2STGCHits );
 
@@ -119,17 +115,11 @@ namespace xAOD {
         DEFINE_ACCESSOR( uint8_t, etaLayer1STGCHoles );
         DEFINE_ACCESSOR( uint8_t, etaLayer2STGCHoles );
 
-        // MM
         DEFINE_ACCESSOR( uint8_t, mmHits );
         DEFINE_ACCESSOR( uint8_t, mmHoles );
         // Note: there is currently no MuonStationIndex for the two MM layers
         // In the future it might be needed to add them in order to have 
-        // separate counters as follows
-        // DEFINE_ACCESSOR( uint8_t, Layer1mmHits );
-        // DEFINE_ACCESSOR( uint8_t, Layer2mmHits );
-        // DEFINE_ACCESSOR( uint8_t, Layer1mmHoles );
-        // DEFINE_ACCESSOR( uint8_t, Layer2mmHoles );
-
+        // separate counters 
 
         DEFINE_ACCESSOR( uint8_t, innerClosePrecisionHits );
         DEFINE_ACCESSOR( uint8_t, middleClosePrecisionHits );
