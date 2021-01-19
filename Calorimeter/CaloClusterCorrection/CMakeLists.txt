@@ -35,6 +35,7 @@ atlas_add_test( config_test
 
 atlas_add_test( CaloScaleCluster_test
                 SCRIPT python ${CMAKE_CURRENT_SOURCE_DIR}/test/CaloScaleCluster_test.py
+                PROPERTIES TIMEOUT 300
                 LOG_IGNORE_PATTERN "Reading file|no dictionary for class|by peeking|IdDictDetDescrCnv|Unable to locate catalog|Current filenames|Global tag|Cache alignment" )
 
 # Install files from the package:
