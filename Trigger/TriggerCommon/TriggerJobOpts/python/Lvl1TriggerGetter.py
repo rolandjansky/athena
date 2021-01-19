@@ -88,9 +88,6 @@ class Lvl1SimulationGetter (Configured):
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
 
                 # for Tile (to be used for TGC-Tile coincidence)
-                include('TileRec/TileDefaults_jobOptions.py')
-                include("TileGeoModel/TileGeoModel_jobOptions.py")
-                include('TileConditions/TileConditions_jobOptions.py')
                 # TileRawChannelCnt -> TileHitVec
                 from TileRecAlgs.TileRecAlgsConf import TileRawChannelToHit
                 topSequence += TileRawChannelToHit()
@@ -99,18 +96,17 @@ class Lvl1SimulationGetter (Configured):
                 topSequence += TileHitVecToCnt()
                 # TileHitCnt -> MuRcvDigitsCnt,MuRcvRawChCnt -> TileMuRcvCnt
                 include("TileSimAlgs/TileMuonReceiver_jobOptions.py")
-                topSequence.TilePulseForTileMuonReceiver.TileHitContainer = "TileHitCnt"
-                topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = "MuRcvDigitsCnt+"
-                topSequence.TilePulseForTileMuonReceiver.MuonReceiverRawChannelContainer = "MuRcvRawChCnt+"
-                topSequence.TileMuonReceiverDecision.MuonReceiverRawChannelContainer = "MuRcvRawChCnt+"
-                topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = "TileMuRcvCnt+"
+                topSequence.TilePulseForTileMuonReceiver.MuonReceiverDigitsContainer = "rerunMuRcvDigitsCnt"
+                topSequence.TilePulseForTileMuonReceiver.MuonReceiverRawChannelContainer = "rerunMuRcvRawChCnt"
+                topSequence.TileMuonReceiverDecision.MuonReceiverRawChannelContainer = "rerunMuRcvRawChCnt"
+                topSequence.TileMuonReceiverDecision.TileMuonReceiverContainer = "rerunTileMuRcvCnt"
 
                 include( "MuonByteStreamCnvTest/jobOptions_MuonRDOToDigit.py" )
                 import TrigT1RPCRecRoiSvc.TrigT1RPCRecRoiConfig
                 import TrigT1TGCRecRoiSvc.TrigT1TGCRecRoiConfig
                 import TrigT1RPCsteering.TrigT1RPCsteeringConfig
                 import TrigT1TGC.TrigT1TGCConfig
-                topSequence.LVL1TGCTrigger.TileMuRcv_Input = "TileMuRcvCnt+"
+                topSequence.LVL1TGCTrigger.TileMuRcv_Input = "rerunTileMuRcvCnt"
                 from TrigT1Muctpi.TrigT1MuctpiConfig import L1Muctpi                
                 topSequence += L1Muctpi()
 
