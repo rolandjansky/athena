@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonTrackTagTestTool.h"
@@ -7,7 +7,6 @@
 #include "GaudiKernel/MsgStream.h"
 #include "InDetRIO_OnTrack/PixelClusterOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
-#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkParameters/TrackParameters.h"
@@ -24,27 +23,27 @@
 
 using namespace MuonCombined;
 
-
 MuonTrackTagTestTool::MuonTrackTagTestTool(const std::string &type, const std::string &name, const IInterface *parent) :
-  AthAlgTool(type, name, parent) {
+  AthAlgTool(type, name, parent),
+  m_trackingGeometry(nullptr),
+  m_msEntrance(nullptr) {
     declareInterface<IMuonTrackTagTool>(this);
     declareProperty("Chi2Cut", m_chi2cut = 50.);
 #ifdef MUONCOMBDEBUG
     declareProperty("Truth", m_truth = false);
 #endif
-    m_msEntrance       = 0;
-    m_trackingGeometry = 0;
 }
 
 StatusCode
 MuonTrackTagTestTool::initialize()
 {
     ATH_CHECK(m_extrapolator.retrieve());
-
-    if (!m_trackingGeometrySvc.empty()) {
+    if (m_trackingGeometryReadKey.key().empty() && !m_trackingGeometrySvc.empty()) {
         ATH_CHECK(m_trackingGeometrySvc.retrieve());
         msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg;
     }
+    ATH_CHECK(m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()));
+
 
     msg(MSG::INFO) << "Initialized successfully" << endmsg;
 
@@ -54,11 +53,22 @@ MuonTrackTagTestTool::initialize()
 double
 MuonTrackTagTestTool::chi2(const Trk::Track &idTrack, const Trk::Track &msTrack) const
 {
-    std::call_once(m_trackingOnceFlag, [&]() {
-        m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
-        if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-        if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
-    });
+    if (m_trackingGeometryReadKey.key().empty()) {
+        std::call_once(m_trackingOnceFlag, [&]() {
+            m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
+            if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
+            if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
+        });
+    } else {
+        const Trk::TrackingGeometry* trackingGeometry = nullptr;
+        SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+        if (readHandle.isValid()) {
+            trackingGeometry = *readHandle;
+        }
+        const Trk::TrackingVolume* msEntrance = nullptr;
+        if (trackingGeometry) {msEntrance = trackingGeometry->trackingVolume("MuonSpectrometerEntrance");}
+        if (!msEntrance) {msg(MSG::ERROR) << "MS entrance not available" << endmsg;}
+    }
 
     if (idTrack.perigeeParameters() == 0) {
         msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for ID track" << endmsg;

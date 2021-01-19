@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDTOOLS_MUONTRACKTAGTESTTOOL_H
@@ -10,7 +10,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#include "StoreGate/ReadCondHandleKey.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkParameters/TrackParameters.h"
 
@@ -18,9 +19,13 @@
 #include <string>
 
 namespace Trk {
-  class TrackingGeometry;
   class TrackingVolume;
 }
+
+// LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkGeometry/TrackingGeometry.h"
+// end LEGACY_TRKGEOM
 
 namespace MuonCombined {
 
@@ -37,11 +42,14 @@ class MuonTrackTagTestTool : public AthAlgTool, virtual public IMuonTrackTagTool
 
   private:
     ToolHandle<Trk::IExtrapolator> m_extrapolator{this,"ExtrapolatorTool","Trk::Extrapolator/AtlasExtrapolator",};
-    mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc ATLAS_THREAD_SAFE {this,"TrackingGeometrySvc","AtlasTrackingGeometrySvc"};  // Services are assumed to be thread-safe
+    SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry"};
 
-    mutable const Trk::TrackingGeometry* m_trackingGeometry ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-only
-    mutable const Trk::TrackingVolume* m_msEntrance ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-only
+    // LEGACY_TRKGEOM
+    mutable ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc ATLAS_THREAD_SAFE {this,"TrackingGeometrySvc","AtlasTrackingGeometrySvc"};  // Services are assumed to be thread-safe
     mutable std::once_flag m_trackingOnceFlag ATLAS_THREAD_SAFE;
+    mutable const Trk::TrackingGeometry* m_trackingGeometry ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-only
+    mutable const Trk::TrackingVolume* m_msEntrance ATLAS_THREAD_SAFE;  // Initialized with call_once, then used read-
+    // end LEGACY_TRKGEOM
 
     double m_chi2cut;
 #ifdef MUONCOMBDEBUG
