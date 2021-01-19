@@ -17,8 +17,11 @@
 namespace {
     // Avoid floating point exceptions arising from cases of x = 0 or x = PI 
     // by extending the inverse tan function towards a large number
+    // Avoid FPEs occuring in clang 10 , e.g.,
+    // FPEAuditor  2   1 WARNING FPE OVERFLOW in [Execute] of [MuGirlStauAlg] on event 257948896 0 0
+    // by large number
     float invtan(const float x){
-        return x == 0 || x == M_PI ? FLT_MAX : 1./ std::tan(x);
+        return x == 0 || x == M_PI ? 1.e12 : 1./ std::tan(x);
     }
 }
 namespace MuonHough {
