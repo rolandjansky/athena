@@ -20,40 +20,22 @@ namespace Muon {
   StatusCode TrackSegmentAssociationTool::initialize() {
     ATH_CHECK(m_edmHelperSvc.retrieve());
     ATH_CHECK(m_printer.retrieve());
-    ATH_CHECK(m_segments.initialize());
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::MuonSegmentContainer* TrackSegmentAssociationTool::retrieveSegments( std::string location ) const {
-    
-    if( !evtStore()->contains<xAOD::MuonSegmentContainer>(location) ) {
-      ATH_MSG_DEBUG( "No segments in StoreGate at " << location );
-      return 0;
-    }
-    const xAOD::MuonSegmentContainer* segments = 0;
-    if( evtStore()->retrieve(segments, location).isFailure() || !segments ) {
-      ATH_MSG_DEBUG( "Unable to retrieve segments at " << location );
-      return 0;
-    }
-    ATH_MSG_VERBOSE("Got segments " << segments->size() << " at " << location);
-    return segments;
-  }
-  
   /** Returns a list of segments that match with the input Muon. */
-  bool TrackSegmentAssociationTool::associatedSegments(const xAOD::Muon& muon, 
+  bool TrackSegmentAssociationTool::associatedSegments(const xAOD::Muon& muon,
+						       const xAOD::MuonSegmentContainer* segments,
                                                        std::vector< ElementLink<xAOD::MuonSegmentContainer> >& associatedSegments ) const {
 
-    // get segments 
-    SG::ReadHandle<xAOD::MuonSegmentContainer> segments(m_segments);
-    if(!segments.isPresent()){
-      ATH_MSG_DEBUG(m_segments.key()<<" not present");
+    if(!segments){
+      ATH_MSG_DEBUG("no segment container passed, returning");
       return false;
     }
-    if(!segments.isValid()){
-      ATH_MSG_WARNING(m_segments.key()<<" not valid");
+    if(segments->empty()){
+      ATH_MSG_DEBUG("no segments in container, returning");
       return false;
     }
-
     // only fill if the primary track particle is not equal to the ID track particle and 
     // it has an associated track with track states 
     const xAOD::TrackParticle* tp = muon.primaryTrackParticle();        

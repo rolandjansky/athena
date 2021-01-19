@@ -46,7 +46,7 @@ def MuonSegmentTagAlg_LRT( name="MuonSegmentTagAlg_LRT", **kwargs ):
     kwargs.setdefault("MuonSegmentTagTool", getPublicTool("MuonSegmentTagTool") )
     kwargs.setdefault("InDetCandidateLocation", MuonCbKeys.InDetTrackParticlesLargeD0())
     kwargs.setdefault("TagMap","segmentTagMap_LRT")
-    kwargs.setdefault("MuonSegmentLocation","MuonSegments")
+    kwargs.setdefault("MuonSegmentLocation","xaodMuonSegments")
     return CfgMgr.MuonSegmentTagAlg(name,**kwargs)
 
 def MuonInsideOutRecoAlg( name="MuonInsideOutRecoAlg", **kwargs ):
@@ -183,7 +183,7 @@ def MuonCreatorAlg_LRT( name="MuonCreatorAlg_LRT",**kwargs ):
     kwargs.setdefault("ExtrapolatedLocation", "ExtraPolated"+MuonCbKeys.FinalMuonsLargeD0())
     kwargs.setdefault("MSOnlyExtrapolatedLocation", "MSOnlyExtraPolated"+MuonCbKeys.FinalMuonsLargeD0())
     kwargs.setdefault("CombinedLocation", "Combined"+MuonCbKeys.FinalMuonsLargeD0())
-    kwargs.setdefault("SegmentContainerName", "xaodMuonSegments_LRT")
+    kwargs.setdefault("SegmentContainerName", "MuonSegments_LRT")
     kwargs.setdefault("TrackSegmentContainerName", "TrkMuonSegments_LRT")
     kwargs.setdefault("BuildSlowMuon", False)
     kwargs.setdefault("MakeClusters", False)
@@ -197,7 +197,7 @@ def StauCreatorAlg( name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
     kwargs.setdefault("MuonCandidateLocation","")
-    kwargs.setdefault("SegmentContainerName","xaodStauSegments")
+    kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("TrackSegmentContainerName","TrkStauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")

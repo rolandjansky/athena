@@ -38,20 +38,17 @@ namespace Muon{
 
     /** Returns a list of segments that match with the input Muon. */
     bool associatedSegments(const xAOD::Muon& muon, 
+			    const xAOD::MuonSegmentContainer* segments,
                             std::vector< ElementLink<xAOD::MuonSegmentContainer> >& associatedSegments ) const;
 
     /** @brief access to tool interface */
     static const InterfaceID& interfaceID() { return IID_TrackSegmentAssociationTool; }
   private:
 
-    const xAOD::MuonSegmentContainer* retrieveSegments( std::string location ) const;
-
     ServiceHandle<Muon::IMuonEDMHelperSvc>  m_edmHelperSvc {this, "edmHelper", 
       "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", 
       "Handle to the service providing the IMuonEDMHelperSvc interface" };
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer{this,"MuonEDMPrinterTool","Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"};
-
-    SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_segments{this,"MuonSegmentLocation","MuonSegments","muon segments"};
 
   };
 }

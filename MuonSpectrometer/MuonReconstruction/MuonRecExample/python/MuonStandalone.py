@@ -195,7 +195,8 @@ class MuonStandalone(ConfiguredMuonRec):
 
         if (not cfgKeyStore.isInInput ('xAOD::MuonSegmentContainer', 'MuonSegments')):
             self.addAlg( CfgMgr.xAODMaker__MuonSegmentCnvAlg("MuonSegmentCnvAlg") )
-        
+
+
         if muonStandaloneFlags.doSegmentsOnly():
             return	                    
         # Tracks builder

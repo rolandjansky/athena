@@ -32,12 +32,17 @@ StatusCode MuonCreatorAlg::initialize()
 {
 
   ATH_CHECK(m_muonCreatorTool.retrieve());
+  m_copySegs=true; //to have MuGirl and MuidCo segments in the same final collection/container; not needed for trigger or stau
+  if(m_buildSlowMuon || name().find("Trig")!=std::string::npos) m_copySegs=false;
+  if(m_copySegs) ATH_CHECK(m_muonSegmentConverterTool.retrieve());
+  else m_muonSegmentConverterTool.disable();
   ATH_CHECK(m_muonCollectionName.initialize());
   ATH_CHECK(m_slowMuonCollectionName.initialize(m_buildSlowMuon));
   ATH_CHECK(m_indetCandidateCollectionName.initialize(!m_doSA));
   ATH_CHECK(m_muonCandidateCollectionName.initialize(!m_buildSlowMuon));
   //Can't use a flag in intialize for an array of keys
   if(!m_doSA) ATH_CHECK(m_tagMaps.initialize());
+  ATH_CHECK(m_inputSegContainerName.initialize(m_copySegs));
   ATH_CHECK(m_segContainerName.initialize());
   ATH_CHECK(m_segTrkContainerName.initialize());
   m_combinedTrkCollectionName = m_combinedCollectionName.key()+"Tracks";
@@ -130,6 +135,27 @@ StatusCode MuonCreatorAlg::execute()
   SG::WriteHandle<Trk::SegmentCollection> wh_segmentTrk(m_segTrkContainerName);
   ATH_CHECK(wh_segmentTrk.record(std::make_unique<Trk::SegmentCollection>()));
   output.muonSegmentCollection=wh_segmentTrk.ptr();
+  if(m_copySegs){
+    //now copy the input segments to the final container
+    SG::ReadHandle<Trk::SegmentCollection> inputSegs(m_inputSegContainerName);
+    if(inputSegs.isValid()){
+      for( auto it = inputSegs->begin();it!=inputSegs->end();++it ){
+	//have to cast because the collection stores Trk::Segments
+	const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(&(**it));
+	if(muonSegment) wh_segmentTrk->push_back(new Muon::MuonSegment(*muonSegment));
+      }
+    }
+    //now convert
+    unsigned int index = 0;
+    for( auto it = wh_segmentTrk->begin();it!=wh_segmentTrk->end();++it,++index){
+      //have to cast because the collection stores Trk::Segments
+      const Muon::MuonSegment* muonSegment = dynamic_cast<const Muon::MuonSegment*>(&(**it));
+      if( !muonSegment ) continue;
+      ElementLink< Trk::SegmentCollection > link(*wh_segmentTrk,index);
+      m_muonSegmentConverterTool->convert(link,wh_segment.ptr());
+    }
+  }
+
 
   // calo clusters
   SG::WriteHandle<xAOD::CaloClusterContainer> wh_clusters;
