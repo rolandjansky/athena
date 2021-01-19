@@ -68,33 +68,8 @@ class LArCalib_Flags:
 
 def LArCalibFolderTag(folder,tag):
     return ''.join(folder.split('/')) + tag
-    
 
-class FolderTagResover:
-    def __init__(self,dbname="COOLOFL_LAR/CONDBR2"):
-        from PyCool import cool
-        dbSvc = cool.DatabaseSvcFactory.databaseService()
-        self._db = dbSvc.openDatabase(dbname)
-        return
 
-    def __del__(self):
-        self._db.closeDatabase()
-        return
-
-    def getFolderTag(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):
-        try:
-          folder=self._db.getFolder(foldername);
-          return folder.resolveTag(globalTag)
-        except:  
-          # new folder, should "create a tag"
-          return ''.join(foldername.split('/')) + '-UPD3-00'
-          
-            
-    def getFolderTagSuffix(self,foldername,globalTag=LArCalib_Flags.globalFlagDB):
-        ft=self.getFolderTag(foldername,globalTag)
-        p=ft.find("-")
-        if p==-1:
-            return "-Default"
-        else: 
-            return ft[p:]
-
+# backward compatiblity with 'include' ...
+from LArCalibProcessing.utils import FolderTagResolver as FolderTagResover, _globaltag
+_globaltag=LArCalib_Flags.globalFlagDB
