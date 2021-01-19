@@ -81,7 +81,6 @@ class RpcDataPreparator: public AthAlgTool
       // Declare the keys used to access the data: one for reading and one
       // for writing.
       bool m_use_RoIBasedDataAccess;
-      bool m_isFakeRoi;
 
       // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
       Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };
