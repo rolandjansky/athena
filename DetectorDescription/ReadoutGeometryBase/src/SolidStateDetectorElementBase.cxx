@@ -374,12 +374,12 @@ using Trk::distDepth;
       ptrXf = m_geoAlignStore->getAbsPosition(getMaterialGeom());
       if (ptrXf) {
 	m_transformHit = (*ptrXf) * m_design->SiHitToGeoModel(); //need .linear()?
-	geotrf = (*ptrXf);
+	geotrf = (*ptrXf) * m_design->moduleShift();
       }
     }
     else{
       m_transformHit  = (getMaterialGeom()->getAbsoluteTransform() * m_design->SiHitToGeoModel()); //need .linear()?
-      geotrf = getMaterialGeom()->getAbsoluteTransform();
+      geotrf = getMaterialGeom()->getAbsoluteTransform() * m_design->moduleShift();
     }
     
     const GeoTrf::Transform3D& geoTransform = geotrf;

@@ -190,13 +190,22 @@ double length(25.0);
 
     int split = 0;
     if(checkparm(typeName, "splitLevel", par, split)){
+      
+      //start from middle of first strip row
+      double initZShift = length * ( -(double)split*0.5 + 0.5 ) ; 
+
       for(int i = 0;i<split;i++){
-	//do we need some kind of shift for e.g. the corners and centre?	
-	 std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-												   thickness, readoutSide,carrier, 1, nStrips, pitch,length);//single row
-	 m_detectorManager->addDesign(std::move(design));
-	 std::string splitName = typeName+"_"+std::to_string(i);
+	for(int side:{0,1}){//need different additional shift transform per side...
+	  int sign = (side==0) ? 1:-1;//...because shift in different direction per side
+	  double zShift = sign*(initZShift + (i*length));
+	  
+	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
+												    thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift);//single row
+	  
+	  m_detectorManager->addDesign(std::move(design));
+	  std::string splitName = typeName+"_"+std::to_string(i)+"_"+std::to_string(side);
 	 m_geometryMap[splitName] = m_detectorManager->numDesigns() -1;
+	}
       }
     }
                                                                       
@@ -383,7 +392,6 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
   map<string, int> updatedIndex;
   splitSensorId(index,extraIndex,updatedIndex);
   int splitIndex = extraIndex.second;
-  //TODO - implement!!
   //
 //    Get the ATLAS "Offline" wafer identifier 
 //
@@ -410,7 +418,13 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
     //    Create the detector element and add to the DetectorManager
     //
     
+
+    
     string splitTypeName = typeName + "_" + std::to_string(splitIndex);
+    if(updatedIndex["barrel_endcap"]==0){//only barrel-type have side dependence
+      splitTypeName += "_" + std::to_string(updatedIndex["side"]);
+    }
+
     const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[splitTypeName]);
     
     if (!design) {

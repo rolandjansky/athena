@@ -40,7 +40,8 @@ public:
                    const int nRows,
                    const int nStrips,
                    const double pitch,
-                   const double length);
+                   const double length,
+		   const double zShift=0.0);
 
     ~StripBoxDesign() = default;
 
@@ -110,6 +111,8 @@ public:
     // For Strip sensors, readout cell == diode cell. Overload the SCT_ModuleSideDesign
     // member
     SiReadoutCellId readoutIdOfCell(const SiCellId &cellId) const;
+    
+    const Amg::Transform3D moduleShift() const final;
 
     // ---------------------------------------------------------------------------------------
     // DEPRECATED at least for Strips
@@ -156,6 +159,7 @@ private:
     int m_nStrips;
     double m_pitch;
     double m_length;
+    double m_zShift;
     Trk::RectangleBounds m_bounds;
 };
 
@@ -216,7 +220,6 @@ inline int StripBoxDesign::row(int stripId1Dim) const {
 inline int StripBoxDesign::strip(int stripId1Dim) const {
     return stripId1Dim % m_nStrips; 
 }
-
 
 /// DEPRECATED for StripBoxDesign; no dead area
 double StripBoxDesign::deadAreaUpperBoundary() const {
