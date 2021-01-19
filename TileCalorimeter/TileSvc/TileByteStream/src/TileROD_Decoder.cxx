@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Decoder class
@@ -3930,6 +3930,7 @@ void TileROD_Decoder::D0CellsHLT::clear() {
     m_D0Existpos[i] = false;
     m_D0Maskneg[i] = false;
     m_D0Maskpos[i] = false;
+    m_cells[i] = nullptr;
   }
 }
 
@@ -3940,7 +3941,7 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
   int ros = (frag_id >> 8);
   if ( ros != 1 ) return; // Only in positive barrel
   int drawer = (frag_id & 0xFF);
-  TileCell* pCell  = d0cells.cells[drawer];
+  TileCell* pCell  = d0cells.m_cells[drawer];
   if ( !pCell ) return;
   double amp1(0.0), amp2(0.0);
   amp1 = d0cells.m_D0chanpos[drawer].amplitude();
