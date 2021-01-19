@@ -24,7 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRawEvent
                           TileCalorimeter/TileCalib/TileCalibBlobObjs
-                          TileCalorimeter/TileIdentifier )
+                          TileCalorimeter/TileIdentifier
+                          Event/xAOD/xAODCaloEvent )
 
 # External dependencies:
 find_package( CLHEP )
@@ -34,7 +35,7 @@ atlas_add_component( CaloJiveXML
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps GaudiKernel LArToolsLib TileConditionsLib TileEvent JiveXMLLib CaloDetDescrLib CaloEvent AthenaKernel Identifier LArIdentifier LArRawEvent TileCalibBlobObjs TileIdentifier )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloIdentifier AthenaBaseComps GaudiKernel LArToolsLib TileConditionsLib TileEvent JiveXMLLib CaloDetDescrLib CaloEvent AthenaKernel Identifier LArIdentifier LArRawEvent TileCalibBlobObjs TileIdentifier xAODCaloEvent)
 
 # Install files from the package:
 atlas_install_headers( CaloJiveXML )

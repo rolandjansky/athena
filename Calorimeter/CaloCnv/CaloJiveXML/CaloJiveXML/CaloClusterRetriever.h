@@ -13,6 +13,8 @@
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
 
+#include "xAODCaloEvent/CaloClusterContainer.h"
+
 class CaloClusterContainer;
 
 namespace JiveXML{
@@ -42,7 +44,7 @@ namespace JiveXML{
       
       /// Retrieve all the data
       virtual StatusCode retrieve(ToolHandle<IFormatTool> &FormatTool); 
-      const DataMap getData(const CaloClusterContainer*);
+      const DataMap getData(const xAOD::CaloClusterContainer*);
 
       /// Return the name of the data type
       virtual std::string dataTypeName() const { return m_typeName; };
