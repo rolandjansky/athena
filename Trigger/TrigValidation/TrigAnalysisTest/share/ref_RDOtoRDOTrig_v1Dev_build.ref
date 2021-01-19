@@ -2090,6 +2090,8 @@ HLT_j85_pf_ftf_L1J20:
   stepFeatures:
     0: 19
     1: 22
+HLT_mb_sp_L1RD0_FILLED:
+  eventCount: 0
 HLT_mb_sptrk_L1RD0_FILLED:
   eventCount: 0
 HLT_mu0_muoncalib_L1MU20:
