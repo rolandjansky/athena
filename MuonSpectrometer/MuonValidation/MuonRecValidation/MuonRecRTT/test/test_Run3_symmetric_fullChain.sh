@@ -126,7 +126,7 @@ Reco_tf.py --inputRDOFile OUT_RDO.root \
            --athenaopts="--threads=5" \
            --outputESDFile OUT_ESD_5thread.root &> ${LOG_RECO}
 exit_code=$?
-echo  "art-result: ${exit_code} Reco_tf.py_8thread"
+echo  "art-result: ${exit_code} Reco_tf.py_5thread"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
