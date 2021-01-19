@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -101,7 +101,7 @@ namespace { // utility functions used here
   // Cuts on various objects
   bool
   passJetCuts(const xAOD::Jet& jet) {
-    const float absEtaMax = 2.5;
+    const float absEtaMax = 4.0;
     const float jetPtMin = 100;  // in GeV
     const float jetPtMax = 1000; // in GeV
     const float jetPt = jet.pt() * 1_GeV; // GeV
@@ -157,8 +157,8 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   m_fourMatchedEProb(0),
   m_truthCounter(0),
   m_truthCutCounters{},
-  m_fillTIDEPlots(false),
-  m_fillExtraTIDEPlots(false),
+  m_doTrackInJetPlots(false),
+  m_doBjetPlots(false),
   m_fillITkResolutionPlots(false),
   m_fillAdditionalITkPlots(false),
   m_acc_selectedByPileupSwitch("selectedByIDPVMPileupSwitch"),
@@ -180,8 +180,8 @@ InDetPhysValMonitoringTool::InDetPhysValMonitoringTool(const std::string& type, 
   declareProperty("TrackSelectionTool", m_trackSelectionTool);
   declareProperty("VertexTruthMatchTool", m_vtxValidTool);
   declareProperty("TruthSelectionTool", m_truthSelectionTool);
-  declareProperty("FillTrackInJetPlots", m_fillTIDEPlots);
-  declareProperty("FillExtraTrackInJetPlots", m_fillExtraTIDEPlots);
+  declareProperty("FillTrackInJetPlots", m_doTrackInJetPlots);
+  declareProperty("FillTrackInBJetPlots", m_doBjetPlots);
   declareProperty("jetContainerName", m_jetContainerName = "AntiKt4TruthJets");
   declareProperty("maxTrkJetDR", m_maxTrkJetDR = 0.4);
   declareProperty("DirName", m_dirName = "IDPerformanceMon/");
@@ -215,9 +215,10 @@ InDetPhysValMonitoringTool::initialize() {
   ATH_CHECK(m_truthSelectionTool.retrieve());
   m_truthCutCounters = m_truthSelectionTool->counters();
   m_monPlots = std::move(std::unique_ptr<InDetRttPlots> (new InDetRttPlots(0, m_dirName + m_folder)));
-  m_monPlots->SetFillExtraTIDEPlots(m_fillExtraTIDEPlots);
+  m_monPlots->SetFillJetPlots(m_doTrackInJetPlots,m_doBjetPlots);
   m_monPlots->SetFillITkResolutionPlots(m_fillITkResolutionPlots);
   m_monPlots->SetFillAdditionalITkPlots(m_fillAdditionalITkPlots);
+
   return StatusCode::SUCCESS;
 }
 
@@ -622,7 +623,7 @@ InDetPhysValMonitoringTool::fillHistograms() {
   m_monPlots->fillCounter(truthParticlesVec.size(), InDetPerfPlot_nTracks::TRUTH);
   m_monPlots->fillCounter(num_truthmatch_match, InDetPerfPlot_nTracks::TRUTH_MATCHED);
   // Tracking In Dense Environment
-  if (m_fillTIDEPlots && !m_jetContainerName.empty()) {
+  if (m_doTrackInJetPlots && !m_jetContainerName.empty()) {
     return doJetPlots(ptracks, getAsTruth, pvtx);
   }     // if TIDE
   // ATH_MSG_INFO(getTruth.report());
@@ -867,68 +868,99 @@ StatusCode
 InDetPhysValMonitoringTool::doJetPlots(const xAOD::TrackParticleContainer* ptracks,
                                        IDPVM::CachedGetAssocTruth& getAsTruth,
                                        const xAOD::Vertex* primaryVtx) {
-  const xAOD::JetContainer* jets = getContainer<xAOD::JetContainer>(m_jetContainerName);
-  const xAOD::TruthParticleContainer* truthParticles = getContainer<xAOD::TruthParticleContainer>("TruthParticles");
-  const float minProbEffHigh = 0.5;
 
-  if (!jets || !truthParticles) {
+  const xAOD::JetContainer* jets = getContainer<xAOD::JetContainer>(m_jetContainerName);
+  std::vector<const xAOD::TruthParticle*> truthParticlesVec = getTruthParticles();
+  SG::AuxElement::ConstAccessor<std::vector<ElementLink<xAOD::IParticleContainer> > > ghosttruth("GhostTruth");
+  SG::AuxElement::ConstAccessor<int> btagLabel("HadronConeExclTruthLabelID");
+  const float minProbEffLow(0.50);
+
+  if (!jets or truthParticlesVec.empty()) {
     ATH_MSG_WARNING(
       "Cannot open " << m_jetContainerName <<
         " jet container or TruthParticles truth particle container. Skipping jet plots.");
   } else {
     for (const auto& thisJet: *jets) {         // The big jets loop
+
       if (not passJetCuts(*thisJet)) {
         continue;
       }
+
+      bool isBjet = false;
+      if (!btagLabel.isAvailable(*thisJet)){
+	ATH_MSG_WARNING("Failed to extract b-tag truth label from jet");
+      }
+      else{
+        isBjet = (btagLabel(*thisJet) == 5);
+      }
+
+      std::vector<const xAOD::TruthParticle*> jetTruthParticles;
+      if(ghosttruth.isAvailable(*thisJet)){
+	for(const auto& el : ghosttruth(*thisJet)){
+          if(el.isValid()) {
+            const xAOD::TruthParticle *truth = static_cast<const xAOD::TruthParticle*>(*el);
+	    jetTruthParticles.emplace_back(truth);
+	  }
+	}
+      }
+      else{ // For truth jets without ghost decoration
+	for (const xAOD::JetConstituent* constit : thisJet->getConstituents()){
+	  const xAOD::TruthParticle* truth = dynamic_cast<const xAOD::TruthParticle*>(constit->rawConstituent());
+	  jetTruthParticles.emplace_back(truth);
+	}
+      }
+
+      for(const auto& truth : jetTruthParticles) {
+
+	if (thisJet->p4().DeltaR(truth->p4()) > m_maxTrkJetDR) {
+	  continue;
+	}
+
+	bool accept = m_truthSelectionTool->accept(truth);
+
+	if(!accept) continue;
+	bool isEfficient(false);
+	for (auto thisTrack: *ptracks) {
+	  if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryVtx))) {
+	    continue;
+	  }
+
+	  const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
+	  if (associatedTruth and associatedTruth == truth) {
+	    float prob = getMatchingProbability(*thisTrack);
+	    if (not std::isnan(prob) && prob > minProbEffLow) {
+	      isEfficient = true;
+	      break;
+	    }
+	  }
+	}
+
+	m_monPlots->fillEfficiency(*truth, *thisJet, isEfficient,isBjet);
+
+      }
+
       for (auto thisTrack: *ptracks) {    // The beginning of the track loop
         if (m_useTrackSelection and not (m_trackSelectionTool->accept(*thisTrack, primaryVtx))) {
           continue;
         }
-        if (m_onlyInsideOutTracks and !(isInsideOut(*thisTrack))) {
-          continue; // not an inside out track
-        }
         if (thisJet->p4().DeltaR(thisTrack->p4()) > m_maxTrkJetDR) {
           continue;
         }
-        //
-        const bool safelyFilled = m_monPlots->filltrkInJetPlot(*thisTrack, *thisJet);
-        if (safelyFilled) {
-          float trkInJet_w(0), trkInJet_BMR(1);
-          float prob = getMatchingProbability(*thisTrack);
-          if (prob > minProbEffHigh) {
-            trkInJet_w = 1;
-            trkInJet_BMR = 0;
-          }
-          m_monPlots->jet_fill(*thisTrack, *thisJet, trkInJet_w);                          // fill trkinjeteff plots
-          m_monPlots->jetBMR(*thisTrack, *thisJet, trkInJet_BMR);                          // fin in track in jet bad
-          m_monPlots->fillSimpleJetPlots(*thisTrack, prob);                                // Fill all the
-                                                                                          
-          const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);     //
-                                                                                         
-          if (associatedTruth) {
-            m_monPlots->fillJetResPlots(*thisTrack, *associatedTruth, *thisJet);          // Fill jet pull &
-                                                                                          // resolution plots
-            int barcode = associatedTruth->barcode();
-            m_monPlots->fillJetHitsPlots(*thisTrack, prob, barcode);                      // Fill the two extra
-                                                                                          // plots
-            if (m_truthSelectionTool->accept(associatedTruth)) {                          // Fill the Jet plots with
-                                                                                          // "Eff" in the name
-              m_monPlots->fillJetEffPlots(*associatedTruth, *thisJet);
-            }
-          }
-        }
-      } // end of track loop
-        // fill in things like sum jet pT in dR bins - need all tracks in the jet first
-      m_monPlots->fillJetPlotCounter(*thisJet);
-      for (const auto& thisTruth: *truthParticles) {
-        // for primary tracks we want an efficiency as a function of track jet dR
-        if ((m_truthSelectionTool->accept(thisTruth) and(thisJet->p4().DeltaR(thisTruth->p4()) < m_maxTrkJetDR))) {
-          m_monPlots->fillJetTrkTruth(*thisTruth, *thisJet);
-        }
+        float prob = getMatchingProbability(*thisTrack);
+        if(std::isnan(prob)) prob = 0.0;
+
+        const xAOD::TruthParticle* associatedTruth = getAsTruth.getTruth(thisTrack);
+        const bool unlinked = (associatedTruth==nullptr);
+        const bool isFake = (associatedTruth && prob < minProbEffLow);
+        m_monPlots->fill(*thisTrack, *thisJet,isBjet,isFake,unlinked);
+        if (associatedTruth){
+          m_monPlots->fillFakeRate(*thisTrack, *thisJet, isFake,isBjet);
+       }
       }
-      m_monPlots->fillJetTrkTruthCounter(*thisJet);
-    } // loop over jets
-  }
+    }
+  } // loop over jets
+
+
   return StatusCode::SUCCESS;
 }
 

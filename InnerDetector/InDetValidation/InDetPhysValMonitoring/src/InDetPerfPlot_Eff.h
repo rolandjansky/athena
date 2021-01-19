@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPERFPLOT_EFF
@@ -21,8 +21,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTruth/TruthParticle.h"
 
-#include "xAODJet/Jet.h"
-
 // std includes
 #include <string>
 
@@ -33,7 +31,6 @@ public:
 
   void fill(const xAOD::TruthParticle& truth, const bool isGood);
   void BT_fill(const xAOD::TruthParticle& truth, float weight);
-  void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
   void mu_fill(const xAOD::TruthParticle& truth, const bool isGood, const unsigned int nMuEvents);
 
 private:
@@ -55,14 +52,6 @@ private:
   TProfile* m_eff_vs_phi_of_daughters;
   TProfile* m_eff_vs_phi_sin_of_daughters;
   TProfile* m_eff_vs_phi_cos_of_daughters;
-
-  TProfile* m_trackinjeteff_vs_eta;
-  TProfile* m_trackinjeteff_vs_phi;
-  TProfile* m_trackinjeteff_vs_pt;
-  TProfile* m_trackinjeteff_vs_dr;
-  TProfile* m_trackinjeteff_vs_dr_lt_j50;
-  TProfile* m_trackinjeteff_vs_dr_gr_j100;
-  TProfile* m_trackinjeteff_vs_jetet;
   
   TEfficiency* m_eff_vs_mu;
   TEfficiency* m_eff_vs_mu2;

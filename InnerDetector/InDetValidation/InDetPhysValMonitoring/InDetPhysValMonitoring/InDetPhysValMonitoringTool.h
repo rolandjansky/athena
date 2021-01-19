@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETPHYSVALMONITORINGTOOL_H
@@ -134,8 +134,8 @@ private:
 	///Jet Things
 	std::string m_jetContainerName;
 	float m_maxTrkJetDR;
-	bool m_fillTIDEPlots;
-	bool m_fillExtraTIDEPlots;
+	bool m_doTrackInJetPlots;
+	bool m_doBjetPlots;
   
         bool m_fillITkResolutionPlots;
         bool m_fillAdditionalITkPlots;

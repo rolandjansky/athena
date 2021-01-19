@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPERFPLOT_TRKINJET_H
@@ -14,85 +14,67 @@
 
 class InDetPerfPlot_TrkInJet: public InDetPlotBase {
 public:
-  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir);
-  bool fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet);
-  bool fillCounter(const xAOD::Jet& jet);
+  InDetPerfPlot_TrkInJet(InDetPlotBase* pParent, std::string sDir, bool bookFakeAndEff=true);
+  void fill(const xAOD::TrackParticle& trk, const xAOD::Jet& jet);
 
-  bool BookEffReco(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  bool BookEffTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  bool fillEff(const xAOD::Jet& jet);
-
-  void clearCounters();
-  void clearEffCounters();
+  void fillEfficiency(const xAOD::TruthParticle& trk, const xAOD::Jet& jet, const bool isEfficient);
+  void fillFakeRate(const xAOD::TrackParticle& trk, const xAOD::Jet& jet, const bool isFake);
 
 
-  TH1* m_jetPt;
-  TH1* m_recPt;
-  TH1* m_nTrack;
-  TH1* m_sumPt;
-  TH1* m_fracPt;
-
-  TProfile* n_vs_jetDR_BLayerHits;
-  TProfile* n_vs_jetDR_BLayerOutliers;
-  TProfile* n_vs_jetDR_BLayerSharedHits;
-  TProfile* n_vs_jetDR_BLayerSplitHits;
-  TProfile* n_vs_jetDR_PixelHits;
-  TProfile* n_vs_jetDR_PixelHoles;
-  TProfile* n_vs_jetDR_PixelOutliers;
-  TProfile* n_vs_jetDR_PixelContribLayers;
-  TProfile* n_vs_jetDR_PixelSharedHits;
-  TProfile* n_vs_jetDR_PixelSplitHits;
-  TProfile* n_vs_jetDR_PixelGangedHits;
-  TProfile* n_vs_jetDR_SCTHits;
-  TProfile* n_vs_jetDR_SCTHoles;
-  TProfile* n_vs_jetDR_SCTOutliers;
-  TProfile* n_vs_jetDR_SCTDoubleHoles;
-  TProfile* n_vs_jetDR_SCTSharedHits;
-  TProfile* n_vs_jetDR_TRTHits;
-  TProfile* n_vs_jetDR_TRTHighThresholdHits;
-  TProfile* n_vs_jetDR_TRTOutliers;
-  TProfile* n_vs_jetDR_TRTHighThresholdOutliers;
-
-  TProfile* n_vs_jetDR;
-  TProfile* sumPt_vs_jetDR;
-  TProfile* fracPt_vs_jetDR;
-  TProfile* n_vs_jetPt;
-  TProfile* sumPt_vs_jetPt;
-  TProfile* fracPt_vs_jetPt;
-
-  TProfile* n_vs_jetDR_reco;
-  TProfile* sumPt_vs_jetDR_reco;
-  TProfile* fracPt_vs_jetDR_reco;
-  TProfile* n_vs_jetPt_reco;
-  TProfile* sumPt_vs_jetPt_reco;
-  TProfile* fracPt_vs_jetPt_reco;
-  TProfile* n_vs_jetDR_truth;
-  TProfile* sumPt_vs_jetDR_truth;
-  TProfile* fracPt_vs_jetDR_truth;
-  TProfile* n_vs_jetPt_truth;
-  TProfile* sumPt_vs_jetPt_truth;
-  TProfile* fracPt_vs_jetPt_truth;
-
-  TH1* n_vs_jetDR_eff;
-  TH1* sumPt_vs_jetDR_eff;
-  TH1* n_vs_jetPt_eff;
-  TH1* sumPt_vs_jetPt_eff;
-  ///@}
 private:
   void initializePlots();
-  void finalizePlots();
 
-  int m_dRNBins, m_jetPtNBins;
-  float m_dRMin, m_dRMax, m_jetPtMin, m_jetPtMax;
-  float m_dRWidth;
-  float m_etaMin, m_etaMax;
+  TProfile* m_nInnerMostPixelHits_vs_dR;
+  TProfile* m_nNextToInnerMostPixelHits_vs_dR;
+  TProfile* m_nPixelHits_vs_dR;
+  TProfile* m_nSCTHits_vs_dR;
+  TProfile* m_nTRTHits_vs_dR;
+  TProfile* m_nPixelHoles_vs_dR;
+  TProfile* m_nSCTHoles_vs_dR;
+  TProfile* m_nTRTHighThresholdHits_vs_dR;
+  TProfile* m_nInnerMostPixelOutliers_vs_dR;
+  TProfile* m_nInnerMostPixelSharedHits_vs_dR;
+  TProfile* m_nInnerMostPixelSplitHits_vs_dR;
+  TProfile* m_nExpectedInnerMostPixelHits_vs_dR;
+  TProfile* m_nExpectedNextToInnerMostPixelHits_vs_dR;
+  TProfile* m_nPixelOutliers_vs_dR;
+  TProfile* m_nPixelContribLayers_vs_dR;
+  TProfile* m_nPixelSharedHits_vs_dR;
+  TProfile* m_nPixelSplitHits_vs_dR;
+  TProfile* m_nPixelGangedHits_vs_dR;
+  TProfile* m_nPixelGangedHitsFlaggedFakes_vs_dR;
+  TProfile* m_nSCTOutliers_vs_dR;
+  TProfile* m_nSCTDoubleHoles_vs_dR;
+  TProfile* m_nSCTSharedHits_vs_dR;
+  TProfile* m_nTRTOutliers_vs_dR;
+  TProfile* m_nTRTHighThresholdOutliers_vs_dR;
+  TProfile* m_nPixelDeadSensors_vs_dR;
+  TProfile* m_nSCTDeadSensors_vs_dR;
 
-  std::vector<int>   m_tracksVsDr;
-  std::vector<float> m_sumPtVsDr;
-  std::vector<int>   m_tracksVsDr_reco;
-  std::vector<float> m_sumPtVsDr_reco;
-  std::vector<int>   m_tracksVsDr_truth;
-  std::vector<float> m_sumPtVsDr_truth;
+
+  TProfile* m_reco_d0_vs_dR;
+  TProfile* m_reco_z0_vs_dR;
+  TProfile* m_reco_z0sin_vs_dR;
+
+  TProfile* m_reco_phi_vs_dR;
+  TProfile* m_reco_theta_vs_dR;
+  TProfile* m_reco_eta_vs_dR;
+  TProfile* m_reco_pt_vs_dR;
+  TProfile* m_reco_lowpt_vs_dR;
+
+  TProfile* m_reco_chi2Overndof_vs_dR;
+
+  TEfficiency* m_efficiency_vs_dR;
+  TEfficiency* m_efficiency_vs_smalldR;
+  TEfficiency* m_efficiency_vs_jetpT;
+
+  TEfficiency* m_fakerate_vs_dR;
+  TEfficiency* m_fakerate_vs_smalldR;
+  TEfficiency* m_fakerate_vs_jetpT;
+
+  bool m_doFakeAndEff;
+
+
 };
 
 #endif

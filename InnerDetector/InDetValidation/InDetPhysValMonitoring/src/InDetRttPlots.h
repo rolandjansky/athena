@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETRTTPLOTS
@@ -51,11 +51,9 @@
 class InDetRttPlots: public InDetPlotBase {
 public:
   InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName);
-  void
-  SetFillExtraTIDEPlots(bool fillthem) {
-    m_moreJetPlots = fillthem;
-  }
   
+  void SetFillJetPlots(bool fillJets, bool fillBJets);
+
   void
   SetFillITkResolutionPlots(bool fillthem) {
     m_ITkResPlots = fillthem;
@@ -111,19 +109,9 @@ public:
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
-  // New set has replaced fillJetPlot
-  bool filltrkInJetPlot(const xAOD::TrackParticle& particle, const xAOD::Jet& jet);
-  void fillSimpleJetPlots(const xAOD::TrackParticle& particle, float prob);
-  void fillJetHitsPlots(const xAOD::TrackParticle& particle, float prob, int barcode);
-  void fillJetResPlots(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  void fillJetEffPlots(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-
-  void jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
-  void jetBMR(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight);
-
-  void fillJetPlotCounter(const xAOD::Jet& jet);
-  void fillJetTrkTruth(const xAOD::TruthParticle& truth, const xAOD::Jet& jet);
-  void fillJetTrkTruthCounter(const xAOD::Jet& jet);
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false);
+  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false);
 
   virtual ~InDetRttPlots() {/**nop**/
   };
@@ -162,29 +150,21 @@ private:
   InDetPerfPlot_VertexTruthMatching m_vertexTruthMatchingPlots;
 
   InDetPerfPlot_duplicate m_duplicatePlots;
+  InDetPerfPlot_spectrum m_specPlots;
 
-  bool m_moreJetPlots;
   bool m_ITkResPlots;
 
-  InDetPerfPlot_TrkInJet m_trkInJetPlot;
-  InDetPerfPlot_TrkInJet m_trkInJetPlot_highPt;
-  InDetPerfPlot_Pt m_trkInJetPtPlot;
-  InDetBasicPlot m_trkInJetBasicPlot;
-  // Trk::ParamPlots m_trkInJetPtEtaPlots;
-  // Trk::ImpactPlots m_trkInJetIPPlots;
-  Trk::RecoInfoPlots m_trkInJetTrackRecoInfoPlots;
-  InDetPerfPlot_HitDetailed m_trkInJetHitsDetailedPlots;
-  InDetPerfPlot_fakes m_trkInJetFakePlots; // fakes vs eta etc, as per original RTT code
-  InDetPerfPlot_res m_trkInJetResPlots;
-  InDetPerfPlot_res* m_trkInJetResPlotsDr0010;
-  InDetPerfPlot_res* m_trkInJetResPlotsDr1020;
-  InDetPerfPlot_res* m_trkInJetResPlotsDr2030;
-  InDetPerfPlot_Eff m_trkInJetEffPlots;
-  InDetPerfPlot_res m_trkInJetHighPtResPlots;
-  InDetPerfPlot_HitDetailed m_trkInJetHitsFakeTracksPlots;
-  InDetPerfPlot_HitDetailed m_trkInJetHitsMatchedTracksPlots;
-  Trk::TruthInfoPlots m_trkInJetTrackTruthInfoPlots;
-  InDetPerfPlot_spectrum m_specPlots;
+  bool m_doTrackInJetPlots;
+  bool m_doTrackInBJetPlots;
+
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_matched_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake_bjets;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
 
   std::string m_trackParticleTruthProbKey;
   float m_truthProbLowThreshold;

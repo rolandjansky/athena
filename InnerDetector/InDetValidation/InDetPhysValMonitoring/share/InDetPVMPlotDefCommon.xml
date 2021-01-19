@@ -1403,62 +1403,207 @@
   <y title="Number of Occurrences"/>
 </h>
 
-<!-- TrackInJets -->
-<h id="recInJetpT" type="TH1F" title="p_{T} of selected rec tracks in jets(in GeV)">
-  <x title="p_{T}(GeV/c)" n="200" lo="0." hi="200"/>
-  <y title="Entries"/>
+<!--
+   =======================================================
+   hit plots for tracks in jets
+   ======================================================
+
+     -->
+
+<h id="nInnerMostPixelHits_vs_dR" type="TProfile" title="InnerMost Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
-<h id="nTrackInJet" type="TH1F" title="Number of Tracks in Jet">
-  <x title="N Tracks" n="50" lo="0." hi="50"/>
-  <y title="Entries"/>
+
+<h id="nNextToInnerMostPixelHits_vs_dR" type="TProfile" title="Next To InnerMost Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
-<h id="sumPtinJet" type="TH1F" title="Sum p_{T} of Tracks in Jet">
-  <x title="sum p_{T}(GeV/c)" n="25" lo="0" hi="500"/>
-  <y title="Entries"/>
+
+<h id="nPixelHits_vs_dR" type="TProfile" title="Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
 </h>
-<h id="fracPtInJet" type="TH1F" title="Sum p_{T} of Tracks over jet p_{T}">
-  <x title="sum Track p_{T}/jet p_{T}" n="60" lo="0" hi="3"/>
-  <y title="Entries"/>
+
+<h id="nSCTHits_vs_dR" type="TProfile" title="SCT Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT Hits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+
+<h id="nPixelHoles_vs_dR" type="TProfile" title="Pixel Holes vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel Holes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nSCTHoles_vs_dR" type="TProfile" title="SCT Holes vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT Holes" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+
+<!--Detailed Hit Plots -->
+<h id="nInnerMostPixelOutliers_vs_dR" type="TProfile" title="InnerMost Pixel Outliers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# InnerMost Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nInnerMostPixelSharedHits_vs_dR" type="TProfile" title="InnerMost Pixel SharedHits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# InnerMost Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nInnerMostPixelSplitHits_vs_dR" type="TProfile" title="InnerMost Pixel SplitHits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# InnerMost Pixel SplitHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nExpectedInnerMostPixelHits_vs_dR" type="TProfile" title="Expected InnerMost Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Expected InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nExpectedNextToInnerMostPixelHits_vs_dR" type="TProfile" title="Expected Next To InnerMost Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Expected Next To InnerMost Pixel Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelSplitHits_vs_dR" type="TProfile" title="Pixel Hits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel Split Hits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelOutliers_vs_dR" type="TProfile" title="Pixel Outliers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel Outliers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelContribLayers_vs_dR" type="TProfile" title="Pixel ContribLayers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel ContribLayers" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelSharedHits_vs_dR" type="TProfile" title="Pixel SharedHits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel SharedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelGangedHits_vs_dR" type="TProfile" title="Pixel GangedHits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel GangedHits" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nPixelGangedHitsFlaggedFakes_vs_dR" type="TProfile" title="Pixel GangedHitsFlaggedFakes vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel GangedHitsFlaggedFakes" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nSCTOutliers_vs_dR" type="TProfile" title="SCT Outliers vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT Outliers" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+
+<h id="nSCTDoubleHoles_vs_dR" type="TProfile" title="SCT DoubleHoles vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT DoubleHoles" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+
+<h id="nSCTSharedHits_vs_dR" type="TProfile" title="SCT SharedHits vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT SharedHits" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+
+<h id="nPixelDeadSensors_vs_dR" type="TProfile" title="Pixel DeadSensors vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# Pixel DeadSensors" n="&PIXHIT;" lo="0." hi="&PIXHIT;"/>
+</h>
+
+<h id="nSCTDeadSensors_vs_dR" type="TProfile" title="SCT DeadSensors vs #DeltaR">
+  <x title="#DeltaR(jet,track)" n="80" lo="0.0" hi="&DRMAX;"/>
+  <y title="# SCT DeadSensors" n="&SCTHIT;" lo="0." hi="&SCTHIT;"/>
+</h>
+<!--
+   =======================================================
+   end of hit plots
+   ======================================================
+ -->
+
+<!-- Track Parameters -->
+<h id="reco_d0_vs_dR" type="TProfile" title="reco_{d_{0}}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{d0} [mm]" n="100" lo="-&D0PARA;" hi="&D0PARA;"/>
+</h>
+
+<h id="reco_z0_vs_dR" type="TProfile" title="reco_{z_{0}}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{z_{0}}" n="100" lo="-&Z0PARA;" hi="&Z0PARA;"/>
+</h>
+
+<h id="reco_theta_vs_dR" type="TProfile" title="reco_{#theta}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{#theta} [rads]" n="100" lo="0.0" hi="&PI;"/>
+</h>
+
+<h id="reco_phi_vs_dR" type="TProfile" title="reco_{#phi}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{#phi} [rads]" n="100" lo="-&PI;" hi="&PI;"/>
+</h>
+<h id="reco_eta_vs_dR" type="TProfile" title="reco_{#eta}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{#eta} [rads]" n="100" lo="-&ETA;" hi="&ETA;"/>
+</h>
+
+<h id="reco_pt_vs_dR" type="TProfile" title="reco_{p_{T}} [GeV]">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="100.0"/>
+</h>
+<h id="reco_lowpt_vs_dR" type="TProfile" title="reco_{p_{T}} [GeV]">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{p_{T}} [GeV]" n="100" lo="0.0" hi="10.0"/>
+</h>
+
+<h id="reco_z0sin_vs_dR" type="TProfile" title="reco_{z_{0} #times sin}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{z_{0} #times sin}" n="100" lo="-&Z0SINPARA;" hi="&Z0SINPARA;"/>
+</h>
+
+<h id="reco_chi2Overndof_vs_dR" type="TProfile" title="reco_{#chi^2/ndof}">
+  <x title="#DeltaR(jet,track)" n="100" lo="0.0" hi="&DRMAX;"/>
+  <y title="reco_{#chi^2/ndof}" n="100" lo="0.0" hi="5.0"/>
 </h>
 
 
+<!-- Efficiency -->
+<h id="efficiency_vs_dR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
 
-<!-- Track in Jet efficiencies -->
-<h id="trackinjeteff_vs_eta" type="TProfile" title="Track in jets efficiency vs #eta (Det. Paper def.)">
-  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
+<h id="efficiency_vs_smalldR" type="TEfficiency" title="Fraction of reco-matched truth track versus #DeltaR">
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_phi" type="TProfile" title="Track in jets efficiency vs #phi (Det. Paper def.)">
-  <x title="#eta" n="24" lo="-1.5708" hi="1.5708"/>
+
+<h id="efficiency_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
+  <x title="jet_{p_{T}} [GeV]" n="49" lo="100.0" hi="5000."/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_pt" type="TProfile" title="Track in jets efficiency vs p_{T} for |#eta| &lt; &ETA; (Det. Paper def.)">
-  <x title="p_{T} (GeV/c)" n="25" lo="0" hi="50"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+
+<!-- Fake Rate -->
+<h id="fakerate_vs_dR" type="TEfficiency" title="Fake rate versus #DeltaR">
+  <x title="#DeltaR" n="40" lo="0.0" hi="&DRMAX;"/>
+  <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_dr" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (Det. Paper def.)">
-  <x title="#DeltaR" n="10" lo="0.0" hi="0.4"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+
+<h id="fakerate_vs_smalldR" type="TEfficiency" title="Fake rate versus #DeltaR">
+  <x title="#DeltaR" n="40" lo="0.0" hi="&SMALLDRMAX;"/>
+  <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_dr_lt_j50" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (E_{T}(jet) &lt; 50 GeV)">
-  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
+
+<h id="fakerate_vs_jetpT" type="TEfficiency" title="Fraction of reco-matched truth track versus jet_{p_{T}}">
+  <x title="jet_{p_{T}} [GeV]" n="20" lo="100.0" hi="5000."/>
+  <y title="Fake Rate" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_dr_gr_j100" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (E_{T}(jet) &gt; 100 GeV)">
-  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<h id="trackinjeteff_vs_jetet" type="TProfile" title="Track in jets efficiency vs jet E_{T} for |#eta| &lt; &ETA; ">
-  <x title="E_{jet} (GeV)" n="10" lo="0.0" hi="250"/>
-  <y title="Efficiency" lo="0.0" hi="2.0"/>
-</h>
-<!-- -->
-<!-- Track in Jet Bad Match Rates -->
-<h id="trackinjet_badmatchrate_vs_dr_gr_j100" type="TProfile" title="Fraction of tracks with &lt; 80% truth matching probability in Jets with E_{T} &gt; 100 GeV">
-  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
-  <y title="Bad Match Rate" lo="0.0" hi="2.0"/>
-</h>
-<!-- -->
+
+
 <!-- Unsorted : todo: sort -->
 <h id="incFakevsTracks" type="TProfile" title="Selected Reco Tracks / Selected Truth Tracks vs # of reco tracks">
   <x title="tracks" n="200" lo="0" hi="2000"/>
