@@ -13,6 +13,17 @@
 <!ENTITY ETASctECMin "1.0">
 <!-- term used for innermost pixel barrel layer in histogram text -->
 <!ENTITY L0PixBarr "Pix. Barr. layer0">
+<!-- bins for hits -->
+<!ENTITY PIXHIT "20">
+<!ENTITY SCTHIT "20">
+<!-- bins for parameters -->
+<!ENTITY D0PARA "20.0">
+<!ENTITY Z0PARA "250.0">
+<!ENTITY QOPPARA "5.0e-3">
+<!ENTITY Z0SINPARA "40.0">
+<!-- dR plots for tracks in jets -->
+<!ENTITY DRMAX "0.4">
+<!ENTITY SMALLDRMAX "0.1">
 <!-- pile-up dependence plots -->
 <!ENTITY NmuBINS "26">
 <!ENTITY muHIGH "260">

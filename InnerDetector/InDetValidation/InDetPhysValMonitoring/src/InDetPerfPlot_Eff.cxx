@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetPerfPlot_Eff.h"
@@ -28,13 +28,6 @@ InDetPerfPlot_Eff::InDetPerfPlot_Eff(InDetPlotBase* pParent, const std::string& 
   m_eff_vs_phi_of_daughters{},
   m_eff_vs_phi_sin_of_daughters{},
   m_eff_vs_phi_cos_of_daughters{},
-  m_trackinjeteff_vs_eta{},
-  m_trackinjeteff_vs_phi{},
-  m_trackinjeteff_vs_pt{},
-  m_trackinjeteff_vs_dr{},
-  m_trackinjeteff_vs_dr_lt_j50{},
-  m_trackinjeteff_vs_dr_gr_j100{},
-  m_trackinjeteff_vs_jetet{},
   m_eff_vs_mu{},
   m_eff_vs_mu2{},
   m_eff_vs_mu3{},
@@ -63,14 +56,6 @@ InDetPerfPlot_Eff::initializePlots() {
   book(m_eff_vs_phi_of_daughters, "eff_vs_phi_of_daughters");
   book(m_eff_vs_phi_sin_of_daughters, "eff_vs_phi_sin_of_daughters");
   book(m_eff_vs_phi_cos_of_daughters, "eff_vs_phi_cos_of_daughters");
-
-  book(m_trackinjeteff_vs_eta, "trackinjeteff_vs_eta");
-  book(m_trackinjeteff_vs_phi, "trackinjeteff_vs_phi");
-  book(m_trackinjeteff_vs_pt, "trackinjeteff_vs_pt");
-  book(m_trackinjeteff_vs_dr, "trackinjeteff_vs_dr");
-  book(m_trackinjeteff_vs_dr_lt_j50, "trackinjeteff_vs_dr_lt_j50");
-  book(m_trackinjeteff_vs_dr_gr_j100, "trackinjeteff_vs_dr_gr_j100");
-  book(m_trackinjeteff_vs_jetet, "trackinjeteff_vs_jetet");
   
   book(m_eff_vs_mu,"eff_vs_mu");
   book(m_eff_vs_mu2,"eff_vs_mu2");
@@ -124,28 +109,6 @@ InDetPerfPlot_Eff::BT_fill(const xAOD::TruthParticle& truth, float weight) {
   fillHisto(m_eff_vs_phi_of_daughters, phi, weight);
   fillHisto(m_eff_vs_phi_sin_of_daughters, sin_phi, weight);
   fillHisto(m_eff_vs_phi_cos_of_daughters, cos_phi, weight);
-}
-
-void
-InDetPerfPlot_Eff::jet_fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, float weight) {
-  double trketa = track.eta();
-  double trkphi = track.phi();
-  double trkpt = track.pt() * 1_GeV;
-  double dR = jet.p4().DeltaR(track.p4());
-  double jetet = jet.pt() * 1_GeV;
-
-  fillHisto(m_trackinjeteff_vs_eta, trketa, weight);
-  fillHisto(m_trackinjeteff_vs_phi, trkphi, weight);
-  fillHisto(m_trackinjeteff_vs_pt, trkpt, weight);
-  fillHisto(m_trackinjeteff_vs_dr, dR, weight);
-
-  if (jetet < 50) {
-    fillHisto(m_trackinjeteff_vs_dr_lt_j50, dR, weight);
-  } else if (jetet > 100) {
-    fillHisto(m_trackinjeteff_vs_dr_gr_j100, dR, weight);
-  }
-
-  fillHisto(m_trackinjeteff_vs_jetet, jetet, weight);
 }
 
 void
