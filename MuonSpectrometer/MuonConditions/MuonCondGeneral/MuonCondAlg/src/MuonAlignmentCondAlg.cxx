@@ -182,7 +182,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   // (in the detector store) is updated which is *not* thread-safe. These lines have to be removed as soon as the trigger
   // group has decided on how to migrate the RPC/TGCRecRoiSvc to MT. Now, only running for serial trigger jobs.
   if (m_doRecRoiSvcUpdate && Gaudi::Concurrency::ConcurrencyFlags::numThreads()==1) {
-    if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
+
+    if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo, m_isData).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
     else ATH_MSG_DEBUG("updateAlignment DONE" );
   }
 

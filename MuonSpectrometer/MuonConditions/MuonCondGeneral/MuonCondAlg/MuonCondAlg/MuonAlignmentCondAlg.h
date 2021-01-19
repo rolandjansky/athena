@@ -34,7 +34,8 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
 
   Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "OrderedSet<std::string>"};
   Gaudi::Property<bool> m_doRecRoiSvcUpdate {this, "DoRecRoiSvcUpdate", false, "if set to true, the old (not thread safe) RPC/TGCRecRoiSvc are updating the nominal MuonDetectorManager from the detectorStore"};
-    
+  Gaudi::Property<bool> m_isData{this,"IsData",true};
+
  private:
 
   // Read Handles
@@ -59,6 +60,7 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   SG::ReadCondHandleKey<CondAttrListCollection> m_readMdtAsBuiltParamsKey {this, "ReadMdtAsBuiltParamsKey", 
                                                                                  "/MUONALIGN/MDT/ASBUILTPARAMS", 
                                                                                  "Key of MDT/ASBUILTPARAMS input condition data"};
+
   // Write Handles
   SG::WriteCondHandleKey<ALineMapContainer> m_writeALineKey                {this, "WriteALineKey", 
                                                                                   "ALineMapContainer", 

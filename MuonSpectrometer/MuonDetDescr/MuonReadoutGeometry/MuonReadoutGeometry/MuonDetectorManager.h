@@ -330,8 +330,8 @@ namespace MuonGM {
     inline ciCscInternalAlignmentMap CscALineMapEnd() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapBegin() const;
     inline ciMdtAsBuiltMap MdtAsBuiltMapEnd() const;
-    StatusCode updateAlignment(const ALineMapContainer& a);
-    StatusCode updateDeformations(const BLineMapContainer& a);
+    StatusCode updateAlignment(const ALineMapContainer& a, bool isData = true);
+    StatusCode updateDeformations(const BLineMapContainer& a, bool isData = true);
     StatusCode updateAsBuiltParams(const MdtAsBuiltMapContainer& a);
     StatusCode initCSCInternalAlignmentMap();
     StatusCode updateCSCInternalAlignmentMap(const CscInternalAlignmentMapContainer& cscIntAline);

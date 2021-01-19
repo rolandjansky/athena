@@ -126,7 +126,7 @@ StatusCode MuonDetectorCondAlg::execute()
   // =======================
 
   SG::ReadCondHandle<ALineMapContainer> readALinesHandle{m_readALineKey};
-  if (MuonMgrData->updateAlignment(**readALinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
+  if (MuonMgrData->updateAlignment(**readALinesHandle, m_isData).isFailure()) ATH_MSG_ERROR("Unable to update Alignment" );
   else ATH_MSG_DEBUG("update Alignment DONE" );
 
   // =======================
@@ -137,7 +137,7 @@ StatusCode MuonDetectorCondAlg::execute()
 
   writeHandle.addDependency( readALinesHandle, readBLinesHandle );
 
-  if (MuonMgrData->updateDeformations(**readBLinesHandle).isFailure()) ATH_MSG_ERROR("Unable to update Deformations" );
+  if (MuonMgrData->updateDeformations(**readBLinesHandle, m_isData).isFailure()) ATH_MSG_ERROR("Unable to update Deformations" );
   else ATH_MSG_DEBUG("update Deformations DONE" );
 
   // !!!!!!!! UPDATE ANYTHING ELSE ???????
