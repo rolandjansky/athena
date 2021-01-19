@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETRTTPLOTS
@@ -48,6 +48,8 @@
 class InDetRttPlots: public InDetPlotBase {
 public:
   InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
+
+  void SetFillJetPlots(bool fillJets, bool fillBJets);
 
   ///fill for things needing truth and track only
   void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
