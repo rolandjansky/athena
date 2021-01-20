@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file MTMonitoring.py
@@ -249,7 +249,7 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
   jetcollFolder = jetcoll
   if jetcoll in JetCollRemapping.JetCollRun2ToRun3 and not athenaMT:
     jetcollFolder = JetCollRemapping.JetCollRun2ToRun3[jetcoll]
-  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, TriggerChain="HLT_[1-9]?0?j[0-9]+.*", topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
+  Conf = JetMonAlgSpec(jetcoll+"Mon",JetContainerName = jetcoll, defaultPath = path, topLevelDir=TopLevelDir, bottomLevelDir=jetcollFolder, failureOnMissingContainer=False)
 
   # Now start filling the histo spec list    
   Conf.appendHistos(
@@ -283,9 +283,7 @@ def basicJetMonAlgSpec(jetcoll,isOnline,athenaMT):
     SelectSpec( 'forward', '3.2<|eta|', path, FillerTools = ["pt","et","m"] ),
     SelectSpec( 'lowmu', 'avgMu<30', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
     SelectSpec( 'highmu', '30<avgMu', path, isEventVariable=True, FillerTools = ["pt","et","m","phi","eta"]),
-    # To select on multiple variables simultaneously, simply combine the selection strings via &
-    # Example below to select on ET > 100 GeV and |eta| > 3.2:
-    # SelectSpec( 'ETeta', '100<et:GeV&|eta|<3.2', path, FillerTools = ["pt","et","m","eta"] )
+
     EventHistoSpec('njets', (25,0,25), title='NJets;NJets;Entries' ),
     EventHistoSpec('njetsPt20', (25,0,25), title='NJetsPt20;NJetsPt20;Entries' ),
     EventHistoSpec('njetsPt50', (25,0,25), title='NJetsPt50;NJetsPt50;Entries' ),
