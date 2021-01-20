@@ -87,7 +87,9 @@ class Lvl1SimulationGetter (Configured):
             # schedule simulation
             if TriggerFlags.doMuon() and (not DetFlags.readRIOPool.LVL1_on() ):
 
+
                 # for Tile (to be used for TGC-Tile coincidence)
+                include('TileRec/TileDefaults_jobOptions.py')
                 # TileRawChannelCnt -> TileHitVec
                 from TileRecAlgs.TileRecAlgsConf import TileRawChannelToHit
                 topSequence += TileRawChannelToHit()
