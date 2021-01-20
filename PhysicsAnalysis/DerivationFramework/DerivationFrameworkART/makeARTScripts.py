@@ -15,7 +15,7 @@ formatList = ['PHYSVAL','PHYS','PHYSLITE'
               'HIGG5D1', 'HIGG5D2', 'HIGG5D3',
               'HIGG6D1', 'HIGG6D2',
               'HIGG8D1',
-              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9','STDM11','STDM12',
+              'STDM2', 'STDM3', 'STDM4', 'STDM5', 'STDM6', 'STDM7', 'STDM8', 'STDM9','STDM11','STDM12','STDM13','STDM14',
               'TAUP1', 'TAUP2', 'TAUP3', 'TAUP4', 'TAUP5',
               'SUSY1', 'SUSY2', 'SUSY3', 'SUSY4', 'SUSY5', 'SUSY6', 'SUSY7', 'SUSY8', 'SUSY9', 'SUSY10', 'SUSY11', 'SUSY12', 'SUSY15', 'SUSY16', 'SUSY17', 'SUSY18','SUSY19',
               'EXOT0', 'EXOT2', 'EXOT3', 'EXOT4', 'EXOT5', 'EXOT6', 'EXOT7', 'EXOT8', 'EXOT9', 'EXOT10', 'EXOT12', 'EXOT13', 'EXOT15', 'EXOT17', 'EXOT19', 'EXOT20', 'EXOT21', 'EXOT22', 'EXOT23', 'EXOT27', 'EXOT28',
