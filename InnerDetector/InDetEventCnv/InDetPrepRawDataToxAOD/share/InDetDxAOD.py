@@ -484,7 +484,7 @@ svcMgr.DecisionSvc.CalcStats = True
 from InDetRecExample import TrackingCommon
 # Add the TSOS augmentation tool to the derivation framework
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
+DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator_InDetDxAOD",
                                                           ContainerName = "InDetTrackParticles",
                                                           DecorationPrefix = prefixName,
                                                           StoreTRT   = dumpTrtInfo,
