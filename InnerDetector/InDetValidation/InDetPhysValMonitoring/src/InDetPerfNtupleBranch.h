@@ -81,8 +81,8 @@ protected:
     }
 
 private: 
-    branchType m_content{m_default};
     const branchType m_default;
+    branchType m_content{m_default};
 };
 
 // template specialisation for vector branches 
