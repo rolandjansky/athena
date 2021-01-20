@@ -71,13 +71,17 @@ def generate_prep(process_dir):
     MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/make_opts_bkup ${MGaMC_PROCESS_DIR}/Source/make_opts']
 
 
-def error_check(errors):
+def error_check(errors_a):
     global MADGRAPH_CATCH_ERRORS
     if not MADGRAPH_CATCH_ERRORS:
         return
     unmasked_error = False
     my_debug_file = None
     bad_variables = []
+    # Make sure we are getting a string and not a byte string (python3 ftw)
+    errors = errors_a
+    if type(errors)==bytes:
+        errors = errors.decode('utf-8')
     if len(errors):
         mglog.info('Some errors detected by MadGraphControl - checking for serious errors')
         for err in errors.split('\n'):
