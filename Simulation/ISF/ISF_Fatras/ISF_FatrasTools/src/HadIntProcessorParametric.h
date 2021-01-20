@@ -40,8 +40,6 @@ class TTree;
 namespace Trk {
   class Material;
   class MaterialProperties;
-  class TrackingGeometry;
-  class ITrackingGeometrySvc;
 }
 
 namespace ISF {
