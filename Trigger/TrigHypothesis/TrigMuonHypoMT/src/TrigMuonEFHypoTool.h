@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUONEFHYPOTOOL_H 
@@ -22,18 +22,15 @@ class TrigMuonEFHypoTool: public ::AthAlgTool {
    
   struct MuonEFInfo {
   MuonEFInfo( TrigCompositeUtils::Decision* d, 
-              const TrigRoiDescriptor* r, 
               const xAOD::Muon* m,
 	      const TrigCompositeUtils::Decision* previousDecision )
     : decision( d ), 
-      roi( r ),
       muon( m ),
       previousDecisionIDs(TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			  TrigCompositeUtils::decisionIDs( previousDecision ).end() )
     {}
       
     TrigCompositeUtils::Decision* decision;
-    const TrigRoiDescriptor* roi;
     const xAOD::Muon* muon;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
   };

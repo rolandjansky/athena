@@ -1,12 +1,11 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 
 #define TRIGMUONHYPOMT_TRIGMUONEFTRACKISOLATIONHYPOTOOL_H 1
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h" 
 #include "TrigCompositeUtils/TrigCompositeUtils.h" 
 #include "xAODMuon/MuonContainer.h"
 
@@ -30,13 +29,11 @@ class TrigMuonEFTrackIsolationHypoTool: public ::AthAlgTool {
 
     struct EFIsolationMuonInfo {
     EFIsolationMuonInfo( TrigCompositeUtils::Decision* d, 
-                         const TrigRoiDescriptor* r, 
                          const xAOD::Muon* f,
                          const TrigCompositeUtils::Decision* previousDecision,
 			 const double cone20,
 			 const double cone30 )
     : decision( d ), 
-      roi( r ),
       muEFIso( f ),
       previousDecisionIDs( TrigCompositeUtils::decisionIDs( previousDecision ).begin(), 
 			   TrigCompositeUtils::decisionIDs( previousDecision ).end() ),
@@ -45,7 +42,6 @@ class TrigMuonEFTrackIsolationHypoTool: public ::AthAlgTool {
       {}
       
       TrigCompositeUtils::Decision* decision;
-      const TrigRoiDescriptor* roi;
       const xAOD::Muon* muEFIso;
       const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
       const double ptcone20;
