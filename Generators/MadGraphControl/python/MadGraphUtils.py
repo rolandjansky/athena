@@ -287,7 +287,7 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
         do_PMG_updates(process_dir)
 
     # Make sure we store the resultant directory
-    MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+process_dir]
+    MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+os.path.basename(process_dir)]
 
     return process_dir
 
@@ -1723,8 +1723,10 @@ def SUSY_Generation(runArgs = None, process=None,\
     # Add lifetimes to LHE before arranging output if requested
     if add_lifetimes_lhe :
         mglog.info('Requested addition of lifetimes to LHE files: doing so now.')
-        if is_gen_from_gridpack() : add_lifetimes()
-        else: add_lifetimes(process_dir=process_dir)
+        if is_gen_from_gridpack():
+            add_lifetimes()
+        else:
+            add_lifetimes(process_dir=process_dir)
 
     # Move output files into the appropriate place, with the appropriate name
     arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
