@@ -21,6 +21,8 @@ NSWPRDValAlg.doMDTHit= True
 NSWPRDValAlg.doRPCHit= True
 NSWPRDValAlg.doMMHit = True
 NSWPRDValAlg.doSTGCHit = True
+NSWPRDValAlg.doCSCHit= True
+NSWPRDValAlg.doTGCHit= True
 
 #-----------------------------------------------------------------------------
 # save ROOT histograms and Tuple
