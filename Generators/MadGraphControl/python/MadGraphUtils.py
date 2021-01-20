@@ -20,8 +20,8 @@ MADGRAPH_CATCH_ERRORS=True
 # PDF setting (global setting)
 MADGRAPH_PDFSETTING=None
 MADGRAPH_COMMAND_STACK = []
-from MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
-from MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
+from MadGraphControl.MadGraphUtilsHelpers import checkSettingExists,checkSetting,checkSettingIsTrue,settingIsTrue,getDictFromCard,get_runArgs_info,get_physics_short
+from MadGraphControl.MadGraphParamHelpers import do_PMG_updates,check_PMG_updates
 
 
 def stack_subprocess(command,**kwargs):
@@ -623,7 +623,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             if not checkSettingIsTrue('store_rwgt_info',run_card_dict):
                 raise RuntimeError('Trying to run NLO systematics but reweight info not stored')
             if checkSettingExists('systematics_arguments',run_card_dict):
-                systematics_settings=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+                systematics_settings=MadGraphControl.MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
             else:
                 systematics_settings={}
             mglog.info('Turning off systematics for now, running standalone later')
@@ -861,7 +861,7 @@ def setupLHAPDF(process_dir=None, extlhapath=None, allow_links=True):
                 else:
                     pdfs_used.append(s)
         if 'systematics_arguments' in mydict:
-            systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict['systematics_arguments'])
+            systematics_arguments=MadGraphControl.MadGraphSystematicsUtils.parse_systematics_arguments(mydict['systematics_arguments'])
             if 'pdf' in systematics_arguments:
                 sys_pdf=systematics_arguments['pdf'].replace(',',' ').replace('@',' ').split()
                 for s in sys_pdf:
@@ -1480,16 +1480,16 @@ def get_expected_systematic_names(syst_setting):
         mglog.warning("Systematics have not been defined via base fragment or 'MADGRAPH_PDFSETTING', cannot check for expected weights")
         return []
     if 'pdf_variations' in syst_setting and isinstance(syst_setting['pdf_variations'],list):
-        names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':syst_setting['central_pdf']}]
+        names+=[MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':syst_setting['central_pdf']}]
         for pdf in syst_setting['pdf_variations']:
-            names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf+1}]
+            names+=[MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf+1}]
     if 'alternative_pdfs' in syst_setting and isinstance(syst_setting['alternative_pdfs'],list):
         for pdf in syst_setting['alternative_pdfs']:
-            names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf}]
+            names+=[MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':1.0,'muf':1.0,'pdf':pdf}]
     if 'scale_variations' in syst_setting and isinstance(syst_setting['scale_variations'],list):
         for mur in syst_setting['scale_variations']:
             for muf in syst_setting['scale_variations']:
-                names+=[MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':mur,'muf':muf,'pdf':syst_setting['central_pdf']}]
+                names+=[MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO%{'mur':mur,'muf':muf,'pdf':syst_setting['central_pdf']}]
     return names
 
 def setup_bias_module(bias_module,process_dir):
@@ -2090,7 +2090,7 @@ def modify_run_card(run_card_input=None,run_card_backup=None,process_dir=MADGRAP
     isNLO=is_NLO_run(process_dir=process_dir)
     # add gobal PDF and scale uncertainty config to extras, except PDF or weights for syscal config are explictly set
     if not skipBaseFragment:
-        MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,settings,isNLO)
+        MadGraphControl.MadGraphSystematicsUtils.setup_pdf_and_systematic_weights(MADGRAPH_PDFSETTING,settings,isNLO)
 
     # Get some info out of the runArgs
     if runArgs is not None:
@@ -2339,7 +2339,7 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
                     mglog.warning('Using syscalc setting '+s+' with new systematics script. Systematics script is default from 2.6.2 and steered differently (https://cp3.irmp.ucl.ac.be/projects/madgraph/wiki/Systematics#Systematicspythonmodule)')
                     found_syscalc_setting=True
             if found_syscalc_setting:
-                syst_arguments=MadGraphSystematicsUtils.convertSysCalcArguments(mydict)
+                syst_arguments=MadGraphControl.MadGraphSystematicsUtils.convertSysCalcArguments(mydict)
                 mglog.info('Converted syscalc arguments to systematics arguments: '+syst_arguments)
                 syst_settings_update={'systematics_arguments':syst_arguments}
                 for s in syscalc_settings:
@@ -2350,14 +2350,14 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
     # usually the pdf and systematics should be set during modify_run_card
     # but check again in case the user did not call the function or provides a different card here
     mglog.info('Checking PDF and systematics settings')
-    if not MadGraphSystematicsUtils.base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
+    if not MadGraphControl.MadGraphSystematicsUtils.base_fragment_setup_check(MADGRAPH_PDFSETTING,mydict,isNLO):
         # still need to set pdf and systematics
-        syst_settings=MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
+        syst_settings=MadGraphControl.MadGraphSystematicsUtils.get_pdf_and_systematic_settings(MADGRAPH_PDFSETTING,isNLO)
         modify_run_card(process_dir=process_dir,settings=syst_settings,skipBaseFragment=True)
 
     mydict_new=getDictFromCard(cardpath)
     if 'systematics_arguments' in mydict_new:
-        systematics_arguments=MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
+        systematics_arguments=MadGraphControl.MadGraphSystematicsUtils.parse_systematics_arguments(mydict_new['systematics_arguments'])
         if 'weight_info' not in systematics_arguments:
             mglog.info('Enforcing systematic weight name convention')
             dyn = None
@@ -2368,10 +2368,10 @@ def run_card_consistency_check(isNLO=False,process_dir='.'):
                     dyn = systematics_arguments.split(' dyn')[1]
                 dyn = dyn.replace('\'',' ').replace('=',' ').split()[0]
             if dyn is not None and len(dyn.split(','))>1:
-                systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES
+                systematics_arguments['weight_info']=MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO_ALTDYNSCALES
             else:
-                systematics_arguments['weight_info']=MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
-            modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)},skipBaseFragment=True)
+                systematics_arguments['weight_info']=MadGraphControl.MadGraphSystematicsUtils.SYSTEMATICS_WEIGHT_INFO
+            modify_run_card(process_dir=process_dir,settings={'systematics_arguments':MadGraphControl.MadGraphSystematicsUtils.write_systematics_arguments(systematics_arguments)},skipBaseFragment=True)
 
     if not isNLO:
         if 'python_seed' not in mydict:
@@ -2402,7 +2402,7 @@ def hack_gridpack_script():
 
     systematics_arguments=''
     if checkSettingExists('systematics_arguments',run_card_dict):
-        sys_dict=MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
+        sys_dict=MadGraphControl.MadGraphSystematicsUtils.parse_systematics_arguments(run_card_dict['systematics_arguments'])
         for s in sys_dict:
             systematics_arguments+=' --'+s+'='+sys_dict[s]
 
@@ -2470,4 +2470,4 @@ def ls_dir(directory):
     mglog.info( sorted( os.listdir( directory ) ) )
 
 # Final import of some code used in these functions
-import MadGraphSystematicsUtils
+import MadGraphControl.MadGraphSystematicsUtils
