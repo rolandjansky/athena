@@ -157,7 +157,8 @@ def get_PMG_updates(process_dir):
     for pid, settings in parameters['particles'].items():
         # dictionary key is the PID of a particle
         # settings is a dictionary with mass, width and name as keys
-        particle_name = settings['name']
+        # In case we need a name for debugging or other things, it's here
+        #particle_name = settings['name']
         if pid in particles_for_update:
             width = settings['width']
             mass = settings['mass']

@@ -287,7 +287,7 @@ def new_process(process='generate p p > t t~\noutput -f', keepJpegs=False, usePM
         do_PMG_updates(process_dir)
 
     # Make sure we store the resultant directory
-    MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+process_dir]
+    MADGRAPH_COMMAND_STACK += ['export MGaMC_PROCESS_DIR='+os.path.basename(process_dir)]
 
     return process_dir
 
@@ -683,7 +683,7 @@ def generate_from_gridpack(runArgs=None, extlhapath=None, gridpack_compile=None,
             generate = stack_subprocess([python,MADGRAPH_GRIDPACK_LOCATION+'/bin/generate_events','--parton','--only_generation','-f','--name='+gridpack_run_name],stdin=subprocess.PIPE,stderr=subprocess.PIPE if MADGRAPH_CATCH_ERRORS else None)
             (out,err) = generate.communicate()
             error_check(err)
-    if isNLO and not systematics_settings is None:
+    if isNLO and systematics_settings is not None:
         # run systematics
         mglog.info('Running systematics standalone')
         systematics_path=MADGRAPH_GRIDPACK_LOCATION+'/bin/internal/systematics.py'
@@ -1384,13 +1384,13 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
                     mglog.warning('Found bad LHE line with an XML mark in a comment: "'+newline.strip()+'"')
                     newline=newline[:newline.find('#')]+'#'+ (newline[newline.find('#'):].replace('>','-'))
                 # check for weightnames that should exist, simplify nominal weight names
-                if initrwgt==False:
+                if initrwgt is False:
                     pass
                 elif "</initrwgt>" in newline:
                     initrwgt=False
                 elif "<initrwgt>" in newline:
                     initrwgt=True
-                elif not initrwgt is None:
+                elif initrwgt is not None:
                     newline=newline.replace('_DYNSCALE-1','')
                     if '</weight>' in newline:
                         iend=newline.find('</weight>')
@@ -1407,7 +1407,7 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
     expected_weights+=get_expected_systematic_names(MADGRAPH_PDFSETTING)
     mglog.info("Checking whether the following expected weights are in LHE file: "+",".join(expected_weights))
     for w in expected_weights:
-        if not w in lhe_weights:
+        if w not in lhe_weights:
             raise RuntimeError("Did not find expected weight "+w+" in lhe file. Did the reweight or systematics module crash?")
     mglog.info("Found all required weights!")
     
@@ -1464,7 +1464,7 @@ def get_expected_reweight_names(reweight_card_loc):
     names=[]
     f_rw=open(reweight_card_loc)
     for line in f_rw:
-        if not 'launch' in line:
+        if 'launch' not in line:
             continue
         match=re.match(r'launch.*--rwgt_info\s*=\s*(\S+).*',line.strip())
         if len(match.groups())!=1:
@@ -1476,7 +1476,7 @@ def get_expected_reweight_names(reweight_card_loc):
 
 def get_expected_systematic_names(syst_setting):
     names=[]
-    if syst_setting is None or not 'central_pdf' in syst_setting:
+    if syst_setting is None or 'central_pdf' not in syst_setting:
         mglog.warning("Systematics have not been defined via base fragment or 'MADGRAPH_PDFSETTING', cannot check for expected weights")
         return []
     if 'pdf_variations' in syst_setting and isinstance(syst_setting['pdf_variations'],list):
@@ -1723,8 +1723,10 @@ def SUSY_Generation(runArgs = None, process=None,\
     # Add lifetimes to LHE before arranging output if requested
     if add_lifetimes_lhe :
         mglog.info('Requested addition of lifetimes to LHE files: doing so now.')
-        if is_gen_from_gridpack() : add_lifetimes()
-        else: add_lifetimes(process_dir=process_dir)
+        if is_gen_from_gridpack():
+            add_lifetimes()
+        else:
+            add_lifetimes(process_dir=process_dir)
 
     # Move output files into the appropriate place, with the appropriate name
     arrange_output(process_dir=process_dir,saveProcDir=keepOutput,runArgs=runArgs,fixEventWeightsForBridgeMode=fixEventWeightsForBridgeMode)
