@@ -78,7 +78,6 @@ StatusCode JSSTaggerBase::initialize() {
   }
 
   /// Initialize warning counters
-  m_nWarnKin = 0;
   m_nWarnVar = 0;
 
   /// Define common tagger states
@@ -326,20 +325,17 @@ StatusCode JSSTaggerBase::checkKinRange( const xAOD::Jet &jet, asg::AcceptData &
   /// Check each kinematic constraint
   /// Print warnings using counters
   if ( std::abs(jet.eta()) > m_jetEtaMax ) {
-    if ( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
     acceptData.setCutResult( "ValidEtaRange", false );
   }
 
   if ( jet.pt() < m_jetPtMin * scale ) {
-    if ( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeLow", false );
   }
 
   if ( jet.pt() > m_jetPtMax * scale ) {
-    if( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeHigh", false );
   }
 
