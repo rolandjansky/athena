@@ -1,10 +1,9 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthenaKernel/Units.h
  * @author scott snyder <snyder@bnl.gov>
@@ -43,42 +42,43 @@
 
 
 namespace Athena {
+namespace Units {
 
 
 /**
  * @brief Wrapper to avoid constant divisions when using units.
+ *        The Unit class defined here is a placeholder.
+ *        A specialization will be generated for each unit by the UNIT
+ *        macro below.  TAG is used to distinguish these specializations.
+ *
+ *        (We used to do this with a single, non-template, class,
+ *        but that didn't work with clang when -ffp-exception-behavior=maytrap
+ *        is used.)
  */
-class Unit
+template <int TAG> class Unit {};
+template <int TAG>
+constexpr double operator/ (double x, const Unit<TAG> u)
 {
-public:
-  constexpr Unit(double val) : m_val(val) {}
-  constexpr operator double() const { return m_val; }
-
-private:
-  double m_val;
-};
-
-
-constexpr double operator/ (double x, const Unit& u)
+  constexpr double recip = 1. / static_cast<double>(u);
+  return x * recip;
+}
+template <int TAG>
+constexpr float operator/ (float x, const Unit<TAG> u)
 {
-  return x * (1./static_cast<double>(u));
+  constexpr float recip = 1. / static_cast<float>(u);
+  return x * recip;
 }
 
 
-constexpr float operator/ (float x, const Unit& u)
-{
-  return x * (1./static_cast<float>(u));
-}
-
-
-namespace Units {
-
-
-// Would be nice to declare this constexpr, but can't in general
-// because the symbols from SystemOfUnits aren't constexpr.
-//
 // Include a selection of units from SystemOfUnits.h
-#define UNIT(NAME) /*constexpr*/ static const Unit NAME (Gaudi::Units::NAME)
+#define UNIT(NAME)                                                      \
+template <> class Unit<__LINE__>                                        \
+{                                                                       \
+public:                                                                 \
+  constexpr operator double() const { return Gaudi::Units::NAME; }      \
+};                                                                      \
+constexpr static const Unit<__LINE__> NAME
+
 UNIT (millimeter);
 UNIT (millimeter2);
 UNIT (millimeter3);
