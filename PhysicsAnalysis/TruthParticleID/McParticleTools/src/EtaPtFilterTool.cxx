@@ -12,8 +12,6 @@
 // STL includes
 #include <cmath>
 
-// FrameWork includes
-
 // CLHEP includes
 #include "TruthHelper/IsGenerator.h"
 #include "TruthHelper/IsGenStable.h"

@@ -60,7 +60,7 @@ GenEventGenParticleAssociationTool::reset (const HepMC::GenEvent& p)
 /**
  * @brief Return a pointer to the next element in the association.
  *
- * Return 0 when the association has been exhausted.
+ * Return null when the association has been exhausted.
  */
 const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
 {
@@ -75,11 +75,10 @@ const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
 
     int pdg_id = std::abs ((*m_it)->pdg_id());
     int status = (*m_it)->status();
-    int barcode = (*m_it)->barcode();
+    int barcode = HepMC::barcode(*m_it);
     
     // are we at parton/hadron level?
-    if ( status!=3 && pdg_id > PARTONPDGMAX && 
-	 !m_haveSeenAHadron ) {
+    if ( status!=3 && pdg_id > PARTONPDGMAX && !m_haveSeenAHadron ) {
       m_haveSeenAHadron = true;
       m_firstHadronBarcode = barcode;
     }
@@ -117,13 +116,13 @@ const HepMC::GenParticle* GenEventGenParticleAssociationTool::next()
     ++m_it;
     
     if (m_it == m_end)
-      return 0;
+      return nullptr;
   
   }
   
   // exit if we are at geant level and not supposed to write this out
-  if( out->barcode() > GEANTMIN && !m_doGeant )
-    return 0;
+  if( HepMC::barcode(out) > GEANTMIN && !m_doGeant )
+    return nullptr;
   
   return out;
 }
