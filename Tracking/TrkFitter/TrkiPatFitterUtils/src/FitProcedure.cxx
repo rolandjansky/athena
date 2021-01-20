@@ -60,9 +60,6 @@ FitProcedure::FitProcedure(bool constrainedAlignmentEffects,
   , m_minIter(0)
   , m_minPt(0.05 * Gaudi::Units::GeV)
   , m_rungeKuttaIntersector(rungeKuttaIntersector)
-  , m_scatteringConstant(13.6 *
-                         Gaudi::Units::MeV) // Coulomb scattering constant
-  , m_scatteringLogCoeff(0.038)
   , m_solenoidalIntersector(solenoidalIntersector)
   , m_straightLineIntersector(straightLineIntersector)
   , m_stepPropagator(stepPropagator)

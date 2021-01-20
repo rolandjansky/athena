@@ -179,8 +179,6 @@ private:
   int m_minIter;
   double m_minPt;
   ToolHandle<IIntersector>& m_rungeKuttaIntersector;
-  double m_scatteringConstant;
-  double m_scatteringLogCoeff;
   ToolHandle<IIntersector>& m_solenoidalIntersector;
   ToolHandle<IIntersector>& m_straightLineIntersector;
   const ToolHandle<IPropagator>& m_stepPropagator;
