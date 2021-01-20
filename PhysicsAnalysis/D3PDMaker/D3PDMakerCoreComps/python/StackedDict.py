@@ -89,6 +89,18 @@ class StackedDict (collections.Mapping):
         return
 
 
+    def has_key (self, k):
+        """Some code still uses this.
+        >>> d1 = {'a':'b'}
+        >>> d = StackedDict (d1)
+        >>> d.has_key ('a')
+        True
+        >>> d.has_key ('z')
+        False
+        """
+        return k in self
+
+
     def copy (self):
         d = {}
         for i in range(len(self.dicts)-1, -1, -1):
