@@ -18,9 +18,8 @@
 #include "JetUncertainties/JetUncertaintiesTool.h"
 
 // Boosted tagging includes
-//#include "BoostedJetTaggers/SmoothedTopTagger.h"
-//#include "BoostedJetTaggers/SmoothedWZTagger.h"
-//#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
+#include "BoostedJetTaggers/SmoothedWZTagger.h"
+#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 namespace top {
   BoostedTaggingCPTools::BoostedTaggingCPTools(const std::string& name) :
@@ -120,16 +119,18 @@ namespace top {
 
       top::check(std::find(taggersTypes.begin(), taggersTypes.end(),
                            taggerType) != taggersTypes.end(), "Error in BoostedTaggingCPTools: Unknown TAGGER_TYPE.");
-//      if (taggerType == "JSSWTopTaggerDNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
-//                                                                         JSSWTopTaggerDNN),
-//                                                       "Failed to make " + origName);
-//      else if (taggerType == "SmoothedWZTagger") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
-//                                                                              SmoothedWZTagger),
-//                                                            "Failed to make " + origName);
+      if (taggerType == "JSSWTopTaggerDNN") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
+                                                                         JSSWTopTaggerDNN),
+                                                       "Failed to make " + origName);
+      else if (taggerType == "SmoothedWZTagger") top::check(ASG_MAKE_ANA_TOOL(m_taggers[fullName],
+                                                                              SmoothedWZTagger),
+                                                            "Failed to make " + origName);
 
       m_taggers[fullName].setName(fullName);
       top::check(m_taggers[fullName].setProperty("ConfigFile",
                                                  taggersConfigs[origName]), "Failed to set ConfigFile for " + origName);
+      top::check(m_taggers[fullName].setProperty("ContainerName",
+                                                 m_config->sgKeyLargeRJets()), "Failed to set ContainerName " + origName);
       top::check(m_taggers[fullName].setProperty("CalibArea",
                                                  taggersCalibAreas[taggerType]),
                  "Failed to set CalibArea for " + origName);

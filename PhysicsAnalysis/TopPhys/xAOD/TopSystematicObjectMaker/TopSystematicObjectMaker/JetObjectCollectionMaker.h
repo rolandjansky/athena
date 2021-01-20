@@ -157,7 +157,7 @@ namespace top {
     StatusCode decorateBJets(xAOD::Jet& jet);
     StatusCode decorateHSJets();
     StatusCode decorateMatchedTruth();
-    StatusCode tagLargeRJet(const xAOD::Jet& jet);
+    StatusCode tagLargeRJet(const xAOD::JetContainer& jet);
     StatusCode tagNominalLargeRJets();
 
     ///-- Large R jet truth labeling --///

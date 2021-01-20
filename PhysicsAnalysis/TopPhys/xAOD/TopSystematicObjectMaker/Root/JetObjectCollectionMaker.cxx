@@ -758,23 +758,16 @@ namespace top {
     top::check(evtStore()->retrieve(xaod_calibrated_jets, m_config->sgKeyLargeRJets(
                                       m_nominalSystematicSet.hash())),
                "Failed to retrieve nominal calibrated large-R jets");
-    for (const xAOD::Jet* jet : *xaod_calibrated_jets) {
-      top::check(tagLargeRJet(*jet), "Failed to tag large-R jet");
-    }
+    
+    top::check(tagLargeRJet(*xaod_calibrated_jets), "Failed to tag large-R jet");
     return StatusCode::SUCCESS;
   }
 
-  StatusCode JetObjectCollectionMaker::tagLargeRJet(const xAOD::Jet& jet) {
+  StatusCode JetObjectCollectionMaker::tagLargeRJet(const xAOD::JetContainer& container) {
     //decorate with boosted-tagging flags
     for (const std::pair<std::string, std::string>& name : m_config->boostedJetTaggers()) {
-      std::string fullName = name.first + "_" + name.second;
-      // TODO: Rewrite this to use the new interface
-//      const Root::TAccept& result = m_boostedJetTaggers[fullName]->tag(jet);
-      // TAccept has bool operator overloaded, but let's be more explicit in the output to char
-//      jet.auxdecor<char>("isTagged_" + fullName) = (result ? 1 : 0);
-      jet.auxdecor<char>("isTagged_" + fullName) = 0;
-      // for users to extract more detailed tagging result information in custom event saver
-      //jet.auxdecor<unsigned long>("TAccept_bitmap_" + fullName) = result.getCutResultBitSet().to_ulong();
+      const std::string fullName = name.first + "_" + name.second;
+      top::check(m_boostedJetTaggers[fullName]->decorate(container), "Failed to decorate jets with booster tagger");
     }
     return StatusCode::SUCCESS;
   }

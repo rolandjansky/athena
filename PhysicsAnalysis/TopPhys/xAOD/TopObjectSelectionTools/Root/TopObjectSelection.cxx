@@ -20,7 +20,6 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "FourMomUtils/xAODP4Helpers.h"
-//#include "PATCore/TAccept.h"
 
 #include "TopParticleLevel/TruthTools.h"
 #include "xAODTruth/TruthParticle.h"

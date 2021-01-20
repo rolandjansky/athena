@@ -42,9 +42,6 @@
 #include "TopSystematicObjectMaker/ElectronInJetSubtractionCollectionMaker.h"
 
 // boosted-tagging includes
-//#include "BoostedJetTaggers/SmoothedTopTagger.h"
-//#include "BoostedJetTaggers/SmoothedWZTagger.h"
-//#include "BoostedJetTaggers/JSSWTopTaggerDNN.h"
 
 // b-tagging
 #include "FTagAnalysisInterfaces/IBTaggingSelectionTool.h"

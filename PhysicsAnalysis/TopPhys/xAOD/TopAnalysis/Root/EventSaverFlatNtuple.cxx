@@ -385,10 +385,9 @@ namespace top {
     }
 
     if (m_config->useLargeRJets()) {
-      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers())
+      for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) {
         m_boostedJetTaggersNames.push_back(taggerName.first + "_" + taggerName.second);
-      for (const auto& taggerSF : m_config->boostedTaggerSFnames())
-        m_boostedJetTaggersNamesCalibrated.push_back(taggerSF.first);
+      }
     }
 
     if (m_config->useJets()) {
@@ -1085,7 +1084,7 @@ namespace top {
 
         if (m_config->isMC()) {
           systematicTree->makeOutputVariable(m_ljet_truthLabel, "ljet_truthLabel");
-          for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated) {
+          for (const std::string& taggerName : m_boostedJetTaggersNames) {
             systematicTree->makeOutputVariable(m_ljet_tagSF[taggerName], "ljet_tagSF_" + taggerName);
           }
         }
@@ -3190,15 +3189,17 @@ namespace top {
       m_ljet_m.resize(nLargeRJets);
 
       for (const auto& it : m_config->largeRJetSubstructureVariables()) {
-	m_ljet_substructure[it.first].resize(nLargeRJets);
+        m_ljet_substructure[it.first].resize(nLargeRJets);
       }
 
-      for (const std::string& taggerName : m_boostedJetTaggersNames)
+      for (const std::string& taggerName : m_boostedJetTaggersNames) {
         m_ljet_isTagged[taggerName].resize(nLargeRJets);
+      }
       if (m_config->isMC()) {
         m_ljet_truthLabel.resize(nLargeRJets);
-        for (const std::string& taggerName : m_boostedJetTaggersNamesCalibrated)
+        for (const std::string& taggerName : m_boostedJetTaggersNames) {
           m_ljet_tagSF[taggerName].resize(nLargeRJets);
+        }
       }
 
       for (const auto* const jetPtr : event.m_largeJets) {
@@ -3208,21 +3209,24 @@ namespace top {
         m_ljet_e[i] = jetPtr->e();
         m_ljet_m[i] = jetPtr->m();
 
-	    for (const auto& it : m_config->largeRJetSubstructureVariables()) {
-	      m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
-	    }
-
-        for (const std::string& taggerName : m_boostedJetTaggersNames) {
-          m_ljet_isTagged[taggerName][i] = jetPtr->getAttribute<char>("isTagged_" + taggerName);
+        for (const auto& it : m_config->largeRJetSubstructureVariables()) {
+          m_ljet_substructure[it.first][i] = jetPtr->isAvailable<float>(it.second) ? jetPtr->auxdata<float>(it.second) : -999;
         }
 
-        if (m_config->isMC()) {
-          m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
-          for (const auto& tagSF : m_config->boostedTaggerSFnames()) {
-            m_ljet_tagSF[tagSF.first][i] = jetPtr->auxdata<float>(tagSF.second);
+        for (const std::pair<std::string, std::string>& taggerName : m_config->boostedJetTaggers()) {
+          const std::string decorationNameTag = taggerName.second+"_Tagged";
+          const std::string decorationNameSF = taggerName.second+"_SF";
+          const std::string tagger = taggerName.first+"_"+taggerName.second;
+          m_ljet_isTagged[tagger][i] = jetPtr->getAttribute<bool>(decorationNameTag);
+          if (m_config->isMC()) {
+            m_ljet_truthLabel[i] = jetPtr->auxdata<int>("R10TruthLabel_R21Consolidated");
+            if (jetPtr->isAvailable<float>(decorationNameSF)) {
+              m_ljet_tagSF[tagger][i] = jetPtr->auxdata<float>(decorationNameSF);
+            } else {
+              m_ljet_tagSF[tagger][i] = -9999;
+            }
           }
         }
-
         ++i;
       }
     }
