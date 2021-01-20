@@ -11,6 +11,9 @@ Created:     Feb 2014
 Description: Class for selecting jets that pass some cleaning cuts
 ******************************************************************************/
 
+#include "AsgDataHandles/ReadDecorHandle.h"
+#include "AsgDataHandles/WriteDecorHandle.h"
+
 // This class header and package headers
 #include "JetSelectorTools/JetCleaningTool.h"
 #include "JetSelectorTools/Helpers.h"
@@ -26,13 +29,10 @@ Description: Class for selecting jets that pass some cleaning cuts
 // ROOT includes
 #include "TEnv.h"
 
-
-
-
 //=============================================================================
 // Constructors
 //=============================================================================
-namespace JCT
+    namespace JCT
 {
 class HotCell : public asg::AsgMessaging
 {
@@ -409,6 +409,20 @@ asg::AcceptData JetCleaningTool::accept( const xAOD::Jet& jet) const
               NegativeE,
               AverageLArQF,
               FracSamplingMaxIndex);}
+}
+
+StatusCode JetCleaningTool::decorate(const xAOD::JetContainer &jets) const
+{
+    ATH_MSG_DEBUG(" Decorating jets with jet cleaning decoration : " << m_jetCleanDFName);
+
+    SG::WriteDecorHandle<xAOD::JetContainer, bool> cleanHandle(m_jetCleanDFName);
+
+    for (const xAOD::Jet *jet : jets) {
+        cleanHandle(*jet) = accept(*jet).getCutResult("Cleaning");
+    }
+
+    return StatusCode::SUCCESS;
+
 }
 
 /** Hot cell checks */

@@ -16,5 +16,10 @@ jetmoddict.update(
                                        AltConstitColls = [""],
                                        AltConstitScales = [0],
                                        AltJetScales = ["JetConstitScaleMomentum"]                                       
-                                       )
+                                       ),
+    Cleaning = JetModifier("JetCleaningTool","jetcleaning_{modspec}",
+                             # This allows to set the tool using a string like
+                             # "Cleaning:CLEAN_LEVEL" as defined in the jet cleaning too
+                             # (example "Cleaning:LooseBad")
+                             CutLevel=lambda _, modspec: int(modspec))
 )

@@ -186,6 +186,11 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     isPFlow = "pf" in jetRecoDict["dataType"]
     if doesTracking:
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
+    #Configuring jet cleaning mods now
+    if not isPFlow and jetRecoDict["cleaning"] != 'noCleaning': #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow now)
+        jetDef.modifiers.append("Cleaning:"+jetRecoDict["cleaning"])
+
+
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)
     copyCalibAlg = JetRecConfig.getJetCopyAlg(jetsin=jetsNoCalib,jetsoutdef=jetDef,decorations=decorList)
 
