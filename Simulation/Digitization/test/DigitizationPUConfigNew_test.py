@@ -94,7 +94,7 @@ ConfigFlags.LAr.ROD.DoOFCPileupOptimization = True
 ConfigFlags.LAr.ROD.FirstSample = 0
 ConfigFlags.LAr.ROD.UseHighestGainAutoCorr = True
 
-ConfigFlags.Digitization.Pileup = False
+ConfigFlags.Digitization.PileUp = False
 ConfigFlags.Digitization.DoDigiTruth = True
 ConfigFlags.Digitization.TruthOutput = True
 ConfigFlags.Digitization.RandomSeedOffset = 170
