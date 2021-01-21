@@ -1,0 +1,2 @@
+ToolSvc.TestFatrasPhotonConversionTool.ParticleBroker = "TestParticleBroker";
+ToolSvc.TestFatrasPhotonConversionTool.TruthRecordSvc = "TestTruthSvc";
