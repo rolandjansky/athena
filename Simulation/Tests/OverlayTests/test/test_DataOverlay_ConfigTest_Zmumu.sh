@@ -58,7 +58,7 @@ then
     --maxEvents $events \
     --conditionsTag CONDBR2-BLKPA-2016-12 \
     --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
-    --postExec 'with open("ConfigOverlay.pkl", "wb") as f: acc.store(f)' \
+    --postExec 'with open("ConfigOverlay.pkl", "wb") as f: cfg.store(f)' \
     --imf False \
     --athenaopts="--threads=1"
     rc2=$?

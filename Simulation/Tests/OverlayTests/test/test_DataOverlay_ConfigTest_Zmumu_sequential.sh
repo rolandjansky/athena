@@ -20,7 +20,7 @@ Overlay_tf.py \
 --maxEvents 10 \
 --conditionsTag CONDBR2-BLKPA-2016-12 \
 --postInclude 'OverlayConfiguration.OverlayTestHelpers.OverlayJobOptsDumperCfg' \
---postExec 'with open("ConfigOverlay.pkl", "wb") as f: acc.store(f)' \
+--postExec 'with open("ConfigOverlay.pkl", "wb") as f: cfg.store(f)' \
 --imf False
 
 rc=$?
