@@ -66,28 +66,42 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
 	AFP_TDCONFIGURATION tdcfg=m_CfgParams.tdcfg[eStation];
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
 
+    
+    double xComponent = -m_CfgParams.vecRPotFloorDistance[eStation];
+    double yComponent = m_CfgParams.vecRPotYPos[eStation];
+    
     switch(eStation)
     {
     case EAS_AFP00:
-        if(eElement==ESE_RPOT) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[0],m_CfgParams.vecRPotYPos[0],0.0);
-		else if(eElement==ESE_TOF) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[0],m_CfgParams.vecRPotYPos[0],0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot);
-		else if(eElement==ESE_SID) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[0],m_CfgParams.vecRPotYPos[0],0.0)*HepGeom::Translate3D(-sidcfg.vecXStaggering[nPlateID],0.0,-sidcfg.fZDistanceInRPot);
+        if(eElement==ESE_RPOT)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
+		else if(eElement==ESE_TOF)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot);
+		else if(eElement==ESE_SID)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,-sidcfg.fZDistanceInRPot);
         else {};
         break;
     case EAS_AFP01:
-        if(eElement==ESE_RPOT) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[1],m_CfgParams.vecRPotYPos[1],0.0);
-		else if(eElement==ESE_SID) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[1],m_CfgParams.vecRPotYPos[1],0.0)*HepGeom::TranslateX3D(-sidcfg.vecXStaggering[nPlateID]);
+        if(eElement==ESE_RPOT)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
+		else if(eElement==ESE_SID)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::TranslateX3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0);
         else {};
         break;
     case EAS_AFP02:
-        if(eElement==ESE_RPOT) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[2],m_CfgParams.vecRPotYPos[2],0.0)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-		else if(eElement==ESE_SID) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[2],m_CfgParams.vecRPotYPos[2],0.0)*HepGeom::TranslateX3D(-sidcfg.vecXStaggering[nPlateID])*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
+        if(eElement==ESE_RPOT)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
+		else if(eElement==ESE_SID)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent ,0.0)*HepGeom::TranslateX3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0);
         else {};
         break;
     case EAS_AFP03:
-        if(eElement==ESE_RPOT) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[3],m_CfgParams.vecRPotYPos[3],0.0)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-		else if(eElement==ESE_TOF) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[3],m_CfgParams.vecRPotYPos[3],0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
-		else if(eElement==ESE_SID) ReqTransform=HepGeom::Translate3D(-m_CfgParams.vecRPotFloorDistance[3],m_CfgParams.vecRPotYPos[3],0.0)*HepGeom::Translate3D(-sidcfg.vecXStaggering[nPlateID],0.0,sidcfg.fZDistanceInRPot)*HepGeom::Reflect3D(0.0,0.0,1.0,0.0);
+        if(eElement==ESE_RPOT)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
+		else if(eElement==ESE_TOF)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,-(tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot));
+		else if(eElement==ESE_SID)
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,sidcfg.fZDistanceInRPot/*-sidcfg.fZDistanceInRPot*/);
         break;
     default:
         break;
@@ -104,7 +118,8 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
     std::string Station=std::string(pszStationName);
 	eAFPStation eStation=parseStationName(pszStationName);
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
-	double falpha=sidcfg.fSlope;
+    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
+	double falpha = signFactor * sidcfg.fSlope;
 
 	HepGeom::Transform3D TotTransform;
 	HepGeom::Transform3D TransInMotherVolume=getStationElementTransform(pszStationName,ESE_SID,nPlateID);
@@ -112,18 +127,19 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 
 	//double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*cos(falpha)+SID_PLATETHICKNESS*sin(falpha)); double fzm=0.0;
 	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*cos(falpha); double fzm=0.0;
-	double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+	double fZCorrOffset=0;//(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
     HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm,+fzm-fZCorrOffset);
 
 	//staggering of sensor shift in its plane - correction to cosinus needed fo x-staggering to transform to staggering in LHC CS
 	HepGeom::Transform3D TransStaggering=HepGeom::Translate3D(sidcfg.vecXStaggering[nPlateID]*cos(falpha),sidcfg.vecYStaggering[nPlateID], 0.0*CLHEP::mm);
 	TotTransform=TransInMotherVolume*TransStaggering*NominalPosInPocket;
 
-	HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm,nPlateID*sidcfg.fLayerSpacing/cos(falpha))*HepGeom::RotateY3D(falpha);
+	HepGeom::Transform3D PlateTotTrans=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, signFactor *nPlateID*sidcfg.fLayerSpacing/cos(falpha))*HepGeom::RotateY3D(falpha);
 	HepGeom::Transform3D TransFEI4=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID],sidcfg.vecChipYPos[nPlateID],0.5*AfpConstants.SiT_Plate_Main_thickness+0.5*AfpConstants.SiT_Chip_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);;
-	HepGeom::Transform3D TransSID=PlateTotTrans*HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID],sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID],0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness)*HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
-	HepGeom::Transform3D TotTransSIDInWorld=TransMotherInWorld*TransSID;
-
+	HepGeom::Transform3D TransSID=TotTransform*HepGeom::Translate3D(fxm,0.0*CLHEP::mm, signFactor *nPlateID*sidcfg.fLayerSpacing/cos(falpha))*
+	HepGeom::Translate3D(sidcfg.vecChipXPos[nPlateID]+sidcfg.vecSensorXPos[nPlateID], sidcfg.vecChipYPos[nPlateID]+sidcfg.vecSensorYPos[nPlateID], signFactor * (0.5*AfpConstants.SiT_Plate_Main_thickness+AfpConstants.SiT_Chip_thickness+0.5*AfpConstants.SiT_Pixel_thickness))*HepGeom::RotateY3D(falpha) * HepGeom::RotateZ3D(sidcfg.vecChipRotAngle[nPlateID]);
+    HepGeom::Transform3D TotTransSIDInWorld=TransMotherInWorld*TransSID;
+    
 	switch(eType)
 	{
 	case ESTT_PLATE:

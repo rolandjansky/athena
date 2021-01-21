@@ -78,7 +78,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 
 	GeoTube* pSolTubus=new GeoTube(fRMin, fRMax, 0.5*fLength);
 	sprintf(szLabel,"%s_LogRPMainTubus",pszStationName);
-	GeoLogVol* pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel")]);
+	GeoLogVol* pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel_AFP")]);
 	sprintf(szLabel,"%s_RPMainTubus",pszStationName);
 	GeoFullPhysVol* pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
@@ -93,7 +93,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	sprintf(szLabel,"%s_LogRPMainTubusFloorPart",pszStationName);
 	pSolTubus=new GeoTube(fRMin, fRMax, 0.5*fLength);
 	sprintf(szLabel,"%s_LogRPMainTubusFloorPart",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel")]); //XXX
+	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel_AFP")]); //XXX
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPMainTubusFloorPart",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
@@ -109,7 +109,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	GeoTubs* pSolMass=new GeoTubs(fRMin,fRMax,0.5*fLength,fPhi,fDPhi);
 
 	sprintf(szLabel,"%s_LogRPMainTubusUMass",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolMass,m_MapMaterials[std::string("Steel")]); //XXX
+	pLogTubus=new GeoLogVol(szLabel,pSolMass,m_MapMaterials[std::string("Steel_AFP")]); //XXX
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_LogRPMainTubusUMass",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
@@ -124,7 +124,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	pSolMass=new GeoTubs(fRMin,fRMax,0.5*fLength,fSPhi,fDPhi);
 
 	sprintf(szLabel,"%s_LogRPMainTubusLMass",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolMass,m_MapMaterials[std::string("Steel")]); //XXX
+	pLogTubus=new GeoLogVol(szLabel,pSolMass,m_MapMaterials[std::string("Steel_AFP")]); //XXX
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_LogRPMainTubusLMass",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
@@ -179,8 +179,8 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 
 	//-------------- old stuff
 	//        GeoLogVol* pLogTubus=NULL; GeoFullPhysVol* pPhysTubus=NULL;
-	//        if(m_CfgParams.bVP1Mode) pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel")]);
-	//        else  pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel")]);
+	//        if(m_CfgParams.bVP1Mode) pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel_AFP")]);
+	//        else  pLogTubus=new GeoLogVol(szLabel,pSolCut3,m_MapMaterials[std::string("Steel_AFP")]);
 	//        pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	//        pPhysMotherVol->add(new GeoNameTag(szLabel));
 	//        pPhysMotherVol->add(new GeoTransform(TransRPot*HepGeom::RotateY3D(90*CLHEP::deg)*TransCutTubus));
@@ -205,7 +205,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 	GeoShapeSubtraction* pSolFloor=new GeoShapeSubtraction(pSolTubus, pMoveCut);
 
 	sprintf(szLabel,"%s_LogRPFloorTubus",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolFloor,m_MapMaterials[std::string("Beryllium")]);
+	pLogTubus=new GeoLogVol(szLabel,pSolFloor,m_MapMaterials[std::string("Beryllium_AFP")]);
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPFloorTubus",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
@@ -219,7 +219,7 @@ void AFP_GeoModelFactory::addRomanPot(GeoPhysVol* pPhysMotherVol, const char* ps
 
 	pSolTubus=new GeoTube(fRMin, fRMax, 0.5*fLength);
 	sprintf(szLabel,"%s_LogRPFlangeTubus",pszStationName);
-	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel")]);
+	pLogTubus=new GeoLogVol(szLabel,pSolTubus,m_MapMaterials[std::string("Steel_AFP")]);
 	pPhysTubus=new GeoFullPhysVol(pLogTubus);
 	sprintf(szLabel,"%s_RPFlangeTubus",pszStationName);
 	pPhysMotherVol->add(new GeoNameTag(szLabel));

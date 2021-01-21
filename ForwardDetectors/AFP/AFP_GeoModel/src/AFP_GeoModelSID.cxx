@@ -46,7 +46,7 @@ void AFP_GeoModelFactory::addSiDetector(GeoPhysVol* pPhysMotherVol, const char* 
 	AFP_CONSTANTS AfpConstants;
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
 	AFP_SIDCONFIGURATION sidcfg=m_CfgParams.sidcfg[eStation];
-
+    
 	//create (constant) solids
 	GeoShape* pSolidSIDPlate=createSolidSIDPlate();
 	GeoShape* pSolidSIDSensor=new GeoBox(0.5*AfpConstants.SiT_Pixel_length_totx,0.5*AfpConstants.SiT_Pixel_length_toty,0.5*AfpConstants.SiT_Pixel_thickness);
@@ -61,7 +61,8 @@ void AFP_GeoModelFactory::addSiDetector(GeoPhysVol* pPhysMotherVol, const char* 
 	pPhysMotherVol->add(new GeoNameTag(szLabel));
 	pPhysMotherVol->add(new GeoTransform(m_pGeometry->getSIDTransform(ESTT_VACUUMSENSOR,pszStationName,nSpecVacSensorID)));
 	pPhysMotherVol->add(pPhysSIDVacuumSensor);
-
+    
+    
 	for(int i=0;i<m_pGeometry->getSIDPlatesCnt(eStation);i++)
 	{
 		// create SID plate
