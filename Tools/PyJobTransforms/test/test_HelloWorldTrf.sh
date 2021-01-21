@@ -2,9 +2,6 @@
 
 set -e
 
-mkdir -p test_HelloWorldTrf
-cd test_HelloWorldTrf
-
 # ST test
 HelloWorld_tf.py --maxEvents=5 --CA 
 
