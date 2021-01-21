@@ -14,6 +14,7 @@ atlas_add_library( TopCPTools Root/*.cxx Root/*.h Root/*.icc
                    LINK_LIBRARIES AsgAnalysisInterfaces
                                   AsgTools
                                   AssociationUtilsLib
+                                  BoostedJetTaggersLib
                                   EgammaAnalysisInterfacesLib
                                   FTagAnalysisInterfacesLib
                                   InDetTrackSelectionToolLib
