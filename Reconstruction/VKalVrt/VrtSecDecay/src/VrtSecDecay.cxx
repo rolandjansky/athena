@@ -114,6 +114,14 @@ StatusCode VKalVrtAthena::VrtSecDecay::doTrackParticleMethod()
   const xAOD::VertexContainer* primVertex   = nullptr;
   ATH_CHECK( evtStore()->retrieve( primVertex, "PrimaryVertices" ) );
 
+
+  //
+  // ----- Output vertex containers -------
+  //
+  auto vtxContainer      = std::make_unique<xAOD::VertexContainer>();
+  auto vtxContainerAux   = std::make_unique<xAOD::VertexAuxContainer>();
+  vtxContainer->setStore( vtxContainerAux.get() );
+
   const xAOD::Vertex* pV = nullptr;
   for( const auto& vx : *primVertex ) {
     if(vx->vertexType() == xAOD::VxType::PriVtx){
@@ -123,7 +131,10 @@ StatusCode VKalVrtAthena::VrtSecDecay::doTrackParticleMethod()
   }
 
   // Event doesn't have a PV
+  // Write empty containers
   if( !pV ){
+    ATH_CHECK( evtStore()->record(std::move(vtxContainer), m_outputVtxContainer) );
+    ATH_CHECK( evtStore()->record(std::move(vtxContainerAux), m_outputVtxContainer+"Aux.") );
     return StatusCode::SUCCESS;
   }
   
@@ -138,13 +149,6 @@ StatusCode VKalVrtAthena::VrtSecDecay::doTrackParticleMethod()
   //
   std::vector<const xAOD::TrackParticle*> twoTrkVtx_tracks; 
   std::vector<const xAOD::TrackParticle*> multiTrkVtx_tracks;
-
-  // 
-  // ----- Output vertex containers -------
-  ///
-  auto vtxContainer      = std::make_unique<xAOD::VertexContainer>();
-  auto vtxContainerAux   = std::make_unique<xAOD::VertexAuxContainer>();
-  vtxContainer->setStore( vtxContainerAux.get() );
 
   //
   std::vector<VtxObj> initialVertices;

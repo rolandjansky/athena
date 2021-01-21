@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #********************************************************************
 # JetCommon.py
@@ -533,6 +533,37 @@ def addDistanceInTrain(sequence=DerivationFrameworkJob):
 if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
     addDistanceInTrain(DerivationFrameworkJob)
 ##################################################################
+
+##################################################################
+# Helper to manually schedule PFO constituent modifications
+# Only use this while the automatic addition in JetAlgorithm.py
+# is disabled
+##################################################################
+def addCHSPFlowObjects():
+    # Only act if the collection does not already exist
+    from RecExConfig.AutoConfiguration import IsInInputFile
+    if not IsInInputFile("xAOD::PFOContainer","CHSParticleFlowObjects"):
+        # Check that an alg doing this has not already been inserted
+        from AthenaCommon.AlgSequence import AlgSequence
+        job = AlgSequence()
+        from JetRec.JetRecStandard import jtm
+        if not hasattr(job,"jetalgCHSPFlow") and not hasattr(jtm,"jetconstitCHSPFlow"):
+            from JetRec.JetRecConf import JetToolRunner
+            jtm += JetToolRunner("jetconstitCHSPFlow",
+                                 EventShapeTools=[],
+                                 Tools=[jtm.JetConstitSeq_PFlowCHS])
+            # Add this tool runner to the JetAlgorithm instance "jetalg"
+            # which runs all preparatory tools
+            # This was added by JetCommon
+            job.jetalg.Tools.append(jtm.jetconstitCHSPFlow)
+            dfjetlog.info("Added CHS PFlow sequence to \'jetalg\'")
+            dfjetlog.info(job.jetalg.Tools)
+
+# If we are not running on EVNT then add PFlow Rho for precision recommendations
+if not objKeyStore.isInInput( "McEventCollection", "GEN_EVENT" ):
+    addCHSPFlowObjects()
+    DerivationFrameworkJob += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
+
 
 ##################################################################
 #       Set up helpers for adding jets to the output streams

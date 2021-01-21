@@ -185,10 +185,8 @@ if DerivationFrameworkHasTruth:
   addBottomUpSoftDropJets('AntiKt', 1.0, 'Truth', beta=1.0, zcut=0.05, mods="truth_groomed", algseq=jetm3Seq, outputGroup="JETM3", writeUngroomed=False)
 
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
-from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm3Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #=======================================
 # SCHEDULE SMALL-R JETS WITH LOW PT CUT
@@ -253,10 +251,6 @@ getCustomJvt(jetalg='AntiKt4EMPFlow',sequence=jetm3Seq, algname='JetCustomJvtToo
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM3SlimmingHelper = SlimmingHelper("JETM3SlimmingHelper")
-JETM3SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
-}
 
 JETM3SlimmingHelper.SmartCollections = ["Electrons", "Photons", "Muons", "TauJets",
                                         "InDetTrackParticles", "PrimaryVertices",

@@ -377,20 +377,14 @@ if DerivationFrameworkHasTruth:
   import DerivationFrameworkCore.LHE3WeightMetadata
 
 # Alternative rho definition
-from DerivationFrameworkJetEtMiss.ExtendedJetCommon import addCHSPFlowObjects
+from DerivationFrameworkJetEtMiss.JetCommon import addCHSPFlowObjects
 addCHSPFlowObjects()
-from DerivationFrameworkJetEtMiss.JetCommon import defineEDAlg
-jetm6Seq += defineEDAlg(R=0.4, inputtype="EMPFlowPUSB")
 
 #====================================================================
 # Add the containers to the output stream - slimming done here
 #====================================================================
 from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 JETM6SlimmingHelper = SlimmingHelper("JETM6SlimmingHelper")
-JETM6SlimmingHelper.AppendToDictionary = {
-    "Kt4EMPFlowPUSBEventShape": "xAOD::EventShape"    ,
-    "Kt4EMPFlowPUSBEventShapeAux": "xAOD::AuxInfoBase"    ,
-}
 
 JETM6SlimmingHelper.SmartCollections = ["Electrons",
                                         "Photons",

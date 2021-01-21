@@ -99,7 +99,7 @@ PHYSVALSlimmingHelper.AllVariables = [ "Electrons", "ForwardElectrons", "Photons
                                        "AntiKt4PV0TrackJets", "AntiKt4TruthJets",
                                        "AntiKt4EMTopoLowPtJets","AntiKt4LCTopoLowPtJets","AntiKt4EMPFlowLowPtJets",
                                        "JetETMissNeutralParticleFlowObjects", "JetETMissChargedParticleFlowObjects",
-                                       "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape",
+                                       "Kt4EMPFlowEventShape","Kt4LCTopoOriginEventShape","Kt4EMTopoOriginEventShape","Kt4EMPFlowPUSBEventShape",
                                        "LCOriginTopoClusters","EMOriginTopoClusters","CaloCalTopoClusters",
                                        "BTagging_AntiKt4EMTopoJFVtx",
                                        "BTagging_AntiKt4EMTopo",

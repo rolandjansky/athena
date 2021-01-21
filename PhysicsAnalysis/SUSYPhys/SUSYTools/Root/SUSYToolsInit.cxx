@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SUSYTools/SUSYObjDef_xAOD.h"
@@ -1862,6 +1862,11 @@ StatusCode SUSYObjDef_xAOD::SUSYToolsInit()
     // tools and disable the pointer safety checks
     ATH_CHECK( m_orToolbox.masterTool.setProperty("RequireExpectedPointers", false) );
     ATH_CHECK( m_orToolbox.masterTool.setProperty("OutputLevel", this->msg().level()) );
+
+    // If using p-flow jets, set the debug error message for the specific p-flow jet removal (to be used in addition to the standard muon-jet OR)
+    if (m_jetInputType == xAOD::JetInput::EMPFlow){
+      ATH_CHECK( m_orToolbox.muPFJetORT.setProperty("OutputLevel", this->msg().level()) );
+    }
 
     // Override boosted OR sliding cone options
     ATH_CHECK( m_orToolbox.eleJetORT.setProperty("UseSlidingDR", m_orDoBoostedElectron) );

@@ -299,7 +299,7 @@ JETM8SlimmingHelper.AllVariables = ["CaloCalTopoClusters",
                                     "TrackCaloClustersCombinedAndNeutral",
                                     "UFOCSSK",
                                     "TruthParticles",
-                                    "Kt4EMPFlowEventShape"]
+                                    "Kt4EMPFlowEventShape","Kt4EMPFlowPUSBEventShape"]
 
 JETM8SlimmingHelper.AppendToDictionary["UFOCSSK"] = "xAOD::TrackCaloClusterContainer"
 JETM8SlimmingHelper.AppendToDictionary["UFOCSSKAux"] = "xAOD::TrackCaloClusterAuxContainer"
