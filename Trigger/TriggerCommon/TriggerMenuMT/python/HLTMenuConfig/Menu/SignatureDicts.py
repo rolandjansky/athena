@@ -664,7 +664,7 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'hltpassthrough', 'jettauetmiss', 'larcells', 
+                        'jettauetmiss', 'larcells', 
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
     'trigType'       : 'streamer', 
@@ -683,7 +683,7 @@ StreamingChainParts_Default = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : 'hltpassthrough',
+    'streamingInfo'  : '',
     'trigType'       : '', 
     'extra'          : '',
     'streamType'     : '',
@@ -719,7 +719,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun','bs',''],
+    'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
     }
