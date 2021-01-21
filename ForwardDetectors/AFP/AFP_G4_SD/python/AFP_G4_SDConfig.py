@@ -15,6 +15,8 @@ def getAFP_SensitiveDetector(name="AFP_SensitiveDetector", **kwargs):
         for Q in range(1,2):
             for num in range(11,45):
                 volumeList += ["AFP::AFP0"+str(det)+"_Q"+str(Q)+"_LogTDSensor["+str(num)+"]"]
+                volumeList += ["AFP::AFP0"+str(det)+"_Q"+str(Q)+"_LogRadiator["+str(num)+"]"]
+                volumeList += ["AFP::AFP0"+str(det)+"_Q"+str(Q)+"_LGuide["+str(num)+"]"]
 #    for Q in range(1):
 #        for num in range(31):
 #            volumeList += ["AFP::AFP::AFP03_Q"+str(Q)+"_LogTDSensor["+str(num)+"]_refl"]

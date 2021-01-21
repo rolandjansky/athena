@@ -144,7 +144,7 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
     if(verboseLevel>5)
     {
       G4cout << "hit volume name is " << VolumeName << G4endl;
-
+      G4cout << "particle code is " << nParticleEncoding << "kinetic energy " << fKineticEnergy << G4endl;
       G4cout << "global, x_pre:  " << fPreStepX  << ", y_pre:  " << fPreStepY  << ", z_pre:  " << fPreStepZ << G4endl;
       G4cout << "global, x_post: " << fPostStepX << ", y_post: " << fPostStepY << ", z_post: " << fPostStepZ << G4endl;
     }
@@ -205,10 +205,9 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
     }
   */
 
-  if ( (VolumeName.contains("TDQuarticBarVacBorder")) && pParticleDefinition->GetPDGCharge() !=0 )
+  if ( (VolumeName.contains("Radiator")) && pParticleDefinition->GetPDGCharge() !=0 )
     {
       nQuarticID=szbuff[7]-0x30;
-      /*
       m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
                                      fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
                                      fPostStepZ,fGlobalTime,nStationID,nDetectorID,(2+2*nQuarticID));//Q1: 1-2, Q2: 3-4
@@ -216,7 +215,6 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       //                                fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
       //                                fPostStepZ,fGlobalTime,nStationID,nDetectorID,((bRes? 2:1)+2*nQuarticID));//Q1: 1-2, Q2: 3-4
       m_nNumberOfTDSimHits++;
-      */
     }
 
   //////////////// Fast Cherenkov ///////////////////
