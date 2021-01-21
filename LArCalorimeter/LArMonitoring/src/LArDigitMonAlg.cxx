@@ -184,6 +184,7 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
   unsigned thisLBN = thisEvent->lumiBlock();
     
   LBN=thisLBN;
+  fill(m_summaryMonGroupName,LBN);
 
   const std::vector<unsigned> streamsThisEvent=LArMon::trigStreamMatching(m_streams,thisEvent->streamTags());
   
@@ -349,7 +350,6 @@ StatusCode LArDigitMonAlg::fillHistograms(const EventContext& ctx) const
       /** fill histo out of range:*/
       if(!(thismaxPos>=m_SampleRangeLow&&thismaxPos<=m_SampleRangeUp)){
          sumbin=0;
-         fill(m_summaryMonGroupName, sumbin, partition); 
          slot_o = thisSlot;
          ft_o = feedthrough;
          weight_o=100./128;
