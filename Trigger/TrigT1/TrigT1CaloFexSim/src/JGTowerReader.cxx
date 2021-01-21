@@ -93,7 +93,7 @@ histSvc("THistSvc",name){
   declareProperty("plotSeeds", m_plotSeeds = false);
   declareProperty("saveSeeds", m_saveSeeds = false);
 
-  declareProperty("buildgBlockJets", m_buildgBlockJets=false);
+  declareProperty("buildgBlockJets", m_buildgBlockJets=true);
 
   declareProperty("gJet_r", m_gJet_r=1.0);
   declareProperty("gJet_block_tower_noise_multiplier", m_gJet_block_tower_noise_multiplier = 0.0);
@@ -105,7 +105,7 @@ histSvc("THistSvc",name){
   declareProperty("useMedian", m_useMedian=false);
   declareProperty("gFEX_useNegTowers", m_gFEX_useNegTowers=true);
   declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true);
-  declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=true); 
+  declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
   declareProperty("gXERHOLUT_file", m_gXERHOLUT_file="Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20210105.MiddleTrainNoNoiseCut.r11881.root");
 
@@ -722,8 +722,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, false, m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT_offline",rhoA,rhoB,rhoC,m_gXERHOLUT_file, true, m_gFEX_useNegTowers) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, /*bool correctMean*/false, m_gFEX_useNegTowers) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_MeanLUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, /*bool correctMean*/true, m_gFEX_useNegTowers) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
