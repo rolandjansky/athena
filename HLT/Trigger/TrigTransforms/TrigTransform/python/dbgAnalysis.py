@@ -10,12 +10,13 @@
 from __future__ import print_function
 
 import os
-import sys
 import re
 import eformat
 from TrigTransform.dbgEventInfo import dbgEventInfo
 from TrigConfStorage.TriggerCoolUtil import TriggerCoolUtil
-from PyCool import cool
+from TrigConfIO.L1TriggerConfigAccess import L1MenuAccess
+from TrigConfIO.HLTTriggerConfigAccess import HLTMenuAccess
+
 from ROOT import TFile
 
 import logging
@@ -36,21 +37,21 @@ def dbgPreRun(inputFileList, outputFileList):
     l1Info = []
     hltInfo = []
     relInfo = []
+    configKeys = None
     for inputFile in inputFileList.value:
         bsfile = eformat.istream(inputFile)
         n = 0
         isFirstEvent = True
 
         for event in bsfile:
-            # If first event get l1 and hlt counter and chain info from DB or XML file
             if isFirstEvent:
-                runInfo = 0
-                if event.run_no() == 0:
-                    runInfo = int(inputFile.split(".")[1])
-                else:
-                    runInfo = event.run_no()
-                l1Info, hltInfo, relInfo = TriggerDBInfo(runInfo)
+                runNumber = event.run_no() if event.run_no() else int(inputFile.split(".")[1])
+                configKeys = getHLTConfigKeys(runNumber)
+                relInfo = [configKeys['REL'], configKeys['ATL']]
+                l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
                 isFirstEvent = False
+
+            # Log the details of first 5 events
             n += 1
             # Log the details of first 5 events
             if n < 5:
@@ -61,6 +62,7 @@ def dbgPreRun(inputFileList, outputFileList):
             # Run debug event analysis and fill output TTree
             eventInfo.eventCount(event)
             eventInfo.eventInfo(event, l1Info, hltInfo)
+            eventInfo.eventConfig(configKeys)
             eventInfo.fillTree()
 
     # Close output TFile
@@ -92,6 +94,7 @@ def dbgPostRun(inputFileList, outputFileList):
     data = []
     l1Info = []
     hltInfo = []
+    configKeys = None
     for inputFile in inputFileList.value:
         if not os.path.isfile(inputFile):
             msg.error('No BS file created with file name :{0} '.format(inputFileList))
@@ -102,10 +105,13 @@ def dbgPostRun(inputFileList, outputFileList):
         isFirstEvent = True
 
         for event in bsfile:
-            # If fist event get l1 and hlt counter and chain info from DB or XML file
+            # If fist event get l1 and hlt counter and chain info from DB
             if isFirstEvent:
-                l1Info, hltInfo, _ = TriggerDBInfo(event.run_no())
+                configKeys = getHLTConfigKeys(event.run_no())
+                l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
                 isFirstEvent = False
+
+            # Log the details of first 5 events
             n += 1
 
             # Log the details of first 5 events
@@ -117,6 +123,7 @@ def dbgPostRun(inputFileList, outputFileList):
             # Run debug event analysis and fill output TTree
             eventInfo.eventCount(event)
             eventInfo.eventInfo(event, l1Info, hltInfo)
+            eventInfo.eventConfig(configKeys)
             eventInfo.fillTree()
 
     # Close output TFile
@@ -125,126 +132,40 @@ def dbgPostRun(inputFileList, outputFileList):
     msg.info('Finished running debug_stream analysis PostRun operations')
 
 
-def TriggerDBInfo(runNumber):
-    # Get the connection to CONDBR2
-    dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
-    #dbconn  = TriggerCoolUtil.GetConnection("COMP")
-    limMin = runNumber << 32
-    limMax = (runNumber+1) << 32
-
-    # Get L1 Info from DB
-    l1Conn = dbconn.getFolder('/TRIGGER/LVL1/Menu')
-    chanSel = cool.ChannelSelection.all()
-    objs = l1Conn.browseObjects(limMin, limMax, chanSel)
+def TriggerDBInfo(dbalias = None, smk = None):
     l1Info = []
-    itemNames = {}
-    while objs.goToNext():
-        l1Obj = objs.currentRef()
-        l1TriggerItem = l1Obj.channelId()
-        l1Payload = l1Obj.payload()
-        itemNames[l1TriggerItem] = l1Payload['ItemName']
-
-    # Insert into map a pair for every l1 count and fill with item names if available
-    l1Info = (max(itemNames.keys()) + 1) * [0]
-
-    for triggerItem in itemNames:
-        l1Info[triggerItem] = itemNames[triggerItem]
-
-    # TODO revisit and remove the hack: left for standalone testing purposes
-    # L1 Info from DB failed, now try from XML file
-    if len(l1Info) == 1 and l1Info[0] == 0:
-        msg.info('Failed to get L1Info from DB now trying using xml file hack')
-        l1Info = getL1InfoXML()
-
-    # Get HLT Info
-    hltConn = dbconn.getFolder('/TRIGGER/HLT/Menu')
-    chanSel = cool.ChannelSelection.all()
-    objs = hltConn.browseObjects(limMin, limMax, chanSel)
     hltInfo = []
-    chainNames = {}
-    while objs.goToNext():
-        hltObj = objs.currentRef()
-        hltPayload = hltObj.payload()
-        hltCounter = hltPayload['ChainCounter']
-        chainNames[int(hltCounter)] = hltPayload['ChainName']
 
-    hltInfo = (max(chainNames.keys()) + 1) * [0]
+    # L1 DB Info
+    l1Cfg = L1MenuAccess(dbalias = dbalias, smkey = smk)
 
-    for chainCounter in chainNames:
-        hltInfo[chainCounter] = chainNames[chainCounter]
+    # Create map id to item and then fill the array
+    #   that on i spot has item with i ctpid
+    l1Items = l1Cfg.items()
+    l1ItemsMap = {}
+    for item in l1Items:
+        ctpid = l1Items[item]['ctpid']
+        l1ItemsMap[ctpid] = item
 
-    # Get Atlas Project and HLT Release number
-    hltConn = dbconn.getFolder('/TRIGGER/HLT/HltConfigKeys')
-    chanSel = cool.ChannelSelection.all()
-    objs = hltConn.browseObjects(limMin, limMax, chanSel)
-    relInfo = 'unknown'
+    l1Info = (max(l1ItemsMap.keys()) + 1) * [0]
 
-    while objs.goToNext():
-        relObj = objs.currentRef()
-        relPayload = relObj.payload()
-        confsrc = relPayload['ConfigSource'].split(',')
+    for item in l1ItemsMap:
+        l1Info[item] = l1ItemsMap[item]
 
-        if len(confsrc) > 2:
-            # Skip database name
-            relInfo = confsrc[1:]
+    # HLT DB Info
+    hltCfg = HLTMenuAccess(dbalias = dbalias, smkey = smk)
+    hltChains = hltCfg.chains()
+    hltChainsMap = {}
+    for chain in hltChains:
+        counter = hltChains[chain]['counter']
+        hltChainsMap[counter] = chain
 
-        msg.info('Found release: %s', relInfo)
+    hltInfo = (max(hltChainsMap.keys()) + 1) * [0]
 
-    return (l1Info, hltInfo, relInfo)
+    for chain in hltChainsMap:
+        hltInfo[chain] = hltChainsMap[chain]
 
-
-# will be removed
-def getL1InfoXML():
-    # Try to find env var $AtlasPatchArea, then opens LVL1config xml file to extract L1 info
-    AtlasPatchArea = str()
-    eVar = 'AtlasPatchArea'
-    if eVar in os.environ:
-        AtlasPatchArea = os.environ[eVar].rstrip()
-    else:
-        msg.error('failed to find env variable: %s', eVar)
-
-    lvl1XML = AtlasPatchArea + '/InstallArea/XML/TriggerMenuXML/LVL1config_Physics_pp_v6.xml'
-
-    l1Info = []
-    ctpNames = {}
-    l1Counts = 0
-    file = open(lvl1XML, 'r')
-    if not file:
-        msg.info('failed to open: {0}'.format(lvl1XML))
-        sys.exit(1)
-
-    # dirty hack to read ctpid->name mapping
-    for line in file.readlines():
-        if line.find('<TriggerItem') != -1:
-            ctpid = -1
-            name = 'UNKNOWN'
-
-            for item in line.split(' '):
-                if item.find('ctpid') == 0:
-                    ctpid = item.split('"')[1]
-                if item.find('name') == 0:
-                    name = item.split('"')[1]
-
-            if ctpid == -1 or name == 'UNKNOWN':
-                msg.error('Could not decode: %s', line)
-            else:
-                ctpNames[int(ctpid)] = name
-
-            if int(ctpid) > l1Counts:
-                l1Counts = int(ctpid)
-
-    file.close()
-
-    for i in range(l1Counts + 1):
-        l1Info.insert(i, 0)
-
-    for c in ctpNames:
-        name = ctpNames[c]
-        l1Info.pop(c)
-        l1Info.insert(c, name)
-        msg.debug("CTP counter: {0} chain: {1}".format(c, name))
-
-    return l1Info
+    return (l1Info, hltInfo)
 
 
 def getAsetupString(release, AtlasProject):
@@ -271,3 +192,20 @@ def getAsetupString(release, AtlasProject):
         asetupString += ' --testarea ' + TestArea
 
     return asetupString
+
+
+def getHLTConfigKeys(runNumber = None):
+    dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
+    configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
+    configKeys = configKeys[runNumber]
+
+    # Split db info into dbalias and atlas project,
+    #  for example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
+    dbInfo = configKeys['DB'].split(';')
+
+    configKeys['DB'] = dbInfo[0]
+    configKeys['ATL'] = dbInfo[2]
+
+    msg.info("Found config keys %s", configKeys)
+
+    return configKeys
