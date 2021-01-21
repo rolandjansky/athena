@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHITTOOL_H
@@ -39,7 +39,6 @@ static const InterfaceID IID_MuPatHitTool("Muon::MuPatHitTool", 1, 0);
 class MuPatHitTool : public AthAlgTool {
   public:
     using HitGarbage = std::vector<std::unique_ptr<MuPatHit> >;
-    using ParGarbage = std::vector<std::unique_ptr<const Trk::TrackParameters> >;
 
     /** default AlgTool constructor */
     MuPatHitTool(const std::string&, const std::string&, const IInterface*);
@@ -72,8 +71,7 @@ class MuPatHitTool : public AthAlgTool {
         @return true if creation succeded
     */
     bool create(const MuonSegment& seg, MuPatHitList& hitList,
-                HitGarbage& hitsToBeDeleted,
-                ParGarbage& parsToBeDeleted) const;
+                HitGarbage& hitsToBeDeleted) const;
 
     /** @brief create a MuPatHitList from a Track
         @param track the input track
@@ -91,8 +89,7 @@ class MuPatHitTool : public AthAlgTool {
     */
     bool create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
                 MuPatHitList& hitList,
-                HitGarbage& hitsToBeDeleted,
-                ParGarbage& parsToBeDeleted) const;
+                HitGarbage& hitsToBeDeleted) const;
 
     /** @brief merge two MuPatHitLists into a new one
         @param hitList1 the first  list
@@ -100,16 +97,14 @@ class MuPatHitTool : public AthAlgTool {
         @param outList  the resulting list
         @return true if merge succeded
     */
-    bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList,
-               ParGarbage& parsToBeDeleted) const;
+    bool merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const;
 
     /** @brief merge two MuPatHitLists into a new one. The first list will be added to the second
         @param hitList1 the first  list
         @param hitList2 the second list
         @return true if merge succeded
     */
-    bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2,
-               ParGarbage& parsToBeDeleted) const;
+    bool merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const;
 
     /** @brief extract a sorted vector of MeasurementBase objects
         @param hitList the input  list
@@ -163,8 +158,9 @@ class MuPatHitTool : public AthAlgTool {
     void getHitInfo(const Trk::MeasurementBase& meas, MuPatHit::Info& hitInfo) const;
 
     /** @brief calculate broad measurement for a give precise measurement */
-    const Trk::MeasurementBase* createBroadMeasurement(const Trk::MeasurementBase& preciseMeas,
-                                                       const MuPatHit::Info&       hitInfo) const;
+    std::unique_ptr<const Trk::MeasurementBase>
+    createBroadMeasurement(const Trk::MeasurementBase& preciseMeas,
+                           const MuPatHit::Info&       hitInfo) const;
 
     /** @brief insert a hit into a sorted list
         @param  list the list into which the hit should be inserted

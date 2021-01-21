@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHit.h"
@@ -20,9 +20,11 @@ namespace Muon {
   // Static functions
 
   // member functions
-  MuPatHit::MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas,
-        const Info& info ) :
-    m_pars(pars),m_precisionMeas(presMeas),m_broadMeas(broadMeas),m_info(info)
+  MuPatHit::MuPatHit( std::shared_ptr<const Trk::TrackParameters> pars,
+                      const Trk::MeasurementBase* presMeas,
+                      std::unique_ptr<const Trk::MeasurementBase> broadMeas,
+                      const Info& info ) :
+    m_pars(std::move(pars)),m_precisionMeas(presMeas),m_broadMeas(std::move(broadMeas)),m_info(info)
   {
 //     std::cout << " new MuPatHit  " << this;
 //     if( pars ) std::cout << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi();
@@ -66,9 +68,9 @@ namespace Muon {
     m_info = hit.m_info;
   }
 
-  void MuPatHit::updateParameters( const Trk::TrackParameters* pars ) {
+  void MuPatHit::updateParameters( std::shared_ptr<const Trk::TrackParameters> pars ) {
 //     if( pars ) std::cout << " update pars " << this << " theta " << pars->momentum().theta() << " phi " << pars->momentum().phi() << std::endl;
-    m_pars = pars;
+    m_pars = std::move(pars);
   }
 
 
