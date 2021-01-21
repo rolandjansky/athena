@@ -1,4 +1,0 @@
-// 31-31:  turn off routed services
-Section InDetServMat
-BUILDSERVICES 0
-EndSection InDetServMat
