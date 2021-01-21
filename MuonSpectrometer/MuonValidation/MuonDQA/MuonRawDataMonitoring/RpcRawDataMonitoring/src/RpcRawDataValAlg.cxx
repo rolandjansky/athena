@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3383,6 +3383,7 @@ StatusCode RpcRawDataValAlg::bookHistogramsRecurrent()
   for(int ieta = -1; ieta != 1+1; ieta++ ){
      if(ieta==0)continue;
 
+     if (iname > m_idHelperSvc->rpcIdHelper().stationNameIndexMax()) continue;
      Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, ieta, iphi, idr , 1, 1, 1, 1, 1); // last 5 arguments are: int doubletZ, int doubletPhi, int gasGap, int measuresPhi, int strip
      if (!rpcId.is_valid()) {
        ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<iname<<", eta="<<ieta<<", phi="<<iphi<<", doubletR="<<idr);
@@ -4756,6 +4757,9 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
   int kName = iName ;
   if(kName==1)kName=53;//BMLE
 
+  if (kName > m_idHelperSvc->rpcIdHelper().stationNameIndexMax()) {
+    return;
+  }
   Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(kName, 1 , istatPhi+1, ir, 1, idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
   if (!rpcId.is_valid()) {
     ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kName<<", eta=1, phi="<<istatPhi+1<<", doubletR="<<ir<<", doubletZ="<<1<<", doubletPhi="<<idblPhi+1);
@@ -4808,6 +4812,7 @@ void RpcRawDataValAlg::bookRPCCoolHistograms( std::vector<std::string>::const_it
 	  if(std::abs(ieta-8)==7&&ir==2&&kNameF==2)irc=1; 
 	  if(isec==12&&std::abs(ieta-8)==6&&ir==2&&kNameF==2)irc=1;	 
 											   
+        if (kNameF > m_idHelperSvc->rpcIdHelper().stationNameIndexMax()) continue;
         Identifier id = m_idHelperSvc->rpcIdHelper().channelID(kNameF, ieta-8, istatPhi+1, irc, iz+1, idblPhi+1, 1, 1, 1); // last 3 arguments are: int gasGap, int measuresPhi, int strip
         if (!id.is_valid()) {
           ATH_MSG_WARNING("Could not get valid Identifier for stationName="<<kNameF<<", eta="<<ieta-8<<", phi="<<istatPhi+1<<", doubletR="<<irc<<", doubletZ="<<iz+1<<", doubletPhi="<<idblPhi+1);
