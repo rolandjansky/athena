@@ -224,9 +224,12 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
   if(theAmdcDb) {
     log << MSG::INFO << "skipping XtomoData" << endmsg;
   } else {
-    dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
+    std::unique_ptr<IRDBQuery> xtomoData;
+    if(!m_pRDBAccess->getChildTag("XtomoData",geoTag,geoNode).empty()) {
+      xtomoData = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
+    }
     log << MSG::INFO << "After getQuery XtomoData" << endmsg;
-    m_dhxtomo = new DblQ00Xtomo(std::move(dbdata));
+    m_dhxtomo = xtomoData ? new DblQ00Xtomo(std::move(xtomoData)) : new DblQ00Xtomo();
     log << MSG::INFO << "After new DblQ00Xtomo" << endmsg;
   }
   if(m_dhxtomo) m_xtomo = m_dhxtomo->data();
@@ -298,18 +301,21 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
   }
   if (m_dhiacsc==0 || m_dhiacsc->size()==0) {
     log << MSG::INFO << "No Ascii iacsc input found: looking for A-lines in ORACLE" << endmsg;
-    dbdata = m_pRDBAccess->getQuery("ISZT",geoTag,geoNode);
+    std::unique_ptr<IRDBQuery> isztData;
+    if(!m_pRDBAccess->getChildTag("ISZT",geoTag,geoNode).empty()) {
+      isztData = m_pRDBAccess->getQuery("ISZT",geoTag,geoNode);
+    }
 
     if(theAmdcDb){
       log << MSG::INFO << "skipping ISZT" << endmsg;
       m_dhiacsc = nullptr;
     } else {
-      if (!dbdata) {
+      if (!isztData) {
         m_dhiacsc = new DblQ00IAcsc();
         log << MSG::INFO << "No ISZT table in Oracle" << endmsg;
       } else {
         log << MSG::INFO << "ISZT table found in Oracle" << endmsg;
-        m_dhiacsc = new DblQ00IAcsc(std::move(dbdata));
+        m_dhiacsc = new DblQ00IAcsc(std::move(isztData));
       }
     }
   } else {
