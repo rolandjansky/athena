@@ -15,6 +15,28 @@ logger = Logging.logging.getLogger("PowhegControl")
 WeightTuple = collections.namedtuple("WeightTuple", ["parameter_settings", "keywords", "ID", "name", "combine", "group", "parallel_xml_compatible"])
 
 
+
+def default_weight_exists_already(powheg_LHE_output):
+    """! Returns True if the LHE file contains a weight called "nominal".
+
+    The weight must be present before the beginning of the first <event> block,
+    otherwise the function returns False.
+
+    @param powheg_LHE_output  Name of LHE file produced by PowhegBox.
+    """
+    search_string = "<weight id='0' >default</weight>"
+    with open(powheg_LHE_output, 'r') as lhe_file:
+        for line in lhe_file:
+            if search_string in line:
+                return True
+            if '<event>' in line:
+                # Important to break the loop here with a return, otherwise the
+                # entire (often very large) file is scanned!
+                return False
+    return False
+
+
+
 @timed("reweighting")
 def reweighter(process, weight_groups, powheg_LHE_output):
     """! Add a series of additional weights to an LHE file.
@@ -23,6 +45,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     @param weight_groups      OrderedDict containing groups of weights to add.
     @param powheg_LHE_output  Name of LHE file produced by PowhegBox.
     """
+    logger.info("Starting to run PowhegControl PDF and QCD scale reweighter")
     ## List of tuples holding reweighting information
     weight_list = []
 
@@ -56,7 +79,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
         tuple_kwargs = {"keywords": keyword_dict, "combine": weight_group["combination_method"], "group": group_name, "parallel_xml_compatible": is_parallel_xml_compatible}
 
         # Nominal variation: ID=0
-        if group_name == "nominal":
+        if group_name == "nominal" and not default_weight_exists_already(powheg_LHE_output):
             weight_list.append(WeightTuple(parameter_settings=weight_group["nominal"], ID=0, name="nominal", **tuple_kwargs))
 
         # Scale variations: ID=1001+
@@ -96,7 +119,7 @@ def reweighter(process, weight_groups, powheg_LHE_output):
     # Do XML-reweighting
     if process.use_XML_reweighting:
         # Add nominal weight if not already present
-        if not any([weight.group == "nominal" for weight in weight_list]):
+        if not default_weight_exists_already(powheg_LHE_output) and not any([weight.group == "nominal" for weight in weight_list]):
             weight_list = [WeightTuple(ID=0, name="nominal", group="nominal", parallel_xml_compatible=True, parameter_settings=[], keywords=None, combine=None)] + weight_list
 
         # Construct xml output
@@ -125,6 +148,8 @@ def reweighter(process, weight_groups, powheg_LHE_output):
                 f_rwgt.write("</initrwgt>")
 
             # Add reweighting lines to runcard
+            # TODO: add check that the file contains these keywords, otherwise raise an error about
+            #       what is probably a faulty process interface!
             FileParser("powheg.input").text_replace("rwl_file .*", "rwl_file 'reweighting_input.xml'")
             FileParser("powheg.input").text_replace("rwl_add .*", "rwl_add 1")
             FileParser("powheg.input").text_replace("clobberlhe .*", "clobberlhe 1")
