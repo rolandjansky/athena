@@ -399,7 +399,7 @@ class Registry(object):
         self.add_default("rwl_add", 0, frozen=True, description="rerun adding additional weights. [1:enabled]")
         self.add_default("rwl_file", "", frozen=True, description="XML file used for reweighting")
         self.add_default("rwl_format_rwgt", 1, frozen=True, description="Use LHE standard for weights instead of Powheg standard. [1:enabled]")
-        self.add_default("rwl_group_events", 1000, description="Number of events to group together when running reweighting. [<0:defaults to 1000]")
+        self.add_default("rwl_group_events", 10000, description="Number of events to group together when running reweighting. [<0:defaults to 10000]") # too small a number here may lead to slow reweighting
         self.add_default("s2eff", -1, description="value of the effective leptonic weak mixing angle")
         self.add_default("scheme", 1, description="choice for EW NLO scheme. [0:Alpha(0); 1:Alpha(M_Z); 2:G_mu; 3:Alpha(q^2)]")
         self.add_default("select_EW_virt", 2, description="EW virtual corrections. [0: none; 1: full; 2: Sudakov approx; 3: full - Sudakov approx]")
