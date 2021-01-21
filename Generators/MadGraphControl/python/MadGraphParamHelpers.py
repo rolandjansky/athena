@@ -144,9 +144,9 @@ def get_PMG_updates(process_dir):
                         
     # Create translation dictionary to be able to produce dictionary that can be read by build_param_card function
     # for now only the quarks, leptons and bosons are included
-    particles_for_update = [ 6 , 5, 4, 3, 2, 1, # Quarks
-                             25, 24, 23, # Bosons
-                             11, 13, 15 ] # Leptons
+    particles_for_update = [  '6',  '5',  '4', '3', '2', '1', # Quarks
+                             '25', '24', '23', # Bosons
+                             '11', '13', '15' ] # Leptons
     newparamdict = {
         'mass' : {},
         'decay' : {},
@@ -157,7 +157,8 @@ def get_PMG_updates(process_dir):
     for pid, settings in parameters['particles'].items():
         # dictionary key is the PID of a particle
         # settings is a dictionary with mass, width and name as keys
-        particle_name = settings['name']
+        # In case we need a name for debugging or other things, it's here
+        #particle_name = settings['name']
         if pid in particles_for_update:
             width = settings['width']
             mass = settings['mass']

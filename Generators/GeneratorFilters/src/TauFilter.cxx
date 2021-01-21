@@ -133,7 +133,7 @@ StatusCode TauFilter::filterEvent() {
   double weight = 1;
 
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     int eventNumber = (*itr)->event_number();
     //ATH_MSG_INFO("eventNumber = " << eventNumber);
     if(m_filterEventNumber==1 && (eventNumber%2)==0) {

@@ -14,7 +14,7 @@ LeadingChargedParticleFilter::LeadingChargedParticleFilter(const std::string& na
 
 
 StatusCode LeadingChargedParticleFilter::filterEvent() {
-  const HepMC::GenEvent* genEvt = (*(events()->begin()));
+  const HepMC::GenEvent* genEvt = (*(events_const()->begin()));
   double ptmax = 0;
   for (HepMC::GenEvent::particle_const_iterator p = genEvt->particles_begin(); p != genEvt->particles_end(); ++p) {
     if ((*p)->status()!=1 || fabs(MC::PID::charge((*p)->pdg_id()))<0.5) continue;

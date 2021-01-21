@@ -17,5 +17,6 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_joboptions( share/file/*.py )
 atlas_install_joboptions( test/test_*.py )
-atlas_install_runtime( scripts/*.py )
+atlas_install_runtime( scripts/*.py
+                       share/file/*.txt )
 atlas_install_runtime( test/EvgenJobTransforms_TestConfiguration.xml )

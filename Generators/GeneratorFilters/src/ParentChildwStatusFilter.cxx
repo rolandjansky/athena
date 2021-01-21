@@ -103,7 +103,7 @@ StatusCode ParentChildwStatusFilter::filterEvent() {
 
   msg(MSG:: INFO) << " ParentChildwStatusFilter filtering "  << endreq;  
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);
     for(HepMC::GenEvent::particle_const_iterator pitr=genEvt->particles_begin();

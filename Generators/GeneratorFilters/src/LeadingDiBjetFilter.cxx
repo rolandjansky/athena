@@ -166,7 +166,7 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 007" << endreq;
   McEventCollection::const_iterator itr;
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 008" << endreq;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
   // if(m_Nevt > 420) log << MSG::INFO << " m_Nevt= " << m_Nevt << " filterEvent point 009" << endreq;
     n_events_in_collection++;
     const HepMC::GenEvent* genEvt = (*itr);
@@ -203,7 +203,7 @@ StatusCode LeadingDiBjetFilter::filterEvent() {
       && m_ranNumGen->Uniform() < (1.0 / m_LightJetSuppressionFactor ) 
       && passLeadJetCut ){
     /* Modify event weight to account for light jet prescale */
-    for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+    for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
       HepMC::GenEvent* genEvt = (*itr);
       genEvt->weights().front() *= m_LightJetSuppressionFactor;
     }

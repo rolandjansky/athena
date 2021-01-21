@@ -133,7 +133,7 @@ def get_pdf_and_systematic_settings(the_base_fragment,isNLO,useNLOotf=False):
             
 
     ### Set scale variations to be included as weights
-    if basefragment_settings['scale_variations'] is None:
+    if basefragment_settings['scale_variations'] is None and isNLO:
         runcard_settings['reweight_scale']='False'
     if basefragment_settings['scale_variations'] is not None:
         if useNLOotf:

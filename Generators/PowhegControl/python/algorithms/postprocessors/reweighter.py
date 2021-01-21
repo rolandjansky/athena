@@ -7,6 +7,7 @@ from ..generators import multicore_untimed, singlecore_untimed
 import collections
 import os
 import shutil
+import re
 
 ## Get handle to Athena logging
 logger = Logging.logging.getLogger("PowhegControl")
@@ -193,15 +194,23 @@ def reweighter(process, weight_groups, powheg_LHE_output):
             add_single_weight(process, weight, idx_weight, len(weight_list), use_XML=False)
             rename_LHE_output(powheg_LHE_output)
 
-    # Remove rwgt and pdf lines, which crash Pythia
-    FileParser(powheg_LHE_output).text_remove("^#pdf")
-    FileParser(powheg_LHE_output).text_remove("^#rwgt")
-    FileParser(powheg_LHE_output).text_remove("^#new weight")
-
-    # # Strip NaN values from rwgt and pdf lines, which crash Pythia (even versions which accept the comment lines)
-    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#pdf")
-    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#rwgt")
-    # FileParser(powheg_LHE_output).text_replace("NaN", "0", regex_line_match="^#new weight")
+    if process.use_XML_reweighting:
+        if process.remove_oldStyle_rwt_comments:
+            # Remove rwgt and pdf lines, which crash Pythia
+            pdf_removed = FileParser(powheg_LHE_output).text_remove("^#pdf")
+            rwg_removed = FileParser(powheg_LHE_output).text_remove("^#rwgt")
+            new_removed = FileParser(powheg_LHE_output).text_remove("^#new weight")
+            rdm_removed = FileParser(powheg_LHE_output).text_remove("^ #Random")
+            if pdf_removed != 0:
+                logger.info("{} line(s) starting with '#pdf' were removed from {}".format(pdf_removed, powheg_LHE_output))
+            if rwg_removed != 0:
+                logger.info("{} line(s) starting with '#rwgt' were removed from {}".format(rwg_removed, powheg_LHE_output))
+            if new_removed != 0:
+                logger.info("{} line(s) starting with '#new weight' were removed from {}".format(new_removed, powheg_LHE_output))
+            if rdm_removed != 0:
+                logger.info("{} line(s) starting with ' #Random' were removed from {}".format(rdm_removed, powheg_LHE_output))
+        else:
+            repair_comment_lines(powheg_LHE_output, patterns=["#pdf", "#rwgt", "#new weight", "#Random" ]) # the last pattern starts with a space
 
     # Rename all weights
     for weight in weight_list:
@@ -288,3 +297,81 @@ def rename_LHE_output(powheg_LHE_output):
     except IOError:
         raise IOError("Reweighted LHE file '{filename}' could not be found. Probably POWHEG-BOX crashed during reweighting.".format(filename=reweighted_events_file_name))
 
+
+def repair_comment_lines(lheFile, patterns = None):
+    if patterns == None:
+        return
+    # in case anything turns bad, will give up fixing
+    impossible_to_fix = False
+    # initialise counters to 0
+    n_replaced = dict()
+    n_found = dict()
+    for pattern in patterns:
+        n_replaced[pattern] = 0
+        n_found[pattern] = 0
+    # create backup file
+    shutil.move(lheFile, "{}.text_replace_backup".format(lheFile))
+    # loop in parallel on the lhe file with weights that we want to fix, and on the lhe file without weights from which we'll take the correct comment lines
+    with open(lheFile, "wb") as f_output:
+        with open("{}.text_replace_backup".format(lheFile), "rb") as f_input, open("{}.before_reweighting".format(lheFile), "rb") as f_input_noWeights:
+            line_in = f_input.readline()
+            line_in_noWeights = f_input_noWeights.readline()
+            while line_in: # loop on the lines of the output file with weights
+                for pattern in patterns: # loop over the type of comments we need to fix
+                    if re.search("^"+pattern, line_in.lstrip()): # found pattern, this line may need to be replaced (ignoring leading whitespaces)
+                        n_found[pattern] += 1
+                        processed = False
+                        while line_in_noWeights: # loop on the next lines in the other files
+                            if re.search("^"+pattern, line_in_noWeights.lstrip()): # found pattern, using this line as replacement (ignoring leading whitespaces)
+                                if (line_in.rstrip().lstrip() != line_in_noWeights.rstrip().lstrip()):
+                                    f_output.write(line_in_noWeights)
+                                    n_replaced[pattern] += 1
+                                else:
+                                    f_output.write(line_in)
+                                line_in_noWeights = f_input_noWeights.readline()
+                                processed = True
+                                break # end loop over the other file for the moment
+                            else: # pattern not found, check if it matches another pattern
+                                for pat in patterns:
+                                    if pat == pattern:
+                                        continue
+                                    elif re.search("^"+pat, line_in_noWeights.lstrip()): # shouldn't find another pattern, something is wrong (ignoring leading whitespaces)
+                                        impossible_to_fix = True
+                                        break
+                                if impossible_to_fix: # it's pointless to continue
+                                    break
+                                line_in_noWeights = f_input_noWeights.readline() # keep trying
+                        if processed: # if this line has been processed, no need to do the next line
+                            line_in = f_input.readline() # next line in output file
+                            break # end loop over patterns
+                        else : # line hasn't been processed, it means the other file doesn't have enough appropriate lines
+                            impossible_to_fix = True
+                            break # end loop over patterns, giving up fixing
+                    else:
+                        continue # try next pattern on the same line
+                if impossible_to_fix: # it's pointless to continue
+                    break
+                # no pattern not found, we keep the line as-is and go to the next
+                f_output.write(line_in)
+                line_in = f_input.readline()
+
+            # this is a cross-check - both file should hav the same number of comment lines
+            while line_in_noWeights: # finish processing the other file - we shouldn't find any more lines with pattern
+                for pattern in patterns: # loop over the type of comments we need to fix
+                    if re.search("^"+pattern, line_in_noWeights): # found pattern, something is wrong
+                        impossible_to_fix = True
+                        break
+                if impossible_to_fix: # it's pointless to continue
+                    break
+                line_in_noWeights = f_input_noWeights.readline()
+
+        # processing of files ended, now handling the outcome
+        if impossible_to_fix: # we couldn't fix it, so we get the backup copy back, and remove the problematic lines
+            shutil.move("{}.text_replace_backup".format(lheFile), lheFile)
+            logger.info("Impossible to fix the possibly buggy comment lines in {} using the corresponding lines from {}.before_reweighting".format(lheFile, lheFile))
+            logger.info("Keeping those lines as they are in '{}".format(lheFile))
+        else:
+            os.remove("{}.text_replace_backup".format(lheFile))
+            for pattern in patterns:
+                if n_found[pattern] != 0 and n_replaced[pattern] != 0:
+                    logger.info("{} line(s) starting with '{}' replaced in {} using the corresponding line(s) from {}.before_reweighting".format(n_replaced[pattern], pattern, lheFile, lheFile))

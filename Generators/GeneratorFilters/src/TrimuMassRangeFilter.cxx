@@ -101,7 +101,7 @@ StatusCode TrimuMassRangeFilter::filterEvent() {
   bool   samePDGID123 = ( fabs(m_PartId1) == fabs(m_PartId2) && fabs(m_PartId1) == fabs(m_PartId3) );
 
   McEventCollection::const_iterator itr;
-  for (McEventCollection::const_iterator itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (McEventCollection::const_iterator itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
 
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);

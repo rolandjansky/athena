@@ -65,7 +65,7 @@ StatusCode HiggsFilter::filterEvent() {
 
 
   //  Loop over all events in MCCollection
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
 
     // Loop over all particles in the event
     const HepMC::GenEvent* genEvt = (*itr);

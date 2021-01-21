@@ -218,7 +218,7 @@ StatusCode WZtoLeptonFilter::filterEvent() {
 
   // Loop over all events in McEventCollection
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     m_AthenaCalls ++;
 
     passfilter = 0;

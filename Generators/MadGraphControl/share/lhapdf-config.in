@@ -1,5 +1,5 @@
 #! /usr/bin/env bash
-## -*- sh -*-
+## -*- sh -*-   
 ## lhapdf-config for MadGraph use in Athena
 ## this custom config is required to find both the lhapdf installation dir and the actual pdf set data from LHAPDF_DATA_PATH 
 ## in the default configuration the installation dir is hardcoded
@@ -46,8 +46,8 @@ then
     version=$(echo "$prefix" | awk '{split($1,a,"lhapdf/"); split(a[2],b,"/");print b[1];}')
 fi
 
-#find boost 
-boost=$(find /cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/Boost/*/*/* -type d -name "boost-*")
+#find boost
+boost=@Boost_INCLUDE_PATH@
 if [ -z $boost ]
 then
     echo "WARNING: lhapdf-config could not find boost headers"

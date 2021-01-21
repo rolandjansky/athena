@@ -105,7 +105,7 @@ StatusCode BSignalFilter::filterEvent()
 
   // ** Begin iterating over McEventCollection **
   McEventCollection::const_iterator itr;
-  for( itr = events()->begin(); itr != events()->end(); ++itr )
+  for( itr = events_const()->begin(); itr != events_const()->end(); ++itr )
     {
       m_EventCnt++;
 

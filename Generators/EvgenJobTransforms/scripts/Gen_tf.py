@@ -69,6 +69,7 @@ class EvgenExecutor(athenaExecutor):
             cwdir = os.getcwd()
             cwd_ful = os.path.join(cwdir, dsidparam)
             if (os.path.isdir(cwd_ful)):
+               os.environ["JOBOPTSEARCHPATH"] = cwdir+":"+os.environ["JOBOPTSEARCHPATH"]
                os.environ["JOBOPTSEARCHPATH"] = cwd_ful+":"+os.environ["JOBOPTSEARCHPATH"]
                os.environ["DATAPATH"] = cwd_ful+":"+os.environ["DATAPATH"]
             else:               
@@ -137,20 +138,43 @@ class EvgenExecutor(athenaExecutor):
 
         # copy config files to cwd
         FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
-#        print "The configuration is taken from dir = ", FIRST_DIR
+        print "The configuration is taken from dir = ", FIRST_DIR
         configFiles = [f for f in os.listdir(FIRST_DIR) if ( "GRID" in f)]
+        msg.info("Found " + str(len(configFiles)) + "configuration files")
+        confFile=None
         if len(configFiles) == 1:
             confFile =  os.path.join(FIRST_DIR, configFiles[0])
-            expand_if_archive(confFile)
+#            expand_if_archive(confFile)
 #            os.system("cp %s ." % confFile)
-            print "Configuration input found ", confFile
+#            print "Configuration input found ", confFile
         elif len(configFiles) >1:
-            msg.error("Too many *GRID* config files, please check = '%s'" % dsidparam) 
+            msg.info("more then one gridpack ! ")
+            if "--ecmEnergy" in str(sys.argv[1:]):
+               ener=str(sys.argv[1:]).split("ecmEnergy",1)[1]
+               energy=str(ener)[:4].strip(" =0\']")
+               print("Should be used gridpack for energy = "+energy)
+            else:
+               energy="13"
+            for x in configFiles:
+                gridS="mc_"+energy+"TeV"
+                print("Gridpack should start from =  "+gridS) 
+                if x.startswith(gridS):
+                   confFile = os.path.join(FIRST_DIR, x)
+                   msg.info("using gridpack = "+confFile)
+            if confFile is None:
+               msg.error("No *GRID* config files, for requested energy = '%s'  please check = '%s'" %(energy,dsidparam))
+            
+#            msg.error("Too many *GRID* config files, please check = '%s'" % dsidparam) 
+        if confFile is not None:
+           expand_if_archive(confFile)
+#       os.system("cp %s ." % confFile)
+           print "Configuration input gridpack found = ", confFile
 
         #Expand if a tarball is found in local directory
         loc_files = os.listdir(os.getcwd())
-        for loc_file in loc_files: 
-            expand_if_archive(loc_file)
+        for loc_file in loc_files:
+            if "GRID" not in loc_file:  
+               expand_if_archive(loc_file)
             
             
         ## Expand tarball input event and generator conf files, if provided
@@ -165,8 +189,8 @@ class EvgenExecutor(athenaExecutor):
 
 def move_files(main_dir,tmp_dir,whitelist):
     files = os.listdir(tmp_dir)
-    print("list of files ",files)
-    print("white list ",whitelist)    
+    print("list of files = ",files)
+    print("white list = ",whitelist)    
     files.sort()
     for f in files:
        for i in whitelist:
@@ -181,16 +205,16 @@ def move_files(main_dir,tmp_dir,whitelist):
 
 def getTransform():
     exeSet = set()
-    msg.info("Transform arguments %s" % sys.argv[1:])
+    msg.info("Transform arguments %s = " % sys.argv[1:])
     if "--outputEVNTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["EVNT", "EVNT_Pre", "TXT" ]))
-       msg.info("Output EVNT file")
+       msg.info("Output file = EVNT")
     elif "--outputYODAFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoEVGEN.py", inData=["inNULL"], outData=["outNULL", "TXT" ]))
-       msg.info("Output EVNT file")
+       msg.info("Output file = YODA")
     elif "--outputTXTFile" in str(sys.argv[1:]):
        exeSet.add(EvgenExecutor(name="generate", skeleton="EvgenJobTransforms/skel.GENtoTXT.py", inData=["inNULL"], outData=["TXT"]))
-       msg.info("Output TXT file")
+       msg.info("Output file = TXT")
     else:
        msg.error("Output cannot be recognised")
 

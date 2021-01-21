@@ -8,6 +8,7 @@
 #include "GeneratorFilters/ZtoLeptonFilter.h"
 #include "GeneratorFilters/ZHWWLeptonPairMassFilter.h"
 #include "GeneratorFilters/MultiLeptonFilter.h"
+#include "GeneratorFilters/MultiLeptonWithParentFilter.h"
 #include "GeneratorFilters/MultiMuonFilter.h"
 #include "GeneratorFilters/BSignalFilter.h"
 #include "GeneratorFilters/JetFilter.h"
@@ -73,12 +74,15 @@
 #include "GeneratorFilters/TTbarWithJpsimumuFilter.h"
 #include "GeneratorFilters/TTbarLJetsVptFilter.h"
 #include "GeneratorFilters/ALPDecayPositionFilter.h"
+#include "GeneratorFilters/M4MuIntervalFilter.h"
+#include "GeneratorFilters/SameParticleHardScatteringFilter.h"
 
 DECLARE_ALGORITHM_FACTORY(ElectronFilter)
 DECLARE_ALGORITHM_FACTORY(LeptonFilter)
 DECLARE_ALGORITHM_FACTORY(ZtoLeptonFilter)
 DECLARE_ALGORITHM_FACTORY(ZHWWLeptonPairMassFilter)
 DECLARE_ALGORITHM_FACTORY(MultiLeptonFilter)
+DECLARE_ALGORITHM_FACTORY(MultiLeptonWithParentFilter)
 DECLARE_ALGORITHM_FACTORY(MultiMuonFilter)
 DECLARE_ALGORITHM_FACTORY(BSignalFilter)
 DECLARE_ALGORITHM_FACTORY(JetFilter)
@@ -144,7 +148,8 @@ DECLARE_ALGORITHM_FACTORY(TransverseMassVVFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarWithJpsimumuFilter)
 DECLARE_ALGORITHM_FACTORY(TTbarLJetsVptFilter)
 DECLARE_ALGORITHM_FACTORY(ALPDecayPositionFilter)
-
+DECLARE_ALGORITHM_FACTORY(M4MuIntervalFilter)
+DECLARE_ALGORITHM_FACTORY(SameParticleHardScatteringFilter)
 
 DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(LeptonFilter)
@@ -152,6 +157,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(ZHWWLeptonPairMassFilter)
     DECLARE_ALGORITHM(BSignalFilter)
     DECLARE_ALGORITHM(MultiLeptonFilter)
+    DECLARE_ALGORITHM(MultiLeptonWithParentFilter)
     DECLARE_ALGORITHM(MultiMuonFilter)
     DECLARE_ALGORITHM(JetFilter)
     DECLARE_ALGORITHM(ParticleFilter)
@@ -216,6 +222,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(TTbarWithJpsimumuFilter)
     DECLARE_ALGORITHM(TTbarLJetsVptFilter)
     DECLARE_ALGORITHM(ALPDecayPositionFilter)
-
+    DECLARE_ALGORITHM(M4MuIntervalFilter)
+    DECLARE_ALGORITHM(SameParticleHardScatteringFilter)
 }
 

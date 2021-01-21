@@ -35,11 +35,11 @@ class Scheduler(object):
         "MadSpin",
         "integration grid tester",
         "cross section calculator",
+        "LHE file cleaner",
         "output file renamer",
         "output tarball preparer",
         "integration gridpack creator",
         "directory cleaner",
-        "LHE file cleaner",
     ]
 
     ## Map preprocessing names to functions

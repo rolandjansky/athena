@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 """Functionality core of the Gen_tf transform"""
 
@@ -79,10 +79,10 @@ if hasattr(runArgs, "inputGenConfFile"):
    raise RuntimeError("inputGenConfFile is invalid !! Gridpacks and config. files/links to be put into DSID directory ")
 
 if hasattr(runArgs, "inputGeneratorFile"):
-   evgenLog.info("inputGeneratorFile used " + runArgs.inputGeneratorFile)
+   evgenLog.info("inputGeneratorFile = " + runArgs.inputGeneratorFile)
  
 if hasattr(runArgs, "outputYODAFile"):
-    evgenLog.info("outputYODAFile specified " + runArgs.outputYODAFile)
+    evgenLog.info("specified outputYODAFile = " + runArgs.outputYODAFile)
 
 ## Ensure that an output name has been given
 # TODO: Allow generation without writing an output file (if outputEVNTFile is None)?
@@ -213,7 +213,7 @@ def OutputTXTFile():
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
 if len(runArgs.jobConfig) != 1:
-    print "runArgs.jobConfig ", runArgs.jobConfig
+    print "INFO    runArgs.jobConfig = ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobConfig file argument")
     sys.exit(1)
 
@@ -269,6 +269,9 @@ include(jofile)
 
 ## Announce start of JO checking
 evgenLog.debug("****************** CHECKING EVGEN CONFIGURATION *****************")
+
+if hasattr(runArgs,'inputGeneratorFile') and int(evgenConfig.inputFilesPerJob) == 0 : 
+   evgenConfig.inputFilesPerJob = 1 
 
 ## Print out options
 for opt in str(evgenConfig).split(os.linesep):
@@ -345,7 +348,7 @@ if not evgenConfig.nEventsPerJob:
     evgenLog.info(' !!!! no nEventsPerJob set !!!  The default 10000 used. !!! ') 
     evgenLog.info('#############################################################')
 else:
-    evgenLog.info(' nEventsPerJob set to ' + str(evgenConfig.nEventsPerJob)  )
+    evgenLog.info(' nEventsPerJob = ' + str(evgenConfig.nEventsPerJob)  )
 
 if evgenConfig.minevents > 0 :
     raise RuntimeError("evgenConfig.minevents is obsolete and should be removed from the JOs")
@@ -368,15 +371,15 @@ else:
            msg += "nEventsPerJob in range <= 1000 must be one of %s" % allowed_nEventsPerJob_lt1000
            raise RuntimeError(msg)
     postSeq.CountHepMC.RequestedOutput = evgenConfig.nEventsPerJob if runArgs.maxEvents == -1  else runArgs.maxEvents
-    evgenLog.info('Requested output events '+str(postSeq.CountHepMC.RequestedOutput))
+    evgenLog.info('Requested output events =  '+str(postSeq.CountHepMC.RequestedOutput))
 
 ## Check that the keywords are in the list of allowed words (and exit if processing an official JO)
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -384,6 +387,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = "+kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -400,15 +404,15 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("evgenkeywords = not found ")
 
 ## Check that the L1 and L2 keywords pairs are in the list of allowed words pairs (and exit if processing an official JO)
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -445,7 +449,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in DATAPATH" % lkwfile)
 
 if hasattr( runArgs, "outputEVNTFile") or hasattr( runArgs, "outputEVNT_PreFile"):
     ## Configure POOL streaming to the output EVNT format file
@@ -483,6 +487,13 @@ dsid = os.path.basename(runArgs.jobConfig[0])
 if not dsid.isdigit():
     dsid = "999999"
 svcMgr.EventSelector.RunNumber = int(dsid)
+
+#correction of run number only in afterburn mode
+#if postSeq.CountHepMC.CorrectRunNumber:
+#    postSeq.CountHepMC.NewRunNumber = int(dsid)
+#    evgenLog.info("new run number set to "+ dsid)
+    
+
 #runArgs.runNumber
 # TODO: set EventType::mc_channel_number = runArgs.runNumber
 
@@ -682,7 +693,6 @@ def mk_symlink(srcfile, dstfile):
             os.remove(dstfile)
         if not os.path.exists(dstfile):
             evgenLog.info("Symlinking %s to %s" % (srcfile, dstfile))
-            print "Symlinking %s to %s" % (srcfile, dstfile)
             os.symlink(srcfile, dstfile)
         else:
             evgenLog.debug("Symlinking: %s is already the same as %s" % (dstfile, srcfile))
@@ -731,7 +741,7 @@ if eventsFile or datFile:
                 input0 = os.path.basename(file).split("._")[0]
                 input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
                 inputroot = input0+"._"+input1
-              print "inputroot ",inputroot
+              print "INFO    inputroot = ",inputroot
               realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
 #             The only input format where merging is permitted is LHE
               with open(realEventsFile, 'r') as f:

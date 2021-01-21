@@ -80,7 +80,7 @@ class ttbb(PowhegRES):
         self.add_keyword("foldcsi", 5)
         self.add_keyword("foldphi", 1)
         self.add_keyword("foldy", 5)
-        self.add_keyword("for_reweighting", 1)
+        self.add_keyword("for_reweighting")
         self.add_keyword("fullrwgt")
         self.add_keyword("fullrwgtmode")
         self.add_keyword("icsimax", 1)

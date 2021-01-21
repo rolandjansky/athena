@@ -51,7 +51,7 @@ StatusCode TTbarWithJpsimumuFilter::filterEvent() {
   //std::cout << " ====================================== " << std::endl;;
 
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr!=events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr!=events_const()->end(); ++itr) {
     
     const HepMC::GenEvent* genEvt = (*itr);
     

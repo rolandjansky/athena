@@ -46,7 +46,7 @@ StatusCode BoostedHadTopAndTopPair::filterEvent() {
 
   // Loop over all events in McEventCollection and extract the top pt
   McEventCollection::const_iterator itr;
-  for (itr = events()->begin(); itr != events()->end(); ++itr) {
+  for (itr = events_const()->begin(); itr != events_const()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = *itr;
 
     

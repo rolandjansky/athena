@@ -149,10 +149,10 @@ def OutputTXTFile():
 
 ## Main job option include
 ## Only permit one jobConfig argument for evgen: does more than one _ever_ make sense?
-print "job config", len(runArgs.jobConfig)
+print "number of job config anguments len(runArgs.jobConfig) = ", len(runArgs.jobConfig)
 
 if len(runArgs.jobConfig) != 1:
-    print "runArgs.jobConfig ", runArgs.jobConfig
+    print "runArgs.jobConfig = ", runArgs.jobConfig
     evgenLog.error("You must supply one and only one jobConfig file argument. It has to start from mc. and end with .py")
     sys.exit(1)
 
@@ -161,9 +161,9 @@ FIRST_DIR = (os.environ['JOBOPTSEARCHPATH']).split(":")[0]
 #print "The first search dir = ", FIRST_DIR
 
 dsid_param = runArgs.jobConfig[0]
-evgenLog.info("dsid_param " + dsid_param)
+evgenLog.info("dsid_param = " + dsid_param)
 dsid = os.path.basename(dsid_param)
-evgenLog.info("dsid " + dsid)
+evgenLog.info("dsid =  " + dsid)
 #BaseCvmfsPath = "/cvmfs/atlas.cern.ch/repo/sw/Generators/MC16JobOptions/"
 ##if len(dsid)==6 and dsid.isdigit(): #only dsid is provided, add cvmfs folder like 123xxx to JOBOPTSEARCHPATH
 #dsid_part=dsid
@@ -172,7 +172,7 @@ evgenLog.info("dsid " + dsid)
 #JoCvmfsDsid = os.path.join(JoCvmfsPath, dsid)
 #jofiles = [f for f in os.listdir(JoCvmfsDsid) if (f.startswith('mc') and f.endswith('.py'))]
 jofiles = [f for f in os.listdir(FIRST_DIR) if (f.startswith('mc') and f.endswith('.py'))]
-print "JO file ",jofiles
+print "JO file jofiles =  ",jofiles
 ## Only permit one JO file in each dsid folder
 if len(jofiles) !=1:
     print "runArgs.jobConfig wrong ", runArgs.jobConfig
@@ -331,9 +331,9 @@ if not evgenConfig.keywords:
 if evgenConfig.keywords:
     ## Get the allowed keywords file from the JO package if possibe
     # TODO: Make the package name configurable
-    kwfile = "EvgenJobTransforms/evgenkeywords.txt"
+    kwfile = "evgenkeywords.txt"
     kwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         kwpath = os.path.join(p, kwfile)
         if os.path.exists(kwpath):
             break
@@ -341,6 +341,7 @@ if evgenConfig.keywords:
     ## Load the allowed keywords from the file
     allowed_keywords = []
     if kwpath:
+        evgenLog.info("evgenkeywords = "+kwpath)
         kwf = open(kwpath, "r")
         for l in kwf:
             allowed_keywords += l.strip().lower().split()
@@ -370,7 +371,7 @@ if evgenConfig.keywords:
             if officialJO:
                 sys.exit(1)
     else:
-        evgenLog.warning("Could not find evgenkeywords.txt file %s in $JOBOPTSEARCHPATH" % kwfile)
+        evgenLog.warning("evgenkeywords = not found ") 
 
 ## Check that the categories list is not empty:
 if not evgenConfig.categories:
@@ -380,9 +381,9 @@ if not evgenConfig.categories:
 if evgenConfig.categories:
     ## Get the allowed categories file from the JO package if possibe
     # TODO: Make the package name configurable
-    lkwfile = "EvgenJobTransforms/CategoryList.txt"
+    lkwfile = "CategoryList.txt"
     lkwpath = None
-    for p in os.environ["JOBOPTSEARCHPATH"].split(":"):
+    for p in os.environ["DATAPATH"].split(":"):
         lkwpath = os.path.join(p, lkwfile)
         if os.path.exists(lkwpath):
             break
@@ -419,7 +420,7 @@ if evgenConfig.categories:
                if officialJO:
                    sys.exit(1)
     else:
-        evgenLog.warning("Could not find CategoryList.txt file %s in $JOBOPTSEARCHPATH" % lkwfile)
+        evgenLog.warning("Could not find CategoryList.txt file %s in DATAPATH" % lkwfile)
 
 ## Set the run numbers
 dsid = os.path.basename(runArgs.jobConfig[0])
@@ -571,7 +572,7 @@ def find_unique_file(pattern):
 # file, but the number of events is updated to equal the total number of events in all the input files
 def merge_lhe_files(listOfFiles,outputFile):
     if(os.path.exists(outputFile)):
-      print "outputFile ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
+      print "outputFile =  ",outputFile," already exists.  Will rename to ",outputFile,".OLD"
       os.rename(outputFile,outputFile+".OLD")
     output = open(outputFile,'w')
     holdHeader = ""
@@ -671,7 +672,7 @@ if eventsFile or datFile:
                 input0 = os.path.basename(file).split("._")[0]
                 input1 = (os.path.basename(file).split("._")[1]).split(".")[0]
                 inputroot = input0+"._"+input1
-              print "inputroot ",inputroot
+              print "inputroot =  ",inputroot
               realEventsFile = find_unique_file('*%s.*ev*ts' % inputroot)
 #             The only input format where merging is permitted is LHE
               with open(realEventsFile, 'r') as f:
@@ -716,7 +717,7 @@ with open(eventsFile) as f:
     contents = f.read()
     count_ev = contents.count("<event>")
 
-evgenLog.info('Requested output events '+str(count_ev))    
+evgenLog.info('Requested output events = '+str(count_ev))    
 print "MetaData: %s = %s" % ("Number of produced LHE events ", count_ev)
 
 if _checkattr("description", required=True):
