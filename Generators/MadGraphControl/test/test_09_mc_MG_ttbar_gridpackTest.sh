@@ -5,11 +5,13 @@
 # art-type: grid
 # art-output: test_lhe_events.events
 # art-output: output_hists.root
+# art-output: dcube
+# art-html: dcube
 
 mkdir run_makeGridpack
 cd run_makeGridpack
 
-Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputEVNTFile=EVNT.root --jobConfig=950109 --outputFileValidation=False
+Gen_tf.py --ecmEnergy=13000. --maxEvents=-1 --firstEvent=1 --randomSeed=123456 --outputTXTFile=fake_lhe_events --jobConfig=950109 --outputFileValidation=False
 
 echo "art-result: $? gridpack_creation"
 
@@ -31,3 +33,11 @@ simple_lhe_plotter.py test_lhe_events.events
 echo "art-result: $? Plot"
 
 cp output_hists.root test_lhe_events.events ../
+cd ..
+
+dcubeName="LHE"
+dcubeXml="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MadGraphControl/LHE_DCubeConfig.xml"
+dcubeRef="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MadGraphControl/test_09_output_hists.root"
+
+bash /cvmfs/atlas.cern.ch/repo/sw/art/dcube/bin/art-dcube $dcubeName output_hists.root $dcubeXml $dcubeRef
+echo  "art-result: $? DCube"
