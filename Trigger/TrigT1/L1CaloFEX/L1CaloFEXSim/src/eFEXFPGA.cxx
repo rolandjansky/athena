@@ -305,6 +305,7 @@ uint32_t eFEXFPGA::formEmTOB(int & ieta, int & iphi)
 
   //returns a unsigned integer et value corresponding to the... eFEX EM cluster? in MeV
   unsigned int et = m_eFEXegAlgoTool->getET();
+ 
   unsigned int eFexTobEt = et/eFexTobstep;//steps of 100 MeV for the TOB
 
   if (eFexTobEt > 0xfff) eFexTobEt = 0xfff; //truncate at 12 bits, set to max value of 4095, 0xfff, or 111111111111
