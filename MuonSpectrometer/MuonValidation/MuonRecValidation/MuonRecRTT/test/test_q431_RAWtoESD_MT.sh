@@ -79,7 +79,7 @@ then
     exit ${exit_code}
 fi
 #####################################################################
-# now run diff-root to compare the ESDs made with serial and 1thread
+# now run diff-root to compare the ESDs made with 5threads and 1thread
 acmd.py diff-root --ignore-leaves InDet::PixelClusterContainer_p3_PixelClusters HLT::HLTResult_p1_HLTResult_HLT.m_navigationResult xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::TrigDecisionAuxInfo_v1_xTrigDecisionAux xAOD::TrigPassBitsAuxContainer_v1_HLT_xAOD__TrigPassBitsContainer_passbitsAux xAOD::TrigNavigationAuxInfo_v1_TrigNavigationAux InDet::SCT_ClusterContainer_p3_SCT_Clusters index_ref --order-trees OUT_ESD_5thread.root OUT_ESD_1thread.root &> diff_5_vs_1.txt
 echo  "art-result: ${exit_code} diff-root_5thread"
 if [ ${exit_code} -ne 0 ]
@@ -87,7 +87,7 @@ then
     exit ${exit_code}
 fi
 #####################################################################
-# now run diff-root to compare the ESDs made with serial and 1thread
+# now run diff-root to compare the ESDs made with 8threads and 1thread
 acmd.py diff-root --ignore-leaves InDet::PixelClusterContainer_p3_PixelClusters HLT::HLTResult_p1_HLTResult_HLT.m_navigationResult xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::TrigDecisionAuxInfo_v1_xTrigDecisionAux xAOD::TrigPassBitsAuxContainer_v1_HLT_xAOD__TrigPassBitsContainer_passbitsAux xAOD::TrigNavigationAuxInfo_v1_TrigNavigationAux InDet::SCT_ClusterContainer_p3_SCT_Clusters index_ref --order-trees OUT_ESD_8thread.root OUT_ESD_1thread.root &> diff_8_vs_1.txt
 echo  "art-result: ${exit_code} diff-root_8thread"
 if [ ${exit_code} -ne 0 ]
