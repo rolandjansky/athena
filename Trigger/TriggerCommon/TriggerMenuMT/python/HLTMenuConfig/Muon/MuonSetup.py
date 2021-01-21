@@ -36,7 +36,7 @@ class muonNames(object):
     self.L2CBName = recordable("HLT_MuonL2CBInfo")
     self.EFSAName = "Muons"
     self.EFCBName = "MuonsCB"
-    self.EFCBOutInName = recordable("HLT_MuonsCBOutsideIn")
+    self.EFCBOutInName = "MuonsCBOutsideIn"
     self.EFCBInOutName = "HLT_MuonsCBInsideOut"
     self.L2IsoMuonName = recordable("HLT_MuonL2ISInfo")
     self.EFIsoMuonName = recordable("HLT_MuonsIso")
