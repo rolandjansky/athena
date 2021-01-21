@@ -99,7 +99,7 @@ HepGeom::Transform3D AFP_Geometry::getStationElementTransform(const char* pszSta
         if(eElement==ESE_RPOT)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0);
 		else if(eElement==ESE_TOF)
-            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,-(tdcfg.fZPosInRPot-sidcfg.fZDistanceInRPot));
+            ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D(-tdcfg.fXFloorDistance,tdcfg.fYPosInRPot,tdcfg.fZPosInRPot);
 		else if(eElement==ESE_SID)
             ReqTransform=HepGeom::Translate3D(xComponent, yComponent, 0.0)*HepGeom::Translate3D( (nPlateID>-1) ? -sidcfg.vecXStaggering[nPlateID] : 0.0,0.0,sidcfg.fZDistanceInRPot/*-sidcfg.fZDistanceInRPot*/);
         break;
