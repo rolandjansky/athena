@@ -133,7 +133,7 @@ def addFolderList(configFlags,listOfFolderInfoTuple,extensible=False,db=None):
             if detDb not in _dblist.keys():
                 raise ConfigurationError("Error, db shorthand %s not known" % detDb)
             #Append database string to folder-name
-            fs+="<db>"+_dblist[detDb]+"/"+dbname+"</db>"
+            fs = "<db>"+_dblist[detDb]+"/"+dbname+"</db> " + fs
     
         if extensible:
             fs = fs + '<extensible/>'
