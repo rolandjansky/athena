@@ -1100,6 +1100,7 @@ class argFile(argList):
     #  @return None (internal @c self._fileMetadata cache is updated)
     def _getIntegrity(self, files):
         for fname in files:
+            is_binary = False
             with open(fname) as f: 
                 try:
                     while True:
@@ -1111,8 +1112,22 @@ class argFile(argList):
                 except (OSError, IOError) as e:
                     msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, fname))
                     self._fileMetadata[fname]['integrity'] = False
-                    
-                    
+                except UnicodeDecodeError:
+                    msg.debug('Problem reading file as unicode, attempting with binary')
+                    is_binary = True
+            if is_binary:
+                with open(fname,'rb') as f:
+                    try:
+                        while True:
+                            chunk = len(f.read(1024*1024))
+                            msg.debug('Read {0} bytes from {1}'.format(chunk, fname))
+                            if chunk == 0:
+                                break
+                        self._fileMetadata[fname]['integrity'] = True
+                    except (OSError, IOError) as e:
+                        msg.error('Got exception {0!s} raised while checking integrity of file {1}'.format(e, fname))
+                        self._fileMetadata[fname]['integrity'] = False
+
     ## @brief Generate a GUID on demand - no intrinsic for this file type        
     #  @details Use uuid.uuid4() call to generate a GUID
     #  @note This generation method will be superceeded in any file type which 
