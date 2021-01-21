@@ -13,6 +13,9 @@ def lhe_cleaner(powheg_LHE_output):
 
     @param powheg_LHE_output  Name of LHE file produced by PowhegBox.
     """
+    logger.info("Starting to run PowhegControl LHE file cleaner")
+    import os
+    os.system('cp {0} unmodified_{0}'.format(powheg_LHE_output))
     # Remove rwgt and pdf lines, which crash Pythia
     FileParser(powheg_LHE_output).text_remove("^#pdf")
     FileParser(powheg_LHE_output).text_remove("^#rwgt")
