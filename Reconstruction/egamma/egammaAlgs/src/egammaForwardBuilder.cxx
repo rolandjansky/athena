@@ -13,22 +13,22 @@
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/ElectronAuxContainer.h"
 #include "xAODEgamma/Electron.h"
- 
+
 #include "EgammaAnalysisInterfaces/IAsgForwardElectronIsEMSelector.h"
 #include "PATCore/AcceptData.h"
 
-#include <algorithm> 
+#include <algorithm>
 #include <cmath>
 
-egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator): 
+egammaForwardBuilder::egammaForwardBuilder(const std::string& name, ISvcLocator* pSvcLocator):
   AthReentrantAlgorithm(name, pSvcLocator)
-{ 
-} 
+{
+}
 
 
 // ================================================================
 egammaForwardBuilder::~egammaForwardBuilder()
-{ 
+{
 }
 
 // =================================================================
@@ -41,7 +41,7 @@ StatusCode egammaForwardBuilder::initialize()
   m_outClusterContainerCellLinkKey = m_outClusterContainerKey.key() + "_links";
   ATH_CHECK(m_outClusterContainerCellLinkKey.initialize());
 
-  // retrieve object quality tool 
+  // retrieve object quality tool
   if (!m_objectQualityTool.empty()) {
     ATH_CHECK(m_objectQualityTool.retrieve());
   } else {
@@ -56,7 +56,7 @@ StatusCode egammaForwardBuilder::initialize()
   }
 
   ATH_CHECK(m_forwardElectronIsEMSelectors.retrieve());
-  
+
   if (m_forwardElectronIsEMSelectors.size() != m_forwardElectronIsEMSelectorResultNames.size()) {
     ATH_MSG_ERROR("The number of selectors does not match the number of given fwd-electron selector names");
     return StatusCode::FAILURE;
@@ -91,10 +91,10 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   //Topo cluster Container
   SG::ReadHandle<xAOD::CaloClusterContainer> cluster(m_topoClusterKey, ctx);
 
-  // check is only used for serial running; remove when MT scheduler used 
+  // check is only used for serial running; remove when MT scheduler used
   // --used to be a warning with SUCCESS, but that won't work in MT
   if(!cluster.isValid()) {
-    ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container"); 
+    ATH_MSG_FATAL("egammaForwardBuilder::Could not retrieve Cluster container");
     return StatusCode::FAILURE;
   }
 
@@ -103,13 +103,13 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
   xAOD::CaloClusterContainer::const_iterator  clus_end   = cluster->end();
 
   for (; clus_begin!=clus_end; clus_begin++) {
-   
+
     //Preselectcion cuts
     if((*clus_begin)->et() < m_ETcut||
        fabs((*clus_begin)->eta())<m_etacut)
       continue;
- 
-    //Save it in the electroncontainer 
+
+    //Save it in the electroncontainer
     xAOD::Electron* el = new xAOD::Electron();
     xaodFrwd->push_back(el);
 
@@ -117,47 +117,44 @@ StatusCode egammaForwardBuilder::execute(const EventContext& ctx) const
 
     xAOD::CaloCluster *newcluster = new xAOD::CaloCluster(**clus_begin);
     outClusterContainer->push_back(newcluster);
-    
+
     int index = outClusterContainer->size() - 1;
-    
-    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink;
-    newclusterElementLink.toIndexedElement( *outClusterContainer, index  );
+
+    ElementLink<xAOD::CaloClusterContainer> newclusterElementLink(
+      *outClusterContainer, index, ctx);
 
     std::vector< ElementLink< xAOD::CaloClusterContainer > > linksToClusters;
     linksToClusters.push_back(newclusterElementLink);
-    el->setCaloClusterLinks(linksToClusters);    
+    el->setCaloClusterLinks(linksToClusters);
 
     //do  Four Momentum
     ATH_CHECK(m_fourMomBuilder->execute(ctx, el));
-    
-    // do object quality 
+
+    // do object quality
     ATH_CHECK( ExecObjectQualityTool(ctx, el) );
-    
-  
+
+
     // FwdSelectors:
     size_t size = m_forwardElectronIsEMSelectors.size();
-    
+
     for (size_t i = 0; i<size;++i) {
       asg::AcceptData accept = m_forwardElectronIsEMSelectors[i]->accept(ctx, el);
       //save the bool result
       el->setPassSelection(static_cast<bool>(accept), m_forwardElectronIsEMSelectorResultNames[i]);
       //save the isem
       el->setSelectionisEM(accept.getCutResultInverted(), "isEM"+m_forwardElectronIsEMSelectorResultNames[i]);
-      
+
     }
   }
-  
+
   // Now finalize the cluster: based on code in CaloClusterStoreHelper::finalizeClusters
-  // Note: I don't specifically set the IProxyDict, since I also don't set it when I create
-  //    data handles, either. 
-  auto *sg = outClusterContainer.storeHandle().get();
   for (xAOD::CaloCluster* cl : *outClusterContainer) {
-    cl->setLink(outClusterContainerCellLink.ptr(), sg);
+    cl->setLink(outClusterContainerCellLink.ptr(), ctx);
   }
 
   return StatusCode::SUCCESS;
-}  
-  
+}
+
 // ===========================================================
 StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, xAOD::Egamma *eg) const
 {
@@ -165,7 +162,7 @@ StatusCode egammaForwardBuilder::ExecObjectQualityTool(const EventContext& ctx, 
   // execution of the object quality tools
   //
   // protection in case tool is not available
-  // return success as algorithm may be able to run without it 
+  // return success as algorithm may be able to run without it
   // in degraded mode
   if (m_objectQualityTool.name().empty()) return StatusCode::SUCCESS;
 
