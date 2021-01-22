@@ -1,4 +1,6 @@
+#include <numeric>
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/DataStructure.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
 #include <boost/property_tree/json_parser.hpp>
@@ -7,7 +9,15 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTSignature.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
+#include "TrigConfL1Data/CTPConfig.h"
+#include "TrigConfL1Data/BunchGroupSet.h"
+#include "TrigConfL1Data/BunchGroup.h"
+
+
 #include "TrigConfIO/JsonFileWriterHLT.h"
+#include "TrigConfIO/JsonFileWriter.h"
+
+
 
 template<typename COLL>
 boost::property_tree::ptree asArray( const COLL& data) {
@@ -149,8 +159,71 @@ void convertRun2HLTPrescalesToRun3(const TrigConf::HLTFrame* frame, const std::s
    TrigConf::HLTMenu menu;
    convertHLTMenu(frame, menu);
 
-
    TrigConf::JsonFileWriterHLT writer;
    std::cout << "Saving file: " << filename << std::endl;
    writer.writeJsonFile(filename, menu, psk);
+}
+
+std::vector<std::pair<int, int>> toRanges(const std::vector<int>& bunches) {
+   // converts sequence of bunches into the pairs of continous ranges
+   if ( bunches.empty() )
+      return {};
+   if (bunches.size() == 1) {
+       return { {bunches.front(), bunches.front()} };
+   }
+
+   // nontrival ranges
+   std::vector<std::pair<int, int>> ranges;
+   std::vector<int> sorted = bunches;
+   std::sort(sorted.begin(), sorted.end());
+
+   std::vector<int> differences;
+   std::adjacent_difference( sorted.begin(), sorted.end(), std::back_inserter(differences));
+
+   int start = sorted.front();
+
+   for (size_t i = 1; i < differences.size(); ++i) {
+      if (differences[i] == 1) continue;
+      ranges.emplace_back( std::pair(start, sorted[i-1]) );
+      start = sorted[i];
+   }
+   ranges.emplace_back( std::pair(start, sorted.back()) );
+   return ranges;
+}
+
+
+void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::string& filename) {
+   using ptree = boost::property_tree::ptree;
+   ptree top;
+   top.put("filetype", "bunchgroupset");
+   top.put("name", frame->bunchGroupSet().name());
+   
+   ptree pGroups;
+   const std::vector<TrigConf::BunchGroup>& bgVec = frame->bunchGroupSet().bunchGroups();
+   for (auto group : bgVec) {
+      auto ranges = toRanges(group.bunches());
+      ptree pGroup;
+      pGroup.put("name", group.name());
+      pGroup.put("id", group.internalNumber());
+      pGroup.put("info", std::to_string(group.bunches().size()) + " bunches, " + ranges.size() + " groups" );
+
+      ptree pBCIDS;
+
+      for ( auto [start, end] : ranges) {
+         ptree pTrain;
+         pTrain.put("first", start );
+         pTrain.put("length", 1+end-start );
+         pBCIDS.push_back(std::make_pair("", pTrain));
+      }
+      pGroup.push_back(std::make_pair("bcids", pBCIDS));
+
+      pGroups.push_back(std::make_pair(std::string("BGRP")+std::to_string(group.internalNumber()), pGroup));
+   }
+   top.push_back(std::make_pair("bunchGroups", pGroups));
+   TrigConf::L1BunchGroupSet bgs(std::move(top));
+   TrigConf::JsonFileWriter writer;
+   std::cout << "Saving file: " << filename << std::endl;
+   writer.writeJsonFile(filename, bgs);
+
+
 }

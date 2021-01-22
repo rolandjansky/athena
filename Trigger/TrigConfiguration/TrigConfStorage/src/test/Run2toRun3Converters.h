@@ -4,5 +4,7 @@
 
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfHLTData/HLTFrame.h"
+#include "TrigConfL1Data/CTPConfig.h"
 void convertRun2HLTMenuToRun3(const TrigConf::HLTFrame* frame, const std::string& filename);
 void convertRun2HLTPrescalesToRun3(const TrigConf::HLTFrame* frame, const std::string& filename);
+void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::string& filename);
