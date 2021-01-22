@@ -98,15 +98,15 @@ def fastElectronFexAlgCfg(flags, name="EgammaFastElectronFex_1", rois="EMRoIs"):
     extAcc = ParticleCaloExtensionToolCfg(flags)
     extTool = acc.popToolsAndMerge(extAcc)
 
-    efex = CompFactory.TrigEgammaFastElectronFexMT("EgammaFastElectronFex_1",
-                                                    AcceptAll=True,
+    efex = CompFactory.TrigEgammaFastElectronFexMT("EgammaFastElectronFex_Clean",
+                                                    AcceptAll=False,
                                                     TrackPt=1.0 * GeV,
                                                     TrackPtHighEt=2.0 * GeV,
                                                     ClusEt=20.0 * GeV,
                                                     CaloTrackdEtaNoExtrap=0.5,
                                                     CaloTrackdEtaNoExtrapHighEt=0.1,
-                                                    CaloTrackdETA=0.5,
-                                                    CaloTrackdPHI=0.5,
+                                                    CaloTrackdETA=0.2,
+                                                    CaloTrackdPHI=0.3,
                                                     CaloTrackdEoverPLow=0.0,
                                                     CaloTrackdEoverPHigh=999.0,
                                                     RCalBarrelFace=1470.0*mm,
