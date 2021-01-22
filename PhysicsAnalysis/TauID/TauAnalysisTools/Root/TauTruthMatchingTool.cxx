@@ -1,6 +1,5 @@
-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s)
@@ -26,12 +25,6 @@ TauTruthMatchingTool::TauTruthMatchingTool( const std::string& name )
   , m_accMVis("m_vis")
 {
   declareProperty( "MaxDeltaR", m_dMaxDeltaR = .2);
-}
-
-//______________________________________________________________________________
-TauTruthMatchingTool::~TauTruthMatchingTool( )
-{
-
 }
 
 //______________________________________________________________________________
@@ -488,7 +481,6 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
   // create link to the original TruthParticle
   if (xTruthMatch)
   {
-    decIsTruthMatched(xTau) = (char)true;
     if (eTruthMatchedParticleType == TruthHadronicTau or eTruthMatchedParticleType == TruthLeptonicTau)
     {
       ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink(xTruthMatch, xTruthTauContainer);
@@ -509,7 +501,6 @@ StatusCode TauTruthMatchingTool::checkTruthMatch (const xAOD::TauJet& xTau, cons
   }
   else
   {
-    decIsTruthMatched(xTau) = (char)false;
     ElementLink < xAOD::TruthParticleContainer > lTruthParticleLink;
     decTruthParticleLink(xTau) = lTruthParticleLink;
   }
