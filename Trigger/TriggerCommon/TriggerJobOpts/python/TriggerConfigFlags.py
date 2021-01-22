@@ -204,7 +204,7 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_BulkMCProd_prescale')
 
     # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
 

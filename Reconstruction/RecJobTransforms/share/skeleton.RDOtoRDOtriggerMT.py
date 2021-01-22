@@ -15,7 +15,6 @@ log = logging.getLogger('skeleton.RDOtoRDOtriggerMT')
 ##################################################
 # Options read by runHLT_standalone, can be overwritten in runArgs/preExec/preInclude
 ##################################################
-setMenu           = 'LS2_v1'
 doWriteRDOTrigger = True
 doWriteBS         = False
 
