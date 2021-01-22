@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 
 # +++++++++++++++++++ beginning of InDetRec_jobOptions.py
@@ -124,7 +124,7 @@ else:
 
     if InDetFlags.doSLHC():
       InDetSpSeededTracksKey    = InDetKeys.SiSpSeededSLHCTracks() 
-      InDetResolvedTracksKey    = InDetKeys.ResolvedSLHCTracks() 
+      InDetResolvedTracksKey    = InDetKeys.UnslimmedTracks() if InDetFlags.doFastTracking()  else InDetKeys.ResolvedSLHCTracks() 
       InDetExtendedTracksKey    = InDetKeys.ExtendedSLHCTracks()
       InDetExtendedTracksMapKey = InDetKeys.ExtendedTracksMapSLHC()              
       
@@ -1089,7 +1089,7 @@ else:
       if InDetFlags.doDBMstandalone():
         TrackCollectionKeys      += [ InDetKeys.DBMTracks() ]
         TrackCollectionTruthKeys += [ InDetKeys.DBMTracksTruth() ]
-      else:
+      elif (not InDetFlags.doFastTracking()):
         from TrkTrackCollectionMerger.TrkTrackCollectionMergerConf import Trk__TrackCollectionMerger
         TrkTrackCollectionMerger = Trk__TrackCollectionMerger(name                    = "InDetTrackCollectionMerger",
                                                               TracksLocation          = InputCombinedInDetTracks,

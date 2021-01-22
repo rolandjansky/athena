@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkTrack/TrackInfo.h"
@@ -191,7 +191,7 @@ std::string Trk::TrackInfo::dumpInfo() const
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::FTK)  	       ? "FTK; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::FastTrackFinderSeed)  	       ? "FastTrackFinderSeed; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSPSeededFinderSimple)  	               ? "SiSPSeededFinderSimple; ": "");
-
+     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::FastTrackingFitterTool)  	               ? "FastTrackingFitterTool; ": "");
      
      
 //     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::NumberOfTrackRecoInfo)   ? "NumberOfTrackRecoInfo; ": "");

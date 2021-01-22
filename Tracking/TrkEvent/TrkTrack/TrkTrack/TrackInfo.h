@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRKTRACK_TRACKINFO_H
@@ -259,9 +259,16 @@ the track and determine this for yourself (especially as not all Track builders 
 
 /** Track seeded */
      SiSpacePointsSeedMaker_TrkSeeded           = 52,
+     
+/**  For track using fitter tool as ambiguity processor tool.
+ *   This is used in the ITk fast tracking:
+ *   Ambiguity resolution is switched off and SiSPSeededTracks are only refitted
+ */
+     FastTrackingFitterTool                     = 53,
+
 
 /**  Maximum number of enums */   
-     NumberOfTrackRecoInfo                      = 53
+     NumberOfTrackRecoInfo                      = 54
     };
     
     TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 

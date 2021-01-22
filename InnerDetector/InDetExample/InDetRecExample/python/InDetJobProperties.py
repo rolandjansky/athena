@@ -1,6 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 ## @file InDetRecExample/python/InDetJobProperties.py
@@ -124,6 +122,13 @@ class doFastTracking(InDetFlagsJobProperty):
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
+    
+class doFastTrackingFit(InDetFlagsJobProperty):
+    """If doFastTracking is enabled, you can decide to switch 
+    on the fit of the SiSPSeededTracks"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
 
 class doPseudoTracking(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking on and off"""
@@ -2373,6 +2378,7 @@ class InDetJobProperties(JobPropertyContainer):
        print '* NewTracking is ON:'
     if self.doFastTracking() :
        print '* --> running in FastTracking mode (i.e. without AmbiguitySolver)'
+       print '* --> refitting tracks is turned ', 'on' if self.doFastTrackingFit() else 'off'
     if self.doSiSPSeededTrackFinder() :
        print '* - run SiSPSeededTrackFinder'
        if self.useZvertexTool() :
@@ -2749,6 +2755,7 @@ _list_InDetJobProperties = [Enabled,
                             doPrintConfigurables,
                             doNewTracking,
                             doFastTracking,
+                            doFastTrackingFit,
                             doPseudoTracking,
                             doSplitReco,
                             doxKalman,
