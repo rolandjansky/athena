@@ -80,7 +80,7 @@ def setupRun3L1CaloSimulationSequence(skipCTPEmulation = False, useAlgSequence =
         include('TrigT1CaloByteStream/ReadLVL1CaloBSRun2_jobOptions.py')
 
     #python options for supercells
-    if(simflags.Calo.DataNoPedestal()==False and globalflags.DataSource()=='data'==False ):
+    if(simflags.Calo.DataNoPedestal()==False and globalflags.DataSource()!='data' ):
         include('LArROD/LArConfigureCablingSCFolder.py')
 
     ## CaloCells need to be created from LAr and Tile data when running on raw data
