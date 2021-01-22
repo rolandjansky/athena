@@ -288,7 +288,8 @@ PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
-                                      "MET_Track.sumet"
+                                      "MET_Track.sumet",
+                                      "GSFTrackParticles.eProbabilityHT.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition"
 ]
 
 # Add trigger matching
