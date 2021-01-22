@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-include: 21.6/AthGeneration
+# art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - Multicore LO
 # art-type: grid
 # art-athena-mt: 8

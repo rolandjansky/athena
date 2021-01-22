@@ -1,6 +1,8 @@
 #!/bin/sh
 
 # art-include: 21.6/AthGeneration
+# art-include: master/Athena
+# art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - NLO LHE generation
 # art-type: grid
 # art-output: test_lhe_events.events
