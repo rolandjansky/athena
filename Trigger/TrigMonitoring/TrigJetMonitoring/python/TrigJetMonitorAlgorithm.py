@@ -525,12 +525,14 @@ if __name__=='__main__':
   parser.add_argument('--athenaMT',            action='store_true', dest='athenaMT',            default=False)
   parser.add_argument('--legacy',              action='store_true', dest='legacy',              default=False)
   parser.add_argument('--runTruthReco',        action='store_true', dest='runTruthReco',        default=False)
+  parser.add_argument('--genOfflineR10PF',     action='store_true', dest='genOfflineR10PF',     default=False)
   parser.add_argument('--printDetailedConfig', action='store_true', dest='printDetailedConfig', default=False)
   parser.add_argument('--input',               action='store',      dest='inputFile')
   args                = parser.parse_args()
   AthenaMT            = args.athenaMT
   Legacy              = args.legacy
   RunTruth            = args.runTruthReco
+  GenOfflineR10PF     = args.genOfflineR10PF
   PrintDetailedConfig = args.printDetailedConfig
   # Protections
   if AthenaMT and Legacy:
@@ -569,6 +571,8 @@ if __name__=='__main__':
   # AthenaMT or Legacy
   InputType = 'MT' if AthenaMT else 'Legacy'
 
+  # Define the output list
+  outputlist = ["xAOD::EventInfo#*","xAOD::VertexContainer#*","xAOD::JetContainer#HLT_*","xAOD::JetAuxContainer#HLT_*Aux.-PseudoJet","xAOD::ShallowAuxContainer#HLT_*Aux.-PseudoJet"]
   # Reconstruct small-R truth jets
   if RunTruth:
     from JetRecConfig.StandardSmallRJets import AntiKt4Truth # import the standard definitions
@@ -576,11 +580,30 @@ if __name__=='__main__':
     from JetRecConfig.JetRecConfig import JetRecCfg
     comp = JetRecCfg(AntiKt4Truth,ConfigFlags)
     cfg.merge(comp)
-    # Write jet collection to AOD
-    # First define the output list
+    # add jets to the output list
     key = "{0}Jets".format(AntiKt4Truth.basename)
-    outputlist = ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
-    # Now get the output stream components
+    outputlist += ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
+
+  # Reconstruct offline large-R PFlow CSSK+SD jets
+  if GenOfflineR10PF:
+    from JetRecConfig.JetDefinition import JetConstitSeq, JetDefinition, xAODType
+    EMPFlowCSSK         = JetConstitSeq("EMPFlowCSSK", xAODType.ParticleFlow, ["CorrectPFO","CS","SK","CHS"], "JetETMissParticleFlowObjects", "CSSKParticleFlowObjects", label="EMPFlowCSSK")
+    AntiKt10EMPFlowCSSK = JetDefinition("AntiKt",1.0,EMPFlowCSSK,ptmin=2e3,)
+    AntiKt10EMPFlowCSSK.modifiers = ["ConstitFourMom","Sort","Filter:2000"]
+    from JetRecConfig.JetGrooming import JetSoftDrop
+    from JetRecConfig.StandardLargeRJets import standardrecomods,substrmods
+    AntiKt10EMPFlowCSSKSoftDrop = JetSoftDrop(AntiKt10EMPFlowCSSK,modifiers=standardrecomods+substrmods,ZCut=0.1,Beta=1.0) # standard SoftDrop
+    # Add the components from our jet reconstruction job
+    from JetRecConfig.JetRecConfig import JetRecCfg
+    comp = JetRecCfg(AntiKt10EMPFlowCSSKSoftDrop,ConfigFlags)
+    cfg.merge(comp)
+    # add jets to the output list
+    key = "{0}Jets".format(AntiKt10EMPFlowCSSKSoftDrop.basename)
+    outputlist += ["xAOD::JetContainer#"+key,"xAOD::JetAuxContainer#"+key+"Aux.-PseudoJet"]
+
+  # Write new jet collections to AOD
+  if RunTruth or GenOfflineR10PF:
+    # Get the output stream components
     from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
     cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
 
