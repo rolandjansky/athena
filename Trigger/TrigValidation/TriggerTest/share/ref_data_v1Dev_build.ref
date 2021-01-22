@@ -166,6 +166,8 @@ HLT_2mu4_muonqual_L12MU4:
     0: 4
 HLT_2mu6_10invm70_L1MU6:
   eventCount: 0
+HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF:
+  eventCount: 0
 HLT_2mu6_Dr_L12MU4:
   eventCount: 0
   stepCounts:
@@ -602,6 +604,8 @@ HLT_e60_lhmedium_L1EM22VHI:
   eventCount: 0
 HLT_e60_lhmedium_nod0_L1EM22VHI:
   eventCount: 0
+HLT_e70_lhloose_xe70_cell_L1EM22VHI:
+  eventCount: 0
 HLT_e7_etcut_L1EM3:
   eventCount: 11
   stepCounts:
@@ -688,9 +692,11 @@ HLT_g25_loose_L1EM20VH:
     0: 2
     1: 2
     2: 5
+HLT_g25_medium_4j35_0eta490_dijetSEP35j1etSEP35j2etSEP1000djmass_L1EM22VHI:
+  eventCount: 0
 HLT_g25_medium_L1EM20VH:
   eventCount: 0
-HLT_g25_medium_mu24_ivarmedium_L1MU20:
+HLT_g25_medium_mu24_L1MU20:
   eventCount: 0
 HLT_g25_tight_L1EM20VH:
   eventCount: 0
@@ -771,6 +777,10 @@ HLT_g5_tight_L1EM3:
 HLT_g60_loose_LArPEB_L1EM20VHI:
   eventCount: 0
 HLT_g80_loose_LArPEB_L1EM20VHI:
+  eventCount: 0
+HLT_g85_tight_3j50_L1EM22VHI:
+  eventCount: 0
+HLT_g90_loose_xe90_cell_L1EM22VHI:
   eventCount: 0
 HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20:
   eventCount: 0
