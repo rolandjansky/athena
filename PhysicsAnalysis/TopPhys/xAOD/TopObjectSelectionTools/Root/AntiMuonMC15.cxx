@@ -9,7 +9,7 @@
 namespace top {
   AntiMuonMC15::AntiMuonMC15(const double ptcut, AntiMuonIsolation* isolation) :
     m_ptcut(ptcut),
-    m_muonSelectionTool("CP::MuonSelectionTool"),
+    m_muonSelectionTool("MuonSelectionTool"),
     m_isolation(isolation) {
     top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve muonSelectionTool");
   }
