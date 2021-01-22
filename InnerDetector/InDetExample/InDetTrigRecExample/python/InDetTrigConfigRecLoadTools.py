@@ -279,11 +279,8 @@ if InDetTrigFlags.loadExtrapolator():
   #
   # Setup the Navigator (default, could be removed)
   #
-  from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
-  from TrkExTools.TrkExToolsConf import Trk__Navigator
-  InDetTrigNavigator = Trk__Navigator(name = 'InDetTrigNavigator',
-                                      TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc)
+  from InDetRecExample import TrackingCommon
+  InDetTrigNavigator = TrackingCommon.getInDetNavigator('InDetTrigNavigator')
 
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
