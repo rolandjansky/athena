@@ -70,7 +70,10 @@ TrigConf::L1BunchGroup::contains(size_t bcid) const {
    return false;
 }
 
-
+const std::vector<std::pair<size_t,size_t>>& 
+TrigConf::L1BunchGroup::trains() const {
+   return m_bunchdef;
+}
 /*****************************************
 
   L1BunchGroupSet

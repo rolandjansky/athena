@@ -132,6 +132,7 @@ public:
    string       hltxmlOutFile { "HLTConfig.xml" };
    string       hltJsonOutFile { "HLTMenu.json" };
    string       hltPSJsonOutFile { "HLTPrescale.json" };
+   string       bgkJsonOutFile {"BunchGroups.json"};
    string       coolInputConnection { "" };
    string       coolOutputConnection { "" };
    unsigned int coolOutputRunNr { 0 };
@@ -321,6 +322,7 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          hltxmlOutFile = "HLTconfig_" + outBase + ".xml";
          hltJsonOutFile = "HLTMenu_" + outBase + ".json";
          hltPSJsonOutFile = "HLTPrescale_" + outBase + ".json";
+         bgkJsonOutFile   = "BunchGroups_" + outBase + ".json";
       }
    }
 
@@ -682,6 +684,7 @@ int main( int argc, char* argv[] ) {
       if(hltFrame) {
          convertRun2HLTMenuToRun3(hltFrame, gConfig.hltJsonOutFile);
          convertRun2HLTPrescalesToRun3(hltFrame, gConfig.hltPSJsonOutFile);
+         convertRun2BunchGroupsToRun3(ctpc, gConfig.bgkJsonOutFile);
       }
 
    }

@@ -39,7 +39,7 @@ atlas_add_executable( TrigConfTestTriggerDBCoolMix
                       LINK_LIBRARIES TrigConfStorage )
 
 atlas_add_test( test_Run2Run3Conversion
-                SCRIPT TrigConfReadWrite -i TRIGGERDB 2766,24128,18513 -o r3json
+                SCRIPT TrigConfReadWrite -i TRIGGERDB 2218,4229,2967,1373 -o r3json
                 PROPERTIES TIMEOUT 300 )                      
 
 # Install files from the package:
