@@ -20,7 +20,7 @@ def interpretJetCalibDefault(recoDict):
     elif recoDict['dataType'].endswith('pf'):
       return 'subresjesgscIS'
 
-recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','trkpresel']
+recoKeys = ['recoAlg','dataType','calib','jetCalib','trkopt','trkpresel','cleaning']
 
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
@@ -49,6 +49,7 @@ def jetRecoDictToString(jetRecoDict):
     strtemp = "{recoAlg}_{dataType}_{calib}_{jetCalib}"
     if jetRecoDict["trkopt"] != "notrk":
         strtemp += "_{trkopt}_{trkpresel}"
+    strtemp+="_{cleaning}"
     return strtemp.format(**jetRecoDict)
 
 # Inverse of the above, essentially only for CF tests
@@ -64,9 +65,9 @@ def jetRecoDictFromString(jet_def_string):
     trkopt = "notrk"
     trkpresel = "nopresel"
     if "_ftf" in jet_def_string:
-        jetalg, inputtype, clusterscale, jetcalib, trkopt = jet_def_string.split('_')
+        jetalg, inputtype, clusterscale, jetcalib, trkopt, cleaning = jet_def_string.split('_')
     else:
-        jetalg, inputtype, clusterscale, jetcalib = jet_def_string.split('_')
+        jetalg, inputtype, clusterscale, jetcalib, cleaning = jet_def_string.split('_')
 
     jetRecoDict = {
         "recoAlg":   jetalg,
@@ -74,7 +75,8 @@ def jetRecoDictFromString(jet_def_string):
         "calib":     clusterscale,
         "jetCalib":  jetcalib,
         "trkopt" :   trkopt,
-        "trkpresel": trkpresel
+        "trkpresel": trkpresel,
+        "cleaning": cleaning
     }
     return jetRecoDict
 

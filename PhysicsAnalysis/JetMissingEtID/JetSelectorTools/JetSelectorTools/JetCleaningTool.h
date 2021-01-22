@@ -118,6 +118,10 @@ public:
     SG::AuxElement::ConstAccessor<char> m_acc_jetClean;
     SG::AuxElement::ConstAccessor<char> m_acc_looseClean;
 
+    //
+    Gaudi::Property<std::string> m_jetContainerName{this, "JetContainer", "", "SG key for input jet container"};
+    SG::WriteDecorHandleKey<xAOD::JetContainer> m_jetCleanKey{this, "JetCleaningName", "isClean", "SG key for output jet cleaning decoration"};
+
     asg::AcceptInfo m_accept;
 
     /** Hot cells caching */

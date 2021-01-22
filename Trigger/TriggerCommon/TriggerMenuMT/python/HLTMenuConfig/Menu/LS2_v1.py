@@ -227,6 +227,7 @@ def setupMenu():
 
     TriggerFlags.JetSlice.signatures = TriggerFlags.JetSlice.signatures() + [
         ChainProp(name='HLT_j85_L1J20', groups=['Online',SingleJetGroup]),
+        ChainProp(name='HLT_j85_cleanLB_L1J20', groups=['Online',SingleJetGroup]),
         ChainProp(name='HLT_j45_L1J15', groups=['Online',SingleJetGroup]),
         ChainProp(name='HLT_j45_subjesgscIS_ftf_L1J15', groups=SingleJetGroup),
         ChainProp(name='HLT_j45_subresjesgscIS_ftf_L1J15', groups=SingleJetGroup),

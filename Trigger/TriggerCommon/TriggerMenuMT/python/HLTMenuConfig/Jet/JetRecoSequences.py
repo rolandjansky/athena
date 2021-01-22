@@ -187,8 +187,13 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     if doesTracking:
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
     #Configuring jet cleaning mods now
-    if not isPFlow and jetRecoDict["cleaning"] != 'noCleaning': #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow now)
-        jetDef.modifiers.append("Cleaning:"+jetRecoDict["cleaning"])
+    if not isPFlow and jetRecoDict["cleaning"] != 'noCleaning': #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
+        clean_str = {
+            'cleanLB': 'LooseBad',
+        }[jetRecoDict["cleaning"]]
+
+        jetDef.modifiers.append("CaloQuality")
+        jetDef.modifiers.append(f"Cleaning:{clean_str}")
 
 
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)

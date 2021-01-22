@@ -32,7 +32,7 @@ Description: Class for selecting jets that pass some cleaning cuts
 //=============================================================================
 // Constructors
 //=============================================================================
-    namespace JCT
+namespace JCT
 {
 class HotCell : public asg::AsgMessaging
 {
@@ -173,6 +173,7 @@ StatusCode JetCleaningTool::initialize()
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
   m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
   m_acc_jetClean = m_jetCleanDFName;
+  m_jetCleanKey = m_jetContainerName + "." + m_jetCleanDFName;
   m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
   ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
@@ -186,6 +187,7 @@ StatusCode JetCleaningTool::initialize()
             return StatusCode::FAILURE;
     }
 
+  ATH_CHECK(m_jetCleanKey.initialize());
 
   return StatusCode::SUCCESS;
 }
@@ -413,9 +415,9 @@ asg::AcceptData JetCleaningTool::accept( const xAOD::Jet& jet) const
 
 StatusCode JetCleaningTool::decorate(const xAOD::JetContainer &jets) const
 {
-    ATH_MSG_DEBUG(" Decorating jets with jet cleaning decoration : " << m_jetCleanDFName);
+    ATH_MSG_DEBUG(" Decorating jets with jet cleaning decoration : " << m_jetCleanKey.key());
 
-    SG::WriteDecorHandle<xAOD::JetContainer, bool> cleanHandle(m_jetCleanDFName);
+    SG::WriteDecorHandle<xAOD::JetContainer, char> cleanHandle(m_jetCleanKey);
 
     for (const xAOD::Jet *jet : jets) {
         cleanHandle(*jet) = accept(*jet).getCutResult("Cleaning");
