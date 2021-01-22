@@ -840,6 +840,11 @@ class ItemDef:
         LVL1MenuItem('L1_gXEPUFIT50').setLogic( gXEPUFIT50 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_gXE50').setLogic( gXE50 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_jXE50').setLogic( jXE50 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_jXENC50').setLogic( jXENC50 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_gXENC70').setLogic( gXENC70 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_gXEPUFIT60').setLogic( gXEPUFIT60 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_jXERHO80').setLogic( jXERHO80 & physcond).setTriggerType(TT.calo)    # noqa: F821
+        LVL1MenuItem('L1_gXEJWOJ110').setLogic( gXEJWOJ110  & physcond).setTriggerType(TT.calo)    # noqa: F821
 
         LVL1MenuItem('L1_XE10').setLogic( XE10 & physcond).setTriggerType(TT.calo)    # noqa: F821
         LVL1MenuItem('L1_XE20').setLogic( XE20 & physcond).setTriggerType(TT.calo)    # noqa: F821
