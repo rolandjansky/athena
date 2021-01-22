@@ -7,6 +7,10 @@ evgenConfig.contact  = [ "atlas-generators-sherpa@cern.ch", "frank.siegert@cern.
 evgenConfig.nEventsPerJob = 10000
 
 genSeq.Sherpa_i.RunCard="""
+(run){
+  ME_SIGNAL_GENERATOR=Amegic
+}(run)
+
 (processes){
   Process 93 93 -> 11 -11 93{1}
   Order (*,2)
@@ -23,5 +27,3 @@ genSeq.Sherpa_i.Parameters += []
 genSeq.Sherpa_i.OpenLoopsLibs = []
 genSeq.Sherpa_i.ExtraFiles = []
 genSeq.Sherpa_i.NCores = 1
-
-genSeq.Sherpa_i.CleanupGeneratedFiles = 1
