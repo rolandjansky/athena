@@ -45,12 +45,7 @@ if DetFlags.pixel_on():
     #################
     # Module status #
     #################
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
-
-    if not useNewDeadmapFormat:
-        if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-            conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -91,21 +86,23 @@ if DetFlags.pixel_on():
                 alg.EndcapTimeOffset=[100.0,100.0,100.0]
                 alg.DBMTimeOffset=[100.0,100.0,100.0]
 
-            if athenaCommonFlags.isOnline():
-                alg.ReadDeadMapKey = ''
-            if useNewDeadmapFormat:
-                alg.ReadDeadMapKey = ''
             condSeq += alg
 
-    if useNewDeadmapFormat:
+    if not athenaCommonFlags.isOnline():
         if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
             conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-            if athenaCommonFlags.isOnline():
-                alg.ReadKey = ""
-            condSeq += alg
+            # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
+            if globalflags.DataSource=='data':
+                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+            else:
+                conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+        if athenaCommonFlags.isOnline():
+            alg.ReadKey = ''
+        condSeq += alg
 
     if globalflags.DataSource=='data' and InDetFlags.usePixelDCS():
         if not conddb.folderRequested("/PIXEL/DCS/FSMSTATE"):
