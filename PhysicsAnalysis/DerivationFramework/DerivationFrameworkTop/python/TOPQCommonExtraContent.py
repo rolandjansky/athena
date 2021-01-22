@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #====================================================================
 # Common file used by TOPQCommonSlimming.py
@@ -230,6 +230,16 @@ TOPQExtraVariables_AntiKt8EMPFlowExKt2GASubJets_ForTOPQ1 =  ["AntiKt8EMPFlowExKt
                                                              + "SoftBVrtClusterTool_MSVTight_Vertices_3dsig."]
 
 TOPQExtraVariables_SoftBVrtClusterTool_Loose_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Loose_Vertices."
+                                                                  + "x."
+                                                                  + "y."
+                                                                  + "z."
+                                                                  + "lxy."
+                                                                  + "lxysig."
+                                                                  + "lz."
+                                                                  + "lzsig."
+                                                                  + "l3d."
+                                                                  + "l3dsig."
+                                                                  + "trackParticleLinks."
                                                                   + "tc_lvt_px."
                                                                   + "tc_lvt_py."
                                                                   + "tc_lvt_pz."
@@ -237,6 +247,16 @@ TOPQExtraVariables_SoftBVrtClusterTool_Loose_Vertices_ForTOPQ1 = ["SoftBVrtClust
                                                                   + "tc_lvt_label."]
 
 TOPQExtraVariables_SoftBVrtClusterTool_Medium_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Medium_Vertices."
+                                                                  + "x."
+                                                                  + "y."
+                                                                  + "z."
+                                                                  + "lxy."
+                                                                  + "lxysig."
+                                                                  + "lz."
+                                                                  + "lzsig."
+                                                                  + "l3d."
+                                                                  + "l3dsig."
+                                                                  + "trackParticleLinks."
                                                                   + "tc_lvt_px."
                                                                   + "tc_lvt_py."
                                                                   + "tc_lvt_pz."
@@ -244,6 +264,16 @@ TOPQExtraVariables_SoftBVrtClusterTool_Medium_Vertices_ForTOPQ1 = ["SoftBVrtClus
                                                                   + "tc_lvt_label."]
 
 TOPQExtraVariables_SoftBVrtClusterTool_Tight_Vertices_ForTOPQ1 = ["SoftBVrtClusterTool_Tight_Vertices."
+                                                                  + "x."
+                                                                  + "y."
+                                                                  + "z."
+                                                                  + "lxy."
+                                                                  + "lxysig."
+                                                                  + "lz."
+                                                                  + "lzsig."
+                                                                  + "l3d."
+                                                                  + "l3dsig."
+                                                                  + "trackParticleLinks."
                                                                   + "tc_lvt_px."
                                                                   + "tc_lvt_py."
                                                                   + "tc_lvt_pz."
@@ -251,6 +281,16 @@ TOPQExtraVariables_SoftBVrtClusterTool_Tight_Vertices_ForTOPQ1 = ["SoftBVrtClust
                                                                   + "tc_lvt_label."]
 
 TOPQExtraVariables_VrtSecInclusive_SoftBtagCandidateVertices_ForTOPQ1 = ["VrtSecInclusive_SoftBtagCandidateVertices."
+                                                                  + "x."
+                                                                  + "y."
+                                                                  + "z."
+                                                                  + "lxy."
+                                                                  + "lxysig."
+                                                                  + "lz."
+                                                                  + "lzsig."
+                                                                  + "l3d."
+                                                                  + "l3dsig."
+                                                                  + "trackParticleLinks."
                                                                   + "chi2_assoc."
                                                                   + "chi2_core."
                                                                   + "dCloseVrt."
