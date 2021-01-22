@@ -95,9 +95,8 @@ def generateInDetSensitiveDetectorList():
             SensitiveDetectorList += [ 'SctSensorSD' ]
     if DetFlags.simulate.TRT_on() and not isUpgrade:
         SensitiveDetectorList += [ 'TRTSensitiveDetector' ]
-    # HGTD moved to ID config - but no readout geometry implemented yet so does nothing
     if DetFlags.simulate.HGTD_on():
-        #SensitiveDetectorList += [ 'HGTDSensorSD' ] # line like this needed when readout geo in place
+        SensitiveDetectorList += [ 'HGTDSensorSD' ]
         # HGTD and MBTS cannot be on at the same time, fail if this happens
         if DetFlags.simulate.HGTD_on() and DetFlags.simulate.MBTS_on():
             raise RuntimeError( 'Both MBTS and HGTD set On - please check your configuration!' )

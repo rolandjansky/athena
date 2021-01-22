@@ -6,28 +6,34 @@
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
+#include "HGTD_ReadoutGeometry/HGTD_DetectorManager.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "InDetIdentifier/PixelID.h"
 #include "InDetIdentifier/SCT_ID.h"
+#include "HGTD_Identifier/HGTD_ID.h"
 
 
 inline void GeoSiHit::init() {
 
   StoreGateSvc *detStore = StoreGate::pointer("DetectorStore");
   if(detStore->retrieve(_sct,"SCT").isFailure())
-    	_sct = 0;
+    _sct = 0;
   if(detStore->retrieve(_pix,"Pixel").isFailure())
-	_pix = 0;	
+    _pix = 0;
+  if(detStore->retrieve(_hgtd,"HGTD").isFailure())
+    _hgtd = 0;
   if(detStore->retrieve(_sID,"SCT_ID").isFailure())
-	_sID = 0;
+    _sID = 0;
   if(detStore->retrieve(_pID,"PixelID").isFailure())
-	_pID = 0;
+    _pID = 0;
+  if(detStore->retrieve(_hID,"HGTD_ID").isFailure())
+    _hID = 0;
 }
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
   _hit = &h;
-  if (!_sct || ! _pix) init();
+  if (!_sct || !_pix || !_hgtd) init();
 }
 
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
@@ -35,22 +41,28 @@ inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
   int Barrel = _hit->getBarrelEndcap();
   if (Barrel== 1) Barrel = -2;
   Identifier id;
-  const InDetDD::SiDetectorElement *geoelement=NULL;
+  const InDetDD::SolidStateDetectorElementBase *geoelement=NULL;
   if (_hit->isPixel()) {
-    
     id = _pID->wafer_id(Barrel,
-			_hit->getLayerDisk(), 
-			_hit->getPhiModule(), 
-			_hit->getEtaModule());
-    geoelement = _pix->getDetectorElement(id);      
+                        _hit->getLayerDisk(),
+                        _hit->getPhiModule(),
+                        _hit->getEtaModule());
+    geoelement = _pix->getDetectorElement(id);
   }
-  else {
+  else if (_hit->isSCT()) {
     id = _sID->wafer_id(Barrel,
-			_hit->getLayerDisk(), 
-			_hit->getPhiModule(), 
-			_hit->getEtaModule(), 
-			_hit->getSide() );
-    geoelement = _sct->getDetectorElement(id);      
+                        _hit->getLayerDisk(),
+                        _hit->getPhiModule(),
+                        _hit->getEtaModule(),
+                        _hit->getSide() );
+    geoelement = _sct->getDetectorElement(id);
+  }
+  else { // HGTD
+    id = _hID->wafer_id(Barrel,
+                        _hit->getLayerDisk(),
+                        _hit->getPhiModule(),
+                        _hit->getEtaModule());
+    geoelement = _hgtd->getDetectorElement(id);
   }
   
   

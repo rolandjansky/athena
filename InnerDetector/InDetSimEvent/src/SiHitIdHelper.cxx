@@ -49,7 +49,8 @@ void SiHitIdHelper::Initialize() {
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
   bool isInclinedAlternative = (pix !=0 &&  pix->dictionaryVersion() == "SLHC_InclinedAlternative");
 
-  InitializeField("PixelSCT",0,1);
+  if (isSLHC) InitializeField("Part",0,2);
+  else InitializeField("Part",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
   if(isInclinedAlternative) InitializeField("LayerDisk",0,32);
@@ -64,16 +65,23 @@ void SiHitIdHelper::Initialize() {
 // Pixel or SCT
 bool SiHitIdHelper::isPixel(const int& hid){
   this->SetID(hid);
-  int ps = this->GetFieldValue("PixelSCT");
+  int ps = this->GetFieldValue("Part");
   if (ps ==0 ) return true;
   else return false;
 }
 
 bool SiHitIdHelper::isSCT(const int& hid){
   this->SetID(hid);
-  int ps = this->GetFieldValue("PixelSCT");
-  if (ps ==0 ) return false;
-  else return true;
+  int ps = this->GetFieldValue("Part");
+  if (ps ==1 ) return true;
+  else return false;
+}
+
+bool SiHitIdHelper::isHGTD(const int& hid){
+  this->SetID(hid);
+  int ps = this->GetFieldValue("Part");
+  if (ps ==2 ) return true;
+  else return false;
 }
 
 // Barrel or Endcap
@@ -109,10 +117,10 @@ int SiHitIdHelper::getSide(const int& hid) {
 
 //
 // Info packing:
-int SiHitIdHelper::buildHitId(const int Pixel_SCT, const int BrlECap, const int LayerDisk,
+int SiHitIdHelper::buildHitId(const int Part, const int BrlECap, const int LayerDisk,
                               const int etaM, const int phiM, const int side) {
   this->SetID(0);
-  this->SetFieldValue("PixelSCT",       Pixel_SCT);
+  this->SetFieldValue("Part", Part);
   this->SetFieldValue("BarrelEndcap",   BrlECap);
   this->SetFieldValue("LayerDisk",      LayerDisk);
   this->SetFieldValue("EtaModule",      etaM);
