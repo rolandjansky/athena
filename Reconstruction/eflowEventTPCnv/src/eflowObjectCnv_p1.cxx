@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "eflowEvent/eflowObject.h"
@@ -35,12 +35,12 @@ void eflowObjectCnv_p1::persToTrans( const eflowObject_p1 *persObj, eflowObject 
 
   ElementLinkVector<Rec::TrackParticleContainer> dummyTrackVector;
   m_navTrackCnv.persToTrans(&persObj->m_eflowTrack,&dummyTrackVector,eflowStream);
-  for (const ElementLink<Rec::TrackParticleContainer>& track : dummyTrackVector)
+  for (const ElementLink<Rec::TrackParticleContainer> track : dummyTrackVector)
     transObj->addTrack(track);
 
   ElementLinkVector<CaloClusterContainer> dummyClusterVector;
   m_navClusCnv.persToTrans(&persObj->m_eflowClus,&dummyClusterVector,eflowStream);
-  for (const ElementLink<CaloClusterContainer>& clus : dummyClusterVector)
+  for (const ElementLink<CaloClusterContainer> clus : dummyClusterVector)
     transObj->addClus (clus);
 }
 
