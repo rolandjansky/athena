@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s", __name__)
@@ -194,9 +194,8 @@ def TrackingVolumesSvc(name="TrackingVolumesSvc",**kwargs):
 
 # default muon navigator
 def MuonNavigator(name = "MuonNavigator",**kwargs):
-    kwargs.setdefault("TrackingGeometrySvc", "AtlasTrackingGeometrySvc")
-    from TrkExTools.TrkExToolsConf import Trk__Navigator
-    return Trk__Navigator(name,**kwargs)
+    from InDetRecExample                import TrackingCommon
+    return TrackingCommon.getInDetNavigator(name, **kwargs)
 
 # end of factory function MuonNavigator
 
