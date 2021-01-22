@@ -36,7 +36,7 @@ if [ $rc -eq 0 ]
 then
     ArtPackage=$1
     ArtJobName=$2
-    art.py compare grid --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
+    art.py compare grid --entries 20 ${ArtPackage} ${ArtJobName} --order-trees --mode=semi-detailed
     rc2=$?
 fi
 
