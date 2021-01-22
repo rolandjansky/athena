@@ -51,9 +51,7 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-// Trk includes
-#include "TrkGeometry/TrackingGeometry.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkSurfaces/DiscSurface.h"
 
 // Root
 #include "TTree.h"
@@ -122,9 +120,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_Err_y_pixel(0),
   m_Err_x_SCT(0),
   m_Err_y_SCT(0),
-  m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
-  m_trackingGeometry(0),
-  m_trackingGeometryName("AtlasTrackingGeometry"),
   m_useCustomGeometry(false)
 {
   declareProperty("RndmSvc",                      m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
@@ -142,8 +137,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   declareProperty("DetectorElementMapName",       m_detElementMapName="Pixel_IdHashDetElementMap");
   declareProperty("CheckSmear",                   m_checkSmear);
 
-  // get the service handle for the TrackingGeometry
-  declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
   declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
 
@@ -202,17 +195,6 @@ StatusCode SiSmearedDigitizationTool::initialize()
   if (!m_mergeSvc.retrieve().isSuccess()) {
     ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
     return StatusCode::FAILURE;
-  }
-
-  if (m_SmearPixel && m_useCustomGeometry){
-
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve TrackingGeometrySvc. Abort job. " );
-      return StatusCode::FAILURE;
-    }
-
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-
   }
 
   if (m_checkSmear){
@@ -889,16 +871,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Planar_detElement_RIO_map * 
 StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
 {
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in SiSmearedDigizationTool::digitize() ---" );
-
-  if(m_useCustomGeometry) {
-    if ((detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName)).isFailure()) {
-      ATH_MSG_FATAL( "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO( "TrackingGeometry '" << m_trackingGeometryName << "' successfully retrieved from DetectorStore." );
-  }
-
   m_detElementMap = new iFatras::IdHashDetElementCollection;
   //Retrieve and/or store the map with IdHash to DetElement
   if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
