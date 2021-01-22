@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # jobOptions to activate the dump of the NSWPRDValAlg nTuple
 # This file can be used with Reco_tf by specifying --postInclude MuonPRDTest/NSWPRDValAlg.reco.py
@@ -15,19 +15,19 @@ from MuonPRDTest.MuonPRDTestConf import *
 job+=NSWPRDValAlg('NSWPRDValAlg', OutputLevel = DEBUG)
 NSWPRDValAlg.OutputLevel = INFO
 NSWPRDValAlg.doTruth = True
-
 NSWPRDValAlg.doMuEntry = True
 
-NSWPRDValAlg.doMMHit = True
-NSWPRDValAlg.doMMDigit = True
-NSWPRDValAlg.doMMRDO = True
-NSWPRDValAlg.doMMPRD = True
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+NSWPRDValAlg.doMMHit = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMDigit = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMRDO = MuonGeometryFlags.hasMM()
+NSWPRDValAlg.doMMPRD = MuonGeometryFlags.hasMM()
 NSWPRDValAlg.doMMFastDigit = False
 
-NSWPRDValAlg.doSTGCHit = True
-NSWPRDValAlg.doSTGCDigit = True
-NSWPRDValAlg.doSTGCRDO = True
-NSWPRDValAlg.doSTGCPRD = True
+NSWPRDValAlg.doSTGCHit = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCDigit = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCRDO = MuonGeometryFlags.hasSTGC()
+NSWPRDValAlg.doSTGCPRD = MuonGeometryFlags.hasSTGC()
 NSWPRDValAlg.doSTGCFastDigit = False
 
 #-----------------------------------------------------------------------------
