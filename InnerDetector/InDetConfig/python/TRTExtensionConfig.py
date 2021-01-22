@@ -607,6 +607,15 @@ if __name__ == "__main__":
     from SiLorentzAngleTool.SCT_LorentzAngleConfig import SCT_LorentzAngleCfg
     top_acc.addPublicTool(top_acc.popToolsAndMerge(SCT_LorentzAngleCfg(ConfigFlags)))
 
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg, PixelOfflineCalibCondAlgCfg, PixelDistortionAlgCfg)
+    top_acc.merge(PixelConfigCondAlgCfg(ConfigFlags))
+    top_acc.merge(PixelDeadMapCondAlgCfg(ConfigFlags))
+    top_acc.merge(PixelChargeCalibCondAlgCfg(ConfigFlags))
+    top_acc.merge(PixelCablingCondAlgCfg(ConfigFlags))
+    top_acc.merge(PixelReadoutSpeedAlgCfg(ConfigFlags))
+    top_acc.merge(PixelOfflineCalibCondAlgCfg(ConfigFlags))
+    top_acc.merge(PixelDistortionAlgCfg(ConfigFlags))
+
     top_acc.merge(TC.PixelClusterNnCondAlgCfg(ConfigFlags))
     top_acc.merge(TC.PixelClusterNnWithTrackCondAlgCfg(ConfigFlags))
 

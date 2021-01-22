@@ -313,8 +313,9 @@ def pixelCondCfg(flags):
       PixelDCSCondTempAlgCfg, PixelAlignCondAlgCfg, PixelDetectorElementCondAlgCfg,
       PixelHitDiscCnfgAlgCfg, PixelReadoutSpeedAlgCfg, PixelCablingCondAlgCfg,
       PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg,
-      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg/
+      PixelDistortionAlgCfg, PixelOfflineCalibCondAlgCfg,
+      PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg/
   )
 
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
@@ -340,7 +341,7 @@ def pixelCondCfg(flags):
   # deadmap
   acc.merge(PixelDCSCondStateAlgCfg(flags))
   acc.merge(PixelDCSCondStatusAlgCfg(flags))
-# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+  acc.merge(PixelDeadMapCondAlgCfg(flags))
   # offline calibration
   acc.merge(PixelDistortionAlgCfg(flags))
   acc.merge(PixelOfflineCalibCondAlgCfg(flags))

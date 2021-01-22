@@ -251,10 +251,11 @@ def InDetTRT_RIO_MakerPUCfg(flags, useTimeInfo, usePhase, prefix, collectionPU, 
 def TRTPreProcessingCfg(flags, useTimeInfo = True, usePhase = False, **kwargs):
     acc = ComponentAccumulator()
 
-    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
+    from PixelConditionsAlgorithms.PixelConditionsConfig import (PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, PixelDeadMapCondAlgCfg, PixelCablingCondAlgCfg, PixelReadoutSpeedAlgCfg)
 
-    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelConfigCondAlgCfg(flags))
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelChargeCalibCondAlgCfg(flags))
     acc.merge(PixelCablingCondAlgCfg(flags))
     acc.merge(PixelReadoutSpeedAlgCfg(flags))
 
