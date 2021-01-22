@@ -1098,8 +1098,8 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
   </field>\n\
 \n\
   <field name=\"hgtd_endcap\">\n\
-    <label name=\"negative_endcap\" value=\"-1\" />\n\
-    <label name=\"positive_endcap\" value=\"+1\" />\n\
+    <label name=\"negative_endcap\" value=\"-2\" />\n\
+    <label name=\"positive_endcap\" value=\"+2\" />\n\
   </field>\n\
 \n" << std::endl;
 }

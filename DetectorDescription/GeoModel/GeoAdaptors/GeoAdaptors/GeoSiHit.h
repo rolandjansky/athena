@@ -19,10 +19,12 @@
 class SiHit;
 class PixelID;
 class SCT_ID;
+class HGTD_ID;
 namespace InDetDD {
   class SCT_DetectorManager;
   class PixelDetectorManager;
 }
+class HGTD_DetectorManager;
 
 class GeoSiHit {
 
@@ -39,7 +41,7 @@ class GeoSiHit {
 
   // Is this hit ok?
 
-  operator bool () const { return _sct || _pix; }
+  operator bool () const { return _sct || _pix || _hgtd; }
 
  private:
   
@@ -48,8 +50,10 @@ class GeoSiHit {
   const SiHit                                     *_hit;
   static const InDetDD::SCT_DetectorManager       *_sct;
   static const InDetDD::PixelDetectorManager      *_pix;
+  static const HGTD_DetectorManager               *_hgtd;
   static const PixelID                            *_pID;
   static const SCT_ID                             *_sID;
+  static const HGTD_ID                            *_hID;
 };
 
 #include "GeoAdaptors/GeoSiHit.icc"

@@ -426,7 +426,7 @@ void HGTD_DetectorFactory::buildHgtdGeoTDR(const DataHandle<StoredMaterialManage
     moduleVolumes.push_back("HGTD::Hybrid");
     if (m_boxVolPars["HGTD::ModuleSpace"].zHalf) moduleVolumes.push_back("HGTD::ModuleSpace");
 
-    int endcap_side   = isPos ? +1 : -1;
+    int endcap_side   = isPos ? +2 : -2;
 
     InDetDD::HGTD_ModuleDesign* design = createHgtdDesign(2.*m_boxVolPars["HGTDSiSensor0"].zHalf, m_HGTD_isbaseline); // assumes thickness same for 0-3
 

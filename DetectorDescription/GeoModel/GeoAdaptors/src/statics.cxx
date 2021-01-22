@@ -9,8 +9,10 @@
 
 const InDetDD::SCT_DetectorManager  *GeoSiHit::_sct = 0;
 const InDetDD::PixelDetectorManager *GeoSiHit::_pix = 0;
+const HGTD_DetectorManager          *GeoSiHit::_hgtd = 0;
 const PixelID                       *GeoSiHit::_pID = 0;
 const SCT_ID                        *GeoSiHit::_sID = 0;
+const HGTD_ID                       *GeoSiHit::_hID = 0;
 
 
 const MuonGM::MuonDetectorManager* GeoMDTHit::_man = 0;
