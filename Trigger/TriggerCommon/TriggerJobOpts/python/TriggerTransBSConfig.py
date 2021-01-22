@@ -27,8 +27,7 @@ def triggerTransBSCfg(flags, seqName="AthAlgSeq"):
         extraInputs += [('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult')]
 
     if flags.Trigger.enableL1Phase1:
-        itemList += ["xAOD::TrigCompositeContainer#L1TriggerResult",
-                     "xAOD::TrigCompositeAuxContainer#L1TriggerResultAux."]
+        itemList += ["xAOD::TrigCompositeContainer#L1TriggerResult"]
         extraInputs += [('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult')]
 
     # --------------------------------------------------
