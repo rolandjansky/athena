@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -36,7 +36,6 @@
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 #include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -60,12 +59,6 @@ namespace InDet {
   class PixelCluster;
   class SCT_Cluster;
   class SiCluster;
-}
-
-namespace Trk {
-
-  class TrackingGeometry;
-
 }
 
 class SiSmearedDigitizationTool : virtual public PileUpToolBase
@@ -214,9 +207,6 @@ public:
   double           m_Err_x_SCT;
   double           m_Err_y_SCT;
 
-  ServiceHandle<Trk::ITrackingGeometrySvc>     m_trackingGeometrySvc;        //!< Service handle for retrieving the TrackingGeometry
-  const Trk::TrackingGeometry*              m_trackingGeometry;           //!< The TrackingGeometry to be retrieved
-  std::string                                  m_trackingGeometryName;       //!< The Name of the TrackingGeometry
 
   bool m_useCustomGeometry;
 
