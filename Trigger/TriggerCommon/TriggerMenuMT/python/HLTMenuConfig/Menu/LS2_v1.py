@@ -14,7 +14,8 @@ import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
 # this is not the best option, due to flake violation, this list has to be changed when some groups are removed
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,EgammaTauGroup,MuonTauGroup,TauMETGroup 
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,EgammaJetGroup,EgammaMETGroup,EgammaTauGroup,MuonTauGroup,TauMETGroup 
+
 
 def setupMenu():
 
@@ -462,7 +463,7 @@ def setupMenu():
         ChainProp(name='HLT_2e12_lhloose_mu10_L12EM8VH_MU10', l1SeedThresholds=['EM8VH','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
 
         # Primary g-mu chains
-        ChainProp(name='HLT_g25_medium_mu24_ivarmedium_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=EgammaMuonGroup),
+        ChainProp(name='HLT_g25_medium_mu24_L1MU20',l1SeedThresholds=['EM15VH','MU20'], stream=[PhysicsStream], groups=EgammaMuonGroup), #ATR-22594
         ChainProp(name='HLT_g35_loose_mu18_L1EM24VHI', l1SeedThresholds=['EM24VHI','MU10'], stream=[PhysicsStream], groups=EgammaMuonGroup),
         ChainProp(name='HLT_2g10_loose_mu20_L1MU20', l1SeedThresholds=['EM7','MU20'], stream=[PhysicsStream], groups=EgammaMuonGroup), # unsure what EM seed should be
 
@@ -498,6 +499,21 @@ def setupMenu():
         ChainProp(name='HLT_e17_lhmedium_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1EM15VHI_2TAU12IM_4J12', l1SeedThresholds=['EM15VHI','TAU12IM'], stream=[PhysicsStream], groups=EgammaTauGroup),
         ChainProp(name='HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU20IM', l1SeedThresholds=['MU10','TAU20IM'], stream=[PhysicsStream], groups=MuonTauGroup),
         ChainProp(name='HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU12IM_3J12', l1SeedThresholds=['MU10','TAU12IM'], stream=[PhysicsStream], groups=MuonTauGroup),
+
+        # photon + multijets (ATR-22594)
+        ChainProp(name='HLT_g85_tight_3j50_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+
+        # photon + MET (ATR-22594)
+        ChainProp(name='HLT_g90_loose_xe90_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),
+
+        # electron + MET (ATR-22594)
+        ChainProp(name='HLT_e70_lhloose_xe70_cell_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaMETGroup),   
+
+        # VBF triggers (ATR-22594)
+        ChainProp(name='HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+        ChainProp(name='HLT_g25_medium_4j35_0eta490_dijetSEP35j1etSEP35j2etSEP1000djmass_L1EM22VHI',l1SeedThresholds=['EM22VHI','FSNOSEED'],stream=[PhysicsStream], groups=EgammaJetGroup),
+ 
+
     ]
     TriggerFlags.HeavyIonSlice.signatures  = TriggerFlags.HeavyIonSlice.signatures() + []
     TriggerFlags.BeamspotSlice.signatures  = TriggerFlags.BeamspotSlice.signatures() + [
