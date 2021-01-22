@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuidTrackBuilder/MuonTrackQuery.h"
@@ -14,7 +14,6 @@
 #include "MuonRIO_OnTrack/MdtDriftCircleOnTrack.h"
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkEventPrimitives/DriftCircleSide.h"
-#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -68,8 +67,11 @@ MuonTrackQuery::initialize()
     }
 
     // need to know which TrackingVolume we are in: indet/calo/spectrometer
-    ATH_CHECK(m_trackingGeometrySvc.retrieve());
-
+    if (!m_trackingGeometryReadKey.empty()) {
+        ATH_CHECK(m_trackingGeometryReadKey.initialize());
+    } else  {
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+    }
     return StatusCode::SUCCESS;
 }
 
@@ -108,16 +110,14 @@ MuonTrackQuery::caloEnergy(const Trk::Track& track) const
 double
 MuonTrackQuery::caloEnergyDeposit(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return 0.;
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -164,16 +164,14 @@ MuonTrackQuery::fieldIntegral(const Trk::Track& track) const
         return FieldIntegral();
     }
 
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return FieldIntegral();
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -238,10 +236,10 @@ MuonTrackQuery::fieldIntegral(const Trk::Track& track) const
             if (meot && meot->scatteringAngles()) {
                 double theta    = endDirection.theta() - meot->scatteringAngles()->deltaTheta();
                 double phi      = endDirection.phi() - meot->scatteringAngles()->deltaPhi();
-                double cosTheta = cos(theta);
-                double sinTheta = sqrt(1. - cosTheta * cosTheta);
+                double cosTheta = std::cos(theta);
+                double sinTheta = std::sqrt(1. - cosTheta * cosTheta);
 
-                endDirection = Amg::Vector3D(sinTheta * cos(phi), sinTheta * sin(phi), cosTheta);
+                endDirection = Amg::Vector3D(sinTheta * std::cos(phi), sinTheta * std::sin(phi), cosTheta);
             }
         }
 
@@ -284,16 +282,14 @@ MuonTrackQuery::fieldIntegral(const Trk::Track& track) const
 bool
 MuonTrackQuery::isCaloAssociated(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return false;
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -338,16 +334,14 @@ MuonTrackQuery::isCaloAssociated(const Trk::Track& track) const
 bool
 MuonTrackQuery::isCombined(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return false;
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -405,16 +399,14 @@ MuonTrackQuery::isCombined(const Trk::Track& track) const
 bool
 MuonTrackQuery::isExtrapolated(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return false;
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -543,12 +535,12 @@ MuonTrackQuery::isProjective(const Trk::Track& track) const
     }
 
     // hence change in phi between these measurements
-    double norm        = 1. / sqrt(startPosition.perp2() * endPosition.perp2());
+    double norm        = 1. / std::sqrt(startPosition.perp2() * endPosition.perp2());
     double cosDeltaPhi = norm * (endPosition.x() * startPosition.x() + endPosition.y() * startPosition.y());
     double sinDeltaPhi = norm * (endPosition.x() * startPosition.y() - endPosition.y() * startPosition.x());
 
     // cut on change of long phi sector
-    if (fabs(sinDeltaPhi) > M_PI / 8.) {
+    if (std::abs(sinDeltaPhi) > M_PI / 8.) {
         ATH_MSG_DEBUG("track is not projective: sinDeltaPhi " << sinDeltaPhi);
         return false;
     }
@@ -556,12 +548,12 @@ MuonTrackQuery::isProjective(const Trk::Track& track) const
     // cut on change of hemisphere (except for far forward tracks)
     if (cosDeltaPhi < 0.) {
         double cotTheta = startPosition.z() / startPosition.perp();
-        if (fabs(startPosition.z()) > fabs(endPosition.z())) {
+        if (std::abs(startPosition.z()) > std::abs(endPosition.z())) {
             cotTheta = endPosition.z() / endPosition.perp();
         }
 
         // FIXME: isn't this same-side again?
-        if (startPosition.z() * endPosition.z() < 0. || fabs(cotTheta) < 2.0) {
+        if (startPosition.z() * endPosition.z() < 0. || std::abs(cotTheta) < 2.0) {
             ATH_MSG_DEBUG("track is not projective: cosDeltaPhi " << cosDeltaPhi);
             return false;
         }
@@ -577,7 +569,7 @@ MuonTrackQuery::isProjective(const Trk::Track& track) const
 bool
 MuonTrackQuery::isSectorOverlap(const Trk::Track& track) const
 {
-    double sectorOffset = M_PI / 16.;
+    constexpr double sectorOffset = M_PI / 16.;
     bool   isOverlap    = true;
     double cosPhi       = 0.;
     double sinPhi       = 0.;
@@ -602,7 +594,7 @@ MuonTrackQuery::isSectorOverlap(const Trk::Track& track) const
 
             double sinDeltaPhi = (position.x() * sinPhi - position.y() * cosPhi) / position.perp();
 
-            if (fabs(sinDeltaPhi) > sectorOffset) {
+            if (std::abs(sinDeltaPhi) > sectorOffset) {
                 ATH_MSG_DEBUG("found overlap: sinDeltaPhi " << sinDeltaPhi);
                 isOverlap = true;
                 break;
@@ -659,7 +651,7 @@ MuonTrackQuery::momentumBalanceSignificance(const Trk::Track& track) const
                 energyBalance = previousParameters->momentum().mag() - energyLoss->deltaE()
                                 - (**s).trackParameters()->momentum().mag();
 
-                if (fabs(energyBalance) < energyLoss->sigmaDeltaE()) {
+                if (std::abs(energyBalance) < energyLoss->sigmaDeltaE()) {
                     ATH_MSG_DEBUG(std::setiosflags(std::ios::fixed)
                                   << " momentum balance  " << std::setw(6) << std::setprecision(2)
                                   << energyBalance / Units::GeV << "   significance " << std::setw(6)
@@ -758,16 +750,14 @@ MuonTrackQuery::outgoingPerigee(const Trk::Track& track) const
 ScatteringAngleSignificance
 MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
         return false;
     }
 
-    const Trk::TrackingVolume* indetVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("InDet::Containers::InnerDetector");
+    const Trk::TrackingVolume* indetVolume = getVolume("InDet::Containers::InnerDetector");
 
     if (!indetVolume) {
         ATH_MSG_WARNING("Failed to retrieve InDeT volume ");
@@ -865,15 +855,15 @@ MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
     for (; rs != sigmas.rend(); ++rs, --index) {
         totalSigma -= 2. * (*rs);
 
-        if (fabs(totalSigma) > fabs(curvatureSignificance)) {
+        if (std::abs(totalSigma) > std::abs(curvatureSignificance)) {
             curvatureSignificance = totalSigma;
             curvatureRadius       = radii[index];
         }
 
-        if (fabs(sigmas[index] + previousSignificance) > fabs(neighbourSignificance)) {
+        if (std::abs(sigmas[index] + previousSignificance) > std::abs(neighbourSignificance)) {
             neighbourSignificance = sigmas[index] + previousSignificance;
 
-            if (fabs(neighbourSignificance) > 0.) {
+            if (std::abs(neighbourSignificance) > 0.) {
                 neighbourRadius =
                     (sigmas[index] * radii[index] + previousSignificance * previousRadius) / neighbourSignificance;
             } else {
@@ -886,8 +876,8 @@ MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
     }
 
     // normalize
-    curvatureSignificance /= sqrt(static_cast<double>(scatterers));
-    neighbourSignificance /= sqrt(2.);
+    curvatureSignificance /= std::sqrt(static_cast<double>(scatterers));
+    neighbourSignificance /= std::sqrt(2.);
 
     ATH_MSG_DEBUG(" scatteringAngleSignificance " << curvatureSignificance << " at radius " << curvatureRadius
                                                   << " neighbourSignificance " << neighbourSignificance << " at radius "
@@ -901,8 +891,7 @@ MuonTrackQuery::scatteringAngleSignificance(const Trk::Track& track) const
 const Trk::TrackParameters*
 MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -950,8 +939,7 @@ MuonTrackQuery::spectrometerParameters(const Trk::Track& track) const
 unsigned
 MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
@@ -1038,8 +1026,7 @@ MuonTrackQuery::spectrometerPhiQuality(const Trk::Track& track) const
 const Trk::TrackParameters*
 MuonTrackQuery::triggerStationParameters(const Trk::Track& track) const
 {
-    const Trk::TrackingVolume* calorimeterVolume =
-        m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+    const Trk::TrackingVolume* calorimeterVolume = getVolume("Calo::Container");
 
     if (!calorimeterVolume) {
         ATH_MSG_WARNING("Failed to retrieve Calo volume ");
