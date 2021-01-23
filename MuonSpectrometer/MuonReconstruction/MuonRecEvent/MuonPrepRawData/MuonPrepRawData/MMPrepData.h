@@ -21,7 +21,7 @@ namespace Muon
   class MMRdoToPrepDataTool;
 
   /** @brief Class to represent MM measurements. */
-  class MMPrepData :   public MuonCluster
+  class MMPrepData final:   public MuonCluster
   {
 
     friend class Muon::MMRdoToPrepDataTool;
@@ -98,13 +98,16 @@ namespace Muon
     void setMicroTPC(float angle, float chisqProb);
 
     /** @brief set drift distances and uncertainties */
-    void setDriftDist(const std::vector<float>& driftDist, const std::vector<Amg::MatrixX>& driftDistErrors);
+    void setDriftDist(const std::vector<float>& driftDist,
+                      const std::vector<Amg::MatrixX>& driftDistErrors);
 
     // setter functions for the EventTPConverters
-    void setDriftDist(const std::vector<float>& driftDist, const std::vector<float>& stripDriftErrors_0_0, const std::vector<float>& stripDriftErrors_1_1);
+    void setDriftDist(const std::vector<float>& driftDist,
+                      const std::vector<float>& stripDriftErrors_0_0,
+                      const std::vector<float>& stripDriftErrors_1_1);
 
     /** @brief Returns the global position*/
-    virtual const Amg::Vector3D& globalPosition() const override;
+    virtual const Amg::Vector3D& globalPosition() const override final;
 
     /** @brief Returns the detector element corresponding to this PRD.
 	The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
@@ -151,10 +154,10 @@ namespace Muon
     const std::vector<float> stripDriftErrors_1_1() const;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const override;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const override;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
 
 
     enum Author{

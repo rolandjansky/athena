@@ -35,7 +35,7 @@ namespace Muon
     /**@brief Class representing clusters from the CSC.
     @author Edward.Moyse@cern.ch
     @author Ketevi A. Assamagan*/
-class CscPrepData :   public MuonCluster
+class CscPrepData final:   public MuonCluster
 {
 
   // /////////////////////////////////////////////////////////////////
@@ -86,7 +86,7 @@ class CscPrepData :   public MuonCluster
   ///////////////////////////////////////////////////////////////////
 
   /** @brief Returns the global position*/
-  virtual const Amg::Vector3D& globalPosition() const override;
+  virtual const Amg::Vector3D& globalPosition() const override final;
 
   /** @brief Return the detector element corresponding to this PRD.
 
@@ -113,10 +113,10 @@ class CscPrepData :   public MuonCluster
   CscTimeStatus timeStatus() const;
 
   /** Dumps information about the PRD*/
-  virtual MsgStream&    dump( MsgStream&    stream) const override;
+  virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
   /** Dumps information about the PRD*/
-  virtual std::ostream& dump( std::ostream& stream) const override;
+  virtual std::ostream& dump( std::ostream& stream) const override final;
 
 private:
 
