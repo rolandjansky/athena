@@ -1067,17 +1067,13 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
 
     msg(MSG::VERBOSE) <<"  - associatedSurface(): ";
     const Trk::Surface* assocsurface = &(compROT.associatedSurface());
-    //msg()<<MSG::VERBOSE<<"       distance of surface center from origin: " << assocsurface->center().distance()<<endmsg;
     msg()<< assocsurface << " at ("<< assocsurface->center().x() << ", "<< assocsurface->center().y() << ", "<< assocsurface->center().z() << ")" <<endmsg;
 
     msg()<<"  - containedROTs(): ";
-    //msg()<<"       size of ROT vector: " <<  compROT.containedROTs().size()<<endmsg;
     msg()<<" numberOfContainedROTs(): " << compROT.numberOfContainedROTs()<<endmsg;
 
     msg()<<"  - eff. localParameters():";
-    //msg()<<"       dimension of the effective local params: " <<  compROT.localParameters().dimension()<<endmsg;
     msg()<<" dim: " <<  compROT.localParameters().dimension();
-    //msg()<<"       effective localPar[locX]: " <<  compROT.localParameters()[Trk::locX] <<endmsg;
     msg()<<" [locX]: " <<  compROT.localParameters()[Trk::locX] <<endmsg;
 
     if (compROT.assignmentProbability(compROT.indexOfMaxAssignProb()) > 0. ) {
@@ -1088,7 +1084,6 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
     }
 
     msg()<<"  - indexOfMaxAssignProb(): " <<  compROT.indexOfMaxAssignProb() <<endmsg;
-    //msg()<<"        assignmentProbability( indexOfMaxAssignProb() ): " <<  compROT.assignmentProbability(compROT.indexOfMaxAssignProb()) <<endmsg;
 
     msg()<<"  - assignmentProbability(index) and rioOnTrack(index)"<<endmsg;
     for (unsigned int i=0; i<compROT.numberOfContainedROTs(); i++) {
@@ -1105,39 +1100,5 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
 
 
     msg()<<"  - eff. globalPosition(): ";
-    //msg()<<"       distance of effective measurement from origin: " <<  compROT.globalPosition().distance()<<endmsg;
     msg()<< " ("<< compROT.globalPosition().x() << ", "<< compROT.globalPosition().y() << ", "<< compROT.globalPosition().z() << ")" <<endmsg;
-    /*    msg()<<"  - clone()"<<endmsg;
-        CompetingTRT_DriftCirclesOnTrack* newcompROT = compROT.clone();
-        if (!newcompROT){
-            m_log<<MSG::ERROR<<"  Got no clone!"<<endmsg;
-        } else {
-            msg()<<"   Got the clone: do the same tests with it:"<<endmsg;
-
-            msg()<<"  clone- associatedSurface()"<<endmsg;
-            const Trk::Surface* cloneassocsurface = &(newcompROT->associatedSurface());
-            msg()<<"       distance of surface center from origin: " << cloneassocsurface->center().distance()<<endmsg;
-
-            msg()<<"  clone- containedROTs()"<<endmsg;
-            msg()<<"       size of ROT vector: " <<  newcompROT->containedROTs().size()<<endmsg;
-            msg()<<"  clone- numberOfContainedROTs(): " << newcompROT->numberOfContainedROTs()<<endmsg;
-
-            msg()<<"  clone- localParameters()"<<endmsg;
-            msg()<<"       dimension of the effective local params: " <<  newcompROT->localParameters().dimension()<<endmsg;
-
-            msg()<<"  clone- localErrorMatrix()"<<endmsg;
-            msg()<<"       dimension of covariance matrix: " <<  newcompROT->localErrorMatrix().covariance().num_row()<<endmsg;
-            msg()<<"       error of first local coordinate:  " <<  newcompROT->localErrorMatrix().error(Trk::loc1)<<endmsg;
-            msg()<<"       weight value of first local coordinate: " <<  newcompROT->localErrorMatrix().weightValue(Trk::loc1)<<endmsg;
-
-            msg()<<"  clone- assignmentProbability(index) and rioOnTrack(index)"<<endmsg;
-            for (unsigned int i=0; i<newcompROT->numberOfContainedROTs(); i++) {
-                msg()<<"      ["<< i <<"] assgnProb: "<< newcompROT->assignmentProbability(i)<< "ROT identifier:"<< newcompROT->rioOnTrack(i)->identify().getString() <<endmsg;
-            }
-
-            msg()<<"  clone- globalPosition()"<<endmsg;
-            msg()<<"       distance of effective measurement from origin: " <<  newcompROT->globalPosition().distance()<<endmsg;
-        }
-        delete newcompROT;*/
-
 }
