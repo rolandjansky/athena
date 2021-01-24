@@ -188,6 +188,7 @@ namespace Muon {
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator>  m_tubeRotCreator;    //!< IMdtDriftCircleOnTrackCreator tube hits
     ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_cscRotCreator;     //!< IMuonClusterOnTrackCreator for cscs 
     ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_clusRotCreator;    //!< IMuonClusterOnTrackCreator for trigger hits
+    ToolHandle<Muon::IMuonClusterOnTrackCreator>     m_mmClusRotCreator;    //!< IMuonClusterOnTrackCreator for MM hits
 
     ToolHandle<Trk::IResidualPullCalculator>         m_pullCalculator;     //!< residual pull calculator
     ToolHandle<Muon::MuonIdHelperTool>               m_idHelperTool;       //!< IdHelper tool
