@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOL_H
@@ -24,8 +24,13 @@ public:
   virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
   virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
+  virtual void printPrepData() override;
+
 protected:
-  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent) override;
+  virtual StatusCode manageOutputContainers(bool& firstTimeInTheEvent);
+
+private:
+  State m_state;
 };
 
 }
