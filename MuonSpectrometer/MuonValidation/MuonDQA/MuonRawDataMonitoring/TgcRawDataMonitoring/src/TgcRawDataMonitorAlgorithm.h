@@ -16,7 +16,7 @@
 #include "MuonTrigCoinData/TgcCoinDataContainer.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
-
+#include <memory>
 class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
  public:
   TgcRawDataMonitorAlgorithm( const std::string& name, ISvcLocator* pSvcLocator );
@@ -150,11 +150,11 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
 		   Amg::Vector2D& eta,
 		   Amg::Vector2D& phi,
 		   Amg::Vector3D& mom) const;
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>
     extrapolateToTGC(const Trk::TrackStateOnSurface* tsos,
 		     const Amg::Vector3D& pos,
 		     Amg::Vector2D& distance) const;
-  const Trk::TrackParameters*
+  std::unique_ptr<const Trk::TrackParameters>  
     extrapolateToRPC(const Trk::TrackStateOnSurface* tsos,
 		     const Amg::Vector3D& pos,
 		     Amg::Vector2D& distance) const;
