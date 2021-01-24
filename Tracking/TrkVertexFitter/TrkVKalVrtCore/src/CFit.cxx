@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrkVKalVrtCore/CommonPars.h"
@@ -478,7 +478,8 @@ int fitVertex(VKVertex * vk)
         ptot[0]+=pp[0]; ptot[1]+=pp[1]; ptot[2]+=pp[2]; ptot[3]+=pp[3];
     }
     cfdcopy(MainVRT->fitVcov, covf  , 6);  //fitted vertex covariance
-    FitCONTROL->setVertexMass(sqrt((ptot[3]-ptot[2])*(ptot[3]+ptot[2]) - ptot[1]*ptot[1] - ptot[0]*ptot[0]) );
+    double vM2=(ptot[3]-ptot[2])*(ptot[3]+ptot[2]) - ptot[1]*ptot[1] - ptot[0]*ptot[0];
+    FitCONTROL->setVertexMass(std::sqrt(vM2>0. ? vM2 : 0. ) );
     FitCONTROL->setVrtMassError(0.);
 //     
 //  If required - get full covariance matrix
