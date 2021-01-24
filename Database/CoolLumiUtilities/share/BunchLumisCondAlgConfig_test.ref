@@ -1,29 +1,31 @@
-Py:Athena            INFO using release [?-21.0.0] [i686-slc5-gcc43-dbg] [?/?] -- built on [?]
+Py:Athena            INFO using release [WorkDir-22.0.26] [x86_64-centos7-gcc8-opt] [upgrade/3ed427b] -- built on [2021-01-22T0907]
 --- data
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'), ('AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS')]
+Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'], ['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS']] set
 Py:ComponentAccumulator    INFO  \__ FillParamsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS
-Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData
+Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS set
+Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData set
 Py:ComponentAccumulator    INFO  \__ BunchLumisCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: /TDAQ/OLC/BUNCHLUMIS
-Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
-IOVDbSvc: ['/TDAQ/OLC/BUNCHLUMIS<db>COOLONL_TDAQ/COMP200</db>', '/TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag><db>COOLONL_TDAQ/COMP200</db>']
+Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: /TDAQ/OLC/BUNCHLUMIS set
+Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData set
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData set
+IOVDbSvc: ['<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>']
 --- data+overlay
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'), ('AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS')]
+Py:ComponentAccumulator    INFO      * Load: [['CondAttrListCollection', '/TDAQ/OLC/BUNCHLUMIS'], ['AthenaAttributeList', '/TDAQ/OLC/LHC/FILLPARAMS']] set
 Py:ComponentAccumulator    INFO  \__ FillParamsCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS
-Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData
+Py:ComponentAccumulator    INFO      * FillParamsFolderInputKey: /TDAQ/OLC/LHC/FILLPARAMS set
+Py:ComponentAccumulator    INFO      * FillParamsOutputKey: FillParamsCondData set
 Py:ComponentAccumulator    INFO  \__ BunchLumisCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: <channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS
-Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData
-Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData
-IOVDbSvc: ['<channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS<db>COOLONL_TDAQ/COMP200</db>', '/TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag><db>COOLONL_TDAQ/COMP200</db>']
+Py:ComponentAccumulator    INFO      * BunchLumisFolderInputKey: <channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS set
+Py:ComponentAccumulator    INFO      * BunchLumisOutputKey: BunchLumisCondData set
+Py:ComponentAccumulator    INFO      * FillParamsInputKey: FillParamsCondData set
+IOVDbSvc: ['<db>COOLONL_TDAQ/COMP200</db> <channelSelection>101,102,103,201,211</channelSelection> /TDAQ/OLC/BUNCHLUMIS', '<db>COOLONL_TDAQ/COMP200</db> /TDAQ/OLC/LHC/FILLPARAMS<tag>HEAD</tag>']
 --- default
 Py:ComponentAccumulator    INFO Condition Algorithms
 IOVDbSvc: []
