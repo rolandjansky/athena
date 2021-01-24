@@ -505,8 +505,6 @@ int fitVertex(VKVertex * vk)
       cfdcopy( VrtMomCov,  covf, 21);  //XvYvZvPxPyPz covariance
       cfdcopy( MainVRT->vk_fitterControl->vk_forcft.robres, FitCONTROL->vk_forcft.robres, NTRK); //Track weights from robust fit
       
-//std::cout<<__func__<<" newcov="<<VrtMomCov[0]<<", "<<VrtMomCov[2]<<", "<<VrtMomCov[4]<<", "
-//                     <<VrtMomCov[9]<<", "<<VrtMomCov[14]<<", "<<VrtMomCov[13]<<'\n';
     }
 
     return 0;
