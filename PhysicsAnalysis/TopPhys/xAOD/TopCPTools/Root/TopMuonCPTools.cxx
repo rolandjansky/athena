@@ -65,29 +65,29 @@ namespace top {
 
   StatusCode MuonCPTools::setupCalibration() {
     ///-- Selection --///
-    m_muonSelectionTool = setupMuonSelectionTool("CP::MuonSelectionTool",
+    m_muonSelectionTool = setupMuonSelectionTool("MuonSelectionTool",
                                                  m_config->muonQuality(),
                                                  m_config->muonEtacut(),
 						 m_config->muonUseMVALowPt(),
 						 m_config->muonUse2stationMuonsHighPt());
-    m_muonSelectionToolLoose = setupMuonSelectionTool("CP::MuonSelectionToolLoose",
+    m_muonSelectionToolLoose = setupMuonSelectionTool("MuonSelectionToolLoose",
                                                       m_config->muonQualityLoose(),
                                                       m_config->muonEtacut(),
 						      m_config->muonUseMVALowPtLoose(),
 						      m_config->muonUse2stationMuonsHighPtLoose());
     // the following is needed to make sure all muons for which d0sig is calculated are at least Loose
-    m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("CP::MuonSelectionToolVeryLooseVeto",
+    m_muonSelectionToolVeryLooseVeto = setupMuonSelectionTool("MuonSelectionToolVeryLooseVeto",
                                                               "Loose",
                                                               2.5,
 							      m_config->muonUseMVALowPt(),
 							      m_config->muonUse2stationMuonsHighPt());
     ///-- Calibration and smearing --///  ---> now passing the flags (true/false) to CalibAndSmearingTool
-    m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("CP::MuonCalibrationPeriodTool", 
+    m_muonCalibrationPeriodTool = setupMuonCalibrationAndSmearingTool("MuonCalibrationPeriodTool", 
 								      m_config->muonMuonDoExtraSmearingHighPt(),
 								      m_config->muonMuonDoSmearing2stationHighPt());
     //now the soft muon part
     if (m_config->useSoftMuons()) {
-      m_softmuonSelectionTool = setupMuonSelectionTool("CP::SoftMuonSelectionTool",
+      m_softmuonSelectionTool = setupMuonSelectionTool("SoftMuonSelectionTool",
                                                        m_config->softmuonQuality(),
                                                        m_config->softmuonEtacut(),
 						       m_config->softmuonUseMVALowPt(),
@@ -135,10 +135,10 @@ namespace top {
     // and do not need to set the year as it is handled
     // internally with PRW tool
     m_muonTriggerScaleFactors_R21
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactors_R21",
+      = setupMuonTrigSFTool("MuonTriggerScaleFactors_R21",
                             m_config->muonQuality());
     m_muonTriggerScaleFactorsLoose_R21
-      = setupMuonTrigSFTool("CP::MuonTriggerScaleFactorsLoose_R21",
+      = setupMuonTrigSFTool("MuonTriggerScaleFactorsLoose_R21",
                             m_config->muonQualityLoose());
 
     /************************************************************
@@ -153,14 +153,14 @@ namespace top {
     if (m_config->muonQuality() == "HighPt" && !(m_config->muonUse2stationMuonsHighPt()) ) muonQuality_name = "HighPt3Layers";
     if (m_config->muonQuality() == "LowPt" && m_config->muonUseMVALowPt()) muonQuality_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsTool
-      = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsTool",
+      = setupMuonSFTool("MuonEfficiencyScaleFactorsTool",
                         muonQuality_name);
 
     std::string muonQualityLoose_name = m_config->muonQualityLoose();
     if (m_config->muonQualityLoose() == "HighPt" && !(m_config->muonUse2stationMuonsHighPtLoose()) ) muonQualityLoose_name = "HighPt3Layers";
     if (m_config->muonQualityLoose() == "LowPt" && m_config->muonUseMVALowPtLoose()) muonQualityLoose_name = "LowPtMVA";
     m_muonEfficiencyCorrectionsToolLoose
-      = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLoose",
+      = setupMuonSFTool("MuonEfficiencyScaleFactorsToolLoose",
                         muonQualityLoose_name);
 
     //now the soft muon part
@@ -168,7 +168,7 @@ namespace top {
     if (m_config->softmuonQuality() == "LowPt" && m_config->softmuonUseMVALowPt()) softmuonQuality_name = "LowPtMVA";
     if (m_config->useSoftMuons()) {
       m_softmuonEfficiencyCorrectionsTool
-        = setupMuonSFTool("CP::SoftMuonEfficiencyScaleFactorsTool",
+        = setupMuonSFTool("SoftMuonEfficiencyScaleFactorsTool",
 			  softmuonQuality_name);
     }
     
@@ -184,7 +184,7 @@ namespace top {
       // Add iso as a suffix (see above for consistency between tools :) )
       std::string muon_isolation = m_config->muonIsolationSF() + "Iso";
       m_muonEfficiencyCorrectionsToolIso =
-        setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolIso",
+        setupMuonSFTool("MuonEfficiencyScaleFactorsToolIso",
                         muon_isolation);
     }
 
@@ -193,7 +193,7 @@ namespace top {
       // Add iso as a suffix (see above for consistency between tools :) )
       std::string muon_isolation = m_config->muonIsolationSFLoose() + "Iso";
       m_muonEfficiencyCorrectionsToolLooseIso =
-        setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolLooseIso",
+        setupMuonSFTool("MuonEfficiencyScaleFactorsToolLooseIso",
                         muon_isolation);
     }
 
@@ -204,7 +204,7 @@ namespace top {
     *    parameter cuts to associate muon to vertex.
     ************************************************************/
     m_muonEfficiencyCorrectionsToolTTVA
-      = setupMuonSFTool("CP::MuonEfficiencyScaleFactorsToolTTVA",
+      = setupMuonSFTool("MuonEfficiencyScaleFactorsToolTTVA",
                         "TTVA");
 
     // WARNING - The PromptLeptonIsolation scale factors are only derived with respect to the loose PID
