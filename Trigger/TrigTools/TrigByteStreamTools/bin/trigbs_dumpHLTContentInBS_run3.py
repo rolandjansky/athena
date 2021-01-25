@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''
@@ -44,10 +44,13 @@ def get_parser():
                         help='details of EF/HLT ROB payload')
     parser.add_argument('--sizes',
                         action='store_true', default=False,
-                        help='dump info about EDM sizes per result')
+                        help='dump info about EDM sizes per result; implies --hltres')
     parser.add_argument('--sizeSummary',
                         action='store_true', default=False,
                         help='dump summary info about EDM sizes at the end')
+    parser.add_argument('--confKeys',
+                        action='store_true', default=False,
+                        help='dump TrigConfKeys stored in the events; implies --hltres')
     return parser
 
 
@@ -100,7 +103,7 @@ def stream_tags(event):
     return info_str
 
 
-def hlt_result(event, print_sizes=False):
+def hlt_result(event, print_sizes=False, conf_keys=False):
     num_hlt_robs = 0
     info_str = ""
     for rob in event.children():
@@ -112,12 +115,27 @@ def hlt_result(event, print_sizes=False):
             rob.source_id().human(),
             rob.fragment_size_word()*4
         )
-        if print_sizes:
+        if print_sizes or conf_keys:
             raw_data = tuple(rob.rod_data())
-            collections = hltResultMT.get_collections(raw_data)
-            for coll in collections:
-                indent = '----' if not coll.is_xAOD_decoration() else '------'
-                info_str += '\n{:s} {:s}'.format(indent, str(coll))
+            skip_payload = not conf_keys
+            collections = hltResultMT.get_collections(raw_data, skip_payload=skip_payload)
+            if conf_keys:
+                conf_list = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
+                conf_available = False
+                for conf in conf_list:
+                    conf_obj = conf.deserialise()
+                    if not conf_obj:
+                        continue
+                    conf_available = True
+                    info_str += '\n---- {:s}#{:s} SMK: {:d}, L1PSK: {:d}, HLTPSK: {:d}'.format(
+                        conf.name_persistent, conf.name_key,
+                        conf_obj.smk(), conf_obj.l1psk(), conf_obj.hltpsk())
+                if not conf_available:
+                    info_str += '\n---- TrigConfKeys unavailable in this ROB'
+            if print_sizes:
+                for coll in collections:
+                    indent = '----' if not coll.is_xAOD_decoration() else '------'
+                    info_str += '\n{:s} {:s}'.format(indent, str(coll))
 
     info_str = 'Found {:d} HLT ROBs'.format(num_hlt_robs) + info_str
     return info_str
@@ -146,7 +164,7 @@ def size_summary(events):
             if 'collections' not in data[module].keys():
                 data[module]['collections'] = {}
             raw_data = tuple(rob.rod_data())
-            for coll in hltResultMT.get_collections(raw_data):
+            for coll in hltResultMT.get_collections(raw_data, skip_payload=True):
                 coll_name = coll.name()
                 if coll_name in data[module]['collections'].keys():
                     data[module]['collections'][coll_name] += coll.size_bytes
@@ -205,8 +223,8 @@ def dump_info(bsfile, args):
             print(stream_tags(event))
 
         # HLT Result
-        if args.efres or args.sizes:
-            print(hlt_result(event, args.sizes))
+        if args.efres or args.sizes or args.confKeys:
+            print(hlt_result(event, args.sizes, args.confKeys))
 
     # Size summary (after the loop over events)
     if args.sizeSummary:
