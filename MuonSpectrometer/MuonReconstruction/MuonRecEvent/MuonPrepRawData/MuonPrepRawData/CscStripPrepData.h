@@ -36,7 +36,7 @@ namespace Muon
      @author niels van Eldik <niels.van.eldik@cern.ch>
   */
 
-  class CscStripPrepData :   public Trk::PrepRawData
+  class CscStripPrepData final:   public Trk::PrepRawData
   {
 
     ///////////////////////////////////////////////////////////////////
@@ -81,16 +81,16 @@ namespace Muon
 
       /** return the detector element corresponding to this PRD
       The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor) */
-      virtual const MuonGM::CscReadoutElement* detectorElement() const override;
+      virtual const MuonGM::CscReadoutElement* detectorElement() const override final;
 
       /** Interface method checking the type*/
-      virtual bool type(Trk::PrepRawDataType::Type type) const override
+      virtual bool type(Trk::PrepRawDataType::Type type) const override final
       {
         return type == Trk::PrepRawDataType::MdtPrepData;
       }
 
       /** returns the IdentifierHash corresponding to the channel. */
-      virtual const IdentifierHash collectionHash() const;
+      virtual const IdentifierHash collectionHash() const final;
 
       /** Return the time samples. */
       const std::vector<float>& sampleCharges() const;
@@ -105,10 +105,10 @@ namespace Muon
       unsigned short samplingTime() const;
 
       /** dump information about the PRD*/
-      virtual MsgStream&    dump( MsgStream&    stream) const override;
+      virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
       /** dump information about the PRD*/
-      virtual std::ostream& dump( std::ostream& stream) const override;
+      virtual std::ostream& dump( std::ostream& stream) const override final;
 
       /** set the sampling phase
       @warning This does not conform to ATLAS Coding Conventions and will be renamed to setSamplingPhase() */
