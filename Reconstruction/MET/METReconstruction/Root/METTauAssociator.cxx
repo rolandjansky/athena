@@ -49,9 +49,7 @@ namespace met {
     m_tauContKey("")
   {
     declareProperty("tauContainer",m_tauContKey);
-    declareProperty( "TauNeutralFEReadDecorKey", m_tauNeutralFEReadDecorKey = "TauJets.neutralFELinks" );
-    declareProperty( "TauChargedFEReadDecorKey", m_tauChargedFEReadDecorKey = "TauJets.chargedFELinks" );
-    declareProperty( "UseFETauLinks", m_useFETauLinks = false ); //?
+    declareProperty("UseFETauLinks", m_useFETauLinks = false ); //?
   }
 
   // Destructor
@@ -67,9 +65,10 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
-
-    ATH_CHECK(m_tauNeutralFEReadDecorKey.initialize());
-    ATH_CHECK(m_tauChargedFEReadDecorKey.initialize());
+    if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+    if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+    ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+    ATH_CHECK( m_chargedFEReadDecorKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -198,12 +197,42 @@ namespace met {
   }
 
   // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
-  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj,
-                                         std::vector<const xAOD::IParticle*>& felist,
-                                         const met::METAssociator::ConstitHolder& constits,
-                                         std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+
+  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
-    const TauJet* tau = static_cast<const TauJet*>(obj);
+    const xAOD::TauJet *tau = static_cast<const xAOD::TauJet*>(obj);
+
+    if (m_useFETauLinks) { 
+      ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(tau, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, //testFELinks
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const 
+  {
+
+    //TODO
+
+    return StatusCode::SUCCESS;
+
+  }
+
+
+  StatusCode METTauAssociator::extractFEs(const xAOD::TauJet* tau,
+                                         std::vector<const xAOD::IParticle*>& felist,
+                                         const met::METAssociator::ConstitHolder& constits) const
+  {
+    //const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     TLorentzVector momentum;
     for(const xAOD::FlowElement* pfo : *constits.feCont) {

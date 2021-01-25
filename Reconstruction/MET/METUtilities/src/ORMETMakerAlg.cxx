@@ -33,59 +33,24 @@ namespace met {
 
   ORMETMakerAlg::ORMETMakerAlg(const std::string& name,
 			   ISvcLocator* pSvcLocator )
-    : ::AthAlgorithm( name, pSvcLocator ),
-    m_metKey(""),
-    m_metmaker(this),  
-    m_muonSelTool(this,""),
-    m_elecSelLHTool(this,""),
-    m_photonSelIsEMTool(this,""),
-    m_tauSelTool(this,"")
-
-
+    : METMakerAlg(name, pSvcLocator) 
  {
-    declareProperty( "Maker",          m_metmaker                        );
-    declareProperty( "METCoreName",    m_CoreMetKey  = "MET_Core"        );
-    declareProperty("METName",         m_metKey = std::string("MET_Reference"),"MET container");
-    declareProperty("METMapName",      m_metMapKey = "METAssoc" );
     declareProperty("ORMETMapName",    m_ORMetMapKey = "ORMETAssoc" );
-
-    declareProperty( "METSoftClName",  m_softclname  = "SoftClus"        );
-    declareProperty( "METSoftTrkName", m_softtrkname = "PVSoftTrk"       );
-
-    declareProperty( "InputJets",      m_JetContainerKey      = "AntiKt4EMPFlowJets" );
-    declareProperty( "InputElectrons", m_ElectronContainerKey = "Electrons" );
-    declareProperty( "InputPhotons",   m_PhotonContainerKey   = "Photons"   );
-    declareProperty( "InputTaus",      m_TauJetContainerKey   = "TauJets"   );
-    declareProperty( "InputMuons",     m_MuonContainerKey     = "Muons"     );
-
-    declareProperty( "MuonSelectionTool",        m_muonSelTool           );
-    declareProperty( "ElectronLHSelectionTool",  m_elecSelLHTool         );
-    declareProperty( "PhotonIsEMSelectionTool" , m_photonSelIsEMTool     );
-    declareProperty( "TauSelectionTool",         m_tauSelTool            );
-
-    declareProperty( "DoTruthLeptons", m_doTruthLep = false              );
-
     declareProperty( "DoRetrieveORconstit", m_doRetrieveORconstit = false              );
     declareProperty( "RetainMuonConstit", m_retainMuonConstit = false              );
     declareProperty( "DoORMet", m_doORMet = false              );
-
     //pT thresholds
     declareProperty("ElectronPT", m_electronPT = 10000, "pT for electrons");
     declareProperty("MuonPT", m_muonPT = 10000, "pT for muons");
     declareProperty("PhotonPT", m_photonPT = 10000, "pT for photons");
     declareProperty("TauPT", m_tauPT = 10000, "pT for photons");
-
     //eta thresholds
     declareProperty("ElectronETA", m_electronETA = 2.47, "eta for electrons");
     declareProperty("MuonETA", m_muonETA = 2.7, "eta for muons");
     declareProperty("PhotonETA", m_photonETA = 2.47, "eta for photons");
     declareProperty("TauETA", m_tauETA = 2.47, "eta for photons");
 
-    // True or fake electrons / muons
-    declareProperty("UsePromptElectrons", m_usePromptElectrons = "True", "To use true (prompt) electrons in MET or not");
     declareProperty("UseUnmatched", m_useUnmatched = "True", "Include or reject egamma with unmatched clusters");
-    declareProperty("DoBadMuon", m_doBadMuon = "False", "To reject BadMuon or not");
-
     declareProperty("DoJVT", m_doJVT = "False");
     declareProperty("Soft", m_soft = "Clus");
 
@@ -99,42 +64,11 @@ namespace met {
   //**********************************************************************
 
   StatusCode ORMETMakerAlg::initialize() {
+
+    ATH_CHECK( METMakerAlg::initialize() );
     ATH_MSG_INFO("Initializing " << name() << "...");
     ATH_MSG_INFO("Retrieving tools...");
 
-    // retrieve tools
-    if( m_metmaker.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_metmaker->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_muonSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_muonSelTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_elecSelLHTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_elecSelLHTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_photonSelIsEMTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_photonSelIsEMTool->name());
-      return StatusCode::FAILURE;
-    };
-
-    if( m_tauSelTool.retrieve().isFailure() ) {
-      ATH_MSG_ERROR("Failed to retrieve tool: " << m_tauSelTool->name());
-      return StatusCode::FAILURE;
-    };
-    ATH_CHECK( m_ElectronContainerKey.initialize() );
-    ATH_CHECK( m_PhotonContainerKey.initialize() );
-    ATH_CHECK( m_TauJetContainerKey.initialize() );
-    ATH_CHECK( m_MuonContainerKey.initialize() );
-    ATH_CHECK( m_JetContainerKey.initialize() );
-    ATH_CHECK( m_CoreMetKey.initialize() );
-    ATH_CHECK( m_metKey.initialize() );
-    ATH_CHECK( m_metMapKey.initialize() );
     ATH_CHECK( m_ORMetMapKey.initialize() );
     ATH_CHECK(m_chargedPFOContainerWriteHandleKey.initialize()); 
     ATH_CHECK(m_neutralPFOContainerWriteHandleKey.initialize()); 
@@ -154,7 +88,6 @@ namespace met {
 
   StatusCode ORMETMakerAlg::execute() {
     ATH_MSG_VERBOSE("Executing " << name() << "...");
-
     // Create a MissingETContainer with its aux store
     auto ctx = getContext();
     auto metHandle= SG::makeHandle (m_metKey,ctx);
@@ -316,44 +249,70 @@ namespace met {
 
     if (m_doRetrieveORconstit) {
 
-      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); //jetOR
-      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));//jetOR
+      /*** Fill overlapRemovedPFlowObjects ***/
+      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); 
+      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
 
       ATH_MSG_INFO("Retrieve OR constituents");
       ConstDataVector<PFOContainer> met_PFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *PFOs) {met_PFO.push_back(pfo);}
-      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,PFOContainerWriteHandle,true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,PFOContainerWriteHandle,false));}
 
-      /**** If want to write CHScharged/neutralOverlapRemovedPFlowObjects container to AOD ****
-      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); //jetOR
-      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
-  
-      ///jetOR  cPFO
+      const xAOD::PFOContainer *OR_pfos = nullptr; 
+   
+      if (metMuons.size()>0 && m_retainMuonConstit) {
+        OR_pfos = m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,true, metMuons.asDataVector());
+      }
+      else {
+        OR_pfos = m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,false);
+      }
+
+      *PFOContainerWriteHandle=*OR_pfos;
+
+     /**** If want to write CHScharged/neutralOverlapRemovedPFlowObjects container to AOD ****
+      SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); 
+      ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
+      //cPFO
       SG::ReadHandle<xAOD::PFOContainer> cPFOs("CHSChargedParticleFlowObjects");
       if (!cPFOs.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << cPFOs.key());
         return StatusCode::FAILURE;
       }
-      ///jetOR  nPFO
+      //nPFO
       SG::ReadHandle<xAOD::PFOContainer> nPFOs("CHSNeutralParticleFlowObjects");
       if (!nPFOs.isValid()) {
         ATH_MSG_WARNING("Unable to retrieve PFOContainer: " << nPFOs.key());
          return StatusCode::FAILURE;
       }
-      SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey,ctx); //jetOR
-      SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx); //jetOR
-      ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
-      ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); //jetOR
+      SG::WriteHandle<xAOD::PFOContainer> chargedPFOContainerWriteHandle(m_chargedPFOContainerWriteHandleKey,ctx); 
+      SG::WriteHandle<xAOD::PFOContainer> neutralPFOContainerWriteHandle(m_neutralPFOContainerWriteHandleKey,ctx); 
+      ATH_CHECK(chargedPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); 
+      ATH_CHECK(neutralPFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(),std::make_unique<xAOD::PFOAuxContainer>())); 
       
 
       ConstDataVector<PFOContainer> met_cPFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *cPFOs) {met_cPFO.push_back(pfo);}
       ConstDataVector<PFOContainer> met_nPFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *nPFOs) {met_nPFO.push_back(pfo);}
-      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,true, metMuons.asDataVector()));}
-      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,chargedPFOContainerWriteHandle,neutralPFOContainerWriteHandle,PFOContainerWriteHandle,false));}*/
+
+      xAOD::PFOContainer* or_cPFO = chargedPFOContainerWriteHandle.ptr();
+      xAOD::PFOContainer* or_nPFO = neutralPFOContainerWriteHandle.ptr();
+
+      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,or_cPFO,or_nPFO,true, metMuons.asDataVector()));}
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_cPFO.asDataVector(), met_nPFO.asDataVector(),&metHelper,or_cPFO,or_nPFO,false));}
+
+    (*PFOContainerWriteHandle).assign((*neutralPFOContainerWriteHandle).begin(), (*neutralPFOContainerWriteHandle).end());
+    (*PFOContainerWriteHandle).insert((*PFOContainerWriteHandle).end(),
+		  (*chargedPFOContainerWriteHandle).begin(), 
+		  (*chargedPFOContainerWriteHandle).end());***/
+
+     for (auto tmp_constit : *PFOContainerWriteHandle){ATH_MSG_INFO("ORMETMaker constit with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << " in OverlapRemovedCHSParticleFlowObjects");}
+
     }
+
+
+
+
+
 
     
     m_doJVT= (m_soft=="Clus" ? false : true);

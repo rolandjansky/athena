@@ -66,6 +66,16 @@ class METAssocOutputList(JobProperty):
     allowedTypes = ['list'] 
     StoredValue  = []
 
+class UsePFOLinks(JobProperty): 
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
+class UseFELinks(JobProperty):
+    statusOn = True
+    allowedTypes = ['bool'] 
+    StoredValue  = False
+
 class UsePFOElectronLinks(JobProperty): 
     statusOn = True
     allowedTypes = ['bool'] 
@@ -107,6 +117,8 @@ jobproperties.add_Container(METRecoFlags)
 
 jobproperties.METRecoFlags.add_JobProperty(DoRegions)
 jobproperties.METRecoFlags.add_JobProperty(DoPFlow)
+jobproperties.METRecoFlags.add_JobProperty(UsePFOLinks) 
+jobproperties.METRecoFlags.add_JobProperty(UseFELinks) 
 jobproperties.METRecoFlags.add_JobProperty(UsePFOElectronLinks) 
 jobproperties.METRecoFlags.add_JobProperty(UsePFOPhotonLinks) 
 jobproperties.METRecoFlags.add_JobProperty(UseFEElectronLinks) 

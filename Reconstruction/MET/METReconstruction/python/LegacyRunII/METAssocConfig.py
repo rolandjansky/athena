@@ -40,9 +40,7 @@ class AssocConfig:
         self.objType = objType
         self.inputKey = inputKey
 
-def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPhotonLinks=False,
-                  useFEElectronLinks=False,useFEPhotonLinks=False,
-                  useFEMuonLinks=False,useFETauLinks=False,
+def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False,
                   trkseltool=None,trkisotool=None,caloisotool=None,
                   modConstKey="",
                   modClusColls={}):
@@ -56,13 +54,17 @@ def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPh
         modLCClus = modClusColls['LC{0}Clusters'.format(modConstKey)]
         modEMClus = modClusColls['EM{0}Clusters'.format(modConstKey)]
     # Construct tool and set defaults for case-specific configuration
+
+
+    from METReconstruction.METRecoFlags import metFlags
+
     if config.objType == 'Ele':
         from ROOT import met
         tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
         #tool.OutputLevel=VERBOSE
-        if usePFOElectronLinks:
+        if metFlags.UsePFOElectronLinks() or usePFOLinks:
             tool.UsePFOElectronLinks = True
-        if useFEElectronLinks:
+        if metFlags.UseFEElectronLinks() or useFELinks:
             tool.UseFEElectronLinks = True
 
 
@@ -71,14 +73,14 @@ def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPh
         from ROOT import met
         tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
 
-        if usePFOPhotonLinks:
+        if metFlags.UsePFOPhotonLinks() or usePFOLinks:
             tool.UsePFOPhotonLinks = True
-        if useFEPhotonLinks: 
+        if metFlags.UseFEPhotonLinks() or useFELinks: 
             tool.UseFEPhotonLinks = True
 
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
-        if useFETauLinks: 
+        if metFlags.UseFETauLinks() or useFELinks: 
             tool.UseFETauLinks = True
     if config.objType == 'LCJet':
         tool = CfgMgr.met__METJetAssocTool('MET_LCJetAssocTool_'+suffix)
@@ -92,7 +94,7 @@ def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPh
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
-        if useFEMuonLinks: 
+        if metFlags.UseFEMuonLinks() or useFELinks: 
             tool.UseFEMuonLinks = True
         #tool.OutputLevel=VERBOSE
     if config.objType == 'Soft':
@@ -107,14 +109,15 @@ def getAssociator(config,suffix,doPFlow=False,usePFOElectronLinks=False,usePFOPh
 
 
 
-
-    from METReconstruction.METRecoFlags import metFlags
     if doPFlow:
         tool.PFlow = True
         if metFlags.UseFlowElements() :
             tool.FlowElementCollection = modConstKey if modConstKey!="" else defaultInputKey["PFlowObjFE"]
         else:
-            tool.PFlowColl = modConstKey if modConstKey!="" else (defaultInputKey["PFlowObj"]  if suffix!='AntiKt4OverlapRemovedEMPFlow' else defaultInputKey["ORPFlowObj"])
+            if modConstKey!="":  
+                tool.PFlowColl = modConstKey  
+            else:
+                tool.PFlowColl = defaultInputKey["PFlowObj"]  if suffix!='AntiKt4OverlapRemovedEMPFlow' else defaultInputKey["ORPFlowObj"]
     else:
         tool.UseModifiedClus = doModClus
     # set input/output key names
@@ -159,12 +162,8 @@ class METAssocConfig:
             else:
                 associator = getAssociator(config=config,suffix=self.suffix,
                                            doPFlow=self.doPFlow,
-                                           usePFOElectronLinks=self.usePFOElectronLinks,
-                                           usePFOPhotonLinks=self.usePFOPhotonLinks,
-                                           useFEElectronLinks=self.useFEElectronLinks, 
-                                           useFEPhotonLinks=self.useFEPhotonLinks, 
-                                           useFEMuonLinks=self.useFEMuonLinks, 
-                                           useFETauLinks=self.useFETauLinks, 
+                                           usePFOLinks=self.usePFOLinks,
+                                           useFELinks=self.useFELinks,
                                            trkseltool=self.trkseltool,
                                            trkisotool=self.trkisotool,
                                            caloisotool=self.caloisotool,
@@ -180,12 +179,8 @@ class METAssocConfig:
     #
     def __init__(self,suffix,buildconfigs=[],
                  doPFlow=False,doTruth=False,
-                 usePFOElectronLinks=False,
-                 usePFOPhotonLinks=False, 
-                 useFEElectronLinks=False, 
-                 useFEPhotonLinks=False,  
-                 useFEMuonLinks=False, 
-                 useFETauLinks=False, 
+                 usePFOLinks=False,
+                 useFELinks=False, 
                  trksel=None,
                  modConstKey="",
                  modClusColls={}
@@ -193,8 +188,8 @@ class METAssocConfig:
         # Set some sensible defaults
         modConstKey_tmp = modConstKey
         modClusColls_tmp = modClusColls
+        from METReconstruction.METRecoFlags import metFlags
         if doPFlow:
-            from METReconstruction.METRecoFlags import metFlags
             if metFlags.UseFlowElements():
                 if modConstKey_tmp == "": modConstKey_tmp = "CHSFlowElements"
             else:
@@ -209,12 +204,14 @@ class METAssocConfig:
             print (prefix, 'Creating MET Assoc config \''+suffix+'\'')
         self.suffix = suffix
         self.doPFlow = doPFlow
-        self.usePFOElectronLinks = usePFOElectronLinks
-        self.usePFOPhotonLinks = usePFOPhotonLinks 
-        self.useFEElectronLinks = useFEElectronLinks 
-        self.useFEPhotonLinks = useFEPhotonLinks 
-        self.useFEMuonLinks = useFEMuonLinks 
-        self.useFETauLinks = useFETauLinks 
+        self.usePFOLinks = usePFOLinks
+        self.useFELinks = useFELinks
+        self.usePFOElectronLinks = metFlags.UsePFOElectronLinks()
+        self.usePFOPhotonLinks = metFlags.UsePFOPhotonLinks()
+        self.useFEElectronLinks = metFlags.UseFEElectronLinks() 
+        self.useFEPhotonLinks = metFlags.UseFEPhotonLinks() 
+        self.useFEMuonLinks = metFlags.UseFEMuonLinks() 
+        self.useFETauLinks = metFlags.UseFETauLinks() 
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth

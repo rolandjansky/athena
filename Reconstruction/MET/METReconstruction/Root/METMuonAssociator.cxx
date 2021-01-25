@@ -40,9 +40,7 @@ namespace met {
   {
     declareProperty("DoClusterMatch", m_doMuonClusterMatch=true);
     declareProperty("MuonKey",m_muContKey);
-    declareProperty( "MuonNeutralFEReadDecorKey", m_muonNeutralFEReadDecorKey = "Muons.neutralFELinks" );
-    declareProperty( "MuonChargedFEReadDecorKey", m_muonChargedFEReadDecorKey = "Muons.chargedFELinks" );
-    declareProperty( "UseFEMuonLinks", m_useFEMuonLinks = false ); 
+    declareProperty("UseFEMuonLinks", m_useFEMuonLinks = false ); 
   }
 
   // Destructor
@@ -58,9 +56,10 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
-
-    ATH_CHECK(m_muonNeutralFEReadDecorKey.initialize());
-    ATH_CHECK(m_muonChargedFEReadDecorKey.initialize());
+    if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+    if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+    ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+    ATH_CHECK( m_chargedFEReadDecorKey.initialize());
 
     if (m_doMuonClusterMatch) {
       ATH_CHECK(m_elementLinkName.initialize());
@@ -226,15 +225,37 @@ namespace met {
 
   // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
 
-  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj,
-                                          std::vector<const xAOD::IParticle*>& felist,
-                                          const met::METAssociator::ConstitHolder& constits,
-                                          std::map<const IParticle*,MissingETBase::Types::constvec_t>& /*momenta*/) const
-  {  
+  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits,
+                                            std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
+  {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
+
+    if (m_useFEMuonLinks) { 
+      ATH_CHECK( extractFEsFromLinks(mu, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(mu, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METMuonAssociator::extractFEsFromLinks(const xAOD::Muon* mu,
+						       std::vector<const xAOD::IParticle*>& felist,
+						       const met::METAssociator::ConstitHolder& constits) const
+  {
+    //TODO
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode METMuonAssociator::extractFEs(const xAOD::Muon* mu, //testFELinks
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const
+  {  
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     const CaloCluster* muclus = mu->cluster();
-
     ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
                     << ", eta "   << mu->eta()
                     << ", phi " << mu->phi());

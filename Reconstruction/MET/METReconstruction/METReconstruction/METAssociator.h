@@ -91,6 +91,12 @@ namespace met {
     std::string m_pvcoll;
     std::string m_trkcoll;
     std::string m_clcoll;
+    std::string m_neutralFELinksKey; //testKey
+    std::string m_chargedFELinksKey; //testKey
+    std::string m_neutralPFOLinksKey; //testKey
+    std::string m_chargedPFOLinksKey; //testKey
+    bool m_usePFOLinks; //testKey
+    bool m_useFELinks;  //testKey
 
     SG::ReadHandleKey<xAOD::VertexContainer>  m_pvcollKey;
     SG::ReadHandleKey<xAOD::IParticleContainer>  m_clcollKey;
@@ -114,6 +120,8 @@ namespace met {
 
     double m_cenTrackPtThr;
     double m_forTrackPtThr;
+
+
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default

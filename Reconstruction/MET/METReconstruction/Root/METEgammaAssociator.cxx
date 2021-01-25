@@ -50,15 +50,6 @@ namespace met {
 
     declareProperty( "ExtraTrackMatchDeltaR", m_extraTrkMatch_dR = 0.05 );
 
-    declareProperty( "ElectronNeutralPFOReadDecorKey", m_electronNeutralPFOReadDecorKey = "Electrons.neutralpfoLinks" );
-    declareProperty( "ElectronChargedPFOReadDecorKey", m_electronChargedPFOReadDecorKey = "Electrons.chargedpfoLinks" );
-    declareProperty( "PhotonNeutralPFOReadDecorKey", m_photonNeutralPFOReadDecorKey = "Photon.neutralpfoLinks" ); 
-    declareProperty( "PhotonChargedPFOReadDecorKey", m_photonChargedPFOReadDecorKey = "Photon.chargedpfoLinks" ); 
-    declareProperty( "ElectronNeutralFEReadDecorKey", m_electronNeutralFEReadDecorKey = "Electrons.neutralFELinks" );
-    declareProperty( "ElectronChargedFEReadDecorKey", m_electronChargedFEReadDecorKey = "Electrons.chargedFELinks" );
-    declareProperty( "PhotonNeutralFEReadDecorKey", m_photonNeutralFEReadDecorKey = "Photon.neutralFELinks" ); 
-    declareProperty( "PhotonChargedFEReadDecorKey", m_photonChargedFEReadDecorKey = "Photon.chargedFELinks" ); 
-
     declareProperty( "UsePFOElectronLinks", m_usePFOElectronLinks = false );
     declareProperty( "UsePFOPhotonLinks", m_usePFOPhotonLinks = false);
     declareProperty( "UseFEElectronLinks", m_useFEElectronLinks = false ); 
@@ -84,15 +75,6 @@ namespace met {
       ATH_MSG_WARNING( "Invalid topocluster match method configured!" );
       return StatusCode::FAILURE;
     } 
-
-    ATH_CHECK(m_electronNeutralPFOReadDecorKey.initialize());
-    ATH_CHECK(m_electronChargedPFOReadDecorKey.initialize());
-    ATH_CHECK(m_photonNeutralPFOReadDecorKey.initialize());
-    ATH_CHECK(m_photonChargedPFOReadDecorKey.initialize());
-    ATH_CHECK(m_electronNeutralFEReadDecorKey.initialize());
-    ATH_CHECK(m_electronChargedFEReadDecorKey.initialize());
-    ATH_CHECK(m_photonNeutralFEReadDecorKey.initialize());
-    ATH_CHECK(m_photonChargedFEReadDecorKey.initialize());
 
     return StatusCode::SUCCESS;
   }
@@ -199,13 +181,21 @@ namespace met {
 
     ATH_MSG_VERBOSE("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
 
-    SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > electronNeutralPFOReadDecorHandle (m_electronNeutralPFOReadDecorKey);
-    SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > electronChargedPFOReadDecorHandle (m_electronChargedPFOReadDecorKey);
-    SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > photonNeutralPFOReadDecorHandle (m_photonNeutralPFOReadDecorKey);
-    SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > photonChargedPFOReadDecorHandle (m_photonChargedPFOReadDecorKey);
+    std::vector<PFOLink_t> cPFOLinks;
+    std::vector<PFOLink_t> nPFOLinks;
 
-    const std::vector<PFOLink_t> nPFOLinks = (eg->type() == xAOD::Type::Electron)? electronNeutralPFOReadDecorHandle (*eg) :  photonNeutralPFOReadDecorHandle (*eg);
-    const std::vector<PFOLink_t> cPFOLinks = (eg->type() == xAOD::Type::Electron)? electronChargedPFOReadDecorHandle (*eg) :  photonChargedPFOReadDecorHandle (*eg);
+    if (eg->type() == xAOD::Type::Electron){
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > neutralPFOReadDecorHandle (m_electronNeutralPFOReadDecorKey);
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<PFOLink_t> > chargedPFOReadDecorHandle (m_electronChargedPFOReadDecorKey);
+      nPFOLinks=neutralPFOReadDecorHandle(*eg);
+      cPFOLinks=chargedPFOReadDecorHandle(*eg);
+    }
+    if (eg->type() == xAOD::Type::Photon) {
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > neutralPFOReadDecorHandle (m_photonNeutralPFOReadDecorKey);
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<PFOLink_t> > chargedPFOReadDecorHandle (m_photonChargedPFOReadDecorKey);
+      nPFOLinks=neutralPFOReadDecorHandle(*eg);
+      cPFOLinks=chargedPFOReadDecorHandle(*eg);
+    }
 
 
     // Charged PFOs
@@ -335,12 +325,97 @@ namespace met {
 
   // TODO: split in extractFEsFromLinks and extractFEs, similarly to PFOs, to use links
 
-  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj,
+  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits,
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
+
+    if ((m_useFEElectronLinks && eg->type() == xAOD::Type::Electron) || (m_useFEPhotonLinks && eg->type() == xAOD::Type::Photon)) { 
+      ATH_CHECK( extractFEsFromLinks(eg, felist,constits) );
+    } 
+    else {
+      ATH_CHECK( extractFEs(eg, felist, constits) );
+    }
+
+    return StatusCode::SUCCESS;
+  }
+
+
+  StatusCode METEgammaAssociator::extractFEsFromLinks(const xAOD::Egamma* eg,
+						       std::vector<const xAOD::IParticle*>& felist,
+						       const met::METAssociator::ConstitHolder& constits) const
+  {
+
+    ATH_MSG_VERBOSE("Extract FEs From Links for " << eg->type()  << " with pT " << eg->pt());
+
+    std::vector<FELink_t> nFELinks;
+    std::vector<FELink_t> cFELinks;
+
+    if (eg->type() == xAOD::Type::Electron){
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_electronNeutralFEReadDecorKey);
+      SG::ReadDecorHandle<xAOD::ElectronContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_electronChargedFEReadDecorKey);
+      nFELinks=neutralFEReadDecorHandle(*eg);
+      cFELinks=chargedFEReadDecorHandle(*eg);
+    }
+    if (eg->type() == xAOD::Type::Photon) {
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_photonNeutralFEReadDecorKey);
+      SG::ReadDecorHandle<xAOD::PhotonContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_photonChargedFEReadDecorKey);
+      nFELinks=neutralFEReadDecorHandle(*eg);
+      cFELinks=chargedFEReadDecorHandle(*eg);
+    }
+
+
+    // Charged FEs
+    for (FELink_t feLink : cFELinks) {
+      if (feLink.isValid()){
+	const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
+	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      if (!m_checkUnmatched) {felist.push_back(fe);} 
+	      else {
+	        felist.push_back(fe);
+	      }
+	    } 
+	  }
+	}
+      }
+    } // end cFE loop
+
+    // Neutral FEs
+    double eg_cl_e = eg->caloCluster()->e();
+    double sumE_fe = 0.;
+
+    for (FELink_t feLink : nFELinks) {
+      if (feLink.isValid()){
+        const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	    double fe_e = fe->e();
+	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){   
+	      sumE_fe += fe_e;
+	      ATH_MSG_DEBUG("E match with new nFE: " << fabs(sumE_fe+fe_e - eg_cl_e) / eg_cl_e);
+	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      ATH_MSG_DEBUG("Energy ratio of nFE to eg: " << fe_e / eg_cl_e);
+	      felist.push_back(fe);
+	    }   
+	  }
+	}
+      }
+    } // end nFE links loop
+
+
+    return StatusCode::SUCCESS;
+  }
+
+ StatusCode METEgammaAssociator::extractFEs(const xAOD::Egamma* eg,
+                                            std::vector<const xAOD::IParticle*>& felist,
+                                            const met::METAssociator::ConstitHolder& constits) const
+  {
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
@@ -417,6 +492,7 @@ namespace met {
 
     return StatusCode::SUCCESS;
   }
+
 
   //**********************************************************************
   // Select Egamma tracks & clusters

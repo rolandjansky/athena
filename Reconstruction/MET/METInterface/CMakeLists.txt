@@ -8,7 +8,7 @@ atlas_add_library( METInterface
    METInterface/*.h
    INTERFACE
    PUBLIC_HEADERS METInterface
-   LINK_LIBRARIES AsgTools xAODBase xAODEventInfo xAODJet xAODMissingET AsgDataHandlesLib
+   LINK_LIBRARIES AsgTools xAODBase xAODEventInfo xAODJet xAODMissingET
    PATInterfaces )
 
 atlas_add_dictionary( METInterfaceDict

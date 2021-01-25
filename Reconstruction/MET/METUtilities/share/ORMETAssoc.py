@@ -5,7 +5,6 @@ from METReconstruction.METRecoConfig import getMETRecoAlg
 JetType = 'PFlowJet' if metFlags.DoORMet==False else 'ORPFlowJet'
 
 #if metFlags.DoORMet==True : modConstKey = "OverlapRemovedCHSParticleFlowObjects" 
-
 associators = [AssocConfig(JetType),
                    AssocConfig('Muon'),
                    AssocConfig('Ele'),
@@ -15,8 +14,8 @@ associators = [AssocConfig(JetType),
 cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow' if metFlags.DoORMet==False else 'AntiKt4OverlapRemovedEMPFlow',
                                 associators,
                                 doPFlow=True,
-                                usePFOElectronLinks=metFlags.UsePFOElectronLinks, 
-                                usePFOPhotonLinks=metFlags.UsePFOPhotonLinks 
+                                usePFOLinks=False, 
+                                useFELinks=False 
                             )
 
 metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf

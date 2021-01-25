@@ -115,20 +115,13 @@ namespace met {
                              xAOD::MissingETAssociationHelper* helper,
                              bool doJetJVT);
 
-    StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+   StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
 			  xAOD::MissingETAssociationHelper* metHelper,
-			  SG::WriteHandle<xAOD::PFOContainer> &chargedPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> &neutralPFOContainerWriteHandle,
-			  SG::WriteHandle<xAOD::PFOContainer> &PFOContainerWriteHandle,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
 			  bool retainMuon = false,
 			  const xAOD::IParticleContainer* collection=0);//,  
-			  //MissingETBase::UsageHandler::Policy p); //jetOR
-
-    StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo, 
-			  xAOD::MissingETAssociationHelper* metHelper,
-			  SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle,
-			  bool retainMuon = false,
-			  const xAOD::IParticleContainer* collection=0);
+			  //MissingETBase::UsageHandler::Policy p); 
 
     const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
 			  xAOD::MissingETAssociationHelper* helper,

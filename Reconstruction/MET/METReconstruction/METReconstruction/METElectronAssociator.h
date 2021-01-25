@@ -61,8 +61,7 @@ namespace met{
  
     /// Default constructor: 
     METElectronAssociator();
-    SG::ReadHandleKey<xAOD::ElectronContainer> m_elContKey;
-    
+    SG::ReadHandleKey<xAOD::ElectronContainer> m_elContKey;    
 
   }; 
 

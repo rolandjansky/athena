@@ -75,11 +75,19 @@ namespace met{
 				 std::vector<const xAOD::IParticle*>& pfolist,
 				 const met::METAssociator::ConstitHolder& constits) const;
 
-
     StatusCode extractFE(const xAOD::IParticle* obj,
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final; //TODO: split in extractFEsFromLinks and extractFEs, similarly to PFOs, to use links
+
+    StatusCode extractFEsFromLinks(const xAOD::Egamma* eg, //testFELinks
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const;
+
+
+    StatusCode extractFEs(const xAOD::Egamma* eg, //testFELinks
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const;
 
 
     StatusCode extractTracks(const xAOD::IParticle* obj,
@@ -102,16 +110,15 @@ namespace met{
 
     double m_extraTrkMatch_dR;
 
-    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralPFOReadDecorKey;
-    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronChargedPFOReadDecorKey;
-    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralPFOReadDecorKey; 
-    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonChargedPFOReadDecorKey; 
+    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralPFOReadDecorKey{this,"photonNeutralPFOReadDecorKey","", "Neutral PFO links key"};
+    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonChargedPFOReadDecorKey{this,"photonChargedPFOReadDecorKey","", "Charged PFO links key"};
+    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralFEReadDecorKey{this,"photonNeutralFEReadDecorKey","", "Neutral FE links key"};
+    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonChargedFEReadDecorKey{this,"photonChargedFEReadDecorKey","", "Charged FE links key"};
 
-    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralFEReadDecorKey;
-    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronChargedFEReadDecorKey;
-    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonNeutralFEReadDecorKey; 
-    SG::ReadDecorHandleKey<xAOD::PhotonContainer> m_photonChargedFEReadDecorKey; 
-
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralPFOReadDecorKey{this,"electronNeutralPFOReadDecorKey","", "Neutral PFO links key"};
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronChargedPFOReadDecorKey{this,"electronCargedPFOReadDecorKey","", "Charged PFO links key"};
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronNeutralFEReadDecorKey{this,"electronNeutralFEReadDecorKey","", "Neutral FE links key"};
+    SG::ReadDecorHandleKey<xAOD::ElectronContainer> m_electronChargedFEReadDecorKey{this,"electronCargedFEReadDecorKey","", "Charged FE links key"};
 
     bool m_usePFOElectronLinks;
     bool m_usePFOPhotonLinks; 

@@ -68,6 +68,16 @@ namespace met{
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;   // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
+
+   StatusCode extractFEsFromLinks(const xAOD::TauJet* tau, //testFELinks
+    				    std::vector<const xAOD::IParticle*>& felist,
+				    const met::METAssociator::ConstitHolder& constits) const;
+
+
+    StatusCode extractFEs(const xAOD::TauJet* tau, //testFELinks
+				 std::vector<const xAOD::IParticle*>& felist,
+				 const met::METAssociator::ConstitHolder& constits) const;
+
     
     StatusCode extractTracks(const xAOD::IParticle* obj,
                              std::vector<const xAOD::IParticle*>& constlist,
@@ -78,8 +88,8 @@ namespace met{
     /// Default constructor: 
     METTauAssociator();
     SG::ReadHandleKey<xAOD::TauJetContainer> m_tauContKey;
-    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_tauNeutralFEReadDecorKey;
-    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_tauChargedFEReadDecorKey;
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_neutralFEReadDecorKey{this,"NeutralFEReadDecorKey","", "Neutral FlowElement links key"};
+    SG::ReadDecorHandleKey<xAOD::TauJetContainer> m_chargedFEReadDecorKey{this,"ChargedFEReadDecorKey","", "Charged FlowElement links key"};
     bool m_useFETauLinks;
 
   }; 

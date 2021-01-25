@@ -44,10 +44,24 @@ namespace met {
   ////////////////////////////
   StatusCode METElectronAssociator::initialize()
   {
-    ATH_CHECK( METEgammaAssociator::initialize() );
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_elContKey.assign(m_input_data_key));
     ATH_CHECK( m_elContKey.initialize());
+    ATH_CHECK( METEgammaAssociator::initialize() );
+
+    if (m_electronNeutralPFOReadDecorKey.key()=="") {ATH_CHECK( m_electronNeutralPFOReadDecorKey.assign(m_input_data_key+"."+m_neutralPFOLinksKey));} //testKey
+    if (m_electronChargedPFOReadDecorKey.key()=="") {ATH_CHECK( m_electronChargedPFOReadDecorKey.assign(m_input_data_key+"."+m_chargedPFOLinksKey));} //testKey
+    if (m_electronNeutralFEReadDecorKey.key()=="")  {ATH_CHECK( m_electronNeutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));} //testKey
+    if (m_electronChargedFEReadDecorKey.key()=="")  {ATH_CHECK( m_electronChargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));} //testKey
+
+    if (m_usePFOLinks || m_usePFOElectronLinks) {
+	ATH_CHECK(m_electronNeutralPFOReadDecorKey.initialize());
+    	ATH_CHECK(m_electronChargedPFOReadDecorKey.initialize());
+    }
+    if (m_useFELinks || m_useFEElectronLinks) {
+    	ATH_CHECK(m_electronNeutralFEReadDecorKey.initialize());
+    	ATH_CHECK(m_electronChargedFEReadDecorKey.initialize());
+    }
 
     return StatusCode::SUCCESS;
   }
