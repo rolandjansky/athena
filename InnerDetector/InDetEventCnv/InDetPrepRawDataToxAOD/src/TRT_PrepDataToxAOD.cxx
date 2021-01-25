@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -156,7 +156,7 @@ StatusCode TRT_PrepDataToxAOD::execute()
     if( (*it)->empty() ) continue;
     
     // loop over collection and convert to xAOD
-    for( const auto& prd : **it ){
+    for( const auto prd : **it ){
       
       ++counter;
       
