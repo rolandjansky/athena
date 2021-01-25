@@ -1,6 +1,7 @@
 #!/bin/sh
 
 # art-include: 21.6/AthGeneration
+# art-include: master/AthGeneration
 # art-description: MadGraph Event Generation Test - Cluster grid pack
 # art-type: grid
 
