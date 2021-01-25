@@ -45,7 +45,11 @@ namespace ISF {
       StatusCode  finalize();
 
       /** passes through to the private version */
+#ifdef HEPMC3
+      bool pass(HepMC::ConstGenParticlePtr particle ) const;
+#else
       bool pass(const HepMC::GenParticle& particle ) const;
+#endif
 
      private:
       /** returns true if the the particle and all daughters are on the white list */
