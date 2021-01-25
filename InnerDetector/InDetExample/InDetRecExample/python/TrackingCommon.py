@@ -732,10 +732,20 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
                                                                SurfaceBasedMaterialEffects   = False ))
 
 @makePublicTool
-def getInDetTrkMaterialProviderTool(name='InDetTrkMaterialProviderTool',**kwargs) :
+def getTrkMaterialProviderTool(name='TrkMaterialProviderTool',**kwargs) :
     the_name = makeName(name,kwargs)
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs = setDefaults(kwargs, TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
+    else :
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+
     from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     return Trk__TrkMaterialProviderTool( name = the_name, **kwargs)
+
+def getInDetTrkMaterialProviderTool(name='InDetTrkMaterialProviderTool',**kwargs) :
+    return getTrkMaterialProviderTool(name,**kwargs)
 
 @makePublicTool
 def getPRDtoTrackMapTool(name='PRDtoTrackMapTool',**kwargs) :
