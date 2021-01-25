@@ -350,7 +350,7 @@ StatusCode MergeMcEventCollTool::processFirstSubEvent(const McEventCollection *p
   for (int type(OUTOFTIME); type<NOPUTYPE; ++type) {
     //if a type is enabled leave room to insert the events of that type, otherwise place separator immediately after
     currentMcEventCollectionIndex += 1;
-    m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1) = new HepMC::GenEvent(0, -1); //pid 0 & event_number -1 flags this GenEvent as SEPARATOR
+    m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1) = HepMC::newGenEvent(0, -1); //pid 0 & event_number -1 flags this GenEvent as SEPARATOR
     HepMC::set_mpi(m_pOvrlMcEvColl->at(currentMcEventCollectionIndex-1),type);
     updateClassificationMap(0, -1, type, type, true);
     ATH_MSG_DEBUG ( "Placing Separator for Type: "<<type<<" at Posistion: " << currentMcEventCollectionIndex-1 );
@@ -364,16 +364,14 @@ StatusCode MergeMcEventCollTool::processFirstSubEvent(const McEventCollection *p
 }
 
 bool MergeMcEventCollTool::isTruthFiltertedMcEventCollection(const McEventCollection *pMcEvtColl) const {
-  const HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));
-  if (currentBackgroundEvent.particles_size()>1) {return false;}
-  //ATH_MSG_VERBOSE ( "isTruthFiltertedMcEventCollection: GenEvent.particles_size() = " << currentBackgroundEvent.particles_size() );
-  HepMC::GenEvent::particle_const_iterator currentGenParticle(currentBackgroundEvent.particle_range().begin());
-  const HepMC::GenEvent::particle_const_iterator endOfParticles(currentBackgroundEvent.particle_range().end());
-  while (currentGenParticle!=endOfParticles) {
-    //Geantino PDGID = 999.
-    if((*currentGenParticle)->pdg_id()==999) { return true; }
-    ++currentGenParticle;
-  }
+  const HepMC::GenEvent* currentBackgroundEvent = *(pMcEvtColl->begin());
+#ifdef HEPMC3
+  if (currentBackgroundEvent->particles().size()!=1) return false;
+  if (currentBackgroundEvent->particles().at(0)->pdg_id()==999) return true;
+#else
+  if (currentBackgroundEvent->particles_size()!=1) return false;
+  if ((*(currentBackgroundEvent->particles_begin()))->pdg_id()==999) return true;
+#endif
   return false;
 }
 
@@ -417,7 +415,13 @@ StatusCode MergeMcEventCollTool::saveHeavyIonInfo(const McEventCollection *pMcEv
   if (m_pOvrlMcEvColl->at(0)->heavy_ion()) return StatusCode::SUCCESS;
   if (pMcEvtColl->at(0)->heavy_ion())
     {
+//It should be clarified if ne wants to get a copy or the content
+#ifdef HEPMC3
+     HepMC::GenHeavyIonPtr hinew=std::make_shared<HepMC::GenHeavyIon>(*(pMcEvtColl->at(0)->heavy_ion()));
+     m_pOvrlMcEvColl->at(0)->set_heavy_ion(hinew);
+#else
       m_pOvrlMcEvColl->at(0)->set_heavy_ion(*(pMcEvtColl->at(0)->heavy_ion()));
+#endif
     }
   return StatusCode::SUCCESS;
 }
@@ -444,22 +448,40 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
   ATH_CHECK(this->saveHeavyIonInfo(pMcEvtColl));
   const HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));         //background event
   //handle the slimming case
-  //ATH_MSG_VERBOSE( "The MB Event Number is " << currentBkgEventIndex << ". m_nBkgEventsReadSoFar = " << m_nBkgEventsReadSoFar );
-  HepMC::GenVertexPtr  pCopyOfGenVertex(NULL);
-  if ( currentBackgroundEvent.signal_process_vertex() ) pCopyOfGenVertex = new HepMC::GenVertex ( *currentBackgroundEvent.signal_process_vertex() );
+  HepMC::GenVertexPtr  pCopyOfGenVertex{nullptr};
+#ifdef HEPMC3
+  if ( HepMC::signal_process_vertex(&currentBackgroundEvent) ) pCopyOfGenVertex = std::make_shared<HepMC3::GenVertex> ( HepMC::signal_process_vertex(&currentBackgroundEvent)->data() );
   //insert the GenEvent into the overlay McEventCollection.
-  m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar) = new HepMC::GenEvent(currentBackgroundEvent.signal_process_id(), currentBkgEventIndex, pCopyOfGenVertex );
-  updateClassificationMap(currentBackgroundEvent.signal_process_id(), currentBkgEventIndex, 0, RESTOFMB, true);
+  HepMC::GenEvent* evt= new HepMC::GenEvent();
+  //AV Not sure if one should add the vertex here
+  evt->set_event_number(currentBkgEventIndex);
+  evt->add_vertex(pCopyOfGenVertex);
+  HepMC::set_signal_process_vertex(evt,pCopyOfGenVertex);
+  HepMC::set_signal_process_id(evt,HepMC::signal_process_id(currentBackgroundEvent));
+  m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar) =  evt;
+  updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent), currentBkgEventIndex, 0, RESTOFMB, true);
 
   unsigned int nCollisionVerticesFound(0);
   //loop over vertices in Background GenEvent
-  HepMC::GenEvent::vertex_const_iterator currentVertexIter(currentBackgroundEvent.vertices_begin());
-  const HepMC::GenEvent::vertex_const_iterator endOfCurrentListOfVertices(currentBackgroundEvent.vertices_end());
   ATH_MSG_VERBOSE( "Starting a vertex loop ... " );
+  auto currentVertexIter = currentBackgroundEvent.vertices().begin();
+  auto endOfCurrentListOfVertices = currentBackgroundEvent.vertices().end();
+#else
+  if ( HepMC::signal_process_vertex(&currentBackgroundEvent) ) pCopyOfGenVertex = new HepMC::GenVertex ( *currentBackgroundEvent.signal_process_vertex() );
+  //insert the GenEvent into the overlay McEventCollection.
+  m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar) = new HepMC::GenEvent(currentBackgroundEvent.signal_process_id(), currentBkgEventIndex, pCopyOfGenVertex );
+  updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent), currentBkgEventIndex, 0, RESTOFMB, true);
+
+  unsigned int nCollisionVerticesFound(0);
+  //loop over vertices in Background GenEvent
+  ATH_MSG_VERBOSE( "Starting a vertex loop ... " );
+  auto currentVertexIter = currentBackgroundEvent.vertices_begin();
+  auto endOfCurrentListOfVertices = currentBackgroundEvent.vertices_end();
+#endif
   for (; currentVertexIter != endOfCurrentListOfVertices; ++currentVertexIter) {
-    const HepMC::GenVertexPtr  pCurrentVertex(*currentVertexIter);
+    auto  pCurrentVertex=*currentVertexIter;
     HepMC::GenVertexPtr  pCopyOfVertexForClassification[NOPUTYPE];
-    for (int type(INTIME); type<NOPUTYPE; ++type) pCopyOfVertexForClassification[type]=(HepMC::GenVertexPtr )0;
+    for (int type(INTIME); type<NOPUTYPE; ++type) pCopyOfVertexForClassification[type]=(HepMC::GenVertexPtr )nullptr;
 
     //check for collision vertices for in-time events
     bool isCollisionVertex(false);
@@ -470,13 +492,10 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
 
     //loop over outgoing particles in the current GenVertex keeping those not classified as NOPUTYPE
     ATH_MSG_VERBOSE( "Starting an outgoing particle loop ... " );
-    HepMC::GenVertex::particles_out_const_iterator currentVertexParticleIter(pCurrentVertex->particles_out_const_begin());
-    const HepMC::GenVertex::particles_out_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_out_const_end());
-    for (; currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex; ++currentVertexParticleIter) {
-      ATH_MSG_VERBOSE( "Found a particle at location " << std::hex << *currentVertexParticleIter << std::dec  << " with PDG ID = " << (*currentVertexParticleIter)->pdg_id() );
-      const HepMC::GenParticlePtr  pCurrentVertexParticle(*currentVertexParticleIter);
-      const HepMC::GenVertexPtr  pCurrentParticleProductionVertex(pCurrentVertexParticle->production_vertex());
-      puType particleClassification(classifyVertex(pCurrentVertexParticle, pCurrentParticleProductionVertex,currentEventTime));
+    for (HepMC::ConstGenParticlePtr currentVertexParticle: *pCurrentVertex){
+      ATH_MSG_VERBOSE( "Found a particle at location " << std::hex << currentVertexParticle << std::dec  << " with PDG ID = " << currentVertexParticle->pdg_id() );
+      HepMC::ConstGenVertexPtr  pCurrentParticleProductionVertex = currentVertexParticle->production_vertex();
+      puType particleClassification(classifyVertex(currentVertexParticle, pCurrentParticleProductionVertex,currentEventTime));
       //hack to keep the complete vertex information for the interaction vertices of in-time background events
       if(isCollisionVertex && NOPUTYPE==particleClassification) {
         particleClassification=INTIME;
@@ -484,37 +503,64 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
       //add particle to appropriate vertex
       if (particleClassification<NOPUTYPE && m_saveType[particleClassification]) {
         if (!pCopyOfVertexForClassification[particleClassification]) {
-          pCopyOfVertexForClassification[particleClassification] = new HepMC::GenVertex(pCurrentVertex->position());
+          pCopyOfVertexForClassification[particleClassification] =HepMC::newGenVertexPtr(pCurrentVertex->position());
           ATH_MSG_VERBOSE( "Added bkg vertex " << pCopyOfVertexForClassification[particleClassification]
-                           << " at position " << HepMC::GenVertex(pCurrentVertex->position())
+                           << " at position " <<  pCopyOfVertexForClassification[particleClassification]
                            << " for pu type = " << particleClassification );
         }
-        pCopyOfVertexForClassification[particleClassification]->add_particle_out( new HepMC::GenParticle(*pCurrentVertexParticle) );
+#ifdef HEPMC3
+        pCopyOfVertexForClassification[particleClassification]->add_particle_out(std::make_shared<HepMC3::GenParticle>(currentVertexParticle->data()));
+#else
+        pCopyOfVertexForClassification[particleClassification]->add_particle_out( new HepMC::GenParticle(*currentVertexParticle) );
+#endif
         ATH_MSG_VERBOSE( "Added bkg particle at location " << std::hex
-                         << *currentVertexParticleIter << std::dec
-                         << " with PDG ID = " << (*currentVertexParticleIter)->pdg_id() );
+                         << currentVertexParticle << std::dec
+                         << " with PDG ID = " << currentVertexParticle->pdg_id() );
       }
     } //particle loop
     /** add the in-coming particles to the in-time minbias vertex only */
     if (m_saveType[INTIME] && pCopyOfVertexForClassification[INTIME]) {
+#ifdef HEPMC3
+ for (auto currentVertexParticle:  pCurrentVertex->particles_in()) {
+        pCopyOfVertexForClassification[INTIME]->add_particle_in (std::make_shared<HepMC3::GenParticle>(currentVertexParticle->data()));
+      }
+#else
       HepMC::GenVertex::particles_in_const_iterator currentVertexParticleIter(pCurrentVertex->particles_in_const_begin());
       const HepMC::GenVertex::particles_in_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_in_const_end());
       for (; currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex; ++currentVertexParticleIter) {
         pCopyOfVertexForClassification[INTIME]->add_particle_in ( new HepMC::GenParticle(**currentVertexParticleIter) );
       }
+#endif
     }
     //keep vertices with outgoing particles
     for (int type(INTIME); type<NOPUTYPE; ++type) {
-      if (m_saveType[type] && pCopyOfVertexForClassification[type] && (pCopyOfVertexForClassification[type]->particles_out_size() > 0) ) {
+#ifdef HEPMC3
+      int n_particles_out=pCopyOfVertexForClassification[type]->particles_out().size();
+#else
+      int n_particles_out=pCopyOfVertexForClassification[type]->particles_out_size();
+#endif
+      if (m_saveType[type] && pCopyOfVertexForClassification[type] && (n_particles_out > 0) ) {
         m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)->add_vertex( pCopyOfVertexForClassification[type]);
-        updateClassificationMap(currentBackgroundEvent.signal_process_id(), currentBkgEventIndex, 0, type, false);
+        updateClassificationMap(HepMC::signal_process_id(currentBackgroundEvent), currentBkgEventIndex, 0, type, false);
       }
     }
   } //vertex loop
+
   return StatusCode::SUCCESS;
 }
 
-bool MergeMcEventCollTool::isInitialCollisionVertex(const HepMC::GenVertexPtr  pCurrentVertex) const {
+bool MergeMcEventCollTool::isInitialCollisionVertex(HepMC::ConstGenVertexPtr  pCurrentVertex) const {
+//AV: The claims below about this code corectness for the Pythia (which one?) minbias 
+//    event could be outdated as of 2021, e.g. the comparison of barcodes could be incorrect 
+#ifdef HEPMC3
+for (auto pCurrentVertexParticle: pCurrentVertex->particles_in())
+      {  
+         if ( (4==pCurrentVertexParticle->status()) ||  (2212==pCurrentVertexParticle->pdg_id()
+           && (1==HepMC::barcode(pCurrentVertexParticle) || 2==HepMC::barcode(pCurrentVertexParticle)) ) ) {
+           return true;
+         }
+      }
+#else
   HepMC::GenVertex::particles_in_const_iterator currentVertexParticleIter(pCurrentVertex->particles_in_const_begin());
   const HepMC::GenVertex::particles_in_const_iterator endOfListOfParticlesFromCurrentVertex(pCurrentVertex->particles_in_const_end());
   while(currentVertexParticleIter != endOfListOfParticlesFromCurrentVertex) {
@@ -529,10 +575,11 @@ bool MergeMcEventCollTool::isInitialCollisionVertex(const HepMC::GenVertexPtr  p
     }
     ++currentVertexParticleIter;
   }
+#endif
   return false;
 }
 
-MergeMcEventCollTool::puType MergeMcEventCollTool::classifyVertex(const HepMC::GenParticlePtr  pCurrentVertexParticle, const HepMC::GenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime) {
+MergeMcEventCollTool::puType MergeMcEventCollTool::classifyVertex(HepMC::ConstGenParticlePtr  pCurrentVertexParticle, HepMC::ConstGenVertexPtr  pCurrentParticleProductionVertex, double currentEventTime) {
   //=======================================================================
   //handle the slimming case
   //=======================================================================
@@ -593,7 +640,11 @@ StatusCode MergeMcEventCollTool::compressOutputMcEventCollection() {
         ++currentClassification;
         continue;
       }
+#ifdef HEPMC3
+      if((*outputEventItr)->vertices().empty()) {
+#else
       if((*outputEventItr)->vertices_empty()) {
+#endif
         //Delete empty GenEvent
         outputEventItr=m_pOvrlMcEvColl->erase(outputEventItr);
         ATH_MSG_VERBOSE( "compressOutputMcEventCollection() Removed Empty GenEvent #" << event_number << ", signal_process_id(" << signal_process_id << "), category = " << currentClassification);
