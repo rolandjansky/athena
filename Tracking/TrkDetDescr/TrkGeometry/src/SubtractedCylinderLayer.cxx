@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -76,7 +76,8 @@ double Trk::SubtractedCylinderLayer::postUpdateMaterialFactor(const Trk::TrackPa
 
 void Trk::SubtractedCylinderLayer::moveLayer(Amg::Transform3D& shift)  {
       Amg::Transform3D transf = shift * (*m_transform);
-      m_transform=std::make_unique<Amg::Transform3D>(transf);
-      m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-      m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+      m_transform = std::make_unique<Amg::Transform3D>(transf);
+      m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+      m_normal =
+        std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }
