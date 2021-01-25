@@ -532,5 +532,25 @@ namespace TrigCompositeUtils {
     return Decision::s_seedString;
   }
   
+  const std::string& l1DecoderNodeName(){
+    return Decision::s_l1DecoderNodeNameString;
+  }
+
+  const std::string& filterNodeName(){
+    return Decision::s_filterNodeNameString;
+  }
+
+  const std::string& inputMakerNodeName(){
+    return Decision::s_inputMakerNodeNameString;
+  }
+
+  const std::string& hypoAlgNodeName(){
+    return Decision::s_hypoAlgNodeNameString;
+  }
+
+  const std::string& comboHypoAlgNodeName(){
+    return Decision::s_comboHypoAlgNodeNameString;
+  }
+
 }
 
