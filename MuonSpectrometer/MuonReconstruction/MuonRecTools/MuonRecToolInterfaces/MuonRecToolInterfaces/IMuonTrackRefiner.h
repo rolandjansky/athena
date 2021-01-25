@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONTRACKREFINER_H
 #define MUON_IMUONTRACKREFINER_H
 
 #include <vector>
+#include <memory>
 #include "GaudiKernel/IAlgTool.h"
 
 
@@ -14,11 +15,13 @@ static const InterfaceID IID_IMuonTrackRefiner
 
 namespace Trk {
   class Track;
+  class MeasurementBase;
 }
 
 namespace Muon {
 
   class MuPatTrack;
+  class MuPatHit;
   
   /** @brief The IMuonTrackRefiner is a pure virtual interface for tools which refine the hit content of a given track
 
@@ -38,9 +41,9 @@ namespace Muon {
 	@param track input track
         @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    virtual void refine( MuPatTrack& track ) const = 0;
-
-    virtual void cleanUp() const = 0;
+    virtual void refine( MuPatTrack& track,
+                         std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
+                         std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted ) const = 0;
 
   };
   
