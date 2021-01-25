@@ -12,7 +12,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
-
+#include <iostream>
 /** ctor a unique_ptr from input */
 std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateHelpers::toPtr(MultiComponentState&& in)
@@ -60,17 +60,17 @@ Trk::MultiComponentStateHelpers::toPtrWithScaledError(
   for (ComponentParameters& component : in) {
     Trk::TrackParameters* trackParameters = component.first.get();
     const AmgSymMatrix(5)* originalMatrix = trackParameters->covariance();
-    //If no covariance skip
+    // If no covariance skip
     if (!originalMatrix) {
       continue;
     }
     AmgSymMatrix(5) newCovarianceMatrix =
       (*originalMatrix).cwiseProduct(coefficients);
-    trackParameters->updateParameters(trackParameters->parameters(), newCovarianceMatrix);
+    trackParameters->updateParameters(trackParameters->parameters(),
+                                      newCovarianceMatrix);
   }
   return std::make_unique<Trk::MultiComponentState>(std::move(in));
 }
-
 
 bool
 Trk::MultiComponentStateHelpers::isMeasured(const Trk::MultiComponentState& in)

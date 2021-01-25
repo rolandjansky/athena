@@ -231,7 +231,6 @@ Trk::GsfMeasurementUpdator::calculateFilterStep(
   double chiSquared = 0;
   int degreesOfFreedom = 0;
   for (Trk::ComponentParameters& component : stateWithNewWeights) {
-
     if (stateWithNewWeights.size() > 1 &&
         std::abs(component.first->parameters()[Trk::qOverP]) > 0.033333) {
       continue;
