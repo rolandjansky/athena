@@ -86,7 +86,7 @@ class METAlg{
   static float Rho_avg_barrel(const xAOD::JGTowerContainer* towers, bool useNegTowers);
   static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers);
 
-  static StatusCode RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool correctMean, bool useNegTowers);
+  static StatusCode RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool correctMean);
 
 };
 

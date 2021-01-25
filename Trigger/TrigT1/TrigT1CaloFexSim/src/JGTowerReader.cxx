@@ -107,7 +107,7 @@ histSvc("THistSvc",name){
   declareProperty("gFEX_Rho_useNegTowers",m_gFEX_Rho_useNegTowers=true);
   declareProperty("gFEX_OnlyPosRho", m_gFEX_OnlyPosRho=false); 
   declareProperty("gFEX_pTcone_cut", m_gFEX_pTcone_cut=25);  //cone threshold for Jets without Jets: declared in GeV
-  declareProperty("gXERHOLUT_file", m_gXERHOLUT_file="Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20210105.MiddleTrainNoNoiseCut.r11881.root");
+  declareProperty("gXERHOLUT_file", m_gXERHOLUT_file="Run3L1CaloSimulation/Noise/gTowerNoisevsRho.20201215.MiddleTrain.r11881.root");
 
   declareProperty("jXERHO_correction_file"  , m_jXERHO_correction_file="Run3L1CaloSimulation/Noise/jTowerCorrection.20200510.r11881.root");  //correction file for jXERHO
   declareProperty("jXERHO_fixed_noise_cut"  , m_jXERHO_fixed_noise_cut=0.0);  
@@ -619,6 +619,11 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   float rhoA = METAlg::Rho_avg_etaRings(fpga_a, m_gFEX_Rho_useNegTowers);
   float rhoB = METAlg::Rho_avg_etaRings(fpga_b, m_gFEX_Rho_useNegTowers);
   float rhoC = METAlg::Rho_avg_etaRings(fpga_c, m_gFEX_Rho_useNegTowers);
+
+  //recalculate rho with only positive gTowers (for Rho+RMS LUT approach)
+  float posRhoA = METAlg::Rho_avg_etaRings(fpga_a, false);
+  float posRhoB = METAlg::Rho_avg_etaRings(fpga_b, false);
+  float posRhoC = METAlg::Rho_avg_etaRings(fpga_c, false);
   
   if(m_gFEX_OnlyPosRho){
     if(rhoA<0) rhoA=0; 
@@ -722,8 +727,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, /*bool correctMean*/false, m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_MeanLUT",rhoA,rhoB,rhoC,m_gXERHOLUT_file, /*bool correctMean*/true, m_gFEX_useNegTowers) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",posRhoA,posRhoB,posRhoC,m_gXERHOLUT_file, /*bool correctMean*/false) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_MeanLUT",posRhoA,posRhoB,posRhoC,m_gXERHOLUT_file, /*bool correctMean*/true) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));
