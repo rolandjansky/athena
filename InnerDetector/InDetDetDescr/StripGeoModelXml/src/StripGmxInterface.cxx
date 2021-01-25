@@ -202,9 +202,10 @@ double length(25.0);
 	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
 												    thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift);//single row
 	  
-	  m_detectorManager->addDesign(std::move(design));
 	  std::string splitName = typeName+"_"+std::to_string(i)+"_"+std::to_string(side);
-	 m_geometryMap[splitName] = m_detectorManager->numDesigns() -1;
+	  m_geometryMap[splitName] = design.get();
+
+	  m_detectorManager->addDesign(std::move(design));
 	}
       }
     }
@@ -213,12 +214,11 @@ double length(25.0);
       std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
 												thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
       
-      //   ADA    m_detectorManager->addDesign(dynamic_cast<const InDetDD::SiDetectorDesign*> (design));
-      m_detectorManager->addDesign(std::move(design));
-      //
       //    Add to map for addSensor routine
       
-      m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
+      m_geometryMap[typeName] = design.get();
+      m_detectorManager->addDesign(std::move(design));
+  
     }
 }
 
@@ -356,20 +356,23 @@ vector<double> endR;
 	 double thisCentreR = (singleRowMinR[0]+singleRowMaxR[0])*0.5;
 	 
 	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, 1, singleRowStrips, singleRowPitch, singleRowMinR, singleRowMaxR, stereoAngle, thisCentreR);
-	 m_detectorManager->addDesign(std::move(design));
-	 //
+
+	  //
 	 //    Add to map for addSensor routine
-	 //    This is not ideal, as the map will return value of 0 (which is a valid design in the manager) for a non-existing key
-	 //    Can lead to wrong detector design being loaded silently... to be improved!
+
 	 std::string splitName = typeName+"_"+std::to_string(i);
-	 m_geometryMap[splitName] = m_detectorManager->numDesigns() -1;
+	 m_geometryMap[splitName] = design.get();
+
+	 m_detectorManager->addDesign(std::move(design));
+	
        }
      } 
      
      else{
        std::unique_ptr<InDetDD::StripStereoAnnulusDesign> design=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       
+       m_geometryMap[typeName] = design.get();
        m_detectorManager->addDesign(std::move(design));
-       m_geometryMap[typeName] = m_detectorManager->numDesigns() -1;
      }
      
 }
@@ -425,7 +428,7 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
       splitTypeName += "_" + std::to_string(updatedIndex["side"]);
     }
 
-    const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[splitTypeName]);
+    const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
     
     if (!design) {
       *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
@@ -476,7 +479,7 @@ void StripGmxInterface::addSensor(string typeName, map<string, int> &index, int 
 //    Create the detector element and add to the DetectorManager
 //
 
-    const InDetDD::SiDetectorDesign *design = m_detectorManager->getDesign(m_geometryMap[typeName]);
+    const InDetDD::SiDetectorDesign *design = m_geometryMap[typeName];
 
     if (!design) {
         *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 

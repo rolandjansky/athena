@@ -85,7 +85,7 @@ public:
     std::string getstr(const std::string typeName, const std::string name, const std::map<std::string, std::string> &par);
 
 private:
-    std::map<std::string, int> m_geometryMap;
+    std::map<std::string, const InDetDD::SiDetectorDesign *> m_geometryMap;
     InDetDD::SCT_DetectorManager *m_detectorManager;
     InDetDD::SiCommonItems *m_commonItems;
     WaferTree *m_waferTree;
