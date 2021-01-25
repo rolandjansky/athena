@@ -48,8 +48,10 @@ void SiHitIdHelper::Initialize() {
   bool isSLHC = (pix != 0 && pix->dictionaryVersion() == "SLHC");
   bool isDBM  = (pix != 0 && pix->dictionaryVersion() == "IBL-DBM");
   bool isInclinedAlternative = (pix !=0 &&  pix->dictionaryVersion() == "SLHC_InclinedAlternative");
+  bool isHGTD = (pix != 0 && pix->dictionaryVersion() == "ITkHGTD");
+  if(isHGTD) isSLHC = true;
 
-  if (isSLHC) InitializeField("Part",0,2);
+  if (isHGTD) InitializeField("Part",0,2);
   else InitializeField("Part",0,1);
   if (isDBM) InitializeField("BarrelEndcap",-4,4);
   else InitializeField("BarrelEndcap",-2,2);
