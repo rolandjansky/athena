@@ -27,13 +27,15 @@ inline void GeoSiHit::init() {
     _sID = 0;
   if(detStore->retrieve(_pID,"PixelID").isFailure())
     _pID = 0;
-  if(detStore->retrieve(_hID,"HGTD_ID").isFailure())
+  if(_hgtd){//only try HGTD_ID if a detector manager is present
+   if(detStore->retrieve(_hID,"HGTD_ID").isFailure())
     _hID = 0;
+    }
 }
 
 inline GeoSiHit::GeoSiHit (const SiHit & h) {
   _hit = &h;
-  if (!_sct || !_pix || !_hgtd) init();
+  if (!_sct && !_pix && !_hgtd) init();
 }
 
 inline HepGeom::Point3D<double> GeoSiHit::getGlobalPosition() const {
