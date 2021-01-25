@@ -6,9 +6,12 @@
 #endif
 
 #include "AnaAlgorithm/AnaAlgorithm.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithm.h"
 #ifdef ROOTCORE
 #include "AnaAlgorithm/AnaAlgorithmConfig.h"
 #include "AnaAlgorithm/AnaAlgorithmWrapper.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithmConfig.h"
+#include "AnaAlgorithm/AnaReentrantAlgorithmWrapper.h"
 #endif
 
 #endif

@@ -93,6 +93,7 @@ namespace EL
     void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
+    void algsAdd (const AnaReentrantAlgorithmConfig& config);
 
 
     /// \brief add a clone of the given algorithm
