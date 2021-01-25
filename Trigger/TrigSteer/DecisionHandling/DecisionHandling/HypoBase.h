@@ -86,7 +86,7 @@ class HypoBase : public ::AthReentrantAlgorithm {
   /// output decisions
   SG::WriteHandleKey<TrigCompositeUtils::DecisionContainer> m_output { this, "HypoOutputDecisions", "UNSPECIFIED_OUTPUT", "Ouput Decision" };
   /// Enabling of detailed validation checks for use during development
-  Gaudi::Property<bool> m_runtimeValidation { this, "RuntimeValidation", true, "Enable detailed runtime validation of HypoAlg output, and upstream Decisions." };
+  Gaudi::Property<bool> m_runtimeValidation { this, "RuntimeValidation", false, "Enable detailed runtime validation of HypoAlg output, and upstream Decisions." };
     
   // for future implementation: ToolHandleArray<ITestHypoTool> m_tools { this, "HypoTools", {}, "Hypo tools" };
 

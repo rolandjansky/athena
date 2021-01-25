@@ -43,6 +43,7 @@ class opt:
     forceEnableAllChains = False      # if True, all HLT chains will run even if the L1 item is false
     enableL1Phase1   = False          # Enable Run-3 LVL1 simulation and/or decoding
     enableL1CaloLegacy = True         # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)
+    doRuntimeNaviVal = False          # Checks the validity of each Decision Object produced by a HypoAlg    
 #Individual slice flags
     doCalibSlice        = True
     doTestSlice         = True
