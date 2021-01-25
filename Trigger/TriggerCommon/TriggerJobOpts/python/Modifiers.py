@@ -1413,12 +1413,13 @@ class tightenElectronTrackingCuts(_modifier):
         except AttributeError:
             log.error("Cannot modify doCloneRemoval setting")
 
-class dodoRuntimeNaviVal(_modifier):
+class doRuntimeNaviVal(_modifier):
     """
     Checks the validity of each Decision Object produced by a HypoAlg, including all of its
     parents all the way back to the L1 decoder. Potentially CPU expensive.
     """
     def preSetup(self):
+        log.info("Enabling Runtime Trigger Navigation Validation")
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         ConfigFlags.Trigger.doRuntimeNaviVal = True
 

@@ -91,7 +91,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     trigHypoToolGen = trigJetHypoToolFromDict
     if hypoType==JetHypoAlgType.PASSTHROUGH:
         hyponame = "TrigStreamerHypoAlgMT_caloReco"
-        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame,SetInitialRoIAsFeature=True))
+        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame))
         trigHypoToolGen = trigStreamerHypoTool
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
