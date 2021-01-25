@@ -63,12 +63,27 @@ def config_only_check():
 
 def generate_prep(process_dir):
     global MADGRAPH_COMMAND_STACK
-    shutil.copytree(process_dir+'/Cards','Cards_bkup')
-    shutil.copyfile(process_dir+'/Source/make_opts','Cards_bkup/make_opts_bkup')
-    MADGRAPH_COMMAND_STACK += ['# In case this fails, Cards_bkup should be in your original run directory']
-    MADGRAPH_COMMAND_STACK += ['# And ${MGaMC_PROCESS_DIR} can be replaced with whatever process directory exists in your stand-alone test']
-    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/*dat ${MGaMC_PROCESS_DIR}/Cards/']
-    MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/make_opts_bkup ${MGaMC_PROCESS_DIR}/Source/make_opts']
+    if not os.access('Cards_bkup',os.R_OK):
+        shutil.copytree(process_dir+'/Cards','Cards_bkup')
+        shutil.copyfile(process_dir+'/Source/make_opts','Cards_bkup/make_opts_bkup')
+        MADGRAPH_COMMAND_STACK += ['# In case this fails, Cards_bkup should be in your original run directory']
+        MADGRAPH_COMMAND_STACK += ['# And ${MGaMC_PROCESS_DIR} can be replaced with whatever process directory exists in your stand-alone test']
+        MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/*dat ${MGaMC_PROCESS_DIR}/Cards/']
+        MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup/make_opts_bkup ${MGaMC_PROCESS_DIR}/Source/make_opts']
+    else:
+        mglog.warning('Found Cards_bkup directory existing. Suggests you are either running generation twice (a little funny) or are not using a clean directory.')
+        bkup_v = 1
+        while os.access('Cards_bkup_'+str(bkup_v),os.R_OK) and bkup_v<100:
+            bkup_v += 1
+        if bkup_v<100:
+            shutil.copytree(process_dir+'/Cards','Cards_bkup_'+str(bkup_v))
+            shutil.copyfile(process_dir+'/Source/make_opts','Cards_bkup_'+str(bkup_v)+'/make_opts_bkup')
+            MADGRAPH_COMMAND_STACK += ['# In case this fails, Cards_bkup should be in your original run directory']
+            MADGRAPH_COMMAND_STACK += ['# And ${MGaMC_PROCESS_DIR} can be replaced with whatever process directory exists in your stand-alone test']
+            MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup_'+str(bkup_v)+'/*dat ${MGaMC_PROCESS_DIR}/Cards/']
+            MADGRAPH_COMMAND_STACK += ['cp '+os.getcwd()+'/Cards_bkup_'+str(bkup_v)+'/make_opts_bkup ${MGaMC_PROCESS_DIR}/Source/make_opts']
+        else:
+            mglog.warning('Way too many Cards_bkup* directories found. Giving up -- standalone script may not work.')
 
 
 def error_check(errors):
