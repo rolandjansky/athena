@@ -14,6 +14,11 @@ auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX
 
 auto_doHGTD = DetFlags.geometry.HGTD_on()
 
+dictVersion = "SLHC"
+
+if auto_doHGTD:
+    dictVersion = "ITkHGTD"
+
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
     def __init__(self):
@@ -25,6 +30,7 @@ class SLHC_Setup_XMLReader :
                             doSCT=True,
                             doHGTD=auto_doHGTD,
                             isGMX=auto_isGMX,
+                            XML_SLHC_Version = dictVersion
                                  )
 
     
