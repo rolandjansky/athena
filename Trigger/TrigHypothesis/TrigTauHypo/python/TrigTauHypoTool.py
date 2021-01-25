@@ -110,11 +110,11 @@ thresholdsEF = {
     ('tightRNN', 125): TauCuts(3, 125000.0, 3), 
     ('tightRNN', 160): TauCuts(3, 160000.0, 3),
     ('tightRNN', 200): TauCuts(3, 200000.0, 3),
-    ('perf',0)       : TauCuts(3,0.,2),
-    ('perf',25)      : TauCuts(3,25000.,2),
-    ('perf',35)      : TauCuts(3,35000.,2),
-    ('perf',160)  : TauCuts(3,160000.,2),
-    ('perf',200)  : TauCuts(3,200000.,2),
+    ('perf',0)       : TauCuts(3,0.,-1111),
+    ('perf',25)      : TauCuts(3,25000.,-1111),
+    ('perf',35)      : TauCuts(3,35000.,-1111),
+    ('perf',160)  : TauCuts(3,160000.,-1111),
+    ('perf',200)  : TauCuts(3,200000.,-1111),
     ('idperf',0)     : TauCuts(3,0.,2),
     ('idperf',25)    : TauCuts(3,25000.,2),
     ('idperf',35)    : TauCuts(3,35000.,2),
@@ -145,8 +145,10 @@ def TrigEFTauMVHypoToolFromDict( chainDict ):
       currentHypo.numTrackMin = 0
       currentHypo.highptidthr = 280000.
       currentHypo.method      = 3
-    elif 'perf' in criteria: 
+    elif 'idperf' in criteria: 
       currentHypo.AcceptAll = True
+    elif 'perf' in criteria:
+      currentHypo.method      = 0
 
     return currentHypo
 
@@ -205,7 +207,7 @@ def TrigL2TauHypoToolFromDict( chainDict ):
     currentHypo.Details  = [int(-1)]
     currentHypo.Formulas = ['y > '+threshold+'*1000.0']
 
-    if 'perf' in criteria:
+    if 'idperf' in criteria:
        currentHypo.AcceptAll = True
 
     return currentHypo
