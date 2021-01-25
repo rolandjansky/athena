@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "PixelDeadMapCondAlg.h"
@@ -76,20 +76,18 @@ StatusCode PixelDeadMapCondAlg::execute(const EventContext& ctx) const {
           std::vector<std::string> moduleString;
           while (std::getline(checkModule,buffer,':')) { moduleString.push_back(buffer); }
 
-          if (moduleString.size()!=2) {
-            ATH_MSG_FATAL("String size (moduleString) is not 2. " << moduleString.size() << " in " << component[i] << " channel " <<  channelNumber << " read from " << readHandle.fullKey());
-            return StatusCode::FAILURE;
+          if (moduleString.size()==2) {
+            std::stringstream checkModuleHash(moduleString[0]);
+            std::vector<std::string> moduleStringHash;
+            while (std::getline(checkModuleHash,buffer,'"')) { moduleStringHash.push_back(buffer); }
+
+            int moduleHash   = std::atoi(moduleStringHash[1].c_str());
+            int moduleStatus = std::atoi(moduleString[1].c_str());
+
+            if (moduleStatus==0) { writeCdo->setModuleStatus(moduleHash, 1); }
+            else                 { writeCdo->setChipStatus(moduleHash, moduleStatus); }
           }
 
-          std::stringstream checkModuleHash(moduleString[0]);
-          std::vector<std::string> moduleStringHash;
-          while (std::getline(checkModuleHash,buffer,'"')) { moduleStringHash.push_back(buffer); }
-
-          int moduleHash   = std::atoi(moduleStringHash[1].c_str());
-          int moduleStatus = std::atoi(moduleString[1].c_str());
-
-          if (moduleStatus==0) { writeCdo->setModuleStatus(moduleHash, 1); }
-          else                 { writeCdo->setChipStatus(moduleHash, moduleStatus); }
         }
       }
     }
