@@ -1,8 +1,13 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <numeric>
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/DataStructure.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/json_parser.hpp>
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTChain.h"
@@ -197,7 +202,7 @@ void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::s
    ptree top;
    top.put("filetype", "bunchgroupset");
    top.put("name", frame->bunchGroupSet().name());
-   
+
    ptree pGroups;
    const std::vector<TrigConf::BunchGroup>& bgVec = frame->bunchGroupSet().bunchGroups();
    for (auto group : bgVec) {
