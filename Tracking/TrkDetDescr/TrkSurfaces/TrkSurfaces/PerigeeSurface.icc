@@ -97,18 +97,18 @@ PerigeeSurface::clone() const
 inline const Amg::Transform3D&
 PerigeeSurface::transform() const
 {
-  if (!Surface::m_transform)
+  if (!Surface::m_transform){
     return (s_idTransform);
+  }
   return (*Trk::Surface::m_transform);
 }
 
 inline const Amg::Vector3D&
 PerigeeSurface::center() const
 {
-  if (!Surface::m_center && !Surface::m_transform)
+  if (!Surface::m_center){
     return (s_origin);
-  else if (!Surface::m_center)
-    m_center.set(std::make_unique<Amg::Vector3D>(m_transform->translation()));
+  }
   return (*Surface::m_center);
 }
 

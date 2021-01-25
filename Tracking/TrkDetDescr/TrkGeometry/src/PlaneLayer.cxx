@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -72,7 +72,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
   PlaneSurface(transform, tbounds),
   Layer(laymatprop, thickness, olap, laytyp)
 {}
-  
+
 Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
                             Trk::RectangleBounds* rbounds,
                             Trk::SurfaceArray* surfaceArray,
@@ -102,7 +102,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
   PlaneSurface(transform, tbounds),
   Layer(surfaceArray, thickness, olap, laytyp)
 {}
-              
+
 Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
                             Trk::RectangleBounds* rbounds,
                             Trk::SurfaceArray* surfaceArray,
@@ -137,7 +137,7 @@ Trk::PlaneLayer::PlaneLayer(Amg::Transform3D* transform,
 {}
 
 Trk::PlaneLayer::PlaneLayer(const Trk::PlaneLayer& play)
-  
+
 = default;
 
 Trk::PlaneLayer::PlaneLayer(const Trk::PlaneLayer& play, const Amg::Transform3D& transf):
@@ -155,7 +155,7 @@ Trk::PlaneLayer& Trk::PlaneLayer::operator=(const PlaneLayer& play)
   }
   return(*this);
 }
-        
+
 const Trk::PlaneSurface& Trk::PlaneLayer::surfaceRepresentation() const
 {
   return (*this);
@@ -168,11 +168,11 @@ double Trk::PlaneLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm
       return 0.;
     if (Trk::PlaneSurface::normal().dot(dir*parm.momentum().normalized()) > 0. )
       return Trk::Layer::m_layerMaterialProperties->alongPreFactor();
-    return   Trk::Layer::m_layerMaterialProperties->oppositePreFactor();  
+    return   Trk::Layer::m_layerMaterialProperties->oppositePreFactor();
 }
 
 double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
-                                                 Trk::PropDirection dir) const 
+                                                 Trk::PropDirection dir) const
 {
     if (!Trk::Layer::m_layerMaterialProperties.get())
       return 0.;
@@ -183,9 +183,9 @@ double Trk::PlaneLayer::postUpdateMaterialFactor(const Trk::TrackParameters& par
 
 void Trk::PlaneLayer::moveLayer(Amg::Transform3D& shift)  {
        Amg::Transform3D transf = shift * (*m_transform);
-       m_transform=std::make_unique<Amg::Transform3D>(transf);
-       m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-       m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+       m_transform = std::make_unique<Amg::Transform3D>(transf);
+       m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+       m_normal =
+         std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }
-
 

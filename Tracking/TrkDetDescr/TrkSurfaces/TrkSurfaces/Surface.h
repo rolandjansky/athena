@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -453,22 +453,23 @@ protected:
   //!< Transform3D to orient surface w.r.t to global frame
   std::unique_ptr<Amg::Transform3D> m_transform;
   //!< center position of the surface
-  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_center;
+  std::unique_ptr<Amg::Vector3D> m_center;
   //!< normal vector of the surface
-  CxxUtils::CachedUniquePtr<Amg::Vector3D> m_normal;
+  std::unique_ptr<Amg::Vector3D> m_normal;
 
-  /** Pointers to the a TrkDetElementBase */
+  /** Pointers to the a TrkDetElementBase  (not owning)*/
   const TrkDetElementBase* m_associatedDetElement;
   Identifier m_associatedDetElementId;
 
   /**The associated layer Trk::Layer
    - layer in which the Surface is be embedded
+   (not owning)
    */
   const Layer* m_associatedLayer;
 
   /** Possibility to attach a material descrption
   - potentially given as the associated material layer
-    don't delete, it's the TrackingGeometry's job to do so
+    (not owning)
   */
   const Layer* m_materialLayer;
 
