@@ -360,14 +360,12 @@ StatusCode AthenaPoolCnvSvc::connectOutput(const std::string& outputConnectionSp
                data = eventAutoFlush.str();
             } else if (flush > 0 && flush < m_numberEventsPerWrite.value()) {
                flush = flush * (int((m_numberEventsPerWrite.value()) / flush - 0.5) + 1);
-            } else {
-               ATH_MSG_WARNING("connectOutput auto write for: " << file << " too small for auto flush " << flush << " events");
             }
          }
       }
       if (merge != std::string::npos) {
          ATH_MSG_INFO("connectOutput setting auto write for: " << outputConnection << " to " << flush << " events");
-         m_fileFlushSetting[outputConnection] = flush;
+         m_fileFlushSetting[outputConnection.substr(0, merge)] = flush;
       }
    }
    if (!processPoolAttributes(m_domainAttr, outputConnection, contextId).isSuccess()) {
