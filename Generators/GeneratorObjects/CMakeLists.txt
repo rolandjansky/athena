@@ -17,10 +17,17 @@ atlas_add_library( GeneratorObjects
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES AthenaKernel AtlasHepMCLib AthContainers AthLinks SGTools xAODTruth GaudiKernel RootUtils StoreGateLib )
 
-atlas_add_dictionary( GeneratorObjectsDict
-                      GeneratorObjects/McEventDict.h
-                      GeneratorObjects/selection.xml
-                      LINK_LIBRARIES GeneratorObjects RootUtils )
+if (HEPMC3_USE)
+  atlas_add_dictionary( GeneratorObjectsDict
+                        GeneratorObjects/McEventDict.h
+                        GeneratorObjects/selectionHepMC3.xml
+                        LINK_LIBRARIES GeneratorObjects RootUtils )
+else()
+  atlas_add_dictionary( GeneratorObjectsDict
+                        GeneratorObjects/McEventDict.h
+                        GeneratorObjects/selection.xml
+                        LINK_LIBRARIES GeneratorObjects RootUtils )
+endif()
 
 # Install a dummy rootmap file to suppress loading the rootmap from hepmc3,
 # which defines dictionary entries for HepMC types that clash with
