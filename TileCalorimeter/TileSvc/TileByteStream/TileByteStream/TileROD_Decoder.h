@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TILEBYTESTREAM_TILEROD_DECODER_H
@@ -126,7 +126,7 @@ class TileROD_Decoder: public AthAlgTool {
       bool m_D0Maskpos[64];
       TileFastRawChannel m_D0chanpos[64];
       TileFastRawChannel m_D0channeg[64];
-      TileCell* cells[64];
+      TileCell* m_cells[64];
     };
 
     /** constructor

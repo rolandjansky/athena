@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigCaloDataAccessSvc.h"
@@ -398,7 +398,7 @@ unsigned int TrigCaloDataAccessSvc::lateInit() { // non-const this thing
 	    int drawer = (frag_id & 0xFF);
 	    TileCellCollection::iterator pCell = lcc->begin();
 	    pCell+=2;
-	    d0cellsp->cells[drawer] = *pCell;
+	    d0cellsp->m_cells[drawer] = *pCell;
 	  }
   } // end of loop over collection
 
