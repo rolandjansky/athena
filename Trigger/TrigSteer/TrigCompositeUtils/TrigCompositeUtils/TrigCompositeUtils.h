@@ -304,6 +304,12 @@ namespace TrigCompositeUtils {
   const std::string& viewString();
   const std::string& featureString();
   const std::string& seedString();
+
+  const std::string& l1DecoderNodeName();
+  const std::string& filterNodeName();
+  const std::string& inputMakerNodeName();
+  const std::string& hypoAlgNodeName();
+  const std::string& comboHypoAlgNodeName();
   /// @}
 
   /**

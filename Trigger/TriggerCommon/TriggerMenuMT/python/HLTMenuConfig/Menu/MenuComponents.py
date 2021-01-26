@@ -422,6 +422,8 @@ class MenuSequence(object):
 
         self._name = CFNaming.menuSequenceName(compName(Hypo))
         self._hypoToolConf = HypoToolConf( HypoToolGen )
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        Hypo.RuntimeValidation = ConfigFlags.Trigger.doRuntimeNaviVal
         self._hypo = HypoAlgNode( Alg = Hypo )
         hypo_output = CFNaming.hypoAlgOutName(compName(Hypo))
         self._hypo.addOutput(hypo_output)

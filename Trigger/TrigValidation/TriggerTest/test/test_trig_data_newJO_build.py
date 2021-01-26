@@ -27,6 +27,7 @@ run.executable = 'python'
 run.args = 'runHLT_standalone_newJO.py'
 run.args += ' --filesInput='+Input.get_input('data').paths[0]
 run.args += ' Trigger.triggerMenuSetup="LS2_v1"'
+run.args += ' Trigger.doRuntimeNaviVal=True'
 run.prmon = False
 
 

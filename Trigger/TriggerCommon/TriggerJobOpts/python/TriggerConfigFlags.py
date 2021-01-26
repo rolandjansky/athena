@@ -46,6 +46,10 @@ def createTriggerFlags():
     # Enable calorimeters
     flags.addFlag('Trigger.doCalo', True)
 
+    # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    flags.addFlag('Trigger.doRuntimeNaviVal', False)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
     def EDMVersion(flags):
         '''
