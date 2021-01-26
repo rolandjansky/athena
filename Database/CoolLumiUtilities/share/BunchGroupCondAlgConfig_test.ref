@@ -1,15 +1,16 @@
 --- data
-Py:Athena            INFO Obtaining metadata of auto-configuration by peeking into /home/sss/nobackup/referencefiles/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1']
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ CondInputLoader (cond alg)
-Py:ComponentAccumulator    INFO      * Load: [('AthenaAttributeList', '/TRIGGER/LVL1/BunchGroupContent')]
+Py:ComponentAccumulator    INFO      * Load: [['AthenaAttributeList', '/TRIGGER/LVL1/BunchGroupContent']] set
 Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: /TRIGGER/LVL1/BunchGroupContent
-Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData
-IOVDbSvc: ['/TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag><db>COOLONL_TRIGGER/COMP200</db>']
+Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: /TRIGGER/LVL1/BunchGroupContent set
+Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData set
+IOVDbSvc: ['<db>COOLONL_TRIGGER/COMP200</db> /TRIGGER/LVL1/BunchGroupContent<tag>HEAD</tag>']
 --- default
 Py:ComponentAccumulator    INFO Condition Algorithms
 Py:ComponentAccumulator    INFO  \__ BunchGroupCondAlg (cond alg)
-Py:ComponentAccumulator    INFO      * BunchGroupFolderInputKey: 
-Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData
+Py:ComponentAccumulator    INFO      * BunchGroupOutputKey: BunchGroupCondData set
 IOVDbSvc: []

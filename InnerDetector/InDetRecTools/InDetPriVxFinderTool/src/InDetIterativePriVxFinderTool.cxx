@@ -30,7 +30,6 @@
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
 #include "AthContainers/DataVector.h"
-#include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkVertexFitterInterfaces/IVertexFitter.h"
 #include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"

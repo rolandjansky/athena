@@ -11,7 +11,6 @@
 // Trk
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -111,7 +110,12 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
         PRD_MultiTruthCollection::const_iterator prdMtCIterE = (*pmtCollIter)->end();
         for ( ; prdMtCIter != prdMtCIterE; ++ prdMtCIter ){
             // check if entry exists and if   
-            auto curGenP       = (*prdMtCIter).second;
+#ifdef HEPMC3
+            HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second.scptr();
+#else
+//AV Looks like an implicit conversion
+            HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second;
+#endif
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
             if ( curGenP->momentum().perp() < m_minPt ) continue;
@@ -150,7 +154,6 @@ const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_
     auto prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
     auto prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
-    //std::cout << "sorting, barcode: " << prdTruthTrajIter->first->barcode() << std::endl;
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();

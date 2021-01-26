@@ -33,7 +33,7 @@ namespace InDet{
 
 class SiWidth;
 
-class SCT_Cluster : public SiCluster {
+class SCT_Cluster final : public SiCluster {
  public:
 
   /// Constructor without parameters

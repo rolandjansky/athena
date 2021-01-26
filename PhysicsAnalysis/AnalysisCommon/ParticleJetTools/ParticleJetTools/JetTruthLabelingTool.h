@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef PARTICLEJETTOOLS_JETTRUTHLABELINGTOOL_H
@@ -13,8 +13,9 @@
 #include "JetInterface/IJetModifier.h"
 #include "ParticleJetTools/LargeRJetLabelEnum.h"
 
-class JetTruthLabelingTool :   virtual public asg::AsgTool, 
-			       virtual public IJetModifier
+class JetTruthLabelingTool :
+  public asg::AsgTool,
+  virtual public IJetModifier
 {
   ASG_TOOL_CLASS(JetTruthLabelingTool, IJetModifier)
 

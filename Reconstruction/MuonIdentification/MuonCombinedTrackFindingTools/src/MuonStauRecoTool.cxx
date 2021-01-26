@@ -61,7 +61,7 @@ namespace MuonCombined {
     ATH_CHECK(m_updator.retrieve());
     ATH_CHECK(m_calibrationDbTool.retrieve());
     ATH_CHECK(m_houghDataPerSectorVecKey.initialize());
-    
+
     if( m_doTruth ){
       // add pdgs from jobO to set
       for( auto pdg : m_pdgsToBeConsidered.value() ) {
@@ -91,28 +91,28 @@ namespace MuonCombined {
       handleCandidate( **it, tagMap, combTracks, segments );
     }
   }
-  
+
   MuonStauRecoTool::TruthInfo* MuonStauRecoTool::getTruth(  const xAOD::TrackParticle& indetTrackParticle ) const {
-    
+
     // in case we are using the truth, check if the truth link is set and create the TruthInfo object
     if( m_doTruth && indetTrackParticle.isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" ) ) {
       const ElementLink<xAOD::TruthParticleContainer>& truthLink = indetTrackParticle.auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" );
       if( truthLink.isValid() ){
         return new TruthInfo((*truthLink)->pdgId(),(*truthLink)->m(),(*truthLink)->p4().Beta());
-      }      
+      }
     }
     return nullptr;
   }
 
 
   void MuonStauRecoTool::handleCandidate( const InDetCandidate& indetCandidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks, Trk::SegmentCollection* segments ) const {
-    
+
     if( m_ignoreSiAssocated && indetCandidate.isSiliconAssociated() ) {
       ATH_MSG_DEBUG(" skip silicon associated track for extension ");
       return;
     }
 
-    /** STAGE 0 
+    /** STAGE 0
         Preselection, preparation of truth related quantities, extrapolation in muon system
      */
 
@@ -122,19 +122,19 @@ namespace MuonCombined {
 
     // get truth info (will be zero pointer if running on data or m_doTruth == false)
     std::unique_ptr<TruthInfo> truthInfo(getTruth(indetTrackParticle));
-    
+
     // if truth based reconstruction is enabled, check whether to accept the given pdgId
     if( !selectTruth(truthInfo.get()) ){
       ATH_MSG_DEBUG("Truth reconstruction enabled: skipping ID track with pdgId: " << (truthInfo ? truthInfo->pdgId : 0) );
       return;
-    }      
+    }
 
-    // get intersections which precision layers in the muon system 
+    // get intersections which precision layers in the muon system
     const Muon::MuonSystemExtension* muonSystemExtension = indetCandidate.getExtension();
 
     // summary for selected ID track
     if( m_doSummary || msgLvl(MSG::DEBUG) ){
-      msg(MSG::INFO) << " ID track: pt "  << indetTrackParticle.pt() << " eta " << indetTrackParticle.eta() 
+      msg(MSG::INFO) << " ID track: pt "  << indetTrackParticle.pt() << " eta " << indetTrackParticle.eta()
             << " phi " << indetTrackParticle.phi();
       if( truthInfo ) msg(MSG::INFO) << truthInfo->toString();
       if( !muonSystemExtension ) msg(MSG::INFO) << " failed muonSystemExtension";
@@ -145,7 +145,7 @@ namespace MuonCombined {
     if( !muonSystemExtension ) {
       return;
     }
-    
+
     // fill validation content
     if( !m_recoValidationTool.empty() ) m_recoValidationTool->addTrackParticle( indetTrackParticle, *muonSystemExtension );
 
@@ -159,8 +159,8 @@ namespace MuonCombined {
       return;
     }
 
-    
-    /** STAGE 2 
+
+    /** STAGE 2
         build candidates from seeds in the chamber layers
      */
 
@@ -181,7 +181,7 @@ namespace MuonCombined {
     if( !m_recoValidationTool.empty() ) addCandidatesToNtuple(indetTrackParticle,candidates,1);
 
 
-    /** STAGE 4 
+    /** STAGE 4
         combineCandidates: run the combined reconstruction
     */
 
@@ -207,8 +207,8 @@ namespace MuonCombined {
     addTag( indetCandidate, *candidates.front(), tagMap, combTracks, segments );
 
   }
-  
-  bool MuonStauRecoTool::processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension, 
+
+  bool MuonStauRecoTool::processMuonSystemExtension(  const xAOD::TrackParticle& indetTrackParticle, const Muon::MuonSystemExtension& muonSystemExtension,
                                                       MuonStauRecoTool::CandidateVec& candidates ) {
 
     // loop over intersections, get associated data
@@ -227,29 +227,29 @@ namespace MuonCombined {
 
   bool MuonStauRecoTool::refineCandidates( MuonStauRecoTool::CandidateVec& candidates ) const {
 
-    // keep track of candidates for which segments are found    
+    // keep track of candidates for which segments are found
     CandidateVec refinedCandidates;
-    
+
     // loop over candidates and redo segments using beta estimate from candidate
     ATH_MSG_DEBUG("Refining candidates " << candidates.size());
     for( auto& candidate : candidates ){
-      
+
       ATH_MSG_DEBUG("   candidate: betaseed beta" << candidate->betaSeed.beta<<", error"<< candidate->betaSeed.error<< " layerDataVec size" << candidate->layerDataVec.size()<<" hits size" <<candidate->hits.size() );
-      
+
       // loop over layers and perform segment finding, collect segments per layer
       for( const auto& layerData : candidate->layerDataVec ) {
-        
+
         // store segments in layer
         std::vector< std::shared_ptr<const Muon::MuonSegment> > segments;
-        
+
         // loop over maxima
         for( const auto& maximumData : layerData.maximumDataVec ){
 
-          // find segments for intersection 
+          // find segments for intersection
           findSegments( layerData.intersection, *maximumData, segments, m_muonPRDSelectionToolStau, m_segmentMaker );
-        
+
         }
-        
+
         // skip if no segment were found
         if( segments.empty() ) continue;
 
@@ -258,7 +258,7 @@ namespace MuonCombined {
           for( const auto& seg : segments ) m_recoValidationTool->add(layerData.intersection,*seg,2);
         }
 
-        // match segments to intersection, store the ones that match 
+        // match segments to intersection, store the ones that match
         std::vector< std::shared_ptr<const Muon::MuonSegment> > selectedSegments;
         m_segmentMatchingTool->select( layerData.intersection, segments, selectedSegments );
 
@@ -270,11 +270,11 @@ namespace MuonCombined {
         // add layer list
         candidate->allLayers.push_back( Muon::MuonLayerRecoData(layerData.intersection,std::move(selectedSegments)) );
       }
-      
+
       // keep candidate if any segments were found
       if( !candidate->allLayers.empty() )  refinedCandidates.push_back(candidate);
     }
-    
+
     // set candidates to the refinedCandidates
     candidates = refinedCandidates;
 
@@ -295,15 +295,15 @@ namespace MuonCombined {
 
     return !candidates.empty();
   }
-  
+
   void MuonStauRecoTool::extractTimeMeasurementsFromTrack( MuonStauRecoTool::Candidate& candidate ) const {
     ATH_MSG_VERBOSE("extractTimeMeasurementsFromTrack for candidate: beta seed " << candidate.betaSeed.beta );
     Trk::Track* combinedTrack = candidate.combinedTrack.get();
     if( !combinedTrack ) return;
-    
+
     // select around seed
     float betaSeed = candidate.betaFitResult.beta;
-    
+
     // fitter + hits
     Muon::TimePointBetaFitter fitter;
     Muon::TimePointBetaFitter::HitVec hits;
@@ -312,33 +312,33 @@ namespace MuonCombined {
     const DataVector<const Trk::TrackStateOnSurface>* states = combinedTrack->trackStateOnSurfaces();
     if( !states ){
       ATH_MSG_WARNING(" track without states, cannot extractTimeMeasurementsFromTrack " );
-      return; 
+      return;
     }
-    
+
     ATH_MSG_VERBOSE("Track : "<<(*combinedTrack));
 
-    // store RPC prds for clustering 
+    // store RPC prds for clustering
     typedef std::vector<const Muon::MuonClusterOnTrack*> RpcClVec;
     typedef std::map<Identifier, std::tuple<const Trk::TrackParameters*, RpcClVec, RpcClVec > > RpcClPerChMap;
     RpcClPerChMap rpcPrdsPerChamber;
-    
+
     typedef std::pair<const Trk::TrackParameters*,const Muon::MdtDriftCircleOnTrack*> MdtTubeData;
     typedef std::vector<MdtTubeData>                                                  MdtTubeDataVec;
     typedef std::map<int, MdtTubeDataVec>                                             MdtChamberLayerData;
     MdtChamberLayerData mdtDataPerChamberLayer;
-      
+
     // loop over TSOSs
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit = states->begin();
     DataVector<const Trk::TrackStateOnSurface>::const_iterator tsit_end = states->end();
     for( ; tsit!=tsit_end ; ++tsit ){
-	
+
       const Trk::TrackParameters* pars = (*tsit)->trackParameters();
       if( !pars ) continue;
 
       // check whether state is a measurement
       const Trk::MeasurementBase* meas = (*tsit)->measurementOnTrack();
       if( !meas || (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
-      
+
       // get Identifier and skip pseudo measurements, ID hits and all but MDT/RPC hits
       Identifier id = m_edmHelperSvc->getIdentifier(*meas);
       if( !id.is_valid() || !m_idHelperSvc->isMuon(id) ) continue;
@@ -349,12 +349,12 @@ namespace MuonCombined {
         // MDTs
         const Muon::MdtDriftCircleOnTrack* mdt = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(meas);
         if( !mdt ) continue;
-        
+
         if( m_segmentMDTT ){
           int chIndexWithBIR = m_idHelperSvc->chamberIndex(mdt->identify());
           if( chIndexWithBIR == Muon::MuonStationIndex::BIL ){
             std::string stName = m_idHelperSvc->chamberNameString(id);
-            if( stName[2] == 'R' ){          
+            if( stName[2] == 'R' ){
               chIndexWithBIR += 1000;
             }
           }
@@ -376,7 +376,7 @@ namespace MuonCombined {
 
 
 
-          // use inverted RT relation together with track prediction to get estimate of drift time 
+          // use inverted RT relation together with track prediction to get estimate of drift time
           float driftTime = mdt->driftTime() ; // we need to add beta seed as it was subtracted when calibrating the hits
           float locR = pars->parameters()[Trk::locR];
           float errR = pars->covariance() ? Amg::error(*pars->covariance(),Trk::locR) : 0.3;
@@ -408,12 +408,12 @@ namespace MuonCombined {
               er = sqrt(tres*tres+trackTimeResu*trackTimeResu);
               ie = trackTimeResu;
               ATH_MSG_VERBOSE(" Got unbiased parameters: r " << locR << " ur " << locRu << " err " << errR << " uerr " << errRu
-                              << " terr " << trackTimeRes << " terru " << trackTimeResu); 
+                              << " terr " << trackTimeRes << " terru " << trackTimeResu);
             }
           }
 
-          ATH_MSG_VERBOSE(" MDT  " << mdt->driftRadius() << " locR " << locR << " err " << errR << " drift time " << driftTime << " TlocR " << TlocR 
-                          << " diff " << driftTime - TlocR << " tofShift " << tofShiftFromBeta << " time " << time  
+          ATH_MSG_VERBOSE(" MDT  " << mdt->driftRadius() << " locR " << locR << " err " << errR << " drift time " << driftTime << " TlocR " << TlocR
+                          << " diff " << driftTime - TlocR << " tofShift " << tofShiftFromBeta << " time " << time
                           << " err " << er << " intrinsic " << tres << " track " << trackTimeRes );
 
           float beta = calculateBeta(time+tof,distance);
@@ -425,7 +425,7 @@ namespace MuonCombined {
           candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
         }
       }else if( m_idHelperSvc->isRpc(id) ){
-        
+
         // treat CompetingMuonClustersOnTrack differently than RpcClusterOnTrack
         std::vector<const Muon::MuonClusterOnTrack*> clusters;
         const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
@@ -504,12 +504,12 @@ namespace MuonCombined {
       hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
       candidate.stauHits.push_back(MuGirlNS::StauHit(tech, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
     };
-    
+
     // get RPC timing per chamber
     RpcClPerChMap::const_iterator chit = rpcPrdsPerChamber.begin();
     RpcClPerChMap::const_iterator chit_end = rpcPrdsPerChamber.end();
     ATH_MSG_VERBOSE("RPCs per chamber " << rpcPrdsPerChamber.size() );
-     
+
     for( ;chit!=chit_end;++chit ){
       const Trk::TrackParameters* pars = std::get<0>(chit->second);
       const RpcClVec&             phiClusters = std::get<1>(chit->second);
@@ -535,7 +535,7 @@ namespace MuonCombined {
     for( ;mit!=mit_end;++mit ){
       ATH_MSG_VERBOSE(" new station layer " << Muon::MuonStationIndex::chName( (Muon::MuonStationIndex::ChIndex)(mit->first%1000) ) << " hits " << mit->second.size());
       if( mit->second.size() < 4 ) continue;
-      
+
       // get RE element for first hit
       const MuonGM::MdtReadoutElement* detEl = mit->second.front().second->detectorElement();
       const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*>(&detEl->surface());
@@ -564,7 +564,7 @@ namespace MuonCombined {
         const Muon::MdtDriftCircleOnTrack& mdt = *entry.second;
         Identifier id = mdt.identify();
         // calibrate MDT
-        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreatorStau->correct( *mdt.prepRawData(), pars, &calibrationStrategy, betaSeed )); 
+        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreatorStau->correct( *mdt.prepRawData(), pars, &calibrationStrategy, betaSeed ));
         if( !calibratedMdt.get() ){
           ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelperSvc->toString(id) );
           continue;
@@ -592,7 +592,7 @@ namespace MuonCombined {
         // create new DriftCircle
         TrkDriftCircleMath::DriftCircle dc( lpos, r, dr, TrkDriftCircleMath::DriftCircle::InTime, mdtid, index, &mdt );
         TrkDriftCircleMath::DCOnTrack dcOnTrack(dc,1.,1.);
-     
+
         dcs.push_back( dcOnTrack );
         indexLookUp.push_back( std::make_pair(calibratedMdt,&pars) );
         ++index;
@@ -608,6 +608,7 @@ namespace MuonCombined {
           continue;
         }
         TrkDriftCircleMath::Segment segment = result;
+        segment.hitsOnTrack(dcs.size());
         unsigned int ndofFit = segment.ndof();
         double chi2NdofSegmentFit = segment.chi2()/(double)(ndofFit);
         bool hasDropHit = false;
@@ -639,7 +640,7 @@ namespace MuonCombined {
 
 
         // calibrate MDT with nominal timing
-        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreator->correct( *mdt->prepRawData(), *pars, &calibrationStrategy, betaSeed )); 
+        std::shared_ptr<const Muon::MdtDriftCircleOnTrack> calibratedMdt(m_mdtCreator->correct( *mdt->prepRawData(), *pars, &calibrationStrategy, betaSeed ));
         if( !calibratedMdt.get() ){
           ATH_MSG_WARNING("Failed to recalibrate existing MDT on track " << m_idHelperSvc->toString(id) );
           continue;
@@ -656,10 +657,10 @@ namespace MuonCombined {
         bool isEta = !m_idHelperSvc->measuresPhi(id);
         float propTime = 0;
         float tof = calculateTof(1,distance);
-      
 
-        
-        // use inverted RT relation together with track prediction to get estimate of drift time 
+
+
+        // use inverted RT relation together with track prediction to get estimate of drift time
         float driftTime = calibratedMdt->driftTime() ; // we need to add beta seed as it was subtracted when calibrating the hits
         float locR = rline;
         float errR = dc.errorTrack();
@@ -683,11 +684,11 @@ namespace MuonCombined {
         bool isSelected = fabs(beta-betaSeed) < m_mdttBetaAssociationCut;
 
         if( msgLvl(MSG::DEBUG) ){
-          msg(MSG::DEBUG) << m_idHelperSvc->toString(id) << std::setprecision(2) 
+          msg(MSG::DEBUG) << m_idHelperSvc->toString(id) << std::setprecision(2)
                           << " segment: after fit " << std::setw(5) << chi2NdofSegmentFit << " ndof " << std::setw(2) << ndofFit;
           if( segment.ndof() != ndofFit ) msg(MSG::DEBUG) << " after outlier " << std::setw(5) << chi2NdofSegmentFit << " ndof " << std::setw(2) << ndofFit;
           msg(MSG::DEBUG) << " driftR " << std::setw(4) << dc.r() << " rline " << std::setw(5) << rline
-                          << " residual " << std::setw(5) << res << " pull " << std::setw(4) << pull 
+                          << " residual " << std::setw(5) << res << " pull " << std::setw(4) << pull
                           << " time " << std::setw(3) << time << " beta"  << std::setw(2) << beta
                           << " err " << std::setw(3) << er << " intrinsic " << std::setw(3) << tres << " track " << std::setw(3) << trackTimeRes;
           if( !isSelected ) msg(MSG::DEBUG) << " outlier";
@@ -695,22 +696,22 @@ namespace MuonCombined {
         }
 
         if( !isSelected ) continue;
-        
+
         hits.push_back(Muon::TimePointBetaFitter::Hit(distance,time,er));
         candidate.stauHits.push_back(MuGirlNS::StauHit(MuGirlNS::MDTT_STAU_HIT, time+tof, ix, iy, iz, id, ie, er,sh, isEta, propTime));
       }
     }
-    // fit data 
+    // fit data
     Muon::TimePointBetaFitter::FitResult betaFitResult = fitter.fitWithOutlierLogic(hits);
     ATH_MSG_DEBUG(" extractTimeMeasurementsFromTrack: extracted " << candidate.stauHits.size() << " time measurements "
                   << " status fit " << betaFitResult.status << " beta " << betaFitResult.beta << " chi2/ndof " << betaFitResult.chi2PerDOF() );
-    
+
     candidate.finalBetaFitResult = betaFitResult;
   }
-    
+
   void MuonStauRecoTool::addTag( const InDetCandidate& indetCandidate, MuonStauRecoTool::Candidate& candidate, InDetCandidateToTagMap* tagMap, TrackCollection* combTracks,
 				 Trk::SegmentCollection* segments) const {
-    
+
     // get combined track and the segments
     combTracks->push_back(candidate.combinedTrack.release());
     ElementLink<TrackCollection> comblink( *combTracks,combTracks->size()-1);
@@ -722,13 +723,13 @@ namespace MuonCombined {
 	segmentLinks.push_back(segLink);
       }
     }
-    
-    // create tag 
+
+    // create tag
     MuonCombined::MuGirlLowBetaTag* tag = new MuonCombined::MuGirlLowBetaTag(comblink,segmentLinks);
 
     // add additional info
     tag->setMuBeta(candidate.betaFitResult.beta);
-    
+
     // add StauExtras
     MuGirlNS::StauExtras* stauExtras = new MuGirlNS::StauExtras();
     stauExtras->betaAll = candidate.betaFitResult.beta;
@@ -749,7 +750,7 @@ namespace MuonCombined {
     stauExtras->caloBetaDof = 0;
     stauExtras->hits = candidate.stauHits;
     tag->setStauExtras(stauExtras);
-    
+
 
     // print results afer refineCandidate
     if( m_doSummary || msgLvl(MSG::DEBUG) ) {
@@ -757,7 +758,7 @@ namespace MuonCombined {
       msg(MSG::INFO) << std::endl << "  candidate: beta fit result: beta " <<  candidate.betaFitResult.beta << " chi2/ndof " << candidate.betaFitResult.chi2PerDOF()
                      << "  segments" << segmentLinks.size();
       for( const auto& segment :  segmentLinks ) msg(MSG::INFO) << std::endl << "     " << m_printer->print(**segment);
-      if( *comblink ) msg(MSG::INFO) << std::endl << "   track " << m_printer->print(**comblink) 
+      if( *comblink ) msg(MSG::INFO) << std::endl << "   track " << m_printer->print(**comblink)
                                          << std::endl << m_printer->printStations(**comblink);
       msg(MSG::INFO) << endmsg;
     }
@@ -771,7 +772,7 @@ namespace MuonCombined {
   bool MuonStauRecoTool::resolveAmbiguities( MuonStauRecoTool::CandidateVec& candidates ) const {
 
     ATH_MSG_DEBUG("Resolving ambiguities: candidates " << candidates.size());
-    
+
     // push tracks into a collection and run ambi-solver
     TrackCollection tracks(SG::VIEW_ELEMENTS);
     std::map<Trk::Track*, std::shared_ptr<Candidate> > trackCandidateLookup;
@@ -788,7 +789,8 @@ namespace MuonCombined {
     if( tracks.size() == 1 ) return true;
 
     // more than 1 track call ambiguity solver and select first track
-    TrackCollection* resolvedTracks=m_trackAmbibuityResolver->process(&tracks);
+    std::unique_ptr<TrackCollection> resolvedTracks
+      (m_trackAmbibuityResolver->process(&tracks));
     Trk::Track* selectedTrack = resolvedTracks->front();
 
     // get candidate
@@ -811,14 +813,14 @@ namespace MuonCombined {
                      << "   track " << m_printer->print(*candidate->combinedTrack) << std::endl << m_printer->printStations(*candidate->combinedTrack);
       msg(MSG::INFO) << endmsg;
     }
-    
+
     return true;
   }
 
 
 
   bool MuonStauRecoTool::combineCandidates( const xAOD::TrackParticle& indetTrackParticle, MuonStauRecoTool::CandidateVec& candidates ) const {
-    
+
     // keep track of candidates that have a successfull fit
     CandidateVec combinedCandidates;
 
@@ -827,15 +829,15 @@ namespace MuonCombined {
     for( auto& candidate : candidates ){
 
       // find best matching track
-      std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> result = 
+      std::pair<std::unique_ptr<const Muon::MuonCandidate>,Trk::Track*> result =
         m_insideOutRecoTool->findBestCandidate( indetTrackParticle, candidate->allLayers);
-      
+
       if( result.first && result.second ){
         ATH_MSG_DEBUG("   combined track found " << std::endl << m_printer->print(*result.second) << std::endl << m_printer->printStations(*result.second) );
         // add segments and track pointer to the candidate
         candidate->muonCandidate = std::unique_ptr<const Muon::MuonCandidate>(result.first.release());
         candidate->combinedTrack.reset(result.second);
-        
+
         // extract times form track
         extractTimeMeasurementsFromTrack(*candidate);
         combinedCandidates.push_back(candidate);
@@ -845,7 +847,7 @@ namespace MuonCombined {
 
       }
     }
-    
+
     // remove all candidates that were not combined
     candidates = combinedCandidates;
 
@@ -857,18 +859,18 @@ namespace MuonCombined {
 
       for( const auto& candidate : candidates ){
         msg(MSG::INFO) << std::endl << "  candidate: beta fit result: " <<  candidate->betaFitResult.beta << " chi2/ndof " << candidate->betaFitResult.chi2PerDOF();
-        if( candidate->finalBetaFitResult.status != 0 ) msg(MSG::INFO) << " MDTT beta fit result: " <<  candidate->finalBetaFitResult.beta 
+        if( candidate->finalBetaFitResult.status != 0 ) msg(MSG::INFO) << " MDTT beta fit result: " <<  candidate->finalBetaFitResult.beta
                                                                        << " chi2/ndof " << candidate->finalBetaFitResult.chi2PerDOF();
         msg(MSG::INFO)<< " layers with segments" << candidate->allLayers.size() << std::endl
                       << "   track " << m_printer->print(*candidate->combinedTrack) << std::endl << m_printer->printStations(*candidate->combinedTrack);
       }
       msg(MSG::INFO) << endmsg;
     }
-    
+
     return !candidates.empty();
   }
 
-  bool MuonStauRecoTool::createCandidates( const MuonStauRecoTool::AssociatedData& associatedData, 
+  bool MuonStauRecoTool::createCandidates( const MuonStauRecoTool::AssociatedData& associatedData,
                                            MuonStauRecoTool::CandidateVec& candidates ) const {
 
     // loop over layers and select seed maxima
@@ -876,15 +878,15 @@ namespace MuonCombined {
     LayerDataVec::const_iterator it=associatedData.layerData.begin();
     LayerDataVec::const_iterator it_end=associatedData.layerData.end();
     for( ;it!=it_end;++it){
-      
-      // loop over maximumDataVec 
+
+      // loop over maximumDataVec
       for( const auto& maximumData : it->maximumDataVec ){
-        // add all maximumData that have a time measurement 
+        // add all maximumData that have a time measurement
         if( !maximumData->betaSeeds.empty() ) seedMaximumDataVec.push_back(maximumData);
       }
     }
     ATH_MSG_DEBUG("Creating candidates from seeds  " << seedMaximumDataVec.size());
-    
+
     if( seedMaximumDataVec.empty() ) {
       if( m_doSummary || msgLvl(MSG::DEBUG) ) msg(MSG::INFO) << " Summary::createCandidates, no seeds found " << endmsg;
       return false;
@@ -895,7 +897,7 @@ namespace MuonCombined {
       return max1->maximum->max < max2->maximum->max;
     };
     std::stable_sort(seedMaximumDataVec.begin(),seedMaximumDataVec.end(),SortMaximumDataVec);
-    
+
     // loop over seeds and create candidates
     Muon::TimePointBetaFitter fitter;
     std::set<const MaximumData*> usedMaximumData;
@@ -904,8 +906,8 @@ namespace MuonCombined {
     for( ;sit!=sit_end;++sit ){
       // only use once
       if( usedMaximumData.count(sit->get()) ) continue;
-      usedMaximumData.insert(sit->get());      
-      
+      usedMaximumData.insert(sit->get());
+
       // create new candidates from the beta seeds of the maximum
       CandidateVec newCandidates;
       for( const auto& betaSeed : (*sit)->betaSeeds ){
@@ -916,10 +918,10 @@ namespace MuonCombined {
 
       // loop over the candidates and fit them
       for( auto& newCandidate : newCandidates ){
-        
+
         // fit data
         newCandidate->betaFitResult = fitter.fitWithOutlierLogic(newCandidate->hits);
-        ATH_MSG_DEBUG(" New candidate: time measurements " << newCandidate->hits.size() << " status " << newCandidate->betaFitResult.status 
+        ATH_MSG_DEBUG(" New candidate: time measurements " << newCandidate->hits.size() << " status " << newCandidate->betaFitResult.status
                       << " beta " << newCandidate->betaFitResult.beta << " chi2/ndof " << newCandidate->betaFitResult.chi2PerDOF() );
         // if the fit was successfull add the candidate to the candidate vector
         if( newCandidate->betaFitResult.status != 0 ){
@@ -936,7 +938,7 @@ namespace MuonCombined {
       else                     msg(MSG::INFO) << " candidates " << candidates.size();
 
       for( const auto& candidate : candidates ){
-        msg(MSG::INFO) << std::endl << "  candidate: beta seed " << candidate->betaSeed.beta 
+        msg(MSG::INFO) << std::endl << "  candidate: beta seed " << candidate->betaSeed.beta
               << " beta fit result: beta " <<  candidate->betaFitResult.beta << " chi2/ndof " << candidate->betaFitResult.chi2PerDOF()
               << " layers " << candidate->layerDataVec.size();
         for( const auto& layerData :  candidate->layerDataVec ) msg(MSG::INFO) << std::endl << "     " << printIntersectionToString(layerData.intersection)
@@ -950,33 +952,33 @@ namespace MuonCombined {
 
   void MuonStauRecoTool::extendCandidates( MuonStauRecoTool::CandidateVec& candidates,
                                            std::set<const MaximumData*>& usedMaximumData,
-                                           MuonStauRecoTool::LayerDataVec::const_iterator it, 
+                                           MuonStauRecoTool::LayerDataVec::const_iterator it,
                                            MuonStauRecoTool::LayerDataVec::const_iterator it_end ) const {
-    
-    
-    // get current layer and move forward the 
+
+
+    // get current layer and move forward the
     const LayerData& layerData = *it;
     ATH_MSG_DEBUG(" extendCandidates: " << printIntersectionToString(layerData.intersection) << " maxima " << layerData.maximumDataVec.size() );
-    
+
     CandidateVec newCandidates; // store new candidates
     for( auto& candidate : candidates ){
-      
+
       // keep track of how often we extend this candidate
       unsigned int nextensions = 0;
 
       // copy content of the candidate for reference
-      LayerDataVec layerDataVec = candidate->layerDataVec; 
+      LayerDataVec layerDataVec = candidate->layerDataVec;
       Muon::TimePointBetaFitter::HitVec hits = candidate->hits;
 
       // loop over maximumDataVec of the layer
       for( const auto& maximumData : layerData.maximumDataVec ){
-        
+
         // create new hit vector
         Muon::TimePointBetaFitter::HitVec newhits; // create new hits vector and add the ones from the maximum
         if(  extractTimeHits(*maximumData,newhits,&candidate->betaSeed) ) {
-          
+
           // decide which candidate to update, create a new candidate if a maximum was already selected in the layer
-          Candidate* theCandidate = 0; 
+          Candidate* theCandidate = 0;
           if( nextensions == 0 ) theCandidate = candidate.get();
           else{
             std::shared_ptr<Candidate> newCandidate(new Candidate(candidate->betaSeed));
@@ -985,7 +987,7 @@ namespace MuonCombined {
             newCandidates.push_back(newCandidate);
             theCandidate = newCandidate.get();
           }
-          
+
           // create a LayerData object to add to the selected candidate
           LayerData newLayerData(layerData.intersection);
           newLayerData.maximumDataVec.push_back(maximumData);
@@ -999,7 +1001,7 @@ namespace MuonCombined {
                         << " nextensions " << nextensions );
 
           ++nextensions;
-        }      
+        }
       }
     }
     ATH_MSG_DEBUG("   extendCandidates done, new candidates " << newCandidates.size() );
@@ -1012,7 +1014,7 @@ namespace MuonCombined {
     if( it != it_end ) extendCandidates(candidates,usedMaximumData,it,it_end);
   }
 
-  bool MuonStauRecoTool::extractTimeMeasurements(  const Muon::MuonSystemExtension& muonSystemExtension, 
+  bool MuonStauRecoTool::extractTimeMeasurements(  const Muon::MuonSystemExtension& muonSystemExtension,
                                                    MuonStauRecoTool::AssociatedData& associatedData ) const {
 
     // get layer intersections
@@ -1025,14 +1027,14 @@ namespace MuonCombined {
       LayerData layerData(*it);
       associateHoughMaxima(layerData);
 
-      // skip layer of not maxima are associated 
+      // skip layer of not maxima are associated
       if( layerData.maximumDataVec.empty() ) continue;
-      
+
       associatedData.layerData.push_back(layerData);
 
       // loop over associated maxima
       for( auto& maximum : layerData.maximumDataVec ){
-      
+
         // extract RPC timing
         extractRpcTimingFromMaximum( *it, *maximum );
 
@@ -1046,9 +1048,9 @@ namespace MuonCombined {
           for( const auto& seg : t0fittedSegments ) m_recoValidationTool->add(*it,*seg,0);
         }
 
-        // match segments to intersection, store the ones that match 
+        // match segments to intersection, store the ones that match
         m_segmentMatchingTool->select( *it, t0fittedSegments, maximum->t0fittedSegments );
-      
+
         // get beta seeds for Maximum
         getBetaSeeds(*maximum);
 
@@ -1058,8 +1060,8 @@ namespace MuonCombined {
             if( seg->hasFittedT0() ) m_recoValidationTool->addTimeMeasurement(*it,*seg);
             m_recoValidationTool->add(*it,*seg,1);
           }
-        }    
-      } 
+        }
+      }
     }
 
     // print results afer extractTimeMeasurements
@@ -1073,13 +1075,13 @@ namespace MuonCombined {
         for( const auto& maximumData : layerData.maximumDataVec ){
           if( !maximumData->betaSeeds.empty() ) ++nmaxWithBeta;
         }
-        msg(MSG::INFO) << std::endl << " layer " << printIntersectionToString(layerData.intersection) << " associated maxima " 
+        msg(MSG::INFO) << std::endl << " layer " << printIntersectionToString(layerData.intersection) << " associated maxima "
               << layerData.maximumDataVec.size() << " maxima with beta seeds " << nmaxWithBeta;
       }
       msg(MSG::INFO) << endmsg;
     }
 
-    // return false if no layers were associated 
+    // return false if no layers were associated
     return !associatedData.layerData.empty();
   }
 
@@ -1104,9 +1106,9 @@ namespace MuonCombined {
       float time = rpc.time;
       float error = rpc.error;
       rpcTimeCalibration(rpc.rpcClusters.front()->identify(),time,error);
-      addHit(rpc.rpcClusters.front()->globalPosition().mag(),time,error,m_rpcBetaAssociationCut); 
+      addHit(rpc.rpcClusters.front()->globalPosition().mag(),time,error,m_rpcBetaAssociationCut);
     }
-    
+
     // add segment t0 fits
     // if not seeded take all segments
     if( !seed ) {
@@ -1119,7 +1121,7 @@ namespace MuonCombined {
         addHit(seg->globalPosition().mag(),time,error,m_segmentBetaAssociationCut);
       }
     }else{
-      // pick the best match 
+      // pick the best match
       const Muon::MuonSegment* bestSegment = nullptr;
       float smallestResidual = 1e99;
       for( const auto& seg : maximumData.t0fittedSegments ){
@@ -1128,7 +1130,7 @@ namespace MuonCombined {
         float time = seg->time();
         float beta = calculateBeta(time+calculateTof(1,distance),distance);
         float residual = fabs(beta-seed->beta);
-        
+
         if( residual < smallestResidual ){
           smallestResidual = residual;
           bestSegment = seg.get();
@@ -1145,7 +1147,7 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::getBetaSeeds( MaximumData& maximumData ) const {
-    
+
     // skip maximumData if no timing information is available
     if( maximumData.rpcTimeMeasurements.empty() && maximumData.t0fittedSegments.empty() ) return;
 
@@ -1153,17 +1155,17 @@ namespace MuonCombined {
     Muon::TimePointBetaFitter fitter;
     Muon::TimePointBetaFitter::HitVec hits;
     extractTimeHits(maximumData,hits);
-    
+
     Muon::TimePointBetaFitter::FitResult result = fitter.fitWithOutlierLogic(hits);
     float chi2ndof = result.chi2PerDOF();
 
-    ATH_MSG_DEBUG(" fitting beta for maximum: time measurements " << hits.size() << " status " << result.status 
+    ATH_MSG_DEBUG(" fitting beta for maximum: time measurements " << hits.size() << " status " << result.status
                   << " beta " << result.beta << " chi2/ndof " << chi2ndof );
     if( result.status != 0 ) maximumData.betaSeeds.push_back( BetaSeed(result.beta,1.));
 
   }
 
-  void MuonStauRecoTool::findSegments(  const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData, 
+  void MuonStauRecoTool::findSegments(  const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData,
                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments,
                                         const ToolHandle<Muon::IMuonPRDSelectionTool>& muonPRDSelectionTool,
                                         const ToolHandle<Muon::IMuonSegmentMaker>& segmentMaker ) const {
@@ -1188,13 +1190,13 @@ namespace MuonCombined {
     std::vector<const Muon::MdtDriftCircleOnTrack*> mdts;
     std::vector<const Muon::MuonClusterOnTrack*>    clusters;
 
-    // insert phi hits, clone them 
+    // insert phi hits, clone them
     for( const auto& phiClusterOnTrack : phiClusterOnTracks ){
       clusters.push_back( phiClusterOnTrack->clone() );
     }
 
     ATH_MSG_DEBUG("About to loop over Hough::Hits");
-    
+
     std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
@@ -1208,18 +1210,18 @@ namespace MuonCombined {
         else                        handleCluster( static_cast<const Muon::MuonCluster&>(*(*hit)->prd),clusters);
       }
     }
-    
+
     ATH_MSG_DEBUG("About to loop over calibrated hits");
-    
-    
+
+
     ATH_MSG_DEBUG("Dumping MDTs");
     for (auto it : mdts)
       ATH_MSG_DEBUG(*it);
-    
+
     ATH_MSG_DEBUG("Dumping clusters");
     for (auto it : clusters)
       ATH_MSG_DEBUG(*it);
-    
+
 
     // require at least 2 MDT hits
     if( mdts.size() > 2 ){
@@ -1249,7 +1251,7 @@ namespace MuonCombined {
 
 
   void MuonStauRecoTool::extractRpcTimingFromMaximum( const Muon::MuonSystemExtension::Intersection& intersection, MaximumData& maximumData ) const {
-   
+
     // extract trigger hits per chamber
     const MuonHough::MuonLayerHough::Maximum& maximum = *maximumData.maximum;
     std::map<Identifier, std::vector<const Muon::RpcPrepData*> > rpcPrdsPerChamber;
@@ -1267,12 +1269,12 @@ namespace MuonCombined {
     std::vector<MuonHough::Hit*>::const_iterator hit = maximum.hits.begin();
     std::vector<MuonHough::Hit*>::const_iterator hit_end = maximum.hits.end();
     for( ;hit!=hit_end;++hit ) {
-      
+
       if( (*hit)->tgc || !(*hit)->prd || !m_idHelperSvc->isRpc((*hit)->prd->identify()) ) continue;
       addRpc((*hit)->prd);
     }
 
-    // extract phi hits 
+    // extract phi hits
     for( const auto& rot : maximumData.phiClusterOnTracks ){
       addRpc(rot->prepRawData());
     }
@@ -1290,7 +1292,7 @@ namespace MuonCombined {
         return;
       }
 
-      ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(chit->first) << " clustered RPCs: " << chit->second.size() 
+      ATH_MSG_DEBUG(" " << m_idHelperSvc->toStringChamber(chit->first) << " clustered RPCs: " << chit->second.size()
                     << " eta clusters " << clustering.clustersEta.size() << " phi clusters " << clustering.clustersPhi.size() );
       createRpcTimeMeasurementsFromClusters(intersection,clustering.clustersEta,maximumData.rpcTimeMeasurements);
       createRpcTimeMeasurementsFromClusters(intersection,clustering.clustersPhi,maximumData.rpcTimeMeasurements);
@@ -1299,7 +1301,7 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::createRpcTimeMeasurementsFromClusters( const Muon::MuonSystemExtension::Intersection& intersection,
-                                                                const std::vector< Muon::RpcClusterObj>& clusterObjects, 
+                                                                const std::vector< Muon::RpcClusterObj>& clusterObjects,
                                                                 MuonStauRecoTool::RpcTimeMeasurementVec& rpcTimeMeasurements ) const {
 
     // loop over the clusters
@@ -1309,7 +1311,7 @@ namespace MuonCombined {
         continue;
       }
       ATH_MSG_DEBUG("  new cluster: " << m_idHelperSvc->toString(cluster.hitList.front()->identify()) << " size " << cluster.hitList.size() );
-        
+
       // create the ROTs
       std::vector<const Muon::MuonClusterOnTrack*> clusters;
       for( auto rpc : cluster.hitList ){
@@ -1341,7 +1343,7 @@ namespace MuonCombined {
   }
 
   void MuonStauRecoTool::associateHoughMaxima( MuonStauRecoTool::LayerData& layerData ) const {
-    
+
     // get intersection and layer identifiers
     const Muon::MuonSystemExtension::Intersection& intersection = layerData.intersection;
     int sector = intersection.layerSurface.sector;
@@ -1373,7 +1375,7 @@ namespace MuonCombined {
     const Muon::MuonLayerHoughTool::MaximumVec& maxVec = houghDataPerSector.maxVec[sectorLayerHash];
     if( maxVec.empty() ) return;
 
-    
+
     // get local coordinates in the layer frame
     bool barrelLike = intersection.layerSurface.regionIndex == Muon::MuonStationIndex::Barrel;
 
@@ -1399,7 +1401,7 @@ namespace MuonCombined {
       const Muon::MuonClusterOnTrack* cluster = m_muonPRDSelectionTool->calibrateAndSelect( intersection, prd );
       if( cluster ) clusters.push_back(std::shared_ptr<const Muon::MuonClusterOnTrack>(cluster));
     };
- 
+
     // loop over maxima and associate phi hits with the extrapolation, should optimize this but calculating the residual with the phi maximum
     std::vector< std::shared_ptr<const Muon::MuonClusterOnTrack> > phiClusterOnTracks;
     Muon::MuonLayerHoughTool::PhiMaximumVec::const_iterator pit = phiMaxVec.begin();
@@ -1421,8 +1423,8 @@ namespace MuonCombined {
         }
       }
     }
-  
-    ATH_MSG_DEBUG(" associateHoughMaxima: " << printIntersectionToString(intersection) << " maxima " << maxVec.size() 
+
+    ATH_MSG_DEBUG(" associateHoughMaxima: " << printIntersectionToString(intersection) << " maxima " << maxVec.size()
                   << " x,y=(" << x << "," << y
                   << ") errorx " << errx << " " << " angle " << theta );
 
@@ -1442,16 +1444,16 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("   Hough maximum " << maximum.max << " position (" << refPos
                     << "," << maximum.pos << ") residual " << residual << " pull " << pull
                     << " angle " << maximum.theta << " residual " << residualTheta );
-      
+
       // fill validation content
       if( !m_recoValidationTool.empty() ) m_recoValidationTool->add( intersection, maximum );
 
       // select maximum and add it to LayerData
       if( std::abs(pull) > 5 ) continue;
       layerData.maximumDataVec.push_back(std::shared_ptr<MaximumData>(new MaximumData(intersection,&maximum,phiClusterOnTracks)));
-      
+
     }
-  }  
+  }
 
   void MuonStauRecoTool::addCandidatesToNtuple( const xAOD::TrackParticle& indetTrackParticle, const MuonStauRecoTool::CandidateVec& candidates, int stage ) const {
     if (Gaudi::Concurrency::ConcurrencyFlags::numThreads()>1) {
@@ -1461,7 +1463,7 @@ namespace MuonCombined {
 
     ATH_MSG_DEBUG("add candidates to ntuple, stage "<<stage);
     for( const auto& candidate : candidates ){
-      int ntimes = 0; 
+      int ntimes = 0;
       float beta = -1.;
       float chi2ndof = -1.;
       if( candidate->finalBetaFitResult.status != 0 ) {
@@ -1478,7 +1480,7 @@ namespace MuonCombined {
         chi2ndof = 0;
       }
       if(candidate->combinedTrack) ATH_MSG_DEBUG("candidate has combined track");
-      m_recoValidationTool->addMuonCandidate( indetTrackParticle, candidate->muonCandidate.get(), candidate->combinedTrack.get(), 
+      m_recoValidationTool->addMuonCandidate( indetTrackParticle, candidate->muonCandidate.get(), candidate->combinedTrack.get(),
                                               ntimes, beta, chi2ndof, stage );
     }
   }

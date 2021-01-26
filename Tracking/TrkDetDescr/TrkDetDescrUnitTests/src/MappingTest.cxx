@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -26,13 +26,13 @@ Trk::MappingTest::MappingTest(const std::string& name, ISvcLocator* pSvcLocator)
  Trk::TrkDetDescrUnitTestBase(name, pSvcLocator),
    m_executed(false),
    m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
-   m_trackingGeometry(0),
+   m_trackingGeometry(nullptr),
    m_trackingGeometryName("AtlasTrackingGeometry"),
    m_etaCutOff(6.0),
    m_mappingVolumeName("InDet::Detectors::Pixel::Barrel"), 
    m_mappingTreeName("LayerMappingTest"),
    m_mappingTreeDescription("Test Algorithm for Layer - 3D point association"),
-   m_mappingTree(0),
+   m_mappingTree(nullptr),
    m_mappingPositionX(0.),
    m_mappingPositionY(0.),
    m_mappingPositionZ(0.),
@@ -44,7 +44,7 @@ Trk::MappingTest::MappingTest(const std::string& name, ISvcLocator* pSvcLocator)
    m_assignedCorrection(0.),
    m_assignedLayerIndex(0),
    m_assignmentDistance(0.),
-   m_unmappedTree(0),
+   m_unmappedTree(nullptr),
    m_unmappedPositionX(0.),
    m_unmappedPositionY(0.),
    m_unmappedPositionZ(0.),
@@ -105,17 +105,17 @@ StatusCode Trk::MappingTest::bookTree()
     m_unmappedTree->Branch("UnmappedHitR", &m_unmappedPositionR, "unmappedr/F");
     
     // now register the Tree
-    ITHistSvc* tHistSvc = 0;
+    ITHistSvc* tHistSvc = nullptr;
     if (service("THistSvc",tHistSvc).isFailure()) {
         ATH_MSG_ERROR( "initialize() Could not find Hist Service  -> Switching Tree output off !" );
-        delete m_unmappedTree; m_unmappedTree = 0;
-        delete m_mappingTree; m_mappingTree = 0;
+        delete m_unmappedTree; m_unmappedTree = nullptr;
+        delete m_mappingTree; m_mappingTree = nullptr;
     }
     if (tHistSvc && ((tHistSvc->regTree("/val/UnmappedAssociations", m_unmappedTree)).isFailure()
             ||  (tHistSvc->regTree("/val/MappingTest", m_mappingTree)).isFailure()) ) {
         ATH_MSG_ERROR( "initialize() Could not register the validation Tree -> Switching Tree output off !" );
-        delete m_unmappedTree; m_unmappedTree = 0;
-        delete m_mappingTree; m_mappingTree = 0;
+        delete m_unmappedTree; m_unmappedTree = nullptr;
+        delete m_mappingTree; m_mappingTree = nullptr;
     }
     
     return StatusCode::SUCCESS;

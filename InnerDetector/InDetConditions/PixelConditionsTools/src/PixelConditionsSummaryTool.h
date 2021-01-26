@@ -24,7 +24,7 @@
 #include "InDetIdentifier/PixelID.h"
 
 #include "PixelConditionsData/PixelModuleData.h"
-//#include "PixelConditionsData/PixelDeadMapCondData.h"
+#include "PixelConditionsData/PixelDeadMapCondData.h"
 #include "PixelConditionsData/PixelDCSStateData.h"
 #include "PixelConditionsData/PixelDCSStatusData.h"
 #include "PixelConditionsData/PixelTDAQData.h"
@@ -88,11 +88,8 @@ class PixelConditionsSummaryTool: public AthAlgTool, public IInDetConditionsTool
     SG::ReadCondHandleKey<PixelTDAQData> m_condTDAQKey
     {this, "PixelTDAQCondData", "", "Pixel TDAQ conditions key"}; //Default empty - legacy option
 
-    SG::ReadCondHandleKey<PixelModuleData> m_condDeadMapKey
-    {this, "PixelModuleData", "PixelModuleData", "Pixel deadmap conditions key"};
-
-// NEW FOR RUN3    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
-// NEW FOR RUN3    {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
+    SG::ReadCondHandleKey<PixelDeadMapCondData> m_condDeadMapKey
+    {this, "PixelDeadMapCondData", "PixelDeadMapCondData", "Pixel deadmap conditions key"};
 
     ServiceHandle<IPixelCablingSvc> m_pixelCabling
     {this,  "PixelCablingSvc", "PixelCablingSvc", "Pixel cabling service"};
@@ -140,7 +137,7 @@ inline InterfaceID& PixelConditionsSummaryTool::interfaceID(){
 }
 
 inline bool PixelConditionsSummaryTool::checkChipStatus(IdentifierHash moduleHash, Identifier pixid, const EventContext& ctx) const {
-  std::bitset<16> chipStatus(SG::ReadCondHandle<PixelModuleData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
+  std::bitset<16> chipStatus(SG::ReadCondHandle<PixelDeadMapCondData>(m_condDeadMapKey, ctx)->getChipStatus(moduleHash));
   if (chipStatus.any()) {
     Identifier moduleID = m_pixelID->wafer_id(pixid);
     std::bitset<16> circ; circ.set(m_pixelCabling->getFE(&pixid,moduleID));

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRIOONTRACK_STGCCLUSTERONTRACK_H
@@ -30,7 +30,7 @@ namespace Muon
 {
 
   /** @brief Class to represent calibrated clusters formed from TGC strips*/
-  class sTgcClusterOnTrack :  public MuonClusterOnTrack
+  class sTgcClusterOnTrack final:  public MuonClusterOnTrack
   {
 
   public:
@@ -69,30 +69,31 @@ namespace Muon
     virtual ~sTgcClusterOnTrack();
 
     /** @brief Clone this ROT */
-    virtual sTgcClusterOnTrack* clone() const ;
+    virtual sTgcClusterOnTrack* clone() const override final;
 
     /** @brief Returns the sTgcPrepData - is a TRT_DriftCircle in this scope*/
-    virtual const sTgcPrepData* prepRawData() const;
-    virtual const ElementLinkToIDC_STGC_Container& prepRawDataLink() const;
+    virtual const sTgcPrepData* prepRawData() const override final;
+    const ElementLinkToIDC_STGC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
-    virtual const MuonGM::sTgcReadoutElement* detectorElement() const;
+    virtual const MuonGM::sTgcReadoutElement* detectorElement() const override final;
 
     /** @brief Returns the surface on which this measurement was taken. 
 	(i.e. a surface of a detector element) */
-    virtual const Trk::Surface& associatedSurface() const;
+    virtual const Trk::Surface& associatedSurface() const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
     
   private:
     /**@brief Sets the DetElement and Trk::PrepRawData pointers after reading from disk.
        @warning Only intended for use by persistency convertors.
        @todo Throw exception if TrkDetElementBase isn't correct concrete type*/
-    virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*);
+    virtual void setValues(const Trk::TrkDetElementBase*,
+                           const Trk::PrepRawData*) override final;
 
     /** PrepRawData object assoicated with this measurement*/
     ElementLinkToIDC_STGC_Container              m_rio;

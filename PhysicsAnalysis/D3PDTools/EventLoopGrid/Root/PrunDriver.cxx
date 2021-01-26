@@ -135,7 +135,6 @@ static SH::MetaObject defaultOpts()
   SH::MetaObject o;
   o.setString("nc_nGBPerJob", "MAX");
   o.setString("nc_mergeOutput", "true");
-  o.setString("nc_rootVer", gROOT->GetVersion());
   o.setString("nc_cmtConfig", gSystem->ExpandPathName("$AnalysisBase_PLATFORM"));
   o.setString("nc_useAthenaPackages", "true");
   const std::string mergestr = "elg_merge jobdef.root %OUT %IN";

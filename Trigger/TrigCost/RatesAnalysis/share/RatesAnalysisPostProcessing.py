@@ -51,7 +51,7 @@ def main():
   log.info("Exporting " + args.outputJSONFile)
   toJson(args.outputJSONFile, metadata, L1Triggers, HLTTriggers)
   log.info("Exporting " + args.outputCSVFile)
-  toCSV(args.outputCSVFile, HLTTriggers)
+  toCSV(args.outputCSVFile, metadata, HLTTriggers)
   
   
 if __name__== "__main__":

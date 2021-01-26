@@ -29,9 +29,17 @@ class MinBiasChainConfig(ChainConfigurationBase):
     # ----------------------
     def assembleChain(self):
         log.debug("Assembling chain for %s", self.chainName)
-        SpStep = self.getMinBiasSpStep()
-        TrkStep = self.getMinBiasTrkStep()
-        return self.buildChain([SpStep,TrkStep])
+        # mb_sptrk chains
+        if "mb_sptrk" in self.chainName or "hmt" in self.chainName:
+            SpStep = self.getMinBiasSpStep()
+            TrkStep = self.getMinBiasTrkStep()
+            return self.buildChain([SpStep,TrkStep])
+        # performance chain for the aboce
+        if "mb_sp_" in self.chainName:
+            SpStep = self.getMinBiasSpStep()
+            return self.buildChain([SpStep])
+
+
     
     def getMinBiasSpStep(self):
         return self.getStep(1,'SPCount',[MinBiasSPSequenceCfg])

@@ -60,7 +60,8 @@ namespace PartonHistoryUtils {
     /// status -1 = problem with the truth record
     /// status  1 = tau decays hadronically
     /// status  0 = tau decays leptonically
-    auto tauHadronicIndex = [&result](const xAOD::TruthParticle* particle) {
+    // commented out variables are unused.  experts please check and remove
+    auto tauHadronicIndex = [/*&result*/](const xAOD::TruthParticle* particle) {
       bool isOk(false);
       const bool isHadronic = TauIsHadronic(particle, isOk);
       if (!isOk) {

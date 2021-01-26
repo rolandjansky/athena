@@ -1,5 +1,5 @@
 /*                                                                                                                      
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                                               
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration                                               
 */
 
 // First the corresponding header.
@@ -63,8 +63,9 @@ namespace LVL1MUCTPIPHASE1 {
     }
   };
 
-  struct OverlapHelper
+  class OverlapHelper
   {
+  public:
     int active_side = -1;
     std::string sub_left="";
     std::string sub_right="";

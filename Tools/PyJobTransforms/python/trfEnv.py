@@ -1,12 +1,8 @@
-from future.utils import iteritems
-
-from builtins import object
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package PyJobTransforms.trfEnv
 #  @brief Support for environemnt variable manipulation in the transforms
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfEnv.py 726697 2016-02-28 16:52:54Z uworlika $
 
 import os
 import os.path as path
@@ -97,7 +93,7 @@ class environmentUpdate(object):
     ## @brief Return a list of KEY=VALUE pairs for this environment
     @property
     def values(self):
-        return [ "{0}={1}".format(k, v) for k, v in iteritems(self._envdict) ]
+        return [ "{0}={1}".format(k, v) for k, v in self._envdict.items() ]
     
     ## @brief Count the number of environment items that need to be updated
     @property

@@ -165,7 +165,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal selection to met_electrons
       ConstDataVector<xAOD::ElectronContainer> met_electrons(SG::VIEW_ELEMENTS);
-      for (const auto& el: *xaod_el)
+      for (const auto *el: *xaod_el)
         if (el->isAvailable<char>(passPreORSelection)
             && el->auxdata<char>(passPreORSelection) == 1) met_electrons.push_back(el);
 
@@ -186,7 +186,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_photons
       ConstDataVector<xAOD::PhotonContainer> met_photons(SG::VIEW_ELEMENTS);
-      for (const auto& photon: *xaod_photon)
+      for (const auto *photon: *xaod_photon)
         if (photon->isAvailable<char>(passPreORSelection)
             && photon->auxdata<char>(passPreORSelection) == 1) met_photons.push_back(photon);
 
@@ -206,7 +206,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_taus
       ConstDataVector<xAOD::TauJetContainer> met_taus(SG::VIEW_ELEMENTS);
-      for (const auto& tau: *xaod_tau)
+      for (const auto *tau: *xaod_tau)
         if (tau->isAvailable<char>(passPreORSelection)
             && tau->auxdata<char>(passPreORSelection) == 1) met_taus.push_back(tau);
 
@@ -228,7 +228,7 @@ namespace top {
 
       // Add those that pass pre-overlap removal to met_muons
       ConstDataVector<xAOD::MuonContainer> met_muons(SG::VIEW_ELEMENTS);
-      for (const auto& mu: *xaod_mu)
+      for (const auto *mu: *xaod_mu)
         if (mu->isAvailable<char>(passPreORSelection)
             && mu->auxdata<char>(passPreORSelection) == 1) met_muons.push_back(mu);
 

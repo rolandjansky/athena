@@ -26,11 +26,12 @@ TauVertexFinder::~TauVertexFinder() {
 StatusCode TauVertexFinder::initialize() {
   ATH_CHECK( m_vertexInputContainer.initialize(SG::AllowEmpty) );
   ATH_CHECK( m_trackPartInputContainer.initialize(SG::AllowEmpty) );
-  ATH_CHECK( m_jetTrackVtxAssoc.initialize() );
   
   if (m_useTJVA) ATH_MSG_INFO("using TJVA to determine tau vertex");
   ATH_CHECK( m_TrackSelectionToolForTJVA.retrieve() );
 
+  ATH_CHECK( m_trkVertexAssocTool.retrieve() );
+  
   return StatusCode::SUCCESS;
 }
 
@@ -158,17 +159,20 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   // Store tracks that meet TJVA track selection criteria and are between deltaR of 0.2 with the jet seed
   // To be included in the TJVA calculation
   // Maybe not as efficient as deleting unwanted tracks from assocTrack but quicker and safer for now.
+  float sumTrackAll = 0.0;
   for ( auto xTrack : assocTracks ){
-    if ( (xTrack->p4().DeltaR(pJetSeed->p4())<dDeltaRMax) && m_TrackSelectionToolForTJVA->accept(*xTrack) )
+    if ( (xTrack->p4().DeltaR(pJetSeed->p4())<dDeltaRMax) && m_TrackSelectionToolForTJVA->accept(*xTrack) ){
       tracksForTJVA.push_back(xTrack);
+      sumTrackAll += xTrack->pt();
+    }
   }
 
-  // Get the TVA object
-  const jet::TrackVertexAssociation* tva = nullptr;
+  xAOD::TrackVertexAssociationMap trktovxmap;
  
   // ATR-15665 for trigger: reimplementation of TrackVertexAssociationTool::buildTrackVertexAssociation_custom
   if(inTrigger()){ 
-      if(tracksForTJVA.size()==0){ATH_MSG_DEBUG("No tracks survived selection"); return ElementLink<xAOD::VertexContainer>();}
+
+    if(tracksForTJVA.size()==0){ATH_MSG_DEBUG("No tracks survived selection"); return ElementLink<xAOD::VertexContainer>();}
       else ATH_MSG_DEBUG("Selected tracks with size " << tracksForTJVA.size());
 
       ATH_MSG_DEBUG("Creating online TJVA"); 
@@ -217,15 +221,14 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
           if (foundMatch)
               matchedVertexOnline[ iTrack ] = vertices.at(matchedIndex);
       }
-  } else {
-
-    // Get the track vertex association, was done by the track vertex association tool  
-    SG::ReadHandle<jet::TrackVertexAssociation> tvaInHandle( m_jetTrackVtxAssoc );
-    if (!tvaInHandle.isValid()) {
-      ATH_MSG_ERROR("Could not retrieve the TrackVertexAssociation from evtStore: " << tvaInHandle.key());
-      return ElementLink<xAOD::VertexContainer>();
+  } else {    
+    // Get track vertex map
+    std::vector<const xAOD::Vertex*> vertVec;
+    for (const xAOD::Vertex* vert : vertices) {
+      vertVec.push_back(vert);
     }
-    tva = tvaInHandle.cptr();
+    // Tool returns map between vertex and tracks associated to that vertex (based on selection criteria set in config) 
+    trktovxmap = m_trkVertexAssocTool->getMatchMap(tracksForTJVA, vertVec);
   }
  
   // Get the highest JVF vertex and store maxJVF for later use
@@ -235,9 +238,16 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   size_t iVertex = 0;
   size_t maxIndex = 0;
   for (const xAOD::Vertex* vert : vertices) {
-    float jvf = 0;
-    if(!inTrigger()) jvf = getJetVertexFraction(vert,tracksForTJVA,tva);
-    else jvf = getJetVertexFraction(vert,tracksForTJVA,matchedVertexOnline);
+    float jvf = 0.0;
+    float sumTrackPV = 0.0;
+    if (!inTrigger()){
+      std::vector<const xAOD::TrackParticle*> tracks = trktovxmap[vert];
+      sumTrackPV = getJetVertexFraction(tracks);
+      jvf = (sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0);
+    }
+    else{
+      jvf = getJetVertexFraction(vert,tracksForTJVA,matchedVertexOnline);
+    }
     if (jvf > maxJVF) {
       maxJVF = jvf;
       max_vert = vert;
@@ -247,29 +257,19 @@ TauVertexFinder::getPV_TJVA(const xAOD::TauJet& pTau,
   }
 
   ATH_MSG_DEBUG("TJVA vtx found at z: " << max_vert->z());
+  ATH_MSG_DEBUG("vtx at maxIndex has z: " << vertices.at(maxIndex)->z() );
   ATH_MSG_DEBUG("highest pt vtx found at z: " << vertices.at(0)->z());
     
   return ElementLink<xAOD::VertexContainer> (vertices, maxIndex);
 }
 
-// reimplementation of JetVertexFractionTool::getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
-// avoid to call this specific tool only for this easy purpose
-// see https://svnweb.cern.ch/trac/atlasoff/browser/Reconstruction/Jet/JetMomentTools/trunk/Root/JetVertexFractionTool.cxx
-float TauVertexFinder::getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const
-{
+// get sum of pT from tracks associated to vertex (tracks from track to vertex map)
+float TauVertexFinder::getJetVertexFraction(const std::vector<const xAOD::TrackParticle*>& tracks) const {
   float sumTrackPV = 0;
-  float sumTrackAll = 0;
-  for (size_t iTrack = 0; iTrack < tracks.size(); ++iTrack)
-    {
-      const xAOD::TrackParticle* track = tracks.at(iTrack);
-      const xAOD::Vertex* ptvtx = tva->associatedVertex(track);
-      if (ptvtx != nullptr) {  // C++11 feature
-	if (ptvtx->index() == vertex->index()) sumTrackPV += track->pt();
-      }
-      sumTrackAll += track->pt();
-
-    }
-  return sumTrackAll!=0 ? sumTrackPV/sumTrackAll : 0;
+  for (auto trk : tracks){
+    sumTrackPV += trk->pt();
+  }
+  return sumTrackPV;
 }
 
 // for online ATR-15665: reimplementation needed for online because the tva doesn't work. The size of the track collection from TE is not the same as the max track index

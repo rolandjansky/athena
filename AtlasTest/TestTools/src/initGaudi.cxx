@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -7,10 +7,6 @@
  ------------------------------------------------------------
  ATLAS Collaboration
  ***************************************************************************/
-
-// $Id: initGaudi.cxx,v 1.5 2005-05-04 00:39:51 calaf Exp $
-
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "TestTools/initGaudi.h"
 
@@ -46,12 +42,16 @@ namespace Athena_test {
           if (access (jobOptsPath.c_str(), R_OK) == 0) {
             break;
           }
+          jobOptsPath.clear();
         }
         delete [] savepath;
       }
     }
-    bool noJobOpts(jobOptsFile.empty());
-    if (!noJobOpts) {
+
+    if (jobOptsPath.empty()) {
+      cout << "\n\nCannot find job opts " << jobOptsFile << endl;
+    }
+    else {
       cout << "\n\nInitializing Gaudi ApplicationMgr using job opts " << jobOptsPath << endl;
     }
 
@@ -74,7 +74,7 @@ namespace Athena_test {
     pSvcLoc = svcLoc.pRef();
 
     (propMgr->setProperty( "EvtSel",         "NONE" )).ignore();
-    if (noJobOpts) {
+    if (jobOptsFile.empty()) {
       (propMgr->setProperty( "JobOptionsType", "NONE" )).ignore();
     } else {
       (propMgr->setProperty( "JobOptionsType", "FILE" )).ignore();

@@ -139,7 +139,9 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
   mc_out->reserve (mc_in->size());
   for (const HepMC::GenEvent* ev_in : *mc_in) {
     if (!ev_in) continue;
+#ifdef HEPMC3
 
+#else
     // Copy the GenEvent.
     HepMC::GenEvent* ev_out = new HepMC::GenEvent (ev_in->signal_process_id(),
                                                    ev_in->event_number());
@@ -165,6 +167,7 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
     // If we don't want pileup, only do the first non-empty GenEvent.
     if (!m_doPileup && ev_in->particles_size() != 0)
       break;
+#endif
   }
   return StatusCode::SUCCESS;
 }
@@ -174,19 +177,20 @@ TruthParticleFilterBase::buildMcAod (const McEventCollection* mc_in,
  * @brief Filter a single @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
-                                      HepMC::GenEvent* ev_out)
+TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in, HepMC::GenEvent* ev_out)
 {
   // Loop over particles.
   // (range-based for doesn't work here because particle_const_iterator
   // isn't consistent in the use of const...)
-  for (HepMC::GenEvent::particle_const_iterator ip = ev_in->particles_begin();
-       ip != ev_in->particles_end();
-       ++ip)
+  for (auto ip: *ev_in)
   {
     // Copy the particle if we want to keep it.
-    if (isAccepted (*ip))
-      CHECK( addParticle (*ip, ev_out) );
+#ifdef HEPMC3
+
+#else
+    if (isAccepted (ip))
+      CHECK( addParticle (ip, ev_out) );
+#endif
   }
   return StatusCode::SUCCESS;
 }
@@ -196,8 +200,7 @@ TruthParticleFilterBase::filterEvent (const HepMC::GenEvent* ev_in,
  * @brief Add a @c GenParticle (and its production vertex) to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
-                                      HepMC::GenEvent* ev)
+TruthParticleFilterBase::addParticle (HepMC::GenParticlePtr p, HepMC::GenEvent* ev)
 {
   // Add parent vertex if it exists.  Otherwise, add decay vertex.
   if (p->production_vertex())
@@ -208,7 +211,9 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
     REPORT_MESSAGE (MSG::ERROR) << "Encountered GenParticle with no vertices!";
     return StatusCode::FAILURE;
   }
+#ifdef HEPMC3
 
+#else
   // Find the particle in the event.
   // If it doesn't exist yet, copy it.
   HepMC::GenParticle* pnew = ev->barcode_to_particle (p->barcode());
@@ -229,6 +234,7 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
     if (v)
       v->add_particle_in (pnew);
   }
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -238,9 +244,11 @@ TruthParticleFilterBase::addParticle (const HepMC::GenParticle* p,
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
-                                    HepMC::GenEvent* ev)
+TruthParticleFilterBase::addVertex (HepMC::GenVertexPtr v, HepMC::GenEvent* ev)
 {
+#ifdef HEPMC3
+
+#else
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());
   if (!vnew) {
@@ -271,6 +279,7 @@ TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
         vnew->add_particle_out (pnew);
     }
   }
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -280,7 +289,7 @@ TruthParticleFilterBase::addVertex (const HepMC::GenVertex* v,
  * @brief Test to see if we want to keep a particle.
  */
 bool
-TruthParticleFilterBase::isAccepted (const HepMC::GenParticle* /*p*/)
+TruthParticleFilterBase::isAccepted (HepMC::ConstGenParticlePtr /*p*/)
 {
   // Default implementation accepts everything.
   return true;
@@ -298,8 +307,7 @@ TruthParticleFilterBase::isolations (TruthEtIsolationsContainer const* &isocont)
     return StatusCode::FAILURE;
   }
 
-  std::string isoname =
-    m_isolationTool->etIsolationsName (m_mcEventsOutputName);
+  std::string isoname = m_isolationTool->etIsolationsName (m_mcEventsOutputName);
 
   CHECK( evtStore()->retrieve (isocont, isoname) );
 

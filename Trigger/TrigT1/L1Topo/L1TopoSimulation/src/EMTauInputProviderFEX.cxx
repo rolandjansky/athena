@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./EMTauInputProviderFEX.h"
@@ -112,7 +112,7 @@ EMTauInputProviderFEX::fillTopoInputEvent(TCS::TopoInputEvent& inputEvent) const
   }
 
   std::vector< CPTopoTOB > tobs;
-  for( const auto & cl : *eFEXCluster ) {
+  for( const xAOD::TrigEMCluster* cl : *eFEXCluster ) {
 
     ATH_MSG_DEBUG( "EMTAU TOB with c" 
 		   //removing the "isolaion for now in printouts

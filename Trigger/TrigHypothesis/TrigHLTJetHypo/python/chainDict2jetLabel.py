@@ -95,45 +95,44 @@ def _cuts_from_momCuts(momCuts):
     return ''
 
 
-def _make_vbenf_label(chain_parts, leg_label):
+def _make_fbdjnoshared_label(chain_parts, leg_label):
     """Marshal information from the selected chainParts to create a
-    vbenf label. Use a Reducer for elimination of unusable jets
+    fbdjnoshared (forward-backward and dijet, no jet sharing) label. 
     """
-
-    # toy label for development: run simple and dijet independently.
-    # simple makes Et cuts on two jets. Independently (sharing possible)
-    # of jets choosean by simple,  the dijet
-    # scenario requires a dijet of mass > 900, and opening angle in phi > 2.6
 
     assert len(chain_parts) == 1
     
     scenario = chain_parts[0]['hypoScenario']
-    assert scenario.startswith('vbenf')
+    assert scenario.startswith('f')
     args = _args_from_scenario(scenario)
-    if not args:
-        return 'all([]simple([(50et)(70et)])dijet([(900djmass, 26djdphi)] all[], all[])))'        
+
+    # arg res tuples constain a regex, and a counter
+    # to count the number of matches.
     arg_res = [
-        re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'),
-        re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'),
-        re.compile(r'(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)'),
+        [re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'), 0],
+        [re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'), 0],
+        [re.compile(r'(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)'), 0],
     ]
 
     defaults = {
-        'et': ('101', 'inf'),
-        'mass': ('800', 'inf'),
-        'fbet': ('501', 'inf'),
+        'et0': ('101', 'inf'),
+        'et1': ('103', 'inf'),
+        'mass0': ('800', 'inf'),
+        'fbet0': ('501', 'inf'),
     }
 
     argvals = {}
+    assert len(args) == len(arg_res) + 1  # +1 because et occurs twice.
     while args:
-        assert len(args) == len(arg_res)
         arg = args.pop()
-        for r in arg_res:
-            m = r.match(arg)
+        for ar  in arg_res:
+            regx = ar[0]
+            occurence=ar[1]  # no iof time this argument is used eg et used 2x
+            m = regx.match(arg)
             if m is not None:
-                arg_res.remove(r)
                 gd = m.groupdict()
-                key = gd['key']
+                key = gd['key'] + str(occurence)
+                ar[1] += 1  # bump the occurrence cout
                 try:
                     lo = float(gd['lo'])
                 except ValueError:
@@ -145,29 +144,48 @@ def _make_vbenf_label(chain_parts, leg_label):
                     hi = defaults[key][1]
                 argvals[key+'hi'] =  hi
 
-    assert len(args) == len(arg_res)
     assert len(args) == 0
 
     argvals['leg_label'] = leg_label
+
     return """
     all
     (
       []
       simple
       (
-        [(%(etlo).0fet, 500neta, leg000)(%(etlo).0fet, peta500, %(leg_label)s)]
+        [(%(fbet0lo).0fet, 500neta, leg000)(%(fbet0lo).0fet, peta500, %(leg_label)s)]
       )
       dijet
       (
-        [(%(masslo).0fdjmass, 26djdphi)]
+        [(%(mass0lo).0fdjmass, 26djdphi)]
         simple
         (
-          [(10et, 0eta320, leg000)(20et, 0eta320, %(leg_label)s)]
+          [(%(et0lo).0fet, 0eta320, leg000)(%(et1lo).0fet, 0eta320, %(leg_label)s)]
         )
       )
     )""" % argvals
 
 
+def  _make_fbdjshared_label(chain_parts, leg_label):
+    """example label for a 2-tree forest.
+    The fbdjshared contains a dijet and forward backward jets, in separate 
+    trees, to allow the fb jets to particoate in the dijet."""
+
+    
+    return """
+    simple
+    (
+    [(50et, 500neta, leg000)(50et, peta500, leg000)]
+    )
+    dijet
+    (
+    [(34djmass, 26djdphi)]
+        simple
+        ([(10et, 0eta320, leg000)(20et, 0eta320, leg000)])
+    )"""
+
+    
 def _make_dijet_label(chain_parts, leg_label):
     """dijet label. supports dijet cuts, and cuts on particpating jets
     Currently supported cuts:
@@ -321,8 +339,9 @@ def chainDict2jetLabel(chain_dict):
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
-        'vbenf': _make_vbenf_label,
         'dijet': _make_dijet_label,
+        'fbdjshared': _make_fbdjshared_label,
+        'fbdjnoshared': _make_fbdjnoshared_label,
     }
 
     # chain_part - scenario association
@@ -348,8 +367,10 @@ def chainDict2jetLabel(chain_dict):
 
     assert labels
     nlabels = len(labels)
+    return ''.join(labels)
     if nlabels == 1: return labels[0]
     if nlabels == 2:
+        # two labels occur when combining simple and a non-simple scenario
         alabel = """\
 all([]
     %s

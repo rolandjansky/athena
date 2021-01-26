@@ -305,8 +305,8 @@ namespace xAOD {
          // Get the type:
          ::TClass* cl =
               ::TClass::GetClass( ef_itr->second.className().c_str() );
-         const std::type_info* ti = cl->GetTypeInfo();
-         if( ( ! cl->IsLoaded() ) || ( ! ti ) ) {
+         const std::type_info* ti = ( cl ? cl->GetTypeInfo() : nullptr );
+         if( ( ! cl ) || ( ! cl->IsLoaded() ) || ( ! ti ) ) {
             Warning( "xAOD::TEvent::dump",
                      "Unknown type (%s) found in the event format",
                      ef_itr->second.className().c_str() );
@@ -424,7 +424,7 @@ namespace xAOD {
       }
 
       // Check if the EventFormat branch is available:
-      static const std::string eventFormatBranchName =
+      const std::string eventFormatBranchName =
          Utils::getFirstBranchMatch( m_inMetaTree, "EventFormat");
       if( ! m_inMetaTree->GetBranch( eventFormatBranchName.c_str() ) ) {
          // This can happen when the file was produced by an Athena job that

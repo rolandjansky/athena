@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -150,7 +150,7 @@ StatusCode ISF::SimKernelMT::execute() {
 
   // Apply QS patch if required
   if ( not m_qspatcher.empty() ) {
-    for (const auto& currentGenEvent : *outputTruth ) {
+    for (HepMC::GenEvent* currentGenEvent : *outputTruth ) {
       ATH_CHECK(m_qspatcher->applyWorkaround(*currentGenEvent));
     }
   }
@@ -279,7 +279,7 @@ StatusCode ISF::SimKernelMT::execute() {
 
   // Remove QS patch if required
   if(!m_qspatcher.empty()) {
-    for (const auto& currentGenEvent : *outputTruth ) {
+    for (HepMC::GenEvent* currentGenEvent : *outputTruth ) {
       ATH_CHECK(m_qspatcher->removeWorkaround(*currentGenEvent));
     }
   }

@@ -1,15 +1,12 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "JetMonitoring/JetEventSelector.h"
-#include <limits>
 
 
 JetEventSelector::JetEventSelector(const std::string &t) 
   : asg::AsgTool(t)
-  , m_min(-std::numeric_limits<float>::max())
-  , m_max( std::numeric_limits<float>::max())
   , m_var(this)
 {
 
@@ -23,13 +20,18 @@ JetEventSelector:: ~JetEventSelector(){
 
 StatusCode JetEventSelector::initialize() {
 
-  ATH_CHECK(m_var.retrieve() );
-  ATH_MSG_INFO( "Selecting on var ("<< m_var->varName() << ") in ["<< m_min << " , "<< m_max<< "]");
-
+  for (unsigned int it = 0; it < m_var.size(); it++) {
+    ATH_CHECK(m_var[it].retrieve());
+    ATH_MSG_INFO( "Selecting on var ("<< m_var[it]->varName() << ") in ["<< m_min.at(it) << " , "<< m_max.at(it)<< "]");
+  }
   return StatusCode::SUCCESS;
 }
 
 int JetEventSelector::keep(const xAOD::EventInfo& e, const xAOD::JetContainer & jets) const {
-  float v = m_var->value(e, jets);
-  return (m_min < v ) && (v<m_max);
+
+  for (unsigned int it = 0; it < m_var.size(); it++) {
+    float v = m_var[it]->value(e,jets);
+    if ((m_min.at(it) > v) || (m_max.at(it) < v)) return false;
+  }
+  return true;
 }

@@ -29,6 +29,8 @@
 #include "EvtGenBase/EvtRandomEngine.hh"
 #include "EvtGenBase/EvtDecayTable.hh"
 
+#include "PathResolver/PathResolver.h"
+
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -479,14 +481,9 @@ void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle
   EvtParticle* evtPart = EvtParticleFactory::particleFactory(evtId,evtP);
   m_myEvtGen->generateDecay(evtPart);
   if (msgLvl(MSG::VERBOSE)) evtPart->printTree();
-  double ct_s = part->production_vertex()->position().t();
-  double x_s = part->production_vertex()->position().x();
-  double y_s = part->production_vertex()->position().y();
-  double z_s = part->production_vertex()->position().z();
 
-  EvtVector4R treeStart(ct_s,x_s,y_s,z_s);
   // Add new decay tree to hepMC, converting back from GeV to MeV.
-  addEvtGenDecayTree(hepMC, part, evtPart, treeStart, 1000.);
+  addEvtGenDecayTree(hepMC, part, evtPart, 1000.);
   if(evtPart->getNDaug() !=0) part->set_status(m_decayedStatus);
   evtPart->deleteTree();
 }
@@ -494,14 +491,14 @@ void EvtInclusiveDecay::decayParticle(HepMC::GenEvent* hepMC, HepMC::GenParticle
 
 
 void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenParticlePtr part,
-					   EvtParticle* evtPart, EvtVector4R treeStart,
+					   EvtParticle* evtPart, 
                                            double momentumScaleFactor) {  
   if(evtPart->getNDaug()!=0) {  
-    // Add decay vertex, starting from production vertex of particle
-    double ct=(evtPart->getDaug(0)->get4Pos()).get(0)+treeStart.get(0);
-    double x=(evtPart->getDaug(0)->get4Pos()).get(1)+treeStart.get(1);
-    double y=(evtPart->getDaug(0)->get4Pos()).get(2)+treeStart.get(2);
-    double z=(evtPart->getDaug(0)->get4Pos()).get(3)+treeStart.get(3);
+    // Add decay vertex
+    double ct=(evtPart->getDaug(0)->get4Pos()).get(0);
+    double x=(evtPart->getDaug(0)->get4Pos()).get(1);
+    double y=(evtPart->getDaug(0)->get4Pos()).get(2);
+    double z=(evtPart->getDaug(0)->get4Pos()).get(3);
 
     HepMC::GenVertexPtr end_vtx = HepMC::newGenVertexPtr(HepMC::FourVector(x,y,z,ct));
     hepMC->add_vertex(end_vtx);
@@ -518,7 +515,7 @@ void EvtInclusiveDecay::addEvtGenDecayTree(HepMC::GenEvent* hepMC, HepMC::GenPar
       if(evtPart->getDaug(it)->getNDaug() != 0) status=m_decayedStatus;
       HepMC::GenParticlePtr daughter = HepMC::newGenParticlePtr(HepMC::FourVector(px,py,pz,e),id,status);
       end_vtx->add_particle_out(daughter);
-      addEvtGenDecayTree(hepMC, daughter, evtPart->getDaug(it), treeStart, momentumScaleFactor);
+      addEvtGenDecayTree(hepMC, daughter, evtPart->getDaug(it), momentumScaleFactor);
     }
   }
 }
@@ -900,9 +897,15 @@ std::string EvtInclusiveDecay::xmlpath(){
       if(testFile.good()) foundpath = testPath;
       testFile.close();
     }
+   }
+  else {
+// If the CMT environment is missing, try to find the xmldoc directory
+// using PathResolver:
+    foundpath = PathResolverFindCalibDirectory( "Pythia8/xmldoc" );
 
   }
 
+  
   return foundpath;
 }
 

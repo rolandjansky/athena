@@ -7,10 +7,13 @@ atlas_subdir( TriggerMenu )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py python/menu python/l1
-python/l1menu python/l1topo python/l1topomenu python/egamma
-python/muon python/jet python/bjet python/met python/tau
-python/minbias python/heavyion python/bphysics python/calibcosmicmon
-python/test python/combined python/commonUtils python/api )
+   python/l1menu python/l1topo python/l1topomenu python/egamma
+   python/muon python/jet python/bjet python/met python/tau
+   python/minbias python/heavyion python/bphysics python/calibcosmicmon
+   python/test python/combined python/commonUtils python/api
+   POST_BUILD_CMD true   # disable flake8 checking as this package is soon to be deleted
+   )
+
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( scripts/generate*Menu.py scripts/menuTestTMC.sh 
 scripts/generateUnprescaledLists.py scripts/runTriggerAPIExample.py)
@@ -20,12 +23,6 @@ atlas_add_test( generateMenu SCRIPT scripts/testMenu.sh
                 PROPERTIES TIMEOUT 500 
                 POST_EXEC_SCRIPT "check_log.py --errors --config checklogTriggerTest.conf generateMenu.log" 
               )
-
-# Disabled in master as missing the required fixes to the menu presetn in 21.1 (TM, Aug 2018)
-#atlas_add_test ( pyflakesMenu
-#   SCRIPT scripts/pyflakesMenu.sh
-#   ENVIRONMENT "PYPATH=${CMAKE_CURRENT_SOURCE_DIR}/python ${CMAKE_CURRENT_SOURCE_DIR}/share ${CMAKE_CURRENT_SOURCE_DIR}/scripts"
-#)
 
 if( NOT "${CMAKE_PROJECT_NAME}" STREQUAL "AthDerivation" )
     atlas_add_test ( checkL1Menu SCRIPT scripts/checkL1Menu.sh

@@ -14,8 +14,13 @@
 #include "AthenaKernel/errorcheck.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventType.h"
+#include "IOVDbDataModel/IOVMetaDataContainer.h"
+#include "IOVDbDataModel/IOVPayloadContainer.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 #include <cmath>
 #include <cassert>
+#include <string>
 
 
 
@@ -49,7 +54,7 @@ StatusCode CountHepMC::initialize() {
 
 StatusCode CountHepMC::execute() {
 
-  /// @todo Replace the old event ? 
+  /// @todo Replace the old event ?
   m_nPass++;
   ATH_MSG_DEBUG("Current count = " << m_nPass);
   ATH_MSG_INFO("Options for HepMC event number, EvtID event number, EvtID run number = " << m_corHepMC << m_corEvtID << m_corRunNumber );
@@ -95,20 +100,104 @@ else{
     }
   }
 
-if (m_corRunNumber) {
+  if (m_corRunNumber) {
     // Change the EventID in the eventinfo header
     const EventInfo* pInputEvt(0);
     ATH_MSG_INFO("Set new run number called !!" << m_newRunNumber);
+    unsigned int oldRunNumber = 0;
     if (evtStore()->retrieve(pInputEvt).isSuccess()) {
       assert(pInputEvt);
       EventID* eventID = const_cast<EventID*>(pInputEvt->event_ID());
       ATH_MSG_INFO("git eventid !! " );
+      oldRunNumber = eventID->run_number();
       eventID->set_run_number(m_newRunNumber);
       ATH_MSG_INFO("Set new run number" << m_newRunNumber);
       ATH_MSG_DEBUG("Set new run number in event_ID");
+
+      // also set the MC channel number
+      EventType* event_type = const_cast<EventType*>(pInputEvt->event_type());
+      ATH_MSG_INFO("got event_type !! " );
+      event_type->set_mc_channel_number(m_newRunNumber);
+      ATH_MSG_INFO("Set new MC channel number " << event_type->mc_channel_number());
+      ATH_MSG_DEBUG("Set new mc_channel_number in event_type");
     } else {
       ATH_MSG_ERROR("No EventInfo object found");
       return StatusCode::SUCCESS;
+    }
+
+    {
+      // change the channel number where /Generation/Parameters are found
+      auto newChannelNumber =
+          static_cast< CondAttrListCollection::ChanNum >(m_newRunNumber);
+      auto oldChannelNumber =
+          static_cast< CondAttrListCollection::ChanNum >(oldRunNumber);
+
+      const char* key = "/Generation/Parameters";
+      const IOVMetaDataContainer * iovContainer = nullptr;
+      if (m_metaDataStore->retrieve(iovContainer, key).isSuccess()
+          && iovContainer) {
+        // get a hold of the payload
+        const IOVPayloadContainer * payloadContainer =
+            iovContainer->payloadContainer();
+
+        // Grab the attribute list
+        for (CondAttrListCollection* collection : *payloadContainer) {
+          for(unsigned int index = 0; index < collection->size(); ++index) {
+            if (collection->chanNum(index) != oldChannelNumber) {
+              ATH_MSG_INFO("Not updating \"" << key << "\" on channel number "
+                           << collection->chanNum(index));
+              continue;
+            }
+
+            if (collection->fixChanNum(oldChannelNumber, newChannelNumber))
+              ATH_MSG_INFO("Updated \"" << key << "\" channel number from "
+                           << oldChannelNumber << " to " << newChannelNumber);
+            else
+              ATH_MSG_ERROR("Channel number update from " << oldChannelNumber
+                            << " to " << newChannelNumber << " on \"" << key
+                            << "\" FAILED");
+          }
+        }
+
+        {
+          // Update the MC channel number in the "/TagInfo"
+          const char* key = "/TagInfo";
+          const IOVMetaDataContainer * iovContainer = nullptr;
+          if (m_metaDataStore->retrieve(iovContainer, key).isSuccess()
+              && iovContainer) {
+            // get a hold of the payload
+            const IOVPayloadContainer * payloadContainer =
+              iovContainer->payloadContainer();
+
+            // Grab the attribute list
+            for (CondAttrListCollection* collection : *payloadContainer) {
+              for (auto pair : *collection) {
+                // pair is a pair of Channel number and AttributeList
+                if (pair.second.exists("mc_channel_number")) {
+                  try {
+                    pair.second["mc_channel_number"].setValue(
+                      std::to_string(m_newRunNumber));
+                    ATH_MSG_INFO("Updated \"" << key << "\" mc_channel_number"
+                                 << " to " << m_newRunNumber);
+                  } catch (std::exception&) {
+                    try {
+                      pair.second["mc_channel_number"].setValue(m_newRunNumber);
+                      ATH_MSG_INFO("Updated \"" << key << "\" mc_channel_number"
+                                   << " to " << m_newRunNumber);
+                    } catch (std::exception&) {
+                      ATH_MSG_ERROR("mc_channel_number update from to "
+                                    << m_newRunNumber << " on \"" << key
+                                    << "\" FAILED");
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else {
+        ATH_MSG_INFO("Could not retrieve \"" << key << "\" from MetaDataStore");
+      }
     }
   }
 

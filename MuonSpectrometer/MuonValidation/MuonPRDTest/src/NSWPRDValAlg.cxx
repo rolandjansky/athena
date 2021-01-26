@@ -11,6 +11,8 @@
 #include "MMSimHitVariables.h"
 #include "MDTSimHitVariables.h"
 #include "RPCSimHitVariables.h"
+#include "CSCSimHitVariables.h"
+#include "TGCSimHitVariables.h"
 #include "MMSDOVariables.h"
 #include "MMRDOVariables.h"
 #include "MMPRDVariables.h"
@@ -59,6 +61,8 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_CscDigitVar(nullptr),
     m_MDTSimHitVar(nullptr),
     m_RPCSimHitVar(nullptr),
+    m_CSCSimHitVar(nullptr),
+    m_TGCSimHitVar(nullptr),
     m_thistSvc(nullptr),
     m_tree(nullptr),
     m_runNumber(0),
@@ -80,6 +84,8 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
   declareProperty("MDT_SimContainerName",           m_MDT_SimContainerName="MDT_Hits");
   declareProperty("RPC_SimContainerName",           m_RPC_SimContainerName="RPC_Hits");
+  declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
+  declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
 
   // Input properties: do EDM objects
   declareProperty("isData",          m_isData=false);
@@ -98,6 +104,8 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
   declareProperty("doMDTHit",        m_doMDTHit=false);
   declareProperty("doRPCHit",        m_doRPCHit=false);
+  declareProperty("doCSCHit",        m_doCSCHit=false);
+  declareProperty("doTGCHit",        m_doTGCHit=false);
 
   // Input properties: NSW Maching algorithm
   declareProperty("doNSWMatchingAlg",   m_doNSWMatching=true);
@@ -236,6 +244,18 @@ StatusCode NSWPRDValAlg::initialize() {
                                              &m_idHelperSvc->rpcIdHelper(), m_tree, m_RPC_SimContainerName, msgLevel());
      ATH_CHECK( m_RPCSimHitVar->initializeVariables() );
   }
+
+    if (m_doCSCHit){
+     m_CSCSimHitVar = new CSCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->cscIdHelper(), m_tree, m_CSC_SimContainerName, msgLevel());
+     ATH_CHECK( m_CSCSimHitVar->initializeVariables() );
+  }
+
+    if (m_doTGCHit){
+     m_TGCSimHitVar = new TGCSimHitVariables(&(*(evtStore())), m_muonDetMgrDS,
+                                             &m_idHelperSvc->tgcIdHelper(), m_tree, m_TGC_SimContainerName, msgLevel());
+     ATH_CHECK( m_TGCSimHitVar->initializeVariables() );
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -261,6 +281,8 @@ StatusCode NSWPRDValAlg::finalize()
   if (m_CscDigitVar) { delete m_CscDigitVar; m_CscDigitVar=0;}
   if (m_MDTSimHitVar) { delete m_MDTSimHitVar; m_MDTSimHitVar=0;}
   if (m_RPCSimHitVar) { delete m_RPCSimHitVar; m_RPCSimHitVar=0;}
+  if (m_CSCSimHitVar) { delete m_CSCSimHitVar; m_CSCSimHitVar=0;}
+  if (m_TGCSimHitVar) { delete m_TGCSimHitVar; m_TGCSimHitVar=0;}
 
   return StatusCode::SUCCESS;
 }
@@ -322,6 +344,10 @@ StatusCode NSWPRDValAlg::execute()
   if (m_doMDTHit) ATH_CHECK( m_MDTSimHitVar->fillVariables(muonDetMgr) );
 
   if (m_doRPCHit) ATH_CHECK( m_RPCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doCSCHit) ATH_CHECK( m_CSCSimHitVar->fillVariables(muonDetMgr) );
+
+  if (m_doTGCHit) ATH_CHECK( m_TGCSimHitVar->fillVariables(muonDetMgr) );
 
   m_tree->Fill();
 

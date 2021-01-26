@@ -291,7 +291,7 @@ namespace InDetDD {
     /**
      * at given global position
      */
-    double sinTilt(const HepGeom::Point3D<double>& globalPosition) const;
+    double sinTilt(const Amg::Vector3D& globalPosition) const;
     
     /**
      * Compute sin(stereo angle) at a given position: at center
@@ -304,7 +304,7 @@ namespace InDetDD {
     /**
      * at given global position
      */
-    double sinStereo(const HepGeom::Point3D<double>& globalPosition) const;
+    double sinStereo(const Amg::Vector3D& globalPosition) const;
     
     /**
      * Angle of strip in local frame with respect to the etaAxis. 
@@ -314,7 +314,7 @@ namespace InDetDD {
     /**
      * See previous method
      */
-    double sinStereoLocal(const HepGeom::Point3D<double>& globalPos) const;
+    double sinStereoLocal(const Amg::Vector3D& globalPos) const;
     
     /**
      * Check if it is the stereo side (useful for SCT)
@@ -380,7 +380,7 @@ namespace InDetDD {
      * Test if near bond gap within tolerances
      */
     bool nearBondGap(const Amg::Vector2D& localPosition, double etaTol) const;
-    bool nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const; 
+    bool nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const; 
     
     /**
      * If cell is ganged return the id of the other cell which shares the readout
@@ -433,7 +433,7 @@ namespace InDetDD {
     /**
      * Private implementation method with no lock at given global position
      */
-    double sinStereoImpl(const HepGeom::Point3D<double>& globalPosition) const;
+    double sinStereoImpl(const Amg::Vector3D& globalPosition) const;
     
     /**
      * Protected data:

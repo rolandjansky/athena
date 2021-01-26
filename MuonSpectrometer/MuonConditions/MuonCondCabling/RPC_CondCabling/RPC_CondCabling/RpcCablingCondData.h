@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 #ifndef RPCCABLINGCONDDATA_H
@@ -167,8 +167,10 @@ bool giveOfflineId(const unsigned short int side, const unsigned short int secto
   std::vector<IdentifierHash> rod2hash(uint16_t subsystem, uint16_t rod) const;
   uint32_t hash2source(unsigned int h) const;
 
+  void setIds (const std::vector<Identifier>& int2id);
+  void setLookup (const std::vector<Identifier>& ids);
 
-
+  
   private:
 
 

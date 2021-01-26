@@ -13,7 +13,8 @@ endif()
 atlas_add_library( TrigCompositeUtilsLib
   TrigCompositeUtils/*.h TrigCompositeUtils/*.icc Root/*.cxx
   PUBLIC_HEADERS TrigCompositeUtils
-  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib AsgTools TrigDecisionInterface xAODBase xAODTrigger ${extra_libs}  )
+  LINK_LIBRARIES TrigConfHLTUtilsLib CxxUtils AsgMessagingLib AsgDataHandlesLib AsgTools TrigDecisionInterface xAODBase xAODTrigger TrigConfHLTData ${extra_libs}
+  PRIVATE_LINK_LIBRARIES TrigSteeringEvent )
 
 if( NOT XAOD_STANDALONE )
   atlas_add_component( TrigCompositeUtils
@@ -40,3 +41,11 @@ endif()
 atlas_add_test( Combinators_test
   SOURCES test/Combinators_test.cxx
   LINK_LIBRARIES TestTools TrigCompositeUtilsLib )
+
+atlas_add_test( KFromNItr_test
+  SOURCES test/KFromNItr_test.cxx
+  LINK_LIBRARIES TestTools TrigCompositeUtilsLib )
+
+atlas_add_test( IPartCombItr_test
+  SOURCES test/IPartCombItr_test.cxx
+  LINK_LIBRARIES TestTools TrigCompositeUtilsLib xAODBase xAODTrigger)

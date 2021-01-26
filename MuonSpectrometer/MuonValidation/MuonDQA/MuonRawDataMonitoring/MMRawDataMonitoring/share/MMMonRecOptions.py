@@ -1,4 +1,4 @@
-###### Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration ####### 
+###### Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration #######
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -37,7 +37,6 @@ recAlgs.doAtlfast=False
 recAlgs.doMonteCarloReact=False
 rec.doEgamma=False
 rec.CBNTAthenaAware=False
-rec.doAODSelect=False
 rec.doWritexAOD=False
 rec.doPerfMon=False
 rec.doTagRawSummary=False

@@ -1,5 +1,5 @@
 #====================================================================
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #====================================================================
 # IDTIDE1.py
 # Contact: atlas-cp-tracking-denseenvironments@cern.ch
@@ -36,7 +36,7 @@ IsMonteCarlo=DerivationFrameworkIsMonteCarlo
 # SET UP STREAM  
 #====================================================================
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_IDTIDEStream.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_IDTIDEStream )

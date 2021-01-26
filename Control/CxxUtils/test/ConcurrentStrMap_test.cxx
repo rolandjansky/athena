@@ -201,7 +201,8 @@ void test1()
   }
 
   std::vector<size_t> seen;
-  for (const auto& p : map.range()) {
+  // not using reference, because our iterator doesn't return a reference
+  for (const auto p : map.range()) {
     size_t i = p.second - 10000;
     assert (i < MAXKEYS);
     assert (p.first == keys[i]);
@@ -212,7 +213,8 @@ void test1()
   assert (seen == exp);
 
   seen.clear();
-  for (const auto& p : map) {
+  // not using reference, because our iterator doesn't return a reference
+  for (const auto p : map) {
     size_t i = p.second - 10000;
     assert (i < MAXKEYS);
     assert (p.first == keys[i]);
@@ -432,7 +434,8 @@ void test4_Iterator::operator()()
   std::shared_lock<std::shared_timed_mutex> lock (start_mutex);
 
   while (true) {
-    for (const auto& p : m_map) {
+    // not using reference, because our iterator doesn't return a reference
+    for (const auto p : m_map) {
       if (p.second == nwrites) continue;
       size_t i = p.second % nwrites;
       assert (key(i) == p.first);

@@ -5,9 +5,6 @@ from a hypo tree."""
 
 from __future__ import print_function
 
-
-from AthenaConfiguration.ComponentFactory import CompFactory
-
 from collections import defaultdict
 
 from AthenaCommon.Logging import logging
@@ -26,36 +23,11 @@ class ConditionsToolSetterFastReduction(object):
 
     """Visitor to set instantiated AlgTools to a jet hypo tree"""
 
-    JetMoments = {
-        'emfrac'  : 'EMFrac',
-        'hecfrac' : 'HECFrac',
-    }
 
-    def __init__(self):
+    def __init__(self, algToolFactory):
 
-        # for simple, use TrigJetConditionConfig_etaet. Needs to be
-        # completed because simple can conain any single jet condition
-        self.tool_factories = {
-            'eta': [CompFactory.TrigJetConditionConfig_abs_eta, 0], 
-            'peta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
-            'neta': [CompFactory.TrigJetConditionConfig_signed_eta, 0],
-            'et': [CompFactory.TrigJetConditionConfig_et, 0],
-            'djmass': [CompFactory.TrigJetConditionConfig_dijet_mass, 0],
-            'djdphi': [CompFactory.TrigJetConditionConfig_dijet_dphi, 0],
-            'djdeta': [CompFactory.TrigJetConditionConfig_dijet_deta, 0],
-            'qjmass': [CompFactory.TrigJetConditionConfig_qjet_mass, 0],
-            'smc': [CompFactory.TrigJetConditionConfig_smc, 0],
-            'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
-            'ht': [CompFactory.TrigJetConditionConfig_htfr, 0],
-            'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
-            'capacitychecked':
-            [CompFactory.TrigJetConditionConfig_capacitychecked, 0],
-            'fastreduction': [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
-            'helper': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
-            }
-        for var in self.JetMoments:
-            self.tool_factories['mom'+var] = [CompFactory.TrigJetConditionConfig_moment, 0]
-
+        self.algToolFactory = algToolFactory
+ 
         # map conaining parent child ids for the node
         self.treeMap = {0: 0}
 
@@ -70,18 +42,6 @@ class ConditionsToolSetterFastReduction(object):
         for cn in node.children:
             self._set_conditions(cn)
 
-
- 
-    def _get_tool_instance(self, key, extra=''):
-   
-        klass = self.tool_factories[key][0]
-        sn = self.tool_factories[key][1]
-        
-        name = '%s_%d_fn' % (key, sn)
-        if extra: name += '_' + extra
-        tool = klass(name=name)            
-        self.tool_factories[key][1] += 1
-        return tool
 
     def _make_el_condition_tools(self, conf_dict):
         """conf_dict: a dict containing names of elemental conditions 
@@ -106,7 +66,7 @@ class ConditionsToolSetterFastReduction(object):
             # k in the condition name, v contains its min, max values.
 
             # create the AlgTool that will build the elemental condition
-            condition_tool = self._get_tool_instance(k) 
+            condition_tool = self.algToolFactory(k) 
             for lim, val in v.items():  # lim: min, max
                 setattr(condition_tool, lim, val)
 
@@ -160,7 +120,7 @@ class ConditionsToolSetterFastReduction(object):
             el_condition_tools = self._make_el_condition_tools(c)
  
             # create capacitychecked condition from elemental condition
-            condition_tool =self._get_tool_instance('capacitychecked')
+            condition_tool =self.algToolFactory('capacitychecked')
 
             if cpi:
 
@@ -188,9 +148,9 @@ class ConditionsToolSetterFastReduction(object):
             el_condition_tools.extend(self._make_el_condition_tools(fc))
 
         if not el_condition_tools:
-            el_condition_tools.append(self._get_tool_instance('all'))
+            el_condition_tools.append(self.algToolFactory('all'))
 
-        capacitychecked_condition_tool = self._get_tool_instance(
+        capacitychecked_condition_tool = self.algToolFactory(
             'capacitychecked')
 
         capacitychecked_condition_tool.conditionMakers = el_condition_tools
@@ -230,15 +190,8 @@ class ConditionsToolSetterFastReduction(object):
         #    assert False
             
     def report(self):
-        wid = max(len(k) for k in self.tool_factories.keys())
-        rep = '\n%s: ' % self.__class__.__name__
-
-        rep += '\n'.join(
-            ['%s: %d' % (k.ljust(wid), v[1])
-             for k, v in self.tool_factories.items()])
-
-        return rep
-
+        return str(self.algToolFactory)
+   
     def _fill_tree_map(self, node, tmap):
         tmap[node.node_id] = node.parent_id
         for cn in node.children:
@@ -254,12 +207,12 @@ class ConditionsToolSetterFastReduction(object):
             
         else:
             # must have a tool for Gaudi to instantiate in
-            cmap[node.node_id] = self._get_tool_instance('capacitychecked')
-            cmap[node.node_id].conditionMakers = [self._get_tool_instance('all')]
+            cmap[node.node_id] = self.algToolFactory('capacitychecked')
+            cmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             cmap[node.node_id].multiplicity = 1
 
-            fmap[node.node_id] = self._get_tool_instance('capacitychecked')
-            fmap[node.node_id].conditionMakers = [self._get_tool_instance('all')]
+            fmap[node.node_id] = self.algToolFactory('capacitychecked')
+            fmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             fmap[node.node_id].multiplicity = 1
 
             
@@ -317,17 +270,10 @@ class ConditionsToolSetterFastReduction(object):
         filterConditionsVec = self._map_2_vec(filterConditionsMap)
                
         # make a config tool and provide it with condition makers
-        config_tool = self._get_tool_instance('fastreduction')
+        config_tool = self.algToolFactory('fastreduction')
         config_tool.conditionMakers = conditionsVec
         config_tool.filtConditionsMakers = filterConditionsVec
         config_tool.treeVector = treeVec
+        self.config_tool = config_tool
         
-        nodestr = 'n%dp%d' % (tree.node_id, tree.parent_id)
-        helper_tool = self._get_tool_instance('helper', extra=nodestr)
-        helper_tool.HypoConfigurer = config_tool
-        helper_tool.node_id = tree.node_id
-        helper_tool.parent_id = tree.parent_id
-
-        self.tool = helper_tool
-
-        print (self.tool)
+        print (self.config_tool)

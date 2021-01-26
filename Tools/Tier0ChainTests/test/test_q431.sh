@@ -8,7 +8,7 @@
 # art-include: 21.3/Athena
 # art-include: 21.9/Athena
 
-Reco_tf.py --AMI=q431 --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False --maxEvents=100
+Reco_tf.py --AMI=q431 --athenaopts='--threads=1' --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False --maxEvents=100
 echo "art-result: $? Reco"
 
 ArtPackage=$1

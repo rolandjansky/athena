@@ -20,10 +20,10 @@ StatusCode PFlowCalibPFODecoratorAlgorithm::initialize(){
   return StatusCode::SUCCESS;
 }
 StatusCode PFlowCalibPFODecoratorAlgorithm::LinkCalibHitPFO(
-SG::WriteDecorHandle<xAOD::PFOContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
-SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
-SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthParticleHandle  
-) const
+							    SG::WriteDecorHandle<xAOD::PFOContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
+							    SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
+							    SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthParticleHandle  
+							    ) const
 {
   //Algorithm to produce links between PFO and CalibHits
   StatusCode sc;
@@ -43,9 +43,9 @@ SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthPartic
 }
 // Same algorithm for FE as for PFO
 StatusCode PFlowCalibPFODecoratorAlgorithm::LinkCalibHitPFO(
-SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
-SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
-SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthParticleHandle)const
+							    SG::WriteDecorHandle<xAOD::FlowElementContainer, std::vector< std::pair<unsigned int, double> > >& pfoWriteDecorHandle,
+							    SG::ReadHandle<std::map<Identifier,std::vector<const CaloCalibrationHit*> > >& CalibHitReadHandle,
+							    SG::ReadHandle<std::map<unsigned int,const xAOD::TruthParticle* > >& TruthParticleHandle)const
 {
   
   StatusCode sc;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRIOONTRACK_RPCCLUSTERONTRACK_H
@@ -31,7 +31,7 @@ namespace Muon
 {
 
 /** @brief Class to represent calibrated clusters formed from RPC strips*/
-class RpcClusterOnTrack :  public MuonClusterOnTrack
+class RpcClusterOnTrack final:  public MuonClusterOnTrack
 {
 
 public:
@@ -74,43 +74,44 @@ public:
     virtual ~RpcClusterOnTrack();
 
     /** @brief Clone this ROT */
-    virtual RpcClusterOnTrack* clone() const ;
+    virtual RpcClusterOnTrack* clone() const override final;
 
     /** @brief Returns the RpcPrepData - is a TRT_DriftCircle in this scope*/
-    virtual const RpcPrepData* prepRawData() const;
+    virtual const RpcPrepData* prepRawData() const override final;
     const ElementLinkToIDC_RPC_Container& prepRawDataLink() const;
 
     /** @brief Returns the detector element, assoicated with the PRD of this class*/
-    virtual const MuonGM::RpcReadoutElement* detectorElement() const;
+    virtual const MuonGM::RpcReadoutElement* detectorElement() const override final;
 
     /** @brief Returns the surface on which this measurement was taken. 
     (i.e. a surface of a detector element) */
-    virtual const Trk::Surface& associatedSurface() const;
+    virtual const Trk::Surface& associatedSurface() const override final;
     
     /** Return the time (ns)*/
   float time() const;
     
     /** @brief Dumps information about the PRD*/
-    virtual MsgStream&    dump( MsgStream&    stream) const;
+    virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
     /** @brief Dumps information about the PRD*/
-    virtual std::ostream& dump( std::ostream& stream) const;
+    virtual std::ostream& dump( std::ostream& stream) const override final;
     
 
 private:
     /**@brief Sets the DetElement and Trk::PrepRawData pointers after reading from disk.
     @warning Only intended for use by persistency convertors    
     @todo Throw exception if TrkDetElementBase isn't correct concrete type*/
-    virtual void setValues(const Trk::TrkDetElementBase*, const Trk::PrepRawData*);
+  virtual void setValues(const Trk::TrkDetElementBase*,
+                         const Trk::PrepRawData*) override final;
 
-   /** PrepRawData object assoicated with this measurement*/
-    ElementLinkToIDC_RPC_Container              m_rio;
+  /** PrepRawData object assoicated with this measurement*/
+  ElementLinkToIDC_RPC_Container m_rio;
 
-    /** The detector element, assoicated with this measurement*/
-    const MuonGM::RpcReadoutElement*            m_detEl;
-    
-    /** The time in ns*/
-    float m_time;
+  /** The detector element, assoicated with this measurement*/
+  const MuonGM::RpcReadoutElement* m_detEl;
+
+  /** The time in ns*/
+  float m_time;
 };
 
 ///////////////////////////////////////////////////////////////////

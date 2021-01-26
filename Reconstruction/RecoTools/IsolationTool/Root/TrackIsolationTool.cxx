@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -188,11 +188,15 @@ namespace xAOD {
 
     for( const auto& tp : tps ) {
       if( (!m_trkselTool->accept( *tp , input.vertex)) ||
-        (m_useTTVATool && !m_ttvaTool->isCompatible(*tp, *input.vertex))){
-	ATH_MSG_DEBUG("reject track pt = " << tp->pt());
-	continue;
-      } else
-	ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+        (m_useTTVATool && (!input.vertex || !m_ttvaTool->isCompatible(*tp, *input.vertex)))){
+          if (!input.vertex){
+            ATH_MSG_WARNING("Encountered a track isolation input with invalid vertex while requiring TTVA. Rejecting, please check your inputs!"); 
+          } 
+          ATH_MSG_DEBUG("reject track pt = " << tp->pt());
+          continue;
+      } else{
+	      ATH_MSG_DEBUG("Accept track, pt = " << tp->pt());
+      }
       add( input,*tp, result );
 
     }
@@ -218,7 +222,7 @@ namespace xAOD {
     if( !indetTrackParticles ) return false;
 
     // loop over all track particles
-    for( const auto& tp : *indetTrackParticles ) {
+    for( const auto tp : *indetTrackParticles ) {
       if( (!m_trkselTool->accept(*tp, input.vertex)) ||
         (m_useTTVATool && !m_ttvaTool->isCompatible(*tp, *input.vertex))){
 	ATH_MSG_DEBUG("[2] reject track pt = " << tp->pt());

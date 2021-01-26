@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCondAlg/MuonAlignmentCondAlg.h"
@@ -175,15 +175,6 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
       ATH_MSG_ERROR("A- and B-Lines parameters from DB folder <" << currentFolderName << "> failed to load");
       return StatusCode::FAILURE; 
     }
-  }
-
-  // currently, the RPC/TGCRecRoiSvc are services and thus do not participate the scheduling of Read/Write(Cond)Handle(Key)
-  // thus, RPC/TGCRecRoiSvc are not able to use the MuonDetectorCondAlg. To have aligned Roi, here the nominal MuonDetectorManager 
-  // (in the detector store) is updated which is *not* thread-safe. These lines have to be removed as soon as the trigger
-  // group has decided on how to migrate the RPC/TGCRecRoiSvc to MT. Now, only running for serial trigger jobs.
-  if (m_doRecRoiSvcUpdate && Gaudi::Concurrency::ConcurrencyFlags::numThreads()==1) {
-    if (const_cast<MuonGM::MuonDetectorManager*>(m_muonDetMgrDS)->updateAlignment(*writeALineCdo).isFailure()) ATH_MSG_ERROR("Unable to updateAlignment" );
-    else ATH_MSG_DEBUG("updateAlignment DONE" );
   }
 
   if (writeALineHandle.record(rangeALineW, std::move(writeALineCdo)).isFailure()) {

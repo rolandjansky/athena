@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 '''@file JetMonitoringExample.py
@@ -8,7 +8,6 @@
 @brief Main python configuration for the Run III Jet Monitoring
 '''
 
-from __future__ import print_function
 from JetMonitoring.JetMonitoringConfig import JetMonAlgSpec, HistoSpec,  SelectSpec
 
 

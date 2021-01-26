@@ -12,8 +12,8 @@ try:
 except NameError:
     USE_PDG_VALUES = False
 ## if USE_PDG_VALUES = True, load PDG value of 
-## sin2thetaW from parameter dictionary located
-## in EvgenProdTools/python/offline_dict.py 
+## sin2thetaW from parameter dictionary located
+## in EvgenProdTools/python/offline_dict.py
 if USE_PDG_VALUES:
     from EvgenProdTools.offline_dict import parameters
     for k,v in parameters.items():

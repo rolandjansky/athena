@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ISF_FatrasRecoTools )
@@ -11,13 +11,11 @@ atlas_add_library( ISF_FatrasRecoToolsLib
 
 # Component(s) in the package:
 atlas_add_component( ISF_FatrasRecoTools
-                     src/*.cxx
                      src/components/*.cxx
                      LINK_LIBRARIES ISF_FatrasRecoToolsLib )
 
 # Test(s) in the package:
 atlas_add_test( SiSpacePointMakerTool_test
                 SOURCES test/SiSpacePointMakerTool_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaPoolCnvSvcLib AthenaPoolUtilities AthenaKernel IdDictParser TrkGeometry ISF_FatrasRecoToolsLib TestTools 
+                LINK_LIBRARIES AthenaPoolCnvSvcLib AthenaPoolUtilities AthenaKernel IdDictParser TrkGeometry ISF_FatrasRecoToolsLib TestTools 
                 ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )

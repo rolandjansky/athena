@@ -791,27 +791,12 @@ int main( int argc, char* argv[] ) {
                //thrcfg.print();
       
                if(gConfig.WriteLevel() & JobConfig::LVL1) {
-                 log << "Retrieving Lvl1 CTP configuration" << lineend;
-                 log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
-                 bool useCTPConfigOnline = false;
-                 if(useCTPConfigOnline) {
-                   TrigConf::CTPConfigOnline ctpconl;
-                   ctpconl.setSuperMasterTableId(masterConfigKey);
-                   sm->masterTableLoader().load(ctpconl);
-                   ctpc.setMenu( ctpconl.menu() );
-                   ctpc.setPrescaleSet( ctpconl.prescaleSet() );
-                   ctpc.setBunchGroupSet( ctpconl.bunchGroupSet() );
-                   ctpc.setPrescaledClock( ctpconl.prescaledClock() );
-                   ctpc.setDeadTime( ctpconl.deadTime() );
-                   ctpc.setRandom( ctpconl.random() );
-                   ctpc.setLvl1MasterTableId( ctpconl.lvl1MasterTableId() );
-                 } else {
-                   ctpc.setSuperMasterTableId(masterConfigKey);
-                   ctpc.setPrescaleSetId(lvlPrescaleKey);
-                   ctpc.setBunchGroupSetId(bgKey);
-                   sm->masterTableLoader().load(ctpc);
-                 }
-                 //ctpc.print("  ",5);
+                  log << "Retrieving Lvl1 CTP configuration" << lineend;
+                  log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
+                  ctpc.setSuperMasterTableId(masterConfigKey);
+                  ctpc.setPrescaleSetId(lvlPrescaleKey);
+                  ctpc.setBunchGroupSetId(bgKey);
+                  sm->masterTableLoader().load(ctpc);
                }
 
                // get the HLT trigger information

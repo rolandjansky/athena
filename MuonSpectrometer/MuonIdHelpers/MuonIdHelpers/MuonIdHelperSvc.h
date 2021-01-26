@@ -31,9 +31,6 @@ namespace Muon {
     /** @brief AlgTool initilize */
     virtual StatusCode initialize() override;
     
-    /** @brief AlgTool finalize */
-    virtual StatusCode finalize() override;
-    
     /** @brief print all fields to string */
     virtual std::string toString( const Identifier& id ) const override;
 

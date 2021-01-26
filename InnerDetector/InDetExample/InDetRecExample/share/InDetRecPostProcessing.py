@@ -1,3 +1,4 @@
+from InDetRecExample import TrackingCommon
 # ------------------------------------------------------------
 #
 # ----------- now we do post-processing
@@ -142,13 +143,15 @@ if InDetFlags.doLowBetaFinder():
 # -------------------------------------------------------------------------
 
 if InDetFlags.doV0Finder():
-  #
+  from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+  v0_InDetExtrapolator = AtlasExtrapolator()
+
   if InDetFlags.useV0Fitter():
     from TrkV0Fitter.TrkV0FitterConf import Trk__TrkV0VertexFitter
     InDetV0Fitter = Trk__TrkV0VertexFitter(name              = 'InDetV0Fitter',
                                            MaxIterations     = 10,
                                            Use_deltaR        = False,
-                                           Extrapolator      = "Trk::Extrapolator/InDetExtrapolator")
+                                           Extrapolator      = v0_InDetExtrapolator)
     ToolSvc += InDetV0Fitter
     #InDetV0Fitter.OutputLevel = DEBUG
     if (InDetFlags.doPrintConfigurables()):
@@ -163,7 +166,7 @@ if InDetFlags.doV0Finder():
     #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetVKVertexFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKVFitter",
-                                                Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                Extrapolator        = v0_InDetExtrapolator,
                                                 IterationNumber     = 30,
                                                 MakeExtendedVertex  = True,
                                                 FirstMeasuredPoint  = True)
@@ -174,7 +177,7 @@ if InDetFlags.doV0Finder():
       #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetKshortFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKKVFitter",
-                                              Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                              Extrapolator        = v0_InDetExtrapolator,
                                               IterationNumber     = 30,
                                               MakeExtendedVertex  = True,
                                               FirstMeasuredPoint  = True,
@@ -186,7 +189,7 @@ if InDetFlags.doV0Finder():
     #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetLambdaFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLFitter",
-                                              Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                              Extrapolator        = v0_InDetExtrapolator,
                                               IterationNumber     = 30,
                                               MakeExtendedVertex  = True,
                                               FirstMeasuredPoint  = True,
@@ -198,7 +201,7 @@ if InDetFlags.doV0Finder():
     #
     from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
     InDetLambdabarFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKLbFitter",
-                                                 Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                 Extrapolator        = v0_InDetExtrapolator,
                                                  IterationNumber     = 30,
                                                  MakeExtendedVertex  = True,
                                                  FirstMeasuredPoint  = True,
@@ -212,7 +215,7 @@ if InDetFlags.doV0Finder():
   #
   from TrkVKalVrtFitter.TrkVKalVrtFitterConf import Trk__TrkVKalVrtFitter
   InDetGammaFitter = Trk__TrkVKalVrtFitter(name                = "InDetVKGFitter",
-                                           Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                           Extrapolator        = v0_InDetExtrapolator,
                                            IterationNumber     = 30,
                                            Robustness          = 6,
                                            MakeExtendedVertex  = True,
@@ -230,7 +233,7 @@ if InDetFlags.doV0Finder():
     if InDetFlags.doSimpleV0Finder() :
       from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
       InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
-                                                                       Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                                       Extrapolator        = v0_InDetExtrapolator,
                                                                        maxTrtD0            = 50.,
                                                                        maxSiZ0             = 250.,
                                                                        significanceD0_Si   = 1.,
@@ -241,7 +244,7 @@ if InDetFlags.doV0Finder():
     else:
       from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetConversionTrackSelectorTool
       InDetV0VxTrackSelector = InDet__InDetConversionTrackSelectorTool(name                = "InDetV0VxTrackSelector",
-                                                                       Extrapolator        = "Trk::Extrapolator/InDetExtrapolator",
+                                                                       Extrapolator        = v0_InDetExtrapolator,
                                                                        maxTrtD0            = 50.,
                                                                        maxSiZ0             = 250.,
                                                                        significanceD0_Si   = 1.,
@@ -273,10 +276,16 @@ if InDetFlags.doV0Finder():
   if (InDetFlags.doPrintConfigurables()):
     printfunc (InDetV0VtxPointEstimator)
 
+  from TrkVertexAnalysisUtils.TrkVertexAnalysisUtilsConf import Trk__V0Tools
+  v0_tools = Trk__V0Tools(name                    = 'V0Tools',
+                          Extrapolator            = v0_InDetExtrapolator)
+  ToolSvc += v0_tools
+
   #
   # InDetV0FinderTool
   #
   if InDetFlags.doSimpleV0Finder() :
+
     from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
     V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
                                             TrackParticleCollection = InDetKeys.xAODTrackParticleContainer(),
@@ -302,7 +311,9 @@ if InDetFlags.doV0Finder():
                                             lamin                   = 900,
                                             lamax                   = 1300,
                                             d0_cut                  = 0.,
-                                            Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
+                                            V0Tools                 = v0_tools,
+                                            TrackToVertexTool       = TrackingCommon.getInDetTrackToVertexTool(),
+                                            Extrapolator            = v0_InDetExtrapolator)
   else:
     from InDetV0Finder.InDetV0FinderConf import InDet__InDetV0FinderTool
     V0FinderTool = InDet__InDetV0FinderTool(name                    = 'InDetV0FinderTool',
@@ -322,7 +333,9 @@ if InDetFlags.doV0Finder():
                                             #useTRTplusSi            = True,
                                             useVertexCollection     = True,
                                             #trkSelPV                = True,
-                                            Extrapolator            = "Trk::Extrapolator/InDetExtrapolator")
+                                            V0Tools                 = v0_tools,
+                                            TrackToVertexTool       = TrackingCommon.getInDetTrackToVertexTool(),
+                                            Extrapolator            = v0_InDetExtrapolator)
   ToolSvc += V0FinderTool
   if (InDetFlags.doPrintConfigurables()):
     printfunc (V0FinderTool)
@@ -335,6 +348,7 @@ if InDetFlags.doV0Finder():
     InDetV0Finder = InDet__InDetV0Finder(name                    = 'InDetV0Finder',
                                          #decorateV0              = False,
                                          InDetV0FinderToolName   = V0FinderTool,
+                                         V0Tools                 = v0_tools,
                                          V0ContainerName         = InDetKeys.xAODV0VertexContainer(),
                                          KshortContainerName     = InDetKeys.xAODKshortVertexContainer(),
                                          LambdaContainerName     = InDetKeys.xAODLambdaVertexContainer(),
@@ -353,7 +367,6 @@ if InDetFlags.doV0Finder():
 # ----------- Use Conversion Finder to find V0s ?
 #
 # ----------------------------------------------------------------------
-
 if InDetFlags.doSecVertexFinder():
   #
   # --- setup of cut values for  Secondary vertexing
@@ -375,7 +388,7 @@ if InDetFlags.doSecVertexFinder():
                                                       VertexCuts       = InDetSecondaryVertexCuts,
                                                       TrackParticles   = InDetKeys.TrackParticles(),
                                                       SecVertices      = InDetKeys.SecVertices(),
-                                                      Extrapolator     = InDetExtrapolator,
+                                                      Extrapolator     = TrackingCommon.getInDetExtrapolator(), # @TODO use AtlasExtrapolator ?
                                                       printConfig      = InDetFlags.doPrintConfigurables())
   # --- we need the driving algorithm
   InDetSecVertexFinding.addAlgorithm()
@@ -415,7 +428,7 @@ if InDetFlags.doConversions():
                                                        VertexCuts       = InDetConversionVertexCuts,
                                                        TrackParticles   = InDetKeys.xAODTrackParticleContainer(),
                                                        SecVertices      = InDetKeys.Conversions(),
-                                                       Extrapolator     = InDetExtrapolator,
+                                                       Extrapolator     = TrackingCommon.getInDetExtrapolator(), # @TODO use AtlasExtrapolator ?
                                                        printConfig      = InDetFlags.doPrintConfigurables())
   # --- we need the driving algorithm
   InDetConversionFinding.addAlgorithm()
@@ -430,16 +443,7 @@ if InDetFlags.doConversions():
 if InDetFlags.doParticleCreation() and not InDetFlags.useExistingTracksAsInput():
  trackToVertexTool = None
  if InDetFlags.perigeeExpression() == 'Vertex' :
-     if hasattr(ToolSvc,'TrackToVertex') :
-        trackToVertexTool = ToolSvc.TrackToVertex
-     else :
-       from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
-       atlas_extrapolator = AtlasExtrapolator()
-
-       from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
-       trackToVertexTool = Reco__TrackToVertex('TrackToVertex',
-                                               Extrapolator = atlas_extrapolator)
-       ToolSvc += trackToVertexTool
+     trackToVertexTool = TrackingCommon.getInDetTrackToVertexTool()
 
 if rec.doPhysicsValidationAugmentation() :
   try:

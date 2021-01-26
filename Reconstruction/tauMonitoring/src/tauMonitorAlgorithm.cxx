@@ -252,7 +252,8 @@ StatusCode tauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const 
         int panModeDummy = -1 ;
         int panModeSubstructureDummy = -1 ;
 
-        const auto& trigDecTool = getTrigDecisionTool();
+        const auto* trigDecTool = (getTrigDecisionTool().empty() ?
+                                   nullptr : getTrigDecisionTool().operator->());
 
         if (m_etaMin < std::abs(tauEta) && std::abs(tauEta) < m_etaMax){
             nTauCandidates +=1;

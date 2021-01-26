@@ -174,6 +174,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
   // mapping files for radiation damage simulation
   std::vector<std::string> mapsPath_list;
 
+
   int currentRunNumber = ctx.eventID().run_number();
   if (currentRunNumber<222222) {
     writeCdo -> setBarrelToTThreshold(m_BarrelToTThresholdRUN1);
@@ -184,6 +185,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkRUN1);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyRUN1);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityRUN1);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrRUN1);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltageRUN1);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdRUN1);
@@ -194,6 +196,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkRUN1);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyRUN1);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityRUN1);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrRUN1);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageRUN1);
 
     // This is ad-hoc solution.
@@ -221,6 +224,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
@@ -231,6 +235,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
@@ -274,12 +279,14 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalkITK);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancyITK);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbabilityITK);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorrITK);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltageITK);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThresholdITK);
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalkITK);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancyITK);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbabilityITK);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorrITK);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltageITK);
 
     // This is ad-hoc solution.
@@ -309,6 +316,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2016);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2016);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2016);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2016);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2016);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2016);
@@ -319,6 +327,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2016);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2016);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2016);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2016);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2016);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2016);
@@ -357,6 +366,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2017);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2017);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2017);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2017);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2017);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2017);
@@ -367,6 +377,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2017);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2017);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2017);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2017);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2017);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2017);
@@ -405,6 +416,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setBarrelCrossTalk(m_BarrelCrossTalk2018);
     writeCdo -> setBarrelNoiseOccupancy(m_BarrelNoiseOccupancy2018);
     writeCdo -> setBarrelDisableProbability(m_BarrelDisableProbability2018);
+    writeCdo -> setBarrelLorentzAngleCorr(m_BarrelLorentzAngleCorr2018);
     writeCdo -> setDefaultBarrelBiasVoltage(m_BarrelBiasVoltage2018);
 
     writeCdo -> setEndcapToTThreshold(m_EndcapToTThreshold2018);
@@ -415,6 +427,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     writeCdo -> setEndcapCrossTalk(m_EndcapCrossTalk2018);
     writeCdo -> setEndcapNoiseOccupancy(m_EndcapNoiseOccupancy2018);
     writeCdo -> setEndcapDisableProbability(m_EndcapDisableProbability2018);
+    writeCdo -> setEndcapLorentzAngleCorr(m_EndcapLorentzAngleCorr2018);
     writeCdo -> setDefaultEndcapBiasVoltage(m_EndcapBiasVoltage2018);
 
     writeCdo -> setDBMToTThreshold(m_DBMToTThreshold2018);
@@ -453,7 +466,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
 
   for (unsigned int i=0; i<mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
-    std::unique_ptr<TFile> mapsFile(new TFile((mapsPath_list.at(i)).c_str())); //this is the ramo potential.
+    TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
 
     //Setup ramo weighting field map
     TH3F* ramoPotentialMap_hold = 0;
@@ -465,15 +478,10 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
     ramoPotentialMap.push_back(ramoPotentialMap_hold);
 
-    std::unique_ptr<TH2F> lorentzMap_e_hold((TH2F*)mapsFile->Get("lorentz_map_e"));
-    std::unique_ptr<TH2F> lorentzMap_h_hold((TH2F*)mapsFile->Get("lorentz_map_h"));
-    std::unique_ptr<TH2F> distanceMap_h_hold((TH2F*)mapsFile->Get("edistance"));
-    std::unique_ptr<TH2F> distanceMap_e_hold((TH2F*)mapsFile->Get("hdistance"));
-
-    lorentzMap_e.push_back(lorentzMap_e_hold.get());
-    lorentzMap_h.push_back(lorentzMap_h_hold.get());
-    distanceMap_e.push_back(distanceMap_e_hold.get());
-    distanceMap_h.push_back(distanceMap_h_hold.get());
+    lorentzMap_e.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
+    lorentzMap_h.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
+    distanceMap_e.push_back((TH2F*)mapsFile->Get("edistance"));
+    distanceMap_h.push_back((TH2F*)mapsFile->Get("hdistance"));
   }
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);

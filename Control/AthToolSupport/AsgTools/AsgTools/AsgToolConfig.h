@@ -55,6 +55,14 @@ namespace asg
     /// updated to at the very least work on a ToolHandle, but so far
     /// this code isn't even dual-use.
     ///
+    /// The argument `allowNestedName` should probably be omitted in
+    /// most cases.  I mostly added it to allow AnaToolHandle to
+    /// create new tools via an AsgToolConfig (06 Jan 21), for which a
+    /// number of existing users rely on making nested names.  Usually
+    /// when you want a nested name you ought to set the parent on the
+    /// `ToolHandle` and then use a non-nested name for the name of
+    /// the config.
+    ///
     /// \par Guarantee
     ///   strong
     /// \par Failures
@@ -63,7 +71,8 @@ namespace asg
   public:
     template<typename T> ::StatusCode
     makeTool (ToolHandle<T>& toolHandle,
-              std::shared_ptr<void>& cleanup) const;
+              std::shared_ptr<void>& cleanup,
+              bool allowNestedName = false) const;
 
 
 
@@ -82,14 +91,15 @@ namespace asg
 
   template<typename T> ::StatusCode AsgToolConfig ::
   makeTool (ToolHandle<T>& toolHandle,
-            std::shared_ptr<void>& cleanup) const
+            std::shared_ptr<void>& cleanup,
+            bool allowNestedName) const
   {
     using namespace msgComponentConfig;
 
     std::string prefix = toolHandle.parentName() + ".";
 
     std::unique_ptr<T> tool;
-    ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", false, prefix));
+    ANA_CHECK (makeComponentExpert (tool, "new %1% (\"%2%\")", allowNestedName, prefix));
     ANA_CHECK (tool->initialize());
 
     std::shared_ptr<T> mycleanup (tool.release());
@@ -104,13 +114,14 @@ namespace asg
 
   template<typename T> ::StatusCode AsgToolConfig ::
   makeTool (ToolHandle<T>& toolHandle,
-            std::shared_ptr<void>& /*cleanup*/) const
+            std::shared_ptr<void>& /*cleanup*/,
+            bool allowNestedName) const
   {
     using namespace msgComponentConfig;
 
     std::string prefix = toolHandle.parentName() + ".";
 
-    ANA_CHECK (configureComponentExpert (prefix, false));
+    ANA_CHECK (configureComponentExpert (prefix, allowNestedName));
     toolHandle.setTypeAndName (type() + "/" + name());
     ANA_CHECK (toolHandle.retrieve());
 

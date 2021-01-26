@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonFeatureCnvTestAlg.h"
@@ -24,12 +24,6 @@ StatusCode MuonFeatureCnvTestAlg::initialize() {
   ATH_MSG_DEBUG( "AODMuonFeatureContainerName  = " << m_aodMuonFeatureContainerName);
   ATH_MSG_DEBUG( "AODMuonFeatureDetailsContainerName  = " << m_aodMuonFeatureDetailsContainerName);
   ATH_MSG_DEBUG( "xAODL2StandAloneMuonContainerName = " << m_xaodContainerName );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-}
-
-StatusCode MuonFeatureCnvTestAlg::finalize() {
     
     // Return gracefully:
     return StatusCode::SUCCESS;

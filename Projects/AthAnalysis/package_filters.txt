@@ -130,7 +130,6 @@
 + Trigger/TrigEvent/TrigSteeringEvent
 + Trigger/TrigSteer/TrigCompositeUtils
 + Trigger/TrigT1/TrigT1MuctpiBits
-+ Trigger/TrigValidation/TrigAnalysisTest
 #+ Trigger/TriggerSimulation/TrigBtagEmulationTool
 #+ Reconstruction/RecoTools/IsolationTool
 + Reconstruction/RecoTools/RecoToolInterfaces

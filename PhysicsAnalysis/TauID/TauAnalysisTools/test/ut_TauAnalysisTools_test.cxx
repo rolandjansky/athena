@@ -76,6 +76,7 @@ int main( int argc, char* argv[] )
   // ===========================================================================
   ToolHandle<TauAnalysisTools::ITauTruthMatchingTool> T2MT( "TauAnalysisTools::TauTruthMatchingTool/TauTruthMatchingTool");
   ANA_CHECK(AthAnalysisHelper::setProperty(T2MT, "WriteTruthTaus", true));
+  ANA_CHECK(AthAnalysisHelper::setProperty(T2MT, "TruthJetContainerName", "AntiKt4TruthDressedWZJets"));
   ANA_CHECK(T2MT.retrieve());
 
   // ===========================================================================
@@ -117,7 +118,8 @@ int main( int argc, char* argv[] )
                     << ", prong = " << int(xTau->nTracks())
                     << ", charge = " << int(xTau->charge()));
 
-      if ((bool)xTau->auxdata<char>("IsTruthMatched") && (xTruthTau != nullptr))
+      bool avail = xTau->isAvailable<char>("IsTruthMatched") ;
+      if (avail && (xTruthTau != nullptr))
       {
         if (xTruthTau->isTau())
         {

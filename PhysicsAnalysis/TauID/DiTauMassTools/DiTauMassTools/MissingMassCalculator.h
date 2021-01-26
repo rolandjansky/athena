@@ -206,7 +206,8 @@ private:
   int nCallprobCalculatorV9fast;
   
 
-  int iter1,iter2,iter3,iter4,iter5,iang1low,iang1high,iang2low,iang2high;
+  // commented out variables are unused.  experts please check and remove
+  int iter1,iter2,iter3,iter4,iter5,iang1low,iang1high /*,iang2low,iang2high*/;
   int iterTheta3d;
   
   double prob_tmp;
@@ -261,7 +262,8 @@ private:
   double m_eTau1Min,m_eTau1Max,m_eTau1Range;
   double m_eTau2Min,m_eTau2Max,m_eTau2Range;
   bool fullParamSpaceScan;
-  bool m_Mnu1Exclude;
+  // commented out variables are unused.  experts please check and remove
+  // bool m_Mnu1Exclude;
   int m_nsolOld;
   std::vector<double>   m_probFinalSolOldVec;
   std::vector<double>   m_mtautauFinalSolOldVec;
@@ -275,8 +277,9 @@ private:
   std::vector<TLorentzVector>  m_nu2FinalSolVec;
 
 
-  double m_Mnu1ExcludeMin,m_Mnu1ExcludeMax,m_Mnu1ExcludeRange;
-  double m_Mnu1XMin,m_Mnu1XMax, m_Mnu1XRange;
+  // commented out variables are unused.  experts please check and remove
+  // double m_Mnu1ExcludeMin,m_Mnu1ExcludeMax,m_Mnu1ExcludeRange;
+  // double m_Mnu1XMin,m_Mnu1XMax, m_Mnu1XRange;
   double m_walkWeight;
   double m_cosPhi1, m_cosPhi2, m_sinPhi1, m_sinPhi2;
   
@@ -320,14 +323,15 @@ private:
 
   TF1 *m_fFitting;
 
-  TH1F* fPhi1;
-  TH1F* fPhi2;
-  TH1F* fMnu1;
-  TH1F* fMnu2;
-  TH1F* fMetx;
-  TH1F* fMety;
-  TH1F* fTheta3D;
-  TH1F* fTauProb;
+  // commented out variables are unused.  experts please check and remove
+  // TH1F* fPhi1;
+  // TH1F* fPhi2;
+  // TH1F* fMnu1;
+  // TH1F* fMnu2;
+  // TH1F* fMetx;
+  // TH1F* fMety;
+  // TH1F* fTheta3D;
+  // TH1F* fTauProb;
 
   // for intermediate calc
   TLorentzVector TLVdummy;

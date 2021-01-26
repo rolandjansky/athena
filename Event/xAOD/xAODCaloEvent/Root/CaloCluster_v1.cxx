@@ -823,6 +823,23 @@ namespace xAOD {
     accCellLinks(*this)=el;
     return true;
   }
+  bool
+  CaloCluster_v1::setLink(CaloClusterCellLinkContainer* cccl,
+                          const EventContext& ctx)
+  {
+    if (!m_cellLinks || !cccl) {
+      return false;
+    }
+    // The links are now owned by the container
+    cccl->push_back(m_cellLinks.release());
+    const size_t idx = cccl->size() - 1; // Use index for speed
+    static const Accessor<ElementLink<CaloClusterCellLinkContainer>>
+      accCellLinks("CellLink");
+    const CaloClusterCellLinkContainer& ref = *cccl;
+    ElementLink<CaloClusterCellLinkContainer> el(ref, idx, ctx);
+    accCellLinks(*this) = el;
+    return true;
+  }
 
   const CaloClusterCellLink*
   CaloCluster_v1::getCellLinks() const

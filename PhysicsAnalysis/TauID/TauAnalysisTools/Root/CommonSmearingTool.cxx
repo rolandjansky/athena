@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -16,7 +16,7 @@
 // tauRecTools include(s)
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/MvaTESEvaluator.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 
 using namespace TauAnalysisTools;
 /*
@@ -77,7 +77,7 @@ CommonSmearingTool::CommonSmearingTool(const std::string& sName)
   , m_bIsConfigured(false)
   , m_tMvaTESVariableDecorator("MvaTESVariableDecorator", this)
   , m_tMvaTESEvaluator("MvaTESEvaluator", this)
-  , m_tCombinedP4FromRecoTaus("CombinedP4FromRecoTaus", this)
+  , m_tTauCombinedTES("TauCombinedTES", this)
   , m_eCheckTruth(TauAnalysisTools::Unknown)
   , m_bNoMultiprong(false)
   , m_bPtTauEtaCalibIsAvailable(false)
@@ -144,9 +144,9 @@ StatusCode CommonSmearingTool::initialize()
 
   if (m_bApplyCombinedTES || m_bApplyMVATES) // CombinedTES has to be available for MVA fix
   {
-    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tCombinedP4FromRecoTaus, CombinedP4FromRecoTaus));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.initialize());
+    ATH_CHECK(ASG_MAKE_ANA_TOOL(m_tTauCombinedTES, TauCombinedTES));
+    ATH_CHECK(m_tTauCombinedTES.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
+    ATH_CHECK(m_tTauCombinedTES.initialize());
   }
 
 
@@ -180,7 +180,7 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   {    
     // veto MVA TES for unreasonably low resolution values
     bool bVeto = false;
-    if (auto combp4 = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())) {
+    if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tTauCombinedTES.get())) {
       bVeto = combp4->getUseCaloPtFlag(xTau);
     }
 
@@ -214,9 +214,9 @@ CP::CorrectionCode CommonSmearingTool::applyCorrection( xAOD::TauJet& xTau )
   {
     // TODO: only call eventInitialize once per event, probably via migration to
     // AsgMetadataTool
-    if (m_tCombinedP4FromRecoTaus->eventInitialize().isFailure())
+    if (m_tTauCombinedTES->eventInitialize().isFailure())
       return CP::CorrectionCode::Error;
-    if (m_tCombinedP4FromRecoTaus->execute(xTau).isFailure())
+    if (m_tTauCombinedTES->execute(xTau).isFailure())
       return CP::CorrectionCode::Error;
 
     if (xTau.nTracks() > 0 and xTau.nTracks() < 6)

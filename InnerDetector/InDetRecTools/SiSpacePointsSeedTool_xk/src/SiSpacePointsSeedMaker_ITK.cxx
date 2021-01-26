@@ -2077,3 +2077,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::initializeEventData(EventData& data) con
                   SizeRFZV,
                   m_checketa);
 }
+
+void InDet::SiSpacePointsSeedMaker_ITK::writeNtuple(const SiSpacePointsSeed*, const Trk::Track*, int, long) const{
+}
+
+bool InDet::SiSpacePointsSeedMaker_ITK::getWriteNtupleBoolProperty() const{
+    return false;
+}

@@ -1,30 +1,4 @@
-from os import popen
+#backward compatiblity with 'include' ... 
 
-def GetInputFiles(inputPath,filePattern):
-    printfunc ("Searching for files with pattern '",filePattern,"' in ",inputPath)
-    fileList=[]
-    if (inputPath[0:8]=='/castor/'):
-        cmd='nsls'
-    elif (inputPath[0:5]=='/eos/'):    
-        #cmd='/afs/cern.ch/project/eos/installation/atlas/bin/eos.select ls'
-        cmd='/usr/bin/eos ls '
-    else:
-        cmd='ls -1'
+from LArCalibProcessing.GetInputFiles import GetInputFiles, GetInputFilesFromTokens
 
-    for f in popen("%(cmd)s %(path)s | grep '%(pattern)s'" \
-                   % {'cmd':cmd,'path':inputPath,'pattern':filePattern}):
-        if f[len(f)-1:]=='\n':
-            f=f[0:len(f)-1]
-        if (inputPath[0:5]=='/eos/'):    
-           fileList+=['root://eosatlas.cern.ch/'+inputPath+'/'+f]
-        else:   
-           fileList+=[inputPath+'/'+f]
-    printfunc ("Found ",len(fileList), " files")
-    return fileList
-    
-
-def GetInputFilesFromTokens(inputPath,runnumber,prefix=".*",trigger=".*"):
-    #pattern=prefix+"\.00"+str(runnumber)+"\..*"
-    pattern="%(prefix)s.*%(rn)07d.%(trig)s.*" % {'prefix' : prefix ,'rn' : runnumber,'trig' : trigger}
-    
-    return GetInputFiles(inputPath,pattern)

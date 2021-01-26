@@ -115,9 +115,10 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 {
 
   /** Doublet finding properties. */
-  declareProperty("Doublet_FilterRZ",            m_tcs.m_doubletFilterRZ = true);
-  declareProperty("DoubletDR_Max",            m_tcs.m_doublet_dR_Max = 270.0);
-  declareProperty("SeedRadBinWidth",            m_tcs.m_seedRadBinWidth = 2.0);
+  declareProperty("Doublet_FilterRZ",          m_tcs.m_doubletFilterRZ = true);
+  declareProperty("DoubletDR_Max",             m_tcs.m_doublet_dR_Max = 270.0);
+  declareProperty("DoubletDR_Max_Confirm",     m_tcs.m_doublet_dR_Max_Confirm = 150.0);
+  declareProperty("SeedRadBinWidth",           m_tcs.m_seedRadBinWidth = 2.0);
 
   /** Triplet finding properties. */
 
@@ -127,7 +128,8 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   declareProperty("Triplet_MaxBufferLength",     m_tcs.m_maxTripletBufferLength = 3);
   declareProperty("TripletDoPSS",            m_tcs.m_tripletDoPSS = false);
   declareProperty("TripletDoPPS",            m_tcs.m_tripletDoPPS = true);
-  
+  declareProperty("TripletDoConfirm",        m_tcs.m_tripletDoConfirm = false);
+  declareProperty("TripletMaxCurvatureDiff",    m_tcs.m_curv_delta = 0.001);//for the triplet confirmation
   declareProperty("Triplet_DtCut",            m_tcs.m_tripletDtCut      = 10.0);//i.e. 10*sigma_MS
 
   /** settings for the ML-enhanced track seeding */

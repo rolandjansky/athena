@@ -6,6 +6,7 @@
 #define TRIGJETCONDITIONCONFIG_CAPACITYCHECKED_H
 
 #include "CapacityCheckedConditionsDefs.h"
+#include "./IConditionMT.h"
 
 #include "ITrigJetCapacityCheckedConditionConfig.h"
 #include "ITrigJetConditionConfig.h"
@@ -22,6 +23,8 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
 
   virtual StatusCode initialize() override;
   virtual ConditionPtr getCapacityCheckedCondition() const override;
+  virtual ConditionPtr getCapacityCheckedAntiCondition() const override;
+
 
   virtual bool addToCapacity(std::size_t) override;
   virtual std::size_t capacity() const override;
@@ -43,7 +46,9 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
     "identifier for chain leg - used to group jets for jet hypo clients "};
 
 
-
+  // make a Compound Condition, used by, eg, CapacityCheckedCondition
+  // or ConditionInverter 
+  std::unique_ptr<IConditionMT> getCompoundCondition() const;
   StatusCode checkVals()  const;
  
 };

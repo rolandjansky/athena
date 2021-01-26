@@ -91,7 +91,7 @@ namespace CompScaleVar
     {
         // Error state
         UNKNOWN=0,      // Failure/unset/etc
-        
+
         // Scale uncertainties
         FourVec,        // The full jet 4-vector
         Pt,             // The jet pT
@@ -106,7 +106,7 @@ namespace CompScaleVar
         C2Beta1,        // The value of C_2^{beta=1} (ECF ratio)
         Qw,             // The value of Qw
         TagScaleFactor, // Tagging efficiency SF
-        
+
         // Resolution uncertainties
         MassRes,        // The jet mass resolution, relative
         MassResAbs,     // The jet mass resolution, absolute
@@ -211,6 +211,14 @@ namespace JetTopology
     TString enumToString(const TypeEnum type);
     TypeEnum stringToEnum(const TString type);
 }
+
+// Unset the TRUE and FALSE macros, defined in a custom way on macOS 11.
+#ifdef TRUE
+#  undef TRUE
+#endif
+#ifdef FALSE
+#  undef FALSE
+#endif
 
 namespace ExtendedBool
 {

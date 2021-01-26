@@ -2,6 +2,7 @@
 import numpy as np
 from collections import OrderedDict
 from AthenaCommon.Logging import logging
+import itertools
 
 log = logging.getLogger( __name__ )
 
@@ -93,11 +94,9 @@ class MenuAlignment():
         the_matrix = np.eye((len(self.signature_dict)))
         
         for comb in self.combinations_in_menu:
-            if len(comb) > 2:
-                log.error("Not setup for chains with more than two signatures yet!")
-            else:
-                the_matrix[self.signature_dict[comb[0]]][self.signature_dict[comb[1]]] = 1  
-                the_matrix[self.signature_dict[comb[1]]][self.signature_dict[comb[0]]] = 1
+            for comb_pair in list(itertools.combinations(comb,2)):
+                the_matrix[self.signature_dict[comb_pair[0]]][self.signature_dict[comb_pair[1]]] = 1  
+                the_matrix[self.signature_dict[comb_pair[1]]][self.signature_dict[comb_pair[0]]] = 1
 
         _,eigenvecs = np.linalg.eig(the_matrix)
         # eigenvecs: The normalized (unit length) eigenvectors, such that the column v[:,i] 

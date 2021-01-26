@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Local include(s).
@@ -390,7 +390,7 @@ void RingSetConf_v1::getRawConfCol(
   // Clear previous collection
   rawConfCol.clear();
   // Push back new configuration
-  for ( const auto &rsConf : *container ) {
+  for ( const auto rsConf : *container ) {
     rawConfCol.push_back( rsConf->getRawConf() );
   }
 }

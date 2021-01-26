@@ -22,6 +22,7 @@ StatusCode HIEventShapeMaker::initialize()
 
 	//First we initialize keys - after initialization they are frozen
   ATH_CHECK( m_towerContainerKey.initialize(!m_useCaloCell) );
+  ATH_CHECK( m_naviContainerKey.initialize(!m_useCaloCell) );
   ATH_CHECK( m_cellContainerKey.initialize(m_useCaloCell) );
   ATH_CHECK( m_outputKey.initialize(!m_summaryOnly) );
   ATH_CHECK( m_readExistingKey.initialize(m_summaryOnly) );
@@ -65,7 +66,7 @@ StatusCode HIEventShapeMaker::execute()
 
     ATH_MSG_INFO("Calling filler tool with m_useCaloCell= " << m_useCaloCell);
     if(m_useCaloCell) ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromCells ( m_cellContainerKey ));
-    else ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromTowers( m_towerContainerKey ));
+    else ATH_CHECK(m_HIEventShapeFillerTool->fillCollectionFromTowers( m_towerContainerKey, m_naviContainerKey ));
   }
 
   //PrintHIEventShapeContainer( evtShape_const );

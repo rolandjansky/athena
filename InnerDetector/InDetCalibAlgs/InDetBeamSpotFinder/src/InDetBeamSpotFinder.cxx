@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotFinder.h"
@@ -121,7 +121,7 @@ BeamSpot::Event InDet::InDetBeamSpotFinder::readEvent(const xAOD::EventInfo & ev
     event.lumiBlock = BSeventInfo->event_ID()->lumi_block(); 
   }
   
-  for(const auto & vtx:vertexContainer) {
+  for(const xAOD::Vertex* vtx:vertexContainer) {
     if (vtx->vertexType() == xAOD::VxType::NoVtx) continue; 
     vertex.x          = vtx->x();
     vertex.y          = vtx->y();

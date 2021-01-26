@@ -20,7 +20,7 @@
 #include "tauRecTools/MvaTESVariableDecorator.h"
 #include "tauRecTools/TauTrackClassifier.h"
 #include "tauRecTools/TauTrackRNNClassifier.h"
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 #include "tauRecTools/TauPi0ScoreCalculator.h"
 #include "tauRecTools/TauPi0Selector.h"
 #include "tauRecTools/TauWPDecorator.h"
@@ -52,7 +52,7 @@ DECLARE_COMPONENT( tauRecTools::TauTrackClassifier )
 DECLARE_COMPONENT( tauRecTools::TauTrackRNNClassifier )
 DECLARE_COMPONENT( tauRecTools::TrackMVABDT )
 DECLARE_COMPONENT( tauRecTools::TrackRNN )
-DECLARE_COMPONENT( CombinedP4FromRecoTaus )
+DECLARE_COMPONENT( TauCombinedTES )
 DECLARE_COMPONENT( TauSubstructureVariables )
 DECLARE_COMPONENT( TauCommonCalcVars )
 DECLARE_COMPONENT( TauPi0ScoreCalculator )

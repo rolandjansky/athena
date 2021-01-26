@@ -31,7 +31,6 @@ class AmdcDb final : public AthService, virtual public IRDBAccessSvc {
   static const InterfaceID& interfaceID() { return IID_IRDBAccessSvc; }
 
   virtual StatusCode initialize() override;
-  virtual StatusCode finalize() override;
 
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override;
 

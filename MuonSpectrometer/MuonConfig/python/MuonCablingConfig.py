@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Heavily based on Trigger/TrigSteer/L1Decoder/python/L1MuonConfig.py
 # TODO add MDTs, CSCs
@@ -84,11 +84,6 @@ def MDTCablingConfigCfg(flags):
     MuonMDT_CablingAlg=CompFactory.MuonMDT_CablingAlg
     MDTCablingAlg = MuonMDT_CablingAlg("MuonMDT_CablingAlg")
 
-    MuonMDT_CablingSvc=CompFactory.MuonMDT_CablingSvc
-    mdtCablingSvc = MuonMDT_CablingSvc()
-    mdtCablingSvc.UseOldCabling = False
-    mdtCablingSvc.ForcedUse = True
-
     MDTCablingDbTool=CompFactory.MDTCablingDbTool
     MDTCablingDbTool = MDTCablingDbTool()
 
@@ -110,9 +105,6 @@ def MDTCablingConfigCfg(flags):
 
     acc.addCondAlgo( MDTCablingAlg )
     acc.addPublicTool( MDTCablingDbTool )
-    mdtCablingSvc.DBTool = MDTCablingDbTool
-
-    acc.addService( mdtCablingSvc, primary=True )
 
     return acc
 

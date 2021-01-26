@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_HTCONDITIONFASTREDUCTION_H
@@ -16,8 +16,7 @@
 #include "./IConditionMT.h"
 
 #include <string>
-#include <limits>
-// #include <memory>
+
 
 namespace HypoJet{
   class IJet;
@@ -44,9 +43,9 @@ class HTConditionFastReduction: public IConditionMT{
  private:
   
   double m_htMin;
-  double m_htMax;
-  
-  const static  unsigned int s_capacity{std::numeric_limits<int>::max()};
+
+  // number of jets unspecified - signalled by 0.
+  const static  unsigned int s_capacity{0};
   
   
 };

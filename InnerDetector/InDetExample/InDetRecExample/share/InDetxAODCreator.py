@@ -1,5 +1,6 @@
 from InDetRecExample.InDetJobProperties import InDetFlags
 from InDetRecExample.InDetKeys import InDetKeys
+from InDetRecExample.TrackingCommon import makePublicTool, makeName
 
 def getCollectionNameIfInFile(coll_type,coll_name) :
     from RecExConfig.AutoConfiguration import IsInInputFile
@@ -62,7 +63,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
     if _perigee_expression == 'Vertex' :
         _perigee_expression = 'BeamLine'
 
-    from InDetRecExample                import TrackingCommon as TrackingCommon
+    from InDetRecExample                import TrackingCommon
     from InDetRecExample.TrackingCommon import setDefaults
     if prd_to_track_map is None :
         track_summary_tool = TrackingCommon.getInDetTrackSummaryToolSharedHits()
@@ -77,6 +78,7 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
 
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetxAODParticleCreatorTool = Trk__TrackParticleCreatorTool(name = "InDetxAODParticleCreatorTool"+suffix,
+                                                                 TrackToVertex           = TrackingCommon.getInDetTrackToVertexTool(),
                                                                  TrackSummaryTool        = track_summary_tool,
                                                                  BadClusterID            = InDetFlags.pixelClusterBadClusterID(),
                                                                  KeepParameters          = True,
@@ -88,6 +90,15 @@ def getInDetxAODParticleCreatorTool(prd_to_track_map=None, suffix="") :
         printfunc (InDetxAODParticleCreatorTool)
     return InDetxAODParticleCreatorTool
 
+def getTrackCollectionCnvTool(prd_to_track_map=None, suffix="") :
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
+    return xAODMaker__TrackCollectionCnvTool("TrackCollectionCnvTool"+suffix,
+                                             TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix))
+
+def getRecTrackParticleContainerCnvTool(prd_to_track_map=None, suffix="") :
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__RecTrackParticleContainerCnvTool
+    return xAODMaker__RecTrackParticleContainerCnvTool("RecTrackParticleContainerCnvTool"+suffix,
+                                                       TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix))
 
 def isValid(name) :
     return name is not None and name != ""
@@ -111,6 +122,7 @@ def createTrackParticles(track_in, track_particle_truth_in,track_particle_out, t
         xAODTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = track_particle_out
         xAODTrackParticleCnvAlg.TrackContainerName = track_in
         xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool(prd_to_track_map, suffix)
+        xAODTrackParticleCnvAlg.TrackCollectionCnvTool = getTrackCollectionCnvTool(prd_to_track_map, suffix)
         xAODTrackParticleCnvAlg.AODContainerName = ""
         xAODTrackParticleCnvAlg.AODTruthContainerName = ""
         xAODTrackParticleCnvAlg.ConvertTrackParticles = False
@@ -130,6 +142,7 @@ def convertTrackParticles(aod_track_particles_in, track_particle_truth_in,track_
         xAODTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = ""
         xAODTrackParticleCnvAlg.TrackContainerName =  ""
         xAODTrackParticleCnvAlg.TrackParticleCreator = getInDetxAODParticleCreatorTool()
+        xAODTrackParticleCnvAlg.RecTrackParticleContainerCnvTool = getRecTrackParticleContainerCnvTool()
         xAODTrackParticleCnvAlg.AODContainerName = aod_track_particles_in
         xAODTrackParticleCnvAlg.AODTruthContainerName = passCollectionName(track_particle_truth_in,(is_mc and InDetFlags.doTruth()) )
         xAODTrackParticleCnvAlg.ConvertTrackParticles = True

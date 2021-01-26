@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /////////////////////////////////////////////////////////////////
 // JpsiPlusDsCascade.cxx, (c) ATLAS Detector software
@@ -537,7 +537,7 @@ namespace DerivationFramework {
                }
            }
 
-           if(abs(m_Dx_pid==411)) { // D+/-
+           if(abs(m_Dx_pid)==411) { // D+/-
                SG::AuxElement::Accessor<Char_t> flagAcc1("passed_Dp");
                SG::AuxElement::Accessor<Char_t> flagAcc2("passed_Dm");
                bool isDp(true);

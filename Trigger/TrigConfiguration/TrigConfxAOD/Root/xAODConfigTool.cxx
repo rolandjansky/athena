@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODConfigTool.cxx 673576 2015-06-09 08:44:29Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -17,6 +15,7 @@
 #include "TrigConfxAOD/tools/xAODKeysMatch.h"
 
 // Boost includes
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -35,9 +34,9 @@ namespace TrigConf {
       /// The "translated" bunch group set object
       BunchGroupSet m_bgSet;
 
-      /// The JSON decoded Run3 HLT menu 
+      /// The JSON decoded Run3 HLT menu
       HLTMenu m_currentHlt;
-      /// The JSON decoded Run3 L1 menu 
+      /// The JSON decoded Run3 L1 menu
       L1Menu m_currentL1;
       /// The JSON decoded current HLT prescales set
       HLTPrescalesSet m_currentHltps;
@@ -229,7 +228,7 @@ namespace TrigConf {
       }
    }
 
-   const HLTMenu& xAODConfigTool::hltMenu() const {
+   const HLTMenu& xAODConfigTool::hltMenu(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -237,7 +236,7 @@ namespace TrigConf {
       return m_impl->m_currentHlt;
    }
 
-   const L1Menu& xAODConfigTool::l1Menu() const {
+   const L1Menu& xAODConfigTool::l1Menu(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -245,7 +244,7 @@ namespace TrigConf {
       return m_impl->m_currentL1;
    }
 
-   const HLTPrescalesSet& xAODConfigTool::hltPrescalesSet() const {
+   const HLTPrescalesSet& xAODConfigTool::hltPrescalesSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -253,7 +252,7 @@ namespace TrigConf {
       return m_impl->m_currentHltps;
    }
 
-   const L1PrescalesSet& xAODConfigTool::l1PrescalesSet() const {
+   const L1PrescalesSet& xAODConfigTool::l1PrescalesSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -261,7 +260,7 @@ namespace TrigConf {
       return m_impl->m_currentL1ps;
    }
 
-   const L1BunchGroupSet& xAODConfigTool::l1BunchGroupSet() const {
+   const L1BunchGroupSet& xAODConfigTool::l1BunchGroupSet(const EventContext&) const {
       if( ! m_menuJSONContainerAvailable ) {
          ATH_MSG_FATAL( "Run 3 format Trigger menu not loaded" );
          throw std::runtime_error( "Tool not initialised correctly" );
@@ -277,7 +276,7 @@ namespace TrigConf {
       // Try to read the R2 metadata object:
       m_tmc = nullptr;
       m_triggerMenuContainerAvailable = true;
-      if( !inputMetaStore()->contains<xAOD::TriggerMenuContainer>(m_metaName_run2) 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuContainer>(m_metaName_run2)
           or inputMetaStore()->retrieve( m_tmc, m_metaName_run2 ).isFailure() )
       {
          m_triggerMenuContainerAvailable = false;
@@ -290,22 +289,22 @@ namespace TrigConf {
       m_l1psJson = nullptr;
       m_bgJson = nullptr;
       m_menuJSONContainerAvailable = true;
-      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt) 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt)
           or inputMetaStore()->retrieve( m_hltJson, m_metaNameJSON_hlt ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1) 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1)
           or inputMetaStore()->retrieve( m_l1Json, m_metaNameJSON_l1 ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps) 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps)
           or inputMetaStore()->retrieve( m_hltpsJson, m_metaNameJSON_hltps ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps) 
+      if( !inputMetaStore()->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps)
           or inputMetaStore()->retrieve( m_l1psJson, m_metaNameJSON_l1ps ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
@@ -350,7 +349,7 @@ namespace TrigConf {
          ATH_CHECK( loadPtrees() );
 
          ATH_CHECK( prepareTriggerMenu( m_impl->m_currentHlt,
-                                        m_impl->m_currentL1, 
+                                        m_impl->m_currentL1,
                                         m_impl->m_currentHltps,
                                         m_impl->m_currentL1ps,
                                         m_impl->m_currentBg,
@@ -407,7 +406,7 @@ namespace TrigConf {
       } else if (m_triggerMenuContainerAvailable) {
          return beginEvent_Run2(keys);
       }
-      
+
       ATH_MSG_ERROR( "Both m_menuJSONContainerAvailable and m_triggerMenuContainerAvailable are false");
       return StatusCode::FAILURE;
 
@@ -477,7 +476,7 @@ namespace TrigConf {
       ATH_CHECK( loadPtrees() ); // R3 interfaces now active
       // ... and finally populate the legacy interface from the ptree data
       ATH_CHECK( prepareTriggerMenu( m_impl->m_currentHlt,
-                                     m_impl->m_currentL1, 
+                                     m_impl->m_currentL1,
                                      m_impl->m_currentHltps,
                                      m_impl->m_currentL1ps,
                                      m_impl->m_currentBg,
@@ -489,9 +488,9 @@ namespace TrigConf {
       return StatusCode::SUCCESS;
    }
 
-   StatusCode xAODConfigTool::loadJsonByKey(const std::string& humanName, 
-      const xAOD::TriggerMenuJsonContainer* metaContainer, 
-      const uint32_t keyToCheck, 
+   StatusCode xAODConfigTool::loadJsonByKey(const std::string& humanName,
+      const xAOD::TriggerMenuJsonContainer* metaContainer,
+      const uint32_t keyToCheck,
       const xAOD::TriggerMenuJson*& ptrToSet)
    {
       xAOD::TriggerMenuJsonContainer::const_iterator menu_itr = metaContainer->begin();

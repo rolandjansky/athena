@@ -11,7 +11,6 @@
 #include "JetMomentTools/JetForwardJvtToolBDT.h"
 // Jet EDM
 #include "xAODJet/JetAttributes.h"
-#include "xAODMetaData/FileMetaData.h"
 #include "PathResolver/PathResolver.h"
 
 

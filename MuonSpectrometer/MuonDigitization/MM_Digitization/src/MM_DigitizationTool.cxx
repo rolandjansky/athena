@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -561,18 +561,15 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
 		      );
       
       // For collection of inputs to throw back in SG
-      
-    MMSimHit* copyHit = new MMSimHit(hitID,
-                                     m_globalHitTime+m_eventTime,
-                                     globalHitPosition,
-                                     hit.particleEncoding(),
-                                     hit.kineticEnergy(),
-                                     hit.globalDirection(),
-                                     hit.depositEnergy(),
-                                     particleLink
-                                     );
-      
-      inputSimHitColl->Insert(*copyHit);
+     
+      inputSimHitColl->Emplace(hitID,
+		       m_globalHitTime+m_eventTime,
+		       globalHitPosition,
+		       hit.particleEncoding(),
+		       hit.kineticEnergy(),
+		       hit.globalDirection(),
+		       hit.depositEnergy(),
+		       particleLink);
       
       // remove hits in masked multiplet
       if( m_maskMultiplet == m_idHelperSvc->mmIdHelper().multilayer(layerID) ) continue;
@@ -726,6 +723,7 @@ StatusCode MM_DigitizationTool::doDigitization(const EventContext& ctx) {
       /// move the initial track point to the readout plane
       int gasGap = m_idHelperSvc->mmIdHelper().gasGap(layerID);
       double shift = 0.5*detectorReadoutElement->getDesign(layerID)->thickness;
+      shift += m_correctShift;
       double scale = 0.0;
       if ( gasGap==1 || gasGap == 3) {
 	scale = -(stripLayerPosition.z() + shift)/localDirection.z();

@@ -441,7 +441,7 @@ const InDet::CompetingTRT_DriftCirclesOnTrack* InDet::CompetingTRT_DriftCirclesO
     if (!effectiveErrMat) {
         ATH_MSG_ERROR("Could not produce effective ErrorMatrix");
         //clean-up
-        
+
         delete effectiveLocalPar;
         delete ROTvector;
         delete assgnProbVector;
@@ -469,14 +469,14 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
 ) const {
 
     //   TODO:  if recreateROTs==true call standard createCompROT method
-    
+
     ATH_MSG_DEBUG("********* in updateCompetingROT() **********");
     // get trkPar error in localZ for locZ cut
     double trkParErrorLocZ = 2.;
     if (trkPar.covariance()) {
       trkParErrorLocZ = sqrt( (*trkPar.covariance())(Trk::locZ,Trk::locZ));
     }
-    
+
     // cast baseCompROT to CompTRT_DConTrack:
 
     InDet::CompetingTRT_DriftCirclesOnTrack* compROT = dynamic_cast< InDet::CompetingTRT_DriftCirclesOnTrack* >(&baseCompROT);
@@ -565,7 +565,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         // call weightcalculator and calc assignment probabilty:
         Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb = m_weightCalculator->calculateWeight(*trkParAtROTsurface, (compROT->rioOnTrack(i)), beta);
         ATH_MSG_VERBOSE("non-normalized weight for ROT "<< i << ": " << assgnProb );
-        
+
         // test if track prediction is out of local z range of the drift tube
         const Trk::CylinderBounds& cylBounds = dynamic_cast<const Trk::CylinderBounds&>(ROTsurfacePointer->bounds());
         ATH_MSG_VERBOSE( "TRT surface bounds (r, Z): (" << cylBounds.r() << ", " << cylBounds.halflengthZ() << ")" );
@@ -577,7 +577,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
             }
         }
 
-        
+
         assgnProbVector->push_back( assgnProb );
         if (assgnProb >= maximumAssignProb) {
             ATH_MSG_VERBOSE("current ROT has maximum assignment probability up to now" );
@@ -629,7 +629,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
         delete assgnProbVector;
         return;
     }
-    
+
     bool nonVanishingROTsHaveCommonSurface=true;
     bool allROTsHaveCommonSurface=true;
     for (unsigned int i=0; i<compROT->numberOfContainedROTs(); i++) {
@@ -721,11 +721,9 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
     if (compROT->m_globalPosition) {
         compROT->m_globalPosition.release().reset();
     }
-    //calling CompetingTRT_DriftCirclesOnTrack::setLocalParametersAndErrorMatrix() does not work here!
     // have to set the effective measurement and error matrix directly:
-    //const_cast<InDet::CompetingTRT_DriftCirclesOnTrack*>(compROT)->setLocalParametersAndErrorMatrix();
-    const_cast<InDet::CompetingTRT_DriftCirclesOnTrack*>(compROT)->m_localParams = (*effectiveLocalPar);
-    const_cast<InDet::CompetingTRT_DriftCirclesOnTrack*>(compROT)->m_localCovariance = (*effectiveErrMat);
+    compROT->m_localParams = (*effectiveLocalPar);
+    compROT->m_localCovariance = (*effectiveErrMat);
     delete effectiveErrMat;
     delete effectiveLocalPar;
     if (msgLvl(MSG::VERBOSE)) testCompetingROT(*compROT);
@@ -735,7 +733,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::updateCompetingROT(
 /////////////////////////////////////////////////////////////////////
 // create simple competing ROTs (one tube, two left-right ROTs
 /////////////////////////////////////////////////////////////////////
-const Trk::CompetingRIOsOnTrack* 
+const Trk::CompetingRIOsOnTrack*
 InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     const Trk::PrepRawData&     rio,
     const Trk::TrackParameters& trkPars,
@@ -744,7 +742,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
 
   // --- ID-or-MS check for tube-detectors
   const Trk::Surface*  PrdSf = &(rio.detectorElement()->surface(rio.identify()));
-  const Trk::StraightLineSurface* DriftSurface = 
+  const Trk::StraightLineSurface* DriftSurface =
     dynamic_cast< const Trk::StraightLineSurface* > (PrdSf);
   if (!DriftSurface || PrdSf != &trkPars.associatedSurface()) {
     ATH_MSG_WARNING( "detector hit is not of type drift circle!" );
@@ -762,16 +760,16 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     return 0;
   }
   std::vector< const Trk::RIO_OnTrack* >* ROTvector = new std::vector<const Trk::RIO_OnTrack*>;
-  std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector = 
+  std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb > *assgnProbVector =
     new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >;
   ROTvector->push_back(rot1);
-  Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb1 = 
+  Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb1 =
     m_weightCalculator->calculateWeight(trkPars, *rot1, beta);
   assgnProbVector->push_back( assgnProb1 );
   ATH_MSG_VERBOSE("Created first ROT with r="
                           << rot1->localParameters()[Trk::locX] <<" and ass.prob = "
                           << assgnProb1);
-  
+
   // --- create mirrored ROT, but protect against case where DC creators return a wire/tube hit.
   if (fabs(rot1->localParameters()[Trk::locX]) > 0.001) {
 
@@ -790,7 +788,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
       // add ROT to vector of ROTs
       ROTvector->push_back(rot2);
       // call weightcalculator and calc assignment probabilty:
-      Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb2 = 
+      Trk::CompetingRIOsOnTrack::AssignmentProb assgnProb2 =
         m_weightCalculator->calculateWeight(trkPars, *rot2, beta); // must be trkPars, not mirror
       ATH_MSG_VERBOSE("Current ROT has assignment probability: " << assgnProb2 );
       assgnProbVector->push_back( assgnProb2 );
@@ -802,7 +800,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
   }
 
   // --- call normalize()
-  double thisWeightCut = (fabs(trkPars.position().z())>800.0 ? 
+  double thisWeightCut = (fabs(trkPars.position().z())>800.0 ?
                           m_jo_EndCapCutValue : m_jo_BarrelCutValue );
   m_weightCalculator->normalize(*assgnProbVector, ROTvector, beta, thisWeightCut);
 
@@ -823,7 +821,7 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
   Trk::DefinedParameter radiusPar(meanDriftR,Trk::locX);
   Trk::LocalParameters effectiveLocalPar(radiusPar);
   ATH_MSG_VERBOSE("filling rot with lPar,err = " << effectiveLocalPar <<" and "<< meanCovMatrix);
-  
+
   // --- create final CompetingTRT_DriftCirclesOnTrack
   std::vector< const InDet::TRT_DriftCircleOnTrack* >* DCvector =
     new std::vector<const InDet::TRT_DriftCircleOnTrack*>;
@@ -837,9 +835,9 @@ InDet::CompetingTRT_DriftCirclesOnTrackTool::createSimpleCompetingROT(
     if (!dc2) throw std::logic_error("Not a TRT_DriftCircleOnTrack");
       DCvector->push_back(dc2);
   }
-  InDet::CompetingTRT_DriftCirclesOnTrack* theCompetingROT = 
+  InDet::CompetingTRT_DriftCirclesOnTrack* theCompetingROT =
     new InDet::CompetingTRT_DriftCirclesOnTrack
-    (PrdSf, DCvector, assgnProbVector, 
+    (PrdSf, DCvector, assgnProbVector,
      new Trk::LocalParameters(effectiveLocalPar), new Amg::MatrixX(meanCovMatrix), 4 /* 4 = common surface*/ );
   //    testCompetingROT(*theCompetingROT);
   delete ROTvector;
@@ -859,7 +857,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::reequipCompetingROT
 {
   InDet::CompetingTRT_DriftCirclesOnTrack* ctt
     = dynamic_cast<InDet::CompetingTRT_DriftCirclesOnTrack*>(modifiableCompROT);
-  const InDet::TRT_DriftCircleOnTrack* newStraw 
+  const InDet::TRT_DriftCircleOnTrack* newStraw
     = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(newROT);
   if (!ctt || !newStraw) {
     ATH_MSG_WARNING( "inconsistent use of reequipCompetingROT() " );
@@ -1017,7 +1015,7 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::calcEffectiveEndCapMeasurement
 	Amg::Vector3D dirt = surf->transform().rotation().col(1);
 	Amg::Vector3D dirt2 = rot.detectorElement()->transform(id).linear()*Amg::Vector3D(0,0,1) * sdir;
 
-        double beta = 1.; 
+        double beta = 1.;
 	double ptot = dirt.mag()*dirt2.mag();
 	if(ptot > 0) {
 	  beta = dirt.dot(dirt2)/ptot;
@@ -1069,17 +1067,13 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
 
     msg(MSG::VERBOSE) <<"  - associatedSurface(): ";
     const Trk::Surface* assocsurface = &(compROT.associatedSurface());
-    //msg()<<MSG::VERBOSE<<"       distance of surface center from origin: " << assocsurface->center().distance()<<endmsg;
     msg()<< assocsurface << " at ("<< assocsurface->center().x() << ", "<< assocsurface->center().y() << ", "<< assocsurface->center().z() << ")" <<endmsg;
 
     msg()<<"  - containedROTs(): ";
-    //msg()<<"       size of ROT vector: " <<  compROT.containedROTs().size()<<endmsg;
     msg()<<" numberOfContainedROTs(): " << compROT.numberOfContainedROTs()<<endmsg;
 
     msg()<<"  - eff. localParameters():";
-    //msg()<<"       dimension of the effective local params: " <<  compROT.localParameters().dimension()<<endmsg;
     msg()<<" dim: " <<  compROT.localParameters().dimension();
-    //msg()<<"       effective localPar[locX]: " <<  compROT.localParameters()[Trk::locX] <<endmsg;
     msg()<<" [locX]: " <<  compROT.localParameters()[Trk::locX] <<endmsg;
 
     if (compROT.assignmentProbability(compROT.indexOfMaxAssignProb()) > 0. ) {
@@ -1090,12 +1084,11 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
     }
 
     msg()<<"  - indexOfMaxAssignProb(): " <<  compROT.indexOfMaxAssignProb() <<endmsg;
-    //msg()<<"        assignmentProbability( indexOfMaxAssignProb() ): " <<  compROT.assignmentProbability(compROT.indexOfMaxAssignProb()) <<endmsg;
 
     msg()<<"  - assignmentProbability(index) and rioOnTrack(index)"<<endmsg;
     for (unsigned int i=0; i<compROT.numberOfContainedROTs(); i++) {
         msg()<<"  ["<< i  <<"] assgnProb: "<< compROT.assignmentProbability(i)
-                                            << " ROT ID: "<< compROT.rioOnTrack(i).identify().getString() 
+                                            << " ROT ID: "<< compROT.rioOnTrack(i).identify().getString()
                                             << " [locX]: "<< compROT.rioOnTrack(i).localParameters()[Trk::locX]
                                             << " ROT surf: "<< &(compROT.rioOnTrack(i).associatedSurface())
                                             << endmsg;
@@ -1107,39 +1100,5 @@ void InDet::CompetingTRT_DriftCirclesOnTrackTool::testCompetingROT(const InDet::
 
 
     msg()<<"  - eff. globalPosition(): ";
-    //msg()<<"       distance of effective measurement from origin: " <<  compROT.globalPosition().distance()<<endmsg;
     msg()<< " ("<< compROT.globalPosition().x() << ", "<< compROT.globalPosition().y() << ", "<< compROT.globalPosition().z() << ")" <<endmsg;
-    /*    msg()<<"  - clone()"<<endmsg;
-        CompetingTRT_DriftCirclesOnTrack* newcompROT = compROT.clone();
-        if (!newcompROT){
-            m_log<<MSG::ERROR<<"  Got no clone!"<<endmsg;
-        } else {
-            msg()<<"   Got the clone: do the same tests with it:"<<endmsg;
-            
-            msg()<<"  clone- associatedSurface()"<<endmsg;
-            const Trk::Surface* cloneassocsurface = &(newcompROT->associatedSurface());
-            msg()<<"       distance of surface center from origin: " << cloneassocsurface->center().distance()<<endmsg;
-            
-            msg()<<"  clone- containedROTs()"<<endmsg;
-            msg()<<"       size of ROT vector: " <<  newcompROT->containedROTs().size()<<endmsg;
-            msg()<<"  clone- numberOfContainedROTs(): " << newcompROT->numberOfContainedROTs()<<endmsg;
-            
-            msg()<<"  clone- localParameters()"<<endmsg;
-            msg()<<"       dimension of the effective local params: " <<  newcompROT->localParameters().dimension()<<endmsg;
-        
-            msg()<<"  clone- localErrorMatrix()"<<endmsg;
-            msg()<<"       dimension of covariance matrix: " <<  newcompROT->localErrorMatrix().covariance().num_row()<<endmsg;
-            msg()<<"       error of first local coordinate:  " <<  newcompROT->localErrorMatrix().error(Trk::loc1)<<endmsg;
-            msg()<<"       weight value of first local coordinate: " <<  newcompROT->localErrorMatrix().weightValue(Trk::loc1)<<endmsg;
-            
-            msg()<<"  clone- assignmentProbability(index) and rioOnTrack(index)"<<endmsg;
-            for (unsigned int i=0; i<newcompROT->numberOfContainedROTs(); i++) {
-                msg()<<"      ["<< i <<"] assgnProb: "<< newcompROT->assignmentProbability(i)<< "ROT identifier:"<< newcompROT->rioOnTrack(i)->identify().getString() <<endmsg;
-            }
-            
-            msg()<<"  clone- globalPosition()"<<endmsg;
-            msg()<<"       distance of effective measurement from origin: " <<  newcompROT->globalPosition().distance()<<endmsg;    
-        }
-        delete newcompROT;*/
-    
 }

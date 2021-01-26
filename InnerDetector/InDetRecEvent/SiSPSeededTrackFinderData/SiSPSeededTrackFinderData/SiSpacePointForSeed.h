@@ -46,6 +46,10 @@ namespace InDet {
     void set(const Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
+    void setD0(const float&);
+    void setEta(const float&);
+    void setDZDR(const float&);
+    void setPt(const float&);
     void setScorePenalty(const float& par) {m_scorePenalty=par;}
 
     const Trk::SpacePoint* spacepoint; 
@@ -56,9 +60,13 @@ namespace InDet {
           float         phi() const {return atan2(m_y,m_x);}
     const float&       covr() const {return m_covr;}
     const float&       covz() const {return m_covz;}
+    const float&         d0() const {return m_d0;}
+    const float&        eta() const {return m_eta;}
     const float&      param() const {return m_param;} /// impact parameter
     const float&      scorePenalty() const {return m_scorePenalty;} /// penalty term in the seed score
     const float&    quality() const {return m_q ;}      /// quality of the best seed this candidate was seen on 
+    const float&       dzdr() const {return m_dzdr;}
+    const float&         Pt() const {return m_pt;}
     const Trk::Surface* sur() const {return m_su;}
     const Trk::Surface* sun() const {return m_sn;}
 
@@ -70,6 +78,10 @@ namespace InDet {
     float m_r   ; // radius       in beam system coordinates
     float m_covr; //
     float m_covz; //
+    float m_d0;
+    float m_eta;
+    float m_dzdr;
+    float m_pt;
     float m_param;  /// impact parameter
     float m_scorePenalty; /// penalty term in the seed score 
     float m_q   ;   /// quality of the best seed this candidate was seen on 

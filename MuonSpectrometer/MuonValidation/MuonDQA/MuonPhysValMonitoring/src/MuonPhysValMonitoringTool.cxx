@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // MuonPhysValMonitoringTool.cxx 
@@ -61,7 +61,10 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
 						      const IInterface* parent ):
   ManagedMonitorToolBase( type, name, parent ),
   m_MSTracks(nullptr),
-  m_isData(false),
+  m_counterBits(),
+  m_muonItems(),
+  m_L1Seed(),
+  m_SelectedAuthor(0),
   m_muonSelectionTool("CP::MuonSelectionTool/MuonSelectionTool"),
   m_muonPrinter("Rec::MuonPrintingTool/MuonPrintingTool"),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
@@ -75,18 +78,7 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
   m_h_overview_Z_mass_ME(nullptr),
   m_h_overview_Z_mass_ID(nullptr)
 {
-  // default for muon chains
   declareProperty( "TrackSelector", m_trackSelector);
-  declareProperty( "IsoTool", m_isoTool );
-  
-  declareProperty( "SelectMuonWorkingPoints", m_selectMuonWPs);
-  declareProperty( "SelectMuonAuthors", m_selectMuonAuthors);
-  declareProperty( "SelectHLTMuonItems", m_selectHLTMuonItems);
-  declareProperty( "SelectL1MuonItems", m_L1MuonItems);
-  declareProperty( "SelectMuonCategories", m_selectMuonCategories );
-  declareProperty( "DoBinnedResolutionPlots", m_doBinnedResolutionPlots = true);
-
-  m_SelectedAuthor = 0;
 }
 
 // Athena algtool's Hooks
@@ -111,12 +103,6 @@ StatusCode MuonPhysValMonitoringTool::initialize()
     m_doTrigMuonL1Validation = false;
     m_doTrigMuonL2Validation = false;
     m_doTrigMuonEFValidation = false;
-  }
-  if (m_isData) {
-    m_selectMuonCategories.clear();
-    m_selectMuonCategories.push_back(ALL);
-    m_selectMuonCategories.push_back(PROMPT);
-    m_selectMuonCategories.push_back(REST);
   }
   
   ATH_CHECK(m_eventInfo.initialize());
@@ -174,22 +160,9 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
 {
   ATH_MSG_INFO ("Booking hists " << name() << "...");
 
-  if (m_selectMuonWPs.size()==0) {       
-    int defaultWPList[]={xAOD::Muon::Loose,xAOD::Muon::Medium};
-    for (const auto wp : defaultWPList) m_selectMuonWPs.push_back(wp);
-  }
-  else if (m_selectMuonWPs.size()==1 && m_selectMuonWPs[0]<0 ) m_selectMuonWPs.clear();  
+  if (m_selectMuonWPs.size()==1 && m_selectMuonWPs[0]<0 ) m_selectMuonWPs.clear();  
 
-  if (m_selectMuonAuthors.size()==0) {
-    unsigned int defaultAuthorList[]={xAOD::Muon::MuidCo,xAOD::Muon::MuTagIMO,xAOD::Muon::MuidSA,xAOD::Muon::MuGirl,xAOD::Muon::CaloTag,xAOD::Muon::CaloLikelihood};
-    for (const auto author : defaultAuthorList) m_selectMuonAuthors.push_back(author);
-  }
-  else if (m_selectMuonAuthors.size()==1 && m_selectMuonAuthors[0]==0) m_selectMuonAuthors.clear();  
-
-  if (m_selectMuonCategories.size()==0) {
-    unsigned int defaultMuonCategories[]={ ALL, PROMPT, INFLIGHT, NONISO, REST };
-    for (const auto category: defaultMuonCategories) m_selectMuonCategories.push_back(category);
-  }
+  if (m_selectMuonAuthors.size()==1 && m_selectMuonAuthors[0]==0) m_selectMuonAuthors.clear();
 
   std::string theMuonCategories[5];
   theMuonCategories[ALL]="All";
@@ -204,11 +177,11 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
   if (m_slowMuonsName!="") separateSAFMuons = false; // no such muons in case of SlowMuon reco
   
   std::string muonContainerName = m_muonsName.name();
-  for (const auto category : m_selectMuonCategoriesStr) {
+  for (const auto& category : m_selectMuonCategoriesStr) {
     std::string categoryPath = m_muonsName+"/"+category+"/";
     m_muonValidationPlots.push_back( new MuonValidationPlots(0, categoryPath,
               m_selectMuonWPs, m_selectMuonAuthors, m_isData,
-	      (category==theMuonCategories[ALL]? false : m_doBinnedResolutionPlots),
+	      (category==theMuonCategories[ALL]? false : m_doBinnedResolutionPlots.value()),
               separateSAFMuons,
 	      m_doMuonTree));
     m_slowMuonValidationPlots.push_back( new SlowMuonValidationPlots( 0, categoryPath, m_isData ) );
@@ -826,7 +799,7 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
         }//m_vRecoMuons_EffDen
       }//m_muonItems
 //@@@@@ L1 items efficiency @@@@@
-      for (const auto L1MuonItem : m_L1MuonItems) { 
+      for (const auto& L1MuonItem : m_L1MuonItems) { 
         m_vRecoMuons_EffDen=m_vRecoMuons_EffDen_CB; m_SelectedAuthor=1;
         float treshold=0.;
         if(L1MuonItem=="L1_MU4") treshold=4000;

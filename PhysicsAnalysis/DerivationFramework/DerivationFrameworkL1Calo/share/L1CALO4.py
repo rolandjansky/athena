@@ -6,7 +6,7 @@ from AthenaCommon.JobProperties import jobproperties as athCommonFlags
 
 ## Steer output file
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDAOD_L1CALO4.StreamName
 fileName   = buildFileName( primDPD.WriteDAOD_L1CALO4 )

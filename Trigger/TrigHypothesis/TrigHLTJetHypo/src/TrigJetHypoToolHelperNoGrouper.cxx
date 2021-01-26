@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./TrigJetHypoToolHelperNoGrouper.h"
@@ -21,10 +21,8 @@ TrigJetHypoToolHelperNoGrouper::TrigJetHypoToolHelperNoGrouper(const std::string
 
 StatusCode TrigJetHypoToolHelperNoGrouper::initialize() {
 
-  m_matcher = m_config->getMatcher();
-  if(!m_matcher){
-    ATH_MSG_ERROR("Error setting matcher");
-    return StatusCode::FAILURE;
+  for (const auto& config : m_configs) {
+    m_matchers.push_back(config->getMatcher());
   }
 		  
   return StatusCode::SUCCESS;
@@ -36,8 +34,6 @@ TrigJetHypoToolHelperNoGrouper::collectData(const std::string& exetime,
 					    const std::optional<bool>& pass) const {
   if(!collector){return;}
   auto helperInfo = nodeIDPrinter("TrigJetHypoToolHelperNoGrouper",
-                                  m_nodeID,
-                                  m_parentNodeID,
                                   pass,
                                   exetime
                                   );
@@ -68,6 +64,7 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jets,
     return pass;
   }
 
+  // jet cleaning
   HypoJetIter jets_begin = jets.begin(); 
   HypoJetIter jets_end = jets.end(); 
   for(auto cleaner: m_cleaners){
@@ -77,32 +74,38 @@ TrigJetHypoToolHelperNoGrouper::pass(HypoJetVector& jets,
 				return cleaner->select(j);}
 			      );
   }
-  
-  auto pass = m_matcher->match(jets_begin,
-			       jets_end,
-			       jetCollector,
-			       collector);
+
+  // see if matchers pass. Each matcher conatains a FastReducer tree.
+  // if  > matcher, this means the conditions of different trees may
+  // share jets.
+  bool pass = true;
+  for (const auto& matcher : m_matchers){
+    auto matcher_pass = matcher->match(jets_begin,
+				       jets_end,
+				       jetCollector,
+				       collector);
+    if (!matcher_pass.has_value()) {
+      ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
+      return false;
+    }
+
+    if (!(*matcher_pass)){
+      pass = false;
+      break;
+    }
+  }
   
   timer.stop();
-  
   collectData(timer.readAndReset(), collector, pass);
-  
-  if(!pass.has_value()){
-    ATH_MSG_ERROR("Matcher cannot determine result. Config error?");
-    return false;
-  }
-    
-  return *pass;
+
+  return pass;
 }
 
 std::string TrigJetHypoToolHelperNoGrouper::toString() const {
   
   
   std::stringstream ss;
-  ss << nodeIDPrinter(name(),
-                      m_nodeID,
-                      m_parentNodeID);
-  
+  ss << name();
   
   ss << "Cleaners:\n No of cleaners: "  << m_cleaners.size() << '\n';
   
@@ -111,8 +114,12 @@ std::string TrigJetHypoToolHelperNoGrouper::toString() const {
        << '\n';
   }
   
-  ss << "\nMatcher:\n";
-  ss << m_matcher -> toString();
+  ss << "\nMatchers [" << m_matchers.size() << "]:\n\n";
+  unsigned int imatcher{0};
+  for (const auto & matcher : m_matchers) {
+    ss << "matcher " << imatcher++ << '\n';
+    ss << matcher -> toString();
+  }
   
   return ss.str();
 }
@@ -126,7 +133,7 @@ TrigJetHypoToolHelperNoGrouper::getDescription(ITrigJetHypoInfoCollector& c) con
 
 
 std::size_t TrigJetHypoToolHelperNoGrouper::requiresNJets() const {
-  return m_config->requiresNJets();
+  return m_configs[0]->requiresNJets();
 }
 
 

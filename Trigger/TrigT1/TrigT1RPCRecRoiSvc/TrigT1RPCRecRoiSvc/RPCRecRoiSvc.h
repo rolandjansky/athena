@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGT1_RPCRECROISVC_H
@@ -8,9 +8,10 @@
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "RPC_CondCabling/RpcCablingCondData.h"
-#include "StoreGate/ReadCondHandleKey.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+#include "StoreGate/ReadCondHandleKey.h"
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
 
 class IRPCcablingSvc;
 
@@ -31,7 +32,8 @@ public:
           m_side(0),
           m_sector(0),
           m_roi(0),
-          m_MuonMgr(nullptr)
+          m_MuonMgr(nullptr),
+          m_cabling(nullptr)
         {};
     
   ~RPCRecRoiSvc()=default;
@@ -56,8 +58,8 @@ public:
                double & etaMin_lowHigh, double & etaMax_lowHigh, double & phiMin_lowHigh, double & phiMax_lowHigh) const; //!< calculate RoI edges TAKING INTO ACCOUNT BENDING !!!
     
     // RoI edges for Low-pt and High-pt confirm planes 
-    bool etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
-    bool etaDimHigh(double& etaMin, double& etaMax, const RpcCablingCondData* readCdo) const;
+    bool etaDimLow (double& etaMin, double& etaMax, const RpcCablingCondData* rpcCab) const;
+    bool etaDimHigh(double& etaMin, double& etaMax, const RpcCablingCondData* rpcCab) const;
 
 
 private:
@@ -67,10 +69,10 @@ private:
     mutable unsigned short int m_side, m_sector, m_roi;
     
     const MuonGM::MuonDetectorManager* m_MuonMgr;
-    SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
+    SG::ReadCondHandleKey<RpcCablingCondData> m_rpcKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc{this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
-
     const IRPCcablingSvc* m_cabling;
+
 };
 
 } // end of namespace

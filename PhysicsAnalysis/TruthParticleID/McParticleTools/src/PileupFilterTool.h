@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// FrameWork includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 
@@ -35,8 +33,6 @@ class PileupFilterTool : public TruthParticleFilterBaseTool
   /////////////////////////////////////////////////////////////////// 
  public: 
 
-  // Copy constructor: 
-
   /// Constructor with parameters: 
   PileupFilterTool( const std::string& type,
 		    const std::string& name, 
@@ -45,9 +41,6 @@ class PileupFilterTool : public TruthParticleFilterBaseTool
   /// Destructor: 
   virtual ~PileupFilterTool(); 
 
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 
@@ -147,12 +140,6 @@ class PileupFilterTool : public TruthParticleFilterBaseTool
 
 }; 
 
-// I/O operators
-//////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-// Inline methods: 
-/////////////////////////////////////////////////////////////////// 
 
 #endif //> MCPARTICLETOOLS_PILEUPFILTERTOOL_H
 

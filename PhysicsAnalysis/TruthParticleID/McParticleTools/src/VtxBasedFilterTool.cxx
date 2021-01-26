@@ -25,10 +25,6 @@
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
 
-/////////////////////////////////////////////////////////////////// 
-/// Public methods: 
-/////////////////////////////////////////////////////////////////// 
-
 using namespace TruthHelper;
 
 /// Constructors
@@ -57,9 +53,6 @@ VtxBasedFilterTool::~VtxBasedFilterTool()
   ATH_MSG_DEBUG("Calling destructor");
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -68,7 +61,7 @@ VtxBasedFilterTool::~VtxBasedFilterTool()
 StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
 					McEventCollection* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if ( !in || ! out ) {
     msg(MSG::ERROR)
       << "Invalid pointer to McEventCollection !" << endmsg
       << "  in: " << in << endmsg
@@ -78,7 +71,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
 
   for ( unsigned int iEvt = 0; iEvt != in->size(); ++iEvt ) {
     const HepMC::GenEvent * inEvt = (*in)[iEvt];
-    if ( 0 == inEvt ) {
+    if ( !inEvt ) {
       msg(MSG::WARNING)
         << "Could not launch filtering procedure for GenEvent number ["
         << iEvt << "] from McEventCollection ["
@@ -117,18 +110,11 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
   return StatusCode::SUCCESS;
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 					      HepMC::GenEvent* out )
 {
-  if ( 0 == in || 0 == out ) {
+  if ( !in || !out ) {
     msg(MSG::ERROR)
       << "Invalid pointer to GenEvent !!" << endmsg
       << "  in: " << in << endmsg
@@ -137,19 +123,17 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
   }
 
   // loop over vertices
-  for ( HepMC::GenEvent::vertex_const_iterator vtx = in->vertices_begin();
-	vtx != in->vertices_end(); 
-	++vtx ) {
-
-    if ( !isAccepted(*vtx) ) {
+  for ( HepMC::GenEvent::vertex_const_iterator vtxit = in->vertices_begin(); vtxit != in->vertices_end(); ++vtxit ) {
+    auto vtx=*vtxit;
+    if ( !isAccepted(vtx) ) {
       // no in-going nor out-going particles at this vertex matches 
       // the requirements: ==> Skip it
       continue;
     }
     
-    if ( addVertex( *vtx, out ).isFailure() ) {
+    if ( addVertex( vtx, out ).isFailure() ) {
       msg(MSG::WARNING)
-	<< "Could not add vertex [" << (*vtx)->barcode() << "]" << endmsg;
+	<< "Could not add vertex [" << HepMC::barcode(vtx) << "]" << endmsg;
     }
   } //> end loop over vertices
   
@@ -158,7 +142,7 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
 
 bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
 {
-  if ( 0 == vtx ) {
+  if ( !vtx ) {
     return false;
   }
 
@@ -179,7 +163,7 @@ bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
 StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 				       HepMC::GenEvent* evt ) const
 {
-  if ( 0 == srcVtx || 0 == evt ) {
+  if ( !srcVtx || !evt ) {
     msg(MSG::ERROR)
       << "In addVertex(vtx,evt) : INVALID pointer given !!" << endmsg
       << " vtx: " << srcVtx << endmsg

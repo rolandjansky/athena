@@ -132,10 +132,24 @@ def MuonTrackParticleCnvCfg(flags, name = "MuonTrackParticleCnvAlg",**kwargs):
 
 def decodeCfg(flags, RoIs):
     acc = ComponentAccumulator()
+
+    from RegionSelector.RegSelToolConfig import regSelTool_RPC_Cfg
+    RegSelTool_RPC = acc.popToolsAndMerge(regSelTool_RPC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_TGC_Cfg
+    RegSelTool_TGC = acc.popToolsAndMerge(regSelTool_TGC_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
+
+    from RegionSelector.RegSelToolConfig import regSelTool_CSC_Cfg
+    RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
+
     # Get RPC BS decoder
     from MuonConfig.MuonBytestreamDecodeConfig import RpcBytestreamDecodeCfg
     rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
     rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
+    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
     acc.merge( rpcAcc )
 
     # Get RPC BS->RDO convertor
@@ -148,6 +162,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import TgcBytestreamDecodeCfg
     tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
     tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
+    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
     acc.merge( tgcAcc )
 
     # Get TGC BS->RDO convertor
@@ -160,6 +175,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import MdtBytestreamDecodeCfg
     mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
     mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
+    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
     acc.merge( mdtAcc )
 
     # Get MDT BS->RDO convertor
@@ -172,6 +188,7 @@ def decodeCfg(flags, RoIs):
     from MuonConfig.MuonBytestreamDecodeConfig import CscBytestreamDecodeCfg
     cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
     cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
     acc.merge( cscAcc )
 
     # Get CSC BS->RDO convertor
@@ -310,6 +327,12 @@ def generateChains( flags, chainDict ):
 
     from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
     accMS.merge(TrackingGeometrySvcCfg(muonflags))
+
+    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+    accMS.merge(LArGMCfg(muonflags))
+
+    from TileGeoModel.TileGMConfig import TileGMCfg
+    accMS.merge(TileGMCfg(muonflags))
     ###################
 
     EFMuonViewDataVerifier = EFMuonViewDataVerifierCfg()
@@ -403,8 +426,8 @@ def generateChains( flags, chainDict ):
     def _empty(name):
         return ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
     if 'msonly' in chainDict['chainName']:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, _empty("EmptyNoL2MuComb"), efmuMSStep, _empty("EmptyNoEFCB"), _empty("JustEmpty") ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, _empty("EmptyNoL2MuComb"), efmuMSStep, _empty("EmptyNoEFCB") ] )
     else:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep, efmuCBStep, _empty("JustEmpty") ] )
+        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ l2muFastStep, l2muCombStep, efmuMSStep, efmuCBStep ] )
     return chain
 

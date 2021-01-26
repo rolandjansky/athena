@@ -1,53 +1,43 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-# Declare the package name:
+# Declare the package name.
 atlas_subdir( GeoModelUtilities )
 
-if(NOT BUILDVP1LIGHT)
-# External dependencies:
-find_package( Eigen )
-find_package( GeoModelCore )
+# External dependencies.
+find_package( Eigen ) # Needed by GeoModelKernel
+find_package( GeoModel COMPONENTS GeoGenericFunctions GeoModelKernel )
+
+# The list of sources, and list of linked libraries depends on what project is
+# being built.
+if( BUILDVP1LIGHT )
+   set( sources src/GeoMPVEntry.cxx src/GeoModelExperiment.cxx
+      src/GeoOpticalSurface.cxx src/GeoBorderSurface.cxx
+      src/GeoMaterialPropertiesTable.cxx src/StoredAlignX.cxx
+      src/GeoExtendedMaterial.cxx src/GeoMaterialPropertyVector.cxx
+      src/GeoOpticalPhysVol.cxx src/StoredPhysVol.cxx )
+   set( libraries )
+else()
+   set( sources src/*.cxx )
+   set( libraries AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces
+      RDBAccessSvcLib )
+endif()
 
 # Component(s) in the package:
 atlas_add_library( GeoModelUtilities
-                   src/*.cxx
-                   PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} AthenaBaseComps AthenaKernel GaudiKernel GeoModelInterfaces RDBAccessSvcLib )
+   GeoModelUtilities/*.h ${sources}
+   PUBLIC_HEADERS GeoModelUtilities
+   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} ${libraries} )
 
 atlas_add_test( GeoGetIds_test
-  SOURCES test/GeoGetIds_test.cxx
-  LINK_LIBRARIES GeoModelUtilities )
+   SOURCES test/GeoGetIds_test.cxx
+   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities )
 
 atlas_add_test( GeoVisitVolumes_test
-  SOURCES test/GeoVisitVolumes_test.cxx
-  LINK_LIBRARIES GeoModelUtilities )
-
-endif()
-if(BUILDVP1LIGHT)
-                          
-# External dependencies:
-find_package( GeoModelCore )
-find_package( Eigen )
-
-file(GLOB SOURCES src/GeoMPVEntry.cxx
-            src/GeoModelExperiment.cxx
-            src/GeoOpticalSurface.cxx
-            src/GeoBorderSurface.cxx
-            src/GeoMaterialPropertiesTable.cxx
-            src/StoredAlignX.cxx
-            src/GeoExtendedMaterial.cxx
-            src/GeoMaterialPropertyVector.cxx
-            src/GeoOpticalPhysVol.cxx
-            src/StoredPhysVol.cxx)
-            
-# Component(s) in the package:
-atlas_add_library( GeoModelUtilities
-                   ${SOURCES}
-                   PUBLIC_HEADERS GeoModelUtilities
-                   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODELCORE_LIBRARIES} )
-endif()
+   SOURCES test/GeoVisitVolumes_test.cxx
+   INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS}
+   LINK_LIBRARIES ${EIGEN_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelUtilities )
 
 # Code in this file makes heavy use of eigen and runs orders of magnitude
 # more slowly without optimization.  So force this to be optimized even

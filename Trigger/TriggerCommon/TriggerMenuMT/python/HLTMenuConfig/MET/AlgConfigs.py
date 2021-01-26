@@ -182,7 +182,7 @@ class MHTPufitConfig(AlgConfig):
 
     def __init__(self, **recoDict):
         inputs = ["Jets", "JetDef"]
-        if "pf" in recoDict["jetDataType"]:
+        if recoDict["constitType"] == "pf":
             inputs += ["MergedPFOs"]
         else:
             inputs += ["Clusters"]
@@ -202,7 +202,7 @@ class MHTPufitConfig(AlgConfig):
             rhoKey = evtShapeAlg.EventDensityTool.OutputContainer
         else:
             rhoKey = ""
-        if "pf" in self.recoDict["jetDataType"]:
+        if self.recoDict["constitType"] == "pf":
             inputName = inputs["MergedPFOs"]
         else:
             inputName = inputs["Clusters"]

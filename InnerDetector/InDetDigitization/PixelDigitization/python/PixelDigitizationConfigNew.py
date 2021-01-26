@@ -9,8 +9,9 @@ from PixelConditionsAlgorithms.PixelConditionsConfig import (
     PixelCablingCondAlgCfg, PixelChargeCalibCondAlgCfg, PixelConfigCondAlgCfg, 
     PixelDCSCondHVAlgCfg, PixelDCSCondStateAlgCfg, PixelDCSCondStatusAlgCfg, 
     PixelDCSCondTempAlgCfg, PixelDistortionAlgCfg, 
-    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg
-# NEW FOR RUN3    PixelDeadMapCondAlgCfg, PixelChargeLUTCalibCondAlgCfg
+    PixelHitDiscCnfgAlgCfg, PixelOfflineCalibCondAlgCfg, PixelReadoutSpeedAlgCfg,
+    PixelDeadMapCondAlgCfg
+# NEW FOR RUN3    PixelChargeLUTCalibCondAlgCfg
 )
 
 from Digitization.PileUpToolsConfig import PileUpToolsCfg
@@ -166,7 +167,7 @@ def PixelDigitizationBasicToolCfg(flags, name="PixelDigitizationBasicTool", **kw
     # deadmap
     acc.merge(PixelDCSCondStateAlgCfg(flags))
     acc.merge(PixelDCSCondStatusAlgCfg(flags))
-# NEW FOR RUN3    acc.merge(PixelDeadMapCondAlgCfg(flags))
+    acc.merge(PixelDeadMapCondAlgCfg(flags))
     # offline calibration
     acc.merge(PixelDistortionAlgCfg(flags))
     acc.merge(PixelOfflineCalibCondAlgCfg(flags))

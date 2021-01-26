@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,7 +12,7 @@
 // Fatras
 #include "ISF_FatrasInterfaces/IPhysicsValidationTool.h"
 
-// ISF 
+// ISF
 #include "ISF_Event/ISFParticle.h"
 #include "ISF_Event/ISFParticleVector.h"
 #include "ISF_Event/ParticleClipboard.h"
@@ -44,6 +44,7 @@
 #include "G4NistManager.hh"
 #include "G4VEnergyLossProcess.hh"
 #include <G4MaterialCutsCouple.hh>
+#include <G4HadronInelasticProcess.hh>
 
 #include "globals.hh"
 #include "G4CrossSectionDataStore.hh"
@@ -88,7 +89,7 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_g4step(0),
   m_g4stepPoint(0),
   m_particleBroker("ISF_ParticleBrokerSvc", n),
-  m_truthRecordSvc("ISF_ValidationTruthService", n), 
+  m_truthRecordSvc("ISF_ValidationTruthService", n),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
   m_validationMode(false),
@@ -99,14 +100,14 @@ iFatras::G4HadIntProcessor::G4HadIntProcessor(const std::string& t, const std::s
   m_bremValidationTreeName("FatrasBremPhotons"),
   m_bremValidationTreeDescription("Validation output from the McMaterialEffectsUpdator"),
   m_bremValidationTreeFolder("/val/FatrasBremPhotons"),
-  m_edValidationTreeName("FatrasEnergyInCaloDeposit"),     
+  m_edValidationTreeName("FatrasEnergyInCaloDeposit"),
   m_edValidationTreeDescription("Validation output from the McMaterialEffectUpdator"),
   m_edValidationTreeFolder("/val/FatrasEnergyInCaloDeposit")
 {
   // steering
-  declareProperty("MomentumCut"                     , m_minMomentum                                                       );     
+  declareProperty("MomentumCut"                     , m_minMomentum                                                       );
   declareProperty("DoElasticInteractions"            , m_doElastic                                                       );
-  declareProperty("HadronicInteractionScaleFactor"   , m_hadIntProbScale=1.0  , "Scale probability of HadrInteractions"  );     
+  declareProperty("HadronicInteractionScaleFactor"   , m_hadIntProbScale=1.0  , "Scale probability of HadrInteractions"  );
   // ISF Services and Tools
   declareProperty("ParticleBroker"                   , m_particleBroker       , "ISF Particle Broker"                    );
   declareProperty("TruthRecordSvc"                   , m_truthRecordSvc       , "ISF Particle Truth Svc"                 );
@@ -139,7 +140,7 @@ StatusCode iFatras::G4HadIntProcessor::initialize()
   }
 
   if (m_validationMode){
-    
+
     // retrieve the physics validation tool
     if (m_validationTool.retrieve().isFailure()){
       ATH_MSG_FATAL( "Could not retrieve " << m_validationTool );
@@ -152,7 +153,7 @@ StatusCode iFatras::G4HadIntProcessor::initialize()
   if (m_rndGenSvc.retrieve().isFailure()){
     ATH_MSG_FATAL( "Could not retrieve " << m_rndGenSvc );
     return StatusCode::FAILURE;
-  } else 
+  } else
     ATH_MSG_VERBOSE( "Successfully retrieved " << m_rndGenSvc );
 
   //Get own engine with own seeds:
@@ -199,7 +200,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
 
   // check if everythin is set up properly
   if ( !parDef || !parDef->GetProcessManager() ) {
-    ATH_MSG_WARNING( "  [ ---- ] Unable to register particle type with PDG code " << pdg );    
+    ATH_MSG_WARNING( "  [ ---- ] Unable to register particle type with PDG code " << pdg );
     return m_g4HadrInelasticProcesses.end();
 
   }
@@ -214,7 +215,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
   }
 
   // loop over all processes of current particle type
-  for( G4int np=0; np < physIntVector->size(); np++) {
+  for( size_t np=0; np < physIntVector->size(); np++) {
     // get current process
     G4VProcess* curProc = (*physIntVector)(np);
     // NULL means the process is inactivated by a user on fly.
@@ -231,7 +232,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
     }
 
     if (hadInelastic || hadElastic) {
-      //Prepare and build the Physics table for primaries 
+      //Prepare and build the Physics table for primaries
       curProc->PreparePhysicsTable(*parDef);
       curProc->BuildPhysicsTable(*parDef);
     }
@@ -243,9 +244,9 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
     if(m_doElastic && hadElastic ){
       ret = m_g4HadrElasticProcesses.insert( std::pair<int,G4VProcess*>( pdg, hadElastic) );
       G4ProcessType pType = curProc->GetProcessType();
-      ATH_MSG_DEBUG( "  [ g4sim ] Registered Geant4 ELASTIC hadronic interaction processes for particles with pdg code " 
+      ATH_MSG_DEBUG( "  [ g4sim ] Registered Geant4 ELASTIC hadronic interaction processes for particles with pdg code "
 		     << pdg << "and process " <<  pType);
-    } 
+    }
 
 
   } // process loop
@@ -254,7 +255,7 @@ std::map<int,G4VProcess*>::iterator iFatras::G4HadIntProcessor::initProcessPDG(i
   return ret.first;
 }
 
-bool iFatras::G4HadIntProcessor::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+bool iFatras::G4HadIntProcessor::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum,
 						     double, double, double,
 						     const Trk::MaterialProperties& mprop, double pathCorrection,
 						     Trk::ParticleHypothesis particle) const
@@ -364,7 +365,7 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
     std::pair<G4Material*,G4MaterialCutsCouple*> pbMat(pb,pbCuts);
     m_g4Material.push_back(std::pair<float,std::pair<G4Material*,G4MaterialCutsCouple*> >(82.,pbMat));
   }
- 
+
   ATH_MSG_INFO("material vector size for had interaction:"<< m_g4Material.size());
 
   //G4cout << *(G4Material::GetMaterialTable()) << std::endl;
@@ -372,11 +373,11 @@ bool iFatras::G4HadIntProcessor::initG4RunManager() const {
   return true;
 }
 
-ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFParticle* parent, 
-							       double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFParticle* parent,
+							       double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum,
 							       const Trk::Material *ematprop) const
 {
-  ISF::ISFParticleVector chDef(0); 
+  ISF::ISFParticleVector chDef(0);
 
   int pdg = parent->pdgCode();
 
@@ -414,10 +415,10 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   G4DynamicParticle* inputPar = new G4DynamicParticle();
   inputPar->SetDefinition( g4parDef);
   // input momentum - respect upper limits
-  if ( momentum.mag()>1.e08 ) { 
+  if ( momentum.mag()>1.e08 ) {
     ATH_MSG_WARNING( "input momentum beyond limit" << momentum.mag() << " --> skipping hadronic interaction" );
     return chDef;
-  } 
+  }
   const G4ThreeVector mom( momentum.x(), momentum.y(), momentum.z() );
   inputPar->SetMomentum( mom);
   // position and timing dummy
@@ -439,9 +440,9 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
   // by default, the current process is the inelastic hadr. interaction
   G4VProcess *process = processIter_inelast!=m_g4HadrInelasticProcesses.end() ? processIter_inelast->second : 0;
- 
+
   // if elastic interactions are enabled and there is a elastic process
-  // in the m_g4HadrProcesses_Elastic std::map 
+  // in the m_g4HadrProcesses_Elastic std::map
   if( m_doElastic && (processIter_elast!=m_g4HadrElasticProcesses.end()) ) {
     double rand   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
 
@@ -453,8 +454,8 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
   // do the G4VProcess (actually a G4HadronicProcess) ------------------------------------
   //process->SetVerboseLevel(10);
-  //ATH_MSG_VERBOSE ( "Verbose Level is " << process->GetVerboseLevel() ); 
-  
+  //ATH_MSG_VERBOSE ( "Verbose Level is " << process->GetVerboseLevel() );
+
   G4VParticleChange* g4change = process->PostStepDoIt(*g4track, *m_g4step);
   if (!g4change) {
     ATH_MSG_WARNING( " [ ---- ] Geant4 did not return any hadronic interaction information of particle with pdg=" << pdg );
@@ -466,7 +467,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
   unsigned int numSecondaries = g4change->GetNumberOfSecondaries();
   ATH_MSG_DEBUG( "[ g4sim ] Material update created " <<  numSecondaries << " Geant4 particle (s)." );
 
-  // green light for secondaries 
+  // green light for secondaries
   if ( numSecondaries ) {
 
     ISF::ISFParticleVector           children(numSecondaries);
@@ -513,7 +514,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
                                                           parDef->GetPDGMass(),
                                                           parDef->GetPDGCharge(),
                                                           parDef->GetPDGEncoding(),
-                                                          time, 
+                                                          time,
                                                           *parent,
 							  Barcode::fUndefinedBarcode,
 							  truthBinding );
@@ -544,7 +545,7 @@ ISF::ISFParticleVector iFatras::G4HadIntProcessor::getHadState(const ISF::ISFPar
 
 bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum,
 						       const Trk::Material *ematprop,
-						       Trk::ParticleHypothesis /*particle*/,  
+						       Trk::ParticleHypothesis /*particle*/,
 						       bool  processSecondaries) const
 {
   // get parent particle
@@ -573,43 +574,43 @@ bool iFatras::G4HadIntProcessor::doHadronicInteraction(double time, const Amg::V
 
 }
 
-ISF::ISFParticleVector iFatras::G4HadIntProcessor::doHadIntOnLayer(const ISF::ISFParticle* parent, double time, 
+ISF::ISFParticleVector iFatras::G4HadIntProcessor::doHadIntOnLayer(const ISF::ISFParticle* parent, double time,
 								   const Amg::Vector3D& position, const Amg::Vector3D& momentum,
 								   const Trk::Material *emat,
-								   Trk::ParticleHypothesis /*particle=Trk::pion*/) const 
+								   Trk::ParticleHypothesis /*particle=Trk::pion*/) const
 {
- 
+
   return getHadState(parent, time, position, momentum, emat);
 
 }
 
 std::pair<G4Material*,G4MaterialCutsCouple*> iFatras::G4HadIntProcessor::retrieveG4Material(const Trk::Material *ematprop) const {
-  
+
   if (!m_g4Material.size()) {
     ATH_MSG_WARNING(" no predefined G4 material available for hadronic interaction " );
-    return std::pair<G4Material*,G4MaterialCutsCouple*> (0,0); 
+    return std::pair<G4Material*,G4MaterialCutsCouple*> (0,0);
   }
-  
+
   // in the absence of detailed material composition, use average Z
   // if not available on input, take Al
   float  iZ = ematprop ? ematprop->averageZ() : 13 ;
 
   // choose from predefined materials
   unsigned int imat=0;
-  
-  while (imat < m_g4Material.size() && iZ > m_g4Material[imat].first ) imat++; 
-  
+
+  while (imat < m_g4Material.size() && iZ > m_g4Material[imat].first ) imat++;
+
   unsigned int iSel=imat< m_g4Material.size() ? imat : m_g4Material.size()-1;
 
-  if (iSel>0) { 
-    // pick randomly to reproduce the average Z 
+  if (iSel>0) {
+    // pick randomly to reproduce the average Z
     //double rnd   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
     //if (rnd < (iZ-m_g4Material[iSel-1].first)/(m_g4Material[iSel].first-m_g4Material[iSel-1].first)) iSel--;
-    // weighted   
+    // weighted
     float dz2 =  -pow(m_g4Material[iSel-1].first,2)+pow(m_g4Material[iSel].first,2);
     double rnd   = CLHEP::RandFlat::shoot(m_randomEngine, 0., 1.);
     if (iZ*iZ+pow(m_g4Material[iSel-1].first,2) < rnd*dz2) iSel--;
-  }  
+  }
 
   return m_g4Material[iSel].second;
 

@@ -263,23 +263,39 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
   /// prepare a collection for the quality-sorted track canddiates
   std::multimap<double, Trk::Track*> qualitySortedTrackCandidates;
 
+  /// Get the value of the seed maker validation ntuple writing switch
+  bool doWriteNtuple = m_seedsmaker->getWriteNtupleBoolProperty();
+  long EvNumber = 0.;            //Event number variable to be used for the validation ntuple 
+
+  if (doWriteNtuple) {
+    SG::ReadHandle<xAOD::EventInfo> eventInfo(m_evtKey,ctx);
+    if(!eventInfo.isValid()) {EvNumber = -1.0;} else {EvNumber = eventInfo->eventNumber();}
+  }
+
   /// Loop through all seeds from the first pass and attempt to form track candidates
   while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
+
     ++counter[kNSeeds];
     /// we only want to fill the Z histo with the first candidate for each seed. 
     bool firstTrack{true};
-    /// combinatorial track finding for one given seed 
-    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
 
-    /// record found candidates
-    for (Trk::Track* t: trackList) {
-      qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
-      /// For the first (highest quality) track from each seed, populate the vertex finding histograms 
-      if (firstTrack and not m_ITKGeometry) {
-        fillZHistogram(t, beamPosPerigee, numberHistogram, zWeightedHistogram, ptWeightedHistogram);
-      }
-      firstTrack = false;
-    }
+      /// copy all the tracks into trackList
+      std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
+      /// record track candidates found, using combinatorial track finding, from the given seed
+      for (Trk::Track* t: trackList) {
+
+        qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
+
+        /// For the first (highest quality) track from each seed, populate the vertex finding histograms
+        if (firstTrack and not m_ITKGeometry) {
+          fillZHistogram(t, beamPosPerigee, numberHistogram, zWeightedHistogram, ptWeightedHistogram);
+        }
+        firstTrack = false;
+      }  
+      /// Call the ntuple writing method
+      if(doWriteNtuple) { m_seedsmaker->writeNtuple(seed, !trackList.empty() ? trackList.front() : nullptr, ISiSpacePointsSeedMaker::StripSeed, EvNumber) ; } 
+        
+
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true;
       ++m_problemsTotal;
@@ -307,17 +323,24 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy(const EventContext& ctx) co
 
   /// Again, loop over the newly found seeds and attempt to form track candidates
   while ((seed = m_seedsmaker->next(ctx, seedEventData))) {
+
     ++counter[kNSeeds];
-    /// insert the new tracks into the quality-sorted list
-    for (Trk::Track* t: m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints())) {
+
+    std::list<Trk::Track*> trackList = m_trackmaker->getTracks(ctx, trackEventData, seed->spacePoints());
+
+    for (Trk::Track* t: trackList) {
       qualitySortedTrackCandidates.insert(std::make_pair(-trackQuality(t), t));
     }
+
+    if(doWriteNtuple) { m_seedsmaker->writeNtuple(seed, !trackList.empty() ? trackList.front() : nullptr, ISiSpacePointsSeedMaker::PixelSeed, EvNumber); }
+
     if (counter[kNSeeds] >= m_maxNumberSeeds) {
       ERR = true;
       ++m_problemsTotal;
       break;
     }
   }
+
   m_trackmaker->endEvent(trackEventData);
 
   /// Remove shared tracks with worse quality

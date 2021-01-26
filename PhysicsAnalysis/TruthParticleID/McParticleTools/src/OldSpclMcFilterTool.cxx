@@ -12,8 +12,6 @@
 // STL includes
 #include <cmath>
 
-// FrameWork includes
-
 // CLHEP/HepMC includes
 #include "TruthHelper/GenAccessIO.h"
 #include "TruthHelper/IsGenStable.h"
@@ -96,10 +94,6 @@ OldSpclMcFilterTool::~OldSpclMcFilterTool()
 }
 
 /////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
 /////////////////////////////////////////////////////////////////// 
 
@@ -138,14 +132,6 @@ StatusCode OldSpclMcFilterTool::buildMcAod( const McEventCollection* in,
 
   return StatusCode::SUCCESS;
 }
-
-/////////////////////////////////////////////////////////////////// 
-// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 // Non-const methods: 
@@ -380,13 +366,9 @@ StatusCode OldSpclMcFilterTool::shapeGenEvent( McEventCollection* genAod )
 	  }
 
 	  if ( bcNext.first != bcNext.second ) {
-	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endmsg
-			    << "\tbcNext: " << bcNext.first
-			    << " --> " << bcNext.second);
+	    ATH_MSG_WARNING("\tIterator has been CORRUPTED !!" << endmsg << "\tbcNext: " << bcNext.first << " --> " << bcNext.second);
 	  } else {
-	    ATH_MSG_DEBUG("\tIterator OK:" << endmsg
-			  << "\tbcNext: " << bcNext.first
-			  << " --> " << bcNext.second);
+	    ATH_MSG_DEBUG("\tIterator OK:" << endmsg << "\tbcNext: " << bcNext.first << " --> " << bcNext.second);
 	  }
 	}
 

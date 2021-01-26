@@ -162,6 +162,10 @@ private:
   ToolHandle<GenericMonitoringTool> m_monTool{this,"MonTool","","Monitoring tool"};
 #endif
 
+  // not used in AnalysisBase
+#ifdef __clang__
+  [[maybe_unused]]
+#endif
   const double m_mevtogev = 0.001;
 
 };

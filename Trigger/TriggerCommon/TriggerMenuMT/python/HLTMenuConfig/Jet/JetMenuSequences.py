@@ -37,7 +37,7 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
     # Get the topocluster reconstruction sequence
     from .JetRecoSequences import jetClusterSequence, jetRecoSequence
     topoClusterSequence, clustersKey = RecoFragmentsPool.retrieve(
-        jetClusterSequence, configFlags, RoIs=RoIs, clusterCalib=jetRecoDict["calib"])
+        jetClusterSequence, configFlags, RoIs=RoIs, clusterCalib=jetRecoDict["clusterCalib"])
 
     # Get the jet reconstruction sequence including the jet definition and output collection
     jetRecoSeq, jetsOut, jetDef  = RecoFragmentsPool.retrieve(
@@ -91,7 +91,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     trigHypoToolGen = trigJetHypoToolFromDict
     if hypoType==JetHypoAlgType.PASSTHROUGH:
         hyponame = "TrigStreamerHypoAlgMT_caloReco"
-        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame,SetInitialRoIAsFeature=True))
+        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame))
         trigHypoToolGen = trigStreamerHypoTool
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"

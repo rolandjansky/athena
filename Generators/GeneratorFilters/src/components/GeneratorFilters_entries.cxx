@@ -3,6 +3,7 @@
 #include "GeneratorFilters/ZtoLeptonFilter.h"
 #include "GeneratorFilters/MultiLeptonFilter.h"
 #include "GeneratorFilters/MultiMuonFilter.h"
+#include "GeneratorFilters/MultiBjetFilter.h"
 #include "GeneratorFilters/BSignalFilter.h"
 #include "GeneratorFilters/ATauFilter.h"
 #include "GeneratorFilters/JetFilter.h"
@@ -86,6 +87,7 @@ DECLARE_COMPONENT( LeptonFilter )
 DECLARE_COMPONENT( ZtoLeptonFilter )
 DECLARE_COMPONENT( MultiLeptonFilter )
 DECLARE_COMPONENT( MultiMuonFilter )
+DECLARE_COMPONENT( MultiBjetFilter )
 DECLARE_COMPONENT( BSignalFilter )
 DECLARE_COMPONENT( ATauFilter )
 DECLARE_COMPONENT( JetFilter )

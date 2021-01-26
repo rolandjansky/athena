@@ -12,11 +12,15 @@ from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
 
 from chainDict2jetLabel import chainDict2jetLabel 
 from TrigJetHypoToolConfig import (trigJetHypoToolFromDict,
-                                   nodeTreeFromChainLabel)
+                                   nodeForestFromChainLabel,
+                                   tree2tools,)
 
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
 )
+
+from TrigHLTJetHypo.FastReductionAlgToolFactory import (
+    FastReductionAlgToolFactory,)
 
 
 def testChainDictMaker():
@@ -40,20 +44,16 @@ def testChainDictMaker():
                   l1SeedThresholds=['FSNOSEED']*3,
                   groups=MultiJetGroup),
 
-        ChainProp(name='HLT_j0_vbenfSEP30etSEP34mass35SEP50fbet_L1J20',
-                  l1SeedThresholds=['FSNOSEED'],
-                  groups=MultiJetGroup),
-
         ChainProp(name='HLT_10j40_L1J15',
                   l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
 
         ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
                   groups=SingleJetGroup),
-        
-        # ChainProp(name='HLT_j70_j50 _0eta490_invm1000j50_dphi20_deta40_L1J20',
-        #          l1SeedThresholds=['FSNOSEED']*2,
-        #          groups=MultiJetGroup),
 
+         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
+        
+        ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+        ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20', groups=SingleJetGroup),
     ]
 
     result = []
@@ -83,12 +83,16 @@ if __name__ == '__main__':
         print (d[0])
         label = chainDict2jetLabel(d[1])
         chain_name = d[1]['chainName']
-        
-        toolSetter=ConditionsToolSetterFastReduction()
+
+
+        forest = nodeForestFromChainLabel(label, chain_name)
+
+        algToolFactory = FastReductionAlgToolFactory()
+        for tree in forest:
+            toolSetter=ConditionsToolSetterFastReduction(algToolFactory)
             
-        print (nodeTreeFromChainLabel(chain_name=d[0],
-                                      chain_label=label,
-                                      toolSetter=toolSetter).dump())
+            print (tree2tools(rootless_tree=tree,
+                              toolSetter=toolSetter).dump())
         print ()
         
 

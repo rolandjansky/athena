@@ -133,7 +133,7 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
     const ToolHandle<Trig::TrigDecisionTool> trigTool=getTrigDecisionTool();
     //const Trig::TrigDecisionTool *trigTool = dynamic_cast<const Trig::TrigDecisionTool * > (&*trigHdl);
     std::vector<std::string> l1triggers;
-    if(trigTool) {   
+    if(!trigTool.empty()) {   
        const Trig::ChainGroup* allL1 = trigTool->getChainGroup("L1_.*");
        l1triggers = allL1->getListOfTriggers();
        ATH_MSG_DEBUG( "lvl1 item names: [" );
@@ -382,13 +382,15 @@ StatusCode LArFEBMonAlg::fillHistograms(const EventContext& ctx) const {
  
     auto streambin=Monitored::Scalar<float>("streamBin",-1);
       
-    unsigned ie;
+    unsigned ie(0);
     for(unsigned int str=0; str<streamsThisEvent.size(); ++str) {
       if(streamsThisEvent[str] > m_streams.size()) break;
       if(trigok && streamsThisEvent[str] < m_streams.size() && (m_streams[streamsThisEvent[str]].find("CosmicCalo") != std::string::npos)) { // test excluding events
-	for(ie=0; ie<m_excoscalo.size(); ++ie) {
-	  if(getTrigDecisionTool()->isPassed(m_excoscalo[ie])) break;
-	}
+      if (!getTrigDecisionTool().empty()) {
+        for(ie=0; ie<m_excoscalo.size(); ++ie) {
+      	  if(getTrigDecisionTool()->isPassed(m_excoscalo[ie])) break;
+	      }
+      }
 	if(ie<m_excoscalo.size()) {
 	  ATH_MSG_INFO("Skipping "<<m_excoscalo[ie]<<" for CosmicCalo ");
 	  continue; // we should skip this trigger

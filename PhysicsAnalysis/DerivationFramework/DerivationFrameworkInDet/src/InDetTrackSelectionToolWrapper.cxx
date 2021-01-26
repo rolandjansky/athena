@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@
 
 #include "DerivationFrameworkInDet/InDetTrackSelectionToolWrapper.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "StoreGate/ReadHandle.h"
 #include <vector>
 #include <string>
 
@@ -18,13 +19,12 @@ namespace DerivationFramework {
       const IInterface* p) : 
     AthAlgTool(t,n,p),
     m_tool("InDet::InDetTrackSelectionTool/TrackSelectionTool", this ),
-    m_sgName(""),
-    m_containerName("")
+    m_sgName("")
   {
     declareInterface<DerivationFramework::IAugmentationTool>(this);
     declareProperty("TrackSelectionTool", m_tool);
     declareProperty("DecorationName", m_sgName);
-    declareProperty("ContainerName", m_containerName);
+    declareProperty("ContainerName", m_tracksKey);
   }
 
   StatusCode InDetTrackSelectionToolWrapper::initialize()
@@ -33,10 +33,8 @@ namespace DerivationFramework {
       ATH_MSG_ERROR("No decoration prefix name provided for the output of InDetTrackSelectionToolWrapper!");
       return StatusCode::FAILURE;
     }
-    if (m_containerName=="") {
-      ATH_MSG_ERROR("No TrackParticle collection provided for InDetTrackSelectionToolWrapper!");
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK( m_tracksKey.initialize() );
+    ATH_MSG_INFO("Using " << m_tracksKey << "as the source collection for inner detector track particles");
     ATH_CHECK(m_tool.retrieve());
     return StatusCode::SUCCESS;
   }
@@ -49,10 +47,14 @@ namespace DerivationFramework {
   StatusCode InDetTrackSelectionToolWrapper::addBranches() const
   {
 
+    // Get current context 
+    const EventContext& ctx = Gaudi::Hive::currentContext();
+
     // retrieve track container
-    const xAOD::TrackParticleContainer* tracks = evtStore()->retrieve< const xAOD::TrackParticleContainer >( m_containerName );
-    if( ! tracks ) {
-        ATH_MSG_ERROR ("Couldn't retrieve TrackParticles with key: " << m_containerName );
+    SG::ReadHandle<xAOD::TrackParticleContainer> tracks(m_tracksKey, ctx);
+    if (!tracks.isValid()) {
+    //if( ! tracks ) {
+        ATH_MSG_ERROR ("Couldn't retrieve TrackParticles with key: " << tracks.key() );
         return StatusCode::FAILURE;
     }
     // Run tool for each element and decorate with the decision 

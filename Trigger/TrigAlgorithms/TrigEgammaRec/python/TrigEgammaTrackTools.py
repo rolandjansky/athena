@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -33,9 +33,8 @@ from TrkExSTEP_Propagator.TrkExSTEP_PropagatorConf import Trk__STEP_Propagator a
 egTrigTrkStepPropagator = StepPropagator(name = 'egTrigTrkStepPropagator')
 ToolSvc += egTrigTrkStepPropagator
 
-from TrkExTools.TrkExToolsConf import Trk__Navigator
-egTrigTrkNavigator = Trk__Navigator(name = 'egTrigTrkNavigator')
-ToolSvc += egTrigTrkNavigator
+from InDetRecExample import TrackingCommon
+egTrigTrkNavigator = TrackingCommon.getAtlasNavigator('egTrigTrkNavigator')
 
 from TrkExTools.TrkExToolsConf import Trk__MaterialEffectsUpdator
 egTrigTrkMaterialUpdator = Trk__MaterialEffectsUpdator(name = "egTrigTrkMaterialEffectsUpdator")

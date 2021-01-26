@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -22,7 +22,7 @@ namespace Muon
   CscClusterOnTrack::CscClusterOnTrack():
     MuonClusterOnTrack(), // call base class ctor
     m_rio(),
-    m_detEl(0),
+    m_detEl(nullptr),
     m_status(CscStatusUndefined),
     m_timeStatus(CscTimeStatusUndefined),
     m_time(9999.0)

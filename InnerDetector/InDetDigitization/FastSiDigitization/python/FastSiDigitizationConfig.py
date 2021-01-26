@@ -42,7 +42,6 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
     # Module status #
     #################
     useNewChargeFormat  = False
-    useNewDeadmapFormat = False
 
     if not hasattr(condSeq, "PixelConfigCondAlg"):
         from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -77,10 +76,9 @@ def FastClusterMakerTool(name="FastClusterMakerTool", **kwargs):
                                       ReadDeadMapKey = "",
                                       CablingMapFileName=IdMappingDat)
 
-    if useNewDeadmapFormat:
-        if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-            from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-            condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+        condSeq += PixelDeadMapCondAlg(name="PixelDeadMapCondAlg",ReadKey="")
 
     #FIXME: at some point we should move away from being dependent on the experimentalDigi flags.
     if 'doFastSCT_Digi' in digitizationFlags.experimentalDigi() and 'doFastPixelDigi' not in digitizationFlags.experimentalDigi():

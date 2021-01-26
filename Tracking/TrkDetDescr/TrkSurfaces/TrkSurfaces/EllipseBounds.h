@@ -15,16 +15,11 @@
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkSurfaces/SurfaceBounds.h"
 //
-#include <math.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cstdlib>
 
 class MsgStream;
 
-#ifdef TRKDETDESCR_USEFLOATPRECISON
-typedef float TDD_real_t;
-#else
-typedef double TDD_real_t;
-#endif
 
 namespace Trk {
 

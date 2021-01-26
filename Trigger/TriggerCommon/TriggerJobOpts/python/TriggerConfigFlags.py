@@ -46,6 +46,10 @@ def createTriggerFlags():
     # Enable calorimeters
     flags.addFlag('Trigger.doCalo', True)
 
+    # Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    # parents all the way back to the L1 decoder. Potentially CPU expensive.
+    flags.addFlag('Trigger.doRuntimeNaviVal', False)
+
     # if 1, Run1 decoding version is set; if 2, Run2; if 3, Run 3
     def EDMVersion(flags):
         '''
@@ -204,7 +208,11 @@ def createTriggerFlags():
     flags.addFlag('Trigger.triggerConfig', 'FILE')
 
     # name of the trigger menu
-    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1')
+    flags.addFlag('Trigger.triggerMenuSetup', 'LS2_v1_BulkMCProd_prescale')
+
+    # modify the slection of chains that are run (default run all), see more in GenerateMenuMT_newJO
+
+    flags.addFlag('Trigger.triggerMenuModifier', ['all'])
 
     # name of the trigger menu
     flags.addFlag('Trigger.generateMenuDiagnostics', False)

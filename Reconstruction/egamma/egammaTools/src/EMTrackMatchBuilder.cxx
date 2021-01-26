@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 // INCLUDE HEADER FILES:
@@ -137,7 +137,7 @@ EMTrackMatchBuilder::trackExecute(
     using EL = ElementLink<xAOD::TrackParticleContainer>;
     std::vector<EL> trackParticleLinks;
     trackParticleLinks.reserve(trkMatches.size());
-    const std::string key = EL(*trackPC, 0).dataID();
+    const std::string key = EL(*trackPC, 0, ctx).dataID();
     for (const TrackMatch& m : trkMatches) {
       ATH_MSG_DEBUG("Match  dR: " << m.dR << " second  dR: " << m.seconddR
                                   << " hasPix: " << m.hasPix
@@ -447,7 +447,7 @@ EMTrackMatchBuilder::isCandidateMatch(const xAOD::CaloCluster* cluster,
 bool
 EMTrackMatchBuilder::TrackMatchSorter::operator()(
   const EMTrackMatchBuilder::TrackMatch& match1,
-  const EMTrackMatchBuilder::TrackMatch& match2)
+  const EMTrackMatchBuilder::TrackMatch& match2) const
 {
   if (match1.hasPix != match2.hasPix) { // prefer pixels first
     return match1.hasPix;

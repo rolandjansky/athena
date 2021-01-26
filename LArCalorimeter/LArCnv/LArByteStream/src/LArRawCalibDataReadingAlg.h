@@ -41,6 +41,12 @@ class LArRawCalibDataReadingAlg : public  AthReentrantAlgorithm {
   BooleanProperty m_verifyChecksum{this,"VerifyChecksum",true,"Calculate and compare checksums to detect data transmission errors"}; 
   BooleanProperty m_failOnCorruption{this,"FailOnCorruption",true,"Return FAILURE if data corruption is found"};
 
+  Gaudi::Property<std::vector<unsigned> > m_vBEPreselection{this,"BEPreselection",{},"For channel-selection: Barrel=0, Endcap=1"};
+  Gaudi::Property<std::vector<unsigned> > m_vPosNegPreselection{this,"PosNegPreselection",{}, "For channel-selection: C-Side:0, A-Side: 1"};
+  Gaudi::Property<std::vector<unsigned> > m_vFTPreselection{this,"FTNumPreselection",{}, "For channel-selection: Feedthrough numbers (e.g. 0 - 31 for barrel)"};
+
+  std::set<unsigned> m_vFinalPreselection;
+
   //Identifier helper
   const LArOnlineID* m_onlineId=nullptr;
 

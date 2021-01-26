@@ -16,7 +16,6 @@
 
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
-#include "InDetPrepRawData/TRT_DriftCircle.h"
 
 #include "xAODEventInfo/EventInfo.h"
 

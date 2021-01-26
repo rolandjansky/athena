@@ -6,6 +6,7 @@
 #define ASGTOOLS_TPROPERTY_ICC
 
 #include <AsgTools/MessageCheckAsgTools.h>
+#include <map>
 #include <sstream>
 #include <typeinfo>
 #include <type_traits>
@@ -22,6 +23,10 @@ namespace asg
     StatusCode packStringVector (const std::vector<std::string>& value,
 				 std::string& result);
 
+    /// \brief pack a vector of strings into a property string
+    StatusCode packStringMap (const std::map<std::string,std::string>& value,
+                              std::string& result);
+
     /// \brief unpack a single string from a property string
     StatusCode unpackStringSingle (const std::string& value,
 				   std::string& result);
@@ -29,6 +34,10 @@ namespace asg
     /// \brief unpack a vector of strings from a property string
     StatusCode unpackStringVector (const std::string& value,
 				   std::vector<std::string>& result);
+
+    /// \brief unpack a vector of strings from a property string
+    StatusCode unpackStringMap (const std::string& value,
+                                std::map<std::string,std::string>& result);
 
     /// \brief check for the existence of an output streamer
     template <typename T>
@@ -108,12 +117,29 @@ namespace asg
 			     std::string& result) {
 	using namespace msgProperty;
 	std::vector<std::string> subresult;
-	for (auto subvalue : value) {
+	for (const auto& subvalue : value) {
 	  std::string myresult;
 	  ANA_CHECK (GetStringHelper<T>::get (subvalue, myresult));
 	  subresult.push_back (myresult);
 	}
 	ANA_CHECK (packStringVector (subresult, result));
+	return StatusCode::SUCCESS;
+      }
+    };
+
+    template<typename T1,typename T2> struct GetStringHelper<std::map<T1,T2> >
+    {
+      static StatusCode get (const std::map<T1,T2>& value,
+			     std::string& result) {
+	using namespace msgProperty;
+	std::map<std::string,std::string> subresult;
+	for (const auto& subvalue : value) {
+	  std::string myresult1, myresult2;
+	  ANA_CHECK (GetStringHelper<T1>::get (subvalue.first, myresult1));
+	  ANA_CHECK (GetStringHelper<T2>::get (subvalue.second, myresult2));
+	  subresult.emplace (myresult1, myresult2);
+	}
+	ANA_CHECK (packStringMap (subresult, result));
 	return StatusCode::SUCCESS;
       }
     };
@@ -235,10 +261,29 @@ namespace asg
 	std::vector<std::string> myvalue;
 	ANA_CHECK (unpackStringVector (value, myvalue));
 	std::vector<T> myresult;
-	for (std::string subvalue : myvalue) {
+	for (const std::string& subvalue : myvalue) {
 	  T subresult {};
 	  ANA_CHECK (SetStringHelper<T>::set (subvalue, subresult));
 	  myresult.push_back (subresult);
+	}
+	swap (myresult, result);
+	return StatusCode::SUCCESS;
+      }
+    };
+
+    template<typename T1,typename T2> struct SetStringHelper<std::map<T1,T2> >
+    {
+      static StatusCode set (const std::string& value, std::map<T1,T2>& result) {
+	using namespace msgProperty;
+	std::map<std::string,std::string> myvalue;
+	ANA_CHECK (unpackStringMap (value, myvalue));
+	std::map<T1,T2> myresult;
+	for (const auto& subvalue : myvalue) {
+	  T1 subresult1 {};
+	  T2 subresult2 {};
+	  ANA_CHECK (SetStringHelper<T1>::set (subvalue.first, subresult1));
+	  ANA_CHECK (SetStringHelper<T2>::set (subvalue.second, subresult2));
+	  myresult.emplace (subresult1, subresult2);
 	}
 	swap (myresult, result);
 	return StatusCode::SUCCESS;

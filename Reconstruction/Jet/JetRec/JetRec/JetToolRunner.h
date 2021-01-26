@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetToolRunner.h
@@ -25,7 +25,7 @@
 ///   Timer - Timing flag 1 for top-level, 2 for each called tool
 
 class JetToolRunner
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IJetExecuteTool {
 ASG_TOOL_CLASS(JetToolRunner, IJetExecuteTool)
 

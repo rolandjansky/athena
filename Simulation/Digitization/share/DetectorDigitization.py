@@ -80,3 +80,8 @@ if DetFlags.Muon_on():
 # LVL1 trigger simulation
 #if DetFlags.digitize.LVL1_on():
 include( "Digitization/LVL1Digitization.py" )
+
+# Run calculation of weight for the beam spot size reweighting
+if (digitizationFlags.doBeamSpotSizeReweighting()):
+    include( "Digitization/BeamSpotReweight.py" )
+

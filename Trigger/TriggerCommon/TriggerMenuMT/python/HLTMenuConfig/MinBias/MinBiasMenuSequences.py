@@ -5,10 +5,10 @@ from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
 from AthenaCommon.CFElements import seqAND
 from TrigInDetConfig.InDetSetup import makeInDetAlgs
+from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
 from TrigEDMConfig.TriggerEDMRun3 import recordable
 from ViewAlgs.ViewAlgsConf import EventViewCreatorAlgorithm
 from DecisionHandling.DecisionHandlingConf import ViewCreatorInitialROITool
-from AthenaCommon.GlobalFlags import globalflags
 from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
 
 
@@ -19,10 +19,10 @@ def SPCountHypoToolGen(chainDict):
     from TrigT2MinBias.TrigT2MinBiasConf import SPCountHypoTool
     hypo = SPCountHypoTool(chainDict["chainName"])
     if "hmt" in chainDict["chainName"]:
-        hypo.totNumSctSP = int(chainDict["chainParts"][0]["hypoL2Info"].strip("sp"))
+        hypo.sctSP = int(chainDict["chainParts"][0]["hypoL2Info"].strip("sp"))
     if "mb_sptrk" in chainDict["chainName"]:
-        hypo.totNumPixSP = 2
-        hypo.totNumSctSP = 3
+        hypo.pixCL = 2
+        hypo.sctSP = 3
             # will set here thresholds
     return hypo
 
@@ -55,7 +55,8 @@ def MinBiasSPSequence():
     idTrigConfig = getInDetTrigConfig('minBias')
     idAlgs, verifier = makeInDetAlgs(config=idTrigConfig, 
                                      rois=spInputMakerAlg.InViewRoIs, 
-                                     viewVerifier='SPViewDataVerifier')
+                                     viewVerifier='SPViewDataVerifier', 
+                                     doFTF=False)
     verifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+InputRoI'),
                              ('SCT_ID', 'DetectorStore+SCT_ID'),
                              ('PixelID', 'DetectorStore+PixelID'),
@@ -68,7 +69,9 @@ def MinBiasSPSequence():
                                        ('PixelID', 'DetectorStore+PixelID'),
                                        ('TagInfo', 'DetectorStore+ProcessingTags')]
 
-    spAlgsList = idAlgs[:-2]
+#    spAlgsList = idAlgs[:-2]
+    spAlgsList = idAlgs
+
 
     spCount = TrigCountSpacePointsMT()
     spCount.SpacePointsKey = recordable("HLT_SpacePointCounts")
@@ -104,28 +107,16 @@ def MinBiasTrkSequence():
         # prepare algorithms to run in views, first,
         # inform scheduler that input data is available in parent view (has to be done by hand)
         idTrigConfig = getInDetTrigConfig('minBias')
-        idAlgs, verifier = makeInDetAlgs(config=idTrigConfig, rois=trkInputMakerAlg.InViewRoIs, viewVerifier='TrkrecoSeqDataVerifier')
-        verifier.DataObjects += [('TrigRoiDescriptorCollection', 'StoreGateSvc+InputRoI'),
-                                 ('IDCInDetBSErrContainer', 'StoreGateSvc+SCT_FlaggedCondData_TRIG'),
-                                 ('InDet::SCT_ClusterContainer', 'StoreGateSvc+SCT_TrigClusters'),
-                                 ('SpacePointContainer', 'StoreGateSvc+SCT_TrigSpacePoints'),
-                                 ('InDet::PixelClusterContainer', 'StoreGateSvc+PixelTrigClusters'),
-                                 ('SpacePointContainer', 'StoreGateSvc+PixelTrigSpacePoints')]
 
-        if globalflags.InputFormat.is_bytestream():
-          verifier.DataObjects += [('IDCInDetBSErrContainer', 'StoreGateSvc+PixelByteStreamErrs'),
-                                   ('IDCInDetBSErrContainer', 'StoreGateSvc+SCT_ByteStreamErrs')]
-
-
-        trkList = idAlgs[-2:] # FTF and Track to xAOD::TrackParticle conversion alg
+        algs,_ = makeInDetPatternRecognition(idTrigConfig, verifier='VDVMinBiasIDTracking')
         trackCountHypo = TrackCountHypoAlgMT()
         trackCountHypo.trackCountKey = recordable("HLT_TrackCount")
-        trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_FTF")
+        trackCountHypo.tracksKey = recordable("HLT_IDTrack_MinBias_IDTrig")
 
         from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
         trackCountHypo.MonTool = TrackCountMonitoring()
 
-        trkRecoSeq = parOR("TrkrecoSeq", [verifier]+trkList)
+        trkRecoSeq = parOR("TrkrecoSeq", algs)
         trkSequence = seqAND("TrkSequence", [trkInputMakerAlg, trkRecoSeq])
         trkInputMakerAlg.ViewNodeName = trkRecoSeq.name()
 

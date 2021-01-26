@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_MOOTRACKBUILDER_H
@@ -86,6 +86,8 @@ namespace Muon {
     typedef IMuonSegmentTrackBuilder::PrepVec    PrepVec;
     typedef PrepVec::iterator                    PrepIt;
     typedef PrepVec::const_iterator              PrepCit;
+    typedef MuPatCandidateTool::MeasGarbage      MeasGarbage;
+    typedef MuPatCandidateTool::HitGarbage       HitGarbage;
   public:
     /** @brief default AlgTool constructor */
     MooTrackBuilder(const std::string&, const std::string&, const IInterface*);
@@ -168,6 +170,8 @@ namespace Muon {
      */
     std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const MuPatTrack& candidate,
 									 const MuPatSegment& segInfo,
+                                                                         HitGarbage& hitsToBeDeleted,
+                                                                         MeasGarbage& measurementsToBeDeleted,
 									 const PrepVec* patternPhiHits = 0 ) const;
 
 
@@ -180,6 +184,8 @@ namespace Muon {
     std::vector<std::unique_ptr<Trk::Track> > combineWithSegmentFinding( const MuPatTrack& candidate,
 									 const Trk::TrackParameters& pars,
 									 const std::set<Identifier>& chIds,
+                                                                         HitGarbage& hitsToBeDeleted,
+                                                                         MeasGarbage& measurementsToBeDeleted,
 									 const PrepVec* patternPhiHits = 0 ) const; 
 
     /** @brief find tracks by redoing the segment finding in the chamber of the segment
@@ -229,7 +235,9 @@ namespace Muon {
     bool isSplitTrack( const Trk::Track& track1, const Trk::Track& track2 ) const;
 
     /** @brief look for split tracks in collection and merge them */
-    TrackCollection* mergeSplitTracks( const TrackCollection& tracks ) const;
+    TrackCollection* mergeSplitTracks( const TrackCollection& tracks,
+                                       HitGarbage& hitsToBeDeleted,
+                                       MeasGarbage& measurementsToBeDeleted ) const;
 
     /**
         @brief interface for tools to find track in the muon system starting from a vector of segments
@@ -238,13 +246,17 @@ namespace Muon {
                 The ownership of the tracks is passed to the client calling the tool.
 
     */
-    virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const override;
+    virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
+                                                            HitGarbage& hitsToBeDeleted,
+                                                            MeasGarbage& measurementsToBeDeleted ) const override;
 
     /** @brief interface for tools which refine the hit content of a given track
         @param track input track
         @return new refined track. Pointer could be zero, ownership passed to caller
     */
-    virtual void refine( MuPatTrack& track ) const override;
+    virtual void refine( MuPatTrack& track,
+                         HitGarbage& hitsToBeDeleted,
+                         MeasGarbage& measurementsToBeDeleted) const override;
 
     virtual void cleanUp() const override;
 

@@ -5,6 +5,12 @@
    <class name="xAOD::MissingET_v1" >
       <field name="m_nameHash" transient="true" />
    </class>
+   <read sourceClass="xAOD::MissingET_v1" version="[1-]"
+         targetClass="xAOD::MissingET_v1" source="" target="m_nameHash" >
+      <![CDATA[
+         m_nameHash.reset();
+      ]]>
+   </read>
    <class name="DataVector<xAOD::MissingET_v1>" />
    <class name="xAOD::MissingETContainer_v1"
           id="F49162FE-6BC0-49BC-A7DA-A792136BD939" />

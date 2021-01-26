@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -31,10 +31,10 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_hardScatterVertexTruthMatchingPlots(this, "Vertices/HardScatteringVertex"),
   m_trtExtensionPlots(this, "Tracks/TRTExtension"),
   m_anTrackingPlots(this, "Tracks/ANT"),
+  m_ntupleTruthToReco(this, "Ntuples", "TruthToReco"),
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true),
-  m_doTrackInBJetPlots(true) //FIX CONFIGURATION
-{
+  m_doTrackInBJetPlots(true) {
   this->m_iDetailLevel = iDetailLevel;
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
@@ -73,7 +73,16 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
 
   }
 
-  //A lot of Jets... do we need these at all???
+  /// update detail level of all the child tools
+  setDetailLevel(m_iDetailLevel);
+}
+
+
+void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
+
+  m_doTrackInJetPlots = fillJets;
+  m_doTrackInBJetPlots = fillBJets;
+
   if(m_doTrackInJetPlots){
     m_trkInJetPlots = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInJets/Tracks");
     if (m_iDetailLevel >= 200){
@@ -90,9 +99,9 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
       }
     }
   }
-  /// update detail level of all the child tools 
-  setDetailLevel(m_iDetailLevel); 
+
 }
+
 
 //
 //Fill plots for matched particles
@@ -336,7 +345,7 @@ InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool
       m_trkInJetPlots_matched->fill(track,jet); 
     }
   }
-  if(isBjet){
+  if(isBjet && m_doTrackInBJetPlots){
      m_trkInJetPlots_bjets->fill(track, jet);
     if (m_iDetailLevel >= 200){
       if (isFake){
@@ -355,12 +364,34 @@ InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool
 void
 InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, bool isEfficient, bool isBjet) {
   m_trkInJetPlots->fillEfficiency(truth, jet, isEfficient); 
-  if(isBjet) m_trkInJetPlots_bjets->fillEfficiency(truth, jet, isEfficient);
+  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillEfficiency(truth, jet, isEfficient);
 }
 
 void
 InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isFake, bool isBjet) {
    m_trkInJetPlots->fillFakeRate(track, jet, isFake); 
-   if(isBjet) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake); 
+   if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake);
 }
 
+//IDPVM Ntuple
+void
+InDetRttPlots::fillNtuple(const xAOD::TrackParticle& track) {
+  // Fill track only entries with dummy truth values
+  m_ntupleTruthToReco.fillTrack(track);
+  m_ntupleTruthToReco.fillTree();
+}
+
+void
+InDetRttPlots::fillNtuple(const xAOD::TruthParticle& truth) {
+  // Fill truth only entries with dummy track values
+  m_ntupleTruthToReco.fillTruth(truth);
+  m_ntupleTruthToReco.fillTree();
+}
+
+void 
+InDetRttPlots::fillNtuple(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, const int truthMatchRanking) {
+  // Fill track and truth entries
+  m_ntupleTruthToReco.fillTrack(track, truthMatchRanking);
+  m_ntupleTruthToReco.fillTruth(truth);
+  m_ntupleTruthToReco.fillTree();
+}

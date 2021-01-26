@@ -682,9 +682,6 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   trackHitDetails.m_passHadronicROI = false;
   if( m_useHClusSeed && inHadronicROI(ptrTrack, ent) ) {
     trackHitDetails.m_passHadronicROI = true;
-    ent->m_maxSharedModules = 2*m_maxSharedModulesInROI+1; // see header for meaning
-    ent->m_minNotShared     = m_minNotSharedHitsInROI;
-    ent->m_minSiHits        = m_minSiHitsToAllowSplittingInROI;
   }
  
  
@@ -708,10 +705,6 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   }
   // too many holes
   if(trackHitDetails.m_numPixelHoles>1) { recoverSharedHits = false; }
-  //
-  // OVERRIDE criteria
-  if( m_useHClusSeed && trackHitDetails.m_passHadronicROI ) { recoverSharedHits = true; }
-  //------------------------------------------------------------------//
 
 
 
@@ -958,6 +951,17 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::decideWhichHitsToKeep(const Trk
   }
   //------------------------------------------------------------------//
 
+  //------------------------------------------------------------------//
+  // Also check if the pair is compatible with being a boosted hadronic topology. 
+  // This branch focuses on high-pt taus and b-jets in particular  
+  // Same conditions as above.
+  // Do not process any track already modified by the conversion check
+  //
+  if (m_useHClusSeed && !trackHitDetails.m_passConversionSel && trackHitDetails.m_passHadronicROI && 
+    m_doPairSelection && tsosDetails.m_overlappingTracks.size() > 0) {
+    trackHitDetails.m_passConversionSel = performHadDecayCheck(ptrTrack, 
+        prd_to_track_map, trackHitDetails, tsosDetails, ent);
+  }
   
   //------------------------------------------------------------------//
   //
@@ -1196,10 +1200,96 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
   }
   ATH_MSG_DEBUG ("Track "<< mostOverlappingTrack << " shares " << mostOverlappingNumberOfHits ); 
 
+  updateSharedForCollimated(trackHitDetails, tsosDetails);
 
+  return true;
+} // performConversionCheck
+
+
+// GOAL: Do not kill light particle decays in dense jets in the ambi.
+// Based on conversion logic, but tuned towards later decays 
+// Heavily borrows from performConversionCheck, but 
+// separate implementation to for allow future fine-tuning
+// distinct from the conversion version. 
+bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performHadDecayCheck(const Trk::Track* ptrTrack,
+    Trk::PRDtoTrackMap &prd_to_track_map,
+    TrackHitDetails& trackHitDetails,
+    TSoS_Details& tsosDetails,
+    CacheEntry* ent) const
+{
+  ATH_MSG_DEBUG(" Hadron decay Check ");
+
+  // We need to have a good number of unshared SCT hits
+  if ( trackHitDetails.m_numSCT_Unused < m_minUniqueSCTHits )              { return false; }
+  if ( trackHitDetails.m_numPixelHoles + trackHitDetails.m_numSCTHoles >= 2) { return false; }
+
+  //Find the accepted track that shares the most hits our proposed track 
+  const Trk::Track*  mostOverlappingTrack(0);
+  int mostOverlappingNumberOfHits(0);
+  int indexOfFirstOverlappingHit(0);
+  for ( std::multimap<const Trk::Track*,int>::iterator it = tsosDetails.m_overlappingTracks.begin(), 
+      end = tsosDetails.m_overlappingTracks.end(); it != end; 
+      it = tsosDetails.m_overlappingTracks.upper_bound(it->first) ) {
+    int numberOfHitsSharedWithThisTrack  = std::distance( it, tsosDetails.m_overlappingTracks.upper_bound(it->first));
+    ATH_MSG_DEBUG(it->first <<" shares " << numberOfHitsSharedWithThisTrack << " hits with this track " );
+    if (mostOverlappingNumberOfHits < numberOfHitsSharedWithThisTrack){
+      mostOverlappingNumberOfHits = numberOfHitsSharedWithThisTrack;
+      mostOverlappingTrack        = it->first;
+      indexOfFirstOverlappingHit  = it->second;
+    }
+  } // loop over overlapping tracks
+
+  if(!mostOverlappingTrack) { return false; }
+
+  // criteria applied for fitted and pattern tracks
+  if(mostOverlappingNumberOfHits < 2)                         { return false; }
+  if(mostOverlappingNumberOfHits < trackHitDetails.m_numShared) { return false; }
+
+
+  //If an overlapping track if found get the track parameters on the first shared surface
+  auto tpPair = getOverlapTrackParameters(indexOfFirstOverlappingHit, ptrTrack, mostOverlappingTrack, prd_to_track_map, trackHitDetails.m_numSplitSharedPix );
+
+  // If found track parameters at first overlapping track, check separation
+  if (tpPair.first && tpPair.second) {
+    // Check a series of criteria to see if track is a compatible with a boosted decay
+    // Check if both tracks are above threshold
+    if(tpPair.first->pT() <= m_minPairTrackPt || tpPair.second->pT() <= m_minPairTrackPt) {
+      return false;
+    }
+    //Check if it is in a ROI, if requested
+    if(m_useHClusSeed) {
+      if(!isHadCaloCompatible( *tpPair.first, ent )) { return false; }
+    }
+    ATH_MSG_DEBUG ("Possible boosted decay");
+  }
+  // for pattern tracks, cannot get the track parameters at a hit position
+  else if ( trackHitDetails.m_isPatternTrack ) {
+    if(m_useHClusSeed && tpPair.second ) {
+      if(!isHadCaloCompatible( *tpPair.second, ent )) { return false; }
+    }
+    ATH_MSG_DEBUG ("Possible boosted decay - for pattern track");
+  }
+  // if cannot find track parameters, and not a pattern track, then failed
+  else {
+    return false;
+  }
+
+  ATH_MSG_DEBUG ("Number of unused SCT hits:   " <<  trackHitDetails.m_numSCT_Unused);  
+  if (msgLvl(MSG::DEBUG)){
+    trackHitDetails.dumpInfo();
+  }
+  ATH_MSG_DEBUG ("Track "<< mostOverlappingTrack << " shares " << mostOverlappingNumberOfHits ); 
+
+  updateSharedForCollimated(trackHitDetails, tsosDetails);
+
+  return true; 
+}
+
+void InDet::InDetDenseEnvAmbiTrackSelectionTool::updateSharedForCollimated(TrackHitDetails& trackHitDetails,
+          TSoS_Details& tsosDetails) const{
   //Change all shared SCT to SplitSharedHit
-  //Change some shared Pix to SplitSharedHit
   ATH_MSG_VERBOSE ("Updating SCT hit information");
+  
   trackHitDetails.m_numSplitSharedPix = 0;          // reset counter
   trackHitDetails.m_numSplitSharedSCT = 0;          // reset counter
   trackHitDetails.m_numShared         = 0;          // reset counter 
@@ -1247,10 +1337,7 @@ bool InDet::InDetDenseEnvAmbiTrackSelectionTool::performConversionCheck(const Tr
     }
     
   } // loop over TSOS
-
-  return true;
-} // performConversionCheck
-
+} 
 
 //==========================================================================================
 Trk::Track* InDet::InDetDenseEnvAmbiTrackSelectionTool::createSubTrack( const std::vector<const Trk::TrackStateOnSurface*>& tsos, const Trk::Track* track ) const

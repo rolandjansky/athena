@@ -1,14 +1,11 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
  MuonGeoModel description
  -----------------------------------------
  ***************************************************************************/
-
-//<doc><file>	$Id: MuonGMTestOnPrd.cxx,v 1.8 2009-03-28 10:59:01 stefspa Exp $
-//<version>	$Name: not supported by cvs2svn $
 
 #include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -20,12 +17,6 @@
 #include "MuonReadoutGeometry/RpcReadoutElement.h"
 #include "MuonReadoutGeometry/CscReadoutElement.h"
 
-// #include "MuonPrepRawData/MdtPrepDataContainer.h"
-// #include "MuonPrepRawData/MdtPrepDataCollection.h"
-// #include "MuonPrepRawData/MdtPrepData.h"
-
-// #include "Identifier/Identifier.h"
-// #include "Identifier/IdentifierHash.h"
 #include "TrkDistortedSurfaces/SaggedLineSurface.h"
 
 MuonGMTestOnPrd::MuonGMTestOnPrd(const std::string& name, ISvcLocator* pSvcLocator)
@@ -47,9 +38,6 @@ MuonGMTestOnPrd::MuonGMTestOnPrd(const std::string& name, ISvcLocator* pSvcLocat
     declareProperty("doCSC", m_csc );        
     declareProperty("doCheckMisal", m_check_misal );        
 }
-
-MuonGMTestOnPrd::~MuonGMTestOnPrd()
-{ }
 
 StatusCode
 MuonGMTestOnPrd::initialize()
@@ -256,30 +244,7 @@ MuonGMTestOnPrd::execute()
         }
     }
 
-//     // Rpc
-//     Muon::RpcPrepDataContainer * rpcContainer;
-
-//     // Tgc 
-//     TgcPrepDataContainer * tgcContainer;
-//     if ( StatusCode::SUCCESS != p_EventStore->retrieve(tgcContainer, key) )
-//     {
-//         log<<MSG::ERROR<<"Cannot retrieve TGC PRD Container "<<endmsg;
-//         return StatusCode::FAILURE;
-//     }
-//     else
-//         log<<MSG::INFO<<"Retrieved TGC PRD Container with size = " << tgcContainer->size()<< endmsg;
-
-//     // Csc
-//     CscPrepDataContainer * cscContainer;
-    
     return StatusCode::SUCCESS;
-}
-
-StatusCode
-MuonGMTestOnPrd::finalize()
-{
-  ATH_MSG_DEBUG( "Finalizing"  );
-  return StatusCode::SUCCESS;
 }
 
 void MuonGMTestOnPrd::processMdtCollection(const Muon::MdtPrepDataCollection* mdtColl,

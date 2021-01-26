@@ -352,7 +352,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
     from TrigEDMConfig.TriggerEDM import getRun3BSList
 
     # Get list of all output collections for ByteStream (including DataScouting)
-    collectionsToBS = getRun3BSList( ["BS"] + DataScoutingInfo.getAllDataScoutingIdentifiers() )
+    collectionsToBS = getRun3BSList(["BS"] + DataScoutingInfo.getAllDataScoutingIdentifiers())
 
     # Build an output dictionary with key = collection type#name, value = list of ROBFragment module IDs
     ItemModuleDict = OrderedDict()
@@ -376,7 +376,12 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
+    PEBKeys = []
+    for keys in summaryAlg.FinalStepDecisions.values():
+        for key in keys:
+            if 'PEBInfoWriter' in key:
+                PEBKeys.append(key)                
+    stmaker.PEBDecisionKeys = list(set(PEBKeys))
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -388,21 +393,21 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
-        acc.addEventAlgo( hltResultMakerAlg )
+        acc.addEventAlgo(hltResultMakerAlg)
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
-        acc.addEventAlgo( decmaker )
+        decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
+        acc.addEventAlgo(decmaker)
 
         # Create OutputStream alg
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
-        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ])
         writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
         writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
         writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
-        acc.merge( writingAcc )
+        acc.merge(writingAcc)
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc

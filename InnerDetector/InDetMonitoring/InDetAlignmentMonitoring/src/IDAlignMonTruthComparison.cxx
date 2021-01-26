@@ -421,7 +421,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
           
 	  if ( HMPL.isValid()) 
 	    {
+#ifdef HEPMC3
+              HepMC::ConstGenParticlePtr genparptr = HMPL.scptr(); 
+#else
 	      const HepMC::GenParticle *genparptr = HMPL.cptr(); 
+#endif
 
 	      if (genparptr) {
 		if (genparptr->production_vertex()) { 
@@ -579,7 +583,11 @@ StatusCode IDAlignMonTruthComparison::fillHistograms()
           
 	  if ( HMPL.isValid()) 
 	    {
+#ifdef HEPMC3
+              HepMC::ConstGenParticlePtr genparptr = HMPL.scptr(); 
+#else
 	      const HepMC::GenParticle *genparptr = HMPL.cptr(); 
+#endif
 	      
 	      if (genparptr) {
 		if (genparptr->production_vertex()) { 

@@ -30,7 +30,7 @@ runTest02=false
 runTest12=false
 runTest22=false
 # 03 run via a JSON file (otherwise as 01) - works
-# 13 as 03 but with debug stream=True - works (BS file renaming to be finalised)
+# 13 as 03 but with debug stream output - works (BS file renaming to be finalised)
 # 23 like 13 but with copy of file to test input ending with .data
 runTest03=false
 runTest13=false
@@ -533,7 +533,7 @@ fi
 
 if $runTest13 ; then
 
-echo -e "\n******runTest13: BSRDO->BS with DebugStream=True ******"
+echo -e "\n******runTest13: BSRDO->BS with DebugStream output ******"
 
 rm -rf runTest13_BSRDO_BS_Debug
 mkdir runTest13_BSRDO_BS_Debug
@@ -545,7 +545,6 @@ echo "{\
 \"inputBS_RDOFile\": [\"root://eosatlas.cern.ch//eos/atlas/atlastier0/rucio/data15_cos/debug_HLTSVForceAccept/00263146/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW/data15_cos.00263146.debug_HLTSVForceAccept.daq.RAW._lb0000._SFO-2._0001.data\"], \
 \"ignoreErrors\": \"True\", \"runNumber\": \""263146"\", \
 \"outputHIST_HLTMONFile\": \"HIST_HLTMON.04854087._000852.pool.root.1\", \
-\"debug_stream\": \"True\", \
 \"athenaopts\": \"-c testPhysicsV5=True\" \
 }" \
 > data15_cos.00263146.debug_all.daq.RAW.g17.dbgrec.task._0005.job.argdict.json 

@@ -1,8 +1,10 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.Logging import logging
 log = logging.getLogger('TrackingCommon')
+
+use_tracking_geometry_cond_alg = False
 
 def createAndAddCondAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -13,8 +15,10 @@ def createAndAddCondAlg(creator, the_name, **kwargs) :
         if hasattr(seq,the_name) :
             if seq.getName() != "AthCondSeq" :
                 raise Exception('Algorithm already in a sequnece but not the conditions seqence')
-            return
-    cond_seq += creator(**kwargs)
+            return getattr(seq,the_name)
+    alg = creator(**kwargs)
+    cond_seq += alg
+    return alg
 
 def createAndAddEventAlg(creator, the_name, **kwargs) :
     from AthenaCommon.AlgSequence import AlgSequence
@@ -94,7 +98,7 @@ def makePublicTool(tool_creator) :
             if the_name != tool.name() :
                 raise Exception('Tool has not the exepected name %s but %s' % (the_name, tool.name()))
             if private is False :
-                log.debug ('Add to ToolSvc %s', tool.name())
+                log.debug ('Add to ToolSvc %s' % (tool.name()) )
                 ToolSvc += tool
             return tool
         else :
@@ -103,7 +107,6 @@ def makePublicTool(tool_creator) :
     createPublicTool.__name__   = tool_creator.__name__
     createPublicTool.__module__ = tool_creator.__module__
     return createPublicTool
-
 
 def getInDetNewTrackingCuts() :
     from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
@@ -625,16 +628,29 @@ def getInDetUpdator(name = 'InDetUpdator', **kwargs) :
     return Updator(name = the_name, **kwargs)
 
 
+def getTrackingGeometryCondAlg(name="AtlasTrackingGeometryCondAlg",**kwargs) :
+    the_name = makeName( name, kwargs )
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
+    alg = ConfiguredTrackingGeometryCondAlg(the_name)
+    alg.TrackingGeometryWriteKey = 'AlignedTrackingGeometry'
+    return alg
+
+
 @makePublicTool
-def getInDetNavigator(name='InDetNavigator', **kwargs) :
+def getAtlasNavigator(name='AtlasNavigator', **kwargs) :
     the_name = makeName( name, kwargs)
-    if 'TrackingGeometrySvc' not in kwargs :
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs = setDefaults(kwargs, TrackingGeometryKey=cond_alg.TrackingGeometryWriteKey)
+    elif 'TrackingGeometrySvc' not in kwargs :
         from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
         kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
 
     from TrkExTools.TrkExToolsConf import Trk__Navigator
-    return Trk__Navigator(name=the_name,**kwargs )
+    return Trk__Navigator(name=the_name,**kwargs)
 
+def getInDetNavigator(name='InDetNavigator', **kwargs) :
+    return getAtlasNavigator(name,**kwargs)
 
 @makePublicTool
 def getInDetMaterialEffectsUpdator(name = "InDetMaterialEffectsUpdator", **kwargs) :
@@ -714,6 +730,22 @@ def getInDetGsfExtrapolator(name='InDetGsfExtrapolator', **kwargs) :
                                                                SearchLevelClosestParameters  = 10,
                                                                StickyConfiguration           = True,
                                                                SurfaceBasedMaterialEffects   = False ))
+
+@makePublicTool
+def getTrkMaterialProviderTool(name='TrkMaterialProviderTool',**kwargs) :
+    the_name = makeName(name,kwargs)
+    if use_tracking_geometry_cond_alg and 'TrackingGeometryReadKey' not in kwargs :
+        cond_alg = createAndAddCondAlg(getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
+        kwargs = setDefaults(kwargs, TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey)
+    else :
+        from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
+        kwargs = setDefaults(kwargs, TrackingGeometrySvc = AtlasTrackingGeometrySvc)
+
+    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
+    return Trk__TrkMaterialProviderTool( name = the_name, **kwargs)
+
+def getInDetTrkMaterialProviderTool(name='InDetTrkMaterialProviderTool',**kwargs) :
+    return getTrkMaterialProviderTool(name,**kwargs)
 
 @makePublicTool
 def getPRDtoTrackMapTool(name='PRDtoTrackMapTool',**kwargs) :
@@ -871,6 +903,15 @@ def getInDetExtrapolator(name='InDetExtrapolator', **kwargs) :
     from TrkExTools.TrkExToolsConf import Trk__Extrapolator
     return Trk__Extrapolator(name = the_name, **kwargs)
 
+@makePublicTool
+def getInDetTrackToVertexTool(name='TrackToVertex', **kwargs) :
+    the_name = makeName( name, kwargs)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+
+    from TrackToVertex.TrackToVertexConf import Reco__TrackToVertex
+    return Reco__TrackToVertex(the_name,**kwargs)
 
 # @TODO move configuration of InDetSCT_ConditionsSummaryTool to a function
 def_InDetSCT_ConditionsSummaryTool=None
@@ -1603,4 +1644,3 @@ def pixelClusterSplitProbName() :
         InDetNewTrackingCutsDisappearing = ConfiguredNewTrackingCuts("Disappearing")
       ClusterSplitProbContainer = 'InDetAmbiguityProcessorSplitProb'+InDetNewTrackingCutsDisappearing.extension()
     return ClusterSplitProbContainer if hasSplitProb(ClusterSplitProbContainer) else ''
-

@@ -261,12 +261,12 @@ namespace InDetDD {
     // tilt angle is not defined for the endcap
     if (isEndcap()) return 0.;
 
-    HepGeom::Point3D<double> point = globalPositionCLHEP(localPos);
+    Amg::Vector3D point = globalPosition(localPos);
     return sinTilt(point);
   }
 
   double
-  SiDetectorElement::sinTilt(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinTilt(const Amg::Vector3D& globalPos) const
   {
     if (!m_cacheValid) {
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -304,12 +304,12 @@ namespace InDetDD {
       if (!m_cacheValid) updateCache();
     }
 
-    HepGeom::Point3D<double> point=globalPositionCLHEP(localPos);
+    Amg::Vector3D point=globalPosition(localPos);
     return sinStereoImpl(point);
   }
 
   double
-  SiDetectorElement::sinStereo(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereo(const Amg::Vector3D& globalPos) const
   {
     if (!m_cacheValid) {
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -332,7 +332,7 @@ namespace InDetDD {
   }
 
   double
-  SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereoLocal(const Amg::Vector3D& globalPos) const
   {
     return sinStereoLocal(localPosition(globalPos));
   }
@@ -371,7 +371,7 @@ namespace InDetDD {
   }
 
   bool
-  SiDetectorElement::nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const
+  SiDetectorElement::nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const
   {
     return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
   }
@@ -506,17 +506,35 @@ namespace InDetDD {
     // sinStereo = (refVector cross etaAxis) . normal
     //           = -(center cross etaAxis) . zAxis
     //           = (etaAxis cross center). z()
+
+    //Since these are barrel, endcap, sensor-type, specific, might be better for these to be calculated in the design()
+    //However, not clear how one could do that for the annulus calculation which uses global frame
     double sinStereo = 0.;
     if (isBarrel()) {
       sinStereo = m_phiAxis.z();
     } else { // endcap
-      sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
+      if (m_design->shape() == InDetDD::Annulus) { //built-in Stereo angle for Annulus shape sensor
+	Amg::Vector3D sensorCenter = m_design->sensorCenter();
+	//Below retrieved method will return -sin(m_Stereo), thus sinStereolocal = sin(m_Stereo)
+	double sinStereoReco = - (m_design->sinStripAngleReco(sensorCenter[1], sensorCenter[0]));
+	double cosStereoReco = sqrt(1-sinStereoReco*sinStereoReco); 
+	double radialShift = sensorCenter[0]; 
+	//The focus of all strips in the local reco frame
+	Amg::Vector2D localfocus(-radialShift*sinStereoReco, radialShift - radialShift*cosStereoReco);
+	//The focus of all strips in the global frame
+	Amg::Vector3D globalfocus(globalPosition(localfocus));
+	//The direction of x-axis of the Strip frame in the global frame
+	Amg::Vector3D globalSFxAxis =(m_center - globalfocus)/radialShift;
+	//Stereo angle is the angle between global radial direction and the x-axis of the Strip frame in the global frame 
+	sinStereo = (m_center.y() * globalSFxAxis.x() - m_center.x() * globalSFxAxis.y()) / m_center.perp();   
+      }
+      else sinStereo = (m_center.y() * m_etaAxis.x() - m_center.x() * m_etaAxis.y()) / m_center.perp();
     }
     return sinStereo;
   }
 
   double
-  SiDetectorElement::sinStereoImpl(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereoImpl(const Amg::Vector3D& globalPos) const
   {
     //
     // sinStereo =  (refVector cross stripAxis) . normal
@@ -528,7 +546,7 @@ namespace InDetDD {
       } else { // trapezoid
         assert (minWidth() != maxWidth());
         double radius = width() * length() / (maxWidth() - minWidth());
-        HepGeom::Vector3D<double> stripAxis = radius * m_etaAxisCLHEP + globalPos - m_centerCLHEP;
+	Amg::Vector3D stripAxis = radius * m_etaAxis + globalPos - m_center;
         sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
       }
     } else { // endcap

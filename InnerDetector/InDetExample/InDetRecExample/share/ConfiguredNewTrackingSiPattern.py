@@ -61,7 +61,10 @@ class  ConfiguredNewTrackingSiPattern:
       #
       # ------------------------------------------------------------
 
+      doSeedMakerValidation = InDetFlags.writeSeedValNtuple()
+
       if InDetFlags.doSiSPSeededTrackFinder():
+
          #
          # --- Space points seeds maker, use different ones for cosmics and collisions
          #
@@ -95,6 +98,17 @@ class  ConfiguredNewTrackingSiPattern:
                                                                SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                radMax                 = NewTrackingCuts.radMax(),
                                                                RapidityCut            = NewTrackingCuts.maxEta())
+
+         if doSeedMakerValidation:
+
+           InDetSiSpacePointsSeedMaker.WriteNtuple = True
+
+           from AthenaCommon.AppMgr import ServiceMgr
+           if not hasattr(ServiceMgr, 'THistSvc'):
+             from GaudiSvc.GaudiSvcConf import THistSvc
+             ServiceMgr += THistSvc()
+
+           ServiceMgr.THistSvc.Output  = ["valNtuples DATAFILE='SeedMakerValidation.root' OPT='RECREATE'"]
             
          if NewTrackingCuts.mode() == "Offline" or InDetFlags.doHeavyIon() or  NewTrackingCuts.mode() == "ForwardTracks":
             InDetSiSpacePointsSeedMaker.maxdImpactPPS = NewTrackingCuts.maxdImpactPPSSeeds()
@@ -454,10 +468,11 @@ class  ConfiguredNewTrackingSiPattern:
            InDetAmbiTrackSelectionTool.minPtSplit                = InDetFlags.pixelClusterSplitMinPt()       #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.maxSharedModulesInROI     = 3     #Maximum number of shared modules for tracks in ROI
            InDetAmbiTrackSelectionTool.minNotSharedInROI         = 2     #Minimum number of unique modules for tracks in ROI
-           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 7  #Minimum number of Si hits to allow splittings for tracks in ROI
-           InDetAmbiTrackSelectionTool.phiWidth                  = 0.1     #Split cluster ROI size
-           InDetAmbiTrackSelectionTool.etaWidth                  = 0.1     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.minSiHitsToAllowSplittingInROI = 8  #Minimum number of Si hits to allow splittings for tracks in ROI
+           InDetAmbiTrackSelectionTool.phiWidth                  = 0.05     #Split cluster ROI size
+           InDetAmbiTrackSelectionTool.etaWidth                  = 0.05     #Split cluster ROI size
            InDetAmbiTrackSelectionTool.InputEmClusterContainerName = InDetKeys.CaloClusterROIContainer()
+           InDetAmbiTrackSelectionTool.minPtBjetROI              = 10000
            InDetAmbiTrackSelectionTool.doEmCaloSeed              = True   #Only split in cluster in region of interest
            InDetAmbiTrackSelectionTool.minPtConv                 = 10000   #Only allow split clusters on track withe pt greater than this MeV
            InDetAmbiTrackSelectionTool.phiWidthEM                = 0.05     #Split cluster ROI size

@@ -120,13 +120,16 @@ namespace CP{
   }
 
 
-  float ShowerDepthTool::getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData) const
+  std::optional<float> ShowerDepthTool::getCaloPointingEta(const float& etas1,const float& etas2,const float& phi,const bool& isData) const
   {
     std::pair<float, float> RZ1 = getCorrectedRZ(etas1, phi, isData, 1);
     std::pair<float, float> RZ2 = getCorrectedRZ(etas2, phi, isData, 2);
 
-    if (RZ1.first == 0. || RZ2.first == 0.) return -9999.;
-    return asinh( (RZ2.second - RZ1.second) / (RZ2.first - RZ1.first) );
+    //Sanity check
+    constexpr float epsilon=1e-6;
+    if (std::fabs(RZ2.first - RZ1.first) < epsilon) return std::nullopt;
+
+    return std::optional<float>(asinh( (RZ2.second - RZ1.second) / (RZ2.first - RZ1.first)));
   }
 
 

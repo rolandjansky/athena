@@ -46,7 +46,6 @@ void EVetoPlots::initializePlots(){
 
 void EVetoPlots::fill(const xAOD::TauJet& tau) {
 
-
   float avariable=0;
 
   bool test=tau.detail(xAOD::TauJetParameters::hadRadius, avariable);
@@ -61,20 +60,21 @@ void EVetoPlots::fill(const xAOD::TauJet& tau) {
   test=tau.detail(xAOD::TauJetParameters::centFrac, avariable);
   if (test) m_CentFrac->Fill(avariable,1.);
 
-  if(tau.hasDiscriminant(xAOD::TauJetParameters::RNNEleScore) )m_id_RNNEleScore->Fill(tau.discriminant(xAOD::TauJetParameters::RNNEleScore));
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNLoose) ) {
-     m_pt_eleRNNloose      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNlooseHighPt->Fill(tau.pt()/1000.0, 1.0);
+  if(tau.isAvailable<float>("RNNEleScore")) {
+    m_id_RNNEleScore->Fill(tau.discriminant(xAOD::TauJetParameters::RNNEleScore));
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNLoose) ) {
+      m_pt_eleRNNloose      ->Fill(tau.pt()/1000.0, 1.0);
+      m_pt_eleRNNlooseHighPt->Fill(tau.pt()/1000.0, 1.0);
+    }
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNMedium) ) {
+      m_pt_eleRNNmed      ->Fill(tau.pt()/1000.0, 1.0);
+      m_pt_eleRNNmedHighPt->Fill(tau.pt()/1000.0, 1.0);
+    }
+    if ( tau.isTau(xAOD::TauJetParameters::EleRNNTight) ) {
+      m_pt_eleRNNtight      ->Fill(tau.pt()/1000.0, 1.0);
+      m_pt_eleRNNtightHighPt->Fill(tau.pt()/1000.0, 1.0);
+    }
   }
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNMedium) ) {
-     m_pt_eleRNNmed      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNmedHighPt->Fill(tau.pt()/1000.0, 1.0);
-  }
-  if ( tau.isTau(xAOD::TauJetParameters::EleRNNTight) ) {
-     m_pt_eleRNNtight      ->Fill(tau.pt()/1000.0, 1.0);
-     m_pt_eleRNNtightHighPt->Fill(tau.pt()/1000.0, 1.0);
-  }
-
 }
 
 }

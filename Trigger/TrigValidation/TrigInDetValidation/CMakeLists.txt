@@ -17,5 +17,5 @@ atlas_install_scripts( scripts/TIDA*.py test/test*.py POST_BUILD_CMD ${ATLAS_FLA
 # Unit test for python test scripts:
 atlas_add_test( TrigValSteeringUT
                 SCRIPT trigvalsteering-unit-tester.py ${CMAKE_CURRENT_SOURCE_DIR}/test
-                PROPERTIES TIMEOUT 1200
+                PROPERTIES TIMEOUT 600
                 POST_EXEC_SCRIPT nopost.sh )

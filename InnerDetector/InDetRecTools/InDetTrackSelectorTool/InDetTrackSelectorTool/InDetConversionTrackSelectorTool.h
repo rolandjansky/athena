@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef InDetTrackSelectorTool_InDetConversionTrackSelectorTool_H
@@ -8,7 +8,7 @@
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-#include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "xAODTracking/TrackParticle.h"
@@ -62,7 +62,8 @@ private:
     return val > 0 ? val : 0;
   }
 
-  Amg::Vector3D getPosOrBeamSpot(const xAOD::Vertex*) const;
+  Amg::Vector3D getPosOrBeamSpot(const EventContext& ctx,
+                                 const xAOD::Vertex*) const;
 
   ToolHandle<Trk::IExtrapolator> m_extrapolator{ this,
                                                  "Extrapolator",

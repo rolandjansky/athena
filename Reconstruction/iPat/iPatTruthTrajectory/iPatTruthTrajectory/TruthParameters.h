@@ -10,7 +10,7 @@
 #ifndef IPATTRUTHTRAJECTORY_TRUTHPARAMETERS_H
 #define IPATTRUTHTRAJECTORY_TRUTHPARAMETERS_H
 
-//<<<<<< INCLUDES                                                       >>>>>>
+//INCLUDES
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -20,7 +20,7 @@
 #include "iPatInterfaces/ITruthParameters.h"
 #include "iPatTrackParameters/PerigeeParameters.h"
 
-//<<<<<< CLASS DECLARATIONS                                             >>>>>>
+//CLASS DECLARATIONS
 
 class ITruthSelector;
 namespace Trk  { class IIntersector; }
@@ -39,14 +39,14 @@ public:
     StatusCode			finalize();
 
     const PerigeeParameters*	perigeeParameters(int barcode, const Amg::Vector3D& vertex);
-    const PerigeeParameters*	perigeeParameters(const HepMC::GenParticle& particle,
+    const PerigeeParameters*	perigeeParameters(HepMC::ConstGenParticlePtr particle,
 						  const Amg::Vector3D& vertex);
     const TrackParameters*	trackParameters(int barcode);
-    const TrackParameters*	trackParameters(const HepMC::GenParticle& particle);
+    const TrackParameters*	trackParameters(HepMC::ConstGenParticlePtr particle);
   
 private:
-    const HepMC::GenParticle*	findParticle(int barcode);
-    void			trackFromParticle(const HepMC::GenParticle& particle);
+    HepMC::ConstGenParticlePtr	findParticle(int barcode);
+    void			trackFromParticle(HepMC::ConstGenParticlePtr particle);
 
 
     // configuration: tools etc

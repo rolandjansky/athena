@@ -24,11 +24,6 @@ parser.add_option( '-u', '--unit-test', dest='unit_test',
 import ROOT
 ROOT.xAOD.Init().ignore()
 
-# this forces the jet algorithms dictionary to be loaded before
-# anything else, which works around some strange dictionary issues I
-# don't understand.
-ROOT.CP.JetCalibrationAlg ("dummy", None)
-
 # ideally we'd run over all of them, but we don't have a mechanism to
 # configure per-sample right now
 

@@ -600,6 +600,7 @@ Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::TrackP
     correctThetaPhiRange(r,R,true,rioPar.parameterKey());
   
   // compute Kalman gain matrix
+  if (R.determinant()==0.) return nullptr;
   Amg::MatrixX K   = covTrk * H.transpose() * R.inverse();
   AmgSymMatrix(5) I;  // 5x5 unit matrix
   I.setIdentity();

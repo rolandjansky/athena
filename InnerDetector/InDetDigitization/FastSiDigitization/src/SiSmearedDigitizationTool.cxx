@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -25,7 +25,6 @@
 // Random numbers
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 #include "CLHEP/Vector/ThreeVector.h"
 
@@ -35,7 +34,6 @@
 // Pile-up
 #include "PileUpTools/PileUpMergeSvc.h"
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 #include "SCT_ReadoutGeometry/SCT_ModuleSideDesign.h"
 #include "SCT_ReadoutGeometry/SCT_BarrelModuleSideDesign.h"
@@ -53,9 +51,7 @@
 #include "InDetPrepRawData/SiCluster.h"
 #include "EventPrimitives/EventPrimitivesHelpers.h"
 
-// Trk includes
-#include "TrkGeometry/TrackingGeometry.h"
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkSurfaces/DiscSurface.h"
 
 // Root
 #include "TTree.h"
@@ -124,9 +120,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   m_Err_y_pixel(0),
   m_Err_x_SCT(0),
   m_Err_y_SCT(0),
-  m_trackingGeometrySvc("TrackingGeometrySvc","AtlasTrackingGeometrySvc"),
-  m_trackingGeometry(0),
-  m_trackingGeometryName("AtlasTrackingGeometry"),
   m_useCustomGeometry(false)
 {
   declareProperty("RndmSvc",                      m_rndmSvc, "Random Number Service used in SCT & Pixel digitization" );
@@ -144,8 +137,6 @@ SiSmearedDigitizationTool::SiSmearedDigitizationTool(const std::string &type, co
   declareProperty("DetectorElementMapName",       m_detElementMapName="Pixel_IdHashDetElementMap");
   declareProperty("CheckSmear",                   m_checkSmear);
 
-  // get the service handle for the TrackingGeometry
-  declareProperty("TrackingGeometrySvc"          , m_trackingGeometrySvc);
   declareProperty("UseCustomGeometry", m_useCustomGeometry);
   declareProperty("HardScatterSplittingMode"     , m_HardScatterSplittingMode, "Control pileup & signal splitting" );
 
@@ -204,17 +195,6 @@ StatusCode SiSmearedDigitizationTool::initialize()
   if (!m_mergeSvc.retrieve().isSuccess()) {
     ATH_MSG_ERROR ( "Could not find PileUpMergeSvc" );
     return StatusCode::FAILURE;
-  }
-
-  if (m_SmearPixel && m_useCustomGeometry){
-
-    if (m_trackingGeometrySvc.retrieve().isFailure()) {
-      ATH_MSG_FATAL( "Cannot retrieve TrackingGeometrySvc. Abort job. " );
-      return StatusCode::FAILURE;
-    }
-
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-
   }
 
   if (m_checkSmear){
@@ -891,16 +871,6 @@ StatusCode SiSmearedDigitizationTool::mergeClusters(Planar_detElement_RIO_map * 
 StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
 {
   ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: in SiSmearedDigizationTool::digitize() ---" );
-
-  if(m_useCustomGeometry) {
-    if ((detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName)).isFailure()) {
-      ATH_MSG_FATAL( "Could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-      return StatusCode::FAILURE;
-    }
-    else
-      ATH_MSG_INFO( "TrackingGeometry '" << m_trackingGeometryName << "' successfully retrieved from DetectorStore." );
-  }
-
   m_detElementMap = new iFatras::IdHashDetElementCollection;
   //Retrieve and/or store the map with IdHash to DetElement
   if ((detStore()->contains<iFatras::IdHashDetElementCollection>(m_detElementMapName))){
@@ -1297,7 +1267,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         if (sigmaX != 0.) {
           double sParX = 0.;
           do {
-            sParX = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaX);
+            sParX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine, 0., sigmaX);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for X --- " << sParX);
           } while (std::fabs(interX+sParX)>(hitPlanarDetElement->lengthXmin()*0.5));
           interX += sParX;
@@ -1305,7 +1275,7 @@ StatusCode SiSmearedDigitizationTool::digitize(const EventContext& ctx)
         if (sigmaY != 0.) {
           double sParY = 0.;
           do {
-            sParY = CLHEP::RandGauss::shoot(m_randomEngine, 0., sigmaY);
+            sParY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine, 0., sigmaY);
             ATH_MSG_DEBUG( "--- SiSmearedDigitizationTool: extracted gaussian value for Y --- " << sParY);
           }  while (std::fabs(interY+sParY)>(hitPlanarDetElement->lengthY()*0.5));
           interY += sParY;

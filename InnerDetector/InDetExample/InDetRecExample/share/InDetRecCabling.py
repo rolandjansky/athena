@@ -17,11 +17,6 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   from AthenaCommon.AlgSequence import AthSequencer
   condSeq = AthSequencer("AthCondSeq")
 
-  useNewDeadmapFormat = False
-  if not useNewDeadmapFormat:
-    if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-      conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
-
   if not hasattr(condSeq, "PixelConfigCondAlg"):
     from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
 
@@ -70,10 +65,6 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
         alg.EndcapTimeOffset=[100.0,100.0,100.0]
         alg.DBMTimeOffset=[100.0,100.0,100.0]
 
-      if athenaCommonFlags.isOnline():
-        alg.ReadDeadMapKey = ''
-      if useNewDeadmapFormat:
-        alg.ReadDeadMapKey = ''
       condSeq += alg
 
   #####################
@@ -82,9 +73,9 @@ if DetFlags.detdescr.pixel_on() and not 'PixelCabling' in dir():
   if (conddb.dbdata=="CONDBR2" or (conddb.dbmc=="OFLP200" and geoFlags.isIBL()==True)) and not conddb.folderRequested("/PIXEL/HitDiscCnfg"):
     conddb.addFolderSplitMC("PIXEL","/PIXEL/HitDiscCnfg","/PIXEL/HitDiscCnfg", className="AthenaAttributeList")
 
-  if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
-    from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
-    condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
+    if not hasattr(condSeq, 'PixelHitDiscCnfgAlg'):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelHitDiscCnfgAlg
+      condSeq += PixelHitDiscCnfgAlg(name="PixelHitDiscCnfgAlg")
 
   if not conddb.folderRequested("/PIXEL/ReadoutSpeed"):
     if not (globalflags.DataSource() == 'geant4'):

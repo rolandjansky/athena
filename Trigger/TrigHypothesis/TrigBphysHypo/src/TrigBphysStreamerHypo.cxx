@@ -29,7 +29,7 @@ StatusCode TrigBphysStreamerHypo::initialize() {
 
 StatusCode TrigBphysStreamerHypo::execute( const EventContext& context ) const {
 
-  ATH_MSG_DEBUG( "TrigMultiTrkHypo::execute() starts" );
+  ATH_MSG_DEBUG( "TrigBphysStreamerHypo::execute() starts" );
 
   ATH_MSG_DEBUG( "decision input key: " << decisionInput().key() );
   auto previousDecisionsHandle = SG::makeHandle(decisionInput(), context);

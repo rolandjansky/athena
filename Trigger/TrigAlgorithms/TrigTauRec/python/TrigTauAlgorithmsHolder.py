@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -6,7 +6,6 @@
 #
 #@brief All tau algorithms needed for tau reconstruction are configured here.
 #
-#@author Felix Friedrich <felix.friedrich@cern.ch>
 ################################################################################
 
 from AthenaCommon.SystemOfUnits import mm, MeV, GeV
@@ -97,7 +96,9 @@ def getEnergyCalibrationLC(caloOnly=False):
     
     from tauRecTools.tauRecToolsConf import TauCalibrateLC
     TauCalibrateLC = TauCalibrateLC(name = _name,
-                                    calibrationFile = calibFileName)
+                                    calibrationFile = calibFileName,
+                                    doPtResponse = False,
+                                    VertexCorrection = doVertexCorrection)
 
     TauCalibrateLC.isCaloOnly = caloOnly
     #Need to empty the vertex key collection in the trigger case
@@ -541,12 +542,12 @@ def getTauVertexFinder(doUseTJVA=False):
                                       UseTJVA                 = doUseTJVA,
                                       AssociatedTracks="GhostTrack", # OK??
                                       InDetTrackSelectionToolForTJVA = getInDetTrackSelectionToolForTJVA(),
-                                      Key_JetTrackVtxAssoc_forTaus= "JetTrackVtxAssoc_forTaus",
                                       Key_vertexInputContainer = "",
                                       Key_trackPartInputContainer= "",
                                       OnlineMaxTransverseDistance = 2.5*mm,   # ATR-15665
                                       # OnlineMaxLongitudinalDistance = 2 *mm,
-                                      OnlineMaxZ0SinTheta = 3.0 *mm    
+                                      OnlineMaxZ0SinTheta = 3.0 *mm,
+                                      TVATool = getTVATool()
                                       )
     
     cached_instances[_name] = TauVertexFinder         
@@ -835,6 +836,29 @@ def getParticleCaloExtensionTool():
     cached_instances[_name] = tauParticleCaloExtensionTool
     return tauParticleCaloExtensionTool   
 
+########################################################################
+# TrackVertexAssociationTool (for vertex finder)
+def getTVATool():
+    _name = sPrefix + "TVATool"
+    if _name in cached_instances:
+        return cached_instances[_name]
+
+    from TrackVertexAssociationTool.TrackVertexAssociationToolConf import CP__TrackVertexAssociationTool
+    TVATool = CP__TrackVertexAssociationTool(name = _name,
+                                             WorkingPoint = "Custom",
+                                             d0_cut = 2.5*mm,
+                                             use_d0sig = False,
+                                             d0sig_cut = -1,
+                                             dzSinTheta_cut = 3.0*mm,
+                                             doUsedInFit = False,
+                                             requirePriVtx=False
+                                             )
+
+    from AthenaCommon.AppMgr import ToolSvc
+    ToolSvc += TVATool
+
+    cached_instances[_name] = TVATool
+    return TVATool
 
 # end
 
@@ -1040,3 +1064,4 @@ def getTauSetTracksAndCharge():
     return TauSetTracksAndCharge
 
 """
+

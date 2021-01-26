@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DecisionHandling/HypoBase.h"
@@ -78,7 +78,7 @@ StatusCode HypoBase::recursiveValidateGraph(const ElementLink<DecisionContainer>
   ATH_CHECK( validateParentLinking(dEL) );
   // Continue upstream
   const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
-  for (const ElementLink<DecisionContainer>& seed : seeds) {
+  for (const ElementLink<DecisionContainer> seed : seeds) {
     ATH_CHECK( seed.isValid() );
     ATH_CHECK( recursiveValidateGraph(seed) );
   }
@@ -146,7 +146,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
   for (const DecisionID id : decisionIDSet) {
     // For each chain that I'm passing, check how many of my parents were also passing the chain
     size_t parentsWithDecision = 0;  
-    for (const ElementLink<DecisionContainer>& seed : seeds) {
+    for (const ElementLink<DecisionContainer> seed : seeds) {
       ATH_CHECK( seed.isValid() );
       DecisionIDContainer seedIDSet;
       decisionIDs(*seed, seedIDSet);
@@ -171,7 +171,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       printErrorHeader(dEL);
       ATH_MSG_ERROR("! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ));
       ATH_MSG_ERROR("! This chain's DecisionID can not be found in any parents of this Decision object:");
-      for (const ElementLink<DecisionContainer>& seed : seeds) {
+      for (const ElementLink<DecisionContainer> seed : seeds) {
         ATH_MSG_ERROR("! Index:" << (*seed)->index() << " from collection:" << seed.dataID());
         ATH_MSG_ERROR("! " << **seed);
       }
@@ -189,7 +189,7 @@ StatusCode HypoBase::validateLogicalFlow(const ElementLink<DecisionContainer>& d
       ATH_MSG_ERROR("! This Decision object is not respecting logical flow of DecisionIDs for chain: " << HLT::Identifier( id ));
       ATH_MSG_ERROR("! As this Decision object represents the output of a HypoAlg, it must respect logical flow on all " 
         << seeds.size() << " of its parent(s):");
-      for (const ElementLink<DecisionContainer>& seed : seeds) {
+      for (const ElementLink<DecisionContainer> seed : seeds) {
         ATH_MSG_ERROR("! Index:" << (*seed)->index() << " from collection:" << seed.dataID());
         ATH_MSG_ERROR("! " << **seed);
       }
@@ -211,7 +211,7 @@ StatusCode HypoBase::validateHasFeature(const ElementLink<DecisionContainer>& dE
   // I might be a multi-slice Combo Hypo, if so, my immediate parents must all have features
   const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
   // The case of no-seeds is a separate validation check
-  for (const ElementLink<DecisionContainer>& seed : seeds) {
+  for (const ElementLink<DecisionContainer> seed : seeds) {
     ATH_CHECK( seed.isValid() );
     if ((*seed)->hasObjectLink( featureString() )) {
       continue; // Good

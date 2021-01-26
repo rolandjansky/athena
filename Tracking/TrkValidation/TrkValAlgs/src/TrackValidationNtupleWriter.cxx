@@ -565,9 +565,6 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
 
     const unsigned int nTruthTreeRecordsAtCurrentEvent = 
       (m_doTruth ? m_truthNtupleTool->getNumberOfTreeRecords() : 0 );
-    //truthData.truthToTrackIndices
-    //std::vector< std::vector<unsigned int> >    truthToTrackIndices(selecParticles ? selecParticles->size() : 0);
-    //std::vector< std::vector<float> >           truthToTrackMatchingProbabilities(selecParticles ? selecParticles->size() : 0);
 
     int trackTreeIndexBegin = m_trees[trackColIndex]->GetEntries();
     int nTracksPerEvent = 0;
@@ -604,11 +601,15 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Link to generated particle information is not there - assuming a lost G4 particle ('fake fake')." << endmsg;
                     genParticle = m_visibleParticleWithoutTruth; // with pdg_id 0
                   } else {
+#ifdef HEPMC3
+                    genParticle = trackTruth->particleLink().scptr();
+#else
                     genParticle = trackTruth->particleLink().cptr();
+#endif
                     if ( genParticle!=NULL && genParticle->pdg_id() == 0 ) {
                       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Associated Particle ID " << genParticle->pdg_id()
                             << " does not conform to PDG requirements... ignore it!" << endmsg;
-                      genParticle = 0;
+                      genParticle = nullptr;
                     } 
                   }
                 }
@@ -618,9 +619,7 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                   const Trk::TrackParameters* generatedTrackPerigee(0);
                   const Trk::TrackParameters* newTrackPerigee(0);
                   // fill the truth data in the track tree
-                  //unsigned int truthIndex = particleToIndexMap[genParticle];
                   int truthIndex = -1;
-                  //std::vector<const HepMC::GenParticle*>::const_iterator matchedPartIter = find(selecParticles->begin(), selecParticles->end(), genParticle);
                   // TODO: do the search somehow better:
                   std::vector<Trk::ValidationTrackTruthData>::iterator matchedPartIter = truthData.begin();
                   for (; matchedPartIter != truthData.end(); matchedPartIter++) {
@@ -636,7 +635,6 @@ StatusCode Trk::TrackValidationNtupleWriter::writeTrackData(unsigned int trackCo
                       generatedTrackPerigee = newTrackPerigee;
                     }
                   } else {
-                    //truthIndex = int(matchedPartIter - selecParticles->begin());
                     // store the index in the track tree of the current track (establish link from truth to track)
                     (*matchedPartIter).truthToTrackIndices[trackColIndex].push_back(m_nTrackTreeRecords[trackColIndex]);
                     (*matchedPartIter).truthToTrackMatchingProbabilities[trackColIndex].push_back(trackTruth->probability());
@@ -737,7 +735,11 @@ StatusCode Trk::TrackValidationNtupleWriter::finalize() {
 
     msg(MSG::INFO)  << "TrackValidationNtupleWriter finalize()" << endmsg;
 
+#ifdef HEPMC3
+    //This is smart pointer in HepMC3
+#else
     delete m_visibleParticleWithoutTruth;
+#endif
     for (unsigned int toolIndex = 0 ; toolIndex < m_eventPropertyNtupleTools.size(); ++toolIndex ){
       if (m_eventPropertyNtupleTools[toolIndex]->resetVariables( ).isFailure()){};
     }

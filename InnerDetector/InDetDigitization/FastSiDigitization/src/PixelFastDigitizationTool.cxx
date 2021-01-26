@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////////////
@@ -22,7 +22,6 @@
 // Random numbers
 #include "CLHEP/Random/RandGaussZiggurat.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "CLHEP/Random/RandLandau.h"
 
 // DataHandle
@@ -30,7 +29,6 @@
 
 // Pile-up
 
-#include "InDetReadoutGeometry/SiDetectorDesign.h"
 #include "PixelReadoutGeometry/PixelModuleDesign.h"
 
 // Fatras
@@ -676,7 +674,7 @@ StatusCode PixelFastDigitizationTool::digitize(const EventContext& ctx)
           // create the smdar parameter
           double sPar = m_pixSmearLandau ?
             m_pixSmearPathLength*CLHEP::RandLandau::shoot(m_randomEngine) :
-            m_pixSmearPathLength*CLHEP::RandGauss::shoot(m_randomEngine);
+            m_pixSmearPathLength*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
           pathlenght *=  (1.+sPar);
         }
 

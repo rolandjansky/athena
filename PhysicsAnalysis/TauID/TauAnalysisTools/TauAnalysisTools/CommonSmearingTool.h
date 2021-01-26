@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUANALYSISTOOLS_COMMONSMEARINGTOOL_H
@@ -11,10 +11,6 @@
   author: Dirk Duschinger
   mail: dirk.duschinger@cern.ch
   documentation in: ../README.rst
-                    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/tags/TauAnalysisTools-<tag>/README.rst
-		    or
-                    https://svnweb.cern.ch/trac/atlasoff/browser/PhysicsAnalysis/TauID/TauAnalysisTools/trunk/README.rst
 */
 
 // Framework include(s):
@@ -26,7 +22,7 @@
 #include "xAODTruth/TruthParticle.h"
 #include "PATInterfaces/CorrectionCode.h"
 
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 
 // Local include(s):
 #include "TauAnalysisTools/Enums.h"
@@ -120,7 +116,7 @@ protected:
 
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESVariableDecorator;
   asg::AnaToolHandle<ITauToolBase> m_tMvaTESEvaluator;
-  asg::AnaToolHandle<ITauToolBase> m_tCombinedP4FromRecoTaus;
+  asg::AnaToolHandle<ITauToolBase> m_tTauCombinedTES;
 
   e_TruthMatchedParticleType m_eCheckTruth;
   bool m_bNoMultiprong;

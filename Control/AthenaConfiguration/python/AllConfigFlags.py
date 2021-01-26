@@ -48,8 +48,16 @@ def _createCfgFlags():
         collections = [col for col in rawCollections if not col.endswith('Aux.') ]
         return collections
 
+    def _typedInputCollections(inputFile):
+        if not inputFile:
+            return []
+
+        collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
+        return collections
+
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
     acf.addFlag('Input.SecondaryCollections', lambda prevFlags : _inputCollections(prevFlags.Input.SecondaryFiles) )
+    acf.addFlag('Input.TypedCollections', lambda prevFlags : _typedInputCollections(prevFlags.Input.Files) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
@@ -73,6 +81,8 @@ def _createCfgFlags():
             return "AthSimulation"
         if "AthGeneration_DIR" in os.environ:
             return "AthGeneration"
+        if "AthAnalysis_DIR" in os.environ:
+            return "AthAnalysis"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -146,6 +156,7 @@ def _createCfgFlags():
     # Run dependent simulation
     # map from runNumber to timestamp; migrated from RunDMCFlags.py
     acf.addFlag("IOVDb.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
+    acf.addFlag("IOVDb.DBConnection", lambda prevFlags : "sqlite://;schema=mycool.db;dbname=" + prevFlags.IOVDb.DatabaseInstance)
 
 
     def __bfield():

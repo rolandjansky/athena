@@ -1,11 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUON_IMUONTRACKBUILDER_H
 #define MUON_IMUONTRACKBUILDER_H
 
 #include <vector>
+#include <memory>
 #include "GaudiKernel/IAlgTool.h"
 
 
@@ -14,6 +15,7 @@ static const InterfaceID IID_IMuonTrackBuilder
 
 namespace Trk {
   class Track;
+  class MeasurementBase;
 }
 
 namespace Muon {
@@ -21,6 +23,7 @@ namespace Muon {
   class MuPatCandidateBase;
   class MuPatSegment;
   class MuPatTrack;
+  class MuPatHit;
   
   /** @brief The IMuonTrackBuilder is a pure virtual interface for tools extending muon track candidates with 
       segments in a given chamber
@@ -43,10 +46,11 @@ namespace Muon {
 	        The ownership of the tracks is passed to the client calling the tool.
 	
     */
-    virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments ) const = 0;
+    virtual std::vector<std::unique_ptr<MuPatTrack> > find( MuPatCandidateBase& candidate, const std::vector<MuPatSegment*>& segments,
+                                                            std::vector<std::unique_ptr<MuPatHit> >& hitsToBeDeleted,
+                                                            std::vector<std::unique_ptr<const Trk::MeasurementBase> >& measurementsToBeDeleted ) const = 0;
 
 
-    virtual void cleanUp() const {};
   };
   
   inline const InterfaceID& IMuonTrackBuilder::interfaceID()

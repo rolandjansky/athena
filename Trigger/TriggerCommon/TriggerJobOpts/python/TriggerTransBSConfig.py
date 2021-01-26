@@ -27,8 +27,7 @@ def triggerTransBSCfg(flags, seqName="AthAlgSeq"):
         extraInputs += [('ROIB::RoIBResult', 'StoreGateSvc+RoIBResult')]
 
     if flags.Trigger.enableL1Phase1:
-        itemList += ["xAOD::TrigCompositeContainer#L1TriggerResult",
-                     "xAOD::TrigCompositeAuxContainer#L1TriggerResultAux."]
+        itemList += ["xAOD::TrigCompositeContainer#L1TriggerResult"]
         extraInputs += [('xAOD::TrigCompositeContainer', 'StoreGateSvc+L1TriggerResult')]
 
     # --------------------------------------------------
@@ -53,13 +52,11 @@ def triggerTransBSCfg(flags, seqName="AthAlgSeq"):
     # --------------------------------------------------
     if flags.Trigger.doCalo:
         # LAr
-        from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolConfig
-        lar_tool = LArRawDataContByteStreamToolConfig(InitializeForWriting=True)
-        acc.addPublicTool(lar_tool)
+        from LArByteStream.LArByteStreamConfig import LArRawDataContByteStreamToolCfg
+        larToolCA, larExtraInputs = LArRawDataContByteStreamToolCfg(flags, InitializeForWriting=True)
+        acc.merge(larToolCA)
         itemList += ["LArRawChannelContainer#*"]
-        extraInputs += [('CaloNoise', 'ConditionStore+totalNoise'),
-                        ('LArOnOffIdMapping', 'ConditionStore+LArOnOffIdMap'),
-                        ('LArFebRodMapping', 'ConditionStore+LArFebRodMap')]
+        extraInputs += larExtraInputs
         # Tile
         itemList += ["TileRawChannelContainer#*"]
         typeNames += ["TileCellIDC/TileCellIDC"]

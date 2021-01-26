@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TgcRawDataMonitorAlgorithm.h"
@@ -14,7 +14,7 @@ TgcRawDataMonitorAlgorithm::TgcRawDataMonitorAlgorithm( const std::string& name,
 StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   ATH_CHECK(AthMonitorAlgorithm::initialize());
   ATH_CHECK(m_idHelperSvc.retrieve());
-  ATH_CHECK(m_extrapolator.retrieve()); 
+  ATH_CHECK(m_extrapolator.retrieve());
   ATH_CHECK(m_MuonContainerKey.initialize());
   ATH_CHECK(m_MuonRoIContainerKey.initialize(SG::AllowEmpty));
   ATH_CHECK(m_TgcPrepDataContainerKey.initialize());
@@ -32,7 +32,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
   m_extZposition.push_back(-m_M3_Z.value());
   m_extZposition.push_back(-m_EI_Z.value());
   m_extZposition.push_back(-m_FI_Z.value());
-  
+
   TObjArray* tagList = TString(m_trigTagList.value()).Tokenize(",");
   std::set<TString> alllist;
   for(int i = 0 ; i < tagList->GetEntries(); i++){
@@ -47,13 +47,13 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
     if(arr->GetEntries()==2)def.tagTrig = TString(arr->At(1)->GetName());
     m_trigTagDefs.push_back(def);
   }
-  
+
   return StatusCode::SUCCESS;
 }
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx ) const {
   std::vector<std::reference_wrapper<Monitored::IMonitoredVariable>> variables;
-  
+
   auto bcid = Monitored::Scalar<int>("bcid",GetEventInfo(ctx)->bcid());
   auto lumiPerBCID = Monitored::Scalar<int>("lumiPerBCID",lbAverageInteractionsPerCrossing(ctx));
   auto lb = Monitored::Scalar<int>("lb",GetEventInfo(ctx)->lumiBlock());
@@ -81,7 +81,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     }
     rois = *roisptr;
   }
-  
+
   auto roi_eta = Monitored::Collection("roi_eta",rois, []( const xAOD::MuonRoI* m ){return m->eta();});  variables.push_back( roi_eta );
   auto roi_phi = Monitored::Collection("roi_phi",rois, []( const xAOD::MuonRoI* m ){return m->phi();});  variables.push_back( roi_phi );
   auto roi_phi_rpc = Monitored::Collection("roi_phi_rpc",rois, []( const xAOD::MuonRoI* m ){return (m->getSource()==xAOD::MuonRoI::Barrel)?m->phi():-10;});  variables.push_back( roi_phi_rpc );
@@ -126,7 +126,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   SG::ReadHandle<xAOD::MuonContainer> muons(m_MuonContainerKey, ctx);
   if(!muons.isValid()){
     ATH_MSG_ERROR("evtStore() does not contain muon Collection with name "<< m_MuonContainerKey);
-    return StatusCode::FAILURE; 
+    return StatusCode::FAILURE;
   }
 
   std::vector<MyMuon> mymuons;
@@ -200,7 +200,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     mymuons.push_back( mymuon );
   }
 
-  
+
   auto muon_eta = Monitored::Collection("muon_eta",mymuons,[](const MyMuon& m){return (m.probeOK&&m.muon->pt()/1000>30)?m.muon->eta():-10;});variables.push_back(muon_eta);
   auto muon_phi = Monitored::Collection("muon_phi",mymuons,[](const MyMuon& m){return (m.probeOK&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi);
   auto muon_phi_rpc = Monitored::Collection("muon_phi_rpc",mymuons,[](const MyMuon& m){return (m.probeOK&&std::abs(m.muon->eta())<1.05&&m.muon->pt()/1000>30)?m.muon->phi():-10;});variables.push_back(muon_phi_rpc);
@@ -223,14 +223,14 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto muon_l1passThr14 = Monitored::Collection("muon_l1passThr14",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(14)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr14);
   auto muon_l1passThr15 = Monitored::Collection("muon_l1passThr15",mymuons,[](const MyMuon& m){return m.matchedL1ThrInclusive.find(15)!=m.matchedL1ThrInclusive.end();});variables.push_back(muon_l1passThr15);
 
-  
+
   if(!m_anaTgcPrd.value()){
     fill(m_packageName,variables);
     variables.clear();
     return StatusCode::SUCCESS;
   }
 
-  
+
   SG::ReadHandle<Muon::TgcPrepDataContainer> tgcPrd(m_TgcPrepDataContainerKey, ctx);
   if(!tgcPrd.isValid()){
     ATH_MSG_ERROR("evtStore() does not contain TgcPrepDataContainer with name "<< m_TgcPrepDataContainerKey);
@@ -395,7 +395,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
     auto z = Monitored::Collection(Form("timing_for_%s",phimap.first.Data()),tgcHitTiming[phimap.first],[](const int& m){return m;});
     fill(m_packageName,x,y,z);
   }
-  
+
   SG::ReadHandle<Muon::TgcCoinDataContainer> tgcCoinCurr(m_TgcCoinDataContainerCurrBCKey, ctx);
   if(!tgcCoinCurr.isValid()){
     ATH_MSG_ERROR("evtStore() does not contain TgcCoinDataContainer with name "<< m_TgcCoinDataContainerCurrBCKey);
@@ -466,7 +466,7 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms( const EventContext& ctx )
   auto coin_sideA = Monitored::Collection("coin_sideA",tgcTrigs,[](const TgcTrig& m){return m.isAside==1;});variables.push_back(coin_sideA);
   auto coin_sideC = Monitored::Collection("coin_sideC",tgcTrigs,[](const TgcTrig& m){return m.isAside!=1;});variables.push_back(coin_sideC);
 
-  
+
   fill(m_packageName,variables);
   variables.clear();
   return StatusCode::SUCCESS;
@@ -538,7 +538,7 @@ TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::TrackParticle* trackParticle
     if ( ! it->type(Trk::TrackStateOnSurface::Measurement) ){
       continue;
     }
-    const Trk::TrackParameters* point = NULL;
+    std::unique_ptr<const Trk::TrackParameters> point = nullptr;
     Amg::Vector2D distance(-1.e30, -1.e30);
     if (detector == TgcRawDataMonitorAlgorithm::TGC) {
       point = extrapolateToTGC(it, pos, distance);
@@ -557,7 +557,6 @@ TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::TrackParticle* trackParticle
     vExtPz.push_back(point->momentum().z());
     vExtDistance.push_back(distance.y());
     counter++;
-    delete point;
   }
   if (counter==0){
     return false;
@@ -583,94 +582,78 @@ TgcRawDataMonitorAlgorithm::extrapolate(const xAOD::TrackParticle* trackParticle
   return true;
 }
 ///////////////////////////////////////////////////////////////
-const Trk::TrackParameters*
+std::unique_ptr<const Trk::TrackParameters>
 TgcRawDataMonitorAlgorithm::extrapolateToTGC(const Trk::TrackStateOnSurface* tsos,
                                              const Amg::Vector3D& pos,
                                              Amg::Vector2D& distance) const
 {
   const Trk::TrackParameters* track = tsos->trackParameters();
   if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == 0) {
-    return 0;
+    return nullptr;
   }
   double targetZ = pos.z();
   double trackZ = track->position().z();
-  if (std::abs(trackZ)<std::abs(targetZ)-2000. || std::abs(trackZ)>std::abs(targetZ)+2000.){
-    return 0;
+  if (std::abs(trackZ) < std::abs(targetZ) - 2000. ||
+      std::abs(trackZ) > std::abs(targetZ) + 2000.) {
+    return nullptr;
   }
-  Amg::Transform3D* matrix = new Amg::Transform3D;
+  auto matrix = std::make_unique<Amg::Transform3D>();
   matrix->setIdentity();
   matrix->translation().z() = targetZ;
-  Trk::DiscSurface* disc = new Trk::DiscSurface(matrix,
-                                                m_endcapPivotPlaneMinimumRadius.value(),
-                                                m_endcapPivotPlaneMaximumRadius.value());
-  if(!disc){
-    delete matrix;
-    matrix = 0;
-    return 0;
-  }
+  auto disc =
+    std::make_unique<Trk::DiscSurface>(matrix.release(),
+                                       m_endcapPivotPlaneMinimumRadius.value(),
+                                       m_endcapPivotPlaneMaximumRadius.value());
   distance[0] = trackZ;
   distance[1] = std::abs(trackZ - targetZ);
   const bool boundaryCheck = true;
-  const Trk::Surface* surface = disc;
-  const Trk::TrackParameters* param = m_extrapolator->extrapolate(*track,
-                                                                  *surface,
-                                                                  Trk::anyDirection,
-                                                                  boundaryCheck,
-                                                                  Trk::muon);
-  delete disc;
-  disc = 0;
-  surface = 0;
-  matrix = 0;
+  auto param =
+    std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+      *track, *disc, Trk::anyDirection, boundaryCheck, Trk::muon));
   if (!param) {
-    return 0;
+    return nullptr;
   }
-  const Trk::AtaDisc* ataDisc =
-    dynamic_cast<const Trk::AtaDisc*>(param);
-  return ataDisc;
+  // We want disc
+  if (param->surfaceType() != Trk::Surface::Disc) {
+    return nullptr;
+  }
+  return param;
 }
 ///////////////////////////////////////////////////////////////
-const Trk::TrackParameters*
+std::unique_ptr<const Trk::TrackParameters>
 TgcRawDataMonitorAlgorithm::extrapolateToRPC(const Trk::TrackStateOnSurface* tsos,
                                              const Amg::Vector3D& pos,
                                              Amg::Vector2D& distance) const
 {
   const Trk::TrackParameters* track = tsos->trackParameters();
   if (!track || dynamic_cast<const Trk::AtaStraightLine*>(track) == 0) {
-    return 0;
+    return nullptr;
   }
   double radius = pos.perp();
   double trackRadius = track->position().perp();
-  if(trackRadius<radius-2000. || trackRadius>radius+2000.) return 0;
-  Amg::Transform3D* matrix = new Amg::Transform3D;
-  matrix->setIdentity();
-  Trk::CylinderSurface* cylinder = 
-    new Trk::CylinderSurface(matrix,
-                             radius,
-                             m_barrelPivotPlaneHalfLength.value());
-  if (!cylinder) {
-    delete matrix;
-    matrix = 0;
-    return 0;
+  if(trackRadius<radius-2000. || trackRadius>radius+2000.) {
+    return nullptr;
   }
+  auto matrix = std::make_unique<Amg::Transform3D>();
+  matrix->setIdentity();
+  auto cylinder = std::make_unique<Trk::CylinderSurface>(
+    matrix.release(), radius, m_barrelPivotPlaneHalfLength.value());
+
   distance[0] = trackRadius;
   distance[1] = trackRadius - radius;
   const bool boundaryCheck = true;
-  const Trk::Surface* surface = cylinder;
-  const Trk::TrackParameters* param = m_extrapolator->extrapolate(*track,
-                                                                  *surface,
-                                                                  Trk::anyDirection,
-                                                                  boundaryCheck,
-                                                                  Trk::muon);
-  delete cylinder;
-  cylinder = 0;
-  surface = 0;
-  matrix = 0;
+  auto param =
+    std::unique_ptr<const Trk::TrackParameters>(m_extrapolator->extrapolate(
+      *track, *cylinder, Trk::anyDirection, boundaryCheck, Trk::muon));
+
   if (!param) {
-    return 0;
+    return nullptr;
   }
-  const Trk::AtaCylinder* ataCylinder =
-    dynamic_cast<const Trk::AtaCylinder*>(param);
-  return ataCylinder;
+  //It has to be cylinder
+  if (param->surfaceType() != Trk::Surface::Cylinder) {
+    return nullptr;
+  }
+  return param;
 }
 ///////////////////////////////////////////////////////////////
 double

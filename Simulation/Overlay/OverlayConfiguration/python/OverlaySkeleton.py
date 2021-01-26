@@ -3,7 +3,6 @@
 import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-from OverlayConfiguration.OverlayHelpers import setupOverlayDetectorFlags, OverlayMessageSvcCfg
 
 
 def defaultOverlayFlags(configFlags, detectors):
@@ -21,8 +20,6 @@ def defaultOverlayFlags(configFlags, detectors):
     configFlags.Tile.BestPhaseFromCOOL = False
     configFlags.Tile.correctTime = False
     configFlags.Tile.zeroAmplitudeWithoutDigits = False
-
-    setupOverlayDetectorFlags(configFlags, detectors)
 
 
 def fromRunArgs(runArgs):
@@ -88,6 +85,9 @@ def fromRunArgs(runArgs):
     # Setup common overlay flags
     defaultOverlayFlags(ConfigFlags, detectors)
 
+    from OverlayConfiguration.OverlaySteering import setupOverlayDetectorFlags
+    setupOverlayDetectorFlags(ConfigFlags, detectors)
+
     # Pre-exec
     if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
         for cmd in runArgs.preExec:
@@ -106,14 +106,17 @@ def fromRunArgs(runArgs):
 
     # Main overlay steering
     from OverlayConfiguration.OverlaySteering import OverlayMainCfg
-    acc = OverlayMainCfg(ConfigFlags)
-    acc.merge(OverlayMessageSvcCfg(ConfigFlags))
+    cfg = OverlayMainCfg(ConfigFlags)
+
+    # Special message service configuration
+    from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
+    cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
 
     # Post-include
     if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
         from OverlayConfiguration.OverlayHelpers import accFromFragment
         for fragment in runArgs.postInclude:
-            acc.merge(accFromFragment(fragment, ConfigFlags))
+            cfg.merge(accFromFragment(fragment, ConfigFlags))
 
     # Post-exec
     if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
@@ -121,5 +124,5 @@ def fromRunArgs(runArgs):
             exec(cmd)
 
     # Run the final accumulator
-    sc = acc.run()
+    sc = cfg.run()
     sys.exit(not sc.isSuccess())

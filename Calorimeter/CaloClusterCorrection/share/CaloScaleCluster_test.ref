@@ -1,0 +1,260 @@
+Py:AutoConfigFlags    INFO Obtaining metadata of auto-configuration by peeking into /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1
+Py:MetaReader        INFO Current mode used: peeker
+Py:MetaReader        INFO Current filenames: ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/CommonInputs/mc16_13TeV.410501.PowhegPythia8EvtGen_A14_ttbar_hdamp258p75_nonallhad.merge.AOD.e5458_s3126_r9364_r9315/AOD.11182705._000001.pool.root.1']
+Py:MetaReader        INFO MetaReader is called with the parameter "unique_tag_info_values" set to True. This is a workaround to remove all duplicate values from "/TagInfo" key
+Py:Athena            INFO using release [WorkDir-22.0.25] [x86_64-centos7-gcc8-opt] [DetDescCnvSvcCreateSvc/6e02e65] -- built on [2021-01-14T1118]
+Py:CaloClusterCorrection    INFO EM sliding-window corrections for ele35 () using version v12_calh
+ApplicationMgr    SUCCESS 
+====================================================================================================================================
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0)
+                                          running on pcaz004 on Thu Jan 14 11:21:32 2021
+====================================================================================================================================
+ApplicationMgr       INFO Application Manager Configured successfully
+CoreDumpSvc                                          INFO Handling signals: 11(Segmentation fault) 7(Bus error) 4(Illegal instruction) 8(Floating point exception) 
+ClassIDSvc                                           INFO  getRegistryEntries: read 26461 CLIDRegistry entries for module ALL
+IOVDbSvc                                             INFO Only 5 POOL conditions files will be open at once
+IOVDbSvc                                             INFO Cache alignment will be done in 3 slices
+IOVDbSvc                                             INFO Global tag: OFLCOND-MC16-SDR-16 set from joboptions
+IOVDbSvc                                             INFO Initialised with 2 connections and 1 folders
+IOVDbSvc                                             INFO Service IOVDbSvc initialised successfully
+IOVDbSvc                                             INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+MetaDataSvc                                          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
+PoolSvc                                              INFO io_register[PoolSvc](xmlcatalog_file:PoolFileCatalog.xml) [ok]
+PoolSvc                                              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
+PoolSvc                                              INFO Frontier compression level set to 5
+DBReplicaSvc                                         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc                                         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc                                         INFO Total of 10 servers found for host pcaz004.dyndns.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+PoolSvc                                              INFO Successfully setup replica sorting algorithm
+PoolSvc                                              INFO Setting up APR FileCatalog and Streams
+PoolSvc                                              INFO Resolved path (via ATLAS_POOLCOND_PATH) is /cvmfs/atlas-condb.cern.ch/repo/conditions/poolcond/PoolFileCatalog.xml
+PoolSvc                                           WARNING Unable to locate catalog for prfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                           WARNING Unable to locate catalog for apcfile:poolcond/PoolCat_oflcond.xml check your ATLAS_POOLCOND_PATH and DATAPATH variables
+PoolSvc                                              INFO POOL WriteCatalog is xmlcatalog_file:PoolFileCatalog.xml
+DbSession                                            INFO     Open     DbSession    
+Domain[ROOT_All]                                     INFO >   Access   DbDomain     READ      [ROOT_All] 
+MetaDataSvc                                          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool/IOVDbMetaDataTool'])
+OutputStreamSequencerSvc                             INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
+MetaDataSvc                                          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
+ClassIDSvc                                           INFO  getRegistryEntries: read 1065 CLIDRegistry entries for module ALL
+TagInfoMgr                                           INFO   AlgTool: TagInfoMgr.IOVDbMetaDataTool
+IOVDbSvc                                             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVSvc                                               INFO No IOVSvcTool associated with store "StoreGateSvc"
+IOVSvc.IOVSvcTool                                    INFO IOVRanges will be checked at every Event
+IOVDbSvc                                             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc                                             INFO Added taginfo remove for /LAR/Identifier/OnOffIdMap
+GeoModelSvc                                          INFO Explicitly initializing DetDescrCnvSvc
+DetDescrCnvSvc                                       INFO  initializing 
+DetDescrCnvSvc                                       INFO Found DetectorStore service
+DetDescrCnvSvc                                       INFO  filling proxies for detector managers 
+DetDescrCnvSvc                                       INFO  filling address for CaloTTMgr with CLID 117659265 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloMgr with CLID 4548337 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloSuperCellMgr with CLID 241807251 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloIdManager with CLID 125856940 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArIdManager with CLID 79554919 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for IdDict with CLID 2411 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for AtlasID with CLID 164875623 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for PixelID with CLID 2516 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for SCT_ID with CLID 2517 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TRT_ID with CLID 2518 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for SiliconID with CLID 129452393 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArEM_ID with CLID 163583365 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArEM_SuperCell_ID with CLID 99488227 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArHEC_ID with CLID 3870484 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArHEC_SuperCell_ID with CLID 254277678 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArFCAL_ID with CLID 45738051 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArFCAL_SuperCell_ID with CLID 12829437 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArMiniFCAL_ID with CLID 79264204 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArOnlineID with CLID 158698068 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TTOnlineID with CLID 38321944 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArOnline_SuperCellID with CLID 115600394 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArHVLineID with CLID 27863673 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for LArElectrodeID with CLID 80757351 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TileID with CLID 2901 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for Tile_SuperCell_ID with CLID 49557789 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TileHWID with CLID 2902 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TileTBID with CLID 2903 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for MDTIDHELPER with CLID 4170 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CSCIDHELPER with CLID 4171 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for RPCIDHELPER with CLID 4172 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for TGCIDHELPER with CLID 4173 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloLVL1_ID with CLID 108133391 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloCell_ID with CLID 123500438 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloCell_SuperCell_ID with CLID 128365736 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for CaloDM_ID with CLID 167756483 and storage type 68 to detector store 
+DetDescrCnvSvc                                       INFO  filling address for ZdcID with CLID 190591643 and storage type 68 to detector store 
+GeoModelSvc::RDBMaterialManager                   WARNING  Getting PixTBMatComponents with default tag
+GeoModelSvc::RDBMaterialManager                   WARNING  Getting PixTBMaterials with default tag
+GeoModelSvc::RDBMaterialManager                   WARNING  Getting InDetMatComponents with default tag
+GeoModelSvc::RDBMaterialManager                   WARNING  Getting InDetMaterials with default tag
+EventPersistencySvc                                  INFO Added successfully Conversion service:DetDescrCnvSvc
+LArElectrodeIDDetDescrCnv                            INFO in createObj: creating a LArElectrodeID helper object in the detector store
+IdDictDetDescrCnv                                    INFO in initialize
+IdDictDetDescrCnv                                    INFO in createObj: creating a IdDictManager object in the detector store
+IdDictDetDescrCnv                                    INFO IdDictName:  IdDictParser/ATLAS_IDS.xml
+IdDictDetDescrCnv                                    INFO Reading InnerDetector    IdDict file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv                                    INFO Reading LArCalorimeter   IdDict file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv                                    INFO Reading TileCalorimeter  IdDict file IdDictParser/IdDictTileCalorimeter.xml
+IdDictDetDescrCnv                                    INFO Reading Calorimeter      IdDict file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv                                    INFO Reading MuonSpectrometer IdDict file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv                                    INFO Reading ForwardDetectors IdDict file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv                                    INFO Found id dicts:
+IdDictDetDescrCnv                                    INFO Using dictionary tag: null
+IdDictDetDescrCnv                                    INFO Dictionary ATLAS                version default              DetDescr tag (using default) file 
+IdDictDetDescrCnv                                    INFO Dictionary Calorimeter          version default              DetDescr tag CaloIdentifier-LVL1-02 file IdDictParser/IdDictCalorimeter_L1Onl.xml
+IdDictDetDescrCnv                                    INFO Dictionary ForwardDetectors     version default              DetDescr tag ForDetIdentifier-01       file IdDictParser/IdDictForwardDetectors_2010.xml
+IdDictDetDescrCnv                                    INFO Dictionary InnerDetector        version IBL-DBM              DetDescr tag InDetIdentifier-IBL3D25-02 file InDetIdDictFiles/IdDictInnerDetector_IBL3D25-03.xml
+IdDictDetDescrCnv                                    INFO Dictionary LArCalorimeter       version fullAtlas            DetDescr tag LArIdentifier-DC3-05-Comm file IdDictParser/IdDictLArCalorimeter_DC3-05-Comm-01.xml
+IdDictDetDescrCnv                                    INFO Dictionary LArElectrode         version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv                                    INFO Dictionary LArHighVoltage       version fullAtlas            DetDescr tag (using default) file 
+IdDictDetDescrCnv                                    INFO Dictionary MuonSpectrometer     version R.03                 DetDescr tag MuonIdentifier-08         file IdDictParser/IdDictMuonSpectrometer_R.03.xml
+IdDictDetDescrCnv                                    INFO Dictionary TileCalorimeter      version fullAtlasAndTestBeam DetDescr tag TileIdentifier-00         file IdDictParser/IdDictTileCalorimeter.xml
+LArElectrodeID                                       INFO  => initialize_from_dictionary()
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArHVLineIDDetDescrCnv                               INFO in createObj: creating a LArHVLineID helper object in the detector store
+LArHVLineID                                          INFO  => initialize_from_dictionary()
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArHVLineID                                          INFO  => initialize_from_dictionary(dict_mgr) =0
+LArHVLineID                                          INFO Register_dict_tag of LArHighVoltage is OK
+LArHVLineID                                          INFO setDictVersion of LArHighVoltage is OK
+LArHVLineID                                          INFO [initLevelsFromDict] m_dict OK ... 
+LArHVLineID                                          INFO [initialize_from_dictionary] >  HV line range -> 11/1/48:79/0:15 | 11/1/148:179/0:15 | 11/1/80:93/0:7 | 11/1/180:193/0:7 | 11/1/200:231/0:15 | 11/1/232:263/0:15 | 11/1/296,297,306,307/0:15 | 11/1/299,304,305,308,309/0:15 | 11/1/264:279/0:15 | 11/1/280:295/0:15 | 11/1/0:47/0:15 | 11/1/320:322/0:15 | 11/1/100:147/0:15 | 11/1/324,325/0:15 | 11/1/312:315/0:15 | 11/1/316:319/0:15 | 11/1/300:303/0:15 | 11/1/310,311/0:15 | 11/1/323/0:15 | 11/1/326,327/0:15 | 11/1/94:99/0:15 | 11/1/194:199/0:15
+LArHVLineID                                          INFO [init_hashes()] > Hvline_size= 5008
+GeoModelSvc.LArDetectorToolNV                        INFO Keys for LAr are ATLAS-R2-2016-01-00-01  ATLAS
+GeoModelSvc.LArDetectorToolNV                        INFO Building LAr version LAr-Revised-17-01 while ATLAS version is ATLAS-R2-2016-01-00-01
+GeoModelSvc.LArDetectorToolNV                        INFO LAr Geometry Options:
+GeoModelSvc.LArDetectorToolNV                        INFO   Sagging           = false
+GeoModelSvc.LArDetectorToolNV                        INFO   Barrel            = ON
+GeoModelSvc.LArDetectorToolNV                        INFO   Endcap            = ON
+BarrelConstruction                                   INFO Getting primary numbers for ATLAS, ATLAS-R2-2016-01-00-01
+BarrelConstruction                                   INFO   Makes detailed absorber sandwich  ? 1 1
+BarrelConstruction                                   INFO   Use sagging in geometry  ? 0
+EMECConstruction                                     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction                                     INFO activating LAr::EMEC::Pos::InnerWheel
+EMECConstruction                                     INFO activating LAr::EMEC::Pos::OuterWheel
+ClassIDSvc                                           INFO  getRegistryEntries: read 2730 CLIDRegistry entries for module ALL
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a TileTBID helper object in the detector store
+TileTBID                                             INFO initialize_from_dictionary 
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+EndcapDMConstruction                                 INFO Start building EC electronics geometry
+EMECConstruction                                     INFO multi-layered version of absorbers activated, parameter value is 1
+EMECConstruction                                     INFO activating LAr::EMEC::Neg::InnerWheel
+EMECConstruction                                     INFO activating LAr::EMEC::Neg::OuterWheel
+EndcapDMConstruction                                 INFO Start building EC electronics geometry
+GeoModelSvc                                          INFO GeoModelSvc.LArDetectorToolNV	 SZ= 25608Kb 	 Time = 0.4S
+GeoModelSvc                                          INFO   AlgTool: GeoModelSvc.LArDetectorToolNV
+AthenaEventLoopMgr                                   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
+ClassIDSvc                                           INFO  getRegistryEntries: read 3439 CLIDRegistry entries for module ALL
+CondInputLoader                                      INFO Initializing CondInputLoader...
+CondInputLoader                                      INFO Adding base classes:
+  +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' )   ->
+CondInputLoader                                      INFO Will create WriteCondHandle dependencies for the following DataObjects:
+    +  ( 'AthenaAttributeList' , 'ConditionStore+/LAR/Identifier/OnOffIdMap' ) 
+PyComponentMgr                                       INFO Initializing PyComponentMgr...
+TestAlg                                              INFO Initializing TestAlg...
+ClassIDSvc                                           INFO  getRegistryEntries: read 8995 CLIDRegistry entries for module ALL
+ApplicationMgr                                       INFO Application Manager Initialized successfully
+ApplicationMgr                                    SUCCESS ****************************** Algorithm Sequence ****************************
+ApplicationMgr                                    SUCCESS AthSequencer/AthMasterSeq
+ApplicationMgr                                    SUCCESS      AthSequencer/AthAlgEvtSeq
+ApplicationMgr                                    SUCCESS           AthSequencer/AthBeginSeq
+ApplicationMgr                                    SUCCESS                AthIncFirerAlg/BeginIncFiringAlg
+ApplicationMgr                                    SUCCESS                IncidentProcAlg/IncidentProcAlg1
+ApplicationMgr                                    SUCCESS           AthSequencer/AthAllAlgSeq
+ApplicationMgr                                    SUCCESS                AthSequencer/AthCondSeq
+ApplicationMgr                                    SUCCESS                     CondInputLoader/CondInputLoader
+ApplicationMgr                                    SUCCESS                     LArOnOffMappingAlg/LArOnOffMappingAlg
+ApplicationMgr                                    SUCCESS                AthSequencer/AthAlgSeq
+ApplicationMgr                                    SUCCESS                     PyAthena::Alg/TestAlg
+ApplicationMgr                                    SUCCESS           AthSequencer/AthEndSeq
+ApplicationMgr                                    SUCCESS                AthIncFirerAlg/EndIncFiringAlg
+ApplicationMgr                                    SUCCESS                IncidentProcAlg/IncidentProcAlg2
+ApplicationMgr                                    SUCCESS      AthSequencer/AthOutSeq
+ApplicationMgr                                    SUCCESS ******************************************************************************
+CondInputLoader                                      INFO created CondCont<AthenaAttributeList> with key 'ConditionStore+/LAR/Identifier/OnOffIdMap'
+ApplicationMgr                                       INFO Application Manager Started successfully
+AthenaEventLoopMgr                                   INFO   ===>>>  start of run 1    <<<===
+AthenaEventLoopMgr                                   INFO   ===>>>  start processing event #1, run #1 0 events processed so far  <<<===
+IOVDbSvc                                             INFO Opening COOL connection for COOLOFL_LAR/OFLP200
+IOVDbSvc                                             INFO Disconnecting from COOLOFL_LAR/OFLP200
+IOVDbSvc                                             INFO Opened read transaction for POOL PersistencySvc
+EventPersistencySvc                                  INFO Added successfully Conversion service:AthenaPoolCnvSvc
+LArOnlineIDDetDescrCnv                               INFO in createObj: creating a LArOnlineID helper object in the detector store
+LArOnlineID                                          INFO initialize_from_dictionary
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a CaloCell_ID helper object in the detector store
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArEM_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArHEC_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArFCAL_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCal2DNeighbors-April2011.txt
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsNext-April2011.txt
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCal3DNeighborsPrev-April2011.txt
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArMiniFCAL_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArMiniFCAL_ID                                       INFO  initialize_from_dict - LArCalorimeter dictionary does NOT contain miniFCAL description. Unable to initialize LArMiniFCAL_ID.
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a TileID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+TileNeighbour                                        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/TileNeighbour_reduced.txt
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArOnOffMappingAlg                                   INFO Done reading online/offline identifier mapping
+LArOnOffMappingAlg                                   INFO Found 195072 online identifier and 182468 offline identifier. 12604 disconnected channels.
+LArOnOffMappingAlg                                   INFO recorded new LArOnOffIdMap with range {[0,l:0] - [INVALID]} into Conditions Store
+CaloMgrDetDescrCnv                                   INFO in createObj: creating a Calo Detector Manager object in the detector store
+CaloIdMgrDetDescrCnv                                 INFO in createObj: creating a CaloDescrManager object in the detector store
+ClassIDSvc                                           INFO  getRegistryEntries: read 166 CLIDRegistry entries for module ALL
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a CaloDM_ID helper object in the detector store
+CaloDM_ID                                            INFO initialize_from_dictionary
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a CaloLVL1_ID helper object in the detector store
+CaloLVL1_ID                                          INFO initialize_from_dictionary
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a TTOnlineID helper object in the detector store
+TTOnlineID                                           INFO initialize_from_dictionary
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a CaloCell_SuperCell_ID helper object in the detector store
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArEM_SuperCell_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArHEC_SuperCell_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a LArFCAL_SuperCell_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells2DNeighborsNew-April2014.txt
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsNextNew-April2014.txt
+LArFCAL_Base_ID                                      INFO Reading file /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/FCalSuperCells3DNeighborsPrevNew-April2014.txt
+CaloIDHelper_IDDetDescrCnv                           INFO in createObj: creating a Tile_SuperCell_ID helper object in the detector store
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+TileNeighbour                                        INFO Reading file  /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/2021-01-11T2101/Athena/22.0.25/InstallArea/x86_64-centos7-gcc8-opt/share/TileSuperCellNeighbour.txt
+AtlasDetectorID                                      INFO initialize_from_dictionary - OK
+CaloIdMgrDetDescrCnv                                 INFO  Finished 
+CaloIdMgrDetDescrCnv                                 INFO Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv 
+DetectorStore                                     WARNING retrieve(default): No valid proxy for default object 
+ of type TileDetDescrManager(CLID 2941)
+CaloMgrDetDescrCnv                                WARNING Could not get the TileDetectorManager. No Calo Elements will be built for Tile
+AthenaEventLoopMgr                                   INFO   ===>>>  done processing event #1, run #1 1 events processed so far  <<<===
+Domain[ROOT_All]                                     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
+ApplicationMgr                                       INFO Application Manager Stopped successfully
+IncidentProcAlg1                                     INFO Finalize
+CondInputLoader                                      INFO Finalizing CondInputLoader...
+TestAlg                                              INFO Finalizing TestAlg...
+IncidentProcAlg2                                     INFO Finalize
+PyComponentMgr                                       INFO Finalizing PyComponentMgr...
+IOVDbFolder                                          INFO Folder /LAR/Identifier/OnOffIdMap (AttrList) db-read 1/1 objs/chan/bytes 1/1/780292 ((     0.04 ))s
+IOVDbSvc                                             INFO  bytes in ((      0.04 ))s
+IOVDbSvc                                             INFO Connection sqlite://;schema=mycool.db;dbname=OFLP200 : nConnect: 0 nFolders: 0 ReadTime: ((     0.00 ))s
+IOVDbSvc                                             INFO Connection COOLOFL_LAR/OFLP200 : nConnect: 2 nFolders: 1 ReadTime: ((     0.04 ))s
+ToolSvc                                              INFO Removing all tools created by ToolSvc
+IdDictDetDescrCnv                                    INFO in finalize
+*****Chrono*****                                     INFO ****************************************************************************************************
+*****Chrono*****                                     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
+*****Chrono*****                                     INFO ****************************************************************************************************
+cObj_ALL                                             INFO Time User   : Tot=    0 [us]  #=  1
+ChronoStatSvc                                        INFO Time User   : Tot= 2.95  [s]  #=  1
+*****Chrono*****                                     INFO ****************************************************************************************************
+ChronoStatSvc.finalize()                             INFO  Service finalized successfully 
+ApplicationMgr                                       INFO Application Manager Finalized successfully
+ApplicationMgr                                       INFO Application Manager Terminated successfully

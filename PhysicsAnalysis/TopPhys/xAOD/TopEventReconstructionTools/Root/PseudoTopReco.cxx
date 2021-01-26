@@ -19,7 +19,8 @@ namespace top {
   PseudoTopReco::PseudoTopReco(const std::string& name) :
     asg::AsgTool(name),
     m_config(nullptr),
-    m_bTagCutValue(9999.9),
+    // commented out variables are unused.  experts please check and remove
+    // m_bTagCutValue(9999.9),
     m_leptonType("SetMe") {
     declareProperty("config", m_config, "Set the configuration");
     declareProperty("LeptonType", m_leptonType = "kUndefined", "Define the lepton type");
@@ -254,7 +255,7 @@ namespace top {
 
     int bCounter = 0;
 
-    for (const auto& jetPtr : *plEvent.m_jets) {
+    for (const auto *jetPtr : *plEvent.m_jets) {
       TLorentzVector helpVec(0, 0, 0, 0);
       helpVec.SetPtEtaPhiE(jetPtr->pt() / 1.e3, jetPtr->eta(), jetPtr->phi(), jetPtr->e() / 1.e3);
 

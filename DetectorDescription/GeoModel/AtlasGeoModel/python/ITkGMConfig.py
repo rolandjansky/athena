@@ -9,14 +9,15 @@ def ITkGeometryCfg (flags):
     acc = ComponentAccumulator()
     GeometryDBSvc=CompFactory.GeometryDBSvc
     acc.addService(GeometryDBSvc("InDetGeometryDBSvc")) #Beampipe builder expects "InDet" rather than "ITk" - can this be steered?
+
     if flags.Detector.GeometryITkPixel:
-        #Need new module in PixelGeoModelXml to import here once it exists...
-        #from PixelGeoModel.PixelGeoModelConfig import PixelGeometryCfg
-        #acc.merge(PixelGeometryCfg( flags ))
-        print("ITk Pixel not yet supported in this release...")
+        from PixelGeoModelXml.ITkPixelGeoModelConfig import ITkPixelGeometryCfg
+        acc.merge(ITkPixelGeometryCfg( flags ))
+
     if flags.Detector.GeometryITkStrip:
         from StripGeoModelXml.ITkStripGeoModelConfig import ITkStripGeometryCfg
         acc.merge(ITkStripGeometryCfg( flags ))
+
     return acc
 
 

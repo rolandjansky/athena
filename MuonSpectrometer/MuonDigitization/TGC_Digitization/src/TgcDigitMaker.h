@@ -1,13 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// TgcDigitMaker.h
-//--------------------------------------------------------
-// Y. HASEGAWA
-// 09 March 2004
-//---------------------------------------------------------
-
 /**
    @class TgcDigitMaker
    @section Class, Methods and Properties
@@ -107,6 +100,16 @@ class TgcDigitMaker {
     OFFSET_ISSTRIP = 0, 
     N_CROSSTALK_PARAMETER = 4
   };
+  enum TgcStation {
+    kOUTER = 0,
+    kINNER,
+    N_STATION
+  };
+  enum TgcSensor {
+    kWIRE = 0,
+    kSTRIP,
+    N_SENSOR
+  };
 
   /**
      Reads parameters for intrinsic time response from timejitter.dat.
@@ -121,10 +124,10 @@ class TgcDigitMaker {
   /**
      Determines whether a hit is detected or not.
   */
-  bool efficiencyCheck(const int isStrip, CLHEP::HepRandomEngine* rndmEngine) const;
-  bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const int isStrip, const double energyDeposit) const;
+  bool efficiencyCheck(const TgcSensor sensor, CLHEP::HepRandomEngine* rndmEngine) const;
+  bool efficiencyCheck(const std::string stationName, const int stationEta, const int stationPhi, const int gasGap, const TgcSensor sensor, const double energyDeposit) const;
 
-  uint16_t bcTagging(const double digittime, const int isStrip) const;
+  uint16_t bcTagging(const double digittime, const double window, const double offset) const;
   void addDigit(const Identifier id, const uint16_t bctag, TgcDigitCollection* digits) const;
 
   /** Read share/TGC_Digitization_energyThreshold.dat file */
@@ -138,14 +141,12 @@ class TgcDigitMaker {
   /** Read share/TGC_Digitization_alignment.dat file */
   void readFileOfAlignment();
   /** Get energy threshold value for each chamber */
-  double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, int isStrip) const;
-  void randomCrossTalk(const Identifier elemId, const int gasGap, const int isStrip, const int channel, 
-		       const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine,
-                       TgcDigitCollection* digits) const;
+  double getEnergyThreshold(const std::string stationName, int stationEta, int stationPhi, int gasGap, const TgcSensor sensor) const;
+  void randomCrossTalk(const Identifier elemId, const int gasGap, const TgcSensor sensor, const int channel, const float posInStrip, const double digitTime, CLHEP::HepRandomEngine* rndmEngine, TgcDigitCollection* digits) const;
   /** Method to check a chamber is dead or active */
   bool isDeadChamber(const std::string stationName, int stationEta, int stationPhi, int gasGap);
   /** Method to get time window offset */
-  double getTimeWindowOffset(const std::string stationName, int stationEta, int isStrip) const; 
+  double getTimeWindowOffset(const std::string stationName, int stationEta, const TgcSensor sensor) const; 
   /** Get stationName integer from stationName string */
   int getIStationName(const std::string staionName) const; 
   /** Ad hoc implementation of detector position shift */
@@ -176,8 +177,7 @@ class TgcDigitMaker {
   unsigned int m_runperiod;
   const MuonGM::MuonDetectorManager* m_mdManager; // cannot use ReadCondHandleKey since no athena component
   const TgcIdHelper* m_idHelper;
-  float m_efficiencyOfWireGangs;
-  float m_efficiencyOfStrips;
+  float m_efficiency[N_SENSOR];
 
   /**
      define offsets and widths of time windows for signals from
@@ -185,10 +185,8 @@ class TgcDigitMaker {
      diffference with respect to the time after TOF and cable
      length corrections. Bunch crossing time is specified.
   */
-  double m_timeWindowOffsetWire;
-  double m_timeWindowOffsetStrip;
-  double m_timeWindowWire;
-  double m_timeWindowStrip;
+  double m_timeWindowOffsetSensor[N_SENSOR];
+  double m_gateTimeWindow[N_STATION][N_SENSOR];
   double m_bunchCrossingTime;
 
   //Declaring private message stream member.

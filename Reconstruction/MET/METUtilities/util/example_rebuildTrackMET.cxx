@@ -183,7 +183,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
       //Electrons
       ConstDataVector<xAOD::ElectronContainer> invisElectrons(SG::VIEW_ELEMENTS);
       ConstDataVector<xAOD::ElectronContainer> metElectrons(SG::VIEW_ELEMENTS);
-      for(const auto& el : *electrons) {
+      for(const auto *el : *electrons) {
 	if(el->pt()>20e3 && el->eta()<2.47) {
 	  if(invisEle) {
 	    invisElectrons.push_back(el);
@@ -205,7 +205,7 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 
       //Muons
       ConstDataVector<xAOD::MuonContainer> metMuons(SG::VIEW_ELEMENTS);
-      for(const auto& mu : *muons) {
+      for(const auto *mu : *muons) {
 	if(mu->pt()>20e3 && mu->eta()<2.4) metMuons.push_back(mu);
       }
       ANA_CHECK( metMaker->rebuildMET("TrkMuons",
@@ -264,8 +264,8 @@ int main( int argc, char* argv[]) {std::cout << __PRETTY_FUNCTION__ << std::endl
 #endif
   }
 
-#ifndef XAOD_STANDALONE
-  ANA_CHECK(app->finalize());
+#ifndef XAOD_STANDALONE // POOL::TEvent should handle this when changing events
+  ANA_CHECK( app->finalize() );
 #endif
 
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();

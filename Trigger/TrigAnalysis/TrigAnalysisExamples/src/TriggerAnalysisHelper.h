@@ -124,7 +124,7 @@ namespace Trig{
             std::vector<Feature<T> > vectorOfFeatures = features.get<T>(key);
             ATH_MSG_INFO(chainName << " has " << features.get<T>().size() << " T features ");
             // Loop over the features of type T
-            for( const Trig::Feature<T> feature : vectorOfFeatures ) {
+            for( const Trig::Feature<T>& feature : vectorOfFeatures ) {
                 printFeatureAndTEInfo<T>(feature);
             } // End loop over the features
         }
@@ -146,13 +146,13 @@ namespace Trig{
                 std::vector< Trig::Feature <T1> > feature1 = comb.get<T1>(key1);
                 ATH_MSG_INFO("COMB Combination has " << feature1.size() << " T1 features "); 
 
-                for(const Trig::Feature<T1> feat1:feature1){
+                for(const Trig::Feature<T1>& feat1:feature1){
                     printFeatureAndTEInfo<T1>(feat1);
                 }
 
                 std::vector< Trig::Feature <T2> > feature2 = comb.get<T2>(key2);
                 ATH_MSG_INFO("COMB Combination has " << feature2.size() << " T2 features ");
-                for(const Trig::Feature<T2> feat2:feature2){
+                for(const Trig::Feature<T2>& feat2:feature2){
                     printFeatureAndTEInfo<T2>(feat2);
                 }
             }
@@ -165,7 +165,7 @@ namespace Trig{
             FeatureContainer features = m_trigDecisionTool->features( chainName, condition);
             std::vector<Feature<T> > vectorOfFeatures = features.get<T>(key);
             // Loop over the features of type T
-            for( const Trig::Feature<T> feature : vectorOfFeatures ) {
+            for( const Trig::Feature<T>& feature : vectorOfFeatures ) {
                 const T *cont=feature.cptr(); //Get pointer to container of type T
                 const xAOD::TrigPassBits *bits=(m_trigDecisionTool->ancestor<xAOD::TrigPassBits>(feature.te())).cptr();
                 if(!bits) 

@@ -142,22 +142,26 @@ MdtCondDbAlg::loadDataPsHv(writeHandle_t& wh, MdtCondDbData* writeCdo, const Eve
             if(tokens[0]!="ON" && tokens[0]!="STANDBY" && tokens[0]!="UNKNOWN"){
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
-                thename = chamber_name+"_multilayer"+tokens2[3];
-                writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                writeCdo->setDeadChamber   (ChamberId);
-                cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+                if (ChamberId.is_valid()) {
+                  Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                  thename = chamber_name+"_multilayer"+tokens2[3];
+                  writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                  writeCdo->setDeadChamber   (ChamberId);
+                  cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+                }
             }
             if(tokens[0]=="STANDBY"){
                 int multilayer = atoi(const_cast<char*>(tokens2[3].c_str()));
                 std::string chamber_name = tokens2[2];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
-                thename = chamber_name+"_multilayer"+tokens2[3];
-                writeCdo->setDeadMultilayer(thename, MultiLayerId);
-                writeCdo->setDeadChamber   (ChamberId);
-                cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+                if (ChamberId.is_valid()) {
+                  Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer,1,1);
+                  thename = chamber_name+"_multilayer"+tokens2[3];
+                  writeCdo->setDeadMultilayer(thename, MultiLayerId);
+                  writeCdo->setDeadChamber   (ChamberId);
+                  cachedDeadMultiLayersId_standby.push_back(MultiLayerId);
+                }
             }
         }
         chan_index++;
@@ -312,9 +316,11 @@ MdtCondDbAlg::loadDataPsLv(writeHandle_t& wh, MdtCondDbData* writeCdo, const Eve
             MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
       
             if(tokens[0]!="ON"){
-                std::string chamber_name= tokens2[2];
-	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+              std::string chamber_name= tokens2[2];
+              Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
                 writeCdo->setDeadStation(chamber_name, ChamberId);
+              }
             }
         }
         chan_index++;
@@ -365,54 +371,66 @@ MdtCondDbAlg::loadDataHv(writeHandle_t& wh, MdtCondDbData* writeCdo, const Event
             MuonCalib::MdtStringUtils::tokenize(hv_payload, tokens2, delimiter2);
 
             if(hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN"){
-	            int multilayer = 1;
-	            std::string chamber_name = tokens2[0];
-	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer, 1, 1);
+              int multilayer = 1;
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId,multilayer, 1, 1);
                 thename = chamber_name+"_multilayer1";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
+              }
             }
       
             if(hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
-	            int multilayer = 1;
-	            std::string chamber_name = tokens2[0];
-	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+              int multilayer = 1;
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer1";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
+              }
             }
 
             if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN"){
-	            int multilayer = 2;
-	            std::string chamber_name = tokens2[0];
-	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+              int multilayer = 2;
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer2";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
+              }
             }
       
             if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2){
-	            int multilayer = 2;
-	            std::string chamber_name = tokens2[0];
-	            Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
-	            Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
+              int multilayer = 2;
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
+                Identifier MultiLayerId  = m_idHelperSvc->mdtIdHelper().channelID(ChamberId, multilayer, 1, 1);
                 thename = chamber_name+"_multilayer2";
                 writeCdo->setDeadMultilayer(thename, MultiLayerId);
                 writeCdo->setDeadChamber   (ChamberId);
+              }
             }
 
             if(hv_name_ml2 !="ON" && hv_name_ml2 !="STANDBY" && hv_name_ml2 !="UNKNOWN" && hv_name_ml1 !="ON" && hv_name_ml1 !="STANDBY" && hv_name_ml1 !="UNKNOWN" ){
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
                 writeCdo->setDeadStation(chamber_name, ChamberId);
+              }
             }
             if(hv_name_ml2=="STANDBY" && hv_v0_ml2 != hv_v1_ml2 && hv_name_ml1=="STANDBY" && hv_v0_ml1 != hv_v1_ml1){
-                std::string chamber_name = tokens2[0];
-                Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name);
+              std::string chamber_name = tokens2[0];
+              Identifier ChamberId     = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
                 writeCdo->setDeadStation(chamber_name, ChamberId);
+              }
             }
         }  
         chan_index++;
@@ -457,9 +475,11 @@ MdtCondDbAlg::loadDataLv(writeHandle_t& wh, MdtCondDbData* writeCdo, const Event
             MuonCalib::MdtStringUtils::tokenize(hv_payload,tokens2,delimiter2);
       
             if(tokens[0]!="ON"){
-                std::string chamber_name= tokens2[0];
-	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+              std::string chamber_name= tokens2[0];
+              Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
                 writeCdo->setDeadStation(chamber_name, ChamberId);
+              }
             }
         }
         chan_index++;
@@ -498,9 +518,11 @@ MdtCondDbAlg::loadDroppedChambers(writeHandle_t& wh, MdtCondDbData* writeCdo, co
         MuonCalib::MdtStringUtils::tokenize(chamber_dropped,tokens,delimiter);
         for (unsigned int i=0; i<tokens.size(); i++) {
             if(tokens[i]!="0"){
-	            std::string chamber_name = tokens[i];
-	            Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name);
+              std::string chamber_name = tokens[i];
+              Identifier ChamberId = m_condMapTool->ConvertToOffline(chamber_name, true);
+              if (ChamberId.is_valid()) {
                 writeCdo->setDeadStation(chamber_name, ChamberId);
+              }
             }
         }
     }

@@ -20,11 +20,6 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 
-// mc tools
-//#include "McParticleKernel/IMcVtxFilterTool.h"
-//#include "McParticleKernel/ITruthParticleCnvTool.h"
-//#include "McParticleEvent/TruthParticle.h"
-//#include "McParticleEvent/TruthParticleContainer.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/GenParticle.h"
 #include "AtlasHepMC/GenVertex.h"
@@ -375,12 +370,6 @@ StatusCode CompactHardTruth::execute() {
 
   bool moreP = true;
   typedef std::pair<HepMC::GenVertex*, HepMC::GenParticle*> vpPair;
-  // std::vector<vpPair> removePV;
-  // std::vector<vpPair> addinPV;
-  // std::vector<vpPair> addoutPV;
-  // std::vector<HepMC::GenVertex*> removeV;
-  // std::list<HepMC::GenParticle*> deleteP;
-  // std::list<HepMC::GenVertex*> deleteV;
   removePV.clear();
   addinPV.clear();
   addoutPV.clear();
@@ -985,7 +974,7 @@ bool CompactHardTruth::isFinalParton(const HepMC::GenParticle* p) {
 // Hadron excludes leptons and BSM particles
 // Includes clusters to find, e.g., partons->cluster vertices
 bool CompactHardTruth::isHadron(const HepMC::GenParticle* p) {
-  int ida = abs(p->pdg_id());
+  int ida = std::abs(p->pdg_id());
   if ((ida >= 80 && ida < 1000000) || ida > 9000000) return true;
   return false;
 }
