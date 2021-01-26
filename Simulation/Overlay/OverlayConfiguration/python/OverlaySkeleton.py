@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
+from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 
 def defaultOverlayFlags(configFlags, detectors):
@@ -88,14 +89,11 @@ def fromRunArgs(runArgs):
     from OverlayConfiguration.OverlaySteering import setupOverlayDetectorFlags
     setupOverlayDetectorFlags(ConfigFlags, detectors)
 
-    # Pre-exec
-    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-        for cmd in runArgs.preExec:
-            exec(cmd)
-
     # Pre-include
-    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-        raise ValueError('preInclude not supported')
+    processPreInclude(runArgs, ConfigFlags)
+
+    # Pre-exec
+    processPreExec(runArgs, ConfigFlags)
 
     # TODO not parsed yet:
     # '--fSampltag'
@@ -113,16 +111,11 @@ def fromRunArgs(runArgs):
     cfg.merge(DigitizationMessageSvcCfg(ConfigFlags))
 
     # Post-include
-    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-        from OverlayConfiguration.OverlayHelpers import accFromFragment
-        for fragment in runArgs.postInclude:
-            cfg.merge(accFromFragment(fragment, ConfigFlags))
+    processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
-    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-        for cmd in runArgs.postExec:
-            exec(cmd)
+    processPostExec(runArgs, ConfigFlags, cfg)
 
-    # Run the final accumulator
+    # Run the final configuration
     sc = cfg.run()
     sys.exit(not sc.isSuccess())
