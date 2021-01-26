@@ -72,7 +72,10 @@ namespace CoreDumpSvcHandler
   bool stackTrace(false);             ///< produce stack trace?
   bool fastStackTrace(false);         ///< produce fast stack trace using CxxUtils/Seal
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
-  
+  std::ostream* ostr(&std::cout);     ///< stream for printing
+
+  std::ostream& log() { return *ostr; }  ///< convenience method for logging
+
   /**
    * Signal handler for the CoreDumpSvc
    */
@@ -116,7 +119,7 @@ namespace CoreDumpSvcHandler
       if (sigaction(SIGALRM, &sa, nullptr) < 0) std::abort();
       alarm(timeoutSeconds);
     }
-    
+
     std::cout.flush();
     std::cerr.flush();
     
@@ -126,25 +129,25 @@ namespace CoreDumpSvcHandler
     }
 
     if (fastStackTrace) {
-      std::cout << horizLine << "Producing (fast) stack trace...\n"
-                << horizLine << std::flush;
+      log() << horizLine << "Producing (fast) stack trace...\n"
+            << horizLine << std::flush;
       Athena::DebugAids::stacktrace();
-      std::cout << std::endl;
+      log() << std::endl;
     }
 
     if (gSystem && stackTrace) {
-      std::cout << horizLine << "Producing stack trace... (can be slow, check gdb process)\n"
-                << horizLine << std::flush;
+      log() << horizLine << "Producing stack trace (can be slow, check gdb process)...\n"
+            << horizLine << std::flush;
       gSystem->StackTrace();
-      std::cout << std::endl;
+      log() << std::endl;
     }
 
     if (callOldHandler) {
       // Call previous signal handler
       // Need to distinguish between the two different types
       const struct sigaction& oact = oldSigHandler[sig];
-      std::cout << horizLine << "Invoking previous signal handler... (can be slow, check gdb process)\n"
-                << horizLine << std::flush;
+      log() << horizLine << "Invoking previous signal handler (can be slow, check gdb process)...\n"
+            << horizLine << std::flush;
       if ( oact.sa_flags & SA_SIGINFO ) {
         oact.sa_sigaction(sig, info, extra);
       }
@@ -152,7 +155,7 @@ namespace CoreDumpSvcHandler
         oact.sa_handler(sig);
       }
       else {
-        std::cout << "Could not invoke previous signal handler" << std::endl;
+        log() << "Could not invoke previous signal handler" << std::endl;
       }
     }
 
@@ -207,11 +210,15 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 
   if ( p.name()==m_coreDumpStream.name() ) {
     const std::string val = p.toString();
-    if ( val=="stdout" || val=="stderr" || val=="MsgStream" ) return;
+    if ( val=="stdout" ) {
+      CoreDumpSvcHandler::ostr = &std::cout;
+    }
+    else if ( val=="stderr" ) {
+      CoreDumpSvcHandler::ostr = &std::cerr;
+    }
     else {
-      ATH_MSG_WARNING
-	("'" << val << "' not valid for " << m_coreDumpStream.name()
-	 << ": " << m_coreDumpStream.documentation());
+      ATH_MSG_WARNING("'" << val << "' not valid for " << m_coreDumpStream.name()
+                      << ": " << m_coreDumpStream.documentation());
     }
   } else if ( p.name() == m_fatalHandlerFlags.name() ) {
     if (m_fatalHandlerFlags.fromString(p.toString()).isSuccess()) {
@@ -299,15 +306,8 @@ void CoreDumpSvc::setCoreDumpInfo( const EventContext& ctx, const std::string& n
 //----------------------------------------------------------------------
 void CoreDumpSvc::print()
 {
-  if (m_coreDumpStream == "MsgStream") {
-    ATH_MSG_FATAL ("Core dump follows:" << std::endl << dump());
-  }
-  else if (m_coreDumpStream == "stderr") {
-    std::cerr << dump() << std::flush;
-  }
-  else {
-    std::cout << dump() << std::flush;
-  }  
+  ATH_MSG_FATAL("Caught fatal signal. Printing details to " << m_coreDumpStream.value() << ".");
+  CoreDumpSvcHandler::log() << dump() << std::flush;
 }
 
 //----------------------------------------------------------------------

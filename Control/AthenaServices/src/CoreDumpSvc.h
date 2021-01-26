@@ -112,7 +112,7 @@ private:
       "Produce fast stack trace of current thread"};
 
   Gaudi::Property<std::string> m_coreDumpStream{this, "CoreDumpStream", "stdout",
-      "Stream to use for core dump [stdout,stderr,MsgStream]"};
+      "Stream to use for core dump [stdout,stderr]"};
 
   Gaudi::Property<int> m_fatalHandlerFlags{this, "FatalHandler", 0, 
       "Flags given to the fatal handler this service installs\n"
