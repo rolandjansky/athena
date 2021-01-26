@@ -25,8 +25,8 @@ class TGCSimHitVariables : public ValAlgVariables
     m_TGC_stationEta(nullptr),
     m_TGC_stationPhi(nullptr),
     m_TGC_isEndcap(nullptr),
-    m_TGC_Sim_stationEta(nullptr),
-    m_TGC_Sim_stationPhi(nullptr),   
+    //m_TGC_Sim_stationEta(nullptr),
+    //m_TGC_Sim_stationPhi(nullptr),   
     m_TGC_Sim_gasGap(nullptr),
     m_TGC_gasGap(nullptr),
     m_TGC_isStrip(nullptr),
@@ -85,8 +85,8 @@ class TGCSimHitVariables : public ValAlgVariables
   std::vector<int>  *m_TGC_stationEta;
   std::vector<int>  *m_TGC_stationPhi;
   std::vector<bool> *m_TGC_isEndcap;
-  std::vector<int>  *m_TGC_Sim_stationEta;
-  std::vector<int>  *m_TGC_Sim_stationPhi;
+  //std::vector<int>  *m_TGC_Sim_stationEta;
+  //std::vector<int>  *m_TGC_Sim_stationPhi;
   std::vector<int>  *m_TGC_Sim_gasGap;
   std::vector<int>  *m_TGC_gasGap;
   std::vector<int>  *m_TGC_isStrip;

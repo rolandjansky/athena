@@ -73,7 +73,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 
 		m_CSC_globalTime->push_back(hit.globalTime());
 
-		Amg::Vector3D simHitPosGlo = cscdet->localToGlobalCoords(simHitPosGlo, offid);
+		Amg::Vector3D simHitPosGlo = cscdet->localToGlobalCoords(hit.getHitStart(), offid);
 
 		m_CSC_hitGlobalPositionX->push_back(simHitPosGlo.x());
 		m_CSC_hitGlobalPositionY->push_back(simHitPosGlo.y());

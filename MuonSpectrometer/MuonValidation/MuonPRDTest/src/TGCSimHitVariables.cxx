@@ -79,7 +79,7 @@ StatusCode TGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		m_TGC_hitLocalPositionZ->push_back(localPosition.z());
 
 		Amg::Vector3D simHitPosLoc(localPosition.x(), localPosition.y(), localPosition.z());
-		Amg::Vector3D simHitPosGlo = tgcdet->localToGlobalCoords(simHitPosGlo, offid);
+		Amg::Vector3D simHitPosGlo = tgcdet->localToGlobalCoords(simHitPosLoc, offid);
 
 		m_TGC_hitGlobalPositionX->push_back(simHitPosGlo.x());
 		m_TGC_hitGlobalPositionY->push_back(simHitPosGlo.y());
