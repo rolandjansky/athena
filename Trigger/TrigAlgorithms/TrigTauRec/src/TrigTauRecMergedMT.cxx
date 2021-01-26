@@ -160,6 +160,10 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto PhiEF              = Monitored::Scalar<float>("PhiEF",-99.9);
   auto mEflowApprox       = Monitored::Scalar<float>("mEflowApprox", -99.9);
   auto ptRatioEflowApprox = Monitored::Scalar<float>("ptRatioEflowApprox", -99.9);
+  auto pt_jetseed_log     = Monitored::Scalar<float>("pt_jetseed_log",-99.9);
+  auto ptDetectorAxis     = Monitored::Scalar<float>("ptDetectorAxis",-99.9);
+  auto RNN_tracknumber    = Monitored::Scalar<int>("RNN_tracknumber",0);
+  auto RNN_clusternumber  = Monitored::Scalar<int>("RNN_clusternumber",0); 
    
   auto EF_calo_errors     = Monitored::Collection("calo_errors",calo_errors);
   auto EF_track_errors    = Monitored::Collection("track_errors",track_errors);
@@ -183,9 +187,10 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
   auto monitorIt = Monitored::Group( m_monTool, nCells, nTracks, dEta, dPhi, emRadius, hadRadius,
                    EtFinal, Et, EtHad, EtEm, EMFrac, IsoFrac, centFrac, nWideTrk, ipSigLeadTrk, trFlightPathSig, massTrkSys,
                    dRmax, numTrack, trkAvgDist, etovPtLead, PSSFraction, EMPOverTrkSysP, ChPiEMEOverCaloEME, SumPtTrkFrac,
-                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
-                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
+                   innerTrkAvgDist, Ncand, EtaL1, PhiL1, EtaEF, PhiEF, mEflowApprox, ptRatioEflowApprox, pt_jetseed_log, ptDetectorAxis, RNN_clusternumber, Cluster_et_log, Cluster_dEta, Cluster_dPhi, Cluster_log_SECOND_R,
+                   Cluster_SECOND_LAMBDA, Cluster_CENTER_LAMBDA, RNN_tracknumber, Track_pt_log, Track_dEta, Track_dPhi, Track_z0sinThetaTJVA_abs_log, Track_d0_abs_log, Track_nIBLHitsAndExp,
                    Track_nPixelHitsPlusDeadSensors, Track_nSCTHitsPlusDeadSensors); 
+
 
   // Retrieve store.
   ATH_MSG_DEBUG("Executing TrigTauRecMergedMT");
@@ -263,6 +268,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
         linkToTauTrack.toContainedElement(*tauTrackHandle, track);
         p_tau->addTauTrackLink(linkToTauTrack);
 
+        RNN_tracknumber += 1;
         track_pt_log.push_back(TMath::Log10( track->pt()));
         track_dEta.push_back(track->eta()- p_tau->eta()); 
         track_dPhi.push_back(track->p4().DeltaPhi(p_tau->p4()));
@@ -350,6 +356,7 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
       aJet->addConstituent(*clusterIt);
 
       TauBarycenter += myCluster;
+      RNN_clusternumber += 1;
 
       cluster_et_log.push_back(TMath::Log10( (*clusterIt)->et()));
       cluster_dEta.push_back((*clusterIt)->eta()- p_tau->eta());
@@ -571,6 +578,10 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     float pre_ptRatioEflowApprox;
     p_tau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, pre_ptRatioEflowApprox);
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
+    
+    pt_jetseed_log  = TMath::Log10(p_tau->ptJetSeed());
+    ptDetectorAxis  =  TMath::Log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF
