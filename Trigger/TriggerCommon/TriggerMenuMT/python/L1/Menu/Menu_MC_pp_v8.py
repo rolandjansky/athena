@@ -227,6 +227,7 @@ def defineMenu():
         # LHCF
     
         #CALREQ
+        'L1_CALREQ1',
         'L1_CALREQ2',
 
         # ZB
@@ -799,7 +800,7 @@ def defineMenu():
         'L1_RD2_BGRP14' : 463,
         'L1_RD3_BGRP15' : 464,
 
-        'L1_CALREQ2' : 511,  # never use 509-511 for anything else than CALREQ triggers
+        # NB: 508 is reserved for the zero bias trigger, and 509-511 for the CALREQ triggers (at the moment, ATR-22654)
 
     }
 
