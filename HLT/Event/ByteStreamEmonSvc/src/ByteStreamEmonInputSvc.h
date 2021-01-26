@@ -1,24 +1,24 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef BYTESTREAMCNVSVC_BYTESTREAMEVENTSTORAGEINPUTSVC_H 
-#define BYTESTREAMCNVSVC_BYTESTREAMEVENTSTORAGEINPUTSVC_H 
+#ifndef BYTESTREAMCNVSVC_BYTESTREAMEVENTSTORAGEINPUTSVC_H
+#define BYTESTREAMCNVSVC_BYTESTREAMEVENTSTORAGEINPUTSVC_H
 
 /**
  @class ByteStreamEmonInputSvc
- @brief implements the interface ByteStreamInputSvc for reading events 
+ @brief implements the interface ByteStreamInputSvc for reading events
         from emon.
 
 */
 
 // Include files.
-
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include "emon/EventIterator.h"
 
 #include "ByteStreamCnvSvc/ByteStreamInputSvc.h"
 #include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
-#include "ByteStreamData/RawEvent.h" 
+#include "ByteStreamData/RawEvent.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
 
@@ -109,4 +109,4 @@ private:
 
 };
 
-#endif  
+#endif

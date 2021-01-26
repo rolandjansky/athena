@@ -1,9 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigConfIO/JsonFileLoader.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -15,7 +16,7 @@
 using ptree = boost::property_tree::ptree;
 
 
-TrigConf::JsonFileLoader::JsonFileLoader() : 
+TrigConf::JsonFileLoader::JsonFileLoader() :
    TrigConfMessaging( "JsonFileLoader")
 {}
 
@@ -40,7 +41,7 @@ TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
    if (filename.find("/")==0) {
       TRG_MSG_WARNING("Can not find file with absolute location " << filename);
       return "";
-   } 
+   }
 
    // check if environment DATAPATH exists
    const char * dp = std::getenv("XMLPATH");
@@ -48,17 +49,17 @@ TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
       TRG_MSG_WARNING("Path environment $DATAPATH has not been defined");
       return "";
    }
-         
+
    // resolve location using XMLPATH
    std::string fnCopy(filename);
    char *token = std::strtok( &*fnCopy.begin(), ":");
    while ( token != nullptr ) {
-      std::filesystem::path fullname(token); 
+      std::filesystem::path fullname(token);
       fullname /= filename;
       if( std::filesystem::exists( fullname ) ) {
          return filename;
       }
-      // go to the next 
+      // go to the next
       token = std::strtok( nullptr, " ");
    }
 
@@ -68,7 +69,7 @@ TrigConf::JsonFileLoader::findFile(const std::string & filename) const {
 bool
 TrigConf::JsonFileLoader::loadFile( const std::string & filename,
                                     boost::property_tree::ptree & data,
-                                    const std::string & pathToChild ) const 
+                                    const std::string & pathToChild ) const
 {
 
    /*
@@ -89,7 +90,7 @@ TrigConf::JsonFileLoader::loadFile( const std::string & filename,
    }
    catch (const boost::property_tree::json_parser_error& e) {
       TRG_MSG_WARNING("Could either not locate or parse the file " << file);
-      return false; 
+      return false;
    }
 
    if( ! pathToChild.empty() ) {
