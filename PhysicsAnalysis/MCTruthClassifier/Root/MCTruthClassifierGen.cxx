@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -36,7 +36,7 @@ MCTruthClassifier::particleTruthClassifier(HepMC::ConstGenParticlePtr thePart, I
     return std::make_pair(partType, partOrig);
   }
 
-  for (const auto& entry : *truthParticleLinkVecReadHandle) {
+  for (const auto entry : *truthParticleLinkVecReadHandle) {
     if (entry->first.isValid() && entry->second.isValid() &&
         HepMC::barcode(entry->first.cptr()) == HepMC::barcode(thePart)) {
       const xAOD::TruthParticle* truthParticle = *entry->second;
