@@ -353,16 +353,20 @@ namespace xAOD {
   std::vector<float> TrackParticle_v1::definingParametersCovMatrixVec() const {
 
     std::vector< float > vec;
-    AmgSymMatrix(5)* cov = new AmgSymMatrix(5)(definingParametersCovMatrix());
-    Amg::compress(*cov,vec);
+    const AmgSymMatrix(5) cov = definingParametersCovMatrix();
+    Amg::compress(cov,vec);
     return vec;
 
   }
 
   void TrackParticle_v1::setDefiningParametersCovMatrixDiagVec( const std::vector< float >& vec ) {
 
-    if( vec.size() != ParametersCovMatrix_t::RowsAtCompileTime ){
-      throw std::runtime_error("Setting track definingParametersCovMatrixDiag with vector of size "+std::to_string(vec.size())+" instead of expected "+std::to_string(ParametersCovMatrix_t::RowsAtCompileTime)+" is not supported");
+    if (vec.size() != ParametersCovMatrix_t::RowsAtCompileTime) {
+      throw std::runtime_error(
+        "Setting track definingParametersCovMatrixDiag with vector of size " +
+        std::to_string(vec.size()) + " instead of expected " +
+        std::to_string(ParametersCovMatrix_t::RowsAtCompileTime) +
+        " is not supported");
     }
 
     accCovMatrixDiag( *this ) = vec;
