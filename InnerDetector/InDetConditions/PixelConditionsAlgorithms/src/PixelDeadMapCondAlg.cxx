@@ -59,7 +59,6 @@ StatusCode PixelDeadMapCondAlg::execute(const EventContext& ctx) const {
     ATH_MSG_INFO("Range of input is " << rangeW);
 
     for (CondAttrListCollection::const_iterator attrList=readCdo->begin(); attrList!=readCdo->end(); ++attrList) {
-      const CondAttrListCollection::ChanNum &channelNumber = attrList->first;
       const CondAttrListCollection::AttributeList &payload = attrList->second;
 
       // RUN-3 format
