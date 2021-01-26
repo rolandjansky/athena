@@ -56,10 +56,12 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_muContKey.assign(m_input_data_key));
     ATH_CHECK( m_muContKey.initialize());
-    if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
-    if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
-    ATH_CHECK( m_neutralFEReadDecorKey.initialize());
-    ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+    if (m_useFEMuonLinks || m_useFELinks) {
+      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+      ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+    }
 
     if (m_doMuonClusterMatch) {
       ATH_CHECK(m_elementLinkName.initialize());
@@ -223,9 +225,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
-
-  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
+  StatusCode METMuonAssociator::extractFE(const xAOD::IParticle* obj, 
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits,
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
@@ -250,7 +250,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METMuonAssociator::extractFEs(const xAOD::Muon* mu, //testFELinks
+  StatusCode METMuonAssociator::extractFEs(const xAOD::Muon* mu, 
 				 std::vector<const xAOD::IParticle*>& felist,
 				 const met::METAssociator::ConstitHolder& constits) const
   {  

@@ -66,8 +66,8 @@ if metFlags.DoPFlow() and metFlags.UseTracks():
     cfg_akt4pf = METAssocConfig('AntiKt4EMPFlow',
                                 associators,
                                 doPFlow=True,
-                                usePFOElectronLinks=metFlags.UsePFOElectronLinks(), 
-                                usePFOPhotonLinks=metFlags.UsePFOPhotonLinks() 
+                                usePFOLinks=metFlags.UsePFOLinks(), 
+                                useFELinks=metFlags.UseFELinks() 
                                 )
 
     metFlags.METAssocConfigs()[cfg_akt4pf.suffix] = cfg_akt4pf
@@ -88,10 +88,8 @@ if metFlags.DoPFlow() and metFlags.UseTracks() and metFlags.UseFlowElements():
     cfg_akt4pffe = METAssocConfig('AntiKt4EMPFlowFE',
                                   associators,
                                   doPFlow=True,
-                                  useFEElectronLinks=metFlags.UseFEElectronLinks(), 
-                                  useFEPhotonLinks=metFlags.UseFEPhotonLinks(),  
-                                  useFEMuonLinks=metFlags.UseFEMuonLinks(),  
-                                  useFETauLinks=metFlags.UseFETauLinks()
+                                  usePFOLinks=metFlags.UsePFOLinks(), 
+                                  useFELinks=metFlags.UseFELinks() 
                                   )
 
     metFlags.METAssocConfigs()[cfg_akt4pffe.suffix] = cfg_akt4pffe

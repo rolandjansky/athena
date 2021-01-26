@@ -64,14 +64,13 @@ namespace met{
     StatusCode extractFE(const xAOD::IParticle* obj,
                          std::vector<const xAOD::IParticle*>& felist,
                          const met::METAssociator::ConstitHolder& constits,
-                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final; //TODO: split in extractFEsFromLinks and extractFEs, similarly to PFOs, to use links
+                         std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final; 
 
-    StatusCode extractFEsFromLinks(const xAOD::Muon* mu, //testFELinks
+    StatusCode extractFEsFromLinks(const xAOD::Muon* mu, //TODO
     				    std::vector<const xAOD::IParticle*>& felist,
 				    const met::METAssociator::ConstitHolder& constits) const;
 
-
-    StatusCode extractFEs(const xAOD::Muon* mu, //testFELinks
+    StatusCode extractFEs(const xAOD::Muon* mu, 
 				 std::vector<const xAOD::IParticle*>& felist,
 				 const met::METAssociator::ConstitHolder& constits) const;
 

@@ -179,7 +179,7 @@ namespace met {
 						       const met::METAssociator::ConstitHolder& constits) const
   {
 
-    ATH_MSG_VERBOSE("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
+    ATH_MSG_DEBUG("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
 
     std::vector<PFOLink_t> cPFOLinks;
     std::vector<PFOLink_t> nPFOLinks;
@@ -322,10 +322,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-
-  // TODO: split in extractFEsFromLinks and extractFEs, similarly to PFOs, to use links
-
-  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
+  StatusCode METEgammaAssociator::extractFE(const xAOD::IParticle* obj, 
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits,
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
@@ -343,12 +340,12 @@ namespace met {
   }
 
 
-  StatusCode METEgammaAssociator::extractFEsFromLinks(const xAOD::Egamma* eg,
+  StatusCode METEgammaAssociator::extractFEsFromLinks(const xAOD::Egamma* eg, // TODO: to be tested
 						       std::vector<const xAOD::IParticle*>& felist,
 						       const met::METAssociator::ConstitHolder& constits) const
   {
 
-    ATH_MSG_VERBOSE("Extract FEs From Links for " << eg->type()  << " with pT " << eg->pt());
+    ATH_MSG_DEBUG("Extract FEs From Links for " << eg->type()  << " with pT " << eg->pt());
 
     std::vector<FELink_t> nFELinks;
     std::vector<FELink_t> cFELinks;
@@ -372,7 +369,7 @@ namespace met {
       if (feLink.isValid()){
 	const xAOD::FlowElement* fe_init = *feLink;
 	for (const auto& fe : *constits.feCont){
-	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and FlowElement collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
 	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
@@ -416,6 +413,8 @@ namespace met {
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits) const
   {
+    ATH_MSG_VERBOSE("Extract FEs From DeltaR for " << eg->type()  << " with pT " << eg->pt());
+
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();

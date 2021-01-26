@@ -257,14 +257,10 @@ namespace met {
       ConstDataVector<PFOContainer> met_PFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *PFOs) {met_PFO.push_back(pfo);}
 
-      const xAOD::PFOContainer *OR_pfos = nullptr; 
+      const xAOD::PFOContainer *OR_pfos; 
    
-      if (metMuons.size()>0 && m_retainMuonConstit) {
-        OR_pfos = m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,true, metMuons.asDataVector());
-      }
-      else {
-        OR_pfos = m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper,false);
-      }
+      if (metMuons.size()>0 && m_retainMuonConstit) {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper, &OR_pfos, true, metMuons.asDataVector()));}
+      else {ATH_CHECK(m_metmaker->retrieveOverlapRemovedConstituents(met_PFO.asDataVector(),&metHelper, &OR_pfos, false));}
 
       *PFOContainerWriteHandle=*OR_pfos;
 
@@ -305,7 +301,7 @@ namespace met {
 		  (*chargedPFOContainerWriteHandle).begin(), 
 		  (*chargedPFOContainerWriteHandle).end());***/
 
-     for (auto tmp_constit : *PFOContainerWriteHandle){ATH_MSG_INFO("ORMETMaker constit with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << " in OverlapRemovedCHSParticleFlowObjects");}
+     for (auto tmp_constit : *PFOContainerWriteHandle){ATH_MSG_VERBOSE("ORMETMaker constit with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << " in OverlapRemovedCHSParticleFlowObjects");}
 
     }
 

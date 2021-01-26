@@ -117,6 +117,12 @@ public:
 			  const xAOD::IParticleContainer* collection=0) = 0;//,  
 			  //MissingETBase::UsageHandler::Policy p); //jetOR
 
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* collection=0) = 0;
+
   virtual const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
 			  xAOD::MissingETAssociationHelper* helper,
 			  bool retainMuon = false,

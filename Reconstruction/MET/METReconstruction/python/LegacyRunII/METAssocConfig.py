@@ -206,12 +206,6 @@ class METAssocConfig:
         self.doPFlow = doPFlow
         self.usePFOLinks = usePFOLinks
         self.useFELinks = useFELinks
-        self.usePFOElectronLinks = metFlags.UsePFOElectronLinks()
-        self.usePFOPhotonLinks = metFlags.UsePFOPhotonLinks()
-        self.useFEElectronLinks = metFlags.UseFEElectronLinks() 
-        self.useFEPhotonLinks = metFlags.UseFEPhotonLinks() 
-        self.useFEMuonLinks = metFlags.UseFEMuonLinks() 
-        self.useFETauLinks = metFlags.UseFETauLinks() 
         self.modConstKey=modConstKey_tmp
         self.modClusColls=modClusColls_tmp
         self.doTruth = doTruth

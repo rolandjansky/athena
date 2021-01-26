@@ -49,7 +49,7 @@ namespace met {
     m_tauContKey("")
   {
     declareProperty("tauContainer",m_tauContKey);
-    declareProperty("UseFETauLinks", m_useFETauLinks = false ); //?
+    declareProperty("UseFETauLinks", m_useFETauLinks = false ); 
   }
 
   // Destructor
@@ -65,10 +65,13 @@ namespace met {
     ATH_MSG_VERBOSE ("Initializing " << name() << "...");
     ATH_CHECK( m_tauContKey.assign(m_input_data_key));
     ATH_CHECK( m_tauContKey.initialize());
-    if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
-    if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
-    ATH_CHECK( m_neutralFEReadDecorKey.initialize());
-    ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+
+    if (m_useFETauLinks || m_useFELinks) {
+      if (m_neutralFEReadDecorKey.key()=="") {ATH_CHECK( m_neutralFEReadDecorKey.assign(m_input_data_key+"."+m_neutralFELinksKey));}
+      if (m_chargedFEReadDecorKey.key()=="") {ATH_CHECK( m_chargedFEReadDecorKey.assign(m_input_data_key+"."+m_chargedFELinksKey));}
+      ATH_CHECK( m_neutralFEReadDecorKey.initialize());
+      ATH_CHECK( m_chargedFEReadDecorKey.initialize());
+    }
 
     return StatusCode::SUCCESS;
   }
@@ -196,14 +199,12 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  // TODO: split in extractFEsFromLinks and extractFEs, similarly to extractPFO in METEgammaAssociator, to use links
-
-  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj, //testFELinks
+  StatusCode METTauAssociator::extractFE(const xAOD::IParticle* obj, 
                                             std::vector<const xAOD::IParticle*>& felist,
                                             const met::METAssociator::ConstitHolder& constits,
                                             std::map<const IParticle*,MissingETBase::Types::constvec_t> &/*momenta*/) const
   {
-    const xAOD::TauJet *tau = static_cast<const xAOD::TauJet*>(obj);
+    const TauJet* tau = static_cast<const TauJet*>(obj);
 
     if (m_useFETauLinks) { 
       ATH_CHECK( extractFEsFromLinks(tau, felist,constits) );
@@ -216,7 +217,7 @@ namespace met {
   }
 
 
-  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, //testFELinks
+  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, 
     				    std::vector<const xAOD::IParticle*>& felist,
 				    const met::METAssociator::ConstitHolder& constits) const 
   {
@@ -262,5 +263,6 @@ namespace met {
     }
     return StatusCode::SUCCESS;
   }
+
 
 }
