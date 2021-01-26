@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # read alignment constants from DB to update MuonGeoModel
@@ -42,8 +42,6 @@ condSequence = AthSequencer("AthCondSeq")
 
 from MuonCondAlg.MuonCondAlgConf import MuonAlignmentCondAlg
 MuonAlignAlg = MuonAlignmentCondAlg()
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-if TriggerFlags.MuonSlice.doTrigMuonConfig: MuonAlignAlg.DoRecRoiSvcUpdate = True # this should be removed as soon as RPC/TGCRecRoiSvc are migrated to use the MuonDetectorCondAlg
 MuonAlignAlg.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                "/MUONALIGN/MDT/ENDCAP/SIDEC",

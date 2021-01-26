@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -118,7 +118,6 @@ def MuonAlignmentCondAlgCfg(flags):
         acc.merge(addFolders( flags, ['/MUONALIGN/TGC/SIDEC'], 'MUONALIGN_OFL', className='CondAttrListCollection'))
 
     MuonAlign = MuonAlignmentCondAlg()
-    if flags.Muon.MuonTrigger: MuonAlign.DoRecRoiSvcUpdate = True # this should be removed as soon as RPC/TGCRecRoiSvc are migrated to use the MuonDetectorCondAlg
     MuonAlign.ParlineFolders = ["/MUONALIGN/MDT/BARREL",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEA",
                                 "/MUONALIGN/MDT/ENDCAP/SIDEC",
