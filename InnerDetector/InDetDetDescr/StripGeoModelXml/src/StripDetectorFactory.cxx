@@ -126,15 +126,20 @@ void StripDetectorFactory::create(GeoPhysVol *world) {
    
 //
     unsigned int nChildren = world->getNChildVols();
+    bool foundVolume = false;
 
     for (int iChild = nChildren - 1; iChild>=0; --iChild) {
-        if (world->getNameOfChildVol(iChild) == "SCT") {
-            // The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
-            // the & takes its address.
-            m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
-            break;
-        }
+      if (world->getNameOfChildVol(iChild) == "SCT" || world->getNameOfChildVol(iChild) == "ITkStrip") {
+	//Allow "SCT" for compatibility with older geometry tags
+	// The * converts from a ConstPVLink to a reference to a GeoVPhysVol;
+	// the & takes its address.
+	foundVolume = true;
+	m_detectorManager->addTreeTop(&*world->getChildVol(iChild));
+	break;
+      }
     }
+
+    if(!foundVolume) ATH_MSG_ERROR("Could not find a logicalVolume named \"ITkStrip\" (or \"SCT\") - this is required to provide the Envelope!");
 
     doNumerology();
 
