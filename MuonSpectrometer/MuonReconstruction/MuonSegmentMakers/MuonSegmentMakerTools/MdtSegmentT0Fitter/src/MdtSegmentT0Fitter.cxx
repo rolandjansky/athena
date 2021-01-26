@@ -24,29 +24,39 @@
 #include <atomic>
 #include <mutex>
 
-// number of fit parameters
-#define NUMPAR 3
+namespace {
+  // number of fit parameters
+  constexpr unsigned int NUMPAR=3;
+ 
+  // prints a message if a radius is bigger than this
+  constexpr double MAX_RAD=16.;
 
-// prints a message if a radius is bigger than this
-#define MAX_RAD 16
+  // time corresponding to r=15 mm for internal rt
+  constexpr double TUBE_TIME = 757.22;
 
-// time corresponding to r=15 mm for internal rt
-#define TUBE_TIME 757.22
+  constexpr double MAX_DRIFT= 855;
 
-#define MAX_DRIFT 855
+    // garbage time value to return when radius isn't wihin rt range
+   constexpr double R2TSPURIOUS = 50000;
+   
+   constexpr int WEAK_TOPO_T0ERROR = 10;
+   
+   constexpr int STRONG_TOPO_T0ERROR = 50;
 
-// garbage time value to return when radius isn't wihin rt range
-#define R2TSPURIOUS 50000
-
-#define WEAK_TOPO_T0ERROR 10
-#define STRONG_TOPO_T0ERROR 50
-
-
-namespace TrkDriftCircleMath {
 
   class FunctionToMinimize : public ROOT::Math::IMultiGenFunction {
     public:
       struct HitCoords {
+        public:
+            HitCoords(const double z_coord, const double t_coord, 
+                      const double y_coord, const double w_coord, 
+                      const double r_coord, const MuonCalib::IRtRelation * rt_rel):
+            z(z_coord),
+            t(t_coord),
+            y(y_coord),
+            w(w_coord),
+            r(r_coord),
+            rt(rt_rel){}
         double z;
         double t;
         double y;
@@ -54,8 +64,8 @@ namespace TrkDriftCircleMath {
         double r;
         const MuonCalib::IRtRelation *rt;
       };
-      FunctionToMinimize(const int used) : m_data(),m_used(used),m_t0Error() {}
-      ~FunctionToMinimize() {m_data.clear();}
+      FunctionToMinimize(const int used) : m_data(),m_used(used),m_t0Error(-1) {}
+     
       double DoEval(const double* xx) const {
         double ang = xx[0];
         double b = xx[1];
@@ -95,54 +105,15 @@ namespace TrkDriftCircleMath {
       unsigned int NDim() const {return 3;}
       void setT0Error(const int t0Error){m_t0Error=t0Error;}
       void addCoords(const double z, const double t, const double y, const double w, const double r, const MuonCalib::IRtRelation *rt){
-        HitCoords coords;
-        coords.z=z;
-        coords.t=t;
-        coords.y=y;
-        coords.w=w;
-        coords.r=r;
-        coords.rt=rt;
-        m_data.push_back(coords);
+        m_data.emplace_back(z,t,y,w,r,rt);
       }
     private:
       std::vector<HitCoords> m_data;
       int m_used;
       int m_t0Error;
   };
-
-  MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
-  : AthAlgTool(ty,na,pa),
-    DCSLFitter(),
-    m_ntotalCalls(0),
-    m_npassedNHits(0),
-    m_npassedSelectionConsistency(0),
-    m_npassedNSelectedHits(0),
-    m_npassedMinHits(0),
-    m_npassedMinuitFit(0) {
-    declareInterface <IDCSLFitProvider> (this);
-  }
-
-  StatusCode MdtSegmentT0Fitter::initialize() {
-    ATH_CHECK(m_calibrationDbTool.retrieve());
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode MdtSegmentT0Fitter::finalize() {
-
-    double scaleFactor = m_ntotalCalls != 0 ? 1./(double)m_ntotalCalls : 1.;
-
-    ATH_MSG_INFO( "Summarizing fitter statistics " << "\n"
-                  << " Total fits       " << std::setw(10) << m_ntotalCalls << "   " << scaleFactor*m_ntotalCalls << "\n"
-                  << " hits > 2         " << std::setw(10) << m_npassedNHits << "   " << scaleFactor*m_npassedNHits << "\n"
-                  << " hit consis.      " << std::setw(10) << m_npassedSelectionConsistency << "   " << scaleFactor*m_npassedSelectionConsistency << "\n"
-                  << " sel. hits > 2    " << std::setw(10) << m_npassedNSelectedHits << "   " << scaleFactor*m_npassedNSelectedHits << "\n"
-                  << " Hits > min hits  " << std::setw(10) << m_npassedMinHits << "   " << scaleFactor*m_npassedMinHits << "\n"
-                  << " Passed Fit       " << std::setw(10) << m_npassedMinuitFit << "   " << scaleFactor*m_npassedMinuitFit  );
-    return StatusCode::SUCCESS;
-  }
-
-
-  /***********************************************************************************/
+  
+   /***********************************************************************************/
   /// RT function from Craig Blocker
   /// ok for now, possibly replace with actual RT function used to calibrate run
 
@@ -280,6 +251,42 @@ namespace TrkDriftCircleMath {
     if(a<0) return -1;
     return 0;
   }
+  
+
+}
+namespace TrkDriftCircleMath {
+
+  MdtSegmentT0Fitter::MdtSegmentT0Fitter(const std::string& ty,const std::string& na,const IInterface* pa)
+  : AthAlgTool(ty,na,pa),
+    DCSLFitter(),
+    m_ntotalCalls(0),
+    m_npassedNHits(0),
+    m_npassedSelectionConsistency(0),
+    m_npassedNSelectedHits(0),
+    m_npassedMinHits(0),
+    m_npassedMinuitFit(0) {
+    declareInterface <IDCSLFitProvider> (this);
+  }
+
+  StatusCode MdtSegmentT0Fitter::initialize() {
+    ATH_CHECK(m_calibrationDbTool.retrieve());
+    return StatusCode::SUCCESS;
+  }
+
+  StatusCode MdtSegmentT0Fitter::finalize() {
+
+    double scaleFactor = m_ntotalCalls != 0 ? 1./(double)m_ntotalCalls : 1.;
+
+    ATH_MSG_INFO( "Summarizing fitter statistics " << "\n"
+                  << " Total fits       " << std::setw(10) << m_ntotalCalls << "   " << scaleFactor*m_ntotalCalls << "\n"
+                  << " hits > 2         " << std::setw(10) << m_npassedNHits << "   " << scaleFactor*m_npassedNHits << "\n"
+                  << " hit consis.      " << std::setw(10) << m_npassedSelectionConsistency << "   " << scaleFactor*m_npassedSelectionConsistency << "\n"
+                  << " sel. hits > 2    " << std::setw(10) << m_npassedNSelectedHits << "   " << scaleFactor*m_npassedNSelectedHits << "\n"
+                  << " Hits > min hits  " << std::setw(10) << m_npassedMinHits << "   " << scaleFactor*m_npassedMinHits << "\n"
+                  << " Passed Fit       " << std::setw(10) << m_npassedMinuitFit << "   " << scaleFactor*m_npassedMinuitFit  );
+    return StatusCode::SUCCESS;
+  }
+
   bool MdtSegmentT0Fitter::fit( Segment& result, const Line& line, const DCOnTrackVec& dcs, const HitSelection& selection, double t0Seed ) const {
     ++m_ntotalCalls;
 
@@ -309,6 +316,7 @@ namespace TrkDriftCircleMath {
       return false;
     }
     ++m_npassedNSelectedHits;
+    std::cout<<name()<<" Stonjek warum macht man die m_trace property rein"<<std::endl;
     if(used < m_minHits) {
       if(m_trace) ATH_MSG_DEBUG("FEWER THAN Minimum HITS N " << m_minHits << " total hits " <<N<<" used " << used);
 
