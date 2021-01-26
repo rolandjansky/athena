@@ -32,7 +32,7 @@ preExec = ';'.join([
 ex = ExecStep.ExecStep()
 ex.type = 'Reco_tf'
 ex.input = 'ttbar'
-ex.max_events = 800
+ex.max_events = 500
 ex.threads = 4
 ex.concurrent_events = 4
 ex.args = '--outputRDO_TRIGFile=RDO_TRIG.pool.root'
