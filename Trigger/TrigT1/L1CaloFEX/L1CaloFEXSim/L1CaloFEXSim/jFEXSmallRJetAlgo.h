@@ -59,7 +59,6 @@ protected:
         int m_jFEXalgoSearchWindowSeedET[5][5];
         int m_smallRJetClusterIDs[4][5];
 	bool m_seedSet;
-        bool m_clusterSet;
   };
 
 

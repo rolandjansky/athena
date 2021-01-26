@@ -205,7 +205,6 @@ unsigned int LVL1::jFEXSmallRJetAlgo::getClusterET(){
     }
   }
 
-// m_clusterSet = true;
  int smallRclusterET = searchWindowET + clusterBoarderET;
  return smallRclusterET;
 }

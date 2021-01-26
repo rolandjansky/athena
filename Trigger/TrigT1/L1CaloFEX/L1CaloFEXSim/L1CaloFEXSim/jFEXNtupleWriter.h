@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -33,7 +33,7 @@ private:
   jFEXOutputCollection* m_jFEXOutputCollection;
   //std::shared_ptr m_jFEXOutputCollection;
   //std::shared_ptr<jFEXOutputCollection> m_jFEXOutputCollection;
-  float m_eg_nTOBs;
+  //float m_eg_nTOBs;
   bool m_load_truth_jet;
 
   std::vector<float> m_truth_smallRJet_eta;
