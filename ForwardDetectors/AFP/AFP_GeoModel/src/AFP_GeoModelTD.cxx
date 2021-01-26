@@ -64,12 +64,15 @@ StatusCode AFP_GeoModelFactory::addTimingDetector(const char* pszStationName, Ge
        HepGeom::Transform3D TotTransform;
 
 	eAFPStation eStation=m_pGeometry->parseStationName(pszStationName);
+    const double signFactor = ( eStation==EAS_AFP02 || eStation==EAS_AFP03 ) ? -1 : 1;
+    
 	AFP_TDCONFIGURATION TofCfg=m_CfgParams.tdcfg[eStation];
 	AFPTOF_LBARDIMENSIONS BarDims11=TofCfg.mapBarDims[11];
 	fXShift=-73.3*CLHEP::mm;
 	fYShift=(BarDims11.fRadLength+TofCfg.mapTrainInfo[BarDims11.nTrainID].fPerpShiftInPixel-0.5*(BarDims11.fLGuideWidth-TofCfg.mapTrainInfo[BarDims11.nTrainID].fTaperOffset)-0.5*BarDims11.fLBarThickness/tan(TofCfg.fAlpha))*sin(TofCfg.fAlpha);
 	fZShift=fabs(fYShift)/tan(TofCfg.fAlpha)+0.5*BarDims11.fLBarThickness/sin(TofCfg.fAlpha);
-	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,fZShift)*HepGeom::RotateX3D(90.0*CLHEP::deg-TofCfg.fAlpha)*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
+    
+	HepGeom::Transform3D TofTransform=TransInMotherVolume*HepGeom::Translate3D(fXShift,fYShift,signFactor*fZShift)*HepGeom::RotateX3D(signFactor*(90.0*CLHEP::deg-TofCfg.fAlpha))*HepGeom::RotateZ3D(-90.0*CLHEP::deg);
 
 	for(i=0;i<m_CfgParams.tdcfg[eStation].nX1PixCnt;i++)
 	{

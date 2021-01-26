@@ -127,8 +127,8 @@ HepGeom::Transform3D AFP_Geometry::getSIDTransform(const eSIDTransformType eType
 
 	//double fxm=DETXSIDE*(0.5*SID_MAINPLATEXDIM*cos(falpha)+SID_PLATETHICKNESS*sin(falpha)); double fzm=0.0;
 	double fxm=-(sidcfg.vecChipXPos[nPlateID]+0.5*sidcfg.vecChipXLength[nPlateID])*cos(falpha); double fzm=0.0;
-	double fZCorrOffset=0;//(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
-    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm,+fzm-fZCorrOffset);
+	double fZCorrOffset=(DETXSIDE==+1 || falpha==0)? -0:4*AfpConstants.SiT_CorrZOffset;
+    HepGeom::Transform3D NominalPosInPocket=HepGeom::Translate3D(0.0*CLHEP::mm,0.0*CLHEP::mm, signFactor*(fzm-fZCorrOffset));
 
 	//staggering of sensor shift in its plane - correction to cosinus needed fo x-staggering to transform to staggering in LHC CS
 	HepGeom::Transform3D TransStaggering=HepGeom::Translate3D(sidcfg.vecXStaggering[nPlateID]*cos(falpha),sidcfg.vecYStaggering[nPlateID], 0.0*CLHEP::mm);
@@ -317,6 +317,7 @@ void AFP_Geometry::setupLBarsDims(const eAFPStation eStation)
 
 			if(j==0) TofCfg.mapTrainInfo[nTrainCnt-i].fLength=fLGuideLength+0.5*BarDims.fRadYDim;
 			m_CfgParams.tdcfg[EAS_AFP00].mapBarDims[10*(i+1)+(j+1)]=BarDims;
+            m_CfgParams.tdcfg[EAS_AFP03].mapBarDims[10*(i+1)+(j+1)]=BarDims;
 		}
 	}
 }
