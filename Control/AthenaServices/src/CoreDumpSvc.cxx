@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -52,6 +52,10 @@
 #include "CxxUtils/read_athena_statm.h"
 
 
+namespace {
+  inline static const std::string horizLine = std::string(85,'-')+'\n';
+}
+
 /**
  * @brief  Signal handler for CoreDumpSvc
  *
@@ -66,6 +70,7 @@ namespace CoreDumpSvcHandler
   SigHandler_t oldSigHandler;         ///< old signal handlers
   bool callOldHandler(true);          ///< forward calls to old handlers?
   bool stackTrace(false);             ///< produce stack trace?
+  bool fastStackTrace(false);         ///< produce fast stack trace using CxxUtils/Seal
   CoreDumpSvc* coreDumpSvc(nullptr);  ///< pointer to CoreDumpSvc
   
   /**
@@ -120,23 +125,30 @@ namespace CoreDumpSvcHandler
       coreDumpSvc->print();
     }
 
+    if (fastStackTrace) {
+      std::cout << horizLine << "Producing (fast) stack trace...\n"
+                << horizLine << std::flush;
+      Athena::DebugAids::stacktrace();
+      std::cout << std::endl;
+    }
+
     if (gSystem && stackTrace) {
-      std::cout << "Producing stack trace..." << std::endl;
+      std::cout << horizLine << "Producing stack trace... (can be slow, check gdb process)\n"
+                << horizLine << std::flush;
       gSystem->StackTrace();
+      std::cout << std::endl;
     }
 
     if (callOldHandler) {
       // Call previous signal handler
       // Need to distinguish between the two different types
       const struct sigaction& oact = oldSigHandler[sig];
+      std::cout << horizLine << "Invoking previous signal handler... (can be slow, check gdb process)\n"
+                << horizLine << std::flush;
       if ( oact.sa_flags & SA_SIGINFO ) {
-        std::cout << "Invoking previous sa_sigaction at " << (void*)oact.sa_sigaction
-                  << ", sa_flags = " << oact.sa_flags << std::endl;
         oact.sa_sigaction(sig, info, extra);
       }
       else if (oact.sa_handler != SIG_DFL && oact.sa_handler != SIG_IGN ) {
-        std::cout << "Invoking previous sa_handler at " << (void*)oact.sa_handler
-                  << ", sa_flags = " << oact.sa_flags << std::endl;
         oact.sa_handler(sig);
       }
       else {
@@ -173,6 +185,7 @@ CoreDumpSvc::CoreDumpSvc( const std::string& name, ISvcLocator* pSvcLocator ) :
   
   m_callOldHandler.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_stackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
+  m_fastStackTrace.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_coreDumpStream.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   m_fatalHandlerFlags.declareUpdateHandler(&CoreDumpSvc::propertyHandler, this);
   
@@ -190,6 +203,7 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 {
   CoreDumpSvcHandler::callOldHandler = m_callOldHandler;
   CoreDumpSvcHandler::stackTrace = m_stackTrace;
+  CoreDumpSvcHandler::fastStackTrace = m_fastStackTrace;
 
   if ( p.name()==m_coreDumpStream.name() ) {
     const std::string val = p.toString();
@@ -289,10 +303,10 @@ void CoreDumpSvc::print()
     ATH_MSG_FATAL ("Core dump follows:" << std::endl << dump());
   }
   else if (m_coreDumpStream == "stderr") {
-    std::cerr << dump() << std::endl;
+    std::cerr << dump() << std::flush;
   }
   else {
-    std::cout << dump() << std::endl;
+    std::cout << dump() << std::flush;
   }  
 }
 
@@ -436,14 +450,13 @@ std::string CoreDumpSvc::dump() const
     }
   }
 
-  os << "-------------------------------------------------------------------------------------\n";
+  os << horizLine;
   os << "| AtlasBaseDir : " << std::setw(66) << getenv("AtlasBaseDir")  << " |\n";
   os << "| AtlasVersion : " << std::setw(66) << getenv("AtlasVersion")  << " |\n";
   os << "| BINARY_TAG   : " << std::setw(66) << getenv("BINARY_TAG")    << " |\n";
-  os << "-------------------------------------------------------------------------------------\n";
+  os << horizLine;
   os << " Note: to see line numbers in below stacktrace you might consider running following :\n";
   os << "  atlasAddress2Line --file <logfile>\n";
-  os << "-------------------------------------------------------------------------------------";
 
   IAthenaSummarySvc *iass(nullptr);
   if (service("AthenaSummarySvc",iass,false).isSuccess() && iass) {
