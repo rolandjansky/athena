@@ -61,27 +61,18 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
     if config.objType == 'Ele':
         from ROOT import met
         tool = CfgMgr.met__METElectronAssociator('MET_ElectronAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-        #tool.OutputLevel=VERBOSE
-        if metFlags.UsePFOElectronLinks() or usePFOLinks:
-            tool.UsePFOElectronLinks = True
-        if metFlags.UseFEElectronLinks() or useFELinks:
-            tool.UseFEElectronLinks = True
-
+        tool.UsePFOElectronLinks = metFlags.UsePFOElectronLinks()
+        tool.UseFEElectronLinks = metFlags.UseFEElectronLinks()
 
     if config.objType == 'Gamma':
-
         from ROOT import met
         tool = CfgMgr.met__METPhotonAssociator('MET_PhotonAssociator_'+suffix,TCMatchMethod=met.ClusterLink)
-
-        if metFlags.UsePFOPhotonLinks() or usePFOLinks:
-            tool.UsePFOPhotonLinks = True
-        if metFlags.UseFEPhotonLinks() or useFELinks: 
-            tool.UseFEPhotonLinks = True
+        tool.UsePFOPhotonLinks = metFlags.UsePFOPhotonLinks()
+        tool.UseFEPhotonLinks = metFlags.UseFEPhotonLinks()
 
     if config.objType == 'Tau':
         tool = CfgMgr.met__METTauAssociator('MET_TauAssociator_'+suffix)
-        if metFlags.UseFETauLinks() or useFELinks: 
-            tool.UseFETauLinks = True
+        tool.UseFETauLinks = metFlags.UseFETauLinks()
     if config.objType == 'LCJet':
         tool = CfgMgr.met__METJetAssocTool('MET_LCJetAssocTool_'+suffix)
     if config.objType == 'EMJet':
@@ -94,9 +85,7 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
         tool = CfgMgr.met__METJetAssocTool('MET_PFlowFEJetAssocTool_'+suffix)
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonAssociator('MET_MuonAssociator_'+suffix)
-        if metFlags.UseFEMuonLinks() or useFELinks: 
-            tool.UseFEMuonLinks = True
-        #tool.OutputLevel=VERBOSE
+        tool.UseFEMuonLinks = metFlags.UseFEMuonLinks()
     if config.objType == 'Soft':
         tool = CfgMgr.met__METSoftAssociator('MET_SoftAssociator_'+suffix)
         tool.DecorateSoftConst = True
@@ -107,7 +96,8 @@ def getAssociator(config,suffix,doPFlow=False,usePFOLinks=False,useFELinks=False
         tool = CfgMgr.met__METTruthAssociator('MET_TruthAssociator_'+suffix)
         tool.RecoJetKey = config.inputKey
 
-
+    tool.UseFELinks = useFELinks
+    tool.UsePFOLinks = usePFOLinks
 
     if doPFlow:
         tool.PFlow = True

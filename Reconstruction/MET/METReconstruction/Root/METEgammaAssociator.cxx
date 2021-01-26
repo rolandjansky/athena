@@ -164,7 +164,7 @@ namespace met {
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
 
-    if ((m_usePFOElectronLinks && eg->type() == xAOD::Type::Electron) || (m_usePFOPhotonLinks && eg->type() == xAOD::Type::Photon)) { 
+    if (((m_usePFOElectronLinks || m_usePFOLinks)&& eg->type() == xAOD::Type::Electron) || ((m_usePFOPhotonLinks || m_usePFOLinks) && eg->type() == xAOD::Type::Photon)) { 
       ATH_CHECK( extractPFOsFromLinks(eg, pfolist,constits) );
     } 
     else {
@@ -179,7 +179,7 @@ namespace met {
 						       const met::METAssociator::ConstitHolder& constits) const
   {
 
-    ATH_MSG_DEBUG("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
+    ATH_MSG_INFO("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
 
     std::vector<PFOLink_t> cPFOLinks;
     std::vector<PFOLink_t> nPFOLinks;
@@ -252,7 +252,7 @@ namespace met {
     // safe to assume a single SW cluster?
     // will do so for now...
     const xAOD::IParticle* swclus = eg->caloCluster();
-    ANA_MSG_VERBOSE("Extract PFOs with DeltaR for " << eg->type()  << " with pT " << eg->pt());
+    ANA_MSG_INFO("Extract PFOs with DeltaR for " << eg->type()  << " with pT " << eg->pt());
 
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
@@ -329,7 +329,7 @@ namespace met {
   {
     const xAOD::Egamma *eg = static_cast<const xAOD::Egamma*>(obj);
 
-    if ((m_useFEElectronLinks && eg->type() == xAOD::Type::Electron) || (m_useFEPhotonLinks && eg->type() == xAOD::Type::Photon)) { 
+    if (((m_useFEElectronLinks || m_useFELinks) && eg->type() == xAOD::Type::Electron) || ((m_useFEPhotonLinks || m_useFELinks) && eg->type() == xAOD::Type::Photon)) { 
       ATH_CHECK( extractFEsFromLinks(eg, felist,constits) );
     } 
     else {

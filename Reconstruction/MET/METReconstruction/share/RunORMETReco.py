@@ -24,7 +24,7 @@ metWP			= "PFlow"
 
 usePFOElectronLinks	= True
 usePFOPhotonLinks	= True
-usePFOLinks		= True
+#usePFOLinks		= True
 retainMuon		= True
 
 ############################################################################
@@ -43,7 +43,7 @@ include("eflowRec/jetAlgs.py")  # std jet reco (AntiKt4EMPFlowJets)
 from METReconstruction.METRecoFlags import jobproperties, metFlags
 metFlags.UsePFOElectronLinks=usePFOElectronLinks
 metFlags.UsePFOPhotonLinks=usePFOPhotonLinks
-metFlags.UsePFOLinks=usePFOLinks
+#metFlags.UsePFOLinks=usePFOLinks
 metFlags.DoORMet = False  # used by ORMETAssoc.py
 
 include("METUtilities/ORMETAssoc.py")
