@@ -36,7 +36,9 @@ namespace Muon {
     if( !m_atlasExtrapolator.empty() ) ATH_CHECK( m_atlasExtrapolator.retrieve() );
     if( !m_muonExtrapolator.empty() ) ATH_CHECK( m_muonExtrapolator.retrieve() );
     if( !m_muonExtrapolator2.empty() ) ATH_CHECK( m_muonExtrapolator2.retrieve() );
-    ATH_CHECK( m_trackingGeometrySvc.retrieve() );
+	ATH_CHECK(m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()));
+	if (m_trackingGeometryReadKey.key().empty() && !m_trackingGeometrySvc.empty()) ATH_CHECK( m_trackingGeometrySvc.retrieve());
+
     ATH_CHECK( m_fieldCacheCondObjInputKey.initialize() );
 
     if( m_cosmics ) ATH_MSG_DEBUG("Running in cosmics mode" );
@@ -48,11 +50,25 @@ namespace Muon {
 											Trk::ParticleHypothesis particleHypo ) const {
 
     if( m_muonExtrapolator.empty() ) return nullptr;
-    if( !m_trackingGeometrySvc->trackingGeometry() ){
+	const Trk::TrackingVolume* msEntrance;
+	if (m_trackingGeometryReadKey.key().empty()) {
+ // use service
+ if( !m_trackingGeometrySvc->trackingGeometry() ){
       ATH_MSG_WARNING("  " << m_trackingGeometrySvc << " has no valid trackingGeometry pointer" );
       return nullptr;
     }
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
+    msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
+} else {
+ // use ReadCondHandle
+ SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+      ATH_MSG_WARNING("Could not retrieve TrackingGeometry '" << m_trackingGeometryReadKey.fullKey() << "' from CondStore.");
+      return nullptr;
+    }
+	const Trk::TrackingGeometry* trackingGeometry = *readHandle;
+    msEntrance = trackingGeometry->trackingVolume(m_msEntranceName);
+}
+    
     if( !msEntrance ) {
       ATH_MSG_WARNING("  MS entrance not found" );
       return nullptr;
@@ -115,8 +131,25 @@ namespace Muon {
 
   const Trk::TrackParameters* MuonTrackExtrapolationTool::findClosestParametersToMuonEntry( const Trk::Track& track ) const {
 
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
-    if( !msEntrance ) {
+    const Trk::TrackingVolume* msEntrance; 
+	if (m_trackingGeometryReadKey.key().empty()) {
+ // use service
+ 	msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume(m_msEntranceName);
+} else {
+ // use ReadCondHandle
+SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryReadKey.fullKey() << "' from CondStore.");
+      return 0;
+    }
+    const Trk::TrackingGeometry* trackingGeometry = *readHandle;
+    msEntrance = trackingGeometry->trackingVolume(m_msEntranceName);
+
+}
+    
+	
+	
+	if( !msEntrance ) {
       ATH_MSG_WARNING("Failed to obtain muon entry volume");
       return nullptr;
     }
@@ -224,9 +257,22 @@ namespace Muon {
   }
 
   double MuonTrackExtrapolationTool::estimateDistanceToEntryRecord( const Trk::TrackParameters& pars ) const {
-    
+	
+	const Trk::TrackingVolume* msEntrance; 
+	if (m_trackingGeometryReadKey.key().empty()) {
+ // use service
+ msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+} else {
+ // use ReadCondHandle
+ SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+    if (!readHandle.isValid() || *readHandle == nullptr) {
+      ATH_MSG_FATAL("Could not retrieve TrackingGeometry '" << m_trackingGeometryReadKey.fullKey() << "' from CondStore.");
+      return 0;
+    }
+    const Trk::TrackingGeometry* trackingGeometry = *readHandle;
+    msEntrance = trackingGeometry->trackingVolume("Calo::Container");
 
-    const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+}
     if( !msEntrance ) return 0;
 
     // get boundary surfaces of muon entry record
@@ -352,7 +398,16 @@ namespace Muon {
     // sanity check for cosmics, if we are at the IP we should not 
     if( m_cosmics && atIP ){
       double tolerance = -50.;
-      const Trk::TrackingVolume* msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+      const Trk::TrackingVolume* msEntrance; 
+	  if (m_trackingGeometryReadKey.key().empty()) {
+ // use service
+msEntrance = m_trackingGeometrySvc->trackingGeometry()->trackingVolume("Calo::Container");
+} else {
+ // use ReadCondHandle
+ SG::ReadCondHandle<Trk::TrackingGeometry> readHandle{m_trackingGeometryReadKey};
+      const Trk::TrackingGeometry* trackingGeometry = *readHandle;
+      msEntrance = trackingGeometry->trackingVolume("Calo::Container");
+}
       if( msEntrance && msEntrance->inside(exPars->position(),tolerance) ){
 	ATH_MSG_DEBUG("extrapolate parameters at perigee inside muon entry volume " << m_printer->print(*exPars));      
       }
