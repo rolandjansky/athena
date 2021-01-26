@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonGeoModel/RDBReaderAtlas.h"
@@ -227,10 +227,11 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     std::unique_ptr<IRDBQuery> xtomoData;
     if(!m_pRDBAccess->getChildTag("XtomoData",geoTag,geoNode).empty()) {
       xtomoData = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
+      log << MSG::DEBUG << "After getQuery XtomoData" << endmsg;
     }
-    log << MSG::INFO << "After getQuery XtomoData" << endmsg;
     m_dhxtomo = xtomoData ? new DblQ00Xtomo(std::move(xtomoData)) : new DblQ00Xtomo();
-    log << MSG::INFO << "After new DblQ00Xtomo" << endmsg;
+    if (xtomoData) log << MSG::INFO << "XtomoData table found in Oracle" << endmsg;
+    else log << MSG::INFO << "No XtomoData table in Oracle" << endmsg;
   }
   if(m_dhxtomo) m_xtomo = m_dhxtomo->data();
 
