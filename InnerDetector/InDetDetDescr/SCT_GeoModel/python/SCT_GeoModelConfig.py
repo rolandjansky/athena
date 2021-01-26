@@ -1,6 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 
 def SCT_GeometryCfg( flags ):
@@ -20,12 +21,12 @@ def SCT_GeometryCfg( flags ):
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/SCT","/Indet/AlignL2/SCT",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
     else:
-        if (not flags.Detector.SimulateSCT) or flags.Detector.OverlaySCT:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
     if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
-        if (not flags.Detector.SimulateSCT) or flags.Detector.OverlaySCT:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             SCT_AlignCondAlg=CompFactory.SCT_AlignCondAlg
             sctAlignCondAlg = SCT_AlignCondAlg(name = "SCT_AlignCondAlg",
                                                UseDynamicAlignFolders = flags.GeoModel.Align.Dynamic)

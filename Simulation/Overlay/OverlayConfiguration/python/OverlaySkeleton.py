@@ -48,6 +48,9 @@ def fromRunArgs(runArgs):
     if not hasRDO_BKGInput and not hasBS_SKIMInput:
         raise RuntimeError('Define one of RDO_BKG and BS_SKIM file types')
 
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Overlay
+
     if hasRDO_BKGInput:
         logOverlay.info('Running MC+MC overlay')
         ConfigFlags.Overlay.DataOverlay = False

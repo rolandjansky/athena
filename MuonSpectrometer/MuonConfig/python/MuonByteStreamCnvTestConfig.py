@@ -4,6 +4,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from MuonConfig.MuonGeometryConfig import MuonIdHelperSvcCfg
 from MuonConfig.MuonCablingConfig import MDTCablingConfigCfg
 
@@ -21,7 +22,7 @@ def MdtRdoToMdtDigitCfg(flags, name="MdtRdoToMdtDigitAlg", **kwargs):
     acc = MuonIdHelperSvcCfg(flags)
     decoderTool = acc.popToolsAndMerge(MdtRDO_DecoderCfg(flags))
     kwargs.setdefault("mdtRdoDecoderTool", decoderTool)
-    if flags.Detector.OverlayMDT:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("MdtRdoContainer", flags.Overlay.BkgPrefix + "MDTCSM")
         kwargs.setdefault("MdtDigitContainer", flags.Overlay.BkgPrefix + "MDT_DIGITS")
     MdtRdoToMdtDigit = CompFactory.MdtRdoToMdtDigit
@@ -34,7 +35,7 @@ def RpcRdoToRpcDigitCfg(flags, name="RpcRdoToRpcDigitAlg", **kwargs):
     acc = ComponentAccumulator()
     from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg
     acc.merge(RPCCablingConfigCfg(flags))
-    if flags.Detector.OverlayRPC:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("RpcRdoContainer", flags.Overlay.BkgPrefix + "RPCPAD")
         kwargs.setdefault("RpcDigitContainer", flags.Overlay.BkgPrefix + "RPC_DIGITS")
     RpcRdoToRpcDigit = CompFactory.RpcRdoToRpcDigit
@@ -47,7 +48,7 @@ def TgcRdoToTgcDigitCfg(flags, name="TgcRdoToTgcDigitAlg", **kwargs):
     acc = ComponentAccumulator()
     from MuonConfig.MuonCablingConfig import TGCCablingConfigCfg
     acc.merge(TGCCablingConfigCfg(flags))
-    if flags.Detector.OverlayTGC:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("TgcRdoContainer", flags.Overlay.BkgPrefix + "TGCRDO")
         kwargs.setdefault("TgcDigitContainer", flags.Overlay.BkgPrefix + "TGC_DIGITS")
     TgcRdoToTgcDigit = CompFactory.TgcRdoToTgcDigit
@@ -58,7 +59,7 @@ def TgcRdoToTgcDigitCfg(flags, name="TgcRdoToTgcDigitAlg", **kwargs):
 def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
     """Return ComponentAccumulator with configured STGC_RdoToDigit algorithm"""
     acc = ComponentAccumulator()
-    if flags.Detector.OverlaysTGC:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("sTgcRdoContainer", flags.Overlay.BkgPrefix + "sTGCRDO")
         kwargs.setdefault("sTgcDigitContainer", flags.Overlay.BkgPrefix + "sTGC_DIGITS")
     STGC_RdoToDigit = CompFactory.STGC_RdoToDigit
@@ -69,7 +70,7 @@ def STGC_RdoToDigitCfg(flags, name="STGC_RdoToDigitAlg", **kwargs):
 def MM_RdoToDigitCfg(flags, name="MM_RdoToDigitAlg", **kwargs):
     """Return ComponentAccumulator with configured MM_RdoToDigit algorithm"""
     acc = ComponentAccumulator()
-    if flags.Detector.OverlayMM:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("MmRdoContainer", flags.Overlay.BkgPrefix + "MMRDO")
         kwargs.setdefault("MmDigitContainer", flags.Overlay.BkgPrefix + "MM_DIGITS")
     MM_RdoToDigit = CompFactory.MM_RdoToDigit
@@ -124,8 +125,8 @@ def CscDigitToCscRDOCfg(flags, name="CscDigitToCscRDO", **kwargs):
     kwargs.setdefault("cscCalibTool", CscCalibTool)
     kwargs.setdefault("NumSamples", 4)
     kwargs.setdefault("Latency", 0)
-    kwargs.setdefault("addNoise", not flags.Detector.OverlayCSC) # doMuonNoise flag not migrated
-    if flags.Detector.OverlayCSC:
+    kwargs.setdefault("addNoise", flags.Common.ProductionStep != ProductionStep.Overlay) # doMuonNoise flag not migrated
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("InputObjectName", flags.Overlay.SigPrefix + "CSC_DIGITS")
         kwargs.setdefault("OutputObjectName", flags.Overlay.SigPrefix + "CSCRDO")
     elif flags.Digitization.PileUpPremixing:
