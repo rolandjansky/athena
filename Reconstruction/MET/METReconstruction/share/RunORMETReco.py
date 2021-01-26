@@ -24,7 +24,7 @@ metWP			= "PFlow"
 
 usePFOElectronLinks	= True
 usePFOPhotonLinks	= True
-#usePFOLinks		= True
+usePFOLinks		= True
 retainMuon		= True
 
 ############################################################################

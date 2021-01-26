@@ -120,19 +120,19 @@ namespace met {
 			  xAOD::PFOContainer *OR_cpfos,
 			  xAOD::PFOContainer *OR_npfos,
 			  bool retainMuon = false,
-			  const xAOD::IParticleContainer* collection=0);//,  
+			  const xAOD::IParticleContainer* muonCollection=0);//,  
 			  //MissingETBase::UsageHandler::Policy p); 
 
    StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
 			  xAOD::MissingETAssociationHelper* metHelper,
 			  const xAOD::PFOContainer **OR_pfos,
 			  bool retainMuon,
-			  const xAOD::IParticleContainer* collection);
+			  const xAOD::IParticleContainer* muonCollection);
 
     const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
 			  xAOD::MissingETAssociationHelper* helper,
 			  bool retainMuon = false,
- 			  const xAOD::IParticleContainer* collection=0, 
+ 			  const xAOD::IParticleContainer* muonCollection=0, 
 			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow);
 
     StatusCode rebuildTrackMET(xAOD::MissingET* metJet,

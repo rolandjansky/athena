@@ -179,7 +179,7 @@ namespace met {
 						       const met::METAssociator::ConstitHolder& constits) const
   {
 
-    ATH_MSG_INFO("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
+    ATH_MSG_DEBUG("Extract PFOs From Links for " << eg->type()  << " with pT " << eg->pt());
 
     std::vector<PFOLink_t> cPFOLinks;
     std::vector<PFOLink_t> nPFOLinks;

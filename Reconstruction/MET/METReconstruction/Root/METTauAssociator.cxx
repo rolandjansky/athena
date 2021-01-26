@@ -217,12 +217,52 @@ namespace met {
   }
 
 
-  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, 
+  StatusCode METTauAssociator::extractFEsFromLinks(const xAOD::TauJet* tau, //TODO to be tested
     				    std::vector<const xAOD::IParticle*>& felist,
 				    const met::METAssociator::ConstitHolder& constits) const 
   {
 
-    //TODO
+    ATH_MSG_DEBUG("Extract FEs From Links for " << tau->type()  << " with pT " << tau->pt());
+
+    std::vector<FELink_t> nFELinks;
+    std::vector<FELink_t> cFELinks;
+
+    SG::ReadDecorHandle<xAOD::TauJetContainer, std::vector<FELink_t> > neutralFEReadDecorHandle (m_neutralFEReadDecorKey);
+    SG::ReadDecorHandle<xAOD::TauJetContainer, std::vector<FELink_t> > chargedFEReadDecorHandle (m_chargedFEReadDecorKey);
+    nFELinks=neutralFEReadDecorHandle(*tau);
+    cFELinks=chargedFEReadDecorHandle(*tau);
+
+    // Charged FEs
+    for (FELink_t feLink : cFELinks) {
+      if (feLink.isValid()){
+	const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and FlowElement collections
+	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
+	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
+	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
+	      felist.push_back(fe); 
+	    } 
+	  }
+	}
+      }
+    } // end cFE loop
+
+    // Neutral FEs
+    for (FELink_t feLink : nFELinks) {
+      if (feLink.isValid()){
+        const xAOD::FlowElement* fe_init = *feLink;
+	for (const auto& fe : *constits.feCont){
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){ 
+	      ATH_MSG_DEBUG("Accept nFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() << " in sum.");
+	      felist.push_back(fe);
+	    }   
+	  }
+	}
+      }
+    } // end nFE links loop
+
 
     return StatusCode::SUCCESS;
 

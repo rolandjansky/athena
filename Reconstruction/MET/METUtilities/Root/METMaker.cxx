@@ -1099,12 +1099,12 @@ namespace met {
 			  xAOD::PFOContainer *OR_cpfos,
 			  xAOD::PFOContainer *OR_npfos,
 			  bool retainMuon,
-			  const xAOD::IParticleContainer* collection)//, 
+			  const xAOD::IParticleContainer* muonCollection)//, 
 			  //MissingETBase::UsageHandler::Policy p); //
   {
 
-    const xAOD::PFOContainer *OR_cpfos_tmp = retrieveOverlapRemovedConstituents(cpfo, metHelper,retainMuon,collection);
-    const xAOD::PFOContainer *OR_npfos_tmp = retrieveOverlapRemovedConstituents(npfo, metHelper,retainMuon,collection);
+    const xAOD::PFOContainer *OR_cpfos_tmp = retrieveOverlapRemovedConstituents(cpfo, metHelper,retainMuon,muonCollection);
+    const xAOD::PFOContainer *OR_npfos_tmp = retrieveOverlapRemovedConstituents(npfo, metHelper,retainMuon,muonCollection);
 
     for (auto tmp_constit : static_cast<xAOD::PFOContainer>(*cpfo)){
       xAOD::PFO* constit=new xAOD::PFO();
@@ -1143,14 +1143,14 @@ namespace met {
 			  xAOD::MissingETAssociationHelper* metHelper,
 			  const xAOD::PFOContainer **OR_pfos,
 			  bool retainMuon,
-			  const xAOD::IParticleContainer* collection)//, 
+			  const xAOD::IParticleContainer* muonCollection)//, 
 			  //MissingETBase::UsageHandler::Policy p); //
   {
-     *OR_pfos=retrieveOverlapRemovedConstituents(pfo,metHelper,retainMuon);   
+     *OR_pfos=retrieveOverlapRemovedConstituents(pfo,metHelper,retainMuon,muonCollection);   
     return StatusCode::SUCCESS;
   }
 
-  const xAOD::PFOContainer* METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,  xAOD::MissingETAssociationHelper* helper, bool retainMuon, const xAOD::IParticleContainer* collection, MissingETBase::UsageHandler::Policy p)
+  const xAOD::PFOContainer* METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,  xAOD::MissingETAssociationHelper* helper, bool retainMuon, const xAOD::IParticleContainer* muonCollection, MissingETBase::UsageHandler::Policy p)
   {
 
     ATH_MSG_VERBOSE("Policy " << p <<" " <<MissingETBase::UsageHandler::ParticleFlow);
@@ -1160,9 +1160,9 @@ namespace met {
     // If muon is selected, flag it as non selected to retain its constituents in OR jets (to recover std. muon-jet overlap)
     std::vector<size_t> muon_index;
     if (retainMuon){
-      bool originalInputs = !acc_originalObject.isAvailable(*collection->front());
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
 
-      for(const auto& obj : *collection) {
+      for(const auto& obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
@@ -1178,7 +1178,7 @@ namespace met {
       }
 
       /*ATH_MSG_VERBOSE("Check selected muons before getOverlapRemovedSignals");
-      for(const auto& obj : *collection) {
+      for(const auto& obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is " << (MissingETComposition::objSelected(helper,orig) ? "" : "non-") << "selected" );
@@ -1197,8 +1197,8 @@ namespace met {
 
     // Flag back muons as selected
     if (retainMuon && muon_index.size()>0){
-      bool originalInputs = !acc_originalObject.isAvailable(*collection->front());
-      for(const auto& obj : *collection) {
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
+      for(const auto& obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
@@ -1209,7 +1209,7 @@ namespace met {
 	}
       }
       /*ATH_MSG_VERBOSE("Check selected muons after getOverlapRemovedSignals");
-      for(const auto& obj : *collection) {
+      for(const auto& obj : *muonCollection) {
 	const IParticle* orig = obj;
 	if(!originalInputs) { orig = *acc_originalObject(*obj); }
 	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is selected?" << MissingETComposition::objSelected(helper,orig));

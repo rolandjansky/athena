@@ -17,6 +17,7 @@
 // METReconstruction includes
 #include "METReconstruction/METAssociator.h"
 //Includes for DataHandles
+#include "StoreGate/ReadDecorHandle.h"
 #include "StoreGate/DataHandle.h"
 
 
