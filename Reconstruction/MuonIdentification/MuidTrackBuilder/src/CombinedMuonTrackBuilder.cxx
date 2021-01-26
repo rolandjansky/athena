@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////////////////
@@ -78,8 +78,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
       m_indetSlimming(false),
       m_inputSlimming(false),
       m_calorimeterVolume(nullptr),
-      m_indetVolume(nullptr),
-      m_spectrometerEntrance(nullptr),
+      m_indetVolume(nullptr),     
       m_beamAxis(nullptr),
       m_perigeeSurface(nullptr),
       m_sigmaPhiSector(0),
@@ -143,9 +142,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder(const std::string& type, cons
 }
 
 
-StatusCode
-CombinedMuonTrackBuilder::initialize()
-{
+StatusCode CombinedMuonTrackBuilder::initialize() {
     ATH_CHECK(AthAlgTool::initialize());
 
     ATH_MSG_DEBUG("Initializing CombinedMuonTrackBuilder"
@@ -211,8 +208,7 @@ CombinedMuonTrackBuilder::initialize()
     m_messageHelper->setMessage(38, "createSpectrometerTSOS:: missing MeasuredPerigee for spectrometer track");
     m_messageHelper->setMessage(39, "createSpectrometerTSOS:: skip unrecognized TSOS without TrackParameters. Type: ");
     m_messageHelper->setMessage(40, "createSpectrometerTSOS:: skip duplicate measurement on same Surface. Type: ");
-    m_messageHelper->setMessage(
-        41, "entrancePerigee:: missing TrackingGeometrySvc - no perigee will be added at MS entrance");
+    m_messageHelper->setMessage(41, "entrancePerigee:: missing TrackingGeometrySvc - no perigee will be added at MS entrance");
     m_messageHelper->setMessage(42, "extrapolatedParameters:: missing MeasuredPerigee for spectrometer track");
     m_messageHelper->setMessage(43, "extrapolatedParameters:: missing spectrometer parameters on spectrometer track");
     m_messageHelper->setMessage(44, "final track lost, this should not happen");
@@ -283,9 +279,12 @@ CombinedMuonTrackBuilder::initialize()
     ATH_CHECK(m_materialUpdator.retrieve());
     ATH_MSG_DEBUG("Retrieved tool " << m_materialUpdator);
 
-    ATH_CHECK(m_trackingGeometrySvc.retrieve());
-    ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
-
+    if (m_trackingGeometryReadKey.empty()){
+        ATH_CHECK(m_trackingGeometrySvc.retrieve());
+        ATH_MSG_DEBUG("Retrieved Svc " << m_trackingGeometrySvc);
+    } else {
+        ATH_CHECK(m_trackingGeometryReadKey.initialize());
+    }
     // need to know which TrackingVolume we are in: indet/calo/spectrometer
     ATH_CHECK(m_trackingVolumesSvc.retrieve());
     ATH_MSG_DEBUG("Retrieved Svc " << m_trackingVolumesSvc);
@@ -322,15 +321,6 @@ CombinedMuonTrackBuilder::initialize()
     ATH_MSG_DEBUG(" vertex region: ");
     m_vertex->dump(msg(MSG::DEBUG));
 #endif
-
-    if (!m_trackingGeometrySvc) {
-        m_perigeeAtSpectrometerEntranceLocal = false;
-        // missing TrackingGeometrySvc - no perigee will be added at MS entrance
-        m_messageHelper->printWarning(41);
-    } else {
-        const Trk::TrackingGeometry* trkGeo = m_trackingGeometrySvc->trackingGeometry();
-        if (trkGeo) m_spectrometerEntrance = trkGeo->trackingVolume("MuonSpectrometerEntrance");
-    }
 
     return StatusCode::SUCCESS;
 }
@@ -3814,10 +3804,11 @@ CombinedMuonTrackBuilder::entrancePerigee(const Trk::TrackParameters* parameters
     // make sure the spectrometer entrance volume is available
     if (!parameters) return nullptr;
 
-    if (!m_spectrometerEntrance) return nullptr;
+    const Trk::TrackingVolume* spectrometerEntrance = getVolume("MuonSpectrometerEntrance");
+    if (!spectrometerEntrance) return nullptr;
 
     const Trk::TrackParameters* entranceParameters = m_extrapolator->extrapolateToVolume(
-        *parameters, *m_spectrometerEntrance, Trk::anyDirection, Trk::nonInteracting);
+        *parameters, *spectrometerEntrance, Trk::anyDirection, Trk::nonInteracting);
 
     if (!entranceParameters) return nullptr;
 
