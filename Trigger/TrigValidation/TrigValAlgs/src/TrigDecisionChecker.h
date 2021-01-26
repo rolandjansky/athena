@@ -108,7 +108,7 @@ class TrigDecisionChecker : public AthAlgorithm
   std::vector<int> m_countEvent;
   std::vector<int> m_runCountSigs;
   std::vector<std::vector<int>* > m_countSigs;
-  std::vector<std::string> m_countSigNames;
+  Gaudi::Property<std::vector<std::string>> m_countSigNames{ this, "MonitoredChains", {} };
   int   m_eventNumber = 0;
   float m_muSum = 0; 
 
