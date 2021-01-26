@@ -12,7 +12,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
-#include <iostream>
+
 /** ctor a unique_ptr from input */
 std::unique_ptr<Trk::MultiComponentState>
 Trk::MultiComponentStateHelpers::toPtr(MultiComponentState&& in)
