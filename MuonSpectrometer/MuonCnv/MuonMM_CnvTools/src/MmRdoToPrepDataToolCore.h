@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMmRdoToPrepDataToolCore_H
@@ -35,40 +35,35 @@ namespace Muon
     virtual ~MmRdoToPrepDataToolCore()=default;
     
     /** standard Athena-Algorithm method */
-    virtual StatusCode initialize();
+    virtual StatusCode initialize() override;
     
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
-    StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
+    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
     //new decode methods for Rob based readout
     StatusCode decode( const std::vector<uint32_t>& robIds, const std::vector<IdentifierHash>& chamberHashInRobs );
-    StatusCode decode( const std::vector<uint32_t>& robIds );
+    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
     
-    StatusCode processCollection(const MM_RawDataCollection *rdoColl, 
-   				 std::vector<IdentifierHash>& idWithDataVect);
+    StatusCode processCollection(Muon::MMPrepDataContainer* mmPrepDataContainer,
+                                 const MM_RawDataCollection *rdoColl, 
+   				 std::vector<IdentifierHash>& idWithDataVect) const;
 
-    void printInputRdo();
-    void printPrepData();
+    virtual void printInputRdo() override;
+    virtual void printPrepData() override;
     
   protected:
     
-    enum SetupMM_PrepDataContainerStatus {
-      FAILED = 0, ADDED, ALREADYCONTAINED
-    };
+    virtual Muon::MMPrepDataContainer* setupMM_PrepDataContainer() const = 0;
 
-    virtual SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer();
+    const MM_RawDataContainer* getRdoContainer() const;
 
-    const MM_RawDataContainer* getRdoContainer();
-
-    void processRDOContainer( std::vector<IdentifierHash>& idWithDataVect );
+    void processRDOContainer( Muon::MMPrepDataContainer* mmPrepDataContainer,
+                              std::vector<IdentifierHash>& idWithDataVect ) const;
 
     SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_muDetMgrKey {this, "DetectorManagerKey", "MuonDetectorManager", "Key of input MuonDetectorManager condition data"}; 
     
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
     
-    bool m_fullEventDone;
-    
     /// MdtPrepRawData containers
-    Muon::MMPrepDataContainer* m_mmPrepDataContainer;
     SG::WriteHandleKey<Muon::MMPrepDataContainer> m_mmPrepDataContainerKey;
     SG::ReadHandleKey<MM_RawDataContainer> m_rdoContainerKey;
 

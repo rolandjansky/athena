@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMmRdoToPrepDataToolMT_H
@@ -23,7 +23,7 @@ namespace Muon
     virtual StatusCode initialize() override;
   
   protected:
-    virtual SetupMM_PrepDataContainerStatus setupMM_PrepDataContainer() override;
+    virtual Muon::MMPrepDataContainer* setupMM_PrepDataContainer() const override;
   }; 
 } // end of namespace
 

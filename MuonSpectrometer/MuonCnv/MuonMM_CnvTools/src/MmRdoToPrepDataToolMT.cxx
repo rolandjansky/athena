@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MmRdoToPrepDataToolMT.h"
@@ -21,7 +21,7 @@ StatusCode Muon::MmRdoToPrepDataToolMT::initialize()
   return StatusCode::SUCCESS;
 }
 
-Muon::MmRdoToPrepDataToolCore::SetupMM_PrepDataContainerStatus Muon::MmRdoToPrepDataToolMT::setupMM_PrepDataContainer() 
+Muon::MMPrepDataContainer* Muon::MmRdoToPrepDataToolMT::setupMM_PrepDataContainer() const
 {
   // MT version of this method always adds container. Caching will be added later.
   SG::WriteHandle< Muon::MMPrepDataContainer > handle(m_mmPrepDataContainerKey);
@@ -29,8 +29,7 @@ Muon::MmRdoToPrepDataToolCore::SetupMM_PrepDataContainerStatus Muon::MmRdoToPrep
   
   if (status.isFailure() || !handle.isValid() )   {
     ATH_MSG_FATAL("Could not record container of MicroMega PrepData Container at " << m_mmPrepDataContainerKey.key()); 
-    return FAILED;
+    return nullptr;
   }
-  m_mmPrepDataContainer = handle.ptr();
-  return ADDED;
+  return handle.ptr();
 }
