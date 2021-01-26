@@ -402,7 +402,7 @@ namespace TrkDriftCircleMath {
     ATH_MSG_DEBUG(" t0seed "<<t0seed<<" sigma "<<st0<< " min_t0 "<<min_t0);
 
     // ************************* seed the parameters
-    double theta = line.phi();
+    const double theta = line.phi();
     double cosin = std::cos(theta);
     double sinus = std::sin(theta);
 
@@ -492,14 +492,10 @@ namespace TrkDriftCircleMath {
     minimum.SetPrintLevel(-1);
     if(msgLvl(MSG::VERBOSE)) minimum.SetPrintLevel(1);
 
-    //minimum.SetVariable(0,"a",variable[0], step[0]);
-    //minimum.SetVariable(1,"b",variable[1], step[1]);
+    
     minimum.SetFixedVariable(0,"a", variable[0]);
     minimum.SetFixedVariable(1,"b", variable[1]);
     minimum.SetVariable(2,"t0",variable[2], step[2]);
-    
-    // Ensure that th 
-    minimum.SetVariableLimits(0, -M_PI_2, M_PI_2);
     
     minimum.SetFunction(minFunct);
 
