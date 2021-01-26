@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -531,6 +531,12 @@ TScopeAdapter::TScopeAdapter( const std::type_info &typeinfo )
   : fClass (TClassRef( TClass::GetClass(typeinfo) ) )   // MN: is that right?
 {
    if( fClass.GetClass() ) {
+      // We apparently see this sometimes due to races in TClass.
+      // In that case, try retrieving it again.
+      // (See ATEAM-697.)
+      if (!fClass.GetClass()->HasDictionary()) {
+        fClass = TClassRef( TClass::GetClass(typeinfo) );
+      }
       fName = fClass->GetName();
    } else  {
       char buff[1024];
