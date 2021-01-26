@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_MUONALIGNMENTCONDALG_H
@@ -33,7 +33,6 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   virtual StatusCode execute() override;
 
   Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "OrderedSet<std::string>"};
-  Gaudi::Property<bool> m_doRecRoiSvcUpdate {this, "DoRecRoiSvcUpdate", false, "if set to true, the old (not thread safe) RPC/TGCRecRoiSvc are updating the nominal MuonDetectorManager from the detectorStore"};
   Gaudi::Property<bool> m_isData{this,"IsData",true};
 
  private:
