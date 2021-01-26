@@ -136,8 +136,8 @@ TileCellBuilder::TileCellBuilder(const std::string& type, const std::string& nam
 
   // thresholds for parabolic amplitude correction 
   declareProperty("AmpMinForAmpCorrection", m_ampMinThresh = 15.0);
-  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -25.0);
-  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh = 25.0);
+  declareProperty("TimeMinForAmpCorrection", m_timeMinThresh = -12.5);
+  declareProperty("TimeMaxForAmpCorrection", m_timeMaxThresh = 12.5);
 
   declareProperty("SkipGain", m_skipGain = -1); // never skip any gain by default
 
