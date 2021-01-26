@@ -2069,11 +2069,11 @@ HLT_j45_subjesgscIS_ftf_bdl1r70_split_L1J20:
     1: 46
     2: 19
 HLT_j45_subjesgscIS_ftf_bmv2c1070_split_L1J20:
-  eventCount: 14
+  eventCount: 13
   stepCounts:
     0: 19
     1: 19
-    2: 14
+    2: 13
   stepFeatures:
     0: 19
     1: 46
