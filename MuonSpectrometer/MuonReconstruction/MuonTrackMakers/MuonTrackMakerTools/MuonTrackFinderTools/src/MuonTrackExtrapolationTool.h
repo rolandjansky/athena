@@ -15,6 +15,7 @@
 
 #include "MuonRecToolInterfaces/IMuonTrackExtrapolationTool.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#include "TrkGeometry/TrackingGeometry.h"
 #include "TrkExInterfaces/IExtrapolator.h"
 
 // For magneticfield
@@ -80,7 +81,8 @@ namespace Muon {
                                                                                "Name of the Magnetic Field conditions object key"};
 
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
-    ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface"};
+	SG::ReadCondHandleKey<Trk::TrackingGeometry> m_trackingGeometryReadKey{this, "TrackingGeometryReadKey", "", "Key of input TrackingGeometry"};
+	ServiceHandle<Muon::IMuonEDMHelperSvc> m_edmHelperSvc {this, "edmHelper", "Muon::MuonEDMHelperSvc/MuonEDMHelperSvc", "Handle to the service providing the IMuonEDMHelperSvc interface"};
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
     ToolHandle<Muon::MuonEDMPrinterTool> m_printer {this, "EDMPrinter", "Muon::MuonEDMPrinterTool/MuonEDMPrinterTool", "helper to nicely print out tracks"};
