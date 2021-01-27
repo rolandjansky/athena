@@ -253,6 +253,14 @@ Surface::isFree() const
   return (m_owner == Trk::noOwn);
 }
 
+inline void
+Surface::setTransform(const Amg::Transform3D& trans)
+{
+  m_transform = std::make_unique<Amg::Transform3D>(trans);
+  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
+}
+
 inline void Surface::setOwner
 ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const
 {

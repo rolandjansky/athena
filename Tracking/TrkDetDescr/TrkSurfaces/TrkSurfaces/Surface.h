@@ -401,6 +401,9 @@ public:
   /** Return 'true' if this surface is own by the detector element */
   bool isActive() const;
 
+  /** Set the transform updates center and normal*/
+  void setTransform(const Amg::Transform3D& trans);
+
   /** Set ownership for const*/
   void setOwner ATLAS_NOT_CONST_THREAD_SAFE(SurfaceOwner x) const;
 
