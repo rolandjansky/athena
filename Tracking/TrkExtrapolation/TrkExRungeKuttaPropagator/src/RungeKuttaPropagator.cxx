@@ -97,7 +97,7 @@ newCrossPoint(const Trk::CylinderSurface& Su, const double* Ro, const double* P)
 // Build new track parameters without propagation
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 buildTrackParametersWithoutPropagation(
   const Trk::TrackParameters& Tp,
   double* Jac)
@@ -106,7 +106,7 @@ buildTrackParametersWithoutPropagation(
   Jac[1] = Jac[2] = Jac[3] = Jac[4] = Jac[5] = Jac[7] = Jac[8] = Jac[9] =
     Jac[10] = Jac[11] = Jac[13] = Jac[14] = Jac[15] = Jac[16] = Jac[17] =
       Jac[19] = 0.;
-  return Tp.clone();
+  return std::unique_ptr<Trk::TrackParameters>(Tp.clone());
 }
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -129,7 +129,7 @@ buildTrackParametersWithoutPropagation(
 // Track parameters in cross point preparation
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters*
+std::unique_ptr<Trk::TrackParameters>
 crossPoint(const Trk::TrackParameters& Tp,
            std::vector<Trk::DestSurf>& SU,
            std::vector<unsigned int>& So,
@@ -193,7 +193,7 @@ crossPoint(const Trk::TrackParameters& Tp,
   Trk::RungeKuttaUtils::transformGlobalToLocal(SU[N].first, useJac, P, p, Jac);
 
   if (!useJac)
-    return SU[N].first->createTrackParameters(
+    return SU[N].first->createUniqueTrackParameters(
       p[0], p[1], p[2], p[3], p[4], nullptr);
 
   AmgSymMatrix(5)* e =
@@ -205,7 +205,7 @@ crossPoint(const Trk::TrackParameters& Tp,
     delete e;
     return nullptr;
   }
-  return SU[N].first->createTrackParameters(p[0], p[1], p[2], p[3], p[4], e);
+  return SU[N].first->createUniqueTrackParameters(p[0], p[1], p[2], p[3], p[4], e);
 }
 }
 
@@ -285,7 +285,8 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagate
 // without transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+std::unique_ptr<Trk::TrackParameters> 
+Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su,
@@ -311,7 +312,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // with transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+std::unique_ptr<Trk::TrackParameters> 
+Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const Trk::TrackParameters   & Tp ,
  const Trk::Surface&            Su ,
@@ -331,7 +333,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   getFieldCacheObject(cache, ctx);
 
   pathLength < 0. ?  cache.m_maxPath = 10000. : cache.m_maxPath = pathLength;
-  Trk::TrackParameters* Tpn = propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
+  auto Tpn = propagateRungeKutta(cache,true,Tp,Su,D,B,M,J,returnCurv);
   pathLength = cache.m_step;
 
   if(Tpn) {
@@ -346,7 +348,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // Main function to finds the closest surface
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
+std::unique_ptr<Trk::TrackParameters> 
+Trk::RungeKuttaPropagator::propagate
 (const ::EventContext&               ctx,
  const TrackParameters        & Tp  ,
  std::vector<DestSurf>        & DS  ,
@@ -416,7 +419,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   double                 Sl   = Smax ;
   double                 St   = Smax ;
   bool                   InS  = false;
-  TrackParameters* To         = nullptr    ;
+  //TrackParameters* To         = nullptr    ;
 
   for(int i=0; i!=45; ++i) Pn[i]=Po[i];
 
@@ -481,7 +484,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
       }
       else                                {
 	Path = W+SN.first;
-	if((To = crossPoint(Tp,DS,Sol,Pn,SN))) return To;
+	if(auto To {crossPoint(Tp,DS,Sol,Pn,SN)};To) return To;
 	Nveto = SN.second; St = Sl;
       }
     }
@@ -494,7 +497,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
 // without transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
+std::unique_ptr<Trk::TrackParameters> Trk::RungeKuttaPropagator::propagateParameters
 (const ::EventContext&               ctx,
  const Trk::TrackParameters  & Tp,
  const Trk::Surface          & Su,
@@ -520,7 +523,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
 // with transport Jacobian production
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
+std::unique_ptr<Trk::TrackParameters> Trk::RungeKuttaPropagator::propagateParameters
 (const ::EventContext&               ctx,
  const Trk::TrackParameters    & Tp ,
  const Trk::Surface            & Su ,
@@ -538,7 +541,7 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateParameters
   // Get field cache object
   getFieldCacheObject(cache, ctx);
   cache.m_maxPath = 10000.;
-  Trk::TrackParameters* Tpn = propagateRungeKutta   (cache,true,Tp,Su,D,B,M,J,returnCurv);
+  auto Tpn{propagateRungeKutta   (cache,true,Tp,Su,D,B,M,J,returnCurv)};
 
   if(Tpn) {
     J[24]=J[20]; J[23]=0.; J[22]=0.; J[21]=0.; J[20]=0.;
@@ -678,7 +681,8 @@ Trk::NeutralParameters* Trk::RungeKuttaPropagator::propagateStraightLine
 // Main function for charged track parameters propagation with or without jacobian
 /////////////////////////////////////////////////////////////////////////////////
 
-Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
+std::unique_ptr<Trk::TrackParameters> 
+Trk::RungeKuttaPropagator::propagateRungeKutta
 (Cache&                         cache ,
  bool                           useJac,
  const Trk::TrackParameters&    Tp    ,
@@ -740,7 +744,8 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
     // For cylinder we do test for next cross point
     //
     if(cyl->bounds().halfPhiSector() < 3.1 && newCrossPoint(*cyl,r0,P)) {
-      s[8] = 0.; if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
+      s[8] = 0.; 
+      if(!propagateWithJacobian(cache,useJac,2,s,P,Step)) return nullptr;
     }
   }
   else if (ty == Trk::Surface::Perigee  ) {
@@ -778,11 +783,11 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   if(!useJac || !Tp.covariance()) {
 
     if(!returnCurv) {
-      return Su.createTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
+      return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],nullptr);
     }
     else            {
       Amg::Vector3D gp(P[0],P[1],P[2]);
-      return new Trk::CurvilinearParameters(gp,p[2],p[3],p[4]);
+      return std::make_unique<Trk::CurvilinearParameters>(gp,p[2],p[3],p[4]);
     }
   }
 
@@ -790,15 +795,16 @@ Trk::TrackParameters* Trk::RungeKuttaPropagator::propagateRungeKutta
   AmgSymMatrix(5)& cv = *e;
 
   if(cv(0,0)<=0. || cv(1,1)<=0. || cv(2,2)<=0. || cv(3,3)<=0. || cv(4,4)<=0.) {
-    delete e; return nullptr;
+    delete e; 
+    return nullptr;
   }
 
   if(!returnCurv) {
-    return Su.createTrackParameters(p[0],p[1],p[2],p[3],p[4],e);
+    return Su.createUniqueTrackParameters(p[0],p[1],p[2],p[3],p[4],e);
   }
   else            {
     Amg::Vector3D gp(P[0],P[1],P[2]);
-    return new Trk::CurvilinearParameters(gp,p[2],p[3],p[4],e);
+    return std::make_unique<Trk::CurvilinearParameters>(gp,p[2],p[3],p[4],e);
   }
 }
 

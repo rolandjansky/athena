@@ -330,7 +330,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
     // parameters has increased
     combinedState = currentState->begin()->first.get();
 
-    const TrackParameters* parametersAtDestination =
+    auto parametersAtDestination =
       currentPropagator->propagateParameters(ctx,
                                              *combinedState,
                                              surface,
@@ -341,7 +341,7 @@ Trk::GsfExtrapolator::extrapolateImpl(
     Amg::Vector3D newDestination;
     if (parametersAtDestination) {
       newDestination = parametersAtDestination->position();
-      delete parametersAtDestination;
+      //delete parametersAtDestination;
     } else {
       ATH_MSG_DEBUG("Distance check propagation Failed.  Using surface center");
       newDestination = surface.center();
@@ -1334,14 +1334,14 @@ Trk::GsfExtrapolator::multiStatePropagate(
                     "propagated... continuing");
       continue;
     }
-    Trk::TrackParameters* propagatedParameters =
+    auto propagatedParameters =
       propagator.propagate(ctx,
                            *currentParameters,
                            surface,
                            direction,
                            boundaryCheck,
                            m_fieldProperties,
-                           particleHypothesis);
+                           particleHypothesis).release();
     if (!propagatedParameters) {
       ATH_MSG_DEBUG("Propagation of component failed... continuing");
       continue;
@@ -1463,7 +1463,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
     referenceParameters =
       currentVolume
         ? propagator.propagateParameters(
-            ctx, *combinedState, surface, direction, false, m_fieldProperties)
+            ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
         : nullptr;
     // These parameters will need to be deleted later. Add to list of garbage to
     // be collected
@@ -1497,7 +1497,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
       referenceParameters =
         currentVolume
           ? propagator.propagateParameters(
-              ctx, *combinedState, surface, direction, false, m_fieldProperties)
+              ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
           : nullptr;
       // These parameters will need to be deleted later. Add to list of garbage
       // to be collected
@@ -1511,7 +1511,7 @@ Trk::GsfExtrapolator::initialiseNavigation(
       referenceParameters =
         currentVolume
           ? propagator.propagateParameters(
-              ctx, *combinedState, surface, direction, false, m_fieldProperties)
+              ctx, *combinedState, surface, direction, false, m_fieldProperties).release()
           : nullptr;
       // These parameters will need to be deleted later. Add to list of garbage
       // to be collected
@@ -1641,7 +1641,7 @@ Trk::GsfExtrapolator::radialDirectionCheck(
     // boundary surface
     const Trk::Surface& insideSurface =
       (boundarySurfaces[Trk::tubeInnerCover].get())->surfaceRepresentation();
-    const Trk::TrackParameters* parsOnInsideSurface =
+    auto parsOnInsideSurface =
       prop.propagateParameters(ctx,
                                *(startParm.begin()->first),
                                insideSurface,
@@ -1664,7 +1664,7 @@ Trk::GsfExtrapolator::radialDirectionCheck(
     }
 
     // memory cleanup (no garbage bin, this is faster)
-    delete parsOnInsideSurface;
+    //delete parsOnInsideSurface;
     ATH_MSG_DEBUG("  Check radial direction: distance layer / boundary = "
                   << distToLayer << " / " << distToInsideSurface);
     // the intersection with the original layer is valid if it is before the

@@ -862,19 +862,10 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                                              << "'");
     // current static may carry non-trivial material properties, their use is optional;
     // use highest volume as B field source
-    // const Trk::TrackParameters* nextPar =
-    ManagedTrackParmPtr nextPar(ManagedTrackParmPtr::recapture(currPar,
-                                                               prop.propagate(ctx,
-                                                                              *currPar,
-                                                                              cache.m_navigSurfs,
-                                                                              dir,
-                                                                              m_fieldProperties,
-                                                                              particle,
-                                                                              solutions,
-                                                                              path,
-                                                                              false,
-                                                                              false,
-                                                                              propagVol)));
+    const Trk::TrackParameters* pNextPar = prop.propagate(ctx,*currPar,cache.m_navigSurfs,
+                                       dir,m_fieldProperties,particle,solutions,path,false,
+                                       false,propagVol).release();
+    ManagedTrackParmPtr nextPar(ManagedTrackParmPtr::recapture(currPar, pNextPar));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));
@@ -1185,8 +1176,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
     ATH_MSG_DEBUG("  [+] " << cache.m_navigSurfs.size() << " target surfaces in '"
                            << cache.m_currentDense->volumeName() << "'.");
     ManagedTrackParmPtr nextPar(
-      ManagedTrackParmPtr::recapture(currPar,
-                                     prop.propagate(ctx,
+      ManagedTrackParmPtr::recapture(currPar,prop.propagate(ctx,
                                                     *currPar,
                                                     cache.m_navigSurfs,
                                                     dir,
@@ -1196,7 +1186,7 @@ Trk::Extrapolator::extrapolateToNextMaterialLayer(const EventContext& ctx,
                                                     path,
                                                     false,
                                                     false,
-                                                    cache.m_currentDense)));
+                                                    cache.m_currentDense).release()));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));
@@ -1870,7 +1860,7 @@ Trk::Extrapolator::extrapolateInAlignableTV(const EventContext& ctx,
                                                      false,
                                                      false,
                                                      cache.m_currentDense,
-                                                     cache.m_extrapolationCache)));
+                                                     cache.m_extrapolationCache).release()));
     // does nothing
     // can be used for debugging to instrument track parameters with some monitoring (e.g.
     // construction and destruction)
@@ -2020,7 +2010,7 @@ Trk::Extrapolator::extrapolateDirectlyImpl(const EventContext& ctx,
                                                           << "' to destination surface. ");
 
   if (currentVolume) {
-    return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle);
+    return prop.propagate(ctx, parm, sf, dir, bcheck, m_fieldProperties, particle).release();
   }
   return nullptr;
 }
@@ -2632,7 +2622,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
             m_fieldProperties,
             particle,
             false,
-            previousVolume)));
+            previousVolume).release()));
         // set boundary and next parameters
         cache.m_parametersAtBoundary.boundaryInformation(nextVolume, nextPar, nextPar);
         nextParameters = cache.m_parametersAtBoundary.nextParameters;
@@ -2862,13 +2852,13 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                                                   m_fieldProperties,
                                                                   particle,
                                                                   false,
-                                                                  lastVolume)));
+                                                                  lastVolume).release()));
     // desperate try
     if (!resultParameters) {
       resultParameters = ManagedTrackParmPtr::recapture(
         parm,
         currentPropagator->propagate(
-          ctx, *parm, sf, dir, bcheck, m_fieldProperties, particle, false, startVolume));
+          ctx, *parm, sf, dir, bcheck, m_fieldProperties, particle, false, startVolume).release());
     }
     return resultParameters;
   }
@@ -2922,7 +2912,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                                                      m_fieldProperties,
                                                                      particle,
                                                                      false,
-                                                                     startVolume));
+                                                                     startVolume).release());
   }
   // return whatever you have
   return resultParameters;
@@ -2964,7 +2954,7 @@ Trk::Extrapolator::extrapolateImpl(const EventContext& ctx,
                                                     m_fieldProperties,
                                                     particle,
                                                     false,
-                                                    &tvol)));
+                                                    &tvol).release()));
     // user might have not calculated well which surfaces are intersected ... break if break
     if (!nextPar) {
       return (currPar.index() != parm)
@@ -3139,7 +3129,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
     ManagedTrackParmPtr fwd(ManagedTrackParmPtr::recapture(
       nextParameters,
       prop.propagate(
-        ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol)));
+        ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol).release()));
 
     if (fwd) {
       return fwd;
@@ -3150,7 +3140,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
       return ManagedTrackParmPtr::recapture(
         nextParameters,
         prop.propagate(
-          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol));
+          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol).release());
 
   }
 
@@ -3162,7 +3152,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
       return ManagedTrackParmPtr::recapture(
         nextParameters,
         prop.propagate(
-          ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol));
+          ctx, *nextParameters, sf, dir, bcheck, m_fieldProperties, particle, false, currVol).release());
     }
       Trk::PropDirection oppDir =
         (dir != Trk::oppositeMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
@@ -3170,7 +3160,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
       return ManagedTrackParmPtr::recapture(
         nextParameters,
         prop.propagate(
-          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol));
+          ctx, *nextParameters, sf, oppDir, bcheck, m_fieldProperties, particle, false, currVol).release());
 
   } if (dist < 0.) {
     ATH_MSG_DEBUG("  [!] Initial 3D-distance to the surface negative ("
@@ -3211,7 +3201,7 @@ Trk::Extrapolator::extrapolateWithinDetachedVolumes(const EventContext& ctx,
                           << ":distance to the destination surface:" << currentDistance);
             ManagedTrackParmPtr cParms(ManagedTrackParmPtr::recapture(
               onNextLayer,
-              prop.propagate(ctx, *onNextLayer, sf, dir, bchk, m_fieldProperties, particle)));
+              prop.propagate(ctx, *onNextLayer, sf, dir, bchk, m_fieldProperties, particle).release()));
             return cParms;
           }
           return onNextLayer;
@@ -3358,7 +3348,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
       nextParameters = ManagedTrackParmPtr::recapture(
         parm,
         prop.propagate(
-          ctx, *parm, *cache.m_destinationSurface, dir, bcheck, m_fieldProperties, particle));
+          ctx, *parm, *cache.m_destinationSurface, dir, bcheck, m_fieldProperties, particle).release());
       if (!nextParameters) {
         nextParameters = ManagedTrackParmPtr::recapture(parm,
                                                         prop.propagate(ctx,
@@ -3367,7 +3357,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
                                                                        Trk::anyDirection,
                                                                        bcheck,
                                                                        m_fieldProperties,
-                                                                       particle));
+                                                                       particle).release());
       }
       return nextParameters;
     }
@@ -3617,7 +3607,7 @@ Trk::Extrapolator::insideVolumeStaticLayers(const EventContext& ctx,
                                                                    dir,
                                                                    bcheck,
                                                                    m_fieldProperties,
-                                                                   particle));
+                                                                   particle).release());
     // job done: cleanup and go home
     // reset the recallInformation
     resetRecallInformation(cache);
@@ -3897,8 +3887,8 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
     parm,
     cache.m_jacs
       ? prop.propagate(
-          ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), jac, pathLimit, particle)
-      : prop.propagate(ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), particle)));
+          ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), jac, pathLimit, particle).release()
+      : prop.propagate(ctx, *parm, sf, dir, bcheck, MagneticFieldProperties(), particle).release()));
 
   // fallback to anyDirection
   // destParameters = destParameters ?  destParameters : ( cache.m_jacs ? prop.propagate(parm, sf,
@@ -3916,8 +3906,8 @@ Trk::Extrapolator::extrapolateToDestinationLayer(const EventContext& ctx,
                           MagneticFieldProperties(),
                           jac,
                           pathLimit,
-                          particle)
-         : prop.propagate(ctx, *parm, sf, Trk::anyDirection, bcheck, m_fieldProperties, particle)));
+                          particle).release()
+         : prop.propagate(ctx, *parm, sf, Trk::anyDirection, bcheck, m_fieldProperties, particle).release()));
   }
 
   // return the pre-updated ones
@@ -4002,7 +3992,7 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
       const std::vector<const Surface*> cs = cl->constituentSurfaces();
       for (unsigned int i = 0; i < cs.size(); ++i) {
         parsOnLayer = ManagedTrackParmPtr::recapture(
-          parm, prop.propagate(ctx, *parm, *(cs[i]), dir, true, m_fieldProperties, particle));
+          parm, prop.propagate(ctx, *parm, *(cs[i]), dir, true, m_fieldProperties, particle).release());
         if (parsOnLayer) {
           break;
         }
@@ -4011,13 +4001,13 @@ Trk::Extrapolator::extrapolateToIntermediateLayer(const EventContext& ctx,
       parsOnLayer = ManagedTrackParmPtr::recapture(
         parm,
         prop.propagate(
-          ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle));
+          ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle).release());
     }
   } else {
     parsOnLayer = ManagedTrackParmPtr::recapture(
       parm,
       prop.propagate(
-        ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle));
+        ctx, *parm, lay.surfaceRepresentation(), dir, true, m_fieldProperties, particle).release());
   }
 
   // return if there is nothing to do
@@ -4157,7 +4147,7 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
     detParameters = parm;
   } else if (detSurface) {
     detParameters = ManagedTrackParmPtr::recapture(
-      parm, prop.propagate(ctx, *parm, *detSurface, dir, false, m_fieldProperties, particle));
+      parm, prop.propagate(ctx, *parm, *detSurface, dir, false, m_fieldProperties, particle).release());
   }
 
   // set the surface hit to true, it is anyway overruled
@@ -4219,7 +4209,7 @@ Trk::Extrapolator::overlapSearch(const EventContext& ctx,
         ManagedTrackParmPtr overlapParameters(ManagedTrackParmPtr::recapture(
           parm,
           prop.propagate(
-            ctx, *parm, *(csf.object), Trk::anyDirection, true, m_fieldProperties, particle)));
+            ctx, *parm, *(csf.object), Trk::anyDirection, true, m_fieldProperties, particle).release()));
 
         if (overlapParameters) {
           ATH_MSG_VERBOSE("  [+] Overlap surface was hit, checking start/end surface condition.");
@@ -4377,7 +4367,7 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
       refParameters = ManagedTrackParmPtr::recapture(
         parm,
         prop.propagateParameters(
-          ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume));
+          ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume).release());
       // chose on projective method
       if (refParameters) {
         // check the direction on basis of a vector projection
@@ -4429,7 +4419,7 @@ Trk::Extrapolator::initializeNavigation(const EventContext& ctx,
         refParameters = ManagedTrackParmPtr::recapture(
           parm,
           prop.propagateParameters(
-            ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume));
+            ctx, *parm, sf, dir, false, m_fieldProperties, particle, false, associatedVolume).release());
       }
       // get the destination Volume
       if (refParameters) {
@@ -4594,7 +4584,7 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
           parsOnLayer = ManagedTrackParmPtr::recapture(
             parms,
             prop.propagateParameters(
-              ctx, *parms, *(cs[i]), Trk::anyDirection, false, m_fieldProperties));
+              ctx, *parms, *(cs[i]), Trk::anyDirection, false, m_fieldProperties).release());
           if (parsOnLayer) {
             break;
           }
@@ -4603,13 +4593,13 @@ Trk::Extrapolator::addMaterialEffectsOnTrack(const EventContext& ctx,
         parsOnLayer = ManagedTrackParmPtr::recapture(
           parms,
           prop.propagateParameters(
-            ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties));
+            ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties).release());
       }
     } else {
       parsOnLayer = ManagedTrackParmPtr::recapture(
         parms,
         prop.propagateParameters(
-          ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties));
+          ctx, *parms, lay.surfaceRepresentation(), Trk::anyDirection, false, m_fieldProperties).release());
     }
   } else {
     parsOnLayer = parms;
@@ -5318,7 +5308,7 @@ Trk::Extrapolator::extrapolateToVolumeWithPathLimit(const EventContext& ctx,
                                                                  path,
                                                                  true,
                                                                  false,
-                                                                 cache.m_currentDense)));
+                                                                 cache.m_currentDense).release()));
     if (nextPar) {
       ATH_MSG_DEBUG("  [+] Position after propagation -   at "
                     << positionOutput(nextPar->position()));

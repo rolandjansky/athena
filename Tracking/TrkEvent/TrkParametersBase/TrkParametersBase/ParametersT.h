@@ -129,6 +129,7 @@ public:
 
   /** Virtual clone */
   virtual ParametersT<DIM, T, S>* clone() const override final;
+  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;

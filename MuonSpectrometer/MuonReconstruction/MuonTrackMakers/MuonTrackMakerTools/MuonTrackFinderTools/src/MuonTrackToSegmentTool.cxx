@@ -163,13 +163,13 @@ namespace Muon {
     double surfDim = 500.;
     Trk::PlaneSurface* surf = new Trk::PlaneSurface( transform, surfDim, surfDim );
     delete surfaceTransformToBeDeleted;
-
-    const Trk::TrackParameters* exPars = m_propagator->propagate(*closestPars,*surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum ,
+    //lifetime of exPars is managed in this scope
+    auto exPars = m_propagator->propagate(*closestPars,*surf, minDist > 0 ? Trk::oppositeMomentum : Trk::alongMomentum ,
 								 false,Trk::MagneticFieldProperties(Trk::NoField));
     if( !exPars || !exPars->covariance() ){
       ATH_MSG_DEBUG(" propagation failed!!! ");
       if( !surf->associatedDetectorElement() ) delete surf;
-      delete exPars; // it is save to delete a NULL pointer
+      //delete exPars; // it is save to delete a NULL pointer
       delete rots;
       return 0;
     }
@@ -178,7 +178,7 @@ namespace Muon {
     if( !surf->globalToLocal(exPars->position(),exPars->momentum(),locPos) ){
       ATH_MSG_WARNING(" localToGlobal failed!!! ");
       if( !surf->associatedDetectorElement() ) delete surf;
-      delete exPars;
+      //delete exPars;
       delete rots;
       return 0;
     }
@@ -221,7 +221,7 @@ namespace Muon {
       quality = new Trk::FitQuality( fq->chiSquared(), fq->numberDoF() );
     }
     MuonSegment* seg = new MuonSegment(locPos,locDir,cov,surf,rots,quality);
-    delete exPars;
+    //delete exPars;
 
     return seg;
   }

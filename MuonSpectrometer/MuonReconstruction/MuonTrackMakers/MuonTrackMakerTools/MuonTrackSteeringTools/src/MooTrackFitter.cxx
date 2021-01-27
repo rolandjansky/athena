@@ -664,12 +664,13 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
         double locy1 = segInfo1->segment->localParameters().contains(Trk::locY) ? segInfo1->segment->localParameters()[Trk::locY] : 0.;
         Trk::AtaPlane segPars1(locx1,locy1,result.phiResult.segmentDirection1.phi(),result.phiResult.segmentDirection1.theta(),
                                0.,segInfo1->segment->associatedSurface());
-        const Trk::TrackParameters* exPars1 = m_propagator->propagate(segPars1,fitterData.measurements.front()->associatedSurface(),
+        //ownership retained, original code deleted exPars1
+        auto exPars1 = m_propagator->propagate(segPars1,fitterData.measurements.front()->associatedSurface(),
                                                                       Trk::anyDirection,false,m_magFieldProperties);
         if( exPars1 ){
           Amg::Vector3D position = exPars1->position();
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.front(),&position,0,10.,garbage);
-          delete exPars1;
+          //delete exPars1;
           if( fake ) {
             fitterData.phiHits.push_back(fake);
             fitterData.measurements.insert(fitterData.measurements.begin(),fake);
@@ -677,18 +678,19 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
           }
         }else{
           ATH_MSG_WARNING(" failed to create fake for first segment " );
-	  return false;
+          return false;
         }
         double locx2 = result.segmentResult2.positionInTube1;
         double locy2 = segInfo2->segment->localParameters().contains(Trk::locY) ? segInfo2->segment->localParameters()[Trk::locY] : 0.;
         Trk::AtaPlane segPars2(locx2,locy2,result.phiResult.segmentDirection2.phi(),result.phiResult.segmentDirection2.theta(),
                                0.,segInfo2->segment->associatedSurface());
-        const Trk::TrackParameters* exPars2 = m_propagator->propagate(segPars2,fitterData.measurements.back()->associatedSurface(),
+        //ownership retained
+        auto exPars2 = m_propagator->propagate(segPars2,fitterData.measurements.back()->associatedSurface(),
                                                                        Trk::anyDirection,false,m_magFieldProperties);
         if( exPars2 ){
           Amg::Vector3D position = exPars2->position();
           const Trk::MeasurementBase* fake = createFakePhiForMeasurement(*fitterData.measurements.back(),&position,0,10.,garbage);
-          delete exPars2;
+          //delete exPars2;
           if( fake ){
             fitterData.phiHits.push_back(fake);
             fitterData.measurements.push_back(fake);
@@ -829,16 +831,16 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
 	ATH_MSG_VERBOSE(" Adding fake at last hit: dist first phi/first eta " << distFirstEtaPhi
 			<< " dist last phi/last eta " << distLastEtaPhi);
         if (fitterData.secondEntry->hasSLOverlap() || phifromextrapolation) {
-
-          const Trk::TrackParameters *mdtpar=0;
-          if (fitterData.secondEntry->hasSLOverlap()) mdtpar=lastmdtpar->clone();
+          //this scope manages lifetime of mdtpar
+          std::unique_ptr<Trk::TrackParameters> mdtpar{};
+          if (fitterData.secondEntry->hasSLOverlap()) mdtpar.reset(lastmdtpar->clone());
           else mdtpar=m_propagator->propagateParameters(*startpar,*lastmdtsurf,Trk::alongMomentum,false,m_magFieldProperties);
           if (mdtpar){
             Amg::MatrixX cov(1,1);
 	    cov(0,0) = 100.;
             fake = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(mdtpar->parameters()[Trk::locY],Trk::locY)),
 						     cov,mdtpar->associatedSurface());
-            delete mdtpar;
+            //delete mdtpar;
             garbage.measurementsToBeDeleted.push_back(fake);
           }
         }
@@ -855,14 +857,15 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
 	ATH_MSG_VERBOSE(" Adding fake at first hit: dist first phi/first eta " << distFirstEtaPhi
 			<< " dist last phi/last eta " << distLastEtaPhi);
         if (phifromextrapolation) {
-          const Trk::TrackParameters *mdtpar=m_propagator->propagateParameters(*startpar,*firstmdtsurf,Trk::oppositeMomentum,false,m_magFieldProperties);
+          //lifetime of mdtpar managed here
+          auto mdtpar=m_propagator->propagateParameters(*startpar,*firstmdtsurf,Trk::oppositeMomentum,false,m_magFieldProperties);
           if (mdtpar) {
             Amg::MatrixX cov(1,1);
 	    cov(0,0) = 100.;
             fake = new Trk::PseudoMeasurementOnTrack(Trk::LocalParameters(Trk::DefinedParameter(mdtpar->parameters()[Trk::locY],Trk::locY)),
 						     cov,mdtpar->associatedSurface());
             garbage.measurementsToBeDeleted.push_back(fake);
-            delete mdtpar;
+            //delete mdtpar;
           }
         }
         else fake = createFakePhiForMeasurement(*fitterData.measurements.front(),overlapPos,phiPos,100.,garbage);
@@ -1772,11 +1775,11 @@ bool MooTrackFitter::extractData( const MuPatCandidateBase& entry1, const MuPatC
     const Trk::TrackParameters* garbage = 0;
     double shift = 1.;
     if( m_seedAtStartOfTrack ){
-
-      exPars = m_propagator->propagate(firstPars,firstMeas.associatedSurface(),Trk::anyDirection,false,m_magFieldProperties);
+      //not sure whats going on with ownership here, so let this code take care of it
+      exPars = m_propagator->propagate(firstPars,firstMeas.associatedSurface(),Trk::anyDirection,false,m_magFieldProperties).release();
       if( !exPars ) {
-	ATH_MSG_DEBUG(" Propagation failed in createPerigee!! " );
-	return 0;
+	      ATH_MSG_DEBUG(" Propagation failed in createPerigee!! " );
+	      return 0;
       }
       garbage = exPars;
       shift = 100.; 

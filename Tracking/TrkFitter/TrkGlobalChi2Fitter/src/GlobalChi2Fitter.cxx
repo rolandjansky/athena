@@ -690,8 +690,7 @@ namespace Trk {
         }
         
         const Surface *matsurf = &meff->associatedSurface();
-        tmppar.reset(
-          m_propagator->propagateParameters(
+        tmppar = m_propagator->propagateParameters(
             ctx,
             *tp_closestmuon,
             *matsurf,
@@ -699,13 +698,12 @@ namespace Trk {
             false,
             trajectory.m_fieldprop,
             Trk::nonInteracting
-          )
-        );
+          );
+        
         
         if (tmppar == nullptr) {
           propdir = !firstismuon ? Trk::alongMomentum : oppositeMomentum;
-          tmppar.reset(
-            m_propagator->propagateParameters(
+          tmppar=m_propagator->propagateParameters(
               ctx,
               *tp_closestmuon,
               *matsurf,
@@ -713,8 +711,8 @@ namespace Trk {
               false,
               trajectory.m_fieldprop,
               Trk::nonInteracting
-            )
-          );
+            );
+          
         }
         
         if (tmppar == nullptr) {
@@ -826,7 +824,7 @@ namespace Trk {
       lastidpar = uclone(origlastidpar);
     }
     
-    firstscatpar.reset(m_propagator->propagateParameters(
+    firstscatpar= m_propagator->propagateParameters(
       ctx,
       *(firstismuon ? tp_closestmuon.get() : lastidpar.get()),
       calomeots[0].associatedSurface(),
@@ -834,13 +832,13 @@ namespace Trk {
       false, 
       trajectory.m_fieldprop,
       Trk::nonInteracting
-    ));
+    );
 
     if (firstscatpar == nullptr) {
       return nullptr;
     }
     
-    lastscatpar.reset(m_propagator->propagateParameters(
+    lastscatpar = m_propagator->propagateParameters(
       ctx,
       *(firstismuon ? firstidpar : tp_closestmuon),
       calomeots[2].associatedSurface(),
@@ -848,7 +846,7 @@ namespace Trk {
       false,
       trajectory.m_fieldprop,
       Trk::nonInteracting
-    ));
+    );
 
     if (lastscatpar == nullptr) {
       return nullptr;
@@ -896,7 +894,7 @@ namespace Trk {
       PropDirection propdir = !firstismuon ? oppositeMomentum : alongMomentum;
       
       TransportJacobian *tmp_jac1 = jac1.get();
-      tmpelosspar.reset(m_propagator->propagateParameters(
+      tmpelosspar = m_propagator->propagateParameters(
         ctx,
         *tmppar1,
         calomeots[1].
@@ -906,7 +904,7 @@ namespace Trk {
         trajectory.m_fieldprop,
         tmp_jac1,
         Trk::nonInteracting
-      ));
+      );
       if (jac1.get() != tmp_jac1) jac1.reset(tmp_jac1);
       
       if (m_numderiv) {
@@ -1333,14 +1331,14 @@ namespace Trk {
     );
 
     if (!firstismuon) {
-      firstscatpar.reset(m_propagator->propagateParameters(
+      firstscatpar = m_propagator->propagateParameters(
         ctx,
         *lastidpar,
         calomeots[0].associatedSurface(),
         Trk::alongMomentum,
         false,
         trajectory.m_fieldprop,
-        Trk::nonInteracting));
+        Trk::nonInteracting);
 
       if (!firstscatpar) {
         return nullptr;
@@ -1382,21 +1380,20 @@ namespace Trk {
         )
       );
 
-      lastscatpar.reset(m_propagator->propagateParameters(
+      lastscatpar = m_propagator->propagateParameters(
         ctx,
         *elosspar,
         calomeots[2].associatedSurface(),
         Trk::alongMomentum,
         false,
         trajectory.m_fieldprop,
-        Trk::nonInteracting));
+        Trk::nonInteracting);
 
       if (!lastscatpar) {
         return nullptr;
       }
     } else {
-      lastscatpar.reset(
-        m_propagator->propagateParameters(
+      lastscatpar = m_propagator->propagateParameters(
           ctx,
           *firstidpar,
           calomeots[2].associatedSurface(),
@@ -1404,15 +1401,13 @@ namespace Trk {
           false,
           trajectory.m_fieldprop,
           Trk::nonInteracting
-        )
       );
       
       if (!lastscatpar) {
         return nullptr;
       }
       
-      elosspar.reset(
-        m_propagator->propagateParameters(
+      elosspar=  m_propagator->propagateParameters(
           ctx,
           *lastscatpar,
           calomeots[1].associatedSurface(),
@@ -1420,7 +1415,6 @@ namespace Trk {
           false,
           trajectory.m_fieldprop,
           Trk::nonInteracting
-        )
       );
       
       if (!elosspar) {
@@ -1440,8 +1434,7 @@ namespace Trk {
         )
       );
       
-      firstscatpar.reset(
-        m_propagator->propagateParameters(
+      firstscatpar = m_propagator->propagateParameters(
           ctx,
           *tmppar,
           calomeots[0].associatedSurface(),
@@ -1449,7 +1442,6 @@ namespace Trk {
           false,
           trajectory.m_fieldprop,
           Trk::nonInteracting
-        )
       );
       
       if (!firstscatpar) {
@@ -1650,8 +1642,7 @@ namespace Trk {
         if (((*itStates2)->trackParameters() != nullptr) && nphi > 99) {
           par2.reset((*itStates2)->trackParameters()->clone());
         } else {
-          par2.reset(
-            m_propagator->propagateParameters(
+          par2 = m_propagator->propagateParameters(
               ctx,
               *secondscatstate->trackParameters(),
               (*itStates2)->measurementOnTrack()->associatedSurface(),
@@ -1659,7 +1650,6 @@ namespace Trk {
               false,
               trajectory.m_fieldprop,
               Trk::nonInteracting
-            )
           );
         }
 
@@ -4970,7 +4960,7 @@ namespace Trk {
         
         if (tmppar == nullptr) {
           propdir = (propdir == oppositeMomentum) ? alongMomentum : oppositeMomentum;
-          tmppar.reset(m_propagator->propagateParameters(
+          tmppar = m_propagator->propagateParameters(
             ctx,
             *nearestpar, 
             *matsurf, 
@@ -4978,7 +4968,7 @@ namespace Trk {
             false, 
             trajectory.m_fieldprop,
             Trk::nonInteracting
-          ));
+          );
           
           if (tmppar == nullptr) {
             cache.m_fittercode = FitterStatusCode::ExtrapolationFailure;
@@ -7077,8 +7067,7 @@ namespace Trk {
       }
       
       if (prevpar != nullptr) {
-        per.reset(
-            m_propagator->propagate(
+        per = m_propagator->propagate(
             ctx,
             *prevpar,
             PerigeeSurface(Amg::Vector3D(0, 0, 0)),
@@ -7086,7 +7075,6 @@ namespace Trk {
             false,
             oldtrajectory.m_fieldprop,
             nonInteracting
-          )
         );
       }
       
@@ -7635,16 +7623,12 @@ namespace Trk {
     TransportJacobian * jac = nullptr;
 
     if (calcderiv && !m_numderiv) {
-      rv.reset(
-        m_propagator->propagateParameters(
+      rv = m_propagator->propagateParameters(
           ctx, prev, *ts.surface(), propdir, false, bf, jac, Trk::nonInteracting, false
-        )
       );
     } else {
-      rv.reset(
-        m_propagator->propagateParameters(
+      rv = m_propagator->propagateParameters(
           ctx, prev, *ts.surface(), propdir, false, bf, Trk::nonInteracting, false
-        )
       );
 
       if (rv != nullptr && calcderiv) {
@@ -8360,7 +8344,7 @@ namespace Trk {
         (propdir ==
          Trk::alongMomentum) ? Trk::oppositeMomentum : Trk::alongMomentum;
       if (newparpluseps == nullptr) {
-        newparpluseps.reset(
+        newparpluseps = 
           m_propagator->propagateParameters(
             ctx,
             *parpluseps,
@@ -8369,11 +8353,10 @@ namespace Trk {
             false,
             fieldprop,
             Trk::nonInteracting
-          )
         );
       }
       if (newparminuseps == nullptr) {
-        newparminuseps.reset(
+        newparminuseps = 
           m_propagator->propagateParameters(
             ctx,
             *parminuseps,
@@ -8382,7 +8365,6 @@ namespace Trk {
             false,
             fieldprop,
             Trk::nonInteracting
-          )
         );
       }
       if ((newparpluseps == nullptr) || (newparminuseps == nullptr)) {

@@ -968,8 +968,9 @@ namespace Muon {
         if( etaCompRot->associatedSurface() == pars->associatedSurface() ){
           etaPars = pars->clone();
         }else{
+          //ownership relinquished, should be treated in createMeasTSOS
           etaPars = m_propagator->propagate(*pars,etaCompRot->associatedSurface(),Trk::anyDirection,
-                                            false,m_magFieldProperties);
+                                            false,m_magFieldProperties).release();
         }
         if( !etaPars ){
           ATH_MSG_WARNING( " Failed to calculate TrackParameters for eta hits! "  );
@@ -992,8 +993,9 @@ namespace Muon {
         if(phiCompRot->associatedSurface() == pars->associatedSurface() ){
           phiPars = pars->clone();
         }else{
+          //ownership relinquished, handled in createMeasTSOS
           phiPars = m_propagator->propagate(*pars,phiCompRot->associatedSurface(),Trk::anyDirection,
-                                            false,m_magFieldProperties);
+                                            false,m_magFieldProperties).release();
         }
         if( !phiPars ){
           ATH_MSG_WARNING( " Failed to calculate TrackParameters for phi hits! "  );
@@ -1411,15 +1413,15 @@ namespace Muon {
             continue;
           }
           if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << m_idHelperSvc->toString(id);
-
-          const Trk::TrackParameters* impactPars = m_propagator->propagate(*closestPars,meas->associatedSurface(),Trk::anyDirection,
+          //unique ptr ownership retained. Original code deleted impactPars
+          auto impactPars = m_propagator->propagate(*closestPars,meas->associatedSurface(),Trk::anyDirection,
                                                                            false,m_magFieldProperties);
           if( impactPars ) {
 
             double residual = 1e10;
             double pull     = 1e10;
             // pointer to resPull
-            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( meas, impactPars, Trk::ResidualPull::Unbiased );
+            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull( meas, impactPars.get(), Trk::ResidualPull::Unbiased );
             if( resPull && resPull->pull().size() == 1 ) {
               if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  residual " << m_printer->print(*resPull);
               residual = resPull->residual().front();
@@ -1432,7 +1434,7 @@ namespace Muon {
             bool inBounds = false;
             Amg::Vector2D locPos;
             bool ok = meas->associatedSurface().globalToLocal(impactPars->position(),impactPars->momentum(),locPos);
-            delete impactPars;
+            //delete impactPars;
             if( ok ){
               if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << "  lpos (" << locPos[Trk::locX] << "," << locPos[Trk::locY] << ")";
               double tol1 = 50.;
