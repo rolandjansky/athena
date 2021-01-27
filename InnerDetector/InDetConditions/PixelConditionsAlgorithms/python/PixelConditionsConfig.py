@@ -426,7 +426,7 @@ def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
 
     # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
     # acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", className="CondAttrListCollection"))
-    if not flags.Input.isMC and not flags.Overlay.DataOverlay:
+    if not flags.Input.isMC or flags.Overlay.DataOverlay:
         acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-RUN2-DATA-UPD4-05", db="CONDBR2", className="CondAttrListCollection"))
     else:
         acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-SIM-MC16-000-03", db="OFLP200", className="CondAttrListCollection"))
