@@ -16,6 +16,7 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::findLink;
 using TrigCompositeUtils::LinkInfo;
 
@@ -77,7 +78,7 @@ StatusCode TrigEgammaFastElectronHypoAlgMT::execute( const EventContext& context
     ATH_MSG_DEBUG ( "electron handle size: " << electronsHandle->size() << "..." );
 
     for ( auto electronIter = electronsHandle->begin(); electronIter != electronsHandle->end(); ++electronIter, electronCounter++ ) {
-      auto d = newDecisionIn( decisions );
+      auto d = newDecisionIn( decisions, hypoAlgNodeName() );
       d->setObjectLink( featureString(), ViewHelper::makeLink<xAOD::TrigElectronContainer>( *viewEL, electronsHandle, electronCounter ) );
       
       auto clusterPtr = (*electronIter)->emCluster();

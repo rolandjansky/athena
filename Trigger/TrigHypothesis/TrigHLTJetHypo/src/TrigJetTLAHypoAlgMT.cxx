@@ -80,7 +80,7 @@ StatusCode TrigJetTLAHypoAlgMT::execute( const EventContext& context ) const {
 
         //prepare the necessary information to the HypoTool:
         // - the new decision
-        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, "", context);
+        Decision* newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, hypoAlgNodeName(), context);
         // - the ElementLink to the TLA-jet
         ElementLink<xAOD::JetContainer> jetLink = ElementLink<xAOD::JetContainer>(*TLAjets, TLAjet->index());
         ATH_CHECK( jetLink.isValid() );   

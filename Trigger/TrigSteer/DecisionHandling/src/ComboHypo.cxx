@@ -121,7 +121,7 @@ StatusCode ComboHypo::copyDecisions(  const LegDecisionsMap & passingLegs, const
           }
         }
 
-        Decision* newDec = newDecisionIn( outDecisions, inputDecision, "CH", context );
+        Decision* newDec = newDecisionIn( outDecisions, inputDecision, comboHypoAlgNodeName(), context );
         ATH_MSG_DEBUG("New decision (Container Index:" << input_counter << ", Element Index:"<< newDec->index() <<") has "
           << (TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>(newDec, initialRoIString())).isValid()
           << " valid initialRoI, "<< TrigCompositeUtils::getLinkToPrevious(newDec).size() <<" previous decisions and "<<finalIds.size()<<" decision IDs") ;   
