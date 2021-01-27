@@ -20,7 +20,6 @@
 
 using std::string;
 
-
 /**
  *  Author: James Monk (jmonk@cern.ch)
 */
@@ -80,7 +79,9 @@ public:
   double pythiaVersion()const;
   
   static std::string    pythia_stream;
-    
+
+  static std::string xmlpath();  
+
 protected:
   
   // make these protected so that Pythia8B can access them
@@ -88,9 +89,7 @@ protected:
   HepMC::Pythia8ToHepMC m_pythiaToHepMC;
 
 private:
-  
-  static std::string xmlpath();
-  
+    
   // Add the pythia.process, which is the LHE record for external ME events, to the
   // HepMC record
   void addLHEToHepMC(HepMC::GenEvent *evt);
@@ -112,6 +111,7 @@ private:
   std::string m_beam2;
 
   std::string m_lheFile;
+  std::string m_hdf5File;
 
   bool m_storeLHE;
   bool m_doCKKWLAcceptance;

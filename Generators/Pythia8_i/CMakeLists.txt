@@ -14,7 +14,6 @@ atlas_subdir( Pythia8_i )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaKernel
-			  Generators/EvgenProdTools
                           Generators/GeneratorModules
                           PRIVATE
                           GaudiKernel
@@ -25,8 +24,8 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Lhapdf )
+find_package( HDF5 )
 find_package( Pythia8 )
-
 add_definitions(-DPY8VERSION=\"${PYTHIA8_LCGVERSION}\")
 
 # Remove the --as-needed linker flags:
@@ -54,7 +53,7 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/WprimeFlat.cxx
                    src/UserHooks/ZprimeFlatpT.cxx
                    src/UserHooks/WprimeWZFlat.cxx
-		   src/UserHooks/WZPolarization.cxx
+                   src/UserHooks/WZPolarization.cxx
                    src/UserHooks/mHatReweight.cxx
                    src/UserHooks/DecayToSUEP.cxx
                    src/UserHooks/suep_shower.cxx
@@ -63,19 +62,20 @@ atlas_add_library( Pythia8_iLib
                    src/UserHooks/SettableColourReconnection.cxx
                    src/UserResonances/ResonanceExcitedCI.cxx
                    src/UserResonances/ResonanceLQ.cxx
-		   src/Pythia8Custom/CheckForFinalPartons.cxx
+                   src/Pythia8Custom/CheckForFinalPartons.cxx
                    src/Pythia8Custom/HllgamRepeatTimeShower.cxx
                    src/Pythia8Custom/UserPhotonFlux.cxx
                    PUBLIC_HEADERS Pythia8_i
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
+                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib
+                   LINK_LIBRARIES ${Boost_LIBRARIES} ${HDF5_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib
                    PRIVATE_LINK_LIBRARIES GaudiKernel GeneratorObjects PathResolver )
 
 atlas_add_component( Pythia8_i
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib GaudiKernel GeneratorObjects PathResolver Pythia8_iLib )
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${HDF5_INCLUDE_DIRS} ${LHAPDF_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${PYTHIA8_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${HDF5_LIBRARIES} ${LHAPDF_LIBRARIES} ${CLHEP_LIBRARIES} ${PYTHIA8_LIBRARIES} AthenaKernel GeneratorModulesLib GaudiKernel GeneratorObjects PathResolver Pythia8_iLib )
+
 
 # Install python modules
 atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
