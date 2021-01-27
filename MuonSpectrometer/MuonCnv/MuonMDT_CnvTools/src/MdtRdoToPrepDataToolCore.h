@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONMdtRdoToPrepDataToolCore_H
@@ -56,39 +56,43 @@ namespace Muon
     virtual StatusCode initialize() override;
       
     /** Decode method - declared in Muon::IMuonRdoToPrepDataTool*/
-    StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+    virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
     //new decode method for Rob based readout
-    StatusCode decode( const std::vector<uint32_t>& robIds ) override;
+    virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
     // dump methods for debugging
     virtual void printInputRdo() override;
-    virtual void printPrepData() override;
+     void printInputRdo1() const;
       
   protected:
-    virtual StatusCode processCsm(const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2=nullptr);
+    void printPrepDataImpl (const Muon::MdtPrepDataContainer* mdtPrepDataContainer) const;
 
-    Muon::MdtDriftCircleStatus getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr);
+    virtual StatusCode processCsm(Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                                  const MdtCsm* rdoColl, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr, const MdtCsm* rdoColl2=nullptr) const;
+
+    Muon::MdtDriftCircleStatus getMdtDriftRadius(const MdtDigit* digit, double& radius, double& errRadius, const MuonGM::MdtReadoutElement* descriptor, const MuonGM::MuonDetectorManager* muDetMgr) const;
  
-    virtual StatusCode processCsmTwin(const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr);
+    StatusCode processCsmTwin(Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                              const MdtCsm *rdoColll, std::vector<IdentifierHash>& idWithDataVect, const MuonGM::MuonDetectorManager* muDetMgr) const;
     // method to get the twin tube 2nd coordinate
-    Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit* prompt_digit, const MdtDigit* twin_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& twinIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr);
-
-    // adds the container to StoreGate, return false is the adding false. 
-    enum SetupMdtPrepDataContainerStatus {
-      FAILED = 0, ADDED, ALREADYCONTAINED
-    };
+    Muon::MdtDriftCircleStatus getMdtTwinPosition(const MdtDigit* prompt_digit, const MdtDigit* twin_digit, double& radius, double& errRadius, double& zTwin, double& errZTwin, bool& twinIsPrompt, const MuonGM::MuonDetectorManager* muDetMgr) const;
 
     // decode method for Rob based readout
     StatusCode decode( const std::vector<IdentifierHash>& chamberHashInRobs );
 
     // Overridden by subclasses to handle legacy and MT cases
-    virtual SetupMdtPrepDataContainerStatus setupMdtPrepDataContainer() { return SetupMdtPrepDataContainerStatus::FAILED; }
+    virtual Muon::MdtPrepDataContainer*
+    setupMdtPrepDataContainer (unsigned int sizeVectorRequested,
+                               bool& fullEventDone) const = 0;
 
-    void processRDOContainer( std::vector<IdentifierHash>& idWithDataVect );
+    void processRDOContainer( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                              std::vector<IdentifierHash>& idWithDataVect ) const;
 
-    const MdtCsmContainer* getRdoContainer();
-    void processPRDHashes( const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect );
-    bool handlePRDHash( IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect );    
+    const MdtCsmContainer* getRdoContainer() const;
+    void processPRDHashes( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                           const std::vector<IdentifierHash>& chamberHashInRobs, std::vector<IdentifierHash>& idWithDataVect ) const;
+    bool handlePRDHash( Muon::MdtPrepDataContainer* mdtPrepDataContainer,
+                        IdentifierHash hash, const MdtCsmContainer& rdoContainer, std::vector<IdentifierHash>& idWithDataVect ) const;
         
     ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
         
@@ -97,7 +101,6 @@ namespace Muon
     MdtCalibrationSvcSettings* m_mdtCalibSvcSettings;
 
     /// MdtPrepRawData containers
-    Muon::MdtPrepDataContainer* m_mdtPrepDataContainer;
     SG::WriteHandleKey<Muon::MdtPrepDataContainer> m_mdtPrepDataContainerKey;
 
     SG::ReadHandleKey< MdtCsmContainer>         m_rdoContainerKey;//MDTCSM
@@ -110,9 +113,6 @@ namespace Muon
 
     ToolHandle<Muon::IMDT_RDO_Decoder> m_mdtDecoder{this,"Decoder","Muon::MdtRDO_Decoder/MdtRDO_Decoder"};
     
-    //keepTrackOfFullEventDecoding
-    bool m_fullEventDone;
-
     bool m_BMEpresent;
     bool m_BMGpresent;
     int m_BMEid;
