@@ -8,7 +8,7 @@
 #ifndef LARCELLREC_LARCOLLISIONTIMEALG_H
 #define LARCELLREC_LARCOLLISIONTIMEALG_H
 
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloCellContainer.h"
 
 #include "LArRecEvent/LArCollisionTime.h"
@@ -20,18 +20,16 @@
 
 class CaloCell_ID;
 
-class LArCollisionTimeAlg : public AthAlgorithm {
+class LArCollisionTimeAlg : public AthReentrantAlgorithm {
  public:
-    //Gaudi style constructor and execution methods
-    /** Standard Athena-Algorithm Constructor */
-    LArCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator);
-    /** Default Destructor */
-    virtual ~LArCollisionTimeAlg();
+    using AthReentrantAlgorithm::AthReentrantAlgorithm;
+  
+    virtual ~LArCollisionTimeAlg() = default;
     
     /** standard Athena-Algorithm method */
     virtual StatusCode          initialize() override final;
     /** standard Athena-Algorithm method */
-    virtual StatusCode          execute() override final;
+    virtual StatusCode          execute(const EventContext& ctx) const override final;
     /** standard Athena-Algorithm method */
     virtual StatusCode          finalize() override final;
 
@@ -40,7 +38,7 @@ class LArCollisionTimeAlg : public AthAlgorithm {
   //---------------------------------------------------
   // Member variables
   //---------------------------------------------------
-  const CaloCell_ID*       m_calo_id;
+  const CaloCell_ID*       m_calo_id=nullptr;
 
   //---------------------------------------------------
   // Properties
