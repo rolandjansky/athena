@@ -485,9 +485,9 @@ namespace top {
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_Light_down");
               for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_up");
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_down");
               }
             }
