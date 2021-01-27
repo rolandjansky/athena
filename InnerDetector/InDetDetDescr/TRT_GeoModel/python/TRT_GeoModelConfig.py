@@ -1,9 +1,10 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TRT_GeometryCfg( flags ):
     from AtlasGeoModel.GeoModelConfig import GeoModelCfg
@@ -18,7 +19,7 @@ def TRT_GeometryCfg( flags ):
     acc.addService(geoModelSvc)
     # Inner Detector alignment
     acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Calib/DX","/TRT/Calib/DX"))
-    if flags.Detector.SimulateTRT: # revert to old style CondHandle in case of simulation
+    if flags.Common.ProductionStep == ProductionStep.Simulation: # revert to old style CondHandle in case of simulation
         # Dead/Noisy Straw Lists
         acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Cond/Status","/TRT/Cond/Status"))
         acc.merge(addFoldersSplitOnline(flags, "TRT","/TRT/Onl/Cond/StatusPermanent","/TRT/Cond/StatusPermanent"))
@@ -40,12 +41,12 @@ def TRT_GeometryCfg( flags ):
         TRTAlignCondAlg.ReadKeyDynamicGlobal = "/TRT/AlignL1/TRT"
         TRTAlignCondAlg.ReadKeyDynamicRegular = "/TRT/AlignL2"
     else:
-        if (not flags.Detector.SimulateTRT) or flags.Detector.OverlayTRT:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align"))
     if flags.Common.Project != "AthSimulation": # Protection for AthSimulation builds
-        if (not flags.Detector.SimulateTRT) or flags.Detector.OverlayTRT:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             acc.addCondAlgo(TRTAlignCondAlg)
 
     return acc

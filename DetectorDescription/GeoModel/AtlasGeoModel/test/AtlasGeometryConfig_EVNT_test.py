@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 """Run a test on Atlas Geometry configuration using a EVNT file as input
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG
     from AthenaCommon.Configurable import Configurable
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    from AthenaConfiguration.Enums import ProductionStep
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
@@ -16,12 +17,10 @@ if __name__ == "__main__":
     Configurable.configurableRun3Behavior = True
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     # Provide MC input
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Input.Files = defaultTestFiles.EVNT
     ConfigFlags.GeoModel.AtlasVersion = "ATLAS-R2-2016-01-00-01"
     ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-    ConfigFlags.Detector.SimulatePixel = True
-    ConfigFlags.Detector.SimulateSCT   = True
-    ConfigFlags.Detector.SimulateTRT   = True
     ConfigFlags.GeoModel.Align.Dynamic    = False
     ConfigFlags.lock()
 

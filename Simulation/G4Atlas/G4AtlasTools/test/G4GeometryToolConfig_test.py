@@ -1,16 +1,13 @@
 #!/usr/bin/env python
 """Run tests on G4Geometry Tool configuration
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
 if __name__ == '__main__':
-  from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-  import os
-
   # Set up logging and config behaviour
   from AthenaCommon.Logging import log
   from AthenaCommon.Constants import DEBUG
@@ -21,6 +18,8 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
 
   from AthenaConfiguration.TestDefaults import defaultTestFiles
   inputDir = defaultTestFiles.d

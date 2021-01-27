@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
@@ -45,6 +45,8 @@ def EvtIdModifierSvc_add_modifier(svc,
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"

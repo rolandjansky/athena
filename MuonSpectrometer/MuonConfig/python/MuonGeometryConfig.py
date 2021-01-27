@@ -73,7 +73,7 @@ def MuonDetectorToolCfg(flags):
     else:
         detTool.UseConditionDb = 0
         detTool.UseAsciiConditionData = 0
-        if flags.Detector.SimulateMuon:
+        if flags.Common.ProductionStep == ProductionStep.Simulation:
             detTool.FillCacheInitTime = 0
 
     ## Additional material in the muon system
