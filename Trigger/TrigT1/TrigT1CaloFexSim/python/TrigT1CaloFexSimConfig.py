@@ -113,3 +113,15 @@ def createSuperCellBCIDAlg(**kwargs):
         bcidAlg.__setattr__(arg,kwargs[arg])
 
     return bcidAlg
+
+def createSuperCellBCIDEmAlg(**kwargs):
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    from CaloTools.CaloLumiBCIDToolDefault import CaloLumiBCIDToolDefault
+    theBCIDTool=CaloLumiBCIDToolDefault()
+    svcMgr.ToolSvc += theBCIDTool
+
+    from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SuperCellBCIDAlg,SuperCellBCIDEmAlg
+    bcidAlg = SuperCellBCIDEmAlg()
+    for arg in kwargs:
+        bcidAlg.__setattr__(arg,kwargs[arg])
+    return bcidAlg 
