@@ -45,13 +45,12 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 # Return a ComponentAccumulator holding the jet input sequence
 def JetInputCfg(ConfigFlags):
-    inputcfg = ComponentAccumulator()
     # Create a sequence that holds a set of algorithms
     # -- mainly for understanding how chunks of the job
     #    relate to each other
     sequencename = "JetInputSeq"
+    inputcfg = ComponentAccumulator(CompFactory.AthSequencer(sequencename, ModeOR=True))
 
-    inputcfg.addSequence( CompFactory.AthSequencer(sequencename) )
 
     from xAODBase.xAODType import xAODType
 

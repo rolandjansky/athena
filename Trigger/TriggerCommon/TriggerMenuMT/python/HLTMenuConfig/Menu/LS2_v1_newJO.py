@@ -35,7 +35,7 @@ def setupMenu():
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
     MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
     SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    #SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
+    SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
     chains["muon"] = [
@@ -63,9 +63,9 @@ def setupMenu():
     ]
 
     chains["jet"] = [
-        # ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
-        # ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-        # ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
+        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
+        ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
     chains["combined"] = [
