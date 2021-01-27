@@ -34,7 +34,7 @@ namespace Muon {
         if (!m_atlasExtrapolator.empty()) ATH_CHECK(m_atlasExtrapolator.retrieve());
         if (!m_muonExtrapolator.empty()) ATH_CHECK(m_muonExtrapolator.retrieve());
         if (!m_muonExtrapolator2.empty()) ATH_CHECK(m_muonExtrapolator2.retrieve());
-        if (m_trackingGeometryReadKey.empty()) {
+        if (!m_trackingGeometryReadKey.empty()) {
             ATH_CHECK(m_trackingGeometryReadKey.initialize());
         } else {
             ATH_CHECK(m_trackingGeometrySvc.retrieve());
