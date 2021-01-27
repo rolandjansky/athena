@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentInOverlapResolvingTool.h"
@@ -534,7 +534,7 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
         const Trk::Surface& measSurf = (**mit).associatedSurface();
 
         // propagate station parameters to segment
-        const Trk::TrackParameters* exPars =
+        auto exPars =
             m_propagator->propagate(segPars, measSurf, Trk::anyDirection, false, m_magFieldProperties);
         if (!exPars) {
             ATH_MSG_WARNING("  Failed to propagate parameter to segment surface" << std::endl
@@ -543,10 +543,10 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
         } else {
 
             const Trk::ResidualPull* resPull =
-                m_pullCalculator->residualPull(*mit, exPars, Trk::ResidualPull::Unbiased);
+                m_pullCalculator->residualPull(*mit, exPars.get(), Trk::ResidualPull::Unbiased);
             if (!resPull) {
                 ATH_MSG_DEBUG(" calculation of residual/pull failed !!!!! ");
-                delete exPars;
+                //delete exPars;
                 continue;
             }
 
@@ -554,7 +554,7 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
             if (resPull->pull().size() != 1) {
                 ATH_MSG_WARNING(" ResidualPull with empty pull vector for channel " << m_idHelperSvc->toString(id));
                 delete resPull;
-                delete exPars;
+                //delete exPars;
                 continue;
             }
 
@@ -563,7 +563,7 @@ MuonSegmentInOverlapResolvingTool::checkPhiHitConsistency(const Muon::MuonSegmen
             averagePull += pull;
             ++nphiMeas;
             delete resPull;
-            delete exPars;
+            //delete exPars;
         }
     }
     if (nphiMeas != 0) averagePull /= nphiMeas;

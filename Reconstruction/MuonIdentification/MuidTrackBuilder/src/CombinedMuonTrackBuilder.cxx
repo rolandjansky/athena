@@ -781,17 +781,19 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
         if (innerParameters->associatedSurface() == spectrometerMeasurements.front()->associatedSurface()) {
             frontParameters = innerParameters->clone();
         } else {
+            //TSoS will own this
             frontParameters =
                 m_propagator->propagate(*innerParameters, spectrometerMeasurements.front()->associatedSurface(),
-                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon);
+                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon).release();
         }
     } else if (middleParameters) {
         if (middleParameters->associatedSurface() == spectrometerMeasurements.front()->associatedSurface()) {
             frontParameters = middleParameters->clone();
         } else {
+           //TSoS will own this
             frontParameters =
                 m_propagator->propagate(*middleParameters, spectrometerMeasurements.front()->associatedSurface(),
-                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon);
+                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon).release();
         }
     }
 
@@ -799,18 +801,19 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
         if (outerParameters->associatedSurface() == spectrometerMeasurements.back()->associatedSurface()) {
             backParameters = outerParameters->clone();
         } else {
-
+            //TSoS will own this
             backParameters =
                 m_propagator->propagate(*outerParameters, spectrometerMeasurements.back()->associatedSurface(),
-                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon);
+                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon).release();
         }
     } else if (middleParameters) {
         if (middleParameters->associatedSurface() == spectrometerMeasurements.back()->associatedSurface()) {
             backParameters = middleParameters->clone();
         } else {
+            //TSoS will own this
             backParameters =
                 m_propagator->propagate(*middleParameters, spectrometerMeasurements.back()->associatedSurface(),
-                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon);
+                                        Trk::anyDirection, false, m_magFieldProperties, Trk::muon).release();
         }
     }
 
@@ -830,9 +833,9 @@ CombinedMuonTrackBuilder::indetExtension(const Trk::Track&           indetTrack,
                 previousDistance = distance;
             } else {
                 if (midDistance - previousDistance < distance - midDistance) --m;
-
+                //TSoS will own this
                 midParameters = m_propagator->propagate(*middleParameters, (**m).associatedSurface(), Trk::anyDirection,
-                                                        false, m_magFieldProperties, Trk::muon);
+                                                        false, m_magFieldProperties, Trk::muon).release();
 
                 if (midParameters) midMeasurement = *m;
                 break;
@@ -1883,7 +1886,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
             } else {
                 parameters =
                     m_propagator->propagate(*parameters, middleTSOS->trackParameters()->associatedSurface(),
-                                            Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting);
+                                            Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting).release();
             }
         }
 
@@ -1914,7 +1917,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
     oldParameters = parameters;
 
     parameters = m_propagator->propagate(*parameters, innerTSOS->trackParameters()->associatedSurface(),
-                                         Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting);
+                                         Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting).release();
 
     delete oldParameters;
 
@@ -1925,7 +1928,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
     const Trk::Perigee* perigee = nullptr;
     if (parameters) {
         perigee = dynamic_cast<const Trk::Perigee*>(m_propagator->propagate(
-            *parameters, *m_perigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting));
+            *parameters, *m_perigeeSurface, Trk::oppositeMomentum, false, m_magFieldProperties, Trk::nonInteracting).release());
     }
     delete parameters;
 
@@ -1934,7 +1937,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
 
     // track back out to the 3 calo surfaces applying small correction for non-linearity
     parameters = m_propagator->propagate(*perigee, innerTSOS->trackParameters()->associatedSurface(),
-                                         Trk::alongMomentum, false, m_magFieldProperties, Trk::nonInteracting);
+                                         Trk::alongMomentum, false, m_magFieldProperties, Trk::nonInteracting).release();
 
     if (!parameters) {
         // failed propagation to innerTSOS
@@ -1947,7 +1950,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
         oldParameters = parameters;
 
         parameters = m_propagator->propagate(*parameters, middleParameters->associatedSurface(), Trk::alongMomentum,
-                                             false, m_magFieldProperties, Trk::nonInteracting);
+                                             false, m_magFieldProperties, Trk::nonInteracting).release();
 
         delete oldParameters;
 
@@ -1959,7 +1962,7 @@ CombinedMuonTrackBuilder::standaloneRefit(const Trk::Track& combinedTrack, float
             oldParameters = parameters;
 
             parameters = m_propagator->propagate(*parameters, outerTSOS->trackParameters()->associatedSurface(),
-                                                 Trk::alongMomentum, false, m_magFieldProperties, Trk::nonInteracting);
+                                                 Trk::alongMomentum, false, m_magFieldProperties, Trk::nonInteracting).release();
 
             delete oldParameters;
         }
@@ -3150,12 +3153,12 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
                 if (oldParameters && !oldParameters->covariance()) {
                     ATH_MSG_VERBOSE(" createExtrapolatedTrack: no cov (0)");
                 }
-
+                //chickened out of sorting out ownership
                 trackParameters = m_propagator->propagate(*oldParameters, *mperigeeSurface, Trk::oppositeMomentum,
-                                                          false, m_magFieldProperties, Trk::nonInteracting);
+                                                          false, m_magFieldProperties, Trk::nonInteracting).release();
             } else {
                 trackParameters = m_propagatorSL->propagate(parameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                                            m_magFieldProperties, Trk::nonInteracting);
+                                                            m_magFieldProperties, Trk::nonInteracting).release();
             }
 
             // only accept when perigee in indet tracking volume
@@ -3967,7 +3970,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
     if (curvatureOK) {
         const Trk::TrackParameters* perigee =
             propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                  m_magFieldProperties, Trk::nonInteracting);
+                                  m_magFieldProperties, Trk::nonInteracting).release();
 
         if (!perigee) {
             ATH_MSG_DEBUG("standaloneFit: failed back extrapolation to perigee");
@@ -4015,7 +4018,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                 new AmgSymMatrix(5)(*parameters->covariance()));
 
             perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                            m_magFieldProperties, Trk::nonInteracting);
+                                            m_magFieldProperties, Trk::nonInteracting).release();
 
             if (perigee) {
                 deltaPhi = 0.;
@@ -4044,7 +4047,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
                     new AmgSymMatrix(5)(*parameters->covariance()));
 
                 perigee = propagator->propagate(*correctedParameters, *mperigeeSurface, Trk::oppositeMomentum, false,
-                                                m_magFieldProperties, Trk::nonInteracting);
+                                                m_magFieldProperties, Trk::nonInteracting).release();
             }
 
             if (perigee) {
@@ -4107,7 +4110,7 @@ CombinedMuonTrackBuilder::extrapolatedParameters(bool& badlyDeterminedCurvature,
         Trk::TrackParameters* perigee = new Trk::Perigee(mvertex->position(), momentum, 1., *mperigeeSurface);
 
         correctedParameters = m_propagator->propagate(*perigee, perigee->associatedSurface(), Trk::alongMomentum, false,
-                                                      m_magFieldProperties, Trk::nonInteracting);
+                                                      m_magFieldProperties, Trk::nonInteracting).release();
 
         delete parameters;
         delete perigee;

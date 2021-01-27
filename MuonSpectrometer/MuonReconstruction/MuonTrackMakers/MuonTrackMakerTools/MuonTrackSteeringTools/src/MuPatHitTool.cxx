@@ -135,8 +135,11 @@ MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const T
             exPars.reset (pars.clone());
             ATH_MSG_VERBOSE(" start parameters and measurement expressed at same surface, cloning parameters ");
         } else {
-            exPars.reset
-              (m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+
+           //this code does its own manual garbage collection which can probably be omitted now
+            exPars =
+                std::move(m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+
             if (!exPars) {
                 if (!wasPrinted) {
                     ATH_MSG_WARNING(" extrapolation of segment failed, cannot calculate residual ");
@@ -301,8 +304,11 @@ MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const
                         exPars.reset (stPars.clone());
                     } else {
                         // redo propagation
-                        exPars.reset (m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false,
-                                                              m_magFieldProperties));
+
+                        //this code does its own garbage collection, but this can prob. be simplified now
+                        exPars = std::move(m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false,
+                                                         m_magFieldProperties));
+
                         // if failed keep old parameters
                         if (!exPars) {
                             ATH_MSG_DEBUG(" extrapolation failed, cannot insert hit "

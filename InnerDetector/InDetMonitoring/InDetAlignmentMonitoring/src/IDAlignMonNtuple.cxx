@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // **********************************************************************
@@ -889,7 +889,7 @@ const Trk::TrackParameters* IDAlignMonNtuple::getUnbiasedTrackParameters(const T
 													  tsos->measurementOnTrack()->associatedSurface(),
 													  Trk::anyDirection, false,
 													  *TempField,
-													  Trk::nonInteracting);
+													  Trk::nonInteracting).release();
 	  
 	  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After other side unbiased propagation" << endmsg;
 	  delete OtherSideUnbiasedTrackParams;

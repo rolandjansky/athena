@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -342,22 +342,23 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
  Trk::MagneticFieldMode fieldModeEnum(m_fieldModeEnum);
  if(!fieldCache.solenoidOn()) fieldModeEnum = Trk::NoField;
  Trk::MagneticFieldProperties fieldprop(fieldModeEnum);
-
+ //give up ownership to the vector
  const Trk::TrackParameters* tp0 =
-   m_proptool->propagate(ctx, Tp,(*r)->surface(),D,false,fieldprop,Trk::pion);
+   m_proptool->propagate(ctx, Tp,(*r)->surface(),D,false,fieldprop,Trk::pion).release();
  if(!tp0) return;
 
  std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP0((*r),tp0);
  R.push_back(EP0);
 
  for(++r; r!=re; ++r) {
-
+   //give up ownership to the vector
    const Trk::TrackParameters* tp =
-     m_proptool->propagate(ctx, (*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion);
+     m_proptool->propagate(ctx, (*tp0),(*r)->surface(),D,false,fieldprop,Trk::pion).release();
    if(!tp) return;
-
+   //ownership of tp given to the vector
    std::pair<const InDetDD::TRT_BaseElement*,const Trk::TrackParameters*> EP((*r),tp);
-   R.push_back(EP); tp0=tp;
+   R.push_back(EP); 
+   tp0=tp;
  }
 }
 
