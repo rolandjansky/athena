@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -552,7 +552,7 @@ StatusCode ISF::DNNCaloSimSvc::fillWindowCells(const double etaExtrap,const doub
   CaloCell_ID::CaloSample sampling;
   float eta_raw;
   float phi_raw;
-  for(const auto& theCell : * m_theContainer) {
+  for(CaloCell* theCell : * m_theContainer) {
     sampling = theCell->caloDDE()->getSampling();
     eta_raw = theCell->caloDDE()->eta_raw();
     phi_raw = theCell->caloDDE()->phi_raw();
