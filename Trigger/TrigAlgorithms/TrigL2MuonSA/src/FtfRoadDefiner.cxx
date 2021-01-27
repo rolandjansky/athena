@@ -40,7 +40,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
   double bw_ftf[3]={0.,0.,0.}; // intercept of FTF Road for Inner/Middle/Outer
 
   // Inner
-  auto extFtfInner = extTrack( idtrack, 5000., 6000., muonRoad.ext_ftf_flag[0][0]); //Large secotr
+  auto extFtfInner = extTrack( idtrack, 4700., 7500., muonRoad.ext_ftf_flag[0][0]);
   if( !extFtfInner ) {
     ATH_MSG_DEBUG("extrapolated track parameters on BarrelInner is null");
   } else {
@@ -56,7 +56,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
   }
 
   // Middle
-  auto extFtfMiddle = extTrack( idtrack , 8000., 9000., muonRoad.ext_ftf_flag[1][0]);
+  auto extFtfMiddle = extTrack( idtrack , 7300., 14000., muonRoad.ext_ftf_flag[1][0]);
   if( !extFtfMiddle ) {
     ATH_MSG_DEBUG("extrapolated track parameters on BarrelMiddle is null");
   } else {
@@ -72,7 +72,7 @@ StatusCode TrigL2MuonSA::FtfRoadDefiner::defineRoad(const xAOD::TrackParticle* i
   }
 
   // Outer
-  auto extFtfOuter = extTrack( idtrack , 10000., 12500., muonRoad.ext_ftf_flag[2][0]);
+  auto extFtfOuter = extTrack( idtrack , 9800., 21500., muonRoad.ext_ftf_flag[2][0]);
   if( !extFtfOuter ) {
     ATH_MSG_DEBUG("extrapolated track parameters on BarrelOuter is null");
   } else {
