@@ -4,8 +4,6 @@
 #
 # art-type: grid
 # art-include: master/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
 # art-output: OUT_HITS.root
 # art-output: NSWPRDValAlg.sim.ntuple.root
 # art-output: OUT_RDO.root
@@ -140,6 +138,7 @@ fi
 #####################################################################
 # now run diff-root to compare the ESDs made with serial and 1thread
 acmd.py diff-root --ignore-leaves index_ref xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::CaloClusterAuxContainer_v2_ForwardElectronClustersAuxDyn --entries 25 --order-trees OUT_ESD_1thread.root OUT_ESD.root &> diff_1_vs_serial.txt
+exit_code=$?
 echo  "art-result: ${exit_code} diff-root"
 if [ ${exit_code} -ne 0 ]
 then
@@ -150,6 +149,7 @@ fi
 #####################################################################
 # now run diff-root to compare the ESDs made with 5threads and 1thread
 acmd.py diff-root --ignore-leaves index_ref xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::CaloClusterAuxContainer_v2_ForwardElectronClustersAuxDyn --entries 25 --order-trees OUT_ESD_5thread.root OUT_ESD_1thread.root &> diff_5_vs_1.txt
+exit_code=$?
 echo  "art-result: ${exit_code} diff-root_5thread"
 if [ ${exit_code} -ne 0 ]
 then
