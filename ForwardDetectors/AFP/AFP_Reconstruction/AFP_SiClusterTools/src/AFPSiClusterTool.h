@@ -26,6 +26,7 @@
 #include "AFP_SiClusterTools/IAFPSiClusterAlgTool.h"
 #include "AFP_SiClusterTools/AFPSiClusterLayerBasicObj.h"
 #include "AFP_SiClusterTools/IAFPSiRowColToLocalCSTool.h"
+#include "AFP_DigiEv/AFP_SiDigiCollection.h"
 
 /**
  * @brief This class reconstructs clusters of pixels.
@@ -59,7 +60,8 @@ private:
   ToolHandle<IAFPSiRowColToLocalCSTool> m_rowColToLocalCSToolHandle; ///< tool that creates xAOD and transforms rows and pixels to local coordinate system
   std::vector< std::vector<AFPSiClusterLayerBasicObj> > m_layers; ///< Array of layers with hits and clusters. Default is 4 stations times 4 layers.
 
-  const xAOD::AFPSiHitContainer* m_hitsContainer; ///< container of pixels used to form the cluster
+//  const xAOD::AFPSiHitContainer* m_hitsContainer; ///< container of pixels used to form the cluster
+  const AFP_SiDigiCollection* m_hitsContainer; ///< container of simulated pixels used to form the cluster
 
   /// @brief Array defining number of stations and layers in each station
   ///

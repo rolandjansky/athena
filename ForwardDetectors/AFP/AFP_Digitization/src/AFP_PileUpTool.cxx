@@ -478,12 +478,12 @@ void AFP_PileUpTool::createTDDigi(int Station, int Detector, int SensitiveElemen
 #endif
  
   
-  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff/prescale) return;
+//  if (CLHEP::RandFlat::shoot(rndEngine, 0.0, 1.0) > m_QuantumEff_PMT[id]*m_CollectionEff/prescale) return;
 
   double PheTime = CLHEP::RandGaussQ::shoot(rndEngine, GlobalTime + 5.* m_ConversionSpr, m_ConversionSpr);
   int NumberOfSecondaries =  CLHEP::RandPoissonQ::shoot(rndEngine, m_Gain);
 
-  if ( Station >3 || Station < 0 || Detector >31 || Detector < 0 || (SensitiveElement-1)/2>1 || (SensitiveElement-1)/2<0) {      
+  if ( Station >3 || Station < 0 || Detector >49 || Detector < 10 || (SensitiveElement-1)/2>1 || (SensitiveElement-1)/2<0) {      
     ATH_MSG_FATAL ( "Wrong station, detector or sensitive detector id" );
     return;
      }

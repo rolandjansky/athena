@@ -14,6 +14,12 @@ TopLocRecSeq += siDLocReco
 
 from AFP_SiClusterTools.AFP_SiClusterToolsConf import AFPSiClusterTool
 clusterTool=AFPSiClusterTool("AFPSiClusterTool")
+
+if globalflags.DataSource()=='data':
+        clusterTool.hitsContainerName = "AFPSiHitContainer"
+else:
+        clusterTool.hitsContainerName = "AFP_SiDigiCollection"
+
 ToolSvc+=clusterTool
 
 # cluster algorithm

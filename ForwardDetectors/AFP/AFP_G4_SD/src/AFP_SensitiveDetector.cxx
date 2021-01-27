@@ -210,8 +210,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
       nQuarticID=szbuff[7]-0x30;
       m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
                                      fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
-                                     fPostStepZ,fGlobalTime,nStationID,nDetectorID,(2+2*nQuarticID));//Q1: 1-2, Q2: 3-4
-      // m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
+                                     fPostStepZ,fGlobalTime,nStationID,nDetectorID,(1+2*nQuarticID));//Q1: 1-2, Q2: 3-4
+      //   m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,
       //                                fWaveLength,fPreStepX,fPreStepY,fPreStepZ,fPostStepX,fPostStepY,
       //                                fPostStepZ,fGlobalTime,nStationID,nDetectorID,((bRes? 2:1)+2*nQuarticID));//Q1: 1-2, Q2: 3-4
       m_nNumberOfTDSimHits++;
