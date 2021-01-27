@@ -123,6 +123,9 @@ JGTowerReader::~JGTowerReader() {
   delete acc_rhoA; 
   delete acc_rhoB;
   delete acc_rhoC;
+  delete acc_posRhoA; 
+  delete acc_posRhoB;
+  delete acc_posRhoC;
   delete acc_rho_barrel; 
   delete acc_threshA;
   delete acc_threshB;
@@ -201,6 +204,10 @@ StatusCode JGTowerReader::initialize() {
   acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB");
   acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
   acc_rho_barrel = new SG::AuxElement::Accessor<float>("Rho_barrel");
+
+  acc_posRhoA = new SG::AuxElement::Accessor<float>("RhoA_positive_gTowers");
+  acc_posRhoB = new SG::AuxElement::Accessor<float>("RhoB_positive_gTowers");
+  acc_posRhoC = new SG::AuxElement::Accessor<float>("RhoC_positive_gTowers");
   
   acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
   acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");
@@ -637,6 +644,10 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   (*acc_rhoB)(*RhoCont) = rhoB;
   (*acc_rhoC)(*RhoCont) = rhoC;
   (*acc_rho_barrel)(*RhoCont) = rho_barrel;
+
+  (*acc_posRhoA)(*RhoCont) = posRhoA; 
+  (*acc_posRhoB)(*RhoCont) = posRhoB;
+  (*acc_posRhoC)(*RhoCont) = posRhoC;
   
   (*acc_threshA)(*RhoCont) = thresh_a;
   (*acc_threshB)(*RhoCont) = thresh_b;
@@ -720,6 +731,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
 
   //gFEX MET algorithms
   std::vector<float> noNoise; 
+  TFile* lut_file = (TFile*)TFile::Open((TString)m_gXERHOLUT_file, "READ");
+
 
   CHECK(METAlg::NoiseCut_MET(pu_sub, "gXERHO", noNoise, m_gFEX_useNegTowers));
   CHECK(METAlg::NoiseCut_MET(gCaloTowers,"gXENOISECUT",gT_noise, m_gFEX_useNegTowers));
@@ -727,8 +740,8 @@ StatusCode JGTowerReader::GFexAlg(const xAOD::JGTowerContainer* gTs){
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJ",m_gFEX_pTcone_cut,/*bool useRho*/ false,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::JwoJ_MET(gCaloTowers, gBlocks, "gXEJWOJRHOHT",m_gFEX_pTcone_cut,/*bool useRho*/ true,rhoA,rhoB,rhoC, /*m_useNegTowers*/ m_gFEX_useNegTowers));
   CHECK(METAlg::Pufit_MET(gCaloTowers,"gXEPUFIT", m_gFEX_useNegTowers) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",posRhoA,posRhoB,posRhoC,m_gXERHOLUT_file, /*bool correctMean*/false) ); 
-  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_MeanLUT",posRhoA,posRhoB,posRhoC,m_gXERHOLUT_file, /*bool correctMean*/true) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_LUT",posRhoA,posRhoB,posRhoC, lut_file, /*bool correctMean*/false) ); 
+  CHECK(METAlg::RhoRMS_LUT(gCaloTowers,"gXERHORMS_MeanLUT",posRhoA,posRhoB,posRhoC, lut_file, /*bool correctMean*/true) ); 
 
   //manage conatiners that have been created: save gCaloTowers and pu_sub to SG
   CHECK(evtStore()->record(gCaloTowers, "gCaloTowers"));

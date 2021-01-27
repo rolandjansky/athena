@@ -623,14 +623,14 @@ float METAlg::Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNeg
   return rho;
 }
 
-StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TString lut_path, bool correctMean){
+StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TFile* lut_file, bool correctMean){
 
   /*This function is the optimized version of the LUT approach to Rho+RMS, with gTower Et > 0. 
     Rho values passed to this function are calculated using only positive gTowers
     Option correctMean pulls the mean gTower energy per eta bin from a LUT for subtraction (in addition to the RMS threshold).*/
 
   const unsigned int size = towers->size();
-  TFile* file = TFile::Open(lut_path, "READ");
+  //TFile* file = TFile::Open(lut_path, "READ");
 
   float metX = 0;
   float metY = 0;
@@ -651,7 +651,7 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
     else if(fpga=="B") rho = rhoB;
     else rho = rhoC;
 
-    TProfile* pr = (TProfile*)file->Get(Form("Rho_ieta%d", ieta));
+    TProfile* pr = (TProfile*)lut_file->Get(Form("Rho_ieta%d", ieta));
     int bin = pr->FindBin(rho);
     float thresh = 3*pr->GetBinError(bin);
     float mean = pr->GetBinContent(bin);
@@ -676,7 +676,7 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
   met->ey=metY;
   met->et=EtMiss;
 
-  delete file;
+  //delete file;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   return StatusCode::SUCCESS;
