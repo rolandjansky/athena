@@ -23,7 +23,11 @@ namespace top {
     virtual ~CalcThqPartonHistory() {}
 
     struct tH_values {
+      
       //Higgs
+
+      int TestVar;
+      
       TLorentzVector Higgs_p4;
       TLorentzVector decay1_p4;
       TLorentzVector decay2_p4;
@@ -31,6 +35,10 @@ namespace top {
       int decay2_pdgId;
       int tau_decay1_isHadronic;
       int tau_decay2_isHadronic;
+      TLorentzVector tau_decay1_p4;
+      TLorentzVector tau_decay2_p4;     
+
+      
       TLorentzVector decay1_from_decay1_p4;
       TLorentzVector decay2_from_decay1_p4;
       int decay1_from_decay1_pdgId;
@@ -39,10 +47,19 @@ namespace top {
       TLorentzVector decay2_from_decay2_p4;
       int decay1_from_decay2_pdgId;
       int decay2_from_decay2_pdgId;
+      
       int tau_decay1_from_decay1_isHadronic;
       int tau_decay2_from_decay1_isHadronic;
       int tau_decay1_from_decay2_isHadronic;
       int tau_decay2_from_decay2_isHadronic;
+      
+      TLorentzVector tau_decay1_from_decay1_p4;
+      TLorentzVector tau_decay2_from_decay1_p4;
+      TLorentzVector tau_decay1_from_decay2_p4;
+      TLorentzVector tau_decay2_from_decay2_p4;
+
+
+      
     } tH;
     //Storing parton history for ttbar resonance analysis
     CalcThqPartonHistory(const CalcThqPartonHistory& rhs) = delete;

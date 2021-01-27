@@ -177,6 +177,117 @@ namespace top {
     return false;
   }
 
+  // The function topWb has been overloaded
+  bool CalcTopPartonHistory::topWb(const xAOD::TruthParticleContainer* truthParticles,
+                                   int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4,
+                                   TLorentzVector& W_p4,
+                                   TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4,
+                                   int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId,
+                                   TLorentzVector& tau_decay_from_W_p4, int& tau_decay_from_W_isHadronic) {
+    bool hasT = false;
+    bool hasW = false;
+    bool hasB = false;
+    bool hasWdecayProd1 = false;
+    bool hasWdecayProd2 = false;
+    bool debug=false;
+
+    for (const xAOD::TruthParticle* particle : *truthParticles) {
+      if (particle->pdgId() != start) continue;
+
+      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
+
+      t_beforeFSR_p4 = particle->p4(); // top before FSR
+      hasT = true;
+
+      // demanding the last tops after FSR
+      particle = PartonHistoryUtils::findAfterFSR(particle);
+      t_afterFSR_p4 = particle->p4(); // top after FSR
+      
+      // debug
+      if(debug) std::cout << " __________________________________________________________________________"<< std::endl;
+      if(debug) std::cout << "     * EVENT DEBUG  (CalcTopPartonHistory.cxx) *" << std::endl;
+      if(debug){
+	for (size_t k = 0; k < particle->nChildren(); k++) {
+	  std::cout << " Top child :: " << particle->child(k)->pdgId() << std::endl;
+	}
+      }
+      // debug
+
+      for (size_t k = 0; k < particle->nChildren(); k++) {
+        const xAOD::TruthParticle* topChildren = particle->child(k);
+
+        if (abs(topChildren->pdgId()) == 24) {
+          W_p4 = topChildren->p4();  // W boson after FSR
+          hasW = true;
+          
+          // demanding the last W after FSR
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
+          
+          //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
+          //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
+          if(m_config->getDerivationStream() == "PHYS") topChildren=getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
+          
+          for (size_t q = 0; q < topChildren->nChildren(); ++q) {
+	    const xAOD::TruthParticle* WChildren = topChildren->child(q);
+	    if(debug) std::cout << " W_from_t->child("<< q << ") :: " << WChildren->pdgId() << std::endl;
+            if (abs(WChildren->pdgId()) < 17) {
+	      // When W decays leptonically, Wdecay1 stores the lepton and Wdecay2 the neutrino
+	      if (abs(WChildren->pdgId()) == 11 or abs(WChildren->pdgId()) == 13 or abs(WChildren->pdgId()) == 15){
+		Wdecay1_p4 = WChildren->p4();                                  
+                Wdecay1_pdgId = WChildren->pdgId();
+		tau_decay_from_W_isHadronic = PartonHistoryUtils::TauIsHadronic(WChildren, tau_decay_from_W_p4) ; //esta linea importa
+		//tau_decay_from_W_p4 = WChildren->p4(); //ponbien
+		if(debug) std::cout << "decay1_from_W_from_t :: " << WChildren->pdgId() << std::endl;
+		if(debug && (abs(WChildren->pdgId()))==15){
+		  std::cout << " Tau_from_W_from_t :: " << WChildren->pdgId() << std::endl;
+		  for (size_t i = 0; i < WChildren->nChildren(); ++i){
+		    std::cout << " Tau_from_W_from_t->Child() :: " << WChildren->child(i)->pdgId() << std::endl;
+		  }
+		}
+		if(debug) std::cout << "tau_decay_from_W_isHadronic :: " << tau_decay_from_W_isHadronic << std::endl;
+		if(debug) std::cout << "  tau_from_W_pt  :: " << tau_decay_from_W_p4.Pt() << std::endl;
+		if(debug) std::cout << "  tau_from_W_eta :: " << tau_decay_from_W_p4.Eta() << std::endl;
+		if(debug) std::cout << "  tau_from_W_phi :: " << tau_decay_from_W_p4.Phi() << std::endl;
+                hasWdecayProd1 = true;
+	      }
+	      if (abs(WChildren->pdgId()) == 12 or abs(WChildren->pdgId()) == 14 or abs(WChildren->pdgId()) == 16){
+		Wdecay2_p4 = WChildren->p4();
+                Wdecay2_pdgId = WChildren->pdgId();
+		if(debug) std::cout << "decay2_from_W_from_t :: " << WChildren->pdgId() << std::endl;
+                hasWdecayProd2 = true;
+	      }
+	      if (abs(WChildren->pdgId()) < 12){ // W does not decay leptonically
+		if (WChildren->pdgId() > 0) {
+		  Wdecay1_p4 = WChildren->p4();
+		  Wdecay1_pdgId = WChildren->pdgId();
+		  tau_decay_from_W_isHadronic = -99;
+		  tau_decay_from_W_p4 = WChildren->p4(); //ponbien 
+		  if(debug) std::cout << "decay1_from_W_from_t :: " << WChildren->pdgId() << std::endl;
+		  hasWdecayProd1 = true;
+		}else{
+		  Wdecay2_p4 = WChildren->p4();
+		  Wdecay2_pdgId = WChildren->pdgId();
+		  if(debug) std::cout << "decay2_from_W_from_t :: " << WChildren->pdgId() << std::endl;
+		  hasWdecayProd2 = true;
+		}//else
+	      }// if not leptonic decay
+	    }//if
+          }//for
+        } else if (abs(topChildren->pdgId()) == 5) {
+          b_p4 = topChildren->p4();
+          hasB = true;
+        } //else if
+      } //for (size_t k=0; k < particle->nChildren(); k++)
+
+      if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
+      
+    } //for (const xAOD::TruthParticle* particle : *truthParticles)
+    
+    return false;
+  }
+
+
+
   bool CalcTopPartonHistory::topWb(const xAOD::TruthParticleContainer* truthParticles,
                                    int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4,
                                    TLorentzVector& W_p4,
@@ -241,6 +352,7 @@ namespace top {
     return false;
   }
 
+ 
   bool CalcTopPartonHistory::topWq(const xAOD::TruthParticleContainer* truthParticles,
                                    int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4,
                                    TLorentzVector& W_p4,
