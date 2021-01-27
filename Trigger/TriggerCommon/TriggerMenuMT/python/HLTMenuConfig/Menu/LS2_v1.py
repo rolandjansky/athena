@@ -137,17 +137,31 @@ def setupMenu():
         ChainProp(name='HLT_e140_lhloose_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e140_lhloose_nod0_L1EM22VHI', groups=SingleElectronGroup),
         ChainProp(name='HLT_e300_etcut_L1EM22VHI', groups=SingleElectronGroup),
-
+        
         ChainProp(name='HLT_2e17_lhvloose_L12EM3', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e17_lhvloose_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_2e24_lhvloose_L12EM20VH', stream=[PhysicsStream], groups=MultiElectronGroup),
         ChainProp(name='HLT_e24_lhvloose_2e12_lhvloose_L1EM20VH_3EM10VH', stream=[PhysicsStream], groups=MultiElectronGroup),
-
+        
         
         # TnP triggers
+        ## Zee triggers
         ChainProp(name='HLT_e20_lhmedium_e15_lhmedium_Zee_L12EM3', groups=MultiElectronGroup),
-        ChainProp(name='HLT_e20_lhmedium_e15_idperf_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg    
+        ChainProp(name='HLT_e26_lhtight_e15_etcut_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e20_lhmedium_e15_idperf_Zee_L12EM3', groups=MultiElectronGroup), #idperf leg
+        ChainProp(name='HLT_e26_lhtight_e15_idperf_Zee_L1EM22VHI', l1SeedThresholds=['EM22VHI','FSNOSEED'], groups=MultiElectronGroup), #idperf leg
+
+        ## Jpsiee triggers
+        ChainProp(name='HLT_e9_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM7','EM3'], groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM3','EM7'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e14_lhtight_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM12','EM3'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM3','EM12'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e9_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM7','EM3'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_e9_etcut_Jpsiee_L1JPSI-1M5-EM7',l1SeedThresholds=['EM3','EM7'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e14_lhtight_noringer_e4_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM12','EM3'],groups=MultiElectronGroup),
+        ChainProp(name='HLT_e5_lhtight_noringer_e14_etcut_Jpsiee_L1JPSI-1M5-EM12',l1SeedThresholds=['EM3','EM12'],groups=MultiElectronGroup),    
+
         # for moving to PhysicsP1, ATR-21242
         # ChainProp(name='HLT_2e17_etcut_L12EM15VHI', stream=[PhysicsStream], groups=MultiElectronGroup),
    
