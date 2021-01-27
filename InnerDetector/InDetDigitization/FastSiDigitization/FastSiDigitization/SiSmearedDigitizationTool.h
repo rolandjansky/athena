@@ -35,7 +35,6 @@
 #include "ISF_FatrasEvent/PlanarCluster.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
-#include "ISF_FatrasDetDescrModel/IdHashDetElementCollection.h"
 
 #include "GaudiKernel/ITHistSvc.h"
 #include "EventPrimitives/EventPrimitives.h"
@@ -162,9 +161,6 @@ public:
 
   bool m_emulateAtlas;
 
-  iFatras::IdHashDetElementCollection*                    m_detElementMap{};
-  std::string                                    m_detElementMapName;
-
   std::string                           m_pixel_SiClustersName;
   std::string                           m_Sct_SiClustersName;
   std::string                           m_planar_SiClustersName;
@@ -207,8 +203,6 @@ public:
   double           m_Err_x_SCT;
   double           m_Err_y_SCT;
 
-
-  bool m_useCustomGeometry;
 
   SiSmearedDigitizationTool();
   SiSmearedDigitizationTool(const SiSmearedDigitizationTool&);
