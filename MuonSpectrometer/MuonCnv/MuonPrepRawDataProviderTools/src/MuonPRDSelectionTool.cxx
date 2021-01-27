@@ -19,6 +19,7 @@ namespace Muon {
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_mdtCreator("Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator"),
     m_clusterCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_mmClusterCreator("Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"),
     m_recoValidationTool(""), // ("Muon::MuonRecoValidationTool/MuonRecoValidationTool"),
     // m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),    
     m_distanceToTubeCut(1000.),
@@ -29,6 +30,7 @@ namespace Muon {
     declareProperty("MuonIdHelperTool",m_idHelper );    
     declareProperty("MdtDriftCircleOnTrackCreator",m_mdtCreator);
     declareProperty("MuonClusterOnTrackCreator",m_clusterCreator);
+    declareProperty("MmClusterOnTrackCreator",m_mmClusterCreator);
     declareProperty("MuonRecoValidationTool",m_recoValidationTool);
     
   }
@@ -44,6 +46,7 @@ namespace Muon {
     ATH_CHECK(m_idHelper.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
+    ATH_CHECK(m_mmClusterCreator.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     // ATH_CHECK(m_pullCalculator.retrieve());
 
@@ -183,8 +186,13 @@ namespace Muon {
       return 0;
     }
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
-
-    const MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack( clus, intersect ); 
+    
+    const MuonClusterOnTrack *cluster = nullptr;
+    if (m_idHelper->isMM(clus.identify())) {
+        cluster = m_mmClusterCreator->createRIO_OnTrack(clus, intersect);
+    } else {
+         cluster = m_clusterCreator->createRIO_OnTrack(clus, intersect);
+    }
     if( !cluster ){
       ATH_MSG_VERBOSE("  --- cluster creation failed ");
       return 0;
