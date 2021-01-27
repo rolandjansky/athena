@@ -319,7 +319,7 @@ namespace Muon {
       // current not changing CscClusterStatus but passing status of RIO
       MClT = new CscClusterOnTrack(MClus,locpar,loce,positionAlongStrip,MClus->status(),MClus->timeStatus());
 
-    }else if( m_idHelper->issTgc(RIO.identify()) ){
+    } else if ( m_idHelper->issTgc(RIO.identify()) ) {
 
       // cast to sTgcPrepData
       const sTgcPrepData* MClus   = dynamic_cast<const sTgcPrepData*> (&RIO);
@@ -328,11 +328,14 @@ namespace Muon {
       	return nullptr;
       }
 
-      
-      MClT = new sTgcClusterOnTrack(MClus,locpar,loce,positionAlongStrip);
+
+      MClT = new sTgcClusterOnTrack(MClus, locpar, loce, positionAlongStrip);
+    } else if (m_idHelper->isMM(RIO.identify())) {
+          ATH_MSG_ERROR("called MuonClusterOnTrackCreator with MM cluster");
+          return nullptr;
     }
-    return MClT; 
-  }  
+    return MClT;
+  }
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::
   createRIO_OnTrack(const Trk::PrepRawData& RIO, const Amg::Vector3D& GP, const Amg::Vector3D&) const {
@@ -340,7 +343,7 @@ namespace Muon {
   }
 
   const MuonClusterOnTrack* MuonClusterOnTrackCreator::correct(const Trk::PrepRawData& RIO,const Trk::TrackParameters& TP) const 
-  {  
+  {
     return createRIO_OnTrack(RIO, TP.position(), TP.momentum());
   }
 }

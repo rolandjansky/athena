@@ -70,6 +70,7 @@ MuonChamberHoleRecoveryTool::MuonChamberHoleRecoveryTool(const std::string& ty, 
     m_tubeRotCreator("Muon::MdtDriftCircleOnTrackCreator/MdtTubeHitOnTrackCreator"),
     m_cscRotCreator("Muon::CscClusterOnTrackCreator/CscClusterOnTrackCreator"),
     m_clusRotCreator("Muon::MuonClusterOnTrackCreator/MuonClusterOnTrackCreator"),
+    m_mmClusRotCreator("Muon::MMClusterOnTrackCreator/MMClusterOnTrackCreator"),
     m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_helperTool("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
@@ -101,6 +102,7 @@ MuonChamberHoleRecoveryTool::MuonChamberHoleRecoveryTool(const std::string& ty, 
   declareProperty("TubeRotCreator",          m_tubeRotCreator);
   declareProperty("CscRotCreator",           m_cscRotCreator);
   declareProperty("ClusterRotCreator",       m_clusRotCreator);
+  declareProperty("MmClusterRotCreator",       m_mmClusRotCreator);
   declareProperty("PullCalculator",          m_pullCalculator);
   declareProperty("IdHelper",                m_idHelperTool);
   declareProperty("EDMHelper",               m_helperTool);
@@ -133,6 +135,7 @@ StatusCode MuonChamberHoleRecoveryTool::initialize()
   }
 
   ATH_CHECK( m_clusRotCreator.retrieve() );
+  ATH_CHECK( m_mmClusRotCreator.retrieve());
   ATH_CHECK( m_idHelperTool.retrieve() );
   ATH_CHECK( m_intersectSvc.retrieve() );
 
@@ -836,8 +839,10 @@ void MuonChamberHoleRecoveryTool::createHoleTSOSsForClusterChamber( const Identi
     }
 
     const MuonClusterOnTrack* clusterOnTrack = 0;
-    if ( m_idHelperTool->isTrigger(clus.identify()) ||  m_idHelperTool->isMM(clus.identify()) || m_idHelperTool->issTgc(clus.identify()) ) {
+    if ( m_idHelperTool->isTrigger(clus.identify()) || m_idHelperTool->issTgc(clus.identify()) ) {
       clusterOnTrack = m_clusRotCreator->createRIO_OnTrack( clus, exPars->position(), exPars->momentum().unit()  );
+    } else if (m_idHelperTool->isMM(clus.identify())) {
+      clusterOnTrack = m_mmClusRotCreator->createRIO_OnTrack(clus, exPars->position(), exPars->momentum().unit());
     } else {
       if ( m_cscRotCreator.empty() ) {
         clusterOnTrack = 0;
