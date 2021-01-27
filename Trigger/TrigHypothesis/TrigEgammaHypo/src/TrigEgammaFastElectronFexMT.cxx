@@ -176,12 +176,12 @@ StatusCode TrigEgammaFastElectronFexMT::execute() {
   auto mon = Monitored::Group(m_monTool,  caloPtMon, trackPtMon, caloTrackDEtaMon, caloTrackDPhiMon, etOverPtMon, caloTrackDEtaNoExtrapMon );
 
   // Make Dummy Electron
-     xAOD::TrigElectron* trigDummyElec = new xAOD::TrigElectron();
+  xAOD::TrigElectron* trigDummyElec = new xAOD::TrigElectron();
 
-     ElementLink<xAOD::TrackParticleContainer> trackDummyEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, 0);
+  ElementLink<xAOD::TrackParticleContainer> trackDummyEL = ElementLink<xAOD::TrackParticleContainer> (*tracks, 0);
      
-     trigDummyElecColl->push_back(trigDummyElec);
-     trigDummyElec->init( 0,
+  trigDummyElecColl->push_back(trigDummyElec);
+  trigDummyElec->init( 0,
                       0, 0,  0,
                       clusEL,
                       trackDummyEL);
