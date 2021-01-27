@@ -73,6 +73,8 @@ L1TopoSimulation::initialize() {
 
    m_topoSteering->setMsgLevel( TrigConf::MSGTC::Level((int)m_topoSteeringOutputLevel) );
 
+   m_topoSteering->setLegacyMode(m_isLegacyTopo);
+   
    ATH_MSG_DEBUG("retrieving " << m_monitors);
    CHECK( m_monitors.retrieve() );
 
@@ -131,8 +133,6 @@ L1TopoSimulation::initialize() {
    topoHistSvc->setBaseDir("/EXPERT/" + m_histBaseDir.value());
 
    m_topoSteering->setHistSvc(topoHistSvc);
-
-   m_topoSteering->setLegacyMode(m_isLegacyTopo);
 
    return StatusCode::SUCCESS;
 }
