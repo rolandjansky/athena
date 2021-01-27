@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /// @author Nils Krumnack
@@ -12,12 +12,13 @@
 #include <SampleHandler/Global.h>
 
 #include <SampleHandler/DiskWriter.h>
+#include <memory>
 
 namespace SH
 {
   /// \brief an implementation of DiskWriter for the XRD protocol
   /// \sa DiskOutputXRD
-  class DiskWriterXRD : public DiskWriter
+  class DiskWriterXRD final : public DiskWriter
   {
     //
     // public interface
@@ -54,17 +55,17 @@ namespace SH
 
     /// \copydoc DiskWriter::getPath()
   private:
-    virtual std::string getPath () const;
+    virtual std::string getPath () const override;
 
 
     /// \copydoc DiskWriter::getFile()
   private:
-    virtual TFile *getFile ();
+    virtual TFile *getFile () override;
 
 
     /// \copydoc DiskWriter::doClose()
   private:
-    virtual void doClose ();
+    virtual void doClose () override;
 
 
 
@@ -82,7 +83,7 @@ namespace SH
 
     /// \brief the actual file object
   private:
-    TFile *m_file;
+    std::unique_ptr<TFile> m_file;
   };
 }
 
