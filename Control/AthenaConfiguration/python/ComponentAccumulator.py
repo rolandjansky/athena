@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
@@ -74,10 +74,12 @@ def filterComponents (comps, onlyComponents = []):
 
 class ComponentAccumulator(object):
 
-    def __init__(self,sequenceName='AthAlgSeq'):
+    def __init__(self,sequence='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
-        AthSequencer=CompFactory.AthSequencer
-        self._sequence=AthSequencer(sequenceName,Sequential=True)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
+        if isinstance(sequence, str):
+            AthSequencer=CompFactory.AthSequencer
+            sequence=AthSequencer(sequence, IgnoreFilterPassed=True, StopOverride=True)    #(Nested) default sequence of event processing algorithms per sequence + their private tools
+        self._sequence = sequence
         self._allSequences = [ self._sequence ]
         self._algorithms = {}            #Flat algorithms list, useful for merging
         self._conditionsAlgs=[]          #Unordered list of conditions algorithms + their private tools
@@ -523,6 +525,11 @@ class ComponentAccumulator(object):
         #if destSubSeq == None:
         #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
         def mergeSequences( dest, src ):
+            if dest.name == src.name:
+                for seqProp in dest._descriptors.keys():                
+                    if getattr(dest, seqProp) != getattr(src, seqProp) and seqProp != "Members":
+                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of differnet values %s vs %s (from ca being merged)" % 
+                                            (str((dest.name, src.name)), seqProp, str(getattr(dest, seqProp)), str(getattr(src, seqProp))) )
             for childIdx, c in enumerate(src.Members):
                 if isSequence( c ):
                     sub = findSubSequence( dest, c.name ) #depth=1 ???
