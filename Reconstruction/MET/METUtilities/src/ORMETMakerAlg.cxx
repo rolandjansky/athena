@@ -69,7 +69,7 @@ namespace met {
     ATH_MSG_INFO("Initializing " << name() << "...");
     ATH_MSG_INFO("Retrieving tools...");
 
-    ATH_CHECK( m_ORMetMapKey.initialize() );
+    ATH_CHECK(m_ORMetMapKey.initialize());
     ATH_CHECK(m_chargedPFOContainerWriteHandleKey.initialize()); 
     ATH_CHECK(m_neutralPFOContainerWriteHandleKey.initialize()); 
     ATH_CHECK(m_PFOContainerWriteHandleKey.initialize()); 
@@ -253,7 +253,7 @@ namespace met {
       SG::WriteHandle<xAOD::PFOContainer> PFOContainerWriteHandle(m_PFOContainerWriteHandleKey,ctx); 
       ATH_CHECK(PFOContainerWriteHandle.record(std::make_unique<xAOD::PFOContainer>(SG::VIEW_ELEMENTS)));
 
-      ATH_MSG_INFO("Retrieve OR constituents");
+      ATH_MSG_DEBUG("Retrieve OR constituents");
       ConstDataVector<PFOContainer> met_PFO(SG::VIEW_ELEMENTS);
       for(const auto& pfo : *PFOs) {met_PFO.push_back(pfo);}
 
@@ -305,12 +305,6 @@ namespace met {
 
     }
 
-
-
-
-
-
-    
     m_doJVT= (m_soft=="Clus" ? false : true);
     if (m_doORMet) {
       if( m_metmaker->rebuildJetMET("RefJet", (m_soft=="Clus" ? m_softclname : m_softtrkname), newMet,

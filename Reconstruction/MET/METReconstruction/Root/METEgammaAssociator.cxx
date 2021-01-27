@@ -369,14 +369,11 @@ namespace met {
       if (feLink.isValid()){
 	const xAOD::FlowElement* fe_init = *feLink;
 	for (const auto& fe : *constits.feCont){
-	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and FlowElement collections
+	  if (fe->index() == fe_init->index() && fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    const static SG::AuxElement::ConstAccessor<char> PVMatchedAcc("matchedToPV");
 	    if(  fe->isCharged() && PVMatchedAcc(*fe)&& ( !m_cleanChargedPFO || isGoodEoverP(static_cast<const xAOD::TrackParticle*>(fe->chargedObject(0))) ) ) {
 	      ATH_MSG_DEBUG("Accept cFE with pt " << fe->pt() << ", e " << fe->e() << ", eta " << fe->eta() << ", phi " << fe->phi() );
-	      if (!m_checkUnmatched) {felist.push_back(fe);} 
-	      else {
-	        felist.push_back(fe);
-	      }
+	      felist.push_back(fe);
 	    } 
 	  }
 	}
@@ -391,7 +388,7 @@ namespace met {
       if (feLink.isValid()){
         const xAOD::FlowElement* fe_init = *feLink;
 	for (const auto& fe : *constits.feCont){
-	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSParticleFlow collections
+	  if (fe->index() == fe_init->index() && !fe->isCharged()){ //index-based match between JetETmiss and CHSFlowElements collections
 	    double fe_e = fe->e();
 	    if( ( !fe->isCharged()&& fe->e() > FLT_MIN ) ){   
 	      sumE_fe += fe_e;

@@ -70,7 +70,7 @@ namespace met{
                          const met::METAssociator::ConstitHolder& constits,
                          std::map<const xAOD::IParticle*,MissingETBase::Types::constvec_t> &momenta) const final;   
 
-   StatusCode extractFEsFromLinks(const xAOD::TauJet* tau, //TODO
+   StatusCode extractFEsFromLinks(const xAOD::TauJet* tau,
     				    std::vector<const xAOD::IParticle*>& felist,
 				    const met::METAssociator::ConstitHolder& constits) const;
 

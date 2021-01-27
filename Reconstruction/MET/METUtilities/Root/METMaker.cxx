@@ -1139,6 +1139,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
+  // Fill OverlapRemovedCHSParticleFlowObjects
   StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
 			  xAOD::MissingETAssociationHelper* metHelper,
 			  const xAOD::PFOContainer **OR_pfos,
@@ -1149,6 +1150,7 @@ namespace met {
      *OR_pfos=retrieveOverlapRemovedConstituents(pfo,metHelper,retainMuon,muonCollection);   
     return StatusCode::SUCCESS;
   }
+
 
   const xAOD::PFOContainer* METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,  xAOD::MissingETAssociationHelper* helper, bool retainMuon, const xAOD::IParticleContainer* muonCollection, MissingETBase::UsageHandler::Policy p)
   {
