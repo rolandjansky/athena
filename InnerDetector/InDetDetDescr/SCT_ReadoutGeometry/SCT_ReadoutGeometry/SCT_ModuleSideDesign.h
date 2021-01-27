@@ -195,8 +195,8 @@ public:
     virtual int strip1Dim(int strip, int row) const;   // For SCT, returns strip. Else inverse of above two.
 
     void setMother(const SCT_ModuleSideDesign* mother);
-    const SCT_ModuleSideDesign * getMother();
-    std::set<const SCT_ModuleSideDesign *> getChildren();
+    const SCT_ModuleSideDesign * getMother() const;
+    std::set<const SCT_ModuleSideDesign *> getChildren() const;
     void addChildElement(int index, const SiDetectorElement * element);
 
 private:
@@ -299,16 +299,16 @@ inline int SCT_ModuleSideDesign::strip1Dim(int strip, int /*row not used */) con
     return strip;
 }
 
- inline const SCT_ModuleSideDesign * SCT_ModuleSideDesign::getMother(){
+ inline const SCT_ModuleSideDesign * SCT_ModuleSideDesign::getMother() const {
    return m_motherDesign;
  }
  
- inline std::set<const SCT_ModuleSideDesign *> SCT_ModuleSideDesign::getChildren(){
+ inline std::set<const SCT_ModuleSideDesign *> SCT_ModuleSideDesign::getChildren() const {
    return m_childDesigns;
  }
 
 
-  inline std::set<const SCT_ModuleSideDesign *> & SCT_ModuleSideDesign::getChildren_int(){
+  inline std::set<const SCT_ModuleSideDesign *> & SCT_ModuleSideDesign::getChildren_int() {
    return m_childDesigns;
  }
 

@@ -347,6 +347,11 @@ vector<double> endR;
 
      int split = 0;
      if(checkparm(typeName, "splitLevel", par, split)){
+       
+       	 //now the mother...
+
+       std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       
        for(int i = 0;i<split;i++){
 	 
 	 
@@ -369,18 +374,17 @@ vector<double> endR;
 	 //    Add to map for addSensor routine
 
 	 std::string splitName = typeName+"_"+std::to_string(i);
+	 
+	 design->setMother(motherDesign.get());
+	 
 	 m_geometryMap[splitName] = design.get();
-
 	 m_detectorManager->addDesign(std::move(design));
-
-	 //now the mother...
-
-	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
-       
-       m_geometryMap[typeName] = motherDesign.get();
-       m_detectorManager->addDesign(std::move(motherDesign));
 	
        }
+       //finally, declare to the manager (now becomes const)
+       m_motherMap[typeName] = motherDesign.get();
+       m_detectorManager->addMotherDesign(std::move(motherDesign));
+       
      } 
      
      else{
@@ -405,8 +409,9 @@ string StripGmxInterface::getstr(const string typeName, const string name, const
 
 }
 
-void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int /*sensitiveId*/, GeoVFullPhysVol *fpv) {
+void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index, pair<string, int> &extraIndex, int hitIdOfWafer, GeoVFullPhysVol *fpv) {
   
+
   map<string, int> updatedIndex;
   splitSensorId(index,extraIndex,updatedIndex);
   int splitIndex = extraIndex.second;
@@ -451,6 +456,21 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
 	" not found.\n" << endmsg;
       exit(999);
     }
+
+    const InDetDD::SCT_ModuleSideDesign * mother = design->getMother();
+    if(mother){
+      std::cout<<"got mother!!! "<<mother<<" : "<<m_motherMap[typeName]<<" : "<<typeName<<std::endl;
+      std::cout<<"number of children: "<<mother->getChildren().size()<<std::endl;
+
+      std::cout << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
+                                      " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) << 
+                                      " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) << 
+                                      " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
+	" side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << std::endl; 
+    }
+    else std::cout<<"no mother!!! "<<m_motherMap[typeName]<<" : "<<typeName<<std::endl;
+    
+    
     InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
     m_detectorManager->addDetectorElement(detector);
 
