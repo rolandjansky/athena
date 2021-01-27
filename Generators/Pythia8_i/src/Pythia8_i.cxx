@@ -72,6 +72,7 @@ m_athenaTool("IPythia8Custom")
   declareProperty("Beam1", m_beam1 = "PROTON");
   declareProperty("Beam2", m_beam2 = "PROTON");
   declareProperty("LHEFile", m_lheFile = "");
+  declareProperty("HDF5File", m_hdf5File = "");
   declareProperty("StoreLHE", m_storeLHE=false);
   declareProperty("CKKWLAcceptance", m_doCKKWLAcceptance = false);
   declareProperty("FxFxXS", m_doFxFxXS = false);
@@ -85,7 +86,6 @@ m_athenaTool("IPythia8Custom")
   declareProperty("ShowerWeightNames",m_showerWeightNames);
   declareProperty("CustomInterface",m_athenaTool);
 
-
   m_particleIDs["PROTON"]      = PROTON;
   m_particleIDs["ANTIPROTON"]  = ANTIPROTON;
   m_particleIDs["ELECTRON"]    = ELECTRON;
@@ -97,7 +97,6 @@ m_athenaTool("IPythia8Custom")
   m_particleIDs["LEAD"]        = LEAD;
 
   ATH_MSG_INFO("XML Path is " + xmlpath());
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,14 +112,14 @@ Pythia8_i::~Pythia8_i() {
   }
   #endif
 }
-
+////////////////////////////////////////////////////////////////////////////////
+#include "src/UserHooks/hdf5readHook.h"
 ////////////////////////////////////////////////////////////////////////////////
 StatusCode Pythia8_i::genInitialize() {
 
   ATH_MSG_DEBUG("Pythia8_i from genInitialize()");
 
   bool canInit = true;
-
   m_version = m_pythia.settings.parm("Pythia:versionNumber");
 
   Pythia8_i::pythia_stream =       "PYTHIA8_INIT";
@@ -191,7 +190,7 @@ StatusCode Pythia8_i::genInitialize() {
   }
 
 
-  // Now apply the settings from the JO
+  // Now apply the settings from the JO 
   foreach(const string &cmd, m_commands){
 
     if(cmd.compare("")==0) continue;
@@ -322,6 +321,16 @@ StatusCode Pythia8_i::genInitialize() {
     }
   }
   
+
+  if(m_hdf5File != ""){
+      ATH_MSG_INFO("Input file is: "+ m_hdf5File);
+      HighFive::File file(m_hdf5File, HighFive::File::ReadOnly);
+      int numEvents = m_pythia.settings.mode("Main:numberOfEvents");
+      size_t eventOffset = 0;
+      LHAupH5* LHAup = new LHAupH5( &file , eventOffset, 1000000, 1000000,  true, true);
+      m_pythia.setLHAupPtr(LHAup);
+      m_pythia.settings.mode("Beams:frameType", 5);
+  }
 
   StatusCode returnCode = SUCCESS;
   m_pythia.particleData.listXML(m_outputParticleDataFile.substr(0,m_outputParticleDataFile.find("xml"))+"orig.xml");
@@ -680,7 +689,6 @@ double Pythia8_i::pythiaVersion()const{
   return m_version;
 }
 
-////////////////////////////////////////////////////////////////////////
 string Pythia8_i::xmlpath(){
 
   char *cmtpath = getenv("CMTPATH");
