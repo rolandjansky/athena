@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -65,7 +65,7 @@ StatusCode VertexFinder::execute(DiTauCandidateData * data,
     // find default PrimaryVertex
     // see https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/VertexReselectionOnAOD
     // and https://svnweb.cern.ch/trac/atlasoff/browser/Tracking/TrkEvent/VxVertex/trunk/VxVertex/PrimaryVertexSelector.h
-    for (const auto & vtx : *vxContainer) {
+    for (const auto vtx : *vxContainer) {
         // the first and only primary vertex candidate is picked
         if ( vtx->vertexType() ==  xAOD::VxType::PriVtx) {
           vxPrimary = vtx;
