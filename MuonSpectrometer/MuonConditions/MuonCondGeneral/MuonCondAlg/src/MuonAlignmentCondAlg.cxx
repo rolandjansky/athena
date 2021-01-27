@@ -21,7 +21,8 @@
 
 MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, ISvcLocator* pSvcLocator) :
     AthAlgorithm(name, pSvcLocator),
-    m_condSvc{"CondSvc", name}
+    m_condSvc{"CondSvc", name},
+    m_newFormat2020(false)
 {
   m_geometryVersion = "";
   m_AsBuiltRequested = false;
@@ -34,6 +35,9 @@ MuonAlignmentCondAlg::MuonAlignmentCondAlg(const std::string& name, ISvcLocator*
   declareProperty("ILinesFromCondDB",m_ILinesFromDb=false);
   declareProperty("ALinesFile",      m_aLinesFile="");
   declareProperty("AsBuiltFile",     m_asBuiltFile="");
+
+  //new folder format 2020
+  declareProperty("NewFormat2020",m_newFormat2020);
 }
 
 StatusCode MuonAlignmentCondAlg::initialize(){
@@ -196,6 +200,169 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines() {
   return StatusCode::SUCCESS;
 }
 
+StatusCode MuonAlignmentCondAlg::loadAlignABLinesData(std::string folderName, std::string data, nlohmann::json& json, bool hasBLine){
+
+  // Check the first word to see if it is a correction
+  std::string type;
+  
+  //Parse corrections
+  std::string since_str;
+  std::string till_str;
+  std::string delimiter = "\n";
+ 
+  json = nlohmann::json::array();
+  std::vector<std::string> lines;
+  MuonCalib::MdtStringUtils::tokenize(data,lines,delimiter);
+  for (std::string blobline : lines) {
+
+    nlohmann::json line;
+    std::string delimiter = ":";
+    std::vector<std::string> tokens;
+    MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
+
+    //Check if tokens is not empty
+    if (tokens.empty()) {
+      ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
+      return  StatusCode::FAILURE;
+    }
+    type = tokens[0];
+    //Parse line
+    if (type.find("#")==0) {
+      //skip it
+      continue;
+    }
+    if (type.find("Corr")==0) {
+//#: Corr line is counter typ,  jff,  jzz, job,                         * Chamber information 
+//#:                       svalue,  zvalue, tvalue,  tsv,  tzv,  ttv,   * A lines 
+//#:                       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en   * B lines 
+//#:                       chamber                                      * Chamber name 
+//.... example
+//Corr: EMS  4   1  0     2.260     3.461    28.639 -0.002402 -0.002013  0.000482    -0.006    -0.013 -0.006000  0.000000  0.000000     0.026    -0.353  0.000000  0.070000  0.012000    -0.012    EMS1A08
+
+	  std::string delimiter = " ";
+	  std::vector<std::string> tokens;
+	  MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
+
+	  //Check if tokens has the right length
+	  // if (tokens.size() != 12 and tokens.size() != 23) {
+	  if (tokens.size() != 25) {
+	    ATH_MSG_FATAL("Invalid length in string retrieved from DB in folder " << folderName << " String length is " << tokens.size());
+	    return  StatusCode::FAILURE;
+	  }
+
+	  ATH_MSG_VERBOSE("Parsing Line = ");
+	  for (std::string token : tokens) ATH_MSG_VERBOSE( token << " | ");
+	  ATH_MSG_VERBOSE( " " );
+
+	  bool thisRowHasBLine = true;
+	  if (tokens.size()<15) {
+	    // only A-lines ..... old COOL blob convention for barrel 
+	    thisRowHasBLine = false;
+	    ATH_MSG_VERBOSE("(old COOL blob convention for barrel) skipping B-line decoding ");
+	  }
+
+	  // Start parsing
+	  int ival=1;
+	  
+	  // Station Component identification 
+	  int jff; 
+      int jzz;
+      int job;
+	  std::string stationType = tokens[ival++];	  
+      line["typ"] = stationType;
+	  std::string jff_str = tokens[ival++]; 
+	  sscanf(jff_str.c_str(),"%80d",&jff);
+      line["jff"] = jff;
+	  std::string jzz_str = tokens[ival++];
+	  sscanf(jzz_str.c_str(),"%80d",&jzz);
+      line["jzz"] = jzz;
+	  std::string job_str = tokens[ival++];
+	  sscanf(job_str.c_str(),"%80d",&job);
+      line["job"] = job;
+	  
+	  // A-line
+	  float s;
+	  float z;
+	  float t;
+	  float ths;
+      float thz;
+      float tht;	  
+      std::string s_str = tokens[ival++];
+      sscanf(s_str.c_str(),"%80f",&s);
+      line["svalue"] = s;
+      std::string z_str = tokens[ival++];
+      sscanf(z_str.c_str(),"%80f",&z);
+      line["zvalue"] = z;
+      std::string t_str = tokens[ival++];
+      sscanf(t_str.c_str(),"%80f",&t);
+      line["tvalue"] = t;
+      std::string ths_str = tokens[ival++];
+      sscanf(ths_str.c_str(),"%80f",&ths);
+      line["tsv"] = ths;
+      std::string thz_str = tokens[ival++];
+      sscanf(thz_str.c_str(),"%80f",&thz);
+      line["tzv"] = thz;
+      std::string tht_str = tokens[ival++];
+      sscanf(tht_str.c_str(),"%80f",&tht);
+      line["ttv"] = tht;
+   
+      // B-line
+      float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
+      float xAtlas, yAtlas;
+      std::string ChamberHwName="";
+        
+      if (hasBLine && thisRowHasBLine) {	      
+        std::string tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&bz);
+        line["bz"] = bz;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&bp);
+        line["bp"] = bp;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&bn);
+        line["bn"] = bn;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&sp);
+        line["sp"] = sp;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&sn);
+        line["sn"] = sn;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&tw);
+        line["tw"] = tw;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&pg);
+        line["pg"] = pg;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&tr);
+        line["tr"] = tr;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&eg);
+        line["eg"] = eg;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&ep);
+        line["ep"] = ep;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&en);	  
+        line["en"] = en;
+
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&xAtlas);	  
+        line["xAtlas"] = xAtlas;
+        tmp_str = tokens[ival++];
+        sscanf(tmp_str.c_str(),"%80f",&yAtlas);	  
+        line["yAtlas"] = yAtlas;
+    
+        // ChamberName (hardware convention)
+        line["hwElement"] = tokens[ival++];
+      }
+    }
+    if(line.size()==0) continue;
+    json.push_back(line);
+  }
+  return StatusCode::SUCCESS;
+}
+
 StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 						ALineMapContainer* writeALineCdo,
 						BLineMapContainer* writeBLineCdo,
@@ -216,7 +383,7 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
   EventIDRange rangeALinesTemp;
   EventIDRange rangeBLinesTemp;
   const CondAttrListCollection* readCdo; 
-  if (folderName == "/MUONALIGN/MDT/BARREL") {
+  if (folderName.find("/MUONALIGN/MDT/BARREL") != std::string::npos) {
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtBarrelKey};
     readCdo = *readHandle; 
@@ -234,10 +401,10 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
       return StatusCode::FAILURE;
     } 
     
-    ATH_MSG_INFO("Size of /MUONALIGN/MDT/BARREL CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of /MUONALIGN/MDT/BARREL input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
+    ATH_MSG_INFO("Size of "<<folderName<<" CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of "<<folderName<<" input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
 
-  } else if (folderName == "/MUONALIGN/MDT/ENDCAP/SIDEA") {
+  } else if (folderName.find("/MUONALIGN/MDT/ENDCAP/SIDEA") != std::string::npos) {
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtEndcapSideAKey};
     readCdo = *readHandle; 
@@ -255,10 +422,10 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
       return StatusCode::FAILURE;
     } 
     
-    ATH_MSG_INFO("Size of /MUONALIGN/MDT/ENDCAP/SIDEA CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of /MUONALIGN/MDT/ENDCAP/SIDEA input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
+    ATH_MSG_INFO("Size of "<<folderName<<" CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of "<<folderName<<" input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
 
-  } else if (folderName == "/MUONALIGN/MDT/ENDCAP/SIDEC") {
+  } else if (folderName.find("/MUONALIGN/MDT/ENDCAP/SIDEC") != std::string::npos) {
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readMdtEndcapSideCKey};
     readCdo = *readHandle; 
@@ -276,10 +443,10 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
       return StatusCode::FAILURE;
     } 
     
-    ATH_MSG_INFO("Size of /MUONALIGN/MDT/ENDCAP/SIDEC CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of /MUONALIGN/MDT/ENDCAP/SIDEC input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
+    ATH_MSG_INFO("Size of "<<folderName<<" CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of "<<folderName<<" input is, ALines: " << rangeALinesTemp << " BLines: " << rangeBLinesTemp);
 
-  } else if (folderName == "/MUONALIGN/TGC/SIDEA") {
+  } else if (folderName.find("/MUONALIGN/TGC/SIDEA") != std::string::npos) {
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readTgcSideAKey};
     readCdo = *readHandle; 
@@ -295,10 +462,10 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
 
     // !!!!!!!! NO BLINES FOR TGCs !!!!!!!!!!!!!!
     
-    ATH_MSG_INFO("Size of /MUONALIGN/TGC/SIDEA CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of /MUONALIGN/TGC/SIDEA input is, ALines: " << rangeALinesTemp);
+    ATH_MSG_INFO("Size of "<<folderName<<" CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of "<<folderName<<" input is, ALines: " << rangeALinesTemp);
 
-  } else if (folderName == "/MUONALIGN/TGC/SIDEC") {
+  } else if (folderName.find("/MUONALIGN/TGC/SIDEC") != std::string::npos) {
 
     SG::ReadCondHandle<CondAttrListCollection> readHandle{m_readTgcSideCKey};
     readCdo = *readHandle; 
@@ -313,8 +480,8 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
     } 
     // !!!!!!!! NO BLINES FOR TGCs !!!!!!!!!!!!!!
     
-    ATH_MSG_INFO("Size of /MUONALIGN/TGC/SIDEC CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
-    ATH_MSG_INFO("Range of /MUONALIGN/TGC/SIDEC input is, ALines: " << rangeALinesTemp);
+    ATH_MSG_INFO("Size of "<<folderName<<" CondAttrListCollection " << readHandle.fullKey() << " readCdo->size()= " << readCdo->size());
+    ATH_MSG_INFO("Range of "<<folderName<<" input is, ALines: " << rangeALinesTemp);
 
   }
 
@@ -349,239 +516,155 @@ StatusCode MuonAlignmentCondAlg::loadAlignABLines(std::string folderName,
   CondAttrListCollection::const_iterator itr;
   for (itr = readCdo->begin(); itr != readCdo->end(); ++itr) {
     const coral::AttributeList& atr=itr->second;
+
     std::string data;
-    data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
-    
-    ATH_MSG_DEBUG("Data load is " << data << " FINISHED HERE ");
-  
-    // Check the first word to see if it is a correction
-    std::string type;
-    
-    //Parse corrections
-    std::string since_str;
-    std::string till_str;
-    std::string delimiter = "\n";
-      
-    
-    std::vector<std::string> lines;
-    MuonCalib::MdtStringUtils::tokenize(data,lines,delimiter);
-    for (std::string blobline : lines) {
+    if(atr["data"].specification().type() == typeid(coral::Blob)){
+      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+        ATH_MSG_FATAL( "Cannot uncompress buffer" );
+        return StatusCode::FAILURE;
+      }
+      if(!m_decompression_buffer){
+        ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+        return StatusCode::FAILURE;
+      }
+      data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+    }
+    else {
+      data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+    }
+    //nlohmann::json lines = nlohmann::json::array();
+    nlohmann::json lines;
+
+    // new format -----------------------------------
+    if(m_newFormat2020){
+      nlohmann::json j = nlohmann::json::parse(data);
+      lines = j["corrections"];
+    }
+
+    // old format -----------------------------------
+    else{
+      if(loadAlignABLinesData(folderName, data, lines, hasBLine).isFailure()) 
+        return StatusCode::FAILURE;
+    }
+
+    // loop over corrections ------------------------
+	for(auto& corr : lines.items()){
+
       ++nLines;
+      nlohmann::json line = corr.value();
 
-      std::string delimiter = ":";
-      std::vector<std::string> tokens;
-      MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-      //Check if tokens is not empty
-      if (tokens.empty()) {
-	ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
-	return  StatusCode::FAILURE;
+	  // Station Component identification 
+	  int jff = line["jff"];
+      int jzz = line["jzz"];
+      int job = line["job"];
+	  std::string stationType = line["typ"];
+
+	  // A-line
+	  float s   = line["svalue"];
+	  float z   = line["zvalue"];
+	  float t   = line["tvalue"];
+	  float ths = line["tsv"];
+	  float thz = line["tzv"];
+	  float tht = line["ttv"];
+
+	  // B-line
+      bool thisRowHasBLine = false;
+	  float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
+	  std::string ChamberHwName = "";
+      if(line.find("bz")!=line.end()){
+	    bz = line["bz"]; 
+        bp = line["bp"]; 
+        bn = line["bn"]; 
+        sp = line["sp"]; 
+        sn = line["sn"]; 
+        tw = line["tw"]; 
+        pg = line["pg"]; 
+        tr = line["tr"]; 
+        eg = line["eg"]; 
+        ep = line["ep"]; 
+        en = line["en"]; 
+	    ChamberHwName = line["hwElement"];
+        thisRowHasBLine = true;
       }
-      type = tokens[0];
-      //Parse line
-      if (type.find("#")==0) {
-	//skip it
-	continue;
-      }
-
-      if (type.find("Header")==0) {
-	std::string delimiter = "|";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-	since_str = tokens[1];
-	till_str = tokens[2];
-      }
-	
-      if (type.find("IOV")==0) {
-	std::string delimiter = " ";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-	int ival = 1;
-	long int iovThisBlob=0;
-	
-	std::string str_iovThisBlob = tokens[ival];
-	sscanf(str_iovThisBlob.c_str(),"%80ld",&iovThisBlob);
-	ATH_MSG_INFO("Data read from folder " << folderName <<
-		     " have IoV = " << iovThisBlob);
-      }
-	
-      if (type.find("Corr")==0) {
-//#: Corr line is counter typ,  jff,  jzz, job,                         * Chamber information 
-//#:                       svalue,  zvalue, tvalue,  tsv,  tzv,  ttv,   * A lines 
-//#:                       bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en   * B lines 
-//#:                       chamber                                      * Chamber name 
-//.... example
-//Corr: EMS  4   1  0     2.260     3.461    28.639 -0.002402 -0.002013  0.000482    -0.006    -0.013 -0.006000  0.000000  0.000000     0.026    -0.353  0.000000  0.070000  0.012000    -0.012    EMS1A08
-
-	std::string delimiter = " ";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-
-	//Check if tokens has the right length
-	// if (tokens.size() != 12 and tokens.size() != 23) {
-	if (tokens.size() != 25) {
-	  ATH_MSG_FATAL("Invalid length in string retrieved from DB in folder " << folderName << " String length is " << tokens.size());
-	  return  StatusCode::FAILURE;
-	}
-
-	ATH_MSG_VERBOSE("Parsing Line = ");
-	for (std::string token : tokens) ATH_MSG_VERBOSE( token << " | ");
-	ATH_MSG_VERBOSE( " " );
-
-	bool thisRowHasBLine = true;
-	if (tokens.size()<15) {
-	  // only A-lines ..... old COOL blob convention for barrel 
-	  thisRowHasBLine = false;
-	  ATH_MSG_VERBOSE("(old COOL blob convention for barrel) skipping B-line decoding ");
-	}
-
-	// Start parsing
-	int ival=1;
-	
-	// Station Component identification 
-	int jff; 
-	int jzz;
-	int job;
-	std::string stationType = tokens[ival++];	  
-	std::string jff_str = tokens[ival++]; 
-	sscanf(jff_str.c_str(),"%80d",&jff);
-	std::string jzz_str = tokens[ival++];
-	sscanf(jzz_str.c_str(),"%80d",&jzz);
-	std::string job_str = tokens[ival++];
-	sscanf(job_str.c_str(),"%80d",&job);
-	
-	// A-line
-	float s;
-	float z;
-	float t;
-	float ths;
-	float thz;
-	float tht;	  
-	std::string s_str = tokens[ival++];
-	sscanf(s_str.c_str(),"%80f",&s);
-	std::string z_str = tokens[ival++];
-	sscanf(z_str.c_str(),"%80f",&z);
-	std::string t_str = tokens[ival++];
-	sscanf(t_str.c_str(),"%80f",&t);
-	std::string ths_str = tokens[ival++];
-	sscanf(ths_str.c_str(),"%80f",&ths);
-	std::string thz_str = tokens[ival++];
-	sscanf(thz_str.c_str(),"%80f",&thz);
-	std::string tht_str = tokens[ival++];
-	sscanf(tht_str.c_str(),"%80f",&tht);
-
-	// B-line
-	float bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en;
-	std::string ChamberHwName="";
 	  
-	if (hasBLine && thisRowHasBLine) {	      
-	  std::string tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&bz);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&bp);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&bn);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&sp);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&sn);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&tw);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&pg);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&tr);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&eg);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&ep);
-	  tmp_str = tokens[ival++];
-	  sscanf(tmp_str.c_str(),"%80f",&en);	  
-
-	  // ChamberName (hardware convention)
-	  ChamberHwName = tokens[ival++];
-	}
-	  
-	ATH_MSG_VERBOSE("Station type "  << stationType);
-	ATH_MSG_VERBOSE("jff / jzz / job "  << jff << " / " << jzz << " / " << job);
-	if (hasBLine) {
-	  ATH_MSG_VERBOSE(" HardwareChamberName " << ChamberHwName);
-	}
-	else ATH_MSG_VERBOSE(" ");
-	ATH_MSG_VERBOSE("A-line: s,z,t "  << s << " " << z << " " << t);
-	ATH_MSG_VERBOSE(" ts,tz,tt "  << ths << " " << thz << " " << tht);
-	if (hasBLine) {
-	  if (thisRowHasBLine) {
-	    ATH_MSG_VERBOSE("B-line:  bz,bp,bn " << bz << " " << bp << " " << bn);
-	    ATH_MSG_VERBOSE(" sp,sn " << sp << " " << sn << " tw,pg,tr " << tw << " " << pg << " " << tr
-			    << " eg,ep,en " << eg << " " << ep << " " << en);
+	  ATH_MSG_VERBOSE("Station type "  << stationType);
+	  ATH_MSG_VERBOSE("jff / jzz / job "  << jff << " / " << jzz << " / " << job);
+	  if (hasBLine) {
+	    ATH_MSG_VERBOSE(" HardwareChamberName " << ChamberHwName);
 	  }
-	  else ATH_MSG_VERBOSE("No B-line found");
-	} 
-	  
-	int stationName = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationType);
-	Identifier id;
-	ATH_MSG_VERBOSE("stationName  " << stationName);
-	// if (stationType.substr(0,1)=="T") {
-	if (stationType.at(0) == 'T') {
-	  // tgc case
-	  int stPhi = MuonGM::stationPhiTGC(stationType, jff, jzz, m_geometryVersion); // !!!!! The stationPhiTGC implementation in this package is NOT used !!!!!
-	  int stEta = 1;
-	  if (jzz<0) stEta = -1;			 
-	  if (job != 0) {
-	    // this should become the default now 
-	    stEta=job;
-	    if (jzz<0) stEta = -stEta;
+	  else ATH_MSG_VERBOSE(" ");
+	  ATH_MSG_VERBOSE("A-line: s,z,t "  << s << " " << z << " " << t);
+	  ATH_MSG_VERBOSE(" ts,tz,tt "  << ths << " " << thz << " " << tht);
+	  if (hasBLine) {
+	    if (thisRowHasBLine) {
+	      ATH_MSG_VERBOSE("B-line:  bz,bp,bn " << bz << " " << bp << " " << bn);
+	      ATH_MSG_VERBOSE(" sp,sn " << sp << " " << sn << " tw,pg,tr " << tw << " " << pg << " " << tr
+	  		    << " eg,ep,en " << eg << " " << ep << " " << en);
+	    }
+	    else ATH_MSG_VERBOSE("No B-line found");
+	  } 
+	    
+	  int stationName = m_idHelperSvc->mdtIdHelper().stationNameIndex(stationType);
+	  Identifier id;
+	  ATH_MSG_VERBOSE("stationName  " << stationName);
+	  if (stationType.at(0) == 'T') {
+	    // tgc case
+	    int stPhi = MuonGM::stationPhiTGC(stationType, jff, jzz, m_geometryVersion); // !!!!! The stationPhiTGC implementation in this package is NOT used !!!!!
+	    int stEta = 1;
+	    if (jzz<0) stEta = -1;			 
+	    if (job != 0) {
+	      // this should become the default now 
+	      stEta=job;
+	      if (jzz<0) stEta = -stEta;
+	    }
+	    id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stEta, stPhi);
+	    ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
 	  }
-	  id = m_idHelperSvc->tgcIdHelper().elementID(stationName, stEta, stPhi);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->tgcIdHelper().show_to_string(id));
-	}
-	else if (stationType.substr(0,1)=="C") {
-	  // csc case
-	  id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
-	}
-	else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) {
-	  // rpc case
-	  id = m_idHelperSvc->rpcIdHelper().elementID(stationName, jzz, jff, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->rpcIdHelper().show_to_string(id));
-	}
-	else {
-	  id = m_idHelperSvc->mdtIdHelper().elementID(stationName, jzz, jff);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->mdtIdHelper().show_to_string(id));
-	}
-          
-
-	// new Aline
-	++nDecodedLines;
-	++nNewDecodedALines;
-	ALinePar newALine;
-	newALine.setAmdbId(stationType, jff, jzz, job);
-	newALine.setParameters(s,z,t,ths,thz,tht);
-	newALine.isNew(true);
-        if (!writeALineCdo->insert_or_assign (id, std::move(newALine)).second) {
-	  ATH_MSG_WARNING("More than one (A-line) entry in folder " << folderName << 
-			  " for  " << stationType <<
-			  " at Jzz/Jff " << jzz << "/" << jff <<
-			  " --- keep the latest one");
-	  --nNewDecodedALines;
-	}
-
-	if (hasBLine && thisRowHasBLine) {
-	  // new Bline
-	  ++nNewDecodedBLines;
-	  BLinePar newBLine;
-	  newBLine.setAmdbId(stationType, jff, jzz, job);
-	  newBLine.setParameters(bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
-	  newBLine.isNew(true);
-          if (!writeBLineCdo->insert_or_assign (id, std::move(newBLine)).second) {
-	    ATH_MSG_WARNING("More than one (B-line) entry in folder " << folderName <<
-			    " for  " << stationType <<
-			    " at Jzz/Jff " << jzz << "/" << jff <<
-			    " --- keep the latest one");
-	    --nNewDecodedBLines;
+	  else if (stationType.substr(0,1)=="C") {
+	    // csc case
+	    id = m_idHelperSvc->cscIdHelper().elementID(stationName, jzz, jff);
+	    ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
 	  }
-	}
-      }
+	  else if (stationType.substr(0,3)=="BML" && abs(jzz)==7) {
+	    // rpc case
+	    id = m_idHelperSvc->rpcIdHelper().elementID(stationName, jzz, jff, 1);
+	    ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->rpcIdHelper().show_to_string(id));
+	  }
+	  else {
+	    id = m_idHelperSvc->mdtIdHelper().elementID(stationName, jzz, jff);
+	    ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->mdtIdHelper().show_to_string(id));
+	  }
+
+	  // new Aline
+	  ++nDecodedLines;
+	  ++nNewDecodedALines;
+	  ALinePar newALine;
+	  newALine.setAmdbId(stationType, jff, jzz, job);
+	  newALine.setParameters(s,z,t,ths,thz,tht);
+	  newALine.isNew(true);
+      if (!writeALineCdo->insert_or_assign (id, std::move(newALine)).second) {
+	    ATH_MSG_WARNING("More than one (A-line) entry in folder " << folderName << 
+	  		  " for  " << stationType <<
+	  		  " at Jzz/Jff " << jzz << "/" << jff <<
+	  		  " --- keep the latest one");
+	    --nNewDecodedALines;
+	  }
+
+	  if (hasBLine && thisRowHasBLine) {
+	    // new Bline
+	    ++nNewDecodedBLines;
+	    BLinePar newBLine;
+	    newBLine.setAmdbId(stationType, jff, jzz, job);
+	    newBLine.setParameters(bz, bp, bn, sp, sn, tw, pg, tr, eg, ep, en);
+	    newBLine.isNew(true);
+        if (!writeBLineCdo->insert_or_assign (id, std::move(newBLine)).second) {
+	      ATH_MSG_WARNING("More than one (B-line) entry in folder " << folderName <<
+	  		    " for  " << stationType <<
+	  		    " at Jzz/Jff " << jzz << "/" << jff <<
+	  		    " --- keep the latest one");
+	      --nNewDecodedBLines;
+	    }
+	  }
     }
   }
   ATH_MSG_DEBUG("In folder < " << folderName << 
@@ -654,152 +737,91 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
   CondAttrListCollection::const_iterator itr;
   for (itr = readCscILinesCdo->begin(); itr != readCscILinesCdo->end(); ++itr) {
     const coral::AttributeList& atr=itr->second;
+
     std::string data;
-    data=*(static_cast<const std::string*>((atr["data"]).addressOfData()));
-    
+    if(atr["data"].specification().type() == typeid(coral::Blob)){
+      if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+        ATH_MSG_FATAL( "Cannot uncompress buffer" );
+        return StatusCode::FAILURE;
+      }
+      if(!m_decompression_buffer){
+        ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+        return StatusCode::FAILURE;
+      }
+      data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+    }
+    else {
+      data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+    }
     ATH_MSG_DEBUG("Data load is " << data << " FINISHED HERE ");
-    
-    // Check the first word to see if it is a correction
-    std::string type;
-    
-    //Parse corrections
-    std::string since_str;
-    std::string till_str;
-    std::string delimiter = "\n";
-      
-    
-    std::vector<std::string> lines;
-    MuonCalib::MdtStringUtils::tokenize(data,lines,delimiter);
-    for (std::string blobline : lines) {
+    nlohmann::json lines = nlohmann::json::array();
+
+    // new format -----------------------------------
+    if(m_newFormat2020){
+      nlohmann::json j = nlohmann::json::parse(data);
+      lines = j["corrections"];
+    }
+
+    // old format -----------------------------------
+    else{
+      if(loadAlignILinesData(folderName, data, lines).isFailure()) 
+        return StatusCode::FAILURE;
+    }
+
+    // loop over corrections ------------------------
+	for(auto& corr : lines.items()){
+
       ++nLines;
-      
-      std::string delimiter = ":";
-      std::vector<std::string> tokens;
-      MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-      //Check if tokens is not empty
-      if (tokens.empty()) {
-	ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
-	return  StatusCode::FAILURE;
-      }
-      type = tokens[0];
-      //Parse line
-      if (type.find("#")==0) {
-	//skip it
-	continue;
-      }
+	  nlohmann::json line = corr.value();
 
-      if (type.find("Header")==0) {
-	std::string delimiter = "|";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-	since_str = tokens[1];
-	till_str = tokens[2];
-      }
-	
-      if (type.find("IOV")==0) {
-	std::string delimiter = " ";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-	int ival = 1;
-	long int iovThisBlob=0;
+	  // Station Component identification 
+	  int jff  = line["jff"];
+      int jzz  = line["jzz"];
+      int job  = line["job"];
+      int jlay = line["jlay"];
+	  std::string stationType = line["typ"];
 
-	std::string str_iovThisBlob = tokens[ival];
-	sscanf(str_iovThisBlob.c_str(),"%80ld",&iovThisBlob);
-	ATH_MSG_INFO("Data read from folder " << folderName <<
-		     " have IoV = " << iovThisBlob);
-      }
-	
-      if (type.find("Corr")==0) {
-        //# Amdb like clob for ilines using geometry tag ISZT-R06-02 
-        //# ISZT_DATA_ID VERS TYP JFF JZZ JOB JLAY TRAS TRAZ TRAT ROTS ROTZ ROTT
-        //
-        //.... example
-        //Corr:  CSL 1 -1 3 1 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+	  // I-line
+	  float tras = line["tras"];
+	  float traz = line["traz"];
+	  float trat = line["trat"];
+	  float rots = line["rots"];
+	  float rotz = line["rotz"];
+	  float rott = line["rott"];
 
-	std::string delimiter = " ";
-	std::vector<std::string> tokens;
-	MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
-	if (tokens.size() != 12) {
-	  ATH_MSG_FATAL("Invalid length in string retrieved from DB in folder " << folderName << " String length is " << tokens.size());
-	  return  StatusCode::FAILURE;
-	}
-
-	ATH_MSG_VERBOSE("Parsing Line = ");
-	for (std::string token : tokens) ATH_MSG_VERBOSE( token << " | ");
-	ATH_MSG_VERBOSE( " " );
-
-	// Start parsing
-	int ival=1;
-	
-	// Station Component identification 
-	int jff; 
-	int jzz;
-	int job;
-	int jlay;
-	std::string stationType = tokens[ival++];	  
-	std::string jff_str = tokens[ival++]; 
-	sscanf(jff_str.c_str(),"%80d",&jff);
-	std::string jzz_str = tokens[ival++];
-	sscanf(jzz_str.c_str(),"%80d",&jzz);
-	std::string job_str = tokens[ival++];
-	sscanf(job_str.c_str(),"%80d",&job);
-	std::string jlay_str = tokens[ival++];
-	sscanf(jlay_str.c_str(),"%80d",&jlay);
-	
-	// I-line
-	float tras;
-	float traz;
-	float trat;
-	float rots;
-	float rotz;
-	float rott;	
-	std::string tras_str = tokens[ival++];
-	sscanf(tras_str.c_str(),"%80f",&tras);
-	std::string traz_str = tokens[ival++];
-	sscanf(traz_str.c_str(),"%80f",&traz);
-	std::string trat_str = tokens[ival++];
-	sscanf(trat_str.c_str(),"%80f",&trat);
-	std::string rots_str = tokens[ival++];
-	sscanf(rots_str.c_str(),"%80f",&rots);
-	std::string rotz_str = tokens[ival++];
-	sscanf(rotz_str.c_str(),"%80f",&rotz);
-	std::string rott_str = tokens[ival++];
-	sscanf(rott_str.c_str(),"%80f",&rott);
-
-	ATH_MSG_VERBOSE("Station type "  << stationType);
-	ATH_MSG_VERBOSE("jff / jzz / job / jlay "  <<jff <<" / "<< jzz<<" / "<< job<<" / "<<jlay);
-	ATH_MSG_VERBOSE("I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat);
-	ATH_MSG_VERBOSE(" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott);
-	  
-	int stationName = m_idHelperSvc->cscIdHelper().stationNameIndex(stationType);
-	Identifier id;
-	ATH_MSG_VERBOSE("stationName  " << stationName);
-	// if (stationType.substr(0,1)=="C") {
-	if (stationType.at(0) == 'C') {
-	  // csc case
-	  int chamberLayer = 2;
-	  if (job != 3) ATH_MSG_WARNING("job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2");
-	  id = m_idHelperSvc->cscIdHelper().channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
-	  ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
-	}
-	else {
-	  ATH_MSG_ERROR("There is a non CSC chamber in the list of CSC internal alignment parameters.");
-	}
-	// new Iline
-	++nDecodedLines;
-	++nNewDecodedILines;
-	CscInternalAlignmentPar newILine;
-	newILine.setAmdbId(stationType, jff, jzz, job, jlay);
-	newILine.setParameters(tras,traz,trat,rots,rotz,rott);
-	newILine.isNew(true);
-        if (!writeCdo->insert_or_assign (id, newILine).second) {
-	  ATH_MSG_WARNING("More than one (I-line) entry in folder " << folderName << 
-			  " for  " << stationType <<
-			  " at Jzz/Jff/Jlay " << jzz << "/" << jff << "/" << jlay <<
-			  " --- keep the latest one");
-	  --nNewDecodedILines;
-	}
-      }
+	  ATH_MSG_VERBOSE("Station type "  << stationType);
+	  ATH_MSG_VERBOSE("jff / jzz / job / jlay "  <<jff <<" / "<< jzz<<" / "<< job<<" / "<<jlay);
+	  ATH_MSG_VERBOSE("I-line: tras,traz,trat "  << tras <<" "<< traz <<" "<< trat);
+	  ATH_MSG_VERBOSE(" rots,rotz,rott "  << rots <<" "<< rotz <<" "<< rott);
+	    
+	  int stationName = m_idHelperSvc->cscIdHelper().stationNameIndex(stationType);
+	  Identifier id;
+	  ATH_MSG_VERBOSE("stationName  " << stationName);
+	  // if (stationType.substr(0,1)=="C") {
+	  if (stationType.at(0) == 'C') {
+	    // csc case
+	    int chamberLayer = 2;
+	    if (job != 3) ATH_MSG_WARNING("job = "<<job<<" is not 3 => chamberLayer should be 1 - not existing ! setting 2");
+	    id = m_idHelperSvc->cscIdHelper().channelID(stationType, jzz, jff, chamberLayer, jlay, 0, 1);
+	    ATH_MSG_VERBOSE("identifier being assigned is " << m_idHelperSvc->cscIdHelper().show_to_string(id));
+	  }
+	  else {
+	    ATH_MSG_ERROR("There is a non CSC chamber in the list of CSC internal alignment parameters.");
+	  }
+	  // new Iline
+	  ++nDecodedLines;
+	  ++nNewDecodedILines;
+	  CscInternalAlignmentPar newILine;
+	  newILine.setAmdbId(stationType, jff, jzz, job, jlay);
+	  newILine.setParameters(tras,traz,trat,rots,rotz,rott);
+	  newILine.isNew(true);
+      if (!writeCdo->insert_or_assign (id, newILine).second) {
+	    ATH_MSG_WARNING("More than one (I-line) entry in folder " << folderName << 
+	  		  " for  " << stationType <<
+	  		  " at Jzz/Jff/Jlay " << jzz << "/" << jff << "/" << jlay <<
+	  		  " --- keep the latest one");
+	    --nNewDecodedILines;
+	  }
     }
   }
   ATH_MSG_DEBUG("In folder <" << folderName << "> # lines/decodedLines/newDecodedILines= "
@@ -818,7 +840,111 @@ StatusCode MuonAlignmentCondAlg::loadAlignILines(std::string folderName)
   
   ATH_MSG_VERBOSE("Collection CondAttrListCollection CLID " << readCscILinesCdo->clID());
    
-  return  StatusCode::SUCCESS;; 
+  return  StatusCode::SUCCESS;
+}
+
+StatusCode MuonAlignmentCondAlg::loadAlignILinesData(std::string folderName, std::string data, nlohmann::json& json){
+        
+  // Check the first word to see if it is a correction
+  std::string type;
+  
+  //Parse corrections
+  std::string since_str;
+  std::string till_str;
+  std::string delimiter = "\n";
+ 
+  json = nlohmann::json::array();   
+  std::vector<std::string> lines;
+  MuonCalib::MdtStringUtils::tokenize(data,lines,delimiter);
+  for (std::string blobline : lines) {
+ 
+    nlohmann::json line;
+    std::string delimiter = ":";
+    std::vector<std::string> tokens;
+    MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
+    //Check if tokens is not empty
+    if (tokens.empty()) {
+      ATH_MSG_FATAL("Empty string retrieved from DB in folder " << folderName);
+      return  StatusCode::FAILURE;
+    }
+    type = tokens[0];
+    //Parse line
+    if (type.find("#")==0) {
+      //skip it
+      continue;
+    }
+    if (type.find("Corr")==0) {
+      //# Amdb like clob for ilines using geometry tag ISZT-R06-02 
+      //# ISZT_DATA_ID VERS TYP JFF JZZ JOB JLAY TRAS TRAZ TRAT ROTS ROTZ ROTT
+      //
+      //.... example
+      //Corr:  CSL 1 -1 3 1 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
+
+      std::string delimiter = " ";
+      std::vector<std::string> tokens;
+      MuonCalib::MdtStringUtils::tokenize(blobline,tokens,delimiter);
+      if (tokens.size() != 12) {
+        ATH_MSG_FATAL("Invalid length in string retrieved from DB in folder " << folderName << " String length is " << tokens.size());
+        return  StatusCode::FAILURE;
+      }
+      
+      ATH_MSG_VERBOSE("Parsing Line = ");
+      for (std::string token : tokens) ATH_MSG_VERBOSE( token << " | ");
+      ATH_MSG_VERBOSE( " " );
+      
+      // Start parsing
+      int ival=1;
+      
+      // Station Component identification 
+      int jff; 
+      int jzz;
+      int job;
+      int jlay;
+      std::string stationType = tokens[ival++];	  
+      line["typ" ] = stationType;
+      std::string jff_str = tokens[ival++]; 
+      sscanf(jff_str.c_str(),"%80d",&jff);
+      line["jff" ] = jff;
+      std::string jzz_str = tokens[ival++];
+      sscanf(jzz_str.c_str(),"%80d",&jzz);
+      line["jzz" ] = jzz;
+      std::string job_str = tokens[ival++];
+      sscanf(job_str.c_str(),"%80d",&job);
+      line["job" ] = job;
+      std::string jlay_str = tokens[ival++];
+      sscanf(jlay_str.c_str(),"%80d",&jlay);
+      line["jlay"] = jlay;
+      
+      // I-line
+      float tras;
+      float traz;
+      float trat;
+      float rots;
+      float rotz;
+      float rott;	
+      std::string tras_str = tokens[ival++];
+      sscanf(tras_str.c_str(),"%80f",&tras);
+      line["tras"] = tras;
+      std::string traz_str = tokens[ival++];
+      sscanf(traz_str.c_str(),"%80f",&traz);
+      line["traz"] = traz;
+      std::string trat_str = tokens[ival++];
+      sscanf(trat_str.c_str(),"%80f",&trat);
+      line["trat"] = trat;
+      std::string rots_str = tokens[ival++];
+	  sscanf(rots_str.c_str(),"%80f",&rots);
+      line["rots"] = rots;
+	  std::string rotz_str = tokens[ival++];
+	  sscanf(rotz_str.c_str(),"%80f",&rotz);
+      line["rotz"] = rotz;
+	  std::string rott_str = tokens[ival++];
+	  sscanf(rott_str.c_str(),"%80f",&rott);
+      line["rott"] = rott;
+    }
+    if(line.size()==0) continue;
+    json.push_back(line);
+  }
+  return StatusCode::SUCCESS;
 }
 
 StatusCode MuonAlignmentCondAlg::loadAlignAsBuilt(std::string folderName) 
@@ -972,7 +1098,6 @@ void MuonAlignmentCondAlg::dumpALines(const std::string& folderName,
 		 << ALineId);
 
   }
-  //std::cout<<std::endl;
 }
 
 void MuonAlignmentCondAlg::dumpBLines(const std::string& folderName,
@@ -1037,7 +1162,6 @@ void MuonAlignmentCondAlg::dumpILines(const std::string& folderName,
 		  << std::setw(6) << std::setprecision(6) <<  rott  <<"\t"
 		  << ILineId);
   }
-  //std::cout<<std::endl;
 }
 
 void MuonAlignmentCondAlg::setALinesFromAscii(ALineMapContainer* writeALineCdo) const
@@ -1129,4 +1253,38 @@ void MuonAlignmentCondAlg::setAsBuiltFromAscii(MdtAsBuiltMapContainer* writeCdo)
   ATH_MSG_INFO( "Parsed AsBuilt parameters: " << count  );
 
   return;
+}
+
+inline bool MuonAlignmentCondAlg::uncompressInMyBuffer(const coral::Blob &blob) {
+  if (!m_decompression_buffer) {
+    m_buffer_length= 50000;
+    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
+  }
+  uLongf actual_length;	
+  while(1) {
+    actual_length=m_buffer_length;
+    int res(uncompress(m_decompression_buffer.get(), &actual_length, reinterpret_cast<const Bytef *>(blob.startingAddress()), static_cast<uLongf>(blob.size())));
+    if (res == Z_OK) break;
+    //double buffer if it was not big enough
+    if( res == Z_BUF_ERROR) {
+      m_buffer_length*=2;
+      ATH_MSG_VERBOSE(  "Increasing buffer to " << m_buffer_length);
+      m_decompression_buffer.reset();
+      m_decompression_buffer.reset(new Bytef[m_buffer_length]);
+      continue;
+    }
+    //something else is wrong
+    return false;
+  }
+  //append 0 to terminate string, increase buffer if it is not big enough
+  if (actual_length >= m_buffer_length)	{
+    std::unique_ptr<Bytef[]> old_buffer(std::move(m_decompression_buffer));
+    size_t old_length=m_buffer_length;
+    m_buffer_length*=2;
+    m_decompression_buffer.reset(new Bytef[m_buffer_length]);
+    memcpy(m_decompression_buffer.get(), old_buffer.get(), old_length);
+    old_buffer.reset();
+  }
+  m_decompression_buffer.get()[actual_length]=0;
+  return true;
 }

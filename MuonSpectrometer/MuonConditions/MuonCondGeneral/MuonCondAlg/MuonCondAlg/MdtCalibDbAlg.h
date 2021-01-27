@@ -26,12 +26,14 @@
 #include "CLHEP/Random/RandomEngine.h"
 #include "AthenaKernel/IAthRNGSvc.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
 #include "MdtCalibSvc/MdtCalibrationRegionSvc.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MdtCalibData/RtResolutionLookUp.h"
 #include "MuonCalibMath/SamplePoint.h"
 
 #include "zlib.h"
+#include "nlohmann/json.hpp"
 
 #include <string>
 #include <vector>
@@ -66,6 +68,9 @@ class MdtCalibDbAlg: public AthAlgorithm {
 
   std::string m_rtFolder;
   std::string m_tubeFolder;
+
+  //new conditions format 2020
+  bool m_newFormat2020;
 
   //like MdtCalibrationDbSvc
   //for corData in loadRt
@@ -108,6 +113,7 @@ class MdtCalibDbAlg: public AthAlgorithm {
   //wrapper function for the zlib uncompress, 
   //that automatically creates or increases the buffer if needed.    
   inline bool uncompressInMyBuffer(const coral::Blob &blob);
+  inline coral::Blob compressBlob(const std::string dataString) const;
   inline MuonCalib::RtResolutionLookUp* getRtResolutionInterpolation(const std::vector<MuonCalib::SamplePoint> &sample_points);
   inline StatusCode extractString(std::string& input, std::string& output, std::string separator);  
 

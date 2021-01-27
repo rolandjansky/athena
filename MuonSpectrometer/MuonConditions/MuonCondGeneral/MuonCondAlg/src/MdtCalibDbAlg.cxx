@@ -50,6 +50,7 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   m_condSvc{"CondSvc", name},
   m_rtFolder("/MDT/RTBLOB"),
   m_tubeFolder("/MDT/T0BLOB"),
+  m_newFormat2020(false),
   m_TimeSlewingCorrection(false),
   m_UseMLRt(true),
   m_TsCorrectionT0(0.),
@@ -73,6 +74,9 @@ MdtCalibDbAlg::MdtCalibDbAlg(const std::string& name, ISvcLocator* pSvcLocator) 
   declareProperty("RtFolder",m_rtFolder,"DB folder containing the RT calibrations");
   declareProperty("ReadKeyTube",m_readKeyTube);
   declareProperty("ReadKeyRt",m_readKeyRt);
+
+  //new folder format 2020
+  declareProperty("NewFormat2020",m_newFormat2020);
   
   //Properties to deform the t0 and rt relationship
   declareProperty("T0Shift",m_t0Shift,"for simulation: common shift of all T0s, in ns");
@@ -390,10 +394,59 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleRt.fullKey() << " readCdoRt->size()= " << readCdoRt->size());
   ATH_MSG_INFO("Range of input is " << rangeRt);
 
+  // read new-style format 2020
+  std::vector<coral::AttributeList> dataPerChannel;
+  if(m_newFormat2020){
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
+      const coral::AttributeList& atr = itr->second;
+      std::string data;
+      if(atr["data"].specification().type() == typeid(coral::Blob)){
+        ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+          ATH_MSG_FATAL( "Cannot uncompress buffer" );
+          return StatusCode::FAILURE;
+        }
+        if(!m_decompression_buffer){
+          ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+          return StatusCode::FAILURE;
+        }
+        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+      }
+      else {
+        ATH_MSG_VERBOSE("Loading data as a STRING");
+        data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+      }
+      
+      // unwrap the json and build the data vector
+      nlohmann::json yy = nlohmann::json::parse(data);
+      for(auto& it : yy.items()){
+        nlohmann::json yx = it.value();
+        for(auto& jt : yx.items()){
+          coral::AttributeList al;
+          al.extend("tech", "int"   );
+          al.extend("file", "string");
+          al.extend("data", "blob"  );
+          al["tech"].data<int>()         = jt.value()[1];
+          al["file"].data<std::string>() = jt.value()[2]; 
+          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          dataPerChannel.push_back(al);
+        }
+	  }
+    }
+  }
+  // read old-style format
+  else {
+    CondAttrListCollection::const_iterator itr;
+    for (itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
+      coral::AttributeList atr = const_cast<coral::AttributeList&>(itr->second);
+      dataPerChannel.push_back(atr);
+    }
+  }
+
   // unpack the strings in the collection and update the writeCdoRt
-  CondAttrListCollection::const_iterator itr;
-  for (itr = readCdoRt->begin(); itr != readCdoRt->end(); ++itr) {
-    const coral::AttributeList &atr=itr->second;
+  for(unsigned int idx=0; idx<dataPerChannel.size(); ++idx){
+    coral::AttributeList atr = dataPerChannel[idx];
     bool rt_ts_applied = (atr["tech"].data<int>() & MuonCalib::TIME_SLEWING_CORRECTION_APPLIED);
     std::string header="",payload="",trailer="";
     // if BLOB data
@@ -766,14 +819,63 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
   ATH_MSG_INFO("Size of CondAttrListCollection " << readHandleTube.fullKey() << " readCdoTube->size()= " << readCdoTube->size());
   ATH_MSG_INFO("Range of input is " << rangeTube);
   
+  // read new-style format 2020
+  std::vector<coral::AttributeList> dataPerChannel;
+  if(m_newFormat2020){
+    CondAttrListCollection::const_iterator itr;
+    for(itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
+      const coral::AttributeList& atr = itr->second;
+      std::string data;
+      if(atr["data"].specification().type() == typeid(coral::Blob)){
+        ATH_MSG_VERBOSE("Loading data as a BLOB, uncompressing...");
+        if(!uncompressInMyBuffer(atr["data"].data<coral::Blob>())) {
+          ATH_MSG_FATAL( "Cannot uncompress buffer" );
+          return StatusCode::FAILURE;
+        }
+        if(!m_decompression_buffer){
+          ATH_MSG_FATAL("Cannot uncompress BLOB! Aborting...");
+          return StatusCode::FAILURE;
+        }
+        data = (reinterpret_cast<char*>(m_decompression_buffer.get()));
+      }
+      else {
+        ATH_MSG_VERBOSE("Loading data as a STRING");
+        data = *(static_cast<const std::string*>((atr["data"]).addressOfData()));
+      }
+      
+      // unwrap the json and build the data vector
+      nlohmann::json yy = nlohmann::json::parse(data);
+      for(auto& it : yy.items()){
+        nlohmann::json yx = it.value();
+        for(auto& jt : yx.items()){
+          coral::AttributeList al;
+          al.extend("tech", "int"   );
+          al.extend("file", "string");
+          al.extend("data", "blob"  );
+          al["tech"].data<int>()         = jt.value()[1];
+          al["file"].data<std::string>() = jt.value()[2]; 
+          al["data"].data<coral::Blob>() = compressBlob(jt.value()[3]);
+          dataPerChannel.push_back(al);
+        }
+	  }
+    }
+  }
+  // read old-style format
+  else {
+    CondAttrListCollection::const_iterator itr;
+    for (itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
+      coral::AttributeList atr = const_cast<coral::AttributeList&>(itr->second);
+      dataPerChannel.push_back(atr);
+    }
+  }
+
   // Inverse of wire propagation speed
   float inversePropSpeed = 1./(Gaudi::Units::c_light*m_prop_beta);
 
   // unpack the strings in the collection and update the 
   // MdtTubeCalibContainers in TDS
-  CondAttrListCollection::const_iterator itr;
-  for (itr = readCdoTube->begin(); itr != readCdoTube->end(); ++itr) {
-    const coral::AttributeList &atr = itr->second;
+  for(unsigned int idx=0; idx<dataPerChannel.size(); ++idx){
+    coral::AttributeList atr = dataPerChannel[idx];
     std::string header="",payload="",trailer="";
 
     bool t0_ts_applied = (atr["tech"].data<int>() & MuonCalib::TIME_SLEWING_CORRECTION_APPLIED);
@@ -1059,6 +1161,15 @@ inline bool MdtCalibDbAlg::uncompressInMyBuffer(const coral::Blob &blob) {
   }
   m_decompression_buffer.get()[actual_length]=0;
   return true;
+}
+inline coral::Blob MdtCalibDbAlg::compressBlob(const std::string dataString) const{
+	uLongf dest_len = compressBound(dataString.size());
+	coral::Blob blob;
+	blob.resize(dest_len);
+	Bytef * p = static_cast<Bytef *>(blob.startingAddress());		
+	compress(p, &dest_len, reinterpret_cast<const Bytef *>(dataString.c_str()), dataString.size());
+	blob.resize(dest_len);
+	return blob;
 }
 
 inline MuonCalib::RtResolutionLookUp* MdtCalibDbAlg::getRtResolutionInterpolation( const std::vector<MuonCalib::SamplePoint> &sample_points) {
