@@ -72,6 +72,8 @@ excludeTracePattern.append("*/DQDefects/virtual*")
 excludeTracePattern.append("*/TrigEDMConfig/TriggerEDM.py")
 excludeTracePattern.append("*/TrigL2MissingET/TrigL2MissingETMonitoring.py")
 excludeTracePattern.append("*AthFile/impl.py")
+excludeTracePattern.append("*/AthenaConfiguration/*")
+excludeTracePattern.append("*ROOT/_facade.py")
 #####################
 # Flags (separated) #
 #####################
