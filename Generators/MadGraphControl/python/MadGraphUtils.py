@@ -1197,6 +1197,152 @@ def madspin_on_lhe(input_LHE,madspin_card,runArgs=None,keep_original=False):
         runArgs.inputGeneratorFile=outputDS
 
 
+def reweight_MadSpin_events(hasUnweighted,this_run_name):
+    mglog.info("Fixing event weights after MadSpin... initial checks.")
+
+    # get the cross section from the undecayed LHE file
+    MGnumevents=-1
+    MGintweight=-1
+    numprocs=-1
+    procXS={}
+    procUnc={}
+    procWeight={}
+    eventlinecount=-1
+    eventweight=-1
+    inInit=False
+    inEvent=False
+    initlinecount=-1
+
+    if hasUnweighted:
+        eventsfilename="unweighted_events"
+    else:
+        eventsfilename="events"
+
+    # this is the LHE file before madspin, with the good cross sections.  
+    # Note that this is unweighted_events.lhe, NOT unweighted_events.lhe.gz, 
+    # which by now has the results from running MadSpin.
+    madgraphLHEfile=this_run_name+'/%s.lhe'%eventsfilename
+    mglog.info("First reading weight information from %s" % madgraphLHEfile)
+    for line in open(madgraphLHEfile):
+        if "Number of Events" in line:
+            sline=line.split()
+            MGnumevents=int(sline[-1])
+        elif "Integrated weight" in line:
+            sline=line.split()
+            MGintweight=float(sline[-1])
+        elif "<init>" in line:                         
+            inInit=True
+            initlinecount=0
+        elif "</init>" in line:
+            inInit=False
+        elif inInit and initlinecount==0:
+            sline=line.split()
+            initlinecount=1
+            numprocs=int(sline[-1])
+        elif inInit and initlinecount>=1 and initlinecount<=numprocs:
+            # update the global XS info
+            sline=line.split()
+            procXS[initlinecount]=float(sline[0])
+            procUnc[initlinecount]=float(sline[1])
+            procWeight[initlinecount]=float(sline[2])
+            initlinecount+=1
+        elif "<event>" in line:                      
+            inEvent=True
+            eventlinecount=0
+        elif "</event>" in line:
+            inEvent=False
+            # we only want to look at one event
+            break
+        elif inEvent and eventlinecount==0:
+            # for LO generation, all weights are the same, so we only need to look at the first event.
+            # this won't work for NLO generation!
+            sline=line.split()
+            eventweight=float(sline[2])
+            # we only want to look at one event
+            break
+
+    if MGnumevents<=0 or MGintweight<=0: 
+        mglog.info("LHE file from MadGraph indicates %d events and %f integrated weight, not adjusting weights." % (MGnumevents,MGintweight))
+        return
+
+
+    mglog.info("Fixing event weights after MadSpin... modifying LHE file.")
+    fixLHEfile=this_run_name+'/%s_fixXS.lhe'%eventsfilename
+    mglog.info("Writing new events into %s" % fixLHEfile)
+    newlhe=open(fixLHEfile,'w')
+    initlinecount=0
+    eventlinecount=0
+    inInit=False
+    inEvent=False
+
+    # the unzip command after this will overwrite the madgraph LHE file,
+    # keep it around for debugging while job is running
+    theLHEfile=this_run_name+'/%s.lhe' % eventsfilename
+    shutil.copyfile(madgraphLHEfile,
+                    theLHEfile.replace(".lhe","_madgr.lhe"))
+
+    unzip = stack_subprocess(['gunzip','-f',theLHEfile+".gz"])
+    unzip.wait()
+    mglog.info("Opening %s to reweight events" % theLHEfile)
+
+    # this is the LHE file after madspin, with the wrong cross sections and weights
+    for line in open(theLHEfile):
+        newline=line
+        if "<init>" in line:                         
+            inInit=True
+            initlinecount=0
+        elif "</init>" in line:
+            inInit=False
+        elif inInit and initlinecount==0:
+            initlinecount+=1
+        elif inInit and initlinecount>=1 and initlinecount<=numprocs:
+            sline=line.split()
+            # update the global XS info
+            sline[0]=str(procXS[initlinecount])
+            sline[1]=str(procUnc[initlinecount])
+            sline[2]=str(procWeight[initlinecount])
+            newline=' '.join(sline)
+            newline+="\n"
+            initlinecount+=1
+        elif "<event>" in line:                      
+            inEvent=True
+            eventlinecount=0
+        elif "</event>" in line:
+            inEvent=False
+        elif inEvent and eventlinecount==0:
+            sline=line.split()
+            # next change the per-event weights
+            badeventweight=float(sline[2])
+            if badeventweight<0:
+                sline[2]=str(-1*eventweight)
+            else:
+                sline[2]=str(eventweight)
+            newline=' '.join(sline)
+            newline+="\n"
+            eventlinecount+=1
+        elif "<wgt id=" in line:
+            # finally, update the systematic weights if they're there
+            sline=line.split()
+            badsysweight=float(sline[2])
+            newsysweight=(badsysweight/abs(badeventweight))*eventweight
+            sline[2]=str(newsysweight)
+            newline=' '.join(sline)
+            newline+="\n"
+        newlhe.write(newline)
+    newlhe.close()
+
+    mglog.info("Fixing event weights after MadSpin... cleaning up.")
+    badLHEfile=theLHEfile.replace(".lhe","_badXS.lhe")
+    shutil.copyfile(theLHEfile,
+                    badLHEfile)
+
+    shutil.copyfile(fixLHEfile,
+                    theLHEfile)
+
+    rezip = stack_subprocess(['gzip',theLHEfile])
+    rezip.wait()
+
+
 def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveProcDir=False,runArgs=None,fixEventWeightsForBridgeMode=False):
     if config_only_check():
         return
@@ -1260,106 +1406,9 @@ def arrange_output(process_dir=MADGRAPH_GRIDPACK_LOCATION,lhe_version=None,saveP
             mglog.error('MadSpin was run but can\'t find output folder '+(this_run_name+'_decayed_1/'))
             raise RuntimeError('MadSpin was run but can\'t find output folder '+(this_run_name+'_decayed_1/'))
 
+
         if fixEventWeightsForBridgeMode:
-            mglog.info("Fixing event weights after MadSpin... initial checks.")
-
-            # get the cross section from the undecayed LHE file
-            spinmodenone=False
-            MGnumevents=-1
-            MGintweight=-1
-
-            if hasUnweighted:
-                eventsfilename="unweighted_events"
-            else:
-                eventsfilename="events"
-            unzip = stack_subprocess(['gunzip','-f',this_run_name+'/%s.lhe.gz' % eventsfilename])
-            unzip.wait()
-
-            for line in open(process_dir+'/Events/'+MADGRAPH_RUN_NAME+'/%s.lhe'%eventsfilename):
-                if "Number of Events" in line:
-                    sline=line.split()
-                    MGnumevents=int(sline[-1])
-                elif "Integrated weight (pb)" in line:
-                    sline=line.split()
-                    MGintweight=float(sline[-1])
-                elif "set spinmode none" in line:
-                    spinmodenone=True
-                elif "</header>" in line:
-                    break
-
-            if spinmodenone and MGnumevents>0 and MGintweight>0:
-                mglog.info("Fixing event weights after MadSpin... modifying LHE file.")
-                newlhe=open(this_run_name+'/%s_fixXS.lhe'%eventsfilename,'w')
-                initlinecount=0
-                eventlinecount=0
-                inInit=False
-                inEvent=False
-
-                # new default for MG 2.6.1+ (https://its.cern.ch/jira/browse/AGENE-1725)
-                # but verified from LHE below.
-                event_norm_setting="average" 
-
-                for line in open(this_run_name+'/%s.lhe'%eventsfilename):
-
-                    newline=line
-                    if "<init>" in line:                         
-                        inInit=True
-                        initlinecount=0
-                    elif "</init>" in line:
-                        inInit=False
-                    elif inInit and initlinecount==0:
-                        initlinecount=1
-                        # check event_norm setting in LHE file, deteremines how Pythia interprets event weights
-                        sline=line.split()
-                        if abs(int(sline[-2])) == 3:
-                            event_norm_setting="sum"
-                        elif abs(int(sline[-2])) == 4:
-                            event_norm_setting="average"
-                    elif inInit and initlinecount==1:
-                        sline=line.split()
-                        # update the global XS info
-                        relunc=float(sline[1])/float(sline[0])
-                        sline[0]=str(MGintweight)                
-                        sline[1]=str(float(sline[0])*relunc)     
-                        if event_norm_setting=="sum":
-                            sline[2]=str(MGintweight/MGnumevents)
-                        elif event_norm_setting=="average":
-                            sline[2]=str(MGintweight)            
-                        newline=' '.join(sline)
-                        newline+="\n"
-                        initlinecount+=1
-                    elif inInit and initlinecount>1:
-                        initlinecount+=1
-                    elif "<event>" in line:                      
-                        inEvent=True
-                        eventlinecount=0
-                    elif "</event>" in line:
-                        inEvent=False
-                    elif inEvent and eventlinecount==0:
-                        sline=line.split()
-                        # next change the per-event weights
-                        if event_norm_setting=="sum":
-                            sline[2]=str(MGintweight/MGnumevents)
-                        elif event_norm_setting=="average":
-                            sline[2]=str(MGintweight)            
-                        newline=' '.join(sline)
-                        newline+="\n"
-                        eventlinecount+=1
-                    newlhe.write(newline)
-                newlhe.close()
-
-                mglog.info("Fixing event weights after MadSpin... cleaning up.")
-                shutil.copyfile(this_run_name+'/%s.lhe' % eventsfilename,
-                                this_run_name+'/%s_badXS.lhe' % eventsfilename)
-
-                shutil.move(this_run_name+'/%s_fixXS.lhe' % eventsfilename,
-                            this_run_name+'/%s.lhe' % eventsfilename)
-
-                rezip = stack_subprocess(['gzip',this_run_name+'/%s.lhe' % eventsfilename])
-                rezip.wait()
-
-                rezip = stack_subprocess(['gzip',this_run_name+'/%s_badXS.lhe' % eventsfilename])
-                rezip.wait()
+            reweight_MadSpin_events(hasUnweighted,this_run_name)
 
     # Clean up in case a link or file was already there
     if os.path.exists(os.getcwd()+'/events.lhe'):
@@ -1702,6 +1751,13 @@ def SUSY_Generation(runArgs = None, process=None,\
     """
     Keyword Arguments:
         usePMGSettings (bool): See :py:func:`new_process`. Will set SM parameters to the appropriate values. Default: True.
+        fixEventWeightsForBridgeMode (bool): will attempt to 'fix' incorrect header and event-weight information in LHE files after running MadSpin
+          in bridge mode (i.e. spinmode none).  In bridge mode, MadSpin will ignore branching ratios specified in the proc card and recompute
+          them based on the model files, often leading to event weights that are absurdly small.  This may be harmless if you'll
+          later reweight the file to NLO (though Pythia has been known to choke on super-small weights, so if you're getting unexpected Pythia crashes
+          after running MadSpin, you might try enabling this).  Note that this fix will assume that the BR of the decay implemented by MadSpin is 100%.
+          Also, keep in mind that if you're using MadSpin for a two-body decay, then bridge mode is not needed!  We only need to use bridge mode
+          for three-body decays (when the onshell spinmode option is not working).
     """
     ktdurham = run_settings['ktdurham'] if 'ktdurham' in run_settings else None
     ktdurham , alpsfact , scalefact = get_SUSY_variations( params['MASS'] , syst_mod , ktdurham=ktdurham )
