@@ -20,8 +20,10 @@
 #include <boost/functional/hash.hpp>
 #include <chrono>
 #include <iostream>
+#include <random>
 #include <sstream>
 #include <sys/types.h>
+#include <thread>
 #include <unistd.h>
 
 //
@@ -130,7 +132,42 @@ namespace SH
 	RCU_THROW_MSG ("failed to write to file: " + m_path);
       m_file->Close ();
     }
-    RCU::Shell::exec ("xrdcp " + RCU::Shell::quote (m_tmp) + " " + RCU::Shell::quote (m_path));
+
+    std::random_device rd;
+    std::mt19937 gen (rd());
+    bool success = false;
+    unsigned tries = 0u;
+    while (!success)
+    {
+      try
+      {
+        // using the -f flag, because if this copy failed previously
+        // we need to force an overwrite.  note that there would be no
+        // point in leaving this out on the first try (even though
+        // there should be no file there), because it would just fail
+        // and retry with the flag set.
+        RCU::Shell::exec ("xrdcp -f " + RCU::Shell::quote (m_tmp) + " " + RCU::Shell::quote (m_path));
+        success = true;
+      } catch (...)
+      {
+        std::cerr << "encountered error copying files to XRD path: \"" << m_path << "\"" << std::endl;
+        if (tries < 10u)
+        {
+          tries += 1;
+          // sleeping for a random period of time, to reduce the
+          // chance that the problem is that multiple jobs finishing
+          // at the same time keep overloading the server by
+          // repeatedly hitting it at the same time.
+          unsigned seconds = std::uniform_int_distribution<>(30,60) (gen);
+          std::cerr << "sleeping for " << seconds << " seconds before retrying" << std::endl;
+          std::this_thread::sleep_for (std::chrono::seconds(seconds));
+        } else
+        {
+          std::cerr << "giving up, leaving file at " << m_tmp << std::endl;
+          throw std::runtime_error ("failed to copy file to XRD");
+        }
+      }
+    }
     RCU::Shell::exec ("rm " + RCU::Shell::quote (m_tmp));
     m_file.reset ();
   }
