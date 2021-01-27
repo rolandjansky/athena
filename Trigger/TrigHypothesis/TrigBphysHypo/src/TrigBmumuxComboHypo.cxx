@@ -33,6 +33,7 @@ using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::DecisionIDContainer;
+using TrigCompositeUtils::comboHypoAlgNodeName;
 
 using GenVecFourMom_t = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>>;
 
@@ -559,7 +560,7 @@ StatusCode TrigBmumuxComboHypo::createDecisionObjects(TrigBmumuxState& state) co
     }
 
     // create a new output Decision object, backed by the 'decisions' container.
-    Decision* decision = TrigCompositeUtils::newDecisionIn(state.decisions);
+    Decision* decision = TrigCompositeUtils::newDecisionIn(state.decisions, comboHypoAlgNodeName());
 
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (const size_t& i : getMuonIndices(*dimuon)) {

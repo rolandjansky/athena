@@ -74,7 +74,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     const xAOD::Muon* muon = *muonEL;
 
     // create new dicions
-    auto newd = newDecisionIn( decisions );
+    auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
 
     toolInput.emplace_back( newd, muon, previousDecision, muonIso20(*muon), muonIso30(*muon) );
 

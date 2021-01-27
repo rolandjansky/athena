@@ -60,7 +60,7 @@ StatusCode TrigMuisoHypoAlg::execute( const EventContext& context) const
     const xAOD::L2IsoMuon* muon = *muonEL;
 
     // create new decision
-    auto newd = newDecisionIn( decisions );
+    auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
 
     // push_back to toolInput
     toolInput.emplace_back( newd, muon, previousDecision );
