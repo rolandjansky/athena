@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "../../TrigCostAnalysis/TableConstructors/ROSTableConstructor.h"
@@ -24,12 +24,11 @@ ROSTableConstructor::ROSTableConstructor(const std::string& name) : TableConstru
   getBaseEntry().addColumn("cachedSizeRate", "Cached ROB Data Rate [kB/s]", "Amount of cached data requested from the ROBs in kB/s.");
   getBaseEntry().addColumn("time", "Time Per Event [ms]", "Average time for all requests and retrievals per event.");
   getBaseEntry().addColumn("robsUnclassified", "Unclassified ROBs/Event", "ROB calls which were flagged unclassified.");
-  getBaseEntry().addColumn("robsScheduled", "Prefetched ROBs/Event", "ROB calls which were flagged as prefetched.");
   getBaseEntry().addColumn("robsRetrieved","Retrieved ROBs/Event","Total number of fetched ROB calls.");
   getBaseEntry().addColumn("robsHLTCached","Cached HLT ROBs/Event","Total number of HLT cached ROB calls.");
   getBaseEntry().addColumn("robsDCMCached","Cached DCM ROBs/Event","Total number of DCM cached ROB calls.");
   getBaseEntry().addColumn("robsIgnored", "Ignored ROBs/Event", "ROB calls which were flagged as ignored.");
-  getBaseEntry().addColumn("robsDisabled", "Disabled ROBs/Event", "ROB calls which were flagged as disabled.");
+  getBaseEntry().addColumn("robsUndefined", "Undefined ROBs/Event", "ROB calls which were not enabled.");
   getBaseEntry().addColumn("robsNotOk","Not OK ROBs/Event", "ROB calls in which the is OK bit was false.");
 
 }
@@ -48,13 +47,12 @@ TableEntry ROSTableConstructor::getTableEntry(const std::string name) {
   tableEntry.setEntry("time", hist("Time_perEvent")->GetMean());
 
   tableEntry.setEntry("robsUnclassified", hist("ROBStatus_perCall")->GetBinContent(1));
-  tableEntry.setEntry("robsScheduled", hist("ROBStatus_perCall")->GetBinContent(2));
-  tableEntry.setEntry("robsRetrieved", hist("ROBStatus_perCall")->GetBinContent(3));
-  tableEntry.setEntry("robsHLTCached", hist("ROBStatus_perCall")->GetBinContent(4));
-  tableEntry.setEntry("robsDCMCached", hist("ROBStatus_perCall")->GetBinContent(5));
-  tableEntry.setEntry("robsIgnored", hist("ROBStatus_perCall")->GetBinContent(6));
-  tableEntry.setEntry("robsDisabled", hist("ROBStatus_perCall")->GetBinContent(7)); 
-  tableEntry.setEntry("robsNotOk", hist("ROBStatus_perCall")->GetBinContent(8)); 
+  tableEntry.setEntry("robsRetrieved", hist("ROBStatus_perCall")->GetBinContent(2));
+  tableEntry.setEntry("robsHLTCached", hist("ROBStatus_perCall")->GetBinContent(3));
+  tableEntry.setEntry("robsDCMCached", hist("ROBStatus_perCall")->GetBinContent(4));
+  tableEntry.setEntry("robsIgnored", hist("ROBStatus_perCall")->GetBinContent(5));
+  tableEntry.setEntry("robsUndefined", hist("ROBStatus_perCall")->GetBinContent(6)); 
+  tableEntry.setEntry("robsNotOk", hist("ROBStatus_perCall")->GetBinContent(7)); 
 
   return tableEntry;
 }

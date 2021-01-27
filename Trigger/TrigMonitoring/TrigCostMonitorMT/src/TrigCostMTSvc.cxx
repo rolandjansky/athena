@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/ConcurrencyFlags.h"
@@ -364,7 +364,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       std::vector<uint32_t> robs_id;
       std::vector<uint32_t> robs_size;
       std::vector<unsigned> robs_history;
-      std::vector<uint8_t> robs_status;
+      std::vector<unsigned short> robs_status;
 
       robs_id.reserve(robData.requested_ROBs.size());
       robs_size.reserve(robData.requested_ROBs.size());
@@ -384,7 +384,7 @@ StatusCode TrigCostMTSvc::endEvent(const EventContext& context, SG::WriteHandle<
       result &= tc->setDetail<std::vector<uint32_t>>("robs_id", robs_id);
       result &= tc->setDetail<std::vector<uint32_t>>("robs_size", robs_size);
       result &= tc->setDetail<std::vector<unsigned>>("robs_history", robs_history);
-      result &= tc->setDetail<std::vector<uint8_t>>("robs_status", robs_status);
+      result &= tc->setDetail<std::vector<unsigned short>>("robs_status", robs_status);
       result &= tc->setDetail("start", robData.start_time);
       result &= tc->setDetail("stop", robData.end_time);
 
