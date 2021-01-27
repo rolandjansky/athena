@@ -96,7 +96,7 @@ prepareStateForAssembly(Cache& cache)
   double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
   if (totalWeight != 0.) {
 
-    // ordered descenting
+    // ordered in descending order
     // return the 1st element where (element<value)
 
     const double minimumWeight =
