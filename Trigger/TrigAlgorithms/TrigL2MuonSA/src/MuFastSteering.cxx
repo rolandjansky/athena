@@ -1830,34 +1830,38 @@ bool MuFastSteering::storeMSRoiDescriptor(const TrigRoiDescriptor*              
 
   const xAOD::L2StandAloneMuon* muonSA = outputTracks[0];
 
+  float mseta = pattern.etaMap;
+  float msphi = pattern.phiMS;
+
   // store TrigRoiDescriptor
-  if (fabs(muonSA->pt()) > ZERO_LIMIT ) {
-
-    // set width of 0.1 so that ID tracking monitoring works
-    const float phiHalfWidth = 0.1;
-    const float etaHalfWidth = 0.1;
-
-    TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
-                                                               roids->l1Id(),
-                                                               roids->roiId(),
-                                                               pattern.etaMap,
-                                                               pattern.etaMap - etaHalfWidth,
-                                                               pattern.etaMap + etaHalfWidth,
-                                                               pattern.phiMS,
-                                                               pattern.phiMS - phiHalfWidth,
-                                                               pattern.phiMS + phiHalfWidth);
-
-    ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
-      	    << "pattern.etaMap/pattern.phiMS="
-      	    << pattern.etaMap << "/" << pattern.phiMS);
-
-    ATH_MSG_VERBOSE("will Record an RoiDescriptor for TrigMoore:"
-      	    << " phi=" << MSroiDescriptor->phi()
-      	    << ",  eta=" << MSroiDescriptor->eta());
-
-    outputMS.push_back(MSroiDescriptor);
-
+  if (fabs(muonSA->pt()) < ZERO_LIMIT ) {
+    mseta = roids->eta();
+    msphi = roids->phi();
   }
+
+  // set width of 0.1 so that ID tracking monitoring works
+  const float phiHalfWidth = 0.1;
+  const float etaHalfWidth = 0.1;
+
+  TrigRoiDescriptor* MSroiDescriptor = new TrigRoiDescriptor(roids->roiWord(),
+							     roids->l1Id(),
+							     roids->roiId(),
+							     mseta,
+							     mseta - etaHalfWidth,
+							     mseta + etaHalfWidth,
+							     msphi,
+							     msphi - phiHalfWidth,
+							     msphi + phiHalfWidth);
+
+  ATH_MSG_VERBOSE("...TrigRoiDescriptor for MS "
+		  << "mseta/msphi="
+		  << mseta << "/" << msphi);
+
+  ATH_MSG_VERBOSE("will Record an RoiDescriptor for TrigMoore:"
+		  << " phi=" << MSroiDescriptor->phi()
+		  << ",  eta=" << MSroiDescriptor->eta());
+
+  outputMS.push_back(MSroiDescriptor);
 
   return true;
 }
