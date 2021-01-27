@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -132,7 +132,8 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 	      }
 	      else{
 		std::vector<unsigned long long> mdtTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthMdtHits");
-		std::vector<unsigned long long> cscTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthCscHits");
+		std::vector<unsigned long long> cscTruth;
+		if(m_idHelper->HasCSC()) cscTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthCscHits");
 		std::vector<unsigned long long> rpcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthRpcHits");
 		std::vector<unsigned long long> tgcTruth=truthParticle->auxdata<std::vector<unsigned long long> >("truthTgcHits");
 		const Trk::Track* ptrk=tp->track();
@@ -176,21 +177,22 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 		    }
 		  }
 		  if(found) continue;
-		  for(unsigned int i=0;i<cscTruth.size();i++){
-		    if(id==cscTruth[i]){
-		      if( measPhi ) {
-			Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
-			if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
-			else ++nphiHitsPerChamberLayer[index];
-		      }
-		      else{
-			if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
-			else ++nprecHitsPerChamberLayer[chIndex];
-		      }
-		      found=true;
-		      break;
-		    }
-		  }
+          if(m_idHelper->HasCSC()){
+            for(unsigned int i=0;i<cscTruth.size();i++){
+              if(id==cscTruth[i]){
+                if(measPhi) {
+                  Muon::MuonStationIndex::PhiIndex index = m_idHelper->phiIndex(id);
+                  if(nphiHitsPerChamberLayer[index]==999) nphiHitsPerChamberLayer[index]=1;
+                  else ++nphiHitsPerChamberLayer[index];
+                } else {
+                  if(nprecHitsPerChamberLayer[chIndex]==999) nprecHitsPerChamberLayer[chIndex]=1;
+                  else ++nprecHitsPerChamberLayer[chIndex];
+                }
+                found=true;
+                break;
+              }
+            }
+          }
 		  if(found) continue;
 		  for(unsigned int i=0;i<rpcTruth.size();i++){
 		    if(id==rpcTruth[i]){
@@ -234,23 +236,29 @@ void MuonTruthAssociationAlg::addMuon( const xAOD::TruthParticleContainer& truth
 		      if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; found=true; break;}
 		    }
 		    if(found) continue;
-		    for(unsigned int j=0;j<cscTruth.size();j++){
-		      Identifier id(cscTruth[j]);
-		      if(!m_idHelper->measuresPhi(id)){
-			if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){ nprecHitsPerChamberLayer[i]=0; break;}
-		      }
-		    }
+            if(m_idHelper->HasCSC()){
+              for(unsigned int j=0;j<cscTruth.size();j++){
+                Identifier id(cscTruth[j]);
+                if(!m_idHelper->measuresPhi(id)){
+                  if(m_idHelper->chamberIndex(id)==(Muon::MuonStationIndex::ChIndex)i){
+					nprecHitsPerChamberLayer[i]=0; break;
+				  }
+                }
+              }
+            }
 		  }
 		}
 		for(unsigned int i=0;i<nphiHitsPerChamberLayer.size();i++){
 		  if(nphiHitsPerChamberLayer[i]==999){
 		    bool found=false;
-		    for(unsigned int j=0;j<cscTruth.size();j++){
-		      Identifier id(cscTruth[j]);
-		      if(m_idHelper->measuresPhi(id)){
-			if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
-		      }
-		    }
+            if(m_idHelper->HasCSC()){
+              for(unsigned int j=0;j<cscTruth.size();j++){
+                Identifier id(cscTruth[j]);
+                if(m_idHelper->measuresPhi(id)){
+                  if(m_idHelper->phiIndex(id)==(Muon::MuonStationIndex::PhiIndex)i){nphiHitsPerChamberLayer[i]=0; found=true; break;}
+                }
+              }
+            }
 		    if(found) continue;
 		    for(unsigned int j=0;j<rpcTruth.size();j++){
 		      Identifier id(rpcTruth[j]);
