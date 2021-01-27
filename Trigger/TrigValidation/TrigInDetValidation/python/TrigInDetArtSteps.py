@@ -160,6 +160,7 @@ class TrigInDetRdictStep(Step):
         self.auto_report_result = True
         self.required = True
         self.executable = 'TIDArdict'
+        self.timeout = 10*60
 
     def configure(self, test):
         os.system( 'get_files -data TIDAbeam.dat &> /dev/null' )
