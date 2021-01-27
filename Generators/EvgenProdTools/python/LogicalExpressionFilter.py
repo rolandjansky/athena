@@ -186,6 +186,9 @@ class LogicalExpressionFilter( PyAthena.Alg ):
     def execute(self):
         #extract from first event of McEventCollection
         event_weight=1
+
+        response = bool(eval(self.cmd)) if self.cmd else True
+
         mc = self.evtStore[self.McEventKey]
         if mc.size()==0:
             self.msg.error("No events in McEventCollection!?")
@@ -195,8 +198,6 @@ class LogicalExpressionFilter( PyAthena.Alg ):
             self.msg.debug("No weights to retrieve")
         else:
             event_weight = weights[0]
-
-        response = bool(eval(self.cmd)) if self.cmd else True
 
         if self.Sampling>0 and self.Sampling<=1 and not response:
             for a in xrange(len(mc[0].weights())): mc[0].weights()[a] /= self.Sampling
