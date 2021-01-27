@@ -132,6 +132,8 @@ L1TopoSimulation::initialize() {
 
    m_topoSteering->setHistSvc(topoHistSvc);
 
+   m_topoSteering->setLegacyMode(m_isLegacyTopo);
+
    return StatusCode::SUCCESS;
 }
 

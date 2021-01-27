@@ -104,6 +104,7 @@ TopoSteering::initializeAlgorithms() {
          if(m_histSvc) {
             alg->setL1TopoHistSvc(m_histSvc);
          }
+	 alg->setLegacyMode(m_isLegacyTopo);
          alg->initialize();
       }
 
