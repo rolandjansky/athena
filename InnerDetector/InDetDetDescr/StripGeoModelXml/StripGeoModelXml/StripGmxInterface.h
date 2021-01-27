@@ -19,7 +19,7 @@
 #include "StripGeoModelXml/WaferTree.h"
 
 class MsgStream;
-namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems;}
+namespace InDetDD {class SiDetectorDesign; class SCT_DetectorManager; class SiCommonItems; class SCT_ModuleSideDesign;}
 
 class StripGmxInterface: public GmxInterface {
 public:
@@ -86,6 +86,7 @@ public:
 
 private:
     std::map<std::string, const InDetDD::SiDetectorDesign *> m_geometryMap;
+    std::map<std::string, const InDetDD::SCT_ModuleSideDesign *> m_motherMap;
     InDetDD::SCT_DetectorManager *m_detectorManager;
     InDetDD::SiCommonItems *m_commonItems;
     WaferTree *m_waferTree;

@@ -41,7 +41,8 @@ public:
                    const int nStrips,
                    const double pitch,
                    const double length,
-		   const double zShift=0.0);
+		   const double zShift=0.0,
+		   const SCT_ModuleSideDesign * mother = nullptr);
 
     ~StripBoxDesign() = default;
 

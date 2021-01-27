@@ -194,18 +194,26 @@ double length(25.0);
       //start from middle of first strip row
       double initZShift = length * ( -(double)split*0.5 + 0.5 ) ; 
 
+      //now, the "Mother"...
+      //This is a container for all the other designs, to allow navigation
+      //between the different rows on a simulated sensor in the HITS
+      std::unique_ptr<InDetDD::StripBoxDesign> motherDesign=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection, thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
+      
+      m_motherMap[typeName] = motherDesign.get();
+      m_detectorManager->addMotherDesign(std::move(motherDesign));
+
       for(int i = 0;i<split;i++){
 	for(int side:{0,1}){//need different additional shift transform per side...
 	  int sign = (side==0) ? 1:-1;//...because shift in different direction per side
 	  double zShift = sign*(initZShift + (i*length));
 	  
-	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,
-												    thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift);//single row
+	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift,m_motherMap[typeName]);//single row
 	  
 	  std::string splitName = typeName+"_"+std::to_string(i)+"_"+std::to_string(side);
 	  m_geometryMap[splitName] = design.get();
 
 	  m_detectorManager->addDesign(std::move(design));
+
 	}
       }
     }
@@ -364,6 +372,13 @@ vector<double> endR;
 	 m_geometryMap[splitName] = design.get();
 
 	 m_detectorManager->addDesign(std::move(design));
+
+	 //now the mother...
+
+	 std::unique_ptr<InDetDD::StripStereoAnnulusDesign> motherDesign=std::make_unique<InDetDD::StripStereoAnnulusDesign>(stripDirection,fieldDirection,thickness, readoutSide, carrier, nRows,nStrips,phiPitch,startR,endR,stereoAngle,centreR);
+       
+       m_geometryMap[typeName] = motherDesign.get();
+       m_detectorManager->addDesign(std::move(motherDesign));
 	
        }
      } 
@@ -428,8 +443,9 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
       splitTypeName += "_" + std::to_string(updatedIndex["side"]);
     }
 
-    const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
-    
+    //const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
+    const InDetDD::SCT_ModuleSideDesign *design = static_cast<const InDetDD::SCT_ModuleSideDesign*>(m_geometryMap[splitTypeName]);
+
     if (!design) {
       *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
 	" not found.\n" << endmsg;
@@ -437,6 +453,13 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
     }
     InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
     m_detectorManager->addDetectorElement(detector);
+
+    //Not sure this works because of constness of everything...
+    //get the mother design...
+    //const InDetDD::SCT_ModuleSideDesign *motherDesign = static_cast<const InDetDD::SCT_ModuleSideDesign*>(m_geometryMap[typeName]);
+    //motherDesign->addChildElement(splitIndex,detector);
+    //design->setMother(motherDesign);
+
     //
     //    Build up a map-structure for numerology
     //
