@@ -630,7 +630,6 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
     Option correctMean pulls the mean gTower energy per eta bin from a LUT for subtraction (in addition to the RMS threshold).*/
 
   const unsigned int size = towers->size();
-  //TFile* file = TFile::Open(lut_path, "READ");
 
   float metX = 0;
   float metY = 0;
@@ -676,7 +675,6 @@ StatusCode METAlg::RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metN
   met->ey=metY;
   met->et=EtMiss;
 
-  //delete file;
   if(m_METMap.find(metName)==m_METMap.end()) m_METMap[metName] = met;
 
   return StatusCode::SUCCESS;
