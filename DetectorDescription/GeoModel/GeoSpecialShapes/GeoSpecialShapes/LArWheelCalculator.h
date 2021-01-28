@@ -11,7 +11,9 @@
 #ifndef XAOD_STANDALONE
     #include "AthenaKernel/CLASS_DEF.h"
 #endif // XAOD_STANDALONE
-#include "vec_parametrized_sincos.h"
+#if !defined(__CLING__)
+    #include "vec_parametrized_sincos.h"
+#endif
 #include "GeoSpecialShapes/LArWheelCalculatorEnums.h"
 
 #define LARWC_SINCOS_POLY 5
@@ -208,7 +210,9 @@ class LArWheelCalculator
     LArWheelCalculator_Impl::IDistanceCalculator *m_distanceCalcImpl;
     LArWheelCalculator_Impl::IFanCalculator *m_fanCalcImpl;
     void fill_sincos_parameterization();
+#if !defined(__CLING__)
     vsincos_par m_vsincos_par{};
+#endif
 };
 
 #ifndef XAOD_STANDALONE
