@@ -48,6 +48,10 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+    if doFTF and config.FT.signatureType == 'fullScanUTT' :
+      ViewDataVerifier.DataObjects += [ ( 'DataVector< LVL1::RecJetRoI >' , 'StoreGateSvc+HLT_RecJETRoIs' ) ]
+
+
 
     viewAlgs.append( ViewDataVerifier )
 
@@ -308,6 +312,12 @@ def makeInDetAlgs( config = None, rois = 'EMViewRoIs', doFTF = True, viewVerifie
       theFTF.RoIs           = rois
       theFTF.TracksName     = config.FT.trkTracksFTF()
       theFTF.doCloneRemoval = config.FT.setting.doCloneRemoval
+      if config.FT.signatureType == 'fullScanUTT' :
+        theFTF.RecJetRoI      = "HLT_RecJETRoIs"
+        theFTF.HitDVSeed      = "HLT_HitDVSeed"
+        theFTF.HitDVTrk       = "HLT_HitDVTrk"
+        theFTF.HitDVSP        = "HLT_HitDVSP"
+
 
       viewAlgs.append(theFTF)
 

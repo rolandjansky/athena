@@ -240,6 +240,15 @@ class _Tracking_fullScan( _Settings ):
       self._dRdoubletMax    = 200
       self._seedRadBinWidth = 10
 
+class _Tracking_fullScanUTT( _Settings ):
+   def __init__( self ):
+      _Settings.__init__(self)
+      self._etaHalfWidth    = 3.
+      self._phiHalfWidth    = 3.14159
+      self._doTRT           = False
+      self._dRdoubletMax    = 200
+      self._seedRadBinWidth = 10
+
 class _Tracking_minBias( _Settings ):
    def __init__( self ):
       _Settings.__init__(self)
@@ -354,6 +363,7 @@ _TrackingConfigSettings = {
 
     "bjet"         : _Tracking_bjet(),
     "fullScan"     : _Tracking_fullScan(),
+    "fullScanUTT"  : _Tracking_fullScanUTT(),
 
     "minBias400"   : _Tracking_minBias(),
     "beamSpot"     : _Tracking_beamSpot(),
@@ -597,6 +607,15 @@ class _Settings_jet( _GlobalSettings ):
       self._configPT = _PrecisionTracking( signatureType = 'fullScan',  nameSuffix = 'FS' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True
 
+class _Settings_jetUTT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "jetUTT" #To be appended to alg names
+      self._roi      = "HLT_Roi_jetFS" #FIXME: possibly different!
+      self._configFT = _FastTracking(      signatureType = 'fullScanUTT', nameSuffix = 'FS' ) #
+      self._configPT = _PrecisionTracking( signatureType = 'fullScan',    nameSuffix = 'FS' ) #Final collection is being renamed to just tau apparently...
+      self._doRecord = True
+
 class _Settings_minBias( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -622,6 +641,14 @@ class _Settings_fullScan( _GlobalSettings ):
       self._name     = "fullScan" #To be appended to alg names
       self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
       self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
+      self._doRecord = False
+
+class _Settings_fullScanUTT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "fullScanUTT" #To be appended to alg names
+      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
+      self._configFT = _FastTracking(   signatureType = 'fullScanUTT',  nameSuffix = 'FS' ) #
       self._doRecord = False
 
 class _Settings_cosmics( _GlobalSettings ):
@@ -710,6 +737,7 @@ _ConfigSettings = {
 
     "bjet"        : _Settings_bjet(),
     "jet"         : _Settings_jet(),
+    "jetUTT"      : _Settings_jetUTT(),
 
     "fullScan"    : _Settings_fullScan(),
 
