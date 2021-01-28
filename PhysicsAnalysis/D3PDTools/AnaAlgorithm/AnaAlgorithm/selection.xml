@@ -3,6 +3,9 @@
    <class name="EL::AnaAlgorithm" />
    <class name="EL::AnaAlgorithmConfig" />
    <class name="EL::AnaAlgorithmWrapper" />
+   <class name="EL::AnaReentrantAlgorithm" />
+   <class name="EL::AnaReentrantAlgorithmConfig" />
+   <class name="EL::AnaReentrantAlgorithmWrapper" />
    <class name="EL::IAlgorithmWrapper" />
    
 </lcgdict>
