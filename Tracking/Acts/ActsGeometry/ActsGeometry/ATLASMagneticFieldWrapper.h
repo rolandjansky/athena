@@ -20,7 +20,8 @@ public:
   struct Cache {
 
     Cache(std::reference_wrapper<const Acts::MagneticFieldContext> mctx) {
-      std::any_cast<const AtlasFieldCacheCondObj*>(mctx)->getInitializedCache(fieldCache);
+      const Acts::MagneticFieldContext& mctxref = mctx.get();
+      std::any_cast<const AtlasFieldCacheCondObj*>(mctxref)->getInitializedCache(fieldCache);
     }
 
     MagField::AtlasFieldCache fieldCache;
