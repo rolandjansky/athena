@@ -186,7 +186,7 @@ public:
     Trk::MagneticFieldProperties                        m_stepField;
 
     // count warnings
-    mutable std::unique_ptr<MessageHelper>                m_messageHelper ATLAS_THREAD_SAFE; // MessageHelper is thread-safe
+    std::unique_ptr<MessageHelper>                m_messageHelper;
     
     class    compareByDistance {
     public:
