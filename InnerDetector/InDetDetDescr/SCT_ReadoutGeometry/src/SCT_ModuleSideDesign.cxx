@@ -63,27 +63,6 @@ SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
     m_swapStripReadout(swapStripReadout) {
 }
 
-SCT_ModuleSideDesign::SCT_ModuleSideDesign(const double thickness,
-                                           const bool phiSymmetric,
-                                           const bool etaSymmetric,
-                                           const bool depthSymmetric,
-                                           const int crystals,
-                                           const int diodes,
-                                           const int cells,
-                                           const int shift,
-                                           const bool swapStripReadout,
-                                           InDetDD::CarrierType carrierType,
-                                           int readoutSide,
-					   const InDetDD::SiDetectorDesign::Axis stripDirection,
-                                           const InDetDD::SiDetectorDesign::Axis thicknessDirection,
-					   const SCT_ModuleSideDesign * mother):
-SiDetectorDesign(thickness, phiSymmetric, etaSymmetric, depthSymmetric, carrierType, readoutSide,stripDirection, thicknessDirection),
-  m_scheme(crystals, diodes, cells, shift),
-  m_swapStripReadout(swapStripReadout),
-  m_motherDesign(mother)
-{
-}
-
 
 void SCT_ModuleSideDesign::neighboursOfCell(const SiCellId &cellId,
                                             std::vector<SiCellId> &neighbours) const {
@@ -124,22 +103,13 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
     return cellId;
 }
 
-  void SCT_ModuleSideDesign::setMother(const SCT_ModuleSideDesign * mother){
+  void SCT_ModuleSideDesign::setMother(SCT_ModuleSideDesign * mother){
     if(m_motherDesign){
       const std::string errMsg=std::string("SCT_ModuleSideDesign already has a mother set!");
 	throw std::runtime_error(errMsg);
     } 
     m_motherDesign = mother;
-    
-    //fill the reciprocal link
-    std::set<const SCT_ModuleSideDesign*> children = getChildren_int();
-    std::cout<<"value of \"this\" in setMother:"<<this<<std::endl;
-    children.insert(this);
 
-  }
-
-  void SCT_ModuleSideDesign::addChildElement(int index, const SiDetectorElement * element){
-    m_childElements.emplace(index,element);
   }
 
 } // namespace InDetDD

@@ -30,8 +30,6 @@ namespace InDetDD {
     @author Alessandro Fornaini, Grant Gorfine
  */
 
-  class SiDetectorElement;
-
 class SCT_ModuleSideDesign: public SiDetectorDesign {
 public:
     /** Constructor with parameters:
@@ -78,30 +76,6 @@ public:
                          const SiDetectorDesign::Axis stripDirection,
                          const SiDetectorDesign::Axis thicknessDirection);
 
-    
- /** Constructor with parameters, enum Axis access, and "mother":
-       local axis corresponding to eta direction
-       local axis corresponding to phi direction
-       local axis corresponding to depth direction
-       thickness of silicon sensor
-       number of crystals within module side
-       number of diodes within crystal
-       number of cells within module side
-       index of diode connected to cell with index 0 */
-    SCT_ModuleSideDesign(const double thickness,
-                         const bool phiSymmetric,
-                         const bool etaSymmetric,
-                         const bool depthSymmetric,
-                         const int crystals,
-                         const int diodes,
-                         const int cells,
-                         const int shift,
-                         const bool swapStripReadout,
-                         InDetDD::CarrierType carrierType,
-                         int readoutSide,
-			 const SiDetectorDesign::Axis stripDirection,
-                         const SiDetectorDesign::Axis thicknessDirection,
-			 const SCT_ModuleSideDesign * mother);
 
 /** Destructor: */
     virtual ~SCT_ModuleSideDesign() = default;
@@ -194,10 +168,10 @@ public:
     virtual int strip(int stripId1Dim) const;  // For SCT, returns stripId1Dim; otherwise returns strip within row.
     virtual int strip1Dim(int strip, int row) const;   // For SCT, returns strip. Else inverse of above two.
 
-    void setMother(const SCT_ModuleSideDesign* mother);
+    void setMother(SCT_ModuleSideDesign* mother);
     const SCT_ModuleSideDesign * getMother() const;
-    std::set<const SCT_ModuleSideDesign *> getChildren() const;
-    void addChildElement(int index, const SiDetectorElement * element);
+    std::map<int, const SCT_ModuleSideDesign *> getChildren() const;
+    void addChildDesign(int index, const SCT_ModuleSideDesign * element);
 
 private:
     SCT_ModuleSideDesign();
@@ -207,9 +181,6 @@ private:
 
     // Assignment operator:
     SCT_ModuleSideDesign &operator = (const SCT_ModuleSideDesign &design);
-    
-    //return reference for internal updating of member
-    std::set<const SCT_ModuleSideDesign *> & getChildren_int();
 
 protected:
     SCT_ReadoutScheme m_scheme; // !< connection between diodes and readout cells
@@ -224,9 +195,8 @@ private:
     //container design for split sensors - owned by DetectorManager
     const SCT_ModuleSideDesign * m_motherDesign{nullptr};
     //if this design *is* a mother design, these are its children
-    std::set<const SCT_ModuleSideDesign *>  m_childDesigns;
+    std::map<int, const SCT_ModuleSideDesign *>  m_childDesigns;
 
-    std::map<int, const SiDetectorElement *> m_childElements;
 };
 
 ///////////////////////////////////////////////////////////////////
@@ -303,13 +273,13 @@ inline int SCT_ModuleSideDesign::strip1Dim(int strip, int /*row not used */) con
    return m_motherDesign;
  }
  
- inline std::set<const SCT_ModuleSideDesign *> SCT_ModuleSideDesign::getChildren() const {
+ inline std::map<int, const SCT_ModuleSideDesign *> SCT_ModuleSideDesign::getChildren() const {
    return m_childDesigns;
  }
 
 
-  inline std::set<const SCT_ModuleSideDesign *> & SCT_ModuleSideDesign::getChildren_int() {
-   return m_childDesigns;
+ inline void SCT_ModuleSideDesign::addChildDesign(int index, const SCT_ModuleSideDesign * child) {
+   m_childDesigns.emplace(index,child);
  }
 
 } // namespace InDetDD

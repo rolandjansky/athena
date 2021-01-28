@@ -199,23 +199,27 @@ double length(25.0);
       //between the different rows on a simulated sensor in the HITS
       std::unique_ptr<InDetDD::StripBoxDesign> motherDesign=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection, thickness, readoutSide,carrier, nRows, nStrips, pitch,length);
       
-      m_motherMap[typeName] = motherDesign.get();
-      m_detectorManager->addMotherDesign(std::move(motherDesign));
 
       for(int i = 0;i<split;i++){
 	for(int side:{0,1}){//need different additional shift transform per side...
 	  int sign = (side==0) ? 1:-1;//...because shift in different direction per side
 	  double zShift = sign*(initZShift + (i*length));
 	  
-	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift,m_motherMap[typeName]);//single row
+	  std::unique_ptr<InDetDD::StripBoxDesign> design=std::make_unique<InDetDD::StripBoxDesign>(stripDirection, fieldDirection,thickness, readoutSide,carrier, 1, nStrips, pitch,length,zShift);//single row
 	  
+	  design->setMother(motherDesign.get());
+	  motherDesign->addChildDesign(i,design.get());
+
 	  std::string splitName = typeName+"_"+std::to_string(i)+"_"+std::to_string(side);
 	  m_geometryMap[splitName] = design.get();
-
 	  m_detectorManager->addDesign(std::move(design));
 
 	}
       }
+
+      m_motherMap[typeName] = motherDesign.get();
+      m_detectorManager->addMotherDesign(std::move(motherDesign));
+
     }
                                                                       
     else{
@@ -376,6 +380,7 @@ vector<double> endR;
 	 std::string splitName = typeName+"_"+std::to_string(i);
 	 
 	 design->setMother(motherDesign.get());
+	 motherDesign->addChildDesign(i,design.get());
 	 
 	 m_geometryMap[splitName] = design.get();
 	 m_detectorManager->addDesign(std::move(design));
@@ -448,37 +453,17 @@ void StripGmxInterface::addSplitSensor(string typeName, map<string, int> &index,
       splitTypeName += "_" + std::to_string(updatedIndex["side"]);
     }
 
-    //const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
-    const InDetDD::SCT_ModuleSideDesign *design = static_cast<const InDetDD::SCT_ModuleSideDesign*>(m_geometryMap[splitTypeName]);
+    const InDetDD::SiDetectorDesign *design = m_geometryMap[splitTypeName];
 
     if (!design) {
       *m_log << MSG::FATAL << "StripGmxInterface::addSensor: Error: Readout sensor type " << typeName << 
 	" not found.\n" << endmsg;
       exit(999);
     }
-
-    const InDetDD::SCT_ModuleSideDesign * mother = design->getMother();
-    if(mother){
-      std::cout<<"got mother!!! "<<mother<<" : "<<m_motherMap[typeName]<<" : "<<typeName<<std::endl;
-      std::cout<<"number of children: "<<mother->getChildren().size()<<std::endl;
-
-      std::cout << " bec = " << SiHitIdHelper::GetHelper()->getBarrelEndcap(hitIdOfWafer) << 
-                                      " lay = " << SiHitIdHelper::GetHelper()->getLayerDisk(hitIdOfWafer) << 
-                                      " eta = " << SiHitIdHelper::GetHelper()->getEtaModule(hitIdOfWafer) << 
-                                      " phi = " << SiHitIdHelper::GetHelper()->getPhiModule(hitIdOfWafer) << 
-	" side = " << SiHitIdHelper::GetHelper()->getSide(hitIdOfWafer) << std::endl; 
-    }
-    else std::cout<<"no mother!!! "<<m_motherMap[typeName]<<" : "<<typeName<<std::endl;
     
     
     InDetDD::SiDetectorElement *detector = new InDetDD::SiDetectorElement(id, design, fpv, m_commonItems);
     m_detectorManager->addDetectorElement(detector);
-
-    //Not sure this works because of constness of everything...
-    //get the mother design...
-    //const InDetDD::SCT_ModuleSideDesign *motherDesign = static_cast<const InDetDD::SCT_ModuleSideDesign*>(m_geometryMap[typeName]);
-    //motherDesign->addChildElement(splitIndex,detector);
-    //design->setMother(motherDesign);
 
     //
     //    Build up a map-structure for numerology

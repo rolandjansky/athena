@@ -20,9 +20,8 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const int nStrips,
                                const double pitch,
                                const double length,
-			       const double zShift,
-			       const SCT_ModuleSideDesign * mother) : 
-    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,readoutSide, stripDirection, thicknessDirection, mother) {
+			       const double zShift) : 
+    SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,readoutSide, stripDirection, thicknessDirection) {
     if (nRows <= 0) {
         throw std::runtime_error(
                   "ERROR: StripBoxDesign called with non-positive number of rows");
