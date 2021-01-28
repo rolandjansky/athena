@@ -40,6 +40,7 @@ private:
 
   bool m_failureOnMissingContainer;
   bool m_onlyPassingJets;
+  bool m_eventFiresAnyJetChain;
 
 };
 #endif
