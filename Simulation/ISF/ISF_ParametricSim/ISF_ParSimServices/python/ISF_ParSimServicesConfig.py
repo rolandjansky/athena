@@ -5,7 +5,7 @@ Tools configurations for ISF for ISF_ParSimServicesConfig
 Miha Muskinja, 14/01/2015
 """
 
-from AthenaCommon.CfgGetter import getPublicTool, getService
+from AthenaCommon.CfgGetter import getPublicTool
 
 from ISF_ParSimServices.ISF_ParSimJobProperties import ISF_ParSimFlags
 from ISF_ParSimServices.ISF_ParSimTuning        import ISF_ParSimTuningFlags

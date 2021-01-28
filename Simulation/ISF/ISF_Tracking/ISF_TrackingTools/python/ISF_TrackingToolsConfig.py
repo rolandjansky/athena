@@ -5,7 +5,7 @@ TrackingTools configuration for ISF
 Elmar Ritsch, 24/06/2015
 """
 
-from AthenaCommon.CfgGetter import getPublicTool, getService
+from AthenaCommon.CfgGetter import getPublicTool
 
 def getCaloEntryTrkExtrapolator(name="ISF_CaloEntryTrkExtrapolator", **kwargs):
     kwargs.setdefault( 'TrackingVolumeName'  , 'InDet::Containers::EntryVolume'       )
