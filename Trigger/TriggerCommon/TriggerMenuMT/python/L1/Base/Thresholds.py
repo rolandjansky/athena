@@ -124,7 +124,7 @@ class Threshold( object ):
 
     def getVarName(self):
         """returns a string that can be used as a varname"""
-        return self.name.replace('.','')
+        return self.name.replace('p','')
 
     def isLegacy(self):
         return self.run == 2

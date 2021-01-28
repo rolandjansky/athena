@@ -69,7 +69,7 @@ class ThresholdDefLegacy:
 
         # VH section
         ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
-        ThresholdDefLegacy.addVaryingThrValuesRun2( LegacyThreshold( 'EM8VH', 'EM'), 8, shift_set = 1 )
+        ThresholdDefLegacy.addVaryingThrValuesRun2( LegacyThreshold( 'EM8VH',  'EM'),  8, shift_set = 1 )
         ThresholdDefLegacy.addVaryingThrValuesRun2( LegacyThreshold( 'EM10VH', 'EM'), 10, shift_set = 1 )
         ThresholdDefLegacy.addVaryingThrValuesRun2( LegacyThreshold( 'EM13VH', 'EM'), 13, shift_set = 2 )
         ThresholdDefLegacy.addVaryingThrValuesRun2( LegacyThreshold( 'EM15VH', 'EM'), 15, shift_set = 2 )
@@ -102,7 +102,7 @@ class ThresholdDefLegacy:
         for thrV in [1, 2, 3, 5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60, 90, 100]:
             LegacyThreshold('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
-        # beam splashes     
+        # beam splashes
         for thrV in [20]: 
             LegacyThreshold('HA%iA' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = 12,  etamax = 16, priority=2) 
             LegacyThreshold('HA%iC' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = -16,  etamax = -12, priority=2) 
@@ -147,17 +147,17 @@ class ThresholdDefLegacy:
             LegacyThreshold('J%iC' % thrV, 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = -23,  etamax = -15, priority=1)          
         # Central jet
         for (thrV, etamax) in [(12,23), (12,28), (15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25), (45,23)]:
-            LegacyThreshold('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
+            LegacyThreshold('J%ip0ETA%i'  % (thrV, etamax), 'JET').addThrValue(CL.JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet
         for thrV in [10, 15, 20, 25, 30, 35, 45, 50, 70, 75, 100]:
-            LegacyThreshold('J%i.31ETA49' % thrV, 'JET').addThrValue(CL.JetOff)\
+            LegacyThreshold('J%ip31ETA49' % thrV, 'JET').addThrValue(CL.JetOff)\
                                                         .addThrValue( thrV, etamin=31,  etamax=49, priority=1)\
                                                         .addThrValue( thrV, etamin=-49, etamax=-31, priority=1)
 
         # Custom Forward jet and VBF jets
         for (thrV, etamin, etamax) in [ (15,23,49), (15,24,49), (20,28,31) ]:
-            LegacyThreshold('J%i.%iETA%i' % (thrV, etamin,etamax), 'JET').addThrValue(CL.JetOff)\
+            LegacyThreshold('J%ip%iETA%i' % (thrV, etamin,etamax), 'JET').addThrValue(CL.JetOff)\
                                                                          .addThrValue( thrV, etamin  =  etamin, etamax=etamax, priority=1)\
                                                                          .addThrValue( thrV, etamin = -etamax, etamax = -etamin, priority=1)
 
@@ -165,20 +165,18 @@ class ThresholdDefLegacy:
         ThresholdValue.setDefaults('JET', {'window' : 4})
         
         for thrV in [15]:
-            LegacyThreshold('JJ%i.23ETA49' % thrV, 'JET')\
+            LegacyThreshold('JJ%ip23ETA49' % thrV, 'JET')\
               .addThrValue(CL.JetOff)\
               .addThrValue( thrV, etamin=23,  etamax=49, priority=1)\
               .addThrValue( thrV, etamin=-49, etamax=-23, priority=1)
 
         ThresholdValue.setDefaults('JET', {})
 
-
         # ZB
         ZeroBiasThreshold('ZB_EM12').setSeedThreshold( seed='EM12', seed_multi=1, bcdelay=3564 )
         ZeroBiasThreshold('ZB_EM15').setSeedThreshold( seed='EM15', seed_multi=1, bcdelay=3564 )
         ZeroBiasThreshold('ZB_J10' ).setSeedThreshold( seed='J10',  seed_multi=1, bcdelay=3564 )
         ZeroBiasThreshold('ZB_J75' ).setSeedThreshold( seed='J75',  seed_multi=1, bcdelay=3564 )
-
 
         # JE
 
@@ -188,7 +186,6 @@ class ThresholdDefLegacy:
         for thrV in [100, 140, 200, 300, 350, 500]:
             LegacyThreshold('JE%i' % thrV, 'JE').addThrValue(thrV)
 
-        
         # TE
         for thrV in [0, 2, 3, 4, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 90, 100, 120, 140, 160, 200, 280, 300, 360, 2000, 4000, 10000, 12000, 14000]:
             LegacyThreshold('TE%i' % thrV, 'TE').addThrValue(thrV)
@@ -204,23 +201,23 @@ class ThresholdDefLegacy:
         # Restricted range TE |eta|<2.4
         etamax = 24
         for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
-            LegacyThreshold('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(CL.EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
+            LegacyThreshold('TE%ip0ETA%i' % (thrV, etamax), 'TE').addThrValue(CL.EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
         
         # Restricted range TE 2.4<|eta|<4.9
         etamin = 24
         etamax = 49
         for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
-            LegacyThreshold('TE%i.%iETA%i' % (thrV, etamin, etamax), 'TE')\
-              .addThrValue(CL.EtSumOff)\
+            LegacyThreshold('TE%ip%iETA%i' % (thrV, etamin, etamax), 'TE')\
+              .addThrValue( CL.EtSumOff)\
               .addThrValue( thrV, etamin  =  etamin, etamax=etamax, priority=1)\
               .addThrValue( thrV, etamin = -etamax, etamax = -etamin, priority=1)
 
         # RXE (restriced range ET miss)
         etamax = 24
         for thrV in [30, 35, 40, 45, 50, 55, 60, 70, 80]:
-            LegacyThreshold('XE%i.0ETA%i'    % (thrV, etamax), 'XE').addThrValue(CL.EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
+            LegacyThreshold('XE%ip0ETA%i'    % (thrV, etamax), 'XE').addThrValue(CL.EtMissOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1) 
 
         # Restricted range TE |eta|<4.9
         etamax = 49
         for thrV in [3, 7, 500, 600, 1500, 3000, 3500, 5000, 6500, 8000, 9000]:
-            LegacyThreshold('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(CL.EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
+            LegacyThreshold('TE%ip0ETA%i' % (thrV, etamax), 'TE').addThrValue(CL.EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
