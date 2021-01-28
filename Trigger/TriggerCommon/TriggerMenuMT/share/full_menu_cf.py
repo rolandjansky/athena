@@ -307,5 +307,8 @@ generateJSON()
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
 generatePrescaleJSON()
    
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+generateDefaultMonitoringJSON()
+
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

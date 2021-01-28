@@ -476,7 +476,7 @@ def dictFromChainName(chainInfo):
     ---- Loop over all chains (keys) in dictionary ----
     ---- Then complete the dict with other info    ----
     Default input format will be namedtuple:
-    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False],
+    ChainProp: ['name', 'L1Thresholds'=[], 'stream', 'groups', 'merging'=[], 'topoStartFrom'=False, 'monGroups' = []],
     but for nwo plain chain name is also supported
     
     """
@@ -492,6 +492,7 @@ def dictFromChainName(chainInfo):
         mergingOffset   = -1
         mergingOrder    = []
         topoStartFrom   = ''
+        monGroups       = []
 
     elif 'ChainProp' in str(type(chainInfo)):	
         #this is how we define chains in the menu - the normal behaviour of this function
@@ -503,6 +504,8 @@ def dictFromChainName(chainInfo):
         mergingOffset   = chainInfo.mergingOffset
         mergingOrder    = chainInfo.mergingOrder
         topoStartFrom   = chainInfo.topoStartFrom
+        monGroups       = chainInfo.monGroups
+
         
     else:
         assert True, "Format of chainInfo passed to genChainDict not known"
@@ -521,6 +524,7 @@ def dictFromChainName(chainInfo):
     chainDict['mergingOffset']   = mergingOffset
     chainDict['mergingOrder']    = mergingOrder
     chainDict['topoStartFrom']   = topoStartFrom
+    chainDict['monGroups']       = monGroups
     chainDict['chainNameHash']   = string2hash(chainDict['chainName'])
 
 

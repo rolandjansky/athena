@@ -40,6 +40,12 @@ def getHLTPrescalesSetFileName( flags ):
     hltPrescalesSetFileName = 'HLTPrescalesSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
     return hltPrescalesSetFileName
 
+# HLT Monitoring set json file name
+def getHLTMonitoringFileName( flags ):
+    hltMonitoringFileName = 'HLTMonitoring_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'
+    return hltMonitoringFileName
+
+
 # L1 Bunchgroups set json file name
 def getBunchGroupSetFileName( flags ):
     bunchGroupSetFileName = 'BunchGroupSet_'+flags.Trigger.triggerMenuSetup+'_'+flags.Trigger.menuVersion+'.json'

@@ -507,4 +507,8 @@ class GenerateMenuMT(object, metaclass=Singleton):
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
 
+        log.debug('[GenerateMenuMT::generateMT] now generating HLTMonitoring JSON...')
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        generateDefaultMonitoringJSON()
+
         return finalListOfChainConfigs
