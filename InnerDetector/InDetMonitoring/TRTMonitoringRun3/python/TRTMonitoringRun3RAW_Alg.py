@@ -1,6 +1,31 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
+
+def TRTHoleSearchCfg(flags, **kwargs) :
+    from TrkConfig.AtlasExtrapolatorConfig import AtlasExtrapolatorCfg
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+
+    acc=ComponentAccumulator()
+    kwargs.setdefault('name','TRTTrackHoleSearchTool')
+    if 'Extrapolator' not in kwargs :
+        extrapolator = acc.popToolsAndMerge( AtlasExtrapolatorCfg(flags) )
+        acc.addPublicTool(extrapolator)
+        kwargs.setdefault('extrapolator',extrapolator)
+    acc.setPrivateTools( CompFactory.TRTTrackHoleSearchTool(**kwargs) )
+    return acc
+
+def TRTHoleSearch(name='TRTTrackHoleSearchTool', **kwargs) :
+    kwargs.setdefault('name',name)
+    if 'Extrapolator' not in kwargs :
+        from TrkExTools.AtlasExtrapolator import AtlasExtrapolator
+        kwargs=setDefaults(kwargs,Extrapolator = AtlasExtrapolator())
+
+    from TRT_TrackHoleSearch.TRT_TrackHoleSearchConf import TRTTrackHoleSearchTool
+    return TRTTrackHoleSearchTool(**kwargs)
+
+
 def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
     from AthenaConfiguration.ComponentFactory import isRun3Cfg
     if isRun3Cfg():
@@ -21,9 +46,14 @@ def TRTMonitoringRun3RAW_AlgConfig(inputFlags):
                                                   TrackSummaryTool= "InDetTrackSummaryTool"
                                               )
 
+    # @TODO really run the TRT hole search ? Hole search still seems to use a condition service
     if isRun3Cfg():
         from SCT_Monitoring.TrackSummaryToolWorkaround import TrackSummaryToolWorkaround
         algTRTMonitoringRun3RAW.TrackSummaryTool = rv.popToolsAndMerge(TrackSummaryToolWorkaround(inputFlags))
+        algTRTMonitoringRun3RAW.trt_hole_search= rv.popToolsAndMerge( TRTHoleSearchCfg(inputFlags) )
+    else :
+        algTRTMonitoringRun3RAW.trt_hole_search=TRTHoleSearch()
+
 
     maxLumiBlock         = 200
     numberOfBarrelStacks = 32

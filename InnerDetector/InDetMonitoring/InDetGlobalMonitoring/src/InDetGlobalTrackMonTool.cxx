@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /** @file InDetGlobalTrackMonTool.cxx
@@ -200,7 +200,10 @@ StatusCode InDetGlobalTrackMonTool::initialize() {
   
   ATH_CHECK( m_baseline_selTool.retrieve() );
   ATH_CHECK( m_tight_selTool.retrieve() );
-  ATH_CHECK( m_holes_search_tool.retrieve());
+  if (m_holes_search_tool.empty() && m_DoHoles_Search) {
+     ATH_MSG_FATAL("Hole search enabled but HoleSearchTool not configured.");
+  }
+  ATH_CHECK( m_holes_search_tool.retrieve( DisableTool{!m_DoHoles_Search} ));
 
   sc = ManagedMonitorToolBase::initialize();
   if(!sc.isSuccess()) return sc;
