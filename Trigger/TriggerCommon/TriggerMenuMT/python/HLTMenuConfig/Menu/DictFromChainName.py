@@ -69,7 +69,7 @@ def getL1item(chainName):
     #replace the '_' left-closest-to ETA by '.' so that L1J75_31ETA49 becomes L1J75.31ETA49
     if 'ETA' in mainL1:
         r = re.compile("_(?P<eta>..ETA..)")
-        mainL1 = r.sub(".\\g<eta>", mainL1)
+        mainL1 = r.sub("p\\g<eta>", mainL1)
     return mainL1
 
 def getAllThresholdsFromItem(item):

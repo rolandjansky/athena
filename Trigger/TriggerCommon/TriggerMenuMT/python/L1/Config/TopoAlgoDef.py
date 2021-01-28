@@ -84,7 +84,7 @@ class TopoAlgoDef:
         alg.addgeneric('DoIsoCut', 0)
         tm.registerTopoAlgo(alg) 
 
-        
+
         alg = AlgConf.ClusterSort( name = 'EMshi', inputs = 'ClusterTobArray', outputs = 'EMshi' )
         alg.addgeneric('InputWidth', HW.InputWidthEM)
         alg.addgeneric('InputWidth1stStage', HW.InputWidth1stStageSortEM)
@@ -263,7 +263,7 @@ class TopoAlgoDef:
         alg.addvariable('MinET', 4) 
         alg.addvariable('MinEta', 0)
         alg.addvariable('MaxEta', 25)
-        tm.registerTopoAlgo(alg)            
+        tm.registerTopoAlgo(alg)
 
 
         alg = AlgConf.MuonSort( name = 'MUs', inputs = 'MuonTobArray', outputs = 'MUs' )
@@ -365,7 +365,7 @@ class TopoAlgoDef:
 
 
         # dimu DR items
-        listofalgos=[  
+        listofalgos=[
             {"minDr": 0, "maxDr": 15, "mult": 2, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6, "onebarrel": 0}, #0DR15-2MU6ab  
         ]
         for x in listofalgos:
@@ -1345,7 +1345,7 @@ class TopoAlgoDef:
             for k in x:
                 setattr (d, k, x[k])
             inputList = ['CJs']
-            toponames=[]            
+            toponames=[]
             for minET in d.minETlist:  # noqa: F821
                 toponames.append ("CEP-CJ%is6" % (minET))     # noqa: F821 
             alg = AlgConf.ExclusiveJets( name = d.algoname, inputs = inputList, outputs = toponames) # noqa: F821
