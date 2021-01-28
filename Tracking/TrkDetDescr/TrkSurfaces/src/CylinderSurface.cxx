@@ -309,8 +309,8 @@ Trk::CylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, con
 {
   double tol = 0.001;
 
-  const Amg::Vector3D& X = center(); // point
-  const Amg::Vector3D& S = normal(); // vector
+  const Amg::Vector3D& X = Trk::Surface::center(); // point
+  const Amg::Vector3D& S = Trk::Surface::normal(); // vector
 
   double radius = bounds().r();
   double sp = pos.dot(S);

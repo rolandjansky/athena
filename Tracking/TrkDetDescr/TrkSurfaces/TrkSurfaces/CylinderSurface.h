@@ -178,10 +178,6 @@ public:
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
-
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
   virtual const Amg::Vector3D* normal(
     const Amg::Vector2D& locpo) const override;
 
@@ -205,7 +201,7 @@ public:
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override final; 
+    const LocalParameters& locpars) const override final;
 
   /** Specialized for CylinderSurface : LocalToGlobal method without dynamic
    * memory allocation */

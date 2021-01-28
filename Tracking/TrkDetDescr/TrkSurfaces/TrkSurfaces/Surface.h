@@ -145,14 +145,14 @@ public:
   const Amg::Transform3D* cachedTransform() const;
 
   /** Returns HepGeom::Transform3D by reference */
-  virtual const Amg::Transform3D& transform() const;
+  const Amg::Transform3D& transform() const;
 
   /** Returns the center position of the Surface */
-  virtual const Amg::Vector3D& center() const;
+  const Amg::Vector3D& center() const;
 
   /** Returns the normal vector of the Surface (i.e. in generall z-axis of
    * rotation) */
-  virtual const Amg::Vector3D& normal() const;
+  const Amg::Vector3D& normal() const;
 
   /** Returns a normal vector at a specific local position
    */

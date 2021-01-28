@@ -95,12 +95,6 @@ ConeSurface::clone() const
   return new ConeSurface(*this);
 }
 
-inline const Amg::Vector3D&
-ConeSurface::normal() const
-{
-  return Surface::normal();
-}
-
 inline const Amg::Vector3D*
 ConeSurface::normal(const Amg::Vector2D& lp) const
 {
