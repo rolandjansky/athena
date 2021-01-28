@@ -15,6 +15,7 @@
 #include "./CapacityCheckedCondition.h"
 #include "./FastReductionMatcher.h"
 #include "./Tree.h"
+#include "./ConditionsDefsMT.h"
 
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 
@@ -89,7 +90,8 @@ TrigJetHypoToolConfig_fastreduction::getConditionFilters() const {
   auto filters = std::vector<std::unique_ptr<ConditionFilter>>();
   
   for(const auto& cm : m_filtConditionMakers){
-    ConditionPtrs filterConditions;  // will contain a single Condition
+
+    ConditionsMT filterConditions;  // will contain a single Condition
     filterConditions.push_back(cm->getCapacityCheckedCondition());
     auto cf = std::make_unique<ConditionFilter>(filterConditions);
     filters.push_back(std::move(cf));

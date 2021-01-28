@@ -18,6 +18,7 @@
 //
 #include "../TrigJetConditionConfig_abs_eta.h"
 #include "../TrigJetConditionConfig_signed_eta.h"
+#include "../TrigJetConditionConfig_phi.h"
 #include "../TrigJetConditionConfig_et.h"
 #include "../TrigJetConditionConfig_ht.h"
 #include "../TrigJetConditionConfig_htfr.h"
@@ -62,6 +63,7 @@ DECLARE_COMPONENT(TrigHLTJetHypo_TLA)
 DECLARE_COMPONENT(TrigHLTJetHypo_EtaEt)
 
 
+DECLARE_COMPONENT(TrigJetConditionConfig_phi)
 DECLARE_COMPONENT(TrigJetConditionConfig_signed_eta)
 DECLARE_COMPONENT(TrigJetConditionConfig_abs_eta)
 DECLARE_COMPONENT(TrigJetConditionConfig_et)

@@ -1148,6 +1148,12 @@ HLT_j460_a10t_lcw_nojcalib_35smcINF_L1J100:
   eventCount: 0
 HLT_j460_a10t_lcw_nojcalib_L1J100:
   eventCount: 0
+HLT_j60_j0_fbdjshared_L1J20:
+  eventCount: 1
+  stepCounts:
+    0: 1
+  stepFeatures:
+    0: 9
 HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20:
   eventCount: 0
 HLT_j80_L1J15:
@@ -1165,6 +1171,14 @@ HLT_j85_L1J20:
   stepFeatures:
     0: 3
 HLT_j85_ftf_L1J20:
+  eventCount: 3
+  stepCounts:
+    0: 5
+    1: 3
+  stepFeatures:
+    0: 5
+    1: 3
+HLT_j85_ftf_pfltrSEP300ceta210SEP300nphi10_L1J20:
   eventCount: 3
   stepCounts:
     0: 5

@@ -62,6 +62,7 @@ public extends<AthAlgTool, ITrigJetHypoToolNoGrouperConfig> {
   ToolHandleArray<ITrigJetCapacityCheckedConditionConfig> m_filtConditionMakers{
     this, "filtConditionsMakers", {},
     "hypo tree Condition builder AlgTools for Condition filters"};
+
   
   Gaudi::Property<std::vector<std::size_t>> m_treeVec{
     this, "treeVector", {}, "integer sequence representation of jet hypo tree"};

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -75,9 +75,13 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   }
 
   std::unique_ptr<ITrigJetHypoInfoCollector> infocollector(nullptr);
+  std::unique_ptr<ITrigJetHypoInfoCollector> jetdumper(nullptr);
   if(m_visitDebug){
     auto collectorName = name() + "_" + std::to_string(m_eventSN->getSN());
     infocollector.reset(new  DebugInfoCollector(collectorName));
+    auto jetdumperName =
+      name()+"_passingjets_" + std::to_string(m_eventSN->getSN());
+    jetdumper.reset(new  DebugInfoCollector(jetdumperName));
   }
   
    
@@ -140,7 +144,12 @@ TrigJetHypoToolMT::decide(const xAOD::JetContainer* jets,
   if (infocollector){
     infocollector->collect("TrigJetHypoToolMT", msg);
     infocollector->write();
+
+    std::stringstream ss;
+    ss << jetCollector.hypoJets();
+    jetdumper->collect("passed", ss.str());
   }
+  
   return StatusCode::SUCCESS;
 }
 

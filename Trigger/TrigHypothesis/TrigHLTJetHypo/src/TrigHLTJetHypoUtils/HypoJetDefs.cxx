@@ -12,7 +12,8 @@ std::ostream& operator << (std::ostream& out, const HypoJetVector& hjv) {
     out << static_cast<const void*>(j.get())
 	<< " e " << j->e()
 	<< " et " << j->et()
-	<< " eta " << j->eta() << '\n';
+	<< " eta " << j->eta()
+	<< " phi " << j->phi() << '\n';
   }
   return out;
 }
