@@ -119,34 +119,10 @@ PerigeeSurface::clone() const
   return new PerigeeSurface(*this);
 }
 
-inline const Amg::Transform3D&
-PerigeeSurface::transform() const
-{
-  if (!Surface::m_transform){
-    return (s_idTransform);
-  }
-  return (*Trk::Surface::m_transform);
-}
-
-inline const Amg::Vector3D&
-PerigeeSurface::center() const
-{
-  if (!Surface::m_center){
-    return (s_origin);
-  }
-  return (*Surface::m_center);
-}
-
-inline const Amg::Vector3D&
-PerigeeSurface::normal() const
-{
-  return (s_xAxis);
-}
-
 inline const Amg::Vector3D*
 PerigeeSurface::normal(const Amg::Vector2D&) const
 {
-  return new Amg::Vector3D(this->normal());
+  return new Amg::Vector3D(Trk::Surface::normal());
 }
 
 inline bool

@@ -177,10 +177,6 @@ public:
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
-
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
   virtual const Amg::Vector3D* normal(
     const Amg::Vector2D& locpo) const override;
 
@@ -213,7 +209,7 @@ public:
    * allocation - boolean checks if on surface */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override final; 
+                             Amg::Vector2D& loc) const override final;
 
   /** fast straight line intersection schema - provides closest intersection and
   (signed) path length

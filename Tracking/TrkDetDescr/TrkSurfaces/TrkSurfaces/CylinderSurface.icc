@@ -123,12 +123,6 @@ CylinderSurface::clone() const
   return new CylinderSurface(*this);
 }
 
-inline const Amg::Vector3D&
-CylinderSurface::normal() const
-{
-  return Surface::normal();
-}
-
 inline const Amg::Vector3D*
 CylinderSurface::normal(const Amg::Vector2D& lp) const
 {

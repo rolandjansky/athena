@@ -148,18 +148,6 @@ public:
   /** Return the surface type */
   virtual SurfaceType type() const override final;
 
-  /**Return method for transfromation, overwrites the transform() form base
-   * class*/
-  virtual const Amg::Transform3D& transform() const override final;
-
-  /**Return method for surface center infromation, overwrites the center() form
-   * base class*/
-  virtual const Amg::Vector3D& center() const override final;
-
-  /**Return method for surface center infromation, overwrites the center() form
-   * base class*/
-  virtual const Amg::Vector3D& normal() const override final;
-
   /**Returns a normal vector at a specific localPosition*/
   virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override final;
 

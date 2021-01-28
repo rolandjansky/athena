@@ -59,7 +59,7 @@ class ParametersT;
 class PlaneSurface : public Surface
 {
 public:
- 
+
   /** The surface type static constexpr */
   static constexpr SurfaceType staticType = Surface::Plane;
 
