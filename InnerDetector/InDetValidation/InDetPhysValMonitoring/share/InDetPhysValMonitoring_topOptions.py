@@ -8,6 +8,7 @@ def GetCustomAthArgs():
     IDPVMparser.add_argument("--doTightPrimary", help='also run tight-primary plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInJets", help='also run tracks in jets', action='store_true', default=False)
     IDPVMparser.add_argument("--doTracksInBJets", help='also run tracks in jets', action='store_true', default=False)
+    IDPVMparser.add_argument("--doTruthOrigin", help='make plots by track origin', action='store_true', default=False)
     IDPVMparser.add_argument("--doExpertPlots", help='run additional expert-level plots', action='store_true', default=False)
     IDPVMparser.add_argument("--doTruthToRecoNtuple", help='output track-to-truth ntuple', action='store_true', default=False)
     IDPVMparser.add_argument("--outputFile", help='Name of output file',default="M_output.root")
@@ -26,6 +27,7 @@ InDetPhysValFlags.doValidateTruthToRecoNtuple.set_Value_and_Lock(MyArgs.doTruthT
 InDetPhysValFlags.doValidateTracksInBJets.set_Value_and_Lock(MyArgs.doTracksInBJets)
 InDetPhysValFlags.doValidateTracksInJets.set_Value_and_Lock(MyArgs.doTracksInJets)
 InDetPhysValFlags.doValidateTightPrimaryTracks.set_Value_and_Lock(MyArgs.doTightPrimary)
+InDetPhysValFlags.doTruthOriginPlots.set_Value_and_Lock(MyArgs.doTruthOrigin)
 
 # Print the configuration
 print(" ==== Final Phys Val flags to run === ")
