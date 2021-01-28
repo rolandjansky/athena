@@ -240,7 +240,10 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
     # to Step10 Step11 Step1 Step2
+    stepCounter = 1
     for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0])):
+        assert __stepNumber(stepName) == stepCounter, "There are steps that have no hypos, decisions counting is not going to work"
+        stepCounter += 1
         stepDecisionKeys = []
         for hypo in stepHypos:
             hypoChains, hypoOutputKeys  = __decisionsFromHypo( hypo )
