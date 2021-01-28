@@ -93,8 +93,9 @@ namespace Muon {
     ToolHandle<MuonIdHelperTool>              m_idHelper; 
     ToolHandle<IMdtDriftCircleOnTrackCreator> m_mdtCreator; //<! pointer to mdt rio ontrack creator
     ToolHandle<IMuonClusterOnTrackCreator>    m_clusterCreator;  //<! pointer to muon cluster rio ontrack creator
+    ToolHandle<IMuonClusterOnTrackCreator>    m_mmClusterCreator;  //<! pointer to MM cluster rio ontrack creator
     mutable ToolHandle<IMuonRecoValidationTool>       m_recoValidationTool; //<! FIXME!
-
+   
     /** cuts */
     double m_distanceToTubeCut;
     double m_secondCoordinateCut;
