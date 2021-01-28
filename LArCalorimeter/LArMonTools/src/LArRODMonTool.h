@@ -18,7 +18,6 @@
 #include "LArElecCalib/ILArOFC.h"
 #include "LArElecCalib/ILArShape.h"
 #include "LArElecCalib/ILArHVScaleCorr.h"
-#include "CaloInterface/ICaloNoiseTool.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArRawConditions/LArADC2MeV.h"
@@ -168,7 +167,12 @@ private:
                              const ILArHVScaleCorr* hvScaleCorrs,
                              const ILArPedestal* pedestals,
                              const LArADC2MeV* adc2mev,
-                             const HWIdentifier chid, const LArRawChannel& rcDig, const LArRawChannel& rcBS, const LArDigit* dig=NULL);
+                             const HWIdentifier chid, 
+			     const LArRawChannel& rcDig, 
+			     const LArRawChannel& rcBS, 
+			     const LArDigit* dig=nullptr
+
+			     );
 
   class ERRCOUNTER {
   public:
@@ -221,8 +225,6 @@ private:
   SG::ReadCondHandleKey<LArADC2MeV> m_adc2mevKey{this,"LArADC2MeVKey","LArADC2MeV","SG Key of the LArADC2MeV CDO"};
 
   ToolHandle<ILArBadChannelMasker> m_badChannelMask;
-
-  ToolHandle<ICaloNoiseTool>       m_calo_noise_tool;
 
   SG::ReadCondHandleKey<LArOnOffIdMapping> m_cablingKey{this,"CablingKey","LArOnOffIdMap","SG Key of LArOnOffIdMapping CDO"};
 
