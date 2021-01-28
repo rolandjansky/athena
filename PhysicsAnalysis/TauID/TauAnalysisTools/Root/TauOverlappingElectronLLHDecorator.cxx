@@ -1,7 +1,7 @@
 #ifndef XAOD_STANDALONE
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // EDM include(s):
@@ -128,7 +128,7 @@ StatusCode TauOverlappingElectronLLHDecorator::decorate(const xAOD::TauJet& xTau
 
   float fEleMatchPt = -1.;
   // find electron with pt>5GeV within 0.4 cone with largest pt
-  for( const auto& xElectron : *h_ElectronContainer )
+  for( const auto xElectron : *h_ElectronContainer )
   {
     if(xElectron->pt() < 5000.) continue;
     if(xElectron->p4().DeltaR( xTau.p4() ) > 0.4 ) continue;

@@ -4551,7 +4551,7 @@ void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const 
     for (size_t j = v.size() - nmod; j < v.size(); ++j) {
       const std::vector<bool> & r = v[j]->GetDecision();
       std::stringstream ss;
-      for (const auto & val : r) {
+      for (const bool val : r) {
         ss << std::setw(2) << val;
       }
       msg(MSG::DEBUG) << MSG::hex << "0x" << v[j]->GetID() << MSG::dec << ss.str() << endmsg;
