@@ -95,7 +95,7 @@ print "BPHY8: release 21 or up: %s" % BPHY8cf.isRelease21
 # MC dataset categories (lists of dataset numbers)
 #====================================================================
 BPHY8cf.mcBsmumu          = [300203,300306,300307,300308,300309,300402,300426,300430,300446,300447]
-BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300309,300997,300999,300404,300405,300406,300437,300756,300757]
+BPHY8cf.mcBplusJpsiKplus  = [300203,300306,300307,300308,300309,300997,300999,300404,300405,300406,300437,300756,300757,300758,300759]
 BPHY8cf.mcBsJpsiPhi       = [300203,300306,300307,300308,300309,300401,300438,300448,300449,300761]
 BPHY8cf.mcBplusJpsiPiplus = [300406,300437,300758,300759]
 BPHY8cf.mcBhh             = [300431,300432,300433,300434,300760,300762,300763,300764,300765]
@@ -1660,8 +1660,8 @@ if "Bsmumu" in BPHY8cf.doChannels:
         BlindOnlyAllMuonsTight = BPHY8cf.blindOnlyAllMuonsTight,
         UseMuCalcMass          = BPHY8cf.useMuCalcMass,
         OutputLevel            = WARNING)
-# b) for BJpsiK and BsJpsiPhi retain the Jpsi
-if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi"]]:
+# b) for BJpsiK, BsJpsiPhi and BJpsiPi retain the Jpsi
+if [i for i in BPHY8cf.doChannels if i in ["BJpsiK", "BsJpsiPhi", "BJpsiPi"]]:
     BPHY8_SelectTools["Jpsimumu"] = DerivationFramework__Select_Bmumu(
         name                   = "BPHY8_Select_Jpsimumu",
         HypothesisName         = "Jpsimumu",
