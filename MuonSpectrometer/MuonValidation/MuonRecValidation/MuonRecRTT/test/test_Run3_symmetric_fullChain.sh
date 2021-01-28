@@ -6,6 +6,7 @@
 # art-include: master/Athena
 # art-output: OUT_HITS.root
 # art-output: NSWPRDValAlg.sim.ntuple.root
+# art-output: NSWPRDValAlg.dcube.root
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
 # art-output: NSWDigiCheck.txt
@@ -40,6 +41,17 @@ NWARNING="$(cat ${LOG_SIM} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
+#####################################################################
+
+#####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeHistograms.py
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeSim"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 #####################################################################
