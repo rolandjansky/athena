@@ -561,7 +561,6 @@ namespace xAOD {
     this->auxdecor< int >("MC_tau_from_W_from_t_isHadronic") = -9999;
 
     // Higgs variables
-    // this->auxdecor< char >("MC_Higgs_channel") = '0';
     this->auxdecor< float >("MC_Higgs_m") = -1000;
     this->auxdecor< float >("MC_Higgs_pt") = -1000;
     this->auxdecor< float >("MC_Higgs_eta") = -1000;

@@ -122,7 +122,6 @@ namespace top {
         fillEtaBranch(ThqPartonHistory, "MC_tau_from_W_from_t_eta", tau_decay_from_W_p4);
 
         //Higgs-Variables
-	//ThqPartonHistory->auxdecor< char >("MC_Higgs_channel") = tH.Higgs_channel;
         ThqPartonHistory->auxdecor< float >("MC_Higgs_m") = tH.Higgs_p4.M();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_pt") = tH.Higgs_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_phi") = tH.Higgs_p4.Phi();
