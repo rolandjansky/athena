@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 from functools import lru_cache
-from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqAND, isSequence
+from AthenaCommon.CFElements import findAllAlgorithms, parOR, seqOR, seqAND, isSequence
 from AthenaCommon.Logging import logging
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -101,10 +101,10 @@ def traverse(acc, startCollectionName, functor):
 
 def generateDecisionTree(chains):
     acc = ComponentAccumulator()
-    mainSequence = seqAND('HLTAllSteps')
-    mainSequence.StopOverride=False
+    mainSequence = seqOR('HLTAllSteps')
     acc.addSequence( mainSequence )
     theCFisFixed = False
+
     @lru_cache(None)
     def getFiltersStepSeq( stepNumber ):
         """
@@ -129,6 +129,15 @@ def generateDecisionTree(chains):
         seq = parOR( name )
         acc.addSequence( seq, parentName = mainSequence.name )
         return acc.getSequence(seq.name)
+
+    @lru_cache(None)
+    def getDecisionDumper( stepNumber ):
+        assert not theCFisFixed, "Can not create further algorithms at this stage"
+        seq = getFiltersStepSeq( stepNumber )
+        algo = CompFactory.DumpDecisions("DecisionSummaryStep{}".format(stepNumber))
+        acc.addEventAlgo( algo, sequenceName=seq.name)
+        return algo
+
 
     @lru_cache(None)
     def getSingleMenuSeq( stepNumber, stepName ):
@@ -167,7 +176,7 @@ def generateDecisionTree(chains):
         """
         Returns, if need be created, filter for a given step
         """
-        assert not theCFisFixed, "Can not create further sequences at this stage"
+        assert not theCFisFixed, "Can not create further algorithms at this stage"
 
         filtersStep = getFiltersStepSeq(stepNumber)
         singleMenuSeq = getSingleMenuSeq(stepNumber, step.name)
@@ -291,8 +300,10 @@ def generateDecisionTree(chains):
 
     # CF construction
     # creates all sequences and filter algs, merge CAs from signatures
+    maxStep = 0
     for chain in chains:
         for stepCounter, step in enumerate( chain.steps, 1 ):
+            maxStep = max(maxStep, stepCounter)
             getSingleMenuSeq( stepCounter, step.name )
             getFilterAlg(stepCounter, step.name, isEmpty(step))
             # add sequences that allows reconstructions to be run in parallel, followed (in sequence) by the combo hypo
@@ -308,8 +319,9 @@ def generateDecisionTree(chains):
             if needCombo:
                 comboHypo = CompFactory.ComboHypo( "CH"+step.name, CheckMultiplicityMap = len(step.sequences) != 1 )
                 acc.addEventAlgo( comboHypo, sequenceName=comboSeq.name )
-
             pass
+    for stepNumber in range(1, maxStep+1):
+        getDecisionDumper(stepNumber)
     theCFisFixed=True
     acc.printConfig()
     resetDF(acc)
@@ -417,6 +429,14 @@ def generateDecisionTree(chains):
                     # if the chain requires special combo tools
                     for comboToolConf in step.comboToolConfs:
                         comboHypoAlg.ComboHypoTools.append( comboToolConf.confAndCreate( TriggerConfigHLT.getChainDictFromChainName( chain.name ) ) )
+
+    # connect dumpers
+    for stepNumber in range(1, maxStep+1):
+        dumper = getDecisionDumper(stepNumber)
+        filters = getFiltersStepSeq(stepNumber)
+        for alg in filters.Members:
+            if isFilterAlg(alg):
+                dumper.Decisions = addAndAssureUniqness( dumper.Decisions, alg.Output, context="Settings of decision dumper" )
 
     for chain in chains:
         log.info("CF algorithms for chain %s", chain.name)
