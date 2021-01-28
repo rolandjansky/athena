@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -49,6 +49,8 @@ test_strings = [
         )
     )""",
 
+    
+    'simple([(38et, 0eta320, 100fltr:neta50, 90fltr:cphi100)])',
 ]
 
 

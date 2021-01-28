@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """Instantiates TrigJetHypoToolConfig_fastreduction AlgTool 
 from a hypo tree."""
@@ -84,6 +84,32 @@ class ConditionsToolSetterFastReduction(object):
 
         return condition_tools
 
+
+    def _make_filter_condition_tool(self, node):
+
+        """Condtion filters use a list of CompoundCondition containing
+        single jet elemental conditions  select a subset of the reco
+        jets to send to the a Condition"""
+        
+        el_condition_tools = []
+
+        for fc, mult in node.filter_dicts:
+            
+            assert len(fc) == 1  # 1 elemental condition
+            assert mult == 1
+            el_condition_tools.extend(self._make_el_condition_tools(fc))
+
+        if not el_condition_tools:
+            el_condition_tools.append(self.algToolFactory('all'))
+
+        capacitychecked_condition_tool = self.algToolFactory(
+            'capacitychecked')
+
+        capacitychecked_condition_tool.conditionMakers = el_condition_tools
+        capacitychecked_condition_tool.multiplicity = 1
+        
+        return capacitychecked_condition_tool
+
     
     def _make_compound_condition_tools(self, node):
         """For each element of  node.conf_attrs, construct a 
@@ -112,6 +138,7 @@ class ConditionsToolSetterFastReduction(object):
         for i in range(len(node.conf_attrs)):
             c, mult = node.conf_attrs[i]
             cpi = ''
+ 
             if node.chainpartinds:
                 cpi = node.chainpartinds[i][0]
                 assert mult == node.chainpartinds[i][1]
@@ -136,29 +163,6 @@ class ConditionsToolSetterFastReduction(object):
         return outer_condition_tools
 
     
-    def _make_filter_tool(self, node):
-        """Condtion filters use a list of CompoundCondition containing
-        single jet elemental conditions  select a subset of the reco
-        jets to send to the a Condition"""
-        
-        el_condition_tools = []
-        for fc, mult in node.filter_conditions:
-            assert len(fc) == 1  # 1 elemental condition
-            assert mult == 1
-            el_condition_tools.extend(self._make_el_condition_tools(fc))
-
-        if not el_condition_tools:
-            el_condition_tools.append(self.algToolFactory('all'))
-
-        capacitychecked_condition_tool = self.algToolFactory(
-            'capacitychecked')
-
-        capacitychecked_condition_tool.conditionMakers = el_condition_tools
-        capacitychecked_condition_tool.multiplicity = 1
-        
-        return capacitychecked_condition_tool
-    
-
     def _mod_leaf(self, node):
         """ Add Condition tools to For a leaf node."""
 
@@ -178,16 +182,8 @@ class ConditionsToolSetterFastReduction(object):
         node.compound_condition_tools = self._make_compound_condition_tools(
             node)
 
-        # make condition builder AlgTools for the condition filters.
-        # condition filters select subsets of the input jets to present
-        # to a condition,
-        
-        node.filter_tool = self._make_filter_tool(node)
-
-    
-        # if node.scenario == 'agg':
-        #     print (node)
-        #    assert False
+        node.filter_condition_tool = self._make_filter_condition_tool(
+            node)
             
     def report(self):
         return str(self.algToolFactory)
@@ -203,10 +199,11 @@ class ConditionsToolSetterFastReduction(object):
 
             assert (len(node.compound_condition_tools) == 1)
             cmap[node.node_id] = node.compound_condition_tools[0]
-            fmap[node.node_id] = node.filter_tool
-            
+
+            fmap[node.node_id] = node.filter_condition_tool
+
         else:
-            # must have a tool for Gaudi to instantiate in
+
             cmap[node.node_id] = self.algToolFactory('capacitychecked')
             cmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             cmap[node.node_id].multiplicity = 1
@@ -215,7 +212,6 @@ class ConditionsToolSetterFastReduction(object):
             fmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             fmap[node.node_id].multiplicity = 1
 
-            
         
         for cn in node.children:
             self._fill_conditions_map(cn, cmap, fmap)
@@ -255,23 +251,26 @@ class ConditionsToolSetterFastReduction(object):
         self._set_conditions(tree)
   
 
-        tree_map = {}
+        tree_map = {}  # tree of node indices
         self._fill_tree_map(tree, tree_map)
 
-        for k, v in tree_map.items():
-            log.debug("Tree map debug %s %s", str(k), str(v))
-            
         treeVec = self._map_2_vec(tree_map)
 
         conditionsMap = {}
         filterConditionsMap = {}
+
         self._fill_conditions_map(tree, conditionsMap, filterConditionsMap)
-        conditionsVec = self._map_2_vec(conditionsMap)
+
+        # conditionVec is an attribute as it will be used directly
+        # to make prefilter tools, so hold onto it here
+        self.conditionMakersVec = self._map_2_vec(conditionsMap)
         filterConditionsVec = self._map_2_vec(filterConditionsMap)
                
         # make a config tool and provide it with condition makers
         config_tool = self.algToolFactory('fastreduction')
-        config_tool.conditionMakers = conditionsVec
+
+
+        config_tool.conditionMakers = self.conditionMakersVec
         config_tool.filtConditionsMakers = filterConditionsVec
         config_tool.treeVector = treeVec
         self.config_tool = config_tool
