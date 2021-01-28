@@ -19,6 +19,7 @@ knownVar = dict(
 
     # this variable has an index specified. It will thus has only 1 value per jet : the JVF at pos 0
     JVF0 = VarSpec('JVF', 'vecfloat', 0),
+    LooseBad = VarSpec('DFCommonJets_jetClean_LooseBad','float'),
 
 )
 
@@ -86,6 +87,7 @@ _knownHistos = [
     HistoSpec('FracSamplingMaxIndex', (24, 0, 24), title='FracSamplingMaxIndex; FracSamplingMaxIndex;Entries', xvar=VarSpec('FracSamplingMaxIndex','int')),
     HistoSpec('FracSamplingMax', (50, -0.1, 1.2), title='FracSamplingMax; FracSamplingMax;Entries', ),
     HistoSpec('Timing', (40, -20, 20), title='Jet Time info;Time;', ),
+    HistoSpec('LooseBad', (10, -99999, 99999), title='Jet Cleaning LooseBad;', ),
 
     
     HistoSpec('LeadingClusterSecondLambda', (100, 0.0, 10000.0), title='LeadingClusterSecondLambda; LeadingClusterSecondLambda;', ),

@@ -173,7 +173,7 @@ StatusCode JetCleaningTool::initialize()
   ATH_MSG_INFO( "Configured with cut level " << getCutName( m_cutLevel ) );
   m_jetCleanDFName = "DFCommonJets_jetClean_"+getCutName(m_cutLevel);
   m_acc_jetClean = m_jetCleanDFName;
-  m_jetCleanKey = m_jetContainerName + "." + m_jetCleanDFName;
+  m_jetCleanKey = m_jetContainerName + "." + getCutName(LooseBad);
   m_acc_looseClean = "DFCommonJets_jetClean_"+getCutName(LooseBad);
   ATH_MSG_DEBUG( "Initialized decorator name: " << m_jetCleanDFName );
 
@@ -420,7 +420,7 @@ StatusCode JetCleaningTool::decorate(const xAOD::JetContainer &jets) const
 {
     ATH_MSG_DEBUG(" Decorating jets with jet cleaning decoration : " << m_jetCleanKey.key());
 
-    SG::WriteDecorHandle<xAOD::JetContainer, char> cleanHandle(m_jetCleanKey);
+    SG::WriteDecorHandle<xAOD::JetContainer, bool> cleanHandle(m_jetCleanKey);
 
     for (const xAOD::Jet *jet : jets) {
         cleanHandle(*jet) = accept(*jet).getCutResult("Cleaning");
