@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,10 +57,14 @@ public:
   /**Default Constructor*/
   CylinderSurface();
 
-  /**Constructor from EigenTransform, radius and halflenght*/
+  /**Constructor from EigenTransform, radius and halflength*/
   CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
 
-  /**Constructor from EigenTransform, radius halfphi, and halflenght*/
+  /**Constructor from EigenTransform, radius and halflength*/
+  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
+                  double radius, double hlength);
+
+  /**Constructor from EigenTransform, radius halfphi, and halflength*/
   CylinderSurface(Amg::Transform3D* htrans,
                   double radius,
                   double hphi,
@@ -74,11 +78,11 @@ public:
      - bounds is not set */
   CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
-  /** Constructor from radius and halflenght - speed optimized for concentric
+  /** Constructor from radius and halflength - speed optimized for concentric
    * volumes */
   CylinderSurface(double radius, double hlength);
 
-  /**Constructor from radius halfphi, and halflenght - speed optimized fron
+  /**Constructor from radius halfphi, and halflength - speed optimized for
    * concentric volumes */
   CylinderSurface(double radius, double hphi, double hlength);
 

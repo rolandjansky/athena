@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -56,9 +56,21 @@ public:
    */
   DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax);
 
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max} \f$
+   */
+  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+              double rmin, double rmax);
+
   /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
    * \phi_{hsec} \f$ */
   DiscSurface(Amg::Transform3D* htrans,
+              double rmin,
+              double rmax,
+              double hphisec);
+
+  /**Constructor for Discs from HepGeom::Transform3D, \f$ r_{min}, r_{max},
+   * \phi_{hsec} \f$ */
+  DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
               double rmin,
               double rmax,
               double hphisec);
