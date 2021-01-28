@@ -3939,7 +3939,8 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
 {
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
-  if ( ros != 1 ) return; // Only in positive barrel
+  bool barrel ( (ros==1) || (ros==2) );
+  if ( !barrel ) return; // Only in barrel
   int drawer = (frag_id & 0xFF);
   TileCell* pCell  = d0cells.m_cells[drawer];
   if ( !pCell ) return;
