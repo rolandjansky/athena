@@ -102,11 +102,11 @@ namespace PartonHistoryUtils {
 
   int TauIsHadronic(const xAOD::TruthParticle* tau, TLorentzVector& tau_visible_decay_p4) {
 
-    int tau_pdgId = -99; 
+    int tau_decay_pdgId = -99; 
 
-    if (!tau) return tau_pdgId;
+    if (!tau) return tau_decay_pdgId;
 
-    if (std::abs(tau->pdgId()) != 15) return tau_pdgId;
+    if (std::abs(tau->pdgId()) != 15) return tau_decay_pdgId;
     
 
     const xAOD::TruthParticle* afterFsr = findAfterFSR(tau);
@@ -119,22 +119,22 @@ namespace PartonHistoryUtils {
 	if (there_are_leptons == false){
 	  tau_visible_decay_p4 = afterFsr->p4() - afterFsr->child(k)->p4(); // p4 of HadTau visible decay = p(tau) - p(neutrino-tau)
 	  if (afterFsr->pdgId() == 15){
-	    tau_pdgId = 24;
+	    tau_decay_pdgId = 24;
 	  }else{
-	    tau_pdgId = -24;
+	    tau_decay_pdgId = -24;
 	  } 	  
 	}
       }
       
       if (std::abs(afterFsr->child(k)->pdgId()) == 11 or std::abs(afterFsr->child(k)->pdgId())  == 13){ // Leptonic Tau
 	tau_visible_decay_p4 = afterFsr->child(k)->p4();       // p4 of LepTau visible decay is the p4 of Lepton
-	tau_pdgId = afterFsr->child(k)->pdgId();               // pdgId of LepTau is the pdgId of Lepton 
+	tau_decay_pdgId = afterFsr->child(k)->pdgId();               // pdgId of LepTau is the pdgId of Lepton 
     	there_are_leptons = true;
       }
       
     }
     
-    return tau_pdgId;
+    return tau_decay_pdgId;
 
 
   }
