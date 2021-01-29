@@ -19,9 +19,12 @@ import PyJobTransforms.trfExceptions as trfExceptions
 ## @brief Detect if AthenaMT has been requested
 #  @param argdict Argument dictionary, used to access athenaopts for the job
 #  @return Two integers with the number of threads and number of concurrent events, N.B. 0 means non-MT serial mode
-def detectAthenaMTThreads(argdict = {}, currentSubstep = ''):
+def detectAthenaMTThreads(argdict = {}, currentSubstep = '', legacyThreadingRelease = False):
     athenaMTThreads = 0
     athenaConcurrentEvents = 0
+
+    if legacyThreadingRelease:
+        return athenaMTThreads, athenaConcurrentEvents
 
     # Try and detect if any AthenaMT has been enabled 
     try:
