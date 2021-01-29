@@ -384,7 +384,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         for key in keys:
             if 'PEBInfoWriter' in key:
                 PEBKeys.append(key)                
-    stmaker.PEBDecisionKeys = list(set(PEBKeys))
+    stmaker.PEBDecisionKeys = sorted(set(PEBKeys))
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
