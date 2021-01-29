@@ -43,6 +43,7 @@ import re
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 
+
 #### Here functions to create the CF tree from CF configuration objects
 def makeSummary(name, flatDecisions):
     """ Returns a TriggerSummaryAlg connected to given decisions"""
@@ -105,10 +106,9 @@ def createCFTree(CFseq):
     for menuseq in CFseq.step.sequences:
         menuseq.addToSequencer(recoSeqSet,hypoSet)
   
-    stepReco += sorted(list(recoSeqSet), key=lambda t: t.name())
-    seqAndView += sorted(list(hypoSet), key=lambda t: t.name())
-       
-    if CFseq.step.isCombo:
+    stepReco   += sorted(list(recoSeqSet), key=lambda t: t.name())
+    seqAndView += sorted(list(hypoSet), key=lambda t: t.name()) 
+    if CFseq.step.combo is not None: 
         seqAndView += CFseq.step.combo.Alg
 
     return seqAndWithFilter
@@ -145,6 +145,8 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
 
     # make DF and CF tree from chains
     finalDecisions = decisionTreeFromChains(steps, triggerConfigHLT.configsList(), triggerConfigHLT.dictsList(), newJO)
+
+    sequenceScanner( steps )
 
     flatDecisions=[]
     for step in finalDecisions:
@@ -198,6 +200,21 @@ def makeHLTTree(newJO=False, triggerConfigHLT = None):
     from TriggerMenuMT.HLTMenuConfig.Menu.CFValidation import testHLTTree
     testHLTTree( hltTop )
 
+    def debugDecisions(hypos, summary, mon, summaryAlg):
+        """ set DEBUG flag to the hypos of all the sequences (used to debug), other debug functions can be added here """
+        from GaudiKernel.Constants import DEBUG # noqa: ATL900
+        for step, stepHypos in sorted(hypos.items()):
+            for hypo in stepHypos:
+                hypo.OutputLevel=DEBUG   # noqa:  ATL900
+        summary.OutputLevel = DEBUG # noqa: ATL900
+        mon.OutputLevel = DEBUG # noqa: ATL900
+        summaryAlg.OutputLevel = DEBUG # noqa: ATL900
+
+
+
+    # switch on  DEBUG ouput in some algorithms
+    #debugDecisions(hypos, summary, monAlg, summaryAlg)
+
 
 def matrixDisplayOld( allCFSeq ):
     from collections import defaultdict
@@ -206,24 +223,15 @@ def matrixDisplayOld( allCFSeq ):
     for stepNumber,step in enumerate(allCFSeq, 1):
         for seq in step:
             mx[stepNumber][seq.step.name] = seq # what if ther eare more sequences in one step?
-
             longestName = max(longestName, len(seq.step.name) )
 
     longestName = longestName + 1
 
-    def __getHyposOfStep( s ):
-        if len(s.step.sequences):
-            if len(s.step.sequences)==1:
-                ## if type(s.step.sequences[0].hypo) is list:
-                ##     return s.step.sequences[0].hypo[0].tools
-                ## else:
-                return s.step.sequences[0].hypo.tools
-            else:
-                return list(s.step.combo.getChains())
+    def __getHyposOfStep( s ):   
+        if s.step.combo is not None:
+            return list(s.step.combo.getChains())
         return []
    
-
-
 
     def __nextSteps( index, stepName ):
         nextStepName = "Step%s_"%index + "_".join(stepName.split("_")[1:])
@@ -339,7 +347,6 @@ def decisionTreeFromChains(HLTNode, chains, allDicts, newJO):
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig_newJO import createControlFlowNewJO
         createControlFlowNewJO(HLTNode, CFseq_list)
 
-    sequenceScanner( HLTNode )
     
     # decode and attach HypoTools:
     for chain in chains:
@@ -427,10 +434,11 @@ def createDataFlow(chains, allDicts):
             log.debug("Now Filter has chains: %s", sequenceFilter.getChains())
             log.debug("Now Filter has chains/input: %s", sequenceFilter.getChainsPerInput())
 
-            if chainStep.isCombo:
-                if chainStep.combo is not None:
-                    chainStep.combo.addChain( [d for d in allDicts if d['chainName'] == chain.name ][0])
-                    log.debug("Added chains to ComboHypo: %s",chainStep.combo.getChains())
+            if chainStep.combo is not None:
+                chainStep.combo.addChain( [d for d in allDicts if d['chainName'] == chain.name ][0])
+                log.debug("Added chains to ComboHypo: %s",chainStep.combo.getChains())
+            else:
+                log.debug("Combo not implemented if it's empty step")
 
             if len(chain.steps) == nstep+1:
                 log.debug("Adding finalDecisions for chain %s at step %d:", chain.name, nstep+1)

@@ -578,6 +578,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
 
+    nfilters = sum(len(v) for v in filters.values())
+    nhypos = sum(len(v) for v in hypos.values())    
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
+
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     l1decoder = findAlgorithm(topSequence, "L1Decoder")
 
