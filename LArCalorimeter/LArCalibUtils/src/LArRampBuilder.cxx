@@ -363,7 +363,7 @@ StatusCode LArRampBuilder::execute()
 	
 	for (;itwave!=itwave_end;itwave++) {  //Loop over all cells
 	  const LArCaliWave& larCaliWave=(*itwave);
-	  int DAC = larCaliWave.getDAC();
+	  unsigned int DAC = larCaliWave.getDAC();
 	  IdentifierHash chidwave_hash = m_onlineHelper->channel_Hash(itVec.channelId());
 	  
 
@@ -763,9 +763,10 @@ StatusCode LArRampBuilder::stop()
 	      ATH_MSG_WARNING("No wave found for cell = " << chid_hash << ", DAC = " << dac_it->first);
 	      float min = 9999999;
 	      for(unsigned int i=0;i<m_CaliDACs[gain][chid_hash].size();i++){
-		if(abs(dac_it->first - m_CaliDACs[gain][chid_hash][i])<min) 
+                int dacdiff = dac_it->first - m_CaliDACs[gain][chid_hash][i]; 
+		if(abs(dacdiff)<min) 
 		  {
-		    min=abs(dac_it->first - m_CaliDACs[gain][chid_hash][i]);
+		    min=abs(dacdiff);
 		    GoodIndex=i;
 		  }
 	      } 

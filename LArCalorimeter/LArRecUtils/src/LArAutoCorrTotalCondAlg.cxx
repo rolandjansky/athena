@@ -1,13 +1,16 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArAutoCorrTotalCondAlg.h"
+#include "LArRawConditions/LArAutoCorrTotal.h"
 
 #include "LArElecCalib/LArConditionsException.h"
 
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
+
+#include "LArRawConditions/LArAutoCorrComplete.h"
 
 LArAutoCorrTotalCondAlg::LArAutoCorrTotalCondAlg(const std::string &name,
                                                  ISvcLocator *pSvcLocator)
@@ -92,13 +95,10 @@ StatusCode LArAutoCorrTotalCondAlg::initialize() {
   }
 
   // Number of gains (does this have to be in initialize now b/c of AthenaMT?)
-  // Copied from LArADC2MeVCondAlg.cxx
   if (m_isSuperCell) {
     m_nGains = 1;
-    // ATH_CHECK(m_larSCOnlineIDKey.initialize());
   } else {
     m_nGains = 3;
-    // ATH_CHECK(m_larOnlineIDKey.initialize());
   }
 
   return StatusCode::SUCCESS;
@@ -117,17 +117,12 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
   }
 
   // Identifier helper
-  // Copied from LArADC2MeVCondAlg.cxx
-  // need to understand casting dynamics here
   const LArOnlineID_Base *larOnlineID = nullptr;
   if (m_isSuperCell) {
-    // SG::ReadCondHandle<LArOnline_SuperCellID>
-    // larOnlineHdl{m_larSCOnlineIDKey}
     const LArOnline_SuperCellID *scidhelper;
     ATH_CHECK(detStore()->retrieve(scidhelper, "LArOnline_SuperCellID"));
     larOnlineID = scidhelper; // cast to base-class
   } else {                    // regular cells
-    // SG::ReadCondHandle<LArOnlineID> larOnlineHdl{m_larOnlineIDKey};
     const LArOnlineID *idhelper;
     ATH_CHECK(detStore()->retrieve(idhelper, "LArOnlineID"));
     larOnlineID = idhelper; // cast to base-class
@@ -336,19 +331,20 @@ StatusCode LArAutoCorrTotalCondAlg::execute() {
       } //(loop on gains)
 
     } else // unconnected
-      for (unsigned int igain = 0; igain < 3; igain++) {
+      for (unsigned int igain = 0; igain < m_nGains; igain++) {
         unsigned nsize_tot = (m_Nsamples - 1) * (m_Nsamples) + m_Nsamples;
         std::vector<float> empty(nsize_tot, 0.);
         larAutoCorrTotal->set(hid, igain, empty);
       }
   }
 
+  ATH_MSG_INFO("LArAutoCorrTotal Ncell " << count);
+  ATH_MSG_INFO("LArAutoCorrTotal Nconnected " << count2);
+
+  ATH_MSG_INFO("LArAutoCorrTotal record with key" << m_LArAutoCorrTotalObjKey);
 
   ATH_CHECK(writeHandle.record(std::move(larAutoCorrTotal)));
 
-  ATH_MSG_INFO("LArAutoCorrTotal Ncell " << count);
-  // ATH_MSG_INFO( "LArAutoCorrTotal Nsymcell " << count2  );
-  ATH_MSG_DEBUG("end of loop over cells ");
 
   return StatusCode::SUCCESS;
 }
