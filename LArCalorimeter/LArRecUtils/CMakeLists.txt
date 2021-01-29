@@ -45,3 +45,7 @@ atlas_add_test( LArRecUtilsConfig_test
 atlas_add_test( LArADC2MeVCondAlgConfig_test
                 SCRIPT python -m LArRecUtils.LArADC2MeVCondAlgConfig
                 LOG_SELECT_PATTERN "ComponentAccumulator|^---" )
+
+atlas_add_test( LArADC2MeVSCCondAlgConfig_test
+                SCRIPT python -m LArRecUtils.LArADC2MeVSCCondAlgConfig
+                LOG_SELECT_PATTERN "ComponentAccumulator|^---" )

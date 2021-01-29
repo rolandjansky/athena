@@ -113,7 +113,7 @@ private:
   // vector (gain) of vector(HashCell) of vector (DAC) of vector(Ndelays) of caliwaves
   std::vector< std::vector< std::vector< std::vector<double> > > >m_CaliWaves;
  // vector (gain) of vector(HashCell) of vector (DAC) of DACs
-  std::vector< std::vector< std::vector< int > > >m_CaliDACs;
+  std::vector< std::vector< std::vector< unsigned int > > >m_CaliDACs;
  // vector (gain) of vector(HashCell) of DAC0 index
   std::vector< std::vector< int> > m_IndexDAC0;
  // vector (gain) of vector(HashCell) of Highest DAC index
@@ -141,7 +141,7 @@ private:
   int m_DeadChannelCut;
   std::string m_folderName;
   int m_shapeMethodDAC;
-  int m_DAC0;
+  unsigned int m_DAC0;
 
   bool m_correctBias;
   bool m_withIntercept;
