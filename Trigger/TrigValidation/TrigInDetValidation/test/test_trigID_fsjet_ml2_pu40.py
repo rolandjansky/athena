@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# art-description: art job for fsjet_ml++_pu40
+# art-description: art job for fsjet_ml2_pu40
 # art-type: grid
 # art-include: master/Athena
 # art-input-nfiles: 3
@@ -32,7 +32,7 @@ Threads = 1
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-postinclude_file = 'TIDAml2_extensions.py'
+postinclude_file = 'TrigInDetValidation/TIDAml2_extensions.py'
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
