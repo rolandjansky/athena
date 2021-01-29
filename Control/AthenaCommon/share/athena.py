@@ -27,7 +27,7 @@ do
 	--stdcmath)      USEIMF=0;;
 	--imf)           USEIMF=1;;
 	--preloadlib*)     export ATHENA_ADD_PRELOAD=${a#*=};;
-	--drop-and-reload) export ATHENA_DROP_RELOAD=1;;
+	--drop-and-reload) ATHENA_DROP_RELOAD=1;;
 	--CA)              USECA=1;;
 	*)               otherargs="$otherargs $a";;
     esac

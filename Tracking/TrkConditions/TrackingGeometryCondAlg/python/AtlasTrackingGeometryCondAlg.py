@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##################################################################################
 # The AtlasTrackingGeometryCondAlg fragment
@@ -164,7 +164,6 @@ class ConfiguredTrackingGeometryCondAlg( Trk__TrackingGeometryCondAlg ) :
                                               GeometryBuilder = AtlasGeometryBuilder,
                                               GeometryProcessors = AtlasGeometryProcessors,
                                               OutputLevel = TrkDetFlags.ConfigurationOutputLevel())
-        
         # screen output of the configuration
         if TrkDetFlags.ConfigurationOutputLevel() < 3 :
            print (self)

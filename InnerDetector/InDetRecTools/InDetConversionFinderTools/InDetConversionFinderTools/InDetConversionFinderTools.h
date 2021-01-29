@@ -26,8 +26,6 @@
 #include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "InDetConversionFinderTools/ConversionFinderUtils.h"
 #include "InDetConversionFinderTools/VertexPointEstimator.h"
-#include "InDetConversionFinderTools/ConversionPostSelector.h"
-#include "InDetConversionFinderTools/SingleTrackConversionTool.h"
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 
 #include "TrkParticleBase/TrackParticleBaseCollection.h"

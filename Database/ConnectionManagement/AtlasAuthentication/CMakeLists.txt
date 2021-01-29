@@ -1,15 +1,10 @@
-# $Id: CMakeLists.txt 720646 2016-01-29 14:01:10Z krasznaa $
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Build configuration for package AtlasAuthentication.
 #
 
 # Declare the package's name:
 atlas_subdir( AtlasAuthentication )
-
-# If we are in release rebuilding mode, stop here:
-if( ATLAS_RELEASE_MODE )
-   return()
-endif()
 
 # Install the local file(s) of the package:
 atlas_install_xmls( data/*.xml )
@@ -18,15 +13,15 @@ atlas_install_scripts( share/setupLocalDBReplica_CERN.sh )
 
 # Find the ATLAS externals area:
 if( NOT SITEROOT )
-   if( ENV{SITEROOT} )
-      set( SITEROOT $ENV{SITEROOT} )
+   if( NOT "$ENV{SITEROOT}" STREQUAL "" )
+      set( SITEROOT "$ENV{SITEROOT}" )
    else()
       set( SITEROOT "/afs/cern.ch" )
    endif()
 endif()
 if( NOT ATLAS_EXTERNAL )
-   if( ENV{ATLAS_EXTERNAL} )
-      set( ATLAS_EXTERNAL $ENV{ATLAS_EXTERNAL} )
+   if( NOT "$ENV{ATLAS_EXTERNAL}" STREQUAL "" )
+      set( ATLAS_EXTERNAL "$ENV{ATLAS_EXTERNAL}" )
    else()
       set( ATLAS_EXTERNAL "${SITEROOT}/atlas/offline/external" )
    endif()

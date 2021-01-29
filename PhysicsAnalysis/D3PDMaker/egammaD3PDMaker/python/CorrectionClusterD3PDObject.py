@@ -12,6 +12,7 @@
 from D3PDMakerCoreComps.D3PDObject    import make_SGDataVector_D3PDObject
 from egammaD3PDAnalysis.TileGapConfig import TileGapConfig
 from D3PDMakerCoreComps.D3PDObject    import DeferArg
+from D3PDMakerCoreComps.resolveSGKey  import resolveSGKey # noqa: F401
 import EventCommonD3PDMaker
 import D3PDMakerCoreComps
 import CaloD3PDMaker

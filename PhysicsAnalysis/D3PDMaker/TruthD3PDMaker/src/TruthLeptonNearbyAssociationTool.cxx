@@ -64,35 +64,35 @@ StatusCode TruthLeptonNearbyAssociationTool::fill (const TruthParticle& p)
     // We have an McEventCollection
     for (McEventCollection::const_iterator currentGenEventIter = mcCollection->begin();
          currentGenEventIter!=mcCollection->end(); ++currentGenEventIter) {
-      for (HepMC::GenEvent::particle_const_iterator currentGenParticleIter= (*currentGenEventIter)->particles_begin(); 
-           currentGenParticleIter!= (*currentGenEventIter)->particles_end(); ++currentGenParticleIter) {
-        if (!(*currentGenParticleIter)) continue;
-        if ((*currentGenParticleIter)->status()!=1) continue;
-        if ((*currentGenParticleIter)->barcode()==p.barcode()) continue; // The same particle twice!
 
-        dR2 = p.phi() - (*currentGenParticleIter)->momentum().phi();
+      for (auto currentGenParticle: *(*currentGenEventIter)) {
+        if (!currentGenParticle) continue;
+        if (currentGenParticle->status()!=1) continue;
+        if (HepMC::barcode(currentGenParticle)==p.barcode()) continue; // The same particle twice!
+
+        dR2 = p.phi() - currentGenParticle->momentum().phi();
         if (dR2>M_PI) dR2-=2.*M_PI;
         else if (dR2<-M_PI) dR2+=2.*M_PI;
 
-        dR2 = std::pow(dR2,2)+std::pow(p.eta()-(*currentGenParticleIter)->momentum().eta(),2);
+        dR2 = std::pow(dR2,2)+std::pow(p.eta()-currentGenParticle->momentum().eta(),2);
 
         if (dR2>=0.09) continue; // Save a little time
 
         // Isolation section - exclude neutrinos
-        if (!MC::PID::isNeutrino( (*currentGenParticleIter)->pdg_id() ) ){
-          *m_iso03 = (*m_iso03)+(*currentGenParticleIter)->momentum().perp();
-          if (dR2<0.04) *m_iso02 = (*m_iso02)+(*currentGenParticleIter)->momentum().perp();
+        if (!MC::PID::isNeutrino( currentGenParticle->pdg_id() ) ){
+          *m_iso03 = (*m_iso03)+currentGenParticle->momentum().perp();
+          if (dR2<0.04) *m_iso02 = (*m_iso02)+currentGenParticle->momentum().perp();
         }
 
         // Dressing section
-        if ((*currentGenParticleIter)->pdg_id()!=22) continue; // Only photons
-        if (dR2>=0.01) continue; // Only DR<0.1
+        if (currentGenParticle->pdg_id()!=22) continue; // Only photons
+        if (dR2>=0.01) continue; // Only DR<0.1 //AV this is a magic number.
 
-        real_parent = std::fabs(get_real_parent( *currentGenParticleIter ));
+        real_parent = std::abs(get_real_parent( currentGenParticle ));
         if (real_parent>=26 || real_parent==15) continue; // Veto hadron parents
 
-        dressed_4mom += CLHEP::HepLorentzVector((*currentGenParticleIter)->momentum().x(),(*currentGenParticleIter)->momentum().y(),
-                                                (*currentGenParticleIter)->momentum().z(),(*currentGenParticleIter)->momentum().t());
+        dressed_4mom += CLHEP::HepLorentzVector(currentGenParticle->momentum().x(),currentGenParticle->momentum().y(),
+                                                currentGenParticle->momentum().z(),currentGenParticle->momentum().t());
 
       } // Loop over particles
     } // Loop over events
@@ -106,20 +106,30 @@ StatusCode TruthLeptonNearbyAssociationTool::fill (const TruthParticle& p)
   return StatusCode::SUCCESS;
 }
 
-int TruthLeptonNearbyAssociationTool::get_real_parent( HepMC::GenParticle * p , int depth ) const
+int TruthLeptonNearbyAssociationTool::get_real_parent( HepMC::ConstGenParticlePtr p , int depth ) const
 {
   if (depth>10) return 0;
-  if (!p->production_vertex()) return 0;
 
   // Work assuming one parent...
-  HepMC::GenVertex::particle_iterator itrPar = p->production_vertex()->particles_begin(HepMC::parents);
-  if ( !(*itrPar) ) return 0;  // parent didn't exist
+//AV This algorithm is ambiguous as it assumesnot more than one parent per particle.
+//AV In HepMC2 this could be wrong more often than expected.
+
+  auto prodvertex = p->production_vertex();
+  if ( !prodvertex ) return 0;  // parent didn't exist
+#ifdef HEPMC3
+  if (!prodvertex->particles_in().size()) return 0;
+  auto parentparticle=prodvertex->particles_in()[0];
+#else
+  if (!prodvertex->particles_in_size()) return 0;
+  auto parentparticle=*(prodvertex->particles_begin(HepMC::parents));
+#endif
+  if ( !parentparticle ) return 0;  // parent didn't exist
 
   // Not a photon - return the parent
-  if ((*itrPar)->pdg_id()!=22) return (*itrPar)->pdg_id();
+  if (parentparticle->pdg_id()!=22) return parentparticle->pdg_id();
 
   // Photon - iterate
-  return get_real_parent( *itrPar , depth+1 );
+  return get_real_parent( parentparticle , depth+1 );
 }
 
 } // namespace D3PD

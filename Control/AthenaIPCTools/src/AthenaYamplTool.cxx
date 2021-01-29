@@ -235,7 +235,7 @@ StatusCode AthenaYamplTool::getObject(void**, size_t&, int) const {
 }
 
 //___________________________________________________________________________
-StatusCode AthenaYamplTool::clearObject(char**, int&) const {
+StatusCode AthenaYamplTool::clearObject(const char**, int&) const {
   return(StatusCode::FAILURE);
 }
 

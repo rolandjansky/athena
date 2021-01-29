@@ -26,8 +26,8 @@ public:
 private:
     const AthAlgTool&                 m_parent; 
     unsigned int                      m_maxWarnings;	//!< Maximum number of WARNING messages permitted. 
-    mutable std::vector<unsigned int> m_warningCounts;	//!< The counts per error (the index is the error number)
-    mutable std::vector<std::string>  m_warningText;	//!< The text for the WARNINGs (the index is the error number). Filled in ctor. 
+    std::vector<unsigned int> m_warningCounts;	//!< The counts per error (the index is the error number)
+    std::vector<std::string>  m_warningText;	//!< The text for the WARNINGs (the index is the error number). Filled in ctor. 
 };
 
 inline

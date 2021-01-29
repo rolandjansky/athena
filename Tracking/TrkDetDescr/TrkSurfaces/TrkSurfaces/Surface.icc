@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 namespace Trk {
@@ -19,44 +19,45 @@ Surface::cachedTransform() const
 inline const Amg::Transform3D&
 Surface::transform() const
 {
-  if (m_transform)
+  if (m_transform){
     return (*m_transform);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
+  }
+  if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->transform(m_associatedDetElementId);
-  if (m_associatedDetElement)
+  }
+  if (m_associatedDetElement){
     return m_associatedDetElement->transform();
+  }
   return s_idTransform;
 }
 
 inline const Amg::Vector3D&
 Surface::center() const
 {
-  if (m_transform && !m_center) {
-    return *(m_center.set(
-      std::make_unique<Amg::Vector3D>(m_transform->translation())));
-  }
-  if (m_center)
+  if (m_center){
     return (*m_center);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
+  }
+  if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->center(m_associatedDetElementId);
-  if (m_associatedDetElement)
+  }
+  if (m_associatedDetElement){
     return m_associatedDetElement->center();
+  }
   return s_origin;
 }
 
 inline const Amg::Vector3D&
 Surface::normal() const
 {
-  if (m_transform && !m_normal) {
-    return *(m_normal.set(
-      std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2))));
-  }
-  if (m_normal)
+  if (m_normal){
     return (*m_normal);
-  if (m_associatedDetElement && m_associatedDetElementId.is_valid())
+  }
+  if (m_associatedDetElement && m_associatedDetElementId.is_valid()){
     return m_associatedDetElement->normal(m_associatedDetElementId);
-  if (m_associatedDetElement)
+  }
+  if (m_associatedDetElement){
     return m_associatedDetElement->normal();
+  }
   return s_zAxis;
 }
 
@@ -65,12 +66,15 @@ Surface::normal() const
 inline Amg::Vector2D
 Surface::localParametersToPosition(const LocalParameters& locpars) const
 {
-  if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2))
+  if (locpars.contains(Trk::loc1) && locpars.contains(Trk::loc2)){
     return Amg::Vector2D(locpars[Trk::loc1], locpars[loc2]);
-  if (locpars.contains(Trk::loc1))
+  }
+  if (locpars.contains(Trk::loc1)){
     return Amg::Vector2D(locpars[Trk::loc1], 0.);
-  if (locpars.contains(Trk::loc2))
+  }
+  if (locpars.contains(Trk::loc2)){
     return Amg::Vector2D(0., locpars[loc2]);
+  }
   return Amg::Vector2D(0., 0.);
 }
 
@@ -247,6 +251,14 @@ inline bool
 Surface::isFree() const
 {
   return (m_owner == Trk::noOwn);
+}
+
+inline void
+Surface::setTransform(const Amg::Transform3D& trans)
+{
+  m_transform = std::make_unique<Amg::Transform3D>(trans);
+  m_center = std::make_unique<Amg::Vector3D>(m_transform->translation());
+  m_normal = std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }
 
 inline void Surface::setOwner

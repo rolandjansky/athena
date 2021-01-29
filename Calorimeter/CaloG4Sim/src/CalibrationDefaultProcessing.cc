@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // CalibrationDefaultProcessing
@@ -20,6 +20,7 @@
 
 #include "CaloG4Sim/CalibrationDefaultProcessing.h"
 #include "CaloG4Sim/SimulationEnergies.h"
+#include "CxxUtils/checker_macros.h"
 
 // For the event-level flag
 #include "MCTruth/AtlasG4EventUserInfo.h"
@@ -32,6 +33,7 @@
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
+#include <atomic>
 
 namespace G4UA
 {
@@ -79,7 +81,9 @@ namespace G4UA
           // this step.  Note that we have to "cast away" const-ness for
           // the G4Step*, due to how G4VSensitiveDetector::Hit() is
           // defined.
-          m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
+          // Should be ok, since Geant doesn't do intra-event parallelism.
+          G4Step* step_nc ATLAS_THREAD_SAFE = const_cast<G4Step*> (a_step);
+          m_defaultSD->Hit( step_nc );
 
           // Update the step info
           atlasG4EvtUserInfo->SetLastProcessedBarcode( track->GetTrackID() );
@@ -88,10 +92,8 @@ namespace G4UA
       }
 
       else {
-        // FIXME - thread unsafe static!!!
-        static G4bool warningPrinted = false;
-        if ( ! warningPrinted ) {
-          warningPrinted = true;
+        static std::atomic_flag warningPrinted ATLAS_THREAD_SAFE = ATOMIC_FLAG_INIT;
+        if ( ! warningPrinted.test_and_set() ) {
           G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
                  << G4endl
                  << "   A default calibration sensitive detector was not defined."

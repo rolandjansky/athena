@@ -8,24 +8,18 @@ from TrigEgammaAnalysisTools import TrigEgammaAnalysisToolsConf
 from AthenaCommon import CfgMgr
 from AthenaCommon.AppMgr import ToolSvc
 
-from egammaRec.Factories import PublicToolFactory,FcnWrapper,AlgFactory, getPropertyValue 
+from egammaRec.Factories import PublicToolFactory
 
 import PyUtils.RootUtils as ru
 ROOT = ru.import_root()
 import cppyy
 cppyy.load_library('libElectronPhotonSelectorToolsDict')
-from ROOT import LikeEnum
-from ROOT import egammaPID
 
 # Following loads the online selectors
 from TrigEgammaHypo.TrigEgammaPidTools import ElectronPidTools
 from TrigEgammaHypo.TrigEgammaPidTools import PhotonPidTools
-from TrigEgammaHypo.TrigEgammaPidTools import ElectronToolName
 ElectronPidTools()
 PhotonPidTools()
-
-from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgElectronIsEMSelector, AsgElectronLikelihoodTool
-from ElectronPhotonSelectorTools.ElectronIsEMSelectorMapping import ElectronIsEMMap,electronPIDmenu
 
 # Offline selectors -- taken from latest conf
 LooseElectronSelector             = CfgMgr.AsgElectronIsEMSelector("T0HLTLooseElectronSelector")
@@ -67,7 +61,7 @@ LuminosityCondAlgOnlineDefault (suffix = 'Online')
 IneffLabels=["ClusterEtaRange","ConversionMatch","ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth","f3","ClusterStripsEratio","ClusterStripsDeltaEmax2","ClusterStripsDeltaE","ClusterStripsWtot","ClusterStripsFracm","ClusterStripsWeta1c","empty14","ClusterStripsDEmaxs1","TrackBlayer","TrackPixel","TrackSi","TrackA0","TrackMatchEta","TrackMatchPhi","TrackMatchEoverP","TrackTRTeProbabilityHT_Electron","TrackTRThits","TrackTRTratio","TrackTRTratio90","TrackA0Tight","TrackMatchEtaTight","Isolation","ClusterIsolation","TrackIsolation","No Track","No Cluster","No Object"]
 
 from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoring_mam, monitoring_electron, monitoring_photon 
-from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron, monitoringTP_electronZee, monitoringTP_electronJpsiee 
+from TrigEgammaAnalysisTools.TrigEgammaProbelist import monitoringTP_electron,  monitoringTP_electronJpsiee 
 
 from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMatchingTool
 
@@ -197,9 +191,6 @@ TrigEgammaNavAnalysisTool = PublicToolFactory(TrigEgammaAnalysisToolsConf.TrigEg
 #############################################################################################
 # Functions
 
-# Function to return triggerlist tools
-def getAllTools():
-    return [TrigEgammaNavZeeTPCounts(),TrigEgammaNavZeeTPEff(),TrigEgammaNavZeeTPIneff(),TrigEgammaNavZeeTPRes(),]
 
 
 def setRunFlag( runFlag ):
@@ -230,12 +221,6 @@ def setRunFlag( runFlag ):
 
 
 
-# The main algorithm
-# Add triggerlist tools to ToolHandleArray 
-TrigEgammaAnalysisAlg = AlgFactory(TrigEgammaAnalysisToolsConf.TrigEgammaAnalysisAlg, 
-        name='TrigEgammaAnalysisAlg',
-        Tools = FcnWrapper(getAllTools),
-        )
 
 
 
@@ -246,10 +231,7 @@ def getEventSelectionTool(runFlag):
   from TrigEgammaEmulationTool.TrigEgammaEmulationPidToolsConfig import getEgammaIsEMSelectorCaloOnly, \
                                                                         getElectronIsEMSelector,\
                                                                         getEgammaLikelihoodSelectorCaloOnly, \
-                                                                        getElectronLikelihoodSelector2015,\
                                                                         getElectronLikelihoodSelectorNoD0
-  from AthenaCommon import CfgMgr
-  from AthenaCommon.AppMgr import ToolSvc
   # create all selector list. Here, the order is matter. Please check the 
   
   setRunFlag(runFlag)
@@ -277,7 +259,7 @@ def getEventSelectionTool(runFlag):
           ElectronKey = 'Electrons',
           MatchTool = EgammaMatchTool,
           PlotTool=TrigEgammaPlotTool,
-          EmulationTool=EmulationTool, # The emulation must be on in this tool.
+          #EmulationTool=EmulationTool, # The emulation must be on in this tool.
           doEmulation=True,
           Tools=[],
           isEMResultNames=["Tight","Medium","Loose"],

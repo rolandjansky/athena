@@ -1,6 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 //
 //
@@ -16,7 +15,7 @@
 
 // Tool/service include(s):
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
-#include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "TrigT1Interfaces/TrigT1CaloDefs.h"
 #include "TrigT1CaloToolInterfaces/IL1CPMTools.h"
 #include "TrigT1CaloToolInterfaces/IL1JEMJetTools.h"
@@ -81,13 +80,11 @@ private:
       this, "LVL1ConfigSvc", "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",
       "Service providing the LVL1 trigger configuration" };
 
-   /// The RPC RoI reconstruction service
-   ServiceHandle< LVL1::RecMuonRoiSvc > m_recRPCRoiSvc {
-      this, "RecRpcRoiSvc", LVL1::ID_RecRpcRoiSvc,
-      "RPC RoI reconstruction service" };
+   /// The RPC RoI reconstruction tool
+   ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool { this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
    /// The TGC RoI reconstruction service
-   ServiceHandle< LVL1::RecMuonRoiSvc > m_recTGCRoiSvc {
-      this, "RecTgcRoiSvc", LVL1::ID_RecTgcRoiSvc,
+   ToolHandle< LVL1::ITrigT1MuonRecRoiTool > m_recTGCRoiTool {
+      this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool",
       "TGC RoI reconstruction service" };
 
    /// @}

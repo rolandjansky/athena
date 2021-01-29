@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef  TRIGL2MUONSA_RPCDATAPREPARATOR_H
@@ -11,7 +11,7 @@
 
 #include "ByteStreamCnvSvcBase/ROBDataProviderSvc.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
-#include "TrigT1RPCRecRoiSvc/RPCRecRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 #include "MuonRDO/RpcPadContainer.h"
 
 #include "../src/RpcData.h"
@@ -52,22 +52,21 @@ class RpcDataPreparator: public AthAlgTool
 
       StatusCode prepareData(const TrigRoiDescriptor*    p_roids,
 			     unsigned int roiWord,
+                             bool&        isFakeRoi,
 			     TrigL2MuonSA::RpcHits&      rpcHits,
                              TrigL2MuonSA::RpcLayerHits& rpcLayerHits,
 			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
-
-      bool isFakeRoi() { return m_isFakeRoi; }
 
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
 
       void setMultiMuonTrigger( const bool multiMuonTrigger );
 
  private:
-      ToolHandle<IRegSelTool> m_regionSelector;
+      ToolHandle<IRegSelTool> m_regionSelector{this,"RegSel_RPC","RegSelTool/RegSelTool_RPC"};
       SG::ReadCondHandleKey<RpcCablingCondData> m_readKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
 
-      ServiceHandle<LVL1RPC::RPCRecRoiSvc> m_recRPCRoiSvc{ this, "RPCRecRoiSvc", "LVL1RPC::RPCRecRoiSvc"};
+      ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{ this, "TrigT1RPCRecRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
 
       // handles to the RoI driven data access
       ToolHandle<Muon::IMuonRawDataProviderTool> m_rawDataProviderTool{
@@ -82,7 +81,6 @@ class RpcDataPreparator: public AthAlgTool
       // Declare the keys used to access the data: one for reading and one
       // for writing.
       bool m_use_RoIBasedDataAccess;
-      bool m_isFakeRoi;
 
       // Flag to decide if we need to run the actual decoding (in MT setup, we can use offline code for this)
       Gaudi::Property<bool> m_doDecoding{ this, "DoDecoding", true, "Flag to decide if we need to do decoding of the MDTs" };

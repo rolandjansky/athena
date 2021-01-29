@@ -32,7 +32,6 @@
 #include "TrkSegment/SegmentCollection.h"
 #include "xAODMuon/MuonSegmentContainer.h"
 #include "xAODMuon/MuonSegment.h"
-#include "xAODMuonCnv/IMuonSegmentConverterTool.h"
 #include "muonEvent/CaloEnergy.h"
 #include "FourMomUtils/P4Helpers.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -296,7 +295,7 @@ namespace MuonCombined {
       return nullptr;
     }
     
-    if( !dressMuon(*muon) ){
+    if( !dressMuon(*muon,outputData.xaodSegmentContainer) ){
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
       return nullptr;
@@ -464,7 +463,7 @@ namespace MuonCombined {
       }
     }// m_buildStauContainer
 
-    if( !dressMuon(*muon) ){ 
+    if( !dressMuon(*muon,outputData.xaodSegmentContainer) ){ 
       ATH_MSG_WARNING("Failed to dress muon");
       outputData.muonContainer->pop_back();
       return 0;
@@ -733,28 +732,26 @@ namespace MuonCombined {
 											 outputData.extrapolatedTrackCollection);
                 
         if( link.isValid() ) {
-          //link.toPersistent();
           ATH_MSG_DEBUG("Adding MuGirl: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
           muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
         }
         else ATH_MSG_WARNING("Creating of MuGirl TrackParticle Link failed");
       }
-    }
 
-    if (outputData.xaodSegmentContainer){
-      ATH_MSG_DEBUG( "Adding MuGirl muonSegmentCollection");
-
-      std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
-      for( const auto& segLink : tag->segments() ){ 
-        ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink, *outputData.xaodSegmentContainer, outputData.muonSegmentCollection);
-        if( link.isValid() ) {
-          //link.toPersistent();
-          segments.push_back(link);
+      if (outputData.xaodSegmentContainer){
+	ATH_MSG_DEBUG( "Adding MuGirl muonSegmentCollection");
+	
+	std::vector< ElementLink< xAOD::MuonSegmentContainer > > segments;
+	for( const auto& segLink : tag->segments() ){ 
+	  ElementLink<xAOD::MuonSegmentContainer> link = createMuonSegmentElementLink(segLink, *outputData.xaodSegmentContainer, outputData.muonSegmentCollection);
+	  if( link.isValid() ) {
+	    segments.push_back(link);
           ATH_MSG_DEBUG("Adding MuGirl: xaod::MuonSegment px " << (*link)->px() << " py " << (*link)->py() << " pz " << (*link)->pz() ); 
-        }
-        else ATH_MSG_WARNING("Creating of MuGirl segment Link failed");         
+	  }
+	  else ATH_MSG_WARNING("Creating of MuGirl segment Link failed");         
+	}
+	muon.setMuonSegmentLinks(segments);
       }
-      muon.setMuonSegmentLinks(segments);
     }
     ATH_MSG_DEBUG("Done Adding MuGirl Muon  " << tag->author() << " type " << tag->type());    
   }
@@ -1249,8 +1246,9 @@ namespace MuonCombined {
         const Trk::MeasurementBase& meas = **mit;  
         std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
         typePattern.set(Trk::TrackStateOnSurface::Measurement);
-        const Trk::TrackParameters* exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
-        Trk::anyDirection, false, Trk::MagneticFieldProperties(Trk::NoField));
+        //TSoS takes ownership
+        auto exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
+          Trk::anyDirection, false, Trk::MagneticFieldProperties(Trk::NoField)).release();
         if(!exPars){
           ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
         }
@@ -1273,7 +1271,7 @@ namespace MuonCombined {
     return newtrack;
   }
 
-  bool MuonCreatorTool::dressMuon(  xAOD::Muon& muon  ) const {
+  bool MuonCreatorTool::dressMuon(  xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments  ) const {
 
     if( muon.primaryTrackParticleLink().isValid() ){
       const xAOD::TrackParticle* primary = muon.primaryTrackParticle();
@@ -1370,7 +1368,7 @@ namespace MuonCombined {
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
     if( !m_trackSegmentAssociationTool.empty() && muon.author()!=xAOD::Muon::MuTagIMO && muon.author()!=xAOD::Muon::MuGirl && 
-	(muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon);
+	(muon.author()!=xAOD::Muon::MuGirlLowBeta || m_segLowBeta)) addSegmentsOnTrack(muon,segments);
 
     addMSIDScatteringAngles(muon);
     if(muon.combinedTrackParticleLink().isValid()) addMSIDScatteringAngles(**(muon.combinedTrackParticleLink()));
@@ -1483,10 +1481,10 @@ namespace MuonCombined {
     tp.auxdecor< std::vector<float> >("rpcHitTime")              = rpcHitTime;
   }
   
-  void MuonCreatorTool::addSegmentsOnTrack( xAOD::Muon& muon ) const {
+  void MuonCreatorTool::addSegmentsOnTrack( xAOD::Muon& muon, const xAOD::MuonSegmentContainer* segments ) const {
     
     std::vector< ElementLink<xAOD::MuonSegmentContainer> > associatedSegments;
-    if( !m_trackSegmentAssociationTool->associatedSegments(muon,associatedSegments) ){
+    if( !m_trackSegmentAssociationTool->associatedSegments(muon,segments,associatedSegments) ){
       ATH_MSG_DEBUG("Failed to find associated segments ");
     }
     muon.setMuonSegmentLinks(associatedSegments) ;

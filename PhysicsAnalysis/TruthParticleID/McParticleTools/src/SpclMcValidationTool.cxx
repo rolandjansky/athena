@@ -160,7 +160,7 @@ SpclMcValidationTool::executeTool( const McEventCollection* mcEvents,
     const TruthParticle * mc = *itrPart;
     auto hepMc = mc->genParticle();
 
-    if ( hepMc->momentum() != mc->hlv() ) {
+    if ( hepMc->momentum() != HepMC::FourVector(mc->hlv().x(),mc->hlv().y(),mc->hlv().z(),mc->hlv().t()) ) {
       ATH_MSG_ERROR("TruthParticle and GenParticle-link don't have same 4-mom !!");
       return StatusCode::FAILURE;
     }

@@ -27,6 +27,7 @@ MuonClusterSegmentFinderTool::MuonClusterSegmentFinderTool(const std::string& ty
     //
     declareProperty("IPConstraint", m_ipConstraint = true);
     declareProperty("ClusterDistance", m_maxClustDist = 5);
+    declareProperty("NOfSeedLayers", m_nOfSeedLayers=1);
 }
 
 StatusCode
@@ -92,7 +93,7 @@ MuonClusterSegmentFinderTool::findPrecisionSegments(std::vector<const Muon::Muon
     std::vector<const Muon::MuonClusterOnTrack*> rioVecPrevious;
     // find all clusters near the seed and try to fit
     for (unsigned int i = 0; i < seeds.size(); ++i) {
-        std::vector<const Muon::MuonClusterOnTrack*> rioVec = getClustersOnSegment(orderedClusters, seeds[i], false);
+        std::vector<const Muon::MuonClusterOnTrack*> rioVec = getClustersOnSegment(orderedClusters, seeds[i]);
         //  make consistent cut
         if (belowThreshold(rioVec, 4)) continue;
         // logic to reduce combinatorics
@@ -337,9 +338,8 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
                 seed3D   = seeds[i];
             }
 
-            std::vector<const Muon::MuonClusterOnTrack*> phiHits = getClustersOnSegment(orderedClusters, seed3D, true);
-            std::vector<const Muon::MuonClusterOnTrack*> etaHitsRedone =
-                getClustersOnSegment(orderedEtaClusters, seed3D, true);
+            std::vector<const Muon::MuonClusterOnTrack*> phiHits = getClustersOnSegment(orderedClusters, seed3D);
+            std::vector<const Muon::MuonClusterOnTrack*> etaHits = getClustersOnSegment(orderedEtaClusters, seed3D);
             if (phiHits.size() < 2) {
                 delete startpar;
                 continue;
@@ -364,19 +364,13 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
 
             // interleave the phi hits
             std::vector<const Trk::MeasurementBase*> vec2;
-            std::vector<const Trk::RIO_OnTrack*>     etaHits;
-            for (unsigned int irot = 0; irot < (*sit)->numberOfContainedROTs(); irot++) {
-                const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>((*sit)->rioOnTrack(irot));
-                if (rot) etaHits.push_back(rot);
-            }
-            unsigned int netas = etaHits.size();
-            ATH_MSG_DEBUG("got " << netas << " eta hits and " << etaHitsRedone.size() << " redone eta hits");
-            bool useEtaHitsRedone = false;
-            if (etaHitsRedone.size() > netas) {
-                ATH_MSG_VERBOSE(" Found additional eta hits " << etaHitsRedone.size() - netas);
-                useEtaHitsRedone = true;
-            }
-            if (useEtaHitsRedone) netas = etaHitsRedone.size();
+	    /// here get the new corrected set of eta hits
+	    std::vector< const Muon::MuonClusterOnTrack* > etaHitsCalibrated;
+	    etaHitsCalibrated = getCalibratedClusters(etaHits,seed3D);
+	    
+            unsigned int netas = etaHitsCalibrated.size();
+            ATH_MSG_DEBUG("got " << netas << " eta hits " );
+
             if (m_ipConstraint)
                 vec2.reserve(phiHits.size() + netas + 1);
             else
@@ -396,22 +390,18 @@ MuonClusterSegmentFinderTool::find3DSegments(std::vector<const Muon::MuonCluster
                 vec2.push_back(pseudoVtx);
             }
             unsigned int iEta(0), iPhi(0);
-            ATH_MSG_VERBOSE("There are " << (*sit)->numberOfContainedROTs() << " & " << phiHits.size()
+            ATH_MSG_VERBOSE("There are " << etaHitsCalibrated.size() << " & " << phiHits.size()
                                          << " eta and phi hits");
             while (true) {
                 float phiZ(999999.), etaZ(999999.);
                 if (iPhi < phiHits.size()) phiZ = std::abs(phiHits[iPhi]->globalPosition().z());
-                if (iEta < etaHits.size()) etaZ = std::abs(etaHits[iEta]->globalPosition().z());
+                if (iEta < etaHitsCalibrated.size()) etaZ = std::abs(etaHitsCalibrated[iEta]->globalPosition().z());
                 if (phiZ < etaZ) {
-                    vec2.push_back(phiHits[iPhi]);
-                    iPhi++;
+		  vec2.push_back(phiHits[iPhi]);
+		  iPhi++;
                 } else {
-                    if (!useEtaHitsRedone) {
-                        vec2.push_back(etaHits[iEta]);
-                    } else {
-                        vec2.push_back(etaHitsRedone[iEta]);
-                    }
-                    iEta++;
+		  vec2.push_back(etaHitsCalibrated[iEta]);
+		  iEta++;
                 }
                 if (iEta >= netas && iPhi >= phiHits.size()) break;
             }
@@ -558,11 +548,11 @@ MuonClusterSegmentFinderTool::segmentSeed(std::vector<std::vector<const Muon::Mu
 {
 
     std::vector<std::pair<Amg::Vector3D, Amg::Vector3D> > seeds;
-    if (orderedClusters.size() < 2) return seeds;
+    if (orderedClusters.size() < 4) return seeds;
 
     // calculate the straight line between the two furthest points
     int seedlayers1 = 0;
-    for (unsigned int i = 0; (i < orderedClusters.size() && seedlayers1 < 2); ++i) {
+    for (unsigned int i = 0; (i < orderedClusters.size() && seedlayers1 < m_nOfSeedLayers); ++i) {
 
         bool usedLayer1 = false;
         for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = orderedClusters[i].begin();
@@ -574,7 +564,7 @@ MuonClusterSegmentFinderTool::segmentSeed(std::vector<std::vector<const Muon::Mu
             const Amg::Vector3D& gp1 = (*cit)->prepRawData()->globalPosition();
 
             int seedlayers2 = 0;
-            for (unsigned int k = orderedClusters.size() - 1; (k > i && seedlayers2 < 2); --k) {
+            for (unsigned int k = orderedClusters.size() - 1; (k > i && seedlayers2 < m_nOfSeedLayers); --k) {
 
                 bool usedLayer2 = false;
                 for (std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit2 = orderedClusters[k].begin();
@@ -645,7 +635,7 @@ MuonClusterSegmentFinderTool::segmentSeed(std::vector<std::vector<const Muon::Mu
 
 std::vector<const Muon::MuonClusterOnTrack*>
 MuonClusterSegmentFinderTool::getClustersOnSegment(std::vector<std::vector<const Muon::MuonClusterOnTrack*> >& clusters,
-                                                   std::pair<Amg::Vector3D, Amg::Vector3D>& seed, bool tight) const
+                                                   std::pair<Amg::Vector3D, Amg::Vector3D>& seed) const
 {
     ATH_MSG_VERBOSE(" getClustersOnSegment: layers " << clusters.size());
     std::vector<const Muon::MuonClusterOnTrack*> rios;
@@ -661,7 +651,7 @@ MuonClusterSegmentFinderTool::getClustersOnSegment(std::vector<std::vector<const
         {
             double dist  = clusterDistanceToSeed(*cit, seed);
             double error = Amg::error((*cit)->localCovariance(), Trk::locX);
-            if (!tight && m_idHelperSvc->isMM((*cit)->identify())) error += 15.;
+	    if (m_idHelperSvc->isMM((*cit)->identify()) && m_idHelperSvc->mmIdHelper().isStereo((*cit)->identify()) ) error = 15;
 
             ATH_MSG_VERBOSE(" lay " << layer << " dist " << dist << " pull " << dist / error << " cut "
                                     << m_maxClustDist << "  " << m_idHelperSvc->toString((*cit)->identify()));
@@ -1052,5 +1042,50 @@ MuonClusterSegmentFinderTool::belowThreshold(std::vector<const Muon::MuonCluster
     else
         return false;
 }
+
+  std::vector<const Muon::MuonClusterOnTrack*> 
+  MuonClusterSegmentFinderTool::getCalibratedClusters(std::vector<const Muon::MuonClusterOnTrack*>& clusters,
+						      std::pair<Amg::Vector3D,Amg::Vector3D>& seed) const
+  {
+    std::vector<const Muon::MuonClusterOnTrack*> calibratedClusters;
+    
+    /// loop on the segment clusters and use the phi of the seed to correct them  
+    std::vector<const Muon::MuonClusterOnTrack*>::const_iterator cit = clusters.begin();
+    
+    for ( ; cit != clusters.end() ; ++cit ) {
+      const Muon::MuonClusterOnTrack* clus = *cit;      
+      const Muon::MuonClusterOnTrack* newClus;
+      /// get the intercept of the seed direction with the cluster surface
+      const Trk::PlaneSurface* surf = dynamic_cast<const Trk::PlaneSurface*> (&clus->associatedSurface());
+      if(surf) {
+	Amg::Vector3D posOnSurf = intersectPlane( *surf, seed.first, seed.second );
+	Amg::Vector2D lpos;
+        surf->globalToLocal(posOnSurf,posOnSurf,lpos);	
+        /// correct the eta position of the MM stereo layers only, based on the 
+        Identifier clus_id = clus->identify();
+        if ( m_idHelperSvc->isMM(clus_id) ) {
+          if ( m_idHelperSvc->mmIdHelper().isStereo(clus_id) ) {
+            /// build a  new MM cluster on track with correct position 
+            newClus = m_mmClusterCreator->createRIO_OnTrack(*(clus->prepRawData()),posOnSurf);
+	    ATH_MSG_VERBOSE("Position before correction: " << clus->globalPosition().x() << " "
+			    << clus->globalPosition().y() << " " << clus->globalPosition().z());
+	    ATH_MSG_VERBOSE("Position after correction: " << newClus->globalPosition().x() << " "
+			    << newClus->globalPosition().y() << " " << newClus->globalPosition().z());
+          }
+          else {
+	    /// here calibration of the MM eta strip ( all phi-dependent effects )
+            newClus = clus;
+          }
+        }
+        else if ( m_idHelperSvc->issTgc(clus->identify()) ) {
+          /// if it's STGC just copy the cluster -> calibration to be added
+          newClus = clus;
+        }
+      }
+      calibratedClusters.push_back(newClus);
+    }
+    return calibratedClusters;
+  }
+
 
 }  // namespace Muon

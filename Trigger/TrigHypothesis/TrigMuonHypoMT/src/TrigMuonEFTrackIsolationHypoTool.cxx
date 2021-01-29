@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMonitoringKernel/Monitored.h"
@@ -83,9 +83,6 @@ bool TrigMuonEFTrackIsolationHypoTool::decideOnSingleObject(TrigMuonEFTrackIsola
      result = true;
      ATH_MSG_DEBUG("Accept property is set: taking all the events");	    
      return result;
-   } else {
-     result = false;
-     ATH_MSG_DEBUG("Accept property not set: applying selection!");
    }
    
    auto pMuon = input.muEFIso;

@@ -68,7 +68,7 @@ StatusCode EFMissingETFromTrackAndJets::initialize()
     } // if timing service
 
     // JVT likelihood histogram
-    TString jvtFile = "JVTlikelihood_20140805.root";
+    TString jvtFile = "JetMomentTools/JVTlikelihood_20140805.root";
     TString jvtName = "JVTRootCore_kNN100trim_pt20to50_Likelihood";
     m_jvtLikelihood = (TH2F *) getHistogramFromFile(jvtName, jvtFile);
     if (m_jvtLikelihood == nullptr) {

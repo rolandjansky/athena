@@ -13,6 +13,6 @@ def DetDescrCnvSvcCfg(configFlags):
                                   HasCSC=configFlags.Detector.GeometryCSC,
                                   HasSTgc=configFlags.Detector.GeometrysTGC,
                                   HasMM=configFlags.Detector.GeometryMM)
-    acc.addService(detDescrCnvSvc)
+    acc.addService(detDescrCnvSvc,create=True)
     acc.addService(EvtPersistencySvc("EventPersistencySvc",CnvServices=[detDescrCnvSvc.getName(),])) #No service handle yet???
     return acc

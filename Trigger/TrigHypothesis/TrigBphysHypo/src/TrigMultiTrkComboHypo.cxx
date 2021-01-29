@@ -139,8 +139,8 @@ StatusCode TrigMultiTrkComboHypo::initialize() {
     tool->setLegDecisionIds(legDecisionIds);
     if (msgLvl(MSG::DEBUG)) {
       ATH_MSG_DEBUG( "Leg decisions for tool " << tool->name() );
-      for (const auto& id : legDecisionIds) {
-        ATH_MSG_DEBUG( " +++ " << id );
+      for (const auto& legDecisionId : legDecisionIds) {
+        ATH_MSG_DEBUG( " +++ " << legDecisionId );
       }
     }
   }
@@ -284,7 +284,7 @@ StatusCode TrigMultiTrkComboHypo::executeL2(const EventContext& context) const {
       std::set_intersection(previousDecisionIDs.begin(), previousDecisionIDs.end(), m_allowedIDs.begin(), m_allowedIDs.end(),
                             std::inserter(decisionIDs, decisionIDs.end()));
 
-      Decision* decision = TrigCompositeUtils::newDecisionIn(decisions);
+      Decision* decision = TrigCompositeUtils::newDecisionIn(decisions, TrigCompositeUtils::comboHypoAlgNodeName());
       TrigCompositeUtils::linkToPrevious(decision, previousDecision, context);
       TrigCompositeUtils::insertDecisionIDs(decisionIDs, decision);
     }
@@ -443,7 +443,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
     ATH_MSG_DEBUG( "Found xAOD::TrigBphys: mass = " << trigBphys->mass() );
 
     // create a new output Decision object, backed by the 'decisions' container.
-    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions);
+    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions, TrigCompositeUtils::comboHypoAlgNodeName());
 
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (size_t itrk : trigBphysTrackIdx[idx]) {

@@ -311,7 +311,7 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     kwargs.setdefault("firstXing", flags.Digitization.PU.InitialBunchCrossing)
     kwargs.setdefault("lastXing", flags.Digitization.PU.FinalBunchCrossing)
 
-    if flags.Digitization.PU.RunAndLumiOverrideList:
+    if flags.Input.RunAndLumiOverrideList:
         kwargs.setdefault("MaxMinBiasCollPerXing", maxNevtsPerXing(flags))
         acc.merge(LumiProfileSvcCfg(flags))
         kwargs.setdefault("BeamLuminosity", acc.getService("LumiProfileSvc"))
@@ -324,6 +324,14 @@ def PileUpEventLoopMgrCfg(flags, name="PileUpEventLoopMgr", **kwargs):
     # Note that this is a hack. It is needed to fix beam spot information
     # as original xAOD::EventInfo is created before conditions data could
     # be read. Only the "EventInfoName" should change.
+
+    # write PileUpEventInfo
+    if flags.Output.doWriteRDO:
+        from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
+        acc.merge(OutputStreamCfg(flags, "RDO", ItemList=[
+            "xAOD::EventInfoContainer#PileUpEventInfo",
+            "xAOD::EventInfoAuxContainer#PileUpEventInfo*",
+        ]))
 
     acc.addService(CompFactory.PileUpEventLoopMgr(name, **kwargs))
     return acc

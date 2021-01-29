@@ -37,7 +37,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
 
     # Make sure we received a valid data type.
     if dataType not in [ 'data', 'mc', 'afii' ]:
-        raise ValueError( 'Invalid data type: %' % dataType )
+        raise ValueError( 'Invalid data type: %s' % dataType )
 
     if postfix != '' :
         postfix = '_' + postfix
@@ -146,6 +146,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
         alg.isolationCorrectionTool.IsMC = 1
         pass
     seq.append( alg, inputPropName = 'egammas', outputPropName = 'egammasOut',
+                affectingSystematics = '(^PH_Iso_.*)',
                 stageName = 'selection' )
 
     # Set up the isolation selection algorithm:
@@ -165,11 +166,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgPhotonEfficiencyCorrectionTool' )
     alg.scaleFactorDecoration = 'effSF' + postfix
-    alg.efficiencyCorrectionTool.MapFilePath = \
-        'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
-          PATCore.ParticleDataType.Fast
+          PATCore.ParticleDataType.Full  # no AFII ID SFs for now
     elif dataType == 'mc':
         alg.efficiencyCorrectionTool.ForceDataType = \
           PATCore.ParticleDataType.Full

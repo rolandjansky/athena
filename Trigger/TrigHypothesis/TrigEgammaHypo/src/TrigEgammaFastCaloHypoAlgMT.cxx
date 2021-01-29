@@ -63,7 +63,7 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     ATH_CHECK( clusterHandle.isValid() );
     ATH_MSG_DEBUG ( "Cluster handle size: " << clusterHandle->size() << "..." );
 
-    auto d = newDecisionIn( decisions, name() );
+    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
     
     // get Rings
     const xAOD::TrigRingerRingsContainer* rings = nullptr;    

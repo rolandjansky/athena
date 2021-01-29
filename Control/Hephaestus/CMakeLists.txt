@@ -1,6 +1,4 @@
-################################################################################
-# Package: Hephaestus
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( Hephaestus )
@@ -30,12 +28,16 @@ atlas_add_executable( hephprof
 
 # Construct the python loadable modules:
 add_custom_command( TARGET MemoryTracker POST_BUILD
+   COMMAND ${CMAKE_COMMAND} -E make_directory
+   "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
    COMMAND ${CMAKE_COMMAND} -E create_symlink
    "${CMAKE_SHARED_LIBRARY_PREFIX}MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}"
    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}"
    COMMAND ${CMAKE_COMMAND} -E create_symlink
    "${CMAKE_SHARED_LIBRARY_PREFIX}MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}.dbg"
    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}.dbg"
+   COMMAND ${CMAKE_COMMAND} -E make_directory
+   "${CMAKE_PYTHON_OUTPUT_DIRECTORY}/Hephaestus"
    COMMAND ${CMAKE_COMMAND} -E create_symlink
    "../../${CMAKE_INSTALL_LIBDIR}/${CMAKE_SHARED_LIBRARY_PREFIX}MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}"
    "${CMAKE_PYTHON_OUTPUT_DIRECTORY}/Hephaestus/MemoryTracker${CMAKE_SHARED_LIBRARY_SUFFIX}"
@@ -61,5 +63,5 @@ atlas_add_test( stackstash_test
    LINK_LIBRARIES Hephaestus )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py 
+atlas_install_python_modules( python/*.py
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )

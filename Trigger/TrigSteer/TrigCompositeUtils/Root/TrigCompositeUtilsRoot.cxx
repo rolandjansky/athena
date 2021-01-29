@@ -1,13 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // See similar workaround the lack of CLID in standalone releases in TrigComposite_v1.h
 #include "xAODBase/IParticleContainer.h"
-#ifdef XAOD_STANDALONE
-#include "xAODCore/CLASS_DEF.h"
-CLASS_DEF( xAOD::IParticleContainer, 1241842700, 1 )
-#endif // XAOD_STANDALONE
 
 #include "AsgDataHandles/WriteHandle.h"
 #include "AsgDataHandles/ReadHandle.h"
@@ -199,7 +195,7 @@ namespace TrigCompositeUtils {
 
     if ( hasLinkToPrevious(start) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(start);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         const Decision* result = find( *seedEL, filter );
         if (result) return result;
       }
@@ -405,7 +401,7 @@ namespace TrigCompositeUtils {
       return true;
     }
     // If not Early Exit, then recurse
-    for (const auto& seed : getLinkToPrevious(start)) {
+    for (const auto seed : getLinkToPrevious(start)) {
       found |= typelessFindLinks(*seed, linkName, keyVec, clidVec, indexVec, behaviour, visitedCache);
     }
     // Fully explored this node
@@ -447,13 +443,64 @@ namespace TrigCompositeUtils {
     return true; 
   }
 
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    Combinations combinations(filter);
+    combinations.reserve(legMultiplicities.size());
+    if (legMultiplicities.size() == 1)
+      combinations.addLeg(legMultiplicities.at(0), features);
+    else
+      for (std::size_t legIdx = 0; legIdx < legMultiplicities.size(); ++legIdx)
+      {
+        HLT::Identifier legID = createLegName(chainName, legIdx);
+        std::vector<LinkInfo<xAOD::IParticleContainer>> legFeatures;
+        for (const LinkInfo<xAOD::IParticleContainer>& info : features)
+          if (isAnyIDPassing(info.source, {legID.numeric()}))
+            legFeatures.push_back(info);
+      combinations.addLeg(legMultiplicities.at(legIdx), std::move(legFeatures));
+      }
+    return combinations;
+  }
+
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const std::vector<std::size_t>& legMultiplicities,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, legMultiplicities, getFilter(filter));
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    const std::function<bool(const std::vector<LinkInfo<xAOD::IParticleContainer>>&)>& filter)
+  {
+    return buildCombinations(chainName, features, chainInfo->leg_multiplicities(), filter);
+  }
+
+  Combinations buildCombinations(
+    const std::string& chainName,
+    const std::vector<LinkInfo<xAOD::IParticleContainer>>& features,
+    const TrigConf::HLTChain *chainInfo,
+    FilterType filter)
+  {
+    return buildCombinations(chainName, features, chainInfo, getFilter(filter));
+  }
+
 
   std::string dump( const Decision* tc, std::function< std::string( const Decision* )> printerFnc ) {
     std::string ret; 
     ret += printerFnc( tc );
     if ( hasLinkToPrevious(tc) ) {
       const ElementLinkVector<DecisionContainer> seeds = getLinkToPrevious(tc);
-      for (const ElementLink<DecisionContainer>& seedEL : seeds) {
+      for (const ElementLink<DecisionContainer> seedEL : seeds) {
         ret += " -> " + dump( *seedEL, printerFnc );
       }
     }
@@ -485,5 +532,25 @@ namespace TrigCompositeUtils {
     return Decision::s_seedString;
   }
   
+  const std::string& l1DecoderNodeName(){
+    return Decision::s_l1DecoderNodeNameString;
+  }
+
+  const std::string& filterNodeName(){
+    return Decision::s_filterNodeNameString;
+  }
+
+  const std::string& inputMakerNodeName(){
+    return Decision::s_inputMakerNodeNameString;
+  }
+
+  const std::string& hypoAlgNodeName(){
+    return Decision::s_hypoAlgNodeNameString;
+  }
+
+  const std::string& comboHypoAlgNodeName(){
+    return Decision::s_comboHypoAlgNodeNameString;
+  }
+
 }
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -977,28 +977,9 @@ std::vector<const SG::DataProxy*>
 SGImplSvc::proxies() const
 {
   lock_t lock (m_mutex);
-  using std::distance;
-  DataStore::ConstStoreIterator s_iter, s_end;
-  store()->tRange(s_iter, s_end).ignore();
-
-  std::vector<const SG::DataProxy*> proxies;
-  proxies.reserve( distance( s_iter, s_end ) );
-
-  for (; s_iter != s_end; ++s_iter ) {
-
-    const CLID id = s_iter->first;
-    proxies.reserve( proxies.size() + store()->typeCount(id) );
-
-    // loop over each type:
-    SG::ConstProxyIterator p_iter = (s_iter->second).begin();
-    SG::ConstProxyIterator p_end =  (s_iter->second).end();
-
-    for ( ; p_iter != p_end; ++p_iter ) {
-      proxies.push_back( p_iter->second );
-    }
-  }
-
-  return proxies;
+  const std::vector<SG::DataProxy*>& proxies = store()->proxies();
+  std::vector<const SG::DataProxy*> ret (proxies.begin(), proxies.end());
+  return ret;
 }
 
 

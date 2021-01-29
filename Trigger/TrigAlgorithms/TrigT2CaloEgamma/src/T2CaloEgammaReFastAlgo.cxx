@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -25,14 +25,12 @@
 class ISvcLocator;
 
 T2CaloEgammaReFastAlgo::T2CaloEgammaReFastAlgo(const std::string& name, ISvcLocator* pSvcLocator) :
-    AthReentrantAlgorithm(name, pSvcLocator),
-    m_regionSelector("RegSelSvc", name)
+    AthReentrantAlgorithm(name, pSvcLocator)
 {}
 
 StatusCode T2CaloEgammaReFastAlgo::initialize()
 {
   m_emAlgTools.retrieve().ignore();
-  ATH_CHECK(m_regionSelector.retrieve());
   ATH_CHECK(m_clusterContainerKey.initialize());
   ATH_CHECK(m_roiCollectionKey.initialize());
   ATH_CHECK( m_bcidAvgKey.initialize() );

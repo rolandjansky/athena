@@ -15,8 +15,12 @@ def GetCurrentStreamName( msg ):
         msg.info("Couldn't get input stream name from the RecFlags... trying AthFile directly.")
 
     from PyUtils.MetaReader import read_metadata
-    from AthenaCommon.AppMgr  import ServiceMgr as svcMgr
-    input_file = svcMgr.EventSelector.InputCollections[0]
+    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+    try:
+        input_file = svcMgr.EventSelector.InputCollections[0]
+    except AttributeError:
+        from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+        input_file = athenaCommonFlags.FilesInput()[0]
     metadata = read_metadata(input_file)
     metadata = metadata[input_file]  # promote all keys one level up
 

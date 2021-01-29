@@ -91,7 +91,7 @@ class McVtxFilter : virtual public IFilterCuts
    *  the required number of outgoing particles. Then for each branch (parent
    *  child) it checks if the particle can match an asked for particle.
    */
-  virtual bool isAccepted( const HepMC::GenVertex * vtx ) const;
+  virtual bool isAccepted( HepMC::ConstGenVertexPtr vtx ) const;
 
   /// Dump to std::ostream (default = std::cout) the decay pattern the 
   /// filter one is looking for
@@ -154,15 +154,15 @@ class McVtxFilter : virtual public IFilterCuts
   
   /**Check if the parent branch fulfills the requirements
    */
-  bool checkParentBranch( const HepMC::GenVertex * vtx ) const;
+  bool checkParentBranch( HepMC::ConstGenVertexPtr vtx ) const;
 
   /**Check if the child branch fulfills the requirements
    */
-  bool checkChildBranch ( const HepMC::GenVertex * vtx ) const;
+  bool checkChildBranch ( HepMC::ConstGenVertexPtr vtx ) const;
   
   /// Check the branches for the special case of a 1->2 body decay
   /// (there is some room for optimisation in that particular case)
-  bool checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const;
+  bool checkTwoBodyDecay( HepMC::ConstGenVertexPtr vtx ) const;
 
   /// Populate vtx by HepPDT::ParticleData
   //void addParent( const HepPDT::ParticleData& pdt );

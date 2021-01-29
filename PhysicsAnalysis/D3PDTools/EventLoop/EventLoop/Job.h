@@ -89,9 +89,11 @@ namespace EL
     /// failures: out of memory II
     /// invariant: alg != 0
   public:
+    void algsAdd (std::unique_ptr<IAlgorithmWrapper> val_algorithm);
     void algsAdd (std::unique_ptr<Algorithm> val_algorithm);
     void algsAdd (Algorithm *alg_swallow);
     void algsAdd (const AnaAlgorithmConfig& config);
+    void algsAdd (const AnaReentrantAlgorithmConfig& config);
 
 
     /// \brief add a clone of the given algorithm
@@ -395,7 +397,6 @@ namespace EL
   public:
     static const std::string optGridDestSE;
     static const std::string optGridSite;
-    static const std::string optGridCloud;
     static const std::string optGridExcludedSite;
     static const std::string optGridNGBPerJob;
     static const std::string optGridMemory;
@@ -405,11 +406,9 @@ namespace EL
     static const std::string optGridNJobs;
     static const std::string optGridMaxFileSize;
     static const std::string optGridMaxNFilesPerJob;
-    static const std::string optGridUseChirpServer;
     static const std::string optGridExpress;
     static const std::string optGridNoSubmit;
     static const std::string optGridMergeOutput;
-    static const std::string optGridUseContElementBoundary;
     static const std::string optGridAddNthFieldOfInDSToLFN;
     static const std::string optGridWorkingGroup;
     static const std::string optGridShowCmd;

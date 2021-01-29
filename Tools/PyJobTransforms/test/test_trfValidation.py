@@ -1,14 +1,11 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 763940 2016-07-24 13:46:01Z uworlika $
 
-from __future__ import print_function
-from builtins import range
 import unittest
 
 import logging
@@ -20,7 +17,6 @@ msg = logging.getLogger(__name__)
 from PyJobTransforms.trfValidation import *
 
 from PyJobTransforms.trfLogger import stdLogLevels
-import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from PyJobTransforms.trfValidation import eventMatch, athenaLogFileReport
 

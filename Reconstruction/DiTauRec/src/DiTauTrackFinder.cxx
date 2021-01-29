@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -169,7 +169,7 @@ void DiTauTrackFinder::getTracksFromPV( const DiTauCandidateData* data,
                                    std::vector<const xAOD::TrackParticle*> &isoTracks,
                                    std::vector<const xAOD::TrackParticle*> &otherTracks) const {
     
-    for (const auto& track : *pTrackParticleCont ) {
+    for (const auto track : *pTrackParticleCont ) {
         DiTauTrackType type = diTauTrackType(data, track, pVertex);
 
         if (type == DiTauSubjetTrack)

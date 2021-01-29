@@ -29,8 +29,7 @@ public:
 ///////////////////////////////////
 
    StatusCode initialize();
-   StatusCode execute();
-   StatusCode finalize();
+   StatusCode execute(){return StatusCode::SUCCESS;}
 
 private:
 ///////////////////////////////////

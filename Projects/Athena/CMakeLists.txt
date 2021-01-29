@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the project.
 cmake_minimum_required( VERSION 3.10 )
@@ -76,6 +76,7 @@ if( AtlasHIP_FOUND )
 endif()
 
 # Find some auxiliary packages:
+find_package( Frontier_Client )
 find_package( Doxygen )
 find_package( PNG )
 find_package( VDT )
@@ -112,9 +113,9 @@ lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
 
 # Generate replacement rules for the installed paths:
 set( _replacements )
-if( NOT "$ENV{NICOS_PROJECT_HOME}" STREQUAL "" )
-   get_filename_component( _buildDir $ENV{NICOS_PROJECT_HOME} PATH )
-   list( APPEND _replacements ${_buildDir} "\${Athena_DIR}/../../../.." )
+if( NOT "$ENV{ATLAS_BUILD_DIR}" STREQUAL "" )
+   list( APPEND _replacements "$ENV{ATLAS_BUILD_DIR}/install"
+                              "\${Athena_DIR}/../../../.." )
 endif()
 
 # Now generate and install the installed setup files:
@@ -124,15 +125,11 @@ lcg_generate_env(
 install( FILES ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/env_setup_install.sh
    DESTINATION . RENAME env_setup.sh )
 
-# Configure and install the post-configuration file:
+# Configure and install the pre- and post-configuration files:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
 string( REPLACE "${TDAQ-COMMON_VERSION}" "\${TDAQ-COMMON_VERSION}"
    TDAQ-COMMON_ATROOT "${TDAQ-COMMON_ATROOT}" )
-
-# Install graphviz output if available:
-install( FILES ${CMAKE_BINARY_DIR}/packages.dot
-   DESTINATION . OPTIONAL )
 
 # Temporarily add tdaq dependency to Athena build:
 string( REPLACE "$ENV{TDAQ_RELEASE_BASE}" "\$ENV{TDAQ_RELEASE_BASE}"
@@ -148,6 +145,10 @@ install( FILES
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PreConfig.cmake
    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/PostConfig.cmake
    DESTINATION ${CMAKE_INSTALL_CMAKEDIR} )
+
+# Install graphviz output if available:
+install( FILES ${CMAKE_BINARY_DIR}/packages.dot
+   DESTINATION . OPTIONAL )
 
 # Package up the release using CPack:
 atlas_cpack_setup()

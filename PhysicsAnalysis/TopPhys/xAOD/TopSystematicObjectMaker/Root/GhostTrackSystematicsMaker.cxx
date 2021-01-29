@@ -100,7 +100,7 @@ namespace top {
     static int warningCounter=0;
     const int warningLimit=20;
     
-    for (const auto& jet : *nominal) {
+    for (xAOD::Jet *jet : *nominal) {
       if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       // Copy nominal ghost track container into the systematic variation.
 
@@ -137,7 +137,7 @@ namespace top {
                "Failed to configure tool for systematic variation");
 
     ///-- Loop over the xAOD Container --///
-    for (const auto& jet : *nominal) {
+    for (xAOD::Jet *jet : *nominal) {
       if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks =
         jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
@@ -173,7 +173,7 @@ namespace top {
                "Failed to configure tool for systematic variation");
 
     ///-- Loop over the xAOD Container --///
-    for (const auto& jet : *nominal) {
+    for (xAOD::Jet *jet : *nominal) {
       if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::IParticle>(m_config->decoKeyJetGhostTrack());
       std::vector<const xAOD::IParticle*> newGhosts;
@@ -226,7 +226,7 @@ namespace top {
                "Failed to record systematically varied track particle container");
     newTrackParticles->setStore(newTrackParticlesAux);
 
-    for (const auto& jet : *nominal) {
+    for (xAOD::Jet *jet : *nominal) {
       if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 
@@ -283,7 +283,7 @@ namespace top {
                "Failed to record systematically varied track particle container");
     newTrackParticles->setStore(newTrackParticlesAux);
 
-    for (const auto& jet : *nominal) {
+    for (xAOD::Jet *jet : *nominal) {
       if ((jet->pt() < m_jetPtCut) || (std::abs(jet->eta()) > m_jetEtaCut)) continue;
       const auto& ghostTracks = jet->getAssociatedObjects<xAOD::TrackParticle>(m_config->decoKeyJetGhostTrack());
 

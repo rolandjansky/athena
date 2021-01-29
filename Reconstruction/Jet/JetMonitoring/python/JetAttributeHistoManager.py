@@ -1,15 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
 from JetMonitoring.HistoDefinitionHelpers import mergeHistoDefinition
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, JetSelectorAttributeRunII
 from JetMonitoring.JetHistoManager import jetHistoManager as jhm
-
-import six
-
 
 class AttributeHistoManager(object):
 
@@ -17,7 +11,7 @@ class AttributeHistoManager(object):
         self.jhm = jhm
         
     def buildKnownTools(self, compactSpecification):
-        for name, spec in six.iteritems(compactSpecification):
+        for name, spec in compactSpecification.items():
             if len(spec) == 2 :
                 binning, attributeInfo = spec
                 self.add1DHistoTool(name, binning, attributeInfo)
@@ -155,7 +149,7 @@ def unpackto3(t):
 def findSelectIndex( name):
     try:
         name, index = name.split('[')
-    except:
+    except Exception:
         name, index = name, ''
     if not index.endswith(']'):
         return name, -1
@@ -177,7 +171,7 @@ def interpretSelStr(selStr):
         ismin = False
         try :
             var, cut = parts[0] , float(parts[1])
-        except:
+        except Exception:
             cut, var = float(parts[0]) ,parts[1]
             ismin=True
         if ismin : cmin = cut

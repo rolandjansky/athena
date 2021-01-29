@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3301,6 +3301,7 @@ StatusCode RPCStandaloneTracksMon::bookHistogramsRecurrent( )
         // need to pay attention to BME case - not yet considered here .... 
         // need the full check here, since id.is_valid() is not enough to avoid exception in getRpcReadoutElement
         bool isValid=false; 
+        if (iname > m_idHelperSvc->rpcIdHelper().stationNameIndexMax()) continue;
         Identifier rpcId = m_idHelperSvc->rpcIdHelper().channelID(iname, (ieta-8), int(i_sec/2)+1, ir+1, idbz+1, idbphi+1, 1, 1, 1, true, &isValid, true); // last 6 arguments are: int doubletPhi, int gasGap, int measuresPhi, int strip, bool check, bool* isValid, bool noPrint
         if (!isValid) {
           ATH_MSG_DEBUG("Could not find valid Identifier for station="<<iname<<", eta="<<(ieta-8)<<", phi="<<int(i_sec/2)+1<<", doubletR="<<ir+1<<", doubletZ="<<idbz+1<<", doubletPhi="<<idbphi+1<<", continuing...");

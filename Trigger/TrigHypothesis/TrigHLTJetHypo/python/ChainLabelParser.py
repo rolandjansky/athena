@@ -1,9 +1,9 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 
 from TrigHLTJetHypo.node import Node
-from TrigHLTJetHypo.constants import lchars, digits
+from TrigHLTJetHypo.constants import lchars, param_alphabet
 
 def get_char(s):
     """character generator"""
@@ -158,7 +158,7 @@ class ChainLabelParser(object):
         
         c = next(self.gc)
     
-        if c in lchars or c in digits or c ==',':
+        if c in param_alphabet:
             self.paramAppend(c)
             return
 
@@ -304,18 +304,12 @@ class ChainLabelParser(object):
             print('error, stack size', len(self.tree), 'expected 2')
             print(self.state_history)
             
-        if len(self.tree[0].children) != 1:
-            error = True
-            print('error, top node has %d cdildren, expected 1' % (
-                len(self.tree[0].children)))
 
         final_state = 'end_scenario'
         if self.state != final_state:
             error = True
             print('error: final state is %s, expected %s' % (self.state,
                                                              final_state))
-        # print 'tree dump:'
-        # print self.tree[0].dump()
         print('parse', end=' ')
         if not error:
             print('succeeded')
@@ -331,14 +325,17 @@ class ChainLabelParser(object):
         for c in self.tree[0].children:
             c.tree_top = True
 
-        # for now (02/01/2019), no reco. First tree is only tree is hypo
-        return self.tree[0].children[0]
+        # return hypo forest (>= 1 trees)
+        return self.tree[0].children
 
 def _test(s):
     from TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
     parser = ChainLabelParser(s, debug=True)
-    tree = parser.parse()
-    print(tree.dump())
+    trees = parser.parse()
+
+    print ('No of trees produced: ', len(trees))
+    for t in trees:
+        print(t.dump())
 
 
 def test():

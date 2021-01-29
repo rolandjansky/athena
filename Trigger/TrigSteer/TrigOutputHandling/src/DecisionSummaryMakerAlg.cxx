@@ -80,7 +80,7 @@ StatusCode DecisionSummaryMakerAlg::execute(const EventContext& context) const {
       // may accept the event via other objects
 
       // filter -> HypoAlg
-      Decision* filter = newDecisionIn( container, decisionObject, "F", context );
+      Decision* filter = newDecisionIn( container, decisionObject, filterNodeName(), context );
       decisionIDs(filter).insert( decisionIDs(filter).end(), passingFinalIDs.begin(), passingFinalIDs.end() );
 
       // HLTPassRaw -> filter

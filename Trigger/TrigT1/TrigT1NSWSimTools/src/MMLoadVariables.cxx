@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigT1NSWSimTools/MMLoadVariables.h"
@@ -132,7 +132,7 @@ MMLoadVariables::MMLoadVariables(StoreGateSvc* evtStore, const MuonGM::MuonDetec
         // loop on all digits inside a collection, i.e. multilayer
         int digit_count =0;
 
-        for (const auto & item:*digitCollection) {
+        for (const auto item:*digitCollection) {
             // get specific digit and identify it
             const MmDigit* digit = item;
             Identifier id = digit->identify();

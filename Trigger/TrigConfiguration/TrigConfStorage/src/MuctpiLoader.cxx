@@ -1,6 +1,5 @@
-/*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 
 /////////////////////////////////////////////////////////////////////
 //                                                     
@@ -40,15 +39,14 @@ bool
 TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
 
   if(verbose())
-     msg() << "MuctpiLoader:                     Loading MuCTPi with ID = " << mTarget.id() << " and Lvl1 masterId = " << mTarget.lvl1MasterTableId() << std::endl;
+    msg() << "MuctpiLoader:                     Loading MuCTPi with ID = " << mTarget.id() << " and Lvl1 masterId = " << mTarget.lvl1MasterTableId() << std::endl;
   try {
     startSession();
     if ( mTarget.lvl1MasterTableId() ) {
       // get the muctpi id for this mastertable
       long muctpi_id = 0;
-      
-      coral::ITable& table0 = m_session.nominalSchema().tableHandle( "L1_MASTER_TABLE");
-      coral::IQuery* query0 = table0.newQuery();
+
+      std::unique_ptr<coral::IQuery> query0(m_session.nominalSchema().tableHandle("L1_MASTER_TABLE").newQuery());
       query0->setRowCacheSize( 5 );
 
       //Bind list
@@ -68,7 +66,6 @@ TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
 
       if ( ! cursor0.next() ) {
         msg() << "MuctpiLoader >> No such Master_Table exists " << mTarget.lvl1MasterTableId() << std::endl;
-        delete query0;
         commitSession();
         throw std::runtime_error( "MuctpiLoader >> Muctpi_Info not available" );
       }
@@ -79,16 +76,13 @@ TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
       if ( cursor0.next() ) {
         msg() << "MuctpiLoader >> More than one Muctpi_Info exists for this master_table id" 
               << mTarget.lvl1MasterTableId() << std::endl;
-        delete query0;
         commitSession();
         throw std::runtime_error( "MuctpiLoader >>   Muctpi_Info not available" );
       }
-	  
       mTarget.setId(muctpi_id);
     }
       
-    coral::ITable& table = m_session.nominalSchema().tableHandle( "L1_MUCTPI_INFO");
-    coral::IQuery* query = table.newQuery();
+    std::unique_ptr<coral::IQuery> query(m_session.nominalSchema().tableHandle( "L1_MUCTPI_INFO").newQuery());
     query->setRowCacheSize( 5 );
 
     //Bind list
@@ -119,7 +113,6 @@ TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
     coral::ICursor& cursor = query->execute();
     if ( ! cursor.next() ) {
       msg() << "MuctpiLoader >> No such Muctpi_info exists " << mTarget.id() << std::endl;
-      delete query;
       commitSession();
       throw std::runtime_error( "MuctpiLoader >> Muctpi not available" );
     }
@@ -133,7 +126,6 @@ TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
 
     if ( cursor.next() ) {
       msg() << "MuctpiLoader >> More than one Muctpi exists "   << mTarget.id() << std::endl;
-      delete query;
       commitSession();
       throw std::runtime_error( "MuctpiLoader >>  Muctpi not available" );
     }
@@ -145,8 +137,6 @@ TrigConf::MuctpiLoader::load( Muctpi& mTarget ) {
     mTarget.setLowptThreshold( low_pt );
     mTarget.setHighptThreshold( high_pt );
     mTarget.setMaxCand( max_cand );
-
-    delete query;
     commitSession();
     return true;
   } catch( const coral::SchemaException& e ) {

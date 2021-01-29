@@ -42,13 +42,13 @@ namespace InDet
       ~InDetIsoTrackSelectorTool();
 
       /** ESD type interface */
-      bool decision(const Trk::AtaStraightLine&, const Trk::Track& track) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::Track& track) const override;
       
       /** AOD type interface */
-      bool decision(const Trk::AtaStraightLine&, const Trk::TrackParticleBase& trackParticle) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::TrackParticleBase& trackParticle) const override;
       
       /** Work-horse interface - will ignore TrackSelector */
-      bool decision(const Trk::AtaStraightLine&, const Trk::TrackParameters& trackPars) const;
+      virtual bool decision(const Trk::AtaStraightLine&, const Trk::TrackParameters& trackPars) const override;
 
     private:
       /** Robust cut window setting */

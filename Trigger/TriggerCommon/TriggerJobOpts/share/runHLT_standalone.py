@@ -20,7 +20,7 @@
 #
 class opt:
     setupForMC       = None           # force MC setup
-    setMenu          = 'LS2_v1'
+    setMenu          = None           # option to overwrite flags.Trigger.triggerMenuSetup
     setDetDescr      = None           # force geometry tag
     setGlobalTag     = None           # force global conditions tag
     useCONDBR2       = True           # if False, use run-1 conditions DB
@@ -402,7 +402,9 @@ elif ConfigFlags.Input.Format == 'BS' and not ConfigFlags.Trigger.Online.isParti
 # ---------------------------------------------------------------
 # Trigger config
 # ---------------------------------------------------------------
-ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = opt.setMenu
+if opt.setMenu:
+    ConfigFlags.Trigger.triggerMenuSetup = opt.setMenu
+TriggerFlags.triggerMenuSetup = ConfigFlags.Trigger.triggerMenuSetup
 TriggerFlags.readLVL1configFromXML = True
 TriggerFlags.outputLVL1configFile = None
 
@@ -575,6 +577,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     from AthenaCommon.CFElements import findAlgorithm,findSubSequence
     hypos = collectHypos(findSubSequence(topSequence, "HLTAllSteps"))
     filters = collectFilters(findSubSequence(topSequence, "HLTAllSteps"))
+
+    nfilters = sum(len(v) for v in filters.values())
+    nhypos = sum(len(v) for v in hypos.values())    
+    log.info( "Algorithms counting: Number of Filter algorithms: %d  -  Number of Hypo algoirthms: %d", nfilters , nhypos) 
 
     summaryMakerAlg = findAlgorithm(topSequence, "DecisionSummaryMakerAlg")
     l1decoder = findAlgorithm(topSequence, "L1Decoder")

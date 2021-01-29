@@ -83,6 +83,22 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
+    
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -131,18 +147,6 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
-
-  /**Return method for transfromation, overwrites the transform() form base
-   * class*/
-  virtual const Amg::Transform3D& transform() const override final;
-
-  /**Return method for surface center infromation, overwrites the center() form
-   * base class*/
-  virtual const Amg::Vector3D& center() const override final;
-
-  /**Return method for surface center infromation, overwrites the center() form
-   * base class*/
-  virtual const Amg::Vector3D& normal() const override final;
 
   /**Returns a normal vector at a specific localPosition*/
   virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override final;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -7,8 +7,10 @@
  */
 #include "TrigJetConditionConfig_capacitychecked.h"
 #include "CapacityCheckedCondition.h"
+#include "ConditionInverter.h"
+#include "CompoundConditionMT.h"
+
 #include "GaudiKernel/StatusCode.h"
-#include "./CompoundConditionMT.h"
 #include <vector>
 
 
@@ -24,22 +26,34 @@ StatusCode TrigJetConditionConfig_capacitychecked::initialize() {
   return StatusCode::SUCCESS;
 }
 
-
-ConditionPtr
-TrigJetConditionConfig_capacitychecked::getCapacityCheckedCondition() const {
+std::unique_ptr<IConditionMT>
+TrigJetConditionConfig_capacitychecked::getCompoundCondition() const {
   std::vector<ConditionMT> elements;
   for(const auto& el : m_elementConditions){
     elements.push_back(el->getCondition());
   }
   
-  auto cc =  std::make_unique<CompoundConditionMT>(elements);
+  return std::make_unique<CompoundConditionMT>(elements);
+}
 
-  return std::make_unique<CapacityCheckedCondition>(std::move(cc),
+ConditionPtr
+TrigJetConditionConfig_capacitychecked::getCapacityCheckedCondition() const {
+
+  return
+    std::make_unique<CapacityCheckedCondition>(getCompoundCondition(),
+					       m_multiplicity,
+					       m_chainPartInd);
+}
+
+ConditionPtr
+TrigJetConditionConfig_capacitychecked::getCapacityCheckedAntiCondition() const {
+  auto acc = std::make_unique<ConditionInverterMT>(getCompoundCondition());
+  return std::make_unique<CapacityCheckedCondition>(std::move(acc),
 						    m_multiplicity,
-
 						    m_chainPartInd);
 }
-				     
+  
+
 
 StatusCode TrigJetConditionConfig_capacitychecked::checkVals() const {
 

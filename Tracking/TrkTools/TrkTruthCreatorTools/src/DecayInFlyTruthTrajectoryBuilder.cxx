@@ -71,21 +71,9 @@ buildTruthTrajectory(TruthTrajectory *result, HepMC::ConstGenParticlePtr input) 
 DecayInFlyTruthTrajectoryBuilder::MotherDaughter
 DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr vtx) const
 {
-  HepMC::GenParticlePtr mother{nullptr};
-  HepMC::GenParticlePtr daughter{nullptr};
-  // only truth vertices with 1 incoming particle
-#ifdef HEPMC3
-  if(vtx && (vtx->particles_in().size() == 1)) {
-
-    mother = vtx->particles_in().front();
-#else 
-  if(vtx && (vtx->particles_in_size() == 1)) {
-
-    mother = *vtx->particles_in_const_begin();
-#endif    
-    // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
-    if( mother && (mother->status() < 3) ) {
-    
+  HepMC::ConstGenParticlePtr mother{nullptr};
+  HepMC::ConstGenParticlePtr daughter{nullptr};
+     // only truth vertices with 1 incoming particle     
       // Restrict to quasi-elastic processes (e.g. brems, delta-rays, pi->pi+Delta).
       // 
       // Require not more than 2 outgoing particles. Note that
@@ -94,11 +82,21 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr v
       // is that with the higher energy (NOT pt).
       // 
       // allow 1 outgoing to cover possible vertexes from interaction in detector material
-      if (vtx->particles_out_size() <= 2) {
+#ifdef HEPMC3
+  if(vtx && (vtx->particles_in().size() == 1) && (vtx->particles_out().size() <= 2)  ) {
+
+    mother = vtx->particles_in().front();
+#else 
+  if(vtx && (vtx->particles_in_size() == 1) && (vtx->particles_out_size() <= 2) ) {
+
+    mother = *vtx->particles_in_const_begin();
+#endif    
+    // Allow status code 1 and 2.  E.g. a pion that produced a long track can decay  outside of InDet and have status==2.
+    if( mother && (mother->status() < 3) ) {
 
 	int num_passed_cuts = 0;
-	HepMC::GenParticlePtr passed_cuts{nullptr};
-	for(HepMC::GenParticlePtr candidate: *vtx){
+	HepMC::ConstGenParticlePtr passed_cuts{nullptr};
+	for(HepMC::ConstGenParticlePtr candidate: *vtx){
 	  if(candidate->pdg_id() == mother->pdg_id()) {
 
 	    if(passed_cuts && (mother->pdg_id() == 11)) { // second negative electron is a special case
@@ -121,8 +119,6 @@ DecayInFlyTruthTrajectoryBuilder::truthTrajectoryCuts(HepMC::ConstGenVertexPtr v
 	if(num_passed_cuts==1) { // disallow hadronic pi->N*pi etc.
 	  daughter = passed_cuts;
 	}
-
-      } // if (vtx->particles_out_size() <= 2)
     } // if( mother && (mother->status() == 1) )
   }
   

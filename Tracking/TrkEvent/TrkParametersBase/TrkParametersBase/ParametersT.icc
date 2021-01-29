@@ -262,6 +262,8 @@ ParametersT<DIM, T, S>::clone() const
   return new ParametersT<DIM, T, S>(*this);
 }
 
+
+
 /** Return the ParametersType enum */
 template<int DIM, class T, class S>
 ParametersType

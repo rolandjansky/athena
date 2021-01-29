@@ -15,6 +15,7 @@ from D3PDMakerCoreComps.D3PDObject          import DeferArg
 from D3PDMakerCoreComps.SimpleAssociation   import SimpleAssociation
 from D3PDMakerCoreComps.IndexMultiAssociation import IndexMultiAssociation
 from D3PDMakerCoreComps.resolveSGKey        import testSGKey
+from D3PDMakerCoreComps.resolveSGKey        import resolveSGKey # noqa: F401
 from D3PDMakerConfig.D3PDMakerFlags         import D3PDMakerFlags
 from RecExConfig.RecFlags                   import rec
 import egammaD3PDMaker

@@ -40,6 +40,7 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <memory>
 
 typedef std::vector<fastjet::PseudoJet> PseudoJetVector;
 
@@ -51,11 +52,9 @@ public:
 
   // Constructor from a ConstituentExtractor and vector<PseudoJet>
   // PseudoJet OWNS their ConstituentExtractors
-  PseudoJetContainer(const IConstituentExtractor* c, 
+  PseudoJetContainer(std::unique_ptr<const IConstituentExtractor> c, 
                      const std::vector<PseudoJet> & vecPJ,
                      bool debug=false);
-
-  ~PseudoJetContainer();
 
   // fill xAOD jet with constit&ghosts extracted from final PSeudoJet
   bool extractConstituents(xAOD::Jet&, const std::vector<PseudoJet>&) const;
@@ -103,8 +102,8 @@ private:
   struct ExtractorRange {
     ExtractorRange(unsigned int lo, 
                    unsigned int hi, 
-                   const IConstituentExtractor* e):
-      m_lo(lo), m_hi(hi), m_e(e){
+                   std::unique_ptr<const IConstituentExtractor> e):
+      m_lo(lo), m_hi(hi), m_e(std::move(e)){
     }
 
     ExtractorRange(const ExtractorRange& other)
@@ -125,19 +124,14 @@ private:
       swap(*this, other);
       return *this;
     }
-      
-           
-    ~ExtractorRange(){
-      delete m_e;
-    } 
     
     ExtractorRange bump(int step) const {
-      return ExtractorRange(m_lo + step, m_hi + step, m_e->clone());
+      return ExtractorRange(m_lo + step, m_hi + step, std::unique_ptr<const IConstituentExtractor>(m_e->clone()));
     }
 
     int m_lo;
     int m_hi;
-    const IConstituentExtractor* m_e;
+    std::unique_ptr<const IConstituentExtractor> m_e{};
   };
 
   std::vector<ExtractorRange> m_extractorRanges;
@@ -146,7 +140,7 @@ private:
   // created by the creating PseudoJetGetter. We need to keep track
   // of the empty extractors to fill zero information (such as 0 counts)
   // into the jets.
-  std::set<const IConstituentExtractor*> m_emptyExtractors;
+  std::set<std::unique_ptr<const IConstituentExtractor>> m_emptyExtractors;
 
   mutable bool m_debug{false};
 };

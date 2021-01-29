@@ -78,7 +78,6 @@ StatusCode JSSTaggerBase::initialize() {
   }
 
   /// Initialize warning counters
-  m_nWarnKin = 0;
   m_nWarnVar = 0;
 
   /// Define common tagger states
@@ -99,6 +98,48 @@ StatusCode JSSTaggerBase::initialize() {
   m_decValidJetContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidJetContentKey.key();
   m_decValidEventContentKey = m_containerName + "." + m_decorationName + "_" + m_decValidEventContentKey.key();
 
+  m_decTau21WTAKey = m_containerName + "." + m_decTau21WTAKey.key();
+  m_decTau32WTAKey = m_containerName + "." + m_decTau32WTAKey.key();
+  m_decC2Key = m_containerName + "." + m_decC2Key.key();
+  m_decD2Key = m_containerName + "." + m_decD2Key.key();
+  m_decE3Key = m_containerName + "." + m_decE3Key.key();
+  
+  m_readTau1WTAKey = m_containerName + "." + m_readTau1WTAKey.key();
+  m_readTau2WTAKey = m_containerName + "." + m_readTau2WTAKey.key();
+  m_readTau3WTAKey = m_containerName + "." + m_readTau3WTAKey.key();
+  m_readTau21WTAKey = m_containerName + "." + m_readTau21WTAKey.key();
+  m_readTau32WTAKey = m_containerName + "." + m_readTau32WTAKey.key();
+  m_readECF1Key = m_containerName + "." + m_readECF1Key.key();
+  m_readECF2Key = m_containerName + "." + m_readECF2Key.key();
+  m_readECF3Key = m_containerName + "." + m_readECF3Key.key();
+  m_readC2Key = m_containerName + "." + m_readC2Key.key();
+  m_readD2Key = m_containerName + "." + m_readD2Key.key();
+  m_readE3Key = m_containerName + "." + m_readE3Key.key();
+  m_readSplit12Key = m_containerName + "." + m_readSplit12Key.key();
+  m_readSplit23Key = m_containerName + "." + m_readSplit23Key.key();
+  m_readQwKey = m_containerName + "." + m_readQwKey.key();
+
+  ATH_CHECK( m_decTau21WTAKey.initialize() );
+  ATH_CHECK( m_decTau32WTAKey.initialize() );
+  ATH_CHECK( m_decC2Key.initialize() );
+  ATH_CHECK( m_decD2Key.initialize() );
+  ATH_CHECK( m_decE3Key.initialize() );
+
+  ATH_CHECK( m_readTau1WTAKey.initialize() );
+  ATH_CHECK( m_readTau2WTAKey.initialize() );
+  ATH_CHECK( m_readTau3WTAKey.initialize() );
+  ATH_CHECK( m_readTau21WTAKey.initialize() );
+  ATH_CHECK( m_readTau32WTAKey.initialize() );
+  ATH_CHECK( m_readECF1Key.initialize() );
+  ATH_CHECK( m_readECF2Key.initialize() );
+  ATH_CHECK( m_readECF3Key.initialize() );
+  ATH_CHECK( m_readC2Key.initialize() );
+  ATH_CHECK( m_readD2Key.initialize() );
+  ATH_CHECK( m_readE3Key.initialize() );
+  ATH_CHECK( m_readSplit12Key.initialize() );
+  ATH_CHECK( m_readSplit23Key.initialize() );
+  ATH_CHECK( m_readQwKey.initialize() );
+  
   ATH_CHECK( m_decTaggedKey.initialize() );
   ATH_CHECK( m_decValidPtRangeHighKey.initialize() );
   ATH_CHECK( m_decValidPtRangeLowKey.initialize() );
@@ -184,6 +225,11 @@ StatusCode JSSTaggerBase::initialize() {
     }
 
   }
+
+  /// Initialize the TF1 functions
+  if ( !m_strMassCutLow.empty() ) m_funcMassCutLow = std::make_unique<TF1>("strMassCutLow", m_strMassCutLow.c_str(), 0, 14000);
+  if ( !m_strMassCutHigh.empty() ) m_funcMassCutHigh = std::make_unique<TF1>("strMassCutHigh", m_strMassCutHigh.c_str(), 0, 14000);
+  if ( !m_strScoreCut.empty() ) m_funcScoreCut = std::make_unique<TF1>("strScoreCut", m_strScoreCut.c_str(), 0, 14000);
 
   return StatusCode::SUCCESS;
 
@@ -279,20 +325,17 @@ StatusCode JSSTaggerBase::checkKinRange( const xAOD::Jet &jet, asg::AcceptData &
   /// Check each kinematic constraint
   /// Print warnings using counters
   if ( std::abs(jet.eta()) > m_jetEtaMax ) {
-    if ( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (|eta| < " << m_jetEtaMax << "). Jet eta = " << jet.eta() );
     acceptData.setCutResult( "ValidEtaRange", false );
   }
 
   if ( jet.pt() < m_jetPtMin * scale ) {
-    if ( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING("Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT > " << m_jetPtMin * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeLow", false );
   }
 
   if ( jet.pt() > m_jetPtMax * scale ) {
-    if( m_nWarnKin++ < m_nWarnMax ) ATH_MSG_WARNING( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
-    else ATH_MSG_DEBUG( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
+    ATH_MSG_VERBOSE( "Jet does not pass basic kinematic selection (pT < " << m_jetPtMax * scale / 1.e3 << "). Jet pT = " << jet.pt() / 1.e3 << " GeV" );
     acceptData.setCutResult( "ValidPtRangeHigh", false );
   }
 

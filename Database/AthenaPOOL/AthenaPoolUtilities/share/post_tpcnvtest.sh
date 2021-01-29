@@ -1,8 +1,8 @@
 #!/bin/sh
 #/** @file post.sh
-# @brief sh script that check the return code of an executable and compares 
+# @brief sh script that check the return code of an executable and compares
 # its output with a reference (if available).
-# @param test_name 
+# @param test_name
 #
 # @author Paolo Calafiura <pcalafiura@lbl.gov> - ATLAS Collaboration.
 # $Id: post_check.sh,v 1.32 2009-05-06 18:10:12 ssnyder Exp $
@@ -248,11 +248,13 @@ PP="$PP"'|WARNING: new xAOD variables '
 # From MuonCondAlg.
 PP="$PP"'|Empty temporary A-line container'
 
+# Warnings from mini-projects, not holding all the EDM classes.
+PP="$PP"'|^RootAuxDynReader::init.*Could not find auxid for'
 
 test=$1
 if [ -z "$testStatus" ]; then
     echo "post.sh> Warning: athena exit status is not available "
-else 
+else
     # check exit status
     joblog=${test}.log
     if [ -r ${test}-SKIPPED ]; then
@@ -316,4 +318,3 @@ fi
 joblog=${test}.log
 
 exit $testStatus
-

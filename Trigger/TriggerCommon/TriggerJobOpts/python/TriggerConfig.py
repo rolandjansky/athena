@@ -7,6 +7,7 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaCommon.CFElements import seqAND, seqOR, parOR, flatAlgorithmSequences, getSequenceChildren, isSequence, hasProp, getProp
 from AthenaCommon.Logging import logging
 __log = logging.getLogger('TriggerConfig')
+
 def __isCombo(alg):
     return hasProp( alg, "MultiplicitiesMap" )  # alg.getType() == 'ComboHypo':
 
@@ -236,23 +237,30 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
     if len(hypos) == 0:
         __log.warning("Menu is not configured")
         return acc, mon
-    allChains = set() # collects the last decision obj for each chain
 
     # lambda sort because we have strings Step1 Step2 ... Step10 Step11 and python sorts that
     # to Step10 Step11 Step1 Step2
+    stepCounter = 1
     for stepName, stepHypos in sorted( hypos.items(), key=lambda x : __stepNumber(x[0])):
+        assert __stepNumber(stepName) == stepCounter, "There are steps that have no hypos, decisions counting is not going to work"
+        stepCounter += 1
         stepDecisionKeys = []
+        stepFeatureDecisionKeys = []
         for hypo in stepHypos:
             hypoChains, hypoOutputKeys  = __decisionsFromHypo( hypo )
-            stepDecisionKeys.extend( hypoOutputKeys )
-            allChains.update( hypoChains )
+            if __isCombo(hypo):                
+                stepDecisionKeys.extend( hypoOutputKeys )
+            else:
+                stepFeatureDecisionKeys.extend( hypoOutputKeys )
 
-        dcTool = DecisionCollectorTool( "DecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
-        __log.debug( "The step monitoring decisions in %s %s", dcTool.getName(), dcTool.Decisions)
-        mon.CollectorTools += [ dcTool ]
+        dcEventTool = DecisionCollectorTool( "EventDecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepDecisionKeys)))
+        dcFeatureTool = DecisionCollectorTool( "FeatureDecisionCollector" + stepName, Decisions=list(OrderedDict.fromkeys(stepFeatureDecisionKeys)))
+        __log.debug( "The step monitoring decisions in %s %s", dcEventTool.getName(), dcEventTool.Decisions)
+        __log.debug( "The step monitoring decisions in %s %s", dcFeatureTool.getName(), dcFeatureTool.Decisions)
+        mon.DecisionCollectorTools += [ dcEventTool ]
+        mon.FeatureCollectorTools  += [ dcFeatureTool ]
 
 
-    #mon.FinalChainStep = allChains
     mon.L1Decisions  = getProp( l1Decoder, 'L1DecoderSummaryKey' )
 
     # For now use old svcMgr interface as this service is not available from acc.getService()
@@ -269,7 +277,6 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
     from DecisionHandling.DecisionHandlingConfig import setupFilterMonitoring
     [ [ setupFilterMonitoring( alg ) for alg in algs ]  for algs in list(filters.values()) ]
-
 
     return acc, mon
 
@@ -352,7 +359,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
     from TrigEDMConfig.TriggerEDM import getRun3BSList
 
     # Get list of all output collections for ByteStream (including DataScouting)
-    collectionsToBS = getRun3BSList( ["BS"] + DataScoutingInfo.getAllDataScoutingIdentifiers() )
+    collectionsToBS = getRun3BSList(["BS"] + DataScoutingInfo.getAllDataScoutingIdentifiers())
 
     # Build an output dictionary with key = collection type#name, value = list of ROBFragment module IDs
     ItemModuleDict = OrderedDict()
@@ -376,7 +383,12 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
     bitsmaker = TriggerBitsMakerToolCfg()
 
     # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
-    stmaker.PEBDecisionKeys = [key for key in list(summaryAlg.FinalStepDecisions.values()) if 'PEBInfoWriter' in key]
+    PEBKeys = []
+    for keys in summaryAlg.FinalStepDecisions.values():
+        for key in keys:
+            if 'PEBInfoWriter' in key:
+                PEBKeys.append(key)                
+    stmaker.PEBDecisionKeys = list(set(PEBKeys))
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -388,21 +400,21 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         hltResultMakerTool.MakerTools = [bitsmaker, serialiser]
         hltResultMakerAlg = HLTResultMTMakerAlg()
         hltResultMakerAlg.ResultMaker = hltResultMakerTool
-        acc.addEventAlgo( hltResultMakerAlg )
+        acc.addEventAlgo(hltResultMakerAlg)
 
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
-        decmaker = CompFactory.getComp( "TrigDec::TrigDecisionMakerMT" )("TrigDecMakerMT")
-        acc.addEventAlgo( decmaker )
+        decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
+        acc.addEventAlgo(decmaker)
 
         # Create OutputStream alg
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
-        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ] )
+        writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ])
         writingAcc.getPrimary().ExtraInputs = [
             ("HLT::HLTResultMT", "HLTResultMT"),
             ("xAOD::TrigDecision", "xTrigDecision")]
         writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamType = 'unknown'
         writingAcc.getService('ByteStreamEventStorageOutputSvc').StreamName = 'SingleStream'
-        acc.merge( writingAcc )
+        acc.merge(writingAcc)
     else:
         acc.setPrivateTools( [bitsmaker, stmaker, serialiser] )
     return acc
@@ -622,7 +634,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     decObj = collectDecisionObjects( hypos, filters, l1DecoderAlg, summaryAlg )
     decObjHypoOut = collectHypoDecisionObjects(hypos, inputs=False, outputs=True)
     __log.info( "Number of decision objects found in HLT CF %d", len( decObj ) )
-    __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) )
+    __log.info( "Of which, %d are the outputs of hypos", len( decObjHypoOut ) ) 
     __log.info( decObj )
 
     # configure components need to normalise output before writing out

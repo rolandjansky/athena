@@ -13,7 +13,7 @@
 
 /**
  * @class TrigStreamerHypoAlgMT
- * @brief Implements a streamer (aka no selection) for the HLT framework
+ * @brief Implements a streamer (aka no selection) for the HLT framework.
  **/
 class TrigStreamerHypoAlgMT : public ::HypoBase {
  public: 
@@ -27,9 +27,6 @@ class TrigStreamerHypoAlgMT : public ::HypoBase {
 
   ToolHandleArray<ITrigStreamerHypoToolMT> m_hypoTools {
     this, "HypoTools", {}, "Hypo tools"};
-
-  Gaudi::Property<bool> m_setInitialRoiAsFeature {
-    this, "SetInitialRoIAsFeature", false, "For use in a passthrough step 1"};
      
 }; 
 

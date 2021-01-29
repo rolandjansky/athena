@@ -21,15 +21,15 @@ namespace top {
   }
 
   bool GlobalTrigMatchSelector::apply(top::Event const& event) const {
-//    auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
+    auto&& tool = (event.m_isLoose ? m_globalTriggerSFLoose : m_globalTriggerSF);
     bool result = false;
 
     std::vector<xAOD::IParticle const*> particles;
     particles.insert(particles.end(), event.m_electrons.begin(), event.m_electrons.end());
     particles.insert(particles.end(), event.m_muons.begin(), event.m_muons.end());
-//    top::check(tool->checkTriggerMatching(result,
-//                                          particles),
-//               "TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching failed");
+    top::check(tool->checkTriggerMatching(result,
+                                          particles),
+               "TrigGlobalEfficiencyCorrectionTool::checkTriggerMatching failed");
     return result;
   }
 

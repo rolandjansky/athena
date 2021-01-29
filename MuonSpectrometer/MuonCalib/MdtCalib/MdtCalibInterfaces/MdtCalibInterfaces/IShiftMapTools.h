@@ -1,23 +1,12 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// IShiftMapTools.h
-//   Header file for class IShiftMapTools
-///////////////////////////////////////////////////////////////////
-// (c) ATLAS Detector software
-///////////////////////////////////////////////////////////////////
-// der.andi@cern.ch
-///////////////////////////////////////////////////////////////////
 
 #ifndef ISHIFTMAPTOOLS_H
 #define ISHIFTMAPTOOLS_H
 
-// Include files
-// from Gaudi
-#include "GaudiKernel/IService.h"
+#include "GaudiKernel/IAlgTool.h"
 
-// forward declarations
 class Identifier;
 
 namespace MuonCalib {
@@ -29,7 +18,7 @@ namespace MuonCalib {
    @author der.andi@cern.ch
 */
 
-class IShiftMapTools : virtual public IService {
+class IShiftMapTools : virtual public IAlgTool {
  public:
   IShiftMapTools() { ; }
   virtual ~IShiftMapTools() { ; }

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 log = logging.getLogger()
@@ -16,7 +16,6 @@ condSequence = AthSequencer("AthCondSeq")
 if DetFlags.MDT_on():
     condSequence += MuonMDT_CablingAlg("MuonMDT_CablingAlg")
 
-
 # defaults have to be re-set now since the jobproperties and trigger flags are now available # SS
 muonCnvFlags.setDefaults()
 
@@ -25,7 +24,6 @@ if globalflags.DataSource() == 'data':
     muonByteStreamFlags.TgcDataType = "atlas"
     muonByteStreamFlags.RpcDataType = "atlas"
     muonByteStreamFlags.MdtDataType = "atlas"
-    
     
 log.info("configuring Muon cabling in MuonCablingConfig")
 if DetFlags.readRDOBS.RPC_on() or DetFlags.readRDOPool.RPC_on() or DetFlags.readRIOPool.RPC_on() or DetFlags.digitize.RPC_on():
@@ -120,22 +118,8 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
         TGCCablingDbTool.filename_ASD2PP_DIFF_12='ASD2PP_diff_12_ONL.db'
     ToolSvc+=TGCCablingDbTool
 
-    #if globalflags.DataSource() == 'geant4' and not DetFlags.digitize.TGC_on():
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")
-        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE") 
-
 if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.readRIOPool.MDT_on() or DetFlags.digitize.MDT_on():
     log.info("MDT cabling is using mode: %s",muonCnvFlags.MdtCablingMode())
-
-    #Set up new cabling.
-    from MuonMDT_Cabling.MuonMDT_CablingConf import MuonMDT_CablingSvc
-    ServiceMgr += MuonMDT_CablingSvc(name="MuonMDT_CablingSvc", UseOldCabling=muonCnvFlags.MdtCablingMode=='old', ForcedUse=muonCnvFlags.MdtCablingMode!='auto')
-    #ServiceMgr.MuonMDT_CablingSvc.OutputLevel=0 # Will be useful to have debug output in log for initial debugging.
-
-#    if recFlags.doTrigger() or muonCnvFlags.MdtCablingMode=='old' or muonCnvFlags.MdtCablingMode=='auto':
-#      # currently this is needed for the trigger and for reconstruction of old MC sample digitized with MDTcabling
-#      import MDTcabling.MDTcablingConfig # TODO: move config here?
 
     if muonCnvFlags.MdtCablingMode!='old':
       # new cabling service, access to COOL for cabling map

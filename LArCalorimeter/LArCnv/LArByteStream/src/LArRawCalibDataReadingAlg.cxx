@@ -17,6 +17,8 @@
 #include "LArByteStream/LArRodBlockCalibrationV3.h"
 #include "LArByteStream/LArRodBlockTransparentV0.h"
 
+#include "LArFebHeaderReader.h"
+
 LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, ISvcLocator* pSvcLocator) :  
   AthReentrantAlgorithm(name, pSvcLocator) {}
 
@@ -71,6 +73,24 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
 
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  
+
+
+  //Build list of preselected Feedthroughs
+  if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
+    ATH_MSG_INFO("Building list of selected feedthroughs");
+    for (const unsigned iBE : m_vBEPreselection) {
+      for (const unsigned iPN: m_vPosNegPreselection) {
+	for (const unsigned iFT: m_vFTPreselection) {
+	  HWIdentifier finalFTId=m_onlineId->feedthrough_Id(iBE,iPN,iFT);
+	  unsigned int finalFTId32 = finalFTId.get_identifier32().get_compact();
+	  ATH_MSG_INFO("Adding feedthrough Barrel/Endcap=" << iBE << " pos/neg=" << iPN << " FT=" << iFT 
+		       << " (0x" << std::hex << finalFTId32 << std::dec << ")");
+	  m_vFinalPreselection.insert(finalFTId32);
+	}
+      }
+    }
+  }//end if something set
+
   return StatusCode::SUCCESS;
 }     
   
@@ -190,6 +210,16 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
 	else
 	  continue;
       }
+
+      if (m_vFinalPreselection.size()) {
+	const unsigned int ftId=m_onlineId->feedthrough_Id(fId).get_identifier32().get_compact();
+	if (m_vFinalPreselection.find(ftId)==m_vFinalPreselection.end()) {
+	  ATH_MSG_DEBUG("Feedthrough with id 0x" << MSG::hex << ftId << MSG::dec <<" not in preselection. Ignored.");
+	  continue;
+	}
+      }
+
+
       const int NthisFebChannel=m_onlineId->channelInSlotMax(fId);
 
       //Decode LArCalibDigits (if requested)
@@ -265,45 +295,7 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       //Decode FebHeaders (if requested)
       if (m_doFebHeaders) {
 	std::unique_ptr<LArFebHeader> larFebHeader(new LArFebHeader(fId));
-	larFebHeader->SetFormatVersion(rob.rod_version());
-	larFebHeader->SetSourceId(rob.rod_source_id());
-	larFebHeader->SetRunNumber(rob.rod_run_no());
-	larFebHeader->SetELVL1Id(rob.rod_lvl1_id());
-	larFebHeader->SetBCId(rob.rod_bc_id());
-	larFebHeader->SetLVL1TigType(rob.rod_lvl1_trigger_type());
-	larFebHeader->SetDetEventType(rob.rod_detev_type());
-  
-	//set DSP data
-	const unsigned nsample=rodBlock->getNumberOfSamples();
-	larFebHeader->SetRodStatus(rodBlock->getStatus());
-	larFebHeader->SetDspCodeVersion(rodBlock->getDspCodeVersion()); 
-	larFebHeader->SetDspEventCounter(rodBlock->getDspEventCounter()); 
-	larFebHeader->SetRodResults1Size(rodBlock->getResults1Size()); 
-	larFebHeader->SetRodResults2Size(rodBlock->getResults2Size()); 
-	larFebHeader->SetRodRawDataSize(rodBlock->getRawDataSize()); 
-	larFebHeader->SetNbSweetCells1(rodBlock->getNbSweetCells1()); 
-	larFebHeader->SetNbSweetCells2(rodBlock->getNbSweetCells2()); 
-	larFebHeader->SetNbSamples(nsample); 
-	larFebHeader->SetOnlineChecksum(rodBlock->onlineCheckSum());
-	larFebHeader->SetOfflineChecksum(rodBlock->offlineCheckSum());
-
-	if(!rodBlock->hasControlWords()) {
-	  larFebHeader->SetFebELVL1Id(rob.rod_lvl1_id());
-	  larFebHeader->SetFebBCId(rob.rod_bc_id());
-	} else {
-	  const uint16_t evtid = rodBlock->getCtrl1(0) & 0x1f;
-	  const uint16_t bcid  = rodBlock->getCtrl2(0) & 0x1fff;
-	  larFebHeader->SetFebELVL1Id(evtid);
-	  larFebHeader->SetFebBCId(bcid);
-	  for(int iadc=0;iadc<16;iadc++) {
-	    larFebHeader->SetFebCtrl1(rodBlock->getCtrl1(iadc));
-	    larFebHeader->SetFebCtrl2(rodBlock->getCtrl2(iadc));
-	    larFebHeader->SetFebCtrl3(rodBlock->getCtrl3(iadc));
-	  }
-	  for(unsigned int i = 0; i<nsample; i++ ) {
-	    larFebHeader->SetFebSCA(rodBlock->getRadd(0,i) & 0xff);
-	  }
-	}//end else no control words
+	LArFebHeaderReader::fillFebHeader(larFebHeader.get(),rodBlock.get(),rob);
 	febHeaders->push_back(std::move(larFebHeader));
       }//end if m_doFebHeaders
 

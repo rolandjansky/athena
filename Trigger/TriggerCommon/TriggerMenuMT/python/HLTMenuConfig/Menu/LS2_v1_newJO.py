@@ -14,9 +14,9 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
         #return [chainName, L1itemsChainParts, [PhysicsStream], groups, -1]
 
-def setupMenu(flags):
-    """ 
-    Assign chains for LS2_v1 to menu flags
+def setupMenu():
+    """
+    Assign chains for LS2_v1
     """
     chains = {}
 
@@ -29,7 +29,7 @@ def setupMenu(flags):
     #---------------------------------------------------------------------
     # if it's needed to temporary remove almost all the chains from the menu
     # be aware that it is necessary to leave at least one chain in the muon slice
-    # otherwise athenaHLT will seg-fault 
+    # otherwise athenaHLT will seg-fault
     #---------------------------------------------------------------------
     SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
     SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
@@ -38,7 +38,7 @@ def setupMenu(flags):
     SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
     CombinedGroup = ['RATE:Combined', 'BW:Combined']
 
-    chains["muon"] = [        
+    chains["muon"] = [
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_L1MU10', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_L1MU6',   groups=SingleMuonGroup),
@@ -51,32 +51,32 @@ def setupMenu(flags):
     chains["electron"] = [
         ChainProp(name='HLT_e3_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_2e3_etcut_L12EM3', groups=MultiElectronGroup),
-# this chain does not work yet        
+# this chain does not work yet
    #     ChainProp(name='HLT_e5_etcut_e3_etcut_L12EM3', groups=MultiElectronGroup),
         ChainProp(name='HLT_e5_etcut_L1EM3', groups=SingleElectronGroup),
         ChainProp(name='HLT_e7_etcut_L1EM7', groups=SingleElectronGroup)
     ]
 
     chains["photon"] = [
-       ChainProp(name='HLT_g10_etcut_L1EM7',  groups=SinglePhotonGroup),
-       ChainProp(name='HLT_g11_etcut_L1EM7', groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g10_etcut_L1EM7',  groups=SinglePhotonGroup),
+        ChainProp(name='HLT_g11_etcut_L1EM7', groups=SinglePhotonGroup),
     ]
 
     chains["jet"] = [
-       ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
-       ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
-       ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
+        ChainProp(name='HLT_j45_L1J20',  groups=SingleJetGroup),
+        ChainProp(name='HLT_j85_L1J20',  groups=SingleJetGroup),
+        ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
     chains["combined"] = [
-        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup),
-        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', mergingStrategy='parallel', groups=CombinedGroup)
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
+        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', groups=CombinedGroup)
     ]
     return chains
 
 if __name__ == "__main__":
     from AthenaCommon.Configurable import Configurable
-    Configurable.configurableRun3Behavior=True    
+    Configurable.configurableRun3Behavior=True
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Constants import VERBOSE
@@ -91,14 +91,14 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.AllConfigFlags import ConfigFlags
     ConfigFlags.Trigger.generateMenuDiagnostics = True
-    
+
     from AthenaConfiguration.TestDefaults import defaultTestFiles
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.Trigger.triggerMenuSetup="LS2_v1"
     ConfigFlags.lock()
     ConfigFlags.dump()
-    
-    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu    
+
+    from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT_newJO import generateMenu
     menu = generateMenu( ConfigFlags)
 
     acc.merge(menu)
@@ -106,7 +106,7 @@ if __name__ == "__main__":
     acc.printConfig()
 
     # print all hypo algs and their hypo tools for debugging
-    from AthenaCommon.CFElements import flatAlgorithmSequences    
+    from AthenaCommon.CFElements import flatAlgorithmSequences
     fs = flatAlgorithmSequences( menu.getSequence('HLTAllSteps') )
     for seq, algs in fs.items():
         for alg in algs:

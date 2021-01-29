@@ -80,7 +80,6 @@ LArCoverage::LArCoverage(const std::string& type,
   m_hBadChannelsBarrelC = NULL;
   m_hBadChannelsEndcapA = NULL;
   m_hBadChannelsEndcapC = NULL;
-  m_strHelper		= NULL;
   m_rootStore		= NULL;
  }
 
@@ -107,7 +106,7 @@ LArCoverage::initialize()
   ATH_CHECK( m_larCablingService.retrieve() );
    
   // LArOnlineIDStrHelper
-  m_strHelper = new  LArOnlineIDStrHelper(m_LArOnlineIDHelper);
+  m_strHelper = std::make_unique<LArOnlineIDStrHelper>(m_LArOnlineIDHelper);
   m_strHelper->setDefaultNameType(LArOnlineIDStrHelper::LARONLINEID);
   
   ATH_CHECK( m_EventInfoKey.initialize() );

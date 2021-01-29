@@ -81,7 +81,6 @@ namespace SH
   template<class T> void MetaVector<T> ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

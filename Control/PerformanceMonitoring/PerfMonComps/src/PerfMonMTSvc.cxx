@@ -13,9 +13,14 @@
 // PerfMonComps includes
 #include "PerfMonMTSvc.h"
 #include "PerfMonUtils.h"  // borrow from existing code
+#include "SemiDetMisc.h"   // borrow from existing code
 
 // STD includes
 #include <algorithm>
+
+// Boost includes
+#include "boost/format.hpp"
+#include "boost/filesystem.hpp"
 
 /*
  * Constructor
@@ -137,7 +142,7 @@ void PerfMonMTSvc::startAud(const std::string& stepName, const std::string& comp
     if (!m_doComponentLevelMonitoring) return;
 
     // Start component auditing
-    auto ctx = Gaudi::Hive::currentContext(); 
+    auto ctx = Gaudi::Hive::currentContext();
     startCompAud(stepName, compName, ctx);
   }
 }
@@ -155,7 +160,7 @@ void PerfMonMTSvc::stopAud(const std::string& stepName, const std::string& compN
     if (!m_doComponentLevelMonitoring) return;
 
     // Stop component auditing
-    auto ctx = Gaudi::Hive::currentContext(); 
+    auto ctx = Gaudi::Hive::currentContext();
     stopCompAud(stepName, compName, ctx);
   }
 }
@@ -207,8 +212,8 @@ void PerfMonMTSvc::startCompAud(const std::string& stepName, const std::string& 
   // Generate State
   PMonMT::StepComp currentState = generate_state(stepName, compName);
 
-  // Check if this is the first time calling if so create the mesurement data if not use the existing one. 
-  // Metrics are collected per slot then aggregated before reporting 
+  // Check if this is the first time calling if so create the mesurement data if not use the existing one.
+  // Metrics are collected per slot then aggregated before reporting
   data_map_t& compLevelDataMap = m_compLevelDataMapVec[ctx.valid() ? ctx.slot() : 0];
   if(compLevelDataMap.find(currentState) == compLevelDataMap.end()) {
     compLevelDataMap[currentState] = new PMonMT::MeasurementData();
@@ -313,6 +318,33 @@ bool PerfMonMTSvc::isPower(uint64_t input, uint64_t base) {
 }
 
 /*
+ * Helper finction to estimate CPU efficiency
+ */
+int PerfMonMTSvc::getCpuEfficiency() const {
+
+  // In AthenaMT only the event-loop is executed concurrently
+  // In this metric, we scale the event-loop wall-time by
+  // the number of slots to take the concurrency into account
+  // Then we divide the total cpu-time by this number
+  // It's A metric not THE metric...
+
+  const float totalCpuTime =
+   m_snapshotData[CONFIGURE].getDeltaCPU()  +
+   m_snapshotData[INITIALIZE].getDeltaCPU() +
+   m_snapshotData[EXECUTE].getDeltaCPU()    +
+   m_snapshotData[FINALIZE].getDeltaCPU();
+
+  const float scaledWallTime =
+   m_snapshotData[CONFIGURE].getDeltaWall()  * 1. +
+   m_snapshotData[INITIALIZE].getDeltaWall() * 1. +
+   m_snapshotData[EXECUTE].getDeltaWall()    * m_numberOfSlots +
+   m_snapshotData[FINALIZE].getDeltaWall()   * 1.;
+
+  return ( scaledWallTime > 0 ? totalCpuTime / scaledWallTime * 100. : 0 );
+
+}
+
+/*
  * Report the results to the log and the JSON file
  */
 void PerfMonMTSvc::report() {
@@ -345,6 +377,7 @@ void PerfMonMTSvc::report2Log() {
   // Summary and system information
   report2Log_Summary();
   report2Log_CpuInfo();
+  report2Log_EnvInfo();
 }
 
 /*
@@ -377,7 +410,7 @@ void PerfMonMTSvc::report2Log_ComponentLevel() {
   ATH_MSG_INFO("                             Component Level Monitoring                                ");
   ATH_MSG_INFO("=======================================================================================");
 
-  ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|40t|%4% %|55t|%5% %|75t|%6%") % "Step" % "Count" % "CPU Time [ms]" % 
+  ATH_MSG_INFO(format("%1% %|15t|%2% %|25t|%3% %|40t|%4% %|55t|%5% %|75t|%6%") % "Step" % "Count" % "CPU Time [ms]" %
                "Vmem [kB]" % "Malloc [kB]" % "Component");
 
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
@@ -408,7 +441,7 @@ void PerfMonMTSvc::report2Log_ComponentLevel() {
                    it.second->getCallCount() % it.second->getDeltaCPU() % it.second->getDeltaVmem() %
                    it.second->getDeltaMalloc() % it.first.compName);
     }
-    if(counter>0) { 
+    if(counter>0) {
       ATH_MSG_INFO("=======================================================================================");
     }
   }
@@ -426,8 +459,8 @@ void PerfMonMTSvc::report2Log_EventLevel_instant() const {
   long pss = m_eventLevelData.getEventLevelPss(m_eventCounter);
   long swap = m_eventLevelData.getEventLevelSwap(m_eventCounter);
 
-  ATH_MSG_INFO("Event [" << std::setw(5) << m_eventCounter << "] CPU Time: " << scaleTime(cpu_time) << 
-               ", Wall Time: " <<  scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) << 
+  ATH_MSG_INFO("Event [" << std::setw(5) << m_eventCounter << "] CPU Time: " << scaleTime(cpu_time) <<
+               ", Wall Time: " <<  scaleTime(wall_time) << ", Vmem: " << scaleMem(vmem) <<
                ", Rss: " << scaleMem(rss) << ", Pss: " << scaleMem(pss) << ", Swap: " << scaleMem(swap));
 }
 
@@ -438,8 +471,8 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   using boost::format;
 
   ATH_MSG_INFO("                                Event Level Monitoring                                 ");
-  ATH_MSG_INFO("                 (Only first " << m_eventLoopMsgLimit.toString() <<
-               " measurements are explicitly printed)");
+  ATH_MSG_INFO("        (Only the first " << m_eventLoopMsgLimit.toString() <<
+               " and the last measurements are explicitly printed)");
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|16t|%2% %|28t|%3% %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % "Event" % "CPU [s]" %
@@ -448,14 +481,19 @@ void PerfMonMTSvc::report2Log_EventLevel() {
   ATH_MSG_INFO("---------------------------------------------------------------------------------------");
 
   m_eventLoopMsgCounter = 0; // reset counter
+  unsigned long nMeasurements = m_eventLevelData.getNMeasurements();
 
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit) {
+    // Print
+    if(m_eventLoopMsgCounter < m_eventLoopMsgLimit || m_eventLoopMsgCounter == nMeasurements - 1) {
+      if(m_eventLoopMsgCounter > m_eventLoopMsgLimit) {
+        ATH_MSG_INFO(format("%|=87|") % "...");
+      }
       ATH_MSG_INFO(format("%1% %|16t|%2$.2f %|28t|%3$.2f %|40t|%4% %|52t|%5% %|64t|%6% %|76t|%7%") % it.first %
                    (it.second.cpu_time * 0.001) % (it.second.wall_time * 0.001) % it.second.mem_stats.at("vmem") %
                    it.second.mem_stats.at("rss") % it.second.mem_stats.at("pss") % it.second.mem_stats.at("swap"));
-      m_eventLoopMsgCounter++;
     }
+    m_eventLoopMsgCounter++;
     // Add to leak estimate
     if (it.first >= 25) {
       m_fit_vmem.addPoint(it.first, it.second.mem_stats.at("vmem"));
@@ -471,7 +509,7 @@ void PerfMonMTSvc::report2Log_EventLevel() {
 void PerfMonMTSvc::report2Log_Summary() {
   using boost::format;
 
-  ATH_MSG_INFO("                                 Snaphots Summary                                      ");
+  ATH_MSG_INFO("                                Snapshots Summary                                      ");
   ATH_MSG_INFO("=======================================================================================");
 
   ATH_MSG_INFO(format("%1% %|13t|%2% %|25t|%3% %|37t|%4% %|44t|%5% %|55t|%6% %|66t|%7% %|77t|%8%") % "Step" %
@@ -495,6 +533,7 @@ void PerfMonMTSvc::report2Log_Summary() {
                (m_snapshotData[EXECUTE].getDeltaCPU() / m_eventCounter));
   ATH_MSG_INFO(format("%1% %|35t|%2$.3f ") % "Events per second:" %
                (m_eventCounter / m_snapshotData[EXECUTE].getDeltaWall() * 1000.));
+  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "CPU utilization efficiency [%]:" % getCpuEfficiency());
 
   if (m_doEventLoopMonitoring) {
     ATH_MSG_INFO("***************************************************************************************");
@@ -523,8 +562,26 @@ void PerfMonMTSvc::report2Log_CpuInfo() const {
 
   ATH_MSG_INFO(format("%1% %|34t|%2% ") % "CPU Model:" % get_cpu_model_info());
   ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Number of Available Cores:" % get_cpu_core_info());
+  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Total Memory:" % scaleMem(get_memory_info()));
 
   ATH_MSG_INFO("=======================================================================================");
+}
+
+/*
+ * Report run-time enviroment information
+ */
+void PerfMonMTSvc::report2Log_EnvInfo() const {
+  using boost::format;
+  using boost::filesystem::path;
+
+  ATH_MSG_INFO("                               Environment Information                                 ");
+  ATH_MSG_INFO("=======================================================================================");
+
+  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Malloc Library:" % path(PMonSD::symb2lib("malloc")).filename().string());
+  ATH_MSG_INFO(format("%1% %|35t|%2% ") % "Math Library:" % path(PMonSD::symb2lib("atan2")).filename().string());
+
+  ATH_MSG_INFO("=======================================================================================");
+
 }
 
 /*
@@ -569,7 +626,7 @@ void PerfMonMTSvc::report2JsonFile() {
  * Report summary data to JSON
  */
 void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
-  
+
   // Report snapshot level results
   for(int i=0; i < NSNAPSHOTS; i++){
 
@@ -617,29 +674,43 @@ void PerfMonMTSvc::report2JsonFile_Summary(nlohmann::json& j) const {
   // Report Sys info
   const std::string cpuModel = get_cpu_model_info();
   const int coreNum = get_cpu_core_info();
+  const long totMem = get_memory_info();
 
   j["summary"]["sysInfo"] = {{"cpuModel", cpuModel},
-                             {"coreNum", coreNum}};
+                             {"coreNum", coreNum},
+                             {"totMem", totMem}};
+
+  // Report Enviroment info
+  const std::string mallocLib = boost::filesystem::path(PMonSD::symb2lib("malloc")).filename().string();
+  const std::string mathLib = boost::filesystem::path(PMonSD::symb2lib("atan2")).filename().string();
+
+  j["summary"]["envInfo"] = {{"mallocLib", mallocLib},
+                             {"mathLib", mathLib}};
+
+  // Report CPU utilization efficiency;
+  const int cpuUtilEff = getCpuEfficiency();
+  j["summary"]["misc"] = {{"cpuUtilEff", cpuUtilEff}};
+
 }
 
 void PerfMonMTSvc::report2JsonFile_ComponentLevel(nlohmann::json& j) const {
 
   for (const auto& dataMapPerStep : m_stdoutVec_serial) {
-    
+
     for(const auto& meas : dataMapPerStep){
 
       const std::string step = meas.first.stepName;
-      const std::string component = meas.first.compName; 
+      const std::string component = meas.first.compName;
       const uint64_t count = meas.second->getCallCount();
       const double cpuTime = meas.second->getDeltaCPU();
-      const long vmem  = meas.second->getDeltaVmem(); 
+      const long vmem  = meas.second->getDeltaVmem();
       const int mall = meas.second->getDeltaMalloc();
 
       j["componentLevel"][step][component] = {{"count", count},
                                               {"cpuTime", cpuTime},
                                               {"vmem", vmem},
                                               {"malloc", mall}};
-    }    
+    }
 
   }
 
@@ -648,7 +719,7 @@ void PerfMonMTSvc::report2JsonFile_ComponentLevel(nlohmann::json& j) const {
 void PerfMonMTSvc::report2JsonFile_EventLevel(nlohmann::json& j) const {
 
   for (const auto& it : m_eventLevelData.getEventLevelData()) {
-    
+
     const uint64_t event = it.first;
     const double cpuTime = it.second.cpu_time;
     const double wallTime = it.second.wall_time;
@@ -724,7 +795,7 @@ void PerfMonMTSvc::divideData2Steps() {
 std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
   // Not a huge fan of this, we should eventually unify the types
   // Just want to be explicit about what's happening
-  long ms = (long) timeMeas; 
+  long ms = (long) timeMeas;
 
   // Compute hrs and offset
   auto hrs = ms / 3600000;
@@ -739,13 +810,18 @@ std::string PerfMonMTSvc::scaleTime(double timeMeas) const {
   // Primarily care about H:M:S
   std::stringstream ss;
   ss.fill('0');
-  ss << std::setw(2) << hrs << "h" << 
-        std::setw(2) << mins << "m" << 
+  ss << std::setw(2) << hrs << "h" <<
+        std::setw(2) << mins << "m" <<
         std::setw(2) << secs << "s";
   return ss.str();
 }
 
 std::string PerfMonMTSvc::scaleMem(long memMeas) const {
+  // The memory measurements should be positive
+  // Only delta(A,B) can go negative but this method
+  // is not used for those cases, at least for now
+  if (memMeas<0) return "NA";
+
   std::ostringstream ss;
   ss << std::fixed;
   ss << std::setprecision(2);
@@ -789,43 +865,48 @@ std::string PerfMonMTSvc::scaleMem(long memMeas) const {
 /*
  * Collect some hardware information
  */
-std::string PerfMonMTSvc::get_cpu_model_info() const {
-  std::string cpu_model;
+std::string PerfMonMTSvc::get_info_from_file(const std::string& fileName,
+                                             const std::string& fieldName) const {
+  // Helper function to read files of type Key : Value
+  // Returns the last instance if there are multiple matches
+  // This is because we use this method to get the processor count
+  std::string result{""};
 
-  std::ifstream file("/proc/cpuinfo");
-  std::string line;
-  if (file.is_open()) {
-    std::string delimiter = ":";
-    while (getline(file, line)) {
-      std::string key = line.substr(0, line.find(delimiter));
-      if (key == "model name	") {
-        cpu_model = line.substr(line.find(delimiter) + 1, line.length());
-        break;
+  std::ifstream file{fileName};
+  std::string line{""};
+
+  while (std::getline(file, line)) {
+    if (line.empty()) continue;
+    size_t splitIdx = line.find(":");
+    if (splitIdx != std::string::npos) {
+      std::string val = line.substr(splitIdx + 1);
+      if (val.empty()) continue;
+      if (line.size() >= fieldName.size() &&
+          line.compare(0, fieldName.size(), fieldName) == 0) {
+        result = val;
       }
     }
-    file.close();
-    return cpu_model;
-  } else {
-    return "Unable to open /proc/cpuinfo";
   }
+
+  file.close();
+
+  return result;
+}
+
+std::string PerfMonMTSvc::get_cpu_model_info() const {
+  return get_info_from_file("/proc/cpuinfo","model name") +
+         get_info_from_file("/proc/cpuinfo","cache size");
 }
 
 int PerfMonMTSvc::get_cpu_core_info() const {
-  int logical_core_num = 0;
+  std::string val = get_info_from_file("/proc/cpuinfo","processor");
+  if (val.empty()) return 0;
+  return std::stoi(val) + 1;
+}
 
-  std::ifstream file("/proc/cpuinfo");
-  std::string line;
-  if (file.is_open()) {
-    std::string delimiter = ":";
-    while (getline(file, line)) {
-      std::string key = line.substr(0, line.find(delimiter));
-      if (key == "processor	") {
-        logical_core_num++;
-      }
-    }
-    file.close();
-    return logical_core_num;
-  } else {
-    return -1;
-  }
+long PerfMonMTSvc::get_memory_info() const {
+  std::string val = get_info_from_file("/proc/meminfo","MemTotal");
+  if (val.empty()) return 0;
+  val = val.substr(0, val.size() - 3);  // strip the trailing kB
+  return std::stol(val);
 }

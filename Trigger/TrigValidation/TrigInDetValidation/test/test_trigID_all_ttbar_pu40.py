@@ -29,6 +29,8 @@ Slices  = ['muon','electron','tau','bjet','fsjet']
 Events  = 4000
 Threads = 8 
 Slots   = 8
+Release = "current"
+
 Input   = 'ttbar_ID'    # defined in TrigValTools/share/TrigValInputs.json  
 
 Jobs = [ ( "Offline",     " TIDAdata-run3-offline.dat      -r Offline -o data-hists-offline.root" ),
@@ -45,7 +47,7 @@ Comp = [ ( "L2muon",       "L2muon",      "data-hists-offline.root",      " -c T
          ( "EFmuon",       "EFmuon",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-muon " ),
          ( "EFelectron",   "EFelectron",  "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-electron " ),
          ( "EFtau",        "EFtau",       "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-tau " ),
-         ( "EFbjet",       "EFmuon",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-bjet " ) ]
+         ( "EFbjet",       "EFbjet",      "data-hists-offline.root",   " -c TIDAhisto-panel.dat  -d HLTEF-plots-bjet " ) ]
    
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")

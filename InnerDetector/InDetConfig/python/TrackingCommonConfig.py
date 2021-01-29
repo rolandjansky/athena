@@ -1296,7 +1296,6 @@ def InDetAmbiScoringToolBaseCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
 
 def InDetCosmicsScoringToolBaseCfg(flags, name='InDetCosmicsScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    flags.InDet.Tracking = kwargs.pop("flags.InDet.Tracking")
     the_name=makeName(name, kwargs)
 
     InDetTrackSummaryTool = acc.popToolsAndMerge(InDetTrackSummaryToolCfg(flags))
@@ -1323,7 +1322,6 @@ def InDetTRT_ExtensionToolPhaseCfg(flags, name='InDetTRT_ExtensionToolPhase', **
 
 def InDetCosmicExtenScoringToolCfg(flags, name='InDetCosmicExtenScoringTool',**kwargs) :
     acc = ComponentAccumulator()
-    kwargs.setdefault("flags.InDet.Tracking", flags.InDet.Tracking)
     kwargs.setdefault("nWeightedClustersMin", 0)
     kwargs.setdefault("minTRTHits", flags.InDet.Tracking.minTRTonTrk )
     acc.setPrivateTools(acc.popToolsAndMerge(InDetCosmicsScoringToolBaseCfg(flags, name = 'InDetCosmicExtenScoringTool', **kwargs)))
@@ -1394,7 +1392,6 @@ def InDetTRT_SeededScoringToolCfg(flags, name='InDetTRT_SeededScoringTool', **kw
 
 def InDetAmbiScoringToolCfg(flags, name='InDetAmbiScoringTool', **kwargs) :
     acc = ComponentAccumulator()
-    kwargs.setdefault("flags.InDet.Tracking", flags.InDet.Tracking )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )
@@ -1491,7 +1488,6 @@ def InDetNNScoringToolBaseCfg(flags, name='InDetNNScoringTool', **kwargs) :
     return acc
 
 def InDetNNScoringToolCfg(flags, name='InDetNNScoringTool', **kwargs) :
-    kwargs.setdefault("flags.InDet.Tracking", flags.InDet.Tracking )
     kwargs.setdefault("useAmbigFcn", True )
     kwargs.setdefault("useTRT_AmbigFcn", False )
     kwargs.setdefault("minTRTonTrk", 0 )

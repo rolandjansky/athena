@@ -74,7 +74,7 @@ namespace top {
   }
 
   StatusCode OtherCPTools::setupPileupReweighting() {
-    const std::string prw_tool_name = "CP::PileupReweightingTool";
+    const std::string prw_tool_name = "PileupReweightingTool";
 
     if (asg::ToolStore::contains<CP::IPileupReweightingTool>(prw_tool_name)) {
       m_pileupReweightingTool = asg::ToolStore::get<CP::IPileupReweightingTool>(prw_tool_name);

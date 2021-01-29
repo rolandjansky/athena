@@ -117,6 +117,7 @@ public:
 
   /** Virtual clone */
   virtual CurvilinearParametersT<DIM, T, S>* clone() const override final;
+  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;

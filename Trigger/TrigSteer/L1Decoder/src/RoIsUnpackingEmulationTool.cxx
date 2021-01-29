@@ -189,7 +189,7 @@ StatusCode RoIsUnpackingEmulationTool::unpack( const EventContext& ctx,
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw(8) << roIWord << MSG::dec );      
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName() denotes an initial node with no parents
     
     for ( auto th: roi.passedThresholdIDs ) {
       ATH_MSG_DEBUG( "Passed Threshold " << th << " enabling respective chains " );

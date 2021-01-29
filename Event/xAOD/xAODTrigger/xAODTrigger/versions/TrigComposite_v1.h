@@ -235,6 +235,17 @@ namespace xAOD {
       /// Constant used to identify a seed (parent)
       static const std::string s_seedString;
 
+      /// Constant used to identify a navigation graph node as being from the L1 Decoder
+      static const std::string s_l1DecoderNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Filter
+      static const std::string s_filterNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Input Maker
+      static const std::string s_inputMakerNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Hypo Alg
+      static const std::string s_hypoAlgNodeNameString;
+      /// Constant used to identify a navigation graph node as being from a Combo Hypo Alg
+      static const std::string s_comboHypoAlgNodeNameString;
+
    private:
       /// Raw access to the persistent link names (non-const)
       std::vector< std::string >& linkColNamesNC();

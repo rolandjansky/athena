@@ -4,6 +4,7 @@
 #
 include.block ("MuonCombinedRecExample/MuonCombinedRec_preprocessing.py")
 from AthenaCommon import CfgMgr
+from InDetRecExample import TrackingCommon
 #
 
 if rec.doMuonCombined() and muonCombinedRecFlags.doMuonClusters() and ( rec.readAOD() or rec.readESD() or DetFlags.haveRIO.Calo_on() ):
@@ -32,9 +33,16 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
     from TrkParticleCreator.TrkParticleCreatorConf import Trk__TrackParticleCreatorTool
     InDetParticleCreatorTool_split = Trk__TrackParticleCreatorTool(name              = "InDetParticleCreatorTool_split",
                                                                    KeepParameters    = True,
-                                                                   TrackSummaryTool  = InDetTrackSummaryTool,
+                                                                   TrackToVertex     = TrackingCommon.getInDetTrackToVertexTool(),# @TODO or track to vertex tool with AtlasExtrapolator?
+                                                                   TrackSummaryTool  = TrackingCommon.getInDetTrackSummaryTool(),
                                                                    PerigeeExpression = "Origin")
     ToolSvc += InDetParticleCreatorTool_split
+
+    from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackCollectionCnvTool
+    InDetTrackCollectionCnvTool_split = xAODMaker__TrackCollectionCnvTool("InDetTrackCollectionCnvTool_split",
+                                                                          TrackParticleCreator = InDetParticleCreatorTool_split)
+    ToolSvc += InDetTrackCollectionCnvTool_split
+
 
     output_track_particle_name = InDetKeys.TrackParticles()+"_split"
     from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg
@@ -44,7 +52,8 @@ if rec.doMuonCombined() and jobproperties.Beam.beamType()=='cosmics' and DetFlag
                                                              TrackContainerName = InDetKeys.Tracks()+"_split",
                                                              xAODContainerName = output_track_particle_name,
                                                              xAODTrackParticlesFromTracksContainerName = output_track_particle_name,
-                                                             TrackParticleCreator = InDetParticleCreatorTool_split)
+                                                             TrackParticleCreator = InDetParticleCreatorTool_split,
+                                                             TrackCollectionCnvTool = InDetTrackCollectionCnvTool_split)
 
     if (InDetFlags.doTruth() and not InputTrackTruthCollection == ''):
         xAODTrackParticleCnvAlg.AddTruthLink = True

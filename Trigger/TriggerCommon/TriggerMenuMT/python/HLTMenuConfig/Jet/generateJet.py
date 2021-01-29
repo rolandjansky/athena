@@ -8,17 +8,21 @@ from AthenaCommon.Logging import logging
 from ..CommonSequences.FullScanDefs import caloFSRoI
 log = logging.getLogger( 'TriggerMenuMT.HLTMenuConfig.Jet.generateJet' )
 
-def HLTCaloCellMakerCfg( cellsname, cdaSvc ):
+def HLTCaloCellMakerCfg( flags, cellsname, cdaSvc ):
     result = ComponentAccumulator()
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import trigCaloDataAccessSvcCfg, CaloDataAccessSvcDependencies
+    
+    result.merge(trigCaloDataAccessSvcCfg(flags))
     verifier = CompFactory.AthViews.ViewDataVerifier( name = 'VDVFSCaloJet',
                                                     DataObjects = [('TrigRoiDescriptorCollection', f"StoreGateSvc+{caloFSRoI}"),
                                                                   ('CaloBCIDAverage', 'StoreGateSvc+CaloBCIDAverage') ])
     result.addEventAlgo( verifier )
     cellmaker = CompFactory.HLTCaloCellMaker("HLTCaloCellMaker_FS")
+
     cellmaker.RoIs = caloFSRoI
     cellmaker.TrigDataAccessMT = cdaSvc
     cellmaker.CellsName = cellsname
-
+    cellmaker.ExtraInputs = CaloDataAccessSvcDependencies
 
     result.addEventAlgo(cellmaker)
     return result
@@ -44,7 +48,7 @@ def generateChains( flags, chainDict ):
     cellsname = "CaloCellsFS"
     clustersname = "HLT_CaloTopoClustersFS"
     
-    cellmakerCfg = HLTCaloCellMakerCfg(cellsname, cdaSvc)
+    cellmakerCfg = HLTCaloCellMakerCfg(flags, cellsname, cdaSvc)
 
     inEventReco.mergeReco( cellmakerCfg )
 

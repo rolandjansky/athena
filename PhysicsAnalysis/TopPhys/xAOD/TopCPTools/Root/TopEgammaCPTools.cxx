@@ -120,15 +120,6 @@ namespace top {
 //                 "Failed to set config for AsgElectronFwdLikelihoodTool");
 //      top::check(m_fwdElectronSelectorLoose->initialize(), "Couldn't initialise Forward Electron LH ID Loose Tool");
 
-      if (!m_config->isMC()) {
-        ATH_MSG_INFO("top::EgammaCPTools setting up web bunch crossing tool");
-//        m_webBunchCrossingTool = new Trig::WebBunchCrossingTool("CP::WebBunchCrossingTool");
-//        top::check(m_webBunchCrossingTool->setProperty("OutputLevel",
-//                                                       MSG::INFO), "failed to set propert for WebBunchCrossingTool");
-//        top::check(m_webBunchCrossingTool->setProperty("ServerAddress",
-//                                                       "atlas-trigconf.cern.ch"),
-//                   "failed to set propert for WebBunchCrossingTool");
-      }
     }
     return StatusCode::SUCCESS;
   }
@@ -141,7 +132,7 @@ namespace top {
     // - Photon shower shape fudge tool
     // - Photon efficiency correction tool
     using IEgammaCalibTool = CP::IEgammaCalibrationAndSmearingTool;
-    const std::string egamma_calib_name = "CP::EgammaCalibrationAndSmearingTool";
+    const std::string egamma_calib_name = "EgammaCalibrationAndSmearingTool";
     if (asg::ToolStore::contains<IEgammaCalibTool>(egamma_calib_name)) {
       m_egammaCalibrationAndSmearingTool = asg::ToolStore::get<IEgammaCalibTool>(egamma_calib_name);
     } else {

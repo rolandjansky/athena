@@ -30,8 +30,7 @@ class TrigStreamerHypoToolMT: public extends<AthAlgTool, ITrigStreamerHypoToolMT
   virtual StatusCode initialize() override;
   virtual StatusCode finalize() override;
 
-  virtual StatusCode
-    decide(bool& pass) const override;
+  virtual StatusCode decide(std::vector<ITrigStreamerHypoToolMT::HypoInfo>& hypoInfo) const override;
   virtual const HLT::Identifier& getId() const override; 
  private:
 

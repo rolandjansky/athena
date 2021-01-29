@@ -36,8 +36,8 @@ namespace xAODMaker {
 
    private:
      // the following segments do NOT contain MuGirl segments
-     SG::ReadHandleKey<Trk::SegmentCollection> m_muonSegmentLocation{this,"SegmentContainerName","MuonSegments"};
-     SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_xaodContainerName{this,"xAODContainerName","MuonSegments"};
+     SG::ReadHandleKey<Trk::SegmentCollection> m_muonSegmentLocation{this,"SegmentContainerName","TrackMuonSegments"};
+     SG::WriteHandleKey<xAOD::MuonSegmentContainer> m_xaodContainerName{this,"xAODContainerName","xaodMuonSegments"};
 
      ToolHandle<xAODMaker::IMuonSegmentConverterTool> m_muonSegmentConverterTool{this,"MuonSegmentConverterTool","Muon::MuonSegmentConverterTool/MuonSegmentConverterTool"};
    }; // class MuonSegmentCnvAlg

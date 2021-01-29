@@ -1,4 +1,7 @@
 {
+    "L2muonLRT":{
+	"chains" : "HLT_mu6_LRT_idperf_l2lrt_L1MU6:HLT_IDTrack_MuonLRT_FTF:HLT_Roi_L2SAMuon_LRT"
+    },
     "L2muon":{ 
         "chains" : "HLT_mu24_idperf_L1MU20:HLT_IDTrack_Muon_FTF:HLT_Roi_L2SAMuon HLT_mu24   HLT_mu28_ivarmedium_L1MU20:HLT_IDTrack_MuonIso_FTF:HLT_Roi_MuonIso"
     },
@@ -27,7 +30,7 @@
         "chains" : "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauCore_FTF:HLT_Roi_TauCore HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso"
     },
     "EFtau":{ 
-        "chains" : "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_TauIso"
+        "chains" : "HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_TauIso_FTF:HLT_Roi_TauIso HLT_tau25_idperf_tracktwo_L1TAU12IM:HLT_IDTrack_Tau_IDTrig:HLT_Roi_TauIso"
     },
     "L2bjet":{ 
         "chains" : "HLT_j45_subjesgscIS_ftf_boffperf_split_L1J20:HLT_IDTrack_Bjet_FTF"

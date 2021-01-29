@@ -77,8 +77,8 @@ StatusCode TrigEgammaPrecisionPhotonHypoAlgMT::execute( const EventContext& cont
 	    ATH_CHECK(ph.isValid());
 
 	    ATH_MSG_DEBUG ( "PhotonHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, name() );
-	    d->setObjectLink( "feature",  ph );
+	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
+	    d->setObjectLink( featureString(),  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, photonHandle.cptr()->at(cl), previousDecision );
 	    validphotons++;

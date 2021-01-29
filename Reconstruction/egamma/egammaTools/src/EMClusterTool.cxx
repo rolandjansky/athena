@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "EMClusterTool.h"
@@ -144,15 +144,13 @@ EMClusterTool::contExecute(const EventContext& ctx,
   }
   // Now finalize the cluster: based on code in
   // CaloClusterStoreHelper::finalizeClusters
-  auto *sg = outputClusterContainer.storeHandle().get();
   for (xAOD::CaloCluster* cl : *outputClusterContainer) {
-    cl->setLink(outputClusterContainerCellLink.ptr(), sg);
+    cl->setLink(outputClusterContainerCellLink.ptr(), ctx);
   }
 
   if (m_doTopoSeededContainer) {
-    auto *tssg = outputTopoSeededClusterContainer.storeHandle().get();
     for (xAOD::CaloCluster* cl : *outputTopoSeededClusterContainer) {
-      cl->setLink(outputTopoSeededClusterContainerCellLink.ptr(), tssg);
+      cl->setLink(outputTopoSeededClusterContainerCellLink.ptr(), ctx);
     }
   }
 
@@ -192,7 +190,7 @@ EMClusterTool::setNewCluster(const EventContext& ctx,
   outputClusterContainer->push_back(cluster);
 
   // Set the link to the new cluster
-  ClusterLink_t clusterLink(cluster, *outputClusterContainer);
+  ClusterLink_t clusterLink(cluster, *outputClusterContainer, ctx);
   const std::vector<ClusterLink_t> clusterLinks{ clusterLink };
   eg->setCaloClusterLinks(clusterLinks);
 }

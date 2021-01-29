@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetTrigTrackResidualMonitor/TrigTrackResidualMonitor.h"
@@ -19,7 +19,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkValTools/TrackDiff.h"
 #include "TrkEventPrimitives/TrackStateDefs.h"
-#include "TrkTrack/Track.h"
 #include "TrkSurfaces/Surface.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetIdentifier/SiliconID.h"
@@ -504,7 +503,7 @@ namespace InDet
                             tsos->measurementOnTrack()->associatedSurface(),
                             Trk::anyDirection, false,
                             *TempField,
-                            m_ParticleHypothesis);
+                            m_ParticleHypothesis).release();
         
                 delete OtherSideUnbiasedTrackParams;
         
@@ -562,7 +561,7 @@ namespace InDet
                                tsos->measurementOnTrack()->associatedSurface(),
                                Trk::anyDirection, false,
                                *TempFieldPixel,
-                               m_ParticleHypothesis);
+                               m_ParticleHypothesis).release();
                 delete PropagatedPixelUnbiasedTrackParams;		
         
                 if (PixelUnbiasedTrackParams) {

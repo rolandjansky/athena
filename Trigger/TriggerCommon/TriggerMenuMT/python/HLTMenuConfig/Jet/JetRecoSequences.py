@@ -82,7 +82,7 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     if doesTracking and not trkcolls:
         raise RuntimeError("Failed to retrieve track collections for trkopt '{}'".format(jetRecoDict["trkopt"]))
 
-    isPFlow = "pf" in jetRecoDict["dataType"]
+    isPFlow = jetRecoDict["constitType"] == "pf"
 
     # Add particle flow reconstruction if needed
     if isPFlow:
@@ -100,8 +100,8 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
     # chosen jet collection
     jetsFullName = jetDef.fullname()
     jetsOut = recordable(jetsFullName)
-    doConstitMods = jetRecoDict["dataType"] in ["sktc","cssktc", "pf", "csskpf"]
     JetRecConfig.instantiateAliases(jetDef)
+    doConstitMods = jetRecoDict["constitMod"]+jetRecoDict["constitType"] in ["sktc","cssktc", "pf", "csskpf"]
     if doConstitMods:
         # Get online monitoring jet rec tool
         from JetRecTools import OnlineMon                                                  
@@ -183,7 +183,7 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
     jetDef.modifiers = JetRecoConfiguration.defineCalibMods(jetRecoDict,dataSource,rhoKey)
     # If we need JVT, just rerun the JVT modifier
     doesTracking = jetRecoDict["trkopt"] != "notrk"
-    isPFlow = "pf" in jetRecoDict["dataType"]
+    isPFlow = jetRecoDict["constitType"] == "pf"
     if doesTracking:
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
     #Configuring jet cleaning mods now

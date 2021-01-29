@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef INDETPHYSVALMONITORING_INDETRTTPLOTS
@@ -42,14 +42,19 @@
 #include "xAODEventInfo/EventInfo.h"
 
 #include "InDetPerfPlot_Resolution.h"
+#include "InDetPerfNtuple_TruthToReco.h" 
+
+#include "InDetTrackSystematicsTools/InDetTrackTruthOriginDefs.h"
 
 ///class holding all plots for Inner Detector RTT Validation and implementing fill methods
 class InDetRttPlots: public InDetPlotBase {
 public:
   InDetRttPlots(InDetPlotBase* pParent, const std::string& dirName, const int iDetailLevel = 10);
 
+  void SetFillJetPlots(bool fillJets, bool fillBJets);
+
   ///fill for things needing truth and track only
-  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle);
+  void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool truthIsFromB=false);
 
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle& particle);
@@ -68,9 +73,9 @@ public:
   ///fill reco-vertex related plots that need EventInfo
   void fill(const xAOD::VertexContainer& vertexContainer, const unsigned int nPU);
 
-  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false);
-  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false);
-  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false);
+  void fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet=false, bool isFake=false, bool isUnlinked=false, bool truthIsFromB=false);
+  void fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, const bool isGood, bool isBjet=false, bool truthIsFromB=false);
+  void fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, const bool isFake, bool isBjet=false, bool truthIsFromB=false);
   
   virtual ~InDetRttPlots() {/**nop**/
   };
@@ -79,6 +84,10 @@ public:
   ///fill for fakes
   void fillFakeRate(const xAOD::TrackParticle& particle, const bool isFake, const bool isAssociatedTruth, const float mu, const unsigned int nVtx);
 
+  // fill IDPVM Ntuple
+  void fillNtuple(const xAOD::TrackParticle& track);
+  void fillNtuple(const xAOD::TruthParticle& truth);
+  void fillNtuple(const xAOD::TrackParticle& track, const xAOD::TruthParticle& truth, const int truthMatchRanking); 
 private:
   InDetPerfPlot_TrackParameters m_trackParameters;
   InDetPerfPlot_nTracks m_nTracks;
@@ -87,6 +96,7 @@ private:
   InDetPerfPlot_FakeRate m_fakePlots;
   InDetPerfPlot_FakeRate m_missingTruthFakePlots;
   InDetPerfPlot_Resolution m_resolutionPlotPrim;
+  InDetPerfPlot_Resolution m_resolutionPlotPrim_truthFromB;
   InDetPerfPlot_Hits m_hitsRecoTracksPlots;
   InDetPerfPlot_Efficiency m_effPlots;
   InDetPerfPlot_VerticesVsMu m_verticesVsMuPlots;
@@ -95,6 +105,7 @@ private:
   InDetPerfPlot_VertexTruthMatching m_hardScatterVertexTruthMatchingPlots;
   InDetPerfPlot_TRTExtension m_trtExtensionPlots;
   InDetPerfPlot_ANTracking m_anTrackingPlots;
+  InDetPerfNtuple_TruthToReco m_ntupleTruthToReco;
   std::unique_ptr<InDetPerfPlot_Resolution> m_resolutionPlotSecd;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsMatchedTracksPlots;
   std::unique_ptr<InDetPerfPlot_Hits> m_hitsFakeTracksPlots{nullptr};
@@ -110,6 +121,10 @@ private:
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_fake_bjets;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked;
   std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_unlinked_bjets;
+  
+  // by track origin
+  bool m_doTruthOriginPlots;
+  std::unique_ptr<InDetPerfPlot_TrkInJet> m_trkInJetPlots_truthFromB;
 
   //By track authors
   std::unique_ptr<InDetPerfPlot_Efficiency> m_effSiSPSeededFinderPlots;

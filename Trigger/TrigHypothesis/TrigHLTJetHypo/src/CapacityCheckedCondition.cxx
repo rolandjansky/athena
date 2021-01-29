@@ -31,6 +31,10 @@ CapacityCheckedCondition::isSatisfied(const HypoJetVector& v,
 unsigned int CapacityCheckedCondition::capacity() const {
   return m_condition->capacity();
 }
+
+std::size_t CapacityCheckedCondition::multiplicity() const {
+  return m_multiplicity;
+}
   
 std::string CapacityCheckedCondition::toString() const {
   std::stringstream ss;

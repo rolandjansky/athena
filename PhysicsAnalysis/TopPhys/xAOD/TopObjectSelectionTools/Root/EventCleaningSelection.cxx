@@ -12,7 +12,7 @@
 #include "xAODMuon/MuonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 #include "xAODTracking/VertexContainer.h"
-//#include "TrigGlobalEfficiencyCorrection/ImportData.h"
+#include "TrigGlobalEfficiencyCorrection/ImportData.h"
 
 
 #include <algorithm>
@@ -755,15 +755,13 @@ namespace top {
 
   bool EventCleaningSelection::isElectronTrigger(std::string const& trigger) const {
     top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
-    //bool success;
-    return true;
-   // return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Electron);
+    bool success;
+    return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Electron);
   }
 
   bool EventCleaningSelection::isMuonTrigger(std::string const& trigger) const {
     top::check(trigger.find("HLT_") == 0, "Expected trigger name to start with `HLT_'");
-    //bool success;
-    return true;
-    //return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Muon);
+    bool success;
+    return(TrigGlobEffCorr::ImportData::associatedLeptonFlavour(trigger.substr(4), success) == xAOD::Type::Muon);
   }
 }

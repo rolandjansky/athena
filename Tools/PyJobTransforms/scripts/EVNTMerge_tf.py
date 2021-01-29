@@ -1,12 +1,11 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## AODMerge_tf.py - AOD merger with optional TAG and DPD outputs
 #  N.B. Do need clarification as to if AODtoDPD is ever run in parallel with AOD merging 
 # @version $Id: AODMerge_tf.py 530225 2012-12-12 18:16:17Z graemes $ 
 
-from __future__ import print_function
 import sys
 import time
 

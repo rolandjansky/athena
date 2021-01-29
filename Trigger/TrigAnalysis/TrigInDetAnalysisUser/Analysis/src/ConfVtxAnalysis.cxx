@@ -97,7 +97,7 @@ void ConfVtxAnalysis::initialise() {
 
 
   
-  hnvtx   = new TH1F( "nvtx", ";number of vertices",   100, -0.5,  100.5   );
+  hnvtx   = new TH1F( "nvtx", ";number of vertices",   101, -0.5,  100.5   );
   hzed    = new TH1F( "zed",   ";vtx z [mm]",          200, -300,   300   );
   //  hntrax  = new TH1F( "ntrax", ";number of tracks", 201,   -0.5, 200.5 );
   hntrax  = new TH1F( "ntrax", ";number of tracks", 80,  vnbins );
@@ -105,7 +105,7 @@ void ConfVtxAnalysis::initialise() {
   hlb     = new TH1F( "lb",    ";lumi block",  301, -0.5, 3009.5   );
 
 
-  hnvtx_rec  = new TH1F( "nvtx_rec",  ";number of vertices",  100, -0.5,  100.5   );
+  hnvtx_rec  = new TH1F( "nvtx_rec",  ";number of vertices",  101, -0.5,  100.5   );
   hzed_rec   = new TH1F( "zed_rec",   ";vtx z [mm]",          200, -300,   300   );
   hntrax_rec = new TH1F( "ntrax_rec", ";number of tracks",     80, vnbins );
 

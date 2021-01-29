@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -93,7 +93,7 @@ InDet::PixelClusterOnTrack::PixelClusterOnTrack()
     m_hasClusterAmbiguity(false),
     m_isFake(false),
     m_energyLoss(0.),
-    m_detEl(0)
+    m_detEl(nullptr)
 {}
 
 

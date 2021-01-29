@@ -24,7 +24,7 @@ inputfile = {"data": 'ASG_TEST_FILE_DATA',
 jetContainer = "AntiKt4EMTopoJets"
 
 # Set up the reading of the input file:
-import AthenaRootComps.ReadAthenaxAODHybrid
+import AthenaPoolCnvSvc.ReadAthenaPool
 theApp.EvtMax = 500
 testFile = os.getenv ( inputfile[dataType] )
 svcMgr.EventSelector.InputCollections = [testFile]

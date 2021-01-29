@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFInfoCnvTestAlg.h"
@@ -30,12 +30,6 @@ TrigMuonEFInfoCnvTestAlg::TrigMuonEFInfoCnvTestAlg( const std::string& name, ISv
 StatusCode TrigMuonEFInfoCnvTestAlg::initialize() {
     
     ATH_MSG_INFO( "AODContainerName  = " << m_aodContainerName << ",  xAODMuonContainerName = " << m_xaodMuonContainerName );
-    
-    // Return gracefully:
-    return StatusCode::SUCCESS;
-}
-
-StatusCode TrigMuonEFInfoCnvTestAlg::finalize() {
     
     // Return gracefully:
     return StatusCode::SUCCESS;

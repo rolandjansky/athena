@@ -1,7 +1,5 @@
-// Dear emacs, this is -*- c++ -*-
-// $Id: RecMuonRoI.h 782811 2016-11-07 17:20:40Z smh $
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                           RecMuonRoI.h  -  description
@@ -32,6 +30,7 @@ namespace LVL1 {
 
    // Forward declaration(s):
    class RecMuonRoiSvc;
+   class ITrigT1MuonRecRoiTool;
 
    /** Bit masks used to decipher the 32 bit words of a muon candidate*/
    enum BitMask {
@@ -77,10 +76,16 @@ namespace LVL1 {
       RecMuonRoI( unsigned int roIWord, const RecMuonRoiSvc* theRecRPCRoiSvc,
                   const RecMuonRoiSvc* theRecTGCRoiSvc,
                   const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+      RecMuonRoI( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
+                  const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
+                  const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
 
       // does exactly like the constructor
       void construct( unsigned int roIWord, const RecMuonRoiSvc* theRecRPCRoiSvc,
                       const RecMuonRoiSvc* theRecTGCRoiSvc,
+                      const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+      void construct( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
+                      const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                       const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
 
       /** returns roi word*/

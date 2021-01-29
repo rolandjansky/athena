@@ -87,8 +87,6 @@ topSequence += cscesdRawMonMan
 # CSC Segment Monitoring
 #---------------------------------------------------------------
 from CscRawDataMonitoring.CscRawDataMonitoringConf import CSCSegmValAlg
-#from MuonDQAMonFlags.MuonDQAFlags import MuonDQAFlags as MuonDQAFlags
-#MuonDQAFlags.doMuonSegmMon = True
 
 ## TDT instance (this should be done already?)
 if(DQMonFlags.useTrigger() and hasattr(ToolSvc, DQMonFlags.nameTrigDecTool())):
@@ -106,8 +104,6 @@ clusStatWords = [ "Unspoiled", "Simple", "Edge", "MultiPeak", "Narrow",
 evtSelectionTriggers = [  "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
 
 CSCSegmESDValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", 
-                                   SegmentKey = "MuonSegments",
-                                   #TrigDecisionTool = ToolSvc.TrigDecisionTool, 
                                    DoEventSelection = False, 
                                    EventSelTriggers = evtSelectionTriggers,
                                    SegmentSlopeCut = 0.07, 

@@ -120,6 +120,7 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
             if (self.nThreads >= 1):
                 from AthenaMPTools.AthenaMPToolsConf import SharedHiveEvtQueueConsumer
                 self.Tools += [ SharedHiveEvtQueueConsumer(UseSharedReader=use_shared_reader,
+                                                           UseSharedWriter=use_shared_writer,
                                                            IsPileup=pileup,
                                                            IsRoundRobin=(strategy=='RoundRobin'),
                                                            EventsBeforeFork=events_before_fork,

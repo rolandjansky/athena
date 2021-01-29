@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef jetsubstructuremomenttools_subjetrecordertool_header
@@ -14,7 +14,7 @@ namespace fastjet {
 }
 
 class SubjetRecorderTool :
-  virtual public asg::AsgTool, 
+  public asg::AsgTool, 
   virtual public ISubjetRecorderTool {
     ASG_TOOL_CLASS(SubjetRecorderTool, ISubjetRecorderTool)
 

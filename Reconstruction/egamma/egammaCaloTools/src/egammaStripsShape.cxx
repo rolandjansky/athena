@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration 
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration 
  */
 
 #include "egammaStripsShape.h"
@@ -328,7 +328,7 @@ void egammaStripsShape::setArray(const xAOD::CaloCluster& cluster,
 
 // =====================================================================
 void egammaStripsShape::setIndexSeed(Info& info,
-        double* etacell, double* gracell) const {  
+        const double* etacell, const double* gracell) const {  
     //
     // Look for the index of the seed in the array previously filled
     //
@@ -349,7 +349,7 @@ void egammaStripsShape::setIndexSeed(Info& info,
 }
 
 void egammaStripsShape::setWstot(Info& info, double deta, 
-        double* enecell, double* etacell, int* ncell) const {
+        const double* enecell, const double* etacell, const int* ncell) const {
     //
     // calculate width in half the region (that's the one used for e-ID)
     //
@@ -378,7 +378,7 @@ void egammaStripsShape::setWstot(Info& info, double deta,
     } 
     }
 
-void egammaStripsShape::setF2(Info& info, double* enecell,const double eallsamples) const {
+void egammaStripsShape::setF2(Info& info, const double* enecell,const double eallsamples) const {
     // 
     // Fraction of energy in two highest energy strips
     //
@@ -393,7 +393,7 @@ void egammaStripsShape::setF2(Info& info, double* enecell,const double eallsampl
     info.f2 = eallsamples > 0. ? (e1+e2)/eallsamples : 0.;  
 }
 
-void egammaStripsShape::setEnergy(Info& info , double* enecell) const{
+void egammaStripsShape::setEnergy(Info& info , const double* enecell) const{
     // 
     // Energy in the strips in a cluster of 15 strips
     // and in a cluster of 3 strips - two cells are merge in phi
@@ -416,7 +416,7 @@ void egammaStripsShape::setEnergy(Info& info , double* enecell) const{
     info.e1152=energy;  
 }
 
-void egammaStripsShape::setAsymmetry(Info& info , double* enecell) const {
+void egammaStripsShape::setAsymmetry(Info& info , const double* enecell) const {
     // 
     // Asymmetry of the shower in +/- 3 strips
     // (E(-1)-E(+1))/(E(-1)+E(+1))
@@ -438,7 +438,7 @@ void egammaStripsShape::setAsymmetry(Info& info , double* enecell) const {
 
 void egammaStripsShape::setWs3(Info& info, 
         const xAOD::CaloCluster::CaloSample sam, const xAOD::CaloCluster& cluster, 
-        double* enecell, double* etacell,int* ncell) const {
+        const double* enecell, const double* etacell,const int* ncell) const {
     //
     // Width in three strips centered on the strip with the largest energy
     // 
@@ -469,7 +469,7 @@ void egammaStripsShape::setWs3(Info& info,
     }
 
 double egammaStripsShape::setDeltaEtaTrackShower(int nstrips,int ieta,
-        double* enecell) const {
+        const double* enecell) const {
     //
     // Shower position 
     // using +/- "nstrips" strips centered on the strip ieta
@@ -497,7 +497,7 @@ double egammaStripsShape::setDeltaEtaTrackShower(int nstrips,int ieta,
     return -9999.;
 }
 
-void egammaStripsShape::setWidths5(Info& info, double* enecell) const {
+void egammaStripsShape::setWidths5(Info& info, const double* enecell) const {
     //
     // Shower width using 5 strips
     // 
@@ -536,7 +536,7 @@ void egammaStripsShape::setWidths5(Info& info, double* enecell) const {
     info.widths5 = sqrt(width5); 
 }
 
-void egammaStripsShape::setEmax(Info& info, double* enecell) const {
+void egammaStripsShape::setEmax(Info& info, const double* enecell) const {
     //
     // calculate energy of strip with maximum energy
     //
@@ -548,8 +548,8 @@ void egammaStripsShape::setEmax(Info& info, double* enecell) const {
     } 
     }
 
-int egammaStripsShape::setEmax2(Info& info, double* enecell, 
-        double* gracell, int* ncell) const {
+int egammaStripsShape::setEmax2(Info& info, const double* enecell, 
+        const double* gracell, const int* ncell) const {
     //
     // energy of the second local maximum (info.esec)
     // energy of the strip with second max 2 (info.esec1)
@@ -608,8 +608,8 @@ int egammaStripsShape::setEmax2(Info& info, double* enecell,
     return ncetasec1;
 }
 
-void egammaStripsShape::setEmin(int ncsec1,Info& info, double* enecell, 
-        double* gracell, int* ncell ) const {
+void egammaStripsShape::setEmin(int ncsec1,Info& info, const double* enecell, 
+        const double* gracell, const int* ncell ) const {
     //
     // energy deposit in the strip with the minimal value
     // between the first and the second maximum
@@ -685,7 +685,7 @@ void egammaStripsShape::setValley(Info& info, double* enecell) const {
     if ( fabs(e1+e2) > 0. ) info.val = val/(e1+e2); 
 }
 
-void egammaStripsShape::setFside(Info& info, double* enecell, double* gracell, int* ncell) const {
+void egammaStripsShape::setFside(Info& info, const double* enecell, const double* gracell, const int* ncell) const {
     //
     // fraction of energy outside shower core 
     // (E(+/-3strips)-E(+/-1strips))/ E(+/-1strips)

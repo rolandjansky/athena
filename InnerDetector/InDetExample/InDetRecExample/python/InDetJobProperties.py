@@ -1192,12 +1192,17 @@ class nnCutLargeD0Threshold(InDetFlagsJobProperty):
   allowedTypes = ['float']
   StoredValue  = -1.0
 
+class writeSeedValNtuple(InDetFlagsJobProperty):
+    """Turn writing of seed validation ntuple on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 class doTRTPIDNN(InDetFlagsJobProperty): 
   """calculate NN-based TRT electron probability""" 
   statusOn     = True 
   allowedTypes = ['bool']
   StoredValue  = True
-
 
 ##-----------------------------------------------------------------------------
 ## 2nd step
@@ -2794,6 +2799,7 @@ _list_InDetJobProperties = [Enabled,
                             doDigitalROTCreation,
                             nnCutLargeD0Threshold,
                             useMuForTRTErrorScaling,
+                            writeSeedValNtuple,
                             doTRTPIDNN
                            ]
 for j in _list_InDetJobProperties: 

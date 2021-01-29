@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from MuonCombinedRecExample.MuonCombinedRecFlags import muonCombinedRecFlags
 from AthenaCommon.AppMgr import ToolSvc
@@ -8,6 +8,7 @@ from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
 
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+from InDetRecExample import TrackingCommon
 
 def MuonCombinedInDetDetailedTrackSelectorTool( name='MuonCombinedInDetDetailedTrackSelectorTool', **kwargs):
     if beamFlags.beamType() == 'cosmics':
@@ -60,12 +61,17 @@ def MuonInDetForwardCandidateTool( name = 'MuonInDetForwardCandidateTool', **kwa
    idCandTool.FlagCandidatesAsSiAssociated = True
    return idCandTool
 
+def AtlasTrackToVertexTool(name="AtlasTrackToVertexTool",**kwargs) :
+    kwargs.setdefault("Extrapolator",getPublicTool("AtlasExtrapolator"))
+    return TrackingCommon.getInDetTrackToVertexTool(name, **kwargs)
+
 def MuonCombinedParticleCreator(name="MuonCombinedParticleCreator",**kwargs):
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         kwargs.setdefault("TrackSummaryTool"              , getPublicTool("MuonTrackSummaryTool") )
     else:
         import MuonCombinedRecExample.CombinedMuonTrackSummary  # noqa: F401 (import side-effects)
         kwargs.setdefault("TrackSummaryTool", ToolSvc.CombinedMuonTrackSummary ) #getPublicTool("CombinedMuonTrackSummary") )
+    kwargs.setdefault("TrackToVertex", AtlasTrackToVertexTool())
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )
     if beamFlags.beamType() == 'cosmics':

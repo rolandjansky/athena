@@ -48,6 +48,9 @@ namespace TrigConf {
       /** check if bunchgroup contains a certain bunch */
       bool contains(size_t bcid) const;
 
+      /** bunch trains (pairs: 1st bunch in train, and train length) */
+      const std::vector<std::pair<size_t,size_t>>& trains() const;
+
    public:
 
       static const size_t s_maxBunchGroups { 16 }; // this is the hardware-imposed limit

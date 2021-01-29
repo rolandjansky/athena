@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #=======================================================================
 # File:   RecExConfig/python/RecFlags.py
@@ -931,13 +931,6 @@ class LCGCMTVersion(JobProperty):
     statusOn=True
     allowedTypes=['str']
     StoredValue="n/a"
-#
-class doAODSelect(JobProperty):
-    """ decision, if AODSelect should be running
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
 
 class doRDOTrigger(JobProperty):
     """ decision, if RDO->RDO with trigger should be running
@@ -1026,7 +1019,7 @@ doWriteAOD, doWritexAOD, doWriteESD, doWriteDPD, doWriteBS, doWriteRDO, doWriteT
 readESD, AMITag, AutoConfiguration, RunNumber, triggerStream, projectName, \
 doInDet,doLArg,doTile,doCalo,doMuon,doForwardDet,doLucid,doZdc,doAlfa,doAFP,doFwdRegion,doJetMissingETTag,doEgamma,doMuonCombined,doTau,doFTK,doTrigger,doBTagging, Production, doPhysValMonHists, \
 doHeavyIon, doHIP, doLowPt, doMinimalRec, noESDTrigger,doFileMetaData,ScopingLevel, Commissioning, oldRecExCommissionConfig, mergingStreamName, LCGCMTVersion, \
-AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doAODSelect, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doAODMerging]
+AtlasReleaseVersion, inputFileFromAthenaVersion, doApplyAODFix, doRDOTrigger, doFastPhysMonitoring, RootFastPhysMonOutput,doWriteCalibHits, doTriggerFilter, triggerFilterList, doContainerRemapping, doPhysicsValidationAugmentation, doESDReconstruction, doExpressProcessing, doPersistencyOptimization, doCaloRinger, doAODMerging]
 for j in _list_Rec:
     jobproperties.Rec.add_JobProperty(j)
 del _list_Rec

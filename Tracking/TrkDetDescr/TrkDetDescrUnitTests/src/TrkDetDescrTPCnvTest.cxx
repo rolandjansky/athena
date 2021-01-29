@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -63,7 +63,7 @@ StatusCode Trk::TrkDetDescrTPCnvTest::runTest()
         
         ATH_MSG_VERBOSE("Recording MaterialStepCollection '" << m_materialStepCollectionName << "'.");
                 
-        if (m_materialStepCollectionName != "" && (evtStore()->record(msCollection, m_materialStepCollectionName)).isFailure() ) {
+        if (!m_materialStepCollectionName.empty() && (evtStore()->record(msCollection, m_materialStepCollectionName)).isFailure() ) {
             ATH_MSG_WARNING("Could not record the material collection " << m_materialStepCollectionName);
             return StatusCode::FAILURE;
         } 
@@ -91,7 +91,7 @@ StatusCode Trk::TrkDetDescrTPCnvTest::runTest()
                                           3,
                                           TrkDetDescrUnitTestBase::m_flatDist->shoot()),"TestMaterial3");
         
-        if ( m_elementTableName != "" &&  (evtStore()->record(eTable, m_elementTableName)).isFailure() ) {
+        if ( !m_elementTableName.empty() &&  (evtStore()->record(eTable, m_elementTableName)).isFailure() ) {
              ATH_MSG_WARNING("Could not record the element table " << m_elementTableName);
              return StatusCode::FAILURE;
         }  
@@ -109,7 +109,7 @@ StatusCode Trk::TrkDetDescrTPCnvTest::runTest()
         // (b) binned material
 	    Trk::BinUtility rPhiZUtility(200,-M_PI, M_PI, Trk::closed, Trk::binRPhi);
                             rPhiZUtility += Trk::BinUtility(300,-250.,250., Trk::open, Trk::binZ);
-			    std::vector< std::vector< const Trk::MaterialProperties* > > materialMatrix(300, std::vector<const Trk::MaterialProperties*>(200, (Trk::MaterialProperties*)0) );
+			    std::vector< std::vector< const Trk::MaterialProperties* > > materialMatrix(300, std::vector<const Trk::MaterialProperties*>(200, (Trk::MaterialProperties*)nullptr) );
 	    for (size_t iob = 0; iob < 300; ++iob)
                 for (size_t iib = 0; iib < 200; ++iib)
                     materialMatrix[iob][iib] = new Trk::MaterialProperties(TrkDetDescrUnitTestBase::m_flatDist->shoot(),
@@ -176,10 +176,10 @@ StatusCode Trk::TrkDetDescrTPCnvTest::runTest()
 				rhoVector.push_back((unsigned char)(TrkDetDescrUnitTestBase::m_flatDist->shoot()*UCHAR_MAX));
 				std::vector< Trk::ElementFraction > elements;
 				for (size_t iic = 0; iic < 5; ++iic){
-					elements.push_back(Trk::ElementFraction((unsigned char)(TrkDetDescrUnitTestBase::m_flatDist->shoot()*UCHAR_MAX),
-															(unsigned char)(TrkDetDescrUnitTestBase::m_flatDist->shoot()*UCHAR_MAX)));
+					elements.emplace_back((unsigned char)(TrkDetDescrUnitTestBase::m_flatDist->shoot()*UCHAR_MAX),
+															(unsigned char)(TrkDetDescrUnitTestBase::m_flatDist->shoot()*UCHAR_MAX));
 				}
-				materialCompositionVector.push_back(Trk::MaterialComposition(elements));
+				materialCompositionVector.emplace_back(elements);
 			}
 			thicknessMatrix.push_back(thicknessVector);
 			x0Matrix.push_back(x0Vector);
@@ -242,7 +242,7 @@ StatusCode Trk::TrkDetDescrTPCnvTest::runTest()
         ATH_MSG_VERBOSE("Test is running in READ mode, reading in a file.");
         
         // ----------------- READ MODE  -----------------
-        const Trk::LayerMaterialMap* lmMap = 0;
+        const Trk::LayerMaterialMap* lmMap = nullptr;
         if ( (evtStore()->retrieve(lmMap, m_layerMaterialCollectionName)).isFailure() ) {
              ATH_MSG_WARNING("Could not read the material collection " << m_layerMaterialCollectionName);
              return StatusCode::FAILURE;

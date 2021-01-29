@@ -36,8 +36,6 @@ def getInputFiles(dir, AODHLTP):
 # Input files
 ##############################
 
-#AODir = ['/raid01/venkat/dataset/data/csc/2011/mcpskim/data10_7TeV.*.phys*', 'data10_7TeV*DESD_ZMUMU*']
-#AODir2 = ['/raid01/jveatch/data/dataset/CSCMon/data11_7TeV.00189751.physics_Muons.recon.DESD_ZMUMU.f405_m716_f405', 'data11_7TeV*DESD_ZMUMU*']
 AODir2=['/afs/cern.ch/work/p/panagoul/CSC_data', 'data15_13TeV.00280950*']
 
 CSCInputFiles = []
@@ -262,7 +260,7 @@ if doCSCSegm:
   ## trigger-aware monitoring: sample seletion triggers (express stream menu physics_pp_v2)
   evtSelectionTriggers = [  "L1_MU10", "L1_MU15", "EF_mu20_muCombTag_NoEF", "EF_mu15", "EF_mu15_mu10_EFFS", "EF_2mu10", "EF_2mu10_loose" ]
 
-  CSCSegmValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg", SegmentKey = "MuonSegments",
+  CSCSegmValAlg = CSCSegmValAlg ( name = "CSCSegmValAlg",
     TrigDecisionTool = ToolSvc.TrigDecisionTool, DoEventSelection = False, EventSelTriggers = evtSelectionTriggers,
     SegmentSlopeCut = 0.07, ClusterStatus = clusStatWords)
 

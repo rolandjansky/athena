@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONLAYERHOUGH_H
@@ -13,6 +13,7 @@
 #include <iostream>
 #include <string>
 #include <cmath>
+#include <memory>
 
 class TH1;
 
@@ -97,7 +98,7 @@ namespace MuonHough {
     MuonLayerHough( const RegionDescriptor& descriptor );
 
     /// destructor 
-    ~MuonLayerHough();
+    ~MuonLayerHough()=default;
 
     /// reset the transform 
     void reset();
@@ -165,7 +166,7 @@ namespace MuonHough {
     int maxhist;
     int maxbin;
     bool m_debug;
-    std::vector< unsigned int* > m_histos;//the maximum contents of all the histograms, overlayed
+    std::vector< std::unique_ptr<unsigned int[]> > m_histos;//the maximum contents of all the histograms, overlayed
     RegionDescriptor m_descriptor;
   };
 

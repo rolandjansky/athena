@@ -9,7 +9,6 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkEventUtils/PRDtoTrackMap.h"
-#include "TrkToolInterfaces/ITrackAmbiguityProcessorTool.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrigNavigation/NavigationCore.icc"

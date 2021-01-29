@@ -33,6 +33,7 @@ using TrigCompositeUtils::Decision;
 using TrigCompositeUtils::DecisionContainer;
 using TrigCompositeUtils::DecisionID;
 using TrigCompositeUtils::DecisionIDContainer;
+using TrigCompositeUtils::comboHypoAlgNodeName;
 
 using GenVecFourMom_t = ROOT::Math::LorentzVector<ROOT::Math::PxPyPzM4D<double>>;
 
@@ -559,7 +560,7 @@ StatusCode TrigBmumuxComboHypo::createDecisionObjects(TrigBmumuxState& state) co
     }
 
     // create a new output Decision object, backed by the 'decisions' container.
-    Decision* decision = TrigCompositeUtils::newDecisionIn(state.decisions);
+    Decision* decision = TrigCompositeUtils::newDecisionIn(state.decisions, comboHypoAlgNodeName());
 
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (const size_t& i : getMuonIndices(*dimuon)) {
@@ -649,7 +650,7 @@ xAOD::TrigBphys* TrigBmumuxComboHypo::makeTriggerObject(const xAOD::Vertex* vert
     const Trk::TrackParameters* perigee = vertex->vxTrackAtVertex()[i].perigeeAtVertex();
     if (!perigee) return nullptr;
     const Amg::Vector3D& p = perigee->momentum();
-    momenta.emplace_back(p[Trk::px], p[Trk::py], p[Trk::pz], trkMass[i]);
+    momenta.emplace_back(p.x(), p.y(), p.z(), trkMass[i]);
     momentum += momenta.back();
   }
 

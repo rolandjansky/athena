@@ -86,21 +86,6 @@ GenAodValidationTool::~GenAodValidationTool()
 
 }
 
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
-
-/////////////////////////////////////////////////////////////////// 
-/// Non-const methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Protected methods: 
-/////////////////////////////////////////////////////////////////// 
-
-/////////////////////////////////////////////////////////////////// 
-/// Const methods: 
-///////////////////////////////////////////////////////////////////
 
 /////////////////////////////////////////////////////////////////// 
 /// Non-const methods: 
@@ -270,8 +255,7 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
     }
   }
 
-  (*m_outFile) << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
-	       << std::endl;
+  (*m_outFile) << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
 
   // loop over slimmed HepMC::GenEvent and check that vertices
   // are comparable
@@ -311,8 +295,7 @@ GenAodValidationTool::executeTool( const HepMC::GenEvent* refMcEvts,
 bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
 				       const HepMC::GenVertex* vtx2 ) const
 {
-  if ( 0 == vtx1 ||
-       0 == vtx2 ) {
+  if ( !vtx1 || !vtx2 ) {
     ATH_MSG_ERROR("One of vertices is a NULL pointer !!" << endmsg
 		  << " vtx1: " << vtx1 << endmsg
 		  << " vtx2: " << vtx2);
@@ -325,8 +308,7 @@ bool GenAodValidationTool::compareVtx( const HepMC::GenVertex* vtx1,
   const int outVtx1 = vtx1->particles_out_size();
   const int outVtx2 = vtx2->particles_out_size();
   
-  if (  inVtx1 !=  inVtx2 ||
-       outVtx1 != outVtx2 ) {
+  if (  inVtx1 !=  inVtx2 || outVtx1 != outVtx2 ) {
     ATH_MSG_ERROR("Not the same number of branches !!" << endmsg
 		  << " in:  " << inVtx1  << "\t" << inVtx2  << endmsg
 		  << " out: " << outVtx1 << "\t" << outVtx2);
@@ -381,8 +363,7 @@ bool
 GenAodValidationTool::compareParts( const HepMC::GenParticle* p1,
 				    const HepMC::GenParticle* p2 ) const
 {
-  if ( 0 == p1 ||
-       0 == p2 ) {
+  if ( !p1 || !p2 ) {
     ATH_MSG_ERROR("One of particlees is a NULL pointer !!" << endmsg
 		  << " p1: " << p1 << endmsg
 		  << " p2: " << p2);
@@ -431,7 +412,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( !m_refMcEventWriter.retrieve().isSuccess() ) {
     ATH_MSG_ERROR("Creation of algTool ["
 		  << m_refMcEventWriter.type() << "/" 
-		  //<< m_refMcEventWriter.name() 
 		  << "] FAILED !");
     return StatusCode::FAILURE;
   }
@@ -439,7 +419,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( !m_checkMcEventWriter.retrieve().isSuccess() ) {
     ATH_MSG_ERROR("Creation of algTool ["
 		  << m_checkMcEventWriter.type() << "/" 
-		  //<< m_checkMcEventWriter.name() 
 		  << "] FAILED !");
     return StatusCode::FAILURE;
   }
@@ -449,7 +428,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( m_refMcEventWriter->setProperty( refProp ).isFailure() ) {
     ATH_MSG_ERROR("Could not set property [" << refProp.name() 
 		  << "] for tool [" << m_refMcEventWriter.type() << "/" 
-		  //<< m_refMcEventWriter.name() 
 		  << "] !");
     return StatusCode::FAILURE;
   }
@@ -458,7 +436,6 @@ StatusCode GenAodValidationTool::setupHepMcWriterTools()
   if ( m_checkMcEventWriter->setProperty( checkProp ).isFailure() ) {
     ATH_MSG_ERROR("Could not set property [" << checkProp.name()
 		  << "] for tool [" << m_checkMcEventWriter.type() << "/" 
-		  //<< m_checkMcEventWriter.name() 
 		  << "] !");
     return StatusCode::FAILURE;
   }

@@ -16,6 +16,7 @@
 #include <iostream>
 
 
+
 using HLT::TrigNavTools::SlimmingHelper;
 using namespace HLT;
 
@@ -280,6 +281,8 @@ StatusCode TrigNavigationThinningSvc::dropChains(State& state) const {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 StatusCode TrigNavigationThinningSvc::doSlimming( const EventContext& ctx,
                                                   std::vector<uint32_t>& slimmed_and_serialized) const {
+
+  std::lock_guard<std::mutex> lock(m_mutex);
 
   // grab the navigation
   Trig::ExpertMethods *navAccess = m_trigDecisionTool->ExperimentalAndExpertMethods();

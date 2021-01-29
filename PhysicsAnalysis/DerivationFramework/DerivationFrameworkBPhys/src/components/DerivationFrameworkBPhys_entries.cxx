@@ -11,6 +11,7 @@
 #include "DerivationFrameworkBPhys/Bmumu_metadata.h"
 //#include "DerivationFrameworkBPhys/CfAthAlgTool.h"
 #include "DerivationFrameworkBPhys/Bmumu_reco_mumu.h"
+#include "DerivationFrameworkBPhys/Reco_mumu.h"
 #include "DerivationFrameworkBPhys/FourMuonTool.h"
 //#include "DerivationFrameworkBPhys/BPhysAddMuonBasedInvMass.h"
 //#include "DerivationFrameworkBPhys/BPhysVertexTrackBase.h"
@@ -37,6 +38,7 @@
 using namespace DerivationFramework;
 
 DECLARE_COMPONENT( Reco_4mu )
+DECLARE_COMPONENT( Reco_mumu )
 DECLARE_COMPONENT( Reco_Vertex )
 DECLARE_COMPONENT( Select_onia2mumu )
 DECLARE_COMPONENT( Thin_vtxTrk )

@@ -113,6 +113,30 @@ def MmDataPreparatorCfg( flags, roisKey ):
 
     return acc, MmDataPreparator
 
+def RpcRoadDefinerCfg( flags, roisKey ):
+
+    acc = ComponentAccumulator()
+
+    # Set RPC road definer for MuFast data preparator
+    TrigL2MuonSA__RpcRoadDefiner=CompFactory.getComp("TrigL2MuonSA::RpcRoadDefiner")
+    RpcRoadDefiner = TrigL2MuonSA__RpcRoadDefiner( )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    RpcRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
+
+    return acc, RpcRoadDefiner
+
+def TgcRoadDefinerCfg( flags, roisKey ):
+
+    acc = ComponentAccumulator()
+
+    # Set TGC road definer for MuFast data preparator
+    TrigL2MuonSA__TgcRoadDefiner=CompFactory.getComp("TrigL2MuonSA::TgcRoadDefiner")
+    TgcRoadDefiner = TrigL2MuonSA__TgcRoadDefiner( )
+    from RegionSelector.RegSelToolConfig import regSelTool_MDT_Cfg
+    TgcRoadDefiner.RegionSelectionTool = acc.popToolsAndMerge( regSelTool_MDT_Cfg( flags ) )
+
+    return acc, TgcRoadDefiner
+
 # Based on TrigL2MuonSAMTConfig at TrigL2MuonSA/TrigL2MuonSAConfig.py
 def muFastSteeringCfg( flags, roisKey, setup="" ):
     from MuonConfig.MuonCalibrationConfig import MdtCalibrationToolCfg
@@ -152,6 +176,14 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
     else:
         MmDataPreparator = ""
 
+    # Get RPC road definer
+    rpcRDAcc, RpcRoadDefiner = RpcRoadDefinerCfg( flags, roisKey )
+    acc.merge( rpcRDAcc )
+
+    # Get TGC road definer
+    tgcRDAcc, TgcRoadDefiner = TgcRoadDefinerCfg( flags, roisKey )
+    acc.merge( tgcRDAcc )
+
     # Set MuFast data preparator
     TrigL2MuonSA__MuFastDataPreparator=CompFactory.getComp("TrigL2MuonSA::MuFastDataPreparator")
     MuFastDataPreparator = TrigL2MuonSA__MuFastDataPreparator( CSCDataPreparator = CscDataPreparator,
@@ -159,7 +191,9 @@ def muFastSteeringCfg( flags, roisKey, setup="" ):
                                                                RPCDataPreparator = RpcDataPreparator,
                                                                TGCDataPreparator = TgcDataPreparator,
                                                                STGCDataPreparator = StgcDataPreparator,
-                                                               MMDataPreparator = MmDataPreparator )
+                                                               MMDataPreparator = MmDataPreparator,
+                                                               RpcRoadDefiner = RpcRoadDefiner,
+                                                               TgcRoadDefiner = TgcRoadDefiner )
 
     # Setup the station fitter
     TrigL2MuonSA__MuFastStationFitter,TrigL2MuonSA__PtFromAlphaBeta=CompFactory.getComps("TrigL2MuonSA::MuFastStationFitter","TrigL2MuonSA::PtFromAlphaBeta")

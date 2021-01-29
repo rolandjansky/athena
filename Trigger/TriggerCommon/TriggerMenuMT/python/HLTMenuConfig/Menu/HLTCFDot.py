@@ -125,17 +125,15 @@ def all_DataFlow_to_dot(name, step_list):
 
                 for menuseq in cfseq.step.sequences:
                     cfseq_algs, all_hypos, last_step_hypoNodes = menuseq.buildDFDot(cfseq_algs,
-                                                                                    all_hypos,
-                                                                                    cfseq.step.isCombo,
+                                                                                    all_hypos,                                                                                    
                                                                                     last_step_hypoNodes,
                                                                                     file)
 
                                                                                      
-                if cfseq.step.isCombo:
-                    if cfseq.step.combo is not None:
-                        file.write("    %s[color=%s]\n"%(compName(cfseq.step.combo.Alg), algColor(cfseq.step.combo.Alg)))
-                        cfseq_algs.append(cfseq.step.combo)
-                        last_step_hypoNodes.append(cfseq.step.combo)
+                if cfseq.step.combo is not None:
+                    file.write("    %s[color=%s]\n"%(compName(cfseq.step.combo.Alg), algColor(cfseq.step.combo.Alg)))
+                    cfseq_algs.append(cfseq.step.combo)
+                    last_step_hypoNodes.append(cfseq.step.combo)
                 file.write('  }\n')              
                 file.write(findConnections(cfseq_algs))
                 file.write('\n')
@@ -179,14 +177,12 @@ def stepCF_DataFlow_to_dot(name, cfseq_list):
 
             for menuseq in cfseq.step.sequences:
                     cfseq_algs, all_hypos, _ = menuseq.buildDFDot(cfseq_algs,
-                                                                  all_hypos,
-                                                                  True,
+                                                                  all_hypos,                                                                 
                                                                   None,
                                                                   file)
-            if cfseq.step.isCombo:
-                if cfseq.step.combo is not None:
-                    file.write("    %s[color=%s]\n"%(compName(cfseq.step.combo.Alg), algColor(cfseq.step.combo.Alg)))
-                    cfseq_algs.append(cfseq.step.combo)
+            if cfseq.step.combo is not None:
+                file.write("    %s[color=%s]\n"%(compName(cfseq.step.combo.Alg), algColor(cfseq.step.combo.Alg)))
+                cfseq_algs.append(cfseq.step.combo)
             file.write('  }\n')              
 
             file.write(findConnections(cfseq_algs))

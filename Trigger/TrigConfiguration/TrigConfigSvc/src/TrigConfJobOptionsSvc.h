@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TrigConfigSvc_JobOptionsSvc
@@ -8,7 +8,12 @@
 #include <string>
 #include <vector>
 
+// We have to include the deprecated IJobOptionsSvc header. Silence the warning.
+// This can be removed in Gaudi v36 together with the IJobOptionsSvc removal:
+#define GAUDI_INTERNAL_NO_IJOBOPTIONSSVC_H_DEPRECATION 1
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include "GaudiKernel/IJobOptionsSvc.h"
+
 #include "Gaudi/Interfaces/IOptionsSvc.h"
 #include "GaudiKernel/ServiceHandle.h"
 

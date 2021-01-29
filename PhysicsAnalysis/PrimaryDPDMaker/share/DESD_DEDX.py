@@ -46,7 +46,7 @@ topSequence += DESD_DEDX_Seq
 ### Output stream
 ##################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteDESD_DEDX.StreamName
 fileName   = buildFileName( primDPD.WriteDESD_DEDX )
@@ -152,8 +152,8 @@ outList = CfgItemList( 'DEDX',
     'xAOD::TrigNavigationAuxInfo#TrigNavigationAux.',
     'xAOD::TrigDecision#xTrigDecision',
     'xAOD::JetEtRoI#LVL1JetEtRoI',
-    'Trk::SegmentCollection#MuonSegments',
-    'Trk::SegmentCollection#NCB_MuonSegments',
+    'Trk::SegmentCollection#TrackMuonSegments',
+    'Trk::SegmentCollection#NCB_TrackMuonSegments',
     'xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMPFlowAux.',
     'xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4EMTopoAux.',
     'xAOD::MissingETAuxAssociationMap#METAssoc_AntiKt4LCTopoAux.',

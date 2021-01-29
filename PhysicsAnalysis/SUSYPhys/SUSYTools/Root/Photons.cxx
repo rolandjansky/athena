@@ -12,9 +12,9 @@
 #include "xAODTracking/TrackParticlexAODHelpers.h"
 
 #include "ElectronPhotonFourMomentumCorrection/IEgammaCalibrationAndSmearingTool.h"
-#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
+#include "EgammaAnalysisInterfaces/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonSelectorTools/IEGammaAmbiguityTool.h"
+#include "EgammaAnalysisInterfaces/IEGammaAmbiguityTool.h"
 #include "PhotonEfficiencyCorrection/IAsgPhotonEfficiencyCorrectionTool.h"
 
 #include "IsolationCorrections/IIsolationCorrectionTool.h"

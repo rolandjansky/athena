@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # @author Nils Krumnack
 
@@ -24,22 +24,20 @@ if( NOT XAOD_STANDALONE )
       LINK_LIBRARIES GaudiKernel EgammaAnalysisAlgorithmsLib )
 endif()
 
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_joboptions( share/*_jobOptions.py )
 atlas_install_scripts( share/*_eljob.py )
 
 if( XAOD_STANDALONE )
-   # temporarily disable these until AnalysisBase is fully functional
-
-   # atlas_add_test( testJobData
-   #    SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
-   #    PROPERTIES TIMEOUT 600 )
-   # atlas_add_test( testJobFullSim
-   #    SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
-   #    PROPERTIES TIMEOUT 600 )
-   # atlas_add_test( testJobFastSim
-   #    SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
-   #    PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobData
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type data --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFullSim
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type mc --unit-test
+      PROPERTIES TIMEOUT 600 )
+   atlas_add_test( testJobFastSim
+      SCRIPT EgammaAnalysisAlgorithmsTest_eljob.py --data-type afii --unit-test
+      PROPERTIES TIMEOUT 600 )
 else()
    atlas_add_test( testJobData
       SCRIPT athena.py

@@ -122,7 +122,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
     # pileup configuration "algorithm" way
     if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.Pileup or flags.Detector.OverlayLAr:
+        if flags.Digitization.PileUp or flags.Detector.OverlayLAr:
             kwargs.setdefault("PileUp", True)
     kwargs.setdefault("useLArFloat", useLArFloat(flags))
     if useLArFloat(flags):
@@ -227,7 +227,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
-    kwargs.setdefault("PileUp", flags.Digitization.Pileup)
+    kwargs.setdefault("PileUp", flags.Digitization.PileUp)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")

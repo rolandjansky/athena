@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef MuonTPVertexDecoratorAlg__H
 #define MuonTPVertexDecoratorAlg__H
@@ -7,26 +7,23 @@
 #include <AthenaBaseComps/AthAlgorithm.h>
 #include <GaudiKernel/ToolHandle.h>
 #include <AthContainers/AuxElement.h>
+#include <InDetTrackSelectionTool/IInDetTrackSelectionTool.h>
 #include <memory>
 
-
-
-namespace InDet{
-    class IInDetTrackSelectionTool;
-}
-
+/// Algorithm to decorate the number of tracks 
+/// and the sum of their pt to the vertex     
 class VertexDecoratorAlg : public AthAlgorithm { 
 
 public:
   VertexDecoratorAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
   /// Destructor: 
-  ~VertexDecoratorAlg(); 
+  ~VertexDecoratorAlg()=default; 
 
   /// Athena algorithm's Hooks
-  StatusCode  initialize();
-  StatusCode  execute();
-  StatusCode  finalize();
+  StatusCode  initialize() override;
+  StatusCode  execute()override;
+ 
 
 private: 
     std::string m_VertexContainer;

@@ -1,7 +1,4 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
-*/
-/*
  * Public domain; see below.
  */
 /**
@@ -16,6 +13,7 @@
 
 //-----------------------------------------------------------------------------
 // MurmurHash2 was written by Austin Appleby, and is placed in the public
+// domain. The author hereby disclaims copyright to this source code.
 
 // Note - This code makes a few assumptions about how your machine behaves -
 

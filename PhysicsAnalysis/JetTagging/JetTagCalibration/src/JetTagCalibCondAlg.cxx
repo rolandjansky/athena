@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -560,6 +560,7 @@ namespace Analysis {
                 TObjArray * toa = dynamic_cast<TObjArray*>(hPointer.get());
                 if (toa) {
                   ATH_MSG_DEBUG("#BTAG# The TObjArray to build the input variables of BDT for " << tagger<< " is valid");
+                  toa->SetOwner (true);
                   std::vector<std::string> inputVars; inputVars.clear();
                   std::string commaSepVars="";
                   TObjString *tos= nullptr;

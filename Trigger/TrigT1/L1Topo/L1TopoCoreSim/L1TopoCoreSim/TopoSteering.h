@@ -88,6 +88,8 @@ namespace TCS {
 
       void setAlgMsgLevel( TrigConf::MSGTC::Level lvl );
 
+      void setLegacyMode(bool isLegacyTopo) {m_isLegacyTopo=isLegacyTopo;}
+
       /**
        * @brief enables the histogramming service
        */
@@ -144,6 +146,8 @@ namespace TCS {
    private:
       bool m_useBitwise{false};                  // Using bitwise algorithms? Disabled by default. Needs a menu global flag.
 
+      bool m_isLegacyTopo{false};
+     
       TopoInputEvent         m_inputEvent;       // the input event
 
       TopoCoreSimResult      m_simulationResult; // the result of the execution

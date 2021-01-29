@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONSELECTORTOOLS_MUONSELECTIONTOOL_H
@@ -16,7 +16,6 @@
 #include "TSystem.h" // Replace with PathResolver
 #include "TMVA/Reader.h"
 #include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
-
 namespace CP {
 
    /// Implementation of the muon selector tool
@@ -192,6 +191,7 @@ namespace CP {
      void PrepareReader(TMVA::Reader* reader);
 
      //variables for the TMVA readers
+     mutable std::mutex m_low_pt_mva_mutex;
      Float_t *m_lowPTmva_middleHoles;
      Float_t *m_lowPTmva_muonSeg1ChamberIdx;
      Float_t *m_lowPTmva_muonSeg2ChamberIdx;

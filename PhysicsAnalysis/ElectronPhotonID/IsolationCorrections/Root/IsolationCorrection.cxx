@@ -163,7 +163,9 @@ namespace CP {
     }
     int author = input.author();
 
-    float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster, is_mc);
+    //using std::optional
+    auto etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster, is_mc);
+    if (!etaPointing.has_value()) return 0.;
 
     float radius = xAOD::Iso::coneSize(isol);
     bool is_topo = xAOD::Iso::isolationFlavour(isol) == xAOD::Iso::topoetcone ? true : false;
@@ -171,7 +173,7 @@ namespace CP {
     if(is_topo){
       isolation_ptcorrection = GetPtCorrectionTopo(  energy,
 						     etaS2,
-						     etaPointing,
+						     etaPointing.value(),
 						     etaCluster,
 						     radius,
 						     is_mc,
@@ -185,7 +187,7 @@ namespace CP {
     }else{
       isolation_ptcorrection = GetPtCorrection(  energy,
 						 etaS2,
-						 etaPointing,
+						 etaPointing.value(),
 						 etaCluster,
 						 radius,
 						 is_mc,
@@ -343,8 +345,9 @@ namespace CP {
     if(fabs(etaS1) > 2.5) return 0.;
     if(fabs(phiCluster) > 3.2) return 0.;
 
-    float etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster);
-    return etaPointing;
+    auto etaPointing = m_shower->getCaloPointingEta(etaS1, etaS2, phiCluster);
+    //using std::optional here
+    return etaPointing.value_or(0.);
   }
 
   void IsolationCorrection::SetDataMC(bool is_mc){

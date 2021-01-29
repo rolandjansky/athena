@@ -71,7 +71,7 @@ HLT::ErrorCode TrigHIEventShapeMaker::hltExecute(const HLT::TriggerElement* inpu
     }
   else
     {ATH_MSG_DEBUG("TrigHIEventShapeMaker will use towers");
-     if (m_fillerTool->fillCollectionFromTowers(m_tower_container_key).isFailure() )
+     if (m_fillerTool->fillCollectionFromTowers(m_tower_container_key, m_tower_container_key).isFailure() )
        {ATH_MSG_ERROR("TrigHIEventShapeMaker failing on filling from towers");
         return HLT::ERROR;
        }

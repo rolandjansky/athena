@@ -9,6 +9,12 @@ VIEW_STRING = "view"
 FEATURE_STRING = "feature"
 SEED_STRING = "seed"
 
+L1_DECODER_NODE_NAME_STRING = "L1"
+FILTER_NODE_NAME_STRING = "F"
+INPUT_MAKER_NODE_NAME_STRING = "IM"
+HYPO_ALG_NODE_NAME_STRING = "H"
+COMBO_HYPO_ALG_NODE_NAME_STRING = "CH"
+
 def legName(chainName, legCounter):
     return ("leg{:03d}_{}".format(legCounter, chainName))
 

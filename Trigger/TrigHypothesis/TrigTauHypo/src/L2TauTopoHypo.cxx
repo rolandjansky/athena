@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //Extra documentation (doxygen) in header file
@@ -68,7 +68,7 @@ HLT::ErrorCode L2TauTopoHypo::hltExecute(const HLT::TriggerElement* inputTE, boo
   	}
   	else ATH_MSG_DEBUG("REGTEST: Number of TrigComposites " << cont->size());
 
-	for(const auto &comp:*cont){
+	for(const xAOD::TrigComposite* comp:*cont){
       		if(comp->name()!="L2TAUTSF_dR"){
           		ATH_MSG_DEBUG("REGTEST: Not L2TAUTSFInfo TrigComposite");
           		continue;

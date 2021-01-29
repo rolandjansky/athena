@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRACKSELECTIONTOOL_H
@@ -20,7 +20,6 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
-#include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include <vector>
 

@@ -299,7 +299,7 @@ using Trk::distDepth;
   }
 
   SiIntersect
-  SolidStateDetectorElementBase::inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const
+  SolidStateDetectorElementBase::inDetector(const Amg::Vector3D& globalPosition, double phiTol, double etaTol) const
   {
     return m_design->inDetector(localPosition(globalPosition), phiTol, etaTol);
   }
@@ -488,7 +488,7 @@ using Trk::distDepth;
 	      ATH_MSG_DEBUG("Unable to swap local xPhi axis.");
             }
         }
-    
+
         if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
 	  ATH_MSG_ERROR( "Orientation of local xPhi axis does not follow correct convention.");
             m_phiDirection = true; // Don't swap.
@@ -510,6 +510,7 @@ using Trk::distDepth;
 	  ATH_MSG_ERROR( "Orientation of local xEta axis does not follow correct convention.");
             m_etaDirection = true; // Don't swap
         }
+
 
     } // end if (firstTimeBaseTemp)
     
@@ -559,15 +560,8 @@ using Trk::distDepth;
                                double& zMin, double& zMax,
                                double& phiMin, double& phiMax) const
   {
-
-     double radialShift = 0.;
-     /*
-    Deprecated method for specialized ITk DetElement with different global frame - to be replaced!
-    const InDetDD::StripStereoAnnulusDesign* testDesign = dynamic_cast<const InDetDD::StripStereoAnnulusDesign*>(m_design);
-    if (testDesign) radialShift = testDesign->localModuleCentreRadius();//additional radial shift for sensors centred on beamline
-     */
-
-     //NS this probably needs updates to get a shift from the m_design!!!!
+    Amg::Vector3D sensorCenter = m_design->sensorCenter();
+    double radialShift = sensorCenter[0];//in sensor frame, x is radius
 
     HepGeom::Point3D<double> corners[4];
     getCorners(corners);
@@ -577,11 +571,11 @@ using Trk::distDepth;
     double phiOffset = 0.;
 
    
-    const HepGeom::Transform3D rShift = HepGeom::TranslateX3D(radialShift);//in local frame, radius is x
+    const HepGeom::Transform3D rShift = HepGeom::TranslateY3D(radialShift);//in local frame, radius is y=distEta
 
     for (int i = 0; i < 4; i++) {
 
-      //if (testDesign) corners[i].transform(rShift); see comment re ITk...
+      corners[i].transform(rShift);
 
       // m_tranform is already there as  part of the cache construction
       // This method seems to be used only as a helper for updateCache
@@ -707,19 +701,19 @@ using Trk::distDepth;
       HepGeom::Vector3D<double>(0., 0., 1.)
     };
 
+    //correct phi and eta as necessary - do not change depth, this will be defined by the transform based on the other two
+    int signPhi = m_phiDirection? +1:-1;
+    int signEta = m_etaDirection? +1:-1;
+
     const HepGeom::Transform3D recoToHit(HepGeom::Point3D<double>(0., 0., 0.),
-                                         localAxes[distPhi],
-                                         localAxes[distEta],
+                                         signPhi * localAxes[distPhi],
+                                         signEta *localAxes[distEta],
                                          HepGeom::Point3D<double>(0., 0., 0.),
                                          localAxes[m_hitPhi],
                                          localAxes[m_hitEta]);
 
-    // Swap direction of axis as appropriate
-    CLHEP::Hep3Vector scale(1., 1., 1.);
-    if (!m_phiDirection)   scale[distPhi]   = -1.;
-    if (!m_etaDirection)   scale[distEta]   = -1.;
-    if (!m_depthDirection) scale[distDepth] = -1.;
-    return recoToHit * HepGeom::Scale3D(scale[0], scale[1], scale[2]);
+    return recoToHit ;
+
   }
 
 

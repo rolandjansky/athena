@@ -126,6 +126,11 @@ class EnhancedBiasWeighter: public asg::AsgTool, public virtual IEnhancedBiasWei
    */
    virtual uint32_t getDistanceIntoTrain(const xAOD::EventInfo* eventInfo) const override;
 
+   /**
+   * @return the RunNumber.
+   */
+   virtual uint32_t getRunNumber() const override;
+
   /**
    * @return If the current event was selected online by a fully unbiased trigger 
    * for MC we cannot play such games and return True so that every trigger is queried.

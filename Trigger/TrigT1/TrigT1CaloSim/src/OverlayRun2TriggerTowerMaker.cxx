@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // ================================================
 // OverlayRun2TriggerTowerMaker class Implementation
@@ -904,7 +904,7 @@ namespace LVL1 {
     CHECK(evtStore()->retrieve(inputTTs, m_inputTTLocation));
     ATH_MSG_INFO("Found " << inputTTs->size() << " input TriggerTowers");
 
-    for(const auto& tower : *inputTTs) {
+    for(const xAOD::TriggerTower* tower : *inputTTs) {
       xAOD::TriggerTower* t = (*m_xaodTowers)[m_curIndex++] = new xAOD::TriggerTower;
       *t = *tower;
     }
@@ -995,7 +995,7 @@ namespace LVL1 {
   void OverlayRun2TriggerTowerMaker::processLArTowers(const LArTTL1Container * towers)
   {
     int towerNumber=0;
-    for(const auto& tower : *towers){
+    for(const LArTTL1* tower : *towers){
       ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
 
       // Obtain identifier
@@ -1041,7 +1041,7 @@ namespace LVL1 {
   {
     // Step over all towers
     int towerNumber=0;
-    for(const auto& tower : *towers) {
+    for(const TileTTL1* tower : *towers) {
       ATH_MSG_VERBOSE("Looking at retrieved tower number "<<towerNumber++<<" ***********");
 
       // Obtain identifier

@@ -1,5 +1,4 @@
-from __future__ import print_function
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # #######################################
 ## JetMonitoringConfig
@@ -29,7 +28,6 @@ from __future__ import print_function
 ##
 ## See python/JetMonitoringExample.py for usage of the system
 
-import six
 from AthenaCommon import  SystemOfUnits
 
 class ConfigDict(dict):
@@ -44,7 +42,7 @@ class ConfigDict(dict):
     """
     def __init__(self, **kwargs):
         dict.__init__(self, **kwargs)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             dict.__setattr__(self, k,  v)
     def __getattr__(self, attr):
         try:
@@ -70,7 +68,7 @@ class ConfigDict(dict):
     def clone(self, **kwargs):
         from copy import deepcopy
         c = deepcopy(self)
-        for k,v in six.iteritems (kwargs):
+        for k,v in kwargs.items():
             setattr(c,k,v)
         return c
 
@@ -87,7 +85,7 @@ class ConfigDict(dict):
     def _dump(self, writeFunc):
         def write(s, e='\n'): writeFunc('  '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if isinstance(v, ConfigDict):
                 write(k+' = ','')
                 v._dump(write)
@@ -104,6 +102,14 @@ class ConfigDict(dict):
 # **********************************************************
 
 
+def interpretManySelStr(selStr):
+    selL = selStr.split('&')
+    interpL = [interpretSelStr( s ) for s in selL]
+    # interpL is in the form [ (min1,v1,max1), (min2,v2,max2),..]
+    # unpack it into 3 lists :
+    minL, varL, maxL = zip(*interpL)
+    return minL, varL, maxL
+    
 def interpretSelStr(selStr):
     """Interpret a selection string in the form '12.3<var<42.0'
     and returns a tuple.
@@ -115,8 +121,9 @@ def interpretSelStr(selStr):
     if '>' in selStr:
         print("JetMonitoring ERROR interpreting selection string ", selStr)
         print("JetMonitoring ERROR  can not interpret '>', please use only '<' ")
+
     parts = selStr.split('<')
-    cmin, cmax = None, None
+    cmin, cmax = -3.4e38, 3.4e38 #we declare std::vector<float> for both on the c++ side, but will not necessarily pass actual values for them, so we use min/max float values in python as default (hardcoded numbers, because not easily accessible)
     var = selStr
     if len(parts)==2:
         ismin = False
@@ -133,8 +140,6 @@ def interpretSelStr(selStr):
         cmax = float(cmax)
 
     return cmin, var, cmax
-    
-
 
 def findSelectIndex( name):
     """ interprets 'varName[X]' into ('varName',x) """
@@ -167,7 +172,7 @@ class ToolSpec(ConfigDict):
         conf.pop('topLevelDir',None)
         conf.pop('bottomLevelDir',None)
         conf.pop('defineHistoFunc',None) # not used here.
-        for k, v in six.iteritems (conf):
+        for k, v in conf.items():
             if isinstance(v,ToolSpec):
                 v.topLevelDir = self.topLevelDir
                 v.bottomLevelDir = self.bottomLevelDir
@@ -423,16 +428,19 @@ class SelectSpec(ToolSpec):
     def __init__(self, selname, selexpr, path=None, **args):
         path = selname if path is None else path
         if '<' in selexpr:
-            # interpret it as min<v<max
-            cmin, v , cmax = interpretSelStr(selexpr)
+            # interpret it as a list of min<v<max
+            cminList , varList , cmaxList = interpretManySelStr(selexpr)
+            specname = '_'.join(varList)
             if args.setdefault('isEventVariable', False) :
+              VarList = [retrieveEventVarToolConf(v) for v in varList]
               selProp = 'EventSelector'
-              selSpec = ToolSpec('JetEventSelector', v+'sel', Var = retrieveEventVarToolConf(v), )
+              selSpec = ToolSpec('JetEventSelector', specname+'_sel', Var = VarList, ) 
             else:
+              VarList = [retrieveVarToolConf(v) for v in varList]
               selProp = 'Selector'
-              selSpec = ToolSpec('JetSelectorAttribute', v+'sel', Var = retrieveVarToolConf(v), )
-            if cmin is not None: selSpec['CutMin'] = cmin
-            if cmax is not None: selSpec['CutMax'] = cmax
+              selSpec = ToolSpec('JetSelectorAttribute', specname+'_sel', Var = VarList, )
+            selSpec['CutMin'] = cminList
+            selSpec['CutMax'] = cmaxList
             args[selProp] = selSpec
         elif selexpr != '':
             from JetMonitoring.JetStandardHistoSpecs import  knownSelector
@@ -516,6 +524,7 @@ class JetMonAlgSpec(ConfigDict):
         args.setdefault('bottomLevelDir', '')
         args.setdefault('failureOnMissingContainer', True)
         args.setdefault('onlyPassingJets', True)
+        args.setdefault('eventFiresAnyJetChain',False)
         ConfigDict.__init__(self, defaultPath=defaultPath, TriggerChain=TriggerChain, **args)
         tmpL = self.FillerTools
         self.FillerTools = []
@@ -532,7 +541,8 @@ class JetMonAlgSpec(ConfigDict):
         alg.JetContainerName = self.JetContainerName
         alg.FailureOnMissingContainer = self.failureOnMissingContainer
         alg.OnlyPassingJets = self.onlyPassingJets
-        
+        alg.EventFiresAnyJetChain = self.eventFiresAnyJetChain
+
         path = self.defaultPath
         tools = []
         for tconf in self.FillerTools:
@@ -547,7 +557,7 @@ class JetMonAlgSpec(ConfigDict):
         def write(s,e='\n'): writeFunc('  '+s,e)
         def write2(s,e='\n'): writeFunc('    '+s,e)
         writeFunc(self.__class__.__name__+'(')
-        for k,v in sorted(six.iteritems (self)):
+        for k,v in sorted(self.items()):
             if k == 'FillerTools':
                 write('FillerTools = [')
                 for hspec in v:

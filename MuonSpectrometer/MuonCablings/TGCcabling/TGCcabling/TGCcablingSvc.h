@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -34,7 +34,7 @@ class TGCcablingSvc : public ITGCcablingSvc
 {
 public:
   TGCcablingSvc (const std::string& name, ISvcLocator* svc);
-  virtual ~TGCcablingSvc (void);
+  virtual ~TGCcablingSvc()=default;
 
   static const InterfaceID& interfaceID() 
   {

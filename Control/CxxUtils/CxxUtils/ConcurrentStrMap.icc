@@ -60,7 +60,8 @@ CONCURRENTSTRMAP::ConcurrentStrMap (const ConcurrentStrMap& other,
             Matcher(),
             ctx)
 {
-  for (const auto& p : other) {
+  // not using reference, because our iterator doesn't return a reference
+  for (const auto p : other) {
     this->put (p.first, p.second, true, ctx);
   }
 }

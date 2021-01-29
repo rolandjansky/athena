@@ -10,13 +10,13 @@
 class AllJetsGrouper: public IJetGrouper{
  public:
   AllJetsGrouper();
-  AllJetsGrouper(const HypoJetIter& b, const HypoJetIter& e);
+  AllJetsGrouper(const HypoJetCIter& b, const HypoJetCIter& e);
   AllJetsGrouper(const HypoJetVector&);
   
   std::vector<HypoJetGroupVector> group(HypoJetIter&,
 					HypoJetIter&) const override;
   
-  virtual std::optional<HypoJetGroupVector> next() override;
+  virtual std::optional<HypoJetVector> next() override;
   
   std::string getName() const override; 
   std::string toString() const override;

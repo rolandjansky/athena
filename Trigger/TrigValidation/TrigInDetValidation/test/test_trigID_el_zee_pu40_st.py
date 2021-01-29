@@ -32,7 +32,8 @@ Events  = 8000
 Threads = 1 
 Slots   = 1
 Input   = 'Zee_pu40'    # defined in TrigValTools/share/TrigValInputs.json
-GridFiles=True
+Release = "current"
+GridFiles = True
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                    -o data-hists.root -p 11" ),
          ( "Offline",     " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]

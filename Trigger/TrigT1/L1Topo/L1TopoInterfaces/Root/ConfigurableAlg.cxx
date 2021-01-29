@@ -102,12 +102,14 @@ ConfigurableAlg::ConfigurableAlg(const  std::string & name, AlgType algType) :
    m_impl(new ConfigurableAlgImpl(name)),
    m_name(name),
    m_parameters(name),
-   m_algType(algType)
+   m_algType(algType),
+   m_isLegacyTopo(false)
 {}
 
 
 ConfigurableAlg::~ConfigurableAlg()
 {}
+
 
 // define parameters to be called by developer
 void

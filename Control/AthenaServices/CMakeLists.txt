@@ -101,7 +101,10 @@ atlas_install_joboptions( share/AthTPCnvSvc_test.py
    share/ConditionsCleanerSvc_test.txt
    share/RCUSvc_test.txt
    share/DelayedConditionsCleanerSvc_test.txt
-   share/ThinningCacheTool_test.txt )
+   share/ThinningCacheTool_test.txt
+   share/MTES_test.py )
+
+atlas_install_scripts( test/MTES_test.sh )
 
 # Need to make sure that python file installation happens before genconf
 # in order for our custom __init__.py to be installed correctly.

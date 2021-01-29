@@ -366,7 +366,6 @@ namespace InDetDD {
     /**
      * as in previous method but for 2D local position (inline)
      */
-    HepGeom::Point3D<double> globalPositionCLHEP(const Amg::Vector2D& localPos) const;
     Amg::Vector3D globalPosition(const Amg::Vector2D& localPos) const;
     
     /**
@@ -499,7 +498,7 @@ namespace InDetDD {
      * bool SiIntersect::mayIntersect() const // in() OR nearBoundary()
      */
     SiIntersect inDetector(const Amg::Vector2D& localPosition, double phiTol, double etaTol) const;
-    SiIntersect inDetector(const HepGeom::Point3D<double>& globalPosition, double phiTol, double etaTol) const;
+    SiIntersect inDetector(const Amg::Vector3D& globalPosition, double phiTol, double etaTol) const;
     //@}
     
     /**

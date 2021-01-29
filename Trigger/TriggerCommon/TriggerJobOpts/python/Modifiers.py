@@ -494,33 +494,8 @@ class optimizeChainOrder(_modifier):
             topSequence.TrigSteer_HLT.ExecutionOrderStrategy.order=[ 'name:.+beamspot.+',
                                                                     'name:.+j.+',
                                                                     'name:.+2tau.+',
+
                                                                     'name:.+tau.+'  ]
-
-class disablePixels(_modifier):
-    """
-    Turns off pixels in region selector
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.enablePixel=False
-
-class disableSCTBarrel(_modifier):
-    """
-    Turns off SCT Barrel in region selector and badly mapped ROB
-    """
-    def postSetup(self):
-        svcMgr.RegSelSvc.DeleteSiRobList=range(0x210000,0x21000a+1)+range(0x210100,0x21010a+1)+range(0x220000,0x22000a+1)+range(0x220100,0x22010a+1)+[0x240005]
-
-class disableIBL(_modifier):
-    """
-    Turn off IBL from readout
-    """
-
-    def postSetup(self):
-        import TrigInDetValidation.InDetModules as IDM
-        pixel_barrel_layer1_hashes = IDM.getHashes(IDM.getLayer(IDM.getBarrel(IDM.Pixel),0))
-        svcMgr.RegSelSvc.DeletePixelHashList=pixel_barrel_layer1_hashes
-        svcMgr.ROBDataProviderSvc.ignoreROB=[1310848, 1310849, 1310850, 1310851, 1310899, 1310944, 1310913, 1310946, 1310929, 1310912, 1310914, 1310736, 1310737, 1310738, 1310739, 1310752, 1310753, 1310754, 1310755, 1310883, 1310897, 1310930, 1310896, 1310898, 1310768, 1310769, 1310770, 1310771, 1310784, 1310785, 1310786, 1310787, 1310867, 1310931, 1310881, 1310880, 1310882, 1310800, 1310801, 1310802, 1310803, 1310816, 1310817, 1310818, 1310819, 1310915, 1310865, 1310864, 1310945, 1310928, 1310866, 1310832, 1310833, 1310834, 1310835, 1310947]
-
 class disableIBLInTracking(_modifier):
     """
     Turn off IBL in tracking algorithms (data still available for PEB etc)
@@ -1395,21 +1370,6 @@ class LumiFromSqlite(_modifier):
                 folders += [f]
         svcMgr.IOVDbSvc.Folders = folders
 
-class LumiRegionZmax168(_modifier):
-    """
-    decrease the size (equivalent of 3*sigma_z) of luminous region for ID tracking to 168 mm
-    """
-    def preSetup(self):
-        from InDetTrigRecExample.ConfiguredNewTrackingTrigCuts import L2IDTrackingCuts
-        from AthenaCommon.SystemOfUnits import mm
-        L2IDTrackingCuts.setRegSelZmax(168* mm)
-
-    def postSetup(self):
-        from AthenaCommon.AlgSequence import AlgSequence
-        topSequence = AlgSequence()
-        RegSelSvc=topSequence.allConfigurables.get("RegSelSvcDefault")
-        from AthenaCommon.SystemOfUnits import mm
-        RegSelSvc.DeltaZ = 168* mm
 
 class useDynamicAlignFolders(_modifier):
     """
@@ -1452,6 +1412,17 @@ class tightenElectronTrackingCuts(_modifier):
             topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
         except AttributeError:
             log.error("Cannot modify doCloneRemoval setting")
+
+class doRuntimeNaviVal(_modifier):
+    """
+    Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    parents all the way back to the L1 decoder. Potentially CPU expensive.
+    """
+    def preSetup(self):
+        log.info("Enabling Runtime Trigger Navigation Validation")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.doRuntimeNaviVal = True
+
 
 ###############################################################
 # Modifiers believed to be obsolete.

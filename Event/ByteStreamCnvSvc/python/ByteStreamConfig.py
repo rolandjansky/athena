@@ -192,12 +192,17 @@ def TransientByteStreamCfg(flags, item_list=None, type_names=None, extra_inputs=
     )
     result.addService(bytestream_conversion)
 
+    # Special fictitious extra output which can be used to ensure correct
+    # scheduling of transient ByteStream clients
+    extra_outputs = [("TransientBSOutType","StoreGateSvc+TransientBSOutKey")]
+
     output_stream = comp_factory.AthenaOutputStream(
         name="TransBSStreamAlg",
         EvtConversionSvc=bytestream_conversion.name,
         OutputFile="ByteStreamRDP_OutputSvc",
         ItemList=item_list if item_list else list(),
         ExtraInputs=extra_inputs if extra_inputs else list(),
+        ExtraOutputs=extra_outputs
     )
     result.addEventAlgo(output_stream, primary=True)
 

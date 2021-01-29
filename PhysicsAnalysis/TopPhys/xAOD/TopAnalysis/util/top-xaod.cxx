@@ -928,16 +928,16 @@ int main(int argc, char** argv) {
           if (!topConfig->isMC() && topConfig->doFakesMMWeightsIFF() &&
           currentSystematic->hashValue() == topConfig->nominalHashValue()) {
             xAOD::IParticleContainer lepton(SG::VIEW_ELEMENTS);
-            for (auto const& t : topEvent.m_electrons)
+            for (xAOD::Electron *t : topEvent.m_electrons)
               lepton.push_back(static_cast<xAOD::Electron*>(t));
-            for (auto const& t : topEvent.m_muons)
+            for (xAOD::Muon *t : topEvent.m_muons)
               lepton.push_back(static_cast<xAOD::Muon*>(t));
 
             topEvent.m_info->auxdecor<int>("njets") = topEvent.m_jets.size();
             for (const auto& tagWP : topConfig->bTagWP_available()) {
               if (tagWP.find("Continuous") != std::string::npos) continue;
               int nbjets = 0;
-              for (const auto& jetPtr : topEvent.m_jets) {
+              for (const xAOD::Jet *jetPtr : topEvent.m_jets) {
                 if (jetPtr->isAvailable<char>("isbtagged_" + tagWP)) {
                   nbjets += jetPtr->auxdataConst<char>("isbtagged_" + tagWP);
                 }

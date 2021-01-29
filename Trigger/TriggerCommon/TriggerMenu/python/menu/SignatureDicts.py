@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 logging.getLogger().info("Importing %s",__name__)
@@ -198,7 +198,7 @@ MuonChainParts = {
     'extra'          : ['noL1'],
     'IDinfo'         : [],
     'isoInfo'        : ['iloose', 'imedium', 'itight', 'ivarloose', 'ivarmedium','icalo','iloosecalo','imediumcalo','iloosems', 'ivarloosecalo', 'ivarmediumcalo'],
-    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2', 'mgonly'],
+    'reccalibInfo'   : ['msonly', 'l2msonly', 'l2idonly', 'nomucomb', 'idperf','muoncalib', 'mucombTag','muL2'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk', 'IDT'],
     'hypoInfo'       : [],
     'FSinfo'         : ['FTKFS', 'nscan03', 'l2nscan03', 'nscan05', 'l2nscan05', 'JpsimumuFS', 'JpsimumuL2','calotag'],

@@ -12,6 +12,7 @@
 
 #include "TrkGaussianSumFilter/MultiComponentStateAssembler.h"
 #include "TrkMultiComponentStateOnSurface/ComponentParameters.h"
+#include <limits>
 
 namespace {
 
@@ -87,7 +88,6 @@ prepareStateForAssembly(Cache& cache)
   if (cache.assemblyDone) {
     return true;
   }
-
   // Sort Multi-Component State by weights
   std::sort(cache.multiComponentState.begin(),
             cache.multiComponentState.end(),
@@ -96,12 +96,15 @@ prepareStateForAssembly(Cache& cache)
   double totalWeight(cache.validWeightSum + cache.invalidWeightSum);
   if (totalWeight != 0.) {
 
-    // All elements where
-    //! comp,!(value>element),element>=value is true
-    // are before the value (i.e ordered descending).
+    // ordered in descending order
     // return the 1st element where (element<value)
-    Trk::ComponentParameters dummySmallestWeight(
-      nullptr, cache.minimumFractionalWeight * totalWeight);
+
+    const double minimumWeight =
+      std::max(cache.minimumFractionalWeight * totalWeight,
+               std::numeric_limits<double>::min());
+
+    const Trk::ComponentParameters dummySmallestWeight(nullptr, minimumWeight);
+
     auto lower_than = std::upper_bound(cache.multiComponentState.begin(),
                                        cache.multiComponentState.end(),
                                        dummySmallestWeight,
@@ -119,6 +122,7 @@ prepareStateForAssembly(Cache& cache)
   if (!isStateValid(cache)) {
     return false;
   }
+
   // Set assembly flag
   cache.assemblyDone = true;
   return true;

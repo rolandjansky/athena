@@ -86,9 +86,12 @@ namespace TestMuonSF {
     MuonSFBranches::MuonSFBranches(TTree* tree, const ToolHandle<CP::IMuonEfficiencyScaleFactors> &handle, const std::string& rel_name) :
                 MuonEffiBranches(tree),
                 m_handle(handle),
-                m_uncorrelate_sys(dynamic_cast<const CP::MuonEfficiencyScaleFactors*>(handle.operator->())->uncorrelate_sys()),
                 m_release(rel_name),
-                m_SFs() {
+                m_SFs()
+    {
+      auto mesf = dynamic_cast<const CP::MuonEfficiencyScaleFactors*>(handle.operator->());
+      if (!mesf) std::abort();
+      m_uncorrelate_sys = mesf->uncorrelate_sys();
     }
     CP::CorrectionCode MuonSFBranches::fill(const xAOD::Muon& muon) {
         /// Only the raw systematic sets have been activated
@@ -335,7 +338,7 @@ namespace TestMuonSF {
         return CP::CorrectionCode::Ok;
     }
     CP::CorrectionCode MuonSFTestHelper::fill(const xAOD::MuonContainer* muons) {
-        for (const auto& mu : *muons) {
+        for (const auto *mu : *muons) {
             if (fill(mu) == CP::CorrectionCode::Error) return CP::CorrectionCode::Error;
             fillTree();
         }

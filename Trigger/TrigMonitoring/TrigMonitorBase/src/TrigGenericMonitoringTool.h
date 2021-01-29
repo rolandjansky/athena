@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGMONITORBASE_TRIGGENERICMONITORINGTOOL_H
@@ -120,9 +120,9 @@ template<class M, class P>     // Mutex and Proxy type
 class TrigGenericMonitoringTool : public TrigMonitorToolBase {
 public:
   
-  TrigGenericMonitoringTool<M,P>(const std::string & type, 
-                                 const std::string & name,
-                                 const IInterface* parent);
+  TrigGenericMonitoringTool(const std::string & type, 
+                            const std::string & name,
+                            const IInterface* parent);
   virtual ~TrigGenericMonitoringTool();
   
   virtual StatusCode bookHists();

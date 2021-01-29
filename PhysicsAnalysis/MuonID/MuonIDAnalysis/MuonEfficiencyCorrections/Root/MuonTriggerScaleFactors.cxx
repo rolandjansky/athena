@@ -544,7 +544,7 @@ namespace CP {
         double rate_not_fired_data = 1.;
         double rate_not_fired_mc = 1.;
 
-        for (const auto& mu : mucont) {
+        for (const auto *mu : mucont) {
 
             double eff_data = 0., eff_mc = 0.;
 

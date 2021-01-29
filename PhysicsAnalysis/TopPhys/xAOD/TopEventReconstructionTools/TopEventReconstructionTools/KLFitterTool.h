@@ -102,7 +102,8 @@ namespace top {
     // configuration
     std::shared_ptr<top::TopConfig> m_config;
     float m_massTop;
-    float m_bTagCutValue;
+    // commented out variables are unused.  experts please check and remove
+    // float m_bTagCutValue;
     bool m_isWorkingPoint;
     bool findOption(std::vector<std::string> full_options, std::string option, std::string& op_value);
 

@@ -65,12 +65,19 @@ StatusCode BookkeeperTool::beginInputFile(const SG::SourceID &source)
     ATH_MSG_DEBUG("Determining number of weight variations");
 #ifndef GENERATIONBASE
     if (inputMetaStore()->contains<xAOD::TruthMetaDataContainer>("TruthMetaData")) {
-      ATH_CHECK(loadXAODMetaData());
+      StatusCode status = loadXAODMetaData();
+      if (!status.isSuccess()) {
+        if (status.isRecoverable()) {
+          ATH_CHECK(loadPOOLMetaData());
+        } else {
+          return StatusCode::FAILURE;
+        }
+      }
     } else {
-#endif
       ATH_CHECK(loadPOOLMetaData());
-#ifndef GENERATIONBASE
     }
+#else
+    ATH_CHECK(loadPOOLMetaData());
 #endif
 
     if (m_numberOfWeightVariations == 0) {
@@ -167,6 +174,7 @@ StatusCode BookkeeperTool::metaDataStop()
       name.append("_weight_");
       name.append(std::to_string(i));
     }
+    std::string incompleteName = "Incomplete" + name;
 
     // In MP we might already have them written out
     if (outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(name)) {
@@ -175,20 +183,24 @@ StatusCode BookkeeperTool::metaDataStop()
         ATH_MSG_ERROR("Could not get " << name << " CutBookkeepers from output MetaDataStore");
         return StatusCode::FAILURE;
       }
-      xAOD::CutBookkeeperContainer *incomplete{};
-      if (!outputMetaStore()->retrieve(incomplete, "Incomplete" + name).isSuccess()) {
-        ATH_MSG_ERROR("Could not get " << "Incomplete" + name << " CutBookkeepers from output MetaDataStore");
-        return StatusCode::FAILURE;
-      }
       xAOD::CutFlowHelpers::updateContainer(complete, m_completeContainers.at(i));
-      xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
     } else {
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.cont[i]), name));
       ATH_CHECK(outputMetaStore()->record(std::move(m_completeContainers.aux[i]), name + "Aux."));
+    }
+
+    if (outputMetaStore()->contains<xAOD::CutBookkeeperContainer>(incompleteName)) {    
+      xAOD::CutBookkeeperContainer *incomplete{};
+      if (!outputMetaStore()->retrieve(incomplete, incompleteName).isSuccess()) {
+        ATH_MSG_ERROR("Could not get " << incompleteName << " CutBookkeepers from output MetaDataStore");
+        return StatusCode::FAILURE;
+      }
+      xAOD::CutFlowHelpers::updateContainer(incomplete, m_incompleteContainers.at(i));
+    } else {
       // Only write non-empty incomplete containers
       if (i > 0 && !m_incompleteContainers.at(i)->empty()) {
-        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), "Incomplete" + name));
-        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), "Incomplete" + name + "Aux."));
+        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.cont[i]), incompleteName));
+        ATH_CHECK(outputMetaStore()->record(std::move(m_incompleteContainers.aux[i]), incompleteName + "Aux."));
       }
     }
   }
@@ -256,7 +268,7 @@ StatusCode BookkeeperTool::copyCutflowFromService()
 StatusCode BookkeeperTool::loadXAODMetaData()
 {
 #ifdef GENERATIONBASE
-  return StatusCode::SUCCESS;
+  return StatusCode::RECOVERABLE;
 #else
 
   // Try to load MC channel number from file metadata
@@ -271,8 +283,12 @@ StatusCode BookkeeperTool::loadXAODMetaData()
     }
   }
   if (mcChannelNumber == uint32_t(-1)) {
-    ATH_MSG_WARNING("... MC channel number could not be loaded");
+    ATH_MSG_WARNING("... MC channel number could not be loaded from FileMetaData");
+#ifdef XAOD_STANDALONE
     mcChannelNumber = 0;
+#else
+    return StatusCode::RECOVERABLE;
+#endif
   }
 
   // Find the correct truth meta data object
@@ -292,9 +308,14 @@ StatusCode BookkeeperTool::loadXAODMetaData()
 
   // If no such object is found then return
   if (itTruthMetaDataPtr == metaDataContainer->end()) {
+#ifdef XAOD_STANDALONE
     m_numberOfWeightVariations = 1;
     ATH_MSG_DEBUG("Could not load weight meta data! Assumming 1 variation.");
     return StatusCode::SUCCESS;
+#else
+    ATH_MSG_DEBUG("Could not load weight meta data from TruthMetaData!");
+    return StatusCode::RECOVERABLE;
+#endif
   }
 
   // Update cached weight data

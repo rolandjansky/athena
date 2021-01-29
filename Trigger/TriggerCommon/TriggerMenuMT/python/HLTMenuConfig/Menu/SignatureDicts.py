@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
@@ -115,10 +115,12 @@ JetChainParts = {
     # Reco information
     'recoAlg'      : # Jet clustering algorithm
       ['a4', 'a10', 'a10r', 'a10t', 'a10sd'],
-    'dataType'     : # Jet input type (rename?)
-      ['tc','pf','sktc','cssktc','csskpf'],
-    'calib'        : # Topocluster calibration (change to constit mods?)
+    'constitType'  : # Jet input type
+      ['tc','pf'], # 'ufo' might be added at some point
+    'clusterCalib' : # Topocluster calibration
       ['em', 'lcw'],
+    'constitMod'   : # Constituent modifiers
+      ['sk', 'cssk'],
     'jetCalib'     : # Jet calibration
       ['jes', 'subjes', 'subjesIS', 'subjesgscIS', 'subresjesgscIS', 'nojcalib'],
     'scan'         : # No longer used?
@@ -132,13 +134,16 @@ JetChainParts = {
     #   other dict contents. If it is not 'simple', then the configuration is 100%
     #   from the hypoScenario specification, and all other hypo entries are ignored.
     'hypoScenario' : ['simple', # Independent selections on individual jets, multiplicity+threshold cuts
-                      'vbenf',  # Test VBF-like chain
-                      'vbenfSEP30etSEP34mass35SEP50fbet', # Test VBF-like chain with more info
+                      'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
+                      'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
-                      'aggSEP100htSEP10etSEP0eta320',],
+                      'aggSEP100htSEP10etSEP0eta320',
+                      'aggSEP50htSEP10etSEP0eta320',
+                      ],
+
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
@@ -148,6 +153,8 @@ JetChainParts = {
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'cleaning'      : # Jet cleaning per jet (currently unused)
       ['noCleaning', 'cleanLB'],
+    'prefilters'      : # Pre-hypo jet selectors (including cleaning)
+    ['loose', 'pfltrSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -179,8 +186,9 @@ JetChainParts_Default = {
     'subSigs'       : ['Jet'],
     #
     'recoAlg'       :'a4',
-    'dataType'      :'tc',
-    'calib'         :'em',
+    'constitType'   :'tc',
+    'clusterCalib'  :'em',
+    'constitMod'    :'',
     'jetCalib'      :'default',
     'scan'          :'FS',
     'trkopt'        : 'notrk',
@@ -190,6 +198,7 @@ JetChainParts_Default = {
     'jvt'           : '',
     'momCuts'       : '',
     'cleaning'      : 'noCleaning',
+    'prefilters'    : [],
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     #
@@ -256,7 +265,7 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io',
+    'bJpsimumu','bJpsi','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','bJpsimumul2io',
     'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm'
 ]
 
@@ -339,7 +348,7 @@ METChainParts = {
     'jetCalib'       : JetChainParts['jetCalib'],
     'L2recoAlg'      : [],
     'EFrecoAlg'      : ['cell', 'tc', 'tcpufit', 'mht', 'trkmht', 'pfsum', 'cvfpufit', 'pfopufit', 'mhtpufit'],
-    'jetDataType'    : JetChainParts['dataType'],
+    'constitType'    : JetChainParts['constitType'],
     'L2muonCorr'     : [],
     'EFmuonCorr'     : [],
     'addInfo'        : ['FStracks'],
@@ -362,7 +371,7 @@ METChainParts_Default = {
     'L2muonCorr'     : '',
     'EFmuonCorr'     : '',
     'addInfo'        : '',
-    'jetDataType'    : 'tc',
+    'constitType'    : 'tc',
     'constitmod'     : '',
     'sigFolder'     : 'MET',
     'subSigs'       : ['MET']
@@ -659,7 +668,7 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'hltpassthrough', 'jettauetmiss', 'larcells', 
+                        'jettauetmiss', 'larcells', 
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
     'trigType'       : 'streamer', 
@@ -678,7 +687,7 @@ StreamingChainParts_Default = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : 'hltpassthrough',
+    'streamingInfo'  : '',
     'trigType'       : '', 
     'extra'          : '',
     'streamType'     : '',
@@ -714,7 +723,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun','bs',''],
+    'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
     }

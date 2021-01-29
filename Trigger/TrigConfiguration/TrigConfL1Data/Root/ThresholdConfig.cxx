@@ -29,6 +29,11 @@ ThresholdConfig::ThresholdConfig() :
       m_thresholdVectors.insert( thrVecMap_t::value_type(tc.first , thrVec_t(0) ) );
 }
 
+ThresholdConfig::~ThresholdConfig() {
+   for(TriggerThreshold* thr: m_TriggerThresholdVector) {
+      delete thr;
+   }
+}
 
 const vector<TriggerThreshold*>& 
 TrigConf::ThresholdConfig::getThresholdVector(L1DataDef::TriggerType type) const {

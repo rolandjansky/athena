@@ -114,11 +114,11 @@ class JetChainConfiguration(ChainConfigurationBase):
         return jetCollectionName, ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
     def getJetCaloRecoChainStep(self):
-        stepName = "CaloRecoPTStep_jet_"+self.recoDict["calib"]
+        stepName = "CaloRecoPTStep_jet_"+self.recoDict["clusterCalib"]
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloRecoMenuSequence
         jetSeq, clustersKey = RecoFragmentsPool.retrieve( jetCaloRecoMenuSequence,
-                                                          ConfigFlags, clusterCalib=self.recoDict["calib"] )
+                                                          ConfigFlags, clusterCalib=self.recoDict["clusterCalib"] )
 
         return str(clustersKey), ChainStep(stepName, [jetSeq], multiplicity=[1], chainDicts=[self.dict])
 
@@ -126,8 +126,9 @@ class JetChainConfiguration(ChainConfigurationBase):
         # Define a fixed preselection dictionary for prototyping -- we may expand the options
         preselRecoDict = {
             'recoAlg':'a4',
-            'dataType':'tc',
-            'calib':'em',
+            'constitType':'tc',
+            'clusterCalib':'em',
+            'constitMod':'',
             'jetCalib':'subjesIS',
             'trkopt':'notrk',
             'trkpresel': 'nopresel',

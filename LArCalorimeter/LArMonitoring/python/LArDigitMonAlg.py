@@ -67,22 +67,18 @@ def LArDigitMonConfigCore(helper, algoinstance,inputFlags):
 
     summary_hist_path=summaryGroupName+'/'
     
-    summaryGroup.defineHistogram('sumbin,partition;RAW_Summary', 
+    summaryGroup.defineHistogram('gain,partition;SummaryGain', 
                                   title='Gain',
                                   type='TH2F',
                                   path=summary_hist_path,
-                                  weight='weight',
-                                  xbins=lArDQGlobals.N_DigitsSummary,xmin=-0.5,xmax=lArDQGlobals.N_DigitsSummary-0.5,
-                                  ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
-                                  xlabels=lArDQGlobals.DigitsSummary,ylabels=lArDQGlobals.Partitions)
-    summaryGroup.defineHistogram('gain,partition;RAW_summaryGain', 
-                                  title='Gain',
-                                  type='TH2F',
-                                  path=summary_hist_path,
-                                  weight='weight',
                                   xbins=lArDQGlobals.N_Gains,xmin=-0.5,xmax=lArDQGlobals.N_Gains-0.5,
                                   ybins=lArDQGlobals.N_Partitions, ymin=-0.5, ymax=lArDQGlobals.N_Partitions-0.5,
                                   xlabels=lArDQGlobals.Gains,ylabels=lArDQGlobals.Partitions)
+
+    summaryGroup.defineHistogram('LBN;LBN',type='TH1I',
+                                 title='Event counter per LB', 
+                                 path='',
+                                 xbins=lArDQGlobals.LB_Bins,xmin=lArDQGlobals.LB_Min,xmax=lArDQGlobals.LB_Max)
     
     # now individual partitions, because we need a different directories, will have only 2dim arrays (side)
     for subdet in range(0,lArDQGlobals.N_SubDet):

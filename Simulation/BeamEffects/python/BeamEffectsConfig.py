@@ -145,3 +145,10 @@ def getBeamSpotFixerAlg(name="BeamSpotFixerAlg", **kwargs):
         kwargs.setdefault('OutputKey', 'EventInfo')
 
     return CfgMgr.Simulation__BeamSpotFixerAlg(name, **kwargs)
+
+def getBeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs):
+    from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault('Input_beam_sigma_z', digitizationFlags.OldBeamSpotZSize())
+
+    return CfgMgr.Simulation__BeamSpotReweightingAlg(name, **kwargs)
+    

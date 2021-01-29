@@ -31,7 +31,7 @@ namespace TCS {
 
       ~TopoSteeringStructure();
 
-      StatusCode setupFromMenu(const TrigConf::L1Menu& l1menu, bool debug = false, bool legacy = false);
+      StatusCode setupFromMenu(const TrigConf::L1Menu& l1menu, bool legacy = false, bool debug = false);
 
       // accessors
       bool isConfigured() const { return m_isConfigured; }

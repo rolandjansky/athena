@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -8,7 +8,6 @@ from __future__ import print_function
 #
 # ------------------------------------------------------------
 #
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.Logging import logging
 log = logging.getLogger("EFID")
 
@@ -57,11 +56,6 @@ class TrigVxPrimary_EF( InDet__TrigVxPrimary ):
   def __init__(self, name="TrigVxPrimary_Electron_EF", type="electron"):
     super( InDet__TrigVxPrimary, self ).__init__( name )
 
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.GlobalFlags import GlobalFlags
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-
-
     from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
 
     self.VertexFinderTool = InDetTrigPriVxFinderTool
@@ -91,11 +85,6 @@ class TrigVxPrimaryAllTE_EF( InDet__TrigVxPrimaryAllTE ):
   def __init__(self, name="TrigVxPrimaryAllTE_Electron_EF", type="electron"):
     super( InDet__TrigVxPrimaryAllTE, self ).__init__( name )
 
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.GlobalFlags import GlobalFlags
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-
-
     from InDetTrigRecExample.InDetTrigConfigRecLoadToolsPost import InDetTrigPriVxFinderTool
 
     self.VertexFinderTool = InDetTrigPriVxFinderTool
@@ -122,8 +111,6 @@ class TrigVxPrimaryAllTESG_EF( InDet__TrigVxPrimaryAllTE ):
     super( InDet__TrigVxPrimaryAllTE, self ).__init__( name )
 
     from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.GlobalFlags import GlobalFlags
-    from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
     import AthenaCommon.SystemOfUnits as Units
 
     from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigExtrapolator,InDetTrigTrackSelectorTool
@@ -210,15 +197,9 @@ class InDetTrigParticleCreation_EF( InDet__TrigParticleCreator ):
    def __init__(self, name="InDetTrigParticleCreation_Electron_EF", type="electron"):
       super( InDet__TrigParticleCreator, self ).__init__( name )
 
-      from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
-          InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigHoleSearchTool
-
-      InDetTrigPartCreaPrdAssociationTool     = None
-      InDetTrigPartCreaTrackSummaryHelperTool = InDetTrigTrackSummaryHelperTool
-
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import ( # noqa: F401
+          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits,
+          InDetTrigExtrapolator, InDetTrigPrdAssociationTool, InDetTrigHoleSearchTool )
 
       from TrigInDetConf.TrigInDetPostTools import InDetTrigParticleCreatorTool,InDetTrigParticleCreatorToolParams
 
@@ -252,12 +233,10 @@ class InDetTrigTrackingxAODCnv_EF( InDet__TrigTrackingxAODCnv ):
    def __init__(self, name="InDetTrigTrackingxAODCnv_Electron_EF", type="electron"):
       super( InDet__TrigTrackingxAODCnv, self ).__init__( name )
 
-      from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
-          InDetTrigHoleSearchTool,InDetTrigExtrapolator
-      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import (  # noqa: F401
+          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits,
+          InDetTrigHoleSearchTool,InDetTrigExtrapolator )
+      from TrigInDetConf.TrigInDetRecCommonTools import InDetTrigFastTrackSummaryTool  # noqa: F401
 
 
       # load patricle creator tool
@@ -305,11 +284,9 @@ class InDetTrigVertexxAODCnv_EF( InDet__TrigVertexxAODCnv ):
    def __init__(self, name="InDetTrigVertexxAODCnv_Electron_EF", type="electron"):
       super( InDet__TrigVertexxAODCnv, self ).__init__( name )
 
-      from AthenaCommon.AppMgr import ToolSvc
-      from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
-      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import \
-          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits, \
-          InDetTrigHoleSearchTool,InDetTrigExtrapolator
+      from InDetTrigRecExample.InDetTrigConfigRecLoadTools import (  # noqa: F401
+          InDetTrigTrackSummaryHelperTool, InDetTrigTrackSummaryTool, InDetTrigTrackSummaryToolSharedHits,
+          InDetTrigHoleSearchTool,InDetTrigExtrapolator )
 
 
 # --- do truth for particle creation
@@ -320,7 +297,6 @@ class InDetTrigTrackParticleTruthMaker_EF( InDet__TrigTrackParticleTruthMaker ):
    def __init__(self, name="InDetTrigTrackParticleTruthMaker_Electron_EF", type="electron"):
       super( InDet__TrigTrackParticleTruthMaker, self ).__init__( name )
 
-      from AthenaCommon.AppMgr import ToolSvc
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
       self.doTruthAss = InDetTrigFlags.doTruth()

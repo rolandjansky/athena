@@ -18,7 +18,8 @@ namespace top {
     asg::AsgTool(name),
     m_config(nullptr),
     m_massTop(172.5), // This is the MC top mass in GeV - only change if you change the MC mass
-    m_bTagCutValue(9999.9),
+    // commented out variables are unused.  experts please check and remove
+    // m_bTagCutValue(9999.9),
     m_isWorkingPoint(false),
     m_transferFunctionsPathPrefix("SetMe"),
     m_transferFunctionsPath("SetMe"),
@@ -918,7 +919,7 @@ namespace top {
         return false;
       }
     }
-    for (const auto& jet : event.m_jets) {
+    for (const auto *jet : event.m_jets) {
       if (index > njets - 1) break;
 
       TLorentzVector jet_p4;
@@ -986,7 +987,7 @@ namespace top {
     // First find the b-jets
     unsigned int index(0);
     double weight(0);
-    for (const auto& jet : event.m_jets) {
+    for (const auto *jet : event.m_jets) {
       if (totalJets >= maxJets) break;
       if (HasTag(*jet, weight)) {
         TLorentzVector jet_p4;
@@ -1011,7 +1012,7 @@ namespace top {
 
     // Second, find the light jets
     index = 0;
-    for (const auto& jet : event.m_jets) {
+    for (const auto *jet : event.m_jets) {
       if (totalJets >= maxJets) break;
       if (!HasTag(*jet, weight)) {
         TLorentzVector jet_p4;

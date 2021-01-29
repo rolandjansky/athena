@@ -98,6 +98,23 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
+    
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+    
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
 
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
@@ -160,10 +177,6 @@ public:
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
-
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
   virtual const Amg::Vector3D* normal(
     const Amg::Vector2D& locpo) const override;
 
@@ -196,7 +209,7 @@ public:
    * allocation - boolean checks if on surface */
   virtual bool globalToLocal(const Amg::Vector3D& glob,
                              const Amg::Vector3D& mom,
-                             Amg::Vector2D& loc) const override final; 
+                             Amg::Vector2D& loc) const override final;
 
   /** fast straight line intersection schema - provides closest intersection and
   (signed) path length

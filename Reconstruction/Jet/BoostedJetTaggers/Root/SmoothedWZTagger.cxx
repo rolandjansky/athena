@@ -256,7 +256,7 @@ StatusCode SmoothedWZTagger::tag( const xAOD::Jet& jet ) const {
       validVtx = false;
     }
     else {
-      for ( const auto& vx : *vxCont ) {
+      for ( const auto *vx : *vxCont ) {
         if ( vx->vertexType()==xAOD::VxType::PriVtx ) {
           primaryVertex = vx;
           break;

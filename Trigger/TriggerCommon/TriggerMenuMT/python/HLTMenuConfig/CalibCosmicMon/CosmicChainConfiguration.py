@@ -24,7 +24,8 @@ class CosmicChainConfiguration(ChainConfigurationBase):
         # --------------------
         stepDictionary = {
             "sct_noise":[],
-            "tilecalib_laser" : []
+            "tilecalib_laser" : [],
+            "tilecalib_CIS" : [],
         }
 
         key = self.chainPart['chainPartName']

@@ -19,6 +19,7 @@
 
 #include "D3PDMakerUtils/BlockFillerTool.h"
 #include "AtlasHepMC/GenVertex.h"
+#include "AtlasHepMC/SimpleVector.h"
 
 
 namespace D3PD {

@@ -53,6 +53,7 @@ ReadSiDetectorElements::ReadSiDetectorElements(const std::string& name, ISvcLoca
   declareProperty("DoInitialize", m_doInit = false);
   declareProperty("DoExecute",    m_doExec = true);
   declareProperty("UseConditionsTools", m_useConditionsTools = false);
+  declareProperty("PrintProbePositions", m_printProbePositions = true);
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -150,8 +151,14 @@ void ReadSiDetectorElements::printAllElements(const bool accessDuringInitializat
         // element->getIdHelper()->show(element->identify());
         //
   
-        ATH_MSG_ALWAYS(" center (x,y,z) = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
+        ATH_MSG_ALWAYS(" center (x,y,z)   = " << element->center().x() << "," << element->center().y() << "," << element->center().z());
 	ATH_MSG_ALWAYS(" center (r,phi,z) = " << element->center().perp() << "," << element->center().phi() << "," <<element->center().z());
+	if(m_printProbePositions){
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (1,1)          = " <<element->globalPosition(Amg::Vector2D(1,1)).perp() << "," << element->globalPosition(Amg::Vector2D(1,1)).phi() <<","<< element->globalPosition(Amg::Vector2D(1,1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) position of (-1,-1)        = " <<element->globalPosition(Amg::Vector2D(-1,-1)).perp() << "," << element->globalPosition(Amg::Vector2D(-1,-1)).phi() <<","<< element->globalPosition(Amg::Vector2D(-1,-1)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit position of (1,1,0)    = " <<element->globalPositionHit(Amg::Vector3D(1,1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(1,1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(1,1,0)).z());
+	  ATH_MSG_ALWAYS(" global (r,phi,z) hit  position of (-1,-1,0) = " <<element->globalPositionHit(Amg::Vector3D(-1,-1,0)).perp() << "," << element->globalPositionHit(Amg::Vector3D(-1,-1,0)).phi() <<","<< element->globalPositionHit(Amg::Vector3D(-1,-1,0)).z()); 
+	}
         ATH_MSG_ALWAYS(" sin(tilt), sin(stereo) = " <<  element->sinTilt() << " " 
                        << element->sinStereo());
         ATH_MSG_ALWAYS(" width, minWidth, maxWidth, length (mm) = " 
@@ -391,7 +398,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       testElement(id, cellIds, positions, elements);
 
     }
-  } else if (m_managerName == "SCT") {
+  } else if (m_managerName == "SCT" || m_managerName == "ITkStrip") {
     
     //const SCT_ID * idHelper = dynamic_cast<const SCT_ID *>(m_manager->getIdHelper());
     const SCT_ID * idHelper = m_sctIdHelper;
@@ -413,9 +420,11 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       cellIds.push_back(SiCellId(32)); // phi,eta
       cellIds.push_back(SiCellId(1)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
-      cellIds.push_back(SiCellId(-2)); // phi,eta
-      cellIds.push_back(SiCellId(-3)); // phi,eta
+      if(m_managerName == "SCT"){
+	cellIds.push_back(SiCellId(-1)); // phi,eta
+	cellIds.push_back(SiCellId(-2)); // phi,eta
+	cellIds.push_back(SiCellId(-3)); // phi,eta
+      }
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 4.534*CLHEP::mm)); // eta,phi
@@ -441,7 +450,7 @@ void ReadSiDetectorElements::printRandomAccess(const bool accessDuringInitializa
       positions.clear();
       cellIds.push_back(SiCellId(532)); // phi,eta
       cellIds.push_back(SiCellId(0)); // phi,eta
-      cellIds.push_back(SiCellId(-1)); // phi,eta
+      if (m_managerName == "SCT") cellIds.push_back(SiCellId(-1)); // phi,eta
       cellIds.push_back(SiCellId(767)); // phi,eta
       cellIds.push_back(SiCellId(768)); // phi,eta
       positions.push_back(Amg::Vector2D(12.727*CLHEP::mm, 20.534*CLHEP::mm)); // eta,phi
@@ -629,7 +638,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       const InDetDD::SiLocalPosition & localPosOrig = positionsVec[iTestPos];
       ATH_MSG_ALWAYS(" Requested local pos (xPhi,xEta) = " << localPosOrig.xPhi() << ", " << localPosOrig.xEta());
       //lost out to HepGeom here
-      HepGeom::Point3D<double> globalPos(element->globalPositionCLHEP(localPosOrig));
+      Amg::Vector3D globalPos(element->globalPosition(localPosOrig));
       ATH_MSG_ALWAYS(" Global pos = " << globalPos << ", r (mm) = " << globalPos.perp()/CLHEP::mm<< ", phi (deg) = " << globalPos.phi()/CLHEP::degree);
 
       //...because i need a HepGeom::Point3D<double> to pass to element->localPosition...

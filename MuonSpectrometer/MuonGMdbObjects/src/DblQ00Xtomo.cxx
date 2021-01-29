@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -23,7 +23,6 @@ DblQ00Xtomo::DblQ00Xtomo() :
     
 DblQ00Xtomo::DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo) :
     m_nObj(0) {
-  std::cout << "In DblQ00Xtomo(data)" << std::endl;
   if(xtomo) {
     xtomo->execute();
         
@@ -84,7 +83,6 @@ DblQ00Xtomo::DblQ00Xtomo(std::unique_ptr<IRDBQuery>&& xtomo) :
 
   } else {
     m_d = nullptr;
-    std::cerr << "No XtomoData table in the MuonDD Database" << std::endl;
   }
 
 }

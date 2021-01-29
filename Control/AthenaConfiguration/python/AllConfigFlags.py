@@ -4,7 +4,7 @@ from __future__ import print_function
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
-from AthenaConfiguration.AutoConfigFlags import GetFileMD
+from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict
 from PyUtils.moduleExists import moduleExists
 
 
@@ -29,8 +29,14 @@ def _createCfgFlags():
     acf.addFlag('Input.Files', ["_ATHENA_GENERIC_INPUTFILE_NAME_",] ) # former global.InputFiles
     acf.addFlag('Input.SecondaryFiles', []) # secondary input files for DoubleEventSelector
     acf.addFlag('Input.isMC', lambda prevFlags : "IS_SIMULATION" in GetFileMD(prevFlags.Input.Files).get("eventTypes",[]) ) # former global.isMC
+    acf.addFlag('Input.OverrideRunNumber', False )
     acf.addFlag('Input.RunNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("runNumbers",[]))) # former global.RunNumber
     acf.addFlag('Input.LumiBlockNumber', lambda prevFlags : list(GetFileMD(prevFlags.Input.Files).get("lumiBlockNumbers",[]))) # former global.RunNumber
+    acf.addFlag('Input.TimeStamp', lambda prevFlags : [] if not prevFlags.Input.OverrideRunNumber else getInitialTimeStampsFromRunNumbers(prevFlags.Input.RunNumber))
+    # Configure EvtIdModifierSvc with a list of dictionaries of the form:
+    # {'run': 152166, 'lb': 202, 'starttstamp': 1269948352889940910, 'dt': 104.496, 'evts': 1, 'mu': 0.005, 'force_new': False}
+    acf.addFlag("Input.RunAndLumiOverrideList", [])
+
     acf.addFlag('Input.ProjectName', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("project_name","data17_13TeV") ) # former global.ProjectName
     acf.addFlag('Input.Format', lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("file_type","") ) # former global.InputFormat
 
@@ -42,8 +48,16 @@ def _createCfgFlags():
         collections = [col for col in rawCollections if not col.endswith('Aux.') ]
         return collections
 
+    def _typedInputCollections(inputFile):
+        if not inputFile:
+            return []
+
+        collections = ['%s#%s' % type_key for type_key in GetFileMD(inputFile).get("itemList",[])]
+        return collections
+
     acf.addFlag('Input.Collections', lambda prevFlags : _inputCollections(prevFlags.Input.Files) )
     acf.addFlag('Input.SecondaryCollections', lambda prevFlags : _inputCollections(prevFlags.Input.SecondaryFiles) )
+    acf.addFlag('Input.TypedCollections', lambda prevFlags : _typedInputCollections(prevFlags.Input.Files) )
 
     acf.addFlag('Concurrency.NumProcs', 0)
     acf.addFlag('Concurrency.NumThreads', 0)
@@ -67,6 +81,8 @@ def _createCfgFlags():
             return "AthSimulation"
         if "AthGeneration_DIR" in os.environ:
             return "AthGeneration"
+        if "AthAnalysis_DIR" in os.environ:
+            return "AthAnalysis"
         #TODO expand this method.
         return "Athena"
     acf.addFlag('Common.Project', _checkProject())
@@ -137,6 +153,11 @@ def _createCfgFlags():
     acf.addFlag("IOVDb.GlobalTag",lambda prevFlags : GetFileMD(prevFlags.Input.Files).get("IOVDbGlobalTag",None) or "CONDBR2-BLKPA-2017-05")
     from IOVDbSvc.IOVDbAutoCfgFlags import getDatabaseInstanceDefault
     acf.addFlag("IOVDb.DatabaseInstance",getDatabaseInstanceDefault)
+    # Run dependent simulation
+    # map from runNumber to timestamp; migrated from RunDMCFlags.py
+    acf.addFlag("IOVDb.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
+    acf.addFlag("IOVDb.DBConnection", lambda prevFlags : "sqlite://;schema=mycool.db;dbname=" + prevFlags.IOVDb.DatabaseInstance)
+
 
     def __bfield():
         from MagFieldConfig.BFieldConfigFlags import createBFieldConfigFlags

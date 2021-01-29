@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ###############################################################
 #
@@ -26,6 +26,8 @@ from AthenaCommon.GlobalFlags import globalflags
 
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from TriggerJobOpts.TriggerFlags import TriggerFlags
+
+from InDetRecExample import TrackingCommon
 
 GeV = 1000
 mm = 1
@@ -208,7 +210,6 @@ def MuidSegmentRegionRecoveryTool( name ='MuidSegmentRegionRecoveryTool', **kwar
 
 def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
     from TrackToCalo.TrackToCaloConf import Rec__MuonCaloEnergyTool, Rec__ParticleCaloCellAssociationTool
-    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     caloCellAssociationTool = Rec__ParticleCaloCellAssociationTool(ParticleCaloExtensionTool = getPublicTool("MuonParticleCaloExtensionTool"))
     from AthenaCommon.AppMgr import ToolSvc
     ToolSvc += caloCellAssociationTool
@@ -217,7 +218,7 @@ def MuonMaterialProviderTool( name = "MuonMaterialProviderTool"):
                                                  ParticleCaloCellAssociationTool = caloCellAssociationTool)
 
     ToolSvc += muonCaloEnergyTool
-    materialProviderTool = Trk__TrkMaterialProviderTool(MuonCaloEnergyTool = muonCaloEnergyTool)
+    materialProviderTool = TrackingCommon.getTrkMaterialProviderTool( name = "MuonTrkMaterialProviderTool", MuonCaloEnergyTool = muonCaloEnergyTool)
     if TriggerFlags.MuonSlice.doTrigMuonConfig:
         materialProviderTool.UseCaloEnergyMeasurement = False
     return materialProviderTool

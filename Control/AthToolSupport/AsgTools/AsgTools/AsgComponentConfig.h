@@ -19,6 +19,7 @@ class StatusCode;
 namespace asg
 {
   class AsgComponent;
+  class AsgToolConfig;
 }
 
 namespace asg
@@ -50,6 +51,13 @@ namespace asg
     explicit AsgComponentConfig (const std::string& val_typeAndName);
 
 
+    /// \brief whether all properties are unset
+    /// \par Guarantee
+    ///   no-fail
+  public:
+    bool empty () const noexcept;
+
+
     /// \brief the type of the component
     /// \par Guarantee
     ///   no-fail
@@ -78,6 +86,15 @@ namespace asg
     ///   out of memory II
   public:
     void setName (const std::string& val_name);
+
+
+    /// \brief get \ref type and \ref name at the same time
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    std::string typeAndName () const;
 
 
     /// \brief set \ref type and \ref name at the same time
@@ -140,6 +157,20 @@ namespace asg
   public:
     StatusCode createPrivateTool (const std::string& name,
                                   const std::string& toolType);
+
+
+    /// \brief add a private tool from the given configuration
+    ///
+    /// This will ignore the name set in `toolConfig` and use whatever
+    /// `name` is given instead.
+    ///
+    /// \par Guarantee
+    ///   basic
+    /// \par Failures
+    ///   out of memory II
+  public:
+    StatusCode addPrivateTool (const std::string& name,
+                               const AsgToolConfig& toolConfig);
 
 
 #ifdef XAOD_STANDALONE

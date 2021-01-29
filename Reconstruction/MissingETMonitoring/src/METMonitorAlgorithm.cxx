@@ -94,7 +94,8 @@ StatusCode METMonitoringAlg::fillHistograms( const EventContext& ctx ) const {
     ATH_MSG_ERROR("evtStore() does not contain METAKt4EMTopo Collection with name "<< m_metAKt4EMTopoContainerKey);
     return StatusCode::FAILURE;
   }
-  const auto& trigDecTool = getTrigDecisionTool();
+  const auto* trigDecTool = (getTrigDecisionTool().empty() ?
+                             nullptr : getTrigDecisionTool().operator->());
   bool isMETtopocalo = false;
   for (const auto& key : m_metKeys) {
     if (key == "MET_Topo") isMETtopocalo = true;    

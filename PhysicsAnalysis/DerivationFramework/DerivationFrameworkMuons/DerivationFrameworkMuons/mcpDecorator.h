@@ -1,7 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
 #ifndef DERIVATIONFRAMEWORKMUONS_MCPDECORATOR_H
 #define DERIVATIONFRAMEWORKMUONS_MCPDECORATOR_H 1
 
@@ -10,17 +9,11 @@
 #include "DerivationFrameworkInterfaces/IAugmentationTool.h"
 #include <string>
 
-// namespace Muon{
-// class IMuonTrackExtrapolationTool;
-// }
 
 namespace ExpressionParsing{
-class ExpressionParser;
+    class ExpressionParser;
 }
 
-// namespace Trk{
-//   class IExtrapolator;
-// }
 
 namespace DerivationFramework {
   /** @class isolationDecorator
@@ -33,21 +26,18 @@ namespace DerivationFramework {
     mcpDecorator( const std::string& t, const std::string& n, const IInterface* p);
 
     /** Destructor */
-    virtual ~mcpDecorator(); 
+    virtual ~mcpDecorator()= default; 
 
-    // Athena algtool's Hooks
-    virtual StatusCode  initialize();
-    virtual StatusCode  finalize();
-    virtual StatusCode addBranches() const;
+    
+    virtual StatusCode  initialize() override;   
+    virtual StatusCode addBranches() const override;
 
    private: 
     std::string m_containerName;
     std::string m_selectionString;
     std::string m_prefix;
-//     ToolHandle< Muon::IMuonTrackExtrapolationTool > m_trackExtrapoTool;
-//     ToolHandle< Trk::IExtrapolator > m_extrapolator;
-
-    ExpressionParsing::ExpressionParser* m_parser;
+    
+    std::unique_ptr<ExpressionParsing::ExpressionParser> m_parser;
   }; 
 }
 

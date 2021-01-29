@@ -2,14 +2,6 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-//          
-// Distributed under the Boost Software License, Version 1.0.
-//    (See accompanying file LICENSE_1_0.txt or copy at
-//          http://www.boost.org/LICENSE_1_0.txt)
-
-// Please feel free to contact me (krumnack@iastate.edu) for bug
-// reports, feature suggestions, praise and complaints.
-
 
 //
 // includes
@@ -18,9 +10,11 @@
 #include <EventLoop/Job.h>
 
 #include <memory>
+#include <AnaAlgorithm/AnaAlgorithmWrapper.h>
+#include <AnaAlgorithm/AnaReentrantAlgorithmWrapper.h>
 #include <EventLoop/MessageCheck.h>
-#include <EventLoop/AnaAlgorithmWrapper.h>
 #include <EventLoop/Algorithm.h>
+#include <EventLoop/AlgorithmWrapper.h>
 #include <EventLoop/OutputStream.h>
 #include <RootCoreUtils/Assert.h>
 #include <RootCoreUtils/CheckRootVersion.h>
@@ -68,7 +62,6 @@ namespace EL
   const std::string Job::optOutputSampleName = "nc_outputSampleName";
   const std::string Job::optGridDestSE = "nc_destSE";
   const std::string Job::optGridSite = "nc_site";
-  const std::string Job::optGridCloud = "nc_cloud";
   const std::string Job::optGridExcludedSite = "nc_excludedSite";
   const std::string Job::optGridNGBPerJob = "nc_nGBPerJob";
   const std::string Job::optGridMemory = "nc_memory";
@@ -78,11 +71,9 @@ namespace EL
   const std::string Job::optGridNJobs = "nc_nJobs";
   const std::string Job::optGridMaxFileSize = "nc_maxFileSize";
   const std::string Job::optGridMaxNFilesPerJob = "nc_maxNFilesPerJob";
-  const std::string Job::optGridUseChirpServer = "nc_useChirpServer";
   const std::string Job::optGridExpress = "nc_express";
   const std::string Job::optGridNoSubmit = "nc_noSubmit";
   const std::string Job::optGridMergeOutput = "nc_mergeOutput";
-  const std::string Job::optGridUseContElementBoundary = "nc_useContElementBoundary";
   const std::string Job::optGridAddNthFieldOfInDSToLFN = "nc_addNthFieldOfInDSToLFN";
   const std::string Job::optGridWorkingGroup = "nc_workingGroup";
   const std::string Job::optGridShowCmd = "nc_showCmd";
@@ -201,6 +192,19 @@ namespace EL
 
 
   void Job ::
+  algsAdd (std::unique_ptr<IAlgorithmWrapper> val_algorithm)
+  {
+    using namespace msgEventLoop;
+
+    RCU_CHANGE_INVARIANT (this);
+    RCU_REQUIRE_SOFT (val_algorithm != nullptr);
+
+    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (val_algorithm)));
+  }
+
+
+
+  void Job ::
   algsAdd (std::unique_ptr<Algorithm> val_algorithm)
   {
     using namespace msgEventLoop;
@@ -236,7 +240,8 @@ namespace EL
       }
     }
 
-    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (val_algorithm)));
+    val_algorithm->sysSetupJob (*this);
+    algsAdd (std::make_unique<AlgorithmWrapper> (std::move (val_algorithm)));
   }
 
 
@@ -244,42 +249,7 @@ namespace EL
   void Job ::
   algsAdd (Algorithm *alg_swallow)
   {
-    using namespace msgEventLoop;
-
-    std::unique_ptr<Algorithm> alg (alg_swallow);
-
-    RCU_CHANGE_INVARIANT (this);
-    RCU_REQUIRE_SOFT (alg_swallow != 0);
-
-    std::string myname = alg_swallow->GetName();
-    if (myname.empty() || algsHas (myname))
-    {
-      if (myname.empty())
-        myname = "UnnamedAlgorithm";
-      bool unique = false;
-      for (unsigned iter = 1; !unique; ++ iter)
-      {
-        std::ostringstream str;
-        str << myname << iter;
-        if (!algsHas (str.str()))
-        {
-          myname = str.str();
-          unique = true;
-        }
-      }
-      if (strlen (alg_swallow->GetName()) > 0)
-        ANA_MSG_WARNING ("renaming algorithm " << alg_swallow->GetName() << " to " << myname << " to make the name unique");
-      alg_swallow->SetName (myname.c_str());
-      if (alg_swallow->GetName() != myname)
-      {
-        std::ostringstream message;
-        message << "failed to rename algorithm " << alg_swallow->GetName() << " to " << myname;
-        RCU_THROW_MSG (message.str());
-      }
-    }
-
-    alg->sysSetupJob (*this);
-    ANA_CHECK_THROW (m_jobConfig.addAlgorithm (std::move (alg)));
+    algsAdd (std::unique_ptr<Algorithm> (alg_swallow));
   }
 
 
@@ -288,7 +258,18 @@ namespace EL
   algsAdd (const AnaAlgorithmConfig& config)
   {
     // no invariant used
-    algsAdd (new AnaAlgorithmWrapper (config));
+    if (config.useXAODs())
+      useXAOD ();
+    algsAdd (std::make_unique<AnaAlgorithmWrapper> (config));
+  }
+
+
+
+  void Job ::
+  algsAdd (const AnaReentrantAlgorithmConfig& config)
+  {
+    // no invariant used
+    algsAdd (std::make_unique<AnaReentrantAlgorithmWrapper> (config));
   }
 
 

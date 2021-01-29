@@ -12,6 +12,7 @@
 
 #include "TrigConfBase/TrigConfMessaging.h"
 #include "TrigConfData/HLTMenu.h"
+#include "TrigConfData/HLTPrescalesSet.h"
 
 namespace TrigConf {
 
@@ -25,6 +26,7 @@ namespace TrigConf {
       JsonFileWriterHLT();
 
       bool writeJsonFile(const std::string & filename, const HLTMenu & menu) const;
+      bool writeJsonFile(const std::string & filename, const HLTMenu & menu, const HLTPrescalesSet & ps) const;
    };
 
 }

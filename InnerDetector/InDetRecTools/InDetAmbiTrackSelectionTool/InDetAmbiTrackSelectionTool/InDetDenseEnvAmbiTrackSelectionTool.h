@@ -340,13 +340,31 @@ namespace InDet
 
     /** Specific logic for identifing conversions with the goal 
      * of passing those tracks through to the final collection 
-     * will as little loss as possible
+     * with as little loss as possible
      * */
     bool performConversionCheck(const Trk::Track* ptrTrack,
         Trk::PRDtoTrackMap &prd_to_track_map,
         TrackHitDetails& trackHitDetails,
         TSoS_Details& tsosDetails,
         CacheEntry* ent) const;
+
+    /** Specific logic for identifing boosted light particle
+     * decays in jet topologies (tau and b), with the goal 
+     * of passing those tracks through to the final collection 
+     * with as little loss as possible
+     * */
+    bool performHadDecayCheck(const Trk::Track* ptrTrack,
+        Trk::PRDtoTrackMap &prd_to_track_map,
+        TrackHitDetails& trackHitDetails,
+        TSoS_Details& tsosDetails,
+        CacheEntry* ent) const;
+
+    /** Handle update of the shared hit counts if 
+     * either a conversion or a dense hadronic decay
+     * was identified using one of the methods above.
+     **/ 
+    void updateSharedForCollimated(TrackHitDetails& trackHitDetails,
+          TSoS_Details& tsosDetails) const; 
 
 
     /** Update the pixel clusters split information*/

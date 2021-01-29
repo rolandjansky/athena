@@ -196,9 +196,12 @@ private:
     const double m_stereo;
     const double m_R;
     const double m_lengthBF;
-    Trk::AnnulusBounds m_bounds;
+    Trk::AnnulusBounds m_bounds;  
+    //members to avoid repeating cos/sin calculations
     const double m_sinStereo;
     const double m_cosStereo;
+    const double m_sinNegStereo;
+    const double m_cosNegStereo;
 };
 
 ///////////////////////////////////////////////////////////////////

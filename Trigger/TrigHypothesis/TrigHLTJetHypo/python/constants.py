@@ -1,8 +1,12 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 
 lchars = 'abcdefghijklmnopqrstuvwxyz'
 digits = '0123456789'
 delims = '()[],'
+signs = '-+'
+seps = ':,'
 logicals = ('and', 'or', 'not')
-alphabet = lchars + digits + delims
+param_alphabet = lchars + digits + seps
+alphabet = lchars + digits + delims + signs + seps
 

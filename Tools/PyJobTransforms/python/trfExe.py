@@ -1,14 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
-from future.utils import iteritems
-import six
-
-from builtins import zip
-from builtins import next
-from builtins import object
-from builtins import range
-from builtins import int
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfExe
 #
@@ -52,7 +42,6 @@ import PyJobTransforms.trfEnv as trfEnv
 # in a crash with python 3.  In such a case, force the use of a utf-8 encoded
 # output stream instead.
 def _encoding_stream (s):
-    if six.PY2: return s
     enc = s.encoding.lower()
     if enc.find('ascii') >= 0 or enc.find('ansi') >= 0:
         return open (s.fileno(), 'w', encoding='utf-8')
@@ -563,7 +552,7 @@ class echoExecutor(transformExecutor):
         msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s', self._name)        
         msg.info('Transform argument dictionary now follows:')
-        for k, v in iteritems(self.conf.argdict):
+        for k, v in self.conf.argdict.items():
             print("%s = %s" % (k, v))
         self._hasExecuted = True
         self._rc = 0
@@ -585,7 +574,7 @@ class dummyExecutor(transformExecutor):
         msg.debug('exeStart time is {0}'.format(self._exeStart))
         msg.info('Starting execution of %s', self._name)
         for type in self._outData:
-            for k, v in iteritems(self.conf.argdict):
+            for k, v in self.conf.argdict.items():
                 if type in k:
                     msg.info('Creating dummy output file: {0}'.format(self.conf.argdict[k].value[0]))
                     open(self.conf.argdict[k].value[0], 'a').close()
@@ -674,7 +663,7 @@ class scriptExecutor(transformExecutor):
         self._echologger.setLevel(logging.INFO)
         self._echologger.propagate = False
 
-        encargs = {} if six.PY2 else {'encoding' : 'utf-8'}
+        encargs = {'encoding' : 'utf-8'}
         self._exeLogFile = logging.FileHandler(self._logFileName, mode='w', **encargs)
         self._exeLogFile.setFormatter(logging.Formatter('%(asctime)s %(message)s', datefmt='%H:%M:%S'))
         self._echologger.addHandler(self._exeLogFile)
@@ -711,9 +700,7 @@ class scriptExecutor(transformExecutor):
             msg.info('execOnly flag is set - execution will now switch, replacing the transform')
             os.execvp(self._cmd[0], self._cmd)
 
-        encargs = {}
-        if not six.PY2:
-            encargs = {'encoding' : 'utf8'}
+        encargs = {'encoding' : 'utf8'}
         try:
             p = subprocess.Popen(self._cmd, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT, bufsize = 1, **encargs)
             if self._memMonitor:
@@ -868,7 +855,7 @@ class athenaExecutor(scriptExecutor):
             msg.debug("Resource monitoring from PerfMon is now deprecated")
         
         # SkeletonFile can be None (disable) or a string or a list of strings - normalise it here
-        if isinstance(skeletonFile, six.string_types):
+        if isinstance(skeletonFile, str):
             self._skeleton = [skeletonFile]
         else:
             self._skeleton = skeletonFile
@@ -1003,7 +990,7 @@ class athenaExecutor(scriptExecutor):
                     else:
                         # Use a globbing strategy
                         matchedViaGlob = False
-                        for mtsType, mtsSize in iteritems(self.conf.argdict['athenaMPMergeTargetSize'].value):
+                        for mtsType, mtsSize in self.conf.argdict['athenaMPMergeTargetSize'].value.items():
                             if fnmatch(dataType, mtsType):
                                 self.conf._dataDictionary[dataType].mergeTargetSize = mtsSize * 1000000 # Convert from MB to B
                                 msg.info('Set target merge size for {0} to {1} from "{2}" glob'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize, mtsType))
@@ -1038,7 +1025,7 @@ class athenaExecutor(scriptExecutor):
                 outputFiles[dataType] = self.conf.dataDictionary[dataType]
                 
             # See if we have any 'extra' file arguments
-            for dataType, dataArg in iteritems(self.conf.dataDictionary):
+            for dataType, dataArg in self.conf.dataDictionary.items():
                 if dataArg.io == 'input' and self._name in dataArg.executor:
                     inputFiles[dataArg.subtype] = dataArg
                 

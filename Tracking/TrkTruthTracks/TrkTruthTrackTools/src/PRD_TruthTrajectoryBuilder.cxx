@@ -11,7 +11,6 @@
 // Trk
 #include "TrkToolInterfaces/IPRD_Provider.h"
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryManipulator.h"
-//#include "TrkEventPrimitives/GlobalPosition.h"
 #include "TrkEventUtils/PrepRawDataComparisonFunction.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -97,7 +96,7 @@ StatusCode Trk::PRD_TruthTrajectoryBuilder::refreshEvent()  {
    
 }
 
-const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::truthTrajectories() const {
+const std::map<HepMC::ConstGenParticlePtr, Trk::PRD_TruthTrajectory >& Trk::PRD_TruthTrajectoryBuilder::truthTrajectories() const {
     // ndof
     size_t ndofTotal = 0;
     size_t ndof      = 0;
@@ -111,7 +110,12 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
         PRD_MultiTruthCollection::const_iterator prdMtCIterE = (*pmtCollIter)->end();
         for ( ; prdMtCIter != prdMtCIterE; ++ prdMtCIter ){
             // check if entry exists and if   
-            const HepMC::GenParticle* curGenP       = (*prdMtCIter).second;
+#ifdef HEPMC3
+            HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second.scptr();
+#else
+//AV Looks like an implicit conversion
+            HepMC::ConstGenParticlePtr curGenP       = (*prdMtCIter).second;
+#endif
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
             if ( curGenP->momentum().perp() < m_minPt ) continue;
@@ -123,7 +127,7 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
             // stuff it into the trajectory if you found a PRD
             if (prd){
                 // try to find the entry for this GenParticle 
-                std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::iterator prdTrajIter = m_gpPrdTruthTrajectories.find(curGenP);
+                auto prdTrajIter = m_gpPrdTruthTrajectories.find(curGenP);
                 if ( prdTrajIter ==  m_gpPrdTruthTrajectories.end() ){
                     // first PRD associated to this: create PRD_TruthTrajectory object
                     Trk::PRD_TruthTrajectory newPrdTruthTrajectory;
@@ -147,10 +151,9 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
     }
     // PART 2 --------------------------------------------------------------------------------------------------------
     // loop through the provided list of manipulators ( sorter is included )
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::iterator prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
-    std::map< const HepMC::GenParticle*, PRD_TruthTrajectory >::iterator prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
+    auto prdTruthTrajIter  = m_gpPrdTruthTrajectories.begin();
+    auto prdTruthTrajIterE = m_gpPrdTruthTrajectories.end();
     for ( ; prdTruthTrajIter != prdTruthTrajIterE; ++prdTruthTrajIter ){
-    //std::cout << "sorting, barcode: " << prdTruthTrajIter->first->barcode() << std::endl;
         if ( m_prdTruthTrajectoryManipulators.size() ){
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIter  = m_prdTruthTrajectoryManipulators.begin();
             ToolHandleArray<IPRD_TruthTrajectoryManipulator>::const_iterator prdTTMIterE = m_prdTruthTrajectoryManipulators.end();

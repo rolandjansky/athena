@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TGCcablingServerSvc_H
@@ -22,11 +22,9 @@ class TGCcablingServerSvc : public AthService,
     public:
     // Constructor and other Service methods
     TGCcablingServerSvc(const std::string& name, ISvcLocator* svc);
-    virtual ~TGCcablingServerSvc() {}
+    virtual ~TGCcablingServerSvc()=default;
   
     virtual StatusCode queryInterface(const InterfaceID& riid,void** ppvIF);
-    virtual StatusCode initialize(void);
-    virtual StatusCode finalize(void);
 
     // Interface implementation
     virtual StatusCode giveCabling( const ITGCcablingSvc*&) const;

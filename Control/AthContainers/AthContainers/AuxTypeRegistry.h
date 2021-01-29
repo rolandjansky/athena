@@ -1,10 +1,8 @@
 // This file's extension implies that it's C, but it's really -*- C++ -*-.
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: AuxTypeRegistry.h 784452 2016-11-15 21:40:41Z ssnyder $
 /**
  * @file AthContainers/AuxTypeRegistry.h
  * @author scott snyder <snyder@bnl.gov>
@@ -23,6 +21,8 @@
 #include "AthContainers/tools/AuxTypeVector.h"
 #include "AthContainers/tools/AuxTypeVectorFactory.h"
 #include "AthContainers/tools/threading.h"
+#include "CxxUtils/ConcurrentStrMap.h"
+#include "CxxUtils/SimpleUpdater.h"
 #include "CxxUtils/bitmask.h"
 #ifndef XAOD_STANDALONE
 #include "AthenaKernel/IInputRename.h"
@@ -289,7 +289,7 @@ public:
    * @brief Return the vector factory for a given vector element type.
    * @param ti The type of the vector element.
    *
-   * Returns 0 if the type is not known.
+   * Returns nullptr if the type is not known.
    * (Use @c addFactory to add new mappings.)
    */
   const IAuxTypeVectorFactory* getFactory (const std::type_info& ti) const;
@@ -393,23 +393,10 @@ private:
    * @brief Return the vector factory for a given auxid.
    * @param auxid The desired aux data item.
    *
-   * Returns 0 if the type is not known.
+   * Returns nullptr if the type is not known.
    * (Use @c addFactory to add new mappings.)
    */
   const IAuxTypeVectorFactory* getFactory (SG::auxid_t auxid) const;
-
-
-  /**
-   * @brief Return the vector factory for a given vector element type.
-   *        (external locking)
-   * @param lock The registry lock.
-   * @param ti The type of the vector element.
-   *
-   * Returns 0 if the type is not known.
-   * (Use @c addFactory to add new mappings.)
-   */
-  const IAuxTypeVectorFactory* getFactory (lock_t& lock,
-                                           const std::type_info& ti) const;
 
 
   /**
@@ -447,6 +434,15 @@ private:
   IAuxTypeVectorFactory* makeFactoryNull() const;
 
 
+  /**
+   * @brief Return the key used to look up an entry in m_auxids.
+   * @param name The name of the aux data item.
+   * @param clsname The name of its associated class.  May be blank.
+   */
+  static std::string makeKey (const std::string& name,
+                              const std::string& clsname);
+
+
   /// Hold information about one aux data item.
   struct typeinfo_t
   {
@@ -472,30 +468,12 @@ private:
   AthContainers_detail::concurrent_vector<typeinfo_t> m_types;
 
 
-  /// Key used for name -> auxid lookup.
-  /// First element is name, second is class name.
-  typedef std::pair<std::string, std::string> key_t;
-
-
-  /// Helper to hash the key type.
-  struct stringpair_hash
-  {
-    size_t operator() (const key_t& key) const
-    {
-      return shash (key.first) + shash (key.second);
-    }
-    std::hash<std::string> shash;
-  };
-
-
   /// Map from name -> auxid.
-  typedef std::unordered_map<key_t, SG::auxid_t, stringpair_hash>
-    id_map_t;
+  using id_map_t = CxxUtils::ConcurrentStrMap<SG::auxid_t, CxxUtils::SimpleUpdater>;
   id_map_t m_auxids;
 
   /// Map from type_info name -> IAuxTypeVectorFactory.
-  typedef std::unordered_map<std::string,
-                             const IAuxTypeVectorFactory*> ti_map_t;
+  using ti_map_t = CxxUtils::ConcurrentStrMap<const IAuxTypeVectorFactory*, CxxUtils::SimpleUpdater>;
   ti_map_t m_factories;
 
   /// Hold additional factory instances we need to delete.
