@@ -1,11 +1,11 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 SubDetectorEnvelopes configurations for AtlasGeometryCommon
 Elmar Ritsch, 27/09/2013
 """
 
-def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
+def getEnvelopeDefSvcProperties(**kwargs) : 
     kwargs.setdefault("DBInDetNode"       , 'InDetEnvelope'    )
     kwargs.setdefault("DBBeamPipeNode"    , 'BeamPipeEnvelope' )
     kwargs.setdefault("DBCaloNode"        , 'CaloEnvelope'     )
@@ -134,10 +134,18 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
       Cavern.addRZ( 3000000.0 , 3000000.0 ) # r=  3km
     kwargs.setdefault("FallbackCavernR"   , Cavern.getRs()        )
     kwargs.setdefault("FallbackCavernZ"   , Cavern.getZs()        )
+    return kwargs
 
+def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     from SubDetectorEnvelopes.SubDetectorEnvelopesConf import DetDescrDBEnvelopeSvc
-    return DetDescrDBEnvelopeSvc(name, **kwargs)
+    return DetDescrDBEnvelopeSvc(name, **getEnvelopeDefSvcProperties(**kwargs))
 
+def getEnvelopeDefSvcCfg(flags, name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    result = ComponentAccumulator()
+    result.addService( CompFactory.DetDescrDBEnvelopeSvc(name, **getEnvelopeDefSvcProperties(**kwargs)), primary=True)
+    return result
 
 # class used for more readable definitions of envelope volumes
 #  -> create new volume boundary definitions
@@ -278,6 +286,7 @@ def EnvelopeDefSvc(flags,  **kwargs):
       Cavern.addRZ( 3000000.0 , 3000000.0 ) # r=  3km
     kwargs.setdefault("FallbackCavernR"   , Cavern.getRs()        )
     kwargs.setdefault("FallbackCavernZ"   , Cavern.getZs()        )
+
 
     from SubDetectorEnvelopes.SubDetectorEnvelopesConf import DetDescrDBEnvelopeSvc
     return DetDescrDBEnvelopeSvc(**kwargs)

@@ -4,7 +4,7 @@ from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 Trk__TrackingGeometryCondAlg=CompFactory.Trk.TrackingGeometryCondAlg
 from IOVDbSvc.IOVDbSvcConfig import addFoldersSplitOnline
-from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvc
+from SubDetectorEnvelopes.SubDetectorEnvelopesConfig import getEnvelopeDefSvcCfg
 
 # This file is a placeholder - the entire way we build geometry needs to be rewritten so this is to unblock new configuration developments for the moment.
 # It is based on: https://gitlab.cern.ch/atlas/athena/blob/master/Tracking/TrkDetDescr/TrkDetDescrSvc/python/AtlasTrackingGeometrySvc.py#L112
@@ -193,8 +193,9 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     Trk__GeometryBuilder=CompFactory.Trk.GeometryBuilderCond
     atlas_geometry_builder = Trk__GeometryBuilder(name = 'AtlasGeometryBuilder')
 
-    atlas_env_def_service = getEnvelopeDefSvc()
-    result.addService(atlas_env_def_service)  
+    atlas_env_def_service_acc = getEnvelopeDefSvcCfg(flags)
+    atlas_env_def_service = atlas_env_def_service_acc.getPrimary()
+    result.merge(atlas_env_def_service_acc)
 
     # Depending on the job configuration, setup the various detector builders, and add to atlas_geometry_builder
     if flags.Detector.GeometryID:
@@ -220,21 +221,20 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
 
     if flags.Detector.GeometryMuon:
       # Copied from from MuonTrackingGeometry.ConfiguredMuonTrackingGeometry import MuonTrackingGeometryBuilder
-      Muon__MuonStationTypeBuilder=CompFactory.Muon__MuonStationTypeBuilder
-      muonStationTypeBuilder= Muon__MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
+      muonStationTypeBuilder=CompFactory.Muon.MuonStationTypeBuilder(name = 'MuonStationTypeBuilder')
       result.addPublicTool(muonStationTypeBuilder)
-    
-      Muon__MuonStationBuilder=CompFactory.Muon__MuonStationBuilder
+
+      Muon__MuonStationBuilder=CompFactory.Muon.MuonStationBuilder
       muonStationBuilder= Muon__MuonStationBuilder(name = 'MuonStationBuilder')
       muonStationBuilder.StationTypeBuilder = muonStationTypeBuilder
       result.addPublicTool(muonStationBuilder)
 
-      Muon__MuonInertMaterialBuilder=CompFactory.Muon__MuonInertMaterialBuilder
+      Muon__MuonInertMaterialBuilder=CompFactory.Muon.MuonInertMaterialBuilder
       muonInertMaterialBuilder= Muon__MuonInertMaterialBuilder(name = 'MuonInertMaterialBuilder')
       result.addPublicTool(muonInertMaterialBuilder)
 
-      Muon__MuonTrackingGeometryBuilder=CompFactory.Muon__MuonTrackingGeometryBuilderCond
-      muonTrackingGeometryBuilder= Muon__MuonTrackingGeometryBuilder(name = 'MuonTrackingGeometryBuilder', EnvelopeDefinitionSvc=atlas_env_def_service)
+      Muon__MuonTrackingGeometryBuilder=CompFactory.Muon.MuonTrackingGeometryBuilderCond
+      muonTrackingGeometryBuilder= Muon__MuonTrackingGeometryBuilder(name = 'MuonTrackingGeometryBuilderCond', EnvelopeDefinitionSvc=atlas_env_def_service)
       result.addPublicTool(muonTrackingGeometryBuilder)
     
       atlas_geometry_builder.MuonTrackingGeometryBuilder = muonTrackingGeometryBuilder
@@ -245,26 +245,25 @@ def TrackingGeometryCondAlgCfg( flags , name = 'AtlasTrackingGeometryCondAlg', d
     if flags.TrackingGeometry.MaterialSource == 'COOL':
        CoolDataBaseFolder = '/GLOBAL/TrackingGeo/LayerMaterialV2' # Was from TrkDetFlags.MaterialStoreGateKey()
        # the material provider
-       Trk__LayerMaterialProvider=CompFactory.Trk__LayerMaterialProvider
+       Trk__LayerMaterialProvider=CompFactory.Trk.LayerMaterialProvider
        atlasMaterialProvider = Trk__LayerMaterialProvider('AtlasMaterialProvider', LayerMaterialMapName=CoolDataBaseFolder)
        atlas_geometry_processors += [ atlasMaterialProvider ]
 
        # Setup DBs
        result.merge(_setupCondDB(flags, CoolDataBaseFolder))
     elif  flags.TrackingGeometry.MaterialSource == 'Input':
-      Trk__InputLayerMaterialProvider=CompFactory.Trk__InputLayerMaterialProvider
+      Trk__InputLayerMaterialProvider=CompFactory.Trk.InputLayerMaterialProvider
       atlasMaterialProvider = Trk__InputLayerMaterialProvider('AtlasMaterialProvider')
       atlas_geometry_processors += [ atlasMaterialProvider ]
       
     if doMaterialValidation:
-      Trk__LayerMaterialInspector=CompFactory.Trk__LayerMaterialInspector
+      Trk__LayerMaterialInspector=CompFactory.Trk.LayerMaterialInspector
       atlasLayerMaterialInspector = Trk__LayerMaterialInspector('AtlasLayerMaterialInspector')
       atlas_geometry_processors += [ atlasLayerMaterialInspector ]
 
     condAlg = Trk__TrackingGeometryCondAlg( name, GeometryBuilder = atlas_geometry_builder,
                                     TrackingGeometryWriteKey = atlas_tracking_geometry_name,
-                                    GeometryProcessors = atlas_geometry_processors, 
-                                    BuildGeometryFromTagInfo = True)
+                                    GeometryProcessors = atlas_geometry_processors)
     result.addCondAlgo(condAlg, primary = True)
 
     return result
