@@ -13,6 +13,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #include "TTree.h"
 #include <TString.h> // for Form
+#include <memory>
 
 /** ---------- filling of variables */
 /** ---------- to be called on each evt i.e. execute level of main alg */
@@ -59,6 +60,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 			ATH_MSG_ERROR("CSCSimHitVariables::fillVariables() - Failed to retrieve CscReadoutElement for" << __FILE__ << __LINE__ << m_CscIdHelper->print_to_string(offid).c_str());
 			return StatusCode::FAILURE;
 		}
+
 		
 		m_CSC_Sim_stationName->push_back(stname);
 		m_CSC_stationName->push_back(m_CscIdHelper->stationName(offid));
@@ -82,7 +84,7 @@ StatusCode CSCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager* 
 		m_CSC_hitGlobalPositionP->push_back(simHitPosGlo.phi());
 
 		Amg::Vector3D detpos = cscdet->globalPosition();
-
+		
 		m_CSC_detector_globalPositionX->push_back(detpos.x());
 		m_CSC_detector_globalPositionY->push_back(detpos.y());
 		m_CSC_detector_globalPositionZ->push_back(detpos.z());
@@ -155,31 +157,32 @@ StatusCode CSCSimHitVariables::clearVariables()
 /** ---------- to be called on initialization level of main alg */
 StatusCode CSCSimHitVariables::initializeVariables()
 {
-	m_CSC_Sim_stationName = new std::vector<std::string>;
-	m_CSC_stationName = new std::vector<int>;
-	m_CSC_stationEta = new std::vector<int>;
-	m_CSC_stationPhi = new std::vector<int>;
-	m_CSC_isEndcap = new std::vector<bool>;
-	m_CSC_strip = new std::vector<int>;
-	m_CSC_Sim_stationEta = new std::vector<int>;
-	m_CSC_Sim_stationPhi = new std::vector<int>;
-	m_CSC_Sim_chamberLayer = new std::vector<int>;
-	m_CSC_Sim_wireLayer = new std::vector<int>;
-	m_CSC_globalTime = new std::vector<double>;
-	m_CSC_hitGlobalPositionX = new std::vector<double>;
-	m_CSC_hitGlobalPositionY = new std::vector<double>;
-	m_CSC_hitGlobalPositionZ = new std::vector<double>;
-	m_CSC_hitGlobalPositionR = new std::vector<double>;
-	m_CSC_hitGlobalPositionP = new std::vector<double>;
-	m_CSC_detector_globalPositionX = new std::vector<double>;
-	m_CSC_detector_globalPositionY = new std::vector<double>;
-	m_CSC_detector_globalPositionZ = new std::vector<double>;
-	m_CSC_detector_globalPositionR = new std::vector<double>;
-	m_CSC_detector_globalPositionP = new std::vector<double>;
-	m_CSC_kineticEnergy = new std::vector<double>;
-	m_CSC_depositEnergy = new std::vector<double>;
-	m_CSC_trackId = new std::vector<int>;
-	m_CSC_truthEl = new std::vector<int>;
+
+	m_CSC_Sim_stationName = std::make_unique<std::vector<std::string>>();
+	m_CSC_stationName = std::make_unique<std::vector<int>>();
+	m_CSC_stationEta = std::make_unique<std::vector<int>>();
+	m_CSC_stationPhi = std::make_unique<std::vector<int>>();
+	m_CSC_isEndcap = std::make_unique<std::vector<bool>>();
+	m_CSC_strip = std::make_unique<std::vector<int>>();
+	m_CSC_Sim_stationEta = std::make_unique<std::vector<int>>();
+	m_CSC_Sim_stationPhi = std::make_unique<std::vector<int>>();
+	m_CSC_Sim_chamberLayer = std::make_unique<std::vector<int>>();
+	m_CSC_Sim_wireLayer = std::make_unique<std::vector<int>>();
+	m_CSC_globalTime = std::make_unique<std::vector<double>>();
+	m_CSC_hitGlobalPositionX = std::make_unique<std::vector<double>>();
+	m_CSC_hitGlobalPositionY = std::make_unique<std::vector<double>>();
+	m_CSC_hitGlobalPositionZ = std::make_unique<std::vector<double>>();
+	m_CSC_hitGlobalPositionR = std::make_unique<std::vector<double>>();
+	m_CSC_hitGlobalPositionP = std::make_unique<std::vector<double>>();
+	m_CSC_detector_globalPositionX = std::make_unique<std::vector<double>>();
+	m_CSC_detector_globalPositionY = std::make_unique<std::vector<double>>();
+	m_CSC_detector_globalPositionZ = std::make_unique<std::vector<double>>();
+	m_CSC_detector_globalPositionR = std::make_unique<std::vector<double>>();
+	m_CSC_detector_globalPositionP = std::make_unique<std::vector<double>>();
+	m_CSC_kineticEnergy = std::make_unique<std::vector<double>>();
+	m_CSC_depositEnergy = std::make_unique<std::vector<double>>();
+	m_CSC_trackId = std::make_unique<std::vector<int>>();
+	m_CSC_truthEl = std::make_unique<std::vector<int>>();
 	m_CSC_nSimHits = 0;
 
 	if (m_tree) {
@@ -210,7 +213,7 @@ StatusCode CSCSimHitVariables::initializeVariables()
 		m_tree->Branch("CSC_truthEl", &m_CSC_truthEl);
 		m_tree->Branch("CSC_nSimHits", &m_CSC_nSimHits);
 	}
-
+	
 	return StatusCode::SUCCESS;
 }
 
@@ -219,58 +222,5 @@ StatusCode CSCSimHitVariables::initializeVariables()
 /** ---------- to be called in the destructor */
 void CSCSimHitVariables::deleteVariables()
 {
-	delete m_CSC_Sim_stationName;
-	delete m_CSC_stationName;
-	delete m_CSC_stationEta;
-	delete m_CSC_stationPhi;
-	delete m_CSC_isEndcap;
-	delete m_CSC_strip;
-	delete m_CSC_Sim_stationEta;
-	delete m_CSC_Sim_stationPhi;
-	delete m_CSC_Sim_chamberLayer;
-	delete m_CSC_Sim_wireLayer;
-	delete m_CSC_globalTime;
-	delete m_CSC_hitGlobalPositionX;
-	delete m_CSC_hitGlobalPositionY;
-	delete m_CSC_hitGlobalPositionZ;
-	delete m_CSC_hitGlobalPositionR;
-	delete m_CSC_hitGlobalPositionP;
-	delete m_CSC_detector_globalPositionX;
-	delete m_CSC_detector_globalPositionY;
-	delete m_CSC_detector_globalPositionZ;
-	delete m_CSC_detector_globalPositionR;
-	delete m_CSC_detector_globalPositionP;
-	delete m_CSC_kineticEnergy;
-	delete m_CSC_depositEnergy;
-	delete m_CSC_trackId;
-	delete m_CSC_truthEl;
-	m_CSC_nSimHits = 0;
-
-	m_CSC_Sim_stationName = nullptr;
-	m_CSC_stationName = nullptr;
-	m_CSC_stationEta = nullptr;
-	m_CSC_stationPhi = nullptr;
-	m_CSC_isEndcap = nullptr;
-	m_CSC_strip = nullptr;
-	m_CSC_Sim_stationEta = nullptr;
-	m_CSC_Sim_stationPhi = nullptr;
-	m_CSC_Sim_chamberLayer = nullptr;
-	m_CSC_Sim_wireLayer = nullptr;
-	m_CSC_globalTime = nullptr;
-	m_CSC_hitGlobalPositionX = nullptr;
-	m_CSC_hitGlobalPositionY = nullptr;
-	m_CSC_hitGlobalPositionZ = nullptr;
-	m_CSC_hitGlobalPositionR = nullptr;
-	m_CSC_hitGlobalPositionP = nullptr;
-	m_CSC_detector_globalPositionX = nullptr;
-	m_CSC_detector_globalPositionY = nullptr;
-	m_CSC_detector_globalPositionZ = nullptr;
-	m_CSC_detector_globalPositionR = nullptr;
-	m_CSC_detector_globalPositionP = nullptr;
-	m_CSC_kineticEnergy = nullptr;
-	m_CSC_depositEnergy = nullptr;
-	m_CSC_trackId = nullptr;
-	m_CSC_truthEl = nullptr;
-
 	return;
 }
