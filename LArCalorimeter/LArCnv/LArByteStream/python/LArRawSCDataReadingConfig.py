@@ -1,24 +1,25 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
+import os
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
 from AthenaConfiguration.MainServicesConfig import MainServicesCfg
-LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
+LArRawSCDataReadingAlg=CompFactory.LArRawSCDataReadingAlg
+LArLATOMEDecoder=CompFactory.LArLATOMEDecoder
 
-def LArRawDataReadingCfg(configFlags, **kwargs):
+def LArRawSCDataReadingCfg(configFlags, **kwargs):
     acc=ComponentAccumulator()
     from DetDescrCnvSvc.DetDescrCnvSvcConfig import DetDescrCnvSvcCfg
     acc.merge(DetDescrCnvSvcCfg(configFlags))
     acc.merge(ByteStreamReadCfg(configFlags))
 
-    if configFlags.Overlay.DataOverlay:
-        kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
-        kwargs.setdefault("LArRawChannelKey", "")
-
-    kwargs.setdefault("FailOnCorruption",False)
-
-    acc.addEventAlgo(LArRawDataReadingAlg(**kwargs))
+    LArRawSCDataReadingAlg1 = LArRawSCDataReadingAlg(**kwargs)
+    LArRawSCDataReadingAlg1.LATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+    LArRawSCDataReadingAlg1.LATOMEDecoder.latomeInfoFileName = "LATOME/latomeInput.txt"
+    LArRawSCDataReadingAlg1.LATOMEDecoder.latomeInfoFilePath = str(os.environ['TestArea'])+"/../run/"
+    LArRawSCDataReadingAlg1.LATOMEDecoder.ProtectSourceId = True
+    acc.addEventAlgo(LArRawSCDataReadingAlg1)
     return acc
 
 
@@ -39,12 +40,7 @@ if __name__=="__main__":
     acc = MainServicesCfg( ConfigFlags )
     from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
     acc.merge(AtlasGeometryCfg(ConfigFlags))
-    acc.merge(LArRawDataReadingCfg(ConfigFlags))
+    acc.merge(LArRawSCDataReadingCfg(ConfigFlags))
     
-    DumpLArRawChannels=CompFactory.DumpLArRawChannels
-    from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
-    acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
-    acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels",))
-
     acc.run(2,OutputLevel=DEBUG)
 
