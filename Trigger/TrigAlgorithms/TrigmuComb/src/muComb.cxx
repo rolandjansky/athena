@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -378,7 +378,8 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
 
    double id_eptinv = id_eipt; //now taken from Track itself ...
 
-   const Trk::Perigee* muonPerigee = (Trk::Perigee*) m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon);
+   std::unique_ptr<const Trk::TrackParameters> muonPerigee
+     (m_backExtrapolatorG4->extrapolate(perigeeMS, beamSurface, Trk::oppositeMomentum, true, Trk::muon));
 
    //Protection against failing extrapolation
    double extr_eta;
@@ -422,9 +423,6 @@ int muComb::g4Match(const xAOD::L2StandAloneMuon* feature,
       extr_eptinv *= m_Chi2Weight_g4;
       id_eptinv   *= m_Chi2Weight_g4;
    }
-
-   //avoid memory leak
-   delete muonPerigee;
 
    //Combined muon parameters
    combPtInv = muCombUtil::getCombinedAverage(extr_ptinv, extr_eptinv, id_ptinv, id_eptinv);
