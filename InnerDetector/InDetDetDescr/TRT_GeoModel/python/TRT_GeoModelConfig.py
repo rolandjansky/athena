@@ -41,7 +41,7 @@ def TRT_GeometryCfg( flags ):
         TRTAlignCondAlg.ReadKeyDynamicGlobal = "/TRT/AlignL1/TRT"
         TRTAlignCondAlg.ReadKeyDynamicRegular = "/TRT/AlignL2"
     else:
-        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
+        if flags.Common.Project != "AthSimulation" and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay):
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"TRT","/TRT/Onl/Align","/TRT/Align"))
