@@ -71,23 +71,37 @@ def scaleFactors(parameter):
 
     return defaults[parameter]
         
-class Checker(object):
+class TreeChecker(object):
     def __init__(self):
-        self.known = {
-            'simple': ('Et'),
-            'cascade': ('m')
-        }
-
+        self.node_count = 0
+        self.root_count = 0
+        self.bad_condition_count = 0
         self.msgs = []
-        self.nchecked = 0
-
+        print ('TreeChecker constructor')
+        
     def mod(self, node):
-        self.nchecked += 1
-        if node.scenario not in self.known:
-            self.msgs.append('unknown scenario %s' % node.scenario)
+        self.node_count += 1
+        print (node.scenario)
+        if node.scenario == 'root':
+            self.root_count += 1
+            if node.conf_attrs:
+                self.bad_condition_count += 1
+
+        else:
+            if len(node.conf_attrs) != 1:
+                self.bad_condition_count += 1
+
+    def error(self):
+        good  = self.root_count == 1 and self.bad_condition_count == 0
+        return not good
+    
     
     def report(self):
-        s = ['Checker: %d nodes checked' % self.nchecked]
+        cn = self.__class__.__name__
+        s = ['%s: %d nodes checked' % (cn, self.node_count),
+             '%s: %d root node(s)' % (cn, self.root_count),
+             '%s: error - ' % cn + str(self.error())]
+        
         s.extend(self.msgs)
         return '\n'.join(s)
 
