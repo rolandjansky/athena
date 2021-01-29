@@ -213,6 +213,7 @@ StatusCode SCTCalib::initialize() {
       ATH_MSG_INFO("------------> Reading from ByteStream <-------------");
       m_calibEvtInfoTool->setSource("BS");
       ATH_CHECK(m_eventInfoKey.initialize());
+      ATH_MSG_INFO("m_eventInfoKey.initialize() was successful");
    }
 
 
@@ -318,16 +319,18 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 StatusCode SCTCalib::execute() {
    ATH_MSG_DEBUG("----- in execute() ----- ");
    if (m_readBS) {
-      SG::ReadHandle<EventInfo> evt{m_eventInfoKey};
+      ATH_MSG_DEBUG("in execute(): m_eventInfoKey = " << m_eventInfoKey);
+      SG::ReadHandle<xAOD::EventInfo> evt(m_eventInfoKey);
       if (not evt.isValid()) {
          ATH_MSG_FATAL("Unable to get the EventInfo");
          return StatusCode::FAILURE;
       }
-      const EventInfo* evt_ptr{&(*evt)};
-      ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
+      //const EventInfo* evt_ptr{&(*evt)};
+      //const xAOD::EventInfo* evt_ptr{&(*evt)};
+      //ATH_MSG_VERBOSE(SCT_CalibAlgs::eventInfoAsString(evt_ptr));
       //--- TimeStamp/LB range analyzed
-      const int timeStamp{static_cast<int>(evt->event_ID()->time_stamp())};
-      const int lumiBlock{static_cast<int>(evt->event_ID()->lumi_block())};
+      const int timeStamp{static_cast<int>(evt->timeStamp())};
+      const int lumiBlock{static_cast<int>(evt->lumiBlock())};
       int timeStampBeginOld;
       int timeStampEndOld;
       m_calibEvtInfoTool->getTimeStamps(timeStampBeginOld, timeStampEndOld);

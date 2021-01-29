@@ -30,6 +30,7 @@
 #include "Identifier/Identifier.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
+#include "xAODEventInfo/EventInfo.h"
 
 //InnerDetector
 #include "InDetIdentifier/SCT_ID.h"
@@ -94,7 +95,8 @@ class SCTCalib : public AthAlgorithm {
 
       const SCT_ID*                                               m_pSCTHelper{nullptr};
       SG::ReadCondHandleKey<InDetDD::SiDetectorElementCollection> m_SCTDetEleCollKey{this, "SCTDetEleCollKey", "SCT_DetectorElementCollection", "Key of SiDetectorElementCollection for SCT"};
-      SG::ReadHandleKey<EventInfo>                                m_eventInfoKey{this, "EventInfoKey", "ByteStreamEventInfo"};
+      //SG::ReadHandleKey<EventInfo>                                m_eventInfoKey{this, "EventInfoKey", "ByteStreamEventInfo", ""};
+      SG::ReadHandleKey<xAOD::EventInfo>                          m_eventInfoKey{this, "EventInfoKey", "EventInfo", ""};
 
       ToolHandle<SCTCalibWriteTool>                   m_pCalibWriteTool{this, "SCTCalibWriteTool", "SCTCalibWriteTool", "Tool to write out data from calibration loop"};
       ToolHandle<ISCT_ConfigurationConditionsTool>    m_ConfigurationConditionsTool{this, "SCT_ConfigurationConditionsTool", "SCT_ConfigurationConditionsTool/InDetSCT_ConfigurationConditionsTool", "Tool to retrieve SCT Configuration"};
@@ -144,7 +146,7 @@ class SCTCalib : public AthAlgorithm {
       BooleanProperty m_histBefore2010{this, "HistBefore2010", false, "True if HIST is from 2009 or earlier"};
 
       BooleanProperty m_doHitMaps{this, "DoHitMaps", true};
-      IntegerProperty m_nLbsMerged{this, "LbsPerWindow", 20};
+      IntegerProperty m_nLbsMerged{this, "LbsPerWindow", 30};
       BooleanProperty m_readHitMaps{this, "ReadHitMaps", false};
       BooleanProperty m_doBSErrors{this, "DoBSErrors", false};
       BooleanProperty m_doNoisyStrip{this, "DoNoisyStrip", true};
