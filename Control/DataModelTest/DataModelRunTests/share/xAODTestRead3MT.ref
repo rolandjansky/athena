@@ -174,7 +174,7 @@ PrecedenceSvc                                  0    INFO
     AthAlgEvtSeq [Seq]  [Sequential] 
       AthBeginSeq [Seq]  [Sequential]  [Prompt] 
         BeginIncFiringAlg [Alg]  [n= 0]
-        IncidentProcAlg1 [Alg]  [n= 1] [unclonable] 
+        IncidentProcAlg1 [Alg]  [n= 0] [unclonable] 
       AthAllAlgSeq [Seq]  [Concurrent] 
         AthAlgSeq [Seq]  [Concurrent]  [PASS] 
           SGInputLoader [Alg]  [n= 1]
@@ -193,7 +193,7 @@ PrecedenceSvc                                  0    INFO
         AthCondSeq [Seq]  [Concurrent] 
       AthEndSeq [Seq]  [Sequential]  [Prompt] 
         EndIncFiringAlg [Alg]  [n= 0]
-        IncidentProcAlg2 [Alg]  [n= 1] [unclonable] 
+        IncidentProcAlg2 [Alg]  [n= 0] [unclonable] 
     AthOutSeq [Seq]  [Concurrent] 
 
 AthenaHiveEventLoopMgr                         0    INFO Setup EventSelector service EventSelector
