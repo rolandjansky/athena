@@ -35,7 +35,7 @@ def detectAthenaMPProcs(argdict = {}, currentSubstep = ''):
                     if len(procArg) == 0:
                         athenaMPProcs = 0
                     elif len(procArg) == 1:
-                        if 'multiprocess' in argdict:
+                        if 'multiprocess' in argdict and substep == 'all':
                             raise ValueError("Detected conflicting methods to configure AthenaMP: --multiprocess and --nprocs=N (via athenaopts). Only one method must be used")
                         athenaMPProcs = int(procArg[0])
                         if athenaMPProcs < -1:

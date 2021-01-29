@@ -32,7 +32,7 @@ def detectAthenaMTThreads(argdict = {}, currentSubstep = ''):
                     if len(threadArg) == 0:
                         athenaMTThreads = 0
                     elif len(threadArg) == 1:
-                        if 'multithreaded' in argdict:
+                        if 'multithreaded' in argdict and substep == 'all':
                             raise ValueError("Detected conflicting methods to configure AthenaMT: --multithreaded and --threads=N (via athenaopts). Only one method must be used")
                         athenaMTThreads = int(threadArg[0])
                         if athenaMTThreads < -1:
