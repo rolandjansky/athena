@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // STL include(s)
@@ -106,7 +106,7 @@ StatusCode xAODRingSetConfWriter::initialize() {
   for ( const auto* c : m_rsConfContVec ) {
     if ( nullptr != c ) {
       if ( msg().level() <= MSG::VERBOSE ) {
-        for ( const auto& r : *c ){
+        for ( const auto r : *c ){
           std::ostringstream str;
           r->print( str );
           ATH_MSG_VERBOSE( str.str() );
