@@ -542,16 +542,6 @@ if InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring() or 
 
 if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) or InDetFlags.doSplitVertexFindingForMonitoring() and InDetFlags.primaryVertexSetup() != 'DummyVxFinder':
   #
-  # --- load linearized track factory
-  #
-  from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
-  InDetLinFactory = Trk__FullLinearizedTrackFactory(name              = "InDetFullLinearizedTrackFactory",
-                                                    Extrapolator      = InDetExtrapolator )
-  ToolSvc += InDetLinFactory
-  if (InDetFlags.doPrintConfigurables()):
-    printfunc (InDetLinFactory)
-
-  #
   # --- load configured Seed finder
   #
   if (InDetFlags.primaryVertexSetup() == 'GaussIterativeFinding' or
@@ -771,8 +761,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FastVertexFitter
     InDetVxFitterTool = Trk__FastVertexFitter(name                   = "InDetFastVertexFitterTool",
-                                              LinearizedTrackFactory = InDetLinFactory,
-                                              Extrapolator           = InDetExtrapolator)
+                                              LinearizedTrackFactory = TrackingCommon.getInDetFullLinearizedTrackFactory(),
+                                              Extrapolator           = TrackingCommon.getInDetExtrapolator())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultFullFinding':
     #
@@ -780,8 +770,8 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     from TrkVertexBilloirTools.TrkVertexBilloirToolsConf import Trk__FullVertexFitter
     InDetVxFitterTool = Trk__FullVertexFitter(name                    = "InDetFullVertexFitterTool",
-                                              LinearizedTrackFactory  = InDetLinFactory,
-                                              Extrapolator            = InDetExtrapolator)
+                                              LinearizedTrackFactory  = TrackingCommon.getInDetFullLinearizedTrackFactory(),
+                                              Extrapolator            = TrackingCommon.getInDetExtrapolator())
 
   elif InDetFlags.primaryVertexSetup() == 'DefaultKalmanFinding':
     #
@@ -790,7 +780,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
 
     from TrkVertexFitters.TrkVertexFittersConf import Trk__SequentialVertexFitter
     InDetVxFitterTool = Trk__SequentialVertexFitter(name                   = "InDetSequentialVxFitterTool",
-                                                    LinearizedTrackFactory = InDetLinFactory,
+                                                    LinearizedTrackFactory = TrackingCommon.getInDetFullLinearizedTrackFactory(),
                                                     VertexSmoother         = InDetVertexSmoother
                                                     # VertexUpdator   = # no setting required
                                                     )
@@ -804,7 +794,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveVertexFitter
     InDetVxFitterTool = Trk__AdaptiveVertexFitter(name                         = "InDetAdaptiveVxFitterTool",
                                                   SeedFinder                   = InDetVtxSeedFinder,
-                                                  LinearizedTrackFactory       = InDetLinFactory,
+                                                  LinearizedTrackFactory       = TrackingCommon.getInDetFullLinearizedTrackFactory(),
                                                   ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                   AnnealingMaker               = InDetAnnealingMaker,
                                                   VertexSmoother               = InDetVertexSmoother)
@@ -816,7 +806,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
     #
     from TrkVertexFitters.TrkVertexFittersConf import Trk__AdaptiveMultiVertexFitter
     InDetVxFitterTool = Trk__AdaptiveMultiVertexFitter(name                         = "InDetAdaptiveMultiVertexFitter",
-                                                       LinearizedTrackFactory       = InDetLinFactory,
+                                                       LinearizedTrackFactory       = TrackingCommon.getInDetFullLinearizedTrackFactory(),
                                                        ImpactPoint3dEstimator       = InDetImpactPoint3dEstimator,
                                                        AnnealingMaker               = InDetAnnealingMaker,
                                                        DoSmoothing                  = True) # false is default
@@ -880,7 +870,7 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
           TrackSelector=InDetTrackSelectorTool,
           SeedFinder=InDetVtxSeedFinder,
           ImpactPoint3dEstimator=InDetImpactPoint3dEstimator,
-          LinearizedTrackFactory=InDetLinFactory,
+          LinearizedTrackFactory=TrackingCommon.getInDetFullLinearizedTrackFactory(),
           useBeamConstraint=InDetFlags.useBeamConstraint(),
           significanceCutSeeding=12,
           maximumChi2cutForSeeding=49,
@@ -907,7 +897,6 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
                                                            maxTracks=InDetPrimaryVertexingCuts.MaxTracks(),
                                                            TrackingGeometryTool=actsTrackingGeometryTool,
                                                            ExtrapolationTool=actsExtrapolationTool)
-
   ToolSvc += InDetPriVxFinderTool
   if (InDetFlags.doPrintConfigurables()):
     printfunc(InDetPriVxFinderTool)
