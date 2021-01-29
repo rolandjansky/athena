@@ -190,8 +190,10 @@ void LArWheelCalculator::fill_sincos_parameterization()
     double sin_a_v, cos_a_v;
     parameterized_sincos(r, sin_a, cos_a);
     m_vsincos_par.eval(r, sin_a_v, cos_a_v);
+#if DEBUGPRINT
     std::cout << "default: " << r << " " << sin_a << " " << cos_a << std::endl;
     std::cout << "vec: " << r << " " << sin_a_v << " " << cos_a_v << std::endl;
+#endif
     double ds = fabs(scalpha.sn - sin_a);
     if(ds > dsin){
       dsin = ds;

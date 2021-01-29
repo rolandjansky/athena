@@ -49,10 +49,6 @@ namespace LArWheelCalculator_Impl
 #else // parameterized sine
     double cos_a, sin_a;
     lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
-    // std::cout << sin_a << " " << cos_a << std::endl;
-    // double cos_a_old, sin_a_old;
-    // lwc()->parameterized_sincos(P.y(), sin_a_old, cos_a_old);
-    // std::cout << "old " << sin_a_old << " " << cos_a_old << std::endl;
 #endif
     // determination of the nearest quarter-wave number
     int nqwave = (z < 0.) ? 0 : int(z / lwc()->m_QuarterWaveLength);
@@ -165,10 +161,6 @@ namespace LArWheelCalculator_Impl
 #else // parameterized sine
     double cos_a, sin_a;
     lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
-    // std::cout << sin_a << " " << cos_a << std::endl;
-    // double cos_a_old, sin_a_old;
-    // lwc()->parameterized_sincos(P.y(), sin_a_old, cos_a_old);
-    // std::cout << "old " << sin_a_old << " " << cos_a_old << std::endl;
 #endif
 
     bool sqw = false;
@@ -260,10 +252,6 @@ namespace LArWheelCalculator_Impl
 #else // parameterized sine
     double cos_a, sin_a;
     lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
-    // std::cout << sin_a << " " << cos_a << std::endl;
-    // double cos_a_old, sin_a_old;
-    // lwc()->parameterized_sincos(P.y(), sin_a_old, cos_a_old);
-    // std::cout << "old " << sin_a_old << " " << cos_a_old << std::endl;
 #endif
 
     int nqwave;
@@ -352,10 +340,6 @@ namespace LArWheelCalculator_Impl
 #else // parameterized sine
     double cos_a, sin_a;
     lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
-    // std::cout << sin_a << " " << cos_a << std::endl;
-    // double cos_a_old, sin_a_old;
-    // lwc()->parameterized_sincos(P.y(), sin_a_old, cos_a_old);
-    // std::cout << "old " << sin_a_old << " " << cos_a_old << std::endl;
 #endif
 
     bool sqw = false;
@@ -451,10 +435,6 @@ namespace LArWheelCalculator_Impl
 #else
     double cos_a, sin_a;
     lwc()->m_vsincos_par.eval(P.y(), sin_a, cos_a);
-    // std::cout << sin_a << " " << cos_a << std::endl;
-    // double cos_a_old, sin_a_old;
-    // lwc()->parameterized_sincos(P.y(), sin_a_old, cos_a_old);
-    // std::cout << "old " << sin_a_old << " " << cos_a_old << std::endl;
 #endif
 
     // determination of the nearest quarter-wave number
