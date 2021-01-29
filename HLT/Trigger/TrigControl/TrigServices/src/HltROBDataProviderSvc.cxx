@@ -405,10 +405,10 @@ void HltROBDataProviderSvc::getROBData(const EventContext& context,
     std::set<uint32_t> robIds_disabled;
     eventCache_checkRobListToCache(cache, robIds, robFragments, robIds_missing, robIds_disabled);
 
-    // Fill disabled ROBs
+    // Fill undefined (not enabled) ROBs
     for (uint32_t robId : robIds_disabled) {
         monitorData.requested_ROBs[robId] = robmonitor::ROBDataStruct(robId);
-        monitorData.requested_ROBs[robId].rob_history = robmonitor::DISABLED;
+        monitorData.requested_ROBs[robId].rob_history = robmonitor::UNDEFINED;
     }
   }
   else {
