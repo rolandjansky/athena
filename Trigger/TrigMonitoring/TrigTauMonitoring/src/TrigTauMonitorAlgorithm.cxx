@@ -199,23 +199,30 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     }
   }
 
-  if(online_tau_vec_1p.size()==0 && online_tau_vec_mp.size()==0) return;
-
-  fillbasicVars( trigger, online_tau_vec_1p, true);
-  fillbasicVars( trigger, online_tau_vec_mp, true);
-
-  if(info.isRNN){ 
-    fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
-    fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
-    fillRNNTrack( trigger, online_tau_vec_1p, true );
-    fillRNNTrack( trigger, online_tau_vec_mp, true );
-    fillRNNCluster( trigger, online_tau_vec_1p, true );
-    fillRNNCluster( trigger, online_tau_vec_mp, true );
-  } else if(info.isBDT) {
-    fillBDTOut( trigger,online_tau_vec_1p,"1P");
-    fillBDTOut( trigger,online_tau_vec_mp,"MP");
-    fillBDTNoCorr( trigger,online_tau_vec_1p,"1P");
-    fillBDTNoCorr( trigger,online_tau_vec_mp,"MP");
+  // file information for online 1 prong taus 
+  if(online_tau_vec_1p.size()!=0){
+     fillbasicVars( trigger, online_tau_vec_1p, true);
+     if(info.isRNN){
+         fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
+         fillRNNTrack( trigger, online_tau_vec_1p, true );
+         fillRNNCluster( trigger, online_tau_vec_1p, true );
+     } else if(info.isBDT) {
+         fillBDTOut( trigger,online_tau_vec_1p,"1P");
+         fillBDTNoCorr( trigger,online_tau_vec_1p,"1P");
+     }
+  }          
+ 
+  // file information for online multiprong prong taus 
+  if(online_tau_vec_mp.size()!=0){
+     fillbasicVars( trigger, online_tau_vec_mp, true);
+     if(info.isRNN){
+         fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
+         fillRNNTrack( trigger, online_tau_vec_mp, true );
+         fillRNNCluster( trigger, online_tau_vec_mp, true );
+     } else if(info.isBDT) {
+         fillBDTOut( trigger,online_tau_vec_mp,"MP");
+         fillBDTNoCorr( trigger,online_tau_vec_mp,"MP");
+     }         
   }
 
   fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_1p, "1P");
