@@ -10,6 +10,12 @@
 #include "AFP_SimEv/AFP_TDSimHit.h"
 #include "AFP_SimEv/AFP_TDSimHitCollection.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
+#include "xAODForward/AFPSiHit.h"
+#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/AFPSiHitAuxContainer.h"
+#include "xAODForward/AFPToFHit.h"
+#include "xAODForward/AFPToFHitContainer.h"
+#include "xAODForward/AFPToFHitAuxContainer.h"
 #include "PileUpTools/PileUpMergeSvc.h"
 #include "Identifier/Identifier.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -58,11 +64,16 @@ AFP_PileUpTool::AFP_PileUpTool(const std::string& type,
 
   m_SIDSimHitCollectionName = "AFP_SIDSimHitCollection";
   m_SiDigiCollectionName    = "AFP_SiDigiCollection";
-  
+
+
+  m_AFPSiHitsContainerName = "AFPSiHitContainer";
+  m_AFPHitsContainerNameToF = "AFPToFHitContainer";
 
   m_mergedTDSimHitList = 0; // initialized to null pointer
   m_mergedSIDSimHitList = 0;  
   
+  declareProperty( "AFPSiHitsContainerName", m_AFPSiHitsContainerName = "AFPSiHitContainer" );
+  declareProperty( "AFPHitsContainerNameToF", m_AFPHitsContainerNameToF = "AFPToFHitContainer" );
 
   declareProperty("TDSimHitCollection" , m_TDSimHitCollectionName, "Name of the input Collection of the simulated TD Hits");
   declareProperty("TDDigiCollectionName", m_TDDigiCollectionName,    "Name of the Collection to hold the output from the AFP digitization, TD part");
@@ -115,6 +126,8 @@ StatusCode AFP_PileUpTool::initialize() {
 
   ATH_MSG_DEBUG ( "AFP_PileUpTool::initialize() called" );
   
+
+
   ATH_MSG_DEBUG ( "    CollectionEff: " << m_CollectionEff << endreq
 //		 << " ScalePixel: " << m_ScalePixel << endreq
 		    );
@@ -133,6 +146,92 @@ StatusCode AFP_PileUpTool::initialize() {
   
   return StatusCode::SUCCESS;
 }
+
+StatusCode AFP_PileUpTool::recoAll()
+{
+  ATH_CHECK( recoSiHits() );
+  ATH_CHECK( recoToFHits() );
+
+  return StatusCode::SUCCESS;
+}
+
+
+StatusCode AFP_PileUpTool::recoSiHits()
+{
+  ATH_MSG_DEBUG("AFP_PileUpTool recoSiHits ");
+
+  // create output containers
+m_SiHitCollection = new xAOD::AFPSiHitContainer();
+//  xAOD::AFPSiHitContainer* siHitContainer = new xAOD::AFPSiHitContainer();
+  ATH_CHECK( evtStore()->record(m_SiHitCollection, m_AFPSiHitsContainerName) );
+  xAOD::AFPSiHitAuxContainer* siHitAuxContainer = new xAOD::AFPSiHitAuxContainer();
+  ATH_CHECK( evtStore()->record(siHitAuxContainer, m_AFPSiHitsContainerName + "Aux.") );
+  m_SiHitCollection->setStore(siHitAuxContainer);
+
+  // retrieve digi data
+  const AFP_SiDigiCollection  *container = nullptr;
+  if (evtStore()->retrieve(container, m_SiDigiCollectionName).isFailure()) {
+    ATH_MSG_WARNING("AFP_PileUpTool: Could not find simulated digi container");
+    return StatusCode::SUCCESS;
+  }
+  else
+    ATH_MSG_DEBUG("AFP_PileUpTool: Simulated digi container retrieved");
+
+  newXAODHitSi (m_SiHitCollection, container);
+
+  return StatusCode::SUCCESS;
+}
+
+
+void  AFP_PileUpTool::newXAODHitSi (xAOD::AFPSiHitContainer* siHitContainer, const AFP_SiDigiCollection* container) const
+{
+  xAOD::AFPSiHit* xAODSiHit = new xAOD::AFPSiHit();
+  siHitContainer->push_back(xAODSiHit);
+
+ xAODSiHit->setStationID(-1);
+ xAODSiHit->setPixelLayerID( -1 );
+ xAODSiHit->setPixelColIDChip( -1 );
+ xAODSiHit->setPixelRowIDChip( -1 );
+ xAODSiHit->setTimeOverThreshold(-1);
+ xAODSiHit->setDepositedCharge( -1 );
+
+ ATH_MSG_DEBUG("AFP_PileUpTool:  Filled xAOD::AFPSiHit");
+ std::cout <<  "AFP_PileUpTool:  Filled xAOD::AFPSiHit" << std::endl;
+
+}
+
+
+
+StatusCode AFP_PileUpTool::recoToFHits()
+{
+  ATH_MSG_DEBUG("AFP_PileUpTool recoToFHits ");
+
+  // create output containers
+//  xAOD::AFPToFHitContainer* tofHitContainer = new xAOD::AFPToFHitContainer();
+//  ATH_CHECK( evtStore()->record(tofHitContainer, m_AFPHitsContainerNameToF) );
+//  xAOD::AFPToFHitAuxContainer* tofHitAuxContainer = new xAOD::AFPToFHitAuxContainer();
+//  ATH_CHECK( evtStore()->record(tofHitAuxContainer, m_AFPHitsContainerNameToF + "Aux.") );
+//  tofHitContainer->setStore(tofHitAuxContainer);
+
+  // retrieve raw data
+//  const AFP_RawContainer *container = nullptr;
+//  if (evtStore()->retrieve(container, m_rawDataContainerName).isFailure()) {
+//    ATH_MSG_WARNING("AFP_Raw2DigiTool: Could not find raw data container");
+//    return StatusCode::SUCCESS;
+//  }
+//  else
+//    ATH_MSG_DEBUG("AFP_Raw2DigiTool: Raw data container retrieved");
+  
+//  for (const AFP_ToFRawCollection& collection: container->collectionsToF())
+//    for (const AFP_ToFRawData& data : collection.dataRecords())
+//      if (data.hitDiscConfig() == 3 && data.header() == 2) 
+//	newXAODHitToF (tofHitContainer, collection, data);
+
+  return StatusCode::SUCCESS;
+}
+
+
+
 
 StatusCode AFP_PileUpTool::processAllSubEvents() {
 
@@ -229,6 +328,7 @@ StatusCode AFP_PileUpTool::processAllSubEvents() {
   fillTDDigiCollection(thpcAFP_TDPmt, m_rndEngine);
   fillSiDigiCollection(thpcAFP_SiPmt);  
   
+  ATH_CHECK( recoAll() );
   
   return StatusCode::SUCCESS;
 }
@@ -259,7 +359,6 @@ StatusCode AFP_PileUpTool::prepareEvent(const unsigned int nInputEvents){
 StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
                                                  SubEventIterator bSubEvents,
                                                  SubEventIterator eSubEvents) {
-
   ATH_MSG_DEBUG ( "AFP_PileUpTool::processBunchXing() " << bunchXing );
   SubEventIterator iEvt = bSubEvents;
   for (; iEvt!=eSubEvents; iEvt++) {
@@ -314,16 +413,19 @@ StatusCode AFP_PileUpTool::processBunchXing(int bunchXing,
 }
 
 StatusCode AFP_PileUpTool::mergeEvent(){
+
  
   fillTDDigiCollection(m_mergedTDSimHitList, m_rndEngine);
   fillSiDigiCollection(m_mergedSIDSimHitList);
   
+
   return StatusCode::SUCCESS;
 }
 
 
 
-StatusCode AFP_PileUpTool::finalize() { return StatusCode::SUCCESS; }
+StatusCode AFP_PileUpTool::finalize() { 
+return StatusCode::SUCCESS; }
  
 
 

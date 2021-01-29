@@ -105,6 +105,10 @@ def getStreamRDO_ItemList(log):
         if DetFlags.writeRDOPool.AFP_on():
             StreamRDO_ItemList+=["AFP_SiDigiCollection#*"]
             StreamRDO_ItemList+=["AFP_TDDigiCollection#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPTofHitContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPSiHitAuxContainer#*"]
+            StreamRDO_ItemList+=["xAOD::AFPToFHitAuxContainer#*"]
     # Inner Detector Output
     if DetFlags.digitize.BCM_on():
         if DetFlags.writeRDOPool.BCM_on():

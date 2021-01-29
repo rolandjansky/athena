@@ -17,8 +17,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Simulation/HitManagement
                           PRIVATE
-                          DetectorDescription/Identifier )
-
+                          DetectorDescription/Identifier
+                          Event/xAOD/xAODForward )
 # External dependencies:
 find_package( CLHEP )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -28,7 +28,7 @@ atlas_add_component( AFP_Digitization
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo xAODEventInfo AFP_DigiEv AFP_SimEv GaudiKernel HitManagement Identifier )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel PileUpToolsLib EventInfo xAODEventInfo AFP_DigiEv AFP_SimEv GaudiKernel HitManagement Identifier xAODForward)
 
 # Install files from the package:
 atlas_install_headers( AFP_Digitization )

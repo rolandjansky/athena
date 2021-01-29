@@ -27,7 +27,10 @@ StatusCode AFP_DigiTop::initialize()
 StatusCode AFP_DigiTop::execute() 
 {
   ATH_MSG_DEBUG ( "AFP_DigiTop::execute" );
-  return m_digTool->processAllSubEvents();
+
+  CHECK ( m_digTool->processAllSubEvents() );
+
+  return StatusCode::SUCCESS;
 }
 
 StatusCode AFP_DigiTop::finalize() 

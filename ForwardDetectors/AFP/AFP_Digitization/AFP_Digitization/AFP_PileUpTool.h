@@ -22,6 +22,10 @@
 #include "AFP_SimEv/AFP_SIDSimHit.h"
 #include "AFP_DigiEv/AFP_TDDigiCollection.h"
 #include "AFP_DigiEv/AFP_SiDigiCollection.h"
+#include "xAODForward/AFPToFHit.h"
+#include "xAODForward/AFPToFHitContainer.h"
+#include "xAODForward/AFPSiHitContainer.h"
+
 #include "TMath.h"
 #include "TH1.h"
 #include "TF1.h"
@@ -48,6 +52,17 @@ class AFP_PileUpTool: public PileUpToolBase {
   virtual StatusCode initialize() override final;
   virtual StatusCode finalize() override final;
 
+
+  /// Creates xAOD for silicon detector
+  StatusCode recoSiHits();
+
+  /// Creates xAOD for time-of-flight detector
+  StatusCode recoToFHits();
+
+  StatusCode recoAll();
+
+
+
   /// called before the subevts loop. Not (necessarily) able to access SubEvents
   virtual StatusCode prepareEvent(const unsigned int nInputEvents) override final;
   
@@ -70,6 +85,8 @@ class AFP_PileUpTool: public PileUpToolBase {
   
   StatusCode recordContainers(ServiceHandle<StoreGateSvc>& evtStore, std::string key_digitCnt);
   StatusCode recordSiCollection(ServiceHandle<StoreGateSvc>& evtStore, std::string key_SidigitCnt);
+
+
 
   void fillTDDigiCollection(const AFP_TDSimHitCollection*,     CLHEP::HepRandomEngine*);
   void fillTDDigiCollection(TimedHitCollection<AFP_TDSimHit>&, CLHEP::HepRandomEngine*);
@@ -98,6 +115,9 @@ class AFP_PileUpTool: public PileUpToolBase {
   std::string m_SIDSimHitCollectionName;
   std::string m_SiDigiCollectionName;  
 
+  std::string m_AFPSiHitsContainerName;
+  std::string m_AFPHitsContainerNameToF;
+
   double m_CollectionEff;
   double m_ConversionSpr;
   double m_Gain;
@@ -111,6 +131,12 @@ class AFP_PileUpTool: public PileUpToolBase {
   AFP_SIDSimHitCollection *m_mergedSIDSimHitList;
   AFP_SiDigiCollection *m_SiDigiCollection;  
   
+  xAOD::AFPToFHitContainer *m_TDHitCollection;
+
+  xAOD::AFPSiHitContainer *m_SiHitCollection;
+
+
+
      
   double m_QuantumEff_PMT[7];
 
@@ -120,6 +146,15 @@ class AFP_PileUpTool: public PileUpToolBase {
   float m_deposited_energy[645120];
 
   std::vector<double> m_SignalVect;
+
+protected:
+
+/// Method that creates a new AFPToFHit and sets it valus according to #digi collection
+  void newXAODHitToF (xAOD::AFPToFHitContainer* tofHitContainer, const AFP_TDDigiCollection* collection) const;
+  
+/// Method that creates a new AFPSiHit and sets it valus according to #digi collection
+  void newXAODHitSi (xAOD::AFPSiHitContainer* xAODSiHit, const AFP_SiDigiCollection* collection) const;
+
 
 };
 
