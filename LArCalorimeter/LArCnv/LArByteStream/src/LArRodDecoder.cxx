@@ -112,14 +112,12 @@ LArRodDecoder::initialize ATLAS_NOT_THREAD_SAFE ()
     ListItem li(*it);
     if((toolSvc->retrieveTool(li.type(), li.name(), tool)).isFailure() ) 
       {msg(MSG::ERROR) << " Can't get AlgTool for CaloCellCorrection " << endmsg;
-      //std::cout << " Can't get AlgTool for CaloCellCorrection\n ";
        return StatusCode::FAILURE; 
       }
 
     corr = dynamic_cast<CaloCellCorrection*> (tool); 
     if(!corr  ) 
       {msg(MSG::ERROR) << " Can't d-cast to CaloCellCorrection*  " << endmsg;
-      //std::cout << " Can't d-cast to CaloCellCorrection* \n";
        return StatusCode::FAILURE; 
       }
     m_LArCellCorrTools.push_back(corr); 
@@ -180,15 +178,7 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
-
-  //std::cout << "Decoding LArDigits from ROD block size=0x" << std::hex << n << std::endl;
-  //for(int i=0;i<n;i++)
-  //  std::cout << "0x" << std::hex << i << " -     0x" << std::hex << p[i] << std::endl;
-
-  //int iFeb=0;
-  //int iCanTot=0,iCan=0; //For debug purpose
-   do
-    {
+  do {
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
       if (!m_onlineHelper->isValidId(fId)) {
@@ -250,7 +240,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	}
       }
       const int NthisFebChannel=m_onlineHelper->channelInSlotMax(fId);
-      //std::cout << "Processing FEB #" << iFeb++ << " FEBID " << std::hex << BlStruct->getFEBID()  << std::endl;
       while (BlStruct->getNextRawData(fcNb,samples,gain))
 	{if (fcNb>=NthisFebChannel)
 	  continue;
@@ -259,14 +248,10 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	calogain=(CaloGain::CaloGain)gain;
 	dg = new LArDigit(cId, calogain, samples);
 	samples.clear();
-	//std::cout << "Processing channel id " << iCan++ << " " << std::hex << fcNb << " " << cId << " Gain=" << gain << " samples "  << samples[0] << " " 
-	//	  << samples[1] << " " << samples[2] << " " << samples[3] << " " << samples[4] << std::dec << std::endl;
-	//std::cout << "Feb id=" << BlStruct->getFEBID()  << " ChannelID=" << fcNb << std::endl;
 	coll.push_back(dg);
 	}
     }
    while (BlStruct->nextFEB()); //Get NextFeb
-   //std::cout << "Number of FEB processed " << iFeb << " fragment size = " << n << std::endl;
    return;
 }
 
@@ -285,11 +270,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
   if (!BlStruct) return;
 
-  //std::cout << "Decoding LArRawChannels from ROD size=0x" << std::hex << n << std::endl;
-  //for(int i=0;i<n;i++)
-  //  std::cout << "0x" << std::hex << i << " -     0x" << std::hex << p[i] << std::endl;
-
-  //int iFeb=0;
   do {
       HWIdentifier fId( Identifier32(BlStruct->getFEBID()) );
       unsigned int fId32 = fId.get_identifier32().get_compact();
@@ -351,7 +331,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	}
       }
       const int NthisFebChannel=m_onlineHelper->channelInSlotMax(fId);
-      //std::cout << "Processing FEB #" << iFeb++ << " FEBID " << std::hex << BlStruct->getFEBID()  << std::endl;
       while (BlStruct->getNextEnergy(fcNb,energy,time,quality,gain)) {
 	if (fcNb>=NthisFebChannel)
 	  continue;
@@ -367,7 +346,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
       }
     }
    while (BlStruct->nextFEB()); //Get NextFeb
-   //std::cout << "Number of FEB processed " << iFeb << " fragment size = " << n << std::endl;
    return;
 }
 
@@ -388,14 +366,9 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
   bool ispulsed;
   std::vector<short> samples;
 
-  //  for(int i=0;i<16;i++)
-  //  std::cout << " -     " << std::hex << p[i] << std::endl;
-
   ATH_MSG_VERBOSE("FillCollection for LArCalibDigitContainer is called.");
   LArRodBlockStructure* BlStruct=prepareBlockStructure(robFrag, p, n, RequestedGain);
-  //  std::cout << "Done with LArRodBlock prepare" << std::endl;
   if (!BlStruct) return;
-  // std::cout << " canSetCalibration() " << BlStruct->canSetCalibration() << std::endl;
   if (BlStruct->canSetCalibration()) {
     dac=BlStruct->getDAC();
     delay=BlStruct->getDelay();
@@ -467,16 +440,11 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	  HWIdentifier cId = m_onlineHelper->channel_Id(fId,fcNb);
 	  ispulsed=BlStruct->getPulsed(fcNb);
 	  
-	  //std::cout << " in RawData calib block cId= " << cId << "  ispulsed=" << ispulsed << std::endl;
 	  calogain=(CaloGain::CaloGain)gain;
 	  dg = new LArCalibDigit(cId, calogain, samples, dac, delay, ispulsed);
 	  samples.clear();
-	  //std::cout << "Processing channel id" << iCan++ << " Gain=" << gain << std::endl;
-	  //std::cout << "Feb id=" << BlStruct->getFEBID()  << " ChannelID=" << fcNb << std::endl; 
 	  coll.push_back(dg);
-	  //iCan++;
 	  }
-	//std::cout << "Found " << iCan << " Channels in this FEB." << std::endl;
       }
     while (BlStruct->nextFEB()); //Get NextFeb
   }
@@ -498,9 +466,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
     const unsigned eventNb=evt->eventNumber();
     const std::vector<HWIdentifier>* calibChannelIDs;
     do { //Loop over all FEBs in this ROD
-      
-      //std::cout << "\n *** BlStruct->getFEBID() = " << std::endl ;
-      //std::cout << BlStruct->getFEBID() << std::endl ;
       
       // IWS 24.01.2006 protection against NULL events (null pointer to rawdata block) 
       if (!BlStruct->hasRawDataBlock()) {
@@ -530,7 +495,6 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 	fcNb++; 
 	cId = m_onlineHelper->channel_Id(fId,fcNb);
 	calibChannelIDs=&calibLineMapping.calibSlotLine(cId);
-	//std::cout << onOffIdMapping.isOnlineConnected(cId) << " "  << calibChannelIDs->size() << " " << fcNb << std::endl ;
       }
       while ( (!onOffIdMapping.isOnlineConnected(cId) || calibChannelIDs->size()==0) && fcNb<128); // This is the right  conditions to exit the loop!
       
@@ -566,9 +530,7 @@ void LArRodDecoder::fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragmen
 
 	  if (calibChannelIDs->size()!=0) {
 	    csl_it=calibChannelIDs->begin();
-	    //uint32_t calibLine = m_onlineHelper->channel(*csl_it);
 	    ispulsed=calibParams->isPulsed(eventNb,*csl_it);
-	      //std::cout << " in RawData CalibDigit cId= " << cId << " calibLine=" << calibLine << "  ispulsed=" << ispulsed << std::endl;
  	    
 	  } else ispulsed=0;
 	  calogain=(CaloGain::CaloGain)gain;
@@ -1091,7 +1053,7 @@ LArRodDecoder::makeBlockStructure (unsigned int rodBlockType,
     case 10:// Calibration mode v3
     case 11:// Calibration mode v3
     case 12:// Calibration mode v3
-      return std::make_unique<LArRodBlockCalibrationV2>();
+      return std::make_unique<LArRodBlockCalibrationV3>();
     default:
       break;
     }
