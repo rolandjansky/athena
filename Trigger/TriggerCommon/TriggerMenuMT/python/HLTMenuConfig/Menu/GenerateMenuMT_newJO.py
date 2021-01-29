@@ -44,9 +44,10 @@ def getGenerator(signature):
     """
     Fill the mapping from the flag container name to the function responsible for generating the Chain objects
 
-    Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateChains"""
-    capitalizedSignature = signature.capitalize()
-    importString = 'TriggerMenuMT.HLTMenuConfig.{}.generate{}'.format(capitalizedSignature, capitalizedSignature)
+    Here the files naming convention is employed: the chains mentioned in Trigger.menu.XYZ are served by the function in HLTMenuConfig.XYZ.generateXYZ
+    where XYZ is the "signature" property of the chainDict (passed here directly) """
+
+    importString = 'TriggerMenuMT.HLTMenuConfig.{0}.generate{0}'.format(signature)
     gen = importlib.import_module( importString )
     log.info('Imported generator for %s', signature)
     return gen.generateChains
