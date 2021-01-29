@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+B1;5202;0c#!/usr/bin/env python
 
 # art-description: art job for mu_Zmumu_pu40
 # art-type: grid
@@ -36,8 +36,8 @@ Input   = 'StauStau'    # defined in TrigValTools/share/TrigValInputs.json
 GridFiles = False
 
 
-Jobs = [ ( "Truth",  " TIDAdata-run3.dat -o data-hists.root -p 13" ),
-         ( "Offline",    " TIDAdata-run3-offline.dat -r Offline -o data-hists-offline.root" ) ]
+Jobs = [ ( "Truth",  " TIDAdata-run3-lrt.dat -o data-hists.root -p 13" ),
+         ( "Offline",    " TIDAdata-run3-offline-lrt.dat -r Offline -o data-hists-offline.root" ) ]
 
 Comp = [ ( "L2muonLRT",  "L2muonLRT",  "data-hists.root",  " -c TIDAhisto-panel.dat -d HLTL2-plots " ) ]
 
