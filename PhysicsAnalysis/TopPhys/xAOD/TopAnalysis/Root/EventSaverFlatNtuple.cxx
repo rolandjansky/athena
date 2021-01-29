@@ -1196,6 +1196,12 @@ namespace top {
           systematicTree->makeOutputVariable(m_klfitter_parameters, "klfitter_parameters");
           systematicTree->makeOutputVariable(m_klfitter_parameterErrors, "klfitter_parameterErrors");
           systematicTree->makeOutputVariable(m_klfitter_bestPermutation, "klfitter_bestPermutation");
+
+	  /// Only for SingleT option
+	  if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	    systematicTree->makeOutputVariable(m_klfitter_logLikelihood_t1, "klfitter_logLikelihood_t1");
+	    systematicTree->makeOutputVariable(m_klfitter_logLikelihood_t2, "klfitter_logLikelihood_t2");
+	  }
         }
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY") {
@@ -3394,6 +3400,11 @@ namespace top {
       m_klfitter_parameters.resize(nPermutations);
       m_klfitter_parameterErrors.resize(nPermutations);
 
+      if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	m_klfitter_logLikelihood_t1.resize(nPermutations);
+	m_klfitter_logLikelihood_t2.resize(nPermutations);
+      }
+
       if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
         /// Model
         m_klfitter_model_bhad_pt.resize(nPermutations);
@@ -3522,6 +3533,10 @@ namespace top {
           m_klfitter_parameters[iPerm] = klPtr->parameters();
           m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
+	  if(m_config->KLFitterLH() == "ttbar_AllHadronic_SingleT") {
+	    m_klfitter_logLikelihood_t1[iPerm] = klPtr->logLikelihood_t1();
+	    m_klfitter_logLikelihood_t2[iPerm] = klPtr->logLikelihood_t2();
+	  }
           /// Model
           if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();

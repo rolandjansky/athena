@@ -805,6 +805,10 @@ namespace top {
     std::vector<std::vector<double> > m_klfitter_parameters;
     std::vector<std::vector<double> > m_klfitter_parameterErrors;
 
+    //Only for singleT option
+    std::vector<float> m_klfitter_logLikelihood_t1;
+    std::vector<float> m_klfitter_logLikelihood_t2;
+
     /// Model
     std::vector<float> m_klfitter_model_bhad_pt;
     std::vector<float> m_klfitter_model_bhad_eta;
@@ -1433,6 +1437,9 @@ namespace top {
     const std::vector<unsigned int>& klfitter_parameters_size() const {return m_klfitter_parameters_size;}
     const std::vector<std::vector<double> >& klfitter_parameters() const {return m_klfitter_parameters;}
     const std::vector<std::vector<double> >& klfitter_parameterErrors() const {return m_klfitter_parameterErrors;}
+    //Only for SingleT option
+    const std::vector<float>& klfitter_logLikelihood_t1() const {return m_klfitter_logLikelihood_t1;}
+    const std::vector<float>& klfitter_logLikelihood_t2() const {return m_klfitter_logLikelihood_t2;}
     /// Model
     const std::vector<float>& klfitter_model_bhad_pt() const {return m_klfitter_model_bhad_pt;}
     const std::vector<float>& klfitter_model_bhad_eta() const {return m_klfitter_model_bhad_eta;}

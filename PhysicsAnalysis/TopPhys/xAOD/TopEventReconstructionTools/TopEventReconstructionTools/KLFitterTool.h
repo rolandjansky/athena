@@ -35,7 +35,7 @@
 #include <vector>
 #include <cmath>
 #include <memory>
-
+//#include "TBenchmark.h"
 
 ///
 /// @author John Morris <john.morris@cern.ch>
@@ -112,8 +112,8 @@ namespace top {
     bool permutationLoopAutoSet(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
     bool permutationLoopAutoSetSingleT(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event);
 
-    void findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability);
-    void findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability);
+    void findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,double& sumEventProbability);
+    void findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,double& sumEventProbability);
 
 
     // configuration
@@ -164,6 +164,9 @@ namespace top {
 
     /// The KLFitter
     std::unique_ptr<KLFitter::Fitter> m_myFitter;
+
+    /// For testing
+    //    TBenchmark m_benchmark;
   };
 }
 #endif

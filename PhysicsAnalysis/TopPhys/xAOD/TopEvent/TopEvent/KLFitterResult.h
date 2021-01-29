@@ -47,9 +47,13 @@ namespace xAOD {
     /// Global result
     std::vector<unsigned int> bestPermutation;
     std::vector<float> logLikelihood;
-    std::vector<float> eventProbability;
+    std::vector<double> eventProbability;
     std::vector<std::vector<double> > parameters;
     std::vector<std::vector<double> > parameterErrors;
+
+    // Only fot SingleT option
+    std::vector<float> logLikelihood_t1;
+    std::vector<float> logLikelihood_t2;
 
     /// Model
     std::vector<float> model_bhad_pt;
@@ -197,9 +201,9 @@ namespace xAOD {
     void setLogLikelihood(float);
 
     /// get eventProbability
-    float eventProbability() const;
+    double eventProbability() const;
     /// set eventProbability
-    void setEventProbability(float);
+    void setEventProbability(double);
 
     /// get parameters
     const std::vector<double>& parameters() const;
@@ -211,6 +215,15 @@ namespace xAOD {
     /// set parameterErrors
     void setParameterErrors(const std::vector<double>&);
 
+    /// get logLikelihood t1
+    float logLikelihood_t1() const;
+    /// set logLikelihood t1
+    void setLogLikelihood_t1(float);
+
+    /// get logLikelihood t2
+    float logLikelihood_t2() const;
+    /// set logLikelihood t2
+    void setLogLikelihood_t2(float);
 
     /// get model_bhad_pt
     float model_bhad_pt() const;

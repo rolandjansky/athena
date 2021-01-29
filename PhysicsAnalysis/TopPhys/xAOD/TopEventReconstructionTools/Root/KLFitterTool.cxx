@@ -397,6 +397,10 @@ namespace top {
     if( (event.m_info->isAvailable< int >( "KLFitterHasRun" ) ) )
        if( ( event.m_info->auxdata< int >("KLFitterHasRun") )!=0 ) return StatusCode::SUCCESS;
  */
+
+    //testing
+    //    m_benchmark.Start(m_selectionName.c_str());
+
     KLFitter::Particles* myParticles = new KLFitter::Particles {};
 
     if (m_LHType == "ttbar") {
@@ -570,7 +574,7 @@ namespace top {
 
     // Normalize event probability to unity
     // work out best permutation
-    float sumEventProbability(0.);
+    double sumEventProbability(0.);
     unsigned int bestPermutation(999), iPerm(0);
     unsigned int bestPermutation2(999); //for SingleT option
 
@@ -579,7 +583,6 @@ namespace top {
     else findBestPermInd_Standard(resultContainer,bestPermutation,sumEventProbability);
 
     // Second loop
-
     iPerm = 0;
     for (auto x : *resultContainer) {
       if(m_LHType == "ttbar_AllHadronic_SingleT") x->setEventProbability(x->eventProbability() / TMath::Sqrt(sumEventProbability)); //we'll take the product of two of them, so use the square root to get the proper result in the end
@@ -631,73 +634,80 @@ namespace top {
 	  }
 	}
       } else {
-	xAOD::KLFitterResult* st1 = resultContainer->at(bestPermutation);
-	xAOD::KLFitterResult* st2 = resultContainer->at(bestPermutation2);
-	top::check(st1->bestPermutation() == 1 && st2->bestPermutation() == 1,"KLFitterTools: ERROR! You are picking the wrong best permutations in SingleT option!");
 
 	//combine the two best permutation to get the result
 	xAOD::KLFitterResult* combinedResult = new xAOD::KLFitterResult {};
-	bestContainer->push_back(combinedResult);
+	bestContainer->push_back(combinedResult);	
 
-	std::vector<double> param(0);
-	for(double pr : st1->parameters()) param.push_back(pr);
-	for(double pr : st2->parameters()) param.push_back(pr);
-	combinedResult->setParameters(param);
-	std::vector<double> paramEr(0);
-	for(double pr : st1->parameterErrors()) paramEr.push_back(pr);
-	for(double pr : st2->parameterErrors()) paramEr.push_back(pr);
-	combinedResult->setParameterErrors(paramEr);
-	 
+	if(bestPermutation<resultContainer->size() && bestPermutation2<resultContainer->size()) {
+	  xAOD::KLFitterResult* st1 = resultContainer->at(bestPermutation);
+	  xAOD::KLFitterResult* st2 = resultContainer->at(bestPermutation2);
+	  top::check(st1->bestPermutation() == 1 && st2->bestPermutation() == 1,"KLFitterTools: ERROR! You are picking the wrong best permutations in SingleT option!");
+	  
+	  std::vector<double> param(0);
+	  for(double pr : st1->parameters()) param.push_back(pr);
+	  for(double pr : st2->parameters()) param.push_back(pr);
+	  combinedResult->setParameters(param);
+	  std::vector<double> paramEr(0);
+	  for(double pr : st1->parameterErrors()) paramEr.push_back(pr);
+	  for(double pr : st2->parameterErrors()) paramEr.push_back(pr);
+	  combinedResult->setParameterErrors(paramEr);
+	  
+	  
+	  combinedResult->setSelectionCode(st1->selectionCode());
+	  if(st1->minuitDidNotConverge()>0 || st2->minuitDidNotConverge()>0) std::cout << "minuitDidNotConverge" << std::endl;
+	  combinedResult->setMinuitDidNotConverge(std::max(st1->minuitDidNotConverge(),st2->minuitDidNotConverge()));
+	  combinedResult->setFitAbortedDueToNaN(std::max(st1->fitAbortedDueToNaN(),st2->fitAbortedDueToNaN()));
+	  if(st1->fitAbortedDueToNaN()>0 || st2->fitAbortedDueToNaN()>0) std::cout << "fitAbortedDueToNaN" << std::endl;
+	  
+	  combinedResult->setAtLeastOneFitParameterAtItsLimit(std::max(st1->atLeastOneFitParameterAtItsLimit(),st2->atLeastOneFitParameterAtItsLimit()));
+	  if(st1->atLeastOneFitParameterAtItsLimit()>0 || st2->atLeastOneFitParameterAtItsLimit()>0) std::cout << "atLeastOneFitParameterAtItsLimit" << std::endl;
+	  combinedResult->setInvalidTransferFunctionAtConvergence(std::max(st1->invalidTransferFunctionAtConvergence(),st2->invalidTransferFunctionAtConvergence()));
+	  if(st1->invalidTransferFunctionAtConvergence()>0 || st2->invalidTransferFunctionAtConvergence()>0) std::cout << "invalidTransferFunctionAtConvergence()" << std::endl;
+	  
+	  combinedResult->setLogLikelihood(st1->logLikelihood()+st2->logLikelihood());
+	  combinedResult->setEventProbability(st1->eventProbability()*st2->eventProbability());
+	  
+	  combinedResult->setLogLikelihood_t1(st1->logLikelihood());
 
-	combinedResult->setSelectionCode(st1->selectionCode());
-	if(st1->minuitDidNotConverge()>0 || st2->minuitDidNotConverge()>0) std::cout << "minuitDidNotConverge" << std::endl;
-	combinedResult->setMinuitDidNotConverge(std::max(st1->minuitDidNotConverge(),st2->minuitDidNotConverge()));
-	combinedResult->setFitAbortedDueToNaN(std::max(st1->fitAbortedDueToNaN(),st2->fitAbortedDueToNaN()));
-	if(st1->fitAbortedDueToNaN()>0 || st2->fitAbortedDueToNaN()>0) std::cout << "fitAbortedDueToNaN" << std::endl;
-
-	combinedResult->setAtLeastOneFitParameterAtItsLimit(std::max(st1->atLeastOneFitParameterAtItsLimit(),st2->atLeastOneFitParameterAtItsLimit()));
-	if(st1->atLeastOneFitParameterAtItsLimit()>0 || st2->atLeastOneFitParameterAtItsLimit()>0) std::cout << "atLeastOneFitParameterAtItsLimit" << std::endl;
-	combinedResult->setInvalidTransferFunctionAtConvergence(std::max(st1->invalidTransferFunctionAtConvergence(),st2->invalidTransferFunctionAtConvergence()));
-	if(st1->invalidTransferFunctionAtConvergence()>0 || st2->invalidTransferFunctionAtConvergence()>0) std::cout << "invalidTransferFunctionAtConvergence()" << std::endl;
-      
-	combinedResult->setLogLikelihood(st1->logLikelihood()+st2->logLikelihood());
-	combinedResult->setEventProbability(st1->eventProbability()*st2->eventProbability());
-
-	combinedResult->setModel_b_from_top1_pt(st1->model_b_from_top1_pt());
-	combinedResult->setModel_b_from_top1_eta(st1->model_b_from_top1_eta());
-	combinedResult->setModel_b_from_top1_phi(st1->model_b_from_top1_phi());
-	combinedResult->setModel_b_from_top1_E(st1->model_b_from_top1_E());
-	combinedResult->setModel_b_from_top1_jetIndex(st1->model_b_from_top1_jetIndex());
-
-	combinedResult->setModel_lj1_from_top1_pt(st1->model_lj1_from_top1_pt());
-	combinedResult->setModel_lj1_from_top1_eta(st1->model_lj1_from_top1_eta());
-	combinedResult->setModel_lj1_from_top1_phi(st1->model_lj1_from_top1_phi());
-	combinedResult->setModel_lj1_from_top1_E(st1->model_lj1_from_top1_E());
-	combinedResult->setModel_lj1_from_top1_jetIndex(st1->model_lj1_from_top1_jetIndex());
-	
-	combinedResult->setModel_lj2_from_top1_pt(st1->model_lj2_from_top1_pt());
-	combinedResult->setModel_lj2_from_top1_eta(st1->model_lj2_from_top1_eta());
-	combinedResult->setModel_lj2_from_top1_phi(st1->model_lj2_from_top1_phi());
-	combinedResult->setModel_lj2_from_top1_E(st1->model_lj2_from_top1_E());
-	combinedResult->setModel_lj2_from_top1_jetIndex(st1->model_lj2_from_top1_jetIndex());
-	
-	combinedResult->setModel_b_from_top2_pt(st2->model_b_from_top1_pt());
-	combinedResult->setModel_b_from_top2_eta(st2->model_b_from_top1_eta());
-	combinedResult->setModel_b_from_top2_phi(st2->model_b_from_top1_phi());
-	combinedResult->setModel_b_from_top2_E(st2->model_b_from_top1_E());
-	combinedResult->setModel_b_from_top2_jetIndex(st2->model_b_from_top1_jetIndex());
-	
-	combinedResult->setModel_lj1_from_top2_pt(st2->model_lj1_from_top1_pt());
-	combinedResult->setModel_lj1_from_top2_eta(st2->model_lj1_from_top1_eta());
-	combinedResult->setModel_lj1_from_top2_phi(st2->model_lj1_from_top1_phi());
-	combinedResult->setModel_lj1_from_top2_E(st2->model_lj1_from_top1_E());
-	combinedResult->setModel_lj1_from_top2_jetIndex(st2->model_lj1_from_top1_jetIndex());
-	
-	combinedResult->setModel_lj2_from_top2_pt(st2->model_lj2_from_top1_pt());
-	combinedResult->setModel_lj2_from_top2_eta(st2->model_lj2_from_top1_eta());
-	combinedResult->setModel_lj2_from_top2_phi(st2->model_lj2_from_top1_phi());
-	combinedResult->setModel_lj2_from_top2_E(st2->model_lj2_from_top1_E());
-	combinedResult->setModel_lj2_from_top2_jetIndex(st2->model_lj2_from_top1_jetIndex());
+	  combinedResult->setModel_b_from_top1_pt(st1->model_b_from_top1_pt());
+	  combinedResult->setModel_b_from_top1_eta(st1->model_b_from_top1_eta());
+	  combinedResult->setModel_b_from_top1_phi(st1->model_b_from_top1_phi());
+	  combinedResult->setModel_b_from_top1_E(st1->model_b_from_top1_E());
+	  combinedResult->setModel_b_from_top1_jetIndex(st1->model_b_from_top1_jetIndex());
+	  
+	  combinedResult->setModel_lj1_from_top1_pt(st1->model_lj1_from_top1_pt());
+	  combinedResult->setModel_lj1_from_top1_eta(st1->model_lj1_from_top1_eta());
+	  combinedResult->setModel_lj1_from_top1_phi(st1->model_lj1_from_top1_phi());
+	  combinedResult->setModel_lj1_from_top1_E(st1->model_lj1_from_top1_E());
+	  combinedResult->setModel_lj1_from_top1_jetIndex(st1->model_lj1_from_top1_jetIndex());
+	  
+	  combinedResult->setModel_lj2_from_top1_pt(st1->model_lj2_from_top1_pt());
+	  combinedResult->setModel_lj2_from_top1_eta(st1->model_lj2_from_top1_eta());
+	  combinedResult->setModel_lj2_from_top1_phi(st1->model_lj2_from_top1_phi());
+	  combinedResult->setModel_lj2_from_top1_E(st1->model_lj2_from_top1_E());
+	  combinedResult->setModel_lj2_from_top1_jetIndex(st1->model_lj2_from_top1_jetIndex());
+	  
+	  combinedResult->setLogLikelihood_t2(st2->logLikelihood());
+	  
+	  combinedResult->setModel_b_from_top2_pt(st2->model_b_from_top1_pt());
+	  combinedResult->setModel_b_from_top2_eta(st2->model_b_from_top1_eta());
+	  combinedResult->setModel_b_from_top2_phi(st2->model_b_from_top1_phi());
+	  combinedResult->setModel_b_from_top2_E(st2->model_b_from_top1_E());
+	  combinedResult->setModel_b_from_top2_jetIndex(st2->model_b_from_top1_jetIndex());
+	  
+	  combinedResult->setModel_lj1_from_top2_pt(st2->model_lj1_from_top1_pt());
+	  combinedResult->setModel_lj1_from_top2_eta(st2->model_lj1_from_top1_eta());
+	  combinedResult->setModel_lj1_from_top2_phi(st2->model_lj1_from_top1_phi());
+	  combinedResult->setModel_lj1_from_top2_E(st2->model_lj1_from_top1_E());
+	  combinedResult->setModel_lj1_from_top2_jetIndex(st2->model_lj1_from_top1_jetIndex());
+	  
+	  combinedResult->setModel_lj2_from_top2_pt(st2->model_lj2_from_top1_pt());
+	  combinedResult->setModel_lj2_from_top2_eta(st2->model_lj2_from_top1_eta());
+	  combinedResult->setModel_lj2_from_top2_phi(st2->model_lj2_from_top1_phi());
+	  combinedResult->setModel_lj2_from_top2_E(st2->model_lj2_from_top1_E());
+	  combinedResult->setModel_lj2_from_top2_jetIndex(st2->model_lj2_from_top1_jetIndex());
+	} else std::cout << "KLFitterTool:: WARNING! Best permutation not found, an empty result is saved" << std::endl;
       }
 
       if (!evtStore()->tds()->contains<xAOD::KLFitterResultContainer>(outputSGKey)) {
@@ -723,8 +733,10 @@ namespace top {
     delete myParticles;
 
     /// Return gracefully:
+    //    std::cout << "KLFitter Benchmark :: " << m_selectionName << std::endl;
+    //    m_benchmark.Show(m_selectionName.c_str());
     return StatusCode::SUCCESS;
-    }
+  }
 
   bool KLFitterTool::HasTag(const xAOD::Jet& jet, double& weight) const {
     weight = -99.;
@@ -972,7 +984,6 @@ namespace top {
   }
 
   bool KLFitterTool::setJetLists(const top::Event& event) {
-
     //first order in b-weight
     unsigned int index(0);
     std::vector<std::pair<unsigned int,std::pair<double,double> > > bwOrd_jets(0);
@@ -1283,7 +1294,6 @@ namespace top {
   }
 
   bool KLFitterTool::permutationLoopAutoSet(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event) {
-    
     //loop on jet combinations
    bool hasrun=false;
    for(uint ib1=0;ib1<m_canBeBJets.size();ib1++) {
@@ -1333,7 +1343,6 @@ namespace top {
 
 
   bool KLFitterTool::permutationLoopAutoSetSingleT(xAOD::KLFitterResult* result,xAOD::KLFitterResultContainer* resultContainer,const top::Event& event) {    
-
     //loop on jet combinations
     bool hasrun=false;
     for(uint ib1=0;ib1<m_canBeBJets.size();ib1++) {
@@ -1369,18 +1378,17 @@ namespace top {
       }//iq1
     }//ib1
     
-    if(!hasrun) std::cout << "WARNING   KLFitterRun:: KLF hasn't run. Something wrong with the combinatorics!" << std::endl;
+    if(!hasrun) std::cout << "WARNING   KLFitterTool:: KLF hasn't run. Something wrong with the combinatorics!" << std::endl;
 
     return true;
   }
  
-  void KLFitterTool::findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability) {
-
-    float bestEventProbability(0.);
+  void KLFitterTool::findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,double& sumEventProbability) {
+    double bestEventProbability(0.);
     unsigned int iPerm(0);
 
     for (auto x : *resultContainer) {
-      float prob = x->eventProbability();
+      double prob = x->eventProbability();
       short minuitDidNotConverge = x->minuitDidNotConverge();
       short fitAbortedDueToNaN = x->fitAbortedDueToNaN();
       short atLeastOneFitParameterAtItsLimit = x->atLeastOneFitParameterAtItsLimit();
@@ -1403,14 +1411,14 @@ namespace top {
     
   }
 
-  void KLFitterTool::findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability) {      
+  void KLFitterTool::findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,double& sumEventProbability) {      
 
-    float bestEventProbability(0.);
+    double bestEventProbability(0.);
 
     for (unsigned int iPerm1=0; iPerm1<resultContainer->size(); iPerm1++) {
       xAOD::KLFitterResult *x = resultContainer->at(iPerm1);
 
-      float prob_1 = x->eventProbability();
+      double prob_1 = x->eventProbability();
       short minuitDidNotConverge_1 = x->minuitDidNotConverge();
       short fitAbortedDueToNaN_1 = x->fitAbortedDueToNaN();
       short atLeastOneFitParameterAtItsLimit_1 = x->atLeastOneFitParameterAtItsLimit();
@@ -1444,9 +1452,9 @@ namespace top {
 	// check if the best value has the highest event probability AND converged
 	if(minuitDidNotConverge_2 || fitAbortedDueToNaN_2 || atLeastOneFitParameterAtItsLimit_2 || invalidTransferFunctionAtConvergence_2) continue;
 
-	float prob = prob_1*y->eventProbability();
+	double prob = prob_1*y->eventProbability();
 	sumEventProbability += prob;
-	
+
 	if (prob > bestEventProbability) {
 	  bestEventProbability = prob;
 	  bestPermutation1 = iPerm1;
@@ -1458,6 +1466,10 @@ namespace top {
 
   /// Function finalizing the tool
   StatusCode KLFitterTool::finalize() {
+
+    //    std::cout << "KLFitter Benchmark FINALIZE :: " << m_selectionName << std::endl;
+    //    m_benchmark.Print(m_selectionName.c_str());
+
     /// Return gracefully:
     return StatusCode::SUCCESS;
   }
