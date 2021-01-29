@@ -484,6 +484,22 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
     //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.
     if(regionId>m_regionIdThreshold) {
       MuonCalib::MuonFixedId id(regionId);
+      if (!id.is_mdt()) {
+        ATH_MSG_WARNING("Found non-MDT MuonFixedId, continuing...");
+        continue;
+      }
+      if (!m_idHelperSvc->hasCSC()) {
+        // in case there are no CSCs, there must be 2 NSWs, and accordingly no EIS/EIL1-3 MDTs
+        std::string stationName = id.stationNumberToFixedStationString(id.stationName());
+        if (stationName.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName.find("EIL")!=std::string::npos)) {
+          static std::atomic<bool> eisWarningPrinted = false;
+          if (!eisWarningPrinted) {
+            ATH_MSG_WARNING("Found EIS/EIL1-3 MuonFixedId, although NSWs should be present, continuing...");
+            eisWarningPrinted.store(true, std::memory_order_relaxed);
+          }
+          continue;
+        }
+      }
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
       if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_idHelperSvc->mdtIdHelper().multilayer(athenaId)==2 ) {
@@ -503,6 +519,14 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
       regionId = hash;      //reset regionId to chamber hash
     }
+    if(regionId>=writeCdoRt->size()) {
+      static std::atomic<bool> regionIdWarningPrinted = false;
+      if (!regionIdWarningPrinted) {
+        ATH_MSG_WARNING("loadRt() - regionId="<<regionId<<" larger than size of MdtRtRelationCollection, skipping...");
+        regionIdWarningPrinted.store(true, std::memory_order_relaxed);
+      }
+      continue;
+    }
     // extract npoints in RT function
     pch = strtok (NULL, "_,");
     npoints = atoi(pch);
@@ -521,6 +545,7 @@ StatusCode MdtCalibDbAlg::loadRt(const MuonGM::MuonDetectorManager* muDetMgr){
       if (!rtWarningPrinted) {
         ATH_MSG_WARNING("loadRt() - Ignoring nonexistant station in calibration DB: "<<m_idHelperSvc->mdtIdHelper().print_to_string(athenaId)<<", cf. ATLASRECTS-5826");
         rtWarningPrinted.store(true, std::memory_order_relaxed);
+        continue;
       }
     } else {
       innerTubeRadius = detEl->innerTubeRadius();
@@ -995,7 +1020,11 @@ StatusCode MdtCalibDbAlg::loadTube(const MuonGM::MuonDetectorManager* muDetMgr){
       // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
       // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
       if (m_idHelperSvc->issMdt(chId) && name.find("BI")!=std::string::npos) {
-        ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+        static std::atomic<bool> sMDTWarningPrinted = false;
+        if (!sMDTWarningPrinted) {
+          ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+          sMDTWarningPrinted.store(true, std::memory_order_relaxed);
+        }
         continue;
       }
       else {
