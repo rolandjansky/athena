@@ -62,12 +62,12 @@ def testChainDictMaker(idict):
         ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',
                   groups=SingleJetGroup),
 
-        ChainProp(name='HLT_j60_pfltrSEP100ceta90SEP100nphi50_L1J20',
+        ChainProp(name='HLT_j60_prefilterSEP100ceta90SEP100nphi50_L1J20',
                   groups=SingleJetGroup),
 
         ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
         
-        ChainProp(name='HLT_j85_ftf_pfltrSEP300ceta210SEP300nphi10_L1J20',
+        ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
         
         ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),

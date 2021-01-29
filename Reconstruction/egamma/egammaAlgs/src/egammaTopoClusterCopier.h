@@ -5,7 +5,7 @@
 #ifndef EGAMMAALGS_EGAMMATOPOCLUSTERCOPIER_H
 #define EGAMMAALGS_EGAMMATOPOCLUSTERCOPIER_H
 
-#include "xAODCaloEvent/CaloClusterFwd.h" 
+#include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -28,11 +28,8 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
   virtual StatusCode execute(const EventContext& ctx) const override final;
   /** @brief finalize method */
   virtual StatusCode finalize() override final;
-  
-  private:
 
-  // note: cluster passed is not const since it gets decorated
-  bool passSelection(xAOD::CaloCluster *clus) const;
+  private:
 
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputTopoCollection {this,
       "InputTopoCollection", "CaloTopoCluster", "input topocluster collection"};
@@ -48,7 +45,7 @@ class egammaTopoClusterCopier : public AthReentrantAlgorithm {
   Gaudi::Property<float> m_etaCut {this, "EtaCut", 2.6, "maximum |eta| of selected clusters"};
   Gaudi::Property<float> m_ECut {this, "ECut", 700, "minimum energy of selected clusters"};
   Gaudi::Property<float> m_EMFracCut {this, "EMFracCut", 0.5, "mimimum EM fraction"};
- 
+
   mutable Gaudi::Accumulators::Counter<>                     m_AllClusters;
   mutable Gaudi::Accumulators::Counter<>                     m_PassPreSelection;
   mutable Gaudi::Accumulators::Counter<>                     m_PassSelection;

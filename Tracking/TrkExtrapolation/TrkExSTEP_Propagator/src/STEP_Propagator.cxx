@@ -1134,7 +1134,7 @@ Trk::STEP_Propagator::propagateRungeKutta ( Cache&                              
 
   // loop while valid solutions
   bool validStep = true;
-  totalPath = 0.; 
+  totalPath = 0.;
   cache.m_timeOfFlight = 0.;
   // Common transformation for all surfaces (angles and momentum)
   double localp[5];
@@ -1594,8 +1594,8 @@ Trk::STEP_Propagator::propagateWithJacobian (Cache& cache,
           //std::cout <<" STEP overshoots bin boundary by:"<< stepOver<<" :w.r.t. bin:" << dist2previous.first<< std::endl;
           double localp[5];
           Trk::RungeKuttaUtils::transformGlobalToLocal(P, localp);
-          const Trk::CurvilinearParameters* cPar =
-            new Trk::CurvilinearParameters(Amg::Vector3D(P[0],P[1],P[2]),localp[2],localp[3],localp[4]);
+          auto cPar = std::make_unique<Trk::CurvilinearParameters>(
+            Amg::Vector3D(P[0], P[1], P[2]), localp[2], localp[3], localp[4]);
           if (cache.m_identifiedParameters) {
             if (binIDMat && binIDMat->second>0 && !iMat ) {  // exit from active layer
               cache.m_identifiedParameters->push_back(std::pair<const Trk::TrackParameters*,int> (cPar->clone(),-binIDMat->second));

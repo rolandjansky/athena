@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "METAssocTestAlg.h"
@@ -48,7 +48,7 @@ namespace met {
       return StatusCode::FAILURE;
     } 
 
-    for(const auto& assoc : *map) {
+    for(const auto assoc : *map) {
       if(assoc->isMisc()) { // misc association gets special treatment
 	ATH_MSG_VERBOSE( "  Now on MET misc association" );
 	ATH_CHECK( checkMiscAssoc(*assoc) );

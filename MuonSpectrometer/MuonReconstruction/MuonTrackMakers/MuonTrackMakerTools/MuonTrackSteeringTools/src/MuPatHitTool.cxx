@@ -138,7 +138,7 @@ MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const T
 
            //this code does its own manual garbage collection which can probably be omitted now
             exPars =
-                std::move(m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties));
+                m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
 
             if (!exPars) {
                 if (!wasPrinted) {
@@ -306,8 +306,8 @@ MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const
                         // redo propagation
 
                         //this code does its own garbage collection, but this can prob. be simplified now
-                        exPars = std::move(m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false,
-                                                         m_magFieldProperties));
+                        exPars = m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false,
+                                                         m_magFieldProperties);
 
                         // if failed keep old parameters
                         if (!exPars) {

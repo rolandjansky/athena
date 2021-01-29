@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCaloEnergyTool.h"
@@ -189,7 +189,7 @@ namespace Rec {
     const Trk::CaloExtension& caloExtension = association->caloExtension();
 
     if(!caloExtension.caloEntryLayerIntersection()) {
-      ATH_MSG_WARNING( " No caloEntryLayerIntersection found ");
+      ATH_MSG_DEBUG("calculateMuonEnergies() - No caloEntryLayerIntersection found");
       return;
     }   
 

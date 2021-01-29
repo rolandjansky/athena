@@ -3,6 +3,7 @@
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
+from AthenaConfiguration.MainServicesConfig import MainServicesCfg
 LArRawDataReadingAlg=CompFactory.LArRawDataReadingAlg
 
 def LArRawDataReadingCfg(configFlags, **kwargs):
@@ -35,13 +36,15 @@ if __name__=="__main__":
     ConfigFlags.Input.Files = defaultTestFiles.RAW
     ConfigFlags.lock()
 
-    acc=LArRawDataReadingCfg(ConfigFlags)
+    acc = MainServicesCfg( ConfigFlags )
+    from AtlasGeoModel.AtlasGeoModelConfig import AtlasGeometryCfg
+    acc.merge(AtlasGeometryCfg(ConfigFlags))
+    acc.merge(LArRawDataReadingCfg(ConfigFlags))
     
     DumpLArRawChannels=CompFactory.DumpLArRawChannels
     from LArCabling.LArCablingConfig import LArOnOffIdMappingCfg 
     acc.merge(LArOnOffIdMappingCfg(ConfigFlags))
     acc.addEventAlgo(DumpLArRawChannels(LArRawChannelContainerName="LArRawChannels",))
 
-    f=open("LArRawDataReading.pkl","wb")
-    acc.store(f)
-    f.close()
+    acc.run(2,OutputLevel=DEBUG)
+

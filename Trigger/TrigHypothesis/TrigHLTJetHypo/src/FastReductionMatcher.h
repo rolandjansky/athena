@@ -58,6 +58,5 @@ class FastReductionMatcher: public IJetsMatcherMT {
   // leaf Condition capacities
   long int m_minNjets{0};
 
-
 };
 #endif

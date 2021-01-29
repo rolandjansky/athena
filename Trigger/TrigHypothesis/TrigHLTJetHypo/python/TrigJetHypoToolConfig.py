@@ -171,6 +171,7 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 def  trigJetHypoToolFromDict(chain_dict):
     debug = False  # SET TO FALSE  WHEN COMMITTING
     tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
+    tool.endLabelIndex = len(chain_dict['chainParts'])
     return trigJetHypoToolFromDict_(chain_dict, tool, debug)
 
 

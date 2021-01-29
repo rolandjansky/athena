@@ -1,9 +1,10 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
@@ -304,7 +305,7 @@ def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
     else:
-        if (not flags.Detector.SimulatePixel) or flags.Detector.OverlayPixel:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))

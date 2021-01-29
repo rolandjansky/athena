@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonMDT_Cabling/MuonMDT_CablingAlg.h"
@@ -187,19 +187,29 @@ StatusCode MuonMDT_CablingAlg::execute(){
       // this is a tube id that must be unpacked
       else if (index==3) {
 	// unpack the tube Id
+  // this will for sure not work for BIS78, multilayer2, since there, we have 108 tubes per tubeLayer (cf. ATLASRECTS-5961)
 	tube = info%100;
 	layer = ((info-tube)/100)%10;
 	multilayer = (((info-tube)/100)-layer)/10 ;
 	index = 0;
+  // the stationIndex is later on passed to the MdtIdHelper, thus, it must be a reasonable station name, i.e. not < 0
+  if (stationIndex<0) {
+    static std::atomic<bool> stWarningPrinted = false;
+    if (!stWarningPrinted) {
+      ATH_MSG_WARNING("Found stationIndex="<<stationIndex<<" which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
+      stWarningPrinted.store(true, std::memory_order_relaxed);
+    }
+    continue;
+  }
 	ATH_MSG_VERBOSE( "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
                          << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
 	// now this mezzanine can be added to the map:
 	writeCdo->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
 				    layer, tube, subdetectorId, mrod, csm, tdcId, channelId);				    
-      }	
-    }
+      }
+    } // end of info_map loop
 
-  }
+  } // end of CondAttrListCollection loop
 
   if(m_idHelperSvc->mdtIdHelper().stationNameIndex("BMG") != -1 && !BMGchamberadded) {
     ATH_MSG_WARNING( "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling."  );

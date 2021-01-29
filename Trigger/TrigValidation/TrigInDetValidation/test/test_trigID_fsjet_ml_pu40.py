@@ -32,7 +32,7 @@ Threads = 1
 Slots   = 1 # what about the mt: 4 art directive ? nfiles: 3 ?
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
-postinclude_file = 'TIDAml_extensions.py'
+postinclude_file = 'TrigInDetValidation/TIDAml_extensions.py'
 
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ),
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),

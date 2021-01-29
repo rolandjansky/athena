@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -35,8 +35,6 @@ if __name__ == "__main__":
   # Provide MC input
   ConfigFlags.Input.Files = defaultTestFiles.HITS
   ConfigFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-16"
-  ConfigFlags.Detector.SimulateITkPixel = True
-  ConfigFlags.Detector.SimulateITkStrip   = True
   ConfigFlags.GeoModel.Align.Dynamic    = False
   # Provide data input
   ##from AthenaConfiguration.TestDefaults import defaultTestFiles

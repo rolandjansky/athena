@@ -1341,14 +1341,14 @@ Trk::GsfExtrapolator::multiStatePropagate(
                            direction,
                            boundaryCheck,
                            m_fieldProperties,
-                           particleHypothesis).release();
+                           particleHypothesis);
     if (!propagatedParameters) {
       ATH_MSG_DEBUG("Propagation of component failed... continuing");
       continue;
     }
     sumw += component->second;
     // Propagation does not affect the weightings of the states
-    propagatedState.emplace_back(propagatedParameters, component->second);
+    propagatedState.emplace_back(std::move(propagatedParameters), component->second);
   }
 
   ATH_MSG_DEBUG("GSF multiStatePropagate() propagated  "

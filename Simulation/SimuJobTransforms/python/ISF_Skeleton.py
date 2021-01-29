@@ -7,6 +7,8 @@ from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, pr
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"

@@ -154,7 +154,7 @@ JetChainParts = {
     'cleaning'      : # Jet cleaning per jet (currently unused)
       ['noCleaning', 'cleanLB'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['loose', 'pfltrSEP300ceta210SEP300nphi10'], 
+    ['loose', 'prefilterSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout

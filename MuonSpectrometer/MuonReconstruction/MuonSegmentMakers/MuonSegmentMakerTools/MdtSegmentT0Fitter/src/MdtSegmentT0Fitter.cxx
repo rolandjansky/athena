@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MdtSegmentT0Fitter/MdtSegmentT0Fitter.h"
@@ -32,9 +32,9 @@ namespace {
   constexpr double MAX_RAD=16.;
 
   // time corresponding to r=15 mm for internal rt
-  constexpr double TUBE_TIME = 757.22;
+  //constexpr double TUBE_TIME = 757.22;
 
-  constexpr double MAX_DRIFT= 855;
+  //constexpr double MAX_DRIFT= 855;
 
    // garbage time value to return when radius isn't wihin rt range
    constexpr double R2TSPURIOUS = 50000;
@@ -116,8 +116,8 @@ namespace {
   /// RT function from Craig Blocker
   /// ok for now, possibly replace with actual RT function used to calibrate run
 
-  constexpr double T2R_A[] = {1.184169e-1, 3.32382e-2, 4.179808e-4, -5.012896e-6, 2.61497e-8, -7.800677e-11, 1.407393e-13, -1.516193e-16, 8.967997e-20, -2.238627e-23};
-  constexpr double RCORR_A[] = {234.3413, -5.803375, 5.061677e-2, -1.994959e-4, 4.017433e-7, -3.975037e-10, 1.522393e-13};
+  //constexpr double T2R_A[] = {1.184169e-1, 3.32382e-2, 4.179808e-4, -5.012896e-6, 2.61497e-8, -7.800677e-11, 1.407393e-13, -1.516193e-16, 8.967997e-20, -2.238627e-23};
+  //constexpr double RCORR_A[] = {234.3413, -5.803375, 5.061677e-2, -1.994959e-4, 4.017433e-7, -3.975037e-10, 1.522393e-13};
 
   
 

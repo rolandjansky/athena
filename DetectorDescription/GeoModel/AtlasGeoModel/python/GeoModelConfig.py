@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaCommon.Configurable import Configurable
 from AthenaCommon import Logging
 
@@ -19,7 +20,7 @@ def GeoModelCfg(configFlags):
     GeoModelSvc=CompFactory.GeoModelSvc
     gms=GeoModelSvc(AtlasVersion=version,
                     SupportedGeometry = int(relversion[0]))
-    if configFlags.Detector.Simulate:
+    if configFlags.Common.ProductionStep == ProductionStep.Simulation:
         ## Protects GeoModelSvc in the simulation from the AlignCallbacks
         gms.AlignCallbacks = False
     result.addService(gms, primary=True, create=True)
