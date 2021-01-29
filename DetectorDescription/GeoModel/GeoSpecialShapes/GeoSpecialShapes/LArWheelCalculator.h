@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GEOSPECIALSHAPES_LARWHEELCALCULATOR_H
@@ -7,11 +7,14 @@
 
 #include <vector>
 
+// FMV and other checks
+#include "CxxUtils/features.h"
+
 #include "CLHEP/Vector/ThreeVector.h"
 #ifndef XAOD_STANDALONE
     #include "AthenaKernel/CLASS_DEF.h"
 #endif // XAOD_STANDALONE
-#if !defined(__CLING__)
+#if HAVE_VECTOR_SIZE_ATTRIBUTE
     #include "vec_parametrized_sincos.h"
 #endif
 #include "GeoSpecialShapes/LArWheelCalculatorEnums.h"
@@ -210,7 +213,7 @@ class LArWheelCalculator
     LArWheelCalculator_Impl::IDistanceCalculator *m_distanceCalcImpl;
     LArWheelCalculator_Impl::IFanCalculator *m_fanCalcImpl;
     void fill_sincos_parameterization();
-#if !defined(__CLING__)
+#if HAVE_VECTOR_SIZE_ATTRIBUTE
     vsincos_par m_vsincos_par{};
 #endif
 };

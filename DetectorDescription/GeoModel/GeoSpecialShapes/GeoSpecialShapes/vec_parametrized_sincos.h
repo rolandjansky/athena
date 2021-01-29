@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -9,7 +9,6 @@
 #ifndef VEC_PARAMETRIZED_SINCOS_H
 #define VEC_PARAMETRIZED_SINCOS_H
 
-#include "CxxUtils/features.h"
 #include "CxxUtils/restrict.h"
 #include "CxxUtils/vec.h"
 struct vsincos_par
