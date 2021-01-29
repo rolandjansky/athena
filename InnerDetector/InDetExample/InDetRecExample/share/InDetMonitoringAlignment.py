@@ -108,9 +108,10 @@ if not jobproperties.Beam.beamType()=='cosmics':
             printfunc (InDetAlignMonSivsTRT_noTrig)
 
 
+        from InDetRecExample import TrackingCommon
         from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import InDetAlignMonBeamSpot
         InDetAlignMonBeamSpot_noTrig = InDetAlignMonBeamSpot (name                           = "InDetAlignMonBeamSpot_noTrig",
-                                                              extrapolator                   = InDetExtrapolator,
+                                                              extrapolator                   = TrackingCommon.getInDetExtrapolator(),
                                                               vxContainerName                = InDetKeys.xAODVertexContainer(),
                                                               vxContainerWithBeamConstraint  = InDetFlags.useBeamConstraint())
         
@@ -234,10 +235,12 @@ if (InDetFlags.doPrintConfigurables()):
 #
 # Generic Tracks
 #
+from InDetRecExample import TrackingCommon
 from InDetAlignmentMonitoring.InDetAlignmentMonitoringConf import IDAlignMonGenericTracks
 InDetAlignMonGenericTracks_noTrig = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks_noTrig",
                                                              trackSelection      = m_alignMonTrackSelectionTool[1],
-                                                             VxPrimContainerName = InDetKeys.xAODVertexContainer())   
+                                                             TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
+                                                             VxPrimContainerName = InDetKeys.xAODVertexContainer())
 
 if jobproperties.Beam.beamType()=='cosmics' or jobproperties.Beam.beamType()=='singlebeam':
     InDetAlignMonGenericTracks_noTrig.tracksName   = InDetKeys.Tracks()
@@ -383,6 +386,7 @@ else:
 
     InDetAlignMonGenericTracks = IDAlignMonGenericTracks (name                = "InDetAlignMonGenericTracks",
                                                           trackSelection      = m_alignMonTrackSelectionTool[1],
+                                                          TrackToVertexIPEstimator = TrackingCommon.getTrackToVertexIPEstimator(),
                                                           tracksName          = InDetKeys.ExtendedTracks(),
                                                           VxPrimContainerName =  InDetKeys.xAODVertexContainer())
 

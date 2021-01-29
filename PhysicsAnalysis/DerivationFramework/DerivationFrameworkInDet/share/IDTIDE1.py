@@ -15,6 +15,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 
 from DerivationFrameworkInDet.InDetCommon import *
 from InDetPrepRawDataToxAOD.InDetDxAODJobProperties import InDetDxAODFlags
+from InDetRecExcample import TrackingCommon
 
 from AthenaCommon.Logging import logging
 msg = logging.getLogger( "IDTIDE1" )
@@ -53,9 +54,7 @@ evtStream = augStream.GetEventStream()
 #====================================================================
 # CP GROUP TOOLS
 #====================================================================
-from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
-IDTIDE1IPETool = Trk__TrackToVertexIPEstimator(name = "IDTIDE1IPETool")
-ToolSvc += IDTIDE1IPETool
+IDTIDE1IPETool = TrackingCommon.getTrackToVertexIPEstimator(name = "IDTIDE1IPETool")
 _info(IDTIDE1IPETool)
 
 #Setup tools
@@ -83,13 +82,12 @@ _info(IDTIDE1TrackToVertexWrapper)
 
 
 from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackStateOnSurfaceDecorator
-import InDetRecExample.TrackingCommon
 DFTSOS = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackStateOnSurfaceDecorator",
                                                           ContainerName = "InDetTrackParticles",
                                                           IsSimulation = False,
                                                           DecorationPrefix = "",
                                                           StoreTRT   = idDxAOD_doTrt,
-                                                          TRT_ToT_dEdx = InDetRecExample.TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
+                                                          TRT_ToT_dEdx = TrackingCommon.getInDetTRT_dEdxTool() if idDxAOD_doTrt else "",
                                                           StoreSCT   = idDxAOD_doSct,
                                                           StorePixel = idDxAOD_doPix,
                                                           OutputLevel =INFO)
@@ -235,7 +233,7 @@ if idDxAOD_doPix:
   _info("Add Pixel xAOD ToTConversionSetter: %s Properties: %s", PixelChargeToTConversionSetter, PixelChargeToTConversionSetter.properties())
   from InDetPrepRawDataToxAOD.InDetPrepRawDataToxAODConf import PixelPrepDataToxAOD
   xAOD_PixelPrepDataToxAOD = PixelPrepDataToxAOD( name = "xAOD_PixelPrepDataToxAOD",
-                                                  ClusterSplitProbabilityName = InDetRecExample.TrackingCommon.pixelClusterSplitProbName())
+                                                  ClusterSplitProbabilityName = TrackingCommon.pixelClusterSplitProbName())
   xAOD_PixelPrepDataToxAOD.OutputLevel=INFO
   xAOD_PixelPrepDataToxAOD.UseTruthInfo=IsMonteCarlo
   _info( "Add Pixel xAOD TrackMeasurementValidation: %s", xAOD_PixelPrepDataToxAOD)
