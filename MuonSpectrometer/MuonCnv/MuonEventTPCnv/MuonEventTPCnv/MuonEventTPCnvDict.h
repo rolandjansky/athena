@@ -39,5 +39,15 @@
 #include "MuonEventTPCnv/MuonDigitContainer/CscSimDataCollection_p2.h"
 #include "MuonEventTPCnv/MuonRDO/STGC_RawDataContainer_p1.h"
 #include "MuonEventTPCnv/MuonRDO/MM_RawDataContainer_p1.h"
+#include "MuonEventTPCnv/MuonRDO/NSW_PadTriggerDataContainer_p1.h"
+
+struct MuonEventTPCnvDict
+{
+    Muon::NSW_PadTriggerSegment_p1                  m_v33;
+    Muon::NSW_PadTriggerData_p1                     m_v34;
+    Muon::NSW_PadTriggerDataContainer_p1            m_v35;
+    std::vector<Muon::NSW_PadTriggerSegment_p1>     m_v36;
+    std::vector<Muon::NSW_PadTriggerData_p1>        m_v37;
+};
 
 #endif // MUONEVENTTPCNV_MUONEVENTTPCNVDICT_H
