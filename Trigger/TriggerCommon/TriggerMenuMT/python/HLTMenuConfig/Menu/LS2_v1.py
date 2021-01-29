@@ -303,7 +303,7 @@ def setupMenu():
         ChainProp(name='HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
 
 
-        ChainProp(name='HLT_j85_ftf_pfltrSEP300ceta210SEP300nphi10_L1J20',
+        ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
 
         ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',

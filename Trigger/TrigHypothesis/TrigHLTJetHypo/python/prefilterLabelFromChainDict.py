@@ -18,7 +18,7 @@ def prefilterArgsFromChainDict(chain_dict):
     [prefilter_args.extend(cp['prefilters']) for cp in chain_parts]
     
     for p in prefilter_args:
-        assert p.startswith('pfltr')
+        assert p.startswith('prefilter')
                    
     return prefilter_args
                    

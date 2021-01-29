@@ -152,7 +152,7 @@ JetChainParts = {
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['loose', 'pfltrSEP300ceta210SEP300nphi10'], 
+    ['loose', 'prefilterSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
