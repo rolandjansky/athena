@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 from AthenaCommon.Configurable import Configurable
 Configurable.configurableRun3Behavior=1
@@ -12,7 +13,7 @@ def TileGMCfg(configFlags):
 
     TileDetectorTool=CompFactory.TileDetectorTool
     result.getPrimary().DetectorTools += [ TileDetectorTool() ]
-    if not configFlags.Detector.SimulateCalo:
+    if configFlags.Common.ProductionStep != ProductionStep.Simulation:
         result.getPrimary().DetectorTools["TileDetectorTool"].GeometryConfig = "RECO"
 
     return result

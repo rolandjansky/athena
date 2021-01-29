@@ -4,6 +4,7 @@
 
 from TileSimAlgs.TileHitVecToCntConfig import TileHitVecToCntCfg
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 
 def TileDigitsMakerCfg(flags, **kwargs):
     """Return component accumulator with configured Tile digits maker algorithm
@@ -14,15 +15,15 @@ def TileDigitsMakerCfg(flags, **kwargs):
         name -- name of TileDigitsMaker algorithm. Defaults to TileDigitsMaker.
         UseCoolPulseShapes -- flag to use pulse shape from database. Defaults to True.
         RndmEvtOverlay -- flag to add PileUp or noise by overlaying random events.
-                          Defaults to Detector.OverlayTile flag.
+                          True if Common.ProductionStep equals to ProductionStep.Overlay.
         MaskBadChannels -- flag to mask channels tagged bad. Defaults to False.
     """
 
     kwargs.setdefault('name', 'TileDigitsMaker')
     kwargs.setdefault('UseCoolPulseShapes', True)
     kwargs.setdefault('MaskBadChannels', False)
-    kwargs.setdefault('RndmEvtOverlay', flags.Detector.OverlayTile)
-    kwargs.setdefault('OnlyUseContainerName', not flags.Detector.OverlayTile)
+    kwargs.setdefault('RndmEvtOverlay', flags.Common.ProductionStep == ProductionStep.Overlay)
+    kwargs.setdefault('OnlyUseContainerName', flags.Common.ProductionStep != ProductionStep.Overlay)
 
     acc = TileHitVecToCntCfg(flags)
 
@@ -129,7 +130,7 @@ def TileDigitsMakerOutputCfg(flags, **kwargs):
         name -- name of TileDigitsMaker algorithm. Defaults to TileDigitsMaker.
         UseCoolPulseShapes -- flag to use pulse shape from database. Defaults to True.
         RndmEvtOverlay -- flag to add PileUp or noise by overlaying random events.
-                          Defaults to Detector.OverlayTile flag.
+                          True if Common.ProductionStep equals to ProductionStep.Overlay.
         MaskBadChannels -- flag to mask channels tagged bad. Defaults to False.
     """
 

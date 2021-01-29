@@ -1,7 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, DetDescrInfo
+from AthenaConfiguration.Enums import ProductionStep
 
 def createGeoModelConfigFlags():
     gcf=AthConfigFlags()
@@ -15,7 +16,7 @@ def createGeoModelConfigFlags():
                                     or "ATLAS-R2-2016-01-00-01"))
 
     gcf.addFlag("GeoModel.Align.Dynamic",
-                lambda prevFlags : not prevFlags.Detector.Simulate and not prevFlags.Input.isMC)
+                lambda prevFlags : prevFlags.Common.ProductionStep != ProductionStep.Simulation and not prevFlags.Input.isMC)
 
     gcf.addFlag("GeoModel.StripGeoType",
                 lambda prevFlags : DetDescrInfo(prevFlags.GeoModel.AtlasVersion)['Common']['StripGeoType'])

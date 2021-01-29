@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """Run tests on G4AtlasToolsConfigNew
 
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 if __name__ == '__main__':
@@ -18,6 +17,8 @@ if __name__ == '__main__':
 
   #import config flags
   from AthenaConfiguration.AllConfigFlags import ConfigFlags
+  from AthenaConfiguration.Enums import ProductionStep
+  ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
   ConfigFlags.Sim.ISFRun = True
 
   #Provide input

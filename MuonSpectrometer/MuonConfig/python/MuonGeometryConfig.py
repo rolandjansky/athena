@@ -2,6 +2,7 @@
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from AtlasGeoModel.GeoModelConfig import GeoModelCfg
 MuonDetectorTool=CompFactory.MuonDetectorTool
 Muon__MuonIdHelperSvc=CompFactory.Muon.MuonIdHelperSvc
@@ -28,7 +29,8 @@ def MuonDetectorToolCfg(flags):
         )
     detTool.UseConditionDb = 1
     detTool.UseIlinesFromGM = 1
-    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not (flags.Detector.OverlayMuon and flags.Input.isMC)
+    enableAlignment = flags.Common.Project != 'AthSimulation' \
+        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
     if enableAlignment:
         # Condition DB is needed only if A-lines or B-lines are requested
         if not (not flags.Muon.Align.UseALines and flags.Muon.Align.UseBLines=='none'):
@@ -71,7 +73,7 @@ def MuonDetectorToolCfg(flags):
     else:
         detTool.UseConditionDb = 0
         detTool.UseAsciiConditionData = 0
-        if flags.Detector.SimulateMuon:
+        if flags.Common.ProductionStep == ProductionStep.Simulation:
             detTool.FillCacheInitTime = 0
 
     ## Additional material in the muon system
@@ -169,7 +171,9 @@ def MuonGeoModelCfg(flags):
     gms=acc.getPrimary()
     detTool = acc.popToolsAndMerge(MuonDetectorToolCfg(flags))
     gms.DetectorTools += [ detTool ]
-    enableAlignment = flags.Common.Project != 'AthSimulation' and not flags.Detector.SimulateMuon and not (flags.Detector.OverlayMuon and flags.Input.isMC)
+
+    enableAlignment = flags.Common.Project != 'AthSimulation' \
+        and (flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay)
     if enableAlignment:
         acc.merge(MuonDetectorCondAlgCfg(flags))
 
