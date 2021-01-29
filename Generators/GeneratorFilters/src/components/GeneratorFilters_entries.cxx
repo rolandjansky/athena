@@ -33,6 +33,7 @@
 #include "GeneratorFilters/MultiElectronFilter.h"
 #include "GeneratorFilters/DiPhotonFilter.h"
 #include "GeneratorFilters/ChargedTracksFilter.h"
+#include "GeneratorFilters/ChargedTracksWeightFilter.h"
 #include "GeneratorFilters/DecayModeFilter.h"
 #include "GeneratorFilters/DiLeptonMassFilter.h"
 #include "GeneratorFilters/DirectPhotonFilter.h"
@@ -107,6 +108,7 @@ DECLARE_ALGORITHM_FACTORY(TruthJetWeightFilter)
 DECLARE_ALGORITHM_FACTORY(MultiElectronFilter)
 DECLARE_ALGORITHM_FACTORY(DiPhotonFilter)
 DECLARE_ALGORITHM_FACTORY(ChargedTracksFilter)
+DECLARE_ALGORITHM_FACTORY(ChargedTracksWeightFilter)
 DECLARE_ALGORITHM_FACTORY(DecayModeFilter)
 DECLARE_ALGORITHM_FACTORY(DiLeptonMassFilter)
 DECLARE_ALGORITHM_FACTORY(DirectPhotonFilter)
@@ -181,6 +183,7 @@ DECLARE_FACTORY_ENTRIES(GeneratorFilters) {
     DECLARE_ALGORITHM(MultiElectronFilter)
     DECLARE_ALGORITHM(DiPhotonFilter)
     DECLARE_ALGORITHM(ChargedTracksFilter)
+    DECLARE_ALGORITHM(ChargedTracksWeightFilter)
     DECLARE_ALGORITHM(DecayModeFilter)
     DECLARE_ALGORITHM(DiLeptonMassFilter)
     DECLARE_ALGORITHM(DirectPhotonFilter)
