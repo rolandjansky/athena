@@ -139,7 +139,7 @@ class TgcRawDataMonitorAlgorithm : public AthMonitorAlgorithm {
   std::vector<TagDef> m_trigTagDefs;
   std::vector<double> m_extZposition;
   
-  StatusCode triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
+  bool triggerMatching(const xAOD::Muon* , const std::vector<TagDef>& ) const;
 
   /* track extrapolator tool */
   enum TargetDetector { UNDEF, TGC, RPC };
