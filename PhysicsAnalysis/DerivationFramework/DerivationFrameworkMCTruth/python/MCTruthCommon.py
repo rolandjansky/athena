@@ -141,6 +141,10 @@ def addTruthJets(kernel=None, decorationDressing=None):
         # R=0.2 truth charged jets
         from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets
         addStandardJets("AntiKt", 0.2, "TruthCharged", 5000, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
+    if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKtVR30Rmax4Rmin02TruthChargedJets"):
+        # VR truth jets
+        from DerivationFrameworkJetEtMiss.JetCommon import addStandardVRJets
+        addStandardVRJets("TruthCharged", 5000, 0, 30000, 0.02, 0.4, mods=truth_modifiers, algseq=kernel, outputGroup="DFCommonMCTruthJets")
     if not objKeyStore.isInInput( "xAOD::JetContainer","AntiKt10TruthJets") and not hasattr(kernel,'jetalgAntiKt10Truth'):
         # AntiKt2 truth charged jets ghost association
         from JetRec.JetRecConf import PseudoJetGetter
@@ -151,9 +155,17 @@ def addTruthJets(kernel=None, decorationDressing=None):
                                     OutputContainer = "PseudoJetGhostAntiKt2TruthChargedJet",
                                     SkipNegativeEnergy = True,
                                     GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+                                       )
+        if not 'gaktvrtruthchargedget' in jtm.tools:
+            jtm += PseudoJetGetter("gaktvrtruthchargedget", # give a unique name
+                                    InputContainer = "AntiKtVR30Rmax4Rmin02TruthChargedJets", # SG key
+                                    Label = "GhostAntiKtVR30Rmax4Rmin02TruthChargedJets",   # this is the name you'll use to retrieve associated ghosts
+                                    OutputContainer = "PseudoJetGhostAntiKtVR30Rmax4Rmin02TruthChargedJet",
+                                    SkipNegativeEnergy = True,
+                                    GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
                                    )
         trackjetgetters = []
-        trackjetgetters += [jtm.gakt2truthchargedget]
+        trackjetgetters += [jtm.gakt2truthchargedget, jtm.gaktvrtruthchargedget]
         truthgetters = [jtm.truthget]
         truthgetters += trackjetgetters
         flavorgetters = []

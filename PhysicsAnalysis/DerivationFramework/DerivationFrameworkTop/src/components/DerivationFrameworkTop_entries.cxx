@@ -13,6 +13,8 @@
 #include "DerivationFrameworkTop/SV1TrackThinning.h"
 // added for TOPQDERIV-62
 #include "DerivationFrameworkTop/ExKtbbAugmentation.h"
+// added for TOPQDERIV-104
+#include "DerivationFrameworkTop/SoftSVAugmentation.h"
 
 using namespace DerivationFramework;
 
@@ -27,6 +29,7 @@ DECLARE_TOOL_FACTORY( TrkJetSecVtxThinning )
 DECLARE_TOOL_FACTORY( TrkJetJetFitterThinning )
 DECLARE_TOOL_FACTORY( SV1TrackThinning )
 DECLARE_TOOL_FACTORY( ExKtbbAugmentation )
+DECLARE_TOOL_FACTORY( SoftSVAugmentation )
 
 DECLARE_FACTORY_ENTRIES( DerivationFrameworkTop ) {
 
@@ -39,5 +42,6 @@ DECLARE_FACTORY_ENTRIES( DerivationFrameworkTop ) {
   DECLARE_TOOL( TrkJetJetFitterThinning )
   DECLARE_TOOL( SV1TrackThinning )
   DECLARE_TOOL( ExKtbbAugmentation )
+  DECLARE_TOOL( SoftSVAugmentation )
 
 }

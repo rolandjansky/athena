@@ -940,6 +940,19 @@ class WriteDAOD_STDM13Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM13Stream)
 listAODtoDPD.append(WriteDAOD_STDM13Stream.StreamName)
 
+class WriteDAOD_STDM14Stream (JobProperty):
+    """W->rho+gamma analysis"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM14'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM14.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM14Stream)
+listAODtoDPD.append(WriteDAOD_STDM14Stream.StreamName)
+
 #################################
 # Defined by the Tau group
 #################################
