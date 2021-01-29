@@ -2274,7 +2274,7 @@ HLT_j85_ftf_L1J20:
   stepFeatures:
     0: 19
     1: 22
-HLT_j85_ftf_pfltrSEP300ceta210SEP300nphi10_L1J20:
+HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20:
   eventCount: 10
   stepCounts:
     0: 19
