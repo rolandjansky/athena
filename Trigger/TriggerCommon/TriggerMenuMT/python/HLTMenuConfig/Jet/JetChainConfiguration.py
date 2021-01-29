@@ -148,7 +148,6 @@ class JetChainConfiguration(ChainConfigurationBase):
              'bTag': '',
              'bTracking': '',
              'chainPartName': chainPartName,
-             'cleaning': 'noCleaning',
              'dataScouting': '',
              'etaRange': '0eta320',
              'extra': '',
