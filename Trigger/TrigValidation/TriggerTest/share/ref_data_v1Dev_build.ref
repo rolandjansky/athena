@@ -905,7 +905,7 @@ HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20:
   stepCounts:
     0: 7
   stepFeatures:
-    0: 105
+    0: 220
 HLT_j420_L1J100:
   eventCount: 0
 HLT_j420_pf_subresjesgscIS_ftf_L1J100:
@@ -1143,7 +1143,7 @@ HLT_j60_j0_fbdjshared_L1J20:
   stepCounts:
     0: 1
   stepFeatures:
-    0: 9
+    0: 19
 HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20:
   eventCount: 0
 HLT_j80_L1J15:
