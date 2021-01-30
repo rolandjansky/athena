@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017, 2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_H
@@ -144,8 +144,11 @@ protected:
   /// Default is to clear the store at the end of the event
   StringProperty m_clearStorePolicy;
 
+  /// require input attribute list
+  bool m_requireInputAttributeList{};
+
   /// read event number from secondary input
-  bool m_useSecondaryEventNumber;
+  bool m_useSecondaryEventNumber{};
 
   /// property update handler:set the clear-store policy value and check its
   /// value.

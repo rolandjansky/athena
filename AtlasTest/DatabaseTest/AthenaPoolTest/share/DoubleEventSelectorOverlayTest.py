@@ -88,6 +88,7 @@ if nThreads > 0:
     EventLoop = AthenaServicesConf.AthenaHiveEventLoopMgr()
 else:
     EventLoop = AthenaServicesConf.AthenaEventLoopMgr()
+EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 EventLoop.OutputLevel = INFO
 svcMgr += EventLoop
