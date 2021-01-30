@@ -16,7 +16,8 @@ def addCommonSimDigArguments(parser):
     addForwardDetTrfArgs(parser)
 
 def addCommonSimulationArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs
+    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addSimIOTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs
+    addSimIOTrfArgs(parser)
     addCommonSimTrfArgs(parser)
     addCosmicsTrfArgs(parser)
     addTrackRecordArgs(parser)
@@ -30,6 +31,16 @@ def addPureDigitizationArguments(parser):
     from SimuJobTransforms.simTrfArgs import addBasicDigiArgs, addPileUpTrfArgs
     addBasicDigiArgs(parser)
     addPileUpTrfArgs(parser)
+
+def addReSimulationArguments(parser):
+    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs, addHITSMergeArgs, addSim_tfArgs, addReSimulationArgs
+    addHITSMergeArgs(parser)
+    addCommonSimTrfArgs(parser)
+    addCosmicsTrfArgs(parser)
+    addTrackRecordArgs(parser)
+    addCommonSimDigArguments(parser)
+    addSim_tfArgs(parser)
+    addReSimulationArgs(parser)
 
 def addSimulationArguments(parser):
     addCommonSimDigArguments(parser)
@@ -76,6 +87,26 @@ def addSimulationSubstep(executorSet, overlayTransform = False):
             SimExe.inData = [('EVNT','TXT_EVENTID')]
         SimExe.outData = ['HITS']
         SimExe.inputDataTypeCountCheck = ['EVNT']
+    executorSet.add(SimExe)
+
+def addReSimulationSubstep(executorSet):
+    RnmExe = athenaExecutor(name = 'RenameHITS',
+                            skeletonFile = 'SimuJobTransforms/skeleton.RenameHITS.py',
+                            substep = 'rnm',
+                            tryDropAndReload = False,
+                            perfMonFile = 'ntuple.pmon.gz',
+                            inData=['HITS'],
+                            outData=['HITS_MRG'],
+                            inputDataTypeCountCheck = ['HITS'] )
+    executorSet.add(RnmExe)
+    SimExe = athenaExecutor(name = 'Resim',
+                            skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py', # TODO replace skeleton
+                            substep = 'rsm',
+                            tryDropAndReload = False,
+                            perfMonFile = 'ntuple.pmon.gz',
+                            inData=['HITS_MRG'],
+                            outData=['HITS_RSM'],
+                            inputDataTypeCountCheck = ['HITS'] )
     executorSet.add(SimExe)
 
 def addAtlasG4Substep(executorSet):

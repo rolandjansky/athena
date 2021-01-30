@@ -195,10 +195,6 @@ def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
     SimKernel = ISF__SimKernel(name, **kwargs)
-    ##FIXME shouldn't really be doing this here
-    from AthenaCommon.AlgSequence import AlgSequence
-    topSequence = AlgSequence()
-    topSequence += SimKernel
     return SimKernel
 
 ############## Simulator: GenericSimulatorNoG4 ###############
