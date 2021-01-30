@@ -1,4 +1,4 @@
-B1;5202;0c#!/usr/bin/env python
+#!/usr/bin/env python
 
 # art-description: art job for mu_Zmumu_pu40
 # art-type: grid
