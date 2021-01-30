@@ -249,6 +249,12 @@ if overlayFlags.signalOnlyOutput():
     include('EventOverlayJobTransforms/SignalOutput_jobOptions.py')  # noqa F821
 
 
+# Write digi metadata
+if not overlayFlags.isDataOverlay():
+    from EventOverlayJobTransforms.OverlayWriteMetaData import loadOverlayDigitizationMetadata
+    loadOverlayDigitizationMetadata()
+
+
 # -------------------------
 # Random numbers
 # -------------------------

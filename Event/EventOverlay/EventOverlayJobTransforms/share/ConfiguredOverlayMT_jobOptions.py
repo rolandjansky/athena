@@ -47,6 +47,7 @@ if overlayFlags.isDataOverlay():
     ServiceMgr.SecondaryEventSelector.Input = athenaCommonFlags.FilesInput()
     ServiceMgr.SecondaryEventSelector.ProcessBadEvent = True
 else:
+    ServiceMgr.EventSelector.ProcessMetadata = False
     ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
     ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 if athenaCommonFlags.SkipEvents.statusOn:
@@ -80,9 +81,6 @@ import MagFieldServices.SetupField
 #------------------------------------------------------------
 from Digitization.DigiConfigCheckers import syncBeamAndDigitizationJobProperties
 syncBeamAndDigitizationJobProperties()
-
-# TODO: Override run number if needed
-# include("Digitization/RunNumberOverride.py")
 
 
 #------------------------------------------------------------
