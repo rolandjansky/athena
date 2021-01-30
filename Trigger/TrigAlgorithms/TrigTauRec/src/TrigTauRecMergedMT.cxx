@@ -261,43 +261,6 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 
   if(!m_trigTauTrackInKey.key().empty() && m_clustersKey.key().empty()){
     p_tau->clearTauTrackLinks();
-    if(tauTrackHandle.isValid() && tauTrackHandle->size()>0){
-      ATH_MSG_DEBUG("TauTrackContainer size: " << tauTrackHandle->size());
-      for( xAOD::TauTrack* track : *tauTrackHandle){
-        ElementLink<xAOD::TauTrackContainer> linkToTauTrack;
-        linkToTauTrack.toContainedElement(*tauTrackHandle, track);
-        p_tau->addTauTrackLink(linkToTauTrack);
-
-        RNN_tracknumber += 1;
-        track_pt_log.push_back(TMath::Log10( track->pt()));
-        track_dEta.push_back(track->eta()- p_tau->eta()); 
-        track_dPhi.push_back(track->p4().DeltaPhi(p_tau->p4()));
-        track_z0sinThetaTJVA_abs_log.push_back(track->z0sinThetaTJVA(*p_tau));
-        track_d0_abs_log.push_back(TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6));
-
-        uint8_t inner_pixel_hits, inner_pixel_exp;                    
-        const auto success1_innerPixel_hits = track->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);                        
-        const auto success2_innerPixel_exp = track->track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);                                       
-        float nIBLHitsAndExp = -999;                                              
-        if (success1_innerPixel_hits && success2_innerPixel_exp) {nIBLHitsAndExp=inner_pixel_exp ? inner_pixel_hits : 1.;};        
-        track_nIBLHitsAndExp.push_back(nIBLHitsAndExp);
-
-        uint8_t pixel_hits, pixel_dead;                                    
-        const auto success1_pixel_hits = track->track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);          
-        const auto success2_pixel_dead = track->track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);                           
-        float nPixelHitsPlusDeadSensor = -999;                                         
-        if (success1_pixel_hits && success2_pixel_dead) {nPixelHitsPlusDeadSensor=pixel_hits + pixel_dead;};                      
-        track_nPixelHitsPlusDeadSensors.push_back(nPixelHitsPlusDeadSensor);
-
-        uint8_t sct_hits, sct_dead;                                       
-        const auto success1_sct_hits = track->track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);                   
-        const auto success2_sct_dead = track->track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);                           
-        float nSCTHitsPlusDeadSensors = -999;     
-        if (success1_sct_hits && success2_sct_dead) {nSCTHitsPlusDeadSensors=sct_hits + sct_dead;};                               
-        track_nSCTHitsPlusDeadSensors.push_back(nSCTHitsPlusDeadSensors);
-
-      }
-    }
   }
 
   const xAOD::CaloClusterContainer *RoICaloClusterContainer = nullptr;
@@ -582,6 +545,40 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
     pt_jetseed_log  = TMath::Log10(p_tau->ptJetSeed());
     ptDetectorAxis  =  TMath::Log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
 
+    // track variables monitoring 
+    for( auto track : p_tau->allTracks()){
+    
+        RNN_tracknumber += 1;
+        track_pt_log.push_back(TMath::Log10( track->pt()));
+        track_dEta.push_back(track->eta()- p_tau->eta()); 
+        track_dPhi.push_back(track->p4().DeltaPhi(p_tau->p4()));
+        track_z0sinThetaTJVA_abs_log.push_back(track->z0sinThetaTJVA(*p_tau));
+        track_d0_abs_log.push_back(TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6));
+
+        uint8_t inner_pixel_hits, inner_pixel_exp;                    
+        const auto success1_innerPixel_hits = track->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);                        
+        const auto success2_innerPixel_exp = track->track()->summaryValue(inner_pixel_exp, xAOD::expectInnermostPixelLayerHit);                                       
+        float nIBLHitsAndExp = -999;                                              
+        if (success1_innerPixel_hits && success2_innerPixel_exp) {nIBLHitsAndExp=inner_pixel_exp ? inner_pixel_hits : 1.;};        
+        track_nIBLHitsAndExp.push_back(nIBLHitsAndExp);
+
+        uint8_t pixel_hits, pixel_dead;                                    
+        const auto success1_pixel_hits = track->track()->summaryValue(pixel_hits, xAOD::numberOfPixelHits);          
+        const auto success2_pixel_dead = track->track()->summaryValue(pixel_dead, xAOD::numberOfPixelDeadSensors);                           
+        float nPixelHitsPlusDeadSensor = -999;                                         
+        if (success1_pixel_hits && success2_pixel_dead) {nPixelHitsPlusDeadSensor=pixel_hits + pixel_dead;};                      
+        track_nPixelHitsPlusDeadSensors.push_back(nPixelHitsPlusDeadSensor);
+
+        uint8_t sct_hits, sct_dead;                                       
+        const auto success1_sct_hits = track->track()->summaryValue(sct_hits, xAOD::numberOfSCTHits);                   
+        const auto success2_sct_dead = track->track()->summaryValue(sct_dead, xAOD::numberOfSCTDeadSensors);                           
+        float nSCTHitsPlusDeadSensors = -999;     
+        if (success1_sct_hits && success2_sct_dead) {nSCTHitsPlusDeadSensors=sct_hits + sct_dead;};                               
+        track_nSCTHitsPlusDeadSensors.push_back(nSCTHitsPlusDeadSensors);
+
+    }
+
+   
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
 		  << " Tau being saved eta: " << EtaEF << " Tau phi: " << PhiEF
