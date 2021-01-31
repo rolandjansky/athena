@@ -64,6 +64,17 @@ EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 svcMgr += EventLoop
 
+# Write digi metadata
+if not overlayFlags.isDataOverlay():
+    from EventOverlayJobTransforms.OverlayWriteMetaData import loadOverlayDigitizationMetadata
+    loadOverlayDigitizationMetadata()
+
+    if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+    from Digitization.DigitizationFlags import digitizationFlags
+    runNumber = digitizationFlags.dataRunNumber.get_Value()
+    ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runNumber, runNumber+1]
+
 
 #-------------------------
 # Common infrastructure
