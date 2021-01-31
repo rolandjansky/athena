@@ -195,7 +195,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
+      info->egPartClas.push_back(particleTruthClassifier(theMatchPart,info));
     }
 
     // Gen particles
@@ -310,7 +310,7 @@ MCTruthClassifier::egammaClusMatch(const xAOD::CaloCluster* clus, bool isFwrdEle
     if (info) {
       info->egPartPtr.push_back(thePart);
       info->egPartdR.push_back(dR);
-      info->egPartClas.push_back(particleTruthClassifier(theMatchPart));
+      info->egPartClas.push_back(particleTruthClassifier(theMatchPart,info));
     }
 
     // the leading photon or electron  inside narrow eleptical cone m_phtClasConePhi  X m_phtClasConeEta
