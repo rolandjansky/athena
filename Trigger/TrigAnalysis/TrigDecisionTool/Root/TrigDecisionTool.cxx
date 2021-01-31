@@ -196,7 +196,12 @@ void Trig::TrigDecisionTool::setForceConfigUpdate(bool b) {
 
 bool Trig::TrigDecisionTool::getForceConfigUpdate() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  return m_forceConfigUpdate.get()->at(0);
+  auto* vec = m_forceConfigUpdate.get();
+  if (vec->size() == 0) {
+    // initialize; if the vector does not exist assume we need update
+    vec->push_back(true);
+  }
+  return vec->at(0);
 #else // Analysis or Standalone
   return m_forceConfigUpdate;
 #endif 
