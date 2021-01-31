@@ -38,7 +38,8 @@ class MaterialEffectsEngine;
 enum ParametersType
 {
   AtaSurface = 0,
-  Curvilinear = 1
+  Curvilinear = 1,
+  Pattern = 2
 };
 
 namespace InvalidParam {
