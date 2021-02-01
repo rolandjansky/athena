@@ -188,19 +188,12 @@ def standardJetRecoSequence( configFlags, dataSource, clustersKey, **jetRecoDict
         jetDef.modifiers.append("JVT:"+jetRecoDict["trkopt"])
     #Configuring jet cleaning mods now
     if jetRecoDict["cleaning"] != 'noCleaning': 
-        clean_dict = {
-            'cleanLB': 'LooseBad',
-        }
         #Decorate with jet cleaning info only if not a PFlow chain (no cleaning available for PFlow jets now)
         if isPFlow:
             raise RuntimeError('Requested jet cleaning for a PFlow chain. Jet cleaning is currently not supported for PFlow jets.')
-        if not jetRecoDict["cleaning"] in clean_dict.keys():
-            raise ValueError(
-                "Invalid cleaning type specified for cleaning decoration: '{}'".format(jetRecoDict["cleaning"]))
-        clean_str=clean_dict[jetRecoDict["cleaning"]]
 
         jetDef.modifiers.append("CaloQuality")
-        jetDef.modifiers.append(f"Cleaning:{clean_str}")
+        jetDef.modifiers.append("Cleaning:{}".format(jetRecoDict["cleaning"]))
 
 
     decorList = JetRecoConfiguration.getDecorList(doesTracking,isPFlow)

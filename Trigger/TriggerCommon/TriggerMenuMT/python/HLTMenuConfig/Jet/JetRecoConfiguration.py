@@ -22,6 +22,10 @@ def interpretJetCalibDefault(recoDict):
 
 recoKeys = ['recoAlg','constitType','clusterCalib','constitMod','jetCalib','trkopt','trkpresel','cleaning']
 
+cleaningDict = {
+    'cleanLB': 'LooseBad',
+}
+
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
@@ -37,6 +41,12 @@ def extractRecoDict(chainParts):
                         raise RuntimeError('Inconsistent reco setting for %s' % k)
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
+            elif k =='cleaning':
+                found_cleanings = [ci for ck,ci in cleaningDict.items() if ck in p["prefilters"]]
+                if len(found_cleanings)==1: #Only one supported cleaning decoration at the moment
+                    recoDict[k] = found_cleanings[0]
+                else:
+                    recoDict[k] = 'noCleaning'
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -46,10 +56,9 @@ def extractRecoDict(chainParts):
 
 # Translate the reco dict to a string for suffixing etc
 def jetRecoDictToString(jetRecoDict):
-    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}"
+    strtemp = "{recoAlg}_{constitMod}{constitType}_{clusterCalib}_{jetCalib}_{cleaning}"
     if jetRecoDict["trkopt"] != "notrk":
         strtemp += "_{trkopt}_{trkpresel}"
-    strtemp+="_{cleaning}"
     return strtemp.format(**jetRecoDict)
 
 # Inverse of the above, essentially only for CF tests

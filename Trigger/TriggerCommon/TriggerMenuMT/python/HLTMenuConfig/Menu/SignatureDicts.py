@@ -151,10 +151,8 @@ JetChainParts = {
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
-    'cleaning'      : # Jet cleaning per jet (currently unused)
-      ['noCleaning', 'cleanLB'],
     'prefilters'      : # Pre-hypo jet selectors (including cleaning)
-    ['loose', 'prefilterSEP300ceta210SEP300nphi10'], 
+    ['cleanLB', 'prefilterSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -197,7 +195,6 @@ JetChainParts_Default = {
     'etaRange'      : '0eta320',
     'jvt'           : '',
     'momCuts'       : '',
-    'cleaning'      : 'noCleaning',
     'prefilters'    : [],
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
