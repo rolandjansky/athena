@@ -75,7 +75,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-    cfg.addService(CompFactory.CoreDumpSvc(), create=True)
+    cfg.addService(CompFactory.CoreDumpSvc(FastStackTrace=True), create=True)
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 
