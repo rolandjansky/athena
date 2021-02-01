@@ -319,26 +319,6 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
       aJet->addConstituent(*clusterIt);
 
       TauBarycenter += myCluster;
-      RNN_clusternumber += 1;
-
-      cluster_et_log.push_back(std::log10( (*clusterIt)->et()));
-      cluster_dEta.push_back((*clusterIt)->eta()- p_tau->eta());
-      cluster_dPhi.push_back((*clusterIt)->p4().DeltaPhi(p_tau->p4()));
-     
-      double log_second_R = -999.;
-      const auto success_SECOND_R = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R,log_second_R);
-      if (success_SECOND_R) log_second_R = std::log10(log_second_R + 0.1);
-      cluster_log_SECOND_R.push_back(log_second_R);
- 
-      double second_lambda = -999.;
-      const auto success_SECOND_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, second_lambda);
-      if (success_SECOND_LAMBDA) second_lambda = std::log10(second_lambda + 0.1);
-      cluster_SECOND_LAMBDA.push_back(second_lambda);
-
-      double center_lambda = -999.;
-      const auto success_CENTER_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, center_lambda);
-      if (success_CENTER_LAMBDA) center_lambda = std::log10(center_lambda + 1e-6);
-      cluster_CENTER_LAMBDA.push_back(center_lambda);      
 
     }
 	 
@@ -578,6 +558,33 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
 
     }
 
+    RNN_clusternumber = p_tau->clusters().size();
+
+    // cluster variables monitoring
+    for ( auto cluster : p_tau->clusters()){
+
+        auto cls = dynamic_cast<const xAOD::CaloCluster*>(cluster); 
+
+        cluster_et_log.push_back(std::log10( cls->et()));
+        cluster_dEta.push_back( cls->eta()- p_tau->eta());
+        cluster_dPhi.push_back( cls ->p4().DeltaPhi(p_tau->p4()));
+     
+        double log_second_R = -999.;
+        const auto success_SECOND_R = cls->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R,log_second_R);
+        if (success_SECOND_R) log_second_R = std::log10(log_second_R + 0.1);
+        cluster_log_SECOND_R.push_back(log_second_R);
+
+        double second_lambda = -999.;
+        const auto success_SECOND_LAMBDA = cls->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, second_lambda);
+        if (success_SECOND_LAMBDA) second_lambda = std::log10(second_lambda + 0.1);
+        cluster_SECOND_LAMBDA.push_back(second_lambda);
+
+        double center_lambda = -999.;
+        const auto success_CENTER_LAMBDA = cls->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, center_lambda);
+        if (success_CENTER_LAMBDA) center_lambda = std::log10(center_lambda + 1e-6);
+        cluster_CENTER_LAMBDA.push_back(center_lambda);
+     
+    }
    
 
     ATH_MSG_DEBUG(" Roi: " << roiDescriptor->roiId()
