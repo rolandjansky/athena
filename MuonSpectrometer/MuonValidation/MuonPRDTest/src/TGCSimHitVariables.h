@@ -20,38 +20,37 @@ class TGCSimHitVariables : public ValAlgVariables
                      std::string containername,
               MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_TGC_Sim_stationName(nullptr),
-    m_TGC_stationName(nullptr),
-    m_TGC_stationEta(nullptr),
-    m_TGC_stationPhi(nullptr),
-    m_TGC_isEndcap(nullptr),
-    //m_TGC_Sim_stationEta(nullptr),
-    //m_TGC_Sim_stationPhi(nullptr),   
-    m_TGC_Sim_gasGap(nullptr),
-    m_TGC_gasGap(nullptr),
-    m_TGC_isStrip(nullptr),
-    m_TGC_measuresPhi(nullptr),
-    m_TGC_channel(nullptr),   
-    m_TGC_globalTime(nullptr),
-    m_TGC_hitLocalPositionX(nullptr),
-    m_TGC_hitLocalPositionY(nullptr),
-    m_TGC_hitLocalPositionZ(nullptr),
-    m_TGC_hitGlobalPositionX(nullptr),
-    m_TGC_hitGlobalPositionY(nullptr),
-    m_TGC_hitGlobalPositionZ(nullptr),
-    m_TGC_hitGlobalPositionR(nullptr),
-    m_TGC_hitGlobalPositionP(nullptr),
-    m_TGC_detector_globalPositionX(nullptr),
-    m_TGC_detector_globalPositionY(nullptr),
-    m_TGC_detector_globalPositionZ(nullptr),
-    m_TGC_detector_globalPositionR(nullptr),
-    m_TGC_detector_globalPositionP(nullptr),
-    m_TGC_particleEncoding(nullptr),
-    m_TGC_kineticEnergy(nullptr),
-    m_TGC_depositEnergy(nullptr),
-    m_TGC_StepLength(nullptr),
-    m_TGC_trackId(nullptr),
-    m_TGC_truthEl(nullptr),
+    m_TgcIdHelper(nullptr),
+    m_TGC_Sim_stationName(),
+    m_TGC_stationName(),
+    m_TGC_stationEta(),
+    m_TGC_stationPhi(),
+    m_TGC_isEndcap(),  
+    m_TGC_Sim_gasGap(),
+    m_TGC_gasGap(),
+    m_TGC_isStrip(),
+    m_TGC_measuresPhi(),
+    m_TGC_channel(),   
+    m_TGC_globalTime(),
+    m_TGC_hitLocalPositionX(),
+    m_TGC_hitLocalPositionY(),
+    m_TGC_hitLocalPositionZ(),
+    m_TGC_hitGlobalPositionX(),
+    m_TGC_hitGlobalPositionY(),
+    m_TGC_hitGlobalPositionZ(),
+    m_TGC_hitGlobalPositionR(),
+    m_TGC_hitGlobalPositionP(),
+    m_TGC_detector_globalPositionX(),
+    m_TGC_detector_globalPositionY(),
+    m_TGC_detector_globalPositionZ(),
+    m_TGC_detector_globalPositionR(),
+    m_TGC_detector_globalPositionP(),
+    m_TGC_particleEncoding(),
+    m_TGC_kineticEnergy(),
+    m_TGC_depositEnergy(),
+    m_TGC_StepLength(),
+    m_TGC_trackId(),
+    m_TGC_truthEl(),
     m_TGC_nSimHits(0)
   {
     setHelper(idhelper);
@@ -69,7 +68,7 @@ class TGCSimHitVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_TgcIdHelper = dynamic_cast<const TgcIdHelper*>(idhelper);
-    if(m_TgcIdHelper == 0) {
+    if(!m_TgcIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to TgcIdhelper failed");
        throw;
     }
@@ -80,38 +79,36 @@ class TGCSimHitVariables : public ValAlgVariables
 
   const TgcIdHelper* m_TgcIdHelper;
 
-  std::vector<std::string>  *m_TGC_Sim_stationName;
-  std::vector<int>  *m_TGC_stationName;
-  std::vector<int>  *m_TGC_stationEta;
-  std::vector<int>  *m_TGC_stationPhi;
-  std::vector<bool> *m_TGC_isEndcap;
-  //std::vector<int>  *m_TGC_Sim_stationEta;
-  //std::vector<int>  *m_TGC_Sim_stationPhi;
-  std::vector<int>  *m_TGC_Sim_gasGap;
-  std::vector<int>  *m_TGC_gasGap;
-  std::vector<int>  *m_TGC_isStrip;
-  std::vector<int>  *m_TGC_measuresPhi;
-  std::vector<int>  *m_TGC_channel;
-  std::vector<double>  *m_TGC_globalTime;
-  std::vector<double>  *m_TGC_hitLocalPositionX;
-  std::vector<double>  *m_TGC_hitLocalPositionY;
-  std::vector<double>  *m_TGC_hitLocalPositionZ;
-  std::vector<double>  *m_TGC_hitGlobalPositionX;
-  std::vector<double>  *m_TGC_hitGlobalPositionY;
-  std::vector<double>  *m_TGC_hitGlobalPositionZ;
-  std::vector<double>  *m_TGC_hitGlobalPositionR;
-  std::vector<double>  *m_TGC_hitGlobalPositionP;
-  std::vector<double>  *m_TGC_detector_globalPositionX;
-  std::vector<double>  *m_TGC_detector_globalPositionY;
-  std::vector<double>  *m_TGC_detector_globalPositionZ;
-  std::vector<double>  *m_TGC_detector_globalPositionR;
-  std::vector<double>  *m_TGC_detector_globalPositionP;
-  std::vector<int>  *m_TGC_particleEncoding;
-  std::vector<double>  *m_TGC_kineticEnergy;
-  std::vector<double>  *m_TGC_depositEnergy;
-  std::vector<double>  *m_TGC_StepLength;
-  std::vector<int>  *m_TGC_trackId;
-  std::vector<int>  *m_TGC_truthEl;
+  std::vector<std::string> m_TGC_Sim_stationName;
+  std::vector<int>  m_TGC_stationName;
+  std::vector<int>  m_TGC_stationEta;
+  std::vector<int>  m_TGC_stationPhi;
+  std::vector<bool> m_TGC_isEndcap;
+  std::vector<int>  m_TGC_Sim_gasGap;
+  std::vector<int>  m_TGC_gasGap;
+  std::vector<int>  m_TGC_isStrip;
+  std::vector<int>  m_TGC_measuresPhi;
+  std::vector<int>  m_TGC_channel;
+  std::vector<double> m_TGC_globalTime;
+  std::vector<double> m_TGC_hitLocalPositionX;
+  std::vector<double> m_TGC_hitLocalPositionY;
+  std::vector<double> m_TGC_hitLocalPositionZ;
+  std::vector<double> m_TGC_hitGlobalPositionX;
+  std::vector<double> m_TGC_hitGlobalPositionY;
+  std::vector<double> m_TGC_hitGlobalPositionZ;
+  std::vector<double> m_TGC_hitGlobalPositionR;
+  std::vector<double> m_TGC_hitGlobalPositionP;
+  std::vector<double> m_TGC_detector_globalPositionX;
+  std::vector<double> m_TGC_detector_globalPositionY;
+  std::vector<double> m_TGC_detector_globalPositionZ;
+  std::vector<double> m_TGC_detector_globalPositionR;
+  std::vector<double> m_TGC_detector_globalPositionP;
+  std::vector<int> m_TGC_particleEncoding;
+  std::vector<double> m_TGC_kineticEnergy;
+  std::vector<double> m_TGC_depositEnergy;
+  std::vector<double> m_TGC_StepLength;
+  std::vector<int> m_TGC_trackId;
+  std::vector<int> m_TGC_truthEl;
   int m_TGC_nSimHits;
 
 };
