@@ -19,18 +19,24 @@ topSequence = job
 # Set Overall per-Algorithm time-limit on the AlgSequence
 topSequence.TimeOut = 43200 * Units.s
 
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
+
+from AthenaCommon.Logging import logging
+logOverlay = logging.getLogger('Overlay')
 
 #-------------------------
 # Timings
 #-------------------------
-try:
-    from RecAlgs.RecAlgsConf import TimingAlg
-    job += TimingAlg("OverlayTimerBegin",
-                     TimingObjOutputName="HITStoRDO_timings")
-except Exception:
-    from AthenaCommon.Logging import logging
-    logOverlay = logging.getLogger('Overlay')
-    logOverlay.warning('Could not add TimingAlg, no timing info will be written out.')
+if nThreads > 0:
+    logOverlay.info("MT mode: Not scheduling TimingAlg")    
+else:
+    try:
+        from RecAlgs.RecAlgsConf import TimingAlg
+        job += TimingAlg("OverlayTimerBegin",
+                         TimingObjOutputName="HITStoRDO_timings")
+    except Exception:
+        logOverlay.warning('Could not add TimingAlg, no timing info will be written out.')
 
 # Copy over timings if needed
 if not overlayFlags.isDataOverlay():
@@ -53,8 +59,6 @@ if athenaCommonFlags.SkipEvents.statusOn:
     ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Properly generate event context
-from AthenaCommon.ConcurrencyFlags import jobproperties as jp
-nThreads = jp.ConcurrencyFlags.NumThreads()
 if nThreads > 0:
     EventLoop = Service("AthenaHiveEventLoopMgr")
 else:
