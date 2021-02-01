@@ -4,6 +4,7 @@
 #
 
 from AthenaCommon.Logging import logging
+from AthenaConfiguration.DebuggingContext import raiseWithCurrentContext
 
 _msg=logging.getLogger('ComponentAccumulator') #'Deduplication' would the better name but breaks tons of unit-test log comparison
 
@@ -16,7 +17,13 @@ def deduplicate(newComp,compList):
 
     for idx,comp in enumerate(compList):
         if comp.__cpp_type__==newComp.__cpp_type__ and comp.name==newComp.name:
-            newComp.merge(comp)
+            exception = None
+            try:
+                newComp.merge(comp)
+            except Exception as e:
+                exception = e # the exception is not rised here to avoid python complaining that exception is raised while handling other one
+            if exception:
+                raiseWithCurrentContext(exception)
             #We found a service of the same type and name and could reconcile the two instances
             _msg.debug("Reconciled configuration of component %s", comp.name)
             #_deduplicated worked on 'newComp'. Overwrite the component in the list with the new, merged component
