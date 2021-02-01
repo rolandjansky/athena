@@ -202,6 +202,7 @@ def Lvl1SimulationSequence( flags = None ):
     l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     if flags.Trigger.enableL1Phase1:
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+        l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
     # enable the reduced (coarse) granularity topo simulation
