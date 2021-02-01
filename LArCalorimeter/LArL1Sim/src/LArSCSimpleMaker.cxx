@@ -234,6 +234,9 @@ StatusCode LArSCSimpleMaker::execute()
     // More noise
     float add_noise = 0.0;
     IdentifierHash hash = dde->identifyHash();
+    IdentifierHash subcalo_min, subcalo_max;
+    calo_sc_id->calo_cell_hash_range( dde->getSubCalo(),subcalo_min, subcalo_max);
+    hash+=subcalo_min;
     if ( (!dde->is_tile()) && (sigma_noise_per_scell[hash] > 0.0) ){
 	std::normal_distribution<double> distribution(0.0,sigma_noise_per_scell[hash] );
 	add_noise = distribution(generator);
