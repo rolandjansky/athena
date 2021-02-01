@@ -239,6 +239,9 @@ class _Tracking_fullScan( _Settings ):
       self._doTRT           = False
       self._dRdoubletMax    = 200
       self._seedRadBinWidth = 10
+      self._doPPS           = False
+      self._minCluster      = 8
+      self._roadWidth       = 5
 
 class _Tracking_minBias( _Settings ):
    def __init__( self ):

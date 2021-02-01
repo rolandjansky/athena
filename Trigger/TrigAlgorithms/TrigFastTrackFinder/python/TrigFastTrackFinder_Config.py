@@ -191,7 +191,6 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         if remapped_type in lrtSliceNames:
             isLRT = True
 
-
         #Global keys/names for collections
         from TrigInDetConfig.InDetTrigCollectionKeys import TrigPixelKeys, TrigSCTKeys
 
@@ -270,6 +269,7 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         self.TrackInitialD0Max = InDetTrigSliceSettings[('d0TrackMax',remapped_type)]
         self.TrackZ0Max = InDetTrigSliceSettings[('z0TrackMax',remapped_type)]
 
+        self.TripletDoPPS   = InDetTrigSliceSettings[('DoPPS',remapped_type)]
         self.TripletDoPSS   = False
         self.pTmin = InDetTrigSliceSettings[('pTmin',remapped_type)]
         self.DoubletDR_Max = InDetTrigSliceSettings[('dRdoubletMax',remapped_type)]
@@ -282,6 +282,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
         from InDetTrigRecExample.InDetTrigConfigRecLoadTools import InDetTrigSiDetElementsRoadMaker
         InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMaker.clone('InDetTrigSiDetElementsRoadMaker_FTF')
         InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 10.0
+        if remapped_type=="fullScan":
+          InDetTrigSiDetElementsRoadMaker_FTF.RoadWidth = 5.0
+        
         if remapped_type=="cosmics":
           from InDetTrigRecExample.InDetTrigConfigRecLoadToolsCosmics import InDetTrigSiDetElementsRoadMakerCosmics
           InDetTrigSiDetElementsRoadMaker_FTF = InDetTrigSiDetElementsRoadMakerCosmics.clone('InDetTrigSiDetElementsRoadMaker_FTF')
@@ -321,6 +324,9 @@ class TrigFastTrackFinderBase(TrigFastTrackFinder):
                                               UseAssociationTool       = False)
 
         from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
+        if remapped_type=="fullScan":
+          TrackMaker_FTF.nClustersMin = 8
+
         if slice_name=='eGamma' and InDetTrigFlags.doBremRecovery():
           TrackMaker_FTF.useBremModel = True
 

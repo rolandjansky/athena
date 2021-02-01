@@ -1003,13 +1003,13 @@ HLT_j45_pf_nojcalib_ftf_L1J15:
     0: 7
     1: 4
 HLT_j45_pf_subjesgscIS_ftf_L1J15:
-  eventCount: 6
+  eventCount: 7
   stepCounts:
     0: 7
-    1: 6
+    1: 7
   stepFeatures:
     0: 7
-    1: 6
+    1: 7
 HLT_j45_pf_subjesgscIS_ftf_bdl1r70_split_L1J20:
   eventCount: 0
   stepCounts:
@@ -2465,17 +2465,9 @@ HLT_tilecalib_laser_TilePEB_L1CALREQ2:
 HLT_timeburner_L1All:
   eventCount: 20
 HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
-  eventCount: 3
-  stepCounts:
-    0: 3
-  stepFeatures:
-    0: 3
+  eventCount: 0
 HLT_unconvtrk120_isohpttrack_imedium_L1XE50:
-  eventCount: 4
-  stepCounts:
-    0: 4
-  stepFeatures:
-    0: 4
+  eventCount: 0
 HLT_xe100_cvfpufit_L1XE50:
   eventCount: 0
   stepCounts:
@@ -2587,29 +2579,29 @@ HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
     0: 20
     1: 2
 HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
-  eventCount: 2
+  eventCount: 3
   stepCounts:
     0: 20
-    1: 2
+    1: 3
   stepFeatures:
     0: 20
-    1: 2
+    1: 3
 HLT_xe30_pfopufit_L1XE10:
-  eventCount: 2
+  eventCount: 3
   stepCounts:
     0: 20
-    1: 2
+    1: 3
   stepFeatures:
     0: 20
-    1: 2
+    1: 3
 HLT_xe30_pfsum_L1XE10:
-  eventCount: 6
+  eventCount: 5
   stepCounts:
     0: 20
-    1: 6
+    1: 5
   stepFeatures:
     0: 20
-    1: 6
+    1: 5
 HLT_xe30_pfsum_cssk_L1XE10:
   eventCount: 3
   stepCounts:
@@ -2647,21 +2639,19 @@ HLT_xe65_cell_xe110_tcpufit_L1XE50:
 HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrloose_L1XE50:
   eventCount: 0
   stepFeatures:
-    0: 5
+    0: 1
 HLT_xe80_tcpufit_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
   eventCount: 0
   stepFeatures:
-    0: 4
+    0: 1
 HLT_xe80_tcpufit_unconvtrk120_isohpttrack_imedium_L1XE50:
   eventCount: 0
   stepFeatures:
-    0: 5
-HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50:
-  eventCount: 1
-  stepCounts:
     0: 1
+HLT_xe80_tcpufit_unconvtrk80_isohpttrack_imedium_L1XE50:
+  eventCount: 0
   stepFeatures:
-    0: 6
+    0: 1
 HLT_xe95_trkmht_xe90_tcpufit_xe75_cell_L1XE50:
   eventCount: 0
   stepFeatures:

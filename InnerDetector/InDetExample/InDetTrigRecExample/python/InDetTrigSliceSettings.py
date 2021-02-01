@@ -66,6 +66,7 @@ class InDetTrigSliceSettingsDB:
     docloneremoval = {}
     doresmon = {}
     dotrigindettrack = {}
+    dopps = {}
 
     #ptmin
     for i in _slices:
@@ -119,6 +120,11 @@ class InDetTrigSliceSettingsDB:
       doresmon[i] = False
     doresmon['muon'] = True
     self.db['doResMon']=doresmon
+    
+    for i in _slices:
+      dopps[i] = True
+    dopps['fullScan'] = False
+    self.db['DoPPS'] = dopps
 
     for i in _slices:
       dospphifiltering[i] = True
