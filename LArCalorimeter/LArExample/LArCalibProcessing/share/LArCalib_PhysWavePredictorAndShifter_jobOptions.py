@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -52,28 +54,28 @@ if not 'InputHECPhysWavePoolFileName' in dir():
 if not 'ReadCaliWaveFromCOOL' in dir():
    ReadCaliWaveFromCOOL = True
 
-if not 'InputCaliWavePoolDir' in dir():
-   InputCaliWavePoolDir = subprocess.getoutput("pwd")
+if not 'InputCaliWavePoolFileDir' in dir():
+   InputCaliWavePoolFileDir = subprocess.getoutput("pwd")
 
 if not 'InputCaliWavePoolFileName' in dir():
    InputCaliWavePoolFileName = "LArCaliWave.pool.root"
 
-## PulseParams      
-if not 'ReadPulseParamsFromCOOL' in dir():
-   ReadPulseParamsFromCOOL = True
+## CaliPulseParams      
+if not 'ReadCaliPulseParamsFromCOOL' in dir():
+   ReadCaliPulseParamsFromCOOL = True
 
-if not 'InputPulseParamsPoolDir' in dir():
-   InputPulseParamsPoolDir = subprocess.getoutput("pwd")
+if not 'InputCaliPulseParamsPoolFileDir' in dir():
+   InputCaliPulseParamsPoolFileDir = subprocess.getoutput("pwd")
 
-if not 'InputPulseParamsPoolFileName' in dir():
-   InputPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
+if not 'InputCaliPulseParamsPoolFileName' in dir():
+   InputCaliPulseParamsPoolFileName = "LArCaliPulseParamsVsCalib_AllBoards.pool.root"
 
 ## DetCellParams    
 if not 'ReadDetCellParamsFromCOOL' in dir():
    ReadDetCellParamsFromCOOL = True
 
-if not 'InputDetCellParamsPoolDir' in dir():
-   InputDetCellParamsPoolDir = subprocess.getoutput("pwd")
+if not 'InputDetCellParamsPoolFileDir' in dir():
+   InputDetCellParamsPoolFileDir = subprocess.getoutput("pwd")
 
 if not 'InputDetCellParamsPoolFileName' in dir():
    InputDetCellParamsPoolFileName = "detector_EMECA_C_v1.pool.root"
@@ -82,8 +84,8 @@ if not 'InputDetCellParamsPoolFileName' in dir():
 if not 'ReadDTimeFromCOOL' in dir():
    ReadDTimeFromCOOL = True
 
-if not 'InputDTimePoolDir' in dir():
-   InputDTimePoolDir = subprocess.getoutput("pwd")
+if not 'InputDTimePoolFileDir' in dir():
+   InputDTimePoolFileDir = subprocess.getoutput("pwd")
 
 if not 'InputDTimePoolFileName' in dir():
    InputDTimePoolFileName = "tdrift_EMECA_C_v1.pool.root"
@@ -117,6 +119,14 @@ if not 'InputDetCellParamsFolder' in dir():
    if not SuperCells: InputDetCellParamsFolder = "/LAR/ElecCalibOfl/DetCellParams/RTM"   
    if SuperCells:     InputDetCellParamsFolder = "/LAR/ElecCalibOflSC/DetCellParams/RTM"   
 
+## If needed, reads the LArCalibPulseParams from COOL (Oracle/SQLite)
+
+if ( ReadCaliPulseParamsFromCOOL ):
+   if 'InputCaliPulseParamsSQLiteFile' in dir():
+      InputDBConnectionCaliPulseParams = DBConnectionFile(InputCaliPulseParamsSQLiteFile)
+   else:
+      InputDBConnectionCaliPulseParams = DBConnectionCOOL
+
 ## HEC PhysWave
 if ( ReadHECPhysWaveFromCOOL ):
    if 'InputHECPhysWaveSQLiteFile' in dir():
@@ -131,12 +141,6 @@ if ( ReadCaliWaveFromCOOL ):
    else:
       InputDBConnectionCaliWave = DBConnectionCOOL
 
-## PulseParams
-if ( ReadPulseParamsFromCOOL ):      
-   if 'InputPulseParamsSQLiteFile' in dir():
-      InputDBConnectionPulseParams = DBConnectionFile(InputPulseParamsSQLiteFile)
-   else:
-      InputDBConnectionPulseParams = DBConnectionCOOL
 
 ## DetCellParams      
 if ( ReadDetCellParamsFromCOOL ):      
@@ -349,8 +353,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"       
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"       
 
 ###########################################################################
 #                            Print summary
@@ -361,6 +365,14 @@ PhysWaveLog.info( " ======================================================== " )
 PhysWaveLog.info( " ***            LAr PredPhysWave summary              *** " )
 PhysWaveLog.info( " ======================================================== " )
 PhysWaveLog.info( " RunNumber                                  = "+str(RunNumber) )
+
+if ( ReadCaliPulseParamsFromCOOL ):
+   PhysWaveLog.info( " InputDBConnectionCaliPulseParams           = "+InputDBConnectionCaliPulseParams )
+   PhysWaveLog.info( " InputCaliPulseParamsFolder                 = "+InputCaliPulseParamsFolder )
+   if  "CaliPulseParamsLArCalibFolderTag" in dir() :    
+      PhysWaveLog.info( " CaliPulseParamsLArCalibFolderTag           = "+CaliPulseParamsLArCalibFolderTag )
+
+
 if ( ReadCaliWaveFromCOOL ):
    PhysWaveLog.info( " InputDBConnectionCaliWave                  = "+InputDBConnectionCaliWave )
 else :
@@ -386,16 +398,23 @@ PhysWaveLog.info( " ======================================================== " )
 #                           Global settings
 #
 ###########################################################################
+include ("LArConditionsCommon/LArMinimalSetup.py")
+from LArCabling.LArCablingAccess import LArOnOffIdMapping
+LArOnOffIdMapping()
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArCalibIdMappingSC,LArOnOffIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
 
-include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 
-#
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
 #
 
 ## get a handle to the default top-level algorithm sequence
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
 
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
@@ -414,24 +433,39 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 
 if not 'InputBadChannelSQLiteFile' in dir():
    PhysWaveLog.info( "Read Bad Channels from Oracle DB")
 else :   
    PhysWaveLog.info( "Read Bad Channels from SQLite file") 
 
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+
+
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 
 if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
 else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
+
+
+
    
 if SuperCells:
    conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
@@ -453,8 +487,8 @@ if (  ReadCaliWaveFromCOOL ) :
    else :
       PhysWaveLog.info( "Read CaliWave from SQLite file" )
 
-if ( ReadPulseParamsFromCOOL ) :       
-   if not 'InputPulseParamsSQLiteFile' in dir():
+if ( ReadCaliPulseParamsFromCOOL ) :       
+   if not 'InputCaliPulseParamsSQLiteFile' in dir():
       PhysWaveLog.info( "Read PulseParams from Oracle DB" )
    else :
       PhysWaveLog.info( "Read PulseParams from SQLite file" )
@@ -480,9 +514,7 @@ if (isHEC):
          
       
    if ( ReadHECPhysWaveFromCOOL ):
-      #conddb.addFolder("",HECPhysWaveFolder+"<tag>"+HECPhysWaveTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionHECPhysWave+"</dbConnection>" + ChannelSelection)
       conddb.addFolder("",HECPhysWaveFolder+"<tag>"+HECPhysWaveTagSpec+"</tag>"+"<dbConnection>COOLOFL_LAR/COMP200</dbConnection>" + ChannelSelection)
-      #conddb.addFolder("",HECPhysWaveFolder+"<dbConnection>"+InputDBConnectionHECPhysWave+"</dbConnection>")
 
    else:
       if 'InputHECPhysWavePoolFileName' in dir():
@@ -499,22 +531,22 @@ if ( ReadCaliWaveFromCOOL ):
 else:
    if 'InputCaliWavePoolFileName' in dir():
       PhysWaveLog.info( "Read CaliWave from POOL file" )
-      PoolFileList += [ InputCaliWavePoolDir+"/"+InputCaliWavePoolFileName ]
+      PoolFileList += [ InputCaliWavePoolFileDir+"/"+InputCaliWavePoolFileName ]
    else:
       PhysWaveLog.info( "No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL." )
       theApp.exit(-1)     
       
 
 ## PulseParams      
-if ( ReadPulseParamsFromCOOL ):
+if ( ReadCaliPulseParamsFromCOOL ):
    PulseParamsFolder = InputCaliPulseParamsFolder
    PulseParamsTagSpec = LArCalibFolderTag(PulseParamsFolder,LArCaliPulseParamsTag)
-   conddb.addFolder("",PulseParamsFolder+"<tag>"+PulseParamsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionPulseParams+"</dbConnection>" + ChannelSelection)
+   conddb.addFolder("",PulseParamsFolder+"<tag>"+PulseParamsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionCaliPulseParams+"</dbConnection>" + ChannelSelection)
    
 else:
-   if 'InputPulseParamsPoolFileName' in dir():
+   if 'InputCaliPulseParamsPoolFileName' in dir():
       PhysWaveLog.info( "Read PulseParams from POOL file" )
-      PoolFileList += [ InputPulseParamsPoolDir+"/"+InputPulseParamsPoolFileName ]
+      PoolFileList += [ InputCaliPulseParamsPoolFileDir+"/"+InputCaliPulseParamsPoolFileName ]
    else:
       PhysWaveLog.info( "No PoolFileList found! Please list the POOL files containing PulseParams or read from COOL." )
       theApp.exit(-1)
@@ -528,7 +560,7 @@ if not (isHEC) :
    else:
       if 'InputDetCellParamsPoolFileName' in dir():
          PhysWaveLog.info( "Read DetCellParams from POOL file" )
-         PoolFileList += [ InputDetCellParamsPoolDir+"/"+InputDetCellParamsPoolFileName ]
+         PoolFileList += [ InputDetCellParamsPoolFileDir+"/"+InputDetCellParamsPoolFileName ]
       else:
          PhysWaveLog.info( "No PoolFileList found! Please list the POOL files containing DetCellParams or read from COOL." )
          theApp.exit(-1)
@@ -536,11 +568,13 @@ if not (isHEC) :
 ## DTime
 if ( ReadDTimeFromCOOL ):
    DTimeTagSpec = LArCalibFolderTag(LArCalib_Flags.LArDTimeFolder,DTimeLArCalibFolderTag)
-   conddb.addFolder("",LArCalib_Flags.LArDTimeFolder+"<tag>"+DTimeTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionDTime+"</dbConnection>")
+   DTimeTagSpec = "LARElecCalibOflSCTdriftComputed-000"
+   # here TODO - replace this again later
+   conddb.addFolder("",LArCalib_Flags.LArDTimeFolder+"<tag>"+DTimeTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionDTime+"</dbConnection>")#,className='LArTdriftComplete')
 else:
    if 'InputDTimePoolFileName' in dir():
       PhysWaveLog.info( "Read DTime from POOL file" )
-      PoolFileList += [ InputDTimePoolDir+"/"+InputDTimePoolFileName ]
+      PoolFileList += [ InputDTimePoolFileDir+"/"+InputDTimePoolFileName ]
    else:
       PhysWaveLog.info( "No PoolFileList found! Please list the POOL files containing DTrif or read from COOL." )
       theApp.exit(-1)     
@@ -567,7 +601,7 @@ theMask=LArBadChannelMasker("BadChannelMask",
                             DoMasking=True,
                             ProblemsToMask=["deadCalib","deadReadout","deadPhys","almostDead","short"]
                             )
-ToolSvc+=theMask
+svcMgr.ToolSvc+=theMask
 
 LArPhysWavePredictor = LArPhysWavePredictor( "LArPhysWavePredictor" )
 LArPhysWavePredictor.MaskingTool              = theMask
@@ -609,7 +643,7 @@ if not (isHEC) :
    LArPhysWaveTool.SubtractBaseline  = False
    LArPhysWaveTool.InjPointCorrLayer = InjPointCorrLayer
    LArPhysWaveTool.InjPointUseTauR   = InjPointUseTauR 
-   ToolSvc +=LArPhysWaveTool
+   svcMgr.ToolSvc +=LArPhysWaveTool
    
 #################### PHYSWAVE Prediction FOR HEC ####################
 else :
@@ -618,7 +652,7 @@ else :
    LArPhysWaveHECTool.NormalizeCali     = False  # this is taken care by LArPhysWavePredictor changed by FT to True was False
    LArPhysWaveHECTool.TimeOriginShift   = False
    LArPhysWaveHECTool.SubtractBaseline  = False
-   ToolSvc +=LArPhysWaveHECTool
+   svcMgr.ToolSvc +=LArPhysWaveHECTool
    
 topSequence += LArPhysWavePredictor
 
@@ -671,7 +705,7 @@ if ( WriteNtuple ) :
       LArPhysWaves2Ntuple.AddFEBTempInfo   = False  
       LArPhysWaves2Ntuple.KeyList      = [ OutputKey  ]
       LArPhysWaves2Ntuple.isSC = SuperCells
-      
+      LArPhysWaves2Ntuple.OutputLevel = DEBUG  # here here added this
       topSequence += LArPhysWaves2Ntuple
       
    if ( WriteCaliWave2NTuple ) :
@@ -732,13 +766,16 @@ if (  WritePoolFile ) :
 ###########################################################################
 #                Use EventSelector to select IOV                          #
 ###########################################################################
-from McEventSelector.McEventSelectorConf import McEventSelector
-svcMgr += McEventSelector("EventSelector")
-svcMgr.EventSelector.RunNumber	= int(RunNumber)
-svcMgr.EventSelector.EventsPerRun      = 1
-svcMgr.EventSelector.FirstEvent	       = 1
-svcMgr.EventSelector.InitialTimeStamp  = 0
-svcMgr.EventSelector.TimeStampInterval = 1
+
+theByteStreamInputSvc=svcMgr.ByteStreamInputSvc
+if not 'FullFileName' in dir():
+   RampLog.info( "No FullFileName! Please give a FullFileName list." )
+   theApp.exit(-1)
+
+else :   
+   svcMgr.EventSelector.Input=FullFileName
+   
+svcMgr.EventSelector.MaxBadEvents = 0
 
 ##########################################################################
 #          don't remove otherwise infinite loop                          #

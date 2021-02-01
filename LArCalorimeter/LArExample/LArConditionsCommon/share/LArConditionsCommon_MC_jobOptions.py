@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 ###################################################################
 #
 # Job options file for accessing LArRawConditions objects from COOL
@@ -23,10 +25,8 @@ larCondFlags.config_ElecCalibMC()
 if svcMgr.MessageSvc.OutputLevel <= DEBUG :
   printfunc (larCondFlags)
 
-# POOL Converters
-#include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
-#include ("LArRawConditions/LArRawConditionsDict_joboptions.py")
-
+if "SuperCells" not in dir():
+  SuperCells = False
 
 # Access to IOVSvc and IOVDbSvc
 # Must list the folders to be used for reading
@@ -47,27 +47,56 @@ from LArRecUtils.LArRecUtilsConf import LArSymConditionsAlg_LArMphysOverMcalMC_L
 
 from LArRecUtils.LArMCSymCondAlg import LArMCSymCondAlgDefault
 
-larCondDBFolders = [("LArRampMC","/LAR/ElecCalibMC/Ramp","LArRamp", LArRampSymAlg ),
-                    ("LArAutoCorrMC","/LAR/ElecCalibMC/AutoCorr","LArAutoCorr", LArAutoCorrSymAlg),
-                    ("LArDAC2uAMC","/LAR/ElecCalibMC/DAC2uA","LArDAC2uA",LArDAC2uASymAlg),
-                    ("LArPedestalMC","/LAR/ElecCalibMC/Pedestal","LArPedestal",None),
-                    ("LArNoiseMC","/LAR/ElecCalibMC/Noise","LArNoise",LArNoiseSymAlg),
-                    ("LArfSamplMC","/LAR/ElecCalibMC/fSampl","LArfSampl",LArfSamplSymAlg),
-                    ("LAruA2MeVMC","/LAR/ElecCalibMC/uA2MeV","LAruA2MeV", LAruA2MeVSymAlg),
-                    ("LArMinBiasMC","/LAR/ElecCalibMC/MinBias","LArMinBias",LArMinBiasSymAlg),
-                    ("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg)
+if SuperCells:
+  larCondDBFolders = [("CondAttrListCollection","/LAR/ElecCalibMCSC/Ramp","LArRamp", LArRampSymAlg, "LAREleCalibMCSCRamp-000" ),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/AutoCorr","LArAutoCorr", LArAutoCorrSymAlg,"LAREleCalibMCSCAutoCorr-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/DAC2uA","LArDAC2uA",LArDAC2uASymAlg,"LAREleCalibMCSCDAC2uA-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/Pedestal","LArPedestal",None,"LAREleCalibMCSCPedestal-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/Noise","LArNoise",LArNoiseSymAlg,"LAREleCalibMCSCNoise-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/fSampl","LArfSampl",LArfSamplSymAlg,"LAREleCalibMCSCfSampl-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/uA2MeV","LAruA2MeV", LAruA2MeVSymAlg,"LAREleCalibMCSCuA2MeV-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/MinBias","LArMinBias",LArMinBiasSymAlg,"LAREleCalibMCSCMinBias-000"),
+                      ("CondAttrListCollection","/LAR/ElecCalibMCSC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg,"LAREleCalibMCSCMinBiasAverage-000")
                     ]
-
-if larCondFlags.useMCShape():
-    larCondDBFolders += [("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg)]
+  
+  if larCondFlags.useMCShape():
+    larCondDBFolders += [("LArShape32MC","/LAR/ElecCalibMCSC/Shape","LArShape",LArShapeSymAlg,None)]
+else:
+  larCondDBFolders = [("LArRampMC","/LAR/ElecCalibMC/Ramp","LArRamp", LArRampSymAlg ,None),
+                      ("LArAutoCorrMC","/LAR/ElecCalibMC/AutoCorr","LArAutoCorr", LArAutoCorrSymAlg,None),
+                      ("LArDAC2uAMC","/LAR/ElecCalibMC/DAC2uA","LArDAC2uA",LArDAC2uASymAlg,None),
+                      ("LArPedestalMC","/LAR/ElecCalibMC/Pedestal","LArPedestal",None,None),
+                      ("LArNoiseMC","/LAR/ElecCalibMC/Noise","LArNoise",LArNoiseSymAlg,None),
+                      ("LArfSamplMC","/LAR/ElecCalibMC/fSampl","LArfSampl",LArfSamplSymAlg,None),
+                      ("LAruA2MeVMC","/LAR/ElecCalibMC/uA2MeV","LAruA2MeV", LAruA2MeVSymAlg,None),
+                      ("LArMinBiasMC","/LAR/ElecCalibMC/MinBias","LArMinBias",LArMinBiasSymAlg,None),
+                      ("LArMinBiasAverageMC","/LAR/ElecCalibMC/MinBiasAverage","LArMinBiasAverage",LArMinBiasAverageSymAlg,None)
+                    ]
+  
+  if larCondFlags.useMCShape():
+    larCondDBFolders += [("LArShape32MC","/LAR/ElecCalibMC/Shape","LArShape",LArShapeSymAlg,None)]
 
 include( "LArConditionsCommon/LArIdMap_MC_jobOptions.py" )
 
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
+if LArDBConnection is not "" and 'InputDBConnectionBadChannel' not in dir():
+  InputDBConnectionBadChannel = LArDBConnection
+
+
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg,LArBadFebCondAlg
-conddb.addFolder(LArDB,"/LAR/BadChannels/BadChannels"+LArDBConnection, className="CondAttrListCollection")
-condSeq+=LArBadChannelCondAlg(ReadKey="/LAR/BadChannels/BadChannels")
-conddb.addFolder(LArDB,"/LAR/BadChannels/MissingFEBs"+LArDBConnection, className="AthenaAttributeList")
-condSeq+=LArBadFebCondAlg(ReadKey="/LAR/BadChannels/MissingFEBs")
+if LArDBConnection is not "":
+  conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
+else:  
+  conddb.addFolder(LArDB,BadChannelsFolder,className="CondAttrListCollection")
+condSeq+=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+if LArDBConnection is not "":
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+else:   
+   conddb.addFolder(LArDB,MissingFEBsFolder,className='AthenaAttributeList')
+condSeq+=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
 
 condSeq+=LArBadFebCondAlg("LArKnownBadFebAlg",ReadKey="",WriteKey="LArKnownBadFEBs")
 condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="",WriteKey="LArKnownMNBFEBs")
@@ -75,21 +104,31 @@ condSeq+=LArBadFebCondAlg("LArKnownMNBFebAlg",ReadKey="",WriteKey="LArKnownMNBFE
 
 ## these may be conditional. 
 if larCondFlags.hasMphys() :
-  larCondDBFolders += [("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg)]
+  if SuperCells:
+    larCondDBFolders += [("LArMphysOverMcalMC","/LAR/ElecCalibMCSC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg,None)]
+  else:
+    larCondDBFolders += [("LArMphysOverMcalMC","/LAR/ElecCalibMC/MphysOverMcal","LArMphysOverMcal",LArMPhysOverMcalSymAlg,None)]
 
 # HV Scale Corr
 if larCondFlags.hasHVCorr() :
-  larCondDBFolders += [ ('LArHVScaleCorrComplete', '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None) ]
+  if SuperCells:
+    larCondDBFolders += [ ('LArHVScaleCorrComplete', '/LAR/ElecCalibMCSC/HVScaleCorr',"LArHVScaleCorr",None,None) ]
+  else:
+    larCondDBFolders += [ ('LArHVScaleCorrComplete', '/LAR/ElecCalibMC/HVScaleCorr',"LArHVScaleCorr",None,None) ]
 
-  
+
+
 LArMCSymCondAlgDefault()
 ## fill them all 
-for className,fldr,key,calg in larCondDBFolders:
+for className,fldr,key,calg,tag in larCondDBFolders:
   if calg is not None: 
     newkey=key+"Sym"
   else:
     newkey=key
-  conddb.addFolder(LArDB,fldr+LArDBConnection, className=className)
+  if tag is not None:
+    conddb.addFolderWithTag(LArDB,fldr, tag, className=className,forceMC=True)
+  else:
+    conddb.addFolder(LArDB,fldr+LArDBConnection, className=className,forceMC=True)
   ## allow override
   larCondFlags.addTag(fldr,conddb)  
   if calg:
