@@ -4,6 +4,8 @@ eta    = 2.5;
 	a0=10;
 #elif defined(LARGED0_EL)
 	a0=4.;
+#elif defined(LRT)
+        a0=50.;
 #else	
 	a0=3.;
 #endif
