@@ -114,33 +114,64 @@ def DigitizationMessageSvcCfg(flags):
     return acc
 
 
-def setupDigitizationDetectorFlags(configFlags, detectors):
+def DigitizationTestingPostInclude(flags, acc):
+    """Testing digitization post-include"""
+    # dump config
+    configName = "DigiPUConfigCA" if flags.Digitization.PileUp else "DigiConfigCA"
+    from AthenaConfiguration.JobOptsDumper import JobOptsDumperCfg
+    acc.merge(JobOptsDumperCfg(flags, FileName=f"{configName}.txt"))
+
+    # dump pickle
+    with open(f"{configName}.pkl", "wb") as f:
+        acc.store(f)
+
+
+def setupDigitizationFlags(flags):
+    """Setup common digitization flags."""
+    # autoconfigure pile-up
+    if flags.Digitization.PU.NumberOfLowPtMinBias > 0 \
+        or flags.Digitization.PU.NumberOfHighPtMinBias > 0 \
+        or flags.Digitization.PU.NumberOfBeamHalo > 0 \
+        or flags.Digitization.PU.NumberOfBeamGas > 0 \
+        or flags.Digitization.PU.NumberOfCavern > 0:
+        flags.Digitization.PileUp = True
+
+    if flags.Digitization.PileUp:
+        flags.Input.OverrideRunNumber = True
+        # keep this one True by default in CA-based config
+        flags.Digitization.DoXingByXingPileUp = True
+
+
+def setupDigitizationDetectorFlags(flags, detectors):
     """Setup digitization detector flags"""
     if not detectors or 'BCM' in detectors or 'ID' in detectors:
-        configFlags.Detector.DigitizeBCM = True
+        flags.Detector.DigitizeBCM = True
     if not detectors or 'DBM' in detectors or 'ID' in detectors:
-        configFlags.Detector.DigitizeDBM = True
+        flags.Detector.DigitizeDBM = True
     if not detectors or 'Pixel' in detectors or 'ID' in detectors:
-        configFlags.Detector.DigitizePixel = True
+        flags.Detector.DigitizePixel = True
     if not detectors or 'SCT' in detectors or 'ID' in detectors:
-        configFlags.Detector.DigitizeSCT = True
+        flags.Detector.DigitizeSCT = True
     if not detectors or 'TRT' in detectors or 'ID' in detectors:
-        configFlags.Detector.DigitizeTRT = True
+        flags.Detector.DigitizeTRT = True
     if not detectors or 'LAr' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        configFlags.Detector.DigitizeLAr = True
+        flags.Detector.DigitizeLAr = True
     if not detectors or 'Tile' in detectors or 'Calo' in detectors or 'L1Calo' in detectors:
-        configFlags.Detector.DigitizeTile = True
+        flags.Detector.DigitizeTile = True
     if not detectors or 'L1Calo' in detectors:
-        configFlags.Detector.DigitizeL1Calo = True
+        flags.Detector.DigitizeL1Calo = True
     if not detectors or 'CSC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizeCSC = True
+        flags.Detector.DigitizeCSC = True
     if not detectors or 'MDT' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizeMDT = True
+        flags.Detector.DigitizeMDT = True
     if not detectors or 'RPC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizeRPC = True
+        flags.Detector.DigitizeRPC = True
     if not detectors or 'TGC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizeTGC = True
+        flags.Detector.DigitizeTGC = True
     if not detectors or 'sTGC' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizesTGC = True
+        flags.Detector.DigitizesTGC = True
     if not detectors or 'MM' in detectors or 'Muon' in detectors:
-        configFlags.Detector.DigitizeMM = True
+        flags.Detector.DigitizeMM = True
+
+    # temporary
+    flags.Digitization.TruthOutput = True

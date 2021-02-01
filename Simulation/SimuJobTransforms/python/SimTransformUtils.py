@@ -171,6 +171,7 @@ def addAFII_HITSMergeSubstep(executorSet):
 
 def addDigitizationSubstep(executorSet):
     executorSet.add(athenaExecutor(name = 'HITtoRDO', skeletonFile = 'SimuJobTransforms/skeleton.HITtoRDO.py',
+                                              skeletonCA='SimuJobTransforms.HITtoRDO_Skeleton',
                                               substep = 'h2r', tryDropAndReload = False,
                                               inData = ['HITS'], outData = ['RDO','RDO_FILT'], runtimeRunargs =
                                               {'LowPtMinbiasHitsFile' : 'runArgs.inputLowPtMinbiasHitsFile',
