@@ -580,7 +580,6 @@ class _BTaggingFlags:
         print ('#BTAG# -> Calibration channel aliases: '+str(getattr(self, attr)))
       for attr in self._writeSecondaryVertices:
         print ('#BTAG# -> Store secondary vertices: '+str(getattr(self, attr)))
-      format = "%25s : %s"
       print ('#BTAG# -> List of active tagger flags: ', end='')
       for attr in self._tags:
         if getattr(self, attr):

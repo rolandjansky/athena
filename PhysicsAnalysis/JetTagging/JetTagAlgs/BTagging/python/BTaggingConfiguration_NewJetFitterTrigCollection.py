@@ -236,7 +236,7 @@ def toolImprovedJetFitterInitializationHelper(name, useBTagFlagsDefaults = True,
     if useBTagFlagsDefaults:
         jetFitterFullLinearizedTrackFactory = toolJetFitterFullLinearizedTrackFactory('JFFullLinearizedTrackFactory')
         defaults = { 'OutputLevel' : BTaggingFlags.OutputLevel,
-		     'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory}
+                     'LinearizedTrackFactory' : jetFitterFullLinearizedTrackFactory}
         for option in defaults:
             options.setdefault(option, defaults[option])
     options['name'] = name
@@ -841,8 +841,6 @@ def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
         defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel }
         for option in defaults:
             options.setdefault(option, defaults[option])
@@ -941,29 +939,6 @@ def toolJetFitterV0FinderTool_SV(name , suffix="", useBTagFlagsDefaults = True, 
 
 #--------------------------------------------------------------------------     
 
-def toolNewJetFitterVxFinder(name, useBTagFlagsDefaults = True, **options):
-    """Sets up a NewJetFitterVxFinder tool and returns it.
-
-    The following options have BTaggingFlags defaults:
-
-    OutputLevel                         default: BTaggingFlags.OutputLevel
-
-    input:             name: The name of the tool (should be unique).
-      useBTagFlagsDefaults : Whether to use BTaggingFlags defaults for options that are not specified.
-                  **options: Python dictionary with options for the tool.
-    output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
-    if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
-        defaults = { 'OutputLevel'                         : BTaggingFlags.OutputLevel }
-        for option in defaults:
-            options.setdefault(option, defaults[option])
-    options['name'] = name
-    from InDetSecVxFinderTool.InDetSecVxFinderToolConf import InDet__InDetImprovedJetFitterVxFinder
-    return InDet__InDetImprovedJetFitterVxFinder(**options)
-
-#--------------------------------------------------------------------------     
-
 def toolNewJetFitterVxFinder_SV(name, suffix = "", useBTagFlagsDefaults = True, **options):
     """Sets up a NewJetFitterVxFinder tool and returns it.
 
@@ -981,8 +956,6 @@ def toolNewJetFitterVxFinder_SV(name, suffix = "", useBTagFlagsDefaults = True, 
                   **options: Python dictionary with options for the tool.
     output: The actual tool, which can then by added to ToolSvc via ToolSvc += output."""
     if useBTagFlagsDefaults:
-        if not 'InDetKeys' in dir():
-            from InDetRecExample.InDetKeys import InDetKeys
         inDetImprovedJetFitterTrackSelectorTool = toolJetFitterTrackSelectorTool_SV('InDetImprovedJFTrackSelTool'+suffix,suffix)
         inDetJetFitterTwoTrackVtxFinderTool = toolJetFitterTwoTrackVtxFinderTool_SV('inDetJetFitterTwoTrackVtxFinderTool'+suffix,suffix)
         inDetImprovedJFV0FinderTool = toolJetFitterV0FinderTool_SV('inDetImprovedJFV0FinderTool'+suffix,suffix)
