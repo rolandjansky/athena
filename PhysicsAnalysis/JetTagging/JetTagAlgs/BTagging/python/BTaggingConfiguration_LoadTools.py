@@ -53,7 +53,7 @@ def Initiate(ConfInstance=None):
     # The Run() parameter only exists for ATLAS-R1(...) and ATLAS-R2(...) geo tags,
     # not for ATLAS-GEO(...) and ATLAS-IBL(...) ones. Hence if Run() is undefined,
     # presence of IBL is used to switch between Run1/Run2
-    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() is False))
   if (btagrun1):
     print (ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration')
     BTaggingFlags.JetFitterNN=True
@@ -118,9 +118,9 @@ def Initiate(ConfInstance=None):
     if not hasattr(svcMgr, 'THistSvc'):
       from GaudiSvc.GaudiSvcConf import THistSvc
       svcMgr += THistSvc()
-    if not 'topSequence' in dir():
-      from AthenaCommon.AlgSequence import AlgSequence
-      topSequence = AlgSequence()
+#    if 'topSequence' not in dir():
+#      from AthenaCommon.AlgSequence import AlgSequence
+#      topSequence = AlgSequence()
 
 
     #Create and add our condition algorithm to the Condition Sequencer
@@ -132,14 +132,14 @@ def Initiate(ConfInstance=None):
     #
 
     # -------------- Calibration Broker --------------
-    from AthenaCommon.AppMgr import ToolSvc
-    from AthenaCommon.Resilience import treatException,protectedInclude
+#    from AthenaCommon.AppMgr import ToolSvc
+    from AthenaCommon.Resilience import protectedInclude
     if ConfInstance._name == "" or ConfInstance._name == "Trig":
       # No calibration broker setup - The condition algorithm is used
       pass
     elif ConfInstance._name == "AODFix":
       protectedInclude("BTagging/BTagCalibBroker_AODFix_jobOptions.py")
-      BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
+#      BTagCalibrationBrokerTool = ConfInstance.getTool("BTagCalibrationBrokerTool")
     else:
       print (ConfInstance.BTagTag()+' - ERROR - Configuration instance "'+ConfInstance._name+'" has no calibration broker setup specified!')
       raise RuntimeError
@@ -276,7 +276,7 @@ def SetupJetCollection(JetCollection, TaggerList=[], SetupScheme="Default", Conf
     return False
   try:
     exec ('ReturnValue = SetupJetCollection'+SetupScheme+'(JetCollection, ApprovedTaggerList, ConfInstance)')
-  except:
+  except Exception:
     print(ConfInstance.BTagTag()+" - ERROR - Attempted setup for scheme '"+SetupScheme+"' failed! Possibly this scheme does not exist or is improperly implemented!")
     raise
   if not ReturnValue:
@@ -321,19 +321,17 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
   ConfInstance.addJetCollectionTool(JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3,
                                   options={ 'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
-  # Setup associators
-  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator(
-                                  'BTagTrackToJetAssociator'
-                                , JetCollection
-                                , ToolSvc
-                                , Verbose = BTaggingFlags.OutputLevel < 3
-                                )
+  # Setup associators (never used)
+  ConfInstance.setupTrackAssociator(
+    'BTagTrackToJetAssociator'
+    , JetCollection
+    , ToolSvc
+    , Verbose = BTaggingFlags.OutputLevel < 3
+  )
 
-
+# BTagMuonToJetAssociator never used
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
-    BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
-  else:
-    BTagMuonToJetAssociator = None
+    ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MultiSVbb1' in TaggerList or 'MultiSVbb2' in TaggerList:
     ConfInstance.setupTrackAssociator('BTagTrackToJetAssociatorBB', JetCollection, ToolSvc,
                                     Verbose = BTaggingFlags.OutputLevel < 3,
@@ -651,12 +649,11 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
                                   options={ 'storeSecondaryVerticesInJet' : BTaggingFlags.writeSecondaryVertices})
 
   # Setup associators
-  BTagTrackToJetAssociator = ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
+  ConfInstance.setupTrackAssociator('BTagTrackToJetAssociator', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
 
+  # BTagMuonToJetAssociator never used
   if 'SoftMu' in TaggerList or 'SoftMuChi2' in TaggerList:
-    BTagMuonToJetAssociator = ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
-  else:
-    BTagMuonToJetAssociator = None
+    ConfInstance.setupMuonAssociator('Muons', JetCollection, ToolSvc, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MultiSVbb1' in TaggerList or 'MultiSVbb2' in TaggerList:
     ConfInstance.setupTrackAssociator('BTagTrackToJetAssociatorBB', JetCollection, ToolSvc,
                                     Verbose = BTaggingFlags.OutputLevel < 3,
@@ -709,7 +706,7 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
   if (mvtm_active_taggers):
     if 'RNNIP' not in TaggerList:
       BTaggingFlags.MultivariateTagManagerAuxBranches = []
-    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
+#    MVTM = ConfInstance.addTool('MultivariateTagManager_Trig', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   #set up MVTMFlip
   #if (mvtm_active_flip_taggers):
