@@ -4763,7 +4763,7 @@ CombinedMuonTrackBuilder::checkTrack(const std::string& txt, const Trk::Track* n
         return newTrackOK;
     }
 
-    for (const auto& par : *pars) {
+    for (const auto par : *pars) {
         if (!par->covariance()) {
             continue;
         }

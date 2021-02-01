@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 
-def Lvl1SimulationSequence( flags = None ):
+def Lvl1SimulationSequence( flags ):
     """ 
     Configure L1 simulation for Athena MT jobs
 
@@ -202,6 +202,7 @@ def Lvl1SimulationSequence( flags = None ):
     l1TopoSim.MuonInputProvider.ROIBResultLocation = "" #disable input from RoIBResult
     if flags.Trigger.enableL1Phase1:
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.MUCTPI_AthTool
+        l1TopoSim.EMTAUInputProvider = 'LVL1::EMTauInputProviderFEX/EMTauInputProviderFEX'
     else:
         l1TopoSim.MuonInputProvider.MuctpiSimTool = ToolSvc.L1MuctpiTool
     # enable the reduced (coarse) granularity topo simulation
@@ -212,6 +213,8 @@ def Lvl1SimulationSequence( flags = None ):
     else:
         l1TopoSim.MuonInputProvider.MuonEncoding = 0
 
+    l1TopoSim.MuonInputProvider.UseNewConfig = flags.Trigger.readLVL1FromJSON
+
     ##################################################
     # CTP
     ##################################################
@@ -221,7 +224,7 @@ def Lvl1SimulationSequence( flags = None ):
     ctp.DoLUCID     = False
     ctp.DoBCM       = False
     ctp.DoL1Topo    = not flags.Trigger.enableL1Phase1
-    ctp.UseNewConfig = True
+    ctp.UseNewConfig = flags.Trigger.readLVL1FromJSON
     ctp.TrigConfigSvc = svcMgr.LVL1ConfigSvc
     ctpSim      = seqAND("ctpSim", [ctp])
 

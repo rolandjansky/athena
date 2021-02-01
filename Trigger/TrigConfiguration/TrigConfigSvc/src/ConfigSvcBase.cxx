@@ -56,8 +56,7 @@ ConfigSvcBase::initialize() {
    CHECK(AthService::initialize());
 
    ATH_MSG_INFO("=================================");
-   ATH_MSG_INFO("Initializing " << name() << " service");
-   ATH_MSG_INFO("Version: " << PACKAGE_VERSION);
+   ATH_MSG_INFO("Initializing " << name());
    ATH_MSG_INFO("=================================");
 
    string s(boost::to_lower_copy(m_configSourceString)); // lower case

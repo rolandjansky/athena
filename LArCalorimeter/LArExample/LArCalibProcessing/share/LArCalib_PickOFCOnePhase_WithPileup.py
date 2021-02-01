@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -81,18 +83,14 @@ if not 'Nsamples' in dir():
 if not 'OFCFolder' in dir() :
    if not SuperCells:
      OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
-     #OFCFolder  = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/5samples"
-   if SuperCells:
+   else:
      OFCFolder  = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+str(Nsamples)+"samples3bins17phases"
-     #OFCFolder  = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/5samples"
    
 if not 'ShapeFolder' in dir() :
    if not SuperCells:
      ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
-     #ShapeFolder  =  "/LAR/ElecCalibOfl/Shape/RTM/5samples"
-   if SuperCells:
+   else:
      ShapeFolder  =  "/LAR/ElecCalibOflSC/Shape/RTM/"+str(Nsamples)+"samples3bins17phases"
-     #ShapeFolder  =  "/LAR/ElecCalibOflSC/Shape/RTM/5samples"
 
 if not 'OFCKey' in dir() :
    OFCKey = "LArOFC"
@@ -128,8 +126,8 @@ if not 'IOVEnd' in dir():
 if not 'OutputOFCRootFileDir' in dir():
    OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
-if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = subprocess.getoutput("pwd")
+if not 'OutputOFCPoolFileDir' in dir():
+   OutputOFCPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 
@@ -150,10 +148,10 @@ if 'OutputSQLiteFile' in dir():
 #outputs
 if not 'FolderShapeOutput' in dir():
    if not SuperCells: FolderShapeOutput = "/LAR/ElecCalibOfl/Shape/RTM/"+str(Nsamples)+"samples1phase"
-   if SuperCells:     FolderShapeOutput = "/LAR/ElecCalibOflSC/Shape/RTM/"+str(Nsamples)+"samples1phase"
+   else:     FolderShapeOutput = "/LAR/ElecCalibOflSC/Shape/RTM/"+str(Nsamples)+"samples1phase"
 if not 'FolderOFCOutput' in dir():
    if not SuperCells: FolderOFCOutput = "/LAR/ElecCalibOfl/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
-   if SuperCells:     FolderOFCOutput = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
+   else:     FolderOFCOutput = "/LAR/ElecCalibOflSC/OFC/PhysWave/RTM/"+str(Nsamples)+"samples1phase"
 
 rs=FolderTagResover()
 
@@ -225,7 +223,7 @@ if ( ReadBadChannelFromCOOL ):
       InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"            
 
 ###########################################################################
-# Print summary
+# print(summary)
 ###########################################################################
 
 OFCLog = logging.getLogger( "OFCLog" )
@@ -242,7 +240,7 @@ if 'OFCLArCalibFolderTag' in dir() :
 if ( ReadOFCFromCOOL and ChannelSelection != " " ):
    OFCLog.info( " ChannelSelection                   = "+ChannelSelection )
 OFCLog.info( " OutputOFCRootFullFileName          = "+OutputOFCRootFileDir+"/"+OutputOFCRootFileName )
-OFCLog.info( " OutputPoolFullFileName             = "+OutputPoolFileDir+"/"+OutputPoolFileName )
+OFCLog.info( " OutputPoolFullFileName             = "+OutputOFCPoolFileDir+"/"+OutputPoolFileName )
 OFCLog.info( " OutputObjectSpecOFC                = "+str(OutputObjectSpecOFC) )
 OFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
 OFCLog.info( " IOVBegin                           = "+str(IOVBegin) )
@@ -283,8 +281,6 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
-
 if not 'InputBadChannelSQLiteFile' in dir():
    OFCLog.info( "Read Bad Channels from Oracle DB")
 else :   
@@ -292,18 +288,23 @@ else :
 
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
 else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
 
-if 'MissingFEBsLArCalibFolderTag' in dir() :
-   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+if not SuperCells:
+   if 'MissingFEBsLArCalibFolderTag' in dir() :
+      MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
+      conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
+   else :
+      conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
    
-if SuperCells:
-   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
+   theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+   condSeq+=theLArBadFebCondAlg
    
 ## define the DB Gobal Tag :
 svcMgr.IOVDbSvc.GlobalTag   = LArCalib_Flags.globalFlagDB
@@ -347,11 +348,6 @@ if ( ReadShapeFromCOOL ):
       conddb.addFolder("",ShapeFolder+"<tag>"+ShapeFolderTagSpec+"</tag><key>LArShapeIn</key><dbConnection>"+InputDBConnectionShape+"</dbConnection>"+ ChannelSelection)
 
 
-#conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/Dummy<dbConnection>"+DBConnectionCOOL+"</dbConnection>"+ ChannelSelection)     
-conddb.addFolder("","/LAR/ElecCalibOfl/OFCBin/Dummy<dbConnection>COOLOFL_LAR/COMP200</dbConnection><tag>LARElecCalibOflOFCBinDummy-UPD3-01</tag>"+ ChannelSelection)     
-   
-      
-      
 if ( len(PoolFileList)>0 ):
 
    from AthenaCommon.ConfigurableDb import getConfigurable
@@ -367,7 +363,8 @@ if ( len(PoolFileList)>0 ):
 
 from LArCalibUtils.LArCalibUtilsConf import LArOFPhasePicker
 LArOFPhasePick = LArOFPhasePicker("LArOFPhasePicker")
-LArOFPhasePick.KeyPhase = "LArOFCPhase"
+if not SuperCells:
+   LArOFPhasePick.KeyPhase = "LArOFCPhase"
 LArOFPhasePick.KeyOFC_new = OFCKey
 LArOFPhasePick.KeyOFC = "LArOFCIn"
 LArOFPhasePick.KeyShape_new = ShapeKey
@@ -380,7 +377,8 @@ topSequence += LArOFPhasePick
 
 if NColl > 0:
    LArOFPhasePickermu = LArOFPhasePicker("LArOFPhasePickermu")
-   LArOFPhasePickermu.KeyPhase = "LArOFCPhase"
+   if not SuperCells:
+      LArOFPhasePickermu.KeyPhase = "LArOFCPhase"
    LArOFPhasePickermu.KeyOFC_new = OFCKey+"_mu"
    LArOFPhasePickermu.KeyOFC = "LArOFCInmu"
    LArOFPhasePickermu.doShape = False
@@ -393,6 +391,14 @@ if NColl > 0:
 ###########################################################################
 
 if ( WriteNtuple ) :
+
+   if SuperCells:
+      from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+      LArOnOffIdMappingSC()
+      LArCalibIdMappingSC()
+   else:
+      from LArCabling.LArCablingAccess import LArOnOffIdMapping
+      LArOnOffIdMapping()
 
    from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
    LArOFC2Ntup = LArOFC2Ntuple("LArOFC2Ntuple")
@@ -420,9 +426,9 @@ if ( WriteNtuple ) :
 if (  WritePoolFile ) :
 
    from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
-   if os.path.exists(OutputPoolFileDir+"/"+OutputPoolFileName): 
-      os.remove(OutputPoolFileDir+"/"+OutputPoolFileName)
-   OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg",OutputPoolFileDir+"/"+OutputPoolFileName,
+   if os.path.exists(OutputOFCPoolFileDir+"/"+OutputPoolFileName): 
+      os.remove(OutputOFCPoolFileDir+"/"+OutputPoolFileName)
+   OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg",OutputOFCPoolFileDir+"/"+OutputPoolFileName,
                                                      [OutputObjectSpecOFC],[OutputObjectSpecTagOFC],WriteIOV)
    OutputConditionsAlg.Run1  = IOVBegin
    if IOVEnd>0:

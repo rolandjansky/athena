@@ -388,7 +388,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         for key in keys:
             if 'PEBInfoWriter' in key:
                 PEBKeys.append(key)                
-    stmaker.PEBDecisionKeys = list(set(PEBKeys))
+    stmaker.PEBDecisionKeys = sorted(set(PEBKeys))
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -458,7 +458,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     # Produce trigger metadata
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
-    menuwriter.IsL1JSONConfig = True
+    menuwriter.IsL1JSONConfig = flags.Trigger.readLVL1FromJSON
     menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
     menuwriter.WritexAODTriggerMenuJson = True
     menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')

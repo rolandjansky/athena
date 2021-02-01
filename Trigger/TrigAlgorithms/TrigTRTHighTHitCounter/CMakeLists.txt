@@ -7,4 +7,4 @@ atlas_subdir( TrigTRTHighTHitCounter )
 atlas_add_component( TrigTRTHighTHitCounter
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CxxUtils GaudiKernel GeoPrimitives Identifier InDetIdentifier InDetPrepRawData TrigCaloEvent TrigInterfacesLib TrigSteeringEvent xAODTrigRinger )
+                     LINK_LIBRARIES DecisionHandlingLib AthViews CxxUtils GaudiKernel GeoPrimitives Identifier InDetIdentifier InDetPrepRawData TrigCaloEvent TrigInterfacesLib TrigSteeringEvent xAODTrigRinger )

@@ -24,6 +24,8 @@ from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
 from TrigHLTJetHypo.FastReductionAlgToolFactory import (
     FastReductionAlgToolFactory,)
 
+from TrigHLTJetHypo.treeVisitors import TreeChecker
+
 import sys
 
 def testChainDictMaker(idict):
@@ -120,7 +122,8 @@ if __name__ == '__main__':
             toolSetter=ConditionsToolSetterFastReduction(algToolFactory)
             
             print (tree2tools(tree,
-                              toolSetter=toolSetter).dump())
+                              toolSetter=toolSetter,
+                              checker=TreeChecker()).dump())
         print ()
         
 

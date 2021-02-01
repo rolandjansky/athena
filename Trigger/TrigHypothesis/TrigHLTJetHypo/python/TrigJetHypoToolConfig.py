@@ -4,7 +4,8 @@ from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrigHLTJetHypo.treeVisitors import (TreeParameterExpander,
-                                         FilterConditionsMover)
+                                         FilterConditionsMover,
+                                         TreeChecker)
 
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
@@ -27,7 +28,7 @@ log = logging.getLogger( 'TrigJetHypoToolConfig' )
 algToolFactory = FastReductionAlgToolFactory()
 
 
-def  tree2tools(tree, toolSetter):
+def  tree2tools(tree, toolSetter, checker):
 
     # expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
@@ -41,6 +42,12 @@ def  tree2tools(tree, toolSetter):
     # tell the child nodes who their parent is.
     tree.set_ids(node_id=0, parent_id=0)
 
+    # check tree invariants 
+    if checker is not None:
+        tree.accept(checker)
+        print (checker.report())
+        assert not checker.error()
+    
     # create - possibly nested - tools, The tools are attached to the visitor.
     toolSetter.mod(tree)
 
@@ -68,7 +75,8 @@ def trigJetHypoToolHelperConfigurersFromLabel(
     configurer_tools = []
     for tree in node_forest:
         toolSetter = ConditionsToolSetterFastReduction(algToolFactory)
-        tree2tools(tree, toolSetter)
+        checker = TreeChecker()
+        tree2tools(tree, toolSetter, checker)
         configurer_tools.append(toolSetter.config_tool)   
 
         log.debug(toolSetter.report())
@@ -133,8 +141,9 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
         assert tree.size() == 2  # root and single child.
         
         tool_setter = ConditionsToolSetterFastReduction(algToolFactory)
-        
-        tree2tools(tree.children[0], tool_setter)  # single child node
+
+        checker = None
+        tree2tools(tree.children[0], tool_setter, checker)  # single child node
 
         helper_tool.prefiltConditionMakers = tool_setter.conditionMakersVec
 

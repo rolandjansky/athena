@@ -1,7 +1,6 @@
 // Dear emacs, this is -*- c++ -*-
-// $Id: RecEnergyRoI.h 782811 2016-11-07 17:20:40Z smh $
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /***************************************************************************
                          RecEnergyRoI.h  -  description
@@ -25,6 +24,7 @@
 // Forward declaration(s):
 namespace TrigConf {
    class TriggerThreshold;
+   class L1Menu;
 }
 
 namespace LVL1 {
@@ -39,15 +39,26 @@ namespace LVL1 {
    public:
       // constructor
       RecEnergyRoI() {}
-      // constructor
+      // constructor using Run 1+2 configuration
       RecEnergyRoI( unsigned int RoIWord0, unsigned int RoIWord1, unsigned int RoIWord2,
                     const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+      /// constructor using Run 3 configuration
+      RecEnergyRoI( unsigned int RoIWord0, unsigned int RoIWord1, unsigned int RoIWord2,
+                    const TrigConf::L1Menu * const l1menu );
       // destructor
       ~RecEnergyRoI();
+
+      //copy constructor
+      RecEnergyRoI( const RecEnergyRoI &obj );
+
+      //assignment operator
+      RecEnergyRoI& operator=(const RecEnergyRoI &obj);
 
       //  does excatly what the constructor should do
       void construct( unsigned int RoIWord0, unsigned int RoIWord1, unsigned int RoIWord2,
                       const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+      // using Run 3 menu
+      void construct(const TrigConf::L1Menu *const l1menu);
 
       /** returns roi word 0. See  ATL-DAQ-99-015 for
           further explanation.*/
@@ -74,13 +85,13 @@ namespace LVL1 {
       bool passedMEtSigThreshold( int thresholdNumber ) const;
 
       /** returns a vector of thresholds passed. */
-      std::vector< unsigned int >* etMissThresholdsPassed() const;
+      std::vector<unsigned int> etMissThresholdsPassed() const;
 
       /** returns a vector of thresholds passed. */
-      std::vector< unsigned int >* sumEtThresholdsPassed() const;
+      std::vector<unsigned int> sumEtThresholdsPassed() const;
 
       /** returns a vector of thresholds passed. */
-      std::vector< unsigned int >* mEtSigThresholdsPassed() const;
+      std::vector<unsigned int> mEtSigThresholdsPassed() const;
 
       /** returns the value of the trigger threshold for the threshold passed.
           The trigger threshold is also sometimes called the cluster threshold.*/

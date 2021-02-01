@@ -152,6 +152,14 @@ def createDigitizationCfgFlags():
 
 def digitizationRunArgsToFlags(runArgs, flags):
     """Fill digitization configuration flags from run arguments."""
+    # from SimDigi
+    if hasattr(runArgs, "DataRunNumber"):
+        flags.Digitization.DataRunNumber = runArgs.DataRunNumber
+
+    # from SimDigi
+    if hasattr(runArgs, "jobNumber"):
+        flags.Digitization.JobNumber = runArgs.jobNumber
+
     if hasattr(runArgs, "PileUpPremixing"):
         flags.Digitization.PileUpPremixing = runArgs.PileUpPremixing
 
@@ -161,11 +169,73 @@ def digitizationRunArgsToFlags(runArgs, flags):
 
     if hasattr(runArgs, "AddCaloDigi"):
         flags.Digitization.AddCaloDigi = runArgs.AddCaloDigi
-    
+
     if hasattr(runArgs, "digiSeedOffset1"):
         flags.Digitization.RandomSeedOffset = runArgs.digiSeedOffset1
 
+    if hasattr(runArgs, "digiSteeringConf"):
+        flags.Digitization.DigiSteeringConf = runArgs.digiSteeringConf + "PileUpToolsAlg"
+
     # TODO: Not covered yet as no flag equivalents exist yet
     # '--digiRndmSvc'
-    # '--digiSteeringConf'
     # '--samplingFractionDbTag'
+
+
+def pileupRunArgsToFlags(runArgs, flags):
+    """Fill pile-up digitization configuration flags from run arguments."""
+    if hasattr(runArgs, "numberOfLowPtMinBias"):
+        flags.Digitization.PU.NumberOfLowPtMinBias = runArgs.numberOfLowPtMinBias
+
+    if hasattr(runArgs, "numberOfHighPtMinBias"):
+        flags.Digitization.PU.NumberOfHighPtMinBias = runArgs.numberOfHighPtMinBias
+
+    if hasattr(runArgs, "numberOfBeamHalo"):
+        flags.Digitization.PU.NumberOfBeamHalo = runArgs.numberOfBeamHalo
+
+    if hasattr(runArgs, "numberOfBeamGas"):
+        flags.Digitization.PU.NumberOfBeamGas = runArgs.numberOfBeamGas
+
+    if hasattr(runArgs, "numberOfCavernBkg"):
+        flags.Digitization.PU.NumberOfCavern = runArgs.numberOfCavernBkg
+
+    if hasattr(runArgs, "bunchSpacing"):
+        flags.Digitization.PU.BunchSpacing = runArgs.bunchSpacing
+
+    if hasattr(runArgs, "pileupInitialBunch"):
+        flags.Digitization.PU.InitialBunchCrossing = runArgs.pileupInitialBunch
+
+    if hasattr(runArgs, "pileupFinalBunch"):
+        flags.Digitization.PU.FinalBunchCrossing = runArgs.pileupFinalBunch
+
+    if hasattr(runArgs, "inputLowPtMinbiasHitsFile"):
+        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        flags.Digitization.PU.LowPtMinBiasInputCols = \
+            generateBackgroundInputCollections(flags, runArgs.inputLowPtMinbiasHitsFile,
+                                               flags.Digitization.PU.NumberOfLowPtMinBias, True)
+
+    if hasattr(runArgs, "inputHighPtMinbiasHitsFile"):
+        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        flags.Digitization.PU.HighPtMinBiasInputCols = \
+            generateBackgroundInputCollections(flags, runArgs.inputHighPtMinbiasHitsFile,
+                                               flags.Digitization.PU.NumberOfHighPtMinBias, True)
+
+    if hasattr(runArgs, "inputCavernHitsFile"):
+        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        flags.Digitization.PU.CavernInputCols = \
+            generateBackgroundInputCollections(flags, runArgs.inputCavernHitsFile,
+                                               flags.Digitization.PU.NumberOfCavern, True)  # TODO: ignore?
+
+    if hasattr(runArgs, "inputBeamHaloHitsFile"):
+        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        flags.Digitization.PU.BeamHaloInputCols = \
+            generateBackgroundInputCollections(flags, runArgs.inputBeamHaloHitsFile,
+                                               flags.Digitization.PU.NumberOfBeamHalo, True)
+
+    if hasattr(runArgs, "inputBeamGasHitsFile"):
+        from Digitization.PileUpUtils import generateBackgroundInputCollections
+        flags.Digitization.PU.BeamGasInputCols = \
+            generateBackgroundInputCollections(flags, runArgs.inputBeamGasHitsFile,
+                                               flags.Digitization.PU.NumberOfBeamGas, True)
+
+    # TODO: Not covered yet as no flag equivalents exist yet
+    # '--testPileUpConfig'

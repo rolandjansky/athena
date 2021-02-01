@@ -134,7 +134,8 @@ class TriggerCoolUtil:
                 payload = obj.payload()
                 hltpsk  = payload['HltPrescaleKey']
                 firstLB = obj.since() & lbmask
-                lastLB  = (obj.until() & lbmask) -1
+                until = (obj.until() & lbmask)
+                lastLB =  until-1 if until>0 else lbmask
                 configKeys.setdefault(runNr,{}).setdefault( "HLTPSK2", [] ).append((hltpsk,firstLB,lastLB))
         return configKeys
 
@@ -153,7 +154,8 @@ class TriggerCoolUtil:
                 if runNr>1000000: continue
                 payload=obj.payload()
                 firstLB = obj.since() & lbmask
-                lastLB =  (obj.until() & lbmask) -1
+                until = (obj.until() & lbmask)
+                lastLB =  until-1 if until>0 else lbmask
                 l1psk = payload['Lvl1PrescaleConfigurationKey']
                 configKeys.setdefault(runNr,{}).setdefault( "LVL1PSK", [] ).append((l1psk,firstLB,lastLB))
         return configKeys
@@ -173,7 +175,8 @@ class TriggerCoolUtil:
                 if runNr>1000000: continue
                 payload=obj.payload()
                 firstLB = obj.since() & lbmask
-                lastLB =  (obj.until() & lbmask) -1
+                until = (obj.until() & lbmask)
+                lastLB =  until-1 if until>0 else lbmask
                 bgkey = payload['Lvl1BunchGroupConfigurationKey']
                 configKeys.setdefault(runNr,{}).setdefault( "BGKey", [] ).append((bgkey,firstLB,lastLB))
         return configKeys

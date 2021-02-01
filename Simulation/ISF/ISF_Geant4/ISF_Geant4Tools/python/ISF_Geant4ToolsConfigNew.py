@@ -73,26 +73,30 @@ def FullGeant4ToolCfg(flags, name="ISF_FullGeant4Tool", **kwargs):
 def PassBackGeant4ToolCfg(flags, name="ISF_PassBackGeant4Tool", **kwargs):
     acc = ISFPassBackUserActionSvcCfg(flags)
     kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISFPassBackUserActionSvc"))
-    acc.merge(Geant4ToolCfg(flags, name, **kwargs))
+    PassBackGeant4Tool = acc.popToolsAndMerge(Geant4ToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 
 
 def AFIIGeant4ToolCfg(flags, name="ISF_AFIIGeant4Tool", **kwargs):
     acc = ISF_AFIIUserActionSvcCfg(flags)
     kwargs.setdefault("UserActionSvc", acc.getService("G4UA::ISF_AFIIUserActionSvc"))
-    acc.merge(PassBackGeant4ToolCfg(flags, name, **kwargs))
+    PassBackGeant4Tool = acc.popToolsAndMerge(PassBackGeant4ToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(PassBackGeant4Tool)
     return acc
 
 
 def LongLivedGeant4ToolCfg(flags, name="ISF_LongLivedGeant4Tool", **kwargs):
     acc = LongLivedInputConverterCfg(flags)
     kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
-    acc.merge(FullGeant4ToolCfg(flags, name, **kwargs))
+    FullGeant4Tool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(FullGeant4Tool)
     return acc
 
 
 def AFII_QS_Geant4ToolCfg(flags, name="AFII_QS_Geant4Tool", **kwargs):
     acc = LongLivedInputConverterCfg(flags)
     kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
-    acc.merge(AFIIGeant4ToolCfg(flags, name, **kwargs))
+    AFIIGeant4Tool = acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags, name, **kwargs))
+    acc.setPrivateTools(AFIIGeant4Tool)
     return acc

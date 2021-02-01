@@ -5,12 +5,6 @@
 #ifndef EGAMMAALGS_EGAMMASELECTEDTRACKCOPY_H
 #define EGAMMAALGS_EGAMMASELECTEDTRACKCOPY_H
 
-/**
-  @class egammaSelectedTrackCopy
-  Algorithm which selectrs tracks to be GSF refitted
-  later on.
-  */
-
 #include "egammaInterfaces/IEMExtrapolationTools.h"
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
@@ -18,6 +12,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
+#include "StoreGate/ReadCondHandleKey.h"
 
 #include "AthContainers/ConstDataVector.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
@@ -29,10 +24,29 @@
 #include <Gaudi/Accumulators.h>
 
 #include "InDetReadoutGeometry/SiDetectorElementCollection.h"
-#include "StoreGate/ReadCondHandleKey.h"
 
-class CaloCluster;
+/**
+  @class egammaSelectedTrackCopy
+  Algorithm which selects tracks to be GSF refitted
+  later on.
 
+  The algorithm select tracks that are matched to cluster using eta and phi.
+  Si-track/cluster pairs with Et (computed with eta from the track) less than
+  10 MeV are not considered. Non-Si-track/cluster pair with Et (from the cluster)
+  less than 10 MeV are not considered.
+
+  The eta/phi matching is done in two steps. In the first step a broad matching
+  is done. Then a narrower match is done using extrapolated tracks to the second layer.
+  For TRT tracks only broad phi-matching is tried.
+
+  - Input container xAOD::CaloClusterContainer: ClusterContainerName
+  - Input container xAOD::TrackParticleContainer: TrackParticleContainerName
+  - Output container xAOD::TrackParticleContainer: OutputTrkPartContainerName
+
+  The heavy work is done directly inside the algorithm, without the usage of
+  a particular external tool (see selectTrack private method).
+
+  */
 class egammaSelectedTrackCopy : public AthReentrantAlgorithm
 {
 public:
@@ -45,11 +59,11 @@ public:
 
 private:
   /** @brief broad track selection */
-  bool Select(const EventContext& ctx,
-              const xAOD::CaloCluster* cluster,
-              const xAOD::TrackParticle* track,
-              IEMExtrapolationTools::Cache& cache,
-              bool trkTRT) const;
+  bool selectTrack(const EventContext& ctx,
+                   const xAOD::CaloCluster* cluster,
+                   const xAOD::TrackParticle* track,
+                   IEMExtrapolationTools::Cache& cache,
+                   bool trkTRT) const;
 
   /** @brief Tool for extrapolation */
   ToolHandle<IEMExtrapolationTools> m_extrapolationTool{ this,
@@ -94,13 +108,6 @@ private:
                                  "egammaSelectedTrackParticles",
                                  "Output selected TrackParticles" };
 
-  /** @Cut on minimum silicon hits*/
-  Gaudi::Property<int> m_MinNoSiHits{ this,
-                                      "minNoSiHits",
-                                      4,
-                                      "Minimum number of silicon hits on track "
-                                      "before it is allowed to be refitted" };
-
   /** @brief broad cut on deltaEta*/
   Gaudi::Property<double> m_broadDeltaEta{ this,
                                            "broadDeltaEta",
@@ -113,7 +120,7 @@ private:
                                            0.3,
                                            "Value of broad cut for delta phi" };
 
-  /** @narrow windows*/
+  /** @brief narrow windows*/
   Gaudi::Property<double> m_narrowDeltaEta{
     this,
     "narrowDeltaEta",

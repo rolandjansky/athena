@@ -69,6 +69,9 @@ theApp.EvtMax                   = 25
 # Load POOL support
 #--------------------------------------------------------------
 import AthenaPoolCnvSvc.WriteAthenaPool
+svcMgr.AthenaPoolCnvSvc.PoolContainerPrefix = "ROOTTREE:CollectionTree"
+svcMgr.AthenaPoolCnvSvc.TopLevelContainerName = "<type>"
+svcMgr.AthenaPoolCnvSvc.SubLevelBranchName = ""
 
 #--------------------------------------------------------------
 # AthenaPool details

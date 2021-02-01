@@ -31,7 +31,6 @@ UPDATE : 25/06/2018
 #include <algorithm>
 #include <cmath>
 #include <memory>
-#include <stdexcept>
 #include <vector>
 
 egammaSelectedTrackCopy::egammaSelectedTrackCopy(const std::string& name,
@@ -104,7 +103,7 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
   }
 
   SG::WriteHandle<ConstDataVector<xAOD::TrackParticleContainer>>
-    outputTrkPartContainer(m_OutputTrkPartContainerKey,ctx);
+    outputTrkPartContainer(m_OutputTrkPartContainerKey, ctx);
   /*
    * Here it just needs to be a view copy ,
    * i.e the collection of selected trackParticles
@@ -126,11 +125,12 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
 
   const CaloDetDescrManager* calodetdescrmgr = nullptr;
   ATH_CHECK( detStore()->retrieve(calodetdescrmgr,"CaloMgr") );
-  // // lets first check which clusters to seed on;
+
+  // lets first check which clusters to seed on;
   std::vector<const xAOD::CaloCluster*> passingClusters;
   for (const xAOD::CaloCluster* cluster : *clusterTES) {
     ++allClusters;
-    if (m_egammaCaloClusterSelector->passSelection(cluster,*calodetdescrmgr)) {
+    if (m_egammaCaloClusterSelector->passSelection(cluster, *calodetdescrmgr)) {
       passingClusters.push_back(cluster);
       ++selectedClusters;
     }
@@ -163,7 +163,7 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
          check if it the track is selected due to this cluster.
          If not continue to next cluster
          */
-      if (!Select(ctx, cluster, track, cache, isTRT)) {
+      if (!selectTrack(ctx, cluster, track, cache, isTRT)) {
         continue;
       }
       viewCopy->push_back(track);
@@ -188,11 +188,11 @@ egammaSelectedTrackCopy::execute(const EventContext& ctx) const
 }
 
 bool
-egammaSelectedTrackCopy::Select(const EventContext& ctx,
-                                const xAOD::CaloCluster* cluster,
-                                const xAOD::TrackParticle* track,
-                                IEMExtrapolationTools::Cache& cache,
-                                bool trkTRT) const
+egammaSelectedTrackCopy::selectTrack(const EventContext& ctx,
+                                     const xAOD::CaloCluster* cluster,
+                                     const xAOD::TrackParticle* track,
+                                     IEMExtrapolationTools::Cache& cache,
+                                     bool trkTRT) const
 {
 
   if (cluster == nullptr || track == nullptr) {
@@ -211,10 +211,8 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
   // Get Cluster parameters
   const double clusterEta = cluster->etaBE(2);
   const bool isEndCap = !xAOD::EgammaHelpers::isBarrel(cluster);
-  double Et = cluster->e() / cosh(trkEta);
-  if (trkTRT) {
-    Et = cluster->et();
-  }
+  // use trkEta only if sufficient hits in the Si
+  const double Et = trkTRT ? cluster->et() : cluster->e() / cosh(trkEta);
   // a few sanity checks
   if (std::abs(clusterEta) > 10.0 || std::abs(trkEta) > 10.0 || Et < 10.0) {
     ATH_MSG_DEBUG("FAILS sanity checks :  Track Eta : "
@@ -273,7 +271,8 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
     return false;
   }
 
-  // Extrapolate from last measurement, since this is before brem fit last measurement is OK.
+  // Extrapolate from last measurement to the four EM layers.
+  // Since this is before brem fit last measurement is OK.
   std::array<double, 4> eta = { -999.0, -999.0, -999.0, -999.0 };
   std::array<double, 4> phi = { -999.0, -999.0, -999.0, -999.0 };
   std::array<double, 4> deltaEta = { -999.0, -999.0, -999.0, -999.0 };
@@ -314,7 +313,7 @@ egammaSelectedTrackCopy::Select(const EventContext& ctx,
   }
   /*
    * Cases where
-   * - it passes  deltaEta[2] from last measurement (rescaling should not affect
+   * - it passes deltaEta[2] from last measurement (rescaling should not affect
    * the eta side)
    * - and we have a cluster with higher Et.
    * Rescale up the track to account for radiative loses and retry
