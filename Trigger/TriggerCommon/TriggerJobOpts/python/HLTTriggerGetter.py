@@ -122,6 +122,13 @@ class HLTSimulationGetter(Configured):
         
         log = logging.getLogger("HLTTriggergetter.py")
 
+        if TriggerFlags.triggerMenuSetup() == "Physics_pp_v7_primaries":
+            # the Run 2 triggger menu Physics_pp_v7_primaries does not exist in json (it should be phased out soon)
+            # Need to disable the new menu through the new config flags
+            log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False because TriggerFlags.triggerMenuSetup == %s", TriggerFlags.triggerMenuSetup())
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            ConfigFlags.Trigger.readLVL1FromJSON = False
+
         from AthenaCommon.AlgSequence import AlgSequence 
         topSequence = AlgSequence()
 
@@ -218,8 +225,12 @@ class HLTSimulationGetter(Configured):
             TrigSteer_HLT.Navigation.ClassesToPreregister = getHLTPreregistrationList()
             
             TrigSteer_HLT.Navigation.Dlls = getEDMLibraries()
-
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            TrigSteer_HLT.LvlConverterTool.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             monitoringTools(TrigSteer_HLT)
+            for monTools in TrigSteer_HLT.MonTools:
+                if monTools.name() in ["TrigRoIMoniValidation", "TrigRoIMoniOnline"]:
+                    monTools.Lvl1ResultAccessTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
             topSequence += TrigSteer_HLT
 
 

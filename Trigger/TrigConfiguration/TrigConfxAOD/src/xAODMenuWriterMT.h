@@ -23,7 +23,8 @@ extern "C" {
 #include "StoreGate/StoreGateSvc.h"
 
 // Trigger include(s):
-#include "TrigConfInterfaces/ITrigConfigSvc.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
+#include "TrigConfInterfaces/IHLTConfigSvc.h"
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1Menu.h"
 #include "TrigConfData/HLTPrescalesSet.h"
@@ -67,7 +68,7 @@ namespace TrigConf {
       virtual StatusCode execute(const EventContext& ctx) const override;
 
    private:
- 
+
       SG::WriteHandleKey<xAOD::TrigConfKeys> m_eventName {this, "EventObjectName", "TrigConfKeys",
         "StoreGate key for the event object"};
 
@@ -112,10 +113,11 @@ namespace TrigConf {
         "Flag to control the writing of xAOD::TriggerMenu metadata into the output file. This is the R2 persistent format."}; 
 
       Gaudi::Property< bool > m_writexAODTriggerMenuJson {this, "WritexAODTriggerMenuJson", true,
-        "Flag to control the writing of xAOD::TriggerMenuJson metadata into the output file. This is the R3 persistent format."};   
+        "Flag to control the writing of xAOD::TriggerMenuJson metadata into the output file. This is the R3 persistent format."};
 
-      ServiceHandle< TrigConf::ITrigConfigSvc > m_trigConf {this, "TrigConfigSvc", "TrigConfigSvc",
-        "The TrigConfigSvc"};
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_l1TrigConf{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1 TrigConfigSvc"};
+
+      ServiceHandle<TrigConf::IHLTConfigSvc> m_hltTrigConf{this, "HLTConfigSvc", "HLTConfigSvc", "The HLT TrigConfigSvc"};
 
       ServiceHandle< StoreGateSvc > m_metaStore {this, "MetaDataStore", "MetaDataStore",
         "The MetaDataStore"};

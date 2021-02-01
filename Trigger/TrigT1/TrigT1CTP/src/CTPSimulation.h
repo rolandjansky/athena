@@ -132,7 +132,7 @@ namespace LVL1CTP {
 
       // Needed services and tools
       ServiceHandle<ITHistSvc> m_histSvc { this, "THistSvc", "THistSvc/THistSvc", "Histogramming svc" };
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc", "Trigger configuration service" };
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc { this, "TrigConfigSvc", "LVL1ConfigSvc", "Trigger configuration service" };
       // ServiceHandle<StoreGateSvc> m_detStore { this, "DetectorStore", "StoreGateSvc/DetectorStore", "Detector store to get the menu" };
       ToolHandle<LVL1CTP::ResultBuilder> m_resultBuilder { this, "ResultBuilder", "LVL1CTP__ResultBuilder/ResultBuilder", "Builds the CTP result" };
 

@@ -88,7 +88,7 @@ class TrigRoIMoni: public TrigMonitorToolBase {
   // L1 trigger config svc
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_trigConfigSvc; //!< access to trigger menu
   bool m_gotL1Config;     //!< retrieve of Lvl1ConfigSvc pointer successful?
-  ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool; //!< tool to handle L1 objects
+  ToolHandle<HLT::ILvl1ResultAccessTool> m_lvl1Tool{this, "Lvl1ResultAccessTool", "HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool", "Tool to retrieve lvl 1 trigger information"};
 
   // muon specific svc
   const LVL1::RecMuonRoiSvc* m_recRPCRoiSvc{0}; //!< Muon RoI svc

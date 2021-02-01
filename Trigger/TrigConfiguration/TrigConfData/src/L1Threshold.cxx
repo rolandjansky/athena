@@ -74,13 +74,15 @@ TrigConf::L1Threshold_JET::load()
    if( const auto & thrVs = data().get_child_optional("thrValues") ) {
       for( auto & x : thrVs.get() ) {
          auto etamin = x.second.get_child("etamin").get_value<int>();
-         if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamin)) == allowedBoundaries.end()) {
-            throw std::runtime_error(name() + ": etamin value " + std::to_string(etamin) + " not an allowed value for legacy JETs");
-         }
+         // will be re-enabled once we have the faulty configurations in the TriggerDB removed
+         // if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamin)) == allowedBoundaries.end()) {
+         //    throw std::runtime_error(name() + ": etamin value " + std::to_string(etamin) + " not an allowed value for legacy JETs");
+         // }
          auto etamax = x.second.get_child("etamax").get_value<int>();
-         if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamax)) == allowedBoundaries.end()) {
-            throw std::runtime_error(name() + ": etamax value " + std::to_string(etamax) + " not an allowed value for legacy JETs");
-         }
+         // will be re-enabled once we have the faulty configurations in the TriggerDB removed
+         // if(std::find(begin(allowedBoundaries), end(allowedBoundaries), abs(etamax)) == allowedBoundaries.end()) {
+         //    throw std::runtime_error(name() + ": etamax value " + std::to_string(etamax) + " not an allowed value for legacy JETs");
+         // }
          auto priority = x.second.get_child("priority").get_value<unsigned int>();
          auto window = x.second.get_child("window").get_value<unsigned int>();
          m_etaDepWindow.addRangeValue(window, etamin, etamax, priority, /*symmetric=*/ false);

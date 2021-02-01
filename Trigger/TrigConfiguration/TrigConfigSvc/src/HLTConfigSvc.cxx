@@ -76,7 +76,9 @@ HLTConfigSvc::~HLTConfigSvc()
 StatusCode
 HLTConfigSvc::writeConfigToDetectorStore() {
 
-    TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
+   m_inputType = boost::to_lower_copy(m_inputType.value()); // lower case
+
+   TrigConf::HLTMenu * hltmenu = new TrigConf::HLTMenu;
 
    if( m_inputType == "db" ) {
 
@@ -186,7 +188,7 @@ HLTConfigSvc::initialize() {
 
    std::string xmlFile(boost::to_lower_copy(m_xmlFile)); // lower case
    if( !fromDB() and (xmlFile=="none" or xmlFile == "")) {
-      ATH_MSG_INFO("xml file set to NONE, will not load HLT Menu");
+      ATH_MSG_INFO("xml file set to NONE, will not load old-style HLT Menu");
       return StatusCode::SUCCESS;
    }
 

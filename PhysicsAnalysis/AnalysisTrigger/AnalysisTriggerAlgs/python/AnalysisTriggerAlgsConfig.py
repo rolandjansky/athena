@@ -13,7 +13,7 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
 
         # Get a logger:
         from AthenaCommon.Logging import logging
-        log = logging.getLogger( 'RoIBResultToAOD' )
+        log = logging.getLogger( 'RoIBResultToxAOD' )
 
         #
         # Get the handle to the LVL1 config service:
@@ -34,6 +34,8 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
 
         # Set the handle for the algorithm:
         self.LVL1ConfigSvc = lvl1ConfigSvc
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        self.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         #
         # Set up the L1Calo tools:

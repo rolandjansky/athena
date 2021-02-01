@@ -11,7 +11,7 @@ class Access(type):
     """Metaclass to implement __getattr__ for class variables"""
     def __getattr__(cls, key):
         if cls.ctpDataFormat is None:
-            raise RuntimeError("CTP version has not been set, you need to call Limits.setLimits(ctpversion) before you can use the limits")
+            raise RuntimeError("CTP version has not been set, you need to call Limits.setLimits(CTPVersion) before you can use the limits")
 
         if hasattr(cls.ctpDataFormat, key):
             return getattr( cls.ctpDataFormat, key)
