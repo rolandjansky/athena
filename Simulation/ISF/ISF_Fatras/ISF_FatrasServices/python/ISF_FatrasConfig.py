@@ -958,7 +958,7 @@ def fatrasSimToolCfg(flags, name="ISF_FatrasSimTool", **kwargs):
     kwargs.setdefault("RandomNumberService", result.getService("AthRNGSvc"))
     
     iFatras__TransportTool = CompFactory.iFatras.TransportTool
-    result.addPublicTool(iFatras__TransportTool(name=name, **kwargs))
+    result.setPrivateTools(iFatras__TransportTool(name=name, **kwargs))
     return result
 
 
