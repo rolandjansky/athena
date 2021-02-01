@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # File: LArConditionsCommon/python/LArCondContChannels.py
 # Author: RD Schaffer (R.D.Schaffer@cern.ch)
@@ -334,7 +334,7 @@ class LArCondContChannels(object) :
     fts.sort()
     # Check value for posNeg
     if posNeg != -1 and posNeg != +1:
-      print (__name__)
+      print(__name__)
       raise RuntimeError (__name__ +"posNeg must be either +/-1, found: " + str(posNeg))
 
     offset = 0
@@ -413,7 +413,7 @@ class LArCondContChannels(object) :
   # Allowed subdet names: EMB, EMEC, HEC, FCAL
   def subDetChannelSelection(self, subDetName, gain):
     if gain >= self.nGains:
-      print ("invalid gain: range in 0 to",self.nGain-1)
+      print("invalid gain: range in 0 to",self.nGain-1)
       return -1
     offset = gain*self.nSubDets + self.subDetsOffset
     if subDetName == "Corr":
@@ -617,10 +617,10 @@ if __name__ == '__main__':
   # Test of LArCondContChannels
   decoder = LArCondContChannels()
 
-  print ("0 - unknown", decoder.isUnknown(0),"SG", decoder.isSingleGroup(0),"SDG",decoder.isSubDetectorGrouping(0),"FT",decoder.isFeedThroughGrouping(0))
-  print ("1 - unknown", decoder.isUnknown(1),"SG", decoder.isSingleGroup(1),"SDG",decoder.isSubDetectorGrouping(1),"FT",decoder.isFeedThroughGrouping(1))
-  print ("2 - unknown", decoder.isUnknown(2),"SG", decoder.isSingleGroup(2),"SDG",decoder.isSubDetectorGrouping(2),"FT",decoder.isFeedThroughGrouping(2))
-  print ("3 - unknown", decoder.isUnknown(3),"SG", decoder.isSingleGroup(3),"SDG",decoder.isSubDetectorGrouping(3),"FT",decoder.isFeedThroughGrouping(3))
+  print("0 - unknown", decoder.isUnknown(0),"SG", decoder.isSingleGroup(0),"SDG",decoder.isSubDetectorGrouping(0),"FT",decoder.isFeedThroughGrouping(0))
+  print("1 - unknown", decoder.isUnknown(1),"SG", decoder.isSingleGroup(1),"SDG",decoder.isSubDetectorGrouping(1),"FT",decoder.isFeedThroughGrouping(1))
+  print("2 - unknown", decoder.isUnknown(2),"SG", decoder.isSingleGroup(2),"SDG",decoder.isSubDetectorGrouping(2),"FT",decoder.isFeedThroughGrouping(2))
+  print("3 - unknown", decoder.isUnknown(3),"SG", decoder.isSingleGroup(3),"SDG",decoder.isSubDetectorGrouping(3),"FT",decoder.isFeedThroughGrouping(3))
 
   # Check channels list
 
