@@ -137,7 +137,7 @@ SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opened container ##Links of type ROOT_Tree
 SimplePoolFile4...  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
-SimplePoolFile4...  DEBUG --->Reading Assoc:????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [203]  (3 , ffffffff)
+SimplePoolFile4...  DEBUG --->Reading Assoc:????/ConditionsContainerExampleHitContainer_p1(PedestalWriteData) [203]  (3 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
 SimplePoolFile4...  DEBUG --->Reading Assoc:????/POOLContainer(DataHeader) [203]  (4 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
@@ -211,7 +211,7 @@ SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Links
 ##Links             DEBUG Opened container ##Links of type ROOT_Tree
 SimplePoolFile4...  DEBUG --->Reading Assoc:????/##Params [200]  (2 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
-SimplePoolFile4...  DEBUG --->Reading Assoc:????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [203]  (3 , ffffffff)
+SimplePoolFile4...  DEBUG --->Reading Assoc:????/ConditionsContainerExampleHitContainer_p1(PedestalWriteData) [203]  (3 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
 SimplePoolFile4...  DEBUG --->Reading Assoc:????/POOLContainer(DataHeader) [203]  (4 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
@@ -239,11 +239,11 @@ POOLContainerFo...  DEBUG Branch container 'DataHeaderForm'
 POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of type ROOT_Tree
 CondProxyProvider   DEBUG The current File contains: 2 objects
 CondProxyProvider   DEBUG preLoadAddresses: DataObject address, clid = 9102, name = PedestalWriteData
-SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData)
+SimplePoolFile4...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] ConditionsContainerExampleHitContainer_p1(PedestalWriteData)
 ConditionsConta...  DEBUG Opening
 ConditionsConta...  DEBUG    attributes# = 1
-ConditionsConta...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
-ConditionsConta...  DEBUG Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
+ConditionsConta...  DEBUG Branch container 'PedestalWriteData'
+ConditionsConta...  DEBUG Opened container ConditionsContainerExampleHitContainer_p1(PedestalWriteData) of type ROOT_Tree
 ReadCond             INFO Pedestal x = 193136 y = 14420 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 ReadData            DEBUG in execute()
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream1)
