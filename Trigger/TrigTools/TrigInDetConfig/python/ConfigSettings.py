@@ -449,6 +449,32 @@ class _PrecisionTracking():
    def isSignature(self, signature):
       return (self._signatureType == signature)
 
+class _EFIDTracking():
+   def __init__( self, signatureType, nameSuffix ) : 
+      self._signatureType = signatureType #Steer which cuts,flags to load
+      self._config        = getInDetTrigTrackingConfig( signatureType )
+      self._suffix        = nameSuffix
+   
+   #Retrieve trackCollection key
+   @makeRecordable #Allows to record collection if doRecord = True
+   def trkTracksEFID(self, doRecord=False):
+      return 'HLT_IDTrkTrack_{}_EFID'.format( self._suffix )
+   
+   #Retrieve TrackParticle key
+   @makeRecordable #Allows to record collection if doRecord = True
+   def tracksEFID(self, doRecord = True):
+      return 'HLT_IDTrack_{}_EFID'.format( self._suffix )
+   
+   @property 
+   def setting(self):
+      return self._config
+   
+   def isSignature(self, signature):
+      return (self._signatureType == signature)
+   
+   @property 
+   def signatureType(self):
+      return self._signatureType
 
 class _GlobalSettings() :
    def __init__( self ) :
@@ -627,11 +653,12 @@ class _Settings_fullScan( _GlobalSettings ):
 class _Settings_cosmics( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
-      self._name     = "cosmics" #To be appended to alg names
-      self._roi      = "HLT_Roi_Cosmics" #FIXME: possibly different!
-      self._configFT = _FastTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' ) #
-      self._doRecord = False
-
+      self._name        = "cosmics" #To be appended to alg names
+      self._roi         = "HLT_Roi_Cosmics" #FIXME: possibly different!  
+      self._configFT    = _FastTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
+      self._configPT    = _PrecisionTracking( signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
+      self._configEFID  = _EFIDTracking(      signatureType = 'cosmics',  nameSuffix = 'Cosmic' )
+      self._doRecord    = True 
 
 class _Settings_bmumux( _GlobalSettings ):
    def __init__( self ):

@@ -653,6 +653,13 @@ def siTrackMakerTool_builder( name, siDetElementsRoadMakerTool, trackFinderTool,
 
 
 def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssociationTool, nameSuffix ):
+
+   #FIXME:
+   # 1] Currently some flags are copy paste from offline configuration, might need to switch those to trigger flags
+   # 2] trackingCuts are adapted from offline version as well, ideally we would want to have these from ConfigSettings.py in the end
+   # 3] This code requires proper validation (currently ongoing using minBias and cosmic signatures)
+
+
    from .InDetTrigCollectionKeys           import TrigPixelKeys, TrigSCTKeys
    from InDetRecExample.InDetJobProperties import InDetFlags
 

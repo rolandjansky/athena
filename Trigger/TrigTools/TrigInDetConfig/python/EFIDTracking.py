@@ -23,34 +23,42 @@ def get_idtrig_view_verifier(name):
    from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
    viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
    viewDataVerifier.DataObjects = [
+                                    #FIXME:
+                                    #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
+                                    #However, by commenting them out can this break functionality of smt else?
+
                                      ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
-                                     ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
-                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
-                                     ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
+                                    ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                    ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
+                                    ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
+
                                      ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
                                      ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
-                                     ]
+                                  ]
    
-   viewDataVerifier.DataObjects += [( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
-                                   ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
-                                   ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
-                                   ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
-                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
-                                   ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
-                                   ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
-                                   ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
-                                   ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                   ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+   #viewDataVerifier.DataObjects += [
+   viewDataVerifier.DataObjects += [ ( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
+                                     ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
+                                     ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
+                                     ( 'SCT_RDO_Cache' , InDetCacheNames.SCTRDOCacheKey ),
+                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCachePix ),
+                                     ( 'SpacePointCache' , InDetCacheNames.SpacePointCacheSCT ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.PixBSErrCacheKey ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTBSErrCacheKey ),
+                                     ( 'IDCInDetBSErrContainer_Cache' , InDetCacheNames.SCTFlaggedCondCacheKey ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_FlaggedCondData_TRIG' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+SCT_ByteStreamErrs' ),
+                                     ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
+                                     ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
+                                     ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
+                                   # ]
+
    
-   # Load RDOs if we aren't loading bytestream
+  # Load RDOs if we aren't loading bytestream
    from AthenaCommon.AlgSequence import AlgSequence
    topSequence = AlgSequence()
-   
+  
    topSequence.SGInputLoader.Load += [ ( 'TagInfo' , 'DetectorStore+ProcessingTags' ) ]
    
    if not globalflags.InputFormat.is_bytestream():
@@ -60,10 +68,10 @@ def get_idtrig_view_verifier(name):
                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() ), 
                                         ( 'IDCInDetBSErrContainer',  'StoreGateSvc+SCT_FlaggedCondData' ),
                                         ]
-   #   topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
-   #                                      ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
-   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
-   #                                      ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
+     topSequence.SGInputLoader.Load += [( 'PixelRDO_Container' , InDetKeys.PixelRDOs() ),
+                                         ( 'SCT_RDO_Container' , InDetKeys.SCT_RDOs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.PixelByteStreamErrs() ),
+                                         ( 'IDCInDetBSErrContainer' , InDetKeys.SCT_ByteStreamErrs() )]
    
    return viewDataVerifier
 
@@ -130,7 +138,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
          from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
-         if DetFlags.haveRIO.pixel_on():
+         if True:#DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDetSiDetElementBoundaryLinksPixelCondAlg"):
@@ -141,7 +149,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
 
 
-         if trackingCuts.useSCT():
+         if True:#trackingCuts.useSCT():
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
