@@ -31,7 +31,7 @@ def createTriggerFlags():
     # Enable Run-3 LVL1 simulation and/or decoding
     flags.addFlag('Trigger.enableL1Phase1', False)
 
-    # Enable usage of new L1 menu 
+    # Enable usage of new L1 menu   
     flags.addFlag('Trigger.readLVL1FromJSON', True)
 
     # Enable Run-2 L1Calo simulation and/or decoding (possible even if enablePhase1 is True)

@@ -1,11 +1,10 @@
-/*
-  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
-*/
+// Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 /***************************************************************************
-                          RecMuonRoI.h  -  description
-                             -------------------
-    begin                : Tue Feb 25 2003
-    email                : Thorsten Wengler
+ *                         RecMuonRoI.h  -  description
+ *                            -------------------
+ *   begin                : Tue Feb 25 2003
+ *   email                : Thorsten Wengler
  ***************************************************************************/
 
 #ifndef TRIGT1INTERFACES_RECMUONROI_H
@@ -23,7 +22,8 @@
 
 // Forward declaration(s):
 namespace TrigConf {
-  class TriggerThreshold;
+   class TriggerThreshold;
+   class L1Menu;
 }
 
 namespace LVL1 {
@@ -55,11 +55,8 @@ namespace LVL1 {
    };
 
    /** This class defines the reconstructed Muon ROI. 
-       It is generated from the Slink output of TrigT1Muctpi
-
-
-       @author Thorsten Wengler
-   */
+    *  It is generated from the Slink output of TrigT1Muctpi
+    */
    class RecMuonRoI : public iRecCoordRoI {
 
    public:
@@ -72,21 +69,34 @@ namespace LVL1 {
 
       // constructor
       RecMuonRoI() {}
-      // constructor
+
+      // constructor using Run 1+2 configuration
       RecMuonRoI( unsigned int roIWord, const RecMuonRoiSvc* theRecRPCRoiSvc,
                   const RecMuonRoiSvc* theRecTGCRoiSvc,
                   const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+
       RecMuonRoI( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
                   const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                   const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+
+      /// constructor using Run 3 configuration
+      RecMuonRoI( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
+                  const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
+                  const TrigConf::L1Menu * const l1menu );
 
       // does exactly like the constructor
       void construct( unsigned int roIWord, const RecMuonRoiSvc* theRecRPCRoiSvc,
                       const RecMuonRoiSvc* theRecTGCRoiSvc,
                       const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+
       void construct( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
                       const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
                       const std::vector< TrigConf::TriggerThreshold* >* theMuonConfig );
+
+      // using Run 3 menu
+      void construct( unsigned int roIWord, const ITrigT1MuonRecRoiTool* theRecRPCRoiTool,
+                      const ITrigT1MuonRecRoiTool* theRecTGCRoiTool,
+                      const TrigConf::L1Menu* const l1menu );
 
       /** returns roi word*/
       virtual unsigned int roiWord() const { return m_roiWord; }

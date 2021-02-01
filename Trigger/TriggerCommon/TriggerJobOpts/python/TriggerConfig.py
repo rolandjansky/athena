@@ -458,7 +458,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     # Produce trigger metadata
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
-    menuwriter.IsL1JSONConfig = True
+    menuwriter.IsL1JSONConfig = flags.Trigger.readLVL1FromJSON
     menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
     menuwriter.WritexAODTriggerMenuJson = True
     menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')

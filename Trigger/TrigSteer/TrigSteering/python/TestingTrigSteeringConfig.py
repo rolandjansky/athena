@@ -115,10 +115,6 @@ class TestingLvl1ResultAccessTool ( HLT__Lvl1ResultAccessTool ) :
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( name )
 
-        # set LVL1Config svc if not already done
-        # from TrigConfigSvc.TrigConfigSvcConfig import SetupTrigConfigSvc
-        # self.LVL1ConfigSvc = SetupTrigConfigSvc().GetConfigurable()
-
     def setDefaults(self,handle):
         from AthenaCommon.Constants import VERBOSE
         handle.OutputLevel = VERBOSE
@@ -137,7 +133,7 @@ class TestingTrigSteer( TrigSteer_baseClass ):
 
         from AthenaCommon.Logging import logging  # loads logger
         log = logging.getLogger( name )
-       
+
         self.HLTLevel = name[name.rfind('_')+1:]
         if not self.HLTLevel in ['L2', 'EF', 'HLT']:
             raise RuntimeError("Wrong steering level %s, name of steering instance must end in _L2, _EF, or _HLT" % self.HLTLevel)

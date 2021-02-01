@@ -29,6 +29,7 @@
 // Forward declaration(s):
 namespace TrigConf {
    class TriggerThreshold;
+   class L1Menu;
 }
 
 namespace LVL1 {
@@ -45,14 +46,18 @@ namespace LVL1 {
    public:
       // constructor
       RecEmTauRoI() {}
+      /// constructor using Run 1+2 configuration
       RecEmTauRoI( unsigned int RoIWord,
                    const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
+      /// constructor using Run 3 configuration
+      RecEmTauRoI( unsigned int RoIWord,
+                   const TrigConf::L1Menu * const l1menu );
 
       // copy constructor
       RecEmTauRoI(const RecEmTauRoI &obj);
 
       // assignment operator
-      RecEmTauRoI& operator=(RecEmTauRoI const &obj);
+      RecEmTauRoI& operator=(const RecEmTauRoI &obj);
 
       // destructor
       ~RecEmTauRoI();
@@ -127,20 +132,21 @@ namespace LVL1 {
       TrigT1CaloDefs::ClusterAlgorithm thresholdType( unsigned int thresh ) const;
 
    private:
-      /** this contains the coordinate range worked out from the RoIWord hardware coord
-          (i.e. crate number, CPM number etc.)*/
-      CoordinateRange m_coordRange;
-      
-      /** Used for decoding RoI word */
-      CPRoIDecoder* m_decoder { 0 };
-
       /** this is the actual format of the data sent from
           the LVL1 hardware. See  ATL-DAQ-99-015 for
           further explanation. */
       unsigned long int m_roiWord { 0 };
       
+      /** Used for decoding RoI word */
+      CPRoIDecoder* m_decoder {nullptr};
+
       /// Stored properties of the RoI:
       TrigT1CaloDefs::RoIType m_type {TrigT1CaloDefs::RoIWordTypeError};
+      
+      /** this contains the coordinate range worked out from the RoIWord hardware coord
+          (i.e. crate number, CPM number etc.)*/
+      CoordinateRange m_coordRange;
+      
       unsigned long int m_thresholdMask { 0 };
       std::map< int, unsigned int > m_triggerThresholdValue;
       std::map< int, unsigned int > m_isolationMask;
@@ -156,6 +162,7 @@ namespace LVL1 {
       
       void constructRun2( const std::vector< TrigConf::TriggerThreshold* >* caloThresholds );
 
+      void constructRun3( const TrigConf::L1Menu * const l1menu );
 
    }; // class RecEmTauRoI
 

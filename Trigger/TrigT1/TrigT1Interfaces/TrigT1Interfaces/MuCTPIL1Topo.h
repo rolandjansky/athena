@@ -26,18 +26,18 @@ namespace LVL1 {
    public:
      //constructor 
       MuCTPIL1Topo();
-      MuCTPIL1Topo(std::vector<MuCTPIL1TopoCandidate> candList);
+      MuCTPIL1Topo(const std::vector<MuCTPIL1TopoCandidate> & candList);
       MuCTPIL1Topo(const MuCTPIL1Topo&) = default;
       ~MuCTPIL1Topo() = default;
 
      //Return the vector of muon to L1Topo candidates
-     std::vector<MuCTPIL1TopoCandidate> getCandidates() const;
+     const std::vector<MuCTPIL1TopoCandidate> & getCandidates() const;
 
      //Set the vector of muon to L1Topo candidates
-     void setCandidates(std::vector<MuCTPIL1TopoCandidate> candList);
+     void setCandidates(const std::vector<MuCTPIL1TopoCandidate> & candList);
      
      // add a candidates to the list
-     void addCandidate(MuCTPIL1TopoCandidate candidate);
+     void addCandidate(const MuCTPIL1TopoCandidate & candidate);
 
      // clear the list of candidates
      void clearCandidates();
@@ -56,7 +56,7 @@ namespace LVL1 {
    private:
       //vector of candidates
      std::vector<MuCTPIL1TopoCandidate> m_muonTopoCandidates;
-     int m_bcidOffset;
+     int m_bcidOffset {0};
 
    }; // class MuCTPIL1Topo
 
