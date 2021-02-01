@@ -102,7 +102,6 @@ def MinBiasTrkSequence():
         trkInputMakerAlg.InViewRoIs = "InputRoI" # contract with the consumer
         trkInputMakerAlg.Views = "TrkView"
         trkInputMakerAlg.RequireParentView = True
-        trkInputMakerAlg.ViewNodeName = "TrkCountHypoAlgMTNode"
 
         # prepare algorithms to run in views, first,
         # inform scheduler that input data is available in parent view (has to be done by hand)
@@ -116,7 +115,7 @@ def MinBiasTrkSequence():
         from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
         trackCountHypo.MonTool = TrackCountMonitoring()
 
-        trkRecoSeq = parOR("TrkrecoSeq", algs)
+        trkRecoSeq = parOR("TrkRecoSeq", algs)
         trkSequence = seqAND("TrkSequence", [trkInputMakerAlg, trkRecoSeq])
         trkInputMakerAlg.ViewNodeName = trkRecoSeq.name()
 
@@ -124,3 +123,23 @@ def MinBiasTrkSequence():
                             Maker       = trkInputMakerAlg,
                             Hypo        = trackCountHypo,
                             HypoToolGen = TrackCountHypoToolGen)
+
+def MinBiasMBTSSequence():
+    from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
+    MBTSRecoSeq = parOR("MBTSRecoSeq", [MbtsFexMT()])
+
+    MBTSInputMakerAlg = EventViewCreatorAlgorithm("IM_MBTSEventViewCreator")
+    MBTSInputMakerAlg.ViewFallThrough = True
+    MBTSInputMakerAlg.RoITool = ViewCreatorInitialROITool()
+    MBTSInputMakerAlg.InViewRoIs = "InputRoI" # contract with the consumer
+    MBTSInputMakerAlg.Views = "MBTSView"
+    MBTSInputMakerAlg.RequireParentView = True
+    MBTSInputMakerAlg.ViewNodeName = MBTSRecoSeq.name()
+    MBTSSequence = seqAND("MBTSSequence", [MBTSInputMakerAlg, MBTSRecoSeq])
+
+    
+
+    return MenuSequence(Sequence    = MBTSSequence,
+                        Maker       = MBTSInputMakerAlg,
+                        Hypo        = MBTSHypo,
+                        HypoToolGen = MBTSHypoToolGen)
