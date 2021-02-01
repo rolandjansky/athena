@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #  This file configs the L2MuonSA reco alg in the newJO way, 
 #      but now is located here temporarily until newJO migrations are done in all trigger signatures.
@@ -345,8 +345,9 @@ def l2MuFastAlgCfg( flags, roisKey="" ):
     acc.merge( PtEndcapLUTSvcCfg(flags)[0] )   
     acc.merge( PtEndcapLUTSvcCfg_MC(flags)[0] )   
     acc.merge( AlignmentBarrelLUTSvcCfg(flags)[0] )
+    acc.addEventAlgo(muFastFex)
 
-    return acc, muFastFex
+    return acc
 
 
 
