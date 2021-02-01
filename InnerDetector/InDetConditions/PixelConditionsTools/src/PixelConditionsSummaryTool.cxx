@@ -24,7 +24,7 @@ StatusCode PixelConditionsSummaryTool::initialize(){
 
   ATH_CHECK(m_condDCSStateKey.initialize());
   ATH_CHECK(m_condDCSStatusKey.initialize());
-  ATH_CHECK(m_BSErrContReadKey.initialize(SG::AllowEmpty));
+  ATH_CHECK(m_BSErrContReadKey.initialize(m_useByteStream && !m_BSErrContReadKey.empty()));
 
   ATH_CHECK(detStore()->retrieve(m_pixelID,"PixelID"));
 
