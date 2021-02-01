@@ -340,16 +340,17 @@ Trk::GsfMaterialMixtureConvolution::update(
       updatedCovariance =
         new AmgSymMatrix(5)(caches[stateIndex].deltaCovariances[materialIndex]);
     }
-    Trk::TrackParameters* updatedTrackParameters =
-      inputState[stateIndex].first->associatedSurface().createTrackParameters(
-        updatedStateVector[Trk::loc1],
-        updatedStateVector[Trk::loc2],
-        updatedStateVector[Trk::phi],
-        updatedStateVector[Trk::theta],
-        updatedStateVector[Trk::qOverP],
-        updatedCovariance);
+    std::unique_ptr<Trk::TrackParameters> updatedTrackParameters =
+      inputState[stateIndex]
+        .first->associatedSurface()
+        .createUniqueTrackParameters(updatedStateVector[Trk::loc1],
+                                     updatedStateVector[Trk::loc2],
+                                     updatedStateVector[Trk::phi],
+                                     updatedStateVector[Trk::theta],
+                                     updatedStateVector[Trk::qOverP],
+                                     updatedCovariance);
 
-    Trk::ComponentParameters dummyCompParams(updatedTrackParameters, 1.);
+    Trk::ComponentParameters dummyCompParams(std::move(updatedTrackParameters), 1.);
     Trk::MultiComponentState returnMultiState;
     returnMultiState.push_back(std::move(dummyCompParams));
     return returnMultiState;
