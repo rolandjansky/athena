@@ -164,12 +164,13 @@ def  _make_fbdjshared_label(chain_parts, leg_label):
     simple([(50et, 500neta, %s)])
     simple([(50et, peta500, %s)])
     )
+    root([]
     dijet
     (
     [(34djmass, 26djdphi)]
         simple([(10et, 0eta320, %s)])
         simple([(20et, 0eta320, %s)])
-    )""" % ((leg_label,) * 4)
+    ))""" % ((leg_label,) * 4)
 
     
 def _make_dijet_label(chain_parts, leg_label):
