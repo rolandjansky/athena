@@ -61,6 +61,7 @@ namespace Muon {
     }
     
     ATH_CHECK( m_clusRotCreator.retrieve() );
+    ATH_CHECK( m_mmClusRotCreator.retrieve() );
     ATH_CHECK( m_pullCalculator.retrieve() );
     ATH_CHECK( m_intersectSvc.retrieve() );
     
@@ -791,8 +792,10 @@ namespace Muon {
       }
       
       const MuonClusterOnTrack* clusterOnTrack = 0;
-      if ( m_idHelperSvc->isTrigger(clus.identify()) ||  m_idHelperSvc->isMM(clus.identify()) || m_idHelperSvc->issTgc(clus.identify()) ) {
+      if ( m_idHelperSvc->isTrigger(clus.identify()) || m_idHelperSvc->issTgc(clus.identify()) ) {
 	clusterOnTrack = m_clusRotCreator->createRIO_OnTrack( clus, exPars->position(), exPars->momentum().unit()  );
+      } else if ( m_idHelperSvc->isMM(clus.identify())) {
+          clusterOnTrack = m_mmClusRotCreator->createRIO_OnTrack( clus, exPars->position(), exPars->momentum().unit()  ); 
       } else {
 	if ( m_cscRotCreator.empty() ) {
 	  clusterOnTrack = 0;
