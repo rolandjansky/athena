@@ -33,7 +33,7 @@ genSeq.Pythia8.Commands += ["JetMatching:merge            = on",
                             "JetMatching:jetAlgorithm = 2", #explicit setting of kt-merging for FxFx (also imposed by Py8-FxFx inteface)
                             "JetMatching:slowJetPower = 1", #explicit setting of kt-merging for FxFx (also imposed by Py8-FxFx inteface)
                             "JetMatching:nQmatch = 5", #4 corresponds to 4-flavour scheme (no matching of b-quarks), 5 for 5-flavour scheme
-                            "JetMatching:eTjetMin = %f"%PYTHIA8_qCut #This is 20 in the Pythia default, it should be <= qCut 
+                            "JetMatching:eTjetMin = %f"%PYTHIA8_qCut, #This is 20 in the Pythia default, it should be <= qCut 
                             "SpaceShower:rapidityOrder  = off", # FxFx + A14 prescription
                             "SpaceShower:pTmaxFudge     = 1.0", # FxFx + A14 prescription
 ]
