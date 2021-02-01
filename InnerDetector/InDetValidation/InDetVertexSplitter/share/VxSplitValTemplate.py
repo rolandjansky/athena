@@ -214,6 +214,17 @@ InDetExtrapolator = Trk__Extrapolator(name                    = 'InDetExtrapolat
 ToolSvc += InDetExtrapolator
 if InDetFlags.doPrintConfigurables: print      InDetExtrapolator  
 
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__FullLinearizedTrackFactory
+InDetFullLinearizedTrackFactory = Trk__FullLinearizedTrackFactory('InDetFullLinearizedTrackFactory', Extrapolator = InDetTrigExtrapolator)
+ToolSvc += InDetFullLinearizedTrackFactory
+
+from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__TrackToVertexIPEstimator
+InDetTrackToVertexIPEstimator = Trk__TrackToVertexIPEstimator( 'InDetTrackToVertexIPEstimator',
+                                                               Extrapolator = InDetExtrapolator,
+                                                               LinearizedTrackFactory = InDetFullLinearizedTrackFactory)
+ToolSvc += InDetTrackToVertexIPEstimator
+
+
 
 # LEVEL 4
 
@@ -311,10 +322,11 @@ if (InDetFlags.doPrimaryVertex3DFinding()):
                                                        )
 else:
   from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder"
-                                              #Mode1dFinder = # default, no setting needed
-                                              )
-    
+  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder",
+                                            IPEstimator = InDetTrackToVertexIPEstimator
+                                            #Mode1dFinder = # default, no setting needed
+                                            )
+
 ToolSvc += InDetVtxSeedFinder
 if InDetFlags.doPrintConfigurables: print      InDetVtxSeedFinder
 

@@ -563,7 +563,9 @@ if (InDetFlags.doVertexFinding() or InDetFlags.doVertexFindingForMonitoring()) o
   
   else:
     from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-    InDetVtxSeedFinder = Trk__ZScanSeedFinder(name="InDetZScanSeedFinder"
+    from InDetRecExample import TrackingCommon
+    InDetVtxSeedFinder = Trk__ZScanSeedFinder(name="InDetZScanSeedFinder",
+                                              IPEstimator = TrackingCommon.getTrackToVertexIPEstimator()
                                               # Mode1dFinder = # default, no setting needed
                                               )
   ToolSvc += InDetVtxSeedFinder

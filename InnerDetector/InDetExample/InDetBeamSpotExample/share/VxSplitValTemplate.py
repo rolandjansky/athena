@@ -323,8 +323,10 @@ if (InDetFlags.doPrimaryVertex3DFinding()):
                                                        #Mode1dFinder = # default, no setting needed
                                                        )
 else:
+  from InDetRecExample import TrackingCommon
   from TrkVertexSeedFinderTools.TrkVertexSeedFinderToolsConf import Trk__ZScanSeedFinder
-  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder"
+  InDetVtxSeedFinder = Trk__ZScanSeedFinder(name = "InDetZScanSeedFinder",
+                                              IPEstimator = TrackingCommon.getTrackToVertexIPEstimator()
                                               #Mode1dFinder = # default, no setting needed
                                               )
     
