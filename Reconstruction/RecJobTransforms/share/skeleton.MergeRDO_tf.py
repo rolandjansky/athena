@@ -158,7 +158,7 @@ else:
   eventInfoKey = "EventInfo"
 
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
-StreamRDO = AthenaPoolOutputStream( "StreamRDO", outputFile, asAlg=True, noTag=True, eventInfoKey=eventInfoKey )
+StreamRDO = AthenaPoolOutputStream( "StreamRDO", outputFile, asAlg=True, eventInfoKey=eventInfoKey )
 StreamRDO.TakeItemsFromInput=TRUE;
 # The next line is an example on how to exclude clid's if they are causing a  problem
 #StreamRDO.ExcludeList = ['6421#*']
