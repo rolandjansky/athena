@@ -321,23 +321,23 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
       TauBarycenter += myCluster;
       RNN_clusternumber += 1;
 
-      cluster_et_log.push_back(TMath::Log10( (*clusterIt)->et()));
+      cluster_et_log.push_back(std::log10( (*clusterIt)->et()));
       cluster_dEta.push_back((*clusterIt)->eta()- p_tau->eta());
       cluster_dPhi.push_back((*clusterIt)->p4().DeltaPhi(p_tau->p4()));
      
       double log_second_R = -999.;
       const auto success_SECOND_R = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_R,log_second_R);
-      if (success_SECOND_R) log_second_R = TMath::Log10(log_second_R + 0.1);
+      if (success_SECOND_R) log_second_R = std::log10(log_second_R + 0.1);
       cluster_log_SECOND_R.push_back(log_second_R);
  
       double second_lambda = -999.;
       const auto success_SECOND_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::SECOND_LAMBDA, second_lambda);
-      if (success_SECOND_LAMBDA) second_lambda = TMath::Log10(second_lambda + 0.1);
+      if (success_SECOND_LAMBDA) second_lambda = std::log10(second_lambda + 0.1);
       cluster_SECOND_LAMBDA.push_back(second_lambda);
 
       double center_lambda = -999.;
       const auto success_CENTER_LAMBDA = (*clusterIt)->retrieveMoment(xAOD::CaloCluster::MomentType::CENTER_LAMBDA, center_lambda);
-      if (success_CENTER_LAMBDA) center_lambda = TMath::Log10(center_lambda + 1e-6);
+      if (success_CENTER_LAMBDA) center_lambda = std::log10(center_lambda + 1e-6);
       cluster_CENTER_LAMBDA.push_back(center_lambda);      
 
     }
@@ -536,24 +536,24 @@ StatusCode TrigTauRecMergedMT::execute(const EventContext& ctx) const
    
     float pre_mEflowApprox;
     p_tau->detail(xAOD::TauJetParameters::mEflowApprox, pre_mEflowApprox);  
-    mEflowApprox = TMath::Log10(std::max(pre_mEflowApprox, 140.0f));
+    mEflowApprox = std::log10(std::max(pre_mEflowApprox, 140.0f));
 
     float pre_ptRatioEflowApprox;
     p_tau->detail(xAOD::TauJetParameters::ptRatioEflowApprox, pre_ptRatioEflowApprox);
     ptRatioEflowApprox = std::min(pre_ptRatioEflowApprox, 4.0f);
     
-    pt_jetseed_log  = TMath::Log10(p_tau->ptJetSeed());
-    ptDetectorAxis  =  TMath::Log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
+    pt_jetseed_log  = std::log10(p_tau->ptJetSeed());
+    ptDetectorAxis  =  std::log10(std::min(p_tau->ptDetectorAxis() / 1000.0, 100.0));
 
     // track variables monitoring 
     for( auto track : p_tau->allTracks()){
     
         RNN_tracknumber += 1;
-        track_pt_log.push_back(TMath::Log10( track->pt()));
+        track_pt_log.push_back(std::log10( track->pt()));
         track_dEta.push_back(track->eta()- p_tau->eta()); 
         track_dPhi.push_back(track->p4().DeltaPhi(p_tau->p4()));
         track_z0sinThetaTJVA_abs_log.push_back(track->z0sinThetaTJVA(*p_tau));
-        track_d0_abs_log.push_back(TMath::Log10( TMath::Abs(track->track()->d0()) + 1e-6));
+        track_d0_abs_log.push_back(std::log10( std::abs(track->track()->d0()) + 1e-6));
 
         uint8_t inner_pixel_hits, inner_pixel_exp;                    
         const auto success1_innerPixel_hits = track->track()->summaryValue(inner_pixel_hits, xAOD::numberOfInnermostPixelLayerHits);                        
