@@ -428,7 +428,7 @@ def addJetTruthLabel(jetalg,algname,labelname,sequence):
         if jetalg in supportedTruthJets:
             isTruthJet = True
 
-        jetaugtool = getJetAugmentationTool(jetalg)
+        jetaugtool = getJetAugmentationTool(jetalg, labelname)
 
         if(jetaugtool is None):
             extjetlog.warning('*** addJetTruthLabel called but corresponding augmentation tool does not exist! ***')
