@@ -47,21 +47,21 @@ EtaPhiCaloHelper(const Trk::CaloExtension* caloExtension,
     Trk::TrackParametersIdHelper parsIdHelper;
 
     // loop over calo layers
-    for (const auto *cur : caloExtension->caloLayerIntersections()) {
+    for (const auto& cur : caloExtension->caloLayerIntersections()) {
 
       // only use entry layer
-      if (!parsIdHelper.isEntryToVolume(cur->cIdentifier())) {
+      if (!parsIdHelper.isEntryToVolume(cur.cIdentifier())) {
         continue;
       }
 
-      CaloSampling::CaloSample sampleEx = parsIdHelper.caloSample(cur->cIdentifier());
+      CaloSampling::CaloSample sampleEx = parsIdHelper.caloSample(cur.cIdentifier());
       if (sampleEx != CaloSampling::EMB2 && sampleEx != CaloSampling::EME2 && sampleEx != CaloSampling::FCAL2) {
         continue;
       }
 
       if (sampleEx == sample || etaCalo == -99) {
-        etaCalo = cur->position().eta();
-        phiCalo = cur->position().phi();
+        etaCalo = cur.position().eta();
+        phiCalo = cur.position().phi();
         if (sampleEx == sample)
           break;
       }
