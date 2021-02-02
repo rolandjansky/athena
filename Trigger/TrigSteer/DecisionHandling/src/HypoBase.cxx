@@ -211,9 +211,10 @@ StatusCode HypoBase::validateDecisionIDs(const ElementLink<DecisionContainer>& d
   DecisionIDContainer decisionIDSet;
   decisionIDs(*dEL, decisionIDSet);
   for (const DecisionID id : decisionIDSet) {
-    if (HLT::Identifier( id ).name() == "UNKNOWN HASH ID") {
+    const std::string chain = HLT::Identifier( id ).name();
+    if (!isChainId(chain) and !isLegId(chain)) {
       printErrorHeader(dEL, msg);
-      msg << MSG::ERROR << "! Decision contains an ID which does not correspond to a configured chain: " << HLT::Identifier( id ) << endmsg;
+      msg << MSG::ERROR << "! Decision contains an ID which does not correspond to a configured chain or a configured chain-leg: " << HLT::Identifier( id ) << endmsg;
       msg << MSG::ERROR << "! SOLUTION: Locate the producer of the collection, investigate how this bad ID could have been added." << endmsg;
       printBangs(msg);
       return StatusCode::FAILURE;
@@ -322,35 +323,21 @@ StatusCode HypoBase::validateHasLinks(const ElementLink<DecisionContainer>& dEL,
   MsgStream& msg)
 {
   const std::string& name = (*dEL)->name();
-  if (name == hypoAlgNodeName() or name == comboHypoAlgNodeName()) {
+  if (name == hypoAlgNodeName()) {
 
     // Check that I have a "feature"
     if ((*dEL)->hasObjectLink( featureString() )) {
       return StatusCode::SUCCESS;
     }
-    // I might be a multi-slice Combo Hypo, if so, my immediate parents must all have features
-    const ElementLinkVector<DecisionContainer> seeds = (*dEL)->objectCollectionLinks<DecisionContainer>(seedString());
-    // The case of no-seeds is a separate validation check
-    for (const ElementLink<DecisionContainer> seed : seeds) {
-      if (not seed.isValid() ) {
-        msg << MSG::ERROR << "Invalid seed element link in recursiveValidateGraph" << endmsg;
-        return StatusCode::FAILURE;
-      }
-      if ((*seed)->hasObjectLink( featureString() )) {
-        continue; // Good
-      }
-      printErrorHeader(dEL, msg);
-      msg << MSG::ERROR << "! Decision has no '" << featureString() << "' ElementLink. Nor does its immediate parents (Combo case)." << endmsg;
-      msg << MSG::ERROR << "! Every Decision created by a HypoAlg must correspond to some physics object, and be linked to the object." << endmsg;
-      msg << MSG::ERROR << "! (For steering controlled multi-slice ComboHypo algs, it is the earlier slice-controlled HypoAlgs which attach the features)" << endmsg;
-      msg << MSG::ERROR << "! SOLUTION: If this is a ComboHypo, ensure all parent Decision objects are from HypoAlg, and hence have a '" << featureString() << "' ElementLink." << endmsg;
-      msg << MSG::ERROR << "! SOLUTION: If this is not a ComboHypo, ensure that all produced Decision objects are assigned their feature:" << endmsg;
-      msg << MSG::ERROR << "! SOLUTION:    decision->setObjectLink<MY_FEATURE_CONTANER_TYPE>(featureString(), MY_FEATURE_ELEMENT_LINK);" << endmsg;
-      printBangs(msg);
-      return StatusCode::FAILURE;
-    }
+    printErrorHeader(dEL, msg);
+    msg << MSG::ERROR << "! Decision has no '" << featureString() << "' ElementLink." << endmsg;
+    msg << MSG::ERROR << "! Every Decision created by a HypoAlg must correspond to some physics object, and be linked to the object." << endmsg;
+    msg << MSG::ERROR << "! SOLUTION: Ensure that all produced Decision objects are assigned their feature:" << endmsg;
+    msg << MSG::ERROR << "! SOLUTION:    decision->setObjectLink<MY_FEATURE_CONTANER_TYPE>(featureString(), MY_FEATURE_ELEMENT_LINK);" << endmsg;
+    printBangs(msg);
+    return StatusCode::FAILURE;
 
-  } else if (name == hypoAlgNodeName()) {
+  } else if (name == inputMakerNodeName()) {
 
     if (not (*dEL)->hasObjectLink( roiString() )) {
       printErrorHeader(dEL, msg);
