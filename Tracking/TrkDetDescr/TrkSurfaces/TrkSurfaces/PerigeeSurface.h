@@ -83,7 +83,7 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
-    
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
@@ -147,6 +147,9 @@ public:
 
   /** Return the surface type */
   virtual SurfaceType type() const override final;
+
+  /** Returns the x global axis */
+  virtual const Amg::Vector3D& normal() const override final;
 
   /**Returns a normal vector at a specific localPosition*/
   virtual const Amg::Vector3D* normal(const Amg::Vector2D& lp) const override final;
