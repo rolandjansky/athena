@@ -49,22 +49,35 @@ import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 from AthenaCommon.AppMgr import ServiceMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 if overlayFlags.isDataOverlay():
-    ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
+    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
     ServiceMgr.SecondaryEventSelector.Input = athenaCommonFlags.FilesInput()
     ServiceMgr.SecondaryEventSelector.ProcessBadEvent = True
 else:
-    ServiceMgr.DoubleEventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
+    ServiceMgr.EventSelector.ProcessMetadata = False
+    ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.PoolRDOInput()
     ServiceMgr.SecondaryEventSelector.InputCollections = athenaCommonFlags.PoolHitsInput()
 if athenaCommonFlags.SkipEvents.statusOn:
-    ServiceMgr.DoubleEventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
+    ServiceMgr.EventSelector.SkipEvents = athenaCommonFlags.SkipEvents()
 
 # Properly generate event context
 if nThreads > 0:
     EventLoop = Service("AthenaHiveEventLoopMgr")
 else:
     EventLoop = Service("AthenaEventLoopMgr")
+EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 svcMgr += EventLoop
+
+# Write digi metadata
+if not overlayFlags.isDataOverlay():
+    from EventOverlayJobTransforms.OverlayWriteMetaData import loadOverlayDigitizationMetadata
+    loadOverlayDigitizationMetadata()
+
+    if not hasattr(ServiceMgr.ToolSvc, 'IOVDbMetaDataTool'):
+        ServiceMgr.ToolSvc += CfgMgr.IOVDbMetaDataTool()
+    from Digitization.DigitizationFlags import digitizationFlags
+    runNumber = digitizationFlags.dataRunNumber.get_Value()
+    ServiceMgr.ToolSvc.IOVDbMetaDataTool.MinMaxRunNumbers = [runNumber, runNumber+1]
 
 
 #-------------------------
@@ -83,9 +96,6 @@ import MagFieldServices.SetupField
 #------------------------------------------------------------
 from Digitization.DigiConfigCheckers import syncBeamAndDigitizationJobProperties
 syncBeamAndDigitizationJobProperties()
-
-# TODO: Override run number if needed
-# include("Digitization/RunNumberOverride.py")
 
 
 #------------------------------------------------------------

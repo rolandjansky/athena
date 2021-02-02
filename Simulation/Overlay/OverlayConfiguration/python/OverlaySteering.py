@@ -36,6 +36,7 @@ def OverlayMainServicesCfg(flags):
         else:
             AthenaEventLoopMgr = CompFactory.AthenaEventLoopMgr
             elmgr = AthenaEventLoopMgr()
+        elmgr.RequireInputAttributeList = True
         elmgr.UseSecondaryEventNumber = True
         acc.addService(elmgr)
     return acc

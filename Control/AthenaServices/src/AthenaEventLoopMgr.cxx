@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  GAUDISVC_EVENTLOOPMGR_CPP
@@ -63,8 +63,8 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
     m_histoPersSvc   ( "HistogramPersistencySvc",  nam ), 
     m_activeStoreSvc ( "ActiveStoreSvc",           nam ),
     m_pITK(nullptr), 
-    m_currentRun(0), m_firstRun(true), m_tools(this), m_useSecondaryEventNumber(false),
-	m_nevt(0), m_writeHists(false),
+    m_currentRun(0), m_firstRun(true), m_tools(this),
+    m_nevt(0), m_writeHists(false),
     m_nev(0), m_proc(0), m_useTools(false), 
     m_chronoStatSvc( "ChronoStatSvc", nam ),
     m_conditionsCleaner( "Athena::ConditionsCleanerSvc", nam )
@@ -98,12 +98,11 @@ AthenaEventLoopMgr::AthenaEventLoopMgr(const std::string& nam,
 		  "(default as it is makes things easier for memory management"
 		  ") or at BeginEvent (easier e.g. for interactive use)");
   declareProperty("PreSelectTools",m_tools,"AlgTools for event pre-selection")->
-declareUpdateHandler( &AthenaEventLoopMgr::setupPreSelectTools, this );
+    declareUpdateHandler( &AthenaEventLoopMgr::setupPreSelectTools, this );
+  declareProperty("RequireInputAttributeList", m_requireInputAttributeList = false,
+                  "Require valid input attribute list to be present");
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
-
-  
-
 }
 
 //=========================================================================
@@ -629,7 +628,7 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
                 bool doEvtHeartbeat(m_eventPrintoutInterval.value() > 0 && 
                                     0 == (m_nev % m_eventPrintoutInterval.value()));
                 if (doEvtHeartbeat) {
-                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "  <<<===" << endmsg;
                 }
                 eventNumber = eventNumberSecondary;
             }
@@ -659,7 +658,11 @@ StatusCode AthenaEventLoopMgr::executeEvent(EventContext&& ctx)
         }
       }
 */
+    } else if (m_requireInputAttributeList) {
+      fatal() << "Valid input attribute list required but not present!" << endmsg;
+      return StatusCode::FAILURE;
     }
+
     if ( pEvent == nullptr ) { //Try getting EventInfo from old-style object
       pEvent=eventStore()->tryConstRetrieve<EventInfo>();
       if (pEvent) {
