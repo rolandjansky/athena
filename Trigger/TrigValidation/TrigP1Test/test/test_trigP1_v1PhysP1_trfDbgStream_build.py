@@ -14,10 +14,13 @@ hlt.type = 'Trig_reco_tf'
 hlt.forks = 1
 hlt.threads = 1
 hlt.concurrent_events = 1
+hlt.max_events = -1 # Debug recovery does not handle maxEvents/skipEvents flag
 hlt.args  = '--streamSelection=All'
 hlt.args += ' --prodSysBSRDO True'
+hlt.args += ' --useDB=True'
+hlt.args += ' --DBserver TRIGGERDBDEV1'
 hlt.args += ' --outputBSFile=RAW.pool.root'
-hlt.args += ' --outputHIST_DEBUGSTREAMMONFile=HIST_DEBUGSTREAMMON.testing.data' # turn on debug step
+hlt.args += ' --outputHIST_DEBUGSTREAMMONFile=HIST_DEBUGSTREAMMON.testing.data' # Turn on debug recovery step
 hlt.input = 'data_run3'
 
 
