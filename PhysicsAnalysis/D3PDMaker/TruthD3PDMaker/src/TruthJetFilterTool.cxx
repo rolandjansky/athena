@@ -167,8 +167,7 @@ StatusCode TruthJetFilterTool::execute()
  *  the filtering process.
  */
 StatusCode
-TruthJetFilterTool::buildMcAod (const McEventCollection* mc_in,
-				McEventCollection* mc_out)
+TruthJetFilterTool::buildMcAod (const McEventCollection* mc_in, McEventCollection* mc_out)
 {
   // Loop over GenEvent's.
   mc_out->reserve (mc_in->size());
@@ -176,26 +175,23 @@ TruthJetFilterTool::buildMcAod (const McEventCollection* mc_in,
     if (!ev_in) continue;
 
     // Copy the GenEvent.
-    HepMC::GenEvent* ev_out = new HepMC::GenEvent (ev_in->signal_process_id(),
-                                                   ev_in->event_number());
-    ev_out->set_event_scale (ev_in->event_scale());
-    ev_out->set_alphaQCD (ev_in->alphaQCD());
-    ev_out->set_alphaQED (ev_in->alphaQED());
-    ev_out->weights() = ev_in->weights();
-    ev_out->set_random_states (ev_in->random_states());
-    if (ev_in->heavy_ion())
-      ev_out->set_heavy_ion (*ev_in->heavy_ion());
-    if (ev_in->pdf_info())
-      ev_out->set_pdf_info (*ev_in->pdf_info());
+    HepMC::GenEvent* ev_out = HepMC::copyemptyGenEvent (ev_in);
 
     // Copy and filter the contents.
     CHECK( filterEvent (ev_in, ev_out) );
 
     // Maybe throw out empty GenEvent's.
+#ifdef HEPMC3
+    if (m_removeEmpty && ev_out->particles().empty())
+      delete ev_out;
+    else
+      mc_out->push_back (ev_out);
+#else
     if (m_removeEmpty && ev_out->particles_empty())
       delete ev_out;
     else
       mc_out->push_back (ev_out);
+#endif
 
     // If we don't want pileup, only do the first GenEvent.
     if (!m_doPileup)
@@ -215,13 +211,9 @@ TruthJetFilterTool::filterEvent (const HepMC::GenEvent* ev_in,
   // Loop over particles.
   // (range-based for doesn't work here because particle_const_iterator
   // isn't consistent in the use of const...)
-  for (HepMC::GenEvent::particle_const_iterator ip = ev_in->particles_begin();
-       ip != ev_in->particles_end();
-       ++ip)
-  {
+  for (auto  ip: *ev_in) {
     // Copy the particle if we want to keep it.
-    if (acceptParticle (*ip))
-      CHECK( addParticle (*ip, ev_out) );
+    if (acceptParticle (ip)) CHECK( addParticle (ip, ev_out) );
   }
   return StatusCode::SUCCESS;
 }
@@ -231,8 +223,7 @@ TruthJetFilterTool::filterEvent (const HepMC::GenEvent* ev_in,
  * @brief Add a @c GenParticle (and its production vertex) to a @c GenEvent.
  */
 StatusCode
-TruthJetFilterTool::addParticle (const HepMC::GenParticle* p,
-				 HepMC::GenEvent* ev)
+TruthJetFilterTool::addParticle (HepMC::ConstGenParticlePtr  p, HepMC::GenEvent* ev)
 {
   // Add parent vertex if it exists.  Otherwise, add decay vertex.
   if (p->production_vertex())
@@ -244,6 +235,21 @@ TruthJetFilterTool::addParticle (const HepMC::GenParticle* p,
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  // Find the particle in the event.
+  // If it doesn't exist yet, copy it.
+  HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+  if (!pnew) pnew = std::make_shared<HepMC3::GenParticle> (*p);
+  // Add ourself to our vertices.
+  if (p->production_vertex()) {
+    HepMC::GenVertexPtr v = HepMC::barcode_to_vertex (ev, HepMC::barcode(p->production_vertex()));
+    if (v) v->add_particle_out (pnew);
+  }
+  if (p->end_vertex()) {
+    HepMC::GenVertexPtr v = HepMC::barcode_to_vertex (ev, HepMC::barcode(p->end_vertex()));
+    if (v) v->add_particle_in (pnew);
+  }
+#else
   // Find the particle in the event.
   // If it doesn't exist yet, copy it.
   HepMC::GenParticle* pnew = ev->barcode_to_particle (p->barcode());
@@ -264,6 +270,7 @@ TruthJetFilterTool::addParticle (const HepMC::GenParticle* p,
     if (v)
       v->add_particle_in (pnew);
   }
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -273,7 +280,7 @@ TruthJetFilterTool::addParticle (const HepMC::GenParticle* p,
  * @brief Add a @c GenVertex to a @c GenEvent.
  */
 StatusCode
-TruthJetFilterTool::addVertex (const HepMC::GenVertex* v,HepMC::GenEvent* ev)
+TruthJetFilterTool::addVertex (HepMC::ConstGenVertexPtr v,HepMC::GenEvent* ev)
 {
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());
@@ -313,7 +320,7 @@ TruthJetFilterTool::addVertex (const HepMC::GenVertex* v,HepMC::GenEvent* ev)
 /**
  * @brief Test to find leptons from tau decays.
  */
-bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
+bool TruthJetFilterTool::isLeptonFromTau(HepMC::ConstGenParticlePtr part) const{
 
   int pdg = part->pdg_id();
 
@@ -324,12 +331,29 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
      std::abs(pdg) != 15 &&
      std::abs(pdg) != 16) return false; // all leptons including tau.
 
-  HepMC::GenVertex* prod = part->production_vertex();
+  HepMC::ConstGenVertexPtr prod = part->production_vertex();
   if(!prod) return false; // no parent.
-
+#ifdef HEPMC3
   // Loop over the parents of this particle.
-  HepMC::GenVertex::particle_iterator itrParent = prod->particles_begin(HepMC::parents);
-  HepMC::GenVertex::particle_iterator endParent = prod->particles_end(HepMC::parents);
+  for(auto itrParent: prod->particles_in()){
+    int parentId = itrParent->pdg_id();
+    if(std::abs(parentId) == 15) {
+      ATH_MSG_DEBUG("Particle with pdgId = " << pdg << ", matched to tau");
+      return true; // Has tau parent
+    }
+    if(parentId == pdg) { // Same particle just a different MC status
+      // Go up the generator record until a tau is found or not. 
+      // Note that this requires a connected *lepton* chain, while calling
+      //  isFromTau would allow leptons from hadrons from taus
+      if(isLeptonFromTau(itrParent)) {
+        return true;
+      }
+    }
+  }
+#else
+  // Loop over the parents of this particle.
+  auto itrParent = prod->particles_in_const_begin();
+  auto endParent = prod->particles_in_const_end();
   for(;itrParent!=endParent; ++itrParent){
     int parentId = (*itrParent)->pdg_id();
     if(std::abs(parentId) == 15) {
@@ -346,6 +370,7 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
       }
     }
   }
+#endif
 
   return false;
 }
@@ -355,7 +380,7 @@ bool TruthJetFilterTool::isLeptonFromTau(const HepMC::GenParticle* part) const{
  * @brief Test to see if we want to keep a particle.
  */
 bool
-TruthJetFilterTool::acceptParticle (const HepMC::GenParticle* p)
+TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 {
   bool ok = false;
   int pdg_id = std::abs (p->pdg_id());
