@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import subprocess,sys,os,re
+import subprocess,sys,os
 
 def getJobIDfromlastJob():
     for line in open("qsub.log"):
@@ -9,9 +9,9 @@ def getJobIDfromlastJob():
     jobid = parts[2].split('.')[0] if 'array' in line else parts[2]
     return jobid
 
-from batchJobBase import *
+from . import batchJobBase
 
-class batchJob(batchJobBase):
+class batchJob(batchJobBase.batchJobBase):
 
     def submit(self, dryRun=False):
 
