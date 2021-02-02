@@ -32,3 +32,7 @@
 #include "xAODTrigger/RoiDescriptorStoreAuxInfo.h"
 #include "xAODTrigger/eFexEMRoIContainer.h"
 #include "xAODTrigger/eFexEMRoIAuxContainer.h"
+#include "xAODTrigger/gFexJetRoIContainer.h"
+#include "xAODTrigger/gFexJetRoIAuxContainer.h"
+#include "xAODTrigger/gFexGlobalRoIContainer.h"
+#include "xAODTrigger/gFexGlobalRoIAuxContainer.h"
