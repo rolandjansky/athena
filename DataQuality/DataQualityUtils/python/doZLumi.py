@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
 def getRun(fname):
@@ -12,6 +12,17 @@ def getRun(fname):
             break
     if runname: return int(runname[4:])
     else: return None
+
+def checkDirExists(fname):
+    # Does DQTGlobalWZFinder directory even exist?
+    import ROOT
+    run = getRun(fname)
+    if not run: return False
+    fin = ROOT.TFile.Open(fname, 'READ')
+    if not fin: return False
+    dobj = fin.Get(f'run_{run}/GLOBAL/DQTGlobalWZFinder')
+    if not dobj: return False
+    return True
 
 def copyPlot(infname, outfname):
     import ROOT
@@ -73,6 +84,9 @@ def go(fname):
     if 'DISPLAY' in os.environ: del os.environ['DISPLAY']
     runno = getRun(fname)
     print('Seen run', runno)
+    if not checkDirExists(fname):
+        print('But DQTGlobalWZFinder directory does not exist: code probably did not run. Exiting')
+        return
     grlcmd = []
     if runno >= 325000:
         makeGRL(runno, 'PHYS_StandardGRL_All_Good', 'grl.xml')
