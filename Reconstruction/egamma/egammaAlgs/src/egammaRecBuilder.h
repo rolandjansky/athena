@@ -1,46 +1,53 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EGAMMARECBUILDER_H
 #define EGAMMAALGS_EGAMMARECBUILDER_H
-/**
-  @class egammaRecBuilder
 
-  This is algorithm produces the initial egammaRecs as a step of the
-  egamma supercluster algorithms.
-
-*/
-
-// INCLUDE HEADER FILES:
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "GaudiKernel/EventContext.h"
 #include "GaudiKernel/ToolHandle.h"
-#include <vector>
 
 #include "StoreGate/ReadHandleKey.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "egammaRecEvent/egammaRecContainer.h"
 #include "xAODCaloEvent/CaloClusterContainer.h"
 
+
 class IEMTrackMatchBuilder;
 class IEMConversionBuilder;
 
+/**
+  @class egammaRecBuilder
+
+  @brief Produces the initial egammaRec objects as a step of the egamma supercluster algorithms.
+
+  Input container:
+  - InputTopoClusterContainerName (default=egammaTopoCluster): topo cluster to be used to build
+    the egammaRec
+  Output container:
+  - egammaRecContainer (default=EMTrackMatchBuilder)
+
+  Note that the vertex and track container are specified in the tools used by this algorithm:
+  - TrackMatchBuilderTool (default=EMTrackMatchBuilder)
+  - ConversionBuilderTool (default=EMConversionBuilder)
+
+  The algorithm produces an egammaRec for each topo cluster where the matched tracks and vertices
+  are linked. These two matchings are done depending on the flags doTrackMatching and doConversions,
+  by default true.
+  */
 class egammaRecBuilder : public AthReentrantAlgorithm
 {
 public:
-  /** @brief Default constructor*/
   egammaRecBuilder(const std::string& name, ISvcLocator* pSvcLocator);
-
-  /** @brief initialize method*/
   virtual StatusCode initialize() override final;
-  /** @brief execute method*/
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
 private:
-  /** @brief retrieve EMTrackMatchBuilder **/
+  /** @brief retrieve TrackMatchBuilderTool (EMTrackMatchBuilder) **/
   StatusCode RetrieveEMTrackMatchBuilder();
-  /** @brief retrieve EMConversionBuilder **/
+  /** @brief retrieve ConversionBuilderTool (EMConversionBuilder) **/
   StatusCode RetrieveEMConversionBuilder();
   /** @brief Key for the topo cluster input collection */
   SG::ReadHandleKey<xAOD::CaloClusterContainer> m_inputTopoClusterContainerKey{
@@ -58,10 +65,6 @@ private:
     "Output container for egammaRec objects"
   };
 
-  //
-  // The tools
-  //
-  /** @brief Tool to perform track matching*/
   /** @brief Tool to perform track matching*/
   ToolHandle<IEMTrackMatchBuilder> m_trackMatchBuilder{
     this,
@@ -78,9 +81,6 @@ private:
     "Tool that matches conversion vertices to egammaRecs"
   };
 
-  //
-  // All booleans
-  //
   /** @brief private member flag to do the track matching */
   Gaudi::Property<bool> m_doTrackMatching{ this,
                                            "doTrackMatching",
