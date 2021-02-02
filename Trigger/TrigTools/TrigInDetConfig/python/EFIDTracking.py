@@ -23,20 +23,24 @@ def get_idtrig_view_verifier(name):
    from TrigInDetConfig.TrigInDetConfig import InDetCacheNames
    viewDataVerifier = CfgMgr.AthViews__ViewDataVerifier( name )
    viewDataVerifier.DataObjects = [
-                                    #FIXME:
-                                    #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
-                                    #However, by commenting them out can this break functionality of smt else?
-
-                                     ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
-                                    ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
                                     ( 'SpacePointContainer',           TrigSCTKeys.SpacePoints ),
                                     ( 'SpacePointContainer',           TrigPixelKeys.SpacePoints ),
-
-                                     ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
-                                     ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
+                                    ( 'SpacePointOverlapCollection',   'StoreGateSvc+OverlapSpacePoints' ),
+                                    ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
                                   ]
+
+   #FIXME:
+   #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
+   #Probably it tries to fetch the data before the actual alg producing them runs?
+   #Not case in other signatures where data preparation and offline patern recognition are in different views
+   if 'cosmics' not in name:
+      viewDataVerifier.DataObjects += [
+                                       ( 'InDet::SCT_ClusterContainer',   TrigSCTKeys.Clusters ),
+                                       ( 'InDet::PixelClusterContainer',  TrigPixelKeys.Clusters ),
+                                      ]
    
-   #viewDataVerifier.DataObjects += [
+   #FIXME:
+   #Align with the data preparation, are all of them  really needed in the EFID ?
    viewDataVerifier.DataObjects += [ ( 'InDet::PixelClusterContainerCache' , InDetCacheNames.Pixel_ClusterKey ),
                                      ( 'PixelRDO_Cache' , InDetCacheNames.PixRDOCacheKey ),
                                      ( 'InDet::SCT_ClusterContainerCache' , InDetCacheNames.SCT_ClusterKey ),
