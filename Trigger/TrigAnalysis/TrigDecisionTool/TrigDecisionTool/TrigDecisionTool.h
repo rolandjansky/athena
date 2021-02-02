@@ -122,7 +122,7 @@ namespace Trig {
 
     std::vector<uint32_t>* getKeys();
 
-    void setForceConfigUpdate(bool b);
+    void setForceConfigUpdate(bool b, bool forceForAllSlots = false);
     bool getForceConfigUpdate();
 
     ToolHandle<TrigConf::ITrigConfigTool> m_configTool{this, "ConfigTool", "TrigConf::xAODConfigTool"};    //!< trigger configuration service handle
@@ -145,7 +145,7 @@ namespace Trig {
       "For use when reading old ESD/AOD with only a TrigDec::TrigDecision and no xAOD::TrigDecision"};
 
     SG::SlotSpecificObj< std::vector<uint32_t> > m_configKeysCache; //!< cache for config keys. only update CacheGlobalMemory when these change
-    SG::SlotSpecificObj< std::vector<uint8_t> > m_forceConfigUpdate; //!< Cache for registering new input files. Only using first entry in vector (SlotSpecificObj cannot store primitives)
+    SG::SlotSpecificObj< std::atomic<bool> > m_forceConfigUpdate; //!< Cache for registering new input files. Only using first entry in vector (SlotSpecificObj cannot store primitives)
 
     #else // Analysis or standalone 
 
