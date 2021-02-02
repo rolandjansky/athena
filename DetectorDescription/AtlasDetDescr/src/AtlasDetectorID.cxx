@@ -1044,8 +1044,9 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
         // Check if this is SLHC layout
 	//This should be re-named at some point (master?)
 	//Since SLHC is outdated terminology
-        m_isSLHC = (m_indet_dict->m_version=="SLHC");
-
+        m_isSLHC = (m_indet_dict->m_version=="SLHC" or m_indet_dict->m_version=="ITkHGTD");
+        bool isHGTD = (m_indet_dict->m_version=="ITkHGTD");
+        
         // Get InDet subdets
 
         field = m_indet_dict->find_field("part");
@@ -1155,7 +1156,7 @@ AtlasDetectorID::initLevelsFromDict(const IdDictMgr& dict_mgr)
                 return (1);
             }
         }
-	if(m_isSLHC){
+	if(isHGTD){
 	  label = field->find_label("HGTD");
 	  if (label) {
             if (label->m_valued) {
