@@ -96,7 +96,7 @@ public:
     Curvilinear = 6,
     Other = 7
   };
-  
+
   /** Unique ptr types**/
   using ChargedTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Charged>>;
   using NeutralTrackParametersUniquePtr = std::unique_ptr<ParametersBase<5, Trk::Neutral>>;
@@ -157,7 +157,7 @@ public:
 
   /** Returns the normal vector of the Surface (i.e. in generall z-axis of
    * rotation) */
-  const Amg::Vector3D& normal() const;
+  virtual const Amg::Vector3D& normal() const;
 
   /** Returns a normal vector at a specific local position
    */
@@ -194,8 +194,8 @@ public:
     double,
     double,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
-    
-    
+
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged. The caller assumes ownership of the returned ptr.
    */
@@ -216,7 +216,7 @@ public:
     const Amg::Vector3D&,
     double,
     AmgSymMatrix(5) * cov = nullptr) const = 0;
-    
+
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged  The caller assumes ownership of the returned ptr
    */
