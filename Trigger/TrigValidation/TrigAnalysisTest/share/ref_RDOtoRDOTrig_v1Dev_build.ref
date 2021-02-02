@@ -3355,19 +3355,19 @@ HLT_tau25_mediumRNN_tracktwo_L1TAU12IM:
     1: 14
     2: 14
 HLT_tau25_perf_track_L1TAU12IM:
-  eventCount: 4
+  eventCount: 8
   stepCounts:
     0: 12
     1: 9
     2: 9
     3: 9
-    4: 4
+    4: 8
   stepFeatures:
     0: 22
     1: 13
     2: 12
     3: 12
-    4: 4
+    4: 11
 HLT_tau25_perf_tracktwoEF_L1TAU12IM:
   eventCount: 10
   stepCounts:
@@ -3411,21 +3411,21 @@ HLT_tau25_perf_tracktwoMVA_L1TAU12IM:
     3: 14
     4: 14
 HLT_tau25_perf_tracktwo_L1TAU12IM:
-  eventCount: 6
+  eventCount: 10
   stepCounts:
     0: 12
     1: 10
     2: 10
     3: 10
     4: 10
-    5: 6
+    5: 10
   stepFeatures:
     0: 22
     1: 14
     2: 14
     3: 14
     4: 14
-    5: 6
+    5: 14
 HLT_tau25_tightRNN_track_L1TAU12IM:
   eventCount: 0
   stepCounts:
@@ -3705,19 +3705,19 @@ HLT_tau35_mediumRNN_tracktwo_L1TAU12IM:
     1: 12
     2: 12
 HLT_tau35_perf_track_L1TAU12IM:
-  eventCount: 3
+  eventCount: 7
   stepCounts:
     0: 11
     1: 8
     2: 8
     3: 8
-    4: 3
+    4: 7
   stepFeatures:
     0: 19
     1: 11
     2: 10
     3: 10
-    4: 3
+    4: 9
 HLT_tau35_perf_tracktwoEF_L1TAU12IM:
   eventCount: 9
   stepCounts:
@@ -3761,21 +3761,21 @@ HLT_tau35_perf_tracktwoMVA_L1TAU12IM:
     3: 13
     4: 13
 HLT_tau35_perf_tracktwo_L1TAU12IM:
-  eventCount: 5
+  eventCount: 9
   stepCounts:
     0: 11
     1: 9
     2: 9
     3: 9
     4: 9
-    5: 5
+    5: 9
   stepFeatures:
     0: 19
     1: 12
     2: 12
     3: 12
     4: 12
-    5: 5
+    5: 12
 HLT_tau35_tightRNN_track_L1TAU12IM:
   eventCount: 0
   stepCounts:
