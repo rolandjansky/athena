@@ -24,7 +24,6 @@
 #include "TRT_ReadoutGeometry/TRT_DetectorManager.h"
 #include "PixelReadoutGeometry/PixelDetectorManager.h"
 #include "SCT_ReadoutGeometry/SCT_DetectorManager.h"
-//#include "InDetServMatGeoModel/InDetServMatManager.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "LArReadoutGeometry/EMBDetectorManager.h"
 #include "LArReadoutGeometry/HECDetectorManager.h"
@@ -32,9 +31,6 @@
 #include "LArReadoutGeometry/LArDetectorManager.h"
 #include "LArReadoutGeometry/FCALDetectorManager.h"
 #include "TileDetDescr/TileDetDescrManager.h"
-//#include "LUCID_GeoModel/LUCID_GeoModel/LUCID_DetectorManager.h"
-//#include "BeamPipeGeoModel/BeamPipeDetectorManager.h"
-//#include "CavernInfraGeoModel/CavernInfraDetectorManager.h"
 #include "CaloTTDetDescr/CaloTTDescrManager.h"
 #include "CaloIdentifier/CaloIdManager.h"
 
