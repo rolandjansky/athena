@@ -10,6 +10,7 @@
 #undef protected
 #include "HepMC3/GenEvent.h"
 #include "HepMC3/GenHeavyIon.h"
+#include "HepMC3/GenPdfInfo.h"
 #include "HepMC3/PrintStreams.h"
 #include "AtlasHepMC/GenVertex.h"
 #include "AtlasHepMC/GenParticle.h"
@@ -37,6 +38,29 @@ inline GenEvent* newGenEvent(const int signal_process_id, const int event_number
     e->add_attribute("signal_process_id",signal_process_id_A);
     e->set_event_number(event_number);
     return e;
+}
+
+inline GenEvent* copyemptyGenEvent(const GenEvent* inEvt) {
+  GenEvent* e= new GenEvent();
+  e->set_event_number(inEvt->event_number());
+  e->weights()=inEvt->weights();
+  auto a_mpi = inEvt->attribute<HepMC3::IntAttribute>("mpi"); 
+  if (a_mpi) e->add_attribute("mpi",std::make_shared<HepMC3::IntAttribute>(*a_mpi));
+  auto a_signal_process_id = inEvt->attribute<HepMC3::IntAttribute>("signal_process_id");
+  if (a_signal_process_id) e->add_attribute("signal_process_id",std::make_shared<HepMC3::IntAttribute>(*a_signal_process_id));
+  auto a_event_scale = inEvt->attribute<HepMC3::DoubleAttribute>("event_scale");
+  if (a_event_scale) e->add_attribute("event_scale",std::make_shared<HepMC3::DoubleAttribute>(*a_event_scale));
+  auto a_alphaQCD = inEvt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
+  if (a_alphaQCD) e->add_attribute("alphaQCD",std::make_shared<HepMC3::DoubleAttribute>(*a_alphaQCD));
+  auto a_alphaQED = inEvt->attribute<HepMC3::DoubleAttribute>("alphaQED");
+  if (a_alphaQED) e->add_attribute("alphaQED",std::make_shared<HepMC3::DoubleAttribute>(*a_alphaQED));
+  auto a_pi = inEvt->pdf_info(); 
+  if (a_pi) e->set_pdf_info(std::make_shared<HepMC3::GenPdfInfo>(*a_pi));
+  auto a_hi = inEvt->heavy_ion(); 
+  if (a_hi) e->set_heavy_ion(std::make_shared<HepMC3::GenHeavyIon>(*a_hi));
+  auto a_random_states = inEvt->attribute<HepMC3::VectorLongIntAttribute>("random_states");
+  if (a_random_states) e->add_attribute("random_states",std::make_shared<HepMC3::VectorLongIntAttribute>(*a_random_states));
+  return e;
 }
 
 inline GenVertexPtr  barcode_to_vertex(const GenEvent* e, int id ) {
@@ -135,6 +159,23 @@ template <class T> void set_random_states(GenEvent* e, std::vector<T> a) {
 template <class T> void set_signal_process_vertex(GenEvent* e, T v) {
     e->set_signal_process_vertex(v);
 }
+inline GenEvent* copyemptyGenEvent(const GenEvent* inEvt) {
+    HepMC::GenEvent* outEvt = new HepMC::GenEvent( inEvt->signal_process_id(),  inEvt->event_number() );
+    outEvt->set_mpi  ( inEvt->mpi() );
+    outEvt->set_event_scale  ( inEvt->event_scale() );
+    outEvt->set_alphaQCD     ( inEvt->alphaQCD() );
+    outEvt->set_alphaQED     ( inEvt->alphaQED() );
+    outEvt->weights() =        inEvt->weights();
+    outEvt->set_random_states( inEvt->random_states() );
+    if ( nullptr != inEvt->heavy_ion() ) {
+      outEvt->set_heavy_ion    ( *inEvt->heavy_ion() );
+    }
+    if ( nullptr != inEvt->pdf_info() ) {
+      outEvt->set_pdf_info     ( *inEvt->pdf_info() );
+    }
+    return outEvt;
+}
+
 namespace Print {
 inline void line(std::ostream& os,const GenEvent& e) {e.print(os);}
 inline void line(std::ostream& os,const GenEvent* e) {e->print(os);}
