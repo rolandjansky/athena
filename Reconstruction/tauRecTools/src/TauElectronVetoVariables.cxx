@@ -114,24 +114,24 @@ StatusCode TauElectronVetoVariables::execute(xAOD::TauJet& pTau) const {
         caloExtension = uniqueExtension.get();
       }
     }
-    const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& clParametersVector = caloExtension->caloLayerIntersections();
     if( not caloExtension || clParametersVector.empty() ){
       ATH_MSG_WARNING("extrapolation of leading track to calo surfaces failed  : caloLayerIntersection is empty" );
       return StatusCode::SUCCESS;
     }
     // loop over calo layers
-    for( const Trk::CurvilinearParameters * cur : clParametersVector ){
+    for( const Trk::CurvilinearParameters& cur : clParametersVector ){
       // only use entry layer
-      if( !parsIdHelper.isEntryToVolume(cur->cIdentifier()) ) continue;
-      CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur->cIdentifier());
+      if( !parsIdHelper.isEntryToVolume(cur.cIdentifier()) ) continue;
+      CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur.cIdentifier());
       int index = -1;
       if( sample == CaloSampling::PreSamplerE || sample == CaloSampling::PreSamplerB ) index = 0;
       else if( sample == CaloSampling::EME1 || sample == CaloSampling::EMB1 )          index = 1;
       else if( sample == CaloSampling::EME2 || sample == CaloSampling::EMB2 )          index = 2;
       else if( sample == CaloSampling::EME3 || sample == CaloSampling::EMB3 )          index = 3;
       if( index < 0 ) continue;
-      extrapolatedEta[index] = cur->position().eta();
-      extrapolatedPhi[index] = cur->position().phi();
+      extrapolatedEta[index] = cur.position().eta();
+      extrapolatedPhi[index] = cur.position().phi();
     }
     for (size_t i = 0; i < numberOfEM_Layers; ++i) {
       if ( extrapolatedEta[i] < invalidCoordinateThreshold || extrapolatedPhi[i] < invalidCoordinateThreshold ){

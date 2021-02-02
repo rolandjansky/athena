@@ -30,7 +30,7 @@ namespace Utils
                          Amg::Vector3D& nearestPos,
                          Amg::Vector3D& nearestMom ){
 
-    const std::vector<const Trk::CurvilinearParameters*>& intersections = caloExtension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& intersections = caloExtension->caloLayerIntersections();
     int nPts = intersections.size();
 
     int idxL, idxR, idxMid;
@@ -43,8 +43,8 @@ namespace Utils
     idxR = nPts-1;
     while ((idxR-idxL)>1){
       idxMid = (idxL+idxR)/2;
-      pos = intersections[idxMid]->position();
-      mom = intersections[idxMid]->momentum();
+      pos = intersections[idxMid].position();
+      mom = intersections[idxMid].momentum();
 
       if ( (inputPos-pos).dot(mom)>0) { 
         idxL = idxMid;
@@ -59,12 +59,12 @@ namespace Utils
     }
 
     if (idxL==0){
-      posL = intersections[0]->position();
-      momL = intersections[0]->momentum();
+      posL = intersections[0].position();
+      momL = intersections[0].momentum();
     }
     if (idxR==(nPts-1)){
-      posR = intersections[nPts-1]->position();
-      momR = intersections[nPts-1]->momentum();
+      posR = intersections[nPts-1].position();
+      momR = intersections[nPts-1].momentum();
     }
 
     float mag2L = (inputPos-posL).mag2();

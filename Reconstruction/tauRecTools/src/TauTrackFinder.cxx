@@ -401,7 +401,7 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
 	ATH_MSG_DEBUG("Track extrapolation failed");
       }
     else {
-      const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = caloExtension->caloLayerIntersections();
+      const std::vector<Trk::CurvilinearParameters>& clParametersVector = caloExtension->caloLayerIntersections();
       if (clParametersVector.empty()) {
 	ATH_MSG_DEBUG("Track extrapolation failed");
       }
@@ -409,20 +409,20 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
       ATH_MSG_DEBUG("Scanning samplings");
       bool validECal = false;
       bool validHCal = false;
-      for( const Trk::CurvilinearParameters * cur : clParametersVector ){
-	ATH_MSG_DEBUG("Sampling " << parsIdHelper.caloSample(cur->cIdentifier()) );
+      for( const Trk::CurvilinearParameters& cur : clParametersVector ){
+	ATH_MSG_DEBUG("Sampling " << parsIdHelper.caloSample(cur.cIdentifier()) );
                 
 	// only use entry layer
-	if( not parsIdHelper.isEntryToVolume(cur->cIdentifier()) ) continue;
+	if( not parsIdHelper.isEntryToVolume(cur.cIdentifier()) ) continue;
 
-	CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur->cIdentifier());
+	CaloSampling::CaloSample sample = parsIdHelper.caloSample(cur.cIdentifier());
 
 	// ECal
 	if( not validECal and m_EMSamplings.count(sample))
 	  {
 	    validECal = true;
-	    etaEM = cur->position().eta();
-	    phiEM = cur->position().phi();
+	    etaEM = cur.position().eta();
+	    phiEM = cur.position().phi();
 	    ATH_MSG_DEBUG("Extrapolated to ECal layer " << sample);
 	  }
 
@@ -430,8 +430,8 @@ StatusCode TauTrackFinder::extrapolateToCaloSurface(xAOD::TauJet& pTau) const {
 	if( not validHCal and m_HadSamplings.count(sample))
 	  {
 	    validHCal = true;
-	    etaHad = cur->position().eta();
-	    phiHad = cur->position().phi();
+	    etaHad = cur.position().eta();
+	    phiHad = cur.position().phi();
 	    ATH_MSG_DEBUG("Extrapolated to HCal layer " << sample);
 	  }
 	if( validECal and validHCal ) break;

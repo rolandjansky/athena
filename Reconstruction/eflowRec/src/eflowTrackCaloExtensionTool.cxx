@@ -98,15 +98,15 @@ std::unique_ptr<eflowTrackCaloPoints> eflowTrackCaloExtensionTool::execute(const
   if (extension != nullptr) {
 
     /*extract the CurvilinearParameters*/
-    const std::vector<const Trk::CurvilinearParameters*>& clParametersVector = extension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& clParametersVector = extension->caloLayerIntersections();
 
-     /*The parameters are owned by the CaloExtension so are handlel by it the eflowTrackCaloPoints does
+     /*The parameters are owned by the CaloExtension so are handled by it the eflowTrackCaloPoints does
      * not take ownership */
-    for ( const Trk::CurvilinearParameters * clParameter : clParametersVector) {
-      if (parametersMap[getLayer(clParameter)] == nullptr) {
-        parametersMap[getLayer(clParameter)] = clParameter;
-      } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter->cIdentifier())) {
-        parametersMap[getLayer(clParameter)] = clParameter;
+    for ( const Trk::CurvilinearParameters& clParameter : clParametersVector) {
+      if (parametersMap[getLayer(&clParameter)] == nullptr) {
+        parametersMap[getLayer(&clParameter)] = &clParameter;
+      } else if (m_trackParametersIdHelper->isEntryToVolume(clParameter.cIdentifier())) {
+        parametersMap[getLayer(&clParameter)] = &clParameter;
       }
     }
     /*
