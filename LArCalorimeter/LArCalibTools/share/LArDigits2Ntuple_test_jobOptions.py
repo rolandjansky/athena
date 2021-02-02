@@ -1,5 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 import os
 
 
@@ -72,7 +71,7 @@ if not 'SuperCells' in dir():
 
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 else: include("LArCalibProcessing/LArCalib_FlagsSC.py")
-include("LArCalibProcessing/GetInputFiles.py")
+include("RecExCommission/GetInputFiles.py")
 
 if SuperCells:
    from AthenaCommon.GlobalFlags import globalflags
@@ -92,6 +91,7 @@ if SuperCells:
    DetFlags.Truth_setOff()
    DetFlags.LVL1_setOff()
    DetFlags.digitize.all_setOff()
+   #DetFlags.Print()
    
    #Set up GeoModel (not really needed but crashes without)
    from AtlasGeoModel import SetGeometryVersion
@@ -116,6 +116,8 @@ if SuperCells:
 
 svcMgr.IOVDbSvc.GlobalTag=LArCalib_Flags.globalFlagDB
 svcMgr.IOVDbSvc.DBInstance=""
+
+# from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
 
 if 'BadChannelsFolder' not in dir():
    BadChannelsFolder="/LAR/BadChannels/BadChannels"
@@ -159,6 +161,7 @@ if SuperCells:
 
 
 
+
    
 
 from AthenaCommon.AlgSequence import AlgSequence 
@@ -182,7 +185,6 @@ svcMgr.ByteStreamCnvSvc.InitCnvs += [ "EventInfo"]
 
 theByteStreamAddressProviderSvc =svcMgr.ByteStreamAddressProviderSvc
 
-
 if not SuperCells:
    from LArByteStream.LArByteStreamConf import LArRodDecoder
    svcMgr.ToolSvc += LArRodDecoder()
@@ -204,19 +206,15 @@ if not SuperCells:
    theLArBadEventCatcher.StopOnError=False
    topSequence+=theLArBadEventCatcher    
 else:
-   theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC"  ]
-   if SCDecodeAllContainers:
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArDigitContainer/SC_ADC_BAS"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArRawSCContainer/SC_ET_ID"  ]
-      theByteStreamAddressProviderSvc.TypeNames += [ "LArLATOMEHeaderContainer/SC_LATOME_HEADER"  ]
    from LArByteStream.LArByteStreamConf import LArLATOMEDecoder 
-   theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
-   theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
-   theLArLATOMEDecoder.DumpFile = SC_DumpFile
-   theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
-   theLArLATOMEDecoder.ProtectSourceId = SCProtectSourceId
-   svcMgr.ToolSvc += theLArLATOMEDecoder
+   from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
+   LArRawSCDataReadingAlg = LArRawSCDataReadingAlg()
+   LArRawSCDataReadingAlg.LATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+   LArRawSCDataReadingAlg.LATOMEDecoder.latomeInfoFileName = LatomeInfo
+   LArRawSCDataReadingAlg.LATOMEDecoder.DumpFile = SC_DumpFile
+   LArRawSCDataReadingAlg.LATOMEDecoder.RawDataFile = SC_RawDataFile
+   LArRawSCDataReadingAlg.LATOMEDecoder.ProtectSourceId = SCProtectSourceId
+   topSequence+=LArRawSCDataReadingAlg
 
 from LArCalibTools.LArCalibToolsConf import *
 
@@ -237,15 +235,19 @@ if 'FTlist' in dir():
 
 LArDigits2Ntuple.isSC = SuperCells
 
-LArDigits2Ntuple.FillBCID = True
 if SuperCells:
    LArDigits2Ntuple.RealGeometry = True
-   LArDigits2Ntuple.OffId = True   
+   LArDigits2Ntuple.OffId = True
+   LArDigits2Ntuple.FillBCID = True
    LArDigits2Ntuple.AddBadChannelInfo = False
    LArDigits2Ntuple.OverwriteEventNumber = OverwriteEventNumber
+else:
+   #LArDigits2Ntuple.RealGeometry = True
+   #LArDigits2Ntuple.OverwriteEventNumber = OverwriteEventNumber
+   LArDigits2Ntuple.FillBCID = True
+
 
 topSequence+= LArDigits2Ntuple
-
 
 theApp.HistogramPersistency = "ROOT"
 from GaudiSvc.GaudiSvcConf import NTupleSvc
@@ -260,3 +262,18 @@ svcMgr.MessageSvc.OutputLevel=WARNING
 
 LArDigits2Ntuple.OutputLevel=WARNING
 
+#DetStore=Service("DetectorStore");
+#DetStore.dump=TRUE
+#from StoreGate.StoreGateConf import StoreGateSvc
+#sgStore = StoreGateSvc("StoreGateSvc")
+#sgStore.Dump = True
+#sgStore.OutputLevel = DEBUG
+
+#dtStore = StoreGateSvc("DetectorStore")
+#dtStore.Dump = True
+#dtStore.OutputLevel = DEBUG
+
+from AthenaCommon.AlgSequence import *
+dumpSequence(topSequence)
+
+svcMgr.StoreGateSvc.Dump = True;
