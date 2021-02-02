@@ -12,7 +12,7 @@
 #include "AthContainers/tools/copyAuxStoreThinned.h"
 
 // Local include(s):
-#include "xAODMuonAuxContainerCnv_v4.h"
+#include "xAODMuonAuxContainerCnv_v5.h"
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/versions/MuonContainer_v1.h"
 
@@ -27,19 +27,19 @@
       }                                         \
    } while( 0 )
 
-xAODMuonAuxContainerCnv_v4::xAODMuonAuxContainerCnv_v4()
+xAODMuonAuxContainerCnv_v5::xAODMuonAuxContainerCnv_v5()
   : T_AthenaPoolTPCnvBase< xAOD::MuonAuxContainer,
-                           xAOD::MuonAuxContainer_v4 >() {
+                           xAOD::MuonAuxContainer_v5 >() {
 
 }
 
-void xAODMuonAuxContainerCnv_v4::
-persToTrans( const xAOD::MuonAuxContainer_v4* oldObj,
+void xAODMuonAuxContainerCnv_v5::
+persToTrans( const xAOD::MuonAuxContainer_v5* oldObj,
              xAOD::MuonAuxContainer* newObj,
              MsgStream& log ) {
 
    // Greet the user:
-   ATH_MSG( "Converting xAOD::MuonAuxContainer_v4 to current version..." );
+   ATH_MSG( "Converting xAOD::MuonAuxContainer_v5 to current version..." );
 
    // Clear the transient object:
    newObj->resize( 0 );
@@ -49,7 +49,7 @@ persToTrans( const xAOD::MuonAuxContainer_v4* oldObj,
    SG::copyAuxStoreThinned( *oldObj, *newObj, 0 );
 
    // Print what happened:
-   ATH_MSG( "Converting xAOD::MuonAuxContainer_v4 to current version "
+   ATH_MSG( "Converting xAOD::MuonAuxContainer_v5 to current version "
             "[OK]" );
 
    return;
@@ -58,15 +58,15 @@ persToTrans( const xAOD::MuonAuxContainer_v4* oldObj,
 /// This function should never be called, as we are not supposed to convert
 /// object before writing.
 ///
-void xAODMuonAuxContainerCnv_v4::
+void xAODMuonAuxContainerCnv_v5::
 transToPers( const xAOD::MuonAuxContainer*,
-             xAOD::MuonAuxContainer_v4*,
+             xAOD::MuonAuxContainer_v5*,
              MsgStream& log ) {
 
    log << MSG::ERROR
-       << "Somebody called xAODMuonAuxContainerCnv_v4::transToPers"
+       << "Somebody called xAODMuonAuxContainerCnv_v5::transToPers"
        << endmsg;
-   throw std::runtime_error( "Somebody called xAODMuonAuxContainerCnv_v4::"
+   throw std::runtime_error( "Somebody called xAODMuonAuxContainerCnv_v5::"
                              "transToPers" );
 
    return;
