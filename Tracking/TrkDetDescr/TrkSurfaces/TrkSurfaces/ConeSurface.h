@@ -98,7 +98,7 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
-    
+
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
@@ -108,7 +108,7 @@ public:
     double theta,
     double qop,
     AmgSymMatrix(5) * cov = nullptr) const override final;
-    
+
   virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
@@ -174,6 +174,9 @@ public:
      Where  @f$ \phi @f$ denotes the averagePhi() of the cylinderBounds.
     */
   virtual const Amg::Vector3D& globalReferencePoint() const override;
+
+  //using from the base class
+  using Trk::Surface::normal;
 
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/

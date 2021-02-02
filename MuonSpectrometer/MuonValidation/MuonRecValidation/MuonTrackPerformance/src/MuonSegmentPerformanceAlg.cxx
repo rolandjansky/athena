@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentPerformanceAlg.h"
@@ -56,7 +56,7 @@ StatusCode MuonSegmentPerformanceAlg::execute()
   ++m_nevents;
 
   bool missedSegment = false;
-  for( const auto& seg : *truthSegments ){
+  for( const auto seg : *truthSegments ){
     
     int chIndex = seg->chamberIndex();
     if( chIndex < 0 || chIndex >= Muon::MuonStationIndex::ChIndexMax ){
@@ -86,7 +86,7 @@ StatusCode MuonSegmentPerformanceAlg::execute()
   }
   if(missedSegment) ATH_MSG_DEBUG(" Dump Fake segments " );
 
-  for( const auto& seg : *segments ){
+  for( const auto seg : *segments ){
     if( matchedSegments.count(seg) ) continue;
     int chIndex = seg->chamberIndex();
     if( chIndex < 0 || chIndex >= Muon::MuonStationIndex::ChIndexMax ){

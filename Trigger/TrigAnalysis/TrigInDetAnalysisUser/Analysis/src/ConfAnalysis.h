@@ -254,6 +254,7 @@ private:
   std::vector<Resplot*> retares;
   std::vector<Resplot*> rphires;
   std::vector<Resplot*> rzedres;
+  std::vector<Resplot*> rzedthetares;
   std::vector<Resplot*> riptres;
   std::vector<Resplot*> rptres;
   std::vector<Resplot*> rd0res;

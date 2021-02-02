@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #define  ATHENASERVICES_ATHENAHIVEEVENTLOOPMGR_CPP
@@ -114,6 +114,8 @@ AthenaHiveEventLoopMgr::AthenaHiveEventLoopMgr(const std::string& nam,
   declareProperty("FakeTimestampInterval", m_timeStampInt = 1,
                   "timestamp interval between events when creating Events "
                   "without an EventSelector");
+  declareProperty("RequireInputAttributeList", m_requireInputAttributeList = false,
+                  "Require valid input attribute list to be present");
   declareProperty("UseSecondaryEventNumber", m_useSecondaryEventNumber = false,
                   "In case of DoubleEventSelector use event number from secondary input");
 
@@ -1126,8 +1128,10 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
                 }
             }
             if (eventNumberSecondary != 0) {
+                m_doEvtHeartbeat = (m_eventPrintoutInterval.value() > 0 && 
+                  0 == (m_nev % m_eventPrintoutInterval.value()));
                 if (m_doEvtHeartbeat) {
-                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "<<<===" << endmsg;
+                    info() << "  ===>>>  using secondary event #" << eventNumberSecondary << " instead of #" << eventNumber << "  <<<===" << endmsg;
                 }
                 eventNumber = eventNumberSecondary;
             }
@@ -1138,8 +1142,11 @@ int AthenaHiveEventLoopMgr::declareEventRootAddress(EventContext& ctx){
         pEvent = pEventPtr.release();
       } catch (...) {
       }
+    } else if (m_requireInputAttributeList) {
+      fatal() << "Valid input attribute list required but not present!" << endmsg;
+      return -1;
     }
-    
+
     if (!pEvent) {
         // Retrieve the Event object
         pEvent = eventStore()->tryConstRetrieve<EventInfo>();

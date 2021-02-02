@@ -185,13 +185,16 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   ParticleHypothesis particleType = m_particleType;
 
   ATH_MSG_DEBUG("caloExtension for tracks. "<< particleType << "  index= "<< particle.index() );
-  
+ 
+  //electron are extrapolated as muons 
+  //since this is the closest to non-interacting 
   if(m_particleType == electron || 
      particle.particleHypothesis() ==  xAOD::electron ){  
     ATH_MSG_DEBUG("Extrapolating electrons with muon hypothesis");
-    particleType = muon;//closest to nonInteracting;
+    particleType = muon;
   }
 
+  //Extrapolation starting from perigee
   if(m_startFromPerigee || !particle.track()){
     bool idExit = true;
     // Muon Entry is around z 6783 and r  4255 
@@ -201,11 +204,10 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
     return caloExtension(ctx, particle.perigeeParameters(),propDir,particleType);
   }
 
+  //Extrapolation from last track parameters
   const Track& track = *particle.track();
-  /*
-   * Look-up the parameters closest to the calorimeter in 
-   * ID and muon system
-   */
+  // Look-up the parameters closest to the calorimeter in
+  // ID and muon system
   ATH_MSG_DEBUG("trying to add calo layers" );
   const TrackParameters* idExitParamers = nullptr;
   const TrackParameters* muonEntryParamers = nullptr;
@@ -242,8 +244,10 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
                                           PropDirection propDir, 
                                           ParticleHypothesis particleType ) const {
 
-  ATH_MSG_DEBUG("looking up calo states: r " << startPars.position().perp() << " z " << startPars.position().z()
-                << " momentum " << startPars.momentum().mag() );
+  ATH_MSG_DEBUG("looking up calo states: r "
+                << startPars.position().perp() << " z "
+                << startPars.position().z() << " momentum "
+                << startPars.momentum().mag());
 
   // pointers to hold results and go
   std::vector<const TrackStateOnSurface*>* material = nullptr;
@@ -278,9 +282,11 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   // create final object
   const TrackParameters* caloEntry = nullptr;
   const TrackParameters* muonEntry = nullptr;
-  std::vector<const CurvilinearParameters*> caloLayers;
+  std::vector<CurvilinearParameters> caloLayers;
   caloLayers.reserve(caloParameters->size()-1);
-  ATH_MSG_DEBUG( " Found calo parameters: " << caloParameters->size() << "  extrapolation exit ID="<<m_extrapolDetectorID);
+  ATH_MSG_DEBUG(" Found calo parameters: " << caloParameters->size()
+                                           << "  extrapolation exit ID="
+                                           << m_extrapolDetectorID);
 
   for( const auto& p : *caloParameters ){
     if( !p.first ) {
@@ -292,42 +298,44 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
                    << " pt " << p.first->momentum().perp() << " cov " << p.first->covariance() );
 
     // assign parameters
+    //calo aentry muon entry and the crossed calo layers
     if( p.second == 1 && propDir == Trk::alongMomentum)         {caloEntry = p.first;}
     else if( p.second == 3 && propDir == Trk::oppositeMomentum) {caloEntry = p.first;}
     else if( p.second == 3 && propDir == Trk::alongMomentum)    {muonEntry = p.first;}
     else if( p.second == 4 && propDir == Trk::oppositeMomentum) {muonEntry = p.first;}
     else{
       bool isEntry = p.second > 0;
-      TrackParametersIdentifier id = parsIdHelper.encode( AtlasDetDescr::fFirstAtlasCaloTechnology, 
-                                                          static_cast<CaloSampling::CaloSample>( abs(p.second)%1000 ),
-                                                          isEntry );
-
+      TrackParametersIdentifier id = parsIdHelper.encode(
+        AtlasDetDescr::fFirstAtlasCaloTechnology,
+        static_cast<CaloSampling::CaloSample>(abs(p.second) % 1000),
+        isEntry);
       /*
        * We construct curvilinear parameters which we push
-       * back to the caloLayers
+       * back to the caloLayers.
+       * We need to check if the parameters are already
+       * curvillinear.
+       * And if they are we need to clone the 
+       * covariance matrix
        */
-      if( p.first->type() != Trk::Curvilinear ){
-        const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
-                                                                       p.first->momentum(),
-                                                                       p.first->charge(),
-                                                                       nullptr,id); 
-        caloLayers.push_back( cpars );
+      if (p.first->type() != Trk::Curvilinear) {
+        const CurvilinearParameters cpars(p.first->position(),
+                                          p.first->momentum(),
+                                          p.first->charge(),
+                                          nullptr,
+                                          id);
+        caloLayers.push_back(cpars);
         delete p.first;
-      }else{ 
+      } else {
         AmgSymMatrix(5)* covariance(nullptr);
         if(p.first->covariance()){
           covariance=new AmgSymMatrix(5)(*(p.first->covariance()));
         }
-        /* Note that we need to clone because the parameters are const and
-         * and we change the id.
-         * Perhaps something to consider/fix when the Extrapolator/Extrapolator
-         * interface get updated.
-         */
-        const CurvilinearParameters* cpars = new CurvilinearParameters(p.first->position(),
-                                                                       p.first->momentum(),
-                                                                       p.first->charge(),
-                                                                       covariance,id);
-        caloLayers.push_back( cpars );
+        CurvilinearParameters cpars(p.first->position(),
+                                    p.first->momentum(),
+                                    p.first->charge(),
+                                    covariance,
+                                    id);
+        caloLayers.push_back(cpars);
         delete p.first;
       }
     }      
@@ -340,7 +348,8 @@ ParticleCaloExtensionTool::caloExtension( const EventContext& ctx,
   } 
   delete caloParameters;
 
-  return std::make_unique<Trk::CaloExtension>(caloEntry,muonEntry,std::move(caloLayers));
+  return std::make_unique<Trk::CaloExtension>(
+    caloEntry, muonEntry, std::move(caloLayers));
 }
 
 } // end of namespace Trk

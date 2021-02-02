@@ -372,10 +372,6 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
 
     double xp[3] = { measPer->prodVtx()->x(), measPer->prodVtx()->y(), measPer->prodVtx()->z() };
 
-    double theta = 2*std::atan( std::exp( -eta ) );
-    double z0 = xp[2] - (xp[0]*std::cos(phi) + xp[1]*std::sin(phi))/std::tan(theta);
-    double d0 = xp[1]*std::cos(phi) -  xp[0]*std::sin(phi);
-      
     double xd[3] = { 0, 0, 0 };
       
     if ( track->hasDecayVtx() ) { 
@@ -387,7 +383,22 @@ bool TrigTrackSelector::selectTrack( const xAOD::TruthParticle* track ) {
     double rp = std::sqrt( xp[0]*xp[0] + xp[1]*xp[1] ); 
     double rd = std::sqrt( xd[0]*xd[0] + xd[1]*xd[1] ); 
       
-      
+    /// these are the d0 and z at the point of closest approach to the (0,0)
+    //    double theta = 2*std::atan( std::exp( -eta ) );
+    //    double z0 = xp[2] - (xp[0]*std::cos(phi) + xp[1]*std::sin(phi))/std::tan(theta);
+    //    double d0 = xp[1]*std::cos(phi) -  xp[0]*std::sin(phi);
+    /// but we want "corrected to the "beam line" which for truth particles 
+    /// is just the production vertex, so  ...
+    double z0 = xp[2];
+    double d0 = 0;
+
+    /// there is an issue, since these may actually be secondary vertex particles, 
+    /// so we really want to know what is the true "primary" vertex position, 
+    /// which is perhaps somewhat tricky as we do not run a vertex algorithm on
+    /// the truth particles, so we should probably try to pick up the beamline position 
+    /// from somewhere and use that
+
+
     bool final_state = false; 
       
     /// the is our new "final state" requirement

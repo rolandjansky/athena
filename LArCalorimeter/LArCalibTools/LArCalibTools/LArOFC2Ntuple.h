@@ -1,7 +1,7 @@
 //Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -34,7 +34,7 @@ class LArOFC2Ntuple : public LArCond2NtupleBase {
 
  private:
    
-  //unsigned m_nSamples;// , m_nPhases ;
+  unsigned m_nSamples;// , m_nPhases ;
    std::string m_contKey;
    std::string m_ntName;
    std::string m_ntFile;   

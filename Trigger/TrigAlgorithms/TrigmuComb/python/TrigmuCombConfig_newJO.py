@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #  This file configs the muComb reco alg with the newJO
 
@@ -61,6 +61,7 @@ def l2MuCombRecoCfg(flags, name="L2MuCombReco"):
     ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
     viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+name,
                                                          ViewFallThrough = True,
+                                                         RequireParentView = True,
                                                          RoIsLink        = 'initialRoI',
                                                          RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuon", InViewRoIs = "forID", ViewToFetchFrom = "L2MuFastRecoViews"),
                                                          InViewRoIs      = name+'RoIs',

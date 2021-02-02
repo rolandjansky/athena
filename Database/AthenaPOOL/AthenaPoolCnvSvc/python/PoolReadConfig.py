@@ -77,7 +77,7 @@ def PoolReadCfg(configFlags):
 
     if filenamesSecondary:
         # Create DoubleEventSelector (universal for any seconday input type)
-        evSel = DoubleEventSelectorAthenaPool("DoubleEventSelector",
+        evSel = DoubleEventSelectorAthenaPool("EventSelector",
                                               InputCollections=filenames,
                                               SkipEvents=configFlags.Exec.SkipEvents)
 

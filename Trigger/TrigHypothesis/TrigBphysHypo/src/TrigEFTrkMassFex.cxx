@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -293,7 +293,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     }
     if(msgLvl() <= MSG::DEBUG) { // print debug
         msg() << MSG::DEBUG << "Found MuonContainer, Got MuonEF size = " << elvmuon.size() << endmsg;
-        for ( const auto& muel: elvmuon) {
+        for ( const ElementLink<xAOD::MuonContainer> muel: elvmuon) {
             msg() << MSG::DEBUG << "ELLink: "
                 << " index: "  << muel.index()
                 << " sgkey: "  << muel.dataID()
@@ -302,7 +302,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
                 << " ptr: "    << (muel.isValid() ? *muel : nullptr)
                 << endmsg;
         }
-        for ( const auto& muel: elvmuon) {
+        for ( const ElementLink<xAOD::MuonContainer> muel: elvmuon) {
             if (!muel.isValid()) continue;
             msg() << MSG::DEBUG << "Muon:   "
                 << " pt: " <<  (*muel)->pt()
@@ -343,7 +343,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
 
     if(msgLvl() <= MSG::DEBUG) { // print debug
         msg() << MSG::DEBUG << "Found TrackParticleContainer, size: " << elvtps.size() << endmsg;
-        for ( const auto& eltp: elvtps) {
+        for ( const ElementLink<xAOD::TrackParticleContainer> eltp: elvtps) {
             msg() << MSG::DEBUG << "ELLink: "
                 << " index: "  << eltp.index()
                 << " sgkey: "  << eltp.dataID()
@@ -384,7 +384,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
     //#FIXME - remember to implement the scenario of (tracks matched to roi + tracks)
     std::vector<ElementLink<xAOD::MuonContainer> > muons;
     std::vector<ElementLink<xAOD::TrackParticleContainer> > tracks;
-    for (const auto& muel: elvmuon) {
+    for (const ElementLink<xAOD::MuonContainer> muel: elvmuon) {
         if (!muel.isValid()) continue;
         const xAOD::TrackParticle * mutrk = (*muel)->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
         if (!mutrk) continue;
@@ -427,7 +427,7 @@ HLT::ErrorCode TrigEFTrkMassFex::hltExecute(const HLT::TriggerElement*  inputTE 
         
         muons.push_back(muel);
     } // optimize? addUnique?
-    for (const auto& trkel: elvtps)  {
+    for (const ElementLink<xAOD::TrackParticleContainer> trkel: elvtps)  {
         const xAOD::TrackParticle * trk = *trkel;
         if (!trk) continue;
         if (trk->definingParametersCovMatrixVec().size() == 0) {

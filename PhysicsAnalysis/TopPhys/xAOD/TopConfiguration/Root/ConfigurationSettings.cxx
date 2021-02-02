@@ -577,7 +577,7 @@ namespace top {
                       "kBtagPriorityFourJets");
     registerParameter("KLFitterBTaggingMethod", "Recommend use kNotag or kVetoNoFit - see KLFitter TWiki", "kNotag");
     registerParameter("KLFitterLH",
-                      "Select likelihood depending on signal, ttbar, ttbar_angles, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets",
+                      "Select likelihood depending on signal, ttbar, ttbar_JetAngles, ttbar_Angular, ttH, ttZTrilepton, ttbar_AllHadronic, ttbar_BoostedLJets",
                       "ttbar");
     registerParameter("KLFitterTopMassFixed", "Fix the mass of the top quark? True or False", "True");
     registerParameter("KLFitterSaveAllPermutations",

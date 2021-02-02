@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -431,7 +431,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
     auto itr = legDecisionIDsMap.find( leg.second );
     if (itr == legDecisionIDsMap.end()) {
       DecisionIDContainer legDecisionIDs;
-      for (const ElementLink<DecisionContainer>& decisionEL : leg.second) {
+      for (const ElementLink<DecisionContainer> decisionEL : leg.second) {
         TrigCompositeUtils::decisionIDs(*decisionEL, legDecisionIDs);
       }
       legDecisionIDsMap[leg.second] = legDecisionIDs;
@@ -448,7 +448,7 @@ StatusCode TrigMultiTrkComboHypo::executeEF(const EventContext& context) const {
     std::vector<const DecisionIDContainer*> previousDecisionIDs;
     for (size_t itrk : trigBphysTrackIdx[idx]) {
       // attach all previous decisions: if the same previous decision is called twice, that's fine - internally takes care of that
-      for (const ElementLink<DecisionContainer>& previousDecisionEL : tracks[itrk].second) {
+      for (const ElementLink<DecisionContainer> previousDecisionEL : tracks[itrk].second) {
         TrigCompositeUtils::linkToPrevious(decision, *previousDecisionEL, context);
       }
       auto& legDecisionIDs = legDecisionIDsMap[tracks[itrk].second];

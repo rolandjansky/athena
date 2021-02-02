@@ -38,10 +38,10 @@ import AthenaPoolCnvSvc.ReadAthenaPoolDouble
 #--------------------------------------------------------------
 
 # Add in DoubleEventSelector
-svcMgr.DoubleEventSelector.InputCollections = [ "SimplePoolFile1.root" ]
+svcMgr.EventSelector.InputCollections = [ "SimplePoolFile1.root" ]
 svcMgr.SecondaryEventSelector.InputCollections = [ "SimplePoolFile2.root" ]
 
-svcMgr.DoubleEventSelector.OutputLevel = DEBUG
+svcMgr.EventSelector.OutputLevel = DEBUG
 svcMgr.SecondaryEventSelector.OutputLevel = DEBUG
 
 #--------------------------------------------------------------
