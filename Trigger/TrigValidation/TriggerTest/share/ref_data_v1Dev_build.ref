@@ -1184,6 +1184,8 @@ HLT_j85_pf_ftf_L1J20:
   stepFeatures:
     0: 5
     1: 3
+HLT_larnoiseburst_L1XE60:
+  eventCount: 0
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 20
   stepCounts:

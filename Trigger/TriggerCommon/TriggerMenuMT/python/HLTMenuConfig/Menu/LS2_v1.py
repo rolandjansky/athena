@@ -561,7 +561,6 @@ def setupMenu():
     ]
     TriggerFlags.CalibSlice.signatures     =    TriggerFlags.CalibSlice.signatures() + [
         ChainProp(name='HLT_alfacalib_AlfaPEB_L1ALFA_ANY', l1SeedThresholds=['FSNOSEED'], stream=['ALFACalib'], groups=['RATE:ALFACalibration','BW:Detector']),
-        #ChainProp(name='HLT_larnoiseburst_L1All', l1SeedThresholds=['FSNOSEED'], stream=['DISCARD'], groups=['PS:Online', 'RATE:DISCARD', 'BW:DISCARD'])
     ]
     TriggerFlags.CosmicSlice.signatures    = TriggerFlags.CosmicSlice.signatures() + [
     ]

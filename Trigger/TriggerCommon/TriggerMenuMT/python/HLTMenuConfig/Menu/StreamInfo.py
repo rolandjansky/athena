@@ -53,6 +53,7 @@ _all_streams = [
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
+    StreamInfo('LArNoiseBurst', 'calibration', False, True),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring', 'calibration', False, False),
     StreamInfo('SCTNoise', 'calibration', False, False),
