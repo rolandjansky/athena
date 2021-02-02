@@ -68,7 +68,10 @@ class TrigInDetReco(ExecStep):
     def configure(self, test):
         chains = '['
         flags = ''
+        lrt = False
         for i in self.slices:
+            if ('LRT' in i):
+                lrt = True
             if (i=='L2muonLRT') :
                 chains += "'HLT_mu6_LRT_idperf_l2lrt_L1MU6',"
                 chains += "'HLT_mu6_idperf_L1MU6',"
@@ -105,6 +108,9 @@ class TrigInDetReco(ExecStep):
 
         chains += ']'
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
+
+        if (lrt):
+            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False);'
 
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )
