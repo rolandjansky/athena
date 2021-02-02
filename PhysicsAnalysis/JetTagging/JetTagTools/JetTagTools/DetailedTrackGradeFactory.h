@@ -74,8 +74,6 @@ private:
   int m_nSharedNextToInnermostPixelLayer;/// max. number of shared hits next-to-innermost pixel layer (Run1 B layer)
   int m_nOutlierPix;  /// max. number of pixel outliers in two first layers
   int m_nSpoiltPix;   /// max. number of spoilt hits in pixel
-  int m_nInTotPixEta23;    /// min. number of pixel hits in two first layers for 2<|eta|<3
-  int m_nInTotPixEta34;    /// min. number of pixel hits in two first layers for 3<|eta|<4
 
   bool m_ptFracGrade;   // grade for tracks with ptFrac < m_ptFracCut
   double m_ptFracCut;    /// cut on ptFrac
