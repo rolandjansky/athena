@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -61,7 +61,6 @@ StatusCode LArPedestalAutoCorrBuilder::initialize()
     return StatusCode::FAILURE;
   }
 
- // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
  if (!m_keylist.size()) // Not key list given
    {m_keylist.push_back("HIGH");
     m_keylist.push_back("MEDIUM");
@@ -123,6 +122,8 @@ StatusCode LArPedestalAutoCorrBuilder::execute()
     if(container->size()==0 ) {
       ATH_MSG_DEBUG("LArAccumulatedDigitContainer (key=" << *key_it << ") is empty ");
       continue;
+    }else{
+      ATH_MSG_DEBUG("LArAccumulatedDigitContainer (key=" << *key_it << ") has length " << container->size());
     }
     
     HWIdentifier  lastFailedFEB(0);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -64,8 +64,6 @@ StatusCode LArAutoCorrMaker::initialize() {
 
   ATH_MSG_INFO( ">>> Initialize" );
   
-  
-  // m_fullFolderName="/lar/"+m_folderName+"/LArPedestal";
   if (!m_keylistproperty.size()) // Not key list given
     {m_keylistproperty.push_back("HIGH");
     m_keylistproperty.push_back("MEDIUM");
@@ -238,10 +236,6 @@ StatusCode LArAutoCorrMaker::stop()
       	
 	// Fill the data class with autocorrelation elements
 	if (ch_id!=0) {
-	  //std::cout << "MAKER AUTOCORR ";
-	  //for(unsigned int i=0;i<cov_flt.size();i++)
-	  //  std::cout << cov_flt[i] << " ";
-	  //std::cout << std::endl;
 	  larAutoCorrComplete->set(ch_id,gain,cov_flt);
 	}
       }
