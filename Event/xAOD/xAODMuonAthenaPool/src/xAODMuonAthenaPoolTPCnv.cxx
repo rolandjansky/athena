@@ -10,13 +10,13 @@
 #include "xAODMuon/versions/MuonAuxContainer_v1.h"
 #include "xAODMuon/versions/MuonAuxContainer_v2.h"
 #include "xAODMuon/versions/MuonAuxContainer_v3.h"
-#include "xAODMuon/versions/MuonAuxContainer_v4.h"
+#include "xAODMuon/versions/MuonAuxContainer_v5.h"
 
 // Local include(s):
 #include "xAODMuonAuxContainerCnv_v1.h"
 #include "xAODMuonAuxContainerCnv_v2.h"
 #include "xAODMuonAuxContainerCnv_v3.h"
-#include "xAODMuonAuxContainerCnv_v4.h"
+#include "xAODMuonAuxContainerCnv_v5.h"
 
 // Declare the T/P converter(s):
 DECLARE_TPCNV_FACTORY( xAODMuonAuxContainerCnv_v1,
@@ -34,7 +34,7 @@ DECLARE_TPCNV_FACTORY( xAODMuonAuxContainerCnv_v3,
                        xAOD::MuonAuxContainer_v3,
                        Athena::TPCnvVers::Old )
 
-DECLARE_TPCNV_FACTORY( xAODMuonAuxContainerCnv_v4,
+DECLARE_TPCNV_FACTORY( xAODMuonAuxContainerCnv_v5,
                        xAOD::MuonAuxContainer,
-                       xAOD::MuonAuxContainer_v4,
+                       xAOD::MuonAuxContainer_v5,
                        Athena::TPCnvVers::Old )
