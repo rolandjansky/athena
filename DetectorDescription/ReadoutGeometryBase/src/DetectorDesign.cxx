@@ -116,8 +116,13 @@ SiIntersect DetectorDesign::inDetector(const SiLocalPosition &localPosition,
     return state;
 }
 
-const HepGeom::Transform3D DetectorDesign::SiHitToGeoModel() const {
-   return HepGeom::Transform3D();
-}
+  const HepGeom::Transform3D DetectorDesign::SiHitToGeoModel() const {
+    return HepGeom::Transform3D();
+  }
+
+  const HepGeom::Transform3D DetectorDesign::moduleShift() const {
+    return HepGeom::Transform3D::Identity;
+  }
+
 
 } // namespace InDetDD

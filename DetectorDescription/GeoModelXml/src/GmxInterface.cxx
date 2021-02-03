@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //
@@ -17,10 +17,16 @@
 #include "GeoModelKernel/GeoVFullPhysVol.h"
 using namespace std;
 
-int GmxInterface::sensorId(map<string, int> &/*index*/) {
+int GmxInterface::sensorId(map<string, int> &/*index*/) const {
     static int sequentialId;
     return sequentialId++;
 }
+
+int GmxInterface::splitSensorId(map<string, int> &/*index*/, std::pair<std::string, int> &/*extraIndex*/, map<string, int> &/*updatedIndex*/) const {
+    static int sequentialId;
+    return sequentialId++;
+}
+
 
 void GmxInterface::addSensorType(string clas, string type, map<string, string> params) {
     ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
@@ -44,6 +50,21 @@ void GmxInterface::addSensor(string name, map<string, int> &index, int sequentia
     }
     log << "\nSequential ID = " << sequentialId << endmsg;
 }
+
+void GmxInterface::addSplitSensor(string name, map<string, int> &index, std::pair<std::string, int> &extraIndex, int sequentialId, GeoVFullPhysVol *fpv) {
+  ServiceHandle<IMessageSvc> msgh("MessageSvc", "GeoModelXml");
+  MsgStream log(&(*msgh), "GeoModelXml");
+  
+  log << MSG::DEBUG << "GmxInterface::addSensor called for " << fpv->getLogVol()->getName() << ", type " << name << 
+    ". Indices:   ";		
+  for (map<string, int>::iterator i = index.begin(); i != index.end(); ++i) {
+    log << i->second << "   ";
+  }
+  log << "\n and additional Indices " << extraIndex.first << " : "<<
+    extraIndex.second;
+  log << "\nSequential ID = " << sequentialId << endmsg;
+}
+
 
 void GmxInterface::addAlignable(int level, map<std::string, int> &index, GeoVFullPhysVol *fpv, 
                                 GeoAlignableTransform */*transform*/) {

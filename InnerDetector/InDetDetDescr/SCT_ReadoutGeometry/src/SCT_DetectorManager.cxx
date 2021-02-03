@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //#include "DetDescrConditions/AlignableTransformContainer.h"
@@ -402,6 +402,10 @@ namespace InDetDD {
       return alignmentChange;
     }
     return alignmentChange;
+  }
+
+void SCT_DetectorManager::addMotherDesign(std::unique_ptr<const SCT_ModuleSideDesign>&& motherDesign){
+    m_motherDesigns.push_back(std::move(motherDesign));
   }
 
 

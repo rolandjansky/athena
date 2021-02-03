@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -105,4 +105,15 @@ SiCellId SCT_ModuleSideDesign::cellIdInRange(const SiCellId &cellId) const {
     }
     return cellId;
 }
+
+void SCT_ModuleSideDesign::setMother(SCT_ModuleSideDesign * mother){
+    if(m_motherDesign){
+      const std::string errMsg=std::string("SCT_ModuleSideDesign already has a mother set!");
+	throw std::runtime_error(errMsg);
+    } 
+    m_motherDesign = mother;
+
+}
+
+
 } // namespace InDetDD

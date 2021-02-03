@@ -155,11 +155,29 @@ GeoNameTag *physVolName;
             name2release = translate(element->getAttribute(translate("sensitive")));
             string sensitiveName(name2release);
             XMLString::release(&name2release);
-            gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
-        }
+
+	    //splitting sensors where we would like multiple DetectorElements per GeoVFullPhysVol (e.g.ITk Strips)
+	    bool split = element->hasAttribute(XMLString::transcode("splitLevel"));
+	    char* splitString;
+	    int splitLevel = 1;
+	    
+	    if (split) {
+	      splitString = XMLString::transcode(element->getAttribute(XMLString::transcode("splitLevel")));
+	      splitLevel = gmxUtil.evaluate(splitString);
+	      XMLString::release(&splitString);
+	      for(int i=0;i<splitLevel;i++){
+		std::string field = "eta_module";//eventually specify in Xml the field to split in?
+		std::pair<std::string,int> extraIndex(field,i);
+		gmxUtil.gmxInterface()->addSplitSensor(sensitiveName, index,extraIndex, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	      }
+	    }
+	    
+	    else gmxUtil.gmxInterface()->addSensor(sensitiveName, index, sensId, dynamic_cast<GeoVFullPhysVol *> (pv));
+	    
+	}
     }
     else {
-        GeoPhysVol *pv = new GeoPhysVol(lv);
+      GeoPhysVol *pv = new GeoPhysVol(lv);
         for (GeoNodeList::iterator node = childrenAdd.begin(); node != childrenAdd.end(); ++node) {
             pv->add(*node);
         }

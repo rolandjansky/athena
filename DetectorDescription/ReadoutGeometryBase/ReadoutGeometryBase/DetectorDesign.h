@@ -169,6 +169,10 @@ public:
     /** Transform from SiHit to GeoModel frame */
     virtual const HepGeom::Transform3D SiHitToGeoModel() const;
 
+    //Transform for "split" modules
+    virtual const HepGeom::Transform3D moduleShift() const;
+    
+
     ///////////////////////////////////////////////////////////
     //
     // The following will replace existing methods but are not all implemented yet
