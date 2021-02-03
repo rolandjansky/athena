@@ -51,6 +51,9 @@ namespace top {
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
     m_IFFTruthTool("TruthClassificationTool"),
 
+    m_isolationTool_PLImprovedTight("CP::IsolationTool_PLImprovedTight"),
+    m_isolationTool_PLImprovedVeryTight("CP::IsolationTool_PLImprovedVeryTight"),
+
     m_muonSelectionToolVeryLooseVeto("CP::MuonSelectionToolVeryLooseVeto") {
     declareProperty("config", m_config);
 
@@ -79,6 +82,8 @@ namespace top {
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
     declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
     declareProperty("MuonSelectionToolVeryLooseVeto", m_muonSelectionToolVeryLooseVeto);
+    declareProperty("IsolationTool_PLImprovedTight", m_isolationTool_PLImprovedTight);
+    declareProperty("IsolationTool_PLImprovedVeryTight", m_isolationTool_PLImprovedVeryTight);
   }
 
   StatusCode MuonObjectCollectionMaker::initialize() {
@@ -107,8 +112,10 @@ namespace top {
     top::check(m_isolationTool_Tight_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Loose_VarRad.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_isolationTool_Loose_FixedRad.retrieve(), "Failed to retrieve Isolation Tool");
+    top::check(m_isolationTool_PLImprovedTight.retrieve(), "Failed to retrieve Isolation Tool");
+    top::check(m_isolationTool_PLImprovedVeryTight.retrieve(), "Failed to retrieve Isolation Tool");
     top::check(m_muonSelectionToolVeryLooseVeto.retrieve(), "Failed to retrieve Selection Tool");
-    if(m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
+    if (m_config->isMC()) top::check(m_IFFTruthTool.retrieve(), "Failed to retrieve IFF Truth Classification Tool");
 
     ///-- Set Systematics Information --///
     const std:: string& syststr = m_config->systematics();
@@ -138,19 +145,22 @@ namespace top {
   }
 
   StatusCode MuonObjectCollectionMaker::execute(bool executeNominal) {
-
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt1000("ptvarcone30_TightTTVA_pt1000");
     static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt1000("ptcone20_TightTTVA_pt1000");
     static const SG::AuxElement::ConstAccessor<float> ptcone20_TightTTVA_pt500("ptcone20_TightTTVA_pt500");
     static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVA_pt500("ptvarcone30_TightTTVA_pt500");
     static const SG::AuxElement::ConstAccessor<float> neflowisol20("neflowisol20");
-    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000("ptvarcone30_TightTTVALooseCone_pt1000");
+    static const SG::AuxElement::ConstAccessor<float> ptvarcone30_TightTTVALooseCone_pt1000(
+      "ptvarcone30_TightTTVALooseCone_pt1000");
     static const SG::AuxElement::ConstAccessor<int> chamberIndex("chamberIndex");
     static const SG::AuxElement::ConstAccessor<short> PLV_TrackJetNTrack("PromptLeptonInput_TrackJetNTrack");
     static const SG::AuxElement::ConstAccessor<float> PLV_DRlj("PromptLeptonInput_DRlj");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtRel("PromptLeptonInput_PtRel");
     static const SG::AuxElement::ConstAccessor<float> PLV_PtFrac("PromptLeptonInput_PtFrac");
     static const SG::AuxElement::ConstAccessor<float> PLV_PromptLeptonVeto("PromptLeptonVeto");
+    static const SG::AuxElement::ConstAccessor<float> PromptLeptonImprovedVeto("PromptLeptonImprovedVeto");
+    static const SG::AuxElement::ConstAccessor<short> PromptLeptonImprovedInput_MVAXBin(
+      "PromptLeptonImprovedInput_MVAXBin");
     static const SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
     static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
 
@@ -180,17 +190,19 @@ namespace top {
 
       ///-- Loop over the xAOD Container and apply corrections--///
       for (auto muon : *(shallow_xaod_copy.first)) {
-	
-	///-- Check if chamberIndex is Available if UseMVALowPt is On in order to print some useful message before the crash
-	if ( m_isFirstEvent ) {
-	  if ( (m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) && !chamberIndex.isAvailable(*muon) ) {
-	    ATH_MSG_ERROR("MuonSegmentsAux.chamberIndex is not available in yout derivation so UseMVALowPt cannot be performed.");
-	    ATH_MSG_ERROR("Please turn OFF UseMVALowPt or use more recent p-tag");
-	    ATH_MSG_ERROR("AnalysisTop will crash soon...");
-	    throw std::runtime_error("Missing MuonSegmentsAux.chamberIndex variable");
-	  }
-	  m_isFirstEvent = false;
-	}
+        ///-- Check if chamberIndex is Available if UseMVALowPt is On in order to print some useful message before the
+        // crash
+        if (m_isFirstEvent) {
+          if ((m_config->muonUseMVALowPt() || m_config->muonUseMVALowPtLoose() || m_config->softmuonUseMVALowPt()) &&
+              !chamberIndex.isAvailable(*muon)) {
+            ATH_MSG_ERROR(
+              "MuonSegmentsAux.chamberIndex is not available in yout derivation so UseMVALowPt cannot be performed.");
+            ATH_MSG_ERROR("Please turn OFF UseMVALowPt or use more recent p-tag");
+            ATH_MSG_ERROR("AnalysisTop will crash soon...");
+            throw std::runtime_error("Missing MuonSegmentsAux.chamberIndex variable");
+          }
+          m_isFirstEvent = false;
+        }
 
         ///-- Apply momentum correction --///
         if (muon->primaryTrackParticle()) {
@@ -215,9 +227,9 @@ namespace top {
         }
 
         //Decorate muons with IFF-truth classification
-        if(m_config->isMC()){
+        if (m_config->isMC()) {
           unsigned int IFFclass(0);
-          top::check( m_IFFTruthTool->classify(*muon, IFFclass), "Unable the classify muon");
+          top::check(m_IFFTruthTool->classify(*muon, IFFclass), "Unable the classify muon");
           AnalysisTop_IFFTruthClass(*muon) = IFFclass;
         }
 
@@ -226,81 +238,90 @@ namespace top {
         char passIsol_FCTightTrackOnly_FixedRad(0), passIsol_FCLoose_FixedRad(0), passIsol_FCTight_FixedRad(0);
         char passIsol_FixedCutPflowTight(0), passIsol_FixedCutPflowLoose(0);
 
-	char passIsol_PflowTight_FixedRad(0), passIsol_PflowLoose_FixedRad(0), passIsol_PflowTight_VarRad(0), passIsol_PflowLoose_VarRad(0);
-	char passIsol_HighPtTrackOnly(0), passIsol_TightTrackOnly_VarRad(0), passIsol_TightTrackOnly_FixedRad(0);
-	char passIsol_PLVTight(0), passIsol_PLVLoose(0);
-	char passIsol_Tight_VarRad(0), passIsol_Tight_FixedRad(0), passIsol_Loose_VarRad(0), passIsol_Loose_FixedRad(0);
 
-	//initializing al the passIsol_* variable to -1
-	passIsol_FCTight = -1;
-	passIsol_FCLoose = -1;
-	passIsol_FCTightTrackOnly = -1;
-	passIsol_FCTightTrackOnly_FixedRad = -1;
-	passIsol_FCLoose_FixedRad = -1;
-	passIsol_FCTight_FixedRad = -1;
-	passIsol_FixedCutPflowTight = -1;
-	passIsol_FixedCutPflowLoose = -1;
-	passIsol_PflowTight_FixedRad = -1;
-	passIsol_PflowLoose_FixedRad = -1;
-	passIsol_PflowTight_VarRad = -1;
-	passIsol_PflowLoose_VarRad = -1;
-	passIsol_HighPtTrackOnly = -1;
-	passIsol_TightTrackOnly_VarRad = -1;
-	passIsol_TightTrackOnly_FixedRad = -1;
-	passIsol_PLVTight = -1;
-	passIsol_PLVLoose = -1;
-	passIsol_Tight_FixedRad = -1;
-	passIsol_Loose_FixedRad = -1;
-	passIsol_Tight_VarRad = -1;
-	passIsol_Loose_VarRad = -1;
-        
-	passIsol_FCTight = m_isolationTool_FCTight->accept(*muon) ? 1 : 0;
-	passIsol_FCLoose = m_isolationTool_FCLoose->accept(*muon) ? 1 : 0;
-	passIsol_FCTightTrackOnly = m_isolationTool_FCTightTrackOnly->accept(*muon) ? 1 : 0;
-	passIsol_FCTightTrackOnly_FixedRad = m_isolationTool_FCTightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
-	passIsol_FCLoose_FixedRad = m_isolationTool_FCLoose_FixedRad->accept(*muon) ? 1 : 0;
-	passIsol_FCTight_FixedRad = m_isolationTool_FCTight_FixedRad->accept(*muon) ? 1 : 0;
-	passIsol_FixedCutPflowTight = m_isolationTool_FixedCutPflowTight->accept(*muon) ? 1 : 0;
-	passIsol_FixedCutPflowLoose = m_isolationTool_FixedCutPflowLoose->accept(*muon) ? 1 : 0;
+        char passIsol_PflowTight_FixedRad(0), passIsol_PflowLoose_FixedRad(0), passIsol_PflowTight_VarRad(0),
+        passIsol_PflowLoose_VarRad(0);
+        char passIsol_HighPtTrackOnly(0), passIsol_TightTrackOnly_VarRad(0), passIsol_TightTrackOnly_FixedRad(0);
+        char passIsol_PLVTight(0), passIsol_PLVLoose(0), passIsol_PLImprovedTight(0), passIsol_PLImprovedVeryTight(0);
+        char passIsol_Tight_VarRad(0), passIsol_Tight_FixedRad(0), passIsol_Loose_VarRad(0), passIsol_Loose_FixedRad(0);
 
-	//new Iso WPs
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && neflowisol20.isAvailable(*muon) && ptcone20_TightTTVA_pt500.isAvailable(*muon)) {
-	  passIsol_PflowTight_FixedRad = m_isolationTool_PflowTight_FixedRad->accept(*muon) ? 1 : 0;
-	  passIsol_PflowLoose_FixedRad = m_isolationTool_PflowLoose_FixedRad->accept(*muon) ? 1 : 0;
-	}
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && neflowisol20.isAvailable(*muon)) {
-	  passIsol_PflowTight_VarRad = m_isolationTool_PflowTight_VarRad->accept(*muon) ? 1 : 0;
-	  passIsol_PflowLoose_VarRad = m_isolationTool_PflowLoose_VarRad->accept(*muon) ? 1 : 0;
+        //initializing al the passIsol_* variable to -1
+        passIsol_FCTight = -1;
+        passIsol_FCLoose = -1;
+        passIsol_FCTightTrackOnly = -1;
+        passIsol_FCTightTrackOnly_FixedRad = -1;
+        passIsol_FCLoose_FixedRad = -1;
+        passIsol_FCTight_FixedRad = -1;
+        passIsol_FixedCutPflowTight = -1;
+        passIsol_FixedCutPflowLoose = -1;
+        passIsol_PflowTight_FixedRad = -1;
+        passIsol_PflowLoose_FixedRad = -1;
+        passIsol_PflowTight_VarRad = -1;
+        passIsol_PflowLoose_VarRad = -1;
+        passIsol_HighPtTrackOnly = -1;
+        passIsol_TightTrackOnly_VarRad = -1;
+        passIsol_TightTrackOnly_FixedRad = -1;
+        passIsol_PLVTight = -1;
+        passIsol_PLVLoose = -1;
+        passIsol_PLImprovedTight = -1;
+        passIsol_PLImprovedVeryTight = -1;
+        passIsol_Tight_FixedRad = -1;
+        passIsol_Loose_FixedRad = -1;
+        passIsol_Tight_VarRad = -1;
+        passIsol_Loose_VarRad = -1;
+
+        passIsol_FCTight = m_isolationTool_FCTight->accept(*muon) ? 1 : 0;
+        passIsol_FCLoose = m_isolationTool_FCLoose->accept(*muon) ? 1 : 0;
+        passIsol_FCTightTrackOnly = m_isolationTool_FCTightTrackOnly->accept(*muon) ? 1 : 0;
+        passIsol_FCTightTrackOnly_FixedRad = m_isolationTool_FCTightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
+        passIsol_FCLoose_FixedRad = m_isolationTool_FCLoose_FixedRad->accept(*muon) ? 1 : 0;
+        passIsol_FCTight_FixedRad = m_isolationTool_FCTight_FixedRad->accept(*muon) ? 1 : 0;
+        passIsol_FixedCutPflowTight = m_isolationTool_FixedCutPflowTight->accept(*muon) ? 1 : 0;
+        passIsol_FixedCutPflowLoose = m_isolationTool_FixedCutPflowLoose->accept(*muon) ? 1 : 0;
+
+        //new Iso WPs
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && neflowisol20.isAvailable(*muon) &&
+            ptcone20_TightTTVA_pt500.isAvailable(*muon)) {
+          passIsol_PflowTight_FixedRad = m_isolationTool_PflowTight_FixedRad->accept(*muon) ? 1 : 0;
+          passIsol_PflowLoose_FixedRad = m_isolationTool_PflowLoose_FixedRad->accept(*muon) ? 1 : 0;
         }
-	if (ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
-	  passIsol_HighPtTrackOnly = m_isolationTool_HighPtTrackOnly->accept(*muon) ? 1 : 0;
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && neflowisol20.isAvailable(*muon)) {
+          passIsol_PflowTight_VarRad = m_isolationTool_PflowTight_VarRad->accept(*muon) ? 1 : 0;
+          passIsol_PflowLoose_VarRad = m_isolationTool_PflowLoose_VarRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
-	  passIsol_TightTrackOnly_VarRad = m_isolationTool_TightTrackOnly_VarRad->accept(*muon) ? 1 : 0;
+        if (ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
+          passIsol_HighPtTrackOnly = m_isolationTool_HighPtTrackOnly->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) &&  ptcone20_TightTTVA_pt500.isAvailable(*muon)) {
-	  passIsol_TightTrackOnly_FixedRad = m_isolationTool_TightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
+          passIsol_TightTrackOnly_VarRad = m_isolationTool_TightTrackOnly_VarRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
-	  if ( PLV_TrackJetNTrack.isAvailable(*muon) &&
-	       PLV_DRlj.isAvailable(*muon) &&
-	       PLV_PtRel.isAvailable(*muon) &&
-	       PLV_PtFrac.isAvailable(*muon) )
-	    top::check(m_isolationTool_LowPtPLV->augmentPLV(*muon), "Failed to agument muon with LowPtPLV decorations");
-	  else
-	    byhand_LowPtPLV(*muon) = 1.1;
-	  if (PLV_PromptLeptonVeto.isAvailable(*muon)) {
-	    passIsol_PLVTight = m_isolationTool_PLVTight->accept(*muon) ? 1 : 0;
-	    passIsol_PLVLoose = m_isolationTool_PLVLoose->accept(*muon) ? 1 : 0;
-	  }
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && ptcone20_TightTTVA_pt500.isAvailable(*muon)) {
+          passIsol_TightTrackOnly_FixedRad = m_isolationTool_TightTrackOnly_FixedRad->accept(*muon) ? 1 : 0;
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
-	  passIsol_Tight_FixedRad = m_isolationTool_Tight_FixedRad->accept(*muon) ? 1 : 0;
-	  passIsol_Loose_FixedRad = m_isolationTool_Loose_FixedRad->accept(*muon) ? 1 : 0;
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon)) {
+          if (PLV_TrackJetNTrack.isAvailable(*muon) &&
+              PLV_DRlj.isAvailable(*muon) &&
+              PLV_PtRel.isAvailable(*muon) &&
+              PLV_PtFrac.isAvailable(*muon)) top::check(m_isolationTool_LowPtPLV->augmentPLV(
+                                                          *muon), "Failed to agument muon with LowPtPLV decorations");
+          else byhand_LowPtPLV(*muon) = 1.1;
+          if (PLV_PromptLeptonVeto.isAvailable(*muon)) {
+            passIsol_PLVTight = m_isolationTool_PLVTight->accept(*muon) ? 1 : 0;
+            passIsol_PLVLoose = m_isolationTool_PLVLoose->accept(*muon) ? 1 : 0;
+          }
         }
-	if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
-	  passIsol_Tight_VarRad = m_isolationTool_Tight_VarRad->accept(*muon) ? 1 : 0;
-	  passIsol_Loose_VarRad = m_isolationTool_Loose_VarRad->accept(*muon) ? 1 : 0;
+        if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon) && ptcone20_TightTTVA_pt1000.isAvailable(*muon)) {
+          passIsol_Tight_FixedRad = m_isolationTool_Tight_FixedRad->accept(*muon) ? 1 : 0;
+          passIsol_Loose_FixedRad = m_isolationTool_Loose_FixedRad->accept(*muon) ? 1 : 0;
+        }
+        if (ptvarcone30_TightTTVA_pt1000.isAvailable(*muon)) {
+          passIsol_Tight_VarRad = m_isolationTool_Tight_VarRad->accept(*muon) ? 1 : 0;
+          passIsol_Loose_VarRad = m_isolationTool_Loose_VarRad->accept(*muon) ? 1 : 0;
+        }
+        if (ptvarcone30_TightTTVA_pt500.isAvailable(*muon) && PromptLeptonImprovedVeto.isAvailable(*muon) &&
+            PromptLeptonImprovedInput_MVAXBin.isAvailable(*muon)) {
+          passIsol_PLImprovedTight = m_isolationTool_PLImprovedTight->accept(*muon) ? 1 : 0;
+          passIsol_PLImprovedVeryTight = m_isolationTool_PLImprovedVeryTight->accept(*muon) ? 1 : 0;
         }
 
         muon->auxdecor<char>("AnalysisTop_Isol_FCTight") = passIsol_FCTight;
@@ -312,19 +333,23 @@ namespace top {
         muon->auxdecor<char>("AnalysisTop_Isol_FixedCutPflowTight") = passIsol_FixedCutPflowTight;
         muon->auxdecor<char>("AnalysisTop_Isol_FixedCutPflowLoose") = passIsol_FixedCutPflowLoose;
 
-	muon->auxdecor<char>("AnalysisTop_Isol_PflowTight_FixedRad") = passIsol_PflowTight_FixedRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_PflowLoose_FixedRad") = passIsol_PflowLoose_FixedRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_PflowTight_VarRad") = passIsol_PflowTight_VarRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_PflowLoose_VarRad") = passIsol_PflowLoose_VarRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_HighPtTrackOnly") = passIsol_HighPtTrackOnly;
-	muon->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly_VarRad") = passIsol_TightTrackOnly_VarRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly_FixedRad") = passIsol_TightTrackOnly_FixedRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_PLVTight") = passIsol_PLVTight;
-	muon->auxdecor<char>("AnalysisTop_Isol_PLVLoose") = passIsol_PLVLoose;
-	muon->auxdecor<char>("AnalysisTop_Isol_Tight_VarRad") = passIsol_Tight_VarRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_Tight_FixedRad") = passIsol_Tight_FixedRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_Loose_VarRad") = passIsol_Loose_VarRad;
-	muon->auxdecor<char>("AnalysisTop_Isol_Loose_FixedRad") = passIsol_Loose_FixedRad;
+
+        muon->auxdecor<char>("AnalysisTop_Isol_PflowTight_FixedRad") = passIsol_PflowTight_FixedRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_PflowLoose_FixedRad") = passIsol_PflowLoose_FixedRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_PflowTight_VarRad") = passIsol_PflowTight_VarRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_PflowLoose_VarRad") = passIsol_PflowLoose_VarRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_HighPtTrackOnly") = passIsol_HighPtTrackOnly;
+        muon->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly_VarRad") = passIsol_TightTrackOnly_VarRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_TightTrackOnly_FixedRad") = passIsol_TightTrackOnly_FixedRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_PLVTight") = passIsol_PLVTight;
+        muon->auxdecor<char>("AnalysisTop_Isol_PLVLoose") = passIsol_PLVLoose;
+        muon->auxdecor<char>("AnalysisTop_PLImprovedTight") = passIsol_PLImprovedTight;
+        muon->auxdecor<char>("AnalysisTop_PLImprovedVeryTight") = passIsol_PLImprovedVeryTight;
+        muon->auxdecor<char>("AnalysisTop_Isol_Tight_VarRad") = passIsol_Tight_VarRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_Tight_FixedRad") = passIsol_Tight_FixedRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_Loose_VarRad") = passIsol_Loose_VarRad;
+        muon->auxdecor<char>("AnalysisTop_Isol_Loose_FixedRad") = passIsol_Loose_FixedRad;
+
 
         // PromptLeptonIsolation - Some protection incase things change in R21
         if (muon->isAvailable<float>("PromptLeptonIso_TagWeight")) {
@@ -374,8 +399,7 @@ namespace top {
       m_calibrationPeriodTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
-      if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
+      if (!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematics.push_back(s);
       if (s.name() == "") {
         m_specifiedSystematics.push_back(s);
