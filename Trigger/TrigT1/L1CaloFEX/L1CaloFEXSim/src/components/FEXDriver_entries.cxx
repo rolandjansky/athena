@@ -19,6 +19,7 @@
 #include "L1CaloFEXSim/jFEXNtupleWriter.h"
 #include "L1CaloFEXSim/eFEXFPGATowerIdProvider.h"
 #include "L1CaloFEXSim/eFEXSuperCellTowerIdProvider.h"
+#include "L1CaloFEXSim/eFakeTower.h"
 
 
 
@@ -35,6 +36,7 @@ DECLARE_COMPONENT(eFEXegAlgo)
 DECLARE_COMPONENT(eFEXNtupleWriter)
 DECLARE_COMPONENT(eFEXFPGATowerIdProvider)
 DECLARE_COMPONENT(eFEXSuperCellTowerIdProvider)
+DECLARE_COMPONENT(eFakeTower)
 
 DECLARE_COMPONENT(jFEXDriver)
 DECLARE_COMPONENT(jFEXSysSim)

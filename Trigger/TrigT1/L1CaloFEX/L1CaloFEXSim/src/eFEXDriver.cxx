@@ -21,6 +21,7 @@
 #include "L1CaloFEXSim/eFEXSim.h"
 #include "L1CaloFEXSim/eFEXOutputCollection.h"
 #include "L1CaloFEXSim/eFEXegTOB.h"
+#include "L1CaloFEXSim/eFakeTower.h"
 
 #include "TROOT.h"
 #include "TH1.h"
@@ -90,6 +91,10 @@ StatusCode eFEXDriver::initialize()
   ATH_CHECK( m_eTowerContainerSGKey.initialize() );
 
   ATH_CHECK( m_eEDMKey.initialize() );
+
+  ATH_CHECK( m_eFakeTowerTool.retrieve() );
+  std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
+  ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
 
   //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
@@ -173,6 +178,12 @@ StatusCode eFEXDriver::finalize()
       
     }
   }
+  // TODO
+  // test vector code
+  // ATH_CHECK( m_eFakeTowerTool->loadnext() );
+  // ATH_CHECK( m_eFakeTowerTool->seteTowers(local_eTowerContainerRaw.get()) );
+  // ATH_CHECK( m_eFakeTowerTool->execute() );
+
 
   // STEP 4 - Write the completed eTowerContainer into StoreGate (move the local copy in memory)
   SG::WriteHandle<LVL1::eTowerContainer> eTowerContainerSG(m_eTowerContainerSGKey/*, ctx*/);
