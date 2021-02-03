@@ -34,15 +34,21 @@ private:
 	// Setable Properties:
 
 	// Local Member Data:
+  bool m_useIsBSM;
 	std::vector<int> m_particlePDG;
 	std::vector<int> m_particleStatus;
+  bool m_considerStatus;
 	double m_ptMinParticle;
-    double m_ptMaxParticle;
-	double m_etaRangeParticle;
-    unsigned int m_Np;
+  double m_ptMaxParticle;
+  double m_etaMinParticle;
+  double m_etaMaxParticle;
+  bool m_useAbsEta;
+  double m_phiMinParticle;
+  double m_phiMaxParticle;
+  unsigned int m_Np;
 
-    long m_total;    // Total number of events tested
-    long m_passed;   // Number of events passing cuts
+  long m_total;    // Total number of events tested
+  long m_passed;   // Number of events passing cuts
 
 	// Private Methods:
 
