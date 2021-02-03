@@ -1160,6 +1160,12 @@ HLT_j85_L1J20:
     0: 3
   stepFeatures:
     0: 3
+HLT_j85_cleanLB_L1J20:
+  eventCount: 3
+  stepCounts:
+    0: 3
+  stepFeatures:
+    0: 3
 HLT_j85_ftf_L1J20:
   eventCount: 3
   stepCounts:

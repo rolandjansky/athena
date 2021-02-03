@@ -2220,6 +2220,8 @@ HLT_j80_j60_L1J15:
     0: 66
 HLT_j85_L1J20:
   eventCount: 0
+HLT_j85_cleanLB_L1J20:
+  eventCount: 0
 HLT_j85_ftf_L1J20:
   eventCount: 13
   stepCounts:
