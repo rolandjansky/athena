@@ -32,16 +32,18 @@ Threads = 8
 Slots   = 8
 Input   = 'ttbar'    # defined in TrigValTools/share/TrigValInputs.json  
 
+preinclude_file = "TrigInDetValidation/TIDAvtx_preinclude.py"
+
+
 Jobs = [ ( "Truth",       " TIDAdata-run3.dat                        -o data-hists.root" ), 
          ( "Offline",     " TIDAdata-run3-offline.dat     -r Offline -o data-hists-offline.root" ),
          ( "OfflineVtx",  " TIDAdata-run3-offline-vtx.dat -r Offline -o data-hists-offline-vtx.root" ) ]
 
 
-Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots         -sx Reference Truth   " ),
-         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline -sx Reference Offline " ),
+Comp = [ ( "FSjet",        "L2fsjet",     "data-hists.root",              " -c TIDAhisto-panel.dat      -d HLTL2-plots         -sx Reference Truth" ),
+         ( "FSjetoffline", "L2fsjet",     "data-hists-offline.root",      " -c TIDAhisto-panel.dat      -d HLTL2-plots-offline -sx Reference Offline" ),
          ( "FSvtx",        "L2fsjetvtx",  "data-hists-offline-vtx.root",  " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtx     --ncols 3" ),
          ( "FSvtxall",     "L2fsjetvtx",  "data-hists-offline.root",      " -c TIDAhisto-panel-vtx.dat  -d HLTL2-plots-vtxall  --ncols 3" ) ]
-
 
 from AthenaCommon.Include import include 
 include("TrigInDetValidation/TrigInDetValidation_Base.py")
