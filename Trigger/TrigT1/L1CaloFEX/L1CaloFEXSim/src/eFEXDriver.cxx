@@ -92,9 +92,10 @@ StatusCode eFEXDriver::initialize()
 
   ATH_CHECK( m_eEDMKey.initialize() );
 
-  ATH_CHECK( m_eFakeTowerTool.retrieve() );
-  std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
-  ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
+  // test vector WIP
+  // ATH_CHECK( m_eFakeTowerTool.retrieve() );
+  // std::string inputfile = "/afs/cern.ch/work/t/tqiu/public/BigTowers.txt";
+  // ATH_CHECK( m_eFakeTowerTool->init(inputfile) );
 
   //ATH_CHECK( m_eFEXOutputCollectionSGKey.initialize() );
 
