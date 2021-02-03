@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaCommon.Logging import logging
 from AthenaCommon.CFElements import isSequence,findSubSequence,findAlgorithm,flatSequencers,findOwningSequence,\
@@ -860,7 +860,7 @@ def __indent( indent = ""):
 
 
 def __setProperties( destConfigurableInstance, sourceConf2Instance, indent="" ):
-    _log = logging.getLogger( "__setProperties".ljust(30) )
+    _log = logging.getLogger( "__setProperties" )
     for pname, pvalue in sourceConf2Instance._properties.items():
         if destConfigurableInstance.__class__.__name__ == 'AlgSequence' and pname == 'Members':
             continue
@@ -893,7 +893,7 @@ def conf2toConfigurable( comp, indent="", suppressDupes=False ):
     Method converts from Conf2 ( comp argument ) to old Configurable
     If the Configurable of the same name exists, the properties merging process is invoked
     """
-    _log = logging.getLogger( "conf2toConfigurable".ljust(30) )
+    _log = logging.getLogger( "conf2toConfigurable" )
     from AthenaCommon.CFElements import compName
     def __isOldConfigurable(c):
         from AthenaCommon.Configurable import Configurable
@@ -1105,19 +1105,17 @@ def CAtoGlobalWrapper(cfgFunc, flags, **kwargs):
     pass
 
 def appendCAtoAthena(ca):
-    _log = logging.getLogger( "conf2toConfigurable".ljust(32) )
-    _log.info( "Merging of CA to global ..." )
+    _log = logging.getLogger( "conf2toConfigurable" )
+    _log.info( "Merging ComponentAccumulator into global configuration" )
 
     from AthenaCommon.AppMgr import ServiceMgr,ToolSvc,theApp,athCondSeq,athOutSeq,athAlgSeq,topSequence
     if len( ca.getPublicTools() ) != 0:
-        _log.info( "Merging public tools" )
         for comp in ca.getPublicTools():
             instance = conf2toConfigurable( comp, indent="  " )
             if instance not in ToolSvc:
                 ToolSvc += instance
 
     if len(ca.getServices()) != 0:
-        _log.info( "Merging services" )
         for comp in ca.getServices():
             instance = conf2toConfigurable( comp, indent="  " )
             if instance not in ServiceMgr:
@@ -1126,14 +1124,12 @@ def appendCAtoAthena(ca):
             theApp.CreateSvc += [svcName]
 
     if  len(ca._conditionsAlgs) != 0:
-        _log.info( "Merging condition algorithms" )
         for comp in ca._conditionsAlgs:
             instance = conf2toConfigurable( comp, indent="  " )
             if instance not in athCondSeq:
                 athCondSeq += instance
 
     if len( ca.getAppProps() ) != 0:
-        _log.info( "Merging ApplicationMgr properties" )
         for propName, propValue in ca.getAppProps().items():
             # Same logic as in ComponentAccumulator.setAppProperty()
             if not hasattr(theApp, propName):
@@ -1141,7 +1137,7 @@ def appendCAtoAthena(ca):
             else:
                 origPropValue = getattr(theApp, propName)
                 if origPropValue == propValue:
-                    _log.debug("ApplicationMgr property '%s' already set to '%s'.", propName, propValue)
+                    _log.info("ApplicationMgr property '%s' already set to '%s'.", propName, propValue)
                 elif isinstance(origPropValue, collections.abc.Sequence) and not isinstance(origPropValue, str):
                     propValue =  origPropValue + [el for el in propValue if el not in origPropValue]
                     _log.info("ApplicationMgr property '%s' already set to '%s'. Overwriting with %s", propName, origPropValue, propValue)
@@ -1149,7 +1145,6 @@ def appendCAtoAthena(ca):
                 else:
                     raise DeduplicationFailed("ApplicationMgr property {} set twice: {} and {}".format(propName, origPropValue, propValue))
 
-    _log.info( "Merging sequences and algorithms" )
     from AthenaCommon.CFElements import findSubSequence
 
     def __fetchOldSeq(name=""):
@@ -1167,8 +1162,8 @@ def appendCAtoAthena(ca):
             sequence = __fetchOldSeq( conf2Sequence.name )
             __setProperties( sequence, conf2Sequence, indent=__indent( indent ) )
             currentConfigurableSeq += sequence
-            _log.info( "%sCreated missing AlgSequence %s and added to %s",
-                       __indent( indent ), sequence.name(), currentConfigurableSeq.name() )
+            _log.debug( "%sCreated missing AlgSequence %s and added to %s",
+                        __indent( indent ), sequence.name(), currentConfigurableSeq.name() )
 
         for el in conf2Sequence.Members:
             if el.__class__.__name__ == "AthSequencer":
@@ -1177,8 +1172,8 @@ def appendCAtoAthena(ca):
                 toadd = conf2toConfigurable( el, indent=__indent( indent ), suppressDupes=True)
                 if toadd is not None:
                     sequence += toadd
-                    _log.info( "%sAlgorithm %s and added to the sequence %s",
-                               __indent( indent ),  el.getFullJobOptName(), sequence.name() )
+                    _log.debug( "%sAlgorithm %s and added to the sequence %s",
+                                __indent( indent ),  el.getFullJobOptName(), sequence.name() )
 
     preconfigured = [athCondSeq,athOutSeq,athAlgSeq,topSequence]
 
@@ -1186,22 +1181,21 @@ def appendCAtoAthena(ca):
         merged = False
         for pre in preconfigured:
             if seq.getName() == pre.getName():
-                _log.info( "%sfound sequence %s to have the same name as predefined %s",
-                           __indent(), seq.getName(),  pre.getName() )
+                _log.debug( "%sfound sequence %s to have the same name as predefined %s",
+                            __indent(), seq.getName(),  pre.getName() )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
             if findSubSequence( pre, seq.name ):
-                _log.info( "%sfound sequence %s in predefined %s",
-                           __indent(), seq.getName(),  pre.getName() )
+                _log.debug( "%sfound sequence %s in predefined %s",
+                            __indent(), seq.getName(),  pre.getName() )
                 __mergeSequences( pre, seq )
                 merged = True
                 break
 
         if not merged:
-            _log.info( "%snot found sequence %s merging it to AthAlgSeq", __indent(), seq.name )
+            _log.debug( "%snot found sequence %s merging it to AthAlgSeq", __indent(), seq.name )
             __mergeSequences( athAlgSeq, seq )
 
     ca.wasMerged()
-    _log.info( "Merging of CA to global done ..." )
-
+    _log.debug( "Merging of CA to global done" )
