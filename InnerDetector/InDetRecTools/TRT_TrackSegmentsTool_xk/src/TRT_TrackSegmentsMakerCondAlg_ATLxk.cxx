@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_TrackSegmentsMakerCondAlg_ATLxk.h"
@@ -20,6 +20,7 @@
 #include <utility>
 #include <ostream>
 #include <fstream>
+#include <cmath>
 
 
 ///////////////////////////////////////////////////////////////////
@@ -154,12 +155,12 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
 
 	  Amg::Vector3D  C1  = base1->center(); 
 	  Amg::Vector3D  C2  = base2->center();
- 	  RZ   [1][n] = sqrt(C1.x()*C1.x()+C1.y()*C1.y());
+ 	  RZ   [1][n] = std::sqrt(C1.x()*C1.x()+C1.y()*C1.y());
 
 	  Tmin [1][n] = (C1.z()-rb1->halflengthY())/RZ[1][n];
 	  Tmax [1][n] = -.001;
 
-	  RZ   [2][n] = sqrt(C2.x()*C2.x()+C2.y()*C2.y());
+	  RZ   [2][n] = std::sqrt(C2.x()*C2.x()+C2.y()*C2.y());
 
 	  Tmin [2][n] = +.001;
 	  Tmax [2][n] = (C2.z()+rb2->halflengthY())/RZ[2][n];
@@ -172,7 +173,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
 	  const Amg::Vector3D   * sc1 = &(base1->strawCenter           (s));
 	  const Amg::Transform3D* st1 = &(base1->strawTransform        (s)); 
 	  const Amg::Transform3D* tr1 = &(base1->surface(id1).transform() );
-	  if(f==0) rmean+=sqrt(sc1->x()*sc1->x()+sc1->y()*sc1->y());
+	  if(f==0) rmean+=std::sqrt(sc1->x()*sc1->x()+sc1->y()*sc1->y());
 
 	  if(!sc1 || !st1 || !tr1 ) {ATH_MSG_ERROR("problem with TRT geometry");}
 	  ++writeCdo->m_nstraws[1];
@@ -262,14 +263,14 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
        .32,  .85,  .94, 1.00, 1.21, 1.33, 1.43, 1.53, 1.62, 1.72,1.84, 1.95,2.05}; 
 
   std::list<Amg::Vector3D> G [26]; 
-  Amg::Vector3D PSV(0.,0.,0.); Trk::PerigeeSurface PS(PSV);
+  Amg::Vector3D psv(0.,0.,0.); 
+  Trk::PerigeeSurface ps(psv);
 
   for(int r=0; r!=26; ++r) {
-    writeCdo->m_dzdr[r]   = 1./tan(2.*atan(exp(-rapidity[r])));
-    double pinv =-1./(m_pTmin*sqrt(1.+writeCdo->m_dzdr[r]*writeCdo->m_dzdr[r]));
-    const Trk::TrackParameters* Tp = PS.createTrackParameters(0.,0.,0.,atan2(1.,double(writeCdo->m_dzdr[r])),pinv,0);
-    m_propTool->globalPositions(G[r],*Tp,m_fieldprop,CB,5.,Trk::pion);
-    delete Tp;
+    writeCdo->m_dzdr[r]   = 1./std::tan(2.*std::atan(std::exp(-rapidity[r])));
+    double pinv =-1./(m_pTmin*std::sqrt(1.+writeCdo->m_dzdr[r]*writeCdo->m_dzdr[r]));
+    auto trackPar = ps.createUniqueTrackParameters(0.,0.,0.,std::atan2(1.,double(writeCdo->m_dzdr[r])),pinv,0);
+    m_propTool->globalPositions(G[r],*trackPar,m_fieldprop,CB,5.,Trk::pion);
   } 
   
   n = 0;
@@ -311,7 +312,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
 	  else {
 	    gp0 = gp;
 	    for(++gp; gp!=gpe; ++gp) {
-	      if(sqrt((*gp).x()*(*gp).x()+(*gp).y()*(*gp).y()) > RZ[b][i]) break;
+	      if(std::sqrt((*gp).x()*(*gp).x()+(*gp).y()*(*gp).y()) > RZ[b][i]) break;
 	      gp1 = gp0;
 	      gp0 = gp; 
 	    }
@@ -321,13 +322,13 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
 	    x = (*gp0).x(); ax = (*gp ).x()-x;
 	    y = (*gp0).y(); ay = (*gp ).y()-y;
 	    z = (*gp0).z(); az = (*gp ).z()-z;
-	    double as = 1./sqrt(ax*ax+ay*ay+az*az); ax*=as; ay*=as; az*=as;
+	    double as = 1./std::sqrt(ax*ax+ay*ay+az*az); ax*=as; ay*=as; az*=as;
 	  }
 	  else       {
 	    x = (*gp1).x(); ax = (*gp0).x()-x;
 	    y = (*gp1).y(); ay = (*gp0).y()-y;
 	    z = (*gp1).z(); az = (*gp0).z()-z;
-	    double as = 1./sqrt(ax*ax+ay*ay+az*az); ax*=as; ay*=as; az*=as;
+	    double as = 1./std::sqrt(ax*ax+ay*ay+az*az); ax*=as; ay*=as; az*=as;
 	  }
 	  double S  = 0;
 
@@ -339,7 +340,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
 	    double D  = (RZ[b][i]-x-y)*(RZ[b][i]+x+y)+2.*x*y;
 	    S         = D/A;
 	    double B  = 2.*(ax*ax+ay*ay);
-	    double Sq = A*A+2.*D*B;  Sq>0. ? Sq=sqrt(Sq) : Sq=0.;
+	    double Sq = A*A+2.*D*B;  Sq>0. ? Sq=std::sqrt(Sq) : Sq=0.;
 	    double S1 =-(A+Sq)/B;
 	    double S2 =-(A-Sq)/B;
             if (S > S2)
@@ -347,7 +348,7 @@ StatusCode InDet::TRT_TrackSegmentsMakerCondAlg_ATLxk::execute(const EventContex
             else if (S < S1)
               S = S1;
 	  }
-	  writeCdo->m_slope [n] = atan2(y+S*ay,x+S*ax)*m_A; 
+	  writeCdo->m_slope [n] = std::atan2(y+S*ay,x+S*ax)*m_A; 
 	  writeCdo->m_islope[n] = int(writeCdo->m_slope[n]*m_Psi128);
 	  ++n;
 	}
