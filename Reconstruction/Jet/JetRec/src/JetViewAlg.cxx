@@ -21,6 +21,7 @@ StatusCode JetViewAlg::initialize() {
 
   ATH_CHECK(m_input.initialize());
   ATH_CHECK(m_output.initialize());
+  ATH_CHECK(m_decorDeps.initialize(m_input, m_output) );
 
   ATH_MSG_DEBUG("Will select jets from " << m_input.key()
 		<< " and write them to " << m_output.key());
@@ -64,9 +65,18 @@ StatusCode JetViewAlg::execute(const EventContext& ctx) const {
   }
   ATH_MSG_DEBUG("Selected " << selected_jets->size() << " from input container of size " << inputHandle->size() );
 
+  // To use ShallowCopyDecorDeps, the input and output handle types have to be the same, i.e. JetContainer
+  // So create a new unique_ptr here using the pointer to the CDV converted to DV
+  std::unique_ptr<const xAOD::JetContainer> selected_jets_jetc(selected_jets.release()->asDataVector());
+
   // Write out JetContainer and JetAuxContainer
-  SG::WriteHandle<ConstDataVector<xAOD::JetContainer> > jetContHandle(m_output,ctx);
-  ATH_CHECK( jetContHandle.record( std::move(selected_jets) ) );
+  SG::WriteHandle<xAOD::JetContainer> jetContHandle(m_output,ctx);
+  // Can't record with const input ptr, hence put
+  if( jetContHandle.put( std::move(selected_jets_jetc) ) == nullptr) {
+    ATH_MSG_ERROR("Failed to record " << m_input.key() << " as const xAOD::JetContainer!");
+    return StatusCode::FAILURE;
+  }
+  ATH_CHECK( m_decorDeps.linkDecors (m_input,ctx) );
 
   return StatusCode::SUCCESS;
 }
