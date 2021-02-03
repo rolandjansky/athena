@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "IOVSvcTool.h"
@@ -163,14 +163,14 @@ IOVSvcTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  setProperty( iovSvcProp->getProperty("preLoadRanges") ).ignore();
-  setProperty( iovSvcProp->getProperty("preLoadData") ).ignore();
-  setProperty( iovSvcProp->getProperty("partialPreLoadData") ).ignore();
-  setProperty( iovSvcProp->getProperty("preLoadExtensibleFolders") ).ignore();
-  setProperty( iovSvcProp->getProperty("updateInterval") ).ignore();
-  setProperty( iovSvcProp->getProperty("sortKeys") ).ignore();
-  setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ).ignore();
-  setProperty( iovSvcProp->getProperty("OutputLevel") ).ignore();
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("preLoadRanges") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("preLoadData") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("partialPreLoadData") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("preLoadExtensibleFolders") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("updateInterval") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("sortKeys") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("forceResetAtBeginRun") ) );
+  ATH_CHECK( setProperty( iovSvcProp->getProperty("OutputLevel") ) );
 
   int pri=100;
 
