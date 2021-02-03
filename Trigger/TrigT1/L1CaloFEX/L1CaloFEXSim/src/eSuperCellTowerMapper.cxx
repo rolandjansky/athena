@@ -126,7 +126,7 @@ void eSuperCellTowerMapper::reset(){
     int region = idHelper->region(ID);
     float et = (cell)->energy();
     // csv mapping -WIP
-    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile() and false){
+    if(m_eFEXSuperCellTowerIdProviderTool->ifhaveinputfile() && false){
       int towerid{-1};
       int slot{-1};
       ATH_CHECK( m_eFEXSuperCellTowerIdProviderTool->geteTowerIDandslot(ID.get_compact(), towerid, slot) );
