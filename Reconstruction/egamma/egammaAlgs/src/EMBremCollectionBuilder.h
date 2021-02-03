@@ -34,8 +34,8 @@
  * @author Anthony Morley
  *
  * Input containers:
- * - TrackParticleContainerName (default=InDetTrackParticles): selected track particle to be refitted
- * - SelectedTrackParticleContainerName (default=egammaSelectedTrackParticles) all the track particles
+ * - TrackParticleContainerName (default=InDetTrackParticles): all the track particles
+ * - SelectedTrackParticleContainerName (default=egammaSelectedTrackParticles): selected track particle to be refitted
  *
  * Output continers:
  * - OutputTrkPartContainerName (default=GSFTrackParticles): refitted track particle
@@ -44,7 +44,7 @@
  * Only selected tracks with a minimum number of Si-hits (minNoSiHits) are refitted. The refitted
  * tracks, and the one that have not been refitted, are saved in the output containers.
  *
- * The GSF refitting can be done only when the full xAOD::Track is available (e.g. in AOD).
+ * The GSF refitting can be done only when the full xAOD::Track is available (e.g. not in standard AOD).
  *
  * The refitting is delegated to a tool implementing the IegammaTrkRefitterTool interface,
  * configured with the TrackRefitTool property (by default ElectronRefitterTool).
