@@ -140,7 +140,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       if doSiSPSeededTrackFinder:
          print ('Running SiSPseedTrackFinder!')
 
-         from AthenaCommon.DetFlags import DetFlags 
+         #FIXME: do we need this covered by detflag condition?
+         #from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
          if True:#DetFlags.haveRIO.pixel_on():
             from AthenaCommon.AlgSequence import AthSequencer
