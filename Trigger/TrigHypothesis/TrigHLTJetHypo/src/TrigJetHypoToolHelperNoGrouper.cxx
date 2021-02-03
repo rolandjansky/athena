@@ -141,11 +141,11 @@ StatusCode TrigJetHypoToolHelperNoGrouper::makePrefilter(){
   if (m_prefilterConditionMakers.empty()) {return StatusCode::SUCCESS;}
   
   auto makeElementalFilterCondition = [](auto& conditionMaker)->ConditionMT {
-    return conditionMaker->getCapacityCheckedCondition();
+    return conditionMaker->getRepeatedCondition();
   };
 
   // fill a container with pointers to an elemental condition
-  // note: ICapacityCheckedCondition derives from IConditionMT
+  // note: IRepeatedCondition derives from IConditionMT
   ConditionsMT prefilterConditions{};
   std::transform(m_prefilterConditionMakers.begin(),
 		 m_prefilterConditionMakers.end(),

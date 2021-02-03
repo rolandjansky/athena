@@ -1,46 +1,46 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "./CapacityCheckedCondition.h"
+#include "./RepeatedCondition.h"
 
 #include <memory>
 #include <string>
 
 
-CapacityCheckedCondition::CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
+RepeatedCondition::RepeatedCondition(std::unique_ptr<IConditionMT> cp,
 						   std::size_t mult,
 						   int cpInd):
   m_condition{std::move(cp)}, m_multiplicity{mult}, m_chainPartInd{cpInd}{}
 
 
-CapacityCheckedCondition::~CapacityCheckedCondition(){}
+RepeatedCondition::~RepeatedCondition(){}
   
 bool
-CapacityCheckedCondition::multiplicitySatisfied(std::size_t jgMultiplicity,
+RepeatedCondition::multiplicitySatisfied(std::size_t jgMultiplicity,
 						const Collector&) const {
   return m_multiplicity <= jgMultiplicity;
 }
   
 bool
-CapacityCheckedCondition::isSatisfied(const HypoJetVector& v,
+RepeatedCondition::isSatisfied(const HypoJetVector& v,
 				      const std::unique_ptr<ITrigJetHypoInfoCollector>& c) const {
   return m_condition->isSatisfied(v, c);
 }
   
-unsigned int CapacityCheckedCondition::capacity() const {
+unsigned int RepeatedCondition::capacity() const {
   return m_condition->capacity();
 }
 
-std::size_t CapacityCheckedCondition::multiplicity() const {
+std::size_t RepeatedCondition::multiplicity() const {
   return m_multiplicity;
 }
   
-std::string CapacityCheckedCondition::toString() const {
+std::string RepeatedCondition::toString() const {
   std::stringstream ss;
   const void* address = static_cast<const void*>(this);
   
-  ss << "CapacityCheckedCondition (" << address << ") Multiplicity: "
+  ss << "RepeatedCondition (" << address << ") Multiplicity: "
      << m_multiplicity
      << " chainPartInd " << m_chainPartInd << '\n'
      << m_condition->toString();
@@ -48,16 +48,16 @@ std::string CapacityCheckedCondition::toString() const {
   return ss.str();
 }
 
-int CapacityCheckedCondition::label() const {
+int RepeatedCondition::label() const {
   return m_chainPartInd;
 }
 
-bool CapacityCheckedCondition::isFromChainPart() const {
+bool RepeatedCondition::isFromChainPart() const {
   return m_chainPartInd >= 0;
 }
 
 std::ostream& operator<<(std::ostream& out,
-			 const CapacityCheckedCondition& c){
+			 const RepeatedCondition& c){
 
   out << c.toString();
   return out;

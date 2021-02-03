@@ -5,8 +5,8 @@
 /*
   Instantiator for ET Condition
  */
-#include "TrigJetConditionConfig_capacitychecked.h"
-#include "CapacityCheckedCondition.h"
+#include "TrigJetConditionConfig_repeated.h"
+#include "RepeatedCondition.h"
 #include "ConditionInverter.h"
 #include "CompoundConditionMT.h"
 
@@ -14,7 +14,7 @@
 #include <vector>
 
 
-TrigJetConditionConfig_capacitychecked::TrigJetConditionConfig_capacitychecked(const std::string& type,
+TrigJetConditionConfig_repeated::TrigJetConditionConfig_repeated(const std::string& type,
 						     const std::string& name,
 						     const IInterface* parent) :
   base_class(type, name, parent){
@@ -22,12 +22,12 @@ TrigJetConditionConfig_capacitychecked::TrigJetConditionConfig_capacitychecked(c
 }
 
 
-StatusCode TrigJetConditionConfig_capacitychecked::initialize() {
+StatusCode TrigJetConditionConfig_repeated::initialize() {
   return StatusCode::SUCCESS;
 }
 
 std::unique_ptr<IConditionMT>
-TrigJetConditionConfig_capacitychecked::getCompoundCondition() const {
+TrigJetConditionConfig_repeated::getCompoundCondition() const {
   std::vector<ConditionMT> elements;
   for(const auto& el : m_elementConditions){
     elements.push_back(el->getCondition());
@@ -37,25 +37,25 @@ TrigJetConditionConfig_capacitychecked::getCompoundCondition() const {
 }
 
 ConditionPtr
-TrigJetConditionConfig_capacitychecked::getCapacityCheckedCondition() const {
+TrigJetConditionConfig_repeated::getRepeatedCondition() const {
 
   return
-    std::make_unique<CapacityCheckedCondition>(getCompoundCondition(),
+    std::make_unique<RepeatedCondition>(getCompoundCondition(),
 					       m_multiplicity,
 					       m_chainPartInd);
 }
 
 ConditionPtr
-TrigJetConditionConfig_capacitychecked::getCapacityCheckedAntiCondition() const {
+TrigJetConditionConfig_repeated::getRepeatedAntiCondition() const {
   auto acc = std::make_unique<ConditionInverterMT>(getCompoundCondition());
-  return std::make_unique<CapacityCheckedCondition>(std::move(acc),
+  return std::make_unique<RepeatedCondition>(std::move(acc),
 						    m_multiplicity,
 						    m_chainPartInd);
 }
   
 
 
-StatusCode TrigJetConditionConfig_capacitychecked::checkVals() const {
+StatusCode TrigJetConditionConfig_repeated::checkVals() const {
 
   if (m_multiplicity < 1u) {
     ATH_MSG_ERROR("m_multiplicity = " + std::to_string(m_multiplicity) +
@@ -66,11 +66,11 @@ StatusCode TrigJetConditionConfig_capacitychecked::checkVals() const {
   return StatusCode::SUCCESS;
 }
 
-bool TrigJetConditionConfig_capacitychecked::addToCapacity(std::size_t) {
+bool TrigJetConditionConfig_repeated::addToCapacity(std::size_t) {
   return false;
 }
 
-std::size_t TrigJetConditionConfig_capacitychecked::capacity() const {
-  return getCapacityCheckedCondition()->capacity();
+std::size_t TrigJetConditionConfig_repeated::capacity() const {
+  return getRepeatedCondition()->capacity();
 }
 
