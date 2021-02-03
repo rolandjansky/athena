@@ -292,22 +292,38 @@ HLT_JetDS_j0_L1J100:
   eventCount: 0
 HLT_alfacalib_AlfaPEB_L1ALFA_ANY:
   eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15:
   eventCount: 20
   stepCounts:
     0: 20
+    1: 20
   stepFeatures:
     0: 20
+    1: 20
 HLT_beamspot_trkFS_trkfast_BeamSpotPEB_L1J15:
+  eventCount: 20
+  stepCounts:
+    0: 20
+    1: 20
+  stepFeatures:
+    0: 20
+    1: 20
+HLT_costmonitor_CostMonDS_L1All:
   eventCount: 20
   stepCounts:
     0: 20
   stepFeatures:
     0: 20
-HLT_costmonitor_CostMonDS_L1All:
-  eventCount: 20
 HLT_cscmon_CSCPEB_L1All:
   eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_e12_lhloose_2mu10_L12MU10:
   eventCount: 0
   stepFeatures:
@@ -789,11 +805,13 @@ HLT_g3_loose_LArPEB_L1EM3:
     1: 11
     2: 11
     3: 3
+    4: 3
   stepFeatures:
     0: 17
     1: 17
     2: 30
     3: 3
+    4: 3
 HLT_g40_loose_LArPEB_L1EM20VHI:
   eventCount: 0
 HLT_g5_etcut_L1EM3:
@@ -1643,6 +1661,10 @@ HLT_noalg_zb_L1ZB:
   eventCount: 20
 HLT_sct_noise_SCTPEB_L1RD0_EMPTY:
   eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_tau0_perf_ptonly_L1TAU12:
   eventCount: 3
   stepCounts:
@@ -2462,8 +2484,16 @@ HLT_tau80_mediumRNN_tracktwoMVA_tau60_mediumRNN_tracktwoMVA_L1TAU60_2TAU40:
   eventCount: 0
 HLT_tilecalib_CIS_TilePEB_L1CALREQ1:
   eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_tilecalib_laser_TilePEB_L1CALREQ2:
   eventCount: 20
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_timeburner_L1All:
   eventCount: 20
 HLT_unconvtrk120_isohpttrack_iaggrmedium_L1XE50:
