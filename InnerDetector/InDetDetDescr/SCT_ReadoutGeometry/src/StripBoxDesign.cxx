@@ -19,7 +19,8 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
                                const int nRows,
                                const int nStrips,
                                const double pitch,
-                               const double length) : 
+                               const double length,
+			       const double zShift) : 
     SCT_ModuleSideDesign(thickness, true, true, true, 1, nRows * nStrips, nRows * nStrips, 0, false, carrier,
                          readoutSide, stripDirection, thicknessDirection) {
     if (nRows <= 0) {
@@ -31,6 +32,7 @@ StripBoxDesign::StripBoxDesign(const SiDetectorDesign::Axis stripDirection,
     m_nStrips = nStrips;
     m_pitch = pitch;
     m_length = length;
+    m_zShift = zShift;
 
     double width = m_nStrips * m_pitch;
     double fullLength = m_nRows * m_length;
@@ -251,5 +253,11 @@ void StripBoxDesign::distanceToDetectorEdge(SiLocalPosition const & pos,
 const HepGeom::Transform3D StripBoxDesign::SiHitToGeoModel() const {
    return HepGeom::RotateY3D(90.*CLHEP::deg) ;
 }
+
+const  HepGeom::Transform3D StripBoxDesign::moduleShift() const{
+    //local x is global Z (along strip)  
+  return HepGeom::Translate3D(m_zShift,0.0, 0.0);
+  }
+
 
 } // namespace InDetDD

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -110,6 +110,13 @@ namespace InDetDD {
 
       /** Process new global DB folders for L1 and L2 **/
       bool processGlobalAlignment(const std::string &, int level, FrameType frame) const;
+
+      //Mother designs are containers for multiple designs which
+      //overall describe a simulated detector which has been split into multiple
+      //DetectorElements (each with its own design)
+      void addMotherDesign(std::unique_ptr<const SCT_ModuleSideDesign>&&);
+
+      
     
     private:  
       /** implements the main alignment update for delta transforms in different frames,
@@ -139,7 +146,10 @@ namespace InDetDD {
           If true they will be calcualted on top  of all of other corrections but in the default reference frame
           If false they will be calcualted  on top  of all of other corrections but in the globally aligned reference frame    
       */
-      bool                                                          m_isLogical;      
+      bool                                                          m_isLogical;    
+
+
+      std::vector<std::unique_ptr<const SCT_ModuleSideDesign>>          m_motherDesigns;
       
       
     };

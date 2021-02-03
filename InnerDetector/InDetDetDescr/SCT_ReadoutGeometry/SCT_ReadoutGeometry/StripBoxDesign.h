@@ -37,7 +37,8 @@ public:
                    const int nRows,
                    const int nStrips,
                    const double pitch,
-                   const double length);
+                   const double length,
+		   const double zShift=0.0);
 
     ~StripBoxDesign();
 
@@ -136,6 +137,8 @@ public:
     // Transform from SiHit to GeoModel frame
     const HepGeom::Transform3D SiHitToGeoModel() const;
 
+    const HepGeom::Transform3D moduleShift() const final;
+
     // ------------------------------------------------------------------------------------------
 
 //
@@ -154,6 +157,8 @@ private:
     double m_pitch;
     double m_length;
     Trk::RectangleBounds *m_bounds;
+    double m_zShift;
+
 };
 
 ///////////////////////////////////////////////////////////////////

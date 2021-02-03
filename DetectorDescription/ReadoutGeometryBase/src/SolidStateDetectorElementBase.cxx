@@ -73,7 +73,7 @@ SolidStateDetectorElementBase::updateCache() const
     bool firstTimeBaseTmp = m_firstTimeBase;
     m_firstTimeBase = false;
 
-    const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform();
+    const HepGeom::Transform3D &geoTransform = getMaterialGeom()->getAbsoluteTransform() * m_design->moduleShift();
 
     m_centerCLHEP = geoTransform * m_design->sensorCenter();
     m_center = Amg::Vector3D(m_centerCLHEP[0],m_centerCLHEP[1],m_centerCLHEP[2]);
