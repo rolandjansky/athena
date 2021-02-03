@@ -1,13 +1,13 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_ICAPACITYCHECKEDCONDITIONMT_H
-#define TRIGHLTJETHYPO_ICAPACITYCHECKEDCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_IREPEATEDCONDITIONMT_H
+#define TRIGHLTJETHYPO_IREPEATEDCONDITIONMT_H
 
 /********************************************************************
  *
- * NAME:     ICapacityCheckedConditionMT.h
+ * NAME:     IRepeatedConditionMT.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
@@ -26,9 +26,9 @@ typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
 class ITrigJetHypoInfoCollector;
 
-class ICapacityCheckedCondition: public IConditionMT {
+class IRepeatedCondition: public IConditionMT {
  public:
-  virtual ~ICapacityCheckedCondition(){}
+  virtual ~IRepeatedCondition(){}
 
   virtual bool multiplicitySatisfied(std::size_t jgMultiplicity,
 				     const Collector&) const = 0;

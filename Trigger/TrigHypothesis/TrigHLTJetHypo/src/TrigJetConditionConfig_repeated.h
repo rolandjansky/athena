@@ -1,29 +1,29 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGJETCONDITIONCONFIG_CAPACITYCHECKED_H
-#define TRIGJETCONDITIONCONFIG_CAPACITYCHECKED_H
+#ifndef TRIGJETCONDITIONCONFIG_REPEATED_H
+#define TRIGJETCONDITIONCONFIG_REPEATED_H
 
-#include "CapacityCheckedConditionsDefs.h"
+#include "RepeatedConditionsDefs.h"
 #include "./IConditionMT.h"
 
-#include "ITrigJetCapacityCheckedConditionConfig.h"
+#include "ITrigJetRepeatedConditionConfig.h"
 #include "ITrigJetConditionConfig.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 
-class TrigJetConditionConfig_capacitychecked:
-public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
+class TrigJetConditionConfig_repeated:
+public extends<AthAlgTool, ITrigJetRepeatedConditionConfig> {
 
  public:
   
-  TrigJetConditionConfig_capacitychecked(const std::string& type,
+  TrigJetConditionConfig_repeated(const std::string& type,
 				  const std::string& name,
 				  const IInterface* parent);
 
   virtual StatusCode initialize() override;
-  virtual ConditionPtr getCapacityCheckedCondition() const override;
-  virtual ConditionPtr getCapacityCheckedAntiCondition() const override;
+  virtual ConditionPtr getRepeatedCondition() const override;
+  virtual ConditionPtr getRepeatedAntiCondition() const override;
 
 
   virtual bool addToCapacity(std::size_t) override;
@@ -46,7 +46,7 @@ public extends<AthAlgTool, ITrigJetCapacityCheckedConditionConfig> {
     "identifier for chain leg - used to group jets for jet hypo clients "};
 
 
-  // make a Compound Condition, used by, eg, CapacityCheckedCondition
+  // make a Compound Condition, used by, eg, RepeatedCondition
   // or ConditionInverter 
   std::unique_ptr<IConditionMT> getCompoundCondition() const;
   StatusCode checkVals()  const;

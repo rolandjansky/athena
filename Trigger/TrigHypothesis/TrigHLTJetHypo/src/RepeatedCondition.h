@@ -1,23 +1,23 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_CAPACITYCHECKEDCONDITIONMT_H
-#define TRIGHLTJETHYPO_CAPACITYCHECKEDCONDITIONMT_H
+#ifndef TRIGHLTJETHYPO_REPEATEDCONDITIONMT_H
+#define TRIGHLTJETHYPO_REPEATEDCONDITIONMT_H
 
 /********************************************************************
  *
- * NAME:     CapacityCheckedConditionMT.h
+ * NAME:     RepeatedConditionMT.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
  * 
- * an implementation of the  ICapacityCheckedConditionMT PABC.
+ * an implementation of the  IRepeatedConditionMT PABC.
  *          
  *********************************************************************/
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "ICapacityCheckedCondition.h"
+#include "IRepeatedCondition.h"
 
 #include <memory>
 #include <string>
@@ -26,12 +26,12 @@
 
 class ITrigJetHypoInfoCollector;
 
-class CapacityCheckedCondition: public ICapacityCheckedCondition {
+class RepeatedCondition: public IRepeatedCondition {
  public:
- CapacityCheckedCondition(std::unique_ptr<IConditionMT> cp,
+ RepeatedCondition(std::unique_ptr<IConditionMT> cp,
 			  std::size_t mult,
 			  int chainPartind = -1);
-  virtual ~CapacityCheckedCondition();
+  virtual ~RepeatedCondition();
   
   virtual bool
   multiplicitySatisfied(std::size_t jgMultiplicity,
@@ -59,6 +59,6 @@ private:
 };
 
 std::ostream& operator<<(std::ostream&,
-			 const CapacityCheckedCondition&);
+			 const RepeatedCondition&);
 
 #endif
