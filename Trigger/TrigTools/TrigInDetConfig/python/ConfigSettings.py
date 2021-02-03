@@ -368,7 +368,7 @@ _TrackingConfigSettings = {
     "tauLRT"       : _Tracking_tauLRT(),
     "bjetLRT"      : _Tracking_bjetLRT(),
     "fullScanLRT"  : _Tracking_fullScanLRT(),
-                  }
+}
 
 
 #Function that returns specific configuration of tracking cuts and flags
@@ -461,6 +461,7 @@ class _GlobalSettings() :
       self._configPT  =  None #Precision tracking configuration
       self._doRecord  = False #Allow recording of track collections
       self._isLRT     = False
+      self._adaptiveVertex = False
 
    @property
    def FT(self):
@@ -485,6 +486,10 @@ class _GlobalSettings() :
    @property
    def isLRT(self):
        return self._isLRT
+
+   @property
+   def adaptiveVertex(self):
+       return self._adaptiveVertex
 
 
 
@@ -599,6 +604,7 @@ class _Settings_jet( _GlobalSettings ):
       self._configFT = _FastTracking(      signatureType = 'fullScan',  nameSuffix = 'FS' ) #
       self._configPT = _PrecisionTracking( signatureType = 'fullScan',  nameSuffix = 'FS' ) #Final collection is being renamed to just tau apparently...
       self._doRecord = True
+      self._adaptiveVertex = False
 
 class _Settings_minBias( _GlobalSettings ):
    def __init__( self ):
