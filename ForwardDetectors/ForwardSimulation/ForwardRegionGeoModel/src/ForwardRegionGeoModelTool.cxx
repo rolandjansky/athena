@@ -4,7 +4,7 @@
 
 #include "ForwardRegionGeoModelTool.h"
 #include "ForwardRegionGeoModelFactory.h"
-#include "ForwardRegionGeoModel/ForwardRegionGeoModelManager.h"
+#include "ForwardRegionGeoModelManager.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"
 #include "GaudiKernel/IService.h"
 #include "GaudiKernel/ISvcLocator.h"

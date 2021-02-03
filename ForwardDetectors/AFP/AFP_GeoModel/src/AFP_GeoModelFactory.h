@@ -6,7 +6,7 @@
 #define AFP_GeoModelFactory_h 1
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
-#include "AFP_GeoModel/AFP_GeoModelManager.h"
+#include "AFP_GeoModelManager.h"
 #include "AFP_Geometry/AFP_Geometry.h"
 #include <string>
 #include <map>
