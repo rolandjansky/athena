@@ -1,4 +1,4 @@
-#Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 # CaloCell Monitoring for Collisions,
 # Evan Wulf, 12/10/09 - earwulf@nevis.columbia.edu
 #
@@ -18,6 +18,7 @@ from AthenaMonitoring.AtlasReadyFilterTool import GetAtlasReadyFilterTool
 
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool=CaloNoiseToolDefault()
+ToolSvc += theCaloNoiseTool
 
 from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
 theLArChanMasker=LArBadChannelMasker("LArChanMasker")

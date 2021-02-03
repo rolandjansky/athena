@@ -71,17 +71,17 @@ class CompactHardTruth
 
 
   // Parton is quark or gluon
-  virtual bool isParton( const HepMC::GenParticle* );
+  virtual bool isParton( HepMC::ConstGenParticlePtr );
 
   // Final parton is quark or gluon ending in vertex giving !isParton
-  virtual bool isFinalParton( const HepMC::GenParticle* );
+  virtual bool isFinalParton( HepMC::ConstGenParticlePtr );
 
   // Hadron excludes leptons and BSM particles
-  virtual bool isHadron( const HepMC::GenParticle* p );
+  virtual bool isHadron( HepMC::ConstGenParticlePtr p );
 
   // Total in/out FourVector for vertex
-  virtual HepMC::FourVector vtxInMom(HepMC::GenVertex*);
-  virtual HepMC::FourVector vtxOutMom(HepMC::GenVertex*);
+  virtual HepMC::FourVector vtxInMom(HepMC::ConstGenVertexPtr);
+  virtual HepMC::FourVector vtxOutMom(HepMC::ConstGenVertexPtr);
 
  private: 
 

@@ -15,16 +15,19 @@
 #include "TrigT1Result/RoIBResult.h"
 #include "TrigT1Interfaces/MuCTPIToRoIBSLink.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
+#include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TH1.h"
 #include "TH2.h"
 
 class ITHistSvc;
 
-namespace TrigConf {
-   class ILVL1ConfigSvc;
+namespace TrigConf
+{
    class TriggerThreshold;
-}
+   class L1Menu;
+} // namespace TrigConf
 
 namespace TCS {
    class MuonTOB;
@@ -32,7 +35,7 @@ namespace TCS {
 }
 
 namespace LVL1MUCTPI {
-  class IMuctpiSimTool;
+   class IMuctpiSimTool;
 }
 
 namespace LVL1 {
@@ -54,8 +57,7 @@ namespace LVL1 {
       virtual void handle(const Incident&) override;
 
    private:
-
-      TCS::MuonTOB createMuonTOB(uint32_t roiword) const;
+      TCS::MuonTOB createMuonTOB(uint32_t roiword, const TrigConf::L1Menu *l1menu) const;
       TCS::MuonTOB createMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       TCS::LateMuonTOB createLateMuonTOB(const MuCTPIL1TopoCandidate & roi) const;
       /**
@@ -73,10 +75,16 @@ namespace LVL1 {
 
       ServiceHandle<ITHistSvc> m_histSvc;
 
-      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
+      Gaudi::Property<bool> m_useNewConfig{this, "UseNewConfig", false, "When true, read the menu from detector store, when false use the L1ConfigSvc"};
+      ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc{this, "LVL1ConfigSvc", "LVL1ConfigSvc", "The LVL1ConfigSvc providing L1 configuration for Run 2"};
 
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc;
       ServiceHandle<LVL1::RecMuonRoiSvc> m_recTGCRoiSvc;
+
+      /// The RPC RoI reconstruction tool
+      ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRPCRoiTool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool", "RPC RoI reconstruction tool"};
+      /// The TGC RoI reconstruction service
+      ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTGCRoiTool{this, "RecTgcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool", "TGC RoI reconstruction tool"};
 
       ToolHandle<LVL1MUCTPI::IMuctpiSimTool> m_MuctpiSimTool;
 

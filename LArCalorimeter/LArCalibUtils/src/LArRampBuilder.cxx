@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArRampBuilder.h"
@@ -11,15 +11,13 @@
 #include "LArIdentifier/LArOnlineID.h"
 #include "LArIdentifier/LArOnline_SuperCellID.h"
 
+
 #include <Eigen/Dense>
 
 #include <fstream>
 
-//template <> const LArRampBuilder::ACCRAMP LArConditionsContainerDB<LArRampBuilder::ACCRAMP>::m_empty;
 
 #include "LArRawConditions/LArConditionsContainerDB.h"
-
-//#define LARRAMPBUILDER_DEBUGOUTPUT
 
 LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator)
   : AthAlgorithm(name, pSvcLocator),
@@ -39,7 +37,6 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("SubtractDac0",    m_dac0sub=true);
   declareProperty("StoreRawRamp",    m_saveRawRamp=false);
   declareProperty("StoreRecRamp",    m_saveRecRamp=true);
-  // declareProperty("PreviousRunToDB", m_previousrunDB=0);
   declareProperty("FolderName",      m_folderName="LArElecCalibTB04");
   declareProperty("Polynom",         m_degree=1);
   declareProperty("RampRange",       m_maxADC=0);
@@ -48,7 +45,7 @@ LArRampBuilder::LArRampBuilder(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("RecoType",        m_recoTypeProp=std::string("Parabola")) ;
   declareProperty("correctBias",     m_correctBias=false);
   declareProperty("ShapeMethodDAC",  m_shapeMethodDAC=400);
-  declareProperty("DAC0",            m_DAC0=0);
+  declareProperty("DAC0",            m_DAC0=0); 
   declareProperty("LongNtuple",      m_longNtuple=false);
   declareProperty("WithIntercept",   m_withIntercept=true);
   declareProperty("minDAC",          m_minDAC=0);
@@ -80,12 +77,6 @@ LArRampBuilder::~LArRampBuilder()
 
 StatusCode LArRampBuilder::initialize()
 {
-  /*StatusCode sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL( "Could not get LArOnlineID helper !" );
-    return StatusCode::FAILURE;
-  }*/
-  
   StatusCode sc;
   if ( m_isSC ) {
     ATH_MSG_DEBUG("==== LArRampBuilder - looking at SuperCells ====");
@@ -113,19 +104,9 @@ StatusCode LArRampBuilder::initialize()
     }
     
   }
-  if ( m_isSC ) ATH_CHECK( m_sc2ccMappingTool.retrieve() );
 
   ATH_CHECK( m_cablingKey.initialize() );
   if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
-
-  // Initialise keys for calib line mapping
-  if (m_isSC){   
-    ATH_CHECK( m_calibMapSCKey.initialize() );
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }else{
-    ATH_CHECK( m_calibMapKey.initialize() );
-  }
-    
 
   if(m_doBadChannelMask) { 
     sc=m_badChannelMask.retrieve(); 
@@ -245,37 +226,6 @@ StatusCode LArRampBuilder::execute()
     if (m_event_counter==1)
       ATH_MSG_WARNING("No FebErrorSummaryObject found! Feb errors not checked!");
  
-  
-
-  ///*
-  // calib line mapping for SC
-  const LArCalibLineMapping *clCont=0;
-  const LArCalibLineMapping *clContSC=0;
-  if(m_isSC) {
-    ATH_MSG_DEBUG( "LArRampBuilder: using SC calib map" );
-    SG::ReadCondHandle<LArCalibLineMapping> clHdlSC{m_calibMapSCKey};
-    clContSC=*clHdlSC;
-
-    if(!clContSC) {
-      ATH_MSG_WARNING( "Do not have SC calib line mapping !!!" );
-      return StatusCode::FAILURE;
-    } else {
-      ATH_MSG_DEBUG( "DONE THE SETUP SC calib line" );
-    }
-  }//} else {
-  // calib line mapping for main readout
-  SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_calibMapKey};
-  clCont=*clHdl;
-  //}
-  if(!clCont) {
-    ATH_MSG_WARNING( "Do not have calib line mapping !!!" );
-    return StatusCode::FAILURE;
-  } else {
-    ATH_MSG_DEBUG( "DONE THE SETUP calib line" );
-  }
-  // end of calib line mapping
-  // */
-  
   const LArOnOffIdMapping* cabling(0);
   if( m_isSC ){
     SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
@@ -292,7 +242,6 @@ StatusCode LArRampBuilder::execute()
        return StatusCode::FAILURE;
     }
   }
-  
   
 
   std::vector<std::string>::const_iterator key_it=m_keylist.begin();
@@ -363,10 +312,8 @@ StatusCode LArRampBuilder::execute()
 	
 	for (;itwave!=itwave_end;itwave++) {  //Loop over all cells
 	  const LArCaliWave& larCaliWave=(*itwave);
-	  unsigned int DAC = larCaliWave.getDAC();
+	  unsigned int DAC = larCaliWave.getDAC(); 
 	  IdentifierHash chidwave_hash = m_onlineHelper->channel_Hash(itVec.channelId());
-	  
-
 
 	  bool IsBad = false;
 	  for(int i=0;i<24*NSamplesKeep;i++){
@@ -403,6 +350,8 @@ StatusCode LArRampBuilder::execute()
     
   } // m_ipassShape
   
+
+
   
   // now start to deal with digits   
   for (;key_it!=key_it_e;key_it++) { //Loop over all containers that are to be processed (e.g. different gains)
@@ -432,30 +381,10 @@ StatusCode LArRampBuilder::execute()
 	  if (febid!=lastFailedFEB) {
 	    lastFailedFEB=febid;
 	    ATH_MSG_ERROR( "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored.");
+			   << " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored.");
 	  }
 	  continue;
 	}
-      }
-
-      // HEC Calibration lines
-      const std::vector<HWIdentifier>& calibLineV = clCont->calibSlotLine(chid);
-      ATH_MSG_DEBUG( "pulsed lines: "<< calibLineV.size() );
-      if(m_isSC){
-	const std::vector<HWIdentifier>& calibLineVSC = clContSC->calibSlotLine(chid);
-	ATH_MSG_DEBUG( "pulsed SC lines: "<< calibLineVSC.size() );
-      }
-      // std::vector<HWIdentifier>::const_iterator calibLineIt = calibLineV.begin();
-      // for(calibLineIt = calibLineV.begin(); calibLineIt != calibLineV.end();++calibLineIt) {
-      // ATH_MSG_DEBUG( "CALIB LINE "<< m_onlineHelper->channel(*calibLineIt) );
-      // }
-      
-      std::vector<Identifier> ccellIds(0);
-      if( m_isSC ){
-	Identifier myofflineID = cabling->cnvToIdentifier((*it)->hardwareID()) ;
-
-	ccellIds = m_sc2ccMappingTool->superCellToOfflineID( myofflineID );
-	ATH_MSG_DEBUG( "Cell: " << myofflineID << " " << (*it)->channelID() << " " << chid << " " << ccellIds.size() << " : " << ccellIds );
       }
 
 
@@ -485,9 +414,6 @@ StatusCode LArRampBuilder::execute()
 	  const ILArPedestal* larPedestal=NULL;
 	  sc=detStore()->retrieve(larPedestal);
 	  if (sc.isFailure()) {
-	    //larPedestal=NULL;
-	    //ATH_MSG_WARNING("No pedestals found in database. Use default value for all channels.");
-	    //m_thePedestal[chid_hash] = 1000;
 	    ATH_MSG_FATAL( "No pedestals found in database. Aborting executiong." );
 	    return sc;
 	  }
@@ -517,39 +443,13 @@ StatusCode LArRampBuilder::execute()
 	} // m_ipassPedestal 	 
       }
       
-      // if ((*it)->DAC()==1110 || (*it)->DAC()==410 ) {
-      //     int pos_neg = m_onlineHelper->pos_neg(chid);
-      //    int ft=m_onlineHelper->feedthrough(chid);
-      //    int slot=m_onlineHelper->slot(chid);
-      //    int channel=m_onlineHelper->channel(chid);
-      //    if (slot>10 && slot<15) {
-      //      std::cout << "cell = " << chid << " " << pos_neg << " " << ft << " " << slot << " " << channel 
-      //            << ", gain = " << gain << ", DAC = " << (*it)->DAC() 
-      //            << " mean " << (*it)->mean()[0] << " " << (*it)->mean()[1] << " " << (*it)->mean()[2] << " " << (*it)->mean()[3]
-      //            << " " << (*it)->mean()[4] << " " << (*it)->mean()[5] << " " << (*it)->mean()[6] << std::endl;
-      //     }
-      //  }      
-
-      
-      if (m_isSC){  // Changed here to give DAC value for supercell, rather than DAC for a constituent cell
-	LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()*ccellIds.size()];
-	LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
-	if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
-	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
-	}
-	if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
-	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
-	}
-      }else{
-	LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()];
-	//rawramp.addAccumulatedEvent( (*it)->mean(),(*it)->RMS(), (*it)->nTriggers() );
-	LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
-	if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
-	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
-	}
-	if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
-	  ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
-	}
+      LArCalibTriggerAccumulator& accpoints=(m_ramps->get(chid,gain))[(*it)->DAC()];
+      LArCalibTriggerAccumulator::ERRTYPE ec=accpoints.add((*it)->sampleSum(),(*it)->sample2Sum(),(*it)->nTriggers());
+      if (ec==LArCalibTriggerAccumulator::WrongNSamples) {
+	ATH_MSG_ERROR( "Failed to accumulate sub-steps: Inconsistent number of ADC samples");
+      }
+      if (ec==LArCalibTriggerAccumulator::NumericOverflow) {
+	ATH_MSG_ERROR( "Failed to accumulate sub-steps: Numeric Overflow");
       }
     }//End loop over all cells
   } //End loop over all containers
@@ -583,20 +483,26 @@ StatusCode LArRampBuilder::stop()
   else
     larRampComplete=NULL;
   
-  
-  SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-  const LArOnOffIdMapping* cabling{*cablingHdl};
-  if(!cabling) {
-    ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-    return StatusCode::FAILURE;
+  const LArOnOffIdMapping* cabling(0);
+  if( m_isSC ){
+    ATH_MSG_INFO("setting up SC cabling");
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+      return StatusCode::FAILURE;
+    }    
+  }else{
+    ATH_MSG_INFO("setting up calo cabling");
+    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+    cabling = {*cablingHdl};
+    if(!cabling) {
+      ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+      return StatusCode::FAILURE;
+    }   
   }
 
-
-
-
   int containerCounter=0;
-  //Outermost loop goes over all gains (different containers).
-  //for (CaloGain::CaloGain gain=CaloGain::LARHIGHGAIN;gain<CaloGain::LARNGAIN;gain++) {
 
   int NRamp=0;
 
@@ -638,13 +544,13 @@ StatusCode LArRampBuilder::stop()
 
 	adcpeak  = -999.;
 	timepeak = -999.;
-	
 	// prepare samples
 	float MaxADC = 0;
 	int iMaxADC = 0;
 	// if DAC0, fill adc0v vector
 	if(m_dac0sub && dac_it->first== m_DAC0){
 	  // check that DAC0 is the first DAC of list
+	  	  
 	  if(dac_it!=cell_it->begin()) 
 	    ATH_MSG_ERROR( "DAC0 is not the first DAC ? This might be a problem... " );
 	  adc0v = dac_it->second.mean();
@@ -670,7 +576,6 @@ StatusCode LArRampBuilder::stop()
       
   	// reconstruct
 	if ( m_recoType == OF) {
-	  // subtract pedestal (if no DAC0 subtraction)
           if (!m_dac0sub) {
             IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
             for (size_t k=0;k<ramppoint.Samples.size();++k) {
@@ -713,7 +618,6 @@ StatusCode LArRampBuilder::stop()
 	   if (kMax==3) delay += (m_delayShift+24);
 	   if (kMax==2) delay += m_delayShift;
 	   ATH_MSG_VERBOSE("kMax " << kMax << " delay " << delay);
-	   //std::cout << " kMax " << kMax << " delay " << delay << std::endl;
 	   delay=(delay-0.5)*(25./24.);
 	   //Call OF peak reco tool with no iteration and peak-sample forced to kMax
            kLow = kUp = kMax;
@@ -723,28 +627,15 @@ StatusCode LArRampBuilder::stop()
            delay = 0.;
            //nIter = 10;
           }
-	  //const LArOFPeakRecoTool::Result &results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kMax,kMax);
 	  const LArOFPeakRecoTool::Result results=m_peakOFTool->peak(ramppoint.Samples,chid,gain,delay,0,kMax,kLow,kUp);
 	  if (results.getValid()) {
 	    adcpeak  = results.getAmplitude();
 	    timepeak = results.getTau();
-
-	    //  std::cout << "RampReco: A=" << adcpeak << " t=" << timepeak 
-	    // 		 << " peakIndex=" << results.getPeakSample() << "(" << kMax<<")"
-	    // 		 << " delay=" << results.getDelay() << "(" << m_delay<<")"
-	    // 		 << " #samples: "<< ramppoint.Samples.size()  << std::endl;
-
 	  }
 	  else 
 	    ATH_MSG_ERROR( "LArOFPeak reco tool returns invalid result.");
 
 
-// 	  peak=m_peakOFTool->peak1(ramppoint.Samples,chid,gain,m_delay);
-//           if (peak.size()>1) {
-//             adcpeak = peak[0];
-//             timepeak = peak[1];
-// 	    std::cout << "RampReco: A=" << adcpeak << " t=" << timepeak << std::endl;
-//           }
 	} else if ( m_recoType == SHAPE) {
 	  
 	  IdentifierHash chid_hash = m_onlineHelper->channel_Hash(chid);
@@ -752,8 +643,6 @@ StatusCode LArRampBuilder::stop()
 	  // reconstruct for non-DAC0 values and non-saturating waves
 	  if(dac_it->first!= m_DAC0 && dac_it->first <= m_CaliDACs[gain][chid_hash][m_IndexHighestDAC[gain][chid_hash]]){
 	    
-	    //	    std::cout <<" Highest DAC for cell " << chid_hash << " is " << m_CaliDACs[chid_hash][m_IndexHighestDAC[chid_hash]] << ", current DAC is " << dac_it->first << std::endl;
-
 	    // find appropriate wave
 	    unsigned int GoodIndex = 9999;
 	    for(unsigned int i=0;i<m_CaliDACs[gain][chid_hash].size();i++){
@@ -801,7 +690,6 @@ StatusCode LArRampBuilder::stop()
 	    // get layer for correction
 	    Identifier id=cabling->cnvToIdentifier(chid);
 	    int layer=m_emId->sampling(id);
-	    //	    std::cout << "samples = " << ramppoint.Samples.size() << ", 0 = " << ramppoint.Samples[0] << ", 1 = " << ramppoint.Samples[1] << std::endl;
 	    peak=m_peakParabolaTool->peak(ramppoint.Samples,layer,m_thePedestal[chid_hash]);
 	    
 	  }else{
@@ -819,7 +707,8 @@ StatusCode LArRampBuilder::stop()
 	} 
 	
 	ramppoint.ADC        = adcpeak;
-	ramppoint.DAC        = dac_it->first;
+	ramppoint.DAC        = dac_it->first; 
+
         if(m_ishec && m_onlineHelper->isHECchannel(chid)) {
            if(m_dd_rinj) {
               const float rinj = m_dd_rinj->Rinj(chid);
@@ -836,10 +725,8 @@ StatusCode LArRampBuilder::stop()
 	  ramppoint.RMS.resize(0);
 	}
 	// only add to rawramp non saturing points (using rawdata information)
-	//	if( (dac_it->first>= m_minDAC) &&  ((m_maxADC <= 0) || (MaxADC < m_maxADC)) && ((dac_it->first!=m_DAC0&adcpeak>-999) || (dac_it->first==m_DAC0)) ) { 
 	if( (dac_it->first>= m_minDAC) &&  ramppoint.ADC > -998 
 	    && ((m_maxADC <= 0) || (MaxADC < m_maxADC)) ) {
-	  //      std::cout << "Adding Point for Ramp: Gain=" << gain << " DAC="<< ramppoint.DAC << " ADC=" << ramppoint.ADC << std::endl;
 	  rawramp->add(ramppoint);
 	}
 	else if ((m_maxADC > 0)&&(MaxADC >= m_maxADC)) { isADCsat = true; } // if ADC saturated at least once, it should be notified
@@ -919,7 +806,6 @@ StatusCode LArRampBuilder::stop()
 
   if (larRampComplete){  //Save the transient  Ramp object. 
 
-    //ATH_MSG_INFO( " Summary : Number of cells with a ramp value computed : " << larRampComplete->totalNumberOfConditions() );
     ATH_MSG_INFO( " Summary : Number of cells with a ramp value computed : " << NRamp );
     ATH_MSG_INFO( " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 ");
     ATH_MSG_INFO( " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 ");
@@ -958,25 +844,18 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
       return StatusCode::FAILURE;
     }
   }
-  //std::cout << "linRange = " << linRange << std::endl;
-  //std::cout << "highest DAC = " << data[linRange-1].DAC << std::endl;  
-
   int satpoint = -1;
   if (m_satSlope) {
   
     float thisslope = 0., meanslope = 0.;
-//    float accslope[20];
     std::vector<float> accslope;
     accslope.push_back(0);
     for (unsigned int DACIndex=1;DACIndex<linRange;DACIndex++){
-    
       thisslope = (data[DACIndex].ADC - data[DACIndex-1].ADC)/(data[DACIndex].DAC - data[DACIndex-1].DAC);
 
-//      if ( (satpoint >= 1) && (thisslope > meanslope) ) { satpoint = -1; } // the slope rises again ! it was a fake saturation
       if ( (satpoint == -1) && ((meanslope-thisslope) > meanslope/10.) ) { satpoint = DACIndex; } // saturation was reached
 
       meanslope = ( thisslope + (DACIndex-1)*(accslope[DACIndex-1]) )/DACIndex;
-//      accslope[DACIndex] = meanslope;
       accslope.push_back(meanslope);
 
     }
@@ -985,17 +864,6 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
   
   }
   vSat.push_back(satpoint);
-  
-//if (m_maxADC>0) //Fit only until a adc value smaller or equal than m_maxADC (linRange is the index)
-//   for (linRange=data.size();(data[linRange-1].ADC>m_maxADC || fabs(data[linRange-1].ADC-data[linRange-2].ADC)<(double)m_consADC) && linRange>0 ;--linRange);
-
- //  if (m_maxADC>0) //Fit only until a adc value smaller or equal than m_maxADC (linRange is the index)
- //    for(linRange=1;linRange<=data.size();linRange++){
- //      if(data[linRange-1].ADC>m_maxADC) {
- //	std::cout << "skipping points above " << linRange-1 << std::endl;
- //	break;
- //      } 
- //    }
   
   if (!m_withIntercept) 
     deg--;
@@ -1050,10 +918,8 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
 	      // differences when inverting the fit matrix even if
 	      // errors are all the same.
 	    if (m_withIntercept) {    
-	      //alpha[k][j]+=(pow(data[i].ADC,(int)k)*pow(data[i].ADC,(int)j)); // no error
 	      alpha(k,j)+=(std::pow(data[i].ADC,(int)k)*std::pow(data[i].ADC,(int)j))/sigma2;
 	    } else {
-	      //alpha[k][j]+=(pow(data[i].ADC,(int)k+1)*pow(data[i].ADC,(int)j+1)); // no error
 	      alpha(k,j)+=(std::pow(data[i].ADC,(int)k+1)*std::pow(data[i].ADC,(int)j+1))/sigma2;
 	    }
 	    alpha(j,k)=alpha(k,j); //Use symmetry
@@ -1066,28 +932,23 @@ StatusCode LArRampBuilder::rampfit(unsigned deg, const std::vector<LArRawRamp::R
       for (unsigned i=begin;i<linRange;i++) {
 	sigma2 = 1.;
 	if ( data[i].NTriggers ) {
-	  //float sigma2 = (data[i].RMS[0]*data[i].RMS[0])/data[i].NTriggers;
 	  sigma2 = 100./data[i].NTriggers;
 	}
 	if (m_withIntercept) {
-	  // beta[k]+=data[i].DAC*pow(data[i].ADC,(int)k); // no error
 	  beta[k]+=(data[i].DAC*pow(data[i].ADC,(int)k))/sigma2; 
 	} else {
-	  //beta[k]+=data[i].DAC*pow(data[i].ADC,(int)k+1); // no error
 	  beta[k]+=(data[i].DAC*pow(data[i].ADC,(int)k+1))/sigma2;
 	}
       }
     }
   
   //HepVector comp=solve(alpha,beta);
-  //const Eigen::VectorXd comp=alpha.fullPivLu().solve(beta);
   const Eigen::VectorXd comp=alpha.colPivHouseholderQr().solve(beta);
 
   //Fill RampDB object
   if (!m_withIntercept)
     rampCoeffs.push_back(0);
     
-//  for (int l=0;l<comp.num_row() && l<3;l++)
   for (int l=0;l<comp.size() ;l++)
     rampCoeffs.push_back(comp[l]);
   

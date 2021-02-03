@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <algorithm>
@@ -197,7 +197,7 @@ StatusCode TrigBmumuxComboHypo::mergeMuonsFromViews(TrigBmumuxState& state) cons
 
   // for each muon we extract DecisionIDs stored in the associated Decision objects and copy them at muon.decisionIDs
   for (auto& item : muons) {
-    for (const auto& decisionEL : item.decisionLinks) {
+    for (const ElementLink<xAOD::TrigCompositeContainer> decisionEL : item.decisionLinks) {
       TrigCompositeUtils::decisionIDs(*decisionEL, item.decisionIDs);
     }
   }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef LARDIGITS2NTUPLE_H
@@ -56,6 +56,7 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
 
   bool m_isSC;
   bool m_fillBCID;
+  int m_fillLatomeSourceID;
   bool m_overwriteEventNumber;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey { this, "EventInfoKey", "EventInfo", "SG for EventInfo Key" };

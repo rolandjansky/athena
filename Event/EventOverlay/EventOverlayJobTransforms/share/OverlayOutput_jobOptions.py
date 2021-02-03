@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 include.block('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')
 
@@ -6,6 +6,9 @@ from AthenaCommon.DetFlags import DetFlags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaPoolCnvSvc.WriteAthenaPool import AthenaPoolOutputStream
 from OverlayCommonAlgs.OverlayFlags import overlayFlags
+
+from AthenaCommon.ConcurrencyFlags import jobproperties as jp
+nThreads = jp.ConcurrencyFlags.NumThreads()
 
 outStream = AthenaPoolOutputStream('StreamRDO', athenaCommonFlags.PoolRDOOutput(), asAlg=True)
 outStream.ItemList = []
@@ -15,7 +18,7 @@ outStream.ItemList += [ 'xAOD::EventInfo#EventInfo', 'xAOD::EventAuxInfo#EventIn
 
 # Timings
 outStream.ItemList += ['RecoTimingObj#EVNTtoHITS_timings']
-if not overlayFlags.isDataOverlay():
+if not overlayFlags.isDataOverlay() and nThreads == 0:
     outStream.ItemList += ['RecoTimingObj#HITStoRDO_timings']
 
 # Truth

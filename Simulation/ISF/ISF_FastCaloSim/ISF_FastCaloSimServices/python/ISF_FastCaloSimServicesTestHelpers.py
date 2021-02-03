@@ -5,6 +5,7 @@ Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 
 from argparse import ArgumentParser
+from AthenaConfiguration.Enums import ProductionStep
 from AthenaConfiguration.ComponentFactory import CompFactory
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
@@ -51,9 +52,9 @@ def defaultTestFlags(configFlags, args):
     configFlags.Input.OverrideRunNumber = True
     configFlags.Input.Files = defaultTestFiles.EVNT # ["root://eosuser.cern.ch///eos/atlas/atlascerngroupdisk/proj-simul/OutputSamples/rel21/mc16_13TeV.photon.E65536.eta20_25.EVNT.merged.pool.root"]
     configFlags.Output.HITSFileName = "myHITSnew.pool.root"
+    configFlags.Common.ProductionStep = ProductionStep.Simulation
 
     # Sim configFlags
-    # Flags taken from old config:
     configFlags.Sim.TruthStrategy = "MC15aPlus"
     configFlags.Sim.PhysicsList = "FTFP_BERT_ATL"
     configFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 

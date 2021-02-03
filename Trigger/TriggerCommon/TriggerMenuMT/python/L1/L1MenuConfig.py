@@ -62,7 +62,7 @@ class L1MenuConfig(object):
         # menu
         L1MenuFlags.CTPVersion = 4 # this needs to be done here already, since L1Menu depends on it during init
         self.l1menu = L1Menu(self.menuName)
-        self.l1menu.setBunchGroupSplitting() # I like this much more, but let's see what the menu group says
+        self.l1menu.setBunchGroupSplitting() # store bunchgroups separate from other item inputs
 
         if not self._checkMenuExistence():
             log.error("Generating L1 menu %s is not possible", self.menuName)
@@ -214,11 +214,14 @@ class L1MenuConfig(object):
         return None
 
 
-    def writeJSON(self, outputFile, destdir="./"):
+    def writeJSON(self, outputFile, bgsOutputFile = None, destdir="./"):
         if self.generated:
             outputFile = destdir.rstrip('/') + '/' + outputFile
-            L1MenuJSONConverter(l1menu = self.l1menu, outputFile = outputFile).writeJSON(pretty=True)
-            return outputFile
+            if bgsOutputFile is not None:
+                bgsOutputFile = destdir.rstrip('/') + '/' + bgsOutputFile
+            L1MenuJSONConverter(l1menu = self.l1menu, outputFile = outputFile, 
+                                bgsOutputFile = bgsOutputFile).writeJSON(pretty=True)
+            return outputFile, bgsOutputFile
         else:
             log.error("No menu was generated, can not create json file")
             return None

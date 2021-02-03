@@ -1,6 +1,6 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-*/
+ * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ */
 
 #ifndef IDPERFMON_MUONSELECTOR_H
 #define IDPERFMON_MUONSELECTOR_H
@@ -9,31 +9,48 @@
 // Include files...
 //==============================================================================
 #include "InDetPerformanceMonitoring/EventAnalysis.h"
-#include "CxxUtils/checker_macros.h"
+
+#include <map>
+#include "TH1.h"
+
 #include "xAODMuon/Muon.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 #include <atomic>
+#include "GaudiKernel/ServiceHandle.h"
+#include "AsgTools/ToolHandle.h" 
+#include "MuonAnalysisInterfaces/IMuonSelectionTool.h"
+#include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
 
-//class TrackIsolationTool;
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 
+#include "InDetPerformanceMonitoring/PerfMonServices.h"
 //==============================================================================
 // Forward class declarations...
 //==============================================================================
-//class Muon;
-
 class MuonSelector : public EventAnalysis
 {
  public:
   MuonSelector();
   ~MuonSelector();
 
-  bool passSelection( const xAOD::Muon* pxMuon,
-                      const xAOD::VertexContainer& vxContainer);
 
+  // for some cases one may need ATLAS_NOT_REENTRANT 
+  bool passSelection ( const xAOD::Muon* pxMuon );
+  void setDebug(bool debug){m_doDebug = debug;}
+  ToolHandle<CP::IMuonSelectionTool> m_muonSelectionTool;
+ 
   // Override functions from EventAnalysis
-  virtual void Init();
-  void doIsoSelection(bool doIso) {m_doIsoSelection=doIso;}
+  virtual void  Init();
+  inline void   doIsoSelection (bool doIso) {m_doIsoSelection = doIso;}
+  inline void   doIPSelection (bool doIPsel) {m_doIPSelection = doIPsel;}
+  inline void   doMCPSelection (bool domcp) {m_doMCPSelection = domcp;}
+  virtual void  finalize();
+  inline void   SetPtCut (double newvalue) {m_combPtCut = newvalue;}
+  inline double GetPtCut ()                         {return m_combPtCut;}
+  virtual bool  Reco();
+  void          SetMuonQualityRequirement (std::string newname);
 
  protected:
   virtual void BookHistograms();
@@ -41,20 +58,26 @@ class MuonSelector : public EventAnalysis
  private:
   typedef EventAnalysis PARENT;
 
-  static std::atomic<unsigned int> s_uNumInstances;
+  //static unsigned int s_uNumInstances;
+  unsigned int m_uNumInstances;
 
-  bool passQualCuts();
-  bool passPtCuts();
-  bool passIsolCuts();
-  bool passIPCuts(const xAOD::VertexContainer& vxContainer);
+  bool passQualCuts ();
+  bool passPtCuts   ();
+  bool passIsolCuts ();
+  bool passIPCuts   ();
 
   // message stream
   MsgStream * m_msgStream;
 
   // Class variables
   const xAOD::Muon*   m_pxMuon;
+
+  // requested muon tag (tight, medium, loose..)
+  int m_requestedMuonQuality{};
+
   //  TrackIsolationTool* m_isolationTool;
-  double m_coneSize;
+  double m_coneSize{};
+
 
   // Cut variables. To go into a struct.
   unsigned char m_ucJMuon_Cut;
@@ -62,6 +85,7 @@ class MuonSelector : public EventAnalysis
 
   bool  m_bCutOnCombKine;
   float m_fEtaCut;
+  float m_fPtCut;
 
   double m_combPtCut;
   float m_ptMSCut;
@@ -82,9 +106,19 @@ class MuonSelector : public EventAnalysis
   bool m_doIsoSelection;
   bool m_doPtSelection;
   bool m_doIPSelection;
+  bool m_doMCPSelection;
 
   // Lock cut selection after first muon.
   bool m_bLock;
+
+  // stats
+  unsigned int m_testedmuons{};
+  unsigned int m_passqual{};
+  unsigned int m_passiso{};
+  unsigned int m_passpt{};
+  unsigned int m_passip{};
+  unsigned int m_passmcp{};
+  unsigned int m_passall{};
 
   // Graphs
   enum HISTOS_1D
@@ -92,6 +126,7 @@ class MuonSelector : public EventAnalysis
     NMDT, NCSC, ECONE,
     NUM_1HISTOS
   };
+
 };
 
 #endif

@@ -121,6 +121,9 @@ void ConfVtxAnalysis::initialise() {
   eff_nvtx  = new Efficiency( hnvtx,  "nvtx_eff" );
   eff_mu    = new Efficiency( hmu, "mu_eff" );
   eff_lb    = new Efficiency( hlb, "lb_eff" );
+
+  rnvtxrec_nvtx = new Resplot( "rnvtxrec_vs_nvtx",   81,  -0.5,   80.5,  81,   -0.5,   80.5 ); 
+
  
   //  double ntrax[10] = { 0, 2, 5, 10, 15, 20, 30, 15, 100 }; 
 
@@ -162,13 +165,15 @@ void ConfVtxAnalysis::execute( const std::vector<TIDA::Vertex*>& vtx0,
 #endif
 
 
-    VertexMatcher m("vtx_matcher", 10 );
+    VertexMatcher m( "vtx_matcher", 3 );
 
     m.match( vtx0, vtx1 );
 
     hnvtx->Fill( vtx0.size() );
     hnvtx_rec->Fill( vtx1.size() );
     
+    rnvtxrec_nvtx->Fill( vtx0.size(), vtx1.size() );
+
     // std::cout << "gevent " << gevent << std::endl;
 
     /// pass in a parameter now, rather than using a global
@@ -302,6 +307,8 @@ void ConfVtxAnalysis::finalise() {
   rdz_vs_nvtx->Finalise( Resplot::FitNull95 );   rdz_vs_nvtx->Write();
 
   rdz_vs_mu->Finalise( Resplot::FitNull95 );   rdz_vs_mu->Write();
+
+  rnvtxrec_nvtx->Finalise( Resplot::FitNull95 );    rnvtxrec_nvtx->Write();
 
   eff_zed->finalise();   eff_zed->Bayes()->Write( (eff_zed->name()+"_tg").c_str() );
   eff_ntrax->finalise(); eff_ntrax->Bayes()->Write( (eff_ntrax->name()+"_tg").c_str() );

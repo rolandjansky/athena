@@ -3,6 +3,8 @@ from __future__ import print_function
 from __future__ import absolute_import
 import re
 
+from TrigHLTJetHypo.checkScenarioPresence import checkScenarioPresence
+
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
     #    'gsc',
@@ -164,12 +166,13 @@ def  _make_fbdjshared_label(chain_parts, leg_label):
     simple([(50et, 500neta, %s)])
     simple([(50et, peta500, %s)])
     )
+    root([]
     dijet
     (
     [(34djmass, 26djdphi)]
         simple([(10et, 0eta320, %s)])
         simple([(20et, 0eta320, %s)])
-    )""" % ((leg_label,) * 4)
+    ))""" % ((leg_label,) * 4)
 
     
 def _make_dijet_label(chain_parts, leg_label):
@@ -277,13 +280,20 @@ def chainDict2jetLabel(chain_dict):
     cp_sorter = {}
     for k in router: cp_sorter[k] = []
 
-    chain_parts = chain_dict['chainParts']
+    chain_parts = [cp for cp  in chain_dict['chainParts'] if
+                   cp['signature'] in ('Jet', 'Bjet')]
+
+    bad_headers = checkScenarioPresence(chain_parts,
+                                        chain_dict['chainName'])
+    if bad_headers:
+        [print ('scenario mismatch', h) for h in bad_headers]
+        # assert False
+        
     for cp in chain_parts:
-        if cp['signature'] in ('Jet', 'Bjet'): 
-            for k in cp_sorter:
-                if cp['hypoScenario'].startswith(k):
-                    cp_sorter[k].append(cp)
-                    break
+        for k in cp_sorter:
+            if cp['hypoScenario'].startswith(k):
+                cp_sorter[k].append(cp)
+                break
 
     # obtain labels by scenario.
     labels = []

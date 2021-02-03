@@ -6,8 +6,8 @@ panels = { vtx_eff_panel, vtx_res_panel, vtx_kin_panel };
 vtx_eff_panel = {
 
   "ntrax_eff",     "Tracks efficiency",           "xaxis:lin:0:200",      "Number of tracks",                  "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
-  "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:auto:lin:50:102",       "Vertex finding efficiency" ,
-  "mu_eff",        "efficiency vs mu",            "xaxis:lin:auto",      "pileup <#mu>",                      "yaxis:auto:lin:50:102",        "Efficiency"  ,
+  "zed_eff",       "Efficiency z",                "xaxis:lin:-175:175",  "Offline vertex z [mm]",             "yaxis:auto:lin:80:102",       "Vertex finding efficiency" ,
+  "mu_eff",        "efficiency vs mu",            "xaxis:lin:auto",      "pileup <#mu>",                      "yaxis:auto:lin:80:102",        "Efficiency"  ,
 
   //  "nvtx_eff",      "Vertices efficiency",         "xaxis:lin:auto",     "Number of vertices",                 "yaxis:lin:auto:0.5:1.05",   "Vertex finding efficiency" ,                                  
   //  "lb_eff",       "Efficiency lb",                "xaxis:lin:auto",     "luminosity block",                  "yaxis:lin:auto:0.50:1.05",       "Vertex finding efficiency" ,                              
@@ -22,14 +22,14 @@ vtx_eff_panel = {
 
 vtx_res_panel = {
 
-  "rdz_vs_ntrax/mean",        "Offset z vs N_{tracks}",     "xaxis:lin:auto",     "Offline track multiplicity",  "yaxis:auto:lin:-1:1.", "z_{0} mean [mm]" ,
+  "rdz_vs_ntrax/mean",        "Offset z vs N_{tracks}",     "xaxis:lin:auto",     "Offline track multiplicity",   "yaxis:auto:lin:-1:1.", "z_{0} mean [mm]" ,
   "rdz_vs_zed/mean",          "Offset z vs z",              "xaxis:lin:-175:175", "Offline vertex z [mm]",        "yaxis:auto:lin:-1:1",  "z_{0} mean [mm]" ,
-  "rdz_vs_zed/1d+rebin10",    "Residual z",                 "xaxis:lin:-5:5",   "#Delta z [mm]",                 "yaxis:log:auton",    "(1/N)dN/dz [mm^{-1}]" ,
+  "rdz_vs_zed/1d+rebin1",     "Residual z",                 "xaxis:lin:-2.5:2.5",     "#Delta z [mm]",                "yaxis:log:auton",      "(1/N)dN/dz [mm^{-1}]" ,
 
 
   "rdz_vs_ntrax/sigma",        "Offset z vs N_{tracks}",     "xaxis:lin:auto",     "Offline track multiplicity",  "yaxis:log:auto:0.003:2.", "z_{0} resolution [mm]" ,
-  "rdz_vs_zed/sigma",          "Resolution z vs z",          "xaxis:lin:-175:175", "Offline vertex z [mm]",       "yaxis:log:auto:0.003:2",       "z_{0} resolution [mm]" ,
-  "rdz_vs_zed/1d+lin+rebin10", "Residual z",                 "xaxis:lin:-5:5",   "#Delta z [mm]",                 "yaxis:lin:auton",    "(1/N)dN/dz [mm^{-1}]"	
+  "rdz_vs_zed/sigma",          "Resolution z vs z",          "xaxis:lin:-175:175", "Offline vertex z [mm]",       "yaxis:log:auto:0.003:2",  "z_{0} resolution [mm]" ,
+  "rdz_vs_zed/1d+lin+rebin1",  "Residual z",                 "xaxis:lin:-2.5:2.5",     "#Delta z [mm]",               "yaxis:lin:auton",         "(1/N)dN/dz [mm^{-1}]"	
 
 };
 

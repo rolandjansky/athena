@@ -42,6 +42,13 @@ class TriggerGetter(Configured):
             return True
         self._done=True
 
+        if TF.triggerMenuSetup() == "Physics_pp_v7_primaries":
+            # the Run 2 triggger menu Physics_pp_v7_primaries does not exist in json (it should be phased out soon)
+            # Need to disable the new menu through the new config flags
+            log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False because TriggerFlags.triggerMenuSetup == %s", TF.triggerMenuSetup())
+            from AthenaConfiguration.AllConfigFlags import ConfigFlags
+            ConfigFlags.Trigger.readLVL1FromJSON = False
+
         # start with print some information what this will do
         log.info("Basic configuration flags RecAlgsFlag.doTrigger: %d   RecFlags.doTrigger: %d TriggerFlags.doTriggerConfigOnly %d", recAlgs.doTrigger(), rec.doTrigger(), TF.doTriggerConfigOnly() )
         log.info("TriggerFlags: doL1Topo: %s, doLVL1: %s, doHLT: %s", TF.doL1Topo(), TF.doLVL1(), TF.doHLT() )

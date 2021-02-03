@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCER_H
 #define TRIGHLTJETHYPO_FASTREDUCER_H
 
-#include "./CapacityCheckedConditionsDefs.h"
+#include "./RepeatedConditionsDefs.h"
 #include "./Tree.h"
 #include "./JetGroupProduct.h"
 #include "./JetGroupIndAllocator.h"

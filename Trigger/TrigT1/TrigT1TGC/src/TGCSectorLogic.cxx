@@ -59,6 +59,8 @@ namespace LVL1TGCTrigger {
     m_sectorId += 3*m_octantId;
   }
 
+  m_matrix.setSideId(m_sideId);
+
   for(int i=0; i<MaxNumberOfWireHighPtBoard; i++){
       m_wireHighPtBoard[i] = 0;
       m_wireHighPtChipOut[i] = 0;

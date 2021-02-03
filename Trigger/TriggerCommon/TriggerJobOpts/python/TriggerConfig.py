@@ -388,7 +388,7 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         for key in keys:
             if 'PEBInfoWriter' in key:
                 PEBKeys.append(key)                
-    stmaker.PEBDecisionKeys = list(set(PEBKeys))
+    stmaker.PEBDecisionKeys = sorted(set(PEBKeys))
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -405,6 +405,11 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         # Transfer trigger bits to xTrigDecision which is read by offline BS writing ByteStreamCnvSvc
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
         acc.addEventAlgo(decmaker)
+
+        # Schedule the insertion of L1 prescales into the conditions store
+        # Required for writing L1 trigger bits to xTrigDecision
+        from TrigConfigSvc.TrigConfigSvcCfg import L1PrescaleCondAlgCfg
+        acc.merge(L1PrescaleCondAlgCfg(flags))
 
         # Create OutputStream alg
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
@@ -458,7 +463,7 @@ def triggerPOOLOutputCfg(flags, edmSet):
     # Produce trigger metadata
     menuwriter = CompFactory.getComp("TrigConf::xAODMenuWriterMT")()
     menuwriter.IsHLTJSONConfig = True
-    menuwriter.IsL1JSONConfig = True
+    menuwriter.IsL1JSONConfig = flags.Trigger.readLVL1FromJSON
     menuwriter.WritexAODTriggerMenu = True # This should be removed in the future
     menuwriter.WritexAODTriggerMenuJson = True
     menuwriter.KeyWriterTool = CompFactory.getComp('TrigConf::KeyWriterTool')('KeyWriterToolOffline')

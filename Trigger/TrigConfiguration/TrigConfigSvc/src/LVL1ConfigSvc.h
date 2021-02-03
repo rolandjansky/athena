@@ -101,8 +101,10 @@ namespace TrigConf {
       // jobProperties for Run 3 style menu
       Gaudi::Property< std::string > m_inputType { this, "InputType", "file", "file (json file), db (Trigger DB), cool (keys from cool, content from Trigger DB), none (no menu)" };
       Gaudi::Property< std::string > m_l1FileName { this, "JsonFileName", "", "file name of L1 json file, needed if InputType is file" };
+      Gaudi::Property< std::string > m_bgsFileName { this, "JsonFileNameBGS", "", "file name of Bunchgroupset json file, needed if InputType is file" };
       Gaudi::Property< std::string > m_dbConnection { this, "TriggerDB", "TRIGGERDB", "DB connection alias, needed if InputType is db" };
       Gaudi::Property< unsigned int > m_smk { this, "SMK", 0, "DB smk, needed if InputType is db" };
+      Gaudi::Property< unsigned int > m_bgsk { this, "BGSK", 0, "DB bgsk, needed if InputType is db" };
 
       // Run 2 style configuration
       CTPConfig*       m_ctpConfig { nullptr };

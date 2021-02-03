@@ -56,7 +56,12 @@
 #include "TF1.h"
 
 #include <math.h>
+#include <memory>
 
+//From root ... 
+#include "HFitInterface.h"
+#include "Math/MinimizerOptions.h"
+#include "Fit/DataRange.h"
 
 using CLHEP::GeV;
 
@@ -785,7 +790,7 @@ double LArCellDeadOTXCorr::getL1Energy(const CxxUtils::Array<1>& etaCalibrationS
 
 	if((int)maxIndex-2>=0 && (int)maxIndex+2<nbSamples)
 	{
-		TF1* pulseFit = new TF1("pulseFit", landauLandau , (float)maxIndex-2., (float)maxIndex+2., 5);
+	        std::unique_ptr<TF1> pulseFit = std::make_unique<TF1>("pulseFit", landauLandau , (float)maxIndex-2., (float)maxIndex+2., 5);
 		//-- values from parabola are used as initial values
 		pulseFit->SetParameters(max0*exp(0.5),maxPos0,0.7, 1., 10.); 
 		pulseFit->SetParLimits(1, 0.,15.);
@@ -793,19 +798,32 @@ double LArCellDeadOTXCorr::getL1Energy(const CxxUtils::Array<1>& etaCalibrationS
 		pulseFit->SetParLimits(3, 0.04, 1.6);
 		pulseFit->SetParLimits(4, 1, 300); 
 
-		TH1F* h_samples = new TH1F("samples", "samples", nbSamples,-0.5,(float)nbSamples - 0.5);
+		std::unique_ptr<TH1F> h_samples = std::make_unique<TH1F>("samples", "samples", nbSamples,-0.5,(float)nbSamples - 0.5);
 
 		for(int sample=0; sample<nbSamples;sample++)
 		{
 			h_samples->SetBinContent(sample+1, ADCsamples[sample]-pedestal);
 			h_samples->SetBinError(sample+1, 4.);
 		}
-		h_samples->Fit(pulseFit,"QRN");
 
-
+		//To ensure thread-safety, we need to use Minuit2 and avoid usage of static
+		//variables (like the DefaultMinimizerOptions) under the hood. 
+		//To this end, the following few lines have been copied from the root's TH1.cxx
+		//to replace the line
+		//h_samples->Fit(pulseFit,"QRN");
+		
+		Foption_t fitOption;
+		ROOT::Fit::FitOptionsMake(ROOT::Fit::kHistogram,"QRN",fitOption);
+		ROOT::Fit::DataRange range(0,0);
+		ROOT::Math::MinimizerOptions minOption;
+		minOption.SetMinimizerType("Minuit2");
+		{
+		  std::lock_guard<std::mutex> guard(m_fitMutex);
+		  //unsure if the following function is really thread-safe ... 
+		  ROOT::Fit::FitObject(h_samples.get(), pulseFit.get() , fitOption , minOption, "", range);
+		}
 		energy = pulseFit->GetParameter(0)*exp(-0.5)*0.25;// 1 ADC <-> 0.25GeV
-		delete h_samples;
-		delete pulseFit;
+		//std::cout << "DeadOTXEnergy: " <<  energy << " at " << Gaudi::Hive::currentContext().evt() << std::endl;
 	}
 	else //-- if we can't fit a Landau-Landau, we use the result from parabola
 		energy = max0*0.25;

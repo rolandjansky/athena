@@ -25,16 +25,16 @@ def precisionElectronRecoSequence_GSF(RoIs):
 
     ViewVerifyTrk_GSF   = CfgMgr.AthViews__ViewDataVerifier("PrecisionTrackViewDataVerifier_GSF")
 
+    from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys, TrigPixelKeys
     ViewVerifyTrk_GSF.DataObjects = [( 'CaloCellContainer' , 'StoreGateSvc+CaloCells' ),
                                  ( 'xAOD::CaloClusterContainer' , 'StoreGateSvc+%s' % precisionCaloMenuDefs.precisionCaloClusters ),
                                  ( 'xAOD::TrackParticleContainer','StoreGateSvc+%s' % TrigEgammaKeys.TrigElectronTracksCollectionName),
                                  # verifier object needed by GSF
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.averageInteractionsPerCrossing' ), 
-                                 ( 'TRT_RDO_Container' , 'StoreGateSvc+TRT_RDOs' ),
+                                 ( 'TRT_RDO_Container' , 'StoreGateSvc+%s' % TrigTRTKeys.RDOs ),
                                  ( 'IDCInDetBSErrContainer' , 'StoreGateSvc+PixelByteStreamErrs' ),
-                                 ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+PixelClusterAmbiguitiesMap' ),
-                                 ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+SplitClusterAmbiguityMap' ),
-                                 ( 'InDet::TRT_DriftCircleContainer' , 'StoreGateSvc+TRT_DriftCircles' ),
+                                 ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+%s' % TrigPixelKeys.PixelClusterAmbiguitiesMap ),
+                                 ( 'InDet::TRT_DriftCircleContainer' , 'StoreGateSvc+%s' % TrigTRTKeys.DriftCircles ),
                                  ( 'SG::AuxElement' , 'StoreGateSvc+EventInfo.AveIntPerXDecor' )]
 
 

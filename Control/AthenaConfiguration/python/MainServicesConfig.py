@@ -1,6 +1,5 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
-from __future__ import print_function
 from AthenaConfiguration.ComponentFactory import CompFactory
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
@@ -76,7 +75,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
     cfg.addService(StoreGateSvc("DetectorStore"))
     cfg.addService(StoreGateSvc("HistoryStore"))
     cfg.addService(StoreGateSvc("ConditionStore"))
-    cfg.addService(CompFactory.CoreDumpSvc(), create=True)
+    cfg.addService(CompFactory.CoreDumpSvc(FastStackTrace=True), create=True)
 
     cfg.setAppProperty('InitializationLoopCheck',False)
 
@@ -149,3 +148,8 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
 
     return cfg
     
+
+if __name__=="__main__":
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags
+    cfg = MainServicesCfg(ConfigFlags)
+    cfg._wasMerged = True   # to avoid errror that CA was not merged

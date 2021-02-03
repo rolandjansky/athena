@@ -24,6 +24,7 @@
 #include "xAODJet/Jet.h"
 #include "xAODJet/JetContainer.h"
 #include "AthContainers/ConstDataVector.h"
+#include "StoreGate/ShallowCopyDecorDeps.h"
 
 class JetViewAlg : public AthReentrantAlgorithm { 
 
@@ -48,7 +49,12 @@ private:
   Gaudi::Property<float> m_absetamax     {this, "AbsEtaMax", 10.0, "Max absolute eta"};
 
   SG::ReadHandleKey<xAOD::JetContainer>  m_input  = {this, "InputContainer",  "", "The input jet container name"};
-  SG::WriteHandleKey<ConstDataVector<xAOD::JetContainer> > m_output = {this, "OutputContainer", "", "The output jet container name"};
+  SG::WriteHandleKey<xAOD::JetContainer> m_output = {this, "OutputContainer", "", "The output jet container name"};
+
+  // Propagate a list of decorations from the owning container to the view, such that
+  // jet moments added by DecorHandles are visible on the view container
+  SG::ShallowCopyDecorDeps<xAOD::JetContainer> m_decorDeps { this, "DecorDeps", {},
+      "List of decorations to propagate through the view container." };
   
 }; 
 

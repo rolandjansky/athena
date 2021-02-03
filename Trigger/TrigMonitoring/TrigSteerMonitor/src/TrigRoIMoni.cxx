@@ -62,7 +62,6 @@ TrigRoIMoni::TrigRoIMoni(const std::string & type, const std::string & name,
   :  TrigMonitorToolBase(type, name, parent),
      m_trigConfigSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
      m_gotL1Config(false),
-     m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this),
      m_threshMultiMax(100)
    
 {

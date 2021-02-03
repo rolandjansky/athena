@@ -12,7 +12,7 @@
 
 #include "AFP_GeoModelTool.h"
 #include "AFP_GeoModelFactory.h"
-#include "AFP_GeoModel/AFP_GeoModelManager.h"
+#include "AFP_GeoModelManager.h"
 
 /**
  ** Constructor(s)

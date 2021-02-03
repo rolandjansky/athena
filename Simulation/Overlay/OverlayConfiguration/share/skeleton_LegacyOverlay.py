@@ -267,6 +267,13 @@ from AthenaCommon.Constants import INFO
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = '% F%45W%S%5W%e%s%7W%R%T %0W%M'
 
+#==========================================================
+# Use ZLIB for compression of all temporary outputs
+#==========================================================
+if '_000' in overlayArgs.outputRDOFile or 'tmp.' in overlayArgs.outputRDOFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
+
 # Post-include
 if hasattr(overlayArgs, 'postInclude'):
     for fragment in overlayArgs.postInclude:

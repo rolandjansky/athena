@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./CTPSimulation.h"
@@ -470,7 +470,7 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
       auto h0 = *get1DHist("/input/jets/jJetPt"); // calling operator* to get the Guard outside the filling loop
       auto h1 = *get1DHist("/input/jets/jJetEta");
       auto h2 = *get1DHist("/input/jets/jJetPhi");
-      for( const auto & jet : *jFexJets ) {
+      for( const auto jet : *jFexJets ) {
          h0->Fill(fabs(jet->et8x8()/1000.));
          h1->Fill(jet->eta());
          h2->Fill(jet->phi());
@@ -486,7 +486,7 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
       auto h0 = *get1DHist("/input/jets/jLJetPt");
       auto h1 = *get1DHist("/input/jets/jLJetEta");
       auto h2 = *get1DHist("/input/jets/jLJetPhi");
-      for( const auto & jet : *jFexLJets ) {
+      for( const auto jet : *jFexLJets ) {
          h0->Fill(fabs(jet->et8x8()/1000.));
          h1->Fill(jet->eta());
          h2->Fill(jet->phi());
@@ -502,7 +502,7 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
       auto h0 = *get1DHist("/input/jets/gJetPt");
       auto h1 = *get1DHist("/input/jets/gJetEta");
       auto h2 = *get1DHist("/input/jets/gJetPhi");
-      for( const auto & jet : *gFexJets ) {
+      for( const auto jet : *gFexJets ) {
          h0->Fill(fabs(jet->et8x8()/1000.));
          h1->Fill(jet->eta());
          h2->Fill(jet->phi());
@@ -541,7 +541,7 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
       auto h0 = *get1DHist("/input/em/et");
       auto h1 = *get1DHist("/input/em/eta");
       auto h2 = *get1DHist("/input/em/phi");
-      for( const auto & cl : *eFexCluster ) {
+      for( const auto cl : *eFexCluster ) {
        h0->Fill(cl->et());
        h1->Fill(cl->eta());
        h2->Fill(cl->phi());
@@ -563,7 +563,7 @@ LVL1CTP::CTPSimulation::fillInputHistograms(const EventContext& context) const {
       auto h6 = *get1DHist("/input/tau/R3ClusterIso");
       const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
       const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
-      for( const auto & tau : *eFexTau ) {
+      for( const auto tau : *eFexTau ) {
          h0->Fill(tau->eT());
          h1->Fill(tau->eta());
          h2->Fill(tau->phi());
@@ -770,7 +770,7 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::L1Threshold & 
       if ( jets.isValid() ) {
          auto pt = confThr.getAttribute<unsigned int>("pt");
          auto ranges = confThr.getList("ranges");
-	 for ( const auto & jet : *jets ) {
+	 for ( const auto jet : *jets ) {
             if( (unsigned int) (jet->et8x8()/1000.) < pt ) continue;
             // calculate eta index from eta
             float eta = jet->eta();
@@ -833,7 +833,7 @@ LVL1CTP::CTPSimulation::calculateJetMultiplicity( const TrigConf::TriggerThresho
       }
       auto jets = SG::makeHandle( *rhk, context );
       if ( jets.isValid() ) {
-	 for ( const auto & jet : *jets ) {
+        for ( const auto jet : *jets ) {
             float eta = jet->eta();
             float phi = jet->phi();
             if ( phi < 0 ) phi += 2*M_PI;
@@ -871,7 +871,7 @@ LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::L1Threshold & c
       // new EM threshold from eFEX
       float scale = l1menu->getObject("thresholds.legacyCalo.EM.emscale").getValue<float>();
       auto eFexCluster = SG::makeHandle( m_iKeyEFexCluster, context );
-      for ( const auto & cl : *eFexCluster ) {
+      for ( const auto cl : *eFexCluster ) {
          float eta = cl->eta();
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
          unsigned int thrV = confThr.thrValue( ieta );
@@ -903,7 +903,7 @@ LVL1CTP::CTPSimulation::calculateEMMultiplicity( const TrigConf::TriggerThreshol
    if ( confThr->name()[0]=='e' ) {
       // new EM threshold from eFEX
       auto eFexCluster = SG::makeHandle( m_iKeyEFexCluster, context );
-      for ( const auto & cl : *eFexCluster ) {
+      for ( const auto cl : *eFexCluster ) {
          float eta = cl->eta();
          int ieta = int((eta + (eta>0 ? 0.005 : -0.005))/0.1);
          int iphi = 0;
@@ -939,7 +939,7 @@ LVL1CTP::CTPSimulation::calculateTauMultiplicity( const TrigConf::L1Threshold & 
       const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
       const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
       if( eFexTaus.isValid() ) {
-         for ( const auto & tau : *eFexTaus ) {
+         for ( const auto tau : *eFexTaus ) {
             unsigned int eT = (unsigned int) (accR3ClET(*tau)/1000.); // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
             //float iso = accR3ClIso(*tau);
             unsigned int etCut = confThr.data().get_child("et").get_value<unsigned int>();
@@ -975,7 +975,7 @@ LVL1CTP::CTPSimulation::calculateTauMultiplicity( const TrigConf::TriggerThresho
       const static SG::AuxElement::ConstAccessor<float> accR3ClET ("R3ClusterET");
       const static SG::AuxElement::ConstAccessor<float> accR3ClIso ("R3ClusterIso");
       if( eFexTaus.isValid() ) {
-         for ( const auto & tau : *eFexTaus ) {
+         for ( const auto tau : *eFexTaus ) {
             unsigned int eT = (unsigned int) (accR3ClET(*tau)/1000.); // tau eT is in MeV while the cut is in GeV - this is only temporary and needs to be made consistent for all L1Calo
             //float iso = accR3ClIso(*tau);
             float eta = tau->eta();

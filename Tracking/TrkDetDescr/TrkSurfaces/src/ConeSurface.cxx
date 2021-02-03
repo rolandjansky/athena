@@ -252,8 +252,8 @@ Trk::ConeSurface::straightLineDistanceEstimate(const Amg::Vector3D& pos, const A
 {
   double tol = 0.001;
 
-  Amg::Vector3D Cntr = Trk::Surface::center(); // tip of the cone (i.e. join between halves)
-  Amg::Vector3D N = Trk::Surface::normal();    // this is the z-direction of the cone in
+  Amg::Vector3D Cntr = center(); // tip of the cone (i.e. join between halves)
+  Amg::Vector3D N = normal();    // this is the z-direction of the cone in
                                                // global coordiantes i believe
 
   Amg::Vector3D dPos = pos - Cntr; // pos w.r.t. cone tip

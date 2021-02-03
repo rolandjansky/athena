@@ -3,6 +3,12 @@
 #David Cote: added include block to avoid duplication ERROR when TAG_COMM and DESDs are executed in the same job (both including this fragment).
 include.block("LArCellRec/LArCollisionTime_jobOptions.py")
 
+#this could need mapping
+condSeq = AthSequencer ('AthCondSeq')
+if not hasattr (condSeq, 'LArOnOffMappingAlg'):
+   from LArCabling.LArCablingAccess import  LArOnOffIdMapping
+   LArOnOffIdMapping()
+
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg()
 from LArCellRec.LArCellRecConf import LArCollisionTimeAlg

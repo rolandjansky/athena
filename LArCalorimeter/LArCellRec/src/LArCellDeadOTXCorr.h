@@ -50,6 +50,7 @@
 #include <vector>
 #include <map>
 #include <atomic>
+#include <mutex>
 
 class CaloCell_ID;
 class LArOnlineID;
@@ -94,6 +95,7 @@ class LArCellDeadOTXCorr
     std::vector<double> m_triggerNoiseCut;
     bool m_useL1CaloDBProp;
     mutable std::atomic<bool> m_useL1CaloDB;
+    mutable std::mutex m_fitMutex;
 
     Constant<CxxUtils::Array<1> > m_etaCalibrationSizes
     { this, "etaCalibrationSizes" };
