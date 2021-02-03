@@ -15,8 +15,8 @@ ciRefFileMap = {
                 # qTestsTier0_required-test
                 'q221-21.0'            : 'v4',
                 'q431-21.0'            : 'v2',
-                'q221-21.3'            : 'v19',
-                'q431-21.3'            : 'v16',
+                'q221-21.3'            : 'v20',
+                'q431-21.3'            : 'v17',
                 # SimulationTier0Test_required-test
                 's3126-21.0'           : 'v2',
                 's3126-21.3'           : 'v2',
