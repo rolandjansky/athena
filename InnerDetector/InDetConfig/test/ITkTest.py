@@ -21,9 +21,9 @@ def defaultTestFlags(configFlags, args):
         configFlags.ITk.useLocalGeometry = True
     setupITkDetectorFlags(configFlags, args.detectors if 'detectors' in args else None, args)
 
-    configFlags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1']
+    configFlags.Input.Files = [args.inputevntfile]
     
-    configFlags.Output.HITSFileName = "myHITS.pool.root"
+    configFlags.Output.HITSFileName = args.outputhitsfile
 
     configFlags.Sim.CalibrationRun = "Off"
     configFlags.Sim.RecordStepInfo = False
@@ -34,10 +34,10 @@ def defaultTestFlags(configFlags, args):
 
     configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-15"
     configFlags.GeoModel.Align.Dynamic = False
-    configFlags.GeoModel.AtlasVersion = 'ATLAS-P2-ITK-22-02-00'
+    configFlags.GeoModel.AtlasVersion = args.geometrytag
     
 def printAndRun(accessor, configFlags, args):
-    """Common debugging and execution for overlay tests"""
+    """debugging and execution"""
     # Dump config
     if args.verboseAccumulators:
         accessor.printConfig(withDetails=True)
@@ -57,6 +57,12 @@ def printAndRun(accessor, configFlags, args):
 
 
 def setupITkDetectorFlags(configFlags, detectors, args):
+    configFlags.Detector.GeometryBpipe = True #things seem to misbehave (hang on first event) if there is no beampipe...
+    configFlags.Detector.GeometryMuon  = False #Not sure why this is there by default... and crashes if present :-(
+    configFlags.Detector.GeometryMM  = False #Not sure why this is there by default... does no harm though
+    configFlags.Detector.GeometrysTGC  = False #Not sure why this is there by default... does no harm though
+    if args.simulate:
+        configFlags.Detector.SimulateBpipe = True
     if not detectors or 'ITkStrip' in detectors or 'ITk' in detectors:
         configFlags.Detector.GeometryITkStrip = True
         if args.simulate:
@@ -79,7 +85,7 @@ def ITkTestCfg(configFlags):
     eventSelector.OverrideRunNumber = True
     eventSelector.RunNumber = myRunNumber
     eventSelector.FirstLB = myFirstLB
-    eventSelector.InitialTimeStamp = myInitialTimeStamp # Necessary to avoid a crash
+    eventSelector.InitialTimeStamp = myInitialTimeStamp
     if hasattr(eventSelector, "OverrideRunNumberFromInput"):
         eventSelector.OverrideRunNumberFromInput = True
     # add BeamEffectsAlg
@@ -93,8 +99,6 @@ def ITkTestCfg(configFlags):
 parser = ArgumentParser("ITkTest.py")
 parser.add_argument("detectors", metavar="detectors", type=str, nargs="*",
                     help="Specify the list of detectors")
-parser.add_argument("--profile", default=False, action="store_true",
-                    help="Profile using VTune")
 parser.add_argument("--simulate", default=True, action="store_true",
                     help="Run Simulation")
 parser.add_argument("--localgeo", default=False, action="store_true",
@@ -107,18 +111,27 @@ parser.add_argument("-S", "--verboseStoreGate", default=False,
                     help="Dump the StoreGate(s) each event iteration")
 parser.add_argument("--maxEvents",default=3, type=int,
                     help="The number of events to run. 0 skips execution")
+parser.add_argument("--geometrytag",default="ATLAS-P2-ITK-22-02-00", type=str,
+                    help="The geometry tag to use")
+parser.add_argument("--inputevntfile",
+                    default="/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1",
+                    help="The input EVNT file to use")
+parser.add_argument("--outputhitsfile",default="myHITS.pool.root", type=str,
+                    help="The output HITS filename")
 args = parser.parse_args()
+
 
 # Some info about the job
 print()
+print("Using Geometry Tag: "+args.geometrytag)
+if args.localgeo:
+    print("...overridden by local Geometry Xml files")
+print("Input EVNT File:"+args.inputevntfile)
 if not args.detectors:
     print("Running complete detector")
 else:
     print("Running with: {}".format(", ".join(args.detectors)))
 print()
-if args.profile:
-    print("Profiling...")
-    print()
 
 # Configure
 defaultTestFlags(ConfigFlags, args)
@@ -129,9 +142,6 @@ acc = ITkTestCfg(ConfigFlags)
 if args.simulate:
     from G4AtlasAlg.G4AtlasAlgConfigNew import G4AtlasAlgCfg
     acc.merge(G4AtlasAlgCfg(ConfigFlags))
-if args.profile:
-    from PerfMonVTune.PerfMonVTuneConfig import VTuneProfilerServiceCfg
-    acc.merge(VTuneProfilerServiceCfg(ConfigFlags))
 
 
 # dump pickle
