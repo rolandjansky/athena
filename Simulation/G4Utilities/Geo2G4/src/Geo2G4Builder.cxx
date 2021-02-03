@@ -86,7 +86,8 @@ Geo2G4Builder::Geo2G4Builder(std::string detectorName):
 G4LogicalVolume* Geo2G4Builder::BuildTree()
 {
   G4LogicalVolume* result = 0;
-  OpticalVolumesMap* optical_volumes = 0;
+  
+OpticalVolumesMap* optical_volumes = 0;
   const GeoBorderSurfaceContainer* surface_container = 0;
 
   // Check whether we have to deal with optical surfaces
@@ -96,7 +97,6 @@ G4LogicalVolume* Geo2G4Builder::BuildTree()
       if(sc.isSuccess() && surface_container!=0 && surface_container->size()>0)
         optical_volumes = new OpticalVolumesMap();
     }
-
   if(m_theBuilder) {
     if(m_treeTops.size()==1) {
       m_motherTransform = m_treeTops[0]->getX();
@@ -182,11 +182,15 @@ VolumeBuilder*  Geo2G4Builder::GetVolumeBuilder(std::string bname)
 void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surface_container,
                                          const OpticalVolumesMap* optical_volumes)
 {
+
+
   Geo2G4OpticalSurfaceFactory surfaceFactory;
 
   // Iterate over all Border Surfaces in the container
   GeoBorderSurfaceContainer::const_iterator first = surface_container->begin();
   GeoBorderSurfaceContainer::const_iterator last  = surface_container->end();
+
+
 
   for(;first!=last;first++)
     {
@@ -211,7 +215,7 @@ void Geo2G4Builder::BuildOpticalSurfaces(const GeoBorderSurfaceContainer* surfac
       volIt = optical_volumes->find(border_surface.getPV2());
       if(volIt == optical_volumes->end())
         {
-          ATH_MSG_WARNING("Unable to find " << border_surface.getPV1()->getLogVol()->getName() << " in Optical Volumes map");
+          ATH_MSG_WARNING("Unable to find " << border_surface.getPV2()->getLogVol()->getName() << " in Optical Volumes map");
           continue;
         }
       g4PV2 = volIt.operator->()->second;

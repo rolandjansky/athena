@@ -205,7 +205,8 @@ bool AFP_SensitiveDetector::ProcessHits(G4Step* pStep, G4TouchableHistory*)
     }
   */
 
-  if ( (VolumeName.contains("Radiator")) && pParticleDefinition->GetPDGCharge() !=0 )
+//  if ( (VolumeName.contains("Radiator")) && pParticleDefinition->GetPDGCharge() !=0 )
+if ( (VolumeName.contains("Radiator")))
     {
       nQuarticID=szbuff[7]-0x30;
       m_pTDSimHitCollection->Emplace(m_nHitID,nTrackID,nParticleEncoding,fKineticEnergy,fEnergyDeposit,

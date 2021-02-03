@@ -241,16 +241,33 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 	pBSContainer->reserve(m_AfpConstants.ToF_TrainsCnt*m_AfpConstants.ToF_ColumnsCnt);
 
     //AFP00 (SIDE A (+z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-	//Envelope
-	TransEnvInWorld=m_pGeometry->getStationTransform("AFP00");
+    //Envelope
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP00");
+    const GeoBox* pBoxLongOutEnv= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
+    const GeoLogVol* pLogLongOutEnv = new GeoLogVol("AFP00_LogStationOutEnv", pBoxLongOutEnv, m_MapMaterials[std::string("std::Vacuum")]);       
+    GeoPhysVol* pPhysLongOutEnv   = new GeoPhysVol(pLogLongOutEnv);
+    sprintf(szLabel,"AFP00_StationOutEnv");
+//    world->add(new GeoTransform(TransEnvInWorld));
+//    world->add(new GeoNameTag(szLabel));
+//    world->add(pPhysLongOutEnv);
+
+//    m_pDetectorManager->addTreeTop(pPhysLongOutEnv);
+
+    //Optical Envelope
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP00");
     const GeoBox* pBoxLongEnv= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
-	const GeoLogVol* pLogLongEnv = new GeoLogVol("AFP00_LogStationEnv", pBoxLongEnv, m_MapMaterials[std::string("OpticalVacuum")]);
+    const GeoLogVol* pLogLongEnv = new GeoLogVol("AFP00_LogStationEnv", pBoxLongEnv, m_MapMaterials[std::string("OpticalVacuum")]);
     GeoOpticalPhysVol* pPhysLongEnv   = new GeoOpticalPhysVol(pLogLongEnv);
-	sprintf(szLabel,"AFP00_StationEnv");
+    sprintf(szLabel,"AFP00_StationEnv");
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv);
-	m_pDetectorManager->addTreeTop(pPhysLongEnv);
+    m_pDetectorManager->addTreeTop(pPhysLongEnv);
+
+//     pPhysLongOutEnv->add(new GeoNameTag(szLabel));
+//     pPhysLongOutEnv->add(new GeoTransform(TransEnvInWorld));
+//     pPhysLongOutEnv->add(pPhysLongEnv);
+
 
 	//Roman Pot
 	PosElementInEnv=m_pGeometry->getStationElementTransform("AFP00",ESE_RPOT);
@@ -285,7 +302,8 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 	addSiDetector(pPhysShortEnv,"AFP01",PosElementInEnv);
 
     //AFP02 (SIDE C (-z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-    //add envelope -- short beampipe (station C)
+
+    //add  envelope -- short beampipe (station C)
 	TransEnvInWorld=m_pGeometry->getStationTransform("AFP02");
     const GeoBox* pBoxShortEnv1= new GeoBox(150*CLHEP::mm, 150*CLHEP::mm, 280*CLHEP::mm);
 	const GeoLogVol* pLogShortEnv1 = new GeoLogVol("AFP02_LogStationEnv", pBoxShortEnv1, m_MapMaterials[std::string("std::Vacuum")]);
@@ -305,7 +323,19 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 	addSiDetector(pPhysShortEnv1,"AFP02",PosElementInEnv);
 
     //AFP03 (SIDE C (-z)) ------------------------------------------------------------------------------------------------------------------------------------------------------
-	//Envelope
+    // Envelope
+    TransEnvInWorld=m_pGeometry->getStationTransform("AFP03");
+    const GeoBox* pBoxLongOutEnv1= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
+    const GeoLogVol* pLogLongOutEnv1 = new GeoLogVol("AFP03_LogStationOutEnv", pBoxLongOutEnv1, m_MapMaterials[std::string("std::Vacuum")]);
+    GeoPhysVol* pPhysLongOutEnv1   = new GeoPhysVol(pLogLongOutEnv1);
+    sprintf(szLabel,"AFP03_StationOutEnv");
+//    world->add(new GeoTransform(TransEnvInWorld));
+//    world->add(new GeoNameTag(szLabel));
+//    world->add(pPhysLongOutEnv1);
+
+//    m_pDetectorManager->addTreeTop(pPhysLongOutEnv1);
+
+	// Optical Envelope
 	TransEnvInWorld=m_pGeometry->getStationTransform("AFP03");
     const GeoBox* pBoxLongEnv1= new GeoBox(150*mm, 150*CLHEP::mm, 280*CLHEP::mm);
 	const GeoLogVol* pLogLongEnv1 = new GeoLogVol("AFP03_LogStationEnv", pBoxLongEnv1, m_MapMaterials[std::string("OpticalVacuum")]);
@@ -314,7 +344,12 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
     world->add(new GeoTransform(TransEnvInWorld));
     world->add(new GeoNameTag(szLabel));
     world->add(pPhysLongEnv1);
-	m_pDetectorManager->addTreeTop(pPhysLongEnv1);
+    m_pDetectorManager->addTreeTop(pPhysLongEnv1);
+
+//     pPhysLongOutEnv1->add(new GeoNameTag(szLabel));
+//     pPhysLongOutEnv1->add(new GeoTransform(TransEnvInWorld));
+//     pPhysLongOutEnv1->add(pPhysLongEnv1);
+
 
 	//Roman Pot
 	PosElementInEnv=m_pGeometry->getStationElementTransform("AFP03",ESE_RPOT);
@@ -327,6 +362,8 @@ void AFP_GeoModelFactory::create(GeoPhysVol *world)
 	//Silicon detector
 	PosElementInEnv=m_pGeometry->getStationElementTransform("AFP03",ESE_SID);
 	addSiDetector(pPhysLongEnv1,"AFP03",PosElementInEnv);
+
+
 
     //---------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
