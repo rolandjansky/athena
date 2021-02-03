@@ -402,7 +402,7 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 			while (pdg_id == mom_pdg_id) {
 				const HepMC::GenParticle* mother = *(vprod->particles_in_const_begin());
 				if (mother) {
-					mom_pdg_id = abs(mother->pdg_id());
+					mom_pdg_id = std::abs(mother->pdg_id());
 				} else break;
 				if (pdg_id != mom_pdg_id) break;
 
@@ -423,11 +423,9 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 			// This suppresses fave Z's from conversions
 			if (vprod && vprod->particles_in_size() >1)
 			{
-				//std::cout << "Looping over vertex daughters: "<< vprod->particles_out_size() << std::endl;
 				for(HepMC::GenVertex::particles_out_const_iterator daughter = vprod->particles_out_const_begin();daughter!=vprod->particles_out_const_end();++daughter)
 				{
-					//std::cout << "Daughter pdgId: " << (*daughter)->pdg_id() << std::endl;
-					if((abs((*daughter)->pdg_id())>10 && abs((*daughter)->pdg_id())<17) ) nDecay++;
+					if((std::abs((*daughter)->pdg_id())>10 && std::abs((*daughter)->pdg_id())<17) ) nDecay++;
 				}
 			}
 			bool isWZ = (nDecay==2);
@@ -438,13 +436,11 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
                 mom_pdg_id==1000023 || mom_pdg_id==1000024 || mom_pdg_id==1000025 || mom_pdg_id==1000035 || // Gauginos
                 isWZ) { // paricle decends from W or Z
 				//  Save lepton reference for comparison to FSR photons (only for muons and electrons)
-				if(p->status()==1 && (abs(p->pdg_id())==11 || abs(p->pdg_id())==13) ) m_WZleptons.push_back(p);
-				//if(p->status()==1 && (abs(p->pdg_id())==11 || abs(p->pdg_id())==13) ) std::cout << "WZParticle found pdgId: " << p->pdg_id() << " status: " << status << std::endl;
+				if(p->status()==1 && (std::abs(p->pdg_id())==11 || std::abs(p->pdg_id())==13) ) m_WZleptons.push_back(p);
 
 				// Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
 				if(std::abs (p->pdg_id()) == 22 && m_photonCone>0)
 				{
-				  //if(p->status()==1 && (abs(p->pdg_id())==22) ) std::cout << "WZParticle found pdgId: " << p->pdg_id() << " status: " << status << std::endl;
 					std::vector<const HepMC::GenParticle*>::iterator lep=m_WZleptons.begin();
 					for(;lep!=m_WZleptons.end();++lep) {
 						double deltaR = HepLorentzVector(p->momentum().px(),p->momentum().py(),p->momentum().pz(),p->momentum().e())

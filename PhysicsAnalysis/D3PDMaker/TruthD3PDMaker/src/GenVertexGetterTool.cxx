@@ -77,7 +77,7 @@ namespace D3PD {
 
    const void* GenVertexGetterTool::nextUntyped() {
 
-      if( m_evtItr == m_evtEnd ) return 0;
+      if( m_evtItr == m_evtEnd ) return nullptr;
 
       // Check if this GenEvent passes our selection cuts:
       if( ! m_selector->pass( *m_evtItr, m_mcColl ) ) {
