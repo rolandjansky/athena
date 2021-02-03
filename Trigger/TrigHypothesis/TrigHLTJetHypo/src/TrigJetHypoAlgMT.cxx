@@ -115,9 +115,10 @@ TrigJetHypoAlgMT::decide(const xAOD::JetContainer* jets,
       // Create a new Decision object to mirror this Jet.
       // Link it to its parent Decision object and attach the jet as a "feature"
       newDecision = TrigCompositeUtils::newDecisionIn(outputDecisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context);
-    
+
+      const xAOD::JetContainer* jetCont = static_cast<const xAOD::JetContainer*>(jet->container());
       ElementLink<xAOD::JetContainer> jetLink =
-	ElementLink<xAOD::JetContainer>(*jets, jet->index());
+	ElementLink<xAOD::JetContainer>(*jetCont, jet->index());
 
       newDecision->setObjectLink<xAOD::JetContainer>(TrigCompositeUtils::featureString(), jetLink);
       jetHypoInputs.push_back( std::make_pair(jet, newDecision) );
