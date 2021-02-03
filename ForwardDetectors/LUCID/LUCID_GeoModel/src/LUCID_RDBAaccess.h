@@ -31,34 +31,14 @@ class LUCID_RDBAccess {
   double VJconeFrontRingLength;
   double VJconeFrontRingOverlap;
 
-  double vesselInnerRadius;  
-  double vesselInnerThickness;  
-  double vesselOuterRadMin;  
-  double vesselOuterRadMax;  
-  double vesselOuterThickness;  
-  double vesselLength;  
-  
-  double bulkheadThickness;  
-  
-  double coolingRadius;  
-  double coolingThickness;  
-  
-  double layerRadius1;  
-  double layerRadius2;  
-  
-  double tubeRadius;  
-  double tubeThickness;  
-  double tubeLength;  
-  
+  double cylinderLength;  
+  double cylinderRadius;  
+  double cylinderThickness;  
+  double pmtPosition;  
+  double pmtRadius;  
   double pmtThickness;  
-  
-  double gasPressure;  
-  double gasDensity;  
-  double gasTemperature;  
-  
-  double quartzDensity;    
 
-  double tubePolish;    
+  double quartzDensity; 
 
   double waveLengthStep;  
   double waveLengthMin;  
