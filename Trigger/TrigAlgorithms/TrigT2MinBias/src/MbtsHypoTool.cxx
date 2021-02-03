@@ -18,7 +18,7 @@ StatusCode MbtsHypoTool::initialize()
 	return StatusCode::SUCCESS;
 }
 
-StatusCode MbtsHypoTool::decide(MBTSInfo &info) const
+StatusCode MbtsHypoTool::decide(MbtsHypoInfo &info) const
 {
 	ATH_MSG_DEBUG("Executing this T2MbtsHypo " << name());
 
@@ -32,7 +32,7 @@ StatusCode MbtsHypoTool::decide(MBTSInfo &info) const
 	Counts counts = calculateMultiplicities(info.mbtsBits);
 	if ( counts.sideA == 0 && counts.sideC == 0)
 	{
-		ATH_MSG_DEBUG("calculateMultiplicities failed");
+		ATH_MSG_DEBUG("calculateMultiplicities failed, no multiplicities");
 		return StatusCode::SUCCESS;
 	}
 	bool pass = false;

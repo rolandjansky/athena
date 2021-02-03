@@ -6,7 +6,7 @@ log = logging.getLogger( __name__ )
 
 
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigurationBase
-from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMBTSSequence 
+from TriggerMenuMT.HLTMenuConfig.MinBias.MinBiasMenuSequences import MinBiasSPSequence, MinBiasTrkSequence, MinBiasMbtsSequence 
 
 #----------------------------------------------------------------
 # fragments generating configuration will be functions in New JO,
@@ -19,8 +19,8 @@ def MinBiasTrkSequenceCfg(flags):
     return MinBiasTrkSequence()
 
 
-def MinBiasMBTSSequenceCfg(flags):
-    return MinBiasMBTSSequence()
+def MinBiasMbtsSequenceCfg(flags):
+    return MinBiasMbtsSequence()
 
 
 class MinBiasChainConfig(ChainConfigurationBase):
@@ -35,7 +35,7 @@ class MinBiasChainConfig(ChainConfigurationBase):
         log.debug("Assembling chain for %s", self.chainName)
         steps = []
         if "_mbts" in self.chainName:
-            pass
+            steps.append(self.getMinBiasMbtsStep())
 
         if "_sp" in self.chainName:
             steps.append(self.getMinBiasSpStep())
@@ -46,8 +46,8 @@ class MinBiasChainConfig(ChainConfigurationBase):
 
         return self.buildChain(steps)
 
-    def getMBTSStep(self):
-        return self.getStep(1, 'MBTS',[MinBiasMBTSSequenceCfg])
+    def getMinBiasMbtsStep(self):
+        return self.getStep(1, 'Mbts',[MinBiasMbtsSequenceCfg])
     
     def getMinBiasSpStep(self):
         return self.getStep(2,'SPCount',[MinBiasSPSequenceCfg])

@@ -4,8 +4,9 @@
 #ifndef TRIGT2MINBIAS_MBTSHYPOALG_H
 #define TRIGT2MINBIAS_MBTSHYPOALG_H
 
-// Framework includes
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
+#include "DecisionHandling/HypoBase.h"
+#include "MbtsHypoTool.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
 
 // STL includes
 #include <string>
@@ -14,7 +15,7 @@
  * @class MbtsHypoAlg
  * @brief 
  **/
-class MbtsHypoAlg : public AthReentrantAlgorithm {
+class MbtsHypoAlg : public ::HypoBase {
 public:
   MbtsHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
   virtual ~MbtsHypoAlg() override;
@@ -24,7 +25,8 @@ public:
   virtual StatusCode finalize() override;
 
 private:
-  //Gaudi::Property<int> m_myInt{this, "MyInt", 0, "An Integer"};
+  ToolHandleArray<MbtsHypoTool> m_hypoTools{this, "HypoTools", {}};
+  SG::ReadHandleKey<xAOD::TrigT2MbtsBitsContainer> m_MbtsBitsKey{this, "MbtsBitsKey", "Undefined", ""};
 };
 
 #endif // TRIGT2MINBIAS_MBTSHYPOALG_H

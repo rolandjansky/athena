@@ -124,22 +124,30 @@ def MinBiasTrkSequence():
                             Hypo        = trackCountHypo,
                             HypoToolGen = TrackCountHypoToolGen)
 
-def MinBiasMBTSSequence():
-    from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
-    MBTSRecoSeq = parOR("MBTSRecoSeq", [MbtsFexMT()])
+def MinBiasMbtsSequence():
+    from TrigT2MinBias.TrigT2MinBiasConf import MbtsHypoAlg, MbtsHypoTool
+    from TrigT2MinBias.MbtsConfig import MbtsFexMTCfg
+    fex = MbtsFexMTCfg(MbtsBitsKey="HLT_MbtsBitsContainer")
+    MbtsRecoSeq = parOR("MbtsRecoSeq", [fex])
 
-    MBTSInputMakerAlg = EventViewCreatorAlgorithm("IM_MBTSEventViewCreator")
-    MBTSInputMakerAlg.ViewFallThrough = True
-    MBTSInputMakerAlg.RoITool = ViewCreatorInitialROITool()
-    MBTSInputMakerAlg.InViewRoIs = "InputRoI" # contract with the consumer
-    MBTSInputMakerAlg.Views = "MBTSView"
-    MBTSInputMakerAlg.RequireParentView = True
-    MBTSInputMakerAlg.ViewNodeName = MBTSRecoSeq.name()
-    MBTSSequence = seqAND("MBTSSequence", [MBTSInputMakerAlg, MBTSRecoSeq])
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
+    MbtsInputMakerAlg = InputMakerForRoI("IM_Mbts", 
+                                        RoIsLink="initialRoI", 
+                                        RoITool = ViewCreatorInitialROITool(),
+                                        RoIs='MbtsRoI', # not used in fact
+                                        )
 
-    
+#InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")]
+#InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
 
-    return MenuSequence(Sequence    = MBTSSequence,
-                        Maker       = MBTSInputMakerAlg,
-                        Hypo        = MBTSHypo,
-                        HypoToolGen = MBTSHypoToolGen)
+    MbtsSequence = seqAND("MbtsSequence", [MbtsInputMakerAlg, MbtsRecoSeq])
+
+    hypo = MbtsHypoAlg("MbtsHypoAlg", MbtsBitsKey=fex.MbtsBitsKey)
+
+    def hypoToolGen(chainDict):
+        return MbtsHypoTool(chainDict["chainName"]) # to now no additional settings
+
+    return MenuSequence(Sequence    = MbtsSequence,
+                        Maker       = MbtsInputMakerAlg,
+                        Hypo        = hypo,
+                        HypoToolGen = hypoToolGen)

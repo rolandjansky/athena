@@ -7,6 +7,7 @@ Copyright! (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 #include "Gaudi/Property.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "TrigCompositeUtils/TrigCompositeUtils.h"
 #include "xAODTrigMinBias/TrigT2MbtsBits.h"
 
@@ -19,15 +20,14 @@ public:
 
   virtual StatusCode initialize() override;
 
-  struct MBTSInfo
+  struct MbtsHypoInfo
   {
-    TrigCompositeUtils::Decision *decision;
-    // do not know yet what is needed
-    const xAOD::TrigT2MbtsBits *mbtsBits;
     const TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
+    const xAOD::TrigT2MbtsBits *mbtsBits;
+    TrigCompositeUtils::Decision *decision;
   };
 
-  StatusCode decide(MBTSInfo &decisions) const;
+  StatusCode decide(MbtsHypoInfo &decisions) const;
 
 private:
   bool applyCut(const Gaudi::Property<int> &threshold, const xAOD::TrigComposite *composit) const;
