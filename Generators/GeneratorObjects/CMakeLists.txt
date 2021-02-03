@@ -27,6 +27,8 @@ else()
                         GeneratorObjects/McEventDict.h
                         GeneratorObjects/selection.xml
                         LINK_LIBRARIES GeneratorObjects RootUtils )
+  add_library( HepMC3rootIO SHARED src/dummylibHepMC3rootIO.cxx)
+  set_target_properties (HepMC3rootIO PROPERTIES SOVERSION 3)
 endif()
 
 # Install a dummy rootmap file to suppress loading the rootmap from hepmc3,
