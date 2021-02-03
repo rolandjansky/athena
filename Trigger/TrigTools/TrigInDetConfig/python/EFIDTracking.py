@@ -1,10 +1,8 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #           Setup of offline pattern recognition tracking for ID Trigger
 #Heavily inspired by the offline version:
 #https://gitlab.cern.ch/atlas/athena/blob/master/InnerDetector/InDetExample/InDetRecExample/share/ConfiguredNewTrackingSiPattern.py
-
-from __future__ import print_function
 
 from AthenaCommon.Include import include
 include.block("InDetTrigRecExample/EFInDetConfig.py")
@@ -111,7 +109,6 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #Do we actually need it?
       if usePrdAssociationTool:
          from .InDetTrigCommon import prdAssociation_builder
-         print ('Running SiSPseedTrackFinder!')
          InputCollections = None #Dummy atm
          prdAssociation = prdAssociation_builder( InputCollections )
          viewAlgs.append( prdAssociation )
@@ -126,7 +123,6 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #if InDetFlags.doSiSPSeededTrackFinder():
       doSiSPSeededTrackFinder = True #True by default to test this
       if doSiSPSeededTrackFinder:
-         print ('Running SiSPseedTrackFinder!')
 
          from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
@@ -163,7 +159,6 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
                                                                 usePrdAssociationTool = usePrdAssociationTool,
                                                                 nameSuffix            = config.name )
 
-         print(siSPSeededTrackFinder)
          viewAlgs.append( siSPSeededTrackFinder )
       #-----------------------------------------------------------------------------
       #                      Track particle conversion algorithm (for pattern rec.)
