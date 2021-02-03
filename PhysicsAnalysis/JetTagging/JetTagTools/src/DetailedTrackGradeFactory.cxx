@@ -39,8 +39,6 @@ DetailedTrackGradeFactory::DetailedTrackGradeFactory( const std::string& t, cons
 
     declareProperty("nOutlierPix"  , m_nOutlierPix    = 0);
     declareProperty("nSpoiltPix"  ,  m_nSpoiltPix    = 1);
-    declareProperty("nInnermostTotPixelEta23"  ,   m_nInTotPixEta23    = 4);
-    declareProperty("nInnermostTotPixEta34"  ,     m_nInTotPixEta34    = 5);
 
     declareProperty("ptFracGrade", m_ptFracGrade = false);
     declareProperty("ptFracCut", m_ptFracCut = 0.04);
@@ -230,15 +228,13 @@ StatusCode DetailedTrackGradeFactory::initialize()
 
       myGrades.push_back( TrackGrade(nbGrades, std::string( "C01")) ); //no hit 1st pixel layer, no hit 2nd pixel layer
       nbGrades++;
-      myGrades.push_back( TrackGrade(nbGrades, std::string( "C020304")) ); //no hit 1st pixel layer OR no hit 2nd pixel layer but expected
-      nbGrades++;
-      myGrades.push_back( TrackGrade(nbGrades, std::string( "C05")) ); //no hit 2nd pixel layer and not expected
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C02030405")) ); //no hit 1st pixel layer OR no hit 2nd pixel layer but expected
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades, std::string( "C06")) ); //total number of shared pixel hits > 0
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades, std::string( "C07")) ); //number of outliers in 1st+2nd pixel layer > 0
       nbGrades++;
-      myGrades.push_back( TrackGrade(nbGrades, std::string( "C0809")) ); //number of pixel spoilt hits >=2 OR number of pixel hits <=3 for 2<|eta|<3 / <=4 for |eta|>3
+      myGrades.push_back( TrackGrade(nbGrades, std::string( "C08")) ); //number of pixel spoilt hits >=2
       nbGrades++;
       myGrades.push_back( TrackGrade(nbGrades, std::string( "C14_1")) ); //good tracks gamma>3e-3
       nbGrades++;
@@ -343,7 +339,6 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
 
   bool pixoutlierClass(false);
   bool pixspoiltClass(false);
-  bool pixlowhitsClass(false);
 
   bool ptFrac(false);
   
@@ -653,8 +648,6 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       ATH_MSG_ERROR("#BTAG# Cannot retrieve numberOfNextToInnermostPixelLayerHits for TrackGrade!");
     }
     if (nnih==0) nohitNextToInnermostLayer = true;
-    
-    int nihtot =  nih+nnih ;
 
     uint8_t Enih, Ennih;
 
@@ -736,9 +729,6 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
     if (etaTrack<=1) eta_region = 0;
     else if (etaTrack>1 && etaTrack<=2) eta_region = 1;
     else if (etaTrack>2) eta_region = 2;
-
-    if(etaTrack>2 && etaTrack<=3 && nihtot<m_nInTotPixEta23) pixlowhitsClass = true;
-    else if(etaTrack>3 && nihtot<m_nInTotPixEta34) pixlowhitsClass = true;
 
     InnermostLayer1= nih==1;
     InnermostLayer2_and_beyond = nih>1;
@@ -880,20 +870,10 @@ TrackGrade* DetailedTrackGradeFactory::getGrade(const xAOD::TrackParticle & trac
       else if(m_ITkTrackGradingVersion==7){
 
 	if( nohitInnermostLayer &&  nohitNextToInnermostLayer)  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C01"));
-
-	else if ( nohitInnermostLayer &&  !nohitNextToInnermostLayer ){
-	  if ( exphitInnermostLayer ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C020304"));
-	  else  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C020304"));
-	}
-
-	else if (!nohitInnermostLayer &&  nohitNextToInnermostLayer){
-	  if ( exphitNextToInnermostLayer )  gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C020304"));
-	  else gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C05"));
-	}
-
+	else if ( nohitInnermostLayer || nohitNextToInnermostLayer ) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C02030405"));
 	else if (pixsharedClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C06"));
 	else if (pixoutlierClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C07"));
-	else if (pixspoiltClass || pixlowhitsClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C0809"));
+	else if (pixspoiltClass) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C08"));
 
 	else if(gamma_region==0) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C14_1"));
 	else if(gamma_region==1) gradeToReturn=m_trackGradesDefinition.getGrade(std::string("C14_2"));
