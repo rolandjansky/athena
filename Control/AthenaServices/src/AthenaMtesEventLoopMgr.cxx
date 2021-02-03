@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaMtesEventLoopMgr.h"
@@ -182,7 +182,7 @@ StatusCode AthenaMtesEventLoopMgr::initialize()
     
   const std::string& histPersName(m_histPersName.value());
   if(histPersName.empty()) {
-    setProperty(prpMgr->getProperty("HistogramPersistency")).ignore();
+    ATH_CHECK(setProperty(prpMgr->getProperty("HistogramPersistency")));
   }
 
   if(histPersName != "NONE") {
