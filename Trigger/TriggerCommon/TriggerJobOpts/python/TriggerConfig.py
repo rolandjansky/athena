@@ -406,6 +406,11 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
         decmaker = CompFactory.getComp("TrigDec::TrigDecisionMakerMT")("TrigDecMakerMT")
         acc.addEventAlgo(decmaker)
 
+        # Schedule the insertion of L1 prescales into the conditions store
+        # Required for writing L1 trigger bits to xTrigDecision
+        from TrigConfigSvc.TrigConfigSvcCfg import L1PrescaleCondAlgCfg
+        acc.merge(L1PrescaleCondAlgCfg(flags))
+
         # Create OutputStream alg
         from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamWriteCfg
         writingAcc = ByteStreamWriteCfg(flags, [ "HLT::HLTResultMT#HLTResultMT" ])
