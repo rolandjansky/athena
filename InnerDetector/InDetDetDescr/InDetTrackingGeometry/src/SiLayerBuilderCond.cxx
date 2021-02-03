@@ -151,6 +151,23 @@ StatusCode InDet::SiLayerBuilderCond::finalize()
 }
 
 
+SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> InDet::SiLayerBuilderCond::retrieveSiDetElements(const EventContext& ctx) const
+{
+  if(m_pixelCase){
+    auto readHandle = SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_PixelReadKey, ctx);
+    if (*readHandle==nullptr) {
+      ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_PixelReadKey.key());
+    }
+    return readHandle;
+  }else{
+    auto readHandle = SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_SCT_ReadKey, ctx);
+    if (*readHandle==nullptr) {
+      ATH_MSG_ERROR("Null pointer to the read conditions object of " << m_SCT_ReadKey.key());
+    }
+    return readHandle;
+  }
+}
+
 /** LayerBuilder interface method - returning Barrel-like layers */
 std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::SiLayerBuilderCond::cylindricalLayers(const EventContext& ctx) const
 {
@@ -218,13 +235,12 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
  
   // [-A-] ------------------------ LOOP over Detector Elements of sensitive layers -----------------------------------
   // iterate over the detector elements for layer dimension, etc.   
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection>* readHandle;
-  if(m_pixelCase){
-    readHandle = new SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_PixelReadKey, ctx);
-  }else{
-    readHandle = new SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_SCT_ReadKey, ctx);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
+  if(*readHandle == nullptr){
+    EventIDRange range;
+    return std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*>(range,nullptr);
   }
-  const InDetDD::SiDetectorElementCollection* readCdo{**readHandle};
+  const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
   for (; sidetIter != readCdo->end(); ++sidetIter){
      // Barrel check
@@ -490,7 +506,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
       // (3) register the layers --- either in the split vector or in the return vector 
       if (splitDone) {
           ATH_MSG_DEBUG( "[ Split mode / Part 1 ] Layer cached for Part 2" );
-          readHandle->range(s_splitIOVRange);
+          readHandle.range(s_splitIOVRange);
           s_splitCylinderLayers.push_back(activeLayer);   
           // get the split radius to the smallest one possible
           if (m_splitMode > 0) takeSmaller( s_splitRadius, currentLayerRadius);
@@ -520,8 +536,7 @@ std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> InDet::Si
 
   ATH_MSG_DEBUG("Returning " << cylinderLayers->size() << " cylinder layers.");
   EventIDRange range;
-  readHandle->range(range);
-  delete readHandle;
+  readHandle.range(range);
   std::pair<EventIDRange, const std::vector<const Trk::CylinderLayer*>*> cylinderLayersPair = std::make_pair(range,cylinderLayers);
   return cylinderLayersPair;
 } 
@@ -568,13 +583,12 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   bool isDBM = (dLayers!=NULL);
   
   // get general layout
-  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection>* readHandle;
-  if(m_pixelCase){
-    readHandle = new SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_PixelReadKey, ctx);
-  }else{
-    readHandle = new SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> (m_SCT_ReadKey, ctx);
+  SG::ReadCondHandle<InDetDD::SiDetectorElementCollection> readHandle = retrieveSiDetElements(ctx);
+  if(*readHandle == nullptr){
+    EventIDRange range;
+    return std::pair<EventIDRange, std::vector<const Trk::DiscLayer*>*>(range,nullptr);
   }
-  const InDetDD::SiDetectorElementCollection* readCdo{**readHandle};
+  const InDetDD::SiDetectorElementCollection* readCdo{*readHandle};
   InDetDD::SiDetectorElementCollection::const_iterator sidetIter = readCdo->begin();    
     
   // save way to estimate the number of barrels
@@ -946,13 +960,13 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
             if (m_splitMode < 0 && rMin > s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is negative and rMin > splitRadius (" << rMin  << " > " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle->range(s_splitIOVRange);
+                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
             else if (m_splitMode > 0 && rMax < s_splitRadius){
                 ATH_MSG_VERBOSE( "            Split mode is positive and rMax < splitRadius (" << rMax  << " < " << s_splitRadius << ").");
                 ATH_MSG_VERBOSE( "            -> Caching this disk.");
-                readHandle->range(s_splitIOVRange);
+                readHandle.range(s_splitIOVRange);
                 s_splitDiscLayers.push_back(activeLayer);
             }
         } else 
@@ -1046,8 +1060,7 @@ std::pair<EventIDRange, std::vector< const Trk::DiscLayer* >* > InDet::SiLayerBu
   }
  
   EventIDRange range;
-  readHandle->range(range);
-  delete readHandle;
+  readHandle.range(range);
   return std::make_pair(range, discLayers);
 }
 
