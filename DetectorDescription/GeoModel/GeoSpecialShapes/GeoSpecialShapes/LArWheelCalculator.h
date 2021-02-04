@@ -126,6 +126,9 @@ class LArWheelCalculator
     std::pair<int, int> GetPhiGapAndSide(const CLHEP::Hep3Vector &p) const;
     double AmplitudeOfSurface(const CLHEP::Hep3Vector& P, int side, int fan_number) const;
 
+    /// Set the sincos calculator
+    // void SetVectorizedSincos() {m_sincos_calculator = &m_vsincos_par.eval;};
+
     /// @}
 
   private:
@@ -216,6 +219,11 @@ class LArWheelCalculator
 #if HAVE_VECTOR_SIZE_ATTRIBUTE
     vsincos_par m_vsincos_par{};
 #endif
+
+  private:
+    typedef void (LArWheelCalculator::*SincosCalculator)(const double, double &, double &) const;
+    SincosCalculator m_sincos_calculator;
+    void EvalSincos(const double P, double &x, double &y) const {(this->*m_sincos_calculator)(P, x, y);};
 };
 
 #ifndef XAOD_STANDALONE

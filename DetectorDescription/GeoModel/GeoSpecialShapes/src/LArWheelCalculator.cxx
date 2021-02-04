@@ -443,6 +443,9 @@ LArWheelCalculator::LArWheelCalculator(LArG4::LArWheelCalculator_t a_wheelType, 
      fclose(O);
      exit(0);
   */
+
+   // set the sincos calculator
+   m_sincos_calculator = &LArWheelCalculator::parameterized_sincos;
 }
 
 /* converts module gap number into wheel gap number */
