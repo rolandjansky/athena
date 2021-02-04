@@ -416,7 +416,11 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
       // currently there is no calibration DB for Run3 or Run4, i.e. nothing for the new
       // sMDT chambers in the inner barrel layers (BI), so skip them for now until a DB is in place
       if (m_idHelperTool->issMdt(chId) && name.find("BI")!=std::string::npos) {
-        ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+        static bool sMDTWarningPrinted = false;
+        if (!sMDTWarningPrinted) {
+          ATH_MSG_WARNING("Currently no entry for "<<name<<" sMDT chambers (eta="<<ieta<<") in database, skipping...");
+          sMDTWarningPrinted=true;
+        }
         continue;
       }
       else {
@@ -743,6 +747,22 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
     //the muonfixedid of the chamber is in the header.  Hence the "if" below will always be true.    
     if(regionId>2500) {
       MuonFixedId id(regionId);
+ 	    if (!id.is_mdt()) {
+	      ATH_MSG_WARNING("Found non-MDT MuonFixedId, continuing...");
+	      continue;
+	    }
+	    if (!m_idHelperTool->HasCSC()) {
+	      // in case there are no CSCs, there must be 2 NSWs, and accordingly no EIS/EIL1-3 MDTs
+	      std::string stationName = id.stationNumberToFixedStationString(id.stationName());
+	      if (stationName.find("EIS")!=std::string::npos || (std::abs(id.eta())<4&&stationName.find("EIL")!=std::string::npos)) {
+	        static bool eisWarningPrinted = false;
+	        if (!eisWarningPrinted) {
+	          ATH_MSG_WARNING("Found EIS/EIL1-3 MuonFixedId, although NSWs should be present, continuing...");
+	          eisWarningPrinted=true;
+	        }
+	        continue;
+	      }
+	    }
       athenaId = m_idToFixedIdTool->fixedIdToId(id);
       // If using chamber RTs skip RTs for ML2 -- use ML1 RT for entire chamber
       if( m_regionSvc->RegionType()==ONEPERCHAMBER && m_idHelperTool->mdtIdHelper().multilayer(athenaId)==2 ) {
@@ -758,6 +778,14 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
       m_idHelperTool->mdtIdHelper().get_hash( athenaId, hash, &idCont );
       ATH_MSG_VERBOSE( "Fixed region Id "<<regionId<<" converted into athena Id "<<athenaId <<" and then into hash "<<hash);
       regionId = hash;      //reset regionId to chamber hash
+    }
+    if(regionId>=m_rtData->size()) {
+      static bool regionIdWarningPrinted = false;
+      if (!regionIdWarningPrinted) {
+        ATH_MSG_WARNING("loadRt() - regionId="<<regionId<<" larger than size of MdtRtRelationCollection, skipping...");
+        regionIdWarningPrinted=true;
+      }
+      continue;
     }
     // extract npoints in RT function
     pch = strtok (NULL, "_,");
