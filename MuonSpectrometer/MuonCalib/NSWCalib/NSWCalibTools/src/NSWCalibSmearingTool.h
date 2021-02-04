@@ -13,6 +13,7 @@
 
 #include "TRandom3.h"
 
+#include <map>
 
 namespace Muon {
 
@@ -30,6 +31,8 @@ namespace Muon {
     virtual StatusCode finalize();
 
     StatusCode isAccepted(const Identifier id, bool& accepted);
+
+    double getHighVoltage(Identifier id) const;
 
     StatusCode smearTimeAndCharge(const Identifier id, float& time, float& charge, bool& accepted);
     StatusCode smearCharge(const Identifier id, float& charge, bool& accepted);
@@ -58,7 +61,6 @@ namespace Muon {
 
     DoubleArrayProperty m_gainFraction;
 
-
     BooleanArrayProperty m_phiSectors;
     BooleanArrayProperty m_etaSectors;
 
@@ -67,6 +69,9 @@ namespace Muon {
     StringProperty m_fileName;
 
     TRandom3 m_random;
+
+    // HV maps ( for MM efficiencies )
+    std::map<Identifier,float> m_hvMap; 
 
   };
 

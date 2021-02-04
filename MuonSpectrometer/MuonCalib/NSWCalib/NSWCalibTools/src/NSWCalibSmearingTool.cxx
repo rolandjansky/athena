@@ -1,6 +1,12 @@
 #include "NSWCalibSmearingTool.h"
 
 #include "MuonIdHelpers/MuonIdHelperTool.h"
+#include "PathResolver/PathResolver.h"
+#include "TString.h"
+
+#include <iostream>
+#include <fstream>
+#include <string>
 
 using namespace Muon;
 
@@ -100,7 +106,7 @@ StatusCode Muon::NSWCalibSmearingTool::isAccepted(const Identifier id, bool& acc
     }
   }
   /// check if a full hit can be accepted
-  if ( m_random.Rndm() > m_clusterEfficiency.value()[gasGap-1] ) {
+  if ( m_random.Rndm() > efficiencyCut ) {
     accepted = false;
   }
   return StatusCode::SUCCESS;
