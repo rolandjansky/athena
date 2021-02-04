@@ -33,8 +33,9 @@ def _getInDetTrackingGeometryBuilder(name, flags,result, envelopeDefinitionSvc, 
   # A lot of comments below are to help people understand differences from the above, in case we need to revert some simplifications I made
   # i.e. this is far from complete, but is better than what was there before.
   
-  # beampipe        
-  InDet__BeamPipeBuilder=CompFactory.InDet__BeamPipeBuilderCond
+  # beampipe
+  namePrefix+= 'Cond'
+  InDet__BeamPipeBuilder=CompFactory.InDet.BeamPipeBuilderCond
   beamPipeBuilder = InDet__BeamPipeBuilder(name=namePrefix+'BeamPipeBuilder')
 
   result.addPublicTool(beamPipeBuilder)
