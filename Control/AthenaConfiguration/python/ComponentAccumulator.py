@@ -532,7 +532,7 @@ class ComponentAccumulator(object):
             if dest.name == src.name:
                 for seqProp in dest._descriptors.keys():                
                     if getattr(dest, seqProp) != getattr(src, seqProp) and seqProp != "Members":
-                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of different values %s vs %s (from ca being merged)" % 
+                        raise RuntimeError("merge called with sequences: '%s' having property '%s' of different values %s vs %s (from ComponentAccumulator being merged)" % 
                                             (str((dest.name, src.name)), seqProp, str(getattr(dest, seqProp)), str(getattr(src, seqProp))) )
             for childIdx, c in enumerate(src.Members):
                 if isSequence( c ):
