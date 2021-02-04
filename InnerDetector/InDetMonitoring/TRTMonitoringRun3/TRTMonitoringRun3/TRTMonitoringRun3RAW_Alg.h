@@ -85,6 +85,9 @@ private:
     int m_totalEvents{0};
     FloatProperty m_longToTCut{this, "LongToTCut", 9.375};
     
+    Gaudi::Property<std::vector<int>> m_strawMax {this,"strawMax", {-1, -1}};
+    Gaudi::Property<std::vector<int>> m_iChipMax {this,"iChipMax", {-1, -1}};
+    
     int m_min_si_hits;
     int m_min_pixel_hits;
     int m_min_sct_hits;
