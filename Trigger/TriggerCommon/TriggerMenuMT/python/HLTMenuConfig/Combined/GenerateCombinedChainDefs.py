@@ -12,9 +12,12 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
     
     theTopoInfo = chainDict['extraComboHypos']
     
-    log.debug("[addTopoInfo] theChainConfig %s", theChainConfig)
-    log.debug("[addTopoInfo] listOfChainDefs %s", listOfChainDefs)
-    log.debug("[addTopoInfo] theTopoInfo being added is %s",theTopoInfo)
+    bonus_debug = False
+    
+    if bonus_debug:
+        log.debug("[addTopoInfo] theChainConfig %s", theChainConfig)
+        log.debug("[addTopoInfo] listOfChainDefs %s", listOfChainDefs)
+        log.debug("[addTopoInfo] theTopoInfo being added is %s",theTopoInfo)
 
     if len(theChainConfig.steps[-1].comboToolConfs) > 0:
         log.warning("[addTopoInfo] last step already has ComboHypo tools %s",theChainConfig.steps[-1].comboToolConfs)
@@ -32,15 +35,15 @@ def addTopoInfo(theChainConfig, chainDict, listOfChainDefs, lengthOfChainConfigs
         theChainConfig.steps[-1].addComboHypoTools(comboTool)
     theChainConfig.steps[-1].name = theChainConfig.steps[-1].name+'_combo_'+'_'.join(theTopoInfo) 
     
-#    from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponentsNaming import CFNaming
-#    theChainConfig.steps[-1].combo.name = CFNaming.comboHypoName(theChainConfig.steps[-1].name)
     theChainConfig.steps[-1].makeCombo()
     log.debug("[addTopoInfo] new combo hypo name: %s",theChainConfig.steps[-1].combo.name)
-    log.debug("[addTopoInfo] theChainConfig %s", theChainConfig)
+    
+    if bonus_debug:
+        log.debug("[addTopoInfo] new theChainConfig %s", theChainConfig)
 
     return theChainConfig
 
-# this must be moved to the HypoTool file:                                                                                                 
+# this should be moved to the HypoTool file eventually:                                                                                                 
 def TrigTauXComboHypoToolFromDict(chainDict):
     from TrigTauHypo.TrigTauHypoConf import TrigTauXComboHypoTool
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
