@@ -53,7 +53,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
         # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
         bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2017-21-13TeV-MC16-CDI-2019-07-30_v1.root"
     else:
-        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2020-03-11_Sh228_v3.root"
+        bTagCalibFile = "xAODBTaggingEfficiency/13TeV/2020-21-13TeV-MC16-CDI-2021-04-16_v1.root"
 
     # # Create the analysis algorithm sequence object:
     # seq = AnaAlgSequence( "FTagAnalysisSequence" )
