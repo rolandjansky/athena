@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "GaudiKernel/MsgStream.h"
@@ -388,13 +388,22 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
       // this is a tube id that must be unpacked
       else if (index==3) {
 	// unpack the tube Id
+  // this will for sure not work for BIS78, multilayer2, since there, we have 108 tubes per tubeLayer (cf. ATLASRECTS-5961)
 	tube = info%100;
 	layer = ((info-tube)/100)%10;
 	multilayer = (((info-tube)/100)-layer)/10 ;
 	index = 0;
-
-	if( m_verbose ) m_log << MSG::VERBOSE << "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
-	    << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube << endmsg;
+  // the stationIndex is later on passed to the MdtIdHelper, thus, it must be a reasonable station name, i.e. not < 0
+  if (stationIndex<0) {
+    static bool stWarningPrinted = false;
+    if (!stWarningPrinted) {
+      ATH_MSG_WARNING("Found stationIndex="<<stationIndex<<" which is not reasonable, maybe related to ATLASRECTS-5961, continuing...");
+      stWarningPrinted=true;
+    }
+    continue;
+  }
+	ATH_MSG_VERBOSE( "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
+	    << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube);
 
 	// now this mezzanine can be added to the map:
 	/*bool addMezzanine = */m_cablingData->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
