@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonCreatorAlg.h"
@@ -32,8 +32,6 @@ StatusCode MuonCreatorAlg::initialize()
 {
 
   ATH_CHECK(m_muonCreatorTool.retrieve());
-  m_copySegs=true; //to have MuGirl and MuidCo segments in the same final collection/container; not needed for trigger or stau
-  if(m_buildSlowMuon || name().find("Trig")!=std::string::npos) m_copySegs=false;
   if(m_copySegs) ATH_CHECK(m_muonSegmentConverterTool.retrieve());
   else m_muonSegmentConverterTool.disable();
   ATH_CHECK(m_muonCollectionName.initialize());
