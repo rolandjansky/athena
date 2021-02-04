@@ -63,6 +63,15 @@ def MuonCombinedTrackSummaryToolCfg(flags, name="", **kwargs):
     result.setPrivateTools(track_summary_tool)
     return result
 
+def MuonTrackToVertexCfg(flags, name = 'MuonTrackToVertexTool', **kwargs ):
+    acc = ComponentAccumulator()
+    if 'Extrapolator' not in kwargs:
+        accExtrapolator = AtlasExtrapolatorCfg(flags, 'AtlasExtrapolator')
+        atlasExtrapolator = accExtrapolator.popPrivateTools()
+        acc.merge(accExtrapolator)
+        kwargs.setdefault('Extrapolator', atlasExtrapolator)
+    acc.setPrivateTools(CompFactory.Reco.TrackToVertex( name, **kwargs))
+    return acc
 
 def MuonCombinedInDetDetailedTrackSelectorToolCfg(flags, name="MuonCombinedInDetDetailedTrackSelectorTool",**kwargs):
     if flags.Beam.Type == 'collisions':
@@ -122,6 +131,9 @@ def MuonCombinedParticleCreatorCfg(flags, name="MuonCombinedParticleCreator",**k
         acc = MuonCombinedTrackSummaryToolCfg(flags)
         kwargs.setdefault("TrackSummaryTool", acc.getPrimary() ) 
         result.merge (acc)
+
+    if 'TrackToVertex' not in kwargs :
+        kwargs.setdefault('TrackToVertex',result.popToolsAndMerge(MuonTrackToVertexCfg(flags)))
 
     kwargs.setdefault("KeepAllPerigee",True )
     kwargs.setdefault("UseMuonSummaryTool",True )

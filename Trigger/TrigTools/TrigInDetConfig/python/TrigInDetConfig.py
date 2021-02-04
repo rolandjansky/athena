@@ -150,7 +150,9 @@ def InDetTestPixelLayerToolCfg(flags, **kwargs):
   from PixelConditionsTools.PixelConditionsSummaryConfig import PixelConditionsSummaryCfg
   pixelCondSummaryTool = acc.popToolsAndMerge( PixelConditionsSummaryCfg(flags) )
   from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
-  extrapolator = acc.popToolsAndMerge( InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" ) )
+  extrapolator_acc = InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" )
+  extrapolator = acc.getPrimary()
+  acc.merge(extrapolator_acc)
 
   tool = CompFactory.InDet.InDetTestPixelLayerTool("InDetTrigTestPixelLayerTool",
                                                                PixelSummaryTool = pixelCondSummaryTool,
@@ -654,14 +656,26 @@ def ftfCfg(flags, roisKey, signature, signatureName):
 
   return acc
 
+def TrigTrackToVertexCfg(flags, name = 'TrigTrackToVertexTool', **kwargs ):
+    acc = ComponentAccumulator()
+    if 'Extrapolator' not in kwargs:
+      from InDetConfig.InDetRecToolConfig import InDetExtrapolatorCfg
+      extrapolator_acc = InDetExtrapolatorCfg( flags, name = "InDetTrigExtrapolator" )
+      extrapolator = extrapolator_acc.getPrimary()
+      acc.merge(extrapolator_acc)
+      kwargs.setdefault('Extrapolator', extrapolator) # @TODO or atlas extrapolator ?
+    tool = CompFactory.Reco.TrackToVertex( name, **kwargs)
+    acc.setPrivateTools(tool)
+    return acc
 
 def trackConverterCfg(flags, signature, signatureName):
   acc = ComponentAccumulator()
 
   acc.merge( TrackSummaryToolCfg(flags, name="InDetTrigFastTrackSummaryTool") )
-
+  track_to_vertex = acc.popToolsAndMerge( TrigTrackToVertexCfg(flags) )
   creatorTool = CompFactory.Trk.TrackParticleCreatorTool( name = "InDetTrigParticleCreatorToolFTF",
                                                           TrackSummaryTool      = acc.getPublicTool( "InDetTrigFastTrackSummaryTool" ),
+                                                          TrackToVertex         = track_to_vertex,
                                                           KeepParameters        = True,
                                                           ComputeAdditionalInfo = True,
                                                           ExtraSummaryTypes     = ['eProbabilityComb', 'eProbabilityHT', 'TRTTrackOccupancy', 'TRTdEdx', 'TRTdEdxUsedHits'])
@@ -669,7 +683,7 @@ def trackConverterCfg(flags, signature, signatureName):
   trackParticleCnv=CompFactory.InDet.TrigTrackingxAODCnvMT(name = "InDetTrigTrackParticleCreatorAlg" + signature,
                                                           TrackName           = __trackCollName(signatureName),
                                                           TrackParticlesName  = recordable("HLT_IDTrack_"+signatureName+"_FTF"),
-                                                          ParticleCreatorTool = acc.getPublicTool("InDetTrigParticleCreatorToolFTF"))
+                                                          ParticleCreatorTool = creatorTool)
 
   acc.addEventAlgo(trackParticleCnv)
 
