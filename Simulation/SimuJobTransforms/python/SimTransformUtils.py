@@ -99,7 +99,7 @@ def addReSimulationSubstep(executorSet):
                             outData=['HITS_MRG'],
                             inputDataTypeCountCheck = ['HITS'] )
     executorSet.add(RnmExe)
-    SimExe = athenaExecutor(name = 'Resim',
+    SimExe = athenaExecutor(name = 'ReSim',
                             skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py', # TODO replace skeleton
                             substep = 'rsm',
                             tryDropAndReload = False,

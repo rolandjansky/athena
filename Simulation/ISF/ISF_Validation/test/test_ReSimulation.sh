@@ -24,7 +24,7 @@ Sim_tf.py \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' 'EVNTtoHITS:SimulationJobOptions/postInclude.SaveNewTruthEvent.py' \
---postExec 'EVNTtoHITS:topSeq+=CfgMgr.TruthResetAlg();topSeq+=CfgMgr.TruthClosureCheck(OriginalMcEventCollection="BeamTruthEvent",ResetMcEventCollection="NewTruthEvent");ServiceMgr.ISF_InputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
+--postExec 'EVNTtoHITS:topSeq+=CfgMgr.TruthResetAlg();' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
 --DataRunNumber '284500' \
@@ -43,7 +43,7 @@ ReSim_tf.py \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4_LongLived' \
 --postInclude 'ReSim:PyJobTransforms/UseFrontier.py,SimulationJobOptions/postInclude.ExcludeOldHITS.py' \
---postExec 'ReSim:topSeq+=CfgMgr.TruthClosureCheck(OriginalMcEventCollection="NewTruthEvent",ResetMcEventCollection="BeamTruthEvent");copyHitSequence+=CfgMgr.TruthClosureCheck(name="OutputTruthClosureCheck",OriginalMcEventCollection="TruthEventOLD",ResetMcEventCollection="TruthEvent",PostSimulation=True);ServiceMgr.ISF_InputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
+--postExec 'ReSim:topSeq+=CfgMgr.TruthClosureCheck(OriginalMcEventCollection="NewTruthEvent",ResetMcEventCollection="BeamTruthEvent");copyHitSequence+=CfgMgr.TruthClosureCheck(name="OutputTruthClosureCheck",OriginalMcEventCollection="TruthEventOLD",ResetMcEventCollection="TruthEvent",PostSimulation=True);ServiceMgr.ISF_LongLivedInputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
 --preInclude 'ReSim:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
 --preExec 'ReSim:simFlags.TightMuonStepping=True' \
 --DataRunNumber '284500' \
@@ -62,7 +62,7 @@ Sim_tf.py \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4_LongLived' \
 --postInclude 'default:PyJobTransforms/UseFrontier.py' \
---postExec 'EVNTtoHITS:ServiceMgr.ISF_InputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
+--postExec 'EVNTtoHITS:ServiceMgr.ISF_LongLivedInputConverter.OutputLevel=VERBOSE;ServiceMgr.MessageSvc.enableSuppression=False' \
 --preInclude 'EVNTtoHITS:SimulationJobOptions/preInclude.BeamPipeKill.py,SimulationJobOptions/preInclude.FrozenShowersFCalOnly.py,SimulationJobOptions/preInclude.ExtraParticles.py,SimulationJobOptions/preInclude.G4ExtraProcesses.py' \
 --preExec 'EVNTtoHITS:simFlags.TightMuonStepping=True' \
 --DataRunNumber '284500' \
@@ -84,6 +84,6 @@ acmd.py diff-pool test.HITS.pool.root retest.HITS.pool.root
 
 echo "art-result: $? diff-pool"
 
-acmd.py diff-root test.HITS.pool.root retest.HITS.pool.root --mode semi-detailed --error-mode resilient
+acmd.py diff-root test.HITS.pool.root retest.HITS.pool.root --mode semi-detailed --error-mode resilient --ignore-leaves RecoTimingObj_p1_EVNTtoHITS_timings McEventCollection_p5_TruthEvent SiHitCollection_p2_BCMHits SiHitCollection_p2_BLMHits SiHitCollection_p2_PixelHits SiHitCollection_p2_SCT_Hits TRT_HitCollection_p3_TRTUncompressedHits
 
 echo "art-result: $? diff-root"
