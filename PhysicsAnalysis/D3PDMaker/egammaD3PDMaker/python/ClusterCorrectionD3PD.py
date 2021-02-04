@@ -14,7 +14,6 @@ from egammaD3PDMaker.PhotonD3PDObject         import PhotonD3PDObject
 from egammaD3PDMaker.egammaTruthD3PDObject    import egammaTruthD3PDObject
 from egammaD3PDMaker.CorrectionClusterD3PDObject import CorrectionClusterD3PDObject
 from egammaD3PDMaker.CorrectionClusterGetter  import make_CorrectionClusterGetter
-from CaloSysD3PDMaker.ClusterD3PDObject       import ClusterD3PDObject
 from D3PDMakerConfig.D3PDMakerFlags           import D3PDMakerFlags
 from RecExConfig.RecFlags                     import rec
 from AthenaCommon.AlgSequence                 import AlgSequence
