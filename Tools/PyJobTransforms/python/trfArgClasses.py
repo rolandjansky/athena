@@ -1722,31 +1722,18 @@ class argBZ2File(argFile):
         return desc  
 
 
-## @brief Class which defines a special input file format used in FTK simulation     
-class argFTKIPFile(argBZ2File):
+## @brief Class which defines a special file format used in HTT simulation     
+class argHTTIPFile(argNTUPFile):
     def __init__(self, value=list(), io = 'output', type=None, splitter=',', runarg=True, multipleOK=None, name=None):
-        super(argFTKIPFile, self).__init__(value=value, io=io, type=type, splitter=splitter, runarg=runarg, multipleOK=multipleOK,
+        super(argHTTIPFile, self).__init__(value=value, io=io, type=type, splitter=splitter, runarg=runarg, multipleOK=multipleOK,
                                            name=name)
         self._metadataKeys.update({
                                    'nentries': self._getNumberOfEvents
                                    })
 
-    def _getNumberOfEvents(self, files):
-        for fname in files:
-            try:
-                eventCount = 0
-                f = bz2.BZ2File(fname, 'r')
-                for line in f:
-                    if line.startswith('F'):
-                        eventCount += 1
-                self._fileMetadata[fname]['nentries'] = eventCount
-            except (OSError, IOError) as e:
-                msg.error('Event count for file {0} failed: {1!s}'.format(fname, e))
-                self._fileMetadata[fname]['nentries'] = None
-
     @property
     def prodsysDescription(self):
-        desc=super(argFTKIPFile, self).prodsysDescription
+        desc=super(argHTTIPFile, self).prodsysDescription
         return desc
     
 ## @brief HEP ASCII file

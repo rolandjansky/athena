@@ -117,7 +117,7 @@ if hasattr(runArgs,"outputDQMonitorFile"):
     from AthenaMonitoring.DQMonFlags import DQMonFlags
     DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputDQMonitorFile )
     
-if hasattr(runArgs, "outputTXT_FTKIPFile"):
+if hasattr(runArgs, "outputNTUP_HTTIPFile"):
     rec.doCalo.set_Value_and_Lock(False)
     rec.doInDet.set_Value_and_Lock(True)
     rec.doMuon.set_Value_and_Lock(False)
@@ -126,7 +126,7 @@ if hasattr(runArgs, "outputTXT_FTKIPFile"):
     rec.doMuonCombined.set_Value_and_Lock(False)
     rec.doTau.set_Value_and_Lock(False)
     rec.doTrigger.set_Value_and_Lock(False)
-    rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
+    rec.UserAlgs=["TrigHTTSGInput/HTTSGToRawHitsWrapperAlg_jobOptions.py"]
     
 # Trigger already run in this RDO?
 if hasattr(runArgs, "doRDOTrigger") and runArgs.doRDOTrigger == True:
