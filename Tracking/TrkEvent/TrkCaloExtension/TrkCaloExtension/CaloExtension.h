@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRK_CALOEXTENSION_H
@@ -21,8 +21,10 @@ namespace Trk {
         Both calo and muon Entry layer intersections are allowed to be NULL.
         The class takes ownership of all pointers.
      */
-    CaloExtension( const TrackParameters* caloEntry, const TrackParameters* muonEntry, std::vector<const CurvilinearParameters*>&& caloLayers );
-    
+    CaloExtension(const TrackParameters* caloEntry,
+                  const TrackParameters* muonEntry,
+                  std::vector<CurvilinearParameters>&& caloLayers);
+
     /** destructor */
     ~CaloExtension();
 
@@ -39,7 +41,7 @@ namespace Trk {
     /** access to the intersections with the calorimeter layers.
         The intersections are stored as curvilinear parameters, 
         the layers are identified by their cIdentifier() */
-    const std::vector<const CurvilinearParameters*>& caloLayerIntersections() const;
+    const std::vector<CurvilinearParameters>& caloLayerIntersections() const;
 
   private:
     /** no copying nor assignment allow, use shared pointers instead */
@@ -50,25 +52,32 @@ namespace Trk {
     CaloExtension() = delete;
     
     /** data members */
-    const TrackParameters*                      m_caloEntryLayerIntersection; /// parameters at the calorimeter entrance
-    const TrackParameters*                      m_muonEntryLayerIntersection; /// parameters at the muon entrance
-    std::vector<const CurvilinearParameters*>   m_caloLayerIntersections; /// parameters at the different calorimeter layers
+    /// parameters at the calorimeter entrance
+    const TrackParameters*                      m_caloEntryLayerIntersection; 
+     /// parameters at the muon entrance
+    const TrackParameters*                      m_muonEntryLayerIntersection; 
+    /// parameters at the different calorimeter layers
+    std::vector<CurvilinearParameters>   m_caloLayerIntersections;
   };
 
-  inline const TrackParameters* CaloExtension::caloEntryLayerIntersection() const {
+  inline const TrackParameters*
+  CaloExtension::caloEntryLayerIntersection() const
+  {
     return m_caloEntryLayerIntersection;
   }
 
-  inline const TrackParameters* CaloExtension::muonEntryLayerIntersection() const {
+  inline const TrackParameters*
+  CaloExtension::muonEntryLayerIntersection() const
+  {
     return m_muonEntryLayerIntersection;
   }
 
-  inline const std::vector<const CurvilinearParameters*>& CaloExtension::caloLayerIntersections() const {
+  inline const std::vector<CurvilinearParameters>&
+  CaloExtension::caloLayerIntersections() const
+  {
     return m_caloLayerIntersections;
   }
 
-}
-
-
+  }
 
 #endif

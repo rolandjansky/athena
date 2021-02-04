@@ -155,13 +155,7 @@ namespace Trk {
         double& path) const override final;
 
     private:
-      /*
-      * Methods to be overriden by the NavigatorValidation
-      */
-      virtual void validationInitialize() {}
-      virtual void validationFill(const Trk::TrackParameters* trackPar) const{
-         (void)trackPar;
-      }
+      
 
       SG::ReadCondHandleKey<TrackingGeometry> m_trackingGeometryReadKey{
         this,

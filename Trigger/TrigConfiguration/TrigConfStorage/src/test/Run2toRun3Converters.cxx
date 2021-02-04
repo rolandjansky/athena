@@ -1,8 +1,14 @@
+/*
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
+
 #include <numeric>
 #include "TrigConfData/HLTMenu.h"
 #include "TrigConfData/L1BunchGroupSet.h"
 #include "TrigConfData/DataStructure.h"
+#include "TrigConfData/L1PrescalesSet.h"
 #include "TrigCompositeUtils/HLTIdentifier.h"
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/json_parser.hpp>
 #include "TrigConfHLTData/HLTFrame.h"
 #include "TrigConfHLTData/HLTChain.h"
@@ -197,7 +203,7 @@ void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::s
    ptree top;
    top.put("filetype", "bunchgroupset");
    top.put("name", frame->bunchGroupSet().name());
-   
+
    ptree pGroups;
    const std::vector<TrigConf::BunchGroup>& bgVec = frame->bunchGroupSet().bunchGroups();
    for (auto group : bgVec) {
@@ -226,4 +232,28 @@ void convertRun2BunchGroupsToRun3(const TrigConf::CTPConfig* frame, const std::s
    writer.writeJsonFile(filename, bgs);
 
 
+}
+
+void convertRun2L1PrescalesToRun3(const TrigConf::CTPConfig* frame, const std::string& filename) {
+   using ptree = boost::property_tree::ptree;
+   ptree top;
+   top.put("filetype", "l1prescale");
+   top.put("name", frame->prescaleSet().name());
+   ptree pCuts;
+   for (size_t id = 0; id < frame->prescaleSet().prescales_float().size(); ++id) {
+      ptree pCut;
+      auto itemPtr = frame->menu().item(id);
+      if ( itemPtr != nullptr ) {
+         pCut.put("cut", frame->prescaleSet().cuts().at(id));
+         pCut.put("enabled", frame->prescaleSet().prescales_float().at(id) > 0.0 );
+         pCut.put("info", "prescale: "+std::to_string(frame->prescaleSet().prescales_float().at(id)));
+         pCuts.push_back(std::make_pair(itemPtr->name(), pCut));
+      }
+   }
+   top.push_back(std::make_pair("cutValues", pCuts));
+
+   TrigConf::L1PrescalesSet ps(std::move(top));
+   TrigConf::JsonFileWriter writer;
+   std::cout << "Saving file: " << filename << std::endl;
+   writer.writeJsonFile(filename, ps);
 }

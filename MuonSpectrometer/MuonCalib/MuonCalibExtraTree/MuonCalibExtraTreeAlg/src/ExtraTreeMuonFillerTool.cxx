@@ -183,9 +183,9 @@ inline Trk::Track* ExtraTreeMuonFillerTool::createTaggedMuonTrack( const xAOD::M
 
       std::bitset<Trk::TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern(0);
       typePattern.set(Trk::TrackStateOnSurface::Measurement);
-
+      //ownership: assume the TSoS is taking care of this
       const Trk::TrackParameters *exPars = m_propagator->propagateParameters(*pars,meas.associatedSurface(),
-									     Trk::anyDirection, false, Trk::MagneticFieldProperties());
+									     Trk::anyDirection, false, Trk::MagneticFieldProperties()).release();
       if(!exPars){
 	ATH_MSG_VERBOSE("Could not propagate Track to segment surface");
       }

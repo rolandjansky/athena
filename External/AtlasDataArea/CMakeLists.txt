@@ -1,24 +1,19 @@
-# $Id: CMakeLists.txt 768579 2016-08-18 09:20:20Z alibrari $
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the name of the package:
 atlas_subdir( AtlasDataArea )
 
-# If we are in release rebuilding mode, stop here:
-if( ATLAS_RELEASE_MODE )
-   return()
-endif()
-
 # Find the ATLAS ReleaseData area:
 if( NOT SITEROOT )
-   if( ENV{SITEROOT} )
-      set( SITEROOT $ENV{SITEROOT} )
+   if( NOT "$ENV{SITEROOT}" STREQUAL "" )
+      set( SITEROOT "$ENV{SITEROOT}" )
    else()
       set( SITEROOT "/afs/cern.ch" )
    endif()
 endif()
 if( NOT ATLAS_RELEASEDATA )
-   if( ENV{ATLAS_RELEASEDATA} )
-      set( ATLAS_RELEASEDATA $ENV{ATLAS_RELEASEDATA} )
+   if( NOT "$ENV{ATLAS_RELEASEDATA}" STREQUAL "" )
+      set( ATLAS_RELEASEDATA "$ENV{ATLAS_RELEASEDATA}" )
    else()
       set( ATLAS_RELEASEDATA "${SITEROOT}/atlas/offline/ReleaseData" )
    endif()

@@ -72,7 +72,7 @@ StatusCode TrigLArNoiseBurstAlg::execute( const EventContext& context ) const {
     }
 
     // Get new output decision, child of previousDecision
-    auto d = newDecisionIn (decisions, previousDecision, "", context );
+    auto d = newDecisionIn (decisions, previousDecision, hypoAlgNodeName(), context );
     
     // create summary struct
     toolInput.emplace_back( d, roi, cellsHandle.cptr(), &bf, &MNBfeb, previousDecision );

@@ -1,4 +1,5 @@
-#----
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from AthenaCommon.AthenaCommonFlags import jobproperties
 from AthenaCommon.AthenaCommonFlags import jobproperties,athenaCommonFlags
 # import service manager
@@ -11,21 +12,9 @@ from AthenaCommon.AppMgr import ServiceMgr
 ## get a handle to the ApplicationManager
 from AthenaCommon.AppMgr import theApp
 
-#--------------------------------------------------------------
-# Load POOL support - to read conditions in POOL, not events
-#--------------------------------------------------------------
-#import AthenaPoolCnvSvc.AthenaPool
-#ServiceMgr.EventSelector.RunNumber            = 122189
-#ServiceMgr.EventSelector.InitialTimeStamp     = 1342888195
-
-
-
 # Turn off all detector systems except the Muon Spectrometer
 from AthenaCommon.DetFlags import DetFlags
-#DetFlags.detdescr.all_setOff()
-DetFlags.detdescr.ID_setOff()
-DetFlags.detdescr.LAr_setOff()
-DetFlags.detdescr.Tile_setOff()
+DetFlags.detdescr.all_setOff()
 DetFlags.detdescr.Muon_setOn()
 
 # Select geometry version
@@ -74,13 +63,16 @@ MessageSvc.OutputLevel = INFO
 from AtlasGeoModel import SetGeometryVersion
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
-#GeoModelSvc.MuonVersionOverride = "MuonSpectrometer-R.01.01.Initial.Light"
 
 printfunc (GeoModelSvc)
 
 #***************************************************** HERE setup MuonDetectorManager
+from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
 from MuonGeoModel.MuonGeoModelConf import MuonDetectorTool
 MuonDetectorTool = MuonDetectorTool()
+MuonDetectorTool.HasCSC=MuonGeometryFlags.hasCSC()
+MuonDetectorTool.HasSTgc=MuonGeometryFlags.hasSTGC()
+MuonDetectorTool.HasMM=MuonGeometryFlags.hasMM()
 MuonDetectorTool.StationSelection = 0
 MuonDetectorTool.SelectedStations = [ "BOG" ]
 MuonDetectorTool.SelectedStJzz = [3]
@@ -100,7 +92,9 @@ MuonGMCheck.check_mdt = 1
 MuonGMCheck.check_rpc = 1
 MuonGMCheck.check_tgc = 1
 MuonGMCheck.check_csc = 1
-#MuonGMCheck.check_surfaces = 1
+from MuonIdHelpers.MuonIdHelpersConf import Muon__MuonIdHelperSvc
+ServiceMgr += Muon__MuonIdHelperSvc("MuonIdHelperSvc",HasCSC=MuonGeometryFlags.hasCSC(), HasSTgc=MuonGeometryFlags.hasSTGC(), HasMM=MuonGeometryFlags.hasMM())
+MuonGMCheck.MuonIdHelperSvc=ServiceMgr.MuonIdHelperSvc
 
 printfunc (MuonGMCheck)
 
@@ -121,7 +115,3 @@ printfunc (" ")
 printfunc ("List of all top algorithms")
 printfunc (theApp.TopAlg)
 
-#printfunc ("Print here Top Sequence" )
-#printfunc (topSequence)
-#printfunc ("Print here Service Manager" )
-#printfunc (ServiceMgr)

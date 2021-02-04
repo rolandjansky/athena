@@ -43,7 +43,7 @@ def jetCaloRecoSequences( configFlags, RoIs, **jetRecoDict ):
     jetRecoSeq, jetsOut, jetDef  = RecoFragmentsPool.retrieve(
         jetRecoSequence, configFlags, clustersKey=clustersKey, **jetRecoDict )
 
-    return [topoClusterSequence,jetRecoSeq], jetsOut, clustersKey
+    return [topoClusterSequence,jetRecoSeq], jetsOut, jetDef, clustersKey
 
 # This sets up the reconstruction where tracks are required.
 # Topoclustering will not be scheduled, we just pass in the name of the cluster collection.
@@ -63,7 +63,7 @@ def jetTrackingRecoSequences(configFlags, RoIs, clustersKey, **jetRecoDict):
         jetRecoSequence,
         configFlags, clustersKey=clustersKey, **trkcolls, **jetRecoDict )
 
-    return [jetTrkSeq,jetRecoSeq], jetsOut
+    return [jetTrkSeq,jetRecoSeq], jetsOut, jetDef
 
 ###############################################################################################
 # Functions defining the MenuSequence that will be placed into ChainSteps
@@ -91,7 +91,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
     trigHypoToolGen = trigJetHypoToolFromDict
     if hypoType==JetHypoAlgType.PASSTHROUGH:
         hyponame = "TrigStreamerHypoAlgMT_caloReco"
-        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame,SetInitialRoIAsFeature=True))
+        hypo = conf2toConfigurable(CompFactory.TrigStreamerHypoAlgMT(hyponame))
         trigHypoToolGen = trigStreamerHypoTool
     elif hypoType==JetHypoAlgType.PRESEL:
         hyponame += "_presel"
@@ -107,7 +107,7 @@ def makeMenuSequence(jetSeq,IMAlg,jetsIn,jetDefString,hypoType=JetHypoAlgType.ST
 # For the preselection step before running tracking (step 1)
 def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
     InputMakerAlg = getInitialInputMaker()
-    jetSequences, jetsIn, clustersKey = RecoFragmentsPool.retrieve(
+    jetSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
         jetCaloRecoSequences,
         configFlags, RoIs=caloFSRoI, **jetRecoDict)
 
@@ -115,7 +115,7 @@ def jetCaloPreselMenuSequence(configFlags, **jetRecoDict):
     jetAthSeq = seqAND("jetSeqCaloPresel_"+jetDefString,[InputMakerAlg]+jetSequences)
 
     return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,
-                            hypoType=JetHypoAlgType.PRESEL), clustersKey
+                            hypoType=JetHypoAlgType.PRESEL), jetDef, clustersKey
 
 # A null preselection, which will only run the cluster making (step 1)
 def jetCaloRecoMenuSequence(configFlags, clusterCalib):
@@ -131,27 +131,32 @@ def jetCaloRecoMenuSequence(configFlags, clusterCalib):
                             hypoType=JetHypoAlgType.PASSTHROUGH), clustersKey
 
 # A full hypo selecting only on calo jets (step 1)
-def jetCaloHypoMenuSequence(configFlags, **jetRecoDict):
+# Passing isPerf = True disables the hypo
+def jetCaloHypoMenuSequence(configFlags, isPerf, **jetRecoDict):
     InputMakerAlg = getInitialInputMaker()
-    jetSequences, jetsIn, clustersKey = RecoFragmentsPool.retrieve(
+    jetSequences, jetsIn, jetDef, clustersKey = RecoFragmentsPool.retrieve(
         jetCaloRecoSequences,
         configFlags, RoIs=caloFSRoI, **jetRecoDict)
     jetDefString = jetRecoDictToString(jetRecoDict)
     jetAthSeq = seqAND("jetSeqCaloHypo_"+jetDefString,[InputMakerAlg]+jetSequences)
 
-    return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString)
+    hypoType = JetHypoAlgType.STANDARD
+    if isPerf: hypoType = JetHypoAlgType.PASSTHROUGH
+    return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,hypoType) ,jetDef
 
 # A full hypo selecting on jets with track reco (step 2)
 # To combine either with a presel or a passthrough sequence
 # As this does not run topoclustering, the cluster collection
 # name needs to be passed in
-def jetTrackingHypoMenuSequence(configFlags, clustersKey, **jetRecoDict):
+def jetTrackingHypoMenuSequence(configFlags, clustersKey, isPerf, **jetRecoDict):
     InputMakerAlg = getTrackingInputMaker()
-    jetSequences, jetsIn = RecoFragmentsPool.retrieve(
+    jetSequences, jetsIn, jetDef = RecoFragmentsPool.retrieve(
         jetTrackingRecoSequences,
         configFlags, RoIs=trkFSRoI, clustersKey=clustersKey, **jetRecoDict)
 
     jetDefString = jetRecoDictToString(jetRecoDict)
     jetAthSeq = seqAND("jetSeqTrkHypo_"+jetDefString,[InputMakerAlg]+jetSequences)
 
-    return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString)
+    hypoType = JetHypoAlgType.STANDARD
+    if isPerf: hypoType = JetHypoAlgType.PASSTHROUGH
+    return makeMenuSequence(jetAthSeq,InputMakerAlg,jetsIn,jetDefString,hypoType), jetDef

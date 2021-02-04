@@ -91,7 +91,7 @@ StatusCode TrigBjetBtagHypoAlgMT::execute( const EventContext& context ) const {
   for ( unsigned int index(0); index<nDecisions; index++ ) {
     TrigCompositeUtils::Decision *toAdd = TrigCompositeUtils::newDecisionIn( outputDecisions,
 									     prevDecisionContainer->at(index),
-									     "", context );
+									     TrigCompositeUtils::hypoAlgNodeName(), context );
 
     // Attaching links to the output decisions
     // Retrieved jets from view on which we have run flavour tagging

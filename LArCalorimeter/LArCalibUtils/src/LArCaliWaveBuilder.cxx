@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArCalibUtils/LArCaliWaveBuilder.h"
@@ -45,7 +45,6 @@ LArCaliWaveBuilder::LArCaliWaveBuilder(const std::string& name, ISvcLocator* pSv
  declareProperty("isSC",                   m_isSC=false);
 
 
- //m_dt=25*ns/m_NStep;
  m_dt = m_SamplingPeriod/m_NStep;
 
  m_fatalFebErrorPattern=0xffff;
@@ -96,12 +95,6 @@ StatusCode LArCaliWaveBuilder::initialize()
   }
   
   //Get Online helper from DetStore
-  /*sc=detStore()->retrieve(m_onlineID);
-  if (sc.isFailure()) {
-      ATH_MSG_ERROR( "Failed to retrieve LArOnlineID!" );
-      return sc;
-  }*/
-
   if ( m_isSC ) {
     const LArOnline_SuperCellID* ll;
     ATH_CHECK( detStore()->retrieve(ll, "LArOnline_SuperCellID") );
@@ -114,7 +107,9 @@ StatusCode LArCaliWaveBuilder::initialize()
     ATH_MSG_DEBUG(" Found the LArOnlineID helper. ");
   }
 
-  ATH_CHECK(m_cablingKey.initialize());
+  ATH_CHECK( m_cablingKey.initialize() );
+  if ( m_isSC ) ATH_CHECK( m_cablingKeySC.initialize() );
+
   
   return StatusCode::SUCCESS;
 }
@@ -130,7 +125,6 @@ StatusCode LArCaliWaveBuilder::execute()
     }
  }
 
-// if ( m_event_counter < 100 || ( m_event_counter < 1000 && m_event_counter%100==0 ) || m_event_counter%1000==0 ) 
  if ( m_event_counter < 1000 || m_event_counter%100==0 ) 
     ATH_MSG_INFO( "Processing event " << m_event_counter );
  m_event_counter++ ;
@@ -196,10 +190,10 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
         ATH_MSG_DEBUG( "Non pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) ); 
         continue; // Check if cell is pulsed
      }
-     ATH_MSG_DEBUG( "Pulsed cell " << m_onlineID->channel_name((*it)->hardwareID()) ); 
-     ATH_MSG_DEBUG( "with " << (*it)->sampleSum().size() << " samples " << (*it)->DAC() << " DAC " << (*it)->delay() << " delay " << (*it)->isPulsed(1) << " line 1 pulsed " ); 
      HWIdentifier chid=(*it)->hardwareID();
      HWIdentifier febid=m_onlineID->feb_Id(chid);
+     ATH_MSG_DEBUG( "Pulsed cell " << m_onlineID->channel_name(chid) ); 
+     ATH_MSG_DEBUG( "with " << (*it)->sampleSum().size() << " samples " << (*it)->DAC() << " DAC " << (*it)->delay() << " delay " << (*it)->isPulsed(1) << " line 1 pulsed " ); 
      if (febErrSum) {
        const uint16_t febErrs=febErrSum->feb_error(febid);
        if (febErrs & m_fatalFebErrorPattern) {
@@ -231,7 +225,6 @@ StatusCode LArCaliWaveBuilder::executeWithAccumulatedDigits()
      std::vector < uint32_t >::const_iterator sample2sum_it_e=(*it)->sample2Sum().end();
      for (;sample2sum_it!=sample2sum_it_e; ++sample2sum_it) 
        sample2sum.push_back((double)(*sample2sum_it));     
-     
 
      WaveMap& waveMap = m_waves.get(chid,gain);
 
@@ -353,12 +346,25 @@ StatusCode LArCaliWaveBuilder::stop()
       return sc;
     }
     
-    SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
-    const LArOnOffIdMapping* cabling{*cablingHdl};
-    if(!cabling) {
-        ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
-        return StatusCode::FAILURE;
+    const LArOnOffIdMapping* cabling(0);
+    if( m_isSC ){
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKeySC};
+      cabling = {*cablingHdl};
+      if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKeySC.key());
+	return StatusCode::FAILURE;
+      }
+      
+    }else{
+      SG::ReadCondHandle<LArOnOffIdMapping> cablingHdl{m_cablingKey};
+      cabling = {*cablingHdl};
+      if(!cabling) {
+	ATH_MSG_ERROR("Do not have mapping object " << m_cablingKey.key());
+	return StatusCode::FAILURE;
+      }
     }
+    
+
 
     LArWaveHelper wHelper;
     int NCaliWave=0;

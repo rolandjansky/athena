@@ -38,7 +38,8 @@ class MaterialEffectsEngine;
 enum ParametersType
 {
   AtaSurface = 0,
-  Curvilinear = 1
+  Curvilinear = 1,
+  Pattern = 2
 };
 
 namespace InvalidParam {
@@ -151,7 +152,8 @@ public:
   /** clone method for polymorphic deep copy
        @return new object copied from the concrete type of this object.*/
   virtual ParametersBase<DIM, T>* clone() const = 0;
-
+  
+  
   /** Return the ParametersType enum */
   virtual ParametersType type() const = 0;
 

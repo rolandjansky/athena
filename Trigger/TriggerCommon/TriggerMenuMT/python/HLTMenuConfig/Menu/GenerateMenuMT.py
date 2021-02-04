@@ -270,9 +270,6 @@ class GenerateMenuMT(object, metaclass=Singleton):
         
         self.generateChains()
 
-        # align event building sequences
-        EventBuildingSequenceSetup.alignEventBuildingSteps(self.allChainsForAlignment)
-
         #dict of signature: set it belongs to
         #e.g. {'Electron': ['Electron','Muon','Photon']}        
         menuAlignment = MenuAlignment(self.combinationsInMenu,
@@ -322,6 +319,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
                 log.error('The chain dictionary is: %s', pp.pformat(chainDict))
                 raise Exception("Please fix the menu or the chain.")
         
+        # align event building sequences
+        EventBuildingSequenceSetup.alignEventBuildingSteps(TriggerConfigHLT.configs(), TriggerConfigHLT.dicts())
+
         return TriggerConfigHLT.configsList()
 
     @memoize
@@ -506,5 +506,9 @@ class GenerateMenuMT(object, metaclass=Singleton):
 
         from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
         generatePrescaleJSON()
+
+        log.debug('[GenerateMenuMT::generateMT] now generating HLTMonitoring JSON...')
+        from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+        generateDefaultMonitoringJSON()
 
         return finalListOfChainConfigs

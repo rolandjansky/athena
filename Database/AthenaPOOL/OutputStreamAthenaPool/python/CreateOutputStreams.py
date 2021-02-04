@@ -47,10 +47,10 @@ def createOutputStream( streamName, fileName = "", asAlg = False, noTag = False,
 
    doTag = not noTag
    if doTag:
+      key = "SimpleTag"
+      # Tell tool to pick it up
+      outputStream.WritingTool.AttributeListKey=key
       if ('EventInfoTagBuilder/EventInfoTagBuilder' not in topSequence.getProperties()['Members']):
-         key = "SimpleTag"
-         # Tell tool to pick it up
-         outputStream.WritingTool.AttributeListKey=key
          # build eventinfo attribute list
          from .OutputStreamAthenaPoolConf import EventInfoAttListTool, EventInfoTagBuilder
          EventInfoTagBuilder = EventInfoTagBuilder(AttributeList=key, EventInfoKey=eventInfoKey, FilterString=decisionFilter,

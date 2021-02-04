@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METAssociator.cxx
@@ -222,8 +222,8 @@ namespace met {
           return StatusCode::FAILURE;
         }
 
-        for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
-        for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
+        for(const auto clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
+        for(const auto clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
         ATH_CHECK( evtStore()->record(hybridCont,hybridname));
         constits.tcCont = hybridCont->asDataVector();
       }
@@ -243,7 +243,7 @@ namespace met {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
       ATH_MSG_DEBUG("Container holds " << vxCont->size() << " vertices");
 
-      for(const auto& vx : *vxCont) {
+      for(const auto vx : *vxCont) {
         ATH_MSG_VERBOSE( "Testing vertex " << vx->index() );
         if(vx->vertexType()==VxType::PriVtx)
           {constits.pv = vx; break;}
@@ -311,7 +311,7 @@ namespace met {
     std::vector<const IParticle*> constlist;
     constlist.reserve(20);
     std::vector<const IParticle*> hardObjs_tmp;
-    for(const auto& obj : *hardObjs) {
+    for(const auto obj : *hardObjs) {
       hardObjs_tmp.push_back(obj);
     }
     std::sort(hardObjs_tmp.begin(),hardObjs_tmp.end(),greaterPt);

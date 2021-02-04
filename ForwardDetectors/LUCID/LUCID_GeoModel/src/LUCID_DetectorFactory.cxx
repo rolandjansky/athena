@@ -29,9 +29,7 @@
 #include "RDBAccessSvc/IRDBAccessSvc.h"
 
 #include "LUCID_DetectorFactory.h"
-#include "GetReflectivity.h"
 #include "GetRefIndex.h"
-#include "GetAbsLength.h"
 
 #include "LUCID_RDBAaccess.h"
 
@@ -45,18 +43,8 @@ LUCID_DetectorFactory::LUCID_DetectorFactory(StoreGateSvc* detStore,
    m_access         (pAccess),
    m_lp             (new LUCID_RDBAccess()) {
 
-  m_air = 0;
-  m_alu = 0;
-  m_cop = 0;
-  m_gas = 0;
   m_quartz = 0;
-  m_optSur = 0;
-  
-  for (int i=0; i<nLayers; i++) { 
-    m_tubeTheta[i] = 0;
-    for (int j=0; j<nPmtTubesPerLayer; j++)
-      m_tubePosition[i][j][0] = m_tubePosition[i][j][1] = 0;
-  }
+  m_peek = 0;
 }
 
 LUCID_DetectorFactory::~LUCID_DetectorFactory() {
@@ -74,23 +62,39 @@ void LUCID_DetectorFactory::create(GeoPhysVol* world) {
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(m_materialManager, std::string("MATERIALS"))) return; 
   
   buildMaterials(); 
-  calcTubeParams();
   
   log << MSG::DEBUG << " Build LUCID side A " << endmsg;
 
   GeoPcon* aShape = new GeoPcon(0, 360*Gaudi::Units::deg); 
   
-  aShape->addPlane(                 0, m_lp->coolingRadius, m_lp->VJconeRadiusFront);
-  aShape->addPlane(m_lp->VJconelength, m_lp->coolingRadius, m_lp->VJconeRadiusBack);
-  
-  GeoLogVol*      logVol  = new GeoLogVol("Lucid", aShape, m_air);
+  double VJConOuterRadFront     =  110;
+  double VJConOuterRadBack      =  187;
+  double VJConFrontLength       =  225;
+  double VJConMidLength         = 4485;
+  double VJConBackLength        =  425; 
+  double VJConFrontRingInnerRad =  100;
+  double VJConBackRingInerRad   =  152;
+
+  aShape->addPlane(   0,                                               VJConFrontRingInnerRad-10, VJConOuterRadFront+10);
+  aShape->addPlane(VJConFrontLength,                                   VJConFrontRingInnerRad-10, VJConOuterRadFront+10);
+  aShape->addPlane(VJConFrontLength+VJConMidLength,                    VJConFrontRingInnerRad-10, VJConOuterRadBack +10);
+  aShape->addPlane(5036,                                               VJConBackRingInerRad  -10, VJConOuterRadBack +10);
+  aShape->addPlane(VJConFrontLength+VJConMidLength+VJConBackLength+30, VJConBackRingInerRad  -10, VJConOuterRadBack +10); 
+
+  GeoLogVol*      logVol  = new GeoLogVol("Lucid", aShape, m_materialManager->getMaterial("std::Air"));
   GeoFullPhysVol* phyVolA = new GeoFullPhysVol(logVol);
   
-  addVJcone (phyVolA);
-  addCooling(phyVolA);
-  addVessel (phyVolA);
+  addVJcone              (phyVolA);
+  addVJconeFrontRing     (phyVolA);
+  addVJconeBackRing      (phyVolA);
+  addLucidSupportCylinder(phyVolA);
+  addPmtSupportCylinder  (phyVolA);
+  addPmtTubes            (phyVolA);
+  addPmtSupport          (phyVolA);
   
-  world->add(new GeoAlignableTransform(GeoTrf::Translate3D(0, 0,  m_lp->VJdistanceToIP)));
+  double VJConeDistanceToIP = 13442;
+
+  world->add(new GeoAlignableTransform(GeoTrf::Translate3D(0, 0,  VJConeDistanceToIP)));
   world->add(new GeoNameTag("LucidSideA"));
   world->add(phyVolA);
   
@@ -100,7 +104,7 @@ void LUCID_DetectorFactory::create(GeoPhysVol* world) {
   
   GeoFullPhysVol* phyVolC = phyVolA->clone();
     
-  world->add(new GeoAlignableTransform(GeoTrf::Translate3D(0, 0, -m_lp->VJdistanceToIP )*GeoTrf::RotateY3D(180*Gaudi::Units::degree)*GeoTrf::RotateZ3D(180*Gaudi::Units::degree)));
+  world->add(new GeoAlignableTransform(GeoTrf::Translate3D(0, 0, -VJConeDistanceToIP )*GeoTrf::RotateY3D(180*Gaudi::Units::degree)*GeoTrf::RotateZ3D(180*Gaudi::Units::degree)));
   world->add(new GeoNameTag("LucidSideC"));
   world->add(phyVolC);
   
@@ -113,31 +117,6 @@ void LUCID_DetectorFactory::buildMaterials()  {
 
   log << MSG::INFO << " LUCID_DetectorFactory::buildMaterials " << endmsg;
   
-  log << MSG::DEBUG << " Build Air for LUCID volume " << endmsg; 
-  
-  m_air = m_materialManager->getMaterial("std::Air");
-  
-  log << MSG::DEBUG << " Build Aluminium for Vessel and Tubes " << endmsg; 
-
-  m_alu = m_materialManager->getMaterial("std::Aluminium");
-  
-  log << MSG::DEBUG << " Aluminium density[g/cm3]: " << m_alu->getDensity()/(GeoModelKernelUnits::g/Gaudi::Units::cm3) << endmsg;
-
-  log << MSG::DEBUG << " Build Cherenkov Gas " << endmsg;
-  
-  m_gas = new GeoExtendedMaterial("C4F10", m_lp->gasDensity, stateGas, m_lp->gasTemperature, m_lp->gasPressure);
-
-  const GeoElement* carbon   = m_materialManager->getElement("Carbon");
-  const GeoElement* fluorine = m_materialManager->getElement("Fluorine");
-  
-  m_gas->add(const_cast<GeoElement*>(carbon),    4*carbon->getA()  /(4*carbon->getA() + 10*fluorine->getA()));
-  m_gas->add(const_cast<GeoElement*>(fluorine), 10*fluorine->getA()/(4*carbon->getA() + 10*fluorine->getA()));
-  
-  log << MSG::DEBUG << " gasState              : " << m_gas->getState()              << endmsg;
-  log << MSG::DEBUG << " gasTemperature[kelvin]: " << m_gas->getTemperature()/Gaudi::Units::kelvin << endmsg;
-  log << MSG::DEBUG << " gasPressure      [bar]: " << m_gas->getPressure()/Gaudi::Units::bar       << endmsg;
-  log << MSG::DEBUG << " gasDensity     [g/cm3]: " << m_gas->getDensity()/(GeoModelKernelUnits::g/Gaudi::Units::cm3)    << endmsg;
-
   log << MSG::DEBUG << " Wavelength dependent properties " << endmsg;
   
   const int waveLengthNum = (int)((m_lp->waveLengthMax - m_lp->waveLengthMin)/m_lp->waveLengthStep);
@@ -145,20 +124,14 @@ void LUCID_DetectorFactory::buildMaterials()  {
   double* photonWaveLength = new double[waveLengthNum];
   double* photonEnergy     = new double[waveLengthNum];
   double* quartzRefIndex   = new double[waveLengthNum];
-  double* gasRefIndex      = new double[waveLengthNum];
-  double* gasAbsLength     = new double[waveLengthNum];
-  double* tubeReflectivity = new double[waveLengthNum];
-  
-  double absLengthScale = (m_lp->gasPressure) ? (m_lp->gasPressure/Gaudi::Units::bar) : 1;
+
+  log << MSG::INFO << " Lambda[nm] Energy[eV] QuartzRefIndex " << endmsg;
   
   for(int i=0; i<waveLengthNum; i++) {
     
     photonWaveLength[i] = (m_lp->waveLengthMin + i*m_lp->waveLengthStep)*Gaudi::Units::nm;
     photonEnergy    [i] = 2.*M_PI*(Gaudi::Units::hbarc/(Gaudi::Units::eV*Gaudi::Units::nm))/(photonWaveLength[i]/Gaudi::Units::nm)*Gaudi::Units::eV;
     quartzRefIndex  [i] = GetRefIndexQuartz (photonWaveLength[i]/Gaudi::Units::nm);
-    gasRefIndex     [i] = GetRefIndexGas    (photonWaveLength[i]/Gaudi::Units::nm, m_lp->gasPressure/Gaudi::Units::bar, m_lp->gasTemperature/Gaudi::Units::kelvin);
-    gasAbsLength    [i] = GetAbsLengthGas   (photonWaveLength[i]/Gaudi::Units::nm)*Gaudi::Units::m/absLengthScale;
-    tubeReflectivity[i] = GetReflectivity   (photonWaveLength[i]/Gaudi::Units::nm);
   }
   
   log << MSG::DEBUG << " **************************************************************************************************** " << endmsg;
@@ -170,23 +143,10 @@ void LUCID_DetectorFactory::buildMaterials()  {
 	<< std::setw(11) << photonWaveLength[i]/Gaudi::Units::nm
 	<< std::setw(11) << photonEnergy    [i]/Gaudi::Units::eV
 	<< std::setw(13) << quartzRefIndex  [i]
-	<< std::setw(10) << gasRefIndex     [i]
-	<< std::setw(16) << gasAbsLength    [i]/Gaudi::Units::m
-	<< std::setw(17) << tubeReflectivity[i]
 	<< endmsg;
   }
   
   log << MSG::DEBUG << " ********************************************************************************************************** " << endmsg;
-
-  GeoMaterialPropertiesTable* mpt = new GeoMaterialPropertiesTable();
-  
-  mpt->AddProperty("RINDEX"   , photonEnergy, gasRefIndex , waveLengthNum);
-  mpt->AddProperty("ABSLENGTH", photonEnergy, gasAbsLength, waveLengthNum);
-  
-  log << MSG::DEBUG  << "LUCID Gas Material Properties Table " << mpt << endmsg;
-  
-  m_gas->SetMaterialPropertiesTable(mpt); 
-  m_gas->lock();
   
   log << MSG::DEBUG << " Build Quartz for PMT windows" << endmsg; 
   
@@ -198,7 +158,7 @@ void LUCID_DetectorFactory::buildMaterials()  {
   m_quartz->add(const_cast<GeoElement*>(silicon), 1*silicon->getA()/(2*oxygen->getA() + 1*silicon->getA()));
   m_quartz->add(const_cast<GeoElement*>(oxygen) , 2*oxygen->getA() /(2*oxygen->getA() + 1*silicon->getA()));
   
-  mpt = new GeoMaterialPropertiesTable();
+  GeoMaterialPropertiesTable* mpt = new GeoMaterialPropertiesTable();
   
   mpt->AddProperty("RINDEX", photonEnergy, quartzRefIndex , waveLengthNum);
   
@@ -207,83 +167,16 @@ void LUCID_DetectorFactory::buildMaterials()  {
   m_quartz->SetMaterialPropertiesTable(mpt); 
   m_quartz->lock();
 
-  log << MSG::DEBUG << " Build Copper for cooling system " << endmsg; 
-  
-  m_cop = m_materialManager->getMaterial("std::Copper");
-  
-  log << MSG::DEBUG << " Copper density[g/cm3]: " << m_cop->getDensity()/(GeoModelKernelUnits::g/Gaudi::Units::cm3) << endmsg;
-    
-  log << MSG::DEBUG << " Build Reflective Tube Optical Surfaces " << endmsg; 
-  
-  m_optSur = new GeoOpticalSurface("TubeOpticalSurface",
-				   GeoOpticalSurface::glisur,
-				   GeoOpticalSurface::ground,
-				   GeoOpticalSurface::dielectric_metal,
-				   m_lp->tubePolish);
-  
-  mpt = new GeoMaterialPropertiesTable();
-  
-  mpt->AddProperty("REFLECTIVITY", photonEnergy, tubeReflectivity, waveLengthNum);
-    
-  log << MSG::DEBUG << "LUCID Tube Material Properties Table " << mpt << endmsg;
-  
-  m_optSur->SetMaterialPropertiesTable(mpt); 
-
   delete [] photonWaveLength;
   delete [] photonEnergy;
   delete [] quartzRefIndex;
-  delete [] gasRefIndex;
-  delete [] gasAbsLength;
-  delete [] tubeReflectivity;
-}
 
-void LUCID_DetectorFactory::calcTubeParams() {
+  log << MSG::DEBUG << " Build Peek: Carbon with density 1.320*g/cm3 " << endmsg;
 
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::calcTubeParams");
-
-  log << MSG::INFO << " LUCID_DetectorFactory::calcTubeParams " << endmsg; 
-
-  double layerRadius  [nLayers] = {m_lp->layerRadius1, m_lp->layerRadius2};
-  double tubePhiOffset[nLayers];
-  double tubePhiAngle [nLayers][nPmtTubesPerLayer];
-  
-  for (int i=0; i<nLayers; i++) {
-    
-    m_tubeTheta  [i] = atan(layerRadius[i]/m_lp->distanceToIP)*Gaudi::Units::rad;
-    tubePhiOffset[i] = (i==0)*M_PI/8*Gaudi::Units::rad;
-    
-    for (int j=0; j<nPmtTubesPerLayer; j++) {
-      
-      tubePhiAngle[i][j] = 2*M_PI*j/nPmtTubesPerLayer*Gaudi::Units::rad + tubePhiOffset[i];
-      
-      double tubeDistance = layerRadius[i] + m_lp->tubeLength/2*sin(m_tubeTheta[i]/Gaudi::Units::rad);
-      
-      m_tubePosition[i][j][0] = tubeDistance*cos(tubePhiAngle[i][j]/Gaudi::Units::rad); if (fabs(m_tubePosition[i][j][0]) < 1e-10) m_tubePosition[i][j][0] = 0;
-      m_tubePosition[i][j][1] = tubeDistance*sin(tubePhiAngle[i][j]/Gaudi::Units::rad); if (fabs(m_tubePosition[i][j][1]) < 1e-10) m_tubePosition[i][j][1] = 0;
-    }
-  }
-  
-  log << MSG::DEBUG << " ********************************************************************************************************************************* " << endmsg;
-  log << MSG::DEBUG << " Layer Tube TubeRadius[mm] LayerRadius[mm] TubeTheta[deg] TubePhiOffset[deg] TubePhiAngle[deg] TubePositionX[mm] TubePositionY[mm] " << endmsg;
-
-  log.precision(5);
-  
-  for (int lay=0; lay<nLayers; lay++) 
-    for (int tub=0; tub<nPmtTubesPerLayer; tub++)
-  
-      log << MSG::DEBUG << setiosflags(std::ios::right)
-	  << std::setw( 6) << lay
-	  << std::setw( 5) << tub
-	  << std::setw(11) << m_lp->tubeRadius/Gaudi::Units::mm
-	  << std::setw(16) << layerRadius   [lay]/Gaudi::Units::mm
-	  << std::setw(14) << m_tubeTheta   [lay]/Gaudi::Units::degree
-	  << std::setw(19) << tubePhiOffset [lay]/Gaudi::Units::degree
-	  << std::setw(18) << tubePhiAngle  [lay][tub]/Gaudi::Units::degree
-	  << std::setw(19) << m_tubePosition[lay][tub][0]/Gaudi::Units::mm
-	  << std::setw(18) << m_tubePosition[lay][tub][1]/Gaudi::Units::mm
-	  << endmsg;
-  
-  log << MSG::DEBUG << " ********************************************************************************************************************************* " << endmsg;
+  m_peek = new GeoMaterial("peek", 1.320*GeoModelKernelUnits::g/Gaudi::Units::cm3);
+  const GeoElement* carbon = m_materialManager->getElement("Carbon");
+  m_peek->add(const_cast<GeoElement*>(carbon),1.0);
+  m_peek->lock();
 }
 
 void LUCID_DetectorFactory::addVJcone(GeoFullPhysVol* parent) {
@@ -292,233 +185,232 @@ void LUCID_DetectorFactory::addVJcone(GeoFullPhysVol* parent) {
 
   log << MSG::INFO << " LUCID_DetectorFactory::addVJcone " << endmsg;
 
-  GeoShape*   aShape0 =  new GeoCons(m_lp->VJconeRadiusFront - m_lp->VJconeThickness, 
-				     m_lp->VJconeRadiusBack  - m_lp->VJconeThickness,
-				     m_lp->VJconeRadiusFront, 
-				     m_lp->VJconeRadiusBack, 
-				     (m_lp->VJconelength - (m_lp->VJconeFrontRingLength - m_lp->VJconeFrontRingOverlap))/2, 0*Gaudi::Units::deg,360*Gaudi::Units::deg);
+  double VJConInerRadFront  =  105;
+  double VJConOuterRadFront =  110;
+  double VJConInerRadBack   =  182;
+  double VJConOuterRadBack  =  187;
+  double VJConFrontLength   =  225;
+  double VJConMidLength     = 4485;
+  double VJConBackLength    =  425;
   
-  GeoLogVol*  logVol0 = new GeoLogVol("lvVJcone", aShape0, m_alu);
-  GeoPhysVol* phyVol0 = new GeoPhysVol(logVol0); 
+  GeoPcon* aShape = new GeoPcon(0, 360*Gaudi::Units::degree); 
   
-  parent->add(new GeoTransform(GeoTrf::TranslateZ3D((m_lp->VJconelength + (m_lp->VJconeFrontRingLength - m_lp->VJconeFrontRingOverlap))/2)));
-  parent->add(new GeoNameTag("LucidVJcone"));
-  parent->add(phyVol0);
-  
-  GeoShape*   aShape1 = new GeoTube  (m_lp->VJconeRadiusFront - m_lp->VJconeThickness - m_lp->VJconeFrontRingThickness, 
-				      m_lp->VJconeRadiusFront - m_lp->VJconeThickness , m_lp->VJconeFrontRingLength/2);
-  
-  GeoLogVol*  logVol1 = new GeoLogVol("lvVJconeFrontRing", aShape1, m_alu);
-  GeoPhysVol* phyVol1 = new GeoPhysVol(logVol1); 
-  
-  parent->add(new GeoTransform(GeoTrf::TranslateZ3D(m_lp->VJconeFrontRingLength/2)));
-  parent->add(new GeoNameTag("LucidVJconeFrontRing"));
-  parent->add(phyVol1);
-}
+  aShape->addPlane(              0,                                 VJConInerRadFront, VJConOuterRadFront);
+  aShape->addPlane(VJConFrontLength,                                VJConInerRadFront, VJConOuterRadFront);
+  aShape->addPlane(VJConFrontLength+VJConMidLength,                 VJConInerRadBack,  VJConOuterRadBack);
+  aShape->addPlane(VJConFrontLength+VJConMidLength+VJConBackLength, VJConInerRadBack,  VJConOuterRadBack);
 
-void LUCID_DetectorFactory::addCooling(GeoFullPhysVol* parent) {
-
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::addCooling");
-
-  log << MSG::INFO << " LUCID_DetectorFactory::addCooling " << endmsg;
-    
-  GeoShape*   aShape = new GeoTube  (m_lp->coolingRadius, m_lp->coolingRadius + m_lp->coolingThickness, m_lp->vesselLength/2);
-  GeoLogVol*  logVol = new GeoLogVol("lvCooling", aShape, m_cop);
+  GeoLogVol*  logVol = new GeoLogVol("lvVJcone", aShape, m_materialManager->getMaterial("std::Carbon"));
   GeoPhysVol* phyVol = new GeoPhysVol(logVol); 
 
-  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, m_lp->vesselLength/2 + (m_lp->distanceToIP - m_lp->VJdistanceToIP))));
-  parent->add(new GeoNameTag("LucidCooling"));
+  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, 0)));
+  parent->add(new GeoNameTag("VJcone"));
   parent->add(phyVol);
 }
 
-void LUCID_DetectorFactory::addVessel(GeoFullPhysVol* parent) {
+void LUCID_DetectorFactory::addVJconeFrontRing(GeoFullPhysVol* parent) {
 
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::addVessel");
-  log << MSG::INFO << " LUCID_DetectorFactory::addVessel " << endmsg;
-  
-  GeoPcon* aShape = new GeoPcon(0, 360*Gaudi::Units::deg); 
-  aShape->addPlane(                 0, m_lp->vesselInnerRadius, m_lp->vesselOuterRadMin + m_lp->vesselOuterThickness);
-  aShape->addPlane(m_lp->vesselLength, m_lp->vesselInnerRadius, m_lp->vesselOuterRadMax + m_lp->vesselOuterThickness);
-  
-  
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
 
-  GeoLogVol*  logVol = new GeoLogVol("lvVessel", aShape, m_alu);
+  log << MSG::INFO << " LUCID_DetectorFactory::addVJconeFrontRing " << endmsg;
+
+  double VJConFrontRingLength   = 215;
+  double VJConFrontRingInnerRad = 100;
+  double VJConInerRadFront      = 105;
+  
+  GeoShape*   aShape = new GeoTube(VJConFrontRingInnerRad, VJConInerRadFront, VJConFrontRingLength/2); 
+  GeoLogVol*  logVol = new GeoLogVol("lvVJconeFrontRing", aShape, m_materialManager->getMaterial("std::Aluminium"));
+  GeoPhysVol* phyVol = new GeoPhysVol(logVol); 
+  
+  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, VJConFrontRingLength/2)));
+  parent->add(new GeoNameTag("VJconeFrontRing"));
+  parent->add(phyVol);
+}
+
+void LUCID_DetectorFactory::addVJconeBackRing(GeoFullPhysVol* parent) {
+
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
+
+  log << MSG::INFO << " LUCID_DetectorFactory::addVJconeBackRing " << endmsg;
+
+  double VJConBackRingLength         = 35;
+  double VJConBackRingCentrePosition = (18567-13442)+(VJConBackRingLength/2);
+  double VJConBackRingInerRad        = 152;
+  double LucidCylinderRadius         = 177;
+ 
+  GeoShape*   aShape = new GeoTube(VJConBackRingInerRad, LucidCylinderRadius, VJConBackRingLength/2);
+  GeoLogVol*  logVol = new GeoLogVol("lvVJconeBackRing", aShape, m_materialManager->getMaterial("std::Aluminium"));
   GeoPhysVol* phyVol = new GeoPhysVol(logVol);
-  
-  addVesselGas(phyVol);
-  
-  parent->add(new GeoAlignableTransform(GeoTrf::Translate3D(0, 0,  m_lp->distanceToIP - m_lp->VJdistanceToIP  )));
-  parent->add(new GeoNameTag("LucidVessel"));
+ 
+  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, VJConBackRingCentrePosition)));
+  parent->add(new GeoNameTag("VJconeBackRing"));
   parent->add(phyVol);
 }
 
-void LUCID_DetectorFactory::addVesselGas(GeoPhysVol* parent) {
+void LUCID_DetectorFactory::addLucidSupportCylinder(GeoFullPhysVol* parent) {
 
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::addVesselGas");
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
 
-  log << MSG::INFO << " LUCID_DetectorFactory::addVesselGas " << endmsg;
+  log << MSG::INFO << " LUCID_DetectorFactory::addLucidSupportCylinder " << endmsg;
   
-  GeoPcon* aShape = new GeoPcon(0, 360*Gaudi::Units::deg); 
-  aShape->addPlane(                 0, m_lp->vesselInnerRadius + m_lp->vesselInnerThickness, m_lp->vesselOuterRadMin);
-  aShape->addPlane(m_lp->vesselLength, m_lp->vesselInnerRadius + m_lp->vesselInnerThickness, m_lp->vesselOuterRadMax);
+  double LucidCylinderRadius         = 110;
+  double LucidCylinderThickness      = 1.5;
+  double LucidCylinderLength         = 18400-16850;
+  double LucidCylinderCenterPosition = (16850-13442)+(LucidCylinderLength/2);
+  
+  GeoShape*   aShape = new GeoTube  (LucidCylinderRadius, LucidCylinderRadius + LucidCylinderThickness, LucidCylinderLength/2);
+  GeoLogVol*  logVol = new GeoLogVol("lvLucidSupportCylinder", aShape, m_materialManager->getMaterial("std::Carbon"));
+  GeoPhysVol* phyVol = new GeoPhysVol(logVol); 
+  
+  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0,LucidCylinderCenterPosition)));
+  parent->add(new GeoNameTag("LucidSupportCylinder"));
+  parent->add(phyVol);
+}
+  
+void LUCID_DetectorFactory::addPmtSupportCylinder(GeoFullPhysVol* parent) {
 
-  GeoLogVol*  logVol = new GeoLogVol("lvVesselGas", aShape, m_gas);
-  GeoPhysVol* phyVol = new GeoPhysVol(logVol);
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
+
+  log << MSG::INFO << " LUCID_DetectorFactory::addPmtSupportCylinder " << endmsg;
+    
+  double PmtSupportCylinderRadius         = 111.75;
+  double PmtSupportCylinderThickness      = 1.5;
+  double PmtSupportCylinderLength         = 17120-16920;
+  double PmtSupportCylinderCenterPosition = (16920-13442)+(PmtSupportCylinderLength/2);
+ 
+  GeoShape*   aShape = new GeoTube  (PmtSupportCylinderRadius, PmtSupportCylinderRadius + PmtSupportCylinderThickness, PmtSupportCylinderLength/2);
+  GeoLogVol*  logVol = new GeoLogVol("lvPmtSupportCylinder", aShape, m_materialManager->getMaterial("std::Aluminium"));
+  GeoPhysVol* phyVol = new GeoPhysVol(logVol);  
   
-  addBulkHeads(phyVol);
-  addTubes    (phyVol);
-  
-  parent->add(new GeoNameTag("LucidVesselGas"));
+  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, PmtSupportCylinderCenterPosition)));
+  parent->add(new GeoNameTag("PmtSupportCylinder"));
   parent->add(phyVol);
 }
 
-void LUCID_DetectorFactory::addBulkHeads(GeoPhysVol* parent) {
+void LUCID_DetectorFactory::addPmtSupport(GeoFullPhysVol* parent) {
 
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::addBulkHeads");
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
+ 
+  log << MSG::INFO << " LUCID_DetectorFactory::addPmtSupport" << endmsg;
 
-  log << MSG::INFO << " LUCID_DetectorFactory::addBulkHeads " << endmsg;
+  double PmtSupportRadius        = 113.25;
+  double PmtSupportThickness     = 3.4;
+  double PmtSupportLength        = 17082-16962;
+  double PmtSupportFrontPosition = (16962-13442);
 
-  GeoShape*   aShape0 = new GeoTube  (m_lp->vesselInnerRadius + m_lp->vesselInnerThickness, m_lp->vesselOuterRadMin, m_lp->bulkheadThickness/2);
-  GeoLogVol*  logVol0 = new GeoLogVol("lvBulkHead0", aShape0, m_alu);
-  GeoPhysVol* phyVol0 = new GeoPhysVol(logVol0); 
-  
-  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, m_lp->bulkheadThickness/2)));
-  parent->add(new GeoNameTag("LucidBulkHead0"));
-  parent->add(phyVol0);
-  
-  GeoShape*   aShape1 = new GeoTube  (m_lp->vesselInnerRadius + m_lp->vesselInnerThickness, m_lp->vesselOuterRadMax, m_lp->bulkheadThickness/2);
-  GeoLogVol*  logVol1 = new GeoLogVol("lvBulkHead1", aShape1, m_alu);
-  GeoPhysVol* phyVol1 = new GeoPhysVol(logVol1);   
-  
-  parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, m_lp->vesselLength - m_lp->bulkheadThickness/2)));
-  parent->add(new GeoNameTag("LucidBulkHead1"));
-  parent->add(phyVol1);
+  int nSections = 4;
+ 
+  for (int sec=0; sec<nSections; sec++) {
+ 
+    GeoPcon* aShape = new GeoPcon(0.134 * M_PI +(sec-1)*(M_PI/2),0.232 * M_PI);
+ 
+    aShape->addPlane(               0,   PmtSupportRadius,  PmtSupportRadius+PmtSupportThickness);
+    aShape->addPlane(PmtSupportLength,   PmtSupportRadius,  PmtSupportRadius+PmtSupportThickness);
+
+    GeoLogVol*  logVol = new GeoLogVol("lvPmtSupport", aShape, m_materialManager->getMaterial("std::Aluminium"));
+    GeoPhysVol* phyVol = new GeoPhysVol(logVol);
+
+    parent->add(new GeoTransform(GeoTrf::Translate3D(0, 0, PmtSupportFrontPosition)));
+    parent->add(new GeoNameTag("PmtSupport"));
+    parent->add(phyVol);
+  }
 }
 
-void LUCID_DetectorFactory::addTubes(GeoPhysVol* parent) {
+void LUCID_DetectorFactory::addPmtTubes(GeoFullPhysVol* parent) {
   
-  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory::addTubes");
+  MsgStream log(Athena::getMessageSvc(), "LUCID_DetectorFactory");
 
-  log << MSG::INFO << " LUCID_DetectorFactory::addTubes " << endmsg;
-  
-  GeoShape*  aShape1 = new GeoTube(m_lp->tubeRadius, m_lp->tubeRadius + m_lp->tubeThickness, m_lp->tubeLength/2);
-  GeoShape*  aShape2 = new GeoTube(               0, m_lp->tubeRadius                      , m_lp->tubeLength/2);
-  GeoShape*  aShape3 = new GeoTube(               0, m_lp->tubeRadius                      , m_lp->pmtThickness/2);
-  
-  GeoLogVol* logVol1 = new GeoLogVol("lvTube"   , aShape1, m_alu);
-  GeoLogVol* logVol2 = new GeoLogVol("lvTubeGas", aShape2, m_gas);
-  GeoLogVol* logVol3 = new GeoLogVol("lvPmt"    , aShape3, m_quartz);
-
-  GeoPhysVol* phyVol3 = new GeoPhysVol(logVol3);
-  
-  GeoBorderSurfaceContainer* bsContainer = new GeoBorderSurfaceContainer();
-  bsContainer->reserve(nLayers*nPmtTubesPerLayer + nFiberTubes);
-  
   log << MSG::INFO << " LUCID_DetectorFactory::addPmtTubes " << endmsg;
+ 
+  double MUMetalCylinderInnerRad = 7.99;
+  double MuMetalCylinderOuterRad = 8.835;
+  double MuMetalCylinderLength   = 75;
+
+  double PmtRadius               = 5;
+  double PmtCenterPosition       = 125.5;
+  double PmtWindowThickness      = 1.2;
+
+  double PeekCapInnerRad         = 1.6;
+  double PeekCapOuterRad         = 8.835;
+  double PeekCapLength           = 2.8;
+
+  double MetalConnectorOuterRad  = 1.6;
+  double MetalConnectorLength    = 9.8;
+
+  GeoShape*   aShape = new GeoTube(0, PmtRadius, PmtWindowThickness/2);  
+  GeoLogVol*  logVol = new GeoLogVol("lvPmt", aShape, m_quartz);
+  GeoPhysVol* phyVol = new GeoPhysVol(logVol); 
   
-  for (int lay=0; lay<nLayers; lay++) {
-    for (int tub=0; tub<nPmtTubesPerLayer; tub++) {
-      
-      GeoOpticalPhysVol* phyVol1 = new GeoOpticalPhysVol(logVol1); 
-      GeoOpticalPhysVol* phyVol2 = new GeoOpticalPhysVol(logVol2); 
-      
-      int tubeNumber = tub + lay*nPmtTubesPerLayer;
-      
-      log << MSG::DEBUG << " Buiding Cherenkov Tube: " << tubeNumber << endmsg;
-      
-      double x = m_tubePosition[lay][tub][0];
-      double y = m_tubePosition[lay][tub][1];
-      double r = sqrt(x*x+y*y);
+  GeoShape*   aShapeMu = new GeoTube(MUMetalCylinderInnerRad, MuMetalCylinderOuterRad, MuMetalCylinderLength/2);  
+  GeoLogVol*  logVolMu = new GeoLogVol("lvMuMetalCylinder", aShapeMu, m_materialManager->getMaterial("std::Iron"));
+  GeoPhysVol* phyVolMu = new GeoPhysVol(logVolMu);
 
-      char sname[256]; 
-      
-      log << MSG::DEBUG << " Add PMT as daugther of the TubeGas " << endmsg;
-      
-      sprintf(sname, "LucidPmt%d", tubeNumber);
-      phyVol2->add(new GeoNameTag  (sname));
-      phyVol2->add(new GeoTransform(GeoTrf::Translate3D(0, 0, (m_lp->tubeLength - m_lp->pmtThickness)/2)));
-      phyVol2->add(phyVol3);
-      
-      log << MSG::DEBUG << " Add Alluminium Tube as daugther of the VesselGas " << endmsg;
+  GeoShape*   aShapePeekCap = new GeoTube(PeekCapInnerRad, PeekCapOuterRad, PeekCapLength/2);  
+  GeoLogVol*  logVolPeekCap = new GeoLogVol("lvPmtPeekCap", aShapePeekCap, m_peek);
+  GeoPhysVol* phyVolPeekCap = new GeoPhysVol(logVolPeekCap);
 
-      sprintf(sname, "LucidTube%d", tubeNumber);
+  GeoShape*   aShapeMetalconnector = new GeoTube(0, MetalConnectorOuterRad, MetalConnectorLength/2);  
+  GeoLogVol*  logVolMetalConnector = new GeoLogVol("lvPmtMetalConnector", aShapeMetalconnector, m_materialManager->getMaterial("std::Iron"));
+  GeoPhysVol* phyVolMetalConnector = new GeoPhysVol(logVolMetalConnector);
+
+  double phi              = M_PI/6*Gaudi::Units::rad;
+  int nSections           = 4;
+  int nPmtTubesPerSection = 4;
+
+  for (int sec=0; sec<nSections; sec++) {
+    for (int tub=0; tub<nPmtTubesPerSection; tub++) {
+      
+      double x      = PmtCenterPosition*cos(phi/Gaudi::Units::rad);
+      double y      = PmtCenterPosition*sin(phi/Gaudi::Units::rad);
+      double z      = (16970-13442)+(PmtWindowThickness/2);
+      double zMu    = (16963-13442)+(MuMetalCylinderLength/2);
+      double zCap   = (16963-13442)-(PeekCapLength/2);
+      double zMetal = (16963-13442)-(MetalConnectorLength/2);
+
+      char sname[256]; sprintf(sname, "LucidPmt%d", 4*sec+tub);
+      
+      log << MSG::INFO 
+    << format("Adding %11s phi:%10.3f x:%10.3f y:%10.3f z:%10.3f", sname, phi, x, y, z) 
+    << endmsg;
+      
       parent->add(new GeoNameTag  (sname));
-      parent->add(new GeoTransform(GeoTrf::Rotate3D   (m_tubeTheta[lay],GeoTrf:: Vector3D(-y/r, x/r, 0))));
-      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, m_lp->vesselLength/2 + (m_lp->vesselLength - m_lp->tubeLength)/2 - m_lp->bulkheadThickness)));
-      parent->add(phyVol1);
-      
-      log << MSG::DEBUG << " Add TubeGas as daugther of the VesselGas " << endmsg;
+      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, z)));
+      parent->add(phyVol);
 
-      sprintf(sname, "LucidTubeGas%d", tubeNumber);
-      parent->add(new GeoNameTag  (sname));
-      parent->add(new GeoTransform(GeoTrf::Rotate3D   (m_tubeTheta[lay], GeoTrf::Vector3D(-y/r, x/r, 0))));
-      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, m_lp->vesselLength/2 + (m_lp->vesselLength - m_lp->tubeLength)/2 - m_lp->bulkheadThickness)));
-      parent->add(phyVol2);
-    
-      log << MSG::DEBUG << " Add the Optical Surface between Gas and Tube physica volumes " << endmsg;
+      char snameMu[256]; sprintf(snameMu, "MuMetal cylinder%d", 4*sec+tub);
       
-      sprintf(sname, "OptSurLayer%d", tubeNumber);
-      bsContainer->push_back(GeoBorderSurface(sname, phyVol2, phyVol1, m_optSur));
+      log << MSG::INFO 
+    << format("Adding %11s phi:%10.3f x:%10.3f y:%10.3f zMu:%10.3f", snameMu, phi, x, y, zMu) 
+    << endmsg;
+      
+      parent->add(new GeoNameTag  (snameMu));
+      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, zMu)));
+      parent->add(phyVolMu);
+
+      char snamePeekCap[256]; sprintf(snamePeekCap, "PmtPeekCap%d", 4*sec+tub);
+      
+      log << MSG::INFO 
+    << format("Adding %11s phi:%10.3f x:%10.3f y:%10.3f zCap:%10.3f", snamePeekCap, phi, x, y, zCap) 
+    << endmsg;
+      
+      parent->add(new GeoNameTag  (snamePeekCap));
+      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, zCap)));
+      parent->add(phyVolPeekCap);
+
+      char snameMetalConnector[256]; sprintf(snameMetalConnector, "MetalConnector%d", 4*sec+tub);
+      
+      log << MSG::INFO 
+    << format("Adding %11s phi:%10.3f x:%10.3f y:%10.3f zMetal:%10.3f", snameMetalConnector, phi, x, y, zMetal) 
+    << endmsg;
+      
+      parent->add(new GeoNameTag  (snameMetalConnector));
+      parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, zMetal)));
+      parent->add(phyVolMetalConnector);
+
+      phi = phi+(M_PI/18)*Gaudi::Units::rad;
     }
+    phi = phi+(5* M_PI/18)*Gaudi::Units::rad;
   }
-
-  log << MSG::INFO << " LUCID_DetectorFactory::addFiberTubes " << endmsg;
-  
-  for (int tub=0; tub<nFiberTubes; tub++) {
-
-    GeoOpticalPhysVol* phyVol1 = new GeoOpticalPhysVol(logVol1); 
-    GeoOpticalPhysVol* phyVol2 = new GeoOpticalPhysVol(logVol2); 
-    
-    int tubeNumber = tub + 2*nPmtTubesPerLayer;
-    
-    log << MSG::DEBUG << " Buiding Cherenkov Tube: " << tubeNumber << endmsg;
-
-    double x = m_tubePosition[0][0][0];
-    double y = m_tubePosition[0][0][1];
-    double r = sqrt(x*x + y*y);
-    
-    log << MSG::DEBUG << " Set Fiber-Readout Tubes on Inner layer at 45 degrees " << endmsg;
-    
-    x = y = r*cos(M_PI/4); 
-    double r1 = sqrt(x*x + y*y);
-
-    if (tubeNumber==17 || tubeNumber==18) x = -x;
-    if (tubeNumber==18 || tubeNumber==19) y = -y;
-    
-    char sname[256]; 
-
-    log << MSG::DEBUG << " Add PMT as daugther of the TubeGas " << endmsg;
-    
-    sprintf(sname, "LucidPmt%d", tubeNumber);
-    phyVol2->add(new GeoNameTag  (sname));
-    phyVol2->add(new GeoTransform(GeoTrf::Translate3D(0, 0, (m_lp->tubeLength - m_lp->pmtThickness)/2)));
-    phyVol2->add(phyVol3);
-    
-    log << MSG::DEBUG << " Add Alluminium Tube as daugther of the VesselGas " << endmsg;
-
-    sprintf(sname, "LucidTube%d", tubeNumber);
-    parent->add(new GeoNameTag  (sname));
-    parent->add(new GeoTransform(GeoTrf::Rotate3D   (m_tubeTheta[0], GeoTrf::Vector3D(-y/r1, x/r1, 0))));
-    parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, m_lp->vesselLength/2 + (m_lp->vesselLength - m_lp->tubeLength)/2 - m_lp->bulkheadThickness)));
-    parent->add(phyVol1);
-    
-    log << MSG::DEBUG << " Add TubeGas as daugther of the VesselGas " << endmsg;
-
-    sprintf(sname, "LucidTubeGas%d", tubeNumber);
-    parent->add(new GeoNameTag  (sname));
-    parent->add(new GeoTransform(GeoTrf::Rotate3D   (m_tubeTheta[0], GeoTrf::Vector3D(-y/r1, x/r1, 0))));
-    parent->add(new GeoTransform(GeoTrf::Translate3D(x, y, m_lp->vesselLength/2 + (m_lp->vesselLength - m_lp->tubeLength )/2 - m_lp->bulkheadThickness)));    
-    parent->add(phyVol2);
-    
-    log << MSG::DEBUG << " Add the Optical Surface between Gas and Tube physica volumes " << endmsg;
-    
-    sprintf(sname, "OptSurLayer%d", tubeNumber);
-    bsContainer->push_back(GeoBorderSurface(sname, phyVol2, phyVol1, m_optSur));
-  }
-  
-  StatusCode sc = m_detectorStore->record(bsContainer, "LUCID");
-  
-  if (sc.isFailure()) log << MSG::ERROR << "LUCID: unable to record border surface container to DS! " << endmsg; 
 }
 
 const LUCID_DetectorManager* LUCID_DetectorFactory::getDetectorManager() const { return m_detectorManager; }

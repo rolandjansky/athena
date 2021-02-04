@@ -59,8 +59,12 @@ extern bool LINEF;
 extern bool LINES;
 
 
+
+
 TH1F* Rebin( TH1F* h, double f ) { 
   
+  std::cout << "\nREBIN: " << h->GetName() << " :: " << f << std::endl; 
+
   if ( int(f) == f ) { 
     TH1F* n = (TH1F*)h->Clone("foeda"); n->SetDirectory(0);
     n->Rebin(int(f));
@@ -262,15 +266,16 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -er, --effscaleref  value \t scale reference efficiencies to value\n";
   s << "    -nb  --nobayes            \t do not calculate Basyesian efficiency uncertaintiesr\n\n";
 
-  s << "    -r,  --refit              \t refit all test resplots\n";
-  s << "    -rr, --refitref           \t also refit all reference resplots\n";
-  s << "         --oldrms             \t use fast rms95 when refitting resplots\n\n";
+  s << "    -r,  --refit               \t refit all test resplots\n";
+  s << "    -rr, --refitref            \t also refit all reference resplots\n";
+  s << "         --oldrms              \t use fast rms95 when refitting resplots\n\n";
 
-  s << "    -as, --atlasstyle         \t use ATLAS style\n";
-  s << "    -l,  --labels       values\t use specified labels for key\n";
-  s << "         --taglabels    values\t use specified additional labels \n";
-  s << "    -al, --atlaslable   value \t set value for atlas label\n";
-  s << "    -ac, --addchains          \t if possible, add chain names histogram labels \n\n";   
+  s << "    -as, --atlasstyle          \t use ATLAS style\n";
+  s << "    -l,  --labels        values\t use specified labels for key\n";
+  s << "         --taglabels     values\t use specified additional labels \n";
+  s << "    -al, --atlaslable    value \t set value for atlas label\n";
+  s << "    -sx, --swapaxtitles  exp pattern\t swap the expression \"exp \" in the axis titles with \"pattern\"\n";
+  s << "    -ac, --addchains           \t if possible, add chain names histogram labels \n\n";   
 
   s << "    -m,  --mapfile            \t remap file for reference histograms \n\n";   
  
@@ -455,6 +460,9 @@ int main(int argc, char** argv) {
   std::string pattern = "";
   std::string regex   = "";
 
+  std::string xpattern = "";
+  std::string xregex   = "";
+
   std::vector<std::string> chains;
   std::vector<std::string> refchains;
 
@@ -637,6 +645,12 @@ int main(int argc, char** argv) {
       else return usage(argv[0], -1, "no patterns provided");
       if ( ++i<argc ) regex=argv[i];
       else return usage(argv[0], -1, "no target pattern provided");
+    }
+    else if ( arg=="-sx" || arg=="--swapaxtitles" ) { 
+      if ( ++i<argc ) xregex=argv[i];
+      else return usage(argv[0], -1, "no target pattern provided");
+      if ( ++i<argc ) xpattern=argv[i];
+      else return usage(argv[0], -1, "no patterns provided");
     }
     else if ( arg.find("-")==0 ) {
       std::cerr << "unknown option: " << arg << "\n" << std::endl;
@@ -1275,6 +1289,13 @@ int main(int argc, char** argv) {
       std::string xaxis = histo.xtitle();
       std::string yaxis = histo.ytitle();
       
+      if ( xregex!="" ) { 
+      	size_t pos = xaxis.find(xregex);
+	if ( pos!=std::string::npos ) xaxis.replace( pos, xregex.size(), xpattern );  
+	pos = yaxis.find(xregex);
+	if ( pos!=std::string::npos ) yaxis.replace( pos, xregex.size(), xpattern );  
+      }
+
       AxisInfo xinfo = histo.xaxis(); 
       AxisInfo yinfo = histo.yaxis(); 
 
@@ -1600,11 +1621,34 @@ int main(int argc, char** argv) {
 
 	  if ( fulldbg ) std::cout << __LINE__ << std::endl;
 	
-	  if ( histo.name().find("rdz_vs_zed")==std::string::npos && histo.name().find("1d")!=std::string::npos ) { 
+
+	  std::string hname = histo.name();
+
+	  double rebin = 1;
+
+	  if ( contains( hname, "+Rebin" ) ) { 
+	    rebin = std::atof( hname.substr( hname.find("+Rebin")+6, hname.size() ).c_str() ); 
+	    hname = hname.substr( 0, hname.find("+Rebin") ); 
+	  } 
+
+	  if ( contains( hname, "+rebin" ) ) { 
+	    rebin = std::atof( hname.substr( hname.find("+rebin")+6, hname.size() ).c_str() ); 
+	    hname = hname.substr( 0, hname.find("+rebin") ); 
+	  } 
+	      
+	  if ( rebin!=1 ) { 
+	    htest->Rebin(rebin);
+	    if ( href ) href->Rebin(rebin);
+	  }
+#if 0
+	  /// skip this for the time being - but leave the code in place
+	  if ( !contains( histo.name(), "rdz_vs_zed" ) && contains( histo.name(), "1d") ) {
 	    std::cout << "Rebinning histogram: " << histo.name() << std::endl;
 	    if (        htest->GetNbinsX()>500 ) htest->Rebin(10);
 	    if ( href && href->GetNbinsX()>500 ) href->Rebin(10);
 	  }
+#endif
+
 
 
 	  if ( histo.name().find("zed_eff")!=std::string::npos ) { 
@@ -1685,9 +1729,9 @@ int main(int argc, char** argv) {
 
 	    std::cout << "test histogram name: : " << htestnum->GetName() << "\txaxis: " << xaxis << "\t" << std::endl;
 
-	    //	    if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
+	    //	if ( xaxis.find("p_{T}")!=std::string::npos || xaxis.find("pt")!=std::string::npos ) { 
 	    //    b.range( chains[j], htestnum );
-	    //   b.range( chains[j], htestden );
+	    //    b.range( chains[j], htestden );
 	    //  }
 
 	    std::cout << "1: Bayesian error calculation " << htestnum << " " << htestden << "\tscale " << scale_eff << std::endl;
@@ -1925,7 +1969,9 @@ int main(int argc, char** argv) {
 
 	std::cout << "userlabels.size() " << usrlabels.size() << std::endl; 
 
-	if ( usrlabels.size() < j+1 ) std::cerr << "userlabels not large enough - not using userlabels" << std::endl;
+	if ( usrlabels.size() < j+1 ) { 
+	  if ( usrlabels.size()!=0 ) std::cerr << "userlabels not large enough - not using userlabels" << std::endl;
+	}
 	else c = usrlabels[ j ]; 
 
 	std::cout << "use label: c: " << c << std::endl;

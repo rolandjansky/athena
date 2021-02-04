@@ -11,7 +11,7 @@ ATLAS_EXT_PROJECT_NAME="AthSimulationExternals"
 ATLAS_BUILDTYPE="RelWithDebInfo"
 ATLAS_EXTRA_CMAKE_ARGS=(-DLCG_VERSION_NUMBER=98
                         -DLCG_VERSION_POSTFIX="python3_ATLAS_4"
-                        -DATLAS_GAUDI_TAG="v35r0.002")
+                        -DATLAS_GAUDI_TAG="v35r1.000")
 ATLAS_EXTRA_MAKE_ARGS=()
 
 # Let "the common script" do all the heavy lifting.

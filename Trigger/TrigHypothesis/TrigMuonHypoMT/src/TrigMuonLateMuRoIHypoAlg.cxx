@@ -83,7 +83,7 @@ StatusCode TrigMuonLateMuRoIHypoAlg::execute( const EventContext& context ) cons
       ATH_CHECK( lateRoIEL.isValid() );
       const TrigRoiDescriptor* lateRoI = *lateRoIEL;
       // create new decisions
-      auto newd = newDecisionIn( decisions );
+      auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
       // push_back to toolInput
       toolInput.emplace_back( newd, roi, lateRoI, previousDecision );
       newd -> setObjectLink( featureString(), lateRoIEL );

@@ -369,3 +369,9 @@ if jobproperties.CaloRecFlags.doCaloTopoTower():
 if jobproperties.CaloRecFlags.doCaloTopoSignal():
     include ("CaloRec/CaloTopoSignalFragment.py" )
 
+# Collision time algos: Needed for monitoring, must be scheduled *before* the MonManager  
+from LArMonTools.LArMonFlags import LArMonFlags
+from AthenaMonitoring.DQMonFlags import DQMonFlags
+if  rec.doMonitoring() and DQMonFlags.doMonitoring() and LArMonFlags.doLArCollisionTimeMon():
+    include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
+    include("LArCellRec/LArCollisionTime_jobOptions.py")

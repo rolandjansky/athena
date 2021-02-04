@@ -64,6 +64,8 @@ private:
   Resplot* rdz_vs_nvtx;
   Resplot* rdz_vs_mu;
 
+  Resplot* rnvtxrec_nvtx;
+
   Efficiency* eff_zed;
   Efficiency* eff_ntrax;
   Efficiency* eff_nvtx;

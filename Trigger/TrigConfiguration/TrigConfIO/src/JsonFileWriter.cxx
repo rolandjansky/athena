@@ -523,3 +523,22 @@ TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const Trig
    TRG_MSG_INFO("Saved file " << filename);
    return true;
 }
+
+bool TrigConf::JsonFileWriter::writeJsonFile(const std::string & filename, const TrigConf::L1PrescalesSet & l1ps) const {
+   json j({});
+   j["filetype"] = "l1prescale";
+   j["name"]  = l1ps.name();
+   json cuts({});
+   for ( auto [itemName, ps]: l1ps.prescales()){
+      json cut({});
+      cut["cut"] = ps.cut;
+      cut["enabled"] = ps.enabled;
+      cut["info"] = "prescale: " + std::to_string(ps.prescale);
+      cuts[itemName] = cut;
+   }
+   j["cutValues"] = cuts;
+   std::ofstream outfile(filename);
+   outfile << std::setw(4) << j << std::endl;
+   TRG_MSG_INFO("Saved file " << filename);
+   return true;
+}

@@ -20,31 +20,32 @@ class CSCSimHitVariables : public ValAlgVariables
                      std::string containername,
               MSG::Level msglvl) :
     ValAlgVariables(evtStore, detManager, tree, containername, msglvl),
-    m_CSC_Sim_stationName(nullptr),
-    m_CSC_stationName(nullptr),
-    m_CSC_stationEta(nullptr),
-    m_CSC_stationPhi(nullptr),
-    m_CSC_isEndcap(nullptr),
-    m_CSC_strip(nullptr),
-    m_CSC_Sim_stationEta(nullptr),
-    m_CSC_Sim_stationPhi(nullptr),
-    m_CSC_globalTime(nullptr),
-    m_CSC_hitGlobalPositionX(nullptr),
-    m_CSC_hitGlobalPositionY(nullptr),
-    m_CSC_hitGlobalPositionZ(nullptr),
-    m_CSC_hitGlobalPositionR(nullptr),
-    m_CSC_hitGlobalPositionP(nullptr),
-    m_CSC_detector_globalPositionX(nullptr),
-    m_CSC_detector_globalPositionY(nullptr),
-    m_CSC_detector_globalPositionZ(nullptr),
-    m_CSC_detector_globalPositionR(nullptr),
-    m_CSC_detector_globalPositionP(nullptr),
-    m_CSC_kineticEnergy(nullptr),
-    m_CSC_depositEnergy(nullptr),
-    m_CSC_trackId(nullptr),
-    m_CSC_truthEl(nullptr),
-    m_CSC_Sim_chamberLayer(nullptr),
-    m_CSC_Sim_wireLayer(nullptr),
+    m_CscIdHelper(nullptr),
+    m_CSC_Sim_stationName(),
+    m_CSC_stationName(),
+    m_CSC_stationEta(),
+    m_CSC_stationPhi(),
+    m_CSC_isEndcap(),
+    m_CSC_strip(),
+    m_CSC_Sim_stationEta(),
+    m_CSC_Sim_stationPhi(),
+    m_CSC_Sim_chamberLayer(),
+    m_CSC_Sim_wireLayer(),
+    m_CSC_globalTime(),
+    m_CSC_hitGlobalPositionX(),
+    m_CSC_hitGlobalPositionY(),
+    m_CSC_hitGlobalPositionZ(),
+    m_CSC_hitGlobalPositionR(),
+    m_CSC_hitGlobalPositionP(),
+    m_CSC_detector_globalPositionX(),
+    m_CSC_detector_globalPositionY(),
+    m_CSC_detector_globalPositionZ(),
+    m_CSC_detector_globalPositionR(),
+    m_CSC_detector_globalPositionP(),
+    m_CSC_kineticEnergy(),
+    m_CSC_depositEnergy(),
+    m_CSC_trackId(),
+    m_CSC_truthEl(),
     m_CSC_nSimHits(0)
     
   {
@@ -63,7 +64,7 @@ class CSCSimHitVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_CscIdHelper = dynamic_cast<const CscIdHelper*>(idhelper);
-    if(m_CscIdHelper == 0) {
+    if(!m_CscIdHelper) {
        ATH_MSG_ERROR("casting IdHelper to CscIdhelper failed");
        throw;
     }
@@ -73,32 +74,32 @@ class CSCSimHitVariables : public ValAlgVariables
   StatusCode clearVariables();
 
   const CscIdHelper* m_CscIdHelper;
-
-  std::vector<std::string>  *m_CSC_Sim_stationName;
-  std::vector<int>  *m_CSC_stationName;
-  std::vector<int>  *m_CSC_stationEta;
-  std::vector<int>  *m_CSC_stationPhi;
-  std::vector<bool> *m_CSC_isEndcap;
-  std::vector<int>  *m_CSC_strip;
-  std::vector<int>  *m_CSC_Sim_stationEta;
-  std::vector<int>  *m_CSC_Sim_stationPhi;
-  std::vector<double>  *m_CSC_globalTime;
-  std::vector<double>  *m_CSC_hitGlobalPositionX;
-  std::vector<double>  *m_CSC_hitGlobalPositionY;
-  std::vector<double>  *m_CSC_hitGlobalPositionZ;
-  std::vector<double>  *m_CSC_hitGlobalPositionR;
-  std::vector<double>  *m_CSC_hitGlobalPositionP;
-  std::vector<double>  *m_CSC_detector_globalPositionX;
-  std::vector<double>  *m_CSC_detector_globalPositionY;
-  std::vector<double>  *m_CSC_detector_globalPositionZ;
-  std::vector<double>  *m_CSC_detector_globalPositionR;
-  std::vector<double>  *m_CSC_detector_globalPositionP;
-  std::vector<double>  *m_CSC_kineticEnergy;
-  std::vector<double>  *m_CSC_depositEnergy;
-  std::vector<int>  *m_CSC_trackId;
-  std::vector<int>  *m_CSC_truthEl;
-  std::vector<int>  *m_CSC_Sim_chamberLayer;
-  std::vector<int>  *m_CSC_Sim_wireLayer;
+  
+	std::vector<std::string> m_CSC_Sim_stationName;
+	std::vector<int> m_CSC_stationName;
+	std::vector<int> m_CSC_stationEta;
+	std::vector<int> m_CSC_stationPhi;
+	std::vector<bool> m_CSC_isEndcap;
+	std::vector<int> m_CSC_strip;
+	std::vector<int> m_CSC_Sim_stationEta;
+	std::vector<int> m_CSC_Sim_stationPhi;
+	std::vector<int> m_CSC_Sim_chamberLayer;
+	std::vector<int> m_CSC_Sim_wireLayer;
+	std::vector<double> m_CSC_globalTime;
+	std::vector<double> m_CSC_hitGlobalPositionX;
+	std::vector<double> m_CSC_hitGlobalPositionY;
+	std::vector<double> m_CSC_hitGlobalPositionZ;
+	std::vector<double> m_CSC_hitGlobalPositionR;
+	std::vector<double> m_CSC_hitGlobalPositionP;
+	std::vector<double> m_CSC_detector_globalPositionX;
+	std::vector<double> m_CSC_detector_globalPositionY;
+	std::vector<double> m_CSC_detector_globalPositionZ;
+	std::vector<double> m_CSC_detector_globalPositionR;
+	std::vector<double> m_CSC_detector_globalPositionP;
+	std::vector<double> m_CSC_kineticEnergy;
+	std::vector<double> m_CSC_depositEnergy;
+	std::vector<int> m_CSC_trackId;
+	std::vector<int> m_CSC_truthEl;
   int m_CSC_nSimHits;
 
 };

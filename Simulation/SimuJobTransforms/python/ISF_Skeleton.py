@@ -2,11 +2,13 @@
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-from OverlayConfiguration.OverlayHelpers import accFromFragment
+from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
@@ -122,16 +124,12 @@ def fromRunArgs(runArgs):
     # Setup common simulation flags
     defaultSimulationFlags(ConfigFlags)
 
-    # Pre-exec
-    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-        for cmd in runArgs.preExec:
-            exec(cmd)
-
     # Pre-include
-    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-        for fragment in runArgs.preInclude:
-            accFromFragment(fragment, ConfigFlags)
-    
+    processPreInclude(runArgs, ConfigFlags)
+
+    # Pre-exec
+    processPreExec(runArgs, ConfigFlags)
+
     # Lock flags
     ConfigFlags.lock()
 
@@ -226,14 +224,11 @@ def fromRunArgs(runArgs):
 
 
     # Post-include
-    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-        for fragment in runArgs.postInclude:
-            cfg.merge(accFromFragment(fragment, ConfigFlags))
+    processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
-    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-        for cmd in runArgs.postExec:
-            exec(cmd)
+    processPostExec(runArgs, ConfigFlags, cfg)
+
 
     import time
     tic = time.time()

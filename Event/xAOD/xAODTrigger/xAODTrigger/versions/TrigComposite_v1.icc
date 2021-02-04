@@ -130,16 +130,19 @@ namespace xAOD {
       for( size_t i = 0; i < names.size(); ++i ) {
          if( names[ i ] != name ) continue;
          checkTypes< CONTAINER >(linkColClids()[ i ], name);
-         // Construct the link. Try to remap, if remap collections are available:
-         ElementLink< CONTAINER > linkTryRemap( linkColKeys()[ i ],
-                                                linkColIndices()[ i ] );
-         if (linkTryRemap.isValid()) {
-            return linkTryRemap;
+         ElementLink< CONTAINER > link( linkColKeys()[ i ],
+                                        linkColIndices()[ i ] );
+         
+         if (link.isValid()) {
+            return link;
          }
 
-         // Try again, without remapping
-         return ElementLink< CONTAINER >( linkColKeysNoRemap()[ i ],
-                                          linkColIndicesNoRemap()[ i ] );
+         if (isRemapped()) {
+            return ElementLink< CONTAINER >( linkColKeysRemap()[ i ],
+                                             linkColIndicesRemap()[ i ] );
+         }
+
+         return link;
       }
 
       // We didn't find the link. :-(
@@ -153,7 +156,7 @@ namespace xAOD {
 
       // Check if the link exists:
       if( ! hasObjectLink( name ) ) {
-         return 0;
+         return nullptr;
       }
 
       // Now look for it:
@@ -163,25 +166,27 @@ namespace xAOD {
          // Check that it is of the right type:
          checkTypes< DataVector< OBJECT > >(linkColClids()[ i ], name);
          // Create a temporary ElementLink:
-         ElementLink< DataVector< OBJECT > > linkTryRemap( linkColKeys()[ i ],
-                                                           linkColIndices()[ i ] );
-         if( linkTryRemap.isValid() ) {
-            return *linkTryRemap;
-         }
-
-         // This time forbid remapping
-         ElementLink< DataVector< OBJECT > > link( linkColKeysNoRemap()[ i ],
-                                                   linkColIndicesNoRemap()[ i ] );
-
+         ElementLink< DataVector< OBJECT > > link( linkColKeys()[ i ],
+                                                   linkColIndices()[ i ] );
          if( link.isValid() ) {
             return *link;
          }
+
+         if (isRemapped()) {
+           link = ElementLink< DataVector< OBJECT > >( linkColKeysRemap()[ i ],
+                                                       linkColIndicesRemap()[ i ] );
+           if( link.isValid() ) {
+              return *link;
+           }
+         }
+
+         return nullptr;
       }
 
       // There was an internal error. :-(
       std::cerr << "xAOD::TrigComposite_v1::object ERROR Internal error "
                 << "detected" << std::endl;
-      return 0;
+      return nullptr;
    }
 
   template< class CONTAINER >
@@ -226,10 +231,19 @@ namespace xAOD {
         // Check that it is of the right type:
        checkTypes< CONTAINER >(linkColClids()[ i ], collectionName);
        // Construct and add the link:
-       links.push_back( ElementLink< CONTAINER >(linkColKeys()[ i ],
-                                                 linkColIndices()[ i ]) );
-     }
-     return links;
+       ElementLink< CONTAINER > link(linkColKeys()[ i ],
+                                     linkColIndices()[ i ]);
+       if (link.isValid()) {
+          links.push_back( link );
+       } else if (isRemapped()) {
+          link = ElementLink< CONTAINER >(linkColKeysRemap()[ i ],
+                                          linkColIndicesRemap()[ i ]);
+          links.push_back( link );
+       } else {
+          links.push_back( link );
+       }
+    }
+    return links;
   }
 
    template< class CONTAINER >

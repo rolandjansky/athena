@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @file TriggerUnixStandardSetup.py
 ## @brief py-module to configure the Athena AppMgr for trigger
@@ -182,6 +182,7 @@ def setupCommonServicesEnd():
     svcMgr.CoreDumpSvc.CoreDumpStream = "stdout"
     svcMgr.CoreDumpSvc.CallOldHandler = False
     svcMgr.CoreDumpSvc.StackTrace = True
+    svcMgr.CoreDumpSvc.FastStackTrace = True
     svcMgr.CoreDumpSvc.FatalHandler = 0   # no extra fatal handler
     svcMgr.CoreDumpSvc.TimeOut = 60000000000        # timeout for stack trace generation changed to 60s (ATR-17112)
 

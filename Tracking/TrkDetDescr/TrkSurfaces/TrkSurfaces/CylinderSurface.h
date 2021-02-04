@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -57,10 +57,14 @@ public:
   /**Default Constructor*/
   CylinderSurface();
 
-  /**Constructor from EigenTransform, radius and halflenght*/
+  /**Constructor from EigenTransform, radius and halflength*/
   CylinderSurface(Amg::Transform3D* htrans, double radius, double hlength);
 
-  /**Constructor from EigenTransform, radius halfphi, and halflenght*/
+  /**Constructor from EigenTransform, radius and halflength*/
+  CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans,
+                  double radius, double hlength);
+
+  /**Constructor from EigenTransform, radius halfphi, and halflength*/
   CylinderSurface(Amg::Transform3D* htrans,
                   double radius,
                   double hphi,
@@ -74,11 +78,11 @@ public:
      - bounds is not set */
   CylinderSurface(std::unique_ptr<Amg::Transform3D> htrans);
 
-  /** Constructor from radius and halflenght - speed optimized for concentric
+  /** Constructor from radius and halflength - speed optimized for concentric
    * volumes */
   CylinderSurface(double radius, double hlength);
 
-  /**Constructor from radius halfphi, and halflenght - speed optimized fron
+  /**Constructor from radius halfphi, and halflength - speed optimized for
    * concentric volumes */
   CylinderSurface(double radius, double hphi, double hlength);
 
@@ -107,6 +111,16 @@ public:
 
   /** Use the Surface as a ParametersBase constructor, from local parameters -
    * charged */
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
+    double l1,
+    double l2,
+    double phi,
+    double theta,
+    double qop,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
+  /** Use the Surface as a ParametersBase constructor, from local parameters -
+   * charged */
   virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
     double l1,
     double l2,
@@ -118,6 +132,12 @@ public:
   /** Use the Surface as a ParametersBase constructor, from global parameters -
    * charged*/
   virtual ParametersT<5, Charged, CylinderSurface>* createTrackParameters(
+    const Amg::Vector3D& position,
+    const Amg::Vector3D& momentum,
+    double charge,
+    AmgSymMatrix(5) * cov = nullptr) const override final;
+
+  virtual Surface::ChargedTrackParametersUniquePtr createUniqueTrackParameters(
     const Amg::Vector3D& position,
     const Amg::Vector3D& momentum,
     double charge,
@@ -176,10 +196,8 @@ public:
     */
   virtual const Amg::Vector3D& globalReferencePoint() const override;
 
-  /**Return method for surface normal information
-     at a given local point, overwrites the normal() from base class.*/
-  virtual const Amg::Vector3D& normal() const override;
-
+  //using from the base class
+  using Trk::Surface::normal;
   /**Return method for surface normal information
      at a given local point, overwrites the normal() from base class.*/
   virtual const Amg::Vector3D* normal(
@@ -205,7 +223,7 @@ public:
 
   /** Specialized for CylinderSurface : LocalParameters to Vector2D */
   virtual Amg::Vector2D localParametersToPosition(
-    const LocalParameters& locpars) const override final; 
+    const LocalParameters& locpars) const override final;
 
   /** Specialized for CylinderSurface : LocalToGlobal method without dynamic
    * memory allocation */

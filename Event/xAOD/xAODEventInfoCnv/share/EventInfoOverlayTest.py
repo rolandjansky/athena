@@ -54,7 +54,7 @@ conddb.setGlobalTag("OFLCOND-SDR-BS7T-04-00")
 #--------------------------------------------------------------
 # Input options
 #--------------------------------------------------------------
-svcMgr.DoubleEventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
+svcMgr.EventSelector.InputCollections = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/PileupPremixing/22.0/v4/RDO.merged-pileup-MT.100events.pool.root" ]
 svcMgr.SecondaryEventSelector.InputCollections  = [ "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/TestCase_xAODEventInfo.root" ]
 
 #--------------------------------------------------------------
@@ -95,6 +95,7 @@ if nThreads > 0:
     EventLoop = Service("AthenaHiveEventLoopMgr")
 else:
     EventLoop = Service("AthenaEventLoopMgr")
+EventLoop.RequireInputAttributeList = True
 EventLoop.UseSecondaryEventNumber = True
 svcMgr += EventLoop
 

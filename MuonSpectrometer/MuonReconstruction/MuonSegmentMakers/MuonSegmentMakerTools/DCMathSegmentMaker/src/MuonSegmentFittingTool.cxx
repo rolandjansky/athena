@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonSegmentFittingTool.h"
@@ -62,7 +62,7 @@ MuonSegmentFittingTool::fit(const Amg::Vector3D& gpos, const Amg::Vector3D& gDir
     // extrapolate segment parameters to first measurements
     const Trk::MeasurementBase* firstMeas = rioVec.front();
     const Trk::TrackParameters* exPars    = m_slPropagator->propagate(segPars, firstMeas->associatedSurface(),
-                                                                   Trk::anyDirection, false, m_magFieldProperties);
+                                                                   Trk::anyDirection, false, m_magFieldProperties).release();
     if (!exPars) {
         ATH_MSG_DEBUG(" Propagation failed!! ");
         return 0;
@@ -165,7 +165,7 @@ MuonSegmentFittingTool::updateSegmentParameters(const Trk::Track& track, const T
     }
 
     const Trk::TrackParameters* exPars =
-        m_slPropagator->propagate(*pp, surf, Trk::anyDirection, false, m_magFieldProperties);
+        m_slPropagator->propagate(*pp, surf, Trk::anyDirection, false, m_magFieldProperties).release();
     if (!exPars) {
         ATH_MSG_WARNING(" extrapolation failed, this should not happen ");
         return;

@@ -37,6 +37,7 @@ idgen = idgen()
 def binstr(value, width):
     return ''.join([str( value >> i & 1 ) for i in range( width-1, -1, -1 ) ])
 
+
 def get_smk_psk_Name(menuName):
     import re
     smk_psk_Name = {}

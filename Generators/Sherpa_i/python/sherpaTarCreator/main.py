@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
-import sys,os,glob
+import sys,os
 from argparse import ArgumentParser
 
 #dependency big picture:
@@ -78,7 +78,7 @@ def main():
                     os.symlink(os.path.join(options.jobOptionDir[0],fi), os.path.join(folder,fi))
 
             if not os.path.islink(os.path.join(folder,"libSherpa_iPlugin.so")):
-                if options.Sherpa_i.PluginCode is not "":
+                if options.Sherpa_i.PluginCode != "":
                     os.symlink(os.path.join(options.jobOptionDir[0],"libSherpa_iPlugin.so"), os.path.join(folder,"libSherpa_iPlugin.so"))
     
     prevJob = None

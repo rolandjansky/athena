@@ -65,7 +65,7 @@ StatusCode TrigTauCaloHypoAlgMT::execute( const EventContext& context ) const {
     }
 
     // create new decision
-    auto d = newDecisionIn( decisions, name() );
+    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
     TrigCompositeUtils::linkToPrevious( d, previousDecision, context );
     d->setObjectLink( roiString(), roiELInfo.link );
 

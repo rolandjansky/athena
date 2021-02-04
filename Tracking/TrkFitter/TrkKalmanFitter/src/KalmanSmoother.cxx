@@ -345,7 +345,6 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       Trk::Trajectory::reverse_iterator stateWithNoise
         = m_utility->previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
-
         const TrackParameters *predPar_temp=predPar.release();
         const TrackParameters *updatedPar_temp=updatedPar.release();
         Trk::IDynamicNoiseAdjustor::State state{};

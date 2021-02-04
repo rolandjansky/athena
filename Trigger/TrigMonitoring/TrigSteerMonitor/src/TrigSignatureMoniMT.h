@@ -102,7 +102,8 @@ class TrigSignatureMoniMT : public extends<AthReentrantAlgorithm, IIncidentListe
   Gaudi::Property<unsigned int> m_duration {this, "RateIntegrationDuration", 10, "Integration time for the rate histogram in seconds"};
   Gaudi::Property<unsigned int> m_intervals {this, "RateIntegrationIntervals", 6, "Number of the rate histogram publications"};
 
-  ToolHandleArray<DecisionCollectorTool> m_collectorTools{ this, "CollectorTools", {}, "Tools that collect decisions for steps" };
+  ToolHandleArray<DecisionCollectorTool> m_decisionCollectorTools{ this, "DecisionCollectorTools", {}, "Tools that collect decisions (yes/no) for steps" };
+  ToolHandleArray<DecisionCollectorTool> m_featureCollectorTools{ this, "FeatureCollectorTools", {}, "Tools that collect decision counts for specific features for steps" };
   
   int nBinsX(SG::ReadHandle<TrigConf::HLTMenu>& ) const;
   int nBinsX() const;

@@ -169,8 +169,8 @@ Trk::SlidingCylinderSurface::straightLineDistanceEstimate(const Amg::Vector3D& p
   Amg::Vector3D loc3D0 = m_align ? m_align->inverse() * pos : pos; // used to retrieve localEta bin
   float offset = m_depth ? (*m_depth)[m_etaBin->bin(loc3D0)] : 0.;
 
-  const Amg::Vector3D& X = center(); // point
-  const Amg::Vector3D& S = normal(); // vector
+  const Amg::Vector3D& X = Trk::Surface::center(); // point
+  const Amg::Vector3D& S = Trk::Surface::normal(); // vector
 
   double radius = bounds().r() + offset;
   double sp = pos.dot(S);

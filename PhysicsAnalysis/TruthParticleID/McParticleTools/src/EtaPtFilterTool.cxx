@@ -130,19 +130,7 @@ StatusCode EtaPtFilterTool::buildMcAod( const McEventCollection* in,McEventColle
          << "  inEvt: " << inEvt);
       continue;
     }
-    HepMC::GenEvent* outEvt = new HepMC::GenEvent( inEvt->signal_process_id(), 
-                                                   inEvt->event_number() );
-    outEvt->set_event_scale  ( inEvt->event_scale() );
-    outEvt->set_alphaQCD     ( inEvt->alphaQCD() );
-    outEvt->set_alphaQED     ( inEvt->alphaQED() );
-    outEvt->weights() =        inEvt->weights();
-    outEvt->set_random_states( inEvt->random_states() );
-    if ( 0 != inEvt->heavy_ion() ) {
-      outEvt->set_heavy_ion    ( *inEvt->heavy_ion() );
-    }
-    if ( 0 != inEvt->pdf_info() ) {
-      outEvt->set_pdf_info     ( *inEvt->pdf_info() );
-    }
+	HepMC::GenEvent* outEvt = HepMC::copyemptyGenEvent( inEvt);
 
     if ( buildGenEvent( inEvt, outEvt ).isFailure() ) {
       ATH_MSG_ERROR("Could filter GenEvent number [" << iEvt 
@@ -174,19 +162,21 @@ StatusCode EtaPtFilterTool::buildGenEvent( const HepMC::GenEvent* in, HepMC::Gen
   }
 
   // loop over vertices
-  for ( HepMC::GenEvent::vertex_const_iterator vtx = in->vertices_begin();
-	vtx != in->vertices_end(); 
-	++vtx ) {
-    
-    bool isSignalVertex = isSignalProcessVertex(*vtx, in);
-    if ( !isAccepted(*vtx) and !isSignalVertex ) {
+#ifdef HEPMC3
+  for ( auto vtx: in->vertices() ) {
+#else
+  for ( HepMC::GenEvent::vertex_const_iterator vtxit = in->vertices_begin(); vtxit != in->vertices_end();  ++vtxit ) {
+    auto vtx=*vtxit;
+#endif
+    bool isSignalVertex = isSignalProcessVertex(vtx, in);
+    if ( !isAccepted(vtx) and !isSignalVertex ) {
       // no in-going nor out-going particles at this vertex matches 
       // the requirements nor it is a signal process vertex : ==> Skip it
       continue;
     }
     
-    if ( addVertex( *vtx, out, isSignalVertex ).isFailure() ) {
-      ATH_MSG_WARNING("Could not add vertex [" << (*vtx)->barcode() << "]");
+    if ( addVertex( vtx, out, isSignalVertex ).isFailure() ) {
+      ATH_MSG_WARNING("Could not add vertex [" << HepMC::barcode(vtx) << "]");
     }
 
   } //> end loop over vertices
@@ -242,7 +232,7 @@ bool EtaPtFilterTool::isAccepted( HepMC::ConstGenParticlePtr mc ) const
   }
 }
 
-bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
+bool EtaPtFilterTool::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
   if ( !vtx ) {
     return false;
@@ -263,7 +253,14 @@ bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
   // Now we check if at least one in- or out-going particle can be accepted.
   // If yes, then we accept the entire vertex
   //
-
+#ifdef HEPMC3
+  // check the parent branch
+  for ( auto p: vtx->particles_in() ) {
+    if ( isAccepted(p) ) {
+      return true;
+    }
+  }//> end loop over parents
+#else
   // check the parent branch
   for ( HepMC::GenVertex::particles_in_const_iterator 
 	  p    = vtx->particles_in_const_begin(),
@@ -274,14 +271,11 @@ bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
       return true;
     }
   }//> end loop over parents
+#endif  
   
   // check the child branch
-  for ( HepMC::GenVertex::particles_out_const_iterator 
-	  p    = vtx->particles_out_const_begin(),
-	  pEnd = vtx->particles_out_const_end();
-	p != pEnd;
-	++p ) {
-    if ( isAccepted(*p) ) {
+  for ( auto p :  *vtx) {
+    if ( isAccepted(p) ) {
       return true;
     }
   }//> end loop over children
@@ -289,9 +283,9 @@ bool EtaPtFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
   return false;
 }
 
-bool EtaPtFilterTool::isSignalProcessVertex( const HepMC::GenVertex* vtx, const HepMC::GenEvent* evt )
+bool EtaPtFilterTool::isSignalProcessVertex( HepMC::ConstGenVertexPtr vtx, const HepMC::GenEvent* evt )
 {
-  if (evt->signal_process_vertex() == vtx) {
+  if (HepMC::signal_process_vertex(evt) == vtx) {
     ATH_MSG_DEBUG("Signal Process vertex found: " << vtx << " = ("
 		  << vtx->position().x() << ", " << vtx->position().y() 
 		  << ", " << vtx->position().z() << ")");
@@ -300,7 +294,7 @@ bool EtaPtFilterTool::isSignalProcessVertex( const HepMC::GenVertex* vtx, const 
   return false;
 }
 
-StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::GenEvent* evt,
+StatusCode EtaPtFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx, HepMC::GenEvent* evt,
 				       bool isSignalVertex) const
 {
   if ( 0 == srcVtx || 0 == evt ) {
@@ -374,7 +368,7 @@ StatusCode EtaPtFilterTool::addVertex( const HepMC::GenVertex* srcVtx, HepMC::Ge
   return StatusCode::SUCCESS;
 }
 
-bool EtaPtFilterTool::isFromHardScattering( const HepMC::GenVertex* vtx ) const
+bool EtaPtFilterTool::isFromHardScattering( HepMC::ConstGenVertexPtr vtx ) const
 {
   if ( std::abs(HepMC::barcode(vtx)) <= m_maxHardScatteringVtxBarcode.value() &&
        m_ppFilter.isAccepted(vtx) &&

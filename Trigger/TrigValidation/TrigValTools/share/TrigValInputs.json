@@ -24,7 +24,7 @@
         "source": "data",
         "format": "BS",
         "paths": [
-            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data20_test/data_test.00374861.physics_Main.daq.RAW._lb0004._SFO-1._0001.data"
+            "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data_test.00386211.physics_Main.daq.RAW._lb0003._SFO-5._0001.data"
         ]
     },
     "data_cos": {

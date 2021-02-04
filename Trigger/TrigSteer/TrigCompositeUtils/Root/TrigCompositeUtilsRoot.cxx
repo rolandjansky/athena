@@ -162,7 +162,7 @@ namespace TrigCompositeUtils {
 
 
   HLT::Identifier createLegName(const HLT::Identifier& chainIdentifier, size_t counter) {
-    if (chainIdentifier.name().substr(0,4) != "HLT_") {
+    if (!isChainId(chainIdentifier)) {
       throw std::runtime_error("TrigCompositeUtils::createLegName chainIdentifier '"+chainIdentifier.name()+"' does not start 'HLT_'");
     }
     if (counter > 999) {
@@ -175,7 +175,7 @@ namespace TrigCompositeUtils {
 
   
   HLT::Identifier getIDFromLeg(const HLT::Identifier& legIdentifier) {
-    if (legIdentifier.name().find("HLT_",0)==0 ){
+    if (isChainId(legIdentifier)){
       return legIdentifier;
     } else if (isLegId(legIdentifier)){
       return HLT::Identifier(legIdentifier.name().substr(7));
@@ -186,7 +186,11 @@ namespace TrigCompositeUtils {
 
   
   bool isLegId(const HLT::Identifier& legIdentifier) {
-    return (legIdentifier.name().find("leg",0)==0);
+    return (legIdentifier.name().substr(0,3) == "leg");
+  }
+
+  bool isChainId(const HLT::Identifier& chainIdentifier) {
+    return (chainIdentifier.name().substr(0,4) == "HLT_");
   }
   
   
@@ -532,5 +536,25 @@ namespace TrigCompositeUtils {
     return Decision::s_seedString;
   }
   
+  const std::string& l1DecoderNodeName(){
+    return Decision::s_l1DecoderNodeNameString;
+  }
+
+  const std::string& filterNodeName(){
+    return Decision::s_filterNodeNameString;
+  }
+
+  const std::string& inputMakerNodeName(){
+    return Decision::s_inputMakerNodeNameString;
+  }
+
+  const std::string& hypoAlgNodeName(){
+    return Decision::s_hypoAlgNodeNameString;
+  }
+
+  const std::string& comboHypoAlgNodeName(){
+    return Decision::s_comboHypoAlgNodeNameString;
+  }
+
 }
 

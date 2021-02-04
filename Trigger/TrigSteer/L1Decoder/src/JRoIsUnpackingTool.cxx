@@ -64,7 +64,7 @@ StatusCode JRoIsUnpackingTool::unpack( const EventContext& ctx,
   auto decisionOutput = handle3.ptr();
 
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" );   // This "L1" denotes an initial node with no parents
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() );   // This l1DecoderNodeName() denotes an initial node with no parents
   decision->setObjectLink( "initialRoI", ElementLink<TrigRoiDescriptorCollection>( m_fsRoIKey, 0 ) );
   auto roiEL = decision->objectLink<TrigRoiDescriptorCollection>( "initialRoI" );
   CHECK( roiEL.isValid() );

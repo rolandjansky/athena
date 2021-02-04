@@ -127,6 +127,30 @@
           id="6A1D7149-7476-4F23-8896-D88CB3BF6846" />
    <typedef name="xAOD::eFexEMRoIAuxContainer" />
 
+
+   <class name="xAOD::gFexJetRoI_v1" />
+   <class name="xAOD::gFexJetRoIContainer_v1"
+          id="4BFC5008-7A84-4A04-9E7D-ABF8B124CFEF" />
+   <typedef name="xAOD::gFexJetRoI" />
+   <typedef name="xAOD::gFexJetRoIContainer" />
+
+  <!-- RoI auxilliary types --> 
+   <class name="xAOD::gFexJetRoIAuxContainer_v1"
+          id="6E01273B-FFF8-4D3C-95F9-7F0691DB85E8" />
+   <typedef name="xAOD::gFexJetRoIAuxContainer" />
+
+   <class name="xAOD::gFexGlobalRoI_v1" />
+   <class name="xAOD::gFexGlobalRoIContainer_v1"
+          id="CD053646-F310-4EDA-9378-E1282C413A22" />
+   <typedef name="xAOD::gFexGlobalRoI" />
+   <typedef name="xAOD::gFexGlobalRoIContainer" />
+
+  <!-- RoI auxilliary types --> 
+   <class name="xAOD::gFexGlobalRoIAuxContainer_v1"
+          id="B73CF3F4-9E94-4F99-834D-A6AE68968B2D" />
+   <typedef name="xAOD::gFexGlobalRoIAuxContainer" />
+
+
    <!-- xAOD::TriggerMenu interface type(s). -->
    <class name="xAOD::TriggerMenu_v1" />
    <class name="xAOD::TriggerMenuContainer_v1"

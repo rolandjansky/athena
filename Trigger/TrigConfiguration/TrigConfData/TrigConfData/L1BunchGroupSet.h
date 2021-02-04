@@ -48,6 +48,9 @@ namespace TrigConf {
       /** check if bunchgroup contains a certain bunch */
       bool contains(size_t bcid) const;
 
+      /** list of all bunches */
+      std::vector<uint16_t> bunches() const;
+
       /** bunch trains (pairs: 1st bunch in train, and train length) */
       const std::vector<std::pair<size_t,size_t>>& trains() const;
 
@@ -93,12 +96,12 @@ namespace TrigConf {
       void setBGSK(unsigned int bgsk);
 
       /** Accessor to the bunchgroup by name
-          @param name - name as used in the L1Menu (BGRP0, BGRP1, ..., BGRP15)
+       * @param name - name as used in the L1Menu (BGRP0, BGRP1, ..., BGRP15)
        */
       const std::shared_ptr<L1BunchGroup> & getBunchGroup(const std::string & name) const; 
 
       /** Accessor to the bunchgroup by ID */
-      const std::shared_ptr<L1BunchGroup> & getBunchGroup(size_t id) const; 
+      const std::shared_ptr<L1BunchGroup> & getBunchGroup(size_t id) const;
 
       /** Maximum number of bunchgroups */
       std::size_t maxNBunchGroups() const { return L1BunchGroup::s_maxBunchGroups; }
@@ -128,5 +131,17 @@ namespace TrigConf {
    };
 
 }
+
+#ifndef TRIGCONF_STANDALONE
+#ifndef XAOD_STANDALONE
+
+#include "AthenaKernel/CLASS_DEF.h"
+CLASS_DEF(TrigConf::L1BunchGroupSet, 161719627, 1)
+
+#include "AthenaKernel/CondCont.h"
+CONDCONT_DEF(TrigConf::L1BunchGroupSet, 63006439);
+
+#endif
+#endif
 
 #endif

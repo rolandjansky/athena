@@ -254,7 +254,7 @@ LArCollisionTimeMonTool::fillHistograms()
   SG::ReadHandle<LArCollisionTime> larTime{m_key};
   if(!larTime.isValid())
   {
-    ATH_MSG_WARNING( "Unable to retrieve LArCollisionTime event store" );
+    ATH_MSG_WARNING( "Unable to retrieve LArCollisionTime with key " << m_key); 
     return StatusCode::SUCCESS; // Check if failure shd be returned. VB
   } else {
     ATH_MSG_DEBUG( "LArCollisionTime successfully retrieved from event store" );

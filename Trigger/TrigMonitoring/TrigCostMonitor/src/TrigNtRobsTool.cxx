@@ -203,7 +203,7 @@ for(unsigned int i = 0; i < m_config->size<TrigConfSeq>(); ++i) {
       if(data.rob_history==robmonitor::RETRIEVED)    myhist = TrigMonROBData::kRETRIEVED;
       if(data.rob_history==robmonitor::HLT_CACHED)   myhist = TrigMonROBData::kCACHED;
       if(data.rob_history==robmonitor::IGNORED)      myhist = TrigMonROBData::kIGNORED;
-      if(data.rob_history==robmonitor::DISABLED)     myhist = TrigMonROBData::kDISABLED;
+      if(data.rob_history==robmonitor::UNDEFINED)     myhist = TrigMonROBData::kDISABLED;
 
       TrigMonROBData mydata(data.rob_id, data.rob_size);
       mydata.setHistory(myhist);
@@ -369,7 +369,7 @@ void Trig::TrigNtRobsTool::CheckROB(const TrigMonROB &data,
     if(robData.rob_history==robmonitor::RETRIEVED)    myhist = TrigMonROBData::kRETRIEVED;
     if(robData.rob_history==robmonitor::HLT_CACHED)   myhist = TrigMonROBData::kCACHED;
     if(robData.rob_history==robmonitor::IGNORED)      myhist = TrigMonROBData::kIGNORED;
-    if(robData.rob_history==robmonitor::DISABLED)     myhist = TrigMonROBData::kDISABLED;
+    if(robData.rob_history==robmonitor::UNDEFINED)     myhist = TrigMonROBData::kDISABLED;
     
     Tmp::RobSum &sum = sum_robs[myhist];
     

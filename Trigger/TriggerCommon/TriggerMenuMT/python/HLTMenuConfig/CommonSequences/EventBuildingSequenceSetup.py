@@ -145,29 +145,38 @@ def findEventBuildingStep(chainConfig):
     return pebSteps[0]
 
 
-def alignEventBuildingSteps(all_chains):
-    def is_peb(chainData):
-        return len(chainData[0]['eventBuildType']) > 0
-    all_peb_chains = list(filter(is_peb, all_chains))
+def alignEventBuildingSteps(chain_configs, chain_dicts):
+    def is_peb_dict(chainNameAndDict):
+        return len(chainNameAndDict[1]['eventBuildType']) > 0
+
+    all_peb_chain_dicts = dict(filter(is_peb_dict, chain_dicts.items()))
+    all_peb_chain_names = list(all_peb_chain_dicts.keys())
+
+    def is_peb_config(chainNameAndConfig):
+        return chainNameAndConfig[0] in all_peb_chain_names
+
+    all_peb_chain_configs = dict(filter(is_peb_config, chain_configs.items()))
+
     maxPebStepPosition = {} # {eventBuildType: N}
+
     def getPebStepPosition(chainConfig):
         pebStep = findEventBuildingStep(chainConfig)
         return chainConfig.steps.index(pebStep) + 1
 
     # First loop to find the maximal PEB step positions to which we need to align
-    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+    for chainName, chainConfig in all_peb_chain_configs.items():
         pebStepPosition = getPebStepPosition(chainConfig)
-        ebt = chainDict['eventBuildType']
+        ebt = all_peb_chain_dicts[chainName]['eventBuildType']
         if ebt not in maxPebStepPosition or pebStepPosition > maxPebStepPosition[ebt]:
             maxPebStepPosition[ebt] = pebStepPosition
 
     # Second loop to insert empty steps before the PEB steps where needed
-    for chainDict, chainConfig, lengthOfChainConfigs in all_peb_chains:
+    for chainName, chainConfig in all_peb_chain_configs.items():
         pebStepPosition = getPebStepPosition(chainConfig)
-        ebt = chainDict['eventBuildType']
+        ebt = all_peb_chain_dicts[chainName]['eventBuildType']
         if pebStepPosition < maxPebStepPosition[ebt]:
             numStepsNeeded = maxPebStepPosition[ebt] - pebStepPosition
-            log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainDict['chainName'], numStepsNeeded)
+            log.debug('Aligning PEB step for chain %s by adding %d empty steps', chainName, numStepsNeeded)
             chainConfig.insertEmptySteps('EmptyPEBAlign', numStepsNeeded, pebStepPosition-1)
 
 

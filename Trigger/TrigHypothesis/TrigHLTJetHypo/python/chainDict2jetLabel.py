@@ -1,7 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 from __future__ import absolute_import
 import re
+
+from TrigHLTJetHypo.checkScenarioPresence import checkScenarioPresence
 
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
@@ -16,6 +18,19 @@ reject_substr = (
     r'agg\d',)
 
 reject_substr_res = re.compile(r'%s' % '|'.join(reject_substr))
+
+def make_label(scenario, pattern, template, extra={}):
+
+    r = re.compile(pattern)
+    m = r.match(scenario)
+    assert m, 'chainDict2jetlabel - pattern %s does not match scenario %s' % (
+        pattern, scenario)
+
+    argdict = m.groupdict()
+    argdict.update(extra)
+
+    label = template % argdict
+    return label
 
 
 def _select_simple_chainparts(chain_parts):
@@ -43,7 +58,7 @@ def _make_simple_label(chain_parts, leg_label):
         raise NotImplementedError(msg)
 
     chainpartind = 0
-    label = 'simple(['
+    label = 'root([]'
     for cp in chain_parts:
         smcstr =  str(cp['smc'])
         jvtstr =  str(cp['jvt'])
@@ -51,6 +66,7 @@ def _make_simple_label(chain_parts, leg_label):
         if smcstr == 'nosmc':
             smcstr = ''
         for i in range(int(cp['multiplicity'])):
+            label += 'simple(['
             # condition_str = '(%set,%s,%s)' % (str(cp['threshold']),
             #                                  str(cp['etaRange']),
             #                                  smcstr,)
@@ -72,9 +88,9 @@ def _make_simple_label(chain_parts, leg_label):
             if not condition_str.endswith(')'):
                 condition_str += ')'
             label += condition_str
+            label += '])'
         chainpartind += 1
-
-    label += '])'
+    label += ')'
     return label
 
 
@@ -103,68 +119,40 @@ def _make_fbdjnoshared_label(chain_parts, leg_label):
     assert len(chain_parts) == 1
     
     scenario = chain_parts[0]['hypoScenario']
-    assert scenario.startswith('f')
-    args = _args_from_scenario(scenario)
+    assert scenario.startswith('fbdjnoshared')
 
-    # arg res tuples constain a regex, and a counter
-    # to count the number of matches.
-    arg_res = [
-        [re.compile(r'(?P<lo>\d*)(?P<key>fbet)(?P<hi>\d*)'), 0],
-        [re.compile(r'(?P<lo>\d*)(?P<key>mass)(?P<hi>\d*)'), 0],
-        [re.compile(r'(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)'), 0],
-    ]
+    # example scenario: fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet
+    # example label:
+    # root([]
+    #  simple([(50et, 500neta, leg000)])
+    #  simple([(50et, peta500, leg000)])
+    #
+    #  dijet
+    #  (
+    #    [(34djmass, 26djdphi)]
+    #    simple([(20et, 0eta320, leg000)])
+    #    simple([(10et, 0eta320, leg000)])
+    #   )
+    # )
 
-    defaults = {
-        'et0': ('101', 'inf'),
-        'et1': ('103', 'inf'),
-        'mass0': ('800', 'inf'),
-        'fbet0': ('501', 'inf'),
-    }
+    pattern = r'^fbdjnosharedSEP'\
+        r'(?P<j1etlo>\d*)et(?P<j1ethi>\d*)SEP'\
+        r'(?P<j2etlo>\d*)et(?P<j2ethi>\d*)SEP'\
+        r'(?P<masslo>\d*)mass(?P<masshi>\d*)SEP'\
+        r'(?P<fbetlo>\d*)fbet(?P<fbethi>\d*)$'
+        
+        
+    template = r'root([]'\
+        r'simple([(%(fbetlo)set%(fbethi)s, 500neta, %(leg_label)s)])'\
+        r'simple([(%(fbetlo)set%(fbethi)s, peta500, %(leg_label)s)])'\
+        r'dijet([(%(masslo)sdjmass%(masshi)s, 26djdphi)]'\
+        r'simple([(%(j1etlo)set%(j1ethi)s, 0eta320, %(leg_label)s)])'\
+        r'simple([(%(j2etlo)set%(j2ethi)s, 0eta320, %(leg_label)s)])))'
 
-    argvals = {}
-    assert len(args) == len(arg_res) + 1  # +1 because et occurs twice.
-    while args:
-        arg = args.pop()
-        for ar  in arg_res:
-            regx = ar[0]
-            occurence=ar[1]  # no iof time this argument is used eg et used 2x
-            m = regx.match(arg)
-            if m is not None:
-                gd = m.groupdict()
-                key = gd['key'] + str(occurence)
-                ar[1] += 1  # bump the occurrence cout
-                try:
-                    lo = float(gd['lo'])
-                except ValueError:
-                    lo = defaults[key][0]
-                argvals[key+'lo'] = lo 
-                try:
-                    hi = float(gd['hi'])
-                except ValueError:
-                    hi = defaults[key][1]
-                argvals[key+'hi'] =  hi
-
-    assert len(args) == 0
-
-    argvals['leg_label'] = leg_label
-
-    return """
-    all
-    (
-      []
-      simple
-      (
-        [(%(fbet0lo).0fet, 500neta, leg000)(%(fbet0lo).0fet, peta500, %(leg_label)s)]
-      )
-      dijet
-      (
-        [(%(mass0lo).0fdjmass, 26djdphi)]
-        simple
-        (
-          [(%(et0lo).0fet, 0eta320, leg000)(%(et1lo).0fet, 0eta320, %(leg_label)s)]
-        )
-      )
-    )""" % argvals
+    extra = {'leg_label': leg_label}
+    
+    label = make_label(scenario, pattern, template, extra)
+    return label
 
 
 def  _make_fbdjshared_label(chain_parts, leg_label):
@@ -174,16 +162,17 @@ def  _make_fbdjshared_label(chain_parts, leg_label):
 
     
     return """
-    simple
-    (
-    [(50et, 500neta, leg000)(50et, peta500, leg000)]
+    root([]
+    simple([(50et, 500neta, %s)])
+    simple([(50et, peta500, %s)])
     )
+    root([]
     dijet
     (
     [(34djmass, 26djdphi)]
-        simple
-        ([(10et, 0eta320, leg000)(20et, 0eta320, leg000)])
-    )"""
+        simple([(10et, 0eta320, %s)])
+        simple([(20et, 0eta320, %s)])
+    ))""" % ((leg_label,) * 4)
 
     
 def _make_dijet_label(chain_parts, leg_label):
@@ -202,56 +191,27 @@ def _make_dijet_label(chain_parts, leg_label):
     
     assert scenario.startswith('dijet')
 
-    arg_res = [
-        re.compile(r'^(?P<lo>\d*)(?P<key>djmass)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>j1et)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>j1eta)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>j2et)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>j2eta)(?P<hi>\d*)$'),
-    ]
+    # example scenario: 'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
 
-    defaults = {
-        'j1et': ('100', 'inf'),
-        'j2et': ('100', 'inf'),
-        'j1eta': ('0', '320'),
-        'j2eta': ('0', '320'),
-        'djmass': ('1000', 'inf'),
-    }
+    pattern = r'^dijetSEP('\
+    r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
+    r'(?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP'\
+    r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP'\
+    r'(?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP'\
+    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*))$'
 
+    template = 'root([] dijet(' \
+        '[(%(djmasslo)sdjmass%(djmasshi)s, 26djdphi)]'\
+        'simple([(%(j1etlo)set, %(j1etalo)seta%(j1etahi)s, %(leg_label)s)])'\
+        'simple([(%(j2etlo)set, %(j2etalo)seta%(j2etahi)s, %(leg_label)s)])))'
 
-    args = _args_from_scenario(scenario)
-    argvals = {}
-    while args:
-        assert len(args) == len(arg_res)
-        arg = args.pop()
-        for r in arg_res:
-            m = r.match(arg)
-            if m is not None:
-                arg_res.remove(r)
-                gd = m.groupdict()
-                key = gd['key']
+    # example label:
+    #    dijet([(700djmass)] simple([(80et, 0eta240, leg002)]) simple([(80et, 0eta240, leg002)])))
 
-                try:
-                    lo = float(gd['lo'])
-                except ValueError:
-                    lo = defaults[key][0]
-                argvals[key+'lo'] = lo 
-                try:
-                    hi = float(gd['hi'])
-                except ValueError:
-                    hi = defaults[key][1]
-                argvals[key+'hi'] =  hi
+    extra = {'leg_label': leg_label}
+    label = make_label(scenario, pattern, template, extra)
 
-    assert len(args) == len(arg_res)
-    assert len(args) == 0
-
-    argvals['leg_label'] = leg_label
-    
-    return """
-    dijet(
-    [(%(djmasslo).0fdjmass)]
-    simple([(%(j1etlo).0fet, %(j1etalo).0feta%(j1etahi).0f, %(leg_label)s)
-    (%(j2etlo).0fet, %(j2etalo).0feta%(j2etahi).0f, %(leg_label)s)]))""" % argvals
+    return label
 
 
 def _make_agg_label(chain_parts, leg_label):
@@ -269,58 +229,23 @@ def _make_agg_label(chain_parts, leg_label):
     assert len(chain_parts) == 1, '_make_agg_label, no. of chain parts != 1'
     scenario = chain_parts[0]['hypoScenario']
     
-    assert scenario.startswith('agg'), '_make_agg_label(): scenario does not start with agg'
+    # assert scenario.startswith('agg'), '_make_agg_label(): scenario does not start with agg'
 
-    arg_res = [
-        re.compile(r'^(?P<lo>\d*)(?P<key>ht)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>et)(?P<hi>\d*)$'),
-        re.compile(r'^(?P<lo>\d*)(?P<key>eta)(?P<hi>\d*)$'),
-    ]
+    # the scenario contains the  ht cut, and filter cuts.
+    # all cuts thast do no start with 'ht are filter cuts
 
-    defaults = {
-        'ht': ('0', 'inf'),
-        'et': ('0', 'inf'),
-        'eta': ('0', 'inf'),
-     }
+    pattern = r'^aggSEP(?P<htlo>\d*)ht(?P<hthi>\d*)SEP'\
+        r'(?P<etlo>\d*)et(?P<ethi>\d*)SEP'\
+        r'(?P<etalo>\d*)eta(?P<etahi>\d*)$'
+    
+    template = 'root([]agg([(%(htlo)sht, %(leg_label)s)'\
+        '(%(etlo)sfltr:et)'\
+        '(%(etalo)sfltr:eta%(etahi)s)]))'
+    
+    extra = {'leg_label': leg_label}
+    label = make_label(scenario, pattern, template, extra)
 
-
-    args = _args_from_scenario(scenario)
-    argvals = {}
-    nargs = len(args)
-    assert len(args) <= len(arg_res), 'bad num of args %d, expected < %d' % (len(args),
-                                                                             len(arg_res))
-
-    # obtain argument values frrom scenario
-    while args:
-        arg = args.pop()
-        for r in arg_res:
-            m = r.match(arg)
-            if m is not None:
-                arg_res.remove(r)
-                gd = m.groupdict()
-                key = gd['key']
-
-                try:
-                    lo = float(gd['lo'])
-                except ValueError:
-                    lo = float(defaults[key][0])
-                argvals[key+'lo'] = lo 
-                try:
-                    hi = float(gd['hi'])
-                except ValueError:
-                    hi = float(defaults[key][1])
-                argvals[key+'hi'] =  hi
-
-    assert len(argvals) == 2*nargs, 'no of args: %d, expected %d' % (len(argvals), 2*nargs)
-
-    argvals['leg_label'] = leg_label
-    result =  """
-    agg([(%(htlo).0fht, %(leg_label)s)
-        (%(etlo).0fet)
-    (%(etalo).0feta%(etahi).0f)
-    ])"""  % argvals
-    print (result)
-    return result
+    return label
     
 
 def chainDict2jetLabel(chain_dict):
@@ -335,7 +260,8 @@ def chainDict2jetLabel(chain_dict):
                    if len(chainParts) > 1 create and of simple and other.
     """
 
-    # suported scenarios 
+    # suported scenarios. Caution! two keys in the router dict
+    # must not share a common initial substring.
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
@@ -344,14 +270,26 @@ def chainDict2jetLabel(chain_dict):
         'fbdjnoshared': _make_fbdjnoshared_label,
     }
 
+    # check that no key is the initial susbstring of another key
+    # such a case would break the code below.
+    keys = sorted(router.keys(), key=len)
+    for i in range(1, len(keys)):
+        assert not (keys[i].startswith(keys[i-1]))
+
     # chain_part - scenario association
     cp_sorter = {}
     for k in router: cp_sorter[k] = []
 
-    chain_parts = chain_dict['chainParts']
+    chain_parts = [cp for cp  in chain_dict['chainParts'] if
+                   cp['signature'] in ('Jet', 'Bjet')]
+
+    bad_headers = checkScenarioPresence(chain_parts,
+                                        chain_dict['chainName'])
+    if bad_headers:
+        [print ('scenario mismatch', h) for h in bad_headers]
+        # assert False
+        
     for cp in chain_parts:
-        if cp['signature'] != 'Jet' and cp['signature'] != 'Bjet': 
-            continue
         for k in cp_sorter:
             if cp['hypoScenario'].startswith(k):
                 cp_sorter[k].append(cp)

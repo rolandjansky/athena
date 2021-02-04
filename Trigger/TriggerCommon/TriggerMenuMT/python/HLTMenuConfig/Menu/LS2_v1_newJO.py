@@ -31,12 +31,13 @@ def setupMenu():
     # be aware that it is necessary to leave at least one chain in the muon slice
     # otherwise athenaHLT will seg-fault
     #---------------------------------------------------------------------
-    SingleMuonGroup = ['RATE:SingleMuon', 'BW:Muon']
-    SingleElectronGroup = ['RATE:SingleElectron', 'BW:Electron']
-    MultiElectronGroup = ['RATE:MultiElectron', 'BW:Electron']
-    SinglePhotonGroup = ['RATE:SinglePhoton', 'BW:Photon']
-    SingleJetGroup = ['RATE:SingleJet', 'BW:Jet']
-    CombinedGroup = ['RATE:Combined', 'BW:Combined']
+    from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import (PhysicsStream,SingleMuonGroup,MultiMuonGroup, # noqa: F401
+                                                                    SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,
+                                                                    MultiPhotonGroup,SingleMETGroup,MultiMETGroup,
+                                                                    SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,
+                                                                    MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,
+                                                                    EgammaJetGroup,EgammaMETGroup,EgammaTauGroup,MuonTauGroup,TauMETGroup,MinBiasGroup)
+
 
     chains["muon"] = [
         ChainProp(name='HLT_mu20_L1MU20', groups=SingleMuonGroup),
@@ -46,6 +47,9 @@ def setupMenu():
         ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
+    ]
+    chains["bphysics"] = [
+#        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup),
     ]
 
     chains["electron"] = [
@@ -68,10 +72,28 @@ def setupMenu():
         ChainProp(name='HLT_2j35_L1J20', groups=SingleJetGroup)
     ]
 
-    chains["combined"] = [
-        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=CombinedGroup),
-        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', groups=CombinedGroup)
+    chains["bjet"] = [
+#        ChainProp(name='HLT_j275_subjesgscIS_ftf_bdl1r60_split_L1J100', groups=SingleBjetGroup),
     ]
+
+    chains["tau"] = [
+        ChainProp(name='HLT_tau0_perf_ptonly_L1TAU12', groups=SingleTauGroup),
+    ]
+    chains["met"] = [
+        ChainProp(name='HLT_xe30_cell_L1XE10', groups=SingleMETGroup),
+    ]
+
+    chains["minbias"] = [
+        ChainProp(name='HLT_mb_sptrk_L1RD0_FILLED', l1SeedThresholds=['FSNOSEED'], groups=MinBiasGroup),
+    ]
+
+    chains["combined"] = [
+        ChainProp(name='HLT_e7_etcut_mu10_L1EM7_MU10', groups=EgammaMuonGroup),
+        ChainProp(name='HLT_e7_etcut_mu10_msonly_L1EM7_MU10', groups=EgammaMuonGroup)
+    ]
+
+
+
     return chains
 
 if __name__ == "__main__":

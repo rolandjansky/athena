@@ -37,7 +37,6 @@ namespace TrkDriftCircleMath {
     private:
       ToolHandle<MdtCalibrationDbTool> m_calibrationDbTool{this,"CalibrationDbTool","MdtCalibrationDbTool"};
 
-      Gaudi::Property<bool> m_trace{this,"TraceOperation",false,"debug - traces operation"};
       Gaudi::Property<bool> m_rejectWeakTopologies{this,"RejectWeakTopologies",true,"reject topolgies that do not have at least one +- combination in one multilayer"};
       Gaudi::Property<bool> m_scaleErrors{this,"RescaleErrors",true,"rescale errors in fit"};
       Gaudi::Property<bool> m_propagateErrors{this,"PropagateErrors",true,"propagate errors"};

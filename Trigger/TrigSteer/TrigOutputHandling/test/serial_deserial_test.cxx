@@ -1,6 +1,6 @@
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include <iostream>
 
@@ -25,6 +25,8 @@
 #include "../src/TriggerEDMSerialiserTool.h"
 #include "../src/TriggerEDMDeserialiserAlg.h"
 
+#include "CxxUtils/ubsan_suppress.h"
+#include "TInterpreter.h"
 
 void testTrigEMContainer(  const EventContext &ctx );
 void testTrigCompositeContainer(  const EventContext &ctx );
@@ -40,6 +42,7 @@ void testRoIDescriptorReadAndCheck(StoreGateSvc*);
 
 
 int main() {
+  CxxUtils::ubsan_suppress ( []() { TInterpreter::Instance(); } );
   using namespace std;
   ISvcLocator* pSvcLoc;
   if( !Athena_test::initGaudi("test.txt",  pSvcLoc) ) {

@@ -106,34 +106,34 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       }
       // connect the hit with the MC truth
       int barcode = hit.particleLink().barcode();
-      m_NSWsTGC_trackId->push_back(barcode);
+      m_NSWsTGC_trackId.push_back(barcode);
 
-      m_NSWsTGC_globalTime->push_back(hit.globalTime());
+      m_NSWsTGC_globalTime.push_back(hit.globalTime());
       const  Amg::Vector3D globalPosition = hit.globalPosition();
-      m_NSWsTGC_hitGlobalPositionX->push_back(globalPosition.x());
-      m_NSWsTGC_hitGlobalPositionY->push_back(globalPosition.y());
-      m_NSWsTGC_hitGlobalPositionZ->push_back(globalPosition.z());
-      m_NSWsTGC_hitGlobalPositionR->push_back(globalPosition.perp());
-      m_NSWsTGC_hitGlobalPositionP->push_back(globalPosition.phi());
+      m_NSWsTGC_hitGlobalPositionX.push_back(globalPosition.x());
+      m_NSWsTGC_hitGlobalPositionY.push_back(globalPosition.y());
+      m_NSWsTGC_hitGlobalPositionZ.push_back(globalPosition.z());
+      m_NSWsTGC_hitGlobalPositionR.push_back(globalPosition.perp());
+      m_NSWsTGC_hitGlobalPositionP.push_back(globalPosition.phi());
       const  Amg::Vector3D globalDirection = hit.globalDirection();
-      m_NSWsTGC_hitGlobalDirectionX->push_back(globalDirection.x());
-      m_NSWsTGC_hitGlobalDirectionY->push_back(globalDirection.y());
-      m_NSWsTGC_hitGlobalDirectionZ->push_back(globalDirection.z());
+      m_NSWsTGC_hitGlobalDirectionX.push_back(globalDirection.x());
+      m_NSWsTGC_hitGlobalDirectionY.push_back(globalDirection.y());
+      m_NSWsTGC_hitGlobalDirectionZ.push_back(globalDirection.z());
 
-      m_NSWsTGC_particleEncoding->push_back(hit.particleEncoding());
-      m_NSWsTGC_depositEnergy->push_back(hit.depositEnergy());
+      m_NSWsTGC_particleEncoding.push_back(hit.particleEncoding());
+      m_NSWsTGC_depositEnergy.push_back(hit.depositEnergy());
 
 
       // Fill Ntuple with SimId data
-      m_NSWsTGC_sim_stationName   ->push_back(sim_stationName);
-      m_NSWsTGC_sim_stationEta    ->push_back(sim_stationEta);
-      m_NSWsTGC_sim_stationPhi    ->push_back(sim_stationPhi);
-      m_NSWsTGC_wedgeId           ->push_back(wedgeId);
-      m_NSWsTGC_wedgeType         ->push_back(wedgeType);
-      m_NSWsTGC_detectorNumber    ->push_back(detNumber);
-      m_NSWsTGC_sim_multilayer    ->push_back(sim_multilayer);
-      m_NSWsTGC_sim_layer         ->push_back(sim_layer);
-      m_NSWsTGC_sim_side          ->push_back(sim_side);
+      m_NSWsTGC_sim_stationName   .push_back(sim_stationName);
+      m_NSWsTGC_sim_stationEta    .push_back(sim_stationEta);
+      m_NSWsTGC_sim_stationPhi    .push_back(sim_stationPhi);
+      m_NSWsTGC_wedgeId           .push_back(wedgeId);
+      m_NSWsTGC_wedgeType         .push_back(wedgeType);
+      m_NSWsTGC_detectorNumber    .push_back(detNumber);
+      m_NSWsTGC_sim_multilayer    .push_back(sim_multilayer);
+      m_NSWsTGC_sim_layer         .push_back(sim_layer);
+      m_NSWsTGC_sim_side          .push_back(sim_side);
       
       ATH_MSG_DEBUG(     "sTGC Offline id:  Station Name [" << stName << "]"
                       << " Station Eta ["  << off_stationEta      << "]"
@@ -168,7 +168,7 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
       Amg::Vector2D  posOnSurf(hitOnSurface.x(), rSurface_pos.y());
 
       // remember whether the given hit is inside the active volume (and produces a valid digit)
-      m_NSWsTGC_isInsideBounds->push_back( surf.insideBounds(posOnSurf) );
+      m_NSWsTGC_isInsideBounds.push_back( surf.insideBounds(posOnSurf) );
 
       int stripNumber = detEl->stripNumber(posOnSurf,newId);
       if( stripNumber == -1 ){
@@ -200,40 +200,40 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
 
 
       // Fill Ntuple with offline ID data
-      m_NSWsTGC_off_stationName   ->push_back(stName);
-      m_NSWsTGC_off_stationEta    ->push_back(off_stationEta);                                         
-      m_NSWsTGC_off_stationPhi    ->push_back(off_stationPhi);
-      m_NSWsTGC_off_multiplet     ->push_back(off_multiplet);
-      m_NSWsTGC_off_gas_gap       ->push_back(off_gas_gap);
-      m_NSWsTGC_off_channel_type  ->push_back(type);
+      m_NSWsTGC_off_stationName   .push_back(stName);
+      m_NSWsTGC_off_stationEta    .push_back(off_stationEta);                                         
+      m_NSWsTGC_off_stationPhi    .push_back(off_stationPhi);
+      m_NSWsTGC_off_multiplet     .push_back(off_multiplet);
+      m_NSWsTGC_off_gas_gap       .push_back(off_gas_gap);
+      m_NSWsTGC_off_channel_type  .push_back(type);
       // The offline IdHelper class will be updated to assign wiregroup ID to SimHit. 
       // As a temporary solution stripnumber is used directly (also in MM)
       off_channel = stripNumber;
-      m_NSWsTGC_off_channel       ->push_back(off_channel);
+      m_NSWsTGC_off_channel       .push_back(off_channel);
 
 
       // Fill ntuple with the hit/surface/digit positions
-      m_NSWsTGC_detector_globalPositionX->push_back( detpos.x() );
-      m_NSWsTGC_detector_globalPositionY->push_back( detpos.y() );
-      m_NSWsTGC_detector_globalPositionZ->push_back( detpos.z() );
-      m_NSWsTGC_detector_globalPositionR->push_back( detpos.perp() );
-      m_NSWsTGC_detector_globalPositionP->push_back( detpos.phi() );
+      m_NSWsTGC_detector_globalPositionX.push_back( detpos.x() );
+      m_NSWsTGC_detector_globalPositionY.push_back( detpos.y() );
+      m_NSWsTGC_detector_globalPositionZ.push_back( detpos.z() );
+      m_NSWsTGC_detector_globalPositionR.push_back( detpos.perp() );
+      m_NSWsTGC_detector_globalPositionP.push_back( detpos.phi() );
 
-      m_NSWsTGC_hitToDsurfacePositionX->push_back( dSurface_pos.x() );
-      m_NSWsTGC_hitToDsurfacePositionY->push_back( dSurface_pos.y() );
-      m_NSWsTGC_hitToDsurfacePositionZ->push_back( dSurface_pos.z() );
+      m_NSWsTGC_hitToDsurfacePositionX.push_back( dSurface_pos.x() );
+      m_NSWsTGC_hitToDsurfacePositionY.push_back( dSurface_pos.y() );
+      m_NSWsTGC_hitToDsurfacePositionZ.push_back( dSurface_pos.z() );
 
-      m_NSWsTGC_hitToRsurfacePositionX->push_back( rSurface_pos.x() );
-      m_NSWsTGC_hitToRsurfacePositionY->push_back( rSurface_pos.y() );
-      m_NSWsTGC_hitToRsurfacePositionZ->push_back( rSurface_pos.z() );
+      m_NSWsTGC_hitToRsurfacePositionX.push_back( rSurface_pos.x() );
+      m_NSWsTGC_hitToRsurfacePositionY.push_back( rSurface_pos.y() );
+      m_NSWsTGC_hitToRsurfacePositionZ.push_back( rSurface_pos.z() );
 
-      m_NSWsTGC_FastDigitRsurfacePositionX->push_back( posOnSurf.x() );
-      m_NSWsTGC_FastDigitRsurfacePositionY->push_back( posOnSurf.y() );
+      m_NSWsTGC_FastDigitRsurfacePositionX.push_back( posOnSurf.x() );
+      m_NSWsTGC_FastDigitRsurfacePositionY.push_back( posOnSurf.y() );
 
       
 
-      m_NSWsTGC_stripNumber->push_back(stripNumber);
-      m_NSWsTGC_wireNumber->push_back(-999);
+      m_NSWsTGC_stripNumber.push_back(stripNumber);
+      m_NSWsTGC_wireNumber.push_back(-999);
 
       ATH_MSG_DEBUG("---------- Hit processing ends!");
       /*
@@ -255,242 +255,64 @@ StatusCode sTGCSimHitVariables::fillVariables(const MuonGM::MuonDetectorManager*
 StatusCode sTGCSimHitVariables::clearVariables() 
 {
   m_NSWsTGC_nSimHits = 0;
-  m_NSWsTGC_trackId->clear();
-
-  m_NSWsTGC_isInsideBounds->clear();
-
-  m_NSWsTGC_globalTime->clear();
-  m_NSWsTGC_hitGlobalPositionX->clear();
-  m_NSWsTGC_hitGlobalPositionY->clear();
-  m_NSWsTGC_hitGlobalPositionZ->clear();
-  m_NSWsTGC_hitGlobalPositionR->clear();
-  m_NSWsTGC_hitGlobalPositionP->clear();
-  m_NSWsTGC_hitGlobalDirectionX->clear();
-  m_NSWsTGC_hitGlobalDirectionY->clear();
-  m_NSWsTGC_hitGlobalDirectionZ->clear();
-
-  m_NSWsTGC_detector_globalPositionX->clear();
-  m_NSWsTGC_detector_globalPositionY->clear();
-  m_NSWsTGC_detector_globalPositionZ->clear();
-  m_NSWsTGC_detector_globalPositionR->clear();
-  m_NSWsTGC_detector_globalPositionP->clear();
-
-  m_NSWsTGC_hitToDsurfacePositionX->clear();
-  m_NSWsTGC_hitToDsurfacePositionY->clear();
-  m_NSWsTGC_hitToDsurfacePositionZ->clear();
-
-  m_NSWsTGC_hitToRsurfacePositionX->clear();
-  m_NSWsTGC_hitToRsurfacePositionY->clear();
-  m_NSWsTGC_hitToRsurfacePositionZ->clear();
-
-  m_NSWsTGC_FastDigitRsurfacePositionX->clear();
-  m_NSWsTGC_FastDigitRsurfacePositionY->clear();
-
-
-  m_NSWsTGC_particleEncoding->clear();
-  m_NSWsTGC_depositEnergy->clear();
-
-
-  m_NSWsTGC_sim_stationName->clear();
-  m_NSWsTGC_wedgeId->clear();
-  m_NSWsTGC_wedgeType->clear();
-  m_NSWsTGC_detectorNumber->clear();
-  m_NSWsTGC_sim_stationEta->clear();
-  m_NSWsTGC_sim_stationPhi->clear();
-  m_NSWsTGC_sim_multilayer->clear();
-  m_NSWsTGC_sim_layer->clear();
-  m_NSWsTGC_sim_side->clear();
-  m_NSWsTGC_stripNumber->clear();
-  m_NSWsTGC_wireNumber->clear();
-
-  m_NSWsTGC_off_stationName->clear();
-  m_NSWsTGC_off_stationEta->clear();
-  m_NSWsTGC_off_stationPhi->clear();
-  m_NSWsTGC_off_multiplet->clear();
-  m_NSWsTGC_off_gas_gap->clear();
-  m_NSWsTGC_off_channel_type->clear();
-  m_NSWsTGC_off_channel->clear();
-
+  m_NSWsTGC_trackId.clear();
+  m_NSWsTGC_isInsideBounds.clear();
+  m_NSWsTGC_globalTime.clear();
+  m_NSWsTGC_hitGlobalPositionX.clear();
+  m_NSWsTGC_hitGlobalPositionY.clear();
+  m_NSWsTGC_hitGlobalPositionZ.clear();
+  m_NSWsTGC_hitGlobalPositionR.clear();
+  m_NSWsTGC_hitGlobalPositionP.clear();
+  m_NSWsTGC_hitGlobalDirectionX.clear();
+  m_NSWsTGC_hitGlobalDirectionY.clear();
+  m_NSWsTGC_hitGlobalDirectionZ.clear();
+  m_NSWsTGC_detector_globalPositionX.clear();
+  m_NSWsTGC_detector_globalPositionY.clear();
+  m_NSWsTGC_detector_globalPositionZ.clear();
+  m_NSWsTGC_detector_globalPositionR.clear();
+  m_NSWsTGC_detector_globalPositionP.clear();
+  m_NSWsTGC_hitToDsurfacePositionX.clear();
+  m_NSWsTGC_hitToDsurfacePositionY.clear();
+  m_NSWsTGC_hitToDsurfacePositionZ.clear();
+  m_NSWsTGC_hitToRsurfacePositionX.clear();
+  m_NSWsTGC_hitToRsurfacePositionY.clear();
+  m_NSWsTGC_hitToRsurfacePositionZ.clear();
+  m_NSWsTGC_FastDigitRsurfacePositionX.clear();
+  m_NSWsTGC_FastDigitRsurfacePositionY.clear();
+  m_NSWsTGC_particleEncoding.clear();
+  m_NSWsTGC_depositEnergy.clear();
+  m_NSWsTGC_sim_stationName.clear();
+  m_NSWsTGC_wedgeId.clear();
+  m_NSWsTGC_wedgeType.clear();
+  m_NSWsTGC_detectorNumber.clear();
+  m_NSWsTGC_sim_stationEta.clear();
+  m_NSWsTGC_sim_stationPhi.clear();
+  m_NSWsTGC_sim_multilayer.clear();
+  m_NSWsTGC_sim_layer.clear();
+  m_NSWsTGC_sim_side.clear();
+  m_NSWsTGC_stripNumber.clear();
+  m_NSWsTGC_wireNumber.clear();
+  m_NSWsTGC_off_stationName.clear();
+  m_NSWsTGC_off_stationEta.clear();
+  m_NSWsTGC_off_stationPhi.clear();
+  m_NSWsTGC_off_multiplet.clear();
+  m_NSWsTGC_off_gas_gap.clear();
+  m_NSWsTGC_off_channel_type.clear();
+  m_NSWsTGC_off_channel.clear();
   return StatusCode::SUCCESS;
 }
 
 void sTGCSimHitVariables::deleteVariables() 
 { 
-  delete m_NSWsTGC_trackId;
-  delete m_NSWsTGC_globalTime;
-  delete m_NSWsTGC_hitGlobalPositionX;
-  delete m_NSWsTGC_hitGlobalPositionY;
-  delete m_NSWsTGC_hitGlobalPositionZ;
-  delete m_NSWsTGC_hitGlobalPositionR;
-  delete m_NSWsTGC_hitGlobalPositionP;
-  delete m_NSWsTGC_hitGlobalDirectionX;
-  delete m_NSWsTGC_hitGlobalDirectionY;
-  delete m_NSWsTGC_hitGlobalDirectionZ;
-
-  delete m_NSWsTGC_detector_globalPositionX;
-  delete m_NSWsTGC_detector_globalPositionY;
-  delete m_NSWsTGC_detector_globalPositionZ;
-  delete m_NSWsTGC_detector_globalPositionR;
-  delete m_NSWsTGC_detector_globalPositionP;
-
-  delete m_NSWsTGC_hitToDsurfacePositionX;
-  delete m_NSWsTGC_hitToDsurfacePositionY;
-  delete m_NSWsTGC_hitToDsurfacePositionZ;
-
-  delete m_NSWsTGC_hitToRsurfacePositionX;
-  delete m_NSWsTGC_hitToRsurfacePositionY;
-  delete m_NSWsTGC_hitToRsurfacePositionZ;
-
-  delete m_NSWsTGC_FastDigitRsurfacePositionX;
-  delete m_NSWsTGC_FastDigitRsurfacePositionY;
-
-  delete m_NSWsTGC_particleEncoding;
-  delete m_NSWsTGC_depositEnergy;
-
-  delete m_NSWsTGC_sim_stationName;
-  delete m_NSWsTGC_sim_stationEta;
-  delete m_NSWsTGC_sim_stationPhi;
-  delete m_NSWsTGC_wedgeId;
-  delete m_NSWsTGC_wedgeType;
-  delete m_NSWsTGC_detectorNumber;
-  delete m_NSWsTGC_sim_multilayer;
-  delete m_NSWsTGC_sim_layer;
-  delete m_NSWsTGC_sim_side;
-  delete m_NSWsTGC_stripNumber;
-  delete m_NSWsTGC_wireNumber;
-
-  delete m_NSWsTGC_off_stationName;
-  delete m_NSWsTGC_off_stationEta;
-  delete m_NSWsTGC_off_stationPhi;
-  delete m_NSWsTGC_off_multiplet;
-  delete m_NSWsTGC_off_gas_gap;
-  delete m_NSWsTGC_off_channel_type;
-  delete m_NSWsTGC_off_channel;
- 
-
-
-  m_NSWsTGC_nSimHits = 0;
-  m_NSWsTGC_trackId  = nullptr;
-
-  m_NSWsTGC_isInsideBounds = nullptr;
-
-  m_NSWsTGC_globalTime = nullptr;
-  m_NSWsTGC_hitGlobalPositionX = nullptr;
-  m_NSWsTGC_hitGlobalPositionY = nullptr;
-  m_NSWsTGC_hitGlobalPositionZ = nullptr;
-  m_NSWsTGC_hitGlobalPositionR = nullptr;
-  m_NSWsTGC_hitGlobalPositionP = nullptr;
-  m_NSWsTGC_hitGlobalDirectionX = nullptr;
-  m_NSWsTGC_hitGlobalDirectionY = nullptr;
-  m_NSWsTGC_hitGlobalDirectionZ = nullptr;
-
-  m_NSWsTGC_detector_globalPositionX = nullptr;
-  m_NSWsTGC_detector_globalPositionY = nullptr;
-  m_NSWsTGC_detector_globalPositionZ = nullptr;
-  m_NSWsTGC_detector_globalPositionR = nullptr;
-  m_NSWsTGC_detector_globalPositionP = nullptr;
-
-  m_NSWsTGC_hitToDsurfacePositionX = nullptr;
-  m_NSWsTGC_hitToDsurfacePositionY = nullptr;
-  m_NSWsTGC_hitToDsurfacePositionZ = nullptr;
-
-  m_NSWsTGC_hitToRsurfacePositionX = nullptr;
-  m_NSWsTGC_hitToRsurfacePositionY = nullptr;
-  m_NSWsTGC_hitToRsurfacePositionZ = nullptr;
-
-  m_NSWsTGC_FastDigitRsurfacePositionX = nullptr;
-  m_NSWsTGC_FastDigitRsurfacePositionY = nullptr;
-
-  m_NSWsTGC_particleEncoding = nullptr;
-  m_NSWsTGC_depositEnergy = nullptr;
-
-  m_NSWsTGC_sim_stationName =nullptr;
-  m_NSWsTGC_sim_stationEta=nullptr;
-  m_NSWsTGC_sim_stationPhi=nullptr;
-  m_NSWsTGC_wedgeId=nullptr;
-  m_NSWsTGC_wedgeType=nullptr;
-  m_NSWsTGC_detectorNumber=nullptr;
-  m_NSWsTGC_sim_multilayer=nullptr;
-  m_NSWsTGC_sim_layer=nullptr;
-  m_NSWsTGC_sim_side=nullptr;
-  m_NSWsTGC_stripNumber=nullptr;
-  m_NSWsTGC_wireNumber=nullptr;
-
-  m_NSWsTGC_off_stationName  = nullptr;
-  m_NSWsTGC_off_stationEta   = nullptr;
-  m_NSWsTGC_off_stationPhi   = nullptr;
-  m_NSWsTGC_off_multiplet    = nullptr;
-  m_NSWsTGC_off_gas_gap      = nullptr;
-  m_NSWsTGC_off_channel_type = nullptr;
-  m_NSWsTGC_off_channel      = nullptr;
-
   return;
 }
 
 StatusCode sTGCSimHitVariables::initializeVariables() 
 {
-  m_NSWsTGC_nSimHits = 0;
-  m_NSWsTGC_trackId  = new std::vector<int>();
-
-  m_NSWsTGC_isInsideBounds = new std::vector<bool>;
-
-  m_NSWsTGC_globalTime = new std::vector<double>;
-  m_NSWsTGC_hitGlobalPositionX = new std::vector<double>;
-  m_NSWsTGC_hitGlobalPositionY = new std::vector<double>;
-  m_NSWsTGC_hitGlobalPositionZ = new std::vector<double>;
-  m_NSWsTGC_hitGlobalPositionR = new std::vector<double>;
-  m_NSWsTGC_hitGlobalPositionP = new std::vector<double>;
-  m_NSWsTGC_hitGlobalDirectionX = new std::vector<double>;
-  m_NSWsTGC_hitGlobalDirectionY = new std::vector<double>;
-  m_NSWsTGC_hitGlobalDirectionZ = new std::vector<double>;
-
-  m_NSWsTGC_detector_globalPositionX = new std::vector<double>;
-  m_NSWsTGC_detector_globalPositionY = new std::vector<double>;
-  m_NSWsTGC_detector_globalPositionZ = new std::vector<double>;
-  m_NSWsTGC_detector_globalPositionR = new std::vector<double>;
-  m_NSWsTGC_detector_globalPositionP = new std::vector<double>;
-
-  m_NSWsTGC_hitToDsurfacePositionX = new std::vector<double>;
-  m_NSWsTGC_hitToDsurfacePositionY = new std::vector<double>;
-  m_NSWsTGC_hitToDsurfacePositionZ = new std::vector<double>;
-
-  m_NSWsTGC_hitToRsurfacePositionX = new std::vector<double>;
-  m_NSWsTGC_hitToRsurfacePositionY = new std::vector<double>;
-  m_NSWsTGC_hitToRsurfacePositionZ = new std::vector<double>;
-
-  m_NSWsTGC_FastDigitRsurfacePositionX = new std::vector<double>;
-  m_NSWsTGC_FastDigitRsurfacePositionY = new std::vector<double>;
-
-
-  m_NSWsTGC_particleEncoding = new std::vector<int>;
-  m_NSWsTGC_depositEnergy = new std::vector<double>;
-
-  m_NSWsTGC_sim_stationName = new std::vector<std::string>;
-  m_NSWsTGC_wedgeId         = new std::vector<int>;
-  m_NSWsTGC_wedgeType       = new std::vector<int>;
-  m_NSWsTGC_detectorNumber  = new std::vector<int>;
-  m_NSWsTGC_sim_stationEta  = new std::vector<int>;
-  m_NSWsTGC_sim_stationPhi  = new std::vector<int>;
-  m_NSWsTGC_sim_multilayer  = new std::vector<int>;
-  m_NSWsTGC_sim_layer       = new std::vector<int>;
-  m_NSWsTGC_sim_side        = new std::vector<int>;
-  m_NSWsTGC_stripNumber     = new std::vector<int>;
-  m_NSWsTGC_wireNumber      = new std::vector<int>;
-
-  m_NSWsTGC_off_stationName  = new std::vector<std::string>;
-  m_NSWsTGC_off_stationEta   = new std::vector<int>;                                         
-  m_NSWsTGC_off_stationPhi   = new std::vector<int>;
-  m_NSWsTGC_off_multiplet    = new std::vector<int>;
-  m_NSWsTGC_off_gas_gap      = new std::vector<int>;
-  m_NSWsTGC_off_channel_type = new std::vector<int>;
-  m_NSWsTGC_off_channel      = new std::vector<int>;
-
   if(m_tree) {
     m_tree->Branch("Hits_sTGC_n", &m_NSWsTGC_nSimHits, "Hits_sTGC_nSimHits/i");
     m_tree->Branch("Hits_sTGC_trackId", &m_NSWsTGC_trackId);
-
     m_tree->Branch("Hits_sTGC_isInsideBounds", &m_NSWsTGC_isInsideBounds);
-
     m_tree->Branch("Hits_sTGC_globalTime", &m_NSWsTGC_globalTime);
     m_tree->Branch("Hits_sTGC_hitGlobalPositionX", &m_NSWsTGC_hitGlobalPositionX);
     m_tree->Branch("Hits_sTGC_hitGlobalPositionY", &m_NSWsTGC_hitGlobalPositionY);
@@ -500,28 +322,21 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionX", &m_NSWsTGC_hitGlobalDirectionX);
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionY", &m_NSWsTGC_hitGlobalDirectionY);
     m_tree->Branch("Hits_sTGC_hitGlobalDirectionZ", &m_NSWsTGC_hitGlobalDirectionZ);
-
     m_tree->Branch("Hits_sTGC_detector_globalPositionX", &m_NSWsTGC_detector_globalPositionX);
     m_tree->Branch("Hits_sTGC_detector_globalPositionY", &m_NSWsTGC_detector_globalPositionY);
     m_tree->Branch("Hits_sTGC_detector_globalPositionZ", &m_NSWsTGC_detector_globalPositionZ);
     m_tree->Branch("Hits_sTGC_detector_globalPositionR", &m_NSWsTGC_detector_globalPositionR);
     m_tree->Branch("Hits_sTGC_detector_globalPositionP", &m_NSWsTGC_detector_globalPositionP);
-
     m_tree->Branch("Hits_sTGC_hitToDsurfacePositionX", &m_NSWsTGC_hitToDsurfacePositionX);
     m_tree->Branch("Hits_sTGC_hitToDsurfacePositionY", &m_NSWsTGC_hitToDsurfacePositionY);
     m_tree->Branch("Hits_sTGC_hitToDsurfacePositionZ", &m_NSWsTGC_hitToDsurfacePositionZ);
-
     m_tree->Branch("Hits_sTGC_hitToRsurfacePositionX", &m_NSWsTGC_hitToRsurfacePositionX);
     m_tree->Branch("Hits_sTGC_hitToRsurfacePositionY", &m_NSWsTGC_hitToRsurfacePositionY);
     m_tree->Branch("Hits_sTGC_hitToRsurfacePositionZ", &m_NSWsTGC_hitToRsurfacePositionZ);
-
     m_tree->Branch("Hits_sTGC_FastDigitRsurfacePositionX", &m_NSWsTGC_FastDigitRsurfacePositionX);
     m_tree->Branch("Hits_sTGC_FastDigitRsurfacePositionY", &m_NSWsTGC_FastDigitRsurfacePositionY);
-
-
     m_tree->Branch("Hits_sTGC_particleEncoding", &m_NSWsTGC_particleEncoding);
     m_tree->Branch("Hits_sTGC_depositEnergy", &m_NSWsTGC_depositEnergy);
-
     m_tree->Branch("Hits_sTGC_sim_stationName", &m_NSWsTGC_sim_stationName);
     m_tree->Branch("Hits_sTGC_wedgeId", &m_NSWsTGC_wedgeId);
     m_tree->Branch("Hits_sTGC_wedgeType", &m_NSWsTGC_wedgeType);
@@ -533,7 +348,6 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_sim_side", &m_NSWsTGC_sim_side);
     m_tree->Branch("Hits_sTGC_stripNumber", &m_NSWsTGC_stripNumber);
     m_tree->Branch("Hits_sTGC_wireNumber", &m_NSWsTGC_wireNumber);
-
     m_tree->Branch("Hits_sTGC_off_stationName", &m_NSWsTGC_off_stationName);
     m_tree->Branch("Hits_sTGC_off_stationEta", &m_NSWsTGC_off_stationEta);                  
     m_tree->Branch("Hits_sTGC_off_stationPhi", &m_NSWsTGC_off_stationPhi);
@@ -542,6 +356,5 @@ StatusCode sTGCSimHitVariables::initializeVariables()
     m_tree->Branch("Hits_sTGC_off_channel_type", &m_NSWsTGC_off_channel_type);
     m_tree->Branch("Hits_sTGC_off_channel", &m_NSWsTGC_off_channel);  
   }
-
   return StatusCode::SUCCESS;
 }

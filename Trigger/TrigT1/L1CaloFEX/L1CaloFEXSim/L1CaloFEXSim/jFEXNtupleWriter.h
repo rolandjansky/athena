@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -33,7 +33,7 @@ private:
   jFEXOutputCollection* m_jFEXOutputCollection;
   //std::shared_ptr m_jFEXOutputCollection;
   //std::shared_ptr<jFEXOutputCollection> m_jFEXOutputCollection;
-  float m_eg_nTOBs;
+  //float m_eg_nTOBs;
   bool m_load_truth_jet;
 
   std::vector<float> m_truth_smallRJet_eta;
@@ -59,20 +59,18 @@ private:
   std::vector<float> m_smallRJetTOB_phi;
   std::vector<float> m_smallRJetTOB_ET;
 
+  std::vector<float> m_largeRJet_ET;
+  std::vector<float> m_largeRJet_nTOBs;  
+  std::vector<float> m_largeRJetTOB_eta;
+  std::vector<float> m_largeRJetTOB_phi;
+  std::vector<float> m_largeRJetTOB_ET;
 
-
- 
-/*
-  std::vector<float> m_tau_Iso;
-  std::vector<float> m_tau_Et;
-  std::vector<float> m_tau_isCentralTowerSeed;
-*/
 //std::string m_jet_container_name = "AntiKt10TruthJets";
 
   TTree *m_myTree;
  
   StatusCode loadsmallRJetAlgoVariables();
-//  StatusCode loadtauAlgoVariables();
+  StatusCode loadlargeRJetAlgoVariables();
 //  StatusCode loadTruthElectron();
 //  StatusCode loadTruthJets();
 //  StatusCode loadTruthTau();

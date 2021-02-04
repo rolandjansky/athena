@@ -28,9 +28,9 @@ CaloClusterKeys+=["CombinedCluster"]
 CaloClusterKeys+=["EMTopoSW35"]
 
 # reshuffl em 
-CaloClusterKeys+=["LArClusterEM"]
+#CaloClusterKeys+=["LArClusterEM"]
 
-CaloClusterKeys+=["LArClusterEM7_11Nocorr"]
+#CaloClusterKeys+=["LArClusterEM7_11Nocorr"]
 #CaloClusterKeys+=["egClusterCollection"] Move to eg output list
 #CaloClusterKeys+=["LArClusterEMSofte"]
 

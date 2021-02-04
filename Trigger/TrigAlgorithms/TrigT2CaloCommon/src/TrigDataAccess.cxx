@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -221,7 +221,7 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
                 int drawer = (frag_id & 0xFF);
                 TileCellCollection::iterator pCell = lcc->begin();
                 pCell+=2;
-                m_d0cells.cells[drawer] = *pCell;
+                m_d0cells.m_cells[drawer] = *pCell;
               }
 	}
 	

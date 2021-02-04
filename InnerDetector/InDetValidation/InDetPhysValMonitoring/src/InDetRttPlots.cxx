@@ -23,6 +23,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_fakePlots(this, "Tracks/FakeRate"),
   m_missingTruthFakePlots(this, "Tracks/Unlinked/FakeRate"),
   m_resolutionPlotPrim(this, "Tracks/Matched/Resolutions/Primary"),
+  m_resolutionPlotPrim_truthFromB(this, "Tracks/Matched/Resolutions/TruthFromB"),
   m_hitsRecoTracksPlots(this, "Tracks/Selected/HitsOnTracks"),
   m_effPlots(this, "Tracks/Efficiency"),
   m_verticesVsMuPlots(this, "Vertices/AllPrimaryVertices"),
@@ -34,7 +35,9 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase* pParent, const std::string& sDir, co
   m_ntupleTruthToReco(this, "Ntuples", "TruthToReco"),
   m_resolutionPlotSecd(nullptr),
   m_doTrackInJetPlots(true),
-  m_doTrackInBJetPlots(true) {
+  m_doTrackInBJetPlots(true),
+  m_doTruthOriginPlots(true) // plots are created, but not filled without --doTruthOrigin flag
+{
   this->m_iDetailLevel = iDetailLevel;
   m_trackParticleTruthProbKey = "truthMatchProbability";
   m_truthProbLowThreshold = 0.5;
@@ -98,6 +101,9 @@ void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
         m_trkInJetPlots_unlinked_bjets = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/Unlinked",false);
       }
     }
+    if(m_doTruthOriginPlots){
+      m_trkInJetPlots_truthFromB = std::make_unique<InDetPerfPlot_TrkInJet>(this, "TracksInBJets/TruthFromB");
+    }
   }
 
 }
@@ -108,7 +114,7 @@ void InDetRttPlots::SetFillJetPlots(bool fillJets, bool fillBJets){
 //
 
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle) {
+InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle, bool isFromB) {
   // fill measurement bias, resolution, and pull plots
 
   // fill ITK resolutions (bias / resolutions)
@@ -119,6 +125,9 @@ InDetRttPlots::fill(const xAOD::TrackParticle& particle, const xAOD::TruthPartic
         m_resolutionPlotPrim.fill(particle, truthParticle);
     } else if (barcode >= 200000 && prob > 0.7 && m_iDetailLevel >= 200) {
         m_resolutionPlotSecd->fill(particle, truthParticle);
+    }
+    if ( m_doTruthOriginPlots and isFromB ) {
+      m_resolutionPlotPrim_truthFromB.fill(particle, truthParticle);
     }
 
     if(m_iDetailLevel >= 200 and (barcode < 200000 and barcode != 0 and prob > 0.5)){
@@ -332,7 +341,7 @@ InDetRttPlots::fillCounter(const unsigned int freq, const InDetPerfPlot_nTracks:
 
 //Track in Jet Plots
 void
-InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked){
+InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isBjet, bool isFake, bool isUnlinked, bool truthIsFromB){
   m_trkInJetPlots->fill(track, jet);
   if (m_iDetailLevel >= 200){
     if (isFake){
@@ -346,7 +355,11 @@ InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool
     }
   }
   if(isBjet && m_doTrackInBJetPlots){
-     m_trkInJetPlots_bjets->fill(track, jet);
+    m_trkInJetPlots_bjets->fill(track, jet);
+    if ( truthIsFromB ) { // truth from B decay
+      m_trkInJetPlots_truthFromB->fill(track, jet);
+    }
+     
     if (m_iDetailLevel >= 200){
       if (isFake){
         m_trkInJetPlots_fake_bjets->fill(track,jet); 
@@ -362,15 +375,23 @@ InDetRttPlots::fill(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool
 }
 
 void
-InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, bool isEfficient, bool isBjet) {
+InDetRttPlots::fillEfficiency(const xAOD::TruthParticle& truth, const xAOD::Jet& jet, bool isEfficient, bool isBjet, bool truthIsFromB) {
   m_trkInJetPlots->fillEfficiency(truth, jet, isEfficient); 
   if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillEfficiency(truth, jet, isEfficient);
+  
+  if ( isBjet and m_doTrackInBJetPlots and truthIsFromB ) { // truth is from B
+    m_trkInJetPlots_truthFromB->fillEfficiency(truth, jet, isEfficient);
+  }
 }
 
 void
-InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isFake, bool isBjet) {
-   m_trkInJetPlots->fillFakeRate(track, jet, isFake); 
-   if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake);
+InDetRttPlots::fillFakeRate(const xAOD::TrackParticle& track, const xAOD::Jet& jet, bool isFake, bool isBjet, bool truthIsFromB) {
+  m_trkInJetPlots->fillFakeRate(track, jet, isFake); 
+  if(isBjet && m_doTrackInBJetPlots) m_trkInJetPlots_bjets->fillFakeRate(track, jet, isFake); 
+
+  if ( isBjet and m_doTrackInBJetPlots and truthIsFromB ) { // truth is from B
+    m_trkInJetPlots_truthFromB->fillFakeRate(track, jet, isFake);
+  }
 }
 
 //IDPVM Ntuple

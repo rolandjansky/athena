@@ -16,29 +16,40 @@
 TrigStreamerHypoToolMT::TrigStreamerHypoToolMT(const std::string& type,
                   const std::string& name,
                   const IInterface* parent):
-	base_class(type, name, parent),
-	m_decisionId(HLT::Identifier::fromToolName(name)) {}
+  base_class(type, name, parent),
+  m_decisionId(HLT::Identifier::fromToolName(name)) {}
 
 
 TrigStreamerHypoToolMT::~TrigStreamerHypoToolMT() {}
 
 
 StatusCode TrigStreamerHypoToolMT::initialize() {
-	ATH_MSG_DEBUG("Initializing TrigStreamerHypoToolMT");
-	return StatusCode::SUCCESS;
+  ATH_MSG_DEBUG("Initializing TrigStreamerHypoToolMT");
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigStreamerHypoToolMT::finalize() {
-	return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 
-StatusCode TrigStreamerHypoToolMT::decide(bool& pass) const
+StatusCode TrigStreamerHypoToolMT::decide(std::vector<ITrigStreamerHypoToolMT::HypoInfo>& hypoInfo) const
 {
-	ATH_MSG_DEBUG("Executing decide() of " << name());
-	pass = true;
-	ATH_MSG_VERBOSE("Running " << name() << " which is a streamer, of course it passes");
+  ATH_MSG_DEBUG("Executing decide() of " << name() << " over " << hypoInfo.size() << " Decision Objects" );
 
-	return StatusCode::SUCCESS;
+  size_t count = 0;
+  for (ITrigStreamerHypoToolMT::HypoInfo& hi : hypoInfo) {
+    // Perform logic-flow check (this HypoTool can only accept the chain if the chain was active also in the previous decision object)
+    if (TrigCompositeUtils::passed(getId().numeric(), hi.m_previousDecisionIDs)) {
+      // There is no other pass/fail logic - this is a streamer, we accept unconditionally
+      ATH_MSG_DEBUG("Decision Object at index " << count << " Passed previous trigger step, passing here too.");
+      TrigCompositeUtils::addDecisionID(getId().numeric(), hi.m_newDecision);
+    } else {
+      ATH_MSG_DEBUG("Decision Object at index " << count << " didn't pass previous trigger step. Cannot be acceptd here.");
+    }
+    ++count;
+  }
+
+  return StatusCode::SUCCESS;
 
 }
 

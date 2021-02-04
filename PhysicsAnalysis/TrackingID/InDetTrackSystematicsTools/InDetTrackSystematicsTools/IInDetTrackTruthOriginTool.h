@@ -8,6 +8,7 @@
 
 #include "AsgTools/IAsgTool.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODTruth/TruthParticle.h"
 
 namespace InDet {
 
@@ -28,6 +29,9 @@ namespace InDet {
 
   /** Computes the tracks origin */
   virtual int getTrackOrigin(const xAOD::TrackParticle* track) const = 0;
+
+  /** Computes the truth origin (from B or D hadron) */
+  virtual bool isFrom(const xAOD::TruthParticle* part, int flav) const = 0;
 
 }; // class IInDetTrackTruthOriginTool
 

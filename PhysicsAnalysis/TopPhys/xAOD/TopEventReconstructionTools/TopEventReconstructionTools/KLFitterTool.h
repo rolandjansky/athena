@@ -19,6 +19,7 @@
 #include "KLFitter/LikelihoodTopLeptonJets.h"
 #include "KLFitter/LikelihoodTTHLeptonJets.h"
 #include "KLFitter/LikelihoodTopLeptonJets_JetAngles.h"
+#include "KLFitter/LikelihoodTopLeptonJets_Angular.h"
 #include "KLFitter/LikelihoodTTZTrilepton.h"
 #include "KLFitter/LikelihoodTopAllHadronic.h"
 #include "KLFitter/BoostedLikelihoodTopLeptonJets.h"
@@ -123,12 +124,14 @@ namespace top {
     KLFitter::LikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum;
     KLFitter::LikelihoodTTHLeptonJets::LeptonType m_leptonTypeKLFitterEnum_TTH;
     KLFitter::LikelihoodTopLeptonJets_JetAngles::LeptonType m_leptonTypeKLFitterEnum_JetAngles;
+    KLFitter::LikelihoodTopLeptonJets_Angular::LeptonType m_leptonTypeKLFitterEnum_Angular; 
     KLFitter::LikelihoodTTZTrilepton::LeptonType m_leptonTypeKLFitterEnum_TTZ;
     KLFitter::BoostedLikelihoodTopLeptonJets::LeptonType m_leptonTypeKLFitterEnum_BoostedLJets;
 
     std::unique_ptr<KLFitter::LikelihoodTopLeptonJets> m_myLikelihood;
     std::unique_ptr<KLFitter::LikelihoodTTHLeptonJets> m_myLikelihood_TTH;
     std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_JetAngles> m_myLikelihood_JetAngles;
+    std::unique_ptr<KLFitter::LikelihoodTopLeptonJets_Angular> m_myLikelihood_Angular;
     std::unique_ptr<KLFitter::LikelihoodTTZTrilepton> m_myLikelihood_TTZ;
     std::unique_ptr<KLFitter::LikelihoodTopAllHadronic> m_myLikelihood_AllHadronic;
     std::unique_ptr<KLFitter::BoostedLikelihoodTopLeptonJets> m_myLikelihood_BoostedLJets;

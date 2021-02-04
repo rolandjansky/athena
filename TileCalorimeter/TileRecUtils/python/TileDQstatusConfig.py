@@ -62,7 +62,7 @@ def TileDQstatusAlgCfg(flags, **kwargs):
 
         rawChannelContainer = 'TileRawChannelCnt'
 
-    elif flags.Overlay.DataOverlay and flags.Detector.OverlayTile:
+    elif flags.Overlay.DataOverlay:
         beamElemContainer = ''
         digitsContainer = flags.Overlay.BkgPrefix + 'TileDigitsCnt'
         rawChannelContainer = flags.Overlay.BkgPrefix + 'TileRawChannelCnt'

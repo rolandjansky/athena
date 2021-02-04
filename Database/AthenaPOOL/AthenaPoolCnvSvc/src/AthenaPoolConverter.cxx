@@ -200,8 +200,6 @@ Placement AthenaPoolConverter::setPlacementWithType(const std::string& tname, co
          }
       } else if (tname.substr(0, 13) == "AttributeList") {
          containerName = "ROOTTREE:POOLCollectionTree(" + key + ")";
-      } else if (key.empty()) {
-         containerName = containerPrefix + tname;
       } else {
          const std::string typeTok = "<type>", keyTok = "<key>";
          containerName = containerPrefix + containerNameHint;

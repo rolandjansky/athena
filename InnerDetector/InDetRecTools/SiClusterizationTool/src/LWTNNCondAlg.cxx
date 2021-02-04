@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /*
  *   */
@@ -19,6 +19,7 @@
 #include "lwtnn/NanReplacer.hh"
 
 // JSON parsers
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include "boost/property_tree/exceptions.hpp"
@@ -54,7 +55,7 @@ namespace InDet {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN, 
+  StatusCode LWTNNCondAlg::configureLwtnn(std::unique_ptr<lwt::atlas::FastGraph> & thisNN,
                                         const std::string& thisJson) {
 
     // Read DNN weights from input json config
@@ -81,7 +82,7 @@ namespace InDet {
       return StatusCode::FAILURE;
     }
 
-    return StatusCode::SUCCESS;   
+    return StatusCode::SUCCESS;
 
   }
 
@@ -117,7 +118,7 @@ namespace InDet {
 
     // Parse the large json to extract the individual configurations for the NNs
     std::istringstream initializerStream(megajson);
-    namespace pt = boost::property_tree;    
+    namespace pt = boost::property_tree;
     pt::ptree parentTree;
     pt::read_json(initializerStream, parentTree);
     std::ostringstream configStream;
@@ -142,12 +143,12 @@ namespace InDet {
       return StatusCode::FAILURE;
     }
     // Otherwise, set up lwtnn.
-    else {      
+    else {
       ATH_MSG_INFO("Setting up lwtnn for number network...");
       pt::write_json(configStream, subtreeNumberNetwork);
       std::string numberNetworkConfig = configStream.str();
       if ((configureLwtnn(writeCdo->at(0), numberNetworkConfig)).isFailure())
-        return StatusCode::FAILURE;     
+        return StatusCode::FAILURE;
     }
 
     // Now extract configuration for each position network.
@@ -159,7 +160,7 @@ namespace InDet {
       pt::ptree subtreePosNetwork = parentTree.get_child(key);
       pt::write_json(configStream, subtreePosNetwork);
       std::string posNetworkConfig = configStream.str();
-      
+
       // Put a lwt network into the map
       writeCdo->insert(std::make_pair(i,std::unique_ptr<lwt::atlas::FastGraph>(nullptr)));
 
@@ -175,11 +176,11 @@ namespace InDet {
       }
 
     }
-    
+
     // Write the networks to the store
 
     if(NnWriteHandle.record(cdo_iov,std::move(writeCdo)).isFailure()) {
-      ATH_MSG_ERROR("Failed to record Trained network collection to " 
+      ATH_MSG_ERROR("Failed to record Trained network collection to "
                     << NnWriteHandle.key()
                     << " with IOV " << cdo_iov );
       return StatusCode::FAILURE;

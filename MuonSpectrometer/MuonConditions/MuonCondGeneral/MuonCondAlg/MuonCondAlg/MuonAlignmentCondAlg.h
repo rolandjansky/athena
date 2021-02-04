@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDALG_MUONALIGNMENTCONDALG_H
 #define MUONCONDALG_MUONALIGNMENTCONDALG_H
 
+#include "CoralBase/Blob.h"
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "StoreGate/ReadCondHandleKey.h"
 #include "StoreGate/CondHandleKeyArray.h"
@@ -14,6 +15,10 @@
 #include "MuonAlignmentData/CorrContainer.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
+
+#include "zlib.h"
+#include "nlohmann/json.hpp"
+
 
 class StoreGateSvc; 
 class StatusCode;
@@ -33,7 +38,6 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   virtual StatusCode execute() override;
 
   Gaudi::Property<std::vector<std::string>> m_parlineFolder {this, "ParlineFolders", std::vector<std::string>(), "Database folders", "OrderedSet<std::string>"};
-  Gaudi::Property<bool> m_doRecRoiSvcUpdate {this, "DoRecRoiSvcUpdate", false, "if set to true, the old (not thread safe) RPC/TGCRecRoiSvc are updating the nominal MuonDetectorManager from the detectorStore"};
   Gaudi::Property<bool> m_isData{this,"IsData",true};
 
  private:
@@ -90,6 +94,12 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   bool m_ILineRequested = false;
   std::string m_aLinesFile;
   std::string m_asBuiltFile;
+  
+  bool m_newFormat2020 = false;
+
+  //decompression buffer and length of buffer
+  uLongf m_buffer_length;
+  std::unique_ptr<Bytef[]> m_decompression_buffer;
 
   StatusCode loadParameters();
   StatusCode loadAlignABLines();
@@ -98,7 +108,9 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
 			      BLineMapContainer* writeBLineCdo,
 			      EventIDRange& rangeALineW,
 			      EventIDRange& rangeBLineW);
+  StatusCode loadAlignABLinesData(std::string folderName, std::string data, nlohmann::json& json, bool);
   StatusCode loadAlignILines(std::string folderName);
+  StatusCode loadAlignILinesData(std::string folderName, std::string data, nlohmann::json& json);
   StatusCode loadAlignAsBuilt(std::string folderName);
  
   void setALinesFromAscii(ALineMapContainer* writeALineCdo) const;
@@ -106,6 +118,8 @@ class MuonAlignmentCondAlg: public AthAlgorithm {
   void dumpALines(const std::string& folderName, ALineMapContainer* writeALineCdo);
   void dumpBLines(const std::string& folderName, BLineMapContainer* writeBLineCdo);
   void dumpILines(const std::string& folderName, CscInternalAlignmentMapContainer* writeCdo);
+
+  inline bool uncompressInMyBuffer(const coral::Blob &blob);
 
 };
 

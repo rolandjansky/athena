@@ -82,7 +82,7 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
     
     ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord );
     
-    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+    auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName() denotes an initial node with no parents
     decision->setObjectLink( initialRoIString(), ElementLink<TrigRoiDescriptorCollection>( m_trigRoIsKey.key(), trigRoIs->size()-1 ) );
     decision->setObjectLink( initialRecRoIString(), ElementLink<DataVector<LVL1::RecMuonRoI>>( m_recRoIsKey.key(), recRoIs->size()-1 ) );
     

@@ -757,7 +757,7 @@ protected:
 
 	    std::vector<TIDA::Vertex> tidavertices;
 
-	    this->select( vertices, roi_link, vtx_name );
+	    this->select( tidavertices, roi_link, vtx_name );
 
 	    chain.back().addVertices( tidavertices );
 	    

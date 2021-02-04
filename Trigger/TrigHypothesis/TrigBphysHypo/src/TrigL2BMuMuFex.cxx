@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // *******************************************************************
@@ -852,7 +852,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         } else {
             ATH_MSG_DEBUG("Comb muon container: " << muonContainerComb1.size() );
         }
-        for (const auto& el: muonContainerComb1) {
+        for (const ElementLink<xAOD::L2CombinedMuonContainer> el: muonContainerComb1) {
             ATH_MSG_DEBUG("Comb muon container: " << el.dataID() << " " << el.index() );
         }
         if (HLT::OK != getFeaturesLinks<xAOD::L2CombinedMuonContainer,xAOD::L2CombinedMuonContainer>(inputTE[1],muonContainerComb2,m_combinedMuonKey)) {
@@ -860,7 +860,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         } else {
             ATH_MSG_DEBUG("Comb muon container: " << muonContainerComb2.size() );
         }
-        for (const auto& el: muonContainerComb2) {
+        for (const ElementLink<xAOD::L2CombinedMuonContainer> el: muonContainerComb2) {
             ATH_MSG_DEBUG("Comb muon container: " << el.dataID() << " " << el.index() );
         }
         ElementLink<xAOD::IParticleContainer> ptl1EL = remap_container(muonXEL[0],muonContainerComb1);
@@ -1126,7 +1126,7 @@ ElementLink<xAOD::TrackParticleContainer> TrigL2BMuMuFex::remap_container(const 
     if (!oldElink.isValid()) return oldElink;
     const auto tp  = *oldElink;
 
-    for (const auto& elink : newContainer) {
+    for (const ElementLink<xAOD::TrackParticleContainer> elink : newContainer) {
         if (!elink.isValid()) continue;
         const auto el  = *elink;
 
@@ -1163,7 +1163,7 @@ ElementLink<xAOD::IParticleContainer> TrigL2BMuMuFex::remap_container(const Elem
     if (!oldElink.isValid()) return iptlELold;
     const auto tp  = *oldElink;
     
-    for (const auto& elink : newContainer) {
+    for (const ElementLink<xAOD::L2CombinedMuonContainer> elink : newContainer) {
         if (!elink.isValid()) continue;
         const auto el  = *elink;
         

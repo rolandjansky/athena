@@ -80,20 +80,7 @@ StatusCode VtxBasedFilterTool::buildMcAod( const McEventCollection* in,
         << "  inEvt: " << inEvt << endmsg;
       continue;
     }
-    HepMC::GenEvent* outEvt = new HepMC::GenEvent( inEvt->signal_process_id(), 
-                                                   inEvt->event_number() );
-    outEvt->set_event_scale  ( inEvt->event_scale() );
-    outEvt->set_alphaQCD     ( inEvt->alphaQCD() );
-    outEvt->set_alphaQED     ( inEvt->alphaQED() );
-    outEvt->weights() =        inEvt->weights();
-    outEvt->set_random_states( inEvt->random_states() );
-    if ( 0 != inEvt->heavy_ion() ) {
-      outEvt->set_heavy_ion    ( *inEvt->heavy_ion() );
-    }
-    if ( 0 != inEvt->pdf_info() ) {
-      outEvt->set_pdf_info     ( *inEvt->pdf_info() );
-    }
-
+    HepMC::GenEvent* outEvt =  HepMC::copyemptyGenEvent(inEvt);
     if ( buildGenEvent( inEvt, outEvt ).isFailure() ) {
       msg(MSG::ERROR)
 	<< "Could filter GenEvent number [" << iEvt 
@@ -122,9 +109,13 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  for (auto vtx: in->vertices()){
+#else
   // loop over vertices
   for ( HepMC::GenEvent::vertex_const_iterator vtxit = in->vertices_begin(); vtxit != in->vertices_end(); ++vtxit ) {
     auto vtx=*vtxit;
+#endif
     if ( !isAccepted(vtx) ) {
       // no in-going nor out-going particles at this vertex matches 
       // the requirements: ==> Skip it
@@ -140,7 +131,7 @@ StatusCode VtxBasedFilterTool::buildGenEvent( const HepMC::GenEvent* in,
   return StatusCode::SUCCESS;
 }
 
-bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
+bool VtxBasedFilterTool::isAccepted( HepMC::ConstGenVertexPtr vtx ) const
 {
   if ( !vtx ) {
     return false;
@@ -160,7 +151,7 @@ bool VtxBasedFilterTool::isAccepted( const HepMC::GenVertex* vtx ) const
   return false;
 }
 
-StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
+StatusCode VtxBasedFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx,
 				       HepMC::GenEvent* evt ) const
 {
   if ( !srcVtx || !evt ) {
@@ -231,7 +222,7 @@ StatusCode VtxBasedFilterTool::addVertex( const HepMC::GenVertex* srcVtx,
 }
 
 bool 
-VtxBasedFilterTool::isFromHardScattering( const HepMC::GenVertex* vtx ) const
+VtxBasedFilterTool::isFromHardScattering( HepMC::ConstGenVertexPtr vtx ) const
 {
   if ( std::abs(HepMC::barcode(vtx)) <= m_maxHardScatteringVtxBarcode.value() &&
        m_ppFilter.isAccepted(vtx) &&

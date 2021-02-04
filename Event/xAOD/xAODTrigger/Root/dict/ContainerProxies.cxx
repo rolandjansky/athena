@@ -17,6 +17,8 @@
 #include "xAODTrigger/versions/JetRoIContainer_v2.h"
 #include "xAODTrigger/versions/MuonRoIContainer_v1.h"
 #include "xAODTrigger/versions/eFexEMRoIContainer_v1.h"
+#include "xAODTrigger/versions/gFexJetRoIContainer_v1.h"
+#include "xAODTrigger/versions/gFexGlobalRoIContainer_v1.h"
 
 #include "xAODTrigger/versions/TrigCompositeContainer_v1.h"
 #include "xAODTrigger/versions/BunchConfContainer_v1.h"
@@ -32,6 +34,8 @@ ADD_NS_DV_PROXY( xAOD, JetRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, JetRoIContainer_v2 );
 ADD_NS_DV_PROXY( xAOD, MuonRoIContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, eFexEMRoIContainer_v1 );
+ADD_NS_DV_PROXY( xAOD, gFexJetRoIContainer_v1 );
+ADD_NS_DV_PROXY( xAOD, gFexGlobalRoIContainer_v1 );
 
 ADD_NS_DV_PROXY( xAOD, TrigCompositeContainer_v1 );
 ADD_NS_DV_PROXY( xAOD, BunchConfContainer_v1 );

@@ -502,9 +502,9 @@ namespace top {
               systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_eigen_Light_down[tagWP], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                    tagWP) + "_eigenvars_Light_down");
               for (const std::string& name : m_config->trkjet_btagging_namedSysts(tagWP)) {
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_up[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_up");
-                systematicTree->makeOutputVariable(m_perjet_weight_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
+                systematicTree->makeOutputVariable(m_perjet_weight_trackjet_bTagSF_named_down[tagWP][name], "weight_perjet_trackjet_bTagSF_" + shortBtagWP(
                                                      tagWP) + "_" + betterBtagNamedSyst(name) + "_down");
               }
             }
@@ -1297,7 +1297,7 @@ namespace top {
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "JETPERM_ONLY") {
           /// Model
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_pt, "klfitter_model_bhad_pt");
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_eta, "klfitter_model_bhad_eta");
             systematicTree->makeOutputVariable(m_klfitter_model_bhad_phi, "klfitter_model_bhad_phi");
@@ -1403,7 +1403,7 @@ namespace top {
         }
 
         if (m_config->KLFitterOutput() == "FULL" || m_config->KLFitterOutput() == "FITTEDTOPS_ONLY") {
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular") {
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_pt, "klfitter_bestPerm_topLep_pt");
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_eta, "klfitter_bestPerm_topLep_eta");
             systematicTree->makeOutputVariable(m_klfitter_bestPerm_topLep_phi, "klfitter_bestPerm_topLep_phi");
@@ -3824,7 +3824,7 @@ namespace top {
       m_klfitter_parameters.resize(nPermutations);
       m_klfitter_parameterErrors.resize(nPermutations);
 
-      if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+      if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
         /// Model
         m_klfitter_model_bhad_pt.resize(nPermutations);
         m_klfitter_model_bhad_eta.resize(nPermutations);
@@ -3953,7 +3953,7 @@ namespace top {
           m_klfitter_parameterErrors[iPerm] = klPtr->parameterErrors();
 
           /// Model
-          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
+          if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular" || m_config->KLFitterLH() == "ttbar_BoostedLJets") {
             m_klfitter_model_bhad_pt[iPerm] = klPtr->model_bhad_pt();
             m_klfitter_model_bhad_eta[iPerm] = klPtr->model_bhad_eta();
             m_klfitter_model_bhad_phi[iPerm] = klPtr->model_bhad_phi();
@@ -4058,7 +4058,7 @@ namespace top {
         }
 
         // now take the best permutation and build the tops and the ttbar system!
-        if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles") {
+        if (m_config->KLFitterLH() == "ttbar" || m_config->KLFitterLH() == "ttZTrilepton" || m_config->KLFitterLH() == "ttH" || m_config->KLFitterLH() == "ttbar_JetAngles" || m_config->KLFitterLH() == "ttbar_Angular") {
           if (nPermutations != 0) {
             TLorentzVector bhad, blep, lq1, lq2, lep, nu, top_had, top_lep, ttbar;
 

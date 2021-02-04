@@ -41,7 +41,7 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
   AthAlgTool(t,n,p),
   m_TRTStrawSummaryTool("TRT_StrawStatusSummaryTool",this),
   m_assoTool("InDet::InDetPRD_AssociationToolGangedPixels"),
-  m_localOccTool()
+  m_localOccTool("",this)
 {
   declareInterface<ITRT_ToT_dEdx>(this);
   declareProperty("TRTStrawSummaryTool",    m_TRTStrawSummaryTool);

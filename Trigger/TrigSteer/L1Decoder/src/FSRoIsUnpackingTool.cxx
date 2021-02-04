@@ -66,7 +66,7 @@ StatusCode FSRoIsUnpackingTool::unpack( const EventContext& ctx,
   			m_allFSChains.begin(), m_allFSChains.end(),
 			std::inserter(activeFSchains, activeFSchains.end() ) );
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName() denotes an initial node with no parents
   addChainsToDecision( HLT::Identifier( "FSNOSEED" ), decision, activeChains );
 
   ATH_MSG_DEBUG("Unpacking FS RoI for " << activeFSchains.size() << " chains: " << [&](){ 

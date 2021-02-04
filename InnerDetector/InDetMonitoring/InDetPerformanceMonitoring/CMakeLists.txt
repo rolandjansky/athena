@@ -12,7 +12,7 @@ atlas_add_component( InDetPerformanceMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AtlasHepMCLib CxxUtils ElectronPhotonSelectorToolsLib EventPrimitives GaudiKernel ITrackToVertex IdDictDetDescr InDetIdentifier InDetPrepRawData InDetRIO_OnTrack JetInterface LWHists StoreGateLib TRT_ReadoutGeometry TrigDecisionToolLib TrkEventPrimitives TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex TrkVertexAnalysisUtilsLib egammaEvent egammaInterfacesLib xAODCaloEvent xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${ROOT_LIBRARIES} AthenaBaseComps AthenaMonitoringLib AtlasHepMCLib CxxUtils ElectronPhotonSelectorToolsLib EventPrimitives GaudiKernel ITrackToVertex IdDictDetDescr InDetBeamSpotServiceLib InDetIdentifier InDetPrepRawData InDetRIO_OnTrack InDetTrackSelectionToolLib JetInterface LWHists MuonAnalysisInterfacesLib MuonMomentumCorrectionsLib StoreGateLib TRT_ReadoutGeometry TrigDecisionToolLib TrkEventPrimitives TrkExInterfaces TrkParameters TrkParticleBase TrkTrack TrkTrackSummary TrkTruthData TrkV0Vertex TrkVertexAnalysisUtilsLib TrkVertexFitterInterfaces TrackVertexAssociationToolLib egammaEvent egammaInterfacesLib xAODCaloEvent xAODEgamma xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking xAODTruth )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

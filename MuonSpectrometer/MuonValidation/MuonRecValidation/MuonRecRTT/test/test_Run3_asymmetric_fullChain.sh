@@ -4,10 +4,9 @@
 #
 # art-type: grid
 # art-include: master/Athena
-# art-include: 21.3/Athena
-# art-include: 21.9/Athena
 # art-output: OUT_HITS.root
 # art-output: NSWPRDValAlg.sim.ntuple.root
+# art-output: NSWPRDValAlg.dcube.root
 # art-output: OUT_RDO.root
 # art-output: NSWPRDValAlg.digi.ntuple.root
 # art-output: NSWDigiCheck.txt
@@ -42,6 +41,17 @@ NWARNING="$(cat ${LOG_SIM} | grep WARNING | wc -l)"
 NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
 NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
 echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
+#####################################################################
+
+#####################################################################
+# create histograms for dcube
+python $Athena_DIR/bin/createDCubeHistograms.py
+exit_code=$?
+echo  "art-result: ${exit_code} DCubeSim"
+if [ ${exit_code} -ne 0 ]
+then
+    exit ${exit_code}
+fi
 #####################################################################
 
 #####################################################################
@@ -140,6 +150,7 @@ fi
 #####################################################################
 # now run diff-root to compare the ESDs made with serial and 1thread
 acmd.py diff-root --ignore-leaves index_ref xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::CaloClusterAuxContainer_v2_ForwardElectronClustersAuxDyn --entries 25 --order-trees OUT_ESD_1thread.root OUT_ESD.root &> diff_1_vs_serial.txt
+exit_code=$?
 echo  "art-result: ${exit_code} diff-root"
 if [ ${exit_code} -ne 0 ]
 then
@@ -150,6 +161,7 @@ fi
 #####################################################################
 # now run diff-root to compare the ESDs made with 5threads and 1thread
 acmd.py diff-root --ignore-leaves index_ref xAOD::BTaggingAuxContainer_v1_BTagging_AntiKt4EMTopoAuxDyn xAOD::CaloClusterAuxContainer_v2_ForwardElectronClustersAuxDyn --entries 25 --order-trees OUT_ESD_5thread.root OUT_ESD_1thread.root &> diff_5_vs_1.txt
+exit_code=$?
 echo  "art-result: ${exit_code} diff-root_5thread"
 if [ ${exit_code} -ne 0 ]
 then

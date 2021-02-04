@@ -3,18 +3,30 @@
 Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from FastCaloSim.FastCaloSimFactoryNew import NITimedExtrapolatorCfg
 
 def FastCaloSimCaloExtrapolationCfg(flags, name="FastCaloSimCaloExtrapolation", **kwargs):
+    acc = ComponentAccumulator()
+
+    Extrapolator = acc.popToolsAndMerge(NITimedExtrapolatorCfg(flags))
+    acc.addPublicTool(Extrapolator)
+    GeometryHelper = acc.popToolsAndMerge(FastCaloSimGeometryHelperCfg(flags))
+    acc.addPublicTool(GeometryHelper)
+
     kwargs.setdefault("CaloBoundaryR", [1148.0, 120.0, 41.0])
     kwargs.setdefault("CaloBoundaryZ", [3550.0, 4587.0, 4587.0])
     kwargs.setdefault("CaloMargin", 100)
-    kwargs.setdefault("Extrapolator", NITimedExtrapolatorCfg(flags))
-    kwargs.setdefault("CaloGeometryHelper", FastCaloSimGeometryHelperCfg(flags))
-    kwargs.setdefault("CaloEntrance", "InDet::Containers::InnerDetector")
+    kwargs.setdefault("Extrapolator", acc.getPublicTool(Extrapolator.name))
+    kwargs.setdefault("CaloGeometryHelper", acc.getPublicTool(GeometryHelper.name))
+    from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
+    kwargs.setdefault("CaloEntrance", TrkDetFlags.InDetContainerName())
 
-    return CompFactory.FastCaloSimCaloExtrapolation(name, **kwargs)
+    acc.setPrivateTools(CompFactory.FastCaloSimCaloExtrapolation(name, **kwargs))
+    return acc
 
 
 def FastCaloSimGeometryHelperCfg(flags, name="FastCaloSimGeometryHelper", **kwargs):
-    return CompFactory.FastCaloSimGeometryHelper(name, **kwargs)
+    acc = ComponentAccumulator()
+    acc.setPrivateTools(CompFactory.FastCaloSimGeometryHelper(name, **kwargs))
+    return acc

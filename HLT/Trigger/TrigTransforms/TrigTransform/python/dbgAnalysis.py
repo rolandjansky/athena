@@ -22,8 +22,8 @@ from ROOT import TFile
 import logging
 msg = logging.getLogger("PyJobTransforms." + __name__)
 
-
-def dbgPreRun(inputFileList, outputFileList):
+# As an optional argument dictionary with config data extracted from arguments can be passed
+def dbgPreRun(inputFileList, outputFileList, argdict = None):
     msg.info('Running debug_stream analysis PreRun operations on files :{0} '.format(inputFileList))
     msg.info('Running debug_stream analysis PreRun, histogram output in :{0} '.format(outputFileList))
 
@@ -36,7 +36,6 @@ def dbgPreRun(inputFileList, outputFileList):
     data = []
     l1Info = []
     hltInfo = []
-    relInfo = []
     configKeys = None
     for inputFile in inputFileList.value:
         bsfile = eformat.istream(inputFile)
@@ -46,14 +45,13 @@ def dbgPreRun(inputFileList, outputFileList):
         for event in bsfile:
             if isFirstEvent:
                 runNumber = event.run_no() if event.run_no() else int(inputFile.split(".")[1])
-                configKeys = getHLTConfigKeys(runNumber)
-                relInfo = [configKeys['REL'], configKeys['ATL']]
+                configKeys = getHLTConfigKeys(runNumber, argdict)
+
                 l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
                 isFirstEvent = False
 
             # Log the details of first 5 events
             n += 1
-            # Log the details of first 5 events
             if n < 5:
                 data = [event.run_no(), event.lumi_block(), event.global_id(),
                         event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
@@ -62,26 +60,32 @@ def dbgPreRun(inputFileList, outputFileList):
             # Run debug event analysis and fill output TTree
             eventInfo.eventCount(event)
             eventInfo.eventInfo(event, l1Info, hltInfo)
-            eventInfo.eventConfig(configKeys)
+            eventInfo.eventConfig(configKeys, event)
             eventInfo.fillTree()
 
     # Close output TFile
     hfile.Write()
     hfile.Close()
 
-    # Check release format, if relInfo is 'unknown' then print error
-    release = relInfo[0]
-    if not re.match(r'(\d+\.{0,1})+$', release):
-        msg.error('Not able to find release from DB (or it was badly formatted), release : {0}'.format(release))
-        msg.error('Problem with DB configuration in COOL DB, most likely during data-taking')
-
     msg.info('Finished running debug_stream analysis PreRun operations')
 
-    # Returns the local asetupString from runs in input files and to be used by asetup
-    return getAsetupString(*relInfo)
+    # Check release format, if relInfo is 'unknown' then print error
+    if 'REL' in configKeys:
+        release = configKeys['REL']
+        if not re.match(r'(\d+\.{0,1})+$', release):
+            msg.error('Not able to find release from DB (or it was badly formatted), release : {0}'.format(release))
+            msg.error('Problem with DB configuration in COOL DB, most likely during data-taking')        
+
+        # Returns the local asetupString from runs in input files and to be used by asetup
+        return getAsetupString(configKeys['REL'], configKeys['PROJ'])
+    else:
+        msg.warn("Release not found in configuration - asetup string won't be created")
+
+    # Without release and project asetup string is not available
+    return None
 
 
-def dbgPostRun(inputFileList, outputFileList):
+def dbgPostRun(inputFileList, outputFileList, argdict = None):
     msg.info('Running debug_stream analysis PostRun operations on files :{0} '.format(inputFileList))
     msg.info('Running debug_stream analysis PostRun, histogram output in :{0} '.format(outputFileList))
 
@@ -96,25 +100,29 @@ def dbgPostRun(inputFileList, outputFileList):
     hltInfo = []
     configKeys = None
     for inputFile in inputFileList.value:
-        if not os.path.isfile(inputFile):
-            msg.error('No BS file created with file name :{0} '.format(inputFileList))
+        # Find input file
+        files = [f for f in os.listdir() if inputFile in f]
+        if len(files) == 0:
+            msg.error('No BS file matched name :{0} '.format(inputFileList))
+            continue
+        elif len(files) > 1:
+            msg.error('Found multiple BS files that match name :{0} '.format(inputFile))
             continue
 
-        bsfile = eformat.istream(inputFile)
+        bsfile = eformat.istream(files[0])
         n = 0
         isFirstEvent = True
 
         for event in bsfile:
             # If fist event get l1 and hlt counter and chain info from DB
             if isFirstEvent:
-                configKeys = getHLTConfigKeys(event.run_no())
+                configKeys = getHLTConfigKeys(event.run_no(), argdict)
+
                 l1Info, hltInfo = TriggerDBInfo(configKeys['DB'], configKeys['SMK'])
                 isFirstEvent = False
 
             # Log the details of first 5 events
             n += 1
-
-            # Log the details of first 5 events
             if n < 5:
                 data = [event.run_no(), event.lumi_block(), event.global_id(),
                         event.lvl1_id(), event.bc_time_seconds(), event.bc_time_nanoseconds()]
@@ -168,7 +176,7 @@ def TriggerDBInfo(dbalias = None, smk = None):
     return (l1Info, hltInfo)
 
 
-def getAsetupString(release, AtlasProject):
+def getAsetupString(release, AtlasProject = ''):
     # From release and os.environ, set asetupString for runwrapper.BSRDOtoRAW.sh
     if not AtlasProject:
         msg.warn('Atlas Project not available in TRIGGERDB - reading env variable')
@@ -194,18 +202,56 @@ def getAsetupString(release, AtlasProject):
     return asetupString
 
 
-def getHLTConfigKeys(runNumber = None):
+def getHLTConfigKeys(runNumber = None, args = None):
+    ''' 
+    Returns map with config keys:
+        DB - database alias
+        REL - release
+        SMK - Super Master Key
+        HLTPSC - HLT Prescale key
+        PROJ - Atlas project
+    '''
+
     dbconn = TriggerCoolUtil.GetConnection("CONDBR2")
     configKeys = TriggerCoolUtil.getHLTConfigKeys(dbconn, [[runNumber, runNumber]])
-    configKeys = configKeys[runNumber]
 
-    # Split db info into dbalias and atlas project,
-    #  for example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
-    dbInfo = configKeys['DB'].split(';')
+    if configKeys:
+        configKeys = configKeys[runNumber]
 
-    configKeys['DB'] = dbInfo[0]
-    configKeys['ATL'] = dbInfo[2]
+        # Split db info into dbalias and atlas project,
+        #  for example TRIGGERDBDEV1;22.0.20;Athena -> TRIGGERDBDEV1
+        dbInfo = configKeys['DB'].split(';')
 
-    msg.info("Found config keys %s", configKeys)
+        configKeys['DB'] = dbInfo[0]
+        configKeys['PROJ'] = dbInfo[2]
+
+        msg.info("Found config keys %s", configKeys)
+    else:
+        msg.info("Config keys not found in COOL")
+        configKeys = getHLTConfigFromArgs(args)
+
+    return configKeys
+
+
+def getHLTConfigFromArgs(args):
+    '''
+    Prepare dictionary with data extracted from arguments if available. Contains:
+        DB - database alias
+        SMK - Super Master Key
+        HLTPSC - HLT Prescale key
+    '''
+
+    configKeys = {}
+
+    try:
+        configKeys['DB'] = args['DBserver'].value
+        configKeys['SMK'] = int(args['DBsmkey'].value)
+        configKeys['HLTPSK'] = int(args['DBhltpskey'].value)
+
+        msg.info("Found config keys in args %s", configKeys)
+
+    except KeyError:
+        msg.warn("Config keys not found in argdict")
+        return {}
 
     return configKeys

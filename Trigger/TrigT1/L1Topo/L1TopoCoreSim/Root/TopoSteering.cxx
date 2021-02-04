@@ -59,7 +59,7 @@ TCS::StatusCode
 TopoSteering::setupFromConfiguration(const TrigConf::L1Menu& l1menu){
 
 
-  TCS::StatusCode sc = m_structure.setupFromMenu( l1menu );
+  TCS::StatusCode sc = m_structure.setupFromMenu( l1menu, m_isLegacyTopo );
   
   // configure layout of the simulation result
   sc &= m_simulationResult.setupFromMenu( m_structure.outputConnectors() );
@@ -104,6 +104,7 @@ TopoSteering::initializeAlgorithms() {
          if(m_histSvc) {
             alg->setL1TopoHistSvc(m_histSvc);
          }
+	 alg->setLegacyMode(m_isLegacyTopo);
          alg->initialize();
       }
 

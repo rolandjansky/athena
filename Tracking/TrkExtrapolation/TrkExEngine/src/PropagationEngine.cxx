@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,15 +77,16 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellCharged& eCe
 
     Trk::TransportJacobian* tjac = 0;
     // we need to first fill the propagation parameters in order to be able to updates & fallbacks
-    const Trk::TrackParameters* pParameters = m_propagator->propagate(*eCell.leadParameters, 
-                                                                      sf,
-                                                                      pDir,
-                                                                      bcheck,
-                                                                      eCell.mFieldMode,
-                                                                      tjac,
-                                                                      propLength,
-                                                                      eCell.pHypothesis,
-                                                                      returnCurvilinear);
+    //release, otherwise need to change the Trk::ExCell code
+    auto pParameters = m_propagator->propagate(*eCell.leadParameters, 
+                                              sf,
+                                              pDir,
+                                              bcheck,
+                                              eCell.mFieldMode,
+                                              tjac,
+                                              propLength,
+                                              eCell.pHypothesis,
+                                              returnCurvilinear).release();
    // set the return type according to how the propagation went
    if (pParameters){
        // cache the last lead parameters, useful in case a navigation error occured

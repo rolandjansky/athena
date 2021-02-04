@@ -359,21 +359,30 @@ void FastCaloSimCaloExtrapolation::extrapolateToID(TFCSExtrapolationState& resul
     if(!extrapolateToCylinder(hitVector, R, Z, extPos, momDir)) continue;
     
     double tolerance = 0.001;
+    
     //test if z inside previous cylinder within some tolerance
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 1: hit z="<< extPos[Amg::z]);
     if(surfID > 0 && std::abs(extPos[Amg::z]) < m_CaloBoundaryZ[surfID-1] - tolerance) continue;
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 1.");
 
     //test if r inside next cylinder within some tolerance
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 2: hit r="<< extPos.perp());
     if(surfID < m_CaloBoundaryR.size()-1 && extPos.perp() < m_CaloBoundaryR[surfID + 1] - tolerance) continue;
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 2.");
 
+    ATH_MSG_DEBUG("[ExtrapolateToID] Testing condition 3: hit magnitude="<< extPos.mag());
     if(extPosDist >= 0 && extPos.mag() > extPosDist) continue;
-    
+    ATH_MSG_DEBUG("[ExtrapolateToID] Passed condition 3.");
+
     extPosDist = extPos.mag();
 
     result.set_IDCaloBoundary_eta(extPos.eta());
     result.set_IDCaloBoundary_phi(extPos.phi());
     result.set_IDCaloBoundary_r(extPos.perp());
     result.set_IDCaloBoundary_z(extPos[Amg::z]);
-    
+
+    ATH_MSG_DEBUG("[ExtrapolateToID] Setting IDCaloBoundary to eta="<<extPos.eta()<<" phi="<<extPos.phi()<< " r="<<extPos.perp()<<" z="<<extPos.z());
+
     //compute angle between extrapolated position vector and momentum at IDCaloBoundary
     //can be used to correct shower shapes for particles which do not originate from {0,0,0}
     double Angle3D  = Amg::angle(extPos, momDir);
@@ -967,13 +976,19 @@ int FastCaloSimCaloExtrapolation::cylinderLineIntersection(float cylR, float cyl
   Amg::Vector3D projDiff = projPointA - projPointB;
 
   //calculate distance from (0,0,0) to line spanned by projPointA and projPointB
-  double t = (projPointA.dot(projDiff))/(projDiff).dot(projDiff);
-  double d = std::sqrt(projPointA.dot(projPointA) - t*t*(projDiff).dot(projDiff));
+  double projDiffNorm2 = projDiff.dot(projDiff);
+  double t  = projPointA.dot(projDiff) / projDiffNorm2;
+  double d2 = projPointA.dot(projPointA) - t*t*projDiffNorm2;
+
+  if(d2 < 0){
+    ATH_MSG_COND("[cylinderLineIntersection] Got negative distance (d2="<<d2<<"). Forcing to 0.", d2 > -0.001);
+    d2 = 0;
+  }
 
   //if distance larger than cylinder radius then there are no intersection and we are done
-  if(d > cylR) return 0;
+  if(d2 > cylR*cylR) return 0;
 
-  double k = std::sqrt((cylR*cylR - d*d)/(projDiff.dot(projDiff)));
+  double k = std::sqrt((cylR*cylR - d2)/projDiffNorm2);
 
   intersectA = pointA + (t+k)*(pointB - pointA);
   intersectB = pointA + (t-k)*(pointB - pointA);
@@ -981,7 +996,6 @@ int FastCaloSimCaloExtrapolation::cylinderLineIntersection(float cylR, float cyl
   //check if intersection is outside z bounds
   bool IntAisValid = (intersectA[Amg::z] <= cylZ && intersectA[Amg::z] >= -cylZ);
   bool IntBisValid = (intersectB[Amg::z] <= cylZ && intersectB[Amg::z] >= -cylZ);
-
 
   if(IntAisValid && IntBisValid) return 2;
   else if(IntAisValid) return 1;
