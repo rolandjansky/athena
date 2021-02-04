@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory     import CompFactory
 from IOVDbSvc.IOVDbSvcConfig                  import addFoldersSplitOnline
 from InDetConfig.InDetRecToolConfig           import makeName
 import AthenaCommon.SystemOfUnits               as   Units
 #######################################################################
+
+# @TODO retire once migration to TrackingGeometry conditions data is complete
+from InDetRecExample.TrackingCommon import use_tracking_geometry_cond_alg
 
 def copyArgs(kwargs, copy_list):
     dict_copy={}
@@ -887,9 +890,18 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
     from InDetConfig.InDetRecToolConfig  import InDetNavigatorCfg, InDetPropagatorCfg, InDetExtrapolatorCfg
     acc = ComponentAccumulator()
 
-    from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
-    acc.merge(TrackingGeometrySvcCfg(flags))
-    AtlasTrackingGeometrySvc = acc.getService('AtlasTrackingGeometrySvc')
+    if 'TrackingGeometrySvc' not in kwargs :
+        if not use_tracking_geometry_cond_alg :
+            from TrkConfig.AtlasTrackingGeometrySvcConfig import TrackingGeometrySvcCfg
+            acc.merge(TrackingGeometrySvcCfg(flags))
+            kwargs.setdefault("TrackingGeometrySvc", acc.getService('AtlasTrackingGeometrySvc') )
+
+    if 'TrackingGeometryReadKey' not in kwargs :
+        if use_tracking_geometry_cond_alg :
+            from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlgConfig import TrackingGeometryCondAlgCfg
+            acc.merge( TrackingGeometryCondAlgCfg(flags) )
+            # @TODO howto get the TrackingGeometryKey from the TrackingGeometryCondAlgCfg ?
+            kwargs.setdefault("TrackingGeometryReadKey", 'AtlasTrackingGeometry')
 
     tmpAcc =  InDetExtrapolatorCfg(flags)
     InDetExtrapolator = tmpAcc.getPrimary()
@@ -916,7 +928,6 @@ def InDetGlobalChi2FitterBaseCfg(flags, name='GlobalChi2FitterBase', **kwargs) :
     kwargs.setdefault("PropagatorTool", InDetPropagator)
     kwargs.setdefault("MultipleScatteringTool", InDetMultipleScatteringUpdator)
     kwargs.setdefault("MeasurementUpdateTool", InDetUpdator)
-    kwargs.setdefault("TrackingGeometrySvc", AtlasTrackingGeometrySvc)
     kwargs.setdefault("MaterialUpdateTool", InDetMaterialEffectsUpdator)
     kwargs.setdefault("StraightLine", not flags.BField.solenoidOn)
     kwargs.setdefault("OutlierCut", 4)
