@@ -377,6 +377,15 @@ if DQMonFlags.doMonitoring():
       Steering.doTauMon=DQMonFlags.doTauMon()
       Steering.doJetTagMon=DQMonFlags.doJetTagMon()
 
+      # schedule legacy HLT monitoring if Run 2 EDM
+      if DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 2:
+         try:
+            include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
+            HLTMonMan = topSequence.HLTMonManager
+            HLTMonMan.FileKey = DQMonFlags.monManFileKey()  
+         except Exception:
+            treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
+
       ConfigFlags.dump()
       ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringCfg, ConfigFlags)
 

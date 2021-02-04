@@ -1,4 +1,4 @@
-#  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 #     Contains algs/tools used by Inner Detector Trigger
 
@@ -667,7 +667,6 @@ def siSPSeededTrackFinder_builder( name, outputTracks, trackingCuts, usePrdAssoc
    zVertexMakerTool = None
    #FIXME:Switch to trig flags?
    if InDetFlags.useZvertexTool() and trackingCuts.mode() != "DBM":
-      print('Running z-vertex maker')
       zVertexMakerTool =  zVertexMakerTool_builder(name, trackingCuts, siSpacePointsSeedMakerTool )
    
    # --- SCT and Pixel detector elements road builder

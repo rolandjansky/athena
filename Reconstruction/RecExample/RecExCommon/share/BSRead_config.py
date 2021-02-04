@@ -33,7 +33,14 @@ if rec.doMuon():
 
 if DetFlags.readRDOBS.LAr_on():
     from LArByteStream.LArByteStreamConf import LArRawDataReadingAlg 
-    topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
+    from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+    from RecExConfig.AutoConfiguration import GetRunNumber
+    runNum = GetRunNumber()
+    lri=getLArFormatForRun(runNum)
+    if lri.runType()==0:
+       topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="",OutputLevel=DEBUG) 
+    else:   
+       topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 
         
 if DetFlags.readRDOBS.Tile_on():
     svcMgr.ByteStreamAddressProviderSvc.TypeNames += [
