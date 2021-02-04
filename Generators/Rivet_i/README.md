@@ -20,7 +20,7 @@ for using standalone Rivet. This tutorial will focus on the Athena wrapper aroun
 In general, the latest 21.6 release should have the latest Rivet release supported by ATLAS.
 
 ```
-asetup 21.6.33,AthGeneration # or later (please avoid 21.6.19-21.6.32)
+asetup 21.6.58,AthGeneration # or later (please avoid 21.6.19-21.6.32)
 source setupRivet.sh
 ```
 
@@ -254,7 +254,7 @@ _More details about the new generation setup is [here](https://twiki.cern.ch/twi
 The other possibility is to use a `--postInclude=local_jO.py`.
 If Rivet is run using a `--postInclude` instead of with `--rivetAnas` , 
 then the user should use `runArgs.outputYODAFile` to specify the yoda output file name.
-This is useful to run custom analyses.
+This is useful to run custom analyses. In this case, please make sure you do not have `import AthenaPoolCnvSvc.ReadAthenaPool` in your jO.
 
 If the (large) EVNT output is not needed to be saved, then no `-outputEVNTFile` should be
 specified but an `--outputYODAFile` should be. Then the EVNT is not written in a pool file, but
