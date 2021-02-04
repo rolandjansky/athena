@@ -29,17 +29,28 @@ python plotting/luminosity.py --infile ~/public/Zcounting/CSVOutputs/HighMu/data
 ```
 for year in 15 16 17 18
 do
+    # Yearwise L(ee) / L(mumu) comparison vs. time and pileup
+    python -u plotting/yearwise_luminosity.py --year $year --comp
+    python -u plotting/yearwise_luminosity_vs_mu.py --year $year --comp
     for channel in Zee Zmumu Zll
     do
-        python plotting/yearwise_luminosity.py --year $year --channel $channel
+        # Yearwise L_Z / L_ATLAS comparison vs. time and pileup
+        python -u plotting/yearwise_luminosity.py --channel $channel --year $year
+        python -u plotting/yearwise_luminosity_vs_mu.py --channel $channel --year $year
     done
 done
+
 ```
 
 # Making full Run-2 "super plots"
 ```
+# Full Run-2 L_Z / L_ATLAS plots vs. time
 for channel in Zee Zmumu Zll
 do
     python plotting/yearwise_luminosity.py --year all --channel $channel
 done
+
+# Full Run-2 L(ee) / L(mumu) plot vs. time and pileup
+python -u plotting/yearwise_luminosity.py --year all --comp 
+python -u plotting/yearwise_luminosity_vs_mu.py --year run2 --comp 
 ```
