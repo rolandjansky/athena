@@ -1,5 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__ = "Mark Sutton, Matous Vozak"
 __doc__    = "ConfigSettings"
@@ -152,22 +151,22 @@ class _Settings :
        return self._isLRT
 
    def printout(self):
-      print( self._name, " :")
-      print( "   pTmin                : ", self._pTmin )
-      print( "   d0SeedMax            : ", self._d0SeedMax )
-      print( "   d0SeedPPSMax         : ", self._d0SeedPPSMax )
-      print( "   doZFinder            : ", self._doZFinder )
-      print( "   doResMon             : ", self._doResMon )
-      print( "   doSpPhiFiltering     : ", self._doSpPhiFiltering )
-      print( "   doCloneRemoval       : ", self._doCloneRemoval )
-      print( "   checkRedundantSeeds  : ", self._checkRedundantSeeds )
-      print( "   dRdoubletMax         : ", self._dRdoubletMax )
-      print( "   seedRadBinWidth      : ", self._seedRadBinWidth )
-      print( "   etaHalfWidth         : ", self._etaHalfWidth )
-      print( "   phiHalfWidth         : ", self._phiHalfWidth )
-      print( "   doFullScan           : ", self._doFullScan )
-      print( "   monPS                : ", self._monPS )
-      print( "   monPtMin             : ", self._monPtMin )
+      print( self._name, " :")                                         # noqa: ATL901
+      print( "   pTmin                : ", self._pTmin )               # noqa: ATL901
+      print( "   d0SeedMax            : ", self._d0SeedMax )           # noqa: ATL901
+      print( "   d0SeedPPSMax         : ", self._d0SeedPPSMax )        # noqa: ATL901
+      print( "   doZFinder            : ", self._doZFinder )           # noqa: ATL901
+      print( "   doResMon             : ", self._doResMon )            # noqa: ATL901
+      print( "   doSpPhiFiltering     : ", self._doSpPhiFiltering )    # noqa: ATL901
+      print( "   doCloneRemoval       : ", self._doCloneRemoval )      # noqa: ATL901
+      print( "   checkRedundantSeeds  : ", self._checkRedundantSeeds ) # noqa: ATL901
+      print( "   dRdoubletMax         : ", self._dRdoubletMax )        # noqa: ATL901
+      print( "   seedRadBinWidth      : ", self._seedRadBinWidth )     # noqa: ATL901
+      print( "   etaHalfWidth         : ", self._etaHalfWidth )        # noqa: ATL901
+      print( "   phiHalfWidth         : ", self._phiHalfWidth )        # noqa: ATL901
+      print( "   doFullScan           : ", self._doFullScan )          # noqa: ATL901
+      print( "   monPS                : ", self._monPS )               # noqa: ATL901
+      print( "   monPtMin             : ", self._monPtMin )            # noqa: ATL901
 
 
 #Tracking configuration for different signatures
