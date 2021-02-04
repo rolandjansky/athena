@@ -82,6 +82,9 @@ def addStandardRecoFiles(parser):
     parser.add_argument('--outputTAGFile', 
                         type=trfArgClasses.argFactory(trfArgClasses.argTAGFile, io='output'), 
                         help='Output TAG file', group='Reco Files')
+    parser.add_argument('--outputNTUP_HTTIPFile',
+                        type=trfArgClasses.argFactory(trfArgClasses.argHTTIPFile, io='output', multipleOK=True), help='Output HTT IP file', group='Reco Files')
+
     parser.add_argument('--inputEVNTFile', nargs='+', 
                         type=trfArgClasses.argFactory(trfArgClasses.argPOOLFile, io='input'),
                         help='Input EVNT file for NTUP_TRUTH making', group='Reco Files')
@@ -105,7 +108,7 @@ def addRecoSubsteps(executorSet):
                                    outData = []))
     executorSet.add(athenaExecutor(name = 'RAWtoESD', skeletonFile = 'RecJobTransforms/skeleton.RAWtoESD_tf.py',
                                    substep = 'r2e', inData = ['BS', 'RDO', 'DRAW_ZMUMU', 'DRAW_ZEE', 'DRAW_EMU', 'DRAW_RPVLL', 'RDO_FTK'], 
-                                   outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ'],))
+                                   outData = ['ESD', 'HIST_ESD_INT', 'TXT_JIVEXMLTGZ', 'NTUP_HTTIP'],))
     executorSet.add(athenaExecutor(name = 'ESDtoAOD', skeletonFile = 'RecJobTransforms/skeleton.ESDtoAOD_tf.py',
                                    substep = 'e2a', inData = ['ESD'], outData = ['AOD', 'HIST_AOD_INT']))
     executorSet.add(DQMergeExecutor(name = 'DQHistogramMerge', inData = [('HIST_ESD_INT', 'HIST_AOD_INT'), 'HIST_R2A'], outData = ['HIST']))

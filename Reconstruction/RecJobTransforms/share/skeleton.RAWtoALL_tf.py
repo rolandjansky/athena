@@ -77,7 +77,7 @@ if hasattr(runArgs,"outputHISTFile"):
     DQMonFlags.histogramFile.set_Value_and_Lock( runArgs.outputHISTFile )
     DQMonFlags.monType='BSall' 
 
-if hasattr(runArgs, "outputTXT_FTKIPFile"):
+if hasattr(runArgs, "outputNTUP_HTTIPFile"):
     rec.doCalo.set_Value_and_Lock(False)
     rec.doInDet.set_Value_and_Lock(True)
     rec.doMuon.set_Value_and_Lock(False)

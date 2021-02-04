@@ -1655,13 +1655,13 @@ class HistogramFile( FileType ):
         FileType.__init__(self,type,contents)
 
 
-class FTKIPFile(FileType):
-    defaultContents = 'ftkip'
+class HTTIPFile(FileType):
+    defaultContents = 'httip'
     def __init__(self, contents=defaultContents):
         FileType.__init__(self, contents)
         
     def eventCount(self, arg):
-        '''Count ftk i/p events using the ^F event flag'''        
+        '''Count htt i/p events using the ^F event flag'''        
         fname = arg.value()
         try:
             eventCount = 0
