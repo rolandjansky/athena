@@ -141,7 +141,7 @@ namespace xAOD {
 
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, unsigned int, bestPermutation, setBestPermutation)
   AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, logLikelihood, setLogLikelihood)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, double, eventProbability, setEventProbability)
+  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER(KLFitterResult, float, eventProbability, setEventProbability)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(KLFitterResult, std::vector<double>, parameters, setParameters)
   AUXSTORE_OBJECT_SETTER_AND_GETTER(KLFitterResult, std::vector<double>, parameterErrors, setParameterErrors)
 

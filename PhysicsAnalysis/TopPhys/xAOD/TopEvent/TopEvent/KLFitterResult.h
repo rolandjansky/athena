@@ -47,7 +47,7 @@ namespace xAOD {
     /// Global result
     std::vector<unsigned int> bestPermutation;
     std::vector<float> logLikelihood;
-    std::vector<double> eventProbability;
+    std::vector<float> eventProbability;
     std::vector<std::vector<double> > parameters;
     std::vector<std::vector<double> > parameterErrors;
 
@@ -201,9 +201,9 @@ namespace xAOD {
     void setLogLikelihood(float);
 
     /// get eventProbability
-    double eventProbability() const;
+    float eventProbability() const;
     /// set eventProbability
-    void setEventProbability(double);
+    void setEventProbability(float);
 
     /// get parameters
     const std::vector<double>& parameters() const;

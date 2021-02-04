@@ -574,7 +574,7 @@ namespace top {
 
     // Normalize event probability to unity
     // work out best permutation
-    double sumEventProbability(0.);
+    float sumEventProbability(0.);
     unsigned int bestPermutation(999), iPerm(0);
     unsigned int bestPermutation2(999); //for SingleT option
 
@@ -1383,12 +1383,12 @@ namespace top {
     return true;
   }
  
-  void KLFitterTool::findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,double& sumEventProbability) {
-    double bestEventProbability(0.);
+  void KLFitterTool::findBestPermInd_Standard(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation,float& sumEventProbability) {
+    float bestEventProbability(0.);
     unsigned int iPerm(0);
 
     for (auto x : *resultContainer) {
-      double prob = x->eventProbability();
+      float prob = x->eventProbability();
       short minuitDidNotConverge = x->minuitDidNotConverge();
       short fitAbortedDueToNaN = x->fitAbortedDueToNaN();
       short atLeastOneFitParameterAtItsLimit = x->atLeastOneFitParameterAtItsLimit();
@@ -1411,24 +1411,25 @@ namespace top {
     
   }
 
-  void KLFitterTool::findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,double& sumEventProbability) {      
+  void KLFitterTool::findBestPermInd_SingleT(xAOD::KLFitterResultContainer* resultContainer,unsigned int& bestPermutation1,unsigned int& bestPermutation2,float& sumEventProbability) {      
 
-    double bestEventProbability(0.);
+    float bestLLH(-1e5);
 
     for (unsigned int iPerm1=0; iPerm1<resultContainer->size(); iPerm1++) {
       xAOD::KLFitterResult *x = resultContainer->at(iPerm1);
 
-      double prob_1 = x->eventProbability();
       short minuitDidNotConverge_1 = x->minuitDidNotConverge();
       short fitAbortedDueToNaN_1 = x->fitAbortedDueToNaN();
       short atLeastOneFitParameterAtItsLimit_1 = x->atLeastOneFitParameterAtItsLimit();
       short invalidTransferFunctionAtConvergence_1 = x->invalidTransferFunctionAtConvergence();
 
+      if(minuitDidNotConverge_1 || fitAbortedDueToNaN_1 || atLeastOneFitParameterAtItsLimit_1 || invalidTransferFunctionAtConvergence_1) continue;
+
       unsigned int ib1 = x->model_b_from_top1_jetIndex();
       unsigned int iljI1 = x->model_lj1_from_top1_jetIndex();
       unsigned int iljII1 = x->model_lj2_from_top1_jetIndex();
-
-      if(minuitDidNotConverge_1 || fitAbortedDueToNaN_1 || atLeastOneFitParameterAtItsLimit_1 || invalidTransferFunctionAtConvergence_1) continue;
+      float prob_1 = x->eventProbability();
+      float log_1 = x->logLikelihood();
 
       for (unsigned int iPerm2=iPerm1+1;iPerm2<resultContainer->size(); iPerm2++) {
 
@@ -1452,11 +1453,13 @@ namespace top {
 	// check if the best value has the highest event probability AND converged
 	if(minuitDidNotConverge_2 || fitAbortedDueToNaN_2 || atLeastOneFitParameterAtItsLimit_2 || invalidTransferFunctionAtConvergence_2) continue;
 
-	double prob = prob_1*y->eventProbability();
+	//compute sum event probability (to keep things the same as in the standard version)
+	float prob = prob_1*y->eventProbability();
 	sumEventProbability += prob;
 
-	if (prob > bestEventProbability) {
-	  bestEventProbability = prob;
+	float log = log_1*y->logLikelihood();
+	if (log > bestLLH) {
+	  bestLLH = log;
 	  bestPermutation1 = iPerm1;
 	  bestPermutation2 = iPerm2;
 	}
