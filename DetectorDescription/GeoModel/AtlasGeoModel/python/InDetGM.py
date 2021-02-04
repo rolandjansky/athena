@@ -79,9 +79,7 @@ elif ( DetFlags.detdescr.ID_on() ):
         GeoModelSvc.DetectorTools += [ trtDetectorTool ]
 
     if ( DetFlags.detdescr.HGTD_on() ) :
-        from HGTD_GeoModel.HGTD_GeoModelConf import HGTD_DetectorTool
-        hgtd = HGTD_DetectorTool()
-        GeoModelSvc.DetectorTools += [ hgtd ]
+        GeoModelSvc.DetectorTools += [ CfgGetter.getPrivateTool("HGTD_DetectorTool", checkType=True)  ]
 
 
     if not InDetGeometryFlags.isSLHC():
