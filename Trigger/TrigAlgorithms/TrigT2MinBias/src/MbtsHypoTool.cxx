@@ -30,7 +30,7 @@ StatusCode MbtsHypoTool::decide(MbtsHypoInfo &info) const
 
 	// Calculate MBTS counter multiplicities after energy and an optional time cut.
 	Counts counts = calculateMultiplicities(info.mbtsBits);
-	if ( counts.sideA == 0 && counts.sideC == 0)
+	if (counts.sideA == 0 && counts.sideC == 0)
 	{
 		ATH_MSG_DEBUG("calculateMultiplicities failed, no multiplicities");
 		return StatusCode::SUCCESS;
@@ -81,7 +81,7 @@ StatusCode MbtsHypoTool::decide(MbtsHypoInfo &info) const
 
 	ATH_MSG_DEBUG("REGTEST: event " << (pass ? "accepted" : "failed") << " with EBA(" << counts.sideA << ") + EBC(" << counts.sideC << ") hits above threshold.");
 
-	if ( pass ) 
+	if (pass)
 	{
 		addDecisionID(m_decisionId.numeric(), info.decision);
 		ATH_MSG_DEBUG("REGTEST event accepted");

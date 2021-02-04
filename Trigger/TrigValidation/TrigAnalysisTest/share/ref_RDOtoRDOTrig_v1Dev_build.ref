@@ -2272,6 +2272,8 @@ HLT_larnoiseburst_L1XE60:
     0: 6
   stepFeatures:
     0: 6
+HLT_mb_mbts_L1MBTS_1_EMPTY:
+  eventCount: 0
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 0
 HLT_mb_sptrk_L1RD0_FILLED:

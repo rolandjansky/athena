@@ -43,18 +43,19 @@ private:
   Gaudi::Property<bool> m_veto{this, "Veto", false, "Flag to select lowe than threshold multiplicities"};
 
   Gaudi::Property<int> m_mbtsmode{this, "MBTSMode", 0, "Flag to count multiplicities only on inner or outer MBTS modules (see T2MBTSUtils) "};
-      
-  Gaudi::Property<float> m_threshold{this, "Threshold", 40.0/222.0, "Energy threshold in pC"};
+
+  Gaudi::Property<float> m_threshold{this, "Threshold", 40.0 / 222.0, "Energy threshold in pC"};
 
   Gaudi::Property<float> m_timeCut{this, "TimeCut", -1.0, "A time cut in ns.  Values <= 0 disable the time cut"};
 
   Gaudi::Property<float> m_globalTimeOffset{this, "GlobalTimeOffset", 0, "A global time offset in ns about which the time window cuts"};
-  
+
   Gaudi::Property<std::vector<float>> m_timeOffsets{this, "TimeOffset", std::vector<float>(32), "Offsets with respect to the global offset of all counters. (A0-15 then C0-C15) "};
 
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
-  struct Counts{
-    size_t sideA; 
+  struct Counts
+  {
+    size_t sideA;
     size_t sideC;
   };
   Counts calculateMultiplicities(const xAOD::TrigT2MbtsBits *t2mbtsBits) const;

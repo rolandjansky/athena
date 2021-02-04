@@ -13,15 +13,16 @@
 
 /**
  * @class MbtsHypoAlg
- * @brief 
+ * @brief
  **/
-class MbtsHypoAlg : public ::HypoBase {
+class MbtsHypoAlg : public ::HypoBase
+{
 public:
-  MbtsHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  MbtsHypoAlg(const std::string &name, ISvcLocator *pSvcLocator);
   virtual ~MbtsHypoAlg() override;
 
   virtual StatusCode initialize() override;
-  virtual StatusCode execute(const EventContext& context) const override;
+  virtual StatusCode execute(const EventContext &context) const override;
   virtual StatusCode finalize() override;
 
 private:

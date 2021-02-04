@@ -11,8 +11,8 @@ using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::newDecisionIn;
 
-MbtsHypoAlg::MbtsHypoAlg(const std::string& name, ISvcLocator* pSvcLocator) 
-  : ::HypoBase(name, pSvcLocator)
+MbtsHypoAlg::MbtsHypoAlg(const std::string &name, ISvcLocator *pSvcLocator)
+    : ::HypoBase(name, pSvcLocator)
 {
 }
 
@@ -33,7 +33,7 @@ StatusCode MbtsHypoAlg::finalize()
   return StatusCode::SUCCESS;
 }
 
-StatusCode MbtsHypoAlg::execute(const EventContext& context) const
+StatusCode MbtsHypoAlg::execute(const EventContext &context) const
 {
   ATH_MSG_DEBUG("Executing ...");
 
@@ -50,13 +50,12 @@ StatusCode MbtsHypoAlg::execute(const EventContext& context) const
   auto d = newDecisionIn(decisions, hypoAlgNodeName());
   linkToPrevious(d, decisionInput().key(), 0);
 
+  MbtsHypoTool::MbtsHypoInfo info = {prev, bitsHandle.cptr()->at(0), d};
 
-  MbtsHypoTool::MbtsHypoInfo info = { prev, bitsHandle.cptr()->at(0),  d};
-
-  for ( const auto& tool : m_hypoTools ) {
+  for (const auto &tool : m_hypoTools)
+  {
     ATH_CHECK(tool->decide(info));
   }
 
-  return StatusCode::SUCCESS;  
+  return StatusCode::SUCCESS;
 }
-
