@@ -160,8 +160,6 @@ HLT_2mu4_muonqual_L12MU4:
     0: 2
 HLT_2mu6_10invm70_L1MU6:
   eventCount: 0
-HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF:
-  eventCount: 0
 HLT_2mu6_Dr_L12MU4:
   eventCount: 0
   stepCounts:
@@ -762,8 +760,6 @@ HLT_g25_loose_L1EM20VH:
     0: 2
     1: 2
     2: 5
-HLT_g25_medium_4j35_0eta490_dijetSEP35j1etSEP35j2etSEP1000djmass_L1EM22VHI:
-  eventCount: 0
 HLT_g25_medium_L1EM20VH:
   eventCount: 0
 HLT_g25_medium_mu24_L1MU20:
@@ -1254,14 +1250,6 @@ HLT_mu14_L1MU10:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu14_ivarloose_tau25_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU12IM_3J12:
-  eventCount: 0
-  stepFeatures:
-    0: 1
-HLT_mu14_ivarloose_tau35_mediumRNN_tracktwoMVA_03dRtt_L1MU10_TAU20IM:
-  eventCount: 0
-  stepFeatures:
-    0: 1
 HLT_mu14_tau25_mediumRNN_tracktwoMVA_xe50_cell_L1MU10_TAU12IM_XE35:
   eventCount: 0
   stepFeatures:
@@ -1274,10 +1262,6 @@ HLT_mu20_2mu4noL1_L1MU20:
   stepFeatures:
     0: 1
     1: 1
-HLT_mu20_ivarloose_tau20_mediumRNN_tracktwoMVA_03dRtt_L1MU20:
-  eventCount: 0
-  stepFeatures:
-    0: 1
 HLT_mu20_ivarmedium_mu4noL1_10invm70_L1MU20:
   eventCount: 0
   stepCounts:

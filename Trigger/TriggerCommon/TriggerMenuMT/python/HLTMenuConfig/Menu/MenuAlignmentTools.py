@@ -27,6 +27,21 @@ the_signature_grouping = OrderedDict([
 
     ])
 
+def order_legs(legs):
+
+    #code exists in the class, but this function should exist standalone
+    # make a dictionary of the ordering, based on the_signature_grouping 
+    # e.g. 1 electron+photon, 2 muon, 3 tau, 4 jet/met/b-jet, 5 noL1 muons
+    signature_dict = {}
+    igrp = 0
+    for value in the_signature_grouping.values():
+        if value not in signature_dict:
+            signature_dict[value] = igrp
+            igrp += 1
+
+    return [signature_dict[leg] for leg in legs]
+     
+
 def get_alignment_group_ordering():
     seen = set()
     return [v for v in the_signature_grouping.values() if not (v in seen or seen.add(v))]

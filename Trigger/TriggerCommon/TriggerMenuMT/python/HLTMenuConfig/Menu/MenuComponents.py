@@ -809,8 +809,9 @@ class ChainStep(object):
         self.makeCombo()
           
          
-    def addComboHypoTools(self,  tools):
-        self.comboToolConfs.append(tools)
+    def addComboHypoTools(self, tool):
+        #this function does not add tools, it just adds tool. do not pass it a list!
+        self.comboToolConfs.append(tool)
 
     def makeCombo(self):
         self.combo=None 
