@@ -39,18 +39,33 @@ TODO (perspectives for future development):
 - Support other types in readFromYODA
 
 
-Author: Louie D. Corpe (UCL)  
+Author: Louie D. Corpe (CERN)  
 Email: l.corpe@cern.ch  
 """
 from random import randint
 import tarfile, StringIO
 try:
   import yoda
+except:
+  print("[ERROR], looks like the YODA packages are not installed. Please run this command and try again:")
+  print("source setupPMGSystematicsTool.sh")
+  exit(1)
+try:
   import yaml
+except:
+  print("[ERROR], looks like the YAML packages are not installed. Please run this command and try again:")
+  print("source setupPMGSystematicsTool.sh")
+  exit(1)
+try:
   import lhapdf
+except:
+  print("[ERROR], looks like the LHAPDF packages are not installed. Please run this command and try again:")
+  print("source setupPMGSystematicsTool.sh")
+  exit(1)
+try:
   import numpy as np
 except:
-  print("[ERROR], looks like the YODA, YAML, LHAPDF or NUMPy packages are not installed. Please run this command and try again:")
+  print("[ERROR], looks like the NUMPY packages are not installed. Please run this command and try again:")
   print("source setupPMGSystematicsTool.sh")
   exit(1)
 import cPickle as pickle
@@ -100,17 +115,23 @@ def safeFileName(name,  removeExtension=True, reverse=False):
   ' ' --> '_'  
   ':' --> '_'  
   """
-  name=name.strip()
+  #name=name.strip()
   #name= name.replace(".","p")
-  for decimalPoint in re.findall("[0-9].[0-9]",name):
-    name=name.replace(decimalPoint,decimalPoint.replace(".","p"))
-  name= name.replace("pyoda",".yoda")
-  name= name.replace("proot",".root")
-  name= name.replace(" ","_")
-  name= name.replace(":","_")
+  #for decimalPoint in re.findall("[0-9].[0-9]",name):
+  #  name=name.replace(decimalPoint,decimalPoint.replace(".","p"))
+  name= name.replace("user.","userp")
+  name= name.replace(".yoda","pyoda")
+  name= name.replace("yoda.","yodap")
+  name= name.replace(".root","proot")
+  #name= name.replace(" ","_")
+  #name= name.replace(":","_")
+  name=rivet_i_replacements(name)
   name= name.replace("+","")
   name= name.replace("userp","user.")
-  name= name.replace("/","over")
+  name= name.replace("pyoda",".yoda")
+  name= name.replace("yodap","yoda.")
+  name= name.replace("proot",".root")
+  #name= name.replace("/","over")
   if (removeExtension and "." in name): name=name.rpartition(".")[0]
   return name
 
@@ -200,8 +221,8 @@ def weightCorrection(var, nom,sampleDir="", varWeightName="", nominalWeightName=
     if not os.path.isfile(fn[k]):
       fn[k]=fn[k].replace('.yoda','.root')
     if not os.path.isfile(fn[k]):
-      print("\n[ERROR] Could not open the file :", fn[k])
-      print("[ERROR] Available files in ", sampleDir)
+      print("\n[ERROR] Could not open the file :" + repr(fn[k]))
+      print("[ERROR] Available files in " + repr(sampleDir))
       for varFile in os.listdir(sampleDir):
         print(varFile)
       exit(1)
@@ -222,7 +243,7 @@ def getXSFromYODA(path):
     return yoda.read(path, patterns='.*/_XSEC.*')['/_XSEC'].points()[0].x()
 
 
-def getXS(dsid, campaign=15, userFile=None):
+def getXS(dsid, campaign=16, userFile=None):
   """
   `dsid` Int (dataset ID of the ATLAS dataset you want to get the
   cross-section for  
@@ -240,7 +261,7 @@ def getXS(dsid, campaign=15, userFile=None):
     campaign=14
   # this triggers a search in the manual, local XS file
   if campaign>16 or campaign < 15:
-    dataDir=os.environ["SYSTTOOLSPATH"]+"/data/PMGSystematicsTools"
+    dataDir=os.environ["SYSTTOOLSPATH"]+"/data/"
     if userFile is None:
       pmgXSFile="%s/PMGxsecDB_manual.txt" %dataDir
     else:
@@ -276,9 +297,9 @@ def getXS(dsid, campaign=15, userFile=None):
   # if we can't fine the desired DSID, recursively try elsewhere before failing
   if not foundDataset:  
     
-    print("[WARNING] could not find ", dsid, " in ", pmgXSFile, " for campaign", campaign)
+    print("[WARNING] could not find " + dsid + " in " + pmgXSFile + " for campaign" + campaign)
     if campaign>16:
-      print("[ERROR] could not find ", dsid, " in ", pmgXSFile)
+      print("[ERROR] could not find " + dsid + " in " + pmgXSFile)
       print("--> you'll need to add it in manually before continuing")
       return -1,-1
     else : thisSampleFinalCrossSection,hasKFactor,thisSampleKFactorUncertainty = getXS(dsid, campaign+1,userFile)
@@ -400,12 +421,17 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
   `Product(arg1,...,argN)`: Take the product of the arguments of the function. 
   The 'y' value is the product of the 'y' values of the arguments, the errors 
   are propagated according the relative errors in quadrature.  
+  
+  `Average(arg1,...,argN)`: Take the product of the arguments of the function. 
+  The 'y' value is the avergae of the 'y' values of the arguments, the errors 
+  are taken from the first argument.  
 
   `QuadSum(arg1,..,argN)`: Sum in quadrature of the errors of the arguments,
   and central value taken from nominal AO.  
   
-  `Value(arg1)`: Used to scan an AO and its errors by the float specified in argi1.  
+  `Value(arg1)`: Used to scan an AO and its errors by the float specified in arg1.  
 
+  `CopyError(arg1,arg2)`: Copy the up/down errors.  
   """
   # for debug statements, prepare a prefix which is proportional to the level
   # of iteration
@@ -414,7 +440,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
   if 'z' in nominal.keys(): 
     y, yup, ydn ='z', 'zup', 'zdn'
   for i in range(level): prefix += "-->"
-  if (verbose) : print(prefix+"processing ", formula)
+  if (verbose) : print(prefix + " processing " + formula)
   
   # if there is no bracket in the formula, this means we've reached a
   # basic component of the formula. In this case just return the relevant AO!
@@ -426,16 +452,19 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
       componentName=k.split("/")[-1].replace(".yoda","").replace(".root","")
       if componentName==safeFileName(formula):
         result= v
+      if result is None:
+        if componentName.split(":")[0]==safeFileName(formula):
+          result= v
     # print(error and quit if no matching AO is found!)
     if result is None:
-      print("[ERROR] could not find a match for ", formula, )
-      print(" (%s) " %safeFileName(formula), " in list of available weights:")
+      print("[ERROR] could not find a match for " + formula  )
+      print(" (%s) " %safeFileName(formula) + " in list of available weights:")
       for k,v in componentsMap.items():
         print(k.split("/")[-1])
       exit(1)
     
     # if all went well, return the AO
-    if (verbose) :print(prefix+"--> result:", result )
+    if (verbose) : print(prefix + "--> result:" + result )
     return result 
 
   # If there are brackets in the formula then it either needs to be evaluated 
@@ -459,7 +488,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
         arg=resolveFormula(nominal,argument,componentsMap,level+1)
         argumentNames+=[argument]
         arguments+=[arg]
-        if (verbose) :print(prefix+"argument of", operation , " : ",  arg)
+        if (verbose) : print(prefix + "argument of" + operation  + " : " +  arg)
       
     # Now that we have evluated the arguments, we can combine them according to
     # the specified operation.
@@ -490,7 +519,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
     # central value of arg2.
     elif operation=="DownUpNominal" :
       if len(arguments)!=3: 
-        print("[ERROR] DownUpNominal() must take exactly three arguments, found ",len(arguments))
+        print("[ERROR] DownUpNominal() must take exactly three arguments, found " + len(arguments))
         exit(1)
       result=copy.deepcopy(arguments[2])
       result[yup]=copy.deepcopy(arguments[1][y])
@@ -510,7 +539,15 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
           result[y]= centralProduct
           result[yup]= centralProduct+upError
           result[ydn]= centralProduct-dnError
-    
+    elif operation=="Average" :
+      result=None
+      N=len(arguments)
+      for arg in arguments:
+        if result is None: result = copy.deepcopy(arg)
+        else:
+          result[y]=result[y]+arg[y]
+      result[y]=result[y]/N
+
     # Take the min/max envelope of the arguments as the up/down errors of the 
     # resulting AO. The central value is taken from 'nominal'
     elif operation=="Envelope" :
@@ -536,7 +573,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
     # as yerr --> |yerr/y**2|
     elif operation=="Inverse" :
       if len(arguments)!=1: 
-        print("[ERROR] Inverse() must take exactly 1 argument,found ",len(arguments))
+        print("[ERROR] Inverse() must take exactly 1 argument, found " + len(arguments))
         exit(1)
       arg=arguments[0]
       result=copy.deepcopy(arg)
@@ -546,7 +583,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
     
     elif operation=="Value" :
       if len(arguments)!=1: 
-        print("[ERROR] Value() must take exactly 1 argument,found ",len(arguments))
+        print("[ERROR] Value() must take exactly 1 argument, found " + len(arguments))
         exit(1)
       arg=arguments[0]
       result=copy.deepcopy(nominal)
@@ -557,7 +594,7 @@ def resolveFormula(nominal,formula, componentsMap, level=0, verbose=0):
     # Anything else needs to be implemented here :)
     # elif operation=="FooBar":...
     else:
-      print("[ERROR] this operation", operation, " is not yet supported! Please implement it in resolveFormula() before continuing")
+      print("[ERROR] this operation" + operation + " is not yet supported! Please implement it in resolveFormula() before continuing")
       exit(1)
     
     # return the result of the operation on the arguments
@@ -574,9 +611,6 @@ def combineVariationsLHAPDF(nom, variations, pset, asym=False):
 
   Combines PDF variations according to the LHAPDF PDFSet prescription.
   """
-  #if len (nom['y']) > 50:
-  #  print("NOM %.6e"%nom['y'][45],  nom['name'])
-  #  print(len(variations), "variations " , ["%.6e "%var['y'][45] for var in variations.values()]
   y='y'
   if 'z' in nom.keys(): y='z'
   nom_y=nom[y]
@@ -744,8 +778,8 @@ def readFromFile(filename,regexFilter=None, regexVeto=None):
     if  filenameSplit[0].endswith(ye): 
       return readFromYODA(filename,regexFilter,regexVeto)
   print("[ERROR] could not identify input file type! please name your files with one of the following extensions:")
-  print("[ERROR]", rootExtensions, " for ROOT files")
-  print("[ERROR]", yodaExtensions, " for YODA files")
+  print("[ERROR]" + rootExtensions + " for ROOT files")
+  print("[ERROR]" + yodaExtensions + " for YODA files")
   exit(1)
 
 def getFileKeys(d, basepath="/"):
@@ -788,7 +822,7 @@ def readFromROOT(filename,regexFilter=None, regexVeto=None):
       path=filename[1].split("/")[0]
       tfd=rootfile.Get(path)
   for aoName in tfd.GetListOfKeys():
-    #print("CONTAINS THIS AO", aoName)
+    #print("CONTAINS THIS AO" + aoName)
     if path == "":
       aoName=aoName.GetName()
     else:
@@ -884,7 +918,10 @@ def readFromYODA(filename,regexFilter=None, regexVeto=None):
   result={}
   filename=filename.split(":")
   patterns="" if regexFilter is None else '.*'+regexFilter+'.*' 
-  unpatterns="" if regexVeto is None else '.*'+regexVeto+'.*' 
+  unpatterns=[] if regexVeto is None else ['.*'+regexVeto+'.*']
+  if patterns=="" and len(filename)>1:
+      patterns=filename[1].replace("!AONAME",".*").replace("[","\[").replace("]","\]")
+  unpatterns+=["/RAW/.*","/REF/.*"]
   histList=yoda.read(filename[0], patterns=patterns, unpatterns=unpatterns)
   for aoName,ao in histList.items():
     # apply the filters and vetos
@@ -897,14 +934,15 @@ def readFromYODA(filename,regexFilter=None, regexVeto=None):
     if len (filename) > 1:
       rep=filename[1].replace("!AONAME","")
       filt=filename[1].replace("!AONAME",".*")
-      if (regexFilter is not None):
-        if (not aoName in re.findall(filt,aoName)): continue
-      aoName=aoName.replace(rep,"")                                                         
+      filt=filename[1].replace("!AONAME",".*").replace("[","\[").replace("]","\]")
+      if (not aoName in re.findall(filt,aoName)): continue
+      aoName=aoName.replace(rep,"")
 
     aoResult={}
     aoResult['name'] = ao.name().replace(rep,"")
     aoResult['path'] = ao.path().replace(rep,"")
     aoResult['annotations'] = {ann: ao.annotation(ann) for ann in ao.annotations()}
+    aoResult['annotations']['Path']= aoResult['path']
     if type(yoda.Histo1D())== type(ao):
       aoResult['bw']  = np.array([ b.xWidth()  for b in ao.bins() ])
       aoResult['y']  = np.array([ b.sumW()  for b in ao.bins() ])/ aoResult['bw']
@@ -945,7 +983,7 @@ def readFromYODA(filename,regexFilter=None, regexVeto=None):
   
   if len (result)==0:
     print("[ERROR] no analysis objects passed your filter, or your input files are empty of Histo1D or Scatter2D objects. Exiting" )
-    print("[ERROR] FYI: filename=%s, filter=%s, veto=%s "%(filename,regexFilter, regexVeto) )
+    print("[ERROR] FYI: filename=%s, filter=%s, veto=%s "%(filename, regexFilter, regexVeto) )
     exit(1)
   
   return result
@@ -1128,8 +1166,12 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
   variationHists_Var_AO={}
   variationHists={}
   for var in wInfo['weights']:
-    if ":" in var and 'yoda' in var : var=var.split(":")[0]
-    variationHists_Var_AO[var]= readFromFile(var,regexFilter, regexVeto)
+    if "Weight" in var : continue
+    if ":" in var and 'yoda' in var : 
+      #var=var.split(":")[0]
+      variationHists_Var_AO[var]= readFromFile(var,regexFilter, regexVeto)
+    else:
+      variationHists_Var_AO[var]= readFromFile(var,regexFilter, regexVeto)
   #probably a more elegant way to do this....
   for var,aoDict in variationHists_Var_AO.items():
     for ao, info in aoDict.items():
@@ -1168,7 +1210,7 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
     elif wInfo['combination']=='customFunction':
        syst_central,syst_dn,syst_up = combineVariationsFromFormula(noms, variations, wInfo['function'])
     else:
-       print("[ERROR] combination type:", wInfo['combination'], "is not yet supported... skipping this systematic uncertainty:", wName)
+       print("[ERROR] combination type:" + wInfo['combination'] + "is not yet supported... skipping this systematic uncertainty:" + wName)
     
     syst_up = (syst_up)  
     syst_dn = (syst_dn)  
@@ -1181,9 +1223,9 @@ def combineVariation(wName, wInfo, fOut, regexFilter=None, regexVeto=None):
       
   # write the outputs!
   writeToFile(outputHists, fOut) 
-  print("[INFO] done combining this systematic: ", wName, " using method: ", wInfo['combination'])
+  print("[INFO] done combining this systematic: " + wName + " using method: " + repr(wInfo['combination']))
   if wInfo['combination']=='customFunction':
-     print("[INFO] customFunction = ", wInfo['function'])
+     print("[INFO] customFunction = " + repr(wInfo['function']))
 
 def arrayDictToTGraph(ao, isData=False, setYErrorsToZero=False,nominalAOForRatio=None):
   """
@@ -1248,7 +1290,7 @@ def getPlotInfo(aoName, pathInRivetEnv):
       try:
         match=re.findall(regex,aoName)
       except:
-        print("[WARNING] this line in .plot does not provide a valid regex.. : ", line)
+        print("[WARNING] this line in .plot does not provide a valid regex.. : " + line)
         return res
       if len(match)>0 : inBlock=True
       continue
@@ -1458,7 +1500,7 @@ def makeSystematicsPlotsWithROOT(mergedSystDict, outdir, nominalName="Nominal", 
      aos_ratio[aoNameNoRef][fn]= arrayDictToTGraph(ao,False, setYErrorsToZero, nfr)
      
      # this is the best guess as to where the reference data might be !
-     dataDir=os.environ["SYSTTOOLSPATH"]+"/data/PMGSystematicsTools"
+     dataDir=os.environ["SYSTTOOLSPATH"]+"/data/"
      rivetAnalysis=aoName.split("/")[1] if len(aoName.split("/"))>1 else ""
      pathInRivetEnv="%s/Rivet/%s.yoda"%(RIVET_ANALYSIS_PATH ,rivetAnalysis)
      # for the first file, also get the .plot which will be needed to format
@@ -1497,7 +1539,7 @@ def makeSystematicsPlotsWithROOT(mergedSystDict, outdir, nominalName="Nominal", 
              nfr #divide by this nominal
              )
        else: 
-         print("[WARNING] could not find AO with name " , aoNameNoRef , " or ", "/REF"+aoNameNoRef, " in REF file ",refDataPath )
+         print("[WARNING] could not find AO with name "  + aoNameNoRef  + " or " + "/REF"+aoNameNoRef + " in REF file " + refDataPath )
          print(" Perhaps due to a version mis-match where the AO names were changed... skip this data file for now")
          
 
@@ -1794,7 +1836,7 @@ def makeSystematicsPlotsWithRIVET(mergedSystDict, plotsDir, nominalName="Nominal
   """
   print("[INFO] Compare histos")
   fileNames=mergedSystDict.keys()
-  print("[INFO] fileNames", fileNames)
+  print("[INFO] fileNames" + repr(fileNames))
   fPlot=open("plot.sh","w")
   colors=["GREEN","PURPLE","YELLOW","RED","GREY","BLUE","ORANGE"]
   cc=0
@@ -1861,11 +1903,11 @@ def makeSystematicsPlotsWithRIVET(mergedSystDict, plotsDir, nominalName="Nominal
          f=dirname+"/"+f
          res+=["%s/%s"%(plotsDir,fnew)]
          fpng=dirname+"/"+fpng
-         os.system("convert -density 150 %s %s "%(f,fpng))
+         os.system("convert -flatten -density 150 %s %s  &> /dev/null "%(f,fpng))
          os.system("mv %s %s/%s"%(f,plotsDir,fnew ))
          os.system("mv %s %s/%s"%(fpng,plotsDir, fnewpng))
   os.system("rm -r tmp")
-  print("your plots are here :", plotsDir)
+  print("your plots are here :" + plotsDir)
   return res
    
 
@@ -1893,21 +1935,21 @@ def getCombinationRecipe(systWeights,  combinationRecipeFile=None, combinationRe
     if combinationRecipeFile is not None:
       data=yaml.load(open(combinationRecipeFile,'r'))
     else:
-      data=yaml.load(open('%s/data/PMGSystematicsTools/Syst_Database.yaml'%dataBaseDir,'r'))
+      data=yaml.load(open('%s/data/Syst_Database.yaml'%dataBaseDir,'r'))
     for recipe, details in data.items():
       if combinationRecipeName is not None:
         if recipe==combinationRecipeName:
           if set(details['components']).issubset(set(systWeights)):
              return recipe, details
           else: 
-             print("[ERROR] requested combination recipe", combinationRecipeName, 'uses weights ' , details['components'], 'which are not all present in ' ,systWeights )
-             exit(1)
+             print("[Warning] requested combination recipe" + combinationRecipeName + 'uses weights ' + repr(details['components']) + 'which are not all present in ' + systWeights )
+             return recipe, details
              
 
       if sorted(details['components']) == sorted(systWeights):
         return recipe, details
     
-    print("[WARNING] could not find systematics recipe for samples with the following ME Weights", systWeights )
+    print("[WARNING] could not find systematics recipe for samples with the following ME Weights" + repr(systWeights) )
     return None, None
 
 
@@ -1973,7 +2015,7 @@ def combineAllVariations(weightList, indir, outdir, regexFilter=None, regexVeto=
         weights+=[fileName]
         fOut[oldWeight]=fileName
       else: 
-        print("[ERROR] couldn't find file of name ", fileName, " with either .root or .yoda extension!")
+        print("[ERROR] couldn't find file of name " + fileName + " with either .root or .yoda extension!")
         exit(1)
     v['weights']=weights
     if v['type']=='Nominal' : 
@@ -1993,7 +2035,7 @@ def combineAllVariations(weightList, indir, outdir, regexFilter=None, regexVeto=
       if( os.path.isfile(fileName.split(":")[0])):
         v['nominal']=fileName
       else:
-        print("[ERROR] couldn't find file of name ", fileName, " with either .root or .yoda extension!")
+        print("[ERROR] couldn't find file of name " + fileName + " with either .root or .yoda extension!")
         exit(1)
       weightsToProcess+=[k]
     allWeights+=weights
@@ -2014,7 +2056,7 @@ def combineAllVariations(weightList, indir, outdir, regexFilter=None, regexVeto=
      else: fOut[syst]= '%s/%s.yoda' % (outdir, syst)
      labels[syst]=weightList[syst]['type']
      #this is the function that does the hard work!
-     print("Doing "+syst+"with weights", weightList[syst])
+     print("Doing %s with %d weights: %s"%(syst, len(weightList[syst]['weights']), repr(weightList[syst])))
      combineVariation(syst, weightList[syst], fOut[syst], regexFilter, regexVeto)
      averageErrorSize[syst]=getAverageUncertaintySizePerBin(fOut[syst], regexFilter, regexVeto)
      os.system("ls %s"%fOut[syst])
@@ -2043,8 +2085,8 @@ def combineAllVariations(weightList, indir, outdir, regexFilter=None, regexVeto=
        os.system("ls %s"%fOut[syst])
 
     # now we construct the overall uncertainty according to the recipe
-    print("[INFO] combining uncertainties using the following recipe:", recipe)
-    print("[INFO] which uses formula: ", formula)
+    print("[INFO] combining uncertainties using the following recipe:" + recipe)
+    print("[INFO] which uses formula: " + formula)
   
     #build a dummy 'weightList' object
     combinationInfo={}
@@ -2104,14 +2146,14 @@ def extractTarballsFromDirectory(fulldir, force=False, verbose=False, rootOrYoda
   sample=fulldir.split("/")[-1]
   counter=-1
   os.system("cd %s"  % fulldir)
-  print("\r[INFO] Processing ", sample)
+  print("\r[INFO] Processing " + sample)
   nSubSamples = len([name for name in os.listdir(fulldir)])
   sys.stdout.flush()
   if force:
     os.system("rm %s/merged/*" % fulldir)
     os.system("rm %s/merged_tmp/*" % fulldir)
   if len(os.listdir(fulldir))==0:
-    print("[ERROR] can't run over empty directory: ", fulldir)
+    print("[ERROR] can't run over empty directory: " + fulldir)
     exit(1)
   for subsample in os.listdir(fulldir):
      #print(subsample)
@@ -2119,12 +2161,13 @@ def extractTarballsFromDirectory(fulldir, force=False, verbose=False, rootOrYoda
        newfulldir= fulldir+"/"+subsample.replace(".root.tgz",".untarred")
      else  :  
        newfulldir= fulldir+"/"+subsample.replace(".yoda.tgz",".untarred").replace(".yoda.gz.tgz",".untarred")
-     if (not subsample.endswith('tgz') and not notTGZ ): continue
+     if (not subsample.endswith('gz') and not notTGZ ): continue
      if  ("untarred" in subsample and not force): continue
      if  ("merged" in subsample and not force): continue
      #if  ("tgz" in subsample and not os.path.isdir(newfulldir)): continue
      counter+=1
-     if ('tgz' in  subsample) and not (os.path.isdir(newfulldir) and not notTGZ) :
+     verbose=1
+     if ('tgz' in  subsample ) and not (os.path.isdir(newfulldir) and not notTGZ) :
        os.system("mkdir -p %s" % newfulldir)
        #if verbose: sys.stdout.write('\r Thread %d: untar job output %s (%d/%d)     '%(multiprocessing.dummy.current_process().ident, subsample,counter, nSubSamples))
        if verbose: sys.stdout.write('\r Unpacking job output %s (%d/%d)     '%(subsample,counter, nSubSamples))
@@ -2213,7 +2256,7 @@ def mergeInChunks(outfn, paths, progressDict=None, nFilesPerChunk=100, force=Fal
   os.system("mkdir -p %s" % fulldir)
   os.system("mkdir -p %s/tmp" % fulldir)
   fnShort=os.path.basename(outfn)
-  mergeTool="yodamerge_tmp -o "
+  mergeTool="yodamerge_tmp.py -o "
   gzsuffix=""
   if 'root'==rootOrYoda:
     assert('root' in fnShort and not 'yoda' in fnShort)
@@ -2226,7 +2269,7 @@ def mergeInChunks(outfn, paths, progressDict=None, nFilesPerChunk=100, force=Fal
   if progressDict is not None:
     updateProgress(progressDict, fnShort, "run")
   if os.path.isfile(outfn) and not force:
-     pass
+    pass
   else:
     time.sleep(0.1*randint(1,50))
     #sys.stdout.write('\r[INFO] merging files of type %s (%s)                                    '%(fnShort,progressText))
@@ -2242,7 +2285,8 @@ def mergeInChunks(outfn, paths, progressDict=None, nFilesPerChunk=100, force=Fal
          chunkMergedFile="%s/tmp/%s.chunk%d.%s"%(fulldir,fnShort,iChunk,rootOrYoda + gzsuffix)
          #for p in chunkPaths:
          #  if not os.path.isfile(p): print("ERROR, issue with ", p )
-         os.system("%s %s %s &> out1.%d.log "%(mergeTool,chunkMergedFile,chunkFilesToMerge,iChunk))
+         os.system("%s %s %s &> out1.%d.log "%(mergeTool, chunkMergedFile, chunkFilesToMerge, iChunk))
+         print("%s %s %s &> out1.%d.log "%(mergeTool, chunkMergedFile, chunkFilesToMerge, iChunk))
          filesToMerge+=chunkMergedFile+" "
     else :
          filesToMerge = ' '.join(paths)
@@ -2394,10 +2438,10 @@ def main(argv):
     pwd=os.getcwd()
     jobsMergedFiles={}
     print("================================================================================")
-    print("[INFO] Processing files which match this regex ", thisFilter)
+    print("[INFO] Processing files which match this regex " + thisFilter)
     print("================================================================================")
-    print()
-    print()
+    print("")
+    print("")
 
     # unatr grid outputs, merged across jobs
     #TODO modularize this
@@ -2448,15 +2492,15 @@ def main(argv):
             untarredFiles[res[0]].setdefault('AllVariations',[]).append(res[2])
 
 
-    print()
-    print()
+    print("")
+    print("")
     print("------------------------------------------------------------------------")
     print("[INFO] Merging across jobs for each DSID")
     print("------------------------------------------------------------------------")
 
     for fulldir in sorted(untarredFiles.keys()):
          
-         print("[INFO] Merging files for jobs of ", os.path.basename(fulldir))
+         print("[INFO] Merging files for jobs of " + os.path.basename(fulldir))
 
          infiles=untarredFiles[fulldir]
          nFileTypes = len(infiles.keys())
@@ -2488,8 +2532,8 @@ def main(argv):
          pool.join()
          print('\r[INFO] Done Merging %s' % os.path.basename(fulldir))
 
-    print()
-    print()
+    print("")
+    print("")
     print("------------------------------------------------------------------------")
     print("[INFO] Get available MEweights from DSID database and make sure they are consistent!")
     print("------------------------------------------------------------------------")
@@ -2502,7 +2546,7 @@ def main(argv):
       xsDict=inputs[2]
       #dsid=fulldir.split("mc15_13TeV.")[-1].split(".")[0]
       dsid=re.findall("\.[0-9]{6,6}\.",fulldir)[0].replace(".","")
-      print("\r[INFO] Looking up XS and MEWeights for DSID=",dsid)
+      print("\r[INFO] Looking up XS and MEWeights for DSID=" + dsid)
       if rootOrYoda=='yoda' and getXSFromYODA(jobsMergedFiles.values()[0][os.path.basename(fulldir)]) != 1.0:
         print("\r[INFO] Histograms in YODA file of DSID=%s are already scaled by xsec. Set xsec to 1.0 to avoid double scaling!"%dsid)
         xsDict[dsid]= 1.0, 0, 0
@@ -2538,7 +2582,7 @@ def main(argv):
     pool.close() 
     pool.join()
     
-    print()
+    print("")
     print("[INFO] Consistentcy Checks:")
     availableWeights=None
     uniqueWeights=[]
@@ -2547,16 +2591,16 @@ def main(argv):
          print("\r[INFO] ERROR: could not find Xs for DSID=%s. Exit." %( str(dsid)))
          exit(1)
        else:
-         print("\r[INFO] DSID=%s has XS=%.6f pb (kFactor=%.2f, normUnvertainty=%.2f)" %( str(dsid), xsDict[dsid][0], xsDict[dsid][1], xsDict[dsid][2]) ," and found ME weights")
+         print("\r[INFO] DSID=%s has XS=%.6f pb (kFactor=%.2f, normUnvertainty=%.2f)" %( str(dsid), xsDict[dsid][0], xsDict[dsid][1], xsDict[dsid][2])  + " and found ME weights")
     for res in results:
       if availableWeights==None: 
          availableWeights=res[0]
-         print("[INFO] DSID", res[1], " has weights", availableWeights.keys())
+         print("[INFO] DSID=" + res[1] + " has weights" + repr(availableWeights.keys()))
 
       elif(sorted(availableWeights.keys())==sorted(res[0].keys())):
-         print("[INFO] DSID", res[1], " has weights consistent with the above")
+         print("[INFO] DSID=" + res[1] + " has weights consistent with the above")
       else:
-         print("[ERROR] DSID", res[1], " has weights NOT consistent with the above!!")
+         print("[ERROR] DSID=" + res[1] + " has weights NOT consistent with the above!!")
          exit(1)
       
     for k,v in availableWeights.items():
@@ -2567,16 +2611,16 @@ def main(argv):
        else: uniqueWeights+=[w]
 
     if (len(uniqueWeights) ==0 and not opts.noSyst):
-      print("[ERROR] Your sample DISD=", res[1], " has no weights... so it might be missing from the database!")
+      print("[ERROR] Your sample DISD=" + res[1] + " has no weights... so it might be missing from the database!")
       print("[ERROR] Please contact lcorpe@cern.ch to get your sample added...")
       print("[ERROR] In the meantime, we will exit since no combination recipe is availale... you can still run with --noSyst")
       exit(1)
 
-    print("UNIQUE WEIGHTS", uniqueWeights)
+    print("UNIQUE WEIGHTS" + repr(uniqueWeights))
 
     
-    print()
-    print()
+    print("")
+    print("")
     print("------------------------------------------------------------------------")
     print("[INFO] Calculating on the fly corrections to XSs for each systematic")
     print("------------------------------------------------------------------------")
@@ -2606,7 +2650,6 @@ def main(argv):
     progressDict={}
     applyKFactorCorrection=None
     progressDict['N']=int(opts.nThreads)
-    #for syst,sample in jobsMergedFiles.items():
     for syst in uniqueWeights:
       if structure=="AllVariationsInFile":
         sample=jobsMergedFiles.values()[0]
@@ -2649,7 +2692,7 @@ def main(argv):
 
     
     
-    print()
+    print("")
     print("------------------------------------------------------------------------")
     print("[INFO] Merging files across DSIDs for each systematic")
     print("------------------------------------------------------------------------")
@@ -2677,17 +2720,16 @@ def main(argv):
         if structure=="OneFilePerVariation":
           mergedFile="%s_%s_%s/merged_sample/%s.%s" % ( process,generator,opts.label,safeFileName(s),rootOrYoda)
           command="haddw  %s %s  &> out.txt "%(mergedFile," ".join(allFilesToMerge[s]))
-          #print(command)
           os.system(command)
       else: 
         mergedFile="%s_%s_%s/merged_sample/%s.%s" % ( process,generator,opts.label,safeFileName(s),rootOrYoda)
         if structure=="AllVariationsInFile":
           if rivet_i_replacements(s)!="" and not opts.noSyst:
-            command="yodamerge_tmp --add -o  %s %s -m '.*%s.*'  &> out.txt "%(mergedFile," ".join(allFilesToMerge[safeFileName(s)]), rivet_i_replacements(s))
+            command="yodamerge_tmp.py --add -o  %s %s -m '.*\[%s\].*'  &> out.txt "%(mergedFile," ".join(allFilesToMerge[safeFileName(s)]), rivet_i_replacements(s))
             os.system(command)
             os.system("sed -i 's/\[%s\]//g' %s"%(rivet_i_replacements(s),mergedFile ))
           else:
-            command="yodamerge_tmp --add -o  %s %s -M .*\\\[.*\\\].*  &> out.txt "%(mergedFile," ".join(allFilesToMerge[safeFileName(s)]))
+            command="yodamerge_tmp.py --add -o  %s %s -M .*\\\[.*\\\].*  &> out.txt "%(mergedFile," ".join(allFilesToMerge[safeFileName(s)]))
             os.system(command)
             #os.system("sed -i 's/\[%s\]//g' %s"%(rivet_i_replacements(s),mergedFile ))
         if structure=="OneFilePerVariation":
@@ -2695,11 +2737,11 @@ def main(argv):
            sampleToMerge=allFilesToMerge[s][0].split(":")
            command="cp %s %s ; yodascale -c '.* %fx' -i %s  &> out.txt \n"%(sampleToMerge[0],mergedFile, float(sampleToMerge[1]), mergedFile)
           else:
-           command="yodamerge_tmp --add -o  %s %s  &> out.txt "%(mergedFile," ".join(allFilesToMerge[s]))
+           command="yodamerge_tmp.py --add -o  %s %s  &> out.txt "%(mergedFile," ".join(allFilesToMerge[s]))
           
           os.system(command)
     
-      #print("yodamerge --add -o  %s %s  &> out.txt "%(mergedFile," ".join(allFilesToMerge[s]))))
+      #print("yodamerge_tmp.py --add -o  %s %s  &> out.txt "%(mergedFile," ".join(allFilesToMerge[s]))))
       updateProgress(progressDict, s, "done")
       #printProgress(progressDict))
     
@@ -2725,15 +2767,15 @@ def main(argv):
     pool.close() 
     pool.join()
     
-    print()
-    print()
+    print("")
+    print("")
     print("------------------------------------------------------------------------")
     print("[INFO] Combining variations into named sources of uncertainty")
     print("------------------------------------------------------------------------")
     
     mergedSystDict = combineAllVariations(availableWeights,"%s_%s_%s/merged_sample" % (process,generator,opts.label), "%s_%s_%s/merged_final/."% (process,generator,opts.label), opts.filter, opts.exclude, schema="!INDIR/!WEIGHTNAME.%s:!AONAME"%rootOrYoda)
     
-    print()
+    print("")
     print("-----------------------------------------------")
     print("[INFO] Produce plots of the systematic uncertainties (with bands)")
     print("-----------------------------------------------")
@@ -2743,7 +2785,7 @@ def main(argv):
       #plots = makeSystematicsPlotsWithROOT(mergedSystDict,opts.plotsDir,"Nominal",label=opts.label, plotInfo=opts.plotInfo)
       plots = makeSystematicsPlotsWithRIVET(mergedSystDict,opts.plotsDir,"Nominal",label=opts.label, plotInfo=opts.plotInfo, normalize=opts.normalize)
       for p in plots:
-        print("[INFO] printed: ", p)
+        print("[INFO] printed: " + p)
 
 if __name__ == "__main__":
   main( sys.argv[1:] )

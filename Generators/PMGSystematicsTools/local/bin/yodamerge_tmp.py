@@ -144,7 +144,6 @@ for fa in args.INFILES:
             scale = float(scale)
         except:
             sys.stderr.write("Error processing arg '%s' with file:scale format\n" % fa)
-    print args.PATHUNPATTERNS
     aos = yoda.read(filename, patterns=args.PATHPATTERNS, unpatterns=args.PATHUNPATTERNS)
     for aopath, ao in aos.items():
         ao.setAnnotation("yodamerge_scale", scale)
