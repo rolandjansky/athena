@@ -646,6 +646,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     # Now set other NCB properties
     kwargs.setdefault('MuonPatternCombinationLocation', "NCB_MuonHoughPatternCombinations" )
     kwargs.setdefault('MuonSegmentOutputLocation', "NCB_TrackMuonSegments" )
+    kwargs.setdefault('Key_MuonLayerHoughToolHoughDataPerSectorVec', 'NCB_HoughDataPerSectorVec')
     kwargs.setdefault('UseCSC', flags.Muon.doCSCs)
     kwargs.setdefault('UseMDT', False)
     kwargs.setdefault('UseRPC', False)
@@ -654,7 +655,7 @@ def MooSegmentFinderAlg_NCBCfg(flags, name = "MuonSegmentMaker_NCB", **kwargs):
     kwargs.setdefault('UseTGCNextBC', False)
     kwargs.setdefault('doTGCClust', False)
     kwargs.setdefault('doRPCClust', False)
-    
+        
     acc = MooSegmentFinderAlgCfg(flags, name=name, **kwargs)
     result.merge(acc)
     return result
@@ -670,7 +671,7 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-
+    from AthenaCommon.CFElements import seqAND
     # We need to add two algorithms - one for normal collisions, one for NCB
     acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
     result.merge(acc)

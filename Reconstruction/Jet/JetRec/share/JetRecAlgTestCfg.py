@@ -49,7 +49,8 @@ def JetInputCfg(ConfigFlags):
     # -- mainly for understanding how chunks of the job
     #    relate to each other
     sequencename = "JetInputSeq"
-    inputcfg = ComponentAccumulator(CompFactory.AthSequencer(sequencename, ModeOR=True))
+    inputcfg = ComponentAccumulator()
+    inputcfg.addSequence( CompFactory.AthSequencer(sequencename, ModeOR=True) )
 
 
     from xAODBase.xAODType import xAODType
@@ -236,7 +237,7 @@ if __name__=="__main__":
     cfg.merge(OutputStreamCfg(ConfigFlags,"xAOD",ItemList=outputlist))
     from pprint import pprint
     pprint( cfg.getEventAlgo("OutputStreamxAOD").ItemList )
-
+    cfg.printConfig()
     # For local tests, not in the CI
     # Print the contents of the store every event
     # cfg.getService("StoreGateSvc").Dump = True

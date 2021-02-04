@@ -11,9 +11,11 @@ from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
+    from AthenaCommon.CFElements import seqAND
     result=ComponentAccumulator()
-    result.merge( MuonSegmentFindingCfg(flags) )
-    result.merge( MuonTrackBuildingCfg(flags) )
+    result.addSequence(seqAND("SerialMuonReco"))
+    result.merge( MuonSegmentFindingCfg(flags), sequenceName="SerialMuonReco" )
+    result.merge( MuonTrackBuildingCfg(flags), sequenceName="SerialMuonReco" )
     return result
     
 if __name__=="__main__":
@@ -58,7 +60,8 @@ if __name__=="__main__":
     itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
-    
+    from AthenaCommon.Constants import VERBOSE
+    acc.foreach_component("*MuonSegment*").OutputLevel = VERBOSE
     cfg.printConfig(withDetails = True)
               
     f=open("MuonReconstruction.pkl","wb")
