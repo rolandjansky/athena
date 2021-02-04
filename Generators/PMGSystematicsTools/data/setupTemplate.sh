@@ -36,8 +36,6 @@ echo  "[systematics-tool setup] --- [DONE] ---"
 echo  "[systematics-tool setup] --- append to PYTHONPATH environment variable  ---"
 # this is so that one can import the systematics-tools as function
 # librarirs in user python scripts
-#export PYTHONPATH=$PWD/local/lib64/python2.7/site-packages:$PYTHONPATH
-#export PYTHONPATH=$PWD/local/lib64/python2.6/site-packages:$PYTHONPATH
 export PYTHONPATH="$PWD/local/bin:$PYTHONPATH" 
 export PYTHONPATH="/cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/scipy/0.18.1-f4cba/x86_64-slc6-gcc62-opt/lib/python2.7/site-packages/:$PYTHONPATH" 
 export PYTHONPATH="/cvmfs/atlas.cern.ch/repo/sw/software/21.6/sw/lcg/releases/matplotlib/1.5.1-763af/x86_64-slc6-gcc62-opt/lib/python2.7/site-packages/:$PYTHONPATH" 
