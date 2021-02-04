@@ -13,7 +13,8 @@
                            PRIVATE
 			   MagneticField/MagFieldInterfaces
 			   MuonSpectrometer/MuonRDO
-                           Control/AthenaBaseComps )
+                           Control/AthenaBaseComps
+			   Tools/PathResolver )
   
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist )
@@ -24,7 +25,7 @@ atlas_add_library( NSWCalibToolsLib
 		   PUBLIC_HEADERS NSWCalibTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
                    LINK_LIBRARIES GaudiKernel MuonPrepRawData MuonIdHelpers
-                   PRIVATE_LINK_LIBRARIES AthenaBaseComps )
+                   PRIVATE_LINK_LIBRARIES AthenaBaseComps PathResolver)
  
 
 atlas_add_component( NSWCalibTools
