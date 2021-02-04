@@ -218,6 +218,7 @@ StatusCode ISF::FastCaloSimSvcV2::simulate(const ISF::ISFParticle& isfp)
     CaloCell* theCell = (CaloCell*)m_theContainer->findCell(iter.first->calo_hash());
     theCell->addEnergy(iter.second);
   }
+  simulstate.DoAuxInfoCleanup();
 
   return StatusCode::SUCCESS;
 }
