@@ -35,6 +35,10 @@ def defaultTestFlags(configFlags, args):
     configFlags.IOVDb.GlobalTag = "OFLCOND-MC16-SDR-15"
     configFlags.GeoModel.Align.Dynamic = False
     configFlags.GeoModel.AtlasVersion = args.geometrytag
+
+    configFlags.Input.RunNumber = [284500]
+    configFlags.Input.OverrideRunNumber = True
+    configFlags.Input.LumiBlockNumber = [1]
     
 def printAndRun(accessor, configFlags, args):
     """debugging and execution"""
@@ -57,7 +61,7 @@ def printAndRun(accessor, configFlags, args):
 
 
 def setupITkDetectorFlags(configFlags, detectors, args):
-    configFlags.Detector.GeometryBpipe = True #things seem to misbehave (hang on first event) if there is no beampipe...
+    #configFlags.Detector.GeometryBpipe = True #things seem to misbehave (hang on first event) if there is no beampipe...
     configFlags.Detector.GeometryMuon  = False #Not sure why this is there by default... and crashes if present :-(
     configFlags.Detector.GeometryMM  = False #Not sure why this is there by default... does no harm though
     configFlags.Detector.GeometrysTGC  = False #Not sure why this is there by default... does no harm though
@@ -78,16 +82,7 @@ def ITkTestCfg(configFlags):
     from AthenaPoolCnvSvc.PoolWriteConfig import PoolWriteCfg
     acc.merge(PoolReadCfg(configFlags))
     acc.merge(PoolWriteCfg(configFlags))
-    myRunNumber = 284500
-    myFirstLB = 1
-    myInitialTimeStamp = 1446539185
-    eventSelector = acc.getService("EventSelector")
-    eventSelector.OverrideRunNumber = True
-    eventSelector.RunNumber = myRunNumber
-    eventSelector.FirstLB = myFirstLB
-    eventSelector.InitialTimeStamp = myInitialTimeStamp
-    if hasattr(eventSelector, "OverrideRunNumberFromInput"):
-        eventSelector.OverrideRunNumberFromInput = True
+
     # add BeamEffectsAlg
     from BeamEffects.BeamEffectsAlgConfig import BeamEffectsAlgCfg
     acc.merge(BeamEffectsAlgCfg(configFlags))
@@ -122,6 +117,7 @@ args = parser.parse_args()
 
 
 # Some info about the job
+print("----ITkTest----")
 print()
 print("Using Geometry Tag: "+args.geometrytag)
 if args.localgeo:
