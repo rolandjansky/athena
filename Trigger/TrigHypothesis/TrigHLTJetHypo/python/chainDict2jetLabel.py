@@ -5,6 +5,10 @@ import re
 
 from TrigHLTJetHypo.checkScenarioPresence import checkScenarioPresence
 
+from TrigHLTJetHypo.DebugPrinter import DebugPrinter
+
+printer = DebugPrinter(prefix=__name__)
+
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
     #    'gsc',
@@ -78,8 +82,8 @@ def _make_simple_label(chain_parts, leg_label):
                 condition_str += ',%s' % jvtstr
             if momstr:
                 if 'SEP' in momstr:
-                    print('_cuts_from_momCuts(momstr):')
-                    print(_cuts_from_momCuts(momstr))
+                    printer('_cuts_from_momCuts(momstr):')
+                    printer(_cuts_from_momCuts(momstr))
                     for cut in _cuts_from_momCuts(momstr):
                         condition_str += ',%s' % cut
                 else:
@@ -248,7 +252,7 @@ def _make_agg_label(chain_parts, leg_label):
     return label
     
 
-def chainDict2jetLabel(chain_dict):
+def chainDict2jetLabel(chain_dict, debug=False):
     """Entry point to this Module. Return a chain label according to the
     value of cp['hypoScenario'], where cp is an element of list/
     chainDict['chainPart']
@@ -262,6 +266,9 @@ def chainDict2jetLabel(chain_dict):
 
     # suported scenarios. Caution! two keys in the router dict
     # must not share a common initial substring.
+
+    printer.debug = debug
+    
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
@@ -286,8 +293,7 @@ def chainDict2jetLabel(chain_dict):
     bad_headers = checkScenarioPresence(chain_parts,
                                         chain_dict['chainName'])
     if bad_headers:
-        [print ('scenario mismatch', h) for h in bad_headers]
-        # assert False
+        printer('scenario mismatches', [str(h) for h in bad_headers])
         
     for cp in chain_parts:
         for k in cp_sorter:

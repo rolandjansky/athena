@@ -39,7 +39,6 @@ def defaultParameters(parameter, default=''):  # default if parameter unknown
             raise RuntimeError(
                 'cannot find default for parameter ' + str(parameter))
 
-    print ('returning default value for ' + str(parameter) + ': ', default)
     return default
 
 
@@ -77,11 +76,9 @@ class TreeChecker(object):
         self.root_count = 0
         self.bad_condition_count = 0
         self.msgs = []
-        print ('TreeChecker constructor')
         
     def mod(self, node):
         self.node_count += 1
-        print (node.scenario)
         if node.scenario == 'root':
             self.root_count += 1
             if node.conf_attrs:

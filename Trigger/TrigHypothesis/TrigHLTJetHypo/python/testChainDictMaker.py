@@ -75,6 +75,8 @@ def testChainDictMaker(idict):
         ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+
+        ChainProp(name='HLT_2mu6_j80_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
     ]
 
     if idict is not None:
@@ -90,6 +92,7 @@ def testChainDictMaker(idict):
 
 if __name__ == '__main__':
 
+    debug = True
     idict = None
     if len(sys.argv) > 1:
         idict = int(sys.argv[1])

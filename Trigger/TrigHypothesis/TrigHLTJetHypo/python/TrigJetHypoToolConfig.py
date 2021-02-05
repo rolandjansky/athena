@@ -25,7 +25,14 @@ from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 from AthenaCommon.Logging import logging
 log = logging.getLogger( 'TrigJetHypoToolConfig' )
 
+
+from  TrigHLTJetHypo.DebugPrinter import DebugPrinter
+
+
 algToolFactory = FastReductionAlgToolFactory()
+
+debug = False  # SET TO FALSE  WHEN COMMITTING
+printer = DebugPrinter(prefix=__name__, debug=debug)
 
 
 def  tree2tools(tree, toolSetter, checker):
@@ -45,7 +52,7 @@ def  tree2tools(tree, toolSetter, checker):
     # check tree invariants 
     if checker is not None:
         tree.accept(checker)
-        print (checker.report())
+        printer (checker.report())
         assert not checker.error()
     
     # create - possibly nested - tools, The tools are attached to the visitor.
@@ -58,7 +65,7 @@ def  nodesFromLabel(label):
     """from a label eg simple([(260et,320eta490, leg000)])
     create a node. The node may have children, thus forming a tree."""
 
-    parser = ChainLabelParser(label, debug=False)
+    parser = ChainLabelParser(label, debug=debug)
     return parser.parse()
    
 def trigJetHypoToolHelperConfigurersFromLabel(
@@ -134,7 +141,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 
     label = prefilterLabelFromChainDict(chain_dict)
     if label:
-        forest = ChainLabelParser(label, debug=False).parse()
+        forest = ChainLabelParser(label, debug=debug).parse()
         assert len(forest) == 1
         tree = forest[0]
 
@@ -178,7 +185,6 @@ def  trigJetTLAHypoToolFromDict(chain_dict):
 
 
 def  trigJetHypoToolFromDict(chain_dict):
-    debug = False  # SET TO FALSE  WHEN COMMITTING
     tool = CompFactory.TrigJetHypoToolMT(name=chain_dict['chainName'])
     tool.endLabelIndex = len(chain_dict['chainParts'])
     return trigJetHypoToolFromDict_(chain_dict, tool, debug)
@@ -203,14 +209,7 @@ class TestStringMethods(unittest.TestCase):
 
 class TestDebugFlagIsFalse(unittest.TestCase):
     def testValidConfigs(self):
-        from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import (
-            dictFromChainName,)
-
-        chain_name = 'HLT_j85_L1J20'
-        chain_dict = dictFromChainName(chain_name)
-        tool = trigJetHypoToolFromDict(chain_dict)
-        self.assertIsNotNone(tool)
-        self.assertFalse(tool.visit_debug)
+        self.assertFalse(debug)
 
 
 
