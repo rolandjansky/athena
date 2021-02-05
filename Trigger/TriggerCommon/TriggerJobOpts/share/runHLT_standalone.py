@@ -296,6 +296,9 @@ if ConfigFlags.Input.Format == 'BS':
 from AthenaCommon.DetFlags import DetFlags
 if ConfigFlags.Trigger.doLVL1:
     DetFlags.detdescr.all_setOn()
+    #if not ConfigFlags.Input.isMC or ConfigFlags.Common.isOnline:
+    #    DetFlags.detdescr.ALFA_setOff()
+
 if ConfigFlags.Trigger.doID:
     DetFlags.detdescr.ID_setOn()
     DetFlags.makeRIO.ID_setOn()
@@ -448,6 +451,13 @@ from LumiBlockComps.LumiBlockMuWriterDefault import LumiBlockMuWriterDefault
 LumiBlockMuWriterDefault(sequence=hltBeginSeq)
 
 # ---------------------------------------------------------------
+# Level 1 simulation
+# ---------------------------------------------------------------
+if opt.doL1Sim:
+    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
+    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
+
+# ---------------------------------------------------------------
 # Add L1Decoder providing inputs to HLT
 # ---------------------------------------------------------------
 if opt.doL1Unpacking:
@@ -458,13 +468,6 @@ if opt.doL1Unpacking:
     else:
         from DecisionHandling.TestUtils import L1EmulationTest
         hltBeginSeq += L1EmulationTest()
-
-# ---------------------------------------------------------------
-# Level 1 simulation
-# ---------------------------------------------------------------
-if opt.doL1Sim:
-    from TriggerJobOpts.Lvl1SimulationConfig import Lvl1SimulationSequence
-    hltBeginSeq += Lvl1SimulationSequence(ConfigFlags)
 
 # ---------------------------------------------------------------
 # Transient ByteStream
