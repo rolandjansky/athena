@@ -556,7 +556,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   chamberHitSummary.m_second.ncloseHits -= chamberHitSummary.m_second.nhits;    
 
   if (chamberHitSummary.m_first.ncloseHits < 0) {
-    ATH_MSG_WARNING("Number of hits in road < 0 in first projection: "
+    ATH_MSG_DEBUG("Number of hits in road < 0 in first projection: "
 		    << chamberHitSummary.m_first.ncloseHits 
 		    << ", setting = 0. (nhits in first projection = " 
 		    << chamberHitSummary.m_first.ncloseHits << ")" );
@@ -564,7 +564,7 @@ void Muon::MuonTrackSummaryHelperTool::calculateRoadHits(Trk::MuonTrackSummary::
   }
 
   if (chamberHitSummary.m_second.ncloseHits < 0) {
-    ATH_MSG_WARNING("Number of hits in road < 0 in second projection: "
+    ATH_MSG_DEBUG("Number of hits in road < 0 in second projection: "
 		    << chamberHitSummary.m_second.ncloseHits
 		    << ", setting = 0. (nhits in second projection = "
 		    << chamberHitSummary.m_second.ncloseHits << ")" );
