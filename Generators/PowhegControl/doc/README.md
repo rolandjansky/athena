@@ -128,7 +128,7 @@ specifically noted otherwise. To set up, do the following on any machine with ac
 
 ```bash
 setupATLAS # = source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
-asetup 21.6.31 AthGeneration # or whichever release number you want
+asetup AthGeneration 21.6.57 # or whichever release number you want
 ```
 
 #### Side note about releases and versioning
@@ -477,6 +477,10 @@ Hint: use `ls $POWHEGPATH/..` to list the available ATLAS Powheg installations.
 
 
 ### Re-using integration files - :warning: section contains outdated information and will be revised soon :warning:
+
+:warning: :warning: :warning: Also, the needed files are (or should be, if everything works) put by PowhegControl in a tarball called integration_grids.tar.gz at the end of the run. So if you want to re-use them later in a clean directory, you just need to either (in releases older than 21) use it as argument of the --inputGenConfFile option of the transform, or (from release 21, which uses the new workflow for MC production) rename it according to the convention explained here (i.e. mc_13TeV.[physicsShort].GRID.tar.gz) and put it in the directory where the joboption is (and this directory would be your argument for --jobConfig).
+
+
 
 If the integration step (before events are generated) is lengthy, the
 integration step can be skipped by re-using the Powheg integration
