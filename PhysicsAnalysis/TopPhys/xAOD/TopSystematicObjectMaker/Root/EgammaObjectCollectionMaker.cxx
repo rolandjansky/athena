@@ -58,6 +58,8 @@ namespace top {
     m_isolationTool_PLVTight("CP::IsolationTool_PLVTight"),
     m_isolationTool_PLVLoose("CP::IsolationTool_PLVLoose"),
     m_isolationTool_LowPtPLV("CP::IsolationTool_LowPtPLV"),
+    m_isolationTool_PLImprovedTight("CP::IsolationTool_PLImprovedTight"),
+    m_isolationTool_PLImprovedVeryTight("CP::IsolationTool_PLImprovedVeryTight"),
     m_isolationCorr("CP::IsolationCorrectionTool"),
     m_IFFTruthTool("TruthClassificationTool"){
     declareProperty("config", m_config);
@@ -86,6 +88,8 @@ namespace top {
     declareProperty("IsolationTool_PLVTight", m_isolationTool_PLVTight);
     declareProperty("IsolationTool_PLVLoose", m_isolationTool_PLVLoose);
     declareProperty("IsolationTool_LowPtPLV", m_isolationTool_LowPtPLV);
+    declareProperty("IsolationTool_PLImprovedTight", m_isolationTool_PLImprovedTight);
+    declareProperty("IsolationTool_PLImprovedVeryTight", m_isolationTool_PLImprovedVeryTight);
     declareProperty("IsolationCorrectionTool", m_isolationCorr);
     declareProperty("IFFTruthClassificationTool", m_IFFTruthTool);
   }
@@ -131,6 +135,8 @@ namespace top {
       top::check(m_isolationTool_PflowTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PLVTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_PLVLoose.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLImprovedTight.retrieve(), "Failed to retrieve Isolation Tool");
+      top::check(m_isolationTool_PLImprovedVeryTight.retrieve(), "Failed to retrieve Isolation Tool");
       top::check(m_isolationTool_LowPtPLV.retrieve(), "Failed to retrieve Isolation Tool");
     }
 
@@ -310,6 +316,8 @@ namespace top {
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PflowLoose("AnalysisTop_Isol_PflowLoose");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVTight("AnalysisTop_Isol_PLVTight");
     static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLVLoose("AnalysisTop_Isol_PLVLoose");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLImprovedTight("AnalysisTop_Isol_PLImprovedTight");
+    static SG::AuxElement::Accessor<char> AnalysisTop_Isol_PLImprovedVeryTight("AnalysisTop_Isol_PLImprovedVeryTight");
     static const SG::AuxElement::Decorator<float> byhand_LowPtPLV("LowPtPLV");
     static const SG::AuxElement::Decorator<int> AnalysisTop_IFFTruthClass("AnalysisTop_IFFTruthClass");
 
@@ -430,11 +438,15 @@ namespace top {
 	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
 	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
 	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
+    AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
+    AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
 	}
 	else {
 	  // decorate with special character to indicate failure to retrieve necessary variables
 	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
 	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
+    AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
+    AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
 	}
       }
 
