@@ -31,8 +31,6 @@
 #include <fstream>
 #include "eformat/index.h"
 
-using namespace OFFLINE_FRAGMENTS_NAMESPACE;
-
 /**
  * @brief Byte stream converter of LATOME.
  *
@@ -109,7 +107,7 @@ private:
 		 LArLATOMEHeaderContainer* header_coll);
     
     /** @brief Execute decoding for an event*/
-    void fillCollection(const ROBFragment* pROB);
+    void fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment* pROB);
 
   private:
     bool compareOrSet(Word& param, Word value, bool compare);
