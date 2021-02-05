@@ -28,57 +28,60 @@ from TrigHLTJetHypo.treeVisitors import TreeChecker
 
 import sys
 
+
+
+chains = [
+    ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
+              groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j80_j60_L1J15',
+              l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
+    ChainProp(name='HLT_2j80_3j60_L1J15',
+              l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
+
+    ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J15',
+              l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
+
+    ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
+              l1SeedThresholds=['FSNOSEED']*3,
+              groups=MultiJetGroup),
+
+    ChainProp(name='HLT_10j40_L1J15',
+              l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
+
+    ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
+              groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
+        
+    ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',
+              l1SeedThresholds=['FSNOSEED']*2,
+              groups=MultiJetGroup),
+
+    ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',
+              groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j60_prefilterSEP100ceta90SEP100nphi50_L1J20',
+              groups=SingleJetGroup),
+
+    ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
+    
+    ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
+              groups=SingleJetGroup),
+        
+    ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+
+    ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+]
+
+
 def testChainDictMaker(idict):
 
-    chain_props = [
-        ChainProp(name='HLT_j260_320eta490_L1J75_31ETA49',
-                  groups=SingleJetGroup),
-
-        ChainProp(name='HLT_j80_j60_L1J15',
-                  l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
-
-        ChainProp(name='HLT_2j80_3j60_L1J15',
-                  l1SeedThresholds=['FSNOSEED']*2, groups=MultiJetGroup),
-
-
-        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J15',
-                  l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
-
-
-        ChainProp(name='HLT_j80_0eta240_2j60_320eta490_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20',
-                  l1SeedThresholds=['FSNOSEED']*3,
-                  groups=MultiJetGroup),
-
-        ChainProp(name='HLT_10j40_L1J15',
-                  l1SeedThresholds=['FSNOSEED'], groups=MultiJetGroup),
-
-        ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20',
-                  groups=SingleJetGroup),
-
-         ChainProp(name='HLT_j0_fbdjshared_L1J20', groups=SingleJetGroup),
-        
-        ChainProp(name='HLT_j40_j0_aggSEP50htSEP10etSEP0eta320_L1J20',
-                  l1SeedThresholds=['FSNOSEED']*2,
-                  groups=MultiJetGroup),
-
-        ChainProp(name='HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20',
-                  groups=SingleJetGroup),
-
-        ChainProp(name='HLT_j60_prefilterSEP100ceta90SEP100nphi50_L1J20',
-                  groups=SingleJetGroup),
-
-        ChainProp(name='HLT_j45_pf_ftf_preselj20_L1J15', groups=SingleJetGroup),
-        
-        ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
-                  groups=SingleJetGroup),
-        
-        ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
-
-        ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
-    ]
-
     if idict is not None:
-        chain_props = [chain_props[idict]]
+        chain_props = [chains[idict]]
+    else:
+        chain_props = chains
 
     print (chain_props)
     result = []
@@ -88,12 +91,22 @@ def testChainDictMaker(idict):
 
     return result
 
+
+def list_chains():
+    for i, c in enumerate(chains):
+        print ('%2d' % i, ' ', c.name)
+
+
 if __name__ == '__main__':
 
     idict = None
     if len(sys.argv) > 1:
         idict = int(sys.argv[1])
-                    
+
+    if idict is not None and idict < 0:
+        list_chains()
+        sys.exit()
+
     dicts = testChainDictMaker(idict)
     for d in dicts:
         print('')
