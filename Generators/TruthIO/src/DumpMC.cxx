@@ -1,12 +1,12 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TruthIO/DumpMC.h"
 #include "GaudiKernel/PhysicalConstants.h"
+#include <CLHEP/Vector/LorentzVector.h>
 using namespace Gaudi::Units;
 
-#include <CLHEP/Vector/LorentzVector.h>
 
 DumpMC::DumpMC(const std::string& name, ISvcLocator* pSvcLocator)
   : GenBase(name, pSvcLocator)
