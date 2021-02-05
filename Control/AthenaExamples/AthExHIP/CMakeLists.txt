@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Set up the package name.
 atlas_subdir( AthExHIP )
@@ -18,3 +18,7 @@ set_target_properties( AthExHIP PROPERTIES
 
 # Install files from the package.
 atlas_install_joboptions( share/*.py )
+
+# Test(s) in the package.
+atlas_add_test( LinearTransformExample
+   SCRIPT athena.py AthExHIP/LinearTransformExample_jobOptions.py )
