@@ -31,7 +31,7 @@ foreach( test Echo_tf Sleep_tf
          trfExceptions trfExe trfExitCodes trfFileUtils trfGraph trfJobOptions trfLogger
          trfMPTools trfReports trfReportsSignaledExit trfSignal trfSignatures
          trfUtils trfUtilsDBRelease trfUtilsParallelJobProcessor trfUtilsParallelJobProcessorData
-         trfValidateRootFile trfValidation )
+         trfValidateRootFile trfValidation trfArgClasses )
       _add_test( ${test} py 300 )
 endforeach()
 
@@ -42,6 +42,7 @@ if( NOT SIMULATIONBASE AND NOT GENERATIONBASE )
    _add_test( RAWMerge_tf py 300 )
    _add_test( trfSubstepIntegration py 300 )
    _add_test( HelloWorldTrf sh 300 )
+   _add_test( trfArgClassesATLAS py 300 )
 endif()
 
 #The following tests currently fail in master and should be revised
@@ -59,5 +60,3 @@ endif()
 #Reco_q222_tf
 #Reco_tf
 #TAGMerge_tf
-#trfArgClasses
-#trfArgClassesATLAS
