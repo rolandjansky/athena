@@ -29,7 +29,6 @@ def get_idtrig_view_verifier(name):
                                     ( 'InDet::PixelGangedClusterAmbiguities' , 'StoreGateSvc+TrigPixelClusterAmbiguitiesMap' )
                                   ]
 
-   #FIXME:
    #Having these (clusters) uncommented breaks cosmic when data preparation is right before offline pattern rec
    #Probably it tries to fetch the data before the actual alg producing them runs?
    #Not case in other signatures where data preparation and offline patern recognition are in different views
@@ -56,7 +55,6 @@ def get_idtrig_view_verifier(name):
                                      ( 'IDCInDetBSErrContainer',        'StoreGateSvc+PixelByteStreamErrs' ),
                                      ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
                                      ( 'TagInfo' , 'DetectorStore+ProcessingTags' )]
-                                   # ]
 
    
   # Load RDOs if we aren't loading bytestream
@@ -90,37 +88,25 @@ def remapToOffline( name ):
 def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       viewAlgs = [] #list of all algs running in this module
 
-      #Load necessary data
       dataVerifier = None
-      #FIXME: Should not be necessary
       if verifier:
          dataVerifier = get_idtrig_view_verifier(verifier+config.name)
          viewAlgs.append( dataVerifier )
 
 
-      #FIXME: For now id setup but eventually port parameters into ConfigSetting in TrigInDetConfig pkg
+      #FIXME:  eventually adapt the cuts in the configsetting ATR-22755
       from InDetRecExample.ConfiguredNewTrackingCuts import ConfiguredNewTrackingCuts
       from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
       offName = remapToOffline( config.name )
       trackingCuts = ConfiguredNewTrackingCuts( offName ) #FIXME: replace cosmic 
       trackingCuts.__indetflags = InDetTrigFlags
 
-      #TODO: to be taken from config info
-      #prefix     = 'InDetTrigMT'
-      #suffix     = '_%s'%whichSignature if whichSignature else '' 
-
-      #outEFIDTracks             = "HLT_IDTrkTrack_%s_%s"         %( whichSignature, 'EFID')
-      #outEFIDTrackParticles     = "HLT_IDTrack_%s_%s"            %( whichSignature, 'EFID')
-
-
       # --- decide if use the association tool
-      #FIXME: Make the same decision as offline (based on the tracking cuts)?
+      usePrdAssociationTool = False 
+      #FIXME: Do we need this switch? If so, make the same decision as offline (based on the tracking cuts)? ATR-22755
       #Are all of these needed?
       #if (len(InputCollections) > 0) and (trackingCuts.mode() == "LowPt" or trackingCuts.mode() == "VeryLowPt" or trackingCuts.mode() == "LargeD0" or trackingCuts.mode() == "LowPtLargeD0" or trackingCuts.mode() == "BeamGas" or trackingCuts.mode() == "ForwardTracks" or trackingCuts.mode() == "ForwardSLHCTracks"  or trackingCuts.mode() == "Disappearing" or trackingCuts.mode() == "VeryForwardSLHCTracks" or trackingCuts.mode() == "SLHCConversionFinding"):
       #usePrdAssociationTool = True
-      #else:
-      usePrdAssociationTool = False #Keep false for now
-      #Do we actually need it?
       if usePrdAssociationTool:
          from .InDetTrigCommon import prdAssociation_builder
          print ('Running SiSPseedTrackFinder!')
@@ -133,14 +119,14 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       #                      Track building stage
 
 
-      #FIXME? use trigger flags?
+      #FIXME Use trigger flags instead of indetflags ATR-22756
       # What are the instances when we don't need this?
       #if InDetFlags.doSiSPSeededTrackFinder():
       doSiSPSeededTrackFinder = True #True by default to test this
       if doSiSPSeededTrackFinder:
          print ('Running SiSPseedTrackFinder!')
 
-         #FIXME: do we need this covered by detflag condition?
+         #FIXME: do we need this covered by detflag condition? ATR-22756
          #from AthenaCommon.DetFlags import DetFlags 
          # --- Loading Pixel, SCT conditions
          if True:#DetFlags.haveRIO.pixel_on():
@@ -154,7 +140,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
 
 
-         if True:#trackingCuts.useSCT():
+         if True:#FIXME trackingCuts.useSCT()? ATR-22756
             from AthenaCommon.AlgSequence import AthSequencer
             condSeq = AthSequencer("AthCondSeq")
             if not hasattr(condSeq, "InDet__SiDetElementsRoadCondAlg_xk"):
@@ -178,6 +164,8 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
 
          print(siSPSeededTrackFinder)
          viewAlgs.append( siSPSeededTrackFinder )
+
+      #This code is expected to be used for monitoring purposes and comparison between first and second stage but atm disabled
       #-----------------------------------------------------------------------------
       #                      Track particle conversion algorithm (for pattern rec.)
       #                        atm disabled but might be useful later for debugging
@@ -205,8 +193,7 @@ def makeInDetPatternRecognition( config, verifier = 'IDTrigViewDataVerifier'  ):
       return  viewAlgs, dataVerifier
 
 
-#TODO: potentially  unify with makeInDetPrecisionTracking in the InDetPT.py?
-#TODO better name?
+#This could potentially be unified with makeInDetPrecisionTracking in the InDetPT.py?
 def makePrecisionInDetPatternRecognition( config, inputTracks,verifier = None ):
    ptAlgs = [] #List containing all the precision tracking algorithms hence every new added alg has to be appended to the list
    

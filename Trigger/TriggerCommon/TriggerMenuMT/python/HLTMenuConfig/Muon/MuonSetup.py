@@ -14,8 +14,6 @@ from MuonConfig.MuonBytestreamDecodeConfig import MuonCacheNames
 from MuonConfig.MuonRdoDecodeConfig import MuonPrdCacheNames
 
 
-#FIXME: remove!!
-#TrackParticlesName = recordable("HLT_IDTrack_Muon_FTF") #FIXME: Unify this with ID Trig configuration ? config.FT().trkTracksFTF( doRecord = config.isRecordable )
 theFTF_name = "FTFTracks_Muons" #Obsolete?
 CBTPname = recordable("HLT_CBCombinedMuon_RoITrackParticles")
 CBTPnameFS = recordable("HLT_CBCombinedMuon_FSTrackParticles")
@@ -60,7 +58,7 @@ muNames = muonNames().getNames('RoI')
 muNamesFS = muonNames().getNames('FS')
 
 def isCosmic():
-  #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now
+  #FIXME: this might not be ideal criteria to determine if this is cosmic chain but used to work in Run2 and will do for now, ATR-22758
   return (beamFlags.beamType() == 'cosmics')
 
 def isLRT(name):
@@ -71,7 +69,7 @@ def getIDTracks(name=''):
   if isCosmic():
       return recordable("HLT_IDTrack_Cosmic_IDTrig") #IDTrig as we are already retrieving PT collection
   else:
-      ### TODO This should be probably set in the IDTrigConfig
+      ### TODO This should be probably set in the IDTrigConfig, ATR-22755
       if isLRT(name): return recordable("HLT_IDTrack_MuonLRT_FTF") 
       else:           return recordable("HLT_IDTrack_Muon_FTF") 
 
@@ -539,13 +537,10 @@ def muonIDFastTrackingSequence( RoIs, name, extraLoads=None, doLRT=False ):
   return muonIDFastTrackingSequence
 
 def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
-  # ATR-20453
-  # Until such time as FS and RoI collections do not interfere, a hacky fix
-  #from AthenaCommon.CFElements import parOR
-  from AthenaCommon.CFElements import parOR#, seqAND
+
+  from AthenaCommon.CFElements import parOR
   viewNodeName=name+"IDTrackingViewNode"
 
-  #trackingSequence = seqAND(viewNodeName)
   trackingSequence = parOR(viewNodeName)
 
   from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
@@ -554,7 +549,6 @@ def muonIDCosmicTrackingSequence( RoIs, name, extraLoads=None ):
   from TrigInDetConfig.InDetSetup import makeInDetAlgs
   dataPreparationAlgs, dataVerifier = makeInDetAlgs( config = IDTrigConfig, rois = RoIs, doFTF = False)
    
-  #FIXME: Is this needed? in FS mode?
   dataVerifier.DataObjects += [( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+%s'%RoIs )]
 
   from TrigInDetConfig.EFIDTracking import makeInDetPatternRecognition
@@ -794,11 +788,6 @@ def muEFCBRecoSequence( RoIs, name ):
     muEFCBRecoSequence += PTSeq
     trackParticles = PTTrackParticles[-1]
 
-  #Default from FTF
-  #trackParticles = "IDTrack"
-  #TODO: change according to what needs to be done here
-  #Last key in the list is for the TrackParticles after all PT stages (so far only one :) )
- # trackParticles = PTTrackParticles[-1]
 
   #Make InDetCandidates
   theIndetCandidateAlg = MuonCombinedInDetCandidateAlg("TrigMuonCombinedInDetCandidateAlg_"+name,TrackParticleLocation = [trackParticles], 
