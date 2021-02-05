@@ -1,10 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef XAOD_ANALYSIS
-#ifndef TAUREC_TAUTRACKFINDER_H
-#define TAUREC_TAUTRACKFINDER_H
+#ifndef TAURECTOOLS_TAUTRACKFINDER_H
+#define TAURECTOOLS_TAUTRACKFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -117,5 +117,5 @@ private:
     std::set<CaloSampling::CaloSample> m_HadSamplings;
 };
 
-#endif //TAUREC_TAUTRACKFINDER_H
-#endif //XAOD_ANALYSIS
+#endif // TAURECTOOLS_TAUTRACKFINDER_H
+#endif // XAOD_ANALYSIS

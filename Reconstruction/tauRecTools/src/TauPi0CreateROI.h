@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0CREATEROI_H
-#define	TAUREC_TAUPI0CREATEROI_H
+#ifndef TAURECTOOLS_TAUPI0CREATEROI_H
+#define TAURECTOOLS_TAUPI0CREATEROI_H
 
 #include <string>
 #include <vector>
@@ -43,4 +43,4 @@ private:
 
 };
 
-#endif	/* TAUPI0CREATEROI_H */
+#endif	// TAURECTOOLS_TAUPI0CREATEROI_H

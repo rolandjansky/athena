@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -10,8 +10,8 @@
  * @author Stephanie Yuen <stephanie.yuen@cern.ch> 
  */
 
-#ifndef TAUSHOTVARIABLEHELPERS_H
-#define TAUSHOTVARIABLEHELPERS_H
+#ifndef TAURECTOOLS_TAUSHOTVARIABLEHELPERS_H
+#define TAURECTOOLS_TAUSHOTVARIABLEHELPERS_H
 
 #include "xAODPFlow/PFO.h"
 #include "CaloInterface/IHadronicCalibrationTool.h"
@@ -43,5 +43,4 @@ namespace TauShotVariableHelpers {
 
 }
 
-#endif // TAUSHOTVARIABLEHELPERS_H
-
+#endif // TAURECTOOLS_TAUSHOTVARIABLEHELPERS_H

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNN_H
-#define TAUREC_TAUJETRNN_H
+#ifndef TAURECTOOLS_TAUJETRNN_H
+#define TAURECTOOLS_TAUJETRNN_H
 
 #include "xAODTau/TauJet.h"
 #include "xAODCaloEvent/CaloVertexedTopoCluster.h"
@@ -90,4 +90,4 @@ private:
     std::unique_ptr<TauJetRNNUtils::VarCalc> m_var_calc;
 };
 
-#endif // TAUREC_TAUJETRNN_H
+#endif // TAURECTOOLS_TAUJETRNN_H
