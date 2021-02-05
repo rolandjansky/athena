@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONRDOTOPREPDATA_RPCRDOTOPREPDATATOOLCORE_H
@@ -40,11 +40,11 @@ public:
   StatusCode queryInterface( const InterfaceID& riid, void** ppvIf );
 
   // setup/teardown functions, similar like those for Algorithm/Service
-  StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   // decoding method 
-  StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect );
-  StatusCode decode( const std::vector<uint32_t>& robIds );
+  virtual StatusCode decode( std::vector<IdentifierHash>& idVect, std::vector<IdentifierHash>& selectedIdVect ) override;
+  virtual StatusCode decode( const std::vector<uint32_t>& robIds ) override;
 
   // debugging 
   void printInputRdo();
