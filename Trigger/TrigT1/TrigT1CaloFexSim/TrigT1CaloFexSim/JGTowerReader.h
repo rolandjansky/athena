@@ -113,6 +113,7 @@ class JGTowerReader: public ::AthAlgorithm {
 
   std::string m_noise_file;
   
+  std::string m_gXERHOLUT_file;
   std::string m_jXERHO_correction_file;
   float  m_jXERHO_fixed_noise_cut;  
   float  m_jXERHO_rho_up_threshold;
@@ -188,6 +189,10 @@ class JGTowerReader: public ::AthAlgorithm {
   SG::AuxElement::Accessor<float>* acc_rhoA = new SG::AuxElement::Accessor<float>("RhoA");
   SG::AuxElement::Accessor<float>* acc_rhoB = new SG::AuxElement::Accessor<float>("RhoB"); 
   SG::AuxElement::Accessor<float>* acc_rhoC = new SG::AuxElement::Accessor<float>("RhoC");
+
+  SG::AuxElement::Accessor<float>* acc_posRhoA = new SG::AuxElement::Accessor<float>("RhoA_positive_gTowers");
+  SG::AuxElement::Accessor<float>* acc_posRhoB = new SG::AuxElement::Accessor<float>("RhoB_positive_gTowers"); 
+  SG::AuxElement::Accessor<float>* acc_posRhoC = new SG::AuxElement::Accessor<float>("RhoC_positive_gTowers");
   
   SG::AuxElement::Accessor<float>* acc_threshA = new SG::AuxElement::Accessor<float>("ThreshA");
   SG::AuxElement::Accessor<float>* acc_threshB = new SG::AuxElement::Accessor<float>("ThreshB");  

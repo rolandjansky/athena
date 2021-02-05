@@ -62,6 +62,20 @@ int GFEX_pFPGA_Int(std::string in){
   return -1; 
 }
 
+int GFEX_iEta(float eta){
+  
+  float etaBins [] = {0.0,0.2,0.4,0.6,0.8,1.0,1.2,1.4,1.6,1.8,2.0,2.2,2.4,2.5,2.7,2.9,3.1,3.2,3.5,4.0,4.45,4.9};
+  int N = sizeof(etaBins)/sizeof(float)-1;
+  TH1F* h_eta = new TH1F("h_eta", "", N, etaBins);
+
+  float eta_ = fabs(eta);
+  int ieta = h_eta->FindBin(eta_);
+
+  delete h_eta;
+
+  return ieta;
+}
+
 std::string GFEX_pFPGA(float eta){
   if(eta <=0 &&eta > -2.5) return "A";
   else if(eta > 0 &&eta <=2.5) return "B";
