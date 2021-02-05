@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1GeometrySystems )
@@ -7,7 +7,7 @@ atlas_subdir( VP1GeometrySystems )
 find_package( CLHEP )
 find_package( Coin3D )
 find_package( Qt5 COMPONENTS Core Gui Widgets Sql )
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 if( APPLE )
   find_package(OpenGL REQUIRED)
 endif()
@@ -34,7 +34,7 @@ atlas_add_library( VP1GeometrySystems
    INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} 
    PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}  
    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODELCORE_LIBRARIES} MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
+   LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
    PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities VP1HEPVis VP1Utils Qt5::Gui )
 endif()
 if(BUILDVP1LIGHT)
@@ -67,7 +67,7 @@ if( APPLE )
      INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
      PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
      PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-     LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelDBManager GeoRead MuonReadoutGeometry TruthUtils xAODTruth VP1Base ${OPENGL_gl_LIBRARY} Qt5::Core Qt5::Widgets
+     LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelDBManager GeoRead MuonReadoutGeometry TruthUtils xAODTruth VP1Base ${OPENGL_gl_LIBRARY} Qt5::Core Qt5::Widgets
      PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GeoModelExamplesLib VP1HEPVis VP1Utils Qt5::Gui Qt5::Sql )
 endif()
 if( UNIX AND NOT APPLE )
@@ -77,7 +77,7 @@ if( UNIX AND NOT APPLE )
     INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
     PRIVATE_INCLUDE_DIRS ${CMAKE_CURRENT_BINARY_DIR}
     PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-    LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODELCORE_LIBRARIES} GeoModelDBManager GeoRead MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
+    LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} GeoModelDBManager GeoRead MuonReadoutGeometry TruthUtils xAODTruth VP1Base GL Qt5::Core Qt5::Widgets
     PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} GeoModelUtilities GeoModelExamplesLib VP1HEPVis VP1Utils Qt5::Gui Qt5::Sql )
 endif()
 endif()
