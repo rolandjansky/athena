@@ -7,7 +7,7 @@ AthSequencer=CompFactory.AthSequencer
 
 def MainServicesMiniCfg(loopMgr='AthenaEventLoopMgr', masterSequence='AthAlgSeq'):
     #Mininmal basic config, just good enough for HelloWorld and alike
-    cfg=ComponentAccumulator(masterSequence)
+    cfg=ComponentAccumulator(AthSequencer(masterSequence,Sequential=True))
     cfg.setAsTopLevel()
     cfg.setAppProperty('TopAlg',['AthSequencer/'+masterSequence])
     cfg.setAppProperty('MessageSvcType', 'MessageSvc')

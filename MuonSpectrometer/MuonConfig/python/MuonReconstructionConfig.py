@@ -11,7 +11,6 @@ from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
-    from AthenaCommon.CFElements import seqAND
     result=ComponentAccumulator()
     result.merge( MuonSegmentFindingCfg(flags))
     result.merge( MuonTrackBuildingCfg(flags))
@@ -47,10 +46,10 @@ if __name__=="__main__":
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     cfg.addService( muon_edm_helper_svc )
-# TODO, fix ESD writing, at the meoment duplicate EventInfo causes failure
-#    itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
-#    itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
-#    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
+
+    itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
+    itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
+    SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
     cfg.printConfig(withDetails = True)
     # drop faulty remapping
     # the evaluation of MuonSegmentNameFixCfg should happen conditinally instead

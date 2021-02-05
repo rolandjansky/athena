@@ -120,9 +120,8 @@ def ByteStreamWriteCfg(flags, type_names=None):
     ), "Input is from multiple runs, do not know which one to use {}".format(
         all_runs
     )
-
-    result = ComponentAccumulator("AthOutSeq")
     comp_factory = AthenaConfiguration.ComponentFactory.CompFactory
+    result = ComponentAccumulator(comp_factory.AthSequencer('AthOutSeq', StopOverride=True))
 
     event_storage_output = comp_factory.ByteStreamEventStorageOutputSvc(
         MaxFileMB=15000,
