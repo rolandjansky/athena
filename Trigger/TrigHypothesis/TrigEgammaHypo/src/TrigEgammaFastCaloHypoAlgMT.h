@@ -35,7 +35,6 @@ class TrigEgammaFastCaloHypoAlgMT : public ::HypoBase {
      
   SG::ReadHandleKey< xAOD::TrigEMClusterContainer > m_clustersKey { this, "CaloClusters", "CaloClusters", "CaloClusters in view" };
   SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsKey { this, "RingerKey","HLT_FastCaloRinger","Point to RingerKey"};
-  SG::ReadHandleKey<xAOD::TrigRingerRingsContainer> m_ringsDummyKey { this, "RingerDummyKey","HLT_FastCaloDummyRinger","Point to RingerDummyKey"};
 }; 
 
 #endif //> !TRIGEGAMMAHYPO_TESTTRIGEGAMMAFASTCALOHYPOALG_H

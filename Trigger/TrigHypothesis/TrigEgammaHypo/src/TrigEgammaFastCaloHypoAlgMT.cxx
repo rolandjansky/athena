@@ -21,11 +21,9 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::initialize() {
   
   ATH_CHECK( m_clustersKey.initialize() );
   ATH_CHECK( m_ringsKey.initialize(SG::AllowEmpty));
-  ATH_CHECK( m_ringsDummyKey.initialize(SG::AllowEmpty));
 
   renounce( m_clustersKey );// clusters are made in views, so they are not in the EvtStore: hide them
   renounce( m_ringsKey );
-  renounce( m_ringsDummyKey );
 
   return StatusCode::SUCCESS;
 }
@@ -71,9 +69,6 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     const xAOD::TrigRingerRingsContainer* rings = nullptr;    
     if ( not m_ringsKey.empty() ) {      
       auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);      
-      if( !ringerShapeHandle.isValid() ){
-        ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsDummyKey, context);
-      }
       ATH_CHECK( ringerShapeHandle.isValid());
       rings = ringerShapeHandle.cptr();	
       ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
