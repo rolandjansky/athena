@@ -21,6 +21,8 @@ For a study using this process, see [1709.04154](https://arxiv.org/abs/1709.0415
 
 The enhancement of photon radiation is described on page 137 and following of [the PhD thesis of Florian König](https://www.uni-muenster.de/imperia/md/content/physik_tp/theses/klasen/koenig_phd.pdf).
 
+Note: for technical reasons in the PowhegControl implementation, you _have_ to set `enhanceradfac` to a positive value, i.e. enable it! If you do not want to actually enhance photon radiation set it to `1` (rather than completely disabling the functionality by setting it to `-1`).
+
 
 ### `bornsuppfact`
 
