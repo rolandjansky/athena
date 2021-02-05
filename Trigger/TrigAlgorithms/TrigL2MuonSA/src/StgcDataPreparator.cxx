@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "StgcDataPreparator.h"
@@ -130,7 +130,7 @@ StatusCode TrigL2MuonSA::StgcDataPreparator::prepareData(const TrigRoiDescriptor
     }
 
     // Get sTgc collections
-    for(const auto& stgccoll : *stgcPrds) {
+    for(const auto stgccoll : *stgcPrds) {
       stgcCols.push_back(stgccoll);
     }
 

@@ -218,7 +218,7 @@ StatusCode CompactHardTruth::execute() {
     bool isHadVtx = true;
     bool isHadOut = false;
     for (auto inp:  hadv->particles_in() ) {
-      if (!isParton(inp)) isHadVtx = false;
+      if (!isParton(inp)) { isHadVtx = false; break;}
     }
     for (auto vp:  hadv->particles_out()) {
       if (isParton(vp)) isHadVtx = false;
@@ -246,7 +246,7 @@ StatusCode CompactHardTruth::execute() {
     HepMC::GenVertex::particles_in_const_iterator inp = (*hadv)->particles_in_const_begin();
     HepMC::GenVertex::particles_in_const_iterator inpE = (*hadv)->particles_in_const_end();
     for (; inp != inpE; ++inp) {
-      if (!isParton(*inp)) isHadVtx = false;
+      if (!isParton(*inp)) { isHadVtx = false; break;}
     }
     HepMC::GenVertex::particles_out_const_iterator vp = (*hadv)->particles_out_const_begin();
     HepMC::GenVertex::particles_out_const_iterator vpE = (*hadv)->particles_out_const_end();
@@ -728,8 +728,8 @@ StatusCode CompactHardTruth::execute() {
 
         // Check for 2->1->2 initial state interactions in Herwig++
         // Initial partons have pt=0, use pt<0.001MeV
-        if (fabs(pp1->momentum().perp()) < 1.e-3) continue;
-        if (fabs(pp2->momentum().perp()) < 1.e-3) continue;
+        if (std::abs(pp1->momentum().perp()) < 1.e-3) continue;
+        if (std::abs(pp2->momentum().perp()) < 1.e-3) continue;
         // Their parent vertices
         HepMC::GenVertex* ppvtx1 = pp1->production_vertex();
         HepMC::GenVertex* ppvtx2 = pp2->production_vertex();
@@ -853,7 +853,7 @@ StatusCode CompactHardTruth::execute() {
         // Incoming particle to parent vertex
         HepMC::GenVertex::particles_in_const_iterator pitr = pvtx->particles_in_const_begin();
         HepMC::GenParticle* pp = *pitr;
-        if (abs(pp->pdg_id()) == 2212) iCase = -1;
+        if (std::abs(pp->pdg_id()) == 2212) iCase = -1;
       }
 
       // Case not found
@@ -966,8 +966,7 @@ StatusCode CompactHardTruth::execute() {
     for (auto gpar: ancestors) {
       double e = gpar->momentum().e();
       double pz = gpar->momentum().pz();
-      double mt = (e + pz) * (e - pz);
-      if (mt > mtmax) mtmax = mt;
+      mtmax = std::max((e+pz)*(e-pz), mtmax);
     }
 
     // Keep hard particles and all ancestors
@@ -1030,13 +1029,12 @@ StatusCode CompactHardTruth::execute() {
     for (; gpar != gparE; ++gpar) {
       double e = (*gpar)->momentum().e();
       double pz = (*gpar)->momentum().pz();
-      double mt = (e + pz) * (e - pz);
-      if (mt > mtmax) mtmax = mt;
+      mtmax = std::max((e+pz)*(e-pz), mtmax);
     }
 
     // Keep hard particles and all ancestors
     pNotHad.push_back(fp);
-    int ida = abs(fp->pdg_id());
+    int ida = std::abs(fp->pdg_id());
     bool keepid = (ida > 10 && ida < 20) || (ida > 1000000 && ida < 9000000);
     if (mtmax > m_hardCut * m_hardCut || keepid) {
       pHard.push_back(fp);
@@ -1400,7 +1398,7 @@ StatusCode CompactHardTruth::execute() {
 
 // Parton is quark or gluon
 bool CompactHardTruth::isParton(HepMC::ConstGenParticlePtr p) {
-  int ida = abs(p->pdg_id());
+  int ida = std::abs(p->pdg_id());
   if (ida == 21 || (ida > 0 && ida < 10)) return true;
   // Diquarks too -- xx0x
   if (ida > 1000 && ida < 10000 && (ida / 10) % 10 == 0) return true;

@@ -55,13 +55,17 @@ def PprMonitoringConfig(inputFlags):
     phimax_2d = 64
     phimax_1d = 2.*math.pi 
     maxEnergyRange = 256
+    bcn = 0xdec # 3564 bunches
 
    
     #######################   
     # PPM inputs (LUT-CP) #
     #######################
     histPath = trigPath+'/LUT-CP/Distributions'
-    
+
+    # LUT per BCN
+    myGroup.defineHistogram('cp_BCID;ppm_1d_tt_lutcp_LutPerBCN', title='Number of LUT-CP > 5 GeV/2 per BC; Bunch crossing; # of LUT above limit', type='TH1F', path=histPath, xbins=bcn, xmin=0, xmax=bcn, cutmask='mask_cpET_5')
+      
     # EM distributions
     myGroup.defineHistogram('etaTT_EM;ppm_em_1d_tt_lutcp_Eta', title='EM LUT-CP: Distribution of peak in #eta; #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_cpET_0_noPhi')
 
@@ -88,7 +92,10 @@ def PprMonitoringConfig(inputFlags):
     # PPM inputs (LUT-JEP) #
     ########################
     histPath = trigPath+'/LUT-JEP/Distributions'
-    
+   
+    # LUT per BCN
+    myGroup.defineHistogram('jep_BCID;ppm_1d_tt_lutjep_LutPerBCN', title='Number of LUT-JEP > 5 GeV per BC; Bunch crossing; # of LUT above limit', type='TH1F', path=histPath, xbins=bcn, xmin=0, xmax=bcn, cutmask='mask_jepET_5')
+ 
     # EM distributions
     myGroup.defineHistogram('etaTT_EM;ppm_em_1d_tt_lutjep_Eta', title='EM LUT-JEP: Distribution of peak in #eta', type='TH1F', path=histPath, xbins=etabins, cutmask='mask_EM_jepET_0_noPhi')
 

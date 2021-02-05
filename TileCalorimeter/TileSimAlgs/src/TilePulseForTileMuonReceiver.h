@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //****************************************************************************
@@ -24,9 +24,10 @@
 //    UseCoolPedestal                 "Pedestal from database (default=false)"
 //    RndmSvc                         "Random Number Service used in TilePulseForTileMuonReceiver" 
 //    TileRawChannelBuilderMF         "The tool by default is the Matched Filter"
+//    UseRndmEvtOverlay               "Pileup and/or noise added by overlaying rando events (default=false)"
 //
 // BUGS:
-//  
+//
 // History:
 //  
 //  
@@ -55,6 +56,8 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "CLHEP/Random/RandomEngine.h"
+
 class IAthRNGSvc;
 class PileUpMergeSvc;
 class HWIdentifier;
@@ -82,6 +85,9 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     virtual StatusCode finalize() override;   //!< finalize method
 
   private:
+
+    SG::ReadHandleKey<TileDigitsContainer> m_inputDigitContainerKey{this, "InputTileDigitContainer","",""};
+    std::string m_inputDigitContainerName{""};
 
     SG::ReadHandleKey<TileHitContainer> m_hitContainerKey{this,
         "TileHitContainer","TileHitCnt", "Input Tile hit container key"};
@@ -123,13 +129,15 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     Gaudi::Property<bool> m_useCoolPulseShapes{this, "UseCoolPulseShapes", false, "Pulse shapes from database (default=false)"};
     Gaudi::Property<bool> m_tileNoise{this, "UseCoolNoise", false, "Noise from database (default=false)"};
     Gaudi::Property<bool> m_tilePedestal{this, "UseCoolPedestal", false, "Pedestal from database (default=false)"};
+    Gaudi::Property<bool> m_rndmEvtOverlay{this, "RndmEvtOverlay", false, "Pileup and/or noise added by overlaying random events (default=false)"};
+    Gaudi::Property<bool> m_onlyUseContainerName{this, "OnlyUseContainerName", true, "Don't use the ReadHandleKey directly. Just extract the container name from it."};
 
     const TileID* m_tileID;
     const TileHWID* m_tileHWID;
     const TileInfo* m_tileInfo;
     const TileCablingService* m_cablingService; //!< TileCabling instance
 
-    int m_nSamples;          //!< Number of time slices for each channel
+    int m_nSamples;       //!< Number of time slices for each channel
     int m_iTrig;          //!< Index of the triggering time slice
     int m_adcMax;         //!< ADC saturation value
     double m_tileThresh;  //!< Actual threshold value
@@ -141,12 +149,12 @@ class TilePulseForTileMuonReceiver: public AthAlgorithm {
     int m_binTime0;     //!< Index of time=0 bin for pulse shape
     double m_timeStep;  //!< Time step in pulse shape: 25.0 / nBinsPerX
 
+    PileUpMergeSvc* m_mergeSvc;         //!< Pointer to PileUpMergeService
     // vector container for the pulse shape
     //
     std::vector<double> m_shapeMuonReceiver;//!< Muon receiver pulse shape
 
-    
-    bool m_run2;
+    int m_runPeriod;
 };
 
 #endif

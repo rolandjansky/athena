@@ -102,18 +102,17 @@ class ConditionsToolSetterFastReduction(object):
         if not el_condition_tools:
             el_condition_tools.append(self.algToolFactory('all'))
 
-        capacitychecked_condition_tool = self.algToolFactory(
-            'capacitychecked')
+        condition_tool = self.algToolFactory('repeated')
 
-        capacitychecked_condition_tool.conditionMakers = el_condition_tools
-        capacitychecked_condition_tool.multiplicity = 1
+        condition_tool.conditionMakers = el_condition_tools
+        condition_tool.multiplicity = 1
         
-        return capacitychecked_condition_tool
+        return condition_tool
 
     
     def _make_compound_condition_tools(self, node):
         """For each element of  node.conf_attrs, construct a 
-        CapacityChecledCondition. Example for chain HLT_2j80_3j60_L1J15:
+        ConditionContainer. Example for chain HLT_2j80_3j60_L1J15:
 
         First leaf node has 
         conf_attrs [1]:
@@ -146,8 +145,8 @@ class ConditionsToolSetterFastReduction(object):
 
             el_condition_tools = self._make_el_condition_tools(c)
  
-            # create capacitychecked condition from elemental condition
-            condition_tool =self.algToolFactory('capacitychecked')
+            # create condition from elemental conditions
+            condition_tool =self.algToolFactory('repeated')
 
             if cpi:
 
@@ -157,7 +156,7 @@ class ConditionsToolSetterFastReduction(object):
             
             condition_tool.conditionMakers = el_condition_tools
             condition_tool.multiplicity = mult
-            # add capacitychecked condition to list
+            # add condition container to list
             outer_condition_tools.append(condition_tool)
             
         return outer_condition_tools
@@ -204,11 +203,11 @@ class ConditionsToolSetterFastReduction(object):
 
         else:
 
-            cmap[node.node_id] = self.algToolFactory('capacitychecked')
+            cmap[node.node_id] = self.algToolFactory('repeated')
             cmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             cmap[node.node_id].multiplicity = 1
 
-            fmap[node.node_id] = self.algToolFactory('capacitychecked')
+            fmap[node.node_id] = self.algToolFactory('repeated')
             fmap[node.node_id].conditionMakers = [self.algToolFactory('all')]
             fmap[node.node_id].multiplicity = 1
 

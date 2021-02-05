@@ -5,7 +5,7 @@
 #include "CavernInfraDetectorTool.h"
 #include "CavernInfraDetectorFactory.h" 
 #include "CavernInfraDetectorFactory01.h" 
-#include "CavernInfraGeoModel/CavernInfraDetectorManager.h" 
+#include "CavernInfraDetectorManager.h" 
 
 #include "GeoModelInterfaces/IGeoDbTagSvc.h"
 #include "GeoModelUtilities/GeoModelExperiment.h"

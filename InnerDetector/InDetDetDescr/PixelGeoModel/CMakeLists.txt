@@ -1,17 +1,17 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( PixelGeoModel )
 
 # External dependencies:
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Component(s) in the package:
 atlas_add_library( PixelGeoModelLib
    PixelGeoModel/*.h src/*.cxx
    PUBLIC_HEADERS PixelGeoModel
    LINK_LIBRARIES AthenaBaseComps GaudiKernel GeoModelUtilities GeometryDBSvcLib InDetGeoModelUtils
-   PRIVATE_LINK_LIBRARIES ${GEOMODELCORE_LIBRARIES} AthenaKernel CxxUtils DetDescrConditions GeoModelInterfaces GeoPrimitives Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry ReadoutGeometryBase RDBAccessSvcLib SGTools StoreGateLib
+   PRIVATE_LINK_LIBRARIES ${GEOMODEL_LIBRARIES} AthenaKernel CxxUtils DetDescrConditions GeoModelInterfaces GeoPrimitives Identifier InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry ReadoutGeometryBase RDBAccessSvcLib SGTools StoreGateLib
    PRIVATE_DEFINITIONS "-DGEOTORUS=1" )
 
 atlas_add_component( PixelGeoModel

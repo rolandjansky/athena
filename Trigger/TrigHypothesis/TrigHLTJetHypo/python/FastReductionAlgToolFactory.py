@@ -25,8 +25,7 @@ class FastReductionAlgToolFactory:
             'jvt': [CompFactory.TrigJetConditionConfig_jvt, 0],
             'ht': [CompFactory.TrigJetConditionConfig_htfr, 0],
             'all': [CompFactory.TrigJetConditionConfig_acceptAll, 0],
-            'capacitychecked':
-            [CompFactory.TrigJetConditionConfig_capacitychecked, 0],
+            'repeated': [CompFactory.TrigJetConditionConfig_repeated, 0],
             'fastreduction': [CompFactory.TrigJetHypoToolConfig_fastreduction, 0],
             'helper': [CompFactory.TrigJetHypoToolHelperNoGrouper, 0],
             }

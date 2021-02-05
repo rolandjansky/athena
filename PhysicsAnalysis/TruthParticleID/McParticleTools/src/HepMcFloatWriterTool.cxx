@@ -204,13 +204,11 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       buf.setf(std::ios::dec,std::ios::basefield);
       buf.setf(std::ios::scientific,std::ios::floatfield);
       
-      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "
-	  << pos.t() << "\n";
+      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "  << pos.t() << "\n";
 
       out << buf.str();
       out << "#";
-      std::copy( v->weights().begin(), v->weights().end(),
-		 std::ostream_iterator<double>(out, " ") );
+      std::copy( v->weights().begin(), v->weights().end(), std::ostream_iterator<double>(out, " ") );
       out << '\n';
     }
   }

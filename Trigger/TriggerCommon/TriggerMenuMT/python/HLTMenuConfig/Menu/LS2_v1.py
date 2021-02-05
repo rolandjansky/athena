@@ -204,13 +204,13 @@ def setupMenu():
         # 3photon chains
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
 
-        # ATR-21355
-        ChainProp(name='HLT_g3_loose_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g12_loose_LArPEB_L1EM10VH',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_loose_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g40_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g60_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g80_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
+        # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
+        ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g20_loose_LArPEBHLT_L1EM15',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
 
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
@@ -312,6 +312,14 @@ def setupMenu():
 
         # ATR-20624
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['PS:Online',SingleJetGroup]),
+
+        # ATR-21368 - cannot be moved to the calibSlice because they need to configure the jet sequence
+        ChainProp(name='HLT_j40_LArPEBHLT_L1J20',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j75_320eta490_LArPEBHLT_L1J30_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j165_LArPEBHLT_L1J100',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+
+
 
         # TLA test chain, ATR-20395 
         ChainProp(name='HLT_JetDS_j0_L1J100', stream=['JetDS'], groups=SingleJetGroup), 

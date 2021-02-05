@@ -706,7 +706,8 @@ for (; p_trk != trackCollection.end(); ++p_trk) {
             if (iside == 0) iphi_module = phi_module;
             else if (iside == 1) iphi_module = phi_module + 32;
 
-            trackfound[ibe][iphi_module] = true;
+            if (iphi_module >= 0  && iphi_module < 64) trackfound[ibe][iphi_module] = true;
+            else ATH_MSG_ERROR("Variable iphi_module is out of range!");
 
             if (((ibe == 0) && (temp_locr < m_DistToStraw)) ||
                 ((ibe == 1) && ((*TSOSItBegin)->type(Trk::TrackStateOnSurface::Measurement) ||

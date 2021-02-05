@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ForwardRegionGeoModel/ForwardRegionGeoModelManager.h"
+#include "ForwardRegionGeoModelManager.h"
 ForwardRegionGeoModelManager::ForwardRegionGeoModelManager()
 {
   setName("ForwardRegionGeoModel");

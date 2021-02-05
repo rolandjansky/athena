@@ -27,7 +27,7 @@
 
 #include "TrigHLTJetHypo/ITrigJetHypoToolHelperMT.h"
 #include "ITrigJetHypoToolNoGrouperConfig.h"
-#include "./ITrigJetCapacityCheckedConditionConfig.h"
+#include "./ITrigJetRepeatedConditionConfig.h"
 
 class ITrigJetHypoInfoCollector;
 class xAODJetCollector;
@@ -66,7 +66,7 @@ public extends<AthAlgTool, ITrigJetHypoToolHelperMT> {
    this, "HypoConfigurers", {},
    "Configurers to set up TrigJetHypoHelperNoGrouper"};
 
-  ToolHandleArray<ITrigJetCapacityCheckedConditionConfig>
+  ToolHandleArray<ITrigJetRepeatedConditionConfig>
   m_prefilterConditionMakers{this, "prefiltConditionMakers", {},
     "hypo tree Condition builder AlgTools for hypo pre-filtering"};
 
