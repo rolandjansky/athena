@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #include "LooperThresholdSet.h"
@@ -91,10 +91,6 @@ void LooperThresholdSet::ChangeLooperParameters(const G4ParticleDefinition* part
                 }
                 else
                         ATH_MSG_WARNING("Invalid NumberOfTrials: " << m_config.NumberOfTrials);
-                // Geant4 printout
-#if G4VERSION_NUMBER > 1049
-                transport->ReportLooperThresholds();
-#endif
         }
 }
 
