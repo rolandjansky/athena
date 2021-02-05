@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -132,7 +132,7 @@ HLT::ErrorCode TrigHLTHypoDiagnostics::hltExecute(const HLT::TriggerElement* inp
   int nJets = 0;
   double leadingPt = 0;
   double leadingEt = 0;
-  for (const auto &jet : *j_container) {
+  for (const auto jet : *j_container) {
     if (HLT::isPassing(bits, jet, j_container)) {
       // Get jet attributes
       double energy = jet->e();
