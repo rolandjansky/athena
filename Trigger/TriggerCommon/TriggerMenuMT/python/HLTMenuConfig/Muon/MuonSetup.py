@@ -62,7 +62,7 @@ def isCosmic():
   return (beamFlags.beamType() == 'cosmics')
 
 def isLRT(name):
-  if ("LRT" in name): return True
+  return "LRT" in name
 
 #Returns relevant track collection name
 def getIDTracks(name=''):
