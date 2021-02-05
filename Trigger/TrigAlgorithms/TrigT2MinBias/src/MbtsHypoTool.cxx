@@ -1,6 +1,6 @@
 
 /*
-Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigCompositeUtils/HLTIdentifier.h"
@@ -145,7 +145,7 @@ MbtsHypoTool::Counts MbtsHypoTool::calculateMultiplicities(const xAOD::TrigT2Mbt
 		}
 
 		// Check the time cut if it is active.
-		if (m_timeCut >= 0 && fabs(triggerTimes[ibit] - m_timeOffsets[ibit] - m_globalTimeOffset) >= m_timeCut)
+		if (m_timeCut >= 0 && std::abs(triggerTimes[ibit] - m_timeOffsets[ibit] - m_globalTimeOffset) >= m_timeCut)
 			continue;
 
 		// Set the bits for this side;

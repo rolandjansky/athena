@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
@@ -136,9 +136,6 @@ def MinBiasMbtsSequence():
                                         RoITool = ViewCreatorInitialROITool(),
                                         RoIs='MbtsRoI', # not used in fact
                                         )
-
-#InputMakerAlg.InputMakerInputDecisions=[mapThresholdToL1DecisionCollection("XE")]
-#InputMakerAlg.InputMakerOutputDecisions="InputMaker_from_L1MET"
 
     MbtsSequence = seqAND("MbtsSequence", [MbtsInputMakerAlg, MbtsRecoSeq])
 
