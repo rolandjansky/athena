@@ -55,7 +55,7 @@ if __name__=="__main__":
     # the evaluation of MuonSegmentNameFixCfg should happen conditinally instead
     # this is hack that is functioning only because this is top level CA
     oldRemaps = cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps
-    cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps = [ remap for remap in oldRemaps if not "Trk::SegmentCollection" in remap]
+    cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps = [ remap for remap in oldRemaps if "Trk::SegmentCollection" not in remap]
     
 
     f=open("MuonReconstruction.pkl","wb")
