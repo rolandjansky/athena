@@ -2643,13 +2643,13 @@ HLT_xe30_mhtpufit_em_subjesgscIS_L1XE10:
     0: 20
     1: 2
 HLT_xe30_mhtpufit_pf_subjesgscIS_L1XE10:
-  eventCount: 3
+  eventCount: 2
   stepCounts:
     0: 20
-    1: 3
+    1: 2
   stepFeatures:
     0: 20
-    1: 3
+    1: 2
 HLT_xe30_pfopufit_L1XE10:
   eventCount: 3
   stepCounts:
