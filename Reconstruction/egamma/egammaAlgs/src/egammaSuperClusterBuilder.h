@@ -27,13 +27,14 @@
 
 class CaloDetDescrManager;
 /** Base class for electronSuperClusterBuilder and photonSuperClusterBuilder.
- *  The inheritance should be private. This class should never be instantiated
- *  by itself, and hence has no interface class.
+ * This class cannot be instantiated by itself since the execute method is not
+ * implemented.
  * 
- * This class provides functions which are independet from the nature of the
- * particles, for example a function to decide if two clusters are compatible
- * to be added in a supercluster (egammaSuperClusterBuilder::matchesInWindow)
- * and a function (egammaSuperClusterBuilder::createNewCluster) to create a new
+ * This class provides functions which are used to build supercluster and are
+ * independet from the nature of the particles, for example a function to decide
+ * if two clusters are compatible to be added in a supercluster
+ * (egammaSuperClusterBuilder::matchesInWindow) and a function
+ * (egammaSuperClusterBuilder::createNewCluster) to create a new
  * supercluster from a collection of clusters.
  **/
 class egammaSuperClusterBuilder : public AthReentrantAlgorithm
