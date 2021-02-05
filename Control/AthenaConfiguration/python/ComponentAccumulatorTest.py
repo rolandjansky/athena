@@ -18,6 +18,7 @@ TestAlgo = CompFactory.HelloAlg
 
 
 Configurable.configurableRun3Behavior=1
+ComponentAccumulator.debugMode=True
 class TestComponentAccumulator( unittest.TestCase ):
     def setUp(self):
 
