@@ -72,6 +72,7 @@ StatusCode RingerReFex::initialize()
   }
 
   ATH_CHECK( m_ringerContainerKey.initialize() );
+  ATH_CHECK( m_ringerDummyContainerKey.initialize() );
   ATH_CHECK( m_clusterContainerKey.initialize() );
 
   m_maxRingsAccumulated = std::accumulate(m_nRings.begin(), m_nRings.end(), 0);
@@ -411,6 +412,11 @@ StatusCode RingerReFex::execute(xAOD::TrigEMCluster &rtrigEmCluster,
   auto ptrigRingerRings= new xAOD::TrigRingerRings();
   ringsCollection->push_back( ptrigRingerRings );  
   ptrigRingerRings->setRings(ref_rings);
+
+  //Create the dummy container
+  SG::WriteHandle<xAOD::TrigRingerRingsContainer> ringsDummyCollection = SG::WriteHandle<xAOD::TrigRingerRingsContainer>( m_ringerDummyContainerKey, context );
+  ATH_CHECK( ringsDummyCollection.record( std::make_unique<xAOD::TrigRingerRingsContainer>(),  std::make_unique<xAOD::TrigRingerRingsAuxContainer>() ) );
+
   auto clusLink = ElementLink<xAOD::TrigEMClusterContainer>(m_clusterContainerKey.key(),0,context);
   ptrigRingerRings->setEmClusterLink( clusLink  );
 
