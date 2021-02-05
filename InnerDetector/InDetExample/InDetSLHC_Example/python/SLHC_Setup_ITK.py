@@ -19,13 +19,22 @@ dictVersion = "SLHC"
 if auto_doHGTD:
     dictVersion = "ITkHGTD"
 
+from AthenaCommon.GlobalFlags import jobproperties
+DetDescrVersion = jobproperties.Global.DetDescrVersion()
+if DetDescrVersion.startswith('ATLAS-P2-ITK-23-00-01'):
+    print "ERROR - This geometry tag (ATLAS-P2-ITK-23-00-01) has been replaced - please use ATLAS-P2-ITK-23-00-02 instead!"
+    print "ERROR - The new geometry tag replaces the old one for reasons of dictionary backwards compatibility"
+    print "ERROR - ATLAS-P2-ITK-23-00-02 can be used to process HITS created with ATLAS-P2-ITK-23-00-01_VALIDATION"
+    exit(1)
+    
+
 class SLHC_Setup_XMLReader :
     # constructor requires the SLHC_Flags
     def __init__(self):
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
 
-        SLHC_Setup_XMLReader(dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK.xml",
-                            createXML = True,
+        SLHC_Setup_XMLReader(dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK_LOCAL.xml",
+                            createXML = SLHC_Flags.UseLocalGeometry(),
                             doPix=True,
                             doSCT=True,
                             doHGTD=auto_doHGTD,
