@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TAUREC_TAUJETRNNUTILS_H
@@ -166,6 +166,9 @@ bool nSCTHitsPlusDeadSensors (
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
 bool eProbabilityHT(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
+bool eProbabilityNN(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
 } // namespace Track
