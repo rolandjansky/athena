@@ -80,7 +80,9 @@ namespace top {
     registerParameter("UseElectronChargeIDSelection",
                       "True/False. Switch on/off electron charge ID selection (Default False).", "False");
     registerParameter("UseEgammaLeakageCorrection",
-                      "True/False. Switch on/off leakage correction -- REQUIRES ptag>p3947 (Default True).", "True");
+                      "True/False. Switch on/off super cluster based core leakage correction -- REQUIRES ptag>p3947 (Default True).", "False");
+    registerParameter("UseEgammaPileupCorrection",
+                      "True/False. Switch on/off improved egamma pileup correction is correction", "True");
     registerParameter("EnablePromptLeptonImprovedVetoStudies",
                       "True/False. Adds the (many!) variables necessary to validate the PromptLeptonImprovedVeto electron+muon isolation -- TEMPORARY, for studies only (Default False).",
                       "False");

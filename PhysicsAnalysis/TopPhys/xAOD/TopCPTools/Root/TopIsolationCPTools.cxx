@@ -59,6 +59,8 @@ namespace top {
       if (m_config->useEgammaLeakageCorrection()) {
         top::check(asg::setProperty(isolationCorr, "Apply_SC_leakcorr", true),
                    "Failed to setProperty Apply_SC_leakcorr"); // super cluster based core correction
+      }
+      if (m_config->useEgammaPileupCorrection()) {
         top::check(asg::setProperty(isolationCorr, "Apply_etaEDParPU_correction", true),
                    "Failed to setProperty Apply_etaEDParPU_correction"); // improved energy density based pileup
                                                                          // correction with eta variations
