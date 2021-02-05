@@ -17,19 +17,21 @@
 # art-output: NSWRecoCheck.txt
 # art-output: diff_1_vs_serial.txt
 # art-output: diff_5_vs_1.txt
+# art-output: log.RAWtoESD_serial
+# art-output: log.RAWtoESD_1thread
+# art-output: log.RAWtoESD_5thread
 
 #####################################################################
 # run simulation on 100 events using the asymmetric Run3 layout
 # the postInclude adds a validation algorithm which writes out an ntuple for sim hit validation
 # (without the postInclude, a standard simulation job would run)
-LOG_SIM="log_Run3_asymmetric_sim.log"
 Sim_tf.py --inputEVNTFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/OverlayMonitoringRTT/mc16_13TeV.361107.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zmumu.merge.EVNT.e3601_e5984/EVNT.12228944._002158.pool.root.1 \
           --geometryVersion 'default:ATLAS-R3-2021-01-00-01_VALIDATION' \
           --AMI=s3512 \
           --maxEvents 100 \
           --imf False \
           --postInclude MuonPRDTest/NSWPRDValAlg.sim.py \
-          --outputHITSFile OUT_HITS.root &> ${LOG_SIM}
+          --outputHITSFile OUT_HITS.root
 exit_code=$?
 echo  "art-result: ${exit_code} Sim_tf.py"
 if [ ${exit_code} -ne 0 ]
@@ -37,10 +39,10 @@ then
     exit ${exit_code}
 fi
 # check the log file for WARNING/ERROR/FATAL
-NWARNING="$(cat ${LOG_SIM} | grep WARNING | wc -l)"
-NERROR="$(cat ${LOG_SIM} | grep ERROR | wc -l)"
-NFATAL="$(cat ${LOG_SIM} | grep FATAL | wc -l)"
-echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_SIM}"
+NWARNING="$(cat log.EVNTtoHITS | grep WARNING | wc -l)"
+NERROR="$(cat log.EVNTtoHITS | grep ERROR | wc -l)"
+NFATAL="$(cat log.EVNTtoHITS | grep FATAL | wc -l)"
+echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in log.EVNTtoHITS"
 #####################################################################
 
 #####################################################################
@@ -58,11 +60,10 @@ fi
 # now use the produced HITS file and run digitisation
 # the postInclude adds a validation algorithm which writes out an ntuple for digit/RDO validation
 # (without the postInclude, a standard digitisation job would run)
-LOG_DIGI="log_Run3_asymmetric_digi.log"
 Digi_tf.py --inputHITSFile OUT_HITS.root \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.digi.py \
-           --outputRDOFile OUT_RDO.root &> ${LOG_DIGI}
+           --outputRDOFile OUT_RDO.root
 exit_code=$?
 echo  "art-result: ${exit_code} Digi_tf.py"
 if [ ${exit_code} -ne 0 ]
@@ -70,10 +71,10 @@ then
     exit ${exit_code}
 fi
 # check the log file for WARNING/ERROR/FATAL
-NWARNING="$(cat ${LOG_DIGI} | grep WARNING | wc -l)"
-NERROR="$(cat ${LOG_DIGI} | grep ERROR | wc -l)"
-NFATAL="$(cat ${LOG_DIGI} | grep FATAL | wc -l)"
-echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_DIGI}"
+NWARNING="$(cat log.HITtoRDO  | grep WARNING | wc -l)"
+NERROR="$(cat log.HITtoRDO  | grep ERROR | wc -l)"
+NFATAL="$(cat log.HITtoRDO  | grep FATAL | wc -l)"
+echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in log.HITtoRDO"
 #####################################################################
 # check the NSW validation ntuple
 python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.digi.ntuple.root &> NSWDigiCheck.txt
@@ -89,12 +90,11 @@ fi
 # now use the produced RDO file and run reconstruction
 # the postInclude adds a validation algorithm which writes out an ntuple for digit/RDO/PRD validation
 # (without the postInclude, a standard reconstruction job would run)
-LOG_RECO="log_Run3_asymmetric_reco.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --imf False \
            --postInclude MuonPRDTest/NSWPRDValAlg.reco.py \
-           --outputESDFile OUT_ESD.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
 if [ ${exit_code} -ne 0 ]
@@ -102,10 +102,11 @@ then
     exit ${exit_code}
 fi
 # check the log file for WARNING/ERROR/FATAL
-NWARNING="$(cat ${LOG_RECO} | grep WARNING | wc -l)"
-NERROR="$(cat ${LOG_RECO} | grep ERROR | wc -l)"
-NFATAL="$(cat ${LOG_RECO} | grep FATAL | wc -l)"
-echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in ${LOG_RECO}"
+NWARNING="$(cat log.RAWtoESD | grep WARNING | wc -l)"
+NERROR="$(cat log.RAWtoESD | grep ERROR | wc -l)"
+NFATAL="$(cat log.RAWtoESD | grep FATAL | wc -l)"
+echo "Found ${NWARNING} WARNING, ${NERROR} ERROR and ${NFATAL} FATAL messages in log.RAWtoESD"
+mv log.RAWtoESD log.RAWtoESD_serial
 #####################################################################
 # check the NSW validation ntuple
 python $Athena_DIR/bin/checkNSWValTree.py -i NSWPRDValAlg.reco.ntuple.root --checkPRD &> NSWRecoCheck.txt
@@ -119,32 +120,32 @@ fi
 
 #####################################################################
 # now run reconstruction with AthenaMT with 1 thread
-LOG_RECO="log_Run3_asymmetric_reco_1thread.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=1" \
-           --outputESDFile OUT_ESD_1thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_1thread"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_1thread
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 5 threads
-LOG_RECO="log_Run3_asymmetric_reco_5thread.log"
 Reco_tf.py --inputRDOFile OUT_RDO.root \
            --autoConfiguration everything \
            --athenaopts="--threads=5" \
-           --outputESDFile OUT_ESD_5thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py_5thread"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_5thread
 #####################################################################
 
 #####################################################################

@@ -251,7 +251,7 @@ class trigRecoExecutor(athenaExecutor):
             msg.error('Failed to open transform logfile {0}: {1:s}'.format(log, e))
         for line, lineCounter in myGen:
             # Check to see if any of the hlt children had an issue
-            if 'Child Issue' in line > -1:
+            if 'Child Issue' in line:
                 try:
                     signal = int((re.search('signal ([0-9]*)', line)).group(1))
                 except AttributeError:

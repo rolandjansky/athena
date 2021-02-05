@@ -20,8 +20,6 @@
 	std::vector<int> endBCIDsVector;
 	
 	
-	unsigned int efficiencyHistogramCounter=0;
-	
 	bool isInListVector(const int bcid, const std::vector<int>&arr)
 	{
 		return std::find_if(arr.begin(),arr.end(),[&bcid](const int& ele){return ele==bcid;})!= arr.end();
@@ -140,9 +138,6 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 
 	auto trackX = Monitored::Scalar<float>("trackX", 0.0);
 	auto trackY = Monitored::Scalar<float>("trackY", 0.0);
-
-	auto layerEfficiency = Monitored::Scalar<float>("layerEfficiency", 0.0);
-	auto layerNumber = Monitored::Scalar<int>("layerNumber", 0);
 	
 	auto planeHits = Monitored::Scalar<int>("planeHits", 0);
 	auto planeHitsAll = Monitored::Scalar<int>("planeHitsAll", 0);
@@ -352,8 +347,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	
 	for (const auto& track : fast.tracks()) 
 	{
-		trackX = track.x;
-		trackY = track.y;
+		trackX = track.x * 1.0;
+		trackY = track.y * 1.0;
 		fill(m_tools[m_StationGroup.at(m_stationnames.at(track.station))], trackY, trackX);
 		
 		if (isInListVector(GetEventInfo(ctx)->bcid(), frontBCIDsVector))
@@ -410,8 +405,8 @@ StatusCode AFPSiLayerAlgorithm::fillHistograms( const EventContext& ctx ) const 
 	// Cluster histograms 
 	for(const auto& cluster : fast.clusters()) 
 	{
-		clusterX = cluster.x;
-		clusterY = cluster.y;
+		clusterX = cluster.x * 1.0;
+		clusterY = cluster.y * 1.0;
 		fill(m_tools[m_StationPlaneGroup.at(m_stationnames.at(cluster.station)).at(m_pixlayers.at(cluster.layer))], clusterY, clusterX);
 		clustersInPlanes = (cluster.station*4)+cluster.layer;
 		fill("AFPSiLayerTool", clustersInPlanes);

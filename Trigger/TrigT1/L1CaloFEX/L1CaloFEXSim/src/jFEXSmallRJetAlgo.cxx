@@ -166,6 +166,7 @@ bool LVL1::jFEXSmallRJetAlgo::isSeedLocalMaxima()
        }
      }
   }  
+  ATH_MSG_DEBUG("Local Maxima found.");
   return true;
 }
 
@@ -178,18 +179,14 @@ void LVL1::jFEXSmallRJetAlgo::setupCluster(int inputTable[4][5]) {
 
 
 //in this clustering func, the central TT in jet is the parameters
-unsigned int LVL1::jFEXSmallRJetAlgo::getClusterET(){
+unsigned int LVL1::jFEXSmallRJetAlgo::getSmallClusterET(){
 
   SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
-  //const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[2][2]);
-  //unsigned int et = tmpTower->getTotalET();  
-
 
   //first summing search window (25 TTs)
   unsigned int searchWindowET = 0;
   for(int neta = 0; neta< 5; neta++){ 
     for(int nphi = 0; nphi< 5; nphi++){
-     // SG::ReadHandle<jTowerContainer> jk_jFEXSmallRJetAlgo_jTowerContainer(m_jFEXSmallRJetAlgo_jTowerContainerKey/*,ctx*/);
       const LVL1::jTower * tmpTower = jk_jFEXSmallRJetAlgo_jTowerContainer->findTower(m_jFEXalgoTowerID[neta][nphi]);
       searchWindowET += tmpTower->getTotalET();
     }
@@ -213,7 +210,7 @@ std::unique_ptr<jFEXSmallRJetTOB> LVL1::jFEXSmallRJetAlgo::getSmallRJetTOBs(){
 
   std::unique_ptr<jFEXSmallRJetTOB> tob = std::make_unique<jFEXSmallRJetTOB>();
 
-  unsigned int et = getClusterET();
+  unsigned int et = getSmallClusterET();
  // unsigned int phi = getRealPhi(phi);
  // unsigned int eta = getRealEta(eta);
   

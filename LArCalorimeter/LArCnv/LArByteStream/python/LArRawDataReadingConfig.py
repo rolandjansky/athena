@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -14,6 +14,11 @@ def LArRawDataReadingCfg(configFlags, **kwargs):
 
     if configFlags.Overlay.DataOverlay:
         kwargs.setdefault("LArDigitKey", configFlags.Overlay.BkgPrefix + "FREE")
+        kwargs.setdefault("LArRawChannelKey", "")
+
+    print('LArRawDataReadingCfg configFlags.LAr.RawChannelSource ',configFlags.LAr.RawChannelSource)
+
+    if configFlags.LAr.RawChannelSource=="calculated":
         kwargs.setdefault("LArRawChannelKey", "")
 
     kwargs.setdefault("FailOnCorruption",False)
