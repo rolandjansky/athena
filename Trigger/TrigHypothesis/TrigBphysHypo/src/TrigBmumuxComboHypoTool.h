@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIG_TrigBmumuxComboHypoTool_H
@@ -19,8 +19,6 @@
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 
-using TrigCompositeUtils::Decision;
-using TrigCompositeUtils::DecisionIDContainer;
 
 /**
  * @class TrigBmumuxComboHypoTool
@@ -30,7 +28,7 @@ class TrigBmumuxComboHypoTool: public ComboHypoToolBase {
  public:
   TrigBmumuxComboHypoTool(const std::string& type, const std::string& name, const IInterface* parent);
   virtual StatusCode initialize() override;
-  virtual StatusCode decideOnSingleObject(Decision*, const std::vector<const DecisionIDContainer*>&) const override;
+  virtual StatusCode decideOnSingleObject(TrigCompositeUtils::Decision*, const std::vector<const TrigCompositeUtils::DecisionIDContainer*>&) const override;
 
  private:
   bool passed(const xAOD::TrigBphys*) const;
