@@ -390,6 +390,21 @@ def setupMenu():
         ChainProp(name='HLT_6j45_0eta240_pf_ftf_010jvt_L14J15', groups=MultiJetGroup),
         ChainProp(name='HLT_6j45_0eta240_pf_ftf_020jvt_L14J15', groups=MultiJetGroup),
         ChainProp(name='HLT_6j45_0eta240_pf_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        # HH4b
+        # EMTopo variants
+        ChainProp(name='HLT_j80_j55_j28_j20_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_subresjesgscIS_ftf_j55_subresjesgscIS_ftf_j28_subresjesgscIS_ftf_j20_subresjesgscIS_ftf_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_subresjesgscIS_ftf_020jvt_j55_subresjesgscIS_ftf_020jvt_j28_subresjesgscIS_ftf_020jvt_j20_subresjesgscIS_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        # PFlow variants
+        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        # Mu-seeded
+        ChainProp(name='HLT_j80_j55_j28_j20_L1MU20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_j55_j28_j20_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+        ChainProp(name='HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU10_2J15_J20', l1SeedThresholds=['FSNOSEED']*4, groups=MultiJetGroup),
+
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
