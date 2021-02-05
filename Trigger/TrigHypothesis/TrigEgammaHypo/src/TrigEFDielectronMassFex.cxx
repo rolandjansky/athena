@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -212,7 +212,7 @@ void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompos
     }
     m_monCut = 1;
     float mass(0.0);
-    for (const auto& link1 : links1){
+    for (const ElementLink<xAOD::ElectronContainer> link1 : links1){
         // Ensure we use good tag
         const xAOD::Electron* p1 = *link1;
         ATH_MSG_DEBUG("Tag Electron " 
@@ -223,7 +223,7 @@ void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompos
             ATH_MSG_DEBUG("Tag Electron found not passing Hypo object");
             continue;
         }
-        for (const auto& link2 : links2){
+        for (const ElementLink<xAOD::ElectronContainer> link2 : links2){
             const xAOD::Electron* p2 = *link2;
             m_monCut=2;
             // selection is done here
@@ -261,7 +261,7 @@ void TrigEFDielectronMassFex::process(HLT::TEConstVec& inputTE, xAOD::TrigCompos
             }   
         } // electrons2 container loop end
         // Now combine with cluster
-        for (const auto& cllink : cllinks){
+        for (const ElementLink<xAOD::CaloClusterContainer> cllink : cllinks){
             const xAOD::CaloCluster *p2 = *cllink;
             m_monCut = 4;
 
