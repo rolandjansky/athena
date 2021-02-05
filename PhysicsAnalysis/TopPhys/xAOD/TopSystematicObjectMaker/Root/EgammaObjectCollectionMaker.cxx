@@ -438,15 +438,15 @@ namespace top {
 	     ptvarcone30_TightTTVALooseCone_pt1000.isAvailable(*electron) ) {
 	  AnalysisTop_Isol_PLVTight(*electron) = (m_isolationTool_PLVTight->accept(*electron) ? 1 : 0);
 	  AnalysisTop_Isol_PLVLoose(*electron) = (m_isolationTool_PLVLoose->accept(*electron) ? 1 : 0);
-    AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
-    AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
+	  AnalysisTop_Isol_PLImprovedTight(*electron) = (m_isolationTool_PLImprovedTight->accept(*electron) ? 1 : 0);
+	  AnalysisTop_Isol_PLImprovedVeryTight(*electron) = (m_isolationTool_PLImprovedVeryTight->accept(*electron) ? 1 : 0);
 	}
 	else {
 	  // decorate with special character to indicate failure to retrieve necessary variables
 	  AnalysisTop_Isol_PLVTight(*electron) = 'n';
 	  AnalysisTop_Isol_PLVLoose(*electron) = 'n';
-    AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
-    AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
+	  AnalysisTop_Isol_PLImprovedTight(*electron) = 'n';
+	  AnalysisTop_Isol_PLImprovedVeryTight(*electron) = 'n';
 	}
       }
 
@@ -578,7 +578,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsPhotons.push_back(s);
       if (s.name() == "") {
@@ -615,7 +615,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsElectrons.push_back(s);
       if (s.name() == "") {
@@ -653,7 +653,7 @@ namespace top {
       m_calibrationTool->recommendedSystematics());
 
     for (auto s : systList) {
-      
+
       if(!m_config->getTreeFilter()->filterTree(s.name())) continue; // Applying tree filter
       m_recommendedSystematicsFwdElectrons.push_back(s);
       if (s.name() == "") {
