@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1RawDataSystems )
@@ -7,7 +7,7 @@ atlas_subdir( VP1RawDataSystems )
 find_package( Coin3D )
 find_package( Eigen )
 find_package( Qt5 COMPONENTS Core Gui Widgets )
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Generate UI files automatically:
 set( CMAKE_AUTOUIC TRUE )
@@ -25,5 +25,5 @@ atlas_add_library( VP1RawDataSystems VP1RawDataSystems/*.h src/*.h src/*.cxx src
                    PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS}
                    FILES LUCID_RawEvent/LUCID_Digit.h
                    LINK_LIBRARIES ${EIGEN_LIBRARIES} GeoPrimitives VP1Base GL
-                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODELCORE_LIBRARIES} EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
+                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${GEOMODEL_LIBRARIES} EventPrimitives LUCID_RawEvent GaudiKernel InDetIdentifier InDetReadoutGeometry PixelReadoutGeometry SCT_ReadoutGeometry TRT_ReadoutGeometry InDetBCM_RawData InDetRawData VP1HEPVis VP1Utils )
 
