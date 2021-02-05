@@ -136,10 +136,10 @@ StatusCode PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& e
     bool isRetrieved = cluster->retrieveMoment(xAOD::CaloCluster::CENTER_MAG, center_mag );
     if (isRetrieved) thisPFO->setCenterMag(center_mag);
     else ATH_MSG_WARNING("Could not retreve CENTER_MAG from xAOD::CaloCluster");
+    //definitions to reduce verbosity
+    using Cluster = xAOD::CaloCluster;
+    using Attributes = xAOD::PFODetails::PFOAttributes;
     if(m_doClusterMoments) {
-      //definitions to reduce verbosity
-      using Cluster = xAOD::CaloCluster;
-      using Attributes = xAOD::PFODetails::PFOAttributes;
       //now set the moments for touchable clusters (i.e. ones we modify) in LC mode or all clusters in EM mode
       if ( (m_LCMode && thisEfRecCluster->isTouchable()) || !m_LCMode) {
         //Block of code to set moments/attributes
@@ -170,81 +170,81 @@ StatusCode PFONeutralCreatorAlgorithm::createNeutralPFO(const eflowCaloObject& e
           for (const auto & [moment,attribute]:momentAttributeTruthPairs) conciseAddMoment(moment, attribute);
         }
       }
-      //
-      //block of code to calculate and set the layer energies
-      auto setLayerEnergy = [&cluster, &thisPFO](const Cluster::CaloSample &layer, const Attributes & a){
-        const auto layerEnergy{cluster->eSample(layer)};
-        thisPFO->setAttribute(a, layerEnergy);
-        return layerEnergy;
-      };
-      enum LayerEnergyIndices{preSamplerB, EMB1, EMB2, EMB3, preSamplerE, EME1, EME2, EME3, HEC0, HEC1, HEC2, HEC3,FCAL0,  NumberOfLayerEnergies};
-      std::array<float, NumberOfLayerEnergies> layerEnergies{};
-      const std::array< std::pair<Cluster::CaloSample, Attributes>, NumberOfLayerEnergies> sampleAttributePairs{{
-        {Cluster::CaloSample::PreSamplerB, Attributes::eflowRec_LAYERENERGY_PreSamplerB},
-        {Cluster::CaloSample::EMB1, Attributes::eflowRec_LAYERENERGY_EMB1},
-        {Cluster::CaloSample::EMB2, Attributes::eflowRec_LAYERENERGY_EMB2},
-        {Cluster::CaloSample::EMB3, Attributes::eflowRec_LAYERENERGY_EMB3},
-        {Cluster::CaloSample::PreSamplerE, Attributes::eflowRec_LAYERENERGY_PreSamplerE},
-        {Cluster::CaloSample::EME1, Attributes::eflowRec_LAYERENERGY_EME1},
-        {Cluster::CaloSample::EME2, Attributes::eflowRec_LAYERENERGY_EME2},
-        {Cluster::CaloSample::EME3, Attributes::eflowRec_LAYERENERGY_EME3},
-        {Cluster::CaloSample::HEC0, Attributes::eflowRec_LAYERENERGY_HEC0},
-        {Cluster::CaloSample::HEC1, Attributes::eflowRec_LAYERENERGY_HEC1},
-        {Cluster::CaloSample::HEC2, Attributes::eflowRec_LAYERENERGY_HEC2},
-        {Cluster::CaloSample::HEC3, Attributes::eflowRec_LAYERENERGY_HEC3},
-        {Cluster::CaloSample::FCAL0, Attributes::eflowRec_LAYERENERGY_FCAL0}
-      }};
-      size_t layerIndex{0};
-      for (const auto & [sample, attribute]: sampleAttributePairs) {
-        layerEnergies[layerIndex++] = setLayerEnergy(sample, attribute);
-      }
-      //
-      //block of code purely to set attributes of the PFO
-      auto setPfoAttribute = [&thisPFO, &cluster](const Cluster::CaloSample &layer, const Attributes & a){
-        thisPFO->setAttribute( a, cluster->eSample(layer));
-      };
-      //
-      constexpr size_t numberOfSampleAttributePairs{15};
-      const std::array< std::pair<Cluster::CaloSample, Attributes>, numberOfSampleAttributePairs> sampleAttributePairsTileFcal{{
-        {Cluster::CaloSample::TileBar0, Attributes::eflowRec_LAYERENERGY_TileBar0},
-        {Cluster::CaloSample::TileBar1, Attributes::eflowRec_LAYERENERGY_TileBar1},
-        {Cluster::CaloSample::TileBar2, Attributes::eflowRec_LAYERENERGY_TileBar2},
-        {Cluster::CaloSample::TileGap1, Attributes::eflowRec_LAYERENERGY_TileGap1},
-        {Cluster::CaloSample::TileGap2, Attributes::eflowRec_LAYERENERGY_TileGap2},
-        {Cluster::CaloSample::TileGap3, Attributes::eflowRec_LAYERENERGY_TileGap3},
-        {Cluster::CaloSample::TileExt0, Attributes::eflowRec_LAYERENERGY_TileExt0},
-        {Cluster::CaloSample::TileExt1, Attributes::eflowRec_LAYERENERGY_TileExt1},
-        {Cluster::CaloSample::TileExt2, Attributes::eflowRec_LAYERENERGY_TileExt2},
-        {Cluster::CaloSample::FCAL1, Attributes::eflowRec_LAYERENERGY_FCAL1},
-        {Cluster::CaloSample::FCAL2, Attributes::eflowRec_LAYERENERGY_FCAL2},
-        {Cluster::CaloSample::MINIFCAL0, Attributes::eflowRec_LAYERENERGY_MINIFCAL0},
-        {Cluster::CaloSample::MINIFCAL1, Attributes::eflowRec_LAYERENERGY_MINIFCAL1},
-        {Cluster::CaloSample::MINIFCAL2, Attributes::eflowRec_LAYERENERGY_MINIFCAL2},
-        {Cluster::CaloSample::MINIFCAL3, Attributes::eflowRec_LAYERENERGY_MINIFCAL3}
-      }};
-      for (const auto & [sample, attribute]: sampleAttributePairsTileFcal){
-        setPfoAttribute(sample, attribute);
-      }
-      //
-      //now set the layer energies for EMB3 and Tile0 - these are needed if we want to run a GSC style jet calibration, which is binned in EMB3 and Tile0 layer energies
-      float layerEnergy_EM3 = layerEnergies[EMB3] + layerEnergies[EME3];
-      thisPFO->setAttribute( Attributes::eflowRec_LAYERENERGY_EM3, layerEnergy_EM3);
-      //
-      float layerEnergy_TileBar0 = cluster->eSample(Cluster::CaloSample::TileBar0);
-      float layerEnergy_TileExt0 = cluster->eSample(Cluster::CaloSample::TileExt0);
-      float layerEnergy_Tile0 = layerEnergy_TileBar0 + layerEnergy_TileExt0;
-      thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_Tile0, layerEnergy_Tile0);
-      //
-      //now set properties that are required for jet cleaning
-      const float layerEnergy_HEC = layerEnergies[HEC0] + layerEnergies[HEC1] + layerEnergies[HEC2] + layerEnergies[HEC3];
-      thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_HEC, layerEnergy_HEC);
-      //
-      const float layerEnergy_EM = layerEnergies[preSamplerB] + layerEnergies[preSamplerE] + layerEnergies[EMB1] + layerEnergies[EMB2] + layerEnergies[EMB3] + layerEnergies[EME1] + layerEnergies[EME2] + layerEnergies[EME3] + layerEnergies[FCAL0];
-      thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_EM, layerEnergy_EM);
-      //
-      const float clusterTiming = cluster->time();
-      thisPFO->setAttribute(Attributes::eflowRec_TIMING, clusterTiming);
     }
+    //
+    //block of code to calculate and set the layer energies
+    auto setLayerEnergy = [&cluster, &thisPFO](const Cluster::CaloSample &layer, const Attributes & a){
+      const auto layerEnergy{cluster->eSample(layer)};
+      thisPFO->setAttribute(a, layerEnergy);
+      return layerEnergy;
+    };
+    enum LayerEnergyIndices{preSamplerB, EMB1, EMB2, EMB3, preSamplerE, EME1, EME2, EME3, HEC0, HEC1, HEC2, HEC3,FCAL0,  NumberOfLayerEnergies};
+    std::array<float, NumberOfLayerEnergies> layerEnergies{};
+    const std::array< std::pair<Cluster::CaloSample, Attributes>, NumberOfLayerEnergies> sampleAttributePairs{{
+      {Cluster::CaloSample::PreSamplerB, Attributes::eflowRec_LAYERENERGY_PreSamplerB},
+      {Cluster::CaloSample::EMB1, Attributes::eflowRec_LAYERENERGY_EMB1},
+      {Cluster::CaloSample::EMB2, Attributes::eflowRec_LAYERENERGY_EMB2},
+      {Cluster::CaloSample::EMB3, Attributes::eflowRec_LAYERENERGY_EMB3},
+      {Cluster::CaloSample::PreSamplerE, Attributes::eflowRec_LAYERENERGY_PreSamplerE},
+      {Cluster::CaloSample::EME1, Attributes::eflowRec_LAYERENERGY_EME1},
+      {Cluster::CaloSample::EME2, Attributes::eflowRec_LAYERENERGY_EME2},
+      {Cluster::CaloSample::EME3, Attributes::eflowRec_LAYERENERGY_EME3},
+      {Cluster::CaloSample::HEC0, Attributes::eflowRec_LAYERENERGY_HEC0},
+      {Cluster::CaloSample::HEC1, Attributes::eflowRec_LAYERENERGY_HEC1},
+      {Cluster::CaloSample::HEC2, Attributes::eflowRec_LAYERENERGY_HEC2},
+      {Cluster::CaloSample::HEC3, Attributes::eflowRec_LAYERENERGY_HEC3},
+      {Cluster::CaloSample::FCAL0, Attributes::eflowRec_LAYERENERGY_FCAL0}
+    }};
+    size_t layerIndex{0};
+    for (const auto & [sample, attribute]: sampleAttributePairs) {
+      layerEnergies[layerIndex++] = setLayerEnergy(sample, attribute);
+    }
+    //
+    //block of code purely to set attributes of the PFO
+    auto setPfoAttribute = [&thisPFO, &cluster](const Cluster::CaloSample &layer, const Attributes & a){
+      thisPFO->setAttribute( a, cluster->eSample(layer));
+    };
+    //
+    constexpr size_t numberOfSampleAttributePairs{15};
+    const std::array< std::pair<Cluster::CaloSample, Attributes>, numberOfSampleAttributePairs> sampleAttributePairsTileFcal{{
+      {Cluster::CaloSample::TileBar0, Attributes::eflowRec_LAYERENERGY_TileBar0},
+      {Cluster::CaloSample::TileBar1, Attributes::eflowRec_LAYERENERGY_TileBar1},
+      {Cluster::CaloSample::TileBar2, Attributes::eflowRec_LAYERENERGY_TileBar2},
+      {Cluster::CaloSample::TileGap1, Attributes::eflowRec_LAYERENERGY_TileGap1},
+      {Cluster::CaloSample::TileGap2, Attributes::eflowRec_LAYERENERGY_TileGap2},
+      {Cluster::CaloSample::TileGap3, Attributes::eflowRec_LAYERENERGY_TileGap3},
+      {Cluster::CaloSample::TileExt0, Attributes::eflowRec_LAYERENERGY_TileExt0},
+      {Cluster::CaloSample::TileExt1, Attributes::eflowRec_LAYERENERGY_TileExt1},
+      {Cluster::CaloSample::TileExt2, Attributes::eflowRec_LAYERENERGY_TileExt2},
+      {Cluster::CaloSample::FCAL1, Attributes::eflowRec_LAYERENERGY_FCAL1},
+      {Cluster::CaloSample::FCAL2, Attributes::eflowRec_LAYERENERGY_FCAL2},
+      {Cluster::CaloSample::MINIFCAL0, Attributes::eflowRec_LAYERENERGY_MINIFCAL0},
+      {Cluster::CaloSample::MINIFCAL1, Attributes::eflowRec_LAYERENERGY_MINIFCAL1},
+      {Cluster::CaloSample::MINIFCAL2, Attributes::eflowRec_LAYERENERGY_MINIFCAL2},
+      {Cluster::CaloSample::MINIFCAL3, Attributes::eflowRec_LAYERENERGY_MINIFCAL3}
+    }};
+    for (const auto & [sample, attribute]: sampleAttributePairsTileFcal){
+      setPfoAttribute(sample, attribute);
+    }
+    //
+    //now set the layer energies for EMB3 and Tile0 - these are needed if we want to run a GSC style jet calibration, which is binned in EMB3 and Tile0 layer energies
+    float layerEnergy_EM3 = layerEnergies[EMB3] + layerEnergies[EME3];
+    thisPFO->setAttribute( Attributes::eflowRec_LAYERENERGY_EM3, layerEnergy_EM3);
+    //
+    float layerEnergy_TileBar0 = cluster->eSample(Cluster::CaloSample::TileBar0);
+    float layerEnergy_TileExt0 = cluster->eSample(Cluster::CaloSample::TileExt0);
+    float layerEnergy_Tile0 = layerEnergy_TileBar0 + layerEnergy_TileExt0;
+    thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_Tile0, layerEnergy_Tile0);
+    //
+    //now set properties that are required for jet cleaning
+    const float layerEnergy_HEC = layerEnergies[HEC0] + layerEnergies[HEC1] + layerEnergies[HEC2] + layerEnergies[HEC3];
+    thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_HEC, layerEnergy_HEC);
+    //
+    const float layerEnergy_EM = layerEnergies[preSamplerB] + layerEnergies[preSamplerE] + layerEnergies[EMB1] + layerEnergies[EMB2] + layerEnergies[EMB3] + layerEnergies[EME1] + layerEnergies[EME2] + layerEnergies[EME3] + layerEnergies[FCAL0];
+    thisPFO->setAttribute(Attributes::eflowRec_LAYERENERGY_EM, layerEnergy_EM);
+    //
+    const float clusterTiming = cluster->time();
+    thisPFO->setAttribute(Attributes::eflowRec_TIMING, clusterTiming);
   }
   return StatusCode::SUCCESS;
 }
