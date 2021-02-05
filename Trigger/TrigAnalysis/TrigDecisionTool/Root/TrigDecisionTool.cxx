@@ -196,6 +196,7 @@ void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots)
   }
 #else // Analysis or Standalone
   m_forceConfigUpdate = b;
+  ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
 #endif 
 }
 
@@ -222,6 +223,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  cgmPtr->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
   slot = Gaudi::Hive::currentContext().slot();
 #endif
 
