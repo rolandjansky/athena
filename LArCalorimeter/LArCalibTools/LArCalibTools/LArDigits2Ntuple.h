@@ -56,7 +56,6 @@ class LArDigits2Ntuple : public LArCond2NtupleBase
 
   bool m_isSC;
   bool m_fillBCID;
-  int m_fillLatomeSourceID;
   bool m_overwriteEventNumber;
 
   SG::ReadHandleKey<xAOD::EventInfo> m_evtInfoKey { this, "EventInfoKey", "EventInfo", "SG for EventInfo Key" };
