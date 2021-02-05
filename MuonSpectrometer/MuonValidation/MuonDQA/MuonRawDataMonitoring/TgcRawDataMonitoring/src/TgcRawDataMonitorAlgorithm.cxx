@@ -63,6 +63,7 @@ StatusCode TgcRawDataMonitorAlgorithm::initialize() {
 
 StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) const {
     std::vector < std::reference_wrapper < Monitored::IMonitoredVariable >> variables;
+    
 
     auto bcid = Monitored::Scalar<int>("bcid", GetEventInfo(ctx)->bcid());
     auto lumiPerBCID = Monitored::Scalar<int>("lumiPerBCID", lbAverageInteractionsPerCrossing(ctx));
@@ -83,28 +84,32 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
     
     const xAOD::MuonRoIContainer *rois = nullptr;
     if (!m_MuonRoIContainerKey.empty()) {
-
         /* raw LVL1MuonRoIs distributions */
-        rois = SG::get < xAOD::MuonRoIContainer > (m_MuonRoIContainerKey, ctx);
+         SG::ReadHandle<xAOD::MuonRoIContainer > handle( m_MuonRoIContainerKey, ctx);
+        if(!handle.isValid()) {
+            ATH_MSG_ERROR("evtStore() does not contain muon RoI Collection with name " << m_MuonRoIContainerKey);
+            return StatusCode::FAILURE;
+        }
+        rois = handle.cptr();
         if (!rois) {
             ATH_MSG_ERROR("evtStore() does not contain muon RoI Collection with name " << m_MuonRoIContainerKey);
             return StatusCode::FAILURE;
         }
-
+        
+        std::vector< std::reference_wrapper < Monitored::IMonitoredVariable >>  roi_variables;
         auto roi_eta = Monitored::Collection("roi_eta", *rois, [](const xAOD::MuonRoI *m) {
             return m->eta();
         });
-        variables.push_back(roi_eta);
-        fill(m_packageName, variables);
-        return StatusCode::SUCCESS;
+        roi_variables.push_back(roi_eta);
+        
         auto roi_phi = Monitored::Collection("roi_phi", *rois, [](const xAOD::MuonRoI *m) {
             return m->phi();
         });
-        variables.push_back(roi_phi);
+        roi_variables.push_back(roi_phi);
         auto roi_phi_rpc = Monitored::Collection("roi_phi_rpc", *rois, [](const xAOD::MuonRoI *m) {
             return (m->getSource() == xAOD::MuonRoI::Barrel) ? m->phi() : -10;
         });
-        variables.push_back(roi_phi_rpc);
+        roi_variables.push_back(roi_phi_rpc);
         auto roi_phi_tgc = Monitored::Collection("roi_phi_tgc", *rois, [](const xAOD::MuonRoI *m) {
             return (m->getSource() != xAOD::MuonRoI::Barrel) ? m->phi() : -10;
         });
@@ -112,118 +117,118 @@ StatusCode TgcRawDataMonitorAlgorithm::fillHistograms(const EventContext &ctx) c
         auto roi_thr = Monitored::Collection("roi_thr", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber();
         });
-        variables.push_back(roi_thr);
+        roi_variables.push_back(roi_thr);
         auto roi_rpc = Monitored::Collection("roi_rpc", *rois, [](const xAOD::MuonRoI *m) {
             return m->getSource() == xAOD::MuonRoI::Barrel;
         });
-        variables.push_back(roi_rpc);
+        roi_variables.push_back(roi_rpc);
         auto roi_tgc = Monitored::Collection("roi_tgc", *rois, [](const xAOD::MuonRoI *m) {
             return m->getSource() != xAOD::MuonRoI::Barrel;
         });
-        variables.push_back(roi_tgc);
+        roi_variables.push_back(roi_tgc);
 
         auto roi_barrel = Monitored::Collection("roi_barrel", *rois, [](const xAOD::MuonRoI *m) {
             return m->getSource() == xAOD::MuonRoI::Barrel;
         });
-        variables.push_back(roi_barrel);
+        roi_variables.push_back(roi_barrel);
         auto roi_endcap = Monitored::Collection("roi_endcap", *rois, [](const xAOD::MuonRoI *m) {
             return m->getSource() == xAOD::MuonRoI::Endcap;
         });
-        variables.push_back(roi_endcap);
+        roi_variables.push_back(roi_endcap);
         auto roi_forward = Monitored::Collection("roi_forward", *rois, [](const xAOD::MuonRoI *m) {
             return m->getSource() == xAOD::MuonRoI::Forward;
         });
-        variables.push_back(roi_forward);
+        roi_variables.push_back(roi_forward);
 
         auto roi_phi_barrel = Monitored::Collection("roi_phi_barrel", *rois, [](const xAOD::MuonRoI *m) {
             return (m->getSource() == xAOD::MuonRoI::Barrel) ? m->phi() : -10;
         });
-        variables.push_back(roi_phi_barrel);
+        roi_variables.push_back(roi_phi_barrel);
         auto roi_phi_endcap = Monitored::Collection("roi_phi_endcap", *rois, [](const xAOD::MuonRoI *m) {
             return (m->getSource() == xAOD::MuonRoI::Endcap) ? m->phi() : -10;
         });
-        variables.push_back(roi_phi_endcap);
+        roi_variables.push_back(roi_phi_endcap);
         auto roi_phi_forward = Monitored::Collection("roi_phi_forward", *rois, [](const xAOD::MuonRoI *m) {
             return (m->getSource() == xAOD::MuonRoI::Forward) ? m->phi() : -10;
         });
-        variables.push_back(roi_phi_forward);
+        roi_variables.push_back(roi_phi_forward);
 
         auto roi_sideA = Monitored::Collection("roi_sideA", *rois, [](const xAOD::MuonRoI *m) {
             return m->getHemisphere() == xAOD::MuonRoI::Positive;
         });
-        variables.push_back(roi_sideA);
+        roi_variables.push_back(roi_sideA);
         auto roi_sideC = Monitored::Collection("roi_sideC", *rois, [](const xAOD::MuonRoI *m) {
             return m->getHemisphere() == xAOD::MuonRoI::Negative;
         });
-        variables.push_back(roi_sideC);
+        roi_variables.push_back(roi_sideC);
 
         auto thrmask1 = Monitored::Collection("thrmask1", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 1;
         });
-        variables.push_back(thrmask1);
+        roi_variables.push_back(thrmask1);
         auto thrmask2 = Monitored::Collection("thrmask2", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 2;
         });
-        variables.push_back(thrmask2);
+        roi_variables.push_back(thrmask2);
         auto thrmask3 = Monitored::Collection("thrmask3", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 3;
         });
-        variables.push_back(thrmask3);
+        roi_variables.push_back(thrmask3);
         auto thrmask4 = Monitored::Collection("thrmask4", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 4;
         });
-        variables.push_back(thrmask4);
+        roi_variables.push_back(thrmask4);
         auto thrmask5 = Monitored::Collection("thrmask5", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 5;
         });
-        variables.push_back(thrmask5);
+        roi_variables.push_back(thrmask5);
         auto thrmask6 = Monitored::Collection("thrmask6", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 6;
         });
-        variables.push_back(thrmask6);
+        roi_variables.push_back(thrmask6);
         auto thrmask7 = Monitored::Collection("thrmask7", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 7;
         });
-        variables.push_back(thrmask7);
+        roi_variables.push_back(thrmask7);
         auto thrmask8 = Monitored::Collection("thrmask8", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 8;
         });
-        variables.push_back(thrmask8);
+        roi_variables.push_back(thrmask8);
         auto thrmask9 = Monitored::Collection("thrmask9", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 9;
         });
-        variables.push_back(thrmask9);
+        roi_variables.push_back(thrmask9);
         auto thrmask10 = Monitored::Collection("thrmask10", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 10;
         });
-        variables.push_back(thrmask10);
+        roi_variables.push_back(thrmask10);
         auto thrmask11 = Monitored::Collection("thrmask11", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 11;
         });
-        variables.push_back(thrmask11);
+        roi_variables.push_back(thrmask11);
         auto thrmask12 = Monitored::Collection("thrmask12", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 12;
         });
-        variables.push_back(thrmask12);
+        roi_variables.push_back(thrmask12);
         auto thrmask13 = Monitored::Collection("thrmask13", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 13;
         });
-        variables.push_back(thrmask13);
+        roi_variables.push_back(thrmask13);
         auto thrmask14 = Monitored::Collection("thrmask14", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 14;
         });
-        variables.push_back(thrmask14);
+        roi_variables.push_back(thrmask14);
         auto thrmask15 = Monitored::Collection("thrmask15", *rois, [](const xAOD::MuonRoI *m) {
             return m->getThrNumber() == 15;
         });
-        variables.push_back(thrmask15);
+        roi_variables.push_back(thrmask15);
+        fill(m_packageName, roi_variables);     
     }
     if (!m_anaOfflMuon.value()) {
         fill(m_packageName, variables);
-        variables.clear();
         return StatusCode::SUCCESS;
     }
-
+   
     SG::ReadHandle < xAOD::MuonContainer > muons(m_MuonContainerKey, ctx);
     if (!muons.isValid()) {
         ATH_MSG_ERROR("evtStore() does not contain muon Collection with name " << m_MuonContainerKey);
