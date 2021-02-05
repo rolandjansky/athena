@@ -29,6 +29,7 @@
  
  // LVL1 Calo Trigger
  #include "TrigT1CaloToolInterfaces/IL1EtTools.h"
+#include "TrigT1Interfaces/TrigT1CaloDefs.h"
 
 
  namespace LVL1 {
@@ -71,9 +72,13 @@ private: // Private attributes
   ToolHandle<LVL1::IL1EtTools> m_EtTool;
 
   /* StoreGate keys */
-  std::string   m_JetElementLocation ;
+  SG::ReadHandleKey<xAOD::JetElementContainer> m_JetElementInputKey { this, "JetElementLocation", TrigT1CaloDefs::JetElementLocation, "Input JetElement container" };
+    
   std::string   m_jemEtSumsLocation ;
+  SG::WriteHandleKey<DataVector<JEMEtSums> > m_jemEtSumsOutputKey { this, "JEMEtSumsLocation", TrigT1CaloDefs::JEMEtSumsLocation, "Output Jet energy sums container" };
+
   std::string   m_energyCMXDataLocation ;
+  SG::WriteHandleKey<DataVector<EnergyCMXData> > m_energyCMXDataOutputKey { this, "EnergyCMXDataLocation", TrigT1CaloDefs::EnergyCMXDataLocation, "Output Jet CMX energy sum container" };
   
   /** vector of ModuleEnergy objects */
   DataVector<ModuleEnergy>* m_jemContainer;

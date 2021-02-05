@@ -192,9 +192,7 @@ def L1DecoderCfg(flags, seqName = None):
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
-
-    if flags.Input.Format == "BS":
+    if flags.Input.Format == "BS" and not flags.Trigger.doLVL1:
         # Add the algorithm decoding ByteStream into xAOD (Run-3 L1) and/or RoIBResult (legacy L1)
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         acc.merge( L1TriggerByteStreamDecoderCfg(flags), sequenceName = seqName )
@@ -202,6 +200,8 @@ def L1DecoderCfg(flags, seqName = None):
     # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
     if flags.Trigger.enableL1Phase1:
         acc.addEventAlgo( getL1TriggerResultMaker(), sequenceName = seqName )
+
+    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
 
     from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
     acc.merge( TrigConfigSvcCfg( flags ) )

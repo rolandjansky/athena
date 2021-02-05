@@ -612,11 +612,6 @@ class rerunLVL1(_modifier):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        #write cool objects to detector store
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent", "HEAD")
-        conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
-
         #configure LVL1 config svc with xml file
         from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
         L1TopoConfigSvc = L1TopoConfigSvc()
