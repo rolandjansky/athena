@@ -233,7 +233,7 @@ StatusCode LArSCSimpleMaker::execute()
 
     // More noise
     float add_noise = 0.0;
-    IdentifierHash hash = dde->identifyHash();
+    IdentifierHash hash = dde->calo_hash();
     if ( (!dde->is_tile()) && (sigma_noise_per_scell[hash] > 0.0) ){
 	std::normal_distribution<double> distribution(0.0,sigma_noise_per_scell[hash] );
 	add_noise = distribution(generator);
