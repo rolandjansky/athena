@@ -81,8 +81,8 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
   }else if(m_idHelperSvc->isMM(id)){  
     increment(information[numberOfMmHits]); 
   }else{
-    msg (MSG::ERROR) << "Unknown muon detector type " << endmsg;
-    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*tsos << endmsg;
+    ATH_MSG_ERROR( "Unknown muon detector type " );
+    ATH_MSG_ERROR( "Dumping TrackStateOnSurface "<<*tsos );
   }
   return;
 }
@@ -408,7 +408,7 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
 
   SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
   const MuonGM::MuonDetectorManager* MuonDetMgr{*DetectorManagerHandle}; 
-  if(MuonDetMgr==nullptr){
+  if(!MuonDetMgr){
     ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object");
     return; 
   } 
@@ -441,7 +441,7 @@ void Muon::MuonTrackSummaryHelperTool::updateHoleContent( Trk::MuonTrackSummary:
   if( nMisPhi > 0 && nholes > 0 ){
     chamberHitSummary.m_second.nholes = nholes;
     if( nholes != nMisPhi ) {
-      ATH_MSG_WARNING("Inconsistent hole count: expected hits eta " << neta << " phi " << nphi 
+      ATH_MSG_DEBUG("Inconsistent hole count: expected hits eta " << neta << " phi " << nphi 
                       << " hits eta " << chamberHitSummary.etaProjection().nhits + chamberHitSummary.etaProjection().noutliers 
                       << " phi " << chamberHitSummary.phiProjection().nhits + chamberHitSummary.phiProjection().noutliers 
                       << " missed eta " << nMisEta 
@@ -584,12 +584,12 @@ const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdC
 
   if(!mdtPrdContainer.isValid()){
     ATH_MSG_WARNING("Cannot retrieve mdtPrepDataContainer " << m_mdtKey);
-    return 0;
+    return nullptr;
   }
 
   if(!mdtPrdContainer.isPresent()){
     ATH_MSG_DEBUG("No MDT PRD container available");
-    return 0;
+    return nullptr;
   }
 
   IdentifierHash hash_id;
@@ -599,7 +599,7 @@ const Muon::MdtPrepDataCollection* Muon::MuonTrackSummaryHelperTool::findMdtPrdC
   if( coll == nullptr ){
     ATH_MSG_DEBUG(" MdtPrepDataCollection for:   " << m_idHelperSvc->toStringChamber(chId) 
 		  << "  not found in container ");
-    return 0;
+    return nullptr;
   }
   return coll;
 }
