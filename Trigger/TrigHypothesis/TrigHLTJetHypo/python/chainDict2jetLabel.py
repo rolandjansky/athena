@@ -5,13 +5,12 @@ import re
 
 from TrigHLTJetHypo.checkScenarioPresence import checkScenarioPresence
 
-from TrigHLTJetHypo.DebugPrinter import DebugPrinter
-
-printer = DebugPrinter(prefix=__name__)
+from AthenaCommon.Logging import logging
+from AthenaCommon.Constants import DEBUG
+logger = logging.getLogger( __name__)
 
 # substrings that cannot occur in any chainPartName for simple chains.
 reject_substr = (
-    #    'gsc',
     'ion',
     'dphi',
     'deta',
@@ -82,8 +81,6 @@ def _make_simple_label(chain_parts, leg_label):
                 condition_str += ',%s' % jvtstr
             if momstr:
                 if 'SEP' in momstr:
-                    printer('_cuts_from_momCuts(momstr):')
-                    printer(_cuts_from_momCuts(momstr))
                     for cut in _cuts_from_momCuts(momstr):
                         condition_str += ',%s' % cut
                 else:
@@ -267,8 +264,9 @@ def chainDict2jetLabel(chain_dict, debug=False):
     # suported scenarios. Caution! two keys in the router dict
     # must not share a common initial substring.
 
-    printer.debug = debug
-    
+    if debug:
+        logger.setLevel(DEBUG)
+        
     router = {
         'simple': _make_simple_label,
         'agg':   _make_agg_label,
@@ -292,8 +290,9 @@ def chainDict2jetLabel(chain_dict, debug=False):
 
     bad_headers = checkScenarioPresence(chain_parts,
                                         chain_dict['chainName'])
+    bad_headers = '\n'.join(bad_headers)
     if bad_headers:
-        printer('scenario mismatches', [str(h) for h in bad_headers])
+        logger.info('scenario mismatches, ', bad_headers)
         
     for cp in chain_parts:
         for k in cp_sorter:

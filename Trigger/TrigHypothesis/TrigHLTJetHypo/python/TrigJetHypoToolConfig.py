@@ -23,16 +23,14 @@ from  TrigHLTJetHypo.ChainLabelParser import ChainLabelParser
 
 
 from AthenaCommon.Logging import logging
-log = logging.getLogger( 'TrigJetHypoToolConfig' )
-
-
-from  TrigHLTJetHypo.DebugPrinter import DebugPrinter
-
+logger = logging.getLogger(__name__)
 
 algToolFactory = FastReductionAlgToolFactory()
 
 debug = False  # SET TO FALSE  WHEN COMMITTING
-printer = DebugPrinter(prefix=__name__, debug=debug)
+if debug:
+    from AthenaCommon.Constants import DEBUG
+    logger.setLevel(DEBUG)
 
 
 def  tree2tools(tree, toolSetter, checker):
@@ -40,7 +38,7 @@ def  tree2tools(tree, toolSetter, checker):
     # expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
-    log.debug(visitor.report())
+    logger.debug(visitor.report())
 
     # move the filter conditions into node.filter_conditions
     visitor = FilterConditionsMover()
@@ -52,7 +50,7 @@ def  tree2tools(tree, toolSetter, checker):
     # check tree invariants 
     if checker is not None:
         tree.accept(checker)
-        printer (checker.report())
+        logger.debug(checker.report())
         assert not checker.error()
     
     # create - possibly nested - tools, The tools are attached to the visitor.
@@ -86,7 +84,7 @@ def trigJetHypoToolHelperConfigurersFromLabel(
         tree2tools(tree, toolSetter, checker)
         configurer_tools.append(toolSetter.config_tool)   
 
-        log.debug(toolSetter.report())
+        logger.debug(toolSetter.report())
 
     return configurer_tools
 
@@ -101,7 +99,7 @@ def trigJetConfigurerToolsFromDict(chain_dict):
             chain_dict['chainName'],)
         m += '  jet hypo scenario: %s' % (
             chain_dict['chainParts'][0]['hypoScenario'],)
-        log.error(m)        
+        logger.debug(m)        
         raise e
 
     chain_name = chain_dict['chainName']
@@ -116,7 +114,7 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
     Tool tree structure."""
 
     
-    log.debug('trigJetHypoToolFromDict chainDict %s', str(chain_dict))
+    logger.debug('trigJetHypoToolFromDict chainDict ', str(chain_dict))
     algToolFactory = FastReductionAlgToolFactory()
 
     # Build the helper tool
@@ -160,10 +158,9 @@ def  trigJetHypoToolHelperFromDict(chain_dict):
 def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):
     """Produce  a jet trigger hypo tool from a chainDict"""
 
-    log.debug('trigJetHypoToolFromDict_ tool type ',
-              hypo_tool.__class__.__name__,
-              ' chainDict ',
-              str(chain_dict))
+    logger.debug('trigJetHypoToolFromDict_ tool type %s chainDict ', 
+                 hypo_tool.__class__.__name__,
+                 str(chain_dict))
 
     # obtain  a Helper Tool (possibly a tree of tools) to
     # make the hypo decision.
@@ -174,7 +171,7 @@ def  trigJetHypoToolFromDict_(chain_dict, hypo_tool, debug=False):
 
     hypo_tool.chain_name = chain_dict['chainName']
 
-    log.debug('%s', hypo_tool)
+    logger.debug(str(hypo_tool))
 
     return hypo_tool
 
@@ -204,7 +201,7 @@ class TestStringMethods(unittest.TestCase):
             chain_dict = dictFromChainName(chain_name)
             tool = trigJetHypoToolFromDict(chain_dict)
             self.assertIsNotNone(tool)
-            log.info('%s %s', chain_name.rjust(wid), tool)
+            logger.debug(chain_name.rjust(wid), str(tool))
 
 
 class TestDebugFlagIsFalse(unittest.TestCase):
