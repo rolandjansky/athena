@@ -1,5 +1,4 @@
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-from __future__ import print_function
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 __author__ = "Mark Sutton, Matous Vozak"
 __doc__    = "ConfigSettings"
@@ -152,22 +151,22 @@ class _Settings :
        return self._isLRT
 
    def printout(self):
-      print( self._name, " :")
-      print( "   pTmin                : ", self._pTmin )
-      print( "   d0SeedMax            : ", self._d0SeedMax )
-      print( "   d0SeedPPSMax         : ", self._d0SeedPPSMax )
-      print( "   doZFinder            : ", self._doZFinder )
-      print( "   doResMon             : ", self._doResMon )
-      print( "   doSpPhiFiltering     : ", self._doSpPhiFiltering )
-      print( "   doCloneRemoval       : ", self._doCloneRemoval )
-      print( "   checkRedundantSeeds  : ", self._checkRedundantSeeds )
-      print( "   dRdoubletMax         : ", self._dRdoubletMax )
-      print( "   seedRadBinWidth      : ", self._seedRadBinWidth )
-      print( "   etaHalfWidth         : ", self._etaHalfWidth )
-      print( "   phiHalfWidth         : ", self._phiHalfWidth )
-      print( "   doFullScan           : ", self._doFullScan )
-      print( "   monPS                : ", self._monPS )
-      print( "   monPtMin             : ", self._monPtMin )
+      print( self._name, " :")                                         # noqa: ATL901
+      print( "   pTmin                : ", self._pTmin )               # noqa: ATL901
+      print( "   d0SeedMax            : ", self._d0SeedMax )           # noqa: ATL901
+      print( "   d0SeedPPSMax         : ", self._d0SeedPPSMax )        # noqa: ATL901
+      print( "   doZFinder            : ", self._doZFinder )           # noqa: ATL901
+      print( "   doResMon             : ", self._doResMon )            # noqa: ATL901
+      print( "   doSpPhiFiltering     : ", self._doSpPhiFiltering )    # noqa: ATL901
+      print( "   doCloneRemoval       : ", self._doCloneRemoval )      # noqa: ATL901
+      print( "   checkRedundantSeeds  : ", self._checkRedundantSeeds ) # noqa: ATL901
+      print( "   dRdoubletMax         : ", self._dRdoubletMax )        # noqa: ATL901
+      print( "   seedRadBinWidth      : ", self._seedRadBinWidth )     # noqa: ATL901
+      print( "   etaHalfWidth         : ", self._etaHalfWidth )        # noqa: ATL901
+      print( "   phiHalfWidth         : ", self._phiHalfWidth )        # noqa: ATL901
+      print( "   doFullScan           : ", self._doFullScan )          # noqa: ATL901
+      print( "   monPS                : ", self._monPS )               # noqa: ATL901
+      print( "   monPtMin             : ", self._monPtMin )            # noqa: ATL901
 
 
 #Tracking configuration for different signatures
@@ -242,6 +241,15 @@ class _Tracking_fullScan( _Settings ):
       self._doPPS           = False
       self._minCluster      = 8
       self._roadWidth       = 5
+
+class _Tracking_fullScanUTT( _Settings ):
+   def __init__( self ):
+      _Settings.__init__(self)
+      self._etaHalfWidth    = 3.
+      self._phiHalfWidth    = 3.14159
+      self._doTRT           = False
+      self._dRdoubletMax    = 200
+      self._seedRadBinWidth = 10
 
 class _Tracking_minBias( _Settings ):
    def __init__( self ):
@@ -357,6 +365,7 @@ _TrackingConfigSettings = {
 
     "bjet"         : _Tracking_bjet(),
     "fullScan"     : _Tracking_fullScan(),
+    "fullScanUTT"  : _Tracking_fullScanUTT(),
 
     "minBias400"   : _Tracking_minBias(),
     "beamSpot"     : _Tracking_beamSpot(),
@@ -606,6 +615,15 @@ class _Settings_jet( _GlobalSettings ):
       self._doRecord = True
       self._adaptiveVertex = False
 
+class _Settings_jetUTT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "jetUTT" #To be appended to alg names
+      self._roi      = "HLT_Roi_jetFS" #FIXME: possibly different!
+      self._configFT = _FastTracking(      signatureType = 'fullScanUTT', nameSuffix = 'FS' ) #
+      self._configPT = _PrecisionTracking( signatureType = 'fullScan',    nameSuffix = 'FS' ) #Final collection is being renamed to just tau apparently...
+      self._doRecord = True
+
 class _Settings_minBias( _GlobalSettings ):
    def __init__( self ):
       _GlobalSettings.__init__(self)
@@ -631,6 +649,14 @@ class _Settings_fullScan( _GlobalSettings ):
       self._name     = "fullScan" #To be appended to alg names
       self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
       self._configFT = _FastTracking(   signatureType = 'fullScan',  nameSuffix = 'FS' ) #
+      self._doRecord = False
+
+class _Settings_fullScanUTT( _GlobalSettings ):
+   def __init__( self ):
+      _GlobalSettings.__init__(self)
+      self._name     = "fullScanUTT" #To be appended to alg names
+      self._roi      = "HLT_Roi_FS" #FIXME: possibly different!
+      self._configFT = _FastTracking(   signatureType = 'fullScanUTT',  nameSuffix = 'FS' ) #
       self._doRecord = False
 
 class _Settings_cosmics( _GlobalSettings ):
@@ -719,6 +745,7 @@ _ConfigSettings = {
 
     "bjet"        : _Settings_bjet(),
     "jet"         : _Settings_jet(),
+    "jetUTT"      : _Settings_jetUTT(),
 
     "fullScan"    : _Settings_fullScan(),
 

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrkVertexSeedFinderTools )
@@ -22,31 +22,13 @@ atlas_add_component( TrkVertexSeedFinderTools
                      GeoPrimitives StoreGateLib TestTools TrkEventPrimitives TrkParameters TrkTrack
                      TrkVertexFitterInterfaces TrkVertexSeedFinderToolsLib TrkVertexSeedFinderUtilsLib TruthHelper )
 
-
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
 # Tests in the package:
 function( run_seed_test testName )
-  cmake_parse_arguments( ARG "" "COMMAND;ARG" "" ${ARGN} )
-
-  if( ARG_COMMAND )
-    set( _command ${ARG_COMMAND} )
-  else()
-     set( _command athena.py )
-  endif()
-
-  if( ARG_ARG )
-    set( _arg ${ARG_ARG} )
-  else()
-    set( _arg TrkVertexSeedFinderTools/${testName}_test.py )
-  endif()
-
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/seed_test.sh.in
-                  ${CMAKE_CURRENT_BINARY_DIR}/seed_${testName}.sh
-                  @ONLY )
   atlas_add_test( ${testName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/seed_${testName}.sh
+                  SCRIPT athena.py TrkVertexSeedFinderTools/${testName}_test.py
                   PROPERTIES TIMEOUT 300
                   LOG_IGNORE_PATTERN " INFO |WARNING |found service|Adding private|^ +[+]|HepPDT Version|class DataHeader|class PoolToken" )
 endfunction (run_seed_test)

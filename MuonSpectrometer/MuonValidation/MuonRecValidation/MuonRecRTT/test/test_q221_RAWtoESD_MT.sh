@@ -11,71 +11,75 @@
 # art-output: diff_1_vs_serial.txt
 # art-output: diff_5_vs_1.txt
 # art-output: diff_8_vs_1.txt
+# art-output: log.RAWtoESD_serial
+# art-output: log.RAWtoESD_1thread
+# art-output: log.RAWtoESD_5thread
+# art-output: log.RAWtoESD_8thread
 
 #####################################################################
 # to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-LOG_RECO="log_q221_RAWtoESD_serial.log"
 Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
-           --outputESDFile OUT_ESD.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_serial
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 1 thread
 # to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-LOG_RECO="log_q221_RAWtoESD_1thread.log"
 Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=1" \
-           --outputESDFile OUT_ESD_1thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_1thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_1thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_1thread
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 5 threads
 # to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-LOG_RECO="log_q221_RAWtoESD_5thread.log"
 Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=5" \
-           --outputESDFile OUT_ESD_5thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_5thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_5thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_5thread
 #####################################################################
 
 #####################################################################
 # now run reconstruction with AthenaMT with 8 threads
 # to save some computing time, start already from the q221 trigger RDO output (made in 22.0.25)
-LOG_RECO="log_q221_RAWtoESD_8thread.log"
 Reco_tf.py --inputRDO_TRIGFile /cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/MuonRecRTT/Run2/q221_RDO/rel22_0_25/tmp.RDO_TRIG \
            --AMI q221 \
            --imf False \
            --athenaopts="--threads=8" \
-           --outputESDFile OUT_ESD_8thread.root &> ${LOG_RECO}
+           --outputESDFile OUT_ESD_8thread.root
 exit_code=$?
 echo  "art-result: ${exit_code} Reco_tf_8thread.py"
 if [ ${exit_code} -ne 0 ]
 then
     exit ${exit_code}
 fi
+mv log.RAWtoESD log.RAWtoESD_8thread
 #####################################################################
 
 #####################################################################

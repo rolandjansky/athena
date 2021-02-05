@@ -166,7 +166,7 @@ class PartialEventBuildingChecks(MenuVerification):
         eb_identifiers = EventBuildingInfo.getAllEventBuildingIdentifiers()
 
         for chain_name, chain_config in config['chains'].items():
-            peb_identifiers = [idf for idf in eb_identifiers if idf in chain_name]
+            peb_identifiers = [idf for idf in eb_identifiers if '_'+idf+'_' in chain_name]
             peb_writers = [seq for seq in chain_config['sequencers'] if 'PEBInfoWriter' in seq]
 
             is_peb_chain = (len(peb_identifiers) > 0 or len(peb_writers) > 0)
