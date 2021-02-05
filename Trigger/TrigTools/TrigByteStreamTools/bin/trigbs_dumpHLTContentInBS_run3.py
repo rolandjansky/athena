@@ -97,9 +97,17 @@ def hlt_bits(event, l2=False):
 
 
 def stream_tags(event):
-    info_str = 'Stream Tags: '
-    stags = [('{}_{}'.format(s.type, s.name)) for s in event.stream_tag()]
-    info_str += '{:s}'.format(str(stags))
+    def hex_list(nums):
+        return '[' + ', '.join([hex(num) for num in nums]) + ']'
+    info_str = 'Stream Tags:'
+    for st in event.stream_tag():
+        info_str += '\n-- {}_{}'.format(st.type, st.name)
+        robs = list(st.robs)
+        dets = list(st.dets)
+        if len(robs) == 0 and len(dets) == 0:
+            info_str += ' - Full Event Building'
+        else:
+            info_str += ' - Partial Event Building, robs={}, dets={}'.format(hex_list(robs), hex_list(dets))
     return info_str
 
 
