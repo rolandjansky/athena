@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AthenaKernel/Timeout.h"
@@ -185,7 +185,7 @@ HLT::ErrorCode InDetTrigAmbiguitySolver::hltExecute(const HLT::TriggerElement*, 
     // see bug#9886 for details
     m_tracks = new TrackCollection;
     m_tracks->reserve(m_oldTracks->size());
-    for (const auto &pi:*m_oldTracks){
+    for (const auto pi:*m_oldTracks){
       m_tracks->push_back(new Trk::Track(*pi));
     }
   }

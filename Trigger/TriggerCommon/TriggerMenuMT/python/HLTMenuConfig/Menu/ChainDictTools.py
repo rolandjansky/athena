@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from copy import deepcopy
 
@@ -124,32 +124,3 @@ def splitChainInLegs(chainName):
             onePartChainDict['chainName'] = legName(chainName, count)            
             listOfChainDicts += [onePartChainDict]
       return listOfChainDicts
-
-          
-def setupTopoStartFrom(topoThresholds, theChainDef):
-    from TrigGenericAlgs.TrigGenericAlgsConf import MergeTopoStarts
-
-    if len(topoThresholds) > 1:
-        from TrigGenericAlgs.TrigGenericAlgsLegacyConfig import MergeTopoStartsConfig
-        m = MergeTopoStartsConfig("testInstance")
-        log.debug(m)
-
-    te0 = None
-    te1 = None 
-    outTE = None
-    
-    for i in range(len(topoThresholds)):
-        if i == 0:
-            te0 = topoThresholds[i]
-            continue
-        te1 = topoThresholds[i]
-        combTes = te0+"_"+te1
-        outTE = "L2_merged_"+combTes
-        theMergeTopoStarts = MergeTopoStarts("MergeTopoStarts_"+combTes)
-        theChainDef.addSequence( theMergeTopoStarts,[te0,te1], outTE)   
-        theChainDef.addSignatureL2([outTE])   
-        te0=outTE
-
-    return te0
-
-

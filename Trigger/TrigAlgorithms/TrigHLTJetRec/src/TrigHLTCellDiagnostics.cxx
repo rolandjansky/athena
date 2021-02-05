@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -112,7 +112,7 @@ HLT::ErrorCode TrigHLTCellDiagnostics::hltExecute(const HLT::TriggerElement* inp
   ATH_MSG_DEBUG("No of cells in the container: " << cellContainer->size());
   m_hMap1D["nCells"]->Fill(cellContainer->size());
 
-  for (const auto &cell : *cellContainer) {
+  for (const auto cell : *cellContainer) {
     // Get cell attributes
     double energy = cell->e();
     double eta = cell->eta();

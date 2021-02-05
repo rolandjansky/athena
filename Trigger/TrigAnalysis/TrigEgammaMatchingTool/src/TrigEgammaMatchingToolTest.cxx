@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaMatchingToolTest.cxx 
@@ -132,7 +132,7 @@ namespace Trig{
         if(taus) ATH_MSG_INFO("Offline Tau container size " << taus->size());
         for(const auto &trigger : m_triggerList){
             if(!offElectrons) continue;
-            for(const auto& eg : *offElectrons){
+            for(const auto eg : *offElectrons){
                 match(trigger,eg);
             } //End loop of offline electrons
         } // End loop over trigger list

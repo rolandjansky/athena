@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -584,7 +584,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
                 } else {
                     if (msgLvl(MSG::DEBUG) ) {
                         ATH_MSG_INFO( "size of jet container " << m_jets->size() );
-                        for (const auto& ijet : *m_jets)
+                        for (const auto ijet : *m_jets)
                             ATH_MSG_INFO( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
                     }
                 }
@@ -601,7 +601,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
                 } else {
                     if (msgLvl(MSG::DEBUG) ) {
                         ATH_MSG_DEBUG( "size of jet container " << m_jets->size() );
-                        for (const auto& ijet : *m_jets)
+                        for (const auto ijet : *m_jets)
                             ATH_MSG_DEBUG( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
                     }
                 }
@@ -618,7 +618,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
                     } else {
                         // v_ttracks.push_back(tempTracks);
                         ATH_MSG_DEBUG( "size of track container " << tempTracks->size() );
-                        for (const auto& itrack : *tempTracks) {
+                        for (const auto itrack : *tempTracks) {
                             v_ttracks.push_back(itrack);
                             ATH_MSG_DEBUG( " Track pt, eta, phi, vertex, z0, vz: " << itrack->pt()<<", "<< itrack->eta()<<", "<< itrack->phi() << ", "
                                            <<  fabs(itrack->z0()) << ", " << itrack->vz() );
@@ -700,7 +700,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
                 } else {
                     if (msgLvl(MSG::DEBUG) ) {
                         ATH_MSG_DEBUG( "size of jet container " << m_jets->size() );
-                        for (const auto& ijet : *m_jets)
+                        for (const auto ijet : *m_jets)
                             ATH_MSG_DEBUG( " Jet E, eta, phi: " << ijet->e()<<", "<< ijet->eta()<<", "<< ijet->phi() );
                     }
                 }

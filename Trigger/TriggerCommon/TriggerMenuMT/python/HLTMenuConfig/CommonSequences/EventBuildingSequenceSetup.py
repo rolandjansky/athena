@@ -45,7 +45,7 @@ def pebInfoWriterTool(name, eventBuildType):
     Create PEBInfoWriterTool configuration for the eventBuildType
     '''
     tool = None
-    if 'BeamSpotPEB' in eventBuildType:
+    if 'BeamSpotPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([
             SubDetector.PIXEL_BARREL,
@@ -58,23 +58,44 @@ def pebInfoWriterTool(name, eventBuildType):
             SubDetector.SCT_ENDCAP_C_SIDE,
             SubDetector.TDAQ_CTP
         ])
-    elif 'LArPEB' in eventBuildType:
+    elif 'LArPEBCalib' == eventBuildType:
+        tool = StaticPEBInfoWriterToolCfg(name)
+        tool.addSubDets([SubDetector.LAR_EM_BARREL_A_SIDE,
+                         SubDetector.LAR_EM_BARREL_C_SIDE,
+                         SubDetector.LAR_EM_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_ENDCAP_C_SIDE,
+                         SubDetector.LAR_HAD_ENDCAP_A_SIDE,
+                         SubDetector.LAR_HAD_ENDCAP_C_SIDE,
+                         SubDetector.LAR_FCAL_A_SIDE,
+                         SubDetector.LAR_FCAL_C_SIDE,
+                         SubDetector.LAR_EM_BARREL_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_BARREL_ENDCAP_C_SIDE,
+                         SubDetector.LAR_EM_HAD_ENDCAP_A_SIDE,
+                         SubDetector.LAR_EM_HAD_ENDCAP_C_SIDE,
+                         SubDetector.TDAQ_CTP
+        ])
+    elif 'LArPEBHLT' == eventBuildType:
         tool = RoIPEBInfoWriterToolCfg(name)
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
         tool.MaxRoIs = 5
         tool.addHLTResultToROBList()  # add the main (full) HLT result to the list
         tool.addCTPResultToROBList()  # add the CTP result to the list
-    elif 'RPCPEBSecondaryReadout' in eventBuildType:
+    elif 'LArPEB' == eventBuildType:
+        tool = RoIPEBInfoWriterToolCfg(name)
+        tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
+        tool.MaxRoIs = 5
+        tool.addCTPResultToROBList()  # add the CTP result to the list
+    elif 'RPCPEBSecondaryReadout' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addROBs([0x610080, 0x620080])
-    elif 'SCTPEB' in eventBuildType:
+    elif 'SCTPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.SCT_BARREL_A_SIDE,
                          SubDetector.SCT_BARREL_C_SIDE,
                          SubDetector.SCT_ENDCAP_A_SIDE,
                          SubDetector.SCT_ENDCAP_C_SIDE
         ])
-    elif 'TilePEB' in eventBuildType:
+    elif 'TilePEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.TILECAL_LASER_CRATE,
                          SubDetector.TILECAL_BARREL_A_SIDE,
@@ -88,12 +109,12 @@ def pebInfoWriterTool(name, eventBuildType):
                          SubDetector.TDAQ_CALO_JET_PROC_DAQ, # = 0x74
                          SubDetector.TDAQ_CALO_JET_PROC_ROI # = 0x75
         ])
-    elif 'AlfaPEB' in eventBuildType:
+    elif 'AlfaPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([SubDetector.FORWARD_ALPHA,
                          SubDetector.TDAQ_CTP
         ])
-    elif 'CSCPEB' in eventBuildType:
+    elif 'CSCPEB' == eventBuildType:
         tool = StaticPEBInfoWriterToolCfg(name)
         tool.addSubDets([
             SubDetector.MUON_CSC_ENDCAP_A_SIDE,

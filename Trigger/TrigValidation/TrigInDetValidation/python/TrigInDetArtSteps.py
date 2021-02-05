@@ -117,7 +117,7 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
         if (lrt):
-            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False);'
+            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False)'
 
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )
@@ -189,10 +189,12 @@ class TrigInDetRdictStep(Step):
         os.system( 'get_files -data TIDAdata-run3.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-larged0-el.dat &> /dev/null' )
+        os.system( 'get_files -data TIDAdata-run3-offline-lrt.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata-run3-offline-vtx.dat &> /dev/null' )
         os.system( 'get_files -data TIDAdata_cuts-offline.dat &> /dev/null' )
         super(TrigInDetRdictStep, self).configure(test)

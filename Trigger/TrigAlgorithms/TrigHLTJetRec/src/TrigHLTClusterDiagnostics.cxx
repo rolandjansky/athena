@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -113,7 +113,7 @@ HLT::ErrorCode TrigHLTClusterDiagnostics::hltExecute(const HLT::TriggerElement* 
   ATH_MSG_DEBUG("No of clusters in the container: " << clusterContainer->size());
   m_hMap1D["nClusters"]->Fill(clusterContainer->size());
 
-  for (const auto &cluster : *clusterContainer) {
+  for (const auto cluster : *clusterContainer) {
     // Get cluster attributes
     double energy = (cluster->p4()).E();
     double et = (cluster->p4()).Et();

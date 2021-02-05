@@ -24,6 +24,7 @@ class Node(object):
         
         self.scenario = scenario
         self.parameters = ''
+        self.multiplicity = 1
         self.children = []
         self.conf_attrs = []  # list of dictionaries to build conditions
 
@@ -92,6 +93,7 @@ class Node(object):
              indent + 'parent node id: %s' % self.parent_id,
              indent + 'is tree top? %s' % self.tree_top,
              indent + 'parameters: %s' % str(self.parameters),
+             indent + 'multiplicity: %s' % str(self.multiplicity),
              indent + 'chainpartinds %s' % str(self.chainpartinds),
              indent + 'conf_attrs [%d]:' % len(self.conf_attrs)]
         for ca in self.conf_attrs:

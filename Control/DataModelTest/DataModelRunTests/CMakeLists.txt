@@ -1,6 +1,4 @@
-################################################################################
-# Package: DataModelRunTests
-################################################################################
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( DataModelRunTests )
@@ -8,7 +6,7 @@ atlas_subdir( DataModelRunTests )
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
 
-
+# Tests in the package:
 function (datamodel_run_test testName)
   cmake_parse_arguments( ARG "" "DEPENDS;COMMAND;ARG;EXTRA_IGNORE" "" ${ARGN} )
 
@@ -24,11 +22,8 @@ function (datamodel_run_test testName)
     set( _arg DataModelRunTests/${testName}_jo.py )
   endif()
 
-  configure_file( ${CMAKE_CURRENT_SOURCE_DIR}/test/datamodel_test.sh.in
-                  ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
-                  @ONLY )
   atlas_add_test( ${testName}
-                  SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/datamodel_${testName}.sh
+                  SCRIPT ${_command} ${_arg}
                   PROPERTIES TIMEOUT 300
                   LOG_IGNORE_PATTERN "has different type than the branch|no dictionary for class|^StorageSvc +INFO|Cache alignment|Unable to locate catalog|IOVDbSvc[0-9 ]+INFO|Invalid ./TagInfo${ARG_EXTRA_IGNORE}"
                   ENVIRONMENT "ATLAS_REFERENCE_TAG=DataModelRunTests/DataModelRunTestsReference-01-00-03"
@@ -53,12 +48,12 @@ datamodel_run_test (xAODTestRead2 DEPENDS xAODTestRead) #i:xaoddata2.root o:xaod
 datamodel_run_test (xAODTestTypelessRead DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestRead3 DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestRead3MT
-                    COMMAND "athena.py --thread=1"
+                    COMMAND "athena.py --threads=1"
                     EXTRA_IGNORE "|^xAODTestRead"
                     DEPENDS xAODTestTypelessRead)
 datamodel_run_test (xAODTestReadRename DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadRenameMT
-                    COMMAND "athena.py --thread=1"
+                    COMMAND "athena.py --threads=1"
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilter DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestReadFilterRead DEPENDS xAODTestReadFilter)
@@ -77,29 +72,29 @@ datamodel_run_test (ByteStreamTestRead DEPENDS ByteStreamTestWrite)
 datamodel_run_test (xAODTestSymlinks1)
 datamodel_run_test (xAODTestSymlinks1MT
                     EXTRA_IGNORE "|^xAODTestRead"
-                    COMMAND "athena.py --thread=1")
+                    COMMAND "athena.py --threads=1")
 
 datamodel_run_test (xAODTestSymlinks2
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestSymlinks2MT
-                    COMMAND "athena.py --thread=1"
+                    COMMAND "athena.py --threads=1"
                     DEPENDS xAODTestWrite)
 
 datamodel_run_test (xAODTestDecorHandle1)
 datamodel_run_test (xAODTestDecorHandle1MT
-                    COMMAND "athena.py --thread=1")
+                    COMMAND "athena.py --threads=1")
 
 datamodel_run_test (xAODTestDecorHandle2
                     DEPENDS xAODTestWrite)
 datamodel_run_test (xAODTestDecorHandle2MT
-                    COMMAND "athena.py --thread=1"
+                    COMMAND "athena.py --threads=1"
                     DEPENDS xAODTestWrite)
 
 datamodel_run_test (CondWriter)
 datamodel_run_test (CondReader
                     DEPENDS CondWriter)
 datamodel_run_test (CondReaderMT
-                    COMMAND "athena.py --thread=1"
+                    COMMAND "athena.py --threads=1"
                     DEPENDS CondWriter)
 
 datamodel_run_test (CondReadWrite)

@@ -32,9 +32,9 @@ std::atomic<unsigned int> ElectronSelector::s_uNumInstances;
 ElectronSelector::ElectronSelector():
   m_doDebug ( false ),
   m_ptCut ( 10. ),
-  m_etaCut ( 2.47 ), // 2.47 is the official acceptance for central electrons. Forward electrons is another story...
-  m_deltaXYcut ( 0.1 ),
-  m_deltaZcut ( 4. )
+  m_etaCut ( 2.47 ) // 2.47 is the official acceptance for central electrons. Forward electrons is another story...
+  //m_deltaXYcut ( 0.1 ),
+  //m_deltaZcut ( 4. )
 {
   ++s_uNumInstances;
   

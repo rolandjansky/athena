@@ -6,17 +6,6 @@
 
 #include <algorithm>
 
-/*
-//Constructor
-LArClusterCollisionTimeAlg:: LArClusterCollisionTimeAlg(const std::string& name, ISvcLocator* pSvcLocator):
-    AthAlgorithm(name,pSvcLocator), 
-    m_nEvt(0),
-    m_nCollEvt(0),
-    m_clusterContainerName{this, "InputName", "LArClusterEM"},
-    m_outputName{this, "OutputName", "LArClusterCollTime"}
-  {}
-*/
-
 //__________________________________________________________________________
 StatusCode LArClusterCollisionTimeAlg::initialize()
   {
@@ -36,9 +25,6 @@ StatusCode LArClusterCollisionTimeAlg::finalize()
     return StatusCode::SUCCESS; 
   }
   
-
-
-
 LArClusterCollisionTimeAlg::perSide_t LArClusterCollisionTimeAlg::analyseClustersPerSide(std::vector<const xAOD::CaloCluster*>& clusters) const {
 
   perSide_t result;
@@ -71,7 +57,7 @@ StatusCode LArClusterCollisionTimeAlg::execute(const EventContext& ctx) const {
   // Get the cluster container
   SG::ReadHandle<xAOD::CaloClusterContainer> cluster_container (m_clusterContainerName,ctx);
   if( !cluster_container.isValid()) { // record empty object
-     ATH_MSG_INFO (" Could not get pointer to ClusterContainer ");
+    ATH_MSG_WARNING ("Could not get ClusterContainer with key " << m_clusterContainerName);
      // Construct the output object
      SG::WriteHandle<LArCollisionTime> larTime (m_outputName,ctx);
      ATH_CHECK( larTime.record (std::make_unique<LArCollisionTime>()) );
