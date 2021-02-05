@@ -482,6 +482,67 @@ def addStandardJets(jetalg, rsize, inputtype, ptmin=0., ptminFilter=0.,
         algseq += alg
         DFJetAlgs[algname] = alg
 
+#####################################################################
+
+def addStandardVRTrackJets(jetalg, vrMassScale, maxR, minR, ptmin=0.,
+                           ghostArea=0, algseq=None, outputGroup="CustomJets"):
+    
+    VRJetNameBase = "{0}VR{1}Rmax{2}Rmin0{3}Track".format(jetalg,int(vrMassScale/1000),int(maxR*10),int(minR*100))
+    VRJetOptions = dict(calibOpt = "none", ivtxin = 0)
+    VRJetOptions['variableRMinRadius'] = minR
+    VRJetOptions['variableRMassScale'] = vrMassScale
+    VRJetOptions['ptmin'] = ptmin
+    VRJetOptions['ghostArea'] = ghostArea
+
+    VRJetName = VRJetNameBase + "Jets"
+    dfjetlog.info("VR jet name: " + VRJetName)
+
+    from JetRec.JetRecStandard import jtm
+
+    # Slice the array - this forces a copy so that when we modify it we don't also
+    # change the array in jtm.
+    pseudoJetGetters = jtm.gettersMap["pv0track"][:]
+
+    # We want to include ghost associated tracks in the pv0 tracks so that
+    # we can use the looser ghost association criteria for b-tagging.
+    pseudoJetGetters += [jtm.gtrackget]
+
+    algname = "jetalg"+VRJetNameBase
+    OutputJets.setdefault(outputGroup , [] ).append(VRJetName)
+
+    # return if the alg is already scheduled here :
+    if algseq is None:
+        dfjetlog.warning( "No algsequence passed! Will not schedule "+algname )
+        return    
+    elif algname in DFJetAlgs:
+        if hasattr(algseq,algname):
+            dfjetlog.warning( "Algsequence "+algseq.name()+" already has an instance of "+algname )
+        else:
+            dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+            algseq += DFJetAlgs[algname]
+        return DFJetAlgs[algname]
+
+    if VRJetName not in jtm.tools:
+
+        mods = []
+
+        if jetFlags.useTruth and jtm.haveParticleJetTools:
+            mods += [jtm.trackjetdrlabeler, jtm.ghostlabeler]
+
+        VRJetOptions['modifiersin'] = mods
+
+        for getter in pseudoJetGetters:
+            if not hasattr(algseq, getter.name()):
+                algseq += getter
+
+        finderTool= jtm.addJetFinder(VRJetName, jetalg, maxR, pseudoJetGetters, **VRJetOptions)
+
+        from JetRec.JetRecConf import JetAlgorithm
+        alg = JetAlgorithm(algname, Tools = [finderTool])
+        dfjetlog.info( "Added "+algname+" to sequence "+algseq.name() )
+        algseq += alg
+        DFJetAlgs[algname] = alg
+
 ################################################################## 
 # Schedule the adding of BCID info
 ################################################################## 

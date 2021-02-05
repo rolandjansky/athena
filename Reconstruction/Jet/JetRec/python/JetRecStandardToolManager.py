@@ -152,6 +152,7 @@ if jetFlags.useTracks():
   trackjetgetters += [jtm.gakt2trackget]
 #  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
+  trackjetgetters += [jtm.gvrtrackget]
   emgetters += trackjetgetters
   lcgetters += trackjetgetters
   empfgetters += trackjetgetters

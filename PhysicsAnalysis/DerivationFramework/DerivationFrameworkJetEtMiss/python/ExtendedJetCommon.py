@@ -6,7 +6,7 @@
 #********************************************************************
 
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob, DerivationFrameworkIsMonteCarlo
-from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addSoftDropJets, addTrimmedJets
+from DerivationFrameworkJetEtMiss.JetCommon import addStandardJets, addStandardVRTrackJets, addSoftDropJets, addTrimmedJets
 from JetJvtEfficiency.JetJvtEfficiencyToolConfig import (getJvtEffTool, getJvtEffToolName)
 
 from AthenaCommon import CfgMgr
@@ -99,6 +99,9 @@ def addAntiKt4PV0TrackJets(sequence, outputlist):
 def addAntiKt10PV0TrackJets(sequence, outputlist):
     addStandardJets("AntiKt", 1.0, "PV0Track", ptmin=2000, ptminFilter=40000, mods="track_ungroomed", algseq=sequence, outputGroup=outputlist)
 
+def addAntiKtVR30Rmax4Rmin02TrackJets(sequence, outputlist):
+    addStandardVRTrackJets("AntiKt", 30000, 0.4, 0.02, ptmin=4000, algseq=sequence, outputGroup=outputlist)
+
 def addAntiKt2TruthJets(sequence,outputlist):
     if DerivationFrameworkIsMonteCarlo:
         addStandardJets("AntiKt", 0.2, "Truth", ptmin=5000, mods="truth_ungroomed", algseq=sequence, outputGroup=outputlist)
@@ -153,6 +156,9 @@ def replaceAODReducedJets(jetlist,sequence,outputlist):
         addAntiKt2LCTopoJets(sequence,outputlist)  # noqa: F821 (FIXME, does not exist)
     if "AntiKt10LCTopoJets" in jetlist:
         addAntiKt10LCTopoJets(sequence,outputlist)
+    if "AntiKtVR30Rmax4Rmin02TrackJets" in jetlist:
+        addAntiKtVR30Rmax4Rmin02TrackJets(sequence,outputlist)
+
 
 ##################################################################
 # Jet helpers for adding low-pt jets needed for calibration 
