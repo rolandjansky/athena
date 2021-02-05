@@ -59,7 +59,7 @@ def defineMenu():
         # 10 x 3-bit JET (can have multiplicity 4 or more)
 
         # 8 x JETs and central jets
-        'J12', 'J12p0ETA23', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30',
+        'J12', 'J12p0ETA25', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30',
 
         # 2 x Central Jets
          'J12p0ETA28', #'J12p0ETA25',
@@ -350,7 +350,7 @@ def defineMenu():
 
         # combined tau - jet
         "L1_TAU20IM_2TAU12IM_J25_2J20_3J12",
-        "L1_TAU20IM_2TAU12IM_4J12p0ETA23",
+        "L1_TAU20IM_2TAU12IM_4J12p0ETA25",
         "L1_TAU20IM_2TAU12IM_4J12p0ETA28",
         "L1_TAU25IM_2TAU20IM_2J25_3J20", 
 
@@ -772,7 +772,7 @@ def defineMenu():
         'L1_MU11_TAU20IM' : 430,
         'L1_MU10_TAU20IM_J25_2J20' : 377,
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
-        'L1_TAU20IM_2TAU12IM_4J12p0ETA23' : 316,
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25' : 316,
         #'L1_TAU20IM_2TAU12IM_4J12.0ETA25' : 73,
         'L1_TAU20IM_2TAU12IM_4J12p0ETA28' : 77,
         'L1_TAU25IM_2TAU20IM_2J25_3J20' : 398,
