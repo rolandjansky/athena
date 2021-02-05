@@ -356,6 +356,40 @@ def setupMenu():
         ChainProp(name='HLT_10j40_subjesIS_L14J15',                     groups=MultiJetGroup),
         ChainProp(name='HLT_10j40_subresjesgscIS_ftf_L14J15',           groups=MultiJetGroup),
         ChainProp(name='HLT_10j40_pf_subresjesgscIS_ftf_L14J15',        groups=MultiJetGroup),
+
+        #  Chains to test JVT and PFlow effects in low-threshold 6j
+        ChainProp(name='HLT_6j25_0eta240_L14J15',                           groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_subresjesgscIS_0eta240_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_subresjesgscIS_0eta240_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_subresjesgscIS_0eta240_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_subresjesgscIS_0eta240_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        ChainProp(name='HLT_6j35_0eta240_L14J15',                           groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_subresjesgscIS_0eta240_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_subresjesgscIS_0eta240_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_subresjesgscIS_0eta240_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_subresjesgscIS_0eta240_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        ChainProp(name='HLT_6j45_0eta240_L14J15',                           groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_subresjesgscIS_0eta240_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_subresjesgscIS_0eta240_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_subresjesgscIS_0eta240_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_subresjesgscIS_0eta240_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        ChainProp(name='HLT_6j25_0eta240_pf_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_0eta240_pf_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_0eta240_pf_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j25_0eta240_pf_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        ChainProp(name='HLT_6j35_0eta240_pf_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_0eta240_pf_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_0eta240_pf_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j35_0eta240_pf_ftf_050jvt_L14J15', groups=MultiJetGroup),
+
+        ChainProp(name='HLT_6j45_0eta240_pf_ftf_L14J15',        groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_0eta240_pf_ftf_010jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_0eta240_pf_ftf_020jvt_L14J15', groups=MultiJetGroup),
+        ChainProp(name='HLT_6j45_0eta240_pf_ftf_050jvt_L14J15', groups=MultiJetGroup),
     ]
 
     TriggerFlags.BjetSlice.signatures = TriggerFlags.BjetSlice.signatures() + [
