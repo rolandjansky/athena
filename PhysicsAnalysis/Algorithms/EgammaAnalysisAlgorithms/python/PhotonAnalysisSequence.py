@@ -12,7 +12,11 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                                 deepCopyOutput = False,
                                 shallowViewOutput = True,
                                 postfix = '',
+                                crackVeto = False,
+                                enableCleaning = True,
+                                cleaningAllowLate = False,
                                 recomputeIsEM = False,
+                                ptSelectionOutput = False,
                                 enableCutflow = False,
                                 enableKinematicHistograms = False ):
     """Create a photon analysis algorithm sequence
@@ -28,7 +32,12 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                  names.  this is mostly used/needed when using this
                  sequence with multiple working points to ensure all
                  names are unique.
+      crackVeto -- Whether or not to perform eta crack veto
+      enableCleaning -- Enable photon cleaning
+      cleaningAllowLate -- Whether to ignore timing information in cleaning.
       recomputeIsEM -- Whether to rerun the cut-based selection. If not, use derivation flags
+      ptSelectionOutput -- Whether or not to apply pt selection when creating
+                           output containers.
       enableCutflow -- Whether or not to dump the cutflow
       enableKinematicHistograms -- Whether or not to dump the kinematic histograms
     """
@@ -48,9 +57,13 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
     seq.addMetaConfigDefault ("selectionDecorNamesOutput", [])
     seq.addMetaConfigDefault ("selectionDecorCount", [])
 
-    makePhotonCalibrationSequence (seq, dataType, postfix=postfix)
-    makePhotonWorkingPointSequence (seq, dataType, workingPoint, postfix=postfix,
-                                    recomputeIsEM = recomputeIsEM)
+    makePhotonCalibrationSequence (seq, dataType, postfix = postfix,
+                                   crackVeto = crackVeto,
+                                   enableCleaning = enableCleaning, cleaningAllowLate = cleaningAllowLate,
+                                   recomputeIsEM = recomputeIsEM,
+                                   ptSelectionOutput = ptSelectionOutput)
+    makePhotonWorkingPointSequence (seq, dataType, workingPoint, postfix = postfix,
+                                    recomputeIsEM = recomputeIsEM )
     makeSharedObjectSequence (seq, deepCopyOutput = deepCopyOutput,
                               shallowViewOutput = shallowViewOutput,
                               postfix = '_Photon' + postfix,
@@ -65,7 +78,12 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
 
 
 def makePhotonCalibrationSequence( seq, dataType,
-                                 postfix = ''):
+                                   postfix = '',
+                                   crackVeto = False,
+                                   enableCleaning = True,
+                                   cleaningAllowLate = False,
+                                   recomputeIsEM = False,
+                                   ptSelectionOutput = False ):
     """Create photon calibration analysis algorithms
 
     This makes all the algorithms that need to be run first befor
@@ -78,25 +96,77 @@ def makePhotonCalibrationSequence( seq, dataType,
                  names.  this is mostly used/needed when using this
                  sequence with multiple working points to ensure all
                  names are unique.
+      crackVeto -- Whether or not to perform eta crack veto
+      enableCleaning -- Enable photon cleaning
+      cleaningAllowLate -- Whether to ignore timing information in cleaning.
+      recomputeIsEM -- Whether to rerun the cut-based selection. If not, use derivation flags
+      ptSelectionOutput -- Whether or not to apply pt selection when creating
+                           output containers.
     """
 
     # Make sure we received a valid data type.
     if dataType not in [ 'data', 'mc', 'afii' ]:
         raise ValueError( 'Invalid data type: %s' % dataType )
 
-    # Select electrons only with good object quality.
+    cleaningWP = 'NoTime' if cleaningAllowLate else ''
+
+    # Set up the eta-cut on all photons prior to everything else
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonEtaCutAlg' + postfix )
+    alg.selectionDecoration = 'selectEta' + postfix + ',as_bits'
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+    alg.selectionTool.maxEta = 2.37
+    if crackVeto:
+        alg.selectionTool.etaGapLow = 1.37
+        alg.selectionTool.etaGapHigh = 1.52
+    alg.selectionTool.useClusterEta = True
+    seq.append( alg, inputPropName = 'particles',
+                outputPropName = 'particlesOut',
+                stageName = 'calibration',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration],
+                              'selectionDecorCount' : [5 if crackVeto else 4]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+
+    # Setup shower shape fudge
+    if recomputeIsEM and dataType == 'mc':
+        alg = createAlgorithm( 'CP::PhotonShowerShapeFudgeAlg',
+                               'PhotonShowerShapeFudgeAlg' + postfix )
+        addPrivateTool( alg, 'showerShapeFudgeTool',
+                        'ElectronPhotonShowerShapeFudgeTool' )
+        alg.showerShapeFudgeTool.Preselection = 22 # Rel 21
+        alg.showerShapeFudgeTool.FFCalibFile = \
+            'ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root' # only for rel21
+        seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
+                    stageName = 'calibration',
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+        pass
+
+    # Select photons only with good object quality.
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonObjectQualityAlg' + postfix )
-    alg.selectionDecoration = 'goodOQ'
+    alg.selectionDecoration = 'goodOQ,as_bits'
     addPrivateTool( alg, 'selectionTool', 'CP::EgammaIsGoodOQSelectionTool' )
     alg.selectionTool.Mask = ROOT.xAOD.EgammaParameters.BADCLUSPHOTON
-    seq.append( alg, inputPropName = 'particles', outputPropName = 'particlesOut',
+    seq.append( alg, inputPropName = 'particles',
                 stageName = 'calibration',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
                               'selectionDecorCount' : [1]},
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
-    # Set up the calibration ans smearing algorithm.
+    # Select clean photons
+    if enableCleaning:
+        alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonCleaningAlg' + postfix)
+        addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+        alg.selectionDecoration = 'isClean,as_bits'
+        alg.selectionTool.selectionFlags = ['DFCommonPhotonsCleaning' + cleaningWP]
+        seq.append( alg, inputPropName = 'particles',
+                    stageName = 'calibration',
+                    metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                                'selectionDecorNamesOutput' : [alg.selectionDecoration],
+                                'selectionDecorCount' : [1]},
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+
+    # Do calibration
     alg = createAlgorithm( 'CP::EgammaCalibrationAndSmearingAlg',
                            'PhotonCalibrationAndSmearingAlg' + postfix )
     addPrivateTool( alg, 'calibrationAndSmearingTool',
@@ -112,16 +182,17 @@ def makePhotonCalibrationSequence( seq, dataType,
                 stageName = 'calibration',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
-    # should this be applied to data?  or to AFII?
-    alg = createAlgorithm( 'CP::PhotonShowerShapeFudgeAlg',
-                           'PhotonShowerShapeFudgeAlg' + postfix )
-    addPrivateTool( alg, 'showerShapeFudgeTool',
-                    'ElectronPhotonShowerShapeFudgeTool' )
-    alg.showerShapeFudgeTool.Preselection = 22 # Rel 21
-    alg.showerShapeFudgeTool.FFCalibFile = \
-        'ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root' #only for rel21
-    seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
-                stageName = 'calibration' )
+    # Set up the the pt selection
+    alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonPtCutAlg' + postfix )
+    alg.selectionDecoration = 'selectPt' + postfix + ',as_bits'
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgPtEtaSelectionTool' )
+    alg.selectionTool.minPt = 10e3
+    seq.append( alg, inputPropName = 'particles',
+                stageName = 'selection',
+                metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                              'selectionDecorNamesOutput' : [alg.selectionDecoration] if ptSelectionOutput else [],
+                              'selectionDecorCount' : [2]},
+                dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up the isolation correction algorithm.
     alg = createAlgorithm( 'CP::EgammaIsolationCorrectionAlg',
@@ -143,7 +214,7 @@ def makePhotonCalibrationSequence( seq, dataType,
 
 
 def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
-                                    recomputeIsEM = False):
+                                    recomputeIsEM = False ):
     """Create photon analysis algorithms for a single working point
 
     Keywrod arguments:
@@ -178,7 +249,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
 
     # Set up the photon selection algorithm:
     alg = createAlgorithm( 'CP::AsgSelectionAlg', 'PhotonIsEMSelectorAlg' + postfix )
-    alg.selectionDecoration = 'selectEM'
+    alg.selectionDecoration = 'selectEM,as_bits'
     if recomputeIsEM:
         # Rerun the cut-based ID
         addPrivateTool( alg, 'selectionTool', 'AsgPhotonIsEMSelector' )
@@ -192,7 +263,6 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
         alg.selectionTool.selectionFlags = [ dfFlag ]
         pass
     seq.append( alg, inputPropName = 'particles',
-                outputPropName = 'particlesOut',
                 stageName = 'calibration',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
@@ -200,12 +270,26 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                 dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
 
     # Set up the isolation selection algorithm:
-    alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
-                           'PhotonIsolationSelectionAlg' + postfix )
-    alg.selectionDecoration = 'isolated' + postfix
-    addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
-    alg.selectionTool.PhotonWP = isolationWP
-    seq.append( alg, inputPropName = 'egammas',
+    if isolationWP != 'NonIso' :
+        alg = createAlgorithm( 'CP::EgammaIsolationSelectionAlg',
+                               'PhotonIsolationSelectionAlg' + postfix )
+        alg.selectionDecoration = 'isolated' + postfix + ',as_bits'
+        addPrivateTool( alg, 'selectionTool', 'CP::IsolationSelectionTool' )
+        alg.selectionTool.PhotonWP = isolationWP
+        seq.append( alg, inputPropName = 'egammas',
+                    stageName = 'selection',
+                    metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
+                                  'selectionDecorNamesOutput' : [alg.selectionDecoration],
+                                  'selectionDecorCount' : [1]},
+                    dynConfig = {'preselection' : lambda meta : "&&".join (meta["selectionDecorNames"])} )
+        pass
+
+    # Set up an algorithm used for decorating baseline photon selection:
+    alg = createAlgorithm( 'CP::AsgSelectionAlg',
+                           'PhotonSelectionSummary' + postfix )
+    addPrivateTool( alg, 'selectionTool', 'CP::AsgFlagSelectionTool' )
+    alg.selectionDecoration = 'baselineSelection' + postfix + ',as_char'
+    seq.append( alg, inputPropName = 'particles',
                 stageName = 'selection',
                 metaConfig = {'selectionDecorNames' : [alg.selectionDecoration],
                               'selectionDecorNamesOutput' : [alg.selectionDecoration],
@@ -217,9 +301,7 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
                            'PhotonEfficiencyCorrectionAlg' + postfix )
     addPrivateTool( alg, 'efficiencyCorrectionTool',
                     'AsgPhotonEfficiencyCorrectionTool' )
-    alg.scaleFactorDecoration = 'effSF' + postfix
-    alg.efficiencyCorrectionTool.MapFilePath = \
-        'PhotonEfficiencyCorrection/2015_2017/rel21.2/Winter2018_Prerec_v1/map0.txt'
+    alg.scaleFactorDecoration = 'ph_effSF' + postfix + '_%SYS%'
     if dataType == 'afii':
         alg.efficiencyCorrectionTool.ForceDataType = \
           ROOT.PATCore.ParticleDataType.Fast
@@ -231,7 +313,6 @@ def makePhotonWorkingPointSequence( seq, dataType, workingPoint, postfix = '',
     alg.outOfValidityDeco = 'bad_eff' + postfix
     if dataType != 'data':
         seq.append( alg, inputPropName = 'photons',
-                    outputPropName = 'photonsOut',
                     stageName = 'efficiency',
                     metaConfig = {'selectionDecorNames' : [alg.outOfValidityDeco],
                                   'selectionDecorNamesOutput' : [alg.outOfValidityDeco],
