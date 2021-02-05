@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAURECTOOLBASE_H
-#define TAURECTOOLBASE_H
+#ifndef TAURECTOOLS_TAURECTOOLBASE_H
+#define TAURECTOOLS_TAURECTOOLBASE_H
 /**
  * @brief The base class for all tau tools.
  * 
@@ -82,4 +82,4 @@ class TauRecToolBase : public asg::AsgTool, virtual public ITauToolBase {
 
 inline bool TauRecToolBase::inTrigger() const { return m_in_trigger; }
 
-#endif //TAURECTOOLBASE_H
+#endif // TAURECTOOLS_TAURECTOOLBASE_H

@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUPI0CLUSTERCREATOR_H
-#define	TAUREC_TAUPI0CLUSTERCREATOR_H
+#ifndef TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
+#define TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -82,5 +82,5 @@ private:
   Gaudi::Property<double> m_clusterEtCut {this, "ClusterEtCut", 0.5 * Gaudi::Units::GeV, "Et threshould for pi0 candidate clusters"};
 };
 
-#endif	/* TAUPI0CLUSTERCREATOR_H */
+#endif // TAURECTOOLS_TAUPI0CLUSTERCREATOR_H
 
