@@ -28,10 +28,9 @@
 // Local include(s):
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
-#include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODRootAccess/tools/Message.h"
-#include "DiTauMassTools/MissingMassTool.h"
+#include "DiTauMassTools/MissingMassToolV2.h"
 
 #include "AsgMessaging/MessageCheck.h"
 #include "AsgTools/AnaToolHandle.h"
@@ -42,17 +41,16 @@ int main() {
    using namespace asg::msgUserCode;
 
    // Get the name of the application:
-   const char* APP_NAME = "ut_ditaumasstools_missingmasstool_test";
+   const char* APP_NAME = "ut_ditaumasstools_missingmasstoolv2_test";
 
    // Initialise the environment:
    ANA_CHECK( xAOD::Init(APP_NAME) );
 
    // Initialize the tool
-   MissingMassTool missingmassTool("missingmass_tool");
+   DiTauMassTools::MissingMassToolV2 missingmassTool("missingmass_tool");
    ANA_CHECK( missingmassTool.setProperty("Decorate", true)) ;
    ANA_CHECK( missingmassTool.setProperty("UseVerbose", 1)) ;
    ANA_CHECK( missingmassTool.setProperty("CalibSet", "2012"));
-   ANA_CHECK( missingmassTool.setProperty("alg_version", 3));
    ANA_CHECK( missingmassTool.setProperty("UseTailCleanup", 0));
    ANA_CHECK( missingmassTool.setProperty("NiterFit2", 30));
    ANA_CHECK( missingmassTool.setProperty("NiterFit3", 10));
@@ -97,8 +95,7 @@ int main() {
        continue;
      nevents_with_two_taus++;
      const xAOD::MissingETContainer *mets = 0;
-     //  Use MET_Core_AntiKt4EMPFlow as proxy of the final MET value
-     ANA_CHECK(event.retrieve(mets, "MET_Core_AntiKt4EMPFlow")); 
+     ANA_CHECK(event.retrieve(mets, "MET_Core_AntiKt4EMPFlow"));
 
      int njets_25 = 0;
      xAOD::JetContainer::const_iterator jetItr;

@@ -1,11 +1,13 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
+// Caution: This version of the MMC is planned to phased out around 2020/06/30, see README
+
 /*
->>>>>> MissingMassCalculator
->>>>>> Author: Aliaksandr Pranko (appranko@lbl.gov)
->>>>>> Code developers: David Rousseau (rousseau@lal.in2p3.fr), Dimitris Varouchas (Dimitris.Varouchas@cern.ch)
+------ MissingMassCalculator
+------ Author: Aliaksandr Pranko (appranko@lbl.gov)
+------ Code developers: David Rousseau (rousseau@lal.in2p3.fr), Dimitris Varouchas (Dimitris.Varouchas@cern.ch)
 MissingMassCalculator is designed to reconstruct mass in
 events where two particles decay into states with missing ET.
 */
@@ -127,16 +129,16 @@ private:
     double METcovphi;
     double METsigmaP;
     double METsigmaL;
-    double SumEt;
+    double m_SumEt;
     double sigmaEtau1;
     double sigmaEtau2;
-    std::vector<TLorentzVector> jet4vecs;
-    int Njet25;
-    double DelPhiTT;
+    std::vector<TLorentzVector> m_jet4vecs;
+    int m_Njet25;
+    double m_DelPhiTT;
     bool allowUseHT;
     bool UseHT;
-    double MHtSigma1; // sigma of 1st Gaussian in missing Ht resolution
-    double MHtSigma2; // sigma of 2nd Gaussian in missing Ht resolution
+    double m_MHtSigma1; // sigma of 1st Gaussian in missing Ht resolution
+    double m_MHtSigma2; // sigma of 2nd Gaussian in missing Ht resolution
     double MHtGaussFr; // relative fraction of 2nd Gaussian
     double HtOffset; // HT offset
 
@@ -163,19 +165,19 @@ private:
     bool UseHT;
   };
 
-  MMCCalibrationSet::e m_MMCCalibrationSet;
+  MMCCalibrationSet::e m_mmcCalibrationSet;
   //  WalkStrategy::e walkStrategy;
-  TRandom2 * randomGen;
+  TRandom2 * m_randomGen;
   
   //SpeedUp static array for efficient access
-  static double fit_param[2][3][6][5];
-  static double ter_sigma_par[2][10][3];
+  static double s_fit_param[2][3][6][5];
+  static double s_ter_sigma_par[2][10][3];
   //cache quantities for efficient NuPSolution calculation
 
 
-  int nsolmax,nsolfinalmax;
-  int m_NiterRandomLocal;
-  int m_NsucStop;
+  int m_nsolmax,m_nsolfinalmax;
+  int m_niterRandomLocal;
+  int m_nsucStop;
   int m_rmsStop;
   double m_meanbinStop;
   
@@ -183,37 +185,37 @@ private:
 
   
   // these are temporary vectors. Dclared globally to avoid construction/destruction
-  std::vector<TLorentzVector> nuvecsol1;
-  std::vector<TLorentzVector> nuvecsol2;
+  std::vector<TLorentzVector> m_nuvecsol1;
+  std::vector<TLorentzVector> m_nuvecsol2;
 
-  std::vector<TLorentzVector> tauvecsol1;
-  std::vector<TLorentzVector> tauvecsol2;
-  std::vector<double> tauvecprob1;
-  std::vector<double> tauvecprob2;
+  std::vector<TLorentzVector> m_tauvecsol1;
+  std::vector<TLorentzVector> m_tauvecsol2;
+  std::vector<double> m_tauvecprob1;
+  std::vector<double> m_tauvecprob2;
 
-  std::vector<TLorentzVector> nuvec1_tmp;
-  std::vector<TLorentzVector> nuvec2_tmp;
+  std::vector<TLorentzVector> m_nuvec1_tmp;
+  std::vector<TLorentzVector> m_nuvec2_tmp;
 
   TVector2 m_metVec;
-  TLorentzVector tautau_tmp;
-  TLorentzVector tlv_tmp;
+  TLorentzVector m_tautau_tmp;
+  TLorentzVector m_tlv_tmp;
 
   
   //  std::vector<TLorentzVector> tauvecsol1;
   // std::vector<TLorentzVector> tauvecsol2;
-  bool debugThisIteration;
+  bool m_debugThisIteration;
   
-  int nCallprobCalculatorV9fast;
+  int m_nCallprobCalculatorV9fast;
   
 
-  // commented out variables are unused.  experts please check and remove
-  int iter1,iter2,iter3,iter4,iter5,iang1low,iang1high /*,iang2low,iang2high*/;
-  int iterTheta3d;
+  int m_iter1,m_iter2,m_iter3,m_iter4,m_iter5,m_iang1low,m_iang1high;
+  // int m_iang2low,m_iang2high;
+  int m_iterTheta3d;
   
-  double prob_tmp;
+  double m_prob_tmp;
   
-  double totalProbSum;
-  double mtautauSum;
+  double m_totalProbSum;
+  double m_mtautauSum;
 
   int m_seed;
   // data member for the spaceWalker approach
@@ -236,11 +238,11 @@ private:
   int m_markovNRejectMetropolis;
   int m_markovNAccept;
 
-  double m_PrintmMaxError;
-  double m_PrintmMeanError;
-  double m_PrintmInvWidth2Error;
+  double m_printmMaxError;
+  double m_printmMeanError;
+  double m_printmInvWidth2Error;
 
-  double m_ProposalTryMEt;
+  double m_proposalTryMEt;
   double m_ProposalTryPhi;
   double m_ProposalTryMnu;
   double m_ProposalTryEtau;
@@ -261,9 +263,7 @@ private:
   double m_MEtX, m_MEtY,m_MEtT;
   double m_eTau1Min,m_eTau1Max,m_eTau1Range;
   double m_eTau2Min,m_eTau2Max,m_eTau2Range;
-  bool fullParamSpaceScan;
-  // commented out variables are unused.  experts please check and remove
-  // bool m_Mnu1Exclude;
+  bool m_fullParamSpaceScan;
   int m_nsolOld;
   std::vector<double>   m_probFinalSolOldVec;
   std::vector<double>   m_mtautauFinalSolOldVec;
@@ -277,9 +277,6 @@ private:
   std::vector<TLorentzVector>  m_nu2FinalSolVec;
 
 
-  // commented out variables are unused.  experts please check and remove
-  // double m_Mnu1ExcludeMin,m_Mnu1ExcludeMax,m_Mnu1ExcludeRange;
-  // double m_Mnu1XMin,m_Mnu1XMax, m_Mnu1XRange;
   double m_walkWeight;
   double m_cosPhi1, m_cosPhi2, m_sinPhi1, m_sinPhi2;
   
@@ -307,76 +304,66 @@ private:
   double m_DetMEt;
   double m_inputMEtX,m_inputMEtY,m_inputMEtT;
   double m_HtOffset;
-  bool reRunWithBestMET;
+  bool m_reRunWithBestMET;
   
   //--- define histograms for histogram method
   //--- upper limits need to be revisied in the future!!! It may be not enough for some analyses
-  std::shared_ptr<TH1F> fMfit_all;
-  std::shared_ptr<TH1F> fMfit_allNoWeight;
+  std::shared_ptr<TH1F> m_fMfit_all;
+  std::shared_ptr<TH1F> m_fMfit_allNoWeight;
   
-  std::shared_ptr<TH1F> fPXfit1;
-  std::shared_ptr<TH1F> fPYfit1;
-  std::shared_ptr<TH1F> fPZfit1;
-  std::shared_ptr<TH1F> fPXfit2;
-  std::shared_ptr<TH1F> fPYfit2;
-  std::shared_ptr<TH1F> fPZfit2;
+  std::shared_ptr<TH1F> m_fPXfit1;
+  std::shared_ptr<TH1F> m_fPYfit1;
+  std::shared_ptr<TH1F> m_fPZfit1;
+  std::shared_ptr<TH1F> m_fPXfit2;
+  std::shared_ptr<TH1F> m_fPYfit2;
+  std::shared_ptr<TH1F> m_fPZfit2;
 
   TF1 *m_fFitting;
 
-  // commented out variables are unused.  experts please check and remove
-  // TH1F* fPhi1;
-  // TH1F* fPhi2;
-  // TH1F* fMnu1;
-  // TH1F* fMnu2;
-  // TH1F* fMetx;
-  // TH1F* fMety;
-  // TH1F* fTheta3D;
-  // TH1F* fTauProb;
-
   // for intermediate calc
-  TLorentzVector TLVdummy;
+  TLorentzVector m_TLVdummy;
 
   //---------------- protected variables
-  DitauStuff fDitauStuffFit; // results based on fit method
-  DitauStuff fDitauStuffHisto; // results based on histo method
-  InputInfoStuff rawInput; // raw input 
-  InputInfoStuff preparedInput; // corrected input (DR should maybe not be a datamember)
-  OutputInfoStuff OutputInfo; // output info
+  DitauStuff m_fDitauStuffFit; // results based on fit method
+  DitauStuff m_fDitauStuffHisto; // results based on histo method
+  InputInfoStuff m_rawInput; // raw input 
+  InputInfoStuff m_preparedInput; // corrected input (DR should maybe not be a datamember)
+  OutputInfoStuff m_OutputInfo; // output info
 
-  int fUseVerbose; // code to turn ON printouts for debugging
-  bool fSpeedStudy; // code to turn ON speed study
-  int AlgorithmVersion; // version of the algorithm
-  int SearchMode; // search Mode: 0=di-tau, 1=WW, 2=W->tau+nu
-  int fApplyMassScale; // switch to apply mass scale correction
-  int fUseTailCleanup; // switch to apply tail clean-up
-  int fUseTauProbability; // switch to apply TauProbability
-  int fUseMnuProbability; // switch to apply MnuProbability
-  int fUseDefaults; // switch to control defaults: 1== use defaults, 0== don't use defaults (useful for studies) 
-  int fUseEfficiencyRecovery; // switch to turn ON/OFF re-fit in order to recover efficiency
+  int m_fUseVerbose; // code to turn ON printouts for debugging
+  bool m_fSpeedStudy; // code to turn ON speed study
+  int m_AlgorithmVersion; // version of the algorithm
+  int m_SearchMode; // search Mode: 0=di-tau, 1=WW, 2=W->tau+nu
+  int m_fApplyMassScale; // switch to apply mass scale correction
+  int m_fUseTailCleanup; // switch to apply tail clean-up
+  int m_fUseTauProbability; // switch to apply TauProbability
+  int m_fUseMnuProbability; // switch to apply MnuProbability
+  int m_fUseDefaults; // switch to control defaults: 1== use defaults, 0== don't use defaults (useful for studies) 
+  int m_fUseEfficiencyRecovery; // switch to turn ON/OFF re-fit in order to recover efficiency
 
-  int Niter_fit1; // number of iterations for dR-dPhi scan 
-  int Niter_fit2; // number of iterations for MET-scan 
-  int Niter_fit3; // number of iterations for Mnu-scan 
-  int NiterRandom; // number of random iterations (for lh, multiply or divide by 10 for ll and hh)
-  int NsucStop;
-  int RMSStop;
-  int RndmSeedAltering; // reset seed (not necessary by default)
+  int m_niter_fit1; // number of iterations for dR-dPhi scan 
+  int m_niter_fit2; // number of iterations for MET-scan 
+  int m_niter_fit3; // number of iterations for Mnu-scan 
+  int m_NiterRandom; // number of random iterations (for lh, multiply or divide by 10 for ll and hh)
+  int m_NsucStop;
+  int m_RMSStop;
+  int m_RndmSeedAltering; // reset seed (not necessary by default)
 
-  int InputReorder; // flag for input re-order
-  int LFVmode; // flag to determine which LFV decay to be reconstructed: 0=H->e+tau(mu) or 1=H->mu+tau(e) 
+  int m_InputReorder; // flag for input re-order
+  int m_LFVmode; // flag to determine which LFV decay to be reconstructed: 0=H->e+tau(mu) or 1=H->mu+tau(e) 
 
-  int fJERsyst; // switch for JER systematics
-  int METresSyst; // switch to turn on/off MET resolution systematics
-  double dTheta3d_binMin; // minimal step size for dTheta3D
-  double dTheta3d_binMax; // maximum step size for dTheta3D
-  double dRmax_tau; // maximum dR(nu-visTau)
-  double Nsigma_METscan,Nsigma_METscan2,Nsigma_METscan_ll,Nsigma_METscan_lh,Nsigma_METscan_hh; // number of sigmas for MET-scan
+  int m_fJERsyst; // switch for JER systematics
+  int m_METresSyst; // switch to turn on/off MET resolution systematics
+  double m_dTheta3d_binMin; // minimal step size for dTheta3D
+  double m_dTheta3d_binMax; // maximum step size for dTheta3D
+  double m_dRmax_tau; // maximum dR(nu-visTau)
+  double m_nsigma_METscan,m_nsigma_METscan2,m_nsigma_METscan_ll,m_nsigma_METscan_lh,m_nsigma_METscan_hh; // number of sigmas for MET-scan
 
-  double beamEnergy; // beam energy (Tevatron=980, LHC-1=3500.0) 
-  int METScanScheme; // MET-scan scheme: 0- use JER; 1- use simple sumEt & missingHt for Njet=0 events in (lep-had) 
-  double MnuScanRange; // range of M(nunu) scan; M(nunu) range can be affected by selection cuts
+  double m_beamEnergy; // beam energy (Tevatron=980, LHC-1=3500.0) 
+  int m_METScanScheme; // MET-scan scheme: 0- use JER; 1- use simple sumEt & missingHt for Njet=0 events in (lep-had) 
+  double m_MnuScanRange; // range of M(nunu) scan; M(nunu) range can be affected by selection cuts
   
-  bool fUseDphiLL; //for leplep
+  bool m_fUseDphiLL; //for leplep
 
   //---------------- protected functions
   void ClearDitauStuff(DitauStuff &fStuff);
@@ -491,7 +478,7 @@ private:
 
   //----------------------------------------------
   //
-  // >>>>>>>>>>>>>   Public methods <<<<<<<<<<<< 
+  // ---------   Public methods ------------------ 
   //
   //______________________________________________
 
@@ -505,32 +492,32 @@ public:
   int RunMissingMassCalculator();
   
   //-------- Set Input Parameters
-  void SetCalibrationSet( MMCCalibrationSet::e aset) { m_MMCCalibrationSet=aset; }
-  void SetSearchMode(int val) { SearchMode=val; }
-  void SetUseVerbose(int val) { fUseVerbose=val; }
-  void SetSpeedStudy(int val) { fSpeedStudy=val; }
-  void SetAlgorithmVersion(int val) { AlgorithmVersion=val; }
-  void SetUseTauProbability(int val) { fUseTauProbability=val; }
-  void SetUseMnuProbability(int val) { fUseMnuProbability=val; }
-  void SetUseDefaults(int val) { fUseDefaults=val; }
-  void SetUseEfficiencyRecovery(int val) { fUseEfficiencyRecovery=val; }
+  void SetCalibrationSet(const MMCCalibrationSet::e aset) { m_mmcCalibrationSet=aset; }
+  void SetSearchMode(const int val) { m_SearchMode=val; }
+  void SetUseVerbose(const int val) { m_fUseVerbose=val; }
+  void SetSpeedStudy(const int val) { m_fSpeedStudy=val; }
+  void SetAlgorithmVersion(const int val) { m_AlgorithmVersion=val; }
+  void SetUseTauProbability(const int val) { m_fUseTauProbability=val; }
+  void SetUseMnuProbability(const int val) { m_fUseMnuProbability=val; }
+  void SetUseDefaults(const int val) { m_fUseDefaults=val; }
+  void SetUseEfficiencyRecovery(const int val) { m_fUseEfficiencyRecovery=val; }
 
-  void SetNiterFit1(int val) { Niter_fit1=val; } // number of iterations per loop in dPhi loop
-  void SetNiterFit2(int val) { Niter_fit2=val; } // number of iterations per loop in MET loop
-  void SetNiterFit3(int val) { Niter_fit3=val; } // number of iterations per loop in Mnu loop
-  void SetNiterRandom(int val) { NiterRandom=val; } // number of random iterations
-  void SetNsucStop(int val) { NsucStop=val; } // Arrest criteria for Nsuccesses
-  void SetRMSStop(int val) { RMSStop=val;}
-  void SetMeanbinStop(double val) {m_meanbinStop=val;}
-  void SetRndmSeedAltering(int val) { RndmSeedAltering=val; } // number of iterations per loop in Mnu loop
-  void SetMaxDRtau(double val) { dRmax_tau=val; } // max value of dR
-  void SetNsigmaMETscan(double val) { Nsigma_METscan=val; } // number of sigma's for MET-scan
-  void SetNsigmaMETscan_ll(double val) { Nsigma_METscan_ll=val; } // number of sigma's for MET-scan in ll events
-  void SetNsigmaMETscan_lh(double val) { Nsigma_METscan_lh=val; } // number of sigma's for MET-scan in lh events
-  void SetNsigmaMETscan_hh(double val) { Nsigma_METscan_hh=val; } // number of sigma's for MET-scan in hh events
-  void SetBeamEnergy(double val) { beamEnergy=val; } // beam energy
-  void SetdTheta3d_binMax(double val) { dTheta3d_binMax=val; } // maximum step size for dTheta3D
-  void SetdTheta3d_binMin(double val) { dTheta3d_binMin=val; } // minimal step size for dTheta3D
+  void SetNiterFit1(const int val) { m_niter_fit1=val; } // number of iterations per loop in dPhi loop
+  void SetNiterFit2(const int val) { m_niter_fit2=val; } // number of iterations per loop in MET loop
+  void SetNiterFit3(const int val) { m_niter_fit3=val; } // number of iterations per loop in Mnu loop
+  void SetNiterRandom(const int val) { m_NiterRandom=val; } // number of random iterations
+  void SetNsucStop(const int val) { m_NsucStop=val; } // Arrest criteria for Nsuccesses
+  void SetRMSStop(const int val) { m_RMSStop=val;}
+  void SetMeanbinStop(const double val) {m_meanbinStop=val;}
+  void SetRndmSeedAltering(const int val) { m_RndmSeedAltering=val; } // number of iterations per loop in Mnu loop
+  void SetMaxDRtau(const double val) { m_dRmax_tau=val; } // max value of dR
+  void SetNsigmaMETscan(const double val) { m_nsigma_METscan=val; } // number of sigma's for MET-scan
+  void SetNsigmaMETscan_ll(const double val) { m_nsigma_METscan_ll=val; } // number of sigma's for MET-scan in ll events
+  void SetNsigmaMETscan_lh(const double val) { m_nsigma_METscan_lh=val; } // number of sigma's for MET-scan in lh events
+  void SetNsigmaMETscan_hh(const double val) { m_nsigma_METscan_hh=val; } // number of sigma's for MET-scan in hh events
+  void SetBeamEnergy(const double val) { m_beamEnergy=val; } // beam energy
+  void SetdTheta3d_binMax(const double val) { m_dTheta3d_binMax=val; } // maximum step size for dTheta3D
+  void SetdTheta3d_binMin(const double val) { m_dTheta3d_binMin=val; } // minimal step size for dTheta3D
 
   void SetMetVec(const TVector2 & vec);
   void SetVisTauVec(int i, const TLorentzVector & vec);
@@ -542,55 +529,55 @@ public:
   void SetMetScanParams(double phi, double sigmaP, double sigmaL); // MET ellipse (deduced from MetCovariance)
   void SetMetScanParamsUE(double sumEt, double phi_scan=0.0, int data_code=0);
   void SetMetScanParamsJets(std::vector<TLorentzVector> jets);
-  void SetJERsyst(int val) { fJERsyst=val; }
-  void SetMETresSyst(int val) { METresSyst=val; } // MET resolution systematics: +/-1 sigma
-  void SetApplyMassScale(int val) { fApplyMassScale=val; } 
-  void SetUseTailCleanup(int val) { fUseTailCleanup=val; }
+  void SetJERsyst(const int val) { m_fJERsyst=val; }
+  void SetMETresSyst(const int val) { m_METresSyst=val; } // MET resolution systematics: +/-1 sigma
+  void SetApplyMassScale(const int val) { m_fApplyMassScale=val; } 
+  void SetUseTailCleanup(const int val) { m_fUseTailCleanup=val; }
   void SetNjet25(int val);
-  void SetAllowUseHT(bool allowUseHT) { rawInput.allowUseHT=allowUseHT;}
-  void SetMETScanScheme(int val) { METScanScheme=val; }
+  void SetAllowUseHT(const bool allowUseHT) { m_rawInput.allowUseHT=allowUseHT;}
+  void SetMETScanScheme(const int val) { m_METScanScheme=val; }
 
-  void SetMHtSigma1(double val) { rawInput.MHtSigma1=val; }
-  void SetMHtSigma2(double val) { rawInput.MHtSigma2=val; } 
-  void SetMHtGaussFr(double val) { rawInput.MHtGaussFr=val; }
-  void SetMnuScanRange(double val) { MnuScanRange=val; }
+  void SetMHtSigma1(const double val) { m_rawInput.m_MHtSigma1=val; }
+  void SetMHtSigma2(const double val) { m_rawInput.m_MHtSigma2=val; } 
+  void SetMHtGaussFr(const double val) { m_rawInput.MHtGaussFr=val; }
+  void SetMnuScanRange(const double val) { m_MnuScanRange=val; }
 
-  void SetProposalTryMEt(double val) {m_ProposalTryMEt=val; }
-  void SetProposalTryPhi(double val) {m_ProposalTryPhi=val;}
-  void SetProposalTryMnu(double val) {m_ProposalTryMnu=val;}
-  void SetProposalTryEtau(double val) {m_ProposalTryEtau=val;}
+  void SetProposalTryMEt(const double val) {m_proposalTryMEt=val; }
+  void SetProposalTryPhi(const double val) {m_ProposalTryPhi=val;}
+  void SetProposalTryMnu(const double val) {m_ProposalTryMnu=val;}
+  void SetProposalTryEtau(const double val) {m_ProposalTryEtau=val;}
 
   // added by Tomas Davidek
-  void SetUseDphiLL(bool val) {fUseDphiLL = val;}
+  void SetUseDphiLL(const bool val) {m_fUseDphiLL = val;}
 
-  void SetLFVmode(int val) { LFVmode=val; }
-  MMCCalibrationSet::e GetCalibrationSet() { return m_MMCCalibrationSet; }
-  int GetNiterFit1() const { return Niter_fit1; } // number of iterations per loop in dPhi loop
-  int GetNiterFit2() const { return Niter_fit2; } // number of iterations per loop in MET loop
-  int GetNiterFit3() const { return Niter_fit3; } // number of iterations per loop in Mnu loop
-  int GetNiterRandom() const { return m_NiterRandomLocal; } // number of random iterations
+  void SetLFVmode(const int val) { m_LFVmode=val; }
+  MMCCalibrationSet::e GetCalibrationSet() const { return m_mmcCalibrationSet; }
+  int GetNiterFit1() const { return m_niter_fit1; } // number of iterations per loop in dPhi loop
+  int GetNiterFit2() const { return m_niter_fit2; } // number of iterations per loop in MET loop
+  int GetNiterFit3() const { return m_niter_fit3; } // number of iterations per loop in Mnu loop
+  int GetNiterRandom() const { return m_niterRandomLocal; } // number of random iterations
 
-  int GetNsucStop() const { return NsucStop; } // Arrest criteria for NSuc
-  int GetRMSStop() const { return RMSStop; }
+  int GetNsucStop() const { return m_NsucStop; } // Arrest criteria for NSuc
+  int GetRMSStop() const { return m_RMSStop; }
   double GetMeanbinStop() const { return m_meanbinStop;}
-  int GetRndmSeedAltering() const { return RndmSeedAltering; } // number of iterations per loop in Mnu loop
+  int GetRndmSeedAltering() const { return m_RndmSeedAltering; } // number of iterations per loop in Mnu loop
 
-  bool GetUseHT() const { return OutputInfo.UseHT; } // if use HT
+  bool GetUseHT() const { return m_OutputInfo.UseHT; } // if use HT
 
   int GetMarkovCountDuplicate() const { return m_markovCountDuplicate; }
   int GetMarkovNRejectNoSol() const { return m_markovNRejectNoSol;}
   int GetMarkovNRejectMetropolis() const {return m_markovNRejectMetropolis;}
   int GetMarkovNAccept() const { return m_markovNAccept; }
   int GetMarkovNFullscan() const { return m_markovNFullScan;}
-  double GetProposalTryMEt() const {return m_ProposalTryMEt;}
+  double GetProposalTryMEt() const {return m_proposalTryMEt;}
   double GetProposalTryPhi() const {return m_ProposalTryPhi;}
   double GetProposalTryMnu() const {return m_ProposalTryMnu;}
   double GetProposalTryEtau() const {return m_ProposalTryEtau;}
 
 
-  double GetmMaxError() const {return m_PrintmMaxError;}
-  double GetmMeanError() const { return m_PrintmMeanError;}
-  double GetmInvWidth2Error() const {return m_PrintmInvWidth2Error;}
+  double GetmMaxError() const {return m_printmMaxError;}
+  double GetmMeanError() const { return m_printmMeanError;}
+  double GetmInvWidth2Error() const {return m_printmInvWidth2Error;}
 
 
   //-------- Get results;
