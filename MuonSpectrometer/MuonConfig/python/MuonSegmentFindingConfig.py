@@ -671,7 +671,6 @@ def MuonSegmentFindingCfg(flags, cardinality=1):
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
     muon_edm_helper_svc = Muon__MuonEDMHelperSvc("MuonEDMHelperSvc")
     result.addService( muon_edm_helper_svc )
-    from AthenaCommon.CFElements import seqAND
     # We need to add two algorithms - one for normal collisions, one for NCB
     acc = MooSegmentFinderAlgCfg(flags, Cardinality=cardinality)
     result.merge(acc)
