@@ -51,6 +51,7 @@ FastReducer::FastReducer(const HypoJetCIter& jets_b,
   for(std::size_t i = 0; i < m_tree.size(); ++i){
     m_satisfiedBy.emplace(i, std::vector<std::size_t>{});
     m_testedBy.emplace(i, std::set<std::size_t>{});
+    m_conditionMult.push_back(conditions[i]->multiplicity());
   }
 
 
@@ -321,7 +322,9 @@ bool FastReducer::propagate_(std::size_t child,
   // jg11jg21, jg12jg21. Each of these  are flattened.
 
    
-  auto jg_product = JetGroupProduct(siblings, m_satisfiedBy);
+  auto jg_product = JetGroupProduct(siblings,
+				    m_satisfiedBy,
+				    m_conditionMult);
    
   // obtain the next product of jet groups passing siblings
   auto next = jg_product.next(collector);
@@ -376,7 +379,7 @@ bool FastReducer::propagate_(std::size_t child,
 
     if (m_conditions[par]->isSatisfied(jg, collector)){// par is a tree ind.
 
-      // get an index for this set of elementarys jhob groups indices
+      // get an index for this set of elementary jet group indices
       m_satisfiedBy[par].push_back(cur_jg);
 
       m_jg2elemjgs[cur_jg] = elem_jgs;
@@ -386,7 +389,7 @@ bool FastReducer::propagate_(std::size_t child,
     next = jg_product.next(collector);
   }
 
-  // check if enough job groups pass the parent condition
+  // check if enough jet groups pass the parent condition
   bool par_satisfied =
     m_conditions[par]->multiplicitySatisfied(m_satisfiedBy[par].size(),
 					     collector);
@@ -513,7 +516,7 @@ bool FastReducer::pass() const { return m_pass; }
 
 bool FastReducer::capacitySatisfied(std::size_t ind,
 				    const Collector& collector) const {
-  // Check that the number of satisfying job groups is sufficient to
+  // Check that the number of satisfying jet groups is sufficient to
   // satisfy the capacity of the Condition. Uses include handling
   // of Conditions which represent multiple identical conditions.
   
