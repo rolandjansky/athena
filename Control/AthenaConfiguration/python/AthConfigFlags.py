@@ -261,8 +261,9 @@ class AthConfigFlags(object):
         Example:
         newflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
         """
-        copyFunction = lambda obj: obj if self.locked() else deepcopy
 
+        def _copyFunction(obj):            
+            return obj if self.locked() else deepcopy(obj) # if flags are locked we can reuse containers, no need to deepcopy
 
         _msg.info("cloning flags and replacing %s by %s", subsetToReplace, replacementSubset)
 
@@ -292,10 +293,10 @@ class AthConfigFlags(object):
                 replacementNames.add(subName) # remember replacement name
                 #Move the flag to the new name:
 
-                newFlagDict[subsetToReplace+subName] = copyFunction(flag)
+                newFlagDict[subsetToReplace+subName] = _copyFunction(flag)
                 pass
             else:
-                newFlagDict[name] = copyFunction(flag) #All other flags are simply copied
+                newFlagDict[name] = _copyFunction(flag) #All other flags are simply copied
                 pass
             #End loop over flags
             pass
@@ -307,7 +308,7 @@ class AthConfigFlags(object):
             raise RuntimeError("Attempt to replace incompatible flags subsets: distinct flag are "
                                + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
-        newFlags._dynaflags = copyFunction(self._dynaflags)
+        newFlags._dynaflags = _copyFunction(self._dynaflags)
         
         if self._locked:
             newFlags.lock()

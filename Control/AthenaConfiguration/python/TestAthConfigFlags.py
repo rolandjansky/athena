@@ -102,11 +102,20 @@ class TestOverwriteFlags(TestFlagsSetupDynamic):
     def runTest(self):
         print("""... Check if overwiting works""")
         self.flags.Z.Xclone1.a = 20
+        self.flags.Z.Xclone2.a = 40
+
         self.flags.X.a = 30
         copyf = self.flags.cloneAndReplace( "X", "Z.Xclone1")
         self.assertEqual( copyf.X.a, 20, "dynamically loaded flags have wrong value")
         self.assertEqual( copyf.T.Abool, False, "The flags clone does not have dynamic flags")
         copyf.dump()
+
+        self.flags.lock()
+        copyf = self.flags.cloneAndReplace( "X", "Z.Xclone2")
+        self.assertEqual( copyf.X.a, 40, "dynamically loaded flags have wrong value")
+        self.assertEqual( copyf.T.Abool, False, "The flags clone does not have dynamic flags")
+
+
         print("")
 
 class TestDynamicDependentFlags(unittest.TestCase):
