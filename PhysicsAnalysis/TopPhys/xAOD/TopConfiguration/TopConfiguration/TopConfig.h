@@ -781,6 +781,11 @@ namespace top {
         m_useEgammaLeakageCorrection = (s == "True" || s == "true");
       }
     }
+    inline virtual void useEgammaPileupCorrection(const std::string& s) {
+      if (!m_configFixed) {
+        m_useEgammaPileupCorrection = (s == "True" || s == "true");
+      }
+    }
 
     inline virtual void enablePromptLeptonImprovedVetoStudies(const std::string& s) {
       if (!m_configFixed) {
@@ -809,6 +814,7 @@ namespace top {
     inline const std::string& electronIDLooseDecoration() const {return m_electronIDLooseDecoration;}
     inline bool useElectronChargeIDSelection() const {return m_useElectronChargeIDSelection;}
     inline bool useEgammaLeakageCorrection() const {return m_useEgammaLeakageCorrection;}
+    inline bool useEgammaPileupCorrection() const {return m_useEgammaPileupCorrection;}
     inline bool enablePromptLeptonImprovedVetoStudies() const {return m_enablePromptLeptonImprovedVetoStudies;}
 
     // Fwd electron
@@ -2284,6 +2290,7 @@ namespace top {
     std::string m_electronIDLooseDecoration;
     bool m_useElectronChargeIDSelection;
     bool m_useEgammaLeakageCorrection;
+    bool m_useEgammaPileupCorrection;
     bool m_enablePromptLeptonImprovedVetoStudies;
 
     //Fwd electron configuration
