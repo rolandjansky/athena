@@ -1,6 +1,6 @@
 // this is -*- C++ -*-
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Any modifications to this file may be copied to lwtnn[1] without
@@ -12,12 +12,9 @@
 #define LWTNN_UTILS_FAST_GRAPH_H
 
 #include "lwtnn/lightweight_network_config.hh"
+#include "lwtnn/Graph.hh"
 
 #include <Eigen/Dense>
-
-namespace lwt {
-  class Graph;
-}
 
 namespace lwt::atlas {
 

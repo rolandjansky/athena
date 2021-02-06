@@ -167,10 +167,9 @@ if __name__ == "__main__":
     addLArCalibFlags(ConfigFlags)
 
 
-    #Example input .. nothing on a public drive
-    ConfigFlags.LArCalib.Input.Dir = "/scratch/wlampl/ElecCalib2021/Ped/"
+    ConfigFlags.LArCalib.Input.Dir = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/LArCalibProcessing"
     ConfigFlags.LArCalib.Input.Type="calibration_LArElec-Pedestal"
-    ConfigFlags.LArCalib.Input.RunNumbers=[387015,]
+    ConfigFlags.LArCalib.Input.RunNumbers=[174585,]
 
     ConfigFlags.Input.Files=ConfigFlags.LArCalib.Input.Files
     

@@ -180,10 +180,11 @@ def _make_dijet_label(chain_parts, leg_label):
     """dijet label. supports dijet cuts, and cuts on particpating jets
     Currently supported cuts:
     - dijet mass
+    - dijet phi
     - jet1 et, eta
     - jet2 et, eta
 
-    - default values are used for unspecified cuts.
+    - default values are used for unspecified cuts, except for delta phi for which no cut is applied if not requested
     The cut set can be extended according to the pattern
     """
 
@@ -192,22 +193,38 @@ def _make_dijet_label(chain_parts, leg_label):
     
     assert scenario.startswith('dijet')
 
-    # example scenario: 'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    # example scenarios:
+    # 'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass',
+    # 'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi',
 
     pattern = r'^dijetSEP('\
     r'(?P<j1etlo>\d*)j1et(?P<j1ethi>\d*)SEP'\
-    r'(?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP'\
+    r'((?P<j1etalo>\d*)j1eta(?P<j1etahi>\d*)SEP)?'\
     r'(?P<j2etlo>\d*)j2et(?P<j2ethi>\d*)SEP'\
-    r'(?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP'\
-    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*))$'
+    r'((?P<j2etalo>\d*)j2eta(?P<j2etahi>\d*)SEP)?'\
+    r'(?P<djmasslo>\d*)djmass(?P<djmasshi>\d*)'\
+    r'(SEP(?P<djdphilo>\d*)djdphi(?P<djdphihi>\d*))?)$'
+    # Note:
+    # j1eta/j2eta is allowed not to be in the scenario, default values will be used in such a case
+    # djdphi is allowed not to be in the scenario, no djdphi cut will be applied in such a case
 
-    template = 'root([] dijet(' \
-        '[(%(djmasslo)sdjmass%(djmasshi)s, 26djdphi)]'\
-        'simple([(%(j1etlo)set, %(j1etalo)seta%(j1etahi)s, %(leg_label)s)])'\
-        'simple([(%(j2etlo)set, %(j2etalo)seta%(j2etahi)s, %(leg_label)s)])))'
+    template = 'root([] dijet([(%(djmasslo)sdjmass%(djmasshi)s'
+    if 'djdphi' in scenario: # add djdphi cut only if present in scenario
+        template += ',%(djdphilo)sdjdphi%(djdphihi)s'
+    template += ')]simple([(%(j1etlo)set, '
+    if 'j1eta' in scenario:
+        template += '%(j1etalo)seta%(j1etahi)s, %(leg_label)s)])'
+    else: # use default j1eta cuts
+        template += 'eta, %(leg_label)s)])'
+    template += 'simple([(%(j2etlo)set, '
+    if 'j2eta' in scenario:
+        template += '%(j2etalo)seta%(j2etahi)s, %(leg_label)s)])))'
+    else: # use default j2eta cuts
+        template += 'eta, %(leg_label)s)])))'
 
-    # example label:
+    # label examples:
     #    dijet([(700djmass)] simple([(80et, 0eta240, leg002)]) simple([(80et, 0eta240, leg002)])))
+    #    dijet([(700djmass,26djdphi)] simple([(80et, eta, leg002)]) simple([(80et, eta, leg002)])))
 
     extra = {'leg_label': leg_label}
     label = make_label(scenario, pattern, template, extra)
