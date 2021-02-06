@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RpcRdoToPrepDataToolCore.h"
@@ -186,7 +186,7 @@ StatusCode Muon::RpcRdoToPrepDataToolCore::decode( std::vector<IdentifierHash>& 
   ///////////// here the RDO container is retrieved and filled -whatever input type we start with- => check the size 
   if (rdoContainerHandle->numberOfCollections() == 0) {
     // empty pad container - no rpc rdo in this event
-    ATH_MSG_WARNING("Empty pad container - no rpc rdo in this event ");
+    ATH_MSG_DEBUG("Empty pad container - no rpc rdo in this event ");
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG("Not empty pad container in this event ");

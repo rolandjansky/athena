@@ -600,6 +600,13 @@ def postSetupOnlineCost():
     else:
         log.info('ROBDataProviderSvc does not have property doCostMonitoring - will not do cost monitor for ROS.')
 
+    # Set CostSvc for TrigErrorMonTool
+    if 'HltEventLoopMgr' in svcMgr and 'TrigErrorMonTool' in svcMgr.HltEventLoopMgr:
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
+            from AthenaConfiguration.ComponentFactory import CompFactory
+            svcMgr.HltEventLoopMgr.TrigErrorMonTool.TrigCostMTSvc = CompFactory.TrigCostMTSvc()
+
 #----------------------------------------------------------------------
 # Set options for running cost on CAF - used together with CostExecL2/EF options!!!
 #
