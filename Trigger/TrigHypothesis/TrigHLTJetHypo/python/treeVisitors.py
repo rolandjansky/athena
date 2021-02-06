@@ -176,25 +176,24 @@ class ConditionsDictMaker(object):
 
         # keep track of identical conditions (mult > 1)
         
-        mult_conditions = defaultdict(int)
-        for c in conditions: mult_conditions[c] += 1
-        
         result = []
         chainpartinds = []
         msgs = []
 
 
         # process each parameter string once.
-        for c, mult in mult_conditions.items(): # c is condition string
+        for c in conditions: # c is condition string
             cdict = defaultdict(dict)
             
             toks = c.split(',')  # parameters in par string are separated by ','
             toks = [t.strip() for t in toks]
+
+            # cpis: shain part ind
             cpis = [t for t in toks if t.startswith('leg')]
             assert len(cpis) < 2
             if cpis:
-                chainpartinds.append((cpis[0], mult))
-                toks.remove(chainpartinds[-1][0])
+                chainpartinds.append(cpis[0])
+                toks.remove(chainpartinds[-1])
 
             for t in toks:
                 m = window_re.match(t)
@@ -282,7 +281,7 @@ class ConditionsDictMaker(object):
                         
                 cdict[attr] = limits_dict
 
-            result.append((cdict, mult)) # append dictionary and mult.
+            result.append(cdict) # append dictionary
 
 
         # Example: input condition string:
@@ -318,7 +317,7 @@ class TreeParameterExpander_simple(object):
         self.msgs.extend(msgs)
         node.conf_attrs = d
         node.chainpartinds = chainpartinds
-        
+
     def report(self):
         return '%s: ' % self.__class__.__name__ + '\n'.join(self.msgs) 
 
@@ -365,7 +364,7 @@ class  TreeParameterExpander_all(object):
                 'Error, all node with parameters ' + node.parameters)
             return
 
-        node.conf_attrs = ''
+        node.conf_attrs = []
 
         self.msgs = ['All OK']
 
@@ -379,10 +378,10 @@ class FilterConditionsMover:
         """Move dictionary used to construct the filter for a Condition from
         node.conf_attrs to node.filter_dicts"""
 
+
         filter_dicts = []
         for ca in node.conf_attrs:
-            assert len(ca) == 2  # (dict, mult)
-            ca_keys = ca[0].keys()
+            ca_keys = ca.keys()
             n_filtkey = 0
 
             for ca_key in ca_keys:
@@ -431,8 +430,36 @@ class TreeParameterExpander(object):
 
         self.expander = self.router[node.scenario]()
         self.expander.mod(node)
-
+        
     def report(self):
         return self.expander.report()
         
 
+class IdenticalNodeCompressor(object):
+    """Visitor Class to group nodes represnting the same conditions into
+    a single node """
+
+    def __init__(self):
+        self.messages = []
+
+    def mod(self, node):
+        """identify idental nodes/ If > 1, set the multiplicity of the first 
+        to the number of such nodes, then remove the remainder"""
+        
+        param_nodes = defaultdict(list)
+        [param_nodes[c.parameters].append(c) for c in node.children]
+
+        for cns in param_nodes.values():
+            if len(cns) > 1:
+                self. messages.append('Coelescing %d nodes' % len(cns))
+                cns[0].multiplicity = len(cns)
+                [node.children.remove(c) for c in cns[1:]]
+
+
+    def report(self):
+        
+        if self.messages:
+            return '%s: %s' % (self.__class__.__name__,
+                               '\n'.join(self.messages))
+        else:
+            return ''

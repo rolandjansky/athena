@@ -62,7 +62,6 @@ CPCMX::CPCMX
     m_CMXCPTobLocation      = TrigT1CaloDefs::CMXCPTobLocation;
     m_CPMCMXDataLocation    = TrigT1CaloDefs::CPMCMXDataLocation;
     m_TopoOutputLocation    = TrigT1CaloDefs::EmTauTopoTobLocation;
-    m_CTPOutputLocation     = TrigT1CaloDefs::EmTauCTPLocation;
 
     // This is how you declare the paramembers to Gaudi so that
     // they can be over-written via the job options file
@@ -70,7 +69,6 @@ CPCMX::CPCMX
     declareProperty( "CMXCPHitLocation",        m_CMXCPHitLocation );
     declareProperty( "CMXCPTobLocation",        m_CMXCPTobLocation );
     declareProperty( "CPMCMXDataLocation",      m_CPMCMXDataLocation );
-    declareProperty( "CTPOutputLocation",       m_CTPOutputLocation );
     declareProperty( "TopoOutputLocation",      m_TopoOutputLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
 
@@ -83,6 +81,8 @@ CPCMX::CPCMX
 
 StatusCode CPCMX::initialize()
 {
+  ATH_CHECK( m_CTPOutputKey.initialize() );
+
   ATH_CHECK( m_configSvc.retrieve() );
   return StatusCode::SUCCESS ;
 }
@@ -293,7 +293,7 @@ StatusCode CPCMX::execute( )
       CMXHits->push_back(totalCMXHits1);
       
     } // Successfully read input data
- 
+
   } // Input collection exists in StoreGate
 
 
@@ -313,8 +313,11 @@ StatusCode CPCMX::execute( )
     m_emTauCTP = new EmTauCTP(0,0,0,0);
     ATH_MSG_WARNING("No EmTauCTP found. Creating empty object" );
   }
-  sc = evtStore()->overwrite(m_emTauCTP, m_CTPOutputLocation, true);
-  if (sc != StatusCode::SUCCESS) ATH_MSG_WARNING ( "Problem writeing EmTauCTP object to StoreGate" );
+
+  if(!m_CTPOutputKey.empty()) {
+    sc = SG::makeHandle(m_CTPOutputKey).record( std::unique_ptr<EmTauCTP>(m_emTauCTP) );
+    m_emTauCTP = nullptr;    
+  }
 
   return StatusCode::SUCCESS ;
 }

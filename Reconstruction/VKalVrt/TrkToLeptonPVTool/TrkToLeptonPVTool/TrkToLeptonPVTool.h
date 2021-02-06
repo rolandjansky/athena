@@ -14,7 +14,7 @@
     e-mail: vadim.kostyukhin@cern.ch
 */
 #ifndef TrkToLeptonPVTool_H
-#define TrkToLepronPVTool_H
+#define TrkToLeptonPVTool_H
 
 #include <vector>
 #include <utility>

@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+ *   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  *   */
 
 
@@ -481,7 +481,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger)
 
     //loop over objects
     unsigned bit=0;  bool pass=false;
-    for(const auto& l1 : *m_emTauRois) {
+    for(const auto l1 : *m_emTauRois) {
       m_l1Selector->emulation(l1, pass, info);
       bitL1Accept.set(bit, pass);
       bit++;
@@ -492,7 +492,7 @@ asg::AcceptData TrigEgammaEmulationTool::executeTool(const std::string &trigger)
     if(passedL1Calo  && !info.isL1){
       bit=0; pass=false;
       //loop over objects
-      for(const auto& emCluster : *m_trigEMClusters){
+      for(const auto emCluster : *m_trigEMClusters){
         m_l2Selector->emulation(emCluster, pass, info);
         bitL2CaloAccept.set(bit, pass);
         bit++;

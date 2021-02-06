@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // TrigEgammaMatchingToolTest.cxx 
@@ -99,7 +99,7 @@ StatusCode TrigEgammaEmulationToolTest::Method1() {
   
   for (const auto &trigger : m_triggerList) {
     
-    for (const auto &eg : *m_offElectrons) {
+    for (const auto eg : *m_offElectrons) {
       const HLT::TriggerElement *finalFC = nullptr;
       m_matchTool->match(eg,trigger,finalFC);
 
@@ -135,7 +135,7 @@ StatusCode TrigEgammaEmulationToolTest::Method2() {
   for (const auto &trigger : m_triggerList) {
     
     m_emulationTool->EventWiseContainer();
-    for (const auto &eg : *m_offElectrons) {
+    for (const auto eg : *m_offElectrons) {
       
       const HLT::TriggerElement *finalFC = nullptr;
       m_matchTool->match(eg,trigger,finalFC);

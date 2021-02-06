@@ -353,7 +353,7 @@ StatusCode LArCalibDigitsAccumulator::execute()
 		  sampleVector.push_back(cellStorage->at(trig*sizeSamples-m_sampleShift+sample));
 		}
 	      }else{
-		if ( sample < std::abs(m_sampleShift) ){
+		if ( sample < static_cast<unsigned>(std::abs(m_sampleShift)) ){
 		  sampleVector.push_back(cellStorage->at(trig*sizeSamples));
 		}else{		  
 		  sampleVector.push_back(cellStorage->at(trig*sizeSamples-m_sampleShift+sample));

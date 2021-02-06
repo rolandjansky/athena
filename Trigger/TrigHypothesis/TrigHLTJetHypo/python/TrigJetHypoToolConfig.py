@@ -5,7 +5,8 @@ from AthenaConfiguration.ComponentFactory import CompFactory
 
 from TrigHLTJetHypo.treeVisitors import (TreeParameterExpander,
                                          FilterConditionsMover,
-                                         TreeChecker)
+                                         TreeChecker,
+                                         IdenticalNodeCompressor)
 
 from TrigHLTJetHypo.ConditionsToolSetterFastReduction import (
     ConditionsToolSetterFastReduction,
@@ -38,6 +39,11 @@ def  tree2tools(tree, toolSetter, checker):
     # expand strings of cuts to a cut dictionary
     visitor = TreeParameterExpander()
     tree.accept(visitor)
+    logger.debug(visitor.report())
+
+    # coelesce identical nodes
+    visitor = IdenticalNodeCompressor()
+    tree.accept_cf(visitor)
     logger.debug(visitor.report())
 
     # move the filter conditions into node.filter_conditions
