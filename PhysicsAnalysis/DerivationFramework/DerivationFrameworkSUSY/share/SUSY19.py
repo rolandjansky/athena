@@ -8,9 +8,8 @@ from DerivationFrameworkJetEtMiss.JetCommon import *
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import *
 from DerivationFrameworkEGamma.EGammaCommon import *
 from DerivationFrameworkMuons.MuonsCommon import *
-#if DerivationFrameworkIsMonteCarlo:
-DerivationFrameworkIsMonteCarlo
-if True:
+DerivationFrameworkIsMonteCarlo = True
+if DerivationFrameworkIsMonteCarlo:
   from DerivationFrameworkMCTruth.MCTruthCommon import addStandardTruthContents
   addStandardTruthContents()
 from DerivationFrameworkInDet.InDetCommon import *
@@ -151,17 +150,11 @@ print SUSY19_Reco_V0Finder
 
 
 
-
-
-
-
-
-
 #====================================================================
 # TRUTH THINNING
 #====================================================================
 #if DerivationFrameworkIsMonteCarlo:
-if True:
+if False:
 
     from DerivationFrameworkMCTruth.DerivationFrameworkMCTruthConf import DerivationFramework__MenuTruthThinning
     SUSY19TruthThinningTool = DerivationFramework__MenuTruthThinning(name              = "SUSY19TruthThinningTool",
@@ -504,8 +497,7 @@ SUSY19SlimmingHelper.StaticContent = StaticContent
 
 # All standard truth particle collections are provided by DerivationFrameworkMCTruth (TruthDerivationTools.py)
 # Most of the new containers are centrally added to SlimmingHelper via DerivationFrameworkCore ContainersOnTheFly.py
-#if DerivationFrameworkIsMonteCarlo:
-if True:
+if DerivationFrameworkIsMonteCarlo:
 
   SUSY19SlimmingHelper.AppendToDictionary = {'TruthTop':'xAOD::TruthParticleContainer','TruthTopAux':'xAOD::TruthParticleAuxContainer',
                                             'TruthBSM':'xAOD::TruthParticleContainer','TruthBSMAux':'xAOD::TruthParticleAuxContainer',
