@@ -114,6 +114,8 @@ namespace top {
                                                  "PflowLoose",
                                                  "PLVTight",
                                                  "PLVLoose",
+                                                 "PLImprovedTight",
+                                                 "PLImprovedVeryTight",
                                                }};
 
     // Photon Isolation WPs
@@ -133,7 +135,7 @@ namespace top {
 
     for (const std::string& isoWP : all_isolations) {
       std::string tool_name;
-      if (isoWP.find("PLV") != std::string::npos) {
+      if (isoWP.find("PL") != std::string::npos) {
         tool_name = "CP::IsolationTool_LowPtPLV";
         if (!asg::ToolStore::contains<CP::IIsolationLowPtPLVTool>(tool_name)) {
           CP::IIsolationLowPtPLVTool* iso_tool = new CP::IsolationLowPtPLVTool(tool_name);
