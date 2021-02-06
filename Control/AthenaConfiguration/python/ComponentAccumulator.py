@@ -14,7 +14,6 @@ from AthenaConfiguration.Deduplication import deduplicate, DeduplicationFailed
 from AthenaConfiguration.DebuggingContext import Context, raiseWithCurrentContext, shortCallStack
 
 import collections
-import copy
 import sys
 
 
@@ -105,17 +104,18 @@ class ComponentAccumulator(object):
 
 
     def _inspect(self): #Create a string some basic info about this CA, useful for debugging
-        summary="This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
+        summary = "This CA contains {0} service, {1} conditions algorithms, {2} event algorithms and {3} public tools\n"\
             .format(len(self._services),len(self._conditionsAlgs),len(self._algorithms),len(self._publicTools))
         if (self._privateTools):
             if (isinstance(self._privateTools, list)):
-                summary+="  Private AlgTool: "+ self._privateTools[-1].getFullJobOptName()+"\n"
+                summary += "  Private AlgTool: " + self._privateTools[-1].getFullJobOptName() + "\n"
             else:
-                summary+="  Private AlgTool: "+ self._privateTools.getFullJobOptName()+"\n"
+                summary += "  Private AlgTool: " + self._privateTools.getFullJobOptName() + "\n"
         if (self._primaryComp):
-            summary+="  Primary Component: " + self._primaryComp.getFullJobOptName()+"\n"
-        summary+="  Last component added: "+self._lastAddedComponent+"\n"
-        summary+="  Created by: "+self._creationCallStack
+            summary += "  Primary Component: " + self._primaryComp.getFullJobOptName() + "\n"
+        summary += "  Sequence(s): " + ", ".join([s.name+(" (main)" if s == self._sequence else "") for s in self._allSequences]) + "\n"
+        summary += "  Last component added: " + self._lastAddedComponent+"\n"
+        summary += "  Created by: " + self._creationCallStack
         return summary
 
 
@@ -124,7 +124,7 @@ class ComponentAccumulator(object):
             len(self._publicTools)+len(self._theAppProps) == 0
 
     def __del__(self):
-         if not getattr(self,'_wasMerged',True) and not self.empty():
+         if not getattr(self,'_wasMerged',True) and not self.empty() and not sys.exc_info():
              #can't raise an exception in __del__ method (Python rules) so this is a warning
              log = logging.getLogger("ComponentAccumulator")
              log.error("This ComponentAccumulator was never merged!")
@@ -523,9 +523,6 @@ class ComponentAccumulator(object):
         if not other._isMergable:
             raiseWithCurrentContext(ConfigurationError("Attempted to merge the ComponentAccumulator that was unsafely manipulated (likely with foreach_component, ...) or is a top level ComponentAccumulator, in such case revert the order\n"))
 
-        #destSubSeq = findSubSequence(self._sequence, sequence)
-        #if destSubSeq == None:
-        #    raise ConfigurationError( "Nonexistent sequence %s in %s (or its sub-sequences)" % ( sequence, self._sequence.name() ) )          #
         def mergeSequences( dest, src ):
             for childIdx, c in enumerate(src.Members):
                 if isSequence( c ):
@@ -567,29 +564,31 @@ class ComponentAccumulator(object):
 
         # Merge sequences:
         # mergeSequences(destSeq, other._sequence)
-        # if sequenceName is provided it means we should be ignoring the actual main seq name there and use the sequenceName
+        # if sequenceName is provided it means we should be ignoring the actual MAIN seq name there and use the sequenceName
         # that means the first search in the destination seqence needs to be cheated
-        # the sequenceName argument is ambigous when the other CA has more than one sequence and this is checked
+        # the sequenceName argument is only relevant for the MAIN sequence, 
+        # secondary top sequences are treated as if the sequenceName argument would not be provided
 
-        if sequenceName is None:
-            for otherSeq in other._allSequences:
-                found=False
-                for ourSeq in self._allSequences:
-                    ourSeq = findSubSequence(ourSeq, otherSeq.name) # try to add sequence to the main structure first, to each seq in parent?
-                    if ourSeq:
-                        mergeSequences(ourSeq, otherSeq)
-                        found=True
-                        self._msg.verbose("   Succeeded to merge sequence %s to %s", otherSeq.name, ourSeq.name )
-                    else:
-                        self._msg.verbose("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name )
-                if not found: # just copy the sequence as a dangling one
-                    self._allSequences.append( copy.copy(otherSeq) )
-                    mergeSequences( self._allSequences[-1], otherSeq )
-        else:
-            if len(other._allSequences) > 1:
-                raiseWithCurrentContext(ConfigurationError('Merging of the accumulator that has mutiple top level sequences and changing the destination sequence is not supported'))
-            destSeq = self.getSequence(sequenceName) if sequenceName else self._sequence
-            mergeSequences(destSeq, other._sequence)
+        for otherSeq in other._allSequences:
+            found=False
+            for ourSeq in self._allSequences:
+                destSeqName = otherSeq.name
+                if sequenceName and otherSeq == other._sequence: # if sequence moving is requested (sequenceName != None) it concerns only the main sequence
+                    destSeqName = sequenceName
+                    self._msg.verbose("   Will move sequence %s to %s", otherSeq.name, destSeqName )
+
+#                destSeq = self.getSequence(sequenceName) if sequenceName else self._sequence:
+                ourSeq = findSubSequence(ourSeq, destSeqName) # try to add sequence to the main structure first, to each seq in parent?
+                if ourSeq:
+                    mergeSequences(ourSeq, otherSeq)
+                    found=True
+                    self._msg.verbose("   Succeeded to merge sequence %s to %s", otherSeq.name, ourSeq.name )
+                else:
+                    self._msg.verbose("   Failed to merge sequence %s to any existing one, destination CA will have several top/dangling sequences", otherSeq.name )
+            if not found: # just copy the sequence as a dangling one
+                self._allSequences.append( otherSeq )
+                mergeSequences( self._allSequences[-1], otherSeq )
+        
 
 
 
