@@ -37,6 +37,11 @@ namespace EgammaSelectors {
     {"MediumPhoton","ElectronPhotonSelectorTools/offline/mc15_20160512/PhotonIsEMMediumSelectorCutDefs.conf"},
     {"TightPhoton","ElectronPhotonSelectorTools/offline/20180825/PhotonIsEMTightSelectorCutDefs.conf"},
   };
+  const std::map<std::string,std::string> ForwardLHPointToConfFile={
+    {"LooseLHForwardElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20180822/FwdLHLooseConf.conf" },
+    {"MediumLHForwardElectron"   ,"ElectronPhotonSelectorTools/offline/mc16_20180822/FwdLHMediumConf.conf"},
+    {"TightLHForwardElectron"    ,"ElectronPhotonSelectorTools/offline/mc16_20180822/FwdLHTightConf.conf" },
+  };
   const std::map<std::string,std::string> ForwardElectronCutPointToConfFile={
     {"LooseForwardElectron","ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMLooseSelectorCutDefs.conf"},
     {"MediumForwardElectron","ElectronPhotonSelectorTools/offline/mc15_20150812/ForwardElectronIsEMMediumSelectorCutDefs.conf"},

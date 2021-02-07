@@ -105,7 +105,7 @@ ToolSvc += ElectronChargeIDSelector
 #
 # Disabled as is missing in R22
 #
-'''
+
 from ElectronPhotonSelectorTools.ElectronPhotonSelectorToolsConf import AsgForwardElectronLikelihoodTool
 
 ForwardElectronLHSelectorLoose = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorLoose", WorkingPoint="LooseLHForwardElectron")
@@ -116,7 +116,7 @@ ToolSvc += ForwardElectronLHSelectorMedium
 
 ForwardElectronLHSelectorTight = AsgForwardElectronLikelihoodTool("ForwardElectronLHSelectorTight", WorkingPoint="TightLHForwardElectron")
 ToolSvc += ForwardElectronLHSelectorTight 
-'''
+
 
 #====================================================================
 # PHOTON SELECTION (loose and tight cut-based)
@@ -251,10 +251,10 @@ ElectronPassECIDS = DerivationFramework__EGElectronLikelihoodToolWrapper( name =
                                                                           StoreTResult = True)
 ToolSvc += ElectronPassECIDS
 print (ElectronPassECIDS)
-'''
+
 # decorate forward electrons with the output of LH loose
-ForwardElectronPassLHLoose = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHLoose",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorLoose,
+ForwardElectronPassLHLoose = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHLoose",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorLoose,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHLoose",
@@ -263,8 +263,8 @@ ToolSvc += ForwardElectronPassLHLoose
 print (ForwardElectronPassLHLoose)
 
 # decorate forward electrons with the output of LH medium
-ForwardElectronPassLHMedium = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHMedium",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorMedium,
+ForwardElectronPassLHMedium = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHMedium",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorMedium,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHMedium",
@@ -273,15 +273,15 @@ ToolSvc += ForwardElectronPassLHMedium
 print (ForwardElectronPassLHMedium)
 
 # decorate forward electrons with the output of LH tight
-ForwardElectronPassLHTight = DerivationFramework__EGSelectionToolWrapper( name = "ForwardElectronPassLHTight",
-                                                                          EGammaSelectionTool = ForwardElectronLHSelectorTight,
+ForwardElectronPassLHTight = DerivationFramework__EGElectronLikelihoodToolWrapper( name = "ForwardElectronPassLHTight",
+                                                                          EGammaElectronLikelihoodTool = ForwardElectronLHSelectorTight,
                                                                           EGammaFudgeMCTool = "",
                                                                           CutType = "",
                                                                           StoreGateEntryName = "DFCommonForwardElectronsLHTight",
                                                                           ContainerName = "ForwardElectrons")
 ToolSvc += ForwardElectronPassLHTight
 print (ForwardElectronPassLHTight)
-'''
+
 
 # decorate photons with the output of IsEM loose
 # on MC, fudge the shower shapes before computing the ID (but the original shower shapes are not overridden)
@@ -371,7 +371,7 @@ ToolSvc += ElectronAmbiguity
 # list of all the decorators so far
 EGAugmentationTools = [DFCommonPhotonsDirection,
                        ElectronPassLHVeryLoose, ElectronPassLHLoose, ElectronPassLHLooseBL, ElectronPassLHMedium, ElectronPassLHTight,
-                       #ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
+                       ForwardElectronPassLHLoose, ForwardElectronPassLHMedium, ForwardElectronPassLHTight,
                        ElectronPassECIDS,
                        PhotonPassIsEMLoose, PhotonPassIsEMTight, 
                        PhotonPassIsEMTightPtIncl, 
