@@ -2,7 +2,10 @@
 
 namespace Muon {
 void NSW_PadTriggerDataContainerCnv_p1::persToTrans(const NSW_PadTriggerDataContainer_p1* persistentObj, NSW_PadTriggerDataContainer* transientObj, MsgStream &log) {
-    log << MSG::VERBOSE << "Converting persistent NSW_PadTriggerDataContainer_p1 to transient NSW_PadTriggerDataContainer" << endmsg;
+    if (log.level() <= MSG::VERBOSE) {
+        log << MSG::VERBOSE <<
+            "Converting persistent NSW_PadTriggerDataContainer_p1 to transient NSW_PadTriggerDataContainer" << endmsg;
+    }
     for (const auto& pCollection : *persistentObj) {
         std::array<std::vector<uint16_t>, 3> persistent_hitlists{ pCollection.m_precedingHitlist, pCollection.m_currentHitlist, pCollection.m_followingHitlist };
         // Can initialize here with std::move(persistent_hitlists) and modify the transient constructor accordingly
@@ -22,7 +25,10 @@ void NSW_PadTriggerDataContainerCnv_p1::persToTrans(const NSW_PadTriggerDataCont
 
 
 void NSW_PadTriggerDataContainerCnv_p1::transToPers(const NSW_PadTriggerDataContainer* transientObj, NSW_PadTriggerDataContainer_p1* persistentObj, MsgStream &log) {
-    log << MSG::VERBOSE << "Converting transient NSW_PadTriggerDataContainer to persistent NSW_PadTriggerDataContainer_p1" << endmsg;
+    if (log.level() <= MSG::VERBOSE) {
+        log << MSG::VERBOSE <<
+            "Converting transient NSW_PadTriggerDataContainer to persistent NSW_PadTriggerDataContainer_p1" << endmsg;
+    }
     persistentObj->reserve(transientObj->size());
     // Iterate over collections
     for (const auto& tCollection : *transientObj) {
