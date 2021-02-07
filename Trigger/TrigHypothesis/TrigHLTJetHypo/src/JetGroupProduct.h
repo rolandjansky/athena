@@ -5,6 +5,7 @@
 #ifndef TRIGHLTJETHYPO_JETGROUPPRODUCT_H
 #define TRIGHLTJETHYPO_JETGROUPPRODUCT_H
 
+#include "./IJetGroupProduct.h"
 #include "./ProductGen.h"
 #include "./DebugInfoCollector.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
@@ -15,7 +16,7 @@ using CondInd2JetGroupsInds = std::map<int, std::vector<std::size_t>>;
 
 typedef std::unique_ptr<ITrigJetHypoInfoCollector> Collector;
 
-class JetGroupProduct{
+class JetGroupProduct: public IJetGroupProduct{
   /*
    * Iterate through the combinations of jet groups.
    * The jet groups are those that satisfied a set up siblings.
@@ -34,7 +35,9 @@ class JetGroupProduct{
 		  const CondInd2JetGroupsInds& satisfiedBy,
 		  const std::vector<std::size_t>& condMult
 		  );
-  std::optional<std::vector<std::size_t>> next(const Collector&);
+
+  virtual
+  std::optional<std::vector<std::size_t>> next(const Collector&) override;
   
  private:
   std::vector<std::vector<std::size_t>>  m_condIndices;

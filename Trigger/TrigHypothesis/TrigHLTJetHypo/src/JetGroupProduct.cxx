@@ -52,9 +52,9 @@ JetGroupProduct::next(const Collector& collector){
   while(true){
     
     if(collector){
-	  collector->collect("JetGroupProduct::next()",
+      collector->collect("JetGroupProduct::next()",
                          "loop start pass" + std::to_string(ipass++));
-	}
+    }
       
     auto opt_indices = m_productGen.next();
     if(!opt_indices.has_value()){

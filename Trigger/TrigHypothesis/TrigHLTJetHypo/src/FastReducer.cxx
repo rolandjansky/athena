@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "./FastReducer.h"
 #include "./GrouperByCapacityFactory.h"
 #include "./ITrigJetHypoInfoCollector.h"
+#include "./JetGroupProductFactory.h"
 
 #include <map>
 #include <algorithm>
@@ -322,12 +323,15 @@ bool FastReducer::propagate_(std::size_t child,
   // jg11jg21, jg12jg21. Each of these  are flattened.
 
    
-  auto jg_product = JetGroupProduct(siblings,
-				    m_satisfiedBy,
-				    m_conditionMult);
+  auto jg_product = makeJetGroupProduct(siblings,
+					m_satisfiedBy,
+					m_conditionMult,
+					m_jg2elemjgs,
+					m_conditions[par]->capacity(),
+					collector);
    
   // obtain the next product of jet groups passing siblings
-  auto next = jg_product.next(collector);
+  auto next = jg_product->next(collector);
 
   // step through the jet groups found by combining ghe child groups
   // check ecach combination to see if it satisfies the parent. If so
@@ -357,7 +361,7 @@ bool FastReducer::propagate_(std::size_t child,
     std::set<std::size_t> unique_indices(elem_jgs.begin(),
 					 elem_jgs.end());
     if(unique_indices.size() != elem_jgs.size()){
-      next = jg_product.next(collector);
+      next = jg_product->next(collector);
       continue;
     }
 
@@ -370,7 +374,7 @@ bool FastReducer::propagate_(std::size_t child,
     // auto cur_jg = m_jgIndAllocator(elem_jgs);
     auto cur_jg = m_jgRegister.record(jg);
     if(m_testedBy[par].find(cur_jg) != m_testedBy[par].end()){
-      next = jg_product.next(collector);
+      next = jg_product->next(collector);
       continue;
     }
     m_testedBy[par].insert(cur_jg);
@@ -386,7 +390,7 @@ bool FastReducer::propagate_(std::size_t child,
       if(collector){recordJetGroup(cur_jg, jg, collector);}
     }
     
-    next = jg_product.next(collector);
+    next = jg_product->next(collector);
   }
 
   // check if enough jet groups pass the parent condition
