@@ -319,19 +319,31 @@ std::string PixelModuleData::getCablingMapFileName() const { return m_cablingMap
 void PixelModuleData::setFluenceLayer(std::vector<double> fluenceLayer) { m_fluenceLayer = fluenceLayer; }
 double PixelModuleData::getFluenceLayer(int layer) const { return m_fluenceLayer.at(layer); }
 
-void PixelModuleData::setLorentzMap_e(std::vector<TH2F*> lorentzMap_e) { m_lorentzMap_e = lorentzMap_e; }
-void PixelModuleData::setLorentzMap_h(std::vector<TH2F*> lorentzMap_h) { m_lorentzMap_h = lorentzMap_h; }
-TH2F* PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
-TH2F* PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
+void PixelModuleData::setLorentzMap_eOld(std::vector<TH2F*> lorentzMap_e) { m_lorentzMap_eOld = lorentzMap_e; }
+void PixelModuleData::setLorentzMap_hOld(std::vector<TH2F*> lorentzMap_h) { m_lorentzMap_hOld = lorentzMap_h; }
+TH2F* PixelModuleData::getLorentzMap_eOld(int layer) const { return m_lorentzMap_eOld.at(layer); }
+TH2F* PixelModuleData::getLorentzMap_hOld(int layer) const { return m_lorentzMap_hOld.at(layer); }
 
-void PixelModuleData::setDistanceMap_e(std::vector<TH2F*> distanceMap_e) { m_distanceMap_e = distanceMap_e; }
-void PixelModuleData::setDistanceMap_h(std::vector<TH2F*> distanceMap_h) { m_distanceMap_h = distanceMap_h; }
-TH2F* PixelModuleData::getDistanceMap_e(int layer) const { return m_distanceMap_e.at(layer); }
-TH2F* PixelModuleData::getDistanceMap_h(int layer) const { return m_distanceMap_h.at(layer); }
+void PixelModuleData::setDistanceMap_eOld(std::vector<TH2F*> distanceMap_e) { m_distanceMap_eOld = distanceMap_e; }
+void PixelModuleData::setDistanceMap_hOld(std::vector<TH2F*> distanceMap_h) { m_distanceMap_hOld = distanceMap_h; }
+TH2F* PixelModuleData::getDistanceMap_eOld(int layer) const { return m_distanceMap_eOld.at(layer); }
+TH2F* PixelModuleData::getDistanceMap_hOld(int layer) const { return m_distanceMap_hOld.at(layer); }
 
-void PixelModuleData::setRamoPotentialMap(std::vector<TH3F*> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
-TH3F* PixelModuleData::getRamoPotentialMap(int layer) const { return m_ramoPotentialMap.at(layer); }
+void PixelModuleData::setRamoPotentialMapOld(std::vector<TH3F*> ramoPotentialMap) { m_ramoPotentialMapOld = ramoPotentialMap; }
+TH3F* PixelModuleData::getRamoPotentialMapOld(int layer) const { return m_ramoPotentialMapOld.at(layer); }
 
+void PixelModuleData::setLorentzMap_e(std::vector<PixelHistoConverter> lorentzMap_e) { m_lorentzMap_e = lorentzMap_e; }
+void PixelModuleData::setLorentzMap_h(std::vector<PixelHistoConverter> lorentzMap_h) { m_lorentzMap_h = lorentzMap_h; }
+const PixelHistoConverter& PixelModuleData::getLorentzMap_e(int layer) const { return m_lorentzMap_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getLorentzMap_h(int layer) const { return m_lorentzMap_h.at(layer); }
+
+void PixelModuleData::setDistanceMap_e(std::vector<PixelHistoConverter> distanceMap_e) { m_distanceMap_e = distanceMap_e; }
+void PixelModuleData::setDistanceMap_h(std::vector<PixelHistoConverter> distanceMap_h) { m_distanceMap_h = distanceMap_h; }
+const PixelHistoConverter& PixelModuleData::getDistanceMap_e(int layer) const { return m_distanceMap_e.at(layer); }
+const PixelHistoConverter& PixelModuleData::getDistanceMap_h(int layer) const { return m_distanceMap_h.at(layer); }
+
+void PixelModuleData::setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap) { m_ramoPotentialMap = ramoPotentialMap; }
+const PixelHistoConverter& PixelModuleData::getRamoPotentialMap(int layer) const { return m_ramoPotentialMap.at(layer); }
 // Distortion parameters
 void PixelModuleData::setDistortionInputSource(int distortionInputSource) { m_distortionInputSource = distortionInputSource; }
 int PixelModuleData::getDistortionInputSource() const { return m_distortionInputSource; }

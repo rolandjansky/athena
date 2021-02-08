@@ -458,12 +458,17 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
   }
 
-  std::vector<TH3F*> ramoPotentialMap;
-  std::vector<TH2F*> lorentzMap_e;
-  std::vector<TH2F*> lorentzMap_h;
-  std::vector<TH2F*> distanceMap_e;
-  std::vector<TH2F*> distanceMap_h;
+  std::vector<TH3F*> ramoPotentialMapOld;
+  std::vector<TH2F*> lorentzMap_eOld;
+  std::vector<TH2F*> lorentzMap_hOld;
+  std::vector<TH2F*> distanceMap_eOld;
+  std::vector<TH2F*> distanceMap_hOld;
 
+  std::vector<PixelHistoConverter> ramoPotentialMap;
+  std::vector<PixelHistoConverter> lorentzMap_e;
+  std::vector<PixelHistoConverter> lorentzMap_h;
+  std::vector<PixelHistoConverter> distanceMap_e;
+  std::vector<PixelHistoConverter> distanceMap_h;
   for (unsigned int i=0; i<mapsPath_list.size(); i++) {
     ATH_MSG_INFO("Using maps located in: "<<mapsPath_list.at(i) << " for layer No." << i);
     TFile* mapsFile = new TFile((mapsPath_list.at(i)).c_str()); //this is the ramo potential.
@@ -476,13 +481,28 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_FATAL("Did not find a Ramo potential map and an approximate form is available yet. Exit...");
       return StatusCode::FAILURE;
     }
-    ramoPotentialMap.push_back(ramoPotentialMap_hold);
+    ramoPotentialMapOld.push_back(ramoPotentialMap_hold);
 
-    lorentzMap_e.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
-    lorentzMap_h.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
-    distanceMap_e.push_back((TH2F*)mapsFile->Get("edistance"));
-    distanceMap_h.push_back((TH2F*)mapsFile->Get("hdistance"));
+    lorentzMap_eOld.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
+    lorentzMap_hOld.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
+    distanceMap_eOld.push_back((TH2F*)mapsFile->Get("edistance"));
+    distanceMap_hOld.push_back((TH2F*)mapsFile->Get("hdistance"));
+    ramoPotentialMap.emplace_back();
+    ATH_CHECK(ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
+    lorentzMap_e.emplace_back();
+    lorentzMap_h.emplace_back();
+    distanceMap_e.emplace_back();
+    distanceMap_h.emplace_back();
+    ATH_CHECK(lorentzMap_e.back().SetHisto2D((TH2F*)mapsFile->Get("lorentz_map_e")));
+    ATH_CHECK(lorentzMap_h.back().SetHisto2D((TH2F*)mapsFile->Get("lorentz_map_h")));
+    ATH_CHECK(distanceMap_e.back().SetHisto2D((TH2F*)mapsFile->Get("edistance")));
+    ATH_CHECK(distanceMap_h.back().SetHisto2D((TH2F*)mapsFile->Get("hdistance")));
   }
+  writeCdo -> setLorentzMap_eOld(lorentzMap_eOld);
+  writeCdo -> setLorentzMap_hOld(lorentzMap_hOld);
+  writeCdo -> setDistanceMap_eOld(distanceMap_eOld);
+  writeCdo -> setDistanceMap_hOld(distanceMap_hOld);
+  writeCdo -> setRamoPotentialMapOld(ramoPotentialMapOld);
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);
   writeCdo -> setDistanceMap_e(distanceMap_e);
