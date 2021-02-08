@@ -31,6 +31,8 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "Objects.h"
+#include "TProfile.h"
+#include "TFile.h"
 
 class METAlg{
     private:
@@ -84,6 +86,9 @@ class METAlg{
  
   static float Rho_avg_barrel(const xAOD::JGTowerContainer* towers, bool useNegTowers);
   static float Rho_avg_etaRings(const xAOD::JGTowerContainer* towers, bool useNegTowers);
+
+  static StatusCode RhoRMS_LUT(const xAOD::JGTowerContainer* towers, TString metName, float rhoA, float rhoB, float rhoC, TFile* lut_file, bool correctMean);
+
 };
 
 #endif

@@ -64,6 +64,11 @@ std::string GFEX_pFPGA(float eta);
 float GTowerArea(float eta);
 
 
+int GFEX_pFPGA_Int(std::string in); 
+std::string GFEX_pFPGA(float eta); 
+float GTowerArea(float eta);
+int GFEX_iEta(float eta);
+
 class TowerHelper{
 
    public:
