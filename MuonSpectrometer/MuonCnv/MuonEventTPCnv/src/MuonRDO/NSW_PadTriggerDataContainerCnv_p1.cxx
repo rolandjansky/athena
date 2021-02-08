@@ -6,14 +6,14 @@ void NSW_PadTriggerDataContainerCnv_p1::persToTrans(const NSW_PadTriggerDataCont
         log << MSG::VERBOSE <<
             "Converting persistent NSW_PadTriggerDataContainer_p1 to transient NSW_PadTriggerDataContainer" << endmsg;
     }
-    for (const auto& pCollection : *persistentObj) {
+    for (const auto& pCollection : persistentObj->m_collections) {
         std::array<std::vector<uint16_t>, 3> persistent_hitlists{ pCollection.m_precedingHitlist, pCollection.m_currentHitlist, pCollection.m_followingHitlist };
         // Can initialize here with std::move(persistent_hitlists) and modify the transient constructor accordingly
         auto tCollection = std::make_unique<NSW_PadTriggerData>(pCollection.m_identifierHash, pCollection.m_sectorID,
             pCollection.m_sectorSize, pCollection.m_endcap, pCollection.m_BCID, pCollection.m_L1ID, persistent_hitlists);
-        tCollection->reserve(pCollection.size());
-        for (std::size_t i{}; i < pCollection.size(); i++) {
-            tCollection->push_back(m_segmentConverter.createTransient(&pCollection.at(i), log));
+        tCollection->reserve(pCollection.m_segments.size());
+        for (std::size_t i{}; i < pCollection.m_segments.size(); i++) {
+            tCollection->push_back(m_segmentConverter.createTransient(&pCollection.m_segments.at(i), log));
         }
 
         auto idHash = tCollection->identifierHash();
@@ -29,11 +29,11 @@ void NSW_PadTriggerDataContainerCnv_p1::transToPers(const NSW_PadTriggerDataCont
         log << MSG::VERBOSE <<
             "Converting transient NSW_PadTriggerDataContainer to persistent NSW_PadTriggerDataContainer_p1" << endmsg;
     }
-    persistentObj->reserve(transientObj->size());
+    persistentObj->m_collections.reserve(transientObj->size());
     // Iterate over collections
     for (const auto& tCollection : *transientObj) {
         NSW_PadTriggerData_p1 pCollection{};
-        pCollection.reserve(tCollection->size());
+        pCollection.m_segments.reserve(tCollection->size());
 
         pCollection.m_identifierHash = tCollection->identifierHash();
         pCollection.m_sectorID = tCollection->sectorID();
@@ -50,9 +50,9 @@ void NSW_PadTriggerDataContainerCnv_p1::transToPers(const NSW_PadTriggerDataCont
         for (std::size_t i{}; i < tCollection->size(); i++) {
             NSW_PadTriggerSegment_p1 pSegment{};
             m_segmentConverter.transToPers(tCollection->at(i), &pSegment, log);
-            pCollection.push_back(pSegment);
+            pCollection.m_segments.push_back(pSegment);
         }
-        persistentObj->push_back(pCollection);
+        persistentObj->m_collections.push_back(std::move(pCollection));
     }
 }
 
