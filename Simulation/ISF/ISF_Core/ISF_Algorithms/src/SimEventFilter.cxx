@@ -98,7 +98,7 @@ StatusCode ISF::SimEventFilter::execute()
     return StatusCode::FAILURE;
   }
 
-  bool pass=false;
+  bool pass = false;
 
   for ( const auto& eventPtr : *m_inputHardScatterEvgen ) {
     // skip empty events
@@ -111,21 +111,29 @@ StatusCode ISF::SimEventFilter::execute()
     auto allGenPartBegin = eventPtr->particles_begin();
     auto allGenPartEnd = eventPtr->particles_end();
 
-    for(auto p = allGenPartBegin; p!= allGenPartEnd; ++p) {
+    for (auto p = allGenPartBegin; p!= allGenPartEnd; ++p) {
       ATH_MSG_VERBOSE("Checking filters for particle: "<<**p);
       ATH_MSG_VERBOSE("Common filters:");
-      bool b_common=passesFilters(**p,m_genParticleCommonFilters);
+      bool b_common = passesFilters(**p,m_genParticleCommonFilters);
       ATH_MSG_VERBOSE("Old filters:");
-      bool b_old   =passesFilters(**p,m_genParticleOldFilters);
+      bool b_old   = passesFilters(**p,m_genParticleOldFilters);
       ATH_MSG_VERBOSE("New filters:");
-      bool b_new   =passesFilters(**p,m_genParticleNewFilters);
+      bool b_new   = passesFilters(**p,m_genParticleNewFilters);
 
-      if( b_common && (b_old!=b_new) ) pass=true;
-      if( b_common && m_genParticleOldFilters.empty() && m_genParticleNewFilters.empty()) pass=true;
-      if( pass ) {
+      if ( b_common && (b_old!=b_new) ) {
+        pass=true;
+      }
+      if ( b_common && m_genParticleOldFilters.empty() && m_genParticleNewFilters.empty()) {
+        pass=true;
+      }
+      if ( pass ) {
         ATH_MSG_INFO("Different result for particle "<<**p<<" common="<<b_common<<" old="<<b_old<<" new="<<b_new);
-        if((*p)->production_vertex ()) ATH_MSG_INFO("  prod :"<<*((*p)->production_vertex ()));
-        if((*p)->end_vertex ()) ATH_MSG_INFO("  decay:"<<*((*p)->end_vertex ()));
+        if ((*p)->production_vertex ()) {
+          ATH_MSG_INFO("  prod :"<<*((*p)->production_vertex ()));
+        }
+        if ((*p)->end_vertex ()) {
+          ATH_MSG_INFO("  decay:"<<*((*p)->end_vertex ()));
+        }
 
         for ( const auto& filter : m_genParticleCommonFilters ) {
           // determine if the particle passes current filter
@@ -154,11 +162,17 @@ StatusCode ISF::SimEventFilter::execute()
     }
   }
 
-  if(pass) ++m_pass;
-  ++m_total;
-
   ATH_MSG_INFO ("End SimEventFilter, difference in filters: "<<(pass ? "found" : "not found")<<"="<<pass<<", invert="<<m_invertfilter);
-  if(m_invertfilter) pass=!pass;
+
+  if (m_invertfilter) {
+    pass =! pass;
+  }
+
+  if (pass) {
+    ++m_pass;
+  }
+
+  ++m_total;
 
   setFilterPassed(pass);
 
