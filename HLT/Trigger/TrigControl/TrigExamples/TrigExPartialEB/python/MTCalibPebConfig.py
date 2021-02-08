@@ -183,6 +183,8 @@ def make_all_hypo_algs(num_chains, concurrent=False):
     for chain_index in range(1, 1+num_chains):
         # Default hypo tool for chains 1, 4, 7, 10, ...
         hypoTool = make_hypo_tool('HLT_MTCalibPeb{:d}'.format(chain_index))
+        hypoTool.PEBROBList = rob_list
+        hypoTool.PEBSubDetList = []
         # Hypo for chains 2, 5, 8, 11, ...
         if chain_index % 3 == 2:
             hypoTool.PEBROBList = [0x420024, 0x420025, 0x420026, 0x420027]  # example LAr EMB ROBs
