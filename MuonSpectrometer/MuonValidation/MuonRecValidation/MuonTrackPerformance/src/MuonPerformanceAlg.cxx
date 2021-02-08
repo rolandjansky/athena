@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuonPerformanceAlg.h"
@@ -201,12 +201,10 @@ StatusCode MuonPerformanceAlg::execute()
         bool loose = false;
         bool medium = false;
         bool tight = false;
-        if (((*link)->quality() == xAOD::Muon_v1::Loose)) loose = true;
-        if (((*link)->quality() == xAOD::Muon_v1::Medium)) loose = true;
-        if (((*link)->quality() == xAOD::Muon_v1::Tight)) loose = true;
-        if (((*link)->quality() == xAOD::Muon_v1::Medium)) medium = true;
-        if (((*link)->quality() == xAOD::Muon_v1::Tight)) medium = true;
-        if (((*link)->quality() == xAOD::Muon_v1::Tight)) tight = true;
+        if (((*link)->quality() <= xAOD::Muon_v1::Loose)) loose = true;
+        if (((*link)->quality() <= xAOD::Muon_v1::Medium)) medium = true;
+        if (((*link)->quality() <= xAOD::Muon_v1::Tight)) tight = true;
+        if (!loose) ATH_MSG_WARNING("Muon did not pass Loose WP");
         if (insideID) {
           const xAOD::TrackParticle* tp  = (*link)->primaryTrackParticle();
           if (tp) {
