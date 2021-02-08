@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 from TriggerMenuMT.HLTMenuConfig.Menu.MenuComponents import MenuSequence
 from AthenaCommon.CFElements import parOR
@@ -102,7 +102,6 @@ def MinBiasTrkSequence():
         trkInputMakerAlg.InViewRoIs = "InputRoI" # contract with the consumer
         trkInputMakerAlg.Views = "TrkView"
         trkInputMakerAlg.RequireParentView = True
-        trkInputMakerAlg.ViewNodeName = "TrkCountHypoAlgMTNode"
 
         # prepare algorithms to run in views, first,
         # inform scheduler that input data is available in parent view (has to be done by hand)
@@ -116,7 +115,7 @@ def MinBiasTrkSequence():
         from TrigMinBias.TrackCountMonitoringMT import TrackCountMonitoring
         trackCountHypo.MonTool = TrackCountMonitoring()
 
-        trkRecoSeq = parOR("TrkrecoSeq", algs)
+        trkRecoSeq = parOR("TrkRecoSeq", algs)
         trkSequence = seqAND("TrkSequence", [trkInputMakerAlg, trkRecoSeq])
         trkInputMakerAlg.ViewNodeName = trkRecoSeq.name()
 
@@ -124,3 +123,28 @@ def MinBiasTrkSequence():
                             Maker       = trkInputMakerAlg,
                             Hypo        = trackCountHypo,
                             HypoToolGen = TrackCountHypoToolGen)
+
+def MinBiasMbtsSequence():
+    from TrigT2MinBias.TrigT2MinBiasConf import MbtsHypoAlg, MbtsHypoTool
+    from TrigT2MinBias.MbtsConfig import MbtsFexMTCfg
+    fex = MbtsFexMTCfg(MbtsBitsKey="HLT_MbtsBitsContainer")
+    MbtsRecoSeq = parOR("MbtsRecoSeq", [fex])
+
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
+    MbtsInputMakerAlg = InputMakerForRoI("IM_Mbts", 
+                                        RoIsLink="initialRoI", 
+                                        RoITool = ViewCreatorInitialROITool(),
+                                        RoIs='MbtsRoI', # not used in fact
+                                        )
+
+    MbtsSequence = seqAND("MbtsSequence", [MbtsInputMakerAlg, MbtsRecoSeq])
+
+    hypo = MbtsHypoAlg("MbtsHypoAlg", MbtsBitsKey=fex.MbtsBitsKey)
+
+    def hypoToolGen(chainDict):
+        return MbtsHypoTool(chainDict["chainName"]) # to now no additional settings
+
+    return MenuSequence(Sequence    = MbtsSequence,
+                        Maker       = MbtsInputMakerAlg,
+                        Hypo        = hypo,
+                        HypoToolGen = hypoToolGen)
