@@ -17,8 +17,23 @@ def LArRawChannelBuilderDefault():
 
         LArADC2MeVCondAlgDefault()
 
-        from LArROD.LArRODConf import LArRawChannelBuilderAlg
-        theLArRawChannelBuilder=LArRawChannelBuilderAlg()
+        from LArConditionsCommon.LArRunFormat import getLArFormatForRun
+        from RecExConfig.AutoConfiguration import GetRunNumber
+        runNum = GetRunNumber()
+        lri=getLArFormatForRun(runNum)
+        if lri.runType()==0:
+           from LArROD.LArRODConf import LArRawChannelBuilderIterAlg
+           theLArRawChannelBuilder=LArRawChannelBuilderIterAlg()
+           theLArRawChannelBuilder.minSample=2
+           theLArRawChannelBuilder.maxSample=12
+           theLArRawChannelBuilder.minADCforIterInSigma=4
+           theLArRawChannelBuilder.minADCforIter=15
+           theLArRawChannelBuilder.defaultPhase=12
+           from AthenaCommon.Constants import DEBUG
+           theLArRawChannelBuilder.OutputLevel=DEBUG
+        else:
+           from LArROD.LArRODConf import LArRawChannelBuilderAlg
+           theLArRawChannelBuilder=LArRawChannelBuilderAlg()
         if larRODFlags.keepDSPRaw():
             theLArRawChannelBuilder.LArRawChannelKey=larRODFlags.RawChannelFromDigitsContainerName()
 
