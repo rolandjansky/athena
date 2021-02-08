@@ -38,6 +38,9 @@ class TauCellThinningAlg : public AthReentrantAlgorithm
 
  private:
 
+  // Minimum tau pt
+  Gaudi::Property<double> m_minTauPt { this, "MinTauPt", 0.* Gaudi::Units::GeV, "Minimum tau pt" };
+
   // Name of the stream being thinned
   StringProperty m_streamName
     { this, "StreamName", "StreamAOD", "Name of the stream being thinned" };
