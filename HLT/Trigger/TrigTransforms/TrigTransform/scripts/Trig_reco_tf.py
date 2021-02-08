@@ -19,6 +19,7 @@ import PyJobTransforms.trfArgClasses as trfArgClasses
 
 from TrigTransform.trigRecoExe import trigRecoExecutor
 from TrigTransform.trigCostExe import trigCostExecutor
+from TrigTransform.trigRateExe import trigRateExecutor
 
 # Setup core logging here
 from PyJobTransforms.trfLogger import msg
@@ -63,11 +64,15 @@ def getTransform():
     # runs in athena and will succeed if input BS file has costmon enabled
     executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
                                      substep = 'r2c',
-                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST', 'NTUP_TRIGRATE', 'NTUP_TRIGEBWGHT'],
+                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST', 'NTUP_TRIGEBWGHT'],
                                      perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
                                      literalRunargs = ['from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
                                                        'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputDRAW_TRIGCOSTFile)',
                                                        'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)']))
+
+    executorSet.add(trigRateExecutor(name = 'AODtoRATE',
+                                     exe = 'RatesAnalysisFullMenu.py',
+                                     inData = ['AOD'], outData = ['NTUP_TRIGRATE']))
 
     # add default reconstruction steps
     ## TODO: eventually to be replaced by:

@@ -41,25 +41,6 @@ class trigCostExecutor(athenaExecutor):
         else:
             msg.info('NTUP_TRIGCOST argument not defined so skip %s check', expectedFileName)
 
-        msg.info("Check for trig_rate.root file")
-        # costmon generates the file trig_rate.root
-        # to save on panda it needs to be renamed via the outputNTUP_TRIGRATEFile argument
-        expectedFileName = 'trig_rate.root'
-        # first check argument is in dict
-        if 'outputNTUP_TRIGRATEFile' in self.conf.argdict:
-            # check file is created
-            if(os.path.isfile(expectedFileName)):
-                msg.info('Renaming %s to %s', expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0])
-                try:
-                    os.rename(expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0])
-                except OSError as e:
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                                    'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0], e))
-            else:
-                msg.error('NTUP_TRIGRATE argument defined %s but %s not created', self.conf.argdict['outputNTUP_TRIGRATEFile'].value[0], expectedFileName)
-        else:
-            msg.info('NTUP_TRIGRATE argument not defined so skip %s check', expectedFileName)
-
         msg.info("Check for trig_ebweight.root file")
         # costmon generates the file trig_ebweight.root
         # to save on panda it needs to be renamed via the outputNTUP_TRIGEBWGHTFile argument
