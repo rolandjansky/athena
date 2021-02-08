@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // BphysTrigDiMuDecoratorTool.cxx 
@@ -94,7 +94,7 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
        
     const xAOD::Vertex * vtxbs(nullptr), *vtxpv(nullptr);
     if (pvContainer.isValid()) {
-        for (const auto& primvtx: *pvContainer) {
+        for (const auto primvtx: *pvContainer) {
             if ( primvtx->vertexType() == xAOD::VxType::PriVtx) {
                 vtxpv = primvtx;
                 break;

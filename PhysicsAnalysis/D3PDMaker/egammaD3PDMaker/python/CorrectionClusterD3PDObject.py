@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 #
 # @file egammaD3PDMaker/python/CorrectionClusterD3PDObject.py
@@ -13,6 +13,7 @@ from D3PDMakerCoreComps.D3PDObject    import make_SGDataVector_D3PDObject
 from egammaD3PDAnalysis.TileGapConfig import TileGapConfig
 from D3PDMakerCoreComps.D3PDObject    import DeferArg
 from D3PDMakerCoreComps.resolveSGKey  import resolveSGKey # noqa: F401
+from D3PDMakerConfig.D3PDMakerFlags   import D3PDMakerFlags # noqa: F401
 import EventCommonD3PDMaker
 import D3PDMakerCoreComps
 import CaloD3PDMaker

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMETMonitorAlgorithm.h"
@@ -58,7 +58,7 @@ TrigMETMonitorAlgorithm::TrigMETMonitorAlgorithm( const std::string& name, ISvcL
   declareProperty("L1Chain04", m_L1Chain04="L1_gXENC50");
   declareProperty("L1Chain05", m_L1Chain05="L1_gXERHO50");
   declareProperty("L1Chain06", m_L1Chain06="L1_gXEJWOJ50");
-  declareProperty("L1Chain01", m_L1Chain07="L1_gXEPUFIT50");
+  declareProperty("L1Chain07", m_L1Chain07="L1_gXEPUFIT50");
   declareProperty("HLTChain01", m_HLTChain01="HLT_xe65_cell_L1XE50");
   declareProperty("HLTChain02", m_HLTChain02="HLT_xe100_mht_L1XE50");
   declareProperty("HLTChain03", m_HLTChain03="HLT_xe100_tcpufit_L1XE50");

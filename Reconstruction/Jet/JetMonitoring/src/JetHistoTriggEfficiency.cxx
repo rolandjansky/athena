@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #include "AthenaMonitoringKernel/GenericMonitoringTool.h"
 #include "JetMonitoring/JetHistoTriggEfficiency.h"
@@ -58,10 +58,24 @@ StatusCode JetHistoTriggEfficiency::processJetContainer(const JetMonitoringAlg& 
   const xAOD::Jet* probeJet = nullptr;
   size_t npassed=0;
   bool doJetSelect = m_selectTool.isEnabled();
-  for(const xAOD::Jet* j: jets){
-    if( doJetSelect && !m_selectTool->keep(*j) ) continue;
-    if(npassed==m_jetIndex) {probeJet = j; break; } // found ! 
-    npassed++;
+  if (!m_sortJets) {
+    for(const xAOD::Jet* j: jets){
+      if( doJetSelect && !m_selectTool->keep(*j) ) continue;
+      if(npassed==m_jetIndex) {probeJet = j; break; } // found ! 
+      npassed++;
+    }
+  } else { //first sort jets according to variable passed, then select the nth jet from the sorted container
+    std::list<const xAOD::Jet*> tmpList;
+    for(const xAOD::Jet* j: jets){
+      if( doJetSelect && !m_selectTool->keep(*j) ) continue;
+      tmpList.push_back(j);
+    }
+    auto sort = [this] (const xAOD::Jet * j1, const xAOD::Jet * j2) {return m_jetVar->value(*j1) > m_jetVar->value(*j2); } ;
+    tmpList.sort( sort );
+    for(const xAOD::Jet* j : tmpList ) {
+      if(npassed==m_jetIndex) {probeJet = j; break; } // found ! 
+      npassed++;
+    }
   }
 
   if(probeJet ==nullptr) return StatusCode::SUCCESS;

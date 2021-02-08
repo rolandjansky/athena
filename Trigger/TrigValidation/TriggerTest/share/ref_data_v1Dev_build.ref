@@ -1024,6 +1024,10 @@ HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20:
   eventCount: 0
 HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20:
   eventCount: 0
+HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20:
+  eventCount: 0
+HLT_j0_dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi_L1J20:
+  eventCount: 0
 HLT_j0_fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet_L1J20:
   eventCount: 1
   stepCounts:
@@ -1430,6 +1434,12 @@ HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
     0: 20
   stepFeatures:
     0: 20
+HLT_mb_mbts_L1MBTS_1_EMPTY:
+  eventCount: 9
+  stepCounts:
+    0: 9
+  stepFeatures:
+    0: 9
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 20
   stepCounts:

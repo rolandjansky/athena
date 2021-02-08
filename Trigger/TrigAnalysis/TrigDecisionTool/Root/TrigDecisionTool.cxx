@@ -183,25 +183,28 @@ std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
 #endif 
 }
 
-void Trig::TrigDecisionTool::setForceConfigUpdate(bool b) {
+void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  std::vector<uint8_t>* v = m_forceConfigUpdate.get();
-  v->resize(1);
-  v->at(0) = (uint8_t)b;
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  (*ab) = b;
+  if (forceForAllSlots) {
+    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
+      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
+      std::atomic<bool>* ab = m_forceConfigUpdate.get(dummyContext);
+      (*ab) = b;
+    }
+  }
 #else // Analysis or Standalone
   m_forceConfigUpdate = b;
+  ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
 #endif 
 }
 
 
 bool Trig::TrigDecisionTool::getForceConfigUpdate() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
-  auto* vec = m_forceConfigUpdate.get();
-  if (vec->size() == 0) {
-    // initialize; if the vector does not exist assume we need update
-    vec->push_back(true);
-  }
-  return vec->at(0);
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  return *ab;
 #else // Analysis or Standalone
   return m_forceConfigUpdate;
 #endif 
@@ -220,6 +223,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  cgmPtr->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
   slot = Gaudi::Hive::currentContext().slot();
 #endif
 
@@ -302,8 +306,8 @@ StatusCode Trig::TrigDecisionTool::beginInputFile() {
    // We need to update the cached configuration when switching to a new input
    // file:
    //have to do this at the next beginEvent, because the event info isn't ready at this point (e.g. if the file has no events!)
-   ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true)");
-   setForceConfigUpdate(true);
+   ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true, forceForAllSlots=true)");
+   setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
    return StatusCode::SUCCESS;
 }
 
