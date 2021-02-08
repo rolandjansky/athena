@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "SensorSimPlanarTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -157,12 +157,15 @@ StatusCode SensorSimPlanarTool::finalize() {
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
-StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
+StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
+                                             SiChargedDiodeCollection& chargedDiodes,
                                              const InDetDD::SiDetectorElement& Module,
                                              const InDetDD::PixelModuleDesign& p_design,
+                                             const PixelModuleData *moduleData,
                                              std::vector< std::pair<double, double> >& trfHitRecord,
                                              std::vector<double>& initialConditions,
-                                             CLHEP::HepRandomEngine* rndmEngine) {
+                                             CLHEP::HepRandomEngine* rndmEngine,
+                                             const EventContext &ctx) {
   // So far, this is only discriminating variable from 3D sensor.
   if (p_design.numberOfCircuits() < 2) {
     if (!Module.isDBM()) {  //DBM modules also processed here
@@ -172,9 +175,6 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
   const PixelID* p_pixelId = static_cast<const PixelID*>(Module.getIdHelper());
   int layer = p_pixelId->layer_disk(Module.identify());
-
-  // retrieve conditions data
-  SG::ReadCondHandle<PixelModuleData> moduleData(m_moduleDataKey);
 
   std::pair<double, double> trappingTimes;
   if (m_doRadDamage && Module.isBarrel()) {
@@ -552,7 +552,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
             SiSurfaceCharge scharge(
               chargePos,
               SiCharge(induced_charge, hitTime(phit), SiCharge::track,
-                       HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag)
+                       HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)
                        )
               );
             SiCellId diode = Module.cellIdOfPosition(scharge.position());
@@ -593,7 +593,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
         //The following lines are adapted from SiDigitization's Inserter class
         SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                      phit->trackNumber(), phit.eventId(), evColl, idxFlag)));
+                                                      phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
 
         SiCellId diode = Module.cellIdOfPosition(scharge.position());
 
