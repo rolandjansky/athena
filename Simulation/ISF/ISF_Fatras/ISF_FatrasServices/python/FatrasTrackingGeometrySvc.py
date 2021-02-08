@@ -132,6 +132,7 @@ class FatrasTrackingGeometryCondAlg:
        FatrasGeometryBuilder.MuonTrackingGeometryBuilder = FatrasMuonTrackingGeometryBuilder      
   
     from FatrasExample.FatrasTuning import FatrasTuningFlags
+    from InDetCondFolders import InDetAlignFolders_FATRAS
     from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg as GeometryCondAlg
     FatrasTrackingGeometryCondAlg = GeometryCondAlg(name = 'FatrasTrackingGeometryCondAlg')
 

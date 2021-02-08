@@ -1,8 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 """
 Service and Tool configurations for ISF for ISF_FatrasServicesConfig
 KG Tan, 04/12/2012
+Updated by J. Chapman
 """
 
 from __future__ import print_function
@@ -175,8 +176,10 @@ def getFatrasNavigator(name="ISF_FatrasNavigator", **kwargs):
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
-      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg                                                                                        
+      from InDetCondFolders import InDetAlignFolders_FATRAS
+      from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg
 
@@ -399,11 +402,14 @@ def getFatrasMultipleScatteringSamplerGeneralMixture(name="ISF_MultipleScatterin
 
 # Combining all in the MaterialEffectsUpdator
 def getFatrasMaterialUpdator(name="ISF_FatrasMaterialUpdator", **kwargs):
+
     from G4AtlasApps.SimFlags import simFlags
 
     from AthenaCommon.AlgSequence import AthSequencer
     condSeq = AthSequencer("AthCondSeq")
+
     if not hasattr (condSeq, 'AtlasTrackingGeometryCondAlg'):
+      from InDetCondFolders import InDetAlignFolders_FATRAS
       from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg
       TrkGeoCondAlg = ConfiguredTrackingGeometryCondAlg('AtlasTrackingGeometryCondAlg')
       condSeq+= TrkGeoCondAlg
