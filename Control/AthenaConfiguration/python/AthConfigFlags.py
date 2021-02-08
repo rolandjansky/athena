@@ -116,9 +116,7 @@ class FlagAddress(object):
 
 class AthConfigFlags(object):
 
-    def __init__(self,inputflags=None):
-
-
+    def __init__(self,inputflags=None):        
         if inputflags:
             self._flagdict=inputflags
         else:
@@ -126,6 +124,18 @@ class AthConfigFlags(object):
         self._locked=False
         self._dynaflags = dict()
         self._loaded    = set() # dynamic dlags that were loaded
+        self._hash = None
+
+    def __hash__(self):
+        if not self._hash:
+            self._hash = self._calculateHash()
+        return self._hash
+
+    def _calculateHash(self):
+        fromkeys = hash(str(self._flagdict.keys()))
+        fromvalues = hash(str(self._flagdict.values()))
+        h = hash((fromkeys, fromvalues))
+        return h
 
     def __getattr__(self, name):
         _msg.debug("AthConfigFlags __getattr__ %s", name )
@@ -144,6 +154,7 @@ class AthConfigFlags(object):
 
 
     def addFlag(self,name,setDef=None):
+        self._hash = None
         if (self._locked):
             raise RuntimeError("Attempt to add a flag to an already-locked container")
 
@@ -163,6 +174,7 @@ class AthConfigFlags(object):
          addFlagsCategory("A", g, True) - when flags are defined in g like this: f.addFalg("x", somevalue),
         The later option allows to share one generation function among the flags that are later loaded in a different paths.
         """
+        self._hash = None
         self._dynaflags[path] = (generator, prefix)
 
     def needFlagsCategory(self, name):
@@ -173,6 +185,7 @@ class AthConfigFlags(object):
         """
         loads the flags of the form "A.B.C" first attemprintg the path "A" then "A.B" and then "A.B.C"
         """
+        self._hash = None
         def __load_impl( flagBaseName ):
             if flagBaseName in self._loaded:
                 _msg.debug("Flags %s already loaded",flagBaseName  )
@@ -193,6 +206,7 @@ class AthConfigFlags(object):
 
     def loadAllDynamicFlags(self):
         """Force load all the dynamic flags """
+        self._hash = None
         while len(self._dynaflags) != 0:
             # Need to convert to a list since _loadDynaFlags may change the dict.
             for prefix in list(self._dynaflags.keys()):
@@ -217,6 +231,7 @@ class AthConfigFlags(object):
     def _set(self,name,value):
         if (self._locked):
             raise RuntimeError("Attempt to set a flag of an already-locked container")
+        self._hash = None
         if name in self._flagdict:
             self._flagdict[name].set(value)
             return
@@ -308,7 +323,10 @@ class AthConfigFlags(object):
             raise RuntimeError("Attempt to replace incompatible flags subsets: distinct flag are "
                                + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
-        newFlags._dynaflags = _copyFunction(self._dynaflags)
+
+        for k,v in self._dynaflags.items(): # cant just assign the dicts because theyn they are shared when loading
+            newFlags._dynaflags[k] = _copyFunction(v)
+        newFlags._hash = None
         
         if self._locked:
             newFlags.lock()
@@ -321,6 +339,7 @@ class AthConfigFlags(object):
         Merges two flag containers
         When the prefix is passed each flag from the "other" is prefixed by "prefix."
         """
+        self._hash = None
         if (self._locked):
             raise RuntimeError("Attempt to join with and already-locked container")
 
@@ -359,6 +378,7 @@ class AthConfigFlags(object):
         """
         Mostly a self-test method
         """
+        self._hash = None
         for n,f in list(self._flagdict.items()):
             f.get(self)
         return
@@ -382,6 +402,7 @@ class AthConfigFlags(object):
         """
         Used to set flags from command-line parameters, like ConfigFlags.fillFromArgs(sys.argv[1:])
         """
+        self._hash = None
         import sys
         if parser is None:
             parser = self.getArgumentParser()
