@@ -523,6 +523,11 @@ def InDetTestPixelLayerToolCfg(flags, name = "InDetTestPixelLayerTool", **kwargs
       kwargs.setdefault( "PixelSummaryTool", tmpAcc.getPrimary())
       result.merge(tmpAcc)
 
+  if 'Extrapolator' not in kwargs :
+    tmpAcc =  InDetExtrapolatorCfg(flags)
+    kwargs.setdefault("Extrapolator", tmpAcc.getPrimary())
+    result.merge(tmpAcc)
+
   kwargs.setdefault("CheckActiveAreas", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDeadRegions", flags.InDet.checkDeadElementsOnTrack)
   kwargs.setdefault("CheckDisabledFEs", flags.InDet.checkDeadElementsOnTrack)
