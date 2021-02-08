@@ -144,7 +144,13 @@ if rec.doTrigger():
                          'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
             if not hasattr(ToolSvc, toolName ):
                 ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
-            getattr(ToolSvc, toolName).LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            theTool = getattr(ToolSvc, toolName)
+            theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            if 'UseNewConfig' in theTool.getProperties():
+                _log.info("Setting ToolSvc.%s.UseNewConfig to %s", theTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
+                theTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
+
 
     #---------------------------------------------------------------------------
     try:

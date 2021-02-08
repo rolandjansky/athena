@@ -43,10 +43,12 @@ class DefaultRoIBResultToAOD( genConfRoIBResultToAOD ):
         log.info( "will add L1CPMTools instance to the algorithm" )
         self.L1CPMTools = CfgMgr.LVL1__L1CPMTools( 'L1CPMTools' )
         self.L1CPMTools.LVL1ConfigSvc = lvl1ConfigSvc
+        self.L1CPMTools.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         log.info( "will add L1JEMJetTools instance to the algorithm" )
         self.L1JEMJetTools = CfgMgr.LVL1__L1JEMJetTools( 'L1JEMJetTools' )
         self.L1JEMJetTools.LVL1ConfigSvc = lvl1ConfigSvc
+        self.L1JEMJetTools.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
 
         #
         # Set up the muon RoI tools:
