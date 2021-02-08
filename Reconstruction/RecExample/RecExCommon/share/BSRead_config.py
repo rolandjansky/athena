@@ -37,7 +37,7 @@ if DetFlags.readRDOBS.LAr_on():
     from RecExConfig.AutoConfiguration import GetRunNumber
     runNum = GetRunNumber()
     lri=getLArFormatForRun(runNum)
-    if lri.runType()==0:
+    if lri is not None and lri.runType() is not None and lri.runType()==0:
        topSequence+=LArRawDataReadingAlg(FailOnCorruption=True,LArRawChannelKey="",OutputLevel=DEBUG) 
     else:   
        topSequence+=LArRawDataReadingAlg(FailOnCorruption=False) 

@@ -214,7 +214,6 @@ void TrkVKalVrtFitter::initState (const EventContext& ctx, State& state) const
   //----------------------------------------------------------------------
   //  New magnetic field object is created. It's provided to VKalVrtCore.
   //  VKalVrtFitter must set up Core BEFORE any call required propagation!!!
-  //
   if (m_isAtlasField) {
      // For the moment, use Gaudi Hive for the event context - would need to be passed in from clients
      SG::ReadCondHandle<AtlasFieldCacheCondObj> readHandle{m_fieldCacheCondObjInputKey, ctx};
@@ -228,7 +227,7 @@ void TrkVKalVrtFitter::initState (const EventContext& ctx, State& state) const
   } else {
      state.m_fitField.setAtlasField(m_BMAG);
   }
-
+  state.m_eventContext = &ctx;
   state.m_vkalFitControl.vk_objProp = m_fitPropagator;
   state.m_useAprioriVertex = m_useAprioriVertex;
   state.m_useThetaCnst = m_useThetaCnst;

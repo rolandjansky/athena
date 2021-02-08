@@ -6,14 +6,17 @@ import re
 from collections import defaultdict
 from hypo_dot_tree import get_node_lines
 
+from AthenaCommon.Logging import logging
+logger = logging.getLogger(__name__)
+
 indir = '/tmp/peter'
 outdir = '/tmp/peter'
 
 def dot_event(fn, lines):
     dot_0 = ['digraph G{']
     dot_1 = []
-    #print ('pritn lines')
-    #for l in lines: print (l)
+    #logger.info('pritn lines')
+    #for l in lines: logger.info(l)
     #assert False
     for l in lines:
         tokens = l.split()
@@ -52,11 +55,11 @@ def get_event_fns():
 
     
     fns = os.listdir(indir)
-    print (fns)
+    logger.info(fns)
     fns = [f for f in fns if fn_re.match(f)]
-    print (len(fns), ' files were identified')
+    logger.info(len(fns), ' files were identified')
 
-    print (fns)
+    logger.info(fns)
     fns = [os.path.join(indir, fn) for fn in fns]
     return fns
 
@@ -81,8 +84,8 @@ def dot_event_info(lines):
 
     info_list = []
     for k, ll in sorter.items():
-        print (k)
-        print (ll)
+        logger.info(k)
+        logger.info(ll)
         scenario_set = set([l[0] for l in ll])
         idn_set = set([l[1] for l in ll])
         pid_set = set([l[2] for l in ll])
@@ -113,7 +116,7 @@ def make_dotevent_script(event_info):
     dot_0 = ['digraph G{']
     dot_1 = []
 
-    print (event_info)
+    logger.info(event_info)
     for scenario, pass_str, tot_time, units, idn, pid, n_calls in event_info:
 
         label = '"%s %s%s %s (%s) %s call(s)"' % (scenario, '\\', 'n',
@@ -144,7 +147,7 @@ def write_eventdotscript(fn):
     out_fn = make_eventout_fn(fn)
     with open(out_fn, 'w') as ofile:
         ofile.write(script)
-    print ('wrote ', out_fn)
+    logger.info('wrote ', out_fn)
     
 def main():
     fns =  get_event_fns()

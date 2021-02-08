@@ -164,7 +164,7 @@ def getInDetRttTruthSelectionTool(**kwargs):
             200*1000 if kwargs.pop("OnlyDressPrimaryTracks", True) else 2**31-1),
         maxProdVertRadius=300.,
         maxEta=2.5,
-        minPt=400.)
+        minPt=500.)
 
 
 def getInDetTruthSelectionTool(**kwargs):

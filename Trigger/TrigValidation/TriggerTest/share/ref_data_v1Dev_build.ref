@@ -1240,6 +1240,12 @@ HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
     0: 20
   stepFeatures:
     0: 20
+HLT_mb_mbts_L1MBTS_1_EMPTY:
+  eventCount: 9
+  stepCounts:
+    0: 9
+  stepFeatures:
+    0: 9
 HLT_mb_sp_L1RD0_FILLED:
   eventCount: 20
   stepCounts:

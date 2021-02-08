@@ -168,6 +168,9 @@ bool nSCTHitsPlusDeadSensors (
 bool eProbabilityHT(
     const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
 
+bool eProbabilityNN(
+    const xAOD::TauJet &tau, const xAOD::TauTrack &track, double &out);
+
 } // namespace Track
 
 

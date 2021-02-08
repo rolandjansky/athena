@@ -22,7 +22,6 @@ class ConfigurationError(RuntimeError):
 _basicServicesToCreateOrder=("CoreDumpSvc/CoreDumpSvc", "GeoModelSvc/GeoModelSvc", "DetDescrCnvSvc/DetDescrCnvSvc")
 
 
-
 def printProperties(msg, c, nestLevel = 0, printDefaults=False, onlyComponentsOnly=False):
     # Iterate in sorted order.
     propnames= sorted(c._descriptors.keys())
@@ -73,6 +72,7 @@ def filterComponents (comps, onlyComponents = []):
 
 
 class ComponentAccumulator(object):
+    debugMode=False
 
     def __init__(self,sequenceName='AthAlgSeq'):
         self._msg=logging.getLogger('ComponentAccumulator')
@@ -95,9 +95,8 @@ class ComponentAccumulator(object):
         self._wasMerged=False
         self._isMergable=True
         self._lastAddedComponent="Unknown"
-        self._creationCallStack = shortCallStack()
+        self._creationCallStack = "Unknown (enable this info with ComponentAccumulator.debugMode = True)" if not ComponentAccumulator.debugMode else shortCallStack()
         self._debugStage=DbgStage()
-
 
     def setAsTopLevel(self):
         self._isMergable = False
@@ -510,7 +509,7 @@ class ComponentAccumulator(object):
         if not isinstance(other,ComponentAccumulator):
             raise TypeError("Attempt merge wrong type {}. Only instances of ComponentAccumulator can be added".format(type(other).__name__))
 
-        context = Context("When merging ComponentAccumulator\n{} \nto:\n{}".format(other._inspect(), self._inspect())) # noqa : F841
+        context = "Unknown" if not ComponentAccumulator.debugMode else Context("When merging ComponentAccumulator\n{} \nto:\n{}".format(other._inspect(), self._inspect())) # noqa : F841
         if (other._privateTools is not None):
             if isinstance(other._privateTools,collections.abc.Sequence):
                 raiseWithCurrentContext(RuntimeError("merge called with a ComponentAccumulator a dangling (array of) private tools\n"))

@@ -52,6 +52,7 @@ class FastReducer {
 
   // conditions owned by the matcher
   const ConditionPtrs& m_conditions;
+  std::vector<std::size_t> m_conditionMult;
 
   // conditionFilters owned by the matcher
   const ConditionFilters& m_conditionFilters;
@@ -63,7 +64,7 @@ class FastReducer {
   
   Tree m_tree;
 
-  // map Condition index onto a list of indices of satisfying job groups.
+  // map Condition index onto a list of indices of satisfying jet groups.
   CondInd2JetGroupsInds m_satisfiedBy;
 
   /** map Condition index onto a set of indices the condition
