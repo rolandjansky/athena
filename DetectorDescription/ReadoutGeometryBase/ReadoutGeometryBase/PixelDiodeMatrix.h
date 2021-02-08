@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -90,7 +90,7 @@ namespace InDetDD {
     - modified & maintained: Nick Styles, Andreas Salzburger
     **/
     
-    class PixelDiodeMatrix : public std::enable_shared_from_this<PixelDiodeMatrix> {
+    class PixelDiodeMatrix {
       
     public:
       
@@ -118,13 +118,13 @@ namespace InDetDD {
           That is, it adds the relative cellId to the cellId passed to the function. 
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      std::shared_ptr<const PixelDiodeMatrix> cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
+      const PixelDiodeMatrix *cellIdOfPosition(const Amg::Vector2D & position, SiCellId & cellId) const;
       
       /** Return position correspong to cell with relative id withing the matrix.
           Returns the relative position added to the position passed in.
           A pointer to the correspond cell is returned. This can be used to get the
           size of the cell. */
-      std::shared_ptr<const PixelDiodeMatrix> positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
+      const PixelDiodeMatrix *positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const;
       
       /** Width in phi (x) direction.*/
       double phiWidth() const;
