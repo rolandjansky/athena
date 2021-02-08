@@ -513,7 +513,13 @@ namespace Muon {
                     << " " << Muon::MuonStationIndex::layerName(layer)
                     << " maximum " << seed.max << " position " << seed.pos << " angle " << seed.theta << " ptr " << &seed );
 
-      bool isNSW=m_idHelper->issTgc(seed.hits[0]->prd->identify()) || m_idHelper->isMM(seed.hits[0]->prd->identify());
+      /// In the NSW setup it can happen that the hits in the collection are only
+      /// made up of TGCHits which are clustered beforehand and hence have no
+      /// associated prd. In order to prevent later a crash in bool isNSW = ...
+      /// let's first find a hit with associated PRD
+      std::vector<MuonHough::Hit*>::const_iterator ref_itr = std::find_if(seed.hits.begin(), seed.hits.end(), [](const MuonHough::Hit *hit)->bool { return hit->prd;});
+      bool isNSW = ref_itr != seed.hits.end() && (m_idHelper->issTgc((*ref_itr)->prd->identify()) || m_idHelper->isMM((*ref_itr)->prd->identify()));
+
       // extend seed within the current sector
       // sector indices have an offset of -1 because the numbering of the sectors are from 1 to 16 but the indices in the vertices are of course 0 to 15
       extendSeed( road, m_houghDataPerSectorVec[sector-1] );
