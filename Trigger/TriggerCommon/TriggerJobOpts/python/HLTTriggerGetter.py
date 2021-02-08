@@ -82,6 +82,7 @@ def monitoringTools(steering):
         from GaudiSvc.GaudiSvcConf import THistSvc
         ServiceMgr += THistSvc()
     if hasattr(ServiceMgr.THistSvc, "Output"): # this is offline THistSvc fo which we want to setup files
+        from TriggerHistSvcConfig import setTHistSvcOutput
         setTHistSvcOutput(ServiceMgr.THistSvc.Output)
         
 
