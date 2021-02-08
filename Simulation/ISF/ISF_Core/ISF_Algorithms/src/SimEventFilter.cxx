@@ -50,7 +50,7 @@ StatusCode ISF::SimEventFilter::initialize()
 {
 
   ATH_MSG_VERBOSE ( "--------------------------------------------------------" );
-  ATH_MSG_INFO( "Initializing the ISF Sim Filter " );
+  ATH_MSG_VERBOSE ( "Initializing the ISF Sim Filter " );
 
   if (!m_genParticleCommonFilters.empty()) ATH_CHECK(m_genParticleCommonFilters.retrieve());
   if (!m_genParticleOldFilters.empty()   ) ATH_CHECK(m_genParticleOldFilters.retrieve());
@@ -62,12 +62,12 @@ StatusCode ISF::SimEventFilter::initialize()
 
 StatusCode ISF::SimEventFilter::finalize()
 {
-  ATH_MSG_INFO ( "Finalizing ..." );
+  ATH_MSG_VERBOSE ( "Finalizing ..." );
 
   //TODO: thread safe output of filter decisions
 
   ATH_MSG_INFO(" pass = "<<m_pass<<" / "<<m_total<<" = "<<(m_total>0 ? (100.0*m_pass)/m_total : 0)<<"%");
-  ATH_MSG_INFO(" =====================================================================");
+  ATH_MSG_VERBOSE(" =====================================================================");
 
   return StatusCode::SUCCESS;
 }
@@ -127,12 +127,12 @@ StatusCode ISF::SimEventFilter::execute()
         pass=true;
       }
       if ( pass ) {
-        ATH_MSG_INFO("Different result for particle "<<**p<<" common="<<b_common<<" old="<<b_old<<" new="<<b_new);
+        ATH_MSG_DEBUG("Different result for particle "<<**p<<" common="<<b_common<<" old="<<b_old<<" new="<<b_new);
         if ((*p)->production_vertex ()) {
-          ATH_MSG_INFO("  prod :"<<*((*p)->production_vertex ()));
+          ATH_MSG_VERBOSE("  prod :"<<*((*p)->production_vertex ()));
         }
         if ((*p)->end_vertex ()) {
-          ATH_MSG_INFO("  decay:"<<*((*p)->end_vertex ()));
+          ATH_MSG_VERBOSE("  decay:"<<*((*p)->end_vertex ()));
         }
 
         for ( const auto& filter : m_genParticleCommonFilters ) {
@@ -162,7 +162,7 @@ StatusCode ISF::SimEventFilter::execute()
     }
   }
 
-  ATH_MSG_INFO ("End SimEventFilter, difference in filters: "<<(pass ? "found" : "not found")<<"="<<pass<<", invert="<<m_invertfilter);
+  ATH_MSG_DEBUG ("End SimEventFilter, difference in filters: "<<(pass ? "found" : "not found")<<"="<<pass<<", invert="<<m_invertfilter);
 
   if (m_invertfilter) {
     pass =! pass;
