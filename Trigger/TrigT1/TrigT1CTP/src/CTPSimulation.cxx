@@ -8,6 +8,7 @@
 #include "TrigConfL1Data/L1DataDef.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 #include "./CTPTriggerThreshold.h"
 #include "./CTPTriggerItem.h"
@@ -60,6 +61,11 @@ StatusCode
 LVL1CTP::CTPSimulation::initialize() {
 
    ATH_MSG_DEBUG("initialize");
+   if(m_forceBunchGroupPattern) {
+      ATH_MSG_INFO("Will use bunchgroup pattern 0x" << std::hex << m_bunchGroupPattern);
+   } else {
+      ATH_MSG_INFO("Will use bunchgroup definition from bunchgroup set");
+   }
 
    if( m_isData ) {
       CHECK( m_oKeyRDO.assign(LVL1CTP::DEFAULT_RDOOutputLocation_Rerun) );
@@ -773,7 +779,22 @@ LVL1CTP::CTPSimulation::extractMultiplicities(std::map<std::string, unsigned int
       }
    } else {
       // use bunchgroup definition from configuration and pick according to the BCID
-      if( ! l1menu ) {
+      if( m_useNewConfig ) {
+         const TrigConf::L1BunchGroupSet *l1bgs = nullptr;
+         detStore()->retrieve(l1bgs).ignore();
+         if (l1bgs)
+         {
+            for (size_t i = 0; i < l1bgs->maxNBunchGroups(); ++i)
+            {
+               std::shared_ptr<TrigConf::L1BunchGroup> bg = l1bgs->getBunchGroup(i);
+               thrMultiMap[std::string("BGRP") + std::to_string(i)] = bg->contains(bcid) ? 1 : 0;
+            }
+         }
+         else
+         {
+            ATH_MSG_ERROR("Did not find L1BunchGroupSet in DetectorStore");
+         }
+      } else {
          for( const TrigConf::BunchGroup & bg : m_configSvc->ctpConfig()->bunchGroupSet().bunchGroups() ) {
             std::string bgName("BGRP");
             bgName += std::to_string(bg.internalNumber());

@@ -365,6 +365,7 @@ def Lvl1SimulationSequence( ConfigFlags ):
     svcMgr += conf2toConfigurable(getL1ConfigSvc(ConfigFlags))
     svcMgr += conf2toConfigurable(getL1TopoConfigSvc(ConfigFlags))
 
+    log.info("UseNewConfig = %s", ConfigFlags.Trigger.readLVL1FromJSON)
     if ConfigFlags.Input.isMC and not ConfigFlags.Common.isOnline:
         log.info("Setting up L1 simulation for MC")
         l1SimSeq = Lvl1SimulationSequence_MC( ConfigFlags )
