@@ -64,7 +64,7 @@ def getTransform():
     # runs in athena and will succeed if input BS file has costmon enabled
     executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
                                      substep = 'r2c',
-                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST', 'NTUP_TRIGEBWGHT'],
+                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST'],
                                      perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
                                      literalRunargs = ['from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
                                                        'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputDRAW_TRIGCOSTFile)',
@@ -196,10 +196,6 @@ def addTrigCostArgs(parser):
     parser.add_argument('--outputNTUP_TRIGRATEFile', nargs='+',
                         type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
                         help='D3PD output NTUP_TRIGRATE file', group='TrigCost')
-    # NTUP_TRIGEBWGHT is used for COST monitoring - used in the reco release
-    parser.add_argument('--outputNTUP_TRIGEBWGHTFile', nargs='+',
-                        type=trfArgClasses.argFactory(trfArgClasses.argHISTFile, io='output', runarg=True, countable=False),
-                        help='D3PD output NTUP_TRIGEBWGHT file', group='TrigCost')
 
 
 def addTriggerDBArgs(parser):
