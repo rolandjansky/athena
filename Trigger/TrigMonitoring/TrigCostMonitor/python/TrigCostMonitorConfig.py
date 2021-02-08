@@ -601,7 +601,7 @@ def postSetupOnlineCost():
         log.info('ROBDataProviderSvc does not have property doCostMonitoring - will not do cost monitor for ROS.')
 
     # Set CostSvc for TrigErrorMonTool
-    if 'HltEventLoopMgr' in svcMgr and 'TrigErrorMonTool' in svcMgr.HltEventLoopMgr:
+    if hasattr (svcMgr,'HltEventLoopMgr') and hasattr(svcMgr.HltEventLoopMgr,'TrigErrorMonTool'):
         from AthenaConfiguration.AllConfigFlags import ConfigFlags
         if ConfigFlags.Trigger.CostMonitoring.doCostMonitoring:
             from AthenaConfiguration.ComponentFactory import CompFactory
