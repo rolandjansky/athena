@@ -138,6 +138,7 @@ namespace FlavorTagDiscriminants {
 
     TypeRegexes trk_type_regexes {
       {"numberOf.*"_r, EDMType::UCHAR},
+      {"btagIp_(d|z)0.*"_r, EDMType::FLOAT},
       {".*_(d|z)0.*"_r, EDMType::CUSTOM_GETTER},
       {"(log_)?(ptfrac|dr).*"_r, EDMType::CUSTOM_GETTER}
     };
