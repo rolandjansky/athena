@@ -1,6 +1,9 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from __future__ import print_function
 
+from AthenaCommon.Logging import logging
+logger = logging.getLogger(__name__)
+ 
 import os
 import re
 
@@ -41,11 +44,11 @@ def get_tree_fns():
         r'^HypoTree_TrigJetHypoAlgMT.HLT')
 
     fns = os.listdir(indir)
-    print (fns)
+    logger.info(fns)
     fns = [f for f in fns if fn_re.match(f)]
-    print (len(fns), ' files were identified')
+    logger.info(len(fns), ' files were identified')
 
-    print (fns)
+    logger.info(fns)
     fns = [os.path.join(indir, fn) for fn in fns]
     return fns
 
@@ -70,7 +73,7 @@ def write_dotscript(fn):
     out_fn = make_out_fn(fn)
     with open(out_fn, 'w') as ofile:
         ofile.write(script)
-    print ('wrote ', out_fn)
+    logger.info('wrote ', out_fn)
     
 
     
@@ -78,16 +81,6 @@ def main():
     fns = get_tree_fns()
     [write_dotscript(fn) for fn in fns]
     
-    # for fn in fns:
-    #    filename = os.path.basename(fn)
-
-    #    script = dot_tree(filename, node_lines)
-
-    #    pdffn = os.path.join(outdir, filename+'.eps')
-    #    p = subprocess.Popen(['dot', '-T', 'eps', dfn, '-o',  pdffn])
-    #    p.communicate()
-        
-    #    print ('done with ', dfn)
-    #print ('end of main')
+ 
 if __name__ == '__main__':
     main()

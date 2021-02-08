@@ -28,6 +28,14 @@ from TrigHLTJetHypo.treeVisitors import TreeChecker
 
 import sys
 
+from AthenaCommon.Logging import logging
+from AthenaCommon.Constants import DEBUG
+
+logger = logging.getLogger(__name__)
+
+logger.setLevel(DEBUG)
+
+
 
 
 chains = [
@@ -73,8 +81,15 @@ chains = [
     ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
 
     ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
-]
+    
 
+    ChainProp(name='HLT_2mu6_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+    
+    ChainProp(name='HLT_2mu6_j80_2j50_0eta490_j0_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED', 'FSNOSEED', 'FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+
+    # bad chain, missing '_j0'
+    ChainProp(name='HLT_2mu6_2j50_0eta490_dijetSEP50j1etSEP50j2etSEP900djmass_L1MJJ-500-NFF',l1SeedThresholds=['MU6','FSNOSEED'],stream=[PhysicsStream], groups=MuonJetGroup),
+]
 
 def testChainDictMaker(idict):
 
@@ -83,7 +98,7 @@ def testChainDictMaker(idict):
     else:
         chain_props = chains
 
-    print (chain_props)
+    logger.debug(chain_props)
     result = []
     for cp in chain_props:
         chain_dict = dictFromChainName(cp)
@@ -94,11 +109,12 @@ def testChainDictMaker(idict):
 
 def list_chains():
     for i, c in enumerate(chains):
-        print ('%2d' % i, ' ', c.name)
+        logger.debug('%2d' % i, ' ', c.name)
 
 
 if __name__ == '__main__':
 
+    debug = True
     idict = None
     if len(sys.argv) > 1:
         idict = int(sys.argv[1])
@@ -109,21 +125,19 @@ if __name__ == '__main__':
 
     dicts = testChainDictMaker(idict)
     for d in dicts:
-        print('')
-        print (d)
+        logger.debug(str(d))
 
-    print ('\n chain_labels:\n')
+    logger.debug('\n chain_labels:\n')
     
     for d in dicts:
-        print (d[0])
-        print (chainDict2jetLabel(d[1]))
-        print ()
+        logger.debug (d[0])
+        logger.debug (chainDict2jetLabel(d[1])+ '\n')
 
         
-    print ('\n node trees:\n')
+    logger.debug ('\n node trees:\n')
     
     for d in dicts:
-        print (d[0])
+        logger.debug(d[0])
         label = chainDict2jetLabel(d[1])
         chain_name = d[1]['chainName']
 
@@ -134,14 +148,12 @@ if __name__ == '__main__':
         for tree in forest:
             toolSetter=ConditionsToolSetterFastReduction(algToolFactory)
             
-            print (tree2tools(tree,
-                              toolSetter=toolSetter,
-                              checker=TreeChecker()).dump())
-        print ()
+            logger.debug(tree2tools(tree,
+                                    toolSetter=toolSetter,
+                                    checker=TreeChecker()).dump() + '\n')
         
 
-    print ('\nMaking TrigJetHypoTool for each dictiomary\n')
+    logger.debug ('\nMaking TrigJetHypoTool for each dictiomary\n')
     for d in dicts:
-        print (d[0])
-        print (trigJetHypoToolFromDict(d[1]))
-        print ()
+        logger.debug (d[0])
+        logger.debug (str(trigJetHypoToolFromDict(d[1]))+'\n')
