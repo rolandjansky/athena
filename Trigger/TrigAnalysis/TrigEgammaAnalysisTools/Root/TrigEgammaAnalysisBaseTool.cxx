@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**********************************************************************
@@ -1097,7 +1097,7 @@ MonteCarlo::PDGID TrigEgammaAnalysisBaseTool::pdgid(const xAOD::Egamma *eg, cons
 
   if(truthContainer){
     TLorentzVector elp; elp.SetPtEtaPhiE(eg->pt(),eg->eta(),eg->phi(),eg->e());
-    for(const auto& mc : *truthContainer ){
+    for(const auto mc : *truthContainer ){
       Z = false;
       W = false;
       if(mc->isElectron()){

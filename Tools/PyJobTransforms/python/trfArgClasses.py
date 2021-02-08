@@ -118,13 +118,17 @@ class argument(object):
         return repr(self.value)
     
     ## Comparison is based on value attribute
-    def __cmp__(self, other):
-        if self.value == other.value:
-            return 0
-        if self.value > other.value:
-            return 1
-        return -1
+    def __eq__(self,other):
+        return self.value == other.value
 
+    def __nq__(self, other):
+        return self.value != other.value
+
+    def __lt__(self, other):
+        return self.value < other.value
+
+    def __gt__(self, other):
+        return self.value > other.value
 
 ## @brief String type argument
 class argString(argument):

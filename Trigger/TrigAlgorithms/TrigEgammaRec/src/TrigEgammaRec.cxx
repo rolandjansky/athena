@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -977,7 +977,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     } else{
         ATH_MSG_DEBUG(" REGTEST: Got VertexLinks from TE");
     }
-    for(const auto& egRec : *m_eg_container){
+    for(const auto egRec : *m_eg_container){
         // For now set author as Electron
         ATH_MSG_DEBUG("REGTEST:: Running AmbiguityTool");
         if (timerSvc()) m_timerTool3->start(); //timer
@@ -1129,7 +1129,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
         return HLT::ERROR;                                                                                                  
       }           
     //Dress the Electron objects
-    for (const auto& eg : *m_electron_container){
+    for (xAOD::Electron* eg : *m_electron_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");
@@ -1226,7 +1226,7 @@ HLT::ErrorCode TrigEgammaRec::hltExecute( const HLT::TriggerElement* inputTE,
     }
 
     //Dress the Photon objects
-    for (const auto& eg : *m_photon_container){
+    for (xAOD::Photon* eg : *m_photon_container){
         // EMFourMomentum
         if (timerSvc()) m_timerTool4->start(); //timer
         ATH_MSG_DEBUG("about to run EMFourMomBuilder::hltExecute(eg)");

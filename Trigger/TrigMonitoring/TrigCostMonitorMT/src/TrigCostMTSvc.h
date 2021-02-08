@@ -95,6 +95,13 @@ class TrigCostMTSvc : public extends <AthService, ITrigCostMTSvc> {
    */
   virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload) override;
 
+  /**
+   * @return Generate timeout report with the most time consuming algorithms
+   * @param[in] context The event context
+   * @param[out] report Created report with algorithms and times (in ms)
+   */
+  virtual StatusCode generateTimeoutReport(const EventContext& context, std::string& report) override;
+
   private: 
 
   /**

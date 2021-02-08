@@ -40,6 +40,10 @@ inline Flow flow(HepMC3::ConstGenParticlePtr p) {
     }
     return std::make_shared<HepMC3::VectorIntAttribute>(fl);
 }
+template<class T> void  set_flow( T a,  Flow fl) {
+    if(fl) a->add_attribute("flow",std::make_shared<HepMC3::VectorIntAttribute>(*fl));
+}
+
 }
 #else
 #include "HepMC/Flow.h"

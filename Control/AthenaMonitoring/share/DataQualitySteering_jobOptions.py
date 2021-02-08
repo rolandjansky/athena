@@ -125,6 +125,11 @@ if DQMonFlags.doMonitoring():
       # LAr monitoring   #
       #------------------#
       if DQMonFlags.doLArMon():
+         from LArMonTools.LArMonFlags import LArMonFlags
+         if LArMonFlags.doLArCollisionTimeMon():
+            #Schedule algorithms producing collision timing
+            include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
+            include("LArCellRec/LArCollisionTime_jobOptions.py")
          try:
             LArMon = AthenaMonManager(name="LArMonManager",
                            FileKey             = DQMonFlags.monManFileKey(),

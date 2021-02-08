@@ -60,4 +60,4 @@ namespace tauRecTools
   std::vector<TString> parseStringMVAUtilsBDT(const TString& str, const TString& delim=",");
 }
 
-#endif // not TAUANALYSISTOOLS_HELPERFUNCTIONS_H
+#endif // TAURECTOOLS_HELPERFUNCTIONS_H

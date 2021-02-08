@@ -93,10 +93,9 @@ class ConditionsToolSetterFastReduction(object):
         
         el_condition_tools = []
 
-        for fc, mult in node.filter_dicts:
+        for fc in node.filter_dicts:
             
             assert len(fc) == 1  # 1 elemental condition
-            assert mult == 1
             el_condition_tools.extend(self._make_el_condition_tools(fc))
 
         if not el_condition_tools:
@@ -134,14 +133,14 @@ class ConditionsToolSetterFastReduction(object):
         # loop  over elements of node.conf_attrs. The elements are (dict, int)
         # int is multiplicity, dict holds Condition parameters.
 
+        assert len(node.conf_attrs) == 1
+        mult = node.multiplicity
         for i in range(len(node.conf_attrs)):
-            c, mult = node.conf_attrs[i]
+            c = node.conf_attrs[i]
             cpi = ''
  
             if node.chainpartinds:
-                cpi = node.chainpartinds[i][0]
-                assert mult == node.chainpartinds[i][1]
-                    
+                cpi = node.chainpartinds[i]
 
             el_condition_tools = self._make_el_condition_tools(c)
  
