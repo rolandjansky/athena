@@ -20,10 +20,12 @@
 
 // Base classes
 #include "AsgTools/AsgTool.h"
+#include "AsgTools/PropertyWrapper.h"
+#include "AsgDataHandles/ReadDecorHandleKey.h"
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 #include "JetInterface/IJetDecorator.h"
 #include "JetInterface/IJetSelector.h" 
 
-#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 // The xAOD jet type
 #include "xAODJet/Jet.h"

@@ -26,6 +26,15 @@ cleaningDict = {
     'cleanLB': 'LooseBad',
 }
 
+def extractCleaningsFromPrefilters(prefilters_list):
+    found_cleanings= [ci for ck, ci in cleaningDict.items()
+                       if ck in prefilters_list]
+    if len(found_cleanings) <= 1:  # Only one supported cleaning decoration at the moment
+        return 'noCleaning' if len(found_cleanings) == 0 else found_cleanings[0]
+    else:
+        raise RuntimeError(
+            'Multijet jet cleanings found in jet trigger reco dictionary {}. Multiple jet cleanings are currently unsupported'.format(found_cleanings))
+
 # Extract the jet reco dict from the chainDict
 def extractRecoDict(chainParts):
     # interpret the reco configuration only
@@ -42,11 +51,7 @@ def extractRecoDict(chainParts):
                 # copy this entry to the reco dictionary
                 recoDict[k] = p[k]
             elif k =='cleaning':
-                found_cleanings = [ci for ck,ci in cleaningDict.items() if ck in p["prefilters"]]
-                if len(found_cleanings)==1: #Only one supported cleaning decoration at the moment
-                    recoDict[k] = found_cleanings[0]
-                else:
-                    recoDict[k] = 'noCleaning'
+                recoDict[k] = extractCleaningsFromPrefilters(p["prefilters"])
 
     # set proper jetCalib key in default case
     if recoDict['jetCalib'] == "default":
@@ -71,7 +76,8 @@ def jetRecoDictFromString(jet_def_string):
     for key in recoKeys:
         keyFound = False
         for part in jet_def_string.split('_'):
-            if part in JetChainParts[key]:
+            tmp_key = 'prefilters' if key == 'cleaning' else key
+            if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
