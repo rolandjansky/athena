@@ -54,3 +54,14 @@ done
 python -u plotting/yearwise_luminosity.py --year all --comp 
 python -u plotting/yearwise_luminosity_vs_mu.py --year run2 --comp 
 ```
+
+# Making Benedetto/LHCC format files
+```
+for year in 15 16 17 18
+do
+    python -u utils/make_benedetto_files.py --year $year
+done
+
+# LHCC files are made one at a time, i.e.
+python -u utils/make_lhc_files.py --infile ~/public/Zcounting/CSVOutputs/HighMu/data17_13TeV/run_340030.csv
+```
