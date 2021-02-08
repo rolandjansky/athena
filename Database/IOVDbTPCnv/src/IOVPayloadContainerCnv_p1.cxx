@@ -23,6 +23,10 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
             << endreq;
     }
 
+    for( auto & offset : m_objIndexOffset ) {
+        offset = 1; // this is just the initial value before first use 
+    }
+
     IOVPayloadContainer::payloadVec& payloadVec = transObj->m_payloadVec;
     
     // Make sure transient container is empty - may be reused
@@ -135,7 +139,7 @@ IOVPayloadContainerCnv_p1::persToTrans(const IOVPayloadContainer_p1* persObj,
                     }
                 }
             }
-            
+
 
 //             std::ostringstream attrStr;
 //             attrList.toOutputStream(attrStr);       
@@ -560,53 +564,85 @@ IOVPayloadContainerCnv_p1::fillAttributeData(const IOVPayloadContainer_p1* persO
                                              coral::AttributeList& attrList,
                                              MsgStream & log)
 {
+    /*
+       this offset calculation solves the problem reported in
+       ATR-22116 trying to get past the limitation introduced by
+       AttrListIndexes::m_objIndex being of type short, which doesn't
+       cover the full length of the type-wise data vectors
+
+       It is assumed that when reading the persistent object entries,
+       the objIndex starts at 0, and increases by 1 each read for a given type.
+
+       One must also not call fillAttributeData multiple times for the
+       same (AttrListIndexes index), nor call them out of order
+
+       * There is one offset per type, initialized to 1
+       * In the first read of a type the offset is set to 0
+       * In all later reads the offset is not changed unless the objIndex equals 0
+         - if objIndex is fixed to be unsigned int, then objIndex should never be 0 in later reads
+         - if objIndex is unsigned short, then objIndex==0 only when it runs into the 65536 boundary
+           and the offset then gets increased by this amount
+
+       So this will work also when objIndex is integer
+     */
+
+    unsigned int objIndex = index.objIndex();
+    unsigned int & offset = m_objIndexOffset[index.typeIndex()];
+    if(offset == 1) {
+        offset = 0;
+    } else {
+        if(objIndex == 0) {
+            offset += 65536;
+        }
+    }
+
     // Fill persistent object with attribute data - must use switch
     // for all possible types
     switch (index.typeIndex()) {
         case IOVPayloadContainer_p1::ATTR_BOOL:
-            attrList[name].setValue(persObj->m_bool[index.objIndex()]);
+            attrList[name].setValue(persObj->m_bool[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_CHAR:                
-            attrList[name].setValue(persObj->m_char[index.objIndex()]);
+            attrList[name].setValue(persObj->m_char[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_UNSIGNED_CHAR:       
-            attrList[name].setValue(persObj->m_unsignedChar[index.objIndex()]);
+            attrList[name].setValue(persObj->m_unsignedChar[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_SHORT:
-            attrList[name].setValue(persObj->m_short[index.objIndex()]);
+            attrList[name].setValue(persObj->m_short[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_UNSIGNED_SHORT:      
-            attrList[name].setValue(persObj->m_unsignedShort[index.objIndex()]);
+            attrList[name].setValue(persObj->m_unsignedShort[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_INT:                 
-            attrList[name].setValue(persObj->m_int[index.objIndex()]);
+            attrList[name].setValue(persObj->m_int[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_UNSIGNED_INT:        
-            attrList[name].setValue(persObj->m_unsignedInt[index.objIndex()]);
+            attrList[name].setValue(persObj->m_unsignedInt[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_LONG:                
-            attrList[name].setValue(persObj->m_long[index.objIndex()]);
+            attrList[name].setValue(persObj->m_long[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_UNSIGNED_LONG:       
-            attrList[name].setValue(persObj->m_unsignedLong[index.objIndex()]);
+            attrList[name].setValue(persObj->m_unsignedLong[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_LONG_LONG:           
-            attrList[name].setValue(persObj->m_longLong[index.objIndex()]);
+            attrList[name].setValue(persObj->m_longLong[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_UNSIGNED_LONG_LONG: 
-            attrList[name].setValue(persObj->m_unsignedLongLong[index.objIndex()]);
+            attrList[name].setValue(persObj->m_unsignedLongLong[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_FLOAT:               
-            attrList[name].setValue(persObj->m_float[index.objIndex()]);
+            attrList[name].setValue(persObj->m_float[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_DOUBLE:              
-            attrList[name].setValue(persObj->m_double[index.objIndex()]);
+            attrList[name].setValue(persObj->m_double[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_LONG_DOUBLE:         
-//             attrList[name].setValue(persObj->m_longDouble[index.objIndex()]);
+//             attrList[name].setValue(persObj->m_longDouble[objIndex + offset]);
             break;
-        case IOVPayloadContainer_p1::ATTR_STRING:              
-            attrList[name].setValue(persObj->m_string[index.objIndex()]);
+        case IOVPayloadContainer_p1::ATTR_STRING:
+            attrList[name].setValue(persObj->m_string[objIndex + offset]);
             break;
         case IOVPayloadContainer_p1::ATTR_BLOB:                
             log << MSG::ERROR 
@@ -615,14 +651,14 @@ IOVPayloadContainerCnv_p1::fillAttributeData(const IOVPayloadContainer_p1* persO
             return;
         case IOVPayloadContainer_p1::ATTR_DATE:
           {
-            coral::TimeStamp::ValueType  ns( persObj->m_date[index.objIndex()] ); 
+            coral::TimeStamp::ValueType  ns( persObj->m_date[objIndex + offset] );
             attrList[name].setValue( coral::Date(coral::TimeStamp(ns).time()) );
             break;
           }
         case IOVPayloadContainer_p1::ATTR_TIME_STAMP:
           {
             coral::TimeStamp::ValueType  ns =
-              coral::TimeStamp::ValueType( persObj->m_timeStamp[index.objIndex()] ); 
+              coral::TimeStamp::ValueType( persObj->m_timeStamp[objIndex + offset] );
             attrList[name].setValue( coral::TimeStamp(ns) );
             break;
           }

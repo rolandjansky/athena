@@ -47,7 +47,7 @@ class LArSCellGetter ( Configured )  :
 
         if True :
                 from LArROD.LArRODConf import LArSuperCellBuilderDriver
-                theLArSCellBuilder=LArSuperCellBuilderDriver("LArSuperCellBuilder")
+                theLArSCellBuilder=LArSuperCellBuilderDriver("LArSuperCellBuilder",OutputSCellContainer="SCellnoBCID")
 
                 theLArSCellBuilder.LArRawChannelContainerName="LArSuperCells"
                 theLArSCellBuilder.DataLocation="LArDigitSCL1"
@@ -119,6 +119,11 @@ class LArSCellGetter ( Configured )  :
                 theLArSCellBuilder.ADCtoEnergyTools += [theLArRawChannelBuilderADC2EConstants]
                 theLArSCellBuilder += theLArRawChannelBuilderADC2EConstants
 
+                ## BCID correction
+                from CaloTools.CaloLumiBCIDSCToolDefault import CaloLumiBCIDSCToolDefault
+                ToolSvc+=CaloLumiBCIDSCToolDefault()
+                from TrigL1CaloUpgrade.TrigL1CaloUpgradeConf import SuperCellBCIDAlg
+                topSequence+=SuperCellBCIDAlg(SCellContainerIn="SCellnoBCID",SCellContainerOut="SCell")
 
         return True
 

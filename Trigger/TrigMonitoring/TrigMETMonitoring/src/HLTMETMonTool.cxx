@@ -51,6 +51,9 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
 
   // Met keys
   declareProperty("l1_key", m_lvl1_roi_key="LVL1EnergySumRoI");
+  declareProperty("l1_jnc_key", m_lvl1_jnc_key="jNOISECUT_MET");
+  declareProperty("l1_jrho_key", m_lvl1_jrho_key="jXERHO_MET");
+  declareProperty("l1_gnc_key", m_lvl1_gnc_key="gXENOISECUT_MET");
   declareProperty("l1_rho_key", m_lvl1_rho_key="gXERHO_MET");
   declareProperty("l1_pufit_key", m_lvl1_pufit_key="gXEPUFIT_MET");
   declareProperty("l1_jwoj_key", m_lvl1_jwoj_key="gXEJWOJ_MET");
@@ -87,6 +90,7 @@ HLTMETMonTool::HLTMETMonTool(const std::string & type, const std::string & name,
   declareProperty("et_bins", m_et_bins=205,  "Number of bins Et");
   declareProperty("et_min",  m_et_min=-13.5, "Minimum Et");
   declareProperty("et_max",  m_et_max=401.5, "Maximum Et");
+  declareProperty("L1_et_max",  m_L1_et_max=201.5, "Maximum L1 Et");
   // Ex, Ey, Ez
   declareProperty("ec_bins", m_ec_bins=199,  "Number of bins Ex, Ey, Ez");
   declareProperty("ec_min",  m_ec_min=-298.5, "Minimum Ex, Ey, Ez");
@@ -209,6 +213,24 @@ StatusCode HLTMETMonTool::book() {
 
   // Basic L1 histograms
   monFolderName = monGroupName + "/Primary";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // jNOISECUT L1 histograms
+  monFolderName = monGroupName + "/jNOISECUT";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // jEXRHO L1 histograms
+  monFolderName = monGroupName + "/jXERHO";
+  addMonGroup(new MonGroup(this, monFolderName, run));
+  setCurrentMonGroup(monFolderName);
+  addL1BasicHistograms();
+
+  // gNOISECUT L1 histograms
+  monFolderName = monGroupName + "/gXENOISECUT";
   addMonGroup(new MonGroup(this, monFolderName, run));
   setCurrentMonGroup(monFolderName);
   addL1BasicHistograms();
@@ -486,21 +508,42 @@ StatusCode HLTMETMonTool::fillMETHist() {
     ATH_MSG_WARNING("Could not retrieve LVL1_RoIs with key \"" << m_lvl1_roi_key << "\" from TDS"  );
   }
 
-  // retrieve xAOD L1 RHO 
+  // retrieve xAOD L1 jNOISECUT
+  const xAOD::EnergySumRoI *m_l1_jnc_cont = 0;
+  sc = evtStore()->retrieve(m_l1_jnc_cont, m_lvl1_jnc_key);
+  if(sc.isFailure() || !m_l1_jnc_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_jNOISECUTs with key \"" << m_lvl1_jnc_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 jRHO
+  const xAOD::EnergySumRoI *m_l1_jrho_cont = 0;
+  sc = evtStore()->retrieve(m_l1_jrho_cont, m_lvl1_jrho_key);
+  if(sc.isFailure() || !m_l1_jrho_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_jRHOs with key \"" << m_lvl1_jrho_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 gNOISECUT
+  const xAOD::EnergySumRoI *m_l1_gnc_cont = 0;
+  sc = evtStore()->retrieve(m_l1_gnc_cont, m_lvl1_gnc_key);
+  if(sc.isFailure() || !m_l1_jnc_cont) {
+    ATH_MSG_WARNING("Could not retrieve LVL1_gNOISECUTs with key \"" << m_lvl1_gnc_key << "\" from TDS"  );
+  }
+
+  // retrieve xAOD L1 gRHO 
   const xAOD::EnergySumRoI *m_l1_rho_cont = 0;
   sc = evtStore()->retrieve(m_l1_rho_cont, m_lvl1_rho_key);
   if(sc.isFailure() || !m_l1_rho_cont) {
     ATH_MSG_WARNING("Could not retrieve LVL1_RHOs with key \"" << m_lvl1_rho_key << "\" from TDS"  );
   }
 
-  // retrieve xAOD L1 PUFIT 
+  // retrieve xAOD L1 gPUFIT 
   const xAOD::EnergySumRoI *m_l1_pufit_cont = 0;
   sc = evtStore()->retrieve(m_l1_pufit_cont, m_lvl1_pufit_key);
   if(sc.isFailure() || !m_l1_rho_cont) {
     ATH_MSG_WARNING("Could not retrieve LVL1_PUFITs with key \"" << m_lvl1_pufit_key << "\" from TDS"  );
   }
 
-  // retrieve xAOD L1 JWOJ 
+  // retrieve xAOD L1 gJWOJ 
   const xAOD::EnergySumRoI *m_l1_jwoj_cont = 0;
   sc = evtStore()->retrieve(m_l1_jwoj_cont, m_lvl1_jwoj_key);
   if(sc.isFailure() || !m_l1_jwoj_cont) {
@@ -746,6 +789,96 @@ StatusCode HLTMETMonTool::fillMETHist() {
       ATH_MSG_WARNING("L1 ROI enegy too large");
     }
   }
+
+  // L1 jNOISECUT
+  float l1_jnc_mex = -9e9;
+  float l1_jnc_mey = -9e9;
+  float l1_jnc_met = -9e9;
+  float l1_jnc_sumet = -9e9;
+  float l1_jnc_phi = -9e9;
+  float l1_jnc_mex_log = -9e9;
+  float l1_jnc_mey_log = -9e9;
+  float l1_jnc_met_log = -9e9;
+  float l1_jnc_sumet_log = -9e9;
+  float saturated_jnc = false;
+
+  if (m_l1_jnc_cont) {
+    if ((m_l1_jnc_cont->energyX())>-9e12 && (m_l1_jnc_cont->energyX())<9e12 && (m_l1_jnc_cont->energyY())>-9e12 && (m_l1_jnc_cont->energyY())<9e12) {
+      l1_jnc_mex = - (m_l1_jnc_cont->energyX())/CLHEP::GeV;
+      l1_jnc_mey = - (m_l1_jnc_cont->energyY())/CLHEP::GeV;
+      l1_jnc_met = sqrt(l1_jnc_mex*l1_jnc_mex + l1_jnc_mey*l1_jnc_mey);
+      l1_jnc_phi = atan2f(l1_jnc_mey,l1_jnc_mex);
+      l1_jnc_sumet = (m_l1_jnc_cont->energyT())/CLHEP::GeV;
+
+      l1_jnc_mex_log = signed_log(l1_jnc_mex, epsilon);
+      l1_jnc_mey_log = signed_log(l1_jnc_mey, epsilon);
+      l1_jnc_met_log = signed_log(l1_jnc_met, epsilon);
+      l1_jnc_sumet_log = signed_log(l1_jnc_sumet, epsilon);
+      saturated_jnc = (fabs(l1_jnc_mex)>16383 || fabs(l1_jnc_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better.
+    } else {
+      ATH_MSG_WARNING("L1 jNOISECUT enegy too large");
+    }
+  }
+
+  // L1 jRHO
+  float l1_jrho_mex = -9e9;
+  float l1_jrho_mey = -9e9;
+  float l1_jrho_met = -9e9;
+  float l1_jrho_sumet = -9e9;
+  float l1_jrho_phi = -9e9;
+  float l1_jrho_mex_log = -9e9;
+  float l1_jrho_mey_log = -9e9;
+  float l1_jrho_met_log = -9e9;
+  float l1_jrho_sumet_log = -9e9;
+  float saturated_jrho = false; 
+
+  if (m_l1_jrho_cont) {
+    if ((m_l1_jrho_cont->energyX())>-9e12 && (m_l1_jrho_cont->energyX())<9e12 && (m_l1_jrho_cont->energyY())>-9e12 && (m_l1_jrho_cont->energyY())<9e12) {
+      l1_jrho_mex = - (m_l1_jrho_cont->energyX())/CLHEP::GeV;
+      l1_jrho_mey = - (m_l1_jrho_cont->energyY())/CLHEP::GeV;
+      l1_jrho_met = sqrt(l1_jrho_mex*l1_jrho_mex + l1_jrho_mey*l1_jrho_mey);
+      l1_jrho_phi = atan2f(l1_jrho_mey,l1_jrho_mex);
+      l1_jrho_sumet = (m_l1_jrho_cont->energyT())/CLHEP::GeV;
+
+      l1_jrho_mex_log = signed_log(l1_jrho_mex, epsilon);
+      l1_jrho_mey_log = signed_log(l1_jrho_mey, epsilon);
+      l1_jrho_met_log = signed_log(l1_jrho_met, epsilon);
+      l1_jrho_sumet_log = signed_log(l1_jrho_sumet, epsilon);
+      saturated_jrho = (fabs(l1_jrho_mex)>16383 || fabs(l1_jrho_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better.
+    } else {
+      ATH_MSG_WARNING("L1 jRHO enegy too large");
+    }
+  }
+
+  // L1 gNOISECUT
+  float l1_gnc_mex = -9e9;
+  float l1_gnc_mey = -9e9;
+  float l1_gnc_met = -9e9;
+  float l1_gnc_sumet = -9e9;
+  float l1_gnc_phi = -9e9;
+  float l1_gnc_mex_log = -9e9;
+  float l1_gnc_mey_log = -9e9;
+  float l1_gnc_met_log = -9e9;
+  float l1_gnc_sumet_log = -9e9;
+  float saturated_gnc = false;
+
+  if (m_l1_gnc_cont) {
+    if ((m_l1_gnc_cont->energyX())>-9e12 && (m_l1_gnc_cont->energyX())<9e12 && (m_l1_gnc_cont->energyY())>-9e12 && (m_l1_gnc_cont->energyY())<9e12) {
+      l1_gnc_mex = - (m_l1_gnc_cont->energyX())/CLHEP::GeV;
+      l1_gnc_mey = - (m_l1_gnc_cont->energyY())/CLHEP::GeV;
+      l1_gnc_met = sqrt(l1_gnc_mex*l1_gnc_mex + l1_gnc_mey*l1_gnc_mey);
+      l1_gnc_phi = atan2f(l1_gnc_mey,l1_gnc_mex);
+      l1_gnc_sumet = (m_l1_gnc_cont->energyT())/CLHEP::GeV;
+
+      l1_gnc_mex_log = signed_log(l1_gnc_mex, epsilon);
+      l1_gnc_mey_log = signed_log(l1_gnc_mey, epsilon);
+      l1_gnc_met_log = signed_log(l1_gnc_met, epsilon);
+      l1_gnc_sumet_log = signed_log(l1_gnc_sumet, epsilon);
+      saturated_gnc = (fabs(l1_gnc_mex)>16383 || fabs(l1_gnc_mey)>16383 ); //this is a hacked way to see if Ex/Ey saturated. There may be better.
+    } else {
+      ATH_MSG_WARNING("L1 gNOISECUT enegy too large");
+    }
+  }
   
   // L1 RHO
   float l1_rho_mex = -9e9;
@@ -978,6 +1111,30 @@ StatusCode HLTMETMonTool::fillMETHist() {
 
   if (l1_met > epsilon_l1met) {
     fillL1BasicHistograms(l1_mex,l1_mex_log,l1_mey,l1_mey_log,l1_met,l1_met_log,l1_sumet,l1_sumet_log,l1_phi,saturated);
+  }
+
+  // L1 jNOISECUT
+  monFolderName = monGroupName + "/jNOISECUT";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_jnc_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_jnc_mex,l1_jnc_mex_log,l1_jnc_mey,l1_jnc_mey_log,l1_jnc_met,l1_jnc_met_log,l1_jnc_sumet,l1_jnc_sumet_log,l1_jnc_phi,saturated_jnc);
+  }
+
+  // L1 jXERHO
+  monFolderName = monGroupName + "/jXERHO";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_jrho_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_jrho_mex,l1_jrho_mex_log,l1_jrho_mey,l1_jrho_mey_log,l1_jrho_met,l1_jrho_met_log,l1_jrho_sumet,l1_jrho_sumet_log,l1_jrho_phi,saturated_jrho);
+  }
+
+  // L1 gXENOISECUT
+  monFolderName = monGroupName + "/gXENOISECUT";
+  setCurrentMonGroup(monFolderName.c_str());
+
+  if (l1_gnc_met > epsilon_l1met) {
+    fillL1BasicHistograms(l1_gnc_mex,l1_gnc_mex_log,l1_gnc_mey,l1_gnc_mey_log,l1_gnc_met,l1_gnc_met_log,l1_gnc_sumet,l1_gnc_sumet_log,l1_gnc_phi,saturated_gnc);
   }
 
   // L1 gXERHO
@@ -1566,7 +1723,7 @@ void HLTMETMonTool::addL1BasicHistograms() {
   addHistogram(new TH1F("L1_METx_log", "L1 Missing E_{x};sgn(E_{x}) log_{10}(E_{x}/GeV)", 55, -4.125, 4.125));
   addHistogram(new TH1F("L1_METy", "L1 Missing E_{y};E_{y} (GeV)", m_ec_bins, m_ec_min,  m_ec_max));
   addHistogram(new TH1F("L1_METy_log", "L1 Missing E_{y};sgn(E_{y}) log_{10}(E_{y}/GeV)", 55, -4.125, 4.125));
-  addHistogram(new TH1F("L1_MET", "L1 MET (GeV);MET (GeV)", m_et_bins, m_et_min, m_et_max));
+  addHistogram(new TH1F("L1_MET", "L1 MET (GeV);MET (GeV)", m_et_bins, m_et_min, m_L1_et_max));
   addHistogram(new TH1F("L1_MET_log", "L1 |Missing E_{T}|;log_{10}(ME_{T}/GeV)", 40, -1.875, 4.125));
   addHistogram(new TH1F("L1_SumEt", "L1 SumEt (GeV);SumEt (GeV)", m_sumet_bins, m_sumet_min, m_sumet_max));
   addHistogram(new TH1F("L1_SumEt_log", "L1 Sum |E_{T}|;log_{10}(SumE_{T}/GeV)", 40, -1.875, 4.125));

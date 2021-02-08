@@ -22,6 +22,8 @@ This tool utilizes the same LUT as in the pad trigger hardware. Trigger band-id 
 //local includes
 #include "TrigT1NSWSimTools/IPadTriggerLookupTool.h"
 #include "TrigT1NSWSimTools/TriggerTypes.h"
+#include "TrigT1NSWSimTools/PadTriggerValidationTree.h"
+
 
 #include <unordered_map>
 #include <vector>
@@ -66,6 +68,8 @@ namespace NSWL1 {
 
         const MuonGM::MuonDetectorManager* m_detManager;
 
+        StatusCode get_tree_from_histsvc(TTree*&);
+
         BooleanProperty m_dumpSectorGeometry;                   //used to dump whole sectors' pad geometry (1L/1S by default)
         std::vector<std::shared_ptr<PadOfflineData>> fetchSectorPads(bool isSmall,int side=1,int sector=1);//use sector number as coming ids
         std::vector<std::shared_ptr<PadOfflineData>> fetchSmallSectorPads(int side=1,int sector=1);
@@ -77,6 +81,9 @@ namespace NSWL1 {
         //note that numbering for the sector logic is different ....
         StatusCode printGeometry( const std::vector<std::shared_ptr<PadOfflineData>>&, std::ofstream&);//used for debugging purposes only, has no functionality in the actual trigger
 
+        BooleanProperty  m_doNtuple;                            //!< property, todo
+
+        PadTriggerValidationTree m_validation_tree;
 
     };  
 

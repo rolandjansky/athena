@@ -11,6 +11,37 @@ EtSumOff     = CL.EtSumOff
 EtMissOff    = CL.EtMissOff
 JetEtOff     = CL.JetEtOff
 
+def addVaryingThrValuesRun2(thr, pt, shift_set):
+    if shift_set == 1:
+        eta_bin_boundaries = [0, 0.8, 1.1, 1.4, 1.5, 1.8, 2.5] # 6 bins => 7 boundaries
+        shift              = [ 1,   -1,  -2,  -3,  -1,  0]
+    elif shift_set == 2:
+        eta_bin_boundaries = [0, 0.7, 0.9, 1.2, 1.4, 1.5, 1.7, 2.5] # 7 bins => 8 boundaries
+        shift              = [ 2,   1,   0,   -1,  -2,  0,   1]
+    else:
+        eta_bin_boundaries = [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.7, 2.5] # 8 bins => 9 boundaries
+        shift              = [ 2,   1,   0,   -1,  -2,  -3,  -1,   1]
+    thr.addThrValue(pt+shift[0], priority=1)
+    for i,s in enumerate(shift):
+        eta_min = 10 * eta_bin_boundaries[i]
+        eta_max = 10 * eta_bin_boundaries[i+1]
+        thr.addThrValue( pt + s, -eta_max, -eta_min, priority=2)
+        thr.addThrValue( pt + s, eta_min, eta_max, priority=2)
+    return thr
+
+
+def addVaryingThrValuesRun3(thr, pt, shift_set = 1):
+    eta_bin_boundaries = [0, 0.7, 0.8, 1.1, 1.3, 1.4, 1.5, 1.7, 2.5] # 8 bins => 9 boundaries
+    shift              = [ 2,   1,   0,  0,    -1,  -3,  -1,  1]
+    thr.addThrValue(pt+shift[0], priority=1)
+    for i,s in enumerate(shift):
+        eta_min = 10 * eta_bin_boundaries[i]
+        eta_max = 10 * eta_bin_boundaries[i+1]
+        thr.addThrValue(pt + s, -eta_max, -eta_min, priority=2)
+        thr.addThrValue(pt + s, eta_min, eta_max, priority=2)
+    return thr
+
+
 
 class ThresholdDef:
 
@@ -51,30 +82,18 @@ class ThresholdDef:
 
         # V section
         
-        tc.registerThr( 'EM50V', type='EM').addThrValue(52, priority=1)\
-                        .addThrValue(51, -12, -8, priority=2).addThrValue(51, 8, 12, priority=2)\
-                        .addThrValue(50, -16, -12, priority=2).addThrValue(50, 12, 16, priority=2)\
-                        .addThrValue(51, -20, -16, priority=2).addThrValue(51, 16, 20, priority=2)
+        tc.registerThr( 'EM50V', type='EM').addThrValue(52, priority=1) \
+            .addThrValue(51, -12, -8, priority=2).addThrValue(51, 8, 12, priority=2)\
+            .addThrValue(50, -16, -12, priority=2).addThrValue(50, 12, 16, priority=2)\
+            .addThrValue(51, -20, -16, priority=2).addThrValue(51, 16, 20, priority=2)
 
         # VH section
 
         ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
 
-        tc.registerThr( 'EM8VH', type='EM').addThrValue(9, priority=1)\
-            .addThrValue(9, -8, 0, priority=2).addThrValue(9, 0, 8, priority=2)\
-            .addThrValue(7, -11, -8, priority=2).addThrValue(7, 8, 11, priority=2)\
-            .addThrValue(6, -14, -11, priority=2).addThrValue(6, 11, 14, priority=2)\
-            .addThrValue(5, -15, -14, priority=2).addThrValue(5, 14, 15, priority=2)\
-            .addThrValue(7, -18, -15, priority=2).addThrValue(7, 15, 18, priority=2)\
-            .addThrValue(8, -25, -18, priority=2).addThrValue(8, 18, 25, priority=2)
 
-        tc.registerThr( 'EM10VH', type='EM').addThrValue(11, priority=1)\
-            .addThrValue(11, -8, 0, priority=2).addThrValue(11, 0, 8, priority=2)\
-            .addThrValue(9, -11, -8, priority=2).addThrValue(9, 8, 11, priority=2)\
-            .addThrValue(8, -14, -11, priority=2).addThrValue(8, 11, 14, priority=2)\
-            .addThrValue(7, -15, -14, priority=2).addThrValue(7, 14, 15, priority=2)\
-            .addThrValue(9, -18, -15, priority=2).addThrValue(9, 15, 18, priority=2)\
-            .addThrValue(10, -25, -18, priority=2).addThrValue(10, 18, 25, priority=2)
+        addVaryingThrValuesRun2( tc.registerThr( 'EM8VH', type='EM'), 8, shift_set = 1 )
+        addVaryingThrValuesRun2( tc.registerThr( 'EM10VH', type='EM'), 10, shift_set = 1 )
 
         #ATR-19302
         if '_v8' in TriggerFlags.triggerMenuSetup():
@@ -94,15 +113,8 @@ class ThresholdDef:
             .addThrValue(11, -15, -14, priority=2).addThrValue(11, 14, 15, priority=2)\
             .addThrValue(13, -17, -15, priority=2).addThrValue(13, 15, 17, priority=2)\
             .addThrValue(14, -25, -17, priority=2).addThrValue(14, 17, 25, priority=2)
-        
-        tc.registerThr( 'EM15VH', type='EM').addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 0, priority=2).addThrValue(17, 0, 7, priority=2)\
-            .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
-            .addThrValue(15, -12, -9, priority=2).addThrValue(15, 9, 12, priority=2)\
-            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
-            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
-            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
-            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)  
+       
+        addVaryingThrValuesRun2( tc.registerThr( 'EM15VH', type='EM'), 15, shift_set = 2 )
 
         tc.registerThr( 'EM18VH', type='EM').addThrValue(20, priority=1)\
             .addThrValue(20, -7, 0, priority=2).addThrValue(20, 0, 7, priority=2)\
@@ -114,15 +126,7 @@ class ThresholdDef:
             .addThrValue(17, -17, -15, priority=2).addThrValue(17, 15, 17, priority=2)\
             .addThrValue(19, -25, -17, priority=2).addThrValue(19, 17, 25, priority=2)
         
-        tc.registerThr( 'EM20VH', type='EM').addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 0, priority=2).addThrValue(22, 0, 7, priority=2)\
-            .addThrValue(21, -8, -7, priority=2).addThrValue(21, 7, 8, priority=2)\
-            .addThrValue(20, -11, -8, priority=2).addThrValue(20, 8, 11, priority=2)\
-            .addThrValue(19, -13, -11, priority=2).addThrValue(19, 11, 13, priority=2)\
-            .addThrValue(18, -14, -13, priority=2).addThrValue(18, 13, 14, priority=2)\
-            .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
-            .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
-            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)       
+        addVaryingThrValuesRun2( tc.registerThr( 'EM20VH', type='EM'), 20, shift_set = 3 )
 
         # I section
 
@@ -138,27 +142,12 @@ class ThresholdDef:
         # new egamma v7 menu (ATR-16089)
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
 
-           ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
-           tc.registerThr( 'EM22VH', type='EM').addThrValue(24, priority=1)\
-            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
-            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
-            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
-            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
-            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
-            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
-            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
-            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+            ThresholdValue.setDefaults('EM', {'isobits' : '00001', 'use_relIso' : True })
+            addVaryingThrValuesRun2( tc.registerThr( 'EM22VH', type='EM'), 22, shift_set = 3 )
 
-           ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
-           tc.registerThr( 'EM24VHIM', type='EM').addThrValue(24, priority=1)\
-            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
-            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
-            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
-            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
-            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
-            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
-            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
-            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+            ThresholdValue.setDefaults('EM', {'isobits' : '01000', 'use_relIso' : True })
+            addVaryingThrValuesRun2( tc.registerThr( 'EM24VHIM', type='EM'), 24, shift_set = 3 )
+
         tc.registerThr( 'eEM24VHIM', type='EM', run=3).addThrValue(24, priority=1)\
             .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
             .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
@@ -173,58 +162,15 @@ class ThresholdDef:
         ThresholdValue.setDefaults('EM', {'isobits' : '00100', 'use_relIso' : True })
 
         if not '_v6' in TriggerFlags.triggerMenuSetup() and not '_HI' in TriggerFlags.triggerMenuSetup():
-           tc.registerThr( 'EM15VHI', type='EM').addThrValue(17, priority=1)\
-            .addThrValue(17, -7, 0, priority=2).addThrValue(17, 0, 7, priority=2)\
-            .addThrValue(16, -9, -7, priority=2).addThrValue(16, 7, 9, priority=2)\
-            .addThrValue(15, -12, -9, priority=2).addThrValue(15, 9, 12, priority=2)\
-            .addThrValue(14, -14, -12, priority=2).addThrValue(14, 12, 14, priority=2)\
-            .addThrValue(13, -15, -14, priority=2).addThrValue(13, 14, 15, priority=2)\
-            .addThrValue(15, -17, -15, priority=2).addThrValue(15, 15, 17, priority=2)\
-            .addThrValue(16, -25, -17, priority=2).addThrValue(16, 17, 25, priority=2)
+            addVaryingThrValuesRun2( tc.registerThr( 'EM15VHI', type='EM'), 15, shift_set = 2 )
 
         for thrV in [15]:
            tc.registerThr('EM%iHI' % thrV, 'EM').addThrValue(thrV)
 
-        tc.registerThr( 'EM18VHI', type='EM').addThrValue(20, priority=1)\
-            .addThrValue(20, -7, 0, priority=2).addThrValue(20, 0, 7, priority=2)\
-            .addThrValue(19, -8, -7, priority=2).addThrValue(19, 7, 8, priority=2)\
-            .addThrValue(18, -11, -8, priority=2).addThrValue(18, 8, 11, priority=2)\
-            .addThrValue(17, -13, -11, priority=2).addThrValue(17, 11, 13, priority=2)\
-            .addThrValue(16, -14, -13, priority=2).addThrValue(16, 13, 14, priority=2)\
-            .addThrValue(15, -15, -14, priority=2).addThrValue(15, 14, 15, priority=2)\
-            .addThrValue(17, -17, -15, priority=2).addThrValue(17, 15, 17, priority=2)\
-            .addThrValue(19, -25, -17, priority=2).addThrValue(19, 17, 25, priority=2)
-
-        tc.registerThr( 'EM20VHI', type='EM').addThrValue(22, priority=1)\
-            .addThrValue(22, -7, 0, priority=2).addThrValue(22, 0, 7, priority=2)\
-            .addThrValue(21, -8, -7, priority=2).addThrValue(21, 7, 8, priority=2)\
-            .addThrValue(20, -11, -8, priority=2).addThrValue(20, 8, 11, priority=2)\
-            .addThrValue(19, -13, -11, priority=2).addThrValue(19, 11, 13, priority=2)\
-            .addThrValue(18, -14, -13, priority=2).addThrValue(18, 13, 14, priority=2)\
-            .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
-            .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
-            .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
-
-        tc.registerThr( 'EM22VHI', type='EM').addThrValue(24, priority=1)\
-            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
-            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
-            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
-            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
-            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
-            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
-            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
-            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
-
-        tc.registerThr( 'EM24VHI', type='EM').addThrValue(24, priority=1)\
-            .addThrValue(26, -7, 0, priority=2).addThrValue(26, 0, 7, priority=2)\
-            .addThrValue(25, -8, -7, priority=2).addThrValue(25, 7, 8, priority=2)\
-            .addThrValue(24, -11, -8, priority=2).addThrValue(24, 8, 11, priority=2)\
-            .addThrValue(23, -13, -11, priority=2).addThrValue(23, 11, 13, priority=2)\
-            .addThrValue(22, -14, -13, priority=2).addThrValue(22, 13, 14, priority=2)\
-            .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
-            .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
-            .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
-
+        addVaryingThrValuesRun2( tc.registerThr( 'EM18VHI', type='EM'), 18, shift_set = 3 )
+        addVaryingThrValuesRun2( tc.registerThr( 'EM20VHI', type='EM'), 20, shift_set = 3 )
+        addVaryingThrValuesRun2( tc.registerThr( 'EM22VHI', type='EM'), 22, shift_set = 3 )
+        addVaryingThrValuesRun2( tc.registerThr( 'EM24VHI', type='EM'), 24, shift_set = 3 )
         tc.registerThr( 'EM26VHI', type='EM').addThrValue(26, priority=1)\
             .addThrValue(28, -7, 0, priority=2).addThrValue(28, 0, 7, priority=2)\
             .addThrValue(27, -8, -7, priority=2).addThrValue(27, 7, 8, priority=2)\
@@ -282,19 +228,12 @@ class ThresholdDef:
             .addThrValue(17, -15, -14, priority=2).addThrValue(17, 14, 15, priority=2)\
             .addThrValue(19, -17, -15, priority=2).addThrValue(19, 15, 17, priority=2)\
             .addThrValue(21, -25, -17, priority=2).addThrValue(21, 17, 25, priority=2)
-        tc.registerThr( 'eEM22VH', type='EM', run=3).addThrValue(24, priority=1)\
-            .addThrValue(24, -7, 0, priority=2).addThrValue(24, 0, 7, priority=2)\
-            .addThrValue(23, -8, -7, priority=2).addThrValue(23, 7, 8, priority=2)\
-            .addThrValue(22, -11, -8, priority=2).addThrValue(22, 8, 11, priority=2)\
-            .addThrValue(21, -13, -11, priority=2).addThrValue(21, 11, 13, priority=2)\
-            .addThrValue(20, -14, -13, priority=2).addThrValue(20, 13, 14, priority=2)\
-            .addThrValue(19, -15, -14, priority=2).addThrValue(19, 14, 15, priority=2)\
-            .addThrValue(21, -17, -15, priority=2).addThrValue(21, 15, 17, priority=2)\
-            .addThrValue(23, -25, -17, priority=2).addThrValue(23, 17, 25, priority=2)
+
+        addVaryingThrValuesRun3( tc.registerThr( 'eEM22VH', type='EM', run=3), 22, shift_set = 1 )
 
         ThresholdValue.setDefaults('EM', {'isobits' : '000101', 'use_relIso' : True })
 
-        tc.registerThr( 'eEM15VHI', type='EM', run=3).addThrValue(17, isobits="000101", priority=1)\
+        tc.registerThr( 'eEM15VHI', type='EM', run=3).addThrValue(17, priority=1)\
             .addThrValue(17,  -7,   0, priority=2).addThrValue(17,  0,  7, priority=2)\
             .addThrValue(16,  -9,  -7, priority=2).addThrValue(16,  7,  9, priority=2)\
             .addThrValue(15, -12,  -9, priority=2).addThrValue(15,  9, 12, priority=2)\
@@ -361,6 +300,7 @@ class ThresholdDef:
         for thrV in [1, 2, 3, 5, 6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60, 90, 100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000000', 'use_relIso' : True })
         for thrV in [12, 20, 40, 60, 100]:
             tc.registerThr('eTAU%i' % thrV, 'TAU', run=3).addThrValue(thrV)
 
@@ -368,15 +308,6 @@ class ThresholdDef:
         for thrV in [20]: 
             tc.registerThr('HA%iA' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = 12,  etamax = 16, priority=2) 
             tc.registerThr('HA%iC' % thrV, 'TAU').addThrValue(255, priority=1).addThrValue( thrV, etamin = -16,  etamax = -12, priority=2) 
-
-
-#        ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
-#        for thrV in [12,20]:
-#            tc.registerThr('HA%iI' % thrV, 'TAU').addThrValue(thrV)
-#
-#        ThresholdValue.setDefaults('TAU', {'isobits' : '00001', 'use_relIso' : True })
-#        for thrV in [12]:
-#            tc.registerThr('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00001', 'use_relIso' : True })
         for thrV in [12,20]:
@@ -390,8 +321,13 @@ class ThresholdDef:
             for thrV in [12,20,25]:
                 tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)   
         
-        for thrV in [12,20, 25]:
-            tc.registerThr('eTAU%iIM' % thrV, 'TAU', run=3).addThrValue(thrV)   
+
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000001', 'use_relIso' : True })
+        for thrV in [12]:
+            tc.registerThr('eTAU%iIL' % thrV, 'TAU', run=3).addThrValue(thrV)   
+        ThresholdValue.setDefaults('TAU',{'isobits' : '000011', 'use_relIso' : True })
+        for thrV in [20, 25]:
+            tc.registerThr('eTAU%iIT' % thrV, 'TAU', run=3).addThrValue(thrV)   
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
         if '_v6' in TriggerFlags.triggerMenuSetup() or '_HI' in TriggerFlags.triggerMenuSetup():
@@ -493,17 +429,29 @@ class ThresholdDef:
         for thrV in [10, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 150, 300]:
             tc.registerThr('XE%i' % thrV, 'XE').addThrValue(thrV)
 
-        for thrV in [20, 50]:
+        for thrV in [20, 50, 60]:
             tc.registerThr('gXEPUFIT%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         for thrV in [20, 30, 35, 40, 45, 50]:
             tc.registerThr('gXERHO%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [80]:
+            tc.registerThr('jXERHO%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         for thrV in [50]:
             tc.registerThr('gXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         for thrV in [50]:
             tc.registerThr('jXE%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [110]:
+            tc.registerThr('gXEJWOJ%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [50]:
+            tc.registerThr('jXENC%i' % thrV, 'XE', run=3).addThrValue(thrV)
+
+        for thrV in [70]:
+            tc.registerThr('gXENC%i' % thrV, 'XE', run=3).addThrValue(thrV)
 
         # XS
         for thrV in [20, 25, 30, 35, 40, 45, 50, 55, 60, 65]:

@@ -72,7 +72,7 @@ fi
 echo "Running athena command:"
 if [[ $INPUT == 'data' ]]; then
   (set -x
-  athena.py -b -c \
+  athena.py --preloadlib=$ATLASMKLLIBDIR_PRELOAD/libintlc.so.5:$ATLASMKLLIBDIR_PRELOAD/libimf.so -b -c \
   "setMenu=\"${MENU}\";\
   BSRDOInput=${DS};\
   EvtMax=${EVENTS};\
@@ -83,7 +83,7 @@ if [[ $INPUT == 'data' ]]; then
   ) 2>&1
 else
   (set -x
-  athena.py -b -c \
+  athena.py --preloadlib=$ATLASMKLLIBDIR_PRELOAD/libintlc.so.5:$ATLASMKLLIBDIR_PRELOAD/libimf.so -b -c \
   "enableCostMonitoring=${COST_MONITORING};\
   RunningRTT=True;\
   menu=\"${MENU}\";\

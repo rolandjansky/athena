@@ -92,6 +92,7 @@ private:
   
   double m_et_min, m_ec_min, m_sumet_min, m_sume_min;
   double m_phi_min, m_eta_min, m_det_min, m_eff_min, m_xs_min;
+  double m_L1_et_max;
   double m_et_max, m_ec_max, m_sumet_max, m_sume_max;
   double m_phi_max, m_eta_max, m_det_max, m_eff_max, m_xs_max;
   int m_et_bins, m_ec_bins, m_sumet_bins, m_sume_bins;
@@ -122,6 +123,9 @@ private:
   
   std::string m_lvl1_jet_roi_key;
   std::string m_lvl1_roi_key;
+  std::string m_lvl1_jnc_key;
+  std::string m_lvl1_jrho_key;
+  std::string m_lvl1_gnc_key;
   std::string m_lvl1_rho_key;
   std::string m_lvl1_pufit_key;
   std::string m_lvl1_jwoj_key;

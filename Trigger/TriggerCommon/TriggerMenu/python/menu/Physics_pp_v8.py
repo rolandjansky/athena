@@ -797,7 +797,6 @@ def setupMenu():
         ['xe110_pufit_xe65_L1XE60', 'L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['Legacy:Backup','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x65_L1XE60'] ]],
         ['xe110_pufit_xe70_L1XE60', 'L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['Legacy:Backup','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x70_L1XE60'] ]],
         ['xe110_pufit_xe75_L1XE60', 'L1_XE60', ['L1_XE60','L1_XE60'], [PhysicsStream], ['Legacy:Backup','RATE:MET', 'BW:MET' ], -1, ['serial',-1,['xe110_pufit','x75_L1XE60'] ]],
-
 			 ]
 
     if TriggerFlags.doFTK():
@@ -879,8 +878,8 @@ def setupMenu():
         ['tau40_medium1_tracktwoEF_tau35_medium1_tracktwoEF',   'L1_TAU25IM_2TAU20IM_2J25_3J20',['L1_TAU25IM','L1_TAU20IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau40_medium1_tracktwoEF","tau35_medium1_tracktwoEF"]]],
         ['tau40_mediumRNN_tracktwoMVA_tau35_mediumRNN_tracktwoMVA',   'L1_TAU25IM_2TAU20IM_2J25_3J20',['L1_TAU25IM','L1_TAU20IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau40_mediumRNN_tracktwoMVA","tau35_mediumRNN_tracktwoMVA"]]],
 
+        # ATR-17807,  ATR-20450
         ['tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM_4J12.0ETA25',   'L1_TAU20IM_2TAU12IM_4J12.0ETA25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwo","tau25_medium1_tracktwo"]]],
-        # ATR-17807
         ['tau35_medium1_tracktwoEF_tau25_medium1_tracktwoEF_L1TAU20IM_2TAU12IM_4J12.0ETA25',   'L1_TAU20IM_2TAU12IM_4J12.0ETA25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_medium1_tracktwoEF","tau25_medium1_tracktwoEF"]]],
         ['tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1TAU20IM_2TAU12IM_4J12.0ETA25',   'L1_TAU20IM_2TAU12IM_4J12.0ETA25',['L1_TAU20IM','L1_TAU12IM'], [PhysicsStream], ['Legacy:Primary','RATE:MultiTau', 'BW:Tau'], -1,['serial',-1,["tau35_mediumRNN_tracktwoMVA","tau25_mediumRNN_tracktwoMVA"]]],
 
@@ -964,7 +963,6 @@ def setupMenu():
         #Performance:
         ['e26_lhtight_idperf',        'L1_EM22VHI',    [], [PhysicsStream], ['Legacy:Support','RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
         ['e28_lhtight_idperf',        'L1_EM24VHI',    [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
-        ['e28_lhtight_idperf_L1EM24VHIM',        'L1_EM24VHIM',    [], [PhysicsStream, 'express'], ['Legacy:Support','RATE:IDMonitoring', 'BW:Egamma', 'BW:ID'],-1],
 
         ['g10_loose',                            'L1_EM7',  [], [PhysicsStream,'express'], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g20_loose_L1EM15',                     'L1_EM15', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -976,13 +974,11 @@ def setupMenu():
         ['g250_etcut',                    'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1], 
         ['g300_etcut',                    'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Primary','RATE:SinglePhoton', 'BW:Egamma'],-1], 
         ['g300_etcut_L1EM24VHI',          'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'],-1], 
-        ['g300_etcut_L1EM24VHIM',          'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ## Aranxtas request, to be run in rerun mode
         ['g22_tight',                             'L1_EM15VH', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g25_medium_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g25_medium_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g25_medium_L1EM24VHIM', 'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g35_medium_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ['g35_loose_L1EM22VHI', 'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
@@ -990,16 +986,12 @@ def setupMenu():
         ['g35_loose_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         ['e140_etcut',  'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e140_etcut_L1EM24VHIM',  'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e140_lhvloose_nod0', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
 
-	['e160_etcut',  'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e160_etcut_L1EM24VHIM',  'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
+    	['e160_etcut',  'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e180_etcut',  'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e180_etcut_L1EM24VHIM',  'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['g0_hiptrt_L1EM22VHI',                 'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Primary','RATE:SinglePhoton', 'BW:Egamma'], -1],
         ['g0_hiptrt_L1EM24VHI',                 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'], -1],
-        ['g0_hiptrt_L1EM24VHIM',                'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'], -1],
 
         # PS-ed trigger to supmbined chains
         ['g15_loose_L1EM7',               'L1_EM7',   [], [PhysicsStream,'express'], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'], -1], 
@@ -1076,7 +1068,6 @@ def setupMenu():
 
         ['e26_lhtight_nod0_e15_etcut_L1EM7_Zee',    	  'L1_EM22VHI', ['L1_EM22VHI','L1_EM7'], [PhysicsStream], ['Legacy:Primary','RATE:MultiElectron', 'BW:Egamma'],-1 ],
         ['e28_lhtight_nod0_e15_etcut_L1EM7_Zee',    	  'L1_EM24VHI', ['L1_EM24VHI','L1_EM7'], [PhysicsStream, 'express'], ['Legacy:Backup','RATE:MultiElectron', 'BW:Egamma'],-1 ],
-        ['e28_lhtight_nod0_L1EM24VHIM_e15_etcut_L1EM7_Zee', 'L1_EM24VHIM',  ['L1_EM24VHIM','L1_EM7'], [PhysicsStream], ['Legacy:Backup','RATE:MultiElectron', 'BW:Egamma'],-1],
 
         # Jpsiee T&P LH-based nod0
         ['e5_lhtight_nod0_e4_etcut',         'L1_2EM3',      [], [PhysicsStream], ['Legacy:Support','RATE:MultiElectron', 'BW:Egamma'],-1],
@@ -1107,11 +1098,9 @@ def setupMenu():
         ['e60_lhmedium_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Primary','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['g140_loose',        'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Primary','RATE:SinglePhoton','BW:Egamma'],-1],
         ['g140_tight',        'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
-        ['g140_tight_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
         ['g160_loose',        'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
         ['g180_loose',        'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
         ['g200_loose',        'L1_EM24VHI', [], [PhysicsStream, 'express'], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
-        ['g200_loose_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton','BW:Egamma'],-1],
         ['e140_lhloose_nod0', 'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Primary','RATE:SingleElectron', 'BW:Egamma'],-1],
 
         #2016 egamma primaries
@@ -1239,7 +1228,6 @@ def setupMenu():
 
         ['e28_lhtight_nod0',                  'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e28_lhtight_nod0_ivarloose',        'L1_EM24VHI', [], [PhysicsStream,'express'], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e28_lhtight_nod0_ivarloose_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
 
 
         #Supporting
@@ -1249,13 +1237,10 @@ def setupMenu():
         # Et cut only chains
         ['e250_etcut',                           'L1_EM24VHI',  [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e300_etcut',                           'L1_EM24VHI',  [], [PhysicsStream], ['Legacy:Primary','RATE:SingleElectron', 'BW:Egamma'],-1], 
-        ['e300_etcut_L1EM24VHIM',                 'L1_EM24VHIM',  [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1], 
 
         # 2e34 single items
         ['e60_lhmedium_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e60_lhmedium_nod0_L1EM24VHIM', 'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e140_lhloose_nod0_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e140_lhloose_nod0_L1EM24VHIM', 'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
 				
         
         #Chains for testing 2e34 menus
@@ -1265,9 +1250,7 @@ def setupMenu():
         #ATR-16089 supporting triggers for MC16c
         ['e24_lhvloose_nod0_L1EM20VH',                'L1_EM20VH',    [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e26_lhvloose_nod0',        'L1_EM22VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e28_lhmedium_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
 
-        ['e80_lhmedium_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SingleElectron', 'BW:Egamma'],-1],
 
         ['e17_lhvloose_nod0_L1EM15VHI',        'L1_EM15VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e19_lhvloose_nod0',        'L1_EM15VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
@@ -1286,50 +1269,14 @@ def setupMenu():
         ['g12_loose',                     'L1_EM10VH', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g12_medium',                     'L1_EM10VH', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
 
-        ['e60_lhloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e70_lhloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e80_lhloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-
-        ['g70_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g80_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g80_loose_icalovloose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-
-        ['e60_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e70_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e80_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e100_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e120_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e200_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e250_etcut_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-
-        ['e70_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e80_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e100_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e120_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e140_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SingleElectron', 'BW:Egamma'],-1],
-        ['e160_lhvloose_nod0_L1EM24VHIM',        'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:End-of-fill','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e160_lhvloose_nod0',        'L1_EM24VHI', [], [PhysicsStream], ['Legacy:End-of-fill','RATE:SingleElectron', 'BW:Egamma'],-1],
         
-        ['g60_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g100_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g120_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Support','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g140_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g160_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g180_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Backup','RATE:SinglePhoton', 'BW:Egamma'],-1],
-
         ['e20_lhmedium_nod0_L1EM18VHI',        'L1_EM18VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
         ['e20_lhtight_nod0_ivarloose_L1EM18VHI',        'L1_EM18VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SingleElectron', 'BW:Egamma'],-1],
 
-        ['g35_loose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g35_tight_icalotight_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g35_tight_icalotight_L1EM24VHI',                     'L1_EM24VHI',  [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g40_tight_icalotight_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g40_tight_icalotight_L1EM24VHI',                      'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g85_tight_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g85_tight_icalovloose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g85_tight_icalovloose_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'], -1],
-        ['g100_tight_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
-        ['g100_tight_icalovloose_L1EM24VHIM',                     'L1_EM24VHIM', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
         ['g100_tight_icalovloose_L1EM24VHI',                     'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:SinglePhoton', 'BW:Egamma'],-1],
 
         #ATR-16089 test chains
@@ -1581,22 +1528,15 @@ def setupMenu():
         ['e17_lhloose_nod0_mu14',   'L1_EM15VH_MU10', ['L1_EM15VH', 'L1_MU10'], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
         ['e26_lhmedium_nod0_mu8noL1', 'L1_EM22VHI', ['L1_EM22VHI', ''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e26_lhmedium_nod0','mu8noL1'] ]],
         ['e28_lhmedium_nod0_mu8noL1', 'L1_EM24VHI', ['L1_EM24VHI', ''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e28_lhmedium_nod0','mu8noL1'] ]],
-        ['e28_lhmedium_nod0_L1EM24VHIM_mu8noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['e28_lhmedium_nod0_L1EM24VHIM','mu8noL1'] ]],
         ['e28_lhmedium_nod0', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1],
         ['e70_lhloose_nod0_xe70noL1',    'L1_EM22VHI',['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["e70_lhloose_nod0","xe70noL1"]]],
-        ['e70_lhloose_nod0_L1EM24VHIM_xe70noL1',    'L1_EM24VHIM',['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["e70_lhloose_nod0_L1EM24VHIM","xe70noL1"]]],
         ['e80_lhloose_nod0_xe80noL1',    'L1_EM22VHI',['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["e80_lhloose_nod0","xe80noL1"]]],
         ['e80_lhloose_nod0_L1EM24VHI_xe80noL1',    'L1_EM24VHI',['L1_EM24VHI',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["e80_lhloose_nod0_L1EM24VHI","xe80noL1"]]],
-        ['e80_lhloose_nod0_L1EM24VHIM_xe80noL1',    'L1_EM24VHIM',['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["e80_lhloose_nod0_L1EM24VHIM","xe80noL1"]]],
 
         ['e7_lhmedium_nod0_mu24',        'L1_MU20MU21', ['L1_EM3', 'L1_MU20'], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1,['parallel',-1,[] ]],
         ['g45_tight_L1EM22VHI_xe45noL1', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_L1EM22VHI","xe45noL1"]]],
         ['g45_tight_L1EM24VHI_xe45noL1', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_L1EM24VHI","xe45noL1"]]],
-        ['g45_tight_L1EM24VHIM_xe45noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_L1EM24VHIM","xe45noL1"]]],
-        ['g45_tight_icalovloose_L1EM24VHIM_xe45noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose_L1EM24VHIM","xe45noL1"]]],
         ['g80_loose_L1EM24VHI_xe80noL1',           'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_L1EM24VHI","xe80noL1"]]],
-        ['g80_loose_L1EM24VHIM_xe80noL1',           'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_L1EM24VHIM","xe80noL1"]]],
-        ['g80_loose_icalovloose_L1EM24VHIM_xe80noL1',           'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g80_loose_icalovloose_L1EM24VHIM","xe80noL1"]]],
         ['g45_tight_L1EM24VHI', 'L1_EM24VHI', [], [PhysicsStream], ['Legacy:Rerun','RATE:ElectronPhoton', 'BW:Egamma'], -1],
         ['g45_tight_icalovloose_L1EM22VHI_xe45noL1', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose_L1EM22VHI","xe45noL1"]]],
         ['g45_tight_icalovloose_L1EM24VHI_xe45noL1', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma', 'BW:MET'], -1,['serial',-1,["g45_tight_icalovloose_L1EM24VHI","xe45noL1"]]],
@@ -1645,9 +1585,6 @@ def setupMenu():
         ['e5_lhmedium_nod0_j50_xe80_pufit_2dphi10_L1J40_XE50_DPHI-J20s2XE50',  'L1_J40_XE50_DPHI-J20s2XE50', ['L1_EM3','',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJetMET', 'BW:Egamma', 'BW:Jet'], -1, ['serial',-1,["e5_lhmedium_nod0","j50","xe80_pufit"] ]],
         ['e5_lhloose_nod0_j40_xe70_pufit_2dphi10_L1XE60',  'L1_XE60', ['L1_EM3','',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJetMET', 'BW:Egamma', 'BW:Jet'], -1, ['serial',-1,["e5_lhloose_nod0","j40","xe70_pufit_L1XE60"] ]],
 
-        #ATR-16089 combined egamma support chains
-        ['e60_etcut_trkcut_j15_perf_xe60_6dphi05_mt35','L1_EM24VHIM', ['L1_EM24VHIM','',''], [PhysicsStream], ['Legacy:Support','RATE:EgammaMET', 'BW:Egamma'], -1, ['serial',-1,["e60_etcut_trkcut","j15_perf","xe60"]]],
-
         ['mu4_j15_boffperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j15_boffperf_split'] ]],
         ['mu4_j25_boffperf_split_dr05_dz02', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j25_boffperf_split'] ]],
         ['mu4_j35_boffperf_split_dr05_dz99', 'L1_MU4',     ['L1_MU4', ''], [PhysicsStream], ['Legacy:Support','RATE:MuonBJet', 'BW:BJet_combined'], -1,['serial',-1,['mu4', 'j35_boffperf_split'] ]],
@@ -1692,7 +1629,6 @@ def setupMenu():
         # e
         ['e28_lhtight_nod0_ivarloose_j150_boffperf_split_j35_boffperf_split',               'L1_EM24VHI', ['L1_EM24VHI', '', ''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:BJet_combined'],  -1, ['serial',-1,['e28_lhtight_nod0_ivarloose', 'j150_boffperf_split','j35_boffperf_split']]],
         ['e28_lhtight_nod0_ivarloose_j110_gsc150_boffperf_split_j35_boffperf_split',  'L1_EM24VHI', ['L1_EM24VHI', '', ''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:BJet_combined'],  -1, ['serial',-1,['e28_lhtight_nod0_ivarloose', 'j110_gsc150_boffperf_split','j35_boffperf_split']]],
-        ['e28_lhtight_nod0_ivarloose_L1EM24VHIM_2j35_boffperf_split',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['Legacy:Support','RATE:EgammaJet', 'BW:BJet_combined'],  -1, ['serial',-1,['e28_lhtight_nod0_ivarloose_L1EM24VHIM', '2j35_boffperf_split']]],
 
         ['2g10_loose_mu20',          'L1_MU20MU21',    ['L1_2EM7', 'L1_MU20'],  [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['2g10_loose','mu20'] ]],
         ['2g10_medium_mu20',         'L1_MU20MU21',    ['L1_2EM7', 'L1_MU20'],  [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['2g10_medium','mu20'] ]],
@@ -1723,11 +1659,6 @@ def setupMenu():
         # reversed calo-ratio triggers
         ['j250_jes_cleanLLP_PS_revllp_L1TAU60',             'L1_TAU60',             [], [PhysicsStream], ['Legacy:Support','RATE:SingleJet', 'BW:Jet'], -1],
         
-        ### ATR-14543
-        ['g35_tight_icalotight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_icalotight_L1EM24VHIM','mu18noL1'] ]],
-        ['g40_tight_icalotight_L1EM24VHIM_mu18noL1',        'L1_EM24VHIM', ['L1_EM24VHIM', ''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_icalotight_L1EM24VHIM','mu18noL1'] ]],
-        ['g35_tight_icalotight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_icalotight_L1EM24VHIM','mu15noL1','mu2noL1']]],
-        ['g40_tight_icalotight_L1EM24VHIM_mu15noL1_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', '',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g40_tight_icalotight_L1EM24VHIM','mu15noL1','mu2noL1']]],
  
         #ATR-11623 photon + muon/di-muon chains L1_EM24VHI and L1_EM24VHIM seed
         ['g35_tight_icalotight_L1EM24VHI_mu18noL1',        'L1_EM24VHI', ['L1_EM24VHI', ''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_tight_icalotight_L1EM24VHI','mu18noL1'] ]],
@@ -1739,8 +1670,6 @@ def setupMenu():
         ['g35_loose_L1EM24VHI_mu18',        'L1_EM24VHI', ['L1_EM24VHI', 'L1_MU11'], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHI','mu18'] ]],
         ['g35_loose_L1EM24VHI_mu15_mu2noL1', 'L1_EM24VHI', ['L1_EM24VHI', 'L1_MU11',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHI','mu15','mu2noL1']]],
 
-        ['g35_loose_L1EM24VHIM_mu18',        'L1_EM24VHIM', ['L1_EM24VHIM', 'L1_MU11'], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHIM','mu18'] ]],
-        ['g35_loose_L1EM24VHIM_mu15_mu2noL1', 'L1_EM24VHIM', ['L1_EM24VHIM', 'L1_MU11',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaMuon', 'BW:Egamma', 'BW:Muon'], -1, ['serial',-1,['g35_loose_L1EM24VHIM','mu15','mu2noL1']]],
 
         # Heg chains
         ['e25_mergedtight_g35_medium_Heg',       'L1_2EM20VH', [], [PhysicsStream], ['Legacy:Primary','RATE:ElectronPhoton', 'BW:Egamma'], -1,['parallel',-1,[] ]],
@@ -1892,18 +1821,12 @@ def setupMenu():
 
  
         # 2017 g+tau chains (ATR-16266)
-	# ATR-14947
-        ['g25_medium_L1EM24VHIM_tau25_dikaonmass_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_dikaonmass_tracktwo'],False]],
+	    # ATR-14947
         ['g25_medium_L1EM24VHI_tau25_dikaonmass_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_dikaonmass_tracktwo'],False]],
-        ['g25_medium_L1EM24VHIM_tau25_singlepion_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_singlepion_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_singlepion_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_singlepion_tracktwo'],False]],
-        ['g25_medium_L1EM24VHIM_tau25_dipion1loose_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_dipion1loose_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_dipion1loose_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_dipion1loose_tracktwo'],False]],
-        ['g25_medium_L1EM24VHIM_tau25_dipion2_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_dipion2_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_dipion2_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_dipion2_tracktwo'],False]],
-        ['g25_medium_L1EM24VHIM_tau25_kaonpi1_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_kaonpi1_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_kaonpi1_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_kaonpi1_tracktwo'],False]],
-        ['g25_medium_L1EM24VHIM_tau25_kaonpi2_tracktwo_50mVis10000','L1_EM24VHIM', ['L1_EM24VHIM','L1_TAU12'], [PhysicsStream], ['Legacy:Backup','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHIM','tau25_kaonpi2_tracktwo'],False]],
         ['g25_medium_L1EM24VHI_tau25_kaonpi2_tracktwo_50mVis10000','L1_EM24VHI', ['L1_EM24VHI','L1_TAU12'], [PhysicsStream], ['Legacy:Primary','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium_L1EM24VHI','tau25_kaonpi2_tracktwo'],False]],	
         # new L1topo g+tau chain (ATR-14349)
         ['g25_medium_tau25_dikaonmass_tracktwo_50mVis10000_L130M-EM20ITAU12','L1_30M-EM20ITAU12', ['L1_EM20VHI','L1_TAU12'], [PhysicsStream], ['Legacy:End-of-fill','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium','tau25_dikaonmass_tracktwo'],False]],
@@ -1914,10 +1837,6 @@ def setupMenu():
         ['g25_medium_tau25_kaonpi2_tracktwo_50mVis10000_L130M-EM20ITAU12','L1_30M-EM20ITAU12', ['L1_EM20VHI','L1_TAU12'], [PhysicsStream], ['Legacy:End-of-fill','RATE:TauGamma', 'BW:Tau', 'BW:Egamma'], -1,['serial',-1,['g25_medium','tau25_kaonpi2_tracktwo'],False]],
 
         ### ATR-14196
-        ['g85_tight_L1EM24VHIM_3j50noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_L1EM24VHIM","3j50noL1"]]],
-        ['g85_tight_icalovloose_L1EM24VHIM_3j50noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_icalovloose_L1EM24VHIM","3j50noL1"]]],
-        ['g100_tight_L1EM24VHIM_3j50noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g100_tight_L1EM24VHIM","3j50noL1"]]],
-        ['g100_tight_icalovloose_L1EM24VHIM_3j50noL1', 'L1_EM24VHIM', ['L1_EM24VHIM',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g100_tight_icalovloose_L1EM24VHIM","3j50noL1"]]],
        	['g85_tight_L1EM22VHI_3j50noL1', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Primary','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_L1EM22VHI","3j50noL1"]]],
         ['g85_tight_L1EM24VHI_3j50noL1', 'L1_EM24VHI', ['L1_EM24VHI',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g85_tight_L1EM24VHI","3j50noL1"]]],
         ['g100_tight_L1EM22VHI_3j50noL1', 'L1_EM22VHI', ['L1_EM22VHI',''], [PhysicsStream], ['Legacy:Backup','RATE:EgammaJet', 'BW:Egamma', 'BW:Jet'], -1,['serial',-1,["g100_tight_L1EM22VHI","3j50noL1"]]],

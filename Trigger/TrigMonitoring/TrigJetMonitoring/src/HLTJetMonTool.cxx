@@ -55,7 +55,9 @@ HLTJetMonTool::HLTJetMonTool(
   //  declareProperty("DoLumiWeight",        m_doLumiWeight = true);
 
   declareProperty("L1xAODJetKey",        m_L1xAODJetKey = "LVL1JetRoIs");
-  declareProperty("L1xAODjJetKey",       m_L1xAODjJetKey = "jRoundJets");
+  declareProperty("L1xAODjJetKey",       m_L1xAODjJetKey = "jRoundJetsPUsub");
+  declareProperty("L1xAODjLJetKey",      m_L1xAODjLJetKey = "jRoundLargeRJetsPUsub");
+  declareProperty("L1xAODgLJetKey",      m_L1xAODgLJetKey = "gL1Jets");
   declareProperty("HLTJetKeys",          m_HLTJetKeys, "SG Keys to access HLT Jet Collections");
   declareProperty("OFJetKeys",           m_OFJetKeys, "SG Keys to access offline Jet Collections" );
 
@@ -1325,14 +1327,34 @@ StatusCode HLTJetMonTool::retrieveContainers() {
     ATH_MSG_DEBUG(" Retrieved LVL1JetROIs with key \"" << m_L1xAODJetKey << "\" from TDS" );
   }
 
-  // retrieve xAOD L1 jFex jets
+  // retrieve xAOD L1 jFex small-R jets
   m_L1jJetRoIC = 0;
   sc = m_storeGate->retrieve(m_L1jJetRoIC, m_L1xAODjJetKey);
   if(sc.isFailure() || !m_L1jJetRoIC) {
-    ATH_MSG_INFO ("Could not retrieve jRoundJets with key \"" << m_L1xAODjJetKey << "\" from TDS"  );
+    ATH_MSG_INFO ("Could not retrieve jRoundJetsPUsub with key \"" << m_L1xAODjJetKey << "\" from TDS"  );
   }
   else {
-    ATH_MSG_DEBUG(" Retrieved jRoundJets with key \"" << m_L1xAODjJetKey << "\" from TDS" );
+    ATH_MSG_DEBUG(" Retrieved jRoundJetsPUsub with key \"" << m_L1xAODjJetKey << "\" from TDS" );
+  }
+
+  // retrieve xAOD L1 jFex large-R jets
+  m_L1jLJetRoIC = 0;
+  sc = m_storeGate->retrieve(m_L1jLJetRoIC, m_L1xAODjLJetKey);
+  if(sc.isFailure() || !m_L1jLJetRoIC) {
+    ATH_MSG_INFO ("Could not retrieve jRoundLargeRJetsPUsub with key \"" << m_L1xAODjLJetKey << "\" from TDS"  );
+  }
+  else {
+    ATH_MSG_DEBUG(" Retrieved jRoundLargeRJetsPUsub with key \"" << m_L1xAODjLJetKey << "\" from TDS" );
+  }
+
+  // retrieve xAOD L1 gFex large-R jets
+  m_L1gLJetRoIC = 0;
+  sc = m_storeGate->retrieve(m_L1gLJetRoIC, m_L1xAODgLJetKey);
+  if(sc.isFailure() || !m_L1gLJetRoIC) {
+    ATH_MSG_INFO ("Could not retrieve gL1Jets with key \"" << m_L1xAODgLJetKey << "\" from TDS"  );
+  }
+  else {
+    ATH_MSG_DEBUG(" Retrieved gL1Jets with key \"" << m_L1xAODgLJetKey << "\" from TDS" );
   }
   
   // retrieve HLT jets
@@ -1472,7 +1494,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
   // L1 begin filling basic histograms
   ATH_MSG_DEBUG ("Filling L1 Jets");
 
-  if(m_L1JetRoIC || m_L1jJetRoIC) {
+  if(m_L1JetRoIC || m_L1jJetRoIC || m_L1jLJetRoIC || m_L1gLJetRoIC) {
     setCurrentMonGroup(m_monGroups["L1"]);
     if(m_debuglevel)
       ATH_MSG_DEBUG( "Mon group set to " << m_monGroups["L1"] );
@@ -1760,7 +1782,7 @@ bool HLTJetMonTool::evtSelTriggersPassed() {
 
 //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double thrHLT, const std::string& /*theContainer*/ ) {
+void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double thrHLT, const std::string& ) {
   
 
   TH1 *h(0); 
@@ -1856,7 +1878,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 
 void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrEt ) {
 
-  if( !m_L1JetRoIC && !m_L1jJetRoIC ) return; // TEMPORARY - Should issue a warning
+  if( !m_L1JetRoIC && !m_L1jJetRoIC && !m_L1jLJetRoIC && !m_L1gLJetRoIC) return; // TEMPORARY - Should issue a warning
 
   TH1 *h(0); 
   TH2 *h2(0);
@@ -1897,15 +1919,27 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
         xAOD::JetRoIContainer::const_iterator it_L1;
         xAOD::JetRoIContainer::const_iterator it_e_L1;
 
-	bool usingjFex = false;
-	if(theChain.rfind("jJ") != std::string::npos){
-	  if(theChain.substr(theChain.rfind("jJ"),2)=="jJ") usingjFex = true;
+	bool usingLVL1JetRoIs = false;
+	if(theChain.rfind("jJ") != std::string::npos){ // jRoundJetsPUsub
+	  if(theChain.substr(theChain.rfind("jJ"),2)=="jJ") {
+            it_L1   = m_L1jJetRoIC->begin();
+            it_e_L1 = m_L1jJetRoIC->end();
+	  }
 	}
-	
-	if(usingjFex){ // jRoundJets
-          it_L1   = m_L1jJetRoIC->begin();
-          it_e_L1 = m_L1jJetRoIC->end();
-	} else { // LVL1JetRoIs
+	else if(theChain.rfind("jLJ") != std::string::npos){ //jRoundLargeRJetsPUsub
+	  if(theChain.substr(theChain.rfind("jLJ"),3)=="jLJ") {
+            it_L1   = m_L1jLJetRoIC->begin();
+            it_e_L1 = m_L1jLJetRoIC->end();
+	  }
+	}
+	else if(theChain.rfind("gLJ") != std::string::npos){ //gL1Jets
+	  if(theChain.substr(theChain.rfind("gLJ"),3)=="gLJ") {
+            it_L1   = m_L1gLJetRoIC->begin();
+            it_e_L1 = m_L1gLJetRoIC->end();
+	  }
+	}
+	else { // LVL1JetRoIs
+          usingLVL1JetRoIs = true;
           it_L1   = m_L1JetRoIC->begin();
           it_e_L1 = m_L1JetRoIC->end();
 	}
@@ -1931,7 +1965,7 @@ void HLTJetMonTool::fillBasicL1forChain(const std::string& theChain, double thrE
             ATH_MSG_DEBUG( "CHAIN: " << theChain << " " << et << " GeV " << eta << " " 
 			   << phi << " rad " << et6 << " " << et8 << " " << thrv.str());
           }
-          if(id == (*it_L1)->roiWord() || usingjFex ) {
+          if(id == (*it_L1)->roiWord() || !usingLVL1JetRoIs) {
 	    // id_match_found = true;
             bool l1_thr_pass = (et > thrEt);
             ATH_MSG_DEBUG("CHAIN: " << theChain << " " << et << "\tthreshold = " << thrEt << "\tpass = " << l1_thr_pass);
@@ -2847,7 +2881,7 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   } 
 }
 
-TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &/*ContainerName*/, const std::string& level, double thrHLT, float DRCut,bool& Pass){
+TLorentzVector HLTJetMonTool::DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &, const std::string& level, double thrHLT, float DRCut,bool& Pass){
 
   double DRmin=99;
   double Ptmin=-99;
