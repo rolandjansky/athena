@@ -9,6 +9,7 @@
 // Framework include(s):
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "xAODTruth/TruthParticleContainer.h"
+//#include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
 #include "TopPartons/PartonHistory.h"
 
 // forward declaration(s):
@@ -70,6 +71,11 @@ namespace top {
 
     ///Store the four-momentum of several particles in the Higgs decay chain
     bool HiggsAndDecay(const xAOD::TruthParticleContainer* truthParticles);
+
+    //Store spetator quark information
+    bool spectatorquark(const xAOD::TruthParticleContainer* truthParticles, TLorentzVector& spectatorquark_beforeFSR,
+			TLorentzVector& spectatorquark_afterFSR, int& spectatorquark_pdgId, int& spectatorquark_status);
+    
 
     virtual StatusCode execute();
   };

@@ -638,7 +638,18 @@ namespace xAOD {
     this->auxdecor< float >("MC_Higgs_tau_decay2_from_decay2_pt") = -1000;
     this->auxdecor< float >("MC_Higgs_tau_decay2_from_decay2_phi") = -1000;
     this->auxdecor< float >("MC_Higgs_tau_decay2_from_decay2_eta") = -1000;
-       
+
+    // Spectator light quark
+    this->auxdecor< int >("MC_spectatorquark_pdgId") = -1000;
+    this->auxdecor< int >("MC_spectatorquark_status") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = -1000;
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_m") = -1000;       
     
   }
   

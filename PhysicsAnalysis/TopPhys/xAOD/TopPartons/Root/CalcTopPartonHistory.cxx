@@ -177,7 +177,7 @@ namespace top {
     return false;
   }
 
-  // The function topWb has been overloaded
+  // The function topWb has been overloaded to include aditional information when the W from t decays to a tau.
   bool CalcTopPartonHistory::topWb(const xAOD::TruthParticleContainer* truthParticles,
                                    int start, TLorentzVector& t_beforeFSR_p4, TLorentzVector& t_afterFSR_p4,
                                    TLorentzVector& W_p4,
@@ -189,7 +189,9 @@ namespace top {
     bool hasB = false;
     bool hasWdecayProd1 = false;
     bool hasWdecayProd2 = false;
-
+    
+    bool store_tau_info = true;
+    if (tau_decay_from_W_isHadronic == -9999) { bool store_tau_info = false; }
 
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start) continue;
@@ -219,7 +221,7 @@ namespace top {
           
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
 	    const xAOD::TruthParticle* WChildren = topChildren->child(q);
-            if (std::abs(WChildren->pdgId()) < 17) {
+            if (std::abs(WChildren->pdgId()) < 17 && store_tau_info == true){
 	      // When W decays leptonically, Wdecay1 stores the lepton and Wdecay2 the neutrino
 	      if (std::abs(WChildren->pdgId()) == 11 || std::abs(WChildren->pdgId()) == 13 || std::abs(WChildren->pdgId()) == 15){
 		Wdecay1_p4 = WChildren->p4();                                  
@@ -232,12 +234,12 @@ namespace top {
                 Wdecay2_pdgId = WChildren->pdgId();
                 hasWdecayProd2 = true;
 	      }
-	      if (std::abs(WChildren->pdgId()) < 12){ // W does not decay leptonically
+	      if (std::abs(WChildren->pdgId()) < 11){ // W does not decay leptonically
 		if (WChildren->pdgId() > 0) {
 		  Wdecay1_p4 = WChildren->p4();
 		  Wdecay1_pdgId = WChildren->pdgId();
 		  tau_decay_from_W_isHadronic = -99;
-		  tau_decay_from_W_p4 = WChildren->p4(); //ponbien 
+		  tau_decay_from_W_p4 = WChildren->p4();
 		  hasWdecayProd1 = true;
 		}else{
 		  Wdecay2_p4 = WChildren->p4();
@@ -245,8 +247,19 @@ namespace top {
 		  hasWdecayProd2 = true;
 		}//else
 	      }// if not leptonic decay
-	    }//if
-          }//for
+	    }// end of if store_tau_info ==  true
+	    if (std::abs(WChildren->pdgId()) < 17 && store_tau_info == false){
+	      if (WChildren->pdgId() > 0) {
+                Wdecay1_p4 = WChildren->p4();
+                Wdecay1_pdgId = WChildren->pdgId();
+                hasWdecayProd1 = true;
+              } else {
+                Wdecay2_p4 = WChildren->p4();
+                Wdecay2_pdgId = WChildren->pdgId();
+                hasWdecayProd2 = true;
+              }
+	    } // end of if store_tau_info == false
+          }//end of for
         } else if (abs(topChildren->pdgId()) == 5) {
           b_p4 = topChildren->p4();
           hasB = true;
@@ -267,62 +280,10 @@ namespace top {
                                    TLorentzVector& W_p4,
                                    TLorentzVector& b_p4, TLorentzVector& Wdecay1_p4,
                                    int& Wdecay1_pdgId, TLorentzVector& Wdecay2_p4, int& Wdecay2_pdgId) {
-    bool hasT = false;
-    bool hasW = false;
-    bool hasB = false;
-    bool hasWdecayProd1 = false;
-    bool hasWdecayProd2 = false;
+    TLorentzVector tau_decay_from_W_p4;
+    int tau_decay_from_W_isHadronic = -9999;
+    return topWb(truthParticles, start, t_beforeFSR_p4, t_afterFSR_p4, W_p4, b_p4, Wdecay1_p4,Wdecay1_pdgId, Wdecay2_p4, Wdecay2_pdgId, tau_decay_from_W_p4, tau_decay_from_W_isHadronic);
 
-    for (const xAOD::TruthParticle* particle : *truthParticles) {
-      if (particle->pdgId() != start) continue;
-
-      if (PartonHistoryUtils::hasParticleIdenticalParent(particle)) continue; // kepping only top before FSR
-
-      t_beforeFSR_p4 = particle->p4(); // top before FSR
-      hasT = true;
-
-      // demanding the last tops after FSR
-      particle = PartonHistoryUtils::findAfterFSR(particle);
-      t_afterFSR_p4 = particle->p4(); // top after FSR
-
-      for (size_t k = 0; k < particle->nChildren(); k++) {
-        const xAOD::TruthParticle* topChildren = particle->child(k);
-
-        if (std::abs(topChildren->pdgId()) == 24) {
-          W_p4 = topChildren->p4();  // W boson after FSR
-          hasW = true;
-          
-          // demanding the last W after FSR
-          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
-          
-          //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
-          //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
-          if(m_config->getDerivationStream() == "PHYS") topChildren=getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
-          
-          for (size_t q = 0; q < topChildren->nChildren(); ++q) {
-            const xAOD::TruthParticle* WChildren = topChildren->child(q);
-            if (std::abs(WChildren->pdgId()) < 17) {
-              if (WChildren->pdgId() > 0) {
-                Wdecay1_p4 = WChildren->p4();
-                Wdecay1_pdgId = WChildren->pdgId();
-                hasWdecayProd1 = true;
-              } else {
-                Wdecay2_p4 = WChildren->p4();
-                Wdecay2_pdgId = WChildren->pdgId();
-                hasWdecayProd2 = true;
-              }//else
-            }//if
-          }//for
-        } else if (std::abs(topChildren->pdgId()) == 5) {
-          b_p4 = topChildren->p4();
-          hasB = true;
-        } //else if
-      } //for (size_t k=0; k < particle->nChildren(); k++)
-
-      if (hasT && hasW && hasB && hasWdecayProd1 && hasWdecayProd2) return true;
-      
-    } //for (const xAOD::TruthParticle* particle : *truthParticles)
-    
     return false;
   }
 
