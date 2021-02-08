@@ -117,7 +117,7 @@ class TrigInDetReco(ExecStep):
         self.preexec_trig = 'doEmptyMenu=True;'+flags+'selectChains='+chains
 
         if (lrt):
-            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False);'
+            self.preexec_all += ';from InDetRecExample.InDetJobProperties import InDetFlags; InDetFlags.doR3LargeD0.set_Value_and_Lock(True);InDetFlags.storeSeparateLargeD0Container.set_Value_and_Lock(False)'
 
         if (self.release == 'current'):
             print( "Using current release for offline Reco steps  " )

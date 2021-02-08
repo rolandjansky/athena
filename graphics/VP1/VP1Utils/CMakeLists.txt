@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( VP1Utils )
@@ -9,7 +9,7 @@ find_package( Coin3D )
 find_package( Eigen )
 find_package( HepPDT )
 find_package( Qt5 COMPONENTS Core )
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 
 # Generate MOC files automatically:
 set( CMAKE_AUTOMOC TRUE )
@@ -22,7 +22,7 @@ atlas_add_library( VP1Utils VP1Utils/*.h src/*.cxx src/*.cpp
    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} EventPrimitives
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} EventPrimitives
    GaudiKernel VP1Base StoreGateLib SGtests AthDSoCallBacks MuonIdHelpersLib
    GeoPrimitives Qt5::Core
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}
@@ -55,7 +55,7 @@ atlas_add_library( VP1Utils ${SOURCES} ${HEADERS}
    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
    PRIVATE_INCLUDE_DIRS ${HEPPDT_INCLUDE_DIRS} ${COIN3D_INCLUDE_DIRS}
    ${EIGEN_INCLUDE_DIRS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventPrimitives ${GEOMODELCORE_LIBRARIES}
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} EventPrimitives ${GEOMODEL_LIBRARIES}
    VP1Base
    GeoPrimitives Qt5::Core
    PRIVATE_LINK_LIBRARIES ${HEPPDT_LIBRARIES} ${COIN3D_LIBRARIES}

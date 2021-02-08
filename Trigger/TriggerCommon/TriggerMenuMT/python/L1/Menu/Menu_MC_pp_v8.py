@@ -296,7 +296,7 @@ def defineMenu():
         'L1_MJJ-400-NFF-0DPHI22',
         'L1_MJJ-400-NFF-0DPHI24',
         'L1_MJJ-400-NFF-0DPHI26',
-   
+
         ### ATR-15062
 
         'L1_LATE-MU10_XE50','L1_LATE-MU10_XE40', 'L1_LATE-MU10_J50',
@@ -474,11 +474,11 @@ def defineMenu():
         'L1_3J15p0ETA25_XE40' : 184,
         'L1_J45p0ETA23_3J15p0ETA25' : 86,
         'L1_J50_2J40p0ETA25_3J15p0ETA25' : 87,
- 
+
         'L1_6J15' : 135,
         'L1_J85_3J30' : 480,
         'L1_J30p0ETA49_2J20p0ETA49' : 137,
-       
+
         'L1_5J15p0ETA25' : 140,
         'L1_2J15_XE55' : 141,
         'L1_J40_XE50' : 142,
@@ -531,7 +531,7 @@ def defineMenu():
         'L1_J40p0ETA25_2J25_J20p31ETA49' : 182,
 
 
-         ## noid
+        ## noid
         'L1_RD0_FILLED' : 200,
         'L1_RD0_UNPAIRED_ISO' : 201,
         'L1_RD0_EMPTY' : 202,

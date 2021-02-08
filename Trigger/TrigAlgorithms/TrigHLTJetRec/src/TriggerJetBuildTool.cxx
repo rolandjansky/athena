@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -151,7 +151,7 @@ void TriggerJetBuildTool::prime(const xAOD::IParticleContainer* inputs){
 
   
   ATH_MSG_DEBUG("No of IParticle inputs: " << inputs->size());
-  for(const auto& ip : *inputs){
+  for(const auto ip : *inputs){
     ATH_MSG_VERBOSE("prime() PseudoJetInputDump" 
                     << ip->e() 
                     << " "
@@ -202,7 +202,7 @@ void TriggerJetBuildTool::primeGhost(const xAOD::IParticleContainer* inputs, std
   
   ATH_MSG_DEBUG("No of ghost IParticle inputs: " << inputs->size());
 
-  for(const auto& ip : *inputs){
+  for(const auto ip : *inputs){
     ATH_MSG_VERBOSE("primeGhost() PseudoJetInputDump" 
                     << ip->e() 
                     << " "

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /********************************************************************
@@ -138,7 +138,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
   if (metComp==0) {  ATH_MSG_ERROR( "cannot fetch Topo. cluster component!" );  return StatusCode::FAILURE; }
   if(string(metComp->m_name).substr(0,2)!="TC"){ ATH_MSG_ERROR( "fetched " << metComp->m_name << " instead of the Clusters component!" ); return StatusCode::FAILURE; }
 
-  for (const auto& clus : *caloCluster) {
+  for (const auto clus : *caloCluster) {
 
     float phi = clus->phi(m_clusterstate);
     float eta = clus->eta(m_clusterstate);
@@ -194,7 +194,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
 
           ATH_MSG_DEBUG( " In ring: " << ring );
 
-         for (const auto& clus : *caloCluster) {
+         for (const auto clus : *caloCluster) {
              float eta = clus->eta(m_clusterstate);
              float E =  clus->p4(m_clusterstate).E();
 
@@ -241,7 +241,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      // --------------------
      // Second pass to exclude energetic clusters
      // --------------------
-         for (const auto& clus : *caloCluster) {
+         for (const auto clus : *caloCluster) {
              float eta = clus->eta(m_clusterstate);
              float E = clus->p4(m_clusterstate).E();
 
@@ -281,7 +281,7 @@ StatusCode EFMissingETFromClustersPS::execute(xAOD::TrigMissingET * /* met */ ,
      double EyNew = 0.0;
      const double PI = 3.141592653589793238463;
 
-     for (const auto& clus : *caloCluster) {
+     for (const auto clus : *caloCluster) {
          float phi = clus->phi(m_clusterstate);
          float eta = clus->eta(m_clusterstate);
          float Et = clus->pt(m_clusterstate);

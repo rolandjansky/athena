@@ -55,8 +55,6 @@ namespace LVL1 {
     
     //int inputTable[15][15];
     int m_largeRJetEtRing_IDs[15][15];
-    bool m_clusterSet;
-
   };
 
 

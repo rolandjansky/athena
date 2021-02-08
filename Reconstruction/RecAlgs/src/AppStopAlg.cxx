@@ -19,7 +19,7 @@ void signal_handler(int /*signal*/,siginfo_t *, void *) {
 
 AppStopAlg::AppStopAlg(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name,pSvcLocator) {  
-  declareProperty("SignalNumer",m_signal=15);
+  declareProperty("SignalNumber",m_signal=15);
   declareProperty("InstallAfterFirstEvent",m_installAfterFirst=true);
 }
 

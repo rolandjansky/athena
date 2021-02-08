@@ -23,7 +23,7 @@ try:
     _my_run_number = GetRunNumber()
     # sometime GetRunNumber doesn't raise an exception if something goes wrong ...
     if _my_run_number < 100000: raise ValueError('non-sensible RunNumber')
-except BaseException, E:
+except BaseException as E:
     log.info('Exception retrieving RunNumber from RecExConfig.AutoConfiguration: %s' % E)
     #  let's see if we are lucky with AthFile directly ...
     try:
@@ -31,7 +31,7 @@ except BaseException, E:
         from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
         af = athFile.fopen(athenaCommonFlags.BSRDOInput()[0])
         _my_run_number = af.run_number[0] # don't modify global state
-    except BaseException, EE:
+    except BaseException as EE:
         log.info('Exception retrieving RunNumber from AthFile: %s' % EE)
         # one last shot ...
         try:
