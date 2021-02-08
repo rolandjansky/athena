@@ -4,6 +4,7 @@
 
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
+#include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
 #include "TopPartons/PartonHistoryUtils.h"
 #include "TopConfiguration/TopConfig.h"
 
@@ -74,6 +75,17 @@ namespace top {
     const bool event_topbar_SC = CalcTopPartonHistory::topAfterFSR_SC(truthParticles, -6, t_after_SC);
     const bool event_Higgs =  CalcThqPartonHistory::HiggsAndDecay(truthParticles);
 
+
+    // find spectator quark:
+    TLorentzVector spectatorquark_before;
+    TLorentzVector spectatorquark_after;
+
+    int spectatorquark_pdgId;
+    int spectatorquark_status;
+
+    //const bool event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
+    bool event_sq = CalcThqPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
+
     if (event_Higgs) {
       if (event_top || event_topbar) {
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_m") = t_before.M();
@@ -92,6 +104,21 @@ namespace top {
           ThqPartonHistory->auxdecor< float >("MC_t_afterFSR_SC_phi") = t_after_SC.Phi();
           fillEtaBranch(ThqPartonHistory, "MC_t_afterFSR_SC_eta", t_after_SC);
         }
+
+	if(((event_top && !event_topbar) || (!event_top && event_topbar)) && event_sq){
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_pt") = spectatorquark_before.Pt();
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_phi") = spectatorquark_before.Phi();
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_m") = spectatorquark_before.M();
+	  ThqPartonHistory->auxdecor< int >("MC_spectatorquark_pdgId") = spectatorquark_pdgId;
+	  ThqPartonHistory->auxdecor< int >("MC_spectatorquark_status") = spectatorquark_status;
+	  fillEtaBranch(ThqPartonHistory,"MC_spectatorquark_beforeFSR_eta", spectatorquark_before);
+
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_pt") = spectatorquark_after.Pt();
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = spectatorquark_after.Phi();
+	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_afterFSR_m") = spectatorquark_after.M();
+	  fillEtaBranch(ThqPartonHistory,"MC_spectatorquark_afterFSR_eta", spectatorquark_after);
+	}
+
 
         ThqPartonHistory->auxdecor< float >("MC_W_from_t_m") = Wp.M();
         ThqPartonHistory->auxdecor< float >("MC_W_from_t_pt") = Wp.Pt();
@@ -212,6 +239,58 @@ namespace top {
       }
     }
   }
+
+
+  bool CalcThqPartonHistory::spectatorquark(const xAOD::TruthParticleContainer* truthParticles,
+							  TLorentzVector& spectatorquark_beforeFSR, TLorentzVector& spectatorquark_afterFSR,
+							  int& spectatorquark_pdgId, int& spectatorquark_status) {
+    bool hasSpectatorquark = false;
+
+    //identify quark which does not originate from a decaying top quark -> W -> qq
+    //should come from hard scattering process
+    float min_pt =0;
+    for (const xAOD::TruthParticle* particle : *truthParticles) {
+      if (particle == nullptr) continue;
+      if (abs(particle->pdgId()) > 4) continue; //only light quarks
+
+      for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
+        if (particle->parent(iparent) == nullptr){
+          continue;
+        }
+
+        // we dont want quarks that have same pdgID as parent, since its a W interaction it should change sign
+        if (std::abs(particle->parent(iparent)->pdgId()) == std::abs(particle->pdgId())) continue;
+
+        // we dont want quarks that come from top
+        if (std::abs(particle->parent(iparent)->pdgId()) == 6) continue;
+
+        // we dont want quarks that come from W
+        if (std::abs(particle->parent(iparent)->pdgId()) == 24) continue;
+
+        // we dont want quarks that come from proton
+        if (std::abs(particle->parent(iparent)->pdgId()) == 2212) continue;
+
+        if( particle->p4().Pt() > min_pt ) {
+          min_pt= particle->p4().Pt();
+
+          spectatorquark_beforeFSR = particle->p4();
+          spectatorquark_pdgId = particle->pdgId();
+          spectatorquark_status = particle->status();
+          hasSpectatorquark = true;
+
+          // find after FSR
+          particle = PartonHistoryUtils::findAfterFSR(particle);
+          spectatorquark_afterFSR = particle->p4();
+        } //if
+      } // parent loop
+    } // particle loop
+
+    if (hasSpectatorquark) return true;
+
+    return false;
+  }
+
+
 
   StatusCode CalcThqPartonHistory::execute() {
     //Get the Truth Particles
