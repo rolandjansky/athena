@@ -10,7 +10,6 @@
 #include "ParticleJetTools/CopyTruthParticles.h"
 #include "AsgTools/ToolHandle.h"
 #include "xAODTruth/TruthParticle.h"
-#include "MCTruthClassifier/MCTruthClassifierDefs.h"
 #include "MCTruthClassifier/IMCTruthClassifier.h"
 #include <vector>
 #include <map>
@@ -37,7 +36,7 @@ public:
   /// Redefine our own Classifier function(s)
   bool classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
                         std::vector<const xAOD::TruthParticle*>& promptLeptons,
-			std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
+                        std::map<const xAOD::TruthParticle*,unsigned int>& tc_results) const;
 
   // metadata check
   int setBarCodeFromMetaDataCheck() const ;
@@ -57,14 +56,8 @@ private:
   bool m_includeSM; //!< Include SM particles
   bool m_includeDark; //!< Include dark hadrons
 
-  bool isPrompt( const xAOD::TruthParticle* tp,
-		 std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
-  // bool fromTau( const xAOD::TruthParticle* tp,
-  // 		std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const;
-
-
-  MCTruthPartClassifier::ParticleOrigin getPartOrigin(const xAOD::TruthParticle* tp,
-						      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const;
+  unsigned int getTCresult(const xAOD::TruthParticle* tp,
+                           std::map<const xAOD::TruthParticle*,unsigned int>& tc_results) const;
 
   /// Maximum allowed eta for particles in jets
   float m_maxAbsEta;

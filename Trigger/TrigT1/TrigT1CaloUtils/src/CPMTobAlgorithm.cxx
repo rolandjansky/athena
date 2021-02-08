@@ -21,7 +21,7 @@
 #include "TrigConfL1Data/TriggerThreshold.h"
 #include "TrigConfL1Data/TriggerThresholdValue.h"
 #include "TrigConfL1Data/ClusterThresholdValue.h"
-
+#include "TrigConfData/L1Menu.h"
 
 #include <math.h>
 
@@ -46,8 +46,9 @@ const unsigned int CPMTobAlgorithm::m_tauLUT_EMIsolNBits = 6;
 const unsigned int CPMTobAlgorithm::m_noIsol = 999;
 
 LVL1::CPMTobAlgorithm::CPMTobAlgorithm( double eta, double phi, const xAOD::CPMTowerMap_t* ttContainer,
-                                ServiceHandle<TrigConf::ILVL1ConfigSvc> config, int slice ):
+                                ServiceHandle<TrigConf::ILVL1ConfigSvc> config, const TrigConf::L1Menu * l1menu, int slice ):
   m_configSvc(config),
+  m_l1menu(l1menu),
   m_Core(0),
   m_EMClus(0),
   m_TauClus(0),
@@ -220,9 +221,17 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   
   // Does this pass min TOB pT cut?
   // Need to worry about digit scale not being GeV
-  TrigConf::CaloInfo caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-  float scale = caloInfo.globalEmScale();
-  unsigned int thresh = caloInfo.minTobEM().ptmin*scale;
+  float emEnergyScale{1}; 
+  unsigned int tobPtMinEM{0};
+  if( m_l1menu ) {
+    emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
+    tobPtMinEM = m_l1menu->thrExtraInfo().EM().ptMinToTopo();
+  } else {
+    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
+    emEnergyScale = caloInfo.globalEmScale();
+    tobPtMinEM = caloInfo.minTobEM().ptmin;
+  }
+  unsigned int thresh = tobPtMinEM * emEnergyScale;
 
   if (m_EMClus <= thresh) return;
   
@@ -242,58 +251,92 @@ void LVL1::CPMTobAlgorithm::emAlgorithm() {
   }
   
   // For consistency with LUT filling and menu parameters, convert ET sums to 100 MeV units
-  int clus    = (( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask ) * 10)/scale;
-  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
-  int hadVeto = (( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask ) * 10)/scale;
- 
+  int clus    = (( (m_EMClus < clusMask)     ? (m_EMClus  & clusMask)    : clusMask ) * 10)/emEnergyScale;
+  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/emEnergyScale;
+  int hadVeto = (( (m_HadCore < hadIsolMask) ? (m_HadCore & hadIsolMask) : hadIsolMask ) * 10)/emEnergyScale;
+
   /** Disable isolation by default, then set cut if defined and in range.
     * Expect parameters to be on 100 MeV scale whatever the digit scale, so need to rescale if
-      digit scale differs.
+    * digit scale differs.
     * Also must rescale ET sums to same scale for comparison */
-  std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForEMthr();
-  std::vector<int> emisolcuts;
-  emisolcuts.assign(5,m_noIsol);
-  
-  for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-      // Offset & Mincut are in 100 MeV units. Slope = 10* the actual slope, but we will stick with integers here
-      int offset = (*it).offset();
-      int slope  = (*it).slope();
-      int mincut = (*it).mincut();
-      
-      // Upperlimit is in GeV, so convert that to 100 MeV steps
-      int upperlimit = (*it).upperlimit()*10;
-      
-      int bit = (*it).isobit();
-      
+  std::vector<int> emisolcuts(5,m_noIsol);
+  std::vector<int> hadisolcuts(5,m_noIsol);
+  if( m_l1menu ) {
+    for(size_t bit = 1; bit<=5; ++bit) {
+      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("EMIsoForEMthr", bit);
+      if(! iso.isDefined() ) {
+        continue;
+      }
+      int offset = iso.offset();
+      int slope  = iso.slope();
+      int mincut = iso.mincut();
+      int upperlimit = iso.upperlimit()*10;
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
         // As "slope" = 10* slope, rescale clus too to get fraction right.
         int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         emisolcuts[bit-1] = cut;
       }
-  }
-  
-  std::vector<IsolationParam> hadIsolParams = caloInfo.isolationHAIsoForEMthr();  
-  std::vector<int> hadisolcuts;
-  hadisolcuts.assign(5,m_noIsol); 
-  
-  for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
-      int offset = (*it).offset();
-      int slope  = (*it).slope();
-      int mincut = (*it).mincut();
-      int upperlimit = (*it).upperlimit()*10;
-      int bit = (*it).isobit();
-      
+    }
+    for(size_t bit = 1; bit<=5; ++bit) {
+      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().EM().isolation("HAIsoForEMthr", bit);
+      if(! iso.isDefined() ) {
+        continue;
+      }
+      int offset = iso.offset();
+      int slope  = iso.slope();
+      int mincut = iso.mincut();
+      int upperlimit = iso.upperlimit()*10;
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
+        // As "slope" = 10* slope, rescale clus too to get fraction right.
         int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         hadisolcuts[bit-1] = cut;
       }
+    }
+  } else {
+    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
+
+    const std::vector<IsolationParam> & emIsolParams  = caloInfo.isolationEMIsoForEMthr();
+    for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
+        // Offset & Mincut are in 100 MeV units. Slope = 10* the actual slope, but we will stick with integers here
+        int offset = (*it).offset();
+        int slope  = (*it).slope();
+        int mincut = (*it).mincut();
+        
+        // Upperlimit is in GeV, so convert that to 100 MeV steps
+        int upperlimit = (*it).upperlimit()*10;
+        
+        int bit = (*it).isobit();
+        
+        if (clus < upperlimit && bit >= 1 && bit <= 5) {
+          // As "slope" = 10* slope, rescale clus too to get fraction right.
+          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+          if (cut < mincut) cut = mincut;
+          emisolcuts[bit-1] = cut;
+        }
+    }
+    
+    const std::vector<IsolationParam> & hadIsolParams = caloInfo.isolationHAIsoForEMthr();  
+    for (std::vector<IsolationParam>::const_iterator it = hadIsolParams.begin(); it != hadIsolParams.end(); ++it) {   
+        int offset = (*it).offset();
+        int slope  = (*it).slope();
+        int mincut = (*it).mincut();
+        int upperlimit = (*it).upperlimit()*10;
+        int bit = (*it).isobit();
+        
+        if (clus < upperlimit && bit >= 1 && bit <= 5) {
+          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+          if (cut < mincut) cut = mincut;
+          hadisolcuts[bit-1] = cut;
+        }
+    }
   }
 
   // Set isolation bits
-  for (unsigned int isol = 0; isol < 5; ++isol) 
+  for (unsigned int isol = 0; isol < 5; ++isol) {
     if (emIsol <= emisolcuts[isol] && hadVeto <= hadisolcuts[isol]) m_EMIsolWord += (1 << isol);
+  }
     
 }
 
@@ -310,10 +353,18 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   
   // Does this pass min TOB pT cut?
   // Need to worry about digit scale not being GeV
-  TrigConf::CaloInfo caloInfo = m_configSvc->thresholdConfig()->caloInfo();
-  float scale = caloInfo.globalEmScale();
-  unsigned int thresh = caloInfo.minTobTau().ptmin*scale;
- 
+  float emEnergyScale{1}; 
+  unsigned int tobPtMinTau{0};
+  if( m_l1menu ) {
+    emEnergyScale = m_l1menu->thrExtraInfo().EM().emScale();
+    tobPtMinTau = m_l1menu->thrExtraInfo().TAU().ptMinToTopo();
+  } else {
+    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
+    emEnergyScale = caloInfo.globalEmScale();
+    tobPtMinTau = caloInfo.minTobTau().ptmin;
+  }
+  unsigned int thresh = tobPtMinTau * emEnergyScale;
+
   if (m_TauClus <= thresh) return;
   
   // Passed, so there is a TOB here
@@ -331,28 +382,47 @@ void LVL1::CPMTobAlgorithm::tauAlgorithm() {
   }
                  
   // Convert to 100 MeV units to match parameters
-  int clus    = (( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask ) * 10)/scale;
-  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/scale;
+  int clus    = (( (m_TauClus < clusMask)    ? (m_TauClus & clusMask)    : clusMask ) * 10)/emEnergyScale;
+  int emIsol  = (( (m_EMIsol < emIsolMask)   ? (m_EMIsol  & emIsolMask)  : emIsolMask ) * 10)/emEnergyScale;
   
   // Get isolation values from menu (placeholder code - example logic)
-  std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForTAUthr();
-  std::vector<int> emisolcuts;
-  emisolcuts.assign(5,m_noIsol);
-  
-  for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
-    if ((*it).isDefined()) {
-      float offset = (*it).offset();
-      float slope  = (*it).slope();
-      float mincut = (*it).mincut();
-      // upperlimit is in GeV, so convert to 100 MeV units
-      int upperlimit = (*it).upperlimit()*10;
-      int bit = (*it).isobit();
-      
+  std::vector<int> emisolcuts(5,m_noIsol);
+  if( m_l1menu ) {
+    for(size_t bit = 1; bit<=5; ++bit) {
+      const TrigConf::IsolationLegacy & iso = m_l1menu->thrExtraInfo().TAU().isolation("EMIsoForTAUthr", bit);
+      if(! iso.isDefined() ) {
+        continue;
+      }
+      int offset = iso.offset();
+      int slope  = iso.slope();
+      int mincut = iso.mincut();
+      int upperlimit = iso.upperlimit()*10;
       if (clus < upperlimit && bit >= 1 && bit <= 5) {
-        // slope parameter is 10* actual slope, so correct for that here
+        // As "slope" = 10* slope, rescale clus too to get fraction right.
         int cut = offset + (slope != 0 ? 10*clus/slope : 0);
         if (cut < mincut) cut = mincut;
         emisolcuts[bit-1] = cut;
+      }
+    }
+  } else {
+    const TrigConf::CaloInfo & caloInfo = m_configSvc->thresholdConfig()->caloInfo();
+    std::vector<IsolationParam> emIsolParams  = caloInfo.isolationEMIsoForTAUthr();
+    
+    for (std::vector<IsolationParam>::const_iterator it = emIsolParams.begin(); it != emIsolParams.end(); ++it) {   
+      if ((*it).isDefined()) {
+        float offset = (*it).offset();
+        float slope  = (*it).slope();
+        float mincut = (*it).mincut();
+        // upperlimit is in GeV, so convert to 100 MeV units
+        int upperlimit = (*it).upperlimit()*10;
+        int bit = (*it).isobit();
+        
+        if (clus < upperlimit && bit >= 1 && bit <= 5) {
+          // slope parameter is 10* actual slope, so correct for that here
+          int cut = offset + (slope != 0 ? 10*clus/slope : 0);
+          if (cut < mincut) cut = mincut;
+          emisolcuts[bit-1] = cut;
+        }
       }
     }
   }

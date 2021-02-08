@@ -23,7 +23,8 @@
 
 // McParticleTools includes
 #include "HepMcFloatWriterTool.h"
-
+#include "AtlasHepMC/Flow.h"
+#include "AtlasHepMC/Polarization.h"
 static const char * s_protocolSep = ":";
 
 /////////////////////////////////////////////////////////////////// 
@@ -132,38 +133,48 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
   out.setf(std::ios::dec,std::ios::basefield);
   out.setf(std::ios::scientific,std::ios::floatfield);
 
-  std::vector<long int> random_states = evt->random_states();
 
+#ifdef HEPMC3
+  long evt_vertices_size=evt->vertices().size();
+  std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQCD=evt->attribute<HepMC3::DoubleAttribute>("alphaQCD");
+  double  evt_alphaQCD=(A_alphaQCD?(A_alphaQCD->value()):0.0);
+  std::shared_ptr<HepMC3::DoubleAttribute> A_alphaQED=evt->attribute<HepMC3::DoubleAttribute>("alphaQED");
+  double  evt_alphaQED=(A_alphaQED?(A_alphaQED->value()):0.0);
+  std::shared_ptr<HepMC3::DoubleAttribute> A_event_scale=evt->attribute<HepMC3::DoubleAttribute>("event_scale");
+  double  evt_event_scale=(A_event_scale?(A_event_scale->value()):0.0);
+  std::shared_ptr<HepMC3::VectorLongIntAttribute> A_random_states=evt->attribute<HepMC3::VectorLongIntAttribute>("random_states");
+  std::vector<long int> random_states=(A_random_states?(A_random_states->value()):std::vector<long int>());
+  long random_states_size=random_states.size();
+#else 
+  long evt_vertices_size=evt->vertices_size();
+  double  evt_alphaQCD=evt->alphaQCD();
+  double  evt_alphaQED=evt->alphaQED();
+  double  evt_event_scale=evt->event_scale();
+  std::vector<long int> random_states=evt->random_states();
+  long random_states_size=random_states.size();
+#endif
   out << "# -- GenEvent -->\n";
   out << "#" << evt->event_number() 
-      << " " << evt->event_scale() 
-      << " " << evt->alphaQCD() 
-      << " " << evt->alphaQED()
-      << " " << evt->signal_process_id()
-      << " " << ( evt->signal_process_vertex() ?
-		  evt->signal_process_vertex()->barcode() : 0 )
-      << " " << evt->vertices_size()
-      << " " << random_states.size()
+      << " " << evt_event_scale 
+      << " " << evt_alphaQCD 
+      << " " << evt_alphaQED
+      << " " << HepMC::signal_process_id(evt)
+      << " " << ( HepMC::signal_process_vertex(evt) ? HepMC::barcode(HepMC::signal_process_vertex(evt)) : 0 )
+      << " " << evt_vertices_size
+      << " " << random_states_size
       << "\n";
   out << "#";
-  std::copy( random_states.begin(), random_states.end(),
-	     std::ostream_iterator<long int>(out, " ") );
+  std::copy( random_states.begin(), random_states.end(), std::ostream_iterator<long int>(out, " ") );
   out << evt->weights().size() << "\n";
 
   out << "#";
-  std::copy( evt->weights().begin(), evt->weights().end(),
-	     std::ostream_iterator<double>(out, " ") );
+  std::copy( evt->weights().begin(), evt->weights().end(), std::ostream_iterator<double>(out, " ") );
   out << '\n';
 
   out << "#-- particles --\n";
-  for ( HepMC::GenEvent::particle_const_iterator 
-	  i    = evt->particles_begin(),
-	  iEnd = evt->particles_end();
-	i != iEnd;
-	++i ) {
-    const HepMC::GenParticle * p = *i;
+  for (auto p: *evt) {
     if ( p ) {
-      out << "# " << p->barcode() << " " << p->pdg_id() << "\n";
+      out << "# " << HepMC::barcode(p) << " " << p->pdg_id() << "\n";
       
       const HepMC::FourVector mom = p->momentum();
       std::ostringstream buf;
@@ -179,16 +190,38 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       buf << px << " " << py << " " << pz << " " << e   << " " << m   << "\n";
 
       out << buf.str();
+      auto pol=HepMC::polarization(p);
       out << "# "<< p->status() 
-	  << " " << p->polarization().theta()
-	  << " " << p->polarization().phi()
+	  << " " << pol.theta()
+	  << " " << pol.phi()
 	  << " " << ( p->end_vertex() ? HepMC::barcode(p->end_vertex()) : 0 )
-	  << " " << p->flow() 
+	  << " " << HepMC::flow(p) 
 	  << "\n";
     }
   }
 
   out << "#-- vertices -- \n";
+#ifdef HEPMC3
+  for (auto v: evt->vertices()) {
+    if ( v ) { 
+      out << "# " << HepMC::barcode(v) << " " << v->status() << "\n";
+      const HepMC::FourVector pos = v->position();
+      std::ostringstream buf;
+      buf.precision( std::numeric_limits<float>::digits10 + 1 );
+      buf.setf(std::ios::dec,std::ios::basefield);
+      buf.setf(std::ios::scientific,std::ios::floatfield);
+      
+      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "  << pos.t() << "\n";
+
+      out << buf.str();
+      out << "#";
+      std::string svertexeights("1.0"); 
+      auto vertexeights=v->attribute<HepMC3::VectorDoubleAttribute>("weights");
+      if (vertexeights) vertexeights->to_string(svertexeights);
+      out << svertexeights;
+      out << '\n';
+    }
+#else
   for ( HepMC::GenEvent::vertex_const_iterator 
 	  i    = evt->vertices_begin(),
 	  iEnd = evt->vertices_end();
@@ -204,15 +237,14 @@ StatusCode HepMcFloatWriterTool::write( const HepMC::GenEvent* evt )
       buf.setf(std::ios::dec,std::ios::basefield);
       buf.setf(std::ios::scientific,std::ios::floatfield);
       
-      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "
-	  << pos.t() << "\n";
+      buf << pos.x() << " " << pos.y() << " " << pos.z() << " "  << pos.t() << "\n";
 
       out << buf.str();
       out << "#";
-      std::copy( v->weights().begin(), v->weights().end(),
-		 std::ostream_iterator<double>(out, " ") );
+      std::copy( v->weights().begin(), v->weights().end(), std::ostream_iterator<double>(out, " ") );
       out << '\n';
     }
+#endif
   }
   out << "#<-- GenEvent --\n";
 

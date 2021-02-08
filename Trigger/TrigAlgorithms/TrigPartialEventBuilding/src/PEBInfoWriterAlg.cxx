@@ -91,7 +91,6 @@ StatusCode PEBInfoWriterAlg::execute(const EventContext& eventContext) const {
     // Link to feature. Dummy link here
     ElementLink<DecisionContainer> dummyLink(*decisions, decisions->size()-1, eventContext);
     newd->setObjectLink(featureString(), dummyLink);
-    newd->setObjectLink(roiString(), roiEL);
 
     ATH_MSG_DEBUG("RoI eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
     ATH_MSG_DEBUG("Added RoI, previous decision and dummy feature to new decision " << counter);

@@ -3,6 +3,7 @@
 */
 
 #include "ParticleJetTools/CopyTruthJetParticles.h"
+#include "MCTruthClassifier/MCTruthClassifier.h"
 #include "xAODTruth/TruthVertex.h"
 #include "TruthUtils/PIDHelpers.h"
 
@@ -78,7 +79,7 @@ StatusCode CopyTruthJetParticles::initialize() {
 
 bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int barcodeOffset,
                                              std::vector<const xAOD::TruthParticle*>& promptLeptons,
-                                             std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const {
+                                             std::map<const xAOD::TruthParticle*,unsigned int>& tc_results) const {
 
   // Check if this thing is a candidate to be in a truth jet
   //  First block is largely copied from isGenStable, which works on HepMC only
@@ -101,12 +102,13 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
 
   // Already built a list of prompt leptons, just use it here
   if (!m_includePromptLeptons && std::find(promptLeptons.begin(),promptLeptons.end(),tp)!=promptLeptons.end()){
-    ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt() << " origin " << getPartOrigin( tp, originMap ));
+    ATH_MSG_VERBOSE("Veto prompt lepton (" << pdgid << ") with pt " << tp->pt());
     return false;
   }
 
   // Extra catch.  If we aren't supposed to include prompt leptons, we aren't supposed to include prompt neutrinos
-  if (!m_includePromptLeptons && MCUtils::PID::isNeutrino(pdgid) && isPrompt(tp,originMap)){
+  unsigned int tc_res = getTCresult(tp, tc_results);
+  if (!m_includePromptLeptons && MCUtils::PID::isNeutrino(pdgid) && MCTruthClassifier::isPrompt(tc_res)) {
     return false;
   }
 
@@ -122,7 +124,7 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   if (!m_includeDark && (abs(tp->pdgId()) >= 4.9e6) && (abs(tp->pdgId()) < 5e6)) return false;
   // ----------------------------------- //
 
-  if(!m_includePromptLeptons && abs(pdgid)==22 && ( isPrompt( tp, originMap ) || getPartOrigin( tp, originMap )==FSRPhot ) ) {
+  if(!m_includePromptLeptons && abs(pdgid)==22 && MCTruthClassifier::isPrompt(tc_res)) {
     // Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
     if(m_photonCone>0) {
       for(const auto& lep : promptLeptons) {
@@ -137,10 +139,10 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
     }
   }
 
-  // Exclude prompt photons, particularly those from Higgs decays to start
   if (!m_includePromptPhotons && MC::PID::isPhoton(pdgid) && tp->hasProdVtx()){
-    ParticleOrigin orig = getPartOrigin(tp, originMap);
-    if (orig==Higgs || orig==HiggsMSSM) return false;
+    //ParticleOrigin orig = getPartOrigin(tp, originMap);
+    //if (orig==Higgs || orig==HiggsMSSM) return false;
+    if (MCTruthClassifier::isPrompt(tc_res))  return false;
   }
 
   // If we want to remove photons via the dressing decoration
@@ -166,44 +168,15 @@ bool CopyTruthJetParticles::classifyJetInput(const xAOD::TruthParticle* tp, int 
   return true;
 }
 
-bool CopyTruthJetParticles::isPrompt( const xAOD::TruthParticle* tp,
-                                      std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap ) const
-{
-  ParticleOrigin orig = getPartOrigin(tp, originMap);
-  switch(orig) {
-  case PhotonConv:
-  case DalitzDec:
-  case ElMagProc:
-  case Mu:
-  case TauLep:
-  case LightMeson:
-  case StrangeMeson:
-  case CharmedMeson:
-  case BottomMeson:
-  case CCbarMeson:
-  case JPsi:
-  case BBbarMeson:
-  case LightBaryon:
-  case StrangeBaryon:
-  case CharmedBaryon:
-  case BottomBaryon:
-  case PionDecay:
-  case KaonDecay:
-    return false;
-  default:
-    break;
-  }
-  return true;
-}
 
-MCTruthPartClassifier::ParticleOrigin CopyTruthJetParticles::getPartOrigin(const xAOD::TruthParticle* tp,
-                                                                           std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin>& originMap) const
+unsigned int CopyTruthJetParticles::getTCresult(const xAOD::TruthParticle* tp,
+                                                std::map<const xAOD::TruthParticle*,unsigned int>& tc_results) const
 {
-  if(originMap.find(tp)==originMap.end()) {
-    std::pair<ParticleType, ParticleOrigin> classification = m_classif->particleTruthClassifier( tp );
-    originMap[tp] = classification.second;
+  if(tc_results.find(tp) == tc_results.end()) {
+    const unsigned int result = m_classif->classify( tp );
+    tc_results[tp] = result;
   }
-  return originMap[tp];
+  return tc_results[tp];
 }
 
 int CopyTruthJetParticles::setBarCodeFromMetaDataCheck() const{ 
@@ -300,8 +273,8 @@ int CopyTruthJetParticles::execute() const {
   
   // Classify particles for tagging and add to the TruthParticleContainer
   std::unique_ptr<ConstDataVector<xAOD::TruthParticleContainer> > ptruth(new ConstDataVector<xAOD::TruthParticleContainer>(SG::VIEW_ELEMENTS));
-  std::map<const xAOD::TruthParticle*,MCTruthPartClassifier::ParticleOrigin> originMap;
-  originMap.clear();
+  std::map<const xAOD::TruthParticle*,unsigned int> tc_results;
+  tc_results.clear();
   size_t numCopied = 0;
   const xAOD::TruthEvent* hsevt = truthEvents->front();
   if(!hsevt) {
@@ -319,7 +292,7 @@ int CopyTruthJetParticles::execute() const {
     int pdgid = tp->pdgId();
     if ((abs(pdgid)==11 || abs(pdgid)==13) && tp->hasProdVtx()){
       // If this is a prompt, generator stable lepton, then we can use it
-      if(tp->status()==1 && tp->barcode()<m_barcodeOffset && isPrompt(tp,originMap)){
+      if(tp->status()==1 && tp->barcode()<m_barcodeOffset && MCTruthClassifier::isPrompt(getTCresult(tp, tc_results))) {
         promptLeptons.push_back(tp);
       }
     }
@@ -332,7 +305,7 @@ int CopyTruthJetParticles::execute() const {
         continue;
 
       // Modification: The barcode offset is updated by the call to setBarCodeFromMetaDataCheck
-    if (classifyJetInput(tp, m_barcodeOffset, promptLeptons, originMap)) { 
+    if (classifyJetInput(tp, m_barcodeOffset, promptLeptons, tc_results)) { 
       ptruth->push_back(tp);
       numCopied += 1;
     }

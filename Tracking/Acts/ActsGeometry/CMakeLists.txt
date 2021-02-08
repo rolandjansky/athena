@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( ActsGeometry )
@@ -8,7 +8,7 @@ find_package( Acts COMPONENTS Core PluginJson )
 find_package( Boost )
 find_package( CLHEP )
 find_package( Geant4 )
-find_package( GeoModelCore )
+find_package( GeoModel COMPONENTS GeoModelKernel )
 find_package( ROOT COMPONENTS Core Tree RIO )
 find_package( TBB )
 
@@ -67,8 +67,8 @@ atlas_add_component( ActsGeometry
                      src/ActsGeantFollowerHelper.cxx
                      src/ActsGeantFollowerTool.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODELCORE_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODELCORE_LIBRARIES} ${ROOT_LIBRARIES}
+                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${GEOMODEL_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} ${GEOMODEL_LIBRARIES} ${ROOT_LIBRARIES}
                      ActsGeometryInterfacesLib
                      ActsGeometryLib
                      ActsInteropLib

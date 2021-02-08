@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauMonitorAlgorithm.h"
@@ -111,7 +111,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
   if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
 
-  for(const auto& Tau : *offTaus ){
+  for(const auto Tau : *offTaus ){
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
 
@@ -148,6 +148,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_mp; // offline mp taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_1p; // online 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_mp; // online mp taus used for studying HLT performance
+  std::vector<const xAOD::TauJet*> online_tau_vec_all; // online hlt taus used for HLT efficiency studies
 
   const TrigInfo info = getTrigInfo(trigger);
 
@@ -192,6 +193,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     int nTracks=-1;
     feat->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     ATH_MSG_DEBUG("NTracks Online: " << nTracks);
+    online_tau_vec_all.push_back(feat);
     if(nTracks==1){
       online_tau_vec_1p.push_back(feat);
     }else if(nTracks>1){
@@ -225,13 +227,14 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
      }         
   }
 
-  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_1p, "1P");
-  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_mp, "MP");
+  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
+  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_all, "MP");
 
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_mp.clear();
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
+  online_tau_vec_all.clear();
 }
 
 void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger,  const std::string trigL1Item, float L1thr) const

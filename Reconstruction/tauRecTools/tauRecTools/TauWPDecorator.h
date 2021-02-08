@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUWPDECORATOR_H
-#define TAUREC_TAUWPDECORATOR_H
+#ifndef TAURECTOOLS_TAUWPDECORATOR_H
+#define TAURECTOOLS_TAUWPDECORATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -110,4 +110,4 @@ class TauWPDecorator : public TauRecToolBase {
     std::map<int, double> m_yMax; //!< Map of n-prong and the maximum value of y variables
 };
 
-#endif
+#endif // TAURECTOOLS_TAUWPDECORATOR_H

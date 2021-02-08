@@ -31,7 +31,7 @@ ciRefFileMap = {
                 # OverlayTier0Test_required-test
                 'overlay-d1498-21.0'   : 'v2',
                 'overlay-d1498-22.0'   : 'v38',
-                'overlay-d1592-22.0'   : 'v5',
+                'overlay-d1592-22.0'   : 'v6',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v4',
                 'dataoverlay-d1590-22.0' : 'v8',

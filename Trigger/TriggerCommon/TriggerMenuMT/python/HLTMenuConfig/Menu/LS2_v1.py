@@ -14,8 +14,7 @@ import TriggerMenuMT.HLTMenuConfig.Menu.MC_pp_run3_v1 as mc_menu
 import TriggerMenuMT.HLTMenuConfig.Menu.PhysicsP1_pp_run3_v1 as p1_menu
 
 # this is not the best option, due to flake violation, this list has to be changed when some groups are removed
-from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,EgammaJetGroup,EgammaMETGroup,EgammaTauGroup,TauMETGroup
-
+from TriggerMenuMT.HLTMenuConfig.Menu.Physics_pp_run3_v1 import PhysicsStream,SingleMuonGroup,MultiMuonGroup,SingleElectronGroup,MultiElectronGroup,SinglePhotonGroup,MultiPhotonGroup,SingleMETGroup,MultiMETGroup,SingleJetGroup,MultiJetGroup,SingleBjetGroup,SingleTauGroup,MultiTauGroup,BphysicsGroup,EgammaMuonGroup,MuonJetGroup,MuonMETGroup,EgammaJetGroup,EgammaMETGroup,EgammaTauGroup,TauMETGroup,MinBiasGroup
 
 def setupMenu():
 
@@ -204,13 +203,13 @@ def setupMenu():
         # 3photon chains
         ChainProp(name='HLT_2g25_loose_g15_loose_L12EM20VH', groups=MultiPhotonGroup),
 
-        # ATR-21355
-        ChainProp(name='HLT_g3_loose_LArPEB_L1EM3',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g12_loose_LArPEB_L1EM10VH',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g20_loose_LArPEB_L1EM15',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g40_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g60_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
-        ChainProp(name='HLT_g80_loose_LArPEB_L1EM20VHI',stream=['LArCells'], groups=SinglePhotonGroup),
+        # ATR-21355 - cannot be moved to the calibSlice because they need to configure the photon/ sequence
+        ChainProp(name='HLT_g3_loose_LArPEBHLT_L1EM3',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g12_loose_LArPEBHLT_L1EM10VH',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g20_loose_LArPEBHLT_L1EM15',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g40_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g60_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
+        ChainProp(name='HLT_g80_loose_LArPEBHLT_L1EM20VHI',stream=['LArCells'], groups=['PS:Online',SinglePhotonGroup]),
 
         # for moving to PhysicsP1, ATR-21242
         ChainProp(name='HLT_g140_etcut_L1EM22VHI', groups=SinglePhotonGroup),
@@ -302,6 +301,8 @@ def setupMenu():
         ChainProp(name='HLT_j0_aggSEP1000htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
         ChainProp(name='HLT_j0_aggSEP500htSEP30etSEP0eta320_L1J20', groups=SingleJetGroup),
 
+        ChainProp(name='HLT_j0_dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass_L1J20', groups=SingleJetGroup),
+        ChainProp(name='HLT_j0_dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi_L1J20', groups=SingleJetGroup),
 
         ChainProp(name='HLT_j85_ftf_prefilterSEP300ceta210SEP300nphi10_L1J20',
                   groups=SingleJetGroup),
@@ -311,6 +312,14 @@ def setupMenu():
 
         # ATR-20624
         ChainProp(name='HLT_j0_perf_L1J12_EMPTY', stream=['Main'], groups=['PS:Online',SingleJetGroup]),
+
+        # ATR-21368 - cannot be moved to the calibSlice because they need to configure the jet sequence
+        ChainProp(name='HLT_j40_LArPEBHLT_L1J20',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j75_320eta490_LArPEBHLT_L1J30_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j140_320eta490_LArPEBHLT_L1J75_31ETA49',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+        ChainProp(name='HLT_j165_LArPEBHLT_L1J100',stream=['LArCells'], groups=['PS:Online',SingleJetGroup]),
+
+
 
         # TLA test chain, ATR-20395 
         ChainProp(name='HLT_JetDS_j0_L1J100', stream=['JetDS'], groups=SingleJetGroup), 
@@ -559,6 +568,7 @@ def setupMenu():
         ChainProp(name='HLT_beamspot_allTE_trkfast_BeamSpotPEB_L1J15',  l1SeedThresholds=['FSNOSEED'], stream=['BeamSpot'], groups=['PS:Online', 'RATE:BeamSpot',  'BW:BeamSpot']),
     ]
     TriggerFlags.MinBiasSlice.signatures   = TriggerFlags.MinBiasSlice.signatures() + [
+        ChainProp(name="HLT_mb_mbts_L1MBTS_1_EMPTY", l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup+['PS:Online']) #TODO - need item in FILLED BC item
         # ChainProp(name='HLT_mb_sp400_trk40_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
         # ChainProp(name='HLT_mb_sp600_trk45_hmt_L1RD0_FILLED',        l1SeedThresholds=['FSNOSEED'], stream=[PhysicsStream], groups=MinBiasGroup),
     ]

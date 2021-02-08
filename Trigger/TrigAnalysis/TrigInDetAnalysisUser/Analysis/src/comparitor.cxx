@@ -274,7 +274,7 @@ int usage(const std::string& name, int status, const std::string& err_msg="" ) {
   s << "    -l,  --labels        values\t use specified labels for key\n";
   s << "         --taglabels     values\t use specified additional labels \n";
   s << "    -al, --atlaslable    value \t set value for atlas label\n";
-  s << "    -sx, --swapaxtitles  pattern regex \t swap \"pattern\" in the axis titles with \"regex\"\n";
+  s << "    -sx, --swapaxtitles  exp pattern\t swap the expression \"exp \" in the axis titles with \"pattern\"\n";
   s << "    -ac, --addchains           \t if possible, add chain names histogram labels \n\n";   
 
   s << "    -m,  --mapfile            \t remap file for reference histograms \n\n";   

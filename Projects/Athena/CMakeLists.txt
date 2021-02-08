@@ -52,7 +52,7 @@ set( ATLAS_FLAKE8 flake8_atlas --select ATL,F,E101,E7,E9,W6
                                --ignore ATL238,ATL9,E701,E702,E704,E741
                                --enable-extensions ATL902
    CACHE STRING "Default flake8 command" )
-set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8} --filterFiles AthenaConfiguration
+set( ATLAS_PYTHON_CHECKER ${ATLAS_FLAKE8}
    CACHE STRING "Python checker command to run during Python module compilation" )
 
 # Find the ATLAS CMake code:

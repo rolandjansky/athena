@@ -1,9 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TrigT2MinBias.TrigT2MinBiasConf import MbtsFexMT
 from TrigT2MinBias.TrigT2MinBiasMonitoringMT import MbtsFexMTMonitoring
 
-class MbtsFexMT( MbtsFexMT ):
-    __slots__ = []
-    def __init__ (self, name ):
-        super(MbtsFexMT, self).__init__(name)
-        self.monTool += [ MbtsFexMTMonitoring()]
+
+def MbtsFexMTCfg(flags=None, name="MbtsFex", **kwargs):
+    alg = MbtsFexMT(name, **kwargs)
+    alg.MonTool =  MbtsFexMTMonitoring()
+    from TrigT2CaloCommon.TrigCaloDataAccessConfig import CaloDataAccessSvcDependencies
+    alg.ExtraInputs = CaloDataAccessSvcDependencies
+    return alg
+
+

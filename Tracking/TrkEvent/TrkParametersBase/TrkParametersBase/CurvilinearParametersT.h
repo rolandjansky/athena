@@ -118,6 +118,9 @@ public:
   /** Virtual clone */
   virtual CurvilinearParametersT<DIM, T, S>* clone() const override final;
   
+  /** Virtual clone returning unique_ptr*/
+  std::unique_ptr<CurvilinearParametersT<DIM, T, S>> uniqueClone() const;
+  
 
   /** Return the ParametersType enum */
   virtual ParametersType type() const override final;

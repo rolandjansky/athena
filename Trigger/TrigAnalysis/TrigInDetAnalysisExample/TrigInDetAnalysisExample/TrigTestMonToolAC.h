@@ -145,6 +145,8 @@ public:
   bool m_filter_on_roi;
 
   bool m_legacy;
+
+  double m_fiducial_radius;
 };
 
 

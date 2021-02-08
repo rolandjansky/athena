@@ -43,8 +43,9 @@ def getOverallL1item(chainName):
         # During the transition period to the new menu format it is important to pick the correct kind based
         # on the temporary TriggerFlag readLVL1FromJSON.
         from TriggerJobOpts.TriggerFlags import TriggerFlags
-        if TriggerFlags.readLVL1FromJSON():
-            lvl1name = getL1MenuFileName()
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        if ConfigFlags.Trigger.readLVL1FromJSON:
+            lvl1name = getL1MenuFileName(ConfigFlags)
             lvl1access = L1MenuAccess(lvl1name)
             itemsDict = lvl1access.items(includeKeys = ['name','ctpid','triggerType'])
         else:

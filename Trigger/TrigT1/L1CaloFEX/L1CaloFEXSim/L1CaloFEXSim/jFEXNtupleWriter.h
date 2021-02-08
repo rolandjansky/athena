@@ -59,20 +59,18 @@ private:
   std::vector<float> m_smallRJetTOB_phi;
   std::vector<float> m_smallRJetTOB_ET;
 
+  std::vector<float> m_largeRJet_ET;
+  std::vector<float> m_largeRJet_nTOBs;  
+  std::vector<float> m_largeRJetTOB_eta;
+  std::vector<float> m_largeRJetTOB_phi;
+  std::vector<float> m_largeRJetTOB_ET;
 
-
- 
-/*
-  std::vector<float> m_tau_Iso;
-  std::vector<float> m_tau_Et;
-  std::vector<float> m_tau_isCentralTowerSeed;
-*/
 //std::string m_jet_container_name = "AntiKt10TruthJets";
 
   TTree *m_myTree;
  
   StatusCode loadsmallRJetAlgoVariables();
-//  StatusCode loadtauAlgoVariables();
+  StatusCode loadlargeRJetAlgoVariables();
 //  StatusCode loadTruthElectron();
 //  StatusCode loadTruthJets();
 //  StatusCode loadTruthTau();

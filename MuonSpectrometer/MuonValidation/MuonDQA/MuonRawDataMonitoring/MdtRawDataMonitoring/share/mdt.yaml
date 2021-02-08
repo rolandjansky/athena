@@ -1,0 +1,19 @@
+# Separate blocks with ---
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/MDT(?P<id0>[^/]*)/Chambers/(?P<id>.......)/(?P=id)_MDT_Station_TUBE_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/TotalNumber_of_MDT_hits_per_event_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInBarrelPerChamber_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RawHitsPerChamber/HitsPerEvtInEndCapPerChamber_ADCCut']
+Function: MdtRawDataMonitoring.MDTPostProcessing.make_hits_per_evt
+Description: HitPerEvtPerChamber
+
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInBarrelPerChamber_ADCCut','Muon/MuonRawDataMonitoring/MDT/Overview/NumberOfHitsInEndCapPerChamber_ADCCut']
+Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
+Description: BoxesAndLines
+
+---
+Input : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Output : ['Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInBarrelPerChamber_onSegms_ADCCut', 'Muon/MuonRawDataMonitoring/MDT/Overview/Expert/RecoMonitoring/NumberOfHitsInEndCapPerChamber_onSegms_ADCCut']
+Function: MdtRawDataMonitoring.MDTPostProcessing.MdtGlobalBox
+Description: BoxesAndLines
+

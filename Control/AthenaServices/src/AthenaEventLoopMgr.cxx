@@ -183,7 +183,7 @@ StatusCode AthenaEventLoopMgr::initialize()
   const std::string& histPersName(m_histPersName.value());
   if ( histPersName.length() == 0 )    
   {
-    setProperty(prpMgr->getProperty("HistogramPersistency")).ignore();
+    CHECK(setProperty(prpMgr->getProperty("HistogramPersistency")));
   }
 
   if ( histPersName != "NONE" )   {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /*
@@ -253,14 +253,14 @@ double TrackTools::getPathInsideCell(const TRACK *track, const CaloCell *cell){
       default: return 0.;
   } // SWITCH
 
-  const Trk::TrackParameters* pars_entrance =
-    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_entrance).get();
-  const Trk::TrackParameters* pars_exit =
-    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_exit).get();
+  std::unique_ptr<const Trk::TrackParameters> pars_entrance =
+    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_entrance);
+  std::unique_ptr<const Trk::TrackParameters> pars_exit =
+    getTrackInCellSampling(track, (CaloSampling::CaloSample)sampling_exit);
 
   if( !pars_entrance || !pars_exit ) return 0.;
 
-  return getPath(cell, pars_entrance, pars_exit);
+  return getPath(cell, pars_entrance.get(), pars_exit.get());
 } // TrackTools::getPathInsideCell
 
 //=====================================================================================================================================

@@ -21,6 +21,10 @@ __all__    = [ "vertexFinder_builder", "makeVertices" ]
 #TODO inputTrackCollection is obsolete, remove in the next MR iteration
 def makeVertices( whichSignature, inputTrackCollection, outputVtxCollection, config, adaptiveVertexing=False ) :
 
+    from TrigInDetConfig.ConfigSettings import getInDetTrigConfig
+
+    adaptiveVertexing = getInDetTrigConfig( whichSignature ).adaptiveVertex 
+
     return vertexFinder_builder( signature         = whichSignature, 
                                  inputTracks       = config.FT.tracksFTF(),
                                  outputVertices    = outputVtxCollection,
@@ -294,20 +298,23 @@ def adaptiveMultiVertexFinderTool_builder( signature ) :
     vtxcuts = ConfiguredTrigVtxCuts() 
     vtxcuts.printInfo()
 
-    
     # now create the five sub tools needed ...
     linearTrackFactory     =            linearTrackFactory_builder( signature, extrapolator )
     impactEstimator        =               impactEstimator_builder( signature, extrapolator )
     vertexFitterTool       =      adaptiveVertexFitterTool_builder( signature, linearTrackFactory, extrapolator,impactEstimator )
     trackSelectorTool      =             trackSelectorTool_builder( signature, trackSummaryTool, extrapolator, vtxcuts )
-    seedFinder             = adaptiveMultiVertexSeedFinder_builder( signature, doVtx3DFinding)
-    
+    seedFinder             =        trackDensitySeedFinder_builder( signature )
+    # leave this here, but commented for the time being while we investigate ...
+    # seedFinder           = adaptiveMultiVertexSeedFinder_builder( signature, doVtx3DFinding)
+
+
     # now create the actual vertex finder tool ...
     # this is the main part of the actual working part of the code - 
     # the vertoces are found by this class, in this instance it includes
     # a beam line constraint - it we want this to allow this constrain 
     # to be disabled we can add a flag and some additional logic 
     from InDetPriVxFinderTool.InDetPriVxFinderToolConf import InDet__InDetAdaptiveMultiPriVxFinderTool
+
     vertexFinderTool = InDet__InDetAdaptiveMultiPriVxFinderTool(name              = "InDetTrigAdaptiveMultiPriVxFinderTool" + signature,
                                                                         SeedFinder        = seedFinder,
                                                                         VertexFitterTool  = vertexFitterTool,

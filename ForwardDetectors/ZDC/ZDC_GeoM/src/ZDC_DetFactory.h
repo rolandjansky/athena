@@ -6,7 +6,7 @@
 #define ZDC_DETFACTORY_H
 
 #include "GeoModelKernel/GeoVDetectorFactory.h"
-#include "ZDC_GeoM/ZDC_DetManager.h"
+#include "ZDC_DetManager.h"
 #include "AthenaKernel/MsgStreamMember.h"
 
 class StoreGateSvc;

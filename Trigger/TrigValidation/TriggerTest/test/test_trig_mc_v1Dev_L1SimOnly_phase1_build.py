@@ -33,5 +33,12 @@ test.check_steps = CheckSteps.default_check_steps(test)
 # Skip ZeroCounts check because empty menu has no counts
 test.check_steps.remove(test.get_step("ZeroCounts"))
 
+chaindump = test.get_step("ChainDump")
+chaindump.args = '--json --yaml ref_mc_v1Dev_L1SimOnly_phase1_build.new --yamlL1'
+
+refcomp = CheckSteps.ChainCompStep("CountRefComp")
+refcomp.input_file = 'ref_mc_v1Dev_L1SimOnly_phase1_build.new'
+CheckSteps.add_step_after_type(test.check_steps, CheckSteps.ChainDumpStep, refcomp)
+
 import sys
 sys.exit(test.run())

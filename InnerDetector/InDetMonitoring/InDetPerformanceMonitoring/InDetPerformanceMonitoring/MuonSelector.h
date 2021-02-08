@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+ * Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 
 #ifndef IDPERFMON_MUONSELECTOR_H
@@ -85,7 +85,6 @@ class MuonSelector : public EventAnalysis
 
   bool  m_bCutOnCombKine;
   float m_fEtaCut;
-  float m_fPtCut;
 
   double m_combPtCut;
   float m_ptMSCut;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCOMBINEDALGS_MUONCREATORALG_H
@@ -64,7 +64,7 @@ class MuonCreatorAlg : public AthAlgorithm
   Gaudi::Property<bool> m_buildSlowMuon{this, "BuildSlowMuon", false};
   Gaudi::Property<bool> m_doSA{this, "CreateSAmuons", false};
   Gaudi::Property<bool> m_makeClusters{this, "MakeClusters", true};
-  bool m_copySegs;
+  Gaudi::Property<bool> m_copySegs{this, "CopySegments", true};
 
   // Monitoring tool
   ToolHandle< GenericMonitoringTool > m_monTool { this, "MonTool", "", "Monitoring tool" };

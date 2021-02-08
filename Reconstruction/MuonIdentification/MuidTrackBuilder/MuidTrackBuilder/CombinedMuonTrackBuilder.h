@@ -128,7 +128,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     Trk::Track* createExtrapolatedTrack(const Trk::Track& spectrometerTrack, const Trk::TrackParameters& parameters,
                                         Trk::ParticleHypothesis particleHypothesis, Trk::RunOutlierRemoval runOutlier,
-                                        const std::vector<const Trk::TrackStateOnSurface*>& trackStateOnSurfaces,
+                                        const std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>& trackStateOnSurfaces,
                                         const Trk::RecVertex* vertex, const Trk::RecVertex* mbeamAxis,
                                         const Trk::PerigeeSurface* mperigeeSurface,
                                         const Trk::Perigee*        seedParameter = nullptr) const;
@@ -144,7 +144,9 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
 
     const Trk::TrackStateOnSurface* createPhiPseudoMeasurement(const Trk::Track& track) const;
 
-    std::vector<const Trk::TrackStateOnSurface*>* createSpectrometerTSOS(const Trk::Track& spectrometerTrack) const;
+    
+    std::unique_ptr<std::vector<std::unique_ptr<const Trk::TrackStateOnSurface>>> 
+                                    createSpectrometerTSOS(const Trk::Track& spectrometerTrack) const;
 
     const Trk::TrackStateOnSurface* entrancePerigee(const Trk::TrackParameters* parameters) const;
 
@@ -153,7 +155,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
                                                        const Trk::RecVertex*      mvertex,
                                                        const Trk::PerigeeSurface* mperigeeSurface) const;
 
-    void        finalTrackBuild(Trk::Track*& track) const;
+    void        finalTrackBuild(std::unique_ptr<Trk::Track>& track) const;
     Trk::Track* interfaceNotImplemented() const;
 
     void momentumUpdate(const Trk::TrackParameters*& parameters, double updatedP, bool directionUpdate = false,
@@ -162,7 +164,7 @@ class CombinedMuonTrackBuilder : public AthAlgTool, virtual public ICombinedMuon
     double            normalizedChi2(const Trk::Track& track) const;
     const Trk::Track* reallocateMaterial(const Trk::Track& spectrometerTrack) const;
     void              replaceCaloEnergy(const CaloEnergy* caloEnergy, Trk::Track* track) const;
-    void              removeSpectrometerMaterial(Trk::Track*& track) const;
+    void              removeSpectrometerMaterial(std::unique_ptr<Trk::Track>& track) const;
 
     Trk::Track* trackCleaner(Trk::Track* combinedTrack, const Trk::Track* indetTrack,
                              const Trk::Track& muonTrack) const;
