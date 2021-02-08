@@ -2,13 +2,14 @@
 #
 # art-description: RecoTrf
 # art-type: grid
+# art-include: master/Athena                                                                                                                           
 
 Reco_tf.py \
 --AMI=q221 \
 --athenaopts='--threads=1' \
 --preExec="all:from IOVDbSvc.CondDB import conddb; conddb.addOverride('/PIXEL/PixMapOverlay','PixMapOverlay-SIM-MC16-000-03');" \
 --maxEvents=100 \
---outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --imf False
+--outputRDOFile=myRDO.pool.root --outputAODFile=myAOD.pool.root --outputESDFile=myESD.pool.root --outputHISTFile=myHIST.root --imf False
 
 echo "art-result: $? Reco"
 
