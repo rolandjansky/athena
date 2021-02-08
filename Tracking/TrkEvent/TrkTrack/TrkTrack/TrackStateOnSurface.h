@@ -18,6 +18,7 @@ email                : edward.moyse@cern.ch
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkParameters/TrackParameters.h"
 #include "CxxUtils/checker_macros.h"
+#include <memory>
 
 class MsgStream;
 class TrackCollectionCnv;
@@ -177,10 +178,18 @@ namespace Trk
              */
             TrackStateOnSurface(
                 const MeasurementBase          *meas,
-                const TrackParameters          *trackParameter,
+                const TrackParameters          *trackParameters,
                 const FitQualityOnSurface      *fitQoS,
                 const MaterialEffectsBase      *materialEffects = nullptr,
                 const AlignmentEffectsOnTrack  *alignmentEffectsOnTrack = nullptr
+                );
+                
+            TrackStateOnSurface(
+                const MeasurementBase          *meas,
+                std::unique_ptr<TrackParameters> trackParameters,
+                const FitQualityOnSurface      *fitQoS,
+                const MaterialEffectsBase      *materialEffects = nullptr,
+                const AlignmentEffectsOnTrack       *alignmentEffectsOnTrack = nullptr
                 );
 
             /**
@@ -210,12 +219,23 @@ namespace Trk
              */
             explicit TrackStateOnSurface(
                 const MeasurementBase           *meas,
-                const TrackParameters           *trackParameter,
+                const TrackParameters           *trackParameters,
                 const FitQualityOnSurface       *fitQoS,
                 const MaterialEffectsBase       *materialEffectsOnTrack,
                 const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& typePattern,
                 const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=nullptr /// @todo remove =0 at some point
                 );
+                
+            explicit TrackStateOnSurface(
+                const MeasurementBase           *meas,
+                std::unique_ptr<TrackParameters> trackParameters,
+                const FitQualityOnSurface       *fitQoS,
+                const MaterialEffectsBase       *materialEffectsOnTrack,
+                const std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes>& typePattern,
+                const AlignmentEffectsOnTrack    *alignmentEffectsOnTrack=nullptr /// @todo remove =0 at some point
+                );
+                
+            
 
             /**
              * constructor without a FitQualityOnSurface. Both the objects passed now
@@ -228,6 +248,10 @@ namespace Trk
             TrackStateOnSurface(
                 const MeasurementBase* meas,
                 const TrackParameters* trackParameters
+                );
+            TrackStateOnSurface(
+                const MeasurementBase* meas,
+                std::unique_ptr<TrackParameters> trackParameters
                 );
     
             /**
@@ -270,7 +294,7 @@ namespace Trk
              */
             bool type( const TrackStateOnSurfaceType& type ) const;
 
-            /** Use this method to find if this is a Signle,Multi or Align
+            /** Use this method to find if this is a Single, Multi or Align
              * TrackStateOnsurface
              */
             virtual Trk::TrackStateOnSurface::Variety variety() const;
@@ -317,12 +341,12 @@ namespace Trk
             /** set sensible default flags*/
             void setFlags();
            
-            const FitQualityOnSurface      *m_fitQualityOnSurface;
-            const TrackParameters          *m_trackParameters;
-            const MeasurementBase          *m_measurementOnTrack;
-            const MaterialEffectsBase      *m_materialEffectsOnTrack;
-            const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack;
-            std::bitset<NumberOfTrackStateOnSurfaceTypes> m_typeFlags;
+            const FitQualityOnSurface      *m_fitQualityOnSurface{};
+            std::unique_ptr<const TrackParameters>  m_trackParameters{};
+            const MeasurementBase          *m_measurementOnTrack{};
+            const MaterialEffectsBase      *m_materialEffectsOnTrack{};
+            const AlignmentEffectsOnTrack  *m_alignmentEffectsOnTrack{};
+            std::bitset<NumberOfTrackStateOnSurfaceTypes> m_typeFlags{};
     };
 
     /**Overload of << operator for MsgStream for debug output*/ 
