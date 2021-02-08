@@ -18,7 +18,6 @@ args = parser.parse_args()
 infilename = args.infile
 
 outdir = "/eos/user/m/miokeefe/ZcountingPlots/FullRun2/"
-#outdir = "~/public/Zcounting/Plots/"
 
 if "data15" in infilename: 
     year = "15"
@@ -32,35 +31,34 @@ elif "data18" in infilename:
 
 def main():
     dfz = pd.read_csv(infilename, delimiter=',')
+    run_number = str(int(dfz.RunNum[0]))
+    lhc_fill   = str(int(dfz.FillNum[0]))
+    
+    # Drop LBs with no Z-counting information
+    dfz = dfz.drop(dfz[(dfz.ZeeLumi == 0) | (dfz.ZmumuLumi == 0)].index)
+     
+    # Scale by livetime
+    for entry in ['ZeeLumi','ZmumuLumi','ZeeLumiErr','ZmumuLumiErr','OffLumi']:  
+        dfz[entry] *= dfz['LBLive']
+
+    # Square uncertainties
+    dfz['ZeeLumiErr'] *= dfz['ZeeLumiErr']
+    dfz['ZmumuLumiErr'] *= dfz['ZmumuLumiErr']
+
+    # Merge by groups of 20 LBs or pileup bins
+    if args.usemu:
+        dfz['OffMu'] = dfz['OffMu'].astype(int)
+        dfz = dfz.groupby(['OffMu']).sum()
+    else: 
+        dfz['LBNum'] = (dfz['LBNum']//20)*20
+        dfz = dfz.groupby(['LBNum']).sum()
+    
+    dfz['ZeeLumiErr']   = np.sqrt(dfz['ZeeLumiErr'])
+    dfz['ZmumuLumiErr'] = np.sqrt(dfz['ZmumuLumiErr'])
+
+
+    print("Making Z-counting vs. ATLAS plots!")
     for channel in ['Zee', 'Zmumu']: 
-        dfz_small = dfz
-        dfz_small['ZLumi'] = dfz_small[channel + 'Lumi']
-        dfz_small['ZLumiErr'] = dfz_small[channel + 'LumiErr']
-        dfz_small = dfz_small.drop(dfz_small[dfz_small.ZLumi == 0].index)
-
-        livetime = {}
-        zlumi    = {}
-        zerr     = {}
-        olumi    = {}
-        for index, event in dfz_small.iterrows():
-            run_number = str(int(event.RunNum))
-            lhc_fill   = str(int(event.FillNum))
-            if args.usemu:
-                pileup = int(event.OffMu)
-            else: 
-                pileup = (event.LBNum//20)*20
-
-            if pileup not in olumi:
-                zlumi[pileup] = event.ZLumi*event.LBLive
-                zerr[pileup]  = pow(event.ZLumiErr*event.LBLive, 2)
-                olumi[pileup] = event.OffLumi*event.LBLive
-                livetime[pileup] = event.LBLive
-            else:
-                zlumi[pileup] += event.ZLumi*event.LBLive
-                zerr[pileup]  += pow(event.ZLumiErr*event.LBLive, 2)
-                olumi[pileup] += event.OffLumi*event.LBLive
-                livetime[pileup] += event.LBLive
-        
         if channel == "Zee": 
             channel_string = "Z #rightarrow ee counting"
             lep = "e"
@@ -79,20 +77,13 @@ def main():
             outfile = outdir + "data"+year+"_"+run_number+"_"+channel+"_vs_atlas"
 
 
-        normalisation = sum(zlumi.values())/sum(olumi.values())
-        arr_zlumi     = array('d')
-        arr_zlumi_err = array('d')
-        arr_olumi     = array('d')
-        arr_rat       = array('d')
-        arr_rat_err   = array('d')
-        arr_bins      = array('d')
-        for key in sorted(zlumi.keys()): 
-            arr_bins.append(key)
-            arr_olumi.append(olumi[key]/livetime[key])
-            arr_zlumi.append(zlumi[key]/livetime[key]/normalisation)
-            arr_zlumi_err.append(math.sqrt(zerr[key])/livetime[key]/normalisation)
-            arr_rat.append(zlumi[key]/olumi[key]/normalisation)
-            arr_rat_err.append(math.sqrt(zerr[key])/olumi[key]/normalisation)
+        normalisation = dfz[channel+'Lumi'].sum() / dfz['OffLumi'].sum()
+        arr_bins      = array('d', dfz.index)
+        arr_zlumi     = array('d', dfz[channel+'Lumi'] / dfz['LBLive'] / normalisation)
+        arr_zlumi_err = array('d', np.sqrt(dfz[channel+'LumiErr']) / dfz['LBLive'] / normalisation)
+        arr_rat       = array('d', dfz[channel+'Lumi'] / dfz['OffLumi'] / normalisation)
+        arr_rat_err   = array('d', np.sqrt(dfz[channel+'LumiErr']) / dfz['OffLumi'] / normalisation)
+        arr_olumi     = array('d', dfz['OffLumi'] / dfz['LBLive'])
 
         hz = R.TGraphErrors(len(arr_bins), arr_bins, arr_zlumi, R.nullptr, arr_zlumi_err)
         ho = R.TGraphErrors(len(arr_bins), arr_bins, arr_olumi, R.nullptr, R.nullptr)
@@ -140,7 +131,7 @@ def main():
         pad2.Draw()
         pad2.cd()
 
-        hr.Draw("ap")
+        hr.Draw("ap0")
         hr.GetXaxis().SetTitleSize(0.05)
         hr.GetXaxis().SetTitleOffset(0.865)
         hr.GetYaxis().SetTitle("Ratio")
@@ -175,9 +166,84 @@ def main():
         print("channel =", channel, "run =", run_number, "mean = ", mean, "stdev =", stdev)
         line4 = pt.make_bands(arr_bins, stdev, mean)
         line4.Draw("same 3")
-        hr.Draw("same ep")
+        hr.Draw("same ep0")
+    
+        arrow = {}
+        for xbin in range(1, hr.GetXaxis().GetNbins()+1):
+            ratio = hr.GetPointY(xbin)
+            mid = hr.GetPointX(xbin)
+            if mid == -1: 
+                continue
+
+            if ratio > 1.10: 
+                arrow[xbin] = R.TArrow(mid, 1.025, mid, 1.03, 0.02, "|>")
+                arrow[xbin].SetLineWidth(2)
+                arrow[xbin].SetLineColor(R.kRed)
+                arrow[xbin].SetFillColor(R.kRed)
+                arrow[xbin].Draw("same")
+            elif ratio < 0.90: 
+                arrow[xbin] = R.TArrow(mid, 0.975, mid, 0.97, 0.02, "|>")
+                arrow[xbin].SetLineWidth(2)
+                arrow[xbin].SetLineColor(R.kRed)
+                arrow[xbin].SetFillColor(R.kRed)
+                arrow[xbin].Draw("same")
           
         c1.SaveAs(outfile + ".pdf")
+
+    if args.usemu:
+        return
+   
+    # Zee / Zmumu comparison
+    print("Doing channel comparison!")
+    arr_bins      = array('d', dfz.index)
+    arr_rat       = array('d', dfz['ZeeLumi'] / dfz['ZmumuLumi'])
+    arr_rat_err   = array('d', (dfz['ZeeLumi'] / dfz['ZmumuLumi']) * np.sqrt(pow(dfz['ZeeLumiErr']/dfz['ZeeLumi'], 2) + pow(dfz['ZmumuLumiErr']/dfz['ZmumuLumi'], 2)))
+
+    c1 = R.TCanvas()
+    gr = R.TGraphErrors(len(arr_rat), arr_bins, arr_rat, R.nullptr, arr_rat_err)
+    gr.Draw("ap")
+    gr.GetXaxis().SetTitle("Luminosity Block")
+    gr.GetYaxis().SetTitle("L_{Z #rightarrow ee} / L_{Z #rightarrow #mu#mu}")
+    if year == "15": 
+        gr.GetYaxis().SetRangeUser(0.6, 1.4)
+    else: 
+        gr.GetYaxis().SetRangeUser(0.8, 1.2)
+    gr.Fit("pol0", "0")
+    gr.GetFunction("pol0").SetLineColor(R.kRed)
+   
+    mean = gr.GetFunction("pol0").GetParameter(0)
+    stdev = np.percentile(abs(arr_rat - np.median(arr_rat)), 68)
+    print("####")
+    print("stdev =", stdev)
+    print("####")
+    line1 = pt.make_bands(arr_bins, stdev, mean)
+    line1.Draw("same 3")
+    gr.GetFunction("pol0").Draw("same l")
+    gr.Draw("same ep")
+
+    latex = R.TLatex()
+    R.ATLASLabel(0.2, 0.86, "Internal")
+    latex.DrawLatexNDC(0.2, 0.80, "Data 20" +year+ ", #sqrt{s} = 13 TeV")
+    latex.DrawLatexNDC(0.2, 0.74, "LHC Fill " + lhc_fill)
+
+    chi2 = gr.GetFunction('pol0').GetChisquare()
+    ndf  = gr.GetFunction('pol0').GetNDF()
+    print "####"
+    print "chi2 =", chi2/ndf
+    print "####"
+
+    leg = R.TLegend(0.17, 0.2, 0.90, 0.3)
+    leg.SetBorderSize(0)
+    leg.SetTextSize(0.05)
+    leg.SetNColumns(3)
+    leg.AddEntry(gr, "L_{Z #rightarrow ee}/L_{Z #rightarrow #mu#mu}", "ep")
+    leg.AddEntry(gr.GetFunction("pol0"), "Mean = {:.3f}".format(round(mean, 3)), "l")
+    leg.AddEntry(line1, "68% band", "f")
+    leg.Draw()
+
+    c1.SaveAs(outdir + "data"+year+"_"+run_number+"_zeezmmratio.pdf")
+     
+
 
 
 if __name__ == "__main__":
