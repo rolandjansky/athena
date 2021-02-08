@@ -913,9 +913,9 @@ void make_txt(std::string srun, int npush_back, int npush_backFE, std::vector<st
           break;
         }
         
-        *it_smodule++;
-        *it_LBstart++;
-        *it_LBend++;
+        ++it_smodule;
+        ++it_LBstart;
+        ++it_LBend;
       }  
   }
   //-----------------------------------
