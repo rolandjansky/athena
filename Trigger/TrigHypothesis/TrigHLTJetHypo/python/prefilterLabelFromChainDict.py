@@ -17,7 +17,7 @@ def prefilterArgsFromChainDict(chain_dict):
 
     [prefilter_args.extend(cp['prefilters']) for cp in chain_parts]
 
-    prefilter_args = [x for x in prefilter_args if not 'clean' in x] #Removing jet cleaning from the selection for now (it will be updated later)
+    prefilter_args = [x for x in prefilter_args if 'clean' not in x] #Removing jet cleaning from the selection for now (it will be updated later)
 
     for p in prefilter_args:
         assert p.startswith('prefilter')

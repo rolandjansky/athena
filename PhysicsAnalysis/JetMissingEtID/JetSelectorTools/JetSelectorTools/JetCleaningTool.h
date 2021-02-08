@@ -21,7 +21,9 @@
 // Base classes
 #include "AsgTools/AsgTool.h"
 #include "JetInterface/IJetDecorator.h"
-#include "JetInterface/IJetSelector.h"
+#include "JetInterface/IJetSelector.h" 
+
+#include "AsgDataHandles/WriteDecorHandleKey.h"
 
 // The xAOD jet type
 #include "xAODJet/Jet.h"
@@ -62,7 +64,7 @@ public:
   virtual ~JetCleaningTool();
 
   /** Initialize method */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override;
 
   const asg::AcceptInfo &getAcceptInfo() const
   {
