@@ -3104,7 +3104,7 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(const Trk::Track&           sp
           
             // delete leading material TSOS
             if (leadingTSOS) {
-                for (const auto& to_del : *caloTSOS) {
+                for (const auto& to_del : *leadingTSOS) {
                     delete to_del;
                 }                  
             }
