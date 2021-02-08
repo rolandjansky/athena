@@ -34,7 +34,8 @@ class doEGammaCellReweighting (egammaDFFlagsJobProperty):
     """
     statusOn=True
     allowedTypes=['bool']
-    StoredValue=True
+    StoredValue=False
+#    StoredValue=True
 
 # enable or disable cell-level reweighting variations
 class doEGammaCellReweightingVariations (egammaDFFlagsJobProperty):

@@ -24,7 +24,7 @@ RecomputeElectronSelectors = True
 
 # check if we run on data or MC (DataSource = geant4)
 from AthenaCommon.GlobalFlags import globalflags
-print "EGAM6 globalflags.DataSource(): ", globalflags.DataSource()
+print("EGAM6 globalflags.DataSource(): ", globalflags.DataSource())
 
 
 #====================================================================
@@ -70,7 +70,7 @@ EGAM6_ZEEMassTool1 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEE
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM6_ZEEMassTool1
-print EGAM6_ZEEMassTool1
+print(EGAM6_ZEEMassTool1)
 
 #====================================================================
 # Z->ee selection based on di-electron trigger
@@ -94,7 +94,7 @@ EGAM6_ZEEMassTool2 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEE
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM6_ZEEMassTool2
-print EGAM6_ZEEMassTool2
+print(EGAM6_ZEEMassTool2)
 
 
 # SELECTION FOR T&P
@@ -126,7 +126,7 @@ EGAM6_ZEEMassTool3 = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEE
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM6_ZEEMassTool3
-print EGAM6_ZEEMassTool3
+print(EGAM6_ZEEMassTool3)
 
 
 #====================================================================
@@ -157,7 +157,7 @@ EGAM6_ZEGMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM6_ZEGM
                                                               DoTransverseMass = False,
                                                               MinDeltaR = 0.0)
 ToolSvc += EGAM6_ZEGMassTool
-print EGAM6_ZEGMassTool
+print(EGAM6_ZEGMassTool)
 
 # Skimming criteria
 #expression = '( ( count(Photons.pt > 10*GeV) > 0 ) || ( count(Electrons.pt > 10*GeV) > 0 ) )'
@@ -166,7 +166,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EGAM6_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM6_SkimmingTool",
                                                                  expression = expression)
 ToolSvc += EGAM6_SkimmingTool
-print "EGAM6 skimming tool:", EGAM6_SkimmingTool
+print("EGAM6 skimming tool:", EGAM6_SkimmingTool)
 
 
 
@@ -202,10 +202,11 @@ ToolSvc += EGAM6_MaxCellDecoratorTool
 # SET UP THINNING
 #====================================================================
 
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EGAM6ThinningHelper = ThinningHelper( "EGAM6ThinningHelper" )
-EGAM6ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
-EGAM6ThinningHelper.AppendToStream( EGAM6Stream, ExtraContainersTrigger )
+print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
+#from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+#EGAM6ThinningHelper = ThinningHelper( "EGAM6ThinningHelper" )
+#EGAM6ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
+#EGAM6ThinningHelper.AppendToStream( EGAM6Stream, ExtraContainersTrigger )
 
 thinningTools=[]
 
@@ -231,7 +232,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                         BestMatchOnly = True,
                                                                                         ConeSize = 0.3)
         ToolSvc += EGAM6ElectronTPThinningTool
-        print EGAM6ElectronTPThinningTool
+        print(EGAM6ElectronTPThinningTool)
         thinningTools.append(EGAM6ElectronTPThinningTool)
 
     # Tracks associated with Electrons (all tracks, large cone, for track isolation studies of the selected electrons)
@@ -246,7 +247,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                          ConeSize = 0.6)
 
         ToolSvc += EGAM6ElectronTPThinningTool2
-        print EGAM6ElectronTPThinningTool2
+        print(EGAM6ElectronTPThinningTool2)
         thinningTools.append(EGAM6ElectronTPThinningTool2)
 
     # Tracks associated with Photons
@@ -261,7 +262,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                       BestMatchOnly = True,
                                                                                       ConeSize = 0.3)
         ToolSvc += EGAM6PhotonTPThinningTool
-        print EGAM6PhotonTPThinningTool
+        print(EGAM6PhotonTPThinningTool)
         thinningTools.append(EGAM6PhotonTPThinningTool)
 
     # Tracks associated with Jets
@@ -269,10 +270,10 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
         from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__JetTrackParticleThinning
         EGAM6JetTPThinningTool = DerivationFramework__JetTrackParticleThinning( name                    = "EGAM6JetTPThinningTool",
                                                                                 StreamName              = streamName,
-                                                                                JetKey                  = "AntiKt4EMTopoJets",
+                                                                                JetKey                  = "AntiKt4EMPFlowJets",
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM6JetTPThinningTool
-        print EGAM6JetTPThinningTool
+        print(EGAM6JetTPThinningTool)
         thinningTools.append(EGAM6JetTPThinningTool)
 
 
@@ -284,7 +285,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM6MuonTPThinningTool
-        print EGAM6MuonTPThinningTool
+        print(EGAM6MuonTPThinningTool)
         thinningTools.append(EGAM6MuonTPThinningTool)
         
 
@@ -297,7 +298,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM6TauTPThinningTool
-        print EGAM6TauTPThinningTool
+        print(EGAM6TauTPThinningTool)
         thinningTools.append(EGAM6TauTPThinningTool)
 
     # Tracks from primary vertex
@@ -308,7 +309,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                           SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs( DFCommonInDetTrackZ0AtPV * sin(InDetTrackParticles.theta)) < 3.0*mm",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM6TPThinningTool
-        print EGAM6TPThinningTool
+        print(EGAM6TPThinningTool)
         thinningTools.append(EGAM6TPThinningTool)
 
 
@@ -333,7 +334,7 @@ if globalflags.DataSource()=='geant4':
     ToolSvc += EGAM6TruthThinningTool
     thinningTools.append(EGAM6TruthThinningTool)
     
-print "EGAM6 thinningTools: ", thinningTools
+print("EGAM6 thinningTools: ", thinningTools)
 
 
 #=======================================
@@ -356,11 +357,18 @@ egam6Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM6Kernel",
 
 
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+# JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = ["AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,egam6Seq,"EGAM6")
+
+
+#====================================================================
+# FLAVOUR TAGGING   
+#====================================================================
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+FtagJetCollection('AntiKt4EMPFlowJets',egam6Seq)
 
 
 #====================================================================
@@ -380,14 +388,13 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM6SlimmingHelper = SlimmingHelper("EGAM6SlimmingHelper")
 
 EGAM6SlimmingHelper.SmartCollections = [
-				        "Electrons",
-					"Photons",
-					"Muons",
+                                        "Electrons",
+                                        "Photons",
+                                        "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"
                                         ]
@@ -422,5 +429,5 @@ EGAM6SlimmingHelper.AppendContentToStream(EGAM6Stream)
 # CellCommonThinning(EGAM6Stream)
 
 #Add full CellContainer
-EGAM6Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM6Stream.AddItem("CaloCellContainer#AllCalo")
 EGAM6Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")

@@ -22,7 +22,9 @@ RecomputeElectronSelectors = True
 
 # check if we run on data or MC (DataSource = geant4)
 from AthenaCommon.GlobalFlags import globalflags
-print "EGAM8 globalflags.DataSource(): ", globalflags.DataSource()
+print("EGAM8 globalflags.DataSource(): ", globalflags.DataSource())
+if globalflags.DataSource()!='geant4':
+    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
 #====================================================================
@@ -64,7 +66,7 @@ EGAM8_ZEEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZEEM
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM8_ZEEMassTool
-print EGAM8_ZEEMassTool
+print(EGAM8_ZEEMassTool)
 
 
 #====================================================================
@@ -88,7 +90,7 @@ EGAM8_ZMuEMassTool = DerivationFramework__EGInvariantMassTool( name = "EGAM8_ZMu
                                                                DoTransverseMass = False,
                                                                MinDeltaR = 0.0)
 ToolSvc += EGAM8_ZMuEMassTool
-print EGAM8_ZMuEMassTool
+print(EGAM8_ZMuEMassTool)
 
 
 # Skimming criteria
@@ -97,7 +99,7 @@ from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFram
 EGAM8_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM8_SkimmingTool",
                                                                    expression = expression)
 ToolSvc += EGAM8_SkimmingTool
-print "EGAM8 skimming tool:", EGAM8_SkimmingTool
+print("EGAM8 skimming tool:", EGAM8_SkimmingTool)
 
 
 
@@ -133,12 +135,11 @@ ToolSvc += EGAM8_MaxCellDecoratorTool
 # SET UP THINNING
 #====================================================================
 
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EGAM8ThinningHelper = ThinningHelper( "EGAM8ThinningHelper" )
-EGAM8ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
-if globalflags.DataSource()!='geant4':
-    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
-EGAM8ThinningHelper.AppendToStream( EGAM8Stream, ExtraContainersTrigger )
+print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
+#from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+#EGAM8ThinningHelper = ThinningHelper( "EGAM8ThinningHelper" )
+#EGAM8ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
+#EGAM8ThinningHelper.AppendToStream( EGAM8Stream, ExtraContainersTrigger )
 
 thinningTools=[]
 
@@ -160,7 +161,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 StreamName              = streamName,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM8JetTPThinningTool
-        print EGAM8JetTPThinningTool
+        print(EGAM8JetTPThinningTool)
         thinningTools.append(EGAM8JetTPThinningTool)
     
     # Tracks associated with Muons
@@ -171,7 +172,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM8MuonTPThinningTool
-        print EGAM8MuonTPThinningTool
+        print(EGAM8MuonTPThinningTool)
         thinningTools.append(EGAM8MuonTPThinningTool)
 
     # Tracks associated with Electrons
@@ -186,7 +187,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                         BestMatchOnly = True,
                                                                                         ConeSize = 0.3)
         ToolSvc += EGAM8ElectronTPThinningTool
-        print EGAM8ElectronTPThinningTool
+        print(EGAM8ElectronTPThinningTool)
         thinningTools.append(EGAM8ElectronTPThinningTool)
         
     # Tracks associated with Photons
@@ -202,7 +203,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                       ConeSize = 0.3)
         
         ToolSvc += EGAM8PhotonTPThinningTool
-        print EGAM8PhotonTPThinningTool
+        print(EGAM8PhotonTPThinningTool)
         thinningTools.append(EGAM8PhotonTPThinningTool)
         
     # Tracks associated with Taus
@@ -214,7 +215,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM8TauTPThinningTool
-        print EGAM8TauTPThinningTool
+        print(EGAM8TauTPThinningTool)
         thinningTools.append(EGAM8TauTPThinningTool)
 
     # Tracks from primary vertex
@@ -225,7 +226,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                           SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM8TPThinningTool
-        print EGAM8TPThinningTool
+        print(EGAM8TPThinningTool)
         thinningTools.append(EGAM8TPThinningTool)
 
 
@@ -250,7 +251,7 @@ if globalflags.DataSource()=='geant4':
     ToolSvc += EGAM8TruthThinningTool
     thinningTools.append(EGAM8TruthThinningTool)
 
-print "EGAM8 thinningTools: ", thinningTools
+print("EGAM8 thinningTools: ", thinningTools)
 
 
 #=======================================
@@ -273,11 +274,32 @@ egam8Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM8Kernel",
 
 
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+# JET/MET
 #====================================================================
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
 reducedJetList = ["AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,egam8Seq,"EGAM8")
+
+
+#====================================================================
+# FLAVOUR TAGGING   
+#====================================================================
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+FtagJetCollection('AntiKt4EMPFlowJets',egam8Seq)
+
+
+#========================================
+# ENERGY DENSITY
+#========================================
+if (DerivationFrameworkIsMonteCarlo):
+    # Schedule the two energy density tools for running after the pseudojets are created.
+    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+        if hasattr(topSequence, alg):
+            edtalg = getattr(topSequence, alg)
+            delattr(topSequence, alg)
+            egam8Seq += edtalg
+#    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets
+#    addTruthJets(egam8Seq)
 
 
 #====================================================================
@@ -298,13 +320,12 @@ EGAM8SlimmingHelper = SlimmingHelper("EGAM8SlimmingHelper")
 
 EGAM8SlimmingHelper.SmartCollections = [
                                         "Electrons",
-					"Photons",
-					"Muons",
+                                        "Photons",
+                                        "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"
                                         ]

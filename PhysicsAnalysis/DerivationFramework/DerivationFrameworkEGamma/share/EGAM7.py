@@ -19,7 +19,9 @@ jobproperties.egammaDFFlags.print_JobProperties("full")
 
 # check if we run on data or MC (DataSource = geant4)
 from AthenaCommon.GlobalFlags import globalflags
-print "EGAM7 globalflags.DataSource(): ", globalflags.DataSource()
+print("EGAM7 globalflags.DataSource(): ", globalflags.DataSource())
+if globalflags.DataSource()!='geant4':
+    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
 
 
 #====================================================================
@@ -134,13 +136,13 @@ triggers += ['HLT_g250_etcut'                      ]
 triggers += ['HLT_g300_etcut'                      ]
 
 expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
-print expression
+print(expression)
 
 from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
 EGAM7_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7_SkimmingTool",
                                                                    expression = expression)
 ToolSvc += EGAM7_SkimmingTool
-print "EGAM7 skimming tool:", EGAM7_SkimmingTool
+print("EGAM7 skimming tool:", EGAM7_SkimmingTool)
 
 
 
@@ -175,12 +177,12 @@ ToolSvc += EGAM7_MaxCellDecoratorTool
 #====================================================================
 # SET UP THINNING
 #====================================================================
-from DerivationFrameworkCore.ThinningHelper import ThinningHelper
-EGAM7ThinningHelper = ThinningHelper( "EGAM7ThinningHelper" )
-EGAM7ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
-if globalflags.DataSource()!='geant4':
-    ExtraContainersTrigger += ExtraContainersTriggerDataOnly
-EGAM7ThinningHelper.AppendToStream( EGAM7Stream, ExtraContainersTrigger )
+print('WARNING, Thinning of trigger navigation has to be properly implemented in R22')
+#from DerivationFrameworkCore.ThinningHelper import ThinningHelper
+#EGAM7ThinningHelper = ThinningHelper( "EGAM7ThinningHelper" )
+#EGAM7ThinningHelper.TriggerChains = '(^(?!.*_[0-9]*(mu|j|xe|tau|ht|xs|te))(?!HLT_[eg].*_[0-9]*[eg][0-9].*)(?!HLT_eb.*)(?!.*larpeb.*)(?!HLT_.*_AFP_.*)(HLT_[eg].*))|HLT_e.*_Zee.*'
+#EGAM7ThinningHelper.AppendToStream( EGAM7Stream, ExtraContainersTrigger )
+
 
 thinningTools=[]
 
@@ -201,7 +203,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 StreamName              = streamName,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM7JetTPThinningTool
-        print EGAM7JetTPThinningTool
+        print(EGAM7JetTPThinningTool)
         thinningTools.append(EGAM7JetTPThinningTool)
         
     # Tracks associated with Muons
@@ -212,7 +214,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                   MuonKey                 = "Muons",
                                                                                   InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM7MuonTPThinningTool
-        print EGAM7MuonTPThinningTool
+        print(EGAM7MuonTPThinningTool)
         thinningTools.append(EGAM7MuonTPThinningTool)
     
     # Tracks associated with Electrons
@@ -227,7 +229,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                         BestMatchOnly = True,
                                                                                         ConeSize = 0.3)
         ToolSvc += EGAM7ElectronTPThinningTool
-        print EGAM7ElectronTPThinningTool
+        print(EGAM7ElectronTPThinningTool)
         thinningTools.append(EGAM7ElectronTPThinningTool)
 
     # Tracks associated with Photons
@@ -243,7 +245,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                       ConeSize = 0.3)
         
         ToolSvc += EGAM7PhotonTPThinningTool
-        print EGAM7PhotonTPThinningTool
+        print(EGAM7PhotonTPThinningTool)
         thinningTools.append(EGAM7PhotonTPThinningTool)
 
     # Tracks associated with Taus
@@ -255,7 +257,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                                 ConeSize                = 0.6,
                                                                                 InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM7TauTPThinningTool
-        print EGAM7TauTPThinningTool
+        print(EGAM7TauTPThinningTool)
         thinningTools.append(EGAM7TauTPThinningTool)
 
     # Tracks from primary vertex
@@ -266,7 +268,7 @@ if jobproperties.egammaDFFlags.doEGammaDAODTrackThinning:
                                                                           SelectionString         = "InDetTrackParticles.DFCommonTightPrimary && abs(DFCommonInDetTrackZ0AtPV)*sin(InDetTrackParticles.theta) < 3.0*mm",
                                                                           InDetTrackParticlesKey  = "InDetTrackParticles")
         ToolSvc += EGAM7TPThinningTool
-        print EGAM7TPThinningTool
+        print(EGAM7TPThinningTool)
         thinningTools.append(EGAM7TPThinningTool)
 
 # Truth thinning
@@ -289,7 +291,7 @@ if globalflags.DataSource()=='geant4':
     ToolSvc += EGAM7TruthThinningTool
     thinningTools.append(EGAM7TruthThinningTool)
 
-print "EGAM7 thinningTools: ", thinningTools
+print("EGAM7 thinningTools: ", thinningTools)
 
 
 #=======================================
@@ -311,14 +313,32 @@ egam7Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
                                                          )
 
 #====================================================================
-# RESTORE JET COLLECTIONS REMOVED BETWEEN r20 AND r21
+# JET/MET
 #====================================================================
-# od syntax
-# addStandardJets("AntiKt", 0.4, "PV0Track", 2000, mods="track_ungroomed", algseq=egam7Seq, outputGroup="EGAM7")
-# new syntax
 from DerivationFrameworkJetEtMiss.ExtendedJetCommon import replaceAODReducedJets
-reducedJetList = ["AntiKt4PV0TrackJets", "AntiKt4TruthJets"]
+reducedJetList = ["AntiKt4TruthJets"]
 replaceAODReducedJets(reducedJetList,egam7Seq,"EGAM7")
+
+
+#====================================================================
+# FLAVOUR TAGGING   
+#====================================================================
+from DerivationFrameworkFlavourTag.FtagRun3DerivationConfig import FtagJetCollection
+FtagJetCollection('AntiKt4EMPFlowJets',egam7Seq)
+
+
+#========================================
+# ENERGY DENSITY
+#========================================
+if (DerivationFrameworkIsMonteCarlo):
+    # Schedule the two energy density tools for running after the pseudojets are created.
+    for alg in ['EDTruthCentralAlg', 'EDTruthForwardAlg']:
+        if hasattr(topSequence, alg):
+            edtalg = getattr(topSequence, alg)
+            delattr(topSequence, alg)
+            egam7Seq += edtalg
+#    from DerivationFrameworkMCTruth.MCTruthCommon import addTruthJets
+#    addTruthJets(egam7Seq)
 
 
 #====================================================================
@@ -334,7 +354,7 @@ EGAM7Stream.AcceptAlgs(["EGAM7Kernel"])
 #============ Thin cells for EGAM7 ==================
 
 # Keep only calo cells associated with the egammaClusters collection
-rom DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
+from DerivationFrameworkCalo.CaloCellDFGetter import thinCaloCellsForDF
 thinCaloCellsForDF (inputClusterKeys=["egammaClusters"],
                     streamName = EGAM7Stream.Name,
                     outputCellKey = "DFEGAMCellContainer")
@@ -346,14 +366,13 @@ from DerivationFrameworkCore.SlimmingHelper import SlimmingHelper
 EGAM7SlimmingHelper = SlimmingHelper("EGAM7SlimmingHelper")
 
 EGAM7SlimmingHelper.SmartCollections = [
-				        "Electrons",
-					"Photons",
-					"Muons",
+                                        "Electrons",
+                                        "Photons",
+                                        "Muons",
                                         "TauJets",
-                                        "MET_Reference_AntiKt4EMTopo",
-                                        "AntiKt4EMTopoJets",
-                                        "AntiKt4EMTopoJets_BTagging201810",
-                                        "BTagging_AntiKt4EMTopo_201810",
+                                        "MET_Baseline_AntiKt4EMPFlow",
+                                        "AntiKt4EMPFlowJets",
+                                        "BTagging_AntiKt4EMPFlow",
                                         "InDetTrackParticles",
                                         "PrimaryVertices"
                                         ]
@@ -386,7 +405,5 @@ EGAM7SlimmingHelper.ExtraVariables += PhotonsCPDetailedContent
 EGAM7SlimmingHelper.AppendContentToStream(EGAM7Stream)
 
 #Add full CellContainer
-EGAM7Stream.AddItem("CaloCellContainer#AODCellContainer")
+EGAM7Stream.AddItem("CaloCellContainer#AllCalo")
 EGAM7Stream.AddItem("CaloClusterCellLinkContainer#egammaClusters_links")
-
-
