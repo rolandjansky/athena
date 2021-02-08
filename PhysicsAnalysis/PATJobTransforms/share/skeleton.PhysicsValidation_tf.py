@@ -61,7 +61,7 @@ validationDict = {
                   'Btag': False,
                   'Egamma': False,
                   'Electron': False,
-                  'Example': True,
+                  'Example': False,
                   'Exotics': False,
                   'HSG6': False,
                   'InDet': False,
@@ -134,7 +134,7 @@ if hasattr(runArgs,"preExec"):
 if hasattr(runArgs,"preInclude"): 
     for fragment in runArgs.preInclude:
         include(fragment)
-    
+
 # Now, include the master top options from RecExCommon.
 include ("RecExCommon/RecExCommon_topOptions.py")
 

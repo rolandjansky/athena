@@ -188,8 +188,8 @@ attributeHistoManager.buildKnownTools(compactSpecification)
 # Jet histogramming tools
 jhm.addTool( JetKinematicHistos("allkinematics",PlotOccupancy=True, PlotAveragePt=True, PlotNJet=True  , PlotNConstit = True) )
 jhm.addTool( JetKinematicHistos("basickinematics")  )
-jhm.addTool( JetKinematicHistos("basickinematics_emscale", JetScale=0)  )
-jhm.addTool( JetKinematicHistos("basickinematics_constscale", JetScale=1)  )
+jhm.addTool( JetKinematicHistos("basickinematics_emscale", JetScale="JetEMScaleMomentum")  )
+jhm.addTool( JetKinematicHistos("basickinematics_constscale", JetScale="JetConstitScaleMomentum")  )
 
 jhm.addTool( LeadingJetsRelations("leadingjetrel",
                                   HistoDef = [
