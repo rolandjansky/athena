@@ -320,12 +320,13 @@ const JetContainer* JetRecTool::build() const {
 
 #if !defined (GENERATIONBASE) && !defined (XAOD_ANALYSIS)
   // monitor jet multiplicity and basic jet kinematics
-  auto njets = Monitored::Scalar<int>("nJets");
-  auto pt    = Monitored::Collection("pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
-  auto et    = Monitored::Collection("et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
-  auto eta   = Monitored::Collection("eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
-  auto phi   = Monitored::Collection("phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
-  auto mon   = Monitored::Group(m_monTool,njets,pt,et,eta,phi);
+  auto njets = Monitored::Scalar<int>("JET_n");
+  auto pt    = Monitored::Collection("JET_pt",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->pt()*c; });
+  auto et    = Monitored::Collection("JET_et",  *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->p4().Et()*c; });
+  auto mass  = Monitored::Collection("JET_m",   *jetsHandle, [c=m_mevtogev]( const xAOD::Jet* jet ) { return jet->m()*c; });
+  auto eta   = Monitored::Collection("JET_eta", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->eta(); });
+  auto phi   = Monitored::Collection("JET_phi", *jetsHandle, []( const xAOD::Jet* jet ) { return jet->phi(); });
+  auto mon   = Monitored::Group(m_monTool,njets,pt,et,mass,eta,phi);
   njets      = jetsHandle->size();
 #endif
 

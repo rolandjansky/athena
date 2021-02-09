@@ -106,10 +106,6 @@ class JetTrimming(GroomingDefinition):
         
         groomstr = "TrimmedPtFrac{}SmallR{}".format(ptfrac,smallR)
         return groomstr
-
-class JetTrimmingTrig(JetTrimming):
-    """Temporary class for trigger (to be removed when jet trigger use JetRecAlg)"""
-    tooltype = "JetTrimmer"
     
 
 class JetSoftDrop(GroomingDefinition):
@@ -121,8 +117,3 @@ class JetSoftDrop(GroomingDefinition):
         zcut     = int( self.properties["ZCut"] *100)
         groomstr = "SoftDropBeta{}Zcut{}".format(beta,zcut)
         return groomstr
-    
-class JetSoftDropTrig(JetSoftDrop):
-    """Temporary class for trigger (to be removed when jet trigger use JetRecAlg)"""
-    tooltype = "JetSoftDrop"
-    
