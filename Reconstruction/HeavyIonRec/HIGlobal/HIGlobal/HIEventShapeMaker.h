@@ -38,7 +38,7 @@ public:
 
 private:
   SG::ReadHandleKey<xAOD::CaloClusterContainer>      m_towerContainerKey { this, "InputTowerKey"     , "CombinedTower"   , "InputTowerKey"}; //TowerContainer key
-  SG::ReadHandleKey<INavigable4MomentumCollection>   m_naviContainerKey  { this, "NaviTowerKey"     , "INavigable4MomentumCollection"   , "InputTowerKey for Navigable Momentum collection"};
+  SG::ReadHandleKey<INavigable4MomentumCollection>   m_naviContainerKey  { this, "NaviTowerKey"     ,  "CombinedTower"   , "InputTowerKey for Navigable Momentum collection"};
   SG::ReadHandleKey<CaloCellContainer>            m_cellContainerKey  { this, "InputCellKey"      , "AllCalo"         , "InputCellKey" }; //CaloCellContainer key
   SG::ReadHandleKey<xAOD::HIEventShapeContainer>  m_readExistingKey   { this, "ReadExistingKey", "HIEventShapeContainer", "Read key to retrieve the shape if m_summary_only is true"};
   SG::WriteHandleKey<xAOD::HIEventShapeContainer> m_outputKey         { this, "OutputContainerKey"    , "HIEventShapeContainer", "Output Container Key"}; //Name of output container key
