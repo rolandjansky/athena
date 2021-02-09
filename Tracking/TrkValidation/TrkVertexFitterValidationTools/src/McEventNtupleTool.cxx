@@ -125,10 +125,8 @@ StatusCode Trk::McEventNtupleTool::fillMcEventData(const HepMC::GenEvent& myEven
 
 #ifdef HEPMC3
     auto Vert = myEvent.vertices().begin();
-    auto Vert_end = myEvent.vertices().end();
 #else
     HepMC::GenEvent::vertex_const_iterator Vert = myEvent.vertices_begin();
-    HepMC::GenEvent::vertex_const_iterator Vert_end = myEvent.vertices_end();
 #endif
      //store primary vertex
      CLHEP::HepLorentzVector pv_pos((*Vert)->position().x(),

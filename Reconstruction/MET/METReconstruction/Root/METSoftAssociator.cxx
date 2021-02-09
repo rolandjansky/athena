@@ -91,7 +91,7 @@ namespace met {
 
     if(!m_fecollKey.key().empty()){
       // PFOs have been provided as FlowElements
-      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.pfoCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
+      const IParticleContainer* uniquePFOs = metMap->getUniqueSignals(constits.feCont,MissingETBase::UsageHandler::Policy::ParticleFlow);
       if(m_decorateSoftTermConst) {
         dec_softConst(*metCoreTrk) = std::vector<ElementLink<IParticleContainer> >();
         dec_softConst(*metCoreTrk).reserve(uniquePFOs->size());

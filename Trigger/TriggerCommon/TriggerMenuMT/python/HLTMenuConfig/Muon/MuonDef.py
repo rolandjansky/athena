@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ########################################################################
 #
@@ -83,7 +83,10 @@ class MuonChainConfiguration(ChainConfigurationBase):
 
         stepDictionary = self.getStepDictionary()
 
-        key = self.chainPart['extra']+self.chainPart['isoInfo']
+        iso = ""
+        if 'ivar' in self.chainPart['isoInfo']:
+            iso = 'ivar'
+        key = self.chainPart['extra']+iso
 
 
         steps=stepDictionary[key]
@@ -113,7 +116,7 @@ class MuonChainConfiguration(ChainConfigurationBase):
             "noL2Comb" : [['getmuFast'], ['getmuEFSA', 'getmuEFCB']],
             "noL1":[[],['getFSmuEFSA', 'getFSmuEFCB']],
             "msonly":[['getmuFast', 'getmuMSEmpty'], ['getmuEFSA']],
-            "ivarmedium":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
+            "ivar":[['getmuFast', 'getmuComb'], ['getmuEFSA', 'getmuEFCB', 'getmuEFIso']],
             "lateMu":[[],['getLateMuRoI','getLateMu']],
             "Dr": [['getmuFastDr', 'getmuCombDr']],
             "muoncalib":[['getmuFast']],

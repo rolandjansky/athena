@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef SCT_DIGITIZATION_SCTINDUCEDCHARGEDMODEL_H
@@ -68,7 +68,8 @@ class SCT_InducedChargeModel {
                                const float bulk_depth,
                                const EFieldModel model,
                                const ToolHandle<ISiliconConditionsTool> siConditionsTool,
-                               CLHEP::HepRandomEngine* rndmEngine) {
+                               CLHEP::HepRandomEngine* rndmEngine,
+                               const EventContext& ctx) {
       m_VD = vdepl; // full depletion voltage [Volt] negative for type-P
       m_VB = vbias; // applied bias voltage [Volt]
       m_element = element;
@@ -85,7 +86,7 @@ class SCT_InducedChargeModel {
       }
 
       m_EFieldModel = model;
-      m_T = siConditionsTool->temperature(m_element->identifyHash()) + Gaudi::Units::STP_Temperature;
+      m_T = siConditionsTool->temperature(m_element->identifyHash(), ctx) + Gaudi::Units::STP_Temperature;
       m_rndmEngine = rndmEngine;
     }
   };
@@ -98,7 +99,8 @@ class SCT_InducedChargeModel {
                  const InDetDD::SiDetectorElement* element,
                  const AtlasFieldCacheCondObj* fieldCondObj,
                  const ToolHandle<ISiliconConditionsTool> siConditionsTool,
-                 CLHEP::HepRandomEngine* rndmEngine) const;
+                 CLHEP::HepRandomEngine* rndmEngine,
+                 const EventContext& ctx) const;
 
   void setEField(SCT_InducedChargeModelData& data) const;
 

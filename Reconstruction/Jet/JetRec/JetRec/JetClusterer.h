@@ -70,7 +70,7 @@ protected:
   Gaudi::Property<float> m_jetrad        {this, "JetRadius", 0.4 , "jet size parameter"}; 
   Gaudi::Property<float> m_ptmin         {this, "PtMin", 0.0, "pT min in MeV"};
   Gaudi::Property<float> m_ghostarea     {this, "GhostArea", 0.0, "Area for ghosts. 0==>no ghosts."};
-  Gaudi::Property<int> m_ranopt          {this, "RandomOption", 0, "Rand option: 0=fj default, 1=run/event"};
+  Gaudi::Property<int> m_ranopt          {this, "RandomOption", 1, "Rand option: 0=fj default, 1=run/event"};
 
   Gaudi::Property<int> m_inputType       {this, "JetInputType", 0, "input type as in xAOD::JetInput (see xAODJet/JetContainerInfo.h)"};
 

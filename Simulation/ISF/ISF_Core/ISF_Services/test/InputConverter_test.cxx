@@ -357,7 +357,6 @@ TEST_F(InputConverter_test, passesFilters_empty_filters_defaultconstructed_genpa
 TEST_F(InputConverter_test, passesFilters_empty_filters) {
   ASSERT_TRUE( m_svc->initialize().isSuccess() );
 
-  const int particleBarcode(546);
   HepMC::FourVector mom(12.3, 45.6, 78.9, 0.12);
 #ifdef HEPMC3
   //It seems this test makes no sense for HepMC3
@@ -367,6 +366,7 @@ TEST_F(InputConverter_test, passesFilters_empty_filters) {
                              );
   ASSERT_TRUE( true );
 #else
+  const int particleBarcode(546);
   HepMC::GenParticle genPart(mom,
                               11, // pdg id (e-)
                               1 // status

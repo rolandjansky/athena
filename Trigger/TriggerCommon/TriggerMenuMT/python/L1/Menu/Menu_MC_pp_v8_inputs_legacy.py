@@ -72,7 +72,7 @@ def defineLegacyInputsMenu():
             "type" : "ctpin",
             "legacy" : True,
             "thresholds" : [
-                'J12', 'J12p0ETA23', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30', # 8 x JETs and central jets
+                'J12', 'J12p0ETA25', 'J15', 'J15p0ETA25','J20', 'J25','J25p0ETA23','J30', # 8 x JETs and central jets
                 'J12p0ETA28', 'J20p0ETA49', # 2 x VBF
             ]
         },

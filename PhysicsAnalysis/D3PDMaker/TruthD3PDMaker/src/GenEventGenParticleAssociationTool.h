@@ -82,8 +82,13 @@ private:
   int m_firstHadronBarcode;
 
   /// GenParticle iterators.
+#ifdef HEPMC3
+  std::vector<HepMC::ConstGenParticlePtr>::const_iterator m_it;
+  std::vector<HepMC::ConstGenParticlePtr>::const_iterator m_end;
+#else  
   HepMC::GenEvent::particle_const_iterator m_it;
   HepMC::GenEvent::particle_const_iterator m_end;
+#endif
 };
 
 

@@ -93,12 +93,12 @@ def defineMenu():
 
         # combined tau - jet
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-        'L1_TAU20IM_2TAU12IM_4J12p0ETA23',
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25',
         'L1_TAU20IM_2TAU12IM_4J12p0ETA28',
         'L1_TAU25IM_2TAU20IM_2J25_3J20',
         # new calo
         'L1_eTAU20IM_2jJ20_gXERHO45',
-        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA23',
+        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA25',
         'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20',
 
         # combined tau - xe
@@ -420,7 +420,7 @@ def defineMenu():
 
 
         'L1_TAU20IM_2TAU12IM_J25_2J20_3J12' : 70,
-        'L1_TAU20IM_2TAU12IM_4J12p0ETA23' : 316,
+        'L1_TAU20IM_2TAU12IM_4J12p0ETA25' : 316,
         'L1_TAU20IM_2J20_XE45' : 74,
         'L1_TAU20IM_2TAU12IM_4J12p0ETA28' : 77,
         'L1_TAU20IM_2J20_XE50' : 79,
@@ -729,7 +729,7 @@ def defineMenu():
         'L1_MU20_jJ40' : 502,
         'L1_MU20_gXERHO30' : 503,
         'L1_eTAU20IM_2jJ20_gXERHO45' : 504,
-        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA23' : 505,
+        'L1_eTAU20IM_2eTAU12IM_4jJ12p0ETA25' : 505,
         'L1_eTAU25IM_2eTAU20IM_2jJ25_3jJ20' : 506,
         'L1_eTAU40_2eTAU12IM_gXERHO40' : 507,
 

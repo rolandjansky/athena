@@ -37,7 +37,8 @@ CaloDataAccessSvcDependencies = [('IRegSelLUTCondData', 'ConditionStore+RegSelLU
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALEM'), 
                                  ('IRegSelLUTCondData', 'ConditionStore+RegSelLUTCondData_FCALHAD')]
 
-
+from functools import lru_cache
+@lru_cache(None)
 def trigCaloDataAccessSvcCfg( flags ):    
 
     acc = ComponentAccumulator()
@@ -73,6 +74,12 @@ def trigCaloDataAccessSvcCfg( flags ):
 
     from TileConditions.TileBadChannelsConfig import TileBadChannelsCondAlgCfg
     acc.merge( TileBadChannelsCondAlgCfg(flags) )
+    
+# TODO - complete this with appropriate conditions alg setup
+#    from CaloRec.CaloBCIDAvgAlgConfig import CaloBCIDAvgAlgCfg
+#    eventAcc = ComponentAccumulator("HLTBeginSeq")
+#    eventAcc.merge(CaloBCIDAvgAlgCfg(flags), sequenceName="HLTBeginSeq")
+#    acc.merge(eventAcc)
 
     from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
     import math
@@ -108,6 +115,7 @@ if __name__ == "__main__":
     ConfigFlags.Input.isMC=False
     ConfigFlags.lock()
     acc = ComponentAccumulator()
+    acc.addSequence(CompFactory.AthSequencer("HLTBeginSeq"))
     
     from ByteStreamCnvSvc.ByteStreamConfig import ByteStreamReadCfg
     acc.merge( ByteStreamReadCfg( ConfigFlags ) )

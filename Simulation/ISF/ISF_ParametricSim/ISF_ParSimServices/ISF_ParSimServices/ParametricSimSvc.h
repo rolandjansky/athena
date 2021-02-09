@@ -67,7 +67,7 @@ namespace iParSim {
 
       /** xAOD::Particle creation - given by jobOptions  */
       ToolHandleArray<ISF::IParticleProcessor>     m_particleSmearers;   //!< the multiple particle smearers
-      
+
       /** Random Service and Engine */
       ServiceHandle<IAthRNGSvc>  m_randomSvc{this, "RndmSvc", "AthRNGSvc", ""};  //!< Random number service
       ATHRNG::RNGWrapper*        m_randomEngineWrapper;                          //!< Random number engine wrapper

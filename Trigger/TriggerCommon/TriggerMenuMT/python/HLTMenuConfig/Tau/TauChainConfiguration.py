@@ -197,9 +197,9 @@ class TauChainConfiguration(ChainConfigurationBase):
     # --------------------                                                                                                      
     def getTrackTwoMVA(self):
 
-        if "03dRtt" in self.chainName:
-            stepName = "TauLep_Combo"
-            return self.getStep(6,stepName,sequenceCfgArray=[getTrackTwoMVACfg], comboTools=[TrigTauXComboHypoToolFromDict])
-        else:
+        #if "03dRtt" in self.chainName:
+        #    stepName = "TauLep_Combo"
+        #    return self.getStep(6,stepName,sequenceCfgArray=[getTrackTwoMVACfg], comboTools=[TrigTauXComboHypoToolFromDict])
+        #else:
             stepName = "TrkTwoMVA_tau"
             return self.getStep(6,stepName,[getTrackTwoMVACfg])

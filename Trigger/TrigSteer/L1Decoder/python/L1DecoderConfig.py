@@ -155,11 +155,12 @@ def L1DecoderCfg(flags, seqName = None):
 
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 
-    #from L1Decoder.L1DecoderConf import L1Decoder, CTPUnpackingTool
+    if seqName:
+        from AthenaCommon.CFElements import parOR
+        acc = ComponentAccumulator(sequence=parOR(seqName)) # TODO - once rec-ex-common JO are phased out this can also be dropped
+    else:
+        acc = ComponentAccumulator()
     from L1Decoder.L1DecoderMonitoring import CTPUnpackingMonitoring
-
-    acc = ComponentAccumulator(sequenceName = seqName)
-
     decoderAlg = CompFactory.L1Decoder()
     decoderAlg.RoIBResult = "RoIBResult" if flags.Trigger.enableL1CaloLegacy or not flags.Trigger.enableL1Phase1 else ""
     decoderAlg.L1TriggerResult = "L1TriggerResult" if flags.Trigger.enableL1Phase1 else ""

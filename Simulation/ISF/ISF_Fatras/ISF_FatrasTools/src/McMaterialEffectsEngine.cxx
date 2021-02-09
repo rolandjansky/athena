@@ -30,7 +30,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkEventPrimitives/ParamDefs.h"
 #include "TrkSurfaces/Surface.h" 
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
 #include "TrkGeometry/TrackingGeometry.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/MaterialProperties.h"
@@ -72,8 +71,6 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   m_rndGenSvc("AtDSFMTGenSvc", n),
   m_randomEngine(0),
   m_randomEngineName("FatrasRnd"),
-  m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
-  m_trackingGeometryName("AtlasTrackingGeometry"),
   m_validationMode(false),
   m_validationTool(""),
   m_particleBroker("ISF_ParticleParticleBroker", n),
@@ -119,8 +116,6 @@ iFatras::McMaterialEffectsEngine::McMaterialEffectsEngine(const std::string& t, 
   declareProperty("ValidationMode"                      , m_validationMode);
   declareProperty("PhysicsValidationTool"               , m_validationTool);
 
-  // TrackingGeometry Service      
-  declareProperty("TrackingGeometrySvc"                 , m_trackingGeometrySvc);     
   declareProperty("RandomNumberService"                 , m_rndGenSvc               , "Random number generator");
   declareProperty("RandomStreamName"                    , m_randomEngineName        , "Name of the random number stream");
   
@@ -192,15 +187,6 @@ StatusCode iFatras::McMaterialEffectsEngine::initialize()
     return StatusCode::FAILURE;
   } else EX_MSG_VERBOSE("", "init", "", "Successfully got random engine '" << m_randomEngineName << "'" );
   
-  // get the tracking geometry for layer lookup     
-  // get the TrackingGeometrySvc
-  if (m_trackingGeometrySvc.retrieve().isSuccess()){
-    EX_MSG_VERBOSE("", "init", "", "Successfully retrieved " << m_trackingGeometrySvc );
-    m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-  } else {
-    ATH_MSG_WARNING( "Couldn't retrieve " << m_trackingGeometrySvc << ". " );
-    ATH_MSG_WARNING( " -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore." );
-  }     
   
   // ISF Services
   if (m_particleBroker.retrieve().isFailure()){

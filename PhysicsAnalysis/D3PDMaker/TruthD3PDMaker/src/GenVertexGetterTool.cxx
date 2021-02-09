@@ -47,7 +47,11 @@ namespace D3PD {
       McEventCollection::const_iterator iter = mc->begin();
       if( iter == mc->end() ) return 0;
 
+#ifdef HEPMC3
+      return ( *iter )->vertices().size();
+#else
       return ( *iter )->vertices_size();
+#endif
    }
 
    StatusCode GenVertexGetterTool::reset( bool allowMissing ) {

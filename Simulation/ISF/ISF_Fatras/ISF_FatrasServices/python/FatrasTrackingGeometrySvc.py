@@ -2,7 +2,7 @@
 
 from __future__ import print_function
 
-class FatrasTrackingGeometrySvc:
+class FatrasTrackingGeometryCondAlg:
   def __init__(self):
     from AthenaCommon.AppMgr import ToolSvc
 
@@ -10,10 +10,10 @@ class FatrasTrackingGeometrySvc:
     # The FatrasTrackingGeometry Svc fragment
     #
     # usage: 
-    #   include('TrkDetDescrSvc/FatrasTrackingGeometrySvc.py')
+    #   include('TrkDetDescrSvc/FatrasTrackingGeometryCondAlg.py')
     #
     #    + for the navigator, set the TrackingGeometryName to:
-    #      FatrasTrackingGeometrySvc.trackingGeometryName()
+    #      FatrasTrackingGeometryCondAlg.trackingGeometryName()
     #
     ##################################################################################
     # import the DetFlags for the setting
@@ -131,50 +131,29 @@ class FatrasTrackingGeometrySvc:
        # and give it to the Geometry Builder
        FatrasGeometryBuilder.MuonTrackingGeometryBuilder = FatrasMuonTrackingGeometryBuilder      
   
-
-    # then get the tuning parameters
     from FatrasExample.FatrasTuning import FatrasTuningFlags
-    if FatrasTuningFlags.MaterialDistortionsX0.statusOn and \
-       FatrasTuningFlags.MaterialDistortionsRho.statusOn :
-      from TrkDetDescrSvc.TrkDetDescrSvcConf import CalibrationTrackingGeometrySvc as GeometrySvc
-    else :  
-      from TrkDetDescrSvc.TrkDetDescrSvcConf import TrackingGeometrySvc as GeometrySvc
-    FatrasTrackingGeometrySvc = GeometrySvc(name = 'FatrasTrackingGeometrySvc')
+    from InDetCondFolders import InDetAlignFolders_FATRAS
+    from TrackingGeometryCondAlg.AtlasTrackingGeometryCondAlg import ConfiguredTrackingGeometryCondAlg as GeometryCondAlg
+    FatrasTrackingGeometryCondAlg = GeometryCondAlg(name = 'FatrasTrackingGeometryCondAlg')
 
     # register the Builder 
-    FatrasTrackingGeometrySvc.GeometryBuilder = FatrasGeometryBuilder
+    FatrasTrackingGeometryCondAlg.GeometryBuilder = FatrasGeometryBuilder
     # and register the name under which the geometry is registered
-    FatrasTrackingGeometrySvc.TrackingGeometryName = FatrasTrackingGeometryName
+    FatrasTrackingGeometryCondAlg.TrackingGeometryWriteKey = FatrasTrackingGeometryName
     # global scaling of the material if necessary
-    FatrasTrackingGeometrySvc.GlobalScaleFactor = FatrasTuningFlags.MaterialScalor()
+    FatrasTrackingGeometryCondAlg.GlobalScaleFactor = FatrasTuningFlags.MaterialScalor()
     # some flags - only works when ID is on
-    FatrasTrackingGeometrySvc.AssignMaterialFromCOOL   = True
-    FatrasTrackingGeometrySvc.BuildGeometryFromTagInfo = True
-    # Material scaling & distortion
-    if FatrasTuningFlags.MaterialDistortionsX0.statusOn and \
-       FatrasTuningFlags.MaterialDistortionsRho.statusOn :
-       FatrasTrackingGeometrySvc.RandomDistortions          = True
-       FatrasTrackingGeometrySvc.DistortionsRadiationLength = FatrasTuningFlags.MaterialDistortionsX0() 
-       FatrasTrackingGeometrySvc.DistortionsDensity         = FatrasTuningFlags.MaterialDistortionsRho()
-       from FatrasExample.FatrasValidation import FatrasValidationFlags
-       FatrasTrackingGeometrySvc.RecordDistortions          = FatrasValidationFlags.MaterialDistortions()
-       FatrasTrackingGeometrySvc.DistortionOutputFolder     = '/'+FatrasValidationFlags.ValidationStream()+'/MaterialDistortions'
+    FatrasTrackingGeometryCondAlg.BuildGeometryFromTagInfo = True
     # switch to the rigth CoolDB folder 
-    FatrasTrackingGeometrySvc.InputLayerMaterialSetName = CoolDataBaseFolder
+    FatrasTrackingGeometryCondAlg.InputLayerMaterialSetName = CoolDataBaseFolder
 
-    from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-    svcMgr += FatrasTrackingGeometrySvc
+    from AthenaCommon.AlgSequence import AthSequencer
+    condSeq = AthSequencer("AthCondSeq")
+    condSeq+= FatrasTrackingGeometryCondAlg
 
     print ('* [ Configuration : start ] *** FatrasTrackingGeometry ********************************')
-    print ('* [ FatrasTrackingGeometrySvc   ]')
-    print (FatrasTrackingGeometrySvc)
+    print ('* [ FatrasTrackingGeometryCondAlg   ]')
+    print (FatrasTrackingGeometryCondAlg)
     print ('* [ GeometryBuilder       ]')
     print (FatrasGeometryBuilder)
     print ('* [ Configuration : end   ] *** FatrasTrackingGeometry ********************************')
-
-    ##################################################################################    
-
-    self.__geoSvc__ = FatrasTrackingGeometrySvc
-
-  def getGeoSvc(self):
-    return self.__geoSvc__
