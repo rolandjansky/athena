@@ -31,8 +31,6 @@
 
 #include "InDetPrepRawData/SCT_ClusterContainer.h"  // typedef
 #include "InDetPrepRawData/PixelClusterContainer.h"
-#include "ISF_FatrasEvent/PlanarClusterContainer.h"
-#include "ISF_FatrasEvent/PlanarCluster.h"
 
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
 
@@ -82,10 +80,8 @@ public:
   StatusCode mergeEvent(const EventContext& ctx);
 
   typedef std::multimap<IdentifierHash, InDet::PixelCluster*> Pixel_detElement_RIO_map;
-  typedef std::multimap<IdentifierHash, iFatras::PlanarCluster*> Planar_detElement_RIO_map;
   typedef std::multimap<IdentifierHash, InDet::SCT_Cluster*> SCT_detElement_RIO_map;
   StatusCode mergeClusters(Pixel_detElement_RIO_map * cluster_map);
-  StatusCode mergeClusters(Planar_detElement_RIO_map * cluster_map);
   StatusCode mergeClusters(SCT_detElement_RIO_map * cluster_map);
 
   StatusCode digitize(const EventContext& ctx);
@@ -131,8 +127,6 @@ public:
 
   InDet::SCT_ClusterContainer*  m_sctClusterContainer;               //!< the SCT_ClusterContainer
 
-  iFatras::PlanarClusterContainer*  m_planarClusterContainer;               //!< the SCT_ClusterContainer
-
   ServiceHandle<PileUpMergeSvc> m_mergeSvc;      /**< PileUp Merge service */
   int                       m_HardScatterSplittingMode; /**< Process all SiHit or just those from signal or background events */
   bool                      m_HardScatterSplittingSkipper;
@@ -143,17 +137,12 @@ public:
   PRD_MultiTruthCollection* m_SCTPrdTruth{};
   std::string               m_prdTruthNameSCT;
 
-  PRD_MultiTruthCollection* m_planarPrdTruth{};
-  std::string               m_prdTruthNamePlanar;
-
   SiHitCollection* m_simHitColl{};
   std::string      m_inputObjectName;     //! name of the sub event  hit collections.
 
   std::list<SiHitCollection*> m_siHitCollList;
 
   Pixel_detElement_RIO_map* m_pixelClusterMap{};
-
-  Planar_detElement_RIO_map* m_planarClusterMap{};
 
   SCT_detElement_RIO_map* m_sctClusterMap{};
 
@@ -163,7 +152,6 @@ public:
 
   std::string                           m_pixel_SiClustersName;
   std::string                           m_Sct_SiClustersName;
-  std::string                           m_planar_SiClustersName;
 
   bool       m_checkSmear;
 
