@@ -21,6 +21,7 @@
 
 #include "AthenaKernel/IOVSvcDefs.h"
 #include "SGTools/CallBackID.h"
+#include <atomic>
 
 namespace SG {
   class DataProxy;
@@ -99,7 +100,7 @@ private:
   bool m_flag;
 
   unsigned int m_serial;
-  static unsigned int s_serial;
+  static std::atomic<unsigned int> s_serial;
 };
 
 #endif
