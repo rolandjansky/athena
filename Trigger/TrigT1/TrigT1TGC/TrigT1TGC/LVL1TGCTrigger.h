@@ -158,6 +158,9 @@ namespace LVL1TGCTrigger {
     BooleanProperty   m_TILEMU{this,"TILEMU",false};   // flag for using TileMu
     BooleanProperty   m_USENSW{this,"USENSW",false};     // flag for using NSW
     BooleanProperty   m_useRun3Config{this,"useRun3Config",false}; // flag for using switch between Run3 and Run2 algorithms
+
+   StringProperty     m_NSWSideInfo{this,"NSWSideInfo",""};// Information about NSW geometry. It should be "" or "AC" or "A" or "C"
+
     
     bool              m_firstTime{true};
     uint16_t          m_bctagInProcess;
