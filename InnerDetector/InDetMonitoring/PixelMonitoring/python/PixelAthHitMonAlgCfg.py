@@ -74,13 +74,19 @@ def PixelAthHitMonAlgCfg(helper, alg, **kwargs):
     histoGroupName = 'HitMap' 
     title = 'hit map'
     define2DProfHist(helper, alg, histoGroupName, title, path, type='TH2F')
-    if doLumiBlock:
-        define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lowStat', histname='HitMapLB')
 
     if doFEPlots:
         histoGroupName = 'HitFEMap' 
         title = 'hit map per FE'
         define2DProfPerFEHist(helper, alg, histoGroupName, title, path, type='TH2F')
+
+    if doLumiBlock:
+        if not doFEPlots:
+            define2DProfHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitMapLB')
+        else:
+            define2DProfPerFEHist(helper, alg, histoGroupName, title, pathLowStat, type='TH2F', lifecycle='lumiblock', histname='HitFEMapLB')
+
+
 
     histoname = 'AvgOccPerBCID'
     for layer in layers:
