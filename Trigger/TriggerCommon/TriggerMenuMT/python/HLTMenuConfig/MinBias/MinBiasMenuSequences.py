@@ -127,7 +127,7 @@ def MinBiasTrkSequence():
 def MinBiasMbtsSequence():
     from TrigT2MinBias.TrigT2MinBiasConf import MbtsHypoAlg, MbtsHypoTool
     from TrigT2MinBias.MbtsConfig import MbtsFexMTCfg
-    fex = MbtsFexMTCfg(MbtsBitsKey="HLT_MbtsBitsContainer")
+    fex = MbtsFexMTCfg(MbtsBitsKey=recordable("HLT_MbtsBitsContainer"))
     MbtsRecoSeq = parOR("MbtsRecoSeq", [fex])
 
     from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorInitialROITool
