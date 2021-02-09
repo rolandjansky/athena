@@ -309,7 +309,7 @@ def chainDict2jetLabel(chain_dict, debug=False):
                                         chain_dict['chainName'])
     bad_headers = '\n'.join(bad_headers)
     if bad_headers:
-        logger.info('scenario mismatches, %s' % bad_headers)
+        logger.info('scenario mismatches, %s', bad_headers)
         
     for cp in chain_parts:
         for k in cp_sorter:
