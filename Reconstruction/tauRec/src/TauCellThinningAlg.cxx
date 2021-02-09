@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 */
 
 #include "TauCellThinningAlg.h"
@@ -40,6 +40,10 @@ StatusCode TauCellThinningAlg::execute (const EventContext& ctx) const
   }
 
   for (const xAOD::TauJet* tau : *taus) {
+
+    // only consider taus with pt > MinTauPt
+    if(tau->pt() < m_minTauPt) continue;
+
     // Assume we always do the vertex correction
     TLorentzVector tauAxis = tauRecTools::getTauAxis(*tau);
     const xAOD::Vertex* tauVertex = tauRecTools::getTauVertex(*tau);

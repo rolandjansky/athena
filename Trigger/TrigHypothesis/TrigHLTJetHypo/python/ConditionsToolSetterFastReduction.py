@@ -273,4 +273,3 @@ class ConditionsToolSetterFastReduction(object):
         config_tool.treeVector = treeVec
         self.config_tool = config_tool
         
-        print (self.config_tool)

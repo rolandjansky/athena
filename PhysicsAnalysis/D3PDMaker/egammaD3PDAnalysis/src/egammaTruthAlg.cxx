@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file egammaD3PDAnalysis/src/egammaTruthAlg.h
  * @author scott snyder <snyder@bnl.gov>
@@ -111,9 +109,6 @@ egammaTruthAlg::egammaTruthAlg (const std::string& name,
                    "Isolation cone width.");
   declareProperty ("PhotonEtIsoMax", m_photonEtIsoMax = 2*MeV,
                    "Maximum isolation cone energy allowed to keep a photon.");
-
-  declareProperty("ParticleCaloExtensionTool", m_exten,
-                  "Extrapolator to calorimeter.");
 }
 
 
@@ -201,7 +196,7 @@ bool egammaTruthAlg::isAccepted (const xAOD::TruthParticle& tp,
     size_t sz = v->nOutgoingParticles();
     for (size_t i = 0; i < sz; i++) {
       const xAOD::TruthParticle* child = v->outgoingParticle(i);
-      if( child->pdgId()==id && child->barcode()!=barcode
+      if( child && child->pdgId()==id && child->barcode()!=barcode
           && (child->barcode() <100000 ))
       {
         return false;

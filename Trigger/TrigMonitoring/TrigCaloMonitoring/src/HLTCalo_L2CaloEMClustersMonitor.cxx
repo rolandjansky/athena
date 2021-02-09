@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HLTCalo_L2CaloEMClustersMonitor.h"
@@ -75,7 +75,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
   // prepare HLT clusters
   std::vector<clus_kin<xAOD::TrigEMCluster*> > vec_hlt_clusters;
-  for (const auto& hlt_cluster : *hltCluster_readHandle) {
+  for (const auto hlt_cluster : *hltCluster_readHandle) {
 	auto hlt_clus_et = hlt_cluster->et();
 	if (hlt_clus_et < m_HLT_min_et) continue;
 	vec_hlt_clusters.push_back({hlt_clus_et*0.001, hlt_cluster->eta(), hlt_cluster->phi(), (xAOD::TrigEMCluster*) hlt_cluster});
@@ -83,7 +83,7 @@ StatusCode HLTCalo_L2CaloEMClustersMonitor::fillHistograms( const EventContext& 
 
   // prepare OFF clusters
   std::vector<clus_kin<xAOD::CaloCluster*> > vec_off_clusters;
-  for (const auto& off_cluster : *offCluster_readHandle) {
+  for (const auto off_cluster : *offCluster_readHandle) {
 	auto off_clus_et = off_cluster->et();
 	if (off_clus_et < m_OFF_min_et) continue;
 

@@ -896,11 +896,28 @@ namespace MuonCombined {
     const Trk::Track* extrapolatedTrack = candidate.extrapolatedTrack();
 
     if (! extrapolatedTrack || !extrapolatedTrack->perigeeParameters()) {
-      ATH_MSG_DEBUG("Something is wrong with this track.");
-      if (!extrapolatedTrack) 
-        ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
-      if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
-        ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      ATH_MSG_DEBUG("There is no extrapolated track associated to the MuonCandidate.");
+      if(muon.author()==xAOD::Muon::MuidCo){ //this can happen for MuidCo muons, though it's quite rare: in this case just add the ME track
+	if(meLink.isValid()){
+	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( meLink,
+                                                                                           *outputData.extrapolatedTrackParticleContainer,
+                                                                                           outputData.extrapolatedTrackCollection);
+          if( link.isValid() ) {
+            ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+            muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+            float fieldInt=m_trackQuery->fieldIntegral(**meLink).betweenSpectrometerMeasurements();
+            muon.setParameter(fieldInt,xAOD::Muon::spectrometerFieldIntegral);
+            int nunspoiled=(*link)->track()->trackSummary()->get(Trk::numberOfCscUnspoiltEtaHits);
+            muon.auxdata<int>("nUnspoiledCscHits")=nunspoiled;
+          }
+        }
+      }
+      else{ //I don't think we should ever get here, but just in case
+	if (!extrapolatedTrack) 
+	  ATH_MSG_WARNING("Track doesn't have extrapolated track. Skipping");
+	if (extrapolatedTrack && !extrapolatedTrack->perigeeParameters()) 
+	  ATH_MSG_WARNING("Track doesn't have perigee parameters on extrapolated track. Skipping");
+      }
     } else {
       //Now we just add the original extrapolated track itself
       //but not for SA muons, for consistency they will still have extrapolatedTrackParticle

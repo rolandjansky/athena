@@ -14,22 +14,16 @@
 // amazurov: For findJEMResults depricated method
 #include "TrigT1CaloEvent/JEMTobRoI.h"
 
+#include "TrigConfData/L1Menu.h"
+
 namespace LVL1 {
 
 //================ Constructor =================================================
 
-L1JEMJetTools::L1JEMJetTools(const std::string& t,
-			  const std::string& n,
-			  const IInterface*  p )
-  :
-  AthAlgTool(t,n,p),
-  m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", n),
-  m_RoI(0)
+L1JEMJetTools::L1JEMJetTools(const std::string& t, const std::string& n, const IInterface*  p )
+  : AthAlgTool(t,n,p)
 {
   declareInterface<IL1JEMJetTools>(this);
-
-  declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-
 }
 
 //================ Destructor =================================================
@@ -44,6 +38,10 @@ L1JEMJetTools::~L1JEMJetTools()
 
 StatusCode L1JEMJetTools::initialize()
 {
+  ATH_CHECK(m_configSvc.retrieve());
+  if( m_useNewConfig ) {
+    ATH_CHECK(detStore()->retrieve(m_l1menu).ignore());
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -161,7 +159,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, DataVecto
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_configSvc);
+          JEMJetAlgorithm* roi = new JEMJetAlgorithm(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
           if (roi->isRoI()) rois->push_back(roi);
           else delete roi;
         }
@@ -224,7 +222,7 @@ void L1JEMJetTools::findRoIs(const std::map<int, JetInput*>* elements, xAOD::JEM
           analysed.insert(std::map<int, int>::value_type(key,1));
           double tempEta = tempCoord.eta();
           double tempPhi = tempCoord.phi();
-          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_configSvc);
+          JEMJetAlgorithm roi(tempEta, tempPhi, elements, m_configSvc, m_l1menu);
           
           if (roi.isRoI() != 0) rois->push_back(roi.jemTobRoI());
           
@@ -308,7 +306,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -416,7 +414,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
            *  evaluating window, this would be the place to put the test */
           
           /** Form algorithm object for this location */
-          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc); 
+          JEMJetAlgorithm tob(EtaCell[ie], PhiCell[ip], inputs, m_configSvc, m_l1menu); 
           
           /** Did it pass as JetTOB? If so:
               * Create TOB RoI object and push back into system results
@@ -480,7 +478,7 @@ void L1JEMJetTools::findJEMResults(const std::map<int, JetInput*>* inputs, int c
 
 JEMJetAlgorithm L1JEMJetTools::findRoI(double RoIeta, double RoIphi, const std::map<int, JetInput*>* elements){
   
-  JEMJetAlgorithm roi(RoIeta, RoIphi, elements, m_configSvc);
+  JEMJetAlgorithm roi(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
 
   return roi;
 }
@@ -493,7 +491,7 @@ void L1JEMJetTools::formSums(double RoIeta, double RoIphi, const std::map<int, J
   if (m_RoI != 0) delete m_RoI;
 
   // Performs all processing for this location
-  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc);
+  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
 
 }
 
@@ -512,7 +510,7 @@ void L1JEMJetTools::formSums(uint32_t roiWord, const std::map<int, JetInput*>* e
   if (RoIeta > 3.1 && m_conv.column(roiWord) != 3) RoIeta = 3.1;
 
   // Performs all processing for this location
-  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc);
+  m_RoI = new JEMJetAlgorithm(RoIeta, RoIphi, elements, m_configSvc, m_l1menu);
 
 }
 

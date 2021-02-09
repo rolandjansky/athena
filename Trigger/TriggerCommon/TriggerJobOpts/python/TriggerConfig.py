@@ -282,7 +282,7 @@ def triggerMonitoringCfg(flags, hypos, filters, l1Decoder):
 
 
 
-def triggerOutputCfg(flags, summaryAlg):
+def triggerOutputCfg(flags, hypos):
     # Following cases are considered:
     # 1) Running in partition or athenaHLT - configure BS output written by the HLT framework
     # 2) Running offline athena and writing BS - configure BS output written by OutputStream alg
@@ -321,7 +321,7 @@ def triggerOutputCfg(flags, summaryAlg):
     # Create the configuration
     if onlineWriteBS:
         __log.info("Configuring online ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, summaryAlg)
+        acc = triggerBSOutputCfg(flags, hypos)
         # Configure the online HLT result maker to use the above tools
         # For now use old svcMgr interface as this service is not available from acc.getService()
         from AthenaCommon.AppMgr import ServiceMgr as svcMgr
@@ -334,7 +334,7 @@ def triggerOutputCfg(flags, summaryAlg):
                 hltEventLoopMgr.ResultMaker.MakerTools += [ conf2toConfigurable(tool) ]
     elif offlineWriteBS:
         __log.info("Configuring offline ByteStream HLT output")
-        acc = triggerBSOutputCfg(flags, summaryAlg, offline=True)
+        acc = triggerBSOutputCfg(flags, hypos, offline=True)
     elif writePOOL:
         __log.info("Configuring POOL HLT output")
         acc = triggerPOOLOutputCfg(flags, edmSet)
@@ -345,13 +345,13 @@ def triggerOutputCfg(flags, summaryAlg):
     return acc, edmSet
 
 
-def triggerBSOutputCfg(flags, summaryAlg, offline=False):
+def triggerBSOutputCfg(flags, hypos, offline=False):
     """
     Returns CA with algorithms and/or tools required to do the serialisation
 
     decObj - list of all navigation objects
     decObjHypoOut - list of decisions produced by hypos
-    summaryAlg - the instance of algorithm producing final decision
+    hypos - the {stepName: hypoList} dictionary with all hypo algorithms - used to find the PEB decision keys
     offline - if true CA contains algorithms that need to be merged to output stream sequence,
               if false the CA contains a tool that needs to be added to HltEventLoopMgr
     """
@@ -382,13 +382,16 @@ def triggerBSOutputCfg(flags, summaryAlg, offline=False):
     stmaker = StreamTagMakerToolCfg()
     bitsmaker = TriggerBitsMakerToolCfg()
 
-    # Map decisions producing PEBInfo from DecisionSummaryMakerAlg.FinalStepDecisions to StreamTagMakerTool.PEBDecisionKeys
+    # Map hypo decisions producing PEBInfo to StreamTagMakerTool.PEBDecisionKeys
     PEBKeys = []
-    for keys in summaryAlg.FinalStepDecisions.values():
-        for key in keys:
-            if 'PEBInfoWriter' in key:
-                PEBKeys.append(key)                
-    stmaker.PEBDecisionKeys = sorted(set(PEBKeys))
+    for hypoList in hypos.values():
+        for hypo in hypoList:
+            if hypo.getType() == 'PEBInfoWriterAlg':
+                PEBKeys.append(str(hypo.HypoOutputDecisions))
+
+    PEBKeys = sorted(set(PEBKeys))
+    __log.debug('Setting StreamTagMakerTool.PEBDecisionKeys = %s', PEBKeys)
+    stmaker.PEBDecisionKeys = PEBKeys
 
     acc = ComponentAccumulator(sequenceName="HLTTop")
     if offline:
@@ -652,7 +655,7 @@ def triggerRunCfg( flags, seqName = None, menu=None ):
     __log.info( "Number of EDM items after adding navigation: %d", len(TriggerEDMRun3.TriggerHLTListRun3))
 
     # Configure output writing
-    outputAcc, edmSet = triggerOutputCfg( flags, summaryAlg )
+    outputAcc, edmSet = triggerOutputCfg( flags, hypos )
     acc.merge( outputAcc )
 
     if edmSet:

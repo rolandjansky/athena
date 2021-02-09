@@ -603,7 +603,7 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
     TriggerEDMRun3.addHLTNavigationToEDMList(TriggerEDMRun3.TriggerHLTListRun3, decObj, decObjHypoOut)
 
     # Configure output writing
-    CAtoGlobalWrapper( triggerOutputCfg, ConfigFlags, summaryAlg=summaryMakerAlg)
+    CAtoGlobalWrapper(triggerOutputCfg, ConfigFlags, hypos=hypos)
 
 #-------------------------------------------------------------
 # Cost Monitoring
