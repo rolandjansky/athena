@@ -32,11 +32,11 @@ int JetSubStructureHistos::buildHistos(){
 
   // Build and register the histos in this group : 
   TH1::AddDirectory(kFALSE); // Turn off automatic addition to gDirectory to avoid Warnings. Histos are anyway placed in their own dir later.
-  m_tau21 = bookHisto( new TH1F(prefixn+"tau21"  ,  "Jet tau21 (GeV);Entries", 100, 0, 200) );
-  m_tau32 = bookHisto( new TH1F(prefixn+"tau32"  ,  "Jet tau32 (GeV);Entries", 100, 0, 200) );
-  m_C1    = bookHisto( new TH1F(prefixn+"c1"  ,  "Jet c1 (GeV);Entries", 100, 0, 200) );
-  m_C2    = bookHisto( new TH1F(prefixn+"c2"  ,  "Jet c2 (GeV);Entries", 100, 0, 200) );
-  m_D2    = bookHisto( new TH1F(prefixn+"d2"  ,  "Jet d2 (GeV);Entries", 100, 0, 200) );
+  m_tau21 = bookHisto( new TH1F(prefixn+"Tau21"  ,  "Jet Tau21 ;Entries", 100, 0, 1) );
+  m_tau32 = bookHisto( new TH1F(prefixn+"Tau32"  ,  "Jet Tau32 ;Entries", 100, 0, 1) );
+  m_C1    = bookHisto( new TH1F(prefixn+"C1"  ,  "Jet C1 (GeV);Entries", 100, -1, 1) );
+  m_C2    = bookHisto( new TH1F(prefixn+"C2"  ,  "Jet C2 (GeV);Entries", 100, -1, 1) );
+  m_D2    = bookHisto( new TH1F(prefixn+"D2"  ,  "Jet D2 (GeV);Entries", 100, -1, 1) );
   
 
 
