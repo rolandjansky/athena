@@ -158,6 +158,8 @@ compactSpecification = {
     #"CHF": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf", "vector<float>", "gev") ),
     #"CHF[0]": (("SumPtTrkPt500/pT; SumPtTrkPt500/pT;",50,-1.,1.2), ("chf[0]", "vector<float>", "gev") ),
     #CBG
+    #
+    
     #New PFlow Variables
     "DFCommonJets_QGTagger_NTracks": (("DFCommonJets_QGTagger_NTracks; DFCommonJets_QGTagger_NTracks;",30,0.,30.), ("DFCommonJets_QGTagger_NTracks", "float") ),
     "DFCommonJets_QGTagger_TracksWidth": (("DFCommonJets_QGTagger_TracksWidth; DFCommonJets_QGTagger_TracksWidth;",16,-1.1,0.5), ("DFCommonJets_QGTagger_TracksWidth", "float") ),
