@@ -4,7 +4,6 @@
 
 #include "TopPartons/CalcThqPartonHistory.h"
 #include "TopPartons/CalcTopPartonHistory.h"
-#include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
 #include "TopPartons/PartonHistoryUtils.h"
 #include "TopConfiguration/TopConfig.h"
 

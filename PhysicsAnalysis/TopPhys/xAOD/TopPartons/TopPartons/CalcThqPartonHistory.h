@@ -9,7 +9,6 @@
 // Framework include(s):
 #include "TopPartons/CalcTopPartonHistory.h"
 #include "xAODTruth/TruthParticleContainer.h"
-//#include "TopPartons/CalcTChannelSingleTopPartonHistory.h"
 #include "TopPartons/PartonHistory.h"
 
 // forward declaration(s):
