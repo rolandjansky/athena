@@ -97,7 +97,7 @@ def MainServicesCfg(cfgFlags, LoopMgr='AthenaEventLoopMgr'):
         # Migrated code from AtlasThreadedJob.py
         AuditorSvc=CompFactory.AuditorSvc
         msgsvc.defaultLimit = 0
-        msgsvc.Format = "% F%{:d}W%C%4W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
+        msgsvc.Format = "% F%{:d}W%C%6W%R%e%s%8W%R%T %0W%M".format(cfgFlags.Common.MsgSourceLength)
 
         SG__HiveMgrSvc=CompFactory.SG.HiveMgrSvc
         hivesvc = SG__HiveMgrSvc("EventDataSvc")
