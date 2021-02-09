@@ -109,7 +109,7 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-  if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+  if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
 
   for(const auto Tau : *offTaus ){
 
@@ -262,7 +262,7 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::
 
 
     std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-    if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+    if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
     ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 
     auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions , tauContainerName );

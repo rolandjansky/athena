@@ -14,10 +14,10 @@ Trk::TrackStateOnSurface::fitQualityOnSurface() const
   return m_fitQualityOnSurface;
 }
 
-inline const Trk::TrackParameters*
+inline const Trk::TrackParameters* 
 Trk::TrackStateOnSurface::trackParameters() const
 {
-  return m_trackParameters;
+  return m_trackParameters.get();
 }
 
 inline const Trk::MeasurementBase*

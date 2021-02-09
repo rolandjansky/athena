@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/PixelDiodeMatrix.h"
@@ -122,7 +122,7 @@ void PixelDiodeMatrix::initialize(Direction direction,  // phi or eta
 
 }
 
-std::shared_ptr<const PixelDiodeMatrix>
+const PixelDiodeMatrix*
 PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId & cellId) const
 
   /// Description.  
@@ -149,7 +149,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   using Trk::distEta;
 
   if (m_singleCell) {
-    return shared_from_this();
+    return this;
   }
 
   double relPosDir = 0; // Relative position along m_direction
@@ -188,20 +188,20 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
   } 
 
   
-  int index = static_cast<int>((relPosDir) / pitch);
+  int index = relPosDir / pitch;
 
   if (index < 0) index = 0; // Make sure its in range (in case of rounding errors)
-  std::shared_ptr<const PixelDiodeMatrix> nextCell = nullptr;
+  const PixelDiodeMatrix *nextCell{};
 
   if (m_upperCell && (index >= m_numCells)) { 
     // We are in the upper cell. 
     index = m_numCells;
-    nextCell = m_upperCell;
+    nextCell = m_upperCell.get();
   } else {
     // We are in the middle cells
     // Make sure its in range (in case of rounding errors)
     if (index >= m_numCells) index = m_numCells - 1;
-    nextCell = m_middleCells;
+    nextCell = m_middleCells.get();
   }
   
 
@@ -210,7 +210,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
 
   int newPhiIndex = cellId.phiIndex();
   int newEtaIndex = cellId.etaIndex();
-  std::shared_ptr<const PixelDiodeMatrix> cell = nullptr;
+  const PixelDiodeMatrix *cell{};
 
   if (m_direction == phiDir) {
     if (nextCell->singleCell()) {
@@ -242,7 +242,7 @@ PixelDiodeMatrix::cellIdOfPosition(const Amg::Vector2D & relPosition, SiCellId &
 
 	
 	   
-std::shared_ptr<const PixelDiodeMatrix>
+const PixelDiodeMatrix *
 PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & position) const
 
   /// Description.  
@@ -267,7 +267,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   if (m_singleCell) {
     position[distPhi] += 0.5*m_phiWidth;
     position[distEta] += 0.5*m_etaWidth;
-    return shared_from_this();
+    return this;
   }
 
   int relIndex = 0; // Relative index along m_direction
@@ -283,7 +283,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
     
     if (m_lowerCell) {
       if (relIndex < m_lowerCell->phiCells()) {
-	return m_lowerCell->positionOfCell(cellId, position);
+        return m_lowerCell->positionOfCell(cellId, position);
       } else {
 	relIndex -=  m_lowerCell->phiCells();
 	startPos +=  m_lowerCell->phiWidth();
@@ -298,7 +298,7 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
 
     if (m_lowerCell) {
       if (relIndex < m_lowerCell->etaCells()) {
-	return m_lowerCell->positionOfCell(cellId, position);
+        return m_lowerCell->positionOfCell(cellId, position);
       } else {
 	relIndex -=  m_lowerCell->etaCells();
 	startPos +=  m_lowerCell->etaWidth();
@@ -311,17 +311,16 @@ PixelDiodeMatrix::positionOfCell(const SiCellId & cellId, Amg::Vector2D & positi
   relIndex -= index * middleCells;
   startPos += index * pitch;
 
-  std::shared_ptr<const PixelDiodeMatrix> nextCell = nullptr;
-
+  const PixelDiodeMatrix *nextCell{};
   if (m_upperCell && (index == m_numCells)) { 
     // We are in the upper cell. 
-    nextCell = m_upperCell;
+    nextCell = m_upperCell.get();
   } else {
     // We are in the middle cells
-    nextCell = m_middleCells;
+    nextCell = m_middleCells.get();
   }
 
-  std::shared_ptr<const PixelDiodeMatrix> cell = nullptr;
+  const PixelDiodeMatrix *cell{};
   if (m_direction == phiDir) {
     SiCellId relId(relIndex,cellId.etaIndex());
     position[distPhi] += startPos;

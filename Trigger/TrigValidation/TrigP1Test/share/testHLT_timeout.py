@@ -20,6 +20,7 @@ for tool in hypo_tools:
     tool.ROBAccessDict = []
     tool.BurnTimePerCycleMillisec = 200
     tool.NumBurnCycles = 7
+    tool.PEBROBList = [0x7c0000]
 
 hypo = Conf.make_hypo_alg('HypoAlg1')
 hypo.HypoTools = hypo_tools
