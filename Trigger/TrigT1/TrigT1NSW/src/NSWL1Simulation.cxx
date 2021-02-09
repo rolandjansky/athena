@@ -76,18 +76,13 @@ namespace NSWL1 {
     if ( m_doNtuple ) {
       ITHistSvc* tHistSvc;
       ATH_CHECK(service("THistSvc", tHistSvc));
-      char ntuple_name[40];
-      memset(ntuple_name,'\0',40*sizeof(char));
-      sprintf(ntuple_name,"%sTree",name().c_str());
-
+      std::string ntuple_name{ name() + "Tree" };
       // create Ntuple and the branches
-      m_tree = new TTree(ntuple_name, "Ntuple of NSWL1Simulation");
+      m_tree = new TTree(ntuple_name.c_str(), "Ntuple of NSWL1Simulation");
       m_tree->Branch("runNumber",   &m_current_run, "runNumber/i");
       m_tree->Branch("eventNumber", &m_current_evt, "eventNumber/i");
 
-      char tdir_name[80];
-      memset(tdir_name,'\0',80*sizeof(char));
-      sprintf(tdir_name,"/%s/%s",name().c_str(),ntuple_name);
+      std::string tdir_name{ "/" + name() + "/" + ntuple_name };
       ATH_CHECK(tHistSvc->regTree(tdir_name,m_tree));
     }
 
