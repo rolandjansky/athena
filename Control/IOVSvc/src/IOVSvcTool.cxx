@@ -227,9 +227,9 @@ IOVSvcTool::initialize() {
 void 
 IOVSvcTool::handle(const Incident &inc) {
 
-  uint32_t event, run;
-  
-  std::string objname;
+  //The first part of the handle-function is non-const and not re-entrant
+  //In MT mode, only called during the serial part at the beginning of the job 
+  //(hopefully)
 
   const bool first = m_first;
   if (m_first) m_first = false;
@@ -253,9 +253,9 @@ IOVSvcTool::handle(const Incident &inc) {
         ATH_MSG_DEBUG("will ignore resetting proxy " << fullProxyName(proxy));
       }
     }
-  }
+  }//end first
 
-  set< DataProxy*, SortDPptr > proxiesToReset;
+
 
   // Forcing IOV checks on the first event in the run for AthenaMP (ATEAM-439)
   if(Gaudi::Concurrency::ConcurrencyFlags::numProcs()==0) {
@@ -271,25 +271,26 @@ IOVSvcTool::handle(const Incident &inc) {
     }
   }
 
+  set< DataProxy*, SortDPptr > proxiesToReset;
   if ( inc.type() == m_checkTrigger || inc.type() == IncidentType::BeginRun ) {
 
     const EventContext& context = inc.context();
 
-    m_curTime.reset();
+    IOVTime curTime;
     
     const EventIDBase& eventID = context.eventID();
-    event = eventID.lumi_block();
-    run   = eventID.run_number();
+    uint32_t event = eventID.lumi_block();
+    uint32_t run   = eventID.run_number();
     
     ATH_MSG_DEBUG("Got event info: " << "run="<< run << ", event=" << event);
-    m_curTime.setRunEvent(run,event);
+    curTime.setRunEvent(run,event);
 
     // get ns timestamp from event
-    m_curTime.setTimestamp(1000000000L*(uint64_t)eventID.time_stamp() + eventID.time_stamp_ns_offset());
+    curTime.setTimestamp(1000000000L*(uint64_t)eventID.time_stamp() + eventID.time_stamp_ns_offset());
 
     if (msgLvl(MSG::DEBUG)) {
       msg().setColor(MSG::YELLOW,MSG::RED);
-      msg() << inc.type() << ": [R/LB] = " << m_curTime << endmsg;
+      msg() << inc.type() << ": [R/LB] = " << curTime << endmsg;
     }
 
     if (inc.type() == IncidentType::BeginRun) {
@@ -299,14 +300,14 @@ IOVSvcTool::handle(const Incident &inc) {
         ATH_MSG_DEBUG("Unable to get the IOVDbSvc");
         return;
       }
-      if (StatusCode::SUCCESS != iovDB->signalBeginRun(m_curTime,
+      if (StatusCode::SUCCESS != iovDB->signalBeginRun(curTime,
                                                        inc.context()))
       {
         ATH_MSG_ERROR("Unable to signal begin run to IOVDbSvc");
         return;
       }
       else {
-        ATH_MSG_DEBUG("Signaled begin run to IOVDbSvc " << m_curTime);
+        ATH_MSG_DEBUG("Signaled begin run to IOVDbSvc " << curTime);
       }
     }
     
@@ -343,9 +344,9 @@ IOVSvcTool::handle(const Incident &inc) {
       IIOVDbSvc *iovDB = nullptr;
       if (service("IOVDbSvc", iovDB, false).isSuccess()) {
         iovDB->signalEndProxyPreload();
-        ATH_MSG_DEBUG("Signaled end proxy preload to IOVDbSvc " << m_curTime);
+        ATH_MSG_DEBUG("Signaled end proxy preload to IOVDbSvc " << curTime);
       }
-    }
+    }// end if first
     
     // If preLoadData has been set, never check validity of data again.
     if (m_preLoadData && m_checkOnce) {
@@ -376,18 +377,18 @@ IOVSvcTool::handle(const Incident &inc) {
       if (msgLvl(MSG::VERBOSE)) {
         std::set< const SG::DataProxy* >::const_iterator pit;
         for (SG::DataProxy* p : m_proxies) {
-          msg() << "   " << m_names[p] << std::endl;
+          msg() << "   " << m_names.at(p) << std::endl;
         }
         msg() << endmsg;
       }
       proxiesToReset = m_proxies;
       m_triggered = false;
     } else {
-      scanStartSet(m_startSet_Clock,"(ClockTime)",proxiesToReset);
-      scanStartSet(m_startSet_RE,"(R/E)",proxiesToReset);
+      scanStartSet(m_startSet_Clock,"(ClockTime)",proxiesToReset,curTime);
+      scanStartSet(m_startSet_RE,"(R/E)",proxiesToReset,curTime);
 
-      scanStopSet(m_stopSet_Clock,"(ClockTime)",proxiesToReset);
-      scanStopSet(m_stopSet_RE,"(R/E)",proxiesToReset);
+      scanStopSet(m_stopSet_Clock,"(ClockTime)",proxiesToReset,curTime);
+      scanStopSet(m_stopSet_RE,"(R/E)",proxiesToReset,curTime);
     }
 
     for (auto p : m_ignoredProxies) {
@@ -413,7 +414,7 @@ IOVSvcTool::handle(const Incident &inc) {
     //// 
     //
     for (DataProxy* prx : proxiesToReset) {
-      ATH_MSG_VERBOSE("clearing proxy payload for " << m_names[prx]);
+      ATH_MSG_VERBOSE("clearing proxy payload for " << m_names.at(prx));
 
       // Reset proxy except when one wants to reset callbacks
       
@@ -429,9 +430,9 @@ IOVSvcTool::handle(const Incident &inc) {
            m_preLoadData ) {       
         ATH_MSG_VERBOSE("preloading data");
 
-        Gaudi::Guards::AuditorGuard auditor(m_names[prx], auditorSvc(), "preLoadProxy");
+        Gaudi::Guards::AuditorGuard auditor(m_names.at(prx), auditorSvc(), "preLoadProxy");
         if (prx->accessData() == nullptr) {
-          ATH_MSG_ERROR("problems preloading data for " << m_names[prx]);
+          ATH_MSG_ERROR("problems preloading data for " << m_names.at(prx));
         }
       }
 
@@ -460,15 +461,16 @@ IOVSvcTool::handle(const Incident &inc) {
 
           if (node->trigger()) {
             BFCN *ff = node->fcn();
-            auditorSvc()->before("Callback",m_fcnMap[ff].name());
+            auditorSvc()->before("Callback",m_fcnMap.at(ff).name());
             if ((*ff)(i,resetKeys[ff]).isFailure()) {
-              auditorSvc()->after("Callback",m_fcnMap[ff].name());
-              ATH_MSG_ERROR("Problems calling " << m_fcnMap[ff].name()
+              auditorSvc()->after("Callback",m_fcnMap.at(ff).name());
+              ATH_MSG_ERROR("Problems calling " << m_fcnMap.at(ff).name()
                             << std::endl << "Skipping all subsequent callbacks.");
               // this will cause a mem leak, but I don't care
-              perr = new IOVCallbackError(m_fcnMap[ff].name());
-              break;            }
-            auditorSvc()->after("Callback",m_fcnMap[ff].name());
+              perr = new IOVCallbackError(m_fcnMap.at(ff).name());
+              break;            
+	    }
+	    auditorSvc()->after("Callback",m_fcnMap.at(ff).name());
 
           }
         }
@@ -496,10 +498,10 @@ IOVSvcTool::handle(const Incident &inc) {
     std::map<const DataProxy*, IOVEntry*>::iterator pitr;
     for (DataProxy* prx : proxiesToReset) {
       pitr = m_entries.find( prx );
-      if ( pitr != m_entries.end() && pitr->second->range()->isInRange(m_curTime) ) {
-        ATH_MSG_VERBOSE("range still valid for " << m_names[prx]);
+      if ( pitr != m_entries.end() && pitr->second->range()->isInRange(curTime) ) {
+        ATH_MSG_VERBOSE("range still valid for " << m_names.at(prx));
       } else {
-        ATH_MSG_DEBUG("calling provider()->udpateAddress(TAD) for " << m_names[prx]   );
+        ATH_MSG_DEBUG("calling provider()->udpateAddress(TAD) for " << m_names.at(prx)   );
         if (!prx->updateAddress()) {
           ATH_MSG_ERROR("handle: Could not update address");
           if (perr != nullptr) throw (*perr);
@@ -870,10 +872,11 @@ IOVSvcTool::getRange(const CLID& clid, const std::string& key,
 StatusCode 
 IOVSvcTool::getRangeFromDB(const CLID& clid, const std::string& key, 
                            IOVRange& range, std::string &tag, 
-                           std::unique_ptr<IOpaqueAddress>& ioa) const {
+                           std::unique_ptr<IOpaqueAddress>& ioa, 
+			   const IOVTime& curTime) const {
 
-  if (m_curTime.isValid()) {
-    return getRangeFromDB(clid, key, m_curTime, range, tag, ioa);
+  if (curTime.isValid()) {
+    return getRangeFromDB(clid, key, curTime, range, tag, ioa);
   } else {
     ATH_MSG_ERROR("Current Event not defined");
     return StatusCode::FAILURE;
@@ -1098,14 +1101,14 @@ IOVSvcTool::triggerCallback( const SG::DataProxy *dp,
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void 
-IOVSvcTool::PrintStartSet() {
+IOVSvcTool::PrintStartSet() const {
   startITR start_itr;
   std::string objname;
   
   if (m_startSet_Clock.begin() != m_startSet_Clock.end()) {
     msg() << endl << "ClockTime start set: " << endl;
     for (start_itr = m_startSet_Clock.begin(); start_itr!=m_startSet_Clock.end(); ++start_itr ) {
-      objname = m_names[ (*start_itr)->proxy() ];
+      objname = m_names.at( (*start_itr)->proxy() );
       msg() << "  " << objname << " (" << (*start_itr)->proxy() << ") "
             << (*start_itr)->range()->start() << endl;    
     }
@@ -1115,7 +1118,7 @@ IOVSvcTool::PrintStartSet() {
   if (m_startSet_RE.begin() != m_startSet_RE.end()) {
     msg() << "Run/Event start set: " << endl;
     for (start_itr = m_startSet_RE.begin(); start_itr!=m_startSet_RE.end();++start_itr ) {
-      objname = m_names[ (*start_itr)->proxy() ];
+      objname = m_names.at( (*start_itr)->proxy() );
       msg() << "  " << objname << " (" << (*start_itr)->proxy() << ") "
             << (*start_itr)->range()->start() << endl;    
     }
@@ -1126,14 +1129,14 @@ IOVSvcTool::PrintStartSet() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void 
-IOVSvcTool::PrintStopSet() {
+IOVSvcTool::PrintStopSet() const {
   stopITR  stop_itr;
   std::string objname;
   
   if (m_stopSet_Clock.begin() != m_stopSet_Clock.end()) {
     msg() << endl << "ClockTime stop set: " << endl;
     for( stop_itr=m_stopSet_Clock.begin(); stop_itr!=m_stopSet_Clock.end(); ++stop_itr ) {
-      objname = m_names[ (*stop_itr)->proxy() ];
+      objname = m_names.at((*stop_itr)->proxy());
       msg() << "  " << objname << " (" << (*stop_itr)->proxy() << ") "
             << (*stop_itr)->range()->stop() << endl;    
     }
@@ -1143,7 +1146,7 @@ IOVSvcTool::PrintStopSet() {
   if (m_stopSet_RE.begin() != m_stopSet_RE.end()) {
     msg() << "Run/Event stop set: " << endl;
     for( stop_itr=m_stopSet_RE.begin(); stop_itr!=m_stopSet_RE.end(); ++stop_itr ) {
-      objname = m_names[ (*stop_itr)->proxy() ];
+      objname = m_names.at((*stop_itr)->proxy());
       msg() << "  " << objname << " (" << (*stop_itr)->proxy() << ") "
             << (*stop_itr)->range()->stop() << endl;    
     }
@@ -1153,7 +1156,7 @@ IOVSvcTool::PrintStopSet() {
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void 
-IOVSvcTool::PrintProxyMap(){
+IOVSvcTool::PrintProxyMap() const{
   msg() << endl;
   msg() << "------------------------------  IOVSvc Proxy Map  "
         << "------------------------------" << endl;
@@ -1168,18 +1171,15 @@ IOVSvcTool::PrintProxyMap(){
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
 void 
-IOVSvcTool::PrintProxyMap(const SG::DataProxy* dp){
+IOVSvcTool::PrintProxyMap(const SG::DataProxy* dp) const {
 
   msg() << "  " << dp << "  " << dp->clID() << "  "
         << m_names.find(dp)->second << endl;
-
-  pair<pmITR,pmITR> pi = m_proxyMap.equal_range(dp);
-  pmITR pitr;
-  
+  auto pi = m_proxyMap.equal_range(dp);
   if (pi.first == pi.second) {
     msg() << "         ->  no callback associated" << endl;
   } else {
-    for (pitr=pi.first; pitr!=pi.second; ++pitr) {
+    for (auto pitr=pi.first; pitr!=pi.second; ++pitr) {
       BFCN* fcn = pitr->second;
       map<BFCN*,CallBackID>::const_iterator fitr = m_fcnMap.find(fcn);
       CallBackID cbid = fitr->second;
@@ -1445,7 +1445,8 @@ IOVSvcTool::reinitialize(){
 
 void 
 IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type, 
-                         std::set<SG::DataProxy*, SortDPptr> &proxiesToReset) {
+                         std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
+			 const IOVTime& curTime) const {
 
   std::string objname;
   
@@ -1458,9 +1459,9 @@ IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type,
   startITR start_itr( pSet.begin() );
   while ( start_itr != pSet.end() ) {
     
-    if (m_resetAllCallbacks || (*start_itr)->range()->start() > m_curTime) {
+    if (m_resetAllCallbacks || (*start_itr)->range()->start() > curTime) {
       if (msgLvl(MSG::DEBUG)) {
-        msg() << "\t" << m_names[ (*start_itr)->proxy() ] << ": "
+        msg() << "\t" << m_names.at((*start_itr)->proxy()) << ": "
               << (*start_itr)->range()->start()<<"   <- removed"<<endl;
       }
       proxiesToReset.insert( (*start_itr)->proxy() );
@@ -1483,7 +1484,8 @@ IOVSvcTool::scanStartSet(startSet &pSet, const std::string &type,
 
 void 
 IOVSvcTool::scanStopSet(stopSet &pSet, const std::string &type,
-                        std::set<SG::DataProxy*, SortDPptr> &proxiesToReset) {
+                        std::set<SG::DataProxy*, SortDPptr> &proxiesToReset,
+			const IOVTime& curTime) const {
 
   std::string objname;
 
@@ -1495,9 +1497,9 @@ IOVSvcTool::scanStopSet(stopSet &pSet, const std::string &type,
   stopITR  stop_itr(pSet.begin());
   while ( stop_itr != pSet.end() ) {
     
-    if (m_resetAllCallbacks || (*stop_itr)->range()->stop() <= m_curTime) {
+    if (m_resetAllCallbacks || (*stop_itr)->range()->stop() <= curTime) {
       if (msgLvl(MSG::DEBUG)) {
-        msg() << "   " << m_names[ (*stop_itr)->proxy() ] << ": "
+        msg() << "   " << m_names.at((*stop_itr)->proxy()) << ": "
               << (*stop_itr)->range()->stop()<< "  -> removed"<<endl;
       }
       proxiesToReset.insert( (*stop_itr)->proxy() );

@@ -69,7 +69,8 @@ public:
   // Get IOVRange from db for current event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
                                     IOVRange& range, std::string &tag,
-                                    std::unique_ptr<IOpaqueAddress>& ioa) const = 0;
+                                    std::unique_ptr<IOpaqueAddress>& ioa,
+				    const IOVTime& curTime) const = 0;
 
   // Get IOVRange from db for a particular event
   virtual StatusCode getRangeFromDB(const CLID& clid, const std::string& key, 
