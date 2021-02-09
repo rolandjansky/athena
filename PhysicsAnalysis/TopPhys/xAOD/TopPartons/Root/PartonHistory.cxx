@@ -649,8 +649,19 @@ namespace xAOD {
     this->auxdecor< float >("MC_spectatorquark_afterFSR_pt") = -1000;
     this->auxdecor< float >("MC_spectatorquark_afterFSR_eta") = -1000;
     this->auxdecor< float >("MC_spectatorquark_afterFSR_phi") = -1000;
-    this->auxdecor< float >("MC_spectatorquark_afterFSR_m") = -1000;       
+    this->auxdecor< float >("MC_spectatorquark_afterFSR_m") = -1000;
     
+    // Second b-quark 
+    this->auxdecor< float >("MC_secondb_beforeFSR_m") = -1000;
+    this->auxdecor< float >("MC_secondb_beforeFSR_pt") = -1000;
+    this->auxdecor< float >("MC_secondb_beforeFSR_eta") = -1000;
+    this->auxdecor< float >("MC_secondb_beforeFSR_phi") = -1000;
+    this->auxdecor< int >("MC_secondb_beforeFSR_pdgId") = -1000;
+    this->auxdecor< float >("MC_secondb_afterFSR_m") = -1000;
+    this->auxdecor< float >("MC_secondb_afterFSR_pt") = -1000;
+    this->auxdecor< float >("MC_secondb_afterFSR_eta") = -1000;
+    this->auxdecor< float >("MC_secondb_afterFSR_phi") = -1000;
+    this->auxdecor< int >("MC_secondb_afterFSR_pdgId") = -1000;
   }
   
   // Initialize variables for tZq events

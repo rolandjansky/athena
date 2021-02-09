@@ -77,6 +77,11 @@ namespace top {
 			TLorentzVector& spectatorquark_afterFSR, int& spectatorquark_pdgId, int& spectatorquark_status);
     
 
+    // Store b-quark from gluon spliting information
+    bool secondb(const xAOD::TruthParticleContainer* truthParticles, int start,
+		 TLorentzVector& secondb_beforeFSR_p4, int& secondb_beforeFSR_pdgId,
+		 TLorentzVector& secondb_afterFSR_p4, int& secondb_afterFSR_pdgId);
+
     virtual StatusCode execute();
   };
 }

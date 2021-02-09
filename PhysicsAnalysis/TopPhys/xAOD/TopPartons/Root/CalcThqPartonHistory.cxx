@@ -79,15 +79,42 @@ namespace top {
     // find spectator quark:
     TLorentzVector spectatorquark_before;
     TLorentzVector spectatorquark_after;
-
     int spectatorquark_pdgId;
     int spectatorquark_status;
-
-    //const bool event_sq = CalcTChannelSingleTopPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
     bool event_sq = CalcThqPartonHistory::spectatorquark(truthParticles, spectatorquark_before, spectatorquark_after, spectatorquark_pdgId, spectatorquark_status);
 
+    // second b-quark
+    bool event_secondb = false;
+    bool event_secondbbar = false;
+    TLorentzVector secondb_beforeFSR_p4;
+    int secondb_beforeFSR_pdgId;
+    TLorentzVector secondb_afterFSR_p4;
+    int secondb_afterFSR_pdgId;
+
+    if (event_topbar) {
+      event_secondb = CalcThqPartonHistory::secondb(truthParticles, 5, secondb_beforeFSR_p4, secondb_beforeFSR_pdgId, secondb_afterFSR_p4, secondb_afterFSR_pdgId);
+    }
+    if (event_top) {
+      event_secondbbar = CalcThqPartonHistory::secondb(truthParticles, -5, secondb_beforeFSR_p4, secondb_beforeFSR_pdgId, secondb_afterFSR_p4, secondb_afterFSR_pdgId);
+    }
+
+
     if (event_Higgs) {
-      if (event_top || event_topbar) {
+      if ((event_top && event_secondbbar) || (event_topbar && event_secondb)) {
+	//second b-quark
+	ThqPartonHistory->auxdecor< float >("MC_secondb_beforeFSR_m") = secondb_beforeFSR_p4.M();
+	ThqPartonHistory->auxdecor< float >("MC_secondb_beforeFSR_pt") = secondb_beforeFSR_p4.Pt();
+	ThqPartonHistory->auxdecor< float >("MC_secondb_beforeFSR_phi") = secondb_beforeFSR_p4.Phi();
+	ThqPartonHistory->auxdecor< int >("MC_secondb_beforeFSR_pdgId") = secondb_beforeFSR_pdgId;
+	fillEtaBranch(ThqPartonHistory, "MC_secondb_beforeFSR_eta", secondb_beforeFSR_p4);
+	
+	ThqPartonHistory->auxdecor< float >("MC_secondb_afterFSR_m") = secondb_afterFSR_p4.M();
+	ThqPartonHistory->auxdecor< float >("MC_secondb_afterFSR_pt") = secondb_afterFSR_p4.Pt();
+	ThqPartonHistory->auxdecor< float >("MC_secondb_afterFSR_phi") = secondb_afterFSR_p4.Phi();
+	ThqPartonHistory->auxdecor< int >("MC_secondb_afterFSR_pdgId") = secondb_afterFSR_pdgId;
+	fillEtaBranch(ThqPartonHistory, "MC_secondb_afterFSR_eta", secondb_afterFSR_p4);      
+
+	// top quark
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_m") = t_before.M();
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_pt") = t_before.Pt();
         ThqPartonHistory->auxdecor< float >("MC_t_beforeFSR_phi") = t_before.Phi();
@@ -105,6 +132,7 @@ namespace top {
           fillEtaBranch(ThqPartonHistory, "MC_t_afterFSR_SC_eta", t_after_SC);
         }
 
+	// spectator quark
 	if(((event_top && !event_topbar) || (!event_top && event_topbar)) && event_sq){
 	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_pt") = spectatorquark_before.Pt();
 	  ThqPartonHistory->auxdecor< float >("MC_spectatorquark_beforeFSR_phi") = spectatorquark_before.Phi();
@@ -119,7 +147,7 @@ namespace top {
 	  fillEtaBranch(ThqPartonHistory,"MC_spectatorquark_afterFSR_eta", spectatorquark_after);
 	}
 
-
+	// tay decay system
         ThqPartonHistory->auxdecor< float >("MC_W_from_t_m") = Wp.M();
         ThqPartonHistory->auxdecor< float >("MC_W_from_t_pt") = Wp.Pt();
         ThqPartonHistory->auxdecor< float >("MC_W_from_t_phi") = Wp.Phi();
@@ -206,7 +234,6 @@ namespace top {
         ThqPartonHistory->auxdecor< float >("MC_Higgs_tau_decay2_from_decay1_phi") = tH.tau_decay2_from_decay1_p4.Phi();
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_tau_decay2_from_decay1_eta", tH.tau_decay2_from_decay1_p4);	
 
-
         //Higgs-decay1- from decay2-Variables
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay2_m") = tH.decay1_from_decay2_p4.M();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay1_from_decay2_pt") = tH.decay1_from_decay2_p4.Pt();
@@ -214,14 +241,12 @@ namespace top {
         ThqPartonHistory->auxdecor< int >("MC_Higgs_decay1_from_decay2_pdgId") = tH.decay1_from_decay2_pdgId;
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_decay1_from_decay2_eta", tH.decay1_from_decay2_p4);
 
-
 	ThqPartonHistory->auxdecor< int >("MC_Higgs_tau_decay1_from_decay2_isHadronic") = tH.tau_decay1_from_decay2_isHadronic;
         ThqPartonHistory->auxdecor< float >("MC_Higgs_tau_decay1_from_decay2_m") = tH.tau_decay1_from_decay2_p4.M();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_tau_decay1_from_decay2_pt") = tH.tau_decay1_from_decay2_p4.Pt();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_tau_decay1_from_decay2_phi") = tH.tau_decay1_from_decay2_p4.Phi();
         fillEtaBranch(ThqPartonHistory, "MC_Higgs_tau_decay1_from_decay2_eta", tH.tau_decay1_from_decay2_p4);
 
-	
         //Higgs-decay2- from decay2-Variables
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay2_m") = tH.decay2_from_decay2_p4.M();
         ThqPartonHistory->auxdecor< float >("MC_Higgs_decay2_from_decay2_pt") = tH.decay2_from_decay2_p4.Pt();
@@ -290,7 +315,28 @@ namespace top {
     return false;
   }
 
+  bool CalcThqPartonHistory::secondb(const xAOD::TruthParticleContainer* truthParticles, int start, 
+				     TLorentzVector& secondb_beforeFSR_p4, int& secondb_beforeFSR_pdgId,
+				     TLorentzVector& secondb_afterFSR_p4, int& secondb_afterFSR_pdgId) {
+    for (const xAOD::TruthParticle* particle : *truthParticles) {
+      if (particle->pdgId() != start) { continue; } // start = +- 6
+      for (size_t i=0; i< particle->nParents(); i++) {
+	const xAOD::TruthParticle* parent = particle->parent(i);
+	if (parent->pdgId() == 21) { //second b is originated from gluon spliting
+	  const xAOD::TruthParticle* secondb_beforeFSR = particle;
+          secondb_beforeFSR_p4 = secondb_beforeFSR->p4();
+	  secondb_beforeFSR_pdgId = secondb_beforeFSR->pdgId();
 
+          const xAOD::TruthParticle* secondb_afterFSR = PartonHistoryUtils::findAfterFSR(particle);
+          secondb_afterFSR_p4 = secondb_afterFSR->p4();
+	  secondb_afterFSR_pdgId = secondb_afterFSR->pdgId();
+
+	  return true;
+	} // if parent is gluon
+      } // for iparents
+    }//for
+    return false;
+  }
 
   StatusCode CalcThqPartonHistory::execute() {
     //Get the Truth Particles
