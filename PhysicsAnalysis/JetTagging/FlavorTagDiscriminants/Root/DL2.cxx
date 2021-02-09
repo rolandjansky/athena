@@ -325,6 +325,31 @@ namespace FlavorTagDiscriminants {
               return true;
             }, data_deps
           };
+          // Loose track selection for DIPS
+          // pt > 0.5 GeV
+          // abs(d0) < 3.5 mm
+          // abs(z0 sin(theta)) < 5.0 mm
+          // >= 7 si hits
+          // <= 2 si holes
+          // <= 1 pix holes
+        case TrackSelection::DIPS_LOOSE_202102:
+          return {
+            [=](const Tp* tp) {
+              // from the track selector tool
+              if (std::abs(tp->eta()) > 2.5) return false;
+              double n_module_shared = (
+                pix_shared(*tp) + sct_shared(*tp) / 2);
+              if (n_module_shared > 1) return false;
+              if (tp->pt() <= 0.5e3) return false;
+              if (std::abs(aug.d0(*tp)) >= 3.5) return false;
+              if (std::abs(aug.z0SinTheta(*tp)) >= 5.0) return false;
+              if (pix_hits(*tp) + pix_dead(*tp) + sct_hits(*tp)
+                  + sct_dead(*tp) < 7) return false;
+              if ((pix_holes(*tp) + sct_holes(*tp)) > 2) return false;
+              if (pix_holes(*tp) > 1) return false;
+              return true;
+            }, data_deps
+          };
         default:
           throw std::logic_error("unknown track selection function");
         }
