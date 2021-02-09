@@ -148,6 +148,7 @@ class HLTTauMonTool : public IHLTMonTool {
   /* StatusCode OfflineEfficiency(const std::string & trigItem); */
   /* StatusCode OfflineEfficiencyBDTMedium(const std::string & trigItem); */
   bool Match_Offline_L1(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
+  bool Match_Offline_L1(const TLorentzVector & aOfflineTau, const std::string & trigItem);
   bool Match_Offline_EF(const xAOD::TauJet *aOfflineTau, const std::string & trigItem);
   int PrimaryVertices();
   float Pileup();

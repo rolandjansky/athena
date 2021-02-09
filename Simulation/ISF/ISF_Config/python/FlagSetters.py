@@ -137,6 +137,12 @@ def configureFlagsG4FastCalo():
     simFlags.SimulationFlavour = "G4FastCalo"
     return
 
+def configureFlagsG4FastCalo_QS():
+    configureFlagsATLFASTII()
+    from G4AtlasApps.SimFlags import simFlags
+    simFlags.SimulationFlavour = "G4FastCalo_QS"
+    return
+
 def configureFlagsG4FastCaloTest():
     configureFlagsATLFASTII()
     from G4AtlasApps.SimFlags import simFlags

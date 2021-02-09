@@ -25,6 +25,8 @@ def enableCTPEmulation(athSequence, setupOutput=False):
     ctpEmulation.eFEXREta  = getRun3EFexParameterSelection('reta')
     ctpEmulation.eFEXRHad  = getRun3EFexParameterSelection('rhad')
     ctpEmulation.eFEXWStot = getRun3EFexParameterSelection('wstot')
+    ctpEmulation.eFEXTauIso = getRun3EFexParameterSelection('eTauIso')
+    ctpEmulation.jFEXTauIso = getRun3EFexParameterSelection('jTauIso')
 
     from AthenaCommon.Constants import DEBUG
     if simflags.EnableDebugOutput():

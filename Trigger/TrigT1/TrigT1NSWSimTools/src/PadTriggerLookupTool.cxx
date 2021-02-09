@@ -1,3 +1,4 @@
+ 
 /*
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
@@ -40,10 +41,13 @@ PadTriggerLookupTool::PadTriggerLookupTool( const std::string& type,
     m_etaBandsLargeSector(BandsInEtaLargeSector),
     m_etaBandsSmallSector(BandsInEtaSmallSector),
     m_detManager(0),
-    m_dumpSectorGeometry(true)
+    m_dumpSectorGeometry(true),
+    m_doNtuple(false)
+
 {
     declareInterface<NSWL1::IPadTriggerLookupTool>(this);
     declareProperty("DumpSectorGeometry",m_dumpSectorGeometry  = true, "record sector pad geometry into an ASCII file / use it for debugging");
+    declareProperty("DoNtuple", m_doNtuple = false, "save the trigger outputs in an analysis ntuple"); 
 }
 //------------------------------------------------------------------------------
 PadTriggerLookupTool::~PadTriggerLookupTool() {
@@ -69,6 +73,14 @@ StatusCode PadTriggerLookupTool::initialize() {
         padGeoFile.close();
 
     }
+    const IInterface* parent = this->parent();
+    const INamedInterface* pnamed = dynamic_cast<const INamedInterface*>(parent);
+    std::string algo_name = pnamed->name();
+    if ( m_doNtuple && algo_name=="NSWL1Simulation" ) {
+        TTree *tree=nullptr;
+        ATH_CHECK(get_tree_from_histsvc(tree));
+        m_validation_tree.init_tree(tree);
+    }
     
     return StatusCode::SUCCESS;
 }
@@ -76,19 +88,35 @@ StatusCode PadTriggerLookupTool::initialize() {
 
 void PadTriggerLookupTool::handle(const Incident& inc) {
     
+
+
     if( inc.type()==IncidentType::BeginEvent ) {
-        return;
+        m_validation_tree.reset_ntuple_variables();
     }
     
     
     return;
 }
+
+StatusCode PadTriggerLookupTool::get_tree_from_histsvc( TTree*&tree)
+{
+    ITHistSvc* tHistSvc=nullptr;
+    m_validation_tree.clear_ntuple_variables();
+    ATH_CHECK(service("THistSvc", tHistSvc));
+    std::string algoname = dynamic_cast<const INamedInterface*>(parent())->name();
+    std::string treename = PadTriggerValidationTree::treename_from_algoname(algoname);  
+    ATH_CHECK(tHistSvc->getTree(treename, tree));
+    return StatusCode::SUCCESS;
+}
+
 //given a set of Pads / event this will distinguish the activated sides + sectors then looks up all possible triggers from the LUT
 StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shared_ptr<PadData>>& pads,
                                                             std::vector<std::unique_ptr<PadTrigger>> &triggers)
 {
+
     std::set<int> activeSides;
     std::set<int> activeSectors;
+
     //use sector numbers {1,2,3,.....16}
     std::for_each(pads.begin(),pads.end(),[&](const std::shared_ptr<PadData>& p){
                                                 activeSides.insert(p->sideId() );
@@ -99,14 +127,14 @@ StatusCode PadTriggerLookupTool::lookup_pad_triggers(const std::vector<std::shar
     //use only active sectors selected by the pads / event
     for(const size_t &side : activeSides){//0:C 1:A
         for(const size_t &sector : activeSectors){//{1...16} odd:L even:S
-            ATH_CHECK( LookupSectorTriggers(pads,side,sector,triggers));
+            ATH_CHECK( LookupSectorTriggers(pads,side,sector,triggers));//GA - should we limit the simulation to run on sector with less than ~4*8=32 pad hits?
         }
     }
     //now you have gathered all the triggers from all sides/sectors..
     //fill some geometric info for strip selection. the info is sent to the strip
     //(currently using band eta-design from Y.R)
     //However it must be removed from the code once xml file is fixed for bands-strips
-    
+
     return StatusCode::SUCCESS;
 }
 
@@ -159,6 +187,9 @@ StatusCode PadTriggerLookupTool::expandCoincidenceTable(){//There we append 3o4s
             int phiid=kv.second.second;
             for(const int& in : innerIndices ){
                 std::vector<int> pattern=kv.first;//copy
+                if(pattern.at(in)==nullPadNumber || pattern.at(in+4)==nullPadNumber){
+                    continue;
+                }
                 pattern.at(in)=nullPadNumber;
                 for(const int& out :outerIndices){
                     int thispattern=pattern.at(out);
@@ -226,15 +257,16 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
         std::vector<std::vector<std::shared_ptr<PadData> >> padCombinationsInWedge;
         //if we have more than 1 layer missing reject / returns an empty list
         std::vector< size_t> nHitsLayerWise={ padsOnLayer1.size(),padsOnLayer2.size(),padsOnLayer3.size(),padsOnLayer4.size() };
-        if( std::count(nHitsLayerWise.begin(),nHitsLayerWise.end(),0)>1){
-             ATH_MSG_WARNING("Not enough layer hits to build a pattern at side="<<side<<" sector="<<sector);
-             return padCombinationsInWedge;//returns empty
-        }
+        //GA - The following was commented out because it skiiped valid SWPT events
+        // if( std::count(nHitsLayerWise.begin(),nHitsLayerWise.end(),0)>1){
+        //      ATH_MSG_WARNING("Not enough layer hits to build a pattern at side="<<side<<" sector="<<sector);
+        //      return padCombinationsInWedge;//returns empty
+        // }
         //assigns a vector of {nullPad} (size 1) on a layer if it has no hits
         auto addEmptyLayerIfAny=[]( std::vector<std::shared_ptr<PadData> >& layerPads)->void{
             if(layerPads.size() ==0 ){
                  std::vector<std::shared_ptr<PadData>> emptyLayer;
-                 std::shared_ptr<PadData> nullPad=std::make_shared<PadOfflineData>(Identifier(0), 0, 0, nullptr);//do not change the null pointer !
+                 std::shared_ptr<PadData> nullPad=std::make_shared<PadOfflineData>(Identifier(0), 0, 0, nullptr);//do not change the null pointer ! THIS IS NULL PAD DATA
                  emptyLayer.push_back(nullPad);
                  layerPads=emptyLayer;
             }
@@ -275,6 +307,7 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                 }
                 return true;                   
         };
+
         //Given a set of pads/module/wedge check if the given pad configuration satisfies the logic
         //for 4 layer hit patterns use the 2-bits weak logic.
         //if you want to scan all the legit triggers use full logic (with 3 bits for 4 layer hits!)
@@ -304,7 +337,6 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
             No need to check sector/side matching as the whole thing runs on per unique sector
             */
         };
-
         //We can remove the entire "allInSameModule" check as we do module checks with sameModule in nested loops (Gal spotted this)
         for(const std::shared_ptr<PadData>& pad1 : padsOnLayer1 ){
             for(const std::shared_ptr<PadData>& pad2 : padsOnLayer2 ){
@@ -331,8 +363,72 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                 for(const auto& out : outM){
                     if(in->padNumber()!=nullPadNumber && out->padNumber()!=nullPadNumber ){
                         //if youre not sure what these numbers are here and all around see PadOfflineData::padNumber()
-                        return out->padNumber()/1000-in->padNumber()/1000 <=1;
+                        // This is without TR
+                        //if(!(out->padNumber()/1000-in->padNumber()/1000 <=1)){
+                        //    return false;
+                        //}
+                        if(!(out->padNumber()/1000-in->padNumber()/1000 <=1) && !(out->padNumber()/1000 == 2 && in->padNumber()/1000==1) && !(out->padNumber()/1000 == 3 && in->padNumber()/1000==2) && !(out->padNumber()/1000 == 5 && in->padNumber()/1000==4) && !(out->padNumber()/1000 == 6 && in->padNumber()/1000==5)){
+                            return false;
+                        }                      
                     }
+                }
+            }
+            return true;
+        };
+
+        // GA - SWPT in TR functions
+        auto isSingleWedgeTriggerInner=[](const std::vector<std::shared_ptr<PadData>>& inM)->bool{
+            for(const auto& in : inM){
+                if(in->padNumber()==nullPadNumber){ //There are no nullPadNumbers in TR as we only have 1*4/4
+                    return false;
+                    }            
+            }
+            return true;
+        };
+
+        auto isSingleWedgeTriggerOuter=[](const std::vector<std::shared_ptr<PadData>>& outM)->bool{
+            for(const auto& out : outM){
+                if(out->padNumber()==nullPadNumber){ //There are no nullPadNumbers in TR as we only have 1*4/4
+                    return false;
+                    }                   
+            }
+            return true;
+        };
+
+        auto isCombinationInLUT=[&](const std::vector<std::shared_ptr<PadData>>& inM,const std::vector<std::shared_ptr<PadData>>& outM, int tr)->bool{ 
+            //tr means 0-not TR, 1 - inner SWPT, 2 - outer SWPT
+            std::vector<std::shared_ptr<PadData>> nullWedgePattern (4);
+            std::shared_ptr<PadData> nullPad=std::make_shared<PadOfflineData>(Identifier(0), 0, 0, nullptr);
+            std::fill(nullWedgePattern.begin(),nullWedgePattern.end(),nullPad);
+            std::vector<std::shared_ptr<PadData>> combinedInOut;
+            std::vector<int> pads2Numbers;
+            std::pair<int,int> lookupValue;
+            
+            if(inOutModuleMatch(inM,outM) && tr==0){
+                combinedInOut.insert(combinedInOut.end(),inM.begin(),inM.end());
+                combinedInOut.insert(combinedInOut.end(),outM.begin(),outM.end());
+                std::transform(combinedInOut.begin(),combinedInOut.end(),std::back_inserter(pads2Numbers),[](const std::shared_ptr<PadData>& p){ return p->padNumber();});
+                lookupValue=Lookup(pads2Numbers);
+                if(lookupValue.first>=0){ //no trigger is found yet
+                    return true;
+                }
+            }
+            else if(isSingleWedgeTriggerInner(inM) && tr==1){
+                combinedInOut.insert(combinedInOut.end(),inM.begin(),inM.end());
+                combinedInOut.insert(combinedInOut.end(),nullWedgePattern.begin(),nullWedgePattern.end());
+                std::transform(combinedInOut.begin(),combinedInOut.end(),std::back_inserter(pads2Numbers),[](const std::shared_ptr<PadData>& p){ return p->padNumber();});
+                lookupValue=Lookup(pads2Numbers);
+                if(lookupValue.first>=0){ //no trigger is found yet
+                    return true;
+                }
+            }
+            else if(isSingleWedgeTriggerOuter(outM) && tr==2){
+                combinedInOut.insert(combinedInOut.end(),nullWedgePattern.begin(),nullWedgePattern.end());
+                combinedInOut.insert(combinedInOut.end(),outM.begin(),outM.end());
+                std::transform(combinedInOut.begin(),combinedInOut.end(),std::back_inserter(pads2Numbers),[](const std::shared_ptr<PadData>& p){ return p->padNumber();});
+                lookupValue=Lookup(pads2Numbers);
+                if(lookupValue.first>=0){ //no trigger is found yet
+                    return true;
                 }
             }
             return false;
@@ -341,27 +437,56 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
         std::vector<std::pair<int,int> > uniqueBandPhiIds;//just to keep track of  the unique triggers found within this lookup call
         std::vector<std::vector<std::shared_ptr<PadData>> > innerPatterns=selectWedgePatterns(pads, side,  sector,STGCINNER);
         std::vector<std::vector<std::shared_ptr<PadData>> > outerPatterns=selectWedgePatterns(pads, side,  sector,STGCOUTER);
-        if(innerPatterns.size()== 0){
-            ATH_MSG_WARNING(" No hit patterns found / inner wedge");
-            return StatusCode::SUCCESS;
+        //GA - nullPad vector for SWPT in TR to be integrated in combinedInOut for the missing wedge
+        std::vector<std::shared_ptr<PadData>> nullWedgePattern (4);
+        std::shared_ptr<PadData> nullPad=std::make_shared<PadOfflineData>(Identifier(0), 0, 0, nullptr);
+        std::fill(nullWedgePattern.begin(),nullWedgePattern.end(),nullPad);
+        
+        // We need to change these if's, size zero means it can still be in TR in one of the other wedges
+        // if(innerPatterns.size()== 0){
+        //     ATH_MSG_WARNING(" No hit patterns found / inner wedge");
+        //     return StatusCode::SUCCESS;
+        // }
+        // if(outerPatterns.size()== 0){
+        //     ATH_MSG_WARNING(" No hit patterns found / outer wedge");
+        //     return StatusCode::SUCCESS;
+        // }
+        if(innerPatterns.size()==0 && outerPatterns.size()==0){
+            ATH_MSG_WARNING(" No hit patterns found / inner and outer wedges");
         }
-        if(outerPatterns.size()== 0){
-            ATH_MSG_WARNING(" No hit patterns found / outer wedge");
-            return StatusCode::SUCCESS;
-        }
-
+        bool innerPatternUsedBreak=false; //break the outer for loop of innerpattern if the inner pattern was already used, saving time
         for( std::vector<std::shared_ptr<PadData>> inner: innerPatterns){
+            innerPatternUsedBreak=false;
             for( std::vector<std::shared_ptr<PadData>> outer: outerPatterns){
                 //concatenate the two if modules match then Lookup
-                if(! inOutModuleMatch(inner,outer)) continue;
+                if(innerPatternUsedBreak) break;//already found a pattern using the innerPattern (outer for loop), sso we can skip the outer loop iteration to save time
                 std::vector<std::shared_ptr<PadData>> combinedInOut;
-                combinedInOut.insert(combinedInOut.end(),inner.begin(),inner.end());
-                combinedInOut.insert(combinedInOut.end(),outer.begin(),outer.end());
+                int isTR=0; //value which states what kind of trigger we have: 0 - non-TR, 1 - TR in the inner wedge, 2 - TR in the outer wedge
+
+                if(isCombinationInLUT(inner,outer,0)){//Both wedges
+                    combinedInOut.insert(combinedInOut.end(),inner.begin(),inner.end());
+                    combinedInOut.insert(combinedInOut.end(),outer.begin(),outer.end());
+                    innerPatternUsedBreak=true;
+                }
+                else if(isCombinationInLUT(inner,outer,1) && innerPatterns.size()!=0){//TR inner wedge
+                    combinedInOut.insert(combinedInOut.end(),inner.begin(),inner.end());
+                    combinedInOut.insert(combinedInOut.end(),nullWedgePattern.begin(),nullWedgePattern.end());
+                    isTR=1;//inner SWPT in TR
+                    innerPatternUsedBreak=true;
+                }
+                else if(isCombinationInLUT(inner,outer,2) && outerPatterns.size()!=0){//TR outer wedge
+                    combinedInOut.insert(combinedInOut.end(),nullWedgePattern.begin(),nullWedgePattern.end());
+                    combinedInOut.insert(combinedInOut.end(),outer.begin(),outer.end());
+                    isTR=2;//outer SWPT in TR
+                }
+                else continue; //no trigger was found
                 //convert set of pads into numbers as in the LUT
                 std::vector<int> pads2Numbers;
                 std::transform(combinedInOut.begin(),combinedInOut.end(),std::back_inserter(pads2Numbers),[](const std::shared_ptr<PadData>& p){ return p->padNumber();});
+
+
                 std::pair<int,int> lookupValue=Lookup(pads2Numbers);
-                if(lookupValue.first<0) continue;//{ //no trigger is found yet
+                if(lookupValue.first<0) continue;//{ //no trigger is found yet // GA - this is an additional check, unnecessary
                 //append pads to triggers + fill in unique triggers
                 //if band and phi id found is already in the list of sector triggers do not add it to the list
                 //uniqueness defined by sideId /sectorId /bandId /phiId (!!!not only band and phiIds !!!)
@@ -381,13 +506,19 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                 std::copy(combinedInOut.begin(),combinedInOut.end(),std::back_inserter(trigger->m_pads));
                 trigger->m_bandid=lookupValue.second;
                 trigger->m_phi_id=lookupValue.first;
-                int triggerSectorType=trigger->firstPad()->sectorType();//S:0/1:L
+                int triggerSectorType;
+                if(isTR!=2){
+                    triggerSectorType=trigger->firstPad()->sectorType();//S:0/1:L
+                }
+                else{ // all inner patterns are null, so we will not get sectorType, thus looking at outer wedge pads to determine sectorType
+                    triggerSectorType=trigger->firstPadOuter()->sectorType();//S:0/1:L
+                }
                 switch(triggerSectorType){
                     case(0)://S
                     //Y.R says band ids should start from 2, so to convert it to a C index subtract 2 from bandId
                     //See the header file sTGCTriggerBandsInEta (strip channels<--> bands must be implmeneted in the XML and this eta mased matching must be abandoned. The existing XML values are wrong)
                         trigger->m_etamin=m_etaBandsSmallSector.at(trigger->bandId()-1);
-                        trigger->m_etamax=m_etaBandsSmallSector.at(trigger->bandId()-2);   
+                        trigger->m_etamax=m_etaBandsSmallSector.at(trigger->bandId()-2);
                     break;
                     case(1)://L
                     // The same subtraction likewise for L as well
@@ -399,15 +530,17 @@ std::vector<std::vector<std::shared_ptr<PadData> >> PadTriggerLookupTool::select
                         ATH_MSG_FATAL("Unable to determine trigger sector type");
                     break;
                 }
+                trigger->m_isSmall=(triggerSectorType+1)%2;
                 triggers.push_back(std::move(trigger));
+                
             }  
         }
 
         ATH_MSG_DEBUG("Found "<<uniqueBandPhiIds.size()<<" unique triggers from LUT");
+
         //Upto this point no geometry is used ... i.e no pad corners , no tower roi , no overlap area etc ....
         //In principle band id should be suficient to select strips . But we dont have the band configuration in the XML yet ...
         //so we have to stick to the eta-based strip selection for now ....
-
         return StatusCode::SUCCESS;
 
     }
@@ -510,27 +643,31 @@ StatusCode PadTriggerLookupTool::printGeometry( const std::vector<std::shared_pt
         //if nothing is found yet, check if the pattern is  4o4+4o4 or 3o4+3o4 + ... etc
         //if 3o4+3o4 return (-1,-1) i.e nothing to lookup up furthermore
         //else if 4o4+4o4 or 4o4+3o4 or vice versa  continue lookup by removing layers from 4o4s ...
-        int nullCountInner=std::count(patt.begin(),patt.begin()+4,nullPadNumber);
-        int nullCountOuter=std::count(patt.begin()+4,patt.end(),nullPadNumber);
-        if(nullCountInner+nullCountOuter==2) return std::pair<int,int>(-1,-1);
-        if( nullCountInner ==0 ){//outer is then 3o4, dont touch outer, remove layers from inner + lookup
-            for(int i :{0,1,2,3}){
-                int valueOnLayer=patt.at(i);
-                patt.at(i)=nullPadNumber;//removes layer
-                 auto pos=m_pats.find(patt);
-                 if( pos!=m_pats.end() ) return pos->second;
-                 patt.at(i)=valueOnLayer;//add the layer back
+
+        // GA - we need to do the following given that we're not in SWPT TR
+        // if(patt.front()!=nullPadNumber && patt.back()!=nullPadNumber){ // THIS IS INCORRECT, IT MISSES PATTERNS WITH ONE NULLPAD LIKE (x1,x2,x3,x4,x5,x6,x7,-9999)
+            int nullCountInner=std::count(patt.begin(),patt.begin()+4,nullPadNumber);
+            int nullCountOuter=std::count(patt.begin()+4,patt.end(),nullPadNumber);
+            if(nullCountInner+nullCountOuter>=2) return std::pair<int,int>(-1,-1);// MAYBE JUST ADJUST IT TO BE >=2??
+            if( nullCountInner ==0 ){//outer is then 3o4, dont touch outer, remove layers from inner + lookup
+                for(int i :{0,1,2,3}){
+                    int valueOnLayer=patt.at(i);
+                    patt.at(i)=nullPadNumber;//removes layer
+                    auto pos=m_pats.find(patt);
+                    if( pos!=m_pats.end() ) return pos->second;
+                    patt.at(i)=valueOnLayer;//add the layer back
+                }
             }
-        }
-        if( nullCountOuter ==0 ){// inner is then 3o4 dont touch inner, remove layers from outer+lookup
-            for(int i :{4,5,6,7}){
-                int valueOnLayer=patt.at(i);
-                patt.at(i)=nullPadNumber;//removes layer
-                 auto pos=m_pats.find(patt);
-                 if( pos!=m_pats.end() ) return pos->second;
-                 patt.at(i)=valueOnLayer;//add the layer back
+            if( nullCountOuter ==0 ){// inner is then 3o4 dont touch inner, remove layers from outer+lookup
+                for(int i :{4,5,6,7}){
+                    int valueOnLayer=patt.at(i);
+                    patt.at(i)=nullPadNumber;//removes layer
+                    auto pos=m_pats.find(patt);
+                    if( pos!=m_pats.end() ) return pos->second;
+                    patt.at(i)=valueOnLayer;//add the layer back
+                }
             }
-        }
+        // }
         return std::pair<int,int>(-1,-1);
     }
 

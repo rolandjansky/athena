@@ -34,6 +34,9 @@ try:
     if G4V >= 10.0 :
         EmScaleA = 33.7
 
+    if G4V >= 10.05 :
+        EmScaleA = 32.9
+
     # old value
     if physicsList == 'QGSP_EMV' or physicsList == 'QGSP_BERT_EMV' or physicsList == '' :
         EmScaleA = 35.9
