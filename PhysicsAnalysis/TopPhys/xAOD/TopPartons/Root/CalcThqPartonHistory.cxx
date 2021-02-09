@@ -275,7 +275,7 @@ namespace top {
     float min_pt =0;
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle == nullptr) continue;
-      if (abs(particle->pdgId()) > 4) continue; //only light quarks
+      if (std::abs(particle->pdgId()) > 4) continue; //only light quarks
 
       for (size_t iparent = 0; iparent < particle->nParents(); ++iparent) {
         if (particle->parent(iparent) == nullptr){
