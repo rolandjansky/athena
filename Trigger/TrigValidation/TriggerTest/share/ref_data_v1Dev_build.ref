@@ -248,49 +248,25 @@ HLT_5j85_subresjesgscIS_ftf_L14J15:
     0: 7
 HLT_6j25_0eta240_L14J15:
   eventCount: 0
-HLT_6j25_0eta240_pf_ftf_010jvt_L14J15:
+HLT_6j25_ftf_0eta240_010jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j25_0eta240_pf_ftf_020jvt_L14J15:
+HLT_6j25_ftf_0eta240_020jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j25_0eta240_pf_ftf_050jvt_L14J15:
+HLT_6j25_ftf_0eta240_050jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j25_0eta240_pf_ftf_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
-HLT_6j25_subresjesgscIS_0eta240_ftf_010jvt_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
-HLT_6j25_subresjesgscIS_0eta240_ftf_020jvt_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
-HLT_6j25_subresjesgscIS_0eta240_ftf_050jvt_L14J15:
-  eventCount: 0
-  stepCounts:
-    0: 7
-  stepFeatures:
-    0: 7
-HLT_6j25_subresjesgscIS_0eta240_ftf_L14J15:
+HLT_6j25_ftf_0eta240_L14J15:
   eventCount: 1
   stepCounts:
     0: 7
@@ -298,51 +274,75 @@ HLT_6j25_subresjesgscIS_0eta240_ftf_L14J15:
   stepFeatures:
     0: 7
     1: 6
+HLT_6j25_pf_ftf_0eta240_010jvt_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_6j25_pf_ftf_0eta240_020jvt_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_6j25_pf_ftf_0eta240_050jvt_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
+HLT_6j25_pf_ftf_0eta240_L14J15:
+  eventCount: 0
+  stepCounts:
+    0: 7
+  stepFeatures:
+    0: 7
 HLT_6j35_0eta240_L14J15:
   eventCount: 0
-HLT_6j35_0eta240_pf_ftf_010jvt_L14J15:
+HLT_6j35_ftf_0eta240_010jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_0eta240_pf_ftf_020jvt_L14J15:
+HLT_6j35_ftf_0eta240_020jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_0eta240_pf_ftf_050jvt_L14J15:
+HLT_6j35_ftf_0eta240_050jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_0eta240_pf_ftf_L14J15:
+HLT_6j35_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_subresjesgscIS_0eta240_ftf_010jvt_L14J15:
+HLT_6j35_pf_ftf_0eta240_010jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_subresjesgscIS_0eta240_ftf_020jvt_L14J15:
+HLT_6j35_pf_ftf_0eta240_020jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_subresjesgscIS_0eta240_ftf_050jvt_L14J15:
+HLT_6j35_pf_ftf_0eta240_050jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j35_subresjesgscIS_0eta240_ftf_L14J15:
+HLT_6j35_pf_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -350,49 +350,49 @@ HLT_6j35_subresjesgscIS_0eta240_ftf_L14J15:
     0: 7
 HLT_6j45_0eta240_L14J15:
   eventCount: 0
-HLT_6j45_0eta240_pf_ftf_010jvt_L14J15:
+HLT_6j45_ftf_0eta240_010jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_0eta240_pf_ftf_020jvt_L14J15:
+HLT_6j45_ftf_0eta240_020jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_0eta240_pf_ftf_050jvt_L14J15:
+HLT_6j45_ftf_0eta240_050jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_0eta240_pf_ftf_L14J15:
+HLT_6j45_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_subresjesgscIS_0eta240_ftf_010jvt_L14J15:
+HLT_6j45_pf_ftf_0eta240_010jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_subresjesgscIS_0eta240_ftf_020jvt_L14J15:
+HLT_6j45_pf_ftf_0eta240_020jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_subresjesgscIS_0eta240_ftf_050jvt_L14J15:
+HLT_6j45_pf_ftf_0eta240_050jvt_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
   stepFeatures:
     0: 7
-HLT_6j45_subresjesgscIS_0eta240_ftf_L14J15:
+HLT_6j45_pf_ftf_0eta240_L14J15:
   eventCount: 0
   stepCounts:
     0: 7
@@ -1352,6 +1352,18 @@ HLT_j80_ftf_020jvt_j55_ftf_020jvt_j28_ftf_020jvt_j20_ftf_020jvt_L1J45p0ETA23_3J1
     0: 20
   stepFeatures:
     0: 20
+HLT_j80_ftf_0eta240_020jvt_j55_ftf_0eta240_020jvt_j28_ftf_0eta240_020jvt_j20_ftf_0eta240_020jvt_L1J45p0ETA23_3J15p0ETA25:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+HLT_j80_ftf_j55_ftf_j28_ftf_j20_ftf_L1J45p0ETA23_3J15p0ETA25:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j80_j55_j28_j20_L1J45p0ETA23_3J15p0ETA25:
   eventCount: 0
 HLT_j80_j55_j28_j20_L1MU10_2J15_J20:
@@ -1360,6 +1372,18 @@ HLT_j80_j55_j28_j20_L1MU20:
   eventCount: 0
 HLT_j80_j60_L1J15:
   eventCount: 0
+HLT_j80_pf_ftf_020jvt_j55_pf_ftf_020jvt_j28_pf_ftf_020jvt_j20_pf_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25:
+  eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
+? HLT_j80_pf_ftf_0eta240_020jvt_j55_pf_ftf_0eta240_020jvt_j28_pf_ftf_0eta240_020jvt_j20_pf_ftf_0eta240_020jvt_L1J45p0ETA23_3J15p0ETA25
+: eventCount: 0
+  stepCounts:
+    0: 20
+  stepFeatures:
+    0: 20
 HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1J45p0ETA23_3J15p0ETA25:
   eventCount: 0
   stepCounts:
@@ -1373,18 +1397,6 @@ HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU10_2J15_J20:
   stepFeatures:
     0: 20
 HLT_j80_pf_ftf_j55_pf_ftf_j28_pf_ftf_j20_pf_ftf_L1MU20:
-  eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-? HLT_j80_subresjesgscIS_ftf_020jvt_j55_subresjesgscIS_ftf_020jvt_j28_subresjesgscIS_ftf_020jvt_j20_subresjesgscIS_ftf_020jvt_L1J45p0ETA23_3J15p0ETA25
-: eventCount: 0
-  stepCounts:
-    0: 20
-  stepFeatures:
-    0: 20
-HLT_j80_subresjesgscIS_ftf_j55_subresjesgscIS_ftf_j28_subresjesgscIS_ftf_j20_subresjesgscIS_ftf_L1J45p0ETA23_3J15p0ETA25:
   eventCount: 0
   stepCounts:
     0: 20
