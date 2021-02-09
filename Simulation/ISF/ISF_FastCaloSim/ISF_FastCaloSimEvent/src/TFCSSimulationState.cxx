@@ -5,6 +5,7 @@
 #include "CLHEP/Random/RandomEngine.h"
 
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
+#include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include <iostream>
 #include <cstring>
 
@@ -63,5 +64,17 @@ std::uint32_t TFCSSimulationState::getAuxIndex(std::string s)
 std::uint32_t TFCSSimulationState::getAuxIndex(const char* s) 
 {
   return TFCSSimulationState::fnv1a_32(s,std::strlen(s));
+}
+
+void TFCSSimulationState::AddAuxInfoCleanup(const TFCSParametrizationBase* para)
+{
+  m_AuxInfoCleanup.insert(para);
+}
+
+void TFCSSimulationState::DoAuxInfoCleanup()
+{
+  for(auto para : m_AuxInfoCleanup) {
+    para->CleanAuxInfo(*this);
+  }
 }
 
