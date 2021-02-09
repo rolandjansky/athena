@@ -128,7 +128,7 @@ class doFastTrackingFit(InDetFlagsJobProperty):
     on the fit of the SiSPSeededTracks"""
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class doPseudoTracking(InDetFlagsJobProperty):
     """Turn running of the truth seeded pseudo tracking on and off"""
