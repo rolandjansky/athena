@@ -43,5 +43,10 @@ if hasattr(runArgs, "eventService") and runArgs.eventService:
 ##         rec.AutoConfiguration.append(key)
 
 from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
-pmon_properties.PerfMonFlags.doMonitoring=True
-pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
+from AthenaCommon.ConcurrencyFlags import jobproperties as cf
+if cf.ConcurrencyFlags.NumThreads() > 1:
+    pmon_properties.PerfMonFlags.doMonitoringMT=True
+    print("Activating multi-threaded perfmon")
+else:
+    pmon_properties.PerfMonFlags.doMonitoring=True
+    pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
