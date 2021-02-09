@@ -213,12 +213,7 @@ namespace top {
           hasW = true;
           
           // demanding the last W after FSR
-          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);
-          
-          //for DAOD_PHYS we have to use a special procedure to associate W bosons linked from the top to those in the TruthBosonsWithDecayParticles collection, which have the correct links for their decay products
-          //this is better explained in the head; this will work only if the class calling this function has called linkBosonCollections() before
-          if(m_config->getDerivationStream() == "PHYS") topChildren=getTruthParticleLinkedFromDecoration(topChildren,"AT_linkToTruthBosonsWithDecayParticles");
-          
+          topChildren = PartonHistoryUtils::findAfterFSR(topChildren);          
           for (size_t q = 0; q < topChildren->nChildren(); ++q) {
 	    const xAOD::TruthParticle* WChildren = topChildren->child(q);
             if (std::abs(WChildren->pdgId()) < 17 && store_tau_info == true){
