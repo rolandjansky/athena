@@ -7,7 +7,6 @@ from JetMonitoring.JetHistoManager import jetHistoManager as jhm
 from JetMonitoring.JetAttributeHistoManager   import attributeHistoManager
 from JetMonitoring.HistoDefinitionHelpers import createHistoDefTool as hdef
 
-
 # The dict below defines default specification to plot Jet attributes.
 # Specifications are given in a 1-line compact format.
 # They are then automatically converted to proper JetAttributeHisto tools below.
