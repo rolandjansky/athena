@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -8,6 +8,7 @@
 
 #ifndef TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
 #define TRKEXINTERFACES_EXTRAPOLATIONENGINE_H
+#define LEGACY_TRKGEOM
 
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,9 +24,14 @@
 // throw GaudiExceptions where necessary
 #include "GaudiKernel/GaudiException.h"
 
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
+
 namespace Trk {
   
-  class TrackingGeometry;
   class IPropagationEngine;    
   class INavigationEngine;        
 
@@ -88,16 +94,30 @@ namespace Trk {
                                                              PropDirection dir=alongMomentum) const;
                 
                 
-        //!< retrieve TrackingGeometry
-        StatusCode  updateTrackingGeometry() const; 
-
         //!< return and retrieve
         const TrackingGeometry& trackingGeometry() const;
 
-        mutable const TrackingGeometry*                     m_trackingGeometry;          //!< the tracking geometry owned by the navigator
-        ServiceHandle<ITrackingGeometrySvc>                 m_trackingGeometrySvc;       //!< ToolHandle to the TrackingGeometrySvc
-        std::string                                         m_trackingGeometryName;      //!< Name of the TrackingGeometry as given in Detector Store
-        
+#ifdef LEGACY_TRKGEOM
+        ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+        void throwFailedToGetTrackingGeomtry() const;
+        const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+           if (m_trackingGeometryReadKey.key().empty()) {
+              return m_trackingGeometrySvc->trackingGeometry();
+           }
+#endif
+           SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+           if (!handle.isValid()) {
+              EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryReadKey.key() << "'. Aborting." );
+              throwFailedToGetTrackingGeomtry();
+           }
+           return handle.cptr();
+        }
+
+        SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+           {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+
         //!< the tool handle array for static / dense / detached
         ToolHandleArray<IExtrapolationEngine>               m_extrapolationEngines;      //!< the extrapolation engines for retrieval
         ToolHandle<IPropagationEngine>                      m_propagationEngine;         //!< the used propagation engine for navigation initialization
@@ -115,11 +135,12 @@ namespace Trk {
 
 
   inline const Trk::TrackingGeometry& ExtrapolationEngine::trackingGeometry() const {
-      if (!m_trackingGeometry && updateTrackingGeometry().isFailure()){
-          EX_MSG_FATAL("", "updateGeo", "", "Could not load TrackingGeometry with name '" << m_trackingGeometryName << "'. Aborting." );
+      const Trk::TrackingGeometry *tracking_geometry = retrieveTrackingGeometry(Gaudi::Hive::currentContext());
+      if (!tracking_geometry){
+          EX_MSG_FATAL("", "updateGeo", "", "Did not get valid TrackingGeometry. Aborting." );
           throw GaudiException("ExtrapolationEngine", "Problem with TrackingGeometry loading.", StatusCode::FAILURE);
       }
-      return (*m_trackingGeometry);
+      return *tracking_geometry;
   }
    
    

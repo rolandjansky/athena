@@ -50,7 +50,10 @@ const TrigConf::L1PrescalesSet::L1Prescale &
 TrigConf::L1PrescalesSet::prescale(const std::string & itemName) const {
    return m_prescales.at(itemName);
 }
-
+const std::map<std::string, TrigConf::L1PrescalesSet::L1Prescale>&
+TrigConf::L1PrescalesSet::prescales() const {
+   return m_prescales;
+}
 /**
    prescale = 2*24/(cut+1.)
    

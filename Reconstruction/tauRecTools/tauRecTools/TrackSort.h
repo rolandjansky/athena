@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TRACKSORT_H
-#define TAUREC_TRACKSORT_H
+#ifndef TAURECTOOLS_TRACKSORT_H
+#define TAURECTOOLS_TRACKSORT_H
 
 #ifndef XAOD_STANDALONE
 #include "Particle/TrackParticle.h"
@@ -23,26 +23,26 @@
 
 class TrackSort {
 
-    public:
-        TrackSort(){ };
+public:
+  TrackSort(){};
 
 #ifndef XAOD_STANDALONE
-        bool operator() (const ElementLink<Rec::TrackParticleContainer>& t1, const ElementLink<Rec::TrackParticleContainer> &t2) const
-        {
-            return fabs( (*t1)->pt() ) > fabs( (*t2)->pt() );
-        };
+  bool operator() (const ElementLink<Rec::TrackParticleContainer>& t1, const ElementLink<Rec::TrackParticleContainer> &t2) const
+  {
+    return fabs( (*t1)->pt() ) > fabs( (*t2)->pt() );
+  };
 
-        bool operator() ( const Rec::TrackParticle *t1, const Rec::TrackParticle *t2 ) const
-        {
-            return fabs( t1->pt() ) > fabs( t2->pt() );
-        };
+  bool operator() ( const Rec::TrackParticle *t1, const Rec::TrackParticle *t2 ) const
+  {
+    return fabs( t1->pt() ) > fabs( t2->pt() );
+  };
 #endif
 
-        bool operator() ( const xAOD::TrackParticle *t1, const xAOD::TrackParticle *t2 ) const
-        {
-            return fabs( t1->pt() ) > fabs( t2->pt() );
-        };
+  bool operator() ( const xAOD::TrackParticle *t1, const xAOD::TrackParticle *t2 ) const
+  {
+    return fabs( t1->pt() ) > fabs( t2->pt() );
+  };
 
 };
 
-#endif
+#endif // TAURECTOOLS_TRACKSORT_H

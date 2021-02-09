@@ -138,7 +138,6 @@ if __name__ == "__main__":
     
     #//// TrackingSiPatternConfig configurations from Temporary location /////
     ################# SiSPSeededTrackFinder Configurations ###################
-    TrackingFlags = ConfigFlags.InDet.Tracking
 
     InputCollections = []
 
@@ -147,8 +146,7 @@ if __name__ == "__main__":
     from InDetConfig.TRTExtensionConfig import SiSPSeededTrackFinderCfg
     top_acc.merge(SiSPSeededTrackFinderCfg( ConfigFlags,
                                             InputCollections = InputCollections, 
-                                            SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey, 
-                                            TrackingFlags = TrackingFlags))
+                                            SiSPSeededTrackCollectionKey = SiSPSeededTrackCollectionKey))
     ##########################################################################
     #################### InDetTrackTruth Configurations ######################
 
@@ -163,4 +161,4 @@ if __name__ == "__main__":
     #################################################################
     top_acc.printConfig()
     top_acc.run(25)
-    top_acc.store(open("TrackTruthConfig.pkl", "wb"))
+    top_acc.store(open("test_TrackTruthConfig.pkl", "wb"))

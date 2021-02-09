@@ -37,10 +37,6 @@ StreamAll.Strea...   INFO Initializing StreamAll.StreamAll_MakeEventStreamInfo -
 StreamAll            INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/StreamAll_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/StreamAll_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_StreamAll'])
 StreamAll            INFO Data output: AthenaPoolMultiTest_StreamAll.root
 StreamAll            INFO I/O reinitialization...
-Stream2.FileMet...   INFO Invalid "/TagInfo" handle
-Stream1.FileMet...   INFO Invalid "/TagInfo" handle
-Stream3.FileMet...   INFO Invalid "/TagInfo" handle
-StreamAll.FileM...   INFO Invalid "/TagInfo" handle
 Splitter1           DEBUG in execute()
 Splitter1            INFO EventInfo event: 0 run: 0
 Splitter1           DEBUG Trigmask = 1
@@ -53,9 +49,6 @@ Splitter3           DEBUG Trigmask = 1
 Splitter3            INFO L1 failed
 Triggered            INFO EventInfo event: 0 run: 0
 Triggered            INFO L1 passed
-Stream2.FileMet...WARNING No  'StreamName':'Stream2'
-Stream1.FileMet...WARNING No  'StreamName':'Stream1'
-Stream3.FileMet...WARNING No  'StreamName':'Stream3'
 Domain[ROOT_All]     INFO                           AthenaPoolMultiTest_StreamAll.root
 RootDatabase.open    INFO AthenaPoolMultiTest_StreamAll.root File version:62200
 Splitter1           DEBUG in execute()

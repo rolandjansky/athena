@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "InDetBeamSpotReader.h"
@@ -42,7 +42,7 @@ StatusCode InDet::InDetBeamSpotReader::execute(const EventContext& ctx) const {
   if (!m_vxContainer.empty()) {
     ATH_MSG_INFO("Beamspot position at PV z-position");
     SG::ReadHandle<VxContainer> importedVxContainer(m_vxContainer, ctx);
-    for (const auto& vtx : *importedVxContainer) {
+    for (const Trk::VxCandidate* vtx : *importedVxContainer) {
       if (static_cast<int>(vtx->vxTrackAtVertex()->size())==0) continue;
       ATH_MSG_INFO("PV position: " << vtx->recVertex().position() );
       double z = vtx->recVertex().position().z();

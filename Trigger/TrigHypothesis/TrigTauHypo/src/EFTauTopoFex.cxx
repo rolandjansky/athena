@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
@@ -84,8 +84,8 @@ HLT::ErrorCode EFTauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 
 void EFTauTopoFex :: fill_delta_r(const xAOD::IParticleContainer* c1, const xAOD::IParticleContainer * c2)
 {
-  for (const auto &p1: *c1) {
-    for (const auto &p2: *c2) {
+  for (const xAOD::IParticle* p1: *c1) {
+    for (const xAOD::IParticle* p2: *c2) {
       float deta = fabs(p1->eta() - p2->eta());
       float dphi = fabs(CxxUtils::wrapToPi(p1->phi() - p2->phi()));
       float dr = sqrt(deta * deta + dphi * dphi); // compute dR

@@ -118,6 +118,7 @@ namespace xAOD {
     std::vector< int > nChargedTracks;
     std::vector< int > nIsolatedTracks;
     std::vector< int > nAllTracks;
+    std::vector< int > nLargeRadiusTracks;
 
     typedef std::vector< ElementLink< IParticleContainer > > IParticleLink_t;
     std::vector< IParticleLink_t > clusterLinks;//actually xAOD::CaloClusters

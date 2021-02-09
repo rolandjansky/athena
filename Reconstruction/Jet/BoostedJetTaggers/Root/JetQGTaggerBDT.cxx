@@ -260,7 +260,7 @@ namespace CP {
       isValid = false;
     }
     else {
-      for ( const auto& vx : *vxCont ) {
+      for ( const auto *vx : *vxCont ) {
         // take the first vertex in the list that is a primary vertex
         if ( vx->vertexType()==xAOD::VxType::PriVtx ) {
           primvertex = vx;

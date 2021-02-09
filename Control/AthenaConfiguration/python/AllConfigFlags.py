@@ -2,9 +2,10 @@
 
 from __future__ import print_function
 
-from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaCommon.SystemOfUnits import TeV
+from AthenaConfiguration.AthConfigFlags import AthConfigFlags
 from AthenaConfiguration.AutoConfigFlags import GetFileMD, getInitialTimeStampsFromRunNumbers, getRunToTimestampDict
+from AthenaConfiguration.Enums import ProductionStep
 from PyUtils.moduleExists import moduleExists
 
 
@@ -74,7 +75,8 @@ def _createCfgFlags():
     acf.addFlag('Common.useOnlineLumi', lambda prevFlags : prevFlags.Common.isOnline ) #  Use online version of luminosity. ??? Should just use isOnline?
     acf.addFlag('Common.doExpressProcessing', False)
     acf.addFlag('Common.bunchCrossingSource', lambda prevFlags : "MC" if prevFlags.Input.isMC else "TrigConf") # what BunchCrossingTool should we use?
-    
+    acf.addFlag('Common.ProductionStep', ProductionStep.Default)
+
     def _checkProject():
         import os
         if "AthSimulation_DIR" in os.environ:
@@ -156,6 +158,7 @@ def _createCfgFlags():
     # Run dependent simulation
     # map from runNumber to timestamp; migrated from RunDMCFlags.py
     acf.addFlag("IOVDb.RunToTimestampDict", lambda prevFlags: getRunToTimestampDict())
+    acf.addFlag("IOVDb.DBConnection", lambda prevFlags : "sqlite://;schema=mycool.db;dbname=" + prevFlags.IOVDb.DatabaseInstance)
 
 
     def __bfield():

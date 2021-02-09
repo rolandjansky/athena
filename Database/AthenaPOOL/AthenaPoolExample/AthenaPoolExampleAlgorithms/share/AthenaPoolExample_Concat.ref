@@ -1,22 +1,22 @@
-Thu Nov 26 22:58:28 CET 20?0
+Fri Jan 29 08:06:33 CST 2021
 Preloading tcmalloc_minimal.so
 Athena               INFO including file "AthenaCommon/Preparation.py"
 Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
 Athena               INFO including file "AthenaCommon/Execution.py"
 Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_ConcatJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5426 configurables from 28 genConfDb files
+Py:ConfigurableDb    INFO Read module info for 5477 configurables from 59 genConfDb files
 Py:ConfigurableDb    INFO No duplicates have been found: that's good !
 Athena               INFO including file "AthenaCommon/runbatch.py"
 ApplicationMgr    SUCCESS 
 ====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0p1)
-                                          running on lxplus742.cern.ch on Thu Nov 26 22:58:39 20?0
+                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0)
+                                          running on hepd-0003 on Fri Jan 29 08:06:41 2021
 ====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3311 CLIDRegistry entries for module ALL
+ClassIDSvc           INFO  getRegistryEntries: read 3200 CLIDRegistry entries for module ALL
 AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
 ClassIDSvc           INFO  getRegistryEntries: read 722 CLIDRegistry entries for module ALL
 ClassIDSvc           INFO  getRegistryEntries: read 591 CLIDRegistry entries for module ALL
@@ -30,9 +30,9 @@ PoolSvc             DEBUG Service base class initialized successfully
 PoolSvc              INFO io_register[PoolSvc](xmlcatalog_file:Catalog1.xml) [ok]
 PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
 PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-11-25T2101/Athena/22.0.21/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus742.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
+DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://frontier-atlas.lcg.triumf.ca:3128/ATLAS_frontier)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
+DBReplicaSvc         INFO Read replica configuration from /home/gemmeren/workarea/build/x86_64-centos7-gcc8-opt/share/dbreplica.config
+DBReplicaSvc         INFO Total of 1 servers found for host hepd-0003.lcrc.anl.gov [ATLF ]
 PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
 PoolSvc              INFO Setting up APR FileCatalog and Streams
@@ -77,9 +77,8 @@ Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.Stream1...   INFO Initializing Stream1.Stream1_MakeEventStreamInfo - package version OutputStreamAthenaPool-00-00-00
 Stream1.Stream1...  DEBUG Property update for OutputLevel : new value = 2
 Stream1.FileMet...  DEBUG Property update for OutputLevel : new value = 2
-ClassIDSvc           INFO  getRegistryEntries: read 661 CLIDRegistry entries for module ALL
 Stream1.FileMet...  DEBUG Initialising - Package version: xAODMetaDataCnv-00-00-00
-Stream1.FileMet...  DEBUG Creating new xAOD::FileMetaData object to output
+Stream1.FileMet...  DEBUG Creating new xAOD::FileMetaData object to fill
 Stream1.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
 Stream1              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream1_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream1_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_Stream1'])
 Stream1              INFO Data output: SimplePoolFile1.root
@@ -96,13 +95,12 @@ Stream1             DEBUG Adding private ToolHandle tool Stream1.ThinningCacheTo
 Stream1             DEBUG Adding private ToolHandle tool Stream1.Stream1Tool (AthenaOutputStreamTool)
 Stream1             DEBUG Data Deps for Stream1
   + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+SimpleTag' ) 
-  + INPUT   ( 'IOVMetaDataContainer' , 'InputMetaDataStore+/Simulation/Parameters' ) 
-  + INPUT   ( 'IOVMetaDataContainer' , 'InputMetaDataStore+/TagInfo' ) 
   + OUTPUT  ( 'DataHeader' , 'StoreGateSvc+Stream1' ) 
   + OUTPUT  ( 'SG::CompressionInfo' , 'StoreGateSvc+CompressionInfo_Stream1' ) 
   + OUTPUT  ( 'SG::SelectionVetoes' , 'StoreGateSvc+SelectionVetoes_Stream1' ) 
 MakeInputDataHe...   INFO Initializing MakeInputDataHeader - package version OutputStreamAthenaPool-00-00-00
 MakeInputDataHe...   INFO Name of Stream to be made Input: Stream1
+ClassIDSvc           INFO  getRegistryEntries: read 661 CLIDRegistry entries for module ALL
 Stream2             DEBUG Property update for OutputLevel : new value = 2
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
@@ -122,7 +120,7 @@ Stream2.Stream2...   INFO Initializing Stream2.Stream2_MakeEventStreamInfo - pac
 Stream2.Stream2...  DEBUG Property update for OutputLevel : new value = 2
 Stream2.FileMet...  DEBUG Property update for OutputLevel : new value = 2
 Stream2.FileMet...  DEBUG Initialising - Package version: xAODMetaDataCnv-00-00-00
-Stream2.FileMet...  DEBUG Creating new xAOD::FileMetaData object to output
+Stream2.FileMet...  DEBUG Creating new xAOD::FileMetaData object to fill
 Stream2.Thinnin...  DEBUG Property update for OutputLevel : new value = 2
 Stream2              INFO Found HelperTools = PrivateToolHandleArray(['MakeEventStreamInfo/Stream2_MakeEventStreamInfo','xAODMaker::EventFormatStreamHelperTool/Stream2_MakeEventFormat','xAODMaker::FileMetaDataCreatorTool/FileMetaDataCreatorTool','Athena::ThinningCacheTool/ThinningCacheTool_Stream2'])
 Stream2              INFO Data output: SimplePoolFile3.root
@@ -138,9 +136,7 @@ Stream2             DEBUG Adding private ToolHandle tool Stream2.FileMetaDataCre
 Stream2             DEBUG Adding private ToolHandle tool Stream2.ThinningCacheTool_Stream2 (Athena::ThinningCacheTool)
 Stream2             DEBUG Adding private ToolHandle tool Stream2.Stream2Tool (AthenaOutputStreamTool)
 Stream2             DEBUG Data Deps for Stream2
-  + INPUT   ( 'IOVMetaDataContainer' , 'InputMetaDataStore+/Simulation/Parameters' ) 
-  + INPUT   ( 'IOVMetaDataContainer' , 'InputMetaDataStore+/TagInfo' ) 
-  + INPUT IGNORED  ( 'AthenaAttributeList' , '' ) 
+  + INPUT   ( 'AthenaAttributeList' , 'StoreGateSvc+SimpleTag' ) 
   + OUTPUT  ( 'DataHeader' , 'StoreGateSvc+Stream2' ) 
   + OUTPUT  ( 'SG::CompressionInfo' , 'StoreGateSvc+CompressionInfo_Stream2' ) 
   + OUTPUT  ( 'SG::SelectionVetoes' , 'StoreGateSvc+SelectionVetoes_Stream2' ) 
@@ -388,9 +384,9 @@ SimplePoolFile1...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)]
 SimplePoolFile1...  DEBUG ---->Class:float
 SimplePoolFile1...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
 ClassIDSvc           INFO  getRegistryEntries: read 83 CLIDRegistry entries for module ALL
-Stream1.FileMet...  DEBUG Valid  'EventInfoKey':'EventInfo' handle
+Stream1.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream1.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
-Stream1.FileMet...  DEBUG valid  'StreamName':'Stream1' handle
+Stream1.FileMet...  DEBUG Retrieved  'StreamName':'Stream1'
 Stream1.FileMet...  DEBUG set xAOD::FileMetaData::dataType to Stream1
 Stream2             DEBUG addItemObjects(2101,"*") called
 Stream2             DEBUG            Key:*
@@ -475,9 +471,115 @@ SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --->Adding Shape[3 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:DataHeaderForm_p6
 SimplePoolFile3...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] Size:0 Offset:0 #Elements:1
-Stream2.FileMet...  DEBUG Valid  'EventInfoKey':'EventInfo' handle
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(Token)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'Token'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(Token) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(Token) [202]  (7 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:Token
+SimplePoolFile3...  DEBUG ---->[0]:Token Typ:Token [18] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsSimulation)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsSimulation'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsSimulation) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsSimulation) [202]  (8 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:bool
+SimplePoolFile3...  DEBUG ---->[0]:bool Typ:bool [9] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsCalibration)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsCalibration'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsCalibration) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsCalibration) [202]  (9 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(IsTestBeam)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'IsTestBeam'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(IsTestBeam) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(IsTestBeam) [202]  (a , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(McChannel)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'McChannel'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(McChannel) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(McChannel) [202]  (b , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:unsigned int
+SimplePoolFile3...  DEBUG ---->[0]:unsigned int Typ:unsigned int [3] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(RunNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'RunNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(RunNumber) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(RunNumber) [202]  (c , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventNumber)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventNumber'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventNumber) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventNumber) [202]  (d , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:unsigned long long
+SimplePoolFile3...  DEBUG ---->[0]:unsigned long long Typ:unsigned long long [23] Size:0 Offset:0 #Elements:1
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(LumiBlockN)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'LumiBlockN'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(LumiBlockN) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(LumiBlockN) [202]  (e , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(ConditionsRun)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'ConditionsRun'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(ConditionsRun) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(ConditionsRun) [202]  (f , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTime)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventTime'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTime) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTime) [202]  (10 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventTimeNanoSec)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventTimeNanoSec'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventTimeNanoSec) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventTimeNanoSec) [202]  (11 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(BunchId)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'BunchId'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(BunchId) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(BunchId) [202]  (12 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] POOLCollectionTree(EventWeight)
+POOLCollectionT...  DEBUG Opening
+POOLCollectionT...  DEBUG    attributes# = 1
+POOLCollectionT...  DEBUG Branch container 'EventWeight'
+POOLCollectionT...  DEBUG Opened container POOLCollectionTree(EventWeight) of type ROOT_Tree
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/POOLCollectionTree(EventWeight) [202]  (13 , ffffffff)
+SimplePoolFile3...  DEBUG ---->ClassID:????
+SimplePoolFile3...  DEBUG --->Adding Shape[8 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG ---->Class:float
+SimplePoolFile3...  DEBUG ---->[0]:float Typ:float [10] Size:0 Offset:0 #Elements:1
+Stream2.FileMet...  DEBUG Retrieved  'EventInfoKey':'EventInfo'
 Stream2.FileMet...  DEBUG setting xAOD::FileMetaData::mcProcID to 0
-Stream2.FileMet...  DEBUG valid  'StreamName':'Stream2' handle
+Stream2.FileMet...  DEBUG Retrieved  'StreamName':'Stream2'
 Stream2.FileMet...  DEBUG set xAOD::FileMetaData::dataType to Stream2
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #0, run #1 1 events processed so far  <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #1, run #1 1 events processed so far  <<<===
@@ -1624,7 +1726,6 @@ AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events 
 Stream1             DEBUG AthenaOutputStream Stream1 ::stop()
 Stream2             DEBUG AthenaOutputStream Stream2 ::stop()
 Stream1             DEBUG slot 0  handle() incident type: MetaDataStop
-Stream1.FileMet...  DEBUG Creating new xAOD::FileMetaData object to output
 Stream1             DEBUG metadataItemList: [EventStreamInfo#Stream1, IOVMetaDataContainer#*, xAOD::EventFormat#EventFormatStream1, xAOD::FileMetaData#FileMetaData, xAOD::FileMetaDataAuxInfo#FileMetaDataAux.]
 Stream1             DEBUG addItemObjects(73252552,"FileMetaDataAux.") called
 Stream1             DEBUG            Key:FileMetaDataAux.
@@ -1752,9 +1853,9 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (7 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaDataAuxInfo_v1/FileMetaDataAux.) [203]  (14 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[4 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Shape[9 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaDataAuxInfo_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::FileMetaDataAuxInfo_v1 Typ:xAOD::FileMetaDataAuxInfo_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(EventStreamInfo_p3/Stream2)
@@ -1762,9 +1863,9 @@ MetaData(EventS...  DEBUG Opening
 MetaData(EventS...  DEBUG    attributes# = 1
 MetaData(EventS...  DEBUG Branch container 'EventStreamInfo_p3_Stream2'
 MetaData(EventS...  DEBUG Opened container MetaData(EventStreamInfo_p3/Stream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [203]  (8 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(EventStreamInfo_p3/Stream2) [203]  (15 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[5 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Shape[10 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:EventStreamInfo_p3
 SimplePoolFile3...  DEBUG ---->[0]:EventStreamInfo_p3 Typ:EventStreamInfo_p3 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::FileMetaData_v1/FileMetaData)
@@ -1772,9 +1873,9 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::FileMetaData_v1_FileMetaData'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::FileMetaData_v1/FileMetaData) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (9 , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::FileMetaData_v1/FileMetaData) [203]  (16 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[6 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Shape[11 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::FileMetaData_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::FileMetaData_v1 Typ:xAOD::FileMetaData_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaData(xAOD::EventFormat_v1/EventFormatStream2)
@@ -1782,9 +1883,9 @@ MetaData(xAOD::...  DEBUG Opening
 MetaData(xAOD::...  DEBUG    attributes# = 1
 MetaData(xAOD::...  DEBUG Branch container 'xAOD::EventFormat_v1_EventFormatStream2'
 MetaData(xAOD::...  DEBUG Opened container MetaData(xAOD::EventFormat_v1/EventFormatStream2) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (a , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaData(xAOD::EventFormat_v1/EventFormatStream2) [203]  (17 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
-SimplePoolFile3...  DEBUG --->Adding Shape[7 , ????]:  [1 Column(s)] 
+SimplePoolFile3...  DEBUG --->Adding Shape[12 , ????]:  [1 Column(s)] 
 SimplePoolFile3...  DEBUG ---->Class:xAOD::EventFormat_v1
 SimplePoolFile3...  DEBUG ---->[0]:xAOD::EventFormat_v1 Typ:xAOD::EventFormat_v1 [21] Size:0 Offset:0 #Elements:1
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdr(DataHeader)
@@ -1792,14 +1893,14 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (b , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdr(DataHeader) [203]  (18 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 SimplePoolFile3...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
-SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (c , ffffffff)
+SimplePoolFile3...  DEBUG --->Adding Assoc :????/MetaDataHdrForm(DataHeaderForm) [203]  (19 , ffffffff)
 SimplePoolFile3...  DEBUG ---->ClassID:????
 MetaData(xAOD::...  DEBUG  SG::IAuxStoreIO* detected in xAOD::FileMetaDataAuxInfo_v1_FileMetaDataAux.
 MetaData(xAOD::...  DEBUG        Attributes= 1
@@ -1823,18 +1924,17 @@ Stream1             DEBUG finalize: Optimize output
 Stream1             DEBUG finalize: end optimize output
 Stream2             DEBUG finalize: Optimize output
 Stream2             DEBUG finalize: end optimize output
-EventSelector        INFO finalize
 DecisionSvc          INFO Finalized successfully.
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-commitOutput         INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #= 42
-cRepR_ALL            INFO Time User   : Tot=   60 [ms] Ave/Min/Max=   0.152(+-    1.41)/       0/      20 [ms] #=396
-cRep_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=   0.385(+-    2.29)/       0/      20 [ms] #=130
-fRep_ALL             INFO Time User   : Tot=   90 [ms] Ave/Min/Max=   0.692(+-    3.09)/       0/      20 [ms] #=130
-ChronoStatSvc        INFO Time User   : Tot=  420 [ms]  #=  1
+commitOutput         INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.238(+-    1.52)/       0/      10 [ms] #= 42
+cRep_ALL             INFO Time User   : Tot=   30 [ms] Ave/Min/Max=   0.231(+-     1.5)/       0/      10 [ms] #=130
+cRepR_ALL            INFO Time User   : Tot=   30 [ms] Ave/Min/Max=  0.0457(+-   0.675)/       0/      10 [ms] #=656
+fRep_ALL             INFO Time User   : Tot=   50 [ms] Ave/Min/Max=   0.385(+-    1.92)/       0/      10 [ms] #=130
+ChronoStatSvc        INFO Time User   : Tot=  240 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "sTgcFastDigitizer.h"
@@ -16,6 +16,7 @@
 #include "TrkEventPrimitives/LocalDirection.h"
 #include "TrkSurfaces/Surface.h"
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 #include "PathResolver/PathResolver.h"
 #include "AthenaKernel/RNGWrapper.h"
 
@@ -403,7 +404,7 @@ StatusCode sTgcFastDigitizer::execute() {
       double resolution = 0;
       if( type == 1 ){
 	resolution = getResolution(inAngle_time);
-	sp = CLHEP::RandGauss::shoot(rndmEngine, hitOnSurface.x(), resolution);
+	sp = CLHEP::RandGaussZiggurat::shoot(rndmEngine, hitOnSurface.x(), resolution);
       }
 
       

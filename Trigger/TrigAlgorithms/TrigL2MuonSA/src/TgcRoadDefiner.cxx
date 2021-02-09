@@ -21,6 +21,7 @@ TrigL2MuonSA::TgcRoadDefiner::TgcRoadDefiner(const std::string& type,
 					     const IInterface*  parent):
      AthAlgTool(type, name, parent)
 {
+  declareProperty("RegionSelectionTool", m_regionSelector);
 }
 
 // --------------------------------------------------------------------------------
@@ -266,6 +267,7 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     
   } else {
     // If no TGC hit are available, estimate the road from RoI
+    // or if inside-out mode, width is tuned based on FTF track extrapolation resolution
     ATH_MSG_DEBUG("Because no TGC hits are available, estimate the road from RoI");
 
     roiEta = p_roi->eta();
@@ -287,13 +289,23 @@ StatusCode TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
     muonRoad.aw[csc][0]     = aw;
     muonRoad.bw[csc][0]     = 0;
     for (int i_layer=0; i_layer<N_LAYER; i_layer++) {
-      muonRoad.rWidth[endcap_inner][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_middle][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
-      muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
+      if(insideOut) {
+	muonRoad.rWidth[endcap_inner][i_layer] = 300;
+	muonRoad.rWidth[endcap_middle][i_layer] = 400;
+	muonRoad.rWidth[endcap_outer][i_layer] = 600;
+	muonRoad.rWidth[endcap_extra][i_layer] = 400;
+	muonRoad.rWidth[barrel_inner][i_layer] = 250;
+	muonRoad.rWidth[bee][i_layer] = 500;
+	muonRoad.rWidth[csc][i_layer] = 200;
+      } else {
+	muonRoad.rWidth[endcap_inner][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_middle][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_outer][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[endcap_extra][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[barrel_inner][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[bee][i_layer] = m_rWidth_TGC_Failed;
+	muonRoad.rWidth[csc][i_layer] = m_rWidth_TGC_Failed;
+      }
     }
   }
  

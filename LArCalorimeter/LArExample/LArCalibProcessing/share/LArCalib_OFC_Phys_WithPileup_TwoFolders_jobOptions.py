@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -247,14 +249,11 @@ if not 'IOVEnd' in dir():
 if not 'OutputOFCRootFileDir' in dir():
    OutputOFCRootFileDir = subprocess.getoutput("pwd")
    
-if not 'OutputPoolFileDir' in dir():
-   OutputPoolFileDir = subprocess.getoutput("pwd")
+if not 'OutputOFCPoolFileDir' in dir():
+   OutputOFCPoolFileDir = subprocess.getoutput("pwd")
 
 OFCFileTag = str(RunNumber)+"_"+Partition.replace("*","")
 OFCFileTag += "_"+str(Nsamples)+"samples"
-
-#if (Dphases>1):
-#   OFCFileTag += "_"+str(Dphases)+"Dphase"
 
 if not 'OutputOFCRootFileName' in dir():
    OutputOFCRootFileName = "LArOFCPhys_"+OFCFileTag + ".root"
@@ -391,8 +390,7 @@ if ( ReadPhysCaliTdiffFromCOOL ):
    if 'InputPhysCaliTdiffSQLiteFile' in dir():
       InputDBConnectionPhysCaliTdiff = DBConnectionFile(InputPhysCaliTdiffSQLiteFile)
    else:
-      #InputDBConnectionPhysCaliTdiff = DBConnectionCOOL
-      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/COMP200"
+      InputDBConnectionPhysCaliTdiff = "COOLOFL_LAR/CONDBR2"
 
 ## Bad Channel   
    
@@ -403,7 +401,6 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
       InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"        
       
 ###########################################################################
@@ -439,7 +436,7 @@ if ( ReadPhysCaliTdiffFromCOOL ):
 else :
    OFCLog.info( " InputPhysCaliTdiffPoolFileName     = "+InputPhysCaliTdiffPoolDir+"/"+InputPhysCaliTdiffPoolFileName )                                                      
 OFCLog.info( " OutputOFCRootFullFileName          = "+OutputOFCRootFileDir+"/"+OutputOFCRootFileName )
-OFCLog.info( " OutputPoolFullFileName             = "+OutputPoolFileDir+"/"+OutputPoolFileName )
+OFCLog.info( " OutputPoolFullFileName             = "+OutputOFCPoolFileDir+"/"+OutputPoolFileName )
 OFCLog.info( " OutputObjectSpecOFC                = "+str(OutputObjectSpecOFC) )
 OFCLog.info( " OutputObjectSpecTagOFC             = "+str(OutputObjectSpecTagOFC) )
 OFCLog.info( " OutputObjectSpecOFCmu              = "+str(OutputObjectSpecOFCmu) )
@@ -479,31 +476,15 @@ topSequence = AlgSequence()
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 include("LArCalibProcessing/LArCalib_MinimalSetup.py")
-#from AthenaCommon.GlobalFlags import globalflags
-#globalflags.DetGeo.set_Value_and_Lock('atlas')
-#globalflags.Luminosity.set_Value_and_Lock('zero')
-#globalflags.DataSource.set_Value_and_Lock('data')
-#globalflags.InputFormat.set_Value_and_Lock('bytestream')
-#globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
-
-#from AthenaCommon.JobProperties import jobproperties
-#jobproperties.Global.DetDescrVersion = "ATLAS-GEO-21-00-01"
-
-#from AthenaCommon.DetFlags import DetFlags
-#DetFlags.Calo_setOn()  #Switched off to avoid geometry
-#DetFlags.ID_setOff()
-#DetFlags.Muon_setOff()
-#DetFlags.Truth_setOff()
-#DetFlags.LVL1_setOff()
-#DetFlags.digitize.all_setOff()
-##DetFlags.Print()
-
-##Set up GeoModel (not really needed but crashes without)
-#from AtlasGeoModel import SetGeometryVersion
-#from AtlasGeoModel import GeoModelInit
-
-#Get identifier mapping
-include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
+#Get cabling
+if not SuperCells:
+  from LArCabling.LArCablingAccess import LArCalibIdMapping,LArOnOffIdMapping
+  LArCalibIdMapping()
+  LArOnOffIdMapping() 
+else:   
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC() 
 
 ###########################################################################
 #                                                                         #
@@ -517,25 +498,6 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
-
-if not 'InputBadChannelSQLiteFile' in dir():
-   OFCLog.info( "Read Bad Channels from Oracle DB")
-else :   
-   OFCLog.info( "Read Bad Channels from SQLite file") 
-
-if 'BadChannelsLArCalibFolderTag' in dir() :
-   BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-
-if 'MissingFEBsLArCalibFolderTag' in dir() :
-   MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-   
 if SuperCells:
    conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
@@ -662,7 +624,8 @@ if (doPhysWaveShifter) :
 
 else:
    #Load Shifts from DB:
-   conddb.addFolder("LAR_OFL",OFCBinFolder+"<tag>"+OutputObjectSpecTagOFCBin+"</tag><key>"+ShiftKey+"</key>");
+   if not SuperCells: # FIXME when shift for SC available
+      conddb.addFolder("LAR_OFL",OFCBinFolder+"<tag>"+OutputObjectSpecTagOFCBin+"</tag><key>"+ShiftKey+"</key>");
 
 
 ###########################################################################
@@ -701,7 +664,8 @@ LArPhysOFCAlg.FillShape = FillShape
 LArPhysOFCAlg.TimeShift = TimeShift
 LArPhysOFCAlg.TimeShiftByIndex = TimeShiftByIndex
 LArPhysOFCAlg.AddTimeOffset = -1.0*TimeShiftGuardRegion
-LArPhysOFCAlg.LArPhysWaveBinKey = ShiftKey
+if not SuperCells: # FIXME when shift for SC available
+   LArPhysOFCAlg.LArPhysWaveBinKey = ShiftKey
 
 LArPhysOFCAlg.UseDelta = 0 #Only for high-mu OFCs
 LArPhysOFCAlg.KeyOFC   = OFCKey
@@ -731,7 +695,8 @@ LArPhysOFCAlg2.FillShape = FillShape2
 LArPhysOFCAlg2.TimeShift = TimeShift2
 LArPhysOFCAlg2.TimeShiftByIndex = TimeShiftByIndex2
 LArPhysOFCAlg2.AddTimeOffset = -1.0*TimeShiftGuardRegion
-LArPhysOFCAlg2.LArPhysWaveBinKey = ShiftKey
+if not SuperCells: # FIXME when shift for SC available
+   LArPhysOFCAlg2.LArPhysWaveBinKey = ShiftKey
 LArPhysOFCAlg2.UseDelta = 0 #Only for high-mu OFCs
 
 LArPhysOFCAlg2.KeyOFC   = OFCKey2
@@ -762,7 +727,8 @@ if NColl > 0:
    LArPhysOFCAlgmu.TimeShift = TimeShift
    LArPhysOFCAlgmu.TimeShiftByIndex = TimeShiftByIndex
    LArPhysOFCAlgmu.AddTimeOffset = -1.0*TimeShiftGuardRegion
-   LArPhysOFCAlgmu.LArPhysWaveBinKey = ShiftKey
+   if not SuperCells: # FIXME when shift for SC available
+      LArPhysOFCAlgmu.LArPhysWaveBinKey = ShiftKey
       
    LArPhysOFCAlgmu.UseDelta = UseDelta
    LArPhysOFCAlgmu.KeyOFC   = OFCKey+"_mu"
@@ -792,7 +758,8 @@ if NColl > 0:
    LArPhysOFCAlgmu2.TimeShift = TimeShift2
    LArPhysOFCAlgmu2.TimeShiftByIndex = TimeShiftByIndex2
    LArPhysOFCAlgmu2.AddTimeOffset = -1.0*TimeShiftGuardRegion
-   LArPhysOFCAlgmu2.LArPhysWaveBinKey = ShiftKey
+   if not SuperCells: # FIXME when shift for SC available
+      LArPhysOFCAlgmu2.LArPhysWaveBinKey = ShiftKey
    LArPhysOFCAlgmu2.UseDelta = UseDelta
    
    LArPhysOFCAlgmu2.KeyOFC   = OFCKey2+"_mu"
@@ -807,6 +774,23 @@ if NColl > 0:
 ###########################################################################
 
 if ( WriteNtuple ) :
+
+   if not 'InputBadChannelSQLiteFile' in dir():
+      OFCLog.info( "Read Bad Channels from Oracle DB")
+   else :   
+      OFCLog.info( "Read Bad Channels from SQLite file") 
+   
+   if 'BadChannelsLArCalibFolderTag' in dir() :
+      BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
+      conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
+   else :
+      conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='CondAttrListCollection')
+   
+   from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+   theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+   from AthenaCommon.AlgSequence import AthSequencer
+   condSeq = AthSequencer("AthCondSeq")
+   condSeq+=theLArBadChannelCondAlg
 
    from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple 
    
@@ -871,7 +855,6 @@ if ( WriteNtuple ) :
       LArWFParams2Ntuple=LArWFParams2Ntuple("LArWFParams2Ntuple")
       LArWFParams2Ntuple.DumpOFCBin=True
       LArWFParams2Ntuple.AddFEBTempInfo   = False
-      LArWFParams2Ntuple.OFCBinKey  =ShiftKey
       LArWFParams2Ntuple.isSC = SuperCells
       topSequence+=LArWFParams2Ntuple
       
@@ -885,10 +868,10 @@ if ( WriteNtuple ) :
 if (  WritePoolFile ) :
    
    from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
-   if os.path.exists(OutputPoolFileDir+"/"+OutputPoolFileName): 
-      os.remove(OutputPoolFileDir+"/"+OutputPoolFileName)
+   if os.path.exists(OutputOFCPoolFileDir+"/"+OutputPoolFileName): 
+      os.remove(OutputOFCPoolFileDir+"/"+OutputPoolFileName)
       
-   OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg",OutputPoolFileDir+"/"+OutputPoolFileName,
+   OutputConditionsAlg = OutputConditionsAlg("OutputConditionsAlg",OutputOFCPoolFileDir+"/"+OutputPoolFileName,
                                              [OutputObjectSpecOFC],[OutputObjectSpecTagOFC],WriteIOV)
    OutputConditionsAlg.Run1     = IOVBegin
    if IOVEnd>0:

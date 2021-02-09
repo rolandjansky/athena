@@ -1,8 +1,6 @@
 /*
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id$
 /**
  * @file MuonEventAthenaPool/test/RpcPadContainerCnv_p1_test.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -94,16 +92,23 @@ void testit (const RpcPadContainer& trans1)
 }
 
 
-void test1()
+void test1 (const std::vector<Identifier>& ids)
 {
   std::cout << "test1\n";
 
+  // Go through initialization once before we enable leak checking,
+  // to get all framework stuff built.
+  {
+    MsgStream log (0, "test");
+    RpcPadContainerCnv_p1 cnv;
+    assert( cnv.initialize (log).isSuccess() );
+  }
+
   Athena_test::Leakcheck check;
-  RpcPadContainer trans1 (3);
-  unsigned int ids[3] = {0x6024c400,  0x603b6800,  0x603e5400};
-  for (int k=0; k < 3; k++) {
+  RpcPadContainer trans1 (ids.size());
+  for (size_t k=0; k < ids.size(); k++) {
     int koffs = k*50;
-    auto pad = std::make_unique<RpcPad> (Identifier(ids[k]),
+    auto pad = std::make_unique<RpcPad> (ids[k],
                                          k,
                                          985+koffs,
                                          984+koffs,
@@ -140,13 +145,21 @@ void test1()
 int main()
 {
   ISvcLocator* pSvcLoc;
-  if (!Athena_test::initGaudi("MuonEventAthenaPool_test.txt", pSvcLoc)) {
+  if (!Athena_test::initGaudi("MuonEventAthenaPool/MuonEventAthenaPool_test.txt", pSvcLoc)) {
     std::cerr << "This test can not be run" << std::endl;
     return 0;
   }
 
-  make_dd();
+  TestRCUSvc rcusvc;
 
-  // test1();
+  std::vector<Identifier> ids;
+  ids.emplace_back (0x6024c400);
+  ids.emplace_back (0x603b6800);
+  ids.emplace_back (0x603e5400);
+
+  make_dd();
+  make_cond(rcusvc, ids);
+
+  test1(ids);
   return 0;
 }

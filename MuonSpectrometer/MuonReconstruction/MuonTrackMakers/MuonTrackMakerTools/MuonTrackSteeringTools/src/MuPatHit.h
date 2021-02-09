@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUPATHIT_H
@@ -26,6 +26,11 @@ namespace Muon {
     enum Status { UnknownStatus = -1, OnTrack = 0, Outlier, NotOnTrack };
     enum HitSelection { UnknownSelection = -1, Precise = 0, Broad = 1 };
 
+    struct Unowned
+    {
+      void operator() (const Trk::TrackParameters*) const {}
+    };
+
     struct Info {
       Info() : id(),measuresPhi(false),type(UnknownType),selection(UnknownSelection),status(UnknownStatus) {}
       Identifier   id;
@@ -47,8 +52,10 @@ namespace Muon {
       @param measuresPhi boolean indicating whether this is an eta or phi measurement
       @param used        enum indicating the hit status
     */
-    MuPatHit( const Trk::TrackParameters* pars, const Trk::MeasurementBase* presMeas, const Trk::MeasurementBase* broadMeas,
-       const Info& info );
+    MuPatHit( std::shared_ptr<const Trk::TrackParameters> pars,
+              const Trk::MeasurementBase* presMeas,
+              std::unique_ptr<const Trk::MeasurementBase> broadMeas,
+              const Info& info );
 
     /** @brief copy constructor */
     MuPatHit( const MuPatHit& hit );
@@ -81,7 +88,7 @@ namespace Muon {
     const Trk::MeasurementBase& broadMeasurement() const;
 
     /** @brief update the track parameters and residual of a MuPatHit */
-    void updateParameters( const Trk::TrackParameters* pars );
+    void updateParameters( std::shared_ptr<const Trk::TrackParameters> pars );
 
     /** @brief maximum number of objects of this type in memory */
     static unsigned int maxNumberOfInstantiations();
@@ -119,7 +126,7 @@ namespace Muon {
     void copy( const MuPatHit& hit );
 
     // private member data
-    const Trk::TrackParameters* m_pars;
+    std::shared_ptr<const Trk::TrackParameters> m_pars;
     const Trk::MeasurementBase* m_precisionMeas;
     std::unique_ptr<const Trk::MeasurementBase> m_broadMeas;
     Info m_info;

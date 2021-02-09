@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SGTools/DataStore.h"
@@ -506,8 +506,8 @@ DataStore::t2pRegister(const void* const pTrans, DataProxy* const pPers)
 }
 
 
-
-
-
-
+const std::vector<DataProxy*>& DataStore::proxies() const
+{
+  return m_proxies;
+}
 

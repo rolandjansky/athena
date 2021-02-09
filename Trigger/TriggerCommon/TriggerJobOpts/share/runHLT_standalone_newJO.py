@@ -65,7 +65,7 @@ flags.fillFromArgs(parser=parser)
 flags.lock()
 
 
-from AthenaCommon.Constants import INFO, DEBUG, WARNING
+from AthenaCommon.Constants import DEBUG, INFO, WARNING
 acc = MainServicesCfg(flags)
 acc.getService('AvalancheSchedulerSvc').VerboseSubSlots = True
 
@@ -90,26 +90,27 @@ from TrigConfigSvc.TrigConfigSvcCfg import createL1PrescalesFileFromMenu
 createL1PrescalesFileFromMenu(flags)
 
 
-acc.getEventAlgo("TrigSignatureMoniMT").OutputLevel = DEBUG
+acc.getEventAlgo("TrigSignatureMoniMT").OutputLevel = INFO
 acc.getEventAlgo("L1Decoder").ctpUnpacker.UseTBPBits = True # test setup
 
 
 
 from AthenaCommon.Logging import logging
+log = logging.getLogger(__name__)
 logging.getLogger('forcomps').setLevel(DEBUG)
-acc.foreach_component("*/L1Decoder").OutputLevel = DEBUG
-acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = DEBUG # tools
-acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = DEBUG # hypo algs
+acc.foreach_component("*/L1Decoder").OutputLevel = INFO
+acc.foreach_component("*/L1Decoder/*Tool").OutputLevel = INFO # tools
+acc.foreach_component("*HLTTop/*Hypo*").OutputLevel = INFO # hypo algs
 acc.foreach_component("*HLTTop/*Hypo*/*Tool*").OutputLevel = INFO # hypo tools
 acc.foreach_component("*HLTTop/RoRSeqFilter/*").OutputLevel = INFO# filters
-acc.foreach_component("*/FPrecisionCalo").OutputLevel = DEBUG# filters
-acc.foreach_component("*/CHElectronFTF").OutputLevel = DEBUG# filters
-acc.foreach_component("*HLTTop/*Input*").OutputLevel = DEBUG # input makers
+acc.foreach_component("*/FPrecisionCalo").OutputLevel = INFO# filters
+acc.foreach_component("*/CHElectronFTF").OutputLevel = INFO# filters
+acc.foreach_component("*HLTTop/*Input*").OutputLevel = INFO # input makers
 acc.foreach_component("*HLTTop/*HLTEDMCreator*").OutputLevel = WARNING # messaging from the EDM creators
 acc.foreach_component("*HLTTop/*GenericMonitoringTool*").OutputLevel = WARNING # silcence mon tools (addressing by type)
 
-
-acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
+if log.getEffectiveLevel() <= logging.DEBUG:
+    acc.printConfig(withDetails=False, summariseProps=True, printDefaults=True)
 
 
 fName = "runHLT_standalone_newJO.pkl"

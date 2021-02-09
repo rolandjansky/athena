@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 /**********************************************************************
  * AsgTool: TrigEgammaEventSelection
@@ -239,7 +239,7 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
   
   ATH_MSG_INFO("In EventSelectonFakes...");
 
-  for(const auto& elTag : *m_offElectrons){ 
+  for(const auto elTag : *m_offElectrons){ 
 
     // Remove electrons from Z or W if this is Monte Carlo
     if(m_selectionMC && !isTruthElectronAny( elTag ))  continue; 
@@ -260,7 +260,7 @@ bool TrigEgammaEventSelection::EventSelectionFakes(){
     bool passesZveto=true;
 
     // If we can find any pair that falls in the Zmass window we fail the passesZveto cut
-    for(const auto& elProbe : *m_offElectrons){
+    for(const auto elProbe : *m_offElectrons){
 
       if(elTag == elProbe)  continue;
 
@@ -359,7 +359,7 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
     const xAOD::TrigElectronContainer *trigElCont = getFeature<xAOD::TrigElectronContainer>(feat);
     // Level 2 ID+Calo
     if(trigElCont){
-      for(const auto& trigEl : *trigElCont){
+      for(const auto trigEl : *trigElCont){
         if(!fillTrigElectron(trigEl)) {
           ATH_MSG_WARNING("Cound not attach the trigElectron information into the tree.");
         }    
@@ -368,7 +368,7 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
      
     const xAOD::CaloClusterContainer *caloCont = getFeature<xAOD::CaloClusterContainer>(feat);
     if(caloCont){
-      for(const auto& cl : *caloCont){
+      for(const auto cl : *caloCont){
         if(!fillCaloCluster(cl)){
           ATH_MSG_WARNING("Cound not attach the CaloCluster information into the tree.");
         }
@@ -379,7 +379,7 @@ bool TrigEgammaEventSelection::fill( TTree *t, const xAOD::Electron *el){
     const xAOD::ElectronContainer *elCont = getFeature<xAOD::ElectronContainer>(feat);
 
     if(elCont){
-      for(const auto& hlt_el : *elCont){
+      for(const auto hlt_el : *elCont){
         if(!fillHLTElectron(hlt_el))
           ATH_MSG_WARNING("Cound not attach the HLT Electron information into the tree.");
       }

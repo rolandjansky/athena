@@ -74,7 +74,6 @@ class JSSTaggerBase :   public asg::AsgTool ,
     const int m_nWarnMax = 10;
 
     /// Warning counters
-    mutable std::atomic<int> m_nWarnKin;
     mutable std::atomic<int> m_nWarnVar;
 
     /// Flag to indicate units pT is defined in

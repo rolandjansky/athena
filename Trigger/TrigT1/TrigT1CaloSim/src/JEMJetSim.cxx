@@ -57,18 +57,7 @@ JEMJetSim::JEMJetSim
       m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc", name),
       m_JetTool("LVL1::L1JEMJetTools/L1JEMJetTools")
 {
-    m_JEMTobRoILocation      = TrigT1CaloDefs::JEMTobRoILocation;
-    m_JetCMXDataLocation     = TrigT1CaloDefs::JetCMXDataLocation;
-    m_JetElementLocation     = TrigT1CaloDefs::JetElementLocation;
-
-    // This is how you declare the paramembers to Gaudi so that
-    // they can be over-written via the job options file
-    
-    declareProperty( "JEMTOBRoILocation",       m_JEMTobRoILocation );
-    declareProperty( "JetCMXDataLocation",       m_JetCMXDataLocation );
     declareProperty( "LVL1ConfigSvc", m_configSvc, "LVL1 Config Service");
-    declareProperty( "JetElementLocation", m_JetElementLocation ) ;
-
 }
 
 
@@ -78,6 +67,10 @@ JEMJetSim::JEMJetSim
 
 StatusCode JEMJetSim::initialize()
 {
+  ATH_CHECK( m_JetElementInputKey.initialize() );
+  ATH_CHECK( m_JEMTobRoIOutputKey.initialize() );
+  ATH_CHECK( m_JetCMXDataOutputKey.initialize() );
+
   ATH_CHECK(  m_configSvc.retrieve() );
   ATH_CHECK( m_JetTool.retrieve() );
   return StatusCode::SUCCESS ;
@@ -111,10 +104,11 @@ StatusCode JEMJetSim::execute( )
   m_allTOBs      = new DataVector<JEMTobRoI>;  // Container to hold all TOB RoIs in event
 
   // Retrieve the JetElementContainer
-  if (evtStore()->contains<xAOD::JetElementContainer>(m_JetElementLocation)) {
-    const DataVector<xAOD::JetElement>* storedJEs;
-    StatusCode sc = evtStore()->retrieve(storedJEs,m_JetElementLocation);
-    if ( sc==StatusCode::SUCCESS ) {
+  auto rh = SG::makeHandle(m_JetElementInputKey);
+
+  if (rh.isValid()) {
+     const DataVector<xAOD::JetElement>* storedJEs = &(*rh);
+    if ( true ) {
        // Check size of JetElementCollection - zero would indicate a problem
       if (storedJEs->size() == 0)
          ATH_MSG_WARNING("Empty JetElementContainer - looks like a problem" );
@@ -147,7 +141,7 @@ StatusCode JEMJetSim::execute( )
     
     else ATH_MSG_WARNING("Error retrieving JetElements" );
   }
-  else ATH_MSG_WARNING("No JetElementContainer at " << m_JetElementLocation );
+  else ATH_MSG_WARNING("No JetElementContainer at " << m_JetElementInputKey );
   
        
   // Store module readout and backplane results in the TES
@@ -158,22 +152,27 @@ StatusCode JEMJetSim::execute( )
   m_JetCMXData  = 0;
   m_allTOBs    = 0;
 
-  return StatusCode::SUCCESS ;
+  return StatusCode::SUCCESS;
 }
 
 /** place backplane data objects (CPM -> CMX) in StoreGate */
 void LVL1::JEMJetSim::storeBackplaneTOBs() {
+   
+  size_t datasize = m_JetCMXData->size();
 
   // Store backplane data objects
-  StatusCode sc = evtStore()->overwrite(m_JetCMXData, m_JetCMXDataLocation, true);
+  ///StatusCode sc = evtStore()->overwrite(m_JetCMXData, m_JetCMXDataLocation, true);
+  const EventContext& ctx = Gaudi::Hive::currentContext();
+  StatusCode sc = SG::makeHandle(m_JetCMXDataOutputKey, ctx).record( std::unique_ptr<DataVector<JetCMXData>>(m_JetCMXData) );
+  m_JetCMXData = nullptr;
 
   if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE ( "Stored " << m_JetCMXData->size()
-                      << " JetCMXData at " << m_JetCMXDataLocation );
+    ATH_MSG_VERBOSE ( "Stored " << datasize
+                      << " JetCMXData at " << m_JetCMXDataOutputKey );
   }
   else {
      ATH_MSG_ERROR("failed to write JetCMXData to  "
-         << m_JetCMXDataLocation );
+         << m_JetCMXDataOutputKey );
   } 
     
   return;
@@ -184,18 +183,20 @@ void LVL1::JEMJetSim::storeBackplaneTOBs() {
 /** place final ROI objects in the TES. */
 void LVL1::JEMJetSim::storeModuleRoIs() {
 
-  StatusCode sc = evtStore()->overwrite(m_allTOBs, m_JEMTobRoILocation, true);
+   size_t n_jetsTobs = m_allTOBs->size();
 
-  if (sc.isSuccess()) {
-    ATH_MSG_VERBOSE ( "Stored " << m_allTOBs->size()
-                      << " Jet TOBs at " << m_JEMTobRoILocation );
-  }
-  else {
-     ATH_MSG_ERROR("failed to write JEMTobRoIs to  "
-         << m_JEMTobRoILocation );
-  } 
-
-  return;
+   const EventContext& ctx = Gaudi::Hive::currentContext();
+   StatusCode sc = SG::makeHandle(m_JEMTobRoIOutputKey, ctx).record( std::unique_ptr<DataVector<JEMTobRoI>>(m_allTOBs) );
+   m_allTOBs = nullptr;
+   
+   if (sc.isSuccess()) {
+      ATH_MSG_VERBOSE ( "Stored " << n_jetsTobs
+                        << " Jet TOBs at " << m_JEMTobRoIOutputKey );
+   }
+   else {
+      ATH_MSG_ERROR("failed to write JEMTobRoIs to  "
+                    << m_JEMTobRoIOutputKey );
+   } 
 
 } //end storeModuleRoIs
 

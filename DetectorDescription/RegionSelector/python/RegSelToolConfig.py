@@ -225,3 +225,19 @@ def regSelTool_STGC_Cfg(flags):
 
 def regSelTool_MM_Cfg(flags):
     return regSelToolCfg(flags, "MM", CompFactory.MM_RegSelCondAlg)
+
+#calo 
+def regSelTool_TTEM_Cfg(flags):
+    return regSelToolCfg(flags, "TTEM", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_TTHEC_Cfg(flags):
+    return regSelToolCfg(flags, "TTHEC", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_FCALEM_Cfg(flags):
+    return regSelToolCfg(flags, "FCALEM", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_FCALHAD_Cfg(flags):
+    return regSelToolCfg(flags, "FCALHAD", CompFactory.RegSelCondAlg_LAr)
+
+def regSelTool_TILE_Cfg(flags):
+    return regSelToolCfg(flags, "TILE", CompFactory.RegSelCondAlg_Tile)

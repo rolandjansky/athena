@@ -10,7 +10,7 @@ namespace top {
   NoBadMuonSelector::NoBadMuonSelector(std::shared_ptr<top::TopConfig> config) :
     m_config(config) {
     if (!m_config->isTruthDxAOD()) {
-      m_muonSelectionTool = ToolHandle<CP::IMuonSelectionTool>("CP::MuonSelectionTool");
+      m_muonSelectionTool = ToolHandle<CP::IMuonSelectionTool>("MuonSelectionTool");
       top::check(m_muonSelectionTool.retrieve(), "Failed to retrieve muonSelectionTool");
     }
   }

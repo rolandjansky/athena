@@ -221,7 +221,7 @@ TCS::InvariantMassDeltaPhiInclusive2::process( const std::vector<TCS::TOBArray c
                 const int eta2 = (*tob2)->eta();
                 const unsigned int aeta1 = std::abs(eta1);
                 const unsigned int aeta2 = std::abs(eta2);
-               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                for(unsigned int i=0; i<numberOutputBits(); ++i) {
                    if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
                    if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
                    if(p_ApplyEtaCut &&

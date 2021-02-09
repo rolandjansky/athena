@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArRawCalibDataReadingAlg.h"
@@ -74,6 +74,7 @@ LArRawCalibDataReadingAlg::LArRawCalibDataReadingAlg(const std::string& name, IS
   ATH_CHECK(m_robDataProviderSvc.retrieve());
   ATH_CHECK(detStore()->retrieve(m_onlineId,"LArOnlineID"));  
 
+  ATH_CHECK(m_CLKey.initialize());
 
   //Build list of preselected Feedthroughs
   if (m_vBEPreselection.size() &&  m_vPosNegPreselection.size() && m_vFTPreselection.size()) {
@@ -143,6 +144,15 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
   uint16_t rodMinorVersion=0x0;
   uint32_t rodBlockType=0x0;
 
+  const LArCalibLineMapping *calibMap=nullptr;
+  if (m_doAccCalibDigits) {
+      SG::ReadCondHandle<LArCalibLineMapping> clHdl{m_CLKey,ctx};
+      calibMap = *clHdl;
+      if(!calibMap) {
+         ATH_MSG_ERROR( "Do not have calib line mapping !!!" );
+         return StatusCode::FAILURE;
+      }
+  }
 
   for (const uint32_t* robPtr : larRobs->second) {
     OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment rob(robPtr);
@@ -162,11 +172,11 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
       rodMinorVersion=ver.minor_version();
       rodBlockType=rob.rod_detev_type()&0xff;
       ATH_MSG_VERBOSE("Found version " << rodMinorVersion <<  " of Rod Block Type  " <<  rodBlockType);
-      if (rodBlockType==10) { // Accumulated calib. digits
+      if (rodBlockType==10) { // Accumulated  digits
 	  rodBlock.reset(new LArRodBlockAccumulatedV3);
       }//end of rodBlockType ==10
       else if (rodBlockType==7 || rodBlockType==2) { // Calib. digits
-         if(rodMinorVersion>=6) {
+         if(rodMinorVersion>=6) { // Accumulated calib. digits
             rodBlock.reset(new LArRodBlockCalibrationV3);
          } else {
             ATH_MSG_ERROR("Found unsupported ROD Block version " << rodMinorVersion
@@ -270,7 +280,9 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
         uint16_t delay;
         uint16_t nstep;
         uint16_t istep;
-        bool ispulsed;
+        bool     ispulsed=false;
+        uint16_t ispulsed_int;
+        unsigned bitShift;
 	int fcNb;
 	std::vector<uint32_t> samplesSum;
 	std::vector<uint32_t> samples2Sum;
@@ -279,17 +291,24 @@ StatusCode LArRawCalibDataReadingAlg::execute(const EventContext& ctx) const {
 	  if (fcNb>=NthisFebChannel)
 	    continue;
 	  if (samplesSum.size()==0 || samples2Sum.size()==0) continue; // Ignore missing cells
+          ispulsed_int=0;
+          bitShift=0;
           dac = rodBlock->getDAC();
           delay = rodBlock->getDelay();
-          ispulsed = rodBlock->getPulsed(fcNb);
           nTrigger = rodBlock->getNTrigger();
           nstep = rodBlock->getNStep();
           istep = rodBlock->getStepIndex();
 	  HWIdentifier cId = m_onlineId->channel_Id(fId,fcNb);
-	  caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed, nstep, istep));
-	  samplesSum.clear();
-	  samples2Sum.clear();
+          const std::vector<HWIdentifier>& calibChannelIDs = calibMap->calibSlotLine(cId);
+          for(std::vector<HWIdentifier>::const_iterator csl_it=calibChannelIDs.begin(); csl_it!=calibChannelIDs.end();++csl_it){
+            uint32_t calibLine = m_onlineId->channel(*csl_it);
+            ispulsed=rodBlock->getPulsed(calibLine);
+            ispulsed_int=( ispulsed_int | ((uint16_t)ispulsed<<bitShift) );
+            bitShift++;
+          }
+          caccdigits->emplace_back(new LArAccumulatedCalibDigit(cId, (CaloGain::CaloGain)gain, std::move(samplesSum), std::move(samples2Sum), nTrigger, dac, delay, ispulsed, nstep, istep));
 	}//end getNext loop
+        caccdigits->setDelayScale(m_delayScale);
       }//end if m_doAccDigits
 
       //Decode FebHeaders (if requested)

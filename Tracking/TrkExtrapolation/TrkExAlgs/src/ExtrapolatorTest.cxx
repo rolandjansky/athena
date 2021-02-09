@@ -202,7 +202,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 
        const Trk::Surface* destinationSurface = (*surfaceTripleIter)[refSurface];
        
-       const Trk::TrackParameters* destParameters = m_useExtrapolator ?
+       auto destParameters = m_useExtrapolator ?
 	 m_extrapolator->extrapolate(initialPerigee,
 				     *destinationSurface, 
 				     propagationDirection,
@@ -213,7 +213,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 				 propagationDirection,
 				 false,
 				 *m_magFieldProperties,
-				 (Trk::ParticleHypothesis)m_particleType);
+				 (Trk::ParticleHypothesis)m_particleType).release();
 
        if (destParameters) {
            // global position parameter
@@ -224,8 +224,7 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 
        } else if (!destParameters)
            ATH_MSG_DEBUG(" Extrapolation not successful! " );
-
-       delete destParameters;
+          delete destParameters;
 
    } 
 }

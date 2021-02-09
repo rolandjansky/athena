@@ -21,6 +21,7 @@ namespace Muon {
     ATH_CHECK(m_idHelperSvc.retrieve());
     ATH_CHECK(m_mdtCreator.retrieve());
     ATH_CHECK(m_clusterCreator.retrieve());
+    ATH_CHECK(m_mmClusterCreator.retrieve());
     if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
     return StatusCode::SUCCESS;
   }
@@ -156,8 +157,13 @@ namespace Muon {
       return 0;
     }
     if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
-
-    const MuonClusterOnTrack* cluster = m_clusterCreator->createRIO_OnTrack( clus, intersect ); 
+    
+    const MuonClusterOnTrack *cluster = nullptr;
+    if (m_idHelperSvc->isMM(clus.identify())) {
+        cluster = m_mmClusterCreator->createRIO_OnTrack(clus, intersect);
+    } else {
+         cluster = m_clusterCreator->createRIO_OnTrack(clus, intersect);
+    }
     if( !cluster ){
       ATH_MSG_VERBOSE("  --- cluster creation failed ");
       return 0;

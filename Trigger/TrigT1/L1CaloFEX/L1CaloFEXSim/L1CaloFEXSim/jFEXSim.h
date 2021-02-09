@@ -58,10 +58,13 @@ namespace LVL1 {
 
     virtual StatusCode NewExecute(int tmp[16*4][17]) override;
     virtual StatusCode NewExecute(int tmp[16*4][24]) override;
+    virtual std::vector<uint32_t> getSmallRJetTOBs() override;
+    virtual std::vector<uint32_t> getLargeRJetTOBs() override;
 
     /** Internal data */
   private:
-
+    static bool smallRJet_ET_Sort(uint32_t i, uint32_t j){ return (((i >> 0 ) & 0x7ff)> ((j >> 0) & 0x7ff));}
+    static bool largeRJet_ET_Sort(uint32_t i, uint32_t j){ return (((i >> 0 ) & 0x1fff)> ((j >> 0) & 0x1fff));}
     int m_id;
 
     int m_jTowersIDs_Wide [16*4][17];
@@ -70,7 +73,9 @@ namespace LVL1 {
     std::map<int,jTower> m_jTowersColl;
     CaloCellContainer m_sCellsCollection;
     std::vector<jFEXFPGA*> m_jFEXFPGACollection;
-
+   
+    std::vector<std::vector<uint32_t>> m_smallRJet_tobWords;
+    std::vector<std::vector<uint32_t>> m_largeRJet_tobWords;
     ToolHandle<IjFEXFPGA> m_jFEXFPGATool {this, "jFEXFPGATool", "LVL1::jFEXFPGA", "Tool that simulates the FPGA hardware"};
 
     

@@ -58,6 +58,9 @@ namespace PFO {
   void FlowElement_LinkerPlots::initializePlots(){
     // init only the histograms we're going to use (m_doNeutralFE is the switch)
     //tau
+    if(m_sFEContainerName==""){ // skip init if container not used.
+      return;
+    }
     if(!m_doNeutralFE){
       m_CFE_tau_dR=Book1D("_CFE_tau_dR",m_sFEContainerName+"_CFE_tau_dR",40,0,5); 
       m_CFE_tau_NMatchedTau=Book1D("_CFE_tau_NMatchedTau",m_sFEContainerName+"_CFE_tau_NMatchedTau",20,0,20);

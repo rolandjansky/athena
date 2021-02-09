@@ -28,7 +28,8 @@ class HIEventShapeFillerTool : public asg::AsgTool, virtual public IHIEventShape
    HIEventShapeFillerTool(const std::string& myname);
 
    virtual StatusCode initializeCollection            (xAOD::HIEventShapeContainer *evtShape_        );
-   virtual StatusCode fillCollectionFromTowers        (const SG::ReadHandleKey<xAOD::CaloClusterContainer>  &tower_container_key      );
+   virtual StatusCode fillCollectionFromTowers        (const SG::ReadHandleKey<xAOD::CaloClusterContainer>  &tower_container_key,
+                                                       const SG::ReadHandleKey<INavigable4MomentumCollection>  &navi_container_key);
    virtual StatusCode fillCollectionFromCells         (const SG::ReadHandleKey<CaloCellContainer>           &cell_container_key       );
 
    virtual StatusCode fillCollectionFromTowerContainer(const INavigable4MomentumCollection* navInColl);

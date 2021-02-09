@@ -1,9 +1,8 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Test the various DBRelease scenarios
-# $Id: test_trfUtilsDBRelease.py 740535 2016-04-15 11:21:07Z graemes $
 #
 
 import json
@@ -126,9 +125,4 @@ def tearDownModule():
         shutil.rmtree('DBRelease')
 
 if __name__ == '__main__':
-    import os
-    testname = 'test_trfUtilsDBRelease'
-    if not os.path.exists (testname):
-        os.mkdir (testname)
-        os.chdir (testname)
     unittest.main()

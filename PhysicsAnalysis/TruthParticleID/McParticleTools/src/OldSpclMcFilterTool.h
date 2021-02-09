@@ -14,8 +14,6 @@
 // STL includes
 #include <set>
 
-// FrameWork includes
-
 // McParticleTools includes
 #include "TruthParticleFilterBaseTool.h"
 
@@ -45,10 +43,6 @@ class OldSpclMcFilterTool : public TruthParticleFilterBaseTool
 
   /// Destructor: 
   virtual ~OldSpclMcFilterTool(); 
-
-  /////////////////////////////////////////////////////////////////// 
-  // Const methods: 
-  ///////////////////////////////////////////////////////////////////
 
   /////////////////////////////////////////////////////////////////// 
   // Non-const methods: 

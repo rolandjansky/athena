@@ -345,19 +345,19 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       Trk::Trajectory::reverse_iterator stateWithNoise
         = m_utility->previousFittableState(trajectory, rit);
       if (kalMec.doDNA() && stateWithNoise!=trajectory.rend()) {
-
         const TrackParameters *predPar_temp=predPar.release();
         const TrackParameters *updatedPar_temp=updatedPar.release();
-
-        detectedMomentumNoise =
-          m_dynamicNoiseAdjustor->DNA_Adjust(predPar_temp, // change according to where meas is
-                                             updatedPar_temp, // previous state's pars (start)
-                                             fittableMeasurement, // the meas't
-                                             kalMec,
-                                             Trk::oppositeMomentum,
-                                             stateWithNoise->dnaMaterialEffects());
-        predPar.reset( predPar_temp);
-        updatedPar.reset( updatedPar_temp);
+        Trk::IDynamicNoiseAdjustor::State state{};
+        detectedMomentumNoise = m_dynamicNoiseAdjustor->DNA_Adjust(
+          state,
+          predPar_temp,        // change according to where meas is
+          updatedPar_temp,     // previous state's pars (start)
+          fittableMeasurement, // the meas't
+          kalMec,
+          Trk::oppositeMomentum,
+          stateWithNoise->dnaMaterialEffects());
+        predPar.reset(predPar_temp);
+        updatedPar.reset(updatedPar_temp);
       }
       if (msgLvl(MSG::DEBUG))
         printGlobalParams(rit->positionOnTrajectory(), "  pred", predPar.get(),
@@ -387,7 +387,7 @@ Trk::FitterStatusCode Trk::KalmanSmoother::fit(Trk::Trajectory&              tra
       if (rit == lastSmoothableState) { // at the last don't do state combination.
         ATH_MSG_VERBOSE ("Identified state" << (rit->positionOnTrajectory()>9? " " : " 0")<<
                          rit->positionOnTrajectory() << " as last fittable state.");
-        //clone here, as updatedPar is used on next iteration and would be invalid if moved                 
+        //clone here, as updatedPar is used on next iteration and would be invalid if moved
         smooPar.reset( updatedPar->clone() );
       } else {
         if (m_doSmoothing) {

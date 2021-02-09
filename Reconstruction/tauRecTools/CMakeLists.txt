@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( tauRecTools )
@@ -18,7 +18,7 @@ atlas_add_root_dictionary( tauRecToolsLib tauRecToolsLibCintDict
   tauRecTools/TauCommonCalcVars.h
   tauRecTools/MvaTESVariableDecorator.h
   tauRecTools/MvaTESEvaluator.h
-  tauRecTools/CombinedP4FromRecoTaus.h
+  tauRecTools/TauCombinedTES.h
   tauRecTools/TauTrackClassifier.h
   tauRecTools/TauTrackRNNClassifier.h
   tauRecTools/TauWPDecorator.h
@@ -77,6 +77,6 @@ if( NOT XAOD_STANDALONE )
          RecoToolInterfaces TrkLinks TrkParametersIdentificationHelpers
          TrkTrackSummary VxVertex TrkToolInterfaces TrkVertexFitterInterfaces
          TrkVertexFittersLib InDetTrackSelectionToolLib BeamSpotConditionsData
-         tauRecToolsLib )
+         tauRecToolsLib TrackVertexAssociationToolLib)
    endif()
 endif()

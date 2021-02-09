@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -165,6 +165,7 @@ def buildDict(inputtype, inputfile):
     #doMC_channel_number(f,inputtype) #FIXME commented out for now until mc_channel_number is filled properly by AthFile.
 
     metadatadict = dict()
+    digimetadatadict = dict()
     taginfometadata = dict()
     #safety checks before trying to access metadata
     if 'metadata' in f.infos.keys():
@@ -188,7 +189,7 @@ def buildDict(inputtype, inputfile):
                     metadatadict['IOVDbGlobalTag'] = f.fileinfos['conditions_tag']
                 except Exception:
                     logOverlayReadMetadata.warning("Failed to find IOVDbGlobalTag.")
-                    return metadatadict,taginfometadata,False
+                    return metadatadict,taginfometadata,digimetadatadict,False
         if '/Digitization/Parameters' in f.infos['metadata'].keys():
             ## We have the RDO file here:
             if len(f.run_numbers)>0 :
@@ -221,7 +222,7 @@ def buildDict(inputtype, inputfile):
     ## Dictionary should not be empty
     if Nkvp==0 :
         logOverlayReadMetadata.error("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
-        return metadatadict,taginfometadata,False
+        return metadatadict,taginfometadata,digimetadatadict,False
     else:
         ##Patch for older hit files
         if 'hitFileMagicNumber' not in metadatadict.keys():
@@ -255,7 +256,7 @@ def buildDict(inputtype, inputfile):
         logOverlayReadMetadata.debug("%s Simulation MetaData Dictionary Successfully Created.",inputtype)
         logOverlayReadMetadata.debug("Found %s KEY:VALUE pairs in %s Simulation MetaData." , Nkvp,inputtype)
         logOverlayReadMetadata.debug("KEYS FOUND: %s", metadatadict.keys())
-        return metadatadict,taginfometadata,True
+        return metadatadict,taginfometadata,digimetadatadict,True
 
 def signalMetaDataCheck(metadatadict):
     import re
@@ -480,7 +481,7 @@ def readInputFileMetadata():
 
     digitizationFlags.simRunNumber = int(digitizationFlags.getHitFileRunNumber(athenaCommonFlags.PoolHitsInput.get_Value()[0]))
 
-    sigsimdict,sigtaginfodict,result = buildDict("Signal", athenaCommonFlags.PoolHitsInput.get_Value()[0])
+    sigsimdict,sigtaginfodict,_,result = buildDict("Signal", athenaCommonFlags.PoolHitsInput.get_Value()[0])
     if result :
         signalMetaDataCheck(sigsimdict)
 
@@ -495,7 +496,7 @@ def readInputFileMetadata():
             result = True
             longpileuptype= "pre-mixed pile-up"
             logOverlayReadMetadata.info("Checking %s MetaData against Signal Simulation MetaData...", longpileuptype)
-            pileupsimdict,pileuptaginfodict,result = buildDict(longpileuptype, athenaCommonFlags.PoolRDOInput.get_Value()[0])
+            pileupsimdict,pileuptaginfodict,pileupdigidict,result = buildDict(longpileuptype, athenaCommonFlags.PoolRDOInput.get_Value()[0])
             if not result:
                 logOverlayReadMetadata.warning("Failed to Create %s Simulation MetaData Dictionary from file %s.", longpileuptype, athenaCommonFlags.PoolHitsInput.get_Value()[0])
             else:
@@ -506,8 +507,13 @@ def readInputFileMetadata():
             ## All checks completed here
             logOverlayReadMetadata.info("Completed all checks against Signal Simulation MetaData.")
 
+            if pileupdigidict:
+                from .OverlayWriteMetaData import writeOverlayDigitizationMetadata
+                writeOverlayDigitizationMetadata(pileupdigidict)
+
             del pileupsimdict
             del pileuptaginfodict
+            del pileupdigidict
     else:
         logOverlayReadMetadata.info("Failed to Create Signal MetaData Dictionaries from file %s", athenaCommonFlags.PoolHitsInput.get_Value()[0])
 

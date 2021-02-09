@@ -1,5 +1,5 @@
 #
-#  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+#  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 
 from AthenaCommon.Logging import logging
@@ -183,15 +183,16 @@ def L1DecoderCfg(flags, seqName = None):
     if flags.Trigger.doMuon:
         unpackers = createMuonRoIUnpackers()
         decoderAlg.roiUnpackers += unpackers
+        from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
+        acc.merge( TGCCablingConfigCfg( flags ) )
+        acc.merge( RPCCablingConfigCfg( flags ) )
 
     decoderAlg.prescaler = createPrescalingTool()
     decoderAlg.KeyWriterTool = createKeyWriterTool()
     decoderAlg.DoCostMonitoring = flags.Trigger.CostMonitoring.doCostMonitoring
     decoderAlg.CostMonitoringChain = flags.Trigger.CostMonitoring.chain
 
-    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
-
-    if flags.Input.Format == "BS":
+    if flags.Input.Format == "BS" and not flags.Trigger.doLVL1:
         # Add the algorithm decoding ByteStream into xAOD (Run-3 L1) and/or RoIBResult (legacy L1)
         from TrigT1ResultByteStream.TrigT1ResultByteStreamConfig import L1TriggerByteStreamDecoderCfg
         acc.merge( L1TriggerByteStreamDecoderCfg(flags), sequenceName = seqName )
@@ -199,6 +200,8 @@ def L1DecoderCfg(flags, seqName = None):
     # Add the algorithm creating L1TriggerResult which is the input to L1Decoder (Run-3 L1)
     if flags.Trigger.enableL1Phase1:
         acc.addEventAlgo( getL1TriggerResultMaker(), sequenceName = seqName )
+
+    acc.addEventAlgo( decoderAlg, sequenceName = seqName )
 
     from TrigConfigSvc.TrigConfigSvcCfg import TrigConfigSvcCfg, HLTPrescaleCondAlgCfg
     acc.merge( TrigConfigSvcCfg( flags ) )
@@ -217,9 +220,6 @@ if __name__ == "__main__":
     ConfigFlags.Input.Files= ["/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TrigP1Test/data17_13TeV.00327265.physics_EnhancedBias.merge.RAW._lb0100._SFO-1._0001.1",]
     ConfigFlags.lock()
     acc = L1DecoderCfg( ConfigFlags )
-    from MuonConfig.MuonCablingConfig import RPCCablingConfigCfg, TGCCablingConfigCfg
-    acc.merge( TGCCablingConfigCfg( ConfigFlags ) )
-    acc.merge( RPCCablingConfigCfg( ConfigFlags ) )
 
 
     f=open("L1DecoderConf.pkl","wb")

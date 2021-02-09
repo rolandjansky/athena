@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
@@ -13,9 +13,25 @@ using namespace TrigCompositeUtils;
 /// Helper functions in anonymous namespace
 namespace
 {
-  /// Allow printing vector<T>
+  template <class T>
+  class printable_vector
+    : public std::vector<T>
+  {
+  public:
+    using std::vector<T>::vector;
+    printable_vector (const std::vector<T>& v) : std::vector<T>(v) {}
+  };
+
+  printable_vector<printable_vector<std::size_t>> allCombos(KFromNItr itr)
+  {
+    printable_vector<printable_vector<std::size_t>> ret;
+    std::copy(itr, KFromNItr(), std::back_inserter(ret));
+    return ret;
+  }
+
+  /// Allow printing
   template <typename T>
-  std::ostream &operator<<(std::ostream &os, const std::vector<T> &v)
+  std::ostream &operator<<(std::ostream &os, const printable_vector<T> &v)
   {
     os << "[";
     if (v.size() > 0)
@@ -26,13 +42,6 @@ namespace
     }
     return os << "]";
   }
-
-  std::vector<std::vector<std::size_t>> allCombos(KFromNItr itr)
-  {
-    std::vector<std::vector<std::size_t>> ret;
-    std::copy(itr, KFromNItr(), std::back_inserter(ret));
-    return ret;
-  }
 } // namespace
 
 /// Make sure picking one gives you the obvious
@@ -40,7 +49,7 @@ void pickOne()
 {
   std::cout << "Pick 1 from 6" << std::endl;
   KFromNItr itr(1, 6);
-  std::vector<std::vector<std::size_t>> all = allCombos(itr);
+  printable_vector<printable_vector<std::size_t>> all = allCombos(itr);
   VALUE(all) EXPECTED({{0}, {1}, {2}, {3}, {4}, {5}});
 }
 
@@ -56,7 +65,7 @@ void emptyItr()
 void pickMany()
 {
   std::cout << "Pick 3 from 5" << std::endl;
-  std::vector<std::vector<std::size_t>> expected{
+  printable_vector<printable_vector<std::size_t>> expected{
     {0, 1, 2},
     {0, 1, 3},
     {0, 1, 4},

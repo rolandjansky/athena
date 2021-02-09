@@ -205,7 +205,7 @@ class AlgConfig(ABC):
         from TrigStreamerHypo.TrigStreamerHypoConf import TrigStreamerHypoAlgMT
 
         return TrigStreamerHypoAlgMT(
-            f"METPassThroughHypo_{self._suffix}_step{step}", SetInitialRoIAsFeature=True
+            f"METPassThroughHypo_{self._suffix}_step{step}"
         )
 
     def inputMakers(self):

@@ -90,6 +90,36 @@ StatusCode GenParticleFillerTool::book()
  * is responsible for arranging that all the pointers for booked variables
  * are set appropriately upon entry.
  */
+#ifdef HEPMC3
+StatusCode GenParticleFillerTool::fill (const HepMC::GenParticle& p)
+{
+  HepMC::FourVector v = p.momentum();
+  if (m_do_E)        *m_E     = static_cast<float> (v.e());
+  if (m_do_p)        *m_p     = static_cast<float> (v.length());
+  if (m_do_pt)       *m_pt    = static_cast<float> (v.perp());
+  if (m_do_m)        *m_m     = static_cast<float> (v.m());
+  if (m_do_px)       *m_px    = static_cast<float> (v.px());
+  if (m_do_py)       *m_py    = static_cast<float> (v.py());
+  if (m_do_pz)       *m_pz    = static_cast<float> (v.pz());
+
+  *m_eta = static_cast<float> (v.eta());
+  *m_phi = static_cast<float> (v.phi());
+
+  *m_type = p.pdg_id();
+  *m_status = p.status();
+  *m_barcode = HepMC::barcode(p);
+ 
+  auto vprod = p.production_vertex();
+  if (vprod) {
+      if (vprod->particles_in().size()>0) {
+       auto mother = vprod->particles_in().at(0);
+       if(m_do_mothertype) *m_mothertype = mother->pdg_id();
+       if(m_do_motherbarcode) *m_motherbarcode = HepMC::barcode(mother);
+      }
+    }
+  return StatusCode::SUCCESS;
+}	
+#else
 StatusCode GenParticleFillerTool::fill (const HepMC::GenParticle& p)
 {
   HepMC::FourVector v = p.momentum();
@@ -120,6 +150,7 @@ StatusCode GenParticleFillerTool::fill (const HepMC::GenParticle& p)
 
   return StatusCode::SUCCESS;
 }
+#endif
 
 
 } // namespace D3PD

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Implementation of TileROD_Decoder class
@@ -3930,6 +3930,7 @@ void TileROD_Decoder::D0CellsHLT::clear() {
     m_D0Existpos[i] = false;
     m_D0Maskneg[i] = false;
     m_D0Maskpos[i] = false;
+    m_cells[i] = nullptr;
   }
 }
 
@@ -3938,36 +3939,30 @@ void TileROD_Decoder::mergeD0cellsHLT(const D0CellsHLT& d0cells,
 {
   TileRawChannelCollection::ID frag_id = (v.identify() & 0x0FFF);
   int ros = (frag_id >> 8);
-  if (ros == 1) {
-    int drawer = (frag_id & 0xFF);
-    TileCellCollection::iterator pCell = v.begin();
-    pCell += 2;
-    if (d0cells.m_D0Existneg[drawer] && d0cells.m_D0Existpos[drawer]) {
-      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
-      double amp2 = d0cells.m_D0channeg[drawer].amplitude();
-      int gain1 = d0cells.m_D0chanpos[drawer].adc();
-      int gain2 = d0cells.m_D0channeg[drawer].adc();
-      if ((!d0cells.m_D0Maskneg[drawer]) && (!d0cells.m_D0Maskpos[drawer])) {
-        (*pCell)->setEnergy(amp1, amp2, gain1, gain2);
-        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
-        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time(), 1);
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 1);
-      } else if (d0cells.m_D0Maskpos[drawer]) {
-        (*pCell)->setEnergy(amp2, amp2, gain1, gain2);
-        (*pCell)->setTime(d0cells.m_D0channeg[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 0);
-      } else {
-        (*pCell)->setEnergy(amp1, amp1, gain1, gain1);
-        (*pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
-        (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
-      }
-    } else if (d0cells.m_D0Existpos[drawer]) {
-      double amp1 = d0cells.m_D0chanpos[drawer].amplitude();
-      int gain1 = d0cells.m_D0chanpos[drawer].adc();
-      (*pCell)->setEnergy(amp1, d0cells.m_D0chanpos[drawer].time(), gain1, 1);
-      (*pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 1);
-    }
+  bool barrel ( (ros==1) || (ros==2) );
+  if ( !barrel ) return; // Only in barrel
+  int drawer = (frag_id & 0xFF);
+  TileCell* pCell  = d0cells.m_cells[drawer];
+  if ( !pCell ) return;
+  double amp1(0.0), amp2(0.0);
+  amp1 = d0cells.m_D0chanpos[drawer].amplitude();
+  amp2 = d0cells.m_D0channeg[drawer].amplitude();
+  int gain1 = d0cells.m_D0chanpos[drawer].adc();
+  int gain2 = d0cells.m_D0channeg[drawer].adc();
+  if ((!d0cells.m_D0Maskneg[drawer]) && (!d0cells.m_D0Maskpos[drawer])) {
+    (pCell)->setEnergy(amp1, amp2, gain1, gain2);
+    (pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+    (pCell)->setTime(d0cells.m_D0channeg[drawer].time(), 1);
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 1);
+  } else if (d0cells.m_D0Maskpos[drawer]) {
+    (pCell)->setEnergy(amp2, amp2, gain1, gain2);
+    (pCell)->setTime(d0cells.m_D0channeg[drawer].time());
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0channeg[drawer].quality()), 0, 0);
+  } else {
+    (pCell)->setEnergy(amp1, amp1, gain1, gain1);
+    (pCell)->setTime(d0cells.m_D0chanpos[drawer].time());
+    (pCell)->setQuality(static_cast<unsigned char>(d0cells.m_D0chanpos[drawer].quality()), 0, 0);
   }
 }
 
@@ -4557,7 +4552,7 @@ void TileROD_Decoder::unpack_frag42( uint32_t sourceid, uint32_t version, const 
     for (size_t j = v.size() - nmod; j < v.size(); ++j) {
       const std::vector<bool> & r = v[j]->GetDecision();
       std::stringstream ss;
-      for (const auto & val : r) {
+      for (const bool val : r) {
         ss << std::setw(2) << val;
       }
       msg(MSG::DEBUG) << MSG::hex << "0x" << v[j]->GetID() << MSG::dec << ss.str() << endmsg;

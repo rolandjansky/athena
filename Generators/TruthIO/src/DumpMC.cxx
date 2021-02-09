@@ -6,6 +6,7 @@
 #include "GaudiKernel/PhysicalConstants.h"
 using namespace Gaudi::Units;
 
+#include <CLHEP/Vector/LorentzVector.h>
 
 DumpMC::DumpMC(const std::string& name, ISvcLocator* pSvcLocator)
   : GenBase(name, pSvcLocator)
@@ -14,6 +15,7 @@ DumpMC::DumpMC(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("VerboseOutput", m_VerboseOutput=true);
   declareProperty("DeepCopy", m_DeepCopy=false);
   declareProperty("EtaPhi", m_EtaPhi=false);
+  declareProperty("PrintQuasiStableParticles", m_PrintQuasiStableParticles=false);
 }
 
 
@@ -179,6 +181,30 @@ StatusCode DumpMC::execute() {
           int p_stat=part->status();
           int p_id = part->pdg_id();
           std::cout << " eta = " << rapid<< "  Phi = " << phi << "   Et = " <<et/GeV << "  Status= " << p_stat << " PDG ID= "<< p_id << std::endl;
+        }
+      }
+      if(m_PrintQuasiStableParticles) {
+        const HepMC::GenEvent* genEvt = (*itr);
+        for (auto pitr: *genEvt) {
+          int p_stat=pitr->status();
+          if(p_stat==2 && pitr->production_vertex() && pitr->end_vertex()) {
+            const auto& prodVtx = pitr->production_vertex()->position();
+            const auto& endVtx = pitr->end_vertex()->position();
+            const CLHEP::HepLorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+            const CLHEP::HepLorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
+            
+            CLHEP::HepLorentzVector dist4D(lv1);
+            dist4D-=lv0;
+            CLHEP::Hep3Vector dist3D=dist4D.vect();
+            if(dist3D.mag()>1*Gaudi::Units::mm) { 
+              const auto& GenMom = pitr->momentum();
+              const CLHEP::HepLorentzVector mom( GenMom.x(), GenMom.y(), GenMom.z(), GenMom.t() );
+              ATH_MSG_INFO("Quasi stable particle "<<pitr);
+              ATH_MSG_INFO("  Prod  V:"<<pitr->production_vertex ());
+              ATH_MSG_INFO("  Decay V:"<<pitr->end_vertex ());
+              ATH_MSG_INFO("  gamma(Momentum)="<<mom.gamma()<<" gamma(Vertices)="<<dist4D.gamma());
+            }  
+          }
         }
       }
     }

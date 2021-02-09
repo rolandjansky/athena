@@ -1,59 +1,16 @@
-Thu Nov 26 23:41:32 CET 20?0
-Preloading tcmalloc_minimal.so
-Athena               INFO including file "AthenaCommon/Preparation.py"
-Athena               INFO including file "AthenaCommon/Atlas.UnixStandardJob.py"
 Athena               INFO executing ROOT6Setup
-Athena               INFO including file "AthenaCommon/Execution.py"
-Athena               INFO including file "AthenaPoolExampleAlgorithms/AthenaPoolExample_WCondJobOptions.py"
-Py:ConfigurableDb    INFO Read module info for 5426 configurables from 28 genConfDb files
-Py:ConfigurableDb    INFO No duplicates have been found: that's good !
-Athena               INFO including file "AthenaCommon/runbatch.py"
-ApplicationMgr    SUCCESS 
-====================================================================================================================================
-                                                   Welcome to ApplicationMgr (GaudiCoreSvc v35r0p1)
-                                          running on lxplus742.cern.ch on Thu Nov 26 23:41:55 20?0
-====================================================================================================================================
 ApplicationMgr       INFO Application Manager Configured successfully
 AthDictLoaderSvc     INFO in initialize...
 AthDictLoaderSvc     INFO acquired Dso-registry
-ClassIDSvc           INFO  getRegistryEntries: read 3311 CLIDRegistry entries for module ALL
-AthenaEventLoopMgr   INFO Initializing AthenaEventLoopMgr - package version AthenaServices-00-00-00
-ClassIDSvc           INFO  getRegistryEntries: read 120? CLIDRegistry entries for module ALL
-Stream1             DEBUG Property update for OutputLevel : new value = 2
 Stream1             DEBUG in initialize()
-ToolSvc.Stream1...   INFO Initializing ToolSvc.Stream1Tool - package version AthenaServices-00-00-00
-PoolSvc             DEBUG Property update for OutputLevel : new value = 2
-PoolSvc             DEBUG Service base class initialized successfully
-PoolSvc              INFO Set connectionsvc retry/timeout/IDLE timeout to  'ConnectionRetrialPeriod':300/ 'ConnectionRetrialTimeOut':3600/ 'ConnectionTimeOut':5 seconds with connection cleanup disabled
-PoolSvc              INFO Frontier compression level set to 5
-DBReplicaSvc         INFO Frontier server at (serverurl=http://atlasfrontier-local.cern.ch:8000/atlr)(serverurl=http://atlasfrontier-ai.cern.ch:8000/atlr)(serverurl=http://ccfrontier.in2p3.fr:23128/ccin2p3-AtlasFrontier)(proxyurl=http://ca-proxy-atlas.cern.ch:3128)(proxyurl=http://ca-proxy-meyrin.cern.ch:3128)(proxyurl=http://ca-proxy.cern.ch:3128)(proxyurl=http://atlasbpfrontier.cern.ch:3127)(proxyurl=http://atlasbpfrontier.fnal.gov:3127) will be considered for COOL data
-DBReplicaSvc         INFO Read replica configuration from /cvmfs/atlas-nightlies.cern.ch/repo/sw/master_Athena_x86_64-centos7-gcc8-opt/20?0-11-25T2101/Athena/22.0.21/InstallArea/x86_64-centos7-gcc8-opt/share/dbreplica.config
-DBReplicaSvc         INFO Total of 10 servers found for host lxplus742.cern.ch [ATLF ATLAS_COOLPROD atlas_dd ATLAS_CONFIG INT8R INTR ATONR_COOL ATONR_CONF DEVDB11 ATLF ]
-PoolSvc              INFO Successfully setup replica sorting algorithm
 PoolSvc             DEBUG OutputLevel is 2
-PoolSvc              INFO Setting up APR FileCatalog and Streams
-PoolSvc              INFO POOL WriteCatalog is file:Catalog1.xml
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     READ      [ROOT_All] 
-Stream1             DEBUG input handles: 0
-Stream1             DEBUG output handles: 0
-Stream1             DEBUG Data Deps for Stream1
-ReadData            DEBUG Property update for OutputLevel : new value = 2
 ReadData             INFO in initialize()
-MetaDataSvc         DEBUG Property update for OutputLevel : new value = 2
-MetaDataSvc          INFO Initializing MetaDataSvc - package version AthenaServices-00-00-00
-MetaDataSvc         DEBUG Service base class initialized successfully
-MetaDataSvc          INFO Found MetaDataTools = PublicToolHandleArray(['IOVDbMetaDataTool'])
-EventSelector       DEBUG Property update for OutputLevel : new value = 2
 EventSelector       DEBUG Initializing EventSelector
-EventSelector       DEBUG Service base class initialized successfully
 EventSelector       DEBUG reinitialization...
 EventSelector        INFO EventSelection with query 
 EventSelector       DEBUG Try item: "SimplePoolFile1.root" from the collection list.
 MetaDataSvc         DEBUG handle() FirstInputFile for FID:????
 MetaDataSvc         DEBUG initInputMetaDataStore: file name FID:????
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   READ      [ROOT_All] ????
-Domain[ROOT_All]     INFO                           SimplePoolFile1.root
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -152,32 +109,18 @@ MetaDataHdr(Dat...  DEBUG Opening
 MetaDataHdr(Dat...  DEBUG    attributes# = 1
 MetaDataHdr(Dat...  DEBUG Branch container 'DataHeader'
 MetaDataHdr(Dat...  DEBUG Opened container MetaDataHdr(DataHeader) of type ROOT_Tree
-ClassIDSvc           INFO  getRegistryEntries: read 1710 CLIDRegistry entries for module ALL
-EventPersistenc...   INFO Added successfully Conversion service:AthenaPoolCnvSvc
 SimplePoolFile1...  DEBUG --> Access   DbContainer  READ      [ROOT_Tree] MetaDataHdrForm(DataHeaderForm)
 MetaDataHdrForm...  DEBUG Opening
 MetaDataHdrForm...  DEBUG    attributes# = 1
 MetaDataHdrForm...  DEBUG Branch container 'DataHeaderForm'
 MetaDataHdrForm...  DEBUG Opened container MetaDataHdrForm(DataHeaderForm) of type ROOT_Tree
 MetaDataSvc         DEBUG Loaded input meta data store proxies
-ClassIDSvc           INFO  getRegistryEntries: read 2 CLIDRegistry entries for module ALL
-OutputStreamSeq...   INFO Initializing OutputStreamSequencerSvc - package version AthenaServices-00-00-00
 MetaDataSvc         DEBUG Registering all Tools in ToolHandleArray MetaDataTools
 MetaDataSvc         DEBUG Adding public ToolHandle tool ToolSvc.IOVDbMetaDataTool (IOVDbMetaDataTool)
-MetaDataSvc          INFO   AlgTool: ToolSvc.IOVDbMetaDataTool
-AthenaPoolAddre...  DEBUG Property update for OutputLevel : new value = 2
-AthenaPoolAddre...  DEBUG Service base class initialized successfully
-ReadData            DEBUG input handles: 2
-ReadData            DEBUG output handles: 0
-ReadData            DEBUG Data Deps for ReadData
   + INPUT   ( 'ExampleHitContainer' , 'StoreGateSvc+MyHits' ) 
   + INPUT   ( 'ExampleTrackContainer' , 'StoreGateSvc+MyTracks' ) 
-WriteCond           DEBUG Property update for OutputLevel : new value = 2
 WriteCond            INFO in initialize()
 AthenaPoolAddre...  DEBUG Cannot retrieve DataHeader from DetectorStore.
-WriteCond           DEBUG input handles: 1
-WriteCond           DEBUG output handles: 0
-WriteCond           DEBUG Data Deps for WriteCond
   + INPUT   ( 'ExampleHitContainer' , 'StoreGateSvc+MyHits' ) 
 AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
 ApplicationMgr       INFO Application Manager Initialized successfully
@@ -209,7 +152,6 @@ POOLContainerFo...  DEBUG Opened container POOLContainerForm(DataHeaderForm) of 
 AthenaPoolAddre...  DEBUG The current Event contains: 3 objects
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 2101, name = McEventInfo
 AthenaPoolAddre...  DEBUG loadAddresses: DataObject address, clid = 9102, name = MyHits
-AlgResourcePool      INFO TopAlg list empty. Recovering the one of Application Manager
 AthenaEventLoopMgr   INFO   ===>>>  start of run 1    <<<===
 AthenaEventLoopMgr   INFO   ===>>>  start processing event #0, run #1 0 events processed so far  <<<===
 ReadData            DEBUG in execute()
@@ -1076,21 +1018,11 @@ WriteCond            INFO registered all data
 AthenaEventLoopMgr   INFO   ===>>>  done processing event #19, run #1 20 events processed so far  <<<===
 MetaDataSvc         DEBUG handle() EndInputFile for FID:????
 MetaDataSvc         DEBUG retireMetadataSource: FID:????
-EventSelector        INFO Disconnecting input sourceID: ????
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   READ      [ROOT_All] ????
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     READ      [ROOT_All] 
 AthenaEventLoopMgr   INFO No more events in event selection 
 WriteCond            INFO in finalize()
 WriteCond            INFO Pedestal x = 193136 y = 14420 z = -175208 string = <..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o..........o>
 MetaDataSvc         DEBUG MetaDataSvc::stop()
 ApplicationMgr       INFO Application Manager Stopped successfully
-IncidentProcAlg1     INFO Finalize
-Stream1              INFO Finalize: preparing to write conditions objects 
-DbSession            INFO     Open     DbSession    
-Domain[ROOT_All]     INFO >   Access   DbDomain     UPDATE    [ROOT_All] 
-PersistencySvc:...  DEBUG lookupPFN: SimplePoolFile4.root returned FID: '????' tech=ROOT_All
-Domain[ROOT_All]     INFO ->  Access   DbDatabase   CREATE    [ROOT_All] ????
-Domain[ROOT_All]     INFO                           SimplePoolFile4.root
 SimplePoolFile4...  DEBUG --> Access   DbContainer  CREATE    [ROOT_All] ##Shapes
 ##Shapes            DEBUG Opening
 ##Shapes            DEBUG    attributes# = 1
@@ -1112,12 +1044,12 @@ Stream1              INFO Identified a total of 1 objects to write out:
 Stream1              INFO 0: ExampleHitContainer#PedestalWriteData#PedestalWriteData
 StorageSvc           INFO Building shape according to reflection information using shape ID for:
 StorageSvc           INFO ExampleHitContainer_p1 [????]
-SimplePoolFile4...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData)
+SimplePoolFile4...  DEBUG --> Access   DbContainer  CREA/UPDA [ROOT_Tree] ConditionsContainerExampleHitContainer_p1(PedestalWriteData)
 ConditionsConta...  DEBUG Opening
 ConditionsConta...  DEBUG    attributes# = 1
-ConditionsConta...  DEBUG Branch container 'ExampleHitContainer_p1_PedestalWriteData'
-ConditionsConta...  DEBUG Opened container ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) of type ROOT_Tree
-SimplePoolFile4...  DEBUG --->Adding Assoc :????/ConditionsContainer(ExampleHitContainer_p1/PedestalWriteData) [203]  (3 , ffffffff)
+ConditionsConta...  DEBUG Branch container 'PedestalWriteData'
+ConditionsConta...  DEBUG Opened container ConditionsContainerExampleHitContainer_p1(PedestalWriteData) of type ROOT_Tree
+SimplePoolFile4...  DEBUG --->Adding Assoc :????/ConditionsContainerExampleHitContainer_p1(PedestalWriteData) [203]  (3 , ffffffff)
 SimplePoolFile4...  DEBUG ---->ClassID:????
 SimplePoolFile4...  DEBUG --->Adding Shape[0 , ????]:  [1 Column(s)] 
 SimplePoolFile4...  DEBUG ---->Class:ExampleHitContainer_p1
@@ -1149,21 +1081,11 @@ SimplePoolFile4...  DEBUG ---->[0]:DataHeaderForm_p6 Typ:DataHeaderForm_p6 [21] 
 Stream1              INFO Written 1 objects to output stream
 Stream1              INFO Objects NOT registered in IOV database
 ReadData             INFO in finalize()
-IncidentProcAlg2     INFO Finalize
-Domain[ROOT_All]     INFO ->  Deaccess DbDatabase   CREATE    [ROOT_All] ????
-Domain[ROOT_All]     INFO >   Deaccess DbDomain     UPDATE    [ROOT_All] 
 AthDictLoaderSvc     INFO in finalize...
 ToolSvc              INFO Removing all tools created by ToolSvc
 *****Chrono*****     INFO ****************************************************************************************************
 *****Chrono*****     INFO  The Final CPU consumption ( Chrono ) Table (ordered)
 *****Chrono*****     INFO ****************************************************************************************************
-commitOutput         INFO Time User   : Tot=    0 [us]  #=  1
-cRep_ALL             INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #=  2
-cRepR_ALL            INFO Time User   : Tot=    0 [us] Ave/Min/Max=       0(+-       0)/       0/       0 [us] #=  3
-fRep_ALL             INFO Time User   : Tot=   10 [ms] Ave/Min/Max=       5(+-       5)/       0/      10 [ms] #=  2
-cObjR_ALL            INFO Time User   : Tot=   10 [ms] Ave/Min/Max=   0.217(+-    1.46)/       0/      10 [ms] #= 46
-cObj_ALL             INFO Time User   : Tot=   20 [ms] Ave/Min/Max=   0.465(+-    2.11)/       0/      10 [ms] #= 43
-ChronoStatSvc        INFO Time User   : Tot=  360 [ms]  #=  1
 *****Chrono*****     INFO ****************************************************************************************************
 ChronoStatSvc.f...   INFO  Service finalized successfully 
 ApplicationMgr       INFO Application Manager Finalized successfully

@@ -225,6 +225,7 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nIsolatedTracks );
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nModifiedIsolationTracks ); 
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, nAllTracks );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, nLargeRadiusTracks );
 
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer detail ("

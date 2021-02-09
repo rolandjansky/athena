@@ -126,7 +126,7 @@ LArConditionsContainerBase::setGroupingType(const std::string& groupingStr, MsgS
     return StatusCode::SUCCESS;
   }
 
-  logStr << MSG::ERROR << "Unknown COOL Channel Grouping. Allowed values are: \n" << endmsg;
+  logStr << MSG::ERROR << "Unknown COOL Channel Grouping '"<< groupingStr <<"'.  Allowed values are:" << endmsg;
   logStr << MSG::ERROR << "'Single','SubDetector', 'ExtendedSubDetector','FeedThrough','ExtendedFeedThrough'" << endmsg;
   return StatusCode::FAILURE;
 }

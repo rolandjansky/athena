@@ -123,7 +123,8 @@ namespace top {
                                         s) == specified.end();
                      };
 
-        auto exec = [&specified, &fnCmp](std::vector<CP::SystematicSet>& data) {
+        // commented out variables are unused.  experts please check and remove
+        auto exec = [/*&specified,*/ &fnCmp](std::vector<CP::SystematicSet>& data) {
                       data.erase(std::remove_if(data.begin(), data.end(), fnCmp),
                                  data.end());
                     };

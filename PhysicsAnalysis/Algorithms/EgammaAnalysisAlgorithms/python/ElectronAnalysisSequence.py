@@ -1,7 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-# Framework import(s):
-import ROOT
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.AnaAlgSequence import AnaAlgSequence
@@ -48,7 +45,7 @@ def makeElectronAnalysisSequence( dataType, workingPoint,
 
     # Make sure we received a valid data type.
     if dataType not in [ 'data', 'mc', 'afii' ]:
-        raise ValueError( 'Invalid data type: %' % dataType )
+        raise ValueError( 'Invalid data type: %s' % dataType )
 
     if postfix != '' :
         postfix = '_' + postfix

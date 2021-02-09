@@ -279,11 +279,8 @@ if InDetTrigFlags.loadExtrapolator():
   #
   # Setup the Navigator (default, could be removed)
   #
-  from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
-  from TrkExTools.TrkExToolsConf import Trk__Navigator
-  InDetTrigNavigator = Trk__Navigator(name = 'InDetTrigNavigator',
-                                      TrackingGeometrySvc = svcMgr.AtlasTrackingGeometrySvc)
+  from InDetRecExample import TrackingCommon
+  InDetTrigNavigator = TrackingCommon.getInDetNavigator('InDetTrigNavigator')
 
   ToolSvc += InDetTrigNavigator
   if (InDetTrigFlags.doPrintConfigurables()):
@@ -453,6 +450,10 @@ if InDetTrigFlags.loadFitter():
                                                         )
    
   elif InDetTrigFlags.trackFitterType() == 'GlobalChi2Fitter' :
+    from InDetRecExample import TrackingCommon
+    cond_alg=None
+    if TrackingCommon.use_tracking_geometry_cond_alg :
+        cond_alg = TrackingCommon.createAndAddCondAlg(TrackingCommon.getTrackingGeometryCondAlg, "AtlasTrackingGeometryCondAlg", name="AtlasTrackingGeometryCondAlg")
 
     from TrkGlobalChi2Fitter.TrkGlobalChi2FitterConf import Trk__GlobalChi2Fitter
     InDetTrigTrackFitter = Trk__GlobalChi2Fitter(name                  = 'InDetTrigTrackFitter',
@@ -476,6 +477,7 @@ if InDetTrigFlags.loadFitter():
                                                  Acceleration          = True,
                                                  #Momentum=1000.,
                                                  Momentum=0.,
+                                                 TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
                                                  )
     if InDetTrigFlags.useBroadClusterErrors():
       InDetTrigTrackFitter.RecalibrateSilicon = False
@@ -509,7 +511,8 @@ if InDetTrigFlags.loadFitter():
                                                       TrackChi2PerNDFCut    = 10,
                                                       TRTExtensionCuts      = True, 
                                                       MaxIterations         = 40,
-                                                      Momentum=0.
+                                                      Momentum=0.,
+                                                      TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
                                                       )
     ToolSvc += InDetTrigTrackFitterLowPt
 
@@ -535,6 +538,7 @@ if InDetTrigFlags.loadFitter():
                               MaxOutliers           = 99,
                               RecalculateDerivatives = True,
                               Momentum=1000,
+                              TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
                               )
     InDetTrigTrackFitterCosmics.Acceleration       = False
     ToolSvc += InDetTrigTrackFitterCosmics
@@ -553,6 +557,7 @@ if InDetTrigFlags.loadFitter():
                                                     RecalculateDerivatives= True,
                                                     TrackChi2PerNDFCut    = 999999,
                                                     Momentum=0.,
+                                                    TrackingGeometryReadKey=cond_alg.TrackingGeometryWriteKey if cond_alg is not None else ''
                                                     )
     if InDetTrigFlags.doRobustReco():
       InDetTrigTrackFitterTRT.MaxOutliers=99

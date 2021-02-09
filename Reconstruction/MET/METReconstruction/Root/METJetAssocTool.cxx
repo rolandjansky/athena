@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METJetAssocTool.cxx
@@ -93,11 +93,11 @@ namespace met {
 
     std::set<const xAOD::IParticle*> newConst;
     if (m_skipconst) {
-      for (const auto& clust : *constits.tcCont) newConst.insert(clust);
+      for (const auto clust : *constits.tcCont) newConst.insert(clust);
     }
 
     // Create jet associations
-    for(const auto& jet : *jetCont) {
+    for(const auto jet : *jetCont) {
       std::vector<const IParticle*> selectedTracks;
       bool mismatchedPFlow = m_pflow && (jet->rawConstituent(0)->type()!=xAOD::Type::ParticleFlow && jet->rawConstituent(0)->type()!=xAOD::Type::FlowElement);
       bool mismatchedState = !m_skipconst && !m_pflow && jet->rawConstituent(0)->type()==xAOD::Type::CaloCluster && ((static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::CALIBRATED && jet->getConstituentsSignalState()==xAOD::UncalibratedJetConstituent) || (static_cast<const xAOD::CaloCluster*>(jet->rawConstituent(0))->signalState()==xAOD::CaloCluster::UNCALIBRATED && jet->getConstituentsSignalState()==xAOD::CalibratedJetConstituent));
@@ -192,7 +192,7 @@ namespace met {
     }
     else{
       // No FlowElements, assume xAOD::PFO format
-      for(const auto& pfo : *constits.pfoCont) {
+      for(const auto pfo : *constits.pfoCont) {
         if (pfo->isCharged()) {
           const TrackParticle* pfotrk = pfo->track(0);
           for(const auto& trk : jettracks) {

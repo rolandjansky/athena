@@ -12,9 +12,12 @@
 
 #include <EventLoop/AlgorithmStateModule.h>
 
-#include <EventLoop/Algorithm.h>
+#include <AnaAlgorithm/AlgorithmWorkerData.h>
+#include <AnaAlgorithm/IAlgorithmWrapper.h>
+#include <AsgTools/SgTEvent.h>
 #include <EventLoop/MessageCheck.h>
 #include <EventLoop/ModuleData.h>
+#include <EventLoop/Worker.h>
 #include <RootCoreUtils/Assert.h>
 #include <TTree.h>
 
@@ -39,13 +42,13 @@ namespace EL
             typedef typename std::decay<decltype(func(alg))>::type scType__;
             if (!::asg::CheckHelper<scType__>::isSuccess (func (alg)))
             {
-              ANA_MSG_ERROR ("executing " << funcName << " on algorithm " << alg->GetName());
+              ANA_MSG_ERROR ("executing " << funcName << " on algorithm " << alg->getName());
               return StatusCode::FAILURE;
             }
           } catch (...)
           {
             report_exception ();
-            ANA_MSG_ERROR ("executing " << funcName << " on algorithm " << alg->GetName());
+            ANA_MSG_ERROR ("executing " << funcName << " on algorithm " << alg->getName());
             return StatusCode::FAILURE;
           }
         }
@@ -59,14 +62,20 @@ namespace EL
     onInitialize (ModuleData& data)
     {
       using namespace msgEventLoop;
-      if (m_histInitialized)
+      if (m_initialized)
       {
         ANA_MSG_ERROR ("getting second initialize call");
         return ::StatusCode::FAILURE;
       }
-      m_histInitialized = true;
-      return forAllAlgorithms (data, "histInitialize", [&] (AlgorithmData& alg) {
-          return alg->histInitialize ();});
+      m_initialized = true;
+      AlgorithmWorkerData workerData;
+      workerData.m_histogramWorker = data.m_worker;
+      workerData.m_treeWorker = data.m_worker;
+      workerData.m_filterWorker = data.m_worker;
+      workerData.m_wk = data.m_worker;
+      workerData.m_evtStore = data.m_evtStore;
+      return forAllAlgorithms (data, "initialize", [&] (AlgorithmData& alg) {
+        return alg->initialize (workerData);});
     }
 
 
@@ -75,16 +84,12 @@ namespace EL
     onFinalize (ModuleData& data)
     {
       using namespace msgEventLoop;
-      if (m_initialized)
-      {
-        if (forAllAlgorithms (data, "finalize", [&] (AlgorithmData& alg) {
-              return alg->finalize ();}).isFailure())
-          return StatusCode::FAILURE;
-      }
-      if (!m_histInitialized)
+      if (!m_initialized)
         return ::StatusCode::SUCCESS;
-      return forAllAlgorithms (data, "histFinalize", [&] (AlgorithmData& alg) {
-          return alg->histFinalize ();});
+      if (forAllAlgorithms (data, "finalize", [&] (AlgorithmData& alg) {
+            return alg->finalize ();}).isFailure())
+        return StatusCode::FAILURE;
+      return ::StatusCode::SUCCESS;
     }
 
 
@@ -93,8 +98,8 @@ namespace EL
     onCloseInputFile (ModuleData& data)
     {
       using namespace msgEventLoop;
-      return forAllAlgorithms (data, "endOfFile", [&] (AlgorithmData& alg) {
-          return alg->endOfFile ();});
+      return forAllAlgorithms (data, "endInputFile", [&] (AlgorithmData& alg) {
+          return alg->endInputFile ();});
     }
 
 
@@ -103,7 +108,7 @@ namespace EL
     onNewInputFile (ModuleData& data)
     {
       using namespace msgEventLoop;
-      if (!m_histInitialized)
+      if (!m_initialized)
       {
         ANA_MSG_ERROR ("algorithms have not been initialized yet");
         return ::StatusCode::FAILURE;
@@ -113,17 +118,10 @@ namespace EL
           data.m_inputTree->GetEntries() == 0)
         return ::StatusCode::SUCCESS;
 
-      const bool firstFile = m_firstFile;
-      m_firstFile = false;
       if (forAllAlgorithms (data, "changeInput", [&] (AlgorithmData& alg) {
-            return alg->changeInput (firstFile);}).isFailure())
+            return alg->beginInputFile ();}).isFailure())
         return ::StatusCode::FAILURE;
-
-      if (m_initialized == true)
-        return ::StatusCode::SUCCESS;
-      m_initialized = true;
-      return forAllAlgorithms (data, "initialize", [&] (AlgorithmData& alg) {
-          return alg->initialize ();});
+      return ::StatusCode::SUCCESS;
     }
 
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -373,7 +373,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
     const xAOD::Vertex* foundVertex1 { nullptr };
     if (m_useorigin)
     {
-      for (const auto& vx : *vertices)
+      for (const auto vx : *vertices)
       {
 	for (const auto& tpLink : vx->trackParticleLinks())
 	{
@@ -416,7 +416,7 @@ StatusCode InDetV0FinderTool::performSearch(xAOD::VertexContainer*& v0Container,
       const xAOD::Vertex* foundVertex2 { nullptr };
       if (m_useorigin)
       {
-	for (const auto& vx : *vertices)
+	for (const auto vx : *vertices)
 	{
 	  for (const auto& tpLink : vx->trackParticleLinks())
 	  {

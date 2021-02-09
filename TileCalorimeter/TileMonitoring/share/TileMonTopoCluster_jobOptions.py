@@ -26,15 +26,13 @@ include( "LArDetDescr/LArDetDescr_joboptions.py" )
 #include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
 from CaloRec.CaloTopoClusterFlags import jobproperties
 
 from CaloTools.CaloNoiseCondAlg import CaloNoiseCondAlg
 CaloNoiseCondAlg()
 
 from AthenaCommon.AppMgr import ToolSvc
-ToolSvc += theCaloNoiseTool
+#ToolSvc += theCaloNoiseTool
 
 doTopoClusterLocalCalib=False
 

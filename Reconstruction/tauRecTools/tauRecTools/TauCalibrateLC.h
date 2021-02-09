@@ -2,8 +2,8 @@
   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUCALIBRATELC_H
-#define TAUREC_TAUCALIBRATELC_H
+#ifndef TAURECTOOLS_TAUCALIBRATELC_H
+#define TAURECTOOLS_TAUCALIBRATELC_H
 
 #include "AsgDataHandles/ReadHandleKey.h"
 #include "AsgDataHandles/ReadDecorHandleKey.h"
@@ -31,7 +31,7 @@ class TauCalibrateLC : public TauRecToolBase {
     ~TauCalibrateLC();
 
     virtual StatusCode initialize() override;
-    virtual StatusCode execute(xAOD::TauJet& pTau) const override;
+    virtual StatusCode execute(xAOD::TauJet& tau) const override;
 
 
   private:
@@ -41,13 +41,13 @@ class TauCalibrateLC : public TauRecToolBase {
     std::vector<std::unique_ptr<TH1>> m_slopeNPVHist; 
     std::unique_ptr<TH1> m_etaBinHist = nullptr; 
 
-    unsigned int m_minNTrackAtVertex=0;
     int    m_nEtaBins=0;
     double m_averageNPV=0;
 
-    std::string m_calibrationFile; //!< energy calibration file
-    bool m_doPtResponse; //!< switch for pt response vs pt, if false, use E response vs E
-    bool m_isCaloOnly;   //!< switch for CaloOnly corrections
+    std::string m_calibrationFile; // energy calibration file
+    bool m_doPtResponse; // switch for pt response vs pt, if false, use E response vs E
+    bool m_doVertexCorrection; // switch for vertex correction
+    bool m_isCaloOnly;   // switch for CaloOnly corrections
 
     SG::ReadDecorHandleKey<xAOD::EventInfo> m_aveIntPerXKey {this, 
         "averageInteractionsPerCrossingKey", 
@@ -60,4 +60,4 @@ class TauCalibrateLC : public TauRecToolBase {
         "input vertex container key"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUCALIBRATELC_H

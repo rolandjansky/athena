@@ -118,7 +118,7 @@ int main( int argc, char* argv[] )
                     << ", prong = " << int(xTau->nTracks())
                     << ", charge = " << int(xTau->charge()));
 
-      bool avail = xTau->isAvailable<char>("IsTruthMatched") || xTau->isAvailable<ElementLink< xAOD::TruthParticleContainer >>("truthParticleLink");
+      bool avail = xTau->isAvailable<char>("IsTruthMatched") ;
       if (avail && (xTruthTau != nullptr))
       {
         if (xTruthTau->isTau())

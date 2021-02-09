@@ -53,16 +53,18 @@ _all_streams = [
     # CALIBRATION STREAMS
     StreamInfo('BeamSpot', 'calibration', True, False),
     StreamInfo('LArCells', 'calibration', False, False),
+    StreamInfo('LArNoiseBurst', 'calibration', False, True),
     StreamInfo('RPCSecondaryReadout', 'calibration', False, False),
     StreamInfo('CostMonitoring', 'calibration', False, False),
     StreamInfo('SCTNoise', 'calibration', False, False),
     StreamInfo('Tile', 'calibration', False, False),
     StreamInfo('ALFACalib', 'calibration', False, False),
+    StreamInfo('LArPEB', 'calibration', False, False),
     # HI STREAMS
     StreamInfo('HardProbes', 'physics', True, True),
     StreamInfo('MinBias', 'physics', True, True),
     # Special stream to be used only for special chains rejecting all events like timeburner
-    StreamInfo('DISCARD', 'unknown', False, False)
+    StreamInfo('DISCARD', 'unknown', False, True)
     # Add new streams grouped by type as above, not at the end of the list
 ]
 

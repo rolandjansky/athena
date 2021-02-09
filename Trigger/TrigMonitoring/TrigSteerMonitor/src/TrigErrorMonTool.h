@@ -5,6 +5,7 @@
 #define TRIGSTEERMONITOR_TRIGERRORMONTOOL_H
 
 #include "TrigSteerMonitor/ITrigErrorMonTool.h"
+#include "TrigCostMonitorMT/ITrigCostMTSvc.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "GaudiKernel/EventContext.h"
@@ -30,6 +31,7 @@ public:
 
 private:
   ServiceHandle<IAlgExecStateSvc> m_aess{this, "AlgExecStateSvc", "AlgExecStateSvc"};
+  ServiceHandle<ITrigCostMTSvc>      m_trigCostSvcHandle{this, "TrigCostMTSvc", ""};
   ToolHandle<GenericMonitoringTool> m_monTool{this, "MonTool", "", "Monitoring tool"};
   ToolHandle<TrigCompositeUtils::AlgToChainTool> m_algToChainTool {this, "AlgToChainTool", "",  "Tool to retrieve chains for algorithm"};
 };

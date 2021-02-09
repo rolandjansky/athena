@@ -31,7 +31,7 @@ namespace Trk
     //the dR cone is roughly thought as an elipse
     if( m_caloExtension->caloLayerIntersections().empty() ) return false;
 
-    Amg::Vector3D pos = m_caloExtension->caloLayerIntersections()[0]->position();
+    Amg::Vector3D pos = m_caloExtension->caloLayerIntersections()[0].position();
 
     double a = fabs(pos.eta());
     double b = exp(-a);      // = tan(theta/2)
@@ -71,9 +71,9 @@ namespace Trk
 
     Amg::Vector3D pos;
     Amg::Vector3D oldPos(0.,0.,0.);
-    const std::vector<const Trk::CurvilinearParameters*>& intersections = m_caloExtension->caloLayerIntersections();
+    const std::vector<Trk::CurvilinearParameters>& intersections = m_caloExtension->caloLayerIntersections();
     for (int i=0;i<=nearestIdx;++i){
-      pos = intersections[i]->position();
+      pos = intersections[i].position();
       totTrkLen += (pos-oldPos).mag();
       std::swap(oldPos, pos);
     }

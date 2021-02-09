@@ -125,6 +125,11 @@ if DQMonFlags.doMonitoring():
       # LAr monitoring   #
       #------------------#
       if DQMonFlags.doLArMon():
+         from LArMonTools.LArMonFlags import LArMonFlags
+         if LArMonFlags.doLArCollisionTimeMon():
+            #Schedule algorithms producing collision timing
+            include("LArClusterRec/LArClusterCollisionTime_jobOptions.py")
+            include("LArCellRec/LArCollisionTime_jobOptions.py")
          try:
             LArMon = AthenaMonManager(name="LArMonManager",
                            FileKey             = DQMonFlags.monManFileKey(),
@@ -376,6 +381,15 @@ if DQMonFlags.doMonitoring():
       Steering.doMissingEtMon=DQMonFlags.doMissingEtMon()
       Steering.doTauMon=DQMonFlags.doTauMon()
       Steering.doJetTagMon=DQMonFlags.doJetTagMon()
+
+      # schedule legacy HLT monitoring if Run 2 EDM
+      if DQMonFlags.doHLTMon() and ConfigFlags.Trigger.EDMVersion == 2:
+         try:
+            include("TrigHLTMonitoring/HLTMonitoring_topOptions.py")
+            HLTMonMan = topSequence.HLTMonManager
+            HLTMonMan.FileKey = DQMonFlags.monManFileKey()  
+         except Exception:
+            treatException("DataQualitySteering_jobOptions.py: exception when setting up HLT monitoring")
 
       ConfigFlags.dump()
       ComponentAccumulator.CAtoGlobalWrapper(AthenaMonitoringCfg, ConfigFlags)

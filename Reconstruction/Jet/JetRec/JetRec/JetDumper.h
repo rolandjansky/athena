@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetDumper.h
@@ -55,7 +55,7 @@ class IParticle;
 
 class JetDumper
 : virtual public IJetExecuteTool,
-  virtual public asg::AsgTool {
+  public asg::AsgTool {
 ASG_TOOL_CLASS(JetDumper, IJetExecuteTool)
 
 public:  // typedefs

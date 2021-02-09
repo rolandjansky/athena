@@ -116,7 +116,7 @@ def generateChains():
     def jetCaloHypoMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetCaloHypoMenuSequence
-        return jetCaloHypoMenuSequence(ConfigFlags, **jetRecoDict)
+        return jetCaloHypoMenuSequence(ConfigFlags, isPerf=False, **jetRecoDict)
 
     def jetCaloPreselMenuSequenceFromString(jet_def_str):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
@@ -126,28 +126,28 @@ def generateChains():
     def jetTrackingHypoMenuSequenceFromString(jet_def_str,clustersKey):
         jetRecoDict = jetRecoDictFromString(jet_def_str)
         from TriggerMenuMT.HLTMenuConfig.Jet.JetMenuSequences import jetTrackingHypoMenuSequence
-        return jetTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, **jetRecoDict)
+        return jetTrackingHypoMenuSequence(ConfigFlags, clustersKey=clustersKey, isPerf=False, **jetRecoDict)
 
     if opt.doJetSlice is True:
 
         # small-R jets
-        jetSeq_a4_tc_em = jetCaloHypoMenuSequenceFromString("a4_tc_em_subjesIS")
+        jetSeq_a4_tc_em, jetDef = jetCaloHypoMenuSequenceFromString("a4_tc_em_subjesIS")
         step_a4_tc_em = makeChainStep("Step_jet_a4_tc_em", [jetSeq_a4_tc_em])
         
         # large-R jets
-        jetSeq_a10_tc_lcw_subjes = jetCaloHypoMenuSequenceFromString("a10_tc_lcw_subjes")
+        jetSeq_a10_tc_lcw_subjes, jetDef = jetCaloHypoMenuSequenceFromString("a10_tc_lcw_subjes")
         step_a10_tc_lcw_subjes = makeChainStep("Step_jet_a10_subjes_tc_lcw", [jetSeq_a10_tc_lcw_subjes])
         
-        jetSeq_a10r = jetCaloHypoMenuSequenceFromString("a10r_tc_em_subjesIS")
+        jetSeq_a10r, jetDef = jetCaloHypoMenuSequenceFromString("a10r_tc_em_subjesIS")
         step_a10r = makeChainStep("Step_jet_a10r", [jetSeq_a10r])
 
-        jetSeq_a10t = jetCaloHypoMenuSequenceFromString("a10t_tc_lcw_jes")
+        jetSeq_a10t, jetDef = jetCaloHypoMenuSequenceFromString("a10t_tc_lcw_jes")
         step_a10t = makeChainStep("Step_jet_a10t", [jetSeq_a10t])
         
         # Jet chains with tracking
-        jetSeq_a4_tc_em_presel, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
+        jetSeq_a4_tc_em_presel, jetDef, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
         step_a4_tc_em_presel = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
-        jetSeq_a4_pf_em_ftf = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subresjesgscIS_ftf",emclusters)
+        jetSeq_a4_pf_em_ftf, jetDef = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subresjesgscIS_ftf",emclusters)
         step_a4_pf_em_ftf = makeChainStep("Step_jet_a4_pf_em_ftf", [jetSeq_a4_pf_em_ftf])
 
         jetChains  = [
@@ -173,8 +173,8 @@ def generateChains():
     if opt.doBjetSlice is True:
         from TriggerMenuMT.HLTMenuConfig.Bjet.BjetSequenceSetup import getBJetSequence
 
-        jetSeq_a4_tc_em_presel, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
-        jetSeq_a4_tc_em_gsc_ftf = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
+        jetSeq_a4_tc_em_presel, jetDef, emclusters = jetCaloPreselMenuSequenceFromString("a4_tc_em_subjesIS")
+        jetSeq_a4_tc_em_gsc_ftf, jetDef = jetTrackingHypoMenuSequenceFromString("a4_tc_em_subjesgscIS_ftf",emclusters)
         
         step1 = makeChainStep("Step_jet_a4_tc_em_presel", [jetSeq_a4_tc_em_presel])
         step2 = makeChainStep("Step_jet_a4_tc_em_gsc_ftf", [jetSeq_a4_tc_em_gsc_ftf])
@@ -307,5 +307,8 @@ generateJSON()
 from TriggerMenuMT.HLTMenuConfig.Menu.HLTPrescaleJSON import generateJSON as generatePrescaleJSON
 generatePrescaleJSON()
    
+from TriggerMenuMT.HLTMenuConfig.Menu.HLTMonitoringJSON import generateDefaultMonitoringJSON
+generateDefaultMonitoringJSON()
+
 from AthenaCommon.AlgSequence import dumpSequence
 dumpSequence(topSequence)

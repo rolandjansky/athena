@@ -20,7 +20,7 @@ atlas_add_library( IsolationCorrectionsLib
    PRIVATE_INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${ROOT_LIBRARIES} AsgMessagingLib AsgTools xAODEgamma xAODEventInfo
    xAODPrimitives xAODTracking PATInterfaces PATCoreAcceptLib
-   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver xAODMetaData ${extra_libs} )
+   PRIVATE_LINK_LIBRARIES ${Boost_LIBRARIES} PathResolver ${extra_libs} )
 
 if( NOT XAOD_STANDALONE )
    atlas_add_component( IsolationCorrections

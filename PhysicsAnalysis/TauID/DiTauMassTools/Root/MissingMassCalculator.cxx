@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // vim: ts=8 sw=2
@@ -107,18 +107,18 @@ double MissingMassCalculator::myDelThetaHadFunc(double *x, double *par)
   const double mpv=par[3];
   const double sigmaL=par[4];
 
-  if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
+  if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
     double normL=par[5];
     if(normL<0.0) normL=0.0;
     const double g1=normL*TMath::Gaus(arg,mean,sigmaG);
     const double g2=TMath::Landau(arg_L,mpv,sigmaL);
     fitval=par[0]*(g1+g2)/(1.0+normL);
-  } else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-             || m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE
-             || m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012){
+  } else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+             || m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE
+             || m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012){
     const double norm=sqrt(2.0*TMath::Pi());
     const double g1=TMath::Gaus(arg,mean,sigmaG)/norm;
     const double g2=TMath::Landau(arg_L,mpv,sigmaL)/norm;
@@ -139,7 +139,7 @@ double MissingMassCalculator::myDelThetaLepFunc(double *x, double *par)
   double normL=par[5];
   if(normL<0.0) normL=0.0;
 
-  if(arg<1) arg=sqrt(fabs(arg));
+  if(arg<1) arg=sqrt(std::abs(arg));
   else arg=arg*arg;
   const double arg_L=x[0];
   const double mean=1.0;
@@ -160,89 +160,89 @@ double MissingMassCalculator::myDelThetaLepFunc(double *x, double *par)
 MissingMassCalculator::MissingMassCalculator(){
 
 
-  m_MMCCalibrationSet=MMCCalibrationSet::MAXMMCCALIBRATIONSET;  // initial value invalid, to force setting
+  m_mmcCalibrationSet=MMCCalibrationSet::MAXMMCCALIBRATIONSET;  // initial value invalid, to force setting
   m_apoiIndex=0;
-  fUseVerbose=0;
-  fSpeedStudy=false;
-  AlgorithmVersion=3; // use V9Walk by default
-  beamEnergy=6500.0; // for now LHC default is sqrt(S)=7 TeV
-  Niter_fit1=20;
-  Niter_fit2=30;
-  Niter_fit3=10;
-  NsucStop=-1;
-  NiterRandom=-1; // if the user does not set it to positive value,will be set in SpaceWalkerInit
-  m_NiterRandomLocal=-1; // niterandom which is really used
+  m_fUseVerbose=0;
+  m_fSpeedStudy=false;
+  m_AlgorithmVersion=3; // use V9Walk by default
+  m_beamEnergy=6500.0; // for now LHC default is sqrt(S)=7 TeV
+  m_niter_fit1=20;
+  m_niter_fit2=30;
+  m_niter_fit3=10;
+  m_NsucStop=-1;
+  m_NiterRandom=-1; // if the user does not set it to positive value,will be set in SpaceWalkerInit
+  m_niterRandomLocal=-1; // niterandom which is really used
   //to be used with RMSSTOP  NiterRandom=10000000; // number of random iterations for lh. Multiplied by 10 for ll, divided by 10 for hh (to be optimised)
   //  RMSStop=200;// Stop criteria depending of rms of histogram
-  reRunWithBestMET=false;
-  RMSStop=-1;// disable
+  m_reRunWithBestMET=false;
+  m_RMSStop=-1;// disable
 
-  RndmSeedAltering=0; // can be changed to re-compute with different random seed
-  dRmax_tau=0.4; // changed from 0.2
-  SearchMode=0;
-  Nsigma_METscan=-1; // number of sigmas for MET scan
-  Nsigma_METscan_ll=3.0; // number of sigmas for MET scan
-  Nsigma_METscan_lh=3.0; // number of sigmas for MET scan
-  Nsigma_METscan_hh=4.0; // number of sigmas for MET scan (4 for hh 2013)
+  m_RndmSeedAltering=0; // can be changed to re-compute with different random seed
+  m_dRmax_tau=0.4; // changed from 0.2
+  m_SearchMode=0;
+  m_nsigma_METscan=-1; // number of sigmas for MET scan
+  m_nsigma_METscan_ll=3.0; // number of sigmas for MET scan
+  m_nsigma_METscan_lh=3.0; // number of sigmas for MET scan
+  m_nsigma_METscan_hh=4.0; // number of sigmas for MET scan (4 for hh 2013)
 
   m_meanbinStop=-1; // meanbin stopping criterion (-1 if not used)
-  m_ProposalTryMEt=-1; // loop on METproposal disable // FIXME should be cleaner
+  m_proposalTryMEt=-1; // loop on METproposal disable // FIXME should be cleaner
   m_ProposalTryPhi=-1; // loop on Phiproposal disable
   m_ProposalTryMnu=-1; // loop on MNuProposal disable
   m_ProposalTryEtau=-1; // loop on ETauProposal disable
 
-  dTheta3d_binMin=0.0025;
-  dTheta3d_binMax=0.02;
-  fJERsyst=0; // no JER systematics by default (+/-1: up/down 1 sigma)
-  METresSyst=0; // no MET resolution systematics by default (+/-1: up/down 1 sigma)
-  fApplyMassScale=0; // don't apply mass scale correction by default
-  rawInput.dataType=1; // set to "data" by default
-  fUseTailCleanup=1; // cleanup by default for lep-had Moriond 2012 analysis
-  fUseTauProbability=1; // TauProbability is ON by default DRMERGE comment out for now
-  fUseMnuProbability=0; // MnuProbability is OFF by default
-  fUseDefaults=0; // use pre-set defaults for various configurations; if set it to 0 if need to study various options
-  fUseEfficiencyRecovery=0; // no re-fit by default
+  m_dTheta3d_binMin=0.0025;
+  m_dTheta3d_binMax=0.02;
+  m_fJERsyst=0; // no JER systematics by default (+/-1: up/down 1 sigma)
+  m_METresSyst=0; // no MET resolution systematics by default (+/-1: up/down 1 sigma)
+  m_fApplyMassScale=0; // don't apply mass scale correction by default
+  m_rawInput.dataType=1; // set to "data" by default
+  m_fUseTailCleanup=1; // cleanup by default for lep-had Moriond 2012 analysis
+  m_fUseTauProbability=1; // TauProbability is ON by default DRMERGE comment out for now
+  m_fUseMnuProbability=0; // MnuProbability is OFF by default
+  m_fUseDefaults=0; // use pre-set defaults for various configurations; if set it to 0 if need to study various options
+  m_fUseEfficiencyRecovery=0; // no re-fit by default
 
-  METScanScheme=1; // MET-scan scheme: 0- use JER; 1- use simple sumEt & missingHt for Njet=0 events in (lep-had winter 2012)
+  m_METScanScheme=1; // MET-scan scheme: 0- use JER; 1- use simple sumEt & missingHt for Njet=0 events in (lep-had winter 2012)
   //  MnuScanRange=1.777; // range of M(nunu) scan
-  MnuScanRange=1.5; // better value (sacha)
-  LFVmode=0; // by default consider case of H->mu+tau(->ele)
+  m_MnuScanRange=1.5; // better value (sacha)
+  m_LFVmode=0; // by default consider case of H->mu+tau(->ele)
   ClearInputStuff();
 
   // added by Tomas Davidek for lep-lep:
-  fUseDphiLL = false;
+  m_fUseDphiLL = false;
 
-  randomGen = new TRandom2();
+  m_randomGen = new TRandom2();
 
   //walkStrategy=WalkStrategy::RANDOMNONUNIF;  // experimental, do not use
 
-  nCallprobCalculatorV9fast=0;
-  iterTheta3d=0;
-  debugThisIteration=false;
+  m_nCallprobCalculatorV9fast=0;
+  m_iterTheta3d=0;
+  m_debugThisIteration=false;
 
 
-  nsolmax=4;
-  nsolfinalmax=nsolmax*nsolmax;
+  m_nsolmax=4;
+  m_nsolfinalmax=m_nsolmax*m_nsolmax;
 
-  nuvecsol1.resize(nsolmax);
-  nuvecsol2.resize(nsolmax);
-  tauvecsol1.resize(nsolmax);
-  tauvecsol2.resize(nsolmax);
-  tauvecprob1.resize(nsolmax);
-  tauvecprob2.resize(nsolmax);
+  m_nuvecsol1.resize(m_nsolmax);
+  m_nuvecsol2.resize(m_nsolmax);
+  m_tauvecsol1.resize(m_nsolmax);
+  m_tauvecsol2.resize(m_nsolmax);
+  m_tauvecprob1.resize(m_nsolmax);
+  m_tauvecprob2.resize(m_nsolmax);
 
   m_nsol=0;
-  m_probFinalSolVec.resize(nsolfinalmax);
-  m_mtautauFinalSolVec.resize(nsolfinalmax);
-  m_nu1FinalSolVec.resize(nsolfinalmax);
-  m_nu2FinalSolVec.resize(nsolfinalmax);
+  m_probFinalSolVec.resize(m_nsolfinalmax);
+  m_mtautauFinalSolVec.resize(m_nsolfinalmax);
+  m_nu1FinalSolVec.resize(m_nsolfinalmax);
+  m_nu2FinalSolVec.resize(m_nsolfinalmax);
 
 
   m_nsolOld=0;
-  m_probFinalSolOldVec.resize(nsolfinalmax);
-  m_mtautauFinalSolOldVec.resize(nsolfinalmax);
-  m_nu1FinalSolOldVec.resize(nsolfinalmax);
-  m_nu2FinalSolOldVec.resize(nsolfinalmax);
+  m_probFinalSolOldVec.resize(m_nsolfinalmax);
+  m_mtautauFinalSolOldVec.resize(m_nsolfinalmax);
+  m_nu1FinalSolOldVec.resize(m_nsolfinalmax);
+  m_nu2FinalSolOldVec.resize(m_nsolfinalmax);
 
 
 
@@ -258,27 +258,27 @@ MissingMassCalculator::MissingMassCalculator(){
   //--- define histograms for histogram method
   //--- upper limits need to be revisied in the future!!! It may be not enough for some analyses
 
-  fMfit_all = std::make_shared<TH1F>("MMC_h1","M",hNbins,0.0,hEmax); // all solutions
-  fMfit_all->Sumw2(); // allow proper error bin calculation. Slightly slower but completely negligible
+  m_fMfit_all = std::make_shared<TH1F>("MMC_h1","M",hNbins,0.0,hEmax); // all solutions
+  m_fMfit_all->Sumw2(); // allow proper error bin calculation. Slightly slower but completely negligible
 
   //histogram without weight. useful for debugging. negligibly slow until now
-  fMfit_allNoWeight = std::make_shared<TH1F>("MMC_h1NoW","M no weight",hNbins,0.0,hEmax); // all solutions
+  m_fMfit_allNoWeight = std::make_shared<TH1F>("MMC_h1NoW","M no weight",hNbins,0.0,hEmax); // all solutions
 
-  fPXfit1 = std::make_shared<TH1F>("MMC_h2","Px1",4*hNbins,-hEmax,hEmax); // Px for tau1
-  fPYfit1 = std::make_shared<TH1F>("MMC_h3","Py1",4*hNbins,-hEmax,hEmax); // Py for tau1
-  fPZfit1 = std::make_shared<TH1F>("MMC_h4","Pz1",4*hNbins,-hEmax,hEmax); // Pz for tau1
-  fPXfit2 = std::make_shared<TH1F>("MMC_h5","Px2",4*hNbins,-hEmax,hEmax); // Px for tau2
-  fPYfit2 = std::make_shared<TH1F>("MMC_h6","Py2",4*hNbins,-hEmax,hEmax); // Py for tau2
-  fPZfit2 = std::make_shared<TH1F>("MMC_h7","Pz2",4*hNbins,-hEmax,hEmax); // Pz for tau2
+  m_fPXfit1 = std::make_shared<TH1F>("MMC_h2","Px1",4*hNbins,-hEmax,hEmax); // Px for tau1
+  m_fPYfit1 = std::make_shared<TH1F>("MMC_h3","Py1",4*hNbins,-hEmax,hEmax); // Py for tau1
+  m_fPZfit1 = std::make_shared<TH1F>("MMC_h4","Pz1",4*hNbins,-hEmax,hEmax); // Pz for tau1
+  m_fPXfit2 = std::make_shared<TH1F>("MMC_h5","Px2",4*hNbins,-hEmax,hEmax); // Px for tau2
+  m_fPYfit2 = std::make_shared<TH1F>("MMC_h6","Py2",4*hNbins,-hEmax,hEmax); // Py for tau2
+  m_fPZfit2 = std::make_shared<TH1F>("MMC_h7","Pz2",4*hNbins,-hEmax,hEmax); // Pz for tau2
 
-  fMfit_all->SetDirectory(0);
-  fMfit_allNoWeight->SetDirectory(0);
-  fPXfit1->SetDirectory(0);
-  fPYfit1->SetDirectory(0);
-  fPZfit1->SetDirectory(0);
-  fPXfit2->SetDirectory(0);
-  fPYfit2->SetDirectory(0);
-  fPZfit2->SetDirectory(0);
+  m_fMfit_all->SetDirectory(0);
+  m_fMfit_allNoWeight->SetDirectory(0);
+  m_fPXfit1->SetDirectory(0);
+  m_fPYfit1->SetDirectory(0);
+  m_fPZfit1->SetDirectory(0);
+  m_fPXfit2->SetDirectory(0);
+  m_fPYfit2->SetDirectory(0);
+  m_fPZfit2->SetDirectory(0);
 
   // max hist fitting function
   //   m_fFitting = new TF1("maxFitting",this,&MissingMassCalculator::maxFitting,0.,1000.,3);
@@ -288,7 +288,7 @@ MissingMassCalculator::MissingMassCalculator(){
 
 
 
-  if(fUseVerbose==1)
+  if(m_fUseVerbose==1)
     {
       gDirectory->pwd();
       gDirectory->ls();
@@ -297,21 +297,21 @@ MissingMassCalculator::MissingMassCalculator(){
 
 #ifdef HISTITERATION
   //debug histo
-  fPhi1=new TH1F("MMC_hphi1","phi1",500,-3.2,3.2); // all solutions
-  fPhi2=new TH1F("MMC_hphi2","phi2",500,-3.2,3.2); // all solutions
-  fMnu1=new TH1F("MMC_hmnu1","Mnu1",500,-1.,10.); // all solutions
-  fMnu2=new TH1F("MMC_hmnu2","Mnu2",500,-1.,10.); // all solutions
-  fMetx=new TH1F("MMC_hmetx","METx",400,-100.,100.); // all solutions
-  fMety=new TH1F("MMC_hmety","METy",400,-100.,100.); // all solutions
+  m_fPhi1=new TH1F("MMC_hphi1","phi1",500,-3.2,3.2); // all solutions
+  m_fPhi2=new TH1F("MMC_hphi2","phi2",500,-3.2,3.2); // all solutions
+  m_fMnu1=new TH1F("MMC_hmnu1","Mnu1",500,-1.,10.); // all solutions
+  m_fMnu2=new TH1F("MMC_hmnu2","Mnu2",500,-1.,10.); // all solutions
+  m_fMetx=new TH1F("MMC_hmetx","METx",400,-100.,100.); // all solutions
+  m_fMety=new TH1F("MMC_hmety","METy",400,-100.,100.); // all solutions
 #endif
 #ifdef HISTPROBA
-  fTheta3D=new TH1F("MMC_htheta3d","lprob",500,-10.,1.); // all solutions
-  fTauProb=new TH1F("MMC_htauprob","lprob",500,-10.,2.); // all solutions
+  m_fTheta3D=new TH1F("MMC_htheta3d","lprob",500,-10.,1.); // all solutions
+  m_fTauProb=new TH1F("MMC_htauprob","lprob",500,-10.,2.); // all solutions
 #endif
 
 
 
-  if(fUseVerbose==1)
+  if(m_fUseVerbose==1)
     {
       gDirectory->pwd();
       gDirectory->ls();
@@ -321,140 +321,140 @@ MissingMassCalculator::MissingMassCalculator(){
   // [tau_type][parLG][par]
   // leptonic tau
   //-par[0]
-  fit_param[0][0][0][0]=-9.82013E-1;
-  fit_param[0][0][0][1]=9.09874E-1;
-  fit_param[0][0][0][2]=0.0;
-  fit_param[0][0][0][3]=0.0;
+  s_fit_param[0][0][0][0]=-9.82013E-1;
+  s_fit_param[0][0][0][1]=9.09874E-1;
+  s_fit_param[0][0][0][2]=0.0;
+  s_fit_param[0][0][0][3]=0.0;
   //-par[1]
-  fit_param[0][0][1][0]=9.96303E1;
-  fit_param[0][0][1][1]=1.68873E1;
-  fit_param[0][0][1][2]=3.23798E-2;
-  fit_param[0][0][1][3]=0.0;
+  s_fit_param[0][0][1][0]=9.96303E1;
+  s_fit_param[0][0][1][1]=1.68873E1;
+  s_fit_param[0][0][1][2]=3.23798E-2;
+  s_fit_param[0][0][1][3]=0.0;
   //-par[2]
-  fit_param[0][0][2][0]=0.0;
-  fit_param[0][0][2][1]=0.0;
-  fit_param[0][0][2][2]=0.0;
-  fit_param[0][0][2][3]=0.3; // fit value is 2.8898E-1, I use 0.3
+  s_fit_param[0][0][2][0]=0.0;
+  s_fit_param[0][0][2][1]=0.0;
+  s_fit_param[0][0][2][2]=0.0;
+  s_fit_param[0][0][2][3]=0.3; // fit value is 2.8898E-1, I use 0.3
   //-par[3]
-  fit_param[0][0][3][0]=9.70055E1;
-  fit_param[0][0][3][1]=6.46175E1;
-  fit_param[0][0][3][2]=3.20679E-2;
-  fit_param[0][0][3][3]=0.0;
+  s_fit_param[0][0][3][0]=9.70055E1;
+  s_fit_param[0][0][3][1]=6.46175E1;
+  s_fit_param[0][0][3][2]=3.20679E-2;
+  s_fit_param[0][0][3][3]=0.0;
   //-par[4]
-  fit_param[0][0][4][0]=1.56865;
-  fit_param[0][0][4][1]=2.28336E-1;
-  fit_param[0][0][4][2]=1.09396E-1;
-  fit_param[0][0][4][3]=1.99975E-3;
+  s_fit_param[0][0][4][0]=1.56865;
+  s_fit_param[0][0][4][1]=2.28336E-1;
+  s_fit_param[0][0][4][2]=1.09396E-1;
+  s_fit_param[0][0][4][3]=1.99975E-3;
   //-par[5]
-  fit_param[0][0][5][0]=0.0;
-  fit_param[0][0][5][1]=0.0;
-  fit_param[0][0][5][2]=0.0;
-  fit_param[0][0][5][3]=0.66;
+  s_fit_param[0][0][5][0]=0.0;
+  s_fit_param[0][0][5][1]=0.0;
+  s_fit_param[0][0][5][2]=0.0;
+  s_fit_param[0][0][5][3]=0.66;
   //-----------------------------------------------------------------
   // 1-prong hadronic tau
   //-par[0]
-  fit_param[0][1][0][0]=-2.42674;
-  fit_param[0][1][0][1]=7.69124E-1;
-  fit_param[0][1][0][2]=0.0;
-  fit_param[0][1][0][3]=0.0;
+  s_fit_param[0][1][0][0]=-2.42674;
+  s_fit_param[0][1][0][1]=7.69124E-1;
+  s_fit_param[0][1][0][2]=0.0;
+  s_fit_param[0][1][0][3]=0.0;
   //-par[1]
-  fit_param[0][1][1][0]=9.52747E1;
-  fit_param[0][1][1][1]=1.26319E1;
-  fit_param[0][1][1][2]=3.09643E-2;
-  fit_param[0][1][1][3]=0.0;
+  s_fit_param[0][1][1][0]=9.52747E1;
+  s_fit_param[0][1][1][1]=1.26319E1;
+  s_fit_param[0][1][1][2]=3.09643E-2;
+  s_fit_param[0][1][1][3]=0.0;
   //-par[2]
-  fit_param[0][1][2][0]=1.71302E1;
-  fit_param[0][1][2][1]=3.00455E1;
-  fit_param[0][1][2][2]=7.49445E-2;
-  fit_param[0][1][2][3]=0.0;
+  s_fit_param[0][1][2][0]=1.71302E1;
+  s_fit_param[0][1][2][1]=3.00455E1;
+  s_fit_param[0][1][2][2]=7.49445E-2;
+  s_fit_param[0][1][2][3]=0.0;
   //-par[3]
-  fit_param[0][1][3][0]=1.06137E2;
-  fit_param[0][1][3][1]=6.01548E1;
-  fit_param[0][1][3][2]=3.50867E-2;
-  fit_param[0][1][3][3]=0.0;
+  s_fit_param[0][1][3][0]=1.06137E2;
+  s_fit_param[0][1][3][1]=6.01548E1;
+  s_fit_param[0][1][3][2]=3.50867E-2;
+  s_fit_param[0][1][3][3]=0.0;
   //-par[4]
-  fit_param[0][1][4][0]=4.26079E-1;
-  fit_param[0][1][4][1]=1.76978E-1;
-  fit_param[0][1][4][2]=1.43419;
-  fit_param[0][1][4][3]=0.0;
+  s_fit_param[0][1][4][0]=4.26079E-1;
+  s_fit_param[0][1][4][1]=1.76978E-1;
+  s_fit_param[0][1][4][2]=1.43419;
+  s_fit_param[0][1][4][3]=0.0;
   //-par[5]
-  fit_param[0][1][5][0]=0.0;
-  fit_param[0][1][5][1]=0.0;
-  fit_param[0][1][5][2]=0.0;
-  fit_param[0][1][5][3]=0.4;
+  s_fit_param[0][1][5][0]=0.0;
+  s_fit_param[0][1][5][1]=0.0;
+  s_fit_param[0][1][5][2]=0.0;
+  s_fit_param[0][1][5][3]=0.4;
   //-----------------------------------------------------------------
   // 3-prong hadronic tau
   //-par[0]
-  fit_param[0][2][0][0]=-2.43533;
-  fit_param[0][2][0][1]=6.12947E-1;
-  fit_param[0][2][0][2]=0.0;
-  fit_param[0][2][0][3]=0.0;
+  s_fit_param[0][2][0][0]=-2.43533;
+  s_fit_param[0][2][0][1]=6.12947E-1;
+  s_fit_param[0][2][0][2]=0.0;
+  s_fit_param[0][2][0][3]=0.0;
   //-par[1]
-  fit_param[0][2][1][0]=9.54202;
-  fit_param[0][2][1][1]=2.80011E-1;
-  fit_param[0][2][1][2]=2.49782E-1;
-  fit_param[0][2][1][3]=0.0;
+  s_fit_param[0][2][1][0]=9.54202;
+  s_fit_param[0][2][1][1]=2.80011E-1;
+  s_fit_param[0][2][1][2]=2.49782E-1;
+  s_fit_param[0][2][1][3]=0.0;
   //-par[2]
-  fit_param[0][2][2][0]=1.61325E1;
-  fit_param[0][2][2][1]=1.74892E1;
-  fit_param[0][2][2][2]=7.05797E-2;
-  fit_param[0][2][2][3]=0.0;
+  s_fit_param[0][2][2][0]=1.61325E1;
+  s_fit_param[0][2][2][1]=1.74892E1;
+  s_fit_param[0][2][2][2]=7.05797E-2;
+  s_fit_param[0][2][2][3]=0.0;
   //-par[3]
-  fit_param[0][2][3][0]=1.17093E2;
-  fit_param[0][2][3][1]=4.70000E1;
-  fit_param[0][2][3][2]=3.87085E-2;
-  fit_param[0][2][3][3]=0.0;
+  s_fit_param[0][2][3][0]=1.17093E2;
+  s_fit_param[0][2][3][1]=4.70000E1;
+  s_fit_param[0][2][3][2]=3.87085E-2;
+  s_fit_param[0][2][3][3]=0.0;
   //-par[4]
-  fit_param[0][2][4][0]=4.16557E-1;
-  fit_param[0][2][4][1]=1.58902E-1;
-  fit_param[0][2][4][2]=1.53516;
-  fit_param[0][2][4][3]=0.0;
+  s_fit_param[0][2][4][0]=4.16557E-1;
+  s_fit_param[0][2][4][1]=1.58902E-1;
+  s_fit_param[0][2][4][2]=1.53516;
+  s_fit_param[0][2][4][3]=0.0;
   //-par[5]
-  fit_param[0][2][5][0]=0.0;
-  fit_param[0][2][5][1]=0.0;
-  fit_param[0][2][5][2]=0.0;
-  fit_param[0][2][5][3]=0.95;
+  s_fit_param[0][2][5][0]=0.0;
+  s_fit_param[0][2][5][1]=0.0;
+  s_fit_param[0][2][5][2]=0.0;
+  s_fit_param[0][2][5][3]=0.95;
 
 
   /// MMC2012 parameterisation
   // [tau_type][parLG][par]
   // leptonic tau
   //-par[0]
-  fit_param[1][0][0][0]=-9.82013E-1;
-  fit_param[1][0][0][1]=9.09874E-1;
-  fit_param[1][0][0][2]=0.0;
-  fit_param[1][0][0][3]=0.0;
-  fit_param[1][0][0][4]=0.0;
+  s_fit_param[1][0][0][0]=-9.82013E-1;
+  s_fit_param[1][0][0][1]=9.09874E-1;
+  s_fit_param[1][0][0][2]=0.0;
+  s_fit_param[1][0][0][3]=0.0;
+  s_fit_param[1][0][0][4]=0.0;
   //-par[1]
-  fit_param[1][0][1][0]=9.96303E1;
-  fit_param[1][0][1][1]=1.68873E1;
-  fit_param[1][0][1][2]=3.23798E-2;
-  fit_param[1][0][1][3]=0.0;
-  fit_param[1][0][1][4]=0.0;
+  s_fit_param[1][0][1][0]=9.96303E1;
+  s_fit_param[1][0][1][1]=1.68873E1;
+  s_fit_param[1][0][1][2]=3.23798E-2;
+  s_fit_param[1][0][1][3]=0.0;
+  s_fit_param[1][0][1][4]=0.0;
   //-par[2]
-  fit_param[1][0][2][0]=0.0;
-  fit_param[1][0][2][1]=0.0;
-  fit_param[1][0][2][2]=0.0;
-  fit_param[1][0][2][3]=0.3; // fit value is 2.8898E-1, I use 0.3
-  fit_param[1][0][2][4]=0.0;
+  s_fit_param[1][0][2][0]=0.0;
+  s_fit_param[1][0][2][1]=0.0;
+  s_fit_param[1][0][2][2]=0.0;
+  s_fit_param[1][0][2][3]=0.3; // fit value is 2.8898E-1, I use 0.3
+  s_fit_param[1][0][2][4]=0.0;
   //-par[3]
-  fit_param[1][0][3][0]=9.70055E1;
-  fit_param[1][0][3][1]=6.46175E1;
-  fit_param[1][0][3][2]=3.20679E-2;
-  fit_param[1][0][3][3]=0.0;
-  fit_param[1][0][3][4]=0.0;
+  s_fit_param[1][0][3][0]=9.70055E1;
+  s_fit_param[1][0][3][1]=6.46175E1;
+  s_fit_param[1][0][3][2]=3.20679E-2;
+  s_fit_param[1][0][3][3]=0.0;
+  s_fit_param[1][0][3][4]=0.0;
   //-par[4]
-  fit_param[1][0][4][0]=1.56865;
-  fit_param[1][0][4][1]=2.28336E-1;
-  fit_param[1][0][4][2]=1.09396E-1;
-  fit_param[1][0][4][3]=1.99975E-3;
-  fit_param[1][0][4][4]=0.0;
+  s_fit_param[1][0][4][0]=1.56865;
+  s_fit_param[1][0][4][1]=2.28336E-1;
+  s_fit_param[1][0][4][2]=1.09396E-1;
+  s_fit_param[1][0][4][3]=1.99975E-3;
+  s_fit_param[1][0][4][4]=0.0;
   //-par[5]
-  fit_param[1][0][5][0]=0.0;
-  fit_param[1][0][5][1]=0.0;
-  fit_param[1][0][5][2]=0.0;
-  fit_param[1][0][5][3]=0.66;
-  fit_param[1][0][5][4]=0.0;
+  s_fit_param[1][0][5][0]=0.0;
+  s_fit_param[1][0][5][1]=0.0;
+  s_fit_param[1][0][5][2]=0.0;
+  s_fit_param[1][0][5][3]=0.66;
+  s_fit_param[1][0][5][4]=0.0;
   //-----------------------------------------------------------------
   //-----------------------
   // Only hadronic tau's were re-parametrized in MC12. The parameterization now
@@ -462,144 +462,144 @@ MissingMassCalculator::MissingMassCalculator(){
   //-----------------------------------------------------------------
   // 1-prong hadronic tau
   //---par[0]
-  fit_param[1][1][0][0]=0.7568;
-  fit_param[1][1][0][1]=-0.0001469;
-  fit_param[1][1][0][2]=5.413E-7;
-  fit_param[1][1][0][3]=-6.754E-10;
-  fit_param[1][1][0][4]=2.269E-13;
+  s_fit_param[1][1][0][0]=0.7568;
+  s_fit_param[1][1][0][1]=-0.0001469;
+  s_fit_param[1][1][0][2]=5.413E-7;
+  s_fit_param[1][1][0][3]=-6.754E-10;
+  s_fit_param[1][1][0][4]=2.269E-13;
   //---par[1]
-  fit_param[1][1][1][0]=-0.0288208;
-  fit_param[1][1][1][1]=0.134174;
-  fit_param[1][1][1][2]=-142.588;
-  fit_param[1][1][1][3]=-0.00035606;
-  fit_param[1][1][1][4]=-6.94567E-20;
+  s_fit_param[1][1][1][0]=-0.0288208;
+  s_fit_param[1][1][1][1]=0.134174;
+  s_fit_param[1][1][1][2]=-142.588;
+  s_fit_param[1][1][1][3]=-0.00035606;
+  s_fit_param[1][1][1][4]=-6.94567E-20;
   //---par[2]
-  fit_param[1][1][2][0]=-0.00468927;
-  fit_param[1][1][2][1]=0.0378737;
-  fit_param[1][1][2][2]=-260.284;
-  fit_param[1][1][2][3]=0.00241158;
-  fit_param[1][1][2][4]=-6.01766E-7;
+  s_fit_param[1][1][2][0]=-0.00468927;
+  s_fit_param[1][1][2][1]=0.0378737;
+  s_fit_param[1][1][2][2]=-260.284;
+  s_fit_param[1][1][2][3]=0.00241158;
+  s_fit_param[1][1][2][4]=-6.01766E-7;
   //---par[3]
-  fit_param[1][1][3][0]=-0.170424;
-  fit_param[1][1][3][1]=0.135764;
-  fit_param[1][1][3][2]=-50.2361;
-  fit_param[1][1][3][3]=0.00735544;
-  fit_param[1][1][3][4]=-7.34073E-6;
+  s_fit_param[1][1][3][0]=-0.170424;
+  s_fit_param[1][1][3][1]=0.135764;
+  s_fit_param[1][1][3][2]=-50.2361;
+  s_fit_param[1][1][3][3]=0.00735544;
+  s_fit_param[1][1][3][4]=-7.34073E-6;
   //---par[4]
-  fit_param[1][1][4][0]=-0.0081364;
-  fit_param[1][1][4][1]=0.0391428;
-  fit_param[1][1][4][2]=-141.936;
-  fit_param[1][1][4][3]=0.0035034;
-  fit_param[1][1][4][4]=-1.21956E-6;
+  s_fit_param[1][1][4][0]=-0.0081364;
+  s_fit_param[1][1][4][1]=0.0391428;
+  s_fit_param[1][1][4][2]=-141.936;
+  s_fit_param[1][1][4][3]=0.0035034;
+  s_fit_param[1][1][4][4]=-1.21956E-6;
   //-par[5]
-  fit_param[1][1][5][0]=0.0;
-  fit_param[1][1][5][1]=0.0;
-  fit_param[1][1][5][2]=0.0;
-  fit_param[1][1][5][3]=0.624*0.00125; // multiplied by a bin size
-  fit_param[1][1][5][4]=0.0;
+  s_fit_param[1][1][5][0]=0.0;
+  s_fit_param[1][1][5][1]=0.0;
+  s_fit_param[1][1][5][2]=0.0;
+  s_fit_param[1][1][5][3]=0.624*0.00125; // multiplied by a bin size
+  s_fit_param[1][1][5][4]=0.0;
   //-----------------------------------------------------------------
   // 3-prong hadronic tau
   //---par[0]
-  fit_param[1][2][0][0]=0.7562;
-  fit_param[1][2][0][1]=-1.168E-5;
-  fit_param[1][2][0][2]=0.0;
-  fit_param[1][2][0][3]=0.0;
-  fit_param[1][2][0][4]=0.0;
+  s_fit_param[1][2][0][0]=0.7562;
+  s_fit_param[1][2][0][1]=-1.168E-5;
+  s_fit_param[1][2][0][2]=0.0;
+  s_fit_param[1][2][0][3]=0.0;
+  s_fit_param[1][2][0][4]=0.0;
   //---par[1]
-  fit_param[1][2][1][0]=-0.0420458;
-  fit_param[1][2][1][1]=0.15917;
-  fit_param[1][2][1][2]=-80.3259;
-  fit_param[1][2][1][3]=0.000125729;
-  fit_param[1][2][1][4]=-2.43945E-18;
+  s_fit_param[1][2][1][0]=-0.0420458;
+  s_fit_param[1][2][1][1]=0.15917;
+  s_fit_param[1][2][1][2]=-80.3259;
+  s_fit_param[1][2][1][3]=0.000125729;
+  s_fit_param[1][2][1][4]=-2.43945E-18;
   //---par[2]
-  fit_param[1][2][2][0]=-0.0216898;
-  fit_param[1][2][2][1]=0.0243497;
-  fit_param[1][2][2][2]=-63.8273;
-  fit_param[1][2][2][3]=0.0148339;
-  fit_param[1][2][2][4]=-4.45351E-6;
+  s_fit_param[1][2][2][0]=-0.0216898;
+  s_fit_param[1][2][2][1]=0.0243497;
+  s_fit_param[1][2][2][2]=-63.8273;
+  s_fit_param[1][2][2][3]=0.0148339;
+  s_fit_param[1][2][2][4]=-4.45351E-6;
   //---par[3]
-  fit_param[1][2][3][0]=-0.0879411;
-  fit_param[1][2][3][1]=0.110092;
-  fit_param[1][2][3][2]=-75.4901;
-  fit_param[1][2][3][3]=0.0116915;
-  fit_param[1][2][3][4]=-1E-5;
+  s_fit_param[1][2][3][0]=-0.0879411;
+  s_fit_param[1][2][3][1]=0.110092;
+  s_fit_param[1][2][3][2]=-75.4901;
+  s_fit_param[1][2][3][3]=0.0116915;
+  s_fit_param[1][2][3][4]=-1E-5;
   //---par[4]
-  fit_param[1][2][4][0]=-0.0118324;
-  fit_param[1][2][4][1]=0.0280538;
-  fit_param[1][2][4][2]=-85.127;
-  fit_param[1][2][4][3]=0.00724948;
-  fit_param[1][2][4][4]=-2.38792E-6;
+  s_fit_param[1][2][4][0]=-0.0118324;
+  s_fit_param[1][2][4][1]=0.0280538;
+  s_fit_param[1][2][4][2]=-85.127;
+  s_fit_param[1][2][4][3]=0.00724948;
+  s_fit_param[1][2][4][4]=-2.38792E-6;
   //-par[5]
-  fit_param[1][2][5][0]=0.0;
-  fit_param[1][2][5][1]=0.0;
-  fit_param[1][2][5][2]=0.0;
-  fit_param[1][2][5][3]=0.6167*0.00125; // multiplied by a bin size
-  fit_param[1][2][5][4]=0.0;
+  s_fit_param[1][2][5][0]=0.0;
+  s_fit_param[1][2][5][1]=0.0;
+  s_fit_param[1][2][5][2]=0.0;
+  s_fit_param[1][2][5][3]=0.6167*0.00125; // multiplied by a bin size
+  s_fit_param[1][2][5][4]=0.0;
 
   // TER parameterization, for now based on p1130, to be checked and updated with new tag
   // [tau_type][eta_bin][parameter]
   // for 1-prongs
-  ter_sigma_par[0][0][0]=0.311717;
-  ter_sigma_par[0][0][1]=0.0221615;
-  ter_sigma_par[0][0][2]=0.859698;
-  ter_sigma_par[0][1][0]=0.290019;
-  ter_sigma_par[0][1][1]=0.0225794;
-  ter_sigma_par[0][1][2]=0.883407;
-  ter_sigma_par[0][2][0]=0.352312;
-  ter_sigma_par[0][2][1]=0.0196381;
-  ter_sigma_par[0][2][2]=0.629708;
-  ter_sigma_par[0][3][0]=0.342059;
-  ter_sigma_par[0][3][1]=0.0275107;
-  ter_sigma_par[0][3][2]=0.48065;
-  ter_sigma_par[0][4][0]=0.481564;
-  ter_sigma_par[0][4][1]=0.0197219;
-  ter_sigma_par[0][4][2]=0.0571714;
-  ter_sigma_par[0][5][0]=0.41264;
-  ter_sigma_par[0][5][1]=0.0233964;
-  ter_sigma_par[0][5][2]=0.515674;
-  ter_sigma_par[0][6][0]=0.20112;
-  ter_sigma_par[0][6][1]=0.0339914;
-  ter_sigma_par[0][6][2]=0.944524;
-  ter_sigma_par[0][7][0]=0.0892094;
-  ter_sigma_par[0][7][1]=0.0210225;
-  ter_sigma_par[0][7][2]=1.34014;
-  ter_sigma_par[0][8][0]=0.175554;
-  ter_sigma_par[0][8][1]=0.0210968;
-  ter_sigma_par[0][8][2]=0.813925;
-  ter_sigma_par[0][9][0]=0.0;
-  ter_sigma_par[0][9][1]=0.0340279;
-  ter_sigma_par[0][9][2]=1.30856;
+  s_ter_sigma_par[0][0][0]=0.311717;
+  s_ter_sigma_par[0][0][1]=0.0221615;
+  s_ter_sigma_par[0][0][2]=0.859698;
+  s_ter_sigma_par[0][1][0]=0.290019;
+  s_ter_sigma_par[0][1][1]=0.0225794;
+  s_ter_sigma_par[0][1][2]=0.883407;
+  s_ter_sigma_par[0][2][0]=0.352312;
+  s_ter_sigma_par[0][2][1]=0.0196381;
+  s_ter_sigma_par[0][2][2]=0.629708;
+  s_ter_sigma_par[0][3][0]=0.342059;
+  s_ter_sigma_par[0][3][1]=0.0275107;
+  s_ter_sigma_par[0][3][2]=0.48065;
+  s_ter_sigma_par[0][4][0]=0.481564;
+  s_ter_sigma_par[0][4][1]=0.0197219;
+  s_ter_sigma_par[0][4][2]=0.0571714;
+  s_ter_sigma_par[0][5][0]=0.41264;
+  s_ter_sigma_par[0][5][1]=0.0233964;
+  s_ter_sigma_par[0][5][2]=0.515674;
+  s_ter_sigma_par[0][6][0]=0.20112;
+  s_ter_sigma_par[0][6][1]=0.0339914;
+  s_ter_sigma_par[0][6][2]=0.944524;
+  s_ter_sigma_par[0][7][0]=0.0892094;
+  s_ter_sigma_par[0][7][1]=0.0210225;
+  s_ter_sigma_par[0][7][2]=1.34014;
+  s_ter_sigma_par[0][8][0]=0.175554;
+  s_ter_sigma_par[0][8][1]=0.0210968;
+  s_ter_sigma_par[0][8][2]=0.813925;
+  s_ter_sigma_par[0][9][0]=0.0;
+  s_ter_sigma_par[0][9][1]=0.0340279;
+  s_ter_sigma_par[0][9][2]=1.30856;
   // for 3-prongs
-  ter_sigma_par[1][0][0]=0.303356;
-  ter_sigma_par[1][0][1]=0.0299807;
-  ter_sigma_par[1][0][2]=1.25388;
-  ter_sigma_par[1][1][0]=0.358106;
-  ter_sigma_par[1][1][1]=0.0229604;
-  ter_sigma_par[1][1][2]=1.02222;
-  ter_sigma_par[1][2][0]=0.328643;
-  ter_sigma_par[1][2][1]=0.025684;
-  ter_sigma_par[1][2][2]=1.02594;
-  ter_sigma_par[1][3][0]=0.497332;
-  ter_sigma_par[1][3][1]=0.0215113;
-  ter_sigma_par[1][3][2]=0.30055;
-  ter_sigma_par[1][4][0]=0.4493;
-  ter_sigma_par[1][4][1]=0.0280311;
-  ter_sigma_par[1][4][2]=0.285793;
-  ter_sigma_par[1][5][0]=0.427811;
-  ter_sigma_par[1][5][1]=0.0316536;
-  ter_sigma_par[1][5][2]=0.457286;
-  ter_sigma_par[1][6][0]=0.165288;
-  ter_sigma_par[1][6][1]=0.0376361;
-  ter_sigma_par[1][6][2]=1.3913;
-  ter_sigma_par[1][7][0]=0.289798;
-  ter_sigma_par[1][7][1]=0.0140801;
-  ter_sigma_par[1][7][2]=0.83603;
-  ter_sigma_par[1][8][0]=0.186823;
-  ter_sigma_par[1][8][1]=0.0213053;
-  ter_sigma_par[1][8][2]=0.968934;
-  ter_sigma_par[1][9][0]=0.301673;
-  ter_sigma_par[1][9][1]=0.0145606;
-  ter_sigma_par[1][9][2]=0.514022;
+  s_ter_sigma_par[1][0][0]=0.303356;
+  s_ter_sigma_par[1][0][1]=0.0299807;
+  s_ter_sigma_par[1][0][2]=1.25388;
+  s_ter_sigma_par[1][1][0]=0.358106;
+  s_ter_sigma_par[1][1][1]=0.0229604;
+  s_ter_sigma_par[1][1][2]=1.02222;
+  s_ter_sigma_par[1][2][0]=0.328643;
+  s_ter_sigma_par[1][2][1]=0.025684;
+  s_ter_sigma_par[1][2][2]=1.02594;
+  s_ter_sigma_par[1][3][0]=0.497332;
+  s_ter_sigma_par[1][3][1]=0.0215113;
+  s_ter_sigma_par[1][3][2]=0.30055;
+  s_ter_sigma_par[1][4][0]=0.4493;
+  s_ter_sigma_par[1][4][1]=0.0280311;
+  s_ter_sigma_par[1][4][2]=0.285793;
+  s_ter_sigma_par[1][5][0]=0.427811;
+  s_ter_sigma_par[1][5][1]=0.0316536;
+  s_ter_sigma_par[1][5][2]=0.457286;
+  s_ter_sigma_par[1][6][0]=0.165288;
+  s_ter_sigma_par[1][6][1]=0.0376361;
+  s_ter_sigma_par[1][6][2]=1.3913;
+  s_ter_sigma_par[1][7][0]=0.289798;
+  s_ter_sigma_par[1][7][1]=0.0140801;
+  s_ter_sigma_par[1][7][2]=0.83603;
+  s_ter_sigma_par[1][8][0]=0.186823;
+  s_ter_sigma_par[1][8][1]=0.0213053;
+  s_ter_sigma_par[1][8][2]=0.968934;
+  s_ter_sigma_par[1][9][0]=0.301673;
+  s_ter_sigma_par[1][9][1]=0.0145606;
+  s_ter_sigma_par[1][9][2]=0.514022;
 
 }
 
@@ -613,16 +613,16 @@ MissingMassCalculator::~MissingMassCalculator(){
   //  }
 
 #ifdef HISTITERATION
-  delete fPhi1;
-  delete fPhi2;
-  delete fMnu1;
-  delete fMnu2;
-  delete fMetx;
-  delete fMety;
+  delete m_fPhi1;
+  delete m_fPhi2;
+  delete m_fMnu1;
+  delete m_fMnu2;
+  delete m_fMetx;
+  delete m_fMety;
 #endif
 #ifdef HISTPROBA
-  delete fTheta3D;
-  delete fTauProb;
+  delete m_fTheta3D;
+  delete m_fTauProb;
 #endif
 
 }
@@ -630,51 +630,51 @@ MissingMassCalculator::~MissingMassCalculator(){
 //_____________________________________________________________________________
 // Main Method to run MissingMassCalculator
 int MissingMassCalculator::RunMissingMassCalculator() {
-  reRunWithBestMET=false;
+  m_reRunWithBestMET=false;
   ClearOutputStuff();
   //  InputInfoStuff preparedInput;
-  if(fUseVerbose==1) {
+  if(m_fUseVerbose==1) {
     std::cout<<"------------- Raw Input for MissingMassCalculator --------------"<<std::endl;
-    PrintInputInfo(rawInput) ;
+    PrintInputInfo(m_rawInput) ;
   }
   FinalizeInputStuff();//rawInput, preparedInput );
-  if(fUseVerbose==1) {
+  if(m_fUseVerbose==1) {
     std::cout<<"------------- Prepared Input for MissingMassCalculator --------------"<<std::endl;
-    PrintInputInfo(preparedInput) ;
+    PrintInputInfo(m_preparedInput) ;
   }
 
   ClearInputStuff(); // DR just to be sure InputInfo is never used downstream, only preparedInput
 
-  if(SearchMode==0)
+  if(m_SearchMode==0)
     {
-      if(AlgorithmVersion==3) {
+      if(m_AlgorithmVersion==3) {
         // remove argument DiTauMassCalculatorV9Walk work directly on preparedInput
-        OutputInfo.FitStatus=DitauMassCalculatorV9walk();
+        m_OutputInfo.FitStatus=DitauMassCalculatorV9walk();
 
         // re-running MMC for on failed events
-        if(fUseEfficiencyRecovery==1 && OutputInfo.FitStatus!=1)
+        if(m_fUseEfficiencyRecovery==1 && m_OutputInfo.FitStatus!=1)
           {
             // most events where MMC failed happened to have dPhi>2.9. Run re-fit only on these events
-            if(preparedInput.DelPhiTT>2.9)
+            if(m_preparedInput.m_DelPhiTT>2.9)
               {
                 //              preparedInput.MetVec.Set(-(preparedInput.vistau1+preparedInput.vistau2).Px(),-(preparedInput.vistau1+preparedInput.vistau2).Py()); // replace MET by MPT
 
-                TVector2 dummy_met(-(preparedInput.vistau1+preparedInput.vistau2).Px(),-(preparedInput.vistau1+preparedInput.vistau2).Py());
-                preparedInput.METcovphi=dummy_met.Phi();
-                double dummy_METres=sqrt(pow(preparedInput.METsigmaL,2) + pow(preparedInput.METsigmaP,2));
-                preparedInput.METsigmaL=dummy_METres*fabs(cos(dummy_met.Phi()-preparedInput.MetVec.Phi()));
-                preparedInput.METsigmaP=dummy_METres*fabs(sin(dummy_met.Phi()-preparedInput.MetVec.Phi()));
-                if(preparedInput.METsigmaP<5.0) preparedInput.METsigmaP=5.0;
-                Nsigma_METscan_lh=6.0; // increase range of MET scan
-                Nsigma_METscan_hh=6.0; // increase range of MET scan
+                TVector2 dummy_met(-(m_preparedInput.vistau1+m_preparedInput.vistau2).Px(),-(m_preparedInput.vistau1+m_preparedInput.vistau2).Py());
+                m_preparedInput.METcovphi=dummy_met.Phi();
+                double dummy_METres=sqrt(pow(m_preparedInput.METsigmaL,2) + pow(m_preparedInput.METsigmaP,2));
+                m_preparedInput.METsigmaL=dummy_METres*std::abs(cos(dummy_met.Phi()-m_preparedInput.MetVec.Phi()));
+                m_preparedInput.METsigmaP=dummy_METres*std::abs(sin(dummy_met.Phi()-m_preparedInput.MetVec.Phi()));
+                if(m_preparedInput.METsigmaP<5.0) m_preparedInput.METsigmaP=5.0;
+                m_nsigma_METscan_lh=6.0; // increase range of MET scan
+                m_nsigma_METscan_hh=6.0; // increase range of MET scan
 
                 ClearOutputStuff(); // clear output stuff before re-running
-                OutputInfo.FitStatus=DitauMassCalculatorV9walk(); // run MMC again
+                m_OutputInfo.FitStatus=DitauMassCalculatorV9walk(); // run MMC again
               }
           }
 
 #ifdef RERUNWITHBESTMET
-        if (OutputInfo.FitStatus==1) {
+        if (m_OutputInfo.FitStatus==1) {
           std::cout << "ERROR NON FUNCTIONAL ! TO BE REIMPLEMENTED " << std::endl;
           throw;
           // experimental re-iterate after fixing MET to be the neutrino momentum from the previous iteration
@@ -682,21 +682,21 @@ int MissingMassCalculator::RunMissingMassCalculator() {
           //const TLorentzVector & p4nu0=fDitauStuffFit.nutau1;
           //const TLorentzVector & p4nu1=fDitauStuffFit.nutau2;
           // best met from method 2
-          const TLorentzVector & p4nu0=fDitauStuffHisto.nutau1;
-          const TLorentzVector & p4nu1=fDitauStuffHisto.nutau2;
+          const TLorentzVector & p4nu0=m_fDitauStuffHisto.nutau1;
+          const TLorentzVector & p4nu1=m_fDitauStuffHisto.nutau2;
           TVector2 newMetVec(p4nu0.Px()+p4nu1.Px(),p4nu0.Py()+p4nu1.Py());
           //std::cout << "DRDR old MET " << InputInfo.MetVec.Px() << " " << InputInfo.MetVec.Py() << std::endl;
           //std::cout << "DRDR new MET " << newMetVec.Px() << " " << newMetVec.Py() << std::endl;
           // set sigma met to very small number (avoid zero which could cause instabilities)
-          const double Nsigma_METscanSave=Nsigma_METscan;
-          Nsigma_METscan=0.000001;
-          reRunWithBestMET=true;
+          const double Nsigma_METscanSave=m_nsigma_METscan;
+          m_nsigma_METscan=0.000001;
+          m_reRunWithBestMET=true;
           //OutputInfo.FitStatus=DitauMassCalculatorV9walk(preparedInput.vistau1,preparedInput.type_visTau1,
           //preparedInput.vistau2,preparedInput.type_visTau2,
           //                                                             newMetVec);
-          reRunWithBestMET=false;
-          const TLorentzVector& p4renu0 = fDitauStuffFit.nutau1;
-          const TLorentzVector& p4renu1 = fDitauStuffFit.nutau2;
+          m_reRunWithBestMET=false;
+          const TLorentzVector& p4renu0 = m_fDitauStuffFit.nutau1;
+          const TLorentzVector& p4renu1 = m_fDitauStuffFit.nutau2;
 
           TVector2 reMetVec(p4renu0.Px()+p4renu1.Px(),p4renu0.Py()+p4renu1.Py());
           if ((newMetVec-reMetVec).Mod()>0.1)
@@ -704,15 +704,15 @@ int MissingMassCalculator::RunMissingMassCalculator() {
               std::cout << "ERROR new MET after reiteration is not equal to old MET !!! " << std::endl;
             }
           // reset sigma met to original number
-          Nsigma_METscan=Nsigma_METscanSave;
+          m_nsigma_METscan=Nsigma_METscanSave;
         }
 #endif
       }
 
       // running MMC in LFV mode for reconstructing mass of X->lep+tau
-      else if(AlgorithmVersion==4) {
-        if(fUseVerbose==1) { std::cout << "Calling DitauMassCalculatorV9lfv" << std::endl; }
-        OutputInfo.FitStatus = DitauMassCalculatorV9lfv();
+      else if(m_AlgorithmVersion==4) {
+        if(m_fUseVerbose==1) { std::cout << "Calling DitauMassCalculatorV9lfv" << std::endl; }
+        m_OutputInfo.FitStatus = DitauMassCalculatorV9lfv();
       }
     }
   DoOutputInfo();
@@ -723,49 +723,49 @@ int MissingMassCalculator::RunMissingMassCalculator() {
 
 // ---- input Met vector
 void MissingMassCalculator::SetMetVec(const TVector2 & vec) {
-  rawInput.MetVec = vec;
+  m_rawInput.MetVec = vec;
   return;
 }
 // ----- input vis Tau vectors
 void MissingMassCalculator::SetVisTauVec(int i, const TLorentzVector & vec) {
-  if(fUseVerbose==1) { std::cout << "Seting input " << i << " to pT=" << vec.Pt() << std::endl; }
-  if(i==0) rawInput.vistau1 = vec;
-  if(i==1) rawInput.vistau2 = vec;
+  if(m_fUseVerbose==1) { std::cout << "Seting input " << i << " to pT=" << vec.Pt() << std::endl; }
+  if(i==0) m_rawInput.vistau1 = vec;
+  if(i==1) m_rawInput.vistau2 = vec;
   return;
 }
 // ----- input vis Tau type
 void MissingMassCalculator::SetVisTauType(int i, int tautype) {
-  if(i==0) rawInput.type_visTau1 = tautype/10;
-  if(i==1) rawInput.type_visTau2 = tautype/10;
+  if(i==0) m_rawInput.type_visTau1 = tautype/10;
+  if(i==1) m_rawInput.type_visTau2 = tautype/10;
   return;
 }
 // ----- input vis Tau N-prong
 void MissingMassCalculator::SetNprong(int i, int nprong) {
-  if(i==0) rawInput.Nprong_tau1 = nprong;
-  if(i==1) rawInput.Nprong_tau2 = nprong;
+  if(i==0) m_rawInput.Nprong_tau1 = nprong;
+  if(i==1) m_rawInput.Nprong_tau2 = nprong;
   return;
 }
 // ----- input SumEt
 void MissingMassCalculator::SetSumEt(double sumEt) {
-  rawInput.SumEt = sumEt;
+  m_rawInput.m_SumEt = sumEt;
   return;
 }
 // ----- input data type
 void MissingMassCalculator::SetIsData(int val) {
-  if(val==0 || val==1) rawInput.dataType = val;
+  if(val==0 || val==1) m_rawInput.dataType = val;
   return;
 }
 // ---- input number of jets with Et>25 GeV
 void MissingMassCalculator::SetNjet25(int val) {
-  if(val>-1) rawInput.Njet25 = val;
+  if(val>-1) m_rawInput.m_Njet25 = val;
   return;
 }
 
 // ----- input Met Scan parameters
 void MissingMassCalculator::SetMetScanParams(double phi, double sigmaP, double sigmaL) {
-  rawInput.METcovphi = phi;
-  rawInput.METsigmaP = sigmaP;
-  rawInput.METsigmaL = sigmaL;
+  m_rawInput.METcovphi = phi;
+  m_rawInput.METsigmaP = sigmaP;
+  m_rawInput.METsigmaL = sigmaL;
   return;
 }
 
@@ -824,19 +824,19 @@ void MissingMassCalculator::SetMetCovariance(double varX, double varY, double va
 // input is sumEt after electrons and taus have been removed
 // data_code=0 for data and =1 for MC
 void MissingMassCalculator::SetMetScanParamsUE(double sumEt, double phi_scan, int data_code) {
-  rawInput.METcovphi = phi_scan;
-  if(sumEt>2.0*beamEnergy) sumEt = sumEt/1000.0; // it's likely that sumEt was entered in MeV; this fix won't work only for a very small fraction of events
+  m_rawInput.METcovphi = phi_scan;
+  if(sumEt>2.0*m_beamEnergy) sumEt = sumEt/1000.0; // it's likely that sumEt was entered in MeV; this fix won't work only for a very small fraction of events
   double sigma = 1.0;
   double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
   double METresScale = 0.7; // using inclusive number for winter 2012
   if(data_code==1) METresScale=0.7; // use the same for data & MC
-  METresScale = METresScale*(1.0+METresSyst*sigmaSyst);
+  METresScale = METresScale*(1.0+m_METresSyst*sigmaSyst);
   // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
   sigma = sumEt>pow(3.0/METresScale,2) ? METresScale*sqrt(sumEt) : 3.0; // assume that MET resolution can't be better than 3 GeV
-  rawInput.METsigmaP = sigma;
-  rawInput.METsigmaL = sigma;
-  rawInput.SumEt = sumEt;
-  rawInput.dataType = data_code; // Sasha added on 09/26/11
+  m_rawInput.METsigmaP = sigma;
+  m_rawInput.METsigmaL = sigma;
+  m_rawInput.m_SumEt = sumEt;
+  m_rawInput.dataType = data_code; // Sasha added on 09/26/11
   return;
 }
 
@@ -845,19 +845,19 @@ void MissingMassCalculator::SetMetScanParamsUE(double sumEt, double phi_scan, in
 void MissingMassCalculator::SetMetScanParamsJets(std::vector<TLorentzVector> jets) {
   for(unsigned int i=0; i<jets.size(); i++)
     {
-      if(jets[i].Pt()>20.0) rawInput.jet4vecs.push_back(jets[i]);
+      if(jets[i].Pt()>20.0) m_rawInput.m_jet4vecs.push_back(jets[i]);
     }
   // re-order jets
-  if(rawInput.jet4vecs.size()>1)
+  if(m_rawInput.m_jet4vecs.size()>1)
     {
       TLorentzVector jet1(0.0,0.0,0.0,0.0);
-      for(unsigned int i=1; i<rawInput.jet4vecs.size(); i++)
+      for(unsigned int i=1; i<m_rawInput.m_jet4vecs.size(); i++)
         {
-          if(rawInput.jet4vecs[i].Pt()>rawInput.jet4vecs[i-1].Pt())
+          if(m_rawInput.m_jet4vecs[i].Pt()>m_rawInput.m_jet4vecs[i-1].Pt())
             {
-              jet1 = rawInput.jet4vecs[i-1];
-              rawInput.jet4vecs[i-1] = rawInput.jet4vecs[i];
-              rawInput.jet4vecs[i] = jet1;
+              jet1 = m_rawInput.m_jet4vecs[i-1];
+              m_rawInput.m_jet4vecs[i-1] = m_rawInput.m_jet4vecs[i];
+              m_rawInput.m_jet4vecs[i] = jet1;
             }
         }
     }
@@ -881,31 +881,31 @@ void MissingMassCalculator::ClearDitauStuff(DitauStuff &fStuff) {
 
 //------- clearing input stuff
 void MissingMassCalculator::ClearInputStuff() {
-  rawInput.MetVec.Set(0.0,0.0);
-  rawInput.detMetVec.Set(0.0,0.0);
-  rawInput.vistau1.SetPxPyPzE(0.0,0.0,0.0,0.0);
-  rawInput.vistau2.SetPxPyPzE(0.0,0.0,0.0,0.0);
-  rawInput.type_visTau1 = -1;
-  rawInput.type_visTau2 = -1;
-  rawInput.Nprong_tau1 = -1;
-  rawInput.Nprong_tau2 = -1;
-  //   rawInput.dataType = -1;
-  rawInput.METcovphi = 0.0;
-  rawInput.METsigmaP = 0.0;
-  rawInput.METsigmaL = 0.0;
-  rawInput.SumEt = 0.0;
-  rawInput.sigmaEtau1 = -1.;
-  rawInput.sigmaEtau2 = -1.;
-  rawInput.jet4vecs.clear();
+  m_rawInput.MetVec.Set(0.0,0.0);
+  m_rawInput.detMetVec.Set(0.0,0.0);
+  m_rawInput.vistau1.SetPxPyPzE(0.0,0.0,0.0,0.0);
+  m_rawInput.vistau2.SetPxPyPzE(0.0,0.0,0.0,0.0);
+  m_rawInput.type_visTau1 = -1;
+  m_rawInput.type_visTau2 = -1;
+  m_rawInput.Nprong_tau1 = -1;
+  m_rawInput.Nprong_tau2 = -1;
+  //   m_rawInput.dataType = -1;
+  m_rawInput.METcovphi = 0.0;
+  m_rawInput.METsigmaP = 0.0;
+  m_rawInput.METsigmaL = 0.0;
+  m_rawInput.m_SumEt = 0.0;
+  m_rawInput.sigmaEtau1 = -1.;
+  m_rawInput.sigmaEtau2 = -1.;
+  m_rawInput.m_jet4vecs.clear();
   //DR default at 1
-  rawInput.Njet25 = 1;
-  rawInput.allowUseHT = true;
-  rawInput.DelPhiTT = 0.0;
-  rawInput.UseHT = false;
-  rawInput.MHtSigma1 = -1.0;
-  rawInput.MHtSigma2 = -1.0;
-  rawInput.MHtGaussFr = -1.0;
-  rawInput.HtOffset = -1.0;
+  m_rawInput.m_Njet25 = 1;
+  m_rawInput.allowUseHT = true;
+  m_rawInput.m_DelPhiTT = 0.0;
+  m_rawInput.UseHT = false;
+  m_rawInput.m_MHtSigma1 = -1.0;
+  m_rawInput.m_MHtSigma2 = -1.0;
+  m_rawInput.MHtGaussFr = -1.0;
+  m_rawInput.HtOffset = -1.0;
 
   return;
 }
@@ -916,184 +916,184 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
 {
 
   // check that the calibration set has been chosen explicitly, otherwise abort
-  if (m_MMCCalibrationSet==MMCCalibrationSet::MAXMMCCALIBRATIONSET) {
+  if (m_mmcCalibrationSet==MMCCalibrationSet::MAXMMCCALIBRATIONSET) {
     std::cout << " ERROR MMCCalibrationSet has not been set !. Please use fMMC.SetCalibrationSet(MMCCalibrationSet::MMC2011) or MMC2012. Abort now. " << std::endl;
     throw; // stop job
   }
   //----------- Re-ordering input info, to make sure there is no dependence of results on input order
   // this might be needed because a random scan is used
   // highest pT tau is always first
-  InputReorder=0; // set flag to 0 by default, i.e. no re-ordering
+  m_InputReorder=0; // set flag to 0 by default, i.e. no re-ordering
 #ifndef DONOTREORDERTAU
-  if(rawInput.type_visTau1>0 && rawInput.type_visTau2==0) // if hadron-lepton, reorder to have lepton first
+  if(m_rawInput.type_visTau1>0 && m_rawInput.type_visTau2==0) // if hadron-lepton, reorder to have lepton first
     {
-      InputReorder=1;  // re-order to be done, this flag is to be checked in DoOutputInfo()
+      m_InputReorder=1;  // re-order to be done, this flag is to be checked in DoOutputInfo()
     }
-  else if(!(rawInput.type_visTau2>0 && rawInput.type_visTau1==0)) // if not lep-had nor had lep, reorder if tau1 is after tau2 clockwise
+  else if(!(m_rawInput.type_visTau2>0 && m_rawInput.type_visTau1==0)) // if not lep-had nor had lep, reorder if tau1 is after tau2 clockwise
     {
-      if (fixPhiRange(rawInput.vistau1.Phi()-rawInput.vistau2.Phi())>0)    {
-        InputReorder=1; // re-order to be done, this flag is to be checked in DoOutputInfo()
+      if (fixPhiRange(m_rawInput.vistau1.Phi()-m_rawInput.vistau2.Phi())>0)    {
+        m_InputReorder=1; // re-order to be done, this flag is to be checked in DoOutputInfo()
       }
     }
 #endif
 
-  if(InputReorder==1) // copy and re-order
+  if(m_InputReorder==1) // copy and re-order
     {
-      preparedInput.vistau1 = rawInput.vistau2;
-      preparedInput.vistau2 = rawInput.vistau1;
-      preparedInput.type_visTau1 = rawInput.type_visTau2;
-      preparedInput.type_visTau2 = rawInput.type_visTau1;
-      preparedInput.Nprong_tau1 = rawInput.Nprong_tau2;
-      preparedInput.Nprong_tau2 = rawInput.Nprong_tau1;
+      m_preparedInput.vistau1 = m_rawInput.vistau2;
+      m_preparedInput.vistau2 = m_rawInput.vistau1;
+      m_preparedInput.type_visTau1 = m_rawInput.type_visTau2;
+      m_preparedInput.type_visTau2 = m_rawInput.type_visTau1;
+      m_preparedInput.Nprong_tau1 = m_rawInput.Nprong_tau2;
+      m_preparedInput.Nprong_tau2 = m_rawInput.Nprong_tau1;
 
     } else // simple copy
     {
-      preparedInput.vistau1 = rawInput.vistau1;
-      preparedInput.vistau2 = rawInput.vistau2;
-      preparedInput.type_visTau1 = rawInput.type_visTau1;
-      preparedInput.type_visTau2 = rawInput.type_visTau2;
-      preparedInput.Nprong_tau1 = rawInput.Nprong_tau1;
-      preparedInput.Nprong_tau2 = rawInput.Nprong_tau2;
+      m_preparedInput.vistau1 = m_rawInput.vistau1;
+      m_preparedInput.vistau2 = m_rawInput.vistau2;
+      m_preparedInput.type_visTau1 = m_rawInput.type_visTau1;
+      m_preparedInput.type_visTau2 = m_rawInput.type_visTau2;
+      m_preparedInput.Nprong_tau1 = m_rawInput.Nprong_tau1;
+      m_preparedInput.Nprong_tau2 = m_rawInput.Nprong_tau2;
     }
   //--------- re-ordering is done ---------------------------------------
 
-  preparedInput.MetVec = rawInput.MetVec;
-  preparedInput.detMetVec = rawInput.MetVec;
+  m_preparedInput.MetVec = m_rawInput.MetVec;
+  m_preparedInput.detMetVec = m_rawInput.MetVec;
 
-  preparedInput.DelPhiTT = fabs(TVector2::Phi_mpi_pi(preparedInput.vistau1.Phi()-preparedInput.vistau2.Phi()));
+  m_preparedInput.m_DelPhiTT = std::abs(TVector2::Phi_mpi_pi(m_preparedInput.vistau1.Phi()-m_preparedInput.vistau2.Phi()));
   double scale = 1.;
 
 
-  if(preparedInput.vistau1.P()>3000.0 || preparedInput.vistau2.P()>3000.0) // if units are MeV
+  if(m_preparedInput.vistau1.P()>3000.0 || m_preparedInput.vistau2.P()>3000.0) // if units are MeV
     {
-      if(fUseVerbose==1) std::cout << "converting to GeV" << std::endl;
+      if(m_fUseVerbose==1) std::cout << "converting to GeV" << std::endl;
       scale=0.001;
-      preparedInput.MetVec *= scale;
-      preparedInput.detMetVec *= scale;
-      preparedInput.vistau1 *= scale;
-      preparedInput.vistau2 *= scale;
+      m_preparedInput.MetVec *= scale;
+      m_preparedInput.detMetVec *= scale;
+      m_preparedInput.vistau1 *= scale;
+      m_preparedInput.vistau2 *= scale;
     }
 
-  preparedInput.SumEt = scale*rawInput.SumEt;
-  preparedInput.METcovphi = rawInput.METcovphi;
-  preparedInput.METsigmaP = scale*rawInput.METsigmaP;
-  preparedInput.METsigmaL = scale*rawInput.METsigmaL;
+  m_preparedInput.m_SumEt = scale*m_rawInput.m_SumEt;
+  m_preparedInput.METcovphi = m_rawInput.METcovphi;
+  m_preparedInput.METsigmaP = scale*m_rawInput.METsigmaP;
+  m_preparedInput.METsigmaL = scale*m_rawInput.METsigmaL;
 
-  preparedInput.sigmaEtau1 = scale*rawInput.sigmaEtau1;
-  preparedInput.sigmaEtau2 = scale*rawInput.sigmaEtau2;
-  preparedInput.jet4vecs = rawInput.jet4vecs;
+  m_preparedInput.sigmaEtau1 = scale*m_rawInput.sigmaEtau1;
+  m_preparedInput.sigmaEtau2 = scale*m_rawInput.sigmaEtau2;
+  m_preparedInput.m_jet4vecs = m_rawInput.m_jet4vecs;
 
-  for(unsigned int i=0; i<preparedInput.jet4vecs.size(); i++)
+  for(unsigned int i=0; i<m_preparedInput.m_jet4vecs.size(); i++)
     {
-      if (scale!=1.) preparedInput.jet4vecs[i]*=scale;
+      if (scale!=1.) m_preparedInput.m_jet4vecs[i]*=scale;
       // correcting sumEt, give priority to SetMetScanParamsUE()
-      if(METScanScheme==0)
+      if(m_METScanScheme==0)
         {
-          if((preparedInput.METsigmaP<0.1 || preparedInput.METsigmaL<0.1)
-             && preparedInput.SumEt>preparedInput.jet4vecs[i].Pt()
-             && preparedInput.jet4vecs[i].Pt()>20.0) {
-            if(fUseVerbose==1) { std::cout << "correcting sumET" << std::endl; }
-            preparedInput.SumEt -= preparedInput.jet4vecs[i].Pt();
+          if((m_preparedInput.METsigmaP<0.1 || m_preparedInput.METsigmaL<0.1)
+             && m_preparedInput.m_SumEt>m_preparedInput.m_jet4vecs[i].Pt()
+             && m_preparedInput.m_jet4vecs[i].Pt()>20.0) {
+            if(m_fUseVerbose==1) { std::cout << "correcting sumET" << std::endl; }
+            m_preparedInput.m_SumEt -= m_preparedInput.m_jet4vecs[i].Pt();
           }
         }
     }
 
   // give priority to SetVisTauType, only do this if type_visTau1 and type_visTau2 are not set
 
-  if(preparedInput.type_visTau1<0 && preparedInput.type_visTau2<0 && preparedInput.Nprong_tau1>-1 && preparedInput.Nprong_tau2>-1)
+  if(m_preparedInput.type_visTau1<0 && m_preparedInput.type_visTau2<0 && m_preparedInput.Nprong_tau1>-1 && m_preparedInput.Nprong_tau2>-1)
     {
-      if(preparedInput.Nprong_tau1==0 || preparedInput.Nprong_tau1==1 || preparedInput.Nprong_tau1==3) preparedInput.type_visTau1=preparedInput.Nprong_tau1;
-      if(preparedInput.Nprong_tau2==0 || preparedInput.Nprong_tau2==1 || preparedInput.Nprong_tau2==3) preparedInput.type_visTau2=preparedInput.Nprong_tau2;
+      if(m_preparedInput.Nprong_tau1==0 || m_preparedInput.Nprong_tau1==1 || m_preparedInput.Nprong_tau1==3) m_preparedInput.type_visTau1=m_preparedInput.Nprong_tau1;
+      if(m_preparedInput.Nprong_tau2==0 || m_preparedInput.Nprong_tau2==1 || m_preparedInput.Nprong_tau2==3) m_preparedInput.type_visTau2=m_preparedInput.Nprong_tau2;
     }
 
   // checking input mass of hadronic tau-1
   // one prong
   //   // checking input mass of hadronic tau-1
   //DRMERGE LFV addition
-  if(m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012)
+  if(m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012)
     {
-      if(preparedInput.type_visTau1==1 && preparedInput.vistau1.M()!=1.1)
+      if(m_preparedInput.type_visTau1==1 && m_preparedInput.vistau1.M()!=1.1)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau1.Pt();
-          _phi = preparedInput.vistau1.Phi();
-          _eta = preparedInput.vistau1.Eta();
-          _m = 1.1;
-          preparedInput.vistau1.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau1.Pt();
+          n_phi = m_preparedInput.vistau1.Phi();
+          n_eta = m_preparedInput.vistau1.Eta();
+          n_m = 1.1;
+          m_preparedInput.vistau1.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
-      if(preparedInput.type_visTau1==3 && preparedInput.vistau1.M()!=1.35)
+      if(m_preparedInput.type_visTau1==3 && m_preparedInput.vistau1.M()!=1.35)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau1.Pt();
-          _phi = preparedInput.vistau1.Phi();
-          _eta = preparedInput.vistau1.Eta();
-          _m = 1.35;
-          preparedInput.vistau1.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau1.Pt();
+          n_phi = m_preparedInput.vistau1.Phi();
+          n_eta = m_preparedInput.vistau1.Eta();
+          n_m = 1.35;
+          m_preparedInput.vistau1.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
       // checking input mass of hadronic tau-2
-      if(preparedInput.type_visTau2==1 && preparedInput.vistau2.M()!=1.1)
+      if(m_preparedInput.type_visTau2==1 && m_preparedInput.vistau2.M()!=1.1)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau2.Pt();
-          _phi = preparedInput.vistau2.Phi();
-          _eta = preparedInput.vistau2.Eta();
-          _m = 1.1;
-          preparedInput.vistau2.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau2.Pt();
+          n_phi = m_preparedInput.vistau2.Phi();
+          n_eta = m_preparedInput.vistau2.Eta();
+          n_m = 1.1;
+          m_preparedInput.vistau2.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
-      if(preparedInput.type_visTau2==3 && preparedInput.vistau2.M()!=1.35)
+      if(m_preparedInput.type_visTau2==3 && m_preparedInput.vistau2.M()!=1.35)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau2.Pt();
-          _phi = preparedInput.vistau2.Phi();
-          _eta = preparedInput.vistau2.Eta();
-          _m = 1.35;
-          preparedInput.vistau2.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau2.Pt();
+          n_phi = m_preparedInput.vistau2.Phi();
+          n_eta = m_preparedInput.vistau2.Eta();
+          n_m = 1.35;
+          m_preparedInput.vistau2.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
     }
   else
     {
       //DRMERGE end LFV addition
-      if(preparedInput.type_visTau1==1 && preparedInput.vistau1.M()!=0.8)
+      if(m_preparedInput.type_visTau1==1 && m_preparedInput.vistau1.M()!=0.8)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau1.Pt();
-          _phi = preparedInput.vistau1.Phi();
-          _eta = preparedInput.vistau1.Eta();
-          _m = 0.8;
-          preparedInput.vistau1.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau1.Pt();
+          n_phi = m_preparedInput.vistau1.Phi();
+          n_eta = m_preparedInput.vistau1.Eta();
+          n_m = 0.8;
+          m_preparedInput.vistau1.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
 
 
       // 3 prong
-      if(preparedInput.type_visTau1==3 && preparedInput.vistau1.M()!=1.2)
+      if(m_preparedInput.type_visTau1==3 && m_preparedInput.vistau1.M()!=1.2)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau1.Pt();
-          _phi = preparedInput.vistau1.Phi();
-          _eta = preparedInput.vistau1.Eta();
-          _m = 1.2;
-          preparedInput.vistau1.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau1.Pt();
+          n_phi = m_preparedInput.vistau1.Phi();
+          n_eta = m_preparedInput.vistau1.Eta();
+          n_m = 1.2;
+          m_preparedInput.vistau1.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
       // checking input mass of hadronic tau-2
       // one prong
-      if(preparedInput.type_visTau2==1 &&  preparedInput.vistau2.M()!=0.8)
+      if(m_preparedInput.type_visTau2==1 &&  m_preparedInput.vistau2.M()!=0.8)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau2.Pt();
-          _phi = preparedInput.vistau2.Phi();
-          _eta = preparedInput.vistau2.Eta();
-          _m = 0.8;
-          preparedInput.vistau2.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau2.Pt();
+          n_phi = m_preparedInput.vistau2.Phi();
+          n_eta = m_preparedInput.vistau2.Eta();
+          n_m = 0.8;
+          m_preparedInput.vistau2.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
       // 3 prong
-      if(preparedInput.type_visTau2==3 && preparedInput.vistau2.M()!=1.2)
+      if(m_preparedInput.type_visTau2==3 && m_preparedInput.vistau2.M()!=1.2)
         {
-          double _pt, _phi, _eta, _m;
-          _pt = preparedInput.vistau2.Pt();
-          _phi = preparedInput.vistau2.Phi();
-          _eta = preparedInput.vistau2.Eta();
-          _m = 1.2;
-          preparedInput.vistau2.SetPtEtaPhiM(_pt,_eta,_phi,_m);
+          double n_pt, n_phi, n_eta, n_m;
+          n_pt = m_preparedInput.vistau2.Pt();
+          n_phi = m_preparedInput.vistau2.Phi();
+          n_eta = m_preparedInput.vistau2.Eta();
+          n_m = 1.2;
+          m_preparedInput.vistau2.SetPtEtaPhiM(n_pt,n_eta,n_phi,n_m);
         }
     } //DRDRMERGE LFV else closing
 
@@ -1101,47 +1101,47 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
   // DR20150615 in tag 00-00-11 and before. The following was done before the mass of the hadronic tau was set
   // which mean that sumEt was wrongly corrected for the hadronic tau pt if the hadronic tau mass was set to zero
   // Sasha 08/12/15: don't do electron Pt subtraction for high mass studies; in the future, need to check if lepton Pt needs to be subtracted for both ele and muon
-  if(preparedInput.METsigmaP<0.1 || preparedInput.METsigmaL<0.1)
+  if(m_preparedInput.METsigmaP<0.1 || m_preparedInput.METsigmaL<0.1)
     {
       // T. Davidek: hack for lep-lep -- subtract lepton pT both for muon and electron
-      if (m_MMCCalibrationSet == MMCCalibrationSet::MMC2016MC15C &&
-          preparedInput.vistau1.M() < 0.12 &&
-          preparedInput.vistau2.M() < 0.12) { // lep-lep channel
-        if (preparedInput.SumEt>preparedInput.vistau1.Pt())
-          preparedInput.SumEt -= preparedInput.vistau1.Pt();
-        if (preparedInput.SumEt>preparedInput.vistau2.Pt())
-          preparedInput.SumEt -= preparedInput.vistau2.Pt();
+      if (m_mmcCalibrationSet == MMCCalibrationSet::MMC2016MC15C &&
+          m_preparedInput.vistau1.M() < 0.12 &&
+          m_preparedInput.vistau2.M() < 0.12) { // lep-lep channel
+        if (m_preparedInput.m_SumEt>m_preparedInput.vistau1.Pt())
+          m_preparedInput.m_SumEt -= m_preparedInput.vistau1.Pt();
+        if (m_preparedInput.m_SumEt>m_preparedInput.vistau2.Pt())
+          m_preparedInput.m_SumEt -= m_preparedInput.vistau2.Pt();
       } else {
         // continue with the original code
-        if(preparedInput.SumEt>preparedInput.vistau1.Pt()
-           && preparedInput.vistau1.M()<0.05
-           && m_MMCCalibrationSet != MMCCalibrationSet::MMC2015HIGHMASS) {
-          if(fUseVerbose==1) { std::cout  << "Substracting pt1 from sumEt" << std::endl; }
-          preparedInput.SumEt -= preparedInput.vistau1.Pt();
+        if(m_preparedInput.m_SumEt>m_preparedInput.vistau1.Pt()
+           && m_preparedInput.vistau1.M()<0.05
+           && m_mmcCalibrationSet != MMCCalibrationSet::MMC2015HIGHMASS) {
+          if(m_fUseVerbose==1) { std::cout  << "Substracting pt1 from sumEt" << std::endl; }
+          m_preparedInput.m_SumEt -= m_preparedInput.vistau1.Pt();
         }
-        if(preparedInput.SumEt>preparedInput.vistau2.Pt()
-           && preparedInput.vistau2.M()<0.05
-           && m_MMCCalibrationSet != MMCCalibrationSet::MMC2015HIGHMASS) {
-          if(fUseVerbose==1) { std::cout  << "Substracting pt2 from sumEt" << std::endl; }
-          preparedInput.SumEt -= preparedInput.vistau2.Pt();
+        if(m_preparedInput.m_SumEt>m_preparedInput.vistau2.Pt()
+           && m_preparedInput.vistau2.M()<0.05
+           && m_mmcCalibrationSet != MMCCalibrationSet::MMC2015HIGHMASS) {
+          if(m_fUseVerbose==1) { std::cout  << "Substracting pt2 from sumEt" << std::endl; }
+          m_preparedInput.m_SumEt -= m_preparedInput.vistau2.Pt();
         }
       }
     }
 
 
   // give priority to SetMetScanParamsUE()
-  preparedInput.UseHT = false;
-  preparedInput.allowUseHT = rawInput.allowUseHT;
-  preparedInput.Njet25 = rawInput.Njet25;
+  m_preparedInput.UseHT = false;
+  m_preparedInput.allowUseHT = m_rawInput.allowUseHT;
+  m_preparedInput.m_Njet25 = m_rawInput.m_Njet25;
 
   // controling TauProbability settings for UPGRADE studies
-  if(m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE && fUseDefaults==1)
+  if(m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE && m_fUseDefaults==1)
     {
-      if((preparedInput.vistau1.M() < 0.12 && preparedInput.vistau2.M() > 0.12) || (preparedInput.vistau2.M() < 0.12 && preparedInput.vistau1.M() > 0.12)) {
-        fUseTauProbability=1; // lep-had case
+      if((m_preparedInput.vistau1.M() < 0.12 && m_preparedInput.vistau2.M() > 0.12) || (m_preparedInput.vistau2.M() < 0.12 && m_preparedInput.vistau1.M() > 0.12)) {
+        m_fUseTauProbability=1; // lep-had case
       }
-      if(preparedInput.vistau1.M() > 0.12 && preparedInput.vistau2.M() > 0.12) {
-        fUseTauProbability=0; // had-had case
+      if(m_preparedInput.vistau1.M() > 0.12 && m_preparedInput.vistau2.M() > 0.12) {
+        m_fUseTauProbability=0; // had-had case
       }
     }
 
@@ -1149,53 +1149,53 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
 
   //  compute tau energy resolution
   // FIXME should be possible to set sigmaEtau1 from outside
-  preparedInput.sigmaEtau1 = rawInput.sigmaEtau1;
-  preparedInput.sigmaEtau2 = rawInput.sigmaEtau2;
+  m_preparedInput.sigmaEtau1 = m_rawInput.sigmaEtau1;
+  m_preparedInput.sigmaEtau2 = m_rawInput.sigmaEtau2;
 
-  if (rawInput.sigmaEtau1<0) preparedInput.sigmaEtau1 = tauSigmaE(preparedInput.vistau1,preparedInput.type_visTau1);
-  if (rawInput.sigmaEtau2<0) preparedInput.sigmaEtau2 = tauSigmaE(preparedInput.vistau2,preparedInput.type_visTau2);
+  if (m_rawInput.sigmaEtau1<0) m_preparedInput.sigmaEtau1 = tauSigmaE(m_preparedInput.vistau1,m_preparedInput.type_visTau1);
+  if (m_rawInput.sigmaEtau2<0) m_preparedInput.sigmaEtau2 = tauSigmaE(m_preparedInput.vistau2,m_preparedInput.type_visTau2);
 
 
-  preparedInput.MHtSigma1 = rawInput.MHtSigma1;
-  preparedInput.MHtSigma2 = rawInput.MHtSigma2;
-  preparedInput.MHtGaussFr = rawInput.MHtGaussFr;
+  m_preparedInput.m_MHtSigma1 = m_rawInput.m_MHtSigma1;
+  m_preparedInput.m_MHtSigma2 = m_rawInput.m_MHtSigma2;
+  m_preparedInput.MHtGaussFr = m_rawInput.MHtGaussFr;
 
   // change Beam Energy for different running conditions
-  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-     || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
-     || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-     || m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE) beamEnergy=6500.0; // 13 TeV running
+  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+     || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
+     || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+     || m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE) m_beamEnergy=6500.0; // 13 TeV running
 
   //--------------------- pre-set defaults for Run-2. To disable pre-set defaults set fUseDefaults=0
-  if(fUseDefaults==1)
+  if(m_fUseDefaults==1)
     {
-      if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
+      if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
         {
-          Nsigma_METscan_ll = 4.0;
-          Nsigma_METscan_lh = 4.0;
-          Nsigma_METscan_hh = 4.0;
-          fUseTailCleanup = 0;
-          if((preparedInput.vistau1.M()<0.12 && preparedInput.vistau2.M()>0.12) || (preparedInput.vistau2.M()<0.12 && preparedInput.vistau1.M()>0.12)) fUseTauProbability=0; // lep-had
-          if(preparedInput.type_visTau1>0 && preparedInput.type_visTau2>0) fUseTauProbability=1; // had-had
-          fUseMnuProbability=0;
+          m_nsigma_METscan_ll = 4.0;
+          m_nsigma_METscan_lh = 4.0;
+          m_nsigma_METscan_hh = 4.0;
+          m_fUseTailCleanup = 0;
+          if((m_preparedInput.vistau1.M()<0.12 && m_preparedInput.vistau2.M()>0.12) || (m_preparedInput.vistau2.M()<0.12 && m_preparedInput.vistau1.M()>0.12)) m_fUseTauProbability=0; // lep-had
+          if(m_preparedInput.type_visTau1>0 && m_preparedInput.type_visTau2>0) m_fUseTauProbability=1; // had-had
+          m_fUseMnuProbability=0;
         }
     }
 
 
   // compute MET resolution (eventually use HT)
-  if(preparedInput.METsigmaP<0.1 || preparedInput.METsigmaL<0.1)
+  if(m_preparedInput.METsigmaP<0.1 || m_preparedInput.METsigmaL<0.1)
     {
-      if(m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012)
+      if(m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012)
         {
-          if(fUseVerbose==1) { std::cout << "Attempting to set LFV MMC settings" << std::endl; }
-          double mT1 = mT(preparedInput.vistau1,preparedInput.MetVec);
-          double mT2 = mT(preparedInput.vistau2,preparedInput.MetVec);
+          if(m_fUseVerbose==1) { std::cout << "Attempting to set LFV MMC settings" << std::endl; }
+          double mT1 = mT(m_preparedInput.vistau1,m_preparedInput.MetVec);
+          double mT2 = mT(m_preparedInput.vistau2,m_preparedInput.MetVec);
           int sr_switch = 0;
-          if(preparedInput.vistau1.M()<0.12 && preparedInput.vistau2.M()<0.12) // lep-lep case
+          if(m_preparedInput.vistau1.M()<0.12 && m_preparedInput.vistau2.M()<0.12) // lep-lep case
             {
-              if(LFVmode==0) // e+tau(->mu) case
+              if(m_LFVmode==0) // e+tau(->mu) case
                 {
-                  if(preparedInput.vistau1.M()<0.05 && preparedInput.vistau2.M()>0.05)
+                  if(m_preparedInput.vistau1.M()<0.05 && m_preparedInput.vistau2.M()>0.05)
                     {
                       if(mT1>mT2) sr_switch = 0; // SR1
                       else sr_switch = 1; // SR2
@@ -1206,9 +1206,9 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
                       else sr_switch = 0; // SR1
                     }
                 }
-              if(LFVmode==1) // mu+tau(->e) case
+              if(m_LFVmode==1) // mu+tau(->e) case
                 {
-                  if(preparedInput.vistau1.M()>0.05 && preparedInput.vistau2.M()<0.05)
+                  if(m_preparedInput.vistau1.M()>0.05 && m_preparedInput.vistau2.M()<0.05)
                     {
                       if(mT1>mT2) sr_switch = 0; // SR1
                       else sr_switch = 1; // SR2
@@ -1220,9 +1220,9 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
                     }
                 }
             }
-          if((preparedInput.vistau1.M()<0.12 && preparedInput.vistau2.M()>0.12) || (preparedInput.vistau2.M()<0.12 && preparedInput.vistau1.M()>0.12)) // lep-had case
+          if((m_preparedInput.vistau1.M()<0.12 && m_preparedInput.vistau2.M()>0.12) || (m_preparedInput.vistau2.M()<0.12 && m_preparedInput.vistau1.M()>0.12)) // lep-had case
             {
-              if(preparedInput.vistau1.M()<0.12 && preparedInput.vistau2.M()>0.12)
+              if(m_preparedInput.vistau1.M()<0.12 && m_preparedInput.vistau2.M()>0.12)
                 {
                   if(mT1>mT2) sr_switch = 0; // SR1
                   else sr_switch = 1; // SR2
@@ -1234,37 +1234,37 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
                 }
             }
 
-          preparedInput.UseHT = false;
-          if(preparedInput.Njet25==0) // 0-jet
+          m_preparedInput.UseHT = false;
+          if(m_preparedInput.m_Njet25==0) // 0-jet
             {
               double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
               double METresScale;
               double METoffset;
               if(sr_switch==0)
                 {
-                  METresScale = 0.41*(1.0+METresSyst*sigmaSyst);
-                  METoffset = 7.36*(1.0+METresSyst*sigmaSyst);
+                  METresScale = 0.41*(1.0+m_METresSyst*sigmaSyst);
+                  METoffset = 7.36*(1.0+m_METresSyst*sigmaSyst);
                 }
               else
                 {
-                  METresScale = 0.34*(1.0+METresSyst*sigmaSyst);
-                  METoffset = 6.61*(1.0+METresSyst*sigmaSyst);
+                  METresScale = 0.34*(1.0+m_METresSyst*sigmaSyst);
+                  METoffset = 6.61*(1.0+m_METresSyst*sigmaSyst);
                 }
-              if(fUseVerbose==1) {
-                std::cout << "SumEt = " <<  preparedInput.SumEt << std::endl;
+              if(m_fUseVerbose==1) {
+                std::cout << "SumEt = " <<  m_preparedInput.m_SumEt << std::endl;
                 std::cout << "METoffset = " <<  METoffset << std::endl;
                 std::cout << "METresScale = " <<  METresScale << std::endl;
               }
 
-              double sigma = preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-              preparedInput.METsigmaP = sigma;
-              preparedInput.METsigmaL = sigma;
-              if(fUseVerbose==1) {
-                std::cout << "=> METsigmaP = " << preparedInput.METsigmaP << std::endl;
-                std::cout << "=> METsigmaL = " << preparedInput.METsigmaL << std::endl;
+              double sigma = m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+              m_preparedInput.METsigmaP = sigma;
+              m_preparedInput.METsigmaL = sigma;
+              if(m_fUseVerbose==1) {
+                std::cout << "=> METsigmaP = " << m_preparedInput.METsigmaP << std::endl;
+                std::cout << "=> METsigmaL = " << m_preparedInput.METsigmaL << std::endl;
               }
             }
-          if(preparedInput.Njet25>0) // Inclusive 1-jet
+          if(m_preparedInput.m_Njet25>0) // Inclusive 1-jet
             {
               double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
               double sigma = 0.;
@@ -1272,311 +1272,311 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
               double METoffset;
               if(sr_switch==0)
                 {
-                  METresScale = 0.38*(1.0+METresSyst*sigmaSyst);
-                  METoffset = 7.96*(1.0+METresSyst*sigmaSyst);
+                  METresScale = 0.38*(1.0+m_METresSyst*sigmaSyst);
+                  METoffset = 7.96*(1.0+m_METresSyst*sigmaSyst);
                 }
               else
                 {
-                  METresScale = 0.39*(1.0+METresSyst*sigmaSyst);
-                  METoffset = 6.61*(1.0+METresSyst*sigmaSyst);
+                  METresScale = 0.39*(1.0+m_METresSyst*sigmaSyst);
+                  METoffset = 6.61*(1.0+m_METresSyst*sigmaSyst);
                 }
 
-              // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
-              sigma = preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-              preparedInput.METsigmaP = sigma;
-              preparedInput.METsigmaL = sigma;
+              // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
+              sigma = m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+              m_preparedInput.METsigmaP = sigma;
+              m_preparedInput.METsigmaL = sigma;
             } // Njet25>0
         }
       else //LFV
         {
           //DRDRMERGE end addition
 
-          if(METScanScheme==1) // default for Winter 2012 and further
+          if(m_METScanScheme==1) // default for Winter 2012 and further
             {
 	      //LEP-HAD
-              if (preparedInput.type_visTau1+preparedInput.type_visTau2>0 && preparedInput.type_visTau1*preparedInput.type_visTau2==0) // lephad case
+              if (m_preparedInput.type_visTau1+m_preparedInput.type_visTau2>0 && m_preparedInput.type_visTau1*m_preparedInput.type_visTau2==0) // lephad case
                 {
 		  //0-jet
-                  if(preparedInput.Njet25==0)//0-jet
+                  if(m_preparedInput.m_Njet25==0)//0-jet
                     {
-                      if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
-                        if (preparedInput.allowUseHT) {
-                          preparedInput.UseHT = true;
-                          if(preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
+                      if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
+                        if (m_preparedInput.allowUseHT) {
+                          m_preparedInput.UseHT = true;
+                          if(m_preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
                             {
                               // giving priority to external settings
-                              if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 5.89;
-                              if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 15.47;
-                              if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 0.48;
+                              if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 5.89;
+                              if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 15.47;
+                              if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 0.48;
                             } else
                             {
                               // giving priority to external settings
-                              if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 6.47;
-                              if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 16.82;
-                              if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 0.4767;
+                              if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 6.47;
+                              if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 16.82;
+                              if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 0.4767;
                             }
                         } else // if disallow use of HT, then fall back to same tuning as 1 jet
                           {
                             double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                            double METresScale = 0.56*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                            double METoffset = 3.73*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                            double METresScale = 0.56*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                            double METoffset = 3.73*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
                             // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt = 5.0 for now
-                            double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                            preparedInput.METsigmaP = sigma;
-                            preparedInput.METsigmaL = sigma;
+                            double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                            m_preparedInput.METsigmaP = sigma;
+                            m_preparedInput.METsigmaL = sigma;
                             std::cout << "DRDR lh nj0 2011 sigma = "<< sigma << std::endl;
                           }
                       }
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012){
-                        if(preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012){
+                        if(m_preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
                           {
                             //--------- tag-00-00-10 modifications, for HCP-2012 analysis on 8 TeV data
-                            if(fabs(preparedInput.DelPhiTT)>2.95 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.95 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 4.822;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 10.31;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.34E-5;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 4.822;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 10.31;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.34E-5;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.32*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 5.38*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.32*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 5.38*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           }
                         else // 0-jet high MET case
                           {
                             //--------- tag-00-00-10 modifications, for HCP-2012 analysis on 8 TeV data
-                            if(fabs(preparedInput.DelPhiTT)>2.8 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.8 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 7.5;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 13.51;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.81E-4;
-                                preparedInput.METsigmaP = preparedInput.MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
-                                preparedInput.METsigmaL = preparedInput.MHtSigma2;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 7.5;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 13.51;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.81E-4;
+                                m_preparedInput.METsigmaP = m_preparedInput.m_MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
+                                m_preparedInput.METsigmaL = m_preparedInput.m_MHtSigma2;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.87*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 4.16*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.87*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 4.16*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           } // high MET
                       } // MMC2012
                       // placeholder for 2015 tune; for now 2015 settings are the same as 2012, to be changed int he future;
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2015){
-                        if(preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2015){
+                        if(m_preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
                           {
                             //--------- tag-00-00-10 modifications, for HCP-2012 analysis on 8 TeV data
-                            if(fabs(preparedInput.DelPhiTT)>2.95 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.95 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 4.822;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 10.31;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.34E-5;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 4.822;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 10.31;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.34E-5;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.32*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 5.38*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.32*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 5.38*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           }
                         else // 0-jet high MET case
                           {
                             //--------- tag-00-00-10 modifications, for HCP-2012 analysis on 8 TeV data
-                            if(fabs(preparedInput.DelPhiTT)>2.8 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.8 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 7.5;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 13.51;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.81E-4;
-                                preparedInput.METsigmaP = preparedInput.MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
-                                preparedInput.METsigmaL = preparedInput.MHtSigma2;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 7.5;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 13.51;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.81E-4;
+                                m_preparedInput.METsigmaP = m_preparedInput.m_MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
+                                m_preparedInput.METsigmaL = m_preparedInput.m_MHtSigma2;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.87*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 4.16*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.87*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 4.16*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           } // high MET
                       } // MMC2015
                       // placeholder for 2016MC15c tune
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C){
-                        if(preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C){
+                        if(m_preparedInput.detMetVec.Mod()<20.0) // 0-jet low MET case
                           {
-                            if(fabs(preparedInput.DelPhiTT)>2.95 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.95 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.95
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 4.822;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 10.31;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.34E-5;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 4.822;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 10.31;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.34E-5;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.32*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 5.38*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.32*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 5.38*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           }
                         else // 0-jet high MET case
                           {
-                            if(fabs(preparedInput.DelPhiTT)>2.8 && preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
+                            if(std::abs(m_preparedInput.m_DelPhiTT)>2.8 && m_preparedInput.allowUseHT) // use mHt only if dPhi(lep-tau)>2.8
                               {
-                                preparedInput.UseHT = true;
+                                m_preparedInput.UseHT = true;
                                 // giving priority to external settings
-                                if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1 = 7.5;
-                                if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2 = 13.51;
-                                if(preparedInput.MHtGaussFr<0.0) preparedInput.MHtGaussFr = 6.81E-4;
-                                preparedInput.METsigmaP = preparedInput.MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
-                                preparedInput.METsigmaL = preparedInput.MHtSigma2;
+                                if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1 = 7.5;
+                                if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2 = 13.51;
+                                if(m_preparedInput.MHtGaussFr<0.0) m_preparedInput.MHtGaussFr = 6.81E-4;
+                                m_preparedInput.METsigmaP = m_preparedInput.m_MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
+                                m_preparedInput.METsigmaL = m_preparedInput.m_MHtSigma2;
                               }
                             else
                               {
-                                preparedInput.UseHT = false;
+                                m_preparedInput.UseHT = false;
                                 double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                                double METresScale = 0.87*(1.0+METresSyst*sigmaSyst);
-                                double METoffset = 4.16*(1.0+METresSyst*sigmaSyst);
-                                double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                                preparedInput.METsigmaP = sigma;
-                                preparedInput.METsigmaL = sigma;
+                                double METresScale = 0.87*(1.0+m_METresSyst*sigmaSyst);
+                                double METoffset = 4.16*(1.0+m_METresSyst*sigmaSyst);
+                                double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                                m_preparedInput.METsigmaP = sigma;
+                                m_preparedInput.METsigmaL = sigma;
                               }
                           } // high MET
                       } // MMC2016MC15C
                       // 2015 high-mass tune; avergare MET resolution for Mh=600,1000 mass points
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
                         {
-                          preparedInput.UseHT = false;
+                          m_preparedInput.UseHT = false;
                           double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
-                          double METresScale = 0.65*(1.0+METresSyst*sigmaSyst);
-                          double METoffset = 5.0*(1.0+METresSyst*sigmaSyst);
-                          double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                          preparedInput.METsigmaP = sigma;
-                          preparedInput.METsigmaL = sigma;
+                          double METresScale = 0.65*(1.0+m_METresSyst*sigmaSyst);
+                          double METoffset = 5.0*(1.0+m_METresSyst*sigmaSyst);
+                          double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                          m_preparedInput.METsigmaP = sigma;
+                          m_preparedInput.METsigmaL = sigma;
                         } // MMC2015HIGHMASS
                     } // 0 jet
 		  //1-jet
-                  else if(preparedInput.Njet25>0) // Inclusive 1-jet and VBF lep-had categories for Winter 2012
+                  else if(m_preparedInput.m_Njet25>0) // Inclusive 1-jet and VBF lep-had categories for Winter 2012
                     {
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
                       double sigma=0.;
-                      if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011)
+                      if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011)
                         {
-                          double METresScale=0.56*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                          double METoffset=3.73*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                          double METresScale=0.56*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                          double METoffset=3.73*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
                           // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012)
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012)
                         {
-                          double METresScale=0.85*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
-                          double METoffset=5.94*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
+                          double METresScale=0.85*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
+                          double METoffset=5.94*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
                           // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
                       // placeholder for 2015 tune; for now 2015 settings are the same as 2012, to be changed int he future;
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2015)
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2015)
                         {
-                          double METresScale=0.85*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
-                          double METoffset=5.94*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
+                          double METresScale=0.85*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
+                          double METoffset=5.94*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012 => updated for HCP 2012
                           // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
                       // 2015 high-mass tune; average MET resolution for Mh=400,600 mass points (they look consistent);
-                      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
+                      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
                         {
-                          double METresScale=0.86*(1.0+METresSyst*sigmaSyst);
-                          double METoffset=3.0*(1.0+METresSyst*sigmaSyst);
+                          double METresScale=0.86*(1.0+m_METresSyst*sigmaSyst);
+                          double METoffset=3.0*(1.0+m_METresSyst*sigmaSyst);
                           // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
                       //2016 mc15c
-		      else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C)
+		      else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C)
                         {
-			  double x = preparedInput.DelPhiTT;
+			  double x = m_preparedInput.m_DelPhiTT;
 			  double dphi_scale = x > 0.3 ? 0.9429 - 0.059*x + 0.054*x*x : 0.728;
-			  double METoffset    = 1.875*(1.0+METresSyst*sigmaSyst);
-			  double METresScale1 = 8.914*(1.0+METresSyst*sigmaSyst);
-			  double METresScale2 = -8.53*(1.0+METresSyst*sigmaSyst);
+			  double METoffset    = 1.875*(1.0+m_METresSyst*sigmaSyst);
+			  double METresScale1 = 8.914*(1.0+m_METresSyst*sigmaSyst);
+			  double METresScale2 = -8.53*(1.0+m_METresSyst*sigmaSyst);
 
-			  sigma = preparedInput.SumEt > 80.0 ? METoffset + METresScale1*TMath::Log(sqrt(preparedInput.SumEt)+METresScale2) : 5.0;
+			  sigma = m_preparedInput.m_SumEt > 80.0 ? METoffset + METresScale1*TMath::Log(sqrt(m_preparedInput.m_SumEt)+METresScale2) : 5.0;
 			  sigma = sigma * dphi_scale;
                         }
 		      //
 
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
                     } // Njet25>0
 		  
                 } // lep-had
 
 	      //HAD-HAD
-              else if(preparedInput.type_visTau1>0 && preparedInput.type_visTau2>0) // had-had events
+              else if(m_preparedInput.type_visTau1>0 && m_preparedInput.type_visTau2>0) // had-had events
                 {
-                  if(preparedInput.Njet25==0 && m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) //0-jet high mass hadhad
+                  if(m_preparedInput.m_Njet25==0 && m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) //0-jet high mass hadhad
                     {
                       // 2015 high-mass tune; average of all mass points
                       //                      double METresScale=-1.;
                       //                      double METoffset=-1.;
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
 
-                      double METresScale=0.9*(1.0+METresSyst*sigmaSyst);
-                      double METoffset=-1.8*(1.0+METresSyst*sigmaSyst);
-                      double sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : fabs(METoffset);
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      double METresScale=0.9*(1.0+m_METresSyst*sigmaSyst);
+                      double METoffset=-1.8*(1.0+m_METresSyst*sigmaSyst);
+                      double sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : std::abs(METoffset);
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
 
                     }
-                  else if(preparedInput.Njet25==0 && m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C)
+                  else if(m_preparedInput.m_Njet25==0 && m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C)
                     {
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
-                      double x = preparedInput.DelPhiTT;
+                      double x = m_preparedInput.m_DelPhiTT;
                       double dphi_scale = x > 2.5 ? 11.0796 - 4.61236*x + 0.423617*x*x : 2.;
-                      double METoffset = -8.51013*(1.0+METresSyst*sigmaSyst);
-                      double METresScale1 = 8.54378*(1.0+METresSyst*sigmaSyst);
-                      double METresScale2 = -3.97146*(1.0+METresSyst*sigmaSyst);
-                      double sigma= preparedInput.SumEt>80.0 ? METoffset+METresScale1*TMath::Log(sqrt(preparedInput.SumEt)+METresScale2) : 5.;
+                      double METoffset = -8.51013*(1.0+m_METresSyst*sigmaSyst);
+                      double METresScale1 = 8.54378*(1.0+m_METresSyst*sigmaSyst);
+                      double METresScale2 = -3.97146*(1.0+m_METresSyst*sigmaSyst);
+                      double sigma= m_preparedInput.m_SumEt>80.0 ? METoffset+METresScale1*TMath::Log(sqrt(m_preparedInput.m_SumEt)+METresScale2) : 5.;
                       sigma = sigma*dphi_scale;
 
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
 
                     }
-                  else if(preparedInput.Njet25==0 && preparedInput.allowUseHT) // 0-jet high MET had-had category for Winter 2012
+                  else if(m_preparedInput.m_Njet25==0 && m_preparedInput.allowUseHT) // 0-jet high MET had-had category for Winter 2012
                     {
 
-                      preparedInput.UseHT=true; // uncomment this line to enable HT also for HH (crucial)
+                      m_preparedInput.UseHT=true; // uncomment this line to enable HT also for HH (crucial)
                       // updated for final cuts, may 21 2012
-                      if(preparedInput.MHtSigma1<0.0) preparedInput.MHtSigma1=5.972;
-                      if(preparedInput.MHtSigma2<0.0) preparedInput.MHtSigma2=13.85;
+                      if(m_preparedInput.m_MHtSigma1<0.0) m_preparedInput.m_MHtSigma1=5.972;
+                      if(m_preparedInput.m_MHtSigma2<0.0) m_preparedInput.m_MHtSigma2=13.85;
                       //                  if(MHtGaussFr<0.0) MHtGaussFr=0.4767; // don't directly use 2nd fraction
                     }
 		  //1-jet
@@ -1587,263 +1587,263 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
 
                       // previous value in trunk
-                      // double METresScale=0.56*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                      //double METoffset=3.73*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                      if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
-                        METresScale = 0.56*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                        METoffset = 3.73*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                      } else if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2012) {
-                        METresScale = 0.5*(1.0+METresSyst*sigmaSyst); // for hh 2013
-                        METoffset = 6.14*(1.0+METresSyst*sigmaSyst);  // for hh 2013
-                      } else if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015) {
+                      // double METresScale=0.56*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                      //double METoffset=3.73*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                      if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
+                        METresScale = 0.56*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                        METoffset = 3.73*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                      } else if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2012) {
+                        METresScale = 0.5*(1.0+m_METresSyst*sigmaSyst); // for hh 2013
+                        METoffset = 6.14*(1.0+m_METresSyst*sigmaSyst);  // for hh 2013
+                      } else if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015) {
                         // placeholder for 2015 tune; same as 2012 tune for now
-                        METresScale = 0.5*(1.0+METresSyst*sigmaSyst);
-                        METoffset = 6.14*(1.0+METresSyst*sigmaSyst);
-                      } else if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) {
+                        METresScale = 0.5*(1.0+m_METresSyst*sigmaSyst);
+                        METoffset = 6.14*(1.0+m_METresSyst*sigmaSyst);
+                      } else if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) {
                         // 2015 high-mass tune; average of all mass points
-                        METresScale = 1.1*(1.0+METresSyst*sigmaSyst);
-                        METoffset = -5.0*(1.0+METresSyst*sigmaSyst);
+                        METresScale = 1.1*(1.0+m_METresSyst*sigmaSyst);
+                        METoffset = -5.0*(1.0+m_METresSyst*sigmaSyst);
                       }
                       // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                      double sigma =  preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : fabs(METoffset);
+                      double sigma =  m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : std::abs(METoffset);
 
-                      if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C) {
-                        double x = preparedInput.DelPhiTT;
+                      if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C) {
+                        double x = m_preparedInput.m_DelPhiTT;
                         double dphi_scale = x > 0.6 ? 1.42047 - 0.666644*x + 0.199986*x*x : 1.02;
-                        METoffset = 1.19769*(1.0+METresSyst*sigmaSyst);
-                        double METresScale1 = 5.61687*(1.0+METresSyst*sigmaSyst);
-                        double METresScale2 = -4.2076*(1.0+METresSyst*sigmaSyst);
-                        sigma= preparedInput.SumEt>115.0 ? METoffset+METresScale1*TMath::Log(sqrt(preparedInput.SumEt)+METresScale2) : 12.1;
+                        METoffset = 1.19769*(1.0+m_METresSyst*sigmaSyst);
+                        double METresScale1 = 5.61687*(1.0+m_METresSyst*sigmaSyst);
+                        double METresScale2 = -4.2076*(1.0+m_METresSyst*sigmaSyst);
+                        sigma= m_preparedInput.m_SumEt>115.0 ? METoffset+METresScale1*TMath::Log(sqrt(m_preparedInput.m_SumEt)+METresScale2) : 12.1;
                         sigma = sigma*dphi_scale;
                       } //for hh 2016 mc15c
 
-                      preparedInput.METsigmaP = sigma;
-                      preparedInput.METsigmaL = sigma;
+                      m_preparedInput.METsigmaP = sigma;
+                      m_preparedInput.METsigmaL = sigma;
 
                     }// 1 jet
                 } // had-had
 	      //LEP-LEP
-              else if(preparedInput.type_visTau1==0 && preparedInput.type_visTau2==0) // setup for LEP-LEP channel
+              else if(m_preparedInput.type_visTau1==0 && m_preparedInput.type_visTau2==0) // setup for LEP-LEP channel
                 {
-                  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2011) // no tune for 7 TeV
+                  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2011) // no tune for 7 TeV
                     {
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
-                      double METresScale=0.56*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
-                      double METoffset=3.73*(1.0+METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                      double METresScale=0.56*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
+                      double METoffset=3.73*(1.0+m_METresSyst*sigmaSyst); // for events with jets & analysis cuts for winter 2012
                       // MET resolution can't be perfect in presence of other objects (i.e., electrons, jets, taus), so assume minSumEt=5.0 for now
-                      double sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      double sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
                     }
 		  
-                  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2012) // tuned version of MET+STVF resolution for lep-lep events. (tune done by Tomas)
+                  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2012) // tuned version of MET+STVF resolution for lep-lep events. (tune done by Tomas)
                     {
-                      preparedInput.UseHT=false;
+                      m_preparedInput.UseHT=false;
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
                       double METresScale=-1.0;
                       double METoffset=-1.0;
                       double sigma=5.0;
                       // tune is based on cuts for Run-1 paper analysis
-                      if(preparedInput.Njet25==0)
+                      if(m_preparedInput.m_Njet25==0)
                         {
                           // use tune for emebedding
-                          METresScale=-0.4307*(1.0+METresSyst*sigmaSyst);
-                          METoffset=7.06*(1.0+METresSyst*sigmaSyst);
-                          double METresScale2=0.07693*(1.0+METresSyst*sigmaSyst); // quadratic term
+                          METresScale=-0.4307*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=7.06*(1.0+m_METresSyst*sigmaSyst);
+                          double METresScale2=0.07693*(1.0+m_METresSyst*sigmaSyst); // quadratic term
                           // this is a tune for Higgs125
-                          //                      METresScale=-0.5355*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=11.5*(1.0+METresSyst*sigmaSyst);
-                          //                      double METresScale2=0.07196*(1.0+METresSyst*sigmaSyst); // quadratic term
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt)+METresScale2*preparedInput.SumEt : METoffset;
+                          //                      METresScale=-0.5355*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=11.5*(1.0+m_METresSyst*sigmaSyst);
+                          //                      double METresScale2=0.07196*(1.0+m_METresSyst*sigmaSyst); // quadratic term
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt)+METresScale2*m_preparedInput.m_SumEt : METoffset;
                         }
-                      if(preparedInput.Njet25>0)
+                      if(m_preparedInput.m_Njet25>0)
                         {
                           // use tune for embedding
-                          METresScale=0.8149*(1.0+METresSyst*sigmaSyst);
-                          METoffset=5.343*(1.0+METresSyst*sigmaSyst);
+                          METresScale=0.8149*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=5.343*(1.0+m_METresSyst*sigmaSyst);
                           // this is a tune for Higgs125
-                          //                      METresScale=0.599*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=8.223*(1.0+METresSyst*sigmaSyst);
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          //                      METresScale=0.599*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=8.223*(1.0+m_METresSyst*sigmaSyst);
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
                     }
 
-                  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015) // placeholder for 2015 tune; for now it is the same as 2012
+                  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015) // placeholder for 2015 tune; for now it is the same as 2012
                     {
-                      preparedInput.UseHT=false;
+                      m_preparedInput.UseHT=false;
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
                       double METresScale=-1.0;
                       double METoffset=-1.0;
                       double sigma=5.0;
                       // tune is based on cuts for Run-1 paper analysis
-                      if(preparedInput.Njet25==0)
+                      if(m_preparedInput.m_Njet25==0)
                         {
                           // use tune for emebedding
-                          METresScale=-0.4307*(1.0+METresSyst*sigmaSyst);
-                          METoffset=7.06*(1.0+METresSyst*sigmaSyst);
-                          double METresScale2=0.07693*(1.0+METresSyst*sigmaSyst); // quadratic term
+                          METresScale=-0.4307*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=7.06*(1.0+m_METresSyst*sigmaSyst);
+                          double METresScale2=0.07693*(1.0+m_METresSyst*sigmaSyst); // quadratic term
                           // this is a tune for Higgs125
-                          //                      METresScale=-0.5355*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=11.5*(1.0+METresSyst*sigmaSyst);
-                          //                      double METresScale2=0.07196*(1.0+METresSyst*sigmaSyst); // quadratic term
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt)+METresScale2*preparedInput.SumEt : METoffset;
+                          //                      METresScale=-0.5355*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=11.5*(1.0+m_METresSyst*sigmaSyst);
+                          //                      double METresScale2=0.07196*(1.0+m_METresSyst*sigmaSyst); // quadratic term
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt)+METresScale2*m_preparedInput.m_SumEt : METoffset;
                         }
-                      if(preparedInput.Njet25>0)
+                      if(m_preparedInput.m_Njet25>0)
                         {
                           // use tune for embedding
-                          METresScale=0.8149*(1.0+METresSyst*sigmaSyst);
-                          METoffset=5.343*(1.0+METresSyst*sigmaSyst);
+                          METresScale=0.8149*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=5.343*(1.0+m_METresSyst*sigmaSyst);
                           // this is a tune for Higgs125
-                          //                      METresScale=0.599*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=8.223*(1.0+METresSyst*sigmaSyst);
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          //                      METresScale=0.599*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=8.223*(1.0+m_METresSyst*sigmaSyst);
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
                     } // end of MMC2015
 
-                  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) // placeholder for 2015 high-mass tune; for now it is the same as 2012
+                  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS) // placeholder for 2015 high-mass tune; for now it is the same as 2012
                     {
-                      preparedInput.UseHT = false;
+                      m_preparedInput.UseHT = false;
                       double sigmaSyst = 0.10; // 10% systematics for now (be conservative)
                       double METresScale = -1.0;
                       double METoffset = -1.0;
                       double sigma = 5.0;
                       // tune is based on cuts for Run-1 paper analysis
-                      if(preparedInput.Njet25==0)
+                      if(m_preparedInput.m_Njet25==0)
                         {
                           // use tune for emebedding
-                          METresScale=-0.4307*(1.0+METresSyst*sigmaSyst);
-                          METoffset=7.06*(1.0+METresSyst*sigmaSyst);
-                          double METresScale2=0.07693*(1.0+METresSyst*sigmaSyst); // quadratic term
+                          METresScale=-0.4307*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=7.06*(1.0+m_METresSyst*sigmaSyst);
+                          double METresScale2=0.07693*(1.0+m_METresSyst*sigmaSyst); // quadratic term
                           // this is a tune for Higgs125
-                          //                      METresScale=-0.5355*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=11.5*(1.0+METresSyst*sigmaSyst);
-                          //                      double METresScale2=0.07196*(1.0+METresSyst*sigmaSyst); // quadratic term
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt)+METresScale2*preparedInput.SumEt : METoffset;
+                          //                      METresScale=-0.5355*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=11.5*(1.0+m_METresSyst*sigmaSyst);
+                          //                      double METresScale2=0.07196*(1.0+m_METresSyst*sigmaSyst); // quadratic term
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt)+METresScale2*m_preparedInput.m_SumEt : METoffset;
                         }
-                      if(preparedInput.Njet25>0)
+                      if(m_preparedInput.m_Njet25>0)
                         {
                           // use tune for embedding
-                          METresScale=0.8149*(1.0+METresSyst*sigmaSyst);
-                          METoffset=5.343*(1.0+METresSyst*sigmaSyst);
+                          METresScale=0.8149*(1.0+m_METresSyst*sigmaSyst);
+                          METoffset=5.343*(1.0+m_METresSyst*sigmaSyst);
                           // this is a tune for Higgs125
-                          //                      METresScale=0.599*(1.0+METresSyst*sigmaSyst);
-                          //                      METoffset=8.223*(1.0+METresSyst*sigmaSyst);
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt) : METoffset;
+                          //                      METresScale=0.599*(1.0+m_METresSyst*sigmaSyst);
+                          //                      METoffset=8.223*(1.0+m_METresSyst*sigmaSyst);
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt) : METoffset;
                         }
-                      preparedInput.METsigmaP = sigma;
-                      preparedInput.METsigmaL = sigma;
+                      m_preparedInput.METsigmaP = sigma;
+                      m_preparedInput.METsigmaL = sigma;
                     } // end of MMC2015HIGHMASS
 
-                  if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C) // 2016 MC15c leplep
+                  if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C) // 2016 MC15c leplep
                     {
-		      preparedInput.UseHT=false;
+		      m_preparedInput.UseHT=false;
                       double sigmaSyst=0.10; // 10% systematics for now (be conservative)
                       double METresScale=-1.0;
                       double METoffset=-1.0;
                       double sigma=5.0;
                       double min_sigma = 2.0;
                       // tune is based on cuts for Run-1 paper analysis
-                      if(preparedInput.Njet25==0)
+                      if(m_preparedInput.m_Njet25==0)
                         {
                           // Madgraph Ztautau MET param
-                          METoffset = 4.22581*(1.0+METresSyst*sigmaSyst);
-                          METresScale = 0.03818*(1.0+METresSyst*sigmaSyst);
+                          METoffset = 4.22581*(1.0+m_METresSyst*sigmaSyst);
+                          METresScale = 0.03818*(1.0+m_METresSyst*sigmaSyst);
                           double METresScale2= 0.12623;
-                          sigma= preparedInput.SumEt>0.0 ? METoffset+METresScale*sqrt(preparedInput.SumEt)+METresScale2*preparedInput.SumEt : min_sigma;
-                          if (fUseDphiLL) {
+                          sigma= m_preparedInput.m_SumEt>0.0 ? METoffset+METresScale*sqrt(m_preparedInput.m_SumEt)+METresScale2*m_preparedInput.m_SumEt : min_sigma;
+                          if (m_fUseDphiLL) {
                             double p0 = 2.60131;
                             double p1const = 1.22427;
                             double p2quad = -1.71261;
-                            double DphiLL = fabs(TVector2::Phi_mpi_pi(preparedInput.vistau1.Phi()-preparedInput.vistau2.Phi()));
+                            double DphiLL = std::abs(TVector2::Phi_mpi_pi(m_preparedInput.vistau1.Phi()-m_preparedInput.vistau2.Phi()));
                             sigma *= (DphiLL < p0) ? p1const : p1const+
                               p2quad*p0*p0 - 2*p2quad*p0*DphiLL+p2quad*DphiLL*DphiLL;
                           }
                           if (sigma < min_sigma) sigma = min_sigma;
                         }
-		      if(preparedInput.Njet25>0)
+		      if(m_preparedInput.m_Njet25>0)
                         {
                           // Madgraph Ztautau MET param
-                          METoffset = 5.42506*(1.0+METresSyst*sigmaSyst);
-                          METresScale = 5.36760*(1.0+METresSyst*sigmaSyst);
-                          double METoffset2 = -4.86808*(1.0+METresSyst*sigmaSyst);
-                          if (preparedInput.SumEt > 0.0) {
-                            double x = sqrt(preparedInput.SumEt);
+                          METoffset = 5.42506*(1.0+m_METresSyst*sigmaSyst);
+                          METresScale = 5.36760*(1.0+m_METresSyst*sigmaSyst);
+                          double METoffset2 = -4.86808*(1.0+m_METresSyst*sigmaSyst);
+                          if (m_preparedInput.m_SumEt > 0.0) {
+                            double x = sqrt(m_preparedInput.m_SumEt);
                             sigma = (x+METoffset2 > 1) ? METoffset+METresScale*log(x+METoffset2) : METoffset;
                           } else {
                             sigma = METoffset;
                           }
-                          if (fUseDphiLL) {
+                          if (m_fUseDphiLL) {
                             double p0 = 2.24786;
                             double p1const = 0.908597;
                             double p2quad = 0.544577;
-                            double DphiLL = fabs(TVector2::Phi_mpi_pi(preparedInput.vistau1.Phi()-preparedInput.vistau2.Phi()));
+                            double DphiLL = std::abs(TVector2::Phi_mpi_pi(m_preparedInput.vistau1.Phi()-m_preparedInput.vistau2.Phi()));
                             sigma *= (DphiLL < p0) ? p1const : p1const+
                               p2quad*p0*p0 - 2*p2quad*p0*DphiLL+p2quad*DphiLL*DphiLL;
                           }
                           if (sigma < min_sigma) sigma = min_sigma;
                         }
-                      preparedInput.METsigmaP=sigma;
-                      preparedInput.METsigmaL=sigma;
+                      m_preparedInput.METsigmaP=sigma;
+                      m_preparedInput.METsigmaL=sigma;
                     }//2016 mc15c
 
                 } // lep-lep
 
             } //METScanScheme
 
-          if(METScanScheme==0) // old scheme with JER
+          if(m_METScanScheme==0) // old scheme with JER
             {
-              if(preparedInput.dataType==0 || preparedInput.dataType==1) SetMetScanParamsUE(preparedInput.SumEt,preparedInput.METcovphi,preparedInput.dataType);
-              else SetMetScanParamsUE(preparedInput.SumEt,preparedInput.METcovphi,0);
+              if(m_preparedInput.dataType==0 || m_preparedInput.dataType==1) SetMetScanParamsUE(m_preparedInput.m_SumEt,m_preparedInput.METcovphi,m_preparedInput.dataType);
+              else SetMetScanParamsUE(m_preparedInput.m_SumEt,m_preparedInput.METcovphi,0);
             }
         }
     } // end else LFV
 
 
   // compute HTOffset if relevant
-  preparedInput.HtOffset=rawInput.HtOffset;
-  if(preparedInput.UseHT )  // use missing Ht for Njet25=0 events
+  m_preparedInput.HtOffset=m_rawInput.HtOffset;
+  if(m_preparedInput.UseHT )  // use missing Ht for Njet25=0 events
     {
       // dPhi(l-t) dependence of misHt-trueMET
       double HtOffset=0.;
       // proper for hh
-      if (preparedInput.type_visTau1!=0 && preparedInput.type_visTau2!=0) {
+      if (m_preparedInput.type_visTau1!=0 && m_preparedInput.type_visTau2!=0) {
         // hh
-        double x=preparedInput.DelPhiTT;
+        double x=m_preparedInput.m_DelPhiTT;
         HtOffset=87.5-27.0*x;
       } else {
 
         // FIXME the condition is really on MET non on HT ?
-        if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
-          if(preparedInput.detMetVec.Mod()<20.0) HtOffset=preparedInput.DelPhiTT>1.8 ? -161.9+235.5*preparedInput.DelPhiTT-101.6*pow(preparedInput.DelPhiTT,2)+13.57*pow(preparedInput.DelPhiTT,3) : 12.0;
-          else HtOffset=115.5-78.1*preparedInput.DelPhiTT+12.83*pow(preparedInput.DelPhiTT,2);
+        if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
+          if(m_preparedInput.detMetVec.Mod()<20.0) HtOffset=m_preparedInput.m_DelPhiTT>1.8 ? -161.9+235.5*m_preparedInput.m_DelPhiTT-101.6*pow(m_preparedInput.m_DelPhiTT,2)+13.57*pow(m_preparedInput.m_DelPhiTT,3) : 12.0;
+          else HtOffset=115.5-78.1*m_preparedInput.m_DelPhiTT+12.83*pow(m_preparedInput.m_DelPhiTT,2);
 
-        } else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012){
-          if(preparedInput.detMetVec.Mod()<20.0) HtOffset=132.1-79.26*preparedInput.DelPhiTT+11.77*pow(preparedInput.DelPhiTT,2); // updated for HCP-2012, 8 TeV
-          else HtOffset=51.28-23.56*preparedInput.DelPhiTT+2.637*pow(preparedInput.DelPhiTT,2); // updated for HCP-2012, 8 TeV
-        } else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2015){
-          if(preparedInput.detMetVec.Mod()<20.0) HtOffset=132.1-79.26*preparedInput.DelPhiTT+11.77*pow(preparedInput.DelPhiTT,2); // updated for HCP-2012, 8 TeV
-          else HtOffset=51.28-23.56*preparedInput.DelPhiTT+2.637*pow(preparedInput.DelPhiTT,2); // updated for HCP-2012, 8 TeV
+        } else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012){
+          if(m_preparedInput.detMetVec.Mod()<20.0) HtOffset=132.1-79.26*m_preparedInput.m_DelPhiTT+11.77*pow(m_preparedInput.m_DelPhiTT,2); // updated for HCP-2012, 8 TeV
+          else HtOffset=51.28-23.56*m_preparedInput.m_DelPhiTT+2.637*pow(m_preparedInput.m_DelPhiTT,2); // updated for HCP-2012, 8 TeV
+        } else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2015){
+          if(m_preparedInput.detMetVec.Mod()<20.0) HtOffset=132.1-79.26*m_preparedInput.m_DelPhiTT+11.77*pow(m_preparedInput.m_DelPhiTT,2); // updated for HCP-2012, 8 TeV
+          else HtOffset=51.28-23.56*m_preparedInput.m_DelPhiTT+2.637*pow(m_preparedInput.m_DelPhiTT,2); // updated for HCP-2012, 8 TeV
         }
 
       }
-      preparedInput.HtOffset=HtOffset;
+      m_preparedInput.HtOffset=HtOffset;
     }
 
   // if use HT, replace MET with HT
-  if (preparedInput.UseHT)
+  if (m_preparedInput.UseHT)
     {
-      preparedInput.METsigmaP=preparedInput.MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
-      preparedInput.METsigmaL=preparedInput.MHtSigma2;
+      m_preparedInput.METsigmaP=m_preparedInput.m_MHtSigma2; // sigma of 2nd Gaussian for missing Ht resolution
+      m_preparedInput.METsigmaL=m_preparedInput.m_MHtSigma2;
 
-      TLorentzVector tauSum=preparedInput.vistau1+preparedInput.vistau2;
-      preparedInput.MetVec.Set(-tauSum.Px(),-tauSum.Py()); // WARNING this replace metvec by -mht
+      TLorentzVector tauSum=m_preparedInput.vistau1+m_preparedInput.vistau2;
+      m_preparedInput.MetVec.Set(-tauSum.Px(),-tauSum.Py()); // WARNING this replace metvec by -mht
     }
 
-  DoMetResolution(preparedInput);
+  DoMetResolution(m_preparedInput);
 
   return;
 }
@@ -1852,23 +1852,23 @@ void MissingMassCalculator::FinalizeInputStuff()//const InputInfoStuff &rawInput
 //------- clearing output stuff
 void MissingMassCalculator::ClearOutputStuff() {
 
-  if(fUseVerbose == 1){ std::cout << "MissingMassCalculator::ClearOutputStuff()" << std::endl; }
-  OutputInfo.FitStatus=0;
+  if(m_fUseVerbose == 1){ std::cout << "MissingMassCalculator::ClearOutputStuff()" << std::endl; }
+  m_OutputInfo.FitStatus=0;
 
   for (int imeth=0; imeth<MMCFitMethod::MAX; ++imeth)
     {
-      if(fUseVerbose == 1){ std::cout << "MissingMassCalculator::ClearOutputStuff(): clearing for method " << imeth << std::endl; }
-      OutputInfo.FitSignificance[imeth] = -1.0;
-      OutputInfo.FittedMass[imeth] = 0.0;
-      OutputInfo.nuvec1[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
-      OutputInfo.objvec1[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
-      OutputInfo.nuvec2[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
-      OutputInfo.objvec2[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
-      OutputInfo.totalvec[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
-      OutputInfo.FittedMetVec[imeth].Set(0.0,0.0);
+      if(m_fUseVerbose == 1){ std::cout << "MissingMassCalculator::ClearOutputStuff(): clearing for method " << imeth << std::endl; }
+      m_OutputInfo.FitSignificance[imeth] = -1.0;
+      m_OutputInfo.FittedMass[imeth] = 0.0;
+      m_OutputInfo.nuvec1[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
+      m_OutputInfo.objvec1[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
+      m_OutputInfo.nuvec2[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
+      m_OutputInfo.objvec2[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
+      m_OutputInfo.totalvec[imeth].SetPxPyPzE(0.0,0.0,0.0,0.0);
+      m_OutputInfo.FittedMetVec[imeth].Set(0.0,0.0);
     }
 
-  OutputInfo.RMS2MPV = 0.0;
+  m_OutputInfo.RMS2MPV = 0.0;
 
   m_aPOI.prob.clear();
   m_aPOI.mtautau.clear();
@@ -1890,7 +1890,7 @@ void MissingMassCalculator::ClearOutputStuff() {
 //---- finalizes MET resolution parameters
 // OBSOLETE
 void MissingMassCalculator::DoMetResolution(InputInfoStuff &fStuff) {
-  if(fStuff.jet4vecs.size()>0 && METScanScheme==0)
+  if(fStuff.m_jet4vecs.size()>0 && m_METScanScheme==0)
     {
       std::cout << "ERROR MissingMassCalculator::DoMetResolution is obsolete " << std::endl;
     }
@@ -1902,7 +1902,7 @@ void MissingMassCalculator::DoMetResolution(InputInfoStuff &fStuff) {
 //
 // return fit status
 int MissingMassCalculator::GetFitStatus() {
-  return OutputInfo.FitStatus;
+  return m_OutputInfo.FitStatus;
 }
 
 // returns fit significance
@@ -1912,7 +1912,7 @@ double MissingMassCalculator::GetFitSignificance(int fitcode) {
     std::cout << "MissingMassCalculator::GetFitSignificance ERROR ! fitcode=" << fitcode
               << "Should be between 0 and " << MMCFitMethod::MAX-1 << std::endl;
   } else {
-    signif = OutputInfo.FitSignificance[fitcode];
+    signif = m_OutputInfo.FitSignificance[fitcode];
   }
 
   return signif;
@@ -1920,7 +1920,7 @@ double MissingMassCalculator::GetFitSignificance(int fitcode) {
 
 // returns RMS/MPV according to histogram method
 double MissingMassCalculator::GetRms2Mpv() {
-  return OutputInfo.RMS2MPV;
+  return m_OutputInfo.RMS2MPV;
 }
 
 // returns fitted Mass
@@ -1933,7 +1933,7 @@ double MissingMassCalculator::GetFittedMass(int fitcode) {
     std::cout << "MissingMassCalculator::GetFittedMass ERROR ! fitcode=" << fitcode
               << "Should be between 0 and " << MMCFitMethod::MAX-1 << std::endl;
   } else {
-    mass = OutputInfo.FittedMass[fitcode];
+    mass = m_OutputInfo.FittedMass[fitcode];
   }
 
   return mass;
@@ -1942,44 +1942,44 @@ double MissingMassCalculator::GetFittedMass(int fitcode) {
 
 int MissingMassCalculator::GetNTrials()
 {
-  return OutputInfo.NTrials;
+  return m_OutputInfo.NTrials;
 }
 
 
 int MissingMassCalculator::GetNSuccesses()
 {
-  return OutputInfo.NSuccesses;
+  return m_OutputInfo.NSuccesses;
 }
 
 
 int MissingMassCalculator::GetNSolutions()
 {
-  return OutputInfo.NSolutions;
+  return m_OutputInfo.NSolutions;
 }
 
 // sum of weights of all solutions
 double MissingMassCalculator::GetSumW()
 {
-  return OutputInfo.SumW;
+  return m_OutputInfo.SumW;
 }
 
 
 // average RMS of solutions in one event
 double MissingMassCalculator::GetAveSolRMS()
 {
-  return OutputInfo.AveSolRMS;
+  return m_OutputInfo.AveSolRMS;
 }
 
 
 std::shared_ptr<TH1F> MissingMassCalculator::GetMassHistogram()
 {
-  return OutputInfo.hMfit_all;
+  return m_OutputInfo.hMfit_all;
 }
 
 
 std::shared_ptr<TH1F> MissingMassCalculator::GetMassHistogramNoWeight()
 {
-  return OutputInfo.hMfit_allNoWeight;
+  return m_OutputInfo.hMfit_allNoWeight;
 }
 
 // returns neutrino 4-vec
@@ -1991,10 +1991,10 @@ TLorentzVector MissingMassCalculator::GetNeutrino4vec(int fitcode, int ind)
       std::cout << "MissingMassCalculator::GetNeutrino4Vec ERROR ! fitcode=" << fitcode
                 << "Should be either " << MMCFitMethod::MAXW << " or " << MMCFitMethod::MLNU3P  << std::endl;
     }
-  else if (OutputInfo.FitStatus>0)
+  else if (m_OutputInfo.FitStatus>0)
     {
-      if(ind==0) vec = OutputInfo.nuvec1[fitcode];
-      else if(ind==1) vec = OutputInfo.nuvec2[fitcode];
+      if(ind==0) vec = m_OutputInfo.nuvec1[fitcode];
+      else if(ind==1) vec = m_OutputInfo.nuvec2[fitcode];
     }
   return vec;
 }
@@ -2008,10 +2008,10 @@ TLorentzVector MissingMassCalculator::GetTau4vec(int fitcode, int ind)
       std::cout << "MissingMassCalculator::GetTau4vec ERROR ! fitcode=" << fitcode
                 << "Should be either " << MMCFitMethod::MAXW << " or " << MMCFitMethod::MLNU3P  << std::endl;
     }
-  else if (OutputInfo.FitStatus>0)
+  else if (m_OutputInfo.FitStatus>0)
     {
-      if(ind==0) vec = OutputInfo.objvec1[fitcode];
-      else if(ind==1) vec = OutputInfo.objvec2[fitcode];
+      if(ind==0) vec = m_OutputInfo.objvec1[fitcode];
+      else if(ind==1) vec = m_OutputInfo.objvec2[fitcode];
     }
   return vec;
 }
@@ -2025,9 +2025,9 @@ TLorentzVector MissingMassCalculator::GetResonanceVec(int fitcode) {
       std::cout << "MissingMassCalculator::GetResonanceVec ERROR ! fitcode=" << fitcode
                 << "Should be either " << MMCFitMethod::MAXW << " or " << MMCFitMethod::MLNU3P  << std::endl;
     }
-  else if (OutputInfo.FitStatus>0)
+  else if (m_OutputInfo.FitStatus>0)
     {
-      vec = OutputInfo.objvec1[fitcode]+OutputInfo.objvec2[fitcode];
+      vec = m_OutputInfo.objvec1[fitcode]+m_OutputInfo.objvec2[fitcode];
     }
 
   return vec;
@@ -2041,9 +2041,9 @@ TVector2 MissingMassCalculator::GetFittedMetVec(int fitcode) {
       std::cout << "MissingMassCalculator::GetFittedMetVec ERROR ! fitcode=" << fitcode
                 << "Should be either " << MMCFitMethod::MAXW << " or " << MMCFitMethod::MLNU3P  << std::endl;
     }
-  else if (OutputInfo.FitStatus>0)
+  else if (m_OutputInfo.FitStatus>0)
     {
-      vec=OutputInfo.FittedMetVec[fitcode];
+      vec=m_OutputInfo.FittedMetVec[fitcode];
     }
 
   return vec;
@@ -2052,81 +2052,81 @@ TVector2 MissingMassCalculator::GetFittedMetVec(int fitcode) {
 // finalizes output information
 void MissingMassCalculator::DoOutputInfo()
 {
-  if(SearchMode==0) // di-tau mode
+  if(m_SearchMode==0) // di-tau mode
     {
-      if(OutputInfo.FitStatus>0)
+      if(m_OutputInfo.FitStatus>0)
         {
-          if(fUseVerbose == 1) { std::cout << "Retrieving output from fDitauStuffFit" << std::endl; }
+          if(m_fUseVerbose == 1) { std::cout << "Retrieving output from fDitauStuffFit" << std::endl; }
           // MAXW method : get from fDittauStuffFit
-          OutputInfo.FitSignificance[MMCFitMethod::MAXW] = fDitauStuffFit.Sign_best;
-          OutputInfo.FittedMass[MMCFitMethod::MAXW] = fDitauStuffFit.Mditau_best;
-          OutputInfo.nuvec1[MMCFitMethod::MAXW] = fDitauStuffFit.nutau1;
-          OutputInfo.objvec1[MMCFitMethod::MAXW] = fDitauStuffFit.taufit1;
-          OutputInfo.nuvec2[MMCFitMethod::MAXW] = fDitauStuffFit.nutau2;
-          OutputInfo.objvec2[MMCFitMethod::MAXW] = fDitauStuffFit.taufit2;
-          OutputInfo.totalvec[MMCFitMethod::MAXW] = OutputInfo.objvec1[MMCFitMethod::MAXW]+OutputInfo.objvec2[MMCFitMethod::MAXW];
-          TVector2 metmaxw(OutputInfo.nuvec1[MMCFitMethod::MAXW].Px()+OutputInfo.nuvec2[MMCFitMethod::MAXW].Px(),OutputInfo.nuvec1[MMCFitMethod::MAXW].Py()+OutputInfo.nuvec2[MMCFitMethod::MAXW].Py());
-          OutputInfo.FittedMetVec[MMCFitMethod::MAXW] = metmaxw;
+          m_OutputInfo.FitSignificance[MMCFitMethod::MAXW] = m_fDitauStuffFit.Sign_best;
+          m_OutputInfo.FittedMass[MMCFitMethod::MAXW] = m_fDitauStuffFit.Mditau_best;
+          m_OutputInfo.nuvec1[MMCFitMethod::MAXW] = m_fDitauStuffFit.nutau1;
+          m_OutputInfo.objvec1[MMCFitMethod::MAXW] = m_fDitauStuffFit.taufit1;
+          m_OutputInfo.nuvec2[MMCFitMethod::MAXW] = m_fDitauStuffFit.nutau2;
+          m_OutputInfo.objvec2[MMCFitMethod::MAXW] = m_fDitauStuffFit.taufit2;
+          m_OutputInfo.totalvec[MMCFitMethod::MAXW] = m_OutputInfo.objvec1[MMCFitMethod::MAXW]+m_OutputInfo.objvec2[MMCFitMethod::MAXW];
+          TVector2 metmaxw(m_OutputInfo.nuvec1[MMCFitMethod::MAXW].Px()+m_OutputInfo.nuvec2[MMCFitMethod::MAXW].Px(),m_OutputInfo.nuvec1[MMCFitMethod::MAXW].Py()+m_OutputInfo.nuvec2[MMCFitMethod::MAXW].Py());
+          m_OutputInfo.FittedMetVec[MMCFitMethod::MAXW] = metmaxw;
 
           // MLM method : can only get MMC, rest is dummy
-          double scale=MassScale(MMCFitMethod::MAXW,fDitauStuffHisto.Mditau_best,preparedInput.type_visTau1,preparedInput.type_visTau2); // only for histo method for now. In practice disabled by default
+          double scale=MassScale(MMCFitMethod::MAXW,m_fDitauStuffHisto.Mditau_best,m_preparedInput.type_visTau1,m_preparedInput.type_visTau2); // only for histo method for now. In practice disabled by default
 
-          OutputInfo.FittedMass[MMCFitMethod::MLM] = scale*fDitauStuffHisto.Mditau_best;
+          m_OutputInfo.FittedMass[MMCFitMethod::MLM] = scale*m_fDitauStuffHisto.Mditau_best;
 
           TLorentzVector tlvdummy(0.,0.,0.,0.);
           TVector2 metdummy(0.,0.);
-          OutputInfo.FitSignificance[MMCFitMethod::MLM] = -1.;
-          OutputInfo.nuvec1[MMCFitMethod::MLM] = tlvdummy;
-          OutputInfo.objvec1[MMCFitMethod::MLM] = tlvdummy;
-          OutputInfo.nuvec2[MMCFitMethod::MLM] = tlvdummy;
-          OutputInfo.objvec2[MMCFitMethod::MLM] = tlvdummy;
-          OutputInfo.totalvec[MMCFitMethod::MLM] = tlvdummy;
-          OutputInfo.FittedMetVec[MMCFitMethod::MLM] = metdummy;
+          m_OutputInfo.FitSignificance[MMCFitMethod::MLM] = -1.;
+          m_OutputInfo.nuvec1[MMCFitMethod::MLM] = tlvdummy;
+          m_OutputInfo.objvec1[MMCFitMethod::MLM] = tlvdummy;
+          m_OutputInfo.nuvec2[MMCFitMethod::MLM] = tlvdummy;
+          m_OutputInfo.objvec2[MMCFitMethod::MLM] = tlvdummy;
+          m_OutputInfo.totalvec[MMCFitMethod::MLM] = tlvdummy;
+          m_OutputInfo.FittedMetVec[MMCFitMethod::MLM] = metdummy;
 
           // MLNU3P method : get from fDittauStuffHisto 4 momentum
-          OutputInfo.nuvec1[MMCFitMethod::MLNU3P] = fDitauStuffHisto.nutau1;
-          OutputInfo.objvec1[MMCFitMethod::MLNU3P] = fDitauStuffHisto.taufit1;
-          OutputInfo.nuvec2[MMCFitMethod::MLNU3P] = fDitauStuffHisto.nutau2;
-          OutputInfo.objvec2[MMCFitMethod::MLNU3P] = fDitauStuffHisto.taufit2;
-          OutputInfo.totalvec[MMCFitMethod::MLNU3P] = OutputInfo.objvec1[MMCFitMethod::MLNU3P] + OutputInfo.objvec2[MMCFitMethod::MLNU3P];
-          OutputInfo.FittedMass[MMCFitMethod::MLNU3P] = OutputInfo.totalvec[MMCFitMethod::MLNU3P].M();
+          m_OutputInfo.nuvec1[MMCFitMethod::MLNU3P] = m_fDitauStuffHisto.nutau1;
+          m_OutputInfo.objvec1[MMCFitMethod::MLNU3P] = m_fDitauStuffHisto.taufit1;
+          m_OutputInfo.nuvec2[MMCFitMethod::MLNU3P] = m_fDitauStuffHisto.nutau2;
+          m_OutputInfo.objvec2[MMCFitMethod::MLNU3P] = m_fDitauStuffHisto.taufit2;
+          m_OutputInfo.totalvec[MMCFitMethod::MLNU3P] = m_OutputInfo.objvec1[MMCFitMethod::MLNU3P] + m_OutputInfo.objvec2[MMCFitMethod::MLNU3P];
+          m_OutputInfo.FittedMass[MMCFitMethod::MLNU3P] = m_OutputInfo.totalvec[MMCFitMethod::MLNU3P].M();
 
-          TVector2 metmlnu3p(OutputInfo.nuvec1[MMCFitMethod::MLNU3P].Px()+OutputInfo.nuvec2[MMCFitMethod::MLNU3P].Px(),OutputInfo.nuvec1[MMCFitMethod::MLNU3P].Py()+OutputInfo.nuvec2[MMCFitMethod::MLNU3P].Py());
-          OutputInfo.FittedMetVec[MMCFitMethod::MLNU3P] = metmlnu3p;
+          TVector2 metmlnu3p(m_OutputInfo.nuvec1[MMCFitMethod::MLNU3P].Px()+m_OutputInfo.nuvec2[MMCFitMethod::MLNU3P].Px(),m_OutputInfo.nuvec1[MMCFitMethod::MLNU3P].Py()+m_OutputInfo.nuvec2[MMCFitMethod::MLNU3P].Py());
+          m_OutputInfo.FittedMetVec[MMCFitMethod::MLNU3P] = metmlnu3p;
 
-          OutputInfo.RMS2MPV = fDitauStuffHisto.RMSoverMPV;
+          m_OutputInfo.RMS2MPV = m_fDitauStuffHisto.RMSoverMPV;
 
         }
       // DR add a margin, given that due to binning effect, fitted mass can be slightly below the visible mass
-      if(OutputInfo.FittedMass[MMCFitMethod::MLM]<=(preparedInput.vistau1+preparedInput.vistau2).M()-10.){
+      if(m_OutputInfo.FittedMass[MMCFitMethod::MLM]<=(m_preparedInput.vistau1+m_preparedInput.vistau2).M()-10.){
         ClearOutputStuff(); // to avoid cases when FitStatus=1 but mass is not reconstructed
       }
 
     }
 
-  OutputInfo.hMfit_all = fMfit_all;
-  OutputInfo.hMfit_allNoWeight = fMfit_allNoWeight;
-  OutputInfo.NSolutions = fMfit_all->GetEntries();
-  OutputInfo.SumW = fMfit_all->GetSumOfWeights();
-  OutputInfo.UseHT = preparedInput.UseHT;
+  m_OutputInfo.hMfit_all = m_fMfit_all;
+  m_OutputInfo.hMfit_allNoWeight = m_fMfit_allNoWeight;
+  m_OutputInfo.NSolutions = m_fMfit_all->GetEntries();
+  m_OutputInfo.SumW = m_fMfit_all->GetSumOfWeights();
+  m_OutputInfo.UseHT = m_preparedInput.UseHT;
 
   //----------------- Check if input was re-ordered in FinalizeInputStuff() and restore the original order if needed
-  if(InputReorder==1)
+  if(m_InputReorder==1)
     {
       TLorentzVector dummy_vec1(0.0,0.0,0.0,0.0);
       TLorentzVector dummy_vec2(0.0,0.0,0.0,0.0);
       for(int i=0; i<3; i++)
         {
           // re-ordering neutrinos
-          dummy_vec1=OutputInfo.nuvec1[i];
-          dummy_vec2=OutputInfo.nuvec2[i];
-          OutputInfo.nuvec1[i]=dummy_vec2;
-          OutputInfo.nuvec2[i]=dummy_vec1;
+          dummy_vec1=m_OutputInfo.nuvec1[i];
+          dummy_vec2=m_OutputInfo.nuvec2[i];
+          m_OutputInfo.nuvec1[i]=dummy_vec2;
+          m_OutputInfo.nuvec2[i]=dummy_vec1;
           // re-ordering tau's
-          dummy_vec1=OutputInfo.objvec1[i];
-          dummy_vec2=OutputInfo.objvec2[i];
-          OutputInfo.objvec1[i]=dummy_vec2;
-          OutputInfo.objvec2[i]=dummy_vec1;
+          dummy_vec1=m_OutputInfo.objvec1[i];
+          dummy_vec2=m_OutputInfo.objvec2[i];
+          m_OutputInfo.objvec1[i]=dummy_vec2;
+          m_OutputInfo.objvec2[i]=dummy_vec1;
         }
     }
 
@@ -2136,18 +2136,18 @@ void MissingMassCalculator::DoOutputInfo()
 
 // Printout of final results
 void MissingMassCalculator::PrintInputInfo(const InputInfoStuff & fStuff) {
-  if(fUseVerbose!=1) return;
+  if(m_fUseVerbose!=1) return;
 
   std::cout << std::setprecision(15);
   std::cout<<" met_x="<<fStuff.MetVec.Px()<<" met_y="<<fStuff.MetVec.Py()<<" MET="<<fStuff.MetVec.Mod()<<" met_phi="<<fStuff.MetVec.Phi()<<std::endl;
   std::cout<<" detmet_x="<<fStuff.detMetVec.Px()<<" detmet_y="<<fStuff.detMetVec.Py()<<" detMET="<<fStuff.detMetVec.Mod()<<" detmet_phi="<<fStuff.detMetVec.Phi()<<std::endl;
-  std::cout<<" sumEt="<<fStuff.SumEt<<" METsigmaP="<<fStuff.METsigmaP<<" METsigmaL="<<fStuff.METsigmaL<<" METcovphi="<<fStuff.METcovphi<<std::endl;
+  std::cout<<" sumEt="<<fStuff.m_SumEt<<" METsigmaP="<<fStuff.METsigmaP<<" METsigmaL="<<fStuff.METsigmaL<<" METcovphi="<<fStuff.METcovphi<<std::endl;
 #ifdef  TAUESCAN
   std::cout<<" sigmaEtau1="<<fStuff.sigmaEtau1<<" sigmaEtau2="<< fStuff.sigmaEtau2 << std::endl ;
 #endif
-  std::cout << " Njet25=" << fStuff.Njet25 << " allowUseHT="<<fStuff.allowUseHT << " useHT="<<fStuff.UseHT << std::endl;
+  std::cout << " Njet25=" << fStuff.m_Njet25 << " allowUseHT="<<fStuff.allowUseHT << " useHT="<<fStuff.UseHT << std::endl;
 
-  std::cout << " MHtSigma1=" << fStuff.MHtSigma1 << " MHtSigma2="<< fStuff.MHtSigma2
+  std::cout << " MHtSigma1=" << fStuff.m_MHtSigma1 << " MHtSigma2="<< fStuff.m_MHtSigma2
             << " MHtGaussFr=" << fStuff.MHtGaussFr
             << " HtOffset=" << fStuff.HtOffset << std::endl;
 
@@ -2169,12 +2169,12 @@ void MissingMassCalculator::PrintInputInfo(const InputInfoStuff & fStuff) {
            << " Eta="<<origVisTau2->Eta()<<" Phi="<<origVisTau2->Phi() << " M="<<origVisTau2->M()
            << std::endl;
 
-  if(fStuff.jet4vecs.size()>0)
+  if(fStuff.m_jet4vecs.size()>0)
     {
-      for(unsigned int i=0; i<fStuff.jet4vecs.size(); i++)
+      for(unsigned int i=0; i<fStuff.m_jet4vecs.size(); i++)
         {
-          std::cout<<" Printing jets: jet "<<i<<" E="<<fStuff.jet4vecs[i].E()<<" Pt="
-                   <<fStuff.jet4vecs[i].Pt()<<" Phi="<<fStuff.jet4vecs[i].Phi()<<" Eta="<<fStuff.jet4vecs[i].Eta()<<std::endl;
+          std::cout<<" Printing jets: jet "<<i<<" E="<<fStuff.m_jet4vecs[i].E()<<" Pt="
+                   <<fStuff.m_jet4vecs[i].Pt()<<" Phi="<<fStuff.m_jet4vecs[i].Phi()<<" Eta="<<fStuff.m_jet4vecs[i].Eta()<<std::endl;
         }
     }
   std::cout << std::setprecision(6);
@@ -2185,18 +2185,18 @@ void MissingMassCalculator::PrintInputInfo(const InputInfoStuff & fStuff) {
 
 // Printout of final results
 void MissingMassCalculator::PrintOtherInput() {
-  if(fUseVerbose!=1) return;
+  if(m_fUseVerbose!=1) return;
 
 
   std::cout << std::setprecision(15);
   std::cout<<".........................Other input....................................."<<std::endl;
-  std::cout<<"   SearchMode="<<SearchMode<<"  -- 0: ditau, 1: WW, 2: W->taunu"<<std::endl;
-  std::cout<<" Beam energy ="<<beamEnergy<<"  sqrt(S) for collisions ="<<2.0*beamEnergy<<std::endl;
-  std::cout << " CalibrationSet " << MMCCalibrationSet::name[m_MMCCalibrationSet] << std::endl ;
-  std::cout << " AlgorithmVersion " << AlgorithmVersion << " WalkStrategy=" << WALKSTRATEGY << " seed="<< m_seed << std::endl;
-  std::cout << " usetauProbability=" << fUseTauProbability << " useTailCleanup=" << fUseTailCleanup << std::endl;
+  std::cout<<"   SearchMode="<<m_SearchMode<<"  -- 0: ditau, 1: WW, 2: W->taunu"<<std::endl;
+  std::cout<<" Beam energy ="<<m_beamEnergy<<"  sqrt(S) for collisions ="<<2.0*m_beamEnergy<<std::endl;
+  std::cout << " CalibrationSet " << MMCCalibrationSet::name[m_mmcCalibrationSet] << std::endl ;
+  std::cout << " AlgorithmVersion " << m_AlgorithmVersion << " WalkStrategy=" << WALKSTRATEGY << " seed="<< m_seed << std::endl;
+  std::cout << " usetauProbability=" << m_fUseTauProbability << " useTailCleanup=" << m_fUseTailCleanup << std::endl;
 
-  if (InputReorder!=0)
+  if (m_InputReorder!=0)
     {
       std::cout << " tau1 and tau2 were internally swapped (visible on prepared input printout)" << std::endl;
     } else
@@ -2220,20 +2220,20 @@ void MissingMassCalculator::PrintOtherInput() {
 // Printout of final results
 void MissingMassCalculator::PrintResults() {
 
-  if(fUseVerbose!=1) return;
+  if(m_fUseVerbose!=1) return;
 
   const TLorentzVector *origVisTau1=0;
   const TLorentzVector *origVisTau2=0;
 
-  if(InputReorder==0)
+  if(m_InputReorder==0)
     {
-      origVisTau1=&preparedInput.vistau1;
-      origVisTau2=&preparedInput.vistau2;
+      origVisTau1=&m_preparedInput.vistau1;
+      origVisTau2=&m_preparedInput.vistau2;
     }
   else // input order was flipped
     {
-      origVisTau1=&preparedInput.vistau2;
-      origVisTau2=&preparedInput.vistau1;
+      origVisTau1=&m_preparedInput.vistau2;
+      origVisTau2=&m_preparedInput.vistau1;
     }
 
   PrintOtherInput() ;
@@ -2241,15 +2241,15 @@ void MissingMassCalculator::PrintResults() {
   std::cout << std::setprecision(6);
   std::cout<<"------------- Printing Final Results for MissingMassCalculator --------------"<<std::endl;
   std::cout<<"................................................................................."<<std::endl;
-  std::cout<<"  Fit status="<<OutputInfo.FitStatus<<std::endl;
+  std::cout<<"  Fit status="<<m_OutputInfo.FitStatus<<std::endl;
 
 
   for (int imeth=0; imeth<MMCFitMethod::MAX; ++imeth)
     {
       std::cout << "___  Results for " << MMCFitMethod::name[imeth] << "Method ___" << std::endl;
-      std::cout << " signif=" << OutputInfo.FitSignificance[imeth] << std::endl;
-      std::cout << " mass=" << OutputInfo.FittedMass[imeth] << std::endl;
-      std::cout << " rms/mpv=" << OutputInfo.RMS2MPV << std::endl;
+      std::cout << " signif=" << m_OutputInfo.FitSignificance[imeth] << std::endl;
+      std::cout << " mass=" << m_OutputInfo.FittedMass[imeth] << std::endl;
+      std::cout << " rms/mpv=" << m_OutputInfo.RMS2MPV << std::endl;
 
       if (imeth==MMCFitMethod::MLM)
         {
@@ -2257,16 +2257,16 @@ void MissingMassCalculator::PrintResults() {
           continue;
         }
 
-      if(OutputInfo.FitStatus<=0)
+      if(m_OutputInfo.FitStatus<=0)
         {
           std::cout << " fit failed " << std::endl;
         }
 
-      const TLorentzVector & tlvnu1 = OutputInfo.nuvec1[imeth];
-      const TLorentzVector & tlvnu2 = OutputInfo.nuvec2[imeth];
-      const TLorentzVector & tlvo1 = OutputInfo.objvec1[imeth];
-      const TLorentzVector & tlvo2 = OutputInfo.objvec2[imeth];
-      const TVector2 & tvmet = OutputInfo.FittedMetVec[imeth];
+      const TLorentzVector & tlvnu1 = m_OutputInfo.nuvec1[imeth];
+      const TLorentzVector & tlvnu2 = m_OutputInfo.nuvec2[imeth];
+      const TLorentzVector & tlvo1 = m_OutputInfo.objvec1[imeth];
+      const TLorentzVector & tlvo2 = m_OutputInfo.objvec2[imeth];
+      const TVector2 & tvmet = m_OutputInfo.FittedMetVec[imeth];
 
 
       std::cout << " Neutrino-1: P=" << tlvnu1.P() << "  Pt=" << tlvnu1.Pt() << "  Eta=" << tlvnu1.Eta()  << "  Phi=" << tlvnu1.Phi() << "  M=" << tlvnu1.M()
@@ -2278,7 +2278,7 @@ void MissingMassCalculator::PrintResults() {
       std::cout << " Tau-2: P=" << tlvo2.P() << "  Pt=" << tlvo2.Pt() << "  Eta=" << tlvo2.Eta()  << "  Phi=" << tlvo2.Phi() << "  M=" << tlvo2.M()
                 <<  " Px=" << tlvo2.Px() << " Py=" << tlvo2.Py() << " Pz=" << tlvo2.Pz() << std::endl;
 
-      if(SearchMode==0)
+      if(m_SearchMode==0)
         {
           std::cout << " dR(nu1-visTau1)=" << tlvnu1.DeltaR(*origVisTau1) << std::endl;
           std::cout << " dR(nu2-visTau2)=" << tlvnu2.DeltaR(*origVisTau2) << std::endl;
@@ -2287,13 +2287,13 @@ void MissingMassCalculator::PrintResults() {
       std::cout << " Fitted MET =" <<  tvmet.Mod() << "  Phi=" << tlvnu1.Phi()
                 <<  " Px=" << tvmet.Px() << " Py=" << tvmet.Py() << std::endl;
 
-      std::cout << " Resonance: P=" << OutputInfo.totalvec[imeth].P() << "  Pt=" << OutputInfo.totalvec[imeth].Pt()
-                << " Eta=" << OutputInfo.totalvec[imeth].Eta()
-                << " Phi=" << OutputInfo.totalvec[imeth].Phi()
-                << " M=" << OutputInfo.totalvec[imeth].M()
-                << " Px=" << OutputInfo.totalvec[imeth].Px()
-                << " Py=" << OutputInfo.totalvec[imeth].Py()
-                << " Pz=" << OutputInfo.totalvec[imeth].Pz() << std::endl;
+      std::cout << " Resonance: P=" << m_OutputInfo.totalvec[imeth].P() << "  Pt=" << m_OutputInfo.totalvec[imeth].Pt()
+                << " Eta=" << m_OutputInfo.totalvec[imeth].Eta()
+                << " Phi=" << m_OutputInfo.totalvec[imeth].Phi()
+                << " M=" << m_OutputInfo.totalvec[imeth].M()
+                << " Px=" << m_OutputInfo.totalvec[imeth].Px()
+                << " Py=" << m_OutputInfo.totalvec[imeth].Py()
+                << " Pz=" << m_OutputInfo.totalvec[imeth].Pz() << std::endl;
 
     }
 
@@ -2303,7 +2303,7 @@ void MissingMassCalculator::PrintResults() {
 
 double MissingMassCalculator::mT(const TLorentzVector & vec,const TVector2 & met_vec) {
   double mt=0.0;
-  double dphi=fabs(TVector2::Phi_mpi_pi(vec.Phi()-met_vec.Phi()));
+  double dphi=std::abs(TVector2::Phi_mpi_pi(vec.Phi()-met_vec.Phi()));
   double cphi=1.0-cos(dphi);
   if(cphi>0.0) mt=sqrt(2.0*vec.Pt()*met_vec.Mod()*cphi);
   return mt;
@@ -2316,7 +2316,7 @@ int MissingMassCalculator::NuPsolution(TVector2 met_vec, double theta1, double p
   P1=0.0;
   P2=0.0;
   double D=sin(theta1)*sin(theta2)*sin(phi2-phi1);
-  if(fabs(D)>0.0) // matrix deteriminant is non-zero
+  if(std::abs(D)>0.0) // matrix deteriminant is non-zero
     {
       P1=(met_vec.Px()*sin(phi2)-met_vec.Py()*cos(phi2))*sin(theta2)/D;
       P2=(met_vec.Py()*cos(phi1)-met_vec.Px()*sin(phi1))*sin(theta1)/D;
@@ -2451,14 +2451,14 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
 
   if(m2noma1 + 2 * pTmiss2CscDPhi * pv1proj + 2 * pn1Z * m_tauVec1Pz >0) // Condition for solution to exist
     {
-      nuvecsol1[nsol1].SetPxPyPzE(pTn1 * m_cosPhi1, pTn1 * m_sinPhi1, pn1Z, sqrt(std::pow(pTn1,2) + std::pow(pn1Z,2) + m_m2Nu1));
+      m_nuvecsol1[nsol1].SetPxPyPzE(pTn1 * m_cosPhi1, pTn1 * m_sinPhi1, pn1Z, sqrt(std::pow(pTn1,2) + std::pow(pn1Z,2) + m_m2Nu1));
 
 #ifdef DEBUG_NUPSOLV3
 
       std::cout << "" << std::endl;
       std::cout << "/*---------- Solution Neutrino 1 ---------*/" << std::endl;
       std::cout << "First solution" << std::endl;
-      double mtau1plus=( nuvecsol1[nsol1]+m_tauVec1 ).M();
+      double mtau1plus=( m_nuvecsol1[nsol1]+m_tauVec1 ).M();
       std::cout << "Mtau1+ = " << mtau1plus << std::endl;
       double verif=-m4noma1-4*m2noma1*pTmiss2CscDPhi*pv1proj+4*(m_E2v1*(m_m2Nu1+std::pow(pTmiss2CscDPhi,2))-std::pow(pTmiss2CscDPhi,2)*p2v1proj)-4*pn1Z*(m2noma1+2*pTmiss2CscDPhi*pv1proj)*m_tauVec1Pz+4*std::pow(pn1Z,2)*(std::pow(m_Ev1,2)-std::pow(m_tauVec1Pz,2));
       std::cout << "Test if null : " << verif << std::endl;
@@ -2499,10 +2499,10 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
   if (m2noma1 + 2 * pTmiss2CscDPhi * pv1proj + 2 * pn1Z * m_tauVec1Pz >0) // Condition for solution to exist
     {
 
-      nuvecsol1[nsol1].SetPxPyPzE(pTn1 * m_cosPhi1, pTn1 * m_sinPhi1, pn1Z,sqrt( std::pow(pTn1,2) + std::pow(pn1Z,2) + m_m2Nu1 )) ;
+      m_nuvecsol1[nsol1].SetPxPyPzE(pTn1 * m_cosPhi1, pTn1 * m_sinPhi1, pn1Z,sqrt( std::pow(pTn1,2) + std::pow(pn1Z,2) + m_m2Nu1 )) ;
 
 #ifdef DEBUG_NUPSOLV3
-      double mtau1moins=( nuvecsol1[nsol1]+m_tauVec1 ).M();
+      double mtau1moins=( m_nuvecsol1[nsol1]+m_tauVec1 ).M();
       std::cout << "M2tau1- = " << mtau1moins << std::endl;
       double verif=-m4noma1 - 4*m2noma1*pTn1*pv1proj + 4*(m_Ev1*m_Ev1*(m_m2Nu1+std::pow(pTn1,2))-std::pow(pTn1,2)*p2v1proj)-4*pn1Z*(m2noma1+2*pTn1*pv1proj)*m_tauVec1Pz+4*pn1Z*pn1Z*(m_Ev1*m_Ev1-m_tauVec1Pz*m_tauVec1Pz);
       std::cout << "Test if null : " << verif << std::endl;
@@ -2554,13 +2554,13 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
 
   if (m2noma2 + 2 * pTmiss1CscDPhi * pv2proj + 2 * pn2Z * m_tauVec2Pz >0) // Condition for solution to exist
     {
-      nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z, sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
+      m_nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z, sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
 
 #ifdef DEBUG_NUPSOLV3
       std::cout << "" << std::endl;
       std::cout << "/*---------- Solution Neutrino 2 ---------*/" << std::endl;
       std::cout << "First Solution" << std::endl;
-      double mtau2plus=( nuvecsol2[nsol2]+tau_vec2 ).M();
+      double mtau2plus=( m_nuvecsol2[nsol2]+tau_vec2 ).M();
       std::cout << "Mtau2+ = " << mtau2plus << std::endl;
       std::cout << "m_MNu2 = " << mNu2 << std::endl;
       double verif=-m4noma2-4*m2noma2*pTn2*pv2proj+4*(m_Ev2*m_Ev2*(m_m2Nu2+std::pow(pTn2,2))-std::pow(pTn2,2)*p2v2proj)-4*pn2Z*(m2noma2+2*pTn2*pv2proj)*m_tauVec2Pz+4*pn2Z*pn2Z*(m_Ev2*m_Ev2-m_tauVec2Pz*m_tauVec2Pz);
@@ -2584,11 +2584,11 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
 
   if (m2noma2 + 2*pTmiss1CscDPhi*pv2proj + 2*pn2Z*m_tauVec2Pz >0) // Condition for solution to exist
     {
-      nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z,sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
+      m_nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z,sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
 
 #ifdef DEBUG_NUPSOLV3
       std::cout << "Second Solution" << std::endl;
-      double mtau2moins=( nuvecsol2[nsol2]+tau_vec2 ).M();
+      double mtau2moins=( m_nuvecsol2[nsol2]+tau_vec2 ).M();
       std::cout << "M2tau2- = " << mtau2moins << std::endl;
       std::cout << "m_MNu2 = " << mNu2 << std::endl;
       double verif=-m4noma2-4*m2noma2*pTn2*pv2proj+4*(m_Ev2*m_Ev2*(m_m2Nu2+std::pow(pTn2,2))-std::pow(pTn2,2)*p2v2proj)-4*pn2Z*(m2noma2+2*pTn2*pv2proj)*m_tauVec2Pz+4*pn2Z*pn2Z*(m_Ev2*m_Ev2-m_tauVec2Pz*m_tauVec2Pz);
@@ -2620,7 +2620,7 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
   double pn2Z=first2;
   if(m2noma2 + 2 * pTmiss1CscDPhi * pv2proj + 2 * pn2Z * m_tauVec2Pz >0) // Condition for solution to exist
     {
-      nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z, sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
+      m_nuvecsol2[nsol2].SetPxPyPzE(pTn2 * m_cosPhi2, pTn2 * m_sinPhi2, pn2Z, sqrt( std::pow(pTn2,2) + std::pow(pn2Z,2) + m_m2Nu2 ));
       ++nsol2;
     }
 
@@ -2637,12 +2637,12 @@ int MissingMassCalculator::NuPsolutionV3(const double & mNu1, const double & mNu
   // double check solutions from time to time
   if (m_iterNuPV3 % 1000 ==1)
     {
-      double pnux = nuvecsol1[0].Px() + nuvecsol2[0].Px();
-      double pnuy = nuvecsol1[0].Py() + nuvecsol2[0].Py();
-      double mtau1plus=( nuvecsol1[0]+m_tauVec1 ).M();
-      double mtau1moins=( nuvecsol1[1]+m_tauVec1 ).M();
-      double mtau2plus=( nuvecsol2[0]+m_tauVec2 ).M();
-      double mtau2moins=( nuvecsol2[1]+m_tauVec2 ).M();
+      double pnux = m_nuvecsol1[0].Px() + m_nuvecsol2[0].Px();
+      double pnuy = m_nuvecsol1[0].Py() + m_nuvecsol2[0].Py();
+      double mtau1plus=( m_nuvecsol1[0]+m_tauVec1 ).M();
+      double mtau1moins=( m_nuvecsol1[1]+m_tauVec1 ).M();
+      double mtau2plus=( m_nuvecsol2[0]+m_tauVec2 ).M();
+      double mtau2moins=( m_nuvecsol2[1]+m_tauVec2 ).M();
 #ifdef DEBUG_NUPSOLV3
       std::cout << "/*---------- Solution Neutrino 1 ---------*/" << std::endl;
 
@@ -2734,18 +2734,18 @@ double MissingMassCalculator::tauSigmaE(const TLorentzVector & tauVec, const int
 
 // returns solution for Lepton Flavor Violating X->lep+tau studies
 int MissingMassCalculator::NuPsolutionLFV(const TVector2 & met_vec, const TLorentzVector & tau,
-                                          const double & m_nu, std::vector<TLorentzVector> &nu_vec) {
+                                          const double & l_nu, std::vector<TLorentzVector> &nu_vec) {
   int solution_code=0; // 0 with no solution, 1 with solution
 
   nu_vec.clear();
   TLorentzVector nu(0.0,0.0,0.0,0.0);
   TLorentzVector nu2(0.0,0.0,0.0,0.0);
-  nu.SetXYZM(met_vec.Px(),met_vec.Py(),0.0,m_nu);
-  nu2.SetXYZM(met_vec.Px(),met_vec.Py(),0.0,m_nu);
+  nu.SetXYZM(met_vec.Px(),met_vec.Py(),0.0,l_nu);
+  nu2.SetXYZM(met_vec.Px(),met_vec.Py(),0.0,l_nu);
 
   const double Mtau = 1.777;
   //   double msq = (Mtau*Mtau-tau.M()*tau.M())/2;
-  double msq = (Mtau*Mtau-tau.M()*tau.M()-m_nu*m_nu)/2; // to take into account the fact that 2-nu systema has mass
+  double msq = (Mtau*Mtau-tau.M()*tau.M()-l_nu*l_nu)/2; // to take into account the fact that 2-nu systema has mass
   double gamma = nu.Px()*nu.Px()+nu.Py()*nu.Py();
   double beta = tau.Px()*nu.Px() + tau.Py()*nu.Py() + msq;
   double a = tau.E()*tau.E() - tau.Pz()*tau.Pz();
@@ -2755,8 +2755,8 @@ int MissingMassCalculator::NuPsolutionLFV(const TVector2 & met_vec, const TLoren
   else solution_code=2;
   double pvz1 = (-b+sqrt(b*b-4*a*c))/(2*a);
   double pvz2 = (-b-sqrt(b*b-4*a*c))/(2*a);
-  nu.SetXYZM(met_vec.Px(),met_vec.Py(),pvz1,m_nu);
-  nu2.SetXYZM(met_vec.Px(),met_vec.Py(),pvz2,m_nu);
+  nu.SetXYZM(met_vec.Px(),met_vec.Py(),pvz1,l_nu);
+  nu2.SetXYZM(met_vec.Px(),met_vec.Py(),pvz2,l_nu);
   nu_vec.push_back(nu);
   nu_vec.push_back(nu2);
   return solution_code;
@@ -2770,28 +2770,28 @@ double MissingMassCalculator::dTheta3Dparam(const int & parInd, const int & tau_
 
 
   if(parInd==0) {
-    if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
+    if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
       return (par[0]+par[1]*P_tau)*0.00125;
     }
-    else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-             || m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE
-             || m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012){
+    else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+             || m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE
+             || m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012){
       return (par[0]+par[1]*P_tau+par[2]*pow(P_tau,2)+par[3]*pow(P_tau,3)+par[4]*pow(P_tau,4))*0.00125;
     }
   }
   else { // parInd==0
-    if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
+    if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
       return par[0]*(exp(-par[1]*P_tau)+par[2]/P_tau)+par[3];
     }
-    else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
-             || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-             || m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE
-             || m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012){
+    else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
+             || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+             || m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE
+             || m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012){
       if(tau_type==0) return par[0]*(exp(-par[1]*P_tau)+par[2]/P_tau)+par[3]+par[4]*P_tau;
       else return par[0]*(exp(-par[1]*sqrt(P_tau))+par[2]/P_tau)+par[3]+par[4]*P_tau;
     }
@@ -2803,9 +2803,9 @@ double MissingMassCalculator::dTheta3Dparam(const int & parInd, const int & tau_
 //SpeedUp static instantation
 // first index is the calibration set : 0: MMC2011, 1:MMC2012
 // second index is the decay 0 : lepton, 1 : 1 prong, 2 3 prong
-double MissingMassCalculator::fit_param[2][3][6][5];
+double MissingMassCalculator::s_fit_param[2][3][6][5];
 // first parameter: 0- for 1-prong; 1- for 3-prong
-double MissingMassCalculator::ter_sigma_par[2][10][3];
+double MissingMassCalculator::s_ter_sigma_par[2][10][3];
 
 // returns dTheta3D probability based on ATLAS parameterization
 double MissingMassCalculator::dTheta3d_probabilityFast(const int & tau_type,const double & dTheta3d,const  double & P_tau) {
@@ -2819,7 +2819,7 @@ double MissingMassCalculator::dTheta3d_probabilityFast(const int & tau_type,cons
   }
   else
     {
-      std::cout<<">>>> WARNING in MissingMassCalculator::dTheta3d_probabilityFast() <<<<"<<std::endl;
+      std::cout<<"---- WARNING in MissingMassCalculator::dTheta3d_probabilityFast() ----"<<std::endl;
       std::cout<<"..... wrong tau_type="<<tau_type<<std::endl;
       std::cout<<"..... returning prob="<<prob<<std::endl;
       std::cout<<"____________________________________________________________"<<std::endl;
@@ -2831,14 +2831,14 @@ double MissingMassCalculator::dTheta3d_probabilityFast(const int & tau_type,cons
 
   for (int i=0;i<6;++i)
     {
-      if(m_MMCCalibrationSet==MMCCalibrationSet::MMC2011
-         || m_MMCCalibrationSet==MMCCalibrationSet::MMC2012) myDelThetaParam[i]=dTheta3Dparam(i,tau_code,P_tau,fit_param[m_MMCCalibrationSet][tau_code][i]);
-      if(m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE
-         || m_MMCCalibrationSet==MMCCalibrationSet::LFVMMC2012
-         || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-         || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-         || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
-        myDelThetaParam[i]=dTheta3Dparam(i,tau_code,P_tau,fit_param[MMCCalibrationSet::MMC2012][tau_code][i]);
+      if(m_mmcCalibrationSet==MMCCalibrationSet::MMC2011
+         || m_mmcCalibrationSet==MMCCalibrationSet::MMC2012) myDelThetaParam[i]=dTheta3Dparam(i,tau_code,P_tau,s_fit_param[m_mmcCalibrationSet][tau_code][i]);
+      if(m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE
+         || m_mmcCalibrationSet==MMCCalibrationSet::LFVMMC2012
+         || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+         || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+         || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS)
+        myDelThetaParam[i]=dTheta3Dparam(i,tau_code,P_tau,s_fit_param[MMCCalibrationSet::MMC2012][tau_code][i]);
     }
   double dTheta3dVal=dTheta3d;
 
@@ -2848,9 +2848,9 @@ double MissingMassCalculator::dTheta3d_probabilityFast(const int & tau_type,cons
   if (false)
     {
 
-      if( fUseVerbose==1 && (prob>1.0 || prob<0.0))
+      if( m_fUseVerbose==1 && (prob>1.0 || prob<0.0))
         {
-          std::cout<<">>>> WARNING in MissingMassCalculator::dTheta3d_probabilityFast() <<<<"<<std::endl;
+          std::cout<<"---- WARNING in MissingMassCalculator::dTheta3d_probabilityFast() ----"<<std::endl;
           std::cout<<"..... wrong probability="<<prob<<std::endl        ;
           std::cout<<"..... debugging: tau_type="<<tau_type<<"dTheta3d="<<dTheta3d<<"  P_tau="<<P_tau<<std::endl;
           std::cout<<"____________________________________________________________"<<std::endl;
@@ -2876,7 +2876,7 @@ double MissingMassCalculator::MetProbability(const double & met1,const  double &
     }
   else
     {
-      if(fUseVerbose==1) std::cout<<"Warning!!! MissingMassCalculator::MetProbability: either MetSigma1 or MetSigma2 are <1 GeV--- too low, returning prob=1"<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<"Warning!!! MissingMassCalculator::MetProbability: either MetSigma1 or MetSigma2 are <1 GeV--- too low, returning prob=1"<<std::endl;
       metprob=1.;
     }
 
@@ -2894,7 +2894,7 @@ double MissingMassCalculator::MHtProbability(const double & d_mhtX, const double
   //  if(MHtSigma1>0.0 && MHtSigma2>0.0 && MHtGaussFr>0.0)
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << " debugThisIteration MHtProbability inputs "
               << " d_mhtx:" << d_mhtX
               << " d_mhty:" << d_mhtY
@@ -2911,12 +2911,12 @@ double MissingMassCalculator::MHtProbability(const double & d_mhtX, const double
     mhtprob=1.;
   }
   else{
-    mhtprob=exp(-0.5*pow(d_mhtX/preparedInput.MHtSigma1,2))+preparedInput.MHtGaussFr*exp(-0.5*pow(d_mhtX/preparedInput.MHtSigma2,2));
-    mhtprob*=(exp(-0.5*pow(d_mhtY/preparedInput.MHtSigma1,2))+preparedInput.MHtGaussFr*exp(-0.5*pow(d_mhtY/preparedInput.MHtSigma2,2)));
+    mhtprob=exp(-0.5*pow(d_mhtX/m_preparedInput.m_MHtSigma1,2))+m_preparedInput.MHtGaussFr*exp(-0.5*pow(d_mhtX/m_preparedInput.m_MHtSigma2,2));
+    mhtprob*=(exp(-0.5*pow(d_mhtY/m_preparedInput.m_MHtSigma1,2))+m_preparedInput.MHtGaussFr*exp(-0.5*pow(d_mhtY/m_preparedInput.m_MHtSigma2,2)));
   }
 
-  const double _arg=(mht-trueMetGuess-mht_offset)/preparedInput.MHtSigma1;
-  mhtprob*=exp(-0.25*pow(_arg,2)); // assuming sqrt(2)*sigma
+  const double n_arg=(mht-trueMetGuess-mht_offset)/m_preparedInput.m_MHtSigma1;
+  mhtprob*=exp(-0.25*pow(n_arg,2)); // assuming sqrt(2)*sigma
   return mhtprob;
 }
 
@@ -2926,15 +2926,15 @@ double MissingMassCalculator::MHtProbabilityHH(const double & d_mhtX, const doub
 
   // updated for final cuts, May 21 2012
   // should be merged
-  prob=prob*(0.0256*TMath::Gaus(d_mhtX,0.0,preparedInput.MHtSigma1)+0.01754*TMath::Gaus(d_mhtX,0.0,preparedInput.MHtSigma2));
-  prob=prob*(0.0256*TMath::Gaus(d_mhtY,0.0,preparedInput.MHtSigma1)+0.01754*TMath::Gaus(d_mhtY,0.0,preparedInput.MHtSigma2));
-  const double _arg=(mht-trueMetGuess-mht_offset)/5.7; // this sigma is different from MHtSigma1; actually it depends on dPhi
-  prob=prob*exp(-0.5*pow(_arg,2))/(5.7*sqrt(2.0*TMath::Pi())); // assuming sigma from above line
+  prob=prob*(0.0256*TMath::Gaus(d_mhtX,0.0,m_preparedInput.m_MHtSigma1)+0.01754*TMath::Gaus(d_mhtX,0.0,m_preparedInput.m_MHtSigma2));
+  prob=prob*(0.0256*TMath::Gaus(d_mhtY,0.0,m_preparedInput.m_MHtSigma1)+0.01754*TMath::Gaus(d_mhtY,0.0,m_preparedInput.m_MHtSigma2));
+  const double n_arg=(mht-trueMetGuess-mht_offset)/5.7; // this sigma is different from MHtSigma1; actually it depends on dPhi
+  prob=prob*exp(-0.5*pow(n_arg,2))/(5.7*sqrt(2.0*TMath::Pi())); // assuming sigma from above line
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "mhtprobabilityhh d_mhtx=" << d_mhtX << " dMmhty=" << d_mhtY << " mht="<< mht << "truemetguess=" << trueMetGuess << "mht_offset=" << mht_offset << std::endl;
-    std::cout << "mhtprobabilityhh mhtsigma1=" << preparedInput.MHtSigma1 <<  "mhtsigma2=" <<  preparedInput.MHtSigma2 << std::endl;
+    std::cout << "mhtprobabilityhh mhtsigma1=" << m_preparedInput.m_MHtSigma1 <<  "mhtsigma2=" <<  m_preparedInput.m_MHtSigma2 << std::endl;
     std::cout << "mhtprobabilityhh prob=" << prob << std::endl;
   }
 #endif
@@ -2969,7 +2969,7 @@ inline double MissingMassCalculator::TERProbabilitySimple(int tau_type, const TL
 // vec-- 4-vec of input detector tau
 // Pt_scan value of tau Pt from TER scan
 inline double MissingMassCalculator::TERSimpleSigma(int tau_type, const TLorentzVector & vec) {
-  int eta_bin=(int)(fabs(vec.Eta())/0.25);
+  int eta_bin=(int)(std::abs(vec.Eta())/0.25);
   if(eta_bin>9) eta_bin=9;
   if(tau_type==0)
     {
@@ -2978,9 +2978,9 @@ inline double MissingMassCalculator::TERSimpleSigma(int tau_type, const TLorentz
     }
   const int type_ind=tau_type/3;
 
-  const double ter_sigma=ter_sigma_par[type_ind][eta_bin][0]/sqrt(vec.Pt())+
-    ter_sigma_par[type_ind][eta_bin][1]+
-    ter_sigma_par[type_ind][eta_bin][2]/vec.Pt();
+  const double ter_sigma=s_ter_sigma_par[type_ind][eta_bin][0]/sqrt(vec.Pt())+
+    s_ter_sigma_par[type_ind][eta_bin][1]+
+    s_ter_sigma_par[type_ind][eta_bin][2]/vec.Pt();
 
   return ter_sigma;
 }
@@ -2988,8 +2988,8 @@ inline double MissingMassCalculator::TERSimpleSigma(int tau_type, const TLorentz
 
 inline double MissingMassCalculator::mEtAndTauProbability()
 {
-  const int  tau_type1 = preparedInput.type_visTau1;
-  const int  tau_type2 = preparedInput.type_visTau2;
+  const int  tau_type1 = m_preparedInput.type_visTau1;
+  const int  tau_type2 = m_preparedInput.type_visTau2;
   double proba=1.;
   double metprob;
 
@@ -3002,12 +3002,12 @@ inline double MissingMassCalculator::mEtAndTauProbability()
   // possibly correct for subtract tau scanning here
 #ifdef TAUESCAN
   if (m_scanEtau1) {
-    deltaMetX+=m_tauVec1.X()-preparedInput.vistau1.X();
-    deltaMetY+=m_tauVec1.Y()-preparedInput.vistau1.Y();
+    deltaMetX+=m_tauVec1.X()-m_preparedInput.vistau1.X();
+    deltaMetY+=m_tauVec1.Y()-m_preparedInput.vistau1.Y();
   }
   if (m_scanEtau2) {
-    deltaMetX+=m_tauVec2.X()-preparedInput.vistau2.X();
-    deltaMetY+=m_tauVec2.Y()-preparedInput.vistau2.Y();
+    deltaMetX+=m_tauVec2.X()-m_preparedInput.vistau2.X();
+    deltaMetY+=m_tauVec2.Y()-m_preparedInput.vistau2.Y();
   }
 #endif
   //  const double met_smearL=(deltaMetVec.X()*m_metCovPhiCos+deltaMetVec.Y()*m_metCovPhiSin;
@@ -3018,7 +3018,7 @@ inline double MissingMassCalculator::mEtAndTauProbability()
   const double met_smearP=-deltaMetX*m_metCovPhiSin+deltaMetY*m_metCovPhiCos;
 
 
-  if (preparedInput.UseHT)
+  if (m_preparedInput.UseHT)
     {
       if (tau_type1!=0 && tau_type2!=0 ) {
 
@@ -3029,7 +3029,7 @@ inline double MissingMassCalculator::mEtAndTauProbability()
       }
     }
   else {
-    metprob=MetProbability(met_smearL,met_smearP,preparedInput.METsigmaL,preparedInput.METsigmaP);
+    metprob=MetProbability(met_smearL,met_smearP,m_preparedInput.METsigmaL,m_preparedInput.METsigmaP);
   }
 
   proba=metprob;
@@ -3039,12 +3039,12 @@ inline double MissingMassCalculator::mEtAndTauProbability()
   // tau proba. To be optimised for speed
 
   if (m_scanEtau1) {
-    double tau1prob=exp(-std::pow((m_tauVec1E-preparedInput.vistau1.E())/preparedInput.sigmaEtau1,2)/2. )/sq2pi/preparedInput.sigmaEtau1;
+    double tau1prob=exp(-std::pow((m_tauVec1E-m_preparedInput.vistau1.E())/m_preparedInput.sigmaEtau1,2)/2. )/sq2pi/m_preparedInput.sigmaEtau1;
     //double tau1prob=TERProbabilitySimple(tau_type1,preparedInput.vistau1,m_tauVec1.Pt());
     proba*=tau1prob;
   }
   if (m_scanEtau2) {
-    double tau2prob=exp(-std::pow((m_tauVec2E-preparedInput.vistau2.E())/preparedInput.sigmaEtau2,2)/2. )/sq2pi/preparedInput.sigmaEtau2;
+    double tau2prob=exp(-std::pow((m_tauVec2E-m_preparedInput.vistau2.E())/m_preparedInput.sigmaEtau2,2)/2. )/sq2pi/m_preparedInput.sigmaEtau2;
     //double tau2prob=TERProbabilitySimple(tau_type2,preparedInput.vistau2,m_tauVec2.Pt());
     proba*=tau2prob;
   }
@@ -3084,22 +3084,22 @@ double MissingMassCalculator::AngularProbability(TLorentzVector nu_vec, TLorentz
   double angl=0.0;
   double P=(vis_vec+nu_vec).P();
   double V=P/sqrt(P*P+M*M); // tau speed
-  double dA=dRmax_tau/(2.0*Niter_fit1);
+  double dA=m_dRmax_tau/(2.0*m_niter_fit1);
 
   if(decayType==1) // leptonic tau for now
     {
       // exact formular for energy probability is sqrt(1-V^2)/(2*V*p_0)*dE
-      double m_1=nu_vec.M();
-      double m_2=vis_vec.M();
-      double E_nu=(M*M+m_1*m_1-m_2*m_2)/(2.0*M);
-      if(E_nu<=m_1) return 0.0;
-      double P_nu=sqrt(pow(E_nu,2)-pow(m_1,2));
+      double n_1=nu_vec.M();
+      double n_2=vis_vec.M();
+      double E_nu=(M*M+n_1*n_1-n_2*n_2)/(2.0*M);
+      if(E_nu<=n_1) return 0.0;
+      double P_nu=sqrt(pow(E_nu,2)-pow(n_1,2));
       double prob1=0.5*sqrt(1-V*V)/(P_nu*V); // energy probability
 
       angl=Angle(vis_vec,vis_vec+nu_vec); // using lepton direction
       double det1=1.0-V*cos(angl+dA);
       double det2= (angl-dA)>0.0 ? 1.0-V*cos(angl-dA) : 1.0-V;
-      double prob2=fabs(1.0/det1-1.0/det2)*(1.0-V*V)/(2.0*V); // using massless approximation for leptons
+      double prob2=std::abs(1.0/det1-1.0/det2)*(1.0-V*V)/(2.0*V); // using massless approximation for leptons
       prob=prob1*prob2;
     }
   if(decayType==0) // hadronic tau
@@ -3111,7 +3111,7 @@ double MissingMassCalculator::AngularProbability(TLorentzVector nu_vec, TLorentz
       angl=Angle(nu_vec,vis_vec+nu_vec); // using neutrino direction
       double det1=1.0-V*cos(angl+dA);
       double det2= (angl-dA)>0.0 ? 1.0-V*cos(angl-dA) : 1.0-V;
-      double prob2=fabs(1.0/det1-1.0/det2)*(1.0-V*V)/(2.0*V);
+      double prob2=std::abs(1.0/det1-1.0/det2)*(1.0-V*V)/(2.0*V);
       prob=prob1*prob2;
     }
   return prob;
@@ -3138,7 +3138,7 @@ int MissingMassCalculator::CheckSolutions(TLorentzVector nu_vec, TLorentzVector 
       Enu_lim[1]=E_nu*sqrt((1.0+V)/(1.0-V));
       if(nu_vec.E()<Enu_lim[0] || nu_vec.E()>Enu_lim[1])
         {
-          if(fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- neutrino energy outside range "<<std::endl;
+          if(m_fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- neutrino energy outside range "<<std::endl;
           return 0;
         }
       double Evis_lim[2];
@@ -3146,7 +3146,7 @@ int MissingMassCalculator::CheckSolutions(TLorentzVector nu_vec, TLorentzVector 
       Evis_lim[1]=(E_vis+V*P_vis)/sqrt(1.0-V*V);
       if(vis_vec.E()<Evis_lim[0] || vis_vec.E()>Evis_lim[1])
         {
-          if(fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- visTau energy outside range "<<std::endl;
+          if(m_fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- visTau energy outside range "<<std::endl;
           return 0;
         }
     }
@@ -3169,7 +3169,7 @@ int MissingMassCalculator::CheckSolutions(TLorentzVector nu_vec, TLorentzVector 
       Enu_lim[1]=(E_nu+V*P_nu)/sqrt(1.0-V*V);
       if(nu_vec.E()<Enu_lim[0] || nu_vec.E()>Enu_lim[1])
         {
-          if(fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- neutrino energy outside range "<<std::endl;
+          if(m_fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- neutrino energy outside range "<<std::endl;
           return 0;
         }
       double Evis_lim[2];
@@ -3177,7 +3177,7 @@ int MissingMassCalculator::CheckSolutions(TLorentzVector nu_vec, TLorentzVector 
       Evis_lim[1]=(E_vis+V*P_vis)/sqrt(1.0-V*V);
       if(vis_vec.E()<Evis_lim[0] || vis_vec.E()>Evis_lim[1])
         {
-          if(fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- visTau energy outside range "<<std::endl;
+          if(m_fUseVerbose==1) std::cout<<" DEBUG: MissingMassCalculator::CheckSolutions --- visTau energy outside range "<<std::endl;
           return 0;
         }
     }
@@ -3205,12 +3205,12 @@ double MissingMassCalculator::MnuProbability(double mnu, double binsize)
   prob=int1-int2;
   if(prob<0.0)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: negative probability!!! "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: negative probability!!! "<<std::endl;
       return 0.0;
     }
   if(prob>1.0)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: probability > 1!!! "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: probability > 1!!! "<<std::endl;
       return 1.0;
     }
   return prob;
@@ -3219,7 +3219,7 @@ double MissingMassCalculator::MnuProbability(double mnu, double binsize)
 // returns Mnu probability according pol6 parameterization
 double MissingMassCalculator::MnuProbability(double mnu)
 {
-  if(fUseMnuProbability==0) return 1.0;
+  if(m_fUseMnuProbability==0) return 1.0;
   double prob=1.0;
   const double norm=4851900.0;
   double p[7];
@@ -3233,12 +3233,12 @@ double MissingMassCalculator::MnuProbability(double mnu)
   prob=int1/norm;
   if(prob<0.0)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: negative probability!!! "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: negative probability!!! "<<std::endl;
       return 0.0;
     }
   if(prob>1.0)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: probability > 1!!! "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::MnuProbability: probability > 1!!! "<<std::endl;
       return 1.0;
     }
   return prob;
@@ -3298,7 +3298,7 @@ double MissingMassCalculator::ResonanceProbability(TLorentzVector vec1, TLorentz
         }
       else
         {
-          if(fabs(theta-TMath::Pi())>0.0001) return 1.0E-10;
+          if(std::abs(theta-TMath::Pi())>0.0001) return 1.0E-10;
         }
     }
   else return 1.0E-10;
@@ -3313,57 +3313,57 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
   int nsuccesses=0;
 
-  OutputInfo.AveSolRMS=0;
+  m_OutputInfo.AveSolRMS=0;
 
   int fit_code=0; // 0==bad, 1==good
-  ClearDitauStuff(fDitauStuffFit);
-  ClearDitauStuff(fDitauStuffHisto);
-  OutputInfo.AveSolRMS=0.;
+  ClearDitauStuff(m_fDitauStuffFit);
+  ClearDitauStuff(m_fDitauStuffHisto);
+  m_OutputInfo.AveSolRMS=0.;
 
 
-  fMfit_all->Reset();
-  fMfit_allNoWeight->Reset();
-  fPXfit1->Reset();
-  fPYfit1->Reset();
-  fPZfit1->Reset();
-  fPXfit2->Reset();
-  fPYfit2->Reset();
-  fPZfit2->Reset();
+  m_fMfit_all->Reset();
+  m_fMfit_allNoWeight->Reset();
+  m_fPXfit1->Reset();
+  m_fPYfit1->Reset();
+  m_fPZfit1->Reset();
+  m_fPXfit2->Reset();
+  m_fPYfit2->Reset();
+  m_fPZfit2->Reset();
 
 #ifdef HISTITERATION
-  fPhi1->Reset();
-  fPhi2->Reset();
-  fMnu1->Reset();
-  fMnu2->Reset();
-  fMetx->Reset();
-  fMety->Reset();
+  m_fPhi1->Reset();
+  m_fPhi2->Reset();
+  m_fMnu1->Reset();
+  m_fMnu2->Reset();
+  m_fMetx->Reset();
+  m_fMety->Reset();
 #endif
 #ifdef HISTPROBA
-  fTheta3D->Reset();
-  fTauProb->Reset();
+  m_fTheta3D->Reset();
+  m_fTauProb->Reset();
 #endif
-  prob_tmp=0.0;
+  m_prob_tmp=0.0;
 
 
   //SpeedUp
   TStopwatch timer;
-  if (fSpeedStudy) timer.Start();
-  iter1=0;
+  if (m_fSpeedStudy) timer.Start();
+  m_iter1=0;
 
 
-  totalProbSum=0;
-  mtautauSum=0;
+  m_totalProbSum=0;
+  m_mtautauSum=0;
 
   TVector2 deltamet_vec;
 
-  if (fSpeedStudy) timer.Start();
+  if (m_fSpeedStudy) timer.Start();
   //initialize a spacewalker, which walks the parameter space according to some algorithm
   SpaceWalkerInit();
 
   while (SpaceWalkerWalk()) {
 #ifdef DEBUGTHISITERATION
-    debugThisIteration=(m_iter0==DEBUGTHISITERATION); // specify number
-    if (debugThisIteration) std::cout << "Now debugging interation " << m_iter0 << std::endl;
+    m_debugThisIteration=(m_iter0==DEBUGTHISITERATION); // specify number
+    if (m_debugThisIteration) std::cout << "Now debugging interation " << m_iter0 << std::endl;
 #endif
     bool paramOutsideRange=false;
     m_nsol=0;
@@ -3375,7 +3375,7 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
     }
 
 #ifdef DEBUGTHISITERATION
-    if (debugThisIteration) std::cout << " debugThisIteration " << __LINE__ << " paramOutsideRange " << paramOutsideRange << std::endl;
+    if (m_debugThisIteration) std::cout << " debugThisIteration " << __LINE__ << " paramOutsideRange " << paramOutsideRange << std::endl;
 #endif
 
 #ifdef DUMPITERATION
@@ -3413,12 +3413,12 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
     //    std::cout << "DRDR met_smear " << met_smear_x << " " << met_smear_y << std::endl;
 #ifdef HISTITERATION
-    fPhi1->Fill(m_Phi1,1.);
-    fPhi2->Fill(m_Phi2,1.);
-    fMnu1->Fill(m_Mnu1,1.);
-    fMnu2->Fill(m_Mnu2,1.);
-    fMetx->Fill(deltaMetx,1.);
-    fMety->Fill(deltaMety,1.);
+    m_fPhi1->Fill(m_Phi1,1.);
+    m_fPhi2->Fill(m_Phi2,1.);
+    m_fMnu1->Fill(m_Mnu1,1.);
+    m_fMnu2->Fill(m_Mnu2,1.);
+    m_fMetx->Fill(deltaMetx,1.);
+    m_fMety->Fill(deltaMety,1.);
 #endif
 
 
@@ -3449,7 +3449,7 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
     if (m_nsol<=0) continue;
 
 #ifdef DEBUGTHISITERATION
-    if (debugThisIteration) std::cout << " debugThisIteration " << __LINE__ << std::endl;
+    if (m_debugThisIteration) std::cout << " debugThisIteration " << __LINE__ << std::endl;
 #endif
 
     if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN) {
@@ -3463,7 +3463,7 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
         ++m_iterNsuc;
       }
 
-    iter1+=m_nsol;
+    m_iter1+=m_nsol;
     fit_code=1;
 
 
@@ -3492,13 +3492,13 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
   } // while loop
 
 
-  OutputInfo.NTrials=m_iter0;
-  OutputInfo.NSuccesses=nsuccesses;
+  m_OutputInfo.NTrials=m_iter0;
+  m_OutputInfo.NSuccesses=nsuccesses;
 
   if (nsuccesses>0) {
-    OutputInfo.AveSolRMS/=nsuccesses;
+    m_OutputInfo.AveSolRMS/=nsuccesses;
   } else {
-    OutputInfo.AveSolRMS=-1.;
+    m_OutputInfo.AveSolRMS=-1.;
   }
 
 
@@ -3511,61 +3511,61 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
 
 #ifdef SMOOTH
-      fMfit_all->Smooth();
-      fMfit_allNoWeight->Smooth();
-      fPXfit1->Smooth();
-      fPYfit1->Smooth();
-      fPZfit1->Smooth();
-      fPXfit2->Smooth();
-      fPYfit2->Smooth();
-      fPZfit2->Smooth();
+      m_fMfit_all->Smooth();
+      m_fMfit_allNoWeight->Smooth();
+      m_fPXfit1->Smooth();
+      m_fPYfit1->Smooth();
+      m_fPZfit1->Smooth();
+      m_fPXfit2->Smooth();
+      m_fPYfit2->Smooth();
+      m_fPZfit2->Smooth();
 #endif
 
 
       // default max finding method defined in MissingMassCalculator.h
       // note that window defined in terms of number of bin, so depend on binning
       std::vector<double> histInfo(HistInfo::MAXHISTINFO);
-      fDitauStuffHisto.Mditau_best=maxFromHist(fMfit_all,histInfo);
+      m_fDitauStuffHisto.Mditau_best=maxFromHist(m_fMfit_all,histInfo);
       double prob_hist=histInfo.at(HistInfo::PROB);
 
-      if(prob_hist!=0.0) fDitauStuffHisto.Sign_best=-log10(std::abs(prob_hist));
+      if(prob_hist!=0.0) m_fDitauStuffHisto.Sign_best=-log10(std::abs(prob_hist));
       else {
         // this mean the histogram is empty.
         // possible but very rare if all entries outside histogram range
         // fall back to maximum
-        fDitauStuffHisto.Sign_best=-999.;
-        fDitauStuffHisto.Mditau_best=fDitauStuffFit.Mditau_best;
+        m_fDitauStuffHisto.Sign_best=-999.;
+        m_fDitauStuffHisto.Mditau_best=m_fDitauStuffFit.Mditau_best;
 
         //      std::cout << "ERROR should not happen. null prob " << prob_hist << std::endl;
 
       }
 
-      if(fDitauStuffHisto.Mditau_best>0.0) fDitauStuffHisto.RMSoverMPV=fMfit_all->GetRMS()/fDitauStuffHisto.Mditau_best;
+      if(m_fDitauStuffHisto.Mditau_best>0.0) m_fDitauStuffHisto.RMSoverMPV=m_fMfit_all->GetRMS()/m_fDitauStuffHisto.Mditau_best;
       std::vector<double> histInfoOther(HistInfo::MAXHISTINFO);
       //---- getting Nu1
-      Px1=maxFromHist(fPXfit1,histInfoOther);
-      Py1=maxFromHist(fPYfit1,histInfoOther);
-      Pz1=maxFromHist(fPZfit1,histInfoOther);
+      Px1=maxFromHist(m_fPXfit1,histInfoOther);
+      Py1=maxFromHist(m_fPYfit1,histInfoOther);
+      Pz1=maxFromHist(m_fPZfit1,histInfoOther);
 
 
       //---- getting Nu2
-      Px2=maxFromHist(fPXfit2,histInfoOther);
-      Py2=maxFromHist(fPYfit2,histInfoOther);
-      Pz2=maxFromHist(fPZfit2,histInfoOther);
+      Px2=maxFromHist(m_fPXfit2,histInfoOther);
+      Py2=maxFromHist(m_fPYfit2,histInfoOther);
+      Pz2=maxFromHist(m_fPZfit2,histInfoOther);
 
       //---- setting 4-vecs
       TLorentzVector fulltau1,fulltau2;
 
       fulltau1.SetXYZM(Px1,Py1,Pz1,1.777);
       fulltau2.SetXYZM(Px2,Py2,Pz2,1.777);
-      if(fulltau1.P()<preparedInput.vistau1.P()) fulltau1=1.01*preparedInput.vistau1; // protection against cases when fitted tau momentum is smaller than visible tau momentum
-      if(fulltau2.P()<preparedInput.vistau2.P()) fulltau2=1.01*preparedInput.vistau2; // protection against cases when fitted tau momentum is smaller than visible tau momentum
-      fDitauStuffHisto.taufit1=fulltau1;
-      fDitauStuffHisto.taufit2=fulltau2;
-      fDitauStuffHisto.vistau1=preparedInput.vistau1; // FIXME should also be fitted if tau scan
-      fDitauStuffHisto.vistau2=preparedInput.vistau2;
-      fDitauStuffHisto.nutau1=fulltau1-preparedInput.vistau1; // these are the original tau vis
-      fDitauStuffHisto.nutau2=fulltau2-preparedInput.vistau2; // FIXME neutrino mass not necessarily zero
+      if(fulltau1.P()<m_preparedInput.vistau1.P()) fulltau1=1.01*m_preparedInput.vistau1; // protection against cases when fitted tau momentum is smaller than visible tau momentum
+      if(fulltau2.P()<m_preparedInput.vistau2.P()) fulltau2=1.01*m_preparedInput.vistau2; // protection against cases when fitted tau momentum is smaller than visible tau momentum
+      m_fDitauStuffHisto.taufit1=fulltau1;
+      m_fDitauStuffHisto.taufit2=fulltau2;
+      m_fDitauStuffHisto.vistau1=m_preparedInput.vistau1; // FIXME should also be fitted if tau scan
+      m_fDitauStuffHisto.vistau2=m_preparedInput.vistau2;
+      m_fDitauStuffHisto.nutau1=fulltau1-m_preparedInput.vistau1; // these are the original tau vis
+      m_fDitauStuffHisto.nutau2=fulltau2-m_preparedInput.vistau2; // FIXME neutrino mass not necessarily zero
     }
 
 
@@ -3604,32 +3604,32 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
   // need the stuff below as well
 
   aHistName="probTheta3D"+aHistSuffix;
-  theHist=(TH1F*) fTheta3D->Clone(aHistName);
+  theHist=(TH1F*) m_fTheta3D->Clone(aHistName);
   theHist->Write();
   aHistName="TauProb"+aHistSuffix;
-  theHist=(TH1F*) fTauProb->Clone(aHistName);
+  theHist=(TH1F*) m_fTauProb->Clone(aHistName);
   theHist->Write();
 #endif
 
 #ifdef HISTITERATION
 
   aHistName="phi1"+aHistSuffix;
-  theHist=(TH1F*) fPhi1->Clone(aHistName);
+  theHist=(TH1F*) m_fPhi1->Clone(aHistName);
   theHist->Write();
   aHistName="phi2"+aHistSuffix;
-  theHist=(TH1F*) fPhi2->Clone(aHistName);
+  theHist=(TH1F*) m_fPhi2->Clone(aHistName);
   theHist->Write();
   aHistName="mnu1"+aHistSuffix;
-  theHist=(TH1F*) fMnu1->Clone(aHistName);
+  theHist=(TH1F*) m_fMnu1->Clone(aHistName);
   theHist->Write();
   aHistName="mnu2"+aHistSuffix;
-  theHist=(TH1F*) fMnu2->Clone(aHistName);
+  theHist=(TH1F*) m_fMnu2->Clone(aHistName);
   theHist->Write();
   aHistName="metx"+aHistSuffix;
-  theHist=(TH1F*) fMetx->Clone(aHistName);
+  theHist=(TH1F*) m_fMetx->Clone(aHistName);
   theHist->Write();
   aHistName="mety"+aHistSuffix;
-  theHist=(TH1F*) fMety->Clone(aHistName);
+  theHist=(TH1F*) m_fMety->Clone(aHistName);
   theHist->Write();
 #endif
 
@@ -3640,19 +3640,19 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
 
   aHistName="m"+aHistSuffix;
-  theHist=(TH1F*) fMfit_all->Clone(aHistName);
+  theHist=(TH1F*) m_fMfit_all->Clone(aHistName);
   theHist->Write();
 
   aHistName="mNoW"+aHistSuffix;
-  theHist=(TH1F*) fMfit_allNoWeight->Clone(aHistName);
+  theHist=(TH1F*) m_fMfit_allNoWeight->Clone(aHistName);
   theHist->Write();
 #endif
 
-  //  std::cout << "DRDR V9W totalProbSum=" << totalProbSum << " mtautauSum=" << mtautauSum << std::endl;
+  //  std::cout << "DRDR V9W totalProbSum=" << m_totalProbSum << " mtautauSum=" << m_mtautauSum << std::endl;
 
 
   // Note that for v9walk, points outside the METx MEty disk are counted, while this was not the case for v9
-  if (fSpeedStudy || fUseVerbose==1) {
+  if (m_fSpeedStudy || m_fUseVerbose==1) {
     std::cout << "Scanning " ;
 
     if (WALKSTRATEGY==WalkStrategy::GRID) {
@@ -3670,16 +3670,16 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
 
 
-    std::cout << " V9W niters=" << m_iter0 << " " << iter1  ;
+    std::cout << " V9W niters=" << m_iter0 << " " << m_iter1  ;
     if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN) {
       std::cout << " nFullScan " << m_markovNFullScan ;
       std::cout << " nRejectNoSol "     << m_markovNRejectNoSol;
       std::cout  << " nRejectMetro "   << m_markovNRejectMetropolis;
       std::cout  << " nAccept " << m_markovNAccept;
     }
-    std::cout << " probsum " << totalProbSum << " msum " << mtautauSum  << std::endl;
+    std::cout << " probsum " << m_totalProbSum << " msum " << m_mtautauSum  << std::endl;
   }
-  if (fSpeedStudy) {
+  if (m_fSpeedStudy) {
     timer.Stop()  ;
     std::cout << "Scanning V9W nonreproducible CPU time = " << timer.CpuTime() << "s real = " << timer.RealTime() << " s " << std::endl;
   }
@@ -3690,7 +3690,7 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
 
 
 
-  if(fUseVerbose==1)
+  if(m_fUseVerbose==1)
     {
       if(fit_code==0)
         {
@@ -3698,9 +3698,9 @@ int MissingMassCalculator::DitauMassCalculatorV9walk(){
           std::cout << "....... No solution is found. Printing input info ......." << std::endl;
           std::cout << "  " << std::endl;
 
-          std::cout << "  vis Tau-1: Pt=" << preparedInput.vistau1.Pt() << "  M=" << preparedInput.vistau1.M() << " eta=" << preparedInput.vistau1.Eta() << "  phi=" << preparedInput.vistau1.Phi() << "  type=" << preparedInput.type_visTau1 << std::endl;
-          std::cout << "  vis Tau-2: Pt=" << preparedInput.vistau2.Pt() << "  M=" << preparedInput.vistau2.M() << " eta=" << preparedInput.vistau2.Eta() << "  phi=" << preparedInput.vistau2.Phi() << "  type=" << preparedInput.type_visTau2 << std::endl;
-          std::cout << "  MET=" << preparedInput.MetVec.Mod() << "  Met_X=" << preparedInput.MetVec.Px() << "  Met_Y=" << preparedInput.MetVec.Py() << std::endl;
+          std::cout << "  vis Tau-1: Pt=" << m_preparedInput.vistau1.Pt() << "  M=" << m_preparedInput.vistau1.M() << " eta=" << m_preparedInput.vistau1.Eta() << "  phi=" << m_preparedInput.vistau1.Phi() << "  type=" << m_preparedInput.type_visTau1 << std::endl;
+          std::cout << "  vis Tau-2: Pt=" << m_preparedInput.vistau2.Pt() << "  M=" << m_preparedInput.vistau2.M() << " eta=" << m_preparedInput.vistau2.Eta() << "  phi=" << m_preparedInput.vistau2.Phi() << "  type=" << m_preparedInput.type_visTau2 << std::endl;
+          std::cout << "  MET=" << m_preparedInput.MetVec.Mod() << "  Met_X=" << m_preparedInput.MetVec.Px() << "  Met_Y=" << m_preparedInput.MetVec.Py() << std::endl;
           std::cout<<" ---------------------------------------------------------- "<<std::endl;
         }
     }
@@ -3718,37 +3718,37 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
 
   //debugThisIteration=false;
-  debugThisIteration=true;
+  m_debugThisIteration=true;
 
   int fit_code=0; // 0==bad, 1==good
-  ClearDitauStuff(fDitauStuffFit);
-  ClearDitauStuff(fDitauStuffHisto);
-  OutputInfo.NTrials = 0;
-  OutputInfo.NSuccesses = 0;
-  OutputInfo.AveSolRMS = 0.;
+  ClearDitauStuff(m_fDitauStuffFit);
+  ClearDitauStuff(m_fDitauStuffHisto);
+  m_OutputInfo.NTrials = 0;
+  m_OutputInfo.NSuccesses = 0;
+  m_OutputInfo.AveSolRMS = 0.;
 
   //------- Settings -------------------------------
-  int NiterMET = Niter_fit2; // number of iterations for each MET scan loop
-  int NiterMnu = Niter_fit3; // number of iterations for Mnu loop
+  int NiterMET = m_niter_fit2; // number of iterations for each MET scan loop
+  int NiterMnu = m_niter_fit3; // number of iterations for Mnu loop
   const double Mtau=1.777;
-  double Mnu_binSize = MnuScanRange/NiterMnu;
+  double Mnu_binSize = m_MnuScanRange/NiterMnu;
 
-  double METresX = preparedInput.METsigmaL; // MET resolution in direction parallel to leading jet, for MET scan
-  double METresY = preparedInput.METsigmaP; // MET resolution in direction perpendicular to leading jet, for MET scan
+  double METresX = m_preparedInput.METsigmaL; // MET resolution in direction parallel to leading jet, for MET scan
+  double METresY = m_preparedInput.METsigmaP; // MET resolution in direction perpendicular to leading jet, for MET scan
 
   //-------- end of Settings
   int Leptau1=0; // lepton-tau code
   int Leptau2=0;
-  if(preparedInput.type_visTau1==0) Leptau1=1;
-  if(preparedInput.type_visTau2==0) Leptau2=1;
+  if(m_preparedInput.type_visTau1==0) Leptau1=1;
+  if(m_preparedInput.type_visTau2==0) Leptau2=1;
 
   if((Leptau1+Leptau2) == 2) { // both tau's are leptonic
-    Nsigma_METscan = Nsigma_METscan_ll;
+    m_nsigma_METscan = m_nsigma_METscan_ll;
   } else if (Leptau1+Leptau2 == 1) { // lep had
-    Nsigma_METscan = Nsigma_METscan_lh;
+    m_nsigma_METscan = m_nsigma_METscan_lh;
   }
 
-  double N_METsigma = Nsigma_METscan; // number of sigmas for MET scan
+  double N_METsigma = m_nsigma_METscan; // number of sigmas for MET scan
   double METresX_binSize = 2*N_METsigma*METresX/NiterMET;
   double METresY_binSize = 2*N_METsigma*METresY/NiterMET;
 
@@ -3756,15 +3756,15 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
   std::vector<TLorentzVector> nu_vec;
 
-  totalProbSum = 0;
-  mtautauSum = 0;
+  m_totalProbSum = 0;
+  m_mtautauSum = 0;
 
   double metprob = 1.0;
   double sign_tmp = 0.0;
   double tauprob = 1.0;
   double totalProb = 0.0;
 
-  prob_tmp = 0.0;
+  m_prob_tmp = 0.0;
 
   double met_smear_x=0.0;
   double met_smear_y=0.0;
@@ -3773,36 +3773,36 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
   double angle1=0.0;
 
-  if(fMfit_all) {
-    fMfit_all->Reset();
+  if(m_fMfit_all) {
+    m_fMfit_all->Reset();
   }
-  if(fMfit_allNoWeight) {
-    fMfit_allNoWeight->Reset();
+  if(m_fMfit_allNoWeight) {
+    m_fMfit_allNoWeight->Reset();
   }
-  if(fPXfit1) {
-    fPXfit1->Reset();
+  if(m_fPXfit1) {
+    m_fPXfit1->Reset();
   }
-  if(fPYfit1) {
-    fPYfit1->Reset();
+  if(m_fPYfit1) {
+    m_fPYfit1->Reset();
   }
-  if(fPZfit1) {
-    fPZfit1->Reset();
+  if(m_fPZfit1) {
+    m_fPZfit1->Reset();
   }
 
 
   //SpeedUp
   TStopwatch timer;
-  if (fSpeedStudy) timer.Start();
+  if (m_fSpeedStudy) timer.Start();
   int iter0 = 0;
-  iter1 = 0;
-  iter2 = 0;
-  iter3 = 0;
-  iter4 = 0;
-  const double met_coscovphi = cos(preparedInput.METcovphi);
-  const double met_sincovphi = sin(preparedInput.METcovphi);
+  m_iter1 = 0;
+  m_iter2 = 0;
+  m_iter3 = 0;
+  m_iter4 = 0;
+  const double met_coscovphi = cos(m_preparedInput.METcovphi);
+  const double met_sincovphi = sin(m_preparedInput.METcovphi);
 
-  iang1low = 0;
-  iang1high = 0;
+  m_iang1low = 0;
+  m_iang1high = 0;
 
   int nsuccesses = 0;
   int isol = 0;
@@ -3817,53 +3817,53 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
   //---------------------------------------------
   if((Leptau1+Leptau2)==2) // dilepton case
     {
-      if(fUseVerbose==1) { std::cout << "Running in dilepton mode" << std::endl; }
-      double input_metX=preparedInput.MetVec.X();
-      double input_metY=preparedInput.MetVec.Y();
+      if(m_fUseVerbose==1) { std::cout << "Running in dilepton mode" << std::endl; }
+      double input_metX=m_preparedInput.MetVec.X();
+      double input_metY=m_preparedInput.MetVec.Y();
 
       TLorentzVector tau_tmp(0.0,0.0,0.0,0.0);
       TLorentzVector lep_tmp(0.0,0.0,0.0,0.0);
       int tau_type_tmp;
       int tau_ind=0;
 
-      if(LFVmode==1) // muon case: H->mu+tau(->ele) decays
+      if(m_LFVmode==1) // muon case: H->mu+tau(->ele) decays
         {
-          if(preparedInput.vistau1.M()>0.05 && preparedInput.vistau2.M()<0.05) // chosing lepton from Higgs decay
+          if(m_preparedInput.vistau1.M()>0.05 && m_preparedInput.vistau2.M()<0.05) // chosing lepton from Higgs decay
             {
-              tau_tmp=preparedInput.vistau2;
-              lep_tmp=preparedInput.vistau1;
-              tau_type_tmp=preparedInput.type_visTau2;
+              tau_tmp=m_preparedInput.vistau2;
+              lep_tmp=m_preparedInput.vistau1;
+              tau_type_tmp=m_preparedInput.type_visTau2;
               tau_ind=2;
             }
           else
             {
-              tau_tmp=preparedInput.vistau1;
-              lep_tmp=preparedInput.vistau2;
-              tau_type_tmp=preparedInput.type_visTau1;
+              tau_tmp=m_preparedInput.vistau1;
+              lep_tmp=m_preparedInput.vistau2;
+              tau_type_tmp=m_preparedInput.type_visTau1;
               tau_ind=1;
             }
         }
-      if(LFVmode==0) // electron case: H->ele+tau(->mu) decays
+      if(m_LFVmode==0) // electron case: H->ele+tau(->mu) decays
         {
-          if(preparedInput.vistau1.M()<0.05 && preparedInput.vistau2.M()>0.05) // chosing lepton from Higgs decay
+          if(m_preparedInput.vistau1.M()<0.05 && m_preparedInput.vistau2.M()>0.05) // chosing lepton from Higgs decay
             {
-              tau_tmp=preparedInput.vistau2;
-              lep_tmp=preparedInput.vistau1;
-              tau_type_tmp=preparedInput.type_visTau2;
+              tau_tmp=m_preparedInput.vistau2;
+              lep_tmp=m_preparedInput.vistau1;
+              tau_type_tmp=m_preparedInput.type_visTau2;
               tau_ind=2;
             }
           else
             {
-              tau_tmp=preparedInput.vistau1;
-              lep_tmp=preparedInput.vistau2;
-              tau_type_tmp=preparedInput.type_visTau1;
+              tau_tmp=m_preparedInput.vistau1;
+              lep_tmp=m_preparedInput.vistau2;
+              tau_type_tmp=m_preparedInput.type_visTau1;
               tau_ind=1;
             }
         }
 
       //------- Settings -------------------------------
       double Mlep=tau_tmp.M();
-      //       double dMnu_max=MnuScanRange-Mlep;
+      //       double dMnu_max=m_MnuScanRange-Mlep;
       //       double Mnu_binSize=dMnu_max/NiterMnu;
       //-------- end of Settings
 
@@ -3894,7 +3894,7 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
                   ++iter0;
 
                   if(solution<1) continue;
-                  ++iter1;
+                  ++m_iter1;
                   ++isol;
                   // if fast sin cos, result to not match exactly nupsolutionv2, so skip test
                   //SpeedUp no nested loop to compute individual probability
@@ -3904,26 +3904,26 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
                   if(metprob<=0) continue;
                   for(unsigned int j1=0; j1<nu_vec.size(); j1++)
                     {
-                      if(tau_tmp.E()+nu_vec[j1].E()>=beamEnergy) continue;
+                      if(tau_tmp.E()+nu_vec[j1].E()>=m_beamEnergy) continue;
                       const double tau1_tmpp=(tau_tmp+nu_vec[j1]).P();
                       angle1=Angle(nu_vec[j1],tau_tmp);
 
-                      if(angle1<dTheta3DLimit(tau_type_tmp,0,tau1_tmpp)) {++iang1low ; continue;} // lower 99% bound
-                      if(angle1>dTheta3DLimit(tau_type_tmp,1,tau1_tmpp)) {++iang1high ; continue;} // upper 99% bound
+                      if(angle1<dTheta3DLimit(tau_type_tmp,0,tau1_tmpp)) {++m_iang1low ; continue;} // lower 99% bound
+                      if(angle1>dTheta3DLimit(tau_type_tmp,1,tau1_tmpp)) {++m_iang1high ; continue;} // upper 99% bound
                       double tauvecprob1j=dTheta3d_probabilityFast(tau_type_tmp,angle1,tau1_tmpp);
                       if(tauvecprob1j==0.) continue;
                       tauprob=TauProbabilityLFV(tau_type_tmp,tau_tmp,nu_vec[j1]);
                       totalProb=tauvecprob1j*metprob*MnuProb*tauprob;
 
-                      tautau_tmp.SetPxPyPzE(0.0,0.0,0.0,0.0);
-                      tautau_tmp+=tau_tmp;
-                      tautau_tmp+=lep_tmp;
-                      tautau_tmp+=nu_vec[j1];
+                      m_tautau_tmp.SetPxPyPzE(0.0,0.0,0.0,0.0);
+                      m_tautau_tmp+=tau_tmp;
+                      m_tautau_tmp+=lep_tmp;
+                      m_tautau_tmp+=nu_vec[j1];
 
-                      const double mtautau=tautau_tmp.M();
+                      const double mtautau=m_tautau_tmp.M();
 
-                      totalProbSum+=totalProb;
-                      mtautauSum+=mtautau;
+                      m_totalProbSum+=totalProb;
+                      m_mtautauSum+=mtautau;
 
 #ifdef DUMPITERATION
                       //add 100 to get positive values, because sort is confused by negative values
@@ -3940,31 +3940,31 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
                       fit_code=1; // at least one solution is found
 
-                      fMfit_all->Fill(mtautau,totalProb);
-                      fMfit_allNoWeight->Fill(mtautau,1.);
+                      m_fMfit_all->Fill(mtautau,totalProb);
+                      m_fMfit_allNoWeight->Fill(mtautau,1.);
                       //----------------- using P*fit to fill Px,y,z_tau
-                      fPXfit1->Fill((tau_tmp+nu_vec[j1]).Px(),totalProb);
-                      fPYfit1->Fill((tau_tmp+nu_vec[j1]).Py(),totalProb);
-                      fPZfit1->Fill((tau_tmp+nu_vec[j1]).Pz(),totalProb);
+                      m_fPXfit1->Fill((tau_tmp+nu_vec[j1]).Px(),totalProb);
+                      m_fPYfit1->Fill((tau_tmp+nu_vec[j1]).Py(),totalProb);
+                      m_fPZfit1->Fill((tau_tmp+nu_vec[j1]).Pz(),totalProb);
 
-                      if(totalProb>prob_tmp) // fill solution with highest probability
+                      if(totalProb>m_prob_tmp) // fill solution with highest probability
                         {
                           sign_tmp=-log10(totalProb);
-                          prob_tmp=totalProb;
-                          fDitauStuffFit.Mditau_best=mtautau;
-                          fDitauStuffFit.Sign_best=sign_tmp;
-                          if(tau_ind==1) fDitauStuffFit.nutau1=nu_vec[j1];
-                          if(tau_ind==2) fDitauStuffFit.nutau2=nu_vec[j1];
+                          m_prob_tmp=totalProb;
+                          m_fDitauStuffFit.Mditau_best=mtautau;
+                          m_fDitauStuffFit.Sign_best=sign_tmp;
+                          if(tau_ind==1) m_fDitauStuffFit.nutau1=nu_vec[j1];
+                          if(tau_ind==2) m_fDitauStuffFit.nutau2=nu_vec[j1];
                         }
 
                       ++ngoodsol1;
                     }
 
                   if (ngoodsol1==0) continue;
-                  iter2+=1;
+                  m_iter2+=1;
 
                   ++nsuccesses;
-                  iter3+=1;
+                  m_iter3+=1;
 
                 }
             }
@@ -3972,14 +3972,14 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
     }
   else if((Leptau1+Leptau2)==1) // lepton+tau case
     {
-      if(fUseVerbose==1) { std::cout << "Running in lepton+tau mode" << std::endl; }
+      if(m_fUseVerbose==1) { std::cout << "Running in lepton+tau mode" << std::endl; }
       //------- Settings -------------------------------
 
       //----- Stuff below are for Winter 2012 lep-had analysis only; it has to be replaced by a more common scheme once other channels are optimized
       //       TVector2 mht_vec((tau_vec1+tau_vec2).Px(),(tau_vec1+tau_vec2).Py()); // missing Ht vector for Njet25=0 events
       //       const double mht=mht_vec.Mod();
-      double input_metX=preparedInput.MetVec.X();
-      double input_metY=preparedInput.MetVec.Y();
+      double input_metX=m_preparedInput.MetVec.X();
+      double input_metY=m_preparedInput.MetVec.Y();
 
       //       double mht_offset=0.0;
       //       if(InputInfo.UseHT)  // use missing Ht (for 0-jet events only for now)
@@ -3987,11 +3987,11 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
       //          input_metX=-mht_vec.X();
       //          input_metY=-mht_vec.Y();
       //          // dPhi(l-t) dependence of misHt-trueMET
-      //          if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2011){
+      //          if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2011){
       //            if(met_det<20.0) mht_offset=InputInfo.DelPhiTT>1.8 ? -161.9+235.5*InputInfo.DelPhiTT-101.6*pow(InputInfo.DelPhiTT,2)+13.57*pow(InputInfo.DelPhiTT,3) : 12.0;
       //            else mht_offset=115.5-78.1*InputInfo.DelPhiTT+12.83*pow(InputInfo.DelPhiTT,2);
 
-      //          } else if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012){
+      //          } else if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012){
       //            if(met_det<20.0) mht_offset=132.1-79.26*InputInfo.DelPhiTT+11.77*pow(InputInfo.DelPhiTT,2);
       //            else mht_offset=51.28-23.56*InputInfo.DelPhiTT+2.637*pow(InputInfo.DelPhiTT,2);
       //          }
@@ -4009,15 +4009,15 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
       int tau_type_tmp;
       if(Leptau1==1)
         {
-          tau_tmp=preparedInput.vistau2;
-          lep_tmp=preparedInput.vistau1;
-          tau_type_tmp=preparedInput.type_visTau2;
+          tau_tmp=m_preparedInput.vistau2;
+          lep_tmp=m_preparedInput.vistau1;
+          tau_type_tmp=m_preparedInput.type_visTau2;
         }
       if(Leptau2==1)
         {
-          tau_tmp=preparedInput.vistau1;
-          lep_tmp=preparedInput.vistau2;
-          tau_type_tmp=preparedInput.type_visTau1;
+          tau_tmp=m_preparedInput.vistau1;
+          lep_tmp=m_preparedInput.vistau2;
+          tau_type_tmp=m_preparedInput.type_visTau1;
         }
 
       //---------------------------------------------
@@ -4037,7 +4037,7 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
               ++iter0;
 
               if(solution<1) continue;
-              ++iter1;
+              ++m_iter1;
               ++isol;
               // if fast sin cos, result to not match exactly nupsolutionv2, so skip test
               //SpeedUp no nested loop to compute individual probability
@@ -4047,26 +4047,26 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
               if(metprob<=0) continue;
               for(unsigned int j1=0; j1<nu_vec.size(); j1++)
                 {
-                  if(tau_tmp.E()+nu_vec[j1].E()>=beamEnergy) continue;
+                  if(tau_tmp.E()+nu_vec[j1].E()>=m_beamEnergy) continue;
                   const double tau1_tmpp=(tau_tmp+nu_vec[j1]).P();
                   angle1=Angle(nu_vec[j1],tau_tmp);
 
-                  if(angle1<dTheta3DLimit(tau_type_tmp,0,tau1_tmpp)) {++iang1low ; continue;} // lower 99% bound
-                  if(angle1>dTheta3DLimit(tau_type_tmp,1,tau1_tmpp)) {++iang1high ; continue;} // upper 99% bound
+                  if(angle1<dTheta3DLimit(tau_type_tmp,0,tau1_tmpp)) {++m_iang1low ; continue;} // lower 99% bound
+                  if(angle1>dTheta3DLimit(tau_type_tmp,1,tau1_tmpp)) {++m_iang1high ; continue;} // upper 99% bound
                   double tauvecprob1j=dTheta3d_probabilityFast(tau_type_tmp,angle1,tau1_tmpp);
                   if(tauvecprob1j==0.) continue;
                   tauprob=TauProbabilityLFV(tau_type_tmp,tau_tmp,nu_vec[j1]);
                   totalProb=tauvecprob1j*metprob*tauprob;
 
-                  tautau_tmp.SetPxPyPzE(0.0,0.0,0.0,0.0);
-                  tautau_tmp+=tau_tmp;
-                  tautau_tmp+=lep_tmp;
-                  tautau_tmp+=nu_vec[j1];
+                  m_tautau_tmp.SetPxPyPzE(0.0,0.0,0.0,0.0);
+                  m_tautau_tmp+=tau_tmp;
+                  m_tautau_tmp+=lep_tmp;
+                  m_tautau_tmp+=nu_vec[j1];
 
-                  const double mtautau=tautau_tmp.M();
+                  const double mtautau=m_tautau_tmp.M();
 
-                  totalProbSum+=totalProb;
-                  mtautauSum+=mtautau;
+                  m_totalProbSum+=totalProb;
+                  m_mtautauSum+=mtautau;
 
 #ifdef DUMPITERATION
                   //add 100 to get positive values, because sort is confused by negative values
@@ -4083,40 +4083,40 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
                   fit_code=1; // at least one solution is found
 
-                  fMfit_all->Fill(mtautau,totalProb);
-                  fMfit_allNoWeight->Fill(mtautau,1.);
+                  m_fMfit_all->Fill(mtautau,totalProb);
+                  m_fMfit_allNoWeight->Fill(mtautau,1.);
                   ////----------------- using P*fit to fill Px,y,z_tau
-                  //fPXfit1->Fill((tau_tmp+nu_vec[j1]).Px(),totalProb);
-                  //fPYfit1->Fill((tau_tmp+nu_vec[j1]).Py(),totalProb);
-                  //fPZfit1->Fill((tau_tmp+nu_vec[j1]).Pz(),totalProb);
+                  //m_fPXfit1->Fill((tau_tmp+nu_vec[j1]).Px(),totalProb);
+                  //m_fPYfit1->Fill((tau_tmp+nu_vec[j1]).Py(),totalProb);
+                  //m_fPZfit1->Fill((tau_tmp+nu_vec[j1]).Pz(),totalProb);
 
-                  if(totalProb>prob_tmp) // fill solution with highest probability
+                  if(totalProb>m_prob_tmp) // fill solution with highest probability
                     {
                       sign_tmp = -log10(totalProb);
-                      prob_tmp = totalProb;
-                      fDitauStuffFit.Mditau_best = mtautau;
-                      fDitauStuffFit.Sign_best = sign_tmp;
+                      m_prob_tmp = totalProb;
+                      m_fDitauStuffFit.Mditau_best = mtautau;
+                      m_fDitauStuffFit.Sign_best = sign_tmp;
                       if(Leptau1 == 1) {
-                        fDitauStuffFit.vistau1 = lep_tmp;
-                        fDitauStuffFit.vistau2 = tau_tmp;
-                        fDitauStuffFit.nutau2 = nu_vec[j1];
+                        m_fDitauStuffFit.vistau1 = lep_tmp;
+                        m_fDitauStuffFit.vistau2 = tau_tmp;
+                        m_fDitauStuffFit.nutau2 = nu_vec[j1];
                       } else if(Leptau2 == 1) {
-                        fDitauStuffFit.vistau2 = lep_tmp;
-                        fDitauStuffFit.vistau1 = tau_tmp;
-                        fDitauStuffFit.nutau1 = nu_vec[j1];
+                        m_fDitauStuffFit.vistau2 = lep_tmp;
+                        m_fDitauStuffFit.vistau1 = tau_tmp;
+                        m_fDitauStuffFit.nutau1 = nu_vec[j1];
                       }
-                      fDitauStuffFit.taufit1 = fDitauStuffFit.vistau1 + fDitauStuffFit.nutau1;
-                      fDitauStuffFit.taufit2 = fDitauStuffFit.vistau2 + fDitauStuffFit.nutau2;
+                      m_fDitauStuffFit.taufit1 = m_fDitauStuffFit.vistau1 + m_fDitauStuffFit.nutau1;
+                      m_fDitauStuffFit.taufit2 = m_fDitauStuffFit.vistau2 + m_fDitauStuffFit.nutau2;
                     }
 
                   ++ngoodsol1;
                 }
 
               if (ngoodsol1==0) continue;
-              iter2+=1;
+              m_iter2+=1;
 
               ++nsuccesses;
-              iter3+=1;
+              m_iter3+=1;
 
             }
         }
@@ -4124,73 +4124,73 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
     std::cout << "Running in an unknown mode?!?!" << std::endl;
   }
 
-  OutputInfo.NTrials=iter0;
-  OutputInfo.NSuccesses=iter3;
+  m_OutputInfo.NTrials=iter0;
+  m_OutputInfo.NSuccesses=m_iter3;
 
-  //  std::cout << "DRDR V9 totalProbSum=" << totalProbSum << " mtautauSum=" << mtautauSum << std::endl;
-  if (fSpeedStudy || fUseVerbose==1) {
-    std::cout << "SpeedUp niters=" << iter0 << " " << iter1
-              << " " << iter2 <<" " << iter3
-              << "skip:" << iang1low << " " << iang1high  << std::endl;
+  //  std::cout << "DRDR V9 totalProbSum=" << m_totalProbSum << " mtautauSum=" << m_mtautauSum << std::endl;
+  if (m_fSpeedStudy || m_fUseVerbose==1) {
+    std::cout << "SpeedUp niters=" << iter0 << " " << m_iter1
+              << " " << m_iter2 <<" " << m_iter3
+              << "skip:" << m_iang1low << " " << m_iang1high  << std::endl;
   }
 
-  if (fSpeedStudy){
+  if (m_fSpeedStudy){
     timer.Stop()  ;
     std::cout << "SpeedUp nonreproducible CPU time = " << timer.CpuTime() << "s real = " << timer.RealTime() << " s " << std::endl;
   }
 
 
-  if(fMfit_all->GetEntries()>0 && iter3>0)
+  if(m_fMfit_all->GetEntries()>0 && m_iter3>0)
     {
 #ifdef SMOOTH
-      fMfit_all->Smooth();
-      fMfit_allNoWeight->Smooth();
-      fPXfit1->Smooth();
-      fPYfit1->Smooth();
-      fPZfit1->Smooth();
+      m_fMfit_all->Smooth();
+      m_fMfit_allNoWeight->Smooth();
+      m_fPXfit1->Smooth();
+      m_fPYfit1->Smooth();
+      m_fPZfit1->Smooth();
 #endif
 
       // default max finding method defined in MissingMassCalculator.h
       // note that window defined in terms of number of bin, so depend on binning
       std::vector<double> histInfo(HistInfo::MAXHISTINFO);
-      fDitauStuffHisto.Mditau_best = maxFromHist(fMfit_all, histInfo);
+      m_fDitauStuffHisto.Mditau_best = maxFromHist(m_fMfit_all, histInfo);
       double prob_hist = histInfo.at(HistInfo::PROB);
 
-      if(prob_hist!=0.0) fDitauStuffHisto.Sign_best=-log10(std::abs(prob_hist));
+      if(prob_hist!=0.0) m_fDitauStuffHisto.Sign_best=-log10(std::abs(prob_hist));
       else
         {
           // this mean the histogram is empty.
           // possible but very rare if all entries outside histogram range
           // fall back to maximum
-          fDitauStuffHisto.Sign_best=-999.;
-          fDitauStuffHisto.Mditau_best=fDitauStuffFit.Mditau_best;
+          m_fDitauStuffHisto.Sign_best=-999.;
+          m_fDitauStuffHisto.Mditau_best=m_fDitauStuffFit.Mditau_best;
 
           //    std::cout << "ERROR should not happen. null prob " << prob_hist << std::endl;
         }
 
-      if(fDitauStuffHisto.Mditau_best>0.0) fDitauStuffHisto.RMSoverMPV = fMfit_all->GetRMS()/fDitauStuffHisto.Mditau_best;
+      if(m_fDitauStuffHisto.Mditau_best>0.0) m_fDitauStuffHisto.RMSoverMPV = m_fMfit_all->GetRMS()/m_fDitauStuffHisto.Mditau_best;
       std::vector<double> histInfoOther(HistInfo::MAXHISTINFO);
       //---- getting Nu1
-      double Px1=maxFromHist(fPXfit1,histInfoOther);
-      double Py1=maxFromHist(fPYfit1,histInfoOther);
-      double Pz1=maxFromHist(fPZfit1,histInfoOther);
+      double Px1=maxFromHist(m_fPXfit1,histInfoOther);
+      double Py1=maxFromHist(m_fPYfit1,histInfoOther);
+      double Pz1=maxFromHist(m_fPZfit1,histInfoOther);
       //---- setting 4-vecs
       TLorentzVector nu1_tmp(0.0,0.0,0.0,0.0);
       TLorentzVector nu2_tmp(0.0,0.0,0.0,0.0);
       if(Leptau1==1)
         {
-          nu1_tmp = preparedInput.vistau1;
+          nu1_tmp = m_preparedInput.vistau1;
           nu2_tmp.SetXYZM(Px1,Py1,Pz1,1.777);
         }
       if(Leptau2==1)
         {
-          nu2_tmp = preparedInput.vistau2;
+          nu2_tmp = m_preparedInput.vistau2;
           nu1_tmp.SetXYZM(Px1,Py1,Pz1,1.777);
         }
-      fDitauStuffHisto.taufit1 = nu1_tmp;
-      fDitauStuffHisto.taufit2 = nu2_tmp;
-      fDitauStuffHisto.nutau1 = nu1_tmp-preparedInput.vistau1;
-      fDitauStuffHisto.nutau2 = nu2_tmp-preparedInput.vistau2;
+      m_fDitauStuffHisto.taufit1 = nu1_tmp;
+      m_fDitauStuffHisto.taufit2 = nu2_tmp;
+      m_fDitauStuffHisto.nutau1 = nu1_tmp-m_preparedInput.vistau1;
+      m_fDitauStuffHisto.nutau2 = nu2_tmp-m_preparedInput.vistau2;
     }
 
 
@@ -4223,32 +4223,32 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
   // need the stuff below as well
 
   aHistName="probTheta3D"+aHistSuffix;
-  theHist=(TH1F*) fTheta3D->Clone(aHistName);
+  theHist=(TH1F*) m_fTheta3D->Clone(aHistName);
   theHist->Write();
   aHistName="TauProb"+aHistSuffix;
-  theHist=(TH1F*) fTauProb->Clone(aHistName);
+  theHist=(TH1F*) m_fTauProb->Clone(aHistName);
   theHist->Write();
 #endif
 
 #ifdef HISTITERATION
 
   aHistName="phi1"+aHistSuffix;
-  theHist=(TH1F*) fPhi1->Clone(aHistName);
+  theHist=(TH1F*) m_fPhi1->Clone(aHistName);
   theHist->Write();
   aHistName="phi2"+aHistSuffix;
-  theHist=(TH1F*) fPhi2->Clone(aHistName);
+  theHist=(TH1F*) m_fPhi2->Clone(aHistName);
   theHist->Write();
   aHistName="mnu1"+aHistSuffix;
-  theHist=(TH1F*) fMnu1->Clone(aHistName);
+  theHist=(TH1F*) m_fMnu1->Clone(aHistName);
   theHist->Write();
   aHistName="mnu2"+aHistSuffix;
-  theHist=(TH1F*) fMnu2->Clone(aHistName);
+  theHist=(TH1F*) m_fMnu2->Clone(aHistName);
   theHist->Write();
   aHistName="metx"+aHistSuffix;
-  theHist=(TH1F*) fMetx->Clone(aHistName);
+  theHist=(TH1F*) m_fMetx->Clone(aHistName);
   theHist->Write();
   aHistName="mety"+aHistSuffix;
-  theHist=(TH1F*) fMety->Clone(aHistName);
+  theHist=(TH1F*) m_fMety->Clone(aHistName);
   theHist->Write();
 #endif
 
@@ -4259,16 +4259,16 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
 
 
   aHistName="m"+aHistSuffix;
-  theHist=(TH1F*) fMfit_all->Clone(aHistName);
+  theHist=(TH1F*) m_fMfit_all->Clone(aHistName);
   theHist->Write();
 
   aHistName="mNoW"+aHistSuffix;
-  theHist=(TH1F*) fMfit_allNoWeight->Clone(aHistName);
+  theHist=(TH1F*) m_fMfit_allNoWeight->Clone(aHistName);
   theHist->Write();
 #endif
 
 
-  if(fUseVerbose==1)
+  if(m_fUseVerbose==1)
     {
       if(fit_code==0)
         {
@@ -4276,9 +4276,9 @@ int MissingMassCalculator::DitauMassCalculatorV9lfv()
           std::cout << "....... No solution is found. Printing input info ......." << std::endl;
           std::cout << "  " << std::endl;
 
-          std::cout << "  vis Tau-1: Pt=" << preparedInput.vistau1.Pt() << "  M=" << preparedInput.vistau1.M() << " eta=" << preparedInput.vistau1.Eta() << "  phi=" << preparedInput.vistau1.Phi() << "  type=" << preparedInput.type_visTau1 << std::endl;
-          std::cout << "  vis Tau-2: Pt=" << preparedInput.vistau2.Pt() << "  M=" << preparedInput.vistau2.M() << " eta=" << preparedInput.vistau2.Eta() << "  phi=" << preparedInput.vistau2.Phi() << "  type=" << preparedInput.type_visTau2 << std::endl;
-          std::cout << "  MET=" << preparedInput.MetVec.Mod() << "  Met_X=" << preparedInput.MetVec.Px() << "  Met_Y=" << preparedInput.MetVec.Py() << std::endl;
+          std::cout << "  vis Tau-1: Pt=" << m_preparedInput.vistau1.Pt() << "  M=" << m_preparedInput.vistau1.M() << " eta=" << m_preparedInput.vistau1.Eta() << "  phi=" << m_preparedInput.vistau1.Phi() << "  type=" << m_preparedInput.type_visTau1 << std::endl;
+          std::cout << "  vis Tau-2: Pt=" << m_preparedInput.vistau2.Pt() << "  M=" << m_preparedInput.vistau2.M() << " eta=" << m_preparedInput.vistau2.Eta() << "  phi=" << m_preparedInput.vistau2.Phi() << "  type=" << m_preparedInput.type_visTau2 << std::endl;
+          std::cout << "  MET=" << m_preparedInput.MetVec.Mod() << "  Met_X=" << m_preparedInput.MetVec.Px() << "  Met_Y=" << m_preparedInput.MetVec.Py() << std::endl;
           std::cout << " ---------------------------------------------------------- " << std::endl;
         }
     }
@@ -4650,11 +4650,11 @@ double MissingMassCalculator::maxFromHist(TH1F* theHist, std::vector<double> & h
     const double mMean=fitRes->Parameter(1);
     const double mInvWidth2=fitRes->Parameter(2);
     double mMaxError=fitRes->ParError(0);
-    m_PrintmMaxError=mMaxError;
+    m_printmMaxError=mMaxError;
     double mMeanError=fitRes->ParError(1);
-    m_PrintmMeanError=mMeanError;
+    m_printmMeanError=mMeanError;
     double mInvWidth2Error=fitRes->ParError(2);
-    m_PrintmInvWidth2Error=mInvWidth2Error;
+    m_printmInvWidth2Error=mInvWidth2Error;
     mMeanError=0.; // avoid warning
     mInvWidth2Error=0.; // avoid warning
     const double c=mMax*(1-4*mMean*mMean*mInvWidth2);
@@ -4673,11 +4673,11 @@ double MissingMassCalculator::maxFromHist(TH1F* theHist, std::vector<double> & h
     const double mMean=0.;
     const double mInvWidth2=0.;
     double mMaxError=0.;
-    m_PrintmMaxError=mMaxError;
+    m_printmMaxError=mMaxError;
     double mMeanError=0.;
-    m_PrintmMeanError=mMeanError;
+    m_printmMeanError=mMeanError;
     double mInvWidth2Error=0.;
-    m_PrintmInvWidth2Error=mInvWidth2Error;
+    m_printmInvWidth2Error=mInvWidth2Error;
     mMeanError=0.;
     mInvWidth2Error=0.;
     double a=asolve[2];
@@ -4748,7 +4748,7 @@ int MissingMassCalculator::probCalculatorV9fast(const double & phi1, const doubl
 
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
 
     std::cout << "probCalculatorV9Fast : phi1 " << phi1 << " phi2 " << phi2
               << " tauvec 1 " << m_tauVec1.Px() << " " << m_tauVec1.Py() << " " << m_tauVec1.Pz() << " " << m_tauVec1.E() << " " << m_tauVec1.M()
@@ -4760,7 +4760,7 @@ int MissingMassCalculator::probCalculatorV9fast(const double & phi1, const doubl
   const int solution=NuPsolutionV3(M_nu1,M_nu2,phi1,phi2,nsol1,nsol2);
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "probCalculatorV9Fast : solution " << solution << std::endl;
   }
 #endif
@@ -4773,7 +4773,7 @@ int MissingMassCalculator::probCalculatorV9fast(const double & phi1, const doubl
                                    nsol1, nsol2,m_Mvis,m_Meff);
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "refineSolutions : solution " << m_nsol << " nsol1:" << nsol1 << " nsol2:" << nsol2 << std::endl;
   }
 #endif
@@ -4794,28 +4794,28 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
                                             const double & Mvis, const double & Meff)
 
 {
-  const int  tau_type1 = preparedInput.type_visTau1;
-  const int  tau_type2 = preparedInput.type_visTau2;
+  const int  tau_type1 = m_preparedInput.type_visTau1;
+  const int  tau_type2 = m_preparedInput.type_visTau2;
 
   m_nsol=0;
 
-  if (int(m_probFinalSolVec.size())<nsolfinalmax) std::cout << "refineSolutions ERROR " << " probFinalSolVec.size() should be " << nsolfinalmax << std::endl;
-  if (int(m_mtautauFinalSolVec.size())<nsolfinalmax) std::cout << "refineSolutions ERROR " << " mtautauSolVec.size() should be " << nsolfinalmax << std::endl;
-  if (int(m_nu1FinalSolVec.size())<nsolfinalmax) std::cout << "refineSolutions ERROR " << " nu1FinalSolVec.size() should be " << nsolfinalmax << std::endl;
-  if (int(m_nu2FinalSolVec.size())<nsolfinalmax) std::cout << "refineSolutions ERROR " << " nu1FinalSolVec.size() should be " << nsolfinalmax << std::endl;
-  if (nsol1>int(nsolmax)) std::cout << "refineSolutions ERROR " << " nsol1 " << nsol1 << "  > nsolmax !" << nsolmax << std::endl;
-  if (nsol2>int(nsolmax)) std::cout << "refineSolutions ERROR " << " nsol1 " << nsol2 << "  > nsolmax !" << nsolmax << std::endl;
+  if (int(m_probFinalSolVec.size())<m_nsolfinalmax) std::cout << "refineSolutions ERROR " << " probFinalSolVec.size() should be " << m_nsolfinalmax << std::endl;
+  if (int(m_mtautauFinalSolVec.size())<m_nsolfinalmax) std::cout << "refineSolutions ERROR " << " mtautauSolVec.size() should be " << m_nsolfinalmax << std::endl;
+  if (int(m_nu1FinalSolVec.size())<m_nsolfinalmax) std::cout << "refineSolutions ERROR " << " nu1FinalSolVec.size() should be " << m_nsolfinalmax << std::endl;
+  if (int(m_nu2FinalSolVec.size())<m_nsolfinalmax) std::cout << "refineSolutions ERROR " << " nu1FinalSolVec.size() should be " << m_nsolfinalmax << std::endl;
+  if (nsol1>int(m_nsolmax)) std::cout << "refineSolutions ERROR " << " nsol1 " << nsol1 << "  > nsolmax !" << m_nsolmax << std::endl;
+  if (nsol2>int(m_nsolmax)) std::cout << "refineSolutions ERROR " << " nsol1 " << nsol2 << "  > nsolmax !" << m_nsolmax << std::endl;
 
   //  std::cout << "DRDR in refine solutions nsol1=" << nsol1 << " nsol2=" << nsol2 << std::endl ;
 
-  //  iter2+=(nsol1*nsol2);
+  //  m_iter2+=(nsol1*nsol2);
   int ngoodsol1=0;
   for(int j1=0; j1<nsol1; j1++)
     {
-      double &tauvecprob1j  = tauvecprob1[j1];
+      double &tauvecprob1j  = m_tauvecprob1[j1];
       tauvecprob1j=0.;
       //SpeedUp reference to avoid picking again in again in array
-      TLorentzVector & nuvec1_tmpj=nuvecsol1[j1];
+      TLorentzVector & nuvec1_tmpj=m_nuvecsol1[j1];
 
 #ifndef USEALLSOLUTION
       // take first or second solution
@@ -4834,7 +4834,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
         }
       }
 #endif
-      TLorentzVector & tauvecsol1j=tauvecsol1[j1];
+      TLorentzVector & tauvecsol1j=m_tauvecsol1[j1];
 
 
 
@@ -4850,7 +4850,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
       tauvecsol1j+=nuvec1_tmpj;
       tauvecsol1j+=m_tauVec1;
 
-      if(tauvecsol1j.E()>=beamEnergy) continue;
+      if(tauvecsol1j.E()>=m_beamEnergy) continue;
 
       const double tau1_tmpp=tauvecsol1j.P();
       const double angle1=Angle(nuvec1_tmpj,m_tauVec1);
@@ -4864,7 +4864,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
     }
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "refineSolutions : ngoodsol1 " << ngoodsol1 << std::endl;
   }
 #endif
@@ -4878,7 +4878,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
 
   for(int j2=0; j2<nsol2; j2++)
     {
-      double &tauvecprob2j = tauvecprob2[j2];
+      double &tauvecprob2j = m_tauvecprob2[j2];
       tauvecprob2j=0.;
 
 #ifndef USEALLSOLUTION
@@ -4898,8 +4898,8 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
       }
 
 #endif
-      TLorentzVector & nuvec2_tmpj=nuvecsol2[j2];
-      TLorentzVector & tauvecsol2j=tauvecsol2[j2];
+      TLorentzVector & nuvec2_tmpj=m_nuvecsol2[j2];
+      TLorentzVector & tauvecsol2j=m_tauvecsol2[j2];
 
       nuvec2_tmpj.SetXYZM(nuvec2_tmpj.Px(),
                           nuvec2_tmpj.Py(),
@@ -4910,7 +4910,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
       tauvecsol2j.SetPxPyPzE(0.,0.,0.,0.);
       tauvecsol2j+=nuvec2_tmpj;
       tauvecsol2j+=m_tauVec2;
-      if (tauvecsol2j.E()>=beamEnergy) continue;
+      if (tauvecsol2j.E()>=m_beamEnergy) continue;
       const double tau2_tmpp=tauvecsol2j.P();
       const double angle2=Angle(nuvec2_tmpj,m_tauVec2);
 #ifdef USETAUVISFORPROB
@@ -4923,7 +4923,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
     }
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "refineSolutions : ngoodsol1 " << ngoodsol1 << " ngoodsol2:" << ngoodsol2 << std::endl;
   }
 #endif
@@ -4939,34 +4939,34 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
   // now reloop
   for (int j1=0; j1<nsol1;++j1)
     {
-      double &tauvecprob1j = tauvecprob1[j1];
+      double &tauvecprob1j = m_tauvecprob1[j1];
       // quit already if this sol was no good
       if (tauvecprob1j==0.) continue;
-      TLorentzVector & nuvec1_tmpj=nuvecsol1[j1];
-      TLorentzVector & tauvecsol1j=tauvecsol1[j1];
+      TLorentzVector & nuvec1_tmpj=m_nuvecsol1[j1];
+      TLorentzVector & tauvecsol1j=m_tauvecsol1[j1];
 
       for (int j2=0; j2<nsol2;++j2)
         {
-          double &tauvecprob2j = tauvecprob2[j2];
+          double &tauvecprob2j = m_tauvecprob2[j2];
           // quit already if this sol was no good
           if (tauvecprob2j==0.) continue;
-          TLorentzVector & nuvec2_tmpj=nuvecsol2[j2];
-          TLorentzVector & tauvecsol2j=tauvecsol2[j2];
+          TLorentzVector & nuvec2_tmpj=m_nuvecsol2[j2];
+          TLorentzVector & tauvecsol2j=m_tauvecsol2[j2];
 
           //cannot happen if(totalProb<=0.0) continue;
 
-          // ++iter4;
-          tautau_tmp.SetPxPyPzE(0.,0.,0.,0.);
-          tautau_tmp+=tauvecsol1j;
-          tautau_tmp+=tauvecsol2j;
-          const double mtautau=tautau_tmp.M();
+          // ++m_iter4;
+          m_tautau_tmp.SetPxPyPzE(0.,0.,0.,0.);
+          m_tautau_tmp+=tauvecsol1j;
+          m_tautau_tmp+=tauvecsol2j;
+          const double mtautau=m_tautau_tmp.M();
 
           //
           if(TailCleanUp(tau_type1,m_tauVec1,nuvec1_tmpj,
                          tau_type2,m_tauVec2,nuvec2_tmpj,
-                         mtautau,Mvis,Meff,preparedInput.DelPhiTT)==0) {
+                         mtautau,Mvis,Meff,m_preparedInput.m_DelPhiTT)==0) {
 #ifdef DEBUGTHISITERATION
-            if (debugThisIteration) {
+            if (m_debugThisIteration) {
               std::cout << "refineSolutions : exit tailcleanup" << std::endl;
             }
 #endif
@@ -4991,7 +4991,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
           // also for h h
           double ditauProb=1.0;
           double mnuProb=1.0;
-          if(preparedInput.UseHT || (tau_type1!=0 && tau_type2!=0 ))
+          if(m_preparedInput.UseHT || (tau_type1!=0 && tau_type2!=0 ))
             {
               ditauProb=TauProbability(tau_type1,m_tauVec1,nuvec1_tmpj,tau_type2,m_tauVec2,nuvec2_tmpj,m_DetMEt); // customized prob for Njet25=0
             }
@@ -5000,7 +5000,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
               ditauProb=TauProbability(tau_type1,m_tauVec1,nuvec1_tmpj,tau_type2,m_tauVec2,nuvec2_tmpj);
             }
 
-          if(fUseMnuProbability==1)
+          if(m_fUseMnuProbability==1)
             {
               if(tau_type1==0 && tau_type2==0) mnuProb=MnuProbability(nuvec1_tmpj.M())*MnuProbability(nuvec2_tmpj.M()); // lep-lep
               if(tau_type1==0 && tau_type2!=0) mnuProb=MnuProbability(nuvec1_tmpj.M()); // lep-had: tau1==lepton
@@ -5032,7 +5032,7 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
 #ifdef DEBUGTHISITERATION
           //debugThisIteration=(totalProb>1e3);
 
-          if (debugThisIteration) {
+          if (m_debugThisIteration) {
 
             std::cout << " refineSolutions from TauProbability "
                       << "tau_type1 " << tau_type1 << " tauVec1.E" << m_tauVec1.E() << " tauVec1.M" << m_tauVec1.M()
@@ -5057,10 +5057,10 @@ int MissingMassCalculator::refineSolutions (const double & M_nu1, const double &
             //      std::cout << " WARNING null proba solution, rejected " << totalProb << std::endl;
           } else  {
             // only count solution with non zero probability
-            totalProbSum+=totalProb;
-            mtautauSum+=mtautau;
+            m_totalProbSum+=totalProb;
+            m_mtautauSum+=mtautau;
 
-            if (m_nsol>=int(nsolfinalmax)) {
+            if (m_nsol>=int(m_nsolfinalmax)) {
               std::cout << "refineSolutions ERROR nsol getting larger than nsolfinalmax!!! " << m_nsol << std::endl;
               std::cout << " j1 " << j1 << " j2 " << j2 << " nsol1 " << nsol1 << " nsol2 " << nsol2 << std::endl;
               --m_nsol; //overwrite last solution. However this should really never happen
@@ -5094,17 +5094,17 @@ int MissingMassCalculator::TailCleanUp(const int & type1, const TLorentzVector &
                                        const double & dphiTT) {
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "tailcleanup : enter" << std::endl;
   }
 #endif
 
 
   int pass_code=1;
-  if(fUseTailCleanup==0) return pass_code;
+  if(m_fUseTailCleanup==0) return pass_code;
 
 #ifdef DEBUGTHISITERATION
-  if (debugThisIteration) {
+  if (m_debugThisIteration) {
     std::cout << "tailcleanup : will be done" << std::endl;
   }
 #endif
@@ -5131,15 +5131,15 @@ int MissingMassCalculator::TailCleanUp(const int & type1, const TLorentzVector &
   if((type1==0 || type2==0) && (type1+type2>0)) // lepton-hadron channel
     {
 
-      if (m_MMCCalibrationSet==MMCCalibrationSet::MMC2012
-          || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015
-          || m_MMCCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
-          || m_MMCCalibrationSet==MMCCalibrationSet::MMC2016MC15C
-          || m_MMCCalibrationSet==MMCCalibrationSet::UPGRADE)
+      if (m_mmcCalibrationSet==MMCCalibrationSet::MMC2012
+          || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015
+          || m_mmcCalibrationSet==MMCCalibrationSet::MMC2015HIGHMASS
+          || m_mmcCalibrationSet==MMCCalibrationSet::MMC2016MC15C
+          || m_mmcCalibrationSet==MMCCalibrationSet::UPGRADE)
         return pass_code; // don't use TailCleanup for 8 & 13 TeV data
 
       //--------- leave code uncommented to avoid Compilation warnings
-      if(preparedInput.UseHT)
+      if(m_preparedInput.UseHT)
         {
           const double MrecoMvis=mmc_mass/vis_mass;
           const double MrecoMeff=mmc_mass/eff_mass;
@@ -5166,7 +5166,7 @@ int MissingMassCalculator::TailCleanUp(const int & type1, const TLorentzVector &
 double MissingMassCalculator::TauProbabilityLFV(const int & type1, const TLorentzVector & vis1, const TLorentzVector & nu1)
 {
   double prob=1.0;
-  if(fUseTauProbability==0) return prob; // don't apply TauProbability
+  if(m_fUseTauProbability==0) return prob; // don't apply TauProbability
   double prob1=1.0;
   const double mtau=1.777;
   const double R1=nu1.E()/vis1.E();
@@ -5177,19 +5177,19 @@ double MissingMassCalculator::TauProbabilityLFV(const int & type1, const TLorent
   double E2=mtau-E1;
   if(E1<=m1 || E1>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
       return 0.0;
     }
   if(E2<=m2 || E2>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
       return 0.0;
     }
-  tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
-  tlv_tmp+=nu1;
-  tlv_tmp+=vis1;
+  m_tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
+  m_tlv_tmp+=nu1;
+  m_tlv_tmp+=vis1;
   //  double p=(nu1+vis1).P();
-  double p=tlv_tmp.P();
+  double p=m_tlv_tmp.P();
   double V=p/sqrt(p*p+mtau*mtau);
   double p0;
   if(type1==0) p0=sqrt(E2*E2-m2*m2); // leptonic tau
@@ -5205,7 +5205,7 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
                                              const int & type2, const TLorentzVector & vis2, const TLorentzVector & nu2)
 {
   double prob=1.0;
-  if(fUseTauProbability==0) return prob; // don't apply TauProbability
+  if(m_fUseTauProbability==0) return prob; // don't apply TauProbability
   double prob1=1.0;
   double prob2=1.0;
   const double mtau=1.777;
@@ -5218,19 +5218,19 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
   double E2=mtau-E1;
   if(E1<=m1 || E1>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
       return 0.0;
     }
   if(E2<=m2 || E2>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
       return 0.0;
     }
-  tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
-  tlv_tmp+=nu1;
-  tlv_tmp+=vis1;
+  m_tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
+  m_tlv_tmp+=nu1;
+  m_tlv_tmp+=vis1;
   //  double p=(nu1+vis1).P();
-  double p=tlv_tmp.P();
+  double p=m_tlv_tmp.P();
   double V=p/sqrt(p*p+mtau*mtau);
   double p0;
   if(type1==0) p0=sqrt(E2*E2-m2*m2); // leptonic tau
@@ -5247,19 +5247,19 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
   E2=mtau-E1;
   if(E1<=m1 || E1>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E1, returning 0 "<<std::endl;
       return 0.0;
     }
   if(E2<=m2 || E2>=mtau)
     {
-      if(fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
+      if(m_fUseVerbose==1) std::cout<<" Warning in MissingMassCalculator::TauProbability: bad E2, returning 0 "<<std::endl;
       return 0.0;
     }
-  tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
-  tlv_tmp+=nu2;
-  tlv_tmp+=vis2;
+  m_tlv_tmp.SetPxPyPzE(0.,0.,0.,0.);
+  m_tlv_tmp+=nu2;
+  m_tlv_tmp+=vis2;
   //  p=(nu2+vis2).P();
-  p=tlv_tmp.P();
+  p=m_tlv_tmp.P();
 
 
   V=p/sqrt(p*p+mtau*mtau);
@@ -5281,9 +5281,9 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
   // #ifdef  TAUESCAN
   //   return prob;
   // #endif
-  if(fUseTauProbability==0) return prob; // don't apply TauProbability
+  if(m_fUseTauProbability==0) return prob; // don't apply TauProbability
 
-  if(preparedInput.UseHT)
+  if(m_preparedInput.UseHT)
     {
       if(detmet<20.0) // low MET Njet=0 category
         {
@@ -5296,9 +5296,9 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
           const double lep_p5[4]={0.145,0.107,0.259,0.304};
           int ind=3;
           int indT=3;
-          const double m_1pr[4]={-0.15,-0.13,-0.25,-0.114};
+          const double n_1pr[4]={-0.15,-0.13,-0.25,-0.114};
           const double s_1pr[4]={0.40,0.54,0.62,0.57};
-          const double m_3pr[4]={-1.08,-1.57,-0.46,-0.39};
+          const double n_3pr[4]={-1.08,-1.57,-0.46,-0.39};
           const double s_3pr[4]={0.53,0.85,0.61,0.53};
           double Ptau=0.0;
           double Plep=0.0;
@@ -5325,10 +5325,10 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
           //      return prob;
           // #endif
 
-          if(type1==1) prob=prob*TMath::Gaus(R1,m_1pr[indT],s_1pr[indT]);
-          if(type2==1) prob=prob*TMath::Gaus(R2,m_1pr[indT],s_1pr[indT]);
-          if(type1==3) prob=prob*TMath::Gaus(R1,m_3pr[indT],s_3pr[indT]);
-          if(type2==3) prob=prob*TMath::Gaus(R2,m_3pr[indT],s_3pr[indT]);
+          if(type1==1) prob=prob*TMath::Gaus(R1,n_1pr[indT],s_1pr[indT]);
+          if(type2==1) prob=prob*TMath::Gaus(R2,n_1pr[indT],s_1pr[indT]);
+          if(type1==3) prob=prob*TMath::Gaus(R1,n_3pr[indT],s_3pr[indT]);
+          if(type2==3) prob=prob*TMath::Gaus(R2,n_3pr[indT],s_3pr[indT]);
 
         }
       else // high MET Njet=0 category
@@ -5367,10 +5367,10 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
           //      return prob;
           // #endif
 
-          if(type1==1) prob=prob*exp(p_1prong*R1*scale1prong)*fabs(p_1prong*scale1prong)*0.02; // introduced normalization to account for sharpening of probability at low E(tau)
-          if(type2==1) prob=prob*exp(p_1prong*R2*scale1prong)*fabs(p_1prong*scale1prong)*0.02;
-          if(type1==3) prob=prob*exp(p_3prong*R1*scale3prong)*fabs(p_3prong*scale3prong)*0.02;
-          if(type2==3) prob=prob*exp(p_3prong*R2*scale3prong)*fabs(p_3prong*scale3prong)*0.02;
+          if(type1==1) prob=prob*exp(p_1prong*R1*scale1prong)*std::abs(p_1prong*scale1prong)*0.02; // introduced normalization to account for sharpening of probability at low E(tau)
+          if(type2==1) prob=prob*exp(p_1prong*R2*scale1prong)*std::abs(p_1prong*scale1prong)*0.02;
+          if(type1==3) prob=prob*exp(p_3prong*R1*scale3prong)*std::abs(p_3prong*scale3prong)*0.02;
+          if(type2==3) prob=prob*exp(p_3prong*R2*scale3prong)*std::abs(p_3prong*scale3prong)*0.02;
         }
     }
   //----------------- had-had channel ---------------------------------------
@@ -5381,7 +5381,7 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
       //          return prob;
       // #endif
 
-      if(preparedInput.UseHT) // Events with no jets
+      if(m_preparedInput.UseHT) // Events with no jets
         {
 
           const double R[2]={nu1.P()/vis1.P(),nu2.P()/vis2.P()};
@@ -5413,7 +5413,7 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
               double x=std::min(E[order1],300.0);
               const double slope=par_1p[0][0]+par_1p[0][1]/(par_1p[0][2]*x+par_1p[0][3])+par_1p[0][4]*x > 0.01 ?
                 par_1p[0][0]+par_1p[0][1]/(par_1p[0][2]*x+par_1p[0][3])+par_1p[0][4]*x : 0.01;
-              prob=prob*exp(-R[order1]/slope)*0.04/fabs(slope);
+              prob=prob*exp(-R[order1]/slope)*0.04/std::abs(slope);
             }
           if(tau_type[order1]==3) // 3-prong
             {
@@ -5422,7 +5422,7 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
               double x=std::min(E[order1],300.0);
               const double slope=par_3p[0][0]+par_3p[0][1]/(par_3p[0][2]*x+par_3p[0][3])+par_3p[0][4]*x > 0.01 ?
                 par_3p[0][0]+par_3p[0][1]/(par_3p[0][2]*x+par_3p[0][3])+par_3p[0][4]*x : 0.01;
-              prob=prob*exp(-R[order1]/slope)*0.04/fabs(slope);
+              prob=prob*exp(-R[order1]/slope)*0.04/std::abs(slope);
             }
           // Probability for sub-leading tau
           if(tau_type[order2]==1) // 1-prong
@@ -5448,7 +5448,7 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
               prob=prob*C3p*TMath::Gaus(R[order2],mean,sigma);
             }
         }
-      if(!preparedInput.UseHT) // Events with jets
+      if(!m_preparedInput.UseHT) // Events with jets
         {
           const double R1=nu1.P()/vis1.P();
           const double R2=nu2.P()/vis2.P();
@@ -5468,31 +5468,31 @@ double MissingMassCalculator::TauProbability(const int & type1, const TLorentzVe
           double scale2;
           if(type1==1) // 1-prong
             {
-              scale1=E1>100.0 ? 1.0 : 1.0/fabs((par_1p[order1][0]+par_1p[order1][1]*E1+par_1p[order1][2]*E1*E1)*slope_1p[order1]);
+              scale1=E1>100.0 ? 1.0 : 1.0/std::abs((par_1p[order1][0]+par_1p[order1][1]*E1+par_1p[order1][2]*E1*E1)*slope_1p[order1]);
               if(scale1<1.0) scale1=1.0;
               if(scale1>100.0) scale1=100.0;
-              prob=prob*fabs(slope_1p[order1])*scale1*exp(slope_1p[order1]*scale1*R1)*0.04;
+              prob=prob*std::abs(slope_1p[order1])*scale1*exp(slope_1p[order1]*scale1*R1)*0.04;
             }
           if(type1==3) // 3-prong
             {
-              scale1=E1>100.0 ? 1.0 : 1.0/fabs((par_3p[order1][0]+par_3p[order1][1]*E1+par_3p[order1][2]*E1*E1)*slope_3p[order1]);
+              scale1=E1>100.0 ? 1.0 : 1.0/std::abs((par_3p[order1][0]+par_3p[order1][1]*E1+par_3p[order1][2]*E1*E1)*slope_3p[order1]);
               if(scale1<1.0) scale1=1.0;
               if(scale1>100.0) scale1=100.0;
-              prob=prob*fabs(slope_3p[order1])*scale1*exp(slope_3p[order1]*scale1*R1)*0.04;
+              prob=prob*std::abs(slope_3p[order1])*scale1*exp(slope_3p[order1]*scale1*R1)*0.04;
             }
           if(type2==1) // 1-prong
             {
-              scale2=E2>100.0 ? 1.0 : 1.0/fabs((par_1p[order2][0]+par_1p[order2][1]*E2+par_1p[order2][2]*E2*E2)*slope_1p[order2]);
+              scale2=E2>100.0 ? 1.0 : 1.0/std::abs((par_1p[order2][0]+par_1p[order2][1]*E2+par_1p[order2][2]*E2*E2)*slope_1p[order2]);
               if(scale2<1.0) scale2=1.0;
               if(scale2>100.0) scale2=100.0;
-              prob=prob*fabs(slope_1p[order2])*scale2*exp(slope_1p[order2]*scale2*R2)*0.04;
+              prob=prob*std::abs(slope_1p[order2])*scale2*exp(slope_1p[order2]*scale2*R2)*0.04;
             }
           if(type2==3) // 3-prong
             {
-              scale2=E2>100.0 ? 1.0 : 1.0/fabs((par_3p[order2][0]+par_3p[order2][1]*E2+par_3p[order2][2]*E2*E2)*slope_3p[order2]);
+              scale2=E2>100.0 ? 1.0 : 1.0/std::abs((par_3p[order2][0]+par_3p[order2][1]*E2+par_3p[order2][2]*E2*E2)*slope_3p[order2]);
               if(scale2<1.0) scale2=1.0;
               if(scale2>100.0) scale2=100.0;
-              prob=prob*fabs(slope_3p[order2])*scale2*exp(slope_3p[order2]*scale2*R2)*0.04;
+              prob=prob*std::abs(slope_3p[order2])*scale2*exp(slope_3p[order2]*scale2*R2)*0.04;
 
             }
         }
@@ -5583,7 +5583,7 @@ double MissingMassCalculator::TauProbabilityMatrix(const int & type1, const TLor
 double MissingMassCalculator::MassScale(int method, double mass, const int & tau_type1, const int & tau_type2) {
   double Fscale=1.0;
   // calibration for rel16 lep-had analysis only
-  if(fApplyMassScale==1)
+  if(m_fApplyMassScale==1)
     {
       if((tau_type1+tau_type2)>0 && (tau_type1==0 || tau_type2==0))
         {
@@ -5646,7 +5646,7 @@ void MissingMassCalculator::handleSolutions()
     double uMC=-1.;
     bool notSureToKeep=true;
     // note : if no solution, the point is treated as having a zero probability
-    if (fullParamSpaceScan) {
+    if (m_fullParamSpaceScan) {
       reject=false; // accept anyway in this mode
       notSureToKeep=false; // do not need to test on prob
       if (m_nsol<=0) {
@@ -5656,12 +5656,12 @@ void MissingMassCalculator::handleSolutions()
       else
         {
           // if we were in in full scan mode and we have a solution, switch it off
-          fullParamSpaceScan=false;
+          m_fullParamSpaceScan=false;
           firstPointWithSol=true; // as this is the first point without a solution there is no old sol
           m_iter0=0; // reset the counter so that separately the full scan pphase and the markov phase use m_NiterRandomLocal points
           // hack for hh : allow 10 times less iteration for markov than for the fullscan phase
-          if (preparedInput.type_visTau1!=0 && preparedInput.type_visTau2!=0){
-            m_NiterRandomLocal/=10;
+          if (m_preparedInput.type_visTau1!=0 && m_preparedInput.type_visTau2!=0){
+            m_niterRandomLocal/=10;
           }
 
         }
@@ -5689,7 +5689,7 @@ void MissingMassCalculator::handleSolutions()
           reject=true;
         } else  {
           // if going down, reject with a probability 1-totalProbSum/totalProbSumOld)
-          uMC=randomGen->Rndm();
+          uMC=m_randomGen->Rndm();
           reject= (uMC > totalProbSumSol/totalProbSumSolOld);
         }
       } // if reject
@@ -5697,7 +5697,7 @@ void MissingMassCalculator::handleSolutions()
     // proceed with the handling of the solutions wether the old or the new ones
 #ifdef DUMPITERATION
     std::cout << "DEBUGV9W MARKOV " << m_iter0
-              << " full " << fullParamSpaceScan
+              << " full " << m_fullParamSpaceScan
               << " op " << totalProbSumSolOld
               << " np " << totalProbSumSol
               << " rej " << reject
@@ -5800,7 +5800,7 @@ void MissingMassCalculator::handleSolutions()
 
     } else {
       // if accept, will fill solution (except for very first point)  but taking the values from the previous point
-      if (!fullParamSpaceScan) {
+      if (!m_fullParamSpaceScan) {
         m_markovNAccept+=1;
       }
       if (!firstPointWithSol) {
@@ -5844,7 +5844,7 @@ void MissingMassCalculator::handleSolutions()
   double solSum2=0.;
 
   for (int isol=0;isol<m_nsol;++isol){
-    ++iter5;
+    ++m_iter5;
     double totalProb;
     double mtautau;
     const TLorentzVector * pnuvec1_tmpj;
@@ -5870,7 +5870,7 @@ void MissingMassCalculator::handleSolutions()
     solSum2+=mtautau*mtautau;
 
 
-    //if (iter5<=0) std::cout << iter1 << " " << mtautau << " totalprob " << totalProb << " tauvecsolE " << tauvecsol1[0].E() << " " << tauvecsol2[0].E()<< " tauvecsolM " << tauvecsol1[0].M() << " " << tauvecsol2[0].M() << " " << fMfit_all << " " << fMfit_allNoWeight << std::endl;
+    //if (m_iter5<=0) std::cout << m_iter1 << " " << mtautau << " totalprob " << totalProb << " tauvecsolE " << tauvecsol1[0].E() << " " << tauvecsol2[0].E()<< " tauvecsolM " << tauvecsol1[0].M() << " " << tauvecsol2[0].M() << " " << m_fMfit_all << " " << m_fMfit_allNoWeight << std::endl;
 
     double weight;
     if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN) {
@@ -5896,50 +5896,50 @@ void MissingMassCalculator::handleSolutions()
     if (fillHistos)
       {
 #endif
-        fMfit_all->Fill(mtautau,weight);
+        m_fMfit_all->Fill(mtautau,weight);
         //    std::cout << "DRDR mtautau " << mtautau << " weight " << weight << std::endl ;
-        fMfit_allNoWeight->Fill(mtautau,1.);
+        m_fMfit_allNoWeight->Fill(mtautau,1.);
 
-        //      fPXfit1->Fill(nuvec1_tmpj.Px(),weight);
-        //      fPYfit1->Fill(nuvec1_tmpj.Py(),weight);
-        //      fPZfit1->Fill(nuvec1_tmpj.Pz(),weight);
-        //      fPXfit2->Fill(nuvec2_tmpj.Px(),weight);
-        //      fPYfit2->Fill(nuvec2_tmpj.Py(),weight);
-        //      fPZfit2->Fill(nuvec2_tmpj.Pz(),weight);
+        //      m_fPXfit1->Fill(nuvec1_tmpj.Px(),weight);
+        //      m_fPYfit1->Fill(nuvec1_tmpj.Py(),weight);
+        //      m_fPZfit1->Fill(nuvec1_tmpj.Pz(),weight);
+        //      m_fPXfit2->Fill(nuvec2_tmpj.Px(),weight);
+        //      m_fPYfit2->Fill(nuvec2_tmpj.Py(),weight);
+        //      m_fPZfit2->Fill(nuvec2_tmpj.Pz(),weight);
 
         //----------------- using P*fit to fill Px,y,z_tau
         // Note that the original vistau are used there deliberately,
         // since they will be subtracted after histogram fitting
         // DR, kudos Antony Lesage : do not create temporary TLV within each Fill, saves 10% CPU
-        fPXfit1->Fill(preparedInput.vistau1.Px()+nuvec1_tmpj.Px(),totalProb);
-        fPYfit1->Fill(preparedInput.vistau1.Py()+nuvec1_tmpj.Py(),totalProb);
-        fPZfit1->Fill(preparedInput.vistau1.Pz()+nuvec1_tmpj.Pz(),totalProb);
-        fPXfit2->Fill(preparedInput.vistau2.Px()+nuvec2_tmpj.Px(),totalProb);
-        fPYfit2->Fill(preparedInput.vistau2.Py()+nuvec2_tmpj.Py(),totalProb);
-        fPZfit2->Fill(preparedInput.vistau2.Pz()+nuvec2_tmpj.Pz(),totalProb);
+        m_fPXfit1->Fill(m_preparedInput.vistau1.Px()+nuvec1_tmpj.Px(),totalProb);
+        m_fPYfit1->Fill(m_preparedInput.vistau1.Py()+nuvec1_tmpj.Py(),totalProb);
+        m_fPZfit1->Fill(m_preparedInput.vistau1.Pz()+nuvec1_tmpj.Pz(),totalProb);
+        m_fPXfit2->Fill(m_preparedInput.vistau2.Px()+nuvec2_tmpj.Px(),totalProb);
+        m_fPYfit2->Fill(m_preparedInput.vistau2.Py()+nuvec2_tmpj.Py(),totalProb);
+        m_fPZfit2->Fill(m_preparedInput.vistau2.Pz()+nuvec2_tmpj.Pz(),totalProb);
 
 #ifdef BURNIN
       }
 #endif
 
-    if(totalProb>prob_tmp) // fill solution with highest probability
+    if(totalProb>m_prob_tmp) // fill solution with highest probability
       {
 #ifdef DUMPITERATION
-        std::cout << " mtautau " << mtautau << " totalProb " << totalProb << " prob_tmp " << prob_tmp
+        std::cout << " mtautau " << mtautau << " totalProb " << totalProb << " prob_tmp " << m_prob_tmp
                   << " nu1: " << nuvec1_tmpj.Px() <<" " << nuvec1_tmpj.Py()
                   << " nu2: " << nuvec2_tmpj.Px() <<" " << nuvec2_tmpj.Py()
                   << " oldToBeUsed " << oldToBeUsed
                   << std::endl ;
 #endif
-        prob_tmp=totalProb;
-        fDitauStuffFit.Mditau_best=mtautau;
-        fDitauStuffFit.Sign_best=-log10(totalProb);;
-        fDitauStuffFit.nutau1=nuvec1_tmpj;
-        fDitauStuffFit.nutau2=nuvec2_tmpj;
-        fDitauStuffFit.vistau1=m_tauVec1;
-        fDitauStuffFit.vistau2=m_tauVec2;
-        fDitauStuffFit.taufit1=m_tauVec1+nuvec1_tmpj;
-        fDitauStuffFit.taufit2=m_tauVec2+nuvec2_tmpj;
+        m_prob_tmp=totalProb;
+        m_fDitauStuffFit.Mditau_best=mtautau;
+        m_fDitauStuffFit.Sign_best=-log10(totalProb);;
+        m_fDitauStuffFit.nutau1=nuvec1_tmpj;
+        m_fDitauStuffFit.nutau2=nuvec2_tmpj;
+        m_fDitauStuffFit.vistau1=m_tauVec1;
+        m_fDitauStuffFit.vistau2=m_tauVec2;
+        m_fDitauStuffFit.taufit1=m_tauVec1+nuvec1_tmpj;
+        m_fDitauStuffFit.taufit2=m_tauVec2+nuvec2_tmpj;
 
       }
   }  // loop on solutions
@@ -5963,7 +5963,7 @@ void MissingMassCalculator::handleSolutions()
 
   // compute rms of solutions
   const double solRMS=sqrt(solSum2/m_nsol-std::pow(solSum/m_nsol,2));
-  OutputInfo.AveSolRMS+=solRMS;
+  m_OutputInfo.AveSolRMS+=solRMS;
 
   return;
 }
@@ -5974,8 +5974,8 @@ void MissingMassCalculator::SpaceWalkerInit() {
   // FIXME could use function pointer to switch between functions
   m_nsolOld=0;
 
-  double METresX=preparedInput.METsigmaL; // MET resolution in direction parallel to MET resolution major axis, for MET scan
-  double METresY=preparedInput.METsigmaP; // MET resolution in direction perpendicular to to MET resolution major axis, for MET scan
+  double METresX=m_preparedInput.METsigmaL; // MET resolution in direction parallel to MET resolution major axis, for MET scan
+  double METresY=m_preparedInput.METsigmaP; // MET resolution in direction perpendicular to to MET resolution major axis, for MET scan
 
 
 
@@ -5983,28 +5983,28 @@ void MissingMassCalculator::SpaceWalkerInit() {
   precomputeCache();
   int Leptau1=0; // lepton-tau code
   int Leptau2=0;
-  if(preparedInput.type_visTau1==0) Leptau1=1;
-  if(preparedInput.type_visTau2==0) Leptau2=1;
+  if(m_preparedInput.type_visTau1==0) Leptau1=1;
+  if(m_preparedInput.type_visTau2==0) Leptau2=1;
 
 
   if((Leptau1+Leptau2)==2) // both tau's are leptonic
     {
-      Nsigma_METscan=Nsigma_METscan_ll;
+      m_nsigma_METscan=m_nsigma_METscan_ll;
     }
   else if (Leptau1+Leptau2==1) // lep had
     {
-      Nsigma_METscan=Nsigma_METscan_lh;
+      m_nsigma_METscan=m_nsigma_METscan_lh;
     }
   else // hh
     {
-      Nsigma_METscan=Nsigma_METscan_hh;
+      m_nsigma_METscan=m_nsigma_METscan_hh;
     }
 
 
-  Nsigma_METscan2=std::pow(Nsigma_METscan,2);
+  m_nsigma_METscan2=std::pow(m_nsigma_METscan,2);
 
-  const double deltaPhi1=MaxDelPhi(preparedInput.type_visTau1,m_tauVec1P);
-  const double deltaPhi2=MaxDelPhi(preparedInput.type_visTau2,m_tauVec2P);
+  const double deltaPhi1=MaxDelPhi(m_preparedInput.type_visTau1,m_tauVec1P);
+  const double deltaPhi2=MaxDelPhi(m_preparedInput.type_visTau2,m_tauVec2P);
 
   m_walkWeight=1.;
 
@@ -6024,9 +6024,9 @@ void MissingMassCalculator::SpaceWalkerInit() {
 
     m_mTau=1.777;
 
-    int Niter=Niter_fit1; // number of points for each dR loop
-    int NiterMET=Niter_fit2; // number of iterations for each MET scan loop
-    int NiterMnu=Niter_fit3; // number of iterations for Mnu loop
+    int Niter=m_niter_fit1; // number of points for each dR loop
+    int NiterMET=m_niter_fit2; // number of iterations for each MET scan loop
+    int NiterMnu=m_niter_fit3; // number of iterations for Mnu loop
 
     m_Phi1Step=deltaPhi1/Niter;
     m_Phi1Min=m_tauVec1Phi-deltaPhi1+m_Phi1Step;
@@ -6040,7 +6040,7 @@ void MissingMassCalculator::SpaceWalkerInit() {
     m_Mnu1Max=0.;
     if (Leptau1==1) {
       //      m_Mnu1Max=m_mTau-m_tauVec1M;
-      m_Mnu1Max=MnuScanRange-m_tauVec1M;
+      m_Mnu1Max=m_MnuScanRange-m_tauVec1M;
       m_Mnu1Step=m_Mnu1Max/NiterMnu;
       // reduce max to avoid rounding error (there is no bin value close to max)
       m_Mnu1Max-=m_Mnu1Step/100.;
@@ -6059,7 +6059,7 @@ void MissingMassCalculator::SpaceWalkerInit() {
     m_Mnu2Max=0.;
     if (Leptau2==1) {
       // m_Mnu2Max=m_mTau-m_tauVec2M;
-      m_Mnu2Max=MnuScanRange-m_tauVec2M;
+      m_Mnu2Max=m_MnuScanRange-m_tauVec2M;
       m_Mnu2Step=m_Mnu2Max/NiterMnu;
       // reduce max to avoid rounding error (there is no bin value close to max)
       m_Mnu2Max-=m_Mnu2Step/100.;
@@ -6073,15 +6073,15 @@ void MissingMassCalculator::SpaceWalkerInit() {
     }
 
 
-    m_MEtLMin=-Nsigma_METscan*METresX;
-    m_MEtLMax=+Nsigma_METscan*METresX;
+    m_MEtLMin=-m_nsigma_METscan*METresX;
+    m_MEtLMax=+m_nsigma_METscan*METresX;
     m_MEtLStep=(m_MEtLMax-m_MEtLMin)/NiterMET;
     //margin for rounding error. Here last point should be close to MEtLMax
     m_MEtLMax+=m_MEtLStep/10.;
 
 
-    m_MEtPMin=-Nsigma_METscan*METresY;
-    m_MEtPMax=+Nsigma_METscan*METresY;
+    m_MEtPMin=-m_nsigma_METscan*METresY;
+    m_MEtPMax=+m_nsigma_METscan*METresY;
     m_MEtPStep=(m_MEtPMax-m_MEtPMin)/NiterMET;
     //margin for rounding error. Here last point should be close to MEtLMax
     m_MEtPMax+=m_MEtPStep/10.;
@@ -6117,14 +6117,14 @@ void MissingMassCalculator::SpaceWalkerInit() {
 
     //seeds the random generator in a reproducible way from the phi of both tau;
     double aux=std::abs(m_tauVec1Phi+double(m_tauVec2Phi)/100./TMath::Pi())*100;
-    m_seed=(aux-floor(aux))*1E6*(1+RndmSeedAltering)+13;
+    m_seed=(aux-floor(aux))*1E6*(1+m_RndmSeedAltering)+13;
 
-    randomGen->SetSeed(m_seed);
+    m_randomGen->SetSeed(m_seed);
     //   std::cout << " DRDR : seed before warmup aux " << aux << " seed " << m_seed << " altering " <<  RndmSeedAltering << std::endl;
     // warm up the random generator
     double xgen=0;
     for (int igen=0;igen<1000;++igen){
-      xgen+=randomGen->Rndm();
+      xgen+=m_randomGen->Rndm();
     }
     // std::cout << " DRDR : seed after warmup " << randomGen->GetSeed() << std::endl;
 
@@ -6150,38 +6150,38 @@ void MissingMassCalculator::SpaceWalkerInit() {
 
     if (WALKSTRATEGY==WalkStrategy::RANDOM || WALKSTRATEGY==WalkStrategy::RANDOMNONUNIF ){
       // number of random iteration is NiterRandom for lh. Multiply or divide by 10 for ll and hh respectively
-      m_NiterRandomLocal=NiterRandom/10;
+      m_niterRandomLocal=m_NiterRandom/10;
     }
     else if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN ){
       // for markov chain use factor 2
-      m_NiterRandomLocal=NiterRandom/2;
+      m_niterRandomLocal=m_NiterRandom/2;
     }
 
     // NiterRandom set by user (default is -1). If negative, defines the default here.
     // no more automatic scaling for ll hl hh
-    if (NiterRandom<=0) {
+    if (m_NiterRandom<=0) {
       if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN){
-        m_NiterRandomLocal=100000; // number of iterations for Markov for lh
-        if (preparedInput.type_visTau1==0 && preparedInput.type_visTau2==0) m_NiterRandomLocal*=2; // multiplied for ll , unchecked
-        if (preparedInput.type_visTau1!=0 && preparedInput.type_visTau2!=0) m_NiterRandomLocal/=2; // divided for hh ,checked
+        m_niterRandomLocal=100000; // number of iterations for Markov for lh
+        if (m_preparedInput.type_visTau1==0 && m_preparedInput.type_visTau2==0) m_niterRandomLocal*=2; // multiplied for ll , unchecked
+        if (m_preparedInput.type_visTau1!=0 && m_preparedInput.type_visTau2!=0) m_niterRandomLocal/=2; // divided for hh ,checked
       } else {
-        m_NiterRandomLocal=2000000; // number of random iterations for lh. Multiplied by 10 for ll, divided by 10 for hh (to be optimised)
-        if (preparedInput.type_visTau1==0 && preparedInput.type_visTau2==0) m_NiterRandomLocal*=10; // multiplied for ll , unchecked
-        if (preparedInput.type_visTau1!=0 && preparedInput.type_visTau2!=0) m_NiterRandomLocal/=10; // divided for hh , checked
+        m_niterRandomLocal=2000000; // number of random iterations for lh. Multiplied by 10 for ll, divided by 10 for hh (to be optimised)
+        if (m_preparedInput.type_visTau1==0 && m_preparedInput.type_visTau2==0) m_niterRandomLocal*=10; // multiplied for ll , unchecked
+        if (m_preparedInput.type_visTau1!=0 && m_preparedInput.type_visTau2!=0) m_niterRandomLocal/=10; // divided for hh , checked
       }
     } else {
-      m_NiterRandomLocal=NiterRandom;
+      m_niterRandomLocal=m_NiterRandom;
     }
 
     // hack for hh : allow 10 times more iteration for the fullscan phase
-    if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN && preparedInput.type_visTau1!=0 && preparedInput.type_visTau2!=0){
-      m_NiterRandomLocal*=10;
+    if (WALKSTRATEGY==WalkStrategy::MARKOVCHAIN && m_preparedInput.type_visTau1!=0 && m_preparedInput.type_visTau2!=0){
+      m_niterRandomLocal*=10;
     }
 
 
     if (Leptau1==1) {
       //      m_Mnu1Max=m_mTau-m_tauVec1M;
-      m_Mnu1Max=MnuScanRange-m_tauVec1M;
+      m_Mnu1Max=m_MnuScanRange-m_tauVec1M;
       m_Mnu1Range=m_Mnu1Max-m_Mnu1Min;
       m_scanMnu1=true;
     }
@@ -6191,19 +6191,19 @@ void MissingMassCalculator::SpaceWalkerInit() {
     m_Mnu2=m_Mnu2Min;
     if (Leptau2==1) {
       //      m_Mnu2Max=m_mTau-m_tauVec2M;
-      m_Mnu2Max=MnuScanRange-m_tauVec2M;
+      m_Mnu2Max=m_MnuScanRange-m_tauVec2M;
       m_Mnu2Range=m_Mnu2Max-m_Mnu2Min;
       m_scanMnu2=true;
     }
 
     if (WALKSTRATEGY==WalkStrategy::RANDOM ||  WALKSTRATEGY==WalkStrategy::MARKOVCHAIN){
-      m_MEtLMin=-Nsigma_METscan*METresX;
-      m_MEtLMax=+Nsigma_METscan*METresX;
+      m_MEtLMin=-m_nsigma_METscan*METresX;
+      m_MEtLMax=+m_nsigma_METscan*METresX;
       m_MEtLRange=m_MEtLMax-m_MEtLMin;
 
 
-      m_MEtPMin=-Nsigma_METscan*METresY;
-      m_MEtPMax=+Nsigma_METscan*METresY;
+      m_MEtPMin=-m_nsigma_METscan*METresY;
+      m_MEtPMax=+m_nsigma_METscan*METresY;
       m_MEtPRange=m_MEtPMax-m_MEtPMin;
     }else {
       // if gaussian random
@@ -6213,17 +6213,17 @@ void MissingMassCalculator::SpaceWalkerInit() {
     }
 
 
-    if (preparedInput.sigmaEtau1>0) {
+    if (m_preparedInput.sigmaEtau1>0) {
       // sigmaEtau1 is back to be the absolute energy error
-      m_eTau1Min=-Nsigma_METscan*preparedInput.sigmaEtau1+preparedInput.vistau1.E();
-      m_eTau1Max=+Nsigma_METscan*preparedInput.sigmaEtau1+preparedInput.vistau1.E();
-      //      m_eTau1Min=(1.0-Nsigma_METscan*preparedInput.sigmaEtau1)*preparedInput.vistau1.E();
-      //      m_eTau1Max=(1.0+Nsigma_METscan*preparedInput.sigmaEtau1)*preparedInput.vistau1.E();
+      m_eTau1Min=-m_nsigma_METscan*m_preparedInput.sigmaEtau1+m_preparedInput.vistau1.E();
+      m_eTau1Max=+m_nsigma_METscan*m_preparedInput.sigmaEtau1+m_preparedInput.vistau1.E();
+      //      m_eTau1Min=(1.0-m_nsigma_METscan*preparedInput.sigmaEtau1)*preparedInput.vistau1.E();
+      //      m_eTau1Max=(1.0+m_nsigma_METscan*preparedInput.sigmaEtau1)*preparedInput.vistau1.E();
 
       // minEtau is not fully optimal and should be studied more. current value is motivated by end-point in truth Pt(vis_tau) distribution
       // minimum pT translated in minimum energy
       //      if(m_eTau1Min<minEtau) m_eTau1Min=minEtau;
-      m_eTau1Min=std::max(m_eTau1Min,sqrt(pow(1.777,2)+pow(15.0/preparedInput.vistau1.Pt()*preparedInput.vistau1.P(),2))); // minimum E(tau) which is allowed in TER scan
+      m_eTau1Min=std::max(m_eTau1Min,sqrt(pow(1.777,2)+pow(15.0/m_preparedInput.vistau1.Pt()*m_preparedInput.vistau1.P(),2))); // minimum E(tau) which is allowed in TER scan
 
 
       m_eTau1Range=m_eTau1Max-m_eTau1Min;
@@ -6235,16 +6235,16 @@ void MissingMassCalculator::SpaceWalkerInit() {
     }
 
 
-    if (preparedInput.sigmaEtau2>0) {
+    if (m_preparedInput.sigmaEtau2>0) {
       // sigmaEtau2 is back to be the absolute energy error
-      m_eTau2Min=-Nsigma_METscan*preparedInput.sigmaEtau2+preparedInput.vistau2.E();
-      m_eTau2Max=+Nsigma_METscan*preparedInput.sigmaEtau2+preparedInput.vistau2.E();
-      //      m_eTau2Min=(1.0-Nsigma_METscan*preparedInput.sigmaEtau2)*preparedInput.vistau2.E();
-      //      m_eTau2Max=(1.0+Nsigma_METscan*preparedInput.sigmaEtau2)*preparedInput.vistau2.E();
+      m_eTau2Min=-m_nsigma_METscan*m_preparedInput.sigmaEtau2+m_preparedInput.vistau2.E();
+      m_eTau2Max=+m_nsigma_METscan*m_preparedInput.sigmaEtau2+m_preparedInput.vistau2.E();
+      //      m_eTau2Min=(1.0-m_nsigma_METscan*preparedInput.sigmaEtau2)*preparedInput.vistau2.E();
+      //      m_eTau2Max=(1.0+m_nsigma_METscan*preparedInput.sigmaEtau2)*preparedInput.vistau2.E();
 
       // minimum pT translated in minimum energy
       //      if(m_eTau2Min<minEtau) m_eTau2Min=minEtau;
-      m_eTau2Min=std::max(m_eTau2Min,sqrt(pow(1.777,2)+pow(15.0/preparedInput.vistau2.Pt()*preparedInput.vistau2.P(),2))); // minimum E(tau) which is allowed in TER scan
+      m_eTau2Min=std::max(m_eTau2Min,sqrt(pow(1.777,2)+pow(15.0/m_preparedInput.vistau2.Pt()*m_preparedInput.vistau2.P(),2))); // minimum E(tau) which is allowed in TER scan
       m_eTau2Range=m_eTau2Max-m_eTau2Min;
       m_scanEtau2=true;
     } else {
@@ -6259,8 +6259,8 @@ void MissingMassCalculator::SpaceWalkerInit() {
     m_switch1=true;
     m_switch2=true;
 #endif
-    m_NsucStop=NsucStop;
-    m_rmsStop=RMSStop;
+    m_nsucStop=m_NsucStop;
+    m_rmsStop=m_RMSStop;
 
     m_iter0=-1;
     m_iterNuPV3=0;
@@ -6284,15 +6284,15 @@ void MissingMassCalculator::SpaceWalkerInit() {
       m_markovNAccept=0;
       m_markovNFullScan=0;
       // set full parameter space scannning for the first steps, until a solution is found
-      fullParamSpaceScan=true;
+      m_fullParamSpaceScan=true;
       // size of step. Needs to be tune. Start with simple heuristic.
-      if(m_ProposalTryMEt<0)
+      if(m_proposalTryMEt<0)
         {
           m_MEtProposal=m_MEtPRange/30.;
         }
       else
         {
-          m_MEtProposal=m_MEtPRange*m_ProposalTryMEt;
+          m_MEtProposal=m_MEtPRange*m_proposalTryMEt;
         }
       if(m_ProposalTryPhi<0)
         {
@@ -6426,59 +6426,59 @@ bool MissingMassCalculator::SpaceWalkerWalk(){
         // Meanbin stopping criterion
         std::vector<double> histInfo(HistInfo::MAXHISTINFO);
         // SLIDINGWINDOW strategy to avoid doing the parabola fit now given it will not be used
-        maxFromHist(fMfit_all,histInfo,MaxHistStrategy::SLIDINGWINDOW);
+        maxFromHist(m_fMfit_all,histInfo,MaxHistStrategy::SLIDINGWINDOW);
         double meanbin=histInfo.at(HistInfo::MEANBIN);
         //      std::cout << "Meanbin after 500 successes = " << meanbin << std::endl;
         if(meanbin<0)
           {
-            m_NsucStop=-1; // no meaningful meanbin switch back to niter criterion
+            m_nsucStop=-1; // no meaningful meanbin switch back to niter criterion
           }
         else
           {
             double stopdouble = 500*std::pow((meanbin/m_meanbinStop),2);
             int stopint = stopdouble;
-            m_NsucStop = stopint;
+            m_nsucStop = stopint;
           }
         // RMS stopping criterion
-        //    double rms=fMfit_all->GetRMS(1);
+        //    double rms=m_fMfit_all->GetRMS(1);
         //    m_NsucStop=rms*m_rmsStop;
-        if (m_NsucStop<500) return false;
+        if (m_nsucStop<500) return false;
       }
 
     // should be outside m_meanbinStop test
-    if (m_iterNsuc==m_NsucStop) return false; // Critere d'arret pour nombre de succes
-    if (m_iter0==m_NiterRandomLocal) return false; // Critere d'arret pour nombre iteration
+    if (m_iterNsuc==m_nsucStop) return false; // Critere d'arret pour nombre de succes
+    if (m_iter0==m_niterRandomLocal) return false; // Critere d'arret pour nombre iteration
 
 
     if (WALKSTRATEGY==WalkStrategy::RANDOM){
       // cut the corners in MissingET (not optimised at all)
       // not needed if distribution is already gaussian
       do {
-        m_MEtP=m_MEtPMin+m_MEtPRange*randomGen->Rndm();
-        m_MEtL=m_MEtLMin+m_MEtLRange*randomGen->Rndm();
+        m_MEtP=m_MEtPMin+m_MEtPRange*m_randomGen->Rndm();
+        m_MEtL=m_MEtLMin+m_MEtLRange*m_randomGen->Rndm();
       } while ( !checkMEtInRange());
     }
     else { // if WalkStrategy::RANDOMNONUNIF
-      if (!preparedInput.UseHT){ // "!" was missing. Significant bug, only for RANDOMNONUNIF
+      if (!m_preparedInput.UseHT){ // "!" was missing. Significant bug, only for RANDOMNONUNIF
         // if gauss distribution metprange is the sigma
-        m_MEtP=randomGen->Gaus(0.,m_MEtPRange);
-        m_MEtL=randomGen->Gaus(0.,m_MEtLRange);
+        m_MEtP=m_randomGen->Gaus(0.,m_MEtPRange);
+        m_MEtL=m_randomGen->Gaus(0.,m_MEtLRange);
       }
       else
         {
-          if (randomGen->Rndm()>preparedInput.MHtGaussFr/(1+preparedInput.MHtGaussFr)){
+          if (m_randomGen->Rndm()>m_preparedInput.MHtGaussFr/(1+m_preparedInput.MHtGaussFr)){
             // first gaussian
-            m_MEtP=randomGen->Gaus(0.,preparedInput.MHtSigma1);                   }
+            m_MEtP=m_randomGen->Gaus(0.,m_preparedInput.m_MHtSigma1);                   }
           else{
             // second gaussian
-            m_MEtP=randomGen->Gaus(0.,preparedInput.MHtSigma2);
+            m_MEtP=m_randomGen->Gaus(0.,m_preparedInput.m_MHtSigma2);
           }
-          if (randomGen->Rndm()>preparedInput.MHtGaussFr/(1+preparedInput.MHtGaussFr)){
+          if (m_randomGen->Rndm()>m_preparedInput.MHtGaussFr/(1+m_preparedInput.MHtGaussFr)){
             // first gaussian
-            m_MEtL=randomGen->Gaus(0.,preparedInput.MHtSigma1);                   }
+            m_MEtL=m_randomGen->Gaus(0.,m_preparedInput.m_MHtSigma1);                   }
           else{
             // second gaussian
-            m_MEtL=randomGen->Gaus(0.,preparedInput.MHtSigma2);
+            m_MEtL=m_randomGen->Gaus(0.,m_preparedInput.m_MHtSigma2);
           }
         }
 
@@ -6489,26 +6489,26 @@ bool MissingMassCalculator::SpaceWalkerWalk(){
 
 
     if (m_scanMnu1){
-      m_Mnu1=m_Mnu1Min+m_Mnu1Range*randomGen->Rndm();
+      m_Mnu1=m_Mnu1Min+m_Mnu1Range*m_randomGen->Rndm();
     }
 
     if (m_scanMnu2){
-      m_Mnu2=m_Mnu2Min+m_Mnu2Range*randomGen->Rndm();
+      m_Mnu2=m_Mnu2Min+m_Mnu2Range*m_randomGen->Rndm();
     }
 
 
 
-    m_Phi1=m_Phi1Min+m_Phi1Range*randomGen->Rndm();
-    m_Phi2=m_Phi2Min+m_Phi2Range*randomGen->Rndm();
+    m_Phi1=m_Phi1Min+m_Phi1Range*m_randomGen->Rndm();
+    m_Phi2=m_Phi2Min+m_Phi2Range*m_randomGen->Rndm();
 
 
 #ifdef TAUESCAN
     if (m_scanEtau1){
-      m_eTau1=m_eTau1Min+m_eTau1Range*randomGen->Rndm();
+      m_eTau1=m_eTau1Min+m_eTau1Range*m_randomGen->Rndm();
     }
 
     if (m_scanEtau2){
-      m_eTau2=m_eTau2Min+m_eTau2Range*randomGen->Rndm();
+      m_eTau2=m_eTau2Min+m_eTau2Range*m_randomGen->Rndm();
     }
 #endif
 
@@ -6530,57 +6530,57 @@ bool MissingMassCalculator::SpaceWalkerWalk(){
         // Meanbin stopping criterion
         std::vector<double> histInfo(HistInfo::MAXHISTINFO);
         // SLIDINGWINDOW strategy to avoid doing the parabola fit now given it will not be use
-        maxFromHist(fMfit_all,histInfo,MaxHistStrategy::SLIDINGWINDOW);
+        maxFromHist(m_fMfit_all,histInfo,MaxHistStrategy::SLIDINGWINDOW);
         double meanbin=histInfo.at(HistInfo::MEANBIN);
         //      std::cout << "Meanbin after 500 successes = " << meanbin << std::endl;
         if(meanbin<0)
           {
-            m_NsucStop=-1; // no meaningful meanbin switch back to niter criterion
+            m_nsucStop=-1; // no meaningful meanbin switch back to niter criterion
           }
         else
           {
             double stopdouble = 500*std::pow((meanbin/m_meanbinStop),2);
             int stopint = stopdouble;
-            m_NsucStop = stopint;
+            m_nsucStop = stopint;
           }
-        if (m_NsucStop<500) return false;
+        if (m_nsucStop<500) return false;
 
       }
     // should be outside m_meanbinStop test
-    if (m_iterNsuc==m_NsucStop) return false; // Critere d'arret pour nombre de succes
+    if (m_iterNsuc==m_nsucStop) return false; // Critere d'arret pour nombre de succes
 
-    if (m_iter0==m_NiterRandomLocal) return false; // for now simple stopping criterion on number of iteration
+    if (m_iter0==m_niterRandomLocal) return false; // for now simple stopping criterion on number of iteration
 
-    if (fullParamSpaceScan)  {
+    if (m_fullParamSpaceScan)  {
       // as long as no solution found need to randomise on the full parameter space
 
       // cut the corners in MissingET (not optimised at all)
       // not needed if distribution is already gaussian
       do {
-        m_MEtP=m_MEtPMin+m_MEtPRange*randomGen->Rndm();
-        m_MEtL=m_MEtLMin+m_MEtLRange*randomGen->Rndm();
+        m_MEtP=m_MEtPMin+m_MEtPRange*m_randomGen->Rndm();
+        m_MEtL=m_MEtLMin+m_MEtLRange*m_randomGen->Rndm();
       } while ( !checkMEtInRange());
 
       if (m_scanMnu1){
-        m_Mnu1=m_Mnu1Min+m_Mnu1Range*randomGen->Rndm();
+        m_Mnu1=m_Mnu1Min+m_Mnu1Range*m_randomGen->Rndm();
       }
 
       if (m_scanMnu2){
-        m_Mnu2=m_Mnu2Min+m_Mnu2Range*randomGen->Rndm();
+        m_Mnu2=m_Mnu2Min+m_Mnu2Range*m_randomGen->Rndm();
       }
 
 
 
-      m_Phi1=m_Phi1Min+m_Phi1Range*randomGen->Rndm();
-      m_Phi2=m_Phi2Min+m_Phi2Range*randomGen->Rndm();
+      m_Phi1=m_Phi1Min+m_Phi1Range*m_randomGen->Rndm();
+      m_Phi2=m_Phi2Min+m_Phi2Range*m_randomGen->Rndm();
 
 #ifdef TAUESCAN
       if (m_scanEtau1){
-        m_eTau1=m_eTau1Min+m_eTau1Range*randomGen->Rndm();
+        m_eTau1=m_eTau1Min+m_eTau1Range*m_randomGen->Rndm();
       }
 
       if (m_scanEtau2){
-        m_eTau2=m_eTau2Min+m_eTau2Range*randomGen->Rndm();
+        m_eTau2=m_eTau2Min+m_eTau2Range*m_randomGen->Rndm();
       }
 #endif
 
@@ -6598,20 +6598,20 @@ bool MissingMassCalculator::SpaceWalkerWalk(){
     m_MEtP0=m_MEtP;
     m_MEtL0=m_MEtL;
 
-    m_MEtP=randomGen->Gaus(m_MEtP0,m_MEtProposal);
+    m_MEtP=m_randomGen->Gaus(m_MEtP0,m_MEtProposal);
 
-    m_MEtL=randomGen->Gaus(m_MEtL0,m_MEtProposal);
+    m_MEtL=m_randomGen->Gaus(m_MEtL0,m_MEtProposal);
 
 
 
     if (m_scanMnu1){
       m_Mnu10=m_Mnu1;
-      m_Mnu1=randomGen->Gaus(m_Mnu10,m_MnuProposal);
+      m_Mnu1=m_randomGen->Gaus(m_Mnu10,m_MnuProposal);
     }
 
     if (m_scanMnu2){
       m_Mnu20=m_Mnu2;
-      m_Mnu2=randomGen->Gaus(m_Mnu20,m_MnuProposal);
+      m_Mnu2=m_randomGen->Gaus(m_Mnu20,m_MnuProposal);
     }
 
 
@@ -6620,21 +6620,21 @@ bool MissingMassCalculator::SpaceWalkerWalk(){
 
 
     m_Phi10=m_Phi1;
-    m_Phi1=randomGen->Gaus(m_Phi10,m_PhiProposal);
+    m_Phi1=m_randomGen->Gaus(m_Phi10,m_PhiProposal);
 
     m_Phi20=m_Phi2;
 
-    m_Phi2=randomGen->Gaus(m_Phi20,m_PhiProposal);
+    m_Phi2=m_randomGen->Gaus(m_Phi20,m_PhiProposal);
 
 #ifdef TAUESCAN
     if (m_scanEtau1){
       m_eTau10=m_eTau1;
-      m_eTau1=randomGen->Gaus(m_eTau10,m_eTau1Proposal);
+      m_eTau1=m_randomGen->Gaus(m_eTau10,m_eTau1Proposal);
     }
 
     if (m_scanEtau2){
       m_eTau20=m_eTau2;
-      m_eTau2=randomGen->Gaus(m_eTau20,m_eTau2Proposal);
+      m_eTau2=m_randomGen->Gaus(m_eTau20,m_eTau2Proposal);
     }
 #endif
 
@@ -6657,10 +6657,10 @@ inline void MissingMassCalculator::updateTauKine() {
 
   if (m_scanEtau1){
     // scale momentum keeping the same mass and direction
-    const double newPscale =sqrt(std::pow(m_eTau1,2)-preparedInput.vistau1.M2())/preparedInput.vistau1.P();
-    m_tauVec1Px=preparedInput.vistau1.Px()*newPscale;
-    m_tauVec1Py=preparedInput.vistau1.Py()*newPscale;
-    m_tauVec1Pz=preparedInput.vistau1.Pz()*newPscale;
+    const double newPscale =sqrt(std::pow(m_eTau1,2)-m_preparedInput.vistau1.M2())/m_preparedInput.vistau1.P();
+    m_tauVec1Px=m_preparedInput.vistau1.Px()*newPscale;
+    m_tauVec1Py=m_preparedInput.vistau1.Py()*newPscale;
+    m_tauVec1Pz=m_preparedInput.vistau1.Pz()*newPscale;
     m_tauVec1E=m_eTau1;
     m_tauVec1.SetPxPyPzE(m_tauVec1Px,m_tauVec1Py,m_tauVec1Pz,m_tauVec1E);
     m_tauVec1P=m_tauVec1.P();
@@ -6674,10 +6674,10 @@ inline void MissingMassCalculator::updateTauKine() {
     // scale momentum keeping the same mass and direction
     //    double newPscale =sqrt(std::pow(m_eTau2,2)-std::pow(m_tauVec2M,2))/m_tauVec2P;
     //
-    const double newPscale =sqrt(std::pow(m_eTau2,2)-preparedInput.vistau2.M2())/preparedInput.vistau2.P();
-    m_tauVec2Px=preparedInput.vistau2.Px()*newPscale;
-    m_tauVec2Py=preparedInput.vistau2.Py()*newPscale;
-    m_tauVec2Pz=preparedInput.vistau2.Pz()*newPscale;
+    const double newPscale =sqrt(std::pow(m_eTau2,2)-m_preparedInput.vistau2.M2())/m_preparedInput.vistau2.P();
+    m_tauVec2Px=m_preparedInput.vistau2.Px()*newPscale;
+    m_tauVec2Py=m_preparedInput.vistau2.Py()*newPscale;
+    m_tauVec2Pz=m_preparedInput.vistau2.Pz()*newPscale;
     m_tauVec2E=m_eTau2;
     m_tauVec2.SetPxPyPzE(m_tauVec2Px,m_tauVec2Py,m_tauVec2Pz,m_tauVec2E);
     m_tauVec2P=m_tauVec2.P();
@@ -6694,10 +6694,10 @@ inline bool MissingMassCalculator::precomputeCache() {
 
 
   // copy tau 4 vect. If tau E scanning, these vectors will be modified
-  m_tauVec1= preparedInput.vistau1;
-  m_tauVec2= preparedInput.vistau2;
+  m_tauVec1= m_preparedInput.vistau1;
+  m_tauVec2= m_preparedInput.vistau2;
 
-  const TVector2 & metVec = preparedInput.MetVec;
+  const TVector2 & metVec = m_preparedInput.MetVec;
 
   bool same=true;
   same=updateDouble(m_tauVec1.Phi(),m_tauVec1Phi) && same;
@@ -6720,18 +6720,18 @@ inline bool MissingMassCalculator::precomputeCache() {
 
   same=updateDouble(1.777,m_mTau) && same;
   same=updateDouble(std::pow(m_mTau,2),m_mTau2) && same;
-  same=updateDouble(cos(preparedInput.METcovphi),m_metCovPhiCos) && same;
-  same=updateDouble(sin(preparedInput.METcovphi),m_metCovPhiSin) && same;
+  same=updateDouble(cos(m_preparedInput.METcovphi),m_metCovPhiCos) && same;
+  same=updateDouble(sin(m_preparedInput.METcovphi),m_metCovPhiSin) && same;
   same=updateDouble((m_tauVec1+m_tauVec2).M(),m_Mvis) && same ;
 
   TLorentzVector detMet4vec;
-  detMet4vec.SetPxPyPzE(preparedInput.detMetVec.X(),preparedInput.detMetVec.Y(),0.0,preparedInput.detMetVec.Mod());
+  detMet4vec.SetPxPyPzE(m_preparedInput.detMetVec.X(),m_preparedInput.detMetVec.Y(),0.0,m_preparedInput.detMetVec.Mod());
   same=updateDouble((m_tauVec1+m_tauVec2+detMet4vec).M(),m_Meff) && same ;
-  same=updateDouble(preparedInput.detMetVec.Mod(),m_DetMEt) && same;
+  same=updateDouble(m_preparedInput.detMetVec.Mod(),m_DetMEt) && same;
 
 
 
-  same = updateDouble (preparedInput.HtOffset,m_HtOffset) && same ;
+  same = updateDouble (m_preparedInput.HtOffset,m_HtOffset) && same ;
   // note that if useHT met_vec is actually -HT
   same = updateDouble(metVec.X(),m_inputMEtX) && same;
   same = updateDouble(metVec.Y(),m_inputMEtY) && same;
@@ -6804,7 +6804,7 @@ inline bool MissingMassCalculator::checkMEtInRange  ()
   // range is 3sigma disk ("cutting the corners")
   //    std::cout << "m_metL:" << m_MEtL << "m_metp:" << m_MEtP << std::endl;
 #ifndef METNOTCUTCORNER
-  if (std::pow(m_MEtL/preparedInput.METsigmaL,2)+std::pow(m_MEtP/preparedInput.METsigmaP,2) > Nsigma_METscan2) {
+  if (std::pow(m_MEtL/m_preparedInput.METsigmaL,2)+std::pow(m_MEtP/m_preparedInput.METsigmaP,2) > m_nsigma_METscan2) {
     return false;
   }
   else {
@@ -6813,10 +6813,10 @@ inline bool MissingMassCalculator::checkMEtInRange  ()
 #else
   // simple square cut.
   // small margin added otherwise some good points might fail in grid case
-  if (std::abs(m_MEtL)-1E-10> Nsigma_METscan*preparedInput.METsigmaL) {
+  if (std::abs(m_MEtL)-1E-10> m_nsigma_METscan*m_preparedInput.METsigmaL) {
     return false;
   }
-  if (std::abs(m_MEtP)-1E-10> Nsigma_METscan*preparedInput.METsigmaP) {
+  if (std::abs(m_MEtP)-1E-10> m_nsigma_METscan*m_preparedInput.METsigmaP) {
     return false;
   }
   return true;
@@ -6898,7 +6898,7 @@ inline double MissingMassCalculator::MaxDelPhi(int tau_type, double Pvis)
 {
   // note that PhiProposal has to be fixed as well
 #ifndef USEMAXDELPHI
-  return dRmax_tau+0*Pvis*tau_type; // hack to avoid warning
+  return m_dRmax_tau+0*Pvis*tau_type; // hack to avoid warning
 #else
   double maxDphi=0.2;
   if(tau_type==0) maxDphi=exp(-3.1-0.0059*Pvis)+0.08;
@@ -6991,7 +6991,7 @@ double MissingMassCalculator::dTheta3DLimit(const int & tau_type,const  int & li
         }
     }
 
-  if(fabs(P_tau+par[1])>0.0) limit=par[0]/(P_tau+par[1])+par[2];
+  if(std::abs(P_tau+par[1])>0.0) limit=par[0]/(P_tau+par[1])+par[2];
   if(limit_code==0){
     if (limit<0.0){
       limit=0.0;

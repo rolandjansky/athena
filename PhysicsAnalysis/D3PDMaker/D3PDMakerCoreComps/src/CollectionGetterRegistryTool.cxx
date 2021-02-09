@@ -107,8 +107,13 @@ CollectionGetterRegistryTool::get (const std::string& label,
   // Copy them to the destination tool (except for Label).
   std::string fullname = parent->name() + "." + label;
   for (const auto& p : props) {
-    if (not boost::algorithm::ends_with(std::get<0>(p), ".Label")) {
-      m_jos->set(fullname, std::get<1>(p));
+    const std::string& oldname = std::get<0>(p);
+    std::string::size_type ipos = oldname.rfind ('.');
+    if (ipos != std::string::npos) {
+      std::string pname = oldname.substr (ipos, std::string::npos);
+      if (pname != ".Label") {
+        m_jos->set(fullname + pname, std::get<1>(p));
+      }
     }
   }
 

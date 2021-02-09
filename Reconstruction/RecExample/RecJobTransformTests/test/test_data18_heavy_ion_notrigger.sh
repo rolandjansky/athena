@@ -6,6 +6,7 @@
 
 
 export TRF_ECHO=True; Reco_tf.py \
+--athenaopts="--threads=1" \
 --inputBSFile=/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/RecJobTransformTests/data18_hi.00367384.physics_HardProbes.daq.RAW._lb0145._SFO-8._0001.data \
 --outputESDFile=ESD.pool.root \
 --outputAODFile=AOD.pool.root \

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -462,20 +462,13 @@ CandidateBuilder::hitsFromPixel (const Point& point)
     std::pair<double,double> broadErrors = m_clusterProperties->broadErrors(cluster,
 									    detector,
 									    point.globalPosition());
-    //SiClusterProperties		properties(cluster,detector,point.globalPosition());
-    // waiting for DetectorElement migration
-    const HepGeom::Point3D<double> position = HepGeom::Point3D<double>(cluster->globalPosition().x(),
-								       cluster->globalPosition().y(),
-								       cluster->globalPosition().z());
-    double sinStereo	= cluster->detectorElement()->sinStereo(position);
     
     (*m_hitIterator++)->fill(cluster->globalPosition(),
 			     broadErrors.first,
 			     0.,
 			     broadErrors.second,
 			     0.,
-			     // cluster->detectorElement()->sinStereo(cluster->globalPosition()),
-			     sinStereo,
+			     cluster->detectorElement()->sinStereo(cluster->globalPosition()),
 			     0.,
 			     point.inBarrel(),
 			     cluster->detectorElement(),
@@ -491,19 +484,13 @@ CandidateBuilder::hitsFromPoint (const Point& point)
     std::pair<double,double>	broadErrors1 = m_clusterProperties->broadErrors(cluster1,
 									    detector1,
 									    point.globalPosition());
-    // waiting for DetectorElement migration
-    const HepGeom::Point3D<double> position1 = HepGeom::Point3D<double>(cluster1->globalPosition().x(),
-									cluster1->globalPosition().y(),
-									cluster1->globalPosition().z());
-    double sinStereo1	= cluster1->detectorElement()->sinStereo(position1);
     
     (*m_hitIterator++)->fill(cluster1->globalPosition(),
 			     broadErrors1.first,
 			     0.,
 			     0.,
 			     0.,
-			     // cluster1->detectorElement()->sinStereo(cluster1->globalPosition()),
-			     sinStereo1,
+			     cluster1->detectorElement()->sinStereo(cluster1->globalPosition()),
 			     0.,
 			     point.inBarrel(),
 			     cluster1->detectorElement(),
@@ -514,19 +501,13 @@ CandidateBuilder::hitsFromPoint (const Point& point)
     std::pair<double,double>	broadErrors2 = m_clusterProperties->broadErrors(cluster2,
 									    detector2,
 									    point.globalPosition());
-    // waiting for DetectorElement migration
-    const HepGeom::Point3D<double> position2 = HepGeom::Point3D<double>(cluster2->globalPosition().x(),
-									cluster2->globalPosition().y(),
-									cluster2->globalPosition().z());
-    double sinStereo2	= cluster2->detectorElement()->sinStereo(position2);
     
     (*m_hitIterator++)->fill(cluster2->globalPosition(),
 			     broadErrors2.first,
 			     0.,
 			     0.,
 			     0.,
-			     // cluster2->detectorElement()->sinStereo(cluster2->globalPosition()),
-			     sinStereo2,
+			     cluster2->detectorElement()->sinStereo(cluster2->globalPosition()),
 			     0.,
 			     point.inBarrel(),
 			     cluster2->detectorElement(),

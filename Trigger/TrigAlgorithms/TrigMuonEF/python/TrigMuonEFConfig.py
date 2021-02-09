@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # TrigMuonEF configurables
 #
@@ -23,6 +23,8 @@ from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
 
 from MuonRecExample.MuonRecFlags import muonRecFlags
 from AtlasGeoModel.MuonGMJobProperties import MuonGeometryFlags
+
+from InDetRecExample import TrackingCommon
 
 from AthenaCommon.BeamFlags import jobproperties
 beamFlags = jobproperties.Beam
@@ -76,8 +78,7 @@ def TMEF_Propagator(name='TMEF_Propagator',**kwargs):
 
 
 def TMEF_Navigator(name='TMEF_Navigator',**kwargs):
-    kwargs.setdefault("TrackingGeometrySvc",AtlasTrackingGeometrySvc)
-    return CfgMgr.Trk__Navigator(name,**kwargs)
+    return TrackingCommon.getAtlasNavigator(name)
 
 
 def TMEF_Extrapolator(name='TMEF_Extrapolator',**kwargs):
@@ -172,9 +173,8 @@ def TMEF_TrackCleaner(name = 'TMEF_TrackCleaner',**kwargs):
 
 
 def TMEF_TrkMaterialProviderTool(name='TMEF_TrkMaterialProviderTool',**kwargs):
-    from TrkMaterialProvider.TrkMaterialProviderConf import Trk__TrkMaterialProviderTool
     kwargs.setdefault("UseCaloEnergyMeasurement", False)
-    return Trk__TrkMaterialProviderTool(name,**kwargs)
+    return TrackingCommon.getTrkMaterialProviderTool(name,**kwargs)
 
 
 def TMEF_CombinedMuonTrackBuilder(name='TMEF_CombinedMuonTrackBuilder',**kwargs):

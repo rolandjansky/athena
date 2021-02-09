@@ -1,10 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <iostream>
 #include "TrigConfData/DataStructure.h"
 
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include "boost/property_tree/json_parser.hpp"
 
 TrigConf::DataStructure::DataStructure()
@@ -81,7 +82,7 @@ bool
 TrigConf::DataStructure::hasAttribute(const std::string & key) const {
    const auto & child = data().get_child_optional( key );
    if( ! bool(child) ) // key does not exist
-      return false; 
+      return false;
    return child.get().empty(); // if empty then it is an attribute, otherwise a child note
 }
 
@@ -102,7 +103,7 @@ TrigConf::DataStructure::hasChild(const std::string & path) const {
 }
 
 
-std::string 
+std::string
 TrigConf::DataStructure::operator[](const std::string & key) const
 {
    const auto & obj = data().get_child(key);
@@ -110,7 +111,7 @@ TrigConf::DataStructure::operator[](const std::string & key) const
    if ( !obj.empty() ) {
       if ( obj.front().first.empty() ) {
          throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but a list [], it needs to be accessed via getList(\"" + key + "\") -> vector<DataStructure>");
-      } else { 
+      } else {
          throw std::runtime_error(className() + "#" + name() + ": structure '" + key + "' is not a simple attribute but an object {}, it needs to be accessed via getObject(\"" + key + "\") -> DataStructure");
       }
    }
@@ -139,7 +140,7 @@ TrigConf::DataStructure::getAttribute(const std::string & key, bool ignoreIfMiss
    return obj.get().data();
 }
 
-std::vector<TrigConf::DataStructure> 
+std::vector<TrigConf::DataStructure>
 TrigConf::DataStructure::getList(const std::string & pathToChild, bool ignoreIfMissing) const
 {
    std::vector<TrigConf::DataStructure> childList;
@@ -148,7 +149,7 @@ TrigConf::DataStructure::getList(const std::string & pathToChild, bool ignoreIfM
       if ( ignoreIfMissing ) {
          return childList;
       } else {
-         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");          
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");
       }
    }
 
@@ -196,7 +197,7 @@ TrigConf::DataStructure::getObject(const std::string & pathToChild, bool ignoreI
       if ( ignoreIfMissing ) {
          return DataStructure();
       } else {
-         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");          
+         throw std::runtime_error(className() + "#" + name() + ": structure '" + pathToChild + "' does not exist.");
       }
    }
    // check if the pathToChild points to an object
@@ -221,7 +222,7 @@ TrigConf::DataStructure::getObject_optional(const std::string & pathToChild) con
 
 
 std::vector<std::string>
-TrigConf::DataStructure::getKeys() const 
+TrigConf::DataStructure::getKeys() const
 {
    std::vector<std::string> keys;
    if ( ! data().empty() &&
@@ -254,7 +255,7 @@ TrigConf::DataStructure::printElement(const std::string& key, const ptree & data
    constexpr char del = '"';
 
    const std::string value = data.get_value<std::string>();
-   
+
    if( data.empty() ) { // no children, so just a key->value pair
       uint n(4*level); while(n--) os << " ";
       os << del << key << del << ": " << del << value << del;

@@ -1,8 +1,8 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 #ifndef L1DECODER_MUROISUNPACKINGTOOL_H
-#define L1DECODER_MUROISUNPACKINGTOOL_H 1
+#define L1DECODER_MUROISUNPACKINGTOOL_H
 
 
 #include <string>
@@ -16,8 +16,10 @@
 
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ServiceHandle.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TrigT1Interfaces/RecMuonRoI.h"
 #include "TrigT1Interfaces/RecMuonRoiSvc.h"
+#include "TrigT1Interfaces/ITrigT1MuonRecRoiTool.h"
 
 #include "RoIsUnpackingToolBase.h"
 
@@ -52,8 +54,8 @@ private:
   ///@}
 
   ServiceHandle<TrigConf::ILVL1ConfigSvc> m_configSvc;
-  ServiceHandle<LVL1::RecMuonRoiSvc> m_recRpcRoISvc;
-  ServiceHandle<LVL1::RecMuonRoiSvc> m_recTgcRoISvc;
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recRpcRoITool{this, "RecRpcRoiTool", "LVL1::TrigT1RPCRecRoiTool/TrigT1RPCRecRoiTool"};
+  ToolHandle<LVL1::ITrigT1MuonRecRoiTool> m_recTgcRoITool{this, "TgcRpcRoiTool", "LVL1::TrigT1TGCRecRoiTool/TrigT1TGCRecRoiTool"};
 
   std::vector<TrigConf::TriggerThreshold*> m_muonThresholds;
 }; 

@@ -1,7 +1,7 @@
 // -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef JETREC_FASTJETINTERFACETOOL_H
@@ -104,7 +104,7 @@ namespace FastJetInterface
  */
 
 
-class FastJetInterfaceTool : virtual public asg::AsgTool, 
+class FastJetInterfaceTool : public asg::AsgTool, 
                              virtual public IFastJetInterfaceTool {
   
 public:

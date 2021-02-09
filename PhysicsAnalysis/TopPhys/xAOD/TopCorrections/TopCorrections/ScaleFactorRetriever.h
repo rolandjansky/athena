@@ -173,7 +173,7 @@ namespace top {
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPT3040__1down, "EFF_RNNID_1PRONGSTATSYSTPT3040_DOWN"},
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPTGE40__1up, "EFF_RNNID_1PRONGSTATSYSTPTGE40_UP"},
     {TAUS_TRUEHADTAU_EFF_RNNID_1PRONGSTATSYSTPTGE40__1down, "EFF_RNNID_1PRONGSTATSYSTPTGE40_DOWN"},
-	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1up, "EFF_RNNID_1PRONGSTATSYSTPT2025_UP"},
+	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1up, "EFF_RNNID_3PRONGSTATSYSTPT2025_UP"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2025__1down, "EFF_RNNID_3PRONGSTATSYSTPT2025_DOWN"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2530__1up, "EFF_RNNID_3PRONGSTATSYSTPT2530_UP"},
 	  {TAUS_TRUEHADTAU_EFF_RNNID_3PRONGSTATSYSTPT2530__1down, "EFF_RNNID_3PRONGSTATSYSTPT2530_DOWN"},
@@ -330,47 +330,47 @@ namespace top {
 
     float electronSF_Reco(const xAOD::Electron& x,
                           const top::topSFSyst SFSyst,
-                          bool isLoose) const;
+                          bool useLooseDef) const;
 
-    float electronSF_Trigger(const xAOD::Electron& x, const top::topSFSyst SFSyst, bool isLoose) const;
+    float electronSF_Trigger(const xAOD::Electron& x, const top::topSFSyst SFSyst, bool useLooseDef) const;
 
-    float electronEff_Trigger(const xAOD::Electron& x, const top::topSFSyst SFSyst, bool isLoose) const;
+    float electronEff_Trigger(const xAOD::Electron& x, const top::topSFSyst SFSyst, bool useLooseDef) const;
 
     float electronSF_ID(const xAOD::Electron& x,
                         const top::topSFSyst SFSyst,
-                        bool isLoose) const;
+                        bool useLooseDef) const;
 
     float electronSF_Isol(const xAOD::Electron& x,
                           const top::topSFSyst SFSyst,
-                          bool isLoose) const;
+                          bool useLooseDef) const;
 
     float electronSF_ChargeID(const xAOD::Electron& x,
                               const top::topSFSyst SFSyst,
-                              bool isLoose) const;
+                              bool useLooseDef) const;
 
     float electronSF_ChargeMisID(const xAOD::Electron& x,
                                  const top::topSFSyst SFSyst,
-                                 bool isLoose) const;
+                                 bool useLooseDef) const;
 
     float fwdElectronSF_ID(const xAOD::Electron& x,
                            const top::topSFSyst SFSyst,
-                           bool isLoose) const;
+                           bool useLooseDef) const;
 
     float muonSF_Trigger(const xAOD::Muon& x,
                          const top::topSFSyst SFSyst,
-                         bool isLoose) const;
+                         bool useLooseDef) const;
 
     float muonEff_Trigger(const xAOD::Muon& x,
                           const top::topSFSyst SFSyst,
-                          bool isLoose) const;
+                          bool useLooseDef) const;
 
     float muonSF_ID(const xAOD::Muon& x,
                     const top::topSFSyst SFSyst,
-                    bool isLoose) const;
+                    bool useLooseDef) const;
 
     float muonSF_Isol(const xAOD::Muon& x,
                       const top::topSFSyst SFSyst,
-                      bool isLoose) const;
+                      bool useLooseDef) const;
 
     float muonSF_TTVA(const xAOD::Muon& x,
                       const top::topSFSyst SFSyst) const;
@@ -403,37 +403,37 @@ namespace top {
     float electronSF_Trigger(const xAOD::Electron& x,
                              const std::string& id,
                              const top::topSFSyst SFSyst,
-                             bool isLoose) const;
+                             bool useLooseDef) const;
 
     float electronEff_Trigger(const xAOD::Electron& x,
                               const std::string& id,
                               const top::topSFSyst SFSyst,
-                              bool isLoose) const;
+                              bool useLooseDef) const;
 
     float electronSF_ID(const xAOD::Electron& x,
                         const std::string& id,
                         const top::topSFSyst SFSyst,
-                        bool isLoose) const;
+                        bool useLooseDef) const;
 
     float electronSF_Isol(const xAOD::Electron& x,
                           const std::string& id,
                           const top::topSFSyst SFSyst,
-                          bool isLoose) const;
+                          bool useLooseDef) const;
 
     float electronSF_ChargeID(const xAOD::Electron& x,
                               const std::string& id, const std::string& iso,
                               const top::topSFSyst SFSyst,
-                              bool isLoose) const;
+                              bool useLooseDef) const;
 
     float electronSF_ChargeMisID(const xAOD::Electron& x,
                                  const std::string& id, const std::string& iso,
                                  const top::topSFSyst SFSyst,
-                                 bool isLoose) const;
+                                 bool useLooseDef) const;
 
     float fwdElectronSF_ID(const xAOD::Electron& x,
                            const std::string& id,
                            const top::topSFSyst SFSyst,
-                           bool isLoose) const;
+                           bool useLooseDef) const;
 
     float photonSF_Isol(const xAOD::Photon& x,
                         const std::string& iso,
@@ -443,16 +443,16 @@ namespace top {
     float muonSF_Trigger(const xAOD::Muon& x,
                          const std::string& id,
                          const top::topSFSyst SFSyst,
-                         bool isLoose) const;
+                         bool useLooseDef) const;
     float muonEff_Trigger(const xAOD::Muon& x,
                           const std::string& id,
                           const top::topSFSyst SFSyst,
-                          bool isLoose) const;
+                          bool useLooseDef) const;
 
     float muonSF_ID(const xAOD::Muon& x,
                     const std::string& id,
                     const top::topSFSyst SFSyst,
-                    bool isLoose) const;
+                    bool useLooseDef) const;
 
     float softmuonSF_ID(const xAOD::Muon& x,
                         const std::string& id,
@@ -461,7 +461,7 @@ namespace top {
     float muonSF_Isol(const xAOD::Muon& x,
                       const std::string& iso,
                       const top::topSFSyst SFSyst,
-                      bool isLoose) const;
+                      bool useLooseDef) const;
 
     // List of triggers to 'or' together for each event.
     // If any one passes, the event passes

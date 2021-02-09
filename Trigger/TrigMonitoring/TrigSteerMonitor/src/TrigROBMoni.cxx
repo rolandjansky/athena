@@ -62,11 +62,10 @@ TrigROBMoni::TrigROBMoni(const std::string& type,
 
   // Bin assignment for ROB history
   m_ROBHistoryToBin[robmonitor::UNCLASSIFIED] = 1;
-  m_ROBHistoryToBin[robmonitor::SCHEDULED]    = 2;
-  m_ROBHistoryToBin[robmonitor::RETRIEVED]    = 3;
-  m_ROBHistoryToBin[robmonitor::HLT_CACHED]   = 4;
-  m_ROBHistoryToBin[robmonitor::IGNORED]      = 5;
-  m_ROBHistoryToBin[robmonitor::DISABLED]     = 6;
+  m_ROBHistoryToBin[robmonitor::RETRIEVED]    = 2;
+  m_ROBHistoryToBin[robmonitor::HLT_CACHED]   = 3;
+  m_ROBHistoryToBin[robmonitor::IGNORED]      = 4;
+  m_ROBHistoryToBin[robmonitor::UNDEFINED]    = 5;
 
 }
 

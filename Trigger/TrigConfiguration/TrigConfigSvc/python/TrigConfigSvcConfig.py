@@ -329,15 +329,8 @@ class SetupTrigConfigSvc(object):
             if not set(state) <= self.allowedStates:
                 raise (RuntimeError, 'unknown state %s, cannot set it!' % state)
             else:
+                self.mlog.info( "setting TrigConfigSvc states to %s", self.states )
                 self.states = state
-
-        def GetConfigurable(self):
-            try:
-                self.InitialiseSvc()
-            except Exception:
-                self.mlog.debug( 'ok, TrigConfigSvc already initialised' )
-
-            return self.GetPlugin()
 
 
         def InitialiseSvc(self):
@@ -374,17 +367,20 @@ class SetupTrigConfigSvc(object):
                     self.mlog.info("Generating L1 menu %s", menuName)
                     from TriggerMenuMT.L1.L1MenuConfig import L1MenuConfig
                     l1cfg = L1MenuConfig(menuName = menuName) # create menu
-                    fileName = 'L1Menu_' + menuName + '.json'
-                    l1JsonFileName = l1cfg.writeJSON(outputFile = fileName) # write menu
+                    menuFileName = 'L1Menu_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
+                    bgsFileName = 'BunchGroupSet_' + menuName + '_' + TriggerFlags.menuVersion() + '.json'
+                    l1JsonFileName, jsonBgsFileName = l1cfg.writeJSON(outputFile = menuFileName, bgsOutputFile = bgsFileName) # write menu and bunchgroupset
                 self.mlog.info("setup LVL1 ConfigSvc and add instance to ServiceMgr")
                 self.mlog.info("xml file = %s", self.l1XmlFile)
                 if doGenerateJsonMenuForRun2Menu:
-                    self.mlog.info("json file= %s", l1JsonFileName)
+                    self.mlog.info("L1Menu json file= %s", l1JsonFileName)
+                    self.mlog.info("Bunchgroup json file= %s", jsonBgsFileName)
+
                 l1 = LVL1ConfigSvc("LVL1ConfigSvc")
                 l1.XMLMenuFile = self.l1XmlFile
                 if doGenerateJsonMenuForRun2Menu:
                     l1.JsonFileName = l1JsonFileName
-
+                    l1.JsonFileNameBGS = jsonBgsFileName
                 ServiceMgr += l1
 
                 self.mlog.info( "setup L1TopoConfigSvc and add instance to ServiceMgr (xml file="+self.l1topoXmlFile+")" )

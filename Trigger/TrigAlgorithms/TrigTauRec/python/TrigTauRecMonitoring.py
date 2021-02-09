@@ -108,6 +108,25 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 def tauMonitoringCaloOnly():
    monTool = GenericMonitoringTool('MonTool')
+   monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.) 
+   monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
+   monTool.defineHistogram('RNN_clusternumber',path='EXPERT', type='TH1F', title=" EF RNN cluster number; N RNNClusters", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('cluster_et_log',path="EXPERT", type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.)
+   monTool.defineHistogram('cluster_dEta',path="EXPERT", type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_dPhi',path="EXPERT", type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_log_SECOND_R',path="EXPERT",type='TH1F',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+   monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
+   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
+   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
+   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
+   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('dPhiEFTau_RoI', path='EXPERT', type='TH1F', title="diff EF vs RoI phi ; Dphi; nRoIs", xbins=100, xmin=-0.4, xmax=0.4)
@@ -132,11 +151,36 @@ def tauMonitoringCaloOnly():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+       
+
    return monTool
 
 
 def tauMonitoringCaloOnlyMVA():
    monTool = GenericMonitoringTool('MonTool')
+   
+   monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
+   monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
+   monTool.defineHistogram('RNN_clusternumber',path='EXPERT', type='TH1F', title=" EF RNN cluster number; N RNNClusters", xbins=15, xmin=0., xmax=15.)
+   monTool.defineHistogram('cluster_et_log',path="EXPERT", type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.) 
+   monTool.defineHistogram('cluster_dEta',path="EXPERT", type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_dPhi',path="EXPERT", type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_log_SECOND_R',path="EXPERT",type='TH1F',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+   monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
+   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
+   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
+   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
+   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('EMRadius', path='EXPERT', type='TH1F', title="EF EMRadius; EM radius; nRoIs", xbins=50, xmin=-0.1, xmax=1.)
@@ -156,12 +200,35 @@ def tauMonitoringCaloOnlyMVA():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
+
    return monTool
 
 
 def tauMonitoringPreselection():
 
    monTool = GenericMonitoringTool('MonTool')
+   
+   monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
+   monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
+   monTool.defineHistogram('RNN_clusternumber',path='EXPERT', type='TH1F', title=" EF RNN cluster number; N RNNClusters", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('cluster_et_log',path="EXPERT", type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.)
+   monTool.defineHistogram('cluster_dEta',path="EXPERT", type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_dPhi',path="EXPERT", type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_log_SECOND_R',path="EXPERT",type='TH1F',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+   monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
+   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
+   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
+   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
+   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
@@ -199,6 +266,9 @@ def tauMonitoringPreselection():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
    return monTool
 
@@ -206,6 +276,26 @@ def tauMonitoringPreselection():
 def tauMonitoringPrecision():
 
    monTool = GenericMonitoringTool('MonTool')
+ 
+   monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
+   monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
+   monTool.defineHistogram('RNN_clusternumber',path='EXPERT', type='TH1F', title=" EF RNN cluster number; N RNNClusters", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('cluster_et_log',path="EXPERT", type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.)
+   monTool.defineHistogram('cluster_dEta',path="EXPERT", type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_dPhi',path="EXPERT", type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_log_SECOND_R',path="EXPERT",type='TH1F',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+   monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.) 
+   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5) 
+   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5) 
+   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.) 
+   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
+   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
+   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
@@ -243,12 +333,35 @@ def tauMonitoringPrecision():
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+ 
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
    return monTool
 
 
 def tauMonitoringPrecisionMVA():
    monTool = GenericMonitoringTool('MonTool')
+
+   monTool.defineHistogram('mEflowApprox',path="EXPERT", type='TH1F', title=" EF RNN scalar mEflowApprox; Log10(max(mEflowApprox 140.)", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('ptRatioEflowApprox', path="EXPERT",type='TH1F', title=" EF RNN scalar ptRatioEflowApprox; min(ptRatioEflowApprox 4.)", xbins=50, xmin=0., xmax=4.)
+   monTool.defineHistogram('pt_jetseed_log', path='EXPERT',type='TH1F', title=" EF RNN scalar pt_jetseed_log; Log10(tau.ptJetSeed)", xbins=50, xmin=3.5, xmax=7.)
+   monTool.defineHistogram('ptDetectorAxis', path='EXPERT',type='TH1F', title=" EF RNN ptDetectorAxis log; ptDetectorAxis_log ", xbins=50, xmin=0., xmax=5.)
+   monTool.defineHistogram('RNN_clusternumber',path='EXPERT', type='TH1F', title=" EF RNN cluster number; N RNNClusters", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('cluster_et_log',path="EXPERT", type='TH1F', title=" EF RNN cluster et_log; Log10(cluster E_{T})", xbins=50, xmin=1., xmax=7.)
+   monTool.defineHistogram('cluster_dEta',path="EXPERT", type='TH1F', title=" EF RNN cluster dEta; #Delta#eta(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_dPhi',path="EXPERT", type='TH1F', title=" EF RNN cluster dPhi; #Delta#phi(cluster tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('cluster_log_SECOND_R',path="EXPERT",type='TH1F',title='cluster_SECOND_R_log10; cluster_SECOND_R_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_SECOND_LAMBDA',path="EXPERT",type='TH1F',title='cluster_SECOND_LAMBDA_log10; cluster_SECOND_LAMBDA_log10;Events',xbins=50,xmin=-3,xmax=7)
+   monTool.defineHistogram('cluster_CENTER_LAMBDA',path="EXPERT",type='TH1F',title='cluster_CENTER_LAMBDA_log10; cluster_CENTER_LAMBDA_log10;Events',xbins=50,xmin=-2,xmax=5)
+   monTool.defineHistogram('RNN_tracknumber',path='EXPERT', type='TH1F', title=" EF RNN track number; N RNNTracks", xbins=20, xmin=0., xmax=20.)
+   monTool.defineHistogram('track_pt_log',path='EXPERT', type='TH1F', title=" EF RNN track pt_log; Log10(track p_{T})", xbins=50, xmin=2.7, xmax=7.)
+   monTool.defineHistogram('track_dEta',path='EXPERT', type='TH1F', title=" EF RNN track dEta; #Delta#eta(track tau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_dPhi',path='EXPERT', type='TH1F', title=" EF RNN track dPhi; #Delta#phi(track xtau)", xbins=50, xmin=-0.5, xmax=0.5)
+   monTool.defineHistogram('track_d0_abs_log',path='EXPERT',type='TH1F', title=" EF RNN track d0_abs_log; Log10(Abs(track.d0()) + 1e-6)", xbins=50, xmin=-6.1, xmax=2.)
+   monTool.defineHistogram('track_z0sinThetaTJVA_abs_log',path='EXPERT', type='TH1F', title=" EF RNN track z0sinThetaTJVA_abs_log; Log10(Abs(track.z0sinThetaTJVA(tau)) + 1e-6)", xbins=50, xmin=-6.1, xmax=4.)
+   monTool.defineHistogram('track_nPixelHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nPixelHitsPlusDeadSensors; nPixelHits", xbins=11, xmin=0., xmax=11.)
+   monTool.defineHistogram('track_nSCTHitsPlusDeadSensors',path='EXPERT', type='TH1F', title=" EF RNN track nSCTHitsPlusDeadSensors; nSCTHits", xbins=20, xmin=0., xmax=20.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('nRoI_EFTauCells', path='EXPERT', type='TH1F', title="EF N RoI cells; N Cells; nRoIs", xbins=100, xmin=0., xmax=6000.)
    monTool.defineHistogram('nRoI_EFTauTracks', path='EXPERT', type='TH1F', title="EF N RoI Tracks; N Tracks; nRoIs", xbins=17, xmin=-2.0, xmax=15.)
@@ -281,11 +394,14 @@ def tauMonitoringPrecisionMVA():
    monTool.defineHistogram('PhiL1', path='EXPERT', type='TH1F', title="L1 RoI Phi; L1 RoI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
    monTool.defineHistogram('EtaL1', path='EXPERT', type='TH1F', title="L1 RoI Eta; L1 RoI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
    monTool.defineHistogram('EtaL1, PhiL1', path='EXPERT', type='TH2F', title="L1 ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
-                                           xbins=51, xmin=-2.55, xmax=2.55,
+                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
    monTool.defineHistogram('EtaEF, PhiEF', path='EXPERT', type='TH2F', title="EF ROI Eta vs Phi in TrigTauRecMerged FEX; #eta; #phi",
                                            xbins=51, xmin=-2.55, xmax=2.55,
                                            ybins=65, ymin=-3.1415936-0.098174/2., ymax=3.1415936+0.098174/2.)
+
+   monTool.defineHistogram('EtaEF', path='EXPERT', type='TH1F', title="EF ROI Eta; nRoIs", xbins=51, xmin=-2.55, xmax=2.55)
+   monTool.defineHistogram('PhiEF', path='EXPERT', type='TH1F', title="EF ROI Phi; nRoIs", xbins=65, xmin=-3.1415936-0.098174/2., xmax=3.1415936+0.098174/2.)
 
    return monTool
 

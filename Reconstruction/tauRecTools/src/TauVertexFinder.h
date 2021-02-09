@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUVERTEXFINDER_H
-#define TAUREC_TAUVERTEXFINDER_H
+#ifndef TAURECTOOLS_TAUVERTEXFINDER_H
+#define TAURECTOOLS_TAUVERTEXFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -11,6 +11,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "JetEDM/TrackVertexAssociation.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
+#include "TrackVertexAssociationTool/ITrackVertexAssociationTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -49,7 +50,7 @@ private:
              const xAOD::TrackParticleContainer* trackContainer,
              float& maxJVF) const;
 
-  float getJetVertexFraction(const xAOD::Vertex* vertex, const std::vector<const xAOD::TrackParticle*>& tracks, const jet::TrackVertexAssociation* tva) const;
+  float getJetVertexFraction(const std::vector<const xAOD::TrackParticle*>& tracks) const;
   // for online ATR-15665
   float getJetVertexFraction(const xAOD::Vertex* vertex,
                              const std::vector<const xAOD::TrackParticle*>& tracks,
@@ -64,10 +65,11 @@ private:
   Gaudi::Property<float> m_maxZ0SinTheta {this, "OnlineMaxZ0SinTheta", 10e6};
   
   ToolHandle< InDet::IInDetTrackSelectionTool > m_TrackSelectionToolForTJVA {this, "InDetTrackSelectionToolForTJVA", ""};
+  ToolHandle<CP::ITrackVertexAssociationTool> m_trkVertexAssocTool{this, "TVATool", "Tau track-vertex association tool"};
   
   SG::ReadHandleKey<xAOD::VertexContainer> m_vertexInputContainer{this,"Key_vertexInputContainer", "PrimaryVertices", "input vertex container key"};
-  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};   
-  SG::ReadHandleKey<jet::TrackVertexAssociation> m_jetTrackVtxAssoc{this, "Key_JetTrackVtxAssoc_forTaus", "JetTrackVtxAssoc_forTaus", "input TVA for taus"};
+  SG::ReadHandleKey<xAOD::TrackParticleContainer> m_trackPartInputContainer{this,"Key_trackPartInputContainer", "InDetTrackParticles", "input track particle container key"};
+
 };
 
-#endif // not TAUREC_TAUVERTEXFINDER_H
+#endif // TAURECTOOLS_TAUVERTEXFINDER_H

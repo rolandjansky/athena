@@ -128,12 +128,12 @@ class EvgenExecutor(athenaExecutor):
             if "--ecmEnergy" in str(sys.argv[1:]):
                ener=str(sys.argv[1:]).split("ecmEnergy",1)[1]
                energy=str(ener)[:4].strip(" =0\']")
-               printfunc("Should be used gridpack for energy "+energy)
+               msg.info("Should be used gridpack for energy "+energy)
             else:
                energy="13"
             for x in configFiles:
                 gridS="mc_"+energy+"TeV"
-                printfunc("Gridpack should start from "+gridS) 
+                msg.info("Gridpack should start from "+gridS) 
                 if x.startswith(gridS):
                    confFile = os.path.join(FIRST_DIR, x)
                    msg.info("using gridpack = "+confFile)
@@ -143,7 +143,7 @@ class EvgenExecutor(athenaExecutor):
         if confFile is not None:
            expand_if_archive(confFile)
 #       os.system("cp %s ." % confFile)
-           printfunc("Configuration input gridpack found " + confFile)
+           msg.info("Configuration input gridpack found " + confFile)
 
         #Expand if a tarball is found in local directory
         loc_files = os.listdir(os.getcwd())

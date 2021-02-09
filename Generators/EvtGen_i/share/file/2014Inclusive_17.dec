@@ -2802,7 +2802,7 @@ Decay B-
 #
 # Exclusive hadronic b->u
 #
-0.000026   pi-   pi0   pi0                   CB3PI-P00 alpha;
+#0.000026   pi-   pi0   pi0                   CB3PI-P00 alpha;
 0.000000   pi-   pi-   pi+                   CB3PI-MPP alpha;
 ####
 0.000004070 eta     pi-                                     PHSP; #[Reconstructed PDG2011]
@@ -3806,7 +3806,7 @@ Decay B+
 #
 # Exclusive hadronic b->u
 #
-0.000026   pi+   pi0   pi0                   CB3PI-P00 alpha;
+#0.000026   pi+   pi0   pi0                   CB3PI-P00 alpha;
 0.000000   pi+   pi+   pi-                   CB3PI-MPP alpha;
 ####
 0.000004070 eta     pi+                                     PHSP; #[Reconstructed PDG2011]

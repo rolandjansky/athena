@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "RadLengthAction.h"
@@ -95,7 +95,7 @@ namespace G4UA
 
       // looping on logical vector of previous depth level
       for(logit=logvec.begin() ; logit < logvec.end(); logit++ ){
-        for(int k=0; k<(*logit)->GetNoDaughters();k++){
+        for(unsigned int k=0; k<(*logit)->GetNoDaughters();k++){
           // dumping all logical daughters for next level
           tmplogvec.push_back((*logit)->GetDaughter(k)->GetLogicalVolume());
           // dumping the corresponding physical if not made of gas or last depth level where all are dumped

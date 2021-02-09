@@ -84,7 +84,7 @@ StatusCode METRoIsUnpackingTool::unpack( const EventContext& ctx,
 
   ATH_MSG_DEBUG("Unpacking MET RoI for " << activeMETchains.size() << " chains");
 
-  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+  auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName() denotes an initial node with no parents
   for ( auto th: m_thresholds ) 
     addChainsToDecision(  HLT::Identifier( th->name() ), decision, activeChains );
 

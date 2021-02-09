@@ -1,13 +1,10 @@
-from future.utils import iteritems
-from builtins import zip
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @package PyJobTransforms.trfMPTools
 #
 # @brief Utilities for handling AthenaMP jobs
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
-# 
+#
 
 __version__ = '$Revision'
 
@@ -89,7 +86,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
             msg.debug('Examining element {0} with attributes {1}'.format(filesElement, filesElement.attrib))
             originalArg = None 
             startName = filesElement.attrib['OriginalName']
-            for dataType, fileArg in iteritems(dataDictionary):
+            for dataType, fileArg in dataDictionary.items():
                 if fileArg.value[0] == startName:
                     originalArg = fileArg
                     outputHasBeenHandled[dataType] = True
@@ -111,7 +108,7 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
         # OK, we have something we need to search for; cache the dirwalk here
         MPdirWalk = [ dirEntry for dirEntry in os.walk(athenaMPWorkerTopDir) ]
 
-        for dataType, fileArg in iteritems(dataDictionary):
+        for dataType, fileArg in dataDictionary.items():
             if outputHasBeenHandled[dataType]:
                 continue
             if fileArg.io == "input":

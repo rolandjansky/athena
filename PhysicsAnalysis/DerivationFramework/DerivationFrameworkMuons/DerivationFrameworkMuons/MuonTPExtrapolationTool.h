@@ -1,12 +1,6 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-//////////////////////////////////////////////////////////////////////////////
-// MuonTPExtrapolationTool
-//  ASG Tool performing extrapolations
-//
-//  (c) ATLAS Muon Combined Performance Software
-//////////////////////////////////////////////////////////////////////////////
 #ifndef MuonTPExtrapolationTool_H
 #define MuonTPExtrapolationTool_H
 
@@ -14,32 +8,28 @@
 
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-
+#include "TrkExInterfaces/IExtrapolator.h"
 #include <xAODTracking/TrackParticle.h>
-namespace Trk {
-    class IExtrapolator;
-}
 
 class MuonTPExtrapolationTool: public asg::AsgTool, virtual public IMuonTPExtrapolationTool {
         ASG_TOOL_CLASS(MuonTPExtrapolationTool, IMuonTPExtrapolationTool)
 
         public:
-        MuonTPExtrapolationTool(std::string myname);
-        virtual ~MuonTPExtrapolationTool();
+        MuonTPExtrapolationTool(const std::string& myname);
+        virtual ~MuonTPExtrapolationTool()=default;
 
-        virtual StatusCode initialize();
+        virtual StatusCode initialize() override;
 
         /// compute dR on trigger pivot plane
         /// see interface class for full description
-        double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe) const ;
+        double dROnTriggerPivotPlane(const xAOD::Muon& tag, const xAOD::IParticle* probe) const override;
 
         // this method is intended for use in the DAOD production. It takes only one particle as argument, and handles the decoration.
-        virtual StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle);
+         StatusCode decoratePivotPlaneCoords(const xAOD::IParticle* particle)const override;
 
-#ifndef XAOD_ANALYSIS
+    private:
         /// run the extrapolation - only available in full athena
-        const Trk::TrackParameters* extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track) const;
-#endif
+        std::unique_ptr<const Trk::TrackParameters> extrapolateToTriggerPivotPlane(const xAOD::TrackParticle& track) const;
 
         // Utility method to handle extrapolation and decoration for one TrackParticle.
         // In AthAnalysis, it attempts to read the decoration that should be present in the DAODs we use (MUON1/2).
@@ -49,12 +39,11 @@ class MuonTPExtrapolationTool: public asg::AsgTool, virtual public IMuonTPExtrap
         // If the extrapolation fails or the decoration is missing in AthAnalysis, it will *not* change eta and phi
         // So you can set them to defaults before calling this guy, and they will be preserved in case of failure.
         bool extrapolateAndDecorateTrackParticle(const xAOD::TrackParticle* particle, float & eta, float & phi) const ;
-
-    private:
-
-#ifndef XAOD_ANALYSIS
+   
         ToolHandle<Trk::IExtrapolator> m_extrapolator;
-#endif
+        /// Checks whether the extrapolation has been applied on the probe or nt
+        bool is_extrapolated(const xAOD::IParticle* probe) const;
+
 
         // utility method: Obtains the track particle which we want to extrapolate into the MS.
         // Works for all kinds of probes.
@@ -62,11 +51,11 @@ class MuonTPExtrapolationTool: public asg::AsgTool, virtual public IMuonTPExtrap
 
         // these define the surfaces that we extrapolate to.
         // We approximate the pivot plane in the form of a cylinder surface and two disks
-        double m_endcapPivotPlaneZ;
-        double m_endcapPivotPlaneMinimumRadius;
-        double m_endcapPivotPlaneMaximumRadius;
-        double m_barrelPivotPlaneRadius;
-        double m_barrelPivotPlaneHalfLength;
+        float m_endcapPivotPlaneZ;
+        float m_endcapPivotPlaneMinimumRadius;
+        float m_endcapPivotPlaneMaximumRadius;
+        float m_barrelPivotPlaneRadius;
+        float m_barrelPivotPlaneHalfLength;
 
         bool m_is_on_DAOD;
 

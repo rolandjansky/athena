@@ -307,11 +307,17 @@ if __name__ == "__main__":
     top_acc.merge(PixelAlignCondAlgCfg(ConfigFlags))
     top_acc.merge(PixelDetectorElementCondAlgCfg(ConfigFlags))
 
+    from PixelConditionsAlgorithms.PixelConditionsConfig import PixelHitDiscCnfgAlgCfg
+    top_acc.merge(PixelHitDiscCnfgAlgCfg(ConfigFlags))
+
+    from InDetOverlay.PixelOverlayConfig import PixelRawDataProviderAlgCfg
+    top_acc.merge(PixelRawDataProviderAlgCfg(ConfigFlags))
+
     top_acc.merge(InDetRecPreProcessingSiliconCfg(ConfigFlags))
 
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
 
-    top_acc.getService('StoreGateSvc').Dump = True
-    top_acc.printConfig(withDetails = True, summariseProps = True)
+    top_acc.printConfig()
     top_acc.run(25)
+    top_acc.store(open("test_SiliconPreProcessing.pkl", "wb"))

@@ -16,6 +16,7 @@ using TrigCompositeUtils::DecisionIDContainer;
 using TrigCompositeUtils::createAndStore;
 using TrigCompositeUtils::decisionIDs;
 using TrigCompositeUtils::newDecisionIn;
+using TrigCompositeUtils::hypoAlgNodeName;
 
 // =============================================================================
 // Standard constructor
@@ -57,7 +58,7 @@ StatusCode MTCalibPebHypoAlg::execute(const EventContext& eventContext) const {
   DecisionContainer* decisions = outputHandle.ptr();
 
   // Create new decision (DecisionContainer* decisions owns the new object)
-  Decision* newd = newDecisionIn(decisions, "");
+  Decision* newd = newDecisionIn(decisions, hypoAlgNodeName());
 
   // Prepare input for hypo tools
   MTCalibPebHypoTool::Input toolInput(newd, eventContext);

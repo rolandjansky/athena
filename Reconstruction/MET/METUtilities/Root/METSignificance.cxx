@@ -1,6 +1,6 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 // METSignificance.cxx
 // Implementation file for class METSignificance
@@ -26,7 +26,7 @@
 #include "xAODEgamma/PhotonContainer.h"
 #include "xAODTau/TauJetContainer.h"
 
-#include "tauRecTools/CombinedP4FromRecoTaus.h"
+#include "tauRecTools/TauCombinedTES.h"
 #include "PathResolver/PathResolver.h"
 
 // Needed for xAOD::get_eta_calo() function
@@ -56,7 +56,7 @@ namespace met {
     m_jetCalibTool(""),
     m_muonCalibrationAndSmearingTool(""),
     m_egammaCalibTool(""),
-    m_tCombinedP4FromRecoTaus(""),
+    m_tauCombinedTES(""),
     m_GeV(1.0e3),
     m_softTermParam(met::Random),
     m_jerForEMu(false),
@@ -99,6 +99,16 @@ namespace met {
     declareProperty("IsDataMuon",  m_isDataMuon    = false   );
     declareProperty("IsAFII",      m_isAFII        = false   );
 
+    m_file = nullptr;
+  }
+  
+  METSignificance::~METSignificance(){}
+  
+  StatusCode METSignificance::initialize(){
+
+    ATH_MSG_INFO ("Initializing " << name() << "...");
+    ATH_MSG_INFO("Set up JER tools");
+
     // Phi resolution
     std::string configpath  = PathResolverFindCalibFile(m_configPrefix+m_configJetPhiResoFile);
     m_file = TFile::Open(configpath.c_str());
@@ -113,14 +123,7 @@ namespace met {
     else{
       ATH_MSG_ERROR("PU Jet Uncertainty TFile is not valid: " << configpath);
     }
-  }
-  
-  METSignificance::~METSignificance(){}
-  
-  StatusCode METSignificance::initialize(){
 
-    ATH_MSG_INFO ("Initializing " << name() << "...");
-    ATH_MSG_INFO("Set up JER tools");
     std::string toolName;
     std::string jetcoll = "AntiKt4EMTopoJets";
     toolName = "JetCalibrationTool/jetCalibTool_"+m_JetCollection;
@@ -162,9 +165,9 @@ namespace met {
     ATH_CHECK( m_egammaCalibTool.retrieve() );
 
     toolName = "TauPerfTool";
-    m_tCombinedP4FromRecoTaus.setTypeAndName("CombinedP4FromRecoTaus/METSigAutoConf_" + toolName);
-    ATH_CHECK(m_tCombinedP4FromRecoTaus.setProperty("WeightFileName", "CalibLoopResult_v04-04.root"));
-    ATH_CHECK( m_tCombinedP4FromRecoTaus.retrieve() );
+    m_tauCombinedTES.setTypeAndName("TauCombinedTES/METSigAutoConf_" + toolName);
+    ATH_CHECK( m_tauCombinedTES.setProperty("WeightFileName", "CalibLoopResult_v04-04.root") );
+    ATH_CHECK( m_tauCombinedTES.retrieve() );
 
     return StatusCode::SUCCESS;
   }
@@ -224,7 +227,7 @@ namespace met {
     m_met_vect.SetXYZ(m_metx, m_mety, 0);
 
     // Fill the remaining terms
-    for(const auto& met : *metCont) {
+    for(const xAOD::MissingET *met : *metCont) {
 
       // skip the invisible and total MET
       if(MissingETBase::Source::isTotalTerm(met->source())){
@@ -562,7 +565,7 @@ namespace met {
     }
     else{
       const xAOD::TauJet* tau(static_cast<const xAOD::TauJet*>(obj));
-      if (auto combp4 = dynamic_cast<CombinedP4FromRecoTaus*>(m_tCombinedP4FromRecoTaus.get())) {
+      if (auto combp4 = dynamic_cast<TauCombinedTES*>(m_tauCombinedTES.get())) {
         pt_reso = combp4->getCaloResolution(*tau);
       }
       

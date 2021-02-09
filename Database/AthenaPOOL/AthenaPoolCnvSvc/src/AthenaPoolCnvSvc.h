@@ -254,7 +254,7 @@ private: // properties
    /// Extension to use ROOT TMemFile for event data, "?pmerge=<host>:<port>"
    StringProperty  m_streamPortString{this,"StreamPortString","?pmerge=localhost:1095"};
    /// When using TMemFile call Write on number of Events, respecting CollectionTree auto_flush
-   IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",10};
+   IntegerProperty m_numberEventsPerWrite{this,"NumberEventsPerWrite",-1};
 };
 
 #endif

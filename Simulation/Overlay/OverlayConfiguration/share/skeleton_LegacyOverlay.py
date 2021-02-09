@@ -237,6 +237,10 @@ if (MuonGeometryFlags.hasCSC() and DetFlags.overlay.CSC_on()) or DetFlags.overla
 if DetFlags.overlay.LVL1_on():
     include('EventOverlayJobTransforms/Level1Overlay_jobOptions.py')  # noqa F821
 
+# Run calculation of weight for the beam spot size reweighting
+if (digitizationFlags.doBeamSpotSizeReweighting()):
+    include('Digitization/BeamSpotReweight.py')  # noqa F821
+
 # save the overlay output
 include('EventOverlayJobTransforms/OverlayOutput_jobOptions.py')  # noqa F821
 
@@ -262,6 +266,13 @@ digitizationFlags.rndmSeedList.printSeeds()
 from AthenaCommon.Constants import INFO
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.Format = '% F%45W%S%5W%e%s%7W%R%T %0W%M'
+
+#==========================================================
+# Use ZLIB for compression of all temporary outputs
+#==========================================================
+if '_000' in overlayArgs.outputRDOFile or 'tmp.' in overlayArgs.outputRDOFile:
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_ALGORITHM = '1'" ]
+    ServiceMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" +  athenaCommonFlags.PoolRDOOutput()+ "'; COMPRESSION_LEVEL = '1'" ]
 
 # Post-include
 if hasattr(overlayArgs, 'postInclude'):

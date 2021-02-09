@@ -22,6 +22,9 @@ knownVar = dict(
 
 )
 
+# Explicitly declare variables which have underlying type vector<int> (otherwise the system would automatically configure them as vector<float>)
+knownVar['NumTrkPt1000[0]'] = VarSpec('NumTrkPt1000[0]', 'vecint', )
+knownVar['NumTrkPt500[0]']  = VarSpec('NumTrkPt500[0]', 'vecint', )
 
 knownEventVar = dict(    
     # These always are of type 'float'
@@ -33,6 +36,7 @@ knownEventVar = dict(
     njetsEt20 = ToolSpec('NumJetVarTool', 'njetsEt20', EtCut=20.),
     njetsEt50 = ToolSpec('NumJetVarTool', 'njetsEt50', EtCut=50.),
     njetsEt20Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt20Eta0_32', EtCut=20., EtaMin=0., EtaMax=3.2),
+    njetsEt40Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt40Eta0_32', EtCut=40., EtaMin=0., EtaMax=3.2),
     njetsEt50Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt50Eta0_32', EtCut=50., EtaMin=0., EtaMax=3.2),
     njetsEt70Eta0_24 = ToolSpec('NumJetVarTool', 'njetsEt70Eta0_24', EtCut=70., EtaMin=0., EtaMax=2.4),
     njetsEt60Eta0_32 = ToolSpec('NumJetVarTool', 'njetsEt60Eta0_32', EtCut=60., EtaMin=0., EtaMax=3.2),

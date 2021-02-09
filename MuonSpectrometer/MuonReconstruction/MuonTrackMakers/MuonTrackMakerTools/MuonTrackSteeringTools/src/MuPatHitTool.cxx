@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MuPatHitTool.h"
@@ -73,8 +73,7 @@ MuPatHitTool::insert(MuPatHit* /*hit*/, MuPatHitList& /*hitList*/) const
 
 bool
 MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList,
-                     HitGarbage& hitsToBeDeleted,
-                     ParGarbage& parsToBeDeleted) const
+                     HitGarbage& hitsToBeDeleted) const
 {
     ATH_MSG_DEBUG(" creating hit list from segment " << std::endl << m_printer->print(seg));
 
@@ -88,7 +87,7 @@ MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList,
     }
 
     bool result = create(*pars, seg.containedMeasurements(), hitList,
-                         hitsToBeDeleted, parsToBeDeleted);
+                         hitsToBeDeleted);
 
     // clean up pars
     delete pars;
@@ -99,8 +98,7 @@ MuPatHitTool::create(const MuonSegment& seg, MuPatHitList& hitList,
 bool
 MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const Trk::MeasurementBase*>& measVec,
                      MuPatHitList& hitList,
-                     HitGarbage& hitsToBeDeleted,
-                     ParGarbage& parsToBeDeleted) const
+                     HitGarbage& hitsToBeDeleted) const
 {
     // store position of the current hit to speed up insertion
     MuPatHitIt currentHitIt = hitList.begin();
@@ -122,7 +120,7 @@ MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const T
         }
 
         // create broad measurement
-        const Trk::MeasurementBase* broadMeas = createBroadMeasurement(**sit, hitInfo);
+        std::unique_ptr<const Trk::MeasurementBase> broadMeas = createBroadMeasurement(**sit, hitInfo);
         if (!broadMeas) {
             ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperSvc->toString(id));
             continue;
@@ -132,29 +130,27 @@ MuPatHitTool::create(const Trk::TrackParameters& pars, const std::vector<const T
         const Trk::MeasurementBase& meas = *broadMeas;
 
         // extrapolate
-        const Trk::TrackParameters* exPars = 0;
+        std::shared_ptr<const Trk::TrackParameters> exPars;
         if (pars.associatedSurface() == meas.associatedSurface()) {
-            exPars = pars.clone();
+            exPars.reset (pars.clone());
             ATH_MSG_VERBOSE(" start parameters and measurement expressed at same surface, cloning parameters ");
         } else {
+
+           //this code does its own manual garbage collection which can probably be omitted now
             exPars =
                 m_propagator->propagate(pars, meas.associatedSurface(), Trk::anyDirection, false, m_magFieldProperties);
+
             if (!exPars) {
                 if (!wasPrinted) {
                     ATH_MSG_WARNING(" extrapolation of segment failed, cannot calculate residual ");
                     wasPrinted = true;
                 }
-                delete broadMeas;
                 continue;
             }  // !exPars
         }
 
-        if (exPars) {
-            parsToBeDeleted.emplace_back (exPars);
-        }
-
         // create hit and insert it into list
-        auto hit = std::make_unique<MuPatHit>(exPars, *sit, broadMeas, hitInfo);
+        auto hit = std::make_unique<MuPatHit>(std::move(exPars), *sit, std::move(broadMeas), hitInfo);
         ATH_MSG_VERBOSE(" inserting hit " << m_idHelperSvc->toString(id) << " " << m_printer->print(*exPars));
         currentHitIt = insert(hitList, currentHitIt, hit.get());
         hitsToBeDeleted.push_back (std::move (hit));
@@ -206,7 +202,7 @@ MuPatHitTool::create(const Trk::Track& track, MuPatHitList& hitList,
         }
 
         // create broad measurement
-        const Trk::MeasurementBase* broadMeas = createBroadMeasurement(*meas, hitInfo);
+        std::unique_ptr<const Trk::MeasurementBase> broadMeas = createBroadMeasurement(*meas, hitInfo);
         if (!broadMeas) {
             ATH_MSG_WARNING(" could not create broad measurement " << m_idHelperSvc->toString(id));
             continue;
@@ -214,7 +210,9 @@ MuPatHitTool::create(const Trk::Track& track, MuPatHitList& hitList,
 
 
         // create hit and insert it into list
-        auto hit = std::make_unique<MuPatHit>(pars, meas, broadMeas, hitInfo);
+        std::shared_ptr<const Trk::TrackParameters> pars_sp (pars,
+                                                             MuPatHit::Unowned());
+        auto hit = std::make_unique<MuPatHit>(std::move(pars_sp), meas, std::move(broadMeas), hitInfo);
         if (msgLvl(MSG::VERBOSE)) {
             msg(MSG::VERBOSE) << " inserting hit " << m_printer->print(*meas);
             if (hitInfo.status == MuPatHit::Outlier) msg(MSG::VERBOSE) << " Outlier";
@@ -229,18 +227,16 @@ MuPatHitTool::create(const Trk::Track& track, MuPatHitList& hitList,
 }
 
 bool
-MuPatHitTool::merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList,
-                    ParGarbage& parsToBeDeleted) const
+MuPatHitTool::merge(const MuPatHitList& hitList1, const MuPatHitList& hitList2, MuPatHitList& outList) const
 {
     // copy first list into outList
     outList = hitList1;
 
-    return merge(hitList2, outList, parsToBeDeleted);
+    return merge(hitList2, outList);
 }
 
 bool
-MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2,
-                    ParGarbage& parsToBeDeleted) const
+MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2) const
 {
     // The hits in the first list are most likely expressed with respect to a different set of track parameters
     // as the ones in the second list. They cannot be merged. To allow merging a new set of track parameters is
@@ -300,16 +296,19 @@ MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2,
                     // use broad measurement for residual calculation
                     const Trk::MeasurementBase& meas = hit->broadMeasurement();
 
-                    const Trk::TrackParameters* exPars = 0;
+                    std::unique_ptr<const Trk::TrackParameters> exPars;
                     // check whether the station parameters are already expressed at the measurement surface
                     if (stPars.associatedSurface() == meas.associatedSurface()) {
                         ATH_MSG_VERBOSE(
                             " station parameters already expressed at measurement surface, cloning parameters ");
-                        exPars = stPars.clone();
+                        exPars.reset (stPars.clone());
                     } else {
                         // redo propagation
+
+                        //this code does its own garbage collection, but this can prob. be simplified now
                         exPars = m_propagator->propagate(stPars, meas.associatedSurface(), Trk::anyDirection, false,
                                                          m_magFieldProperties);
+
                         // if failed keep old parameters
                         if (!exPars) {
                             ATH_MSG_DEBUG(" extrapolation failed, cannot insert hit "
@@ -318,12 +317,11 @@ MuPatHitTool::merge(const MuPatHitList& hitList1, MuPatHitList& hitList2,
                                           << " pars " << m_printer->print(stPars) << std::endl
                                           << " surf pars " << stPars.associatedSurface() << std::endl
                                           << " surf meas " << meas.associatedSurface());
-                            exPars = hit->parameters().clone();
+                            exPars.reset (hit->parameters().clone());
                         }
                     }
 
-                    hit->updateParameters(exPars);
-                    parsToBeDeleted.emplace_back (exPars);
+                    hit->updateParameters(std::move(exPars));
                 }
             }
         }
@@ -423,7 +421,7 @@ MuPatHitTool::getHitInfo(const Trk::MeasurementBase& meas, MuPatHit::Info& hitIn
     }
 }
 
-const Trk::MeasurementBase*
+std::unique_ptr<const Trk::MeasurementBase>
 MuPatHitTool::createBroadMeasurement(const Trk::MeasurementBase& meas, const MuPatHit::Info& hitInfo) const
 {
     // don't change errors for Pseudo measurements
@@ -433,30 +431,30 @@ MuPatHitTool::createBroadMeasurement(const Trk::MeasurementBase& meas, const MuP
         if (!mdt) {
             ATH_MSG_WARNING(" found hit with a MDT Identifier that is not a MdtDriftCircleOnTrack "
                             << m_idHelperSvc->toString(hitInfo.id));
-            return 0;
+            return nullptr;
         }
         ATH_MSG_DEBUG(" creating broad MdtDriftCircleOnTrack ");
 
-        return m_mdtRotCreator->updateError(*mdt);
+        return std::unique_ptr<const Trk::MeasurementBase> (m_mdtRotCreator->updateError(*mdt));
 
     } else if (hitInfo.type == MuPatHit::CSC && !hitInfo.measuresPhi) {
         if (m_cscRotCreator.empty()) {
             // Configured to not use CSC's
-            return 0;
+            return nullptr;
         }
         const CscClusterOnTrack* csc = dynamic_cast<const CscClusterOnTrack*>(&meas);
         if (!csc) {
             ATH_MSG_WARNING(" found hit with CSC identifier that is not a CscClusterOnTrack "
                             << m_idHelperSvc->toString(hitInfo.id));
-            return 0;
+            return nullptr;
         }
         ATH_MSG_DEBUG(" creating broad CscClusterOnTrack ");
 
-        return m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(), csc->globalPosition());
+        return std::unique_ptr<const Trk::MeasurementBase> (m_cscRotCreator->createRIO_OnTrack(*csc->prepRawData(), csc->globalPosition()));
     }
 
     // don't change errors for CSC phi hits, TGC, RPC and Pseudo measurements
-    return meas.clone();
+    return std::unique_ptr<const Trk::MeasurementBase> (meas.clone());
 }
 
 MuPatHitIt

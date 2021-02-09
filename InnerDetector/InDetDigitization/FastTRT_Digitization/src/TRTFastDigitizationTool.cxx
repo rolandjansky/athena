@@ -41,7 +41,7 @@
 // CLHEP
 #include "CLHEP/Vector/ThreeVector.h"
 #include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 // Conditions data
 #include "Identifier/Identifier.h"
@@ -364,7 +364,7 @@ StatusCode TRTFastDigitizationTool::produceDriftCircles(const EventContext& ctx)
       int ii = 0;
       do {
         double tailSmearing = CLHEP::RandFlat::shoot( m_randomEngine );
-        dR = CLHEP::RandGauss::shoot( m_randomEngine, 0., ( tailSmearing < m_cFit[ idx ][ 2 ] ? m_cFit[ idx ][ 3 ] : m_cFit[ idx ][ 4 ] ) ) * sigmaTrt;
+        dR = CLHEP::RandGaussZiggurat::shoot( m_randomEngine, 0., ( tailSmearing < m_cFit[ idx ][ 2 ] ? m_cFit[ idx ][ 3 ] : m_cFit[ idx ][ 4 ] ) ) * sigmaTrt;
         ++ii;
         if ( ii > 50 ) {  // should not appear in simulation
           dR = 2. - driftRadiusLoc;

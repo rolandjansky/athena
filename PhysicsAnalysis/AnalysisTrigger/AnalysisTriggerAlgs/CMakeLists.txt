@@ -13,7 +13,7 @@ atlas_add_component( AnalysisTriggerAlgs
    DEFINITIONS ${CLHEP_DEFINITIONS}
    LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib
    EventInfo xAODTrigL1Calo xAODTrigger GaudiKernel AnalysisTriggerEvent
-   TrigConfL1Data TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Interfaces
+   TrigConfData TrigConfL1Data TrigT1CaloEventLib TrigT1CaloToolInterfaces TrigT1Interfaces
    TrigT1Result TrigConfInterfaces )
 
 # Install files from the package:

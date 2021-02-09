@@ -29,12 +29,15 @@ StatusCode Run2ToRun3TrigNavConverter::initialize()
   ATH_CHECK( m_clidSvc.retrieve() );
 
   // retrievig CLID from names and storing to set
-  for (const auto& name : m_setConfig) {
+  for (const auto& name : m_collectionsToSave) {
     CLID id {0};
     ATH_CHECK( m_clidSvc->getIDOfTypeName(name, id) );
     ATH_MSG_DEBUG("CLID NAME: " << name << " ID: " << id);
     m_setCLID.insert(id);
   }
+
+  ATH_CHECK( m_clidSvc->getIDOfTypeName("TrigRoiDescriptor",   m_roIDescriptorCLID) );
+  ATH_CHECK( m_clidSvc->getIDOfTypeName("TrigRoiDescriptorCollection",   m_roIDescriptorCollectionCLID) );
 
   return StatusCode::SUCCESS;
 }
@@ -68,7 +71,9 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
     }
 
     // example chains used for testing
-    const std::string chainName{"HLT_e26_lhtight_nod0"};
+    const std::string chainName{"HLT_e9_etcut"};
+    //const std::string chainName{"HLT_e5_lhvloose_nod0"};
+    //const std::string chainName{"HLT_e26_lhtight_nod0"};
     //const std::string chainName{"HLT_e28_lhtight_nod0"};
 
     std::vector<HLT::TriggerElement*> tes;
@@ -83,20 +88,35 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
     // create HLT Identifier aka decision ID
     HLT::Identifier chainId = HLT::Identifier(chainName);
 
-
-    TrigCompositeUtils::Decision *passActive = TrigCompositeUtils::newDecisionIn(decisionOutput, "HLTActive");
+    TrigCompositeUtils::Decision *passActive = TrigCompositeUtils::newDecisionIn(decisionSummary, "HLTActive");
 
     ATH_MSG_DEBUG("CHAIN SIZE [signatures]: " << c->signatures().size());
     //for (auto s : c->signatures()) {
     for (auto s_iter = c->signatures().begin(), first_s_iter = s_iter; s_iter != c->signatures().end();  ++s_iter) {
+    decisionLast.clear();
       for (auto te : (*s_iter)->outputTEs()) {
         tes.clear();
-        decisionLast.clear();
         navDecoder.getAllOfType(te->id(), tes, false);
         
-        for (auto teptr : tes) {
+        TrigCompositeUtils::Decision* lptr = nullptr;
 
-          for ( auto elemFE : vectorTEfeatures( teptr ) ) {
+        for (auto teptr : tes) {
+          auto vectorTEfeatures_ptr = vectorTEfeatures( teptr );
+          lptr = nullptr;
+          if ( vectorTEfeatures_ptr.empty() ) {
+            auto decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
+            mapTEtoDecision[teptr].push_back( decision );  
+            if (teptr->getActiveState())
+            {
+              auto decisionFeature = TrigCompositeUtils::newDecisionIn(decisionOutput);
+              TrigCompositeUtils::linkToPrevious(decisionFeature, decision, context);
+              mapTEtoDecisionActive[teptr].push_back( decisionFeature );
+              TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
+              lptr = decisionFeature;
+            }
+          }
+
+          for ( auto elemFE : vectorTEfeatures_ptr ) {
             auto decision = TrigCompositeUtils::newDecisionIn(decisionOutput);
             mapTEtoDecision[teptr].push_back( decision );  
             if (teptr->getActiveState())
@@ -109,51 +129,39 @@ StatusCode Run2ToRun3TrigNavConverter::execute(const EventContext& context) cons
               {
                 for ( const auto& rNodes : HLT::TrigNavStructure::getRoINodes( teptr ) ) {
                   if ( HLT::TrigNavStructure::isRoINode(rNodes) ) {
-                    for ( auto featureRoI : vectorTEfeatures( rNodes ) ) { 
+                    for ( auto featureRoI : vectorROIfeatures( rNodes ) ) { 
                       ATH_CHECK(addTEfeatures( navDecoder, featureRoI, decisionFeature, true ));
                     }
                   }
                 }
               }
               TrigCompositeUtils::addDecisionID(chainId, decisionFeature);
-              decisionLast.push_back( decisionFeature );
+              lptr = decisionFeature;
             }
           }
-
-         
-          for ( auto prep_ptr : navDecoder.getDirectPredecessors(teptr) ) {
-            if (mapTEtoDecision.find(prep_ptr) != mapTEtoDecision.end())
-            {
-              for (auto d : mapTEtoDecision[teptr])
-              {
-                for (auto pd : mapTEtoDecision[prep_ptr])
-                {
-                  TrigCompositeUtils::linkToPrevious(d, pd, context);
-                  ATH_MSG_DEBUG("decision - previous decision");
-                }
-              }
-              for (auto d : mapTEtoDecisionActive[teptr])
-              {
-                for (auto pd : mapTEtoDecisionActive[prep_ptr])
-                {
-                  TrigCompositeUtils::linkToPrevious(d, pd, context);
-                  ATH_MSG_DEBUG("ACTIVE decision - previous decision");
-                }
-              }
-            }
-          }
+          if (lptr != nullptr) decisionLast.push_back( lptr );
 
         }
       }
     }
-    for ( auto last: decisionLast ) {
-      TrigCompositeUtils::Decision* filter = TrigCompositeUtils::newDecisionIn( decisionSummary, passActive, "F", context );
-      TrigCompositeUtils::linkToPrevious(filter, last, context);
-      TrigCompositeUtils::decisionIDs(filter).push_back(chainId);
-      TrigCompositeUtils::linkToPrevious( passRawOutput, filter, context );
+    for (auto last : decisionLast) {
+      TrigCompositeUtils::linkToPrevious(passActive, last, context);
+      TrigCompositeUtils::decisionIDs(passActive).push_back(chainId);
+      TrigCompositeUtils::linkToPrevious(passRawOutput, passActive, context);
     }
     TrigCompositeUtils::decisionIDs( passRawOutput ).push_back(chainId);
 
+    for ( auto &[teptr, decisions] : mapTEtoDecision ) {
+      for ( auto prep_ptr : navDecoder.getDirectPredecessors(teptr) ) {
+        if ( mapTEtoDecisionActive.find(prep_ptr) != mapTEtoDecisionActive.end() ) {
+          for (auto d : decisions) {
+            for (auto pd : mapTEtoDecisionActive[prep_ptr]) {
+              TrigCompositeUtils::linkToPrevious(d, pd, context);
+            }
+          }
+        }
+      }
+    }
 
   return StatusCode::SUCCESS;
 }
@@ -162,20 +170,17 @@ StatusCode Run2ToRun3TrigNavConverter::addTEfeatures(const HLT::StandaloneNaviga
 {
     std::string sgKeyString = navigationDecoder.label(helper.getCLID(), helper.getIndex().subTypeIndex());
     std::string type_name;
-    ATH_CHECK(m_clidSvc->getTypeNameOfID(helper.getCLID(), type_name));
-    ATH_MSG_DEBUG("----------------Attached collection " << sgKeyString << ", " << helper << " NAME: " << type_name);
+    const CLID saveCLID =  (helper.getCLID() == m_roIDescriptorCLID ? m_roIDescriptorCollectionCLID : helper.getCLID());
+    ATH_CHECK(m_clidSvc->getTypeNameOfID(saveCLID, type_name));
 
-    ATH_MSG_DEBUG(" SG KEY NAME from formatSGkey: " << HLTNavDetails::formatSGkey("HLT", type_name, sgKeyString));
-
-    auto sgKey = evtStore()->stringToKey(HLTNavDetails::formatSGkey("HLT", type_name, sgKeyString), helper.getCLID());
-    const CLID saveCLID =  (helper.getCLID() == 6455 ? 1097199488 : helper.getCLID());
-
+    auto sgKey = evtStore()->stringToKey(HLTNavDetails::formatSGkey("HLT", type_name, sgKeyString), saveCLID);
+ 
     if ( kRoI ) {
       decisionPtr->typelessSetObjectLink(TrigCompositeUtils::roiString(), sgKey, saveCLID, helper.getIndex().objectsBegin());
     } else {
-      decisionPtr->typelessSetObjectLink(TrigCompositeUtils::featureString(), sgKey, helper.getCLID(), helper.getIndex().objectsBegin(), helper.getIndex().objectsEnd());
-    }
-  
+    decisionPtr->typelessSetObjectLink(TrigCompositeUtils::featureString(), sgKey, saveCLID, helper.getIndex().objectsBegin(), helper.getIndex().objectsEnd());
+    }  
+
   return StatusCode::SUCCESS;
 }
 
@@ -189,6 +194,20 @@ const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavCon
        }
       ptrFAHelper.push_back( helper );
   }
-  ATH_MSG_DEBUG(" **************** SIZE OF TCs: " << ptrFAHelper.size());
   return ptrFAHelper;
 }
+
+const std::vector<HLT::TriggerElement::FeatureAccessHelper> Run2ToRun3TrigNavConverter::vectorROIfeatures(const HLT::TriggerElement *te_ptr) const
+{
+  std::vector<HLT::TriggerElement::FeatureAccessHelper> ptrFAHelper;
+  for (HLT::TriggerElement::FeatureAccessHelper helper : te_ptr->getFeatureAccessHelpers())
+  {
+       if (helper.getCLID() != m_roIDescriptorCLID)  {
+         continue;
+       }
+      ptrFAHelper.push_back( helper );
+  }
+  return ptrFAHelper;
+}
+
+

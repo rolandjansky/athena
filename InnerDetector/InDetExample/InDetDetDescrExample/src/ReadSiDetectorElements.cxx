@@ -638,7 +638,7 @@ ReadSiDetectorElements::testElement(const Identifier & id,
       const InDetDD::SiLocalPosition & localPosOrig = positionsVec[iTestPos];
       ATH_MSG_ALWAYS(" Requested local pos (xPhi,xEta) = " << localPosOrig.xPhi() << ", " << localPosOrig.xEta());
       //lost out to HepGeom here
-      HepGeom::Point3D<double> globalPos(element->globalPositionCLHEP(localPosOrig));
+      Amg::Vector3D globalPos(element->globalPosition(localPosOrig));
       ATH_MSG_ALWAYS(" Global pos = " << globalPos << ", r (mm) = " << globalPos.perp()/CLHEP::mm<< ", phi (deg) = " << globalPos.phi()/CLHEP::degree);
 
       //...because i need a HepGeom::Point3D<double> to pass to element->localPosition...

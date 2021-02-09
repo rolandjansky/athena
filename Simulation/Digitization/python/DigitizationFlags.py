@@ -736,6 +736,26 @@ class PileUpPremixing(JobProperty):
     StoredValue=False
 
 #
+class doBeamSpotSizeReweighting(JobProperty):
+    """ calculate a weight to reweight events to a new beam spot size
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+
+#
+class OldBeamSpotZSize(JobProperty):
+    """ old beam spot size used to calculate a weight to reweight events to a new beam spot size
+    """
+    statusOn=True
+    allowedTypes=['float']
+    StoredValue=42.0  #42mm is the beam spot size in the original MC16 HIT file simulation
+    def __setattr__(self, name, value):
+        if name=='StoredValue' and not(self._locked):
+            jobproperties.Digitization.doBeamSpotSizeReweighting=True
+        JobProperty.__setattr__(self, name, value)
+
+#
 # Defines the container for the digitization flags
 class Digitization(JobPropertyContainer):
     """ The global Digitization flag/job property container.
@@ -806,7 +826,7 @@ list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationD
                     bunchSpacing,initialBunchCrossing,finalBunchCrossing,doXingByXingPileUp,\
                     simRunNumber,dataRunNumber,BeamIntensityPattern,FixedT0BunchCrossing,cavernIgnoresBeamInt,\
                     RunAndLumiOverrideList,SignalPatternForSteppingCache,
-                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPremixing]
+                    experimentalDigi,pileupDSID,specialConfiguration,digiSteeringConf,TRTRangeCut,PileUpPremixing,doBeamSpotSizeReweighting,OldBeamSpotZSize]
 
 for i in list_jobproperties:
     jobproperties.Digitization.add_JobProperty(i)

@@ -261,12 +261,12 @@ namespace InDetDD {
     // tilt angle is not defined for the endcap
     if (isEndcap()) return 0.;
 
-    HepGeom::Point3D<double> point = globalPositionCLHEP(localPos);
+    Amg::Vector3D point = globalPosition(localPos);
     return sinTilt(point);
   }
 
   double
-  SiDetectorElement::sinTilt(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinTilt(const Amg::Vector3D& globalPos) const
   {
     if (!m_cacheValid) {
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -304,12 +304,12 @@ namespace InDetDD {
       if (!m_cacheValid) updateCache();
     }
 
-    HepGeom::Point3D<double> point=globalPositionCLHEP(localPos);
+    Amg::Vector3D point=globalPosition(localPos);
     return sinStereoImpl(point);
   }
 
   double
-  SiDetectorElement::sinStereo(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereo(const Amg::Vector3D& globalPos) const
   {
     if (!m_cacheValid) {
       std::lock_guard<std::mutex> lock(m_mutex);
@@ -332,7 +332,7 @@ namespace InDetDD {
   }
 
   double
-  SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereoLocal(const Amg::Vector3D& globalPos) const
   {
     return sinStereoLocal(localPosition(globalPos));
   }
@@ -371,7 +371,7 @@ namespace InDetDD {
   }
 
   bool
-  SiDetectorElement::nearBondGap(const HepGeom::Point3D<double>& globalPosition, double etaTol) const
+  SiDetectorElement::nearBondGap(const Amg::Vector3D& globalPosition, double etaTol) const
   {
     return static_cast<const SiDetectorDesign *>(m_design)->nearBondGap(localPosition(globalPosition), etaTol);
   }
@@ -534,7 +534,7 @@ namespace InDetDD {
   }
 
   double
-  SiDetectorElement::sinStereoImpl(const HepGeom::Point3D<double>& globalPos) const
+  SiDetectorElement::sinStereoImpl(const Amg::Vector3D& globalPos) const
   {
     //
     // sinStereo =  (refVector cross stripAxis) . normal
@@ -546,7 +546,7 @@ namespace InDetDD {
       } else { // trapezoid
         assert (minWidth() != maxWidth());
         double radius = width() * length() / (maxWidth() - minWidth());
-        HepGeom::Vector3D<double> stripAxis = radius * m_etaAxisCLHEP + globalPos - m_centerCLHEP;
+	Amg::Vector3D stripAxis = radius * m_etaAxis + globalPos - m_center;
         sinStereo = (stripAxis.x() * m_normal.y() - stripAxis.y() * m_normal.x()) / stripAxis.mag();
       }
     } else { // endcap

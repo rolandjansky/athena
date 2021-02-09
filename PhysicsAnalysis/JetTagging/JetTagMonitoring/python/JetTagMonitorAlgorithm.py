@@ -23,6 +23,10 @@ def JetTagMonitorConfig(inputFlags):
     if inputFlags.DQ.Environment == 'tier0Raw':
         return result
 
+    # do not run in cosmics
+    if inputFlags.DQ.DataType == 'cosmics':
+        return result
+
     # The following class will make a sequence, configure algorithms, and link
     # them to GenericMonitoringTools
     from AthenaMonitoring import AthMonitorCfgHelper

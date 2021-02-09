@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // METEgammaAssociator.cxx 
@@ -103,7 +103,7 @@ namespace met {
     inputTC.reserve(10);
     
     if(m_tcMatch_method==DeltaR) {
-      for(const auto& cl : *constits.tcCont) {
+      for(const auto cl : *constits.tcCont) {
         // this can probably be done more elegantly
         if(P4Helpers::isInDeltaR(*swclus,*cl,m_tcMatch_dR,m_useRapidity) && cl->e()>FLT_MIN) {
           // could consider also requirements on the EM fraction or depth
@@ -158,7 +158,7 @@ namespace met {
     // Preselect PFOs based on proximity: dR<0.4
     std::vector<const xAOD::PFO*> nearbyPFO;
     nearbyPFO.reserve(20);
-    for(const auto& pfo : *constits.pfoCont) {
+    for(const auto pfo : *constits.pfoCont) {
       if(P4Helpers::isInDeltaR(*pfo, *swclus, 0.4, m_useRapidity)) {
         // We set a small -ve pt for cPFOs that were rejected
         // by the ChargedHadronSubtractionTool
@@ -368,7 +368,7 @@ namespace met {
     } // end ambiguous track case
 
     // in a small dR window, also accept tracks without an IBL hit
-    for(const auto& track : *trkCont) {
+    for(const auto track : *trkCont) {
       if(P4Helpers::isInDeltaR(*track, *eg, m_extraTrkMatch_dR, m_useRapidity)) {
         // dR check should be faster than track summary retrieval
         uint8_t expect_innermostHit(false);

@@ -196,7 +196,8 @@ TrigConf::HLTPrescaleCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_INFO("Recording empty HLT prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet ) );
    } else {
-      ATH_MSG_INFO("Recording HLT prescales set with range " << range << " (key = " << hltPsk << ")");
+
+      ATH_MSG_INFO("Recording HLT prescales set with range " << range << " (key = " << pss->psk() << ")");
       ATH_CHECK( writeCondHandle.record( range, new HLTPrescalesSet(*pss) ) );
    }
 

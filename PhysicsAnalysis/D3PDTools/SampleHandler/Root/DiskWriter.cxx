@@ -22,7 +22,6 @@ namespace SH
   void DiskWriter :: 
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
   }
 
 

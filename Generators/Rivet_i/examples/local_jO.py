@@ -1,7 +1,7 @@
 theApp.EvtMax = -1
 
 import AthenaPoolCnvSvc.ReadAthenaPool
-svcMgr.EventSelector.InputCollections = [ 'EVNT.root' ]
+svcMgr.EventSelector.InputCollections = [ '/eos/atlas/atlascerngroupdisk/phys-gener/examples/rivet/EVNT.root' ]
 
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()

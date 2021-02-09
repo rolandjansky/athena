@@ -2,9 +2,6 @@
 
 set -e
 
-mkdir -p test_HelloWorldTrf
-cd test_HelloWorldTrf
-
 # ST test
 HelloWorld_tf.py --maxEvents=5 --CA 
 
@@ -22,6 +19,9 @@ ATHENA_CORE_NUMBER=2 HelloWorld_tf.py --maxEvents=5 --CA --multithreaded
 
 grep 'runArgs.threads = 2' runargs.athena.py
 grep 'runArgs.concurrentEvents = 2' runargs.athena.py
+
+# postInclude/Exec
+HelloWorld_tf.py --maxEvents=5 --CA --postInclude 'AthenaConfiguration.JobOptsDumper.JobOptsDumperCfg,PyJobTransforms.DumpPickle'
 
 # CA arg test 1
 HelloWorld_tf.py --maxEvents=5 --CA HelloWorld:True

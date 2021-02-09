@@ -5,6 +5,7 @@ Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 # utilities
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from OutputStreamAthenaPool.OutputStreamConfig import OutputStreamCfg
 # for PileUpTool
 from LArGeoAlgsNV.LArGMConfig import LArGMCfg
@@ -25,7 +26,7 @@ def useLArFloat(flags):
     """Return bool for simplified transient LArHit with float E,time"""
     # temporary, remapping to LArHitFloat does not seeem to work
     # with this scheme... => larger memory usage
-    if flags.Digitization.DoXingByXingPileUp or flags.Detector.OverlayLAr:
+    if flags.Digitization.DoXingByXingPileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
         return False
     # check for fast chain, running digitisation from hits in memory
     if flags.Sim.DoFullChain:
@@ -90,7 +91,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         requiredConditons=["Noise", "fSampl", "Pedestal", "Shape"]
     acc.merge(LArElecCalibDbCfg(flags,requiredConditons))
 
-    if not flags.Detector.OverlayLAr:
+    if flags.Common.ProductionStep != ProductionStep.Overlay:
         acc.merge(LArAutoCorrNoiseCondAlgCfg(flags))
     if "MaskingTool" not in kwargs:
         maskerTool = acc.popToolsAndMerge(LArBadChannelMaskerCfg(flags, ["deadReadout", "deadPhys"], ToolName="LArRCBMasker"))
@@ -101,17 +102,17 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
     if flags.Digitization.DoXingByXingPileUp:
         kwargs.setdefault("FirstXing", -751)
         kwargs.setdefault("LastXing", 101)
-    if (not flags.Digitization.HighGainFCal) and (not flags.Detector.OverlayLAr):
+    if (not flags.Digitization.HighGainFCal) and (flags.Common.ProductionStep != ProductionStep.Overlay):
         kwargs.setdefault("HighGainThreshFCAL", 0)
-    if (not flags.Digitization.HighGainEMECIW) and (not flags.Detector.OverlayLAr):
+    if (not flags.Digitization.HighGainEMECIW) and (flags.Common.ProductionStep != ProductionStep.Overlay):
         kwargs.setdefault("HighGainThreshEMECIW", 0)
-    kwargs.setdefault("RndmEvtOverlay", flags.Detector.OverlayLAr)
+    kwargs.setdefault("RndmEvtOverlay", flags.Common.ProductionStep == ProductionStep.Overlay)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("DigitContainer", flags.Overlay.BkgPrefix + "LArDigitContainer_MC")
     else:
         kwargs.setdefault("DigitContainer", "LArDigitContainer_MC") # FIXME - should not be hard-coded
     # if doing MC+MC overlay
-    if flags.Input.isMC and flags.Detector.OverlayLAr:
+    if flags.Common.ProductionStep == ProductionStep.Overlay and flags.Input.isMC:
           kwargs.setdefault("isMcOverlay", True)
     kwargs.setdefault("Nsamples", flags.LAr.ROD.nSamples)
     kwargs.setdefault("firstSample", flags.LAr.ROD.FirstSample)
@@ -122,7 +123,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("TriggerTimeToolName", CosmicTriggerTimeTool())
     # pileup configuration "algorithm" way
     if not flags.Digitization.DoXingByXingPileUp:
-        if flags.Digitization.Pileup or flags.Detector.OverlayLAr:
+        if flags.Digitization.PileUp or flags.Common.ProductionStep == ProductionStep.Overlay:
             kwargs.setdefault("PileUp", True)
     kwargs.setdefault("useLArFloat", useLArFloat(flags))
     if useLArFloat(flags):
@@ -138,7 +139,7 @@ def LArPileUpToolCfg(flags, name="LArPileUpTool", **kwargs):
         kwargs.setdefault("LArHitContainers", [])
     else:
         kwargs.setdefault("LArHitFloatContainers", [])
-    if flags.Detector.OverlayLAr:
+    if flags.Common.ProductionStep == ProductionStep.Overlay:
         kwargs.setdefault("OnlyUseContainerName", False)
         if flags.Overlay.DataOverlay:
             kwargs.setdefault("InputDigitContainer", flags.Overlay.BkgPrefix + "FREE")
@@ -227,7 +228,7 @@ def LArTriggerDigitizationBasicCfg(flags, **kwargs):
     acc.merge(CaloTriggerTowerCfg(flags))
 
     kwargs.setdefault("NoiseOnOff", flags.Digitization.DoCaloNoise)
-    kwargs.setdefault("PileUp", flags.Digitization.Pileup)
+    kwargs.setdefault("PileUp", flags.Digitization.PileUp)
     if flags.Digitization.PileUpPremixing:
         kwargs.setdefault("EmTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1EM")
         kwargs.setdefault("HadTTL1ContainerName", flags.Overlay.BkgPrefix + "LArTTL1HAD")

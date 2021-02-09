@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigTauMonitorAlgorithm.h"
@@ -61,7 +61,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     const TrigInfo info = getTrigInfo(trigger);
 
     if ( executeNavigation( ctx, info.trigName,pairObjs).isFailure() || pairObjs.size()==0)                
-    {                                                                                                                                                       
+    {            
        ATH_MSG_WARNING("executeNavigation failed");                                                                                                       
        return StatusCode::SUCCESS;                                                                                                                         
     }  
@@ -78,7 +78,7 @@ StatusCode TrigTauMonitorAlgorithm::fillHistograms( const EventContext& ctx ) co
     } else {
         fill_l1 = false;
     }
-
+ 
     fillDistributions( ctx, pairObjs, trigger, info.HLTthr); 
     if(fill_l1){
       fillL1Distributions( ctx, pairObjs, trigger ,info.trigL1Item, info.L1thr);  
@@ -109,9 +109,9 @@ StatusCode TrigTauMonitorAlgorithm::executeNavigation( const EventContext& ctx,
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-  if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+  if(trigItem.find("EF_")!=std::string::npos || trigItem.find("MVA_")!=std::string::npos || trigItem.find("MVABDT_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
 
-  for(const auto& Tau : *offTaus ){
+  for(const auto Tau : *offTaus ){
 
     const TrigCompositeUtils::Decision *dec=nullptr; 
 
@@ -148,6 +148,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
   std::vector<const xAOD::TauJet*> offline_for_hlt_tau_vec_mp; // offline mp taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_1p; // online 1p taus used for studying HLT performance
   std::vector<const xAOD::TauJet*> online_tau_vec_mp; // online mp taus used for studying HLT performance
+  std::vector<const xAOD::TauJet*> online_tau_vec_all; // online hlt taus used for HLT efficiency studies
 
   const TrigInfo info = getTrigInfo(trigger);
 
@@ -166,19 +167,22 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     }
   }
   // Offline
-  if(info.isRNN){
-    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
-    fillRNNInputVars( trigger, offline_for_hlt_tau_vec_mp,"MP", false );
-    fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
-    fillRNNTrack( trigger, offline_for_hlt_tau_vec_mp, false );
-    fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
-    fillRNNCluster( trigger, offline_for_hlt_tau_vec_mp, false );
-    fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, false);
-    fillbasicVars( trigger, offline_for_hlt_tau_vec_mp, false);
+  if( offline_for_hlt_tau_vec_1p.size() != 0){
+      fillRNNInputVars( trigger, offline_for_hlt_tau_vec_1p,"1P", false );
+      fillRNNTrack( trigger, offline_for_hlt_tau_vec_1p, false );
+      fillRNNCluster( trigger, offline_for_hlt_tau_vec_1p, false );
+      fillbasicVars( trigger, offline_for_hlt_tau_vec_1p, false);
+  }
+
+  if( offline_for_hlt_tau_vec_mp.size() != 0){ 
+      fillRNNInputVars( trigger, offline_for_hlt_tau_vec_mp,"MP", false );
+      fillRNNTrack( trigger, offline_for_hlt_tau_vec_mp, false );
+      fillRNNCluster( trigger, offline_for_hlt_tau_vec_mp, false );
+      fillbasicVars( trigger, offline_for_hlt_tau_vec_mp, false);
   }
 
   std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-  if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+  if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
   ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 
   auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions , tauContainerName );
@@ -189,6 +193,7 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     int nTracks=-1;
     feat->detail(xAOD::TauJetParameters::nChargedTracks, nTracks);
     ATH_MSG_DEBUG("NTracks Online: " << nTracks);
+    online_tau_vec_all.push_back(feat);
     if(nTracks==1){
       online_tau_vec_1p.push_back(feat);
     }else if(nTracks>1){
@@ -196,34 +201,40 @@ void TrigTauMonitorAlgorithm::fillDistributions(const EventContext& ctx, std::ve
     }
   }
 
-  if(online_tau_vec_1p.size()==0 && online_tau_vec_mp.size()==0) return;
-
-  if(info.isRNN){ 
-    fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
-    fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
-    fillRNNTrack( trigger, online_tau_vec_1p, true );
-    fillRNNTrack( trigger, online_tau_vec_mp, true );
-    fillRNNCluster( trigger, online_tau_vec_1p, true );
-    fillRNNCluster( trigger, online_tau_vec_mp, true );
-    fillbasicVars( trigger, online_tau_vec_1p, true);
-    fillbasicVars( trigger, online_tau_vec_mp, true);
-  }else {
-    fillBDTOut( trigger,online_tau_vec_1p,"1P");
-    fillBDTOut( trigger,online_tau_vec_mp,"MP");
-    fillBDTNoCorr( trigger,online_tau_vec_1p,"1P");
-    fillBDTNoCorr( trigger,online_tau_vec_mp,"MP");
+  // file information for online 1 prong taus 
+  if(online_tau_vec_1p.size()!=0){
+     fillbasicVars( trigger, online_tau_vec_1p, true);
+     if(info.isRNN){
+         fillRNNInputVars( trigger, online_tau_vec_1p,"1P", true );
+         fillRNNTrack( trigger, online_tau_vec_1p, true );
+         fillRNNCluster( trigger, online_tau_vec_1p, true );
+     } else if(info.isBDT) {
+         fillBDTOut( trigger,online_tau_vec_1p,"1P");
+         fillBDTNoCorr( trigger,online_tau_vec_1p,"1P");
+     }
+  }          
+ 
+  // file information for online multiprong prong taus 
+  if(online_tau_vec_mp.size()!=0){
+     fillbasicVars( trigger, online_tau_vec_mp, true);
+     if(info.isRNN){
+         fillRNNInputVars( trigger, online_tau_vec_mp,"MP", true );
+         fillRNNTrack( trigger, online_tau_vec_mp, true );
+         fillRNNCluster( trigger, online_tau_vec_mp, true );
+     } else if(info.isBDT) {
+         fillBDTOut( trigger,online_tau_vec_mp,"MP");
+         fillBDTNoCorr( trigger,online_tau_vec_mp,"MP");
+     }         
   }
 
-   
-  if(info.isRNN){
-    fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_1p, "1P");
-    fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_mp, "MP");
-  }
+  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_1p, online_tau_vec_all, "1P");
+  fillHLTEfficiencies(ctx, trigger, offline_for_hlt_tau_vec_mp, online_tau_vec_all, "MP");
 
   offline_for_hlt_tau_vec_1p.clear();
   offline_for_hlt_tau_vec_mp.clear();
   online_tau_vec_1p.clear();
   online_tau_vec_mp.clear();
+  online_tau_vec_all.clear();
 }
 
 void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::vector< std::pair< const xAOD::TauJet*, const TrigCompositeUtils::Decision * >> pairObjs, std::string trigger,  const std::string trigL1Item, float L1thr) const
@@ -251,7 +262,7 @@ void TrigTauMonitorAlgorithm::fillL1Distributions(const EventContext& ctx, std::
 
 
     std::string tauContainerName = "HLT_TrigTauRecMerged_Precision";
-    if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
+    if(trigger.find("EF_")!=std::string::npos || trigger.find("MVA_")!=std::string::npos || trigger.find("MVABDT_")!=std::string::npos) tauContainerName="HLT_TrigTauRecMerged_MVA";
     ATH_MSG_DEBUG("Tau ContainerName is: " << tauContainerName);
 
     auto vec =  m_trigDecTool->features<xAOD::TauJetContainer>(trigger,TrigDefs::includeFailedDecisions , tauContainerName );
@@ -382,19 +393,16 @@ const xAOD::EmTauRoI* TrigTauMonitorAlgorithm::findLVL1_ROI(const EventContext& 
    //EmTauRoI_v2.h
 
    auto L1RoIEt           = Monitored::Collection("L1RoIEt"     , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eT()/1e3;});
-   //ATH_MSG_DEBUG("CHECK3" << L1RoIEt);  
-   ATH_MSG_DEBUG("CHECK3");
    auto L1RoIEta          = Monitored::Collection("L1RoIEta"    , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->eta();});
    auto L1RoIPhi          = Monitored::Collection("L1RoIPhi"    , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->phi();});
-   auto L1RoITauClus      = Monitored::Collection("L1RoITauClus", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->tauClus();});
-   auto L1RoIisol         = Monitored::Collection("L1RoIisol"   , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->isol();});
-   auto L1RoIEMIsol       = Monitored::Collection("L1RoIEMIsol" , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->emIsol();});
-   auto L1RoIHadCore      = Monitored::Collection("L1RoIHadCore", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->hadCore();});
-   auto L1RoIHadIsol      = Monitored::Collection("L1RoIHadIsol", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->hadIsol();});
+   auto L1RoITauClus      = Monitored::Collection("L1RoITauClus", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->tauClus()/1e3;});
+   auto L1RoIEMIsol       = Monitored::Collection("L1RoIEMIsol" , L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->emIsol()/1e3;});
+   auto L1RoIHadCore      = Monitored::Collection("L1RoIHadCore", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->hadCore()/1e3;});
+   auto L1RoIHadIsol      = Monitored::Collection("L1RoIHadIsol", L1rois,  [] (const xAOD::EmTauRoI* L1roi){ return L1roi->hadIsol()/1e3;});
 
- fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi,L1RoITauClus,L1RoIisol,L1RoIEMIsol,L1RoIHadCore,L1RoIHadIsol);
+   fill(monGroup,L1RoIEt,L1RoIEta,L1RoIPhi,L1RoITauClus,L1RoIEMIsol,L1RoIHadCore,L1RoIHadIsol);
 
- ATH_MSG_DEBUG("AFTER L1: " << trigL1Item);
+   ATH_MSG_DEBUG("AFTER L1: " << trigL1Item);
 
 }
 
@@ -716,8 +724,6 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
 
   auto monGroup = getGroup(trigger+( online ? "HLT_basicVars" : "Offline_basicVars"));  
 
-
-
   auto hEFEt           = Monitored::Collection("hEFEt", tau_vec,  [] (const xAOD::TauJet* tau){return tau->pt()/1000; });
   auto hEFEta          = Monitored::Collection("hEFEta", tau_vec,  [] (const xAOD::TauJet* tau){return tau->eta(); });                                                     
 
@@ -731,7 +737,14 @@ void TrigTauMonitorAlgorithm::fillbasicVars(const std::string trigger, std::vect
       EFWidenTrack = tau->nTracksIsolation();
       return EFWidenTrack; }); 
 
-  fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+  if(!online){
+    auto hRNNScore = Monitored::Collection("hRNNScore", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScore);});
+    auto hRNNScoreSigTrans = Monitored::Collection("hRNNScoreSigTrans", tau_vec, [] (const xAOD::TauJet* tau){ return tau->discriminant(xAOD::TauJetParameters::RNNJetScoreSigTrans);});
+
+    fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack, hRNNScore, hRNNScoreSigTrans);
+  } else{
+    fill(monGroup, hEFEt,hEFEta,hEFPhi,hEFnTrack,hEFnWideTrack);
+  }
 
   ATH_MSG_DEBUG("After fill Basic variables: " << trigger);
 
@@ -770,7 +783,7 @@ void TrigTauMonitorAlgorithm::setTrigInfo(const std::string trigger)
 
   if(idwp=="perf" || idwp=="idperf") isPerf=true;
   else if(idwp.find("RNN")!=std::string::npos) isRNN=true;
-  else isBDT=true;
+  else if(idwp=="loose1" || idwp=="medium1" || idwp=="tight1") isBDT=true;
 
   type=names[3];
   if(names[0].find("L1")!=std::string::npos) isL1=true;

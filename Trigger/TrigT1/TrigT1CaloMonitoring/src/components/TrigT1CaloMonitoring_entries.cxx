@@ -5,6 +5,8 @@
 #include "../PprMonitorAlgorithm.h"
 //#include "../PprSpareMonitorAlgorithm.h"
 //#include "../PprStabilityMonitorAlgorithm.h"
+//#include "../LVL1_TagProbeEffMonitorAlgorithm.h"
+#include "../JepJemMonitorAlgorithm.h"
 
 // Run 2
 #include "../CPMon.h"
@@ -40,6 +42,8 @@ DECLARE_COMPONENT( CpmMonitorAlgorithm )
 DECLARE_COMPONENT( PprMonitorAlgorithm )
 //DECLARE_COMPONENT( PprSpareMonitorAlgorithm )
 //DECLARE_COMPONENT( PprStabilityMonitorAlgorithm )
+//DECLARE_COMPONENT( LVL1_TagProbeEffMonitorAlgorithm )
+DECLARE_COMPONENT( JepJemMonitorAlgorithm )
 
 // Run 2
 DECLARE_COMPONENT( LVL1::OverviewMon )

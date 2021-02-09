@@ -66,10 +66,6 @@ StoreGateSvc.Dump = True
 from InDetRecExample.InDetKeys import InDetKeys
 InDetKeys.PixelManager = "Pixel"
 
-from PixelConditionsTools.PixelConditionsToolsConf import PixelRecoDbTool
-ToolSvc += PixelRecoDbTool()
-ToolSvc.PixelRecoDbTool.InputSource = 1
-
 from AthenaCommon.AppMgr import ServiceMgr
 ServiceMgr.MessageSvc.enableSuppression = False
 ServiceMgr.MessageSvc.Format       = "% F%50W%S%7W%R%T %0W%M"
@@ -86,47 +82,50 @@ from AthenaCommon.AlgSequence import AlgSequence
 from AthenaCommon.SystemOfUnits import *
 import math
 
-from TrkDetDescrSvc.AtlasTrackingGeometrySvc import AtlasTrackingGeometrySvc
-
 topSequence = AlgSequence()
 
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=VERBOSE
-#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=10.0*micrometer
-#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_X=0*micrometer
-#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=55.0*micrometer
-#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.pitch_Y=0*micrometer
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.DetectorElementMapName="Pixel_IdHashDetElementMap"
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.MergeClusters = False
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.PlanarClusterContainerName="Pixel_PlanarClusters"
-topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarPixel"
-#topSequence.PixelSmearedDigitization.SiSmearedDigitizationTool.Nsigma = 1.0
+from AtlasGeoModel import InDetGM
 
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.CheckSmear=True
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.SmearPixel = False
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.OutputLevel=VERBOSE
-#topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 70.0*micrometer
-#topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 0*micrometer
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.TrackingGeometrySvc = AtlasTrackingGeometrySvc
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.UseCustomGeometry = True
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.DetectorElementMapName="SCT_IdHashDetElementMap"
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.MergeClusters = False
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.PlanarClusterContainerName="SCT_PlanarClusters"
-topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarSCT"
-##topSequence.SCTSmearedDigitization.SiSmearedDigitizationTool.pitch_X= 0*micrometer
+from FastSiDigitization.FastSiDigitizationConf import SiSmearedDigitizationTool
+topSequence.PixelSmearedDigitization.DigitizationTool = SiSmearedDigitizationTool(CheckSmear=True,
+                                                                                  OutputLevel=VERBOSE,
+                                                                                  # pitch_X=10.0*micrometer,
+                                                                                  # pitch_X=0*micrometer,
+                                                                                  # pitch_Y=55.0*micrometer,
+                                                                                  # pitch_Y=0*micrometer,
+                                                                                  UseCustomGeometry = False, # @TODO was True, which causes many errors. Why ?
+                                                                                  DetectorElementMapName="Pixel_IdHashDetElementMap",
+                                                                                  MergeClusters = False,
+                                                                                  PlanarClusterContainerName="Pixel_PlanarClusters",
+                                                                                  PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarPixel"
+                                                                                  # , Nsigma = 1.0
+                                                                                  )
 
 
-AlgSequence("Streams").StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
-##AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
-AlgSequence("Streams").StreamRDO.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
-#AlgSequence("Streams").StreamRDO.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
+topSequence.SCTSmearedDigitization.DigitizationTool = SiSmearedDigitizationTool(CheckSmear=True,
+                                                                                SmearPixel = False,
+                                                                                OutputLevel=VERBOSE,
+                                                                                # pitch_X= 70.0*micrometer,
+                                                                                # pitch_X= 0*micrometer,
+                                                                                # pitch_X= 0*micrometer,
+                                                                                UseCustomGeometry = False, # @TODO was True, which causes many errors. Why ?
+                                                                                DetectorElementMapName="SCT_IdHashDetElementMap",
+                                                                                MergeClusters = False,
+                                                                                PlanarClusterContainerName="SCT_PlanarClusters",
+                                                                                PRD_TruthPlanarContainerName="PRD_MultiTruthPlanarSCT")
 
-AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
-AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
-##AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
-#AlgSequence("Streams").StreamRDO.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
+rdo_stream = theApp.getOutputStream( "StreamRDO" )
+
+print (rdo_stream)
+rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#Pixel_PlanarClusters"]
+##rdo_stream.ItemList += ["InDet::SiClusterContainer#PixelClusters"]
+rdo_stream.ItemList += ["iFatras::PlanarClusterContainer#SCT_PlanarClusters"]
+#rdo_stream.ItemList += ["InDet::SiClusterContainer#SCT_Clusters"]
+
+rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarPixel"]
+rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPlanarSCT"]
+##rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthPixel"]
+#rdo_stream.ItemList += ["PRD_MultiTruthCollection#PRD_MultiTruthSCT"]
 
 #from VP1Algs.VP1AlgsConf import VP1Alg 
 #topSequence += VP1Alg()

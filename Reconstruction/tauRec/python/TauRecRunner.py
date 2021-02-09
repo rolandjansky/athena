@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ################################################################################
 ##
@@ -56,7 +56,7 @@ class TauRecRunner ( TauRecRunConfigured ) :
             tools.append(pantau.getPanTau())
  
         # these tools need pantau info
-        tools.append(taualgs.getCombinedP4FromRecoTaus())
+        tools.append(taualgs.getTauCombinedTES())
         if jobproperties.Beam.beamType()!="cosmics":
             tools.append(taualgs.getMvaTESVariableDecorator())
             tools.append(taualgs.getMvaTESEvaluator())

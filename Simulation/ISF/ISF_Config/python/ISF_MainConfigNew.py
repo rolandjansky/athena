@@ -1,17 +1,17 @@
 """Main ISF tools configuration with ComponentAccumulator
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
 from ISF_Services.ISF_ServicesCoreConfigNew import GeoIDSvcCfg
 from ISF_Services.ISF_ServicesConfigNew import (
-    InputConverterCfg, ParticleBrokerSvcCfg,
-    TruthServiceCfg, LongLivedInputConverterCfg,
+    InputConverterCfg, TruthServiceCfg,
+    LongLivedInputConverterCfg,
 )
 from ISF_Tools.ISF_ToolsConfigNew import (
-    MemoryMonitorToolCfg, ParticleKillerToolCfg,
-    EnergyParticleOrderingToolCfg,
+    ParticleKillerToolCfg, EnergyParticleOrderingToolCfg,
+    ParticleOrderingToolCfg
 )
 from ISF_SimulationSelectors.ISF_SimulationSelectorsConfigNew import (
     DefaultAFIIGeant4SelectorCfg,
@@ -21,6 +21,12 @@ from ISF_SimulationSelectors.ISF_SimulationSelectorsConfigNew import (
     FullGeant4SelectorCfg,
     MuonAFIIGeant4SelectorCfg,
     PassBackGeant4SelectorCfg,
+    DefaultFastCaloSimV2SelectorCfg,
+    PionG4FastCaloGeant4Selector,
+    ProtonG4FastCaloGeant4Selector,
+    NeutronG4FastCaloGeant4Selector,
+    ChargedKaonG4FastCaloGeant4Selector,
+    KLongG4FastCaloGeant4Selector,
 )
 from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import (
     AFIIGeant4ToolCfg,
@@ -31,6 +37,10 @@ from ISF_Geant4Tools.ISF_Geant4ToolsConfigNew import (
 from ISF_FastCaloSimServices.ISF_FastCaloSimServicesConfigNew import (
     FastCaloToolBaseCfg,
     LegacyAFIIFastCaloToolCfg,
+    FastCaloSimV2ToolCfg,
+)
+from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import (
+    AFIIEntryLayerToolMTCfg
 )
 from ISF_FatrasServices.ISF_FatrasConfig import fatrasSimToolCfg
 
@@ -38,19 +48,24 @@ from ISF_FatrasServices.ISF_FatrasConfig import fatrasSimToolCfg
 def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    tool = acc.getPublicTool("ISF_ParticleKillerTool")
-    kwargs.setdefault("ParticleKillerTool", tool)
+    if "ParticleKillerTool" not in kwargs:
+        tool = acc.popToolsAndMerge(ParticleKillerToolCfg(flags))
+        acc.addPublicTool(tool)
+        pubTool = acc.getPublicTool(tool.name)
+        kwargs.setdefault("ParticleKillerTool", pubTool) # public toolHandle
 
-    acc.merge(GeoIDSvcCfg(flags))
-    kwargs.setdefault("GeoIDSvc", acc.getService("ISF_GeoIDSvc"))
+    if "GeoIDSvc" not in kwargs:
+        acc.merge(GeoIDSvcCfg(flags))
+        kwargs.setdefault("GeoIDSvc", acc.getService("ISF_GeoIDSvc"))
 
-    acc.merge(InputConverterCfg(flags))
-    kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+    if "InputConverter" not in kwargs:
+        acc.merge(InputConverterCfg(flags))
+        kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
 
-    truthacc = TruthServiceCfg(flags)
-    kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
-    acc.merge(truthacc)
+    if "TruthRecordService" not in kwargs:
+        truthacc = TruthServiceCfg(flags)
+        kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
+        acc.merge(truthacc)
 
     kwargs.setdefault("Cardinality", flags.Concurrency.NumThreads)
     kwargs.setdefault("OutputLevel", 1)
@@ -60,7 +75,6 @@ def Kernel_GenericSimulatorMTCfg(flags, name="ISF_Kernel_GenericSimulatorMT", **
     #Write MetaData container
     from G4AtlasApps.G4Atlas_MetadataNew import writeSimulationParametersMetadata
     acc.merge(writeSimulationParametersMetadata(flags))
- 
     acc.addEventAlgo(CompFactory.ISF.SimKernelMT(name, **kwargs))
     return acc
 
@@ -72,16 +86,22 @@ def Kernel_GenericSimulatorNoG4MTCfg(flags, name="ISF_Kernel_GenericSimulatorNoG
 def Kernel_GenericG4OnlyMTCfg(flags, name="ISF_Kernel_GenericG4OnlyMT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(FullGeant4SelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_FullGeant4Selector")
-    kwargs.setdefault("BeamPipeSimulationSelectors", [tool])
-    kwargs.setdefault("IDSimulationSelectors", [tool])
-    kwargs.setdefault("CaloSimulationSelectors", [tool])
-    kwargs.setdefault("MSSimulationSelectors", [tool])
+    defaultG4SelectorRegions = set(["BeamPipeSimulationSelectors", "IDSimulationSelectors", "CaloSimulationSelectors", "MSSimulationSelectors"])
+    if defaultG4SelectorRegions - kwargs.keys(): # i.e. if any of these have not been defined yet
+        tool = acc.popToolsAndMerge(FullGeant4SelectorCfg(flags))
+        acc.addPublicTool(tool)
+        pubTool = acc.getPublicTool(tool.name)
+        # SimulationSelectors are still public ToolHandleArrays currently
+        kwargs.setdefault("BeamPipeSimulationSelectors", [pubTool])
+        kwargs.setdefault("IDSimulationSelectors", [pubTool])
+        kwargs.setdefault("CaloSimulationSelectors", [pubTool])
+        kwargs.setdefault("MSSimulationSelectors", [pubTool])
 
-    acc.merge(DefaultParticleKillerSelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_DefaultParticleKillerSelector")
-    kwargs.setdefault("CavernSimulationSelectors", [tool])
+    if "CavernSimulationSelectors" not in kwargs:
+        tool = acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags))
+        acc.addPublicTool(tool)
+        pubTool = acc.getPublicTool(tool.name)
+        kwargs.setdefault("CavernSimulationSelectors", [pubTool])
 
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
@@ -90,10 +110,11 @@ def Kernel_GenericG4OnlyMTCfg(flags, name="ISF_Kernel_GenericG4OnlyMT", **kwargs
 def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    Fulltool = acc.popToolsAndMerge(FullGeant4ToolCfg(flags))
-    PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    kwargs.setdefault("SimulationTools", [PKtool, Fulltool])
+    if "SimulationTools" not in kwargs:
+        kwargs.setdefault("SimulationTools", [
+            acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+            acc.popToolsAndMerge(FullGeant4ToolCfg(flags))
+        ]) #private ToolHandleArray
 
     acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
     return acc
@@ -102,15 +123,13 @@ def Kernel_FullG4MTCfg(flags, name="ISF_Kernel_FullG4MT", **kwargs):
 def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    acc.merge(LongLivedGeant4ToolCfg(flags))
-    PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    LLtool = acc.getPublicTool("ISF_LongLivedGeant4Tool")
-    kwargs.setdefault("SimulationTools", [PKtool, LLtool])
+    kwargs.setdefault("SimulationTools", [
+        acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+        acc.merge(LongLivedGeant4ToolCfg(flags))
+    ])
 
     acc.merge(LongLivedInputConverterCfg(flags))
-    kwargs.setdefault("InputConverter",
-                      acc.getService("ISF_LongLivedInputConverter"))
+    kwargs.setdefault("InputConverter", acc.getService("ISF_LongLivedInputConverter"))
 
     acc.merge(Kernel_GenericG4OnlyMTCfg(flags, name, **kwargs))
     return acc
@@ -119,26 +138,30 @@ def Kernel_FullG4MT_LongLivedCfg(flags, name="ISF_Kernel_FullG4MT_LongLived", **
 def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(PassBackGeant4SelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_PassBackGeant4Selector")
-    kwargs.setdefault("BeamPipeSimulationSelectors", [tool])
-    kwargs.setdefault("IDSimulationSelectors", [tool])
-    kwargs.setdefault("CaloSimulationSelectors", [tool])
-    kwargs.setdefault("MSSimulationSelectors", [tool])
+    defaultG4SelectorRegions = set(["BeamPipeSimulationSelectors", "IDSimulationSelectors", "CaloSimulationSelectors", "MSSimulationSelectors"])
+    if defaultG4SelectorRegions - kwargs.keys(): # i.e. if any of these have not been defined yet
+        tool = acc.popToolsAndMerge(PassBackGeant4SelectorCfg(flags))
+        acc.addPublicTool(tool)
+        pubTool = acc.getPublicTool(tool.name)
+        kwargs.setdefault("BeamPipeSimulationSelectors", [pubTool])
+        kwargs.setdefault("IDSimulationSelectors", [pubTool])
+        kwargs.setdefault("CaloSimulationSelectors", [pubTool])
+        kwargs.setdefault("MSSimulationSelectors", [pubTool])
 
-    acc.merge(DefaultParticleKillerSelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_DefaultParticleKillerSelector")
-    kwargs.setdefault("CavernSimulationSelectors", [tool])
+    if "CavernSimulationSelectors" not in kwargs:
+        tool = acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags))
+        acc.addPublicTool(tool)
+        pubTool = acc.getPublicTool(tool.name)
+        kwargs.setdefault("CavernSimulationSelectors", [pubTool])
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    acc.merge(PassBackGeant4ToolCfg(flags))
-    PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    PBtool = acc.getPublicTool("ISF_PassBackGeant4Tool")
-    kwargs.setdefault("SimulationTools", [PKtool, PBtool])
+    if "SimulationTools" not in kwargs:
+        kwargs.setdefault("SimulationTools", [
+            acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+            acc.popToolsAndMerge(PassBackGeant4ToolCfg(flags))
+        ])
 
-    acc.merge(EnergyParticleOrderingToolCfg(flags))
-    tool = acc.getPublicTool("ISF_EnergyParticleOrderingTool")
-    kwargs.setdefault("ParticleOrderingTool", tool)
+    if "ParticleOrderingTool" not in kwargs:
+        kwargs.setdefault("ParticleOrderingTool", acc.popToolsAndMerge(EnergyParticleOrderingToolCfg(flags)))
 
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
@@ -147,35 +170,37 @@ def Kernel_PassBackG4MTCfg(flags, name="ISF_Kernel_PassBackG4MT", **kwargs):
 def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(DefaultAFIIGeant4SelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_DefaultAFIIGeant4Selector")
-    kwargs.setdefault("BeamPipeSimulationSelectors", [tool])
-    kwargs.setdefault("IDSimulationSelectors", [tool])
-    kwargs.setdefault("MSSimulationSelectors", [tool])
+    tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
+    acc.addPublicTool(tool)
+    pubTool = acc.getPublicTool(tool.name)
+    kwargs.setdefault("BeamPipeSimulationSelectors", [pubTool])
+    kwargs.setdefault("IDSimulationSelectors", [pubTool])
+    kwargs.setdefault("MSSimulationSelectors", [pubTool])
 
-    acc.merge(MuonAFIIGeant4SelectorCfg(flags))
-    acc.merge(EtaGreater5ParticleKillerSimSelectorCfg(flags))
-    acc.merge(DefaultLegacyAFIIFastCaloSimSelectorCfg(flags))
-    Mutool = acc.getPublicTool("ISF_MuonAFIIGeant4Selector")
-    EtaGtool = acc.getPublicTool("ISF_EtaGreater5ParticleKillerSimSelector")
-    DefLegtool = acc.getPublicTool("ISF_DefaultLegacyAFIIFastCaloSimSelector")
-    kwargs.setdefault("CaloSimulationSelectors", [Mutool, EtaGtool, DefLegtool])
+    caloSimSelectors = []
+    tool = acc.popToolsAndMerge(MuonAFIIGeant4SelectorCfg(flags))
+    acc.addPublicTool(tool)
+    caloSimSelectors += [acc.getPublicTool(tool.name)]
+    tool = acc.popToolsAndMerge(EtaGreater5ParticleKillerSimSelectorCfg(flags))
+    acc.addPublicTool(tool)
+    caloSimSelectors += [acc.getPublicTool(tool.name)]
+    tool = acc.popToolsAndMerge(DefaultLegacyAFIIFastCaloSimSelectorCfg(flags))
+    acc.addPublicTool(tool)
+    caloSimSelectors += [acc.getPublicTool(tool.name)]
+    kwargs.setdefault("CaloSimulationSelectors", caloSimSelectors)
 
-    acc.merge(DefaultParticleKillerSelectorCfg(flags))
-    tool = acc.getPublicTool("ISF_DefaultParticleKillerSelector")
-    kwargs.setdefault("CavernSimulationSelectors", [tool])
+    tool = acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags))
+    acc.addPublicTool(tool)
+    pubTool = acc.getPublicTool(tool.name)
+    kwargs.setdefault("CavernSimulationSelectors", [pubTool])
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    acc.merge(LegacyAFIIFastCaloToolCfg(flags))
-    acc.merge(AFIIGeant4ToolCfg(flags))
-    PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    Legtool = acc.getPublicTool("ISF_LegacyAFIIFastCaloTool")
-    AFIItool = acc.getPublicTool("ISF_AFIIGeant4Tool")
-    kwargs.setdefault("SimulationTools", [PKtool, Legtool, AFIItool])
+    kwargs.setdefault("SimulationTools", [
+        acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+        acc.popToolsAndMerge(LegacyAFIIFastCaloToolCfg(flags)),
+        acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags))
+    ])
 
-    acc.merge(EnergyParticleOrderingToolCfg(flags))
-    tool = acc.getPublicTool("ISF_EnergyParticleOrderingTool")
-    kwargs.setdefault("ParticleOrderingTool", tool)
+    kwargs.setdefault("ParticleOrderingTool", acc.popToolsAndMerge(EnergyParticleOrderingToolCfg(flags)))
 
     # not migrated simFlags.SimulationFlavour = "ATLFASTII"
     acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
@@ -185,45 +210,56 @@ def Kernel_ATLFASTIIMTCfg(flags, name="ISF_Kernel_ATLFASTIIMT", **kwargs):
 def Kernel_ATLFASTIIFMTCfg(flags, name="ISF_Kernel_ATLFASTIIFMT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(ParticleKillerToolCfg(flags))
-    acc.merge(FastCaloToolBaseCfg(flags))
-    acc.merge(fatrasSimToolCfg(flags))
-    PKtool = acc.getPublicTool("ISF_ParticleKillerTool")
-    FastCalotool = acc.getPublicTool("ISF_FastCaloTool")
-    Fatrastool = acc.getPublicTool("ISF_FatrasSimTool")
-    kwargs.setdefault("SimulationTools", [PKtool, FastCalotool, Fatrastool])
+    kwargs.setdefault("SimulationTools", [
+        acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+        acc.popToolsAndMerge(FastCaloToolBaseCfg(flags)),
+        acc.popToolsAndMerge(fatrasSimToolCfg(flags))
+    ])
 
     # not migrated 'simFlags.SimulationFlavour = "ATLFASTIIF"'
     acc.merge(Kernel_GenericSimulatorNoG4MTCfg(flags, name, **kwargs))
     return acc
 
 
-# non-MT
-# Note: mostly not migrated
-def Kernel_GenericSimulatorCfg(flags, name="ISF_Kernel_GenericSimulator", **kwargs):
+def Kernel_G4FastCaloMT(flags, name="ISF_Kernel_G4FastCaloMT", **kwargs):
     acc = ComponentAccumulator()
 
-    acc.merge(InputConverterCfg(flags))
-    kwargs.setdefault("InputConverter", acc.getService("ISF_InputConverter"))
+    # BeamPipe, ID, MS Simulation Selectors
+    tool = acc.popToolsAndMerge(DefaultAFIIGeant4SelectorCfg(flags))
+    acc.addPublicTool(tool)
+    pubTool = acc.getPublicTool(tool.name)
+    kwargs.setdefault("BeamPipeSimulationSelectors", [pubTool])
+    kwargs.setdefault("IDSimulationSelectors"      , [pubTool])
+    kwargs.setdefault("MSSimulationSelectors"      , [pubTool])
 
-    acc.merge(ParticleBrokerSvcCfg(flags))
-    kwargs.setdefault("ParticleBroker", acc.getService("ISF_ParticleBrokerSvc"))
+    # CaloSimulationSelectors
+    acc.addPublicTool(acc.popToolsAndMerge(MuonAFIIGeant4SelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(EtaGreater5ParticleKillerSimSelectorCfg(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(PionG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ProtonG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(NeutronG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(ChargedKaonG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(KLongG4FastCaloGeant4Selector(flags)))
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultFastCaloSimV2SelectorCfg(flags)))
+    kwargs.setdefault("CaloSimulationSelectors"    , [ acc.getPublicTool("ISF_MuonAFIIGeant4Selector"),
+                                                       acc.getPublicTool("ISF_EtaGreater5ParticleKillerSimSelector"),
+                                                       acc.getPublicTool("ISF_PionG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_ProtonG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_NeutronG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_ChargedKaonG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_KLongG4FastCaloGeant4Selector"),
+                                                       acc.getPublicTool("ISF_DefaultFastCaloSimV2Selector") ])
+    # CavernSimulationSelectors
+    acc.addPublicTool(acc.popToolsAndMerge(DefaultParticleKillerSelectorCfg(flags)))
+    kwargs.setdefault("CavernSimulationSelectors"  , [ acc.getPublicTool("ISF_DefaultParticleKillerSelector") ])
 
-    truthacc = TruthServiceCfg(flags)
-    kwargs.setdefault("TruthRecordService", truthacc.getPrimary())
-    acc.merge(truthacc)
+    kwargs.setdefault("SimulationTools"            , [ acc.popToolsAndMerge(ParticleKillerToolCfg(flags)),
+                                                       acc.popToolsAndMerge(FastCaloSimV2ToolCfg(flags)),
+                                                       acc.popToolsAndMerge(AFIIGeant4ToolCfg(flags)) ])
+    kwargs.setdefault("ParticleOrderingTool"       ,   acc.popToolsAndMerge(ParticleOrderingToolCfg(flags)))
 
-    tool = acc.popToolsAndMerge(MemoryMonitorToolCfg(flags))
-    kwargs.setdefault("MemoryMonitoringTool", tool)
-
-    kwargs.setdefault("DoCPUMonitoring", flags.Sim.ISF.DoTimeMonitoring)
-    kwargs.setdefault("DoMemoryMonitoring", flags.Sim.ISF.DoMemoryMonitoring)
-    kwargs.setdefault("InputHardScatterCollection", "BeamTruthEvent")
-    kwargs.setdefault("OutputHardScatterTruthCollection", "TruthEvent")
-
-    acc.addEventAlgo(CompFactory.ISF.SimKernelCfg(name, **kwargs))
+    tool = acc.popToolsAndMerge(AFIIEntryLayerToolMTCfg(flags))
+    acc.addPublicTool(tool)
+    kwargs.setdefault("EntryLayerTool"             ,   acc.getPublicTool(tool.name)) # public ToolHandle
+    acc.merge(Kernel_GenericSimulatorMTCfg(flags, name, **kwargs))
     return acc
-
-
-def Kernel_GenericSimulatorNoG4Cfg(flags, name="ISF_Kernel_GenericSimulatorNoG4", **kwargs):
-    return Kernel_GenericSimulatorCfg(flags, name, **kwargs)

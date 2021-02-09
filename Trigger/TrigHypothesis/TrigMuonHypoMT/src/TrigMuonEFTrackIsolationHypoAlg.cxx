@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFTrackIsolationHypoAlg.h"
@@ -53,11 +53,6 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
   std::vector<TrigMuonEFTrackIsolationHypoTool::EFIsolationMuonInfo> toolInput;
   size_t counter = 0;
   for ( const auto previousDecision: *previousDecisionsHandle ) {
-    // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString()  );
-    auto roiEL = roiInfo.link;
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor *roi = *roiEL;
 
     // get View
     auto viewEL = previousDecision->objectLink<ViewContainer>(viewString());
@@ -79,9 +74,9 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
     const xAOD::Muon* muon = *muonEL;
 
     // create new dicions
-    auto newd = newDecisionIn( decisions );
+    auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
 
-    toolInput.emplace_back( newd, roi, muon, previousDecision, muonIso20(*muon), muonIso30(*muon) );
+    toolInput.emplace_back( newd, muon, previousDecision, muonIso20(*muon), muonIso30(*muon) );
 
     newd -> setObjectLink( featureString(), muonEL );
     TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
@@ -89,8 +84,7 @@ StatusCode TrigMuonEFTrackIsolationHypoAlg::execute( const EventContext& context
 
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
     ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
-    ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-    ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+    ATH_MSG_DEBUG("Added view, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
     counter++;
   }

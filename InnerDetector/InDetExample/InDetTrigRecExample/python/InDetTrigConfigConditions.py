@@ -65,13 +65,9 @@ class PixelConditionsServicesSetup:
     from AthenaCommon.GlobalFlags import globalflags
     from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags as commonGeoFlags
     from AtlasGeoModel.InDetGMJobProperties import InDetGeometryFlags as geoFlags
+    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 
-    useNewDeadmapFormat = False
     useNewChargeFormat  = False
-
-    if not useNewDeadmapFormat:
-      if not (conddb.folderRequested("/PIXEL/PixMapOverlay") or conddb.folderRequested("/PIXEL/Onl/PixMapOverlay")):
-        conddb.addFolderSplitOnline("PIXEL","/PIXEL/Onl/PixMapOverlay","/PIXEL/PixMapOverlay", className='CondAttrListCollection')
 
     if not hasattr(condSeq, 'PixelConfigCondAlg'):
       from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelConfigCondAlg
@@ -122,22 +118,27 @@ class PixelConditionsServicesSetup:
 
       alg = PixelConfigCondAlg(name="PixelConfigCondAlg", 
                                CablingMapFileName=IdMappingDat)
-      if not self.usePixMap:
-        alg.ReadDeadMapKey = ""
       condSeq += alg
 
     #########################
     # Deadmap Setup (RUN-3) #
     #########################
-    if useNewDeadmapFormat:
-      if not conddb.folderRequested("/PIXEL/PixelModuleFeMask"):
+    if not (conddb.folderRequested("/PIXEL/PixelModuleFeMask") or conddb.folderRequested("/PIXEL/Onl/PixelModuleFeMask")):
+      # TODO: Once global tag is updated, this line should be removed.
+      if not athenaCommonFlags.isOnline():
         conddb.addFolder("PIXEL_OFL", "/PIXEL/PixelModuleFeMask", className="CondAttrListCollection")
-      if not hasattr(condSeq, "PixelDeadMapCondAlg"):
-        from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
-        alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
-        if not self.usePixMap:
-          alg.ReadKey = ""
-        condSeq += alg
+        if (globalflags.DataSource=='data'):
+          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-RUN2-DATA-UPD4-05")
+        else:
+          conddb.addOverride("/PIXEL/PixelModuleFeMask","PixelModuleFeMask-SIM-MC16-000-03")
+    if not hasattr(condSeq, "PixelDeadMapCondAlg"):
+      from PixelConditionsAlgorithms.PixelConditionsAlgorithmsConf import PixelDeadMapCondAlg
+      alg = PixelDeadMapCondAlg(name="PixelDeadMapCondAlg")
+      if not self.usePixMap:
+        alg.ReadKey = ''
+      if athenaCommonFlags.isOnline():
+        alg.ReadKey = ''
+      condSeq += alg
 
     ########################
     # DCS Conditions Setup #
@@ -146,7 +147,6 @@ class PixelConditionsServicesSetup:
     PixelTempFolder = "/PIXEL/DCS/TEMPERATURE"
     PixelDBInstance = "DCS_OFL"
 
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
     if athenaCommonFlags.isOnline():
        PixelHVFolder = "/PIXEL/HLT/DCS/HV"
        PixelTempFolder = "/PIXEL/HLT/DCS/TEMPERATURE"

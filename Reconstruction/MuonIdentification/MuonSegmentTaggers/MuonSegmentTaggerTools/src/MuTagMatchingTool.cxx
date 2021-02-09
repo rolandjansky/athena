@@ -877,7 +877,8 @@ MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSeg
             double tubeLen = detEl->getActiveTubeLength(lay, tube);
 
             // use SL within station to speed up extrapolation
-            const Trk::TrackParameters* exP =
+            //lifetime only in this scope
+            auto exP =
                 p_propagator->propagate(*exTrack, mdt->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
             if (!exP) {
                 ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
@@ -888,23 +889,24 @@ MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSeg
             double exResidual = std::abs(exP->parameters()[Trk::locZ]) - 0.5 * tubeLen;
             if (maxResXMdt < exResidual) maxResXMdt = exResidual;
             if (exResidual > 0.) ATH_MSG_DEBUG("Extrapolated position outside tube, " << exResidual);
-            delete exP;
+            //delete exP;
         } else {
 
             // get id and check that it is a muon hit id
             Identifier id = m_edmHelperSvc->getIdentifier(**mit);
             if (!id.is_valid() || !m_idHelperSvc->isMuon(id)) continue;
             if (!m_idHelperSvc->measuresPhi(id)) continue;
-            const Trk::TrackParameters* exP =
+            //lifetime only in this scope
+            auto exP =
                 p_propagator->propagate(*exTrack, (*mit)->associatedSurface(), Trk::anyDirection, false, Trk::NoField);
             if (!exP) {
                 ATH_MSG_WARNING("Failed to extrapolate to " << m_idHelperSvc->toString(id));
                 continue;
             }
-            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(*mit, exP, Trk::ResidualPull::Unbiased);
+            const Trk::ResidualPull* resPull = m_pullCalculator->residualPull(*mit, exP.get(), Trk::ResidualPull::Unbiased);
             if (!resPull) {
                 ATH_MSG_WARNING(" calculation of residual/pull failed !!!!! ");
-                delete exP;
+                //delete exP;
                 continue;
             }
             double residual = resPull->residual().front();
@@ -923,7 +925,7 @@ MuTagMatchingTool::muTagSegmentInfo(const Trk::Track* track, const Muon::MuonSeg
             }
             ATH_MSG_DEBUG(m_idHelperSvc->toString(id) << " residual " << residual << " pull " << pull);
             delete resPull;
-            delete exP;
+            //delete exP;
         }
     }
     ATH_MSG_DEBUG("Residual phi min " << minResPhi << " max " << maxResPhi << " pull min " << minPullPhi << " max "

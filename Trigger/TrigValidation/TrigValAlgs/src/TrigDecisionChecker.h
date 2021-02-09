@@ -78,16 +78,11 @@ class TrigDecisionChecker : public AthAlgorithm
 
   StatusCode checkMetEDM(const std::string& trigItem);
 
-  uint32_t m_smk; ///< Super Master Key
-  uint32_t m_l1psk; ///< LVL1 Prescale Key
-  uint32_t m_hltpsk; ///< HLT Prescale Key
-  uint32_t m_smKey; //!< Super Master Key number to select (0=ignore)
-  std::string m_trigDecisionKey; //!< SG key of the trigger data (TrigDecision object)
-  bool m_event_decision_printout;
+  Gaudi::Property<uint32_t> m_smKey{ this, "SMK", 0, "The super master key to use" }; //!< Super Master Key number to select (0=ignore)
+  Gaudi::Property<bool> m_eventDecisionPrintout{this, "WriteEventDecision", true};
+
   // write out trigger counts
-  bool          m_printout_counts;
-  std::string   m_printout_filename;
-  std::ofstream m_printout_file;
+  Gaudi::Property<std::string>   m_printoutFileName{ this, "WriteOutFilename", "", "when set the stat is saved in this file"};
 
   
   
@@ -95,74 +90,72 @@ class TrigDecisionChecker : public AthAlgorithm
     
 
   // useful for bookkeeping:
-  std::map<std::string,int> m_L1_summary;
+  std::map<std::string,int> m_L1Summary;
   std::vector<std::string> m_summary;
-  std::vector<int> m_summary_pass;
-  std::vector<int> m_summary_passraw;
-  std::vector<int> m_summary_passphys;
-  std::vector<int> m_summary_chain_pass;
-  std::vector<int> m_summary_chain_passraw;
-  std::vector<int> m_summary_chain_passphys;
-  std::vector<int> m_summary_chain_PT;
-  std::vector<int> m_summary_chain_PS;
+  std::vector<int> m_summaryPass;
+  std::vector<int> m_summaryPassRaw;
+  std::vector<int> m_summaryPassPhys;
+  std::vector<int> m_summaryChainPass;
+  std::vector<int> m_summaryChainPassRaw;
+  std::vector<int> m_summaryChainPassPhys;
+  std::vector<int> m_summaryChainPT;
+  std::vector<int> m_summaryChainPS;
   bool m_first_event;
 
   // tests: check efficiency for a few signatures in blocks on 100 events
-  int m_monitoring_block_size;
-  std::vector<int> m_count_event;
-  std::vector<int> m_run_count_sigs;
-  std::vector<std::vector<int>* > m_count_sigs;
-  std::vector<std::string> m_count_sig_names;
-  int   m_event_number;
-  float m_mu_sum; 
+  Gaudi::Property<int> m_monitoringBlockSize{ this, "MonitoringBlock",  100};
 
-  ToolHandle<Trig::TrigDecisionTool> m_trigDec; //!< interface to use the trigger data: TriggerTool
+  std::vector<int> m_countEvent;
+  std::vector<int> m_runCountSigs;
+  std::vector<std::vector<int>* > m_countSigs;
+  Gaudi::Property<std::vector<std::string>> m_countSigNames{ this, "MonitoredChains", {} };
+  int   m_eventNumber = 0;
+  float m_muSum = 0; 
+
+  ToolHandle<Trig::TrigDecisionTool> m_trigDec{this, "TrigDecisionTool", "Trig::TrigDecisionTool/TrigDecisionTool"}; //!< interface to use the trigger data: TriggerTool
   /// The trigger configuration service to get the information from
-  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc;
+  ServiceHandle< TrigConf::ITrigConfigSvc > m_configSvc{ this, "TrigConfigSvc", "TrigConf::TrigConfigSvc/TrigConfigSvc"} ;
 
   /// Muon triggers to test output for
-  std::vector<std::string> m_muonItems;
+  Gaudi::Property<std::vector<std::string>> m_muonItems{ this, "MuonItems", {} };
 
   // Bjet triggers to test output for
-  std::vector<std::string> m_bjetItems;
+  Gaudi::Property<std::vector<std::string>> m_bjetItems{ this, "BjetItems", {} };
 
-    std::vector<std::string> m_bphysItems; //! Bphysics chains to test
+  Gaudi::Property<std::vector<std::string>> m_bphysItems{ this, "BphysicsItems", {} }; //! Bphysics chains to test
   
     // Electron triggers to test output for
-  std::vector<std::string> m_electronItems;
+  Gaudi::Property<std::vector<std::string>> m_electronItems{ this, "ElectronItems", {} };
   
   // Photon triggers to test output for
-  std::vector<std::string> m_photonItems;
+  Gaudi::Property<std::vector<std::string>> m_photonItems{ this, "PhotonItems", {} };
 
   // Tau triggers to test output for 
-  std::vector<std::string> m_TauItems;
+  Gaudi::Property<std::vector<std::string>> m_TauItems{ this, "TauItems", {} };
 
   // MinBias triggers to test output for
-  std::vector<std::string> m_minBiasItems;
+  Gaudi::Property<std::vector<std::string>> m_minBiasItems{ this, "MinBiasItems", {} };
     
   // Jet triggers to test output for
-  std::vector<std::string> m_jetItems;
+  Gaudi::Property<std::vector<std::string>> m_jetItems{ this, "JetItems", {} };
 
   // Met triggers to test output for
-  std::vector<std::string> m_metItems;
+  Gaudi::Property<std::vector<std::string>> m_metItems{ this, "MetItems", {} };
     
   // ...check prescale and passthrough factors 
-  std::vector<float> m_chain_prescales;
-  std::vector<float> m_chain_prescales_calculated;
+  std::vector<float> m_chainPrescales;
+  std::vector<float> m_chainPrescalesCalculated;
   std::vector<float> m_chain_passthrough;
   std::vector<float> m_chain_passthrough_calculated;
   std::vector<int> m_lower_chain_accept;
-  std::map<std::string,std::string> m_lower_chain_map;
+  std::map<std::string,std::string> m_lowerChainMap;
 
   // needed for mu value
   std::string m_eventInfoName;
 
   // Check pass bits
-  bool m_checkBits;
+  Gaudi::Property<bool> m_checkBits{ this, "CheckTrigPassBits", false, "TrigPassBits retrieval from TDT"};
 
-
-  // Tool to dump info about xAOD muons
-  ToolHandle<Rec::IMuonPrintingTool>            m_muonPrinter;
 };
 
 #endif

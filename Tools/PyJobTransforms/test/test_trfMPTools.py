@@ -1,13 +1,11 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfMPTools.py
 #  @brief Unittests for trfMPTools.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
 
-from __future__ import print_function
 import os
 import subprocess
 import unittest

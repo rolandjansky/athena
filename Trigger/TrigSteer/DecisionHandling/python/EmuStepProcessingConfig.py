@@ -32,7 +32,7 @@ def generateL1DecoderAndChainsManually(topSequence):
     from TriggerMenuMT.HLTMenuConfig.Menu.HLTCFConfig import makeHLTTree
     from TriggerMenuMT.HLTMenuConfig.Menu.TriggerConfigHLT import TriggerConfigHLT
     makeHLTTree( triggerConfigHLT=TriggerConfigHLT )
-
+    
 
 ###########################################################################    
 def generateL1DecoderAndChainsByMenu(topSequence):

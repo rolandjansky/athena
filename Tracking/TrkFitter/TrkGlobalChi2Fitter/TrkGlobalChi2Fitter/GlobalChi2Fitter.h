@@ -1,11 +1,11 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef GLOBALCHI2FITTER_H
 #define GLOBALCHI2FITTER_H
 //#define GXFDEBUGCODE
-
+#define LEGACY_TRKGEOM
 #include "TrkDetDescrInterfaces/IMaterialEffectsOnTrackProvider.h"
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -34,6 +34,12 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "MagFieldConditions/AtlasFieldCacheCondObj.h"
 #include "MagFieldElements/AtlasFieldCache.h"
+
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
+#ifdef LEGACY_TRKGEOM
+#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
+#endif
 
 #include <memory>
 #include <mutex>
@@ -147,7 +153,6 @@ namespace Trk {
   class CylinderLayer;
   class DiscLayer;
   class MagneticFieldProperties;
-  class TrackingGeometry;
   class TrackingVolume;
   class Volume;
 
@@ -185,6 +190,7 @@ namespace Trk {
         }
       }
 
+      const TrackingGeometry *m_trackingGeometry = nullptr;
       const TrackingVolume *m_caloEntrance = nullptr;
       const TrackingVolume *m_msEntrance = nullptr;
 
@@ -240,6 +246,7 @@ namespace Trk {
 
       Cache & operator=(const Cache &) = delete;
     };
+  private:
 
     enum FitterStatusType {
       S_FITS,
@@ -539,6 +546,7 @@ namespace Trk {
     ) const;
 
     void addMaterial(
+      const EventContext& ctx,
       Cache &,
       GXFTrajectory &,
       const TrackParameters *,
@@ -884,7 +892,28 @@ namespace Trk {
     ToolHandle<IMaterialEffectsOnTrackProvider> m_calotoolparam {this, "MuidToolParam", "", ""};
     ToolHandle<IBoundaryCheckTool> m_boundaryCheckTool {this, "BoundaryCheckTool", "", "Boundary checking tool for detector sensitivities" };
 
-    ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc;
+#ifdef LEGACY_TRKGEOM
+     ServiceHandle<ITrackingGeometrySvc> m_trackingGeometrySvc {this, "TrackingGeometrySvc", "",""};
+#endif
+    void throwFailedToGetTrackingGeomtry() const;
+    const TrackingGeometry* trackingGeometry(Cache &cache, const EventContext& ctx) const {
+       if (!cache.m_trackingGeometry)
+          cache.m_trackingGeometry=retrieveTrackingGeometry(ctx);
+       return cache.m_trackingGeometry;
+    }
+    const TrackingGeometry* retrieveTrackingGeometry(const EventContext& ctx) const {
+#ifdef LEGACY_TRKGEOM
+       if (m_trackingGeometryReadKey.key().empty()) {
+          return m_trackingGeometrySvc->trackingGeometry();
+       }
+#endif
+       SG::ReadCondHandle<TrackingGeometry>  handle(m_trackingGeometryReadKey,ctx);
+       if (!handle.isValid()) {throwFailedToGetTrackingGeomtry(); }
+       return handle.cptr();
+    }
+
+    SG::ReadCondHandleKey<TrackingGeometry>   m_trackingGeometryReadKey
+       {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
 
     SG::ReadCondHandleKey<AtlasFieldCacheCondObj> m_field_cache_key{
       this,

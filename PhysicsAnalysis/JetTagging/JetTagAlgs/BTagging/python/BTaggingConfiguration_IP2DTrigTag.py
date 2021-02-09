@@ -10,7 +10,7 @@ btagrun1=False
 if conddb.dbdata == 'COMP200':
     btagrun1=True
 elif conddb.isMC:
-    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() == False))
+    btagrun1 = (commonGeoFlags.Run() == "RUN1" or (commonGeoFlags.Run() == "UNDEFINED" and geoFlags.isIBL() is False))
 
 metaIP2DTag_Trig = { 'IsATagger'         : True,
                 'xAODBaseName'      : 'IP2D',
@@ -123,9 +123,9 @@ def toolIP2DDetailedTrackGradeFactory(name, useBTagFlagsDefaults = True, **optio
 #                     'TrackSummaryTool'       : None,
                      'useSharedHitInfo'       : True,
                      'useDetailSharedHitInfo' : True,
-                     'useRun2TrackGrading'    : (btagrun1 == False),
-                     'useInnerLayers0HitInfo' : (btagrun1 == False),
-                     'useDetailSplitHitInfo'  : (btagrun1 == False),
+                     'useRun2TrackGrading'    : (btagrun1 is False),
+                     'useInnerLayers0HitInfo' : (btagrun1 is False),
+                     'useDetailSplitHitInfo'  : (btagrun1 is False),
                      'hitBLayerGrade'         : True }
         for option in defaults:
             options.setdefault(option, defaults[option])

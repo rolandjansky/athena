@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SiSpacePointTool/SiSpacePointMakerTool.h"
@@ -512,7 +512,7 @@ namespace InDet {
     sctInfos.reserve(clusters[0]->size());
     
     // loop on all clusters on the trigger detector element and save the related information
-    for (const auto& cluster : *clusters[0]) {
+    for (const auto cluster : *clusters[0]) {
       Amg::Vector2D locpos = cluster->localPosition();
       std::pair<Amg::Vector3D, Amg::Vector3D > ends(element->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));
       InDet::SCTinformation sct(cluster,ends.first, ends.second, vertexVec,locpos.x()); 
@@ -548,7 +548,7 @@ namespace InDet {
         
         InDet::SCTinformation sctInfo;
         
-        for (const auto& cluster : *clusters[currentIndex]) {
+        for (const auto cluster : *clusters[currentIndex]) {
           
           bool processed = false;        
           const Amg::Vector2D& locpos = cluster->localPosition();  
@@ -616,7 +616,7 @@ namespace InDet {
           updateRange(element, currentElement, slimit, min, max);
         }
            
-        for (const auto& cluster : *clusters[currentIndex]) {
+        for (const auto cluster : *clusters[currentIndex]) {
             
           const Amg::Vector2D& locpos = cluster->localPosition();  
           double lx1 = locpos.x();
@@ -654,7 +654,7 @@ namespace InDet {
         offset(element, currentElement, slimit);
       }
      
-      for (const auto& cluster : *clusters[currentIndex]) {
+      for (const auto cluster : *clusters[currentIndex]) {
 
         const Amg::Vector2D& locpos = cluster->localPosition();
         std::pair<Amg::Vector3D, Amg::Vector3D > ends(currentElement->endsOfStrip(InDetDD::SiLocalPosition(locpos.y(),locpos.x(),0.)));

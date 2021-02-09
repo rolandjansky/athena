@@ -12,7 +12,7 @@
 // Gaudi Kernel
 #include "GaudiKernel/IRndmGenSvc.h"
 #include "GaudiKernel/RndmGenerators.h"
-// ISF 
+// ISF
 #include "ISF_Interfaces/IParticleBroker.h"
 #include "ISF_Interfaces/ITruthSvc.h"
 #include "ISF_Event/ISFParticle.h"
@@ -29,18 +29,14 @@
 #include "CLHEP/Geometry/Transform3D.h"
 // Validation mode - TTree includes
 #include "TTree.h"
-#include "GaudiKernel/ITHistSvc.h" 
+#include "GaudiKernel/ITHistSvc.h"
 // STD
 #include <math.h>
 
-// Tracking
-#include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-#include "TrkGeometry/TrackingGeometry.h"
-#include "TrkGeometry/TrackingVolume.h"
 #include "TrkGeometry/Material.h"
 #include "TrkGeometry/MaterialProperties.h"
 
-// statics doubles 
+// statics doubles
 Trk::ParticleMasses iFatras::HadIntProcessorParametric::s_particleMasses;
 
 // constructor
@@ -82,7 +78,7 @@ iFatras::HadIntProcessorParametric::HadIntProcessorParametric(const std::string&
       declareProperty("MinimumHadronicOutEnergy"            , m_minimumHadOutEnergy);
       declareProperty("HadronicChildMomParam"               , m_childMomParam);
       declareProperty("HadronicInteractionFromX0"           , m_hadIntFromX0);
-      declareProperty("HadronicInteractionScaleFactor"      , m_hadIntProbScale); 
+      declareProperty("HadronicInteractionScaleFactor"      , m_hadIntProbScale);
       declareProperty("MinimumHadronicInitialEnergy"        , m_minimumHadInitialEnergy);
       // the steering --------------------------------------------------------------
       declareProperty("ShortenHadIntChain"                  , m_cutChain);
@@ -116,13 +112,13 @@ StatusCode iFatras::HadIntProcessorParametric::initialize()
           return StatusCode::FAILURE;
      } else
           ATH_MSG_VERBOSE( "Successfully retrieved " << m_rndGenSvc );
-    
+
     //Get own engine with own seeds:
     m_randomEngine = m_rndGenSvc->GetEngine(m_randomEngineName);
     if (!m_randomEngine) {
         ATH_MSG_FATAL( "Could not get random engine '" << m_randomEngineName << "'" );
         return StatusCode::FAILURE;
-    }    
+    }
 
     // ISF Services
     if (m_particleBroker.retrieve().isFailure()){
@@ -144,15 +140,15 @@ StatusCode iFatras::HadIntProcessorParametric::initialize()
       } else
 	ATH_MSG_VERBOSE( "Successfully retrieved " << m_validationTool );
     }
-      
+
     if (m_hadIntValidation){
 
       ITHistSvc* tHistSvc = 0;
       // now register the Tree
-      if (service("THistSvc",tHistSvc).isFailure()) 
-           ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" ); 
+      if (service("THistSvc",tHistSvc).isFailure())
+           ATH_MSG_ERROR( "initialize() Could not find Hist Service -> Switching ValidationMode Off !" );
       else {
-    
+
         ATH_MSG_VERBOSE( "Booking hadronic interaction validation TTree ... " );
 
         // create the new Tree
@@ -169,7 +165,7 @@ StatusCode iFatras::HadIntProcessorParametric::initialize()
            m_hadIntValidationTree->Branch("HadIntMotherPt" ,  &m_hadIntMotherPt,    "hintMotherPt/F");
            m_hadIntValidationTree->Branch("HadIntMotherPhi"    ,  &m_hadIntMotherPhi,       "hintMotherPhi/F");
            m_hadIntValidationTree->Branch("HadIntMotherEta"    ,  &m_hadIntMotherEta,       "hintMohterEta/F");
-    
+
            m_hadIntValidationTree->Branch("HadIntChildren"     ,  &m_hadIntChildren,        "hintcs/I");
            m_hadIntValidationTree->Branch("HadIntChildE  "     ,  &m_hadIntChildE,          "hintce/F");
            m_hadIntValidationTree->Branch("HadIntChildPdg"     ,  m_hadIntChildPdg,         "hintChildPdg[hintcs]/I");
@@ -202,10 +198,10 @@ StatusCode iFatras::HadIntProcessorParametric::finalize()
 }
 
 
-bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
-							     double p, double /*E*/, double charge, 
+bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D& position, const Amg::Vector3D& momentum,
+							     double p, double /*E*/, double charge,
 							     const Trk::MaterialProperties& mprop, double pathCorrection,
-							     Trk::ParticleHypothesis particle) const 
+							     Trk::ParticleHypothesis particle) const
 {
   const Trk::MaterialProperties* extMprop = dynamic_cast<const Trk::MaterialProperties*>(&mprop);
   double prob = 0.;
@@ -216,7 +212,7 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D
     double al = absorptionLength(extMprop, p, charge, particle);  // in mm
 
     if (al>0.) prob = exp( (-1.)*pathCorrection*extMprop->thickness()/al );
-    else       prob = exp( (-1.)*pathCorrection*extMprop->thicknessInL0()); 
+    else       prob = exp( (-1.)*pathCorrection*extMprop->thicknessInL0());
 
   } else {
     ATH_MSG_VERBOSE( "  [ had ] Nuclear Interaction length not available, using appox. from X0" );
@@ -224,18 +220,18 @@ bool iFatras::HadIntProcessorParametric::hadronicInteraction(const Amg::Vector3D
     prob = exp( (-1.)*pathCorrection*mprop.thicknessInX0() / ( 0.37 * mprop.averageZ())  );
   }
 
-  if (msgLvl(MSG::VERBOSE)) 
-    ATH_MSG_VERBOSE( "  [ had ] Probability of hadronic interaction = " 
+  if (msgLvl(MSG::VERBOSE))
+    ATH_MSG_VERBOSE( "  [ had ] Probability of hadronic interaction = "
     << (1. - prob) * 100. * m_hadIntProbScale << " %." );
-  
+
   // apply a global scalor of the probability
   // (1. - prob) is generally O(0.01), so this is the right way to scale it
   // TODO fix time info (if needed)
-  if (CLHEP::RandFlat::shoot(m_randomEngine) < (1. - prob) * m_hadIntProbScale ) return recordHadState(0.,p, 
+  if (CLHEP::RandFlat::shoot(m_randomEngine) < (1. - prob) * m_hadIntProbScale ) return recordHadState(0.,p,
 												       position,
 												       momentum.unit(),
 												       particle);
-  
+
   // no hadronic interactions were computed
   return false;
 }
@@ -246,13 +242,13 @@ double iFatras::HadIntProcessorParametric::absorptionLength(const Trk::MaterialP
 							    double p, double, Trk::ParticleHypothesis particle) const {
   double al = mat->l0();
 
-  /* // these parametrization comes from comparison with G4 sampler, but give too many interactions 
+  /* // these parametrization comes from comparison with G4 sampler, but give too many interactions
      // not understood yet
      if ( particle == Trk::pion ) al = ( 0.53+0.2*exp(-p/1000.) ) * mat->l0();
      else if ( particle == Trk::kaon ) al = ( 0.1+0.65*exp(-p/5000.) ) * mat->l0();
      else if ( particle == Trk::proton ) al = 0.57 * mat->l0();
-     else al =  mat->l0(); 
-  */ 
+     else al =  mat->l0();
+  */
 
   if ( particle == Trk::pion || particle == Trk::kaon || particle == Trk::pi0 || particle == Trk::k0) {
     al *= 1./(1.+ exp(-0.5*(p-270.)*(p-270.)/60./60.));
@@ -267,24 +263,24 @@ double iFatras::HadIntProcessorParametric::absorptionLength(const Trk::MaterialP
 ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF::ISFParticle* parent,double time,double p,
 								       const Amg::Vector3D& vertex,
 								       const Amg::Vector3D& particleDir,
-								       Trk::ParticleHypothesis particle  
+								       Trk::ParticleHypothesis particle
 								       ) const
-{  
-  ISF::ISFParticleVector chDef(0); 
+{
+  ISF::ISFParticleVector chDef(0);
 
   // sampling of hadronic interaction
   double m = s_particleMasses.mass[particle];
   double E = sqrt(p*p + m*m);
 
-  // get the maximum multiplicity    
+  // get the maximum multiplicity
   double multiplicity_max = 0.25 * E/1000. + 18.;
-  
+
   // multiplicity distribution
   double randx , randy, arg = 0.;
-  
+
   double p1 = 0.;
   double p2 = 0.;
-  
+
   if (E > 15000.) {
     p1 = 8.69;
     p2 = 2.34;
@@ -292,39 +288,39 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     p1 = 6.77;
     p2 = 2.02;
   }
-  
+
   for (;;) {
     randx = 30. * CLHEP::RandFlat::shoot(m_randomEngine);
     randy = 1.  * CLHEP::RandFlat::shoot(m_randomEngine);
     arg = exp(-0.5*( (randx-p1)/p2 + exp(-(randx-p1)/p2) ) );
     if (randy < arg && randx>3 && randx<multiplicity_max) break;
   }
-  
+
   randx *= (1.2-0.4*exp(-0.001*p));     // trying to adjust
-  
+
   int Npart = (int)randx;
-  
+
   // protection against Npart < 3
   if (Npart < 3) {
-    ATH_MSG_VERBOSE( "[ had ] Number of particles smaller than 3, parameterisation not valid." 
+    ATH_MSG_VERBOSE( "[ had ] Number of particles smaller than 3, parameterisation not valid."
 		     << " Doing Nothing");
     return chDef;
   }
 
-  ATH_MSG_VERBOSE( "[ had ] interaction of " << parent->barcode() 
+  ATH_MSG_VERBOSE( "[ had ] interaction of " << parent->barcode()
 		   << " with " << Npart << " outgoing particles " );
-  
+
   // record the interaction
-  
+
   // ------ now create the new hadrons ------
   ATH_MSG_DEBUG(  "[ had ] create hadronic shower for particle with PDG ID "
 		  << parent->pdgCode() << " and barcode "
 		  << parent->barcode() );
-  
-  
+
+
   // create the genParticles
-  
-  // validation if needed 
+
+  // validation if needed
   if (m_hadIntValidationTree){
     m_hadIntPointX        = vertex.x();
     m_hadIntPointY        = vertex.y();
@@ -335,41 +331,41 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     m_hadIntMotherP       = p;
     m_hadIntMotherPt      = p*particleDir.perp();
     m_hadIntMotherPhi     = particleDir.phi();
-    m_hadIntMotherEta     = particleDir.eta();	
-    // reset the children 
+    m_hadIntMotherEta     = particleDir.eta();
+    // reset the children
     m_hadIntChildren      = 0;
   }
-  
-  ATH_MSG_VERBOSE( "[ had ] incoming particle energy | mass | momentum " 
+
+  ATH_MSG_VERBOSE( "[ had ] incoming particle energy | mass | momentum "
 		   << E << " | " << m << " | " << p << " | " );
-  
+
   /* TODO: this will not work with the new barcode style */
   if (m_cutChain && ( parent->barcode()>100000 || parent->barcode()==0 ) ) {
     if (m_hadIntValidationTree) m_hadIntValidationTree->Fill();
-    ATH_MSG_VERBOSE( "[ had ] interaction initiated by a secondary particle, no children saved " ); 
+    ATH_MSG_VERBOSE( "[ had ] interaction initiated by a secondary particle, no children saved " );
     return chDef;
   }
-  
+
   int gen_part = 0;
-    
+
   // new sampling: sample particle type and energy in the CMS frame of outgoing particles
   // creation of shower particles
   double chargedist = 0.;
   std::vector<double> charge(Npart);
   std::vector<Trk::ParticleHypothesis> childType(Npart);
   std::vector<double> newm(Npart);
-  std::vector<int> pdgid(Npart);    
-  
+  std::vector<int> pdgid(Npart);
+
   // children type sampling  : simplified
   //double pif = 0.19;
   //double nef = 0.20;
   //double prf = 0.20;
 
-  // sample heavy particles (alpha) but don't save  
-  double pif = 0.10; 
+  // sample heavy particles (alpha) but don't save
+  double pif = 0.10;
   double nef = 0.30;
   double prf = 0.30;
-  
+
   if ( particle == Trk::pion || particle == Trk::kaon || particle == Trk::pi0 || particle == Trk::k0 ) {
       pif = 0.15;
       nef = 0.25;
@@ -385,7 +381,7 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     nef = 0.35;
     prf = 0.17;
   }
-  
+
   for (int i=0; i<Npart; i++) {
     chargedist  = CLHEP::RandFlat::shoot(m_randomEngine);
     if (chargedist<pif) {
@@ -449,15 +445,15 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
   // sample momentum of daughters in CMS frame of outgoing particles  [ exp(-par/p) ]
   std::vector<double> mom;
   mom.clear();mom.reserve(Npart);
-  double mom_n = 0.;  
+  double mom_n = 0.;
   for (int _npart=0; _npart<Npart; _npart++) {
     rand1  = CLHEP::RandFlat::shoot(m_randomEngine);
     mom_n = -log(rand1)/m_childMomParam * p;
     int ipos = _npart;
     while ( ipos>0 && mom_n>mom[ipos-1]) ipos--;
     mom.insert(mom.begin()+ipos,mom_n);
-  }  
-  
+  }
+
   // check if configuration acceptable - if not, resample hardest mom
   double momR = 0.;
   for (int i=1; i<Npart; i++) momR += mom[i];
@@ -471,24 +467,24 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
   // sample first particle energy fraction and random momentum direction
   double eps = 2./Npart;
   double rnd  = CLHEP::RandFlat::shoot(m_randomEngine);
-  mom[0] = 0.5*pow(eps,rnd);          
+  mom[0] = 0.5*pow(eps,rnd);
   th[0]  = acos( 2*CLHEP::RandFlat::shoot(m_randomEngine)-1.);
   ph[0]  = 2*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
-  
+
   // toss particles around in a way which preserves the total momentum (0.,0.,0.) at this point
   // TODO shoot first particle along the impact direction preferentially
 
   Amg::Vector3D ptemp(mom[0]*sin(th[0])*cos(ph[0]),mom[0]*sin(th[0])*sin(ph[0]),mom[0]*cos(th[0]));
   double ptot = mom[0];
-  
-  double theta = 0.; double phi = 0.; 
+
+  double theta = 0.; double phi = 0.;
   for (int i=1; i<Npart-2; i++) {
-    eps = 1./(Npart-i); 
+    eps = 1./(Npart-i);
     //mom[i] = pow(eps,CLHEP::RandFlat::shoot(m_randomEngine))*(1-ptot);
-    mom[i] = ( eps + CLHEP::RandFlat::shoot(m_randomEngine)*(1-eps))*(1-ptot); 
+    mom[i] = ( eps + CLHEP::RandFlat::shoot(m_randomEngine)*(1-eps))*(1-ptot);
     if (ptemp.mag()<1-ptot) {
       while ( fabs(ptemp.mag()-mom[i])>1-ptot-mom[i] ){
-	mom[i] =  ( eps + CLHEP::RandFlat::shoot(m_randomEngine)*(1-eps))*(1-ptot);      
+	mom[i] =  ( eps + CLHEP::RandFlat::shoot(m_randomEngine)*(1-eps))*(1-ptot);
       }
     }
     // max p remaining
@@ -496,23 +492,23 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     double cthmax = fmin(1.,(-ptemp.mag()*ptemp.mag()-mom[i]*mom[i]+p_rem*p_rem)/2/ptemp.mag()/mom[i]);
     //if (cthmax<-1.) std::cout <<"problem in theta sampling:p_rem:ptot:pcurr:"<<p_rem<<","<<ptemp.mag()<<","<<mom[i]<< std::endl;
     double rnd  = CLHEP::RandFlat::shoot(m_randomEngine);
-    theta = acos( (cthmax+1.)*rnd-1.);          
+    theta = acos( (cthmax+1.)*rnd-1.);
     phi = 2*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
     HepGeom::Vector3D<double> test(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
     HepGeom::Vector3D<double> dnewHep = HepGeom::RotateZ3D(ptemp.phi())*HepGeom::RotateY3D(ptemp.theta())*test;
     Amg::Vector3D dnew( dnewHep.x(), dnewHep.y(), dnewHep.z() );
-    th[i]=dnew.theta();    
-    ph[i]=dnew.phi();          
+    th[i]=dnew.theta();
+    ph[i]=dnew.phi();
     ptemp += mom[i]*dnew;
     ptot += mom[i];
   }
-  
-  eps = 0.5; 
+
+  eps = 0.5;
   mom[Npart-2] = pow(eps,CLHEP::RandFlat::shoot(m_randomEngine))*(1-ptot);
   mom[Npart-1] = 1-ptot-mom[Npart-2];
-  
+
   if (ptemp.mag()<1-ptot) {
-    while (mom[Npart-1]+mom[Npart-2]<ptemp.mag()) { 
+    while (mom[Npart-1]+mom[Npart-2]<ptemp.mag()) {
       mom[Npart-2] = pow(eps,CLHEP::RandFlat::shoot(m_randomEngine))*(1-ptot);
       mom[Npart-1] = 1-ptot-mom[Npart-2];
     }
@@ -520,27 +516,27 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
   if (ptemp.mag()<fabs(mom[Npart-1]-mom[Npart-2]) ) {
     double diff = ptemp.mag()*CLHEP::RandFlat::shoot(m_randomEngine);
     double sum = mom[Npart-1]-mom[Npart-2];
-    mom[Npart-2]=0.5*(sum+diff);  
-    mom[Npart-1]=0.5*(sum-diff);  
+    mom[Npart-2]=0.5*(sum+diff);
+    mom[Npart-1]=0.5*(sum-diff);
   }
   double cth =(-ptemp.mag()*ptemp.mag()-mom[Npart-2]*mom[Npart-2]+mom[Npart-1]*mom[Npart-1])/2/ptemp.mag()/mom[Npart-2];
   if (fabs(cth)>1.) cth = (cth>0.) ? 1. : -1.;
-  
+
   theta = acos(cth);
   phi = 2*M_PI*CLHEP::RandFlat::shoot(m_randomEngine);
   HepGeom::Vector3D<double> test(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
   HepGeom::Vector3D<double> dnewHep = HepGeom::RotateZ3D(ptemp.phi())*HepGeom::RotateY3D(ptemp.theta())*test;
   Amg::Vector3D dnew( dnewHep.x(), dnewHep.y(), dnewHep.z() );
-  
-  th[Npart-2]=dnew.theta();    
-  ph[Npart-2]=dnew.phi();    
+
+  th[Npart-2]=dnew.theta();
+  ph[Npart-2]=dnew.phi();
   ptemp += mom[Npart-2]*dnew;
   Amg::Vector3D dlast = -ptemp;
-  th[Npart-1]=dlast.theta(); 
-  ph[Npart-1]=dlast.phi();    
-  
+  th[Npart-1]=dlast.theta();
+  ph[Npart-1]=dlast.phi();
+
   // particle sampled, rotate, boost and save final state
-  //CLHEP::HepLorentzVector bv(p*particleDir.unit().x(),p*particleDir.unit().y(),p*particleDir.unit().z(),s_currentGenParticle->momentum().e()+mtot);  
+  //CLHEP::HepLorentzVector bv(p*particleDir.unit().x(),p*particleDir.unit().y(),p*particleDir.unit().z(),s_currentGenParticle->momentum().e()+mtot);
   double etot = 0.;
   for (int i=0;i<Npart; i++) etot += sqrt(mom[i]*mom[i]+newm[i]*newm[i]);
   double summ = 0.;
@@ -555,29 +551,29 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     etot += sqrt(mom[i]*mom[i]+newm[i]*newm[i]);
   }
 
-  
-  CLHEP::HepLorentzVector bv(p*particleDir.unit().x(),p*particleDir.unit().y(),p*particleDir.unit().z(),sqrt(etot*etot+p*p));  
+
+  CLHEP::HepLorentzVector bv(p*particleDir.unit().x(),p*particleDir.unit().y(),p*particleDir.unit().z(),sqrt(etot*etot+p*p));
   std::vector<CLHEP::HepLorentzVector> childBoost(Npart);
-  
+
   //std::cout <<"boost vector:"<<p<<","<<bv.e()<<","<<bv.m()<<std::endl;
   //std::cout <<"etot, mother E,m:"<<etot<<","<<E<<","<<m<<std::endl;
-  
-  Amg::Vector3D in(0.,0.,0.); 
-  Amg::Vector3D fin(0.,0.,0.); 
-  
+
+  Amg::Vector3D in(0.,0.,0.);
+  Amg::Vector3D fin(0.,0.,0.);
+
   for (int i=0; i<Npart; i++) {
-    Amg::Vector3D dirCms(sin(th[i])*cos(ph[i]),sin(th[i])*sin(ph[i]),cos(th[i])); 
-    //Amg::Vector3D rotDirCms=HepGeom::RotateZ3D(particleDir.phi())*HepGeom::RotateY3D(particleDir.theta())*dirCms; 
+    Amg::Vector3D dirCms(sin(th[i])*cos(ph[i]),sin(th[i])*sin(ph[i]),cos(th[i]));
+    //Amg::Vector3D rotDirCms=HepGeom::RotateZ3D(particleDir.phi())*HepGeom::RotateY3D(particleDir.theta())*dirCms;
     Amg::Vector3D childP = mom[i]*dirCms;
     in += childP;
     CLHEP::HepLorentzVector newp(childP.x(),childP.y(),childP.z(),sqrt(mom[i]*mom[i]+newm[i]*newm[i]));
     CLHEP::HepLorentzVector childPB = newp.boost(bv.boostVector());
     childBoost[i]=childPB;
     fin += Amg::Vector3D(childPB.x(),childPB.y(),childPB.z());
-  } 
-  
+  }
+
   double eout = 0.;
-  
+
   // child particle vector for TruthIncident
   //  Reserve space for as many paricles as created due to hadr. int.
   //  However, the number of child particles for TruthIncident might be
@@ -585,17 +581,17 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
   ISF::ISFParticleVector           children(Npart);
   ISF::ISFParticleVector::iterator childrenIt = children.begin();
   unsigned short                numChildren = 0;
-  
+
   for (int i=0; i<Npart; i++) {
     if (pdgid[i]<10000) {
       Amg::Vector3D childP = Amg::Vector3D(childBoost[i].x(),childBoost[i].y(),childBoost[i].z());
       Amg::Vector3D chP = Amg::Vector3D(sin(th[i])*cos(ph[i]),sin(th[i])*sin(ph[i]),cos(th[i]));
-      
-      eout += childBoost[i].e();     
-      
+
+      eout += childBoost[i].e();
+
       // validation if needed
       if (m_hadIntValidationTree && m_hadIntChildren < MAXHADINTCHILDREN){
-	m_hadIntChildPdg[m_hadIntChildren]      = pdgid[i];   
+	m_hadIntChildPdg[m_hadIntChildren]      = pdgid[i];
 	m_hadIntChildP[m_hadIntChildren]        = childP.mag();
 	m_hadIntChildPcms[m_hadIntChildren]     = mom[i];
 	m_hadIntChildTh[m_hadIntChildren]        = childP.unit().dot(particleDir);
@@ -605,23 +601,23 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 	double deltaPhi = m_hadIntMotherPhi - m_hadIntChildPhi[m_hadIntChildren];
 	// rescale the deltaPhi
 	deltaPhi -= deltaPhi > M_PI ? M_PI : 0.;
-	deltaPhi += deltaPhi < -M_PI ? M_PI : 0.;		 
+	deltaPhi += deltaPhi < -M_PI ? M_PI : 0.;
 	m_hadIntChildDeltaPhi[m_hadIntChildren] = deltaPhi;
 	m_hadIntChildDeltaEta[m_hadIntChildren] = m_hadIntMotherEta - m_hadIntChildEta[m_hadIntChildren];
 	++m_hadIntChildren;
-      }      
-      
+      }
+
       if (childP.mag()> m_minimumHadOutEnergy) {
-	// get the new particle    
+	// get the new particle
 	double mass = s_particleMasses.mass[ childType[i] ];
-	
+
 	// create the particle
 	ISF::ISFParticle *child = new ISF::ISFParticle ( vertex,
 							 childP,
 							 mass,
 							 charge[i],
 							 pdgid[i],
-							 time, 
+							 time,
 							 *parent );
 	// in the validation mode, add process info
 	if (m_validationMode) {
@@ -635,11 +631,11 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
 	*childrenIt = child;
 	++childrenIt; numChildren++;
       }
-      
+
       gen_part++;
     }
   } // particle loop
-  
+
   children.resize(numChildren);
   ISF::ISFTruthIncident truth( const_cast<ISF::ISFParticle&>(*parent),
 			       children,
@@ -655,18 +651,18 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::getHadState(const ISF
     delete nMom;
   }
 
-  
+
   m_hadIntChildE = eout;
-  
+
   if (m_hadIntValidationTree) m_hadIntValidationTree->Fill();
-  
-  ATH_MSG_VERBOSE( "[ had ] it was kinematically possible to create " << gen_part << " shower particles " ); 
-  
+
+  ATH_MSG_VERBOSE( "[ had ] it was kinematically possible to create " << gen_part << " shower particles " );
+
   return children;
 
-} 
+}
 
-bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum, 
+bool iFatras::HadIntProcessorParametric::doHadronicInteraction(double time, const Amg::Vector3D& position, const Amg::Vector3D& momentum,
 							       const Trk::Material* /*ematprop*/,
 							       Trk::ParticleHypothesis particle, bool processSecondaries) const {
   // get parent particle
@@ -700,10 +696,10 @@ ISF::ISFParticleVector iFatras::HadIntProcessorParametric::doHadIntOnLayer(const
 									   Trk::ParticleHypothesis particle) const {
 
   return getHadState(parent, time, momentum.mag(), position, momentum.unit(), particle);
-  
+
 }
 
-/** interface for processing of the presampled nuclear interaction */                           
+/** interface for processing of the presampled nuclear interaction */
 bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
 							const Amg::Vector3D& vertex,
 							const Amg::Vector3D& particleDir,
@@ -712,12 +708,12 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
   const ISF::ISFParticle *parent = ISF::ParticleClipboard::getInstance().getParticle();
   // something is seriously wrong if there is no parent particle
   assert(parent);
-  
+
   ISF::ISFParticleVector ispVec=getHadState(parent, time, p, vertex, particleDir, particle);
-  
+
   // having no secondaries does not necessarily mean the interaction did not take place : TODO : add flag into ::getHadState
   //  if (!ispVec.size()) return false;
-  
+
   // push onto ParticleStack
   if (ispVec.size() ) {
 	for (unsigned int ic=0; ic<ispVec.size(); ic++) {
@@ -725,9 +721,9 @@ bool iFatras::HadIntProcessorParametric::recordHadState(double time, double p,
 	                ispVec[ic]->setTruthBinding(new ISF::TruthBinding(*parent->getTruthBinding()));
 	        }
 	        m_particleBroker->push(ispVec[ic], parent);
-        }  
+        }
 }
-  
+
   return true;
 }
 

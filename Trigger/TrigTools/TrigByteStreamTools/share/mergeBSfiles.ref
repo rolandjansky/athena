@@ -14,15 +14,15 @@ DEBUG    Rewriting the event with Lvl1 Id = 4
 DEBUG    Reading event with Lvl1 Id = 1745115291
 DEBUG    Rewriting the event with Lvl1 Id = 5
 INFO     Opening file 2: test_mergeBSfiles_input1/file2.data
-DEBUG    Reading event with Lvl1 Id = 1762019442
+DEBUG    Reading event with Lvl1 Id = 1862485977
 DEBUG    Rewriting the event with Lvl1 Id = 6
-DEBUG    Reading event with Lvl1 Id = 1778785142
+DEBUG    Reading event with Lvl1 Id = 1829041034
 DEBUG    Rewriting the event with Lvl1 Id = 7
-DEBUG    Reading event with Lvl1 Id = 1795394603
+DEBUG    Reading event with Lvl1 Id = 1828787206
 DEBUG    Rewriting the event with Lvl1 Id = 8
-DEBUG    Reading event with Lvl1 Id = 1795315619
+DEBUG    Reading event with Lvl1 Id = 1694780962
 DEBUG    Rewriting the event with Lvl1 Id = 9
-DEBUG    Reading event with Lvl1 Id = 1795331759
+DEBUG    Reading event with Lvl1 Id = 1694889535
 DEBUG    Rewriting the event with Lvl1 Id = 10
 INFO     Opening file 3: test_mergeBSfiles_input2/file1.data
 DEBUG    Reading event with Lvl1 Id = 1745102069
@@ -36,15 +36,15 @@ DEBUG    Rewriting the event with Lvl1 Id = 14
 DEBUG    Reading event with Lvl1 Id = 1745115291
 DEBUG    Rewriting the event with Lvl1 Id = 15
 INFO     Opening file 4: test_mergeBSfiles_input2/file2.data
-DEBUG    Reading event with Lvl1 Id = 1762019442
+DEBUG    Reading event with Lvl1 Id = 1862485977
 DEBUG    Rewriting the event with Lvl1 Id = 16
-DEBUG    Reading event with Lvl1 Id = 1778785142
+DEBUG    Reading event with Lvl1 Id = 1829041034
 DEBUG    Rewriting the event with Lvl1 Id = 17
-DEBUG    Reading event with Lvl1 Id = 1795394603
+DEBUG    Reading event with Lvl1 Id = 1828787206
 DEBUG    Rewriting the event with Lvl1 Id = 18
-DEBUG    Reading event with Lvl1 Id = 1795315619
+DEBUG    Reading event with Lvl1 Id = 1694780962
 DEBUG    Rewriting the event with Lvl1 Id = 19
-DEBUG    Reading event with Lvl1 Id = 1795331759
+DEBUG    Reading event with Lvl1 Id = 1694889535
 DEBUG    Rewriting the event with Lvl1 Id = 20
 INFO     Wrote 20 events to 2 files
 Py:MetaReader        INFO Current mode used: lite
@@ -56,8 +56,7 @@ Py:MetaReader        INFO Current filenames: ['mergedBS._0001.data', 'mergedBS._
 |   |-- conditions_tag    : None
 |   |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'Unknown']
 |   |-- evt_number        : [1]
-|   |-- file_guid         : 8EC3DF82-9113-EB11-8086-0242AC110002
-|   |-- file_size         : 10513140
+|   |-- file_size         : 10494356
 |   |-- file_type         : BS
 |   |-- lumiBlockNumbers  : [0]
 |   |-- nentries          : 10
@@ -73,8 +72,7 @@ Py:MetaReader        INFO Current filenames: ['mergedBS._0001.data', 'mergedBS._
     |-- conditions_tag    : None
     |-- eventTypes        : ['IS_DATA', 'IS_ATLAS', 'Unknown']
     |-- evt_number        : [11]
-    |-- file_guid         : 606A7083-9113-EB11-8086-0242AC110002
-    |-- file_size         : 10513172
+    |-- file_size         : 10494376
     |-- file_type         : BS
     |-- lumiBlockNumbers  : [0]
     |-- nentries          : 10

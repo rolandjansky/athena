@@ -185,22 +185,35 @@ StatusCode StreamTagMakerTool::fillPEBInfoMap(std::unordered_map<DecisionID, PEB
     // Loop over decisions
     for (const Decision* d : *handle) {
       ATH_MSG_DEBUG("Processing decision " << *d);
+      DecisionIDContainer ids;
+      decisionIDs(d,ids);
+      if (ids.empty()) {
+        ATH_MSG_DEBUG("No chain passed for this decision object, skip retrieving PEB info");
+        continue;
+      }
       std::vector<uint32_t> robs;
       std::vector<uint32_t> subdets;
       if (d->getDetail(PEBInfoWriterToolBase::robListKey(), robs)) {
         ATH_MSG_DEBUG("Retrieved a list of " << robs.size() << " ROBs for this decision");
       }
       else {
-        ATH_MSG_DEBUG("Failed to retrieve " << PEBInfoWriterToolBase::robListKey() << " for this decision");
+        ATH_MSG_ERROR("Failed to retrieve " << PEBInfoWriterToolBase::robListKey() << " for decision container "
+                      << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
       }
       if (d->getDetail(PEBInfoWriterToolBase::subDetListKey(), subdets)) {
         ATH_MSG_DEBUG("Retrieved a list of " << subdets.size() << " SubDets for this decision");
       }
       else {
-        ATH_MSG_DEBUG("Failed to retrieve " << PEBInfoWriterToolBase::subDetListKey() << " for this decision");
+        ATH_MSG_ERROR("Failed to retrieve " << PEBInfoWriterToolBase::subDetListKey() << " for decision container "
+                      << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
       }
-      DecisionIDContainer ids;
-      decisionIDs(d,ids);
+      if (robs.empty() && subdets.empty()) {
+        // This would mean streaming the full event to a PEB stream
+        ATH_MSG_ERROR("Empty PEB info for decision container " << key.key() << ", decision " << *d);
+        return StatusCode::FAILURE;
+      }
       /// Assign PEBInfo to all passed chains for this decision
       for (unsigned int id : ids) {
         ATH_MSG_DEBUG("Mapping PEBInfo to passed chain " << HLT::Identifier(id).name());

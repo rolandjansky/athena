@@ -1,383 +1,286 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-#### This is the dbgEventInfo class for the Debug Stream event analysis
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
+# @brief: This is the dbgEventInfo class for the Debug Stream event analysis
 
 from __future__ import print_function
 
-import logging
-msg = logging.getLogger("PyJobTransforms." + __name__)
-
 import eformat
-import sys
-import os
-from TrigTransform.dbgHltResult import * 
-import cppyy
+from ROOT import gStyle, gROOT, addressof, TTree, vector, string
+from TrigByteStreamTools.hltResultMT import get_collections
 
-import ROOT
-from ROOT import gStyle, gROOT, addressof
+import logging
+msg = logging.getLogger('PyJobTransforms.' + __name__)
 
 
 class dbgEventInfo:
 
-    def __init__(self,dbgStep="_Default",inputFile=""):
+    def __init__(self, dbgStep='_Default', inputFile=''):
+        # Event Info Tree values
         self.Run_Number                            = 0
-        self.Stream_Tag_Name                       = 'None' 
-        self.Stream_Tag_Type                       = 'None' 
+        self.Stream_Tag_Name                       = 'None'
+        self.Stream_Tag_Type                       = 'None'
         self.Lvl1_ID                               = 0
         self.Event_Counter_Lvl1_ID                 = 0
         self.Event_Counter_Reset_Counter_Lvl1_ID   = 0
         self.Global_ID                             = 0
         self.Lumiblock                             = 0
         self.Node_ID                               = 0
-        self.HLT_Action                            = 'None'
-        self.HLT_Reason                            = 'None'
-        self.HLT_Internal                          = 'None'
-        self.EF_Overall                            = 'None'
-        self.EF_PSC_Result                         = 'None'
-        self.EF_Status_Result                      = []
-        self.EF_Status_Overall                     = 'None'
-        self.EF_ErrorChain                         = 'None'
-        self.EF_ErrorStep                          = -1
-        self.EF_Result                             = []
-        self.HLT_Result                            = 'None' 
+        self.HLT_Result                            = 'None'
         self.SuperMasterKey                        = 0
-        self.HLT_PSC_Key                           = 0
+        self.HLTPrescaleKey                           = 0
         self.HLT_Application                       = 'None'
-        self.HLT_Decision                          = False 
+        self.HLT_Decision                          = False
         self.L1_Chain_Names                        = []
         self.HLT_Chain_Names                       = []
-        self.EventStatusNames                      = []
-        self.cnt                                   = 0
-        self.HLT_res = hltResult()
-        self.root_definitions(dbgStep,inputFile)
+        self.EventStatusNames                      = 'None'
 
+        self.eventCounter = 0
+        self.rootDefinitions(dbgStep, inputFile)
 
-
-    ### ******************************* ###
-    #Event Specific Status
+        # Full event Specific Status - based on ATL-DAQ-98-129 
         self.EventSpecificStatus = ['Reserved',
                                     'Reserved',
                                     'Reserved',
-                                    'HLTPU_Dupl',
+                                    'HLTSV_DUPLICATION_WARN',
                                     'Reserved',
                                     'Reserved',
                                     'Reserved',
                                     'Reserved',
-                                    'DCM_TO',
-                                    'HLTPU_TO',
-                                    'DCM_Dupl',
-                                    'DCM_Reco',
-                                    'HLTPSC_Pbl',
-                                    'DCM_FA',
+                                    'DCM_PROCESSING_TIMEOUT',
+                                    'HLTPU_PROCESSING_TIMEOUT',
+                                    'DCM_DUPLICATION_WARN',
+                                    'DCM_RECOVERED_EVENT',
+                                    'PSC_PROBLEM',
+                                    'DCM_FORCED_ACCEPT',
                                     'Reserved',
-                                    'PARTIAL_Evt']
-        
-
-    ### ************************************ ###
-    #EF Status Names:#
-     ##First word indicates if fragmant is valid##
-    ##Second word seems to be always 0##
-    ##Third word contains definition of errors##
-        self.EF_Status_Word = ['INVALID_FULL_EVENT_FRAGMENT',
-                               'MIN_TRIG_EVENT_LOOP_MGR',
-                               'NO_EVENT_INFO',
-                               'NO_HLT_RESULT',
-                               'NO_EF_TRIG_INFO',
-                               'NO_STREAM_TAG',
-                               'NO_EF_ROB_FRAG',
-                               'DUMMY_EVENT_INFO',
-                               'DUMMY_HLT_RESULT',
-                               'DUMMY_STREAM_TAG']                  
-        
-    ### ************************************ ###  
-    #these are copied from TrigSteeringEvent/Enums.h#
-        self.actionNames=['CONTINUE','ABORT_CHAIN','ABORT_EVENT','ABORT_JOB']
-        self.reasonNames=['UNKNOWN=0','MISSING_FEATURE','GAUDI_EXCEPTION',
-                          'EFORMAT_EXCEPTION','STD_EXCEPTION',
-                          'UNKNOWN_EXCEPTION','NAV_ERROR',
-                          'MISSING_ROD','CORRUPTED_ROD',
-                          'TIMEOUT','BAD_JOB_SETUP',
-                          'USERDEF_1','USERDEF_2',
-                          'USERDEF_3','USERDEF_4','USERDEF_5']
-        self.internalNames=['UNKNOWN=0','NO_LVL1_ITEMS',
-                            'NO_LVL2_CHAINS','NO_LVL1_RESULT',
-                            'WRONG_HLT_RESULT','NO_HLT_RESULT',
-                            'ALGO_ERROR','TIMEOUT','BAD_JOB_SETUP']
-        
-
-    def event_count(self,event):
-        self.cnt += 1
-        msg.info('Running debug_stream analysis on event :{0}'.format(self.cnt))
+                                    'PARTIAL_EVENT']
 
 
-    def event_info(self,event, L1Chain_Names, HLTChain_Names ):    
-        #Main function in this class: calls most methods in right order 
+        # Copied from TrigSteeringEvent/OnlineErrorCode.h 
+        self.onlineErrorCode = ['UNCLASSIFIED',
+                                'BEFORE_NEXT_EVENT',
+                                'CANNOT_RETRIEVE_EVENT',
+                                'NO_EVENT_INFO',
+                                'SCHEDULING_FAILURE',
+                                'CANNOT_ACCESS_SLOT',
+                                'PROCESSING_FAILURE',
+                                'NO_HLT_RESULT',
+                                'OUTPUT_BUILD_FAILURE',
+                                'OUTPUT_SEND_FAILURE',
+                                'AFTER_RESULT_SENT',
+                                'COOL_UPDATE',
+                                'TIMEOUT',
+                                'RESULT_TRUNCATION']
+
+
+    def eventCount(self, event):
+        self.eventCounter += 1
+        msg.info('Running debug_stream analysis on event :{0}'.format(self.eventCounter))
+
+
+    def eventInfo(self, event, L1ChainNames, HLTChainNames):
+        # Fill all necessary information based on bs event info
         self.Run_Number = event.run_no()
-    
-        self.L1_Chain_Names = L1Chain_Names
-        self.HLT_Chain_Names = HLTChain_Names
-        
-        all_name_streamtags_of_an_event = ','.join([k.name for k in event.stream_tag()])
-        self.Stream_Tag_Name = all_name_streamtags_of_an_event
-        
-        all_type_streamtags_of_an_event = ','.join([l.type for l in event.stream_tag()])
-        self.Stream_Tag_Type = all_type_streamtags_of_an_event
-        
-        self.Lvl1_ID = event.lvl1_id()
-        
-        self.Event_Counter_Lvl1_ID = self.Lvl1_ID&0xffffff
-        self.Event_Counter_Reset_Counter_Lvl1_ID = (self.Lvl1_ID&0xff000000)>>24
-        
         self.Global_ID = event.global_id()
         self.Lumiblock = event.lumi_block()
-        
-        self.event_status(event)
-        
-        self.lvl1_info(event, L1Chain_Names)
-        
-        self.hlt_info(event, HLTChain_Names)
+        self.Lvl1_ID = event.lvl1_id()
 
-        self.hlt_result(event)     
-        
-        self.get_name(self.EF_Result,HLTChain_Names)
+        msg.debug("Event Counter Lvl1 ID               = %s", self.Lvl1_ID & 0xffffff)
+        msg.debug("Event Counter Reset Counter Lvl1 ID = %s", (self.Lvl1_ID & 0xff000000) >> 24)
 
-        self.get_hlt_error(self.HLT_Result)
-        
-        self.get_ef_error(self.EF_Status_Result)
+        self.L1_Chain_Names = L1ChainNames
+        self.HLT_Chain_Names = HLTChainNames
 
-    def event_status(self,event):
-        #Get event specific status
-        status_list = []
-        j = -1
-        for i in range(16,32):
-            j+=1
-            status = (event.status()[0] >> i ) & 0x1
-            if (status==1):
-                status_list.append(self.EventSpecificStatus[j])
-        self.EventStatusNames = ','.join(str(name) for name in status_list)
+        streamtagNames = ','.join([tag.name for tag in event.stream_tag()])
+        self.Stream_Tag_Name = streamtagNames
+
+        streamtagTypes = ','.join([tag.type for tag in event.stream_tag()])
+        self.Stream_Tag_Type = streamtagTypes
+
+        self.eventStatus(event)
+        self.lvl1Info(event, L1ChainNames)
+        self.hltInfo(event, HLTChainNames)
+        self.hltResult(event)
+
+
+    def eventConfig(self, configKeys=None, event=None):
+        # Set configuration data: PSK and SMK
+        if configKeys:
+            self.HLTPrescaleKey = configKeys['HLTPSK']
+            self.SuperMasterKey = configKeys['SMK']
+        elif event:
+            # Find TrigConfKeys EDM collection and extract data
+            for rob in event.children():
+                if rob.source_id().subdetector_id() != eformat.helper.SubDetector.TDAQ_HLT:
+                    continue
+                raw_data = tuple(rob.rod_data())
+                collections = get_collections(raw_data, skip_payload=False)
+                configList = [c for c in collections if 'xAOD::TrigConfKeys_v' in c.name_persistent]
+
+                for conf in configList:
+                    configKeys = conf.deserialise()
+                    if configKeys:
+                        self.HLTPrescaleKey = configKeys.hltpsk()
+                        self.SuperMasterKey = configKeys.smk()
+                        return
+
+            msg.info("Smk and hltpskey unavailable in this event")
+        else:
+            msg.info("Cannot retrieve smk and hltpskey")
+
+        msg.info('HLT_Configuration  smk:{0}   hltpskey :{1}'.format(self.SuperMasterKey, self.HLTPrescaleKey))
+
+
+    def eventStatus(self, event):
+        # Get full event specific status
+        # Based on ATL-DAQ-98-129 section 5.8.3
+
+        # Helper function to check if bit was on.
+        def getBit(word, index):
+            return (word >> index) & 0x1
+
+        # Get list of statuses based on passed bits
+        def checkBits(word, firstBit, lastBit, status):
+            statusList = []
+            for i in range(firstBit, lastBit):
+                if getBit(word, i):
+                    # Get and index in status list
+                    statusIdx = i - firstBit
+                    statusList.append(status[statusIdx])
+
+            return statusList
+
+        # Check second word of first status element with Full Event specific status
+        statusList = checkBits(event.status()[0], 16, 32, self.EventSpecificStatus)
+
+        # Check if PSC_PROBLEM bit was on and retrieve Online Error Codes
+        # stored in following event status words
+        if getBit(event.status()[0], 28):
+            statusLen = len(event.status())
+            if statusLen > 1:
+                # Skip first event - already analyzed
+                for i in range(1, statusLen):
+                    # Check both words saved in uint32
+                    statusList += checkBits(event.status()[i], 0, 16, self.onlineErrorCode)
+                    statusList += checkBits(event.status()[i], 16, 32, self.onlineErrorCode)
+            else:
+                msg.warn("Cannot find additional words for PSC_PROBLEM")
+
+        self.EventStatusNames = ','.join(str(name) for name in statusList)
         msg.info('Event Status :{0}'.format(self.EventStatusNames))
 
-    def lvl1_info(self,event,L1Chain_Names):
-        #Gets LVL1 info for BP AV and AV-TrigIDs and stores is in vectors
+
+    def lvl1Info(self, event, L1ItemNames):
+        # Get LVL1 info for BP AV and AV-TrigIDs and store them in ROOT vectors
         self.L1_Triggered_BP.clear()
         self.L1_Triggered_AV.clear()
         self.L1_Triggered_IDs.clear()
 
-        try :
-            lvl1_trigger0 = event.lvl1_trigger_info()[0]
-            k=-1
-            l=1
-            for j in range(24):
-                k+=1
-                if k==8: ## Count the three different sets of words - that is counter l
-                    k=0
-                    l+=1
-                for i in range(32):
-                    L1IDed = ( event.lvl1_trigger_info()[j] >> i) & 0x1
-                    id = i+k*32
-                #print ('L1 Item ID, WordSet, Name:',id, l, i,k #, L1Chain_Names[id])
-                    if (L1IDed):
-                        id = i+k*32
-                    #print ('L1 Item ID, WordSet, Name:',id, l , L1Chain_Names[id])
-                        if (l==1):
-                            self.L1_Triggered_BP.push_back(L1Chain_Names[id])
-                        if (l==3):
-                            self.L1_Triggered_AV.push_back(L1Chain_Names[id])
-                            self.L1_Triggered_IDs.push_back(id)
-        except IndexError:
-            msg.info('Missing LVL1 Triggered ID Info')
-        
-        list_ids = []
-        for ids in range(self.L1_Triggered_IDs.size()):
-            list_ids.append(self.L1_Triggered_IDs.at(ids))
-        msg.info('LVL1 Triggered ID Chains AV :{0}'.format(list_ids))
+        # Decode Lvl1 trigger info
+        info = event.lvl1_trigger_info()
+        nwords = len(info)//3  # TBP, TAP, TAV
+        l1Bits = [self.decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
+
+        for id in l1Bits[0]:
+            if id in L1ItemNames:
+                self.L1_Triggered_BP.push_back(L1ItemNames[id])
+            else:
+                msg.debug('Item %s not found in the menu - probably is disabled', id)
+
+        for id in l1Bits[2]:
+            self.L1_Triggered_IDs.push_back(id)
+            try:
+                self.L1_Triggered_AV.push_back(L1ItemNames[id])
+            except TypeError:
+                msg.warn("Item name for ctpid %s not found!", id)
+
+        msg.info('LVL1 Triggered ID Chains AV : %s', l1Bits[2])
 
 
-
-    def hlt_info(self,event, HLTChain_Names):
-        #Gets HLT info and stores it in vectors
-        info = event.event_filter_info()
+    def hltInfo(self, event, HLTChainNames):
+        # Get HLT info and store it in ROOT vectors
         self.HLT_Triggered_Names.clear()
         self.HLT_Triggered_IDs.clear()
-        cnt=0;
-        for word in info:
-            for i in range(32):
-                if word&(1<<i):
-                    self.HLT_Triggered_IDs.push_back(cnt)
-                    self.HLT_Triggered_Names.push_back(HLTChain_Names[cnt])
-                cnt+=1
-        
-        list_ids = []
-        for ids in range(self.HLT_Triggered_IDs.size()):
-            list_ids.append(self.HLT_Triggered_IDs.at(ids))
-        msg.info('HLT Triggered ID Chains  :{0}'.format(list_ids))
-        
-    def get_chain(self,counter, s):
-        #Prints chains and their information
+
+        # Decode HLT trigger info
+        info = event.event_filter_info()
+        nwords = len(info)//3  # raw, prescaled, rerun
+        chainList = [self.decodeTriggerBits(info[i*nwords:(i+1)*nwords]) for i in range(3)]
+
+        for id in chainList[0]:
+            self.HLT_Triggered_IDs.push_back(id)
+            try:
+                self.HLT_Triggered_Names.push_back(HLTChainNames[id])
+            except TypeError:
+                msg.warn("Chain name for counter %s not found!", id)
+
+        msg.info('HLT Triggered ID Chains  : %s', chainList[0])
+
+
+    # Copied from ​TrigTools/TrigByteStreamTools/trigbs_dumpHLTContentInBS_run3.py
+    def decodeTriggerBits(self, words, base=32):
+        bit_indices = []
+        for iw in range(len(words)):
+            bit_indices.extend([base*iw+i for i in range(base) if words[iw] & (1 << i)])
+
+        return bit_indices
+
+
+    # If line 246 not possible - to delete
+    def getChain(self, counter, s):
+        # Prints chains and their information
         from cppyy.gbl import HLT
         ch = HLT.Chain(s)
-        #ch.deserialize(s)
-        print (".... chain %-3d : %s Counter:%-4d Passed: %d (Raw:%d Prescaled: %d PassThrough:%d) Rerun: %d LastStep: %d Err: %s"\
-            % ( counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(), ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str()))
+        ch.deserialize(s)
+        try:
+            msg.info('.... chain {0:-3d}: {1} Counter: {2:-4d} Passed: {3} (Raw: {4} Prescaled: {5} PassThrough: {6}) Rerun: {7} LastStep: {8} Err: {9}'
+                    .format(counter, self.HLT_Chain_Names[ch.getChainCounter()], ch.getChainCounter(), ch.chainPassed(), ch.chainPassedRaw(),
+                    ch.isPrescaled(), ch.isPassedThrough(), ch.isResurrected(), ch.getChainStep(), ch.getErrorCode().str()))
+        except IndexError:
+            msg.warn("Chain with counter %s not found", ch.getChainCounter())
 
-    def get_all_chains(self,blob):
-        print ("... chains:")
+
+    # If line 246 not possible - to delete
+    def getAllChains(self, blob):
+        msg.info('... chains: %s', len(blob))
         for i in range(len(blob)):
-            self.get_chain(i, blob[i])
+            self.getChain(i, blob[i])
 
-    def hlt_result(self,event):
-        #Get the hlt result,status,decision etc if hlt_result exist
-        HLTResult = None
-        HLTDecision = False
-        EFResult = None
-        EFStatus = None
-        found=False
-        ef_event_count = 0 
-        for rob  in event.children():
-            if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_EVENT_FILTER:
-                print ('..', rob.__class__.__name__, 'source:', rob.source_id(), 'source ID: 0x%x' % rob.source_id().code(), 'size:', rob.fragment_size_word()*4)
+
+    def hltResult(self, event):
+        # Get the hlt result, status, decision etc if hlt_result exist
+        hltResultFound = False
+        for rob in event.children():
+            if rob.source_id().subdetector_id() == eformat.helper.SubDetector.TDAQ_HLT:
+                msg.info('.. {0} source: {1} source ID: 0x{2:x} size: {3}'
+                        .format(rob.__class__.__name__, rob.source_id(), rob.source_id().code(), rob.fragment_size_word()*4))
                 try:
-                    
-                    self.HLT_res.load(rob)
-                    version = self.HLT_res.getHLTResultClassVersion()
-                    l1id = self.HLT_res.getLvl1Id()
-                    acc = self.HLT_res.isAccepted()
-                    status = self.HLT_res.getHLTStatus().str()
-                    pt = self.HLT_res.isPassThrough()
-                    cnvstatus = self.HLT_res.getLvlConverterStatus().str()
-                    level = self.HLT_res.getHLTLevel()
-                    nosigs = self.HLT_res.getNumOfSatisfiedSigs()
-                    bad = self.HLT_res.isCreatedOutsideHLT()
-                    trunc = self.HLT_res.isHLTResultTruncated()
-                    msg.info("version   :%s" % version)
-                    msg.info("l1id      :%s" % l1id)
-                    msg.info("accepted  :%s" % acc)
-                    msg.info("status    :%s" % status)
-                    msg.info("passthr   :%s" % pt)
-                    msg.info("cnvstatus :%s" % cnvstatus)
-                    msg.info("level     :%s" % level)
-                    msg.info("nosigs    :%s" % nosigs)
-                    msg.info("bad       :%s" % bad)
-                    msg.info("trunc     :%s" % trunc)
-                    chains_data = list(self.HLT_res.getChainResult())
-                    nchains = chains_data[0] if chains_data else 0
-                    nav_data = list(self.HLT_res.getNavigationResult())
-                    nnav = len(nav_data)
-                    nver = nav_data[0] if nav_data else 0
-                    msg.info("nchains   :%s" % nchains)
-                    msg.info("nver      :%s" % nver)
-                    msg.info("chains    :%s" % chains_data)
+                    msg.info('version   :%s', rob.rod_version())
+                    msg.info('l1id      :%s', event.lvl1_id())
+
                     self.Node_ID = rob.source_id().module_id()
-                    EFStatus = rob.rod_status()
-                    data = rob.rod_data()
-                    if len(data)>=14:
-                        EFResult=data[0:14]
-                        ####### uncomment next line  for debugging 
-                        #print_HLTResult( self.HLT_res)
-                    if EFResult:
-                        HLTResult=EFResult[4]
-                        
-                    self.get_all_chains(chains_data[1:])
-                    self.HLT_Decision = self.HLT_res.isAccepted()
-                    self.HLT_PSC_Key = self.HLT_res.getConfigPrescalesKey()                    
-                    self.SuperMasterKey = self.HLT_res.getConfigSuperMasterKey()                    
-                    self.HLT_Application = self.HLT_res.appName()
-                    found = True
-                    ef_event_count += 1
-                    
+
+                    # TODO chains and navigation printouts - needs ATR-22653
+
+                    # ROBs are created only for accepted events
+                    self.HLT_Decision = 1
+                    hltResultFound = True
+
                 except Exception as ex:
-                    print ('... **** problems in analyzing payload', ex)
-                    print ('... **** raw data[:10]', list(rob.rod_data())[:10])
-                    print (".. EOF HLTResult for EF")
-        if not found:
-            msg.info("No HLT Result for EF")
+                    msg.info('... **** problems in analyzing payload %s', ex)
+                    msg.info('... **** raw data[:10] %s', list(rob.rod_data())[:10])
+                    msg.info('.. EOF HLTResult for HLT')
 
-        self.EF_Result = EFResult
-        self.EF_Status_Result = EFStatus
-        self.HLT_Result = HLTResult
-        if self.EF_Status_Result :
-            self.EF_Status_Overall = 'EF_Status_Found'
-        else:
-            self.EF_Status_Overall = 'No_EF_Status'
+        if not hltResultFound:
+            msg.info('No HLT Result for HLT')
 
-        msg.info("EF_Status_Overall :%s" % self.EF_Status_Overall)
-        msg.info("HLT_Result :%s" % self.HLT_Result)
-        msg.info("HLT Decision :%s" % self.HLT_Decision)
-        msg.info("HLT_Configuration  smk:{0}   hltpskey :{1}".format(self.SuperMasterKey, self.HLT_PSC_Key))
-        msg.info("Application name :%s" % self.HLT_Application)
-
-        
-
-    def get_name(self,result,HLTChain_Name):    
-        #Get the name of the HLT chain that caused error if exist
-        ChainName = ""
-        ErrorStep = 0
-
-        if (result and HLTChain_Name):
-            ChainName = HLTChain_Name[int(result[8])]
-            if (ChainName!=0):
-                ErrorStep = result[9]
-            else:
-                ChainName = "No Error in Chain"
-        else:
-            ChainName = "No HLT Result"
-        
-        self.EF_ErrorChain = ChainName
-        self.EF_ErrorStep = ErrorStep
-
-
-    def get_hlt_error(self,HLT_Result):
-        #Get the code of HLT errors if hlt_result exist
-        if HLT_Result is not None:
-            reasonCode=0
-            actionCode=0
-            internalCode=0
-            try:
-                reasonCode=HLT_Result&0xf
-                actionCode=(HLT_Result&0x30)>>4
-                internalCode=(HLT_Result&0xffff00)>>8
-                self.HLT_Action = self.actionNames[actionCode]
-                self.HLT_Reason = self.reasonNames[reasonCode]
-                self.HLT_Internal = self.internalNames[internalCode]
-                msg.debug("HLT_Result actionCode   :{0}".format(actionCode))
-                msg.debug("HLT_Result reasonCode   :{0}".format(reasonCode))
-                msg.debug("HLT_Result internalCode :{0}".format(internalCode))
-                
-            except IndexError:
-                self.HLT_Action   = 'Error_In_Processing'
-                self.HLT_Reason   = 'Error_In_Processing'
-                self.HLT_Internal = 'Error_In_Processing'
-
-        else:
-            self.HLT_Action   ='No HLT Result'
-            self.HLT_Reason   ='No HLT Result'
-            self.HLT_Internal ='No HLT Result'
-
-        msg.info("HLT Action :{0}  Reason :{1}  Internal:{2}".format(self.HLT_Action, self.HLT_Reason, self.HLT_Internal))
-
-
-    def get_ef_error(self,EF_Result):
-        #Get overall EF error status
-        if EF_Result:
-            if EF_Result[0]==0:
-                self.EF_Overall = 'OK'
-            else:
-                self.EF_Overall = 'ERROR'
-        
-                try:
-                    self.EF_PSC_Result = self.EF_Status_Word[EF_Result[2]]
-                    msg.info('******** EF_Status_Word[EF_Result[2]]: '.format(self.EF_Status_Word[EF_Result[2]]))
-                except IndexError:
-                    self.EF_PSC_Result = 'Error_In_Processing'
-
-        else:
-            self.EF_Overall ='No EF Status'
-            self.EF_PSC_Result ='No EF Status'
+        msg.info('HLT Decision :%s', self.HLT_Decision)
 
 
     def fillTree(self):
-        #Fill Event_Info Tree
+        # Fill Event_Info Tree
         self.Event_Info.Run_Number             = self.Run_Number
         self.Event_Info.Stream_Tag_Name        = self.Stream_Tag_Name
         self.Event_Info.Stream_Tag_Type        = self.Stream_Tag_Type
@@ -388,27 +291,20 @@ class dbgEventInfo:
         self.Event_Info.Node_ID                = self.Node_ID
         self.Event_Info.Lumiblock              = self.Lumiblock
         self.Event_Info.SuperMasterKey         = self.SuperMasterKey
-        self.Event_Info.HLT_PSC_Key            = self.HLT_PSC_Key
-        self.Event_Info.HLT_Action             = self.HLT_Action
-        self.Event_Info.HLT_Reason             = self.HLT_Reason
-        self.Event_Info.HLT_Internal           = self.HLT_Internal
+        self.Event_Info.HLTPrescaleKey         = self.HLTPrescaleKey
         self.Event_Info.HLT_Decision           = self.HLT_Decision
         self.Event_Info.HLT_Application        = self.HLT_Application
-        self.Event_Info.EF_Overall             = self.EF_Overall
-        self.Event_Info.EF_PSC_Result          = self.EF_PSC_Result
-        self.Event_Info.EF_Status_Result       = self.EF_Status_Overall
-        self.Event_Info.Chain_Name_EF          = self.EF_ErrorChain
-        self.Event_Info.Chain_Step_EF          = self.EF_ErrorStep
         self.Event_Info.EventStatusNames       = self.EventStatusNames
-        
-        self.event_info_tree.Fill()        
+
+        self.event_info_tree.Fill()
 
 
-    def root_definitions(self,dbgStep,inputFile):
+    def rootDefinitions(self,dbgStep,inputFile):
         gStyle.SetCanvasColor(0)
         gStyle.SetOptStat(000000)
         gROOT.SetStyle("Plain")
   
+        # Create new ROOT Tree to store debug info
         if dbgStep == "_Pre" :
             gROOT.ProcessLine("struct EventInfoTree {\
             Char_t  Code_File[30];\
@@ -422,58 +318,44 @@ class dbgEventInfo:
             Int_t   Lumiblock;\
             Int_t   Node_ID;\
             Int_t   SuperMasterKey;\
-            Int_t   HLT_PSC_Key;\
-            Char_t  HLT_Action[50];\
-            Char_t  HLT_Reason[50];\
-            Char_t  HLT_Internal[50];\
+            Int_t   HLTPrescaleKey;\
             Bool_t  HLT_Decision;\
             Char_t  HLT_Application[50];\
-            Char_t  EF_Overall[50];\
-            Char_t  EF_PSC_Result[50];\
-            Char_t  EF_Status_Result[50];\
-            Char_t  Chain_Name_EF[50];\
-            Int_t   Chain_Step_EF;\
             Char_t  EventStatusNames[50];\
-            };" );
-
-        self.L1_Triggered_AV  = ROOT.std.vector( ROOT.std.string )()
-        self.L1_Triggered_BP  = ROOT.std.vector( ROOT.std.string )()
-        self.L1_Triggered_IDs = ROOT.std.vector( int )()
-        self.HLT_Triggered_Names     = ROOT.std.vector( ROOT.std.string )()
-        self.HLT_Triggered_IDs = ROOT.std.vector( int )()
+            };" )
   
+        # Bind the ROOT tree with EventInfo class members
         from ROOT import EventInfoTree
         self.Event_Info = EventInfoTree()
-        self.event_info_tree = ROOT.TTree('Event_Info'+dbgStep, inputFile)
+        self.event_info_tree = TTree('Event_Info' + dbgStep, inputFile)
+  
+        self.event_info_tree.Branch('Run_Number',       addressof(self.Event_Info, 'Run_Number'),       'run_Number/I')
+        self.event_info_tree.Branch('Stream_Tag_Name',  addressof(self.Event_Info, 'Stream_Tag_Name'),  'stream_Tag_Name/C')
+        self.event_info_tree.Branch('Stream_Tag_Type',  addressof(self.Event_Info, 'Stream_Tag_Type'),  'stream_Tag_Type/C')
+        self.event_info_tree.Branch('Lvl1_ID',          addressof(self.Event_Info, 'Lvl1_ID'),          'lvl1_ID/I')
+        self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               addressof(self.Event_Info, 'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
+        self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', addressof(self.Event_Info, 'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
+        self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),        'global_ID/I')
+        self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),        'lumiblock/I')
+        self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),          'node_ID/I')
+        self.event_info_tree.Branch('SuperMasterKey',   addressof(self.Event_Info, 'SuperMasterKey'),   'superMasterKey/I')
+        self.event_info_tree.Branch('HLTPrescaleKey',   addressof(self.Event_Info, 'HLTPrescaleKey'),   'hltPrescaleKey/I')
+        self.event_info_tree.Branch('HLT_Decision',     addressof(self.Event_Info, 'HLT_Decision'),     'hLT_Decision/B')
+        self.event_info_tree.Branch('HLT_Application',  addressof(self.Event_Info, 'HLT_Application'),  'HLT_Application/C')
+        self.event_info_tree.Branch('EventStatusNames', addressof(self.Event_Info, 'EventStatusNames'), 'eventStatusNames/C')
+
+        # Setup vector data
+        self.L1_Triggered_AV  = vector( string )()
+        self.L1_Triggered_BP  = vector( string )()
+        self.L1_Triggered_IDs = vector( int )()
+        self.HLT_Triggered_Names     = vector( string )()
+        self.HLT_Triggered_IDs = vector( int )()
 
         self.event_info_tree._L1_Triggered_BP     = self.L1_Triggered_BP
         self.event_info_tree._L1_Triggered_AV     = self.L1_Triggered_AV
         self.event_info_tree._L1_Triggered_IDs    = self.L1_Triggered_IDs
         self.event_info_tree._HLT_Triggered_Names = self.HLT_Triggered_Names
         self.event_info_tree._HLT_Triggered_IDs   = self.HLT_Triggered_IDs
-  
-        self.event_info_tree.Branch('Run_Number',       addressof(self.Event_Info, 'Run_Number'),       'run_Number/I')
-        self.event_info_tree.Branch('Stream_Tag_Name',  addressof(self.Event_Info, 'Stream_Tag_Name'),  'stream_Tag_Name/C')
-        self.event_info_tree.Branch('Stream_Tag_Type',  addressof(self.Event_Info, 'Stream_Tag_Type'),  'stream_Tag_Type/C')
-        self.event_info_tree.Branch('Lvl1_ID',                             addressof(self.Event_Info, 'Lvl1_ID'),                               'lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Lvl1_ID',               addressof(self.Event_Info, 'Event_Counter_Lvl1_ID'),                 'event_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Event_Counter_Reset_Counter_Lvl1_ID', addressof(self.Event_Info, 'Event_Counter_Reset_Counter_Lvl1_ID'),   'event_Counter_Reset_Counter_Lvl1_ID/I')
-        self.event_info_tree.Branch('Global_ID',        addressof(self.Event_Info, 'Global_ID'),  'global_ID/I')
-        self.event_info_tree.Branch('Lumiblock',        addressof(self.Event_Info, 'Lumiblock'),  'lumiblock/I')
-        self.event_info_tree.Branch('Node_ID',          addressof(self.Event_Info, 'Node_ID'),  'node_ID/I')
-        self.event_info_tree.Branch('SuperMasterKey',   addressof(self.Event_Info, 'SuperMasterKey'),    'supperMasterKey/I')
-        self.event_info_tree.Branch('HLT_PSC_Key',      addressof(self.Event_Info, 'HLT_PSC_Key'),       'hLT_PSC_Key/I')
-        self.event_info_tree.Branch('HLT_Action',       addressof(self.Event_Info, 'HLT_Action'),     'hLT_Action/C')
-        self.event_info_tree.Branch('HLT_Reason',       addressof(self.Event_Info, 'HLT_Reason'),     'hLT_Reason/C')
-        self.event_info_tree.Branch('HLT_Internal',     addressof(self.Event_Info, 'HLT_Internal'),   'hLT_Internal/C')
-        self.event_info_tree.Branch('HLT_Decision',     addressof(self.Event_Info, 'HLT_Decision'),    'hLT_Decision/B')
-        self.event_info_tree.Branch('HLT_Application',  addressof(self.Event_Info, 'HLT_Application'),   'HLT_Application/C')
-        self.event_info_tree.Branch('EF_Overall',       addressof(self.Event_Info, 'EF_Overall'),    'eF_Overall/C')
-        self.event_info_tree.Branch('EF_PSC_Result',    addressof(self.Event_Info, 'EF_PSC_Result'), 'eF_PSC_Result/C')
-        self.event_info_tree.Branch('EF_Status_Result', addressof(self.Event_Info, 'EF_Status_Result'),  'eF_Status_Result/C')
-        self.event_info_tree.Branch('Chain_Name_EF',    addressof(self.Event_Info, 'Chain_Name_EF'),     'chain_Name_EF/C')
-        self.event_info_tree.Branch('Chain_Step_EF',    addressof(self.Event_Info, 'Chain_Step_EF'),     'chain_Step_EF/I')  
-        self.event_info_tree.Branch('EventStatusNames', addressof(self.Event_Info, 'EventStatusNames'),  'eventStatusNames/C')
 
         self.event_info_tree.Branch('L1_Triggered_BP',  self.L1_Triggered_BP)
         self.event_info_tree.Branch('L1_Triggered_AV',  self.L1_Triggered_AV)

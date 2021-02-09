@@ -1,10 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigMuonEFHypoAlg.h"
 #include "AthViews/ViewHelper.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 
 using namespace TrigCompositeUtils; 
 
@@ -53,11 +52,6 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
 
   // loop over previous decisions
   for ( const auto previousDecision: *previousDecisionsHandle ) {
-     // get RoIs
-    auto roiInfo = TrigCompositeUtils::findLink<TrigRoiDescriptorCollection>( previousDecision, initialRoIString() );
-    auto roiEL = roiInfo.link;
-    ATH_CHECK( roiEL.isValid() );
-    const TrigRoiDescriptor* roi = *roiEL;
 
     // get View
     auto viewEL = previousDecision->objectLink<ViewContainer>( viewString() );
@@ -116,18 +110,17 @@ StatusCode TrigMuonEFHypoAlg::execute( const EventContext& context ) const
       if(!matchedToDec) continue;
 
       // create new decisions
-      auto newd = newDecisionIn( decisions );
+      auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
       
       // pussh_back to toolInput
-      toolInput.emplace_back( newd, roi, muon, previousDecision );
+      toolInput.emplace_back( newd, muon, previousDecision );
 
       newd -> setObjectLink( featureString(), muonEL );
       TrigCompositeUtils::linkToPrevious( newd, previousDecision, context );
 
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " pT = " << (*muonEL)->pt() << " GeV");
       ATH_MSG_DEBUG("REGTEST: " << m_muonKey.key() << " eta/phi = " << (*muonEL)->eta() << "/" << (*muonEL)->phi());
-      ATH_MSG_DEBUG("REGTEST:  RoI  = eta/phi = " << (*roiEL)->eta() << "/" << (*roiEL)->phi());
-      ATH_MSG_DEBUG("Added view, roi, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
+      ATH_MSG_DEBUG("Added view, feature, previous decision to new decision "<<counter <<" for view "<<(*viewEL)->name()  );
 
       //found muon partnered to previous decision, so don't need to consider the other muons
       if(m_mapToPrevDec) break;

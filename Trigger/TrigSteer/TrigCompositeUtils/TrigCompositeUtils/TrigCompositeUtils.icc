@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "AsgMessaging/MessageCheck.h"
@@ -47,15 +47,7 @@ namespace TrigCompositeUtils {
   void
   findLinks(const Decision* start, const std::string& linkName, std::vector<LinkInfo<T>>& links, unsigned int behaviour, std::set<const Decision*>* visitedCache) {
     using namespace msgFindLink;
-    if (visitedCache != nullptr) {
-      // We only need to recursivly explore back from each node in the graph once.
-      // We can keep a record of nodes which we have already explored, these we can safely skip over.
-      if (visitedCache->count(start) == 1) {
-        return; // Early exit
-      }
-    }
     ElementLinkVector<T> featureLinks;
-    //
     if (start->hasObjectCollectionLinks(linkName, ClassID_traits<T>::ID())) {
       featureLinks = start->objectCollectionLinks<T>(linkName);
     }
@@ -94,7 +86,14 @@ namespace TrigCompositeUtils {
       return;
     }
     // If not Early Exit, then recurse
-    for (const auto& seed : getLinkToPrevious(start)) {
+    for (const auto seed : getLinkToPrevious(start)) {
+      if (visitedCache != nullptr) {
+        // We only need to recursivly explore back from each node in the graph once.
+        // We can keep a record of nodes which we have already explored, these we can safely skip over.
+        if (visitedCache->count(*seed) == 1) {
+          continue;
+        }
+      }
       findLinks<T>(*seed, linkName, links, behaviour, visitedCache);
     }
     // Fully explored this node
@@ -183,9 +182,7 @@ namespace TrigCompositeUtils {
     const std::string& navElementLinkKey,
     const DecisionIDContainer chainIDs) {
 
-    if (fullyExploredFrom.count(navGraphNode) == 1) {
-      return; // Already explored down from here
-    }
+
  
     const Decision* decisionObj = navGraphNode->node();
     ElementLinkVector<CONTAINER> featureLinks;
@@ -270,6 +267,9 @@ namespace TrigCompositeUtils {
 
     // Recurse to decisionObj's seeds
     for (const NavGraphNode* seedNavNode : navGraphNode->seeds()) {
+      if (fullyExploredFrom.count(seedNavNode) == 1) {
+        continue; // Already explored down from here
+      }
       recursiveGetFeaturesOfTypeInternal<CONTAINER>(features,
         fullyExploredFrom,
         seedNavNode,

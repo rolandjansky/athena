@@ -229,9 +229,6 @@ if __name__ == "__main__":
 
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
     top_acc = MainServicesCfg(ConfigFlags)
-
-    msgService = top_acc.getService('MessageSvc')
-    msgService.Format = "S:%s E:%e % F%138W%S%7W%R%T  %0W%M"
     
     from AthenaPoolCnvSvc.PoolReadConfig import PoolReadCfg
     top_acc.merge(PoolReadCfg(ConfigFlags))
@@ -266,8 +263,7 @@ if __name__ == "__main__":
 
     iovsvc = top_acc.getService('IOVDbSvc')
     iovsvc.OutputLevel=5
-    top_acc.getService('StoreGateSvc').Dump = True
-    top_acc.printConfig(withDetails = True, summariseProps = True)
+
     top_acc.store(open("test_TRTSegmentFinding.pkl", "wb"))
 
     import sys

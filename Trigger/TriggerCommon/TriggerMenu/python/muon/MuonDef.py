@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from __future__ import print_function
 
@@ -151,8 +151,6 @@ class L2EFChain_mu(L2EFChainDef):
       self.setup_muXX_idperf()
     elif self.chainPart['reccalibInfo'] == "l2msonly"  and "cosmicEF" not in self.chainPart['addInfo'] :
       self.setup_muXX_L2MSOnly()
-    elif self.chainPart['reccalibInfo'] == "mgonly"  and "cosmicEF" not in self.chainPart['addInfo'] :
-      self.setup_muXX_MGOnly()
     elif self.chainPart['reccalibInfo'] == "l2idonly"  and "cosmicEF" not in self.chainPart['addInfo'] :
       self.setup_muXX_l2idonly()
     elif self.chainPart['reccalibInfo'] == "nomucomb"  and "cosmicEF" not in self.chainPart['addInfo'] :
@@ -211,8 +209,6 @@ class L2EFChain_mu(L2EFChainDef):
     elif "perf" in self.chainPart['addInfo']:
       muFastThresh = "passthrough"
     elif "mucombTag" in self.chainPart['reccalibInfo']:
-      muFastThresh = "passthrough"
-    elif "mgonly" in self.chainPart['reccalibInfo']:
       muFastThresh = "passthrough"
     elif "0eta105" in self.chainPart['etaRange']:
       muFastThresh = str(self.chainPart['threshold'])+ "GeV" + "_barrelOnly" + "_v15a"
@@ -2272,79 +2268,3 @@ class L2EFChain_mu(L2EFChainDef):
 
       }
  
-###########################################
-## Adding new late-muon chain
-###########################################
-
-  def setup_muXX_MGOnly(self):
-    ########### L2 algos  #################
-    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
-    [trkfast, trkprec] = TrigInDetSequence("Muon", "muon", "IDTrig").getSequence()
-
-    L2AlgName = self.getL2AlgName()
-    muFastThresh = self.getMuFastThresh()
-
-    #--- L2 algos ---
-    if "l2muonSA" in self.chainPart['L2SAAlg']:
-       theL2StandAloneAlg  = TrigL2MuonSAConfig(L2AlgName)
-       theL2StandAloneHypo = MufastHypoConfig(L2AlgName, muFastThresh)
-    else:
-       log.error("Chain built with %s but so far only l2muonSA is supported." % (self.chainPart['L2SAAlg']))
-       return False
-
-    ########### EF algos  #################
-    print (self.chainPart['EFAlg'])
-    if 'SuperEF' in self.chainPart['EFAlg']:
-      from AthenaCommon import CfgGetter
-      theTrigMuSuperEF = CfgGetter.getAlgorithm("TrigMuSuperEF_MGonly")
-      EFRecoAlgName = "Muon"
-      EFCombinerThresh = self.getEFCombinerThresh()
-      theEFAlg = theTrigMuSuperEF
-    else:
-      log.error("Chain built with %s but so far only SuperEF is supported." % (self.chainPart['EFAlg']))
-      return False
-
-    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonEFCombinerHypoConfig
-    theTrigMuonEFCombinerHypoConfig = TrigMuonEFCombinerHypoConfig(EFRecoAlgName,EFCombinerThresh)
-
-    # L1 seeded from RoiMaker (seed from L1Topo) or Muon L1 Trigger + HLT chains configuration
-    if "inTimeRoI" not in self.chainPart['addInfo']:
-      from TrigmuRoI.TrigmuRoIConfig import TrigmuRoIConfig
-      Roimaker = TrigmuRoIConfig("TrigMuRoIMGonly")
-      self.L2sequenceList += [[ '', [Roimaker], 'L2_mu_step0']]
-      self.L2sequenceList += [[ 'L2_mu_step0', [theL2StandAloneAlg], 'L2_mu_step1']]
-    else:
-      self.L2sequenceList += [[ self.L2InputTE, [theL2StandAloneAlg], 'L2_mu_step1']]
-
-    self.L2sequenceList += [[ 'L2_mu_step1' , [theL2StandAloneHypo], 'L2_mu_hypo1']]
-    self.EFsequenceList += [[ 'L2_mu_hypo1' , trkfast+trkprec, 'EF_mu_step1']]
-    self.EFsequenceList += [[ 'EF_mu_step1' , [theEFAlg], 'EF_mu_step2']]
-    self.EFsequenceList += [[ 'EF_mu_step2' , [theTrigMuonEFCombinerHypoConfig], 'EF_mu_step3']]
-
-    if "inTimeRoI" not in self.chainPart['addInfo']:
-      self.L2signatureList += [ [['L2_mu_step0']] ]
-
-    self.L2signatureList += [ [['L2_mu_step1']] ]
-    self.L2signatureList += [ [['L2_mu_hypo1']] ]
-    self.EFsignatureList += [ [['EF_mu_step1']] ]
-    self.EFsignatureList += [ [['EF_mu_step2']] ]
-    self.EFsignatureList += [ [['EF_mu_step3']] ]
-
-    if "inTimeRoI" not in self.chainPart['addInfo']:
-      self.TErenamingDict = {
-        'L2_mu_step0':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       "TrigMuRoIMGonly_L1x"+self.L2InputTE ),
-        'L2_mu_step1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_L1x"+self.L2InputTE ),
-        'L2_mu_hypo1':  mergeRemovingOverlap('L2_mu_SA_MGOnly_',       L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
-        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.L2InputTE ),
-        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_L1x',  self.chainPartNameNoMult),
-        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly',  self.chainPartNameNoMult)
-      }
-    else:
-      self.TErenamingDict = {
-        'L2_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_L1x"+self.L2InputTE ),
-        'L2_mu_hypo1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     L2AlgName+"_"+muFastThresh+"_L1x"+self.L2InputTE ),
-        'EF_mu_step1':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.L2InputTE ),
-        'EF_mu_step2':  mergeRemovingOverlap('EF_SuperEF_MGOnly_inTimeRoI_',     self.chainPartNameNoMult),
-        'EF_mu_step3':  mergeRemovingOverlap('EF_SuperEFHypo_MGOnly_inTimeRoI',  self.chainPartNameNoMult)
-      }
-

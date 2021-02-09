@@ -15,4 +15,5 @@ addTool("BeamEffects.BeamEffectsConfig.getGenEventRotator",                   "G
 ## Algorithms
 addAlgorithm("BeamEffects.BeamEffectsConfig.getBeamEffectsAlg",               "BeamEffectsAlg")
 addAlgorithm("BeamEffects.BeamEffectsConfig.getBeamSpotFixerAlg",             "BeamSpotFixerAlg")
+addAlgorithm("BeamEffects.BeamEffectsConfig.getBeamSpotReweightingAlg",       "BeamSpotReweightingAlg")
 

@@ -21,8 +21,8 @@ Sim_tf.py \
 --physicsList 'FTFP_BERT_ATL' \
 --truthStrategy 'MC15aPlus' \
 --simulator 'FullG4MT' \
---postInclude 'PyJobTransforms.prepostincludes.postInclude_UseFrontier' \
---preInclude 'SimuJobTransforms.prepostincludes.preInclude_BeamPipeKill,SimuJobTransforms.prepostincludes.preInclude_FrozenShowersFCalOnly,SimuJobTransforms.prepostincludes.preInclude_TightMuonStepping' \
+--postInclude 'PyJobTransforms.UseFrontier' \
+--preInclude 'SimuJobTransforms.BeamPipeKill,SimuJobTransforms.FrozenShowersFCalOnly,SimuJobTransforms.TightMuonStepping' \
 --imf False
 
 rc=$?

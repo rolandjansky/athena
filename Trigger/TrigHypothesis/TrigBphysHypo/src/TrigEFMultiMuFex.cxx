@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -259,7 +259,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
             // loop over the vector of muon containers
             msg() << MSG::DEBUG << "MuonContainer, Got MuonEF " << ic << " Feature, size = " << muelv.size() << endmsg;
             int i(0);
-            for ( const auto& muel: muelv) {
+            for ( const ElementLink<xAOD::MuonContainer> muel: muelv) {
                 msg() << MSG::DEBUG << "ELLink: " << i++
                     << " index: "  << muel.index()
                     << " sgkey: "  << muel.dataID()
@@ -289,7 +289,7 @@ void TrigEFMultiMuFex::processTriMuon(HLT::TEConstVec& inputTE, xAOD::TrigBphysC
     std::vector<const xAOD::Muon*> uniqueMuons;
     // add all the unique muons into a single container
     for ( const auto& muelv : vec_elv_muons) {
-        for ( const auto& muel : muelv ) {
+        for ( const ElementLink<xAOD::MuonContainer> muel : muelv ) {
             m_bphysHelperTool->addUnique( *muel, uniqueMuons, 0.005,0.005,10,xAOD::Muon::InnerDetectorTrackParticle);
         } // loop over muonEL in each roi
     } // loop over rois
