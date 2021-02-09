@@ -111,9 +111,9 @@ SCT_ChargeTrappingCondData SCT_ChargeTrappingTool::calculate(const IdentifierHas
     deplVoltage = m_deplVoltage * Gaudi::Units::volt;
     biasVoltage = m_biasVoltage * Gaudi::Units::volt;
   } else {
-    temperature = m_siConditionsTool->temperature(elementHash) + Gaudi::Units::STP_Temperature;
-    deplVoltage = m_siConditionsTool->depletionVoltage(elementHash) * Gaudi::Units::volt;
-    biasVoltage = m_siConditionsTool->biasVoltage(elementHash) * Gaudi::Units::volt;
+    temperature = m_siConditionsTool->temperature(elementHash, ctx) + Gaudi::Units::STP_Temperature;
+    deplVoltage = m_siConditionsTool->depletionVoltage(elementHash, ctx) * Gaudi::Units::volt;
+    biasVoltage = m_siConditionsTool->biasVoltage(elementHash, ctx) * Gaudi::Units::volt;
   }
   
   // Protect against invalid temperature
