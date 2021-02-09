@@ -324,7 +324,7 @@ class AthConfigFlags(object):
                                + repr(replacementNames - replacedNames))
         newFlags = AthConfigFlags(newFlagDict)
 
-        for k,v in self._dynaflags.items(): # cant just assign the dicts because theyn they are shared when loading
+        for k,v in self._dynaflags.items(): # cant just assign the dicts because then they are shared when loading
             newFlags._dynaflags[k] = _copyFunction(v)
         newFlags._hash = None
         

@@ -21,7 +21,7 @@ class TestAccess(TestFlagsSetup):
 
 class TestWrongAccess(TestFlagsSetup):
     def runTest(self):
-        print("""... Acess to the flag that are missnames should give an exception""")
+        print("""... Access to the flag that are missnames should give an exception""")
         with self.assertRaises(RuntimeError):
             print(".... test printout {}".format( self.flags.A is True ))
             print(".... test printout {}".format( self.flags.A.B == 6 ))
@@ -100,7 +100,7 @@ class TestDynamicFlagsSet(TestFlagsSetupDynamic):
 
 class TestOverwriteFlags(TestFlagsSetupDynamic):
     def runTest(self):
-        print("""... Check if overwiting works""")
+        print("""... Check if overwriting works""")
         self.flags.Z.Xclone1.a = 20
         self.flags.Z.Xclone2.a = 40
 
@@ -159,25 +159,25 @@ class TestHash(TestFlagsSetupDynamic):
         print("""... Check hash is handled properly """)
         self.assertIsNone(self.flags._hash, "Hash is inititiated")
         val1 = hash(self.flags)
-        self.assertIsNotNone(val1, "Hash is not calcualted")        
+        self.assertIsNotNone(val1, "Hash is not calculated")
 
         self.flags.Atest = False       
         self.assertIsNone(self.flags._hash, "Hash is not reset")
         val2 = hash(self.flags)
-        self.assertIsNotNone(val2, "Hash is not calcualted")        
+        self.assertIsNotNone(val2, "Hash is not calculated")
         self.assertNotEqual(val1, val2, "Different values, same hash")
 
         self.flags.A.One = False
         self.assertEqual(self.flags._hash, None, "Hash is not reset")
         val3 = hash(self.flags)
-        self.assertIsNotNone(val3, "Hash is not calcualted")        
+        self.assertIsNotNone(val3, "Hash is not calculated")
         self.assertNotEqual(val2, val3, "Different values, same hash")
 
 
         self.flags.Z.Xclone1.a = 20
         self.assertEqual(self.flags._hash, None, "Hash is not reset")
         val4 = hash(self.flags)
-        self.assertIsNotNone(val4, "Hash is not calcualted")        
+        self.assertIsNotNone(val4, "Hash is not calculated")
         self.assertNotEqual(val2, val4, "Different values, same hash")
         
 
