@@ -1418,6 +1418,14 @@ HLT_mu26_ivarmedium_L1MU20:
   stepFeatures:
     0: 1
     1: 1
+HLT_mu26_ivarperf_L1MU20:
+  eventCount: 0
+  stepCounts:
+    0: 1
+    1: 1
+  stepFeatures:
+    0: 1
+    1: 1
 HLT_mu28_ivarmedium_L1MU20:
   eventCount: 0
   stepCounts:
