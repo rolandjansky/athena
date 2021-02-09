@@ -267,6 +267,8 @@ class RootFileDumper(object):
                 except ValueError:
                     print "** err ** invalid 'itr_entries' argument. will iterate over all entries."
                     itr_entries = xrange(nentries)
+        elif isinstance(itr_entries, list):
+            itr_entries = itr_entries
         else:
             itr_entries = xrange(itr_entries)
                 

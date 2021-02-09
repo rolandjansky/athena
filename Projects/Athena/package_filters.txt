@@ -9,6 +9,7 @@
 + HLT/Trigger/TrigTransforms/TrigTransform
 - HLT/.*
 - Trigger/TrigValidation/TrigP1Test
+- Trigger/TrigFTK/FTKStandaloneMonitoring
 
 # Offload service has build problems
 - Offloading/.*
@@ -17,30 +18,8 @@
 - graphics/VP1/.*
 
 # Some analysis packages that are not part of Athena
-- AsgExternal/Asg_Test
-- PhysicsAnalysis/D3PDTools/EventLoop
-- PhysicsAnalysis/AnalysisCommon/CPAnalysisExamples
-- PhysicsAnalysis/AnalysisCommon/PMGTools
-- PhysicsAnalysis/D3PDTools/EventLoop
-- PhysicsAnalysis/D3PDTools/EventLoopAlgs
-- PhysicsAnalysis/D3PDTools/EventLoopGrid
-- PhysicsAnalysis/D3PDTools/MultiDraw
-- PhysicsAnalysis/D3PDTools/SampleHandler
 - PhysicsAnalysis/ElectronPhotonID/PhotonEfficiencyCorrection
 - PhysicsAnalysis/ElectronPhotonID/PhotonVertexSelection
-- PhysicsAnalysis/HiggsPhys/Run2/HZZ/Tools/ZMassConstraint
-- PhysicsAnalysis/JetPhys/SemileptonicCorr
-- PhysicsAnalysis/SUSYPhys/SUSYTools
-- PhysicsAnalysis/TauID/DiTauMassTools
-- PhysicsAnalysis/TauID/TauCorrUncert
-- PhysicsAnalysis/TopPhys/QuickAna
-- PhysicsAnalysis/TrackingID/InDetTrackSystematicsTools
-- Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Reconstruction/Jet/JetJvtEfficiency
-- Reconstruction/Jet/JetReclustering
-- Reconstruction/Jet/JetAnalysisTools/JetTileCorrection
-- Trigger/TrigAnalysis/TrigMuonEfficiency
-- Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching
 
 # Data quality packages not needed in Athena
 - DataQuality/DataQualityConfigurations

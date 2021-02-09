@@ -40,7 +40,7 @@ namespace Trk{
 
     long int vkCharge=Charge;
 
-    if(!isFieldInitialized)setInitializedField();  //to allow callback for init
+    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
     if(m_PropagatorType <=1 ){                           // needed for reenterability
        Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
@@ -100,7 +100,7 @@ namespace Trk{
 
     long int vkCharge=Charge;
 
-    if(!isFieldInitialized)setInitializedField();  //to allow callback for init
+    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
     if(m_PropagatorType <=1 ){                           // needed for reenterability
        Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability
@@ -157,7 +157,7 @@ namespace Trk{
 
     long int vkCharge=Charge;
 
-    if(!isFieldInitialized)setInitializedField();  //to allow callback for init
+    if(!m_isFieldInitialized)setInitializedField();  //to allow callback for init
     Trk::myMagFld.setMagHandler(m_fitField);             // needed for reenterability
     if(m_PropagatorType <=1 ){                           // needed for reenterability
        Trk::myPropagator.setTypeProp(m_PropagatorType);  // needed for reenterability

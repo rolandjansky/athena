@@ -38,23 +38,15 @@ namespace G4UA
   //---------------------------------------------------------------------------
   AthenaStackingAction::AthenaStackingAction(const Config& config):
     m_config(config),
-    m_russianRouletteForNeutrons(false),
-    m_russianRouletteForPhotons(false),
     m_oneOverWeightNeutron(0),
     m_oneOverWeightPhoton(0)
   {
-    // bool that checks if the Russian Roulette is active for neutrons
-    m_russianRouletteForNeutrons = m_config.russianRouletteNeutronThreshold > 0;
-    
-    // bool that checks if the Russian Roulette is active for photons
-    m_russianRouletteForPhotons = m_config.russianRoulettePhotonThreshold > 0;
-
     // calculate this division only once
-    if (m_russianRouletteForNeutrons)
+    if (m_config.applyNRR)
       m_oneOverWeightNeutron = 1./m_config.russianRouletteNeutronWeight;
 
     // calculate this division only once
-    if (m_russianRouletteForPhotons)
+    if (m_config.applyPRR)
       m_oneOverWeightPhoton = 1./m_config.russianRoulettePhotonWeight;
   }
 
@@ -85,7 +77,7 @@ namespace G4UA
       static_cast<EventInformation*> (ev->GetUserInformation());
 
     // Neutron Russian Roulette
-    if (m_russianRouletteForNeutrons && isNeutron(track) &&
+    if (m_config.applyNRR && isNeutron(track) &&
         track->GetWeight() < m_config.russianRouletteNeutronWeight && // do not re-Roulette particles
         track->GetKineticEnergy() < m_config.russianRouletteNeutronThreshold) {
       // shoot random number
@@ -98,7 +90,7 @@ namespace G4UA
     }
 
     // Photon Russian Roulette
-    if (m_russianRouletteForPhotons && isGamma(track) && track->GetOriginTouchable() &&
+    if (m_config.applyPRR && isGamma(track) && track->GetOriginTouchable() &&
         track->GetOriginTouchable()->GetVolume()->GetName().substr(0, 3) == "LAr" && // only for photons created in LAr
         track->GetWeight() < m_config.russianRoulettePhotonWeight && // do not re-Roulette particles
         track->GetKineticEnergy() < m_config.russianRoulettePhotonThreshold) {

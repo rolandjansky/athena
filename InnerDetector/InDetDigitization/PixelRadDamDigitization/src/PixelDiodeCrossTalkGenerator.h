@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -30,6 +30,7 @@ class PixelDiodeCrossTalkGenerator:public PixelProcessorTool {
     PixelDiodeCrossTalkGenerator();
 
     double m_diodeCrossTalk; 
+    double m_diodeCrossTalkIBL; 
 };
 }
 

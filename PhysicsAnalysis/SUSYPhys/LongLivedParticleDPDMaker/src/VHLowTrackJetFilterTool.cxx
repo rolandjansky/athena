@@ -36,8 +36,8 @@ m_jetEtaCut(2.1),
 m_TrackMinPt(400.0),
 m_TrackZ0Max(0.3),
 m_TrackD0Max(0.5),
-m_AlphaMaxCut(0.03),
-m_CHFCut(0.3),
+m_AlphaMaxCut(0.05),
+m_CHFCut(0.045),
 m_nJetsReq(0),
 m_electronSGKey("Electrons"),
 m_electronIDKey("LHMedium"),
@@ -127,7 +127,7 @@ bool DerivationFramework::VHLowTrackJetFilterTool::eventPassesFilter() const
   for (auto electron : *electrons){
 
     if(electron->pt()<m_electronPtCut) continue;
-    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2)<1.52))
+    if( (fabs(electron->caloCluster()->etaBE(2))>1.37 && fabs(electron->caloCluster()->etaBE(2))<1.52)
        || fabs(electron->caloCluster()->etaBE(2))>2.47 ) continue;
 
     if(electron->isolation(xAOD::Iso::topoetcone20)/electron->pt()>0.2) continue;

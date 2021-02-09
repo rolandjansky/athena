@@ -61,7 +61,7 @@ namespace ISF {
                                              bool isPileup) const = 0;
 
     /** Converts vector of ISF::ISFParticles to G4Event */
-    virtual G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent) const = 0;
+    virtual G4Event* ISF_to_G4Event(const std::vector<const ISF::ISFParticle*>& isp, HepMC::GenEvent *genEvent, bool useHepMC=false) const = 0;
 
   };
 

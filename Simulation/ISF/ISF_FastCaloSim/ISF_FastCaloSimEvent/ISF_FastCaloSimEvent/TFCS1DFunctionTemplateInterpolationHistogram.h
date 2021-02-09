@@ -73,7 +73,7 @@ template <typename Txvec, typename Ty,typename Trandom=float> class TFCS1DFuncti
       } else m=0;
       
       //std::cout<<"fbin="<<ibin<<" fx="<<m_HistoBorders.GetBinLowEdge(ibin)<<" frac="<<m_HistoContents.get_fraction(ibin)<<" dfracprev="<<dfracprev<<" dfrac="<<dfrac<<" dfracnext="<<dfracnext<<" dfracprev-dfrac="<<dfracprev-dfrac<<" dfracnext-dfrac="<<dfracnext-dfrac<<" m="<<m<<" residual_rnd="<<residual_rnd<<std::endl;
-      return m_HistoBorders.position(ibin,m,residual_rnd);
+      return m_HistoBorders.position_lin(ibin,m,residual_rnd);
     }
 
   ClassDef(TFCS1DFunctionTemplateInterpolationHistogram,1)  //TFCS1DFunctionTemplateInterpolationHistogram

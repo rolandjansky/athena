@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMPARAMETRIZATION_CALODETDESCRELEMENT_H
@@ -38,6 +38,11 @@ class CaloDetDescrElement
     m_dx = 0;
     m_dy = 0;
     m_dz = 0;
+    m_sinTh = 0;
+    m_cosTh = 0;
+    m_volume = 0;
+    m_sinPhi = 0;
+    m_cosPhi = 0;
   };
 
   /** @brief virtual destructor

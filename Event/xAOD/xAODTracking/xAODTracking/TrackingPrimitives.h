@@ -182,8 +182,10 @@ namespace xAOD {
     SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
     // Pseudotracking
     Pseudotracking			   = 51,
+    // Track seeded
+    SiSpacePointsSeedMaker_TrkSeeded       = 52,
      ///maximum number of enums
-    NumberOfTrackRecoInfo                  = 52
+    NumberOfTrackRecoInfo                  = 53
   };
 
   enum ParticleHypothesis { nonInteracting  = 0,

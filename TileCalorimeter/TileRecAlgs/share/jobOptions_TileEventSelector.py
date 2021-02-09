@@ -297,9 +297,15 @@ seq.TileSelector.CheckDCS=TileUseDCS
 seq.TileSelector.SkipMBTS=True
 seq.TileSelector.CheckDMUs=True
 seq.TileSelector.CheckJumps=True
+seq.TileSelector.OverflowLG=1022.9
 seq.TileSelector.CheckOverLG=True
+seq.TileSelector.UnderflowLG=0.1
+seq.TileSelector.CheckUnderHG=False
+seq.TileSelector.OverflowHG=1021.9
 seq.TileSelector.CheckOverHG=False
-seq.TileSelector.MaxVerboseCnt=10000
+seq.TileSelector.UnderflowHG=2.1
+seq.TileSelector.CheckUnderLG=False
+seq.TileSelector.MaxVerboseCnt=20
 seq.TileSelector.OutputLevel=1
 
 # get a handle on the job main sequence                                         

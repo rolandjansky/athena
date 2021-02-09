@@ -197,6 +197,12 @@ StatusCode ComTimeRec::execute()
       ComTime *theComTime = new ComTime();
       CHECK( evtStore()->record(theComTime, m_comTimeKey) );
     }
+  } else if(m_mode == "CollisionMode" ) {
+    // Using cosmic reco during collisions. Fire on BCIDs.
+    // Just provide a default ComTime object.
+    ComTime *theComTime = new ComTime();
+    CHECK( evtStore()->record(theComTime, m_comTimeKey) );
+    return StatusCode::SUCCESS;
   } else {
     ATH_MSG_FATAL( "Invalid mode = " << m_mode );
     return StatusCode::SUCCESS;

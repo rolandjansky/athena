@@ -22,6 +22,7 @@
 ///    TileRawChannelContainerFit       key of fit filtered RawChannels in TDS
 ///    TileRawChannelContainerFitCool   key of fit filtered RawChannels in TDS
 ///    TileRawChannelOF1                key of OF1 filtered RawChannels in TDS
+///    TileRawChannelWiener             key of Wiener filtered RawChannels in TDS
 ///    TileLaserObject         string   key of Laser Object in TDS
 ///    CalibrateEnergy         bool     If calibration should be applied to energy
 ///    CalibMode               bool     If data is in calibration mode (bi-gain input)
@@ -297,6 +298,11 @@ class TileAANtuple : public AthAlgorithm {
     float m_chi2MF[N_ROS2][N_MODULES][N_CHANS];
     float m_pedMF[N_ROS2][N_MODULES][N_CHANS];
 
+    float m_eWiener[N_ROS2][N_MODULES][N_CHANS];
+    float m_tWiener[N_ROS2][N_MODULES][N_CHANS];
+    float m_pedWiener[N_ROS2][N_MODULES][N_CHANS];
+    float m_chi2Wiener[N_ROS2][N_MODULES][N_CHANS];
+
     short m_ROD_GlobalCRC[N_ROS][N_MODULES];
     short m_ROD_BCID[N_ROS][N_MODULES];
     short m_ROD_DMUBCIDErr[N_ROS][N_MODULES][N_DMUS];
@@ -340,6 +346,7 @@ class TileAANtuple : public AthAlgorithm {
     std::string m_dspRawChannelContainer;
     std::string m_mfRawChannelContainer;
     std::string m_of1RawChannelContainer;
+    std::string m_wienerRawChannelContainer;
     std::string m_laserObject;
     std::string m_tileMuRcvRawChannelContainer; // TMDB
     std::string m_tileMuRcvDigitsContainer; // TMDB

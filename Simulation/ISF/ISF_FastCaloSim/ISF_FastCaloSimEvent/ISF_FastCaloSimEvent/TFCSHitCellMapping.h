@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSHitCellMapping_h
@@ -19,6 +19,8 @@ public:
   /// fills all hits into calorimeter cells
   virtual FCSReturnCode simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option) const override;
 
 protected:
@@ -27,9 +29,5 @@ protected:
 private:
   ClassDefOverride(TFCSHitCellMapping, 1) //TFCSHitCellMapping
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHitCellMapping+;
-#endif
 
 #endif

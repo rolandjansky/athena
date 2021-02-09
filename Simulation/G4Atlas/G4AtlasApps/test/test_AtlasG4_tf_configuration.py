@@ -10,6 +10,7 @@ class TestAtlasG4(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        os.environ["TRF_ECHO"] = "1"
         config_picklefilename = 'AtlasG4_config.pkl'
         command = [
             'AtlasG4_tf.py',

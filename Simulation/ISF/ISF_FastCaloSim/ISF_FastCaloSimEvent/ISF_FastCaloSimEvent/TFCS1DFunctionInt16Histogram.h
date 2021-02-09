@@ -43,8 +43,4 @@ class TFCS1DFunctionInt16Histogram:public TFCS1DFunction
   ClassDef(TFCS1DFunctionInt16Histogram,1)  //TFCS1DFunctionInt16Histogram
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS1DFunctionInt16Histogram+;
-#endif
-
 #endif

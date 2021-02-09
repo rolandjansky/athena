@@ -124,25 +124,24 @@ StatusCode BphysTrigDiMuDecoratorTool::decorateVertex(const xAOD::Vertex* vtx,
     }
     std::unique_ptr<xAOD::Vertex> bsVertex = CxxUtils::make_unique<xAOD::Vertex>();
     bsVertex->makePrivateStore();
+    AmgSymMatrix(3) cov;
+    cov.setZero();
     if (evtInfo) {
         bsVertex->setX(evtInfo->beamPosX());
         bsVertex->setY(evtInfo->beamPosY());
         bsVertex->setZ(evtInfo->beamPosZ());
-        AmgSymMatrix(3) cov;
         cov(0,0) = evtInfo->beamPosSigmaX() * evtInfo->beamPosSigmaX();
         cov(1,1) = evtInfo->beamPosSigmaY() * evtInfo->beamPosSigmaY();
         cov(2,2) = evtInfo->beamPosSigmaZ() * evtInfo->beamPosSigmaZ();
-        bsVertex->setCovariancePosition(cov);
     } else {
         bsVertex->setX(0.);
         bsVertex->setY(0.);
         bsVertex->setZ(0.);
-        AmgSymMatrix(3) cov;
         cov(0,0) = 50.;
         cov(1,1) = 50.;
         cov(2,2) = 300.;
     }
-
+    bsVertex->setCovariancePosition(cov);
     vtxbs = bsVertex.get(); // get the pointer from the unique object
     
     if (!vtxbs) {

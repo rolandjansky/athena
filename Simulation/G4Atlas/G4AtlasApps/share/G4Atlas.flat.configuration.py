@@ -54,6 +54,10 @@ globalflags.DetDescrVersion = simFlags.SimLayout.get_Value()
 if simFlags.LArParameterization.get_Value()>0 and simFlags.ReleaseGeoModel():
     simFlags.ReleaseGeoModel = False
 
+if jobproperties.Beam.beamType() == 'cosmics' or \
+   (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+    simFlags.SimulateCavern = True
+
 ## Translate conditions tag into IOVDbSvc global tag: must be done before job properties are locked!!!
 from AthenaCommon.AppMgr import ServiceMgr
 from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
@@ -108,8 +112,7 @@ from AtlasGeoModel import SimEnvelopes
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 gms = GeoModelSvc()
 ## Cosmics GeoModel tweaks
-if jobproperties.Beam.beamType() == 'cosmics' or \
-   (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
+if simFlags.SimulateCavern.get_Value():
     from CavernInfraGeoModel.CavernInfraGeoModelConf import CavernInfraDetectorTool
     gms.DetectorTools += [ CavernInfraDetectorTool() ]
 ## Protects GeoModelSvc in the simulation from the AlignCallbacks

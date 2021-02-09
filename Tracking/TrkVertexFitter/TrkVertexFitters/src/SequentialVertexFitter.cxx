@@ -741,8 +741,11 @@ namespace Trk{
 
 
    //assigning the input tracks to the fitted vertex through vxTrackAtVertices
-   if(fittedVertex !=0)
+   if(fittedVertex ==0)
    {
+     return fittedVertex;
+   }
+
      if( fittedVertex->vxTrackAtVertexAvailable() ) // TODO: I don't think vxTrackAtVertexAvailable() does the same thing as a null pointer check!
      {
        if(fittedVertex->vxTrackAtVertex().size() !=0)
@@ -787,7 +790,6 @@ namespace Trk{
 
        }//end of protection against unsuccessfull updates (no tracks were added)
      }//end of vector of tracks check
-   }//end of pointer check
 
 
    //now set links to xAOD::TrackParticles directly in the xAOD::Vertex

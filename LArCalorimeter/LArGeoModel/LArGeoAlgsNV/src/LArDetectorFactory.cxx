@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "LArGeoAlgsNV/LArDetectorFactory.h"
@@ -11,13 +11,13 @@
 #include "LArGeoTBBarrel/TBBarrelCryostatConstruction.h"
 #include "LArGeoEndcap/EndcapCryostatConstruction.h"
 
-#include "GeoModelKernel/GeoPhysVol.h"  
+#include "GeoModelKernel/GeoPhysVol.h"
 #include "GeoModelKernel/GeoTransform.h"
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
 
-#include "CLHEP/Geometry/Transform3D.h" 
+#include "CLHEP/Geometry/Transform3D.h"
 
 #include "LArGeoCode/LArMaterialManager.h"
 #include "GeoModelInterfaces/StoredMaterialManager.h"
@@ -61,7 +61,8 @@ LArGeo::LArDetectorFactory::LArDetectorFactory(int testbeam,bool fullGeo)
     m_buildBarrel(true),
     m_buildEndcap(true),
     m_testbeam(testbeam),
-    m_fullGeo(fullGeo)
+    m_fullGeo(fullGeo),
+    m_activateFT(false)
 {}
 
 
@@ -92,51 +93,51 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
     {
       // 26-Sep-2003 WGS: Get our LAr detector parameters via the NOVA
       // converters.
-  
-      VDetectorParameters* parameters = 
+
+      VDetectorParameters* parameters =
 	(VDetectorParameters *) new  LArGeo::RAL();
 
       VDetectorParameters::SetInstance(parameters);
-    
+
       // Get access to the material manager:
-  
+
       ISvcLocator *svcLocator = Gaudi::svcLocator();
       IMessageSvc * msgSvc;
       if (svcLocator->service("MessageSvc", msgSvc, true )==StatusCode::FAILURE) {
 	throw std::runtime_error("Error in LAr::DetectorFactor, cannot access MessageSvc");
       }
 
-      MsgStream log(msgSvc, "LAr::DetectorFactory"); 
+      MsgStream log(msgSvc, "LAr::DetectorFactory");
 
       StoreGateSvc *detStore;
       if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
 	throw std::runtime_error("Error in LArDetectorFactory, cannot access DetectorStore");
       }
 
-  
+
       DataHandle<StoredMaterialManager> materialManager;
       if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
 	throw std::runtime_error("Error in LArDetectorFactory, cannot access Material Manager");
       }
-  
+
       IGeoModelSvc *geoModel;
       IRDBAccessSvc* rdbAccess;
 
       if(svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
 	throw std::runtime_error("Error in LArDetectorFactoryNV, cannot access GeoModelSvc");
-    
+
       if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
 	throw std::runtime_error("Error in BarrelCryostatConstruction, cannot access RDBAccessSvc");
-    
+
       DecodeVersionKey larVersionKey(geoModel, "LAr");
       log << MSG::DEBUG << "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endreq;
-    
+
       IRDBRecordset_ptr larPosition =  rdbAccess->getRecordsetPtr("LArPosition",larVersionKey.tag(),larVersionKey.node());
 
-      if(larPosition->size()==0) 
+      if(larPosition->size()==0)
       {
 	larPosition = rdbAccess->getRecordsetPtr("LArPosition", "LArPosition-00");
-	if (larPosition->size()==0) 
+	if (larPosition->size()==0)
 	  throw std::runtime_error("Error, no lar position table in database!");
       }
 
@@ -147,26 +148,26 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       // Patch the materials list by adding special materials.  These
       // cannot be added for the moment to the standard list because they
       // are blended materials and to do the blending requires access to
-      // LAr Geometry. 
+      // LAr Geometry.
       //
 
       LArMaterialManager lArMaterialManager(detStore);
       lArMaterialManager.buildMaterials();
-    
+
       if (m_testbeam==0) {
-      
-	BarrelCryostatConstruction barrelCryostatConstruction(m_fullGeo);
+
+	BarrelCryostatConstruction barrelCryostatConstruction(m_fullGeo, m_activateFT);
 	barrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
 	barrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
-            
-	EndcapCryostatConstruction endcapCryostatConstruction(m_fullGeo);
+
+	EndcapCryostatConstruction endcapCryostatConstruction(m_fullGeo, m_activateFT);
 	endcapCryostatConstruction.setFCALVisLimit(m_fcalVisLimit);
-      
+
 	//const GeoMaterial* matAir = materialManager->getMaterial("std::Air");
-      
+
 	if(m_buildBarrel)
 	  barrelEnvelope = barrelCryostatConstruction.GetEnvelope();
-      
+
 	if(m_buildEndcap)
 	  {
 	    endcapEnvelopePos = endcapCryostatConstruction.createEnvelope(true);
@@ -176,7 +177,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	// Offset of endcaps from nominal position.
 
 	a_container->add(new GeoNameTag("LAr"));
-    
+
 	if(m_buildBarrel && m_buildEndcap)
 	  {
 	    // Typical scenario for each of the Tree Tops:
@@ -185,7 +186,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    // 3. Store Alignable XF in SG
 
 	    // --- Barrel
-	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B"); 
+	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B");
 	    if(!barrelRec) throw std::runtime_error("Error, no lar position record in the database");
 	    HepGeom::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
 	    GeoAlignableTransform* barrelAlXf = new GeoAlignableTransform(xfBarrel);
@@ -247,7 +248,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	else if(!m_buildEndcap)
 	  {
 	    // -- Build the Barrel only
-	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B"); 
+	    const IRDBRecord *barrelRec = GeoDBUtils::getTransformRecord(larPosition,"LARCRYO_B");
 	    if(!barrelRec) throw std::runtime_error("Error, no lar position record in the database");
 	    HepGeom::Transform3D xfBarrel = GeoDBUtils::getTransform(barrelRec);
 	    GeoAlignableTransform* barrelAlXf = new GeoAlignableTransform(xfBarrel);
@@ -308,7 +309,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    a_container->add(xfEndcapNeg);
 	    a_container->add( new GeoTransform(HepGeom::RotateY3D(180.0*CLHEP::deg)));
 	    a_container->add(endcapEnvelopeNeg);
-      
+
 	  }
       }
       else
@@ -316,12 +317,12 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  TBBarrelCryostatConstruction tbbarrelCryostatConstruction;
 	  tbbarrelCryostatConstruction.setBarrelSagging(m_barrelSagging);
 	  tbbarrelCryostatConstruction.setBarrelCellVisLimit(m_barrelVisLimit);
-	
+
 	  barrelEnvelope = tbbarrelCryostatConstruction.GetEnvelope();
-	
+
 	  a_container->add(new GeoNameTag("LAr"));
 	  a_container->add(barrelEnvelope);
-	
+
 	}
     }
 
@@ -334,8 +335,8 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   if (svcLocator->service("MessageSvc", msgSvc, true )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in LAr::DetectorFactor, cannot access MessageSvc");
   }
-  MsgStream log(msgSvc, "LAr::DetectorFactory"); 
-  
+  MsgStream log(msgSvc, "LAr::DetectorFactory");
+
   try
   {
     fcalDetectorManager = new FCALDetectorManager();
@@ -366,27 +367,27 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       for (unsigned int r=0;r<2;r++) {
 	unsigned int nPhi    = r==0? 2:1;
        	for (unsigned int endcap=0;endcap<2;endcap++) {
-	  StoredPhysVol *vol;               
+	  StoredPhysVol *vol;
 	  std::string nameTag= endcap==0 ? (s<2 ? "HEC1_NEG":"HEC2_NEG") : (s<2 ? "HEC1_POS":"HEC2_POS");
 	  if(detStore->contains<StoredPhysVol>(nameTag)){
-	    if (StatusCode::SUCCESS==detStore->retrieve(vol, nameTag)) {                
-	      
-	      
+	    if (StatusCode::SUCCESS==detStore->retrieve(vol, nameTag)) {
+
+
 	      unsigned int width = 32;
 	      double startPhi =  endcap==0?  M_PI : 0;
 	      double endPhi   =  endcap==0? -M_PI : 2*M_PI ;
-	      
+
 	      CellBinning  phiBinning(startPhi, endPhi, width*nPhi);
-	      HECDetDescr *d = new HECDetDescr(hecDetectorManager,s,r,phiBinning); 
-	      
+	      HECDetDescr *d = new HECDetDescr(hecDetectorManager,s,r,phiBinning);
+
 	      HECDetectorRegion::DetectorSide side = (HECDetectorRegion::DetectorSide) endcap;
 	      HECDetectorRegion *region = new HECDetectorRegion(vol->getPhysVol(),d,side,projectivityDisplacement);
 	      hecDetectorManager->addDetectorRegion(region);
-	    }         
+	    }
 	  }
 	  else
 	    log << MSG::DEBUG << " No Stored PV for " << nameTag
-		<< " in Detector Store" << endreq;                                                 
+		<< " in Detector Store" << endreq;
 	}
       }
     }
@@ -394,39 +395,39 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   catch (std::exception & ex) {
     log << MSG::WARNING << "Unable to build HEC detector manager. " << ex.what() << endreq;
   }
-  
-  
+
+
   try
   {
-    
-    
+
+
     emecDetectorManager  = new EMECDetectorManager();
-    
+
     // Here is a table of min and max eta for different sampling layers, radial part (i/o) and region.
-    
-    
-    
+
+
+
     for (int e=0;e<2;e++) {
-      
+
       double startPhi =  e==0?  M_PI-2*M_PI/768/2 : -2*M_PI/768/2;
       double endPhi   =  e==0? -M_PI-2*M_PI/768/2 : 2*M_PI-2*M_PI/768/2 ;
 
 
       StoredPhysVol *sPhys;
-      
+
       if(detStore->contains<StoredPhysVol>(e==0 ? "EMEC_OUTER_WHEEL_NEG" : "EMEC_OUTER_WHEEL_POS")){
-	if (detStore->retrieve(sPhys,e==0 ? "EMEC_OUTER_WHEEL_NEG" : "EMEC_OUTER_WHEEL_POS")==StatusCode::SUCCESS) 
+	if (detStore->retrieve(sPhys,e==0 ? "EMEC_OUTER_WHEEL_NEG" : "EMEC_OUTER_WHEEL_POS")==StatusCode::SUCCESS)
 	{
 	  GeoFullPhysVol *emecEnvelope=(GeoFullPhysVol *) sPhys->getPhysVol();
-	  
-	  
+
+
 	  {
 	    CellBinning phiBinning(startPhi,endPhi,64);
 	    EMECDetDescr *detDescr = new EMECDetDescr(emecDetectorManager,1,0,0,phiBinning);
 	    EMECDetectorRegion *region = new EMECDetectorRegion(emecEnvelope,detDescr,EMECDetectorRegion::DetectorSide(e),projectivityDisplacement);
 	    emecDetectorManager->addDetectorRegion(region);
 	  }
-	  
+
 	  // Outer Wheel Sampling 1 Region 1:
 	  {
 	    CellBinning phiBinning(startPhi,endPhi,64);
@@ -490,10 +491,10 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    << " in Detector Store" << endreq;
 
       if(detStore->contains<StoredPhysVol>(e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")){
-	if (detStore->retrieve(sPhys,e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")==StatusCode::SUCCESS) 
+	if (detStore->retrieve(sPhys,e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")==StatusCode::SUCCESS)
 	{
 	  GeoFullPhysVol *emecEnvelope=(GeoFullPhysVol *) sPhys->getPhysVol();
-	  
+
 	  // Inner Wheel Sampling 1 Region 0:
 	  {
 	    CellBinning phiBinning(startPhi,endPhi,64);
@@ -502,43 +503,43 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	    emecDetectorManager->addDetectorRegion(region);
 	  }
 	  // Inner Wheel Sampling 2 Region 0:
-	  
+
 	  {
 	    CellBinning phiBinning(startPhi,endPhi,64);
 	    EMECDetDescr *detDescr = new EMECDetDescr(emecDetectorManager,2,0,1,phiBinning);
 	    EMECDetectorRegion *region = new EMECDetectorRegion(emecEnvelope,detDescr,EMECDetectorRegion::DetectorSide(e),projectivityDisplacement);
 	    emecDetectorManager->addDetectorRegion(region);
 	  }
-	  
+
 	}
       }
       else
       	log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "EMEC_INNER_WHEEL_NEG" : "EMEC_INNER_WHEEL_POS")
 	    << " in Detector Store" << endreq;
-      
-      StoredPhysVol *sPresamplerEnvelope; 
+
+      StoredPhysVol *sPresamplerEnvelope;
 
       if(detStore->contains<StoredPhysVol>(e==0 ? "PRESAMPLER_EC_NEG":"PRESAMPLER_EC_POS" )){
-	if (StatusCode::SUCCESS==detStore->retrieve(sPresamplerEnvelope, e==0 ? "PRESAMPLER_EC_NEG":"PRESAMPLER_EC_POS" )) {        
+	if (StatusCode::SUCCESS==detStore->retrieve(sPresamplerEnvelope, e==0 ? "PRESAMPLER_EC_NEG":"PRESAMPLER_EC_POS" )) {
 	  GeoFullPhysVol * PresamplerEnvelope=sPresamplerEnvelope->getPhysVol();
 	  CellBinning presamplerPhiBinning(startPhi,endPhi,64);
 	  EMECDetDescr *presamplerDetDescr = new EMECDetDescr(emecDetectorManager,0,0,0,presamplerPhiBinning);
 	  EMECDetectorRegion *presamplerRegion = new EMECDetectorRegion(PresamplerEnvelope,presamplerDetDescr,EMECDetectorRegion::DetectorSide(e),projectivityDisplacement);
 	  emecDetectorManager->addDetectorRegion(presamplerRegion);
-	}                                                            
+	}
       }
-      else      
+      else
 	log << MSG::DEBUG << " No Stored PV for " << (e==0 ? "PRESAMPLER_EC_NEG":"PRESAMPLER_EC_POS")
 	    << " in Detector Store" << endreq;
     }
-    
+
   }
   catch (std::exception & ex) {
     log << MSG::WARNING << "Unable to build EMEC detector manager. " << ex.what() << endreq;
   }
 
   try
-  { 
+  {
     embDetectorManager  = new EMBDetectorManager();
     int firstEndcap=m_testbeam==0 ? 0:1, endEndcap=2;
     for (int e= firstEndcap ;e<endEndcap;e++) {
@@ -551,14 +552,14 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	endPhi  =22.5*M_PI/180;
 	NDIV=16;
       }
-      
+
       // Sampling layer 3 region 0:
       if (1)
 	{
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,256/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,3,0,phiBinning);
@@ -573,11 +574,11 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
       // Sampling layer 2 region 0:
       if (1)
 	{
-	  
+
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,256/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,2,0,phiBinning);
@@ -595,7 +596,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,256/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,2,1,phiBinning);
@@ -613,7 +614,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,64/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,1,0,phiBinning);
@@ -631,7 +632,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,256/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,1,1,phiBinning);
@@ -649,7 +650,7 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
 	  StoredPhysVol *sPhys;
 	  if(detStore->contains<StoredPhysVol>(e==0 ? "EMB_NEG" : "EMB_POS"))
 	  {
-	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS) 
+	    if (detStore->retrieve(sPhys,e==0 ? "EMB_NEG" : "EMB_POS")==StatusCode::SUCCESS)
 	    {
 	      CellBinning phiBinning(startPhi,endPhi,64/NDIV);
 	      EMBDetDescr *detDescr = new EMBDetDescr(embDetectorManager,0,0,phiBinning);
@@ -672,30 +673,30 @@ void LArGeo::LArDetectorFactory::create( GeoPhysVol* a_container )
   if (barrelEnvelope)    m_detectorManager->addTreeTop(barrelEnvelope);
   if (endcapEnvelopePos) m_detectorManager->addTreeTop(endcapEnvelopePos);
   if (endcapEnvelopeNeg) m_detectorManager->addTreeTop(endcapEnvelopeNeg);
-  
+
   StatusCode sc;
-  if (embDetectorManager)  
+  if (embDetectorManager)
   {
     sc = detStore->record(embDetectorManager,  embDetectorManager->getName());
     if(sc.isFailure())
       log << MSG::ERROR << "Unable to record embDetectorManager" << endreq;
   }
 
-  if (emecDetectorManager) 
+  if (emecDetectorManager)
   {
     sc = detStore->record(emecDetectorManager, emecDetectorManager->getName());
     if(sc.isFailure())
       log << MSG::ERROR << "Unable to record emecDetectorManager" << endreq;
   }
 
-  if (hecDetectorManager)    
+  if (hecDetectorManager)
   {
     sc = detStore->record(hecDetectorManager,  hecDetectorManager->getName());
     if(sc.isFailure())
       log << MSG::ERROR << "Unable to record hecDetectorManager" << endreq;
   }
 
-  if (fcalDetectorManager)     
+  if (fcalDetectorManager)
   {
     sc = detStore->record(fcalDetectorManager, fcalDetectorManager->getName());
     if(sc.isFailure())

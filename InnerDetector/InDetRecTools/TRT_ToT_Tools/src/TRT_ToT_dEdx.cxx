@@ -49,6 +49,8 @@ TRT_ToT_dEdx::TRT_ToT_dEdx(const std::string& t, const std::string& n, const IIn
 
 void TRT_ToT_dEdx::SetDefaultConfiguration()
 {
+        //If this option is set to true, bugfixes for r21.0 are applied concerning unused option DivideByL, wrong hit selection and truncation
+        declareProperty("TRT_dEdx_applyBugfix",m_applyBugfix=false);
 	declareProperty("TRT_dEdx_divideByL",m_divideByL=true);
 	declareProperty("TRT_dEdx_useHThits",m_useHThits=true);
 	declareProperty("TRT_dEdx_corrected",m_corrected=true);
@@ -68,6 +70,7 @@ void TRT_ToT_dEdx::ShowDEDXSetup() const
 	ATH_MSG_DEBUG("//////////////////////////////////////////////////////////////////");
 	ATH_MSG_DEBUG("///              TRT_ToT_Tool setup configuration              ///");
 	ATH_MSG_DEBUG(" ");
+	ATH_MSG_DEBUG("m_applyBugfix                   ="<<m_applyBugfix<<"");
 	ATH_MSG_DEBUG("m_divideByL                     ="<<m_divideByL<<"");
 	ATH_MSG_DEBUG("m_useHThits                     ="<<m_useHThits<<"");
 	ATH_MSG_DEBUG("m_corrected                     ="<<m_corrected<<"");
@@ -152,6 +155,7 @@ StatusCode TRT_ToT_dEdx::initialize()
   ATH_MSG_INFO("//////////////////////////////////////////////////////////////////");
   ATH_MSG_INFO("///              TRT_ToT_Tool setup configuration              ///");
   ATH_MSG_INFO(" ");
+  ATH_MSG_INFO("m_applyBugfix                   ="<<m_applyBugfix<<"");
   ATH_MSG_INFO("m_divideByL                     ="<<m_divideByL<<"");
   ATH_MSG_INFO("m_useHThits                     ="<<m_useHThits<<"");
   ATH_MSG_INFO("m_corrected                     ="<<m_corrected<<"");
@@ -680,16 +684,26 @@ bool TRT_ToT_dEdx::isGood_Hit(const Trk::TrackStateOnSurface *itr) const
   double Trt_RHit = fabs(driftcircle->localParameters()[Trk::driftRadius]);
   double Trt_HitTheta = trkP->parameters()[Trk::theta];
   double Trt_HitPhi = trkP->parameters()[Trk::phi];
-  double error2 = 2*driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius);
-  double distance2 = (Trt_Rtrack - Trt_RHit)*(Trt_Rtrack - Trt_RHit);
   Identifier DCId = driftcircle->identify();
   int HitPart =  m_trtId->barrel_ec(DCId);
   const InDetDD::TRT_BaseElement* element = m_trtman->getElement(DCId);
   double strawphi = element->center(DCId).phi();
+  
+  if (m_applyBugfix){
+    double error = sqrt(driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius));
 
-  if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
-  if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
-  if (distance2 > error2) return false; // Select precision hit only
+    if ( itr->type(Trk::TrackStateOnSurface::Outlier)  ) return false; //Outliers
+    if ( m_useZeroRHitCut && Trt_RHit==0 && error>1.) return false;    //Select precision hits only
+    if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) ) return false;    // drift radius close to wire or wall
+  }
+  else{
+    double error2 = 2*driftcircle->localCovariance()(Trk::driftRadius,Trk::driftRadius);
+    double distance2 = (Trt_Rtrack - Trt_RHit)*(Trt_Rtrack - Trt_RHit);
+    
+    if ( m_useZeroRHitCut && Trt_RHit==0) return false;                                     // tube hit
+    if ( (Trt_Rtrack >= m_trackConfig_maxRtrack) || (Trt_Rtrack <= m_trackConfig_minRtrack) )return false;    // drift radius close to wire or wall
+    if (distance2 > error2) return false; // Select precision hit only
+  }
 
   L = 0;
   if (std::abs(HitPart)==1) { //Barrel
@@ -727,11 +741,35 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track, bool DivideByL, bool useHThit
 	if(corrected) SwitchOnRSCorrection();
 	else SwitchOffRSCorrection();
 
-	if(DivideByL) SwitchOnDivideByL();
-	else SwitchOffDivideByL();
+	if (m_applyBugfix) {
 
-	if(useHThits) SwitchOnUseHThits();
-	else SwitchOffUseHThits();
+	  if(DivideByL) SwitchOnDivideByL();
+	  else{
+	    ATH_MSG_WARNING("dEdx(): DivideByL=false is an unused option. DivideByL is set to true.");
+	    SwitchOnDivideByL();
+	  }
+	  
+	  if(useHThits) SwitchOnUseHThits();
+	  else{
+	    ATH_MSG_WARNING("dEdx(): useHThits=false is an unused option. useHThits is set to true.");
+	    SwitchOnUseHThits();
+	  }
+	  
+	  if (m_toolScenario!=kAlgReweightTrunkOne){
+	    ATH_MSG_WARNING("dEdx(): m_toolScenario is set to default kAlgReweightTrunkOne.");
+	    m_toolScenario=kAlgReweightTrunkOne;
+	  }
+	  
+	  m_trackConfig_minRtrack=0.15;
+	  m_trackConfig_maxRtrack=1.85;
+	}
+	else {
+	  if(DivideByL) SwitchOnDivideByL(); 	
+	  else SwitchOffDivideByL();
+
+	  if(useHThits) SwitchOnUseHThits();
+	  else SwitchOffUseHThits();
+	}
 
 	return dEdx(track);
 }
@@ -845,36 +883,64 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
 	  int ntrunk = 1;
 	  if(m_divideByL)
 	  {
-		  if(m_toolScenario==kAlgReweight){
-				if(nhitsXe>0) nhitsXe-=ntrunk;
-				if(nhitsAr>0) nhitsAr-=ntrunk;
-				if(nhitsKr>0) nhitsKr-=ntrunk;
+	    if(m_applyBugfix){
+	          if(m_toolScenario==kAlgReweight){
+		    if(nhitsXe>ntrunk) nhitsXe-=ntrunk;
+		    if(nhitsAr>ntrunk) nhitsAr-=ntrunk;
+		    if(nhitsKr>ntrunk) nhitsKr-=ntrunk;
 		  }
 		  else // kAlgReweightTrunkOne
-		  {
-		  	int trunkGas = kUnset;
-		  	double maxToT = 0.;
-		  	if(nhitsXe>0 && vecToT_Xe.at(nhitsXe-1)>maxToT) trunkGas = kXenon;
-		  	if(nhitsAr>0 && vecToT_Ar.at(nhitsAr-1)>maxToT) trunkGas = kArgon;
+		    {
+		      int trunkGas = kUnset;
+		      double maxToT = 0.;
+		      if(nhitsXe>0 && vecToT_Xe.at(nhitsXe-1)>maxToT){
+			trunkGas = kXenon;
+			maxToT = vecToT_Xe.at(nhitsXe-1);
+		      }
+		      if(nhitsAr>0 && vecToT_Ar.at(nhitsAr-1)>maxToT){
+			trunkGas = kArgon;
+			maxToT = vecToT_Ar.at(nhitsAr-1);
+		      }
+		      if(nhitsKr>0 && vecToT_Kr.at(nhitsKr-1)>maxToT) trunkGas = kKrypton;
+		      if(trunkGas==kXenon)   nhitsXe-=ntrunk;
+		      else
+			if(trunkGas==kArgon)   nhitsAr-=ntrunk;
+			else
+			  if(trunkGas==kKrypton) nhitsKr-=ntrunk;
+		    }
+	    }
+	    else { 
+	          if(m_toolScenario==kAlgReweight){
+		    if(nhitsXe>0) nhitsXe-=ntrunk;
+		    if(nhitsAr>0) nhitsAr-=ntrunk;
+		    if(nhitsKr>0) nhitsKr-=ntrunk;
+		  }
+		  else // kAlgReweightTrunkOne
+		    {
+		      int trunkGas = kUnset;
+		      double maxToT = 0.;
+		      if(nhitsXe>0 && vecToT_Xe.at(nhitsXe-1)>maxToT) trunkGas = kXenon;
+		      if(nhitsAr>0 && vecToT_Ar.at(nhitsAr-1)>maxToT) trunkGas = kArgon;
 		  	if(nhitsKr>0 && vecToT_Kr.at(nhitsKr-1)>maxToT) trunkGas = kKrypton;
-
+			
 		  	if(trunkGas==kXenon)   nhitsXe-=ntrunk;
 		  	else
-		  	if(trunkGas==kArgon)   nhitsAr-=ntrunk;
-		  	else
-		  	if(trunkGas==kKrypton) nhitsKr-=ntrunk;
-		  }
-		}
+			  if(trunkGas==kArgon)   nhitsAr-=ntrunk;
+			  else
+			    if(trunkGas==kKrypton) nhitsKr-=ntrunk;
+		    }
+	    }
+	  }
 
-		m_useTrackPartWithGasType = gasTypeForCorrectNormalization;
+	  m_useTrackPartWithGasType = gasTypeForCorrectNormalization;
 
-		// Boost speed.
-		int nhits  = nhitsXe + nhitsAr + nhitsKr;
-		if(nhits<1) return 0.0;
-
-		double ToTsumXe = 0;
-  	double ToTsumAr = 0;
-  	double ToTsumKr = 0;
+	  // Boost speed.
+	  int nhits  = nhitsXe + nhitsAr + nhitsKr;
+	  if(nhits<1) return 0.0;
+	  
+	  double ToTsumXe = 0;
+	  double ToTsumAr = 0;
+	  double ToTsumKr = 0;
 	  for (int i = 0; i < nhitsXe;i++){
 	    ToTsumXe+=vecToT_Xe.at(i);
 	  } 
@@ -884,19 +950,19 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
 	  for (int i = 0; i < nhitsKr;i++){
 	    ToTsumKr+=vecToT_Kr.at(i);
 	  } 
-
+	  
 	  if(nhitsXe>0) ToTsumXe/=nhitsXe;
 	  else ToTsumXe = 0;
 	  if(nhitsAr>0) ToTsumAr/=nhitsAr;
 	  else ToTsumAr = 0;
 	  if(nhitsKr>0) ToTsumKr/=nhitsKr;
 	  else ToTsumKr = 0;
-
-
+	  
+	  
 	  double ToTsum = ToTsumXe*nhitsXe + ToTsumAr*nhitsAr + ToTsumKr*nhitsKr;
-
+	  
 	  ToTsum*=correctNormalization(m_divideByL, m_isData, nVtx);
-
+	  
 	  return ToTsum/nhits;
   }
   
@@ -909,13 +975,36 @@ double TRT_ToT_dEdx::dEdx(const Trk::Track* track)
 
 double TRT_ToT_dEdx::usedHits(const Trk::Track* track, bool DivideByL, bool useHThits)
 {
-	if(DivideByL) 	SwitchOnDivideByL();
-	else			SwitchOffDivideByL();
 
-	if(useHThits) 	SwitchOnUseHThits();
-	else			SwitchOffUseHThits();
+  if (m_applyBugfix){
+        if(DivideByL) SwitchOnDivideByL();
+	else{
+	  ATH_MSG_WARNING("usedHits(): DivideByL=false is an unused option. DivideByL is set to true.");
+	  SwitchOnDivideByL();
+	}
 
-	return usedHits(track);
+	if(useHThits) SwitchOnUseHThits();
+	else{
+	  ATH_MSG_WARNING("usedHits(): useHThits=false is an unused option. useHThits is set to true.");
+	  SwitchOnUseHThits();
+	}
+
+	if (m_toolScenario!=kAlgReweightTrunkOne){
+	  ATH_MSG_WARNING("usedHits(): m_toolScenario is set to default kAlgReweightTrunkOne.");
+	  m_toolScenario=kAlgReweightTrunkOne;
+	}
+
+	m_trackConfig_minRtrack=0.15;
+	m_trackConfig_maxRtrack=1.85;
+  }
+  else{
+    if(DivideByL) 	SwitchOnDivideByL();
+    else		SwitchOffDivideByL();
+
+    if(useHThits) 	SwitchOnUseHThits();
+    else		SwitchOffUseHThits();
+  }
+  return usedHits(track);
 }
 
 
@@ -987,14 +1076,29 @@ double TRT_ToT_dEdx::usedHits(const Trk::Track* track)
 
 	  int ntrunk = 1;
 	  if(m_divideByL) {
-		  if(m_toolScenario==kAlgReweight){
-				if(nhitsXe>0) nhitsXe-=ntrunk;
-				if(nhitsAr>0) nhitsAr-=ntrunk;
-				if(nhitsKr>0) nhitsKr-=ntrunk;
+	          if (m_applyBugfix){
+		    if(m_toolScenario==kAlgReweight){
+		      if(nhitsXe>ntrunk) nhitsXe-=ntrunk;
+		      if(nhitsAr>ntrunk) nhitsAr-=ntrunk;
+		      if(nhitsKr>ntrunk) nhitsKr-=ntrunk;
+		      nhits  = nhitsXe + nhitsAr + nhitsKr;
+		    }
+		    else { // kAlgReweightTrunkOne
+		      nhits  = nhitsXe + nhitsAr + nhitsKr;
+		      if(nhits>ntrunk)
+			nhits -= ntrunk;
+		    }
 		  }
-		  else { // kAlgReweightTrunkOne
-		  	if(nhitsXe>0 || nhitsAr>0 || nhitsKr>0)
-		  		nhitsXe -= ntrunk;
+		  else{
+		    if(m_toolScenario==kAlgReweight){
+		      if(nhitsXe>0) nhitsXe-=ntrunk;
+		      if(nhitsAr>0) nhitsAr-=ntrunk;
+		      if(nhitsKr>0) nhitsKr-=ntrunk;
+		    }
+		    else { // kAlgReweightTrunkOne
+		      if(nhitsXe>0 || nhitsAr>0 || nhitsKr>0)
+			nhitsXe -= ntrunk;
+		    }
 		  }
 		}
 
@@ -1687,20 +1791,26 @@ double TRT_ToT_dEdx::getToTlargerIsland(unsigned int BitPattern) const
 	unsigned int best_length = 0;
 	unsigned int current_length = 0;
 	unsigned int k = 0;
+	unsigned int BitPattern_correct = BitPattern;
 
+	if (m_applyBugfix){
+	  //Set 4 last bits to zero (to match data and MC bitmasks)
+	  BitPattern_correct = BitPattern & m_mask_last_bits;
+	}
+	
 	//shift bitmask to the right until end;
 	while (true) {
-		if (BitPattern & mask) {
-			++current_length;
+	        if (BitPattern_correct & mask) {
+		  ++current_length;
 		}
 		else {
-		 // remember longest island
-		 if (current_length > best_length)
-		  	best_length = current_length;
-		 current_length = 0;
+		  // remember longest island
+		  if (current_length > best_length)
+		    best_length = current_length;
+		  current_length = 0;
 		}
 		if (!mask)
-			break;
+		  break;
 		assert(k < 24);
 		mask >>= 1;
 		if (k == 7 || k == 15)

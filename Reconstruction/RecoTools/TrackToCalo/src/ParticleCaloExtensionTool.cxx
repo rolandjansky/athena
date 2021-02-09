@@ -283,6 +283,13 @@ namespace Trk
        ATH_MSG_VERBOSE (" p at MuonEntry " << muonEntry->momentum().mag() << " cov 00 " << (*(muonEntry->covariance()))(0,0) << " cov 11 " << (*(muonEntry->covariance()))(1,1));
        }
     }
+
+    // add the following lines to avoid double deletion of the "startPars" object
+    // more details in jira DATREP-183
+    if (muonEntry == &startPars) {
+	muonEntry = startPars.clone();
+    }
+
     // clean-up memory
     delete caloParameters;
     CaloExtension* theExtension = new CaloExtension(caloEntry,muonEntry,std::move(caloLayers));

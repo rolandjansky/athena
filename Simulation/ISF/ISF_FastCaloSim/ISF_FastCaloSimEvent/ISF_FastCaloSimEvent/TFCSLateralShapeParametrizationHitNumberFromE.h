@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrizationHitNumberFromE_h
@@ -26,22 +26,29 @@ public:
   ///    constant=0.035;
   TFCSLateralShapeParametrizationHitNumberFromE(const char* name=nullptr, const char* title=nullptr,double stochastic=0.1,double constant=0);
 
+  TFCSLateralShapeParametrizationHitNumberFromE(const char* name, const char* title,double stochastic,double stochastic_hadron,double constant);
+
   ///Give the effective size sigma^2 of the fluctuations from the stochastic and constant term
   double get_sigma2_fluctuation(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
+  virtual bool operator==(const TFCSParametrizationBase& ref) const override;
+
   void Print(Option_t *option = "") const override;
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
+
 private:
-  // simple shape information should be stored as private member variables here
+  // Information for the fluctuation terms
+  // The variation is calculated as:
+  // sigma^2=[m_stochastic/sqrt(E/GeV)]^2 + [m_constant + m_stochastic_hadron/sqrt(E/GeV)]^2
   double m_stochastic;
+  double m_stochastic_hadron;
   double m_constant;
 
-  ClassDefOverride(TFCSLateralShapeParametrizationHitNumberFromE,1)  //TFCSLateralShapeParametrizationHitNumberFromE
+  ClassDefOverride(TFCSLateralShapeParametrizationHitNumberFromE,2)  //TFCSLateralShapeParametrizationHitNumberFromE
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
-#endif
 
 #endif

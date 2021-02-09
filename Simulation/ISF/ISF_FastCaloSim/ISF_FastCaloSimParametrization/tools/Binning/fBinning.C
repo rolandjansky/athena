@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TLorentzVector.h"
@@ -52,9 +52,7 @@ using namespace std;
 
 int fGetIndex(float myvar,Float_t *vvarBin, Int_t nbins);
 
-TH2F fBinning(string myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, string mycase, float layer, string dopart, TH1F &halpha, TH1F &hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy);
-
-TH2F fBinning(string myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, string mycase, float layer, string doPart, TH1F &halpha, TH1F& hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy){
+TH2F fBinning(const string& myfile, Int_t nxbins, Float_t *xbins, Int_t nybins, Float_t *ybins, Int_t nxbinsAlpha, Float_t *xbinsAlpha, Int_t nybinsR, Float_t *ybinsR, const string& mycase, float layer, const string& doPart, TH1F &halpha, TH1F& hdr, TH1F &halphaE, TH1F &hdrE, TMatrixD &mEnergy, TMatrixD &mxEnergy, TMatrixD &myEnergy){
 
   TH1::SetDefaultSumw2(kTRUE);
 

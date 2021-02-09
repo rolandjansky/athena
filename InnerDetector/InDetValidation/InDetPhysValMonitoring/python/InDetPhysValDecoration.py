@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 # block('InDetPhysValMonitoring/InDetPhysValDecoration.py')
 import ConfigUtils
@@ -96,107 +96,62 @@ def setMetaData() :
    # print 'DEBUG add meta data %s.' % svcMgr.TagInfoMgr.ExtraTagValuePairs
 
 
-from ConfigUtils import _args
-from ConfigUtils import injectNameArgument
+from ConfigUtils import setDefaults
 from ConfigUtils import dumpConfigurables
-from ConfigUtils import checkKWArgs
 from ConfigUtils import toolFactory
 
 from InDetTrackHoleSearch.InDetTrackHoleSearchConf import InDet__InDetTrackHoleSearchTool
-class InDetHoleSearchTool(object) :
-  '''
-  Namespace for inner detector hole search tools
-  '''
-  def __init__(self) :
-     raise('must not be instantiated. Only child classes should be instantiated.')
+def getPhysValMonInDetHoleSearchTool(**kwargs) :
+    '''
+    default inner detector hole search tool
+    '''
+    from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
+    # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
+    # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
+    # @TODO find a better to solution to get the correct service for the current job.
+    SctSummarySvc = "InDetSCT_ConditionsSummarySvc"
+    if not hasattr(ServiceMgr, SctSummarySvc):
+        SctSummarySvc = "SCT_ConditionsSummarySvc"
+    from InDetRecExample.InDetJobProperties import InDetFlags
+    kwargs=setDefaults( kwargs,
+                        name                         = 'PhysValMonInDetHoleSearchTool',
+                        Extrapolator                 = ToolSvc.InDetExtrapolator,
+                        SctSummarySvc                = SctSummarySvc,
+                        usePixel                     = True,
+                        useSCT                       = True,
+                        checkBadSCTChip              = InDetFlags.checkDeadElementsOnTrack(),
+                        # OutputLevel                = 1,
+                        CountDeadModulesAfterLastHit = True)
 
-  class PhysValMonInDetHoleSearchTool(InDet__InDetTrackHoleSearchTool) :
-      '''
-      default inner detector hole search tool
-      '''
-      @injectNameArgument
-      def __new__(cls, *args, **kwargs) :
-          # if cls.__name__ in cls.configurables :
-          #     print 'WARNING configurable %s exists already ' % cls.__name__
-          return InDet__InDetTrackHoleSearchTool.__new__(cls,*args,**kwargs)
-
-      @checkKWArgs
-      def __init__(self, **kwargs) :
-          from AthenaCommon.AppMgr import ToolSvc, ServiceMgr
-          # If InDetSCT_ConditionsSummarySvc instance configured by InDetRecConditionsAccess.py is available, use it.
-          # Otherwise, the default SCT_ConditionsSummarySvc instance is used.
-          # @TODO find a better to solution to get the correct service for the current job.
-          SctSummarySvc = "InDetSCT_ConditionsSummarySvc"
-          if not hasattr(ServiceMgr, SctSummarySvc):
-              SctSummarySvc = "SCT_ConditionsSummarySvc"
-          from InDetRecExample.InDetJobProperties import InDetFlags
-          super(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool,self).__init__(**_args( kwargs,
-                                                                                                 name         = self.__class__.__name__,
-                                                                                                 Extrapolator = ToolSvc.InDetExtrapolator,
-                                                                                                 SctSummarySvc = SctSummarySvc,
-                                                                                                 usePixel     = True,
-                                                                                                 useSCT       = True,
-                                                                                                 checkBadSCTChip = InDetFlags.checkDeadElementsOnTrack(),
-                                                                                                 # OutputLevel  = 1,
-                                                                                                 CountDeadModulesAfterLastHit = True) )
+    return InDet__InDetTrackHoleSearchTool(**kwargs)
 
 
-import InDetPhysValMonitoring.InDetPhysValMonitoringConf
-class InDetPhysHitDecoratorTool(object) :
-  '''
-  Namespace for hit decoration tool
-  '''
-  def __init__(self) :
-     raise('must not be instantiated. Only child classes should be instantiated.')
+def getInDetPhysHitDecoratorTool(**kwargs) :
+    kwargs=setDefaults(kwargs,name='InDetPhysHitDecoratorTool')
+    if 'InDetTrackHoleSearchTool' not in kwargs :
+        kwargs=setDefaults(kwargs,InDetTrackHoleSearchTool = toolFactory(getPhysValMonInDetHoleSearchTool))
 
-  class InDetPhysHitDecoratorTool(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorTool) :
-      @injectNameArgument
-      def __new__(cls, *args, **kwargs) :
-          return InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorTool.__new__(cls,*args,**kwargs)
+    import InDetPhysValMonitoring.InDetPhysValMonitoringConf
+    return InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysHitDecoratorTool(**kwargs)
 
-      @checkKWArgs
-      def __init__(self, **kwargs) :
-          super(InDetPhysHitDecoratorTool.InDetPhysHitDecoratorTool,self)\
-                        .__init__(**_args( kwargs,
-                                           name = self.__class__.__name__))
-
-          # custom configuration here:
-          self.InDetTrackHoleSearchTool = toolFactory(InDetHoleSearchTool.PhysValMonInDetHoleSearchTool)
-
-
-# Configuration of InDetPhysValDecoratorAlg algorithms
-# 
-import InDetPhysValMonitoring.InDetPhysValMonitoringConf
-class InDetPhysValDecoratorAlg(object) :
-  '''
-  Namespace for track aprticle decoration algorithms
-  '''
-  def __init__(self) :
-     raise('must not be instantiated. Only child classes should be instantiated.')
-
-  class InDetPhysValDecoratorAlg(InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValDecoratorAlg) :
-      '''
-      Default track particle decoration algorithm.
-      This algorithm will decorate the InDetTrackParticles.
-      '''
-      @injectNameArgument
-      def __new__(cls, *args, **kwargs) :
-          return InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValDecoratorAlg.__new__(cls,*args,**kwargs)
-
-      @checkKWArgs
-      def __init__(self, **kwargs) :
-          super(InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlg,self)\
-                        .__init__(**_args( kwargs,
-                                           name = self.__class__.__name__))
-
-          # custom configurations below:
-          self.InDetPhysHitDecoratorTool = toolFactory(InDetPhysHitDecoratorTool.InDetPhysHitDecoratorTool)  
-          # self.InDetPhysHitDecoratorTool.OutputLevel=1
-          from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC
-          if not isMC() :
-              # disable truth monitoring for data
-              self.TruthParticleContainerName = ''
-
+def getInDetRttTruthSelectionTool(**kwargs) :
+    # should match truth selection of truth decorator
+    from AthenaCommon.AppMgr import ToolSvc
+    the_name='AthTruthSelectionTool'
+    if hasattr(ToolSvc,the_name) :
+        return getattr(ToolSvc,the_name)
+    from InDetPhysValMonitoring.InDetPhysValMonitoringConf import AthTruthSelectionTool
+    comb_kwargs={}
+    comb_kwargs.update(requireStatus1 = True,
+                      requireCharged = True,
+                      maxBarcode = ( 200*1000 if kwargs.pop("OnlyDressPrimaryTracks",True) else 2**31-1 ),
+                      maxProdVertRadius = 110.,
+                      maxEta = 2.5,
+                      minPt = 400. )
+    comb_kwargs.update(kwargs)
+    tool=AthTruthSelectionTool(**comb_kwargs)
+    ToolSvc += tool
+    return tool
 
 class InDetPhysValKeys :
     '''
@@ -212,32 +167,43 @@ class InDetPhysValKeys :
     # @todo should be used also in InDetPhysValMonitoring.py
     GSFTrackParticles = 'GSFTrackParticles'
 
-class InDetPhysValDecoratorAlg(InDetPhysValDecoratorAlg) :
 
-  class InDetPhysValDecoratorAlgGSF(InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlg) :
-      '''
-      Algorithm to decorate GSF track particles.
-      '''
-      def __init__(self, **kwargs) :
-          super(InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlgGSF,self)\
-                        .__init__(**_args( kwargs,
-                                           name = self.__class__.__name__))
-          # custom configuration below:
-          self.TrackParticleContainerName=InDetPhysValKeys.GSFTrackParticles
+def getInDetPhysValDecoratorAlg(**kwargs) :
+    '''
+    Default track particle decoration algorithm.
+    This algorithm will decorate the InDetTrackParticles.
+    '''
+    kwargs=setDefaults(kwargs,
+                       name = 'InDetPhysValDecoratorAlg')
+    if 'InDetPhysHitDecoratorTool' not in kwargs :
+        kwargs=setDefaults(kwargs,
+                           InDetPhysHitDecoratorTool = toolFactory(getInDetPhysHitDecoratorTool))
 
+    # self.InDetPhysHitDecoratorTool.OutputLevel=1
+    from InDetPhysValMonitoring.InDetPhysValJobProperties import isMC
+    if not isMC() :
+        # disable truth monitoring for data
+        kwargs=setDefaults(kwargs, TruthParticleContainerName = '')
 
-  class InDetPhysValDecoratorAlgDBM(InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlg) :
-      '''
-      Algorithm to decorate DBM Track particles.
-      '''
-      def __init__(self, **kwargs) :
-          super(InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlgDBM,self)\
-                        .__init__(**_args( kwargs,
-                                           name = self.__class__.__name__))
-          # custom configuration below:
-          from InDetRecExample.InDetKeys import InDetKeys
-          self.TrackParticleContainerName=InDetKeys.DBMTrackParticles()
+    import InDetPhysValMonitoring.InDetPhysValMonitoringConf
+    return InDetPhysValMonitoring.InDetPhysValMonitoringConf.InDetPhysValDecoratorAlg(**kwargs)
 
+def getInDetPhysValDecoratorAlgGSF(**kwargs) :
+    '''
+    Algorithm to decorate GSF track particles.
+    '''
+    return getInDetPhysValDecoratorAlg( **setDefaults(kwargs,
+                                                      name                       = 'InDetPhysValDecoratorAlgGSF',
+                                                      TrackParticleContainerName =InDetPhysValKeys.GSFTrackParticles))
+
+def getInDetPhysValDecoratorAlgDBM(**kwargs) :
+    '''
+    Algorithm to decorate DBM track particles.
+    '''
+    from InDetRecExample.InDetKeys import InDetKeys
+    return getInDetPhysValDecoratorAlg( **setDefaults(kwargs,
+                                                      name                       = 'InDetPhysValDecoratorAlgDBM',
+                                                      TrackParticleContainerName =InDetKeys.DBMTrackParticles() ))
 
 # Debugging
 # import trace
@@ -294,12 +260,11 @@ def addGSFTrackDecoratorAlg() :
    Search egamma algorithm and add the GSF TrackParticle decorator after the it.
    '''
    from InDetPhysValMonitoring.InDetPhysValDecoration    import _addDecorators
-   from InDetPhysValMonitoring.InDetPhysValDecoration    import InDetPhysValDecoratorAlg
-
    from InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
    if InDetPhysValFlags.doValidateGSFTracks() :
       # print 'DEBUG add addGSFTrackDecoratorAlg'
-      decorators=[InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlgGSF() ]
+      decorators=[getInDetPhysValDecoratorAlgGSF()]
+
       # add the InDetPhysValDecoratorAlgGSF after the egamma algorithms ran
       # they build the GSF track particles.
       _addDecorators( decorators, ['egamma','egammaTruthAssociationAlg'] )
@@ -344,7 +309,7 @@ def addDecorator() :
 
   decorators=[]
 
-  decorators.append( InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlg() )
+  decorators.append( getInDetPhysValDecoratorAlg() )
 
   from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
   InDetPhysValFlags.init()
@@ -361,10 +326,17 @@ def addDecorator() :
   # for backward compatibility check whether DBM has been added already
   if InDetPhysValFlags.doValidateDBMTracks() and hasattr(InDetKeys,'DBMTrackParticles') :
     # and InDetFlags.doDBM()
-    decorators.append( InDetPhysValDecoratorAlg.InDetPhysValDecoratorAlgDBM() )
+    decorators.append( getInDetPhysValDecoratorAlgDBM() )
+
+  from  InDetPhysValMonitoring.InDetPhysValJobProperties import InDetPhysValFlags
+  from  InDetPhysValMonitoring.ConfigUtils import extractCollectionPrefix
+  for col in InDetPhysValFlags.validateExtraTrackCollections() :
+      prefix=extractCollectionPrefix(col)
+      decorators += [ getInDetPhysValDecoratorAlg(name                       = 'InDetPhysValDecoratorAlg'+prefix,
+                                                  TrackParticleContainerName = prefix+"TrackParticles") ]
 
   _addDecorators( decorators )
- 
+
 def addExtraMonitoring() :
   '''
   IF monitoring is wished for GSF or DBM TrackParticles find the monitoring manager and 

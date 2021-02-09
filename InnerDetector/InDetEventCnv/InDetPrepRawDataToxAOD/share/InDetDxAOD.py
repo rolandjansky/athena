@@ -48,6 +48,12 @@ printIdTrkDxAODConf = InDetDxAODFlags.PrintIdTrkDxAODConf()  # True
 # Create split-tracks if running on cosmics
 makeSplitTracks = InDetDxAODFlags.MakeSplitCosmicTracks() and athCommonFlags.Beam.beamType() == 'cosmics'
 
+# general skimming based on this string input
+skimmingExpression = InDetDxAODFlags.SkimmingExpression() # *empty string*
+
+# thinning of pixel clusters
+pixelClusterThinningExpression = InDetDxAODFlags.PixelClusterThinningExpression() # *empty string*
+
 ## Autoconfiguration adjustements
 isIdTrkDxAODSimulation = False
 if (globalflags.DataSource == 'geant4'):
@@ -314,6 +320,13 @@ if TrtZSel or TrtJSel:
         print JPSI_SkimmingTool
 
 
+if skimmingExpression: 
+    from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+    stringSkimmingTool = DerivationFramework__xAODStringSkimmingTool(name = "stringSkimmingTool",
+                                                                     expression = skimmingExpression)
+    
+    ToolSvc += stringSkimmingTool 
+
 
 DRAW_ZMUMU_SkimmingTool=None
 if DRAWZSel:
@@ -555,6 +568,8 @@ if TrtJSel:
 if DRAWZSel:
   skimmingTools.append(DRAW_ZMUMU_SkimmingTool)
 
+if skimmingExpression:
+    skimmingTools.append(stringSkimmingTool)
 
 #minimumbiasTrig = '(L1_RD0_FILLED)'
 #
@@ -579,6 +594,18 @@ IDTRKThinningTool = DerivationFramework__TrackParticleThinning(name = "IDTRKThin
                                                                  ThinHitsOnTrack = thinHitsOnTrack)
 ToolSvc += IDTRKThinningTool
 thinningTools.append(IDTRKThinningTool)
+
+if pixelClusterThinningExpression: 
+    from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__TrackMeasurementThinning
+    trackMeasurementThinningTool = DerivationFramework__TrackMeasurementThinning( 
+        name                          = "TrackMeasurementThinningTool",
+        ThinningService               = "IDTRKThinningSvc",
+        SelectionString               = pixelClusterThinningExpression,
+        TrackMeasurementValidationKey = "PixelClusters",
+        ApplyAnd                      = False)
+
+    ToolSvc += trackMeasurementThinningTool 
+    thinningTools.append(trackMeasurementThinningTool)
 
 #====================================================================
 # Create the derivation Kernel and setup output stream
@@ -628,9 +655,23 @@ IDTRKVALIDStream.AddItem("xAOD::EventAuxInfo#*")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
 IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+excludedAuxData)
 
+if InDetFlags.doLowPtRoI:
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#LowPtRoITrackParticles")
+    IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#LowPtRoITrackParticlesAux."+excludedAuxData)
+    IDTRKVALIDStream.AddItem("xAOD::VertexContainer#LowPtRoIVertexContainer")
+    IDTRKVALIDStream.AddItem("xAOD::VertexAuxContainer#LowPtRoIVertexContainerAux."+excludedAuxData)
+
 if InDetFlags.doStoreTrackSeeds():
    IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle")
    IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData)
+
+if InDetFlags.doStoreTrackSeeds() and InDetFlags.doLowPtRoI:
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle")
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPLowPtRoISeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData)
+
+if InDetFlags.doStoreTrackCandidates() and InDetFlags.doLowPtRoI:
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle")
+   IDTRKVALIDStream.AddItem('xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODSiSPLowPtRoITrackCandidates()+"TrackParticle"+'Aux.' + excludedAuxData)
 
 if InDetFlags.doStoreTrackCandidates():
    IDTRKVALIDStream.AddItem('xAOD::TrackParticleContainer#'+InDetKeys.xAODSiSPTrackCandidates()+"TrackParticle")

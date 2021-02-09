@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSEnergyInterpolationSpline_h
@@ -13,6 +13,15 @@ class TGraph;
 class TFCSEnergyInterpolationSpline:public TFCSParametrization {
 public:
   TFCSEnergyInterpolationSpline(const char* name=nullptr, const char* title=nullptr);
+
+  ///Status bit for energy initialization
+  enum FCSEnergyInitializationStatusBits {
+     kOnlyScaleEnergy = BIT(15) ///< Set this bit in the TObject bit field the simulated energy should only be scaled by the spline
+  };
+
+  bool OnlyScaleEnergy() const {return TestBit(kOnlyScaleEnergy);};
+  void set_OnlyScaleEnergy() {SetBit(kOnlyScaleEnergy);};
+  void reset_OnlyScaleEnergy() {ResetBit(kOnlyScaleEnergy);};
 
   virtual bool is_match_Ekin_bin(int /*Ekin_bin*/) const override {return true;};
   virtual bool is_match_calosample(int /*calosample*/) const override {return true;};
@@ -32,7 +41,7 @@ public:
   const TSpline3& spline() const {return m_spline;};
 
   ///Initialize simulstate with the mean reconstructed energy in the calorimater expeted from the true kinetic energy
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 
   void Print(Option_t *option="") const override;
 
@@ -42,9 +51,5 @@ private:
 
   ClassDefOverride(TFCSEnergyInterpolationSpline,1)  //TFCSEnergyInterpolationSpline
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSEnergyInterpolationSpline+;
-#endif
 
 #endif

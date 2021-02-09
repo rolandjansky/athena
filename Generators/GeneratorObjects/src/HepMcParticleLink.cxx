@@ -49,16 +49,27 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
 	     << "cptr: no truth particle associated with this hit (barcode==0)."
 	     << " Probably this is a noise hit" << endmsg;
 #endif
-      return 0;
+      return nullptr;
     }
+    // Attempt to force HepMcParticleLink to look in the main
+    // StoreGate instance.
+#if 0
+    const std::string oldStoreName(m_ptrs.m_dict->name());
+#endif
+    m_ptrs.m_dict = SG::CurrentEventStore::store();
+#if 0
+      mlog() << MSG::DEBUG
+             << "cptr: Switched from looking in " << oldStore
+             << " to looking in " << m_ptrs.m_dict->name() << endmsg;
+#endif
     CLID clid = ClassID_traits<McEventCollection>::ID();
     const McEventCollection* pEvtColl(0);
     if(s_HOSTKEY.empty() ) {
-      if (!find_hostkey()) return 0;
+      if (!find_hostkey()) return nullptr;
     }
     SG::DataProxy* proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
     if (!proxy) {
-      if (!find_hostkey()) return 0;
+      if (!find_hostkey()) return nullptr;
       proxy = m_ptrs.m_dict->proxy (clid, s_HOSTKEY);
     }
     if (proxy && 
@@ -70,18 +81,20 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
 	m_ptrs.m_particle = pEvt->barcode_to_particle(barcode());
         m_have_particle = true;
       } else {
-	mlog() << MSG::WARNING 
-	       << "cptr: Mc Truth not stored for event " << eventIndex() 
+	mlog() << MSG::WARNING
+	       << "cptr: Mc Truth not stored for event " << eventIndex()
+               << " of " << m_ptrs.m_dict->name() << "/" << s_HOSTKEY
 	       << endreq;
       }
     } else {
-      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endreq;
+      mlog() << MSG::WARNING << "cptr: McEventCollection called " << s_HOSTKEY
+             << " not found in " << m_ptrs.m_dict->name() << endreq;
     }
   }
 
   if (m_have_particle)
     return m_ptrs.m_particle;
-  return 0;
+  return nullptr;
 }
 
 
@@ -108,8 +121,8 @@ bool HepMcParticleLink::find_hostkey() const
   else if (m_ptrs.m_dict->proxy (clid, s_AODKEY))
     s_HOSTKEY=s_AODKEY;
   if (!s_HOSTKEY.empty()) {
-    mlog() << MSG::INFO << "find_hostkey: Using " << s_HOSTKEY
-        <<" as McEventCollection key for this job " << endreq;
+    mlog() << MSG::INFO << "find_hostkey: Using " << m_ptrs.m_dict->name() << "/"
+           << s_HOSTKEY << " as McEventCollection key for this job " << endreq;
     return true;
   }
   if (msgCount<CPTRMAXMSGCOUNT) {

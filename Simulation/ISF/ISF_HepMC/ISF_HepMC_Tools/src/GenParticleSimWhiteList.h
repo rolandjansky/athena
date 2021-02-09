@@ -49,9 +49,10 @@ namespace ISF {
      private:
       /** returns true if the the particle and all daughters are on the white list */
       bool pass(const HepMC::GenParticle& particle , std::vector<int> & used_vertices ) const;
-      std::string                       m_whiteList;            //!< The location of the white list
+      std::vector<std::string>          m_whiteLists;            //!< The location of the white lists
       std::vector<long int>             m_pdgId;                //!< Allowed PDG IDs
       bool                              m_qs;                   //!< Switch for quasi-stable particle simulation
+      double m_minDecayRadiusQS;                         //!< Decay radius below which QS particles should be ignored
   };
 
 }

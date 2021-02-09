@@ -37,7 +37,10 @@ def main():
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
-    trf.generateReport()
+    if 'outputFileValidation' in  trf._argdict and  trf._argdict['outputFileValidation'].value is False:
+        msg.info('Skipping report generation')
+    else:
+        trf.generateReport()
 
     msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
     sys.exit(trf.exitCode)

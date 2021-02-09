@@ -9,6 +9,8 @@ Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
 #include "TMath.h"
 #include "GaudiKernel/ITHistSvc.h"
 #include "IHistograms.h"
+#include "ParticleHistograms.h"
+
 
 #include <TROOT.h>
 #include <TStyle.h>
@@ -20,7 +22,8 @@ namespace egammaMonitoring{
 
     EfficiencyPlot(std::string name, std::string folder,  ITHistSvc * &rootHistSvc ) ;
     ~EfficiencyPlot(){ };
-    StatusCode divide(std::unique_ptr<IHistograms>  &pass,  std::unique_ptr<IHistograms> &total);
+    StatusCode divide(IHistograms  *pass,  IHistograms *total);
+
       
   private:
     std::string m_name;

@@ -44,7 +44,6 @@
 #include "egammaEvent/egammaParamDefs.h"
 #include "egammaEvent/egammaPIDdefs.h"
 
-
 #include "xAODMissingET/MissingET.h"
 #include "xAODMissingET/MissingETContainer.h"
 
@@ -87,7 +86,6 @@ IDPerfMonZee::~IDPerfMonZee() { }
 
 StatusCode IDPerfMonZee::initialize()
 {
-
    m_histosBooked = 0;
 
   if (m_tracksName.empty() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no track collection given" << endreq;
@@ -530,7 +528,7 @@ StatusCode IDPerfMonZee::fillHistograms()
      const xAOD::MissingET *met;
      met = (*final_met)[m_metRefFinalName];
      if (met) {
-         msg(MSG::DEBUG) << "MET = " << met->met() << endreq;   
+         msg(MSG::DEBUG) << " zee MET = " << met->met() << endreq;   
      }
   }
 

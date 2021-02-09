@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/DoubleArray.h"
@@ -19,13 +19,16 @@
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h"
+#include "ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h"
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBase.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSInitWithEkin.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationHistogram.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationPiecewiseLinear.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationChain.h"
 #include "ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h"
@@ -39,10 +42,17 @@
 #include "ISF_FastCaloSimEvent/TFCSEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h"
+#ifndef __FastCaloSimNoLWTNN__
+#include "ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h"
+#endif
 
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h"
+#include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h"
+
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h"
 #include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h"
+#include "ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h"
 #include "ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h"
 #include "ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h"
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h"
@@ -55,6 +65,7 @@
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h"
 #include "ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h"
+#include "ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h"
 
 #include "ISF_FastCaloSimEvent/TFCSTruthState.h"
 #include "ISF_FastCaloSimEvent/TFCSExtrapolationState.h"
@@ -80,11 +91,11 @@
 #pragma link C++ class TFCS1DFunction_Numeric<double,float>+;
 #pragma link C++ class TFCS1DFunction_Numeric<double,double>+;
 
-#pragma link C++ class TFCS1DFunction_Array<float>+;
-#pragma link C++ class TFCS1DFunction_Array<double>+;
-#pragma link C++ class TFCS1DFunction_Array<uint8_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint16_t>+;
-#pragma link C++ class TFCS1DFunction_Array<uint32_t>+;
+#pragma link C++ class TFCS1DFunction_Array<float>-;
+#pragma link C++ class TFCS1DFunction_Array<double>-;
+#pragma link C++ class TFCS1DFunction_Array<uint8_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint16_t>-;
+#pragma link C++ class TFCS1DFunction_Array<uint32_t>-;
 
 #pragma link C++ class TFCS1DFunction_HistogramContent<float,float>+;
 #pragma link C++ class TFCS1DFunction_HistogramContent<double,float>+;
@@ -137,21 +148,56 @@
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
 
 #pragma link C++ class TFCS2DFunctionInt8Int8Int8Histogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int8Int16Histogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int8Int32Histogram+;
-
 #pragma link C++ class TFCS2DFunctionInt8Int16Int8Histogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int16Int16Histogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int16Int32Histogram+;
-
+#pragma link C++ class TFCS2DFunctionInt8Int32Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int32Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int32Histogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int8Histogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int16Histogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int32Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int32Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int32Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int32Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int8Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int16Histogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int32Histogram+;
+
 
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
@@ -159,21 +205,87 @@
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
 #pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+
+
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt8BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt16BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt8BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt16BinEdges, uint32_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint8_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint16_t,float>+;
+#pragma link C++ class TFCS2DFunctionTemplateInterpolationExpHistogram<TFCS1DFunction_HistogramInt32BinEdges, TFCS1DFunction_HistogramInt32BinEdges, uint32_t,float>+;
+
 
 #pragma link C++ class TFCS2DFunctionInt8Int8Int8InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int8Int16InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int8Int32InterpolationHistogram+;
-
 #pragma link C++ class TFCS2DFunctionInt8Int16Int8InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int16Int16InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt8Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt8Int32Int32InterpolationHistogram+;
 
+#pragma link C++ class TFCS2DFunctionInt16Int8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int8Int32InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int8InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int16InterpolationHistogram+;
 #pragma link C++ class TFCS2DFunctionInt16Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt16Int32Int32InterpolationHistogram+;
+
+#pragma link C++ class TFCS2DFunctionInt32Int8Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int8Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int16Int32InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int8InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int16InterpolationHistogram+;
+#pragma link C++ class TFCS2DFunctionInt32Int32Int32InterpolationHistogram+;
 
 ///End Linkdefs needed for template based histograms
 
@@ -184,7 +296,9 @@
 #pragma link C++ class TFCSParametrization+;
 #pragma link C++ class TFCSInvisibleParametrization+;
 #pragma link C++ class TFCSInitWithEkin+;
+#pragma link C++ class TFCSEnergyInterpolationHistogram+;
 #pragma link C++ class TFCSEnergyInterpolationLinear+;
+#pragma link C++ class TFCSEnergyInterpolationPiecewiseLinear-;
 #pragma link C++ class TFCSEnergyInterpolationSpline+;
 #pragma link C++ class TFCSParametrizationChain-;
 #pragma link C++ class TFCSParametrizationBinnedChain+;
@@ -196,24 +310,31 @@
 #pragma link C++ class TFCSParametrizationAbsEtaSelectChain+;
 
 #pragma link C++ class TFCSEnergyParametrization+;
-#pragma link C++ class TFCSPCAEnergyParametrization+;
+#pragma link C++ class TFCSPCAEnergyParametrization-;
 #pragma link C++ class TFCSEnergyBinParametrization+;
+#ifndef __FastCaloSimNoLWTNN__
+#pragma link C++ class TFCSEnergyAndHitGAN-;
+#endif
 
 #pragma link C++ class TFCSLateralShapeParametrization+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitChain+;
+#pragma link C++ class TFCSLateralShapeParametrizationFluctChain+;
 #pragma link C++ class TFCSCenterPositionCalculation+;
 #pragma link C++ class TFCSFlatLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeParametrizationFCal+;
 #pragma link C++ class TFCS2DFunctionLateralShapeParametrization+;
 #pragma link C++ class TFCSHistoLateralShapeWeight+;
+#pragma link C++ class TFCSHistoLateralShapeGausLogWeight+;
 #pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;
+#pragma link C++ class TFCSHistoLateralShapeGausLogWeightHitAndMiss+;
 #pragma link C++ class TFCSLateralShapeParametrizationHitNumberFromE+;
 #pragma link C++ class TFCSHitCellMapping+;
 #pragma link C++ class TFCSHitCellMappingFCal+;
 #pragma link C++ class TFCSHitCellMappingWiggle+;
 #pragma link C++ class TFCSHitCellMappingWiggleEMB+;
+#pragma link C++ class TFCSEnergyRenormalization+;
 
 #pragma link C++ class TFCSTruthState+;
 #pragma link C++ class TFCSExtrapolationState+;

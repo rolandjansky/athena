@@ -159,5 +159,19 @@ class DRAWZSelection(JobProperty):
     StoredValue = False
 jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(DRAWZSelection)
 
+class SkimmingExpression(JobProperty):
+    """Event selection based on string input"""
+    statusOn = True
+    allowedTypes = ["string"]
+    StoredValue = ""
+    pass
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(SkimmingExpression)
+
+class PixelClusterThinningExpression(JobProperty):
+    """Pixel cluster thinning"""
+    statusOn = True
+    allowedTypes = ["string"]
+    StoredValue = ""
+jobproperties.InDetDxAODJobPropertyContainer.add_JobProperty(PixelClusterThinningExpression)
 
 InDetDxAODFlags = jobproperties.InDetDxAODJobPropertyContainer

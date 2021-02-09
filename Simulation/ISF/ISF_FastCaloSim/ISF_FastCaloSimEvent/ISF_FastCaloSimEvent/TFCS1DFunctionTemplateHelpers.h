@@ -251,13 +251,29 @@ template<typename T,typename Trandom=float> class TFCS1DFunction_HistogramBinEdg
       return (1-drnd)*m_array[pos] + drnd*m_array[pos+1];
     };
 
-    ///return interpolated position for bin pos, such that histograming the position gives a linear slope m,
+    ///return linearly interpolated position for bin pos, such that histograming the position gives a linear slope m,
     ///where m is in units of the bin width for bin pos. Interpolation is done with a random value in the range [0,1]
-    inline T position(size_t pos,Trandom m,const Trandom& drnd) const {
+     inline T position_lin(size_t pos,Trandom m,const Trandom& drnd) const {
       if(m>2) m=2;
       if(m<-2) m=-2;
       Trandom x=fabs(m)>0.001 ? (0.5*std::sqrt(m*(m+8*drnd-4)+4)-1)/m+0.5 : drnd;
       return (1-x)*m_array[pos] + x*m_array[pos+1];
+    };
+
+    ///return exponetially interpolated position for bin pos, such that histograming the position gives a linear slope m,
+    ///where m is in units of the bin width for bin pos. Interpolation is done with a random value in the range [0,1]
+    inline T position_exp(size_t pos,Trandom beta,const Trandom& drnd) const {
+	Trandom z = drnd;///(m_array[pos+1] - m_array[pos]);
+	T pos1=GetBinLowEdge(pos);
+        T pos2=GetBinLowEdge(pos+1);
+	if(fabs(beta) < 1.0e-8) return (1-z)*pos1 + z*pos2;
+	else 
+	{ T deltax = m_array[pos+1] - m_array[pos]; 
+		if(deltax == 0) return m_array[pos];
+		else{  z = 1/beta*log(  1.0 + drnd*(exp(beta*deltax) - 1.0)  )/deltax;  }
+	}
+
+      return (1-z)*pos1 + z*pos2;
     };
 
   private:
@@ -353,7 +369,11 @@ template<typename T,typename Tint,typename Trandom=float> class TFCS1DFunction_H
     
     ///return interpolated position for bin pos, such that histograming the position gives a linear slope m,
     ///where m is in units of the bin width for bin pos. Interpolation is done with a random value in the range [0,1]
-    inline T position(size_t pos,Trandom m,const Trandom& drnd) const {
+   
+
+    ///return linearly interpolated position for bin pos, such that histograming the position gives a linear slope m,
+    ///where m is in units of the bin width for bin pos. Interpolation is done with a random value in the range [0,1]
+     inline T position_lin(size_t pos,Trandom m,const Trandom& drnd) const {
       if(m>2) m=2;
       if(m<-2) m=-2;
       Trandom x=fabs(m)>0.001 ? (0.5*std::sqrt(m*(m+8*drnd-4)+4)-1)/m+0.5 : drnd;
@@ -361,6 +381,23 @@ template<typename T,typename Tint,typename Trandom=float> class TFCS1DFunction_H
       T pos2=GetBinLowEdge(pos+1);
       return (1-x)*pos1 + x*pos2;
     };
+
+    ///return exponentially interpolated position for bin pos, such that histograming the position gives a linear slope m,
+    ///where m is in units of the bin width for bin pos. Interpolation is done with a random value in the range [0,1]
+    inline T position_exp(size_t pos,Trandom beta,const Trandom& drnd) const {
+	Trandom z = drnd;///(m_array[pos+1] - m_array[pos]);
+	T pos1=GetBinLowEdge(pos);
+        T pos2=GetBinLowEdge(pos+1);
+	if(fabs(beta) < 1.0e-8) return (1-z)*pos1 + z*pos2;
+	else 
+	{ T deltax = m_array[pos+1] - m_array[pos]; 
+		if(deltax == 0) return m_array[pos];
+		else{  z = 1/beta*log(  1.0 + drnd*(exp(beta*deltax) - 1.0)  )/deltax;  }
+	}
+
+      return (1-z)*pos1 + z*pos2;
+    };
+
     
   private:
     TFCS1DFunction_Array<Tint> m_array;

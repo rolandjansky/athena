@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Simulation-specific flags.
@@ -500,6 +500,14 @@ class NeutronEnergyCut(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = -1.
 
+class ApplyNRR(JobProperty):
+    """
+    Apply the Neutron Russian Roulette
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class NRRThreshold(JobProperty):
     """
     Energy threshold for the Neutron Russian Roulette in MeV
@@ -516,6 +524,14 @@ class NRRWeight(JobProperty):
     allowedTypes = ['int','float']
     StoredValue = 10
 
+class ApplyPRR(JobProperty):
+    """
+    Apply the Photon Russian Roulette
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
 class PRRThreshold(JobProperty):
     """
     Energy threshold for the Photon Russian Roulette in MeV
@@ -531,6 +547,15 @@ class PRRWeight(JobProperty):
     statusOn = False
     allowedTypes = ['int','float']
     StoredValue = 10
+
+class DebugStackingAction(JobProperty):
+    """
+    Use the debug stacking action to better control the
+    randomization effects of Russian Roulette algorithms.
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
 
 class ApplyEMCuts(JobProperty):
     """
@@ -778,6 +803,29 @@ class TruthService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'ISF_TruthService'
 
+class ParticleSimWhiteList(JobProperty):
+    """Steering of ISF: set the ParticleSimWhiteList tool"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'ISF_ParticleSimWhiteList'
+
+class ExtraParticlesPDGTABLE(JobProperty):
+    """Steering of ISF: set filename of PDGTABLE"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'PDGTABLE.MeV'
+
+class ExtraParticlesRanges(JobProperty):
+    """Steering of ISF: set ranges for pdgIDs to be added"""
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = '111-556,1112-9090226'
+
+class G4EMProcessesParticleList(JobProperty):
+    """Steering of ISF: list of Geant4 particles to add EM processes to"""
+    statusOn     = True
+    allowedTypes = ['list']
+    StoredValue  = [5132]
 
 ## Definition and registration of the simulation flag container
 class SimFlags(JobPropertyContainer):

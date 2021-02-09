@@ -59,8 +59,4 @@ private:
   ClassDefOverride(TFCS2DFunctionLateralShapeParametrization,2)  //TFCS2DFunctionLateralShapeParametrization
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCS2DFunctionLateralShapeParametrization+;
-#endif
-
 #endif

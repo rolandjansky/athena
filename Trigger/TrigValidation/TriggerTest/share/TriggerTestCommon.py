@@ -71,7 +71,12 @@ if not ('checkLeak' in dir()):
     if not ('doPerfMon' in dir()):
         rec.doPerfMon = True
     if rec.doPerfMon:
+        rec.doDetailedPerfMon = False
+        rec.doSemiDetailedPerfMon = False
         jobproperties.PerfMonFlags.doMonitoring = True
+        jobproperties.PerfMonFlags.doDetailedMonitoring = False
+        jobproperties.PerfMonFlags.doSemiDetailedMonitoring = False
+        jobproperties.PerfMonFlags.doFastMon = False
         jobproperties.PerfMonFlags.OutputFile = "ntuple.root"
 
 

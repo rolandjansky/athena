@@ -206,6 +206,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
   } 
+  else if(m_patternName == "SiSpacePointsSeedMaker_TrkSeeded"    )  {
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_TrkSeeded  );
+  }
   else if(m_patternName == "SiSpacePointsSeedMaker_SLHCConversionTracks")  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks);
   }

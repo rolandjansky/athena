@@ -13,18 +13,22 @@
 # Format is "test-branch" : "version"
 ciRefFileMap = {
                 # qTestsTier0_required-test
-                'q221-21.0'            : 'v1',
-                'q431-21.0'            : 'v1',
+                'q221-21.0'            : 'v5',
+                'q431-21.0'            : 'v3',
                 'q221-21.3'            : 'v1',
                 'q431-21.3'            : 'v1',
                 # SimulationTier0Test_required-test
                 's3126-21.0'           : 'v2',
                 's3126-21.3'           : 'v1',
                 's3126-21.9'           : 'v1',
-                's3126-22.0'           : 'v1',
+                's3126-22.0'           : 'v8',
+                's3505-21.0'           : 'v2',
+                's3505-21.3'           : 'v1',
+                's3505-21.9'           : 'v1',
+                's3505-22.0'           : 'v1',
                 # OverlayTier0Test_required-test
-                'overlay-d1498-21.0'   : 'v3',
-                'overlay-d1498-22.0'   : 'v1',
+                'overlay-d1498-21.0'   : 'v4',
+                'overlay-d1498-22.0'   : 'v17',
                 'overlay-bkg-21.0'     : 'v1',
                 'overlay-bkg-22.0'     : 'v1',
                }

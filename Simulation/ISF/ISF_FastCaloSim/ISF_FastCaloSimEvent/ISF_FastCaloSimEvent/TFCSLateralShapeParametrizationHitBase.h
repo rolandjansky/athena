@@ -18,6 +18,13 @@ public:
 
   ///Call get_number_of_hits() only once per shower simulation, as it could be calculated with random numbers and give different results each time. Return a value of -1 if this instance can't determine
   virtual int get_number_of_hits(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get hit energy from layer energy and number of hits
+  virtual float get_E_hit(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+  
+  ///Get minimum and maximum value of weight for hit energy reweighting
+  virtual float getMinWeight() const;
+  virtual float getMaxWeight() const;
 
   class Hit
   {
@@ -97,9 +104,5 @@ private:
 
   ClassDefOverride(TFCSLateralShapeParametrizationHitBase,1)  //TFCSLateralShapeParametrizationHitBase
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrizationHitBase+;
-#endif
 
 #endif

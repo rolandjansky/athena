@@ -216,7 +216,8 @@ StatusCode InDet::SiSpacePointsSeedMaker_BeamGas::finalize()
 
 void InDet::SiSpacePointsSeedMaker_BeamGas::newEvent (int)
 {
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+  erase();
   buildBeamFrameWork();
 
   double f[3], gP[3] ={10.,10.,0.}; 
@@ -328,7 +329,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::newRegion
 (const std::vector<IdentifierHash>& vPixel, const std::vector<IdentifierHash>& vSCT)
 {
 
-  if(!m_pixel && !m_sct) return; erase();
+  if(!m_pixel && !m_sct) return;
+  erase();
   buildBeamFrameWork();
 
   double f[3], gP[3] ={10.,10.,0.}; 
@@ -522,7 +524,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::findVSp (const std::list<Trk::Vertex
 
 MsgStream& InDet::SiSpacePointsSeedMaker_BeamGas::dump( MsgStream& out ) const
 {
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint) return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -925,7 +928,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::fillLists()
   
   for(int i=0; i!= r_size;  ++i) {
 
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!r_map[i]) continue;
+    r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
       
@@ -1098,7 +1102,8 @@ void InDet::SiSpacePointsSeedMaker_BeamGas::production3Sp
       }
     }
   breakb:
-    if(!Nb || Nb==m_maxsizeSP) continue;  int Nt = Nb;
+    if(!Nb || Nb==m_maxsizeSP) continue;
+    int Nt = Nb;
     
     // Top   links production
     //

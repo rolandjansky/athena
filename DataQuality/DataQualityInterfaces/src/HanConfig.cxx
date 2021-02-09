@@ -343,10 +343,14 @@ Visit( const MiniConfigTreeNode* node ) const
   if( fileName != "" && name != "" && name != "same_name" ) {
     fileName = SplitReference(node->GetAttribute("location"), fileName);
     std::string refInfo = node->GetAttribute("info");
+    if (refInfo == "") {
+      std::cerr << "INFO: Reference " << name << " is defined without an \"info\" attribute. Consider adding one" 
+                << std::endl;
+    }
     std::auto_ptr<TFile> infile( TFile::Open(fileName.c_str()) );
     TKey* key = getObjKey( infile.get(), name );
     if( key == 0 ) {
-      std::cerr << "HanConfig::RefVisitor::Visit(): Reference not found: \"" << name << "\"\n";
+      std::cerr << "WARNING: HanConfig::RefVisitor::Visit(): Reference not found: \"" << name << "\"\n";
       return;
     }
 //     TDirectory* dir = ChangeOutputDir( outfile, name, directories );
@@ -498,6 +502,10 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 	  std::string algRefName( refConfig.GetStringAttribute(thisRefID,"name") );
 	  std::string algRefPath( refConfig.GetStringAttribute(thisRefID,"path") );
 	  std::string algRefInfo( refConfig.GetStringAttribute(thisRefID,"info") );
+    if (algRefInfo == "") {
+      std::cerr << "INFO: Reference " << thisRefID << " is defined without an \"info\" attribute. Consider adding one" 
+                << std::endl;
+    }
 	  absAlgRefName = "";
 	  if( algRefPath != "" ) {
 	    absAlgRefName += algRefPath;
@@ -544,11 +552,9 @@ GetAlgorithmConfiguration( HanConfigAssessor* dqpar, const std::string& algID,
 		  auto algRefFileostr = new TObjString(algRefFile.c_str());
 		  m_refsourcedata->Add(new TObjString(newRefId.c_str()),
 				       algRefFileostr);
-		  if (algRefInfo != "") {
-		    if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
-		      m_refsourcedata->Add(algRefFileostr, 
-					   new TObjString(algRefInfo.c_str()));
-		    }  
+		  if (! m_refsourcedata->FindObject(algRefFile.c_str())) {
+		    m_refsourcedata->Add(algRefFileostr, 
+				   new TObjString(algRefInfo != "" ? algRefInfo.c_str() : "Reference"));
 		  }
 		}
 	      //std::cout<<"Writing algref with algrefname= "<<algRefUniqueName<<", newRefId="<<newRefId<<std::endl;
@@ -842,18 +848,18 @@ Visit( const MiniConfigTreeNode* node ) const
 	
       std::string regexflag(histNode->GetAttribute("regex"));
       if (histNode->GetAttribute("regex") != "") {
-      	std::cerr << "all_in_dir and regex are incompatible; ignoring regex flag for " << histNode->GetPathName()
+      	std::cerr << "WARNING: all_in_dir and regex are incompatible; ignoring regex flag for " << histNode->GetPathName()
       						<< "/all_in_dir" << std::endl;
       }
 
       std::string refID( histNode->GetAttribute("reference") );
       if( refID == "" ) {
-        std::cerr << "No \"reference\" defined for " << histNode->GetPathName() << "\n";
+        std::cerr << "WARNING: No \"reference\" defined for " << histNode->GetPathName() << "\n";
         continue;
       }
       std::string refFile( refConfig.GetStringAttribute(refID,"file") );
       if( refFile == "" ) {
-        std::cerr << "No \"file\" defined for " << histNode->GetPathName() << "\n";
+        std::cerr << "WARNING: No \"file\" defined for " << histNode->GetPathName() << "\n";
         continue;
       }
       
@@ -877,7 +883,7 @@ Visit( const MiniConfigTreeNode* node ) const
         refPathForSearch += "/dummyName";
         basedir = ChangeInputDir( infile.get(), refPathForSearch );
         if( basedir == 0 ) {
-          std::cerr << "Cannot find  \"" << refPath << "\" in file\n";
+          std::cerr << "INFO: Cannot find path \"" << refPath << "\" in reference file\n";
           continue;
         }
       }
@@ -896,7 +902,7 @@ Visit( const MiniConfigTreeNode* node ) const
       
       dir = ChangeInputDir( basedir, histNode->GetPathName() );
       if( dir == 0 ) {
-        std::cerr << "Cannot find \"" << absObjPath << "\" in file\n";
+        std::cerr << "INFO: Cannot find path \"" << absObjPath << "\" in reference file\n";
         continue;
       }
       

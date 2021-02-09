@@ -79,7 +79,7 @@ public:
   
   //Track Author Plots  - M. Baugh
   void algoEfficiency(double radius, int SiSPweight, int TRTSeededweight, int TRTStandaloneweight, int other_weight);
-  void track_author(std::bitset<52> authorset);
+  void track_author(std::bitset<xAOD::NumberOfTrackRecoInfo> authorset);
   
   void lepton_fill(const xAOD::TruthParticle& truth, float weight);
   void prim_photon_fill(const xAOD::TruthParticle& truth);

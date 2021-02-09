@@ -20,7 +20,7 @@ from PyJobTransforms.transform import transform
 from PyJobTransforms.trfExe import athenaExecutor
 from PyJobTransforms.trfArgs import addAthenaArguments, addDetectorArguments
 from PyJobTransforms.trfDecorators import stdTrfExceptionHandler, sigUsrStackTrace
-from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCommonSimDigTrfArgs, addTestBeamArgs
+from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCommonSimDigTrfArgs, addSimIOTrfArgs, addTestBeamArgs
 
 
 import PyJobTransforms.trfArgClasses as trfArgClasses
@@ -37,7 +37,10 @@ def main():
     trf = getTransform()
     trf.parseCmdLineArgs(sys.argv[1:])
     trf.execute()
-    trf.generateReport()
+    if 'outputFileValidation' in  trf._argdict and  trf._argdict['outputFileValidation'].value is False:
+        msg.info('Skipping report generation')
+    else:
+        trf.generateReport()
 
     msg.info("%s stopped at %s, trf exit code %d" % (sys.argv[0], time.asctime(), trf.exitCode))
     sys.exit(trf.exitCode)
@@ -47,6 +50,7 @@ def getTransform():
                                               substep = 'TBsim', tryDropAndReload = False, perfMonFile = 'ntuple.pmon.gz', inData=['NULL','Evgen'], outData=['HITS','NULL'] )) #may have to add evgen to outData if cosmics/cavern background jobs don't work.
     addAthenaArguments(trf.parser)
     addDetectorArguments(trf.parser)
+    addSimIOTrfArgs(trf.parser)
     addCommonSimTrfArgs(trf.parser)
     addCommonSimDigTrfArgs(trf.parser)
     addTestBeamArgs(trf.parser)

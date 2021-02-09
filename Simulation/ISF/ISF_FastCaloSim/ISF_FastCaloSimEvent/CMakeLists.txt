@@ -11,15 +11,20 @@ atlas_depends_on_subdirs(
    PUBLIC
    Control/AthContainers
    Control/SGTools
+   Control/AthenaKernel
+   Control/AthenaBaseComps
    Calorimeter/CaloGeoHelpers
    TileCalorimeter/TileSimEvent
    PRIVATE
+   Calorimeter/CaloDetDescr
    GaudiKernel )
 
 # External dependencies:
 find_package( CLHEP )
 find_package( HepPDT )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO Matrix Physics )
+find_package( ROOT COMPONENTS Core Tree MathCore MathMore Hist RIO Matrix Physics )
+find_package( lwtnn REQUIRED )
+find_package( LibXml2 )
 
 # Remove the --as-needed linker flags:
 atlas_disable_as_needed()
@@ -42,13 +47,16 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCS2DFunction.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionHistogram.h 
                            ISF_FastCaloSimEvent/TFCS2DFunctionTemplateHistogram.h 
-                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h 
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationHistogram.h
+                           ISF_FastCaloSimEvent/TFCS2DFunctionTemplateInterpolationExpHistogram.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBase.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationPlaceholder.h
                            ISF_FastCaloSimEvent/TFCSParametrization.h 
                            ISF_FastCaloSimEvent/TFCSInvisibleParametrization.h
                            ISF_FastCaloSimEvent/TFCSInitWithEkin.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationHistogram.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationLinear.h
+                           ISF_FastCaloSimEvent/TFCSEnergyInterpolationPiecewiseLinear.h
                            ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h
                            ISF_FastCaloSimEvent/TFCSParametrizationChain.h 
                            ISF_FastCaloSimEvent/TFCSParametrizationBinnedChain.h
@@ -61,21 +69,26 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
                            ISF_FastCaloSimEvent/TFCSEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSPCAEnergyParametrization.h 
                            ISF_FastCaloSimEvent/TFCSEnergyBinParametrization.h
+                           ISF_FastCaloSimEvent/TFCSEnergyAndHitGAN.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitBase.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitChain.h
+                           ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationFluctChain.h
                            ISF_FastCaloSimEvent/TFCSCenterPositionCalculation.h
                            ISF_FastCaloSimEvent/TFCSFlatLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeParametrizationFCal.h
                            ISF_FastCaloSimEvent/TFCS2DFunctionLateralShapeParametrization.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeight.h
                            ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeightHitAndMiss.h
+                           ISF_FastCaloSimEvent/TFCSHistoLateralShapeGausLogWeightHitAndMiss.h
                            ISF_FastCaloSimEvent/TFCSLateralShapeParametrizationHitNumberFromE.h
                            ISF_FastCaloSimEvent/TFCSHitCellMapping.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingFCal.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggle.h
                            ISF_FastCaloSimEvent/TFCSHitCellMappingWiggleEMB.h
+                           ISF_FastCaloSimEvent/TFCSEnergyRenormalization.h
                            ISF_FastCaloSimEvent/TFCSExtrapolationState.h 
                            ISF_FastCaloSimEvent/TFCSSimulationState.h 
                            ISF_FastCaloSimEvent/TFCSTruthState.h 
@@ -85,9 +98,9 @@ atlas_add_root_dictionary( ISF_FastCaloSimEvent _dictSource
 atlas_add_library( ISF_FastCaloSimEvent
    ISF_FastCaloSimEvent/*.h ${_dictSource} src/*.cxx
    PUBLIC_HEADERS ISF_FastCaloSimEvent
-   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+   INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${LIBXML2_INCLUDE_DIR}
    DEFINITIONS ${CLHEP_DEFINITIONS}
-   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools
+   LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HEPPDT_LIBRARIES} ${ROOT_LIBRARIES} AthContainers SGTools AthenaKernel AthenaBaseComps CaloDetDescrLib ${LWTNN_LIBRARIES} ${LIBXML2_LIBRARIES}
    CaloGeoHelpers TileSimEvent
    PRIVATE_LINK_LIBRARIES GaudiKernel )
 

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSParametrizationPDGIDSelectChain.h"
@@ -24,19 +24,41 @@ void TFCSParametrizationPDGIDSelectChain::recalc()
   chain().shrink_to_fit();
 }
 
-FCSReturnCode TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol)
+FCSReturnCode TFCSParametrizationPDGIDSelectChain::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const
 {
-  for(auto param: chain()) {
-    if(param->is_match_pdgid(truth->pdgid())) {
-      ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
+  Int_t retry=0;
+  Int_t retry_warning=1;
 
-      if (simulate_and_retry(param, simulstate,truth,extrapol) != FCSSuccess) {
-        return FCSFatal;
-      }
+  FCSReturnCode status = FCSSuccess;
+  for (int i = 0; i <= retry; i++) {
+    if (i >= retry_warning) ATH_MSG_WARNING("TFCSParametrizationPDGIDSelectChain::simulate(): Retry simulate call " << i << "/" << retry);
+    
+    ATH_MSG_DEBUG("Running for pdgid="<<truth->pdgid());
+    for(const auto& param: chain()) {
+      ATH_MSG_DEBUG("Now testing: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
+      if(param->is_match_pdgid(truth->pdgid())) {
+        ATH_MSG_DEBUG("pdgid="<<truth->pdgid()<<", now run: "<<param->GetName()<< ((SimulateOnlyOnePDGID()==true) ? ", abort PDGID loop afterwards" : ", continue PDGID loop afterwards"));
 
-      if(SimulateOnlyOnePDGID()) break;
-    }  
-  }
+        status = simulate_and_retry(param, simulstate,truth,extrapol);
+        if (status >= FCSRetry) {
+          retry=status-FCSRetry;
+          retry_warning=retry>>1;
+          if(retry_warning<1) retry_warning=1;
+          break;
+        }
+        if (status == FCSFatal) return FCSFatal;
+
+        if(SimulateOnlyOnePDGID()) break;
+      }  
+    }
+
+    if(status==FCSSuccess) break;
+  }  
+
+  if(status != FCSSuccess) {
+    ATH_MSG_FATAL("TFCSParametrizationChain::simulate(): Simulate call failed after " << retry << " retries");
+    return FCSFatal;
+  }  
 
   return FCSSuccess;
 }
@@ -52,33 +74,33 @@ void TFCSParametrizationPDGIDSelectChain::unit_test(TFCSSimulationState* simulst
 
   TFCSParametrization* param;
   param=new TFCSInvisibleParametrization("A begin all","A begin all");
-  param->setLevel(MSG::DEBUG);
+  param->setLevel(MSG::VERBOSE);
   param->set_pdgid(0);
   chain.push_back(param);
   param=new TFCSInvisibleParametrization("A end all","A end all");
-  param->setLevel(MSG::DEBUG);
+  param->setLevel(MSG::VERBOSE);
   param->set_pdgid(0);
   chain.push_back(param);
 
   for(int i=0;i<3;++i) {
     param=new TFCSInvisibleParametrization(Form("A%d",i),Form("A %d",i));
-    param->setLevel(MSG::DEBUG);
+    param->setLevel(MSG::VERBOSE);
     param->set_pdgid(i);
     chain.push_back(param);
   }
 
   for(int i=3;i>0;--i) {
-    param=new TFCSInvisibleParametrization(Form("B%d",i),Form("B %d",i));
-    param->setLevel(MSG::DEBUG);
+    param=new TFCSParametrization(Form("B%d",i),Form("B %d",i));
+    param->setLevel(MSG::VERBOSE);
     param->set_pdgid(i);
     chain.push_back(param);
   }
   param=new TFCSInvisibleParametrization("B end all","B end all");
-  param->setLevel(MSG::DEBUG);
+  param->setLevel(MSG::VERBOSE);
   param->set_match_all_pdgid();
   chain.push_back(param);
   param=new TFCSInvisibleParametrization("B begin all","B begin all");
-  param->setLevel(MSG::DEBUG);
+  param->setLevel(MSG::VERBOSE);
   param->set_pdgid(1);
   chain.push_back(param);
   
@@ -92,7 +114,9 @@ void TFCSParametrizationPDGIDSelectChain::unit_test(TFCSSimulationState* simulst
   chain.simulate(*simulstate,truth,extrapol);
   std::cout<<"==== Simulate with pdgid=2      ===="<<std::endl;
   truth->set_pdgid(2);
+  chain.set_RetryChainFromStart();
   chain.simulate(*simulstate,truth,extrapol);
+  chain.reset_RetryChainFromStart();
   std::cout<<"====================================="<<std::endl<<std::endl;
 
   std::cout<<"====================================="<<std::endl;
@@ -107,6 +131,8 @@ void TFCSParametrizationPDGIDSelectChain::unit_test(TFCSSimulationState* simulst
   chain.simulate(*simulstate,truth,extrapol);
   std::cout<<"==== Simulate with pdgid=2      ===="<<std::endl;
   truth->set_pdgid(2);
+  chain.set_RetryChainFromStart();
   chain.simulate(*simulstate,truth,extrapol);
+  chain.reset_RetryChainFromStart();
   
 }

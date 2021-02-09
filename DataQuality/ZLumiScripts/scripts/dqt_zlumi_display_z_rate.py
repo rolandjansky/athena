@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration                  
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration                  
 
 import ROOT
 import sys, os
@@ -21,6 +21,7 @@ runnum = args.infile.split('_')[0]
 # f = ROOT.TFile.Open(sys.argv[1], 'UPDATE')
 f = ROOT.TFile.Open(os.path.join(args.indir, args.infile), 'UPDATE')
 c1 = ROOT.TCanvas()
+c1.SetBatch(ROOT.kTRUE)
 lumitree = f.lumitree
 #get range
 runs=[0,1]; fills=[0,1]
@@ -105,4 +106,3 @@ if lumitree.GetSelectedRows() > 0:
     gr3.GetHistogram().SetYTitle('Z Counting/Official Lumi')
     c1.Print(os.path.join(args.plotdir, '%s_lumicompratio.eps' % runnum))
     f.WriteTObject(c1, 'lumicompratio_canvas')
-    

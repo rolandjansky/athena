@@ -11,6 +11,8 @@
 #include "xAODTracking/TrackParticleContainer.h"
 #include "MuonCombinedEvent/InDetCandidateCollection.h"
 
+class IBeamCondSvc;
+
 namespace Trk {
   class ITrackAmbiguityProcessorTool;
 }
@@ -43,6 +45,7 @@ namespace MuonCombined {
     ToolHandle<Rec::ICombinedMuonTrackBuilder> m_trackBuilder;
     ToolHandle<Muon::IMuonTrackExtrapolationTool> m_trackExtrapolationTool;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool> m_ambiguityProcessor;
+    ServiceHandle< IBeamCondSvc > m_beamService;
 
     unsigned int m_extrapolationStrategy;
   };

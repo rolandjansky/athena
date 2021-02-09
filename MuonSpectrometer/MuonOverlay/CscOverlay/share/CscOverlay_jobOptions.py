@@ -17,6 +17,7 @@ job.CscOverlay.MakeRDOTool4.EvtStore     = job.CscOverlay.MCStore
 job.CscOverlay.MakeRDOTool4.addNoise     = False
 job.CscOverlay.MakeRDOTool4.NumSamples   = 4
 job.CscOverlay.RndmSvc                   = digitizationFlags.rndmSvc.get_Value()
+job.CscOverlay.isDataOverlay             = isRealData
 
 #job.CscOverlay.OutputLevel=VERBOSE
 #svcMgr.MessageSvc.defaultLimit=100000

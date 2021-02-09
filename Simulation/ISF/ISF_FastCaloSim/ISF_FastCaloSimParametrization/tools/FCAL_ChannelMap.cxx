@@ -1,11 +1,10 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 // ***************************************************************************
 // Liquid Argon FCAL detector description package
 // -----------------------------------------
-// Copyright (C) 1998 by ATLAS Collaboration
 //
 //
 // 10-Sep-2000 S.Simion   Handling of the FCAL read-out identifiers
@@ -209,7 +208,7 @@ FCAL_ChannelMap::create_tileMap(int isam)
 // ***********************************************************************
 bool 
 FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig, 
-	int& eta, int& phi) const throw (std::range_error) 
+	int& eta, int& phi) const
 {
 
 //  /* ### MIRROR for compatibility between G3 and ASCII files ### */
@@ -308,7 +307,6 @@ FCAL_ChannelMap::getTileID(int isam, float x_orig, float y_orig,
    ---------------------------------------------------------------------- */
 float 
 FCAL_ChannelMap::x(int isam, int eta, int phi) const
-                                    throw(std::range_error)
 {
   if(m_invert_xy){ 
    // temp turn off the flag 
@@ -351,7 +349,6 @@ FCAL_ChannelMap::x(int isam, int eta, int phi) const
    ---------------------------------------------------------------------- */
 float 
 FCAL_ChannelMap::y(int isam, int eta, int phi) const
-                                    throw(std::range_error)
 {
   if(m_invert_xy){
 
@@ -426,7 +423,7 @@ void FCAL_ChannelMap::tileSize(int sam, int ntubes, float &dx, float &dy) const 
 }
 
 void FCAL_ChannelMap::tileSize(int sam, int eta, int phi,
-	float& dx, float& dy ) const  throw(std::range_error)
+	float& dx, float& dy ) const
 {
   
   tileName_t tilename = (eta << 16) + phi  ; 
@@ -457,11 +454,11 @@ FCAL_ChannelMap::print_tubemap( int imap) const
   //boost::io::ios_all_saver ias (std::cout);
   std::cout << "First 10 elements of the New FCAL tube map : " << imap << std::endl;
   std::cout.precision(5);
-  for ( int i=0;  i<10; i++, it++)
-    std::cout << std::hex << it->first << "\t" 
-	      << (it->second).get_tileName() << std::dec <<"\t" 
-	      << (it->second).x() <<"\t" 
-	      << (it->second).y() << std::endl;
+  for ( int i=0;  i<10; ++i, ++it)
+    std::cout << std::hex << it->first << "\t"
+              << (it->second).get_tileName() << std::dec <<"\t"
+              << (it->second).x() <<"\t"
+              << (it->second).y() << std::endl;
 
 }
 

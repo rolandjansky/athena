@@ -11,6 +11,9 @@ main();
 exit 0;
 
 sub main(){
+  print "$prog: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+  print "$prog: !! WARNING: This perl script is deprecated, please use check_log.py instead !!\n";
+  print "$prog: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n";
   parse_options(); # command line options
   parse_config(); # config file
   scan_logfile();
@@ -101,7 +104,7 @@ sub scan_logfile(){
   @patterns=();
   if ($errors) {
       push @patterns, "^ERROR | ERROR | FATAL |CRITICAL |ABORT_CHAIN ";
-      push @patterns, "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|inconsistent use of tabs and spaces in indentation|glibc detected|tcmalloc\: allocation failed"
+      push @patterns, "^Exception\:|^Caught signal|^Core dump|Traceback|Shortened traceback|stack trace|^Algorithm stack\:|IncludeError|ImportError|AttributeError|inconsistent use of tabs and spaces in indentation|glibc detected|tcmalloc\: allocation failed|athenaHLT.py\: error|HLTMPPU.*Child Issue|There was a crash|illegal instruction|failure loading library|Cannot allocate memory|TypeError"
       }
   if ($warnings) {
       push @patterns, "WARNING ";

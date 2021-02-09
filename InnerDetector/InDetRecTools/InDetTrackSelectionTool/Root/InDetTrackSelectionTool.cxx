@@ -51,6 +51,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
   declareProperty("CutLevel", m_cutLevel);
 
   declareProperty("minPt", m_minPt, "Minimum transverse momentum");
+  declareProperty("maxPt", m_maxPt, "Maximum transverse momentum");
   declareProperty("minP", m_minP, "Minimum momentum");
   declareProperty("maxAbsEta", m_maxAbsEta, "Maximum magnitude of pseudorapidity");
   declareProperty("maxD0", m_maxD0, "Maximum transverse separation");
@@ -226,6 +227,10 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
   if (m_minPt > 0.) {
     ATH_MSG_INFO( "  Minimum Pt: " << m_minPt << " MeV" );
     m_trackCuts["Pt"].push_back(make_unique<MinCut<double, &xAOD::TrackParticle::pt> >(this, m_minPt, "pt"));
+  }
+  if (m_maxPt > 0.) {
+    ATH_MSG_INFO( "  Maximum Pt: " << m_maxPt << " MeV" );
+    m_trackCuts["PtMax"].push_back(make_unique<MaxAbsCut<double, &xAOD::TrackParticle::pt> >(this, m_maxPt, "pt max [MeV]"));
   }
   if (maxDoubleIsSet(m_maxAbsEta)) {
     ATH_MSG_INFO( "  Maximum |Eta|: " << m_maxAbsEta );

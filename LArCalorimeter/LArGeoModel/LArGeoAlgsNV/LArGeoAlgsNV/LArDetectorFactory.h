@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -25,19 +25,19 @@ namespace LArGeo {
   class LArDetectorFactory : public GeoVDetectorFactory  {
 
   public:
-  
+
     // Constructor:
     LArDetectorFactory(int testbeam, bool fullGeo);
-  
+
     // Destructor:
     virtual ~LArDetectorFactory();
-  
+
     // Creation of geometry:
     virtual void create(GeoPhysVol* world);
-  
+
     // Access to the results:
     virtual const LArDetectorManager* getDetectorManager() const;
-  
+
 
     // Set parameters:
 
@@ -46,14 +46,14 @@ namespace LArGeo {
     void setFCALVisLimit(int maxCell)       {m_fcalVisLimit   = maxCell;}
     void setBuildBarrel(bool flag)          {m_buildBarrel = flag;}
     void setBuildEndcap(bool flag)          {m_buildEndcap = flag;}
+    void setActivateFT(bool flag)           { m_activateFT = flag; }
 
+  private:
 
-  private:  
-  
     // Illegal operations:
     const LArDetectorFactory & operator=(const LArDetectorFactory &right);
     LArDetectorFactory(const LArDetectorFactory &right);
-  
+
     // The manager:
     LArDetectorManager*       m_detectorManager;
     bool                      m_barrelSagging;
@@ -66,9 +66,10 @@ namespace LArGeo {
     int                       m_testbeam;
 
     bool                       m_fullGeo;  // true->FULL, false->RECO
+    bool                      m_activateFT;
   };
 
 } // namespace LArGeo
 
-#endif 
+#endif
 

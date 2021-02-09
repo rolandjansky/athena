@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSParametrizationBase_h
@@ -7,6 +7,7 @@
 
 #include <TNamed.h>
 #include <set>
+#include <map>
 
 class ICaloGeometry;
 class TFCSSimulationState;
@@ -14,7 +15,7 @@ class TFCSTruthState;
 class TFCSExtrapolationState;
 
 // Define Athena like message macro's such that they work stand alone and inside athena
-#if defined(__FastCaloSimStandAlone__) || defined(__FastCaloSimStandAloneDict__)
+#if defined(__FastCaloSimStandAlone__)
   #include <iostream>
   #include <iomanip>
   typedef std::ostream MsgStream;
@@ -130,8 +131,20 @@ public:
   ///The size() and operator[] methods give general access to these daughters
   virtual TFCSParametrizationBase* operator[](unsigned int /*ind*/) {return nullptr;};
 
+  ///Some derived classes have daughter instances of TFCSParametrizationBase objects
+  ///The set_daughter method allows to change these daughters - expert use only!
+  ///The original element at this position is not deleted
+  virtual void set_daughter(unsigned int /*ind*/,TFCSParametrizationBase* /*param*/) {};
+  
+  ///The == operator compares the content of instances. 
+  ///The implementation in the base class only returns true for a comparison with itself
+  virtual bool operator==(const TFCSParametrizationBase& ref) const {return compare(ref);};
+
   ///Method in all derived classes to do some simulation
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol);
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const;
+
+  ///Method in all derived classes to delete objects stored in the simulstate AuxInfo
+  virtual void CleanAuxInfo(TFCSSimulationState& /*simulstate*/) const {};
 
   ///Print object information. 
   void Print(Option_t *option = "") const;
@@ -139,6 +152,17 @@ public:
   ///Deletes all objects from the s_cleanup_list. 
   ///This list can get filled during streaming operations, where an immediate delete is not possible
   static void DoCleanup();
+  
+  struct Duplicate_t {
+    TFCSParametrizationBase* replace=nullptr;
+    std::vector< TFCSParametrizationBase* > mother;
+    std::vector< unsigned int > index;
+  };
+  typedef std::map< TFCSParametrizationBase* , Duplicate_t > FindDuplicates_t;
+  typedef std::map< std::string , FindDuplicates_t > FindDuplicateClasses_t;
+  void FindDuplicates(FindDuplicateClasses_t& dup);
+  void RemoveDuplicates();
+  void RemoveNameTitle();
 
 protected:
   static constexpr double init_Ekin_nominal=0;//! Do not persistify!
@@ -149,8 +173,10 @@ protected:
   static constexpr double init_eta_max=100;//! Do not persistify!
 
   static std::vector< TFCSParametrizationBase* > s_cleanup_list;
+  
+  bool compare(const TFCSParametrizationBase& ref) const;
 
-#if defined(__FastCaloSimStandAlone__) || defined(__FastCaloSimStandAloneDict__)
+#if defined(__FastCaloSimStandAlone__)
 public:
   /// Update outputlevel
   virtual void setLevel(int level,bool recursive=false) {
@@ -198,9 +224,5 @@ private:
 
   ClassDef(TFCSParametrizationBase,2)  //TFCSParametrizationBase
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationBase+;
-#endif
 
 #endif

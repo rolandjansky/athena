@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 SimFlags specific to the full ATLAS simulation
@@ -176,6 +176,15 @@ class VertexFromCondDB(JobProperty):
 
 class VertexTimeOffset(JobProperty):
     """ Turns on time offset (for beam halo events)
+    """
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+
+
+class SimulateCavern(JobProperty):
+    """
+    Turns on the simulation of the ATLAS Cavern
     """
     statusOn = True
     allowedTypes = ['bool']

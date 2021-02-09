@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // Gaudi includes
@@ -125,6 +125,9 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
     robid[0] = 0;
     std::vector<const ROBDataProviderSvc::ROBF*> robf;
 
+    std::map<uint32_t,int> bsflags;
+    uint32_t flag;
+
     // iterate over all collections in a container and fill them
     for (const TileRawChannelCollection* constRawChCollection : *m_containers[icnt]) {
       TileRawChannelCollection* rawChannelCollection = const_cast<TileRawChannelCollection*>(constRawChCollection);
@@ -148,12 +151,41 @@ StatusCode TileRawChannelContByteStreamCnv::createObj(IOpaqueAddress* pAddr, Dat
       // unpack ROB data
       if (robf.size() > 0 ) {
         if (isTMDB) {// reid for TMDB 0x5x010x
-	  m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
+          m_decoder->fillCollection_TileMuRcv_RawChannel(robf[0], *rawChannelCollection);
         } else {
           m_decoder->fillCollection(robf[0], *rawChannelCollection);
         }
+        flag = m_containers[icnt]->get_bsflags();
+        auto result = bsflags.insert(std::pair<uint32_t, int>(flag, 1));
+        if (result.second == false) result.first->second++;
       } else {
-        rawChannelCollection->setFragGlobalCRC(TileROD_Decoder::NO_ROB);
+        ATH_MSG_DEBUG( "ROB  for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << MSG::dec << " not found in BS" );
+        uint32_t status = TileROD_Decoder::NO_ROB | TileROD_Decoder::CRC_ERR;
+        rawChannelCollection->setFragGlobalCRC(status);
+        ATH_MSG_DEBUG( "Status for " << ((isTMDB)?"TMDB ":"") << "drawer 0x" << MSG::hex << collID << " is 0x" << status << MSG::dec);
+      }
+    }
+
+    if (bsflags.size() > 1) {
+      int n=0;
+      for (auto & elem : bsflags) {
+        if (elem.second > n) {
+          n = elem.second;
+          flag = elem.first;
+        }
+      }
+
+      if (flag != m_containers[icnt]->get_bsflags()) {
+
+        uint32_t unit = ((flag & 0xC0000000) >> 30);
+        if ((flag & 0x30000000) < 0x30000000) unit += TileRawChannelUnit::OnlineOffset; // Online units in real data
+
+        ATH_MSG_DEBUG( "Changing units for " << ((isTMDB)?"TMDB ":"") << "RawChannelContainer from "
+                       << m_containers[icnt]->get_unit() << " to " << unit << MSG::hex
+                       << " and BS flags from 0x" << m_containers[icnt]->get_bsflags() << " to 0x" << flag << MSG::dec);
+
+        m_containers[icnt]->set_unit((TileRawChannelUnit::UNIT)unit);
+        m_containers[icnt]->set_bsflags(flag);
       }
     }
 

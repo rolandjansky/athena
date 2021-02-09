@@ -260,4 +260,8 @@ def getPileUpEventLoopMgr(name="PileUpEventLoopMgr", **kwargs):
         kwargs.setdefault('BeamLuminosity', noProfileSvc)
         ServiceMgr += noProfileSvc
 
+    # Ensure beam position information is propagated in the EventInfo conversion
+    from IOVDbSvc.CondDB import conddb
+    conddb.addFolderSplitOnline("INDET", "/Indet/Onl/Beampos", "/Indet/Beampos")
+
     return CfgMgr.PileUpEventLoopMgr(name, **kwargs)

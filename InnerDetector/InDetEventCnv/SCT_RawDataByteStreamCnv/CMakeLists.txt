@@ -34,6 +34,7 @@ atlas_add_component( SCT_RawDataByteStreamCnv
                      INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
                      LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ByteStreamCnvSvcBaseLib ByteStreamData ByteStreamData_test GaudiKernel InDetRawData AthenaBaseComps StoreGateLib SGtests Identifier EventInfo xAODEventInfo InDetIdentifier InDetReadoutGeometry SCT_CablingLib TrigSteeringEvent)
 
+
 # Install files from the package:
 atlas_install_headers( SCT_RawDataByteStreamCnv )
-
+atlas_install_joboptions( share/*.py )

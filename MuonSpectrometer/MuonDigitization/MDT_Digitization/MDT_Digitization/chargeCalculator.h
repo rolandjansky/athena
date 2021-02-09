@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_CHARGECALCULATOR_H
@@ -62,6 +62,10 @@ double chargeCalculator(const MDTSimHit& hit){
 			if (particleEncoding < 0.0) qcharge = -qcharge;
 //			std::cout << "SB: BINGO! Qball: qcharge=" << qcharge <<std::endl;	
 		}
+                else if(((int)(abs(particleEncoding)/10000000) == 2) && ((int)(abs(particleEncoding)/100000)==200)) {
+                        qcharge = (double)((abs(particleEncoding) / 1000) % 100) / (double)((abs(particleEncoding) / 10) % 100);
+                        if (particleEncoding < 0.0) qcharge = -qcharge;
+                }
     } else {
 //      std::cout << "SB: genParticle=0 " <<std::endl;
     }

@@ -1058,7 +1058,7 @@ sub run_test($){
     if ($config{$id}->{'checklog'}){
       my $checklog_opts =  $config{$id}->{'checklog_opts'};
       # ERRORs
-      my $logrc = systemcall("check_log.pl $checklog_opts $logfile > $checklogout 2>&1");
+      my $logrc = systemcall("check_log.py --errors $checklog_opts $logfile > $checklogout 2>&1");
       systemcall("cat $checklogout");
       if ($logrc != 0){
 	print "=== $name $failkey : problem detected in log file\n";
@@ -1068,7 +1068,7 @@ sub run_test($){
         print "art-result: 0 $name.CheckLog\n";
       }
       # WARNINGs
-      $rc = systemcall("check_log.pl $checklog_opts --noerrors --warnings $logfile > $warnout 2>&1");
+      $rc = systemcall("check_log.py --warnings $checklog_opts $logfile > $warnout 2>&1");
       # Ignore rc.
     }
 

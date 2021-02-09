@@ -37,5 +37,5 @@ echo "art-result: $? reco"
 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries 10 ${ArtPackage} ${ArtJobName} --mode=summary --file *RDO.pool.root --diff-root
 echo "art-result: $? regression"

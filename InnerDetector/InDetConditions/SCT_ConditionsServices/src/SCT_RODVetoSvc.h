@@ -93,12 +93,7 @@ private:
   
 
 
-  //UnsignedIntegerArrayProperty m_badRODElements;
-  
-
-  // The vector of bad rods should be kept in a threadsafe way so it can 
-  // be called and read safely.
-  SG::ReadHandleKey< std::vector<unsigned int> > m_badRODElements;
+  UnsignedIntegerArrayProperty m_badRODElements;
 
   std::set<Identifier> m_badIds;
 

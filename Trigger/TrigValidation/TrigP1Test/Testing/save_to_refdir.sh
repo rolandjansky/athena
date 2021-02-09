@@ -35,7 +35,7 @@ echo "val and date strings:" $valstr $datestr
 # did athena finish okay?  ( it would be nice to also have the athena status code)
 #
 #egrep " ERROR "\|" FATAL"\|" CRITICAL"\|"^Exception:"\|"Traceback"\|"Shortened traceback"\|"stack trace"\|"^Algorithm stack:"\|".IncludeError"\|"inconsistent use of tabs and spaces in indentation" atn_test.log &> /dev/null
-check_log.pl --config checklogTrigP1Test.conf --showexcludestats atn_test.log
+check_log.py --errors --config checklogTrigP1Test.conf --showexcludestats atn_test.log
 testOK=$?
 if [[ $testOK -eq 0 ]]
 then

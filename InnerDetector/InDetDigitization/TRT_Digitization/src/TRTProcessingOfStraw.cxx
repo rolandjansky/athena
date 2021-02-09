@@ -485,6 +485,10 @@ void TRTProcessingOfStraw::ProcessStraw ( hitCollConstIter i,
 		{
 		  particleCharge =  (particleEncoding>0 ? 1. : -1.) *(((abs(particleEncoding) / 100000.0) - 100.0) * 1000.0);
 		}
+              else if ((static_cast<int>(abs(particleEncoding)/10000000) == 2) && (static_cast<int>(abs(particleEncoding)/100000)==200))
+                {
+                  particleCharge =  (particleEncoding>0 ? 1. : -1.) *((double)((abs(particleEncoding) / 1000) % 100) / (double)((abs(particleEncoding) / 10) % 100));
+                }
 	    }
 	  else
 	    {

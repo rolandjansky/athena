@@ -21,7 +21,7 @@ AtlasG4_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'default:ATLAS-R2-2016-01-00-01' \
 --inputEVNTFile "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/SimCoreTests/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.evgen.EVNT.e4993.EVNT.08166201._000012.pool.root.1" \
---outputHITSFile "Hits.pool.root" \
+--outputHITSFile "test.HITS.pool.root" \
 --maxEvents 4 \
 --imf False
 
@@ -30,6 +30,6 @@ echo  "art-result: $? simulation"
 ArtPackage=$1
 ArtJobName=$2
 # TODO This is a regression test I think. We would also need to compare these files to fixed references
-art.py compare grid  --entries 4 ${ArtPackage} ${ArtJobName}
+art.py compare grid  --entries 4 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"

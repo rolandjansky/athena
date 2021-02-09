@@ -168,6 +168,9 @@ if schema=='COOLOFL_TILE/COMP200' or schema=='COOLOFL_TILE/CONDBR2':
         print "Folder %s doesn't exist in schema %s " % (folderPath,schema)
         sys.exit(2)
 
+if iov:
+    run=end
+    lumi=0
 
 #=== set database
 db = TileCalibTools.openDbConn(schema,'READONLY')
@@ -281,7 +284,7 @@ if iov:
         for i,iovs in enumerate(iovList):
             run = iovs[0][0]
             lumi = iovs[0][1]
-            if (run<begin and run>be) or run==begin :
+            if (run<begin and run>be) or (run==begin and lumi==0) :
                 be=run
                 ib=i
             if run>=end and run<en:

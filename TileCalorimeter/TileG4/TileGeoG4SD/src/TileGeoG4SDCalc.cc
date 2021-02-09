@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 //************************************************************
@@ -65,6 +65,8 @@ TileGeoG4SDCalc::TileGeoG4SDCalc(const std::string& name, ISvcLocator *pSvcLocat
   declareProperty( "TileTB" , m_options.tileTB );
   declareProperty( "Ushape" , m_options.Ushape );
   declareProperty( "DoBirk" , m_options.doBirk );
+  declareProperty( "birk1", m_birk1);
+  declareProperty( "birk2", m_birk2);
   declareProperty( "DoTileRow" , m_options.doTileRow );
   declareProperty( "DoTOFCorrection" , m_options.doTOFCorrection );
 }
@@ -858,10 +860,6 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   // RKB = 0.013  g/(MeV*cm**2)  and  C = 9.6e-6  g**2/((MeV**2)(cm**4))
 
   const G4String myMaterial = "Scintillator";
-  const G4double birk1 = 0.0130 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
-  const G4double birk2 = 9.6e-6 * CLHEP::g / (CLHEP::MeV * CLHEP::cm2) * CLHEP::g / (CLHEP::MeV * CLHEP::cm2);
-  G4double response = 0.;
-
   const G4double destep = aStep->GetTotalEnergyDeposit() * aStep->GetTrack()->GetWeight();
   //  doesn't work with shower parameterisation
   //  G4Material* material = aStep->GetTrack()->GetMaterial();
@@ -872,15 +870,16 @@ G4double TileGeoG4SDCalc::BirkLaw(const G4Step* aStep) const
   // --- no saturation law for neutral particles ---
   // ---  and materials other than scintillator  ---
   if ( (charge != 0.) && (material->GetName() == myMaterial)) {
-    G4double rkb = birk1;
-    // --- correction for particles with more than 1 charge unit ---
-    // --- based on alpha particle data (only apply for MODEL=1) ---
-    if (fabs(charge) > 1.0)
-      rkb *= 7.2 / 12.6;
-
+    G4double response = 0.;
     if (aStep->GetStepLength() != 0) {
-      G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
-      response = destep / (1. + rkb * dedx + birk2 * dedx * dedx);
+      G4double rkb = m_birk1;
+      // --- correction for particles with more than 1 charge unit ---
+      // --- based on alpha particle data (only apply for MODEL=1) ---
+      if (fabs(charge) > 1.0) {
+        rkb *= 7.2 / 12.6;
+      }
+      const G4double dedx = destep / (aStep->GetStepLength()) / (material->GetDensity());
+      response = destep / (1. + rkb * dedx + m_birk2 * dedx * dedx);
     }
     else {
       ATH_MSG_DEBUG("BirkLaw() - Current Step in scintillator has zero length." << "Ignore Birk Law for this Step");

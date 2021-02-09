@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 """
 Tools configurations for ISF
@@ -24,6 +24,15 @@ def getParticleFinalStateFilter(name="ISF_ParticleFinalStateFilter", **kwargs):
 
 def getParticleSimWhiteList(name="ISF_ParticleSimWhiteList", **kwargs):
     # GenParticleSimWhiteList
+    return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
+
+def getGenParticleSimQuasiStableFilter(name="ISF_GenParticleSimQuasiStableFilter", **kwargs):
+    # GenParticleSimQuasiStableFilter
+    return CfgMgr.ISF__GenParticleSimQuasiStableFilter(name, **kwargs)
+
+def getParticleSimWhiteList_ExtraParticles(name="ISF_ParticleSimWhiteList_ExtraParticles", **kwargs):
+    # GenParticleSimWhiteList_LongLived
+    kwargs.setdefault('WhiteLists' , ['G4particle_whitelist.txt', 'G4particle_whitelist_ExtraParticles.txt'] )
     return CfgMgr.ISF__GenParticleSimWhiteList(name, **kwargs)
 
 def getParticlePositionFilter(name="ISF_ParticlePositionFilter", **kwargs):
@@ -195,3 +204,16 @@ def getLLPTruthStrategy(name="ISF_LLPTruthStrategy", **kwargs):
     #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
     kwargs.setdefault('PassProcessCategory',      9   ) # ==
     return CfgMgr.ISF__LLPTruthStrategy(name, **kwargs);
+
+def getKeepLLPDecayChildrenStrategy(name="ISF_KeepLLPDecayChildrenStrategy", **kwargs):
+    # ProcessCategory==9 corresponds to the 'fUserDefined' G4ProcessType:
+    #   http://www-geant4.kek.jp/lxr/source//processes/management/include/G4ProcessType.hh
+    kwargs.setdefault('PassProcessCategory' , 9  ) # ==
+    kwargs.setdefault('VertexTypeRangeLow'  , 200) # All kinds of decay processes
+    kwargs.setdefault('VertexTypeRangeHigh' , 299) # ...
+    kwargs.setdefault('BSMParent',                True)
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);
+
+def getKeepHadronicInteractionChildrenStrategy(name="ISF_KeepHadronicInteractionChildrenStrategy", **kwargs):
+    kwargs.setdefault('VertexTypes'                       , [ 111, 121, 131, 141, 151, 161, 210 ])
+    return CfgMgr.ISF__KeepChildrenTruthStrategy(name, **kwargs);

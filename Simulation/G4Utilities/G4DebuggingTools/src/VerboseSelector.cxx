@@ -127,12 +127,22 @@ namespace G4UA{
 	bool p1=m_config.targetTrack<0 && m_config.targetBarcode<0;
 	bool p2=trackID==m_config.targetTrack ;
 	bool p3=currentBarcode==m_config.targetBarcode; 
-	
+	bool p4 = false;
 
-	if(p1 || p2 || p3)
+	for (auto& pdgID : m_config.targetPdgIDs) {
+	  if (fabs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
+	    p4 = true;
+	    break;   
+	  }
+	}
+
+	if(p1 || p2 || p3 || p4)
 	  {
-	    ATH_MSG_INFO(std::endl<<"---------> Dumping now track #"<<trackID<<" barcode "
-			 <<currentBarcode<<" in event "<<m_evtCount<<std::endl);
+	    ATH_MSG_INFO(std::endl << "---------> Dumping now track #"
+	                 << trackID << " barcode " << currentBarcode
+	                 << " pdgID " << aTrack->GetParticleDefinition()->GetPDGEncoding()
+	                 << " in event " << m_evtCount);
+
 	    G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(m_config.verboseLevel);
 	  }
       }
@@ -143,7 +153,13 @@ namespace G4UA{
     if(m_evtCount==(uint64_t)m_config.targetEvent||m_config.targetEvent<0){
       if(aTrack->GetTrackID()==m_config.targetTrack||m_config.targetTrack<0)
 	G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);
-    }
+	  for (auto& pdgID : m_config.targetPdgIDs) {
+	    if (fabs(aTrack->GetParticleDefinition()->GetPDGEncoding()) == pdgID ) {
+	      G4EventManager::GetEventManager()->GetTrackingManager()->SetVerboseLevel(0);
+	      break;
+	    }
+	  }
+	}
     
   }
   

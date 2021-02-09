@@ -16,14 +16,15 @@ atlas_depends_on_subdirs( PUBLIC
 
 # External dependencies:
 find_package( HepMC )
+find_package( HepPDT )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 
 # Component(s) in the package:
 atlas_add_component( ISF_SimulationSelectors
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} GaudiKernel BarcodeServicesLib ISF_Event ISF_Interfaces )
+                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${HEPPDT_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${HEPMC_LIBRARIES} ${HEPPDT_LIBRARIES} GaudiKernel BarcodeServicesLib ISF_Event ISF_Interfaces )
 
 # Install files from the package:
 atlas_install_headers( ISF_SimulationSelectors )

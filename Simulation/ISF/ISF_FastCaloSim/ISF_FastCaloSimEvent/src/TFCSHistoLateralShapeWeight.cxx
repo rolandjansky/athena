@@ -3,6 +3,7 @@
 */
 
 #include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 #include "ISF_FastCaloSimEvent/TFCSHistoLateralShapeWeight.h"
 #include "ISF_FastCaloSimEvent/TFCSSimulationState.h"
@@ -17,12 +18,21 @@
 
 TFCSHistoLateralShapeWeight::TFCSHistoLateralShapeWeight(const char* name, const char* title) :
   TFCSLateralShapeParametrizationHitBase(name,title)
-{
-}
+{}
 
 TFCSHistoLateralShapeWeight::~TFCSHistoLateralShapeWeight()
 {
   if(m_hist) delete m_hist;
+}
+
+float TFCSHistoLateralShapeWeight::getMinWeight() const
+{
+  return m_minWeight;
+}
+
+float TFCSHistoLateralShapeWeight::getMaxWeight() const
+{
+  return m_maxWeight;
 }
 
 FCSReturnCode TFCSHistoLateralShapeWeight::simulate_hit(Hit& hit,TFCSSimulationState& simulstate,const TFCSTruthState* /*truth*/, const TFCSExtrapolationState* /*extrapol*/)
@@ -51,6 +61,10 @@ FCSReturnCode TFCSHistoLateralShapeWeight::simulate_hit(Hit& hit,TFCSSimulationS
   if(bin<1) bin=1;
   if(bin>m_hist->GetNbinsX()) bin=m_hist->GetNbinsX();
   float weight=m_hist->GetBinContent(bin);
+  float RMS   =m_hist->GetBinError(bin);
+  if(RMS>0) {
+    weight=CLHEP::RandGaussZiggurat::shoot(simulstate.randomEngine(), weight, RMS);
+  }  
   hit.E()*=weight;
 
   ATH_MSG_DEBUG("HIT: E="<<hit.E()<<" dR_mm="<<delta_r_mm<<" weight="<<weight);
@@ -77,7 +91,7 @@ void TFCSHistoLateralShapeWeight::Print(Option_t *option) const
   TFCSLateralShapeParametrizationHitBase::Print(option);
 
   if(longprint) {
-    if(m_hist) ATH_MSG_INFO(optprint <<"  Histogram: "<<m_hist->GetNbinsX()<<" bins ["<<m_hist->GetXaxis()->GetXmin()<<","<<m_hist->GetXaxis()->GetXmax()<<"]");
+    if(m_hist) ATH_MSG_INFO(optprint <<"  Histogram: "<<m_hist->GetNbinsX()<<" bins ["<<m_hist->GetXaxis()->GetXmin()<<","<<m_hist->GetXaxis()->GetXmax()<<"]" << " min weight: " << m_minWeight << " max weight: " << m_maxWeight);
      else ATH_MSG_INFO(optprint <<"  no Histogram");
   }  
 }

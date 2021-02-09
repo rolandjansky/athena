@@ -1,14 +1,14 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
- #ifndef BTAGTOOL_NnClusterizationFactory_C
- #define BTAGTOOL_NnClusterizationFactory_C
+ #ifndef SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
+ #define SICLUSTERIZATIONTOOL_NnClusterizationFactory_C
  
  /******************************************************
      @class NnClusterizationFactory
      @author Giacinto Piacquadio (PH-ADE-ID)
-     Package : JetTagTools 
+     Package : SiClusterizationTool 
      Created : January 2011
      DESCRIPTION: Load neural networks used for clustering 
                   and deal with:
@@ -40,6 +40,11 @@
  class TH1;
  class ICoolHistSvc;
  class IPixelCalibSvc;
+
+namespace lwt {
+  class NanReplacer;    
+  class LightweightGraph;
+}
 
 namespace Trk {
   class NeuralNetworkToHistoTool;
@@ -116,10 +121,35 @@ namespace InDet {
                                                       
     /** Callback for nnSetup */
     StatusCode nnSetup( IOVSVC_CALLBACK_ARGS );
+
+    StatusCode setUpNNLwtnn(IOVSVC_CALLBACK_ARGS);
     
    private:
     void clearCache(std::vector<TTrainedNetwork*>& ttnn);
  
+    // NN implementations
+    std::unique_ptr<lwt::LightweightGraph> m_lwnnNumber;  
+    std::map<int, std::unique_ptr<lwt::LightweightGraph> > m_lwnnPosition;  
+
+    // Flags for determining which NNs to use
+    bool m_useLwtnnNumber;
+    bool m_useLwtnnPosition;
+
+    // Handling inputs and outputs
+    typedef std::map<std::string, std::map<std::string, double> > InputMap;
+
+    // lwtnn versions
+    std::vector<Amg::Vector2D> estimatePositions(NnClusterizationFactory::InputMap & input, 
+                                                NNinput* rawInput,
+                                                const InDet::PixelCluster& pCluster,
+                                                int numberSubClusters,
+                                                std::vector<Amg::MatrixX> & errors);
+
+    std::vector<double> estimateNumberOfParticles(NnClusterizationFactory::InputMap & input);
+
+    // For error formatting in lwtnn version
+    double correctedRMSX(double posPixels);
+    double correctedRMSY(double posPixels, double sizeY, std::vector<float>& pitches);    
  
     /* estimate position for both with and w/o tracks */
     std::vector<Amg::Vector2D> estimatePositions(std::vector<double> inputData,
@@ -150,6 +180,7 @@ namespace InDet {
 
     TTrainedNetwork* retrieveNetwork(const std::string& folder, const std::string& subfolder);
 
+  StatusCode configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, std::string thisJson);
 
     std::vector<double> assembleInput(NNinput& input,
                                       int sizeX,
@@ -165,8 +196,6 @@ namespace InDet {
   std::vector<double> assembleInputRunII(NNinput& input,
                                       int sizeX,
                                       int sizeY);
-
-
 
     std::vector<Amg::Vector2D> getPositionsFromOutput(std::vector<double> & output,
 						      NNinput & input,
@@ -197,7 +226,10 @@ namespace InDet {
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY;
      std::vector<TTrainedNetwork*> m_NetworkEstimateImpactPointErrorsY_NoTrack;
 
-     std::string m_coolFolder;
+     // Two different cool folders store the differents kinds of configuration formats
+     // One is stored in root files, the other in json format as strings
+     std::string m_coolFolderRoot;
+     std::string m_coolFolderJson;     
      std::string m_layerInfoHistogram;
      std::string m_layerPrefix;
      std::string m_weightIndicator;
@@ -205,7 +237,8 @@ namespace InDet {
 
     ToolHandle<Trk::NeuralNetworkToHistoTool> m_networkToHistoTool;
     ServiceHandle<IPixelCalibSvc> m_calibSvc;
-    
+
+    InputMap flattenInput(NNinput & input);    
 
     bool m_useToT;
     bool m_addIBL;

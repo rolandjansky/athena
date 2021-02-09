@@ -75,6 +75,7 @@ Root::RegularFormula::parseExpression(const char* expression, TString& expr)
 
   TMsgLogger mylogger( "RegularFormula" );
   mylogger << kINFO << "Now parsing regular expression : " << expression << GEndl;
+  mylogger << kINFO << "Please be aware that Cling errors are expected and aren't inherently a problem" << GEndl;
 
   TFormula analyzer("analyzer","1");
   TObjArray* parArr = parStr.Tokenize(" ");

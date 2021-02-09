@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ISF_FastCaloSimEvent/TFCSEnergyInterpolationSpline.h"
@@ -12,6 +12,19 @@
 #include "TAxis.h"
 #include <iostream>
 #include <vector>
+
+#ifdef __FastCaloSimStandAlone__
+namespace Gaudi {
+  namespace Units {
+    constexpr double megaelectronvolt = 1.;
+    constexpr double kiloelectronvolt = 1.e-3 * megaelectronvolt;
+    constexpr double keV = kiloelectronvolt;
+  }
+}
+#else
+#include "GaudiKernel/SystemOfUnits.h"
+#endif
+
 
 //=============================================
 //======= TFCSEnergyInterpolation =========
@@ -34,21 +47,30 @@ void TFCSEnergyInterpolationSpline::InitFromArrayInEkin(Int_t np, Double_t Ekin[
   InitFromArrayInLogEkin(np,logEkin.data(),response,opt,valbeg,valend);
 }
 
-FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*)
+FCSReturnCode TFCSEnergyInterpolationSpline::simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState*) const
 {
   float Emean;
-  float logEkin=TMath::Log(truth->Ekin());
+  float Einit;
+  const float Ekin=truth->Ekin();
+  if(OnlyScaleEnergy()) Einit=simulstate.E();
+   else Einit=Ekin;
+  //catch very small values of Ekin (use 1 keV here) and fix the spline lookup to the 1keV value
+  const float logEkin=(Ekin>Gaudi::Units::keV?TMath::Log(Ekin):TMath::Log(Gaudi::Units::keV));
   if(logEkin<m_spline.GetXmin()) {
-    Emean=m_spline.Eval(m_spline.GetXmin())*truth->Ekin();
+    Emean=m_spline.Eval(m_spline.GetXmin())*Einit;
   } else {
     if(logEkin>m_spline.GetXmax()) {
-      Emean=( m_spline.Eval(m_spline.GetXmax()) + m_spline.Derivative(m_spline.GetXmax()) * (logEkin-m_spline.GetXmax()) )*truth->Ekin();
+      Emean=( m_spline.Eval(m_spline.GetXmax()) + m_spline.Derivative(m_spline.GetXmax()) * (logEkin-m_spline.GetXmax()) )*Einit;
     } else {
-      Emean=m_spline.Eval(logEkin)*truth->Ekin();
+      Emean=m_spline.Eval(logEkin)*Einit;
     }  
   }  
 
-  ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
+  if(OnlyScaleEnergy()) {
+    ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin()<<" and E="<<Einit);
+  } else {
+    ATH_MSG_DEBUG("set E="<<Emean<<" for true Ekin="<<truth->Ekin());
+  }  
   simulstate.set_E(Emean);
 
   return FCSSuccess;
@@ -62,7 +84,7 @@ void TFCSEnergyInterpolationSpline::Print(Option_t *option) const
   TString optprint=opt;optprint.ReplaceAll("short","");
   TFCSParametrization::Print(option);
 
-  if(longprint) ATH_MSG_INFO(optprint <<"  Spline N="<<m_spline.GetNp()
+  if(longprint) ATH_MSG_INFO(optprint <<(OnlyScaleEnergy()?"  E()*":"  Ekin()*")<<"Spline N="<<m_spline.GetNp()
                            <<" "<<m_spline.GetXmin()<<"<=log(Ekin)<="<<m_spline.GetXmax()
                            <<" "<<TMath::Exp(m_spline.GetXmin())<<"<=Ekin<="<<TMath::Exp(m_spline.GetXmax()));
 }
@@ -100,11 +122,6 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
     grspline = new TGraph(Graph0_n,Graph0_fx1001,Graph0_fy1001);
   }  
   
-  /*
-  TFile* file=TFile::Open("Example.root");
-  TGraph* grspline=(TGraph*)file->Get("Graph");
-  file->Close();
-  */
   TGraph* grdraw=(TGraph*)grspline->Clone();
   grdraw->SetMarkerColor(46);
   grdraw->SetMarkerStyle(8);
@@ -118,8 +135,8 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
   test.set_eta_min(0.2);
   test.set_eta_max(0.25);
   test.InitFromArrayInEkin(grspline->GetN(),grspline->GetX(),grspline->GetY(),"b2e2",0,0);
+  //test.set_OnlyScaleEnergy();
   test.Print();
-  test.spline().Dump();
   
   truth->set_pdgid(22);
   
@@ -132,6 +149,7 @@ void TFCSEnergyInterpolationSpline::unit_test(TFCSSimulationState* simulstate,TF
   for(float Ekin=test.Ekin_min()*0.25;Ekin<=test.Ekin_max()*4;Ekin*=1.05) {
     //Init LorentzVector for truth. For photon Ekin=E
     truth->SetPxPyPzE(Ekin,0,0,Ekin);
+    simulstate->set_E(Ekin);
     if (test.simulate(*simulstate,truth,extrapol) != FCSSuccess) {
       return;
     }

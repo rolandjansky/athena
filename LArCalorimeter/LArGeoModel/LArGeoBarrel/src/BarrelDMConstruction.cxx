@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -16,7 +16,7 @@
 #include "GeoModelKernel/GeoNameTag.h"
 #include "GeoModelKernel/GeoSerialIdentifier.h"
 #include "GeoModelKernel/GeoSerialTransformer.h"
-#include "GeoModelKernel/GeoSerialDenominator.h"  
+#include "GeoModelKernel/GeoSerialDenominator.h"
 #include "GeoModelKernel/GeoXF.h"
 
 #include "GeoModelKernel/GeoTube.h"
@@ -72,15 +72,16 @@ using namespace GeoXF;
 
 
 // Constructor;
-LArGeo::BarrelDMConstruction ::BarrelDMConstruction()
+LArGeo::BarrelDMConstruction ::BarrelDMConstruction(bool ft) :
+  m_activateFT(ft)
 {
 }
 
 // Destructor:
 LArGeo::BarrelDMConstruction::~BarrelDMConstruction() {
 }
-  
-void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope) 
+
+void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 {
   // Various initializations - Detector Store, Material Manager
 
@@ -89,17 +90,10 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   if (svcLocator->service("MessageSvc", msgSvc, true )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in BarrelDMConstruction, cannot access MessageSvc");
   }
-  MsgStream log(msgSvc, "BarrelDMConstruction"); 
-    
-  
-  log << MSG::INFO;
-  
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-  log << "+                                                  +" << std::endl;
-  log << "+         Start of Barrel DM GeoModel definition   +" << std::endl;
-  log << "+                                                  +" << std::endl;
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++++" << std::endl;
-    
+
+  MsgStream log(msgSvc, "BarrelDMConstruction");
+  log << MSG::DEBUG << "started" << endmsg;
+
   StoreGateSvc *detStore;
   if (svcLocator->service("DetectorStore", detStore, false )==StatusCode::FAILURE) {
     throw std::runtime_error("Error in BarrelDMConstruction, cannot access DetectorStore");
@@ -107,14 +101,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
   IGeoModelSvc *geoModel;
   IRDBAccessSvc* rdbAccess;
-  
+
   if(svcLocator->service ("GeoModelSvc",geoModel) == StatusCode::FAILURE)
     throw std::runtime_error("Error in BarrelDMConstruction, cannot access GeoModelSvc");
   if(svcLocator->service ("RDBAccessSvc",rdbAccess) == StatusCode::FAILURE)
     throw std::runtime_error("Error in BarrelDMConstruction, cannot access RDBAccessSvc");
 
   DecodeVersionKey larVersionKey(geoModel, "LAr");
-  
+
   DataHandle<StoredMaterialManager> materialManager;
   if (StatusCode::SUCCESS != detStore->retrieve(materialManager, std::string("MATERIALS"))) {
     throw std::runtime_error("Error in BarrelDMConstruction, stored MaterialManager is not found.");
@@ -127,7 +121,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   // version of the description with hardwired numbers
   //
   // 2. LArBarrelDM-01 and -02 are dummy tags as well.
-  // 
+  //
   // 3. The first DB tag which is actually used by this code is LArBarrelDM-03
   //
   //   .... Hope that future tags will be used in a 'normal' way
@@ -147,22 +141,22 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoMaterial *matXeCO2O2 = materialManager->getMaterial("trt::XeCO2O2");
     GeoMaterial *shieldSteel = materialManager->getMaterial("shield::ShieldSteel");
     GeoMaterial *matRubber = materialManager->getMaterial("sct::Rubber");
-    
+
     // Get required elements
     GeoElement* silicon = materialManager->getElement("Silicon");
     GeoElement* oxygen = materialManager->getElement("Oxygen");
     GeoElement* hydrogen = materialManager->getElement("Hydrogen");
     GeoElement* carbon = materialManager->getElement("Carbon");
     GeoElement* copper = materialManager->getElement("Copper");
-    
-    
+
+
     // Define some custom materials - That will move to the GeomDB
     //Fiberglass
     GeoMaterial *matFiberglass = new GeoMaterial("SiO2",2.20*CLHEP::gram/CLHEP::cm3);
     matFiberglass->add(silicon,silicon->getA()/(silicon->getA()+2*oxygen->getA()));
     matFiberglass->add(oxygen,2*oxygen->getA()/(silicon->getA()+2*oxygen->getA()));
     matFiberglass->lock();
-    
+
     //Epoxy Resin
     GeoMaterial *matEpoxyResin = new GeoMaterial("Epoxy", 1.9*CLHEP::gram/CLHEP::cm3);
     matEpoxyResin->add(hydrogen,     14*hydrogen->getA()   / (14*hydrogen->getA() + 4*oxygen->getA()+ 8*carbon->getA()));
@@ -177,15 +171,15 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     matFEBBoards->add(copper, 0.28);
     matFEBBoards->add(matEpoxyResin, 0.20);
     matFEBBoards->lock();
-    
+
     //SERVICES:CABLES, TUBES ETC...//
-    
+
     //Water
     GeoMaterial *matWater = new GeoMaterial("Water", 1*CLHEP::gram/CLHEP::cm3);
     matWater->add(hydrogen,     2*hydrogen->getA()   / (2*hydrogen->getA() + 1*oxygen->getA()));
     matWater->add(oxygen,       1*oxygen->getA()     / (2*hydrogen->getA() + 1*oxygen->getA()));
     matWater->lock();
-    
+
     //InDetServices
     GeoMaterial* matLArServices = new GeoMaterial("LArServices", 4.03*CLHEP::gram/CLHEP::cm3);
     matLArServices->add(shieldSteel, 0.20);
@@ -195,74 +189,74 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     matLArServices->add(matXeCO2O2, 0.03); //new gas mixture from TRT
     matLArServices->add(matWater, 0.05);
     matLArServices->lock();
-    
+
     //----------
-    
+
     //----------- Building Front-end crates --------------------
-    
+
     GeoBox     *Pedestal = new GeoBox(71, 400.05, 248.65);
     GeoBox     *Ped1     = new GeoBox(67, 397.05, 245.65);
     GeoTube    *Ped2     = new GeoTube(0, 150, 75);
     GeoTube    *Ped3     = new GeoTube(0, 2775, 300);   //, -75*CLHEP::deg, 150*CLHEP::deg); // 0, 2775, 300, -8.2*CLHEP::deg, 16.4*CLHEP::deg)
-    
+
     //GeoLogVol  *lvped3   = new GeoLogVol("LAr::DM::PED3",Ped3,air);
     //GeoPhysVol *ped3   = new GeoPhysVol(lvped3);
     //envelope->add(ped3);
-    
+
     const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
 			       subtract((*Ped2)  <<HepGeom::TranslateY3D(-200.025)*HepGeom::RotateY3D(90*CLHEP::deg)).
 			       subtract((*Ped3)  <<HepGeom::TranslateX3D(-2815)).
 			       subtract((*Ped2)  <<HepGeom::TranslateY3D(200.025)*HepGeom::RotateY3D(90*CLHEP::deg)));
-    
-    
+
+
     GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::PED",&CratePed,air);
     GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
     //envelope->add(pedestal);
-    
+
     GeoBox     *Crate1   = new GeoBox(244.5, 400.05, 255.05);
     GeoBox     *Crate2   = new GeoBox(250, 396.87, 245.55);
     GeoBox     *Crate3   = new GeoBox(186.5, 3.175, 245.55);
     const GeoShape & FEBCrate=(*Crate1).subtract(*Crate2).add((*Crate3)  <<HepGeom::TranslateX3D(-6.7));
-    
-    
+
+
     GeoLogVol  *lvcrate = new GeoLogVol("LAr::DM::CRATE",&FEBCrate,alu);
     GeoPhysVol *crate   = new GeoPhysVol(lvcrate);
-    
-    
+
+
     //---------- Build Boards and Cooling plates--------
-    
+
     GeoBox     *Boxb1   = new GeoBox(205.472, 396.87, 245.55);
     GeoBox     *Boxb2   = new GeoBox(205.472, 3.175, 245.55);
     const GeoShape & BoardEnvelope= (*Boxb1).subtract(*Boxb2);
     GeoLogVol  *lvbenv = new GeoLogVol("LAr::DM::BOARDENVELOPE",&BoardEnvelope,air);
     GeoPhysVol *boardenvelope   = new GeoPhysVol(lvbenv);
-    
-    
+
+
     GeoBox     *Board   = new GeoBox(204.472, 1.0287, 244.475);
     GeoLogVol  *lvboard = new GeoLogVol("LAr::DM::FEBBOARD",Board,matFEBBoards); //Board Material go here
     GeoPhysVol *board   = new GeoPhysVol(lvboard);
-    
+
     GeoBox     *Plate1   = new GeoBox(197, 7.5, 240);
     GeoBox     *Plate2   = new GeoBox(200, 5.5, 250);
     const GeoShape & CoolPlates= (*Plate1).subtract(*Plate2);
     GeoLogVol  *lvplate = new GeoLogVol("LAr::DM::COOLPLATE",&CoolPlates,alu);
     GeoPhysVol *plate   = new GeoPhysVol(lvplate);
-    
+
     GeoBox     *BoardPannel  = new GeoBox(0.5, 9.5925, 244.475);
     GeoLogVol  *lvboardp     = new GeoLogVol("LAr::DM::BOARDPANNEL",BoardPannel,alu);
     GeoPhysVol *pannel       = new GeoPhysVol(lvboardp);
-    
+
     const unsigned int NCrates=16;
     Variable       i;
     GENFUNCTION    f = (360*CLHEP::deg/NCrates)*i;
     GENFUNCTION    f1 = (360*CLHEP::deg/NCrates)*i+315*CLHEP::deg;
     GENFUNCTION    f2 = (360*CLHEP::deg/NCrates)*i+157.5*CLHEP::deg;
     GENFUNCTION    g = i*19.685;
-    
+
     //(f=22.5|| f=45|| f=67.5|| f=180|| f=203.5|| f=225|| f=247.5|| f=270|| f=337.5|| f=360)
-    
+
     //-------------- Place volumes in envelope ----------------------------
-    
+
     //boards
     TRANSFUNCTION xfb1 = Pow(HepGeom::TranslateY3D(1.0),g)*HepGeom::TranslateY3D(19.685);
     TRANSFUNCTION xfb2 = Pow(HepGeom::TranslateY3D(1.0),-g)*HepGeom::TranslateY3D(-19.685);
@@ -270,7 +264,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *stb2 = new GeoSerialTransformer(board,&xfb2, (NCrates+3));
     boardenvelope->add(stb1);
     boardenvelope->add(stb2);
-    
+
     //coolingplates
     TRANSFUNCTION xfcp1 = Pow(HepGeom::TranslateY3D(1.0),g)*HepGeom::TranslateY3D(19.685);
     TRANSFUNCTION xfcp2 = Pow(HepGeom::TranslateY3D(1.0),-g)*HepGeom::TranslateY3D(-19.685);
@@ -278,7 +272,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *stcp2 = new GeoSerialTransformer(plate,&xfcp2, (NCrates+3));
     boardenvelope->add(stcp1);
     boardenvelope->add(stcp2);
-    
+
     //boardpannels
     TRANSFUNCTION xfp1 = Pow(HepGeom::TranslateY3D(1.0),g)*HepGeom::TranslateY3D(19.685)*HepGeom::TranslateX3D(204.972);
     TRANSFUNCTION xfp2 = Pow(HepGeom::TranslateY3D(1.0),-g)*HepGeom::TranslateY3D(-19.685)*HepGeom::TranslateX3D(204.972);
@@ -286,23 +280,23 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *stp2 = new GeoSerialTransformer(pannel,&xfp2, (NCrates+3));
     boardenvelope->add(stp1);
     boardenvelope->add(stp2);
-    
+
     //crates
-    TRANSFUNCTION xfc1 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(3135.05); 
+    TRANSFUNCTION xfc1 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(3135.05);
     TRANSFUNCTION xfc2 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(-3135.05);
     GeoSerialTransformer *stc1 = new GeoSerialTransformer(crate,&xfc1, NCrates);
     GeoSerialTransformer *stc2 = new GeoSerialTransformer(crate,&xfc2, NCrates);
     envelope->add(stc1);
     envelope->add(stc2);
-    
+
     //pedestal
-    TRANSFUNCTION xfped1 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(3135.05); 
+    TRANSFUNCTION xfped1 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(3135.05);
     TRANSFUNCTION xfped2 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(-3135.05);
     GeoSerialTransformer *stped1 = new GeoSerialTransformer(pedestal,&xfped1, NCrates);
     GeoSerialTransformer *stped2 = new GeoSerialTransformer(pedestal,&xfped2, NCrates);
     envelope->add(stped1);
     envelope->add(stped2);
-    
+
     //boardenvelopes
     TRANSFUNCTION xfe1 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3180.278)*HepGeom::TranslateZ3D(3135.05);
     TRANSFUNCTION xfe2 = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3180.278)*HepGeom::TranslateZ3D(-3135.05);
@@ -310,44 +304,44 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *ste2 = new GeoSerialTransformer(boardenvelope,&xfe2, NCrates);
     envelope->add(ste1);
     envelope->add(ste2);
-    
-    
+
+
     //----------- Building envelope for Cables and Tubes --------------
-    
+
     GeoTrd   *Trd1air  = new GeoTrd(123.5, 123.5, 167, 245.43, 117.65);
     GeoTrap  *Trapair  = new GeoTrap(178.33, 39.596*CLHEP::deg, 0, 167, 53.5, 53.5, 0, 167, 123.5, 123.5, 0);
-    GeoTrd   *Trd2air  = new GeoTrd(53.5, 53.5, 280, 548, 677.5); 
-    GeoBox   *Box   = new GeoBox(280, 280, 100); 
-    
+    GeoTrd   *Trd2air  = new GeoTrd(53.5, 53.5, 280, 548, 677.5);
+    GeoBox   *Box   = new GeoBox(280, 280, 100);
+
     GeoTrd   *Trd1alu  = new GeoTrd(5, 5, 167, 245.43, 117.65);
     GeoTrap  *Trapalu  = new GeoTrap(178.33, 45.5*CLHEP::deg, 0, 167, 5, 5, 0, 167, 5, 5, 0);
     GeoTrd   *Trd2alu  = new GeoTrd(5, 5, 280, 548, 677.5);
-    
+
     HepGeom::Transform3D Cut1Box  = HepGeom::Translate3D(-295.5, 500, -473.563)*HepGeom::RotateX3D(-20*CLHEP::deg);
     HepGeom::Transform3D Cut2Box  = HepGeom::Translate3D(-295.5, -500, -473.563)*HepGeom::RotateX3D(20*CLHEP::deg);
-    
-    
-    
+
+
+
     const GeoShape & Envelopes= (*Trd1air).
       // add((*Trapair)  <<HepGeom::Translate3D(-147.5, 0, -295.25)).
-      add((*Trd2air)  <<HepGeom::Translate3D(-295.5, 0,  -1151.063)). 
+      add((*Trd2air)  <<HepGeom::Translate3D(-295.5, 0,  -1151.063)).
       subtract((*Box)  <<HepGeom::Transform3D(Cut1Box)).
       subtract((*Box)  <<HepGeom::Transform3D(Cut2Box)).
       add((*Trapair)  <<HepGeom::Translate3D(-147.5, 0, -295.25));
     GeoLogVol  *lv          = new GeoLogVol("LAr::DM::Envelopes",&Envelopes,matLArServices); // Services material go here
     GeoPhysVol *envelopes    = new GeoPhysVol(lv);
-    
+
     const GeoShape & Baseplates= (*Trd1alu).add((*Trapalu)  <<HepGeom::Translate3D(-180.5, 0, -295.25));
     GeoLogVol  *lvbis          = new GeoLogVol("LAr::DM::Baseplates",&Baseplates,alu);
     GeoPhysVol *baseplates    = new GeoPhysVol(lvbis);
-    
+
     const GeoShape & SectorPlates= ((*Trd2alu)  <<HepGeom::Translate3D(-366, 0, -1151.063)).
       subtract((*Box)  <<HepGeom::Transform3D(Cut1Box)).
       subtract((*Box)  <<HepGeom::Transform3D(Cut2Box));
     GeoLogVol  *lvbiss          = new GeoLogVol("LAr::DM::Sectorplates",&SectorPlates,alu);
     GeoPhysVol *sectorplates    = new GeoPhysVol(lvbiss);
-    
-    
+
+
     //envelopes
     TRANSFUNCTION xf3a = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(-631.63)*HepGeom::TranslateX3D(3175.44)*HepGeom::TranslateZ3D(3165.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION xf4a = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(631.63)*HepGeom::TranslateX3D(-3175.44)*HepGeom::TranslateZ3D(-3165.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg);
@@ -355,7 +349,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *st4 = new GeoSerialTransformer(envelopes,&xf4a, NCrates);
     envelope->add(st3);
     envelope->add(st4);
-    
+
     //baseplates
     TRANSFUNCTION xf3b = Pow(HepGeom::RotateZ3D(1.0),f1)*HepGeom::TranslateY3D(-631.63)*HepGeom::TranslateX3D(3175.44)*HepGeom::TranslateZ3D(3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION xf4b = Pow(HepGeom::RotateZ3D(1.0),(f1+22.5*CLHEP::deg))*HepGeom::TranslateY3D(631.63)*HepGeom::TranslateX3D(-3175.44)*HepGeom::TranslateZ3D(-3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg);
@@ -363,14 +357,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *st4bis = new GeoSerialTransformer(baseplates,&xf4b, (NCrates-11));
     envelope->add(st3bis);
     envelope->add(st4bis);
-    
+
     TRANSFUNCTION xf5b = Pow(HepGeom::RotateZ3D(1.0),f2)*HepGeom::TranslateY3D(-631.63)*HepGeom::TranslateX3D(3175.44)*HepGeom::TranslateZ3D(3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION xf6b = Pow(HepGeom::RotateZ3D(1.0),(f2-22.5*CLHEP::deg))*HepGeom::TranslateY3D(631.63)*HepGeom::TranslateX3D(-3175.44)*HepGeom::TranslateZ3D(-3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg);
     GeoSerialTransformer *st5bis = new GeoSerialTransformer(baseplates,&xf5b, (NCrates-11));
     GeoSerialTransformer *st6bis = new GeoSerialTransformer(baseplates,&xf6b, (NCrates-11));
     envelope->add(st5bis);
     envelope->add(st6bis);
-    
+
     //sectorplates
     TRANSFUNCTION xf3bb = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(-631.63)*HepGeom::TranslateX3D(3175.44)*HepGeom::TranslateZ3D(3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION xf4bb = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(631.63)*HepGeom::TranslateX3D(-3175.44)*HepGeom::TranslateZ3D(-3044.5)*HepGeom::RotateZ3D(-11.25*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg);
@@ -395,18 +389,18 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoElement* hydrogen = materialManager->getElement("Hydrogen");
   GeoElement* carbon = materialManager->getElement("Carbon");
   GeoElement* copper = materialManager->getElement("Copper");
-  GeoElement* nitrogen = materialManager->getElement("Nitrogen"); 
+  GeoElement* nitrogen = materialManager->getElement("Nitrogen");
   GeoElement* fluorine = materialManager->getElement("Fluorine");
 
   // Define some custom materials - That will move to the GeomDB
 
-  
+
   //C6F14
   GeoMaterial *matC6F14 = new GeoMaterial("C6F14",1.68*CLHEP::gram/CLHEP::cm3);
   matC6F14->add(carbon,   6*carbon->getA()   / (6*carbon->getA() + 14*fluorine->getA()));
   matC6F14->add(fluorine, 14*fluorine->getA() / (6*carbon->getA() + 14*fluorine->getA()));
   matC6F14->lock();
-    
+
   //Water
   GeoMaterial *matWater = new GeoMaterial("Water", 1*CLHEP::gram/CLHEP::cm3);
   matWater->add(hydrogen,     2*hydrogen->getA()   / (2*hydrogen->getA() + 1*oxygen->getA()));
@@ -446,7 +440,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   matBoardsEnvelope->add(air, 0.0008);
   matBoardsEnvelope->add(alu,0.5109 );
   matBoardsEnvelope->lock();
-  
+
   //InDetServices !!! Provisoire !!!
   double density1 = 1.*CLHEP::gram/CLHEP::cm3;
   if (strDMTopTag=="LArBarrelDM-02") density1 = 1.7*CLHEP::gram/CLHEP::cm3;
@@ -479,7 +473,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 //     << matLArServices1->getRadLength() << " " << matLArServices1->getIntLength() << std::endl;
 //  std::cout << " -- LArServices2 density,x0,lambda " << matLArServices2->getDensity()/(g/cm3) << " "
 //     << matLArServices2->getRadLength() << " " << matLArServices2->getIntLength() << std::endl;
-  
+
   const unsigned int NCrates=16;
   const double Alfa=360*CLHEP::deg/NCrates;
   const double Enda=1155;
@@ -490,7 +484,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   const double DYc=2771.6*tan(Alfa/2);
   Variable       i;
   GENFUNCTION    f = Alfa*i;
- 
+
   ////----------- Building Front-end crates --------------------
 
 
@@ -498,42 +492,42 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoBox     *Pedestal = new GeoBox(71, 383.18, 248.65);
   GeoBox     *Ped1     = new GeoBox(67, 380.18, 245.65);
   GeoTube    *Ped2     = new GeoTube(0, 150, 75);
-  GeoTube    *Ped3     = new GeoTube(0, 2775, 300);  
+  GeoTube    *Ped3     = new GeoTube(0, 2775, 300);
   const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
 			     subtract((*Ped2)  <<HepGeom::TranslateY3D(-200.025)*HepGeom::RotateY3D(90*CLHEP::deg)).
 			     subtract((*Ped3)  <<HepGeom::TranslateX3D(-2800)).
 		             subtract((*Ped2)  <<HepGeom::TranslateY3D(200.025)*HepGeom::RotateY3D(90*CLHEP::deg)));
-  
+
   GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::Ped",&CratePed,alu);
   GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
-			
+
   // ----- build crates -----
   GeoBox     *Crate1   = new GeoBox(244.5, 400.05, 255.05);
   GeoBox     *Crate2   = new GeoBox(250, 396.87, 245.55);
   GeoBox     *Crate3   = new GeoBox(186.5, 3.175, 245.55);
   const GeoShape & FEBCrate=(*Crate1).subtract(*Crate2).add((*Crate3)  <<HepGeom::TranslateX3D(-6.7));
-  
+
   GeoLogVol  *lvcrate = new GeoLogVol("LAr::DM::Crate",&FEBCrate,alu);
   GeoPhysVol *crate   = new GeoPhysVol(lvcrate);
-  
+
   // ----- build boardenvelopes -----
   GeoBox     *BoardEnvelope   = new GeoBox(204, 194, 244);
   GeoLogVol  *lvbenv = new GeoLogVol("LAr::DM::FEBoard",BoardEnvelope,matBoardsEnvelope);
   GeoPhysVol *boardenvelope   = new GeoPhysVol(lvbenv);
-  
-   
+
+
   //-------------- Place volumes in envelope ----------------------------
 
   //Crates
-  TRANSFUNCTION crA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(3135.05); 
+  TRANSFUNCTION crA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(3135.05);
   TRANSFUNCTION crC = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(3141.25)*HepGeom::TranslateZ3D(-3135.05);
   GeoSerialTransformer *crtA = new GeoSerialTransformer(crate,&crA, NCrates);
   GeoSerialTransformer *crtC = new GeoSerialTransformer(crate,&crC, NCrates);
   envelope->add(crtA);
   envelope->add(crtC);
-  
+
   //Pedestals
-  TRANSFUNCTION pedA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(3135.05); 
+  TRANSFUNCTION pedA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(3135.05);
   TRANSFUNCTION pedC = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(2825.75)*HepGeom::TranslateZ3D(-3135.05);
   GeoSerialTransformer *pedtA = new GeoSerialTransformer(pedestal,&pedA, NCrates);
   GeoSerialTransformer *pedtC = new GeoSerialTransformer(pedestal,&pedC, NCrates);
@@ -553,19 +547,19 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   envelope->add(febt1C);
   envelope->add(febt2A);
   envelope->add(febt2C);
-  
+
   ////----------- Building envelopes and support plates for Cables and Tubes --------------
- 
+
   // transforms
   GeoBox   *Box   = new GeoBox(280, 280, 100);
- 
+
   HepGeom::Transform3D Cut3Boxe  = HepGeom::Translate3D(0, 548, 711)*HepGeom::RotateX3D(-20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
   HepGeom::Transform3D Cut4Boxe  = HepGeom::Translate3D(0, -548,711)*HepGeom::RotateX3D(20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
   HepGeom::Transform3D Cut3Boxp  = HepGeom::Translate3D(0, 548, 850)*HepGeom::RotateX3D(-20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
   HepGeom::Transform3D Cut4Boxp  = HepGeom::Translate3D(0, -548,850)*HepGeom::RotateX3D(20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
 
   // ----- build base envelopes -----
-  GeoTrd   *Trd1air  = new GeoTrd(123.5, 123.5, 167, 305, 287.5); 
+  GeoTrd   *Trd1air  = new GeoTrd(123.5, 123.5, 167, 305, 287.5);
   GeoLogVol  *lvbe          = new GeoLogVol("LAr::DM::BaseEnvelopes",Trd1air,matLArServices1);
   GeoPhysVol *baseenvelopes    = new GeoPhysVol(lvbe);
 
@@ -577,7 +571,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   // ----- build sector envelopes -----
   GeoTrd   *Trdair1  = new GeoTrd(52.95, 52.95, DYa, DYb, (Endb-Enda)/2);// (52.95, 52.95, 229.7, 335.83, 269.6)
   GeoLogVol  *lvse1          = new GeoLogVol("LAr::DM::SectorEnvelopes1",Trdair1,matLArServices2);
-  GeoPhysVol *sectorenvelopes1    = new GeoPhysVol(lvse1); 
+  GeoPhysVol *sectorenvelopes1    = new GeoPhysVol(lvse1);
 
 
   GeoTrd   *Trdair2  = new GeoTrd(52.95, 52.95, DYb, DYc, (Endc-Endb)/2);//(52.95, 52.95, 335.83, 548.5, 538.2)
@@ -586,14 +580,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 				     subtract((*Box)  <<HepGeom::Transform3D(Cut4Boxe)));
 
   const GeoShape & SectorEnvelopes= ((SectorEnvelope).
-                                    add(SectorEnvelope  << HepGeom::TranslateY3D(-(DYb+DYc)*cos(Alfa/2)*cos(Alfa/2))*HepGeom::TranslateZ3D(-(DYb+DYc)*0.5*sin(Alfa))*HepGeom::RotateX3D(Alfa))); 
+                                    add(SectorEnvelope  << HepGeom::TranslateY3D(-(DYb+DYc)*cos(Alfa/2)*cos(Alfa/2))*HepGeom::TranslateZ3D(-(DYb+DYc)*0.5*sin(Alfa))*HepGeom::RotateX3D(Alfa)));
 
   GeoLogVol  *lvse2r          = new GeoLogVol("LAr::DM::SectorEnvelopes2r",&SectorEnvelopes,matLArServices1);
   GeoPhysVol *sectorenvelopes2r    = new GeoPhysVol(lvse2r);  // for right-handed splice boxes sideA
-  
+
   GeoLogVol  *lvse2l          = new GeoLogVol("LAr::DM::SectorEnvelopes2l",&SectorEnvelopes,matLArServices1);
   GeoPhysVol *sectorenvelopes2l    = new GeoPhysVol(lvse2l);  // for left-handed splice boxes
-  
+
   GeoLogVol  *lvse2          = new GeoLogVol("LAr::DM::SectorEnvelopes2",&SectorEnvelopes,matLArServices1);
   GeoPhysVol *sectorenvelopes2    = new GeoPhysVol(lvse2);  // no splice boxes
 
@@ -603,10 +597,10 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *baseplates    = new GeoPhysVol(lvbp);
 
   // ----- build bridge plates -----
-  GeoTrap  *Trapalu  = new GeoTrap(201.70, 49.92*CLHEP::deg, 0, 160, 5, 5, 0, 160, 5, 5, 0); 
+  GeoTrap  *Trapalu  = new GeoTrap(201.70, 49.92*CLHEP::deg, 0, 160, 5, 5, 0, 160, 5, 5, 0);
   GeoLogVol  *lvbrp          = new GeoLogVol("LAr::DM::BridgePlates",Trapalu,alu);
   GeoPhysVol *bridgeplates    = new GeoPhysVol(lvbrp);
-  
+
 
   // ----- build sector plates -----
   GeoTrd   *Trd2alu  = new GeoTrd(5, 5, 280, 548, 677.5);
@@ -617,30 +611,30 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *sectorplates    = new GeoPhysVol(lvsp);
 
   //---------- Build Splice boxes for InDet optical fibers--------
-   
+
   GeoTrap  *GeoTrap1  = new GeoTrap(237.5, 0, 0, 307, 47.5, 47.5, 0, 259.17, 47.5, 47.5, 0);
-  GeoBox   *Box1   = new GeoBox(50, 244.80, 150);  
+  GeoBox   *Box1   = new GeoBox(50, 244.80, 150);
   const GeoShape & SpliceBox = ((*GeoTrap1).
 				subtract(*Box1 << HepGeom::TranslateZ3D(193.88)*HepGeom::TranslateY3D(-223.49)*HepGeom::RotateX3D(41.592*CLHEP::deg)));
 
   GeoTransform *xtr = new GeoTransform (HepGeom::TranslateZ3D(39.57)*HepGeom::TranslateY3D(-452.12)*HepGeom::TranslateX3D(5.40)*HepGeom::RotateX3D(191.25*CLHEP::deg));
   sectorenvelopes2r->add(xtr);
-  GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu); 
+  GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu);
   GeoPhysVol *spliceboxr       = new GeoPhysVol(lvspbr);
   sectorenvelopes2r->add(spliceboxr);
-  
+
   GeoTransform *xtl = new GeoTransform (HepGeom::TranslateZ3D(39.57)*HepGeom::TranslateY3D(-452.12)*HepGeom::TranslateX3D(5.40)*HepGeom::RotateY3D(-180*CLHEP::deg)*HepGeom::RotateX3D(-(Alfa/2)));
   sectorenvelopes2l->add(xtl);
-  GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);  
+  GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);
   GeoPhysVol *spliceboxl       = new GeoPhysVol(lvspbl);
   sectorenvelopes2l->add(spliceboxl);
-  
-  
+
+
   ////
   GeoTrd   *Trd1  = new GeoTrd(44.5, 44.5, 0, 214.72, 94.20);
   GeoTrap  *GeoTrap2  = new GeoTrap(149, 0, 0, 126.215, 44.5, 44.5, 0, 95, 44.5, 44.5, 0);
   GeoTrap  *GeoTrap3  = new GeoTrap(72, 0, 0, 294.5, 44.5, 44.5, 0, 279.396, 44.5, 44.5, 0);
-  
+
   GeoTransform *xt1 = new GeoTransform (HepGeom::TranslateY3D(-53)*HepGeom::RotateX3D(42.25*CLHEP::deg));
   spliceboxr->add(xt1);
   spliceboxl->add(xt1);
@@ -648,7 +642,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *tbox1       = new GeoPhysVol(lt1);
   spliceboxr->add(tbox1);
   spliceboxl->add(tbox1);
-  
+
   GeoTransform *xt2 = new GeoTransform (HepGeom::TranslateZ3D(78)*HepGeom::TranslateY3D(154));
   spliceboxr->add(xt2);
   spliceboxl->add(xt2);
@@ -656,8 +650,8 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   GeoPhysVol *tbox2       = new GeoPhysVol(lt2);
   spliceboxr->add(tbox2);
   spliceboxl->add(tbox2);
-  
-  GeoTransform *xt3 = new GeoTransform (HepGeom::TranslateZ3D(-155.81)); 
+
+  GeoTransform *xt3 = new GeoTransform (HepGeom::TranslateZ3D(-155.81));
   spliceboxr->add(xt3);
   spliceboxl->add(xt3);
   GeoLogVol  *lt3     = new GeoLogVol("LAr::DM::TBox3",GeoTrap3,air);
@@ -667,7 +661,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
 
   //-------------- Place volumes in LAr Envelope -------------------
- 
+
   //sectorPlates
   TRANSFUNCTION spA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(2095)*HepGeom::TranslateZ3D(3410.1)*HepGeom::RotateY3D(90*CLHEP::deg);
   TRANSFUNCTION spC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(2095)*HepGeom::TranslateZ3D(-3410.1)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -678,7 +672,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
   //bridgePlates
   TRANSFUNCTION brpA1 = Pow(HepGeom::RotateZ3D(1.0),f-(5*Alfa/2))*HepGeom::TranslateX3D(2974.5)*HepGeom::TranslateZ3D(3170.1)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg);
-  TRANSFUNCTION brpA2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(2974.5)*HepGeom::TranslateZ3D(3170.1)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg); 
+  TRANSFUNCTION brpA2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(2974.5)*HepGeom::TranslateZ3D(3170.1)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg);
   TRANSFUNCTION brpC1 = Pow(HepGeom::RotateZ3D(1.0),f-(5*Alfa/2))*HepGeom::TranslateX3D(2974.5)*HepGeom::TranslateZ3D(-3170.1)*HepGeom::RotateZ3D(-90*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(-90*CLHEP::deg);
   TRANSFUNCTION brpC2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(2974.5)*HepGeom::TranslateZ3D(-3170.1)*HepGeom::RotateZ3D(-90*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(-90*CLHEP::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
   GeoSerialTransformer *brptA2 = new GeoSerialTransformer(bridgeplates,&brpA2, 5);
@@ -690,7 +684,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   envelope->add(brptC2);
 
   //basePlates
-  TRANSFUNCTION bpA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(2930.6)*HepGeom::RotateY3D(90*CLHEP::deg); 
+  TRANSFUNCTION bpA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(2930.6)*HepGeom::RotateY3D(90*CLHEP::deg);
   TRANSFUNCTION bpC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(-2930.6)*HepGeom::RotateY3D(90*CLHEP::deg);
   GeoSerialTransformer *bptA = new GeoSerialTransformer(baseplates,&bpA, NCrates);
   GeoSerialTransformer *bptC = new GeoSerialTransformer(baseplates,&bpC, NCrates);
@@ -702,9 +696,9 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   TRANSFUNCTION seC1 = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D((Endb+Enda)/2)*HepGeom::TranslateZ3D(-3468.05)*HepGeom::RotateY3D(90*CLHEP::deg);
   GeoSerialTransformer *setA1 = new GeoSerialTransformer(sectorenvelopes1,&seA1, NCrates);
   GeoSerialTransformer *setC1 = new GeoSerialTransformer(sectorenvelopes1,&seC1, NCrates);
-  envelope->add(setA1); 
+  envelope->add(setA1);
   envelope->add(setC1);
-  
+
   TRANSFUNCTION seA2r = Pow(HepGeom::RotateZ3D(1.0),8*f-(3*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(3468.05)*HepGeom::RotateY3D(90*CLHEP::deg);
   TRANSFUNCTION seA2l = Pow(HepGeom::RotateZ3D(1.0),8*f+(5*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(3468.05)*HepGeom::RotateY3D(90*CLHEP::deg);
   TRANSFUNCTION seA2 = Pow(HepGeom::RotateZ3D(1.0),4*f+(Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(3468.05)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -733,14 +727,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   envelope->add(bretC);
 
   //baseEnvelopes
-  TRANSFUNCTION beA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(3059.2)*HepGeom::RotateY3D(90*CLHEP::deg); 
+  TRANSFUNCTION beA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(3059.2)*HepGeom::RotateY3D(90*CLHEP::deg);
   TRANSFUNCTION beC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(3464)*HepGeom::TranslateZ3D(-3059.2)*HepGeom::RotateY3D(90*CLHEP::deg);
   GeoSerialTransformer *betA = new GeoSerialTransformer(baseenvelopes,&beA, NCrates);
   GeoSerialTransformer *betC = new GeoSerialTransformer(baseenvelopes,&beC, NCrates);
   envelope->add(betA);
   envelope->add(betC);
 
-  
+
   // GeoMaterial::add(GeoMaterial*) does not take ownership of the
   // material passed as a parameter.  Thus, something like
   //   mat1* = new GeoMaterial (...);
@@ -756,7 +750,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
   matEpoxyResin->ref();  matEpoxyResin->unref();
   matFiberglass->ref();  matFiberglass->unref();
   matN2->ref();          matN2->unref();
-  } 
+  }
   else
   {
     // Use Geometry Database
@@ -766,33 +760,33 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     IRDBRecordset_ptr BarrelDMTubes = rdbAccess->getRecordsetPtr("BarrelDMTubes",keyLAr.tag(),keyLAr.node());
     IRDBRecordset_ptr BarrelDMBoxes = rdbAccess->getRecordsetPtr("BarrelDMBoxes",keyLAr.tag(),keyLAr.node());
 
-    std::map<std::string, unsigned int> tubeMap;  
-    for (unsigned int i=0; i<BarrelDMTubes->size(); i++)     
+    std::map<std::string, unsigned int> tubeMap;
+    for (unsigned int i=0; i<BarrelDMTubes->size(); i++)
     {
       std::string key = (*BarrelDMTubes)[i]->getString("TUBENAME");
       tubeMap[key] = i;
     }
-    std::map<std::string, unsigned int> boxMap;  
-    for (unsigned int j=0; j<BarrelDMBoxes->size(); j++)     
+    std::map<std::string, unsigned int> boxMap;
+    for (unsigned int j=0; j<BarrelDMBoxes->size(); j++)
     {
       std::string key = (*BarrelDMBoxes)[j]->getString("BOXNAME");
       boxMap[key] = j;
     }
-    std::map<std::string, unsigned int> trdMap;  
-    for (unsigned int k=0; k<BarrelDMTrds->size(); k++)     
+    std::map<std::string, unsigned int> trdMap;
+    for (unsigned int k=0; k<BarrelDMTrds->size(); k++)
     {
       std::string key = (*BarrelDMTrds)[k]->getString("TRDNAME");
       trdMap[key] = k;
     }
-    std::map<std::string, unsigned int> trapMap;  
-    for (unsigned int l=0; l<BarrelDMTraps->size(); l++)     
+    std::map<std::string, unsigned int> trapMap;
+    for (unsigned int l=0; l<BarrelDMTraps->size(); l++)
     {
       std::string key = (*BarrelDMTraps)[l]->getString("TRAPNAME");
       trapMap[key] = l;
     }
 
     unsigned int recordIndex;
-    
+
     // Get materials
     GeoMaterial *air               = materialManager->getMaterial("std::Air"); //0.001214 CLHEP::g/CLHEP::cm3
     GeoMaterial *alu               = materialManager->getMaterial("std::Aluminium"); //2.7 CLHEP::g/CLHEP::cm3
@@ -807,7 +801,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoMaterial* matLArServices8   = materialManager->getMaterial("LAr::LArServices8");// 1.070*CLHEP::gram/CLHEP::cm3
     GeoMaterial* matLArServices9   = materialManager->getMaterial("LAr::LArServices9");// 1.020*CLHEP::gram/CLHEP::cm3
     GeoMaterial* matLArServices10  = materialManager->getMaterial("LAr::LArServices10");// 0.995*CLHEP::gram/CLHEP::cm3
-    GeoMaterial* matLArServices11  = materialManager->getMaterial("LAr::LArServices11");// 0.835*CLHEP::gram/CLHEP::cm3 
+    GeoMaterial* matLArServices11  = materialManager->getMaterial("LAr::LArServices11");// 0.835*CLHEP::gram/CLHEP::cm3
     GeoMaterial* matLArServices12  = materialManager->getMaterial("LAr::LArServices12");// 0.640*CLHEP::gram/CLHEP::cm3
     GeoMaterial* matLArServices13  = materialManager->getMaterial("LAr::LArServices13");// 0.690*CLHEP::gram/CLHEP::cm3
     GeoMaterial* matLArServices14  = materialManager->getMaterial("LAr::LArServices14");// 0.825*CLHEP::gram/CLHEP::cm3
@@ -829,7 +823,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     const double DYc=2771.6*tan(Alfa/2);
     Variable       i;
     GENFUNCTION    f = Alfa*i;
-    
+
     ////----------- Building Front-end crates --------------------
 
     recordIndex = tubeMap["Ped2"];
@@ -842,7 +836,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     double ped3minr = (*BarrelDMTubes)[recordIndex]->getDouble("MINR");
     double ped3maxr = (*BarrelDMTubes)[recordIndex]->getDouble("MAXR");
     double ped3xtr = (*BarrelDMTubes)[recordIndex]->getDouble("XTR");
-    
+
     recordIndex = boxMap["Pedest"];
     double pedesthlen = (*BarrelDMBoxes)[recordIndex]->getDouble("HLEN");
     double pedesthwdt = (*BarrelDMBoxes)[recordIndex]->getDouble("HWDT");
@@ -890,52 +884,52 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     double SplBoxytr = (*BarrelDMBoxes)[recordIndex]->getDouble("YTR");
     double SplBoxztr = (*BarrelDMBoxes)[recordIndex]->getDouble("ZTR");
     double SplBoxxrot = (*BarrelDMBoxes)[recordIndex]->getDouble("XROT");
-  
+
     // ----- build pedestal -----
     GeoBox     *Pedestal = new GeoBox(pedesthlen, pedesthwdt, pedesthhgt);
     GeoBox     *Ped1     = new GeoBox(ped1hlen, ped1hwdt, ped1hhgt);
     GeoTube    *Ped2     = new GeoTube(ped2minr, ped2maxr, ped2zhlen);
-    GeoTube    *Ped3     = new GeoTube(ped3minr,ped3maxr , ped3zhlen);  
+    GeoTube    *Ped3     = new GeoTube(ped3minr,ped3maxr , ped3zhlen);
     const GeoShape & CratePed=((*Pedestal).subtract(*Ped1).
 			       subtract((*Ped2)  <<HepGeom::TranslateY3D(-ped2ytr)*HepGeom::RotateY3D(90*CLHEP::deg)).
 			       subtract((*Ped3)  <<HepGeom::TranslateX3D(-ped3xtr)).
 			       subtract((*Ped2)  <<HepGeom::TranslateY3D(ped2ytr)*HepGeom::RotateY3D(90*CLHEP::deg)));
-  
+
     GeoLogVol  *lvped   = new GeoLogVol("LAr::DM::Ped",&CratePed,alu);
     GeoPhysVol *pedestal   = new GeoPhysVol(lvped);
-    
+
     // ----- build crates -----
     GeoBox     *Crate1   = new GeoBox(crate1hlen, crate1hwdt, crate1hhgt);
     GeoBox     *Crate2   = new GeoBox(crate2hlen, crate2hwdt, crate2hhgt);
     GeoBox     *Crate3   = new GeoBox(crate3hlen, crate3hwdt, crate3hhgt);
     const GeoShape & FEBCrate=(*Crate1).subtract(*Crate2).add((*Crate3)  <<HepGeom::TranslateX3D(-crate3xtr));
-    
+
     GeoLogVol  *lvcrate = new GeoLogVol("LAr::DM::Crate",&FEBCrate,alu);
     GeoPhysVol *crate   = new GeoPhysVol(lvcrate);
-    
+
     // ----- build boardenvelopes -----
     GeoBox     *BoardEnvelope   = new GeoBox(BoardEhlen, BoardEhwdt, BoardEhhgt);
     GeoLogVol  *lvbenv = new GeoLogVol("LAr::DM::FEBoard",BoardEnvelope,matBoardsEnvelope);
     GeoPhysVol *boardenvelope   = new GeoPhysVol(lvbenv);
-    
+
     //-------------- Place volumes in envelope ----------------------------
-    
+
     //Crates
-    TRANSFUNCTION crA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(crate1xtr)*HepGeom::TranslateZ3D(crate1ztr); 
+    TRANSFUNCTION crA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(crate1xtr)*HepGeom::TranslateZ3D(crate1ztr);
     TRANSFUNCTION crC = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(crate1xtr)*HepGeom::TranslateZ3D(-crate1ztr);
     GeoSerialTransformer *crtA = new GeoSerialTransformer(crate,&crA, NCrates);
     GeoSerialTransformer *crtC = new GeoSerialTransformer(crate,&crC, NCrates);
     envelope->add(crtA);
     envelope->add(crtC);
-    
+
     //Pedestals
-    TRANSFUNCTION pedA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(pedestxtr)*HepGeom::TranslateZ3D(pedestztr); 
+    TRANSFUNCTION pedA = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(pedestxtr)*HepGeom::TranslateZ3D(pedestztr);
     TRANSFUNCTION pedC = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateX3D(pedestxtr)*HepGeom::TranslateZ3D(-pedestztr);
     GeoSerialTransformer *pedtA = new GeoSerialTransformer(pedestal,&pedA, NCrates);
     GeoSerialTransformer *pedtC = new GeoSerialTransformer(pedestal,&pedC, NCrates);
     envelope->add(pedtA);
     envelope->add(pedtC);
-    
+
     //FEBoards
     TRANSFUNCTION feb1A = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(BoardEytr)*HepGeom::TranslateX3D(BoardExtr)*HepGeom::TranslateZ3D(BoardEztr);
     TRANSFUNCTION feb2A = Pow(HepGeom::RotateZ3D(1.0),f)*HepGeom::TranslateY3D(-BoardEytr)*HepGeom::TranslateX3D(BoardExtr)*HepGeom::TranslateZ3D(BoardEztr);
@@ -949,7 +943,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     envelope->add(febt1C);
     envelope->add(febt2A);
     envelope->add(febt2C);
-    
+
     ////----------- Building envelopes and support plates for Cables and Tubes --------------
     recordIndex = trdMap["SecP"];
     double SecPxhlen1 = (*BarrelDMTrds)[recordIndex]->getDouble("XHLEN1");
@@ -1065,14 +1059,14 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 
     // transforms
     GeoBox   *Box   = new GeoBox(Boxhlen, Boxhwdt, Boxhhgt);
- 
+
     HepGeom::Transform3D Cut3Boxe  = HepGeom::Translate3D(Boxxtr, Boxytr, Boxztr)*HepGeom::RotateX3D(-20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     HepGeom::Transform3D Cut4Boxe  = HepGeom::Translate3D(Boxxtr, -Boxytr,Boxztr)*HepGeom::RotateX3D(20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     HepGeom::Transform3D Cut3Boxp  = HepGeom::Translate3D(Boxxtr, Boxytr, Boxxrot)*HepGeom::RotateX3D(-20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
     HepGeom::Transform3D Cut4Boxp  = HepGeom::Translate3D(Boxxtr, -Boxytr,Boxxrot)*HepGeom::RotateX3D(20*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg);
-    
+
     // ----- build base envelopes -----
-    GeoTrd   *Trd1air  = new GeoTrd(BaseExhlen1, BaseExhlen2, BaseEyhlen1, BaseEyhlen2, BaseEzhlen); 
+    GeoTrd   *Trd1air  = new GeoTrd(BaseExhlen1, BaseExhlen2, BaseEyhlen1, BaseEyhlen2, BaseEzhlen);
     GeoLogVol  *lvbe          = new GeoLogVol("LAr::DM::BaseEnvelopes",Trd1air,matLArServices8); //In the end Density at least >= than SE1 because of Cryo Pipes
     GeoPhysVol *baseenvelopes    = new GeoPhysVol(lvbe);
 
@@ -1084,56 +1078,56 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     // ----- build sector envelopes -----
     // build 16 instances of SectorEnvelopes1 each with its own material!
     GeoTrd   *Trdair1  = new GeoTrd(SecE1xhlen1, SecE1xhlen2, DYa, DYb, (Endb-Enda)/2);
-    
+
     GeoLogVol  *lvse1g1          = new GeoLogVol("LAr::DM::SectorEnvelopes1g1",Trdair1,matLArServices1);
-    GeoPhysVol *sectorenvelopes1g1    = new GeoPhysVol(lvse1g1); 
-    
+    GeoPhysVol *sectorenvelopes1g1    = new GeoPhysVol(lvse1g1);
+
     GeoLogVol  *lvse1g2          = new GeoLogVol("LAr::DM::SectorEnvelopes1g3",Trdair1,matLArServices2);
-    GeoPhysVol *sectorenvelopes1g2    = new GeoPhysVol(lvse1g2); 
-    
+    GeoPhysVol *sectorenvelopes1g2    = new GeoPhysVol(lvse1g2);
+
     GeoLogVol  *lvse1g3          = new GeoLogVol("LAr::DM::SectorEnvelopes1g3",Trdair1,matLArServices3);
-    GeoPhysVol *sectorenvelopes1g3    = new GeoPhysVol(lvse1g3); 
-    
+    GeoPhysVol *sectorenvelopes1g3    = new GeoPhysVol(lvse1g3);
+
     GeoLogVol  *lvse1g4          = new GeoLogVol("LAr::DM::SectorEnvelopes1g4",Trdair1,matLArServices4);
     GeoPhysVol *sectorenvelopes1g4    = new GeoPhysVol(lvse1g4);
-    
+
     GeoLogVol  *lvse1g5          = new GeoLogVol("LAr::DM::SectorEnvelopes1g5",Trdair1,matLArServices5);
-    GeoPhysVol *sectorenvelopes1g5    = new GeoPhysVol(lvse1g5); 
-    
+    GeoPhysVol *sectorenvelopes1g5    = new GeoPhysVol(lvse1g5);
+
     GeoLogVol  *lvse1g6          = new GeoLogVol("LAr::DM::SectorEnvelopes1g6",Trdair1,matLArServices6);
-    GeoPhysVol *sectorenvelopes1g6    = new GeoPhysVol(lvse1g6); 
-    
+    GeoPhysVol *sectorenvelopes1g6    = new GeoPhysVol(lvse1g6);
+
     GeoLogVol  *lvse1g7          = new GeoLogVol("LAr::DM::SectorEnvelopes1g7",Trdair1,matLArServices7);
-    GeoPhysVol *sectorenvelopes1g7    = new GeoPhysVol(lvse1g7); 
-    
+    GeoPhysVol *sectorenvelopes1g7    = new GeoPhysVol(lvse1g7);
+
     GeoLogVol  *lvse1g8          = new GeoLogVol("LAr::DM::SectorEnvelopes1g8",Trdair1,matLArServices8);
-    GeoPhysVol *sectorenvelopes1g8    = new GeoPhysVol(lvse1g8); 
-    
+    GeoPhysVol *sectorenvelopes1g8    = new GeoPhysVol(lvse1g8);
+
     GeoLogVol  *lvse1g9          = new GeoLogVol("LAr::DM::SectorEnvelopes1g9",Trdair1,matLArServices9);
-    GeoPhysVol *sectorenvelopes1g9    = new GeoPhysVol(lvse1g9); 
-    
+    GeoPhysVol *sectorenvelopes1g9    = new GeoPhysVol(lvse1g9);
+
     GeoLogVol  *lvse1g10          = new GeoLogVol("LAr::DM::SectorEnvelopes1g10",Trdair1,matLArServices10);
-    GeoPhysVol *sectorenvelopes1g10    = new GeoPhysVol(lvse1g10); 
-    
+    GeoPhysVol *sectorenvelopes1g10    = new GeoPhysVol(lvse1g10);
+
     GeoLogVol  *lvse1g11          = new GeoLogVol("LAr::DM::SectorEnvelopes1g11",Trdair1,matLArServices11);
-    GeoPhysVol *sectorenvelopes1g11    = new GeoPhysVol(lvse1g11); 
-    
+    GeoPhysVol *sectorenvelopes1g11    = new GeoPhysVol(lvse1g11);
+
     GeoLogVol  *lvse1g12          = new GeoLogVol("LAr::DM::SectorEnvelopes1g12",Trdair1,matLArServices12);
-    GeoPhysVol *sectorenvelopes1g12    = new GeoPhysVol(lvse1g12); 
-    
+    GeoPhysVol *sectorenvelopes1g12    = new GeoPhysVol(lvse1g12);
+
     GeoLogVol  *lvse1g13          = new GeoLogVol("LAr::DM::SectorEnvelopes1g13",Trdair1,matLArServices13);
-    GeoPhysVol *sectorenvelopes1g13    = new GeoPhysVol(lvse1g13); 
-    
+    GeoPhysVol *sectorenvelopes1g13    = new GeoPhysVol(lvse1g13);
+
     GeoLogVol  *lvse1g14          = new GeoLogVol("LAr::DM::SectorEnvelopes1g14",Trdair1,matLArServices14);
-    GeoPhysVol *sectorenvelopes1g14    = new GeoPhysVol(lvse1g14); 
-    
+    GeoPhysVol *sectorenvelopes1g14    = new GeoPhysVol(lvse1g14);
+
     GeoLogVol  *lvse1g15          = new GeoLogVol("LAr::DM::SectorEnvelopes1g15",Trdair1,matLArServices15);
-    GeoPhysVol *sectorenvelopes1g15    = new GeoPhysVol(lvse1g15); 
-    
+    GeoPhysVol *sectorenvelopes1g15    = new GeoPhysVol(lvse1g15);
+
     GeoLogVol  *lvse1g16          = new GeoLogVol("LAr::DM::SectorEnvelopes1g16",Trdair1,matLArServices16);
-    GeoPhysVol *sectorenvelopes1g16    = new GeoPhysVol(lvse1g16); 
-    
-    
+    GeoPhysVol *sectorenvelopes1g16    = new GeoPhysVol(lvse1g16);
+
+
     std::vector<GeoPhysVol*> se1List;
     se1List.push_back(sectorenvelopes1g1);
     se1List.push_back(sectorenvelopes1g2);
@@ -1224,43 +1218,43 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
       }
     }
 
-    
+
     // build 5 instances of SectorEnvelopes1 with 3 different materials!
     GeoTrd   *Trdair2  = new GeoTrd(SecE2xhlen1, SecE2xhlen2, DYb, DYc, (Endc-Endb)/2);
     const GeoShape & SectorEnvelope= ((*Trdair2).
 				      subtract((*Box)  <<HepGeom::Transform3D(Cut3Boxe)).
 				      subtract((*Box)  <<HepGeom::Transform3D(Cut4Boxe)));
-    
+
     const GeoShape & SectorEnvelopes= ((SectorEnvelope).
-				       add(SectorEnvelope  << HepGeom::TranslateY3D(-(DYb+DYc)*cos(Alfa/2)*cos(Alfa/2))*HepGeom::TranslateZ3D(-(DYb+DYc)*0.5*sin(Alfa))*HepGeom::RotateX3D(Alfa))); 
-    
+				       add(SectorEnvelope  << HepGeom::TranslateY3D(-(DYb+DYc)*cos(Alfa/2)*cos(Alfa/2))*HepGeom::TranslateZ3D(-(DYb+DYc)*0.5*sin(Alfa))*HepGeom::RotateX3D(Alfa)));
+
     GeoLogVol  *lvse2r          = new GeoLogVol("LAr::DM::SectorEnvelopes2r",&SectorEnvelopes,matLArServices20);
-    GeoPhysVol *sectorenvelopes2r    = new GeoPhysVol(lvse2r);  // for right-handed splice boxes 
-    
+    GeoPhysVol *sectorenvelopes2r    = new GeoPhysVol(lvse2r);  // for right-handed splice boxes
+
     GeoLogVol  *lvse2l          = new GeoLogVol("LAr::DM::SectorEnvelopes2l",&SectorEnvelopes,matLArServices20);
     GeoPhysVol *sectorenvelopes2l    = new GeoPhysVol(lvse2l);  // for left-handed splice boxes
-    
+
     GeoLogVol  *lvse2h          = new GeoLogVol("LAr::DM::SectorEnvelopes2h",&SectorEnvelopes,matLArServices19);
     GeoPhysVol *sectorenvelopes2h    = new GeoPhysVol(lvse2h);  // no splice boxes horizontal at 0 & 180 CLHEP::deg.
-    
+
     GeoLogVol  *lvse2vup          = new GeoLogVol("LAr::DM::SectorEnvelopes2vup",&SectorEnvelopes,matLArServices17);
     GeoPhysVol *sectorenvelopes2vup    = new GeoPhysVol(lvse2vup);  // no splice boxes vertical up at 90 CLHEP::deg
-    
+
     GeoLogVol  *lvse2vd          = new GeoLogVol("LAr::DM::SectorEnvelopes2Vd",&SectorEnvelopes,matLArServices18);
     GeoPhysVol *sectorenvelopes2vd    = new GeoPhysVol(lvse2vd);  // no splice boxes vertical down at 270 CLHEP::deg
-    
-    
+
+
     // ----- build base plates -----
     GeoTrd   *Trd1alu  = new GeoTrd(BasePxhlen1, BasePxhlen2, BasePyhlen1, BasePyhlen2, BasePzhlen);
     GeoLogVol  *lvbp          = new GeoLogVol("LAr::DM::BasePlates",Trd1alu,alu);
     GeoPhysVol *baseplates    = new GeoPhysVol(lvbp);
-    
+
     // ----- build bridge plates -----
-    GeoTrap  *Trapalu  = new GeoTrap(BridgePzhlen, BridgePtheta*CLHEP::deg, BridgePphi, BridgePyzn, BridgePxynzn, BridgePxypzn, BridgePangn, BridgePyzp, BridgePxynzp, BridgePxypzp, BridgePangp); 
+    GeoTrap  *Trapalu  = new GeoTrap(BridgePzhlen, BridgePtheta*CLHEP::deg, BridgePphi, BridgePyzn, BridgePxynzn, BridgePxypzn, BridgePangn, BridgePyzp, BridgePxynzp, BridgePxypzp, BridgePangp);
     GeoLogVol  *lvbrp          = new GeoLogVol("LAr::DM::BridgePlates",Trapalu,alu);
     GeoPhysVol *bridgeplates    = new GeoPhysVol(lvbrp);
-    
-    
+
+
     // ----- build sector plates -----
     GeoTrd   *Trd2alu  = new GeoTrd(SecPxhlen1, SecPxhlen2, SecPyhlen1, SecPyhlen2, SecPzhlen );///
     const GeoShape & SectorPlates= ((*Trd2alu).
@@ -1268,31 +1262,31 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 				    subtract((*Box)  <<HepGeom::Transform3D(Cut4Boxp)));
     GeoLogVol  *lvsp          = new GeoLogVol("LAr::DM::SectorPlates",&SectorPlates,alu);
     GeoPhysVol *sectorplates    = new GeoPhysVol(lvsp);
-    
+
     //---------- Build Splice boxes for InDet optical fibers--------
-    
+
     GeoTrap  *GeoTrap1  = new GeoTrap(Spb1zhlen, Spb1theta, Spb1phi, Spb1yzn, Spb1xynzn, Spb1xypzn, Spb1angn, Spb1yzp, Spb1xynzp, Spb1xypzp, Spb1angp);
-    GeoBox   *Box1   = new GeoBox(SplBoxhlen, SplBoxhwdt, SplBoxhhgt);  
+    GeoBox   *Box1   = new GeoBox(SplBoxhlen, SplBoxhwdt, SplBoxhhgt);
     const GeoShape & SpliceBox = ((*GeoTrap1).
 				  subtract(*Box1 << HepGeom::TranslateZ3D(SplBoxztr)*HepGeom::TranslateY3D(-SplBoxytr)*HepGeom::RotateX3D(SplBoxxrot*CLHEP::deg)));
-    
+
     GeoTransform *xtr = new GeoTransform (HepGeom::TranslateZ3D(Spb1ztr)*HepGeom::TranslateY3D(-Spb1ytr)*HepGeom::TranslateX3D(Spb1xtr)*HepGeom::RotateX3D(Spb1xrot*CLHEP::deg));
     sectorenvelopes2r->add(xtr);
-    GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu); 
+    GeoLogVol  *lvspbr     = new GeoLogVol("LAr::DM::SPliceBoxr",&SpliceBox,alu);
     GeoPhysVol *spliceboxr       = new GeoPhysVol(lvspbr);
     sectorenvelopes2r->add(spliceboxr);
-    
+
     GeoTransform *xtl = new GeoTransform (HepGeom::TranslateZ3D(Spb1ztr)*HepGeom::TranslateY3D(-Spb1ytr)*HepGeom::TranslateX3D(Spb1xtr)*HepGeom::RotateY3D(-180*CLHEP::deg)*HepGeom::RotateX3D(-(Alfa/2)));
     sectorenvelopes2l->add(xtl);
-    GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);  
+    GeoLogVol  *lvspbl     = new GeoLogVol("LAr::DM::SpliceBoxl",&SpliceBox,alu);
     GeoPhysVol *spliceboxl       = new GeoPhysVol(lvspbl);
     sectorenvelopes2l->add(spliceboxl);
-    
+
     ////
     GeoTrd   *Trd1  = new GeoTrd(Spb0xhlen1, Spb0xhlen2, Spb0yhlen1, Spb0yhlen2, Spb0zhlen);
     GeoTrap  *GeoTrap2  = new GeoTrap(Spb2zhlen, Spb2theta, Spb2phi, Spb2yzn, Spb2xynzn, Spb2xypzn, Spb2angn, Spb2yzp, Spb2xynzp, Spb2xypzp, Spb2angp);
     GeoTrap  *GeoTrap3  = new GeoTrap(Spb3zhlen, Spb3theta, Spb3phi, Spb3yzn, Spb3xynzn, Spb3xypzn, Spb3angn, Spb3yzp, Spb3xynzp, Spb3xypzp, Spb3angp);
-    
+
     GeoTransform *xt1 = new GeoTransform (HepGeom::TranslateY3D(-Spb0ytr)*HepGeom::RotateX3D(Spb0xrot*CLHEP::deg));
     spliceboxr->add(xt1);
     spliceboxl->add(xt1);
@@ -1300,7 +1294,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoPhysVol *tbox1       = new GeoPhysVol(lt1);
     spliceboxr->add(tbox1);
     spliceboxl->add(tbox1);
-    
+
     GeoTransform *xt2 = new GeoTransform (HepGeom::TranslateZ3D(Spb2ztr)*HepGeom::TranslateY3D(Spb2ytr));
     spliceboxr->add(xt2);
     spliceboxl->add(xt2);
@@ -1308,17 +1302,17 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoPhysVol *tbox2       = new GeoPhysVol(lt2);
     spliceboxr->add(tbox2);
     spliceboxl->add(tbox2);
-    
-    GeoTransform *xt3 = new GeoTransform (HepGeom::TranslateZ3D(-Spb3ztr)); 
+
+    GeoTransform *xt3 = new GeoTransform (HepGeom::TranslateZ3D(-Spb3ztr));
     spliceboxr->add(xt3);
     spliceboxl->add(xt3);
     GeoLogVol  *lt3     = new GeoLogVol("LAr::DM::TBox3",GeoTrap3,air);
     GeoPhysVol *tbox3       = new GeoPhysVol(lt3);
     spliceboxr->add(tbox3);
     spliceboxl->add(tbox3);
-    
+
     //-------------- Place volumes in LAr Envelope -------------------
-    
+
     //sectorPlates
     TRANSFUNCTION spA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(SecPxtr)*HepGeom::TranslateZ3D(SecPztr)*HepGeom::RotateY3D(90*CLHEP::deg);///
     TRANSFUNCTION spC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(SecPxtr)*HepGeom::TranslateZ3D(-SecPztr)*HepGeom::RotateY3D(90*CLHEP::deg);///
@@ -1326,10 +1320,10 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *sptC = new GeoSerialTransformer(sectorplates,&spC, NCrates);
     envelope->add(sptA);
     envelope->add(sptC);
-    
+
     //bridgePlates
     TRANSFUNCTION brpA1 = Pow(HepGeom::RotateZ3D(1.0),f-(5*Alfa/2))*HepGeom::TranslateX3D(BridgePxtr)*HepGeom::TranslateZ3D(BridgePztr)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg);
-    TRANSFUNCTION brpA2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(BridgePxtr)*HepGeom::TranslateZ3D(BridgePztr)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg); 
+    TRANSFUNCTION brpA2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(BridgePxtr)*HepGeom::TranslateZ3D(BridgePztr)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg);
     TRANSFUNCTION brpC1 = Pow(HepGeom::RotateZ3D(1.0),f-(5*Alfa/2))*HepGeom::TranslateX3D(BridgePxtr)*HepGeom::TranslateZ3D(-BridgePztr)*HepGeom::RotateZ3D(-90*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(-90*CLHEP::deg);
     TRANSFUNCTION brpC2 = Pow(HepGeom::RotateZ3D(1.0),f+(13*Alfa/2))*HepGeom::TranslateX3D(BridgePxtr)*HepGeom::TranslateZ3D(-BridgePztr)*HepGeom::RotateZ3D(-90*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(-90*CLHEP::deg);   GeoSerialTransformer *brptA1 = new GeoSerialTransformer(bridgeplates,&brpA1, 5);
     GeoSerialTransformer *brptA2 = new GeoSerialTransformer(bridgeplates,&brpA2, 5);
@@ -1339,15 +1333,15 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     envelope->add(brptA2);
     envelope->add(brptC1);
     envelope->add(brptC2);
-    
+
     //basePlates
-    TRANSFUNCTION bpA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BasePxtr)*HepGeom::TranslateZ3D(BasePztr)*HepGeom::RotateY3D(90*CLHEP::deg); 
+    TRANSFUNCTION bpA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BasePxtr)*HepGeom::TranslateZ3D(BasePztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION bpC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(BasePxtr)*HepGeom::TranslateZ3D(-BasePztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     GeoSerialTransformer *bptA = new GeoSerialTransformer(baseplates,&bpA, NCrates);
     GeoSerialTransformer *bptC = new GeoSerialTransformer(baseplates,&bpC, NCrates);
     envelope->add(bptA);
     envelope->add(bptC);
-    
+
     //sectorEnvelopes1
     //counter-clockwise from top if taking sideA for reference (clockwise for sideC)
     TRANSFUNCTION seA1G5 = Pow(HepGeom::RotateZ3D(1.0),f+(9*Alfa/2))*HepGeom::TranslateX3D((Endb+Enda)/2)*HepGeom::TranslateZ3D(SecE1ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -1383,7 +1377,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     TRANSFUNCTION seC1G14 = Pow(HepGeom::RotateZ3D(1.0),f-(5*Alfa/2))*HepGeom::TranslateX3D((Endb+Enda)/2)*HepGeom::TranslateZ3D(-SecE1ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION seA1G13 = Pow(HepGeom::RotateZ3D(1.0),f-(7*Alfa/2))*HepGeom::TranslateX3D((Endb+Enda)/2)*HepGeom::TranslateZ3D(SecE1ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION seC1G13 = Pow(HepGeom::RotateZ3D(1.0),f-(7*Alfa/2))*HepGeom::TranslateX3D((Endb+Enda)/2)*HepGeom::TranslateZ3D(-SecE1ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
-    
+
     GeoSerialTransformer *setA1G5 = new GeoSerialTransformer(sectorenvelopes1g5,&seA1G5, 1);
     GeoSerialTransformer *setC1G5 = new GeoSerialTransformer(sectorenvelopes1g5,&seC1G5, 1);
     GeoSerialTransformer *setA1G6 = new GeoSerialTransformer(sectorenvelopes1g6,&seA1G6, 1);
@@ -1400,7 +1394,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *setC1G11 = new GeoSerialTransformer(sectorenvelopes1g11,&seC1G11, 1);
     GeoSerialTransformer *setA1G12 = new GeoSerialTransformer(sectorenvelopes1g12,&seA1G12, 1);
     GeoSerialTransformer *setC1G12 = new GeoSerialTransformer(sectorenvelopes1g12,&seC1G12, 1);
-    
+
     GeoSerialTransformer *setA1G4 = new GeoSerialTransformer(sectorenvelopes1g4,&seA1G4, 1);
     GeoSerialTransformer *setC1G4 = new GeoSerialTransformer(sectorenvelopes1g4,&seC1G4, 1);
     GeoSerialTransformer *setA1G3 = new GeoSerialTransformer(sectorenvelopes1g3,&seA1G3, 1);
@@ -1417,7 +1411,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *setC1G14 = new GeoSerialTransformer(sectorenvelopes1g14,&seC1G14, 1);
     GeoSerialTransformer *setA1G13 = new GeoSerialTransformer(sectorenvelopes1g13,&seA1G13, 1);
     GeoSerialTransformer *setC1G13 = new GeoSerialTransformer(sectorenvelopes1g13,&seC1G13, 1);
-  
+
     envelope->add(setA1G5);
     envelope->add(setC1G5);
     envelope->add(setA1G6);
@@ -1434,7 +1428,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     envelope->add(setC1G11);
     envelope->add(setA1G12);
     envelope->add(setC1G12);
-    
+
     envelope->add(setA1G4);
     envelope->add(setC1G4);
     envelope->add(setA1G3);
@@ -1451,7 +1445,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     envelope->add(setC1G14);
     envelope->add(setA1G13);
     envelope->add(setC1G13);
-    
+
     //sectorEnvelopes2
     TRANSFUNCTION seA2r = Pow(HepGeom::RotateZ3D(1.0),8*f-(3*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(SecE2ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION seA2l = Pow(HepGeom::RotateZ3D(1.0),8*f+(5*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(SecE2ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
@@ -1463,18 +1457,18 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     TRANSFUNCTION seC2Vup = Pow(HepGeom::RotateZ3D(1.0),f+(9*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(-SecE2ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION seC2Vd = Pow(HepGeom::RotateZ3D(1.0),f-(7*Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(-SecE2ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION seC2H = Pow(HepGeom::RotateZ3D(1.0),8*f+(Alfa/2))*HepGeom::TranslateX3D((Endb+Endc)/2)*HepGeom::TranslateZ3D(-SecE2ztr)*HepGeom::RotateY3D(90*CLHEP::deg);
-    
+
     GeoSerialTransformer *setA2r = new GeoSerialTransformer(sectorenvelopes2r,&seA2r, 2);
     GeoSerialTransformer *setA2l = new GeoSerialTransformer(sectorenvelopes2l,&seA2l, 2);
     GeoSerialTransformer *setC2r = new GeoSerialTransformer(sectorenvelopes2r,&seC2r, 2);
     GeoSerialTransformer *setC2l = new GeoSerialTransformer(sectorenvelopes2l,&seC2l, 2);
     GeoSerialTransformer *setA2Vup = new GeoSerialTransformer(sectorenvelopes2vup,&seA2Vup, 1);
     GeoSerialTransformer *setA2Vd = new GeoSerialTransformer(sectorenvelopes2vd,&seA2Vd, 1);
-    GeoSerialTransformer *setA2H = new GeoSerialTransformer(sectorenvelopes2h,&seA2H, 2); 
+    GeoSerialTransformer *setA2H = new GeoSerialTransformer(sectorenvelopes2h,&seA2H, 2);
     GeoSerialTransformer *setC2Vup = new GeoSerialTransformer(sectorenvelopes2vup,&seC2Vup, 1);
     GeoSerialTransformer *setC2Vd = new GeoSerialTransformer(sectorenvelopes2vd,&seC2Vd, 1);
     GeoSerialTransformer *setC2H = new GeoSerialTransformer(sectorenvelopes2h,&seC2H, 2);
-    
+
     envelope->add(setA2r);
     envelope->add(setA2l);
     envelope->add(setC2r);
@@ -1485,7 +1479,7 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     envelope->add(setC2Vup);
     envelope->add(setC2Vd);
     envelope->add(setC2H);
-    
+
     //bridgeEnvelopes
     TRANSFUNCTION breA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BridgeExtr)*HepGeom::TranslateZ3D(BridgeEztr)*HepGeom::RotateZ3D(90*CLHEP::deg)*HepGeom::RotateY3D(90*CLHEP::deg)*HepGeom::RotateX3D(90*CLHEP::deg);
     TRANSFUNCTION breC = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BridgeExtr)*HepGeom::TranslateZ3D(-BridgeEztr)*HepGeom::RotateZ3D(-90*CLHEP::deg)*HepGeom::RotateY3D(-90*CLHEP::deg)*HepGeom::RotateX3D(-90*CLHEP::deg);
@@ -1493,15 +1487,15 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
     GeoSerialTransformer *bretC = new GeoSerialTransformer(bridgeenvelopes,&breC, NCrates);
     envelope->add(bretA);
     envelope->add(bretC);
-    
+
     //baseEnvelopes
-    TRANSFUNCTION beA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BaseExtr)*HepGeom::TranslateZ3D(BaseEztr)*HepGeom::RotateY3D(90*CLHEP::deg); 
+    TRANSFUNCTION beA = Pow(HepGeom::RotateZ3D(1.0),f-(Alfa/2))*HepGeom::TranslateX3D(BaseExtr)*HepGeom::TranslateZ3D(BaseEztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     TRANSFUNCTION beC = Pow(HepGeom::RotateZ3D(1.0),f+(Alfa/2))*HepGeom::TranslateX3D(BaseExtr)*HepGeom::TranslateZ3D(-BaseEztr)*HepGeom::RotateY3D(90*CLHEP::deg);
     GeoSerialTransformer *betA = new GeoSerialTransformer(baseenvelopes,&beA, NCrates);
     GeoSerialTransformer *betC = new GeoSerialTransformer(baseenvelopes,&beC, NCrates);
     envelope->add(betA);
     envelope->add(betC);
-    
+
 //     matFEBoards->ref();    matFEBoards->unref();
 //     matC6F14->ref();       matC6F14->unref();
 //     matWater->ref();       matWater->unref();
@@ -1509,8 +1503,192 @@ void LArGeo::BarrelDMConstruction::create(GeoFullPhysVol* envelope)
 //     matFiberglass->ref();  matFiberglass->unref();
 //     matN2->ref();          matN2->unref();
   }
+
+  if(m_activateFT){
+    std::string name = "LAr::Barrel::SignalFT::";
+    log << MSG::DEBUG << "creating " << name << " volumes" << endmsg;
+
+    const GeoMaterial* iron = materialManager->getMaterial("std::Iron");
+
+    const double wflange_height = 37.*CLHEP::mm;
+    const double wflange_R = 0.5*360.*CLHEP::mm;
+    const GeoMaterial* wflange_mat = materialManager->getMaterial("LAr::FT::WarmFlange");
+
+    GeoShape* wflange = new GeoTube(0., wflange_R, wflange_height/2);
+    GeoLogVol* wflangeLV = new GeoLogVol(name + "WarmFlange", wflange, wflange_mat);
+    GeoPhysVol* wflangePV = new GeoPhysVol(wflangeLV);
+
+    const double bellow_height = 225.*CLHEP::mm;
+    const double bellow_Router = 0.5*299.*CLHEP::mm; // this also to be cut in warm wall
+    const double bellow_wall = 15.*CLHEP::mm;
+    const GeoMaterial* bellow_mat = materialManager->getMaterial("LAr::FT::Bellow");
+
+    const double bellow_Rinner = bellow_Router - bellow_wall;
+    GeoShape* bellow = new GeoTube(bellow_Rinner, bellow_Router, bellow_height/2);
+    GeoLogVol* bellowLV = new GeoLogVol(name + "Bellow", bellow, bellow_mat);
+    GeoPhysVol* bellowPV = new GeoPhysVol(bellowLV);
+
+    const GeoMaterial* vcables_mat = materialManager->getMaterial("LAr::FT::VacuumCables");
+
+    GeoShape* vcables = new GeoTube(0., bellow_Rinner, bellow_height/2);
+    GeoLogVol* vcablesLV = new GeoLogVol(name + "VacuumCables", vcables, vcables_mat);
+    GeoPhysVol* vcablesPV = new GeoPhysVol(vcablesLV);
+
+    const double cflange_height = 35.*CLHEP::mm;
+    const double cflange_Router = 0.5*283.*CLHEP::mm;
+    const GeoMaterial* cflange_mat = materialManager->getMaterial("LAr::FT::ColdFlange");
+    GeoShape* cflange = new GeoTube(0., cflange_Router, cflange_height/2);
+    GeoLogVol* cflangeLV = new GeoLogVol(name + "ColdFlange", cflange, cflange_mat);
+    GeoPhysVol* cflangePV = new GeoPhysVol(cflangeLV);
+
+    const double coldbox1_Router = cflange_Router;
+    const double coldbox1_wall = 0.134*2.54*CLHEP::cm;
+    const double coldbox1_height = 90.*CLHEP::mm;
+    const double coldbox2_height = 16.*CLHEP::mm;
+    const double hole_r = 0.5*133.*CLHEP::mm;
+    const double hole_shift = -31.*CLHEP::mm;
+    const double coldbox3_Router = 0.5*140.*CLHEP::mm; // this also to be cut in cold wall
+    const double barrel_dist_from_outer_warm_wall_to_inner_cold_wall =
+        500.*CLHEP::mm;
+    const double coldbox3_height = // adjust to match dist between cryo walls
+        barrel_dist_from_outer_warm_wall_to_inner_cold_wall
+        - bellow_height - coldbox1_height - coldbox2_height;
+    log << MSG::DEBUG << "funnel tube len = "
+        << coldbox3_height / CLHEP::mm
+        << " mm " << endmsg;
+    const GeoMaterial* coldbox_mat = iron;
+    GeoShape* coldbox1 = new GeoTube(coldbox1_Router - coldbox1_wall, coldbox1_Router, coldbox1_height/2); // wide part
+    GeoShape* coldbox11 = new GeoTube(0., coldbox1_Router, coldbox1_height/2); // wide part for FTenvelope
+    GeoLogVol* coldbox1LV = new GeoLogVol(name + "ColdBox1", coldbox1, coldbox_mat);
+    GeoPhysVol* coldbox1PV = new GeoPhysVol(coldbox1LV);
+    GeoShape* coldbox21 = new GeoTube(0., coldbox1_Router, coldbox2_height/2); // plate
+    GeoShape* coldbox22 = new GeoTube(0., hole_r, coldbox2_height); // hole in the plate
+    const GeoShape& coldbox2 = coldbox21->subtract((*coldbox22) << HepGeom::TranslateY3D(hole_shift));
+    GeoLogVol* coldbox2LV = new GeoLogVol(name + "ColdBox2", &coldbox2, coldbox_mat);
+    GeoPhysVol* coldbox2PV = new GeoPhysVol(coldbox2LV);
+    GeoShape* coldbox3 = new GeoTube(hole_r, coldbox3_Router, coldbox3_height/2); // narrow part
+    GeoShape* coldbox31 = new GeoTube(0., coldbox3_Router, coldbox3_height/2); // narrow part for FTenvelope
+    GeoLogVol* coldbox3LV = new GeoLogVol(name + "ColdBox3", coldbox3, coldbox_mat);
+    GeoPhysVol* coldbox3PV = new GeoPhysVol(coldbox3LV);
+
+    HepGeom::TranslateZ3D bellow_pos(-wflange_height/2 - bellow_height/2);
+    HepGeom::TranslateZ3D cflange_pos(-wflange_height/2 - bellow_height - cflange_height/2);
+    HepGeom::TranslateZ3D coldbox1_pos(-wflange_height/2 - bellow_height - cflange_height - coldbox1_height/2);
+    HepGeom::TranslateZ3D coldbox2_pos(-wflange_height/2 - bellow_height - cflange_height - coldbox1_height - coldbox2_height/2);
+    HepGeom::Translate3D coldbox2hole_pos(
+        0., hole_shift,
+        -wflange_height/2 - bellow_height - cflange_height - coldbox1_height - coldbox2_height/2
+    );
+    HepGeom::Translate3D coldbox3_pos(
+        0., hole_shift,
+        -wflange_height/2 - bellow_height - cflange_height - coldbox1_height - coldbox2_height - coldbox3_height/2
+    );
+
+    const GeoShape& FTenvelope = wflange->add(
+        (*bellow) << bellow_pos
+    ).add(
+        (*cflange) << cflange_pos
+    ).add(
+        (*coldbox11) << coldbox1_pos
+    ).add(
+        (*coldbox21) << coldbox2_pos
+    ).add(
+        (*coldbox31) << coldbox3_pos
+    );
+
+    GeoLogVol* FTLV = new GeoLogVol(name + "Envelope",
+        &FTenvelope,
+        materialManager->getMaterial("std::Air")
+    );
+    GeoPhysVol* FTPV = new GeoPhysVol(FTLV);
+
+    FTPV->add(wflangePV);
+    GeoTransform *bellow_trf = new GeoTransform(bellow_pos);
+    FTPV->add(bellow_trf);
+    FTPV->add(bellowPV);
+    FTPV->add(bellow_trf);
+    FTPV->add(vcablesPV);
+    GeoTransform *cflange_trf = new GeoTransform(cflange_pos);
+    FTPV->add(cflange_trf);
+    FTPV->add(cflangePV);
+    GeoTransform *coldbox1_trf = new GeoTransform(coldbox1_pos);
+    FTPV->add(coldbox1_trf);
+    FTPV->add(coldbox1PV);
+    GeoTransform *coldbox2_trf = new GeoTransform(coldbox2_pos);
+    FTPV->add(coldbox2_trf);
+    FTPV->add(coldbox2PV);
+    GeoTransform *coldbox3_trf = new GeoTransform(coldbox3_pos);
+    FTPV->add(coldbox3_trf);
+    FTPV->add(coldbox3PV);
+
+    const GeoMaterial* lar_mat = materialManager->getMaterial("std::LiquidArgon");
+    GeoShape* lar1 = new GeoTube(0., coldbox1_Router - coldbox1_wall, coldbox1_height/2);
+    GeoShape* lar2 = new GeoTube(0., hole_r, coldbox1_height);
+    const GeoShape& lar = lar1->subtract((*lar2) << HepGeom::TranslateY3D(hole_shift));
+    GeoLogVol* larLV = new GeoLogVol(name + "LAr", &lar, lar_mat);
+    GeoPhysVol* larPV = new GeoPhysVol(larLV);
+    FTPV->add(coldbox1_trf);
+    FTPV->add(larPV);
+
+    const GeoMaterial *pigtail_mat = materialManager->getMaterial("LAr::FT::Pigtail");
+
+    const double pth = (coldbox1_height + coldbox2_height + coldbox3_height) / 2;
+    GeoTransform *pigtail_trf = new GeoTransform(
+        HepGeom::Translate3D(0, hole_shift,
+        -wflange_height/2 - bellow_height - cflange_height - pth
+    ));
+    GeoShape* pigtail = new GeoTube(0., hole_r, pth);
+    GeoLogVol* pigtailLV = new GeoLogVol(name + "Pigtail", pigtail, pigtail_mat);
+    GeoPhysVol* pigtailPV = new GeoPhysVol(pigtailLV);
+    FTPV->add(pigtail_trf);
+    FTPV->add(pigtailPV);
+
+    // total lenght should be 28.5 cm
+    const double ocable_len = 10.*CLHEP::cm;
+    const double ocable_R = (1.1/2)*sqrt(1920*2.85)*CLHEP::mm;
+    const GeoMaterial* ocable_mat = materialManager->getMaterial("LAr::FT::Cable");
+    GeoShape* ocable = new GeoTube(0., ocable_R, ocable_len / 2);
+    GeoLogVol* ocableLV = new GeoLogVol("LAr::Barrel::FTCables", ocable, ocable_mat);
+    GeoPhysVol* ocablePV = new GeoPhysVol(ocableLV);
+
+    // todo: take cryostat parameters from DB
+    const double r0 = 277.5*CLHEP::cm // cryo warm wall outer radius
+                    + wflange_height/2; // warm flange is abobe the wall
+    const double r2 = r0 + wflange_height/2 + ocable_len/2;
+    const double z_pos = 3170.*CLHEP::mm;
+    const int NCrates = 16;
+    const double dphi = 4.*CLHEP::deg;
+
+    auto put1 = [&envelope](GeoPhysVol *object, double r, double phi, double z)
+    {
+        envelope->add(new GeoTransform(
+            HepGeom::Translate3D(r*cos(phi), r*sin(phi), z) *
+            HepGeom::RotateX3D(90.*CLHEP::deg) *
+            HepGeom::RotateY3D(phi + 90.*CLHEP::deg)
+        ));
+        if(z < 0){
+            envelope->add(new GeoTransform(HepGeom::RotateZ3D(180.*CLHEP::deg)));
+        }
+        envelope->add(object);
+    };
+
+    auto put = [&put1, &FTPV, &ocablePV, r0, r2](double phi, double z)
+    {
+        put1(FTPV, r0, phi, z);
+        put1(ocablePV, r2, phi, z);
+    };
+
+    for(int i = 0; i < 16; ++ i){
+        const double phi = 360.*CLHEP::deg / NCrates * i;
+        put(phi - dphi, z_pos);
+        put(phi + dphi, z_pos);
+        put(phi - dphi, -z_pos);
+        put(phi + dphi, -z_pos);
+    }
+  }
+
 }
 
 
 
-         
+

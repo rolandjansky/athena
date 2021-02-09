@@ -90,7 +90,10 @@ def getGenParticleFilters():
         from AthenaCommon.BeamFlags import jobproperties
         if jobproperties.Beam.beamType() != "cosmics":
             genParticleFilterList += ['ISF_ParticlePositionFilterDynamic']
-            if (not simFlags.CavernBG.statusOn) or simFlags.CavernBG.get_Value() == 'Signal':
+            from AthenaCommon.DetFlags import DetFlags
+            if not (DetFlags.geometry.AFP_on() or DetFlags.geometry.ALFA_on() or DetFlags.geometry.FwdRegion_on()) and\
+               (not simFlags.CavernBG.statusOn or simFlags.CavernBG.get_Value() == 'Signal') and\
+               not (simFlags.SimulateCavern.statusOn and simFlags.SimulateCavern.get_Value()):
                 genParticleFilterList += ['ISF_EtaPhiFilter']
     genParticleFilterList += ['ISF_GenParticleInteractingFilter']
     return genParticleFilterList
@@ -105,7 +108,8 @@ def getInputConverter(name="ISF_InputConverter", **kwargs):
 
 
 def getLongLivedInputConverter(name="ISF_LongLivedInputConverter", **kwargs):
-    kwargs.setdefault("GenParticleFilters"      , [ 'ISF_ParticleSimWhiteList',
+    from G4AtlasApps.SimFlags import simFlags
+    kwargs.setdefault("GenParticleFilters"      , [ simFlags.ParticleSimWhiteList.get_Value(),
                                                     'ISF_ParticlePositionFilterDynamic',
                                                     'ISF_EtaPhiFilter',
                                                     'ISF_GenParticleInteractingFilter', ] )

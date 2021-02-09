@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 // ********************************************************************
@@ -35,6 +35,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cmath>
+#include <algorithm>
 
 
 /*---------------------------------------------------------*/
@@ -500,10 +501,22 @@ StatusCode TileRawChannelMonTool::fillHists()
       std::vector<uint32_t> headerVec = (*collItr2)->getFragChipHeaderWords();
       int headsize = headerVec.size();
       if (headsize > 16) headsize = 16;
-      for (int dmu = 0; dmu < headsize; dmu++) {
-        m_corrup[ros][drawer][0][dmu] = checkDmuHeader(&headerVec, dmu);
-        m_corrup[ros][drawer][1][dmu] = checkDmuHeader(&headerVec, dmu);
+
+      int fragId = (*collItr2)->identify();
+      if (!std::binary_search(m_fragIDsToIgnoreDMUerrors.begin(), m_fragIDsToIgnoreDMUerrors.end(), fragId)) {
+
+        for (int dmu = 0; dmu < headsize; dmu++) {
+          m_corrup[ros][drawer][0][dmu] = checkDmuHeader(&headerVec, dmu);
+          m_corrup[ros][drawer][1][dmu] = checkDmuHeader(&headerVec, dmu);
+        }
+
+      } else {
+        for (int dmu = 0; dmu < headsize; dmu++) {
+          m_corrup[ros][drawer][0][dmu] = false;
+          m_corrup[ros][drawer][1][dmu] = false;
+        }
       }
+
       for (int dmu = headsize; dmu < 16; dmu++) {
         m_corrup[ros][drawer][0][dmu] = false;
         m_corrup[ros][drawer][1][dmu] = false;

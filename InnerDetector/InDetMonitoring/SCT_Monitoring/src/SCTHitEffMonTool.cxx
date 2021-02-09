@@ -152,7 +152,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string &type, const string &name, const
   m_maxChi2(3.),
   m_maxD0(10.), // mm of D0
   m_minPt(1000.), // minimu pt in MeV/c
-  m_effdistcut(2.),
+  m_effdistcut(0.2),
   m_maxZ0sinTheta(0.),
   m_maxTracks(500.),
   m_insideOutOnly(false),
@@ -1300,7 +1300,15 @@ SCTHitEffMonTool::fillHistograms() {
       0, 0, 0
     };
     Int_t m_pixelNHits(0);
+    Int_t m_pixelNHoles(0);
     Int_t m_trtNHits(0);
+
+    //  0- 7: B3 side0, B3 side1, ..., B6 side1
+    //  8-25: EA0 side0, ..., EA8 side1
+    // 26-43: EC0 side0, ..., EC8 side1
+    Int_t nSCTHits[44] = {0}; 
+    Int_t nSCTHoles[44] = {0};
+
     std::map < Identifier, Double_t > mapOfTrackHitResiduals;
     Double_t zmin = std::numeric_limits<float>::max();
     Double_t zmax = -std::numeric_limits<float>::max();
@@ -1316,6 +1324,14 @@ SCTHitEffMonTool::fillHistograms() {
       if (!surfaceID.is_valid()) {
         continue;
       }
+
+      // Count layer / disk / side dependent number of hits.
+      Int_t waferIndex = 0; // Index for Int_t nSCTHits[44] and Int_t nSCTHoles[44]
+      if     ( m_sctId->barrel_ec(surfaceID) ==  0 ) waferIndex =  0;
+      else if( m_sctId->barrel_ec(surfaceID) ==  2 ) waferIndex =  8;
+      else if( m_sctId->barrel_ec(surfaceID) == -2 ) waferIndex = 26;
+      waferIndex = waferIndex + m_sctId->layer_disk(surfaceID) * 2 + m_sctId->side(surfaceID); 
+
       if ((*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement) or(*TSOSItr)->type(Trk::TrackStateOnSurface::Outlier))
       {
         if (m_pixelId->is_pixel(surfaceID)) {
@@ -1327,7 +1343,15 @@ SCTHitEffMonTool::fillHistograms() {
         if (m_sctId->is_sct(surfaceID)) {
           m_NHits[bec2Index(m_sctId->barrel_ec(surfaceID))]++;
           mapOfTrackHitResiduals[surfaceID] = getResidual(surfaceID, (*TSOSItr)->trackParameters(), p_sctclcontainer);
+	  nSCTHits[waferIndex]++;
         }
+      }else{
+        if (m_pixelId->is_pixel(surfaceID)) {
+	  m_pixelNHoles++;
+	}
+        if (m_sctId->is_sct(surfaceID)) {
+	  nSCTHoles[waferIndex]++;
+	}
       }
 
       if ((*TSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) { // Determine zmin and zmax taking multiple
@@ -1381,6 +1405,32 @@ SCTHitEffMonTool::fillHistograms() {
 
       Int_t side(m_sctId->side(surfaceID));
       Int_t layer(m_sctId->layer_disk(surfaceID));
+      Int_t bec(m_sctId->barrel_ec(surfaceID));
+
+      // Count layer / disk / side dependent number of hits.
+      Int_t waferIndex(0); // Index for Int_t nSCTHits[44] and Int_t nSCTHoles[44]
+      if     ( bec ==  0 ) waferIndex =  0;
+      else if( bec ==  2 ) waferIndex =  8;
+      else if( bec == -2 ) waferIndex = 26;
+      waferIndex = waferIndex + layer * 2 + side;
+      
+      Int_t nTotalSCTHits(0);
+      Int_t nTotalSCTHoles(0);
+
+      for( Int_t i=0; i<44; i++ ){
+	if( i != waferIndex ){
+	  nTotalSCTHits  += nSCTHits[i];
+	  nTotalSCTHoles += nSCTHoles[i];
+	}
+      }
+
+      // The track is required to satisfy:
+      // - Number of Si hits to be >= 7
+      // - Number of Si holes to be <= 1
+      // without counting this TSOS object. (avoid tracking bias.)
+      if( nTotalSCTHits + m_pixelNHits < 7 ) continue;
+      if( nTotalSCTHoles + m_pixelNHoles > 1 ) continue;
+
       const int detIndex = becIdxLayer2Index(isub, layer);
       if (detIndex == -1) {
         WARNING("The detector region (barrel, endcap A, endcap C) could not be determined");

@@ -55,8 +55,4 @@ class TreeReader //: public TTreeFormulaManager
   
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TreeReader+;
-#endif
-
 #endif

@@ -89,6 +89,10 @@ if primRPVLLDESDM.doVH():
     include("LongLivedParticleDPDMaker/PhysDESDM_VH.py")
     pass
 
+## R&D based on displaced taus in the ID (contact: Guillermo Hamity)
+if primRPVLLDESDM.doTaus():
+    include("LongLivedParticleDPDMaker/PhysDESDM_Taus.py")
+    pass
 
 ### output stream
 

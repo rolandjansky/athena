@@ -33,7 +33,7 @@ class IMagFieldAthenaSvc;
 
 namespace Trk{
 
-  static const int m_NTrMaxVFit=300;
+  static const int NTrMaxVFit=300;
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;
@@ -225,7 +225,7 @@ namespace Trk{
         void setCovVrtForConstraint(double,double,double,
                                   double,double,double);
 				  
-        void setMassInputParticles( std::vector<double>& );
+        void setMassInputParticles( const std::vector<double>& );
         void setMomCovCalc(int);
         void setDefault();
         void setZeroCharge(int);
@@ -279,8 +279,8 @@ namespace Trk{
       SimpleProperty<bool>   m_firstMeasuredPointLimit;
       SimpleProperty<bool>   m_makeExtendedVertex;
 
-      bool isAtlasField;
-      bool isFieldInitialized;
+      bool m_isAtlasField;
+      bool m_isFieldInitialized;
 
       bool m_useAprioriVertex ;
       bool m_useThetaCnst;
@@ -347,13 +347,13 @@ namespace Trk{
 //
 // Arrays needed for fitting kernel
 //
-      double m_par0[m_NTrMaxVFit][3];   //used only for fit preparation
-      double m_apar[m_NTrMaxVFit][5];   //used only for fit preparation
-      double m_awgt[m_NTrMaxVFit][15];  //used only for fit preparation
-      long int m_ich[m_NTrMaxVFit];
-      double m_chi2tr[m_NTrMaxVFit];
-      double m_parfs[m_NTrMaxVFit][3];
-      double m_wm[m_NTrMaxVFit];
+      double m_par0[NTrMaxVFit][3];   //used only for fit preparation
+      double m_apar[NTrMaxVFit][5];   //used only for fit preparation
+      double m_awgt[NTrMaxVFit][15];  //used only for fit preparation
+      long int m_ich[NTrMaxVFit];
+      double m_chi2tr[NTrMaxVFit];
+      double m_parfs[NTrMaxVFit][3];
+      double m_wm[NTrMaxVFit];
       double m_VrtCst[3];
       double m_CovVrtCst[6];
 

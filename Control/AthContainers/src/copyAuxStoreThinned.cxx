@@ -1,8 +1,7 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id$
 /**
  * @file AthContainers/Root/copyAuxStoreThinned.cxx
  * @author scott snyder <snyder@bnl.gov>
@@ -41,9 +40,11 @@ void copyAuxStoreThinned NO_SANITIZE_UNDEFINED
     SG::IAuxStore& copy,
     IThinningSvc* svc)
 {
-  copy.resize(0);
   size_t size = orig.size();
-  if (size == 0) return;
+  if (size == 0) {
+    copy.resize(0);
+    return;
+  }
   size_t nremaining = 0;
   std::vector<unsigned char> flags;
   bool thinned = getThinnedFlags (svc, orig, nremaining, flags);

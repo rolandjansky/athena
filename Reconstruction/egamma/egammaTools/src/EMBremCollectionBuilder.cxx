@@ -504,7 +504,9 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
   double  trkPhi = candidatePerigee.parameters()[Trk::phi];
   double  trkEta = candidatePerigee.eta();
   double  r_first=candidatePerigee.position().perp();
-  double  z_first=candidatePerigee.position().z();
+  const Amg::Vector3D PerigeeXYZPosition = candidatePerigee.position();
+
+
   //===========================================================//     
   //Get Cluster parameters
   double clusterEta=cluster->etaBE(2);
@@ -523,31 +525,48 @@ bool EMBremCollectionBuilder::Select(const xAOD::CaloCluster*   cluster,
   }
   //===========================================================//     
   //Calculate corrrected eta and Phi
-  double etaclus_corrected = CandidateMatchHelpers::CorrectedEta(clusterEta,z_first,isEndCap);
-  double phiRot = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
+  const Amg::Vector3D XYZClusterWrtTrackPerigee = CandidateMatchHelpers::approxXYZwrtPoint(*cluster,
+                                                                                           PerigeeXYZPosition,
+                                                                                           isEndCap);
+
+  const double clusterEtaCorrected=XYZClusterWrtTrackPerigee.eta();
+
+    //check eta match . Both metrics need to fail in order to disgard the track
+  if ( (!trkTRT) && (fabs(clusterEta - trkEta) > 2.*m_broadDeltaEta) &&
+       (fabs(clusterEtaCorrected- trkEta) > 2.*m_broadDeltaEta)){
+    ATH_MSG_DEBUG(" Fails broad window eta match (track eta, cluster eta, cluster eta corrected): ( "
+                  << trkEta << ", " << clusterEta <<", "<<clusterEtaCorrected<<")" );
+    return false;
+  }
+  
+  const double  clusterPhiCorrected=XYZClusterWrtTrackPerigee.phi();
+  double phiRotRescaled = CandidateMatchHelpers::PhiROT(Et,trkEta, track->charge(),r_first ,isEndCap)  ;
   double phiRotTrack = CandidateMatchHelpers::PhiROT(track->pt(),trkEta, track->charge(),r_first ,isEndCap)  ;
-  //===========================================================//     
-  //Calcualate deltaPhis 
-  double deltaPhiStd = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhi);
-  double trkPhiCorr = P4Helpers::deltaPhi(trkPhi, phiRot);
-  double deltaPhi2 = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorr);
-  double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
-  double deltaPhi2Track = P4Helpers::deltaPhi(cluster->phiBE(2), trkPhiCorrTrack);
-  //===========================================================//     
- 
-  if ((!trkTRT)&& fabs(cluster->etaBE(2) - trkEta) > 2*m_broadDeltaEta && 
-      fabs( etaclus_corrected- trkEta) > 2.*m_broadDeltaEta){
-    ATH_MSG_DEBUG("FAILS broad window eta match (track eta, cluster eta, cluster eta corrected): ( " 
-		  << trkEta << ", " << cluster->etaBE(2) <<", "<<etaclus_corrected<<")" );
+  
+  //===========================================================//         
+  //deltaPhi between the track and the cluster 
+  const double deltaPhiStd = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhi);
+  //deltaPhi between the track and the cluster accounting for rotation assuming cluster Et is a better estimator
+  const double trkPhiRescaled= P4Helpers::deltaPhi(trkPhi, phiRotRescaled);
+  const double deltaPhiRescaled = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiRescaled);
+  //deltaPhi between the track and the cluster accounting for rotation
+  const double trkPhiCorrTrack = P4Helpers::deltaPhi(trkPhi, phiRotTrack);
+  const double deltaPhiTrack = P4Helpers::deltaPhi(clusterPhiCorrected, trkPhiCorrTrack);
+
+
+
+  //It has to fail all phi metrics in order to be disgarded
+  if ( (fabs(deltaPhiRescaled) > 2.*m_broadDeltaPhi) &&
+       (fabs(deltaPhiTrack) > 2.*m_broadDeltaPhi) &&
+       (fabs(deltaPhiStd) > 2.*m_broadDeltaPhi) ){
+    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack , "
+                  <<"cluster phi corrected, cluster phi): ( "
+                  << trkPhi << ", " << phiRotRescaled<< ", "<<phiRotTrack<< ", "
+                  <<clusterPhiCorrected<< ")" );
     return false;
-  }
-  //if it does not fail the eta cut, does it fail the phi?
-  if ( (fabs(deltaPhi2) > 2*m_broadDeltaPhi) && (fabs(deltaPhi2Track) > 2.*m_broadDeltaPhi) 
-       && (fabs(deltaPhiStd) > 2*m_broadDeltaPhi)){
-    ATH_MSG_DEBUG("FAILS broad window phi match (track phi, phirotCluster , phiRotTrack ,cluster phi): ( " 
-		  << trkPhi << ", " << phiRot<< ", "<<phiRotTrack<< ", " << cluster->phiBE(2) << ")" );
-    return false;
-  }
+  }   
+  
+  
 
   //Extrapolate from last measurement, since this is before brem fit last measurement is better.
   IEMExtrapolationTools::TrkExtrapDef extrapFrom = IEMExtrapolationTools::fromLastMeasurement;

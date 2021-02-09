@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -119,15 +119,15 @@ StatusCode SiTrackerSpacePointFinder::initialize()
 	return StatusCode::FAILURE;
     }
   
-    if (m_SpacePointContainer_SCT.name().empty()){
+    if (m_selectSCTs && m_SpacePointContainer_SCT.name().empty()){
 	ATH_MSG_FATAL( "No name set for SCT space points");
 	return StatusCode::FAILURE;
     }
-    if (m_SpacePointContainerPixel.name().empty()){
+    if (m_selectPixels && m_SpacePointContainerPixel.name().empty()){
 	ATH_MSG_FATAL( "No name set for Pixels space points");
 	return StatusCode::FAILURE;
     }
-    if (m_spacepointoverlapCollection.name().empty()){
+    if (m_overlap && m_spacepointoverlapCollection.name().empty()){
 	ATH_MSG_FATAL( "No name set for overlap space points");
 	return StatusCode::FAILURE;
     }
@@ -235,14 +235,16 @@ StatusCode SiTrackerSpacePointFinder::execute()
     // Note there may not be any, but there could still be pixel clusters.
 //    m_spacepointoverlapCollection = new SpacePointOverlapCollection();
 
-    m_spacepointoverlapCollection = CxxUtils::make_unique<SpacePointOverlapCollection>();
-    if (! m_spacepointoverlapCollection.isValid() ){
-       msg(MSG:: FATAL) << "SpacePointOverlapCollection " << m_spacepointoverlapCollection.name() << "could not be initialised !"<< endreq;
-       return StatusCode::FAILURE;
-    }
+    if (m_overlap){
+      m_spacepointoverlapCollection = CxxUtils::make_unique<SpacePointOverlapCollection>();
+      if (! m_spacepointoverlapCollection.isValid() ){
+        msg(MSG:: FATAL) << "SpacePointOverlapCollection " << m_spacepointoverlapCollection.name() << "could not be initialised !"<< endreq;
+        return StatusCode::FAILURE;
+      }
           
-//    m_spacepointoverlapCollection->addRef();
-    ATH_MSG_DEBUG( "Container '" << m_spacepointoverlapCollection.name() << "' initialised" );
+      //    m_spacepointoverlapCollection->addRef();
+      ATH_MSG_DEBUG( "Container '" << m_spacepointoverlapCollection.name() << "' initialised" );
+    }
     
     if (m_selectSCTs){
 	  // retrieve SCT cluster container
@@ -355,13 +357,16 @@ StatusCode SiTrackerSpacePointFinder::execute()
   
     // store the overlap space points.
     // check that the set isn't empty.
-    if (m_spacepointoverlapCollection->size()==0)
+    if (m_overlap)
     {
-	ATH_MSG_DEBUG( "No overlap space points found" );
-    }
-    else
-    {
-	ATH_MSG_DEBUG( m_spacepointoverlapCollection->size() <<" overlap space points registered." );
+      if (m_spacepointoverlapCollection->size()==0)
+      {
+	  ATH_MSG_DEBUG( "No overlap space points found" );
+      }
+      else
+      {
+  	  ATH_MSG_DEBUG( m_spacepointoverlapCollection->size() <<" overlap space points registered." );
+      }
     }
 /*
     StatusCode sc = evtStore()->record(m_spacepointoverlapCollection, m_spacePointsOverlapName, false);

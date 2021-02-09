@@ -84,7 +84,7 @@ namespace Trk{
 //---
 //   Additional change of settings 
 //---
-    long int Index[m_NTrMaxVFit+1]={0};
+    long int Index[NTrMaxVFit+1]={0};
     if(m_PartMassCnst.size() > 0) {
       for(int ic=0; ic<(int)m_PartMassCnst.size(); ic++){ 
         long int NTrk=m_PartMassCnstTrk[ic].size();
@@ -126,21 +126,21 @@ namespace Trk{
   }
   
   void TrkVKalVrtFitter::setRobustness(int IROB)
-  { if(IROB>0)msg(MSG::DEBUG)<< "Robustness is changed at execution stage "<<m_Robustness<<"=>"<<IROB<< endreq;
+  { if(IROB>0)msg(MSG::DEBUG)<< "Robustness is changed at execution stage "<<m_Robustness<<"=>"<<IROB<< endmsg;
     m_Robustness = IROB;
     if(m_Robustness<0)m_Robustness=0;
     if(m_Robustness>7)m_Robustness=0;
   }
 
   void TrkVKalVrtFitter::setRobustScale(double Scale)
-  { if(Scale!=m_RobustScale)msg(MSG::DEBUG)<< "Robust Scale is changed at execution stage "<<m_RobustScale<<"=>"<<Scale<< endreq;
+  { if(Scale!=m_RobustScale)msg(MSG::DEBUG)<< "Robust Scale is changed at execution stage "<<m_RobustScale<<"=>"<<Scale<< endmsg;
     m_RobustScale = Scale;
     if(m_RobustScale<0.01) m_RobustScale=1.;
     if(m_RobustScale>100.) m_RobustScale=1.;
   }
  
   void TrkVKalVrtFitter::setCnstType(int TYPE)
-  { if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage "<<m_iflag<<"=>"<<TYPE<< endreq;
+  { if(TYPE>0)msg(MSG::DEBUG)<< "ConstraintType is changed at execution stage "<<m_iflag<<"=>"<<TYPE<< endmsg;
     m_iflag = TYPE;
     if(m_iflag<0)m_iflag=0;
     if(m_iflag>14)m_iflag=0;
@@ -171,15 +171,15 @@ namespace Trk{
   { m_ifcovv0 = abs(TYPE);}
 
   void TrkVKalVrtFitter::setCascadeCnstPrec(double Prec)
-  { if(Prec!=m_cascadeCnstPrecision) msg(MSG::DEBUG)<< "Cascade precision is changed at execution stage "<<m_cascadeCnstPrecision<<"=>"<<Prec<< endreq;
+  { if(Prec!=m_cascadeCnstPrecision) msg(MSG::DEBUG)<< "Cascade precision is changed at execution stage "<<m_cascadeCnstPrecision<<"=>"<<Prec<< endmsg;
     if(Prec<1.e-7)Prec=1.e-7;
     if(Prec>1.   )Prec=1.;
     m_cascadeCnstPrecision=Prec; 
   }
 
   void TrkVKalVrtFitter::setIterations(int Num, double Prec)
-  { if(Num!=m_IterationNumber) msg(MSG::DEBUG)<< "Iteration limit is changed at execution stage "<<m_IterationNumber<<"=>"<<Num<< endreq;
-     if(Prec!=m_IterationPrecision) msg(MSG::DEBUG)<< "Iteration precision is changed at execution stage "<<m_IterationPrecision<<"=>"<<Prec<< endreq;
+  { if(Num!=m_IterationNumber) msg(MSG::DEBUG)<< "Iteration limit is changed at execution stage "<<m_IterationNumber<<"=>"<<Num<< endmsg;
+     if(Prec!=m_IterationPrecision) msg(MSG::DEBUG)<< "Iteration precision is changed at execution stage "<<m_IterationPrecision<<"=>"<<Prec<< endmsg;
     m_IterationNumber    = Num;
     m_IterationPrecision = Prec;
   }
@@ -217,7 +217,7 @@ namespace Trk{
      m_CovVrtForConstraint.push_back(ZZ);
   }			  
 
-  void TrkVKalVrtFitter::setMassInputParticles( std::vector<double>& mass)
+  void TrkVKalVrtFitter::setMassInputParticles( const std::vector<double>& mass)
   { m_MassInputParticles.clear();
     for(int i=0; i<(int)mass.size(); i++) m_MassInputParticles.push_back(fabs(mass[i]));
   }

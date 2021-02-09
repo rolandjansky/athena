@@ -22,8 +22,4 @@ private:
   ClassDefOverride(TFCSHistoLateralShapeWeightHitAndMiss,1)  //TFCSHistoLateralShapeWeightHitAndMiss
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSHistoLateralShapeWeightHitAndMiss+;
-#endif
-
 #endif

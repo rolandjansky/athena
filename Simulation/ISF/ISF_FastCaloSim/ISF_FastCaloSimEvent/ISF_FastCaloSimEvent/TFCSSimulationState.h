@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSSimulationState_h
@@ -8,14 +8,20 @@
 #include <TObject.h>
 #include "ISF_FastCaloSimEvent/FastCaloSim_CaloCell_ID.h"
 #include <map>
+#include <set>
+#include <unordered_map>
 #include <vector>
+#include <stdint.h>
 
 class CaloDetDescrElement;
+class TFCSParametrizationBase;
 
 namespace CLHEP
 {
  class HepRandomEngine;
 }
+
+constexpr std::uint32_t operator"" _FCShash(char const* s, std::size_t count);
 
 class TFCSSimulationState:public TObject
 {
@@ -44,8 +50,11 @@ class TFCSSimulationState:public TObject
     void deposit(const CaloDetDescrElement* cellele, float E);
     
     void Print(Option_t *option="") const;
-    void set_SF(double mysf) {m_SF = mysf;}
-    double get_SF() {return m_SF;}
+    
+    //TODO: Remove explicit functions for SF here and use getAuxInfo<double>("SF"_FCShash) and setAuxInfo<double>("SF"_FCShash,mysf)
+    //directly in the energy parametrization
+    void set_SF(double mysf) {setAuxInfo<double>("SF"_FCShash,mysf);};
+    double get_SF() {return getAuxInfo<double>("SF"_FCShash);}
 
     void clear();
   private:
@@ -54,17 +63,85 @@ class TFCSSimulationState:public TObject
     int    m_Ebin;
     double m_Etot;
     // TO BE CLEANED UP! SHOULD ONLY STORE EITHER E OR EFRAC!!!
-    double m_SF;
     double m_E[CaloCell_ID_FCS::MaxSample];
     double m_Efrac[CaloCell_ID_FCS::MaxSample];
     
     Cellmap_t m_cells;
     
-  ClassDef(TFCSSimulationState,1)  //TFCSSimulationState
+  public:
+    // Allow to store arbitrary type objects as auxilliary information
+    // Use compile time hashes of strings as index to an unordered map of union AuxInfo_t
+    // Example:
+    // TFCSSimulationState s;
+    // s.setAuxInfo<double>("SF"_FCShash,2);
+    // 
+    // If pointers are stored, a dedicated cleanup is needed
+    // If a new data type is needed, a cast operator and an explicit template implementation of the set method has to be added
+    union AuxInfo_t {
+      bool b;
+      char c;
+      int i;
+      float f;
+      double d;
+      void* p;
+      
+      //cast operators
+      operator bool()   const {return b;};
+      operator char()   const {return c;};
+      operator int()    const {return i;};
+      operator float()  const {return f;};
+      operator double() const {return d;};
+      operator void*()  const {return p;};
+      
+      //template set method. No general implementation exist, only explict implementations are added after the class definition
+      template<class T> void set(T val);
+    };
+    
+    // FNV-1a 32bit hashing algorithm that is evaluated during compile time
+    // function taken from https://gist.github.com/Lee-R/3839813
+    static constexpr std::uint32_t fnv1a_32(char const* s, std::size_t count)
+    {
+        return ((count ? fnv1a_32(s, count - 1) : 2166136261u) ^ s[count]) * 16777619u;
+    }
+    // Run time call for hash function
+    static std::uint32_t getAuxIndex(std::string s);
+    static std::uint32_t getAuxIndex(const char* s);
+    
+    //Check if some auxiliary information is stored
+    bool hasAuxInfo(std::uint32_t index) const {return m_AuxInfo.find(index)!=m_AuxInfo.end();};
+    
+    //Get auxiliary info
+    //Use as TFCSSimulationState::getAuxInfo<int>(index)
+    template<class T> inline const T getAuxInfo(std::uint32_t index) const  {return static_cast<T>(m_AuxInfo.at(index));}
+    
+    //Set auxiliary info
+    //Use as TFCSSimulationState::setAuxInfo<double>(7,2.0f)
+    //    or TFCSSimulationState::setAuxInfo(7,2.0)
+    template<class T> inline void setAuxInfo(std::uint32_t index, const T& val) {m_AuxInfo[index].set<T>(val);}
+    
+    void AddAuxInfoCleanup(const TFCSParametrizationBase* para);
+    void DoAuxInfoCleanup();
+    
+  private:
+    std::unordered_map< std::uint32_t , AuxInfo_t > m_AuxInfo;//! Do not persistify
+    std::set< const TFCSParametrizationBase* > m_AuxInfoCleanup;//! Do not persistify
+    
+  ClassDef(TFCSSimulationState,3)  //TFCSSimulationState
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSSimulationState+;
-#endif
+//Explicit template implementations for template<class T> void TFCSSimulationState::AuxInfo_t::set(T val);
+template<> inline void TFCSSimulationState::AuxInfo_t::set<const TFCSSimulationState::AuxInfo_t>(const TFCSSimulationState::AuxInfo_t val) {*this=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<bool>(bool val)     {b=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<char>(char val)     {c=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<int>(int val)       {i=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<float>(float val)   {f=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<double>(double val) {d=val;}
+template<> inline void TFCSSimulationState::AuxInfo_t::set<void*>(void* val)   {p=val;}
+
+//Implementation of the complile time text hash operator that can be used for human readable indices to the AuxInfo
+constexpr std::uint32_t operator"" _FCShash(char const* s, std::size_t count)
+{
+  return TFCSSimulationState::fnv1a_32(s, count);
+}
 
 #endif

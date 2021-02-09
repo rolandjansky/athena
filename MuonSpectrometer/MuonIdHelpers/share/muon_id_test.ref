@@ -1,0 +1,776 @@
+=========>  checking dictionnary file=IdDictMuonSpectrometer_R.03.xml
+MdtIdHelper         DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+MdtIdHelper         DEBUG  MDT decode index and bit fields for each level: 
+MdtIdHelper         DEBUG  muon        decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+MdtIdHelper         DEBUG  station     decode 1 vals 0,1,2,3,4,5,6,7,8,9,10,13,14,15,17,18,20,21,41,42,43,44,45,46,47,48,49,50,51,52,53,54 mask/zero mask/shift/bits/offset 1f  e0ffffffffffffff 56 5  3  indexes 0 1 2 3 4 5 6 7 8 9 10 0 0 11 12 13 0 14 15 0 16 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 19 20 21 22 23 24 25 26 27 28 29 30 31 mode  enumerated  
+MdtIdHelper         DEBUG  eta         decode 1 vals -8:8            mask/zero mask/shift/bits/offset 1f  ff07ffffffffffff 51 5  8  indexes                     mode  both_bounded  
+MdtIdHelper         DEBUG  phi         decode 1 vals 1:8             mask/zero mask/shift/bits/offset 7   fff8ffffffffffff 48 3  13 indexes                     mode  both_bounded  
+MdtIdHelper         DEBUG  technology  decode 1 vals 0,2             mask/zero mask/shift/bits/offset 1   ffff7fffffffffff 47 1  16 indexes 0 0 1               mode  enumerated  
+MdtIdHelper         DEBUG  multilayer  decode 1 vals 1:2             mask/zero mask/shift/bits/offset 1   ffffbfffffffffff 46 1  17 indexes                     mode  both_bounded  
+MdtIdHelper         DEBUG  layer       decode 1 vals 1:4             mask/zero mask/shift/bits/offset 3   ffffcfffffffffff 44 2  18 indexes                     mode  both_bounded  
+MdtIdHelper         DEBUG  tube        decode 1 vals 1:78            mask/zero mask/shift/bits/offset 7f  fffff01fffffffff 37 7  20 indexes                     mode  both_bounded  
+MdtIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+MdtIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 241
+MdtIdHelper          INFO MultiRange built successfully to tube: MultiRange size is 241
+MdtIdHelper         DEBUG module field size is 5 field index = 0
+MdtIdHelper         DEBUG module field size is 1 field index = 1
+MdtIdHelper         DEBUG module field size is 4 field index = 2
+MdtIdHelper         DEBUG module field size is 1 field index = 3
+MdtIdHelper         DEBUG module field size is 1 field index = 4
+MdtIdHelper         DEBUG module field size is 12 field index = 5
+MdtIdHelper         DEBUG module field size is 10 field index = 6
+MdtIdHelper         DEBUG module field size is 2 field index = 7
+MdtIdHelper         DEBUG module field size is 10 field index = 8
+MdtIdHelper         DEBUG module field size is 2 field index = 9
+MdtIdHelper         DEBUG module field size is 12 field index = 10
+MdtIdHelper         DEBUG module field size is 8 field index = 11
+MdtIdHelper         DEBUG module field size is 4 field index = 12
+MdtIdHelper         DEBUG module field size is 4 field index = 13
+MdtIdHelper         DEBUG module field size is 4 field index = 14
+MdtIdHelper         DEBUG module field size is 4 field index = 15
+MdtIdHelper         DEBUG module field size is 4 field index = 16
+MdtIdHelper         DEBUG module field size is 4 field index = 17
+MdtIdHelper         DEBUG module field size is 4 field index = 18
+MdtIdHelper         DEBUG module field size is 4 field index = 19
+MdtIdHelper         DEBUG module field size is 4 field index = 20
+MdtIdHelper         DEBUG module field size is 4 field index = 21
+MdtIdHelper         DEBUG module field size is 4 field index = 22
+MdtIdHelper         DEBUG module field size is 4 field index = 23
+MdtIdHelper         DEBUG module field size is 16 field index = 24
+MdtIdHelper         DEBUG module field size is 16 field index = 25
+MdtIdHelper         DEBUG module field size is 16 field index = 26
+MdtIdHelper         DEBUG module field size is 16 field index = 27
+MdtIdHelper         DEBUG module field size is 16 field index = 28
+MdtIdHelper         DEBUG module field size is 16 field index = 29
+MdtIdHelper         DEBUG module field size is 10 field index = 30
+MdtIdHelper         DEBUG module field size is 6 field index = 31
+MdtIdHelper         DEBUG module field size is 16 field index = 32
+MdtIdHelper         DEBUG module field size is 16 field index = 33
+MdtIdHelper         DEBUG module field size is 16 field index = 34
+MdtIdHelper         DEBUG module field size is 1 field index = 35
+MdtIdHelper         DEBUG module field size is 1 field index = 36
+MdtIdHelper         DEBUG module field size is 1 field index = 37
+MdtIdHelper         DEBUG module field size is 1 field index = 38
+MdtIdHelper         DEBUG module field size is 2 field index = 39
+MdtIdHelper         DEBUG module field size is 2 field index = 40
+MdtIdHelper         DEBUG module field size is 1 field index = 41
+MdtIdHelper         DEBUG module field size is 4 field index = 42
+MdtIdHelper         DEBUG module field size is 2 field index = 43
+MdtIdHelper         DEBUG module field size is 1 field index = 44
+MdtIdHelper         DEBUG module field size is 32 field index = 45
+MdtIdHelper         DEBUG module field size is 16 field index = 46
+MdtIdHelper         DEBUG module field size is 14 field index = 47
+MdtIdHelper         DEBUG module field size is 2 field index = 48
+MdtIdHelper         DEBUG module field size is 14 field index = 49
+MdtIdHelper         DEBUG module field size is 2 field index = 50
+MdtIdHelper         DEBUG module field size is 12 field index = 51
+MdtIdHelper         DEBUG module field size is 12 field index = 52
+MdtIdHelper         DEBUG module field size is 12 field index = 53
+MdtIdHelper         DEBUG module field size is 12 field index = 54
+MdtIdHelper         DEBUG module field size is 12 field index = 55
+MdtIdHelper         DEBUG module field size is 12 field index = 56
+MdtIdHelper         DEBUG module field size is 4 field index = 57
+MdtIdHelper         DEBUG module field size is 4 field index = 58
+MdtIdHelper         DEBUG module field size is 4 field index = 59
+MdtIdHelper         DEBUG module field size is 2 field index = 60
+MdtIdHelper         DEBUG module field size is 1 field index = 61
+MdtIdHelper         DEBUG module field size is 2 field index = 62
+MdtIdHelper         DEBUG module field size is 1 field index = 63
+MdtIdHelper         DEBUG module field size is 3 field index = 64
+MdtIdHelper         DEBUG module field size is 2 field index = 65
+MdtIdHelper         DEBUG module field size is 3 field index = 66
+MdtIdHelper         DEBUG module field size is 1 field index = 67
+MdtIdHelper         DEBUG module field size is 1 field index = 68
+MdtIdHelper         DEBUG module field size is 7 field index = 69
+MdtIdHelper         DEBUG module field size is 6 field index = 70
+MdtIdHelper         DEBUG module field size is 2 field index = 71
+MdtIdHelper         DEBUG module field size is 1 field index = 72
+MdtIdHelper         DEBUG module field size is 14 field index = 73
+MdtIdHelper         DEBUG module field size is 2 field index = 74
+MdtIdHelper         DEBUG module field size is 16 field index = 75
+MdtIdHelper         DEBUG module field size is 16 field index = 76
+MdtIdHelper         DEBUG module field size is 16 field index = 77
+MdtIdHelper         DEBUG module field size is 10 field index = 78
+MdtIdHelper         DEBUG module field size is 2 field index = 79
+MdtIdHelper         DEBUG module field size is 12 field index = 80
+MdtIdHelper         DEBUG module field size is 12 field index = 81
+MdtIdHelper         DEBUG module field size is 12 field index = 82
+MdtIdHelper         DEBUG module field size is 12 field index = 83
+MdtIdHelper         DEBUG module field size is 12 field index = 84
+MdtIdHelper         DEBUG module field size is 4 field index = 85
+MdtIdHelper         DEBUG module field size is 4 field index = 86
+MdtIdHelper         DEBUG module field size is 4 field index = 87
+MdtIdHelper         DEBUG module field size is 4 field index = 88
+MdtIdHelper         DEBUG module field size is 2 field index = 89
+MdtIdHelper         DEBUG module field size is 4 field index = 90
+MdtIdHelper         DEBUG module field size is 4 field index = 91
+MdtIdHelper         DEBUG module field size is 4 field index = 92
+MdtIdHelper         DEBUG module field size is 4 field index = 93
+MdtIdHelper         DEBUG module field size is 16 field index = 94
+MdtIdHelper         DEBUG module field size is 16 field index = 95
+MdtIdHelper         DEBUG module field size is 16 field index = 96
+MdtIdHelper         DEBUG module field size is 4 field index = 97
+MdtIdHelper         DEBUG module field size is 8 field index = 98
+MdtIdHelper         DEBUG module field size is 4 field index = 99
+MdtIdHelper         DEBUG module field size is 4 field index = 100
+MdtIdHelper         DEBUG module field size is 16 field index = 101
+MdtIdHelper         DEBUG module field size is 16 field index = 102
+MdtIdHelper         DEBUG module field size is 14 field index = 103
+MdtIdHelper         DEBUG module field size is 14 field index = 104
+MdtIdHelper         DEBUG module field size is 2 field index = 105
+MdtIdHelper         DEBUG module field size is 16 field index = 106
+MdtIdHelper         DEBUG module field size is 16 field index = 107
+MdtIdHelper         DEBUG module field size is 16 field index = 108
+MdtIdHelper         DEBUG module field size is 16 field index = 109
+MdtIdHelper         DEBUG module field size is 16 field index = 110
+MdtIdHelper         DEBUG module field size is 16 field index = 111
+MdtIdHelper         DEBUG module field size is 16 field index = 112
+MdtIdHelper         DEBUG module field size is 16 field index = 113
+MdtIdHelper         DEBUG module field size is 16 field index = 114
+MdtIdHelper         DEBUG module field size is 16 field index = 115
+MdtIdHelper         DEBUG module field size is 16 field index = 116
+MdtIdHelper         DEBUG module field size is 16 field index = 117
+MdtIdHelper         DEBUG module field size is 16 field index = 118
+MdtIdHelper         DEBUG module field size is 16 field index = 119
+MdtIdHelper         DEBUG module field size is 16 field index = 120
+MdtIdHelper         DEBUG module field size is 16 field index = 121
+MdtIdHelper         DEBUG module field size is 16 field index = 122
+MdtIdHelper         DEBUG module field size is 16 field index = 123
+MdtIdHelper         DEBUG module field size is 16 field index = 124
+MdtIdHelper         DEBUG module field size is 16 field index = 125
+MdtIdHelper         DEBUG module field size is 16 field index = 126
+MdtIdHelper         DEBUG module field size is 16 field index = 127
+MdtIdHelper         DEBUG module field size is 16 field index = 128
+MdtIdHelper         DEBUG module field size is 16 field index = 129
+MdtIdHelper         DEBUG module field size is 2 field index = 130
+MdtIdHelper         DEBUG module field size is 2 field index = 131
+MdtIdHelper         DEBUG module field size is 4 field index = 132
+MdtIdHelper         DEBUG module field size is 4 field index = 133
+MdtIdHelper         DEBUG module field size is 4 field index = 134
+MdtIdHelper         DEBUG detector element field size is 10 field index = 0
+MdtIdHelper         DEBUG detector element field size is 2 field index = 1
+MdtIdHelper         DEBUG detector element field size is 8 field index = 2
+MdtIdHelper         DEBUG detector element field size is 2 field index = 3
+MdtIdHelper         DEBUG detector element field size is 2 field index = 4
+MdtIdHelper         DEBUG detector element field size is 24 field index = 5
+MdtIdHelper         DEBUG detector element field size is 20 field index = 6
+MdtIdHelper         DEBUG detector element field size is 4 field index = 7
+MdtIdHelper         DEBUG detector element field size is 20 field index = 8
+MdtIdHelper         DEBUG detector element field size is 4 field index = 9
+MdtIdHelper         DEBUG detector element field size is 24 field index = 10
+MdtIdHelper         DEBUG detector element field size is 16 field index = 11
+MdtIdHelper         DEBUG detector element field size is 8 field index = 12
+MdtIdHelper         DEBUG detector element field size is 8 field index = 13
+MdtIdHelper         DEBUG detector element field size is 8 field index = 14
+MdtIdHelper         DEBUG detector element field size is 8 field index = 15
+MdtIdHelper         DEBUG detector element field size is 8 field index = 16
+MdtIdHelper         DEBUG detector element field size is 8 field index = 17
+MdtIdHelper         DEBUG detector element field size is 4 field index = 18
+MdtIdHelper         DEBUG detector element field size is 4 field index = 19
+MdtIdHelper         DEBUG detector element field size is 4 field index = 20
+MdtIdHelper         DEBUG detector element field size is 4 field index = 21
+MdtIdHelper         DEBUG detector element field size is 8 field index = 22
+MdtIdHelper         DEBUG detector element field size is 4 field index = 23
+MdtIdHelper         DEBUG detector element field size is 4 field index = 24
+MdtIdHelper         DEBUG detector element field size is 4 field index = 25
+MdtIdHelper         DEBUG detector element field size is 4 field index = 26
+MdtIdHelper         DEBUG detector element field size is 8 field index = 27
+MdtIdHelper         DEBUG detector element field size is 32 field index = 28
+MdtIdHelper         DEBUG detector element field size is 32 field index = 29
+MdtIdHelper         DEBUG detector element field size is 32 field index = 30
+MdtIdHelper         DEBUG detector element field size is 32 field index = 31
+MdtIdHelper         DEBUG detector element field size is 32 field index = 32
+MdtIdHelper         DEBUG detector element field size is 32 field index = 33
+MdtIdHelper         DEBUG detector element field size is 20 field index = 34
+MdtIdHelper         DEBUG detector element field size is 12 field index = 35
+MdtIdHelper         DEBUG detector element field size is 16 field index = 36
+MdtIdHelper         DEBUG detector element field size is 16 field index = 37
+MdtIdHelper         DEBUG detector element field size is 16 field index = 38
+MdtIdHelper         DEBUG detector element field size is 2 field index = 39
+MdtIdHelper         DEBUG detector element field size is 2 field index = 40
+MdtIdHelper         DEBUG detector element field size is 2 field index = 41
+MdtIdHelper         DEBUG detector element field size is 2 field index = 42
+MdtIdHelper         DEBUG detector element field size is 4 field index = 43
+MdtIdHelper         DEBUG detector element field size is 4 field index = 44
+MdtIdHelper         DEBUG detector element field size is 2 field index = 45
+MdtIdHelper         DEBUG detector element field size is 8 field index = 46
+MdtIdHelper         DEBUG detector element field size is 4 field index = 47
+MdtIdHelper         DEBUG detector element field size is 2 field index = 48
+MdtIdHelper         DEBUG detector element field size is 64 field index = 49
+MdtIdHelper         DEBUG detector element field size is 32 field index = 50
+MdtIdHelper         DEBUG detector element field size is 28 field index = 51
+MdtIdHelper         DEBUG detector element field size is 4 field index = 52
+MdtIdHelper         DEBUG detector element field size is 28 field index = 53
+MdtIdHelper         DEBUG detector element field size is 4 field index = 54
+MdtIdHelper         DEBUG detector element field size is 24 field index = 55
+MdtIdHelper         DEBUG detector element field size is 24 field index = 56
+MdtIdHelper         DEBUG detector element field size is 24 field index = 57
+MdtIdHelper         DEBUG detector element field size is 12 field index = 58
+MdtIdHelper         DEBUG detector element field size is 12 field index = 59
+MdtIdHelper         DEBUG detector element field size is 24 field index = 60
+MdtIdHelper         DEBUG detector element field size is 12 field index = 61
+MdtIdHelper         DEBUG detector element field size is 12 field index = 62
+MdtIdHelper         DEBUG detector element field size is 8 field index = 63
+MdtIdHelper         DEBUG detector element field size is 8 field index = 64
+MdtIdHelper         DEBUG detector element field size is 8 field index = 65
+MdtIdHelper         DEBUG detector element field size is 4 field index = 66
+MdtIdHelper         DEBUG detector element field size is 2 field index = 67
+MdtIdHelper         DEBUG detector element field size is 4 field index = 68
+MdtIdHelper         DEBUG detector element field size is 2 field index = 69
+MdtIdHelper         DEBUG detector element field size is 6 field index = 70
+MdtIdHelper         DEBUG detector element field size is 4 field index = 71
+MdtIdHelper         DEBUG detector element field size is 6 field index = 72
+MdtIdHelper         DEBUG detector element field size is 2 field index = 73
+MdtIdHelper         DEBUG detector element field size is 2 field index = 74
+MdtIdHelper         DEBUG detector element field size is 14 field index = 75
+MdtIdHelper         DEBUG detector element field size is 12 field index = 76
+MdtIdHelper         DEBUG detector element field size is 4 field index = 77
+MdtIdHelper         DEBUG detector element field size is 2 field index = 78
+MdtIdHelper         DEBUG detector element field size is 28 field index = 79
+MdtIdHelper         DEBUG detector element field size is 4 field index = 80
+MdtIdHelper         DEBUG detector element field size is 32 field index = 81
+MdtIdHelper         DEBUG detector element field size is 32 field index = 82
+MdtIdHelper         DEBUG detector element field size is 32 field index = 83
+MdtIdHelper         DEBUG detector element field size is 20 field index = 84
+MdtIdHelper         DEBUG detector element field size is 4 field index = 85
+MdtIdHelper         DEBUG detector element field size is 24 field index = 86
+MdtIdHelper         DEBUG detector element field size is 24 field index = 87
+MdtIdHelper         DEBUG detector element field size is 24 field index = 88
+MdtIdHelper         DEBUG detector element field size is 24 field index = 89
+MdtIdHelper         DEBUG detector element field size is 24 field index = 90
+MdtIdHelper         DEBUG detector element field size is 8 field index = 91
+MdtIdHelper         DEBUG detector element field size is 8 field index = 92
+MdtIdHelper         DEBUG detector element field size is 8 field index = 93
+MdtIdHelper         DEBUG detector element field size is 8 field index = 94
+MdtIdHelper         DEBUG detector element field size is 4 field index = 95
+MdtIdHelper         DEBUG detector element field size is 8 field index = 96
+MdtIdHelper         DEBUG detector element field size is 8 field index = 97
+MdtIdHelper         DEBUG detector element field size is 8 field index = 98
+MdtIdHelper         DEBUG detector element field size is 8 field index = 99
+MdtIdHelper         DEBUG detector element field size is 32 field index = 100
+MdtIdHelper         DEBUG detector element field size is 32 field index = 101
+MdtIdHelper         DEBUG detector element field size is 32 field index = 102
+MdtIdHelper         DEBUG detector element field size is 8 field index = 103
+MdtIdHelper         DEBUG detector element field size is 16 field index = 104
+MdtIdHelper         DEBUG detector element field size is 8 field index = 105
+MdtIdHelper         DEBUG detector element field size is 8 field index = 106
+MdtIdHelper         DEBUG detector element field size is 32 field index = 107
+MdtIdHelper         DEBUG detector element field size is 32 field index = 108
+MdtIdHelper         DEBUG detector element field size is 28 field index = 109
+MdtIdHelper         DEBUG detector element field size is 28 field index = 110
+MdtIdHelper         DEBUG detector element field size is 4 field index = 111
+MdtIdHelper         DEBUG detector element field size is 32 field index = 112
+MdtIdHelper         DEBUG detector element field size is 32 field index = 113
+MdtIdHelper         DEBUG detector element field size is 32 field index = 114
+MdtIdHelper         DEBUG detector element field size is 32 field index = 115
+MdtIdHelper         DEBUG detector element field size is 32 field index = 116
+MdtIdHelper         DEBUG detector element field size is 32 field index = 117
+MdtIdHelper         DEBUG detector element field size is 32 field index = 118
+MdtIdHelper         DEBUG detector element field size is 32 field index = 119
+MdtIdHelper         DEBUG detector element field size is 32 field index = 120
+MdtIdHelper         DEBUG detector element field size is 32 field index = 121
+MdtIdHelper         DEBUG detector element field size is 32 field index = 122
+MdtIdHelper         DEBUG detector element field size is 32 field index = 123
+MdtIdHelper         DEBUG detector element field size is 32 field index = 124
+MdtIdHelper         DEBUG detector element field size is 32 field index = 125
+MdtIdHelper         DEBUG detector element field size is 32 field index = 126
+MdtIdHelper         DEBUG detector element field size is 32 field index = 127
+MdtIdHelper         DEBUG detector element field size is 32 field index = 128
+MdtIdHelper         DEBUG detector element field size is 32 field index = 129
+MdtIdHelper         DEBUG detector element field size is 32 field index = 130
+MdtIdHelper         DEBUG detector element field size is 32 field index = 131
+MdtIdHelper         DEBUG detector element field size is 32 field index = 132
+MdtIdHelper         DEBUG detector element field size is 32 field index = 133
+MdtIdHelper         DEBUG detector element field size is 32 field index = 134
+MdtIdHelper         DEBUG detector element field size is 32 field index = 135
+MdtIdHelper         DEBUG detector element field size is 4 field index = 136
+MdtIdHelper         DEBUG detector element field size is 4 field index = 137
+MdtIdHelper         DEBUG detector element field size is 8 field index = 138
+MdtIdHelper         DEBUG detector element field size is 8 field index = 139
+MdtIdHelper         DEBUG detector element field size is 8 field index = 140
+MdtIdHelper         DEBUG channel field size is 1200 field index = 0
+MdtIdHelper         DEBUG channel field size is 192 field index = 1
+MdtIdHelper         DEBUG channel field size is 960 field index = 2
+MdtIdHelper         DEBUG channel field size is 192 field index = 3
+MdtIdHelper         DEBUG channel field size is 288 field index = 4
+MdtIdHelper         DEBUG channel field size is 3456 field index = 5
+MdtIdHelper         DEBUG channel field size is 2400 field index = 6
+MdtIdHelper         DEBUG channel field size is 576 field index = 7
+MdtIdHelper         DEBUG channel field size is 2880 field index = 8
+MdtIdHelper         DEBUG channel field size is 480 field index = 9
+MdtIdHelper         DEBUG channel field size is 2880 field index = 10
+MdtIdHelper         DEBUG channel field size is 2304 field index = 11
+MdtIdHelper         DEBUG channel field size is 960 field index = 12
+MdtIdHelper         DEBUG channel field size is 1152 field index = 13
+MdtIdHelper         DEBUG channel field size is 1152 field index = 14
+MdtIdHelper         DEBUG channel field size is 1152 field index = 15
+MdtIdHelper         DEBUG channel field size is 1152 field index = 16
+MdtIdHelper         DEBUG channel field size is 1152 field index = 17
+MdtIdHelper         DEBUG channel field size is 384 field index = 18
+MdtIdHelper         DEBUG channel field size is 480 field index = 19
+MdtIdHelper         DEBUG channel field size is 432 field index = 20
+MdtIdHelper         DEBUG channel field size is 480 field index = 21
+MdtIdHelper         DEBUG channel field size is 1056 field index = 22
+MdtIdHelper         DEBUG channel field size is 432 field index = 23
+MdtIdHelper         DEBUG channel field size is 480 field index = 24
+MdtIdHelper         DEBUG channel field size is 336 field index = 25
+MdtIdHelper         DEBUG channel field size is 384 field index = 26
+MdtIdHelper         DEBUG channel field size is 1152 field index = 27
+MdtIdHelper         DEBUG channel field size is 4608 field index = 28
+MdtIdHelper         DEBUG channel field size is 3840 field index = 29
+MdtIdHelper         DEBUG channel field size is 3840 field index = 30
+MdtIdHelper         DEBUG channel field size is 3840 field index = 31
+MdtIdHelper         DEBUG channel field size is 3840 field index = 32
+MdtIdHelper         DEBUG channel field size is 3840 field index = 33
+MdtIdHelper         DEBUG channel field size is 2400 field index = 34
+MdtIdHelper         DEBUG channel field size is 1728 field index = 35
+MdtIdHelper         DEBUG channel field size is 768 field index = 36
+MdtIdHelper         DEBUG channel field size is 3072 field index = 37
+MdtIdHelper         DEBUG channel field size is 3072 field index = 38
+MdtIdHelper         DEBUG channel field size is 192 field index = 39
+MdtIdHelper         DEBUG channel field size is 288 field index = 40
+MdtIdHelper         DEBUG channel field size is 240 field index = 41
+MdtIdHelper         DEBUG channel field size is 336 field index = 42
+MdtIdHelper         DEBUG channel field size is 672 field index = 43
+MdtIdHelper         DEBUG channel field size is 576 field index = 44
+MdtIdHelper         DEBUG channel field size is 288 field index = 45
+MdtIdHelper         DEBUG channel field size is 960 field index = 46
+MdtIdHelper         DEBUG channel field size is 384 field index = 47
+MdtIdHelper         DEBUG channel field size is 192 field index = 48
+MdtIdHelper         DEBUG channel field size is 10752 field index = 49
+MdtIdHelper         DEBUG channel field size is 3840 field index = 50
+MdtIdHelper         DEBUG channel field size is 3360 field index = 51
+MdtIdHelper         DEBUG channel field size is 576 field index = 52
+MdtIdHelper         DEBUG channel field size is 4032 field index = 53
+MdtIdHelper         DEBUG channel field size is 192 field index = 54
+MdtIdHelper         DEBUG channel field size is 4032 field index = 55
+MdtIdHelper         DEBUG channel field size is 3456 field index = 56
+MdtIdHelper         DEBUG channel field size is 3456 field index = 57
+MdtIdHelper         DEBUG channel field size is 1440 field index = 58
+MdtIdHelper         DEBUG channel field size is 1728 field index = 59
+MdtIdHelper         DEBUG channel field size is 2304 field index = 60
+MdtIdHelper         DEBUG channel field size is 1440 field index = 61
+MdtIdHelper         DEBUG channel field size is 1728 field index = 62
+MdtIdHelper         DEBUG channel field size is 1728 field index = 63
+MdtIdHelper         DEBUG channel field size is 1536 field index = 64
+MdtIdHelper         DEBUG channel field size is 1152 field index = 65
+MdtIdHelper         DEBUG channel field size is 864 field index = 66
+MdtIdHelper         DEBUG channel field size is 384 field index = 67
+MdtIdHelper         DEBUG channel field size is 576 field index = 68
+MdtIdHelper         DEBUG channel field size is 288 field index = 69
+MdtIdHelper         DEBUG channel field size is 1008 field index = 70
+MdtIdHelper         DEBUG channel field size is 672 field index = 71
+MdtIdHelper         DEBUG channel field size is 864 field index = 72
+MdtIdHelper         DEBUG channel field size is 336 field index = 73
+MdtIdHelper         DEBUG channel field size is 432 field index = 74
+MdtIdHelper         DEBUG channel field size is 3024 field index = 75
+MdtIdHelper         DEBUG channel field size is 2592 field index = 76
+MdtIdHelper         DEBUG channel field size is 576 field index = 77
+MdtIdHelper         DEBUG channel field size is 288 field index = 78
+MdtIdHelper         DEBUG channel field size is 4704 field index = 79
+MdtIdHelper         DEBUG channel field size is 576 field index = 80
+MdtIdHelper         DEBUG channel field size is 6912 field index = 81
+MdtIdHelper         DEBUG channel field size is 6912 field index = 82
+MdtIdHelper         DEBUG channel field size is 5376 field index = 83
+MdtIdHelper         DEBUG channel field size is 4320 field index = 84
+MdtIdHelper         DEBUG channel field size is 576 field index = 85
+MdtIdHelper         DEBUG channel field size is 5184 field index = 86
+MdtIdHelper         DEBUG channel field size is 5184 field index = 87
+MdtIdHelper         DEBUG channel field size is 5184 field index = 88
+MdtIdHelper         DEBUG channel field size is 5184 field index = 89
+MdtIdHelper         DEBUG channel field size is 4608 field index = 90
+MdtIdHelper         DEBUG channel field size is 1728 field index = 91
+MdtIdHelper         DEBUG channel field size is 1536 field index = 92
+MdtIdHelper         DEBUG channel field size is 1152 field index = 93
+MdtIdHelper         DEBUG channel field size is 960 field index = 94
+MdtIdHelper         DEBUG channel field size is 480 field index = 95
+MdtIdHelper         DEBUG channel field size is 960 field index = 96
+MdtIdHelper         DEBUG channel field size is 960 field index = 97
+MdtIdHelper         DEBUG channel field size is 960 field index = 98
+MdtIdHelper         DEBUG channel field size is 960 field index = 99
+MdtIdHelper         DEBUG channel field size is 4608 field index = 100
+MdtIdHelper         DEBUG channel field size is 4608 field index = 101
+MdtIdHelper         DEBUG channel field size is 1536 field index = 102
+MdtIdHelper         DEBUG channel field size is 384 field index = 103
+MdtIdHelper         DEBUG channel field size is 3456 field index = 104
+MdtIdHelper         DEBUG channel field size is 1344 field index = 105
+MdtIdHelper         DEBUG channel field size is 1344 field index = 106
+MdtIdHelper         DEBUG channel field size is 5376 field index = 107
+MdtIdHelper         DEBUG channel field size is 4608 field index = 108
+MdtIdHelper         DEBUG channel field size is 3360 field index = 109
+MdtIdHelper         DEBUG channel field size is 3360 field index = 110
+MdtIdHelper         DEBUG channel field size is 576 field index = 111
+MdtIdHelper         DEBUG channel field size is 4608 field index = 112
+MdtIdHelper         DEBUG channel field size is 3840 field index = 113
+MdtIdHelper         DEBUG channel field size is 5376 field index = 114
+MdtIdHelper         DEBUG channel field size is 6144 field index = 115
+MdtIdHelper         DEBUG channel field size is 6144 field index = 116
+MdtIdHelper         DEBUG channel field size is 6144 field index = 117
+MdtIdHelper         DEBUG channel field size is 6144 field index = 118
+MdtIdHelper         DEBUG channel field size is 6144 field index = 119
+MdtIdHelper         DEBUG channel field size is 6144 field index = 120
+MdtIdHelper         DEBUG channel field size is 6144 field index = 121
+MdtIdHelper         DEBUG channel field size is 6144 field index = 122
+MdtIdHelper         DEBUG channel field size is 6144 field index = 123
+MdtIdHelper         DEBUG channel field size is 5376 field index = 124
+MdtIdHelper         DEBUG channel field size is 5376 field index = 125
+MdtIdHelper         DEBUG channel field size is 4608 field index = 126
+MdtIdHelper         DEBUG channel field size is 4608 field index = 127
+MdtIdHelper         DEBUG channel field size is 4608 field index = 128
+MdtIdHelper         DEBUG channel field size is 4608 field index = 129
+MdtIdHelper         DEBUG channel field size is 5376 field index = 130
+MdtIdHelper         DEBUG channel field size is 5376 field index = 131
+MdtIdHelper         DEBUG channel field size is 5376 field index = 132
+MdtIdHelper         DEBUG channel field size is 4608 field index = 133
+MdtIdHelper         DEBUG channel field size is 4608 field index = 134
+MdtIdHelper         DEBUG channel field size is 4608 field index = 135
+MdtIdHelper         DEBUG channel field size is 1248 field index = 136
+MdtIdHelper         DEBUG channel field size is 864 field index = 137
+MdtIdHelper         DEBUG channel field size is 1728 field index = 138
+MdtIdHelper         DEBUG channel field size is 1728 field index = 139
+MdtIdHelper         DEBUG channel field size is 1728 field index = 140
+MdtIdHelper          INFO Initializing MDT hash indices ... 
+MdtIdHelper          INFO The element hash max is 1188
+MdtIdHelper          INFO The detector element hash max is 2328
+MdtIdHelper          INFO Initializing MDT hash indices for finding neighbors ... 
+MdtIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+RpcIdHelper         DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+RpcIdHelper         DEBUG  RPC decode index and bit fields for each level: 
+RpcIdHelper         DEBUG  muon        decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+RpcIdHelper         DEBUG  station     decode 1 vals 0,1,2,3,4,5,6,7,8,9,10,13,14,15,17,18,20,21,41,42,43,44,45,46,47,48,49,50,51,52,53,54 mask/zero mask/shift/bits/offset 1f  e0ffffffffffffff 56 5  3  indexes 0 1 2 3 4 5 6 7 8 9 10 0 0 11 12 13 0 14 15 0 16 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 19 20 21 22 23 24 25 26 27 28 29 30 31 mode  enumerated  
+RpcIdHelper         DEBUG  eta         decode 1 vals -8:8            mask/zero mask/shift/bits/offset 1f  ff07ffffffffffff 51 5  8  indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  phi         decode 1 vals 1:8             mask/zero mask/shift/bits/offset 7   fff8ffffffffffff 48 3  13 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  technology  decode 1 vals 0,2             mask/zero mask/shift/bits/offset 1   ffff7fffffffffff 47 1  16 indexes 0 0 1               mode  enumerated  
+RpcIdHelper         DEBUG  TR          decode 1 vals 1:2             mask/zero mask/shift/bits/offset 1   ffffbfffffffffff 46 1  17 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  TZ          decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   ffffcfffffffffff 44 2  18 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  TPHI        decode 1 vals 1:2             mask/zero mask/shift/bits/offset 1   fffff7ffffffffff 43 1  20 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  gas gap     decode 1 vals 1:2             mask/zero mask/shift/bits/offset 1   fffffbffffffffff 42 1  21 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  phi         decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffdffffffffff 41 1  22 indexes                     mode  both_bounded  
+RpcIdHelper         DEBUG  strip       decode 1 vals 1:99            mask/zero mask/shift/bits/offset 7f  fffffe03ffffffff 34 7  23 indexes                     mode  both_bounded  
+RpcIdHelper          INFO MultiRange built successfully to doubletR: MultiRange size is 241
+RpcIdHelper          INFO MultiRange built successfully to detectorElement: DetectorElement MultiRange size is 241
+RpcIdHelper          INFO MultiRange built successfully to rpcStrip: MultiRange size is 241
+RpcIdHelper         DEBUG field size is 4 field index = 149
+RpcIdHelper         DEBUG field size is 2 field index = 150
+RpcIdHelper         DEBUG field size is 2 field index = 151
+RpcIdHelper         DEBUG field size is 4 field index = 152
+RpcIdHelper         DEBUG field size is 2 field index = 153
+RpcIdHelper         DEBUG field size is 2 field index = 154
+RpcIdHelper         DEBUG field size is 4 field index = 155
+RpcIdHelper         DEBUG field size is 2 field index = 156
+RpcIdHelper         DEBUG field size is 2 field index = 157
+RpcIdHelper         DEBUG field size is 8 field index = 158
+RpcIdHelper         DEBUG field size is 32 field index = 159
+RpcIdHelper         DEBUG field size is 32 field index = 160
+RpcIdHelper         DEBUG field size is 28 field index = 161
+RpcIdHelper         DEBUG field size is 4 field index = 162
+RpcIdHelper         DEBUG field size is 28 field index = 163
+RpcIdHelper         DEBUG field size is 4 field index = 164
+RpcIdHelper         DEBUG field size is 28 field index = 165
+RpcIdHelper         DEBUG field size is 2 field index = 166
+RpcIdHelper         DEBUG field size is 14 field index = 167
+RpcIdHelper         DEBUG field size is 24 field index = 168
+RpcIdHelper         DEBUG field size is 24 field index = 169
+RpcIdHelper         DEBUG field size is 24 field index = 170
+RpcIdHelper         DEBUG field size is 12 field index = 171
+RpcIdHelper         DEBUG field size is 12 field index = 172
+RpcIdHelper         DEBUG field size is 24 field index = 173
+RpcIdHelper         DEBUG field size is 24 field index = 174
+RpcIdHelper         DEBUG field size is 8 field index = 175
+RpcIdHelper         DEBUG field size is 8 field index = 176
+RpcIdHelper         DEBUG field size is 16 field index = 177
+RpcIdHelper         DEBUG field size is 16 field index = 178
+RpcIdHelper         DEBUG field size is 16 field index = 179
+RpcIdHelper         DEBUG field size is 16 field index = 180
+RpcIdHelper         DEBUG field size is 16 field index = 181
+RpcIdHelper         DEBUG field size is 12 field index = 182
+RpcIdHelper         DEBUG field size is 12 field index = 183
+RpcIdHelper         DEBUG field size is 12 field index = 184
+RpcIdHelper         DEBUG field size is 12 field index = 185
+RpcIdHelper         DEBUG field size is 12 field index = 186
+RpcIdHelper         DEBUG field size is 12 field index = 187
+RpcIdHelper         DEBUG field size is 8 field index = 188
+RpcIdHelper         DEBUG field size is 8 field index = 189
+RpcIdHelper         DEBUG field size is 4 field index = 190
+RpcIdHelper         DEBUG field size is 4 field index = 191
+RpcIdHelper         DEBUG field size is 4 field index = 192
+RpcIdHelper         DEBUG field size is 8 field index = 193
+RpcIdHelper         DEBUG field size is 8 field index = 194
+RpcIdHelper         DEBUG field size is 8 field index = 195
+RpcIdHelper         DEBUG field size is 2 field index = 196
+RpcIdHelper         DEBUG field size is 4 field index = 197
+RpcIdHelper         DEBUG field size is 4 field index = 198
+RpcIdHelper         DEBUG field size is 8 field index = 199
+RpcIdHelper         DEBUG field size is 8 field index = 200
+RpcIdHelper         DEBUG field size is 4 field index = 201
+RpcIdHelper         DEBUG field size is 2 field index = 202
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 149
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 150
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 151
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 152
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 153
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 154
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 155
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 156
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 157
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 158
+RpcIdHelper         DEBUG detectorElement field size is 128 field index = 159
+RpcIdHelper         DEBUG detectorElement field size is 128 field index = 160
+RpcIdHelper         DEBUG detectorElement field size is 56 field index = 161
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 162
+RpcIdHelper         DEBUG detectorElement field size is 56 field index = 163
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 164
+RpcIdHelper         DEBUG detectorElement field size is 112 field index = 165
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 166
+RpcIdHelper         DEBUG detectorElement field size is 28 field index = 167
+RpcIdHelper         DEBUG detectorElement field size is 96 field index = 168
+RpcIdHelper         DEBUG detectorElement field size is 144 field index = 169
+RpcIdHelper         DEBUG detectorElement field size is 96 field index = 170
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 171
+RpcIdHelper         DEBUG detectorElement field size is 72 field index = 172
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 173
+RpcIdHelper         DEBUG detectorElement field size is 96 field index = 174
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 175
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 176
+RpcIdHelper         DEBUG detectorElement field size is 64 field index = 177
+RpcIdHelper         DEBUG detectorElement field size is 64 field index = 178
+RpcIdHelper         DEBUG detectorElement field size is 64 field index = 179
+RpcIdHelper         DEBUG detectorElement field size is 64 field index = 180
+RpcIdHelper         DEBUG detectorElement field size is 64 field index = 181
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 182
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 183
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 184
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 185
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 186
+RpcIdHelper         DEBUG detectorElement field size is 48 field index = 187
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 188
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 189
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 190
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 191
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 192
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 193
+RpcIdHelper         DEBUG detectorElement field size is 32 field index = 194
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 195
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 196
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 197
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 198
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 199
+RpcIdHelper         DEBUG detectorElement field size is 16 field index = 200
+RpcIdHelper         DEBUG detectorElement field size is 8 field index = 201
+RpcIdHelper         DEBUG detectorElement field size is 4 field index = 202
+RpcIdHelper         DEBUG channel field size is 6336 field index = 149
+RpcIdHelper         DEBUG channel field size is 1584 field index = 150
+RpcIdHelper         DEBUG channel field size is 3168 field index = 151
+RpcIdHelper         DEBUG channel field size is 6336 field index = 152
+RpcIdHelper         DEBUG channel field size is 3168 field index = 153
+RpcIdHelper         DEBUG channel field size is 3168 field index = 154
+RpcIdHelper         DEBUG channel field size is 3168 field index = 155
+RpcIdHelper         DEBUG channel field size is 1584 field index = 156
+RpcIdHelper         DEBUG channel field size is 1584 field index = 157
+RpcIdHelper         DEBUG channel field size is 6336 field index = 158
+RpcIdHelper         DEBUG channel field size is 50688 field index = 159
+RpcIdHelper         DEBUG channel field size is 50688 field index = 160
+RpcIdHelper         DEBUG channel field size is 22176 field index = 161
+RpcIdHelper         DEBUG channel field size is 3168 field index = 162
+RpcIdHelper         DEBUG channel field size is 22176 field index = 163
+RpcIdHelper         DEBUG channel field size is 6336 field index = 164
+RpcIdHelper         DEBUG channel field size is 44352 field index = 165
+RpcIdHelper         DEBUG channel field size is 1584 field index = 166
+RpcIdHelper         DEBUG channel field size is 11088 field index = 167
+RpcIdHelper         DEBUG channel field size is 38016 field index = 168
+RpcIdHelper         DEBUG channel field size is 57024 field index = 169
+RpcIdHelper         DEBUG channel field size is 38016 field index = 170
+RpcIdHelper         DEBUG channel field size is 19008 field index = 171
+RpcIdHelper         DEBUG channel field size is 28512 field index = 172
+RpcIdHelper         DEBUG channel field size is 19008 field index = 173
+RpcIdHelper         DEBUG channel field size is 38016 field index = 174
+RpcIdHelper         DEBUG channel field size is 12672 field index = 175
+RpcIdHelper         DEBUG channel field size is 12672 field index = 176
+RpcIdHelper         DEBUG channel field size is 25344 field index = 177
+RpcIdHelper         DEBUG channel field size is 25344 field index = 178
+RpcIdHelper         DEBUG channel field size is 25344 field index = 179
+RpcIdHelper         DEBUG channel field size is 25344 field index = 180
+RpcIdHelper         DEBUG channel field size is 25344 field index = 181
+RpcIdHelper         DEBUG channel field size is 19008 field index = 182
+RpcIdHelper         DEBUG channel field size is 19008 field index = 183
+RpcIdHelper         DEBUG channel field size is 19008 field index = 184
+RpcIdHelper         DEBUG channel field size is 19008 field index = 185
+RpcIdHelper         DEBUG channel field size is 19008 field index = 186
+RpcIdHelper         DEBUG channel field size is 19008 field index = 187
+RpcIdHelper         DEBUG channel field size is 12672 field index = 188
+RpcIdHelper         DEBUG channel field size is 12672 field index = 189
+RpcIdHelper         DEBUG channel field size is 3168 field index = 190
+RpcIdHelper         DEBUG channel field size is 6336 field index = 191
+RpcIdHelper         DEBUG channel field size is 6336 field index = 192
+RpcIdHelper         DEBUG channel field size is 12672 field index = 193
+RpcIdHelper         DEBUG channel field size is 12672 field index = 194
+RpcIdHelper         DEBUG channel field size is 6336 field index = 195
+RpcIdHelper         DEBUG channel field size is 1584 field index = 196
+RpcIdHelper         DEBUG channel field size is 3168 field index = 197
+RpcIdHelper         DEBUG channel field size is 3168 field index = 198
+RpcIdHelper         DEBUG channel field size is 6336 field index = 199
+RpcIdHelper         DEBUG channel field size is 6336 field index = 200
+RpcIdHelper         DEBUG channel field size is 3168 field index = 201
+RpcIdHelper         DEBUG channel field size is 1584 field index = 202
+RpcIdHelper         DEBUG  full module range size is 54
+RpcIdHelper         DEBUG  full channel range size is 54
+RpcIdHelper          INFO Initializing RPC hash indices ... 
+RpcIdHelper          INFO The element hash max is 600
+RpcIdHelper          INFO The detector element hash max is 1122
+RpcIdHelper          INFO Initializing RPC hash indices for finding neighbors ... 
+RpcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+TgcIdHelper         DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+TgcIdHelper         DEBUG  TGC decode index and bit fields for each level: 
+TgcIdHelper         DEBUG  muon        decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+TgcIdHelper         DEBUG  station     decode 1 vals 0,1,2,3,4,5,6,7,8,9,10,13,14,15,17,18,20,21,41,42,43,44,45,46,47,48,49,50,51,52,53,54 mask/zero mask/shift/bits/offset 1f  e0ffffffffffffff 56 5  3  indexes 0 1 2 3 4 5 6 7 8 9 10 0 0 11 12 13 0 14 15 0 16 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 19 20 21 22 23 24 25 26 27 28 29 30 31 mode  enumerated  
+TgcIdHelper         DEBUG  eta         decode 1 vals -5,-4,-3,-2,-1,1,2,3,4,5 mask/zero mask/shift/bits/offset f   ff0fffffffffffff 52 4  8  indexes 0 1 2 3 4 0 5 6 7 8 9 mode  enumerated  
+TgcIdHelper         DEBUG  phi         decode 1 vals 1:48            mask/zero mask/shift/bits/offset 3f  fff03fffffffffff 46 6  12 indexes                     mode  both_bounded  
+TgcIdHelper         DEBUG  technology  decode 1 vals 3               mask/zero mask/shift/bits/offset 1   ffffdfffffffffff 45 1  18 indexes                     mode  both_bounded  
+TgcIdHelper         DEBUG  gas gap     decode 1 vals 1:3             mask/zero mask/shift/bits/offset 3   ffffe7ffffffffff 43 2  19 indexes                     mode  both_bounded  
+TgcIdHelper         DEBUG  is strip    decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   fffffbffffffffff 42 1  21 indexes                     mode  both_bounded  
+TgcIdHelper         DEBUG  channel     decode 1 vals 1:125           mask/zero mask/shift/bits/offset 7f  fffffc07ffffffff 35 7  22 indexes                     mode  both_bounded  
+TgcIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+TgcIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 210
+TgcIdHelper          INFO MultiRange built successfully to channel: MultiRange size is 241
+TgcIdHelper         DEBUG field size is 48 field index = 191
+TgcIdHelper         DEBUG field size is 96 field index = 192
+TgcIdHelper         DEBUG field size is 96 field index = 193
+TgcIdHelper         DEBUG field size is 96 field index = 194
+TgcIdHelper         DEBUG field size is 96 field index = 195
+TgcIdHelper         DEBUG field size is 48 field index = 196
+TgcIdHelper         DEBUG field size is 96 field index = 197
+TgcIdHelper         DEBUG field size is 96 field index = 198
+TgcIdHelper         DEBUG field size is 96 field index = 199
+TgcIdHelper         DEBUG field size is 96 field index = 200
+TgcIdHelper         DEBUG field size is 96 field index = 201
+TgcIdHelper         DEBUG field size is 48 field index = 202
+TgcIdHelper         DEBUG field size is 96 field index = 203
+TgcIdHelper         DEBUG field size is 96 field index = 204
+TgcIdHelper         DEBUG field size is 96 field index = 205
+TgcIdHelper         DEBUG field size is 96 field index = 206
+TgcIdHelper         DEBUG field size is 96 field index = 207
+TgcIdHelper         DEBUG field size is 48 field index = 208
+TgcIdHelper         DEBUG field size is 42 field index = 209
+TgcIdHelper         DEBUG detector element field size is 48 field index = 191
+TgcIdHelper         DEBUG detector element field size is 96 field index = 192
+TgcIdHelper         DEBUG detector element field size is 96 field index = 193
+TgcIdHelper         DEBUG detector element field size is 96 field index = 194
+TgcIdHelper         DEBUG detector element field size is 96 field index = 195
+TgcIdHelper         DEBUG detector element field size is 48 field index = 196
+TgcIdHelper         DEBUG detector element field size is 96 field index = 197
+TgcIdHelper         DEBUG detector element field size is 96 field index = 198
+TgcIdHelper         DEBUG detector element field size is 96 field index = 199
+TgcIdHelper         DEBUG detector element field size is 96 field index = 200
+TgcIdHelper         DEBUG detector element field size is 96 field index = 201
+TgcIdHelper         DEBUG detector element field size is 48 field index = 202
+TgcIdHelper         DEBUG detector element field size is 96 field index = 203
+TgcIdHelper         DEBUG detector element field size is 96 field index = 204
+TgcIdHelper         DEBUG detector element field size is 96 field index = 205
+TgcIdHelper         DEBUG detector element field size is 96 field index = 206
+TgcIdHelper         DEBUG detector element field size is 96 field index = 207
+TgcIdHelper         DEBUG detector element field size is 48 field index = 208
+TgcIdHelper         DEBUG detector element field size is 42 field index = 209
+TgcIdHelper         DEBUG channel field size is 15120 field index = 203
+TgcIdHelper         DEBUG channel field size is 4608 field index = 204
+TgcIdHelper         DEBUG channel field size is 26496 field index = 205
+TgcIdHelper         DEBUG channel field size is 17856 field index = 206
+TgcIdHelper         DEBUG channel field size is 6624 field index = 207
+TgcIdHelper         DEBUG channel field size is 6912 field index = 208
+TgcIdHelper         DEBUG channel field size is 9216 field index = 209
+TgcIdHelper         DEBUG channel field size is 9216 field index = 210
+TgcIdHelper         DEBUG channel field size is 9216 field index = 211
+TgcIdHelper         DEBUG channel field size is 9216 field index = 212
+TgcIdHelper         DEBUG channel field size is 12000 field index = 213
+TgcIdHelper         DEBUG channel field size is 3072 field index = 214
+TgcIdHelper         DEBUG channel field size is 21120 field index = 215
+TgcIdHelper         DEBUG channel field size is 19776 field index = 216
+TgcIdHelper         DEBUG channel field size is 6144 field index = 217
+TgcIdHelper         DEBUG channel field size is 6144 field index = 218
+TgcIdHelper         DEBUG channel field size is 6144 field index = 219
+TgcIdHelper         DEBUG channel field size is 6144 field index = 220
+TgcIdHelper         DEBUG channel field size is 6144 field index = 221
+TgcIdHelper         DEBUG channel field size is 6144 field index = 222
+TgcIdHelper         DEBUG channel field size is 6144 field index = 223
+TgcIdHelper         DEBUG channel field size is 6144 field index = 224
+TgcIdHelper         DEBUG channel field size is 11712 field index = 225
+TgcIdHelper         DEBUG channel field size is 3072 field index = 226
+TgcIdHelper         DEBUG channel field size is 18432 field index = 227
+TgcIdHelper         DEBUG channel field size is 20352 field index = 228
+TgcIdHelper         DEBUG channel field size is 6144 field index = 229
+TgcIdHelper         DEBUG channel field size is 6144 field index = 230
+TgcIdHelper         DEBUG channel field size is 5952 field index = 231
+TgcIdHelper         DEBUG channel field size is 6144 field index = 232
+TgcIdHelper         DEBUG channel field size is 6144 field index = 233
+TgcIdHelper         DEBUG channel field size is 6144 field index = 234
+TgcIdHelper         DEBUG channel field size is 6144 field index = 235
+TgcIdHelper         DEBUG channel field size is 6144 field index = 236
+TgcIdHelper         DEBUG channel field size is 3072 field index = 237
+TgcIdHelper         DEBUG channel field size is 3072 field index = 238
+TgcIdHelper         DEBUG channel field size is 2016 field index = 239
+TgcIdHelper         DEBUG channel field size is 2688 field index = 240
+TgcIdHelper          INFO Initializing TGC hash indices ... 
+TgcIdHelper          INFO The element hash max is 1578
+TgcIdHelper          INFO The detector element hash max is 1578
+TgcIdHelper          INFO Initializing TGC hash indices for finding neighbors ... 
+TgcIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+CscIdHelper         DEBUG (Re)initialize
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find mm region index: group, region size 0 0
+AtlasDetectorIDHelper::initialize_from_dictionary - Warning: unable to find stgc region index: group, region size 0 0
+AtlasDetectorID::initLevelsFromDict - there are no sTGC entries in the dictionary! 
+AtlasDetectorID::initLevelsFromDict - there are no MM entries in the dictionary! 
+AtlasDetectorID      DEBUG Could not get value for label 'no_side' of field 'DetZside' in dictionary Calorimeter
+ AtlasDetectorID::initialize_from_dictionary - OK 
+CscIdHelper         DEBUG  CSC decode index and bit fields for each level: 
+CscIdHelper         DEBUG  muon        decode 1 vals 2,4,5,7,10,11,12,13 mask/zero mask/shift/bits/offset 7   1fffffffffffffff 61 3  0  indexes 0 0 1 2 0 3 0 0 4 5 6 7 mode  enumerated  
+CscIdHelper         DEBUG  station     decode 1 vals 0,1,2,3,4,5,6,7,8,9,10,13,14,15,17,18,20,21,41,42,43,44,45,46,47,48,49,50,51,52,53,54 mask/zero mask/shift/bits/offset 1f  e0ffffffffffffff 56 5  3  indexes 0 1 2 3 4 5 6 7 8 9 10 0 0 11 12 13 0 14 15 0 16 17 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 19 20 21 22 23 24 25 26 27 28 29 30 31 mode  enumerated  
+CscIdHelper         DEBUG  eta         decode 1 vals -1,1            mask/zero mask/shift/bits/offset 1   ff7fffffffffffff 55 1  8  indexes 0 0 1               mode  enumerated  
+CscIdHelper         DEBUG  phi         decode 1 vals 1:8             mask/zero mask/shift/bits/offset 7   ff8fffffffffffff 52 3  9  indexes                     mode  both_bounded  
+CscIdHelper         DEBUG  technology  decode 1 vals 1               mask/zero mask/shift/bits/offset 1   fff7ffffffffffff 51 1  12 indexes                     mode  both_bounded  
+CscIdHelper         DEBUG  cham layer  decode 1 vals 1:2             mask/zero mask/shift/bits/offset 1   fffbffffffffffff 50 1  13 indexes                     mode  both_bounded  
+CscIdHelper         DEBUG  layer       decode 1 vals 1:4             mask/zero mask/shift/bits/offset 3   fffcffffffffffff 48 2  14 indexes                     mode  both_bounded  
+CscIdHelper         DEBUG  phi         decode 0 vals 0:1             mask/zero mask/shift/bits/offset 1   ffff7fffffffffff 47 1  16 indexes                     mode  both_bounded  
+CscIdHelper         DEBUG  strip       decode 1 vals 1:192           mask/zero mask/shift/bits/offset ff  ffff807fffffffff 39 8  17 indexes                     mode  both_bounded  
+CscIdHelper          INFO MultiRange built successfully to Technology: MultiRange size is 210
+CscIdHelper          INFO MultiRange built successfully to detector element: Multilayer MultiRange size is 237
+CscIdHelper          INFO MultiRange built successfully to cscStrip: MultiRange size is 241
+CscIdHelper         DEBUG field size is 8 field index = 135
+CscIdHelper         DEBUG field size is 8 field index = 136
+CscIdHelper         DEBUG field size is 8 field index = 137
+CscIdHelper         DEBUG field size is 8 field index = 138
+CscIdHelper         DEBUG detector element field size is 16 field index = 141
+CscIdHelper         DEBUG detector element field size is 16 field index = 142
+CscIdHelper         DEBUG detector element field size is 16 field index = 143
+CscIdHelper         DEBUG detector element field size is 16 field index = 144
+CscIdHelper         DEBUG channel field size is 12288 field index = 141
+CscIdHelper         DEBUG channel field size is 12288 field index = 142
+CscIdHelper         DEBUG channel field size is 3072 field index = 143
+CscIdHelper         DEBUG channel field size is 3072 field index = 144
+CscIdHelper         DEBUG channel field size is 12288 field index = 145
+CscIdHelper         DEBUG channel field size is 12288 field index = 146
+CscIdHelper         DEBUG channel field size is 3072 field index = 147
+CscIdHelper         DEBUG channel field size is 3072 field index = 148
+CscIdHelper          INFO Initializing CSC hash indices ... 
+CscIdHelper          INFO The element hash max is 32
+CscIdHelper          INFO The detector element hash max is 64
+CscIdHelper          INFO The channel hash max is 61440
+CscIdHelper          INFO Initializing CSC hash indices for finding neighbors ... 
+CscIdHelper       VERBOSE MuonIdHelper::init_neighbors 
+checking channel hashes...

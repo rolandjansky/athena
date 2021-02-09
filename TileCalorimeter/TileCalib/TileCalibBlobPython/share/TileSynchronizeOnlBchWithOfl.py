@@ -1,6 +1,6 @@
 #!/bin/env python
 
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 #
 # TileSynchronizeOnlBchWithOfl.py <TAG> <RUN>
 # lukas.pribyl@cern.ch March 2010
@@ -136,6 +136,15 @@ for ros in xrange(1,5):
                 #--- delete OnlineBadTiming if the both ADCs has not isBadTiming
                 mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineBadTiming)
                 mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineBadTiming)
+
+            #--- add OnlineTimingDmuBcOffset if either of the ADCs has isTimingDmuBcOffset
+            if statlo.isTimingDmuBcOffset() or stathi.isTimingDmuBcOffset():
+                mgrOnl.addAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.addAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
+            else:
+                #--- delete OnlineTimingDmuBcOffset if the both ADCs has not isTimingDmuBcOffset
+                mgrOnl.delAdcProblem(ros, mod, chn, 0, TileBchPrbs.OnlineTimingDmuBcOffset)
+                mgrOnl.delAdcProblem(ros, mod, chn, 1, TileBchPrbs.OnlineTimingDmuBcOffset)
 
             statloAfter = mgrOnl.getAdcProblems(ros, mod, chn, 0)
             stathiAfter = mgrOnl.getAdcProblems(ros, mod, chn, 1)

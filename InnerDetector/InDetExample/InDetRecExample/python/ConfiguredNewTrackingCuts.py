@@ -213,7 +213,10 @@ class ConfiguredNewTrackingCuts :
     if self.__indetflags.cutLevel() >= 15 :
       self.__minClusters             = 8 #based on studies by R.Jansky     
 
-    if self.__indetflags.cutLevel() >= 16:
+    if self.__indetflags.cutLevel() >= 16 :
+      self.__maxPrimaryImpact        = 5.0 * Units.mm #based on studies by T.Strebler
+
+    if self.__indetflags.cutLevel() >= 17:
       print '--------> FATAL ERROR, cut level undefined, abort !'
       import sys
       sys.exit()
@@ -342,6 +345,36 @@ class ConfiguredNewTrackingCuts :
       self.__seedFilterLevel   = 1
       self.__maxTracksPerSharedPRD = 2
 
+    # --- mode for high-d0 tracks (re-optimisation for Run 3 by M.Danninger)
+    if mode == "R3LargeD0":
+      self.__extension          = "R3LargeD0" # this runs parallel to NewTracking                             
+      self.__maxPT              = 1.0 * Units.TeV
+      self.__minPT              = 1.0 * Units.GeV                                                                                    
+      self.__maxEta             = 3                                                                                                        
+      self.__maxPrimaryImpact   = 300.0 * Units.mm
+      self.__maxZImpact         = 750 * Units.mm    
+      self.__maxSecondaryImpact = 300.0 * Units.mm  
+      self.__minSecondaryPt     = 1000.0 * Units.MeV 
+      self.__minClusters        = 8                  
+      self.__minSiNotShared     = 6                 
+      self.__maxShared          = 2   # cut is now on number of shared modules                                                                                  
+      self.__minPixel           = 0
+      self.__maxHoles           = 2
+      self.__maxPixelHoles      = 1
+      self.__maxSctHoles        = 1  
+      self.__maxDoubleHoles     = 0  
+      self.__radMax             = 600. * Units.mm
+      self.__nHolesMax          = self.__maxHoles
+      self.__nHolesGapMax       = 1 
+      self.__seedFilterLevel    = 1  
+      self.__maxTracksPerSharedPRD   = 2
+      self.__Xi2max                  = 9.0  
+      self.__Xi2maxNoAdd             = 25.0 
+      self.__roadWidth               = 10. 
+      self.__nWeightedClustersMin    = 8   
+      self.__maxdImpactSSSSeeds      = 300.0
+      self.__doZBoundary             = True
+
     # --- mode for high-d0 tracks down to 100 MeV (minPT, minClusters, minSecondaryPt cuts loosened to MinBias level)
     if mode == "LowPtLargeD0": 
       self.__extension          = "LowPtLargeD0" # this runs parallel to NewTracking
@@ -399,7 +432,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 5
       self.__minSiNotShared   = 4
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 2   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 2
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 2
@@ -411,6 +444,24 @@ class ConfiguredNewTrackingCuts :
       if self.__indetflags.doMinBias():
         self.__maxPT            = 1000000 * Units.GeV # Won't accept None *NEEDS FIXING*
         self.__maxPrimaryImpact = 100.0 * Units.mm
+
+    # --- change defaults for low pt tracking within selected roi
+    if mode == "LowPtRoI":
+      self.__extension        = "LowPtRoI" # this runs parallel to NewTracking
+      self.__minPT            = 0.050 * Units.GeV
+      self.__maxPT            = self.__minPT + 0.8 * Units.GeV # some overlap
+      self.__minClusters      = 5
+      self.__minSiNotShared   = 4
+      self.__maxShared        = 1   # cut is now on number of shared modules
+      self.__minPixel         = 2   # At least two pixel hit for low-pt (association seeded on pixels!)                
+      self.__maxHoles         = 2
+      self.__maxPixelHoles    = 1
+      self.__maxSctHoles      = 2
+      self.__maxDoubleHoles   = 1
+      self.__radMax           = 600. * Units.mm
+      self.__nHolesMax        = self.__maxHoles
+      self.__nHolesGapMax     = self.__maxHoles # not as tight as 2*maxDoubleHoles
+
  
     if mode == "SLHCConversionFinding":
       self.__extension        = "SLHCConversionFinding" # this runs parallel to NewTracking
@@ -445,7 +496,7 @@ class ConfiguredNewTrackingCuts :
       self.__minClusters      = 3
       self.__minSiNotShared   = 3
       self.__maxShared        = 1   # cut is now on number of shared modules
-      self.__minPixel         = 3   # At least one pixel hit for low-pt (ass seeded on pixels!)                
+      self.__minPixel         = 3   # At least three pixel hit for low-pt (association seeded on pixels!)                
       self.__maxHoles         = 1
       self.__maxPixelHoles    = 1
       self.__maxSctHoles      = 1
@@ -1090,6 +1141,8 @@ class ConfiguredNewTrackingCuts :
     print '* min eta                     :  ', self.__minEta
     print '* max eta                     :  ', self.__maxEta
     if self.__mode=="LowPt":
+      print '* max PT                      :  ', self.__maxPT, ' MeV'
+    if self.__mode=="LowPtRoI":
       print '* max PT                      :  ', self.__maxPT, ' MeV'
     print '*'
     print '* NewTracking cuts:'

@@ -26,7 +26,8 @@ namespace G4UA
     {
       float R=1150.; // ID outer radius by default.
       float Z=3490.; // ID maximum Z coordiate by default.
-
+      float energyCut=100000000.;   // default energy threshold
+      bool isDalek=false; // Use FastIDKiller as DALEK (Domain Actuated Low Energy Killer)
     };
 
     /// Constructor
@@ -54,7 +55,6 @@ namespace G4UA
     Config m_config;
     Report m_report;
     bool m_init;
-    float m_energyCut;
 
   }; // class FastIDKiller
 

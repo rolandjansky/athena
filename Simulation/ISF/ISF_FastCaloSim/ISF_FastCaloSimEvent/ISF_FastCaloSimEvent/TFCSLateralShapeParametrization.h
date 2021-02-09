@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TFCSLateralShapeParametrization_h
@@ -26,15 +26,15 @@ public:
   virtual void set_pdgid_Ekin_eta_Ekin_bin_calosample(const TFCSLateralShapeParametrization& ref);
   
   void Print(Option_t *option = "") const override;
+
+protected:  
+  bool compare(const TFCSParametrizationBase& ref) const;
+
 private:
   int m_Ekin_bin;
   int m_calosample;
 
   ClassDefOverride(TFCSLateralShapeParametrization,1)  //TFCSLateralShapeParametrization
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSLateralShapeParametrization+;
-#endif
 
 #endif

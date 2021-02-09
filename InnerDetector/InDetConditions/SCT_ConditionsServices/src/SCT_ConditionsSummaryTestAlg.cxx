@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -27,9 +27,10 @@
 SCT_ConditionsSummaryTestAlg::SCT_ConditionsSummaryTestAlg( 
                          const std::string& name, 
                          ISvcLocator* pSvcLocator ) : 
-                         AthAlgorithm( name, pSvcLocator ),
-m_pSummarySvc("SCT_ConditionsSummarySvc", name){
-  //nop
+  AthAlgorithm( name, pSvcLocator ),
+  m_pSummarySvc("InDetSCT_ConditionsSummarySvc", name)
+{
+  declareProperty("ConditionsSummarySvc", m_pSummarySvc);
 }
 
 SCT_ConditionsSummaryTestAlg::~SCT_ConditionsSummaryTestAlg()

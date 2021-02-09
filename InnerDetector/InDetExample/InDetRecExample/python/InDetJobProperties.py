@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
 
 
@@ -265,6 +265,34 @@ class doVeryLowPt(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class doLowPtRoI(InDetFlagsJobProperty):
+    """Turn running of doLowPtRoI tracking within selected roi second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+class LowPtRoIStrategy(InDetFlagsJobProperty):
+    """Set the strategy to extract the RoI; 1 = with tracks, 2 = with HS Truth, 3 = from file
+    """
+    statusOn     = True
+    allowedTypes = ['int']
+    allowedValues= [1,2,3]
+    StoredValue  = 1
+
+class LowPtRoIWindow(InDetFlagsJobProperty):
+    """The ROI will be plus/minus the value given (in mm), so the total window size will be twice the input value.  Inputting a negative value will run two-pass tracking with a separate container, but without an RoI (i.e. no seeds rejected due to falling outside of RoI).
+    """
+    statusOn     = True
+    allowedTypes = ['float']
+    StoredValue  = 30.0
+
+class LowPtRoIFile(InDetFlagsJobProperty):
+    """Indicate the file (including location) that contains the ROI location information. This MUST be specified if you want to run with file-based ROIs.  Three column format: run number, event number, ROI location (in mm)
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'None'
+
 class doSLHCConversionFinding(InDetFlagsJobProperty):
     """Turn running of doSLHCConversionFinding second pass on and off"""
     statusOn     = True
@@ -289,6 +317,12 @@ class doLargeD0(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue   = False
 
+class doR3LargeD0(InDetFlagsJobProperty):
+    """Turn running of doR3LargeD0 second pass on and off"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue   = False
+
 class doDisplacedSoftPion(InDetFlagsJobProperty):
     """Turn running of DisplaceSoftPion second pass down to 100 MeV on and off"""
     statusOn     = True
@@ -307,7 +341,7 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16]
     StoredValue  = 14
 
 class doBremRecovery(InDetFlagsJobProperty):
@@ -1164,7 +1198,7 @@ class doTrackSegmentsPixelFourLayer(InDetFlagsJobProperty):
     StoredValue  = False
 
 class doTrackSegmentsPixelThreeLayer(InDetFlagsJobProperty):
-    """Turn running of pixel stablet creation in pixel after NewTracking, using all available hits, on and off"""
+    """Turn running of pixel stablet creation in pixel after NewTracking, using unassociated hits, on and off"""
     statusOn     = True
     allowedTypes = ['bool']
     StoredValue  = False
@@ -1281,6 +1315,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False)
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , True )
        self.checkThenSet(self.doBeamHalo             , True )
@@ -1305,6 +1340,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1339,6 +1375,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.useZvertexTool         , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBackTracking         , False)
        self.checkThenSet(self.doTRTStandalone        , False)
@@ -1376,6 +1413,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, True )
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1409,36 +1447,13 @@ class InDetJobProperties(JobPropertyContainer):
     elif (self.doIBL()):
        print "----> InDetJobProperties for IBL"
        print "----> DEPRECATED! This should now be the default settings"
-       #self.checkThenSet(self.doNewTracking          , True )
-       #self.checkThenSet(self.doLowPt                , False)
-       #self.checkThenSet(self.doVeryLowPt            , False)
-       #self.checkThenSet(self.doBeamGas              , False)
-       #self.checkThenSet(self.doBeamHalo             , False)
-       #self.checkThenSet(self.doxKalman              , False)
-       #self.checkThenSet(self.doiPatRec              , False)
-       #self.checkThenSet(self.doBackTracking         , False)
-       #self.checkThenSet(self.doTRTStandalone        , False)
-       #self.checkThenSet(self.doForwardTracks        , False)
-       #self.checkThenSet(self.doVertexFinding        , True)
-       #self.checkThenSet(self.primaryVertexSetup     , "IterativeFinding") 
-       #self.checkThenSet(self.primaryVertexCutSetup  , "IBL") 
-       #self.checkThenSet(self.secondaryVertexCutSetup, "PileUp") 
-       #self.checkThenSet(self.vertexSeedFinder       , "SlidingWindowMultiSeedFinder")
-       #self.checkThenSet(self.doV0Finder             , False)
-       #self.checkThenSet(self.doSimpleV0Finder       , False)      
-       #self.checkThenSet(self.doConversions          , False )        
-       #self.checkThenSet(self.doStatistics           , False) 
-       #self.checkThenSet(self.doTrackSegmentsPixel   , False )
-       #self.checkThenSet(self.doTrackSegmentsSCT     , False )
-       #self.checkThenSet(self.doTrackSegmentsTRT     , False )
-       #self.checkThenSet(self.doSlimming             , False )
-       #self.checkThenSet(self.doSGDeletion           , True )
  
     elif (self.doHighPileup()):
        print "----> InDetJobProperties for high pilep"
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1468,6 +1483,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1507,6 +1523,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , True )
        self.checkThenSet(self.doLowPt                , False)
        self.checkThenSet(self.doVeryLowPt            , False)
+       self.checkThenSet(self.doLowPtRoI             , False)
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1546,6 +1563,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doNewTracking          , False )
        self.checkThenSet(self.doLowPt                , False )
        self.checkThenSet(self.doVeryLowPt            , False )
+       self.checkThenSet(self.doLowPtRoI             , False )
        self.checkThenSet(self.doSLHCConversionFinding, False)
        self.checkThenSet(self.doForwardTracks        , False )
        self.checkThenSet(self.doBeamGas              , False )
@@ -1669,6 +1687,7 @@ class InDetJobProperties(JobPropertyContainer):
           # --- run soft tracking, but not low-pt
           self.checkThenSet(self.doLowPt             , True )    
           self.checkThenSet(self.doVeryLowPt         , False )
+          self.checkThenSet(self.doLowPtRoI          , False )    
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
@@ -1766,6 +1785,7 @@ class InDetJobProperties(JobPropertyContainer):
       # --------------------------------------------------------------------      
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0           = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+      self.doR3LargeD0         = self.doR3LargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doLowPtLargeD0      = self.doLowPtLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
       self.doDisplacedSoftPion = self.doDisplacedSoftPion() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
 
@@ -1796,6 +1816,8 @@ class InDetJobProperties(JobPropertyContainer):
       self.doLowPt       = self.doLowPt() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # no low pt tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!      
       self.doVeryLowPt   = self.doVeryLowPt() and self.doLowPt()
+# no low pt roi tracking if no new tracking before or if pixels are off (since low-pt tracking is pixel seeded)!  Explicitly veto for cosmics to aid T0
+      self.doLowPtRoI    = self.doLowPtRoI() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       #
       self.doSLHCConversionFinding = self.doSLHCConversionFinding() and self.doSLHC() and self.doNewTracking() and ( DetFlags.haveRIO.pixel_on() and DetFlags.haveRIO.SCT_on() ) and not self.doCosmics()
       # new forward tracklets
@@ -1803,6 +1825,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # no Large radius tracking if pixel or sct off (new tracking = inside out only)
       self.doLargeD0 = self.doLargeD0() and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
+
       # no BeamGas tracking if no new tracking before (but only if beamtype is not single beam!)      
       if (jobproperties.Beam.beamType()!="singlebeam"):
         self.doBeamGas     = self.doBeamGas() and self.doNewTracking()
@@ -1814,7 +1837,7 @@ class InDetJobProperties(JobPropertyContainer):
       #
       # control whether to run SiSPSeededTrackFinder
       self.doSiSPSeededTrackFinder = (self.doNewTracking() or self.doNewTrackingSegments() or \
-                                      self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+                                      self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
                                     and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())      
       # failsafe lines in case requirements are not met to run TRT standalone or back tracking
       self.doTRTStandalone         = self.doTRTStandalone() and DetFlags.haveRIO.TRT_on()
@@ -2003,7 +2026,7 @@ class InDetJobProperties(JobPropertyContainer):
   def doAmbiSolving(self):
     from AthenaCommon.DetFlags import DetFlags
     return (self.doNewTracking() or self.doBeamGas() or self.doTrackSegmentsPixel() \
-            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+            or self.doTrackSegmentsSCT() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
            and (DetFlags.haveRIO.pixel_on() or DetFlags.haveRIO.SCT_on())
   
   def loadRotCreator(self):
@@ -2026,8 +2049,8 @@ class InDetJobProperties(JobPropertyContainer):
 
   def doNewTrackingPattern(self):
     return self.doNewTracking() or self.doBackTracking() or self.doBeamGas() \
-           or self.doLowPt() or self.doVeryLowPt() or self.doTRTStandalone() \
-           or self.doForwardTracks() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()
+           or self.doLowPt() or self.doVeryLowPt() or self.doLowPtRoI() or self.doTRTStandalone() \
+           or self.doForwardTracks() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()
 
   def doNewTrackingSegments(self):
     return self.doTrackSegmentsPixel() or self.doTrackSegmentsSCT() or self.doTrackSegmentsTRT()
@@ -2037,12 +2060,12 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
+    return ((self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() ) \
              and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()) \
+    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion()) \
             and DetFlags.haveRIO.TRT_on()
  
   def solenoidOn(self):
@@ -2085,10 +2108,12 @@ class InDetJobProperties(JobPropertyContainer):
        self.doBackTracking            = False
        self.doTRTStandalone           = False
        self.doTrtSegments             = False
-       self.doLowPt                   = False  
-       self.doVeryLowPt               = False  
+       self.doLowPt                   = False
+       self.doVeryLowPt               = False
+       self.doLowPtRoI                = False
        self.doForwardTracks           = False
        self.doLargeD0                 = False
+       self.doR3LargeD0               = False
        self.doLowPtLargeD0            = False
        self.doDisplacedSoftPion       = False
        self.doHadCaloSeededSSS        = False
@@ -2126,6 +2151,7 @@ class InDetJobProperties(JobPropertyContainer):
 
      if self.doRobustReco() and jobproperties.Beam.beamType()=="collisions":
         self.doLowPt                = False
+        self.doLowPtRoI             = False
         self.useHVForSctDCS         = True
         self.primaryVertexSetup     = "DefaultFullFinding"
         self.primaryVertexCutSetup  = "StartUp"
@@ -2153,6 +2179,7 @@ class InDetJobProperties(JobPropertyContainer):
      # [ switch off the other modes
      self.doLowPt                  = False
      self.doVeryLowPt              = False
+     self.doLowPtRoI               = False
      self.doForwardTracks          = False
      self.doBeamGas                = False
      self.doBeamHalo               = False
@@ -2369,7 +2396,7 @@ class InDetJobProperties(JobPropertyContainer):
           standAloneTracking += 'TRT'
        print standAloneTracking
     # -----------------------------------------
-    if self.doLargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() :
+    if self.doLargeD0() or self.doR3LargeD0() or self.doLowPtLargeD0() or self.doDisplacedSoftPion() :
        print '*'
        print '* LargeD0 Tracking is ON'
        if self.doSiSPSeededTrackFinder() :
@@ -2394,6 +2421,10 @@ class InDetJobProperties(JobPropertyContainer):
        print '* LowPtTracking is ON'
        if self.doVeryLowPt() :
           print '* and VeryLowPtTracking is ON'
+    # -----------------------------------------
+    if self.doLowPtRoI() :
+       print '*'
+       print '* LowPtTracking within selected roi is ON'
     # -----------------------------------------
     if self.doSLHCConversionFinding() :
        print '*'
@@ -2709,10 +2740,15 @@ _list_InDetJobProperties = [Enabled,
                             doBackTracking,
                             doLowPt,
                             doVeryLowPt,
+                            doLowPtRoI,
+                            LowPtRoIStrategy,
+                            LowPtRoIWindow,
+                            LowPtRoIFile,
                             doSLHCConversionFinding,
                             doForwardTracks,
                             doLowPtLargeD0,
                             doLargeD0,
+                            doR3LargeD0,
                             doDisplacedSoftPion,
                             useExistingTracksAsInput,
                             cutLevel,

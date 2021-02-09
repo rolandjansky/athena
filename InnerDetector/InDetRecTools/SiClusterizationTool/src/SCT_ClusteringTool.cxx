@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -279,19 +279,19 @@ namespace InDet{
       // Now we are either (a) pushing more contiguous strips onto an existing vector
       //                or (b) pushing a new set of ids onto an empty vector
       if (passTiming) {
-	      if (not m_checkBadChannels){
-	        addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
-	        if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
-	        stripCount++;
-	      } else {
-	        addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
-	        if (stripCount < 16) hitsInThirdTimeBin = hitsInThirdTimeBin | (timePattern.test(0) << stripCount);
-	        stripCount++;
-	      }
+        if (not m_checkBadChannels){
+          addStripsToCluster(firstStripId, nStrips, currentVector, idHelper);                    // Note this takes the current vector only
+        } else {
+          addStripsToClusterWithChecks(firstStripId, nStrips, currentVector,idGroups, idHelper); // This one includes the groups of vectors as well
+        }
+        for (unsigned int iStrip=0; iStrip<nStrips; iStrip++) {
+          if (stripCount < 16) hitsInThirdTimeBin |= (timePattern.test(0) << stripCount);
+          stripCount++;
+        }
       }
       if (not currentVector.empty()) {
-	      // Gives the last strip number in the cluster
-	      previousStrip = idHelper.strip(currentVector.back());
+        // Gives the last strip number in the cluster
+        previousStrip = idHelper.strip(currentVector.back());
       }
     } 
     

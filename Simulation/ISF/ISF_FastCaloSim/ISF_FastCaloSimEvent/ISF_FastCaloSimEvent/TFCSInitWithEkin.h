@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef ISF_FASTCALOSIMEVENT_TFCSInitWithEkin_h
@@ -17,14 +17,10 @@ public:
   virtual bool is_match_all_calosample() const override {return true;};
 
   // Initialize simulstate with the kinetic energy Ekin from truth
-  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) override;
+  virtual FCSReturnCode simulate(TFCSSimulationState& simulstate,const TFCSTruthState* truth, const TFCSExtrapolationState* extrapol) const override;
 private:
 
   ClassDefOverride(TFCSInitWithEkin,1)  //TFCSInitWithEkin
 };
-
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSInitWithEkin+;
-#endif
 
 #endif

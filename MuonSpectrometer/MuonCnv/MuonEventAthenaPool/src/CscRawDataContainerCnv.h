@@ -1,19 +1,16 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONEVENTATHENAPOOL_CSCRAWDATACONTAINERCNV_H
 #define MUONEVENTATHENAPOOL_CSCRAWDATACONTAINERCNV_H
 
-
-
-
-#include "MuonEventAthenaPool/CscRawDataContainer_p1.h"
 #include "MuonRDO/CscRawDataContainer.h"
 #include "MuonRdoContainerTPCnv.h"
 #include "CscRawDataContainerCnv_p1.h"
 #include "CscRawDataContainerCnv_p2.h"
 #include "CscRawDataContainerCnv_p3.h"
+#include "CscRawDataContainerCnv_p4.h"
 
 /*
   custom POOL TP converter for CSC RDO
@@ -35,12 +32,17 @@ CscRawDataContainerCnv::createTransient()
    
    CscRawDataContainer *            trans_cont = 0;
    
-   static pool::Guid	p3_guid("A77330FB-BD12-4E50-829C-DADFBF556119");
-   static pool::Guid	p2_guid("19221A0D-4167-4A1C-BE2A-EE335D7C9D5F");
-   static pool::Guid	p1_guid("3586FE6B-0504-4E78-BD9F-AF839C50F931");
-   static pool::Guid	p0_guid("D7600810-31BC-4344-A3C6-9C59F47E5551");
+   static pool::Guid p4_guid("F94905BF-D474-4453-B9D0-80ECB7BA4041");
+   static pool::Guid p3_guid("A77330FB-BD12-4E50-829C-DADFBF556119");
+   static pool::Guid p2_guid("19221A0D-4167-4A1C-BE2A-EE335D7C9D5F");
+   static pool::Guid p1_guid("3586FE6B-0504-4E78-BD9F-AF839C50F931");
+   static pool::Guid p0_guid("D7600810-31BC-4344-A3C6-9C59F47E5551");
 
-   if( compareClassGuid(p3_guid) ) {
+   if( compareClassGuid(p4_guid) ) {
+      CscRawDataContainerCnv_p4        tpConvertor_p4;       
+      std::unique_ptr< CscRawDataContainer_p4 > col_vect( poolReadObject< CscRawDataContainer_p4 >() );
+      trans_cont = tpConvertor_p4.createTransient( col_vect.get(), log );
+   } else if( compareClassGuid(p3_guid) ) {
       std::unique_ptr< CscRawDataContainer_p3 > col_vect( poolReadObject< CscRawDataContainer_p3 >() );
       trans_cont = m_TPconverter.createTransient( col_vect.get(), log );
    } else if( compareClassGuid(p2_guid) ) {

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -61,6 +61,8 @@ TileBchPrbs::initPrbDesc()
   m_prbNames[TileBchPrbs::IgnoreCs               ] = "Ignore cesium";
   m_prbNames[TileBchPrbs::UnstableCs             ] = "Unstable cesium";
   m_prbNames[TileBchPrbs::WrongBCID              ] = "Wrong BCID";
+  m_prbNames[TileBchPrbs::TimingDmuBcOffset      ] = "Timing DMU BC offset";
+  m_prbNames[TileBchPrbs::BurntIntegrator        ] = "Burnt Integrator";
 
   //=== DSP
   m_prbNames[TileBchPrbs::IgnoredInDsp           ] = "Ignored in DSP";
@@ -75,6 +77,7 @@ TileBchPrbs::initPrbDesc()
 
   //=== online channel
   m_prbNames[TileBchPrbs::OnlineBadTiming        ] = "Online bad timing";
+  m_prbNames[TileBchPrbs::OnlineTimingDmuBcOffset] = "Online timing DMU BC offset";
 
   //=== online adc
   m_prbNames[TileBchPrbs::OnlineGeneralMaskAdc   ] = "Online ADC masked (unspecified)";

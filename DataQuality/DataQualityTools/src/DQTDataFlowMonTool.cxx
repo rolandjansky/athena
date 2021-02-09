@@ -85,20 +85,6 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
   MonGroup run_hists( this, m_path, run, ATTRIB_MANAGED );
   MonGroup rolling_hists( this, m_path, run, ATTRIB_X_VS_LB, "", "merge" );
    
-  //failure |= lb_hists.regHist(m_events_lb = TH1I_LW::create("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
-  failure |= lb_hists.regHist(m_events_lb = new TH1I("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
-  
-  if (m_events_lb) {
-    for (int i = 1; i <= AthenaMonManager::altprod+1; i++) {
-      m_events_lb->GetXaxis()->SetBinLabel(i, envstrings[i-1]);
-    }
-  } 
-  //failure |= lowStat_alpha_hists.regHist(m_release_stage_lowStat = TH1I_LW::create("m_release_stage_lowStat", "Release - Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
-  failure |= lowStat_alpha_hists.regHist(m_release_stage_lowStat = new TH1I("m_release_stage_lowStat", "Release - Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
-  if (m_release_stage_lowStat) {
-    m_release_stage_lowStat->GetXaxis()->SetBinLabel(m_environment+1, m_releaseStageString.c_str());
-  }
-
   const EventInfo* evtinfo;
   StatusCode sc(evtStore()->retrieve(evtinfo));
   if (sc.isFailure()) {
@@ -110,6 +96,18 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
     }
   }
 
+  failure |= lb_hists.regHist(m_events_lb = new TH1I("events_lb", "Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
+  if (m_events_lb) {
+    for (int i = 1; i <= AthenaMonManager::altprod+1; i++) {
+      m_events_lb->GetXaxis()->SetBinLabel(i, envstrings[i-1]);
+    }
+  } 
+  
+  failure |= lowStat_alpha_hists.regHist(m_release_stage_lowStat = new TH1I("m_release_stage_lowStat", "Release - Event Count", AthenaMonManager::altprod+1, -0.5, AthenaMonManager::altprod+0.5)).isFailure();
+  if (m_release_stage_lowStat) {
+    m_release_stage_lowStat->GetXaxis()->SetBinLabel(m_environment+1, m_releaseStageString.c_str());
+  }
+  
   if (failure) {return  StatusCode::FAILURE;}
   else {return StatusCode::SUCCESS;}
 
@@ -118,25 +116,30 @@ StatusCode DQTDataFlowMonTool::bookHistograms(  )
 StatusCode 
 DQTDataFlowMonTool::bookHistogramsRecurrent() {
 
-    bool failure(false);
-    MonGroup lowStat_hists( this, m_path, lowStat, ATTRIB_UNMANAGED );
-    MonGroup run_hists( this, m_path, run, ATTRIB_UNMANAGED );
+  bool failure(false);
+  MonGroup lowStat_hists( this, m_path, lowStat, ATTRIB_UNMANAGED );
+  MonGroup run_hists( this, m_path, run, ATTRIB_UNMANAGED );
     
+  const EventInfo* evtinfo;
+  StatusCode sc(evtStore()->retrieve(evtinfo));
+
+  if (!evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
+
     if( m_environment != AthenaMonManager::tier0Raw ) {
       /*
-      if (newRunFlag()) {
+	if (newRunFlag()) {
 	for (int i=0; i < EventInfo::nDets; i++) {
-	  m_eventflag_run[i] = new TGraph();
-	  m_eventflag_run[i]->SetTitle((std::string("Nonzero Warning/Error Event Flags for ")
-					+ eventflagdets[i]).c_str());
-	  m_eventflag_run[i]->SetName((std::string("eventflag_run_")
-				       + eventflagdets[i]).c_str());
-	  failure |= run_hists.regGraph(m_eventflag_run[i]).isFailure();
-	  delete m_eventflag_vec[i];
-	  m_eventflag_vec[i] = new std::vector<EvFlagPt_t>;
-	  m_eventflag_vec[i]->reserve(1000);
+	m_eventflag_run[i] = new TGraph();
+	m_eventflag_run[i]->SetTitle((std::string("Nonzero Warning/Error Event Flags for ")
+	+ eventflagdets[i]).c_str());
+	m_eventflag_run[i]->SetName((std::string("eventflag_run_")
+	+ eventflagdets[i]).c_str());
+	failure |= run_hists.regGraph(m_eventflag_run[i]).isFailure();
+	delete m_eventflag_vec[i];
+	m_eventflag_vec[i] = new std::vector<EvFlagPt_t>;
+	m_eventflag_vec[i]->reserve(1000);
 	}
-      }
+	}
       */
 
       if (newLumiBlockFlag() && newLowStatIntervalFlag()) {
@@ -154,6 +157,7 @@ DQTDataFlowMonTool::bookHistogramsRecurrent() {
 	}
       }
     }
+  }
   //else if (isNewEventsBlock) {
   //  return StatusCode::SUCCESS;
   //}
@@ -166,7 +170,9 @@ DQTDataFlowMonTool::fillHistograms()
 {
   ATH_MSG_DEBUG("in fillHists()");
   //StatusCode sc;  
-  
+  const EventInfo* evtinfo;
+  StatusCode sc(evtStore()->retrieve(evtinfo));
+
   m_events_lb->Fill(m_environment);
   m_release_stage_lowStat->Fill(m_environment);
 
@@ -179,19 +185,21 @@ DQTDataFlowMonTool::fillHistograms()
       if (m_sumweights) { 
 	m_sumweights->Fill(evtinfo->lumiBlock(), evtinfo->mcEventWeight()); 
       }
-      EventInfo::EventFlagErrorState worststate = EventInfo::NotSet;
-      for (int i = 0; i < EventInfo::nDets; i++) {
-	//unsigned int flag = evtinfo->eventFlags((EventInfo::EventFlagSubDet) i);
-	EventInfo::EventFlagErrorState detstate = evtinfo->errorState((EventInfo::EventFlagSubDet) i);
-	/*
-	if (flag != 0 && detstate > EventInfo::NotSet) {
-	  m_eventflag_vec[i]->push_back(EvFlagPt_t(evtinfo->eventNumber(), flag));
+      if (!evtinfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
+	EventInfo::EventFlagErrorState worststate = EventInfo::NotSet;
+	for (int i = 0; i < EventInfo::nDets; i++) {
+	  //unsigned int flag = evtinfo->eventFlags((EventInfo::EventFlagSubDet) i);
+	  EventInfo::EventFlagErrorState detstate = evtinfo->errorState((EventInfo::EventFlagSubDet) i);
+	  /*
+	    if (flag != 0 && detstate > EventInfo::NotSet) {
+	    m_eventflag_vec[i]->push_back(EvFlagPt_t(evtinfo->eventNumber(), flag));
+	    }
+	  */
+	  if (detstate > worststate) worststate = detstate;
+	  m_eventflag_summary_lowStat->Fill(i, detstate);
 	}
-	*/
-	if (detstate > worststate) worststate = detstate;
-	m_eventflag_summary_lowStat->Fill(i, detstate);
+	m_eventflag_summary_lowStat->Fill(EventInfo::nDets, worststate);
       }
-      m_eventflag_summary_lowStat->Fill(EventInfo::nDets, worststate);
     }
   }
   return StatusCode::SUCCESS;
@@ -231,4 +239,3 @@ StatusCode DQTDataFlowMonTool::checkHists(bool /* fromFinalize */)
   */
   return StatusCode::SUCCESS;
 }
-

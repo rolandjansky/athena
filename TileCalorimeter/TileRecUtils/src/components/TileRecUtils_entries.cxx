@@ -8,6 +8,7 @@
 #include "TileRecUtils/TileRawChannelBuilderQIEFilter.h"
 #include "TileRecUtils/TileRawChannelBuilderManyAmps.h"
 #include "TileRecUtils/TileRawChannelBuilderMF.h"
+#include "TileRecUtils/TileRawChannelBuilderWienerFilter.h"
 #include "TileRecUtils/TileBeamInfoProvider.h"
 #include "TileRecUtils/TileCellBuilder.h"
 #include "TileRecUtils/TileCellFakeProb.h"
@@ -28,6 +29,7 @@ DECLARE_TOOL_FACTORY( TileRawChannelBuilderOpt2Filter )
 DECLARE_TOOL_FACTORY( TileRawChannelBuilderQIEFilter )
 DECLARE_TOOL_FACTORY( TileRawChannelBuilderManyAmps )
 DECLARE_TOOL_FACTORY( TileRawChannelBuilderMF )
+DECLARE_TOOL_FACTORY( TileRawChannelBuilderWienerFilter )
 DECLARE_TOOL_FACTORY( TileBeamInfoProvider )
 DECLARE_TOOL_FACTORY( TileCellBuilder )
 DECLARE_TOOL_FACTORY( TileCellFakeProb )
@@ -49,6 +51,7 @@ DECLARE_FACTORY_ENTRIES(TileRecUtils) {
   DECLARE_TOOL( TileRawChannelBuilderQIEFilter )
   DECLARE_TOOL( TileRawChannelBuilderManyAmps )
   DECLARE_TOOL( TileRawChannelBuilderMF )
+  DECLARE_TOOL( TileRawChannelBuilderWienerFilter )
   DECLARE_TOOL( TileBeamInfoProvider )
   DECLARE_TOOL( TileCellBuilder )
   DECLARE_TOOL( TileCellFakeProb )

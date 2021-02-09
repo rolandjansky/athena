@@ -30,8 +30,4 @@ private:
   ClassDefOverride(TFCSParametrizationEtaSelectChain,1)  //TFCSParametrizationEtaSelectChain
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSParametrizationEtaSelectChain+;
-#endif
-
 #endif

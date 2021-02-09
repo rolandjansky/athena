@@ -117,6 +117,14 @@ photon_fraction_list = [
     {'name': 'truthPhotonConvRecoUnconvEfficiency', 'color': kPink + 2, 'title': 'True Conv #rightarrow Unconv'}
 ]
 
+photon_conversion_list = [
+    {'name': 'truthConvRecoConv2Si', 'color': kGreen + 2, 'title': 'True Conv #rightarrow Si-Si Conv'},
+    {'name': 'truthConvRecoConv1Si', 'color': kBlue + 2, 'title': 'True Conv #rightarrow 1 Si Conv'},
+    {'name': 'truthConvRecoConv1TRT', 'color': kRed + 2, 'title': 'True Conv #rightarrow 1 TRT Conv'},
+    {'name': 'truthConvRecoConv2TRT', 'color': kOrange + 2, 'title': 'True Conv #rightarrow TRT-TRT Conv'},
+    {'name': 'truthConvRecoConv2SiTRT', 'color': kCyan + 2, 'title': 'True Conv #rightarrow Si-TRT Conv'},
+]
+
 
 def get_key_names(file, directory=""):
     """
@@ -142,7 +150,22 @@ def make_comparison_plots(type, f_base, f_nightly, result_file):
         for histo in get_key_names(f_nightly, folder['name']):
             h_base = f_base.Get(folder['name'] + '/' + histo)
             h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+            if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
             make_ratio_plot(h_base, h_nightly, folder['title'], result_file)
+
+
+
+def makeIQEPlots(inHist, name):
+    outHist = inHist.QuantilesX(0.75, "EResolution_IQE_mu")
+    outHist.GetXaxis().SetTitle("<#mu>")
+    outHist.GetYaxis().SetTitle("IQE")
+    outHist25 = inHist.QuantilesX(0.25, "EResolutio_IQE_mu_25")
+    outHist.Add(outHist25, -1)
+    outHist.Scale(1/1.349)
+    
+    return outHist.Clone(inHist.GetName() + "_"+ name)
+
+
 
 
 def make_profile_plots(f_base, f_nightly, result_file, particle_type):
@@ -155,19 +178,86 @@ def make_profile_plots(f_base, f_nightly, result_file, particle_type):
         for histo in get_key_names(f_nightly, folder['name']):
             if '2D' not in histo:
                 continue
-            h_base = f_base.Get(folder['name'] + '/' + histo)
-            h_base_profile = h_base.ProfileX(histo+"_ProfileB")
-            h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
-            h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
-            h_base_profile.SetDirectory(0)
-            h_nightly_profile.SetDirectory(0)
+            if 'mu' in histo:
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue
+              h_base = makeIQEPlots(h_base,'IQE')
+              h_nightly = makeIQEPlots(h_nightly,'IQE')
+              make_ratio_plot(h_base, h_nightly, folder['title'], result_file, 'IQE')
 
-            y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
-            h_base_profile.SetTitle("")
+            else: 
+              h_base = f_base.Get(folder['name'] + '/' + histo)
+              h_base_profile = h_base.ProfileX(histo+"_ProfileB")
+              h_nightly = f_nightly.Get(folder['name'] + '/' + histo)
+              h_nightly_profile = h_nightly.ProfileX(histo+"_Profile")
+              h_base_profile.SetDirectory(0)
+              h_nightly_profile.SetDirectory(0)
+              if h_base.GetEntries() == 0 or h_nightly.GetEntries() == 0: continue 
+              y_axis_label = "Mean %s" % (h_base_profile.GetTitle() )
+              h_base_profile.SetTitle("")
+              make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
 
-            make_ratio_plot(h_base_profile, h_nightly_profile, folder['title'], result_file, y_axis_label)
+def make_conversion_plot(f_base, f_nightly, result_file):
+    """
+    This function creates conversion plots to study reco vs true 
+    converion radius for the various conversion categoried
+    """
+    for histo in get_key_names(f_nightly, 'truthConvRecoConv2Si'):
+        variable_name = histo.split("_", 1)[1]
 
+        if variable_name != "convRadiusTrueVsReco":
+            continue
 
+        c1 = TCanvas()
+
+        leg = TLegend(0.1, 0.75, 0.9, 0.9)
+        leg.SetNColumns(2)
+
+        for i, folder in enumerate(photon_conversion_list):
+
+            baseline = f_base.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
+            baseline.SetDirectory(0)
+            nightly = f_nightly.Get(folder['name'] + '/' + folder['name'] + "_" + variable_name)
+            nightly.SetDirectory(0)
+
+            if baseline.Integral() != 0:
+                baseline.Scale(1/baseline.Integral())
+            if nightly.Integral() != 0:
+                nightly.Scale(1/nightly.Integral())
+
+            baseline.SetMinimum(min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
+            baseline.SetMaximum(max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
+
+            baseline.GetXaxis().SetTitle("R^{reco}_{conv. vtx} - R^{true}_{conv. vtx} [mm]")
+            baseline.GetYaxis().SetTitle("normalized to unity")
+
+            baseline.SetLineColor(folder['color'])
+            nightly.SetLineColor(folder['color'])
+            baseline.SetMarkerColor(folder['color'])
+            nightly.SetMarkerColor(folder['color'])
+
+            baseline.SetMarkerStyle(1)
+            nightly.SetMarkerStyle(20)
+
+            leg.AddEntry(nightly, folder['title'], "p")
+
+            if i == 0:
+                baseline.Draw("hist ")
+            else:
+                baseline.Draw("same hist")
+
+            nightly.Draw("p same")
+
+        leg.Draw()
+
+        c1.Update()
+
+        result_file.cd()
+
+        c1.SaveAs("ConversionRadiusTrueVsReco.png")
+
+        c1.Write("ConversionRadiusTrueVsReco")
 
 
 def make_photon_fraction_plot(f_base, f_nightly, result_file):
@@ -344,14 +434,15 @@ if __name__ == '__main__':
 
     output_file = TFile("BN_ComparisonPlots_" + particle_type + ".hist.root", "RECREATE")
 
+    if particle_type == 'gamma':
+
+        make_photon_fraction_plot(baseline_file, nightly_file,output_file)
+        make_conversion_plot(baseline_file, nightly_file, output_file)
+
     make_comparison_plots(particle_type, baseline_file, nightly_file, output_file)
 
     make_profile_plots(baseline_file, nightly_file, output_file, particle_type)
 
-
-    if particle_type == 'gamma':
-
-        make_photon_fraction_plot(baseline_file, nightly_file,output_file)
 
 
 

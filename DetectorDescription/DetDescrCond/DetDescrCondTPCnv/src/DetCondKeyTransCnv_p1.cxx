@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #define private public
@@ -17,8 +17,6 @@ void DetCondKeyTransCnv_p1::transToPers(const DetCondKeyTrans* trans, DetCondKey
     pers->m_trans.reserve(12*trans->m_keytrans.size());
     DetCondKeyTrans::KeyTrans::const_iterator it   = trans->m_keytrans.begin();
     DetCondKeyTrans::KeyTrans::const_iterator last = trans->m_keytrans.end();
-    pers->m_keys.resize(trans->m_keytrans.size());
-    pers->m_trans.resize(trans->m_keytrans.size());
     for (; it != last; ++it) {
         pers->m_keys.push_back(it->first);
         const HepGeom::Transform3D& tf = it->second;

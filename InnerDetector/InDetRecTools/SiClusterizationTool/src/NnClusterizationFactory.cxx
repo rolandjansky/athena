@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -37,16 +37,33 @@
 #include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "InDetReadoutGeometry/SiLocalPosition.h"
 
+// NN includes
+#include "lwtnn/LightweightGraph.hh"
+#include "lwtnn/parse_json.hh"
+#include "lwtnn/Exceptions.hh"
+#include "lwtnn/lightweight_nn_streamers.hh"
+#include "lwtnn/NanReplacer.hh"
+
 #include "TrkEventPrimitives/ParamDefs.h"
 
 #include "PixelConditionsServices/IPixelCalibSvc.h"
 #include "DetDescrCondTools/ICoolHistSvc.h"
 
+// utilities
+#include "PathResolver/PathResolver.h"
+
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "AthenaPoolUtilities/AthenaAttributeList.h"
+#include "CoolKernel/IObject.h"
 
-//get std::isnan()
+// JSON parsers
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/json_parser.hpp>
+#include "boost/property_tree/exceptions.hpp"
+
 #include <cmath>
-
+#include <experimental/filesystem>
+#include <fstream>
 
 
 namespace InDet {
@@ -54,17 +71,21 @@ namespace InDet {
   NnClusterizationFactory::NnClusterizationFactory(const std::string& name,
                                                    const std::string& n, const IInterface* p):
           AthAlgTool(name, n,p),
+          m_lwnnPosition(),
+          m_useLwtnnNumber(false),
+          m_useLwtnnPosition(false),
           m_loadNoTrackNetworks(true),
           m_loadWithTrackNetworks(false),
           m_NetworkEstimateNumberParticles(0),
           m_NetworkEstimateNumberParticles_NoTrack(0),
-          m_coolFolder("/PIXEL/PixelClustering/PixelClusNNCalib"),
+          m_coolFolderRoot("/PIXEL/PixelClustering/PixelClusNNCalib"),
+          m_coolFolderJson("/PIXEL/PixelClustering/PixelNNCalibJSON"),
           m_layerInfoHistogram("LayersInfo"),
           m_layerPrefix("Layer"), 
           m_weightIndicator("_weights"),
           m_thresholdIndicator("_thresholds"),
           m_networkToHistoTool("Trk::NeuralNetworkToHistoTool/NeuralNetworkToHistoTool"),
-          m_calibSvc("PixelCalibSvc", name),
+          m_calibSvc("PixelCalibSvc", name),        
           m_useToT(true),
           m_addIBL(false),
           m_doRunI(false),
@@ -74,7 +95,8 @@ namespace InDet {
           m_correctLorShiftBarrelWithTracks(0.)
   {
     // histogram loading from COOL
-    declareProperty("CoolFolder",                   m_coolFolder);
+    declareProperty("CoolFolder",                   m_coolFolderRoot);
+    declareProperty("CoolFolder_JSON",             m_coolFolderJson);
     declareProperty("LayerInfoHistogram",           m_layerInfoHistogram);
     declareProperty("LayerPrefix",                  m_layerPrefix);
     declareProperty("LayerWeightIndicator",         m_weightIndicator);
@@ -91,8 +113,10 @@ namespace InDet {
     declareProperty("useRecenteringNNWithTracks",m_useRecenteringNNWithTracks);
     declareProperty("correctLorShiftBarrelWithoutTracks",m_correctLorShiftBarrelWithoutTracks);
     declareProperty("correctLorShiftBarrelWithTracks",m_correctLorShiftBarrelWithTracks);
-        
-    declareInterface<NnClusterizationFactory>(this);
+    declareProperty("useLWTNNNumber",   m_useLwtnnNumber);
+    declareProperty("useLWTNNPosition", m_useLwtnnPosition);
+
+    declareInterface<NnClusterizationFactory>(this);   
   } 
   
 /////////////////////////////////////////////////////////////////////////////////////
@@ -157,22 +181,159 @@ namespace InDet {
       ATH_MSG_ERROR("Could not load: " << m_networkToHistoTool);
       return StatusCode::FAILURE;
     }
-     // register IOV callback function for the COOL folder
-     const DataHandle<CondAttrListCollection> aptr;
-     if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolder)).isFailure() ){
-         ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolder << "failed.");
-         return StatusCode::FAILURE;
-     } else 
-        ATH_MSG_INFO("Registered IOV callback for " << m_coolFolder);
+
+    // register IOV callback function for the COOL folders
+    const DataHandle<CondAttrListCollection> aptr;
+    if ( (detStore()->regFcn(&NnClusterizationFactory::nnSetup,this,aptr,m_coolFolderRoot)).isFailure() ){
+       ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolderRoot << " failed.");
+       return StatusCode::FAILURE;
+    } else 
+      ATH_MSG_INFO("Registered IOV callback for " << m_coolFolderRoot);
+
+    // Check if json folder is available (will not be during initial transition)
+    bool hasFolderJson = detStore()->contains<CondAttrListCollection>(m_coolFolderJson);
+
+    ATH_MSG_INFO("Setup NN versions");
+    ATH_MSG_INFO("\t collFolderJson   \t" << m_coolFolderJson);
+    ATH_MSG_INFO("\t hasFolderJson    \t" << hasFolderJson);
+    ATH_MSG_INFO("\t useLWTNNNumber   \t" << m_useLwtnnNumber);
+    ATH_MSG_INFO("\t useLWTNNPosition \t" << m_useLwtnnPosition);
+
+    // If not, don't continue with setup of lwtnn
+    // If don't want lwtnn, also don't continue with setup of lwtnn
+    if (!hasFolderJson or (!m_useLwtnnNumber and !m_useLwtnnPosition)) {
+
+      if (m_useLwtnnPosition || m_useLwtnnNumber) {
+        ATH_MSG_WARNING("CANNOT SETUP LWTNN");
+        ATH_MSG_WARNING("No folder " << m_coolFolderJson << " available. Will access NN configuration using TTrainedNetwork."); 
+        ATH_MSG_ERROR("Could not configure LTWNN as requested.");
+        return StatusCode::FAILURE;
+      } else {
+        ATH_MSG_INFO("Did not request lwtnn");
+      }
+    }
+    
+    // If yes, set up callback for json folder.
+    else {
+      ATH_MSG_INFO("Setup callback for lwtnn json folder");
+
+      const DataHandle<CondAttrListCollection> lwtnnDatahandle;
+      if ( (detStore()->regFcn(&NnClusterizationFactory::setUpNNLwtnn,this,lwtnnDatahandle,m_coolFolderJson)).isFailure() ){
+          ATH_MSG_ERROR("Registration of IOV callback for " << m_coolFolderJson << " failed.");
+          return StatusCode::FAILURE;
+      } else 
+         ATH_MSG_INFO("Registered IOV callback for " << m_coolFolderJson); 
+    }
     
     if (m_calibSvc.retrieve().isFailure()){
         ATH_MSG_ERROR("Could not retrieve " << m_calibSvc);
         return StatusCode::FAILURE;
     }
-    
+
     return StatusCode::SUCCESS;
   }
   
+
+  // Callback for new NN setup
+  StatusCode NnClusterizationFactory::setUpNNLwtnn(IOVSVC_CALLBACK_ARGS_P(I,keys) ){
+
+    // Avoid unused parameter warnings (ugly)
+    (void) I; (void) keys;
+
+    // Retrieve attribute list for table
+    const CondAttrListCollection* attrListColl;
+    CHECK(detStore()->retrieve(attrListColl, m_coolFolderJson));
+
+    // Retrieve channel 0 (only channel there is)
+    const coral::AttributeList& attrList=attrListColl->attributeList(0);
+
+    // Check that it is filled as expected
+    if ((attrList["NNConfigurations"]).isNull()) {
+      ATH_MSG_ERROR( "NNConfigurations is NULL in " << m_coolFolderJson << "!" );
+      return StatusCode::FAILURE;
+    }
+
+    // Retrieve the string
+    // This is for a single LOB when it is all a giant block
+    const std::string megajson = attrList["NNConfigurations"].data<cool::String16M>();
+
+    // Parse the large json to extract the individual configurations for the NNs
+    std::istringstream initializerStream(megajson);
+
+    namespace pt = boost::property_tree;    
+    pt::ptree parentTree;
+    pt::read_json(initializerStream, parentTree);
+    std::ostringstream configStream;
+
+    // First, extract configuration for the number network.
+    if( m_useLwtnnNumber ) {
+      pt::ptree subtreeNumberNetwork = parentTree.get_child("NumberNetwork");
+      // If this json is empty, we aren't using lwtnn for the number network.
+      if(subtreeNumberNetwork.empty()) {
+        ATH_MSG_ERROR("subtreeNumberNetwork empty for lwtnn Number Network");
+        return StatusCode::FAILURE;      
+      }
+      ATH_MSG_INFO("Setting up lwtnn for number network...");
+      pt::write_json(configStream, subtreeNumberNetwork);
+      std::string numberNetworkConfig = configStream.str();      
+      if ((configureLwtnn(m_lwnnNumber, numberNetworkConfig)).isFailure()) {
+        ATH_MSG_ERROR("Number Network configureLwtnn failed!");
+        return StatusCode::FAILURE;      
+      }
+    }
+
+    // Now extract configuration for each position network.
+    // For simplicity, we'll require all three configurations
+    // in order to use lwtnn for positions.
+    if(m_useLwtnnPosition) {
+      for (int i=1; i<4; i++) {
+        const std::string key = "PositionNetwork_N"+std::to_string(i);
+        configStream.str("");
+        pt::ptree subtreePosNetwork = parentTree.get_child(key);
+        pt::write_json(configStream, subtreePosNetwork);
+        std::string posNetworkConfig = configStream.str();
+      
+        // Now do empty check: if any one of these is empty we won't use lwtnn
+        if(subtreePosNetwork.empty()) {
+          ATH_MSG_ERROR("subtreeNumberNetwork empty for lwtnn Position Network");
+          return StatusCode::FAILURE; 
+        }
+        // Otherwise, set up lwtnn
+        ATH_MSG_INFO("Setting up lwtnn for n = " << i << " position network...");
+        if ((configureLwtnn(m_lwnnPosition[i], posNetworkConfig)).isFailure()) {
+          ATH_MSG_ERROR("Position Network " << i << " configureLwtnn failed!");
+          return StatusCode::FAILURE;
+        }
+      } // loop over networks
+    }
+
+    return StatusCode::SUCCESS;        
+  }
+
+StatusCode NnClusterizationFactory::configureLwtnn(std::unique_ptr<lwt::LightweightGraph> & thisNN, 
+                                      std::string thisJson) {
+
+  // Read DNN weights from input json config
+  lwt::GraphConfig config;
+  try {
+    std::istringstream input_cfg( thisJson );
+    config = lwt::parse_json_graph(input_cfg);
+  } catch (boost::property_tree::ptree_error& err) {
+    ATH_MSG_ERROR("NN file unreadable!");
+    return StatusCode::FAILURE;
+  }
+
+  // Build the network
+  try {
+    thisNN.reset(new lwt::LightweightGraph(config, "merge_1"));
+  } catch (lwt::NNConfigurationException& exc) {
+    ATH_MSG_ERROR("NN configuration problem: " << exc.what());
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;   
+
+}
   
 std::vector<double> NnClusterizationFactory::assembleInput(NNinput& input,
                                                              int sizeX,
@@ -280,12 +441,50 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return inputData;
   }
 
+  NnClusterizationFactory::InputMap NnClusterizationFactory::flattenInput(NNinput & input) {
+
+    // Format for use with lwtnn
+    std::map<std::string, std::map<std::string, double> > flattened;
+
+    // Fill it!
+    // Variable names here need to match the ones in the configuration.    
+
+    std::map<std::string, double> simpleInputs;
+    for (unsigned int x = 0; x < input.matrixOfToT.size(); x++) {
+      for (unsigned int y = 0; y < input.matrixOfToT.at(0).size(); y++) {
+        unsigned int index = x*input.matrixOfToT.at(0).size()+y;
+        std::string varname = "NN_matrix"+std::to_string(index);
+        simpleInputs[varname] = input.matrixOfToT.at(x).at(y);
+      }
+    }
+
+    for (unsigned int p = 0; p < input.vectorOfPitchesY.size(); p++) {
+      std::string varname = "NN_pitches" + std::to_string(p);
+      simpleInputs[varname] = input.vectorOfPitchesY.at(p);
+    }
+
+    simpleInputs["NN_layer"] = input.ClusterPixLayer;
+    simpleInputs["NN_barrelEC"] = input.ClusterPixBarrelEC;
+    simpleInputs["NN_phi"] = input.phi;
+    simpleInputs["NN_theta"] = input.theta;
+
+    if (input.useTrackInfo) simpleInputs["NN_etaModule"] = input.etaModule;
+
+    // We have only one node for now, so we just store things there.
+    flattened["NNinputs"] = simpleInputs;
+
+    return flattened;
+
+
+  }
 
   std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(const InDet::PixelCluster& pCluster,
                                                                          Amg::Vector3D & beamSpotPosition,
                                                                          int sizeX,
                                                                          int sizeY)
   {
+
+    ATH_MSG_DEBUG("Entering estimateNumberOfParticles (no track)");
 
     double tanl=0;
     
@@ -319,6 +518,18 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     ATH_MSG_VERBOSE(" NOTRACK Prob of n. particles (1): " << resultNN_NoTrack[0] << 
 		    " (2): " << resultNN_NoTrack[1] <<
 		    " (3): " << resultNN_NoTrack[2]);
+
+    // If we're using new networks via lwtnn, call those now
+    if (m_useLwtnnNumber) {
+      NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
+      std::vector<double> test_num = estimateNumberOfParticles(nnInputData);
+      ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
+      delete input;
+      input=0;
+      return test_num;
+    }
+    
+    // Otherwise return old result
     
     delete input;
     input=0;
@@ -332,6 +543,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
                                                                          int sizeX,
                                                                          int sizeY)
   {
+
+    ATH_MSG_DEBUG("Entering estimateNumberOfParticles (with track)");
     
     Amg::Vector3D dummyBS(0,0,0);
 
@@ -364,10 +577,38 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 
     ATH_MSG_VERBOSE(" Prob of n. particles (1): " << resultNN[0] << " (2): " << resultNN[1] << " (3): " << resultNN[2]);
 
+    // If we're using new networks via lwtnn, call those now
+    if (m_useLwtnnNumber) {
+      NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
+      std::vector<double> test_num = estimateNumberOfParticles(nnInputData);
+      ATH_MSG_DEBUG("NEW lwtnn Prob of n. particles (1): " << test_num[0] << " (2): " << test_num[1] << " (3): " << test_num[2]);
+      delete input;
+      input=0;
+      return test_num;
+    }
+    
+    // Otherwise return old result
+
     delete input;
     input=0;
 
     return resultNN;
+  }
+
+  std::vector<double> NnClusterizationFactory::estimateNumberOfParticles(NnClusterizationFactory::InputMap & input)
+  {
+    ATH_MSG_DEBUG("Using lwtnn number network");
+    // Evaluate the number network once per cluster
+    lwt::ValueMap discriminant = m_lwnnNumber->compute(input);
+    double num0 = discriminant["output_number0"];
+    double num1 = discriminant["output_number1"];
+    double num2 = discriminant["output_number2"];
+    // Get normalized predictions
+    double prob1 = num0/(num0+num1+num2);
+    double prob2 = num1/(num0+num1+num2);
+    double prob3 = num2/(num0+num1+num2);
+    std::vector<double> number_probabilities{prob1, prob2, prob3};
+    return number_probabilities;
   }
 
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(const InDet::PixelCluster& pCluster,
@@ -438,6 +679,85 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return estimatePositions(inputData,input,pCluster,sizeX,sizeY,true,numberSubClusters,errors);
   }
   
+  std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(
+                                                                NnClusterizationFactory::InputMap & input, 
+                                                                NNinput* rawInput,
+                                                                const InDet::PixelCluster& pCluster,
+                                                                int numberSubClusters,
+                                                                std::vector<Amg::MatrixX> & errors) {
+    
+    // Need to evaluate the correct network once per cluster we're interested in.
+    // Save the output
+    std::vector<double> positionValues;
+    std::vector<Amg::MatrixX> errorMatrices;
+    for (int cluster = 1; cluster < numberSubClusters+1; cluster++) {
+
+      std::string outNodeName = "merge_"+std::to_string(cluster);
+      std::map<std::string, double> position = m_lwnnPosition.at(numberSubClusters)->compute(input, {},outNodeName);
+      ATH_MSG_DEBUG("Testing for numberSubClusters " << numberSubClusters << " and cluster " << cluster);
+      for (auto item : position) {
+        ATH_MSG_DEBUG(item.first << ": " << item.second);
+      }
+      positionValues.push_back(position["mean_x"]);
+      positionValues.push_back(position["mean_y"]);
+
+      // Fill errors.
+      // Values returned by NN are inverse of variance, and we want variances.
+      float rawRmsX = sqrt(1.0/position["prec_x"]);
+      float rawRmsY = sqrt(1.0/position["prec_y"]);
+      // Now convert to real space units
+      double rmsX = correctedRMSX(rawRmsX);
+      double rmsY = correctedRMSY(rawRmsY, 7., rawInput->vectorOfPitchesY);
+      ATH_MSG_DEBUG(" Estimated RMS errors (1) x: " << rmsX << ", y: " << rmsY);  
+
+      // Fill matrix    
+      Amg::MatrixX erm(2,2);
+      erm.setZero();
+      erm(0,0)=rmsX*rmsX;
+      erm(1,1)=rmsY*rmsY;
+      errorMatrices.push_back(erm); 
+
+    }
+
+    std::vector<Amg::Vector2D> myPositions = getPositionsFromOutput(positionValues,*rawInput,pCluster);
+    ATH_MSG_DEBUG(" Estimated myPositions (1) x: " << myPositions[0][Trk::locX] << " y: " << myPositions[0][Trk::locY]);
+    
+    for (unsigned int index = 0; index < errorMatrices.size(); index++) errors.push_back(errorMatrices.at(index));
+
+    return myPositions;
+
+  }
+
+  double NnClusterizationFactory::correctedRMSX(double posPixels)
+  {
+
+    // This gives location in pixels
+    double pitch = 0.05;
+    double corrected = posPixels * pitch;
+
+    return corrected;
+  }
+
+  double NnClusterizationFactory::correctedRMSY(double posPixels,
+         double sizeY,
+        std::vector<float>& pitches)
+  {
+    double p = posPixels + (sizeY - 1) / 2.0;
+    double p_Y = -100;
+    double p_center = -100;
+    double p_actual = 0;
+
+    for (int i = 0; i < sizeY; i++) {
+      if (p >= i && p <= (i + 1))
+        p_Y = p_actual + (p - i + 0.5) * pitches.at(i);
+      if (i == (sizeY - 1) / 2)
+        p_center = p_actual + 0.5 * pitches.at(i);
+      p_actual += pitches.at(i);
+    }
+
+    return abs(p_Y - p_center);
+  }  
+
   std::vector<Amg::Vector2D> NnClusterizationFactory::estimatePositions(std::vector<double> inputData,
                                                                              NNinput* input,
                                                                              const InDet::PixelCluster& pCluster,
@@ -449,8 +769,15 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
   {
 
 
+    // If we're using new networks via lwtnn, call those now
+    if (m_useLwtnnPosition) {
+      ATH_MSG_DEBUG("Using lwtnn position network");
+      NnClusterizationFactory::InputMap nnInputData = flattenInput(*input);
+      auto test_position = estimatePositions(nnInputData,input,pCluster,numberSubClusters,errors);
+      return test_position;
+    }
 
-
+    // Otherwise continue to older function.
 
     bool applyRecentering=false;
     if (m_useRecenteringNNWithouTracks && !useTrackInfo)
@@ -486,11 +813,11 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
       }
 
 
-      ATH_MSG_VERBOSE(" RAW Estimated positions (1) x: " << back_posX(position1P[0],applyRecentering) << " y: " << back_posY(position1P[1]));
+      ATH_MSG_DEBUG(" Original RAW Estimated positions (1) x: " << back_posX(position1P[0],applyRecentering) << " y: " << back_posY(position1P[1]));
 
       std::vector<Amg::Vector2D> myPosition1=getPositionsFromOutput(position1P,*input,pCluster,sizeX,sizeY);
 
-      ATH_MSG_VERBOSE(" Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
+      ATH_MSG_DEBUG(" Original Estimated myPositions (1) x: " << myPosition1[0][Trk::locX] << " y: " << myPosition1[0][Trk::locY]);
 
       std::vector<double> inputDataNew=inputData;
       inputDataNew.push_back(position1P[0]);
@@ -519,9 +846,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
 	    errors1PY=m_NetworkEstimateImpactPointErrorsY[0]->calculateNormalized(inputDataNew);
 	  }
 	}
-     
 
- 
       std::vector<Amg::MatrixX> errorMatrices1;
       getErrorMatrixFromOutput(errors1PX,errors1PY,errorMatrices1,1);
 
@@ -691,6 +1016,8 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     
     int sizeOutputX=outputX.size()/nParticles;
     int sizeOutputY=outputY.size()/nParticles;
+
+    ATH_MSG_VERBOSE( outputX);
     
     double minimumX=-errorHalfIntervalX(nParticles);
     double maximumX=errorHalfIntervalX(nParticles);
@@ -790,7 +1117,6 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
     return;
   
   }//getErrorMatrixFromOutput
-  
     
   std::vector<Amg::Vector2D> NnClusterizationFactory::getPositionsFromOutput(std::vector<double> & output,
                                                                                   NNinput & input,
@@ -1368,7 +1694,7 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
         
         for (std::list<std::string>::const_iterator itr=keys.begin(); itr!=keys.end();++itr) {
             ATH_MSG_INFO(" -- " << *itr);
-           if ( (*itr)==m_coolFolder ){
+           if ( (*itr)==m_coolFolderRoot ){
               // is a memory leak for now : NNs need to be deleted
               clearCache(m_NetworkEstimateImpactPoints_NoTrack);
               clearCache(m_NetworkEstimateImpactPointErrorsX_NoTrack);
@@ -1381,32 +1707,32 @@ if(m_doRunI){    return assembleInputRunI(  input, sizeX, sizeY    );       }els
               if (m_loadNoTrackNetworks)
               {
                 ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (without track info)");
-                m_NetworkEstimateNumberParticles_NoTrack=retrieveNetwork(m_coolFolder,"NumberParticles_NoTrack/");
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints1P_NoTrack/"));
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints2P_NoTrack/"));
-                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints3P_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX1_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX2_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX3_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY1_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY2_NoTrack/"));
-                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY3_NoTrack/"));
+                m_NetworkEstimateNumberParticles_NoTrack=retrieveNetwork(m_coolFolderRoot,"NumberParticles_NoTrack/");
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints1P_NoTrack/"));
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints2P_NoTrack/"));
+                m_NetworkEstimateImpactPoints_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints3P_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX1_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX2_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsX_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX3_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY1_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY2_NoTrack/"));
+                m_NetworkEstimateImpactPointErrorsY_NoTrack.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY3_NoTrack/"));
               }
               
               //now read all Histograms
               if (m_loadWithTrackNetworks)
               {
                 ATH_MSG_VERBOSE("Loading 10 networks for number estimate, position estimate and error PDF estimate (with track info)");
-                m_NetworkEstimateNumberParticles=retrieveNetwork(m_coolFolder,"NumberParticles/");
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints1P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints2P/"));
-                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolder,"ImpactPoints3P/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX1/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX2/"));
-                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsX3/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY1/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY2/"));
-                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolder,"ImpactPointErrorsY3/"));
+                m_NetworkEstimateNumberParticles=retrieveNetwork(m_coolFolderRoot,"NumberParticles/");
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints1P/"));
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints2P/"));
+                m_NetworkEstimateImpactPoints.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPoints3P/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX1/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX2/"));
+                m_NetworkEstimateImpactPointErrorsX.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsX3/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY1/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY2/"));
+                m_NetworkEstimateImpactPointErrorsY.push_back(retrieveNetwork(m_coolFolderRoot,"ImpactPointErrorsY3/"));
               }        
           }
        }

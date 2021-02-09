@@ -341,7 +341,7 @@ namespace InDet {
   
 
   inline bool SiSpacePointsSeedMaker_TrkSeeded::isZCompatible  
-    (float& Zv,float& R,float& T)
+    (float& Zv,float& /*R*/,float& /*T*/)
     {
       if(Zv < m_zminU || Zv > m_zmaxU) return false;
       return true;

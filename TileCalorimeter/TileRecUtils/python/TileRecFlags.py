@@ -97,6 +97,14 @@ class doTileMF(JobProperty):
     StoredValue  = False
 
 #
+class doTileWiener(JobProperty):
+    """ Use Wiener filter method for energy reconstruction
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
+#
 class noiseFilter(JobProperty):
     """ appply one or another noise suppression algorithm at the level of raw channels
     """
@@ -266,6 +274,7 @@ list_jobproperties = [
     doTileManyAmps,
     doTileMF,
     doTileOptATLAS,
+    doTileWiener,
     TileRawChannelContainer,
     TileDigitsContainer,
     TileRunType,

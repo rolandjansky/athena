@@ -257,9 +257,11 @@ the track and determine this for yourself (especially as not all Track builders 
 /** Pseudo-tracking flag */
      Pseudotracking				= 51,
 
+/** Track seeded */
+     SiSpacePointsSeedMaker_TrkSeeded           = 52,
 
 /**  Maximum number of enums */   
-     NumberOfTrackRecoInfo                      = 52
+     NumberOfTrackRecoInfo                      = 53
     };
     
     TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 

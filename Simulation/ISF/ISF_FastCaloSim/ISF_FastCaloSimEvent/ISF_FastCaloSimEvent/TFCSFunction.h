@@ -30,8 +30,4 @@ class TFCSFunction: public TObject
 
 };
 
-#if defined(__ROOTCLING__) && defined(__FastCaloSimStandAlone__)
-#pragma link C++ class TFCSFunction+;
-#endif
-
 #endif

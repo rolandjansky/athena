@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -44,6 +44,7 @@ TRTTrkAlignDBTool::TRTTrkAlignDBTool(const std::string & type, const std::string
    , m_trtAlignLevel(-1)
    , m_trtAlignLevelBarrel(-1)
    , m_trtAlignLevelEndcaps(-1)
+   , m_WriteTRTAsL2(false)
 {
    declareInterface<ITrkAlignDBTool>(this);
 
@@ -57,6 +58,7 @@ TRTTrkAlignDBTool::TRTTrkAlignDBTool(const std::string & type, const std::string
    declareProperty("AlignModuleTool",      m_alignModuleTool,   "Tool for handling of align module collections");
    declareProperty("TRTGeometryManager",   m_trtGeoManager,     "Tool for handling the TRT alignment geometry");
    declareProperty("UpdateConstants",      m_updateConstants,   "Whether or no to update the alignment constants");
+   declareProperty("WriteTRTAsL2",         m_WriteTRTAsL2,	"Option to update L1 corrections as L2 ones");
 
    m_logStream = 0;
 }
@@ -127,6 +129,9 @@ StatusCode TRTTrkAlignDBTool::initialize()
          m_trtAlignLevelEndcaps=2;
       }
    }
+
+   if (m_WriteTRTAsL2)
+      ATH_MSG_INFO(" TRT constants are going to be updated at L2 because WriteTRTAsL2 is set to True");
 
    if(m_trtAlignLevel == 0)
       ATH_MSG_INFO(" Requested update of Level "<<m_trtAlignLevel<<" alignment constants for TRT");
@@ -373,15 +378,23 @@ void TRTTrkAlignDBTool::updateDB()
             continue;
       }
 
-      ATH_MSG_DEBUG("DB transform");
+      ATH_MSG_DEBUG("DB transform for " << module->name() << " at alignment level " << level);
       printTransform(dbtransform);
+
+      if(m_WriteTRTAsL2){
+         if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,2).isSuccess())
+            ATH_MSG_INFO("WriteTRTAsL2: Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+         else // failure
+            msg(MSG::ERROR)<<"WriteTRTAsL2: Error setting constants for module \'"<<module->name()<<"\'"<<endmsg;
+         continue;
+      }
 
       // tweak applies the transform onto already existing transform in the DB
       // or sets it if it doesn't exist yet
-      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isFailure())
-         msg(MSG::ERROR)<<"Error setting constants for module \'"<<module->name()<<"\'"<<endreq;
-      else
+      if(m_trtAlignDbSvc->tweakAlignTransform(modID,dbtransform,level).isSuccess())
          ATH_MSG_DEBUG("Module \'"<<module->name()<<"\': Level "<<level<<" constants updated.");
+      else
+         msg(MSG::ERROR)<<"Error setting constants for TRT module \'"<<module->name()<<"\'"<<endreq;
    }
    ATH_MSG_INFO("-------------------------------------------------------");
 

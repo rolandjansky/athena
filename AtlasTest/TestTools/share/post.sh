@@ -200,10 +200,10 @@ else
            refdiff=`basename ${reflog}`-todiff
            egrep -a -v "$PP" < $jobrep > $jobdiff
            egrep -a -v "$PP" < $refrep > $refdiff
-           diff -a -b -E -B -u $jobdiff $refdiff
+           diff -a -b -E -B -u $refdiff $jobdiff
            diffStatus=$?
            if [ $diffStatus != 0 ] ; then
-               echo "$RED post.sh> ERROR: $joblog and $reflog differ $RESET"
+               echo "$RED post.sh> ERROR: $reflog and $joblog differ $RESET"
                # Return with failure in this case:
                exit 1
            else

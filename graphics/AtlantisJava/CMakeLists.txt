@@ -5,9 +5,6 @@
 # Declare the package name:
 atlas_subdir( AtlantisJava )
 
-# External dependencies:
-find_package( JavaSDK )
-
 # Install files from the package:
 atlas_install_joboptions( share/InteractiveServer.py )
 atlas_install_scripts( share/atlantis share/atlantis_online )

@@ -177,6 +177,7 @@ class TileRawChannelGetter_DigiHSTruth ( Configured)  :
             jobproperties.TileRecFlags.doTileManyAmps = False
             jobproperties.TileRecFlags.doTileMF = False
             jobproperties.TileRecFlags.doTileOF1 = False
+            jobproperties.TileRecFlags.doTileWiener = False
             jobproperties.TileRecFlags.OfcFromCOOL = False
             jobproperties.TileRecFlags.print_JobProperties('tree&value')
 

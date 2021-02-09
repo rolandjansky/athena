@@ -11,6 +11,7 @@ atlas_depends_on_subdirs(
                           Control/AthenaBaseComps
                           Control/AthenaMonitoring
                           Control/StoreGate
+                          Database/ConnectionManagement/AtlasAuthentication
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODJet
@@ -41,7 +42,7 @@ atlas_depends_on_subdirs(
                           Tools/LWHists
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkExtrapolation/TrkExInterfaces
-			  Trigger/TrigAnalysis/TrigEgammaMatchingTool
+                          Trigger/TrigAnalysis/TrigEgammaMatchingTool
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
                           Trigger/TrigEvent/TrigCaloEvent
@@ -49,6 +50,7 @@ atlas_depends_on_subdirs(
                           Trigger/TrigEvent/TrigParticle
                           Trigger/TrigT1/TrigT1Result 
                           PhysicsAnalysis/MuonID/MuonSelectorTools
+                          MCTruthClassifier
 )
 
 # External dependencies:
@@ -62,7 +64,7 @@ atlas_add_component( DataQualityTools
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib TagEvent RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloGeoHelpers AthenaBaseComps AthenaMonitoringLib StoreGateLib SGtests xAODCaloEvent xAODEventInfo xAODJet xAODMissingET xAODMuon xAODTracking LUCID_RawEvent ZdcEvent ZdcIdentifier GaudiKernel InDetIdentifier InDetRawData InDetPrepRawData LArRawEvent LArRecEvent MagFieldInterfaces MuonCalibITools MuonIdHelpersLib MuonRDO MuonRecHelperToolsLib TagEvent RecBackgroundEvent RecoToolInterfaces TileEvent LWHists TrkParameters TrkExInterfaces TrkVertexAnalysisUtilsLib TrigDecisionToolLib TrigCaloEvent TrigMuonEvent TrigParticle TrigT1Result MuonSelectorToolsLib TrigAnalysisInterfaces TrigBunchCrossingTool )
 
 # Install files from the package:
 #atlas_install_headers( DataQualityTools )

@@ -22,7 +22,8 @@ extern void vkgrkuta_(double *, double *, double *, double *);
 void cfnewpm(double *par, double *xyzStart, double *xyzEnd, double *ustep, double *parn, double *closePoint)
 {
     double d__1, d__2,dist_left;
-    double vect[7], stmg, vout[7], dpar0[5];
+    double vect[7], stmg, dpar0[5];
+    double vout[7]={0.};
     double p, perig[3], dstep, constB, xyzst[3], charge, fx, fy, fz, pt, px, py, pz;
     double posold, poscur, totway, dp;
     double dX, dY, dZ;

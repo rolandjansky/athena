@@ -29,8 +29,8 @@ class MuonSegmentPerformanceAlg : public AthAlgorithm {
   
  private:
   bool retrieve( std::string location, xAOD::MuonSegmentContainer*& ) const;
-  void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco, const std::vector<int> truth ) const;
-  void printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco ) const;
+  std::string printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco, const std::vector<int> truth ) const;
+  std::string printRatio( std::string prefix, unsigned int begin, unsigned int end, const std::vector<int> reco ) const;
 
 
   /** name of external file to write statistics */

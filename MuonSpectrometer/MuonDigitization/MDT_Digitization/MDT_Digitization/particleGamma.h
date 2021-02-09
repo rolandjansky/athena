@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MDT_DIGITIZATION_PARTICLEGAMMA_H
@@ -56,7 +56,7 @@ double particleGamma(const MDTSimHit& hit){
 		
 		int particleEncoding = genParticle->pdg_id();
 //      std::cout << "SB: pdgId=" << particleEncoding <<std::endl;
-		if (((int)(abs(particleEncoding)/10000000) == 1) && ((int)(abs(particleEncoding)/100000)==100)) {
+		if ((((int)(abs(particleEncoding)/10000000) == 1) && ((int)(abs(particleEncoding)/100000)==100)) || (((int)(abs(particleEncoding)/10000000) == 2) && ((int)(abs(particleEncoding)/100000)==200))) {
 
 			double QPx = genParticle->momentum().px(); 
 			double QPy  = genParticle->momentum().py(); 

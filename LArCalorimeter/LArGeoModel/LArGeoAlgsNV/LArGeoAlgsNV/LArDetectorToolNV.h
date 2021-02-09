@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 /**
@@ -44,7 +44,7 @@ public:
 
     // Callback function itself
     virtual StatusCode align(IOVSVC_CALLBACK_ARGS);
-	
+
  private:
 
     bool m_barrelSaggingOn;
@@ -62,6 +62,7 @@ public:
     StoreGateSvc*        m_detStore;
 
     std::string m_geometryConfig; // FULL, SIMU, RECO
+    bool m_activateFT;
 };
 
-#endif 
+#endif

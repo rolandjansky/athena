@@ -38,6 +38,8 @@
 #include "LWHists/TProfile_LW.h"
 #include "LWHists/TProfile2D_LW.h"
 
+#include "TTree.h"
+
 #include "TH1.h"
 #include "TGraph.h"
 
@@ -71,6 +73,9 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
   StatusCode registerHist(const std::string& path, TH2F_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
   StatusCode registerHist(const std::string& path, TProfile_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
   StatusCode registerHist(const std::string& path, TProfile2D_LW* h1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
+  
+  StatusCode registerTree(const std::string& path, TTree* t1, Interval_t interval=run, MgmtAttr_t histo_mgmt = ATTRIB_MANAGED);
+  
   //StatusCode registerHist(const std::string& path, TH1F_LW* h1, Interval_t interval=run, std::string dqmAlgorithm="");
   //StatusCode registerHist(const std::string& path, TH1I_LW* h1, Interval_t interval=run, std::string dqmAlgorithm="");
   //StatusCode registerHist(const std::string& path, TH2F_LW* h1, Interval_t interval=run, std::string dqmAlgorithm="");
@@ -78,7 +83,6 @@ class DataQualityFatherMonTool: public ManagedMonitorToolBase
   //StatusCode registerHist(const std::string& path, TProfile_LW* h1, Interval_t interval=run, std::string dqmAlgorithm="");
   //StatusCode registerHist(const std::string& path, TProfile2D_LW* h1, Interval_t interval=run, std::string dqmAlgorithm="");
  
-
 protected:
 
   StoreGateSvc* m_detStore  ;

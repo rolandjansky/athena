@@ -14,18 +14,19 @@
       <field name="m_entry" transient="true" />
    </class>
    <class name="DataHeaderCnv_p5"/>
+
    <class name="DataHeader_p6" id="4DDBD295-EFCE-472A-9EC8-15CD35A9EB8D">
-      <field name="m_dhForm" transient="true" />
    </class>
-   <class name="std::vector<DataHeaderElement_p6>" />
-   <class name="DataHeaderElement_p6" />
+   <class name="std::vector<DataHeader_p6::FullElement>" />
+   <class name="DataHeader_p6::FullElement" />
    <class name="DataHeaderForm_p6" id="7BE56CEF-C866-4BEE-9348-A5F34B5F1DAD">
-      <field name="m_entry" transient="true" />
+      <field name="m_modified" transient="true" />
+      <field name="m_token" transient="true" />
    </class>
-   <class name="std::vector<std::pair<Guid, unsigned int> >" />
-   <class name="std::pair<Guid, unsigned int>" />
+   <class name="DataHeaderForm_p6::DbRecord" />
+   <class name="DataHeaderForm_p6::ObjRecord" />
    <class name="Guid" />
-   <class name="std::vector<std::pair<Guid, std::pair<std::string, unsigned int> > >" />
-   <class name="std::pair<Guid, std::pair<std::string, unsigned int> >" />
+   <class name="std::vector<DataHeaderForm_p6::DbRecord>" />
+   <class name="std::vector<DataHeaderForm_p6::ObjRecord>" />
    <class name="DataHeaderCnv_p6"/>
 </lcgdict>

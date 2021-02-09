@@ -232,7 +232,7 @@ def asetupReport():
         if eVar in os.environ:
             setupMsg += '\t%s=%s\n' % (eVar, os.environ[eVar])
     # Look for patches so that the job can be rerun 
-    if 'TestArea' in os.environ and os.access(os.environ['TestArea'], os.R_OK):
+    if 'WorkDir_DIR' in os.environ and os.access(os.environ['WorkDir_DIR'], os.R_OK):
         setupMsg += "\n\tPatch packages are:\n"
         try:
             cmd = ['lstags']

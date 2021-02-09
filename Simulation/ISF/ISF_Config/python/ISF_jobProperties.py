@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 
 ## @file ISF_Config/python/ISF_jobProperties.py
 ## @purpose Python module to hold common flags to configure JobOptions
@@ -109,8 +109,13 @@ class Simulator(JobProperty):
 class HITSMergingRequired(JobProperty):
     """The configured set of simulators requires merging of HITS collections"""
     statusOn     = True
-    allowedTypes = ['bool']
-    StoredValue  = True
+    allowedTypes = ['dict']
+    StoredValue = {'ID':True, 'CALO':True, 'MUON':True}
+    def anyOn(self):
+        if self.statusOn:
+            return (True in self.StoredValue.values())
+        else:
+            return False
 
 class UsingGeant4(JobProperty):
     """Will this job be using Geant4?"""
@@ -167,6 +172,11 @@ class GeoIDService(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'NONE'
 
+class Resimulation(JobProperty):
+    """Using Resimulation workflow"""
+    statusOn     = False
+    allowedTypes = ['str']
+    StoredValue  = 'NONE'
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -206,7 +216,7 @@ jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainID)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainCalo)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainMS)
 jobproperties.ISF_jobProperties.add_JobProperty(RoutingChainCavern)
-
+jobproperties.ISF_jobProperties.add_JobProperty(Resimulation)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people

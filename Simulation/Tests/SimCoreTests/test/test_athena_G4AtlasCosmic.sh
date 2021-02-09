@@ -15,6 +15,6 @@ echo  "art-result: $? simulation"
 # TODO This is a regression test I think. 
 ArtPackage=$1
 ArtJobName=$2
-art.py compare grid ${ArtPackage} ${ArtJobName}
+art.py compare grid --entries -1 ${ArtPackage} ${ArtJobName} --mode=semi-detailed
 
 echo  "art-result: $? regression"

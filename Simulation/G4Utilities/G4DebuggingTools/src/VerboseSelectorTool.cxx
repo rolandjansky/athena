@@ -24,7 +24,9 @@ namespace G4UA{
     
     declareProperty("Zmin",m_config.Zmin);
     declareProperty("Zmax",m_config.Zmax);
-    
+
+    // target pdgIDs of tracks to printout
+    declareProperty("TargetPdgIDs", m_config.targetPdgIDs);
   }
   
   std::unique_ptr<VerboseSelector>  VerboseSelectorTool::makeAction(){

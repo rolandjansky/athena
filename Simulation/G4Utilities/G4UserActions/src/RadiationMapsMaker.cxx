@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "G4UserActions/RadiationMapsMaker.h"
@@ -105,6 +105,21 @@ namespace G4UA{
       m_3d_chad[i] += maps.m_3d_chad[i];
     }
 
+    // all time 2d vectors have same size 
+    for(unsigned int i=0;i<maps.m_rz_tid_time.size();i++) {
+      // zoom 2d
+      m_rz_tid_time [i] += maps.m_rz_tid_time [i];
+
+      // full 2d
+      m_full_rz_tid_time [i] += maps.m_full_rz_tid_time [i];
+    }
+    
+    // all element fraction 2d vectors have same size
+    for(unsigned int i=0;i<maps.m_rz_element.size();i++) {
+      m_rz_element     [i] += maps.m_rz_element     [i];
+      m_full_rz_element[i] += maps.m_full_rz_element[i];
+    }
+
     for(unsigned int i=0;i<maps.m_3d_vol.size();i++) {
       // need volume fraction only if particular material is selected
       m_3d_vol [i] += maps.m_3d_vol [i];
@@ -115,6 +130,10 @@ namespace G4UA{
     for(unsigned int i=0;i<maps.m_rz_neut_spec.size();i++) {
       m_rz_neut_spec     [i] += maps.m_rz_neut_spec     [i];
       m_full_rz_neut_spec[i] += maps.m_full_rz_neut_spec[i];
+    }
+    // x theta bins
+    for(unsigned int i=0;i<maps.m_theta_full_rz_neut_spec.size();i++) {
+      m_theta_full_rz_neut_spec[i] += maps.m_theta_full_rz_neut_spec[i];
     }
     // all other particle's spectra have same size
     for(unsigned int i=0;i<maps.m_rz_gamm_spec.size();i++) {
@@ -130,6 +149,16 @@ namespace G4UA{
       m_full_rz_prot_spec[i] += maps.m_full_rz_prot_spec[i];
       m_rz_rest_spec     [i] += maps.m_rz_rest_spec     [i];
       m_full_rz_rest_spec[i] += maps.m_full_rz_rest_spec[i];
+    }
+    // x theta bins
+    for(unsigned int i=0;i<maps.m_theta_full_rz_gamm_spec.size();i++) {
+      m_theta_full_rz_gamm_spec[i]  += maps.m_theta_full_rz_gamm_spec[i];
+      m_theta_full_rz_elec_spec[i]  += maps.m_theta_full_rz_elec_spec[i];
+      m_theta_full_rz_muon_spec[i]  += maps.m_theta_full_rz_muon_spec[i];
+      m_theta_full_rz_pion_spec[i]  += maps.m_theta_full_rz_pion_spec[i];
+      m_theta_full_rz_prot_spec[i]  += maps.m_theta_full_rz_prot_spec[i];
+      m_theta_full_rz_rchgd_spec[i] += maps.m_theta_full_rz_rchgd_spec[i];
+      m_theta_full_rz_rneut_spec[i] += maps.m_theta_full_rz_rneut_spec[i];
     }
   }
 
@@ -158,6 +187,12 @@ namespace G4UA{
     m_maps.m_3d_neut.resize(0);
     m_maps.m_3d_chad.resize(0);
 
+    m_maps.m_rz_tid_time      .resize(0);
+    m_maps.m_full_rz_tid_time .resize(0);
+
+    m_maps.m_rz_element       .resize(0);
+    m_maps.m_full_rz_element  .resize(0);
+
     m_maps.m_rz_neut_spec     .resize(0);
     m_maps.m_full_rz_neut_spec.resize(0);
     m_maps.m_rz_gamm_spec     .resize(0);
@@ -172,6 +207,15 @@ namespace G4UA{
     m_maps.m_full_rz_prot_spec.resize(0);
     m_maps.m_rz_rest_spec     .resize(0);
     m_maps.m_full_rz_rest_spec.resize(0);
+
+    m_maps.m_theta_full_rz_neut_spec .resize(0);
+    m_maps.m_theta_full_rz_gamm_spec .resize(0);
+    m_maps.m_theta_full_rz_elec_spec .resize(0);
+    m_maps.m_theta_full_rz_muon_spec .resize(0);
+    m_maps.m_theta_full_rz_pion_spec .resize(0);
+    m_maps.m_theta_full_rz_prot_spec .resize(0);
+    m_maps.m_theta_full_rz_rchgd_spec.resize(0);
+    m_maps.m_theta_full_rz_rneut_spec.resize(0);
     
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -206,6 +250,12 @@ namespace G4UA{
     m_maps.m_3d_neut.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
     m_maps.m_3d_chad.resize(m_config.nBinsz3d*m_config.nBinsr3d*m_config.nBinsphi3d,0.0);
 
+    m_maps.m_rz_tid_time      .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+    m_maps.m_full_rz_tid_time .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogT,0.0);
+
+    m_maps.m_rz_element       .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
+    m_maps.m_full_rz_element  .resize(m_config.nBinsz*m_config.nBinsr*(m_config.elemZMax-m_config.elemZMin+1),0.0);
+
     m_maps.m_rz_neut_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
     m_maps.m_full_rz_neut_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
     m_maps.m_rz_gamm_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
@@ -220,6 +270,15 @@ namespace G4UA{
     m_maps.m_full_rz_prot_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     m_maps.m_rz_rest_spec     .resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
     m_maps.m_full_rz_rest_spec.resize(m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+
+    m_maps.m_theta_full_rz_neut_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEn,0.0);
+    m_maps.m_theta_full_rz_gamm_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_elec_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_muon_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_pion_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_prot_spec .resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_rchgd_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
+    m_maps.m_theta_full_rz_rneut_spec.resize(m_config.nBinsdphi*m_config.nBinstheta*m_config.nBinsz*m_config.nBinsr*m_config.nBinslogEo,0.0);
 
     if (!m_config.material.empty()) {
       // need volume fraction only if particular material is selected
@@ -338,6 +397,28 @@ namespace G4UA{
     
       double rho = aStep->GetTrack()->GetMaterial()->GetDensity()/CLHEP::g*CLHEP::cm3; 
 
+      const G4Material * theMaterial = aStep->GetTrack()->GetMaterial();
+
+      // get time of step as average between pre- and post-step point
+      G4StepPoint* pre_step_point = aStep->GetPreStepPoint();
+      G4StepPoint* post_step_point = aStep->GetPostStepPoint();
+      G4ThreeVector startPoint = pre_step_point->GetPosition();
+      G4ThreeVector endPoint   = post_step_point->GetPosition();
+      G4ThreeVector p = (startPoint + endPoint) * 0.5;
+
+      // process upper hemisphere only in case PositiveYOnly is true
+      if ( m_config.posYOnly && p.y() < 0 ) return;
+
+      double timeOfFlight = (pre_step_point->GetGlobalTime() +
+			     post_step_point->GetGlobalTime()) * 0.5;
+
+      // then compute time difference to a particle traveling with speed of light until this position
+      double deltatime = (timeOfFlight - p.mag()/CLHEP::c_light)/CLHEP::s;
+
+      // and use the log10 of that time difference in seconds to fill time-dependent histograms
+      // note that the upper bin boundary is the relevant cut. The first bin contains thus all times even shorter than the first lower bin boundary
+      double logt = (deltatime<0?m_config.logTMin-1:log10(deltatime));
+      
       bool goodMaterial(false);
 
       if (m_config.material.empty()) {
@@ -358,7 +439,7 @@ namespace G4UA{
       double y1 = aStep->GetPostStepPoint()->GetPosition().y()*0.1;
       double z0 = aStep->GetPreStepPoint()->GetPosition().z()*0.1;
       double z1 = aStep->GetPostStepPoint()->GetPosition().z()*0.1;
-      
+
       double l = sqrt(pow(x1-x0,2)+pow(y1-y0,2)+pow(z1-z0,2));
       // make 1 mm steps but at least 1 step
       double dl0 = 0.1;
@@ -370,6 +451,14 @@ namespace G4UA{
       
       double weight = 0; // weight for NIEL
       double eKin = aStep->GetTrack()->GetKineticEnergy();
+      double theta = aStep->GetTrack()->GetMomentumDirection().theta()*180./M_PI;
+      // if theta range in configuration is 0 - 90 assume that 180-theta should
+      // be used for theta > 90; otherwise leave theta unchanged
+      theta = (theta > 90&&m_config.thetaMin==0&&m_config.thetaMax==90?180-theta:theta);
+      double dphi = (aStep->GetTrack()->GetMomentumDirection().phi()-p.phi())*180./M_PI;
+      while ( dphi > 360 ) dphi -= 360.;
+      while ( dphi <   0 ) dphi += 360.;
+      
       double logEKin = (eKin > 0?log10(eKin):(m_config.logEMinn<m_config.logEMino?m_config.logEMinn:m_config.logEMino)-1);
 
       if ( pdgid == 1 || pdgid == 9 ) {
@@ -406,7 +495,10 @@ namespace G4UA{
       double dE_ION = dE_TOT-dE_NIEL;
 
       for(unsigned int i=0;i<nStep;i++) {
-	double absz = fabs(z0+dz*(i+0.5));
+	double abszorz = z0+dz*(i+0.5);
+	// if |z| instead of z take abs value
+	if ( m_config.zMinFull >= 0 ) abszorz = fabs(abszorz);
+
 	double rr = sqrt(pow(x0+dx*(i+0.5),2)+
 			 pow(y0+dy*(i+0.5),2));
 	double pphi = atan2(y0+dy*(i+0.5),x0+dx*(i+0.5))*180/M_PI;
@@ -418,15 +510,23 @@ namespace G4UA{
 	int vBinFullSpecn = -1;
 	int vBinZoomSpeco = -1;
 	int vBinFullSpeco = -1;
+	int vBinZoomTime  = -1;
+	int vBinFullTime  = -1;
+	int vBinThetaFullSpecn = -1;
+	int vBinThetaFullSpeco = -1;
 	
 	// zoom 2d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr;
 	    vBinZoom = m_config.nBinsr*iz+ir;
+	    if ( m_config.logTMax > logt ){
+	      int ilt = (logt < m_config.logTMin?0:(logt-m_config.logTMin)/(m_config.logTMax-m_config.logTMin)*m_config.nBinslogT);
+	      vBinZoomTime = m_config.nBinsr*m_config.nBinslogT*iz+ir*m_config.nBinslogT+ilt;
+	    }
 	    if ( m_config.logEMinn < logEKin && 
 		 m_config.logEMaxn > logEKin &&
 		 (pdgid == 6 || pdgid == 7)) {
@@ -443,32 +543,50 @@ namespace G4UA{
 	}
 	
 	// full 2d
-	if ( m_config.zMinFull < absz && 
-	     m_config.zMaxFull > absz ) {
-	  int iz = (absz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
+	if ( m_config.zMinFull < abszorz && 
+	     m_config.zMaxFull > abszorz ) {
+	  int iz = (abszorz-m_config.zMinFull)/(m_config.zMaxFull-m_config.zMinFull)*m_config.nBinsz;
 	  if ( m_config.rMinFull < rr && 
 	       m_config.rMaxFull > rr ) {
 	    int ir = (rr-m_config.rMinFull)/(m_config.rMaxFull-m_config.rMinFull)*m_config.nBinsr;
 	    vBinFull = m_config.nBinsr*iz+ir;
+	    if ( m_config.logTMax > logt ){
+	      int ilt = (logt < m_config.logTMin?0:(logt-m_config.logTMin)/(m_config.logTMax-m_config.logTMin)*m_config.nBinslogT);
+	      vBinFullTime = m_config.nBinsr*m_config.nBinslogT*iz+ir*m_config.nBinslogT+ilt;
+	    }
 	    if ( m_config.logEMinn < logEKin && 
 		 m_config.logEMaxn > logEKin &&
 		 (pdgid == 6 || pdgid == 7)) {
 	      int ile = (logEKin-m_config.logEMinn)/(m_config.logEMaxn-m_config.logEMinn)*m_config.nBinslogEn;
 	      vBinFullSpecn = m_config.nBinsr*m_config.nBinslogEn*iz+ir*m_config.nBinslogEn+ile;
+	      if ( m_config.thetaMin < theta && 
+		   m_config.thetaMax > theta ) {
+		int ith = (theta-m_config.thetaMin)/(m_config.thetaMax-m_config.thetaMin)*m_config.nBinstheta;
+		int idph = dphi/360.*m_config.nBinsdphi;
+		ith = ith*m_config.nBinsdphi+idph;
+		vBinThetaFullSpecn = m_config.nBinsr*m_config.nBinslogEn*m_config.nBinsdphi*m_config.nBinstheta*iz+ir*m_config.nBinslogEn*m_config.nBinsdphi*m_config.nBinstheta+ile*m_config.nBinsdphi*m_config.nBinstheta+ith;
+	      }
 	    }
 	    if ( m_config.logEMino < logEKin && 
 		 m_config.logEMaxo > logEKin &&
 		 pdgid != 6 && pdgid != 7) {
 	      int ile = (logEKin-m_config.logEMino)/(m_config.logEMaxo-m_config.logEMino)*m_config.nBinslogEo;
 	      vBinFullSpeco = m_config.nBinsr*m_config.nBinslogEo*iz+ir*m_config.nBinslogEo+ile;
+	      if ( m_config.thetaMin < theta && 
+		   m_config.thetaMax > theta ) {
+		int ith = (theta-m_config.thetaMin)/(m_config.thetaMax-m_config.thetaMin)*m_config.nBinstheta;
+		int idph = dphi/360.*m_config.nBinsdphi;
+		ith = ith*m_config.nBinsdphi+idph;
+		vBinThetaFullSpeco = m_config.nBinsr*m_config.nBinslogEo*m_config.nBinsdphi*m_config.nBinstheta*iz+ir*m_config.nBinslogEo*m_config.nBinsdphi*m_config.nBinstheta+ile*m_config.nBinsdphi*m_config.nBinstheta+ith;
+	      }
 	    }
 	  }
 	}
 	
 	// zoom 3d
-	if ( m_config.zMinZoom < absz && 
-	     m_config.zMaxZoom > absz ) {
-	  int iz = (absz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
+	if ( m_config.zMinZoom < abszorz && 
+	     m_config.zMaxZoom > abszorz ) {
+	  int iz = (abszorz-m_config.zMinZoom)/(m_config.zMaxZoom-m_config.zMinZoom)*m_config.nBinsz3d;
 	  if ( m_config.rMinZoom < rr && 
 	       m_config.rMaxZoom > rr ) {
 	    int ir = (rr-m_config.rMinZoom)/(m_config.rMaxZoom-m_config.rMinZoom)*m_config.nBinsr3d;
@@ -497,21 +615,63 @@ namespace G4UA{
 	  if ( pdgid == 999 ) {
 	    m_maps.m_rz_tid [vBinZoom] += dl;
 	    m_maps.m_rz_eion[vBinZoom] += rho*dl;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+	      }
+	    }
 	  }
 	  else {
 	    m_maps.m_rz_tid [vBinZoom] += dE_ION/rho;
 	    m_maps.m_rz_eion[vBinZoom] += dE_ION;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_rz_element[vBinZoom*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += dE_ION*mFrac;
+	      }
+	    }
 	  }
+	}
+	if ( goodMaterial && vBinZoomTime >=0 ) {
+	    m_maps.m_rz_tid_time[vBinZoomTime] += dE_ION/rho;
 	}
 	if ( goodMaterial && vBinFull >=0 ) {
 	  if ( pdgid == 999 ) {
 	    m_maps.m_full_rz_tid [vBinFull] += dl;
 	    m_maps.m_full_rz_eion[vBinFull] += rho*dl;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += rho*dl*mFrac;
+	      }
+	    }
 	  }
 	  else {
 	    m_maps.m_full_rz_tid [vBinFull] += dE_ION/rho;
 	    m_maps.m_full_rz_eion[vBinFull] += dE_ION;
+	    for (size_t ie=0;ie<theMaterial->GetNumberOfElements();ie++ ) {
+	      const G4Element * theElement = theMaterial->GetElement (ie);
+	      const double mFrac = theMaterial->GetFractionVector()[ie];
+	      const int zElem = theElement->GetZ();
+	      if ( zElem >= m_config.elemZMin && 
+		   zElem <= m_config.elemZMax) {
+		m_maps.m_full_rz_element[vBinFull*(m_config.elemZMax-m_config.elemZMin+1)+zElem-m_config.elemZMin] += dE_ION*mFrac;
+	      }
+	    }
 	  }
+	}
+	if ( goodMaterial && vBinFullTime >=0 ) {
+	    m_maps.m_full_rz_tid_time[vBinFullTime] += dE_ION/rho;
 	}
 	if ( goodMaterial && vBin3d >=0 ) {
 	  if ( pdgid == 999 ) {
@@ -581,6 +741,9 @@ namespace G4UA{
 	    if ( vBinFullSpecn >=0 ) {
 	      m_maps.m_full_rz_neut_spec [vBinFullSpecn] += dl;
 	    }
+	    if ( vBinThetaFullSpecn >=0 ) {
+	      m_maps.m_theta_full_rz_neut_spec [vBinThetaFullSpecn] += dl;
+	    }
 	  }
 	}
 	
@@ -624,6 +787,31 @@ namespace G4UA{
 	    }
 	    else {
 	      m_maps.m_full_rz_rest_spec [vBinFullSpeco] += dl;
+	    }
+	  }
+	  if ( vBinThetaFullSpeco >=0 ) {
+	    if ( pdgid == 0 ) {
+	      m_maps.m_theta_full_rz_gamm_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 1 ) {
+	      m_maps.m_theta_full_rz_prot_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 2 ) {
+	      m_maps.m_theta_full_rz_pion_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 3 ) {
+	      m_maps.m_theta_full_rz_muon_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else if ( pdgid == 4 || pdgid == 5 ) {
+	      m_maps.m_theta_full_rz_elec_spec [vBinThetaFullSpeco] += dl;
+	    }
+	    else {
+	      if ( absq > 0 ) {
+		m_maps.m_theta_full_rz_rchgd_spec [vBinThetaFullSpeco] += dl;
+	      }
+	      else {
+		m_maps.m_theta_full_rz_rneut_spec [vBinThetaFullSpeco] += dl;
+	      }
 	    }
 	  }
 	}

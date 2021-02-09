@@ -75,7 +75,9 @@ class CscIdHelper : public MuonIdHelper
 				   IdentifierHash& hash_id ) const;
   virtual int get_detectorElement_hash (const Identifier& id,
 					IdentifierHash& hash_id ) const;
-  virtual int get_channel_hash(const Identifier&, IdentifierHash&) const;
+  virtual int get_channel_hash(const Identifier&, IdentifierHash&) const; // this method returns the geometrical channel hash for CSCs
+  int get_pos_channel_hash(const Identifier&, IdentifierHash&) const; // this method returns the positional channel hash for CSCs (needed for CscRawData_p4 conversion)
+  int get_id_fromPosHash(const IdentifierHash& hash_id, Identifier& id) const; // this methods returns a CSC channel identifiers by reference when specifying a positional hash
 
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   
@@ -215,7 +217,7 @@ class CscIdHelper : public MuonIdHelper
   mutable unsigned int m_etaStripMax;
   mutable unsigned int m_phiStripMax;
   inline virtual void create_mlog() const;
- 
+  id_vec m_sorted_channel_vec; // sorted vector of CSC identifiers (to be used to find positional hashes)
 };
 
 // For backwards compatibility
