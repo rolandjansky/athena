@@ -111,5 +111,8 @@ class TrigMultiTrkComboHypoConfig(object):
         if 'noos' in chainDict['topo']:
             tool.totalCharge = -100 # negative number to indicate no charge cut
 
+        if 'Lxy0' in chainDict['topo']:
+            tool.LxyCut = 0.0
+
         tool.MonTool = TrigMultiTrkComboHypoToolMonitoring('MonTool')
         return tool
