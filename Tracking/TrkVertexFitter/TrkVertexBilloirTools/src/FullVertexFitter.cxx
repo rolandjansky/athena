@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /***************************************************************************
@@ -381,9 +381,9 @@ namespace Trk
 				// d(d0,z0,phi,theta,qOverP)/d(x,y,z,phi,theta,qOverP)-transformation matrix
 				AmgMatrix(5,6) trans_mat;
 				trans_mat.setZero();
-				trans_mat ( 1,1 ) = locP.Di_mat ( 1,1 ); trans_mat ( 1,2 ) = locP.Di_mat ( 1,2 );
-				trans_mat ( 2,1 ) = locP.Di_mat ( 2,1 ); trans_mat ( 2,2 ) = locP.Di_mat ( 2,2 ); trans_mat ( 2,3 ) = 1.;
-				trans_mat ( 3,4 ) = 1.; trans_mat ( 4,5 ) = 1.; trans_mat ( 5,6 ) = 1.;
+				trans_mat ( 0,0 ) = locP.Di_mat ( 0,0 ); trans_mat ( 0,1 ) = locP.Di_mat ( 0,1 );
+				trans_mat ( 1,0 ) = locP.Di_mat ( 1,0 ); trans_mat ( 1,1 ) = locP.Di_mat ( 1,1 ); trans_mat ( 1,2 ) = 1.;
+				trans_mat ( 2,3 ) = 1.; trans_mat ( 3,4 ) = 1.; trans_mat ( 4,5 ) = 1.;
 
 				//some intermediate calculations to get 5x5 matrix
 				//cov(V,V)
