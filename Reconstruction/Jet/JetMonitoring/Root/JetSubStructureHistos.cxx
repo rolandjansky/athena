@@ -33,6 +33,11 @@ int JetSubStructureHistos::buildHistos(){
   // Build and register the histos in this group : 
   TH1::AddDirectory(kFALSE); // Turn off automatic addition to gDirectory to avoid Warnings. Histos are anyway placed in their own dir later.
   m_tau21 = bookHisto( new TH1F(prefixn+"tau21"  ,  "Jet tau21 (GeV);Entries", 100, 0, 200) );
+  m_tau32 = bookHisto( new TH1F(prefixn+"tau32"  ,  "Jet tau32 (GeV);Entries", 100, 0, 200) );
+  m_C1    = bookHisto( new TH1F(prefixn+"c1"  ,  "Jet c1 (GeV);Entries", 100, 0, 200) );
+  m_C2    = bookHisto( new TH1F(prefixn+"c2"  ,  "Jet c2 (GeV);Entries", 100, 0, 200) );
+  m_D2    = bookHisto( new TH1F(prefixn+"d2"  ,  "Jet d2 (GeV);Entries", 100, 0, 200) );
+  
 
 
   TH1::AddDirectory(kTRUE); // Turn on automatic addition to gDirectory in case others needs it.
@@ -56,18 +61,17 @@ int JetSubStructureHistos::buildHistos(){
   return 0;
 }
 
-//int JetSubStructureHistos::fillHistosFromContainer(const xAOD::JetContainer & cont){
-//  // fill the N if needed. 
-//  m_tau21->Fill( cont.Tau1 / cont.Tau2() );
-//  // Perform the loop over jets in the base class :
-//  return JetHistoBase::fillHistosFromContainer(cont);
-//}
-
 
 
 int JetSubStructureHistos::fillHistosFromJet(const xAOD::Jet &j){
-//  xAOD::JetConstituentVector vec1 = j.getConstituents();
-  m_tau21->Fill( j.getAttribute<float>("Tau1") / j.getAttribute<float>("Tau2") );
+  //For definitions see JetSubStructureMomentTools
+  
+  if( j.getAttribute<float>("Tau1") != 0 ) m_tau21->Fill( j.getAttribute<float>("Tau2") / j.getAttribute<float>("Tau1") );
+  if( j.getAttribute<float>("Tau2") != 0 ) m_tau32->Fill( j.getAttribute<float>("Tau3") / j.getAttribute<float>("Tau2") );
+
+  if( j.getAttribute<float>("ECF1") > 1e-8 ) m_C1->Fill( j.getAttribute<float>("ECF2") / pow( j.getAttribute<float>("ECF1"), 2.0) );
+  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_C2->Fill( ( j.getAttribute<float>("ECF3") * j.getAttribute<float>("ECF1") ) / pow( j.getAttribute<float>("ECF2"), 2.0) );
+  if( j.getAttribute<float>("ECF2") > 1e-8 ) m_D2->Fill( ( j.getAttribute<float>("ECF3") * pow( j.getAttribute<float>("ECF1"), 3.0 ) ) / pow( j.getAttribute<float>("ECF2"), 3.0) );
 
   return 0;
 }
