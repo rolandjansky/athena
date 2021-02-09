@@ -301,8 +301,9 @@ def getJetRecAlg( jetdef, monTool = None):
         JetRadius = jetdef.radius,
         PtMin = jetdef.ptmin,
         InputPseudoJets = pjContNames,
-        GhostArea = 0.01 if (jetdef.radius < 0.6)  else 0. , 
-        JetInputType = jetdef.inputdef.jetinputtype,
+        GhostArea = 0.01, 
+        JetInputType = int(jetdef.inputdef.jetinputtype),
+        RandomOption = 1,
     )
 
     mods = buildJetModifierList(jetdef)
@@ -329,7 +330,7 @@ def getJetRecAlg( jetdef, monTool = None):
 # The decoration list can be set in order for the decorations
 # (jet moments) on the original jets to be propagated to the
 # copy collection. Beware of circular dependencies!
-def getJetCopyAlg(jetsin, jetsoutdef, decorations=[], shallowcopy=True, shallowIO=True):
+def getJetCopyAlg(jetsin, jetsoutdef, decorations=[], shallowcopy=True, shallowIO=True, monTool=None):
 
     jcopy = CompFactory.JetCopier(
         "copier",
@@ -350,7 +351,8 @@ def getJetCopyAlg(jetsin, jetsoutdef, decorations=[], shallowcopy=True, shallowI
         "jetrecalg_copy_"+jetsoutname,
         Provider = jcopy,
         Modifiers = mods,
-        OutputContainer = jetsoutname)
+        OutputContainer = jetsoutname,
+        MonTool = monTool)
 
     autoconfigureModifiers(jra.Modifiers, jetsoutname)
 
