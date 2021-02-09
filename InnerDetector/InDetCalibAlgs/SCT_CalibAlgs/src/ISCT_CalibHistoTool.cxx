@@ -82,6 +82,11 @@ ISCT_CalibHistoTool::setLbToMerge(const int nLbMerge) {
    m_nLbMerge = nLbMerge;
 }
 
+void
+ISCT_CalibHistoTool::setLb(const int nLb) {
+   m_lumiBlock = nLb;
+}
+
 int
 ISCT_CalibHistoTool::LbToMerge() const {
    return m_nLbMerge;

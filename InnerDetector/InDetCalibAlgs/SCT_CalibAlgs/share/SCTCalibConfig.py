@@ -37,11 +37,11 @@ ReadBS         = True
 # - Set only one flag to True and others to False
 #------------------------------------------------------------
 #--- Algs using TrkVal or BS
-DoNoisyStrip     = False
+DoNoisyStrip     = True
 DoNoisyLB        = False 
 DoHV             = False
 DoDeadStrip      = False
-DoDeadChip       = True
+DoDeadChip       = False
 #--- Algs using HIST
 DoNoiseOccupancy = False 
 DoRawOccupancy   = False

@@ -317,6 +317,9 @@ SCTCalib::notEnoughStatistics(const int required, const int obtained, const std:
 // Execute - on event by event
 //////////////////////////////////////////////////////////////////////////////////
 StatusCode SCTCalib::execute() {
+
+   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
+
    ATH_MSG_DEBUG("----- in execute() ----- ");
    if (m_readBS) {
       ATH_MSG_DEBUG("in execute(): m_eventInfoKey = " << m_eventInfoKey);
@@ -341,14 +344,18 @@ StatusCode SCTCalib::execute() {
       m_calibEvtInfoTool->setLumiBlock(std::min(lumiBlock, lbBeginOld), std::max(lumiBlock, lbEndOld));
       m_calibEvtInfoTool->setLumiBlock(lumiBlock);
       m_calibEvtInfoTool->setTimeStamp(timeStamp);
+      if (m_doNoisyLB and majorityIsGoodOrUnused) {
+         m_calibLbTool->setLb(evt->lumiBlock());
+      }
    }
 
-   const bool majorityIsGoodOrUnused{(m_useMajority and m_MajorityConditionsTool->isGood()) or !m_useMajority};
    //--- Fill histograms for (1) Number of events and (2) Hitmaps
    if (m_doHitMaps and majorityIsGoodOrUnused) m_calibHitmapTool->fill(m_readBS);
 
    //--- Fill histograms for (1) Number of events and (2) Hits as a function of LB
-   if (m_doNoisyLB and majorityIsGoodOrUnused) m_calibLbTool->fill(m_readBS);
+   if (m_doNoisyLB and majorityIsGoodOrUnused) {
+      m_calibLbTool->fill(m_readBS);
+   }
 
    //--- Fill histograms for (1) Number of events and (2) BSErrors
    if (m_doBSErrors) m_calibBsErrTool->fill(m_readBS);
