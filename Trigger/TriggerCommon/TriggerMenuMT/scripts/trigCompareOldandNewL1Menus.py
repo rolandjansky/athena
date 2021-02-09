@@ -12,6 +12,7 @@ import sys
 import xml.etree.cElementTree as ET
 from collections import namedtuple
 from itertools import chain
+from copy import deepcopy
 
 from AthenaCommon.Logging import logging, Constants
 log = logging.getLogger("TestMenuMigration")
@@ -183,6 +184,28 @@ class MenuComp:
             log.debug("    Name, CTPID in xml, CTPID in json")
             for x in noMatchId:
                 log.debug("    %s", x)
+
+        # CHECK 4: isolation parametrization
+        iso_xml  = self.r22_l1_xml.find("CaloInfo").findall("Isolation")
+        iso_json = deepcopy(self.r22_l1_json.thresholdExtraInfo("EM")["isolation"]) # 'HAIsoForEMthr', 'EMIsoForEMthr'
+        iso_json.update(deepcopy(self.r22_l1_json.thresholdExtraInfo("TAU")["isolation"])) # 'EMIsoForTAUthr'
+        noMatchValue = []
+        for iso_x in iso_xml:
+            isoType = iso_x.attrib["thrtype"]
+            iso_j = iso_json[isoType]['Parametrization']
+            for bit, (x,j) in enumerate(zip(iso_x,iso_j)):
+                for p in j:
+                    if j[p] != int(x.attrib[p]):
+                        noMatchValue += [ (isoType,bit+1,p,j[p],x.attrib[p]) ]
+                cc = len(self.check)
+        self.check += [ len(noMatchValue)==0 ]
+        log.info("CHECK %i: isolation parametrization for legacy L1Calo must match in xml and json: %s", cc, boolStr(self.check[cc]) )
+        if not self.check[cc]:
+            log.debug("These %i parametrization values are different (should be 0)" , len(noMatchValue))
+            log.debug("    Type, bit, parameter: value in xml != value in json")
+            for x in noMatchValue:
+                log.debug("    %s, %i, %s: %i != %s", *x )
+
 
 
     def checkHltInputsPresent(self):

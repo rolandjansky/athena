@@ -206,13 +206,13 @@ computeImpl(const Trk::MultiComponentState* uncombinedState,
   double theta = mean[Trk::theta];
   double qoverp = mean[Trk::qOverP];
   if (firstMeasuredCov) {
-    combinedTrackParameters.reset(
-      firstParameters->associatedSurface().createTrackParameters(
-        loc1, loc2, phi, theta, qoverp, covariance));
+    combinedTrackParameters =
+      firstParameters->associatedSurface().createUniqueTrackParameters(
+        loc1, loc2, phi, theta, qoverp, covariance);
   } else {
-    combinedTrackParameters.reset(
-      firstParameters->associatedSurface().createTrackParameters(
-        loc1, loc2, phi, theta, qoverp, nullptr));
+    combinedTrackParameters =
+      firstParameters->associatedSurface().createUniqueTrackParameters(
+        loc1, loc2, phi, theta, qoverp, nullptr);
     delete covariance;
   }
 

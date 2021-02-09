@@ -23,6 +23,7 @@
 #include "LArRawEvent/LArSCDigit.h"
 #include "LArRawEvent/LArLATOMEHeaderContainer.h"
 #include "ByteStreamData/RawEvent.h"
+#include "CxxUtils/unused.h"
 #include "eformat/Version.h"
 #include "eformat/Issue.h"
 #include <vector>
@@ -194,7 +195,6 @@ private:
     LArLATOMEHeaderContainer* m_header_coll;
     
     NumLATOME m_nthLATOME = 0;
-    Sample m_nthSampleInEvent = 0;
     std::vector<unsigned short> m_BCIDsInEvent;
     std::vector<LatomeRawData> m_rawValuesInEvent;
   };
@@ -212,9 +212,9 @@ private:
   std::vector<Path> m_LATOMEMapPath;
 
   /** @brief Detail dump file*/
-  std::ofstream* m_detailDumpFile;
+  std::ofstream* ATH_UNUSED_MEMBER(m_detailDumpFile) = nullptr;
   /** @brief ADC dump file*/
-  std::ofstream* m_ADCDumpFile;
+  std::ofstream* ATH_UNUSED_MEMBER(m_ADCDumpFile) = nullptr;
 };
 
 #endif // LARBYTESTREAM_LARLATOMEDDECODER_H

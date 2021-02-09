@@ -1572,7 +1572,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
       }
       
       unsigned int n_HLTJet = 0;
-      for(const auto & thisjet : *jetcoll) {
+      for(const auto thisjet : *jetcoll) {
         n_HLTJet++;
 	
       	if(/*m_debuglevel*/1) {
@@ -1695,7 +1695,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 	    }
 
 
-	  for(const auto & thisjet : *jetcoll) {
+         for(const auto thisjet : *jetcoll) {
             n_OFJet++;
 
             if(!thisjet) continue;
@@ -2640,7 +2640,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
       TLorentzVector v_trigjet_tmp;
 
-      for(const auto & jet : *jetcoll) {
+      for(const auto jet : *jetcoll) {
 
 	ATH_MSG_DEBUG("Offline Jet Collection Loop");
 
@@ -2949,7 +2949,7 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   bool   found_jetn=false;
   std::vector<double> v_ofjets;
 
-  for(const auto & j : *jetcoll) {
+  for(const auto j : *jetcoll) {
     if (fabs(j->eta())>=EtaLow && fabs(j->eta())<=EtaHigh){
      
       v_ofjets.push_back(j->pt());

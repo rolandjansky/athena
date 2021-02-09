@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUSHOTFINDER_H
-#define	TAUREC_TAUSHOTFINDER_H
+#ifndef TAURECTOOLS_TAUSHOTFINDER_H
+#define TAURECTOOLS_TAUSHOTFINDER_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -105,4 +105,4 @@ private:
 
 };
 
-#endif	/* TAUSHOTFINDER_H */
+#endif  // TAURECTOOLS_TAUSHOTFINDER_H

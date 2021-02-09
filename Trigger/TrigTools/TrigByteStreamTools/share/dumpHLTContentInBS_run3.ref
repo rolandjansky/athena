@@ -4,7 +4,8 @@ L1 CTP IDs - TBP: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 23, 29, 30, 45, 47, 49, 50
 L1 CTP IDs - TAP: [3, 8, 10, 11, 29, 30, 49, 50, 51, 56, 68, 82, 86, 87, 91, 138, 139, 143, 152, 157, 158, 159, 160, 203, 250, 279, 280, 281, 286, 293, 294, 295, 322, 344, 349, 380, 384, 390, 392, 402, 417, 423, 424, 501, 506]
 L1 CTP IDs - TAV: [11, 295, 392, 402]
 EF passed chain IDs: [1]
-Stream Tags: ['physics_Main']
+Stream Tags:
+-- physics_Main - Full Event Building
 Found 1 HLT ROBs
 -- ROBFragment SourceID: TDAQ_HLT, module=0 (opt=0), Size: 188840 bytes
 ---- xAOD::TrigConfKeys_v1#TrigConfKeysOnline SMK: 40, L1PSK: 0, HLTPSK: 146
@@ -13,7 +14,8 @@ L1 CTP IDs - TBP: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 23, 24, 26, 27, 29, 30, 45
 L1 CTP IDs - TAP: [3, 8, 10, 11, 29, 30, 49, 50, 51, 52, 55, 56, 59, 61, 62, 68, 69, 74, 76, 78, 82, 83, 86, 91, 100, 101, 126, 136, 138, 141, 143, 147, 148, 149, 150, 151, 152, 157, 158, 159, 160, 172, 175, 176, 177, 203, 250, 253, 254, 260, 261, 266, 267, 268, 269, 279, 280, 281, 286, 290, 291, 292, 337, 344, 346, 349, 350, 353, 356, 378, 380, 384, 386, 390, 392, 398, 402, 409, 417, 423, 424, 429, 479, 481, 486, 501, 502, 503, 506, 507, 508]
 L1 CTP IDs - TAV: [11, 52, 61, 69, 74, 76, 78, 100, 101, 141, 147, 148, 149, 150, 151, 172, 175, 176, 346, 350, 356, 392, 398, 402, 429]
 EF passed chain IDs: [1, 51, 96, 103, 104, 105, 106, 107]
-Stream Tags: ['physics_Main']
+Stream Tags:
+-- physics_Main - Full Event Building
 Found 1 HLT ROBs
 -- ROBFragment SourceID: TDAQ_HLT, module=0 (opt=0), Size: 387944 bytes
 ---- xAOD::TrigConfKeys_v1#TrigConfKeysOnline SMK: 40, L1PSK: 0, HLTPSK: 146
@@ -22,17 +24,21 @@ L1 CTP IDs - TBP: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 23, 24, 29, 30, 45, 47, 49
 L1 CTP IDs - TAP: [3, 8, 10, 11, 29, 30, 49, 50, 51, 56, 59, 68, 82, 86, 91, 125, 129, 138, 143, 152, 157, 158, 159, 160, 203, 262, 279, 280, 281, 286, 290, 291, 349, 380, 385, 390, 392, 402, 417, 423, 424, 501, 506, 507]
 L1 CTP IDs - TAV: [11, 385, 392, 402]
 EF passed chain IDs: [1, 61]
-Stream Tags: ['calibration_CostMonitoring', 'physics_Main']
+Stream Tags:
+-- calibration_CostMonitoring - Partial Event Building, robs=[0x7c0001], dets=[]
+-- physics_Main - Full Event Building
 Found 2 HLT ROBs
 -- ROBFragment SourceID: TDAQ_HLT, module=0 (opt=0), Size: 186968 bytes
 ---- xAOD::TrigConfKeys_v1#TrigConfKeysOnline SMK: 40, L1PSK: 0, HLTPSK: 146
 -- ROBFragment SourceID: TDAQ_HLT, module=1 (opt=0), Size: 111696 bytes
+---- TrigConfKeys unavailable in this ROB
 ==================== Event: 375, RunNumber: 386043, LB:    7, Global_ID:    1857479, LVL1_ID: 1845617563, BC_ID:  947, TT: x81 ====================
 L1 CTP IDs - TBP: [157, 200, 203, 205, 207, 223, 279, 280, 281, 349, 390, 417]
 L1 CTP IDs - TAP: [157, 200, 203, 207, 279, 280, 281, 349, 390, 417]
 L1 CTP IDs - TAV: [200, 207]
 EF passed chain IDs: [64, 66, 122]
-Stream Tags: ['physics_Main']
+Stream Tags:
+-- physics_Main - Full Event Building
 Found 1 HLT ROBs
 -- ROBFragment SourceID: TDAQ_HLT, module=0 (opt=0), Size: 357364 bytes
 ---- xAOD::TrigConfKeys_v1#TrigConfKeysOnline SMK: 40, L1PSK: 0, HLTPSK: 146
@@ -41,10 +47,13 @@ L1 CTP IDs - TBP: [0, 1, 2, 3, 4, 6, 7, 8, 9, 10, 11, 23, 29, 30, 45, 47, 48, 49
 L1 CTP IDs - TAP: [3, 8, 10, 11, 29, 30, 49, 50, 51, 56, 68, 82, 86, 87, 91, 138, 143, 152, 157, 158, 159, 160, 203, 279, 280, 281, 286, 344, 349, 380, 384, 390, 392, 402, 417, 423, 424, 501, 506, 507]
 L1 CTP IDs - TAV: [11, 392, 402]
 EF passed chain IDs: [1]
-Stream Tags: ['physics_Main']
+Stream Tags:
+-- physics_Main - Full Event Building
 Found 1 HLT ROBs
 -- ROBFragment SourceID: TDAQ_HLT, module=0 (opt=0), Size: 185648 bytes
 ---- xAOD::TrigConfKeys_v1#TrigConfKeysOnline SMK: 40, L1PSK: 0, HLTPSK: 146
+====================
 Size summary:
+====================
 -- TDAQ_HLT module 0 total size 1306764 bytes, 261352.800 bytes/event
 -- TDAQ_HLT module 1 total size 111696 bytes, 22339.200 bytes/event

@@ -24,7 +24,7 @@
 
 // McParticleTools includes
 #include "VtxBasedFilterTool.h"
-
+#include "AtlasHepMC/Flow.h"
 using namespace TruthHelper;
 
 /// Constructors
@@ -162,6 +162,56 @@ StatusCode VtxBasedFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx,
     return StatusCode::FAILURE;
   }
 
+#ifdef HEPMC3
+  HepMC::GenVertexPtr  vtx = HepMC::barcode_to_vertex(evt,HepMC::barcode(srcVtx));
+  if ( ! vtx ) {
+    evt->add_vertex(vtx);
+    vtx = HepMC::newGenVertexPtr();
+    vtx->set_position( srcVtx->position() );
+    vtx->set_status( srcVtx->status() );
+    HepMC::suggest_barcode(vtx, HepMC::barcode(srcVtx) );
+    //AV: here should be code to copy the weights, but these are never used. Skip. Please don't remove this comment.  vtx->weights() = srcVtx->weights();
+  }
+
+  ////////////////////////////
+  /// Fill the parent branch
+  for ( auto parent: srcVtx->particles_in() ) {
+    HepMC::GenParticlePtr p = HepMC::barcode_to_particle(evt, HepMC::barcode(parent) );
+    if ( !p ) {
+      p = HepMC::newGenParticlePtr();
+      vtx->add_particle_in( p );
+      p->set_momentum( parent->momentum() );
+      p->set_generated_mass( parent->generated_mass() );
+      p->set_pdg_id( parent->pdg_id() );
+      p->set_status( parent->status() );
+      HepMC::set_flow(p, HepMC::flow(parent) );
+      HepMC::set_polarization(p, HepMC::polarization(parent) );
+	  HepMC::suggest_barcode(p,HepMC::barcode(parent) );
+    } else {
+    // set the mother's decay to our (new) vertex
+    vtx->add_particle_in( p );
+    }
+  }//> loop over ingoing particles
+  
+  //////////////////////////////
+  /// Fill the children branch
+  for ( auto child: srcVtx->particles_out()) {
+    HepMC::GenParticlePtr p = HepMC::barcode_to_particle(evt, HepMC::barcode(child) );
+    if ( !p ) {
+      p = HepMC::newGenParticlePtr();
+      vtx->add_particle_out( p );
+      p->set_momentum( child->momentum() );
+      p->set_generated_mass( child->generated_mass() );
+      p->set_pdg_id( child->pdg_id() );
+      HepMC::set_flow(p, HepMC::flow(child) );
+      HepMC::set_polarization(p, HepMC::polarization(child) );
+	  HepMC::suggest_barcode(p,HepMC::barcode(child) );
+    } else {
+    // set the daughter's production vertex to our new vertex
+    vtx->add_particle_out( p );
+    }
+  }//> loop over outgoing particles
+#else
   HepMC::GenVertex * vtx = evt->barcode_to_vertex(srcVtx->barcode());
   if ( 0 == vtx ) {
     vtx = HepMC::newGenVertexPtr();
@@ -217,6 +267,7 @@ StatusCode VtxBasedFilterTool::addVertex( HepMC::ConstGenVertexPtr srcVtx,
     vtx->add_particle_out( p );
 
   }//> loop over outgoing particles
+#endif
 
   return StatusCode::SUCCESS;
 }

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TrigEgammaMonitorPhotonAlgorithm.h"
@@ -102,7 +102,7 @@ StatusCode TrigEgammaMonitorPhotonAlgorithm::executeNavigation( const EventConte
 
   const std::string decor="is"+pidName;
 
-  for(const auto& eg : *offPhotons ){
+  for(const auto eg : *offPhotons ){
       const TrigCompositeUtils::Decision *dec=nullptr; 
       if(!eg->caloCluster()){
           ATH_MSG_DEBUG("No caloCluster");

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Asg wrapper around the MissingMassCalculator
@@ -22,7 +22,6 @@
 #include "xAODBase/IParticle.h"
 
 // fwd declarations
-class MissingMassCalculator;
 class TLorentzVector;
 class TVector2;
 
@@ -54,13 +53,17 @@ class IMissingMassTool : public virtual asg::IAsgTool
 			 const int & njets)=0;
 
 
-  virtual MissingMassCalculator* get() = 0;
-  virtual double GetFitStatus(const int & method)=0;
-  virtual double GetFittedMass(const int & method)=0;
-  virtual TLorentzVector GetResonanceVec(const int& method) = 0;
-  virtual TVector2 GetFittedMetVec(const int& method) = 0;
-  virtual TLorentzVector GetNeutrino4vec(const int& method, const int & index) = 0;
-  virtual TLorentzVector GetTau4vec(const int& method, const int & index) = 0;
+  virtual double GetFitStatus(const int method)=0;
+  virtual double GetFittedMass(const int method)=0;
+  virtual double GetFittedMassErrorUp(int method)=0;
+  virtual double GetFittedMassErrorLow(int method)=0;
+  virtual TLorentzVector GetResonanceVec(int method) = 0;
+  virtual TVector2 GetFittedMetVec(int method) = 0;
+  virtual TLorentzVector GetNeutrino4vec(int method, int index) = 0;
+  virtual TLorentzVector GetTau4vec(int method, int index) = 0;
+  virtual int GetNNoSol()=0;
+  virtual int GetNMetroReject()=0;
+  virtual int GetNSol()=0;
 
 };
 #endif

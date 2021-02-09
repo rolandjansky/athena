@@ -265,21 +265,16 @@ def defineCalibMods(jetRecoDict,dataSource,rhoKey="auto"):
 
         calibSpec = ":".join( [calibContext, dataSource, calibSeq, rhoKey, pvname, gscDepth] )
 
-        if jetalg=="a4":
-            calibMods = ["ConstitFourMom_copy",
-                         "CaloEnergies", # Needed for GSC
-                         "Calib:"+calibSpec]
-        else:
-            calibMods = ["ConstitFourMom_copy",
-                         "Calib:"+calibSpec]
+        calibMods = ["Calib:"+calibSpec]
 
     return calibMods
 
 def getDecorList(doTracks,isPFlow):
     # Basic jet info provided by the jet builder
-    decorlist = [ 'AlgorithmType', 'InputType' 
+    decorlist = [ 'AlgorithmType', 'InputType',
                   'ActiveArea', 'ActiveArea4vec_eta', 'ActiveArea4vec_m',
-                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt']
+                  'ActiveArea4vec_phi', 'ActiveArea4vec_pt',
+                  'EMFrac','HECFrac','JvtRpt','EnergyPerSampling']
 
     if doTracks:
         decorlist += ["GhostTrack",

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "MonteCarloReactUtils/BinnedEfficiency.h"
@@ -588,8 +588,6 @@ void BinnedEfficiency::stream( ostream & os) const
 
 
 void BinnedEfficiency::initEff() {
-  int i = m_eff.size() ;
   m_eff.resize(getNbins() ) ;  
-  for (; i < int(m_eff.size()); i++) m_eff[i].setBinNumber(i) ;
 }
 

@@ -48,4 +48,4 @@ private:
     "tauEVParticleCache", "ParticleCaloExtension", "Name of the particle measurement extrapolation cache for TauEV Algorithm"};
 };
 
-#endif
+#endif // TAURECTOOLS_TAUELECTRONVETOVARIABLES_H

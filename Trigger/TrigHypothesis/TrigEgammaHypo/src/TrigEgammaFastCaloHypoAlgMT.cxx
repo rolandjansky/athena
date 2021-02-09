@@ -68,8 +68,8 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
     // get Rings
     const xAOD::TrigRingerRingsContainer* rings = nullptr;    
     if ( not m_ringsKey.empty() ) {      
-      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);
-      ATH_CHECK( ringerShapeHandle.isValid() );
+      auto ringerShapeHandle = ViewHelper::makeHandle( *viewEL, m_ringsKey, context);      
+      ATH_CHECK( ringerShapeHandle.isValid());
       rings = ringerShapeHandle.cptr();	
       ATH_MSG_DEBUG ( "Ringer handle size: " << ringerShapeHandle->size() << "..." );
 
@@ -79,9 +79,6 @@ StatusCode TrigEgammaFastCaloHypoAlgMT::execute( const EventContext& context ) c
       d->setObjectLink( "ringer",  el );
       
     }
-
-
-
 
     // create new decision
     toolInput.emplace_back( d, roi, clusterHandle.cptr()->at(0), (rings ? rings->at(0) : nullptr) , previousDecision );

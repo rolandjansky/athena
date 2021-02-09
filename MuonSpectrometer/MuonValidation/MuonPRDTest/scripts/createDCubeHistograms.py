@@ -8,9 +8,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='createDCubeHistograms', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('-i', '--inputFile', help='choose input ROOT file', default='NSWPRDValAlg.sim.ntuple.root', type=str)
     parser.add_argument('-o', '--outputFile', help='choose output ROOT file', default='NSWPRDValAlg.dcube.root', type=str)
-    parser.add_argument('-csc', '--doCSC', help='turn off CSC if using Run4 input ROOT file', default=False, type=bool)
-    parser.add_argument('-mm', '--doMM', help='turn off MM if using Run2 input ROOT file', default=False, type=bool)
-    parser.add_argument('-stgc', '--doSTGC', help='turn off STGC if using Run2 input ROOT file', default=False, type=bool)
+    parser.add_argument('--doCSC', help='turn off CSC if using Run4 input ROOT file', default=False, action='store_true')
+    parser.add_argument('--doMM', help='turn off MM if using Run2 input ROOT file', default=False, action='store_true')
+    parser.add_argument('--doSTGC', help='turn off STGC if using Run2 input ROOT file', default=False, action='store_true')
     Options = parser.parse_args()
 
     ROOT.gROOT.SetBatch(True)

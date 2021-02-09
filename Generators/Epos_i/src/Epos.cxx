@@ -19,7 +19,6 @@
 #include "CLHEP/Random/RandFlat.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "AtlasHepMC/HEPEVT_Wrapper.h"
 #include "AtlasHepMC/IO_HEPEVT.h"
 #include "AtlasHepMC/GenEvent.h"
 #include "AtlasHepMC/HeavyIon.h"
@@ -214,7 +213,7 @@ StatusCode Epos::genInitialize()
 
   //   std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
 
-    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, m_paramFile.c_str() ); 
+    crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout, (m_paramFile + " ").c_str() );
 
     // initialize Epos
   //  crmc_init_f_( iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_paramFile.c_str() );
@@ -232,7 +231,7 @@ StatusCode Epos::genInitialize()
 #else    
     HepMC::HEPEVT_Wrapper::set_sizeof_int(sizeof( int ));
     HepMC::HEPEVT_Wrapper::set_sizeof_real( 8 );
-    HepMC::HEPEVT_Wrapper::set_max_number_entries(10000);    // as used in crmc-aaa.f!!!
+    HepMC::HEPEVT_Wrapper::set_max_number_entries(kMaxParticles);
 #endif
 
   m_events = 0;

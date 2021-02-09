@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUSUBSTRUCTUREBUILDER_H
-#define TAUREC_TAUSUBSTRUCTUREBUILDER_H
+#ifndef TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H
+#define TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -27,7 +27,7 @@ public:
 
   virtual ~TauSubstructureVariables() = default;
 
-  virtual StatusCode execute(xAOD::TauJet& pTau) const override;
+  virtual StatusCode execute(xAOD::TauJet& tau) const override;
 
   static const float DEFAULT;
 
@@ -36,4 +36,4 @@ private:
   bool m_doVertexCorrection;
 };
 
-#endif
+#endif // TAURECTOOLS_TAUSUBSTRUCTUREVARIABLES_H

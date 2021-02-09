@@ -282,6 +282,31 @@ TruthJetFilterTool::addParticle (HepMC::ConstGenParticlePtr  p, HepMC::GenEvent*
 StatusCode
 TruthJetFilterTool::addVertex (HepMC::ConstGenVertexPtr v,HepMC::GenEvent* ev)
 {
+#ifdef HEPMC3
+  // See if this vertex has already been copied.
+  HepMC::GenVertexPtr vnew = HepMC::barcode_to_vertex (ev,HepMC::barcode(v));
+  if (!vnew) {
+    // No ... make a new one.
+    vnew = HepMC::newGenVertexPtr();
+    ev->add_vertex (vnew);
+    vnew->set_position (v->position());
+    vnew->set_status (v->status());
+    HepMC::suggest_barcode (vnew,HepMC::barcode(v));
+    //AV: here should be code to copy the weights, but these are never used. Skip. Please don't remove this comment. vnew->weights() = v->weights();
+    // Fill in the existing relations of the new vertex.
+    for (auto  p : v->particles_in())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_in (pnew);
+    }
+
+    for (auto p : v->particles_out())
+    {
+      HepMC::GenParticlePtr pnew = HepMC::barcode_to_particle (ev,HepMC::barcode(p));
+      if (pnew) vnew->add_particle_out (pnew);
+    }
+  }
+#else
   // See if this vertex has already been copied.
   HepMC::GenVertex* vnew = ev->barcode_to_vertex (v->barcode());
   if (!vnew) {
@@ -312,6 +337,7 @@ TruthJetFilterTool::addVertex (HepMC::ConstGenVertexPtr v,HepMC::GenEvent* ev)
         vnew->add_particle_out (pnew);
     }
   }
+#endif
 
   return StatusCode::SUCCESS;
 }
@@ -392,15 +418,18 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 
 	if (m_excludeWZdecays) {
 		if (pdg_id == 23 || pdg_id == 24) return false;
+		HepMC::ConstGenVertexPtr vprod = p->production_vertex();
+		HepMC::ConstGenVertexPtr oldVprod = vprod;
 		
-		HepMC::GenVertex* vprod = p->production_vertex();
-		HepMC::GenVertex*oldVprod = vprod;
-		
-		if (vprod && vprod->particles_in_size() > 0) {
+		if (vprod && HepMC::particles_in_size(vprod) > 0) {
 			int mom_pdg_id = pdg_id;
 			// Ascend decay chain looking for when actual decay occurs (not jsut evolution of particle)
 			while (pdg_id == mom_pdg_id) {
-				const HepMC::GenParticle* mother = *(vprod->particles_in_const_begin());
+#ifdef HEPMC3
+				HepMC::ConstGenParticlePtr mother = vprod->particles_in().at(0);
+#else
+				HepMC::ConstGenParticlePtr mother = *(vprod->particles_in_const_begin());
+#endif
 				if (mother) {
 					mom_pdg_id = std::abs(mother->pdg_id());
 				} else break;
@@ -411,7 +440,7 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 				oldVprod = vprod;
 
 				vprod = mother->production_vertex();
-				if (!vprod || vprod->particles_in_size() == 0) break;
+				if (!vprod ||  HepMC::particles_in_size(vprod) == 0) break;
 			} // End while loop
 
 			// The following vertex-based identification of W/Z's is needed for SHERPA
@@ -421,11 +450,11 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 			int nDecay=0;
 			// Prompt W/Z's should come from a vertex with more than one incoming particle
 			// This suppresses fave Z's from conversions
-			if (vprod && vprod->particles_in_size() >1)
+			if (vprod &&  HepMC::particles_in_size(vprod) >1)
 			{
-				for(HepMC::GenVertex::particles_out_const_iterator daughter = vprod->particles_out_const_begin();daughter!=vprod->particles_out_const_end();++daughter)
+				for(auto daughter: *vprod)
 				{
-					if((std::abs((*daughter)->pdg_id())>10 && std::abs((*daughter)->pdg_id())<17) ) nDecay++;
+					if((std::abs(daughter->pdg_id())>10 && std::abs(daughter->pdg_id())<17) ) nDecay++;
 				}
 			}
 			bool isWZ = (nDecay==2);
@@ -441,11 +470,10 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
 				// Only exclude photons within deltaR of leptons (if m_photonCone<0, exclude all photons)
 				if(std::abs (p->pdg_id()) == 22 && m_photonCone>0)
 				{
-					std::vector<const HepMC::GenParticle*>::iterator lep=m_WZleptons.begin();
-					for(;lep!=m_WZleptons.end();++lep) {
+					for(auto lep: m_WZleptons) {
 						double deltaR = HepLorentzVector(p->momentum().px(),p->momentum().py(),p->momentum().pz(),p->momentum().e())
 							.deltaR(
-									HepLorentzVector((*lep)->momentum().px(),(*lep)->momentum().py(),(*lep)->momentum().pz(),(*lep)->momentum().e()));
+									HepLorentzVector(lep->momentum().px(),lep->momentum().py(),lep->momentum().pz(),lep->momentum().e()));
 						// if photon within deltaR of lepton, remove along with lepton
 						if( deltaR < m_photonCone ) return false;
 					}
@@ -479,13 +507,16 @@ TruthJetFilterTool::acceptParticle (HepMC::ConstGenParticlePtr p)
   // PHOTOS range: check whether photons come from parton range or 
   // hadron range
   int motherBarcode = 999999999;
-  if( barcode > PHOTOSMIN && barcode < GEANTMIN &&
-      p->production_vertex() ) {
-    const HepMC::GenVertex* vprod = p->production_vertex();
-    if (vprod->particles_in_size() > 0) {
+  if( barcode > PHOTOSMIN && barcode < GEANTMIN && p->production_vertex() ) {
+    HepMC::ConstGenVertexPtr vprod = p->production_vertex();
+    if ( HepMC::particles_in_size(vprod) > 0) {
+#ifdef HEPMC3
+      HepMC::ConstGenParticlePtr mother = vprod->particles_in().at(0);
+#else
       const HepMC::GenParticle* mother = *vprod->particles_in_const_begin();
+#endif
       if (mother)
-        motherBarcode = mother->barcode();
+        motherBarcode = HepMC::barcode(mother);
     }
 
     if( m_writePartons && motherBarcode < m_firstHadronBarcode )

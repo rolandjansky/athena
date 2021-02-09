@@ -5,7 +5,7 @@
  **     @author  mark sutton
  **     @date    Tue 10 Nov 2009 10:05:35 GMT 
  **
- **     Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+ **     Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  **/
 
 /**
@@ -96,6 +96,13 @@ public:
    * @param TIDARoiDescriptor
    */
   TIDARoiDescriptor( const TIDARoiDescriptor& r);
+
+
+  /**
+   * @brief assignment
+   * @param TIDARoiDescriptor
+   */
+  TIDARoiDescriptor& operator=( const TIDARoiDescriptor& r);
 
 
   // Destructor

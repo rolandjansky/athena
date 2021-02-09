@@ -43,6 +43,8 @@ public:
 
   virtual ~AnalysisConfigMT_Ntuple() { }
 
+  void set_fiducial_radius( double d ) { m_fiducial_radius = d; }
+
 protected:
 
   virtual void loop();

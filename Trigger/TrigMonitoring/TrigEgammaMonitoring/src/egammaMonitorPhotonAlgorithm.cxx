@@ -64,7 +64,7 @@ void egammaMonitorPhotonAlgorithm::filltopoPhotonShowerShapes( const EventContex
     auto eratio_col             = Monitored::Collection("eratio"   , eratio_vec  );
     auto DeltaE_col             = Monitored::Collection("deltaE"   , DeltaE_vec  );
     
-    for (const auto& photon : *photons) {
+    for (const auto photon : *photons) {
     
         e237_vec.push_back(photon->showerShapeValue(val,xAOD::EgammaParameters::e237));
         e277_vec.push_back(photon->showerShapeValue(val,xAOD::EgammaParameters::e237));
@@ -104,7 +104,7 @@ void egammaMonitorPhotonAlgorithm::filltopoPhotonIsolation( const EventContext& 
     auto ptcone40_col = Monitored::Collection("ptcone40", ptcone40_vec);
 
     
-    for (const auto& photon : *photons) {
+    for (const auto photon : *photons) {
 
         topoetcone20_vec.push_back( photon->isolationValue(val,xAOD::Iso::topoetcone20)/Gaudi::Units::GeV);
         ptcone20_vec.push_back(photon->isolationValue(val,xAOD::Iso::ptcone20));

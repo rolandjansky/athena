@@ -127,7 +127,9 @@ def standardJetBuildSequence( configFlags, dataSource, clustersKey, **jetRecoDic
         jetModList += trkMods
 
     # Sort and filter
-    jetModList += ["Sort", "Filter:"+str(JetRecoConfiguration.getFilterCut(jetRecoDict["recoAlg"]))]
+    jetModList += ["Sort", "Filter:"+str(JetRecoConfiguration.getFilterCut(jetRecoDict["recoAlg"])), "ConstitFourMom_copy"]
+    if jetRecoDict["recoAlg"] == "a4":
+        jetModList += ["CaloEnergies"] # Needed for GSC
 
     # Get online monitoring tool
     from JetRec import JetOnlineMon

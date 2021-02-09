@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration.
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration.
 */
 
-#ifndef TAUREC_TAUCELLTHINNING_H
-#define TAUREC_TAUCELLTHINNING_H
+#ifndef TAUREC_TAUCELLTHINNINGALG_H
+#define TAUREC_TAUCELLTHINNINGALG_H
 
 #include "AthenaBaseComps/AthReentrantAlgorithm.h"
 #include "CaloEvent/CaloCellContainer.h"
@@ -38,6 +38,9 @@ class TauCellThinningAlg : public AthReentrantAlgorithm
 
  private:
 
+  // Minimum tau pt
+  Gaudi::Property<double> m_minTauPt { this, "MinTauPt", 0.* Gaudi::Units::GeV, "Minimum tau pt" };
+
   // Name of the stream being thinned
   StringProperty m_streamName
     { this, "StreamName", "StreamAOD", "Name of the stream being thinned" };
@@ -55,4 +58,4 @@ class TauCellThinningAlg : public AthReentrantAlgorithm
     { this, "Taus", "TauJets", "Container of taus for which cells should be saved" };
 };
 
-#endif // not TAUREC_TAUCELLTHINNING_H
+#endif // TAUREC_TAUCELLTHINNINGALG_H

@@ -60,6 +60,10 @@ public:
    */
   virtual StatusCode monitorROS(const EventContext& context, robmonitor::ROBDataMonitorStruct payload) = 0;
 
+  /**
+   * @brief To be used to generate timeout report
+   */
+  virtual StatusCode generateTimeoutReport(const EventContext& context, std::string& report) = 0;
 };
 
 #endif // TRIGCOSTMONITORMT_ITRIGCOSTMTSVC_H

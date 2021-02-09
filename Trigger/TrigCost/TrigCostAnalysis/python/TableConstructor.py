@@ -5,10 +5,9 @@
 
 '''
 @file TableConstructor.py
-@brief Define TableConstructor base class to read root table and convert it to csv
+@brief Define TableConstructor base class to read ROOT histograms and convert it to csv table
 '''
 
-import ROOT
 from math import fabs
 from collections import OrderedDict
 

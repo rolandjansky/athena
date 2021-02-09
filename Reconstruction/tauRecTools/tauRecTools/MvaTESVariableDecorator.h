@@ -2,8 +2,8 @@
   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
-#define TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
+#ifndef TAURECTOOLS_MVATESVARIABLEDECORATOR_H
+#define TAURECTOOLS_MVATESVARIABLEDECORATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -41,4 +41,4 @@ private:
       "input vertex container key"};
 };
 
-#endif // TAURECTOOLSDEV_MVATESVARIABLEDECORATOR_H
+#endif // TAURECTOOLS_MVATESVARIABLEDECORATOR_H

@@ -158,10 +158,9 @@ StatusCode TriggerEDMDeserialiserAlg::execute(const EventContext& context) const
   ATH_MSG_DEBUG("Obtained HLTResultMT with key " << m_resultKey.key());
   
   const Payload* dataptr = nullptr;
-  // TODO: check if there are use cases where result may be not available in some events and this is not an issue at all
   if ( resultHandle->getSerialisedData( m_moduleID, dataptr ).isFailure() ) {
-    ATH_MSG_WARNING("No payload available with moduleId " << m_moduleID << " in this event");
-    return StatusCode::SUCCESS;
+    ATH_MSG_ERROR("No payload available with moduleId " << m_moduleID << " in this event");
+    return StatusCode::FAILURE;
   }
   ATH_CHECK( deserialise( dataptr ) );
   return StatusCode::SUCCESS;

@@ -32,7 +32,7 @@ test.get_step('CheckLog').config_file = 'checklogTrigP1TimeoutTest.conf'
 debug_count_step = TrigBSDumpGrepStep('DebugCount')
 debug_count_step.args += '--stag'
 debug_count_step.file_name_base = output_name_base
-debug_count_step.regex = 'Stream Tags:.*debug_HltTimeout'
+debug_count_step.regex = 'debug_HltTimeout'
 debug_count_step.comparator = lambda num: num > 0
 test.check_steps.append(debug_count_step)
 
