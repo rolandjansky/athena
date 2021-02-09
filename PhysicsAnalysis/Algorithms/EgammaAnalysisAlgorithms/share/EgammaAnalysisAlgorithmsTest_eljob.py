@@ -12,6 +12,9 @@ parser = optparse.OptionParser()
 parser.add_option( '-d', '--data-type', dest = 'data_type',
                    action = 'store', type = 'string', default = 'data',
                    help = 'Type of data to run over. Valid options are data, mc, afii' )
+parser.add_option( '--dnn', dest = 'dnn',
+                   action = 'store_true', default = False,
+                   help = 'Use the DNN electron ID instead of the likelihood. ')
 parser.add_option( '-s', '--submission-dir', dest = 'submission_dir',
                    action = 'store', type = 'string', default = 'submitDir',
                    help = 'Submission directory for EventLoop' )
@@ -29,6 +32,7 @@ ROOT.xAOD.LoadDictionaries().ignore()
 # configure per-sample right now
 
 dataType = options.data_type
+useDNNeID = options.dnn
 
 if dataType not in ["data", "mc", "afii"] :
     raise ValueError ("invalid data type: " + dataType)
@@ -57,7 +61,7 @@ job.sampleHandler( sh )
 job.options().setDouble( ROOT.EL.Job.optMaxEvents, 500 )
 
 from EgammaAnalysisAlgorithms.EgammaAnalysisAlgorithmsTest import makeSequence
-algSeq = makeSequence (dataType)
+algSeq = makeSequence (dataType, not useDNNeID)
 print algSeq # For debugging
 for alg in algSeq :
     job.algsAdd( alg )
@@ -68,7 +72,8 @@ submitDir = options.submission_dir
 if options.unit_test:
     import os
     import tempfile
-    submitDir = tempfile.mkdtemp( prefix = 'egammaTest_'+dataType+'_', dir = os.getcwd() )
+    eSelection = '_DNN' if useDNNeID else '_LH'
+    submitDir = tempfile.mkdtemp( prefix = 'egammaTest_'+dataType+eSelection+'_', dir = os.getcwd() )
     os.rmdir( submitDir )
     pass
 
