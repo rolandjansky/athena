@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Stolen shamelessly from CaloCellContainer.h and modified as required
@@ -52,7 +52,7 @@ class jTowerContainer : public DataVector<LVL1::jTower>
   virtual ~jTowerContainer() { };
 
   /** @brief reimplementation of const push_back */
-  void push_back(float eta, float phi, float keybase, int posneg);
+  void push_back(float eta, float phi, float keybase, int posneg, float centre_et = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
 
   /** @brief utility function to help speed up accessing towers */
   bool fillContainerMap();

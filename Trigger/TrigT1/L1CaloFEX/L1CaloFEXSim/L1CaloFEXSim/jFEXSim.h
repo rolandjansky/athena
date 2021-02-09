@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -20,6 +20,7 @@
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 
 namespace LVL1 {
   
@@ -27,7 +28,7 @@ namespace LVL1 {
   /** The jFEXSim class defines the structure of a single jFEX
       Its purpose is:
       - to emulate the steps taken in processing data for a single jFEX in hardware and firmware
-      - It will need to interact with jTowers and produce the eTOBs.  It will be created and handed data by jFEXSysSim
+      - It will need to interact with jTowers and produce the jTOBs.  It will be created and handed data by jFEXSysSim
   */
   
   class jFEXSim : public AthAlgTool, virtual public IjFEXSim {
@@ -49,15 +50,13 @@ namespace LVL1 {
 
     virtual void reset () override ;
 
-    virtual void execute() override ;
-
     virtual int ID() override {return m_id;}
     
-    virtual void SetTowersAndCells_SG(int tmp[16*2][17]) override;
-    virtual void SetTowersAndCells_SG(int tmp[16*2][24]) override;
+    virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
+    virtual void SetTowersAndCells_SG(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
 
-    virtual StatusCode NewExecute(int tmp[16*4][17]) override;
-    virtual StatusCode NewExecute(int tmp[16*4][24]) override;
+    virtual StatusCode NewExecute(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]) override;
+    virtual StatusCode NewExecute(int tmp [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]) override;
     virtual std::vector<uint32_t> getSmallRJetTOBs() override;
     virtual std::vector<uint32_t> getLargeRJetTOBs() override;
 
@@ -67,8 +66,8 @@ namespace LVL1 {
     static bool largeRJet_ET_Sort(uint32_t i, uint32_t j){ return (((i >> 0 ) & 0x1fff)> ((j >> 0) & 0x1fff));}
     int m_id;
 
-    int m_jTowersIDs_Wide [16*4][17];
-    int m_jTowersIDs_Thin [16*4][24];
+    int m_jTowersIDs_Wide [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width];
+    int m_jTowersIDs_Thin [FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width];
 
     std::map<int,jTower> m_jTowersColl;
     CaloCellContainer m_sCellsCollection;
