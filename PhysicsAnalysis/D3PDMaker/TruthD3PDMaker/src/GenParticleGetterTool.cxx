@@ -47,7 +47,11 @@ namespace D3PD {
       McEventCollection::const_iterator iter = mc->begin();
       if( iter == mc->end() ) return 0;
 
+#ifdef HEPMC3
+      return ( *iter )->particles().size();
+#else
       return ( *iter )->particles_size();
+#endif
    }
 
    StatusCode GenParticleGetterTool::reset( bool allowMissing ) {
@@ -69,8 +73,13 @@ namespace D3PD {
          return StatusCode::SUCCESS;
       }
 
+#ifdef HEPMC3
+      m_partItr = ( *m_evtItr )->particles().begin();
+      m_partEnd = ( *m_evtItr )->particles().end();
+#else
       m_partItr = ( *m_evtItr )->particles_begin();
       m_partEnd = ( *m_evtItr )->particles_end();
+#endif
 
       return StatusCode::SUCCESS;
    }
