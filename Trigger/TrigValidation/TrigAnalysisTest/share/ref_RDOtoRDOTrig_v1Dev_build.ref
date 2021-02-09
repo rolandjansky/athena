@@ -2205,15 +2205,11 @@ HLT_j85_pf_ftf_L1J20:
     1: 12
   stepFeatures:
     0: 19
-<<<<<<< HEAD
-    1: 22
-=======
     1: 21
 HLT_larpebcalib_LArPEBCalib_L1RD0_BGRP11:
   eventCount: 0
 HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
   eventCount: 0
->>>>>>> upstream/master
 HLT_larnoiseburst_L1XE60:
   eventCount: 6
   stepCounts:
