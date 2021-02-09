@@ -36,6 +36,9 @@ public:
   virtual StatusCode passBeforePrescaleSelection(const ROIB::RoIBResult* /*roib*/,
                             const std::vector<std::string>& /*l1ItemNames*/, bool& /*pass*/) const override;
 
+  // Derived class may override this to return true if its decode() method doesn't depend on RoIBResult
+  virtual bool isEmulated() const override {return false;}
+
 protected:
 
   static constexpr int s_CTPIDForUndeededChains = -1;
