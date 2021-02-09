@@ -1406,13 +1406,13 @@ CombinedMuonTrackBuilder::standaloneFit(const Trk::Track& inputSpectrometerTrack
         // pRatio is the ratio of fitted to start momentum value at calo exit
         //  find parameters at calo exit
         const Trk::TrackParameters* params_pRat = nullptr;
-        
-        for (const auto& s : *extrapolated->trackStateOnSurfaces()){
-            if (s->trackParameters() && !m_calorimeterVolume->inside(s->trackParameters()->position()) && s->type(Trk::TrackStateOnSurface::Perigee)){
-                  params_pRat = s->trackParameters(); 
-                  break; 
-            }
-        }        
+	auto s = extrapolated->trackStateOnSurfaces()->begin();
+	while (!(**s).trackParameters() || m_calorimeterVolume->inside((**s).trackParameters()->position())) {
+	  if ((**s).trackParameters() && !(**s).type(Trk::TrackStateOnSurface::Perigee))
+	    params_pRat = (**s).trackParameters();
+	  ++s;
+        }
+
         //  extrapolated fit with missing calo parameters - this should never happen!
         if (params_pRat) {
             pRatio = momentum / parameters->momentum().mag();
