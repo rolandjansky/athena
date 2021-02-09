@@ -2192,16 +2192,16 @@ HLT_j85_pf_ftf_L1J20:
   stepFeatures:
     0: 19
     1: 21
-HLT_larpebcalib_LArPEBCalib_L1RD0_BGRP11:
-  eventCount: 0
-HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
-  eventCount: 0
 HLT_larnoiseburst_L1XE60:
   eventCount: 6
   stepCounts:
     0: 6
   stepFeatures:
     0: 6
+HLT_larpebcalib_LArPEBCalib_L1RD0_BGRP11:
+  eventCount: 0
+HLT_larpebcalib_LArPEBCalib_L1RD0_EMPTY:
+  eventCount: 0
 HLT_mb_mbts_L1MBTS_1_EMPTY:
   eventCount: 0
 HLT_mb_sp_L1RD0_FILLED:
@@ -3570,6 +3570,20 @@ HLT_tau35_mediumRNN_tracktwoMVA_L1TAU12IM:
     2: 13
     3: 13
     4: 8
+HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_03dRtt_L1TAU20IM_2TAU12IM_4J12p0ETA25:
+  eventCount: 1
+  stepCounts:
+    0: 5
+    1: 2
+    2: 2
+    3: 2
+    4: 1
+  stepFeatures:
+    0: 25
+    1: 14
+    2: 8
+    3: 8
+    4: 6
 HLT_tau35_mediumRNN_tracktwoMVA_tau25_mediumRNN_tracktwoMVA_L1DR-TAU20ITAU12I-J25:
   eventCount: 1
   stepCounts:

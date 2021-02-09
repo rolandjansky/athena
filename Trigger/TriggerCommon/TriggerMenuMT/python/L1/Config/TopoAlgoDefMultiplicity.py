@@ -36,7 +36,7 @@ class TopoAlgoDefMultiplicity(object):
                                        nbits = 3)
             tm.registerTopoAlgo(alg)
 
-        jJThresholds = [ "jJ12", "jJ12p0ETA23", "jJ15", "jJ15p0ETA25", "jJ20", "jJ25", "jJ25p0ETA23", "jJ30", 
+        jJThresholds = [ "jJ12", "jJ12p0ETA25", "jJ15", "jJ15p0ETA25", "jJ20", "jJ25", "jJ25p0ETA23", "jJ30", 
                          "jJ35p0ETA23", "jJ40p0ETA25", "jJ40", "jJ50", "jJ85", "jJ100", "jJ15p31ETA49", "jJ20p31ETA49", "jJ75p31ETA49" ]
 
         for jJet in jJThresholds:
