@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -43,7 +43,7 @@ namespace LVL1 {
     
     /** Constructors */
     jTower();
-    jTower(float eta, float phi, int id_modifier, int posneg);
+    jTower(float eta, float phi, int id_modifier, int posneg, float centre_eta = 0.0, float centre_phi = 0.0, int fcal_layer = -1);
     
     /** Destructor */
     virtual ~jTower() = default;
@@ -68,6 +68,9 @@ namespace LVL1 {
     float phi() {return m_phi;};
     float eta() const {return m_eta;};
     float phi() const {return m_phi;};
+    float centreEta() const {return m_centre_eta;}
+    float centrePhi() const {return m_centre_phi;}
+    int fcalLayer() const {return m_fcal_layer;}
     
     void setEta(const float thiseta){ m_eta = thiseta; }
 
@@ -131,12 +134,15 @@ namespace LVL1 {
   private:
     float m_eta;
     float m_phi;
+    int m_tower_id;
+    int m_posneg = 0;
+    float m_centre_eta;
+    float m_centre_phi;
     std::vector<Identifier> m_EM_scID;
     std::vector<Identifier> m_HAD_scID;
     std::vector<int> m_et;    
     std::vector<float> m_et_float;
-    int m_tower_id;
-    int m_posneg = 0;
+    int m_fcal_layer = -1;
     int m_noisecutPS = 100;
     int m_noisecutL1 = 100;
     int m_noisecutL2 = 100;

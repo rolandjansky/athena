@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //***************************************************************************
@@ -13,6 +13,7 @@
 #include "L1CaloFEXSim/jTower.h"
 #include "L1CaloFEXSim/jFEXFPGA.h"
 #include "L1CaloFEXSim/jTowerContainer.h"
+#include "L1CaloFEXSim/FEXAlgoSpaceDefs.h"
 #include "CaloEvent/CaloCellContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloCell_SuperCell_ID.h"
@@ -78,25 +79,33 @@ namespace LVL1 {
   jFEXSim::~jFEXSim()
   {
   }
-  
- void jFEXSim::execute(){
 
- }
 
-StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][17]){
+  StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[2*FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){
   m_smallRJet_tobWords.clear();
   m_largeRJet_tobWords.clear();
-  const int nrows = 16*2;
-  const int ncols = 17;
+
+  const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
+  const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;;
+
+  // So the way this works now is a little awkward due to the forward regions, which have less cells in phi and also overlap a lot.
+  // Interesting that I put nrows = 16*2 here, the documentation (l1caloreqs) looks like it should infact be just 16 (based on Fig 27)
+  // But actually the overlap is I suppose much greater, probably covering a much larger region, in this case 16/2
+  // Yes, this is answered by the phew lines just below which specify the exact ranges
+  // Back to the forward regions, which have less cells in phi.  We have 2 decisions, we can either fill half the cells in phi, or fill every other cell in phi
+  // For now I will fill every other cell in phi, but realistically the algorithm in the forward region needs to be written in a very different way
+  // and the re-writing on that algorithm will likely impact on how it is written in the central regions too
+  // The new writing of the algorithm will need to use the information from the central point of each tower in the array to check if it falls within a certain radius
+  // it cannot rely on the structure of the array itself at all.  As such this algorithm is likely to end up being much less efficient that the eFEX equivalent.
 
   int tmp_jTowersIDs_subset_FPGA[nrows][ncols];
   
   // FPGA boundaries in phi: 0.0, 1.6, 3.2, 4.8, 6.4
   // Written explicitly:
-  // 5.6 -> 2.4 [core is 0.0 to 1.6]
-  // 0.8 -> 4.0 [core is 1.6 to 3.2]
-  // 2.4 -> 5.6 [core is 3.2 to 4.8]
-  // 4.0 -> 0.8 [core is 4.8 to 6.4]
+  // 5.6 -> 2.4 [core is 0.0 to 1.6] // FPGA 0
+  // 0.8 -> 4.0 [core is 1.6 to 3.2] // FPGA 1
+  // 2.4 -> 5.6 [core is 3.2 to 4.8] // FPGA 2
+  // 4.0 -> 0.8 [core is 4.8 to 6.4] // FPGA 3
 
   ATH_CHECK( m_jFEXFPGATool.retrieve() );
 
@@ -179,12 +188,11 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][17]){
 
 }
 
-StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][24]){
+StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){
 
-  //std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(10*18),&m_jTowersIDs[0][0]);
 
-  const int nrows = 16*2;
-  const int ncols = 24;
+  const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
+  const int ncols = FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;
 
   // FPGA boundaries in phi: 0.0, 1.6, 3.2, 4.8, 6.4
   // Written explicitly:
@@ -268,10 +276,11 @@ StatusCode jFEXSim::NewExecute(int tmp_jTowersIDs_subset[16*4][24]){
 
 }
 
-void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16*2][17]){ // METHOD USING ONLY IDS
+void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width]){ // METHOD USING ONLY IDS
 
-  const int nrows = 16*2;
-  const int ncols = 17;
+  const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
+  const int ncols = FEXAlgoSpaceDefs::jFEX_wide_algoSpace_width;; 
+  // We may need a function along the lines of "SetForwardTowersAndCells_SG"(int tmp_jTowerIDs_subset[16][28]
 
   std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Wide[0][0]);
 
@@ -359,10 +368,10 @@ std::vector<uint32_t> jFEXSim::getLargeRJetTOBs()
 
 
 
-  void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[16*2][24]){ // METHOD USING ONLY IDS
+void jFEXSim::SetTowersAndCells_SG(int tmp_jTowersIDs_subset[FEXAlgoSpaceDefs::jFEX_algoSpace_height][FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width]){ // METHOD USING ONLY IDS
 
-    const int nrows = 16*2;
-    const int ncols = 24;
+  const int nrows = FEXAlgoSpaceDefs::jFEX_algoSpace_height;
+  const int ncols = FEXAlgoSpaceDefs::jFEX_thin_algoSpace_width;
 
     std::copy(&tmp_jTowersIDs_subset[0][0], &tmp_jTowersIDs_subset[0][0]+(nrows*ncols),&m_jTowersIDs_Thin[0][0]);
 

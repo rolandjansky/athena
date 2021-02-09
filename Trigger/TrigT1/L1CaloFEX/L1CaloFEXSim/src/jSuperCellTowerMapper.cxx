@@ -1,5 +1,5 @@
 /*
-    Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+    Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -120,36 +120,75 @@ void jSuperCellTowerMapper::reset(){
 
   for (const auto& cell : * jk_scellsCollection){
 
-    const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling();
+    const CaloSampling::CaloSample sample = (cell)->caloDDE()->getSampling(); // corresponds 'module' for FCAL/MiniFCAL
     const Identifier ID = (cell)->ID(); // super cell unique ID
-    int region = idHelper->region(ID);
+    int region = idHelper->region(ID); // no region for FCAL, is 'depth' for MiniFCAL
     int layer = -1;
-    int pos_neg = idHelper->pos_neg(ID);
+    int pos_neg = idHelper->pos_neg(ID); // corresponds to 'barrel_ec' for LArEM
     int eta_index = idHelper->eta(ID);
     const int phi_index = idHelper->phi(ID);
     float et = (cell)->energy();
     int prov = (cell)->provenance();
-
+    
+    /*
+    float eta_min = 0.0;//idHelper->eta_min(ID);
+    float eta_max = 0.0;//idHelper->eta_max(ID);
+    float eta0 = 0.0;//idHelper->eta0(ID);
+    float phi_min = 0.0;//idHelper->phi_min(ID);
+    float phi_max = 0.0;//idHelper->phi_max(ID);
+    float phi0 = 0.0;//idHelper->phi0(ID);
+    */
+    float eta_min = 0.0;//idHelper->eta_min(ID);
+    float eta_max = idHelper->eta_max(ID);
+    float eta0 = idHelper->eta0(ID);
+    float phi_min = 0.0;//idHelper->phi_min(ID);
+    float phi_max = idHelper->phi_max(ID);
+    float phi0 = idHelper->phi0(ID);
+ 
     /*
   CaloSampling:
-    PreSamplerB  0
+    PreSamplerB  0 (LAr Barrel)
            EMB1  1
            EMB2  2
            EMB3  3
 
-    PreSamplerE  4
+    PreSamplerE  4 (LAr EM Endcap)
            EME1  5
            EME2  6
            EME3  7
 
-           HEC0  8
+           HEC0  8 (Hadronic Endcap)
            HEC1  9
            HEC2  10
            HEC3  11
+
+	   TileBar0 12  (Tile Barrel)
+	   TileBar1 13
+	   TileBar2 14
+	   
+	   TileGap1 15 (ITC and Scintillator)
+	   TileGap2 16
+	   TileGap3 17
+	   
+	   TileExt0 18 (Tile Extended Barrel)
+	   TileExt1 19
+	   TileExt2 20
+
+	   FCAL0 21 (Forward EM Endcap)
+	   FCAL1 22
+	   FCAL2 23
+
+	   MINIFCAL0 24
+	   MINIFCAL1 25
+	   MINIFCAL2 26
+	   MINIFCAL3 27
+
+	   Unknown 28
     */
 
-    //We need to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5
-    if(abs(pos_neg) == 3){ continue; }
+    //We need NOT to explicitly avoid +/- 3 pos_neg supercells! These go beyond |eta| == 2.5 - we WANT these for the jFEX!
+    //PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, -999/*iJTower*/, -999/*iCell*/, prov, ID, false, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
+    //if(abs(pos_neg) == 3){ /*continue;*/ } //PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, -999/*iJTower*/, -999/*iCell*/, prov, ID, false, eta_min, eta_max, eta0, phi_min, phi_max, phi0); continue; }
 
     // LOCAL TO GLOBAL ETA INDEX PATCH - USE A 'TOWER OFFSET' TO MARK THE START OF THE ETA_INDEX COUNTING (e.g. the rounded eta value of the innermost supercell)
     switch(sample){
@@ -174,11 +213,27 @@ void jSuperCellTowerMapper::reset(){
       break;
     }
     case CaloSampling::EME2: {
-      if(region == 0){ eta_index += 14; }
-      else if (region == 1){ eta_index += 57; }
+      if(region == 0){ 
+	if(eta0 < 2.5){ eta_index += 14; }
+	else{ eta_index += 25; }
+      }
+      else if (region == 1){ 
+	if(eta0 < 2.5){ eta_index += 57; }
+	else{ eta_index += 28; }
+      }
       break;
     }
-    case CaloSampling::EME3: { eta_index += 15; break; }
+    case CaloSampling::EME3: { 
+      if(region == 0){
+	if(eta0 < 2.5){ eta_index += 15; }
+	else{ eta_index += 25; }
+      }
+      else if (region == 1){
+	if(eta0 < 2.5){ eta_index += 15; }
+        else{ eta_index += 28; }
+      }
+      break; 
+    }
     case CaloSampling::HEC0:
     case CaloSampling::HEC1:
     case CaloSampling::HEC2:
@@ -186,7 +241,7 @@ void jSuperCellTowerMapper::reset(){
     default: { /*ATH_MSG_DEBUG("Not doing anything since sample = " << sample);*/ break; }
     }
 
-    FindAndConnectTower(my_jTowerContainerRaw,sample,region,layer,pos_neg,eta_index,phi_index,ID,et,prov,doPrint);
+    FindAndConnectTower(my_jTowerContainerRaw,sample,region,layer,pos_neg,eta_index,phi_index,ID,et,prov,doPrint, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
 
   }
 
@@ -205,7 +260,7 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
 
 }
 
-  int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,CaloSampling::CaloSample sample,const int region, int layer, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov,bool doPrint)
+  int jSuperCellTowerMapper::FindAndConnectTower(std::unique_ptr<jTowerContainer> & my_jTowerContainerRaw,CaloSampling::CaloSample sample,const int region, int layer, const int pos_neg, const int eta_index, const int phi_index, Identifier ID, float et, int prov,bool doPrint, float eta_min, float eta_max, float eta0, float phi_min, float phi_max, float phi0)
 {
 
   // bool for the special case of 1.8 < eta < 2.0 only in the front layer
@@ -260,8 +315,8 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   1.8 < 2.0 standard towers by back ==> 2 towers
   2.0 < 2.4 standard towers by back ==> 4 towers
   2.4 < 2.5 standard tower by back ==> 1 tower
-  2.5 < 3.1, funny behaviour, treated as 3 wide towers ==> 3 towers.   Also wide in phi!  ===> WE DON'T CARE ABOUT |ETA| > 2.5
-  3.1 < 3.2 standard tower by back ==> 1 tower.  Also wide in phi!  ===> WE DON'T CARE ABOUT |ETA| > 2.5
+  2.5 < 3.1, funny behaviour, treated as 3 wide towers ==> 3 towers.   Also wide in phi! 
+  3.1 < 3.2 standard tower by back ==> 1 tower.  Also wide in phi!
   10 towers in eta in total (by different means) (IGNORING ABOVE |ETA| > 2.5)
   64 towers initially in phi (IGNORING ABOVE |ETA| > 2.5)
   
@@ -285,12 +340,14 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   /*
   ** Notes on Tower ID Number Scheme **
 
-    Left Barrel IETower = 100000 + X
-    Right Barrel IETower = 200000 + X
+    Left Barrel IETower = 100000 + X;
+    Right Barrel IETower = 200000 + X;
     Left TRANS IETower = 300000 + X;
     Right TRANS IETower = 400000 + X;
-    Left Endcap IETower = 500000 + X
-    Right Endcap IETower = 600000 + X
+    Left Endcap IETower = 500000 + X;
+    Right Endcap IETower = 600000 + X;
+    Left FCAL IETower = 700000 + X;
+    Right FCAL IETower = 800000 + X;
     Left Hadronic Endcap IETower =  11100000 + X --> These are just Layer 5 of Endcap Towers.  They will never be generated as standalone jTowers.
     Right Hadronic Endcap IETower =  22200000 + X --> These are just Layer 5 of Endcap Towers.  They will never be generated as standalone jTowers.
 
@@ -395,7 +452,7 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   case CaloSampling::PreSamplerE: {
     // Region 1 has 3 supercells in 1.5 < eta < 1.8, and 64 supercells in phi.
     // Supercells are 0.1 x 0.1.
-    
+
     layer = 0; // By definition for jFEX
 
     towereta = eta_index;
@@ -504,7 +561,7 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
       break;
     }
     default: {
-      // This should never fire because we don't go beyond 2.5 
+      // This should never fire because we don't go beyond 2.5 -- is this still true for jFEX? // jFEX IMPORTANT
       ATH_MSG_DEBUG("CaloSampling::EME1 -> invalid 'region' value: " << region << " (Under investigation) ");
       break;
     }
@@ -527,37 +584,81 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
     
     // Layer 2 of the EM End-Cap.  Supercells very frequently change in size.
     // Region 0 has 1 supercell in 1.375 < eta < 1.425, and 64 supercells in phi.  Supercells are 0.05 x 0.1.
-    // Region 0 also has 3 supercells in 1.425 < eta < 1.5, and 64 supercells in phi.  Supercells are 0.025 x 0.1
-    // Region 1 has 12 supercells in 1.5 < eta < 1.8, and 64 supercells in phi.  Supercells are 0.025 x 0.1.
-    // Region 2 has 8 supercells in 1.8 < eta < 2.0, and 64 supercells in phi.  Supercells are 0.025 x 0.1.
-    // Region 3 has 16 supercells in 2.0 < eta < 2.4, and 64 supercells in phi.  Supercells are 0.025 x 0.1.
-    // Region 4 has 4 supercells in 2.4 < eta < 2.5, and 64 supercells in phi.  Supercells are 0.025 x 0.1.
-    // Region 5 has 3 supercells in 2.5 < eta < 3.1, and 32 supercells in phi.  Supercells are 0.2 x 0.2.
-    // Region 6 has 1 supercell in 3.1 < eta < 3.2, and 32 supercells in phi.  Supercells are 0.1 x 0.2
-    
+    // These are in the MC as Region 0 posneg +-2
+    // Region 1 has 43 supercells in 1.425 < eta < 2.5, and 64 supercells in phi.  Supercells are 0.025 x 0.1.
+    // These are all bunched together in the MC as Region 1 posneg +-2
+
+    // Region 0 also has 3 supercells in 2.5 < eta < 3.1, and 32 supercells in phi.  Supercells are 0.2 x 0.2.
+    // These are all bunched together in the MC as Region 1 posneg +-3
+    // Region 1 also has 1 supercell in 3.1 < eta < 3.2, and 32 supercells in phi.  Supercells are 0.1 x 0.2.
+    // These are  in the MC as Region 1 posneg +-3
+
+    // Focusing 20/01/2021 to finding these jFEX cells in the specified ranges - will update this note if they are found and understood.
+    // 20/01/2021: These supercells have been found.  Check log file eme2_phi0.log
+    // 20/01/2021: Side note - does this mean we have the structure of EME2 completely wrong in eSuperCellTowerMapper? Need to check... eFEX IMPORTANT 
+
+    // from code way up above we have:
+    /*
+      case CaloSampling::EME2: {
+      if(region == 0){ eta_index += 14; }
+      else if (region == 1){ eta_index += 57; }
+      break;
+    }
+    */
+
     layer = 0; // By definition for jFEX
     
     switch (region) {
     case 0: { // special treatment for TRANSITON region
 
-      //layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of tne transition region
+      //layer = 3; // change layer label for ET threshold treatment since we are treating this as a layer3 cell - it's an extreme special case cell as part of the transition region
       layer = 0; // By definition for jFEX
 
-      towereta = eta_index;
-      towerphi = phi_index;
+      switch (abs(pos_neg)){
+      case 2: {
+	towereta = eta_index;
+	towerphi = phi_index;
+	break;
+      }
+      case 3: {
+	towereta = eta_index;
+        towerphi = phi_index;
+	break;
+      }
+      default: {
+	ATH_MSG_DEBUG("CaloSampling::EME2 -> invalid 'pos_neg' value: " << pos_neg << " (Under investigation) ");
+	break;
+      }
+      }
 
-      //iCell = 9;
-      iCell = 0; // By definition for jFEX
+      iCell = 0; // By definition for jFEX since the jTower only has one big EM section
 
       break;
     }
     case 1: {
 
-      towereta = (eta_index / 4);
-      towerphi = phi_index;
+      switch (abs(pos_neg)){
+      case 2: {
+        towereta = (eta_index / 4);
+        towerphi = phi_index;
+        break;
+      }
+      case 3: {
+        towereta = eta_index;
+        towerphi = phi_index;
+        break;
+      }
+      default: {
+        ATH_MSG_DEBUG("CaloSampling::EME2 -> invalid 'pos_neg' value: " << pos_neg << " (Under investigation) ");
+        break;
+      }
+      }
+
+      //towereta = (eta_index / 4);
+      //towerphi = phi_index;
       
       //iCell = (eta_index % 4) + 5;
-      iCell = 0; // By definition for jFEX
+      iCell = 0; // By definition for jFEX since the jTower only has one big EM section
 
       break;
     }
@@ -570,11 +671,18 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
     
     if(region == 0){
       // TRANSITION REGION TREATMENT! 
-      if(pos_neg < 0){ towerID_Modifier = 300000; } 
-      else if(pos_neg > 0){ towerID_Modifier = 400000; }
+      if(eta0 <  2.5){
+	if(pos_neg < 0){ towerID_Modifier = 300000; } 
+	else if(pos_neg > 0){ towerID_Modifier = 400000; }
+      }
+      else{
+	if(pos_neg < 0){ towerID_Modifier = 500000; }
+        else if(pos_neg > 0){ towerID_Modifier = 600000; }
+      }
     }
     else {
-      if( (eta_index / 4) < 15 ){ 
+      //if( (eta_index / 4) < 15 ){ 
+      if(eta0 <  2.5){
 	if(pos_neg < 0){ towerID_Modifier = 300000; }
 	else if(pos_neg > 0){ towerID_Modifier = 400000; }
       }
@@ -589,13 +697,25 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   case CaloSampling::EME3: {
     
     // Layer 3 of the EM End-Cap.  Supercells are 0.1 x 0.1 unless stated otherwise.
-    // Region 0 does not exist.
+    // Region 0 does not exist. - FALSE!
     // Region 1 has 3 supercells in 1.5 < eta < 1.8, and 64 supercells in phi.  Supercells are 0.1 x 0.1.
     // Region 2 has 2 supercells in 1.8 < eta < 2.0, and 64 supercells in phi.  Supercells are 0.1 x 0.1.
     // Region 3 has 4 supercells in 2.0 < eta < 2.4, and 64 supercells in phi.  Supercells are 0.1 x 0.1.
     // Region 4 has 1 supercells in 2.4 < eta < 2.5, and 64 supercells in phi.  Supercells are 0.1 x 0.1.
+    /// These are actually all bunched together in the MC as Region 0 posneg +-2
     // No other Regions exist
+    // Actually there should be supercells here in also covering 2.5 < eta < 3.1 and 3.1 < eta < 3.2, in the same vein as EME2 - let's find them!  // JFEX IMPORTANT
+    // Focusing 20/01/2021 to finding these jFEX cells in the specified ranges - will update this note if they are found and understood
+    // 21/01/2021: These supercells have been found.  Check log file eme2_phi0.log
+    // 21/01/2021: Side note - does this mean we have the structure of EME2 completely wrong in eSuperCellTowerMapper? Need to check... eFEX IMPORTANT
     
+    // The supercells for the 2.5<eta<3.1 are bunched together in the MC as Region 0 posneg +-3
+    // The supercells from the 3.1<eta<3.2 are in the MC as Region 1 posneg +-3
+
+
+    // from code way up above we have:
+    //case CaloSampling::EME3: { eta_index += 15; break; }
+
     layer = 0; // By definition for jFEX
     
     switch (region) {
@@ -609,12 +729,17 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
 
       break;
     }
+    case 1:{
+      towereta = eta_index;
+      towerphi = phi_index;
+      iCell = 0; // By definition for jFEX 
+      break;
+    }
     default: {
       ATH_MSG_DEBUG("CaloSampling::EME3 -> invalid 'region' value: " << region << " (Under investigation) ");
       break;
     }
-      break;
-    }
+      break;    }
     
     if(pos_neg < 0){ towerID_Modifier = 500000; }
     else if(pos_neg > 0){ towerID_Modifier = 600000; }
@@ -628,9 +753,11 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   case CaloSampling::HEC3: {
     
     // All Layers of the Hadronic End-Cap.
-    // Region 0 has 10 supercells in 1.5 < eta < 2.5, and 32 supercells in phi.  Supercells are 0.1 x 0.1.
-    // Region 1 has 4 supercells in 2.5 < eta < 3.3, and 16 supercells in phi.  Supercells are 0.2 x 0.2.
+    // Region 0 has 10 supercells in 1.5 < eta < 2.5, and 32 supercells in phi.  Supercells are 0.1 x 0.1. [posneg +-2]
+    // Region 1 has 4 supercells in 2.5 < eta < 3.3, and 16 supercells in phi.  Supercells are 0.2 x 0.2.  [posneg +-2] // JFEX IMPORTANT
     
+    // VERIFIED THAT I CAN SEE THESE MC IN THE MC ON 21/02/2021
+
     switch(region){
     case 0: {
 
@@ -653,9 +780,24 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
       
     }
     case 1: {
-      validcell = false; // any region 1 HEC cells are actually with eta > 2.5
-      ATH_MSG_DEBUG("CaloSampling::HECX Region 1 invalid as outside of eta range! Should be included in the future!");
+
+      towereta = eta_index;
+      towerphi = phi_index;
+
+      layer = 1; // By definition for jFEX
+
+      switch (sample){ // only one supercell per layer in all regions for HECX
+      case CaloSampling::HEC0: { iCell = 1;/*iCell = 10;*/ break; }
+      case CaloSampling::HEC1: { iCell = 1;/*iCell = 11;*/ break; }
+      case CaloSampling::HEC2: { iCell = 1;/*iCell = 12;*/ break; }
+      case CaloSampling::HEC3: { iCell = 1;/*iCell = 13;*/ break; }
+      default: {
+        ATH_MSG_DEBUG("CaloSampling::HECX -> invalid sample for assigning iCell value! " << sample << " (Under investigation) ");
+        break;
+      }
+      }
       break;
+
     }
     default: { break; }
     }
@@ -669,58 +811,94 @@ void jSuperCellTowerMapper::ConnectSuperCellToTower(std::unique_ptr<jTowerContai
   case CaloSampling::TileBar0:
   case CaloSampling::TileBar1:
   case CaloSampling::TileBar2: {
-    REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG, "jSuperCellTowerMapper") << "Supercell is from Tile Barrel - it will be ignored.";
+    //REPORT_MESSAGE_WITH_CONTEXT (MSG::DEBUG, "jSuperCellTowerMapper") << "Supercell is from Tile Barrel - it will be ignored.";
     validcell = false;
-    //ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Barrel - it will be ignored.");
+    //PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
+    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Barrel - it will be ignored.");
     break;
   }
   case CaloSampling::TileGap1:
   case CaloSampling::TileGap2:
   case CaloSampling::TileGap3: {
-    //ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Gap (ITC and scintillator) - it will be ignored.");
+    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Gap (ITC and scintillator) - it will be ignored.");
+    //PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
     validcell = false;
     break;
   }
   case CaloSampling::TileExt0:
   case CaloSampling::TileExt1:
   case CaloSampling::TileExt2: {
-    //ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Extended Barrel - it will be ignored.");
+    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Tile Extended Barrel - it will be ignored.");
+    //PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
     validcell = false;
     break;
   }
   case CaloSampling::FCAL0:
   case CaloSampling::FCAL1:
   case CaloSampling::FCAL2: {
-    //ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell is from Forward EM endcap - it will be ignored.");
-    validcell = false;
+    // FCAL 0 Region [NOT SPECIFIED IN MC] has 12 supercells in 3.2 < eta < 4.88, and 16 supercells in phi.  Supercells are 0.14 x 0.4. posneg +-2
+    // FCAL 1 Region [NOT SPECIFIED IN MC] has 8 supercells in 3.2 < eta < 4.48, and 16 supercells in phi.  Supercells are 0.16 x 0.4. posneg +-2
+    // FCAL 2 Region [NOT SPECIFIED IN MC] has 4 supercells in 3.2 < eta < 4.48, and 16 supercells in phi.  Supercells are 0.32 x 0.4. posneg +-2
+
+    switch (sample){
+    case CaloSampling::FCAL0: { 
+      if(pos_neg < 0){ towerID_Modifier = 700000; }
+      else if(pos_neg > 0){ towerID_Modifier = 800000; }
+      break; 
+    }
+    case CaloSampling::FCAL1: {
+      if(pos_neg < 0){ towerID_Modifier = 900000; }
+      else if(pos_neg > 0){ towerID_Modifier = 1000000; }
+      break;
+    }
+    case CaloSampling::FCAL2: { 
+      if(pos_neg < 0){ towerID_Modifier = 1100000; }
+      else if(pos_neg > 0){ towerID_Modifier = 1200000;  }
+      break;
+    }
+    default: {
+      break;
+    }
+    }
+
+    iCell = 0;
+    layer = 0;
+    towereta = eta_index;
+    towerphi = phi_index;
+
     break;
+
   }
   case CaloSampling::MINIFCAL0:
   case CaloSampling::MINIFCAL1:
   case CaloSampling::MINIFCAL2:
   case CaloSampling::MINIFCAL3: {
-    //ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercells is from MiniFCAL - it will be ignored.");
+    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercells is from MiniFCAL - it will be ignored.");
     validcell = false;
     break;
   }
   case CaloSampling::Unknown: {
-    //ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Supercell sampling is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
+    ATH_MSG_WARNING("\n==== jSuperCellTowerMapper ============ Supercell sampling is officially unknown - it will be ignored. (Needs investigation).  Please report this!");
     validcell = false;
     break;
   }
   default: {
-    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell has invalid CaloSampling value: " << sample << " (Needs investigation).  Please report this!");
+    ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell has invalid CaloSampling value: " << sample << " (Needs investigation).  Please report this!");    
     validcell = false;
     break;
   }
   }
 
   if(validcell){
-    iJTower = FindTowerIDForSuperCell(towereta, towerphi) + towerID_Modifier;
+    iJTower = FindTowerIDForSuperCell(towereta, towerphi) + towerID_Modifier;    
     if(doPrint){
-      PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit);
+      PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0);
     }
     ConnectSuperCellToTower( my_jTowerContainerRaw, iJTower, ID, iCell, et, layer, doenergysplit);
+
+  }
+  else{
+    PrintCellSpec(sample, layer, region, eta_index, phi_index, pos_neg, iJTower, iCell, prov, ID, doenergysplit, eta_min, eta_max, eta0, phi_min, phi_max, phi0,false);
   }
 
   // END ITERATING OVER SUPER CELLS+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ +++++++++++++++++++++++++++++++++++++++++++++
@@ -736,7 +914,7 @@ int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
 
 }
 
-  void jSuperCellTowerMapper::PrintCellSpec(const CaloSampling::CaloSample sample, int layer, const int region, const int eta_index, const int phi_index, const int pos_neg, int iJTower, int iCell, int prov, Identifier ID ,bool doenergysplit)
+  void jSuperCellTowerMapper::PrintCellSpec(const CaloSampling::CaloSample sample, int layer, const int region, const int eta_index, const int phi_index, const int pos_neg, int iJTower, int iCell, int prov, Identifier ID ,bool doenergysplit, float eta_min, float eta_max, float eta0, float phi_min, float phi_max, float phi0,bool cellValid)
 {
   
   std::string sampleName = "";
@@ -754,26 +932,59 @@ int jSuperCellTowerMapper::FindTowerIDForSuperCell(int towereta, int towerphi)
   case CaloSampling::HEC1: { sampleName = "HEC1"; break; }
   case CaloSampling::HEC2: { sampleName = "HEC2"; break; }
   case CaloSampling::HEC3: { sampleName = "HEC3"; break; }
+  case CaloSampling::FCAL0: { sampleName = "FCAL0"; break; }
+  case CaloSampling::FCAL1: { sampleName = "FCAL1"; break; }
+  case CaloSampling::FCAL2: { sampleName = "FCAL2"; break; }
   default: {
     ATH_MSG_DEBUG("\n==== jSuperCellTowerMapper ============ Supercell has invalid CaloSampling value: " << sample << " (Needs investigation).  Please report this!");
     break;
   }
   }
   
-  ATH_MSG_DEBUG("ASSIGNED CELL:::  CASE: " << sampleName
-		<< "\tSample: " << sample
-		<< "\tLayer: " << layer
-		<< "\tRegion: " << region
-		<< "\tEta_Index: " << eta_index
-		<< "\tPhi_Index: " << phi_index
-		<< "\tPosNeg: " << pos_neg
-		<< "\tiJTower: " << iJTower
-		<< "\tiCell: " << iCell
-		<< "\tDoEnergySplit: " << doenergysplit
-		<< "\tProvenance: " << prov
-		<< "\tID: " << ID
-		<< " ");
-  
+
+   if(cellValid){
+     ATH_MSG_DEBUG("ASSIGNED CELL:::  CASE: " << sampleName
+		   << "\tSample: " << sample
+		   << "\tLayer: " << layer
+		   << "\tRegion: " << region
+		   << "\tEta0: " << eta0
+		   << "\tEta_min: " << eta_min
+		   << "\tEta_max: " << eta_max
+		   << "\tEta_Index: " << eta_index
+                   << "\tPhi0: " << phi0
+                   << "\tPhi_min: " << phi_min
+                   << "\tPhi_max: " << phi_max
+		   << "\tPhi_Index: " << phi_index
+		   << "\tPosNeg: " << pos_neg
+		   << "\tiJTower: " << iJTower
+		   << "\tiCell: " << iCell
+		   << "\tDoEnergySplit: " << doenergysplit
+		   << "\tProvenance: " << prov
+		   << "\tID: " << ID
+		   << " ");
+   }
+   else{
+     ATH_MSG_DEBUG("INVALID CELL IDENTIFIED:::  CASE: " << sampleName
+		   << "\tSample: " << sample
+		   << "\tLayer: " << layer
+		   << "\tRegion: " << region
+                   << "\tEta0: " << eta0
+                   << "\tEta_min: " << eta_min
+                   << "\tEta_max: " << eta_max
+                   << "\tEta_Index: " << eta_index
+                   << "\tPhi0: " << phi0
+                   << "\tPhi_min: " << phi_min
+                   << "\tPhi_max: " << phi_max
+                   << "\tPhi_Index: " << phi_index
+		   << "\tPosNeg: " << pos_neg
+		   << "\tiJTower: " << iJTower
+		   << "\tiCell: " << iCell
+		   << "\tDoEnergySplit: " << doenergysplit
+		   << "\tProvenance: " << prov
+		   << "\tID: " << ID
+		   << " ");
+   }
+
   return;
 }
 
