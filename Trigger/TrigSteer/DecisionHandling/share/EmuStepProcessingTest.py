@@ -69,7 +69,7 @@ from AthenaCommon.AppMgr import theApp, ServiceMgr as svcMgr
 from GaudiSvc.GaudiSvcConf import THistSvc
 svcMgr += THistSvc()
 if hasattr(svcMgr.THistSvc, "Output"):
-    from TriggerJobOpts.HLTTriggerGetter import setTHistSvcOutput
+    from TriggerJobOpts.TriggerHistSvcConfig import setTHistSvcOutput
     setTHistSvcOutput(svcMgr.THistSvc.Output)
 
 print ("EmuStepProcessing: dump top Sequence after CF/DF Tree build")
