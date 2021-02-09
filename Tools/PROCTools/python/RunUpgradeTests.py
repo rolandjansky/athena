@@ -37,7 +37,7 @@ def RunCleanSTest(stest,input_file,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     ###This is the config for the latest (and future) configuration, and differs in several ways from the older configurations - for the time being it relies on a local geometry
     if s == 'sim_updated':
 
-        geotag = "ATLAS-P2-ITK-23-00-01_VALIDATION"
+        geotag = "ATLAS-P2-ITK-23-00-02_VALIDATION"
         logging.info("Running clean "+s)
         logging.info("\"Sim_tf.py "+s+" ("+geotag+") --inputEVNTFile "+ input_file + " --outputHITSFile myHITS.pool.root --imf False " + extraArg+"\"")
 
@@ -75,7 +75,7 @@ def RunPatchedSTest(stest,input_file,pwd,release,extraArg,nosetup=False,voldebug
 
     if s == 'sim_updated':
        extra_pre = ""
-       geotag = "ATLAS-P2-ITK-23-00-01_VALIDATION"
+       geotag = "ATLAS-P2-ITK-23-00-02_VALIDATION"
 
        if voldebug:
            extra_pre = ",InDetSLHC_Example/preInclude.VolumeDebugger.py"
@@ -119,7 +119,7 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID):
     inputfile = "/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/InDetSLHC_Example/inputs/s3551.pool.root" 
     
     if q == "reco_updated":
-        geotag = "ATLAS-P2-ITK-23-00-01"
+        geotag = "ATLAS-P2-ITK-23-00-02"
         inputfile =  pwd+"/run_sim_updated/myHITS.pool.root"
 
         logging.info("Running patched "+q+" ("+geotag+") \"Reco_tf.py --AMI "+q+" --imf False "+extraArg+"\"")
@@ -156,7 +156,7 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, nosetup=False):
     trfcmd = "echo \"NO VALID CONFIGURATION SELECTED!\""
 
     if q == "reco_updated":
-        geotag = "ATLAS-P2-ITK-23-00-01"
+        geotag = "ATLAS-P2-ITK-23-00-02"
         layoutoption = ""
         inputfile = pwd+"/run_sim_updated/myHITS.pool.root"
 
