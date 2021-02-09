@@ -46,7 +46,6 @@ from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties
 from AthenaCommon.ConcurrencyFlags import jobproperties as cf
 if cf.ConcurrencyFlags.NumThreads() > 1:
     pmon_properties.PerfMonFlags.doMonitoringMT=True
-    print("Activating multi-threaded perfmon")
 else:
     pmon_properties.PerfMonFlags.doMonitoring=True
     pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True
