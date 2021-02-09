@@ -138,6 +138,7 @@ JetChainParts = {
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
                       'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
+                      'dijetSEP70j1etSEP70j2etSEP1000djmassSEP20djdphiSEP40djdeta', # dijet mass sel including dphi and deta cuts
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
