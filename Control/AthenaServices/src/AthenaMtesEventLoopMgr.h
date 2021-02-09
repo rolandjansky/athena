@@ -251,10 +251,12 @@ private:
   // from MinimalEventLoopMgr
 public:
   typedef std::list<SmartIF<IAlgorithm> >  ListAlg;
-  // typedef std::list<IAlgorithm*>  ListAlgPtrs;
-  // typedef std::list<std::string>   ListName;
-  // typedef std::vector<std::string> VectorName;
 
+  // Property to specify text messages with event ranges to simulate input from
+  // EventService pilot - use for standalone tests
+  StringArrayProperty m_testPilotMessages;
+  bool m_inTestMode { false };
+   
 private:
   StoreGateSvc* eventStore() const;
 

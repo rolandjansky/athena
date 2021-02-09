@@ -11,8 +11,8 @@
 #include "GaudiKernel/LockedHandle.h"
 
 //EM/Tau EDMs
-#include "xAODTrigCalo/TrigEMClusterContainer.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
+#include "xAODTrigger/eFexEMRoIContainer.h"
+
 
 #include "TH1.h"
 #include "TH2.h"
@@ -38,16 +38,16 @@ namespace LVL1 {
 
       /** \brief calculates eta and phi from roiWord*/
       void CalculateCoordinates(int32_t roiWord, double & eta, double & phi) const;
-
+      int ConvertEta(const int val) const;
+     
       ServiceHandle<ITHistSvc> m_histSvc;
-
-      StringProperty m_eFEXClusterLoc;
 
       mutable LockedHandle<TH1> m_hEMEt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hEMEtaPhi ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH1> m_hTauEt ATLAS_THREAD_SAFE;
       mutable LockedHandle<TH2> m_hTauEtaPhi ATLAS_THREAD_SAFE;
 
+     SG::ReadHandleKey<xAOD::eFexEMRoIContainer> m_eEDMKey {this, "L1_eEMRoI", "L1_eEMRoI", "eFEX EDM"};
    };
 }
 

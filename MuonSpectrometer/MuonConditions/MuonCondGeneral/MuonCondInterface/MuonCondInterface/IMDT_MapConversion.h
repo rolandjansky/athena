@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONCONDINTERFACE_IMDT_MAPCONVERSION_H 
@@ -27,7 +27,8 @@ class IMDT_MapConversion: virtual public IAlgTool{
    static const InterfaceID& interfaceID() {return IID_IMDT_MapConversion;};
 
  
-   virtual const Identifier& ConvertToOffline(const std::string &OnlineId) const =0;
+   virtual const Identifier& ConvertToOffline(const std::string &OnlineId,
+                                              bool quiet = false) const =0;
   
 };
 

@@ -246,7 +246,7 @@ TrigConf::MenuLoader::constructTree(const std::string& definition, const std::ve
 TrigConf::TriggerItemNode*
 TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vector<ThrInfo>& thr_infos) {
    TriggerItemNode* top_node=0;
-   vector<LogicExpression*> sub_logics = def.subLogics();
+   const std::vector<std::shared_ptr<LogicExpression>> & sub_logics = def.subLogics();
 
    switch (def.state()) {
    case LogicExpression::kELEMENT: {
@@ -266,25 +266,22 @@ TrigConf::MenuLoader::constructTree(const LogicExpression& def, const std::vecto
    case LogicExpression::kAND: 
    case LogicExpression::kOPEN:
       top_node = new TriggerItemNode(TriggerItemNode::AND);
-      for(LogicExpression* sl : sub_logics)
+      for(auto sl : sub_logics)
          top_node->addChild( constructTree(*sl, thr_infos) );
       break;
    case LogicExpression::kOR:
       if(sub_logics.size()>0) {
          top_node = new TriggerItemNode(TriggerItemNode::OR);
-         for(LogicExpression* sl : sub_logics)
+         for(auto sl : sub_logics)
             top_node->addChild( constructTree(*sl, thr_infos) );
       }
       break;
    case LogicExpression::kNOT:
       top_node = new TriggerItemNode(TriggerItemNode::NOT);
-      for(LogicExpression* sl : sub_logics)
+      for(auto sl : sub_logics)
          top_node->addChild( constructTree(*sl, thr_infos) );
       break;
    }
-
-   for(LogicExpression *sl : sub_logics) delete sl;
-   sub_logics.clear();
 
    return top_node;
 }

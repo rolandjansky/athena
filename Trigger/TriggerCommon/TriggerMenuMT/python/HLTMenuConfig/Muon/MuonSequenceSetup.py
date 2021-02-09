@@ -54,7 +54,8 @@ def muFastAlgSequence(ConfigFlags):
     ### get muFast reco sequence ###    
     from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup import muFastRecoSequence, makeMuonPrepDataAlgs
     viewAlgs_MuonPRD = makeMuonPrepDataAlgs(RoIs=l2MuViewsMaker.InViewRoIs)
-    muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID=False )
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import  isCosmic
+    muFastRecoSequence, sequenceOut = muFastRecoSequence( l2MuViewsMaker.InViewRoIs, doFullScanID= isCosmic() )
     muFastSequence = parOR("muFastRecoSequence", [viewAlgs_MuonPRD, muFastRecoSequence])
     l2MuViewsMaker.ViewNodeName = muFastSequence.name() 
     
@@ -105,18 +106,18 @@ def muCombAlgSequence(ConfigFlags):
     newRoITool.RoisWriteHandleKey = recordable("HLT_Roi_L2SAMuon") #RoI collection recorded to EDM
     newRoITool.InViewRoIs = muNames.L2forIDName #input RoIs from L2 SA views
 
+    ### get ID tracking and muComb reco sequences ###    
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muFastRecoSequence, muCombRecoSequence, muonIDFastTrackingSequence, muonIDCosmicTrackingSequence, isCosmic
     #
     l2muCombViewsMaker.RoIsLink = "initialRoI" # ROI for merging is still from L1, we get exactly one L2 SA muon per L1 ROI
     l2muCombViewsMaker.RoITool = newRoITool # Create a new ROI centred on the L2 SA muon from Step 1 
     #
-    l2muCombViewsMaker.Views = "MUCombViewRoIs" #output of the views maker (key in "storegate")
+    l2muCombViewsMaker.Views = "MUCombViewRoIs" if not isCosmic() else "CosmicViewRoIs" #output of the views maker (key in "storegate")
     l2muCombViewsMaker.InViewRoIs = "MUIDRoIs" # Name of the RoI collection inside of the view, holds the single ROI used to seed the View.
     #
     l2muCombViewsMaker.RequireParentView = True
     l2muCombViewsMaker.ViewFallThrough = True #if this needs to access anything from the previous step, from within the view
 
-    ### get ID tracking and muComb reco sequences ###    
-    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import muFastRecoSequence, muCombRecoSequence, muonIDFastTrackingSequence
     muCombRecoSequence, sequenceOut = muCombRecoSequence( l2muCombViewsMaker.InViewRoIs, "FTF" )
  
     #Filter algorithm to run muComb only if non-Bphysics muon chains are active
@@ -138,11 +139,15 @@ def muCombAlgSequence(ConfigFlags):
     for decision in muonChainFilter.InputDecisions:
       extraLoads += [( 'xAOD::TrigCompositeContainer' , 'StoreGateSvc+%s' % decision )]
 
-    muFastIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
-    # muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence])
+    if isCosmic():
+        muTrigIDRecoSequence = muonIDCosmicTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
+    else:
+        muTrigIDRecoSequence = muonIDFastTrackingSequence( l2muCombViewsMaker.InViewRoIs , "", extraLoads )
+
 
     # for Inside-out L2SA
-    muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( l2muCombViewsMaker.InViewRoIs, doFullScanID=False, InsideOutMode=True )
+    from TriggerMenuMT.HLTMenuConfig.Muon.MuonSetup  import isCosmic
+    muFastIORecoSequence, sequenceOutL2SAIO = muFastRecoSequence( l2muCombViewsMaker.InViewRoIs, doFullScanID= isCosmic() , InsideOutMode=True )
     insideoutMuonChainFilter = MuonChainFilterAlg("FilterInsideOutMuonChains")
     insideoutMuonChains = getInsideOutMuonChainNames()
     insideoutMuonChainFilter.ChainsToFilter = insideoutMuonChains
@@ -155,7 +160,7 @@ def muCombAlgSequence(ConfigFlags):
 
     muFastIOFilterSequence = seqAND("l2muFastIOFilterSequence", [insideoutMuonChainFilter, muFastIORecoSequence])
 
-    muCombIDSequence = parOR("l2muCombIDSequence", [muFastIDRecoSequence, muCombFilterSequence, muFastIOFilterSequence])
+    muCombIDSequence = parOR("l2muCombIDSequence", [muTrigIDRecoSequence, muCombFilterSequence, muFastIOFilterSequence])
 
     l2muCombViewsMaker.ViewNodeName = muCombIDSequence.name()
 

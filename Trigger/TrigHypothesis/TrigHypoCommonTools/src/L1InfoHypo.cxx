@@ -41,7 +41,7 @@ StatusCode L1InfoHypo::execute(const EventContext& context) const {
     std::vector<IL1InfoHypoTool::L1Info> hypoToolInput;
     for (const TrigCompositeUtils::Decision* previousDecision: *previousDecisionsHandle) {
         
-        TrigCompositeUtils::Decision* d = TrigCompositeUtils::newDecisionIn( decisions, previousDecision, "", context );
+        TrigCompositeUtils::Decision* d = TrigCompositeUtils::newDecisionIn( decisions, previousDecision, TrigCompositeUtils::hypoAlgNodeName(), context );
 
         TrigCompositeUtils::DecisionIDContainer previousDecisionIDs;
         TrigCompositeUtils::decisionIDs(previousDecision, previousDecisionIDs);

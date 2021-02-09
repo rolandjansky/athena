@@ -22,6 +22,9 @@ knownVar = dict(
 
 )
 
+# Explicitly declare variables which have underlying type vector<int> (otherwise the system would automatically configure them as vector<float>)
+knownVar['NumTrkPt1000[0]'] = VarSpec('NumTrkPt1000[0]', 'vecint', )
+knownVar['NumTrkPt500[0]']  = VarSpec('NumTrkPt500[0]', 'vecint', )
 
 knownEventVar = dict(    
     # These always are of type 'float'

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,7 +29,9 @@ namespace DerivationFramework {
     private:
       ToolHandle< InDet::IInDetTrackSelectionTool > m_tool;
       std::string m_sgName;
-      std::string m_containerName;
+      SG::ReadHandleKey<xAOD::TrackParticleContainer> m_tracksKey{ 
+      this, "TrackParticlesKey", "InDetTrackParticles", "The input TrackParticleCollection"};
+
   }; 
 }
 

@@ -181,7 +181,7 @@ TrigConf::L1PrescaleCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_INFO("Recording empty L1 prescales set with range " << range);
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet ) );
    } else {
-      ATH_MSG_INFO("Recording L1 prescales set with range " << range);
+      ATH_MSG_INFO("Recording L1 prescales set with range " << range << " (key = " << pss->psk() << ")");
       ATH_CHECK( writeCondHandle.record( range, new L1PrescalesSet(*pss) ) );
    }
 

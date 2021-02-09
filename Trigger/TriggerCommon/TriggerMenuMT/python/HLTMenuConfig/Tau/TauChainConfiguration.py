@@ -13,6 +13,8 @@ from TriggerMenuMT.HLTMenuConfig.Menu.ChainConfigurationBase import ChainConfigu
 
 from TriggerMenuMT.HLTMenuConfig.Tau.TauMenuSequences import tauCaloMenuSeq, tauCaloMVAMenuSeq, tauFTFTauSeq, tauFTFTauCoreSeq, tauFTFTauIsoSeq, tauFTFTauIsoBDTSeq, tauIDPrecSeq, tauTrackPrecSeq, tauTrackTwoPrecSeq, tauTrackTwoEFSeq, tauTrackTwoMVASeq, tauPreSelSeq, tauPreSelTTSeq, tauPrecTrackSeq, tauPrecTrackIsoSeq
 
+from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool, defineHistogram
+
 #--------------------------------------------------------
 # fragments generating config will be functions in new JO
 #--------------------------------------------------------
@@ -60,6 +62,18 @@ def getPrecTrackCfg(flags):
 
 def getPrecTrackIsoCfg(flags):
     return tauPrecTrackIsoSeq()
+
+# this must be moved to the HypoTool file:                                                                                                 
+def TrigTauXComboHypoToolFromDict(chainDict):
+    from TrigTauHypo.TrigTauHypoConf import TrigTauXComboHypoTool
+    name = chainDict['chainName']
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('dROfAccepted', type='TH1F', path='EXPERT', title="dR in accepted combinations [MeV]", xbins=50, xmin=0, xmax=5.)]
+    monTool.Histograms = [defineHistogram('dROfProcessed', type='TH1F', path='EXPERT', title="dR in accepted combinations [MeV]", xbins=50, xmin=0, xmax=5.)]
+    tool= TrigTauXComboHypoTool(name)
+    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
+    tool.MonTool = monTool
+    return tool
 
 ############################################# 
 ###  Class/function to configure muon chains 
@@ -182,5 +196,10 @@ class TauChainConfiguration(ChainConfigurationBase):
 
     # --------------------                                                                                                      
     def getTrackTwoMVA(self):
-        stepName = 'TrkTwoMVA_tau'
-        return self.getStep(6, stepName, [getTrackTwoMVACfg])
+
+        if "03dRtt" in self.chainName:
+            stepName = "TauLep_Combo"
+            return self.getStep(6,stepName,sequenceCfgArray=[getTrackTwoMVACfg], comboTools=[TrigTauXComboHypoToolFromDict])
+        else:
+            stepName = "TrkTwoMVA_tau"
+            return self.getStep(6,stepName,[getTrackTwoMVACfg])

@@ -1,15 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ## @Package test_trfArgClasses.py
 #  @brief Unittests for test_trfArgClasses.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfArgClassesATLAS.py 731518 2016-03-22 07:29:46Z graemes $
 #  @note Tests of ATLAS specific file formats (that thus rely on other
 #  parts of Athena) live here
 
-from __future__ import print_function
 import sys
 import unittest
 
@@ -23,16 +21,16 @@ from PyJobTransforms.trfFileUtils import athFileInterestingKeys
 
 class argFileEOSTests(unittest.TestCase):
     def test_SimGlobStar(self):
-        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.*', io='input')
-        self.assertEqual(len(hitsInputs.value), 4)        
+        hitsInputs = argFile('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.*', io='input')
+        self.assertGreater(len(hitsInputs.value), 0)
 
     def test_SimGlobMatchSingle(self):
-        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._??????.pool.root.?', io='input')
-        self.assertEqual(len(hitsInputs.value), 4)        
+        hitsInputs = argFile('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._??????.pool.root.?', io='input')
+        self.assertGreater(len(hitsInputs.value), 0)
 
     def test_SimGlobMatchBoth(self):
-        hitsInputs = argFile('/eos/atlas/atlascerngroupdisk/proj-sit/digitization/RTT/mc12a/mc12_8TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e1119_s1469_s1471/HITS.743321._*.pool.root.?', io='input')
-        self.assertEqual(len(hitsInputs.value), 4)        
+        hitsInputs = argFile('/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/DigitizationTests/mc15a/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._*.pool.root.?', io='input')
+        self.assertGreater(len(hitsInputs.value), 0)
 
 
 class argPOOLFiles(unittest.TestCase):
@@ -72,18 +70,6 @@ class argPOOLFiles(unittest.TestCase):
             # With python 2.7 this should call the self.skip() method
             print('WARNING Skipping test_argPOOLFileMetadata_AOD - stat on AFS test file failed', file=sys.stderr)
 
-class argTAGFiles(unittest.TestCase):
-    def test_argTAGFileMetadata(self):
-        try:
-            testFile = '/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1'
-            os.stat(testFile)
-            tagFile = argTAGFile(testFile, io = 'input', type='tag')
-            self.assertEqual(tagFile.getMetadata(), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'_exists': True, 'file_type': 'tag', 'file_guid': '3CCAD8D2-9195-5845-857B-550D616962F9', 'file_size': 12222088, 'integrity': True, 'nentries': 38112}}) 
-            self.assertEqual(tagFile.getMetadata(metadataKeys = ('nentries',)), {'/afs/cern.ch/work/g/graemes/ddm/data12_8TeV.00207865.physics_JetTauEtmiss.merge.TAG.r4065_p1278_tid01030417_00/TAG.01030417._000001.pool.root.1': {'nentries': 38112}})
-            self.assertEqual(tagFile.prodsysDescription['type'],'file')
-        except OSError:
-            # With python 2.7 this should call the self.skip() method
-            print('WARNING Skipping test_argTAGFileMetadata - stat on AFS test file failed', file=sys.stderr)
 
 class argBSFiles(unittest.TestCase):
     def tearDown(self):

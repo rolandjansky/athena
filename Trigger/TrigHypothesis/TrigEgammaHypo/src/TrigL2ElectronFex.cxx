@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -206,7 +206,7 @@ HLT::ErrorCode TrigL2ElectronFex::hltExecute(const HLT::TriggerElement* inputTE,
   trigElecColl->reserve(coll_size);
 
   // loop over tracks
-  for(const auto &trkLink:v_inputTracks){
+  for(const ElementLink<xAOD::TrackParticleContainer> trkLink:v_inputTracks){
       const xAOD::TrackParticle* trkIter = *trkLink;
       ATH_MSG_VERBOSE("AlgoId = " << (trkIter)->patternRecoInfo());
       ATH_MSG_VERBOSE("At perigee:");

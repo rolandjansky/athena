@@ -22,12 +22,11 @@ from ISF_Geant4CommonTools.ISF_Geant4CommonToolsConfigNew import EntryLayerToolC
 def FullG4TrackProcessorUserActionToolCfg(flags, name="FullG4TrackProcessorUserActionTool", **kwargs):
     result = ComponentAccumulator()
     if flags.Sim.ISF.Simulator in ["FullG4MT"]:
-        result.merge(EntryLayerToolMTCfg(flags))
-        tool = result.getPublicTool("ISF_EntryLayerToolMT")
+        tool = result.popToolsAndMerge(EntryLayerToolMTCfg(flags))
     else:
-        result.merge(EntryLayerToolCfg(flags))
-        tool = result.getPublicTool("ISF_EntryLayerTool")
-    kwargs.setdefault("EntryLayerTool", tool)
+        tool = result.popToolsAndMerge(EntryLayerToolCfg(flags))
+    result.addPublicTool(tool)
+    kwargs.setdefault("EntryLayerTool", result.getPublicTool(tool.name))
     result.merge(GeoIDSvcCfg(flags))
     kwargs.setdefault("GeoIDSvc", result.getService("ISF_GeoIDSvc"))
     if flags.Detector.SimulateCavern:
@@ -114,7 +113,7 @@ def getDefaultActions(ConfigFlags):
         actions += [result.popToolsAndMerge(CalibrationDefaultProcessingToolCfg(ConfigFlags))]
 
     actions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]
-    
+
     result.setPrivateTools(actions)
     return result
 
@@ -139,7 +138,6 @@ def CTBUserActionSvcCfg(ConfigFlags, name="G4UA::CTBUserActionSvc", **kwargs):
     result = ComponentAccumulator()
     # FIXME migrate an alternative to this
     generalActions = result.popToolsAndMerge(getDefaultActions(ConfigFlags))
-    generalActions += [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))]
     # This comment carried over from old style:
     # FIXME: ADS these actions are not yet migrated to Hive
     #if simFlags.SimLayout.get_Value()=="tb_LArH6_2004":
@@ -178,7 +176,6 @@ def ISFUserActionSvcCfg(ConfigFlags, name="G4UA::ISFUserActionSvc", **kwargs):
     generalActions = (
         TrackProcessorUserAction + MCTruthUserAction +
         result.popToolsAndMerge(getDefaultActions(ConfigFlags)) +
-        [result.popToolsAndMerge(LooperKillerToolCfg(ConfigFlags))] +
         PhysicsValidationUserAction
     )
 

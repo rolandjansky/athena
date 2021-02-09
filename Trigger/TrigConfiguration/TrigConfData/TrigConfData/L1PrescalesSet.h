@@ -53,6 +53,7 @@ namespace TrigConf {
       void setPSK(unsigned int psk);
 
       const L1Prescale & prescale(const std::string & itemName) const;
+      const std::map<std::string, L1Prescale>& prescales() const;
 
    private:
 

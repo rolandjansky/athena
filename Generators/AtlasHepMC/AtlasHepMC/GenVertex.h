@@ -20,6 +20,12 @@ inline GenVertexPtr newGenVertexPtr(const HepMC3::FourVector &pos = HepMC3::Four
     v->set_status(i);
     return v;
 }
+
+inline int particles_in_size(GenVertexPtr v) { return v->particles_in().size();}
+inline int particles_out_size(GenVertexPtr v) { return v->particles_out().size();}
+inline int particles_in_size(ConstGenVertexPtr v) { return v->particles_in().size();}
+inline int particles_out_size(ConstGenVertexPtr v) { return v->particles_out().size();}
+
 inline int barcode(GenVertexPtr p) {
     if (!p) return 0;
     std::shared_ptr<HepMC3::IntAttribute> barcode=p->attribute<HepMC3::IntAttribute>("barcode");
@@ -46,6 +52,9 @@ typedef HepMC::GenVertex* GenVertexPtr;
 typedef const HepMC::GenVertex* ConstGenVertexPtr;
 inline GenVertex::particles_out_const_iterator  begin(const HepMC::GenVertex& v) { return v.particles_out_const_begin(); }
 inline GenVertex::particles_out_const_iterator  end(const HepMC::GenVertex& v) { return v.particles_out_const_end(); }
+
+inline int particles_in_size(const HepMC::GenVertex* v) { return v->particles_in_size();}
+inline int particles_out_size(const HepMC::GenVertex* v) { return v->particles_out_size();}
 
 inline GenVertexPtr newGenVertexPtr(const HepMC::FourVector &pos = HepMC::FourVector(0.0,0.0,0.0,0.0), const int i=0) {
     return new HepMC::GenVertex(pos,i);

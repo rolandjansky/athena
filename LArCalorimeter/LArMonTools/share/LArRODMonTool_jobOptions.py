@@ -42,13 +42,12 @@ else:
 
 #timeoffset = (firstsample - 3) or (3 - firstsample) ... to be checked.
 
-from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
-theCaloNoiseTool = CaloNoiseToolDefault()
-ToolSvc += theCaloNoiseTool
+#from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
+#theCaloNoiseTool = CaloNoiseToolDefault()
+#ToolSvc += theCaloNoiseTool
 
 from LArMonTools.LArMonToolsConf import LArRODMonTool
 theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
-                                 NoiseTool=theCaloNoiseTool,
                                  LArDigitContainerKey      = LArMonFlags.LArDigitKey(),
                                  useEvtCounter             = True,
                                  LArRawChannelKey_fromBytestream = "LArRawChannels",  #for Tier0

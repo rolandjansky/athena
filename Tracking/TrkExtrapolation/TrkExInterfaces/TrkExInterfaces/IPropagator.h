@@ -99,7 +99,7 @@ public:
     The propagation method called by the TrkExtrapolator. The extrapolator
     is responsible for the underlying logic of which surface to go to.
     */
-  virtual TrackParameters* propagate(
+  virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -115,7 +115,7 @@ public:
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface.
     */
-  virtual TrackParameters* propagate(
+  virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
     std::vector<DestSurf>& sfs,
@@ -133,7 +133,7 @@ public:
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface. Timing included.
     */
-  virtual TrackParameters* propagateT(
+  virtual std::unique_ptr<TrackParameters> propagateT(
     const EventContext& ctx,
     const TrackParameters& parm,
     std::vector<DestSurf>& sfs,
@@ -152,7 +152,7 @@ public:
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface. Timing included.
     */
-  virtual TrackParameters* propagateT(
+  virtual std::unique_ptr<TrackParameters> propagateT(
     const EventContext& ctx,
     const TrackParameters& parm,
     TargetSurfaces& sfs,
@@ -179,7 +179,7 @@ public:
     The propagation method with internal material collection. The propagator
     finds the closest surface.
     */
-  virtual TrackParameters* propagateM(
+  virtual std::unique_ptr<TrackParameters> propagateM(
     const EventContext& ctx,
     const TrackParameters& parm,
     std::vector<DestSurf>& sfs,
@@ -200,7 +200,7 @@ public:
     The propagation method including the return of the TransportJacobian matrix.
 
     */
-  virtual TrackParameters* propagate(
+  virtual std::unique_ptr<TrackParameters> propagate(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -217,7 +217,7 @@ public:
     the pathlength has to be returned for eventual following propagateCovariance
     */
 
-  virtual TrackParameters* propagateParameters(
+  virtual std::unique_ptr<TrackParameters> propagateParameters(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -228,7 +228,7 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const = 0;
 
-  virtual TrackParameters* propagateParameters(
+  virtual std::unique_ptr<TrackParameters> propagateParameters(
     const EventContext& ctx,
     const TrackParameters& parm,
     const Surface& sf,
@@ -307,7 +307,7 @@ public:
     The propagation method called by the TrkExtrapolator. The extrapolator
     is responsible for the underlying logic of which surface to go to.
     */
-  TrackParameters* propagate(const TrackParameters& parm,
+  std::unique_ptr<TrackParameters> propagate(const TrackParameters& parm,
                              const Surface& sf,
                              PropDirection dir,
                              const BoundaryCheck& bcheck,
@@ -321,7 +321,7 @@ public:
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface.
     */
-  TrackParameters* propagate(const TrackParameters& parm,
+  std::unique_ptr<TrackParameters> propagate(const TrackParameters& parm,
                              std::vector<DestSurf>& sfs,
                              PropDirection dir,
                              const MagneticFieldProperties& mprop,
@@ -337,7 +337,7 @@ public:
     The propagation method called by the TrkExtrapolator. The propagator
     finds the closest surface. Timing included.
     */
-  TrackParameters* propagateT(const TrackParameters& parm,
+  std::unique_ptr<TrackParameters> propagateT(const TrackParameters& parm,
                               std::vector<DestSurf>& sfs,
                               PropDirection dir,
                               const MagneticFieldProperties& mprop,
@@ -355,7 +355,7 @@ public:
     finds the closest surface. Timing included.
 
     */
-  TrackParameters* propagateT(const TrackParameters& parm,
+  std::unique_ptr<TrackParameters> propagateT(const TrackParameters& parm,
                               TargetSurfaces& sfs,
                               PropDirection dir,
                               const MagneticFieldProperties& mprop,
@@ -378,7 +378,7 @@ public:
     The propagation method with internal material collection. The propagator
     finds the closest surface.
     */
-  TrackParameters* propagateM(
+  std::unique_ptr<TrackParameters> propagateM(
     const TrackParameters& parm,
     std::vector<DestSurf>& sfs,
     PropDirection dir,
@@ -398,7 +398,7 @@ public:
     The propagation method including the return of the TransportJacobian matrix.
 
     */
-  TrackParameters* propagate(const TrackParameters& parm,
+  std::unique_ptr<TrackParameters> propagate(const TrackParameters& parm,
                              const Surface& sf,
                              PropDirection dir,
                              const BoundaryCheck& bcheck,
@@ -412,7 +412,7 @@ public:
   /** Propagation interface without Covariance matrix propagation
     the pathlength has to be returned for eventual following propagateCovariance
     */
-  TrackParameters* propagateParameters(
+  std::unique_ptr<TrackParameters> propagateParameters(
     const TrackParameters& parm,
     const Surface& sf,
     PropDirection dir,
@@ -422,7 +422,7 @@ public:
     bool returnCurv = false,
     const TrackingVolume* tVol = nullptr) const;
 
-  TrackParameters* propagateParameters(
+  std::unique_ptr<TrackParameters> propagateParameters(
     const TrackParameters& parm,
     const Surface& sf,
     PropDirection dir,

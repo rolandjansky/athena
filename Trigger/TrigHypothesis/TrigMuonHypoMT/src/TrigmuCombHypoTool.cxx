@@ -638,6 +638,7 @@ double TrigmuCombHypoTool::invMass(double m1, double pt1, double eta1, double ph
 
 StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::CombinedMuonInfo*>& input, std::vector<unsigned int> mucombResult) const
 {
+  const double ZERO_LIMIT = 1e-4;
   size_t numMuon = input.size();
   unsigned int i,j,k;
 
@@ -669,15 +670,41 @@ StatusCode TrigmuCombHypoTool::chooseBestMuon(std::vector<TrigmuCombHypoTool::Co
       ATH_MSG_DEBUG( "   overlapped objects among: " << others );
       unsigned int best_ev = 0;
       float maxPtCombMf  = 0;
+      float mindRRoadRoI = 999;
       for(k=0; k<others.size(); k++) {
 	j=others[k];
 
 	float ptCombMf  = 0.;
 	const xAOD::L2CombinedMuon* combMf = (*input[j]).muComb;
 	ptCombMf  = fabs(combMf->pt()/Gaudi::Units::GeV);
-	ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf);
-	if( ptCombMf > maxPtCombMf ) {
+
+	const xAOD::L2StandAloneMuon* mf = (*input[j]).muComb->muSATrack();
+	const float roadPhiP = atan2(mf->dirPhiMS(),1.);
+	const float roadPhiM = atan2(-1*mf->dirPhiMS(),-1.);
+	const float roadPhi = (std::abs(CxxUtils::deltaPhi(roadPhiP, mf->roiPhi())) < std::abs(CxxUtils::deltaPhi(roadPhiM, mf->roiPhi())))? roadPhiP : roadPhiM;
+	float roadAw = 0;
+	if(std::abs(mf->roiEta()) < 1.05) { // barrel
+	  if( std::abs(mf->roadAw(1,0)) > ZERO_LIMIT )      roadAw = mf->roadAw(1,0);
+	  else if( std::abs(mf->roadAw(2,0)) > ZERO_LIMIT ) roadAw = mf->roadAw(2,0);
+	  else if( std::abs(mf->roadAw(0,0)) > ZERO_LIMIT ) roadAw = mf->roadAw(0,0);
+	}
+	else { // endcap
+	  if( std::abs(mf->roadAw(4,0)) > ZERO_LIMIT )      roadAw = mf->roadAw(4,0);
+	  else if( std::abs(mf->roadAw(5,0)) > ZERO_LIMIT ) roadAw = mf->roadAw(5,0);
+	  else if( std::abs(mf->roadAw(3,0)) > ZERO_LIMIT ) roadAw = mf->roadAw(3,0);
+	}
+	float roadEta = 999;
+	if(std::abs(roadAw) > ZERO_LIMIT)
+	  roadEta = -std::log(std::tan(0.5*std::atan(std::abs(roadAw))));
+	if(roadAw < 0) roadEta *= -1.;
+	const double dRRoadRoI = dR(roadEta, roadPhi, mf->roiEta(), mf->roiPhi());
+	ATH_MSG_DEBUG("     j="<< j << " , ptCombMf=" << ptCombMf << ", dRRoadRoI=" << dRRoadRoI);
+
+	if( (ptCombMf > maxPtCombMf) ||
+	    (std::abs(ptCombMf - maxPtCombMf) < ZERO_LIMIT &&
+	     dRRoadRoI < mindRRoadRoI) ) {
 	  maxPtCombMf  = ptCombMf;
+	  mindRRoadRoI = dRRoadRoI;
 	  best_ev  = j;
 	}
       }

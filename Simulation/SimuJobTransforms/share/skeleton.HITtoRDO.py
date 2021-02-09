@@ -284,6 +284,11 @@ else:
 # Other configuration: LVL1, turn off sub detectors, calo noise
 #--------------------------------------------------------------
 
+if hasattr(runArgs, "detectors"):
+    if not 'DetFlags' in dir():
+        from Digitization.DigitizationFlagsHelpers import setupDigitizationLegacyDetectorFlags
+        DetFlags = setupDigitizationLegacyDetectorFlags(runArgs.detectors)
+
 if hasattr(runArgs,"doAllNoise"):
     if runArgs.doAllNoise!="NONE":
         digilog.info('doAllNoise = %s: Overriding doInDetNoise, doCaloNoise and doMuonNoise', runArgs.doAllNoise)

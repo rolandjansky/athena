@@ -77,7 +77,8 @@ def LArFEBMonConfigCore(helper,algoinstance,inputFlags, cellDebug=False, dspDebu
        db='LAR_ONL'
        obj='LArDSPThresholdsComplete'
        if isRun3Cfg():
-           helper.resobj.addFolderList(inputFlags,[(fld,db,obj)])
+           from IOVDbSvc.IOVDbSvcConfig import addFolders
+           helper.resobj.merge(addFolders(inputFlags,fld,db,obj))
        else:
            conddb.addFolder (db, fld, className=obj)
        larFEBMonAlg.Run1DSPThresholdsKey = 'LArDSPThresholds'

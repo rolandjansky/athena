@@ -1,7 +1,7 @@
 ///////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // JetForwardJvtTool.cxx
@@ -46,7 +46,7 @@
       ATH_MSG_ERROR("JetForwardJvtTool needs to have its input jet container configured!");
       return StatusCode::FAILURE;
     }
-    m_orKey = m_jetContainerName + "." + m_orKey.key();
+    if(!m_orKey.key().empty()) m_orKey = m_jetContainerName + "." + m_orKey.key();
     m_outKey = m_jetContainerName + "." + m_outKey.key();
     m_isHSKey = m_jetContainerName + "." + m_isHSKey.key();
     m_isPUKey = m_jetContainerName + "." + m_isPUKey.key();
@@ -55,7 +55,7 @@
     m_jvtMomentKey = m_jetContainerName + "." + m_jvtMomentKey.key();
     m_sumPtsKey = m_jetContainerName + "." + m_sumPtsKey.key();
 
-    ATH_CHECK(m_orKey.initialize());
+    ATH_CHECK(m_orKey.initialize(!m_orKey.key().empty()));
     ATH_CHECK(m_outKey.initialize());
     ATH_CHECK(m_isHSKey.initialize());
     ATH_CHECK(m_isPUKey.initialize());
@@ -73,7 +73,7 @@
 
     getPV();
     if (jetCont.size() > 0) calculateVertexMomenta(&jetCont);
-    for(const auto *jetF : jetCont) {
+    for(const auto jetF : jetCont) {
       outHandle(*jetF) = 1;
       fjvtDecHandle(*jetF) = 0;
       if (!forwardJet(jetF)) continue;
@@ -110,7 +110,7 @@
       return;
     }
 
-    for(const auto *vx : *vertexContainerHandle) {
+    for(const auto vx : *vertexContainerHandle) {
       if(vx->vertexType()!=xAOD::VxType::PriVtx && vx->vertexType()!=xAOD::VxType::PileUp) continue;
       TString vname = "PVTrack_vx";
       vname += vx->index();
@@ -120,7 +120,7 @@
                                  -(1./m_jetScaleFactor))*TVector2(0.5*(*trkMetHandle)[vname.Data()]->mpx(),0.5*(*trkMetHandle)[vname.Data()]->mpy()));
     }
 
-    for (const auto *jet : *jets) {
+    for (const auto jet : *jets) {
       if (!centralJet(jet)) continue;
       int jetvert = getJetVertex(jet);
       if (jetvert>=0) m_pileupMomenta[jetvert] += TVector2(0.5*jet->pt()*cos(jet->phi()),0.5*jet->pt()*sin(jet->phi())); 
@@ -152,10 +152,12 @@
   }
 
   bool JetForwardJvtTool::centralJet(const xAOD::Jet *jet) const {
-    SG::ReadDecorHandle<xAOD::JetContainer, char> orHandle(m_orKey);
     if (fabs(jet->eta())>m_etaThresh) return false;
     if (jet->pt()<m_centerMinPt || (m_centerMaxPt>0 && jet->pt()>m_centerMaxPt)) return false;
-    if ( !orHandle(*jet) ) return false;
+    if(!m_orKey.key().empty()){
+      SG::ReadDecorHandle<xAOD::JetContainer, char> orHandle(m_orKey);
+      if(!orHandle(*jet)) return false;
+    }
     float jvt = 0;
     SG::ReadDecorHandle<xAOD::JetContainer, float> jvtMomentHandle(m_jvtMomentKey);
     jvt = jvtMomentHandle(*jet);
@@ -206,7 +208,7 @@
       ATH_MSG_WARNING("Event has no primary vertices!");
     } else {
       ATH_MSG_DEBUG("Successfully retrieved primary vertex container");
-      for(const auto *vx : *vxCont) {
+      for(const auto vx : *vxCont) {
         if(vx->vertexType()==xAOD::VxType::PriVtx)
           {m_pvind = vx->index(); break;}
       }
@@ -216,10 +218,10 @@
   StatusCode JetForwardJvtTool::tagTruth(const xAOD::JetContainer *jets,const xAOD::JetContainer *truthJets) {
     SG::WriteDecorHandle<xAOD::JetContainer, bool> isHSHandle(m_isHSKey);
     SG::WriteDecorHandle<xAOD::JetContainer, bool> isPUHandle(m_isPUKey);
-    for(const auto *jet : *jets) {
+    for(const auto jet : *jets) {
       bool ishs = false;
       bool ispu = true;
-      for(const auto *tjet : *truthJets) {
+      for(const auto tjet : *truthJets) {
         if (tjet->p4().DeltaR(jet->p4())<0.3 && tjet->pt()>10e3) ishs = true;
         if (tjet->p4().DeltaR(jet->p4())<0.6) ispu = false;
       }

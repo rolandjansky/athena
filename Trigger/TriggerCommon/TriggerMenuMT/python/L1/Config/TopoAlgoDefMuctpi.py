@@ -46,7 +46,6 @@ class TopoAlgoDefMuctpi:
                 alg.addgeneric('MaxTob1', HW.OutputWidthSelectMU)
                 alg.addgeneric('MaxTob2', HW.OutputWidthSelectMU)
 
-
             alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET1', d.ocut1)
             alg.addvariable('MinET2', d.ocut2)

@@ -3,10 +3,10 @@ from AthenaMonitoringKernel.GenericMonitoringTool import GenericMonitoringTool
 
 class TrigBjetOnlineMonitoring(GenericMonitoringTool):
     def make_flavor_hists(self, tagger):
-        self.defineHistogram('btag_'+tagger+'_pb', title=tagger+': Probability jets are b-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
-        self.defineHistogram('btag_'+tagger+'_pc', title=tagger+': Probability jets are char-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
-        self.defineHistogram('btag_'+tagger+'_pu', title=tagger+': Probability jets are light-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
-        self.defineHistogram('btag_'+tagger+'_llr', title=tagger+': Log(P_{b}/P_{light}), Likelihood ratio between the b-jet and light-flavour jet hypotheses', type='TH1F', path='EXPERT', xbins=100, xmin=-10, xmax=50)
+        self.defineHistogram('btag_'+tagger+'_pb', title=tagger+': Probability jets are B-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
+        self.defineHistogram('btag_'+tagger+'_pc', title=tagger+': Probability jets are Charm-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
+        self.defineHistogram('btag_'+tagger+'_pu', title=tagger+': Probability jets are Light-jets', type='TH1F', path='EXPERT', xbins=100, xmin=0, xmax=1)
+        self.defineHistogram('btag_'+tagger+'_llr', title=tagger+': Log(P_{b}/P_{light}), Likelihood Ratio between the B-jet and Light-flavour Jet Hypotheses', type='TH1F', path='EXPERT', xbins=100, xmin=-10, xmax=50)
 
 
     def __init__ (self, name="TrigBjetOnlineMonitoring"):

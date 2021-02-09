@@ -176,7 +176,13 @@ class HLTTauMonTool : public IHLTMonTool {
   std::vector<int> m_true_taus_nprong;
   std::vector<const xAOD::TauJet *> m_taus_BDT;
   std::vector<const xAOD::TauJet *> m_taus_RNN;
-  const xAOD::TauJetContainer* m_tauCont;
+  SG::ReadHandleKey<xAOD::EventInfo> m_eventInfoKey { this, "eventInfoKey", "EventInfo", "EventInfo key" };
+  SG::ReadHandleKey<xAOD::TruthParticleContainer> m_truthParticleKey { this, "truthParticleKey", "TruthParticles", "TruthParticleContainer key" };
+  SG::ReadHandleKey<xAOD::TauJetContainer> m_offlineTauJetKey { this, "offlineTauJetKey", "TauJets", "Offline taujet container key" };
+  SG::ReadHandleKey<xAOD::EmTauRoIContainer> m_emRoIKey { this, "emRoIKey", "LVL1EmTauRoIs", "EM Tau RoI container key" };
+  SG::ReadHandleKey<xAOD::JetRoIContainer> m_jetRoIKey { this, "jetRoIKey", "LVL1JetRoIs", "Jet RoI container key" };
+  SG::ReadHandleKey<xAOD::VertexContainer> m_pvKey { this, "pvKey", "PrimaryVertices", "Primary vertex container key" };
+  SG::ReadHandleKey<xAOD::JetContainer> m_jetKey { this, "jetKey", "AntiKt4LCTopoJets", "Offline jet container key" };
 
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;

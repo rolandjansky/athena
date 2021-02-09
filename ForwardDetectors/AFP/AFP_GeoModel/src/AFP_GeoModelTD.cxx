@@ -27,7 +27,6 @@
 
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
-#include "GeoModelInterfaces/StoredMaterialManager.h"
 #include "GeoModelUtilities/GeoOpticalPhysVol.h"
 #include "GeoModelUtilities/GeoOpticalSurface.h"
 #include "GeoModelUtilities/GeoBorderSurfaceContainer.h"

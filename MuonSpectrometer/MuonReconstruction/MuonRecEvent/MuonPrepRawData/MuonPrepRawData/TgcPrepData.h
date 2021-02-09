@@ -28,7 +28,7 @@ namespace Muon
   class TgcPrepDataContainerCnv_p1;
 
 /** @brief Class to represent TGC measurements*/
-  class TgcPrepData :   public MuonCluster
+  class TgcPrepData final:   public MuonCluster
   {
 
     ///////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ namespace Muon
       // /////////////////////////////////////////////////////////////////
 
       /** @brief Returns the global position */
-      virtual const Amg::Vector3D& globalPosition() const override;
+      virtual const Amg::Vector3D& globalPosition() const override final;
 
       /** @brief Returns the detector element corresponding to this PRD
       The pointer will be zero if the det el is not defined (i.e. it was not passed in by the ctor)*/
@@ -91,10 +91,10 @@ namespace Muon
       void setBcBitMap(const uint16_t);
 
       /** @brief Dumps information about the PRD*/
-      virtual MsgStream&    dump( MsgStream&    stream) const override;
+      virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
       /** @brief Dumps information about the PRD*/
-      virtual std::ostream& dump( std::ostream& stream) const override;
+      virtual std::ostream& dump( std::ostream& stream) const override final;
 
   private:
 

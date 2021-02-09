@@ -60,17 +60,9 @@ namespace EL
       // private interface
       //
 
-      /// \brief whether \ref Algorithm::histInitialize has been called
-    private:
-      bool m_histInitialized {false};
-
       /// \brief whether \ref Algorithm::initialize has been called
     private:
       bool m_initialized {false};
-
-      /// \brief whether we are still waiting to connect to the first file
-    private:
-      bool m_firstFile {true};
     };
   }
 }

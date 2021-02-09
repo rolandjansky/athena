@@ -102,7 +102,7 @@ StatusCode EMRoIsUnpackingTool::unpack( const EventContext& ctx,
 			  
       ATH_MSG_DEBUG( "RoI word: 0x" << MSG::hex << std::setw( 8 ) << roIWord << MSG::dec );      
 
-      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, "L1" ); // This "L1" denotes an initial node with no parents
+      auto decision  = TrigCompositeUtils::newDecisionIn( decisionOutput, l1DecoderNodeName() ); // This l1DecoderNodeName denotes an initial node with no parents
 
       std::vector<unsigned> passedThresholdIDs;
       for ( auto th: m_emThresholds ) {

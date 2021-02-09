@@ -135,7 +135,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     return {};
   }
 
-  //Move  to output and update
+  // Move  to output and update
   std::vector<Trk::ComponentParameters> returnMultiComponentState =
     std::move(predictedState);
 
@@ -222,7 +222,7 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     }
   } // end loop over components
 
-  //If something went wrong in the loop return empty
+  // If something went wrong in the loop return empty
   if (determinantRandChi2.numElements != predictedStateSize) {
     return {};
   }
@@ -253,12 +253,11 @@ Trk::PosteriorWeightsCalculator::weights(MultiComponentState&& predictedState,
     componentItr->second = updatedWeight;
     sumWeights += updatedWeight;
   }
-
   if (sumWeights > 0.) {
-    double invertSumWeights= 1./sumWeights;
+    double invertSumWeights = 1. / sumWeights;
     // Renormalise the state to total weight = 1
     for (auto& returnComponent : returnMultiComponentState) {
-      returnComponent.second*= invertSumWeights;
+      returnComponent.second *= invertSumWeights;
     }
   } else {
     // If the sum weights is less than 0 revert them back

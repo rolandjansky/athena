@@ -1,7 +1,7 @@
 // -*- C++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 /**************************************************************************
@@ -140,7 +140,7 @@ bool TrigMultiTrkFex::passNTracks(int nObjMin,
       ATH_MSG_DEBUG(  " TE input  " << j );
       if(getFeaturesLinks<xAOD::TrackParticleContainer,xAOD::TrackParticleContainer>(inputTE[i][j], inVecColl, collectionKey)==HLT::OK ) {
 	ATH_MSG_DEBUG(  "got track container  " << inVecColl.size() );
-	for( const auto & efmu : inVecColl){	//auto const & inVec: inVecColl ) 
+	for( const ElementLink<xAOD::TrackParticleContainer> efmu : inVecColl){	//auto const & inVec: inVecColl ) 
 	  // check for overlap
 	  bool found = false;
 	  for(const auto& part : outVec ){

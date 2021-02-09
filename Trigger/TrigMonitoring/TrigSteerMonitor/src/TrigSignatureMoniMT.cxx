@@ -22,7 +22,8 @@ StatusCode TrigSignatureMoniMT::initialize() {
   ATH_CHECK( m_finalDecisionKey.initialize() );
   ATH_CHECK( m_HLTMenuKey.initialize() );
   ATH_CHECK( m_L1MenuKey.initialize() );
-  ATH_CHECK( m_collectorTools.retrieve() );
+  ATH_CHECK( m_decisionCollectorTools.retrieve() );
+  ATH_CHECK( m_featureCollectorTools.retrieve() );
   ATH_CHECK( m_histSvc.retrieve() );
 
   ATH_CHECK( m_incidentSvc.retrieve() );
@@ -88,7 +89,7 @@ StatusCode TrigSignatureMoniMT::start() {
 
   auto l1Decisions = SG::makeHandle( m_l1DecisionsKey );
   std::set<std::string> sequencesSet;
-  for ( auto& ctool: m_collectorTools ){
+  for ( auto& ctool: m_decisionCollectorTools ){
     ctool->getSequencesNames(sequencesSet);
   }
 
@@ -246,7 +247,7 @@ StatusCode TrigSignatureMoniMT::stop() {
 StatusCode TrigSignatureMoniMT::fillHistogram(const TrigCompositeUtils::DecisionIDContainer& dc, int row, LockedHandle<TH2>& histogram) const {
   for ( auto id : dc )  {
     auto id2bin = m_chainIDToBinMap.find( id );
-    if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
+     if ( id2bin == m_chainIDToBinMap.end() && HLT::Identifier(id).name().find("leg") != 0 ) {
       ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(id) << " not configured to be monitored" );
     } else {
       histogram->Fill( id2bin->second, double(row) );
@@ -264,14 +265,20 @@ StatusCode TrigSignatureMoniMT::fillPassEvents(const TrigCompositeUtils::Decisio
 }
 
 StatusCode TrigSignatureMoniMT::fillDecisionCount(const std::vector<TrigCompositeUtils::DecisionID>& dc, int row) const {
+
   for ( auto id : dc )  {
-    auto id2bin = m_chainIDToBinMap.find( id );
-    if ( id2bin == m_chainIDToBinMap.end() ) {
+    auto chain=id;
+    if (TrigCompositeUtils::isLegId(HLT::Identifier(id)) ) chain = TrigCompositeUtils::getIDFromLeg(id);
+    auto id2bin = m_chainIDToBinMap.find( chain );
+    if ( id2bin == m_chainIDToBinMap.end()) {    
+      ATH_MSG_WARNING( "HLT chain " << HLT::Identifier(chain) << " not configured to be monitored" );
     } else {
       m_countHistogram->Fill( id2bin->second, double(row) );
     }
   }
+
   return StatusCode::SUCCESS;
+  
 }
 
 StatusCode TrigSignatureMoniMT::fillBunchGroups(const TrigCompositeUtils::DecisionIDContainer& dc ) const {
@@ -386,16 +393,26 @@ StatusCode TrigSignatureMoniMT::execute( const EventContext& context ) const {
   ATH_CHECK( fillL1(1) );
 
   int step = 0;
-  for ( auto& ctool: m_collectorTools ) {
+  for ( auto& ctool: m_decisionCollectorTools ) {
     std::vector<TrigCompositeUtils::DecisionID> stepSum;
     std::set<std::string> stepSequences;
     ctool->getDecisions( stepSum );
     ctool->getSequencesPerEvent( stepSequences );
-    ATH_MSG_DEBUG( " Step " << step << " decisions " << stepSum.size() );
+    ATH_MSG_DEBUG( " Step " << step << " decisions (for decisions): " << stepSum.size() );
     TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
     ATH_CHECK( fillPassEvents( stepUniqueSum, 3+step ) );
-    ATH_CHECK( fillDecisionCount( stepSum, 3+step ) );
     ATH_CHECK( fillSequences( stepSequences ) );
+    ++step;
+  }
+
+  step = 0;
+  for ( auto& ctool: m_featureCollectorTools ) {
+    std::vector<TrigCompositeUtils::DecisionID> stepSum;
+    std::set<std::string> stepSequences;
+    ctool->getDecisions( stepSum );
+    ATH_MSG_DEBUG( " Step " << step << " decisions (for features): " << stepSum.size() );
+    TrigCompositeUtils::DecisionIDContainer stepUniqueSum( stepSum.begin(), stepSum.end() );
+    ATH_CHECK( fillDecisionCount( stepSum, 3+step ) );
     ++step;
   }
 
@@ -447,7 +464,7 @@ int TrigSignatureMoniMT::nSequenceBinsX() const {
 }
 
 int TrigSignatureMoniMT::nBinsY() const {
-  return m_collectorTools.size() + 3; // in, after ps, out
+  return m_decisionCollectorTools.size() + 3; // in, after ps, out
 }
 
 int TrigSignatureMoniMT::nRateBinsY() const {
@@ -467,18 +484,19 @@ StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle
   x->SetBinLabel(1, "All");
   int bin = 2; // 1 is for total count, (remember bins numbering in ROOT start from 1)
 
-  std::vector<std::string> sortedChainsList;
+  std::set<std::string> sortedChainsList;
   for ( const TrigConf::Chain& chain: *hltMenuHandle ) {
-    sortedChainsList.push_back( chain.name() );
+    sortedChainsList.insert( chain.name() );
   }
-  std::sort( sortedChainsList.begin(), sortedChainsList.end() );
   
   for ( const std::string& chainName: sortedChainsList ) {
+    
     x->SetBinLabel( bin, chainName.c_str() );
     m_chainIDToBinMap[ HLT::Identifier( chainName ).numeric() ] = bin;
     bin++;
   }
 
+ 
   for ( const auto& stream : m_streamToChainMap){
     x->SetBinLabel( bin, ("str_"+stream.first).c_str());
     m_nameToBinMap[ stream.first ] = bin;
@@ -495,7 +513,7 @@ StatusCode TrigSignatureMoniMT::initHist(LockedHandle<TH2>& hist, SG::ReadHandle
   TAxis* y = hist->GetYaxis();
   y->SetBinLabel( 1, steps ? "L1" : "Input" );
   y->SetBinLabel( 2, "AfterPS" );
-  for ( size_t i = 0; steps && i < m_collectorTools.size(); ++i ) {
+  for ( size_t i = 0; steps && i < m_decisionCollectorTools.size(); ++i ) {
     y->SetBinLabel( 3+i, ("Step "+std::to_string(i)).c_str() );
   }
   y->SetBinLabel( y->GetNbins(), "Output" ); // last bin

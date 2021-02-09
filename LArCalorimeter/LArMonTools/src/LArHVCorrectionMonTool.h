@@ -43,6 +43,8 @@ class ITHistSvc;
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TH2F_LW.h"
 #include "LWHists/TProfile_LW.h"
+#include <memory>
+
 class TProfile_LW;
 
 class LArHVCorrectionMonTool: public ManagedMonitorToolBase
@@ -78,7 +80,7 @@ class LArHVCorrectionMonTool: public ManagedMonitorToolBase
   const LArHEC_ID*   m_LArHEC_IDHelper;
   const CaloIdManager*       m_caloIdMgr;
 
-  LArOnlineIDStrHelper* m_strHelper;
+  std::unique_ptr<LArOnlineIDStrHelper> m_strHelper;
   ITHistSvc* m_rootStore;
   /** Handle to LArCablingService */
   ToolHandle<LArCablingLegacyService> m_larCablingService;  

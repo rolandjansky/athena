@@ -251,6 +251,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   std::unordered_map<std::string, const Trig::ChainGroup*> m_existingTriggers; //!< Map of triggers which we ask the TDT ChainGroup for the pass/fail 
   std::unordered_map<std::string, std::string> m_lowerTrigger; //!< Map of triggers lower chain, to tell if a HLT trigger ran or not. 
 
+  std::vector<std::vector<std::string>> m_hltChainIDGroup;
 
   const std::string m_l1GroupName = "L1";
   const std::string m_l2GroupName = "Main";
@@ -278,6 +279,7 @@ class RatesAnalysisAlg: public ::AthAnalysisAlgorithm {
   double m_targetMu; //!< What pileup level the prediction is targeting
   double m_targetBunches; //!< How many bunches the prediction is targeting
   double m_targetLumi; //!< What instantaneous luminosity the prediction is targeting
+  uint32_t m_runNumber; //!<What is the RunNumber
   double m_ratesDenominator; //!< How much walltime is seen by the algorithm. This is what we need to normalise to.
   uint32_t m_eventCounter; //!< Count how many events processed
   double m_weightedEventCounter; //!< Count how many weighted events were processed

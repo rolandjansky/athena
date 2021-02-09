@@ -21,12 +21,12 @@ namespace top {
     m_config(nullptr),
     m_systNominal(CP::SystematicSet()),
 
-    m_muonEfficiencyCorrectionsTool("CP::MuonEfficiencyScaleFactorsTool"),
-    m_softmuonEfficiencyCorrectionsTool("CP::SoftMuonEfficiencyScaleFactorsTool"),
-    m_muonEfficiencyCorrectionsToolLoose("CP::MuonEfficiencyScaleFactorsToolLoose"),
-    m_muonEfficiencyCorrectionsToolIso("CP::MuonEfficiencyScaleFactorsToolIso"),
-    m_muonEfficiencyCorrectionsToolLooseIso("CP::MuonEfficiencyScaleFactorsToolLooseIso"),
-    m_muonEfficiencyCorrectionsToolTTVA("CP::MuonEfficiencyScaleFactorsToolTTVA"),
+    m_muonEfficiencyCorrectionsTool("MuonEfficiencyScaleFactorsTool"),
+    m_softmuonEfficiencyCorrectionsTool("SoftMuonEfficiencyScaleFactorsTool"),
+    m_muonEfficiencyCorrectionsToolLoose("MuonEfficiencyScaleFactorsToolLoose"),
+    m_muonEfficiencyCorrectionsToolIso("MuonEfficiencyScaleFactorsToolIso"),
+    m_muonEfficiencyCorrectionsToolLooseIso("MuonEfficiencyScaleFactorsToolLooseIso"),
+    m_muonEfficiencyCorrectionsToolTTVA("MuonEfficiencyScaleFactorsToolTTVA"),
 
     m_decor_triggerEff("SetMe"), m_decor_triggerEff_loose("SetMe"),
     m_decor_triggerSF("SetMe"), m_decor_triggerSF_loose("SetMe"),
@@ -69,9 +69,9 @@ namespace top {
   StatusCode MuonScaleFactorCalculator::initialize() {
     ATH_MSG_INFO(" top::MuonScaleFactorCalculator initialize");
 
-    m_muonTriggerScaleFactors_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactors_R21");
+    m_muonTriggerScaleFactors_R21 = ToolHandle<CP::IMuonTriggerScaleFactors>("MuonTriggerScaleFactors_R21");
     m_muonTriggerScaleFactorsLoose_R21 =
-      ToolHandle<CP::IMuonTriggerScaleFactors>("CP::MuonTriggerScaleFactorsLoose_R21");
+      ToolHandle<CP::IMuonTriggerScaleFactors>("MuonTriggerScaleFactorsLoose_R21");
 
     std::set<std::string> implemented_systematics;
     implemented_systematics = {
@@ -107,13 +107,13 @@ namespace top {
                                  recommended_systematics);
 
 
-    if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("CP::MuonEfficiencyScaleFactorsToolIso")) {
+    if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("MuonEfficiencyScaleFactorsToolIso")) {
       this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolIso,
                                    recommended_systematics);
     } else {
       m_do_muon_isolation_SFs = false;
     }
-    if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("CP::MuonEfficiencyScaleFactorsToolLooseIso")) {
+    if (asg::ToolStore::contains<CP::IMuonEfficiencyScaleFactors>("MuonEfficiencyScaleFactorsToolLooseIso")) {
       this->retrieveSystematicTool(m_muonEfficiencyCorrectionsToolLooseIso,
                                    recommended_systematics);
     } else {

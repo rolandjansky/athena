@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
    */
 
 #include "RPC_CondCabling/RpcCablingCondData.h"
@@ -846,3 +846,16 @@ bool RpcCablingCondData::giveOfflineId(const unsigned short int side, const unsi
   return true;
 }
 
+
+void RpcCablingCondData::setIds (const std::vector<Identifier>& int2id)
+{
+  m_int2id = int2id;
+}
+
+
+void RpcCablingCondData::setLookup (const std::vector<Identifier>& ids)
+{
+  for (size_t i = 0; i < ids.size(); i++) {
+    m_lookup.emplace (ids[i], i);
+  }
+}

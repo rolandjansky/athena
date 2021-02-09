@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "TRT_ReadoutGeometry/TRT_BaseElement.h"
@@ -275,8 +275,6 @@ void
 TRT_BaseElement::createSurfaceCache(Identifier id) const
 {
   int straw = m_idHelper->straw(id);
-  // get the StrawTransform from GeoModel
-  HepGeom::Transform3D cStrawTransform = calculateStrawTransform(straw);
 
   // convert neccessary parts to Amg
   if (!m_strawSurfacesCache[straw]) {

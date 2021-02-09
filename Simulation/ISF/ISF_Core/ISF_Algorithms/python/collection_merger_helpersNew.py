@@ -37,6 +37,4 @@ def CollectionMergerCfg(ConfigFlags,
 
   else:
       mergeable_collection = bare_collection_name
-  print (result)
-  print ("#################################")
   return result, mergeable_collection

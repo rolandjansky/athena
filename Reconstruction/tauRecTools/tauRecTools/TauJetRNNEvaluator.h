@@ -1,9 +1,9 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TAUREC_TAUJETRNNEVALUATOR_H
-#define TAUREC_TAUJETRNNEVALUATOR_H
+#ifndef TAURECTOOLS_TAUJETRNNEVALUATOR_H
+#define TAURECTOOLS_TAUJETRNNEVALUATOR_H
 
 #include "tauRecTools/TauRecToolBase.h"
 
@@ -69,4 +69,4 @@ private:
     std::unique_ptr<TauJetRNN> m_net_3p; //!
 };
 
-#endif // TAUREC_TAUJETRNNEVALUATOR_H
+#endif // TAURECTOOLS_TAUJETRNNEVALUATOR_H

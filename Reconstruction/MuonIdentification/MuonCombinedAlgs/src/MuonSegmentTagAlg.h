@@ -29,7 +29,7 @@ class MuonSegmentTagAlg : public AthAlgorithm
  private:
   ToolHandle<MuonCombined::IMuonSegmentTagTool> m_muonSegmentTagTool{this,"MuonSegmentTagTool","MuonCombined::MuonSegmentTagTool/MuonSegmentTagTool","Muon segment tag tool"};
   SG::ReadHandleKey<InDetCandidateCollection> m_indetCandidateCollectionName{this,"InDetCandidateLocation","InDetCandidates","name of ID candidate collection"};
-  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_muonSegmentCollectionName{this,"MuonSegmentLocation","MuonSegments","name of muon segment container"};
+  SG::ReadHandleKey<xAOD::MuonSegmentContainer> m_muonSegmentCollectionName{this,"MuonSegmentLocation","xaodMuonSegments","name of muon segment container"};
   SG::WriteHandleKey<MuonCombined::InDetCandidateToTagMap> m_tagMap{this,"TagMap","segmentTagMap","tag map"};
 };
 

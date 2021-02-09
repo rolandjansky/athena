@@ -19,6 +19,7 @@ const int NumberOfPtLevel = 6;
 class TGCRPhiCoincidenceMatrix {
 public:
   void setSSCId(int SSCIdIn){ m_SSCId=SSCIdIn;};
+  void setSideId(int sideIdIn){ m_sideId=sideIdIn;};
   void setRPhiMap(const TGCRPhiCoincidenceMap* map);
   void inputR(int rIn, int dRIn, int ptRIn);
   void inputPhi(int phiIn, int dPhiIn, int ptPhiIn);
@@ -50,6 +51,7 @@ private:
   int m_phi[MaxNPhiHit];
   int m_dPhi[MaxNPhiHit];
   int m_ptPhi[MaxNPhiHit];
+  int m_sideId;
 
   const TGCArguments* m_tgcArgs;
 };

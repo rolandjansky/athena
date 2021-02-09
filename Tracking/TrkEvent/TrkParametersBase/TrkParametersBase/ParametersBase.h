@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -38,7 +38,8 @@ class MaterialEffectsEngine;
 enum ParametersType
 {
   AtaSurface = 0,
-  Curvilinear = 1
+  Curvilinear = 1,
+  Pattern = 2
 };
 
 namespace InvalidParam {
@@ -151,7 +152,15 @@ public:
   /** clone method for polymorphic deep copy
        @return new object copied from the concrete type of this object.*/
   virtual ParametersBase<DIM, T>* clone() const = 0;
-
+  
+  /** clone method for polymorphic deep copy returning unique_ptr; it is not overriden,
+       but uses the existing clone method.
+       @return new object copied from the concrete type of this object.*/
+  std::unique_ptr<ParametersBase<DIM, T>> uniqueClone() const{
+    return std::unique_ptr<ParametersBase<DIM, T>>(clone());
+  }
+  
+  
   /** Return the ParametersType enum */
   virtual ParametersType type() const = 0;
 
@@ -165,7 +174,7 @@ public:
 
 protected:
   /*
-   * This is an abstract class and we can not instanticate objects directly.
+   * This is an abstract class and we can not instantiate objects directly.
    * In the other hand derived classed can use ctors
    */
 
@@ -206,6 +215,9 @@ protected:
   //!< contains the n x n covariance matrix
   std::unique_ptr<AmgSymMatrix(DIM)> m_covariance;
   T m_chargeDef; //!< charge definition for this track
+
+  private:
+  
 };
 
 /**Overload of << operator for both, MsgStream and std::ostream for debug

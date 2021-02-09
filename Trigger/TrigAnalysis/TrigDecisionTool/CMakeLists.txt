@@ -1,10 +1,13 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( TrigDecisionTool )
 
 # External dependencies:
 find_package( Boost )
+find_package( ROOT COMPONENTS Core )
+set( ROOT_LIRBARIES_NOPYTHON ${ROOT_LIBRARIES} )
+unset( ROOT_FOUND )
 find_package( ROOT COMPONENTS Core PyROOT ROOTTPython )
 
 # Component(s) in the package:
@@ -44,7 +47,7 @@ else()
          TrigStorageDefinitions StoreGateLib TrigNavigationLib
          TrigRoiConversionLib TrigCompositeUtilsLib TrigConfInterfaces
          TrigDecisionInterface AsgDataHandlesLib
-         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps
+         PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES_NOPYTHON} AthenaBaseComps
          TrigSteeringEvent AthenaKernel )
    endif()
 
@@ -56,7 +59,7 @@ endif()
 atlas_add_dictionary( TrigDecisionToolDict
    TrigDecisionTool/TrigDecisionToolDict.h
    TrigDecisionTool/selection.xml
-   LINK_LIBRARIES TrigDecisionToolLib )
+   LINK_LIBRARIES TrigDecisionToolLib ${ROOT_LIBRARIES} )
 
 if( NOT XAOD_STANDALONE AND NOT XAOD_ANALYSIS )
    atlas_add_test( Templates_test

@@ -29,7 +29,6 @@
 class LArEM_ID;
 class LArOnlineID;
 class HWIdentifier;
-class LArOnlineIDStrHelper;
 class LArOnOffIdMapping;
 
 class LArDigitMonAlg: public AthMonitorAlgorithm

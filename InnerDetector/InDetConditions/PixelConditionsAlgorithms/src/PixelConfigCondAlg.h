@@ -78,7 +78,7 @@ class PixelConfigCondAlg : public AthReentrantAlgorithm {
 
     // Dead map key. This will be replaced once new deadmap format is validated.
     SG::ReadCondHandleKey<CondAttrListCollection> m_readDeadMapKey
-    {this, "ReadDeadMapKey", "/PIXEL/PixMapOverlay", "Input key of deadmap conditions folder"};
+    {this, "ReadDeadMapKey", "", "Input key of deadmap conditions folder"};
 
     //====================================================================================
     // Run-dependent SIMULATION(digitization) parameters:

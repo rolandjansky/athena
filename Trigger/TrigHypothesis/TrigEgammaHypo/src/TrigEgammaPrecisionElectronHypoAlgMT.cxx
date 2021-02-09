@@ -75,8 +75,8 @@ StatusCode TrigEgammaPrecisionElectronHypoAlgMT::execute( const EventContext& co
 	    ATH_CHECK(ph.isValid());
 
 	    ATH_MSG_DEBUG ( "ElectronHandle in position " << cl << " processing...");
-	    auto d = newDecisionIn( decisions, name() );
-	    d->setObjectLink( "feature",  ph );
+	    auto d = newDecisionIn( decisions, hypoAlgNodeName() );
+	    d->setObjectLink( featureString(),  ph );
 	    TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );
 	    toolInput.emplace_back( d, roi, electronHandle.cptr()->at(cl), previousDecision );
 	    validelectrons++;

@@ -1,6 +1,4 @@
-#Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
-
-from __future__ import print_function
+#Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
 
@@ -15,7 +13,7 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
   from TrkVertexFitterUtils.TrkVertexFitterUtilsConf import Trk__KalmanVertexUpdator
   VertexUpdater = Trk__KalmanVertexUpdator(name             = "MuonTP_KalmanVertexUpdator")
   ToolSvc += VertexUpdater
-  print (     VertexUpdater)
+  print (VertexUpdater)
 
 
 
@@ -41,14 +39,12 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
                                            muonThresholdPt             = 4000,
                                            atLeastOneComb              = False,
                                            useCombinedMeasurement      = False, # Only takes effect if combOnly=True  
-                                           muonCollectionKey           = MuContainer,
-                                           # muonCollectionKey           = MuContainer,
+                                           muonCollectionKey           = MuContainer,                                        
                                            TrackParticleCollection     = "InDetTrackParticles",
                                            V0VertexFitterTool          = ToolSvc.TrkV0FitterName,             # V0 vertex fitter
                                            useV0Fitter                 = False,                   # if False a TrkVertexFitterTool will be used
                                            TrkVertexFitterTool         = ToolSvc.VKalVrtFitterName,        # VKalVrt vertex fitter
-                                           TrackSelectorTool           = ToolSvc.InDetDetailedTrackSelectorTool,
-                                           ConversionFinderHelperTool  = ToolSvc.InDetConversionFinderUtils,
+                                           TrackSelectorTool           = ToolSvc.InDetDetailedTrackSelectorTool,                                        
                                            VertexPointEstimator        = ToolSvc.VtxPointEstimator,
                                            useMCPCuts                  = True, 
                                            OutputLevel                 = WARNING)
@@ -99,10 +95,3 @@ def AddJPsiVertexingAlgs(prefix='',addAlgo=True):
       job.MuonTPJpsiVertexFittingAlg.AugmentationTools = [MuonTP_Reco_mumu, MuonTP_Select_Jpsi2mumu]
   else:
       return [MuonTP_Reco_mumu, MuonTP_Select_Jpsi2mumu]
-
-
-  # from JpsiUpsilonTools.JpsiUpsilonToolsConf import JpsiAlg
-
-  # job += JpsiAlg(JpsiCandidatesOutputName = "JpsiCandidates", OutputLevel=WARNING,
-  #                        JpsiFinderName           = ToolSvc.JpsiFinderName)
-

@@ -71,9 +71,9 @@ class MonitorDef:
         cThr = {}
         cThr[1] = [ 'AFP_FSA_SIT', 'AFP_FSA_TOF', 'AFP_FSC_SIT', 'AFP_FSC_TOF', 'AFP_NSA', 'AFP_NSC',
                     'BPTX0', 'BPTX1', 'LUCID_C', 'J20', 'MU4', 'TE50', 'XE35', 'XE60',
-                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2', 'MBTS_A3', 'MBTS_A4', 'MBTS_A5', 'MBTS_A6', 'MBTS_A7',
+                    'MBTS_A0', 'MBTS_A1', 'MBTS_A2',  'MBTS_A3',  'MBTS_A4',  'MBTS_A5',  'MBTS_A6',  'MBTS_A7',
                     'MBTS_A8', 'MBTS_A9', 'MBTS_A10', 'MBTS_A11', 'MBTS_A12', 'MBTS_A13', 'MBTS_A14', 'MBTS_A15',
-                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2', 'MBTS_C3', 'MBTS_C4', 'MBTS_C5', 'MBTS_C6', 'MBTS_C7',
+                    'MBTS_C0', 'MBTS_C1', 'MBTS_C2',  'MBTS_C3',  'MBTS_C4',  'MBTS_C5',  'MBTS_C6',  'MBTS_C7',
                     'MBTS_C8', 'MBTS_C9', 'MBTS_C10', 'MBTS_C11', 'MBTS_C12', 'MBTS_C13', 'MBTS_C14', 'MBTS_C15' ]
 
         for mult in cThr:
@@ -95,7 +95,7 @@ class MonitorDef:
         TAP=2
         TAV=4
 
-        monItems = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
+        monItems   = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
         monItemsHF = { 1 :[], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] }
 
         # definitions hardcoded at the moment
@@ -108,7 +108,7 @@ class MonitorDef:
             "L1_EM3","L1_EM20VH","L1_EM22VHI",
             "L1_MU4","L1_MU10","L1_MU20",
             "L1_TAU12", "L1_TAU12IT", "L1_TAU20", "L1_TAU60",
-            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20.31ETA49", "L1_J30.31ETA49",
+            "L1_J12", "L1_J20", "L1_J100", "L1_J400", "L1_J20p31ETA49", "L1_J30p31ETA49",
             "L1_XE35", "L1_XE80", "L1_XS20", 
             "L1_MBTS_4_A", "L1_MBTS_4_C", "L1_MBTS_1", "L1_MBTS_2", "L1_MBTS_1_1",
             "L1_LUCID", "L1_LUCID_A_C_EMPTY", "L1_ALFA_ANY",
@@ -122,7 +122,7 @@ class MonitorDef:
             "L1_TGC_BURST",
             "L1_LLP-NOMATCH",
             "L1_DR-TAU20ITAU12I",
-            "L1_HT190-J15s5.ETA21",
+            "L1_HT190-J15s5pETA21",
             "L1_3J15_BTAG-MU4J15",
             "L1_MJJ-900",
             "L1_J40_DPHI-J20s2XE50",

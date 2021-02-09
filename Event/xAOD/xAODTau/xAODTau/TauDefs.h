@@ -327,8 +327,7 @@ namespace TauJetParameters
       nIsolatedTracks=110,
       nModifiedIsolationTracks=111,//no static variable for now
       nAllTracks=112,
-
-      //Tau/Ele BDTVars
+      nLargeRadiusTracks=113,
 
     };
 
@@ -415,6 +414,7 @@ namespace TauJetParameters
       unclassified         = 9,  // helper enum for not yet classified tracks
       passTrkSelectionTight = 10, //pass the xAOD Tight track selection
       modifiedIsolationTrack = 11, //passTrkSelector && !classifiedCharged
+      LargeRadiusTrack = 12, // Large Radius Track
       //if you add another flag, you'll need to check the track sorting alg, it assumes unclassified is the last flag *This should be fixed in TauTrackClassifier now*
       //Track sorting just requires that the classifiedXXX bits are consecutive, charged is first (of classifiedXXX), and fake is last (of classifiedXXX)
     };

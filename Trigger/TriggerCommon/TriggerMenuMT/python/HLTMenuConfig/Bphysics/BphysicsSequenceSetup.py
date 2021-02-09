@@ -50,3 +50,25 @@ def bmumuxSequence():
         Maker = viewMaker,
         Hypo = hypo,
         HypoToolGen = TrigBphysStreamerHypoToolFromDict)
+
+
+def dimuSequence():
+    from DecisionHandling.DecisionHandlingConf import InputMakerForRoI, ViewCreatorPreviousROITool
+    from TrigBphysHypo.TrigBphysHypoConf import TrigBphysStreamerHypo
+    from TrigBphysHypo.TrigBphysStreamerHypoConfig import TrigBphysStreamerHypoToolFromDict
+
+    inputMakerAlg = InputMakerForRoI(
+        name = 'IM_bphysStreamerDimu',
+        mergeUsingFeature = True,
+        RoITool = ViewCreatorPreviousROITool(),
+        RoIs = 'DimuRoIs')
+
+    sequence = seqAND('dimuSequence', [inputMakerAlg])
+
+    hypo = TrigBphysStreamerHypo('DimuStreamerHypoAlg')
+
+    return MenuSequence(
+        Sequence = sequence,
+        Maker = inputMakerAlg,
+        Hypo = hypo,
+        HypoToolGen = TrigBphysStreamerHypoToolFromDict)

@@ -37,8 +37,12 @@ namespace D3PD {
  */
 
   
+#ifdef HEPMC3
+class JetTagJetGenSoftLeptonAssociationTool : public MultiAssociationTool<Jet,HepMC3::GenParticle>
+#else
 class JetTagJetGenSoftLeptonAssociationTool
   : public MultiAssociationTool<Jet,HepMC::GenParticle>
+#endif
 {
 public:
 
@@ -52,7 +56,11 @@ public:
                          const std::string& name,
                          const IInterface* parent);
 
+#ifdef HEPMC3
+  typedef MultiAssociationTool<Jet,HepMC3::GenParticle> base;
+#else
   typedef MultiAssociationTool<Jet,HepMC::GenParticle> base;
+#endif
 
   /// Standard Gaudi initialize method.
   virtual StatusCode initialize();
@@ -69,7 +77,11 @@ public:
    * @brief Return a pointer to the next element in the association.
    * Return 0 when the association has been exhausted.
    */
+#ifdef HEPMC3
+  const HepMC3::GenParticle*  next();
+#else
   const HepMC::GenParticle* next();
+#endif
 
   /**
    * @brief Create any needed tuple variables.
@@ -93,7 +105,7 @@ private:
   const HepMC::GenEvent* m_genEvent;
 
   /// dummy particle to return if no association is found
-  mutable HepMC::GenParticle* m_dummyParticle; 
+  mutable HepMC::ConstGenParticlePtr m_dummyParticle; 
 
   int m_lepItr;
   int m_lepEnd;

@@ -80,7 +80,7 @@ StatusCode TrigMissingETHypoAlgMT::decide(const xAOD::TrigMissingETContainer* me
   }
 
   // Create output Decision object, link it to prevDecision & its "feature"
-  auto newDecision = TrigCompositeUtils::newDecisionIn(newDecisions, previousDecision, "", context);
+  auto newDecision = TrigCompositeUtils::newDecisionIn(newDecisions, previousDecision, hypoAlgNodeName(), context);
   ElementLink<xAOD::TrigMissingETContainer> metElementLink = ElementLink<xAOD::TrigMissingETContainer>(*metContainer, /*index*/ 0);
   newDecision->setObjectLink<xAOD::TrigMissingETContainer>(featureString(), metElementLink);
   

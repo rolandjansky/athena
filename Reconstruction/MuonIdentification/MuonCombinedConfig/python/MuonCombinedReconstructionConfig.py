@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
@@ -238,6 +238,7 @@ def MuonCreatorAlgCfg( flags, name="MuonCreatorAlg",**kwargs ):
     if flags.Muon.MuonTrigger:
         kwargs.setdefault("MakeClusters", False)
         kwargs.setdefault("ClusterContainerName", "")
+        kwargs.setdefault("CopySegments", False)
         if flags.Muon.SAMuonTrigger:
             kwargs.setdefault("CreateSAmuons", True)
             kwargs.setdefault("TagMaps", [])
@@ -255,11 +256,12 @@ def StauCreatorAlgCfg(flags, name="StauCreatorAlg", **kwargs ):
     kwargs.setdefault("ExtrapolatedLocation","ExtrapolatedStau")
     kwargs.setdefault("MSOnlyExtrapolatedLocation","MSOnlyExtrapolatedStau")
     kwargs.setdefault("MuonCandidateLocation","")
-    kwargs.setdefault("SegmentContainerName","xaodStauSegments")
+    kwargs.setdefault("SegmentContainerName","StauSegments")
     kwargs.setdefault("TrackSegmentContainerName","TrkStauSegments")
     kwargs.setdefault("BuildSlowMuon",1)
     kwargs.setdefault("ClusterContainerName", "SlowMuonClusterCollection")
     kwargs.setdefault("TagMaps",["stauTagMap"])
+    kwargs.setdefault("CopySegments", False)
     # if not TriggerFlags.MuonSlice.doTrigMuonConfig:
     #     recordMuonCreatorAlgObjs (kwargs)
     acc = MuonCreatorAlgCfg(flags, name,**kwargs)

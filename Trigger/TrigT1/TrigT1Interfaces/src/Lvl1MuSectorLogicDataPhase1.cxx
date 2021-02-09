@@ -15,6 +15,7 @@ namespace LVL1MUONIF {
       : 
     m_2candidatesInSector ( false ), 
     m_bcid( 0 ),
+    m_nsw( 0 ),
     m_id_system( -1 )
   {
   }
@@ -58,6 +59,7 @@ namespace LVL1MUONIF {
     if ( this != &right ) {
       m_id_system = right.m_id_system;
       m_bcid = right.m_bcid;
+      m_nsw = right.m_nsw;
       m_2candidatesInSector = right.m_2candidatesInSector;
       for ( size_t i = 0; i < NCAND[m_id_system]; ++i ) {
         m_roi[ i ] = right.m_roi[ i ];
@@ -84,6 +86,7 @@ namespace LVL1MUONIF {
   void Lvl1MuSectorLogicDataPhase1::clear() {
     m_2candidatesInSector = false;
     m_bcid = 0;
+    m_nsw = 0;
     for ( size_t i = 0; i < NCAND[m_id_system]; ++i ) {
       m_roi[ i ] = -1;
       m_ovl[ i ] = -1;

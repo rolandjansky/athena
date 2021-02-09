@@ -17,11 +17,12 @@
 // Trigger database interface includes:
 #include "TrigConfIO/JsonFileLoader.h"
 #include "TrigConfIO/TrigDBMenuLoader.h"
+#include "TrigConfIO/TrigDBL1BunchGroupSetLoader.h"
 #include "TrigConfData/L1Menu.h"
+#include "TrigConfData/L1BunchGroupSet.h"
 
 #include "TrigConfL1Data/DeadTime.h"
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/CTPConfigOnline.h"
 #include "TrigConfL1Data/Menu.h"
 #include "TrigConfL1Data/ThresholdConfig.h"
 #include "TrigConfL1Data/Muctpi.h"
@@ -78,10 +79,12 @@ TrigConf::LVL1ConfigSvc::initializeRun3StyleMenu() {
    ATH_MSG_INFO("Run 3 style menu configuration");
    ATH_MSG_INFO("    Run 3 input type  = " << m_inputType.value());
    if( m_inputType == "file" ) {
-      ATH_MSG_INFO("    Run 3 input file  = " << m_l1FileName.value());
+      ATH_MSG_INFO("    Run 3 input file     = " << m_l1FileName.value());
+      ATH_MSG_INFO("    Run 3 BGS input file = " << m_bgsFileName.value());
    } else if ( m_inputType == "db" ) {
-      ATH_MSG_INFO("    Run 3 DB connection  = " << m_dbConnection);
-      ATH_MSG_INFO("    Run 3 SMK            = " << m_smk);
+      ATH_MSG_INFO("    Run 3 DB connection  = " << m_dbConnection.value());
+      ATH_MSG_INFO("    Run 3 SMK            = " << m_smk.value());
+      ATH_MSG_INFO("    Run 3 BGSK           = " << m_bgsk.value());
    }
    if( ! loadRun3StyleMenu().isSuccess() ) {
       ATH_MSG_INFO( "The previous WARNING message is being ignored in the current transition phase. Once we rely entirely on the new menu providing mechanism, this will become a reason to abort.");
@@ -97,16 +100,33 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
       ATH_MSG_INFO( "No L1 menu recorded in the detector store" );
       return StatusCode::SUCCESS;
    }
-   TrigConf::L1Menu * l1menu = new TrigConf::L1Menu();
+   auto *l1menu = new TrigConf::L1Menu();
+   TrigConf::L1BunchGroupSet *l1bgset = nullptr;
    if( m_inputType == "db" ) {
-      // db menu loader
-      TrigConf::TrigDBMenuLoader dbloader(m_dbConnection);
-      dbloader.setLevel(TrigConf::MSGTC::WARNING);
-      if( dbloader.loadL1Menu( m_smk, *l1menu ) ) {
+      // load l1menu
+      TrigConf::TrigDBMenuLoader dbmenuloader(m_dbConnection);
+      dbmenuloader.setLevel(TrigConf::MSGTC::WARNING);
+      if( dbmenuloader.loadL1Menu( m_smk, *l1menu ) ) {
          ATH_MSG_INFO( "Loaded L1 menu from DB " << m_dbConnection << " for SMK " << m_smk.value() );
       } else {
          ATH_MSG_WARNING( "Failed loading L1 menu from DB for SMK " << m_smk.value());
          return StatusCode::RECOVERABLE;
+      }
+      // load bunchgroup set if key > 0
+      if (m_bgsk > 0)
+      {
+         l1bgset = new TrigConf::L1BunchGroupSet();
+         TrigConf::TrigDBL1BunchGroupSetLoader dbbgsloader(m_dbConnection);
+         dbbgsloader.setLevel(TrigConf::MSGTC::WARNING);
+         if (dbbgsloader.loadBunchGroupSet(m_bgsk, *l1bgset))
+         {
+            ATH_MSG_INFO("Loaded L1 bunchgroups set from DB " << m_dbConnection << " for BGSK " << m_bgsk.value());
+         }
+         else
+         {
+            ATH_MSG_WARNING("Failed loading L1 bunchgroups set from DB for BGSK " << m_bgsk.value());
+            return StatusCode::RECOVERABLE;
+         }
       }
    } else if ( m_inputType == "file" ) {
       // json file menu loader
@@ -118,6 +138,18 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
          ATH_MSG_WARNING( "Failed loading L1 menu file " << m_l1FileName.value());
          return StatusCode::RECOVERABLE;
       }
+      if (!m_bgsFileName.empty())
+      {
+         l1bgset = new TrigConf::L1BunchGroupSet();
+         if (fileLoader.loadFile(m_bgsFileName, *l1bgset))
+         {
+            ATH_MSG_INFO("Loaded bunchgroupset from file " << m_bgsFileName.value());
+         }
+         else
+         {
+            ATH_MSG_WARNING("Failed loading bunchgroupset from file " << m_bgsFileName.value());
+         }
+      }
    } else if( m_inputType == "cool" ) {
       ATH_MSG_FATAL( "Loading of L1 menu from COOL + DB not implemented");
       return StatusCode::FAILURE;
@@ -128,8 +160,13 @@ TrigConf::LVL1ConfigSvc::loadRun3StyleMenu() {
    ServiceHandle<StoreGateSvc> detStore( "StoreGateSvc/DetectorStore", name() );   
    ATH_CHECK( detStore.retrieve() );
    if( detStore->record(l1menu,"L1TriggerMenu").isSuccess() ) {
-      ATH_MSG_INFO( "Recorded L1 menu with key 'L1TriggerMenu' in the detector store" );
+      ATH_MSG_INFO( "Recorded L1 menu with SG key 'L1TriggerMenu' in the detector store" );
    }
+   if (l1bgset && detStore->record(l1bgset, "L1BunchGroup").isSuccess())
+   {
+      ATH_MSG_INFO( "Recorded L1 bunchgroup with SG key 'L1BunchGroup' in the detector store" );
+   }
+
    return StatusCode::SUCCESS;
 } 
 
@@ -143,6 +180,7 @@ TrigConf::LVL1ConfigSvc::initializeRun2StyleMenu() {
    if ( m_configSourceString == "none" ) {
       ATH_MSG_INFO("Run 2 style menu has been disabled");
       m_xmlFile = "";
+      return StatusCode::SUCCESS;
    } else if( m_configSourceString != "xml") {
       TrigDBConnectionConfig::DBType dbtype(TrigDBConnectionConfig::DBLookup);
       if (m_configSourceString == "oracle") { dbtype = TrigDBConnectionConfig::Oracle; }

@@ -69,10 +69,22 @@ class TrigEgammaBremCollectionBuilder (egammaAlgsConf.EMBremCollectionBuilder):
         GSFBuildTRT_ElectronPidTool = None
         if DetFlags.haveRIO.TRT_on() and not InDetFlags.doSLHC(
         ) and not InDetFlags.doHighPileup():
-            GSFBuildTRT_ElectronPidTool = (
-                TrackingCommon.getInDetTRT_ElectronPidTool(
+
+            from TrigInDetConfig.InDetTrigCollectionKeys import TrigTRTKeys
+            TRT_LocalOccupancyTool = TrackingCommon.getInDetTRT_LocalOccupancy(
+                    TRT_RDOContainerName=TrigTRTKeys.RDOs,
+                    TRT_DriftCircleCollection=TrigTRTKeys.DriftCircles,
+                    isTrigger=True)
+
+            TRT_ToT_dEdx_Tool = TrackingCommon.getInDetTRT_dEdxTool(
+                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                    AssociationTool="InDetTrigPrdAssociationTool")
+
+            GSFBuildTRT_ElectronPidTool = TrackingCommon.getInDetTRT_ElectronPidTool(
                     name="GSFBuildTRT_ElectronPidTool",
-                    private=True))
+                    private=True,
+                    TRT_LocalOccupancyTool=TRT_LocalOccupancyTool,
+                    TRT_ToT_dEdx_Tool=TRT_ToT_dEdx_Tool)
 
         #
         #  InDet Track Summary Helper, no Association and no hole

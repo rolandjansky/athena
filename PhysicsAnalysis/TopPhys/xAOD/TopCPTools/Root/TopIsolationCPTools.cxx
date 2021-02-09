@@ -47,7 +47,7 @@ namespace top {
   StatusCode IsolationCPTools::setupIsolation() {
     // needed both for electrons and photons to apply the leakage correction,
     // [http://cern.ch/go/j6Lx]
-    std::string iso_corr_tool_name = "CP::IsolationCorrectionTool";
+    std::string iso_corr_tool_name = "IsolationCorrectionTool";
     if (asg::ToolStore::contains<CP::IIsolationCorrectionTool>(iso_corr_tool_name)) {
       m_isolationCorr = asg::ToolStore::get<CP::IIsolationCorrectionTool>(iso_corr_tool_name);
     } else {
@@ -137,7 +137,7 @@ namespace top {
 //	        m_isolationToolsLowPtPLV.push_back(iso_tool);
 //	      }
 //      }
-      tool_name = "CP::IsolationTool_" + isoWP;
+      tool_name = "IsolationTool_" + isoWP;
       if (!asg::ToolStore::contains<CP::IIsolationSelectionTool>(tool_name)) {
 	CP::IIsolationSelectionTool* iso_tool = new CP::IsolationSelectionTool(tool_name);
 	top::check(asg::setProperty(iso_tool, "CalibFileName", m_isolationCalibFile),

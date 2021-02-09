@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  
 # Modified version:
 # - doOFC=False switch off the OFC computation and storing
 # - skipEvents added to EventSelector - doesn't help for Xtalk
@@ -20,12 +22,13 @@ import subprocess
 #
 ###########################################################################
 
-if not "SuperCells" in dir():
+if "SuperCells" not in dir():
    SuperCells=False
+if 'SC_SampleShift' not in dir():
+   SC_SampleShift=0
    
 if not SuperCells: include("LArCalibProcessing/LArCalib_Flags.py")
 if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
-#include("LArCalibProcessing/GetInputFiles.py")
 include("LArCalibProcessing/GetInputFiles.py")
 
 #######################################################
@@ -72,7 +75,8 @@ if not 'GainList' in dir():
    GainList = [ "HIGH", "MEDIUM", "LOW" ]
 
 if not 'GroupingType' in dir():
-   GroupingType = "ExtendedSubDetector"
+   if not SuperCells: GroupingType = "ExtendedSubDetector"
+   if SuperCells:     GroupingType = "ExtendedFeedThrough"
 
 if not 'ChannelSelection' in dir():
    # read all
@@ -158,7 +162,7 @@ if not 'doOFC' in dir():
 
 if doOFC:
  if not 'Nsamples' in dir():
-   Nsamples = 5
+   Nsamples = 4
 
  if not 'Nphases' in dir():
    Nphases = 50
@@ -344,46 +348,9 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
       if 'InputDBConnectionBadChannel' not in dir():
          InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
       
-###########################################################################
-#                             OFC properties
-###########################################################################
-if doOFC:
- if not 'Nsamples' in dir():
-   Nsamples = 5
-
- if not 'Nphases' in dir():
-   Nphases = 50
-
- if not 'Dphases' in dir():
-   Dphases = 1
-   
- if not 'Ndelays' in dir():
-   Ndelays = 24
-	
- if not 'ContainerKey' in dir():
-   ContainerKey = "LArCaliWave"
-   
- if not 'OFCKey' in dir():
-   OFCKey = "LArOFC"
-
- if not 'Normalize' in dir():
-   Normalize = True
-
- if not 'TimeShift' in dir() :
-   TimeShift = False
-
- if not 'TimeShiftByIndex' in dir() :
-   TimeShiftByIndex = -1
-
- if not 'DumpOFC' in dir():
-   DumpOFC = False
-
-if not 'doOFC' in dir():
-   doOFC=True
 #######################################################################################
 # print summary
 #######################################################################################
@@ -430,8 +397,6 @@ if SuperCells:
   from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
   LArOnOffIdMappingSC()
   LArCalibIdMappingSC()
-#from LArBadChannelTool.LArBadChannelAccess import LArBadChannelAccess
-#LArBadChannelAccess()
 
 #
 # Provides ByteStreamInputSvc name of the data file to process in the offline context
@@ -451,7 +416,6 @@ if not 'FullFileName' in dir():
    DelayOFCLog.info( "No FullFileName! Please give a FullFileName list.")
    theApp.exit(-1)
 else :   
-   #ServiceMgr.EventSelector.Input=FullFileName
    ServiceMgr.EventSelector.Input = FullFileName
    
 ServiceMgr.EventSelector.MaxBadEvents = 0
@@ -467,45 +431,50 @@ ServiceMgr.EventSelector.MaxBadEvents = 0
 #   for i in range(len(ServiceMgr.EventSelector.Input)):                                 #
 #      theByteStreamInputSvc.NumFile+=[10000]                                                #
 ##############################################################################################
+
+if ( runAccumulator ) :
+   if SuperCells:
+      from LArByteStream.LArByteStreamConf import LArLATOMEDecoder
+      theLArLATOMEDecoder = LArLATOMEDecoder("LArLATOMEDecoder")
+      theLArLATOMEDecoder.latomeInfoFileName = LatomeInfo
+      theLArLATOMEDecoder.DumpFile = SC_DumpFile
+      theLArLATOMEDecoder.RawDataFile = SC_RawDataFile
+      from LArByteStream.LArByteStreamConf import LArRawSCDataReadingAlg
+      larRawSCDataReadingAlg = LArRawSCDataReadingAlg() 
+      larRawSCDataReadingAlg.adcCollKey = Gain
+      larRawSCDataReadingAlg.adcBasCollKey = ""
+      larRawSCDataReadingAlg.etCollKey = ""
+      larRawSCDataReadingAlg.etIdCollKey = ""
+      larRawSCDataReadingAlg.LATOMEDecoder = theLArLATOMEDecoder
+      topSequence += larRawSCDataReadingAlg
+
+   else:
+      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/HIGH"]
+      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/MEDIUM"]
+      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArDigitContainer/LOW"]
+      ServiceMgr.ByteStreamAddressProviderSvc.TypeNames += ["LArFebHeaderContainer/LArFebHeader"]
+   include("./LArCalib_CalibrationPatterns.py")
+
+else:   
+   from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
+
+   theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
+   theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
+   theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
+
+   # These are examples, how to use preselection:
+   #theLArRawCalibDataReadingAlg.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
+   #theLArRawCalibDataReadingAlg.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
+   #theLArRawCalibDataReadingAlg.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
+
+   topSequence+=theLArRawCalibDataReadingAlg
+
    
-
-
-
-from LArByteStream.LArByteStreamConf import LArRawCalibDataReadingAlg
-
-theLArRawCalibDataReadingAlg=LArRawCalibDataReadingAlg()
-theLArRawCalibDataReadingAlg.LArAccCalibDigitKey=GainList[0]
-theLArRawCalibDataReadingAlg.LArFebHeaderKey="LArFebHeader"
-
-###############################################################
-#                                                             #
-#                To read BS for one or more FT                #
-#                                                             #
-###############################################################
-
-## For splitting the delay runs, there are three new jobOptions.
-## All three are vectors of integers
-#################################################################
-
-#theLArRawCalibDataReadingAlg.OutputLevel=VERBOSE
-#theLArRawCalibDataReadingAlg.BEPreselection     = [0]                                                   ## : [Barrel=0,Endcap=1]
-#theLArRawCalibDataReadingAlg.PosNegPreselection = [1]                                                   ## : [C-side (negative eta)=0, A-side (positive eta)=1]
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]               ## : first half of [EM barrel feedthrough numbers]
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31]     ## : second half of [EM barrel feedthrough numbers]
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [0,1,4,7,8,11,12,13,14,17,18,19,20,23,24]             ## : [EMEC Standard feedthrough numbers]
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [2,9,15,21]                                           ## : [EMEC Special feedthrough numbers]
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [3,10,16,22]                                          ## : [HEC feedthrough numbers]  (note: slots 1&2 are EMEC slots)
-#theLArRawCalibDataReadingAlg.FTNumPreselection  = [6]                                                   ## : [FCAL feedthrough number]
-   
-topSequence+=theLArRawCalibDataReadingAlg
-
-
-###########################################################################
-#                                                                         #
-#                          Accumulator                                    #
-#                                                                         #
-###########################################################################
-
 
 ## This algorithm verifies that no FEBs are dropping out of the run
 ## If it finds corrupt events, it breaks the event loop and terminates the job rapidly
@@ -536,11 +505,10 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList     = []
 
-#include ("LArCalibProcessing/LArCalib_BadChanTool.py")
 if 'BadChannelsFolder' not in dir():
-   BadChannelsFolder="/LAR/BadChannelsOfl/BadChannels"
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
 if 'MissingFEBsFolder' not in dir():
-   MissingFEBsFolder="/LAR/BadChannelsOfl/MissingFEBs"
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    DelayOFCLog.info( "Read Bad Channels from Oracle DB")
@@ -575,6 +543,9 @@ try:
    ServiceMgr.IOVDbSvc.DBInstance=""
 except: 
    pass
+
+if SuperCells:
+   conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>")
 
 # Temperature folder
 #conddb.addFolder("DCS_OFL","/LAR/DCS/FEBTEMP")
@@ -770,10 +741,6 @@ if doOFC:
 #                                                                        #
 ##########################################################################
 
-#if not SuperCells:
-#   from xAODEventInfoCnv.xAODEventInfoCreator import xAODMaker__EventInfoCnvAlg
-#   topSequence+=xAODMaker__EventInfoCnvAlg()
-
 if ( doLArCalibDataQuality  ) :
    from LArCalibDataQuality.LArCalibDataQualityConf import LArCaliWaveValidationAlg
    from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelMasker
@@ -825,15 +792,6 @@ if ( doMonitoring ) :
    topSequence += AthenaMonManager( "LArMon" )
    LArMon = topSequence.LArMon
 
-   ## old style
-   #LArMon.FileKey = "AllMon"
-   #LArMon.ManualDataTypeSetup = True
-   #LArMon.Environment         = "user"
-   #LArMon.ManualRunLBSetup    = True
-   #LArMon.Run                 = 1
-   #LArMon.LumiBlock           = 1
-   #LArMon.CheckEveryNoEvents  = 999999 #to do the check only at the end of the run
-
    ## tier0 style
    LArMon.FileKey = "GLOBAL"
    LArMon.ManualDataTypeSetup = True
@@ -859,6 +817,8 @@ if ( doMonitoring ) :
 if (WriteNtuple):
    from LArCalibTools.LArCalibToolsConf import LArCaliWaves2Ntuple
    LArCaliWaves2Ntuple = LArCaliWaves2Ntuple( "LArCaliWaves2Ntuple" )
+   LArCaliWaves2Ntuple.RealGeometry = True
+   LArCaliWaves2Ntuple.OffId = True
    LArCaliWaves2Ntuple.NtupleName  = "CALIWAVE"
    LArCaliWaves2Ntuple.SaveDerivedInfo = SaveDerivedInfo
    LArCaliWaves2Ntuple.AddFEBTempInfo = False
@@ -890,10 +850,6 @@ if ( WritePoolFile ) :
    if IOVEnd>0:
       OutputConditionsAlg.Run2 = IOVEnd
    
-   #OutputConditionsAlg.ObjectList += [OutputObjectSpecOFC]
-   #OutputConditionsAlg.IOVTagList += [OutputObjectSpecTagOFC]
-
-
    ServiceMgr.IOVDbSvc.dbConnection  = OutputDB
    
    from RegistrationServices.RegistrationServicesConf import IOVRegistrationSvc
@@ -946,10 +902,14 @@ if doOFC:
   if (WriteNtuple):
    from LArCalibTools.LArCalibToolsConf import LArOFC2Ntuple
    LArOFC2Ntuple = LArOFC2Ntuple("LArOFC2Ntuple")
+   LArOFC2Ntuple.Nsamples = Nsamples  # number of samples to use for OFC
+   LArOFC2Ntuple.RealGeometry = True
+   LArOFC2Ntuple.OffId = True
    LArOFC2Ntuple.ContainerKey = OFCKey 	   
    LArOFC2Ntuple.NtupleFile = "FILE2" 	   
    LArOFC2Ntuple.AddFEBTempInfo = False 	   
    LArOFC2Ntuple.isSC = SuperCells
+
    topSequence+=LArOFC2Ntuple
 
    if os.path.exists(OutputRootFileDir+"/"+OutputOFCRootFileName): 
@@ -960,11 +920,11 @@ if doOFC:
    
 ###########################################################################
 
-ServiceMgr.MessageSvc.OutputLevel  = INFO
+ServiceMgr.MessageSvc.OutputLevel  = ERROR
 ServiceMgr.MessageSvc.defaultLimit = 10000
 ServiceMgr.MessageSvc.Format       = "% F%20W%S%7W%R%T %0W%M"
 
-ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = WARNING)
+ServiceMgr+=CfgMgr.AthenaEventLoopMgr(OutputLevel = DEBUG)
 
 from AthenaCommon.AppMgr import theAuditorSvc
 from AthenaCommon.ConfigurableDb import getConfigurable

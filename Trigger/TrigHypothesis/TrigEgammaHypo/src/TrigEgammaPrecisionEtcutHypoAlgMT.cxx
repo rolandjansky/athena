@@ -43,7 +43,7 @@ StatusCode TrigEgammaPrecisionEtcutHypoAlgMT::execute( const EventContext& conte
   
     const auto featureEL = findLink<xAOD::CaloClusterContainer>( previousDecision, featureString() );
     ATH_CHECK(featureEL.isValid());
-    auto d = newDecisionIn( outputDecision, name() );
+    auto d = newDecisionIn( outputDecision, hypoAlgNodeName() );
     d->setObjectLink<xAOD::CaloClusterContainer>( featureString(),  featureEL.link );
     
     TrigCompositeUtils::linkToPrevious( d, decisionInput().key(), counter );

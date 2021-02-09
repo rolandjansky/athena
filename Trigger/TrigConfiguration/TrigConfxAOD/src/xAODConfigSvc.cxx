@@ -1,8 +1,6 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
-
-// $Id: xAODConfigSvc.cxx 674242 2015-06-11 08:22:06Z krasznaa $
 
 // Gaudi/Athena include(s):
 #include "GaudiKernel/Incident.h"
@@ -20,6 +18,7 @@
 #include "TrigConfxAOD/tools/xAODKeysMatch.h"
 
 // Boost includes
+#define BOOST_BIND_GLOBAL_PLACEHOLDERS // Needed to silence Boost pragma message
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 
@@ -396,7 +395,7 @@ namespace TrigConf {
 
       // Read the R2 metadata object...
       const xAOD::TriggerMenuContainer* input_tmc = nullptr;
-      if( !m_metaStore->contains<xAOD::TriggerMenuContainer>(m_metaName) 
+      if( !m_metaStore->contains<xAOD::TriggerMenuContainer>(m_metaName)
           or m_metaStore->retrieve( input_tmc, m_metaName ).isFailure() )
       {
          m_triggerMenuContainerAvailable = false;
@@ -408,28 +407,28 @@ namespace TrigConf {
       const xAOD::TriggerMenuJsonContainer* input_hltps = nullptr;
       const xAOD::TriggerMenuJsonContainer* input_l1ps = nullptr;
       // const xAOD::TriggerMenuJsonContainer* input_bg = nullptr;
-      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt) 
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hlt)
           or m_metaStore->retrieve( input_hlt, m_metaNameJSON_hlt ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1) 
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1)
           or m_metaStore->retrieve( input_l1, m_metaNameJSON_l1 ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps) 
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_hltps)
           or m_metaStore->retrieve( input_hltps, m_metaNameJSON_hltps ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps) 
+      if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_l1ps)
           or m_metaStore->retrieve( input_l1ps, m_metaNameJSON_l1ps ).isFailure() )
       {
          m_menuJSONContainerAvailable = false;
       }
-      // if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg) 
-      //     or m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() ) 
+      // if( !m_metaStore->contains<xAOD::TriggerMenuJsonContainer>(m_metaNameJSON_bg)
+      //     or m_metaStore->retrieve( input_bg, m_metaNameJSON_bg ).isFailure() )
       // {
       //    m_menuJSONContainerAvailable = false;
       // }
@@ -458,12 +457,12 @@ namespace TrigConf {
          if( m_stopOnFailure ) {
             REPORT_MESSAGE( MSG::FATAL )
                << "In this input file we found xAOD::TriggerMenuJsonContainer(s), but no xAOD::TriggerMenuContainer. "
-               << "This is inconsistent with previous input files." << endmsg;            
+               << "This is inconsistent with previous input files." << endmsg;
                return StatusCode::FAILURE;
          } else {
-            REPORT_MESSAGE( MSG::WARNING ) 
+            REPORT_MESSAGE( MSG::WARNING )
                << "In this input file we found xAOD::TriggerMenuJsonContainer(s), but no xAOD::TriggerMenuContainer. "
-               << "This is inconsistent with previous input files." << endmsg;         
+               << "This is inconsistent with previous input files." << endmsg;
             return StatusCode::SUCCESS;
          }
       }
@@ -474,12 +473,12 @@ namespace TrigConf {
          if( m_stopOnFailure ) {
             REPORT_MESSAGE( MSG::FATAL )
                << "In this input file we found xAOD::TriggerMenuContainer, but no xAOD::TriggerMenuJsonContainer. "
-               << "This is inconsistent with previous input files." << endmsg;            
+               << "This is inconsistent with previous input files." << endmsg;
                return StatusCode::FAILURE;
          } else {
-            REPORT_MESSAGE( MSG::WARNING ) 
+            REPORT_MESSAGE( MSG::WARNING )
                << "In this input file we found xAOD::TriggerMenuContainer, but no xAOD::TriggerMenuJsonContainer. "
-               << "This is inconsistent with previous input files." << endmsg;        
+               << "This is inconsistent with previous input files." << endmsg;
             return StatusCode::SUCCESS;
          }
       }
@@ -596,7 +595,7 @@ namespace TrigConf {
 
       // If not, let's look for the correct configuration:
       // Open a shared lock. OK for multiple events to search at the same time,
-      // but prevent the extension of m_tmc from a BeginInputFile incident.  
+      // but prevent the extension of m_tmc from a BeginInputFile incident.
       std::shared_lock lockShared(m_sharedMutex);
 
       xAOD::TriggerMenuContainer::const_iterator menu_itr = m_tmc->begin();
@@ -612,7 +611,7 @@ namespace TrigConf {
          HLTChainList& chainList = *(m_chainList.get(context));
          HLTSequenceList& sequenceList = *(m_sequenceList.get(context));
          BunchGroupSet& bgSet = *(m_bgSet.get(context));
-         CHECK( prepareTriggerMenu( loadedMenuInSlot, ctpConfig, 
+         CHECK( prepareTriggerMenu( loadedMenuInSlot, ctpConfig,
                                     chainList, sequenceList,
                                     bgSet, msg() ) );
          REPORT_MESSAGE( MSG::DEBUG ) << "ctpConfig.menu().size() = " << ctpConfig.menu().size()
@@ -664,7 +663,7 @@ namespace TrigConf {
 
       // If not, let's look for the correct configuration:
       // Open a shared lock. OK for multiple events to search at the same time,
-      // but prevent the extension of m_hltJson et. al. from a BeginInputFile incident.  
+      // but prevent the extension of m_hltJson et. al. from a BeginInputFile incident.
       std::shared_lock lockShared(m_sharedMutex);
 
       TriggerMenuJsonPtrWrapper& currentHltJson   = *(m_currentHltJson.get(context));
@@ -684,7 +683,7 @@ namespace TrigConf {
       ATH_CHECK( loadPtree("HLT Prescales", m_hltpsJson.get(), keys->hltpsk(), currentHltpsJson, currentHltps) );
       ATH_CHECK( loadPtree("L1 Prescales",  m_l1psJson.get(),  keys->l1psk(),  currentL1psJson,  currentL1ps) );
       // ATH_CHECK( loadPtree("Bunchgroups",   m_bgJson.get(),    TODO,           currentBgGJson,    currentBg) );
-   
+
       CTPConfig& ctpConfig = *(m_ctpConfig.get(context));
       HLTChainList& chainList = *(m_chainList.get(context));
       HLTSequenceList& sequenceList = *(m_sequenceList.get(context));
@@ -695,7 +694,7 @@ namespace TrigConf {
                                  currentHltps,
                                  currentL1ps,
                                  currentBg,
-                                 ctpConfig, 
+                                 ctpConfig,
                                  chainList,
                                  sequenceList,
                                  bgSet,
@@ -715,8 +714,8 @@ namespace TrigConf {
 
    }
 
-   StatusCode xAODConfigSvc::loadPtree(const std::string& humanName, 
-                                       const xAOD::TriggerMenuJsonContainer* metaContainer, 
+   StatusCode xAODConfigSvc::loadPtree(const std::string& humanName,
+                                       const xAOD::TriggerMenuJsonContainer* metaContainer,
                                        const uint32_t keyToCheck,
                                        TriggerMenuJsonPtrWrapper& cacheOfLoadedMenuPtr,
                                        DataStructure& dataStructure) {

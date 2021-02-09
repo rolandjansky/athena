@@ -12,8 +12,13 @@
 from RecExConfig.RecAlgsFlags import recAlgs
 from RecExConfig.RecFlags import rec
 from TriggerJobOpts.TriggerFlags import TriggerFlags as tf
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 from AthenaCommon.AppMgr import ServiceMgr, ToolSvc
 from AthenaCommon.Include import include
+
+from AthenaCommon.Logging import logging
+_log = logging.getLogger("BStoESD_Tier0_HLTConfig_jobOptions.py")
+_log.info("TriggerFlag.configForStartup = %s", tf.configForStartup())
 
 assertMsg = 'This file is meant for Trigger configuration in RAWtoESD/RAWtoALL data reconstruction.'
 assert rec.doTrigger(), assertMsg + ' Since rec.doTrigger is disabled, this file should not be included.'
@@ -35,7 +40,19 @@ if rec.doTrigger():
     # true by default when globalflags.InputFormat = 'bytestream'
     tf.doLVL1= False # needed to not rerun the trigger
     tf.doHLT= False # needed to not rerun the trigger
-    tf.configurationSourceList = ['ds']
+    if ConfigFlags.Trigger.EDMVersion >= 3:
+        # for Run 3 we eventually want to disable TrigConfigSvc
+        tf.configurationSourceList = []
+    else:
+        # for reconstructing Run 2 data we need to run the trigger configuration
+        # from the Run 2 TriggerDB, which is done by the TrigConfigSvc(DSConfigSvc)
+        tf.configurationSourceList = ['ds']
+        # this configurations are in the old format
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        _log.info("Setting ConfigFlags.Trigger.readLVL1FromJSON to False as we are reconstructing Run 2 data")
+        ConfigFlags.Trigger.readLVL1FromJSON = False
+
+
 
     try:
         from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
@@ -70,20 +87,18 @@ if rec.doTrigger():
             ToolSvc += LVL1__L1EmTauTools("L1EmTauTools")
         ToolSvc.L1EmTauTools.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-        #from TrigT1CTP.TrigT1CTPConf import LVL1CTP__CBNTAA_CTP_RDO
-        #a1 = LVL1CTP__CBNTAA_CTP_RDO("CBNTAA_CTP_RDO")
-        #a1.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
     #---------------------------------------------------------------------------    
     elif tf.configForStartup()=="HLToffline": # HLT is ran offline so cannot read from COOL.
-        tf.readLVL1configFromXML = True # has to use the .xml file used for reco
-        tf.readHLTconfigFromXML = True # has to use the .xml file used for reco
-        # You have to set the 2 following files to the .xml files you want.
-        # Here are the default files for reprocessing special case with trigger
-        tf.inputHLTconfigFile = "HLTMenu.xml" # Has to be set correctly
-        tf.inputLVL1configFile = "LVL1Menu.xml" # Has to be set correctly
-        tf.inputHLTconfigFile.lock() 
-        tf.inputLVL1configFile.lock() # this is needed to not be overwritten by TrigT1CTMonitoring
+        if ConfigFlags.Trigger.EDMVersion <= 2: # Run 1+2 setup, not needed for Run 3 reco
+            tf.readLVL1configFromXML = True # has to use the .xml file used for reco
+            tf.readHLTconfigFromXML = True # has to use the .xml file used for reco
+            # You have to set the 2 following files to the .xml files you want.
+            # Here are the default files for reprocessing special case with trigger
+            tf.inputHLTconfigFile = "HLTMenu.xml" # Has to be set correctly
+            tf.inputLVL1configFile = "LVL1Menu.xml" # Has to be set correctly
+            tf.inputHLTconfigFile.lock() 
+            tf.inputLVL1configFile.lock() # this is needed to not be overwritten by TrigT1CTMonitoring
 
     #---------------------------------------------------------------------------    
     elif tf.configForStartup()=="HLTonline": # need to talk to clients using LVL1ConfigSvc and add new folders into
@@ -96,9 +111,6 @@ if rec.doTrigger():
             ToolSvc += RecMuCTPIByteStreamTool("RecMuCTPIByteStreamTool")
         ToolSvc.RecMuCTPIByteStreamTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
-        #from TrigT1CTP.TrigT1CTPConf import LVL1CTP__CBNTAA_CTP_RDO
-        #a1 = LVL1CTP__CBNTAA_CTP_RDO("CBNTAA_CTP_RDO")
-        #a1.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
 
         # need thresholds so should be called just if the info is there in COOL
         from AnalysisTriggerAlgs.AnalysisTriggerAlgsConfig import RoIBResultToAOD
@@ -132,7 +144,13 @@ if rec.doTrigger():
                          'L1CPCMXTools', 'L1EmTauTools', 'L1JEMJetTools', 'L1JetEtTools', 'L1JetTools']:
             if not hasattr(ToolSvc, toolName ):
                 ToolSvc += eval('calotools.LVL1__%s( toolName )' % toolName)
-            getattr(ToolSvc, toolName).LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            theTool = getattr(ToolSvc, toolName)
+            theTool.LVL1ConfigSvc="TrigConf::TrigConfigSvc/TrigConfigSvc"
+            if 'UseNewConfig' in theTool.getProperties():
+                _log.info("Setting ToolSvc.%s.UseNewConfig to %s", theTool.name(), ConfigFlags.Trigger.readLVL1FromJSON)
+                theTool.UseNewConfig = ConfigFlags.Trigger.readLVL1FromJSON
+
+
 
     #---------------------------------------------------------------------------
     try:
@@ -144,4 +162,6 @@ if rec.doTrigger():
         recAlgs.doTrigger=False
     if rec.doWriteBS():
         include( "ByteStreamCnvSvc/RDP_ByteStream_jobOptions.py" )
+
+del _log
 ## end of configure the HLT config

@@ -10,7 +10,7 @@ import sys
 from AthenaCommon.Configurable import Configurable
 from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
-from OverlayConfiguration.OverlayHelpers import OverlayMessageSvcCfg
+from Digitization.DigitizationSteering import DigitizationMessageSvcCfg
 from OverlayConfiguration.OverlaySteering import OverlayMainCfg
 from OverlayConfiguration.OverlayTestHelpers import \
     CommonTestArgumentParser, OverlayJobOptsDumperCfg, \
@@ -50,7 +50,7 @@ if args.profile:
     from PerfMonVTune.PerfMonVTuneConfig import VTuneProfilerServiceCfg
     acc.merge(VTuneProfilerServiceCfg(ConfigFlags))
 acc.merge(OverlayJobOptsDumperCfg(ConfigFlags))
-acc.merge(OverlayMessageSvcCfg(ConfigFlags))
+acc.merge(DigitizationMessageSvcCfg(ConfigFlags))
 
 # dump pickle
 with open("ConfigOverlay.pkl", "wb") as f:

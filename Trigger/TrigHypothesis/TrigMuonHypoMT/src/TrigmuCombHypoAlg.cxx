@@ -72,7 +72,7 @@ StatusCode TrigmuCombHypoAlg::execute(const EventContext& context) const
       const xAOD::L2CombinedMuon* muComb = *muCombEL;
 
       // create new decisions
-      auto newd = newDecisionIn( decisions );
+      auto newd = newDecisionIn( decisions, hypoAlgNodeName() );
 
       toolInput.emplace_back( TrigmuCombHypoTool::CombinedMuonInfo{ newd, muComb, muFast, previousDecision} );
 

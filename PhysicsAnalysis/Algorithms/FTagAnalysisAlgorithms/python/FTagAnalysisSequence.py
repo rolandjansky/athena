@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # AnaAlgorithm import(s):
 from AnaAlgorithm.DualUseConfig import createAlgorithm, addPrivateTool
@@ -32,7 +32,7 @@ def makeFTagAnalysisSequence( seq, dataType, jetCollection,
 
     # Kinematic selection depending on validity of the calibration
     # https://twiki.cern.ch/twiki/bin/view/AtlasProtected/BTagCalibrationRecommendationsRelease21
-    if minPt == None:
+    if minPt is None:
         if "EMPFlow" in jetCollection:
             minPt = 20e3
         elif "EMTopo" in jetCollection:

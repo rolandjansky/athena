@@ -43,7 +43,7 @@ def precisionGSFElectronSequenceCfg( flags ):
 
 
 # this must be moved to the HypoTool file:
-def diElectronMassComboHypoToolFromDict(chainDict):
+def diElectronZeeMassComboHypoToolFromDict(chainDict):
     from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaMassHypoTool
     name = chainDict['chainName']
     monTool = GenericMonitoringTool("MonTool_"+name)
@@ -55,6 +55,17 @@ def diElectronMassComboHypoToolFromDict(chainDict):
     tool.MonTool = monTool
     return tool
 
+def diElectronJpsieeMassComboHypoToolFromDict(chainDict):
+    from TrigEgammaHypo.TrigEgammaHypoConf import TrigEgammaMassHypoTool
+    name = chainDict['chainName']
+    monTool = GenericMonitoringTool("MonTool_"+name)
+    monTool.Histograms = [defineHistogram('MassOfAccepted', type='TH1F', path='EXPERT', title="Mass in accepted combinations [MeV]", xbins=75, xmin=0, xmax=150000)]
+    tool= TrigEgammaMassHypoTool(name)
+    tool.LowerMassElectronClusterCut = 1000
+    tool.UpperMassElectronClusterCut = 5000
+    monTool.HistPath = 'EgammaMassHypo/'+tool.getName()
+    tool.MonTool = monTool
+    return tool
 #----------------------------------------------------------------
 # Class to configure chain
 #----------------------------------------------------------------
@@ -167,7 +178,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         if "Zee" in self.chainName:
             stepName = "precision_topoelectron"+isocut
-            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronMassComboHypoToolFromDict])
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict])
+        elif "Jpsiee" in self.chainName:
+            stepName = "precision_topoelectron"+isocut
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict])
         else:
             stepName = "precision_electron"+isocut
             return self.getStep(5,stepName,[ precisionElectronSequenceCfg])
@@ -179,7 +193,10 @@ class ElectronChainConfiguration(ChainConfigurationBase):
 
         if "Zee" in self.chainName:
             stepName = "precision_topoelectron_GSF"+isocut
-            return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronMassComboHypoToolFromDict])
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronZeeMassComboHypoToolFromDict])
+        if "Jpsiee" in self.chainName:
+            stepName = "precision_topoelectron_GSF"+isocut
+            return self.getStep(5,stepName,sequenceCfgArray=[precisionGSFElectronSequenceCfg], comboTools=[diElectronJpsieeMassComboHypoToolFromDict])
         else:
             stepName = "precision_electron_GSF"+isocut
             return self.getStep(5,stepName,[ precisionGSFElectronSequenceCfg])

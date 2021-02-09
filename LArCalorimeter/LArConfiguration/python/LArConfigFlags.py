@@ -51,6 +51,8 @@ def createLArConfigFlags():
     ### option to use average constraint in OFC computation
     ### 0 = not use Delta, 1 = only EMECIW/HEC/FCAL, 2 = all , 3 = only EMECIW
     lcf.addFlag("LAr.ROD.UseDelta", 0)
+    # Force using the iterative OFC procedure
+    lcf.addFlag("LAr.ROD.forceIter",False)
      
     ##NoisyRO flags
     # cell quality cut

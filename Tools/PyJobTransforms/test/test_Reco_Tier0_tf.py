@@ -1,15 +1,13 @@
 #! /usr/bin/env python
 
-# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # Run a Reco job and test key metadata in the output, sources on EOS
 #
 # This test only makes ESD, as that is sufficient to test the bytestream
 # access
-# $Id: test_Reco_EOS_tf.py 573368 2013-12-02 18:56:04Z graemes $
 #
 
-import glob
 import json
 import subprocess
 import os
@@ -17,9 +15,6 @@ import os.path
 import pickle as pickle
 import sys
 import unittest
-
-from future import standard_library
-standard_library.install_aliases()
 
 from PyJobTransforms.trfLogger import msg
 from PyJobTransforms.trfReports import pyJobReportToFileDict

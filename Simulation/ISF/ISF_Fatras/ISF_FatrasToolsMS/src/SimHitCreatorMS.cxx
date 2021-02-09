@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "SimHitCreatorMS.h"
@@ -29,7 +29,7 @@
 #include "MuonSimEvent/sTgcSimIdToOfflineId.h"
 
 #include "CLHEP/Random/RandLandau.h"
-#include "CLHEP/Random/RandGauss.h"
+#include "CLHEP/Random/RandGaussZiggurat.h"
 
 namespace {
   // the tube number of a tube in a tubeLayer ia encoded in the GeoSerialIdentifier (modulo maxNTubesPerLayer)
@@ -363,8 +363,8 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
 
        double dlh = sqrt(15.075*15.075-residual*residual); 
        double de = 0.02*dlh/15.075;
-       double energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
-       while (energyDeposit<0.)  energyDeposit= de + 0.005*CLHEP::RandGauss::shoot(m_randomEngine);
+       double energyDeposit= de + 0.005*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
+       while (energyDeposit<0.)  energyDeposit= de + 0.005*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
     
        // a new simhit                                            
        MDTSimHit mdtHit = MDTSimHit(simId,globalTimeEstimate,
@@ -410,8 +410,8 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     ATH_MSG_VERBOSE(  "[ muhit ] Creating TGCSimHit with identifier " <<  simId );
     
     // TO DO: adust energy deposit and step length ( 1keV,3 mm ? )
-    double energyDeposit= 1.3e-03 + 6.e-04*CLHEP::RandGauss::shoot(m_randomEngine);
-    while (energyDeposit<0.) energyDeposit= 1.3e-03 + 6.e-04*CLHEP::RandGauss::shoot(m_randomEngine);
+    double energyDeposit= 1.3e-03 + 6.e-04*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
+    while (energyDeposit<0.) energyDeposit= 1.3e-03 + 6.e-04*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
     double stepLength=3.;
     
     // a new simhit
@@ -423,8 +423,8 @@ bool iFatras::SimHitCreatorMS::createHit(const ISF::ISFParticle& isp,
     Amg::Vector3D dir(parm->momentum().normalized());
     
     //!< TO DO : to be fixed
-    float energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGauss::shoot(m_randomEngine);
-    while (energyDeposit<0.) energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGauss::shoot(m_randomEngine);
+    float energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
+    while (energyDeposit<0.) energyDeposit= 0.24e-03 + 1.1e-03*CLHEP::RandGaussZiggurat::shoot(m_randomEngine);
     // cos of incident angle
     float cs=fabs(dir.dot(parm->associatedSurface().normal())); 
     float hitlength = 5./cs;

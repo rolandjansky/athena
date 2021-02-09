@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // Framework include(s):
@@ -485,7 +485,7 @@ void CommonEfficiencyTool::addHistogramToSFMap(TKey* kKey, const std::string& sK
   TClass *cClass = gROOT->GetClass(kKey->GetClassName());
   if (cClass->InheritsFrom("TH2"))
   {
-    TH1F* oObject = (TH1F*)kKey->ReadObj();
+    TH1* oObject = (TH1*)kKey->ReadObj();
     oObject->SetDirectory(0);
     if (cClass->InheritsFrom("TH2D"))
       (*m_mSF)[sKeyName] = tTupleObjectFunc(oObject,&getValueTH2D);

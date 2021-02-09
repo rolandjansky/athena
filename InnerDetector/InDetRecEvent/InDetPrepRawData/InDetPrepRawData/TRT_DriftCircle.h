@@ -28,7 +28,7 @@ class MsgStream;
 
 namespace InDet{
 
-class TRT_DriftCircle :   public Trk::PrepRawData
+class TRT_DriftCircle final :   public Trk::PrepRawData
 {
 	friend class ::TRT_DriftCircleContainerCnv;
 	friend class TRT_DriftCircleContainerCnv_p1;
@@ -79,42 +79,42 @@ class TRT_DriftCircle :   public Trk::PrepRawData
 	//accesors
 
   /** returns the TRT dataword */
-  virtual unsigned int getWord() const;
+  unsigned int getWord() const;
 
   /** returns the leading edge bin
    *  defined as in TRT_LoLumRawData to be the first 0-1 transition */
-  virtual int driftTimeBin() const;
+  int driftTimeBin() const;
 
   /** returns the trailing edge bin */
-  virtual int trailingEdge() const;
+  int trailingEdge() const;
 
 	/** returns true if the high level threshold was passed */
-	virtual bool highLevel() const ;
+	bool highLevel() const;
 
 	/** returns true if the first bin is high */
-  virtual bool firstBinHigh() const; 
+  bool firstBinHigh() const; 
 
 	/** returns true if the last bin is high */
-  virtual bool lastBinHigh() const; 
+  bool lastBinHigh() const; 
 	
 	/** returns  Time over threshold in ns  */
-	virtual double timeOverThreshold() const ;
+	double timeOverThreshold() const;
 
   /** returns number of high bins between LE and TE (these included) */
-	virtual int numberOfHighsBetweenEdges() const;                                             
+	int numberOfHighsBetweenEdges() const;                                             
   
   /** returns number of low bins between LE and TE (these included) */
-	virtual int numberOfLowsBetweenEdges() const;                                             
+	int numberOfLowsBetweenEdges() const;                                             
   /** returns the raw driftTime */
-  virtual double rawDriftTime() const;
+  double rawDriftTime() const;
 	
   /** returns the raw driftTime,
 	 * the passed boolean indicates if the drift time is valid or not.
    * depreciated for 13.0.20 and later */
-  virtual double driftTime(bool& valid) const;
+  double driftTime(bool& valid) const;
 
 	/** return true if the corrected drift time is OK */
-  virtual bool driftTimeValid() const; 
+  bool driftTimeValid() const; 
         
 	/** return the detector element corresponding to this PRD */
 	virtual const InDetDD::TRT_BaseElement* detectorElement() const override final;
@@ -125,7 +125,7 @@ class TRT_DriftCircle :   public Trk::PrepRawData
   // modifiers
 
 	/** set driftTimeValid flag */
-  virtual void setDriftTimeValid(bool valid);
+  void setDriftTimeValid(bool valid);
 
   //analysers
 
@@ -133,16 +133,16 @@ class TRT_DriftCircle :   public Trk::PrepRawData
     probability. This is a temporary feature. To be replaced
     by a tool that can be configured for different gas
     speeds etc */
-  virtual bool isNoise() const;
+  bool isNoise() const;
 
 
   //debug printers
 
   /** dump information about the PRD object. */
-  virtual MsgStream&    dump( MsgStream&    stream) const override;
+  virtual MsgStream&    dump( MsgStream&    stream) const override final;
 
   /** dump information about the PRD object. */
-  virtual std::ostream& dump( std::ostream& stream) const override;
+  virtual std::ostream& dump( std::ostream& stream) const override final;
 
 
 	private:

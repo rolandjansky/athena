@@ -1,6 +1,6 @@
 if not 'CafJobInputs' in dir():
     CafJobInputs=[["/scratch/wlampl/data12_8TeV.00215091.physics_JetTauEtmiss.merge.RAW._lb0092._SFO-1._0001.1"]]
-    print "No input file given, use ",CafJobInputs[0]
+    print("No input file given, use ",CafJobInputs[0])
 
 
 if not 'CafJobOutputs' in dir():
@@ -15,10 +15,10 @@ include("LArConditionsCommon/LArMinimalSetup.py")
 from LArConditionsCommon.LArCondFlags import larCondFlags 
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-svcMgr.IOVDbSvc.GlobalTag="COMCOND-BLKPA-RUN1-06"
+svcMgr.IOVDbSvc.GlobalTag="CONDBR2-ES1PA-2015-11"
 
 #Specify the input file(s)
-svcMgr.EventSelector.Input=CafJobInputs[0]
+svcMgr.EventSelector.Input=CafJobInputs
 
 # Specify the object you want to read from ByteStream
 theByteStreamAddressProviderSvc = svcMgr.ByteStreamAddressProviderSvc
@@ -95,7 +95,7 @@ StreamESD.ItemList+=["EventInfo#*","LArRawChannelContainer#*"]
 
 
 #CaloD3PD writing
-from CaloD3PDMaker.LArDigitD3PDObject import LArDigitD3PDObject
+from CaloSysD3PDMaker.LArDigitD3PDObject import LArDigitD3PDObject
 from EventCommonD3PDMaker.EventInfoD3PDObject     import EventInfoD3PDObject
 alg = MSMgr.NewRootStream("caloD3PD",CafJobOutputs[0] )
 #alg += EventInfoD3PDObject(10)

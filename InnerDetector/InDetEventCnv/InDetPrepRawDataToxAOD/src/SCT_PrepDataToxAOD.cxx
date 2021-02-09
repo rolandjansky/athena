@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -77,9 +77,9 @@ StatusCode SCT_PrepDataToxAOD::execute(const EventContext& ctx) const
     SG::ReadHandle<SCT_RDO_Container> rdoContainer{m_rdoContainer, ctx};
     if (rdoContainer.isValid()) {
       // get all the RIO_Collections in the container
-      for (const auto& collection: *rdoContainer) {
+      for (const auto collection: *rdoContainer) {
         //get all the RDOs in the collection
-        for (const auto& rdo : *collection) {
+        for (const auto rdo : *collection) {
           if (rdo==nullptr) {
             ATH_MSG_WARNING("Null SCT RDO. Skipping it");
             continue;
@@ -146,7 +146,7 @@ StatusCode SCT_PrepDataToxAOD::execute(const EventContext& ctx) const
 
   // Loop over the container
   unsigned int counter{0};
-  for (const auto& clusterCollection: *sctClusterContainer) {
+  for (const auto clusterCollection: *sctClusterContainer) {
     //Fill Offset container
     (*offsets)[clusterCollection->identifyHash()] = counter;
     

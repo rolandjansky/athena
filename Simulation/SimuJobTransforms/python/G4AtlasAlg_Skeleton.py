@@ -1,8 +1,8 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 import sys
 from PyJobTransforms.CommonRunArgsToFlags import commonRunArgsToFlags
-from OverlayConfiguration.OverlayHelpers import accFromFragment
+from PyJobTransforms.TransformUtils import processPreExec, processPreInclude, processPostExec, processPostInclude
 
 # based on https://acode-browser1.usatlas.bnl.gov/lxr/source/athena/Control/AthenaServices/python/Configurables.py#0247
 def EvtIdModifierSvc_add_modifier(svc,
@@ -45,6 +45,8 @@ def EvtIdModifierSvc_add_modifier(svc,
 def defaultSimulationFlags(ConfigFlags):
     """Fill default simulation flags"""
     # TODO: how to autoconfigure those
+    from AthenaConfiguration.Enums import ProductionStep
+    ConfigFlags.Common.ProductionStep = ProductionStep.Simulation
     ConfigFlags.Sim.CalibrationRun = "Off" #"DeadLAr" 
     ConfigFlags.Sim.RecordStepInfo = False
     ConfigFlags.Sim.CavernBG = "Signal"
@@ -158,19 +160,14 @@ def fromRunArgs(runArgs):
     # Setup common simulation flags
     defaultSimulationFlags(ConfigFlags)
 
-    # Pre-exec
-    if hasattr(runArgs, 'preExec') and runArgs.preExec != 'NONE' and runArgs.preExec:
-        for cmd in runArgs.preExec:
-            exec(cmd)
-
     # Pre-include
-    if hasattr(runArgs, 'preInclude') and runArgs.preInclude:
-        for fragment in runArgs.preInclude:
-            accFromFragment(fragment, ConfigFlags)
-    
+    processPreInclude(runArgs, ConfigFlags)
+
+    # Pre-exec
+    processPreExec(runArgs, ConfigFlags)
+
     # Lock flags
     ConfigFlags.lock()
-
 
     #run ISF
     from AthenaConfiguration.MainServicesConfig import MainServicesCfg
@@ -282,14 +279,10 @@ def fromRunArgs(runArgs):
 
 
     # Post-include
-    if hasattr(runArgs, 'postInclude') and runArgs.postInclude:
-        for fragment in runArgs.postInclude:
-            cfg.merge(accFromFragment(fragment, ConfigFlags))
+    processPostInclude(runArgs, ConfigFlags, cfg)
 
     # Post-exec
-    if hasattr(runArgs, 'postExec') and runArgs.postExec != 'NONE' and runArgs.postExec:
-        for cmd in runArgs.postExec:
-            exec(cmd)
+    processPostExec(runArgs, ConfigFlags, cfg)
 
     import time
     tic = time.time()
@@ -298,9 +291,3 @@ def fromRunArgs(runArgs):
     log.info("Run G4AtlasAlg in " + str(time.time()-tic) + " seconds")
     
     sys.exit(not sc.isSuccess())
-    
-    f = open("test.pkl","wb")
-    cfg.store(f)
-    f.close()
-
-    sys.exit(0)

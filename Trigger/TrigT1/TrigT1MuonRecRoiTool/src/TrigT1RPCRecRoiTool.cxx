@@ -13,7 +13,6 @@ namespace LVL1 {
 
   StatusCode TrigT1RPCRecRoiTool::initialize() {
     ATH_CHECK(m_DetectorManagerKey.initialize());
-    ATH_CHECK(detStore()->retrieve(m_muonMgr));
     ATH_CHECK(m_idHelperSvc.retrieve() );
     ATH_CHECK(m_rpcKey.initialize());
     if(m_useRun3Config){
@@ -52,15 +51,13 @@ namespace LVL1 {
 				      PhiLowBorder_id, PhiHighBorder_id, &m_idHelperSvc->rpcIdHelper())) 
       {
 
-	const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-	if(m_useConditionData){
-	  SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-	  muonMgr = DetectorManagerHandle.cptr(); 
-	  if(muonMgr==nullptr){
-	    ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	    muonMgr = m_muonMgr;
-	  }
+	SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+	const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+	if(muonMgr==nullptr){
+	  ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+	  return data;
 	}
+	
   
 	const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
 	  muonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -100,15 +97,12 @@ namespace LVL1 {
     double etaMax_Low=0;
     double etaMax_High=0;
     
-    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
-    std::unique_ptr<const RpcCablingCondData> rpcCab(*rpcReadHandle);
-    
     auto data = roiData(roiWord);
     phiMin_LowHigh=data.phiMin();
     phiMax_LowHigh=data.phiMax();
     
-    bool low  = etaDimLow(data,etaMin_Low,etaMax_Low, std::move(rpcCab));
-    bool high = etaDimHigh(data,etaMin_High,etaMax_High, std::move(rpcCab));
+    bool low  = etaDimLow(data,etaMin_Low,etaMax_Low);
+    bool high = etaDimHigh(data,etaMin_High,etaMax_High);
     
     if (low&&high) {
       etaMin_LowHigh=std::min(etaMin_Low,etaMin_High);
@@ -132,9 +126,6 @@ namespace LVL1 {
     const unsigned int maxLogicSector = 32;
     const unsigned int maxRoI = 32;
     
-    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
-    std::unique_ptr<const RpcCablingCondData> rpcCab(*rpcReadHandle);
-    
     std::ofstream roi_map;
     roi_map.open(filename.c_str(), std::ios::out );
     if(!roi_map){
@@ -148,8 +139,8 @@ namespace LVL1 {
 	    unsigned long int roIWord = (m_useRun3Config) ? (roi+(side<<21)+(sector<<22)) : ((roi<<2)+(side<<14)+(sector<<15));
 	    auto data = roiData(roIWord);
 	    double etaMinLow(0),etaMaxLow(0),etaMinHigh(0),etaMaxHigh(0);
-	    etaDimLow (data,etaMinLow, etaMaxLow, std::move(rpcCab));
-	    etaDimHigh(data,etaMinHigh,etaMaxHigh, std::move(rpcCab));
+	    etaDimLow (data,etaMinLow, etaMaxLow);
+	    etaDimHigh(data,etaMinHigh,etaMaxHigh);
 	    roi_map << std::setw(8)  << side     << " "
 		    << std::setw(8)  << sector   << " "
 		    << std::setw(8)  << roi      << " "
@@ -171,8 +162,7 @@ namespace LVL1 {
   
   
   bool TrigT1RPCRecRoiTool::etaDimLow (const TrigT1MuonRecRoiData& data,
-				       double& etaMin, double& etaMax,
-				       std::unique_ptr<const RpcCablingCondData> rpcCab) const
+				       double& etaMin, double& etaMax) const
   {
     // Get the strips delimiting the RoIs from rPCcablingSvc
     Identifier EtaLowBorder_id;
@@ -181,22 +171,23 @@ namespace LVL1 {
     Identifier PhiHighBorder_id;
     Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
     Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
-    
+
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    const RpcCablingCondData* rpcCab{*rpcReadHandle};
+
     if(!rpcCab->give_LowPt_borders_id(data.side(), data.sector(), data.roi(),
                                        EtaLowBorder_id, EtaHighBorder_id,
                                        PhiLowBorder_id, PhiHighBorder_id,
 				       &m_idHelperSvc->rpcIdHelper())) return false;
     
 
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return false;
     }
+    
   
     const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =
       muonMgr->getRpcReadoutElement(EtaLowBorder_id);
@@ -217,8 +208,7 @@ namespace LVL1 {
   }
   
   bool TrigT1RPCRecRoiTool::etaDimHigh (const TrigT1MuonRecRoiData& data,
-					double& etaMin, double& etaMax,
-					std::unique_ptr<const RpcCablingCondData> rpcCab) const
+					double& etaMin, double& etaMax) const
   {
     // Get the strips delimiting the RoIs from rPCcablingSvc
     Identifier EtaLowBorder_id;
@@ -227,20 +217,20 @@ namespace LVL1 {
     Identifier PhiHighBorder_id;
     Amg::Vector3D EtaLowBorder_pos(0.,0.,0.);
     Amg::Vector3D EtaHighBorder_pos(0.,0.,0.);
-    
+
+    SG::ReadCondHandle<RpcCablingCondData> rpcReadHandle{m_rpcKey};
+    const RpcCablingCondData* rpcCab{*rpcReadHandle};
+
     if(!rpcCab->give_HighPt_borders_id(data.side(), data.sector(), data.roi(),
 					EtaLowBorder_id, EtaHighBorder_id,
 					PhiLowBorder_id, PhiHighBorder_id,
 					&m_idHelperSvc->rpcIdHelper())) return false;
     
-    const MuonGM::MuonDetectorManager* muonMgr = m_muonMgr;
-    if(m_useConditionData){
-      SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
-      muonMgr = DetectorManagerHandle.cptr(); 
-      if(muonMgr==nullptr){
-	ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object. Use the one from DetectorStore");
-	muonMgr = m_muonMgr;
-      }
+    SG::ReadCondHandle<MuonGM::MuonDetectorManager> DetectorManagerHandle{m_DetectorManagerKey};
+    const MuonGM::MuonDetectorManager* muonMgr = DetectorManagerHandle.cptr(); 
+    if(muonMgr==nullptr){
+      ATH_MSG_ERROR("Null pointer to the read MuonDetectorManager conditions object.");
+      return false;
     }
 
     const MuonGM::RpcReadoutElement* EtaLowBorder_descriptor =

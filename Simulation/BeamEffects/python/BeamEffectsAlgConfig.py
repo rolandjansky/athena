@@ -149,6 +149,18 @@ def BeamSpotFixerAlgCfg(ConfigFlags, **kwargs):
     return acc
 
 
+def BeamSpotReweightingAlgCfg(ConfigFlags, **kwargs):
+    from BeamSpotConditions.BeamSpotConditionsConfig import BeamSpotCondAlgCfg
+    acc = BeamSpotCondAlgCfg(ConfigFlags)
+
+    from Digitization.DigitizationFlags import digitizationFlags
+    kwargs.setdefault('Input_beam_sigma_z', digitizationFlags.OldBeamSpotZSize())
+
+    alg = CompFactory.Simulation.BeamSpotReweightingAlg(name="BeamSpotReweightingAlg", **kwargs)
+    acc.addEventAlgo(alg)
+    return acc
+
+
 if __name__ == "__main__":
     from AthenaCommon.Logging import log
     from AthenaCommon.Constants import DEBUG

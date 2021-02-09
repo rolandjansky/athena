@@ -46,8 +46,6 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Walter Lampl <Walter.Lampl@cern.ch>
    ///
-   /// $Revision: 794609 $
-   /// $Date: 2017-01-30 16:51:25 +0100 (Mon, 30 Jan 2017) $
    ///
    class CaloCluster_v1 : public IParticle {
      friend class ::CaloClusterChangeSignalState;
@@ -635,6 +633,16 @@ namespace xAOD {
       */
      bool setLink(CaloClusterCellLinkContainer* CCCL,
                   IProxyDict* sg = nullptr);
+
+
+     /**@brief Push the CaloClusterCellLink object into the cell-link container and hand-over ownership to it
+      * @param CCCL pointer to the CaloClusterCellLinkContainer
+      * @param EventContext Explicitly specify the EventContext to use for the ElementLink.
+      * @return true on success
+      */
+     bool setLink(CaloClusterCellLinkContainer* CCCL,
+                  const EventContext& ctx);
+
 
      /**@brief Get a pointer to the CaloClusterCellLink object (const version)
       * @return ptr to CaloClusterCellLink obj, NULL if no valid link

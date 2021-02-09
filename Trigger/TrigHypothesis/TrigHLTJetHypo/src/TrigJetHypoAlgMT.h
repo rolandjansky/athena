@@ -42,7 +42,8 @@ class TrigJetHypoAlgMT : public ::HypoBase {
 
   StatusCode decide(const xAOD::JetContainer* jets,
                     const TrigCompositeUtils::Decision* previousDecision,
-                    TrigCompositeUtils::DecisionContainer* outputDecisions
+                    TrigCompositeUtils::DecisionContainer* outputDecisions,
+                    const EventContext& context
                     ) const;
 
   

@@ -36,7 +36,9 @@ TileMuRcvRawChannelBuilderMF = CfgMgr.TileRawChannelBuilderMF('TileMuRcvRawChann
                                                               , DefaultPedestal = TileMuRcvPedestal
                                                               , calibrateEnergy = jobproperties.TileRecFlags.calibrateEnergy()
                                                               , TileCondToolOfc = TileCondToolMuRcvOfc
-                                                              , TileCondToolOfcOnFly = TileCondToolMuRcvOfc)
+                                                              , TileCondToolOfcOnFly = TileCondToolMuRcvOfc
+                                                              , TimeMinForAmpCorrection = jobproperties.TileRecFlags.TimeMinForAmpCorrection()
+                                                              , TimeMaxForAmpCorrection = jobproperties.TileRecFlags.TimeMaxForAmpCorrection())
 
 #  Random number engine in TilePulseForTileMuonReceiver
 from Digitization.DigitizationFlags import jobproperties

@@ -81,7 +81,7 @@ topSequence += DRAW_DIMU_Seq
 ### Output stream
 ##################
 from OutputStreamAthenaPool.MultipleStreamManager import MSMgr
-from D2PDMaker.D2PDHelpers import buildFileName
+from PrimaryDPDMaker.PrimaryDPDHelpers import buildFileName
 from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
 streamName = primDPD.WriteRAWPerfDPD_DIMU.StreamName
 fileName   = buildFileName( primDPD.WriteRAWPerfDPD_DIMU )

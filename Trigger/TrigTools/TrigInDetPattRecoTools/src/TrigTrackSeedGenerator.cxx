@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <cmath>
@@ -22,6 +22,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
     m_pStore(NULL)
 {
   m_maxDeltaRadius = m_settings.m_doublet_dR_Max;
+  m_maxDeltaRadiusConf = m_settings.m_doublet_dR_Max_Confirm;
   //m_radBinWidth = m_settings.m_seedRadBinWidth;
   m_phiSliceWidth = 2*M_PI/m_settings.m_nMaxPhiSlice;
   //m_nMaxRadBin = 1+(int)((m_maxRadius-m_minRadius)/m_radBinWidth);
@@ -32,7 +33,7 @@ TrigTrackSeedGenerator::TrigTrackSeedGenerator(const TrigCombinatorialSettings& 
   m_CovMS = std::pow((13.6/m_settings.m_tripletPtMin),2)*radLen;
   const double ptCoeff = 0.29997*1.9972/2.0;// ~0.3*B/2 - assumes nominal field of 2*T
   m_minR_squ = m_settings.m_tripletPtMin*m_settings.m_tripletPtMin/std::pow(ptCoeff,2);
-  m_dtPreCut = std::tan(2.0*m_settings.m_tripletDtCut*sqrt(m_CovMS));
+  m_dtPreCut = std::tan(2.0*m_settings.m_tripletDtCut*std::sqrt(m_CovMS));
 }
 
 TrigTrackSeedGenerator::~TrigTrackSeedGenerator() {
@@ -205,10 +206,14 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	for(int layerJ=0;layerJ<nLayers;layerJ++) {
 
 	  bool isPixel2 = (m_settings.m_layerGeometry[layerJ].m_subdet == 1);
+	  
+	  if(isSct && isPixel2 && (!m_settings.m_tripletDoPSS)) continue;//no mixed PSS seeds allowed
 
-	  if((!m_settings.m_tripletDoPSS) && (!m_settings.m_tripletDoPPS)) {//no mixed seeds allowed
-	    if(isSct && isPixel2) continue;//no PSx
-	    if((!isSct) && (!isPixel2)) continue;//no xPS
+	  if((!isSct) && (!isPixel2)) {// i.e. xPS (or SPx)
+	    if((!m_settings.m_tripletDoConfirm) && (!m_settings.m_tripletDoPPS)) {
+	      continue;//no mixed PPS seeds allowed
+	    }
+	    //but if m_tripletDoConfirm is true we will use PPS seeds to confirm PPP seeds
 	  }
 	  
 	  if(!validateLayerPairNew(layerI, layerJ, rm, zm)) continue; 
@@ -246,9 +251,15 @@ void TrigTrackSeedGenerator::createSeeds(const IRoiDescriptor* roiDescriptor) {
 	
 	if(m_nInner != 0 && m_nOuter != 0) {
 	  std::vector<TrigInDetTriplet> tripletVec;
-	    
-	  createTripletsNew(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
-	    
+	  
+	  if(m_settings.m_tripletDoConfirm) {
+	    if(!isSct) {
+	      createConfirmedTriplets(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
+	    }
+	    else createTripletsNew(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
+	  }
+	  else createTripletsNew(spm->m_pSP, m_nInner, m_nOuter, tripletVec, roiDescriptor);
+	  
 	  if(!tripletVec.empty()) storeTriplets(tripletVec);	
 	  tripletVec.clear();
 	}
@@ -582,7 +593,8 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, const INDEXED_SP* spm
 
   bool isBarrel = (m_settings.m_layerGeometry[lJ].m_type==0);
   float refCoord = m_settings.m_layerGeometry[lJ].m_refCoord;
-
+  bool isPixel = spm->m_pSP->isPixel();
+  
   float rm = spm->m_pSP->r();
   float zm = spm->m_pSP->z();
 
@@ -599,6 +611,13 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, const INDEXED_SP* spm
     float dr = rsp - rm;
     
     if(std::fabs(dr)>m_maxDeltaRadius ) continue;
+
+    if(m_settings.m_tripletDoConfirm) {
+      if(isPixel && !(*spIt)->m_pSP->isPixel()) {
+	if(std::fabs(dr)>m_maxDeltaRadiusConf ) continue;
+      }
+    }
+
     if(std::fabs(dr)<m_minDeltaRadius ) continue;
     
     //inner doublet check
@@ -610,7 +629,7 @@ int TrigTrackSeedGenerator::processSpacepointRange(int lJ, const INDEXED_SP* spm
     float ftau = std::fabs(tau);
     if (ftau > 7.41) continue;
     
-    if(spm->m_pSP->isPixel() && SeedML > 0) {
+    if(isPixel && SeedML > 0) {
       if(ftau < m_minTau[spm->m_idx] || ftau > m_maxTau[spm->m_idx]) continue;
     }
 
@@ -706,8 +725,6 @@ int TrigTrackSeedGenerator::processSpacepointRangeZv(const INDEXED_SP* spm, bool
 void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
 					    std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
 
-  if (m_settings.m_LRTmode) std::cout<<"TrigTrackSeedGenerator::createTriplets in LRT mode "<<std::endl;
-
   if(nInner==0 || nOuter==0) return;
 
   int nSP = nInner + nOuter;
@@ -734,7 +751,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     const double dx = pSP->x() - pS_x;
     const double dy = pSP->y() - pS_y;
     const double R2inv = 1.0/(dx*dx+dy*dy);
-    const double Rinv = sqrt(R2inv);
+    const double Rinv = std::sqrt(R2inv);
     const double xn = dx*cosA + dy*sinA;
     const double yn =-dx*sinA + dy*cosA;
     const double dz = pSP->z() - pS->z(); 
@@ -763,7 +780,7 @@ void TrigTrackSeedGenerator::createTriplets(const TrigSiSpacePointBase* pS, int 
     const double dx = pSP->x() - pS_x;
     const double dy = pSP->y() - pS_y;
     const double R2inv = 1.0/(dx*dx+dy*dy);
-    const double Rinv = sqrt(R2inv);
+    const double Rinv = std::sqrt(R2inv);
     const double xn = dx*cosA + dy*sinA;
     const double yn =-dx*sinA + dy*cosA;
     const double dz = -pSP->z() + pS->z(); 
@@ -905,37 +922,6 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
   int nSP = nInner + nOuter;
   output.reserve(m_settings.m_maxTripletBufferLength);
-  /*    
-  std::cout<<"++++ Doublet ordering test +++++"<<std::endl;
-  std::cout<<"Middle SP r="<<pS->r()<<" z="<<pS->z()<<std::endl;
-  std::cout<<"Inner doublets : "<<std::endl;
-
-  int layerStart=0;
-
-  for(unsigned int k=0;k<m_innerMarkers.size();k++) {
-    int layerEnd=m_innerMarkers[k];
-    std::cout<<"Layer: ";
-    for(int idx=layerStart;idx<layerEnd;idx++) {
-      std::cout<< m_SoA.m_ti[idx] <<" ";
-    }
-    layerStart = layerEnd;
-    std::cout<<std::endl;
-  }
-  std::cout<<"Outer doublets : "<<std::endl;
-
-  layerStart=0;
-
-  for(unsigned int k=0;k<m_outerMarkers.size();k++) {
-    int layerEnd=m_outerMarkers[k];
-    std::cout<<"Layer: ";
-    for(int idx=layerStart;idx<layerEnd;idx++) {
-      std::cout<< m_SoA.m_to[idx] <<" ";
-    }
-    layerStart = layerEnd;
-    std::cout<<std::endl;
-  }
-  std::cout<<"++++ Doublet ordering test +++++"<<std::endl;
-      */
 
   int nL = m_outerMarkers.size() + m_innerMarkers.size();
 
@@ -1061,7 +1047,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
     const double dx = pSP->x() - pS_x;
     const double dy = pSP->y() - pS_y;
     const double R2inv = 1.0/(dx*dx+dy*dy);
-    const double Rinv = sqrt(R2inv);
+    const double Rinv = std::sqrt(R2inv);
     const double xn = dx*cosA + dy*sinA;
     const double yn =-dx*sinA + dy*cosA;
     const double dz = (m_SoA.m_sorted_sp_type[idx]==0) ? pSP->z() - pS->z() : -pSP->z() + pS->z();
@@ -1087,7 +1073,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
 
   int iter1 = 0;
 
-  while(iter1<nSP-1) {
+  while(iter1<nSP-1) {//outer loop
 
     int type1 = m_SoA.m_sorted_sp_type[iter1];//0 - inner, 1 - outer
     double t1 = m_SoA.m_sorted_sp_t[iter1];
@@ -1102,7 +1088,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
     const double tCov_inn = m_SoA.m_tCov[iter1];
     const double dCov = m_CovMS*(1+t_inn*t_inn);
 
-    for(int iter2=iter1+1;iter2<nSP;iter2++) {
+    for(int iter2=iter1+1;iter2<nSP;iter2++) {//inner loop
 
       if(type1==m_SoA.m_sorted_sp_type[iter2]) continue;
 
@@ -1164,6 +1150,7 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
       //6. add new triplet
 
       const double Q = fabs_d0*fabs_d0;
+
       if(output.size()>=m_settings.m_maxTripletBufferLength) {
         std::sort(output.begin(), output.end(), 
           [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
@@ -1199,6 +1186,230 @@ void TrigTrackSeedGenerator::createTripletsNew(const TrigSiSpacePointBase* pS, i
   }
 
 }
+
+void TrigTrackSeedGenerator::createConfirmedTriplets(const TrigSiSpacePointBase* pS, int nInner, int nOuter,
+						     std::vector<TrigInDetTriplet>& output, const IRoiDescriptor* roiDescriptor) {
+
+
+  struct ProtoSeed {
+  public:
+    ProtoSeed(const TrigSiSpacePointBase* s, double c, double Q, bool conf = false) : m_sp(s), m_curv(c), m_Q(Q), m_confirmed(conf) {};
+    ProtoSeed(const ProtoSeed& ps) : m_sp(ps.m_sp), m_curv(ps.m_curv), m_Q(ps.m_Q), m_confirmed(ps.m_confirmed) {};
+    const TrigSiSpacePointBase* m_sp;
+    double m_curv, m_Q;
+    bool m_confirmed;
+  };
+
+  if(nInner==0 || nOuter==0) return;
+  
+  int nSP = nInner + nOuter;
+
+  const double pS_r = pS->r();
+  const double pS_x = pS->x();
+  const double pS_y = pS->y();
+  //  const double pS_z = pS->z();
+  const double pS_dr = pS->dr();
+  const double pS_dz = pS->dz();
+  const double cosA = pS_x/pS_r;
+  const double sinA = pS_y/pS_r;
+  const double covZ = pS_dz*pS_dz;
+  const double covR = pS_dr*pS_dr;
+  const bool isPixel = pS->isPixel();
+
+
+  double bestQ = 1e8;
+
+
+  //m_SoA.resizeComponents();//Resize m_r, mu etc to m_sp size
+  int idx = 0;
+  for(;idx<nInner;idx++) {
+    const TrigSiSpacePointBase* pSP = m_SoA.m_spi[idx];
+    
+    //1. transform in the pS-centric c.s
+
+    const double dx = pSP->x() - pS_x;
+    const double dy = pSP->y() - pS_y;
+    const double R2inv = 1.0/(dx*dx+dy*dy);
+    const double Rinv = std::sqrt(R2inv);
+    const double xn = dx*cosA + dy*sinA;
+    const double yn =-dx*sinA + dy*cosA;
+    const double dz = pSP->z() - pS->z(); 
+    const double t = Rinv*dz;
+
+    //2. Conformal mapping
+
+    m_SoA.m_r[idx] = Rinv;
+    m_SoA.m_u[idx] = xn*R2inv;
+    m_SoA.m_v[idx] = yn*R2inv;
+    
+    //3. cot(theta) estimation for the doublet
+
+    const double covZP = pSP->dz()*pSP->dz();
+    const double covRP = pSP->dr()*pSP->dr();
+    
+    m_SoA.m_t[idx] = t;
+    m_SoA.m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
+  }
+
+  for(int k=0;k<nOuter;k++,idx++) {
+    const TrigSiSpacePointBase* pSP = m_SoA.m_spo[k];
+    
+    //1. transform in the pS-centric c.s
+
+    const double dx = pSP->x() - pS_x;
+    const double dy = pSP->y() - pS_y;
+    const double R2inv = 1.0/(dx*dx+dy*dy);
+    const double Rinv = std::sqrt(R2inv);
+    const double xn = dx*cosA + dy*sinA;
+    const double yn =-dx*sinA + dy*cosA;
+    const double dz = -pSP->z() + pS->z(); 
+    const double t = Rinv*dz;
+
+    //2. Conformal mapping
+    
+    m_SoA.m_r[idx] = Rinv;
+    m_SoA.m_u[idx] = xn*R2inv;
+    m_SoA.m_v[idx] = yn*R2inv;
+    
+    //3. cot(theta) estimation for the doublet
+
+    const double covZP = pSP->dz()*pSP->dz();
+    const double covRP = pSP->dr()*pSP->dr();
+    
+    m_SoA.m_t[idx] = t;
+    m_SoA.m_tCov[idx] = R2inv*(covZ + covZP + t*t*(covR+covRP));
+  }
+
+  //double loop
+
+  for(int innIdx=0;innIdx<nInner;innIdx++) {//loop over inner spacepoints
+
+    //mult. scatt contribution due to the layer with middle SP
+    
+    const double r_inn = m_SoA.m_r[innIdx];
+    const double t_inn = m_SoA.m_t[innIdx];
+    const double v_inn = m_SoA.m_v[innIdx];
+    const double u_inn = m_SoA.m_u[innIdx];
+    const double tCov_inn = m_SoA.m_tCov[innIdx];
+    const double dCov = m_CovMS*(1+t_inn*t_inn);
+
+    std::vector<ProtoSeed> vPro;
+    vPro.reserve(100);
+
+    for(int outIdx=nInner;outIdx<nSP;outIdx++) {
+
+      //1. rz doublet matching
+      const double t_out = m_SoA.m_t[outIdx];
+
+      const double dt2 = std::pow((t_inn - t_out), 2)/9.0;//i.e. 3-sigma cut
+
+
+      double covdt = (t_inn*t_out*covR + covZ);
+      covdt       *= 2*r_inn*m_SoA.m_r[outIdx];
+      covdt       += tCov_inn + m_SoA.m_tCov[outIdx];
+
+      if(dt2 > covdt+dCov) continue;
+
+      //2. pT estimate
+
+      const double du = m_SoA.m_u[outIdx] - u_inn;
+      if(du==0.0) continue;
+      const double A = (m_SoA.m_v[outIdx] - v_inn)/du;
+      const double B = v_inn - A*u_inn;
+      const double R_squ = (1 + A*A)/(B*B);
+
+      if(R_squ < m_minR_squ) continue;
+      
+      
+      //3. the 3-sigma cut with estimated pT
+
+      const double frac = m_minR_squ/R_squ;
+      if(dt2 > covdt+frac*dCov) continue;
+
+      //4. d0 cut
+
+      const double fabs_d0 = std::fabs(pS_r*(B*pS_r - A));
+
+      if(fabs_d0 > m_settings.m_tripletD0Max) continue;
+      
+      if (m_SoA.m_spo[outIdx-nInner]->isSCT() && isPixel) {
+        if(fabs_d0 > m_settings.m_tripletD0_PPS_Max) continue;
+      }
+
+      //  Calculate triplet weight: No weighting in LRT mode, but d0**2 weighting for normal (non LRT) mode. Triplets are then sorted by lowest weight.
+
+      const double Q= (m_settings.m_LRTmode ? 0 : fabs_d0*fabs_d0);
+
+      bool isOuterPixel = m_SoA.m_spo[outIdx-nInner]->isPixel();
+
+      if(!m_settings.m_LRTmode) {
+	if (isOuterPixel && (bestQ < Q)) continue;//this PPP seed has worse quality
+      }
+      
+      //5. phi0 cut
+
+      if (!roiDescriptor->isFullscan()) {
+        const double uc = 2*B*pS_r - A;
+        const double phi0 = atan2(sinA - uc*cosA, cosA + uc*sinA);
+
+        if ( !RoiUtil::containsPhi( *roiDescriptor, phi0 ) ) {
+          continue;
+        }
+      }
+
+      //6. add new triplet
+      
+      const double Curv  = B/std::sqrt(1+A*A);
+      
+      
+      bool isConfirmed = false;
+      
+      for(auto& ps : vPro) {
+	double diffC = 1 - Curv/ps.m_curv;
+	if(std::fabs(diffC) < m_settings.m_curv_delta) {
+	  ps.m_confirmed = true;
+	  isConfirmed = true;
+	}
+      }
+      
+      if(!isOuterPixel) {
+	continue;//we use PPS seeds only to confirm PPP seeds
+      }
+      
+      vPro.emplace_back(ProtoSeed(m_SoA.m_spo[outIdx-nInner], Curv, Q, isConfirmed));
+
+    }//loop over outer spacepoints
+    
+    for(auto ps : vPro) {
+      if(!ps.m_confirmed) continue;
+      if(output.size()>=m_settings.m_maxTripletBufferLength) {
+	if (m_settings.m_LRTmode) { // take the first m_maxTripletBufferLength triplets
+	  continue;
+	} 
+	else { // choose largest d0
+
+	  std::sort(output.begin(), output.end(), 
+		    [](const TrigInDetTriplet& A, const TrigInDetTriplet& B) {
+		      return A.Q() < B.Q();
+		    }
+		    );
+	  double QL = output.back().Q();
+	  if(bestQ > QL) {
+	    bestQ = QL;
+	  }
+	  if( ps.m_Q >= QL) {//reject this seed
+	    continue;
+	  }
+	  output.pop_back();
+	}
+      }
+      
+      output.emplace_back(*m_SoA.m_spi[innIdx], *pS, *ps.m_sp, ps.m_Q);
+    }
+  }
+}
+
+
 
 void TrigTrackSeedGenerator::storeTriplets(std::vector<TrigInDetTriplet>& tripletVec) {
   for(std::vector<TrigInDetTriplet>::iterator it=tripletVec.begin();it!=tripletVec.end();++it) {

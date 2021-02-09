@@ -20,7 +20,8 @@ precommand = ''.join([
   "doWriteRDOTrigger=True;",
   "forceEnableAllChains=True;",
   "fpeAuditor=True;",
-  "failIfNoProxy=True;"
+  "failIfNoProxy=True;",
+  'doRuntimeNaviVal=True', # Perform runtime graph vaidation in this test
 ])
 ex.args = '-c "{:s}"'.format(precommand)
 

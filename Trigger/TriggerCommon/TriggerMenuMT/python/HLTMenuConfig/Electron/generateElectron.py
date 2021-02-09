@@ -44,7 +44,7 @@ def generateChains(flags, chainDict):
                                                               RoITool         = CompFactory.ViewCreatorInitialROITool(),
                                                               InViewRoIs      = name+'RoIs',
                                                               Views           = name+'Views',
-                                                              ViewNodeName    = name+"InView",
+                                                              ViewNodeName    = 'FastElectronInView',
                                                               RequireParentView = True)
         del name
 
@@ -107,9 +107,8 @@ def generateChains(flags, chainDict):
 
 
     # # # offline egamma
-    emptyStep = ChainStep(name="EmptyElStep", Sequences=[EmptyMenuSequence("EmptyElStep")], chainDicts=[chainDict])
     chain = Chain(chainDict['chainName'], L1Thresholds=l1Thresholds,
-                            ChainSteps=[__fastCalo(), __ftf(), __precisonCalo(), emptyStep, emptyStep,])
+                            ChainSteps=[__fastCalo(), __ftf(), __precisonCalo()])
 
     return chain
 

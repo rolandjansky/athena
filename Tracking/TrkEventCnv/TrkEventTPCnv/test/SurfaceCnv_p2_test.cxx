@@ -138,6 +138,7 @@ Identifier TestElement::identify() const
 void compare (const Trk::Surface& s1,
               const Trk::Surface& s2)
 {
+  //std::cout<<s1.name()<<" == "<<s2.name()<<"\n";
   assert (s1.name() == s2.name());
   assert (s1.isFree() == s2.isFree());
   if (s1.isFree()) {

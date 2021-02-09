@@ -1,16 +1,15 @@
 """Define functions to configure Pixel conditions algorithms
 
-Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 """
 from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
 from AthenaConfiguration.ComponentFactory import CompFactory
+from AthenaConfiguration.Enums import ProductionStep
 from IOVDbSvc.IOVDbSvcConfig import addFolders,addFoldersSplitOnline
 
 def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelConfigCondAlg"""
     acc = ComponentAccumulator()
-    acc.merge(addFoldersSplitOnline(flags, "PIXEL", "/PIXEL/Onl/PixMapOverlay",
-                                        "/PIXEL/PixMapOverlay", "CondAttrListCollection"))
     runNum = flags.Input.RunNumber[0]
 
     # FIXME commented properties are not currently accepted by PixelConfigCondAlg
@@ -246,7 +245,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
     )
     # Cabling parameters
     IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_2016.dat"
-    if flags.Input.isMC or flags.Overlay.DataOverlay:
+    if flags.Input.isMC:
         # ITk:
         if flags.GeoModel.Run == "RUN4":
             IdMappingDat = "ITk_Atlas_IdMapping.dat"
@@ -270,8 +269,7 @@ def PixelConfigCondAlgCfg(flags, name="PixelConfigCondAlg", **kwargs):
                 IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_Run2.dat"
         else:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping.dat"
-        
-    elif not flags.Input.isMC:
+    else:
         if runNum < 222222:
             IdMappingDat="PixelCabling/Pixels_Atlas_IdMapping_May08.dat"
         else:
@@ -307,7 +305,7 @@ def PixelAlignCondAlgCfg(flags, name="PixelAlignCondAlg", **kwargs):
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL2/PIX","/Indet/AlignL2/PIX",className="CondAttrListCollection"))
         acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/AlignL3","/Indet/AlignL3",className="AlignableTransformContainer"))
     else:
-        if (not flags.Detector.SimulatePixel) or flags.Detector.OverlayPixel:
+        if flags.Common.ProductionStep != ProductionStep.Simulation or flags.Overlay.DataOverlay:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align",className="AlignableTransformContainer"))
         else:
             acc.merge(addFoldersSplitOnline(flags,"INDET","/Indet/Onl/Align","/Indet/Align"))
@@ -422,15 +420,22 @@ def PixelDCSCondTempAlgCfg(flags, name="PixelDCSCondTempAlg", **kwargs):
     acc.addCondAlgo(CompFactory.PixelDCSCondTempAlg(name, **kwargs))
     return acc
 
-# NEW FOR RUN3 def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
-# NEW FOR RUN3     """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
-# NEW FOR RUN3     acc = ComponentAccumulator()
-# NEW FOR RUN3     acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", className="CondAttrListCollection"))
-# NEW FOR RUN3     kwargs.setdefault("PixelModuleData", "PixelModuleData")
-# NEW FOR RUN3     kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
-# NEW FOR RUN3     kwargs.setdefault("WriteKey", "PixelDeadMapCondData")
-# NEW FOR RUN3     acc.addCondAlgo(PixelDeadMapCondAlg(name, **kwargs))
-# NEW FOR RUN3     return acc
+def PixelDeadMapCondAlgCfg(flags, name="PixelDeadMapCondAlg", **kwargs):
+    """Return a ComponentAccumulator with configured PixelDeadMapCondAlg"""
+    acc = ComponentAccumulator()
+    acc.merge(PixelConfigCondAlgCfg(flags))
+
+    # TODO: once global tag is updated, this line should be removed. (Current q221 uses too old MC global-tag!!!! (before RUN-2!!))
+    # acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", className="CondAttrListCollection"))
+    if not flags.Input.isMC or flags.Overlay.DataOverlay:
+        acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-RUN2-DATA-UPD4-05", db="CONDBR2", className="CondAttrListCollection"))
+    else:
+        acc.merge(addFolders(flags, "/PIXEL/PixelModuleFeMask", "PIXEL_OFL", tag="PixelModuleFeMask-SIM-MC16-000-03", db="OFLP200", className="CondAttrListCollection"))
+
+    kwargs.setdefault("ReadKey", "/PIXEL/PixelModuleFeMask")
+    kwargs.setdefault("WriteKey", "PixelDeadMapCondData")
+    acc.addCondAlgo(CompFactory.PixelDeadMapCondAlg(name, **kwargs))
+    return acc
 
 def PixelDetectorElementCondAlgCfg(flags, name="PixelDetectorElementCondAlg", **kwargs):
     """Return a ComponentAccumulator with configured PixelDetectorElementCondAlg"""

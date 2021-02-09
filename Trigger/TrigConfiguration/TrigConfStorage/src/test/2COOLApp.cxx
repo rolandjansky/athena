@@ -35,7 +35,6 @@
 
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h"
-#include "TrigConfL1Data/CTPConfigOnline.h"
 
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/XMLStorageMgr.h"
@@ -229,7 +228,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
 }
 
 class JobConfig {
- public:
+public:
   enum ETriggerLevel { NONE = 0, LVL1 = 1, HLT = 2, BOTH = 3 };
 
   JobConfig() :
@@ -509,11 +508,11 @@ void JobConfig::PrintCompleteSetup(std::ostream & log, std::ostream& (*lineend) 
       log << "Lumiblock number    : " << LumiblockNumber() << lineend;
     } 
 		if(ListOfWriteFolders().size()>0) {
-    log << "Writing will be restricted to the following folders:" << lineend;
-		std::vector<std::string>::const_iterator wfIt = ListOfWriteFolders().begin();
-		for(;wfIt!=ListOfWriteFolders().end();wfIt++) {
-		  log << "  " << (*wfIt) << lineend;
-		}
+      log << "Writing will be restricted to the following folders:" << lineend;
+      std::vector<std::string>::const_iterator wfIt = ListOfWriteFolders().begin();
+      for(;wfIt!=ListOfWriteFolders().end();wfIt++) {
+        log << "  " << (*wfIt) << lineend;
+      }
 		}
   }
 
@@ -791,27 +790,12 @@ int main( int argc, char* argv[] ) {
                //thrcfg.print();
       
                if(gConfig.WriteLevel() & JobConfig::LVL1) {
-                 log << "Retrieving Lvl1 CTP configuration" << lineend;
-                 log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
-                 bool useCTPConfigOnline = false;
-                 if(useCTPConfigOnline) {
-                   TrigConf::CTPConfigOnline ctpconl;
-                   ctpconl.setSuperMasterTableId(masterConfigKey);
-                   sm->masterTableLoader().load(ctpconl);
-                   ctpc.setMenu( ctpconl.menu() );
-                   ctpc.setPrescaleSet( ctpconl.prescaleSet() );
-                   ctpc.setBunchGroupSet( ctpconl.bunchGroupSet() );
-                   ctpc.setPrescaledClock( ctpconl.prescaledClock() );
-                   ctpc.setDeadTime( ctpconl.deadTime() );
-                   ctpc.setRandom( ctpconl.random() );
-                   ctpc.setLvl1MasterTableId( ctpconl.lvl1MasterTableId() );
-                 } else {
-                   ctpc.setSuperMasterTableId(masterConfigKey);
-                   ctpc.setPrescaleSetId(lvlPrescaleKey);
-                   ctpc.setBunchGroupSetId(bgKey);
-                   sm->masterTableLoader().load(ctpc);
-                 }
-                 //ctpc.print("  ",5);
+                  log << "Retrieving Lvl1 CTP configuration" << lineend;
+                  log << "NB: BG set is hardcoded to 1 so better make sure its in the DB!" << lineend;
+                  ctpc.setSuperMasterTableId(masterConfigKey);
+                  ctpc.setPrescaleSetId(lvlPrescaleKey);
+                  ctpc.setBunchGroupSetId(bgKey);
+                  sm->masterTableLoader().load(ctpc);
                }
 
                // get the HLT trigger information

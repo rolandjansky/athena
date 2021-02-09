@@ -7,7 +7,7 @@ This test defines its own version of the LS2_v1 menu and the corresponding PEB/D
 and executes several chains testing various types of Partial Event Building and Data Scouting
 '''
 
-from TrigEDMConfig import DataScoutingInfo
+from TrigEDMConfig import DataScoutingInfo, TriggerEDMRun3
 from TriggerMenuMT.HLTMenuConfig.Menu import LS2_v1, EventBuildingInfo, StreamInfo
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 from TriggerMenuMT.HLTMenuConfig.Menu.GenerateMenuMT import GenerateMenuMT
@@ -27,6 +27,7 @@ EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBThree')
 EventBuildingInfo.PartialEventBuildingIdentifiers.append('TestPEBFour')
 DataScoutingInfo.DataScoutingIdentifiers['ElectronDSTest'] = 3
 DataScoutingInfo.DataScoutingIdentifiers['ElectronDSPEBTest'] = 3
+DataScoutingInfo.TruncationThresholds[3] = 5*(1024**2) # 5 MB
 
 # Override the setupMenu function from LS2_v1
 def myMenu():
@@ -102,11 +103,15 @@ def myPebInfoWriterTool(name, eventBuildType):
         # ElectronDSTest is an example of pure Data Scouting,
         # where only the special HLT result is saved and nothing else
         tool = StaticPEBInfoWriterToolCfg(name)
+        moduleId = DataScoutingInfo.getDataScoutingResultID(eventBuildType)
+        tool.addHLTResultToROBList(moduleId)
     elif 'ElectronDSPEBTest' in eventBuildType:
         # ElectronDSPEBTest is an example of Data Scouting with PEB,
         # where a special HLT result and some detector data are saved
         # (ID + LAr data within an RoI)
         tool = RoIPEBInfoWriterToolCfg(name)
+        moduleId = DataScoutingInfo.getDataScoutingResultID(eventBuildType)
+        tool.addHLTResultToROBList(moduleId)
         tool.EtaWidth = 0.3
         tool.PhiWidth = 0.3
         tool.addRegSelDets(['Pixel', 'SCT', 'TRT', 'TTEM', 'TTHEC', 'FCALEM', 'FCALHAD'])
@@ -127,7 +132,6 @@ def myPebInfoWriterTool(name, eventBuildType):
 
 EventBuildingSequenceSetup.pebInfoWriterTool = myPebInfoWriterTool
 
-
 # Define streams and override StreamInfo
 myAllStreams = [
     # [name, type, obeysLumiBlock, forceFullEventBuilding]
@@ -142,11 +146,22 @@ myAllStreams = [
 
 StreamInfo._all_streams = myAllStreams
 
-# Set trigger flags
+# Modify EDM list to add collections to DataScouting results
+myTriggerHLTListRun3 = []
+for collectionConfig in TriggerEDMRun3.TriggerHLTListRun3:
+    if 'Electron' in collectionConfig[0]:
+        modConfig = list(collectionConfig)
+        modConfig[1] += ' ElectronDSTest ElectronDSPEBTest'
+        myTriggerHLTListRun3.append(tuple(modConfig))
+    else:
+        myTriggerHLTListRun3.append(collectionConfig)
+TriggerEDMRun3.TriggerHLTListRun3 = myTriggerHLTListRun3
+
+# Set menu flag and slice options for runHLT_standalone
 ConfigFlags.Trigger.triggerMenuSetup = TriggerFlags.triggerMenuSetup = 'LS2_v1'
-TriggerFlags.Slices_all_setOff()
-TriggerFlags.EgammaSlice.setAll()
-TriggerFlags.MuonSlice.setAll()
+doEmptyMenu = True
+doEgammaSlice = True
+doMuonSlice = True
 
 # Set up everything to run HLT
 include('TriggerJobOpts/runHLT_standalone.py')  # noqa: F821

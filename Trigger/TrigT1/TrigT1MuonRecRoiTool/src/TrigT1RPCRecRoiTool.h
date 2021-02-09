@@ -32,12 +32,8 @@ namespace LVL1 {
       virtual bool dumpRoiMap(const std::string& filename) const override;
       
       // RoI edges for Low-pt and High-pt confirm planes 
-      bool etaDimLow (const TrigT1MuonRecRoiData& data,
-		      double& etaMin, double& etaMax,
-		      std::unique_ptr<const RpcCablingCondData> rpcCab) const;
-      bool etaDimHigh(const TrigT1MuonRecRoiData& data,
-		      double& etaMin, double& etaMax,
-		      std::unique_ptr<const RpcCablingCondData> rpcCab) const;
+      bool etaDimLow (const TrigT1MuonRecRoiData& data, double& etaMin, double& etaMax) const override;
+      bool etaDimHigh(const TrigT1MuonRecRoiData& data, double& etaMin, double& etaMax) const override;
       
   private:
       BooleanProperty m_useRun3Config{this,"UseRun3Config",false,"use Run 3 config"};
@@ -45,7 +41,6 @@ namespace LVL1 {
       ServiceHandle<Muon::IMuonIdHelperSvc> m_idHelperSvc {this, "MuonIdHelperSvc", "Muon::MuonIdHelperSvc/MuonIdHelperSvc"};
       SG::ReadCondHandleKey<MuonGM::MuonDetectorManager> m_DetectorManagerKey {this, "DetectorManagerKey","MuonDetectorManager","Key of input MuonDetectorManager condition data"};
       SG::ReadCondHandleKey<RpcCablingCondData> m_rpcKey{this, "ReadKey", "RpcCablingCondData", "Key of RpcCablingCondData"};
-      const MuonGM::MuonDetectorManager* m_muonMgr{nullptr};
       
     }; // end of TrigT1RPCRecRoiTool
   

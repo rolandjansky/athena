@@ -325,7 +325,7 @@ void ParticleCaloCellAssociationTool::associateCells( const CaloCellContainer& c
 
   const Trk::TrackParameters*  pars = caloExtension.caloEntryLayerIntersection();
   if(!pars) {
-    ATH_MSG_WARNING( " NO TrackParameters caloExtension.caloEntryLayerIntersection() ");
+    ATH_MSG_DEBUG("associateCells() - NO TrackParameters found in caloExtension.caloEntryLayerIntersection()");
     return;
   } 
 

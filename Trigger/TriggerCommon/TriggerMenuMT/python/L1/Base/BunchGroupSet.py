@@ -27,7 +27,7 @@ def createDefaultBunchGroupSet():
     """
     sets default bunchgroups for all menus, needed for simulation.
     """
-    if L1MenuFlags.BunchGroupNames.statusOn: # if flag has been set
+    if hasattr(L1MenuFlags, "BunchGroupNames"): # if flag has been set
         # if menu defines bunchgroup names, then we generate a bunchgroup set from that
         name = L1MenuFlags.MenuSetup().partition('_')[0]
         bgs = BunchGroupSet(name)
@@ -122,9 +122,10 @@ class BunchGroupSet(object):
             raise RuntimeError("Adding bunchgroup with internal number %i, which already exists" % bunchGroup.internalNumber)
 
         partition=0
-        for lowestBG in L1MenuFlags.BunchGroupPartitioning():
-            if bunchGroup.internalNumber >= lowestBG:
-                partition += 1
+        if hasattr(L1MenuFlags, "BunchGroupPartitioning"):
+            for lowestBG in L1MenuFlags.BunchGroupPartitioning():
+                if bunchGroup.internalNumber >= lowestBG:
+                    partition += 1
         bunchGroup.partition = partition
         self.bunchGroups[bunchGroup.internalNumber] = bunchGroup
         return self

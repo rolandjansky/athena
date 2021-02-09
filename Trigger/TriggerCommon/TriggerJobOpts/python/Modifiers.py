@@ -612,11 +612,6 @@ class rerunLVL1(_modifier):
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
 
-        #write cool objects to detector store
-        from IOVDbSvc.CondDB import conddb
-        conddb.addFolderWithTag('TRIGGER', "/TRIGGER/LVL1/BunchGroupContent", "HEAD")
-        conddb.addFolder('TRIGGER', '/TRIGGER/LVL1/CTPCoreInputMapping')
-
         #configure LVL1 config svc with xml file
         from TrigConfigSvc.TrigConfigSvcConfig import L1TopoConfigSvc
         L1TopoConfigSvc = L1TopoConfigSvc()
@@ -1412,6 +1407,17 @@ class tightenElectronTrackingCuts(_modifier):
             topSequence.TrigSteer_HLT.TrigFastTrackFinder_Electron_IDTrig.doCloneRemoval=True
         except AttributeError:
             log.error("Cannot modify doCloneRemoval setting")
+
+class doRuntimeNaviVal(_modifier):
+    """
+    Checks the validity of each Decision Object produced by a HypoAlg, including all of its
+    parents all the way back to the L1 decoder. Potentially CPU expensive.
+    """
+    def preSetup(self):
+        log.info("Enabling Runtime Trigger Navigation Validation")
+        from AthenaConfiguration.AllConfigFlags import ConfigFlags
+        ConfigFlags.Trigger.doRuntimeNaviVal = True
+
 
 ###############################################################
 # Modifiers believed to be obsolete.

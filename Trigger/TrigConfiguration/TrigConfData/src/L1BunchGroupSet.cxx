@@ -70,6 +70,26 @@ TrigConf::L1BunchGroup::contains(size_t bcid) const {
    return false;
 }
 
+std::vector<uint16_t>
+TrigConf::L1BunchGroup::bunches() const
+{
+   std::vector<uint16_t> bunches;
+   bunches.reserve(size());
+   for (const auto &train : m_bunchdef)
+   {
+      // trains are pairs (first bunch crossing id, number of bunchcrossings)
+      for (uint16_t i = 0; i < train.second; ++i)
+      {
+         bunches.push_back(train.first + i);
+      }
+   }
+   return bunches;
+}
+
+const std::vector<std::pair<size_t,size_t>>& 
+TrigConf::L1BunchGroup::trains() const {
+   return m_bunchdef;
+}
 
 /*****************************************
 

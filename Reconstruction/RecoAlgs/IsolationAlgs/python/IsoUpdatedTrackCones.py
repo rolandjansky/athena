@@ -22,6 +22,7 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
     ptcone_list = [
         [ROOT.xAOD.Iso.IsolationType.ptcone40, ROOT.xAOD.Iso.IsolationType.ptcone30, ROOT.xAOD.Iso.IsolationType.ptcone20]
     ]
+    trkcor_list = [[ROOT.xAOD.Iso.IsolationTrackCorrection.coreTrackPtr]]
 
     do_egamma = any(x in object_types for x in ("Electrons", "Photons"))
 
@@ -37,17 +38,17 @@ def GetUpdatedIsoTrackCones(postfix="", object_types=("Electrons", "Photons", "M
             kwargs = {}
             if "Electrons" in object_types:
                 kwargs["ElIsoTypes"] = ptcone_list
-                kwargs["ElCorTypes"] = [[]]
+                kwargs["ElCorTypes"] = trkcor_list
                 kwargs["ElCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameEl"] = name
             if "Photons" in object_types:
                 kwargs["PhIsoTypes"] = ptcone_list
-                kwargs["PhCorTypes"] = [[]]
+                kwargs["PhCorTypes"] = trkcor_list
                 kwargs["PhCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNamePh"] = name
             if "Muons" in object_types:
                 kwargs["MuIsoTypes"] = ptcone_list
-                kwargs["MuCorTypes"] = [[]]
+                kwargs["MuCorTypes"] = trkcor_list
                 kwargs["MuCorTypesExtra"] = [[]]
                 kwargs["CustomConfigurationNameMu"] = name
             algs.append(

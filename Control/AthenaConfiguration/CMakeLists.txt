@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( AthenaConfiguration )
@@ -11,8 +11,13 @@ atlas_install_python_modules( python/*.py python/iconfTool
                               POST_BUILD_CMD ${ATLAS_FLAKE8} )
 atlas_install_scripts( share/confTool.py python/iconfTool/iconfTool python/CARunner.py)
 
+# Tests in the package:
 atlas_add_test( AthConfigFlagsTest
    SCRIPT python -m unittest AthenaConfiguration.AthConfigFlags
+   POST_EXEC_SCRIPT nopost.sh )
+
+atlas_add_test( MainServicesConfig
+   SCRIPT python -m AthenaConfiguration.MainServicesConfig
    POST_EXEC_SCRIPT nopost.sh )
 
 if( NOT XAOD_ANALYSIS )

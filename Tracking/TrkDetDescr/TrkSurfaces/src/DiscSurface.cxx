@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -51,9 +51,25 @@ Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax
   , m_referencePoint(nullptr)
 {}
 
+// construct a disc with full phi coverage
+Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+                              double rmin, double rmax)
+  : Trk::Surface(std::move(htrans))
+  , m_bounds(new Trk::DiscBounds(rmin, rmax))
+  , m_referencePoint(nullptr)
+{}
+
 // construct a disc with given phi coverage
 Trk::DiscSurface::DiscSurface(Amg::Transform3D* htrans, double rmin, double rmax, double hphisec)
   : Trk::Surface(htrans)
+  , m_bounds(new Trk::DiscBounds(rmin, rmax, hphisec))
+  , m_referencePoint(nullptr)
+{}
+
+// construct a disc with given phi coverage
+Trk::DiscSurface::DiscSurface(std::unique_ptr<Amg::Transform3D> htrans,
+                              double rmin, double rmax, double hphisec)
+  : Trk::Surface(std::move(htrans))
   , m_bounds(new Trk::DiscBounds(rmin, rmax, hphisec))
   , m_referencePoint(nullptr)
 {}

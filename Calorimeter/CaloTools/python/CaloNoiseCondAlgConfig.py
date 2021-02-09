@@ -121,8 +121,8 @@ def CaloNoiseCondAlgCfg(configFlags,noisetype="totalNoise"):
             theCaloNoiseAlg.LArNoiseFolder="/LAR/NoiseOfl/CellNoise"
             theCaloNoiseAlg.TileNoiseFolder="/TILE/OFL02/NOISE/CELL"
             result.merge(addFolders(configFlags,"/CALO/Ofl/Noise/CellNoise","CALO_OFL",className="CondAttrListCollection"))
-            result.merge(addFolders(configFlags,"LAR_OFL","/LAR/NoiseOfl/CellNoise",className="CondAttrListCollection"))
-            result.merge(addFolders(configFlags,"TILE_OFL","/TILE/OFL02/NOISE/CELL",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"/LAR/NoiseOfl/CellNoise","LAR_OFL",className="CondAttrListCollection"))
+            result.merge(addFolders(configFlags,"/TILE/OFL02/NOISE/CELL","TILE_OFL",className="CondAttrListCollection"))
 
             
         pass #end of real data case

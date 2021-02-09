@@ -6,7 +6,6 @@ Loading library test_TestDictionaryDict
 createStorageSvc
 startSession
 Session connect
-RootDatabase.close  ERROR Failed to modify file: pool_test.root Errno=2 No such file or directory
 [OVAL] ...done
 [OVAL] Testing the reading operations
 Closing the session

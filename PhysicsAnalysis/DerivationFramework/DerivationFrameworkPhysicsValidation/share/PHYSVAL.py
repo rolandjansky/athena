@@ -188,6 +188,7 @@ PHYSVALSlimmingHelper.SmartCollections = ["Electrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "TauJets",
@@ -205,6 +206,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "AntiKt4EMTopoJets",
                                        "AntiKt4EMPFlowJets",
                                        "BTagging_AntiKt4EMPFlow",
+                                       "BTagging_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMTopo",
                                        "MET_Reference_AntiKt4EMPFlow",
                                        "MET_Reference_AntiKt4LCTopo",
@@ -216,7 +218,7 @@ PHYSVALSlimmingHelper.AllVariables =  ["Electrons", "ForwardElectrons",
                                        "MuonTruthSegments",
                                        "MET_Truth","MET_TruthRegions",
                                        "TruthElectrons","TruthMuons","TruthPhotons","TruthTaus","TruthNeutrinos","TruthBSM","TruthTop","TruthBoson",
-                                       "CaloCalTopoClusters"
+                                       "CaloCalTopoClusters", "JetETMissChargedParticleFlowObjects", "JetETMissNeutralParticleFlowObjects", "JetETMissNeutralFlowElements", "JetETMissChargedFlowElements"
                                      ]
 
 excludedVertexAuxData = "-vxTrackAtVertex.-MvfFitInfo.-isInitialized.-VTAV"
@@ -288,7 +290,8 @@ PHYSVALSlimmingHelper.ExtraVariables += ["AntiKt10TruthTrimmedPtFrac5SmallR20Jet
                                       "TruthPrimaryVertices.t.x.y.z",
                                       "TauNeutralParticleFlowObjects.pt.eta.phi.m.bdtPi0Score.nPi0Proto",
                                       "TauChargedParticleFlowObjects.pt.eta.phi.m.bdtPi0Score",
-                                      "MET_Track.sumet"
+                                      "MET_Track.sumet",
+                                      "GSFTrackParticles.eProbabilityHT.parameterX.parameterPX.parameterPY.parameterPZ.parameterPosition"
 ]
 
 # Add trigger matching

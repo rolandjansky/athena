@@ -18,6 +18,7 @@ using TrigCompositeUtils::newDecisionIn;
 using TrigCompositeUtils::linkToPrevious;
 using TrigCompositeUtils::viewString;
 using TrigCompositeUtils::featureString;
+using TrigCompositeUtils::hypoAlgNodeName;
 using TrigCompositeUtils::findLink;
 using TrigCompositeUtils::LinkInfo;
 
@@ -67,7 +68,7 @@ StatusCode TrigIsoHPtTrackTriggerHypoAlgMT::execute( const EventContext& context
       //Although it's unconventional to have a track pT decision in the Algorithm part, this line should save a lot of CPU time. We require at least 50 GeV track pT to have decision on that track.
       if (track->pt()< 50*Gaudi::Units::GeV ) continue;
 
-      auto d = newDecisionIn( decisions , previousDecision, "", context);
+      auto d = newDecisionIn( decisions , previousDecision, hypoAlgNodeName(), context);
       d->setObjectLink( featureString(), ElementLink<xAOD::TrackParticleContainer>( *AllTracks, track->index() ) );
       
       hypoToolInput.emplace_back( TrigIsoHPtTrackTriggerHypoTool::TrackInfo{ d, track, AllTracks } );

@@ -27,6 +27,8 @@ public:
   virtual StatusCode initialize() override final;
   virtual StatusCode execute() override final;
 
+  Gaudi::Property<bool> m_isData{this,"IsData",true};
+
 private:
   
   ServiceHandle<ICondSvc> m_condSvc;

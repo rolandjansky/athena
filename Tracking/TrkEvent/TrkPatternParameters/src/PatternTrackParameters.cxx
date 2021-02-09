@@ -581,7 +581,7 @@ Trk::PatternTrackParameters * Trk::PatternTrackParameters::clone() const {
 }
 
 Trk::ParametersType Trk::PatternTrackParameters::type() const {
-  return Trk::AtaSurface;
+  return Trk::Pattern;
 }
 
 int Trk::PatternTrackParameters::surfaceType() const {

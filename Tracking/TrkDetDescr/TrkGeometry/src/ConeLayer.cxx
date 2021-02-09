@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ Trk::ConeLayer::ConeLayer(Trk::ConeSurface* cyl,
   ConeSurface(*cyl),
   Layer(laymatprop, thickness, olap, laytyp)
 {}
-        
+
 Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform,
 			              Trk::ConeBounds* cbounds,
 			              Trk::SurfaceArray* surfaceArray,
@@ -44,7 +44,7 @@ Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform,
   ConeSurface(transform, cbounds),
   Layer(surfaceArray, thickness, olap, laytyp)
 {}
-                
+
 Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform,
                           Trk::ConeBounds* cbounds,
                           Trk::SurfaceArray* surfaceArray,
@@ -57,7 +57,7 @@ Trk::ConeLayer::ConeLayer(Amg::Transform3D* transform,
 {}
 
 Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay)
-  
+
 = default;
 
 Trk::ConeLayer::ConeLayer(const Trk::ConeLayer& clay, const Amg::Transform3D& transf):
@@ -75,7 +75,7 @@ Trk::ConeLayer& Trk::ConeLayer::operator=(const ConeLayer& clay)
   return(*this);
 }
 
-    
+
 const Trk::ConeSurface& Trk::ConeLayer::surfaceRepresentation() const
 {
   return (*this);
@@ -83,10 +83,10 @@ const Trk::ConeSurface& Trk::ConeLayer::surfaceRepresentation() const
 
 double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
                                                    Trk::PropDirection dir) const
-{    
+{
   if (!Trk::Layer::m_layerMaterialProperties.get())
     return 0.;
-  // calculate the direction to the normal 
+  // calculate the direction to the normal
   const Amg::Vector3D& parmPos = parm.position();
   Amg::Vector3D pastStep(parmPos + dir*parm.momentum().normalized());
   if (pastStep.perp() > parm.position().perp())
@@ -95,7 +95,7 @@ double Trk::ConeLayer::preUpdateMaterialFactor(const Trk::TrackParameters& parm,
 }
 
 double Trk::ConeLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm,
-                                                    Trk::PropDirection dir) const 
+                                                    Trk::PropDirection dir) const
 {
   if (!Trk::Layer::m_layerMaterialProperties.get())
     return 0;
@@ -109,6 +109,6 @@ double Trk::ConeLayer::postUpdateMaterialFactor(const Trk::TrackParameters& parm
 void Trk::ConeLayer::moveLayer(Amg::Transform3D& shift)  {
   Amg::Transform3D transf = shift * (*m_transform);
   Trk::ConeSurface::m_transform=std::make_unique<Amg::Transform3D>(transf) ;
-  m_center.store(std::make_unique<Amg::Vector3D>(m_transform->translation()));
-  m_normal.store(std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2)));
+  Trk::ConeSurface::m_center=std::make_unique<Amg::Vector3D>(m_transform->translation());
+  Trk::ConeSurface::m_normal=std::make_unique<Amg::Vector3D>(m_transform->rotation().col(2));
 }

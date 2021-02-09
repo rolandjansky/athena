@@ -38,9 +38,10 @@ Interface definition for jFEXSim
     virtual void SetTowersAndCells_SG(int tmp[16*2][17]) = 0;
     virtual void SetTowersAndCells_SG(int tmp[16*2][24]) = 0;
 
+    virtual std::vector<uint32_t> getSmallRJetTOBs() =0;
+    virtual std::vector<uint32_t> getLargeRJetTOBs() =0;
     virtual StatusCode NewExecute(int tmp[16*4][17]) = 0;
     virtual StatusCode NewExecute(int tmp[16*4][24]) = 0;
-
   private:
 
   };

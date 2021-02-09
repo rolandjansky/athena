@@ -6,7 +6,7 @@
 import sys
 from ROOT import gDirectory, gROOT, gStyle, kTRUE, kFALSE, \
     TCanvas, TFile, TH1, \
-    TH1D, TLegend, TPad, kBlack, kBlue, kRed, kGreen, kOrange, kCyan, kPink
+    TH1D, TLegend, TPad, kBlack, kBlue, kRed, kGreen, kOrange, kCyan, kPink, kGray
 
 # gROOT.SetBatch(kTRUE)
 gStyle.SetOptStat(0)
@@ -267,6 +267,9 @@ def make_conversion_plot(f_base, f_nightly, result_file):
         leg = TLegend(0.1, 0.75, 0.9, 0.9)
         leg.SetNColumns(2)
 
+        leg2 = TLegend(0.5, 0.7, 0.9, 0.75)
+        leg2.SetNColumns(2)
+
         for i, folder in enumerate(photon_conversion_list):
 
             baseline = f_base.Get(
@@ -284,7 +287,7 @@ def make_conversion_plot(f_base, f_nightly, result_file):
             baseline.SetMinimum(
                 min(baseline.GetMinimum(), baseline.GetMinimum()) * 0.7)
             baseline.SetMaximum(
-                max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.3)
+                max(baseline.GetMaximum(), baseline.GetMaximum()) * 1.4)
 
             baseline.GetXaxis().SetTitle(
                 "R^{reco}_{conv. vtx} - R^{true}_{conv. vtx} [mm]")
@@ -302,12 +305,22 @@ def make_conversion_plot(f_base, f_nightly, result_file):
 
             if i == 0:
                 baseline.Draw("hist ")
+                
+                baselineDummy = baseline.Clone()
+                baselineDummy.SetLineColor(kGray+3)
+                baselineDummy.SetMarkerColor(kGray+3)
+                nightlyDummy = nightly.Clone()
+                nightlyDummy.SetLineColor(kGray+3)
+                nightlyDummy.SetMarkerColor(kGray+3)
+                leg2.AddEntry(baselineDummy, "Baseline", "l")
+                leg2.AddEntry(nightlyDummy, "Nightly", "p")
             else:
                 baseline.Draw("same hist")
 
             nightly.Draw("p same")
 
         leg.Draw()
+        leg2.Draw()
 
         c1.Update()
 
@@ -334,6 +347,9 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
 
         leg = TLegend(0.1, 0.75, 0.9, 0.9)
         leg.SetNColumns(2)
+
+        leg2 = TLegend(0.5, 0.7, 0.9, 0.75)
+        leg2.SetNColumns(2)
 
         for i, folder in enumerate(photon_fraction_list):
 
@@ -363,12 +379,23 @@ def make_photon_fraction_plot(f_base, f_nightly, result_file):
 
             if i == 0:
                 baseline.Draw("hist ")
+
+                baselineDummy = baseline.Clone()
+                baselineDummy.SetLineColor(kGray+3)
+                baselineDummy.SetMarkerColor(kGray+3)
+                nightlyDummy = nightly.Clone()
+                nightlyDummy.SetLineColor(kGray+3)
+                nightlyDummy.SetMarkerColor(kGray+3)
+                leg2.AddEntry(baselineDummy, "Baseline", "l")
+                leg2.AddEntry(nightlyDummy, "Nightly", "p")
             else:
                 baseline.Draw("same hist")
 
             nightly.Draw("p same")
 
+
         leg.Draw()
+        leg2.Draw()
 
         c1.Update()
 

@@ -169,6 +169,9 @@ def RunCleanQTest(qtest,pwd,release,extraArg,CleanRunHeadDir,UniqID, doR2A=False
         elif q == 'q221':
             extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
 
+    if q == 'q221' or q == 'q440':
+        extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
+
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""
 
@@ -196,6 +199,9 @@ def RunPatchedQTest(qtest,pwd,release,extraArg, doR2A=False, trigConfig="2017", 
             extraArg += " --geometryVersion all:ATLAS-R2-2015-04-00-00 --conditionsTag all:CONDBR2-BLKPA-2016-11 "
         elif q == 'q221':
             extraArg += " --conditionsTag all:OFLCOND-RUN12-SDR-25 "
+
+    if q == 'q221' or q == 'q440':
+        extraArg += " --athenaopts RDOtoRDOTrigger:--threads=1 "
 
     if trigConfig == "2016":
         extraArg += "--preExec \"all:from TriggerJobOpts.TriggerFlags import TriggerFlags as TF;TF.run2Config='2016'\""

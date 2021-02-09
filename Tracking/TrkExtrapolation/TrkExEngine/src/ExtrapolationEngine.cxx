@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -15,16 +15,11 @@
 // constructor
 Trk::ExtrapolationEngine::ExtrapolationEngine(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
-  m_trackingGeometry(0),
-  m_trackingGeometrySvc("AtlasTrackingGeometrySvc", n),
-  m_trackingGeometryName("AtlasTrackingGeometry"),
   m_propagationEngine(""),    
   m_navigationEngine(""),    
   m_forceSearchInit(false)
 {
     declareInterface<Trk::IExtrapolationEngine>(this);
-    // Geometry retrieval
-    declareProperty("TrackingGeometrySvc"                   , m_trackingGeometrySvc);
     // Extrapolation Engine retrieval 
     declareProperty("ExtrapolationEngines"                  , m_extrapolationEngines);    
     // The Tools needed
@@ -48,15 +43,13 @@ StatusCode Trk::ExtrapolationEngine::initialize()
             
     EX_MSG_DEBUG( "", "initialize", "", "starting initialize()" );
     // get the TrackingGeometrySvc
-    if (m_trackingGeometrySvc.retrieve().isSuccess()){
-        EX_MSG_DEBUG( "", "initialize", "", "successfully retrieved " << m_trackingGeometrySvc );
-        m_trackingGeometryName = m_trackingGeometrySvc->trackingGeometryName();
-    } else {
-        EX_MSG_WARNING( "", "initialize", "", "couldn't retrieve " << m_trackingGeometrySvc << ". " );
-        EX_MSG_WARNING( "", "initialize", "", " -> Trying to retrieve default '" << m_trackingGeometryName << "' from DetectorStore. Abort." );
-        return StatusCode::FAILURE;
+#ifdef LEGACY_TRKGEOM
+    if (!m_trackingGeometrySvc.empty()) {
+       ATH_CHECK( m_trackingGeometrySvc.retrieve());
     }
-    
+#endif
+    ATH_CHECK( m_trackingGeometryReadKey.initialize(!m_trackingGeometryReadKey.key().empty()) );
+
     // retrieve the ExtrapolationEngines
     if (m_extrapolationEngines.retrieve().isFailure()){
         
@@ -104,16 +97,10 @@ Trk::ExtrapolationCode Trk::ExtrapolationEngine::extrapolate(ExCellNeutral& ecNe
                                                         const Surface* sf,
                                                         BoundaryCheck bcheck) const
 { return extrapolateT<NeutralParameters>(ecNeutral,sf,ecNeutral.propDirection,bcheck); }
-                                           
 
-StatusCode Trk::ExtrapolationEngine::updateTrackingGeometry() const {
-    // retrieve the TrackingGeometry from the detector store 
-    if (detStore()->retrieve(m_trackingGeometry, m_trackingGeometryName).isFailure()){
-        EX_MSG_FATAL( "", "updateGeom", "", "could not retrieve TrackingGeometry '" << m_trackingGeometryName << "' from DetectorStore." );
-        EX_MSG_FATAL( "", "updateGeom", "", "  - probably the chosen layout is not supported / no cool tag exists. "                     );
-        return StatusCode::FAILURE;
-    }
-    return StatusCode::SUCCESS;
+void Trk::ExtrapolationEngine::throwFailedToGetTrackingGeomtry() const {
+   std::stringstream msg;
+   msg << "Failed to get conditions data " << m_trackingGeometryReadKey.key() << ".";
+   throw std::runtime_error(msg.str());
 }
-
 

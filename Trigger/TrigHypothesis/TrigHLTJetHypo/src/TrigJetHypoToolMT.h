@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGJETHYPOTOOLMT_H
@@ -24,6 +24,7 @@
 #include "xAODJet/JetContainer.h"
 
 #include <string>
+#include <optional>
 
 struct EventSN{
   std::size_t m_id{0};
@@ -50,17 +51,33 @@ public:
            const TrigCompositeUtils::DecisionIDContainer& previousDecisionIDs,
            std::vector<JetDecision>& jetHypoInputs) const;
   
-  const HLT::Identifier& getId() const; 
+  const HLT::Identifier& getID(std::size_t) const; 
+  const std::vector<HLT::Identifier>& getIDs() const; 
 
  private:
 
-  // Identifier is used to keep track of which tool made which decision.
+  // Identifies is used to keep track of which tool made which decision.
   // The information is stored in the event store.
-  HLT::Identifier m_decisionId;  
+  // There will be as many entries in the IDs vector as there are chain parts.
+  // Howver, the zeroth entry is calculated differently for one and multi
+  // chain part chains.
+  
+  // single chainpart ID, claculated from name of Algorithm
+  // use this to determine whether the hypo should run.
+  HLT::Identifier m_decisionID;
 
+  //single and Multi chaionpart IDs
+  // if single chain part then single entry, same as m_desionId
+  // else one entry per chain part. the zeroth welement is calculated
+  // using m_decisionID and the chain part index = 0
+  // use these IDs to report participating jets "by leg"
+  std::vector<HLT::Identifier> m_decisionIDs{};
 
   ToolHandle<ITrigJetHypoToolHelperMT> m_helper {
     this, "helper_tool", {}, "Jet hypo helper AlgTool"};
+
+  Gaudi::Property<std::size_t> m_endLabelIndex {  // no of chain parts + 1
+    this, "endLabelIndex", {0}, "end value for leg indices"};
   
   Gaudi::Property<bool> m_visitDebug {
     this, "visit_debug", false, "debug flag"};
@@ -71,14 +88,22 @@ public:
   
   std::unique_ptr<EventSN> m_eventSN;
 
+  StatusCode
+  checkPassingJets(const xAODJetCollector&,
+		   const std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
+    
+  StatusCode
+  reportPassingJets(const xAODJetCollector&,
+		    const std::vector<JetDecision>& jetHypoInputs) const;
 
   StatusCode
-  checkPassingJets(xAODJetCollector&,
-		   std::unique_ptr<ITrigJetHypoInfoCollector>&) const;
-    
-  StatusCode reportPassingJets(xAODJetCollector&,
-			       std::vector<JetDecision>& jetHypoInputs) const;
- 
+  reportLeg(const std::vector<const xAOD::Jet*>& jets,
+	    const std::vector<JetDecision>& jetHypoInputs,
+	    int legInd) const;
+
+  bool
+  inputJetParticipates(const std::vector<const xAOD::Jet*>& jets,
+		       const JetDecision& pair) const;
  
 };
 #endif

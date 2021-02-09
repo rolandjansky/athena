@@ -11,13 +11,42 @@
 #include <vector>
 #include <mutex>
 
+#include <tbb/concurrent_hash_map.h>
+
 namespace TrigConf {
 
-   typedef uint32_t HLTHash; 
-  
-   class HLTUtils {
+  struct stringHashCompare {
+    static size_t hash(const std::string& s);
+    static bool equal(const std::string& x, const std::string& y);
+  };
 
-   public:
+  inline size_t stringHashCompare::hash(const std::string& s) {
+    return std::hash<std::string>{}(s);
+  }
+
+  inline bool stringHashCompare::equal(const std::string& x, const std::string& y) {
+    return (x == y);
+  }
+
+  typedef uint32_t HLTHash; 
+
+  struct HLTHashCompare {
+    static size_t hash(const HLTHash& s);
+    static bool equal(const HLTHash& x, const HLTHash& y);
+  };
+
+  inline size_t HLTHashCompare::hash(const HLTHash& h) {
+    return h;
+  }
+
+  inline bool HLTHashCompare::equal(const HLTHash& x, const HLTHash& y) {
+    return (x == y);
+  }
+
+  
+  class HLTUtils {
+
+    public:
 
     /**@brief hash function translating TE names into identifiers*/
     static HLTHash string2hash( const std::string&, const std::string& category="TE" );
@@ -27,14 +56,18 @@ namespace TrigConf {
     static void hashes2file( const std::string& fileName="hashes2string.txt" );
     /**@brief debugging output of internal dictionary*/
     static void file2hashes( const std::string& fileName="hashes2string.txt" );
-    /**@brief Multi-threaded protection for the static hash operations*/
-    static std::mutex s_mutex;
+
     /**@brief In-file identifier*/
     static std::string s_newCategory;
 
+    typedef tbb::concurrent_hash_map<HLTHash, std::string, HLTHashCompare> HashMap_t;
+    typedef tbb::concurrent_hash_map<std::string, HashMap_t, stringHashCompare> CategoryMap_t;
+
+    /**@brief Nested concurrent hash-maps to store (key=hash, value=string) pairs for different hash categories*/
+    static CategoryMap_t s_allHashesByCategory;
       
-   };
-   
+  };
+ 
 }
 
 #endif

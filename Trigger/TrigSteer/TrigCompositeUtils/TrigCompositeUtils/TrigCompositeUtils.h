@@ -209,11 +209,17 @@ namespace TrigCompositeUtils {
  
 /**
    * @brief Recognise whether the chain ID is a leg ID
-   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @param legIdentifier The HLT::Identifier corresponding to the specifci ID.
    * @return True if leg-ID, else false
    **/
   bool isLegId(const HLT::Identifier& legIdentifier);
 
+/**
+   * @brief Recognise whether the HLT identifier corresponds to a whole chain
+   * @param chainIdentifier The HLT::Identifier corresponding to the specifci ID.
+   * @return True if chain-ID, else false
+   **/
+  bool isChainId(const HLT::Identifier& chainIdentifier);
     
   /**
    * @brief traverses Decision object links for another Decision object fufilling the prerequisite specified by the filter
@@ -304,6 +310,12 @@ namespace TrigCompositeUtils {
   const std::string& viewString();
   const std::string& featureString();
   const std::string& seedString();
+
+  const std::string& l1DecoderNodeName();
+  const std::string& filterNodeName();
+  const std::string& inputMakerNodeName();
+  const std::string& hypoAlgNodeName();
+  const std::string& comboHypoAlgNodeName();
   /// @}
 
   /**

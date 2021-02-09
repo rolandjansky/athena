@@ -157,6 +157,7 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
     const static SG::AuxElement::Decorator< unsigned int > originDecorator("classifierParticleOrigin");
     const static SG::AuxElement::Decorator< unsigned int > typeDecorator("classifierParticleType");
     const static SG::AuxElement::Decorator< unsigned int > outcomeDecorator("classifierParticleOutCome");
+    const static SG::AuxElement::Decorator< unsigned int > classificationDecorator("Classification");
     const static SG::AuxElement::Decorator< int > motherIDDecorator("motherID");
     const static SG::AuxElement::Decorator< int > daughterIDDecorator("daughterID");
     const static SG::AuxElement::Decorator< int > HadronOriginDecorator("TopHadronOriginFlag");
@@ -346,6 +347,9 @@ StatusCode DerivationFramework::TruthCollectionMaker::addBranches() const
                     if (theParticle->isAvailable<unsigned int>("classifierParticleOutCome")) {
                         outcomeDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "classifierParticleOutCome" );
                     } else {outcomeDecorator(*xTruthParticle) = 0;}
+                    if (theParticle->isAvailable<unsigned int>("Classification")) {
+                        classificationDecorator(*xTruthParticle) = theParticle->auxdata< unsigned int >( "Classification" );
+                    } else {classificationDecorator(*xTruthParticle) = 0;}
                     if (m_collectionName=="TruthHFHadrons"){
                         if (theParticle->isAvailable<int>("TopHadronOriginFlag")) {
                             HadronOriginDecorator(*xTruthParticle) = theParticle->auxdata< int >( "TopHadronOriginFlag" );

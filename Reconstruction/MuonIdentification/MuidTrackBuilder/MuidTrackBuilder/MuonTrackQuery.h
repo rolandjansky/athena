@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUIDTRACKBUILDER_MUONTRACKQUERY_H
@@ -14,7 +14,8 @@
 #include "MuonRecToolInterfaces/IMdtDriftCircleOnTrackCreator.h"
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkDetDescrInterfaces/ITrackingGeometrySvc.h"
-
+#include "StoreGate/ReadCondHandleKey.h"
+#include "TrkGeometry/TrackingGeometry.h"
 namespace Rec {
 
 class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
@@ -105,6 +106,23 @@ class MuonTrackQuery : public AthAlgTool, virtual public IMuonTrackQuery {
     ToolHandle<Muon::IMdtDriftCircleOnTrackCreator> m_mdtRotCreator{this,"MdtRotCreator","Muon::MdtDriftCircleOnTrackCreator/MdtDriftCircleOnTrackCreator","MdtDriftCircleOnTrackCreator tool"};
 
     ServiceHandle<Trk::ITrackingGeometrySvc> m_trackingGeometrySvc{this,"TrackingGeometrySvc","TrackingGeometrySvc/AtlasTrackingGeometrySvc"};
+    
+    SG::ReadCondHandleKey<Trk::TrackingGeometry>   m_trackingGeometryReadKey {this, "TrackingGeometryReadKey", "", "Key of the TrackingGeometry conditions data."};
+
+
+    inline const Trk::TrackingVolume* getVolume(const std::string&& vol_name) const{
+        /// Tracking geometry is provided by the TrackingGeometryAlg
+        if (!m_trackingGeometryReadKey.empty()){
+           SG::ReadCondHandle<Trk::TrackingGeometry>  handle(m_trackingGeometryReadKey, Gaudi::Hive::currentContext());
+           if (!handle.isValid()){
+               ATH_MSG_WARNING("Could not retrieve a valid tracking geometry");
+               return nullptr;
+           }
+           return handle.cptr()->trackingVolume(vol_name);
+ 
+        }
+        return m_trackingGeometrySvc->trackingGeometry()->trackingVolume(vol_name);    
+    }
 
 };  // end of class MuonTrackQuery
 

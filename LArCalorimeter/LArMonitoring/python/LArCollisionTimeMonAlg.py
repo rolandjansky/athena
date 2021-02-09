@@ -29,6 +29,9 @@ def LArCollisionTimeMonConfig(inputFlags):
     from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
     cfg = LArCollisionTimeCfg(inputFlags)
 
+    from LArClusterRec.LArClusterCollisionTimeConfig import LArClusterCollisionTimeCfg
+    cfg.merge(LArClusterCollisionTimeCfg(inputFlags))
+
     larColTime_hist_path='LArCollisionTime'
 
     from AthenaConfiguration.ComponentFactory import CompFactory
@@ -266,16 +269,6 @@ if __name__=='__main__':
     ## Cell building
     from CaloRec.CaloRecoConfig import CaloRecoCfg
     cfg=CaloRecoCfg(ConfigFlags)
-
-    # try collision time algo 
-    from LArCellRec.LArCollisionTimeConfig import LArCollisionTimeCfg
-    cfg.merge(LArCollisionTimeCfg(ConfigFlags, cutIteration=False))
-    # add cluster collision time algo
-    # cluster config is still missing
-    #from LArClusterRec.LArClusterSwConfig import LArClusterSwConfig
-    #cfg.merge(LArClusterSwConfig(ConfigFlags))
-    from LArClusterRec.LArClusterCollisionTimeConfig import LArClusterCollisionTimeCfg
-    cfg.merge(LArClusterCollisionTimeCfg(ConfigFlags))
 
     from LumiBlockComps.BunchCrossingCondAlgConfig import BunchCrossingCondAlgCfg
     cfg.merge(BunchCrossingCondAlgCfg(ConfigFlags))

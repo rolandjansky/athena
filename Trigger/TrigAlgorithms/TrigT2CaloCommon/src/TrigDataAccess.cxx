@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 
@@ -213,6 +213,17 @@ StatusCode TrigDataAccess::beginRunHandle(IOVSVC_CALLBACK_ARGS){
 	m_mbts_add_rods.insert(m_mbts_add_rods.end(),(*m_mbts_rods).begin(),(*m_mbts_rods).end());
 	sort(m_mbts_add_rods.begin(),m_mbts_add_rods.end());
         m_mbts_add_rods.erase(std::unique(m_mbts_add_rods.begin(),m_mbts_add_rods.end()),m_mbts_add_rods.end());
+        for(unsigned int lcidx=0; lcidx < m_tilecell->size(); lcidx++){
+              TileCellCollection* lcc = m_tilecell->at(lcidx);
+              TileRawChannelCollection::ID frag_id = ((*lcc).identify() & 0x0FFF);
+              int ros = (frag_id >> 8);
+              if ( ros == 1 ) { //treatment for d0Cells in barrel
+                int drawer = (frag_id & 0xFF);
+                TileCellCollection::iterator pCell = lcc->begin();
+                pCell+=2;
+                m_d0cells.m_cells[drawer] = *pCell;
+              }
+	}
 	
         const CaloDetDescrManager* theCaloDDM = CaloDetDescrManager::instance();
         const CaloCell_ID* theCaloCCIDM = theCaloDDM->getCaloCell_ID();

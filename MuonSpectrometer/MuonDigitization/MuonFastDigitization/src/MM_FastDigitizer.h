@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef MUONDIGITIZATION_MM_FASTDIGITIZER_H
@@ -12,7 +12,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "CLHEP/Random/RandomEngine.h"
-#include "CLHEP/Random/RandGauss.h"
 #include "MuonIdHelpers/IMuonIdHelperSvc.h"
 #include "MuonRecToolInterfaces/IMuonClusterOnTrackCreator.h"
 #include "AthenaKernel/IAthRNGSvc.h"

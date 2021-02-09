@@ -195,6 +195,8 @@ namespace LVL1 {
     
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -284,6 +286,8 @@ namespace LVL1 {
       
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_1));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -398,6 +402,8 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_2));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) )); 
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -509,6 +515,8 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_3));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -593,6 +601,8 @@ namespace LVL1 {
     //tool use instead
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_4));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -679,6 +689,8 @@ namespace LVL1 {
 
     m_jFEXSimTool->init(thisJFEX);
     ATH_CHECK(m_jFEXSimTool->NewExecute(tmp_jTowersIDs_subset_5));
+    m_allSmallRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getSmallRJetTOBs() ) ));
+    m_allLargeRJetTobs.insert(std::map<int, std::vector<uint32_t> >::value_type(thisJFEX,(m_jFEXSimTool->getLargeRJetTOBs() ) ));
     m_jFEXSimTool->reset();
     
     //--------------------------------------------------------------------------------------------------------------------------------------------------------------------

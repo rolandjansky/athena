@@ -22,3 +22,11 @@ When running the debug stream recovery there is an additional output file produc
 rerunning the trigger. Also the input file is used to make sure exactly the same release is used to reprocess the data, unless any local patches are
 included in the setup.
 
+### Examples
+
+The transform is tested in the nightly tests and these give examples of which options are to be used:
+- [test_trigP1_v1PhysP1_T0MonTrf_build.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigValidation/TrigP1Test/test/test_trigP1_v1PhysP1_T0MonTrf_build.py) Running steps from BS as in Trigger Reprocessings
+- [test_trigP1_v1PhysP1_trfDbgStream_build.py](https://gitlab.cern.ch/atlas/athena/-/blob/master/Trigger/TrigValidation/TrigP1Test/test/test_trigP1_v1PhysP1_trfDbgStream_build.py) Running the transform in the debug recovery mode
+
+
+

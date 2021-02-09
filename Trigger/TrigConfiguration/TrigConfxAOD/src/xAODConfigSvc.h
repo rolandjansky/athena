@@ -162,23 +162,23 @@ namespace TrigConf {
 
       /// @}
 
-      /// @name Impliment the JSON config interface. TODO - add this to an abstract interface
+      /// @name Impliment the JSON config interface.
       /// @{
 
       /// Returns the JSON configured HLTMenu ptree
-      const HLTMenu& hltMenu(const EventContext& ctx) const;
+      virtual const HLTMenu& hltMenu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured L1 ptree
-      const L1Menu& l1Menu(const EventContext& ctx) const;
+      virtual const L1Menu& l1Menu(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured HLT prescales ptree
-      const HLTPrescalesSet& hltPrescalesSet(const EventContext& ctx) const;
+      virtual const HLTPrescalesSet& hltPrescalesSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured L1 prescales ptree
-      const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx) const;
+      virtual const L1PrescalesSet& l1PrescalesSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// Returns the JSON configured bunchgroup ptree
-      const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx) const;
+      virtual const L1BunchGroupSet& l1BunchGroupSet(const EventContext& ctx = Gaudi::Hive::currentContext()) const override;
 
       /// @}
 

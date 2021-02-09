@@ -4,7 +4,6 @@ from __future__ import print_function
 
 from JetMonitoring.JetHistoTools import jhm, selectionAndHistos
 from JetMonitoring.JetMonitoringConf import JetAttributeHisto, HistoDefinitionTool, JetMonitoringTool, JetKinematicHistos, JetContainerHistoFiller, JetSubStructureHistos
-from AthenaCommon.AppMgr import ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from PyUtils.MetaReader import read_metadata
 
@@ -106,9 +105,8 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
             jhm.TileBar0,
             jhm.TileBar1,
             jhm.TileExt0,
-            jhm.TileExt1,
-
-	     ]
+            jhm.TileExt1
+        ]
         
         if "PFlow" in container:
             filler.HistoTools += [
@@ -234,7 +232,7 @@ athenaMonTool = JetMonitoringTool(HistoTools = [
 ], IntervalType=8) # 8 == HistoGroupBase::all
 
 
-if (isMC==False):
+if not isMC:
     athenaMonTool = JetMonitoringTool(HistoTools = [
         commonPhysValTool( "AntiKt4LCTopoJets", akt4refContainer ,globalSelection = globalSelection),
         commonPhysValTool( "AntiKt4EMTopoJets", akt4refContainer ,globalSelection = globalSelection),

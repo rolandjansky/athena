@@ -183,6 +183,33 @@ std::vector<uint32_t>* Trig::TrigDecisionTool::getKeys() {
 #endif 
 }
 
+void Trig::TrigDecisionTool::setForceConfigUpdate(bool b, bool forceForAllSlots) {
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  (*ab) = b;
+  if (forceForAllSlots) {
+    for (size_t dummySlot = 0; dummySlot < SG::getNSlots(); ++dummySlot) {
+      EventContext dummyContext(/*dummyEventNumber*/0, dummySlot);
+      std::atomic<bool>* ab = m_forceConfigUpdate.get(dummyContext);
+      (*ab) = b;
+    }
+  }
+#else // Analysis or Standalone
+  m_forceConfigUpdate = b;
+  ATH_MSG_VERBOSE("The forceForAllSlots flag not used in AnalysisBase, but to stop a compiler warning, this flag is " << forceForAllSlots);
+#endif 
+}
+
+
+bool Trig::TrigDecisionTool::getForceConfigUpdate() {
+#if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
+  std::atomic<bool>* ab = m_forceConfigUpdate.get();
+  return *ab;
+#else // Analysis or Standalone
+  return m_forceConfigUpdate;
+#endif 
+}
+
 
 
 StatusCode Trig::TrigDecisionTool::beginEvent() {
@@ -196,6 +223,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 #if !defined(XAOD_STANDALONE) && !defined(XAOD_ANALYSIS) // Full athena
   cgmPtr->setOldDecisionKeyPtr( &m_oldDecisionKey );
   cgmPtr->setOldEventInfoKeyPtr( &m_oldEventInfoKey );
+  cgmPtr->setStore(&*evtStore()); // Use of this is deprecated, and should be phased out.
   slot = Gaudi::Hive::currentContext().slot();
 #endif
 
@@ -219,19 +247,21 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
       m_configTool->lvl1PrescaleKey(),
       m_configTool->hltPrescaleKey());
     
-    if(!keysMatch){
+    if(!keysMatch or getForceConfigUpdate()){
 
       ATH_MSG_INFO("Tool: updating config in slot " << slot
         << " with SMK: " << m_configTool->masterKey() 
         << " and L1PSK: " << m_configTool->lvl1PrescaleKey() 
-        << " and HLTPSK: " << m_configTool->hltPrescaleKey());
-      
+        << " and HLTPSK: " << m_configTool->hltPrescaleKey()
+        << " getForceConfigUpdate()=" << getForceConfigUpdate());
+
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
       keys->at(0) = m_configTool->masterKey();
       keys->at(1) = m_configTool->lvl1PrescaleKey();
       keys->at(2) = m_configTool->hltPrescaleKey();
       configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
+      setForceConfigUpdate(false);
     } else{
       ATH_MSG_VERBOSE("Tool: Cached Trigger configuration keys match for this event in slot " << slot);
     }
@@ -248,12 +278,13 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
       m_configSvc->lvl1PrescaleKey(),
       m_configSvc->hltPrescaleKey());
 
-    if(!keysMatch){
+    if(!keysMatch or getForceConfigUpdate()){
 
       ATH_MSG_INFO("Svc: updating config in slot " << slot
         << " with SMK: " << m_configSvc->masterKey() 
         << " and L1PSK: " << m_configSvc->lvl1PrescaleKey() 
-        << " and HLTPSK: " << m_configSvc->hltPrescaleKey());
+        << " and HLTPSK: " << m_configSvc->hltPrescaleKey()
+        << " getForceConfigUpdate()=" << getForceConfigUpdate());
 
       std::vector<uint32_t>* keys = getKeys();
       keys->resize(3);
@@ -261,6 +292,7 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
       keys->at(1) = m_configSvc->lvl1PrescaleKey();
       keys->at(2) = m_configSvc->hltPrescaleKey();
       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
+      setForceConfigUpdate(false);
     }else{
       ATH_MSG_VERBOSE("Svc: Cached Trigger configuration keys match for this event in slot " << slot);
     }
@@ -271,12 +303,11 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
 }
 
 StatusCode Trig::TrigDecisionTool::beginInputFile() {
-  
    // We need to update the cached configuration when switching to a new input
    // file:
    //have to do this at the next beginEvent, because the event info isn't ready at this point (e.g. if the file has no events!)
-
-   // Return gracefully:
+   ATH_MSG_VERBOSE("Trig::TrigDecisionTool::beginInputFile: setForceConfigUpdate(true, forceForAllSlots=true)");
+   setForceConfigUpdate(true, /*forceForAllSlots=*/ true);
    return StatusCode::SUCCESS;
 }
 
@@ -322,8 +353,15 @@ Trig::TrigDecisionTool::handle(const Incident& inc) {
       }
    }
    else if (inc.type() == IncidentType::BeginEvent) {
+      ATH_MSG_VERBOSE("Obtained IncidentType::BeginEvent via Trig::TrigDecisionTool::handle");
       if (beginEvent().isFailure()) {
          throw std::runtime_error("In Trig::TrigDecisionTool::handle beginEvent() returned StatusCode::FAILURE");
+      }
+   }
+   else if (inc.type() == IncidentType::BeginInputFile) {
+      ATH_MSG_VERBOSE("Obtained IncidentType::BeginInputFile via Trig::TrigDecisionTool::handle");
+      if (beginInputFile().isFailure()) {
+         throw std::runtime_error("In Trig::TrigDecisionTool::handle beginInputFile() returned StatusCode::FAILURE");
       }
    }
    else {

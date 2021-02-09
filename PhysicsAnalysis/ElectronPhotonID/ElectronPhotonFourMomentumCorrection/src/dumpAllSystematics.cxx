@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <boost/algorithm/string/join.hpp>
@@ -214,7 +214,7 @@ StatusCode DumpAllSystematics::execute()
     CHECK(evtStore()->retrieve(electrons, m_reco_container_name));
 
     std::pair<xAOD::ElectronContainer*, xAOD::ShallowAuxContainer*> electrons_shallowCopy = xAOD::shallowCopyContainer(*electrons);
-    for (const auto& el : *electrons_shallowCopy.first) {
+    for (xAOD::Electron* el : *electrons_shallowCopy.first) {
       ATH_MSG_DEBUG("new electron eta: " << el->eta());
 
 
@@ -235,7 +235,7 @@ StatusCode DumpAllSystematics::execute()
     CHECK(evtStore()->retrieve(photons, m_reco_container_name));
 
     std::pair<xAOD::PhotonContainer*, xAOD::ShallowAuxContainer*> photons_shallowCopy = xAOD::shallowCopyContainer(*photons);
-    for (const auto& ph : *photons_shallowCopy.first) {
+    for (xAOD::Photon* ph : *photons_shallowCopy.first) {
       ATH_MSG_DEBUG("new photon eta: " << ph->eta());
 
       CHECK(do_truth(*ph));

@@ -1,13 +1,10 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "electronSuperClusterBuilder.h"
 //
 #include "CaloDetDescr/CaloDetDescrManager.h"
-#include "FourMomUtils/P4Helpers.h"
-#include "StoreGate/ReadHandle.h"
-#include "StoreGate/WriteHandle.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODEgamma/Egamma.h"
@@ -15,7 +12,13 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 
+#include "FourMomUtils/P4Helpers.h"
+
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
+
 #include <memory>
+#include <cmath>
 
 electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& name,
                                                          ISvcLocator* pSvcLocator)
@@ -81,20 +84,13 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
   ATH_CHECK(detStore()->retrieve(calodetdescrmgr, "CaloMgr"));
 
   // Reserve a vector to keep track of what is used
-  std::vector<bool> isUsed(egammaRecs->size(), 0);
-  std::vector<bool> isUsedRevert(egammaRecs->size(), 0);
+  std::vector<bool> isUsed(egammaRecs->size(), false);
+  std::vector<bool> isUsedRevert(egammaRecs->size(), false);
   // Loop over input egammaRec objects, build superclusters.
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
+    if (isUsed[i]) continue;
 
-    // Used to reset back status of selected
-    // in case we fail to form a supercluster
-    isUsedRevert = isUsed;
-
-    // Check if used
-    const auto *egRec = egammaRecs->at(i);
-    if (isUsed.at(i)) {
-      continue;
-    }
+    const auto *egRec = (*egammaRecs)[i];
 
     // Seed selections
     const xAOD::CaloCluster* clus = egRec->caloCluster();
@@ -102,7 +98,7 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
     if (!clus->hasSampling(CaloSampling::EMB2) && !clus->hasSampling(CaloSampling::EME2)) {
       continue;
     }
-    const double eta2 = fabs(clus->etaBE(2));
+    const double eta2 = std::abs(clus->etaBE(2));
     if (eta2 > 10) {
       continue;
     }
@@ -145,41 +141,52 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
                   << static_cast<unsigned int>(nPixelHits) << " silicon hits "
                   << static_cast<unsigned int>(nSiHits));
     // Mark seed as used
-    isUsed.at(i) = true;
+    isUsedRevert = isUsed;  // save status in case we fail to create supercluster
+    isUsed[i] = true;
 
-    // Add the seed as the 1st entry in the secondaries list
+    // Start accumulating the clusters from the seed
     std::vector<const xAOD::CaloCluster*> accumulatedClusters;
-    accumulatedClusters.push_back(egRec->caloCluster());
+    accumulatedClusters.push_back(clus);
 
     // Now we find all the secondary cluster for this seed
     const std::vector<std::size_t> secondaryIndices =
       searchForSecondaryClusters(i, egammaRecs.cptr(), isUsed);
-    for (const auto& secIndex : secondaryIndices) {
-      const auto *const secRec = egammaRecs->at(secIndex);
+
+    for (const auto& secClusIndex : secondaryIndices) {
+      const auto *const secRec = (*egammaRecs)[secClusIndex];
       accumulatedClusters.push_back(secRec->caloCluster());
     }
 
     ATH_MSG_DEBUG("Total clusters " << accumulatedClusters.size());
 
-    // Take the full list of cluster and add their cells together
-    std::unique_ptr<xAOD::CaloCluster> newClus = createNewCluster(
+    // Create the new cluster: take the full list of cluster and add their cells together
+    std::unique_ptr<xAOD::CaloCluster> newCluster = createNewCluster(
       ctx, accumulatedClusters, *calodetdescrmgr, xAOD::EgammaParameters::electron);
 
-    if (!newClus) {
-      isUsed = isUsedRevert;
+    if (!newCluster) {
+      ATH_MSG_DEBUG("Creating a new cluster failed");
+      // Revert status of constituent clusters.
+      isUsed.swap(isUsedRevert);
       continue;
     }
 
     // Push back the new cluster into the output container.
-    outputClusterContainer->push_back(std::move(newClus));
+    outputClusterContainer->push_back(std::move(newCluster));
+
+    // Add the cluster link to the super cluster
     ElementLink<xAOD::CaloClusterContainer> clusterLink(*outputClusterContainer,
-                                                        outputClusterContainer->size() - 1,ctx);
+                                                        outputClusterContainer->size() - 1, ctx);
     std::vector<ElementLink<xAOD::CaloClusterContainer>> elClusters{ clusterLink };
 
     // Make egammaRec object, and push it back into output container.
     auto newEgRec = std::make_unique<egammaRec>(*egRec);
-    newEgRec->setCaloClusters(elClusters);
-    newEgammaRecs->push_back(std::move(newEgRec));
+    if (newEgRec) {
+      newEgRec->setCaloClusters(elClusters);
+      newEgammaRecs->push_back(std::move(newEgRec));
+    } else {
+      ATH_MSG_FATAL("Couldn't make an egammaRec object");
+      return StatusCode::FAILURE;
+    }
   } // End loop on egammaRecs
 
   // Redo track matching given the super cluster
@@ -190,59 +197,54 @@ electronSuperClusterBuilder::execute(const EventContext& ctx) const
 }
 
 std::vector<std::size_t>
-electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t electronIndex,
+electronSuperClusterBuilder::searchForSecondaryClusters(const std::size_t seedIndex,
                                                         const EgammaRecContainer* egammaRecs,
                                                         std::vector<bool>& isUsed) const
 {
-  std::vector<std::size_t> secondaryClusters;
-  if (!egammaRecs) {
-    return secondaryClusters;
-  }
-  const auto *const seedEgammaRec = egammaRecs->at(electronIndex);
-  const xAOD::CaloCluster* seedCluster = seedEgammaRec->caloCluster();
+  // assume egammaRecs != 0, since the ReadHadler is valid
+  // assume seed egammaRec has a valid cluster, since it has been already used
+  std::vector<std::size_t> secondaryIndices;
+
+  const auto *const seedEgammaRec = (*egammaRecs)[seedIndex];
+  const xAOD::CaloCluster* const seedCaloClus = seedEgammaRec->caloCluster();
 
   const xAOD::TrackParticle* seedTrackParticle = seedEgammaRec->trackParticle();
 
+  // Now loop over the potential secondary clusters
   for (std::size_t i = 0; i < egammaRecs->size(); ++i) {
 
     // if already used continue
-    if (isUsed.at(i)) {
-      continue;
-    }
-    // if not retrieve the relevant info
-    const auto *const egRec = egammaRecs->at(i);
-    const xAOD::CaloCluster* clus = egRec->caloCluster();
-    float seedSecdEta(fabs(seedCluster->eta() - clus->eta()));
-    float seedSecdPhi(fabs(P4Helpers::deltaPhi(seedCluster->phi(), clus->phi())));
-    /* add the cluster  if
-     * 1.matches the seed in a narrow window
-     * OR
-     * 2.Is inside the range for additonal criteria
-     * AND matches the same track
-     */
-    bool addCluster = (matchesInWindow(seedCluster, clus) ||
-                       ((seedSecdEta < m_maxDelEta && seedSecdPhi < m_maxDelPhi) &&
-                        (matchSameTrack(*seedTrackParticle, *egRec))));
+    if (isUsed[i]) { continue; }
+
+    const auto *const secEgammaRec = (*egammaRecs)[i];
+    const xAOD::CaloCluster* const secClus = secEgammaRec->caloCluster();
+    // Now perform a number of tests to see if the cluster should be added
+
+    const auto seedSecdEta = std::abs(seedCaloClus->eta() - secClus->eta());
+    const auto seedSecdPhi = std::abs(P4Helpers::deltaPhi(seedCaloClus->phi(), secClus->phi()));
+
+    const bool addCluster = (matchesInWindow(seedCaloClus, secClus) ||
+                             ((seedSecdEta < m_maxDelEta && seedSecdPhi < m_maxDelPhi) &&
+                              (matchSameTrack(*seedTrackParticle, *secEgammaRec))));
     // Add it to the list of secondary clusters if it matches.
     if (addCluster) {
-      secondaryClusters.push_back(i);
-      isUsed.at(i) = 1;
+      secondaryIndices.push_back(i);
+      isUsed[i] = true;
     }
   }
-  ATH_MSG_DEBUG("Found: " << secondaryClusters.size() << " secondaries");
-  return secondaryClusters;
+  ATH_MSG_DEBUG("Found: " << secondaryIndices.size() << " secondaries");
+  return secondaryIndices;
 }
 
 bool
 electronSuperClusterBuilder::matchSameTrack(const xAOD::TrackParticle& seedTrack,
                                             const egammaRec& sec) const
 {
-  bool matchesSameTrack(false);
   const xAOD::TrackParticle* secTrack = sec.trackParticle();
   if (secTrack) {
     // Check that the tracks are the same.
-    matchesSameTrack = (seedTrack.index() == secTrack->index());
+    return seedTrack.index() == secTrack->index();
   }
-  return matchesSameTrack;
+  return false;
 }
 

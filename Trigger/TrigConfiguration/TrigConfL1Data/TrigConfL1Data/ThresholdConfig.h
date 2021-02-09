@@ -21,7 +21,10 @@ namespace TrigConf {
       typedef std::map< L1DataDef::TriggerType, thrVec_t> thrVecMap_t;
 
       ThresholdConfig();
-      ~ThresholdConfig() = default;
+      ~ThresholdConfig();// = default;
+
+      ThresholdConfig(const ThresholdConfig &) = delete;
+      ThresholdConfig & operator=(const ThresholdConfig&) = delete;
       
       std::vector<TriggerThreshold*>& thresholdVector(L1DataDef::TriggerType);
       const std::vector<TriggerThreshold*>& getThresholdVector(L1DataDef::TriggerType) const;

@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+
 from future import standard_library
 standard_library.install_aliases()
 import subprocess
@@ -23,9 +25,6 @@ if SuperCells:     include("LArCalibProcessing/LArCalib_FlagsSC.py")
 ###########################################################################
 
 ## RunNumber trigger IOV if reading from COOL is eneabled
-
-if not 'RunNumber' in dir():
-   RunNumber = '0000000'
 
 if not 'SubDet' in dir():
    SubDet = "Barrel"  
@@ -274,6 +273,14 @@ if not 'IgnoreDACSelection' in dir():
 if not 'DAC' in dir():
    DAC = [ 500 , 4000, 40000 ] # High, Medium, Low
 
+
+#######################################################
+#                Monitoring properties
+#######################################################
+if not 'CheckBadEvents' in dir():
+   CheckBadEvents = True
+
+
 ###########################################################################
 #                     RTMParams output                                    #
 ###########################################################################
@@ -291,7 +298,7 @@ if not 'WriteIOV' in dir():
    WriteIOV = LArCalib_Flags.WriteIOV
    
 if not 'IOVBegin' in dir():
-   IOVBegin = int(RunNumber)
+   IOVBegin = int(RunNumberList[0])
 
 if not 'IOVEnd' in dir():
    IOVEnd = LArCalib_Flags.IOVEnd
@@ -299,17 +306,20 @@ if not 'IOVEnd' in dir():
 if not 'OutputParamsRootFileDir' in dir():
    OutputParamsRootFileDir= subprocess.getoutput("pwd")
     
-if not 'OutputParamsPoolFileDir' in dir():
-   OutputParamsPoolFileDir= subprocess.getoutput("pwd")
+if not 'OutputPoolFileDir' in dir():
+   OutputPoolFileDir= subprocess.getoutput("pwd")
 
 if not 'RTMFileTag' in dir():
-   RTMFileTag = "DefaultExtraction_"+str(RunNumber)+"_"+Partition.replace("*","")
+   RTMFileTag = "DefaultExtraction"
+   for RunNumber in RunNumberList :
+      RTMFileTag += "_"+str(RunNumber)
+   RTMFileTag = RTMFileTag+"_"+Partition.replace("*","")
 
 if not 'OutputParamsRootFileName' in dir():
    OutputParamsRootFileName = "LArParams_"+RTMFileTag + ".root"
    
-if not 'OutputParamsPoolFileName' in dir():
-   OutputParamsPoolFileName = "LArRTMParams_"+RTMFileTag + ".pool.root"
+if not 'OutputPoolFileName' in dir():
+   OutputPoolFileName = "LArRTMParams_"+RTMFileTag + ".pool.root"
    
 if not 'OutputCaliPulseParamsFolder' in dir():
    if not SuperCells: OutputCaliPulseParamsFolder = "/LAR/ElecCalibOfl/CaliPulseParams/RTM"
@@ -359,8 +369,8 @@ if ( ReadBadChannelFromCOOL ):
    if 'InputBadChannelSQLiteFile' in dir():
       InputDBConnectionBadChannel = DBConnectionFile(InputBadChannelSQLiteFile)
    else:
-      #InputDBConnectionBadChannel = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLONL_LAR;dbname=CONDBR2;"
-      InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"         
+      if 'InputDBConnectionBadChannel' not in dir():
+         InputDBConnectionBadChannel = "COOLOFL_LAR/CONDBR2"      
 
 ###########################################################################
 #                            Print summary
@@ -370,7 +380,8 @@ RTMParamsLog = logging.getLogger( "RTMParamsLog" )
 RTMParamsLog.info( " ========================================================= " )
 RTMParamsLog.info( " ***               LAr RTMParams summary               *** " )
 RTMParamsLog.info( " ========================================================= " )
-RTMParamsLog.info( " RunNumber                                  = "+str(RunNumber) )
+for RunNumber in RunNumberList :
+   RTMParamsLog.info( " RunNumber                                  = "+str(RunNumber) )
 
 if ( ReadCaliWaveFromCOOL ):
    RTMParamsLog.info( " InputDBConnectionCaliWave                  = "+InputDBConnectionCaliWave )
@@ -403,7 +414,7 @@ if ( WriteNtuple ):
    RTMParamsLog.info( " OutputParamsRootFullFileName               = "+OutputParamsRootFileDir+"/"+OutputParamsRootFileName )
 
 if (WritePoolFile):
-   RTMParamsLog.info( " OutputParamsPoolFullFileName          = "+OutputParamsPoolFileDir+"/"+OutputParamsPoolFileName )
+   RTMParamsLog.info( " OutputParamsPoolFullFileName          = "+OutputPoolFileDir+"/"+OutputPoolFileName )
    RTMParamsLog.info( " OutputObjectSpecCaliPulseParams            = "+str(OutputObjectSpecCaliPulseParams) )
    RTMParamsLog.info( " OutputObjectSpecTagCaliPulseParams         = "+str(OutputObjectSpecTagCaliPulseParams) )
    RTMParamsLog.info( " OutputObjectSpecDetCellParams              = "+str(OutputObjectSpecDetCellParams) )
@@ -430,10 +441,18 @@ include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
 from AthenaCommon.AlgSequence import AlgSequence 
 topSequence = AlgSequence()
 
+from AthenaCommon.AlgSequence import AthSequencer
+condSeq = AthSequencer("AthCondSeq")
+
+
 ## get a handle to the ApplicationManager, to the ServiceManager and to the ToolSvc
 from AthenaCommon.AppMgr import (theApp, ServiceMgr as svcMgr,ToolSvc)
 
 include("LArCalibProcessing/LArCalib_MinimalSetup.py")
+if SuperCells:
+  from LArCabling.LArCablingAccess import LArOnOffIdMappingSC,LArCalibIdMappingSC
+  LArOnOffIdMappingSC()
+  LArCalibIdMappingSC()
 
 ###########################################################################
 #                                                                         #
@@ -447,7 +466,12 @@ include("LArCondAthenaPool/LArCondAthenaPool_joboptions.py")
 from IOVDbSvc.CondDB import conddb
 PoolFileList = []
 
-include ("LArCalibProcessing/LArCalib_BadChanTool.py")
+## Bad Channel   
+
+if 'BadChannelsFolder' not in dir():
+   BadChannelsFolder="/LAR/BadChannels/BadChannels"
+if 'MissingFEBsFolder' not in dir():
+   MissingFEBsFolder="/LAR/BadChannels/MissingFEBs"
 
 if not 'InputBadChannelSQLiteFile' in dir():
    RTMParamsLog.info( "Read Bad Channels from Oracle DB")
@@ -456,16 +480,39 @@ else :
 
 if 'BadChannelsLArCalibFolderTag' in dir() :
    BadChannelsTagSpec = LArCalibFolderTag (BadChannelsFolder,BadChannelsLArCalibFolderTag) 
-   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<tag>"+BadChannelsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className="CondAttrListCollection")
 else :
-   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",BadChannelsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className="CondAttrListCollection")
 
 if 'MissingFEBsLArCalibFolderTag' in dir() :
    MissingFEBsTagSpec = LArCalibFolderTag (MissingFEBsFolder,MissingFEBsLArCalibFolderTag)   
-   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
+   conddb.addFolder("",MissingFEBsFolder+"<tag>"+MissingFEBsTagSpec+"</tag>"+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",
+                    className='AthenaAttributeList')
 else :
-   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>")
-   
+   conddb.addFolder("",MissingFEBsFolder+"<dbConnection>"+InputDBConnectionBadChannel+"</dbConnection>",className='AthenaAttributeList')
+
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChannelCondAlg, LArBadFebCondAlg
+theLArBadChannelCondAlg=LArBadChannelCondAlg(ReadKey=BadChannelsFolder)
+condSeq+=theLArBadChannelCondAlg
+
+theLArBadFebCondAlg=LArBadFebCondAlg(ReadKey=MissingFEBsFolder)
+condSeq+=theLArBadFebCondAlg
+ 
+# This algorithm verifies that no FEBs are dropping out of the run
+# If it finds corrupt events, it breaks the event loop and terminates the job rapidly
+if not SuperCells:
+   include ("LArROD/LArFebErrorSummaryMaker_jobOptions.py")       
+   topSequence.LArFebErrorSummaryMaker.CheckAllFEB=False
+   if CheckBadEvents:
+      from LArCalibDataQuality.LArCalibDataQualityConf import LArBadEventCatcher
+      theLArBadEventCatcher=LArBadEventCatcher()
+      theLArBadEventCatcher.CheckAccCalibDigitCont=True
+      theLArBadEventCatcher.CheckBSErrors=True
+      theLArBadEventCatcher.KeyList=GainList
+      theLArBadEventCatcher.StopOnError=False
+      topSequence+=theLArBadEventCatcher 
+
 if SuperCells:
    conddb.addFolder("","/LAR/IdentifierOfl/OnOffIdMap_SC<db>COOLOFL_LAR/OFLP200</db><tag>LARIdentifierOflOnOffIdMap_SC-000</tag>") 
 
@@ -506,7 +553,7 @@ if ( ReadCaliWaveFromCOOL ):
 else:
    if 'InputCaliWavePoolFileName' in dir():
       RTMParamsLog.info("Read CaliWave from POOL file")
-      PoolFileList += [ InputCaliWavePoolDir+"/"+InputCaliWavePoolFileName ]
+      PoolFileList += [ InputCaliWavePoolFileDir+"/"+InputCaliWavePoolFileName ]
    else:
       RTMParamsLog.error("No PoolFileList found! Please list the POOL files containing CaliWave or read from COOL.")
       theApp.exit(-1)
@@ -613,9 +660,6 @@ if 'ShiftToStart' in dir():
 if 'TShaper' in dir():
    theLArWFParamTool.TShaper = TShaper
 
-## if 'DeltaTtailTaur' in dir():
-##	theLArWFParamTool.DeltaTtail  = [ 100, 50, DeltaTtailTaur ]
-
 theLArWFParamTool.TtailMin = [ 0, 0, CosRespTtailMin, 0 ]
 theLArWFParamTool.TtailMax = [ 0, 0, CosRespTtailMax, 0 ]
 
@@ -648,7 +692,6 @@ if ( WriteNtuple ):
    LArWFParams2Ntuple = LArWFParams2Ntuple("LArWFParams2Ntuple")
    LArWFParams2Ntuple.DumpCaliPulseParams = True
    LArWFParams2Ntuple.DumpDetCellParams   = True
-   #LArWFParams2Ntuple.DetStoreSuffix      = "_RTM"
    LArWFParams2Ntuple.CaliPulseParamsKey="LArCaliPulseParams_RTM"
    LArWFParams2Ntuple.DetCellParamsKey="LArDetCellParams_RTM"
    LArWFParams2Ntuple.isSC = SuperCells
@@ -691,9 +734,9 @@ if (  WritePoolFile ) :
    from RegistrationServices.OutputConditionsAlg import OutputConditionsAlg
    
    # write CaliPulseParams and DetCellParams
-   if os.path.exists(OutputParamsPoolFileDir+"/"+OutputParamsPoolFileName): 
-      os.remove(OutputParamsPoolFileDir+"/"+OutputParamsPoolFileName)  
-   OutputConditionsAlgParams = OutputConditionsAlg("OutputConditionsAlgParams",OutputParamsPoolFileDir+"/"+OutputParamsPoolFileName,
+   if os.path.exists(OutputPoolFileDir+"/"+OutputPoolFileName): 
+      os.remove(OutputPoolFileDir+"/"+OutputPoolFileName)  
+   OutputConditionsAlgParams = OutputConditionsAlg("OutputConditionsAlgParams",OutputPoolFileDir+"/"+OutputPoolFileName,
                                                         [OutputObjectSpecCaliPulseParams],[OutputObjectSpecTagCaliPulseParams],WriteIOV)
    OutputConditionsAlgParams.ObjectList += [OutputObjectSpecDetCellParams]
    OutputConditionsAlgParams.IOVTagList += [OutputObjectSpecTagDetCellParams]
@@ -715,7 +758,7 @@ if (  WritePoolFile ) :
 
 from McEventSelector.McEventSelectorConf import McEventSelector
 svcMgr += McEventSelector("EventSelector")
-svcMgr.EventSelector.RunNumber = int(RunNumber)
+svcMgr.EventSelector.RunNumber = int(RunNumberList[0])
 svcMgr.EventSelector.EventsPerRun      = 1
 svcMgr.EventSelector.FirstEvent	       = 0
 svcMgr.EventSelector.InitialTimeStamp  = 0

@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from AthenaCommon.Logging import logging
 log = logging.getLogger( __name__ )
 log.info("Importing %s",__name__)
@@ -137,12 +137,14 @@ JetChainParts = {
                       'fbdjshared',  # Forward backward jets + dijet, default parameters, fb and dj can share
                       'fbdjnosharedSEP10etSEP20etSEP34massSEP50fbet', # f/b jets + dijet, expl. parameters, fb and dj do not share
                       'dijetSEP80j1etSEP0j1eta240SEP80j2etSEP0j2eta240SEP700djmass', # Test dijet mass sel
+                      'dijetSEP80j1etSEP80j2etSEP700djmassSEP26djdphi', # Test dijet mass sel including dphi cut
                       # 'agg' category is for single variable computed by aggregation over single jets
                       'aggSEP1000htSEP30etSEP0eta320', # HT selection with explicit jet et/eta cuts
                       'aggSEP500htSEP30etSEP0eta320',
                       'aggSEP100htSEP10etSEP0eta320',
                       'aggSEP50htSEP10etSEP0eta320',
                       ],
+
     # Simple hypo configuration. Single property cuts defined as MINvarMAX
     'etaRange'      :
       ['0eta320', '320eta490', '0eta240', '0eta290'],
@@ -150,8 +152,8 @@ JetChainParts = {
       ['010jvt', '011jvt', '015jvt', '020jvt', '050jvt', '059jvt'],
     'momCuts'       : # Generic moment cut on single jets
       ['050momemfrac100','momhecfrac010','050momemfrac100SEPmomhecfrac010'],
-    'cleaning'      : # Jet cleaning per jet (currently unused)
-      ['noCleaning',],
+    'prefilters'      : # Pre-hypo jet selectors (including cleaning)
+    ['loose', 'prefilterSEP300ceta210SEP300nphi10'], 
     'smc'           : # "Single mass condition" -- rename?
       ['30smcINF', '35smcINF', '40smcINF', '50smcINF', '60smcINF', 'nosmc'],
     # Setup for alternative data stream readout
@@ -194,7 +196,7 @@ JetChainParts_Default = {
     'etaRange'      : '0eta320',
     'jvt'           : '',
     'momCuts'       : '',
-    'cleaning'      : 'noCleaning',
+    'prefilters'    : [],
     'hypoScenario'  : 'simple',
     'smc'           : 'nosmc',
     #
@@ -261,7 +263,7 @@ MuonChainParts_Default = {
 # Bphysics
 #==========================================================
 AllowedTopos_Bphysics = [
-    'bJpsimumu','bUpsimumu','bBmumu','bDimu','bDimu2700','bPhi','bTau','bJpsimumul2io',
+    'bJpsimumu','bJpsi','bUpsimumu','bUpsi','bBmumu','bDimu','bDimu2700','bDimu6000','bPhi','bTau','bJpsimumul2io',
     'bBmumux','BpmumuKp','BcmumuPi','BsmumuPhi','BdmumuKst','LbPqKm'
 ]
 
@@ -664,7 +666,7 @@ StreamingChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'streamingInfo'  : ['bkg', 'idmon', 'mb', 'eb', 'zb','to','standby',
-                        'hltpassthrough', 'jettauetmiss', 'larcells', 
+                        'jettauetmiss', 'larcells', 
                         'cosmiccalo', 'cosmicmuons','idcosmic', 'dcmmon',
                         'zb', 'l1calo', 'l1topo','ftk'],
     'trigType'       : 'streamer', 
@@ -683,7 +685,7 @@ StreamingChainParts_Default = {
     'L1threshold'    : '',
     'threshold'      : '',
     'multiplicity'   : '',
-    'streamingInfo'  : 'hltpassthrough',
+    'streamingInfo'  : '',
     'trigType'       : '', 
     'extra'          : '',
     'streamType'     : '',
@@ -700,7 +702,7 @@ AllowedCalibChainIdentifiers = ['csccalib',     'larcalib',
                                 'tilelarcalib', 'alfacalib',
                                 'larnoiseburst','ibllumi', 
                                 'l1satmon',     'zdcpeb',
-                                'calibAFP',
+                                'calibAFP', 'larpebcalib',
                                 ]
 
 # ---- Calib Chain Dictionary of all allowed Values ----
@@ -719,7 +721,7 @@ CalibChainParts = {
     'threshold'      : '',
     'multiplicity'   : '',
     'trigType'       : ['trk'], 
-    'extra'          : ['rerun','bs',''],
+    'extra'          : ['bs',''],
     'sigFolder'     : 'CalibCosmicMon',
     'subSigs'       : ['Calib']
     }

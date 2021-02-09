@@ -64,4 +64,4 @@ class MonitorChainConfiguration(ChainConfigurationBase):
     # TimeBurner configuration
     # --------------------
     def getTimeBurnerStep(self):      
-        return self.getStep(1,'TimeBurner',[TimeBurnerSequenceCfg])
+        return self.getStep(1,'TimeBurner',[TimeBurnerSequenceCfg], comboHypoCfg=None)

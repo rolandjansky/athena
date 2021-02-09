@@ -37,7 +37,7 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
 
     # Make sure we received a valid data type.
     if dataType not in [ 'data', 'mc', 'afii' ]:
-        raise ValueError( 'Invalid data type: %' % dataType )
+        raise ValueError( 'Invalid data type: %s' % dataType )
 
     if postfix != '' :
         postfix = '_' + postfix

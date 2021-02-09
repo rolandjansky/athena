@@ -436,7 +436,7 @@ void ConfAnalysis::initialiseInternal() {
   //  phi_res->GetYaxis()->SetTitle("Entries");
   //  addHistogram( phi_res );
 
-  addHistogram(    new TH1F( "phi_res",  "phi_res;#Delta #phi;Entries", 2*phiResBins,  -2*tmp_absResPhi, 2*tmp_absResPhi ) );
+  addHistogram(    new TH1F( "phi_res",   "phi_res;#Delta #phi;Entries", 2*phiResBins,  -2*tmp_absResPhi, 2*tmp_absResPhi ) );
   addHistogram(    new TH1F(  "z0_res",   "z0_res;#Deltaz_{0};Entries",  16*zresBins,        -8*zresMax,       8*zresMax ) );
   addHistogram(    new TH1F(  "d0_res",   "d0_res;#Deltad_{0};Entries",  4*d0resBins,     -0.2*d0resMax,    0.2*d0resMax ) );
   addHistogram(    new TH1F(  "a0_res",   "a0_res;#Deltaa_{0};Entries",  4*a0resBins,     -0.2*a0resMax,    0.2*a0resMax ) );
@@ -490,6 +490,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_ipt", iptnbins, iptbinlims, 2*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_ipt", iptnbins, iptbinlims, 8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_ipt", iptnbins, iptbinlims, 8*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_ipt", iptnbins, iptbinlims, 24*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_ipt", iptnbins, iptbinlims, 16*pTResBins,  -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_ipt",  iptnbins, iptbinlims, 8*pTResBins,   -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rd0res.push_back(  new Resplot("rd0_vs_ipt",  iptnbins, iptbinlims, factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
@@ -498,7 +499,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_pt", ptnbins, ptbinlims, 8*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_pt", ptnbins, ptbinlims, 8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_pt", ptnbins, ptbinlims, 24*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
-  //rzedres.push_back( new Resplot("rzed_vs_pt", ptnbins, ptbinlims, 4*zfactor*zresBins,   -2*zwidthfactor*zresMax,      2*zwidthfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_pt", ptnbins, ptbinlims, 24*zfactor*zresBins,   -2*zfactor*zresMax,      2*zfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_pt", ptnbins, ptbinlims, 16*pTResBins,  -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_pt",  ptnbins, ptbinlims, 8*pTResBins,   -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rd0res.push_back(  new Resplot("rd0_vs_pt",  ptnbins, ptbinlims, factor*24*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
@@ -508,6 +509,8 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*etaResBins,  -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  12*zfactor*zresBins,   -2*zfactor*zresMax,  2*zfactor*zresMax       ) );
+
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  24*zfactor*zresBins,   -zfactor*zresMax,  zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  4*zfactor*zresBins,   -2*zwidthfactor*zresMax,  2*zwidthfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_eta", etaBins, -tmp_maxEta, tmp_maxEta,  16*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_eta",  etaBins, -tmp_maxEta, tmp_maxEta,  8*pTResBins,   -tmp_absResPt, tmp_absResPt  ) ); 
@@ -532,6 +535,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_zed", 0.2*zBins, -zMax, zMax,  2*etaResBins,  -tmp_absResEta, tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_zed", 0.2*zBins, -zMax, zMax,  8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_zed", 0.2*zBins, -zMax, zMax,  8*zfactor*zresBins,   -2*zfactor*zresMax,   2*zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_zed", 0.2*zBins, -zMax, zMax,  24*zfactor*zresBins,   -2*zfactor*zresMax,   2*zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_zed", 0.2*zBins, -zMax, zMax,  4*zfactor*zresBins,   -2*zwidthfactor*zresMax,   2*zwidthfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_zed", zBins, -zMax, zMax,  4*zfactor*zresBins,   -2*zwidthfactor*zresMax,   2*zwidthfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_zed", 0.2*zBins, -zMax, zMax,  2*pTResBins,     -2*tmp_absResPt,  2*tmp_absResPt  ) ); 
@@ -542,6 +546,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_nvtx", 12, 0, 36,  4*etaResBins,  -tmp_absResEta, tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_nvtx", 12, 0, 36,  8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_nvtx", 12, 0, 36,  4*zfactor*zresBins,   -zfactor*zresMax,      zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_nvtx", 12, 0, 36,  24*zfactor*zresBins,   -zfactor*zresMax,      zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_nvtx", 12, 0, 36,  4*zfactor*zresBins,   -zfactor*0.5*zresMax,      zfactor*0.5*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_nvtx", 12, 0, 36,  4*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_nvtx",  12, 0, 36,  8*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
@@ -551,6 +556,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_ntracks", 60, 0, 600,  4*etaResBins,  -tmp_absResEta, tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_ntracks", 60, 0, 600,  8*phiResBins,  -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_ntracks", 60, 0, 600,  4*zfactor*zresBins,   -zfactor*zresMax,     zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_ntracks", 60, 0, 600,  24*zfactor*zresBins,   -zfactor*zresMax,     zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_ntracks", 60, 0, 600,  4*zfactor*zresBins,   -zfactor*0.5*zresMax,     zfactor*0.5*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_ntracks", 60, 0, 600,  4*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_ntracks",  60, 0, 600,  8*pTResBins,   -tmp_absResPt,  tmp_absResPt  ) ); 
@@ -560,6 +566,7 @@ void ConfAnalysis::initialiseInternal() {
   retares.push_back( new Resplot("reta_vs_phi", 128, -M_PI, M_PI, 2*etaResBins,       -wfactor*tmp_absResEta, wfactor*tmp_absResEta ) );
   rphires.push_back( new Resplot("rphi_vs_phi", 128, -M_PI, M_PI, 8*phiResBins,       -wfactor*tmp_absResPhi, wfactor*tmp_absResPhi ) );
   rzedres.push_back( new Resplot("rzed_vs_phi", 128, -M_PI, M_PI, 8*zfactor*zresBins, -2*zfactor*zresMax,     2*zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_phi", 128, -M_PI, M_PI, 24*zfactor*zresBins, -2*zfactor*zresMax,     2*zfactor*zresMax       ) );
   riptres.push_back( new Resplot("ript_vs_phi", 128, -M_PI, M_PI, 16*pTResBins,       -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rptres.push_back(  new Resplot("rpt_vs_phi",  128, -M_PI, M_PI, 8*pTResBins,        -wfactor*tmp_absResPt,  wfactor*tmp_absResPt  ) ); 
   rd0res.push_back(  new Resplot("rd0_vs_phi",  128, -M_PI, M_PI, factor*8*a0resBins, -wfactor*a0resMax,      wfactor*a0resMax  ) );
@@ -569,6 +576,8 @@ void ConfAnalysis::initialiseInternal() {
   //-----
   rzedres.push_back( new Resplot("rzed_vs_signed_pt", ptnbins2, ptbinlims2, 4*zfactor*zresBins,   -zfactor*zresMax,      zfactor*zresMax       ) );
   rzedres.push_back( new Resplot("rzed_vs_ABS_pt",    ptnbins,  ptbinlims,  4*zfactor*zresBins,   -2*zfactor*zresMax,  2*zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_signed_pt", ptnbins2, ptbinlims2, 24*zfactor*zresBins,   -zfactor*zresMax,      zfactor*zresMax       ) );
+  rzedthetares.push_back( new Resplot("rzedtheta_vs_ABS_pt",    ptnbins,  ptbinlims,  24*zfactor*zresBins,   -2*zfactor*zresMax,  2*zfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_signed_pt", ptnbins2, ptbinlims2, 4*zfactor*zresBins,   -2*zwidthfactor*zresMax,      2*zwidthfactor*zresMax       ) );
   //rzedres.push_back( new Resplot("rzed_vs_ABS_pt", ptnbins, ptbinlims, 4*zfactor*zresBins,   -2*zwidthfactor*zresMax,      2*zwidthfactor*zresMax       ) );
   rd0res.push_back( new Resplot("rd0_vs_signed_pt", ptnbins2, ptbinlims2, factor*8*a0resBins,   -wfactor*a0resMax,  wfactor*a0resMax  ) );
@@ -1030,6 +1039,7 @@ void ConfAnalysis::finalise() {
     rphires[i]->Finalise(Resplot::FitNull95);
     riptres[i]->Finalise(Resplot::FitNull95);
     rzedres[i]->Finalise(Resplot::FitNull95);
+    rzedthetares[i]->Finalise(Resplot::FitNull95);
     //    rptres[i]->Finalise(Resplot::FitBreit);
     //rptres[i]->Finalise(Resplot::FitNull95);
     rd0res[i]->Finalise(Resplot::FitNull95);
@@ -1050,6 +1060,7 @@ void ConfAnalysis::finalise() {
     retares[i]->Write();
     rphires[i]->Write();
     rzedres[i]->Write();
+    rzedthetares[i]->Write();
     riptres[i]->Write();
     rptres[i]->Write();
     rd0res[i]->Write();
@@ -1057,6 +1068,7 @@ void ConfAnalysis::finalise() {
     delete retares[i];
     delete rphires[i];
     delete rzedres[i];
+    delete rzedthetares[i];
     delete riptres[i];
     delete rptres[i];
     delete rd0res[i];
@@ -1102,6 +1114,8 @@ void ConfAnalysis::finalise() {
   //rzedres[5]->Write();
   rzedres[rphires.size()]->Finalise(Resplot::FitNull95);
   rzedres[rphires.size()]->Write();
+  rzedthetares[rphires.size()]->Finalise(Resplot::FitNull95);
+  rzedthetares[rphires.size()]->Write();
   //rd0res[5]->Finalise(Resplot::FitNull95);
   //rd0res[5]->Write();
   rd0res[rphires.size()]->Finalise(Resplot::FitNull95);
@@ -1328,7 +1342,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
     //    std::cout << "\t\tConfAnalysis " << name() << "\t" << i << " " << *reftracks[i] << " -> ";        
 
     // raw reference track distributions 
-    double vpart[16] = { std::fabs(pTt), etat, phit, z0t, d0t, a0t, nsctt, npixt, nsctt, nsit, nstrawt, dd0t, da0t, dz0t, detat, dphit };  
+    double vpart[16] = { std::fabs(pTt), etat, phit, z0t, d0t, a0t, nsctt, npixt, nsctt, nsit, nstrawt, dd0t, da0t, dz0t, detat, dphit  };  
   
     /// NB: the dd0, da0 etc plots will be filled only for ref tracks 
     ///     with *matched* test tracks 
@@ -1532,6 +1546,7 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
         retares[irfill]->Fill( resfiller[irfill],  etar-etat );
         rptres[irfill]->Fill(  resfiller[irfill],  pTr-pTt );
         rzedres[irfill]->Fill( resfiller[irfill],  z0r-z0t );
+        rzedthetares[irfill]->Fill( resfiller[irfill],  z0r*std::sin(thetar)-z0t*std::sin(thetat) );
         rd0res[irfill]->Fill(  resfiller[irfill],  a0r-a0t );
       }
       
@@ -1608,6 +1623,10 @@ void ConfAnalysis::execute(const std::vector<TIDA::Track*>& reftracks,
       //	std::cout << "rphires.size() = " << rphires.size() << std::endl;
       rzedres[rphires.size()]->Fill( resfiller[1], z0r-z0t );
       rzedres[rphires.size()+1]->Fill( resfiller[1], z0r-z0t );
+
+      rzedthetares[rphires.size()]->Fill( resfiller[1],   z0r*std::sin(thetar)-z0t*std::sin(thetat) );
+      rzedthetares[rphires.size()+1]->Fill( resfiller[1], z0r*std::sin(thetar)-z0t*std::sin(thetat) );
+
       rd0res[rphires.size()]->Fill( resfiller[1], a0r-a0t );
       rd0res[rphires.size()+1]->Fill( fabs(resfiller[1]), a0r-a0t ); //
       

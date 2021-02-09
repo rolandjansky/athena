@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Declare the package name:
 atlas_subdir( APRTests )
@@ -36,13 +36,13 @@ function( _add_test name )
    atlas_add_test( "${name}_test"
       SOURCES ${name}/*.cpp
       INCLUDE_DIRS ${CPPUNIT_INCLUDE_DIRS}
-      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc
+      LINK_LIBRARIES ${CPPUNIT_LIBRARIES} PersistencySvc TestTools
       StorageSvc AthContainers  FileCatalog
       PersistentDataModel TestTools
       ENVIRONMENT "ROOT_INCLUDE_PATH=$ENV{ROOT_INCLUDE_PATH}:${CMAKE_CURRENT_SOURCE_DIR}/TestDictionary"
       PROPERTIES TIMEOUT 300
       PRE_EXEC_SCRIPT "rm -f pool*.root *xml"
-      POST_EXEC_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/test/post.sh ${name}_test"
+      LOG_IGNORE_PATTERN "POOL_CATALOG is not defined|using default|New file created|FID"
       ${properties} )
 endfunction( _add_test )
 

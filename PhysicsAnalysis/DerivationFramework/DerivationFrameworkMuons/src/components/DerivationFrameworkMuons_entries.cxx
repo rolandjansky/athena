@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "DerivationFrameworkMuons/dimuonTaggingTool.h"
@@ -25,3 +25,5 @@ DECLARE_COMPONENT( MuonTPExtrapolationTool )
 DECLARE_COMPONENT( IDTrackCaloDepositsDecoratorTool )
 DECLARE_COMPONENT( DerivationFramework::MuonIDCovMatrixDecorator )
 DECLARE_COMPONENT( DerivationFramework::MuonJetDrTool )
+
+DECLARE_COMPONENT(MuonTPJpsiVertexFittingAlg)

@@ -18,6 +18,7 @@ TestAlgo = CompFactory.HelloAlg
 
 
 Configurable.configurableRun3Behavior=1
+ComponentAccumulator.debugMode=True
 class TestComponentAccumulator( unittest.TestCase ):
     def setUp(self):
 
@@ -296,12 +297,25 @@ class ForbidRecursiveSequences( unittest.TestCase ):
 class FailedMerging( unittest.TestCase ):
     def runTest( self ):
         topCA = ComponentAccumulator()
-
-        def badMerge():
-            someCA = ComponentAccumulator()
-            topCA.merge(  (someCA, 1, "hello")  )
-        self.assertRaises(TypeError, badMerge )
         topCA.wasMerged()
+
+        hello = CompFactory.HelloAlg("hello", MyInt=7)
+        topCA.addEventAlgo(hello)
+        def badMerge1():
+            someCA = ComponentAccumulator()
+            someCA.wasMerged() # to silence verbose deletion of unmerged CA
+            topCA.merge(  (someCA, 1, "hello")  )
+        self.assertRaises(TypeError, badMerge1 )
+
+        def badMerge2():
+            someCA = ComponentAccumulator()
+            hello_mod = CompFactory.HelloAlg("hello", MyInt=8)
+            someCA.addEventAlgo(hello_mod)
+            someCA.wasMerged() # to silence verbose deletion of unmerged CA
+            topCA.merge(someCA)
+        self.assertRaises(ValueError, badMerge2)
+
+
 
 
 class MergeMovingAlgorithms( unittest.TestCase ):

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef TRIGHLTJETHYPO_FASTREDUCTIONMATCHER_H
@@ -7,7 +7,7 @@
 
 
 #include "./IJetsMatcherMT.h"
-#include "./CapacityCheckedConditionsDefs.h"
+#include "./RepeatedConditionsDefs.h"
 #include "./ConditionFilter.h"
 #include "./Tree.h"
 
@@ -57,7 +57,6 @@ class FastReductionMatcher: public IJetsMatcherMT {
   // minimum number of jets required - determined by summing
   // leaf Condition capacities
   long int m_minNjets{0};
-
 
 };
 #endif

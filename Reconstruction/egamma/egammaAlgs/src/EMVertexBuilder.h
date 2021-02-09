@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #ifndef EGAMMAALGS_EMVERTEXBUILDER_H
@@ -18,8 +18,28 @@
 
 /**
    @class EMVertexBuilder
-   This tool builds ID vertices from a given TrackParticleContainer
+   @brief This tool builds ID vertices from a given TrackParticleContainer
    @author Kerstin Tackmann (based on work by many others)
+
+   Input container:
+   - InputTrackParticleContainerName (default=GSFTrackParticles): collection of
+   TrackParticles to be used to find vertices
+   Output container:
+   - OutputConversionContainerName (default=GSFConversionVertices) collection of
+   fitted vertices
+
+   The fitting and the vertices is delegate to a tool implementing the InDet::IVertexFinder
+   interface, configured with the VertexFinderTool property, by default
+   InDetConversionFinderTools.
+
+   After the vertex are created only the ones passing the selection are saved.
+   - maximum radius (MaxRadius property)
+   - for doubleTRT or singleTRT conversion a minimum pT (minPCutSingleTrackConversion and 
+     minPCutDoubleTrackConversion)
+
+   Vertex are decorated with:
+   - momentum at vertex, as sum of the the track extrapolated: px, py, pz
+   - eta-at-calo, phi-at-calo computed with the ExtrapolationTool
 */
 
 class EMVertexBuilder : public AthReentrantAlgorithm {
@@ -32,19 +52,17 @@ class EMVertexBuilder : public AthReentrantAlgorithm {
   virtual StatusCode execute(const EventContext& ctx) const override final;
 
  private:
-  // This will become the normal execute when
-  // inheriting from AthReentrantAlgorithm
-	
+
   /** Maximum radius accepted for conversion vertices **/
-  Gaudi::Property<float> m_maxRadius {this, "MaxRadius", 800., 
+  Gaudi::Property<float> m_maxRadius {this, "MaxRadius", 800.,
       "Maximum radius accepted for conversion vertices"};
 
   /**  Minimum Pt, less than that TRT track are pileup for double/single track conversion **/
-  Gaudi::Property<float> m_minPtCut_DoubleTrack {this, 
-      "minPCutDoubleTrackConversion", 2000,  
+  Gaudi::Property<float> m_minPtCut_DoubleTrack {this,
+      "minPCutDoubleTrackConversion", 2000,
       "Minimum Pt, less than that TRT tracks pileup for double-track conversion"};
 
-  Gaudi::Property<float> m_minPtCut_SingleTrack {this, 
+  Gaudi::Property<float> m_minPtCut_SingleTrack {this,
       "minPCutSingleTrackConversion", 2000,
       "Minimum Pt, less than that TRT track pileup for single-track conversion"};
 
@@ -54,7 +72,7 @@ class EMVertexBuilder : public AthReentrantAlgorithm {
 
   /** @brief conversion container output name*/
   SG::WriteHandleKey<xAOD::VertexContainer> m_outputConversionContainerKey {this,
-      "OutputConversionContainerName", "GSFConversionVertices", 
+      "OutputConversionContainerName", "GSFConversionVertices",
       "Output conversion vertices"};
 
   /** @brief Tool to find vertices (creates double-track conversions) */
@@ -63,9 +81,9 @@ class EMVertexBuilder : public AthReentrantAlgorithm {
       "The tool that does the converions finding"};
 
   /** @brief EMExtrapolationTool */
-  ToolHandle<IEMExtrapolationTools>  m_EMExtrapolationTool {this,
+  ToolHandle<IEMExtrapolationTools> m_EMExtrapolationTool {this,
       "ExtrapolationTool", "EMExtrapolationTools", "Handle of the extrapolation tool"};
-    		
+
 };
 
-#endif // EMVERTEXBUILDER_H 
+#endif // EMVERTEXBUILDER_H

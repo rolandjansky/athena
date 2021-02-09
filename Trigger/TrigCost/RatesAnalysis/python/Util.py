@@ -8,7 +8,7 @@
 @brief Utility functions used by RatesPostProcessing
 '''
 
-def toCSV(fileName, HLTTriggers):
+def toCSV(fileName, metadata, HLTTriggers):
   import csv
 
   with open(fileName, mode='w') as outputCSV_file:
@@ -17,36 +17,10 @@ def toCSV(fileName, HLTTriggers):
     rates_csv_writer.writerow(['Name','Active Time [s]','Group','Weighted PS Rate [Hz]','Weighted PS Rate Err [Hz]','Prescale','ID','Raw Active Events','Raw Pass Events','Active Events','Input Rate [Hz]','Pass Fraction before PS [%]','Pass Fraction after PS [%]','Pass Weighted PS'])
     rates_csv_writer.writerow(['Trigger name','Integrated length of all lumi blocks which contributed events to this rates prediction.','The group this chain belongs to.','Rate after applying all prescale(s) as weights.','Error on rate after applying all prescale(s) as weights','The prescale of this chain. Only displayed for simple combinations.','The CPTID or HLT Chain ID','Raw underlying statistics on the number events processed for this chain.','Raw underlying statistics on the number events passed by this chain.','Number of events in which the chain - or at least one chain in the combination - was executed.','Input rate to this chain or combination of chains. At L1 this will be the collision frequency for the bunch pattern.','Fraction of events which pass this trigger before prescale.','Fraction of events which pass this trigger after prescale.','Number of events this chain or combination passed after applying prescales as weighting factors.'])
 
-    # Provisional mapping of HLT chains and Group names
     for trig in HLTTriggers:
-      if trig.name.startswith("HLT_e"):
-        group_name="RATE_SingleElectron"
-      elif trig.name.startswith("HLT_mu"):
-        group_name="RATE_SingleMuon"
-      elif trig.name.startswith("HLT_g"):
-        group_name="RATE_SinglePhoton"
-      elif trig.name.startswith("HLT_j"):
-        group_name="RATE_SingleJet"
-      elif trig.name.startswith("HLT_xe"):
-        group_name="RATE_MET"
-      elif trig.name.startswith("HLT_tau"):
-        group_name="RATE_SingleTau"
-      elif trig.name.startswith("HLT_2j") or trig.name.startswith("HLT_3j") or trig.name.startswith("HLT_4j") or trig.name.startswith("HLT_5j") or trig.name.startswith("HLT_6j"):
-        group_name="RATE_MultiJet"
-      elif trig.name.startswith("HLT_2e") or trig.name.startswith("HLT_3e") or trig.name.startswith("HLT_4e"):
-        group_name="RATE_MultiElectron"
-      elif trig.name.startswith("HLT_2mu_b") or trig.name.startswith("HLT_3mu_b") or trig.name.startswith("HLT_4mu_b"):
-        group_name="RATE_Bphysics"
-      elif trig.name.startswith("HLT_2mu") or trig.name.startswith("HLT_3mu") or trig.name.startswith("HLT_4mu"):
-        group_name="RATE_MultiMuon"
-      elif trig.name.startswith("HLT_2tau"):
-        group_name="RATE_MultiTau"
-      elif trig.name.startswith("HLT_2g"):
-        group_name="RATE_MultiPhoton"
-      elif trig.name.startswith("HLT_noalg"):
-        group_name="RATE_SeededStreamers"
-      else:
-        group_name="UNDEFINED"
+      group_name = metadata["chainGroup"][trig.name]
+    
+      chain_id = metadata["chainID"][trig.name]
 
       if float(trig.rateDenominator)==0:
         print("float(trig.rateDenominator) is ZERO! This shouldn't happen")
@@ -59,7 +33,7 @@ def toCSV(fileName, HLTTriggers):
       else:
         passFrac_afterPS=100*float(trig.passWeighted)/float(trig.activeWeighted)
 
-      rates_csv_writer.writerow([trig.name,"%.4f" % trig.rateDenominator,group_name,"%.4f" % trig.rate,"%.4f" % trig.rateErr,trig.prescale,'ID',"%.0f" % trig.activeRaw,"%.0f" % trig.passRaw,"%.4f" % trig.activeWeighted,"%.4f" % (float(trig.activeWeighted)/float(trig.rateDenominator)),"%.4f" % passFrac_beforePS,"%.4f" % passFrac_afterPS,"%.4f" % trig.passWeighted])
+      rates_csv_writer.writerow([trig.name,"%.4f" % trig.rateDenominator,group_name,"%.4f" % trig.rate,"%.4f" % trig.rateErr,trig.prescale,chain_id,"%.0f" % trig.activeRaw,"%.0f" % trig.passRaw,"%.4f" % trig.activeWeighted,"%.4f" % (float(trig.activeWeighted)/float(trig.rateDenominator)),"%.4f" % passFrac_beforePS,"%.4f" % passFrac_afterPS,"%.4f" % trig.passWeighted])
       
     
 
@@ -90,6 +64,15 @@ def toJson(fileName, metadata, L1Triggers, HLTTriggers):
   with open(fileName, 'w') as outFile:
     json.dump(obj=jsonDict, fp=outFile, indent=2, sort_keys=True)
 
+  metajsonDict = {}
+  metajsonDict['PredictionLumi'] = metadata['targetLumi']
+  metajsonDict['TargetMu'] = metadata['targetMu']
+  metajsonDict['RunNumber'] = metadata['runNumber']
+  metajsonDict['NEvents'] = metadata['n_evts']
+  
+  with open('metadata.json', 'w') as outMetaFile:
+    json.dump(obj=metajsonDict, fp=outMetaFile, indent=2, sort_keys=True)
+
 
 def getMetadata(inputFile):
   metatree = inputFile.Get("metadata")
@@ -98,6 +81,8 @@ def getMetadata(inputFile):
 
   metatree.GetEntry(0)
   metadata = {}
+
+  metadata['runNumber'] = metatree.runNumber
 
   metadata['targetMu'] = metatree.targetMu
   metadata['targetBunches'] = metatree.targetBunches
@@ -118,6 +103,15 @@ def getMetadata(inputFile):
   metadata['prescales'] = prescales
   metadata['lowers'] = lowers
   
+  chainid = {}
+  chaingroup = {}
+  for i in range(0, metatree.hltChainIDGroup.size()):
+    chainid[metatree.hltChainIDGroup.at(i).at(0)] = metatree.hltChainIDGroup.at(i).at(1)
+    chaingroup[metatree.hltChainIDGroup.at(i).at(0)] = metatree.hltChainIDGroup.at(i).at(2)
+
+  metadata['chainID'] = chainid
+  metadata['chainGroup'] = chaingroup
+
   bunchGroups = []
   for bg in metatree.bunchGroups:
     bunchGroups.append(bg)
