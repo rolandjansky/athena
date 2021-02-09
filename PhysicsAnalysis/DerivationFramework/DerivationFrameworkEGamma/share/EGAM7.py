@@ -31,6 +31,8 @@ streamName = derivationFlags.WriteDAOD_EGAM7Stream.StreamName
 fileName   = buildFileName( derivationFlags.WriteDAOD_EGAM7Stream )
 EGAM7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
+augmentationTools = []
+
 
 #====================================================================
 # SET UP SKIMMING
@@ -46,7 +48,16 @@ EGAM7Stream = MSMgr.NewPoolRootStream( streamName, fileName )
 
 requirement_object = 'Electrons.pt > 4.5*GeV'
 objectSelection = 'count('+requirement_object+') >= 1'
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
+EGAM7_OfflineSkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7_OfflineSkimmingTool",
+                                                                         expression = objectSelection)
+ToolSvc += EGAM7_OfflineSkimmingTool
+print("EGAM7 offline skimming tool:", EGAM7_OfflineSkimmingTool)
 
+
+#====================================================================
+# trigger-based selection
+#====================================================================
 triggers =  ['HLT_e4_etcut'        ]
 triggers += ['HLT_e5_etcut'        ]
 triggers += ['HLT_e9_etcut'        ]            
@@ -135,15 +146,14 @@ triggers += ['HLT_e300_etcut'                      ]
 triggers += ['HLT_g250_etcut'                      ]
 triggers += ['HLT_g300_etcut'                      ]
 
-expression = '(' + ' || '.join(triggers) + ') && '+objectSelection
-print(expression)
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__TriggerSkimmingTool
+EGAM7_TriggerSkimmingTool = DerivationFramework__TriggerSkimmingTool(   name = "EGAM7_TriggerSkimmingTool", TriggerListOR = triggers)
+ToolSvc += EGAM7_TriggerSkimmingTool
+print("EGAM7 trigger skimming tool:", EGAM7_TriggerSkimmingTool)
 
-from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__xAODStringSkimmingTool
-EGAM7_SkimmingTool = DerivationFramework__xAODStringSkimmingTool( name = "EGAM7_SkimmingTool",
-                                                                   expression = expression)
-ToolSvc += EGAM7_SkimmingTool
-print("EGAM7 skimming tool:", EGAM7_SkimmingTool)
-
+from DerivationFrameworkTools.DerivationFrameworkToolsConf import DerivationFramework__FilterCombinationAND
+EGAM7_SkimmingTool = DerivationFramework__FilterCombinationAND(name="EGAM7SkimmingTool", FilterList=[EGAM7_OfflineSkimmingTool,EGAM7_TriggerSkimmingTool] )
+ToolSvc+=EGAM7_SkimmingTool
 
 
 #====================================================================
@@ -157,9 +167,11 @@ print("EGAM7 skimming tool:", EGAM7_SkimmingTool)
 from DerivationFrameworkCalo.DerivationFrameworkCaloFactories import GainDecorator, getGainDecorations, getClusterEnergyPerLayerDecorator, getClusterEnergyPerLayerDecorations
 EGAM7_GainDecoratorTool = GainDecorator()
 ToolSvc += EGAM7_GainDecoratorTool
+augmentationTools += [EGAM7_GainDecoratorTool]
 
 cluster_sizes = (3,5), (5,7), (7,7), (7,11)
 EGAM7_ClusterEnergyPerLayerDecorators = [getClusterEnergyPerLayerDecorator(neta, nphi)() for neta, nphi in cluster_sizes]
+augmentationTools += EGAM7_ClusterEnergyPerLayerDecorators
 
 
 #====================================================================
@@ -172,7 +184,7 @@ EGAM7_MaxCellDecoratorTool = DerivationFramework__MaxCellDecorator( name        
                                                                     SGKey_photons           = "Photons",
                                                                     )
 ToolSvc += EGAM7_MaxCellDecoratorTool
-
+augmentationTools += [EGAM7_MaxCellDecoratorTool]
 
 #====================================================================
 # SET UP THINNING
@@ -304,10 +316,14 @@ DerivationFrameworkJob += egam7Seq
 #=======================================
 # CREATE THE DERIVATION KERNEL ALGORITHM
 #=======================================
-
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
+
+print("EGAM7 skimming tools: ", [EGAM7_SkimmingTool])
+print("EGAM7 thinning tools: ", thinningTools)
+print("EGAM7 augmentation tools: ", augmentationTools)
+
 egam7Seq += CfgMgr.DerivationFramework__DerivationKernel("EGAM7Kernel",
-                                                         AugmentationTools = [EGAM7_GainDecoratorTool, EGAM7_MaxCellDecoratorTool] + EGAM7_ClusterEnergyPerLayerDecorators,
+                                                         AugmentationTools = augmentationTools,
                                                          SkimmingTools = [EGAM7_SkimmingTool],
                                                          ThinningTools = thinningTools
                                                          )
