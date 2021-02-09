@@ -61,7 +61,7 @@ validationDict = {
                   'Btag': False,
                   'Egamma': False,
                   'Electron': False,
-                  'Example': False,
+                  'Example': True,
                   'Exotics': False,
                   'HSG6': False,
                   'InDet': False,
