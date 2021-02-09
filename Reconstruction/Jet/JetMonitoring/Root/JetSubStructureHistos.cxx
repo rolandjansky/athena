@@ -32,11 +32,13 @@ int JetSubStructureHistos::buildHistos(){
 
   // Build and register the histos in this group : 
   TH1::AddDirectory(kFALSE); // Turn off automatic addition to gDirectory to avoid Warnings. Histos are anyway placed in their own dir later.
-  m_tau21 = bookHisto( new TH1F(prefixn+"Tau21"  ,  "Jet Tau21 ;Entries", 100, 0, 1) );
-  m_tau32 = bookHisto( new TH1F(prefixn+"Tau32"  ,  "Jet Tau32 ;Entries", 100, 0, 1) );
-  m_C1    = bookHisto( new TH1F(prefixn+"C1"  ,  "Jet C1 (GeV);Entries", 100, -1, 1) );
-  m_C2    = bookHisto( new TH1F(prefixn+"C2"  ,  "Jet C2 (GeV);Entries", 100, -1, 1) );
-  m_D2    = bookHisto( new TH1F(prefixn+"D2"  ,  "Jet D2 (GeV);Entries", 100, -1, 1) );
+  m_tau21     = bookHisto( new TH1F(prefixn+"Tau21"  ,  "Jet Tau21 ;Entries", 100, 0, 1) );
+  m_tau32     = bookHisto( new TH1F(prefixn+"Tau32"  ,  "Jet Tau32 ;Entries", 100, 0, 1) );
+  m_tau21_wta = bookHisto( new TH1F(prefixn+"Tau21_wta"  ,  "Jet Tau21_wta ;Entries", 100, 0, 1) );
+  m_tau32_wta = bookHisto( new TH1F(prefixn+"Tau32_wta"  ,  "Jet Tau32_wta ;Entries", 100, 0, 1) );
+  m_C1        = bookHisto( new TH1F(prefixn+"C1"  ,  "Jet C1 (GeV);Entries", 100, -1, 1) );
+  m_C2        = bookHisto( new TH1F(prefixn+"C2"  ,  "Jet C2 (GeV);Entries", 100, -1, 1) );
+  m_D2        = bookHisto( new TH1F(prefixn+"D2"  ,  "Jet D2 (GeV);Entries", 100, -1, 1) );
   
 
 
@@ -66,8 +68,10 @@ int JetSubStructureHistos::buildHistos(){
 int JetSubStructureHistos::fillHistosFromJet(const xAOD::Jet &j){
   //For definitions see JetSubStructureMomentTools
   
-  if( j.getAttribute<float>("Tau1") != 0 ) m_tau21->Fill( j.getAttribute<float>("Tau2") / j.getAttribute<float>("Tau1") );
-  if( j.getAttribute<float>("Tau2") != 0 ) m_tau32->Fill( j.getAttribute<float>("Tau3") / j.getAttribute<float>("Tau2") );
+  if( j.getAttribute<float>("Tau1") > 1e-8 ) m_tau21->Fill( j.getAttribute<float>("Tau2") / j.getAttribute<float>("Tau1") );
+  if( j.getAttribute<float>("Tau2") > 1e-8 ) m_tau32->Fill( j.getAttribute<float>("Tau3") / j.getAttribute<float>("Tau2") );
+  if( j.getAttribute<float>("Tau1_wta") > 1e-8 ) m_tau21_wta->Fill( j.getAttribute<float>("Tau2_wta") / j.getAttribute<float>("Tau1_wta") );
+  if( j.getAttribute<float>("Tau2_wta") > 1e-8 ) m_tau32_wta->Fill( j.getAttribute<float>("Tau3_wta") / j.getAttribute<float>("Tau2_wta") );
 
   if( j.getAttribute<float>("ECF1") > 1e-8 ) m_C1->Fill( j.getAttribute<float>("ECF2") / pow( j.getAttribute<float>("ECF1"), 2.0) );
   if( j.getAttribute<float>("ECF2") > 1e-8 ) m_C2->Fill( ( j.getAttribute<float>("ECF3") * j.getAttribute<float>("ECF1") ) / pow( j.getAttribute<float>("ECF2"), 2.0) );

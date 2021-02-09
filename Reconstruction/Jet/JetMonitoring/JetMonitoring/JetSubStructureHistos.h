@@ -34,6 +34,8 @@ protected:
 
   TH1F* m_tau21;
   TH1F* m_tau32;
+  TH1F* m_tau21_wta;
+  TH1F* m_tau32_wta;
 
   TH1F* m_C1;
   TH1F* m_C2;

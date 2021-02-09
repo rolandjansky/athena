@@ -166,8 +166,8 @@ def commonPhysValTool(container, refcontainer="", onlyKinematics = False, global
 #              Some of these have been used to JetSubStructureHistos.cxx
 #              jhm.Tau21,
 #              jhm.Tau32,
-              jhm.Tau21_wta,
-              jhm.Tau32_wta,
+#              jhm.Tau21_wta,
+#              jhm.Tau32_wta,
               jhm.Dip12,
               jhm.Dip13,
               jhm.Dip23,
