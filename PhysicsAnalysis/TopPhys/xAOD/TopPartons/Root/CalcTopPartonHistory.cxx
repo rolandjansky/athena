@@ -191,7 +191,7 @@ namespace top {
     bool hasWdecayProd2 = false;
     
     bool store_tau_info = true;
-    if (tau_decay_from_W_isHadronic == -9999) { bool store_tau_info = false; }
+    if (tau_decay_from_W_isHadronic == -9999){store_tau_info = false;}
 
     for (const xAOD::TruthParticle* particle : *truthParticles) {
       if (particle->pdgId() != start) continue;
