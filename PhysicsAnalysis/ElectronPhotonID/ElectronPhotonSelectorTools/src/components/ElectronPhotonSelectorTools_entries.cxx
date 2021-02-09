@@ -8,6 +8,7 @@
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 #include "ElectronPhotonSelectorTools/AsgElectronChargeIDSelectorTool.h"
 #include "ElectronPhotonSelectorTools/AsgDeadHVCellRemovalTool.h"
+#include "ElectronPhotonSelectorTools/AsgElectronSelectorTool.h"
 
 DECLARE_TOOL_FACTORY( AsgElectronIsEMSelector )
 DECLARE_TOOL_FACTORY( AsgElectronMultiLeptonSelector )
@@ -18,7 +19,8 @@ DECLARE_TOOL_FACTORY( AsgForwardElectronLikelihoodTool )
 DECLARE_TOOL_FACTORY( EGammaAmbiguityTool )
 DECLARE_TOOL_FACTORY( AsgElectronChargeIDSelectorTool )
 DECLARE_TOOL_FACTORY( AsgDeadHVCellRemovalTool )
-DECLARE_FACTORY_ENTRIES( ElectronPhotonSelectorTools ) 
+DECLARE_TOOL_FACTORY( AsgElectronSelectorTool )
+DECLARE_FACTORY_ENTRIES( ElectronPhotonSelectorTools )
 {
   DECLARE_ALGTOOL( AsgElectronIsEMSelector )
   DECLARE_ALGTOOL( AsgElectronMultiLeptonSelector )
@@ -28,6 +30,5 @@ DECLARE_FACTORY_ENTRIES( ElectronPhotonSelectorTools )
   DECLARE_ALGTOOL( AsgForwardElectronLikelihoodTool )
   DECLARE_ALGTOOL( EGammaAmbiguityTool )
   DECLARE_ALGTOOL( AsgDeadHVCellRemovalTool )
+  DECLARE_ALGTOOL( AsgElectronSelectorTool )
 }
-
-

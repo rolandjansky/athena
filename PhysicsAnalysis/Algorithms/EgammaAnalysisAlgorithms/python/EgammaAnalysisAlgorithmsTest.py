@@ -3,7 +3,7 @@
 from AnaAlgorithm.AlgSequence import AlgSequence
 from AnaAlgorithm.DualUseConfig import createAlgorithm
 
-def makeSequence (dataType) :
+def makeSequence (dataType, likelihood=True) :
     algSeq = AlgSequence()
 
     # Create the algorithm's configuration. Note that we'll be able to add
@@ -22,7 +22,11 @@ def makeSequence (dataType) :
     # Include, and then set up the electron analysis sequence:
     from EgammaAnalysisAlgorithms.ElectronAnalysisSequence import \
         makeElectronAnalysisSequence
-    electronSequence = makeElectronAnalysisSequence( dataType, 'LooseLHElectron.GradientLoose', postfix = 'loose',
+    if likelihood:
+        workingpoint = 'LooseLHElectron.GradientLoose'
+    else:
+        workingpoint = 'LooseDNNElectron.GradientLoose'
+    electronSequence = makeElectronAnalysisSequence( dataType, workingpoint, postfix = 'loose',
                                                      recomputeLikelihood=True, enableCutflow=True, enableKinematicHistograms=True )
     electronSequence.configure( inputName = 'Electrons',
                                 outputName = 'AnalysisElectrons_%SYS%' )
