@@ -75,13 +75,13 @@ def jetRecoDictFromString(jet_def_string):
     from TriggerMenuMT.HLTMenuConfig.Menu.SignatureDicts import JetChainParts,JetChainParts_Default
     for key in recoKeys:
         keyFound = False
+        tmp_key = 'prefilters' if key == 'cleaning' else key
         for part in jet_def_string.split('_'):
-            tmp_key = 'prefilters' if key == 'cleaning' else key
             if part in JetChainParts[tmp_key]:
                 jetRecoDict[key] = part
                 keyFound         = True
         if not keyFound:
-            jetRecoDict[key] = JetChainParts_Default[key]
+            jetRecoDict[key] = 'noCleaning' if key =='cleaning' else JetChainParts_Default[key]
 
     # set proper jetCalib key in default case
     if jetRecoDict['jetCalib'] == "default":
