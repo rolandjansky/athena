@@ -81,16 +81,16 @@ def addJetClusteringToComponent(components, jetdef_i, configFlags, sequenceName=
     # Schedule the various input collections.
     # We don't have to worry about ordering, as the scheduler
     # will handle the details. Just merge the components.
-    inputcomps = JetInputCfg(jetdef_i, configFlags, sequenceName)
-    components.merge(inputcomps)
+    inputcomps = JetInputCfg(jetdef_i, configFlags)
+    components.merge(inputcomps, sequenceName=sequenceName)
 
     # schedule the algs to create fastjet::PseudoJet objects out of the inputs
-    pjCompo= PseudoJetCfg(jetdef_i, configFlags, sequenceName)
-    components.merge(pjCompo)
+    pjCompo= PseudoJetCfg(jetdef_i, configFlags)
+    components.merge(pjCompo, sequenceName=sequenceName)
     
     # Generate a JetRecAlg to run the jet finding and modifiers
     jetrecalg = getJetRecAlg( jetdef_i)
-    components.addEventAlgo(jetrecalg, sequenceName)
+    components.addEventAlgo(jetrecalg, sequenceName=sequenceName)
     
     jetlog.info("Scheduled JetAlgorithm instance \"jetalg_{0}\"".format(jetdef_i.fullname()))
 
@@ -133,14 +133,14 @@ def buildPseudoJetAlgs(jetdef):
     jetdef._internalAtt['finalPJContainer'] = finalPJContainer
     return pjalglist
     
-def PseudoJetCfg(jetdef, configFlags, sequenceName):
+def PseudoJetCfg(jetdef, configFlags):
     """Builds a ComponentAccumulator for creating PseudoJetContainer needed by jetdef.
     THIS updates jetdef._internalAtt['finalPJContainer'] 
     """
-    components = ComponentAccumulator(sequenceName)
-    pjalglist = buildPseudoJetAlgs( jetdef )
+    components = ComponentAccumulator()
+    pjalglist = buildPseudoJetAlgs(jetdef)
     for pjalg in pjalglist:
-        components.addEventAlgo( pjalg, sequenceName )
+        components.addEventAlgo(pjalg)
     return components
 
 _mergedPJContainers = dict()
@@ -152,7 +152,7 @@ def mergedPJId(pjList):
 
 
 ########################################################################
-def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
+def JetInputCfg(jetOrConstitdef, configFlags):
     """Function for setting up inputs to jet finding
 
     This includes constituent modifications, track selection, copying of
@@ -162,8 +162,7 @@ def JetInputCfg(jetOrConstitdef, configFlags, sequenceName='AthAlgSeq'):
      * a JetDefinition : this happens when called from JetRecCfg, then the jetdef._prereqDic/Order are used.
      * a JetConstitSource : to allow scheduling the corresponding constituents algs independently of any jet alg. 
     """
-
-    components = ComponentAccumulator(sequenceName)
+    components = ComponentAccumulator()
 
     
     from .JetDefinition import JetConstitSource, JetDefinition

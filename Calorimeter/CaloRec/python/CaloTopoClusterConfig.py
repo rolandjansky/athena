@@ -303,12 +303,8 @@ def CaloTopoClusterSplitterToolCfg(configFlags):
 
 # Steering options for trigger
 # Maybe offline reco options should be extracted from flags elsewhere
-def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None,sequenceName='AthAlgSeq'):
+def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib=None):
     result=ComponentAccumulator()
-    if (sequenceName != 'AthAlgSeq'):
-        from AthenaCommon.CFElements import seqAND
-        #result.mainSeq( seqAND( sequenceName ) )
-        result.addSequence( seqAND(sequenceName) )
 
     if not clustersname:
         clustersname = "CaloTopoClusters"
@@ -370,7 +366,7 @@ def CaloTopoClusterCfg(configFlags,cellsname="AllCalo",clustersname="",doLCCalib
         from CaloRec.CaloTopoClusterConfig import caloTopoCoolFolderCfg
         result.merge(caloTopoCoolFolderCfg(configFlags))
 
-    result.addEventAlgo(CaloTopoCluster,primary=True,sequenceName=sequenceName)
+    result.addEventAlgo(CaloTopoCluster,primary=True)
     return result
 
 

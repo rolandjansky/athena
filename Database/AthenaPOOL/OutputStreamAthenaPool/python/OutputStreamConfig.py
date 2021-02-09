@@ -25,7 +25,7 @@ def OutputStreamCfg(configFlags, streamName, ItemList=[], MetadataItemList=[],
 
    outputAlgName="OutputStream"+streamName
 
-   result=ComponentAccumulator(sequenceName="AthOutSeq")
+   result=ComponentAccumulator(sequence=CompFactory.AthSequencer('AthOutSeq',StopOverride=True))
    # define athena output stream
    writingTool = AthenaOutputStreamTool( "Stream" + streamName + "Tool" )
    streamInfoTool = MakeEventStreamInfo( "Stream" + streamName + "_MakeEventStreamInfo" )

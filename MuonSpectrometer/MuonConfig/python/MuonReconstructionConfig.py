@@ -12,8 +12,9 @@ from MuonConfig.MuonTrackBuildingConfig import MuonTrackBuildingCfg
 def MuonReconstructionCfg(flags):
     # https://gitlab.cern.ch/atlas/athena/blob/master/MuonSpectrometer/MuonReconstruction/MuonRecExample/python/MuonStandalone.py
     result=ComponentAccumulator()
-    result.merge( MuonSegmentFindingCfg(flags) )
-    result.merge( MuonTrackBuildingCfg(flags) )
+    result.merge( MuonSegmentFindingCfg(flags))
+    result.merge( MuonTrackBuildingCfg(flags))
+
     return result
     
 if __name__=="__main__":
@@ -38,17 +39,8 @@ if __name__=="__main__":
         track_builder = acc.getPrimary()
         track_builder.Cardinality=args.threads
             
-    # This is a temporary fix - it should go someplace central as it replaces the functionality of addInputRename from here:
-    # https://gitlab.cern.ch/atlas/athena/blob/master/Control/SGComps/python/AddressRemappingSvc.py
-    ProxyProviderSvc = CompFactory.ProxyProviderSvc
-    pps = ProxyProviderSvc()
-    AddressRemappingSvc = CompFactory.AddressRemappingSvc
-    ars=AddressRemappingSvc()
-    pps.ProviderNames += [ 'AddressRemappingSvc' ]
-    ars.TypeKeyRenameMaps += [ '%s#%s->%s' % ("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old") ]
-    
-    cfg.addService(pps)
-    cfg.addService(ars)
+    from SGComps.AddressRemappingConfig import InputRenameCfg
+    cfg.merge(InputRenameCfg("TrackCollection", "MuonSpectrometerTracks", "MuonSpectrometerTracks_old"))
 
     # This is a temporary fix! Should be private!
     Muon__MuonEDMHelperSvc=CompFactory.Muon.MuonEDMHelperSvc
@@ -58,9 +50,14 @@ if __name__=="__main__":
     itemsToRecord = ["Trk::SegmentCollection#TrackMuonSegments", "Trk::SegmentCollection#NCB_TrackMuonSegments"]
     itemsToRecord += ["TrackCollection#MuonSpectrometerTracks"] 
     SetupMuonStandaloneOutput(cfg, ConfigFlags, itemsToRecord)
-    
     cfg.printConfig(withDetails = True)
-              
+    # drop faulty remapping
+    # the evaluation of MuonSegmentNameFixCfg should happen conditinally instead
+    # this is hack that is functioning only because this is top level CA
+    oldRemaps = cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps
+    cfg.getService("AddressRemappingSvc").TypeKeyRenameMaps = [ remap for remap in oldRemaps if "Trk::SegmentCollection" not in remap]
+    
+
     f=open("MuonReconstruction.pkl","wb")
     cfg.store(f)
     f.close()
