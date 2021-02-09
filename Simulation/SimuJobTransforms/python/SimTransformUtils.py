@@ -33,8 +33,8 @@ def addPureDigitizationArguments(parser):
     addPileUpTrfArgs(parser)
 
 def addReSimulationArguments(parser):
-    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs, addHITSMergeArgs, addSim_tfArgs, addReSimulationArgs
-    addHITSMergeArgs(parser)
+    from SimuJobTransforms.simTrfArgs import addCommonSimTrfArgs, addCosmicsTrfArgs, addTrackRecordArgs, addRenameHITSArgs, addSim_tfArgs, addReSimulationArgs
+    addRenameHITSArgs(parser)
     addCommonSimTrfArgs(parser)
     addCosmicsTrfArgs(parser)
     addTrackRecordArgs(parser)
@@ -96,15 +96,16 @@ def addReSimulationSubstep(executorSet):
                             tryDropAndReload = False,
                             perfMonFile = 'ntuple.pmon.gz',
                             inData=['HITS'],
-                            outData=['HITS_MRG'],
-                            inputDataTypeCountCheck = ['HITS'] )
+                            outData=['HITS_RNM'],
+                            inputDataTypeCountCheck = ['HITS'],
+                            disableMP = True)
     executorSet.add(RnmExe)
     SimExe = athenaExecutor(name = 'ReSim',
                             skeletonFile = 'SimuJobTransforms/skeleton.EVGENtoHIT_ISF.py', # TODO replace skeleton
                             substep = 'rsm',
                             tryDropAndReload = False,
                             perfMonFile = 'ntuple.pmon.gz',
-                            inData=['HITS_MRG'],
+                            inData=['HITS_RNM'],
                             outData=['HITS_RSM'],
                             inputDataTypeCountCheck = ['HITS'] )
     executorSet.add(SimExe)

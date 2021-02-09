@@ -49,7 +49,7 @@ ReSim_tf.py \
 --DataRunNumber '284500' \
 --geometryVersion 'ReSim:ATLAS-R2-2016-01-00-01' \
 --inputHITSFile "original.HITS.pool.root" \
---outputHITS_MRGFile "renamed.HITS.pool.root" \
+--outputHITS_RNMFile "renamed.HITS.pool.root" \
 --outputHITS_RSMFile "retest.HITS.pool.root" \
 --maxEvents $MAXEVENTS \
 --imf False
