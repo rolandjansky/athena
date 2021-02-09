@@ -227,6 +227,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
   //**************************************//
   //*** Now diffuse charges to surface *** //
   //**************************************//
+  // pre-make HepMcParticleLink
+  auto particleLink = HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx);
+
   for (unsigned int i = 0; i < trfHitRecord.size(); i++) {
     std::pair<double, double> iHitRecord = trfHitRecord[i];
 
@@ -551,9 +554,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
             //The following lines are adapted from SiDigitization's Inserter class
             SiSurfaceCharge scharge(
               chargePos,
-              SiCharge(induced_charge, hitTime(phit), SiCharge::track,
-                       HepMcParticleLink(phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)
-                       )
+              SiCharge(induced_charge, hitTime(phit), SiCharge::track, particleLink)
               );
             SiCellId diode = Module.cellIdOfPosition(scharge.position());
             SiCharge charge = scharge.charge();
@@ -592,8 +593,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit,
         }
 
         //The following lines are adapted from SiDigitization's Inserter class
-        SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                      phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
+        SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, particleLink));
 
         SiCellId diode = Module.cellIdOfPosition(scharge.position());
 
