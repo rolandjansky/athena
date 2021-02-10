@@ -2,44 +2,25 @@
 
 # Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 
-# @brief: Cost executor to call base transforms
-# @details: Based on athenaExecutor with some modifications
+# @brief: Simple executor to call RunTrigCostAnalysis.py
+# @details: Trig_reco_tf.py executor for cost processing
 # @author: Mark Stockton
 
-import os
-
-from PyJobTransforms.trfExe import athenaExecutor
-import PyJobTransforms.trfExceptions as trfExceptions
-from PyJobTransforms.trfExitCodes import trfExit as trfExit
+from PyJobTransforms.trfExe import scriptExecutor
 
 # Setup logging here
 import logging
 msg = logging.getLogger("PyJobTransforms." + __name__)
 
-class trigCostExecutor(athenaExecutor):
-    # Trig_reco_tf.py executor for cost monitoring
-    # used to change the output filenames
+class trigCostExecutor(scriptExecutor):
 
-    def postExecute(self):
+    def preExecute(self, input = set(), output = set()):
 
-        msg.info("Check for trig_cost.root file")
-        # costmon generates the file trig_cost.root
-        # to save on panda it needs to be renamed via the outputNTUP_TRIGCOSTFile argument
-        expectedFileName = 'trig_cost.root'
-        # first check argument is in dict
-        if 'outputNTUP_TRIGCOSTFile' in self.conf.argdict:
-            # check file is created
-            if(os.path.isfile(expectedFileName)):
-                msg.info('Renaming %s to %s', expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0])
-                try:
-                    os.rename(expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0])
-                except OSError as e:
-                    raise trfExceptions.TransformExecutionException(trfExit.nameToCode('TRF_OUTPUT_FILE_ERROR'),
-                                    'Exception raised when renaming {0} to {1}: {2}'.format(expectedFileName, self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0], e))
-            else:
-                msg.error('NTUP_TRIGCOST argument defined %s but %s not created', self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0], expectedFileName)
-        else:
-            msg.info('NTUP_TRIGCOST argument not defined so skip %s check', expectedFileName)
+        # Build up the command line: RunTrigCostAnalysis.py Input.Files=inputDRAW_TRIGCOSTFile --outputHist=outputNTUP_TRIGCOSTFile
+        # All arguments have to be provided for step to be called
+        # inputDRAW_TRIGCOSTFile can be multiple files?
+        self._cmd = [self._exe]
+        self._cmd.extend(['Input.Files=' + str(self.conf.argdict['inputDRAW_TRIGCOSTFile'].value) ])
+        self._cmd.extend(['--outputHist='+self.conf.argdict['outputNTUP_TRIGCOSTFile'].value[0]])
 
-        msg.info('Now run athenaExecutor:postExecute')
-        super(trigCostExecutor, self).postExecute()
+        super(trigCostExecutor, self).preExecute()

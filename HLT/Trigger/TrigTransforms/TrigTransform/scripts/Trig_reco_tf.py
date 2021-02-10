@@ -62,13 +62,9 @@ def getTransform():
 
     # RAWtoCOST is new option for trigger transform
     # runs in athena and will succeed if input BS file has costmon enabled
-    executorSet.add(trigCostExecutor(name = 'RAWtoCOST', skeletonFile = 'TrigCostMonitor/readTrigCost.py',
-                                     substep = 'r2c',
-                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST'],
-                                     perfMonFile = 'ntuple_RAWtoCOST.pmon.gz',
-                                     literalRunargs = ['from AthenaCommon.AthenaCommonFlags import jobproperties as jps',
-                                                       'jps.AthenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputDRAW_TRIGCOSTFile)',
-                                                       'jps.AthenaCommonFlags.EvtMax.set_Value_and_Lock(runArgs.maxEvents)']))
+    executorSet.add(trigCostExecutor(name = 'RAWtoCOST',
+                                     exe = 'RunTrigCostAnalysis.py',
+                                     inData = ['DRAW_TRIGCOST'], outData = ['NTUP_TRIGCOST']))
 
     executorSet.add(trigRateExecutor(name = 'AODtoRATE',
                                      exe = 'RatesAnalysisFullMenu.py',
