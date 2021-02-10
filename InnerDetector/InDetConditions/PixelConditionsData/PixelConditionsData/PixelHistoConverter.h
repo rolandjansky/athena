@@ -31,11 +31,19 @@ public:
   StatusCode SetHisto2D(const TH2* histo);
   StatusCode SetHisto3D(const TH3* histo);
 
-  float GetContent(const std::size_t& x) const;
-  float GetContent(const std::size_t& x, const std::size_t& y) const;
-  float GetContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const;
+  inline float GetContent(const std::size_t& x) const {
+    return m_content[x];
+  }
+  inline float GetContent(const std::size_t& x, const std::size_t& y) const {
+    return m_content[x + y*(m_xAxis.nBins)];
+  }
+  inline float GetContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
+    return m_content[x + m_xAxis.nBins*(y + (m_yAxis.nBins * z))];
+  }
 
-  bool IsOverflowZ(const float value) const;
+  inline bool IsOverflowZ(const float value) const {
+    return (value >= m_zAxis.max) ? true : false;
+  }
   bool IsFirstZ(const float value) const;
   float GetBinX(const float value) const;
   float GetBinY(const float value) const;
@@ -57,7 +65,12 @@ private:
 
   bool SetAxis(Axis& axis, const TAxis* rootAxis);
 
-  std::size_t FindBin(const Axis& axis, const float value) const;
+  inline std::size_t FindBin(const Axis& axis, const float value) const {
+    if (value <= axis.min) return 0;
+    if (value >= axis.max) return (axis.nBins - 1);
+
+    return ((value - axis.min) * axis.width);
+  }
 
 };
 

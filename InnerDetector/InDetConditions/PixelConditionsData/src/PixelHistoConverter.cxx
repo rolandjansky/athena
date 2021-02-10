@@ -99,24 +99,6 @@ StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
   return StatusCode::SUCCESS;
 }
 
-float PixelHistoConverter::GetContent(const std::size_t& x) const {
-  return m_content[x];
-}
-
-float PixelHistoConverter::GetContent(const std::size_t& x, const std::size_t& y) const {
-  const std::size_t position = x + y*(m_xAxis.nBins);
-  return m_content[position];
-}
-
-float PixelHistoConverter::GetContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
-  const std::size_t position = x + m_xAxis.nBins*(y + (m_yAxis.nBins * z));
-  return m_content[position];
-}
-
-bool PixelHistoConverter::IsOverflowZ(const float value) const {
-  return (value >= m_zAxis.max) ? true : false;
-}
-
 bool PixelHistoConverter::IsFirstZ(const float value) const {
   return (GetBinZ(value) == 0);
 }
@@ -160,11 +142,4 @@ bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
   axis.width = 1.*axis.nBins/(axis.max - axis.min);
 
   return true;
-}
-
-std::size_t PixelHistoConverter::FindBin(const Axis& axis, const float value) const {
-  if (value <= axis.min) return 0;
-  if (value >= axis.max) return (axis.nBins - 1);
-
-  return ((value - axis.min) * axis.width);
 }
