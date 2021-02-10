@@ -541,13 +541,13 @@ StatusCode LArRawChannelSimpleBuilder::execute (const EventContext& ctx) const
       unsigned int i;
       float tmpSum = 0;
 
-      for(i=0;i<fSumEM.size();i++) {
-	if (i == 0 || fSumEM[i] > tmpSum ) {
-	  nMinEM = i;
-	  tmpSum = fSumEM[i];
-	}
-      }
       if ( fSumEM.size() > 0 ) {
+        for(i=0;i<fSumEM.size();i++) {
+	  if (i == 0 || fSumEM[i] > tmpSum ) {
+	    nMinEM = i;
+	    tmpSum = fSumEM[i];
+	  }
+        }
 	ATH_MSG_DEBUG( "Found best EM window starting at sample <" << nMinEM << ">"  );
       }
 
