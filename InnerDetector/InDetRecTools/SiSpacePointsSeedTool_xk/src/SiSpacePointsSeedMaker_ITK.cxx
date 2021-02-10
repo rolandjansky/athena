@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
      
@@ -59,6 +59,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   m_dzdrver   = .02     ;
   m_diver     = 10.     ;
   m_diversss  =  20     ;
+  m_rminSSS   = 400.    ;
+  m_rmaxSSS   = 1000.   ;
   m_dazmax    = .02     ;
   r_rmax      = 1100.   ;
   r_rmin      = 0.      ;
@@ -115,6 +117,8 @@ InDet::SiSpacePointsSeedMaker_ITK::SiSpacePointsSeedMaker_ITK
   declareProperty("maxdZdRver"            ,m_dzdrver               );
   declareProperty("maxdImpact"            ,m_diver                 );
   declareProperty("maxdImpactSSS"         ,m_diversss              );
+  declareProperty("radMinSSS"             ,m_rminSSS               );
+  declareProperty("radMaxSSS"             ,m_rmaxSSS               );
   declareProperty("maxSeedsForSpacePoint" ,m_maxOneSize            );
   declareProperty("SpacePointsSCTName"    ,m_spacepointsSCT        );
   declareProperty("SpacePointsPixelName"  ,m_spacepointsPixel      );
@@ -429,7 +433,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
     }
   }
 
-  if(m_fastTracking){
+  if(m_fastTracking && !m_sct){
     fillLists(); return;
   }
 
@@ -454,12 +458,20 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 
 	for(; sp != spe; ++sp) {
 
-	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
-	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp));
-	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
-	  r_Sorted[ir].push_back(sps); ++r_map[ir];
-	  if(r_map[ir]==1) r_index[m_nr++] = ir;
-	  ++m_ns;
+	  if(m_fastTracking){
+	    InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp));
+	    if(sps) ++m_ns;
+	  }
+
+	  else{
+	    if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin) continue;
+	    InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp));
+	    int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
+	    r_Sorted[ir].push_back(sps); ++r_map[ir];
+	    if(r_map[ir]==1) r_index[m_nr++] = ir;
+	    ++m_ns;
+	  }
+
 	}
       }
     }
@@ -870,9 +882,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
 
   
   // SSS seeds parameters
-  if(!m_fastTracking){
+  if(m_sct){
 
-    m_fNmax[0] = int(pi2/AzimuthalStep(m_ptmin,m_diversss,400.,1000.));
+    m_fNmax[0] = int(pi2/AzimuthalStep(m_ptmin,m_diversss,m_rminSSS,m_rmaxSSS)); // To be optimised for fast tracking LRT
     if(m_fNmax[0] > NFmax) m_fNmax[0] = NFmax;
     if(m_fNmax[0] < 10   ) m_fNmax[0] = 10   ;
     m_sF[0] = float((m_fNmax[0]+1))/pi2;
@@ -945,73 +957,78 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
     }
   }
 
-  if(m_fastTracking) m_fNmax[1] = int(pi2/AzimuthalStep(m_ptmin,m_diver,50.,250.));
-  else               m_fNmax[1] = int(pi2/AzimuthalStep(m_ptmin,m_diver,40.,320.));
-  if(m_fNmax[1] > NFmax) m_fNmax[1] = NFmax; 
-  if(m_fNmax[1] < 10   ) m_fNmax[1] = 10   ;  
-  m_sF[1] = float(m_fNmax[1]+1)/pi2;
 
-  // Build maps for radius-azimuthal-Z sorted collections for PPP seeds
-  //
-  for(int f=0; f<=m_fNmax[1]; ++f) {
+  // PPP seeds parameters
+  if(m_pixel){
 
-    int fb = f-1; if(fb<0         ) fb=m_fNmax[1]; 
-    int ft = f+1; if(ft>m_fNmax[1]) ft=0; 
-    
-    // For each azimuthal region loop through all Z regions
+    if(m_fastTracking) m_fNmax[1] = int(pi2/AzimuthalStep(m_ptmin,m_diver,50.,250.));
+    else               m_fNmax[1] = int(pi2/AzimuthalStep(m_ptmin,m_diver,40.,320.));
+    if(m_fNmax[1] > NFmax) m_fNmax[1] = NFmax;
+    if(m_fNmax[1] < 10   ) m_fNmax[1] = 10   ;
+    m_sF[1] = float(m_fNmax[1]+1)/pi2;
+
+    // Build maps for radius-azimuthal-Z sorted collections for PPP seeds
     //
-    for(int z=0; z!=11; ++z) {
- 
-      int a        = f *11+z;
-      int b        = fb*11+z;
-      int c        = ft*11+z;
-      rfz_b [1][a]    = 3; rfz_t [1][a]    = 3;
-      rfz_ib[1][a][0] = a; rfz_it[1][a][0] = a; 
-      rfz_ib[1][a][1] = b; rfz_it[1][a][1] = b; 
-      rfz_ib[1][a][2] = c; rfz_it[1][a][2] = c; 
-      if     (z==5) {
+    for(int f=0; f<=m_fNmax[1]; ++f) {
 
-	rfz_t [1][a]    = 9 ;
-	rfz_it[1][a][3] = a+1; 
-	rfz_it[1][a][4] = b+1; 
-	rfz_it[1][a][5] = c+1; 
-	rfz_it[1][a][6] = a-1; 
-	rfz_it[1][a][7] = b-1; 
-	rfz_it[1][a][8] = c-1; 
-      }
-      else if(z> 5) {
+      int fb = f-1; if(fb<0         ) fb=m_fNmax[1];
+      int ft = f+1; if(ft>m_fNmax[1]) ft=0;
 
-	rfz_b [1][a]    = 6 ;
-	rfz_ib[1][a][3] = a-1; 
-	rfz_ib[1][a][4] = b-1; 
-	rfz_ib[1][a][5] = c-1; 
+      // For each azimuthal region loop through all Z regions
+      //
+      for(int z=0; z!=11; ++z) {
 
-	if(z<10) {
+	int a        = f *11+z;
+	int b        = fb*11+z;
+	int c        = ft*11+z;
+	rfz_b [1][a]    = 3; rfz_t [1][a]    = 3;
+	rfz_ib[1][a][0] = a; rfz_it[1][a][0] = a;
+	rfz_ib[1][a][1] = b; rfz_it[1][a][1] = b;
+	rfz_ib[1][a][2] = c; rfz_it[1][a][2] = c;
+	if     (z==5) {
 
-	  rfz_t [1][a]    = 6 ;
+	  rfz_t [1][a]    = 9 ;
 	  rfz_it[1][a][3] = a+1; 
 	  rfz_it[1][a][4] = b+1; 
 	  rfz_it[1][a][5] = c+1; 
+	  rfz_it[1][a][6] = a-1;
+	  rfz_it[1][a][7] = b-1;
+	  rfz_it[1][a][8] = c-1;
 	}
-      }
-      else {
+	else if(z> 5) {
 
-	rfz_b [1][a]    = 6 ;
-	rfz_ib[1][a][3] = a+1; 
-	rfz_ib[1][a][4] = b+1; 
-	rfz_ib[1][a][5] = c+1; 
+	  rfz_b [1][a]    = 6 ;
+	  rfz_ib[1][a][3] = a-1;
+	  rfz_ib[1][a][4] = b-1;
+	  rfz_ib[1][a][5] = c-1;
 
-	if(z>0) {
+	  if(z<10) {
 
-	  rfz_t [1][a]    = 6 ;
-	  rfz_it[1][a][3] = a-1; 
-	  rfz_it[1][a][4] = b-1; 
-	  rfz_it[1][a][5] = c-1; 
+	    rfz_t [1][a]    = 6 ;
+	    rfz_it[1][a][3] = a+1;
+	    rfz_it[1][a][4] = b+1;
+	    rfz_it[1][a][5] = c+1;
+	  }
+	}
+	else {
+
+	  rfz_b [1][a]    = 6 ;
+	  rfz_ib[1][a][3] = a+1;
+	  rfz_ib[1][a][4] = b+1;
+	  rfz_ib[1][a][5] = c+1;
+
+	  if(z>0) {
+
+	    rfz_t [1][a]    = 6 ;
+	    rfz_it[1][a][3] = a-1;
+	    rfz_it[1][a][4] = b-1;
+	    rfz_it[1][a][5] = c-1;
+	  }
 	}
       }
     }
-  }
 
+  }
   
   if(!m_SP) m_SP   = new InDet::SiSpacePointForSeedITK*[m_maxsizeSP];
   if(!m_R ) m_R    = new                          float[m_maxsizeSP];
@@ -1100,7 +1117,11 @@ void  InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork
 
 void InDet::SiSpacePointsSeedMaker_ITK::fillLists() 
 {
-  if (m_fastTracking && m_iteration == 0) fillListsPPPFast();
+  if (m_fastTracking && m_iteration == 0){
+    if(m_pixel) fillListsPPPFast();
+    else if(m_sct) fillListsSSSFast();
+  }
+  // fillListsPPPFast should be updated in case it's run in second iteration
 
   else if(!m_fastTracking){
    if (m_iteration == 0) fillListsSSS();
@@ -1214,6 +1235,67 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillLists()
    m_RTmax = r_rstep*irm-10.;
  }
 
+///////////////////////////////////////////////////////////////////
+// Initiate SSS space points seed maker for LRT fast tracking
+///////////////////////////////////////////////////////////////////
+
+ void InDet::SiSpacePointsSeedMaker_ITK::fillListsSSSFast()
+ {
+  const float pi2 = 2.*M_PI;
+
+  float sF   = m_sF   [0];
+  int  fNmax = m_fNmax[0];
+  m_ns = 0;
+  erase();
+
+  if(m_spacepointsSCT.isValid()) {
+
+    SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
+    SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+
+    for(; spc != spce; ++spc) {
+
+      SpacePointCollection::const_iterator sp  = (*spc)->begin();
+      SpacePointCollection::const_iterator spe = (*spc)->end  ();
+
+      for(; sp != spe; ++sp) {
+
+	InDet::SiSpacePointForSeedITK* s = newSpacePoint((*sp));
+
+	if(s) {
+
+	  // Azimuthal angle sort
+	  //
+	  float F = s->phi(); if(F<0.) F+=pi2;
+	  int   f = int(F*sF); if(f<0) f=fNmax; else if(f>fNmax) f=0;
+
+	  // Azimuthal angle and Z-coordinate sort
+	  //
+	  float Z = s->z(); int z;
+	  if(Z>0.) {
+	    Z< 250.?z=5:Z< 450.?z=6:Z< 925.?z=7:Z< 1400.?z=8:Z< 2500.?z=9:z=10;
+	  }
+	  else     {
+	    Z>-250.?z=5:Z>-450.?z=4:Z>-925.?z=3:Z>-1400.?z=2:Z>-2500.?z=1:z= 0;
+	  }
+	  int n = f*11+z;
+	  rfz_Sorted[n].push_back(s);
+	  ++m_ns;
+	}
+      }
+    }
+  }
+
+  // Loop through all RZ collections and sort them in radius order
+  //
+  for(int a(0); a!=2211; ++a) {
+    if(rfz_Sorted[a].size() > 1 ) std::sort(rfz_Sorted[a].begin(),rfz_Sorted[a].end(),InDet::SiSpacePointsITKComparison_R());
+  }
+
+  m_RTmin = m_rminSSS ;
+  m_RTmax = m_rmaxSSS ;
+
+ }
 
 ///////////////////////////////////////////////////////////////////
 // Initiate PPP space points seed maker for fast tracking
@@ -1337,10 +1419,11 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp()
 
   if(m_fastTracking){
     if(m_iteration !=0 || m_ns < 3) return;
-    production3SpPPP();
+    if(m_pixel) production3SpPPP();
+    else if(m_sct) production3SpSSS();
   }
 
-  if(!m_fastTracking){
+  else{
 
     if(m_nsaz<3) return;
 
@@ -1365,7 +1448,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS()
 
   m_endlist = true;
 
-  // Loop thorugh all azimuthal regions
+  // Loop through all azimuthal regions
   //
   for(int f(m_fNmin); f<=m_fNmax[0]; ++f) {
     
@@ -1373,19 +1456,24 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS()
     //
     for(int z(0); z!=11; ++z) {
 
-      int a(f*11+ZI[z]);  if(!rfz_map[a]) continue;
+      int a(f*11+ZI[z]);
+      if(rfz_Sorted[a].empty()) continue;
 
       int NB(0), NT(0);
       for(int i(0); i!=rfz_b[0][a]; ++i) {
-	
 	int an(rfz_ib[0][a][i]);
-	if(rfz_map[an]) {rb[NB] = rfz_Sorted[an].begin(); rbe[NB++] = rfz_Sorted[an].end();}
+	if(!rfz_Sorted[an].empty()) {
+	  rb[NB] = rfz_Sorted[an].begin();
+	  rbe[NB++] = rfz_Sorted[an].end();
+	}
       } 
       if(!NB) continue;
       for(int i(0); i!=rfz_t[0][a]; ++i) {
-	
 	int an(rfz_it[0][a][i]);
-	if(rfz_map[an]) {rt[NT] = rfz_Sorted[an].begin(); rte[NT++] = rfz_Sorted[an].end();}
+	if(!rfz_Sorted[an].empty()) {
+	  rt[NT] = rfz_Sorted[an].begin();
+	  rte[NT++] = rfz_Sorted[an].end();
+	}
       } 
       production3SpSSS(rb,rbe,rt,rte,NB,NT,nseed);
     }
@@ -1739,7 +1827,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
       m_V [i]   = y*r2        ;
       m_Er[i]   = ((covz0+cvz)+(tz*tz)*(covr0+cvr))*r2;
     }
-    covr0      *= .5;
+
+    if(m_fastTracking) covr0 *= 2.;
+    else covr0 *= .5;
     covz0      *= 2.;
     m_nOneSeeds  = 0; m_mapOneSeeds.clear();
     m_nOneSeedsQ = 0;
@@ -1816,7 +1906,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	float ut    = (xt*Ax+yt*Ay)*rt2;
 	float vt    = (yt*Ax-xt*Ay)*rt2;
 	
-	float dU  = ut-ub; if(dU == 0.) continue;	
+	float dU  = ut-ub; if(dU == 0.) continue;
 	float A   = (vt-vb)/dU;
 	float S2  = 1.+A*A                           ;
 	float B   = vb-A*ub                          ;
@@ -1828,13 +1918,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	if(Im <= m_diversss) {
 	  m_Im[t] = Im;
 	  m_L [t] = sqrt(dxy+dz*dz);
- 	  m_CmSp[m_nCmSp].Fl = B/sqrt(S2); m_CmSp[m_nCmSp].In = t; if(++m_nCmSp==500) break;
+	  m_CmSp[m_nCmSp].Fl = B/sqrt(S2); m_CmSp[m_nCmSp].In = t; if(++m_nCmSp==500) break;
 	}
       }
       if(m_nCmSp)  newOneSeedWithCurvaturesComparisonSSS(m_SP[b],(*r0),Z-R*Tzb); 
     }
     fillSeeds();  nseed += m_fillOneSeeds;
-  } 
+  }
 }
 
 
