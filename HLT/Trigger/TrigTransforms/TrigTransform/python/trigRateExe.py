@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # @brief: Simple executor to call RatesAnalysisFullMenu.py
 # @details: Trig_reco_tf.py executor for rate processing
