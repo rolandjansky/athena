@@ -41,7 +41,7 @@
 
 class BTaggingTruthTaggingTool: public asg::AsgTool,
         public virtual IBTaggingTruthTaggingTool {
-  //typedef double (xAOD::BTagging::* tagWeight_member_t)() const;
+  //typedef float (xAOD::BTagging::* tagWeight_member_t)() const;
 
   /// Create a proper constructor for Athena
   ASG_TOOL_CLASS2( BTaggingTruthTaggingTool , IBTaggingTruthTaggingTool, ISystematicsTool )
@@ -56,30 +56,34 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
     struct TRFinfo {
 
       std::vector<jetVariable> jets;
+        
+      // features that will be used by the onnx tool
+      std::vector<std::vector<float> > node_feat; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
+        
       unsigned int njets;
 
       TRandom3 rand;
 
       std::vector<std::vector<bool> > perm_ex; // for each tag mult, vector of bool: is the i-th jet tagged or not?
       std::vector<std::vector<bool> > perm_in;
-      std::vector<std::vector<double> > trfwsys_ex; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
-      std::vector<std::vector<double> > trfwsys_in;
+      std::vector<std::vector<float> > trfwsys_ex; // map between syst and vecot with truth-tag weights (pos = # of b-tags)
+      std::vector<std::vector<float> > trfwsys_in;
       std::vector<std::vector<int> > tbins_ex; //for each tag mult, vector of int: quantile of each jet
       std::vector<std::vector<int> > tbins_in;
 
-      std::vector<double> effMC; // map between syst and vector of eff*SF for each jet
-      std::vector<double> eff; // map between syst and vector of eff*SF for each jet
+      std::vector<float> effMC; // map between syst and vector of eff*SF for each jet
+      std::vector<float> eff; // map between syst and vector of eff*SF for each jet
 
-      std::map<std::string,std::vector<double>> eff_allOP; // same but map for each OP
-      std::map<std::string,std::vector<double>> effMC_allOP; // same but map for each OP
-      std::vector<double> permprob_ex; // probablity of chosen perm with nominal SF
-      std::vector<double> permprob_in;
-      std::vector<double> binsprob_ex; // probability of chosen quantile with nominal SF
-      std::vector<double> binsprob_in;
+      std::map<std::string,std::vector<float>> eff_allOP; // same but map for each OP
+      std::map<std::string,std::vector<float>> effMC_allOP; // same but map for each OP
+      std::vector<float> permprob_ex; // probablity of chosen perm with nominal SF
+      std::vector<float> permprob_in;
+      std::vector<float> binsprob_ex; // probability of chosen quantile with nominal SF
+      std::vector<float> binsprob_in;
 
       std::map<int,std::vector<std::vector<std::vector<bool> > > > perms;
-      std::vector<std::vector<double> > permsWeight;
-      std::vector<std::vector<double> > permsSumWeight;
+      std::vector<std::vector<float> > permsWeight;
+      std::vector<std::vector<float> > permsSumWeight;
 
     };
 
@@ -89,10 +93,15 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
 
   private:
   StatusCode CalculateResults(TRFinfo &trfinf, Analysis::TruthTagResults& results,int rand_seed = -1);
-
+            
   public:
-  StatusCode CalculateResults( std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw, Analysis::TruthTagResults& results,int rand_seed = -1);
+  StatusCode CalculateResults( std::vector<float>& pt, std::vector<float>& eta, std::vector<int>& flav, std::vector<float>& tagw, Analysis::TruthTagResults& results,int rand_seed = -1);
   StatusCode CalculateResults( const xAOD::JetContainer& jets, Analysis::TruthTagResults& results,int rand_seed = -1);
+        
+  // will use onnxtool
+  StatusCode CalculateResultsONNX( const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw,  Analysis::TruthTagResults& results, int rand_seed=-1);
+  StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results,int rand_seed = -1);
+
   StatusCode setEffMapIndex(const std::string& flavour, unsigned int index);
   void setUseSystematics(bool useSystematics);
 
@@ -109,13 +118,19 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   private:
 
   // set the jets in the event (pass same jets that satisfy kinematic criteria for b-tagging in pT and eta)
-  StatusCode setJets(TRFinfo &trfinf,std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw);
+  StatusCode setJets(TRFinfo &trfinf,std::vector<float>& pt, std::vector<float>& eta, std::vector<int>& flav, std::vector<float>& tagw);
   StatusCode setJets(TRFinfo &trfinf,const xAOD::JetContainer& jets);
-  StatusCode setJets(TRFinfo &trfinf,std::vector<int>& flav, std::vector<Analysis::CalibrationDataVariables>* vars);
+  StatusCode setJets(TRFinfo &trfinf,std::vector<int>& flav, const std::vector<Analysis::CalibrationDataVariables>& vars);
 
+  // overloaded with node_feat that is used by onnx tool
+  StatusCode setJets(TRFinfo &trfinf, const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw);
+  StatusCode setJets(TRFinfo &trfinf, const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat);
+  StatusCode setJets(TRFinfo &trfinf,std::vector<int>& flav, const std::vector<Analysis::CalibrationDataVariables>& vars, const std::vector<std::vector<float>>& node_feat);
+
+            
   // get truth tagging weights
   // for one single systematic (including "Nominal")
-  StatusCode GetTruthTagWeights(TRFinfo &trfinf, std::vector<double> &trf_weight_ex, std::vector<double> &trf_weight_in, int sys=0);
+  StatusCode GetTruthTagWeights(TRFinfo &trfinf, std::vector<float> &trf_weight_ex, std::vector<float> &trf_weight_in, int sys=0);
 
   // tag permutation: trf_chosen_perm_ex.at(ntag).at(i) tells if the i-th jet is tagged in a selection requiring == ntag tags
   StatusCode getTagPermutation(TRFinfo &trfinf, std::vector<std::vector<bool> > &trf_chosen_perm_ex, std::vector<std::vector<bool> > &trf_chosen_perm_in);
@@ -131,7 +146,7 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   StatusCode getQuantiles(TRFinfo &trfinf,std::vector<std::vector<int> > &trf_bin_ex, std::vector<std::vector<int> > &trf_bin_in);
 
   // functions to make comparison with direct-tagging easier
-  double getEvtSF(TRFinfo &trfinf,int syst=0);
+  float getEvtSF(TRFinfo &trfinf,int syst=0);
   StatusCode getDirectTaggedJets(TRFinfo &trfinf,std::vector<bool> &is_tagged);
 
   //These WP must be listed in ascending order of cut value, meaning 85 to 60
@@ -147,7 +162,11 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   bool m_initialised;
 
   StatusCode getTRFweight(TRFinfo &trfinf,unsigned int nbtag, bool isInclusive, int sys);
+
   StatusCode getAllEffMC(TRFinfo &trfinf);
+  StatusCode getAllEffMCCDI(TRFinfo &trfinf);
+  StatusCode getAllEffMCGNN(TRFinfo &trfinf);
+            
   StatusCode getAllEffSF(TRFinfo &trfinf,int =0);
   std::vector<CP::SystematicSet> m_eff_syst;
   std::vector<std::string> m_sys_name;
@@ -211,14 +230,18 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
   std::string m_excludeEV;
   ///possibility to compute the direct tagging SFs map directly from the TruthTaggingTool
   bool m_doDirectTag;
+  /// if this string is empty, the onnx tool won't be used
+  std::string m_pathToONNX;
+            
+            
 
   //*********************************//
   // Prop. of BTaggingSelectionTool  //
   //*********************************//
 
-  double m_maxEta;
-  double m_minPt;
-  double m_maxRangePt;
+  float m_maxEta;
+  float m_minPt;
+  float m_maxRangePt;
   //  std::string m_CutFileName;
 
   // properties of truth tagging
@@ -242,22 +265,22 @@ class BTaggingTruthTaggingTool: public asg::AsgTool,
 
   std::vector<std::vector<bool> > generatePermutations(int njets, int tags, int start=0);
 
-  double trfWeight(TRFinfo &trfinf,const std::vector<bool> &tags);
+  float trfWeight(TRFinfo &trfinf,const std::vector<bool> &tags);
 
   StatusCode chooseAllTagPermutation(TRFinfo &trfinf,unsigned int nbtag);
   StatusCode chooseTagPermutation(TRFinfo &trfinf,unsigned int nbtag, bool isIncl);
-  double getPermutationRW(TRFinfo &trfinf,bool isIncl,unsigned int nbtag, int sys);
+  float getPermutationRW(TRFinfo &trfinf,bool isIncl,unsigned int nbtag, int sys);
 
 
   StatusCode chooseAllTagBins(TRFinfo &trfinf);
   StatusCode chooseTagBins_cum(TRFinfo &trfinf,std::vector<bool> &tagconf, bool isIncl, unsigned int nbtag);
-  StatusCode generateRandomTaggerScores(std::vector< std::vector<int> > &quantiles, std::vector< std::vector<double> > &scores);
-  double getTagBinsConfProb(TRFinfo &trfinf,std::vector<int> &tagws);
-  double getTagBinsRW(TRFinfo &trfinf,bool isIncl, unsigned int nbtag);
+  StatusCode generateRandomTaggerScores(std::vector< std::vector<int> > &quantiles, std::vector< std::vector<float> > &scores);
+  float getTagBinsConfProb(TRFinfo &trfinf,std::vector<int> &tagws);
+  float getTagBinsRW(TRFinfo &trfinf,bool isIncl, unsigned int nbtag);
 
 
   bool fillVariables(const xAOD::Jet& jet, Analysis::CalibrationDataVariables& x);
-  bool fillVariables(const double jetPt, const double jetEta, const double jetTagWeight, Analysis::CalibrationDataVariables& x);
+  bool fillVariables(const float jetPt, const float jetEta, const float jetTagWeight, Analysis::CalibrationDataVariables& x);
 
 
 };

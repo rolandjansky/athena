@@ -39,10 +39,10 @@ int main() {
   }
 
   //Set the jets to be used in the tool.
-  std::vector<double> pt = {44000., 66000., 77000.};
-  std::vector<double> eta = {2.2, 1.6, 1.7};
+  std::vector<float> pt = {44000., 66000., 77000.};
+  std::vector<float> eta = {2.2, 1.6, 1.7};
   std::vector<int> flav = {0,4,5};
-  std::vector<double> tagw = {0.3, 0.55, 0.99};
+  std::vector<float> tagw = {0.3, 0.55, 0.99};
 
   Analysis::TruthTagResults results;
 

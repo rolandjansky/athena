@@ -35,9 +35,21 @@ class IBTaggingTruthTaggingTool : virtual public CP::ISystematicsTool {
 
   virtual StatusCode setEffMapIndex(const std::string& flavour, unsigned int index)=0 ;
 
-  virtual StatusCode CalculateResults( std::vector<double>& pt, std::vector<double>& eta, std::vector<int>& flav, std::vector<double>& tagw, Analysis::TruthTagResults& results,int rand_seed=-1)=0 ;
+  virtual StatusCode CalculateResults( std::vector<float>& pt, std::vector<float>& eta, std::vector<int>& flav, std::vector<float>& tagw, Analysis::TruthTagResults& results,int rand_seed=-1)=0 ;
+    
   virtual StatusCode CalculateResults( const xAOD::JetContainer& jets, Analysis::TruthTagResults& results,int rand_seed=-1)=0;
 
+  /* will use onnx tool
+  node_feat: input to the network that'll calculate the efficiencies, where each vector corresponds to a set of variables associated with a jet
+  node_feat = {
+   {flav_jet1, pt_jet1, eta_jet1, phi_jet1, ...},
+   {flav_jet2, pt_jet2, eta_jet2, phi_jet2, ...},
+   ...
+  }
+  */
+  virtual StatusCode CalculateResultsONNX( const std::vector<std::vector<float>>& node_feat, std::vector<float>& tagw,  Analysis::TruthTagResults& results,int rand_seed=-1)=0 ;
+    
+  virtual StatusCode CalculateResultsONNX( const xAOD::JetContainer& jets, const std::vector<std::vector<float>>& node_feat, Analysis::TruthTagResults& results,int rand_seed=-1)=0;
 
 };
 #endif // CPIBTAGGINGTRUTHTAGGINGTOOL_H
