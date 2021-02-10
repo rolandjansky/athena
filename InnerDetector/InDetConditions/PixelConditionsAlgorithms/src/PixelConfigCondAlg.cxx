@@ -477,15 +477,15 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
 
     ramoPotentialMap.emplace_back();
-    ATH_CHECK(ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
+    ATH_CHECK(ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
     lorentzMap_e.emplace_back();
     lorentzMap_h.emplace_back();
     distanceMap_e.emplace_back();
     distanceMap_h.emplace_back();
-    ATH_CHECK(lorentzMap_e.back().SetHisto2D((TH2F*)mapsFile->Get("lorentz_map_e")));
-    ATH_CHECK(lorentzMap_h.back().SetHisto2D((TH2F*)mapsFile->Get("lorentz_map_h")));
-    ATH_CHECK(distanceMap_e.back().SetHisto2D((TH2F*)mapsFile->Get("edistance")));
-    ATH_CHECK(distanceMap_h.back().SetHisto2D((TH2F*)mapsFile->Get("hdistance")));
+    ATH_CHECK(lorentzMap_e.back().setHisto2D((TH2F*)mapsFile->Get("lorentz_map_e")));
+    ATH_CHECK(lorentzMap_h.back().setHisto2D((TH2F*)mapsFile->Get("lorentz_map_h")));
+    ATH_CHECK(distanceMap_e.back().setHisto2D((TH2F*)mapsFile->Get("edistance")));
+    ATH_CHECK(distanceMap_h.back().setHisto2D((TH2F*)mapsFile->Get("hdistance")));
   }
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);

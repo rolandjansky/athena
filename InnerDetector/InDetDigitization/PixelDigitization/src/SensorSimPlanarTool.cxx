@@ -95,7 +95,7 @@ StatusCode SensorSimPlanarTool::initialize() {
         return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
       }
       m_ramoPotentialMap.emplace_back();
-      ATH_CHECK(m_ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
+      ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
       //Now setup the E-field.
       TH1F* eFieldMap_hold;
       eFieldMap_hold = new TH1F();
@@ -138,12 +138,12 @@ StatusCode SensorSimPlanarTool::initialize() {
       }
       m_distanceMap_e.emplace_back();
       m_distanceMap_h.emplace_back();
-      ATH_CHECK(m_distanceMap_e.back().SetHisto2D(distanceMap_e_hold));
-      ATH_CHECK(m_distanceMap_h.back().SetHisto2D(distanceMap_h_hold));
+      ATH_CHECK(m_distanceMap_e.back().setHisto2D(distanceMap_e_hold));
+      ATH_CHECK(m_distanceMap_h.back().setHisto2D(distanceMap_h_hold));
       m_lorentzMap_e.emplace_back();
       m_lorentzMap_h.emplace_back();
-      ATH_CHECK(m_lorentzMap_e.back().SetHisto2D(lorentzMap_e_hold));
-      ATH_CHECK(m_lorentzMap_h.back().SetHisto2D(lorentzMap_h_hold));
+      ATH_CHECK(m_lorentzMap_e.back().setHisto2D(lorentzMap_e_hold));
+      ATH_CHECK(m_lorentzMap_h.back().setHisto2D(lorentzMap_h_hold));
     }
   }
   return StatusCode::SUCCESS;
@@ -277,10 +277,10 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
       nontrappingProbability = exp(-dist_electrode / collectionDist);
     }
 
-    const std::size_t distance_f_e_bin_x = m_doInterpolateEfield ? m_distanceMap_e[layer].GetBinX(dist_electrode) : moduleData->getDistanceMap_e(layer).GetBinX(dist_electrode);
-    const std::size_t distance_f_h_bin_x = m_doInterpolateEfield ? m_distanceMap_h[layer].GetBinX(dist_electrode) : moduleData->getDistanceMap_h(layer).GetBinX(dist_electrode);
-    const std::size_t tanLorentz_e_bin_x = m_doInterpolateEfield ? m_lorentzMap_e[layer].GetBinX(dist_electrode) : moduleData->getLorentzMap_e(layer).GetBinX(dist_electrode);
-    const std::size_t tanLorentz_h_bin_x = m_doInterpolateEfield ? m_lorentzMap_h[layer].GetBinX(dist_electrode) : moduleData->getLorentzMap_h(layer).GetBinX(dist_electrode);
+    const std::size_t distance_f_e_bin_x = m_doInterpolateEfield ? m_distanceMap_e[layer].getBinX(dist_electrode) : moduleData->getDistanceMap_e(layer).getBinX(dist_electrode);
+    const std::size_t distance_f_h_bin_x = m_doInterpolateEfield ? m_distanceMap_h[layer].getBinX(dist_electrode) : moduleData->getDistanceMap_h(layer).getBinX(dist_electrode);
+    const std::size_t tanLorentz_e_bin_x = m_doInterpolateEfield ? m_lorentzMap_e[layer].getBinX(dist_electrode) : moduleData->getLorentzMap_e(layer).getBinX(dist_electrode);
+    const std::size_t tanLorentz_h_bin_x = m_doInterpolateEfield ? m_lorentzMap_h[layer].getBinX(dist_electrode) : moduleData->getLorentzMap_h(layer).getBinX(dist_electrode);
 
     for (int j = 0; j < ncharges; j++) {
       if (m_doRadDamage && !(Module.isDBM()) && Module.isBarrel()) {
@@ -300,15 +300,15 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
         // electrode.
         //However, if choose (b), will need to reduce granularity of map.
         if (m_doInterpolateEfield) {
-          depth_f_e = m_distanceMap_e[layer].GetContent(distance_f_e_bin_x, m_distanceMap_e[layer].GetBinY(drifttime_e));
-          depth_f_h = m_distanceMap_h[layer].GetContent(distance_f_h_bin_x, m_distanceMap_h[layer].GetBinY(drifttime_h));
-          tanLorentz_e = m_lorentzMap_e[layer].GetContent(tanLorentz_e_bin_x, m_lorentzMap_e[layer].GetBinY(depth_f_e));
-          tanLorentz_h = m_lorentzMap_h[layer].GetContent(tanLorentz_h_bin_x, m_lorentzMap_h[layer].GetBinY(depth_f_h));
+          depth_f_e = m_distanceMap_e[layer].getContent(distance_f_e_bin_x, m_distanceMap_e[layer].getBinY(drifttime_e));
+          depth_f_h = m_distanceMap_h[layer].getContent(distance_f_h_bin_x, m_distanceMap_h[layer].getBinY(drifttime_h));
+          tanLorentz_e = m_lorentzMap_e[layer].getContent(tanLorentz_e_bin_x, m_lorentzMap_e[layer].getBinY(depth_f_e));
+          tanLorentz_h = m_lorentzMap_h[layer].getContent(tanLorentz_h_bin_x, m_lorentzMap_h[layer].getBinY(depth_f_h));
         } else { // use fluence value from conditions data
-          depth_f_e = moduleData->getDistanceMap_e(layer).GetContent(distance_f_e_bin_x, moduleData->getDistanceMap_e(layer).GetBinY(drifttime_e));
-          depth_f_h = moduleData->getDistanceMap_h(layer).GetContent(distance_f_h_bin_x, moduleData->getDistanceMap_h(layer).GetBinY(drifttime_h));
-          tanLorentz_e = moduleData->getLorentzMap_e(layer).GetContent(tanLorentz_e_bin_x, moduleData->getLorentzMap_e(layer).GetBinY(depth_f_e));
-          tanLorentz_h = moduleData->getLorentzMap_h(layer).GetContent(tanLorentz_h_bin_x, moduleData->getLorentzMap_h(layer).GetBinY(depth_f_h));
+          depth_f_e = moduleData->getDistanceMap_e(layer).getContent(distance_f_e_bin_x, moduleData->getDistanceMap_e(layer).getBinY(drifttime_e));
+          depth_f_h = moduleData->getDistanceMap_h(layer).getContent(distance_f_h_bin_x, moduleData->getDistanceMap_h(layer).getBinY(drifttime_h));
+          tanLorentz_e = moduleData->getLorentzMap_e(layer).getContent(tanLorentz_e_bin_x, moduleData->getLorentzMap_e(layer).getBinY(depth_f_e));
+          tanLorentz_h = moduleData->getLorentzMap_h(layer).getContent(tanLorentz_h_bin_x, moduleData->getLorentzMap_h(layer).getBinY(depth_f_h));
         }
         double dz_e = fabs(dist_electrode - depth_f_e);
         double dz_h = fabs(depth_f_h - dist_electrode);
@@ -339,11 +339,11 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
           ATH_CHECK(applyIBLSlimEdges(energy_per_step, eta_f_h));
         }
 
-        const std::size_t ramo_f_e_bin_z = m_doInterpolateEfield ? m_ramoPotentialMap[layer].GetBinZ(1e3*depth_f_e) : moduleData->getRamoPotentialMap(layer).GetBinZ(1e3*depth_f_e);
-        const std::size_t ramo_f_h_bin_z = m_doInterpolateEfield ? m_ramoPotentialMap[layer].GetBinZ(1e3*depth_f_h) : moduleData->getRamoPotentialMap(layer).GetBinZ(1e3*depth_f_h);
+        const std::size_t ramo_f_e_bin_z = m_doInterpolateEfield ? m_ramoPotentialMap[layer].getBinZ(1e3*depth_f_e) : moduleData->getRamoPotentialMap(layer).getBinZ(1e3*depth_f_e);
+        const std::size_t ramo_f_h_bin_z = m_doInterpolateEfield ? m_ramoPotentialMap[layer].getBinZ(1e3*depth_f_h) : moduleData->getRamoPotentialMap(layer).getBinZ(1e3*depth_f_h);
 
-        const bool isFirstZ_e = m_doInterpolateEfield ? m_ramoPotentialMap[layer].IsFirstZ(1e3*depth_f_e) : moduleData->getRamoPotentialMap(layer).IsFirstZ(1e3*depth_f_e);
-        const bool isOverflowZ_h = m_doInterpolateEfield ? m_ramoPotentialMap[layer].IsOverflowZ(1e3*depth_f_h) : moduleData->getRamoPotentialMap(layer).IsOverflowZ(1e3*depth_f_h);
+        const bool isFirstZ_e = m_doInterpolateEfield ? m_ramoPotentialMap[layer].isFirstZ(1e3*depth_f_e) : moduleData->getRamoPotentialMap(layer).isFirstZ(1e3*depth_f_e);
+        const bool isOverflowZ_h = m_doInterpolateEfield ? m_ramoPotentialMap[layer].isOverflowZ(1e3*depth_f_h) : moduleData->getRamoPotentialMap(layer).isOverflowZ(1e3*depth_f_h);
 
         //Loop over nearest neighbours in x and y
         //We assume that the lateral diffusion is minimal
@@ -396,17 +396,17 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
 
             if (!isFirstZ_e) {
               if (m_doInterpolateEfield) {
-                ramo_f_e = m_ramoPotentialMap[layer].GetContent(m_ramoPotentialMap[layer].GetBinX(1e3*std::abs(dPhi_f_e)), m_ramoPotentialMap[layer].GetBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
+                ramo_f_e = m_ramoPotentialMap[layer].getContent(m_ramoPotentialMap[layer].getBinX(1e3*std::abs(dPhi_f_e)), m_ramoPotentialMap[layer].getBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
               } else {
-                ramo_f_e = moduleData->getRamoPotentialMap(layer).GetContent(moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_e)), moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
+                ramo_f_e = moduleData->getRamoPotentialMap(layer).getContent(moduleData->getRamoPotentialMap(layer).getBinX(1e3*std::abs(dPhi_f_e)), moduleData->getRamoPotentialMap(layer).getBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
               }
             }
 
             if (!isOverflowZ_h) {
               if (m_doInterpolateEfield) {
-                ramo_f_h = m_ramoPotentialMap[layer].GetContent(m_ramoPotentialMap[layer].GetBinX(1e3*std::abs(dPhi_f_h)), m_ramoPotentialMap[layer].GetBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
+                ramo_f_h = m_ramoPotentialMap[layer].getContent(m_ramoPotentialMap[layer].getBinX(1e3*std::abs(dPhi_f_h)), m_ramoPotentialMap[layer].getBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
               } else {
-                ramo_f_h = moduleData->getRamoPotentialMap(layer).GetContent(moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_h)), moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
+                ramo_f_h = moduleData->getRamoPotentialMap(layer).getContent(moduleData->getRamoPotentialMap(layer).getBinX(1e3*std::abs(dPhi_f_h)), moduleData->getRamoPotentialMap(layer).getBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
               }
             }
             //Account for the imperfect binning that would cause charge to be double-counted

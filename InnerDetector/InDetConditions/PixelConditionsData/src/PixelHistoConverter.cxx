@@ -18,13 +18,13 @@ PixelHistoConverter::PixelHistoConverter()
 {
 }
 
-StatusCode PixelHistoConverter::SetHisto1D(const TH1* histo) {
+StatusCode PixelHistoConverter::setHisto1D(const TH1* histo) {
 
   if (!histo) {
     return StatusCode::FAILURE;
   }
 
-  if (!SetAxis(m_xAxis, histo->GetXaxis())) {
+  if (!setAxis(m_xAxis, histo->GetXaxis())) {
     return StatusCode::FAILURE;
   }
 
@@ -39,15 +39,15 @@ StatusCode PixelHistoConverter::SetHisto1D(const TH1* histo) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelHistoConverter::SetHisto2D(const TH2* histo) {
+StatusCode PixelHistoConverter::setHisto2D(const TH2* histo) {
   if (!histo) {
     return StatusCode::FAILURE;
   }
 
-  if (!SetAxis(m_xAxis, histo->GetXaxis())) {
+  if (!setAxis(m_xAxis, histo->GetXaxis())) {
     return StatusCode::FAILURE;
   }
-  if (!SetAxis(m_yAxis, histo->GetYaxis())) {
+  if (!setAxis(m_yAxis, histo->GetYaxis())) {
     return StatusCode::FAILURE;
   }
 
@@ -66,18 +66,18 @@ StatusCode PixelHistoConverter::SetHisto2D(const TH2* histo) {
   return StatusCode::SUCCESS;
 }
 
-StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
+StatusCode PixelHistoConverter::setHisto3D(const TH3* histo) {
   if (!histo) {
     return StatusCode::FAILURE;
   }
 
-  if (!SetAxis(m_xAxis, histo->GetXaxis())) {
+  if (!setAxis(m_xAxis, histo->GetXaxis())) {
     return StatusCode::FAILURE;
   }
-  if (!SetAxis(m_yAxis, histo->GetYaxis())) {
+  if (!setAxis(m_yAxis, histo->GetYaxis())) {
     return StatusCode::FAILURE;
   }
-  if (!SetAxis(m_zAxis, histo->GetZaxis())) {
+  if (!setAxis(m_zAxis, histo->GetZaxis())) {
     return StatusCode::FAILURE;
   }
 
@@ -99,23 +99,23 @@ StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
   return StatusCode::SUCCESS;
 }
 
-bool PixelHistoConverter::IsFirstZ(const float value) const {
-  return (GetBinZ(value) == 0);
+bool PixelHistoConverter::isFirstZ(const float value) const {
+  return (getBinZ(value) == 0);
 }
 
-float PixelHistoConverter::GetBinX(const float value) const {
-  return FindBin(m_xAxis, value);
+float PixelHistoConverter::getBinX(const float value) const {
+  return findBin(m_xAxis, value);
 }
   
-float PixelHistoConverter::GetBinY(const float value) const {
-  return FindBin(m_yAxis, value);
+float PixelHistoConverter::getBinY(const float value) const {
+  return findBin(m_yAxis, value);
 }
 
-float PixelHistoConverter::GetBinZ(const float value) const {
-  return FindBin(m_zAxis, value);
+float PixelHistoConverter::getBinZ(const float value) const {
+  return findBin(m_zAxis, value);
 }
 
-bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
+bool PixelHistoConverter::setAxis(Axis& axis, const TAxis* rootAxis) {
 
   if (!rootAxis) {
     return false;

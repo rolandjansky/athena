@@ -106,7 +106,7 @@ StatusCode SensorSim3DTool::initialize() {
     }
     //ramoPotentialMap.push_back(ramoPotentialMap_hold);
     m_ramoPotentialMap.emplace_back();
-    ATH_CHECK(m_ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
+    ATH_CHECK(m_ramoPotentialMap.back().setHisto3D(ramoPotentialMap_hold));
 
     ATH_MSG_INFO("Using fluence " << m_fluence_layers.at(i));
 
@@ -119,7 +119,7 @@ StatusCode SensorSim3DTool::initialize() {
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
     m_eFieldMap.emplace_back();
-    ATH_CHECK(m_eFieldMap.back().SetHisto2D(eFieldMap_hold));
+    ATH_CHECK(m_eFieldMap.back().setHisto2D(eFieldMap_hold));
 
     TH3F* xPositionMap_e_hold;
     TH3F* xPositionMap_h_hold;
@@ -145,18 +145,18 @@ StatusCode SensorSim3DTool::initialize() {
     m_xPositionMap_h.emplace_back();
     m_yPositionMap_e.emplace_back();
     m_yPositionMap_h.emplace_back();
-    ATH_CHECK(m_xPositionMap_e.back().SetHisto3D(xPositionMap_e_hold));
-    ATH_CHECK(m_xPositionMap_h.back().SetHisto3D(xPositionMap_h_hold));
-    ATH_CHECK(m_yPositionMap_e.back().SetHisto3D(yPositionMap_e_hold));
-    ATH_CHECK(m_yPositionMap_h.back().SetHisto3D(yPositionMap_h_hold));
+    ATH_CHECK(m_xPositionMap_e.back().setHisto3D(xPositionMap_e_hold));
+    ATH_CHECK(m_xPositionMap_h.back().setHisto3D(xPositionMap_h_hold));
+    ATH_CHECK(m_yPositionMap_e.back().setHisto3D(yPositionMap_e_hold));
+    ATH_CHECK(m_yPositionMap_h.back().setHisto3D(yPositionMap_h_hold));
     m_timeMap_e.emplace_back();
     m_timeMap_h.emplace_back();
-    ATH_CHECK(m_timeMap_e.back().SetHisto2D(timeMap_e_hold));
-    ATH_CHECK(m_timeMap_h.back().SetHisto2D(timeMap_h_hold));
+    ATH_CHECK(m_timeMap_e.back().setHisto2D(timeMap_e_hold));
+    ATH_CHECK(m_timeMap_h.back().setHisto2D(timeMap_h_hold));
 
     // Get average charge data (for charge chunk effect correction)
-    ATH_CHECK(m_avgChargeMap_e.SetHisto2D((TH2F*) mapsFile->Get("avgCharge_e")));
-    ATH_CHECK(m_avgChargeMap_h.SetHisto2D((TH2F*) mapsFile->Get("avgCharge_h")));
+    ATH_CHECK(m_avgChargeMap_e.setHisto2D((TH2F*) mapsFile->Get("avgCharge_e")));
+    ATH_CHECK(m_avgChargeMap_h.setHisto2D((TH2F*) mapsFile->Get("avgCharge_h")));
   }
 
   return StatusCode::SUCCESS;
@@ -352,8 +352,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
 
             ATH_MSG_DEBUG(" -- diffused position w.r.t. pixel edge = " << xposDiff << "  " << yposDiff);
 
-            float average_charge = isHole ? m_avgChargeMap_h.GetContent(m_avgChargeMap_h.GetBinY(1e3*y_pix), m_avgChargeMap_h.GetBinX(1e3*x_pix)) :
-                                            m_avgChargeMap_e.GetContent(m_avgChargeMap_e.GetBinY(1e3*y_pix), m_avgChargeMap_e.GetBinX(1e3*x_pix));
+            float average_charge = isHole ? m_avgChargeMap_h.getContent(m_avgChargeMap_h.getBinY(1e3*y_pix), m_avgChargeMap_h.getBinX(1e3*x_pix)) :
+                                            m_avgChargeMap_e.getContent(m_avgChargeMap_e.getBinY(1e3*y_pix), m_avgChargeMap_e.getBinX(1e3*x_pix));
 
             ATH_MSG_DEBUG(" -- driftTime, timeToElectrode = " << driftTime << "  " << timeToElectrode);
 
@@ -368,8 +368,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
               double xNeighbor = i * pixel_size_x;
               // -- loop in the y-coordinate
               const std::size_t index = 0;
-              const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].GetBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
-              const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].GetBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
+              const std::size_t ramo_init_bin_y  = m_ramoPotentialMap[index].getBinY(1000*(x_pix + pixel_size_x * 3 - xNeighbor));
+              const std::size_t ramo_final_bin_y = m_ramoPotentialMap[index].getBinY(1000*(xposFinal + pixel_size_x * 3 - xNeighbor));
               for (int j = -1; j <= 1; j++) {
                 double yNeighbor = j * pixel_size_y;
 
@@ -382,8 +382,8 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
 
                 //Ramo map over 500umx350um pixel area
                 //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
-                float ramoInit  = m_ramoPotentialMap[index].GetContent(m_ramoPotentialMap[index].GetBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
-                float ramoFinal = m_ramoPotentialMap[index].GetContent(m_ramoPotentialMap[index].GetBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
+                float ramoInit  = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
+                float ramoFinal = m_ramoPotentialMap[index].getContent(m_ramoPotentialMap[index].getBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
                 // Record deposit
                 double eHitRamo = (1 - 2 * isHole) * eHit * (ramoFinal - ramoInit);
@@ -593,7 +593,7 @@ double SensorSim3DTool::getProbMapEntry(const std::string& readout, int binx, in
 
 double SensorSim3DTool::getElectricField(double x, double y) {
   std::size_t index = 0;
-  double electricField = m_eFieldMap[index].GetContent(m_eFieldMap[index].GetBinX(1e3*x), m_eFieldMap[index].GetBinY(1e3*y));
+  double electricField = m_eFieldMap[index].getContent(m_eFieldMap[index].getBinX(1e3*x), m_eFieldMap[index].getBinY(1e3*y));
   return electricField * 1.0E-7; //return efield in MV/mm (for mobility calculation)
 }
 
@@ -637,9 +637,9 @@ double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
   std::size_t index = 0;
   double timeToElectrode = 0;
   if (!isHoleBit) {
-    timeToElectrode = m_timeMap_e[index].GetContent(m_timeMap_e[index].GetBinX(1e3*x), m_timeMap_e[index].GetBinY(1e3*y));
+    timeToElectrode = m_timeMap_e[index].getContent(m_timeMap_e[index].getBinX(1e3*x), m_timeMap_e[index].getBinY(1e3*y));
   } else {
-    timeToElectrode = m_timeMap_h[index].GetContent(m_timeMap_h[index].GetBinX(1e3*x), m_timeMap_h[index].GetBinY(1e3*y));
+    timeToElectrode = m_timeMap_h[index].getContent(m_timeMap_h[index].getBinX(1e3*x), m_timeMap_h[index].getBinY(1e3*y));
   }
   return timeToElectrode; //[ns]
 }
@@ -648,9 +648,9 @@ double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double 
   std::size_t index = 0;
   double finalX = initX;
   if (!isHoleBit) {
-    finalX = m_xPositionMap_e[index].GetContent(m_xPositionMap_e[index].GetBinX(1e3*initX), m_xPositionMap_e[index].GetBinY(1e3*initY), m_xPositionMap_e[index].GetBinZ(driftTime));
+    finalX = m_xPositionMap_e[index].getContent(m_xPositionMap_e[index].getBinX(1e3*initX), m_xPositionMap_e[index].getBinY(1e3*initY), m_xPositionMap_e[index].getBinZ(driftTime));
   } else {
-    finalX = m_xPositionMap_h[index].GetContent(m_xPositionMap_h[index].GetBinX(1e3*initX), m_xPositionMap_h[index].GetBinY(1e3*initY), m_xPositionMap_h[index].GetBinZ(driftTime));
+    finalX = m_xPositionMap_h[index].getContent(m_xPositionMap_h[index].getBinX(1e3*initX), m_xPositionMap_h[index].getBinY(1e3*initY), m_xPositionMap_h[index].getBinZ(driftTime));
   }
 
   return finalX * 1e-3; //[mm]
@@ -660,9 +660,9 @@ double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double 
   std::size_t index = 0;
   double finalY = initY;
   if (!isHoleBit) {
-    finalY = m_yPositionMap_e[index].GetContent(m_yPositionMap_e[index].GetBinX(1e3*initX), m_yPositionMap_e[index].GetBinY(1e3*initY), m_yPositionMap_e[index].GetBinZ(driftTime));
+    finalY = m_yPositionMap_e[index].getContent(m_yPositionMap_e[index].getBinX(1e3*initX), m_yPositionMap_e[index].getBinY(1e3*initY), m_yPositionMap_e[index].getBinZ(driftTime));
   } else {
-    finalY = m_yPositionMap_h[index].GetContent(m_yPositionMap_h[index].GetBinX(1e3*initX), m_yPositionMap_h[index].GetBinY(1e3*initY), m_yPositionMap_h[index].GetBinZ(driftTime));
+    finalY = m_yPositionMap_h[index].getContent(m_yPositionMap_h[index].getBinX(1e3*initX), m_yPositionMap_h[index].getBinY(1e3*initY), m_yPositionMap_h[index].getBinZ(driftTime));
   }
 
   return finalY * 1e-3; //[mm]

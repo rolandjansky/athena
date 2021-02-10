@@ -1,5 +1,5 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+   Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
  */
 /**
  * @file PixelDigitization/PixelHistoConverter.h
@@ -27,27 +27,27 @@ public:
   PixelHistoConverter();
   virtual ~PixelHistoConverter() = default;
 
-  StatusCode SetHisto1D(const TH1* histo);
-  StatusCode SetHisto2D(const TH2* histo);
-  StatusCode SetHisto3D(const TH3* histo);
+  StatusCode setHisto1D(const TH1* histo);
+  StatusCode setHisto2D(const TH2* histo);
+  StatusCode setHisto3D(const TH3* histo);
 
-  inline float GetContent(const std::size_t& x) const {
+  inline float getContent(const std::size_t& x) const {
     return m_content[x];
   }
-  inline float GetContent(const std::size_t& x, const std::size_t& y) const {
+  inline float getContent(const std::size_t& x, const std::size_t& y) const {
     return m_content[x + y*(m_xAxis.nBins)];
   }
-  inline float GetContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
+  inline float getContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
     return m_content[x + m_xAxis.nBins*(y + (m_yAxis.nBins * z))];
   }
 
-  inline bool IsOverflowZ(const float value) const {
+  inline bool isOverflowZ(const float value) const {
     return (value >= m_zAxis.max) ? true : false;
   }
-  bool IsFirstZ(const float value) const;
-  float GetBinX(const float value) const;
-  float GetBinY(const float value) const;
-  float GetBinZ(const float value) const;
+  bool isFirstZ(const float value) const;
+  float getBinX(const float value) const;
+  float getBinY(const float value) const;
+  float getBinZ(const float value) const;
 
 private:
   struct Axis {
@@ -63,9 +63,9 @@ private:
 
   std::vector<float> m_content;
 
-  bool SetAxis(Axis& axis, const TAxis* rootAxis);
+  bool setAxis(Axis& axis, const TAxis* rootAxis);
 
-  inline std::size_t FindBin(const Axis& axis, const float value) const {
+  inline std::size_t findBin(const Axis& axis, const float value) const {
     if (value <= axis.min) return 0;
     if (value >= axis.max) return (axis.nBins - 1);
 
