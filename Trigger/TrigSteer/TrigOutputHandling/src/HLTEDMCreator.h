@@ -67,6 +67,9 @@
 #include "xAODTrigCalo/CaloClusterTrigAuxContainer.h"
 #include "xAODCore/ShallowAuxContainer.h"
 
+#include "xAODTrigMinBias/TrigT2MbtsBitsContainer.h"
+#include "xAODTrigMinBias/TrigT2MbtsBitsAuxContainer.h"
+
 /**
  * @class HLTEDMCreator
  * @brief Tool capable of creating collections missing (early rejection) after HLT processing.
@@ -141,6 +144,8 @@ class HLTEDMCreator: public extends<AthAlgTool, IHLTOutputTool>  {
   DEF_XAOD_KEY( BTaggingContainer );
   DEF_XAOD_KEY( BTagVertexContainer );
   DEF_XAOD_KEY( TrigBphysContainer );
+  DEF_XAOD_KEY( TrigT2MbtsBitsContainer );
+
 #undef DEF_VIEWS
 #undef DEF_KEY
 #undef DEF_XAOD_KEY
