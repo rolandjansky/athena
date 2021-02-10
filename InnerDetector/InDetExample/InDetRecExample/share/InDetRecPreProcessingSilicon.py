@@ -269,8 +269,8 @@ if InDetFlags.doSpacePointFormation():
                                                                      SpacePointsSCTName     = InDetKeys.SCT_SpacePoints(),
                                                                      SpacePointsOverlapName = InDetKeys.OverlapSpacePoints(),
                                                                      ProcessPixels          = DetFlags.haveRIO.pixel_on(),
-                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on() and not InDetFlags.doFastTracking(),
-                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on() and not InDetFlags.doFastTracking())
+                                                                     ProcessSCTs            = DetFlags.haveRIO.SCT_on() and (not InDetFlags.doFastTracking() or InDetFlags.doSLHCLargeD0()),
+                                                                     ProcessOverlaps        = DetFlags.haveRIO.SCT_on() and (not InDetFlags.doFastTracking() or InDetFlags.doSLHCLargeD0()))
 
 #   if InDetFlags.doDBM():
 #     InDetSiTrackerSpacePointFinderDBM = InDet__SiTrackerSpacePointFinder(name                   = "InDetSiTrackerSpacePointFinderDBM",

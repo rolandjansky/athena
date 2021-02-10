@@ -153,6 +153,11 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doFastTracking() :
             InDetSiSpacePointsSeedMaker.useFastTracking       = True
             InDetSiSpacePointsSeedMaker.maxSeedsForSpacePoint = 3
+            if NewTrackingCuts.mode() == "SLHC" :
+               InDetSiSpacePointsSeedMaker.useSCT                = False
+            elif NewTrackingCuts.mode() == "SLHCLargeD0":
+               InDetSiSpacePointsSeedMaker.usePixel              = False
+               InDetSiSpacePointsSeedMaker.etaMax = NewTrackingCuts.maxEta()
 
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -438,7 +443,7 @@ class  ConfiguredNewTrackingSiPattern:
           
           if commonGeoFlags.Run()=="RUN4":
               InDetSiSPSeededTrackFinder.ITKGeometry = True
-              if InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
+              if InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
                 InDetSiSPSeededTrackFinder.doFastTracking = True
                 InDetSiSPSeededTrackFinder.InDetEtaDependentCutsSvc = InDetEtaDependentCutsSvc
 
@@ -701,7 +706,7 @@ class  ConfiguredNewTrackingSiPattern:
             else:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
-      elif InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
+      elif InDetFlags.doFastTracking() and (NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"):
         if InDetFlags.doFastTrackingFit():
           #
           # defining setup without ambiguity solving for fast tracking reconstuction
@@ -723,11 +728,11 @@ class  ConfiguredNewTrackingSiPattern:
           SimpleFitterTool = ProcessorTool(name               = 'SimpleFitterTool'+NewTrackingCuts.extension(),
                                            Fitter             = fitter_list ,
                                            SummaryTool        = InDetTrackSummaryTool,
-	                                         AssociationTool    = InDetPrdAssociationTool,
-	                                         tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
-	                                         caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
-	                                         pTminBrem = NewTrackingCuts.minPTBrem()[0] if NewTrackingCuts.useEtaDependentCuts() else NewTrackingCuts.minPTBrem(),
-	                                         RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
+                                           AssociationTool    = InDetPrdAssociationTool,
+                                           tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
+                                           caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
+                                           pTminBrem = NewTrackingCuts.minPTBrem()[0] if NewTrackingCuts.useEtaDependentCuts() else NewTrackingCuts.minPTBrem(),
+                                           RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
           
           ToolSvc += SimpleFitterTool
           if (InDetFlags.doPrintConfigurables()):
@@ -790,7 +795,7 @@ class  ConfiguredNewTrackingSiPattern:
               TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
            else:
               TrackCollectionKeys      += [ self.__SiTrackCollection ]
-          
+
       
    def SiTrackCollection ( self ):
       try:
