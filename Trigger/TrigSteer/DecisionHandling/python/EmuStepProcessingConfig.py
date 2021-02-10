@@ -357,7 +357,7 @@ def generateL1Decoder():
 
     muUnpacker = RoIsUnpackingEmulationTool("MURoIsUnpackingTool", InputFilename="l1muroi.dat",  OutputTrigRoIs=mapThresholdToL1RoICollection("MU"), Decisions=mapThresholdToL1DecisionCollection("MU"), ThresholdPrefix="MU" )
 
-    l1Decoder.roiUnpackers = [emUnpacker, muUnpacker]
+    l1Decoder.RoIBRoIUnpackers = [emUnpacker, muUnpacker]
 
     L1UnpackingSeq += l1Decoder
     log.debug(L1UnpackingSeq)

@@ -3,8 +3,10 @@
 */
 #include "MURoIsUnpackingTool.h"
 #include "TrigT1Result/RoIBResult.h"
+#include "xAODTrigger/MuonRoIContainer.h"
 #include "AthenaMonitoringKernel/Monitored.h"
 #include "TrigConfL1Data/CTPConfig.h"
+#include "TrigCompositeUtils/TrigCompositeUtils.h"
 
 /////////////////////////////////////////////////////////////////// 
 // Public methods: 
@@ -26,7 +28,7 @@ StatusCode MURoIsUnpackingTool::initialize() {
   CHECK( RoIsUnpackingToolBase::initialize() );
   CHECK( m_configSvc.retrieve() );
   CHECK( m_trigRoIsKey.initialize() );
-  CHECK( m_recRoIsKey.initialize() );
+  CHECK( m_recRoIsKey.initialize(SG::AllowEmpty) );
   CHECK( m_recRpcRoITool.retrieve() );
   CHECK( m_recTgcRoITool.retrieve() );
 
@@ -111,4 +113,51 @@ StatusCode MURoIsUnpackingTool::unpack( const EventContext& ctx,
 }
 
 
+StatusCode MURoIsUnpackingTool::unpack(const EventContext& ctx,
+                                       const xAOD::TrigComposite& l1TriggerResult,
+                                       const HLT::IDSet& activeChains) const {
+  // Retrieve the xAOD RoI container from L1TriggerResult
+  if (!l1TriggerResult.hasObjectLink(m_muRoILinkName, ClassID_traits<xAOD::MuonRoIContainer>::ID())) {
+    ATH_MSG_DEBUG("No muon RoIs in this event");
+    return StatusCode::SUCCESS;
+  }
+  ElementLink<xAOD::MuonRoIContainer> roisLink = l1TriggerResult.objectLink<xAOD::MuonRoIContainer>(m_muRoILinkName);
+  ATH_CHECK(roisLink.isValid());
+  const xAOD::MuonRoIContainer& rois = roisLink.getStorableObjectRef();
 
+  // Create and record RoI descriptor and decision containers
+  using namespace TrigCompositeUtils;
+  SG::WriteHandle<TrigRoiDescriptorCollection> roiDescriptors = createAndStoreNoAux(m_trigRoIsKey, ctx);
+  SG::WriteHandle<DecisionContainer> decisions = createAndStore(m_decisionsKey, ctx);
+
+  size_t linkIndex{0};
+  for (const xAOD::MuonRoI* roi : rois) {
+    // Create new RoI descriptor
+    roiDescriptors->push_back(std::make_unique<TrigRoiDescriptor>(
+      roi->eta(), roi->eta()-m_roIWidth, roi->eta()+m_roIWidth,
+      roi->phi(), roi->phi()-m_roIWidth, roi->phi()+m_roIWidth
+    ));
+
+    // Create new decision and link the RoI objects
+    Decision* decision = TrigCompositeUtils::newDecisionIn(decisions.ptr(), l1DecoderNodeName());
+    decision->setObjectLink(initialRoIString(),
+                            ElementLink<TrigRoiDescriptorCollection>(m_trigRoIsKey.key(), linkIndex, ctx));
+    decision->setObjectLink(initialRecRoIString(),
+                            ElementLink<xAOD::MuonRoIContainer>(m_muRoILinkName, linkIndex, ctx));
+    ++linkIndex;
+
+    // Add positive decisions for chains above the threshold
+    for (const TrigConf::TriggerThreshold* thr : m_muonThresholds) {
+      if (thr->thresholdNumber() < roi->getThrNumber()) {
+        ATH_MSG_DEBUG("Threshold passed: " << thr->name());
+        addChainsToDecision(HLT::Identifier(thr->name()), decision, activeChains);
+        if (msgLvl(MSG::DEBUG)) {
+          DecisionIDContainer ids;
+          decisionIDs(decision, ids);
+          ATH_MSG_DEBUG("Activated chains: " << std::vector<DecisionID>(ids.begin(), ids.end()));
+        }
+      }
+    }
+  }
+  return StatusCode::SUCCESS;
+}
