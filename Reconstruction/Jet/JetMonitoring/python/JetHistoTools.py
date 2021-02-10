@@ -70,7 +70,7 @@ compactSpecification = {
 #
     "C1"               : (("C1;C1;",100,-1,1), ("C1","float")),
     "C2"               : (("C2;C2;",100,-1,1), ("C2","float")),
-    "D2"               : (("D2;D2;",100,-1,1), ("D2","float")),
+    "D2"               : (("D2;D2;",100, 0,10), ("D2","float")),
     "C1_Beta2"         : (("C1;C1;",100,-1,1), ("C1","float")),
     "C2_Beta2"         : (("C2_Beta2;C2_Beta2;",100,-1,1), ("C2_Beta2","float")),
     "D2_Beta2"         : (("D2_Beta2;D2_Beta2;",100,-1,1), ("D2_Beta2","float")),

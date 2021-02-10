@@ -3,14 +3,12 @@
 */
 
 #include "JetMonitoring/JetSubStructureHistos.h"
-#include "TProfile2D.h"
 #include "TString.h"
 #include <map>
 
 #define toGeV 1/1000.
 
 JetSubStructureHistos::JetSubStructureHistos(const std::string &t) : JetHistoBase(t) 
-                                                             ,m_tau21(0)
                                                              ,m_jetScale("JetAssignedScaleMomentum")
 {
     declareProperty("JetScale", m_jetScale);
@@ -36,9 +34,9 @@ int JetSubStructureHistos::buildHistos(){
   m_tau32     = bookHisto( new TH1F(prefixn+"Tau32"  ,  "Jet Tau32 ;Entries", 100, 0, 1) );
   m_tau21_wta = bookHisto( new TH1F(prefixn+"Tau21_wta"  ,  "Jet Tau21_wta ;Entries", 100, 0, 1) );
   m_tau32_wta = bookHisto( new TH1F(prefixn+"Tau32_wta"  ,  "Jet Tau32_wta ;Entries", 100, 0, 1) );
-  m_C1        = bookHisto( new TH1F(prefixn+"C1"  ,  "Jet C1 (GeV);Entries", 100, -1, 1) );
-  m_C2        = bookHisto( new TH1F(prefixn+"C2"  ,  "Jet C2 (GeV);Entries", 100, -1, 1) );
-  m_D2        = bookHisto( new TH1F(prefixn+"D2"  ,  "Jet D2 (GeV);Entries", 100, -1, 1) );
+  m_C1        = bookHisto( new TH1F(prefixn+"C1"  ,  "Jet C1;Entries", 100, -1, 1) );
+  m_C2        = bookHisto( new TH1F(prefixn+"C2"  ,  "Jet C2;Entries", 100, -1, 1) );
+  m_D2        = bookHisto( new TH1F(prefixn+"D2"  ,  "Jet D2;Entries", 100, 0, 10) );
   
 
 

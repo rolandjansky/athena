@@ -15,8 +15,6 @@
 
 #include "JetMonitoring/JetHistoBase.h"
 #include "TH1.h"
-#include "TH2.h"
-#include "TProfile2D.h"
 
 class JetSubStructureHistos : public JetHistoBase {
   ASG_TOOL_CLASS0(JetSubStructureHistos);
