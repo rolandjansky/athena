@@ -238,7 +238,9 @@ void CoreDumpSvc::propertyHandler(Gaudi::Details::PropertyBase& p)
 StatusCode CoreDumpSvc::initialize()
 {
   if (m_fatalHandlerFlags != 0) {
-    ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
+    if (m_fatalHandlerFlags != -1) {
+      ATH_MSG_INFO("install f-a-t-a-l handler... (flag = " << m_fatalHandlerFlags.value() << ")");
+    }
     AthenaServices::SetFatalHandler(m_fatalHandlerFlags);
   }
 
