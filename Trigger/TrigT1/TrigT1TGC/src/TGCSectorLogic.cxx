@@ -652,16 +652,20 @@ void TGCSectorLogic::doInnerCoincidence(const SG::ReadCondHandleKey<TGCTriggerDa
     }
 
 
-    //////  select lowest pT   /////
-    if(pt_EtaPhi>coincidenceOut->getpT() && pt_EtaDtheta>coincidenceOut->getpT()){
-      return;
+    //////  select lowest pT   ///// will be replaced with pT merger
+    int nsw_pT;
+    if(pt_EtaPhi==0 || pt_EtaDtheta==0){
+      nsw_pT = pt_EtaPhi!=0 ? pt_EtaPhi :  pt_EtaDtheta;
     }
-    else if(pt_EtaPhi<pt_EtaDtheta){
-      coincidenceOut->setpT(pt_EtaPhi);
+    else{
+      nsw_pT = pt_EtaPhi<pt_EtaDtheta ? pt_EtaPhi :  pt_EtaDtheta;
+    }
+
+    if(nsw_pT>coincidenceOut->getpT()){
       return;
     }
     else{
-      coincidenceOut->setpT(pt_EtaDtheta);
+      coincidenceOut->setpT(nsw_pT);
       return;
     }
 
