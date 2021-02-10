@@ -12,12 +12,9 @@ from AthenaCommon.DetFlags import DetFlags
 from AtlasGeoModel.CommonGMJobProperties import CommonGeometryFlags
 auto_isGMX = (SLHC_Flags.doGMX()) or (CommonGeometryFlags.StripGeoType() == "GMX") 
 
-auto_doHGTD = DetFlags.geometry.HGTD_on()
+dictVersion = "ITkHGTD"
 
-dictVersion = "SLHC"
-
-if auto_doHGTD:
-    dictVersion = "ITkHGTD"
+auto_generateDictionary = (SLHC_Flags.UseLocalGeometry()) or (SLHC_Flags.ForceDictionaryGeneration())
 
 from AthenaCommon.GlobalFlags import jobproperties
 DetDescrVersion = jobproperties.Global.DetDescrVersion()
@@ -34,10 +31,10 @@ class SLHC_Setup_XMLReader :
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
 
         SLHC_Setup_XMLReader(dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK_LOCAL.xml",
-                            createXML = SLHC_Flags.UseLocalGeometry(),
+                            createXML = auto_generateDictionary,
                             doPix=True,
                             doSCT=True,
-                            doHGTD=auto_doHGTD,
+                            doHGTD=True,
                             isGMX=auto_isGMX,
                             XML_SLHC_Version = dictVersion
                                  )

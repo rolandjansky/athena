@@ -7,12 +7,15 @@ SLHC_Setup = SLHC_Setup()
 
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 
-if SLHC_Flags.UseLocalGeometry():
-    print "Using local Dictionary XML generated on the fly: InDetIdDictFiles/IdDictInnerDetector_ITK.xml"
-    print "!!!!!This configuration only works for stand-alone ITk so turn off other subdetectors!!!!"
+if (SLHC_Flags.UseLocalGeometry()) or (SLHC_Flags.ForceDictionaryGeneration()):
+    print "Using local Dictionary XML generated on the fly: InDetIdDictFiles/IdDictInnerDetector_ITK_LOCAL.xml"
     svcMgr.DetDescrCnvSvc.IdDictFromRDB = False
-    svcMgr.DetDescrCnvSvc.InDetIDFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK.xml"
-    #This needs to be added as well, since the Muon system doesn't define a sensible default ID dictionary, and the ID Helpers are constructed regardless of whether the subdetector is built or not... this should be fixed for future!
-    svcMgr.DetDescrCnvSvc.MuonIDFileName = "IdDictParser/IdDictMuonSpectrometer_R.01.xml"
+    svcMgr.DetDescrCnvSvc.InDetIDFileName = "InDetIdDictFiles/IdDictInnerDetector_ITK_LOCAL.xml"
+    #Its all or nothing with local dictionary files, so these are currently sensible choices, but may need updating some time
+    svcMgr.DetDescrCnvSvc.MuonIDFileName = "IdDictParser/IdDictMuonSpectrometer_R.09.NSW.xml"
+    svcMgr.DetDescrCnvSvc.LArIDFileName = "IdDictParser/IdDictLArCalorimeter_HGTD_TDR_01.xml"
+    svcMgr.DetDescrCnvSvc.TileIDFileName = "IdDictParser/IdDictTileCalorimeter.xml"
+    svcMgr.DetDescrCnvSvc.CaloIDFileName = "IdDictParser/IdDictCalorimeter_L1Onl.xml"
+    svcMgr.DetDescrCnvSvc.ForwardIDFileName = "IdDictParser/IdDictForwardDetectors_2010.xml"
 
 include("InDetSLHC_Example/postInclude.SLHC_Setup_Common.py")
