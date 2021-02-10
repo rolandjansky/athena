@@ -768,11 +768,8 @@ if __name__ == '__main__':
     from AthenaCommon.Configurable import Configurable
     Configurable.configurableRun3Behavior=1
 
-    configToTest = [ 'HLT_mu6fast_L1MU6',
-                     'HLT_mu6Comb_L1MU6',
-                     'HLT_mu6_L1MU6',
-                     'HLT_mu20_ivar_L1MU20',
-                     'HLT_2mu6Comb_L12MU6',
+    configToTest = [ 'HLT_mu6_L1MU6',
+                     'HLT_mu20_ivarmedium_L1MU20',
                      'HLT_2mu6_L12MU6']
 
     from TriggerMenuMT.HLTMenuConfig.Menu.DictFromChainName import dictFromChainName
