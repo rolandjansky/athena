@@ -3,6 +3,8 @@
 from DerivationFrameworkTrigger.DerivationFrameworkTriggerConf import DerivationFramework__TriggerMatchingTool
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__CommonAugmentation
 from DerivationFrameworkCore.DerivationFrameworkMaster import DerivationFrameworkJob # noqa: F401
+from TriggerMatchingTool.TriggerMatchingToolConf import Trig__R3IParticleRetrievalTool
+from AthenaConfiguration.AllConfigFlags import ConfigFlags
 
 import AthenaCommon.AppMgr as AppMgr
 from AthenaCommon.Configurable import Configurable
@@ -33,6 +35,8 @@ class TriggerMatchingHelper(object):
         if "name" not in kwargs or kwargs["name"] == Configurable.DefaultName:
             kwargs["name"] = "DFTriggerMatchingTool"
         properties.update(kwargs)
+        if "OnlineParticleTool" not in properties and ConfigFlags.Trigger.EDMVersion == 3:
+            properties["OnlineParticleTool"] = Trig__R3IParticleRetrievalTool("OnlineParticleTool")        
         # We don't want to hash the ChainNames as they don't affect the physics
         keys = sorted(k for k in properties if k != "ChainNames")
         hashval = hash(tuple(str(properties[k]) for k in keys) )
