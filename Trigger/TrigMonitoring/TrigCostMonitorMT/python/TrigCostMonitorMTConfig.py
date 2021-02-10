@@ -10,6 +10,7 @@ def TrigCostMonitorMTCfg(flags):
     from AthenaConfiguration.ComponentFactory import CompFactory
     from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
     from AthenaCommon.Logging import logging
+    log = logging.getLogger('TrigCostMonitorMTPostSetup')
 
     acc = ComponentAccumulator()
 
