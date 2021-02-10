@@ -56,3 +56,34 @@ class Run2TriggerTowerMaker50ns(Run2TriggerTowerMaker):
     __slots__ = []
     def __init__(self, name = "Run2TriggerTowerMaker"):
         super(Run2TriggerTowerMaker50ns, self).__init__(name)
+
+def Run2TriggerTowerMakerCfg(flags, name):
+    '''
+    Basic setup of tower maker cfg for new JO 
+    WARNING: need to add dependencies on digi flags (as above) that are missing as of now
+    '''
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+
+    acc = ComponentAccumulator()
+    # TODO this is only needed when re-running 
+    #    from SGComps.AddressRemappingConfig import InputRenameCfg
+    #    acc.merge(InputRenameCfg('xAOD::TriggerTowerContainer', 'xAODTriggerTowers_rerun', 'xAODTriggerTowers'))
+
+    alg = CompFactory.LVL1.Run2TriggerTowerMaker(name,
+                                                 RndmSvc = 'AtRanluxGenSvc',
+                                                 DigiEngine = "{}_Digitization".format(name),
+                                                 # TODO make these settings flags dependent
+                                                 CellType = 3,
+                                                 inputTTLocation = 'unused',
+                                                 TriggerTowerLocationRerun = 'also_unused',
+                                                 ZeroSuppress = True, 
+                                                 #ExtraInputs = ['LArTTL1Container#LArTTL1EM', 'LArTTL1Container#LArTTL1HAD', 'TileTTL1Container#TileTTL1Cnt']
+                                                 )
+    acc.addPublicTool(CompFactory.LumiBlockMuTool('LumiBlockMuTool'))
+    from RngComps.RandomServices import Ranlux64
+    acc.merge(Ranlux64( str(alg.DigiEngine) + ' 8631309 4492432') )
+    acc.addEventAlgo(alg)
+
+
+    return acc

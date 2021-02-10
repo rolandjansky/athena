@@ -373,3 +373,83 @@ def Lvl1SimulationSequence( ConfigFlags ):
         l1SimSeq = Lvl1SimulationSequence_Data( ConfigFlags )
 
     return l1SimSeq
+
+
+
+
+def L1LegacyCaloSimMCCfg(flags):
+    '''
+    Configures Legacy 1 calo in new JO style
+    '''
+    from AthenaConfiguration.ComponentAccumulator import ComponentAccumulator
+    from AthenaConfiguration.ComponentFactory import CompFactory
+    acc = ComponentAccumulator()
+    from AtlasGeoModel.GeoModelConfig import GeoModelCfg
+    acc.merge (GeoModelCfg (flags))
+
+    from CaloConditions.CaloConditionsConfig import CaloTriggerTowerCfg,LArTTCellMapCfg,CaloTTIdMapCfg
+    acc.merge(CaloTriggerTowerCfg(flags))
+    acc.merge(LArTTCellMapCfg(flags))
+    acc.merge(CaloTTIdMapCfg(flags))
+
+#    from LArGeoAlgsNV.LArGMConfig import LArGMCfg
+#    from TileGeoModel.TileGMConfig import TileGMCfg
+    
+#    acc.merge(LArGMCfg(flags))
+#    acc.merge(TileGMCfg(flags))
+    from TrigConfigSvc.TrigConfigSvcCfg import L1ConfigSvcCfg, getL1TopoConfigSvc
+    acc.merge(L1ConfigSvcCfg(flags))
+#    acc.addService(getL1TopoConfigSvc(flags))
+    from TrigT1CaloSim.TrigT1CaloSimRun2Config import Run2TriggerTowerMakerCfg
+    acc.merge(Run2TriggerTowerMakerCfg(flags, name='Run2TriggerTowerMaker25ns'))
+    acc.addEventAlgo(CompFactory.LVL1.Run2CPMTowerMaker('CPMTowerMaker'))
+    acc.addEventAlgo(CompFactory.LVL1.Run2JetElementMaker('JetElementMaker'))
+    acc.addEventAlgo(CompFactory.LVL1.CPMSim('CPMSim'))
+    acc.addEventAlgo(CompFactory.LVL1.JEMJetSim('JEMJetSim'))
+    acc.addEventAlgo(CompFactory.LVL1.JEMEnergySim('JEMEnergySim'))
+    acc.addEventAlgo(CompFactory.LVL1.CPCMX('CPCMX'))
+    acc.addEventAlgo(CompFactory.LVL1.JetCMX('JetCMX'))
+    acc.addEventAlgo(CompFactory.LVL1.EnergyCMX('EnergyCMX'))
+    acc.addEventAlgo(CompFactory.LVL1.RoIROD('RoIROD'))
+    # TODO find out what they need in det store to initialize
+#    acc.addEventAlgo(CompFactory.LVL1.TrigT1MBTS())
+#    acc.addEventAlgo(CompFactory.LVL1.TrigT1ZDC())
+    L1CaloFolderList = []
+    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Calibration/Physics/PprChanCalib']
+    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/Physics/PprChanCalib']
+    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/RunParameters']
+    #L1CaloFolderList += ['/TRIGGER/L1Calo/V1/Conditions/DerivedRunPars']
+    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/VgaDac']
+    #L1CaloFolderList += ['/TRIGGER/Receivers/Conditions/Strategy']
+    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Conditions/DisabledTowers']
+    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Calibration/PpmDeadChannels']
+    L1CaloFolderList += ['/TRIGGER/L1Calo/V2/Configuration/PprChanDefaults']
+    from IOVDbSvc.IOVDbSvcConfig import addFolders
+    acc.merge(addFolders(flags, L1CaloFolderList, 'TRIGGER_OFL'))
+    #    from TileConditions.TileConditionsConfig import tileCondCfg
+    #    acc.merge(tileCondCfg(flags))
+    return acc
+
+if __name__ == '__main__':
+    from AthenaCommon.Configurable import Configurable
+    Configurable.configurableRun3Behavior = 1
+
+    from AthenaConfiguration.MainServicesConfig import MainServicesCfg
+    from AthenaConfiguration.AllConfigFlags import ConfigFlags as flags
+    flags.Input.Files = ['/cvmfs/atlas-nightlies.cern.ch/repo/data/data-art/TriggerTest/valid1.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.RDO.e4993_s3214_r11315/RDO.17533168._000001.pool.root.1']
+    flags.Common.isOnline=False
+    flags.Concurrency.NumThreads = 1
+    flags.Concurrency.NumConcurrentEvents=1
+    flags.Scheduler.ShowDataDeps=True
+    flags.Scheduler.CheckDependencies=True
+    flags.Scheduler.ShowDataFlow=True
+    flags.LAr.doAlign=True
+    flags.lock()
+
+    acc = MainServicesCfg(flags)
+    acc.addSequence(seqAND('L1CaloLegacySimSeq'), parentName='AthAlgSeq')
+    acc.merge(L1LegacyCaloSimMCCfg(flags), sequenceName='L1CaloLegacySimSeq')
+
+    acc.printConfig(withDetails=True, summariseProps=True, printDefaults=True)
+
+    acc.run()
