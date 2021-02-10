@@ -24,6 +24,9 @@ def TrigCostMonitorMTCfg(flags):
       auditorService.Auditors=[tca.getFullJobOptName(),]
       acc.addService(auditorService)
       acc.setAppProperty("AuditAlgorithms", True)
+      log.info('Enabling online trigger cost monitoring')
+    else:
+      log.info('Will NOT schedule online trigger cost monitoring')
 
     return acc
 
