@@ -127,15 +127,17 @@ namespace Analysis {
     float    mass = 0, energyfrc = NAN, energyTrk = 0, dsttomatlayer = NAN;
     int  n2trk = 0, npsec = 0;
 
-    if(basename.find("MSV") != 0 && myVertexInfoVKal){ 
-      std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin(); 
-      std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end(); 
-      for (std::vector<xAOD::Vertex*>::const_iterator verticesIter = verticesBegin; verticesIter!=verticesEnd;++verticesIter) { 
-        std::vector<ElementLink<xAOD::TrackParticleContainer> > theseTracks = (*verticesIter)->trackParticleLinks();
-        npsec += theseTracks.size();
-        for (std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator itr=theseTracks.begin();itr!=theseTracks.end();itr++){
-	        TrkList.push_back(*itr);
-        }
+    if(basename.find("MSV") != 0){ 
+      if (myVertexInfoVKal) {
+	std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin(); 
+	std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end(); 
+	for (std::vector<xAOD::Vertex*>::const_iterator verticesIter = verticesBegin; verticesIter!=verticesEnd;++verticesIter) { 
+	  std::vector<ElementLink<xAOD::TrackParticleContainer> > theseTracks = (*verticesIter)->trackParticleLinks();
+	  npsec += theseTracks.size();
+	  for (std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator itr=theseTracks.begin();itr!=theseTracks.end();itr++){
+	    TrkList.push_back(*itr);
+	  }
+	}
       }
 
       ATH_MSG_DEBUG("#BTAG# Size of the sec vertex linked to the BTagging: " << SVertexLinks.size());
