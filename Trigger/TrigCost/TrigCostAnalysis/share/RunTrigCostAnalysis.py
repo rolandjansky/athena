@@ -110,7 +110,7 @@ if __name__=='__main__':
   Configurable.configurableRun3Behavior = 1
 
   # Set the Athena configuration flags
-  ConfigFlags.fillFromArgs(parser=parser)
+  ConfigFlags.fillFromArgs(args.flags)
   ConfigFlags.lock()
 
   # Initialize configuration object, add accumulator, merge, and run.
