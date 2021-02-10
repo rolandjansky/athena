@@ -43,8 +43,12 @@ T_AthenaPoolAuxContainerCnv<AUXSTORE, TPCNVS...>::createPersistentWithKey( AUXST
   {
     key2.erase (key2.size()-4, 4);
   }
-  const SG::ThinningInfo* info = SG::getThinningInfo (key2);
-  return SG::copyThinned (*trans, info).release();
+  try {
+     const SG::ThinningInfo* info = SG::getThinningInfo (key2);
+     return SG::copyThinned (*trans, info).release();
+  }catch( const std::exception &ex ) {
+     throw std::runtime_error( std::string("Exception from AuxContainer Thinning of type: ") + typeid(ex).name() + ", msg: " + ex.what());
+  }
 }
 
 
