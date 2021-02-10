@@ -33,9 +33,8 @@ class RpcDigitVariables : public ValAlgVariables
 
   void setHelper(const MuonIdHelper* idhelper){
     m_RpcIdHelper = dynamic_cast<const RpcIdHelper*>(idhelper);
-    if(m_RpcIdHelper == 0) {
-       ATH_MSG_ERROR("casting IdHelper to RpcIdHelper failed");
-       throw;
+    if (!m_RpcIdHelper){
+     throw std::runtime_error("Could not cast the RPCIdHelper");
     }
   }
   

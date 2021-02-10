@@ -27,7 +27,7 @@ StatusCode RpcDigitVariables::fillVariables(const MuonGM::MuonDetectorManager* M
 
   ATH_MSG_DEBUG("retrieved RPC Digit Container with size "<<RpcDigitContainer->digit_size());
 
-  if(RpcDigitContainer->size()==0) ATH_MSG_WARNING(" RPC Digit Continer empty ");
+  if(RpcDigitContainer->size()==0) ATH_MSG_DEBUG(" RPC Digit Continer empty ");
   for(const RpcDigitCollection* coll : *RpcDigitContainer) {
     ATH_MSG_DEBUG( "processing collection with size " << coll->size() );
     for (unsigned int digitNum=0; digitNum<coll->size(); digitNum++) {
