@@ -113,7 +113,7 @@ StatusCode PixelAthClusterMonAlg::fillHistograms( const EventContext& ctx ) cons
       int nFE = getNumberOfFEs(pixlayer, m_pixelid->eta_module(waferID));
       for (int iFE=0; iFE<nFE; iFE++) {
 	Identifier pixelID = m_pixelCablingSvc->getPixelIdfromHash(id_hash, iFE, 1, 1);
-	if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash, pixelID) == true) {
+	if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == true && m_pixelCondSummaryTool->isGood(id_hash) == true) {
 	  index = 0;  // active and good FE
 	} else if (m_pixelCondSummaryTool->isActive(id_hash, pixelID) == false) {
 	  index = 2;  // inactive or bad FE
