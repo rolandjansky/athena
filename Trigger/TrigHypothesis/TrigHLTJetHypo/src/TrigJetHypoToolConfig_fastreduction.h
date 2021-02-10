@@ -22,7 +22,6 @@
 
 #include "./IJetsMatcherMT.h"
 #include "./ConditionsDefsMT.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "./ITrigJetRepeatedConditionConfig.h"
 #include "./ConditionFilter.h"
 

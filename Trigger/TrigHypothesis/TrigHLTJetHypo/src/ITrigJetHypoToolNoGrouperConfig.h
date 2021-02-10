@@ -10,7 +10,6 @@
 #include "./IJetsMatcherMT.h"
 #include "./ConditionFilter.h"
 
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
 #include <optional>
 
 class ITrigJetHypoToolNoGrouperConfig : virtual public ::IAlgTool {

@@ -22,7 +22,6 @@
 
 //
 #include "../TrigJetHypoToolMT.h"
-#include "../TrigJetHypoToolHelperMT.h"
 #include "../TrigJetHypoToolHelperNoGrouper.h"
 #include "../TrigJetTLAHypoAlgMT.h"
 #include "../TrigJetTLAHypoToolMT.h"
@@ -47,6 +46,5 @@ DECLARE_COMPONENT(TrigJetHypoAlgMT)
 DECLARE_COMPONENT(TrigJetHypoToolMT)
 DECLARE_COMPONENT(TrigJetTLAHypoAlgMT)
 DECLARE_COMPONENT(TrigJetTLAHypoToolMT)
-DECLARE_COMPONENT(TrigJetHypoToolHelperMT)
 DECLARE_COMPONENT(TrigJetHypoToolHelperNoGrouper)
 
