@@ -39,7 +39,7 @@ namespace {
       // called on user ^C
 	 std::cout << std::endl;
          std::cerr << "Athena           CRITICAL stopped by user interrupt\n";
-	 std::terminate();
+	 raise(SIGKILL);
       }
    }
 
