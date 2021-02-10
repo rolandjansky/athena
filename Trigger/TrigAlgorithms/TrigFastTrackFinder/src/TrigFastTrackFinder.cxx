@@ -16,75 +16,27 @@
 #include <algorithm>
 #include <memory>
 
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
+#include "TrigFastTrackFinder.h"
 
-#include "TrigTimeAlgs/TrigTimerSvc.h"
-
-#include "TrigInDetEvent/TrigVertex.h"
-#include "TrigInDetEvent/TrigVertexCollection.h"
-#include "GaudiKernel/ThreadLocalContext.h"
-
-#include "TrkTrack/TrackCollection.h"
-#include "TrkTrack/Track.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 #include "InDetPrepRawData/SCT_Cluster.h"
 #include "InDetPrepRawData/PixelCluster.h"
 #include "InDetRIO_OnTrack/SiClusterOnTrack.h" 
+#include "xAODTrigger/TrigCompositeAuxContainer.h"
 
 #include "TrkParameters/TrackParameters.h" 
 #include "TrkTrack/Track.h" 
-#include "TrkTrack/TrackInfo.h" 
 
-#include "TrkTrackSummary/TrackSummary.h"
-#include "TrkToolInterfaces/ITrackSummaryTool.h"
-
-#include "TrigInDetEvent/TrigSiSpacePointBase.h"
-
-#include "InDetIdentifier/SCT_ID.h"
-#include "InDetIdentifier/PixelID.h" 
-
-#include "TrigInDetPattRecoEvent/TrigInDetTriplet.h"
-
-
-#include "InDetRecToolInterfaces/ISiTrackMaker.h" 
-#include "SiSPSeededTrackFinderData/SiTrackMakerEventData_xk.h"
-#include "TrigInDetPattRecoTools/TrigCombinatorialSettings.h"
-#include "TrigInDetPattRecoTools/TrigTrackSeedGenerator.h"
-
-#include "TrigInDetToolInterfaces/ITrigL2LayerNumberTool.h"
-#include "TrigInDetToolInterfaces/ITrigSpacePointConversionTool.h"
-#include "TrigInDetToolInterfaces/ITrigL2SpacePointTruthTool.h"
-#include "TrigInDetToolInterfaces/TrigL2HitResidual.h"
-
-#include "TrigInDetToolInterfaces/ITrigInDetTrackFitter.h"
-#include "TrigInDetToolInterfaces/ITrigZFinder.h"
-
-#include "SiSpacePointsSeed/SiSpacePointsSeed.h"
-
-//for GPU acceleration
-
-#include "TrigInDetAccelerationTool/ITrigInDetAccelerationTool.h"
-#include "TrigInDetAccelerationService/ITrigInDetAccelerationSvc.h"
-
-#include "TrigFastTrackFinder.h"
-#include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "CxxUtils/phihelper.h"
 
-#include "TrigNavigation/NavigationCore.icc"
-
 #include "AthenaMonitoringKernel/Monitored.h"
-#include "GaudiKernel/ThreadLocalContext.h"
 
-//for GPU acceleration
-
-#include "TrigAccelEvent/TrigInDetAccelEDM.h"
-#include "TrigAccelEvent/TrigInDetAccelCodes.h"
 
 #include "PathResolver/PathResolver.h"
 
 TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* pSvcLocator) : 
 
-  HLT::FexAlgo(name, pSvcLocator), 
+  AthReentrantAlgorithm(name, pSvcLocator), 
   m_numberingTool("TrigL2LayerNumberTool"), 
   m_spacePointTool("TrigSpacePointConversionTool"),
   m_trackMaker("InDet::SiTrackMaker_xk/InDetTrigSiTrackMaker"),
@@ -99,8 +51,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   m_doZFinderOnly(false),
   m_storeZFinderVertices(false),
   m_nfreeCut(5), 
-  m_attachedFeatureName(""),
-  m_outputCollectionSuffix(""),
   m_countTotalRoI(0),
   m_countRoIwithEnoughHits(0),
   m_countRoIwithTracks(0),
@@ -157,8 +107,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
 
   declareProperty( "MinHits",               m_minHits = 5 );
 
-  declareProperty( "OutputCollectionSuffix",m_outputCollectionSuffix = "");
-
   declareProperty("TracksName", 
                   m_outputTracksKey = std::string("TrigFastTrackFinder_Tracks"),
                   "TrackCollection name");
@@ -193,7 +141,6 @@ TrigFastTrackFinder::TrigFastTrackFinder(const std::string& name, ISvcLocator* p
   // UTT
   declareProperty("doJseedHitDV", m_doJseedHitDV = false);
 
-  // declare monitoring histograms
 }
 
 //--------------------------------------------------------------------------
@@ -202,132 +149,64 @@ TrigFastTrackFinder::~TrigFastTrackFinder() {}
 
 //-----------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
+StatusCode TrigFastTrackFinder::initialize() {
 
-  if (m_roiCollectionKey.initialize().isFailure() ) {
-    return HLT::BAD_JOB_SETUP;
-  }
-  if (m_outputTracksKey.initialize().isFailure() ) {
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_roiCollectionKey.initialize() );
+  ATH_CHECK(m_outputTracksKey.initialize() );
 
   // optional input tracks collection if present the clusters on previously found tracks are not used to form seeds
   if (m_LRTmode) {
-    if (m_inputTracksKey.initialize( !m_inputTracksKey.key().empty() ).isFailure() ) {
-      return HLT::BAD_JOB_SETUP;
-    }
+    ATH_CHECK(m_inputTracksKey.initialize( !m_inputTracksKey.key().empty() ) );
   }
   // optional PRD to track association map
-  if (m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ).isFailure()) {
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_prdToTrackMap.initialize( !m_prdToTrackMap.key().empty() ));
   
     
-  auto scbs = m_beamSpotKey.initialize();
-  if(scbs.isFailure()) {
-    ATH_MSG_ERROR("Error initializing beamspot info");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_beamSpotKey.initialize());
 
 
 
   ATH_MSG_DEBUG(" TrigFastTrackFinder : MinHits set to " << m_minHits);
 
-  StatusCode sc=m_numberingTool.retrieve(); 
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not retrieve "<<m_numberingTool); 
-    return HLT::BAD_JOB_SETUP;
-  } 
+  ATH_CHECK(m_numberingTool.retrieve()); 
 
-  sc = m_spacePointTool.retrieve();
-  if(sc.isFailure()) { 
-    ATH_MSG_ERROR("Could not retrieve "<<m_spacePointTool); 
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_spacePointTool.retrieve());
 
-  sc = m_trackMaker.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve "<<m_trackMaker); 
-    return HLT::BAD_JOB_SETUP;
-  }
-  sc = m_trigInDetTrackFitter.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve "<<m_trigInDetTrackFitter); 
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_trackMaker.retrieve());
+
+  ATH_CHECK(m_trigInDetTrackFitter.retrieve());
 
   if (m_doZFinder) {
-    sc = m_trigZFinder.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve "<<m_trigZFinder); 
-      return HLT::BAD_JOB_SETUP;
-    }
+    ATH_CHECK(m_trigZFinder.retrieve());
   }
   else {
     m_trigZFinder.disable();
   }
 
-  sc= m_trackSummaryTool.retrieve();
-  if(sc.isFailure()) {
-    ATH_MSG_ERROR("unable to locate track summary tool");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(m_trackSummaryTool.retrieve());
 
   //Get ID helper
-  if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-    ATH_MSG_ERROR("Could not get AtlasDetectorID helper AtlasID");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
   
-  if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-    ATH_MSG_ERROR("Could not get Pixel ID helper");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(detStore()->retrieve(m_pixelId, "PixelID"));
   
-  if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) { 
-    ATH_MSG_ERROR("Could not get Pixel ID helper");
-    return HLT::BAD_JOB_SETUP;
-  }
+  ATH_CHECK(detStore()->retrieve(m_sctId, "SCT_ID"));
 
   
-  if ( m_outputCollectionSuffix != "" ) {
-    m_attachedFeatureName = std::string("TrigFastTrackFinder_") + m_outputCollectionSuffix;
-  }
-  else {
-    m_attachedFeatureName      = std::string("TrigFastTrackFinder_");
-  }
-
   // Run3 monitoring
   if ( !m_monTool.empty() ) {
-     if ( !m_monTool.retrieve() ) {
-	ATH_MSG_ERROR("Cannot retrieve MonitoredTool");
-	return HLT::BAD_JOB_SETUP;
-     }
+     ATH_CHECK(m_monTool.retrieve() );
   }
   else {
      ATH_MSG_INFO("Monitoring tool is empty");
   }
 
-  ATH_MSG_DEBUG(" Feature set recorded with Key " << m_attachedFeatureName);
   ATH_MSG_DEBUG(" doResMon " << m_doResMonitoring);
 
   if(m_useGPU) {//for GPU acceleration
-    sc = m_accelSvc.retrieve();
-    if(sc.isFailure()) {
-      ATH_MSG_ERROR("Could not retrieve "<<m_accelSvc); 
-      m_useGPU = false;
-    }
-    if(!m_accelSvc->isReady()) {
-      ATH_MSG_INFO("Acceleration service not ready - no GPU found"); 
-      m_useGPU = false;
-    }
-    else {
-      sc = m_accelTool.retrieve();
-      if(sc.isFailure()) {
-        ATH_MSG_ERROR("Could not retrieve "<<m_accelTool); 
-        m_useGPU = false;
-      }
-    }
+    ATH_CHECK(m_accelSvc.retrieve());
+    ATH_CHECK(m_accelSvc->isReady());
+    ATH_CHECK(m_accelTool.retrieve());
   }
 
   ATH_MSG_INFO("Use GPU acceleration : "<<std::boolalpha<<m_useGPU);
@@ -349,7 +228,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
     std::string lut_fileName = PathResolver::find_file(m_trigseedML_LUT, "DATAPATH");
     if (lut_fileName.empty()) {
       ATH_MSG_ERROR("Cannot find TrigSeedML LUT file " << lut_fileName);
-      return HLT::BAD_JOB_SETUP;
+      return StatusCode::FAILURE;
     }
     else {
       ATH_MSG_INFO(lut_fileName);
@@ -368,32 +247,20 @@ HLT::ErrorCode TrigFastTrackFinder::hltInitialize() {
 
   // UTT read/write handles
   if( m_doJseedHitDV ) {
-     if (m_recJetRoiCollectionKey.initialize().isFailure() ) { 
-	ATH_MSG_ERROR("ReadHandleKey for DataVector<LVL1::RecJetRoI> key:" << m_recJetRoiCollectionKey.key() << " initialize Failure!");
-	return HLT::BAD_JOB_SETUP;
-     }
-     if (m_hitDVSeedKey.initialize().isFailure() ) { 
-	ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_hitDVSeedKey.key() << " initialize Failure!");
-	return HLT::BAD_JOB_SETUP;
-     }
-     if (m_hitDVTrkKey.initialize().isFailure() ) { 
-	ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_hitDVTrkKey.key() << " initialize Failure!");
-	return HLT::BAD_JOB_SETUP;
-     }
-     if (m_hitDVSPKey.initialize().isFailure() ) { 
-	ATH_MSG_ERROR("WriteHandleKey for xAOD::TrigCompositeContainer key:" << m_hitDVSPKey.key() << " initialize Failure!");
-	return HLT::BAD_JOB_SETUP;
-     }
+    ATH_CHECK(m_recJetRoiCollectionKey.initialize());
+    ATH_CHECK(m_hitDVSeedKey.initialize());
+    ATH_CHECK(m_hitDVTrkKey.initialize());
+    ATH_CHECK(m_hitDVSPKey.initialize());
   }
 
   ATH_MSG_DEBUG(" Initialized successfully"); 
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
 
 
 //-------------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltStart()
+StatusCode TrigFastTrackFinder::start()
 {
   //getting magic numbers from the layer numbering tool
 
@@ -410,59 +277,12 @@ HLT::ErrorCode TrigFastTrackFinder::hltStart()
 
   m_tcs.m_tripletPtMin = m_tripletMinPtFrac*m_pTmin;
 
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
 
-namespace InDet {
-  class ExtendedSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
-  {
-  public:
-    ExtendedSiTrackMakerEventData_xk(const SG::ReadHandleKey<Trk::PRDtoTrackMap> &key, const EventContext& ctx) { 
-      if (!key.key().empty()) {
-        m_prdToTrackMap = SG::ReadHandle<Trk::PRDtoTrackMap>(key, ctx);
-        if (!m_prdToTrackMap.isValid()) {
-          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key.key());
-        }
-        setPRDtoTrackMap(m_prdToTrackMap.cptr());
-      }
-    }
-  private:
-    void dummy() {}
-    SG::ReadHandle<Trk::PRDtoTrackMap> m_prdToTrackMap;
-  };
 
-  class FeatureAccessor : public HLT::FexAlgo 
-  {
-  public:
-    //make the getFeature method public
-    template<class T> HLT::ErrorCode getFeature(const HLT::TriggerElement* te, const T*&  feature, 
-                                                 const std::string& label = "") {
-      return HLT::Algo::getFeature(te,feature,label);
-    }
-  };
+StatusCode TrigFastTrackFinder::execute(const EventContext& ctx) const {
 
-  class FexSiTrackMakerEventData_xk : public InDet::SiTrackMakerEventData_xk
-  {
-  public:
-    FexSiTrackMakerEventData_xk(HLT::FexAlgo &algo, const HLT::TriggerElement* outputTE, const std::string &key) {
-      if (!key.empty()) {
-        const Trk::PRDtoTrackMap *prd_to_track_map_cptr;
-        HLT::ErrorCode stat = reinterpret_cast<FeatureAccessor &>(algo).getFeature(outputTE, prd_to_track_map_cptr, key);
-        if(stat!= HLT::OK){
-          throw std::runtime_error(std::string("Failed to get PRD to track map:") + key);
-        }
-        setPRDtoTrackMap(prd_to_track_map_cptr);
-      }
-    }
-  private:
-    void dummy() {}
-  };
-
-}
-
-StatusCode TrigFastTrackFinder::execute() {
-
-  auto ctx = getContext();
   //RoI preparation/update 
 
   SG::ReadHandle<TrigRoiDescriptorCollection> roiCollection(m_roiCollectionKey, ctx);
@@ -492,44 +312,6 @@ StatusCode TrigFastTrackFinder::execute() {
   ATH_CHECK(findTracks(trackEventData, internalRoI, inputTracks, *outputTracks, ctx));
 
   return StatusCode::SUCCESS;
-}
-
-
-//-------------------------------------------------------------------------
-HLT::ErrorCode TrigFastTrackFinder::hltExecute(const HLT::TriggerElement*,
-    HLT::TriggerElement* outputTE) {
-  const IRoiDescriptor* internalRoI;
-  HLT::ErrorCode ec = getRoI(outputTE, internalRoI);
-  if(ec != HLT::OK) {
-    return ec;
-  }
-  TrackCollection* outputTracks = new TrackCollection(SG::OWN_ELEMENTS);
-  InDet::FexSiTrackMakerEventData_xk trackEventData(*this, outputTE, m_prdToTrackMap.key());
-
-
-  const TrackCollection* inputTracks = nullptr;
-  if (m_LRTmode) {
-    if (!m_inputTracksKey.key().empty()){
-      if ( HLT::OK != getFeature(outputTE, inputTracks) ) {
-	ATH_MSG_DEBUG(" no input track collection found ");
-      } 
-    }
-  }
-  StatusCode sc = findTracks(trackEventData, *internalRoI, inputTracks, *outputTracks, getContext());
-
-  HLT::ErrorCode code = HLT::OK;
-  if (sc != StatusCode::SUCCESS) {
-    delete outputTracks;
-    code = attachFeature(outputTE, new TrackCollection(SG::VIEW_ELEMENTS), m_attachedFeatureName);
-    if (code != HLT::OK) {
-      return code;
-    }
-    return HLT::ERROR;
-  }
-
-  code = attachFeature(outputTE, outputTracks, m_attachedFeatureName);
-  
-  return code;
 }
 
 
@@ -899,7 +681,7 @@ void TrigFastTrackFinder::filterSharedTracks(std::vector<std::tuple<bool, double
 
 //---------------------------------------------------------------------------
 
-HLT::ErrorCode TrigFastTrackFinder::hltFinalize()
+StatusCode TrigFastTrackFinder::finalize()
 {
 
   ATH_MSG_INFO("=========================================================");
@@ -909,7 +691,7 @@ HLT::ErrorCode TrigFastTrackFinder::hltFinalize()
   ATH_MSG_INFO("RoI with Track(s)  Total/goodZvertex/badZvertex: " << m_countRoIwithTracks);
   ATH_MSG_INFO("=========================================================");
 
-  return HLT::OK;
+  return StatusCode::SUCCESS;
 }
 
 void TrigFastTrackFinder::updateClusterMap(long int trackIdx, const Trk::Track* pTrack, std::map<Identifier, std::vector<long int> >& clusterMap) const {
@@ -975,27 +757,6 @@ void TrigFastTrackFinder::getBeamSpot(float& shift_x, float& shift_y, const Even
   shift_x = xVTX - tiltXZ*zVTX;//correction for tilt
   shift_y = yVTX - tiltYZ*zVTX;//correction for tilt
   ATH_MSG_VERBOSE("Beam center position:  " << shift_x <<"  "<< shift_y);
-}
-
-HLT::ErrorCode TrigFastTrackFinder::getRoI(const HLT::TriggerElement* outputTE, const IRoiDescriptor*& roi)
-{
-
-  const TrigRoiDescriptor* externalRoI = nullptr;
-  HLT::ErrorCode ec = getFeature(outputTE, externalRoI);
-  if(ec != HLT::OK) {
-    ATH_MSG_ERROR("REGTEST / Failed to find RoiDescriptor");
-    return HLT::NAV_ERROR;
-  }
-
-  if(externalRoI==nullptr) {
-    ATH_MSG_ERROR("REGTEST / null RoiDescriptor");
-    return HLT::NAV_ERROR;
-  }
-
-  roi = externalRoI;
-  ATH_MSG_DEBUG("REGTEST / RoI" << *roi);
-
-  return HLT::OK;
 }
 
 void TrigFastTrackFinder::fillMon(const TrackCollection& tracks, const TrigVertexCollection& vertices, 

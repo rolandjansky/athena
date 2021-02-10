@@ -634,7 +634,6 @@ def ftfCfg(flags, roisKey, signature, signatureName):
                                          SeedRadBinWidth          =  flags.InDet.Tracking.seedRadBinWidth,
                                          TrackInitialD0Max        = 1000. if flags.InDet.Tracking.extension == 'cosmics' else 20.0,
                                          TracksName               = __trackCollName(signatureName),
-                                         OutputCollectionSuffix   = signature,
                                          TripletDoPSS             = False,
                                          Triplet_D0Max            = flags.InDet.Tracking.d0SeedMax,
                                          Triplet_D0_PPS_Max       = flags.InDet.Tracking.d0SeedPPSMax,
