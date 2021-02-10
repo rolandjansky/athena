@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/DetectorDesign.h"
@@ -64,7 +64,7 @@ void DetectorDesign::setSymmetry(bool phiSymmetric, bool etaSymmetric,
     }
     else if (phiSymmetric) {
         std::cout <<
-            "SiDetectorDesign: WARNING! Attempt to allow swapping of xPhi axis direction ignored."
+            "DetectorDesign: WARNING! Attempt to allow swapping of xPhi axis direction ignored."
                   << std::endl;
     }
 
@@ -73,7 +73,7 @@ void DetectorDesign::setSymmetry(bool phiSymmetric, bool etaSymmetric,
     }
     else if (etaSymmetric) {
         std::cout <<
-            "SiDetectorDesign: WARNING! Attempt to allow swapping of xEta axis direction ignored."
+            "DetectorDesign: WARNING! Attempt to allow swapping of xEta axis direction ignored."
                   << std::endl;
     }
 
@@ -82,7 +82,7 @@ void DetectorDesign::setSymmetry(bool phiSymmetric, bool etaSymmetric,
     }
     else if (depthSymmetric) {
         std::cout <<
-            "SiDetectorDesign: WARNING! Attempt to allow swapping of xDepth axis direction ignored."
+            "DetectorDesign: WARNING! Attempt to allow swapping of xDepth axis direction ignored."
                   << std::endl;
     }
 }

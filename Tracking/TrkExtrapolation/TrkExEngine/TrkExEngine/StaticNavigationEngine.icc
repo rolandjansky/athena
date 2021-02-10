@@ -155,7 +155,7 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
         // check if it is a boundary reached case
         // - geometrySignature change and configuration to stop then triggers a Success 
         bool stopAtThisBoundary = eCell.checkConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary) 
-                                  && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature());        
+                                  && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature() && nextVolume->geometrySignature()!=Trk::HGTD);        
         // fill the boundary into the cache if successfully hit boundary surface
         // - only cache if those are not the final parameters caused by a StopAtBoundary
         if (!stopAtThisBoundary)

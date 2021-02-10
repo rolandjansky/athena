@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -44,6 +44,7 @@ Trk::GeometryBuilder::GeometryBuilder(const std::string& t, const std::string& n
   m_trackingVolumeArrayCreator("Trk::TrackingVolumeArrayCreator/TrackingVolumeArrayCreator"),
   m_trackingVolumeHelper("Trk::TrackingVolumeHelper/TrackingVolumeHelper"),
   m_inDetGeometryBuilder(""),
+  m_hgtdGeometryBuilder(""),
   m_caloGeometryBuilder(""),
   m_muonGeometryBuilder("")  ,
   m_compactify(true),
@@ -60,6 +61,7 @@ Trk::GeometryBuilder::GeometryBuilder(const std::string& t, const std::string& n
     declareProperty("TrackingVolumeArrayCreator",           m_trackingVolumeArrayCreator);
     declareProperty("TrackingVolumeHelper",                 m_trackingVolumeHelper);
     declareProperty("InDetTrackingGeometryBuilder",         m_inDetGeometryBuilder);
+    declareProperty("HGTD_TrackingGeometryBuilder",         m_hgtdGeometryBuilder);
     declareProperty("CaloTrackingGeometryBuilder",          m_caloGeometryBuilder);
     declareProperty("MuonTrackingGeometryBuilder",          m_muonGeometryBuilder);
     // optimize layer dimension & memory usage -------------------------------
@@ -100,6 +102,14 @@ StatusCode Trk::GeometryBuilder::initialize()
         } else
             ATH_MSG_INFO( "Retrieved tool " << m_inDetGeometryBuilder );
     }
+    // (H) High Granularity Timing Detector ----------------------------------------------------
+    if(!m_hgtdGeometryBuilder.empty()) {
+        if (m_hgtdGeometryBuilder.retrieve().isFailure()) {
+            ATH_MSG_FATAL("Failed to retrieve tool " << m_hgtdGeometryBuilder );
+            return StatusCode::FAILURE;
+        } else
+            ATH_MSG_INFO( "Retrieved tool " << m_hgtdGeometryBuilder );
+    }    
     // (C) Calorimeter --------------------------------------------------------------------------
     if (!m_caloGeometryBuilder.empty()) {
         if (m_caloGeometryBuilder.retrieve().isFailure()) {
@@ -149,7 +159,7 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::trackingGeometry(const Trk::T
 
     // the geometry to be constructed
     const Trk::TrackingGeometry* tGeometry = 0;
-    if ( m_inDetGeometryBuilder.empty() && m_caloGeometryBuilder.empty() && m_muonGeometryBuilder.empty() ) {
+    if ( m_inDetGeometryBuilder.empty() && m_hgtdGeometryBuilder.empty() && m_caloGeometryBuilder.empty() && m_muonGeometryBuilder.empty() ) {
 
         ATH_MSG_VERBOSE( "Configured to only create world TrackingVolume." );
 
@@ -181,12 +191,14 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
     const Trk::TrackingGeometry* atlasTrackingGeometry = 0;
 
     // A ------------- INNER DETECTOR SECTION --------------------------------------------------------------------------------
-    // get the Inner Detector and/or Calorimeter trackingGeometry
+    // get the Inner Detector and/or HGTD and/or Calorimeter trackingGeometry
     const Trk::TrackingGeometry* inDetTrackingGeometry  = 0;
+    const Trk::TrackingGeometry* hgtdTrackingGeometry   = 0;
     const Trk::TrackingGeometry* caloTrackingGeometry   = 0;
 
     // the volumes to be given to higher level tracking geometry builders
     const Trk::TrackingVolume* inDetVolume    = 0;
+    const Trk::TrackingVolume* hgtdVolume     = 0;
     const Trk::TrackingVolume* caloVolume     = 0;
 
     // mark the highest volume
@@ -209,7 +221,7 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
             // sign it
             inDetTrackingGeometry->sign(m_inDetGeometryBuilder->geometrySignature());
             // check whether the world has to be created or not
-            if (m_createWorld || m_caloGeometry || m_muonGeometry) {
+            if (m_createWorld || m_hgtdGeometry || m_caloGeometry || m_muonGeometry) {
                 // checkout the highest InDet volume
                 inDetVolume = inDetTrackingGeometry->checkoutHighestTrackingVolume();
                 // assign it as the highest volume
@@ -227,16 +239,53 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
 #endif
 
     }
+    
+    // ========================== HGTD PART =================================================
+    // if a HGTD Geometry Builder is present -> wrap it around the ID
+    if (!m_hgtdGeometryBuilder.empty()) {
+        if (inDetVolume)
+            ATH_MSG_VERBOSE( "HGTD Tracking Geometry is going to be built with enclosed ID." );
+        else 
+            ATH_MSG_VERBOSE( "HGTD Tracking Geometry is going to be built stand-alone." );
+        // get the InnerDetector TrackingGeometry
+        hgtdTrackingGeometry = m_hgtdGeometryBuilder->trackingGeometry(inDetVolume);
+        // if you have to create world or there is a Calo/Muon geometry builder ...
+        if (hgtdTrackingGeometry) {
+            // sign it
+            hgtdTrackingGeometry->sign(m_hgtdGeometryBuilder->geometrySignature());
+            if (m_createWorld || m_caloGeometry || m_muonGeometry){
+                // check out the highest Calo volume
+                hgtdVolume = hgtdTrackingGeometry->checkoutHighestTrackingVolume();
+                // assign it as the highest volume (overwrite ID)
+                highestVolume = hgtdVolume;
+                // cleanup
+                delete hgtdTrackingGeometry;
+            } else // -> Take the exit and return HGTD back
+                atlasTrackingGeometry = hgtdTrackingGeometry;
+        }
+
+#ifdef TRKDETDESCR_MEMUSAGE            
+        m_memoryLogger.refresh(getpid());
+        ATH_MSG_INFO( "[ memory usage ] After Calo TrackingGeometry building: "  );
+        ATH_MSG_INFO( m_memoryLogger );
+#endif
+
+    }
 
     // ========================== CALORIMETER PART =================================================
-    // if a Calo Geometry Builder is present -> wrap it around the ID
+    // if a Calo Geometry Builder is present -> wrap it around the ID or HGTD
     if (!m_caloGeometryBuilder.empty()) {
-        if (inDetVolume)
-            ATH_MSG_VERBOSE( "Calorimeter Tracking Geometry is going to be built with enclosed ID." );
-        else 
-            ATH_MSG_VERBOSE( "Calorimeter Tracking Geometry is going to be built stand-alone." );
+        std::string enclosed = "stand-alone.";
+        if (inDetVolume and hgtdVolume)
+            enclosed = "with encloded ID/HGTD.";
+        else if (inDetVolume or hgtdVolume)
+            enclosed = (inDetVolume) ? "with encloded ID." : "with encloded HGTD.";                  
+        ATH_MSG_VERBOSE( "Calorimeter Tracking Geometry is going to be built "<< enclosed );
         // get the InnerDetector TrackingGeometry
-        caloTrackingGeometry = m_caloGeometryBuilder->trackingGeometry(inDetVolume);
+        if (inDetVolume and not hgtdVolume)
+          caloTrackingGeometry = m_caloGeometryBuilder->trackingGeometry(inDetVolume);
+        else 
+          caloTrackingGeometry = m_caloGeometryBuilder->trackingGeometry(hgtdVolume);
         // if you have to create world or there is a Muon geometry builder ...
         if (caloTrackingGeometry) {
             // sign it
@@ -263,16 +312,32 @@ const Trk::TrackingGeometry* Trk::GeometryBuilder::atlasTrackingGeometry() const
     // ========================== MUON SYSTEM PART =================================================
     // if Muon Geometry Builder is present -> wrap either ID or Calo
     if (!m_muonGeometryBuilder.empty()) {
-
         std::string enclosed = "stand-alone.";
-        if (inDetVolume && caloVolume)
-            enclosed = "with encloded ID/Calo.";
-        else if (inDetVolume || caloVolume)
-            enclosed = (inDetVolume) ? "with encloded ID." : "with encloded Calo.";                  
+        if (inDetVolume and hgtdVolume and caloVolume )
+            enclosed = "with encloded ID/HGTD/Calo.";
+        else if (inDetVolume or hgtdVolume or caloVolume) {
+            if (inDetVolume) {
+              if (hgtdVolume)
+                enclosed = "with encloded ID/HGTD";
+              else if (caloVolume)
+                enclosed = "with encloded ID/Calo";
+              else
+                enclosed = "with encloded ID";
+            } else if (hgtdVolume) {
+              if (caloVolume)
+                enclosed = "with encloded HGTD/Calo";
+              else
+                enclosed = "with encloded HGTD";
+            } else {
+              enclosed = "with encloded Calo";
+            }
+        }
         ATH_MSG_VERBOSE( "Muon System Tracking Geometry is going to be built "<< enclosed );
-        // there's nothing outside the muons -- wrap the calo if it exists
-        if (inDetVolume && !caloVolume)
+        // there's nothing outside the muons -- wrap the calo or the HGTD if one or both of them exist
+        if (inDetVolume and not hgtdVolume and not caloVolume)
             atlasTrackingGeometry = m_muonGeometryBuilder->trackingGeometry( inDetVolume );
+        if (hgtdVolume and not caloVolume)
+            atlasTrackingGeometry = m_muonGeometryBuilder->trackingGeometry( hgtdVolume );
         else
             atlasTrackingGeometry = m_muonGeometryBuilder->trackingGeometry( caloVolume );
 

@@ -12,6 +12,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           DetectorDescription/Identifier
                           GaudiKernel
+                          HighGranularityTimingDetector/HGTD_DetDescr/HGTD_Identifier
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           Tracking/TrkDetDescr/TrkGeometry
@@ -33,7 +34,7 @@ atlas_add_component( TrkExUnitTests
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr GeoPrimitives Identifier InDetReadoutGeometry GaudiKernel InDetIdentifier TrkGeometry TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkValInterfaces )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps AtlasDetDescr GeoPrimitives Identifier HGTD_Identifier InDetReadoutGeometry GaudiKernel InDetIdentifier TrkGeometry TrkEventPrimitives TrkNeutralParameters TrkParameters TrkExInterfaces TrkExUtils TrkValInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkExUnitTests )

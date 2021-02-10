@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,15 +9,9 @@
 #ifndef TRKDETDESCRTOOLS_CYLINDERVOLUMECREATOR_H
 #define TRKDETDESCRTOOLS_CYLINDERVOLUMECREATOR_H
 
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
-#endif
-
 // Trk
 #include "TrkDetDescrInterfaces/ITrackingVolumeCreator.h"
+#include "TrkDetDescrUtils/ComparisonUtils.h"
 #include "TrkVolumes/BoundarySurfaceFace.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"

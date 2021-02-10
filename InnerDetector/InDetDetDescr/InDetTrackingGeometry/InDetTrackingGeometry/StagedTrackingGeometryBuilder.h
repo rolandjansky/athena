@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 //Trk
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/BinningType.h"
+#include "TrkDetDescrUtils/ComparisonUtils.h"
 #include "TrkGeometry/TrackingVolumeManipulator.h"
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -21,14 +22,6 @@
 #include <vector>
 #include <string>
 #include <utility>
-
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
-#endif
-
 
 namespace Trk {
  class TrackingGeometry;
@@ -239,7 +232,8 @@ namespace InDet {
       // ID container                                                            
       std::string                                    m_exitVolume;                //!< the final ID container             
       // material-on-fly option
-      bool                                             m_materialOnFly;            //! switch for material retrieval from GM 
+      bool                                           m_materialOnFly;            //! switch for material retrieval from GM 
+      bool                                           m_fitHGTD;                  //! switch for allowing space for HGTD tracking geometry
   };
 
   inline void StagedTrackingGeometryBuilder::checkForInsert(std::vector<double>& radii, double radius) const {

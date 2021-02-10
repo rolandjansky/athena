@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "HGTD_ReadoutGeometry/HGTD_ModuleDesign.h"
@@ -23,7 +23,9 @@ HGTD_ModuleDesign::HGTD_ModuleDesign(const double thickness,
     DetectorDesign(thickness, 
                    true, true, true, // phi,eta,depth axes symmetric
                    carrierType,
-                   readoutSide),
+                   readoutSide,
+                   InDetDD::DetectorDesign::yAxis,
+                   InDetDD::DetectorDesign::zAxis),
     m_diodeMap(matrix),
     m_readoutScheme(circuitsPerColumn,circuitsPerRow,
                     cellColumnsPerCircuit,cellRowsPerCircuit,

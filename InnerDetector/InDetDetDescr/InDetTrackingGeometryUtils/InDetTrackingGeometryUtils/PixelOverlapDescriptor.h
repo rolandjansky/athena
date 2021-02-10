@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -64,7 +64,11 @@ namespace InDet {
          bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
                                 const Trk::Surface& sf,
                                 const Amg::Vector3D& pos,
-                                const Amg::Vector3D& dir) const;
+                                const Amg::Vector3D& dir) const override;
+                                
+        bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                               const Amg::Vector3D& pos,
+                               const Amg::Vector3D& dir) const override;
                                   
 
       private :                                  
@@ -83,7 +87,11 @@ namespace InDet {
      
   inline PixelOverlapDescriptor* PixelOverlapDescriptor::clone() const { return new PixelOverlapDescriptor(); }     
 
-
+  inline bool PixelOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*cSurfaces*/, 
+                                                        const Amg::Vector3D& /*pos*/,
+                                                        const Amg::Vector3D& /*dir*/) const {
+    return false; 
+  }
 
 }
 

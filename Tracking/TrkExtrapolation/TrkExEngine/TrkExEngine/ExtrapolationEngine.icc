@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -29,9 +29,12 @@ template <class T> Trk::ExtrapolationCode Trk::ExtrapolationEngine::extrapolateT
     // main loop over volumes 
     while (eCell.leadVolume && eCode == Trk::ExtrapolationCode::InProgress ){
         // give output that you are in the master volume loop
-        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "loop", "processing volume : " << eCell.leadVolume->volumeName() );
+        EX_MSG_VERBOSE(eCell.navigationStep, "extrapolate", "loop", "processing volume (signature) : " << eCell.leadVolume->volumeName() << " (" << eCell.leadVolume->geometrySignature() << ")");
         // get the appropriate IExtrapolationEngine
-        Trk::GeometryType geoType = eCell.leadVolume->geometrySignature()>2 ? Trk::Dense : Trk::Static;
+        bool useStatic = true;
+        if (eCell.leadVolume->geometrySignature()>2 and eCell.leadVolume->geometrySignature()!=Trk::HGTD)
+          useStatic=false;        
+        Trk::GeometryType geoType = useStatic ? Trk::Static : Trk::Dense;
         const Trk::IExtrapolationEngine* iee = m_eeAccessor[geoType];
         eCode = iee ? iee->extrapolate(eCell, sf, bcheck) : Trk::ExtrapolationCode::FailureConfiguration;
         // give a message about what you have

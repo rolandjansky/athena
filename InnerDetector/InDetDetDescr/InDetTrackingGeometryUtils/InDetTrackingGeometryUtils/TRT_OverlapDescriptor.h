@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -54,7 +54,11 @@ namespace InDet {
          bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces,
                                 const Trk::Surface& sf,
                                 const Amg::Vector3D& pos,
-                                const Amg::Vector3D& dir) const;
+                                const Amg::Vector3D& dir) const override;
+                                
+         bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                                const Amg::Vector3D& pos,
+                                const Amg::Vector3D& dir) const override;
                                   
        private:
          // this checks if the surface intersection is within bounds, if it returns 0 break, otherwise +/- for checking in +/- of index
@@ -69,7 +73,13 @@ namespace InDet {
               
      };
 
-inline TRT_OverlapDescriptor* TRT_OverlapDescriptor::clone() const { return new TRT_OverlapDescriptor(*this); }     
+  inline TRT_OverlapDescriptor* TRT_OverlapDescriptor::clone() const { return new TRT_OverlapDescriptor(*this); }     
+
+  inline bool TRT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*cSurfaces*/, 
+                                                       const Amg::Vector3D& /*pos*/,
+                                                       const Amg::Vector3D& /*dir*/) const {
+    return false; 
+  }
      
 }
 

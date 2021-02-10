@@ -27,7 +27,8 @@ namespace Trk {
         Calo                   =  3,
         MS                     =  4,
         Cavern                 =  5,
-        NumberOfSignatures     =  6,
+        HGTD                   =  6,
+        NumberOfSignatures     =  7,
         Unsigned               = 99
     };
 

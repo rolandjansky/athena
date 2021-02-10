@@ -74,6 +74,10 @@ namespace iFatras {
                            const Trk::Surface& sf,
                            const Amg::Vector3D& pos,
                            const Amg::Vector3D& dir) const override;
+                           
+    bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                           const Amg::Vector3D& pos,
+                           const Amg::Vector3D& dir) const override;
             
   private:
     void dumpSurfaces(const PixelID* pixId, const SCT_ID* sctId, std::vector<Trk::SurfaceIntersection>& surfaces) const;
@@ -88,6 +92,12 @@ namespace iFatras {
   
   
   inline DiscOverlapDescriptor* DiscOverlapDescriptor::clone() const { return new DiscOverlapDescriptor(); }
+  
+  inline bool DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*surfaces*/,
+                                                       const Amg::Vector3D& /*pos*/,
+                                                       const Amg::Vector3D& /*dir*/) const {
+    return false;
+  }
 
   inline void DiscOverlapDescriptor::dumpSurfaces(const PixelID* pixIdHelper, const SCT_ID* sctIdHelper, std::vector<Trk::SurfaceIntersection>& surfaces) const {
     std::cout << "Dumping Surfaces for "<< (pixIdHelper ? "Pixel " : "SCT ") << "with size = " << surfaces.size() << std::endl;

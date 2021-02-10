@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ////////////////////////////////////////////////////////////////////
@@ -55,36 +55,39 @@ InDet::StagedTrackingGeometryBuilder::StagedTrackingGeometryBuilder(const std::s
   m_checkForRingLayout(false),
   m_ringTolerance(2.*Gaudi::Units::mm),
   m_namespace("InDet::"),
-  m_exitVolume("InDet::Containers::InnerDetector")
-  ,m_materialOnFly(false)
+  m_exitVolume("InDet::Containers::InnerDetector"),
+  m_materialOnFly(false),
+  m_fitHGTD(false)
 {
   declareInterface<Trk::IGeometryBuilder>(this);  
   // layer builders and their configurations
-  declareProperty("LayerBuilders",                            m_layerProviders);
-  declareProperty("LayerBinningTypeCenter",           m_layerBinningTypeCenter);
-  declareProperty("LayerBinningTypeEndcap",          m_layerBinningTypeEndcap);
-  declareProperty("ColorCodes",                               m_colorCodesConfig);  
+  declareProperty("LayerBuilders",                  m_layerProviders);
+  declareProperty("LayerBinningTypeCenter",         m_layerBinningTypeCenter);
+  declareProperty("LayerBinningTypeEndcap",         m_layerBinningTypeEndcap);
+  declareProperty("ColorCodes",                     m_colorCodesConfig);  
   // envelope definition service
-  declareProperty("EnvelopeDefinitionSvc",              m_enclosingEnvelopeSvc );
-  declareProperty("VolumeEnclosureCylinderRadii",     m_enclosingCylinderRadius);
-  declareProperty("VolumeEnclosureDiscPositions",     m_enclosingDiscPositionZ);
+  declareProperty("EnvelopeDefinitionSvc",          m_enclosingEnvelopeSvc );
+  declareProperty("VolumeEnclosureCylinderRadii",   m_enclosingCylinderRadius);
+  declareProperty("VolumeEnclosureDiscPositions",   m_enclosingDiscPositionZ);
   // helper tools  
-  declareProperty("TrackingVolumeCreator",            m_trackingVolumeCreator);
-  declareProperty("LayerArrayCreator",                    m_layerArrayCreator);  
+  declareProperty("TrackingVolumeCreator",          m_trackingVolumeCreator);
+  declareProperty("LayerArrayCreator",              m_layerArrayCreator);  
   // build the Boundary Layers
-  declareProperty("EnvelopeCover",                         m_layerEnvelopeCover);
-  declareProperty("BuildBoundaryLayers",               m_buildBoundaryLayers);
-  declareProperty("ReplaceAllJointBoundaries",        m_replaceJointBoundaries);
+  declareProperty("EnvelopeCover",                  m_layerEnvelopeCover);
+  declareProperty("BuildBoundaryLayers",            m_buildBoundaryLayers);
+  declareProperty("ReplaceAllJointBoundaries",      m_replaceJointBoundaries);
   // force robust layer indexing  
-  declareProperty("IndexStaticLayers",                    m_indexStaticLayers);
-  declareProperty("CheckForRingLayout",                m_checkForRingLayout);
+  declareProperty("IndexStaticLayers",              m_indexStaticLayers);
+  declareProperty("CheckForRingLayout",             m_checkForRingLayout);
   // automatized transcript from GM
-  declareProperty("MaterialOnFly",                          m_materialOnFly);
+  declareProperty("MaterialOnFly",                  m_materialOnFly);
   // volume namespace & container name
-  declareProperty("VolumeNamespace",                  m_namespace); 
-  declareProperty("ExitVolumeName",                     m_exitVolume);
+  declareProperty("VolumeNamespace",                m_namespace); 
+  declareProperty("ExitVolumeName",                 m_exitVolume);
   // minimal radial distance between rings to allow a split
   declareProperty("MinimalRadialGapForVolumeSplit", m_ringTolerance);
+  // define with the HGTD is present or not
+  declareProperty("FitHGTD",                        m_fitHGTD);
 }
 
 // destructor
@@ -155,6 +158,23 @@ const Trk::TrackingGeometry* InDet::StagedTrackingGeometryBuilder::trackingGeome
    double envelopeVolumeRadius = envelopeDefs[1].first;
    double envelopeVolumeHalfZ  = fabs(envelopeDefs[1].second);
    float bpRadius = envelopeDefs[0].first;
+   
+   if (m_fitHGTD) {
+     // If running with the HGTD, we don't want to include its volume
+     // as it will be included in another tracking geometry.
+     // re-evaluating the ID envelope dimension
+     float envelopeVolumeHalfZatBp = envelopeVolumeHalfZ;
+     // now scan the beampipe envelopes, if there is something smalles, pick it.
+     RZPairVector& envelopeBeamPipeDefs = m_enclosingEnvelopeSvc->getBeamPipeRZValues();
+     for (auto& bounds : envelopeBeamPipeDefs) {
+       if (float(bounds.first) == bpRadius and std::abs(bounds.second)<envelopeVolumeHalfZatBp) {
+         envelopeVolumeHalfZatBp = std::abs(bounds.second);
+       }
+     }
+     if (envelopeVolumeHalfZatBp<envelopeVolumeHalfZ)
+       envelopeVolumeHalfZ = envelopeVolumeHalfZatBp;
+   }
+
    ATH_MSG_VERBOSE("       -> envelope R/Z defined as : " << envelopeVolumeRadius << " / " << envelopeVolumeHalfZ );
    ATH_MSG_VERBOSE("       -> beam pipe boundary at R = "<<envelopeDefs[0].first);
 

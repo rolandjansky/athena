@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -89,6 +89,9 @@ namespace Trk {
 
         //bool                                      m_inDetGeometry;                     //!< switch on TrackingGeometry for the InnerDetector
         ToolHandle<IGeometryBuilder>              m_inDetGeometryBuilder;              //!< GeometryBuilder for the InnerDetector
+        
+        bool                                      m_hgtdGeometry;                     //! switch on TrackingGeometry for HGTD 
+        ToolHandle<IGeometryBuilder>              m_hgtdGeometryBuilder;              //!< GeometryBuilder for the HGTD
 
         bool                                      m_caloGeometry;                     //!< switch on TrackingGeometry for the Calorimeters
         ToolHandle<IGeometryBuilder>              m_caloGeometryBuilder;              //!< GeometryBuilder for the Calorimeters
