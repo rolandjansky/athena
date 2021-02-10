@@ -14,8 +14,6 @@
 
 #include <iostream>
 
-//HistoConverter::HistoConverter() :
-//AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >("MessageSvc"), "HistoConverter")
 PixelHistoConverter::PixelHistoConverter()
 {
 }
@@ -23,17 +21,14 @@ PixelHistoConverter::PixelHistoConverter()
 StatusCode PixelHistoConverter::SetHisto1D(const TH1* histo) {
 
   if (!histo) {
-    //ATH_MSG_ERROR("Nullptr passed");
     return StatusCode::FAILURE;
   }
 
   if (!SetAxis(m_xAxis, histo->GetXaxis())) {
-    //ATH_MSG_ERROR("Failed to set the x axis");
     return StatusCode::FAILURE;
   }
 
   /// fill the content
-  /// Add underflow and overflow bins
   const std::size_t xSize = m_xAxis.nBins;
   m_content.resize(xSize);
  
@@ -46,21 +41,17 @@ StatusCode PixelHistoConverter::SetHisto1D(const TH1* histo) {
 
 StatusCode PixelHistoConverter::SetHisto2D(const TH2* histo) {
   if (!histo) {
-    //ATH_MSG_ERROR("Nullptr passed");
     return StatusCode::FAILURE;
   }
 
   if (!SetAxis(m_xAxis, histo->GetXaxis())) {
-    //ATH_MSG_ERROR("Failed to set the x axis");
     return StatusCode::FAILURE;
   }
   if (!SetAxis(m_yAxis, histo->GetYaxis())) {
-    //ATH_MSG_ERROR("Failed to set the y axis");
     return StatusCode::FAILURE;
   }
 
-  /// fill the content
-  /// Add underflow and overflow bins
+  /// fill the content use linearized version for performance reasons
   const std::size_t xSize = m_xAxis.nBins;
   const std::size_t ySize = m_yAxis.nBins;
   m_content.resize(xSize*ySize);
@@ -77,25 +68,20 @@ StatusCode PixelHistoConverter::SetHisto2D(const TH2* histo) {
 
 StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
   if (!histo) {
-    //ATH_MSG_ERROR("Nullptr passed");
     return StatusCode::FAILURE;
   }
 
   if (!SetAxis(m_xAxis, histo->GetXaxis())) {
-    //ATH_MSG_ERROR("Failed to set the x axis");
     return StatusCode::FAILURE;
   }
   if (!SetAxis(m_yAxis, histo->GetYaxis())) {
-    //ATH_MSG_ERROR("Failed to set the y axis");
     return StatusCode::FAILURE;
   }
   if (!SetAxis(m_zAxis, histo->GetZaxis())) {
-    //ATH_MSG_ERROR("Failed to set the Z axis");
     return StatusCode::FAILURE;
   }
 
-  /// fill the content
-  /// Add underflow and overflow bins
+  /// fill the content use linearized version for performance reasons
   const std::size_t xSize = m_xAxis.nBins;
   const std::size_t ySize = m_yAxis.nBins;
   const std::size_t zSize = m_zAxis.nBins;
@@ -150,7 +136,6 @@ float PixelHistoConverter::GetBinZ(const float value) const {
 bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
 
   if (!rootAxis) {
-    //ATH_MSG_ERROR("Nullptr passed");
     return false;
   }
 
@@ -159,7 +144,6 @@ bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
   axis.max   = rootAxis->GetXmax();
 
   if (axis.nBins < 1) {
-    //ATH_MSG_ERROR("Axis has less than 1 bin");
     return false;
   }
 
@@ -168,13 +152,11 @@ bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
   for (std::size_t ibin = 2; ibin <= axis.nBins; ++ibin) {
     /// use a threshold for imperfect binning
     if (std::abs(rootAxis->GetBinWidth(ibin) - width) > 0.01*width) {
-      //ATH_MSG_ERROR("Histogram does not have equidistant binning");
-      std::cerr << "Histogram does not have equidistant binning\n";
-
       return false;
     }
   }
 
+  /// storing as 1/width to avoid (slow) division in retrieving
   axis.width = 1.*axis.nBins/(axis.max - axis.min);
 
   return true;

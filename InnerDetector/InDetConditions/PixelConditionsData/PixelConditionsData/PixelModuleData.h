@@ -168,28 +168,15 @@ class PixelModuleData {
     void setFluenceLayer(std::vector<double> fluenceLayer);
     double getFluenceLayer(int layer) const;
 
-    void setLorentzMap_eOld(std::vector<TH2F*> lorentzMap_e);
-    void setLorentzMap_hOld(std::vector<TH2F*> lorentzMap_h);
-    TH2F* getLorentzMap_eOld(int layer) const;
-    TH2F* getLorentzMap_hOld(int layer) const;
-
     void setLorentzMap_e(std::vector<PixelHistoConverter> lorentzMap_e);
     void setLorentzMap_h(std::vector<PixelHistoConverter> lorentzMap_h);
     const PixelHistoConverter& getLorentzMap_e(int layer) const;
     const PixelHistoConverter& getLorentzMap_h(int layer) const;
 
-    void setDistanceMap_eOld(std::vector<TH2F*> distanceMap_e);
-    void setDistanceMap_hOld(std::vector<TH2F*> distanceMap_h);
-    TH2F* getDistanceMap_eOld(int layer) const;
-    TH2F* getDistanceMap_hOld(int layer) const;
-
     void setDistanceMap_e(std::vector<PixelHistoConverter> distanceMap_e);
     void setDistanceMap_h(std::vector<PixelHistoConverter> distanceMap_h);
     const PixelHistoConverter& getDistanceMap_e(int layer) const;
     const PixelHistoConverter& getDistanceMap_h(int layer) const;
-
-    void setRamoPotentialMapOld(std::vector<TH3F*> ramoPotentialMap);
-    TH3F* getRamoPotentialMapOld(int layer) const;
 
     void setRamoPotentialMap(std::vector<PixelHistoConverter> ramoPotentialMap);
     const PixelHistoConverter& getRamoPotentialMap(int layer) const;
@@ -316,11 +303,6 @@ class PixelModuleData {
     std::string m_cablingMapFileName;
 
     std::vector<double> m_fluenceLayer;
-    std::vector<TH2F*> m_lorentzMap_eOld;
-    std::vector<TH2F*> m_lorentzMap_hOld;
-    std::vector<TH2F*> m_distanceMap_eOld;
-    std::vector<TH2F*> m_distanceMap_hOld;
-    std::vector<TH3F*> m_ramoPotentialMapOld;
     std::vector<PixelHistoConverter> m_lorentzMap_e;
     std::vector<PixelHistoConverter> m_lorentzMap_h;
     std::vector<PixelHistoConverter> m_distanceMap_e;

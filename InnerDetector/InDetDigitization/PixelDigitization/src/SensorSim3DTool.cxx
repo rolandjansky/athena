@@ -105,7 +105,6 @@ StatusCode SensorSim3DTool::initialize() {
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
     //ramoPotentialMap.push_back(ramoPotentialMap_hold);
-    m_ramoPotentialMapOld[Layer] = ramoPotentialMap_hold;
     m_ramoPotentialMap.emplace_back();
     ATH_CHECK(m_ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
 
@@ -119,7 +118,6 @@ StatusCode SensorSim3DTool::initialize() {
       ATH_MSG_INFO("Unable to load sensor e-field map, so generating one using approximations.");
       return StatusCode::FAILURE; //Obviously, remove this when gen. code is set up
     }
-    m_eFieldMapOld[Layer] = eFieldMap_hold;
     m_eFieldMap.emplace_back();
     ATH_CHECK(m_eFieldMap.back().SetHisto2D(eFieldMap_hold));
 
@@ -143,12 +141,6 @@ StatusCode SensorSim3DTool::initialize() {
     timeMap_e_hold = (TH2F* ) mapsFile->Get("etimes");
     timeMap_h_hold = (TH2F* ) mapsFile->Get("htimes");
     //Now, determine the time to reach the electrode and the trapping position.
-    m_xPositionMap_eOld[Layer] = xPositionMap_e_hold;
-    m_xPositionMap_hOld[Layer] = xPositionMap_h_hold;
-    m_yPositionMap_eOld[Layer] = yPositionMap_e_hold;
-    m_yPositionMap_hOld[Layer] = yPositionMap_h_hold;
-    m_timeMap_eOld[Layer] = timeMap_e_hold;
-    m_timeMap_hOld[Layer] = timeMap_h_hold;
     m_xPositionMap_e.emplace_back();
     m_xPositionMap_h.emplace_back();
     m_yPositionMap_e.emplace_back();
@@ -163,10 +155,6 @@ StatusCode SensorSim3DTool::initialize() {
     ATH_CHECK(m_timeMap_h.back().SetHisto2D(timeMap_h_hold));
 
     // Get average charge data (for charge chunk effect correction)
-    m_avgChargeMap_eOld = 0;
-    m_avgChargeMap_hOld = 0;
-    m_avgChargeMap_eOld = (TH2F*) mapsFile->Get("avgCharge_e");
-    m_avgChargeMap_hOld = (TH2F*) mapsFile->Get("avgCharge_h");
     ATH_CHECK(m_avgChargeMap_e.SetHisto2D((TH2F*) mapsFile->Get("avgCharge_e")));
     ATH_CHECK(m_avgChargeMap_h.SetHisto2D((TH2F*) mapsFile->Get("avgCharge_h")));
   }
@@ -364,14 +352,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
 
             ATH_MSG_DEBUG(" -- diffused position w.r.t. pixel edge = " << xposDiff << "  " << yposDiff);
 
-            double average_chargeOld = m_avgChargeMap_eOld->GetBinContent(m_avgChargeMap_eOld->GetYaxis()->FindBin(
-                                                                      y_pix * 1000),
-                                                                    m_avgChargeMap_eOld->GetXaxis()->FindBin(x_pix *
-                                                                                                          1000));
-            if (isHole) average_chargeOld =
-                m_avgChargeMap_hOld->GetBinContent(m_avgChargeMap_hOld->GetYaxis()->FindBin(
-                                                  y_pix * 1000), m_avgChargeMap_hOld->GetXaxis()->FindBin(x_pix * 1000));
-
             float average_charge = isHole ? m_avgChargeMap_h.GetContent(m_avgChargeMap_h.GetBinY(1e3*y_pix), m_avgChargeMap_h.GetBinX(1e3*x_pix)) :
                                             m_avgChargeMap_e.GetContent(m_avgChargeMap_e.GetBinY(1e3*y_pix), m_avgChargeMap_e.GetBinX(1e3*x_pix));
 
@@ -402,10 +382,6 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
 
                 //Ramo map over 500umx350um pixel area
                 //Ramo init different if charge diffused into neighboring pixel -> change primary pixel!!
-                double ramoInitOld = getRamoPotential(y_pix + pixel_size_y * 1 / 2 - yNeighbor,
-                                                   x_pix + pixel_size_x * 3 - xNeighbor);
-                double ramoFinalOld = getRamoPotential(yposFinal + pixel_size_y * 1 / 2 - yNeighbor,
-                                                    xposFinal + pixel_size_x * 3 - xNeighbor);
                 float ramoInit  = m_ramoPotentialMap[index].GetContent(m_ramoPotentialMap[index].GetBinX(1000*(y_pix + 0.5*pixel_size_y - yNeighbor)), ramo_init_bin_y);
                 float ramoFinal = m_ramoPotentialMap[index].GetContent(m_ramoPotentialMap[index].GetBinX(1000*(yposFinal + 0.5*pixel_size_y - yNeighbor)), ramo_final_bin_y);
 
@@ -615,19 +591,6 @@ double SensorSim3DTool::getProbMapEntry(const std::string& readout, int binx, in
   return echarge;
 }
 
-double SensorSim3DTool::getElectricFieldOld(double x, double y) {
-  std::pair < int, int > Layer; // index for layer/end cap position
-  Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at
-                   // Layer.first=1
-  Layer.second = 0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-
-  int n_binx = m_eFieldMapOld[Layer]->GetXaxis()->FindBin(x * 1000); //position coordinates in um to return electric field
-                                                                  // in V/cm
-  int n_biny = m_eFieldMapOld[Layer]->GetYaxis()->FindBin(y * 1000);
-  double electricField = m_eFieldMapOld[Layer]->GetBinContent(n_binx, n_biny);
-  return electricField * 1.0E-7; //return efield in MV/mm (for mobility calculation)
-}
-
 double SensorSim3DTool::getElectricField(double x, double y) {
   std::size_t index = 0;
   double electricField = m_eFieldMap[index].GetContent(m_eFieldMap[index].GetBinX(1e3*x), m_eFieldMap[index].GetBinY(1e3*y));
@@ -670,26 +633,6 @@ double SensorSim3DTool::getDriftTime(bool isHoleBit) {
   return driftTime;
 }
 
-double SensorSim3DTool::getTimeToElectrodeOld(double x, double y, bool isHoleBit) {
-  std::pair < int, int > Layer; // index for layer/end cap position
-  Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at
-                   // Layer.first=1
-  Layer.second = 0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-
-  // Uses (x,y) position in um to return time to electrode in ns
-  double timeToElectrode = 0;
-  if (!isHoleBit) {
-    int n_binx = m_timeMap_eOld[Layer]->GetXaxis()->FindBin(x * 1000); //convert from mm to um
-    int n_biny = m_timeMap_eOld[Layer]->GetYaxis()->FindBin(y * 1000);
-    timeToElectrode = m_timeMap_eOld[Layer]->GetBinContent(n_binx, n_biny);
-  }
-  if (isHoleBit) {
-    int n_binx = m_timeMap_hOld[Layer]->GetXaxis()->FindBin(x * 1000);
-    int n_biny = m_timeMap_hOld[Layer]->GetYaxis()->FindBin(y * 1000);
-    timeToElectrode = m_timeMap_hOld[Layer]->GetBinContent(n_binx, n_biny);
-  }
-  return timeToElectrode; //[ns]
-}
 double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
   std::size_t index = 0;
   double timeToElectrode = 0;
@@ -699,28 +642,6 @@ double SensorSim3DTool::getTimeToElectrode(double x, double y, bool isHoleBit) {
     timeToElectrode = m_timeMap_h[index].GetContent(m_timeMap_h[index].GetBinX(1e3*x), m_timeMap_h[index].GetBinY(1e3*y));
   }
   return timeToElectrode; //[ns]
-}
-
-double SensorSim3DTool::getTrappingPositionXOld(double initX, double initY, double driftTime, bool isHoleBit) {
-  std::pair < int, int > Layer; // index for layer/end cap position
-  Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at
-                   // Layer.first=1
-  Layer.second = 0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-
-  double finalX = initX;
-  if (!isHoleBit) {
-    int n_binx = m_xPositionMap_eOld[Layer]->GetXaxis()->FindBin(initX * 1000);
-    int n_biny = m_xPositionMap_eOld[Layer]->GetYaxis()->FindBin(initY * 1000);
-    int n_bint = m_xPositionMap_eOld[Layer]->GetZaxis()->FindBin(driftTime);
-    finalX = m_xPositionMap_eOld[Layer]->GetBinContent(n_binx, n_biny, n_bint);
-  } else {
-    int n_binx = m_xPositionMap_hOld[Layer]->GetXaxis()->FindBin(initX * 1000);
-    int n_biny = m_xPositionMap_hOld[Layer]->GetYaxis()->FindBin(initY * 1000);
-    int n_bint = m_xPositionMap_hOld[Layer]->GetZaxis()->FindBin(driftTime);
-    finalX = m_xPositionMap_hOld[Layer]->GetBinContent(n_binx, n_biny, n_bint);
-  }
-
-  return finalX * 1e-3; //[mm]
 }
 
 double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit) {
@@ -735,28 +656,6 @@ double SensorSim3DTool::getTrappingPositionX(double initX, double initY, double 
   return finalX * 1e-3; //[mm]
 }
 
-double SensorSim3DTool::getTrappingPositionYOld(double initX, double initY, double driftTime, bool isHoleBit) {
-  std::pair < int, int > Layer; // index for layer/end cap position
-  Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at
-                   // Layer.first=1
-  Layer.second = 0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-
-  double finalY = initY;
-  if (!isHoleBit) {
-    int n_binx = m_yPositionMap_eOld[Layer]->GetXaxis()->FindBin(initX * 1000);
-    int n_biny = m_yPositionMap_eOld[Layer]->GetYaxis()->FindBin(initY * 1000);
-    int n_bint = m_yPositionMap_eOld[Layer]->GetZaxis()->FindBin(driftTime);
-    finalY = m_yPositionMap_eOld[Layer]->GetBinContent(n_binx, n_biny, n_bint);
-  } else {
-    int n_binx = m_yPositionMap_hOld[Layer]->GetXaxis()->FindBin(initX * 1000);
-    int n_biny = m_yPositionMap_hOld[Layer]->GetYaxis()->FindBin(initY * 1000);
-    int n_bint = m_yPositionMap_hOld[Layer]->GetZaxis()->FindBin(driftTime);
-    finalY = m_yPositionMap_hOld[Layer]->GetBinContent(n_binx, n_biny, n_bint);
-  }
-
-  return finalY * 1e-3; //[mm]
-}
-
 double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit) {
   std::size_t index = 0;
   double finalY = initY;
@@ -767,17 +666,4 @@ double SensorSim3DTool::getTrappingPositionY(double initX, double initY, double 
   }
 
   return finalY * 1e-3; //[mm]
-}
-
-double SensorSim3DTool::getRamoPotential(double x, double y) {
-  std::pair < int, int > Layer; // index for layer/end cap position
-  Layer.first = 0; //Barrel (0) or End Cap (1)   -    Now only for Barrel. If we want to add End Caps, put them at
-                   // Layer.first=1
-  Layer.second = 0; //Layer: 0 = IBL Planar, 1=B-Layer, 2=Layer-1, 3=Layer-2
-
-
-  int n_binx = m_ramoPotentialMapOld[Layer]->GetXaxis()->FindBin(x * 1000);
-  int n_biny = m_ramoPotentialMapOld[Layer]->GetYaxis()->FindBin(y * 1000);
-  double ramoPotential = m_ramoPotentialMapOld[Layer]->GetBinContent(n_binx, n_biny);
-  return ramoPotential;
 }

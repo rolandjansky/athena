@@ -458,12 +458,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     }
   }
 
-  std::vector<TH3F*> ramoPotentialMapOld;
-  std::vector<TH2F*> lorentzMap_eOld;
-  std::vector<TH2F*> lorentzMap_hOld;
-  std::vector<TH2F*> distanceMap_eOld;
-  std::vector<TH2F*> distanceMap_hOld;
-
   std::vector<PixelHistoConverter> ramoPotentialMap;
   std::vector<PixelHistoConverter> lorentzMap_e;
   std::vector<PixelHistoConverter> lorentzMap_h;
@@ -481,12 +475,7 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
       ATH_MSG_FATAL("Did not find a Ramo potential map and an approximate form is available yet. Exit...");
       return StatusCode::FAILURE;
     }
-    ramoPotentialMapOld.push_back(ramoPotentialMap_hold);
 
-    lorentzMap_eOld.push_back((TH2F*)mapsFile->Get("lorentz_map_e"));
-    lorentzMap_hOld.push_back((TH2F*)mapsFile->Get("lorentz_map_h"));
-    distanceMap_eOld.push_back((TH2F*)mapsFile->Get("edistance"));
-    distanceMap_hOld.push_back((TH2F*)mapsFile->Get("hdistance"));
     ramoPotentialMap.emplace_back();
     ATH_CHECK(ramoPotentialMap.back().SetHisto3D(ramoPotentialMap_hold));
     lorentzMap_e.emplace_back();
@@ -498,11 +487,6 @@ StatusCode PixelConfigCondAlg::execute(const EventContext& ctx) const {
     ATH_CHECK(distanceMap_e.back().SetHisto2D((TH2F*)mapsFile->Get("edistance")));
     ATH_CHECK(distanceMap_h.back().SetHisto2D((TH2F*)mapsFile->Get("hdistance")));
   }
-  writeCdo -> setLorentzMap_eOld(lorentzMap_eOld);
-  writeCdo -> setLorentzMap_hOld(lorentzMap_hOld);
-  writeCdo -> setDistanceMap_eOld(distanceMap_eOld);
-  writeCdo -> setDistanceMap_hOld(distanceMap_hOld);
-  writeCdo -> setRamoPotentialMapOld(ramoPotentialMapOld);
   writeCdo -> setLorentzMap_e(lorentzMap_e);
   writeCdo -> setLorentzMap_h(lorentzMap_h);
   writeCdo -> setDistanceMap_e(distanceMap_e);
