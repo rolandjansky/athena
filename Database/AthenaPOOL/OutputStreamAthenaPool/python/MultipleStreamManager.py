@@ -561,7 +561,10 @@ class MultipleStreamManager:
 
         theStream.Stream.WritingTool.SubLevelBranchName = "<key>"
         svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; COMPRESSION_LEVEL = '5'" ]
-        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '-20000000'" ]
+        TREE_AUTO_FLUSH = -20000000
+        if StreamName in ["StreamDAOD_PHYS"]:
+            TREE_AUTO_FLUSH = 1000
+        svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DatabaseName = '" + FileName + "'; ContainerName = 'TTree=CollectionTree'; TREE_AUTO_FLUSH = '" + str(TREE_AUTO_FLUSH) + "'" ]
         CONTAINER_SPLITLEVEL = 0
         # stream names come from PhysicsAnalysis/DerivationFramework/DerivationFrameworkCore/python/DerivationFrameworkProdFlags.py
         if StreamName in ["StreamDAOD_PHYSLITE"]:
