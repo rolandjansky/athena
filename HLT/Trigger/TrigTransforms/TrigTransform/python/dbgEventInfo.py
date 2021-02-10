@@ -178,6 +178,10 @@ class dbgEventInfo:
         self.L1_Triggered_AV.clear()
         self.L1_Triggered_IDs.clear()
 
+        if not L1ItemNames:
+            msg.warn("L1 items map not available")
+            return
+
         # Decode Lvl1 trigger info
         info = event.lvl1_trigger_info()
         nwords = len(info)//3  # TBP, TAP, TAV
@@ -203,6 +207,10 @@ class dbgEventInfo:
         # Get HLT info and store it in ROOT vectors
         self.HLT_Triggered_Names.clear()
         self.HLT_Triggered_IDs.clear()
+
+        if not HLTChainNames:
+            msg.warn("HLT Chains map not available")
+            return
 
         # Decode HLT trigger info
         info = event.event_filter_info()
