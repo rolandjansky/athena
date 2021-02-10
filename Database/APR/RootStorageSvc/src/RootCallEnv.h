@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -30,7 +30,7 @@ namespace pool  {
     const DbTypeInfo    *m_objType;
 
  public:
-    RootCallEnv( RootDataPtr object, const DbTypeInfo *typ );
+    RootCallEnv( const RootDataPtr& object, const DbTypeInfo *typ );
     ~RootCallEnv()    {     }
     void read (TBuffer& buff);
     void write(TBuffer& buff);

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //====================================================================
@@ -37,6 +37,7 @@ using namespace std;
 /// Standard Constuctor
 RootDatabase::RootDatabase() :
         m_file(nullptr), 
+        m_version ("1.1"),
         m_defCompression(1),
         m_defCompressionAlg(1),
         m_defSplitLevel(99),
@@ -47,7 +48,6 @@ RootDatabase::RootDatabase() :
         m_defTreeCacheLearnEvents(-1),
         m_fileMgr(nullptr)
 {
-  m_version = "1.1";
   m_counters[READ_COUNTER] = m_counters[WRITE_COUNTER] = m_counters[OTHER_COUNTER] = 0;
 }
 
