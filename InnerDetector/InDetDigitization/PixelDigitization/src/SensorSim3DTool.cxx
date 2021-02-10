@@ -1,6 +1,6 @@
 /*
-   Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
- */
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+*/
 
 #include "SensorSim3DTool.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -176,11 +176,15 @@ StatusCode SensorSim3DTool::finalize() {
 //===============================================
 //    I N D U C E    C H A R G E
 //===============================================
-StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiChargedDiodeCollection& chargedDiodes,
+StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit,
+                                         SiChargedDiodeCollection& chargedDiodes,
                                          const InDetDD::SiDetectorElement& Module,
-                                         const InDetDD::PixelModuleDesign& p_design, std::vector< std::pair<double,
-                                                                                                            double> >& trfHitRecord, std::vector<double>& initialConditions,
-                                         CLHEP::HepRandomEngine* rndmEngine) {
+                                         const InDetDD::PixelModuleDesign& p_design,
+                                         const PixelModuleData */*moduleData*/,
+                                         std::vector< std::pair<double, double> >& trfHitRecord,
+                                         std::vector<double>& initialConditions,
+                                         CLHEP::HepRandomEngine* rndmEngine,
+                                         const EventContext &ctx) {
   if (!Module.isBarrel()) {
     return StatusCode::SUCCESS;
   }
@@ -414,7 +418,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
 
                 SiSurfaceCharge scharge(chargePos, SiCharge(induced_charge, hitTime(
                                                               phit), SiCharge::track, HepMcParticleLink(
-                                                              phit->trackNumber(), phit.eventId(), evColl, idxFlag)));
+                                                              phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
                 SiCellId diode = Module.cellIdOfPosition(scharge.position());
                 SiCharge charge = scharge.charge();
                 if (diode.isValid()) {
@@ -511,7 +515,7 @@ StatusCode SensorSim3DTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiCharg
             SiLocalPosition chargePos = Module.hitLocalToLocal(y_mod, x_mod);
 
             SiSurfaceCharge scharge(chargePos, SiCharge(ed, hitTime(phit), SiCharge::track, HepMcParticleLink(
-                                                          phit->trackNumber(), phit.eventId(), evColl, idxFlag)));
+                                                          phit->trackNumber(), phit.eventId(), evColl, idxFlag, ctx)));
             SiCellId diode = Module.cellIdOfPosition(scharge.position());
             SiCharge charge = scharge.charge();
             if (diode.isValid()) {
