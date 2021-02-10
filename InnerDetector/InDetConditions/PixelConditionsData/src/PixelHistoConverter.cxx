@@ -34,11 +34,11 @@ StatusCode PixelHistoConverter::SetHisto1D(const TH1* histo) {
 
   /// fill the content
   /// Add underflow and overflow bins
-  m_content.resize(m_xAxis.nBins + 2);
-  for (std::size_t x = 0; x <= m_xAxis.nBins + 1; ++x) {
-    m_content.at(x).resize(1);
-    m_content.at(x).at(0).resize(1);
-    m_content.at(x).at(0).at(0) = histo->GetBinContent(x);
+  const std::size_t xSize = m_xAxis.nBins;
+  m_content.resize(xSize);
+ 
+  for (std::size_t x = 0; x < xSize; ++x) {
+    m_content.at(x) = histo->GetBinContent(x+1);
   }
 
   return StatusCode::SUCCESS;
@@ -61,12 +61,14 @@ StatusCode PixelHistoConverter::SetHisto2D(const TH2* histo) {
 
   /// fill the content
   /// Add underflow and overflow bins
-  m_content.resize(m_xAxis.nBins + 2);
-  for (std::size_t x = 0; x <= m_xAxis.nBins + 1; ++x) {
-    m_content.at(x).resize(m_yAxis.nBins + 2);
-    for (std::size_t y = 0; y <= m_yAxis.nBins + 1; ++y) {
-      m_content.at(x).at(y).resize(1);
-      m_content.at(x).at(y).at(0) = histo->GetBinContent(x,y);
+  const std::size_t xSize = m_xAxis.nBins;
+  const std::size_t ySize = m_yAxis.nBins;
+  m_content.resize(xSize*ySize);
+ 
+  for (std::size_t x = 0; x < xSize; ++x) {
+    for (std::size_t y = 0; y < ySize; ++y) {
+      const std::size_t position = x + y*xSize;
+      m_content.at(position) = histo->GetBinContent(x+1,y+1);
     }
   }
 
@@ -94,13 +96,16 @@ StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
 
   /// fill the content
   /// Add underflow and overflow bins
-  m_content.resize(m_xAxis.nBins + 2);
-  for (std::size_t x = 0; x <= m_xAxis.nBins + 1; ++x) {
-    m_content.at(x).resize(m_yAxis.nBins + 2);
-    for (std::size_t y = 0; y <= m_yAxis.nBins + 1; ++y) {
-      m_content.at(x).at(y).resize(m_zAxis.nBins + 2);
-      for (std::size_t z = 0; z <= m_zAxis.nBins + 1; ++z) {
-        m_content.at(x).at(y).at(z) = histo->GetBinContent(x,y,z);
+  const std::size_t xSize = m_xAxis.nBins;
+  const std::size_t ySize = m_yAxis.nBins;
+  const std::size_t zSize = m_zAxis.nBins;
+  m_content.resize(xSize*ySize*zSize);
+ 
+  for (std::size_t x = 0; x < xSize; ++x) {
+    for (std::size_t y = 0; y < ySize; ++y) {
+      for (std::size_t z = 0; z < zSize; ++z) {
+        const std::size_t position = x + xSize*(y + (ySize * z));
+        m_content.at(position) = histo->GetBinContent(x+1,y+1,z+1);
       }
     }
   }
@@ -109,24 +114,25 @@ StatusCode PixelHistoConverter::SetHisto3D(const TH3* histo) {
 }
 
 float PixelHistoConverter::GetContent(const std::size_t& x) const {
-
-  return m_content[x][0][0];
+  return m_content[x];
 }
 
 float PixelHistoConverter::GetContent(const std::size_t& x, const std::size_t& y) const {
-  return m_content[x][y][0];
+  const std::size_t position = x + y*(m_xAxis.nBins);
+  return m_content[position];
 }
 
 float PixelHistoConverter::GetContent(const std::size_t& x, const std::size_t& y, const std::size_t& z) const {
-  return m_content[x][y][z];
+  const std::size_t position = x + m_xAxis.nBins*(y + (m_yAxis.nBins * z));
+  return m_content[position];
 }
 
 bool PixelHistoConverter::IsOverflowZ(const float value) const {
-  return (value > m_zAxis.max) ? true : false;
+  return (value >= m_zAxis.max) ? true : false;
 }
 
 bool PixelHistoConverter::IsFirstZ(const float value) const {
-  return (GetBinZ(value) == 1);
+  return (GetBinZ(value) == 0);
 }
 
 float PixelHistoConverter::GetBinX(const float value) const {
@@ -169,14 +175,14 @@ bool PixelHistoConverter::SetAxis(Axis& axis, const TAxis* rootAxis) {
     }
   }
 
-  axis.width = 1./width;
+  axis.width = 1.*axis.nBins/(axis.max - axis.min);
 
   return true;
 }
 
 std::size_t PixelHistoConverter::FindBin(const Axis& axis, const float value) const {
-  if (value < axis.min) return 0;
-  if (value > axis.max) return axis.nBins; // this is weird that it is not +1, but thats what we want
+  if (value <= axis.min) return 0;
+  if (value >= axis.max) return (axis.nBins - 1);
 
-  return ((value - axis.min) * axis.width) + 1;
+  return ((value - axis.min) * axis.width);
 }

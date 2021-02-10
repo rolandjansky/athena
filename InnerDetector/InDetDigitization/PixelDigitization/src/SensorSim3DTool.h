@@ -33,15 +33,20 @@ public:
 
   // 3D sensor simulation using probability density map (used in RUN-2 (no radiation damage)
   StatusCode readProbMap(const std::string&);
-  StatusCode printProbMap(const std::string&);
+  StatusCode printProbMap(const std::string&) const;
   double getProbMapEntry(const std::string&, int, int) const;
 
+  double getElectricFieldOld(double x, double y);
   double getElectricField(double x, double y);
   double getMobility(double electricField, bool isHoleBit);
   double getDriftTime(bool isHoleBit);
+  double getTimeToElectrodeOld(double x, double y, bool isHoleBit);
+  double getTrappingPositionXOld(double initX, double initY, double driftTime, bool isHoleBit);
+  double getTrappingPositionYOld(double initX, double initY, double driftTime, bool isHoleBit);
   double getTimeToElectrode(double x, double y, bool isHoleBit);
   double getTrappingPositionX(double initX, double initY, double driftTime, bool isHoleBit);
   double getTrappingPositionY(double initX, double initY, double driftTime, bool isHoleBit);
+  double getRamoPotential(double x, double y);
 private:
   SensorSim3DTool();
 
@@ -50,6 +55,16 @@ private:
   std::multimap<std::pair<int, int>, double> m_probMapFEI3;
 
   // Map for radiation damage simulation
+  std::map<std::pair<int, int>, TH3F*> m_ramoPotentialMapOld;
+  std::map<std::pair<int, int>, TH2F*> m_eFieldMapOld;
+  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_eOld;
+  std::map<std::pair<int, int>, TH3F*> m_xPositionMap_hOld;
+  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_eOld;
+  std::map<std::pair<int, int>, TH3F*> m_yPositionMap_hOld;
+  std::map<std::pair<int, int>, TH2F*> m_timeMap_eOld;
+  std::map<std::pair<int, int>, TH2F*> m_timeMap_hOld;
+  TH2F* m_avgChargeMap_eOld;
+  TH2F* m_avgChargeMap_hOld;
   std::vector<PixelHistoConverter> m_ramoPotentialMap;
   std::vector<PixelHistoConverter> m_eFieldMap;
   std::vector<PixelHistoConverter> m_xPositionMap_e;

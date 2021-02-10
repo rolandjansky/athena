@@ -402,7 +402,7 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
         //  std::cout << "Depth E old: " << depth_f_eOld << ", new: " << depth_f_e << ", depth H old: " << depth_f_hOld << ", new: " << depth_f_h << "\n";
         //}
         //if (tanLorentz_e != tanLorentz_eOld || tanLorentz_h != tanLorentz_hOld) {
-        //  std::cout << "TanLor E old: " << tanLorentz_eOld << ", new: " << tanLorentz_e << ", tanLor H old: " << tanLorentz_hOld << ", new: " << tanLorentz_e << "\n";
+        //  std::cout << "TanLor E old: " << tanLorentz_eOld << ", new: " << tanLorentz_e << ", tanLor H old: " << tanLorentz_hOld << ", new: " << tanLorentz_h << "\n";
         //}
         // amount of energy to be converted into charges at current step
         double energy_per_step = 1.0 * iHitRecord.second / 1.E+6 / ncharges;
@@ -505,11 +505,17 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
             if (nbin_ramo_f_e_x <= numBins_weightingPotential_x && nbin_ramo_f_e_y <= numBins_weightingPotential_y &&
                 nbin_ramo_f_e_z <= numBins_weightingPotential_z) {
               if (m_doInterpolateEfield) {
+              } else {
+                ramo_f_eOld = moduleData->getRamoPotentialMapOld(layer)->GetBinContent(nbin_ramo_f_e_x, nbin_ramo_f_e_y,
+                                                                                 nbin_ramo_f_e_z);
+              }
+            }
+
+            if (!isFirstZ_e) {
+              if (m_doInterpolateEfield) {
                 ramo_f_e = m_ramoPotentialMap[layer].GetContent(m_ramoPotentialMap[layer].GetBinX(1e3*std::abs(dPhi_f_e)), m_ramoPotentialMap[layer].GetBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
               } else {
                 ramo_f_e = moduleData->getRamoPotentialMap(layer).GetContent(moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_e)), moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_e)), ramo_f_e_bin_z);
-                ramo_f_eOld = moduleData->getRamoPotentialMapOld(layer)->GetBinContent(nbin_ramo_f_e_x, nbin_ramo_f_e_y,
-                                                                                 nbin_ramo_f_e_z);
               }
             }
 
@@ -529,9 +535,14 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
               if (m_doInterpolateEfield) {
                 ramo_f_h = m_ramoPotentialMap[layer].GetContent(m_ramoPotentialMap[layer].GetBinX(1e3*std::abs(dPhi_f_h)), m_ramoPotentialMap[layer].GetBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
               } else {
-                ramo_f_h = moduleData->getRamoPotentialMap(layer).GetContent(moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_h)), moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
                 ramo_f_hOld = moduleData->getRamoPotentialMapOld(layer)->GetBinContent(nbin_ramo_f_h_x, nbin_ramo_f_h_y,
                                                                                  nbin_ramo_f_h_z);
+              }
+            }
+            if (!isOverflowZ_h) {
+              if (m_doInterpolateEfield) {
+              } else {
+                ramo_f_h = moduleData->getRamoPotentialMap(layer).GetContent(moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_h)), moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_h)), ramo_f_h_bin_z);
               }
             }
             //Account for the imperfect binning that would cause charge to be double-counted
@@ -541,6 +552,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
               if (moduleData->getRamoPotentialMapOld(layer)->GetZaxis()->FindBin(depth_f_h * 1000)
                   == moduleData->getRamoPotentialMapOld(layer)->GetNbinsZ() + 1) {
                 ramo_f_hOld = 0;
+                if (!isOverflowZ_h) {
+                  std::cout << "herererer" << ", value: " << depth_f_h * 1000 <<"\n";
+                }
               } //this means the hole has reached the back end
               if (isOverflowZ_h) {
                 ramo_f_h = 0;
@@ -552,6 +566,9 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
                 } else if (fabs(dEta_f_e) < Module.etaPitch() / 2.0 && fabs(dPhi_f_e) < Module.phiPitch() / 2.0) {
                   ramo_f_eOld = 1.0;
                 }
+                if (!isFirstZ_e) {
+                  std::cout << "inconsistency!\n";
+                }
               }
               if (isFirstZ_e) {
                 if (fabs(dEta_f_e) >= Module.etaPitch() / 2.0 || fabs(dPhi_f_e) >= Module.phiPitch() / 2.0) {
@@ -561,20 +578,20 @@ StatusCode SensorSimPlanarTool::induceCharge(const TimedHitPtr<SiHit>& phit, SiC
                 }
               }
             }
-            
             //if (ramo_f_e != ramo_f_eOld || ramo_f_h != ramo_f_hOld) {
             //  std::cout << "Ramo E old: " << ramo_f_eOld << ", new: " << ramo_f_e << ", Ramo H old: " << ramo_f_hOld << ", new: " << ramo_f_h << "\n";
+            //  std::cout << "E X old: " << nbin_ramo_f_e_x << ", new: " << moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_e))+1 << ", H X old: " << nbin_ramo_f_h_x << ", new: " << moduleData->getRamoPotentialMap(layer).GetBinX(1e3*std::abs(dPhi_f_h))+1 << "\n"; 
+            //  std::cout << "E Y old: " << nbin_ramo_f_e_y << ", new: " << moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_e))+1 << ", H Y old: " << nbin_ramo_f_h_y << ", new: " << moduleData->getRamoPotentialMap(layer).GetBinY(1e3*std::abs(dEta_f_h))+1 << "\n"; 
+            //  std::cout << "E Z old: " << nbin_ramo_f_e_z << ", new: " << ramo_f_e_bin_z+1 << ", H Z old: " << nbin_ramo_f_h_z << ", new: " << ramo_f_h_bin_z+1 << "\n"; 
+            //  std::cout << "dPhi_f_e OLD: " << dPhi_f_eOld << "new: " << dPhi_f_e << "\n";
+            //  std::cout << "dEta_f_e OLD: " << dEta_f_eOld << "new: " << dEta_f_e << "\n";
             //}
+            
 
             //Given final position of charge carrier, find induced charge. The difference in Ramo weighting potential
             // gives the fraction of charge induced.
             //The energy_per_step is transformed into charge with the eleholePair per Energy
-            double induced_chargeOld = (ramo_f_eOld - ramo_f_hOld) * energy_per_step * eleholePairEnergy;
             double induced_charge = (ramo_f_e - ramo_f_h) * energy_per_step * eleholePairEnergy;
-
-            if (induced_chargeOld != induced_chargeOld) {
-              std::cout << "induced_chargeOld: " << induced_chargeOld << ", new: " << induced_charge << "\n";
-            }
 
             //Collect charge in centre of each pixel, since location within pixel doesn't matter for record
             SiLocalPosition chargePos = Module.hitLocalToLocal(centreOfPixel_nn.xEta(), centreOfPixel_nn.xPhi());

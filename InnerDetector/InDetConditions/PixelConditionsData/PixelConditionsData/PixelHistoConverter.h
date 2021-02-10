@@ -53,7 +53,7 @@ private:
   Axis m_yAxis;
   Axis m_zAxis;
 
-  std::vector<std::vector<std::vector<float> > > m_content;
+  std::vector<float> m_content;
 
   bool SetAxis(Axis& axis, const TAxis* rootAxis);
 
