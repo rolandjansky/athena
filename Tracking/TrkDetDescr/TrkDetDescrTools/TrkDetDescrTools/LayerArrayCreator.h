@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -9,17 +9,12 @@
 #ifndef TRKDETDESCRTOOLS_LAYERARRAYCREATOR_H
 #define TRKDETDESCRTOOLS_LAYERARRAYCREATOR_H
 
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSmaller(cSmallest, test); takeBigger(cBiggest, test)
-#endif
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
 // Trk
 #include "TrkDetDescrInterfaces/ILayerArrayCreator.h"
 #include "TrkDetDescrUtils/SharedObject.h"
+#include "TrkDetDescrUtils/ComparisonUtils.h"
 #include "TrkGeometry/PlaneLayer.h"
 #include "TrkGeometry/CylinderLayer.h"
 #include "TrkGeometry/DiscLayer.h"

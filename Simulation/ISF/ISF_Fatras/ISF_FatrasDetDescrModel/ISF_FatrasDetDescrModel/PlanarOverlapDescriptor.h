@@ -65,10 +65,14 @@ namespace iFatras {
                            const Trk::Surface& sf,
                            const Amg::Vector3D& pos,
                            const Amg::Vector3D& dir) const override;
+                           
+    bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                           const Amg::Vector3D& pos,
+                           const Amg::Vector3D& dir) const override;
                                       
              
   private:
-
+    
     bool m_addMoreSurfaces;
     int  m_slices;
     
@@ -76,6 +80,12 @@ namespace iFatras {
   
   
   inline PlanarOverlapDescriptor* PlanarOverlapDescriptor::clone() const { return new PlanarOverlapDescriptor(); }     
+  
+  inline bool PlanarOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*surfaces*/,
+                                                         const Amg::Vector3D& /*pos*/,
+                                                         const Amg::Vector3D& /*dir*/) const {
+    return false;
+  }
   
 }
 

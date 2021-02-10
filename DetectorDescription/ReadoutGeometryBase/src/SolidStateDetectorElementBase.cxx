@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include "ReadoutGeometryBase/SolidStateDetectorElementBase.h"
@@ -158,7 +158,14 @@ SolidStateDetectorElementBase::updateCache() const
             // throw std::runtime_error("Orientation of local depth axis does not follow correct convention.");
             m_depthDirection = true; // Don't swap.
         }
-    
+        
+        // for HGTD modules, the check on phi and eta directions don't make sense
+        // as the modules do not respect the conventional position for endcap discs:
+        // - the local eta axis is never parallel to the radial direction
+        // - the local phi axis is never perpendicular to the radial direction
+        // hence, removing errors and allowing swap of the axis when needed
+        bool isHGTD = this->getIdHelper()->is_hgtd(m_id);
+
         //
         // Phi axis
         //
@@ -172,7 +179,7 @@ SolidStateDetectorElementBase::updateCache() const
             }
         }
     
-        if (std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(phiDir) < 0.5) { // Check that it is in roughly the right direction.
             msg(MSG::ERROR) << "Orientation of local xPhi axis does not follow correct convention." << endreq;
             // throw std::runtime_error("Orientation of local xPhi axis does not follow correct convention.");
             m_phiDirection = true; // Don't swap.
@@ -190,7 +197,7 @@ SolidStateDetectorElementBase::updateCache() const
                 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Unable to swap local xEta axis." << endreq;
             }
         }
-        if (std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
+        if (not isHGTD and std::abs(etaDir) < 0.5) { // Check that it is in roughly the right direction.
             msg(MSG::ERROR) << "Orientation of local xEta axis does not follow correct convention." << endreq;
             // throw std::runtime_error("Orientation of local xEta axis does not follow correct convention.");
             m_etaDirection = true; // Don't swap

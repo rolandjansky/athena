@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 ##################################################################################
 # The AtlasTrackingGeometry Svc fragment
@@ -80,6 +80,15 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
           # and give it to the Geometry Builder
           AtlasGeometryBuilder.InDetTrackingGeometryBuilder = InDetTrackingGeometryBuilder
           # 
+        # (HGTD)
+        if DetFlags.HGTD_on() :
+           from HGTD_TrackingGeometry.ConfiguredHGTDTrackingGeometryBuilder import ConfiguredHGTDTrackingGeometryBuilder as ConfiguredHGTDGeo 
+           HGTDTrackingGeometryBuilder = ConfiguredHGTDGeo(name='HGTDTrackingGeometryBuilder');
+           HGTDTrackingGeometryBuilder.EnvelopeDefinitionSvc = AtlasEnvelopeSvc
+           HGTDTrackingGeometryBuilder.OutputLevel = TrkDetFlags.InDetBuildingOutputLevel()
+           ToolSvc += HGTDTrackingGeometryBuilder
+           AtlasGeometryBuilder.HGTD_TrackingGeometryBuilder = HGTDTrackingGeometryBuilder
+
         # (Calo)
         if DetFlags.Calo_on() :
            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__CylinderVolumeCreator

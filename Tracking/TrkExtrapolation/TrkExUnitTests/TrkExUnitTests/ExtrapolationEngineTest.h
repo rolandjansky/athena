@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -22,6 +22,7 @@ class TTree;
 
 class PixelID;
 class SCT_ID;
+class HGTD_ID;
 class AtlasDetectorID;
 
 namespace Trk {
@@ -69,6 +70,8 @@ namespace Trk {
        const AtlasDetectorID*                       m_idHelper;
        const PixelID*                               m_pixel_ID;       //!< Handle to the ID helper
        const SCT_ID*                                m_sct_ID;         //!< Handle to the ID helper
+       const HGTD_ID*                               m_hgtd_ID;       //!< Handle to the ID helper
+       bool                                         m_useHGTD;
               
        bool                                         m_parametersMode; // 0 - neutral, 1 - charged, 2 - multi
        int                                          m_particleHypothesis;
@@ -173,9 +176,13 @@ namespace Trk {
        std::vector< int >*                          m_sensitiveLayerIndex;
        std::vector< float >*                        m_sensitiveLocalPosX;
        std::vector< float >*                        m_sensitiveLocalPosY;
+       std::vector< float >*                        m_sensitiveCenterPosX;
+       std::vector< float >*                        m_sensitiveCenterPosY;
+       std::vector< float >*                        m_sensitiveCenterPosZ;
+       std::vector< float >*                        m_sensitiveCenterPosR;
        std::vector< float >*                        m_sensitiveLocalPosR;
        std::vector< float >*                        m_sensitiveLocalPosPhi;
-       std::vector< int >*                          m_sensitiveIsPixel;
+       std::vector< int >*                          m_sensitiveDetector;
        std::vector< int >*                          m_sensitiveIsInnermost;
        std::vector< int >*                          m_sensitiveIsNextToInnermost;
        std::vector< int >*                          m_sensitiveBarrelEndcap;

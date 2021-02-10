@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 //////////////////////////////////////////////////////////////////
@@ -18,6 +18,8 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
  m_idHelper(0),
  m_pixel_ID(0),
  m_sct_ID(0),
+ m_hgtd_ID(0),
+ m_useHGTD(false),
  m_parametersMode(1),
  m_particleHypothesis(2),
  m_smearProductionVertex(false),
@@ -91,6 +93,10 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
  m_sensitiveLayerIndex(0),
  m_sensitiveLocalPosX(0),
  m_sensitiveLocalPosY(0),
+ m_sensitiveCenterPosX(0),
+ m_sensitiveCenterPosY(0),
+ m_sensitiveCenterPosZ(0),
+ m_sensitiveCenterPosR(0),
  m_materialThicknessInX0(0.),
  m_materialThicknessInL0(0.),
  m_materialThicknessZARho(0),
@@ -143,6 +149,7 @@ Trk::ExtrapolationEngineTest::ExtrapolationEngineTest(const std::string& name, I
     declareProperty("CollectPassive",           m_collectPassive);
     declareProperty("CollectBoundary",          m_collectBoundary);
     declareProperty("CollectMaterial",          m_collectMaterial);
+    declareProperty("UseHGTD",                  m_useHGTD);
     // Mode for scanning in steps
     declareProperty("ScanMode",                 m_scanMode);
     declareProperty("EtaScans",                 m_etaScans);
@@ -196,11 +203,15 @@ StatusCode Trk::ExtrapolationEngineTest::finalize() {
     }  
     delete m_sensitiveLayerIndex;
     delete m_sensitiveSurfaceType;
+    delete m_sensitiveCenterPosX;
+    delete m_sensitiveCenterPosY;
+    delete m_sensitiveCenterPosZ;
+    delete m_sensitiveCenterPosR;
     delete m_sensitiveLocalPosX;
     delete m_sensitiveLocalPosY;
     delete m_sensitiveLocalPosR;
     delete m_sensitiveLocalPosPhi;
-    delete m_sensitiveIsPixel;
+    delete m_sensitiveDetector;
     delete m_sensitiveIsInnermost;
     delete m_sensitiveIsNextToInnermost;
     delete m_sensitiveBarrelEndcap;
@@ -262,6 +273,14 @@ StatusCode Trk::ExtrapolationEngineTest::initializeTest()
         return StatusCode::FAILURE;
     } else 
         ATH_MSG_INFO("Successfully retrieved SCT ID Helper.");
+    
+    if (m_useHGTD) {
+      if (detStore()->retrieve(m_hgtd_ID, "HGTD_ID").isFailure()) {
+        ATH_MSG_ERROR ( "Could not get HGTD ID helper" );
+        return StatusCode::FAILURE;
+      } else 
+        ATH_MSG_INFO("Successfully retrieved HGTD ID Helper.");
+    }
         
     // success return
     return StatusCode::SUCCESS;    
@@ -342,11 +361,15 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree()
     if (m_collectSensitive){
         m_sensitiveLayerIndex      = new std::vector< int >;
         m_sensitiveSurfaceType     = new std::vector< int >;
+        m_sensitiveCenterPosX      = new std::vector< float >;
+        m_sensitiveCenterPosY      = new std::vector< float >;
+        m_sensitiveCenterPosZ      = new std::vector< float >;
+        m_sensitiveCenterPosR      = new std::vector< float >;
         m_sensitiveLocalPosX       = new std::vector< float >;
         m_sensitiveLocalPosY       = new std::vector< float >;
         m_sensitiveLocalPosR       = new std::vector< float >;
         m_sensitiveLocalPosPhi     = new std::vector< float >;
-        m_sensitiveIsPixel         = new std::vector< int >; 
+        m_sensitiveDetector         = new std::vector< int >; 
         m_sensitiveIsInnermost     = new std::vector< int >;
         m_sensitiveIsNextToInnermost = new std::vector< int >;
         m_sensitiveBarrelEndcap    = new std::vector< int >;
@@ -362,11 +385,15 @@ StatusCode Trk::ExtrapolationEngineTest::bookTree()
 
         m_tree->Branch("SensitiveLayerIndex"  ,  m_sensitiveLayerIndex);
         m_tree->Branch("SensitiveSurfaceType" ,  m_sensitiveSurfaceType);
+        m_tree->Branch("SensitiveCenterPosX"  ,  m_sensitiveCenterPosX);
+        m_tree->Branch("SensitiveCenterPosY"  ,  m_sensitiveCenterPosY);
+        m_tree->Branch("SensitiveCenterPosZ"  ,  m_sensitiveCenterPosZ);
+        m_tree->Branch("SensitiveCenterPosR"  ,  m_sensitiveCenterPosR);
         m_tree->Branch("SensitiveLocalPosX"   ,  m_sensitiveLocalPosX);
         m_tree->Branch("SensitiveLocalPosY"   ,  m_sensitiveLocalPosY);
         m_tree->Branch("SensitiveLocalPosR"   ,  m_sensitiveLocalPosR);
         m_tree->Branch("SensitiveLocalPosPhi" ,  m_sensitiveLocalPosPhi);
-        m_tree->Branch("SensitiveIsPixel"     ,  m_sensitiveIsPixel);
+        m_tree->Branch("SensitiveDetector"    ,  m_sensitiveDetector);
         m_tree->Branch("SensitiveIsInnermost" ,  m_sensitiveIsInnermost);
         m_tree->Branch("SensitiveIsNextToInnermost" ,  m_sensitiveIsNextToInnermost);
         m_tree->Branch("SensitiveBarrelEndcap",  m_sensitiveBarrelEndcap);

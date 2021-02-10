@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -12,6 +12,7 @@
 //Trk
 #include "TrkDetDescrInterfaces/IGeometryBuilder.h"
 #include "TrkDetDescrUtils/BinningType.h"
+#include "TrkDetDescrUtils/ComparisonUtils.h"
 #include "TrkGeometry/TrackingVolumeManipulator.h"
 // Gaudi
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -20,14 +21,6 @@
 // STL
 #include <vector>
 #include <string>
-
-#ifndef TRKDETDESCR_TAKESMALLERBIGGER
-#define TRKDETDESCR_TAKESMALLERBIGGER
-#define takeSmaller(current,test) current = current < test ? current : test
-#define takeBigger(current,test)  current = current > test ? current : test
-#define takeSmallerBigger(cSmallest, cBiggest, test) takeSamller(cSmallest, cBiggest, test); takeBigger(cSmallest, cBiggest,test)
-#endif
-
 
 namespace Trk {
  class TrackingGeometry;

@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -60,7 +60,11 @@ namespace InDet {
          bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
                                 const Trk::Surface& sf,
                                 const Amg::Vector3D& pos,
-                                const Amg::Vector3D& dir) const;
+                                const Amg::Vector3D& dir) const override;
+                                
+         bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& cSurfaces, 
+                                const Amg::Vector3D& pos,
+                                const Amg::Vector3D& dir) const override;
 
         private:
 	 void dumpSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces) const;
@@ -71,6 +75,12 @@ namespace InDet {
 
   inline SCT_OverlapDescriptor* SCT_OverlapDescriptor::clone() const { return new SCT_OverlapDescriptor(); }     
           
+  inline bool SCT_OverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*cSurfaces*/, 
+                                                       const Amg::Vector3D& /*pos*/,
+                                                       const Amg::Vector3D& /*dir*/) const {
+    return false; 
+  }
+  
 }
 
 #endif // end of INDETTRACKINGGEOMETRYUTILS_SCT_OVERLAPDESCRIPTOR_H

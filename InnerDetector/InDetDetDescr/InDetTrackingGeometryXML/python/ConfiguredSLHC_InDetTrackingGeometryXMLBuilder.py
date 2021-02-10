@@ -1,5 +1,5 @@
 ######################################################
-# Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 #
 # ConfiguredSLHC_InDetTrackingGeometryXML module
 #
@@ -113,7 +113,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
             # Pixel layer provider
             PixelFirstLayerProvider = InDet__LayerProviderXML(name=namePrefix+'PixelFirstLayerProvider')
             PixelFirstLayerProvider.Identification          = 'Pixel0'
-            PixelFirstLayerProvider.OutputLevel             = 1
+            PixelFirstLayerProvider.OutputLevel             = TrkDetFlags.PixelBuildingOutputLevel()
             PixelFirstLayerProvider.doPix = doPix
             PixelFirstLayerProvider.doSCT = False
             PixelFirstLayerProvider.startLayer = startLayer
@@ -144,7 +144,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
             # Pixel layer provider
             PixelLayerProvider = InDet__LayerProviderXML(name=namePrefix+'PixelLayerProvider')
             PixelLayerProvider.Identification          = 'Pixel'
-            PixelLayerProvider.OutputLevel             = 1
+            PixelLayerProvider.OutputLevel             = TrkDetFlags.PixelBuildingOutputLevel()
             PixelLayerProvider.doPix = doPix
             PixelLayerProvider.doSCT = False
             PixelLayerProvider.startLayer = startLayer
@@ -238,8 +238,7 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
               binningsCenter += [ SCT_LayerBinning ]
               binningsEndcap += [ SCT_LayerBinning ]
               colors         += [ 5 ]
-
-
+              
         # helpers for the InDetTrackingGeometry Builder : layer array creator
         from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerArrayCreator
         InDetLayerArrayCreator = Trk__LayerArrayCreator(name = 'InDetLayerArrayCreator')
@@ -310,4 +309,6 @@ class ConfiguredSLHC_InDetTrackingGeometryXMLBuilder( InDet__StagedTrackingGeome
                                                       ExitVolumeName            = TrkDetFlags.InDetContainerName(),
                                                       MagneticFieldMode         = TrkDetFlags.MagneticFieldMode(),
                                                       MinimalRadialGapForVolumeSplit=10.,
-                                                      isSLHC = True)
+                                                      FitHGTD = DetFlags.HGTD_on(),
+                                                      isSLHC = True,
+                                                      )

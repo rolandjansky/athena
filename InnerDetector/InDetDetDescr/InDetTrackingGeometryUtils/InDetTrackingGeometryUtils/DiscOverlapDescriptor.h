@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 ///////////////////////////////////////////////////////////////////
@@ -11,8 +11,6 @@
 
 // Trk
 #include "TrkGeometry/OverlapDescriptor.h"
-//#include "TrkEventPrimitives/PropDirection.h"
-//#include "TrkParameters/TrackParameters.h"
 // Trk inlcude
 #include "TrkDetDescrUtils/BinUtility.h"
 #include "TrkDetDescrUtils/BinnedArray1D1D.h"
@@ -82,6 +80,10 @@ namespace InDet {
                            const Trk::Surface& sf,
                            const Amg::Vector3D& pos,
                            const Amg::Vector3D& dir) const override;
+                           
+    bool reachableSurfaces(std::vector<Trk::SurfaceIntersection>& surfaces, 
+                           const Amg::Vector3D& pos,
+                           const Amg::Vector3D& dir) const override;
     
   private:
     void dumpSurfaces(const PixelID* pixId, const SCT_ID* sctId, std::vector<Trk::SurfaceIntersection>& surfaces) const;
@@ -95,6 +97,12 @@ namespace InDet {
   
   
   inline DiscOverlapDescriptor* DiscOverlapDescriptor::clone() const { return new DiscOverlapDescriptor(); }     
+  
+  inline bool DiscOverlapDescriptor::reachableSurfaces(std::vector<Trk::SurfaceIntersection>& /*surfaces*/, 
+                                                       const Amg::Vector3D& /*pos*/,
+                                                       const Amg::Vector3D& /*dir*/) const {
+    return false;
+  }
   
 }
 
