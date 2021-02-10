@@ -1,5 +1,5 @@
 /*
-  Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 #include <fstream>
@@ -10,6 +10,7 @@
 #include "MMDigitVariables.h"
 #include "MMSimHitVariables.h"
 #include "MDTSimHitVariables.h"
+#include "RPCDigitVariables.h"
 #include "RPCSimHitVariables.h"
 #include "CSCSimHitVariables.h"
 #include "TGCSimHitVariables.h"
@@ -61,6 +62,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
     m_CscDigitVar(nullptr),
     m_MDTSimHitVar(nullptr),
     m_RPCSimHitVar(nullptr),
+    m_RPCDigitVar(nullptr),
     m_CSCSimHitVar(nullptr),
     m_TGCSimHitVar(nullptr),
     m_thistSvc(nullptr),
@@ -84,6 +86,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("CSC_DigitContainerName",         m_CSC_DigitContainerName="CSC_DIGITS");
   declareProperty("MDT_SimContainerName",           m_MDT_SimContainerName="MDT_Hits");
   declareProperty("RPC_SimContainerName",           m_RPC_SimContainerName="RPC_Hits");
+  declareProperty("RPC_DigitContainerName",         m_RPC_DigitContainerName="RPC_DIGITS");
   declareProperty("CSC_SimContainerName",           m_CSC_SimContainerName="CSC_Hits");
   declareProperty("TGC_SimContainerName",           m_TGC_SimContainerName="TGC_Hits");
 
@@ -104,6 +107,7 @@ NSWPRDValAlg::NSWPRDValAlg(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("doCSCDigit",      m_doCSCDigit=false);
   declareProperty("doMDTHit",        m_doMDTHit=false);
   declareProperty("doRPCHit",        m_doRPCHit=false);
+  declareProperty("doRPCDigit",      m_doRPCDigit=false);
   declareProperty("doCSCHit",        m_doCSCHit=false);
   declareProperty("doTGCHit",        m_doTGCHit=false);
 
