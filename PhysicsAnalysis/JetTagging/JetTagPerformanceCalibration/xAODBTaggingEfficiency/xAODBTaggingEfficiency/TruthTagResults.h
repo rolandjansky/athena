@@ -15,8 +15,8 @@ namespace Analysis {
     //map from systematic name to vector of event weights for different number of tagged jets
     // for examples: map_trf_weight_ex["Nominal"].at(3) is the event weight for exactly 3 tagged jets
     // map_trf_weight_in["Nominal"].at(2) is the event weight for 2 or more tagged jets
-    std::map<std::string,std::vector<double> > map_trf_weight_ex;
-    std::map<std::string,std::vector<double> > map_trf_weight_in;
+    std::map<std::string,std::vector<float> > map_trf_weight_ex;
+    std::map<std::string,std::vector<float> > map_trf_weight_in;
 
     //chosen permutation (does not depend on the systematic variation)
     // trf_chosen_perm_ex.at(3) is the chosen permutation for exactly 3 tagged jets
@@ -28,12 +28,12 @@ namespace Analysis {
     std::vector<std::vector<int> > trf_bin_in;
 
     //random tag weights generated for the chosen quantiles.
-    std::vector<std::vector<double> > trf_bin_score_ex;
-    std::vector<std::vector<double> > trf_bin_score_in;
+    std::vector<std::vector<float> > trf_bin_score_ex;
+    std::vector<std::vector<float> > trf_bin_score_in;
 
     //direct tagging results
     std::vector<bool> is_tagged;
-    std::map<std::string,double > map_SF;
+    std::map<std::string,float > map_SF;
 
     std::vector<std::string> syst_names;
 
@@ -58,7 +58,7 @@ namespace Analysis {
 
     }
 
-    double getEvtDirectTagSF(std::string syst_name="Nominal")
+    float getEvtDirectTagSF(std::string syst_name="Nominal")
     {
         return(map_SF[syst_name]);
     }
@@ -69,7 +69,7 @@ namespace Analysis {
 
     }
 
-    double getEventWeight(int nbtag,bool Ex,std::string syst_name="Nominal")
+    float getEventWeight(int nbtag,bool Ex,std::string syst_name="Nominal")
     {
         if(Ex)
         {
@@ -108,7 +108,7 @@ namespace Analysis {
     }
 
 
-    std::vector<double> getRandomTaggerScores(int nbtag,bool Ex )
+    std::vector<float> getRandomTaggerScores(int nbtag,bool Ex )
     {
         if(Ex)
         {
