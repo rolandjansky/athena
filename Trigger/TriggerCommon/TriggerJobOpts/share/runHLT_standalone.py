@@ -609,8 +609,10 @@ if opt.doWriteBS or opt.doWriteRDOTrigger:
 # Cost Monitoring
 #-------------------------------------------------------------
 
-from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg
+from TrigCostMonitorMT.TrigCostMonitorMTConfig import TrigCostMonitorMTCfg, TrigCostMonitorMTPostSetup
 CAtoGlobalWrapper(TrigCostMonitorMTCfg, ConfigFlags)
+# TODO - how can TrigCostMonitorMTPostSetup be component-accumulator-ised?
+TrigCostMonitorMTPostSetup()
 
 #-------------------------------------------------------------
 # Debugging for view cross-dependencies
