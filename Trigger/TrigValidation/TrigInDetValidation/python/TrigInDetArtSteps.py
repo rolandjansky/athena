@@ -146,7 +146,8 @@ class TrigInDetAna(ExecStep):
         self.max_events=-1
         self.required = True
         self.depends_on_previous = False
-        self.input = 'AOD.pool.root'
+        #self.input = 'AOD.pool.root'
+        self.input = ''
         self.perfmon=False
         self.imf=False
         if (lrt):
