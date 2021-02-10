@@ -67,6 +67,13 @@ class UseLocalGeometry(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
+class ForceDictionaryGeneration(JobProperty):
+    """Option to force auto-generation of a local dictionary file during development"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+    
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the flag container
@@ -91,6 +98,7 @@ jobproperties.SLHC_JobProperties.add_JobProperty(LocalGeometryDbBaseName)
 jobproperties.SLHC_JobProperties.add_JobProperty(doGMX)
 jobproperties.SLHC_JobProperties.add_JobProperty(LayoutOption)
 jobproperties.SLHC_JobProperties.add_JobProperty(UseLocalGeometry)
+jobproperties.SLHC_JobProperties.add_JobProperty(ForceDictionaryGeneration)
 ##-----------------------------------------------------------------------------
 ## 5th step
 ## short-cut for lazy people
