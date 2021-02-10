@@ -36,22 +36,25 @@ def fakeHypoAlgCfg(flags, name="FakeHypoForMuon"):
     HLTTest__TestHypoAlg=CompFactory.HLTTest.TestHypoAlg
     return HLTTest__TestHypoAlg( name, Input="" )
 
-def EFMuonCBViewDataVerifierCfg():
-    EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon")
-    EFMuonCBViewDataVerifier.DataObjects = [( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' ),
-                                            ( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
+def EFMuonCBViewDataVerifierCfg(name):
+    EFMuonCBViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFCBMuon_"+name)
+    EFMuonCBViewDataVerifier.DataObjects = [( 'Muon::MdtPrepDataContainer' , 'StoreGateSvc+MDT_DriftCircles' ),  
                                             ( 'Muon::TgcPrepDataContainer' , 'StoreGateSvc+TGC_Measurements' ),
                                             ( 'Muon::RpcPrepDataContainer' , 'StoreGateSvc+RPC_Measurements' ),
-                                            ( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
                                             ( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' )]
+    if 'FS' in name:
+        EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates_FS' )]
+    else:
+        EFMuonCBViewDataVerifier.DataObjects += [( 'MuonCandidateCollection' , 'StoreGateSvc+MuonCandidates' ),
+                                                 ( 'xAOD::TrackParticleContainer' , 'StoreGateSvc+HLT_IDTrack_Muon_FTF' )]
     result = ComponentAccumulator()
     result.addEventAlgo(EFMuonCBViewDataVerifier)
     return result
 
-def EFMuonViewDataVerifierCfg():
-    EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon")
+def EFMuonViewDataVerifierCfg(name='RoI'):
+    EFMuonViewDataVerifier =  CompFactory.AthViews.ViewDataVerifier("VDVEFMuon_"+name)
     EFMuonViewDataVerifier.DataObjects = [( 'xAOD::EventInfo' , 'StoreGateSvc+EventInfo' ),
-                                          ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EFMuMSRecoRoIs' ),
+                                          ( 'TrigRoiDescriptorCollection' , 'StoreGateSvc+EFMuMSReco_'+name+'RoIs' ),
                                           ( 'RpcPad_Cache' , 'StoreGateSvc+RpcRdoCache' ),
                                           ( 'RpcCoinDataCollection_Cache' , 'StoreGateSvc+RpcCoinCache' ),
                                           ( 'RpcPrepDataCollection_Cache' , 'StoreGateSvc+RpcPrdCache' ),
@@ -154,48 +157,59 @@ def decodeCfg(flags, RoIs):
     RegSelTool_MDT = acc.popToolsAndMerge(regSelTool_MDT_Cfg(flags))
     RegSelTool_CSC = acc.popToolsAndMerge(regSelTool_CSC_Cfg(flags))
 
+    doSeededDecoding =True
+    if 'FS' in RoIs:
+        doSeededDecoding = False
     # Get RPC BS decoder
     rpcAcc = RpcBytestreamDecodeCfg( flags, name = "RpcRawDataProvider_"+RoIs )
     rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RoIs = RoIs
+    rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
     rpcAcc.getEventAlgo("RpcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_RPC
     acc.merge( rpcAcc )
 
     # Get RPC BS->RDO convertor
     rpcAcc = RpcRDODecodeCfg( flags, name= "RpcRdoToRpcPrepData_"+RoIs )
     rpcAcc.getEventAlgo("RpcRdoToRpcPrepData_"+RoIs).RoIs = RoIs
+    rpcAcc.getEventAlgo("RpcRdoToRpcPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
     acc.merge( rpcAcc )
 
     # Get TGC BS decoder
     tgcAcc = TgcBytestreamDecodeCfg( flags, name="TgcRawDataProvider_"+RoIs )
     tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RoIs = RoIs
+    tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
     tgcAcc.getEventAlgo("TgcRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_TGC
     acc.merge( tgcAcc )
 
     # Get TGC BS->RDO convertor
     tgcAcc = TgcRDODecodeCfg( flags, name="TgcRdoToTgcPrepData_"+RoIs )
     tgcAcc.getEventAlgo("TgcRdoToTgcPrepData_"+RoIs).RoIs = RoIs
+    tgcAcc.getEventAlgo("TgcRdoToTgcPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
     acc.merge( tgcAcc )
 
     # Get MDT BS decoder
     mdtAcc = MdtBytestreamDecodeCfg( flags, name="MdtRawDataProvider_"+RoIs )
     mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RoIs = RoIs
+    mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
     mdtAcc.getEventAlgo("MdtRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_MDT
     acc.merge( mdtAcc )
 
     # Get MDT BS->RDO convertor
     mdtAcc = MdtRDODecodeCfg( flags, name="MdtRdoToMdtPrepData_"+RoIs )
     mdtAcc.getEventAlgo("MdtRdoToMdtPrepData_"+RoIs).RoIs = RoIs
+    mdtAcc.getEventAlgo("MdtRdoToMdtPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
     acc.merge( mdtAcc )
 
     # Get CSC BS decoder
     cscAcc = CscBytestreamDecodeCfg( flags, name="CscRawDataProvider_"+RoIs )
     cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RoIs = RoIs
+    cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).DoSeededDecoding = doSeededDecoding
     cscAcc.getEventAlgo("CscRawDataProvider_"+RoIs).RegionSelectionTool = RegSelTool_CSC
     acc.merge( cscAcc )
 
     # Get CSC BS->RDO convertor
     cscAcc = CscRDODecodeCfg( flags, name="CscRdoToCscPrepData_"+RoIs )
     cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).RoIs = RoIs
+    cscAcc.getEventAlgo("CscRdoToCscPrepData_"+RoIs).DoSeededDecoding = doSeededDecoding
     acc.merge( cscAcc )
 
     # Get CSC cluster builder
@@ -265,17 +279,25 @@ def muCombStep(flags, chainDict):
 
     return ChainStep( name=selAccL2CB.name, Sequences=[l2muCombSequence], chainDicts=[chainDict] )
 
-def muEFSAStep(flags, chainDict):
+def muEFSAStep(flags, chainDict, name='RoI'):
     #EF MS only
-    selAccMS = SelectionCA('EFMuMSReco')
+    selAccMS = SelectionCA('EFMuMSReco_'+name)
     
-    ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
-    viewName="EFMuMSReco"
+    viewName="EFMuMSReco_"+name
+    if 'FS' in name:
+        ViewCreatorFSROITool=CompFactory.ViewCreatorFSROITool
+        roiTool         = ViewCreatorFSROITool(RoisWriteHandleKey="MuonFS_RoIs")
+        requireParentView = False
+    else:
+        ViewCreatorFetchFromViewROITool=CompFactory.ViewCreatorFetchFromViewROITool
+        roiTool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews")
+        requireParentView = True
+                                                         
     viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
                                                          ViewFallThrough = True,
-                                                         RequireParentView = True,
+                                                         RequireParentView = requireParentView,
                                                          RoIsLink        = 'initialRoI',
-                                                         RoITool         = ViewCreatorFetchFromViewROITool(RoisWriteHandleKey="Roi_L2SAMuonForEF", InViewRoIs = "forMS", ViewToFetchFrom = "L2MuFastRecoViews"),
+                                                         RoITool         = roiTool,
                                                          InViewRoIs      = viewName+'RoIs',
                                                          Views           = viewName+'Views',
                                                          ViewNodeName    = viewName+"InView")
@@ -291,23 +313,23 @@ def muEFSAStep(flags, chainDict):
     recoMS.merge(TileGMCfg(flags))
     ###################
 
-    recoMS.mergeReco(EFMuonViewDataVerifierCfg())
+    recoMS.mergeReco(EFMuonViewDataVerifierCfg(name))
 
     # decoding
     recoMS.mergeReco(decodeCfg(flags, selAccMS.name+"RoIs"))
 
     #Reco
-    recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder",UseTGCNextBC=False, UseTGCPriorBC=False))
-    recoMS.mergeReco(MuonTrackBuildingCfg(flags, name="TrigMuPatTrackBuilder"))
-    recoMS.mergeReco(MuonTrackParticleCnvCfg(flags, name = "TrigMuonTrackParticleCnvAlg"))
-    recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(flags, name = "TrigMuonCandidateAlg"))
-    recoMS.mergeReco(MuonCreatorAlgCfg(flags, name = "TrigMuonCreatorAlg"))
+    recoMS.mergeReco( MooSegmentFinderAlgCfg(flags,name="TrigMooSegmentFinder_"+name,UseTGCNextBC=False, UseTGCPriorBC=False))
+    recoMS.mergeReco(MuonTrackBuildingCfg(flags, name="TrigMuPatTrackBuilder_"+name))
+    recoMS.mergeReco(MuonTrackParticleCnvCfg(flags, name = "TrigMuonTrackParticleCnvAlg_"+name))
+    recoMS.mergeReco(MuonCombinedMuonCandidateAlgCfg(flags, name = "TrigMuonCandidateAlg_"+name))
+    recoMS.mergeReco(MuonCreatorAlgCfg(flags, name = "TrigMuonCreatorAlg_"+name, MuonContainerLocation="Muons_"+name))
 
     selAccMS.mergeReco(recoMS)
 
     efmuMSHypo = efMuHypoCfg( flags,
-                              name = 'TrigMuonEFMSonlyHypo',
-                              inputMuons = "Muons" )
+                              name = 'TrigMuonEFMSonlyHypo_'+name,
+                              inputMuons = "Muons_"+name )
 
     selAccMS.addHypoAlgo(efmuMSHypo)
 
@@ -316,32 +338,55 @@ def muEFSAStep(flags, chainDict):
 
     return ChainStep( name=selAccMS.name, Sequences=[efmuMSSequence], chainDicts=[chainDict] )
 
-def muEFCBStep(flags, chainDict):
+def muEFCBStep(flags, chainDict, name='RoI'):
     #EF combined muons
-    selAccEFCB = SelectionCA("EFCBMuon")
-    
-    recoCB = InViewReco("EFMuCBReco")
-    recoCB.inputMaker().RequireParentView = True
+    selAccEFCB = SelectionCA("EFCBMuon_"+name)
 
-    recoCB.mergeReco(EFMuonCBViewDataVerifierCfg())
+    viewName = 'EFMuCBReco_'+name                                                       
+    trackName = "HLT_IDTrack_Muon_FTF"
+    muonCandName = "MuonCandidates"
+    if 'FS' in name:
+        muonCandName = "MuonCandidates_FS"
+        ViewCreatorCentredOnIParticleROITool=CompFactory.ViewCreatorCentredOnIParticleROITool
+        roiTool         = ViewCreatorCentredOnIParticleROITool(RoisWriteHandleKey="MuonCandidates_FS_ROIs")
+        viewMakerAlg = CompFactory.EventViewCreatorAlgorithm("IM"+viewName,
+                                                             ViewFallThrough = True,
+                                                             mergeUsingFeature = True,
+                                                             PlaceMuonInView = True,
+                                                             RequireParentView = True,
+                                                             InViewMuons = "InViewMuons",
+                                                             InViewMuonCandidates = muonCandName,
+                                                             RoITool         = roiTool,
+                                                             InViewRoIs      = viewName+'RoIs',
+                                                             Views           = viewName+'Views',
+                                                             ViewNodeName    = viewName+"InView")
+        recoCB = InViewReco("EFMuCBReco_"+name, viewMaker=viewMakerAlg)
+        #ID tracking
+        recoCB.mergeReco(trigInDetFastTrackingCfg( flags, roisKey=recoCB.inputMaker().InViewRoIs, signatureName="MuonFS" ))
+        trackName = "HLT_IDTrack_MuonFS_FTF"
+    else:
+        recoCB = InViewReco(viewName)
+        recoCB.inputMaker().RequireParentView = True
+
+    recoCB.mergeReco(EFMuonCBViewDataVerifierCfg(name))
     
-    indetCandCfg = MuonCombinedInDetCandidateAlg(flags, name="TrigMuonCombinedInDetCandidateAlg_RoI", TrackParticleLocation=["HLT_IDTrack_Muon_FTF"], 
-                                                 InDetCandidateLocation="IndetCandidates_RoI", TrackSelector="",DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
+    indetCandCfg = MuonCombinedInDetCandidateAlg(flags, name="TrigMuonCombinedInDetCandidateAlg_"+name, TrackParticleLocation=[trackName], 
+                                                 InDetCandidateLocation="IndetCandidates_"+name, TrackSelector="",DoSiliconAssocForwardMuons=False, InDetForwardTrackSelector="")
     recoCB.mergeReco(indetCandCfg)
-    muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_RoI", MuonCandidateLocation="MuonCandidates", 
-                                     InDetCandidateLocation="IndetCandidates_RoI")
+    muonCombCfg = MuonCombinedAlgCfg(flags, name="TrigMuonCombinedAlg_"+name, MuonCandidateLocation=muonCandName, 
+                                     InDetCandidateLocation="IndetCandidates_"+name)
     recoCB.mergeReco(muonCombCfg)
 
-    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_RoI", MuonCandidateLocation="MuonCandidates", TagMaps=["muidcoTagMap"], 
-                                         InDetCandidateLocation="InDetCandidates_RoI", MuonContainerLocation = "MuonsCB", SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
-                                         ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_RoI")
+    muonCreatorCBCfg = MuonCreatorAlgCfg(flags, name="TrigMuonCreatorAlgCB_"+name, MuonCandidateLocation=muonCandName, TagMaps=["muidcoTagMap"], 
+                                         InDetCandidateLocation="InDetCandidates_"+name, MuonContainerLocation = "MuonsCB_"+name, SegmentContainerName = "xaodCBSegments", TrackSegmentContainerName = "TrkCBSegments",
+                                         ExtrapolatedLocation = "CBExtrapolatedMuons", MSOnlyExtrapolatedLocation = "CBMSonlyExtrapolatedMuons", CombinedLocation = "HLT_CBCombinedMuon_"+name)
     recoCB.mergeReco(muonCreatorCBCfg)
     
     selAccEFCB.mergeReco(recoCB)
 
     efmuCBHypo = efMuHypoCfg( flags,
-                              name = 'TrigMuonEFCBHypo',
-                              inputMuons = "MuonsCB" )
+                              name = 'TrigMuonEFCBHypo_'+name,
+                              inputMuons = "MuonsCB_"+name )
 
     selAccEFCB.addHypoAlgo(efmuCBHypo)
 
@@ -356,8 +401,6 @@ def generateChains( flags, chainDict ):
     #Clone and replace offline flags so we can set muon trigger specific values
     muonflags = flags.cloneAndReplace('Muon', 'Trigger.Offline.Muon')
 
-    muFast = muFastStep(muonflags, chainDict)
-    muEFSA = muEFSAStep(muonflags, chainDict)
 
     l1Thresholds=[]
     for part in chainDict['chainParts']:
@@ -366,11 +409,16 @@ def generateChains( flags, chainDict ):
     log.debug('dictionary is: %s\n', pprint.pformat(chainDict))
     def _empty(name):
         return ChainStep(name="EmptyNoL2MuComb", Sequences=[EmptyMenuSequence("EmptyNoL2MuComb")], chainDicts=[chainDict])
-    if 'msonly' in chainDict['chainName']:
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
+    if 'noL1' in chainDict['chainName']:
+        chain = Chain(name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[muEFSAStep(muonflags, chainDict, 'FS'), muEFCBStep(muonflags, chainDict, 'FS')])
     else:
-        muComb = muCombStep(muonflags, chainDict)
-        muEFCB = muEFCBStep(muonflags, chainDict)
-        chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
+        muFast = muFastStep(muonflags, chainDict)
+        muEFSA = muEFSAStep(muonflags, chainDict)
+        if 'msonly' in chainDict['chainName']:
+            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, _empty("EmptyNoL2MuComb"), muEFSA, _empty("EmptyNoEFCB") ] )
+        else:
+            muComb = muCombStep(muonflags, chainDict)
+            muEFCB = muEFCBStep(muonflags, chainDict)
+            chain = Chain( name=chainDict['chainName'], L1Thresholds=l1Thresholds, ChainSteps=[ muFast, muComb, muEFSA, muEFCB ] )
     return chain
 

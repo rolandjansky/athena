@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2020 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 from TriggerMenuMT.HLTMenuConfig.Menu.ChainDefInMenu import ChainProp
 
 # def get_flag_item(chainName, L1itemsChainParts, groups):
@@ -46,7 +46,9 @@ def setupMenu():
 
         ChainProp(name='HLT_mu20_msonly_L1MU20', groups=SingleMuonGroup),
         ChainProp(name='HLT_mu10_msonly_L1MU10', groups=SingleMuonGroup),
-        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup)
+        ChainProp(name='HLT_mu8_msonly_L1MU6',   groups=SingleMuonGroup),
+
+        ChainProp(name='HLT_mu6noL1_L1MU6', l1SeedThresholds=['FSNOSEED'], groups=SingleMuonGroup),
     ]
     chains["bphysics"] = [
 #        ChainProp(name='HLT_2mu4_bJpsimumu_L12MU4', groups=BphysicsGroup),

@@ -678,7 +678,12 @@ def trackConverterCfg(flags, signature, signatureName):
 def trigInDetFastTrackingCfg( inflags, roisKey="EMRoIs", signatureName='' ):
 
   # redirect InDet.Tracking flags to point to a specific trigger setting
-  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureName)
+  if 'Muon' in signatureName:
+    signatureFlags='Muon'
+  else:
+    signatureFlags = signatureName
+
+  flags = inflags.cloneAndReplace("InDet.Tracking", "Trigger.InDetTracking."+signatureFlags)
 
   #If signature specified add suffix to the name of each algorithms
   signature =  ("_" + signatureName if signatureName else '').lower()
