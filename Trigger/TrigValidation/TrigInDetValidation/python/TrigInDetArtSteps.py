@@ -11,7 +11,6 @@ import os
 import json
 
 from TrigValTools.TrigValSteering.ExecStep import ExecStep
-from TrigAnalysisTest.TrigAnalysisSteps import AthenaCheckerStep
 from TrigValTools.TrigValSteering.Step import Step
 from TrigValTools.TrigValSteering.CheckSteps import RefComparisonStep
 from AthenaCommon.Utils.unixtools import FindFile
@@ -154,14 +153,20 @@ class TrigInDetReco(ExecStep):
 # Additional exec (athena) steps - AOD to TrkNtuple
 ##################################################
 
-class TrigInDetAna(AthenaCheckerStep):
-    def __init__(self, name='TrigInDetAna', in_file='AOD.pool.root'):
-        AthenaCheckerStep.__init__(self, name, 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py')
+class TrigInDetAna(ExecStep):
+    def __init__(self, name='TrigInDetAna', lrt=False):
+        ExecStep.__init__(self, name )
+        self.type = 'athena'
+        self.job_options = 'TrigInDetValidation/TrigInDetValidation_AODtoTrkNtuple.py'
         self.max_events=-1
         self.required = True
         self.depends_on_previous = False
-        self.input_file = in_file
-
+        #self.input = 'AOD.pool.root'
+        self.input = ''
+        self.perfmon=False
+        self.imf=False
+        if (lrt):
+            self.args = ' -c "LRT=True" '
 ##################################################
 # Additional post-processing steps
 ##################################################
