@@ -1,3 +1,5 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
+
 # Blocking the include for after first inclusion
 include.block ('InDetRecExample/ConfiguredNewTrackingSiPattern.py')
 
@@ -700,17 +702,95 @@ class  ConfiguredNewTrackingSiPattern:
                TrackCollectionKeys      += [ self.__SiTrackCollection ]
        
       elif InDetFlags.doFastTracking() and NewTrackingCuts.mode() == "SLHC":
-       #
-       # defining setup without ambiguity solving for fast tracking reconstuction
-       #
-       from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
-       InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi"+NewTrackingCuts.extension(),
-                                                         CollectionName   = self.__SiTrackCollection,
-                                                         AliasName        = ResolvedTrackCollectionKey) 
-       topSequence += InDetCopyAlgForAmbi
-       if (InDetFlags.doPrintConfigurables()):
-          print InDetCopyAlgForAmbi
-
+        if InDetFlags.doFastTrackingFit():
+          #
+          # defining setup without ambiguity solving for fast tracking reconstuction
+          #
+          
+          ### We only allow refitting of the tracks to exploit the cluster calibration constants
+          from TrkAmbiguityProcessor.TrkAmbiguityProcessorConf import Trk__SimpleFitterTool as ProcessorTool
+          fitter_list=[InDetTrackFitter]
+          if InDetFlags.doRefitInvalidCov() :
+            from AthenaCommon import CfgGetter
+            fitter_list.append(CfgGetter.getPublicTool('KalmanFitter'))
+            fitter_list.append(CfgGetter.getPublicTool('ReferenceKalmanFitter'))
+          
+          useBremMode = NewTrackingCuts.mode() == "Offline" or NewTrackingCuts.mode() == "SLHC" or NewTrackingCuts.mode() == "SLHCLargeD0"
+          
+          from InDetAmbiTrackSelectionTool.InDetAmbiTrackSelectionToolConf import InDet__InDetDenseEnvAmbiTrackSelectionTool as AmbiTrackSelectionTool
+          
+          
+          SimpleFitterTool = ProcessorTool(name               = 'SimpleFitterTool'+NewTrackingCuts.extension(),
+                                           Fitter             = fitter_list ,
+                                           SummaryTool        = InDetTrackSummaryTool,
+	                                         AssociationTool    = InDetPrdAssociationTool,
+	                                         tryBremFit         = InDetFlags.doBremRecovery() and useBremMode and NewTrackingCuts.mode() != "DBM",
+	                                         caloSeededBrem     = InDetFlags.doCaloSeededBrem() and NewTrackingCuts.mode() != "DBM",
+	                                         pTminBrem = NewTrackingCuts.minPTBrem()[0] if NewTrackingCuts.useEtaDependentCuts() else NewTrackingCuts.minPTBrem(),
+	                                         RejectTracksWithInvalidCov=InDetFlags.doRejectInvalidCov())
+          
+          ToolSvc += SimpleFitterTool
+          if (InDetFlags.doPrintConfigurables()):
+             print SimpleFitterTool
+          #
+          # --- set input and output collection
+          #
+          InputTrackCollection     = self.__SiTrackCollection
+          self.__SiTrackCollection = ResolvedTrackCollectionKey
+          #
+          # --- configure Ambiguity solver to use the simple fitter tool
+          # this means it only runs the final fit w/o resolving ambiguities
+          #
+          from TrkAmbiguitySolver.TrkAmbiguitySolverConf import Trk__TrkAmbiguitySolver
+          InDetAmbiguitySolver = Trk__TrkAmbiguitySolver(name               = 'InDetFitter'+NewTrackingCuts.extension(),
+                                                         TrackInput         = [ InputTrackCollection ],
+                                                         TrackOutput        = self.__SiTrackCollection,
+                                                         AmbiguityProcessor = SimpleFitterTool)
+          topSequence += InDetAmbiguitySolver
+          if (InDetFlags.doPrintConfigurables()):
+             print InDetAmbiguitySolver
+          
+        else: # not refitting tracks, dump out the existing track collection
+          #
+          # --- set input and output collection
+          #
+          InputTrackCollection     = self.__SiTrackCollection
+          self.__SiTrackCollection = ResolvedTrackCollectionKey
+          
+          #
+          # defining setup without ambiguity solving for fast tracking reconstuction
+          #
+          from TrkCollectionAliasAlg.TrkCollectionAliasAlgConf import Trk__TrkCollectionAliasAlg
+          InDetCopyAlgForAmbi = Trk__TrkCollectionAliasAlg (name             = "InDetCopyAlgForAmbi"+NewTrackingCuts.extension(),
+                                                            CollectionName   = InputTrackCollection,
+                                                            AliasName        = ResolvedTrackCollectionKey) 
+          topSequence += InDetCopyAlgForAmbi
+          if (InDetFlags.doPrintConfigurables()):
+             print InDetCopyAlgForAmbi
+        
+        #
+        # --- Delete Silicon Sp-Seeded tracks
+        #
+        from InDetRecExample.ConfiguredInDetSGDeletion import InDetSGDeletionAlg
+        InDetSGDeletionAlg(key = SiSPSeededTrackCollectionKey)
+        
+        if ( ( NewTrackingCuts.mode() in ["Pixel", "SCT"] ) or not InDetFlags.doSGDeletion()):
+           if InDetFlags.doTruth():
+              #
+              # set up the truth info for this container
+              #
+              include ("InDetRecExample/ConfiguredInDetTrackTruth.py")
+              InDetTracksTruth = ConfiguredInDetTrackTruth(self.__SiTrackCollection,
+                                                           self.__SiTrackCollection+"DetailedTruth",
+                                                           self.__SiTrackCollection+"TruthCollection")
+              #
+              # add final output for statistics
+              #
+              TrackCollectionKeys      += [ InDetTracksTruth.Tracks() ]
+              TrackCollectionTruthKeys += [ InDetTracksTruth.TracksTruth() ]
+           else:
+              TrackCollectionKeys      += [ self.__SiTrackCollection ]
+          
       
    def SiTrackCollection ( self ):
       try:

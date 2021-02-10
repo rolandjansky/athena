@@ -1,7 +1,7 @@
 // Dear emacs, this is -*- c++ -*-
 
 /*
-  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+  Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 */
 
 // $Id: xAODPrimitives.h 576255 2013-12-19 12:54:41Z emoyse $
@@ -184,8 +184,12 @@ namespace xAOD {
     Pseudotracking			   = 51,
     // Track seeded
     SiSpacePointsSeedMaker_TrkSeeded       = 52,
-     ///maximum number of enums
-    NumberOfTrackRecoInfo                  = 53
+    // For track using fitter tool as ambiguity processor tool.
+    // This is used in the ITk fast tracking:
+    // Ambiguity resolution is switched off and SiSPSeededTracks are only refitted
+    FastTrackingFitterTool                 = 53,
+    ///maximum number of enums
+    NumberOfTrackRecoInfo                  = 54
   };
 
   enum ParticleHypothesis { nonInteracting  = 0,

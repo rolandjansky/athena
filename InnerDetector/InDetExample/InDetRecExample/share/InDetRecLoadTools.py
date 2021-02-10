@@ -1,3 +1,4 @@
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # ------------------------------------------------------------
 # 
@@ -1021,7 +1022,7 @@ if InDetFlags.loadSummaryTool():
     InDetTrackSummaryTool = Trk__TrackSummaryTool(name = "InDetTrackSummaryTool",
                                                   InDetSummaryHelperTool = InDetTrackSummaryHelperTool,
                                                   doSharedHits           = False,
-                                                  InDetHoleSearchTool    = InDetHoleSearchTool,
+                                                  InDetHoleSearchTool    = None if InDetFlags.doFastTracking() else InDetHoleSearchTool,
                                                   TRT_ElectronPidTool    = None,         # we don't want to use those tools during pattern
                                                   TRT_ToT_dEdxTool       = None,         # dito
                                                   PixelToTPIDTool        = None)         # we don't want to use those tools during pattern
@@ -1075,7 +1076,7 @@ if InDetFlags.loadSummaryTool():
     InDetTrackSummaryToolSharedHits = Trk__TrackSummaryTool(name = "InDetTrackSummaryToolSharedHits",
                                                             InDetSummaryHelperTool = InDetTrackSummaryHelperToolSharedHits,
                                                             doSharedHits           = InDetFlags.doSharedHits(),
-                                                            InDetHoleSearchTool    = InDetHoleSearchTool,
+                                                            InDetHoleSearchTool    = None if InDetFlags.doFastTracking() else InDetHoleSearchTool,
                                                             TRT_ElectronPidTool    = InDetTRT_ElectronPidTool,
                                                             TRT_ToT_dEdxTool       = InDetTRT_dEdxTool,
                                                             TRTdEdx_DivideByL      = True, # default is True
