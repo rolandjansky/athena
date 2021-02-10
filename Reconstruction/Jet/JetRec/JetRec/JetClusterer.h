@@ -28,6 +28,7 @@
 #include "JetRec/PseudoJetContainer.h"
 #include "JetRec/JetFromPseudojet.h"
 #include "JetEDM/PseudoJetVector.h"
+#include "JetEDM/ClusterSequence.h"
 
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/AreaDefinition.hh"
@@ -64,6 +65,7 @@ protected:
 
   /// used to build the key under which the final PJ will be stored in evtStore() 
   SG::WriteHandleKey<PseudoJetVector> m_finalPseudoJets {this, "FinalPseudoJets_DONOTSET", "", "output pseudojets -- autoconfigured name"};
+  SG::WriteHandleKey<jet::ClusterSequence> m_clusterSequence {this, "ClusterSequence_DONOTSET", "", "output pseudojets -- autoconfigured name"};
   
   // Job options.
   Gaudi::Property<std::string>  m_jetalg {this, "JetAlgorithm", "AntiKt", "alg type : AntiKt, Kt, CA..."};

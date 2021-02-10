@@ -66,6 +66,8 @@ StatusCode JetClusterer::initialize() {
   ATH_CHECK( m_inputPseudoJets.initialize() );
   m_finalPseudoJets = name() + "FinalPJ";
   ATH_CHECK( m_finalPseudoJets.initialize() );
+  m_clusterSequence = name() + "ClusterSequence";
+  ATH_CHECK( m_clusterSequence.initialize() );
 
   return StatusCode::SUCCESS;
 }
@@ -128,8 +130,10 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
 
     // Let fastjet deal with deletion of ClusterSequence, so we don't need to also put it in the EventStore.
     // Release the memory from the unique_ptr
-    clSequence->delete_self_when_unused();
-    clSequence.release();
+    /*- Commented for now as this breaks in MT (probably) due to thread-unsafe fj shared pointer
+    // clSequence->delete_self_when_unused();
+    // clSequence.release();
+    -*/
 
     // -------------------------------------
     // translate to xAOD::Jet
@@ -158,6 +162,13 @@ std::pair<std::unique_ptr<xAOD::JetContainer>, std::unique_ptr<SG::IAuxStore> > 
     SG::WriteHandle<PseudoJetVector> pjVectorHandle(m_finalPseudoJets);
     if(!pjVectorHandle.record(std::move(pjVector))){
       ATH_MSG_ERROR("Can't record PseudoJetVector under key "<< m_finalPseudoJets);
+      return nullreturn;
+    }
+    // -------------------------------------
+    // record ClusterSequence
+    SG::WriteHandle<jet::ClusterSequence> clusterSeqHandle(m_clusterSequence);
+    if(!clusterSeqHandle.record(std::move(clSequence))){
+      ATH_MSG_ERROR("Can't record ClusterSequence under key "<< m_clusterSequence);
       return nullreturn;
     }
   }
