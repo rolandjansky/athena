@@ -24,7 +24,7 @@ from TrigValTools.TrigValSteering import Test, ExecStep, CheckSteps
 ex = ExecStep.ExecStep()
 ex.type = 'athena'
 ex.job_options = 'TriggerJobOpts/runHLT_standalone.py'
-ex.input = 'ttbar'
+ex.input = 'pbpb'
 ex.threads = 4
 ex.concurrent_events = 4
 ex.args = '-c "setMenu=\'Dev_HI_run3_v1\';doWriteBS=False;doWriteRDOTrigger=True;"'
