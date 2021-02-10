@@ -15,10 +15,11 @@ hlt.forks = 1
 hlt.threads = 1
 hlt.concurrent_events = 1
 hlt.max_events = 50
-hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\\"'
+hlt.args = '--precommand=\\\"setMenu=\\\'PhysicsP1_pp_run3_v1\\\'\\;enableCostMonitoring=True\\\"'
 hlt.args += ' --prodSysBSRDO True'
 hlt.args += ' --outputBSFile=RAW.pool.root'
 hlt.args += ' --outputHIST_HLTMONFile=hltmon.root'
+hlt.args += ' --outputDRAW_TRIGCOSTFile=TRIGCOST.pool.root'
 hlt.input = 'data'
 
 #====================================================================================================
