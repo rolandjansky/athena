@@ -214,7 +214,7 @@ private:
   ///     vector of ROB fragments to add to the cache
   /// output:
   ///     set of ignored ROBs
-  void eventCache_addRobData(EventCache*, const std::vector<ROBF>&,
+  void eventCache_addRobData(EventCache*, std::vector<ROBF>&&,
               std::optional<std::reference_wrapper<std::set<uint32_t>>> robIds_ignored = std::nullopt) ;
 
   /// Monitoring tool
