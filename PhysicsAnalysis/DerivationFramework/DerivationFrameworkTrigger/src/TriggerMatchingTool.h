@@ -60,7 +60,7 @@ namespace DerivationFramework
     // input file but I don't know if that's possible.
 
     /// The tool to retrieve the online candidates
-    ToolHandle<Trig::IIParticleRetrievalTool> m_trigParticleTool{this, "Trig::IParticleRetrievalTool/OnlineParticleTool"};
+    ToolHandle<Trig::IIParticleRetrievalTool> m_trigParticleTool{"Trig::IParticleRetrievalTool/OnlineParticleTool"};
 
     /// The input containers to use. These are keyed by xAOD object type
     std::map<xAOD::Type::ObjectType, std::string> m_offlineInputs;

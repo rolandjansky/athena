@@ -55,12 +55,14 @@ namespace Trig
         continue;
       }
       ATH_MSG_DEBUG("Chain " << name << " passed");
+      const auto &features = m_tdt->features<xAOD::IParticleContainer>(name);
+      ATH_MSG_DEBUG("Found " << features.size() << " features");
       // Build up the full list of trigger combinations
       // TODO - right now we use a filter that passes everything that isn't pointer-equal.
       // This will probably need to be fixed to something else later - at least the unique RoI filter
       TrigCompositeUtils::Combinations trigCombinations = TrigCompositeUtils::buildCombinations(
           name,
-          m_tdt->features<xAOD::IParticleContainer>(name),
+          features,
           m_tdt->ExperimentalAndExpertMethods()->getChainConfigurationDetails(name),
           TrigCompositeUtils::FilterType::UniqueObjects);
       // Copy the combinations into the output vector
