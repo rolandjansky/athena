@@ -1,3 +1,20 @@
+# Introduction
+This framework runs over the merged outputs produced by running the DQTGlobalWZFinder tool over primary AODs.
+Information on how to run the main code can be found here [https://twiki.cern.ch/twiki/bin/viewauth/Atlas/ZCountingLumi](https://twiki.cern.ch/twiki/bin/viewauth/Atlas/ZCountingLumi). 
+Once the merging step has been performed (an example of which is below), 
+the dqt_zlumi_pandas.py script can be ran over the merged output to produce a single csv file containing all information.
+Each row of the csv file corresponds to a single luminosity block, and contains all information for both channels;
+such as the number of reconstructed Zs per channel, trigger efficiency, reconstruction efficiency, luminosity, 
+as well as the arithmetic mean of the Zee and Zmumu luminosities and all auxilliary official information 
+(livetime, pileup, luminosity, GRL).
+
+```
+ls grid-output/* > tomerge.txt
+DQHistogramMerge.py tomerge.txt out.HIST_AOD.root
+```
+
+i.e. *out.HIST_AOD.root* here corresponds to *tree_340030.root* in the next example.
+
 # Running the code
 Using a single 2017 run as an illustrative example: 
 ```
@@ -10,6 +27,11 @@ python -u dqt_zlumi_pandas.py --dblivetime --useofficial --infile $infile --grl 
 
 # Making single run plots
 _Note_: The output directory (outdir) will need to be changed at the top of both scripts.
+Both of these scripts calculate an average over successive bunches of 20 luminosity blocks
+to increase statistical precision. 
+All other plots use the single-LB luminosity, and not the 20LB merged value, 
+when calculating the integrated luminosity of an LHC fill/pileup bin.
+
 ```
 # Time dependent efficiency and luminosity plots
 python plotting/efficiency.py --infile ~/public/Zcounting/CSVOutputs/HighMu/data17_13TeV/run_340030.csv
