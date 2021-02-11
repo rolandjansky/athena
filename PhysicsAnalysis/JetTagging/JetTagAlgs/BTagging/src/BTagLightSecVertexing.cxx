@@ -123,31 +123,33 @@ namespace Analysis {
       SVertexLinks = h_jetSVLinkName(myJet);
     }
 
-    std::vector<xAOD::Vertex*> vertices;
     std::vector<ElementLink<xAOD::TrackParticleContainer> > TrkList;
     float    mass = 0, energyfrc = NAN, energyTrk = 0, dsttomatlayer = NAN;
     int  n2trk = 0, npsec = 0;
 
-    if(basename.find("MSV") != 0){
-      for (std::vector<xAOD::Vertex*>::const_iterator verticesIter = vertices.begin();
-           verticesIter!=vertices.end();++verticesIter) {
-        std::vector<ElementLink<xAOD::TrackParticleContainer> > theseTracks = (*verticesIter)->trackParticleLinks();
-        npsec += theseTracks.size();
-        for (std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator itr=theseTracks.begin();itr!=theseTracks.end();itr++){
-	        TrkList.push_back(*itr);
-        }
+    if(basename.find("MSV") != 0){ 
+      if (myVertexInfoVKal) {
+	std::vector<xAOD::Vertex*>::const_iterator verticesBegin = myVertexInfoVKal->vertices().begin(); 
+	std::vector<xAOD::Vertex*>::const_iterator verticesEnd   = myVertexInfoVKal->vertices().end(); 
+	for (std::vector<xAOD::Vertex*>::const_iterator verticesIter = verticesBegin; verticesIter!=verticesEnd;++verticesIter) { 
+	  std::vector<ElementLink<xAOD::TrackParticleContainer> > theseTracks = (*verticesIter)->trackParticleLinks();
+	  npsec += theseTracks.size();
+	  for (std::vector<ElementLink<xAOD::TrackParticleContainer> >::iterator itr=theseTracks.begin();itr!=theseTracks.end();itr++){
+	    TrkList.push_back(*itr);
+	  }
+	}
       }
 
       ATH_MSG_DEBUG("#BTAG# Size of the sec vertex linked to the BTagging: " << SVertexLinks.size());
       newBTag->setVariable<std::vector<ElementLink<xAOD::VertexContainer> > >(basename, "vertices", SVertexLinks);
       newBTag->setDynVxELName(basename, "vertices");
 
-      if(SVertexLinks.size()){
+      if(SVertexLinks.size() && myVertexInfoVKal){ 
         mass = myVertexInfoVKal->mass();
         energyfrc = myVertexInfoVKal->energyFraction();
         n2trk = myVertexInfoVKal->n2trackvertices();
         energyTrk =  myVertexInfoVKal->energyTrkInJet();
-	      dsttomatlayer= myVertexInfoVKal->dstToMatLay();
+	dsttomatlayer= myVertexInfoVKal->dstToMatLay();
       }
 
       newBTag->setVariable<float>(basename, "energyTrkInJet", energyTrk);
