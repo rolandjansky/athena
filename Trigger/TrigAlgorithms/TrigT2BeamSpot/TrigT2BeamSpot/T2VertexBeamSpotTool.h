@@ -41,18 +41,12 @@
 //Data handles
 #include "StoreGate/ReadCondHandleKey.h"
 //Beam data
-#include "StoreGate/StoreGateSvc.h"
 #include "BeamSpotConditionsData/BeamSpotData.h"
-//To get TEVec and HLT::Error messaging
-#include "TrigInterfaces/Algo.h"
 //Monitoring tool
 #include "AthenaMonitoringKernel/Monitored.h"
 
 class TrigVertexCollection;
 
-namespace HLT {
-   class TriggerElement;
-}
 namespace PESA {
    class T2SplitVertex;
    /**
