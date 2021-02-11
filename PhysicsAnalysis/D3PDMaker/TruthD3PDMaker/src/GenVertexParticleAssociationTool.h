@@ -65,11 +65,17 @@ namespace D3PD {
       const HepMC::GenParticle* next();
 
    private:
+#ifdef HEPMC3
       /// Iterator pointing at the current particle
-      std::vector< HepMC::GenParticle* >::const_iterator m_partItr;
+      std::vector< HepMC::ConstGenParticlePtr >::const_iterator m_partItr;
       /// Iterator pointing at the last particle
-      std::vector< HepMC::GenParticle* >::const_iterator m_partEnd;
-
+      std::vector< HepMC::ConstGenParticlePtr >::const_iterator m_partEnd;
+#else 
+      /// Iterator pointing at the current particle
+      HepMC::GenVertex::particles_in_const_iterator m_partItr;
+      /// Iterator pointing at the last particle
+      HepMC::GenVertex::particles_in_const_iterator m_partEnd;
+#endif
       /// Associate the incoming particles of the vertex
       bool m_inParticles; 
 
