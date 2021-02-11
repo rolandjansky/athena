@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2018 CERN for the benefit of the ATLAS collaboration
+# Copyright (C) 2002-2021 CERN for the benefit of the ATLAS collaboration
 
 # Framework import(s):
 import ROOT
@@ -125,9 +125,9 @@ def makePhotonAnalysisSequence( dataType, workingPoint,
                            'PhotonShowerShapeFudgeAlg' + postfix )
     addPrivateTool( alg, 'showerShapeFudgeTool',
                     'ElectronPhotonShowerShapeFudgeTool' )
-    alg.showerShapeFudgeTool.Preselection = 21 # 21 = MC15
+    alg.showerShapeFudgeTool.Preselection = 22 # Rel 21
     alg.showerShapeFudgeTool.FFCalibFile = \
-        'ElectronPhotonShowerShapeFudgeTool/v1/PhotonFudgeFactors.root' #only for rel21
+        'ElectronPhotonShowerShapeFudgeTool/v2/PhotonFudgeFactors.root' #only for rel21
     seq.append( alg, inputPropName = 'photons', outputPropName = 'photonsOut',
                 stageName = 'calibration' )
 
