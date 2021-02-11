@@ -1,4 +1,4 @@
-///////////////////////// -*- C++ -*- /////////////////////////////
+/////////////////////////// -*- C++ -*- /////////////////////////////
 
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
@@ -22,6 +22,8 @@
 #include "xAODMissingET/MissingETContainer.h"
 #include "xAODMissingET/MissingETAssociationMap.h"
 #include "xAODJet/JetContainer.h"
+#include "xAODPFlow/PFOContainer.h" 
+
 
 class IMETMaker :  virtual public asg::IAsgTool {
   ASG_TOOL_INTERFACE(IMETMaker)
@@ -102,9 +104,30 @@ public:
                                    const xAOD::MissingET* coreSoftTrk,
                                    bool doJetJVT) = 0;
 
+
   ///////////////////////////////////////////////////////////////////
   // Additional utility commands
   ///////////////////////////////////////////////////////////////////
+
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* muonCollection=0) = 0;//,  
+			  //MissingETBase::UsageHandler::Policy p); //jetOR
+
+  virtual StatusCode retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection=0) = 0;
+
+  virtual const xAOD::PFOContainer* retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,
+			  xAOD::MissingETAssociationHelper* helper,
+			  bool retainMuon = false,
+			  const xAOD::IParticleContainer* muonCollection=0, 
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::ParticleFlow) = 0; //jetOR
 
   virtual StatusCode markInvisible(const xAOD::IParticleContainer* collection,
 				   xAOD::MissingETAssociationHelper* helper,

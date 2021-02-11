@@ -39,6 +39,9 @@
 
 // framework includes
 #include "AsgDataHandles/ReadHandle.h"
+#include "xAODPFlow/PFOAuxContainer.h"
+#include <xAODCore/AuxContainerBase.h>
+#include <AthContainers/AuxElement.h>
 
 namespace met {
 
@@ -79,6 +82,8 @@ namespace met {
   static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjWeights("ConstitObjectWeights");
   // Implement dphi as well if we start correcting the jet phi.
   // static const SG::AuxElement::Decorator< std::vector<float> > dec_constitObjDphis("ConstitObjectDphis");
+
+
 
   ///////////////////////////////////////////////////////////////////
   // Public methods:
@@ -129,6 +134,7 @@ namespace met {
     declareProperty("DoRemoveElecTrksEM", m_doRemoveElecTrksEM = false               );    
 
     declareProperty("TrackSelectorTool",  m_trkseltool                               );
+
   }
 
   // Destructor
@@ -834,6 +840,7 @@ namespace met {
         ATH_MSG_VERBOSE( "Jet OR px, py, pt, E = " << opx << ", " << opy << ", " << opt << ", " << constjet.E() - calvec.ce() );
           
         if(isMuFSRJet) {
+
           if(met_muonEloss) {
             met_muonEloss->add(opx,opy,opt);
           } else {
@@ -1078,6 +1085,141 @@ namespace met {
 
     return rebuildMET(met,collection,helper,MissingETBase::UsageHandler::PhysicsObject);
   }
+
+
+
+  // Retrieve non overlapping constituents  
+  ////////////////////////////////////////
+
+  // Fill OverlapRemovedCHSParticleFlowObjects
+  // and  OverlapRemovedCHSCharged/NeutralParticleFlowObjects
+  StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* cpfo, const xAOD::PFOContainer* npfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  xAOD::PFOContainer *OR_cpfos,
+			  xAOD::PFOContainer *OR_npfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection)//, 
+			  //MissingETBase::UsageHandler::Policy p); //
+  {
+
+    const xAOD::PFOContainer *OR_cpfos_tmp = retrieveOverlapRemovedConstituents(cpfo, metHelper,retainMuon,muonCollection);
+    const xAOD::PFOContainer *OR_npfos_tmp = retrieveOverlapRemovedConstituents(npfo, metHelper,retainMuon,muonCollection);
+
+    for (auto tmp_constit : static_cast<xAOD::PFOContainer>(*cpfo)){
+      xAOD::PFO* constit=new xAOD::PFO();
+      OR_cpfos->push_back(constit);
+      *constit=*tmp_constit;
+
+      bool keep=false;
+      for (const auto ORconstit : *OR_cpfos_tmp){
+	if (ORconstit->index()==tmp_constit->index() && ORconstit->charge()==tmp_constit->charge()) {keep=true;}
+      }
+      if (keep==false){constit->setP4(0., 0., 0., 0.);} 
+
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+    } // end cPFO loop
+
+    for (auto tmp_constit : static_cast<xAOD::PFOContainer>(*npfo)){ 
+      xAOD::PFO* constit=new xAOD::PFO(); 
+      OR_npfos->push_back(constit); 
+      *constit=*tmp_constit; 
+
+      bool keep=false;
+      for (const auto ORconstit : *OR_npfos_tmp){ 
+	if (ORconstit->index()==tmp_constit->index() && ORconstit->charge()==tmp_constit->charge()) {keep=true;}
+      }
+      if (keep==false){ constit->setP4(0., 0., 0., 0.); }
+			
+      ATH_MSG_VERBOSE("Constituent with index " << tmp_constit->index() << ", charge " << tmp_constit->charge()<< " pT " << tmp_constit->pt() << ((keep==true) ? "" : " not ") <<" in OverlapRemovedCHSParticleFlowObjects");
+    } // end nPFO loop/
+	
+
+
+    return StatusCode::SUCCESS;
+  }
+
+  // Fill OverlapRemovedCHSParticleFlowObjects
+  StatusCode METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* pfo,
+			  xAOD::MissingETAssociationHelper* metHelper,
+			  const xAOD::PFOContainer **OR_pfos,
+			  bool retainMuon,
+			  const xAOD::IParticleContainer* muonCollection)//, 
+			  //MissingETBase::UsageHandler::Policy p); //
+  {
+     *OR_pfos=retrieveOverlapRemovedConstituents(pfo,metHelper,retainMuon,muonCollection);   
+    return StatusCode::SUCCESS;
+  }
+
+
+  const xAOD::PFOContainer* METMaker::retrieveOverlapRemovedConstituents(const xAOD::PFOContainer* signals,  xAOD::MissingETAssociationHelper* helper, bool retainMuon, const xAOD::IParticleContainer* muonCollection, MissingETBase::UsageHandler::Policy p)
+  {
+
+    ATH_MSG_VERBOSE("Policy " << p <<" " <<MissingETBase::UsageHandler::ParticleFlow);
+    const xAOD::MissingETAssociationMap* map = helper->map();
+
+
+    // If muon is selected, flag it as non selected to retain its constituents in OR jets (to recover std. muon-jet overlap)
+    std::vector<size_t> muon_index;
+    if (retainMuon){
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
+
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
+	if(assocs.empty()) {
+	  ATH_MSG_WARNING("Object is not in association map. Did you make a deep copy but fail to set the \"originalObjectLinks\" decoration?");
+	  ATH_MSG_WARNING("If not, Please apply xAOD::setOriginalObjectLinks() from xAODBase/IParticleHelpers.h");
+	}
+	if(MissingETComposition::objSelected(helper,orig)) {
+	  ATH_MSG_DEBUG("Muon with index "<<orig->index() << " is selected. Flag it as non selected before getOverlapRemovedSignals");
+	  muon_index.push_back(orig->index()); 
+	  for(size_t i = 0; i < assocs.size(); i++) helper->setObjSelectionFlag(assocs[i],orig,false);
+	}
+      }
+
+      /*ATH_MSG_VERBOSE("Check selected muons before getOverlapRemovedSignals");
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is " << (MissingETComposition::objSelected(helper,orig) ? "" : "non-") << "selected" );
+      }*/
+    } // end retainMuon 
+
+    const xAOD::PFOContainer* ORsignals =static_cast<const xAOD::PFOContainer*>(map->getOverlapRemovedSignals(helper,signals,p));
+
+    /*for (const auto tmp_const : *signals){ // printout overlap removed constituents
+      bool keep=false;
+      for (const auto constit : *ORsignals){
+	if (constit->index()==tmp_const->index() && constit->charge()==tmp_const->charge()){keep=true;}
+      }
+      if (keep==false){ANA_MSG_DEBUG("Retrieve OR constituents: DON'T keep " << tmp_const->index() << " with charge " <<  tmp_const->charge() << " and pt "<<tmp_const->pt());}
+    }*/
+
+    // Flag back muons as selected
+    if (retainMuon && muon_index.size()>0){
+      bool originalInputs = !acc_originalObject.isAvailable(*muonCollection->front());
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	std::vector<const xAOD::MissingETAssociation*> assocs = xAOD::MissingETComposition::getAssociations(map,orig);
+	for (size_t ind=0; ind<muon_index.size();ind++){
+	  if(orig->index()==muon_index.at(ind)) {
+	    for(size_t i = 0; i < assocs.size(); i++) helper->setObjSelectionFlag(assocs[i],orig,true);
+	  }
+	}
+      }
+      /*ATH_MSG_VERBOSE("Check selected muons after getOverlapRemovedSignals");
+      for(const auto& obj : *muonCollection) {
+	const IParticle* orig = obj;
+	if(!originalInputs) { orig = *acc_originalObject(*obj); }
+	ATH_MSG_VERBOSE("Muon with index "<<orig->index() << " is selected?" << MissingETComposition::objSelected(helper,orig));
+      }*/
+    }
+
+    return ORsignals;  
+  }
+
 
   // Accept Track
   ////////////////

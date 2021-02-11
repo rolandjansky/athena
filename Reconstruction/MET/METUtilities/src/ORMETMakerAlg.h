@@ -4,12 +4,13 @@
   Copyright (C) 2002-2019 CERN for the benefit of the ATLAS collaboration
 */
 
-// METMakerAlg.h
+// ORMETMakerAlg.h
 
-#ifndef METMakerAlg_H
-#define METMakerAlg_H
+#ifndef ORMETMakerAlg_H
+#define ORMETMakerAlg_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "METMakerAlg.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "StoreGate/DataHandle.h"
 
@@ -39,36 +40,38 @@ namespace TauAnalysisTools {
 }
 
 namespace met {
-  class METMakerAlg : public AthAlgorithm {
+  //class ORMETMakerAlg : public AthAlgorithm {
+  class ORMETMakerAlg : public METMakerAlg {
 
   public: 
 
     /// Constructor with parameters:
-    METMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
+    ORMETMakerAlg(const std::string& name, ISvcLocator* pSvcLocator);
 
     /// Destructor:
-    virtual ~METMakerAlg(); 
+    virtual ~ORMETMakerAlg(); 
 
     /// Athena algorithm's Hooks
     virtual StatusCode  initialize() override;
     virtual StatusCode  execute() override;
     virtual StatusCode  finalize() override;
 
-  protected: // was private childORMETMaker
+  private: 
 
     /// Default constructor:
-    METMakerAlg();
+    ORMETMakerAlg();
 
     bool accept(const xAOD::Electron* el);
     bool accept(const xAOD::Photon* ph);
     bool accept(const xAOD::TauJet* tau);
     bool accept(const xAOD::Muon* muon);
 
-    std::string m_softclname;
-    std::string m_softtrkname;
+    //std::string m_softclname;
+    //std::string m_softtrkname;
+    std::string m_soft;
 
     //In release 21 need to replace the names of the containers by the appropriate data handles
-    SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey;
+    /*SG::ReadHandleKey<xAOD::ElectronContainer>      m_ElectronContainerKey;
     SG::ReadHandleKey<xAOD::PhotonContainer>        m_PhotonContainerKey;
     SG::ReadHandleKey<xAOD::TauJetContainer>        m_TauJetContainerKey;
     SG::ReadHandleKey<xAOD::MuonContainer>          m_MuonContainerKey;
@@ -77,21 +80,57 @@ namespace met {
     SG::ReadHandleKey<xAOD::MissingETContainer>           m_CoreMetKey;
 
     SG::WriteHandleKey<xAOD::MissingETContainer> m_metKey;
-    SG::ReadHandleKey<xAOD::MissingETAssociationMap> m_metMapKey;
+    SG::ReadHandleKey<xAOD::MissingETAssociationMap> m_metMapKey;*/
+    SG::ReadHandleKey<xAOD::MissingETAssociationMap> m_ORMetMapKey;
+
+    SG::WriteHandleKey<xAOD::PFOContainer> m_chargedPFOContainerWriteHandleKey{this,"PFOChargedOutputName","OverlapRemovedCHSChargedParticleFlowObjects","WriteHandleKey for charged PFO"}; //jetOR
+    SG::WriteHandleKey<xAOD::PFOContainer> m_neutralPFOContainerWriteHandleKey{this,"PFONeutralOutputName","OverlapRemovedCHSNeutralParticleFlowObjects","WriteHandleKey for charged PFO"}; //jetOR
+    SG::WriteHandleKey<xAOD::PFOContainer> m_PFOContainerWriteHandleKey{this,"PFOOutputName","OverlapRemovedCHSParticleFlowObjects","WriteHandleKey for PFO"}; //jetOR
 
 
-    bool m_doTruthLep;
+SG::ReadHandleKey<xAOD::PFOContainer> m_inPFOKey{this, "InPFOKey", "", "ReadHandleKey for modified  PFlow Objects"};
+SG::WriteHandleKey<xAOD::PFOContainer> m_outPFOKey{this, "OutPFOKey", "", "WriteHandleKey for modified PFlow Objects"};
+
+
+
+
+
+    //bool m_doTruthLep;
+    bool m_doRetrieveORconstit;
+    bool m_retainMuonConstit;
+    bool m_doORMet;
+
+
+    double m_electronPT;
+    double m_muonPT;
+    double m_photonPT;
+    double m_tauPT;
+
+    double m_electronETA;
+    double m_muonETA;
+    double m_photonETA;
+    double m_tauETA;
+
+    //bool m_selectElectrons;
+
+    //bool m_usePromptElectrons;
+
+    //bool m_doBadMuon;
+    bool m_useUnmatched;
+    bool m_doJVT;
+
     
     /// Athena configured tools
-    ToolHandle<IMETMaker> m_metmaker;
+    /*ToolHandle<IMETMaker> m_metmaker;
 
     ToolHandle<CP::IMuonSelectionTool> m_muonSelTool;
     ToolHandle<IAsgElectronLikelihoodTool> m_elecSelLHTool;
     ToolHandle<IAsgPhotonIsEMSelector>     m_photonSelIsEMTool;
-    ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;
+    ToolHandle<TauAnalysisTools::ITauSelectionTool> m_tauSelTool;*/
 
   }; 
 
 }
 
 #endif
+
